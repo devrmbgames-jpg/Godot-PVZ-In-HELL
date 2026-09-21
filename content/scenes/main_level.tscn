@@ -18,6 +18,87 @@
 [ext_resource type="PackedScene" uid="uid://c8ucvasbalruj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pillar_A/Pillar_A_static.tscn" id="8_vhk8t"]
 [ext_resource type="PackedScene" uid="uid://fjtvcn3mifma" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam/Primitive_Beam_static.tscn" id="9_ofyry"]
 [ext_resource type="PackedScene" uid="uid://dxkg7ovkuxd0i" path="res://content/entities/e_rigid_body_character.tscn" id="13_da1x8"]
+[ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/entities/props/box.tscn" id="19_jprse"]
+[ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="23_d7jx2"]
+[ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/components/input/c_player_input_controller.gd" id="24_x60uf"]
+[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/components/motion/c_motion.gd" id="25_t1fd8"]
+[ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/components/motion/c_look.gd" id="26_t86in"]
+[ext_resource type="Script" uid="uid://2wyyc10rw1bb" path="res://content/components/motion/c_jump.gd" id="27_bkyhs"]
+[ext_resource type="Script" uid="uid://cg8i3jfsnahs3" path="res://content/components/motion/c_crouch.gd" id="28_23iv7"]
+[ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/components/gameplay/c_controller.gd" id="29_uosx1"]
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/definitions/gameplay/attributes/health.tres" id="30_4agnb"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/components/gameplay/c_health.gd" id="31_8uaqh"]
+[ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="32_mc3p1"]
+[ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="33_k7ct6"]
+[ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/components/motion/c_carry_load.gd" id="34_efpp8"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
+[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="Grab_config"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Grab_interactable"]
+[ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
+[ext_resource type="Script" uid="uid://ccooufygakw6e" path="res://content/systems/interaction/s_grab.gd" id="Grab_system"]
+[ext_resource type="Script" uid="uid://6wrg3mgcm4e6" path="res://content/systems/interaction/s_interaction_targeting.gd" id="Grab_targeting"]
+
+[sub_resource type="Resource" id="Resource_bghjr"]
+script = ExtResource("23_d7jx2")
+metadata/_custom_type_script = "uid://dwgcmbar0qthw"
+
+[sub_resource type="Resource" id="Resource_lqn1g"]
+script = ExtResource("24_x60uf")
+metadata/_custom_type_script = "uid://iq4pnvam7fq5"
+
+[sub_resource type="Resource" id="Resource_mn5t4"]
+script = ExtResource("25_t1fd8")
+metadata/_custom_type_script = "uid://cdblg8bcbkrs8"
+
+[sub_resource type="Resource" id="Resource_lf6x7"]
+script = ExtResource("26_t86in")
+look_acceleration = 9999.0
+motion_alignment_acceleration = 260.0
+metadata/_custom_type_script = "uid://cfqxt4h2ae432"
+
+[sub_resource type="Resource" id="Resource_o5mei"]
+script = ExtResource("27_bkyhs")
+metadata/_custom_type_script = "uid://2wyyc10rw1bb"
+
+[sub_resource type="Resource" id="Resource_rthl4"]
+script = ExtResource("28_23iv7")
+camera_height_standing = 0.0
+camera_height_crouching = -0.5
+metadata/_custom_type_script = "uid://cg8i3jfsnahs3"
+
+[sub_resource type="Resource" id="Resource_wo3yc"]
+script = ExtResource("29_uosx1")
+metadata/_custom_type_script = "uid://c772oxgdtatqf"
+
+[sub_resource type="Resource" id="Resource_2vn7f"]
+script = ExtResource("31_8uaqh")
+definition = ExtResource("30_4agnb")
+metadata/_custom_type_script = "uid://ckrs5mll5pka1"
+
+[sub_resource type="Resource" id="Grab_interactor"]
+script = ExtResource("32_mc3p1")
+collision_mask = 31
+
+[sub_resource type="Resource" id="Grab_grab_control"]
+script = ExtResource("33_k7ct6")
+
+[sub_resource type="Resource" id="Grab_carry_load"]
+script = ExtResource("34_efpp8")
+
+[sub_resource type="Resource" id="Grab_interactable"]
+script = ExtResource("Grab_interactable")
+
+[sub_resource type="Resource" id="Grab_medium"]
+script = ExtResource("Grab_config")
+throw_velocity = 6.0
+movement_speed_multiplier = 0.75
+movement_acceleration_multiplier = 0.75
+
+[sub_resource type="Resource" id="Grab_heavy"]
+script = ExtResource("Grab_config")
+throw_velocity = 3.0
+movement_speed_multiplier = 0.45
+movement_acceleration_multiplier = 0.45
 
 [node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world")]
 script = ExtResource("1_ixiin")
@@ -42,13 +123,11 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 [node name="S_Motion" type="Node" parent="World/Systems/Physics" unique_id=1377338896]
 script = ExtResource("4_jmtkn")
 group = &"Physics"
-process_empty = true
 metadata/_custom_type_script = "uid://b7fouhp44tts1"
 
 [node name="S_Look" type="Node" parent="World/Systems/Physics" unique_id=1945368884]
 script = ExtResource("5_jprse")
 group = &"Physics"
-process_empty = true
 metadata/_custom_type_script = "uid://bfdt1nh574v2r"
 
 [node name="S_Jump" type="Node" parent="World/Systems/Physics" unique_id=831820991]
@@ -70,7 +149,20 @@ script = ExtResource("8_qm6qd")
 group = &"Input"
 metadata/_custom_type_script = "uid://c1o1ef2y40vmv"
 
-[node name="Observers" type="Node" parent="World" unique_id=1982797374]
+[node name="Interaction" type="Node" parent="World/Systems" unique_id=1721666486]
+script = ExtResource("3_ahxau")
+metadata/_custom_type_script = "uid://b3vi2ingux88g"
+
+[node name="S_InteractionTargeting" type="Node" parent="World/Systems/Interaction" unique_id=350725269]
+script = ExtResource("Grab_targeting")
+group = "Interaction"
+
+[node name="S_Grab" type="Node" parent="World/Systems/Interaction" unique_id=767923781]
+script = ExtResource("Grab_system")
+group = "Interaction"
+
+[node name="O_GrabLifecycle" type="Node" parent="World/Systems/Interaction" unique_id=1786878994]
+script = ExtResource("Grab_lifecycle")
 
 [node name="PVZ" type="Node3D" parent="." unique_id=627123053]
 
@@ -386,16 +478,38 @@ omni_range = 7.915
 
 [node name="Entityes" type="Node3D" parent="." unique_id=118950221]
 
-[node name="E_RigidBodyCharacter" parent="Entityes" unique_id=1703744943 node_paths=PackedStringArray("camera_root") instance=ExtResource("13_da1x8")]
+[node name="Player" parent="Entityes" unique_id=1703744943 node_paths=PackedStringArray("camera_root") instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
-camera_root = NodePath("")
+collision_layer = 16
+collision_mask = 15
+camera_root = NodePath("HeadY/HeadX/RootCamera/Camera3D")
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load")])
 
-[node name="HeadX" parent="Entityes/E_RigidBodyCharacter/HeadY" parent_id_path=PackedInt32Array(1703744943, 45462056) index="0" unique_id=2113340697]
+[node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1703744943, 217031396, 2065414162) index="0" unique_id=1494109615]
+cast_shadow = 3
+
+[node name="HeadX" parent="Entityes/Player/HeadY" parent_id_path=PackedInt32Array(1703744943, 45462056) index="0" unique_id=2113340697]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.11703396, 0)
 
-[node name="Camera3D" type="Camera3D" parent="Entityes/E_RigidBodyCharacter/HeadY/HeadX/TargetLook" parent_id_path=PackedInt32Array(1703744943, 1662571166) index="0" unique_id=387684179]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.23246765, 0.48593688)
+[node name="RootCamera" type="Node3D" parent="Entityes/Player/HeadY/HeadX" index="0" unique_id=1842987961]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Entityes/Player/HeadY/HeadX/RootCamera" unique_id=387684179]
+transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0, 0)
 current = true
 
-[editable path="Entityes/E_RigidBodyCharacter"]
-[editable path="Entityes/E_RigidBodyCharacter/AnimationLibrary_Godot_Standard"]
+[node name="Box" parent="Entityes" unique_id=173843081 instance=ExtResource("19_jprse")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1059058, 0.8791586, -6.0707035)
+
+[node name="Box2" parent="Entityes" unique_id=1204978499 instance=ExtResource("19_jprse")]
+transform = Transform3D(0.89949787, 0, -0.4369252, 0, 1, 0, 0.4369252, 0, 0.89949787, 3.045744, 0.8791586, -6.0707035)
+mass = 30.0
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Grab_interactable"), SubResource("Grab_medium")])
+
+[node name="Box3" parent="Entityes" unique_id=774843550 instance=ExtResource("19_jprse")]
+transform = Transform3D(0.9643942, 0, 0.26446918, 0, 1, 0, -0.26446918, 0, 0.9643942, 2.585615, 1.4837333, -6.1684566)
+mass = 80.0
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Grab_interactable"), SubResource("Grab_heavy")])
+
+[editable path="Entityes/Player"]
+[editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]

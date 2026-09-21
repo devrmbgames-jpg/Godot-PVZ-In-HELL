@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://bhaj6sv41s03x"]
+
+[ext_resource type="ArrayMesh" uid="uid://n56j5m3pmh5p" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Box_C_mesh/Box_C_Box_C.res" id="1_k87sv"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
+[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="Grab_config"]
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/entities/props/e_grabbable.gd" id="Grab_entity"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Grab_interactable"]
+
+[sub_resource type="Resource" id="Grab_interactable"]
+script = ExtResource("Grab_interactable")
+
+[sub_resource type="Resource" id="Grab_config"]
+script = ExtResource("Grab_config")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
+size = Vector3(0.81048584, 0.4020996, 0.5946045)
+
+[node name="Box" type="RigidBody3D" unique_id=173843081]
+collision_layer = 10
+collision_mask = 29
+mass = 5.0
+continuous_cd = true
+script = ExtResource("Grab_entity")
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Grab_interactable"), SubResource("Grab_config")])
+metadata/asset_placer_res_id = "uid://fyo1rkaatagb"
+
+[node name="Box_C" type="MeshInstance3D" parent="." unique_id=165842214]
+mesh = ExtResource("1_k87sv")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1662332440]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0018615723, 0.20349121, -0.003112793)
+shape = SubResource("BoxShape3D_bghjr")

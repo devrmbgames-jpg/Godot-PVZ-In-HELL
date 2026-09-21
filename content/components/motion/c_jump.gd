@@ -1,6 +1,11 @@
 extends Component
 class_name C_Jump
 
-@export var jump_force := 8.0
+## Upward impulse in N*s, applied once per accepted jump.
+@export var jump_force: float = 8.0
 
-@export var active := false
+## True during the physics tick in which a jump is accepted.
+@export var active: bool = false
+
+## Input history: holding the button must not cause repeated jumps.
+var was_pressed: bool = false

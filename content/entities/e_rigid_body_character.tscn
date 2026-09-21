@@ -12,6 +12,9 @@
 [ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/definitions/gameplay/attributes/health.tres" id="10_5dcb1"]
 [ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/components/gameplay/c_health.gd" id="11_fy2jt"]
 [ext_resource type="PackedScene" uid="uid://c57tjcgwtk4qh" path="res://resources/Animation Library[Standard]/AnimationLibrary_Godot_Standard.glb" id="12_lm6lx"]
+[ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/components/motion/c_carry_load.gd" id="Grab_carry_load"]
+[ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="Grab_grab_control"]
+[ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="Grab_interactor"]
 
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("3_lm6lx")
@@ -46,12 +49,22 @@ script = ExtResource("11_fy2jt")
 definition = ExtResource("10_5dcb1")
 metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 
+[sub_resource type="Resource" id="Grab_interactor"]
+script = ExtResource("Grab_interactor")
+collision_mask = 31
+
+[sub_resource type="Resource" id="Grab_grab_control"]
+script = ExtResource("Grab_grab_control")
+
+[sub_resource type="Resource" id="Grab_carry_load"]
+script = ExtResource("Grab_carry_load")
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bghjr"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uo1oq"]
 height = 1.015625
 
-[node name="E_RigidBodyCharacter" type="RigidBody3D" unique_id=1703744943 node_paths=PackedStringArray("shape_standing", "shape_crouching", "head_axis_y", "head_axis_x")]
+[node name="E_RigidBodyCharacter" type="RigidBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "shape_standing", "shape_crouching", "head_axis_y", "head_axis_x")]
 collision_layer = 4
 collision_mask = 13
 axis_lock_angular_x = true
@@ -61,24 +74,26 @@ can_sleep = false
 contact_monitor = true
 max_contacts_reported = 8
 script = ExtResource("1_hqtr2")
-shape_standing = NodePath("CollisionShape3D")
-shape_crouching = NodePath("CollisionShape3D2")
+interaction_ray_cast = NodePath("HeadY/HeadX/InteractionRay")
+hold_anchor = NodePath("HeadY/HeadX/Holder")
+shape_standing = NodePath("ColNormal")
+shape_crouching = NodePath("ColCrouch")
 head_axis_y = NodePath("HeadY")
 head_axis_x = NodePath("HeadY/HeadX")
-component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f")])
+component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load")])
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1584379138]
+[node name="ColNormal" type="CollisionShape3D" parent="." unique_id=1584379138]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_bghjr")
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="." unique_id=1145188552]
+[node name="ColCrouch" type="CollisionShape3D" parent="." unique_id=1145188552]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5078125, 0)
 shape = SubResource("CapsuleShape3D_uo1oq")
 
 [node name="AnimationLibrary_Godot_Standard" parent="." unique_id=217031396 instance=ExtResource("12_lm6lx")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
 
-[node name="Skeleton3D" parent="AnimationLibrary_Godot_Standard/Rig" parent_id_path=PackedInt32Array(217031396, 137046953) index="0" unique_id=1922016795]
+[node name="Skeleton3D" parent="AnimationLibrary_Godot_Standard/Rig" parent_id_path=PackedInt32Array(217031396, 668164607) index="0" unique_id=2065414162]
 bones/1/position = Vector3(0, 0.050100047, 0.9167)
 bones/1/rotation = Quaternion(0.7904686, 0, 0, 0.6125026)
 bones/3/rotation = Quaternion(-0.077279985, 0, 0, 0.99700946)
@@ -137,16 +152,23 @@ target_node = NodePath("../../../../HeadY/HeadX/TargetLook")
 bone_name = "DEF-head"
 bone = 6
 
-[node name="AnimationPlayer" parent="AnimationLibrary_Godot_Standard" index="1" unique_id=614553024]
+[node name="AnimationPlayer" parent="AnimationLibrary_Godot_Standard" index="1" unique_id=1771309942]
 autoplay = &"Idle"
 
 [node name="HeadY" type="Marker3D" parent="." unique_id=45462056]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4776043, 0.044673994)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)
 
 [node name="HeadX" type="Marker3D" parent="HeadY" unique_id=2113340697]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11703396, 0)
 
 [node name="TargetLook" type="Marker3D" parent="HeadY/HeadX" unique_id=1662571166]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.22183037, -0.72694004)
+
+[node name="InteractionRay" type="RayCast3D" parent="HeadY/HeadX" unique_id=997764356]
+target_position = Vector3(0, 0, -3)
+collision_mask = 15
+enabled = true
+
+[node name="Holder" type="Marker3D" parent="HeadY/HeadX" unique_id=742222022]
 
 [editable path="AnimationLibrary_Godot_Standard"]

@@ -7,7 +7,7 @@ Template:
 ```md
 # <task>
 
-Status: active | blocked | done
+Status: active | blocked
 Branch: <branch>
 Base: <base>
 
@@ -35,4 +35,5 @@ Rules:
 - Update after meaningful milestones.
 - Link exact paths/symbols instead of pasting source code.
 - Keep facts a fresh agent needs; omit narration and discarded exploration.
-- Mark done instead of growing the file forever.
+- Keep only unfinished tasks here. After completion and validation, move lasting facts into the relevant context/docs, append one short dated line to root `task_history.md`, delete the task file and update its references.
+- Preserve active/blocked tasks and this README. Do not archive completed task files here.

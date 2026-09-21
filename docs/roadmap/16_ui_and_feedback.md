@@ -1,0 +1,73 @@
+# ТЗ 16 — HUD и игровая обратная связь
+
+## Цель
+
+Сделать системные состояния читаемыми, не превращая gameplay в управление через меню.
+
+## HUD
+
+Минимально:
+
+- Health;
+- Hunger;
+- Crosshair;
+- Interaction Prompt;
+- Money — допустимо показывать постоянно или только в релевантных UI.
+
+## Interaction Prompt
+
+Возле Crosshair показываются только доступные действия.
+
+Примеры:
+
+```text
+[E] Взять
+[E] Отпустить
+[LMB] Бросить
+[RMB + Mouse] Вращать
+[F] Использовать
+```
+
+## Package Feedback
+
+Игрок визуально должен различать:
+
+- Fragile;
+- Heavy;
+- Liquid;
+- Damaged;
+- Opened.
+
+Основные PackageTags должны читаться на самой коробке: stickers/icons/marking, а не только через HUD.
+
+## Scanner Feedback
+
+Successful Scan:
+
+- beep;
+- визуальное подтверждение;
+- запись на Terminal.
+
+## Challenge Feedback
+
+Правила опасного Customer должны быть понятны через Dialogue и world feedback.
+
+Примеры:
+
+- Customer явно требует Light Off;
+- Don't Look усиливает distortion;
+- Keep Looking реагирует на потерю взгляда;
+- timed action получает минимально достаточный countdown/feedback.
+
+## Damage Feedback
+
+Различать по ощущению:
+
+- Player Damage;
+- Package Damage;
+- Toxic Hazard;
+- Explosion.
+
+## Критерий готовности
+
+Без debug UI Player понимает, с чем взаимодействует, какие действия доступны, состояние Health/Hunger и основные последствия.

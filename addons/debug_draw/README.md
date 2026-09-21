@@ -32,10 +32,10 @@ Submit draw calls every frame while the geometry should remain visible:
 func _process(_delta: float) -> void:
   debug_draw.draw_axes(Vector3.ZERO, Quaternion.IDENTITY, 1.0, 2.0)
   debug_draw.draw_line(
-    Vector3.ZERO,
-    Vector3(1.0, 0.5, 0.0),
-    Color(1.0, 0.85, 0.1),
-    3.0,
+	Vector3.ZERO,
+	Vector3(1.0, 0.5, 0.0),
+	Color(1.0, 0.85, 0.1),
+	3.0,
   )
 ```
 

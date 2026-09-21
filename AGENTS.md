@@ -53,6 +53,14 @@ Detailed rules: `.agents/skills/gdscript-style/SKILL.md`.
 
 For a sizable task, create/update `WORK.md` before editing. For long or interruptible work, keep `CURRENT_WORK.md` current after each meaningful milestone.
 
+Keep only unfinished task files in `agent_tasks/`. After a task is completed and validated:
+- preserve lasting architecture, contracts and usage instructions in the relevant context/docs;
+- append one short line to root `task_history.md`: `- YYYY-MM-DD — completed result` (no logs, checklists or duplicate entries);
+- delete the completed task file from `agent_tasks/` and update references to it;
+- return `WORK.md` and `CURRENT_WORK.md` to idle when no active task remains.
+
+Do not delete active/blocked tasks or `agent_tasks/README.md`. Routine cleanup of completed task files is authorized; no additional confirmation is needed.
+
 Make small thematic changes. Validate the narrowest affected surface first.
 
 Before finishing:

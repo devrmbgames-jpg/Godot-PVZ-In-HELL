@@ -1,7 +1,6 @@
 extends System
 class_name S_Motion
 
-
 const INPUT_EPSILON: float = 0.0001
 const DEFAULT_FRICTION: float = 1.0
 
@@ -14,180 +13,124 @@ const DEFAULT_FRICTION: float = 1.0
 ##
 ## S_Motion не обязан быть зарегистрирован в ECS World,
 ## если используется только как physics solver.
-static func integrate_forces(
-	entity: Entity,
-	state: PhysicsDirectBodyState3D
-) -> void:
+static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 	var body := entity as Node as RigidBody3D
-	
+
 	if body == null:
 		return
-	
-	var controller := entity.get_component(
-		C_Controller
-	) as C_Controller
-	
-	var motion := entity.get_component(
-		C_Motion
-	) as C_Motion
-	
+
+	var controller := entity.get_component(C_Controller) as C_Controller
+
+	var motion := entity.get_component(C_Motion) as C_Motion
+
 	if motion == null:
 		return
-	
-	_apply_pending_impulse(
-		state,
-		motion
-	)
-	
-	var floor_contact_index := _find_floor_contact(
-		state,
-		motion
-	)
-	
-	_update_floor_state(
-		body,
-		state,
-		motion,
-		floor_contact_index
-	)
-	
+
+	_apply_pending_impulse(state, motion)
+
+	var floor_contact_index := _find_floor_contact(state, motion)
+
+	_update_floor_state(body, state, motion, floor_contact_index)
+
 	if controller == null:
 		return
-	
+
 	if not motion.control_enabled:
 		return
-	
+
 	_integrate_regular_motion(
 		state,
 		controller,
-		motion
+		motion,
+		entity.get_component(C_CarryLoad) as C_CarryLoad,
 	)
-
 
 # =========================================================================
 # Locomotion
 # =========================================================================
 
+
 static func _integrate_regular_motion(
 	state: PhysicsDirectBodyState3D,
 	controller: C_Controller,
-	motion: C_Motion
+	motion: C_Motion,
+	carry_load: C_CarryLoad,
 ) -> void:
 	var input_motion := controller.direction_motion
-	
+
 	# Обычный locomotion управляет только движением
 	# относительно поверхности.
 	#
 	# Прыжки / падение / bounce не должны уничтожаться.
 	input_motion.y = 0.0
-	
-	var input_strength := clampf(
-		input_motion.length(),
-		0.0,
-		1.0
-	)
-	
+
+	var input_strength := clampf(input_motion.length(), 0.0, 1.0)
+
 	if input_strength <= INPUT_EPSILON:
 		if motion.is_on_floor:
-			_apply_ground_deceleration(
-				state,
-				motion
-			)
+			_apply_ground_deceleration(state, motion)
 		return
-	
+
 	var input_direction := input_motion.normalized()
-	
+
 	if motion.is_on_floor:
-		_integrate_ground_motion(
-			state,
-			motion,
-			input_direction,
-			input_strength
-		)
+		_integrate_ground_motion(state, motion, input_direction, input_strength, carry_load)
 	else:
-		_integrate_air_motion(
-			state,
-			motion,
-			input_direction,
-			input_strength
-		)
+		_integrate_air_motion(state, motion, input_direction, input_strength, carry_load)
 
 
 static func _integrate_ground_motion(
 	state: PhysicsDirectBodyState3D,
 	motion: C_Motion,
 	input_direction: Vector3,
-	input_strength: float
+	input_strength: float,
+	carry_load: C_CarryLoad,
 ) -> void:
-	var wish_direction := input_direction.slide(
-		motion.floor_normal
-	)
-	
+	var wish_direction := input_direction.slide(motion.floor_normal)
+
 	if wish_direction.length_squared() <= INPUT_EPSILON:
 		return
-	
+
 	wish_direction = wish_direction.normalized()
-	
+
 	# Убираем боковой занос.
-	_apply_ground_lateral_friction(
-		state,
-		motion,
-		wish_direction
-	)
-	
-	var acceleration := motion.ground_acceleration
-	
+	_apply_ground_lateral_friction(state, motion, wish_direction)
+
+	var acceleration: float = effective_acceleration(motion.ground_acceleration, carry_load)
+
 	if motion.surface_friction_affects_control:
-		var traction := clampf(
-			motion.floor_friction,
-			motion.minimum_ground_traction,
-			1.0
-		)
-		
+		var traction := clampf(motion.floor_friction, motion.minimum_ground_traction, 1.0)
+
 		acceleration *= traction
-	
-	var relative_velocity := (
-		state.linear_velocity
-		- motion.floor_velocity
-	)
-	
-	var wish_speed := (
-		motion.max_speed
-		* input_strength
-	)
-	
-	_accelerate(
-		state,
-		relative_velocity,
-		wish_direction,
-		wish_speed,
-		acceleration
-	)
+
+	var relative_velocity := (state.linear_velocity - motion.floor_velocity)
+
+	var wish_speed := (effective_speed(motion, carry_load) * input_strength)
+
+	_accelerate(state, relative_velocity, wish_direction, wish_speed, acceleration)
 
 
 static func _integrate_air_motion(
 	state: PhysicsDirectBodyState3D,
 	motion: C_Motion,
 	input_direction: Vector3,
-	input_strength: float
+	input_strength: float,
+	carry_load: C_CarryLoad,
 ) -> void:
-	var wish_speed := (
-		motion.max_speed
-		* input_strength
-	)
-	
+	var wish_speed := (effective_speed(motion, carry_load) * input_strength)
+
 	_accelerate(
 		state,
 		state.linear_velocity,
 		input_direction,
 		wish_speed,
-		motion.air_acceleration
+		effective_acceleration(motion.air_acceleration, carry_load),
 	)
-
 
 # =========================================================================
 # Acceleration
 # =========================================================================
+
 
 ## Добавляет скорость только вдоль направления управления.
 ##
@@ -199,20 +142,15 @@ static func _accelerate(
 	current_velocity: Vector3,
 	wish_direction: Vector3,
 	wish_speed: float,
-	acceleration: float
+	acceleration: float,
 ) -> void:
 	if acceleration <= 0.0:
 		return
-	
-	var current_speed := current_velocity.dot(
-		wish_direction
-	)
-	
-	var speed_to_add := (
-		wish_speed
-		- current_speed
-	)
-	
+
+	var current_speed := current_velocity.dot(wish_direction)
+
+	var speed_to_add := (wish_speed - current_speed)
+
 	# Уже движемся в этом направлении достаточно быстро.
 	#
 	# Не тормозим:
@@ -220,129 +158,87 @@ static func _accelerate(
 	# падения, другого RigidBody и т.д.
 	if speed_to_add <= 0.0:
 		return
-	
-	var velocity_change := minf(
-		speed_to_add,
-		acceleration * state.step
-	)
-	
-	state.linear_velocity += (
-		wish_direction
-		* velocity_change
-	)
+
+	var velocity_change := minf(speed_to_add, acceleration * state.step)
+
+	state.linear_velocity += (wish_direction * velocity_change)
 
 
-static func _apply_ground_deceleration(
-	state: PhysicsDirectBodyState3D,
-	motion: C_Motion
-) -> void:
+static func _apply_ground_deceleration(state: PhysicsDirectBodyState3D, motion: C_Motion) -> void:
 	if not motion.is_on_floor:
 		return
-	
-	var relative_velocity := (
-		state.linear_velocity
-		- motion.floor_velocity
-	)
-	
+
+	var relative_velocity := (state.linear_velocity - motion.floor_velocity)
+
 	# Скорость вдоль поверхности.
-	var planar_velocity := relative_velocity.slide(
-		motion.floor_normal
-	)
-	
+	var planar_velocity := relative_velocity.slide(motion.floor_normal)
+
 	if planar_velocity.is_zero_approx():
 		return
-	
+
 	var new_planar_velocity := planar_velocity.move_toward(
 		Vector3.ZERO,
-		motion.ground_deceleration * state.step
+		motion.ground_deceleration * state.step,
 	)
-	
-	var velocity_change := (
-		new_planar_velocity
-		- planar_velocity
-	)
-	
+
+	var velocity_change := (new_planar_velocity - planar_velocity)
+
 	state.linear_velocity += velocity_change
 
 
 static func _apply_ground_lateral_friction(
 	state: PhysicsDirectBodyState3D,
 	motion: C_Motion,
-	wish_direction: Vector3
+	wish_direction: Vector3,
 ) -> void:
-	var relative_velocity := (
-		state.linear_velocity
-		- motion.floor_velocity
-	)
-	
-	var planar_velocity := relative_velocity.slide(
-		motion.floor_normal
-	)
-	
+	var relative_velocity := (state.linear_velocity - motion.floor_velocity)
+
+	var planar_velocity := relative_velocity.slide(motion.floor_normal)
+
 	# Та часть скорости, которая совпадает
 	# с желаемым направлением.
-	var forward_velocity := (
-		wish_direction
-		* planar_velocity.dot(wish_direction)
-	)
-	
+	var forward_velocity := (wish_direction * planar_velocity.dot(wish_direction))
+
 	# Всё остальное — боковое скольжение.
-	var lateral_velocity := (
-		planar_velocity
-		- forward_velocity
-	)
-	
+	var lateral_velocity := (planar_velocity - forward_velocity)
+
 	if lateral_velocity.is_zero_approx():
 		return
-	
+
 	var new_lateral_velocity := lateral_velocity.move_toward(
 		Vector3.ZERO,
-		motion.ground_lateral_friction * state.step
-	)
-	
-	state.linear_velocity += (
-		new_lateral_velocity
-		- lateral_velocity
+		motion.ground_lateral_friction * state.step,
 	)
 
+	state.linear_velocity += (new_lateral_velocity - lateral_velocity)
 
 # =========================================================================
 # Floor detection
 # =========================================================================
 
-static func _find_floor_contact(
-	state: PhysicsDirectBodyState3D,
-	motion: C_Motion
-) -> int:
-	var minimum_floor_dot := cos(
-		deg_to_rad(
-			motion.floor_max_angle_degrees
-		)
-	)
-	
+
+static func _find_floor_contact(state: PhysicsDirectBodyState3D, motion: C_Motion) -> int:
+	var minimum_floor_dot := cos(deg_to_rad(motion.floor_max_angle_degrees))
+
 	var best_contact_index: int = -1
 	var best_floor_dot: float = minimum_floor_dot
-	
+
 	for contact_index in state.get_contact_count():
-		var normal := state.get_contact_local_normal(
-			contact_index
-		)
-		
+		var normal := state.get_contact_local_normal(contact_index)
+
 		if normal.length_squared() <= INPUT_EPSILON:
 			continue
-		
+
 		normal = normal.normalized()
-		
-		var floor_dot := normal.dot(
-			Vector3.UP
-		)
-		
+
+		var floor_dot := normal.dot(Vector3.UP)
+
 		if floor_dot < best_floor_dot:
 			continue
-		
+
 		best_floor_dot = floor_dot
 		best_contact_index = contact_index
-	
+
 	return best_contact_index
 
 
@@ -350,119 +246,99 @@ static func _update_floor_state(
 	body: RigidBody3D,
 	state: PhysicsDirectBodyState3D,
 	motion: C_Motion,
-	floor_contact_index: int
+	floor_contact_index: int,
 ) -> void:
 	if floor_contact_index < 0:
 		motion.is_on_floor = false
 		motion.floor_normal = Vector3.UP
 		motion.floor_velocity = Vector3.ZERO
 		motion.floor_friction = DEFAULT_FRICTION
-		
+
 		return
-	
+
 	motion.is_on_floor = true
-	
-	motion.floor_normal = (
-		state
-		.get_contact_local_normal(floor_contact_index)
-		.normalized()
-	)
-	
-	motion.floor_velocity = (
-		state.get_contact_collider_velocity_at_position(
-			floor_contact_index
-		)
-	)
-	
-	var collider := state.get_contact_collider_object(
-		floor_contact_index
-	)
-	
-	motion.floor_friction = _get_combined_friction(
-		body,
-		collider
-	)
-	
+
+	motion.floor_normal = (state.get_contact_local_normal(floor_contact_index).normalized())
+
+	motion.floor_velocity = (state.get_contact_collider_velocity_at_position(floor_contact_index))
+
+	var collider := state.get_contact_collider_object(floor_contact_index)
+
+	motion.floor_friction = _get_combined_friction(body, collider)
+
 # =========================================================================
 # Physics Material
 # =========================================================================
 
-static func _get_combined_friction(
-	body: RigidBody3D,
-	collider: Object
-) -> float:
+
+static func _get_combined_friction(body: RigidBody3D, collider: Object) -> float:
 	var body_material := body.physics_material_override
-	
-	var surface_material := _get_physics_material(
-		collider
-	)
-	
+
+	var surface_material := _get_physics_material(collider)
+
 	var friction_a := DEFAULT_FRICTION
 	var friction_b := DEFAULT_FRICTION
-	
+
 	var rough_a := false
 	var rough_b := false
-	
+
 	if body_material != null:
 		friction_a = body_material.friction
 		rough_a = body_material.rough
-	
+
 	if surface_material != null:
 		friction_b = surface_material.friction
 		rough_b = surface_material.rough
-	
+
 	if rough_a and rough_b:
-		return maxf(
-			friction_a,
-			friction_b
-		)
-	
+		return maxf(friction_a, friction_b)
+
 	if rough_a:
 		return friction_a
-	
+
 	if rough_b:
 		return friction_b
-	
-	return minf(
-		friction_a,
-		friction_b
-	)
+
+	return minf(friction_a, friction_b)
 
 
-
-static func _get_physics_material(
-	collider: Object
-) -> PhysicsMaterial:
+static func _get_physics_material(collider: Object) -> PhysicsMaterial:
 	if collider == null:
 		return null
-	
+
 	# Так мы не привязываем locomotion к конкретному
 	# StaticBody3D/RigidBody3D.
 	#
 	# Любое тело с physics_material_override будет работать.
-	var value := collider.get(
-		&"physics_material_override"
-	) as PhysicsMaterial
-	
-	if value :
-		return value
-	
-	return null
+	var value := collider.get(&"physics_material_override") as PhysicsMaterial
 
+	if value:
+		return value
+
+	return null
 
 # =========================================================================
 # Gameplay impulses
 # =========================================================================
 
-static func _apply_pending_impulse(
-	state: PhysicsDirectBodyState3D,
-	motion: C_Motion
-) -> void:
+
+static func _apply_pending_impulse(state: PhysicsDirectBodyState3D, motion: C_Motion) -> void:
 	if motion.pending_impulse.is_zero_approx():
 		return
-	
-	state.apply_central_impulse(
-		motion.pending_impulse
-	)
-	
+
+	state.apply_central_impulse(motion.pending_impulse)
+
 	motion.pending_impulse = Vector3.ZERO
+
+
+## Carry modifiers never overwrite base tuning or external physical momentum.
+static func effective_speed(motion: C_Motion, carry_load: C_CarryLoad) -> float:
+	return motion.max_speed * (
+		carry_load.speed_multiplier if carry_load != null and carry_load.active else 1.0
+	)
+
+
+static func effective_acceleration(base_acceleration: float, carry_load: C_CarryLoad) -> float:
+	return base_acceleration * (
+		carry_load.acceleration_multiplier if carry_load != null and carry_load.active else 1.0
+	)
