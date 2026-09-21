@@ -46,21 +46,9 @@ static func handle_input(holder: Entity) -> void:
 	if not holder_available(holder):
 		if held != null:
 			release(holder, held)
+		interactor.prompt_text = ""
 		return
-	if controller.interact_pressed:
-		if held != null:
-			release(holder, held)
-		else:
-			try_pickup(holder, interactor.target)
-		held = held_object(holder)
-	elif controller.action_main_pressed and held != null:
-		throw(holder, held)
-		held = null
-	control.rotation_active = held != null and controller.action_second_held
-	if control.rotation_active:
-		var grip: Relationship = held_relationship(held)
-		var grip_data: C_HeldBy = grip.relation as C_HeldBy
-		grip_data.rotation_offset = rotated_offset(grip_data.rotation_offset, controller.look_delta)
+	InteractionActions.handle_input(holder)
 
 
 static func try_pickup(holder: Entity, target: Entity) -> bool:

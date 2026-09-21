@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://content/entities/props/box.tscn" id="1_box"]
+[ext_resource type="Script" path="res://content/entities/props/e_package.gd" id="2_package"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/def_package.gd" id="3_definition"]
+
+[sub_resource type="Resource" id="Definition"]
+script = ExtResource("3_definition")
+key = &"default_package"
+description = "Parcel"
+
+[node name="Package" instance=ExtResource("1_box")]
+script = ExtResource("2_package")
+package_definition = SubResource("Definition")

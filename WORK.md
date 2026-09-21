@@ -1,14 +1,11 @@
-# Work Tracker
+﻿# Work Tracker
 
-Use this as the durable checklist for the current implementation task.
+## Active: prototype roadmap
+- [x] R01 package foundation.
+- [x] R02 typed contextual actions, tool reservations, F/Alt and HUD.
+- [x] R03 four-phase day cycle, shift/sleep stations and Night hook.
+- [ ] R04 damage/health/defeat pipeline.
+- [ ] R05–R23 in dependency order.
 
-## Active
-
-- [ ] No active implementation task.
-
-## Rules
-
-- Break large work into independently verifiable steps.
-- Mark an item complete immediately after validation.
-- If a task spans many files/sessions, create `agent_tasks/<task-name>.md`.
-- Do not duplicate full diffs, terminal logs, or conversation history.
+Validation R02/R03: formatter/structure/lint, 31 existing grab regressions (134 assertions), two standalone smoke scenes. No visual playtest performed.
+No new GUT tests without explicit user instruction. All authored test files/artifacts belong under res://tests/; never manually write into .godot/.

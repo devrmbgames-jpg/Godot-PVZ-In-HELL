@@ -5,6 +5,7 @@ extends Node3D
 
 func _ready() -> void:
 	ECS.world = world
+	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 

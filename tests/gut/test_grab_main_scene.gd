@@ -13,7 +13,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var light_box: Entity = level.get_node("Entityes/Box") as Entity
 	var medium_box: Entity = level.get_node("Entityes/Box2") as Entity
 	var heavy_box: Entity = level.get_node("Entityes/Box3") as Entity
-	assert_eq(world.entities.size(), 4)
+	assert_eq(world.entities.size(), 7)
 	assert_eq(ECS.world, world)
 	assert_true(world.entities.has(heavy_box))
 	var light_config: C_Grabbable = light_box.get_component(C_Grabbable) as C_Grabbable

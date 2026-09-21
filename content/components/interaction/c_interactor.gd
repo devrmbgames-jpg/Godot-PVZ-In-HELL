@@ -6,3 +6,6 @@ class_name C_Interactor
 
 ## Selection only; ownership is a C_HeldBy relationship.
 var target: Entity = null
+## Read-only presentation snapshot, written at the gameplay command boundary.
+var prompt_text: String = ""
+var last_action_tick: int = -1

@@ -9,6 +9,8 @@ const GAMEPAD_LOOK_PIXELS_PER_SECOND: float = 900.0
 var look_mouse: Vector2 = Vector2.ZERO
 var _interact_pending: bool = false
 var _throw_pending: bool = false
+var _use_pending: bool = false
+var _secondary_pending: bool = false
 
 
 #region Godot input
@@ -22,6 +24,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_interact_pending = true
 	if event.is_action_pressed(&"action_primary") and not event.is_echo():
 		_throw_pending = true
+	if event.is_action_pressed(&"use") and not event.is_echo():
+		_use_pending = true
+	if event.is_action_pressed(&"action_secondary") and not event.is_echo():
+		_secondary_pending = true
 #endregion
 
 
@@ -43,6 +49,10 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	for entity_index: int in entities.size():
 		var entity: Entity = entities[entity_index]
 		var controller: C_Controller = controllers[entity_index]
+		controller.input_tick += 1
+		controller.use_pressed = captured and _use_pending
+		controller.action_second_pressed = captured and _secondary_pending
+		controller.physical_override = captured and Input.is_action_pressed(&"physical_override")
 		controller.interact_pressed = captured and _interact_pending
 		controller.action_main_pressed = captured and _throw_pending
 		controller.action_main = captured and Input.is_action_pressed(&"action_primary")
@@ -55,13 +65,15 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			if captured
 			else Vector2.ZERO
 		)
-		var rotating: bool = controller.action_second_held and S_Grab.held_object(entity) != null
+		var rotating: bool = InteractionActions.wants_rotation(entity, controller)
 		if not rotating:
 			_update_look(controller, entity as Node as Node3D)
 		_update_motion(controller, captured)
 	look_mouse = Vector2.ZERO
 	_interact_pending = false
 	_throw_pending = false
+	_use_pending = false
+	_secondary_pending = false
 #endregion
 
 

@@ -9,7 +9,7 @@ The scene owns World, system groups, environment and an entity root named `Entit
 ## Scheduling and physics
 
 - `scenes/main_level.gd` assigns ECS.world on ready; `_physics_process` invokes Input, Interaction, Physics, then GamePlay. Input edges/deltas belong to one physics tick.
-- Physics scene nodes are S_Motion, S_Look, S_Jump and S_Crouch; Input contains S_PlayerInput. Interaction contains S_InteractionTargeting, S_Grab and O_GrabLifecycle (under Systems so GECS discovers it). GamePlay is empty.
+- Physics scene nodes are S_Motion, S_Look, S_Jump and S_Crouch; Input contains S_PlayerInput. Interaction contains S_InteractionTargeting, S_Grab and O_GrabLifecycle (under Systems so GECS discovers it). GamePlay contains S_DayPhase; DaySession owns the singleton C_DayCycle. ShiftConsole and SleepPoint expose phase actions through F/use.
 - Do not infer solver execution from scene-node order: `entities/e_rigid_body_character.gd` explicitly calls S_Motion, S_Look and S_Crouch from `_integrate_forces`.
 - Physical velocity/transform changes go through the body/PhysicsDirectBodyState3D. The entity exposes standing/crouching shapes, camera root and head axes for the systems.
 
@@ -46,3 +46,27 @@ S_Grab structural input commands use the GECS command buffer. O_GrabLifecycle fo
 S_PlayerInput owns input edges and look_delta. Grab never clears them. During RMB rotation, input does not update direction_look and S_Look does not turn the head/body. Right stick uses axes 2/3; left stick remains movement. C_CarryLoad scales effective speed/acceleration without changing C_Motion base tuning or gravity.
 
 S_InteractionTargeting outlines only the current enabled target and never replaces a pre-existing mesh overlay. GUT grab tests cover lifecycle, input priority, RayCast selection/highlighting, physical positioning/rotation, wall occlusion/blocking and main-scene wiring. See [controls and validation](../docs/physical_grab.md).
+
+## Package foundation (R01)
+
+`entities/props/package.tscn` inherits the physical box and uses `E_Package`; the main scene's three boxes now use this scene without changing masses or grab profiles. `define_components()` adds fresh `C_Package` identity and `C_PackageState` resources during World registration.
+
+`DEF_Package` is immutable shared shipment data: number, description, comment, recipient key and bitmask tags (Normal=1, Fragile=2, Heavy=4, Liquid=8). Heavy+Fragile is valid. Runtime registration, scan, opening and damage enums live only in `C_PackageState`; defaults are Unregistered/NotScanned/Closed/Undamaged.
+
+Authored package IDs are explicit in the main scene. Dynamic instances generate a random 128-bit ID once at registration if none was supplied. Save/spawn code must restore that ID rather than regenerate it; Node paths and instance IDs are not persistent identity. `C_Package.package_id` is the registered identity; the entity export is initialization data. Future Customer work resolves `definition.recipient_id` into an authoritative `AssignedTo` relationship; no placeholder Customer Node is created.
+
+## Contextual actions (R02)
+
+`InteractionAction` resources are stateless availability/execution handlers supplied by `C_InteractionActions`. `InteractionActions` resolves held-tool actions before physical grab actions, then aimed-target actions, then actor fallback (future attack). Within each scope, higher priority wins, then lexical action_id; keep IDs unique per slot. First-hit raycast remains target/LOS authority; commands revalidate LOS. Handlers must validate their own domain preconditions and handle a null target.
+
+Held tools reserve configured slots (Primary=4 for Scanner, Secondary=8 for Marker) even with an unavailable target, preventing accidental throw/rotation. Alt bypasses held-tool actions for physical throw/rotation. E takes precedence over the other buttons on that tick. F/use and secondary edges are sampled by S_PlayerInput; only the producer writes input fields. `input_tick` prevents duplicate routing; zero is reserved for legacy direct/manual calls. Register future attacks as actor actions; never consume raw primary input in a second system.
+
+S_Grab retains lifecycle/physics and invokes the action router through its command buffer. `C_Interactor.prompt_text` is a gameplay-generated snapshot consumed by `ui/interaction_hud.tscn`; the HUD only reads it and hides when the cursor is released. Main mouse buttons are LMB/RMB. `tests/smoke/interaction_actions_smoke.tscn` is a standalone non-GUT validation scene for reservation, deduplication, modifier and priority behavior.
+
+## Day phases (R03)
+
+`DaySession` owns the only `C_DayCycle` (startup asserts uniqueness). `S_DayPhase` alone changes phase/day index; `DayTransitionRequest` captures the expected day and phase so duplicate/stale requests cannot skip phases. `DayPhaseAction` uses the R02 availability/execution contract, so F prompts honor permissions.
+
+Morning and Evening have no timeout. ShiftConsole starts the shift; a second use finishes Day only when remaining_customer_events is zero. The explicit empty-schedule policy is zero events and manual FinishShift; R11 will own the actual remaining-event count. SleepPoint is available only in Evening. Sleep enters Night; a separate gameplay tick advances to Morning and increments day_index once.
+
+S_DayPhase emits night_started, morning_started and phase_changed. R21 can set night_ready=false synchronously on night_started, finish results/orders/save, then set it true to allow the next Morning. No save implementation exists yet. The HUD reads day/phase. Both stations are reachable from the starting area; `tests/smoke/day_cycle_smoke.tscn` drives their real raycast/F actions through a complete cycle and checks event gating, stale requests and the Night hold hook.

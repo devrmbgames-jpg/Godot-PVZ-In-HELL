@@ -3,6 +3,10 @@ class_name C_Controller
 
 ## Semantic input for the current physics tick; only the input producer writes these.
 var interact_pressed: bool = false
+var use_pressed: bool = false
+var action_second_pressed: bool = false
+var physical_override: bool = false
+var input_tick: int = 0
 var action_main_pressed: bool = false
 var action_second_held: bool = false
 var look_delta: Vector2 = Vector2.ZERO

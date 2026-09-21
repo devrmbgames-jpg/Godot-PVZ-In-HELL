@@ -54,3 +54,22 @@ GECS tag-based `git describe` output may refer to an older reachable tag; use th
 See [CONTEXT.md](CONTEXT.md#validation) for supported checks and current gaps. Run `git diff --check` for documentation edits.
 
 Update this map when entry points, subsystem routes, dependency pins or validation commands change. Do not add asset manifests or generated/imported files.
+
+## Package foundation
+
+- Definition: `content/definitions/gameplay/def_package.gd`.
+- Runtime identity/state: `content/components/gameplay/c_package.gd`, `c_package_state.gd`.
+- Physical scene: `content/entities/props/package.tscn`, `e_package.gd`; contracts in `content/CONTEXT.md`.
+
+## Contextual interaction
+
+- Action definition: `content/definitions/interaction/interaction_action.gd`; data: `content/components/interaction/c_interaction_actions.gd`.
+- Resolver/handlers: `content/systems/interaction/interaction_actions.gd`, `grab_action.gd`, `interaction_choice.gd`.
+- Read-only HUD: `content/ui/interaction_hud.tscn`.
+
+## Day cycle
+
+- Singleton state: `content/components/gameplay/c_day_cycle.gd` on main-level DaySession.
+- Transitions: `content/systems/gameplay/s_day_phase.gd`, `day_transition_request.gd`, `day_phase_action.gd`.
+- World controls: `content/entities/day_station.tscn`, `e_day_station.gd` (ShiftConsole and SleepPoint).
+- Standalone checks: `tests/smoke/day_cycle_smoke.tscn`, `tests/smoke/interaction_actions_smoke.tscn`; run with Godot `--headless --path . res://tests/smoke/<scene>.tscn --quit-after 120` and require the PASS marker (assertions alone do not guarantee nonzero exit).

@@ -18,7 +18,7 @@
 [ext_resource type="PackedScene" uid="uid://c8ucvasbalruj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pillar_A/Pillar_A_static.tscn" id="8_vhk8t"]
 [ext_resource type="PackedScene" uid="uid://fjtvcn3mifma" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam/Primitive_Beam_static.tscn" id="9_ofyry"]
 [ext_resource type="PackedScene" uid="uid://dxkg7ovkuxd0i" path="res://content/entities/e_rigid_body_character.tscn" id="13_da1x8"]
-[ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/entities/props/box.tscn" id="19_jprse"]
+[ext_resource type="PackedScene" path="res://content/entities/props/package.tscn" id="19_jprse"]
 [ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="23_d7jx2"]
 [ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/components/input/c_player_input_controller.gd" id="24_x60uf"]
 [ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/components/motion/c_motion.gd" id="25_t1fd8"]
@@ -37,6 +37,44 @@
 [ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
 [ext_resource type="Script" uid="uid://ccooufygakw6e" path="res://content/systems/interaction/s_grab.gd" id="Grab_system"]
 [ext_resource type="Script" uid="uid://6wrg3mgcm4e6" path="res://content/systems/interaction/s_interaction_targeting.gd" id="Grab_targeting"]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/def_package.gd" id="Package_definition"]
+
+[ext_resource type="PackedScene" path="res://content/ui/interaction_hud.tscn" id="Interaction_hud"]
+
+[ext_resource type="Script" path="res://addons/gecs/ecs/entity.gd" id="Day_entity"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_day_phase.gd" id="Day_system"]
+[ext_resource type="PackedScene" path="res://content/entities/day_station.tscn" id="Day_station"]
+
+[sub_resource type="Resource" id="Day_state"]
+script = ExtResource("Day_state")
+
+[sub_resource type="Resource" id="Package_light"]
+script = ExtResource("Package_definition")
+key = &"sample_light"
+shipment_number = "PVZ-001"
+description = "Books"
+recipient_id = &"customer_01"
+tags = 1
+
+[sub_resource type="Resource" id="Package_medium"]
+script = ExtResource("Package_definition")
+key = &"sample_liquid"
+shipment_number = "PVZ-002"
+description = "Bottled supplies"
+comment = "Keep upright"
+recipient_id = &"customer_02"
+tags = 8
+
+[sub_resource type="Resource" id="Package_heavy"]
+script = ExtResource("Package_definition")
+key = &"sample_heavy_fragile"
+shipment_number = "PVZ-003"
+description = "Laboratory equipment"
+comment = "Heavy and fragile"
+recipient_id = &"customer_03"
+tags = 6
 
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
@@ -115,6 +153,10 @@ metadata/_custom_type_script = "uid://cdu5tlyk72uu4"
 [node name="GamePlay" type="Node" parent="World/Systems" unique_id=187611965]
 script = ExtResource("3_ahxau")
 metadata/_custom_type_script = "uid://b3vi2ingux88g"
+
+[node name="S_DayPhase" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Day_system")
+group = &"GamePlay"
 
 [node name="Physics" type="Node" parent="World/Systems" unique_id=52509126]
 script = ExtResource("3_ahxau")
@@ -499,17 +541,40 @@ transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0, 0)
 current = true
 
 [node name="Box" parent="Entityes" unique_id=173843081 instance=ExtResource("19_jprse")]
+package_id = "prototype-package-001"
+package_definition = SubResource("Package_light")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1059058, 0.8791586, -6.0707035)
 
 [node name="Box2" parent="Entityes" unique_id=1204978499 instance=ExtResource("19_jprse")]
+package_id = "prototype-package-002"
+package_definition = SubResource("Package_medium")
 transform = Transform3D(0.89949787, 0, -0.4369252, 0, 1, 0, 0.4369252, 0, 0.89949787, 3.045744, 0.8791586, -6.0707035)
 mass = 30.0
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Grab_interactable"), SubResource("Grab_medium")])
 
 [node name="Box3" parent="Entityes" unique_id=774843550 instance=ExtResource("19_jprse")]
+package_id = "prototype-package-003"
+package_definition = SubResource("Package_heavy")
 transform = Transform3D(0.9643942, 0, 0.26446918, 0, 1, 0, -0.26446918, 0, 0.9643942, 2.585615, 1.4837333, -6.1684566)
 mass = 80.0
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Grab_interactable"), SubResource("Grab_heavy")])
+
+[node name="DaySession" type="Node" parent="Entityes"]
+script = ExtResource("Day_entity")
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state")])
+
+[node name="ShiftConsole" parent="Entityes" instance=ExtResource("Day_station")]
+position = Vector3(0.5, 0, -5)
+
+[node name="SleepPoint" parent="Entityes" instance=ExtResource("Day_station")]
+position = Vector3(3.7, 0, -3.8)
+sleep_station = true
+
+[node name="Sign" parent="Entityes/SleepPoint" index="2"]
+text = "ОТДЫХ\nСон до утра"
+
+[node name="InteractionHud" parent="." node_paths=PackedStringArray("player") instance=ExtResource("Interaction_hud")]
+player = NodePath("../Entityes/Player")
 
 [editable path="Entityes/Player"]
 [editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]

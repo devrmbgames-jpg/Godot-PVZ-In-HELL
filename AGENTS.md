@@ -63,6 +63,9 @@ Do not delete active/blocked tasks or `agent_tasks/README.md`. Routine cleanup o
 
 Make small thematic changes. Validate the narrowest affected surface first.
 
+Do not manually write files into `.godot/`; it is engine-managed technical storage. Place all test scripts, temporary test scenes and test artifacts under `res://tests/`.
+Do not add new GUT tests without the user's explicit instruction.
+
 Before finishing:
 1. format/check changed GDScript when the formatter is available;
 2. run project static checks;
