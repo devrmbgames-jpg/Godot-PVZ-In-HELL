@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://c466icg8fiwj0"]
+
+[ext_resource type="ArrayMesh" uid="uid://cjb2yl7mvw0nu" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Workbench_Decorated_mesh/Workbench_Decorated_Workbench_Decorated.res" id="1_w3j2a"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ftuiy"]
+points = PackedVector3Array(1.4797378, 2.6, -0.47014487, 1.4797378, 2.579894, -0.45002937, 1.5, 2.579894, -0.47014487, 1.4797378, 2.6, -0.7300313, -1.4800314, 2.6, -0.47014487, 1.4797378, 0.9798355, 0.75, -1.4800314, 2.579894, -0.45002937, 1.5, 2.579894, -0.7300313, 1.5, 0.9798355, 0.7298845, 1.4797378, 2.579894, -0.75, -1.4800314, 2.6, -0.7300313, -1.5, 2.579894, -0.47014487, 1.4797378, 0.8197533, 0.75, -1.4800314, 0.9798355, 0.75, 1.5, 0.8197533, -0.7300313, 1.5, 0.8197533, 0.7298845, 1.4797378, 0.8197533, -0.75, -1.4800314, 2.579894, -0.75, -1.5, 2.579894, -0.7300313, -1.5, 0.9798355, 0.7298845, 1.429816, 0.019851206, 0.6999315, -1.4800314, 0.8197533, 0.75, 1.4497848, 0.019851206, -0.6801096, 1.429816, 0.019851206, -0.7000783, 1.4497848, 0.019851206, 0.67996275, -1.4800314, 0.8197533, -0.75, -1.5, 0.8197533, -0.7300313, -1.5, 0.8197533, 0.7298845, 1.429816, -7.450581e-09, 0.67996275, -1.4301096, 0.019851206, 0.6999315, -1.4500782, 0.019851206, 0.67996275, 1.429816, -7.450581e-09, -0.6801096, -1.4301096, 0.019851206, -0.7000783, -1.4500782, 0.019851206, -0.6801096, -1.4301096, -7.450581e-09, 0.67996275, -1.4301096, -7.450581e-09, -0.6801096)
+
+[node name="Workbench_Decorated_rigid" type="RigidBody3D" unique_id=928444933]
+
+[node name="Workbench_Decorated_rigid_visual" type="Node3D" parent="." unique_id=1633534376]
+
+[node name="Workbench_Decorated" type="MeshInstance3D" parent="Workbench_Decorated_rigid_visual" unique_id=952165362]
+mesh = ExtResource("1_w3j2a")
+
+[node name="Workbench_Decorated_col" type="CollisionShape3D" parent="." unique_id=14519097]
+shape = SubResource("ConvexPolygonShape3D_ftuiy")

@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bdlgo27llwfiu"]
+
+[ext_resource type="ArrayMesh" uid="uid://brguk33j1tgcr" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Cube_mesh/Primitive_Cube_Primitive_Cube.res" id="1_5x3ef"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_k80sm"]
+data = PackedVector3Array(2, 4, -2, 2, 0, 2, 2, 4, 2, 2, 4, -2, 2, 0, -2, 2, 0, 2, -2, 4, 2, 2, 0, 2, -2, 0, 2, -2, 4, 2, 2, 4, 2, 2, 0, 2, -2, 0, -2, 2, 0, 2, 2, 0, -2, -2, 0, -2, -2, 0, 2, 2, 0, 2, -2, 4, 2, -2, 0, -2, -2, 4, -2, -2, 4, 2, -2, 0, 2, -2, 0, -2, -2, 4, 2, 2, 4, -2, 2, 4, 2, -2, 4, 2, -2, 4, -2, 2, 4, -2, -2, 4, -2, 2, 0, -2, 2, 4, -2, -2, 4, -2, -2, 0, -2, 2, 0, -2)
+
+[node name="Primitive_Cube_static" type="StaticBody3D" unique_id=171272741]
+
+[node name="Primitive_Cube_static_visual" type="Node3D" parent="." unique_id=1242697406]
+
+[node name="Primitive_Cube" type="MeshInstance3D" parent="Primitive_Cube_static_visual" unique_id=1430269742]
+mesh = ExtResource("1_5x3ef")
+
+[node name="Primitive_Cube_col" type="CollisionShape3D" parent="." unique_id=226977119]
+shape = SubResource("ConcavePolygonShape3D_k80sm")

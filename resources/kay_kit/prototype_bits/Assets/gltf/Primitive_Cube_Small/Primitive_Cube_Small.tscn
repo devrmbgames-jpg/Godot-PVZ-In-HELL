@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://cev7ccm6b1wk"]
+
+[ext_resource type="ArrayMesh" uid="uid://co0hdw05n480n" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Cube_Small_mesh/Primitive_Cube_Small_Primitive_Cube_Small.res" id="1_oncdm"]
+
+[node name="Primitive_Cube_Small" type="Node3D" unique_id=1570745231]
+
+[node name="Primitive_Cube_Small" type="MeshInstance3D" parent="." unique_id=843483613]
+mesh = ExtResource("1_oncdm")

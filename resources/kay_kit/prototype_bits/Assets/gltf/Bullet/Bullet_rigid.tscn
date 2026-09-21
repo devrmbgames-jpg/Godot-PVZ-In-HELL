@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://d2blib7rkh14h"]
+
+[ext_resource type="ArrayMesh" uid="uid://1l380s1l5jp2" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Bullet_mesh/Bullet_Bullet.res" id="1_6onjb"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_1ehhr"]
+points = PackedVector3Array(-7.338822e-06, -0.037500013, -0.11250003, -0.026517235, -0.026517237, -0.11250003, 0.026509896, -0.026517237, -0.11250003, -7.338822e-06, -0.037500013, 0.09750149, -0.03750001, -7.342547e-06, -0.11250003, -0.026517235, -0.026517237, 0.09750149, 0.03750001, -7.342547e-06, -0.11250003, 0.026509896, -0.026517237, 0.09750149, 0.017905742, -0.017913084, 0.109174356, -7.338822e-06, -0.025327925, 0.109174356, -0.01791308, -0.017913084, 0.109174356, -0.026517235, 0.026509892, -0.11250003, -0.03750001, -7.342547e-06, 0.09750149, 0.026509896, 0.026509892, -0.11250003, 0.03750001, -7.342547e-06, 0.09750149, 0.025320582, -7.342547e-06, 0.109174356, -7.338822e-06, -7.342547e-06, 0.11250001, -0.025327923, -7.342547e-06, 0.109174356, -7.338822e-06, 0.037500013, -0.11250003, -0.026517235, 0.026509892, 0.09750149, -0.01791308, 0.017905742, 0.109174356, 0.026509896, 0.026509892, 0.09750149, 0.017905742, 0.017905742, 0.109174356, -7.338822e-06, 0.025320586, 0.109174356, -7.338822e-06, 0.037492674, 0.09750149)
+
+[node name="Bullet_rigid" type="RigidBody3D" unique_id=1852293149]
+
+[node name="Bullet_rigid_visual" type="Node3D" parent="." unique_id=1535119010]
+
+[node name="Bullet" type="MeshInstance3D" parent="Bullet_rigid_visual" unique_id=1436507822]
+mesh = ExtResource("1_6onjb")
+
+[node name="Bullet_col" type="CollisionShape3D" parent="." unique_id=1003932386]
+shape = SubResource("ConvexPolygonShape3D_1ehhr")

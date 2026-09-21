@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://by0hl1swjo0ku"]
+
+[ext_resource type="ArrayMesh" uid="uid://bcapiedra34ph" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Wall_Decorated_mesh/Wall_Decorated_Wall_Decorated.res" id="1_qaeaa"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_dacld"]
+points = PackedVector3Array(1.8997653, 4, 0.24997053, 1.270556, 3.1992953, 0.5397285, 1.8997653, 0, 0.24997053, 1.9996085, 3.899765, 0.13664138, 1.8997653, 4, -0.25000045, -1.9001571, 4, 0.24997053, -0.12137842, 2.6350822, 0.6630677, 1.8997653, 0, -0.25000045, 1.9996085, 0.09984338, 0.13664138, -1.1327333, 1.2944402, 0.50585485, -1.9001571, 0, 0.24997053, 1.9996085, 3.899765, -0.13676068, -1.9001571, 4, -0.25000045, -2.0000005, 3.899765, 0.13664138, 1.9996085, 0.09984338, -0.13676068, -1.9001571, 0, -0.25000045, -2.0000005, 0.09984338, 0.13664138, -2.0000005, 3.899765, -0.13676068, -2.0000005, 0.09984338, -0.13676068)
+
+[node name="Wall_Decorated_rigid" type="RigidBody3D" unique_id=1779413533]
+
+[node name="Wall_Decorated_rigid_visual" type="Node3D" parent="." unique_id=776259175]
+
+[node name="Wall_Decorated" type="MeshInstance3D" parent="Wall_Decorated_rigid_visual" unique_id=347047220]
+mesh = ExtResource("1_qaeaa")
+
+[node name="Wall_Decorated_col" type="CollisionShape3D" parent="." unique_id=1384335812]
+shape = SubResource("ConvexPolygonShape3D_dacld")

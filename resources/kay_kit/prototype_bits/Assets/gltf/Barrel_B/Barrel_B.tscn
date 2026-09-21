@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://b216doaroqrby"]
+
+[ext_resource type="ArrayMesh" uid="uid://wu1vaw7rdf3a" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_B_mesh/Barrel_B_Barrel_B.res" id="1_8r0oa"]
+
+[node name="Barrel_B" type="Node3D" unique_id=1617834414]
+
+[node name="Barrel_B" type="MeshInstance3D" parent="." unique_id=203114248]
+mesh = ExtResource("1_8r0oa")

@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://s7003k01snh4"]
+
+[ext_resource type="ArrayMesh" uid="uid://ddqfhie13nwtj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Doorway_mesh/Primitive_Doorway_Primitive_Doorway.res" id="1_86xh7"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_65va4"]
+points = PackedVector3Array(-2, 1.4901161e-07, -0.50000006, -2, 1.4901161e-07, 0.4999022, -2, 3.9996092, -0.50000006, 2, 1.4901161e-07, -0.50000006, 2, 1.4901161e-07, 0.4999022, -2, 3.9996092, 0.4999022, 2, 3.9996092, -0.50000006, 2, 3.9996092, 0.4999022)
+
+[node name="Primitive_Doorway_rigid" type="RigidBody3D" unique_id=900714879]
+
+[node name="Primitive_Doorway_rigid_visual" type="Node3D" parent="." unique_id=517706667]
+
+[node name="Primitive_Doorway" type="MeshInstance3D" parent="Primitive_Doorway_rigid_visual" unique_id=1114270379]
+mesh = ExtResource("1_86xh7")
+
+[node name="Primitive_Doorway_col" type="CollisionShape3D" parent="." unique_id=2114697760]
+shape = SubResource("ConvexPolygonShape3D_65va4")

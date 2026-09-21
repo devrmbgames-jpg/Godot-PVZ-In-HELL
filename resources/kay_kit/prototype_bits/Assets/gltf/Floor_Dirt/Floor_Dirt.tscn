@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dj88lyrg01vxt"]
+
+[ext_resource type="ArrayMesh" uid="uid://dew5rp4mejx5d" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor_Dirt_mesh/Floor_Dirt_Floor_Dirt.res" id="1_jbf1y"]
+
+[node name="Floor_Dirt" type="Node3D" unique_id=952431319]
+
+[node name="Floor_Dirt" type="MeshInstance3D" parent="." unique_id=2123845114]
+mesh = ExtResource("1_jbf1y")

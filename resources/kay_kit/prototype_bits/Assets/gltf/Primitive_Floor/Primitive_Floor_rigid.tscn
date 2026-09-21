@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://gsj7m5oxewwr"]
+
+[ext_resource type="ArrayMesh" uid="uid://bc0c54fb11a3u" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Floor_mesh/Primitive_Floor_Primitive_Floor.res" id="1_elqan"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_36rso"]
+points = PackedVector3Array(-2, 1.4901161e-07, -2, -2, 1, -2, 2, 1.4901161e-07, -2, -2, 1.4901161e-07, 2, -2, 1, 2, 2, 1, -2, 2, 1.4901161e-07, 2, 2, 1, 2)
+
+[node name="Primitive_Floor_rigid" type="RigidBody3D" unique_id=1849926062]
+
+[node name="Primitive_Floor_rigid_visual" type="Node3D" parent="." unique_id=1805823348]
+
+[node name="Primitive_Floor" type="MeshInstance3D" parent="Primitive_Floor_rigid_visual" unique_id=1533166187]
+mesh = ExtResource("1_elqan")
+
+[node name="Primitive_Floor_col" type="CollisionShape3D" parent="." unique_id=229936280]
+shape = SubResource("ConvexPolygonShape3D_36rso")

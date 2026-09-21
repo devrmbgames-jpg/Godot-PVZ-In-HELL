@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://57if4b4vfhqm"]
+
+[ext_resource type="ArrayMesh" uid="uid://dg16c2lk5uev1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Locker_Decorated_mesh/Locker_Decorated_Locker_Decorated.res" id="1_rltgp"]
+[ext_resource type="ArrayMesh" uid="uid://da1rghbcyt1ws" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Locker_Decorated_mesh/Locker_Decorated_Locker_Door_Decorated.res" id="2_snygw"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_umyrg"]
+points = PackedVector3Array(0.49990213, 0.1999804, 0.5000001, 0.49990213, -2.9802322e-08, 0.5000001, 0.5, 3, 0.49990225, -0.5, 3, 0.49990225, -0.5, -2.9802322e-08, 0.49990225, 0.49990213, -2.9802322e-08, -0.5000001, 0.5, 0.1999804, 0.49990225, 0.5, 3, -0.5000001, -0.5, 3, -0.5000001, -0.5, -2.9802322e-08, -0.5000001, 0.5, 0.1999804, -0.5000001)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_2vsm2"]
+points = PackedVector3Array(-6.109476e-06, -1.3, -1.3411045e-05, 0.79991555, -1.3, -1.3411045e-05, -6.109476e-06, -1.3, 0.04999873, -6.109476e-06, 1.3, -1.3411045e-05, 0.20915599, 0.34561467, -0.17946342, 0.79991555, -1.3, 0.04999873, 0.653087, -0.233379, -0.111215465, 0.79991555, 1.3, -1.3411045e-05, 0.049954735, -1.2501174, 0.09998059, -6.109476e-06, 1.3, 0.04999873, 0.7499547, -1.2501174, 0.09998059, 0.79991555, 1.3, 0.04999873, 0.2808083, -0.8202623, 0.13, 0.049954735, 1.2498629, 0.09998059, 0.51910114, -0.8202623, 0.13, 0.7499547, 1.2498629, 0.09998059, 0.2808083, 0.9798355, 0.13, 0.51910114, 0.9798355, 0.13)
+
+[node name="Locker_Decorated_rigid" type="RigidBody3D" unique_id=332062856]
+
+[node name="Locker_Decorated_rigid_visual" type="Node3D" parent="." unique_id=224422869]
+
+[node name="Locker_Decorated" type="MeshInstance3D" parent="Locker_Decorated_rigid_visual" unique_id=884378089]
+mesh = ExtResource("1_rltgp")
+
+[node name="Locker_Door_Decorated" type="MeshInstance3D" parent="Locker_Decorated_rigid_visual/Locker_Decorated" unique_id=1668490334]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3999939, 1.6, 0.45)
+mesh = ExtResource("2_snygw")
+
+[node name="Locker_Decorated_col" type="CollisionShape3D" parent="." unique_id=1835417391]
+shape = SubResource("ConvexPolygonShape3D_umyrg")
+
+[node name="Locker_Door_Decorated_col" type="CollisionShape3D" parent="." unique_id=919834547]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3999939, 1.6, 0.45)
+shape = SubResource("ConvexPolygonShape3D_2vsm2")

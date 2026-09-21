@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bqc23wfsy1e8f"]
+
+[ext_resource type="ArrayMesh" uid="uid://wb62ikw3xjw6" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_Slope_mesh/Primitive_Wall_Slope_Primitive_Wall_Slope.res" id="1_byghv"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_pf7lr"]
+points = PackedVector3Array(-2.0000002, 3.9996092, 0.5000007, 1.9996088, 1.4901161e-07, 0.49990278, -2.0000002, 3.9996092, -0.5000007, -2.0000002, 1.4901161e-07, 0.5000007, 1.9996088, 1.4901161e-07, -0.5000007, -2.0000002, 1.4901161e-07, -0.5000007)
+
+[node name="Primitive_Wall_Slope_rigid" type="RigidBody3D" unique_id=483231046]
+
+[node name="Primitive_Wall_Slope_rigid_visual" type="Node3D" parent="." unique_id=787019814]
+
+[node name="Primitive_Wall_Slope" type="MeshInstance3D" parent="Primitive_Wall_Slope_rigid_visual" unique_id=617307835]
+mesh = ExtResource("1_byghv")
+
+[node name="Primitive_Wall_Slope_col" type="CollisionShape3D" parent="." unique_id=1706354709]
+shape = SubResource("ConvexPolygonShape3D_pf7lr")

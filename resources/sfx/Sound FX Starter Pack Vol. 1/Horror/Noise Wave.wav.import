@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cvi751auwf814"
+path="res://.godot/imported/Noise Wave.wav-9f06ba25bf90c0e0ee8f3eaa161be8a3.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Horror/Noise Wave.wav"
+dest_files=["res://.godot/imported/Noise Wave.wav-9f06ba25bf90c0e0ee8f3eaa161be8a3.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

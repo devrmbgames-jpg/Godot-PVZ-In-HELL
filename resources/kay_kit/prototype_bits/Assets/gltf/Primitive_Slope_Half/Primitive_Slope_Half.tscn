@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://cceyaxdiri5oj"]
+
+[ext_resource type="ArrayMesh" uid="uid://s4e2um6j7mko" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Slope_Half_mesh/Primitive_Slope_Half_Primitive_Slope_Half.res" id="1_f0uso"]
+
+[node name="Primitive_Slope_Half" type="Node3D" unique_id=136448170]
+
+[node name="Primitive_Slope_Half" type="MeshInstance3D" parent="." unique_id=37933943]
+mesh = ExtResource("1_f0uso")

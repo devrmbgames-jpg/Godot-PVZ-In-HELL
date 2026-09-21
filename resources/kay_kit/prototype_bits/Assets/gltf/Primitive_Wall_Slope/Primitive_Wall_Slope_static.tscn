@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bqpwi6hpdqopc"]
+
+[ext_resource type="ArrayMesh" uid="uid://wb62ikw3xjw6" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_Slope_mesh/Primitive_Wall_Slope_Primitive_Wall_Slope.res" id="1_7medw"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_1u150"]
+data = PackedVector3Array(2, 0, 0.5, -2, 0, 0.5, -2, 4, 0.5, -2, 4, -0.5, -2, 0, 0.5, -2, 0, -0.5, -2, 4, -0.5, -2, 4, 0.5, -2, 0, 0.5, 2, 0, -0.5, -2, 0, 0.5, 2, 0, 0.5, 2, 0, -0.5, -2, 0, -0.5, -2, 0, 0.5, -2, 4, -0.5, -2, 0, -0.5, 2, 0, -0.5, 2, 0, 0.5, -2, 4, -0.5, 2, 0, -0.5, 2, 0, 0.5, -2, 4, 0.5, -2, 4, -0.5)
+
+[node name="Primitive_Wall_Slope_static" type="StaticBody3D" unique_id=951866233]
+
+[node name="Primitive_Wall_Slope_static_visual" type="Node3D" parent="." unique_id=1153130183]
+
+[node name="Primitive_Wall_Slope" type="MeshInstance3D" parent="Primitive_Wall_Slope_static_visual" unique_id=140003806]
+mesh = ExtResource("1_7medw")
+
+[node name="Primitive_Wall_Slope_col" type="CollisionShape3D" parent="." unique_id=148202391]
+shape = SubResource("ConcavePolygonShape3D_1u150")

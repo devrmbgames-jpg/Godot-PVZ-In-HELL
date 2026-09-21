@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://dknnrm8uolh8i"]
+
+[ext_resource type="ArrayMesh" uid="uid://djcn1f46b4eso" path="res://resources/kay_kit/prototype_bits/Assets/gltf/target_pieces_F_mesh/target_pieces_F_target_pieces_F.res" id="1_7l4wy"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_gwm5t"]
+points = PackedVector3Array(-0.25000006, 0.43299723, 0.16117854, -0.23477884, 0.4065681, 1.2417636e-08, -0.22807366, 0.39496866, 0.19998042, 0, 0.45609826, 0.19998042, 0, 0.49999997, 0.16117854, 0, 0.4695086, 1.2417636e-08, -2.4467707e-05, -2.173086e-08, 1.2417636e-08, -0.06680699, 0.1156519, 0.19998042, 0, -2.173086e-08, 0.19998042)
+
+[node name="target_pieces_F_rigid" type="RigidBody3D" unique_id=800658445]
+
+[node name="target_pieces_F_rigid_visual" type="Node3D" parent="." unique_id=152339127]
+
+[node name="target_pieces_F" type="MeshInstance3D" parent="target_pieces_F_rigid_visual" unique_id=1381138124]
+mesh = ExtResource("1_7l4wy")
+
+[node name="target_pieces_F_col" type="CollisionShape3D" parent="." unique_id=1338643097]
+shape = SubResource("ConvexPolygonShape3D_gwm5t")

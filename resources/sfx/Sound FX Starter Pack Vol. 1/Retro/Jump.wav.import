@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://ddk3o4yo7qwx5"
+path="res://.godot/imported/Jump.wav-f80d8bffd61eb403dc46d8d67ff4515a.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Retro/Jump.wav"
+dest_files=["res://.godot/imported/Jump.wav-f80d8bffd61eb403dc46d8d67ff4515a.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

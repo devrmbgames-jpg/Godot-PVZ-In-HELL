@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dri2ql48kghmb"]
+
+[ext_resource type="ArrayMesh" uid="uid://bqppwi4xuacif" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Cube_Prototype_Large_B_mesh/Cube_Prototype_Large_B_Cube_Prototype_Large_B.res" id="1_luhs1"]
+
+[node name="Cube_Prototype_Large_B" type="Node3D" unique_id=355164456]
+
+[node name="Cube_Prototype_Large_B" type="MeshInstance3D" parent="." unique_id=986390653]
+mesh = ExtResource("1_luhs1")

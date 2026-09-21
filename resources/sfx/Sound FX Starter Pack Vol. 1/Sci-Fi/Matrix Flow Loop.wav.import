@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://daencrbjog13x"
+path="res://.godot/imported/Matrix Flow Loop.wav-16c9ee3ae8e8845c21ad0a5870cd5cf4.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Sci-Fi/Matrix Flow Loop.wav"
+dest_files=["res://.godot/imported/Matrix Flow Loop.wav-16c9ee3ae8e8845c21ad0a5870cd5cf4.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

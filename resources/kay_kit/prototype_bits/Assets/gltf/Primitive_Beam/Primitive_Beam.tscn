@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://svbk34gf3itj"]
+
+[ext_resource type="ArrayMesh" uid="uid://dn166ugmrlbp2" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam_mesh/Primitive_Beam_Primitive_Beam.res" id="1_nh42f"]
+
+[node name="Primitive_Beam" type="Node3D" unique_id=55934885]
+
+[node name="Primitive_Beam" type="MeshInstance3D" parent="." unique_id=833182063]
+mesh = ExtResource("1_nh42f")

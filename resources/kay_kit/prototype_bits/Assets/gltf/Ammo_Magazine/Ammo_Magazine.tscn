@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://u8ybmwk04q70"]
+
+[ext_resource type="ArrayMesh" uid="uid://btht12c2assdj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Ammo_Magazine_mesh/Ammo_Magazine_Ammo_Magazine.res" id="1_5swl3"]
+
+[node name="Ammo_Magazine" type="Node3D" unique_id=353297683]
+
+[node name="Ammo_Magazine" type="MeshInstance3D" parent="." unique_id=1239819603]
+mesh = ExtResource("1_5swl3")

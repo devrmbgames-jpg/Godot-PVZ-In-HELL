@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://cu85ftdixklgf"]
+
+[ext_resource type="ArrayMesh" uid="uid://3lvy3p8xxc5d" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Gun_Sniper_mesh/Gun_Sniper_Gun_Sniper.res" id="1_5yo57"]
+[ext_resource type="ArrayMesh" uid="uid://bi8hah6w8re1o" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Gun_Sniper_mesh/Gun_Sniper_Gun_Sniper_Magazine.res" id="2_55mpe"]
+[ext_resource type="ArrayMesh" uid="uid://mjuqmmrg2dg8" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Gun_Sniper_mesh/Gun_Sniper_Gun_Sniper_Scope.res" id="3_0k67j"]
+
+[node name="Gun_Sniper" type="Node3D" unique_id=1956608250]
+
+[node name="Gun_Sniper" type="MeshInstance3D" parent="." unique_id=551612053]
+mesh = ExtResource("1_5yo57")
+
+[node name="Gun_Sniper_Magazine" type="MeshInstance3D" parent="Gun_Sniper" unique_id=1311261099]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00045776367, -0.10350013, 0.4255004)
+mesh = ExtResource("2_55mpe")
+
+[node name="Gun_Sniper_Scope" type="MeshInstance3D" parent="Gun_Sniper" unique_id=688138934]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34959054, 0.17249966)
+mesh = ExtResource("3_0k67j")

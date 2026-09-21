@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://blt17q62ufy"]
+
+[ext_resource type="ArrayMesh" uid="uid://c2eej88nmvrt5" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Wall_Doorway_mesh/Wall_Doorway_Wall_Doorway.res" id="1_h3ybi"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_82cg0"]
+points = PackedVector3Array(1.8997653, 4, 0.24996203, 1.1949883, 3.3077526, 0.27994838, 1.3527799, 3.2176976, 0.28000024, 1.5082223, 3.0920126, 0.28000024, 1.6049335, 0.30305403, 0.27994838, 1.8997653, 0, 0.24996203, 1.9996085, 3.899765, 0.13670915, 1.8997653, 4, -0.25000045, -1.9001571, 4, 0.24996203, -1.0822244, 3.5395458, 0.28000024, 1.3829288, 2.9361784, 0.28000024, 1.5133126, 0.26938137, 0.27994838, 1.8997653, 0, -0.25000045, 1.9996085, 0.09984338, 0.13670915, -1.9001571, 0, 0.24996203, 1.9996085, 3.899765, -0.13674755, -1.9001571, 4, -0.25000045, -2.0000005, 3.899765, 0.13670915, -1.5787005, 0.42873922, 0.27994838, -1.4722009, 3.2298355, 0.27994838, -1.2807364, 3.5168364, 0.28000024, -1.2580271, 3.3179326, 0.28000024, -1.5309323, 0.30931872, 0.27994838, 1.9996085, 0.09984338, -0.13674755, -1.9001571, 0, -0.25000045, -2.0000005, 0.09984338, 0.13670915, -2.0000005, 3.899765, -0.13674755, -2.0000005, 0.09984338, -0.13674755)
+
+[node name="Wall_Doorway_rigid" type="RigidBody3D" unique_id=297195372]
+
+[node name="Wall_Doorway_rigid_visual" type="Node3D" parent="." unique_id=1443267086]
+
+[node name="Wall_Doorway" type="MeshInstance3D" parent="Wall_Doorway_rigid_visual" unique_id=131343054]
+mesh = ExtResource("1_h3ybi")
+
+[node name="Wall_Doorway_col" type="CollisionShape3D" parent="." unique_id=2126641979]
+shape = SubResource("ConvexPolygonShape3D_82cg0")

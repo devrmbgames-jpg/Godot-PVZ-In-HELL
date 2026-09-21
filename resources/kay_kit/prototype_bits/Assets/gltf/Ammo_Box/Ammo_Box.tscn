@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://87d7h2uq7tg2"]
+
+[ext_resource type="ArrayMesh" uid="uid://dli0hkp30jcik" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Ammo_Box_mesh/Ammo_Box_Ammo_Box.res" id="1_6d857"]
+
+[node name="Ammo_Box" type="Node3D" unique_id=905487716]
+
+[node name="Ammo_Box" type="MeshInstance3D" parent="." unique_id=1380664668]
+mesh = ExtResource("1_6d857")

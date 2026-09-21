@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://c7n7wyh78she6"]
+
+[ext_resource type="ArrayMesh" uid="uid://bm76kncy4smx0" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Dummy_Base_mesh/Dummy_Base_Dummy_Base.res" id="1_rskn6"]
+[ext_resource type="ArrayMesh" uid="uid://d11vyuv6lyauy" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Dummy_Base_mesh/Dummy_Base_Dummy_Body.res" id="2_c13xi"]
+[ext_resource type="ArrayMesh" uid="uid://c4abcnygva8f5" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Dummy_Base_mesh/Dummy_Base_Dummy_ArmLeft.res" id="3_hel42"]
+[ext_resource type="ArrayMesh" uid="uid://dq7uckkwxvqx3" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Dummy_Base_mesh/Dummy_Base_Dummy_ArmRight.res" id="4_mib2l"]
+[ext_resource type="ArrayMesh" uid="uid://bykqtohjsq1ro" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Dummy_Base_mesh/Dummy_Base_Dummy_Head.res" id="5_boe5v"]
+[ext_resource type="ArrayMesh" uid="uid://bsti2k3pl0y5e" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Dummy_Base_mesh/Dummy_Base_Dummy_Target.res" id="6_gu161"]
+
+[node name="Dummy_Base" type="Node3D" unique_id=1302747874]
+
+[node name="Dummy_Base" type="MeshInstance3D" parent="." unique_id=1188029138]
+mesh = ExtResource("1_rskn6")
+
+[node name="Dummy_Body" type="MeshInstance3D" parent="Dummy_Base" unique_id=1162232429]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4000001, 0)
+mesh = ExtResource("2_c13xi")
+
+[node name="Dummy_ArmLeft" type="MeshInstance3D" parent="Dummy_Base/Dummy_Body" unique_id=724817664]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2000122, 0.6999998, 0)
+mesh = ExtResource("3_hel42")
+
+[node name="Dummy_ArmRight" type="MeshInstance3D" parent="Dummy_Base/Dummy_Body" unique_id=696719004]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2000122, 0.6999998, 0)
+mesh = ExtResource("4_mib2l")
+
+[node name="Dummy_Head" type="MeshInstance3D" parent="Dummy_Base/Dummy_Body" unique_id=108913821]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8158736, 0)
+mesh = ExtResource("5_boe5v")
+
+[node name="Dummy_Target" type="MeshInstance3D" parent="Dummy_Base/Dummy_Body" unique_id=875771177]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49023485, -0.27507424)
+mesh = ExtResource("6_gu161")

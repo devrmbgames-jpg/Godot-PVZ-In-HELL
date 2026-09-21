@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bwj7qss427s8l"]
+
+[ext_resource type="ArrayMesh" uid="uid://ccabq3i4yne7w" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Stairs_Half_mesh/Primitive_Stairs_Half_Primitive_Stairs_Half.res" id="1_sv555"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_3gbvk"]
+points = PackedVector3Array(2, 0.49980438, 2, 2, 1.4901161e-07, 2, 2, 0.49980438, -2, 1.5, 1.0000001, 2, 0, 1.4901161e-07, 2, 2, 1.4901161e-07, -2, 1.5, 1.0000001, -2, 0.5, 2.0000002, 2, 0, 2.0000002, 2, 0, 1.4901161e-07, -2, 0.5, 2.0000002, -2, 0, 2.0000002, -2)
+
+[node name="Primitive_Stairs_Half_rigid" type="RigidBody3D" unique_id=2135713556]
+
+[node name="Primitive_Stairs_Half_rigid_visual" type="Node3D" parent="." unique_id=1832344967]
+
+[node name="Primitive_Stairs_Half" type="MeshInstance3D" parent="Primitive_Stairs_Half_rigid_visual" unique_id=388342785]
+mesh = ExtResource("1_sv555")
+
+[node name="Primitive_Stairs_Half_col" type="CollisionShape3D" parent="." unique_id=630345197]
+shape = SubResource("ConvexPolygonShape3D_3gbvk")

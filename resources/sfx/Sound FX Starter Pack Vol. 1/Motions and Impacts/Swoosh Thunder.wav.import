@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dpubka72xvlij"
+path="res://.godot/imported/Swoosh Thunder.wav-81f1a3bc18c37691c622990d8d07a962.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Motions and Impacts/Swoosh Thunder.wav"
+dest_files=["res://.godot/imported/Swoosh Thunder.wav-81f1a3bc18c37691c622990d8d07a962.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

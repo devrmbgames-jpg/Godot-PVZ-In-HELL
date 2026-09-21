@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://de008ecmj4ivi"]
+
+[ext_resource type="ArrayMesh" uid="uid://badu5gm7ut0ev" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Bat_mesh/Bat_Bat.res" id="1_x4mrp"]
+
+[node name="Bat" type="Node3D" unique_id=882909020]
+
+[node name="Bat" type="MeshInstance3D" parent="." unique_id=244014582]
+mesh = ExtResource("1_x4mrp")

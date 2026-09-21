@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bxkk03vpkhk5n"]
+
+[ext_resource type="ArrayMesh" uid="uid://d2882qesepjhe" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_mesh/Primitive_Wall_Primitive_Wall.res" id="1_mrnsj"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_mwncq"]
+points = PackedVector3Array(-2, 1.4901161e-07, -0.50000006, -2, 1.4901161e-07, 0.4999022, -2, 3.9996092, -0.50000006, 2, 1.4901161e-07, -0.50000006, 2, 1.4901161e-07, 0.4999022, -2, 3.9996092, 0.4999022, 2, 3.9996092, -0.50000006, 2, 3.9996092, 0.4999022)
+
+[node name="Primitive_Wall_rigid" type="RigidBody3D" unique_id=1269737288]
+
+[node name="Primitive_Wall_rigid_visual" type="Node3D" parent="." unique_id=1163941187]
+
+[node name="Primitive_Wall" type="MeshInstance3D" parent="Primitive_Wall_rigid_visual" unique_id=1591663865]
+mesh = ExtResource("1_mrnsj")
+
+[node name="Primitive_Wall_col" type="CollisionShape3D" parent="." unique_id=521561743]
+shape = SubResource("ConvexPolygonShape3D_mwncq")

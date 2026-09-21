@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bgu2up88xyqp1"
+path="res://.godot/imported/Open Atmosphere.wav-415dd37d69277b066cb9a3c7bd5c9e9b.sample"
+
+[deps]
+
+source_file="res://resources/musics/Open Atmosphere.wav"
+dest_files=["res://.godot/imported/Open Atmosphere.wav-415dd37d69277b066cb9a3c7bd5c9e9b.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=1
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

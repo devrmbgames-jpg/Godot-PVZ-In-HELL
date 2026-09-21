@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cs2hiry1ogwal"
+path="res://.godot/imported/Pulse Sniper.wav-9a9715defef1d5846e6d788dedd7292a.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Sci-Fi/Pulse Sniper.wav"
+dest_files=["res://.godot/imported/Pulse Sniper.wav-9a9715defef1d5846e6d788dedd7292a.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

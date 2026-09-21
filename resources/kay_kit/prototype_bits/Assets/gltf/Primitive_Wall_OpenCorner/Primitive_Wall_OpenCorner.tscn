@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bou657oobkdli"]
+
+[ext_resource type="ArrayMesh" uid="uid://bvb7r1l67v3hs" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_OpenCorner_mesh/Primitive_Wall_OpenCorner_Primitive_Wall_OpenCorner.res" id="1_x07gm"]
+
+[node name="Primitive_Wall_OpenCorner" type="Node3D" unique_id=1815111452]
+
+[node name="Primitive_Wall_OpenCorner" type="MeshInstance3D" parent="." unique_id=356892733]
+mesh = ExtResource("1_x07gm")

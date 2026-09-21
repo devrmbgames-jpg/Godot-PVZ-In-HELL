@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bpywy1pl285gw"]
+
+[ext_resource type="ArrayMesh" uid="uid://cw6qqy7a4wmfh" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Door_B_mesh/Door_B_Door_B.res" id="1_0syge"]
+
+[node name="Door_B" type="Node3D" unique_id=2049085151]
+
+[node name="Door_B" type="MeshInstance3D" parent="." unique_id=1784202748]
+mesh = ExtResource("1_0syge")

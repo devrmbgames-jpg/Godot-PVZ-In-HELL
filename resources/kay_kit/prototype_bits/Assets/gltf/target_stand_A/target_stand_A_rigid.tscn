@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://clib5p5yy4uw1"]
+
+[ext_resource type="ArrayMesh" uid="uid://chw23qtla22yh" path="res://resources/kay_kit/prototype_bits/Assets/gltf/target_stand_A_mesh/target_stand_A_target_stand_A.res" id="1_3l62f"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_kqgin"]
+points = PackedVector3Array(0.39996088, 0.049921703, 0.39999998, -0.40005875, 0.049921703, 0.39999998, 0.39996088, 0, 0.39999998, 0.5, 1.8999612, 0.099882364, 0.39996088, 2.0000005, 0.099882364, -0.40005875, 0, 0.39999998, -0.40005875, 2.0000005, 0.099882364, -0.5, 1.8999612, 0.099882364, 0.39996088, 0, -1.1000006, 0.5, 0.29992175, 0.099882364, 0.5, 1.8999612, -0.00010788441, 0.39996088, 2.0000005, -0.00010788441, -0.40005875, 0, -1.1000006, -0.5, 0.29992175, 0.099882364, -0.40005875, 2.0000005, -0.00010788441, -0.5, 1.8999612, -0.00010788441, 0.39996088, 0.049921703, -1.1000006, 0.5, 0.29992175, -0.00010788441, 0.39996088, 1.7999221, -0.20008838, 0.2999217, 1.8999612, -0.20008838, -0.5, 0.29992175, -0.00010788441, -0.40005875, 0.049921703, -1.1000006, -0.30001956, 1.8999612, -0.20008838, -0.40005875, 1.7999221, -0.20008838)
+
+[node name="target_stand_A_rigid" type="RigidBody3D" unique_id=384455840]
+
+[node name="target_stand_A_rigid_visual" type="Node3D" parent="." unique_id=947914910]
+
+[node name="target_stand_A" type="MeshInstance3D" parent="target_stand_A_rigid_visual" unique_id=1079977247]
+mesh = ExtResource("1_3l62f")
+
+[node name="target_stand_A_col" type="CollisionShape3D" parent="." unique_id=1457769884]
+shape = SubResource("ConvexPolygonShape3D_kqgin")

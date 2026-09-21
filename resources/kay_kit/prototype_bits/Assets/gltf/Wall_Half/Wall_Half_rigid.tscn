@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://ddrb7qh7dhq8k"]
+
+[ext_resource type="ArrayMesh" uid="uid://b64867ye04xux" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Wall_Half_mesh/Wall_Half_Wall_Half.res" id="1_wvfea"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xst3i"]
+points = PackedVector3Array(-4.7683716e-07, 0.09984338, -0.13674757, 0.09984293, 0, -0.25000045, -4.7683716e-07, 0.09984338, 0.1367091, -4.7683716e-07, 3.899765, -0.13674757, 1.8999608, 0, -0.25000045, 0.09984293, 0, 0.24996197, 0.09984293, 4, -0.25000045, -4.7683716e-07, 3.899765, 0.1367091, 1.9998043, 0.09984338, -0.13674757, 2, 0.09984338, 0.1367091, 1.8999608, 0, 0.24996197, 1.8999608, 4, -0.25000045, 1.2460843, 0.33241972, 0.27994832, 0.46476078, 1.9929522, 0.27994832, 0.4134687, 2.1111982, 0.27994832, 0.09984293, 4, 0.24996197, 2, 0.69968677, 0.1361903, 1.9998043, 3.899765, -0.13674757, 2, 3.899765, 0.1367091, 1.3655049, 0.3797964, 0.27994832, 1.8999608, 4, 0.24996197, 0.9085745, 2.8700078, 0.28000018, 1.1045417, 2.9095535, 0.27994832, 2, 0.8997651, 0.1361903, 1.355129, 2.5810494, 0.27994832, 1.2811275, 2.6863744, 0.27994832)
+
+[node name="Wall_Half_rigid" type="RigidBody3D" unique_id=1552938931]
+
+[node name="Wall_Half_rigid_visual" type="Node3D" parent="." unique_id=902012508]
+
+[node name="Wall_Half" type="MeshInstance3D" parent="Wall_Half_rigid_visual" unique_id=365188757]
+mesh = ExtResource("1_wvfea")
+
+[node name="Wall_Half_col" type="CollisionShape3D" parent="." unique_id=2011017464]
+shape = SubResource("ConvexPolygonShape3D_xst3i")

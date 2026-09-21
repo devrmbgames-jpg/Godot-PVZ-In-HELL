@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://b6x8er8n432ii"]
+
+[ext_resource type="ArrayMesh" uid="uid://drmmae17jeyk6" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pillar_B_mesh/Pillar_B_Pillar_B.res" id="1_t8eyc"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_kxwk7"]
+points = PackedVector3Array(-0.5, 0, -0.5, 0.5, 0, -0.5, -0.5, 0, 0.5, -0.5, 3.999667, -0.5, 0.5, 0, 0.5, 0.5, 3.999667, -0.5, -0.5, 3.999667, 0.5, -0.40005875, 4.1, -0.40005875, 0.5, 3.999667, 0.5, 0.39996088, 4.1, -0.40005875, -0.40005875, 4.1, 0.39996088, 0.39996088, 4.1, 0.39996088)
+
+[node name="Pillar_B_rigid" type="RigidBody3D" unique_id=2140666549]
+
+[node name="Pillar_B_rigid_visual" type="Node3D" parent="." unique_id=1725883569]
+
+[node name="Pillar_B" type="MeshInstance3D" parent="Pillar_B_rigid_visual" unique_id=1315740909]
+mesh = ExtResource("1_t8eyc")
+
+[node name="Pillar_B_col" type="CollisionShape3D" parent="." unique_id=1844147484]
+shape = SubResource("ConvexPolygonShape3D_kxwk7")

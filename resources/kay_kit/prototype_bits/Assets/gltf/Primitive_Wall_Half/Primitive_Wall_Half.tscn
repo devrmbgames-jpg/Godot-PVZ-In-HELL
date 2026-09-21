@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dsmauyaonerbn"]
+
+[ext_resource type="ArrayMesh" uid="uid://d12wm1o238u8x" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_Half_mesh/Primitive_Wall_Half_Primitive_Wall_Half.res" id="1_51dew"]
+
+[node name="Primitive_Wall_Half" type="Node3D" unique_id=1317920048]
+
+[node name="Primitive_Wall_Half" type="MeshInstance3D" parent="." unique_id=975420251]
+mesh = ExtResource("1_51dew")

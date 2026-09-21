@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://ocpi6vk4v4bt"]
+
+[ext_resource type="ArrayMesh" uid="uid://bgwcv1m4fhbi3" path="res://resources/kay_kit/prototype_bits/Assets/gltf/target_wall_large_B_mesh/target_wall_large_B_target_wall_large_B.res" id="1_ht7b2"]
+
+[node name="target_wall_large_B" type="Node3D" unique_id=1523886890]
+
+[node name="target_wall_large_B" type="MeshInstance3D" parent="." unique_id=1438907017]
+mesh = ExtResource("1_ht7b2")

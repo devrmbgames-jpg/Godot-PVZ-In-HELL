@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://ctxt1occaw78c"]
+
+[ext_resource type="ArrayMesh" uid="uid://dg16c2lk5uev1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Locker_Decorated_mesh/Locker_Decorated_Locker_Decorated.res" id="1_vwxdr"]
+[ext_resource type="ArrayMesh" uid="uid://da1rghbcyt1ws" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Locker_Decorated_mesh/Locker_Decorated_Locker_Door_Decorated.res" id="2_ylsbn"]
+
+[node name="Locker_Decorated" type="Node3D" unique_id=999491761]
+
+[node name="Locker_Decorated" type="MeshInstance3D" parent="." unique_id=567160152]
+mesh = ExtResource("1_vwxdr")
+
+[node name="Locker_Door_Decorated" type="MeshInstance3D" parent="Locker_Decorated" unique_id=210552738]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3999939, 1.6, 0.45)
+mesh = ExtResource("2_ylsbn")

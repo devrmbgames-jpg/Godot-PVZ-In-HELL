@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DEF_Attribute" format=3 uid="uid://blh4smgwve1tl"]
+
+[ext_resource type="Script" uid="uid://bbjd3ft36b2fm" path="res://content/definitions/gameplay/def_attribute.gd" id="1_ffi4d"]
+
+[resource]
+script = ExtResource("1_ffi4d")
+key_base = &"health_base"
+key_value = &"health_value"
+key_current = &"health_current"
+key = &"health"
+metadata/_custom_type_script = "uid://bbjd3ft36b2fm"

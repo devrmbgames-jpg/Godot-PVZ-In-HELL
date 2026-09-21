@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://5nsm4otc1lxo"
+path="res://.godot/imported/Ice Attack.wav-e0113d17f7c1f7ee6e22b4198b17d368.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Magic/Ice Attack.wav"
+dest_files=["res://.godot/imported/Ice Attack.wav-e0113d17f7c1f7ee6e22b4198b17d368.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

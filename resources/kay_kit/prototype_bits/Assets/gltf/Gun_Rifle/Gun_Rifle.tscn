@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://6olmw4wwogem"]
+
+[ext_resource type="ArrayMesh" uid="uid://b862j7m3paocn" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Gun_Rifle_mesh/Gun_Rifle_Gun_Rifle.res" id="1_ttwpe"]
+[ext_resource type="ArrayMesh" uid="uid://dxyn5lthwjok1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Gun_Rifle_mesh/Gun_Rifle_Gun_Rifle_Magazine.res" id="2_uqpjk"]
+
+[node name="Gun_Rifle" type="Node3D" unique_id=1649233086]
+
+[node name="Gun_Rifle" type="MeshInstance3D" parent="." unique_id=1094816487]
+mesh = ExtResource("1_ttwpe")
+
+[node name="Gun_Rifle_Magazine" type="MeshInstance3D" parent="Gun_Rifle" unique_id=1557605253]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00045776367, -0.10350013, 0.4255004)
+mesh = ExtResource("2_uqpjk")

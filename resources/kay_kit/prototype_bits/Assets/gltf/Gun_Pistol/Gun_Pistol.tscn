@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://u07rj6i5t4my"]
+
+[ext_resource type="ArrayMesh" uid="uid://du2efveyvdt0v" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Gun_Pistol_mesh/Gun_Pistol_Gun_Pistol.res" id="1_ctsd2"]
+[ext_resource type="ArrayMesh" uid="uid://c2meiurhqahce" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Gun_Pistol_mesh/Gun_Pistol_Gun_Pistol_Magazine.res" id="2_rx6yh"]
+
+[node name="Gun_Pistol" type="Node3D" unique_id=590521037]
+
+[node name="Gun_Pistol" type="MeshInstance3D" parent="." unique_id=427761645]
+mesh = ExtResource("1_ctsd2")
+
+[node name="Gun_Pistol_Magazine" type="MeshInstance3D" parent="Gun_Pistol" unique_id=2135796445]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00045776367, -0.069000006, 0.31050062)
+mesh = ExtResource("2_rx6yh")

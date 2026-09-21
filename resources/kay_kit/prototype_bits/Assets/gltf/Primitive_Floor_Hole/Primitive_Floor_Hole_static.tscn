@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bq86h6d83ky7f"]
+
+[ext_resource type="ArrayMesh" uid="uid://cykgac3gthpsg" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Floor_Hole_mesh/Primitive_Floor_Hole_Primitive_Floor_Hole.res" id="1_olp7u"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_gcb7q"]
+data = PackedVector3Array(-1, 0, -1, 2, 0, -2, -2, 0, -2, -1, 0, -1, 1, 0, -1, 2, 0, -2, -2, 0, 2, -1, 0, -1, -2, 0, -2, -2, 0, 2, -1, 0, 1, -1, 0, -1, 2, 0, 2, -1, 0, 1, -2, 0, 2, 2, 0, 2, 1, 0, 1, -1, 0, 1, 1, 0, 1, 2, 0, -2, 1, 0, -1, 1, 0, 1, 2, 0, 2, 2, 0, -2, 2, 1, -2, -2, 0, -2, 2, 0, -2, 2, 1, -2, -2, 1, -2, -2, 0, -2, 1, 1, -1, -2, 1, -2, 2, 1, -2, 1, 1, -1, -1, 1, -1, -2, 1, -2, 2, 1, 2, 1, 1, -1, 2, 1, -2, 2, 1, 2, 1, 1, 1, 1, 1, -1, -2, 1, 2, 1, 1, 1, 2, 1, 2, -2, 1, 2, -1, 1, 1, 1, 1, 1, -1, 1, 1, -2, 1, -2, -1, 1, -1, -1, 1, 1, -2, 1, 2, -2, 1, -2, -2, 1, 2, -2, 0, -2, -2, 1, -2, -2, 1, 2, -2, 0, 2, -2, 0, -2, 2, 0, -2, 2, 1, 2, 2, 1, -2, 2, 0, -2, 2, 0, 2, 2, 1, 2, -1, 0, -1, -1, 1, 1, -1, 1, -1, -1, 0, -1, -1, 0, 1, -1, 1, 1, -1, 1, 1, 1, 0, 1, 1, 1, 1, -1, 1, 1, -1, 0, 1, 1, 0, 1, 1, 0, -1, -1, 1, -1, 1, 1, -1, 1, 0, -1, -1, 0, -1, -1, 1, -1, 1, 0, -1, 1, 1, 1, 1, 0, 1, 1, 0, -1, 1, 1, -1, 1, 1, 1, -2, 1, 2, 2, 0, 2, -2, 0, 2, -2, 1, 2, 2, 1, 2, 2, 0, 2)
+
+[node name="Primitive_Floor_Hole_static" type="StaticBody3D" unique_id=1028493061]
+
+[node name="Primitive_Floor_Hole_static_visual" type="Node3D" parent="." unique_id=287767505]
+
+[node name="Primitive_Floor_Hole" type="MeshInstance3D" parent="Primitive_Floor_Hole_static_visual" unique_id=2116184419]
+mesh = ExtResource("1_olp7u")
+
+[node name="Primitive_Floor_Hole_col" type="CollisionShape3D" parent="." unique_id=250534315]
+shape = SubResource("ConcavePolygonShape3D_gcb7q")

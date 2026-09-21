@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dnvxg8vebelgu"
+path="res://.godot/imported/Earthquake Loop.wav-d41da25a22cf43f8f5e3d92a85ab35d2.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Hollywood/Earthquake Loop.wav"
+dest_files=["res://.godot/imported/Earthquake Loop.wav-d41da25a22cf43f8f5e3d92a85ab35d2.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

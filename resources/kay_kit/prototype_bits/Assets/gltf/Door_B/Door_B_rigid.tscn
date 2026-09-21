@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://vv5juyuahees"]
+
+[ext_resource type="ArrayMesh" uid="uid://cw6qqy7a4wmfh" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Door_B_mesh/Door_B_Door_B.res" id="1_g60cu"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_uf2hk"]
+points = PackedVector3Array(-3.5762787e-07, 0, -0.100027874, 0.12999186, 0.12991387, -0.15000005, 1.5998436, 0, -0.100027874, -3.5762787e-07, 0, 0.09996571, -3.5762787e-07, 2.8, -0.100027874, 1.4698514, 0.12991387, -0.15000005, 0.12999186, 2.6698122, -0.15000005, 1.5998436, 0, 0.09996571, 1.5998436, 2.8, -0.100027874, 1.3522319, 0, 0.19996251, 0.12999186, 0.12991387, 0.14999034, 0.17822993, 0.9998434, 0.3856933, -3.5762787e-07, 2.8, 0.09996571, 1.4698514, 2.6698122, -0.15000005, 1.4216133, 0.9998434, 0.3856933, 1.4061083, 0, 0.19996251, 1.5998436, 2.8, 0.09996571, 1.3522319, 2.799726, 0.19996251, 0.12999186, 2.6698122, 0.14999034, 1.4281912, 2.4554818, 0.22628571, 1.4061083, 2.799726, 0.19996251)
+
+[node name="Door_B_rigid" type="RigidBody3D" unique_id=1565488651]
+
+[node name="Door_B_rigid_visual" type="Node3D" parent="." unique_id=543558165]
+
+[node name="Door_B" type="MeshInstance3D" parent="Door_B_rigid_visual" unique_id=86532167]
+mesh = ExtResource("1_g60cu")
+
+[node name="Door_B_col" type="CollisionShape3D" parent="." unique_id=600715761]
+shape = SubResource("ConvexPolygonShape3D_uf2hk")

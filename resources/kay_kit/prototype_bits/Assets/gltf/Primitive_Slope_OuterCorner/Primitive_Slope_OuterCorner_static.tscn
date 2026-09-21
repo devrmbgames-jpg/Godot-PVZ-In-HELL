@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://m36axrsyyu7v"]
+
+[ext_resource type="ArrayMesh" uid="uid://c53t8ebv75raj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Slope_OuterCorner_mesh/Primitive_Slope_OuterCorner_Primitive_Slope_OuterCorner.res" id="1_he1xq"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_iew7i"]
+data = PackedVector3Array(-2, 4, -2, 2, 0, -2, 2, 0, 2, -2, 4, -2, -2, 0, -2, 2, 0, -2, -2, 4, -2, 2, 0, 2, -2, 0, 2, -2, 0, 2, 2, 0, -2, -2, 0, -2, -2, 0, 2, 2, 0, 2, 2, 0, -2, -2, 4, -2, -2, 0, 2, -2, 0, -2)
+
+[node name="Primitive_Slope_OuterCorner_static" type="StaticBody3D" unique_id=433968540]
+
+[node name="Primitive_Slope_OuterCorner_static_visual" type="Node3D" parent="." unique_id=1700075731]
+
+[node name="Primitive_Slope_OuterCorner" type="MeshInstance3D" parent="Primitive_Slope_OuterCorner_static_visual" unique_id=2132212817]
+mesh = ExtResource("1_he1xq")
+
+[node name="Primitive_Slope_OuterCorner_col" type="CollisionShape3D" parent="." unique_id=363217988]
+shape = SubResource("ConcavePolygonShape3D_iew7i")

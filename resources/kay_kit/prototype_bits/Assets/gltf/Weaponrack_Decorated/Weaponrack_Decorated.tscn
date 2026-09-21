@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dqlnvhc12kf4k"]
+
+[ext_resource type="ArrayMesh" uid="uid://dwmfldyi3vqc7" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Weaponrack_Decorated_mesh/Weaponrack_Decorated_Weaponrack_Decorated.res" id="1_tjmoa"]
+
+[node name="Weaponrack_Decorated" type="Node3D" unique_id=1707395199]
+
+[node name="Weaponrack_Decorated" type="MeshInstance3D" parent="." unique_id=415685188]
+mesh = ExtResource("1_tjmoa")

@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://b5sehfmvvloxh"]
+
+[ext_resource type="ArrayMesh" uid="uid://cyg33c16g5jqd" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Door_A_Decorated_mesh/Door_A_Decorated_Door_A_Decorated.res" id="1_grc3y"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_vugoh"]
+points = PackedVector3Array(-3.5762787e-07, 0, -0.10005486, 1.3249805, 0.97983557, -0.27033105, 1.3450276, 0.9450274, -0.27033105, 1.3797965, 0.9247455, -0.27033105, 1.5998436, 0, -0.10005486, -3.5762787e-07, 0, 0.09998131, -3.5762787e-07, 2.8, -0.10005486, 1.3249805, 1.0198512, -0.27033105, 1.4000001, 0.9998434, -0.27303094, 1.4200472, 0.9247455, -0.27033105, 1.5998436, 0, 0.09998131, 1.4548161, 0.9450274, -0.27033105, 1.4750197, 0.97983557, -0.27033105, 1.5169932, 0.9685983, -0.24775028, 1.5998436, 2.8, -0.10005486, 1.3797965, 0.9247455, 0.27031887, 0.45246652, 1.2824198, 0.257249, -3.5762787e-07, 2.8, 0.09998131, 1.3797965, 1.0749413, -0.27033105, 1.3450276, 1.0546594, -0.27033105, 1.4200472, 1.0749413, -0.27033105, 1.4548161, 1.0546594, -0.27033105, 1.4750197, 1.0198512, -0.27033105, 1.5169932, 0.9685983, 0.24767673, 1.4750197, 0.97983557, 0.27031887, 1.4548161, 0.9450274, 0.27031887, 1.4200472, 0.9247455, 0.27031887, 1.5998436, 2.8, 0.09998131, 1.5169932, 1.0313625, -0.24775028, 1.1121379, 2.075881, 0.35383093, 1.5169932, 1.0313625, 0.24767673, 1.4750197, 1.0198512, 0.27031887)
+
+[node name="Door_A_Decorated_rigid" type="RigidBody3D" unique_id=861448121]
+
+[node name="Door_A_Decorated_rigid_visual" type="Node3D" parent="." unique_id=1136675257]
+
+[node name="Door_A_Decorated" type="MeshInstance3D" parent="Door_A_Decorated_rigid_visual" unique_id=667452483]
+mesh = ExtResource("1_grc3y")
+
+[node name="Door_A_Decorated_col" type="CollisionShape3D" parent="." unique_id=1650989656]
+shape = SubResource("ConvexPolygonShape3D_vugoh")

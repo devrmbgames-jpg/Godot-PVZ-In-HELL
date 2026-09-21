@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bx2b5l32fdw5f"]
+
+[ext_resource type="ArrayMesh" uid="uid://bgwcv1m4fhbi3" path="res://resources/kay_kit/prototype_bits/Assets/gltf/target_wall_large_B_mesh/target_wall_large_B_target_wall_large_B.res" id="1_e8ep1"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ir0wn"]
+data = PackedVector3Array(-1, -1, 0.099999994, -1, 1, -0.099999994, -1, 1, 0.099999994, -1, -1, 0.099999994, -1, -1, -0.099999994, -1, 1, -0.099999994, 1, -1, -0.099999994, 1, 1, 0.099999994, 1, 1, -0.099999994, 1, -1, -0.099999994, 1, -1, 0.099999994, 1, 1, 0.099999994, 1, -1, 0.099999994, -1, 1, 0.099999994, 1, 1, 0.099999994, 1, -1, 0.099999994, -1, -1, 0.099999994, -1, 1, 0.099999994, -1, -1, -0.099999994, 1, -1, 0.099999994, 1, -1, -0.099999994, -1, -1, -0.099999994, -1, -1, 0.099999994, 1, -1, 0.099999994, 1, 1, -0.099999994, -1, 1, 0.099999994, -1, 1, -0.099999994, 1, 1, -0.099999994, 1, 1, 0.099999994, -1, 1, 0.099999994, -1, -1, -0.099999994, 1, 1, -0.099999994, -1, 1, -0.099999994, -1, -1, -0.099999994, 1, -1, -0.099999994, 1, 1, -0.099999994)
+
+[node name="target_wall_large_B_static" type="StaticBody3D" unique_id=2104747341]
+
+[node name="target_wall_large_B_static_visual" type="Node3D" parent="." unique_id=1369770287]
+
+[node name="target_wall_large_B" type="MeshInstance3D" parent="target_wall_large_B_static_visual" unique_id=1253150550]
+mesh = ExtResource("1_e8ep1")
+
+[node name="target_wall_large_B_col" type="CollisionShape3D" parent="." unique_id=998336762]
+shape = SubResource("ConcavePolygonShape3D_ir0wn")

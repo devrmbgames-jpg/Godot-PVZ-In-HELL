@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://c5ayhd3q6aptf"
+path="res://.godot/imported/Fail.wav-f3c7651a92e810f9c8d0cb1b6db61b6e.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Retro/Fail.wav"
+dest_files=["res://.godot/imported/Fail.wav-f3c7651a92e810f9c8d0cb1b6db61b6e.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

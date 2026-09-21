@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://076yo04hp136"]
+
+[ext_resource type="ArrayMesh" uid="uid://c53t8ebv75raj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Slope_OuterCorner_mesh/Primitive_Slope_OuterCorner_Primitive_Slope_OuterCorner.res" id="1_6gdq7"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_8dipk"]
+points = PackedVector3Array(-2, 1.4901161e-07, -2, -2, 1.4901161e-07, 2, -2, 3.9996092, -2, 2, 1.4901161e-07, -2, 2, 1.4901161e-07, 2)
+
+[node name="Primitive_Slope_OuterCorner_rigid" type="RigidBody3D" unique_id=1688361246]
+
+[node name="Primitive_Slope_OuterCorner_rigid_visual" type="Node3D" parent="." unique_id=24162704]
+
+[node name="Primitive_Slope_OuterCorner" type="MeshInstance3D" parent="Primitive_Slope_OuterCorner_rigid_visual" unique_id=536284566]
+mesh = ExtResource("1_6gdq7")
+
+[node name="Primitive_Slope_OuterCorner_col" type="CollisionShape3D" parent="." unique_id=1868985451]
+shape = SubResource("ConvexPolygonShape3D_8dipk")

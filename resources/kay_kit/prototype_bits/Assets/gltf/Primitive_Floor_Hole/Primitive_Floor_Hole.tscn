@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://pbn4k8ahpaj0"]
+
+[ext_resource type="ArrayMesh" uid="uid://cykgac3gthpsg" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Floor_Hole_mesh/Primitive_Floor_Hole_Primitive_Floor_Hole.res" id="1_ae8am"]
+
+[node name="Primitive_Floor_Hole" type="Node3D" unique_id=1897158417]
+
+[node name="Primitive_Floor_Hole" type="MeshInstance3D" parent="." unique_id=723623120]
+mesh = ExtResource("1_ae8am")

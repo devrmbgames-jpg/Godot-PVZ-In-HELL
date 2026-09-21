@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://c8p13pgxpu1fj"]
+
+[ext_resource type="ArrayMesh" uid="uid://bol2432vgluly" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Pillar_mesh/Primitive_Pillar_Primitive_Pillar.res" id="1_d0wkf"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_s5xf3"]
+data = PackedVector3Array(-0.5, 4, -0.5, 0.5, 0, -0.5, 0.5, 4, -0.5, -0.5, 4, -0.5, -0.5, 0, -0.5, 0.5, 0, -0.5, 0.5, 4, 0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, 0.5, 4, 0.5, 0.5, 4, -0.5, 0.5, 0, -0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, -0.5, 0, -0.5, -0.5, 0, 0.5, 0.5, 0, 0.5, 0.5, 0, -0.5, 0.5, 4, 0.5, -0.5, 0, 0.5, -0.5, 4, 0.5, 0.5, 4, 0.5, 0.5, 0, 0.5, -0.5, 0, 0.5, 0.5, 4, 0.5, -0.5, 4, -0.5, 0.5, 4, -0.5, 0.5, 4, 0.5, -0.5, 4, 0.5, -0.5, 4, -0.5, -0.5, 4, 0.5, -0.5, 0, -0.5, -0.5, 4, -0.5, -0.5, 4, 0.5, -0.5, 0, 0.5, -0.5, 0, -0.5)
+
+[node name="Primitive_Pillar_static" type="StaticBody3D" unique_id=178561079]
+
+[node name="Primitive_Pillar_static_visual" type="Node3D" parent="." unique_id=1230713921]
+
+[node name="Primitive_Pillar" type="MeshInstance3D" parent="Primitive_Pillar_static_visual" unique_id=883176904]
+mesh = ExtResource("1_d0wkf")
+
+[node name="Primitive_Pillar_col" type="CollisionShape3D" parent="." unique_id=1365334695]
+shape = SubResource("ConcavePolygonShape3D_s5xf3")

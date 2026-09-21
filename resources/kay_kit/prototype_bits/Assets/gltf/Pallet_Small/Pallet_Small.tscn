@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://sm2ygur3rn7a"]
+
+[ext_resource type="ArrayMesh" uid="uid://d27whdqopvdkf" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pallet_Small_mesh/Pallet_Small_Pallet_Small.res" id="1_m01pq"]
+
+[node name="Pallet_Small" type="Node3D" unique_id=187985636]
+
+[node name="Pallet_Small" type="MeshInstance3D" parent="." unique_id=1125978957]
+mesh = ExtResource("1_m01pq")

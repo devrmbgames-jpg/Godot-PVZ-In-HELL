@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://b34yi2o7hxnnd"]
+
+[ext_resource type="ArrayMesh" uid="uid://dqfkqc3v6dxex" path="res://resources/kay_kit/prototype_bits/Assets/gltf/target_pieces_B_mesh/target_pieces_B_target_pieces_B.res" id="1_btt60"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_bua8i"]
+points = PackedVector3Array(-1.738469e-08, -4.5746565e-05, 7.5725115e-10, 0.23472983, -0.406671, 7.5725115e-10, 0.14932458, -0.25878298, 0.19998042, -1.738469e-08, -4.5746565e-05, 0.19998042, 0.115651906, 0.066744536, 0.19998042, 0.43299723, 0.25, 0.16117854, 0.4065681, 0.23468971, 7.5725115e-10, 0.24999999, -0.43301272, 0.16117854, 0.22802465, -0.39503786, 0.19998042, 0.4065681, -0.23478125, 7.5725115e-10, 0.43299723, -0.25002468, 0.16117854, 0.39496866, 0.22800404, 0.19998042, 0.45609826, -4.5746565e-05, 0.19998042, 0.49999997, -4.5746565e-05, 0.16117854, 0.4695086, -4.5746565e-05, 7.5725115e-10, 0.39496866, -0.22809553, 0.19998042)
+
+[node name="target_pieces_B_rigid" type="RigidBody3D" unique_id=1388850879]
+
+[node name="target_pieces_B_rigid_visual" type="Node3D" parent="." unique_id=484901392]
+
+[node name="target_pieces_B" type="MeshInstance3D" parent="target_pieces_B_rigid_visual" unique_id=1141176515]
+mesh = ExtResource("1_btt60")
+
+[node name="target_pieces_B_col" type="CollisionShape3D" parent="." unique_id=1388618922]
+shape = SubResource("ConvexPolygonShape3D_bua8i")

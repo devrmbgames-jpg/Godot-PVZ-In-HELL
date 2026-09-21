@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://diguh8du3e7gh"
+path="res://.godot/imported/Phase Missile.wav-dfc064befbbf58e05a8b393a9f4537d8.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Sci-Fi/Phase Missile.wav"
+dest_files=["res://.godot/imported/Phase Missile.wav-dfc064befbbf58e05a8b393a9f4537d8.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

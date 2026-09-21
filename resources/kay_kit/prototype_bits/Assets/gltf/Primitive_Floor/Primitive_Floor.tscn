@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://jfitg84xpitw"]
+
+[ext_resource type="ArrayMesh" uid="uid://bc0c54fb11a3u" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Floor_mesh/Primitive_Floor_Primitive_Floor.res" id="1_74bri"]
+
+[node name="Primitive_Floor" type="Node3D" unique_id=2090451827]
+
+[node name="Primitive_Floor" type="MeshInstance3D" parent="." unique_id=1332260113]
+mesh = ExtResource("1_74bri")

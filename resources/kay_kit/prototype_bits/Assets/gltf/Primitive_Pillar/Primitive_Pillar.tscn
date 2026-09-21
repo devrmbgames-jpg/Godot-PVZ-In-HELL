@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://di0hqovybm68o"]
+
+[ext_resource type="ArrayMesh" uid="uid://bol2432vgluly" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Pillar_mesh/Primitive_Pillar_Primitive_Pillar.res" id="1_hutbb"]
+
+[node name="Primitive_Pillar" type="Node3D" unique_id=1367489924]
+
+[node name="Primitive_Pillar" type="MeshInstance3D" parent="." unique_id=1078765177]
+mesh = ExtResource("1_hutbb")

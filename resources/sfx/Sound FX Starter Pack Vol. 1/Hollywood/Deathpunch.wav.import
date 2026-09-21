@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://rh3m4b87350i"
+path="res://.godot/imported/Deathpunch.wav-257fffdbe0d7295cd8d665fd3cc92da7.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Hollywood/Deathpunch.wav"
+dest_files=["res://.godot/imported/Deathpunch.wav-257fffdbe0d7295cd8d665fd3cc92da7.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

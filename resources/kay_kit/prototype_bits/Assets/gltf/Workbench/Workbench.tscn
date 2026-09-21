@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://hw8gl86cmidu"]
+
+[ext_resource type="ArrayMesh" uid="uid://buwg6cek848kp" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Workbench_mesh/Workbench_Workbench.res" id="1_gjvhp"]
+
+[node name="Workbench" type="Node3D" unique_id=2041370188]
+
+[node name="Workbench" type="MeshInstance3D" parent="." unique_id=268546690]
+mesh = ExtResource("1_gjvhp")

@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://c43fl5piyrtj8"]
+
+[ext_resource type="ArrayMesh" uid="uid://cnqsh1wtwbjrf" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Slope_Half_InnerCorner_mesh/Primitive_Slope_Half_InnerCorner_Primitive_Slope_Half_InnerCorner.res" id="1_2uh21"]
+
+[node name="Primitive_Slope_Half_InnerCorner" type="Node3D" unique_id=571050487]
+
+[node name="Primitive_Slope_Half_InnerCorner" type="MeshInstance3D" parent="." unique_id=1556026657]
+mesh = ExtResource("1_2uh21")

@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://d38pdec43elhx"]
+
+[ext_resource type="ArrayMesh" uid="uid://bid3ckgwsqm07" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Locker_mesh/Locker_Locker.res" id="1_owtij"]
+[ext_resource type="ArrayMesh" uid="uid://3cbboe4o34ut" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Locker_mesh/Locker_Locker_Door.res" id="2_64ya0"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_26h7g"]
+points = PackedVector3Array(0.49990213, 0.1999804, 0.5000001, 0.5, 3, 0.49990225, -0.5, 3, 0.49990225, 0.49990213, -2.9802322e-08, 0.5000001, 0.5, 3, -0.5000001, 0.5, 0.1999804, 0.49990225, -0.5, 3, -0.5000001, -0.5, -2.9802322e-08, 0.49990225, 0.49990213, -2.9802322e-08, -0.5000001, 0.5, 0.1999804, -0.5000001, -0.5, -2.9802322e-08, -0.5000001)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_i33c6"]
+points = PackedVector3Array(-6.109476e-06, -1.3, 0, 0.79991555, -1.3, 0, -6.109476e-06, -1.3, 0.04999706, -6.109476e-06, 1.3, 0, 0.79991555, -1.3, 0.04999706, 0.79991555, 1.3, 0, 0.049954735, -1.2501174, 0.09999412, -6.109476e-06, 1.3, 0.04999706, 0.7499547, -1.2501174, 0.09999412, 0.79991555, 1.3, 0.04999706, 0.2808083, -0.8202623, 0.13, 0.049954735, 1.2498629, 0.09999412, 0.51910114, -0.8202623, 0.13, 0.7499547, 1.2498629, 0.09999412, 0.2808083, 0.9798355, 0.13, 0.51910114, 0.9798355, 0.13)
+
+[node name="Locker_rigid" type="RigidBody3D" unique_id=1468435998]
+
+[node name="Locker_rigid_visual" type="Node3D" parent="." unique_id=2091523913]
+
+[node name="Locker" type="MeshInstance3D" parent="Locker_rigid_visual" unique_id=1343536515]
+mesh = ExtResource("1_owtij")
+
+[node name="Locker_Door" type="MeshInstance3D" parent="Locker_rigid_visual/Locker" unique_id=1715605847]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3999939, 1.6000004, 0.4500003)
+mesh = ExtResource("2_64ya0")
+
+[node name="Locker_col" type="CollisionShape3D" parent="." unique_id=1860435289]
+shape = SubResource("ConvexPolygonShape3D_26h7g")
+
+[node name="Locker_Door_col" type="CollisionShape3D" parent="." unique_id=1769334561]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3999939, 1.6000004, 0.4500003)
+shape = SubResource("ConvexPolygonShape3D_i33c6")

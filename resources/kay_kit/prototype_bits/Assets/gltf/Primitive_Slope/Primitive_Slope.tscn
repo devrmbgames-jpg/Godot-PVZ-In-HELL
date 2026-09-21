@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://b8i7vr82x5l6b"]
+
+[ext_resource type="ArrayMesh" uid="uid://b4vhcelm1mx7d" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Slope_mesh/Primitive_Slope_Primitive_Slope.res" id="1_1u75k"]
+
+[node name="Primitive_Slope" type="Node3D" unique_id=326470744]
+
+[node name="Primitive_Slope" type="MeshInstance3D" parent="." unique_id=404958540]
+mesh = ExtResource("1_1u75k")

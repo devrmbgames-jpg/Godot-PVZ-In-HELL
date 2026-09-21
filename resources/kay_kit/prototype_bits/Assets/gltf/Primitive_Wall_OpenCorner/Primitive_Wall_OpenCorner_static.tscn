@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://camkr0femm8bk"]
+
+[ext_resource type="ArrayMesh" uid="uid://bvb7r1l67v3hs" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_OpenCorner_mesh/Primitive_Wall_OpenCorner_Primitive_Wall_OpenCorner.res" id="1_gfk5l"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ry1jo"]
+data = PackedVector3Array(2, 0, -0.5, 2, 4, -0.5, 0, 2, -0.5, 0, 2, -0.5, 2, 4, -0.5, 0, 4, -0.5, 0, 2, -0.5, -2, 0, -0.5, 2, 0, -0.5, -2, 2, -0.5, -2, 0, -0.5, 0, 2, -0.5, 0, 4, 0.5, 2, 4, 0.5, 0, 2, 0.5, 0, 2, 0.5, 2, 4, 0.5, 2, 0, 0.5, 2, 0, 0.5, -2, 0, 0.5, 0, 2, 0.5, 0, 2, 0.5, -2, 0, 0.5, -2, 2, 0.5, 0, 2, 0.5, -2, 2, -0.5, 0, 2, -0.5, 0, 2, 0.5, -2, 2, 0.5, -2, 2, -0.5, -2, 2, 0.5, -2, 0, -0.5, -2, 2, -0.5, -2, 2, 0.5, -2, 0, 0.5, -2, 0, -0.5, 0, 2, -0.5, 0, 4, 0.5, 0, 2, 0.5, 0, 2, -0.5, 0, 4, -0.5, 0, 4, 0.5, -2, 0, 0.5, 2, 0, -0.5, -2, 0, -0.5, -2, 0, 0.5, 2, 0, 0.5, 2, 0, -0.5, 2, 0, 0.5, 2, 4, -0.5, 2, 0, -0.5, 2, 0, 0.5, 2, 4, 0.5, 2, 4, -0.5, 2, 4, 0.5, 0, 4, -0.5, 2, 4, -0.5, 2, 4, 0.5, 0, 4, 0.5, 0, 4, -0.5)
+
+[node name="Primitive_Wall_OpenCorner_static" type="StaticBody3D" unique_id=602944777]
+
+[node name="Primitive_Wall_OpenCorner_static_visual" type="Node3D" parent="." unique_id=497215051]
+
+[node name="Primitive_Wall_OpenCorner" type="MeshInstance3D" parent="Primitive_Wall_OpenCorner_static_visual" unique_id=839816436]
+mesh = ExtResource("1_gfk5l")
+
+[node name="Primitive_Wall_OpenCorner_col" type="CollisionShape3D" parent="." unique_id=206825594]
+shape = SubResource("ConcavePolygonShape3D_ry1jo")

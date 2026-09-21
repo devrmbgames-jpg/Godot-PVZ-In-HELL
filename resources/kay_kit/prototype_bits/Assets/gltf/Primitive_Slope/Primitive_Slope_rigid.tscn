@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://33vgxvv81ey6"]
+
+[ext_resource type="ArrayMesh" uid="uid://b4vhcelm1mx7d" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Slope_mesh/Primitive_Slope_Primitive_Slope.res" id="1_8fu16"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_r0fyn"]
+points = PackedVector3Array(-2, 1.4901161e-07, -2, -2, 1.4901161e-07, 2, -2, 3.9996092, -2, 2, 1.4901161e-07, -2, 2, 1.4901161e-07, 2, -2, 3.9996092, 2)
+
+[node name="Primitive_Slope_rigid" type="RigidBody3D" unique_id=1656772484]
+
+[node name="Primitive_Slope_rigid_visual" type="Node3D" parent="." unique_id=66457013]
+
+[node name="Primitive_Slope" type="MeshInstance3D" parent="Primitive_Slope_rigid_visual" unique_id=1002585700]
+mesh = ExtResource("1_8fu16")
+
+[node name="Primitive_Slope_col" type="CollisionShape3D" parent="." unique_id=1147987358]
+shape = SubResource("ConvexPolygonShape3D_r0fyn")

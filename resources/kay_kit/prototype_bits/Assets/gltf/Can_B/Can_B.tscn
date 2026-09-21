@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://dqv2jke6edmei"]
+
+[ext_resource type="ArrayMesh" uid="uid://bw2qhmerf21sc" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Can_B_mesh/Can_B_Can_B.res" id="1_4tpbm"]
+
+[node name="Can_B" type="Node3D" unique_id=540522835]
+
+[node name="Can_B" type="MeshInstance3D" parent="." unique_id=976505042]
+mesh = ExtResource("1_4tpbm")

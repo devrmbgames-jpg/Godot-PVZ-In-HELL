@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://clrxrowku0vdh"]
+
+[ext_resource type="ArrayMesh" uid="uid://bqppwi4xuacif" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Cube_Prototype_Large_B_mesh/Cube_Prototype_Large_B_Cube_Prototype_Large_B.res" id="1_a6iwe"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ku3jf"]
+points = PackedVector3Array(-2, 0.09984355, -1.9001566, -1.9001566, 1.4901161e-07, -1.9001566, -2, 0.09984355, 1.899765, -2, 3.899766, -1.9001566, -1.9001566, 0.09984355, -2, -1.9001566, 1.4901161e-07, 1.899765, 1.899765, 1.4901161e-07, -1.9001566, -1.9001566, 0.09984355, 2, -2, 3.899766, 1.899765, -1.9001566, 3.9996092, -1.9001566, -1.9001566, 3.899766, -2, 1.899765, 0.09984355, -2, 1.899765, 1.4901161e-07, 1.899765, 2, 0.09984355, -1.9001566, 1.899765, 0.09984355, 2, -1.9001566, 3.899766, 2, -1.9001566, 3.9996092, 1.899765, 1.899765, 3.9996092, -1.9001566, 1.899765, 3.899766, -2, 2, 0.09984355, 1.899765, 2, 3.899766, -1.9001566, 1.899765, 3.899766, 2, 1.899765, 3.9996092, 1.899765, 2, 3.899766, 1.899765)
+
+[node name="Cube_Prototype_Large_B_rigid" type="RigidBody3D" unique_id=1802309924]
+
+[node name="Cube_Prototype_Large_B_rigid_visual" type="Node3D" parent="." unique_id=1112337312]
+
+[node name="Cube_Prototype_Large_B" type="MeshInstance3D" parent="Cube_Prototype_Large_B_rigid_visual" unique_id=517849249]
+mesh = ExtResource("1_a6iwe")
+
+[node name="Cube_Prototype_Large_B_col" type="CollisionShape3D" parent="." unique_id=1262755904]
+shape = SubResource("ConvexPolygonShape3D_ku3jf")

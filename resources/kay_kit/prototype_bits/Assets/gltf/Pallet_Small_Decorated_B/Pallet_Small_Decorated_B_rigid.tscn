@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://de28bwkvjyv2c"]
+
+[ext_resource type="ArrayMesh" uid="uid://ctbck1bxcljqd" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pallet_Small_Decorated_B_mesh/Pallet_Small_Decorated_B_Pallet_Small_Decorated_B.res" id="1_yt734"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_wowf8"]
+points = PackedVector3Array(-1, -2.9802322e-08, -1, 1, -2.9802322e-08, -1, -1, -2.9802322e-08, 1, -1, 1.9998043, -1, 1, -2.9802322e-08, 1, 1, 1.9998043, -1, -1, 1.9998043, 1, -1, 2.9747455, -0.5, -0.9330462, 2.9747455, -0.75, -0.75019574, 2.9747455, -0.9330462, -0.5, 2.9747455, -1, 1, 1.9998043, 1, 0.5, 2.9747455, -1, 0.75, 2.9747455, -0.9330462, 0.9328505, 2.9747455, -0.75, 1, 2.9747455, -0.5, -0.50019574, 2.9747455, 1, -0.75, 2.9747455, 0.9328505, -0.9330462, 2.9747455, 0.75, -1, 2.9747455, 0.5, -0.9690681, 3, -0.5, -0.9062255, 3, -0.734534, -0.734534, 3, -0.9062255, -0.5, 3, -0.9690681, 0.9624119, 2.3797965, 0.65622556, 0.9489037, 2.3797965, 0.6808927, 0.62157404, 2.7797573, 0.662686, 0.5969068, 2.7797573, 0.6765858, -0.25, 2.9747455, 0.9328505, 0.5, 3, -0.9690681, 0.7343383, 3, -0.9062255, 0.9060297, 3, -0.734534, 0.9688723, 3, -0.5, 0.9060297, 3, -0.26566172, 0.9328505, 2.9747455, -0.25, -0.26566172, 3, 0.9060297, -0.50019574, 3, 0.9688723, -0.734534, 3, 0.9060297, -0.9062255, 3, 0.7343383, -0.9690681, 3, 0.5, 0.94322634, 2.399765, 0.66170716, 0.6023884, 2.799726, 0.6572044)
+
+[node name="Pallet_Small_Decorated_B_rigid" type="RigidBody3D" unique_id=806991382]
+
+[node name="Pallet_Small_Decorated_B_rigid_visual" type="Node3D" parent="." unique_id=1568756323]
+
+[node name="Pallet_Small_Decorated_B" type="MeshInstance3D" parent="Pallet_Small_Decorated_B_rigid_visual" unique_id=1207879502]
+mesh = ExtResource("1_yt734")
+
+[node name="Pallet_Small_Decorated_B_col" type="CollisionShape3D" parent="." unique_id=354296370]
+shape = SubResource("ConvexPolygonShape3D_wowf8")

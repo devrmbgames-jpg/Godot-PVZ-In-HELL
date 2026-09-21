@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cpkpiqusv8c6u"
+path="res://.godot/imported/Swoosh Machines.wav-3b46bc042e9ccb560aa69462641ca3e1.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Motions and Impacts/Swoosh Machines.wav"
+dest_files=["res://.godot/imported/Swoosh Machines.wav-3b46bc042e9ccb560aa69462641ca3e1.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://dlompjkr7yc4i"]
+
+[ext_resource type="ArrayMesh" uid="uid://chqrqd7xhbsu1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Stairs_mesh/Primitive_Stairs_Primitive_Stairs.res" id="1_pvubf"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_rdnpk"]
+points = PackedVector3Array(-2, 1.4901161e-07, -2, 2, 1.4901161e-07, -2, -2, 1.4901161e-07, 2, -2, 3.9996092, -2, 2, 1.4901161e-07, 2, 2, 0.4996087, -2, -2, 3.9996092, 2, -1.5, 3.9996092, -2, 2, 0.4996087, 2, -1.5, 3.9996092, 2)
+
+[node name="Primitive_Stairs_rigid" type="RigidBody3D" unique_id=1527699568]
+
+[node name="Primitive_Stairs_rigid_visual" type="Node3D" parent="." unique_id=1564777543]
+
+[node name="Primitive_Stairs" type="MeshInstance3D" parent="Primitive_Stairs_rigid_visual" unique_id=837575898]
+mesh = ExtResource("1_pvubf")
+
+[node name="Primitive_Stairs_col" type="CollisionShape3D" parent="." unique_id=1778021574]
+shape = SubResource("ConvexPolygonShape3D_rdnpk")

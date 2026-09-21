@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://cdf88gcyap57a"]
+
+[ext_resource type="ArrayMesh" uid="uid://cnqsh1wtwbjrf" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Slope_Half_InnerCorner_mesh/Primitive_Slope_Half_InnerCorner_Primitive_Slope_Half_InnerCorner.res" id="1_liaxi"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_s14le"]
+points = PackedVector3Array(-2, 1.4901161e-07, -2, -2, 1.4901161e-07, 2, -2, 3.9996092, -2, 2, 1.4901161e-07, -2, 2, 1.4901161e-07, 2, -2, 3.9996092, 2, 2, 3.9996092, -2, 2, 1.9996089, 2, 0, 3.9996092, 2, 2, 3.9996092, 0)
+
+[node name="Primitive_Slope_Half_InnerCorner_rigid" type="RigidBody3D" unique_id=1231448485]
+
+[node name="Primitive_Slope_Half_InnerCorner_rigid_visual" type="Node3D" parent="." unique_id=1869671172]
+
+[node name="Primitive_Slope_Half_InnerCorner" type="MeshInstance3D" parent="Primitive_Slope_Half_InnerCorner_rigid_visual" unique_id=520839254]
+mesh = ExtResource("1_liaxi")
+
+[node name="Primitive_Slope_Half_InnerCorner_col" type="CollisionShape3D" parent="." unique_id=1740123063]
+shape = SubResource("ConvexPolygonShape3D_s14le")

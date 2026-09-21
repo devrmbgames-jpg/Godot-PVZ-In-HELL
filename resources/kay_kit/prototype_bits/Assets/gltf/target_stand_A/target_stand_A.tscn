@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://d0hlt31jbye4"]
+
+[ext_resource type="ArrayMesh" uid="uid://chw23qtla22yh" path="res://resources/kay_kit/prototype_bits/Assets/gltf/target_stand_A_mesh/target_stand_A_target_stand_A.res" id="1_ctafu"]
+
+[node name="target_stand_A" type="Node3D" unique_id=2016132074]
+
+[node name="target_stand_A" type="MeshInstance3D" parent="." unique_id=356980531]
+mesh = ExtResource("1_ctafu")

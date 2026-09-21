@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://outeikjg1sen"]
+
+[ext_resource type="ArrayMesh" uid="uid://1l380s1l5jp2" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Bullet_mesh/Bullet_Bullet.res" id="1_p6lol"]
+
+[node name="Bullet" type="Node3D" unique_id=1025489561]
+
+[node name="Bullet" type="MeshInstance3D" parent="." unique_id=787207313]
+mesh = ExtResource("1_p6lol")

@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://ce1c3qlb6ctag"]
+
+[ext_resource type="ArrayMesh" uid="uid://cnqsh1wtwbjrf" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Slope_Half_InnerCorner_mesh/Primitive_Slope_Half_InnerCorner_Primitive_Slope_Half_InnerCorner.res" id="1_viu0n"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_0c01y"]
+data = PackedVector3Array(2, 2, 2, 2, 0, -2, 2, 0, 2, 2, 4, 0, 2, 0, -2, 2, 2, 2, 2, 4, -2, 2, 0, -2, 2, 4, 0, -2, 0, 2, 2, 2, 2, 2, 0, 2, 0, 4, 2, 2, 2, 2, -2, 0, 2, -2, 4, 2, 0, 4, 2, -2, 0, 2, -2, 4, -2, -2, 0, 2, -2, 0, -2, -2, 4, 2, -2, 0, 2, -2, 4, -2, 0, 4, 0, 2, 4, -2, 2, 4, 0, -2, 4, -2, 2, 4, -2, 0, 4, 0, -2, 4, -2, 0, 4, 0, -2, 4, 2, -2, 4, 2, 0, 4, 0, 0, 4, 2, -2, 4, -2, 2, 0, -2, 2, 4, -2, -2, 4, -2, -2, 0, -2, 2, 0, -2, 2, 2, 2, 0, 4, 0, 2, 4, 0, -2, 0, -2, 2, 0, 2, 2, 0, -2, -2, 0, -2, -2, 0, 2, 2, 0, 2, 0, 4, 2, 0, 4, 0, 2, 2, 2)
+
+[node name="Primitive_Slope_Half_InnerCorner_static" type="StaticBody3D" unique_id=1827893501]
+
+[node name="Primitive_Slope_Half_InnerCorner_static_visual" type="Node3D" parent="." unique_id=1502639515]
+
+[node name="Primitive_Slope_Half_InnerCorner" type="MeshInstance3D" parent="Primitive_Slope_Half_InnerCorner_static_visual" unique_id=827572214]
+mesh = ExtResource("1_viu0n")
+
+[node name="Primitive_Slope_Half_InnerCorner_col" type="CollisionShape3D" parent="." unique_id=1818501968]
+shape = SubResource("ConcavePolygonShape3D_0c01y")

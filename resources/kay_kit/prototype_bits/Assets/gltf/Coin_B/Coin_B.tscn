@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bs6k3bqnjidhv"]
+
+[ext_resource type="ArrayMesh" uid="uid://djn1ba82qxjqt" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Coin_B_mesh/Coin_B_Coin_B.res" id="1_4uxkh"]
+
+[node name="Coin_B" type="Node3D" unique_id=868838408]
+
+[node name="Coin_B" type="MeshInstance3D" parent="." unique_id=2004476383]
+mesh = ExtResource("1_4uxkh")

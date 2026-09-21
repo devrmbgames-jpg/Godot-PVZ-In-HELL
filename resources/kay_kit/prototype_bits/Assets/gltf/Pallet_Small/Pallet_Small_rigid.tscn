@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://cb6fucppk4mg5"]
+
+[ext_resource type="ArrayMesh" uid="uid://d27whdqopvdkf" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pallet_Small_mesh/Pallet_Small_Pallet_Small.res" id="1_skrk1"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_v4bos"]
+points = PackedVector3Array(-1, -2.9802322e-08, -1, -1, -2.9802322e-08, 1, -1, 0.49999994, -1, 1, -2.9802322e-08, -1, -1, 0.49999994, 1, 1, -2.9802322e-08, 1, 1, 0.49999994, -1, 1, 0.49999994, 1)
+
+[node name="Pallet_Small_rigid" type="RigidBody3D" unique_id=563536612]
+
+[node name="Pallet_Small_rigid_visual" type="Node3D" parent="." unique_id=736390017]
+
+[node name="Pallet_Small" type="MeshInstance3D" parent="Pallet_Small_rigid_visual" unique_id=368469312]
+mesh = ExtResource("1_skrk1")
+
+[node name="Pallet_Small_col" type="CollisionShape3D" parent="." unique_id=288493166]
+shape = SubResource("ConvexPolygonShape3D_v4bos")

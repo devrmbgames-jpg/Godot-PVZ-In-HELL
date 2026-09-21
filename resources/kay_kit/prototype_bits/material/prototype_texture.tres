@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://37ywadvx1xgs"]
+
+[ext_resource type="Texture2D" uid="uid://ddp10fed6hm8p" path="res://resources/kay_kit/prototype_bits/textures/prototypebits_texture.png" id="1_2doap"]
+
+[resource]
+resource_name = "prototype_texture"
+albedo_texture = ExtResource("1_2doap")
+roughness = 0.4
+metadata/_gltf_primary_texture_coord = 0

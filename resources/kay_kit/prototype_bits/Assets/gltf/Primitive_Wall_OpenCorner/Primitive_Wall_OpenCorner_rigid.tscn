@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://dg2s0pm35ovcx"]
+
+[ext_resource type="ArrayMesh" uid="uid://bvb7r1l67v3hs" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_OpenCorner_mesh/Primitive_Wall_OpenCorner_Primitive_Wall_OpenCorner.res" id="1_sj500"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_rnfdb"]
+points = PackedVector3Array(-2, 1.4901161e-07, -0.50000006, -2, 1.4901161e-07, 0.4999022, -2, 1.9996089, -0.50000006, 2, 1.4901161e-07, -0.50000006, 2, 1.4901161e-07, 0.4999022, -2, 1.9996089, 0.4999022, 0, 3.9996092, -0.50000006, 2, 3.9996092, -0.50000006, 2, 3.9996092, 0.4999022, 0, 3.9996092, 0.4999022)
+
+[node name="Primitive_Wall_OpenCorner_rigid" type="RigidBody3D" unique_id=1466841552]
+
+[node name="Primitive_Wall_OpenCorner_rigid_visual" type="Node3D" parent="." unique_id=1479659455]
+
+[node name="Primitive_Wall_OpenCorner" type="MeshInstance3D" parent="Primitive_Wall_OpenCorner_rigid_visual" unique_id=1931762671]
+mesh = ExtResource("1_sj500")
+
+[node name="Primitive_Wall_OpenCorner_col" type="CollisionShape3D" parent="." unique_id=116376440]
+shape = SubResource("ConvexPolygonShape3D_rnfdb")

@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://btt6p55n3d4cs"]
+
+[ext_resource type="ArrayMesh" uid="uid://d0vmhd2hiqk4j" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_Short_mesh/Primitive_Wall_Short_Primitive_Wall_Short.res" id="1_4tcra"]
+
+[node name="Primitive_Wall_Short" type="Node3D" unique_id=245347786]
+
+[node name="Primitive_Wall_Short" type="MeshInstance3D" parent="." unique_id=979029112]
+mesh = ExtResource("1_4tcra")

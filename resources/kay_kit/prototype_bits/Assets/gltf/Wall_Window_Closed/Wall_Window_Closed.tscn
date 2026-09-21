@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://c6yu7qxi43evf"]
+
+[ext_resource type="ArrayMesh" uid="uid://2kiy80xpmpxo" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Wall_Window_Closed_mesh/Wall_Window_Closed_Wall_Window_Closed.res" id="1_58jiq"]
+
+[node name="Wall_Window_Closed" type="Node3D" unique_id=1026992335]
+
+[node name="Wall_Window_Closed" type="MeshInstance3D" parent="." unique_id=1562185523]
+mesh = ExtResource("1_58jiq")

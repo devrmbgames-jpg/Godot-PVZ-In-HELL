@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://caqlrq7nry76e"
+path="res://.godot/imported/Weapon Upgrade.wav-55d698c5a9a376d7b85fce2a3a3c6220.sample"
+
+[deps]
+
+source_file="res://resources/sfx/Sound FX Starter Pack Vol. 1/Medieval/Weapon Upgrade.wav"
+dest_files=["res://.godot/imported/Weapon Upgrade.wav-55d698c5a9a376d7b85fce2a3a3c6220.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

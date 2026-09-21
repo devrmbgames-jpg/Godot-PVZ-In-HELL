@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bsiuqrphixamt"]
+
+[ext_resource type="ArrayMesh" uid="uid://brguk33j1tgcr" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Cube_mesh/Primitive_Cube_Primitive_Cube.res" id="1_a6xlo"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qdek5"]
+points = PackedVector3Array(-2, 1.4901161e-07, -2, -2, 1.4901161e-07, 2, -2, 3.9996092, -2, 2, 1.4901161e-07, -2, 2, 1.4901161e-07, 2, -2, 3.9996092, 2, 2, 3.9996092, -2, 2, 3.9996092, 2)
+
+[node name="Primitive_Cube_rigid" type="RigidBody3D" unique_id=2091350415]
+
+[node name="Primitive_Cube_rigid_visual" type="Node3D" parent="." unique_id=1630528952]
+
+[node name="Primitive_Cube" type="MeshInstance3D" parent="Primitive_Cube_rigid_visual" unique_id=421864390]
+mesh = ExtResource("1_a6xlo")
+
+[node name="Primitive_Cube_col" type="CollisionShape3D" parent="." unique_id=1819348152]
+shape = SubResource("ConvexPolygonShape3D_qdek5")

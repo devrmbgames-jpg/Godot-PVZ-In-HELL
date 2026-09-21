@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://dcvggegf3xlxh"]
+
+[ext_resource type="ArrayMesh" uid="uid://dew5rp4mejx5d" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor_Dirt_mesh/Floor_Dirt_Floor_Dirt.res" id="1_rleca"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_yy6hk"]
+points = PackedVector3Array(-2, 0, -2, -2, 0, 2, -2, 0.39999023, -2, 2, 0, -2, -2, 0.39999023, 2, 2, 0, 2, -1.9001566, 0.49996185, -1.9001566, 2, 0.39999023, -2, -1.9001566, 0.49996185, 1.899765, 2, 0.39999023, 2, -1.3778386, 0.5299482, -1.6252936, -1.2572435, 0.5299482, -1.6707126, 1.899765, 0.49996185, -1.9001566, -1.0019577, 0.5299482, 1.5853562, -1.1135473, 0.5299482, 1.5215349, 1.899765, 0.49996185, 1.899765, -1.0371966, 0.53000003, 0.2529366, 1.0223179, 0.53000003, -1.4142522, 1.2223961, 0.53000003, -1.403289, 1.3371181, 0.5299482, -1.1433046, 1.3825371, 0.5299482, -1.0231011, -0.9780736, 0.53000003, 0.4389193, 1.0794833, 0.5299482, 1.5759592, 1.1996868, 0.5299482, 1.5297573)
+
+[node name="Floor_Dirt_rigid" type="RigidBody3D" unique_id=481860195]
+
+[node name="Floor_Dirt_rigid_visual" type="Node3D" parent="." unique_id=1974220431]
+
+[node name="Floor_Dirt" type="MeshInstance3D" parent="Floor_Dirt_rigid_visual" unique_id=195401308]
+mesh = ExtResource("1_rleca")
+
+[node name="Floor_Dirt_col" type="CollisionShape3D" parent="." unique_id=71449911]
+shape = SubResource("ConvexPolygonShape3D_yy6hk")

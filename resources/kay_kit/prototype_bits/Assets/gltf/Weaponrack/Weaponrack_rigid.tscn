@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bydtcwlkd4bs5"]
+
+[ext_resource type="ArrayMesh" uid="uid://d2fmk7ydwjtdm" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Weaponrack_mesh/Weaponrack_Weaponrack.res" id="1_ww4k7"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_s2gd4"]
+points = PackedVector3Array(-0.7, 0.019968677, -0.23003133, -0.6801292, 0.019968677, -0.25, -0.6801292, 0, -0.23003133, -0.7, 0.019968677, 0.529953, -0.7, 1.4798845, -0.23003133, 0.67999226, 0.019968677, -0.25, -0.6801292, 1.4798845, -0.25, -0.6801292, 0, 0.529953, 0.67999226, 0, -0.23003133, -0.6801292, 0.019968677, 0.5499217, -0.7, 0.07987471, 0.529953, -0.7, 1.4798845, 0.029953003, -0.6801292, 1.5, -0.23003133, 0.699863, 0.019968677, -0.23003133, 0.67999226, 1.4798845, -0.25, 0.67999226, 0, 0.529953, 0.67999226, 0.019968677, 0.5499217, -0.6801292, 0.07987471, 0.5499217, -0.6801292, 1.4798845, 0.04992169, -0.6801292, 1.5, 0.029953003, 0.67999226, 1.5, -0.23003133, 0.699863, 0.019968677, 0.529953, 0.699863, 1.4798845, -0.23003133, 0.67999226, 0.07987471, 0.5499217, 0.67999226, 1.4798845, 0.04992169, 0.67999226, 1.5, 0.029953003, 0.699863, 0.07987471, 0.529953, 0.699863, 1.4798845, 0.029953003)
+
+[node name="Weaponrack_rigid" type="RigidBody3D" unique_id=1092549758]
+
+[node name="Weaponrack_rigid_visual" type="Node3D" parent="." unique_id=841750303]
+
+[node name="Weaponrack" type="MeshInstance3D" parent="Weaponrack_rigid_visual" unique_id=1529090875]
+mesh = ExtResource("1_ww4k7")
+
+[node name="Weaponrack_col" type="CollisionShape3D" parent="." unique_id=603465451]
+shape = SubResource("ConvexPolygonShape3D_s2gd4")

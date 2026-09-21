@@ -1,0 +1,401 @@
+[gd_scene format=3 uid="uid://b357k3h2k7kuh"]
+
+[ext_resource type="Script" uid="uid://c2jikq1w8bhv2" path="res://content/scenes/main_level.gd" id="1_ixiin"]
+[ext_resource type="PackedScene" uid="uid://dl0sa03fbgiro" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall/Primitive_Wall_static.tscn" id="1_ojrfc"]
+[ext_resource type="PackedScene" uid="uid://lmmf6kia0frw" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor_Prototype/Floor_Prototype_static.tscn" id="1_wp74p"]
+[ext_resource type="Script" uid="uid://cdu5tlyk72uu4" path="res://addons/gecs/ecs/world.gd" id="2_da1x8"]
+[ext_resource type="PackedScene" uid="uid://djjxlfsq2i5pi" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor_Dirt/Floor_Dirt_static.tscn" id="2_eim2b"]
+[ext_resource type="PackedScene" uid="uid://wk6sf3v5qnfc" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Window/Primitive_Window_static.tscn" id="2_wp74p"]
+[ext_resource type="Script" uid="uid://b3vi2ingux88g" path="res://addons/gecs/lib/system_group.gd" id="3_ahxau"]
+[ext_resource type="PackedScene" uid="uid://h6ovxls42pn1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Doorway/Primitive_Doorway_static.tscn" id="3_eim2b"]
+[ext_resource type="Script" uid="uid://b7fouhp44tts1" path="res://content/systems/motion/s_motion.gd" id="4_jmtkn"]
+[ext_resource type="PackedScene" uid="uid://bmlgret82yq8q" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_Short/Primitive_Wall_Short_static.tscn" id="4_rhklt"]
+[ext_resource type="Script" uid="uid://bfdt1nh574v2r" path="res://content/systems/motion/s_look.gd" id="5_jprse"]
+[ext_resource type="Script" uid="uid://c1benmwwnwobr" path="res://content/systems/motion/s_jump.gd" id="6_gg2sc"]
+[ext_resource type="Script" uid="uid://cv8oyv1lnwa6u" path="res://content/systems/motion/s_crouch.gd" id="7_6b1dm"]
+[ext_resource type="PackedScene" uid="uid://boxna5m5n5ofv" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor/Floor_static.tscn" id="7_eim2b"]
+[ext_resource type="Script" uid="uid://c1o1ef2y40vmv" path="res://content/systems/input/s_player_input.gd" id="8_qm6qd"]
+[ext_resource type="PackedScene" uid="uid://c8ucvasbalruj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pillar_A/Pillar_A_static.tscn" id="8_vhk8t"]
+[ext_resource type="PackedScene" uid="uid://fjtvcn3mifma" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam/Primitive_Beam_static.tscn" id="9_ofyry"]
+[ext_resource type="PackedScene" uid="uid://dxkg7ovkuxd0i" path="res://content/entities/e_rigid_body_character.tscn" id="13_da1x8"]
+
+[node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world")]
+script = ExtResource("1_ixiin")
+world = NodePath("World")
+
+[node name="World" type="Node" parent="." unique_id=1962298586]
+script = ExtResource("2_da1x8")
+entity_nodes_root = NodePath("../Entityes")
+system_nodes_root = NodePath("Systems")
+metadata/_custom_type_script = "uid://cdu5tlyk72uu4"
+
+[node name="Systems" type="Node" parent="World" unique_id=2085808117]
+
+[node name="GamePlay" type="Node" parent="World/Systems" unique_id=187611965]
+script = ExtResource("3_ahxau")
+metadata/_custom_type_script = "uid://b3vi2ingux88g"
+
+[node name="Physics" type="Node" parent="World/Systems" unique_id=52509126]
+script = ExtResource("3_ahxau")
+metadata/_custom_type_script = "uid://b3vi2ingux88g"
+
+[node name="S_Motion" type="Node" parent="World/Systems/Physics" unique_id=1377338896]
+script = ExtResource("4_jmtkn")
+group = &"Physics"
+process_empty = true
+metadata/_custom_type_script = "uid://b7fouhp44tts1"
+
+[node name="S_Look" type="Node" parent="World/Systems/Physics" unique_id=1945368884]
+script = ExtResource("5_jprse")
+group = &"Physics"
+process_empty = true
+metadata/_custom_type_script = "uid://bfdt1nh574v2r"
+
+[node name="S_Jump" type="Node" parent="World/Systems/Physics" unique_id=831820991]
+script = ExtResource("6_gg2sc")
+group = &"Physics"
+metadata/_custom_type_script = "uid://c1benmwwnwobr"
+
+[node name="S_Crouch" type="Node" parent="World/Systems/Physics" unique_id=88081910]
+script = ExtResource("7_6b1dm")
+group = &"Physics"
+metadata/_custom_type_script = "uid://cv8oyv1lnwa6u"
+
+[node name="Input" type="Node" parent="World/Systems" unique_id=2007238412]
+script = ExtResource("3_ahxau")
+metadata/_custom_type_script = "uid://b3vi2ingux88g"
+
+[node name="S_PlayerInput" type="Node" parent="World/Systems/Input" unique_id=122299141]
+script = ExtResource("8_qm6qd")
+group = &"Input"
+metadata/_custom_type_script = "uid://c1o1ef2y40vmv"
+
+[node name="Observers" type="Node" parent="World" unique_id=1982797374]
+
+[node name="PVZ" type="Node3D" parent="." unique_id=627123053]
+
+[node name="Floor" type="Node3D" parent="PVZ" unique_id=1691859226]
+
+[node name="Floor_Prototype_static" parent="PVZ/Floor" unique_id=1464041376 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.5, -2)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (1)" parent="PVZ/Floor" unique_id=476407761 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.5, -6)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (2)" parent="PVZ/Floor" unique_id=1720503284 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -0.5, -2)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (3)" parent="PVZ/Floor" unique_id=2097512983 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -0.5, -6)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (4)" parent="PVZ/Floor" unique_id=117021505 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.5, -2)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (5)" parent="PVZ/Floor" unique_id=362165352 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.5, -6)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (6)" parent="PVZ/Floor" unique_id=978844134 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.5, -10)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (7)" parent="PVZ/Floor" unique_id=76002739 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.5, -14)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (8)" parent="PVZ/Floor" unique_id=1877832696 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.5, -10)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (9)" parent="PVZ/Floor" unique_id=1754219229 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.5, -14)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (10)" parent="PVZ/Floor" unique_id=774140804 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.5, -10)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Dirt_static" parent="PVZ/Floor" unique_id=595256240 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (1)" parent="PVZ/Floor" unique_id=730907652 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)" parent="PVZ/Floor" unique_id=1880018882 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (3)" parent="PVZ/Floor" unique_id=744584747 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (4)" parent="PVZ/Floor" unique_id=1044941956 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (7)" parent="PVZ/Floor" unique_id=1970924994 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -0.5, -2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (8)" parent="PVZ/Floor" unique_id=786658173 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -0.49999952, -6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (9)" parent="PVZ/Floor" unique_id=1823217155 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -0.5000005, -10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (10)" parent="PVZ/Floor" unique_id=1975636084 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (11)" parent="PVZ/Floor" unique_id=2100844062 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 14, -0.5, -18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (12)" parent="PVZ/Floor" unique_id=656935742 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 14, -0.5, -22)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (13)" parent="PVZ/Floor" unique_id=1655214517 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 10, -0.5, -22)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (14)" parent="PVZ/Floor" unique_id=1806580567 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 6, -0.5, -22)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (15)" parent="PVZ/Floor" unique_id=600345167 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 2, -0.5, -22)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (16)" parent="PVZ/Floor" unique_id=1213843517 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -2, -0.5, -22)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (17)" parent="PVZ/Floor" unique_id=1606187881 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -22)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (18)" parent="PVZ/Floor" unique_id=1388055721 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (19)" parent="PVZ/Floor" unique_id=786014078 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (20)" parent="PVZ/Floor" unique_id=541807468 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (21)" parent="PVZ/Floor" unique_id=1843899173 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (22)" parent="PVZ/Floor" unique_id=1542455934 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (23)" parent="PVZ/Floor" unique_id=1195571669 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_static" parent="PVZ/Floor" unique_id=485411696 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (1)" parent="PVZ/Floor" unique_id=894285954 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (2)" parent="PVZ/Floor" unique_id=1722283123 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 4, -2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (3)" parent="PVZ/Floor" unique_id=438182643 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 4, -2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (4)" parent="PVZ/Floor" unique_id=1369847561 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 4, -6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (5)" parent="PVZ/Floor" unique_id=2092705149 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 4, -6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (6)" parent="PVZ/Floor" unique_id=1586050895 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 4, -10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (7)" parent="PVZ/Floor" unique_id=1896669335 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (8)" parent="PVZ/Floor" unique_id=1495388890 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (9)" parent="PVZ/Floor" unique_id=1734562027 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 4, -14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (10)" parent="PVZ/Floor" unique_id=981674001 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 4, -10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Wall" type="Node3D" parent="PVZ" unique_id=114765866]
+
+[node name="Primitive_Wall_static" parent="PVZ/Wall" unique_id=2139216191 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1.0000001, 0, 7.450581e-09, 0, 1, 0, -7.450581e-09, 0, 1.0000001, 6, 0, 0)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Window_static" parent="PVZ/Wall" unique_id=2087211154 instance=ExtResource("2_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
+metadata/asset_placer_res_id = "uid://wk6sf3v5qnfc"
+
+[node name="Primitive_Doorway_static" parent="PVZ/Wall" unique_id=540084677 instance=ExtResource("3_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -8)
+metadata/asset_placer_res_id = "uid://h6ovxls42pn1"
+
+[node name="Primitive_Doorway_static (1)" parent="PVZ/Wall" unique_id=1439638060 instance=ExtResource("3_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -8)
+metadata/asset_placer_res_id = "uid://h6ovxls42pn1"
+
+[node name="Primitive_Window_static (1)" parent="PVZ/Wall" unique_id=221167999 instance=ExtResource("2_wp74p")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 12, 0, -6)
+metadata/asset_placer_res_id = "uid://wk6sf3v5qnfc"
+
+[node name="Primitive_Doorway_static (2)" parent="PVZ/Wall" unique_id=770378386 instance=ExtResource("3_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 0)
+metadata/asset_placer_res_id = "uid://h6ovxls42pn1"
+
+[node name="Primitive_Wall_static (1)" parent="PVZ/Wall" unique_id=853663440 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 12, 0, -2)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (2)" parent="PVZ/Wall" unique_id=1215224431 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(-1.0000007, 0, -3.9488077e-07, 0, 1, 0, 3.9488077e-07, 0, -1.0000007, 6, 0, -8)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (3)" parent="PVZ/Wall" unique_id=1459932380 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(-5.662441e-07, 0, 1.0000013, 0, 1, 0, -1.0000013, 0, -5.662441e-07, 0, 0, -2)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (4)" parent="PVZ/Wall" unique_id=757045545 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(-5.662441e-07, 0, 1.0000013, 0, 1, 0, -1.0000013, 0, -5.662441e-07, 0, 0, -6)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (5)" parent="PVZ/Wall" unique_id=1674132242 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(-5.662441e-07, 0, 1.0000013, 0, 1, 0, -1.0000013, 0, -5.662441e-07, 8, 0, -10)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Window_static (2)" parent="PVZ/Wall" unique_id=1030769142 instance=ExtResource("2_wp74p")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 12, 0, -10)
+metadata/asset_placer_res_id = "uid://wk6sf3v5qnfc"
+
+[node name="Primitive_Wall_static (6)" parent="PVZ/Wall" unique_id=453894236 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -12)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (7)" parent="PVZ/Wall" unique_id=899118157 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 4, 0, -10)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (8)" parent="PVZ/Wall" unique_id=1126034469 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 4, 0, -14)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (9)" parent="PVZ/Wall" unique_id=604854329 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(-1.0000007, 0, -3.9488077e-07, 0, 1, 0, 3.9488077e-07, 0, -1.0000007, -2, 0, -8)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (10)" parent="PVZ/Wall" unique_id=236138219 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(-5.736947e-07, 0, 1.0000014, 0, 1, 0, -1.0000014, 0, -5.736947e-07, -4, 0, -10)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (11)" parent="PVZ/Wall" unique_id=836816080 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(-5.736947e-07, 0, 1.0000014, 0, 1, 0, -1.0000014, 0, -5.736947e-07, -4, 0, -14)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (12)" parent="PVZ/Wall" unique_id=3761891 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1.0000018, 0, 7.003546e-07, 0, 1, 0, -7.003546e-07, 0, 1.0000018, 2, 0, -16)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (13)" parent="PVZ/Wall" unique_id=893839095 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1.0000018, 0, 7.003546e-07, 0, 1, 0, -7.003546e-07, 0, 1.0000018, -2, 0, -16)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_Short_static" parent="PVZ/Wall" unique_id=1478879511 instance=ExtResource("4_rhklt")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 8, -4.7683716e-07, -1)
+metadata/asset_placer_res_id = "uid://bmlgret82yq8q"
+
+[node name="Primitive_Wall_Short_static (1)" parent="PVZ/Wall" unique_id=255502237 instance=ExtResource("4_rhklt")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 5, 0, -1)
+metadata/asset_placer_res_id = "uid://bmlgret82yq8q"
+
+[node name="Pillar_A_static" parent="PVZ/Wall" unique_id=1928021939 instance=ExtResource("8_vhk8t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -3)
+metadata/asset_placer_res_id = "uid://c8ucvasbalruj"
+
+[node name="Pillar_A_static2" parent="PVZ/Wall" unique_id=378636787 instance=ExtResource("8_vhk8t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7698145, 0, -7.9656143)
+metadata/asset_placer_res_id = "uid://c8ucvasbalruj"
+
+[node name="Pillar_A_static3" parent="PVZ/Wall" unique_id=333382823 instance=ExtResource("8_vhk8t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3080444, 0, -7.9656143)
+metadata/asset_placer_res_id = "uid://c8ucvasbalruj"
+
+[node name="Pillar_A_static (1)" parent="PVZ/Wall" unique_id=967669382 instance=ExtResource("8_vhk8t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -3)
+metadata/asset_placer_res_id = "uid://c8ucvasbalruj"
+
+[node name="Primitive_Beam_static" parent="PVZ/Wall" unique_id=345228263 instance=ExtResource("9_ofyry")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 4, -2.3841858e-07, -4)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Beam_static (1)" parent="PVZ/Wall" unique_id=1174702755 instance=ExtResource("9_ofyry")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -1)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Beam_static (2)" parent="PVZ/Wall" unique_id=418135916 instance=ExtResource("9_ofyry")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 4, 0, -2)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Light" type="Node3D" parent="PVZ" unique_id=1992506087]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="PVZ/Light" unique_id=566469930]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.696652, 1.5501637, -5.191838)
+shadow_enabled = true
+omni_range = 7.915
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="PVZ/Light" unique_id=1184650244]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.6327806, 1.5501637, -3.644451)
+shadow_enabled = true
+omni_range = 7.915
+
+[node name="Props" type="Node3D" parent="PVZ" unique_id=1153816839]
+
+[node name="Entityes" type="Node3D" parent="." unique_id=118950221]
+
+[node name="E_RigidBodyCharacter" parent="Entityes" unique_id=1703744943 node_paths=PackedStringArray("camera_root") instance=ExtResource("13_da1x8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
+camera_root = NodePath("")
+
+[node name="HeadX" parent="Entityes/E_RigidBodyCharacter/HeadY" parent_id_path=PackedInt32Array(1703744943, 45462056) index="0" unique_id=2113340697]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.11703396, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Entityes/E_RigidBodyCharacter/HeadY/HeadX/TargetLook" parent_id_path=PackedInt32Array(1703744943, 1662571166) index="0" unique_id=387684179]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.23246765, 0.48593688)
+current = true
+
+[editable path="Entityes/E_RigidBodyCharacter"]
+[editable path="Entityes/E_RigidBodyCharacter/AnimationLibrary_Godot_Standard"]

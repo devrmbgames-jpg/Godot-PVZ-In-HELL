@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://dhnntpqydxbbq"]
+
+[ext_resource type="ArrayMesh" uid="uid://c4rlbn6754ewc" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Wall_Target_mesh/Wall_Target_Wall_Target.res" id="1_fjqbq"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_wf2f1"]
+points = PackedVector3Array(1.8997653, 4, 0.24991792, 1.8257637, 3.6440878, 0.74129736, 1.9996085, 3.899765, 0.13667941, 1.8997653, 4, -0.25000045, -1.9001571, 4, 0.24991792, -1.6358657, 3.8069694, 0.74129736, 1.5892718, 0.28465152, 0.554216, 1.8997653, 0, 0.24991792, 1.9996085, 0.09984338, 0.13667941, 1.9996085, 3.899765, -0.13676195, 1.8997653, 0, -0.25000045, -1.9001571, 4, -0.25000045, -2.0000005, 3.899765, 0.13667941, -2.0000005, 0.09984338, 0.13667941, -1.7916998, 0.40759593, 0.4176894, -1.7384499, 0.55129206, 0.48047033, -1.6417389, 0.518011, 0.54431856, -1.5250591, 0.48668754, 0.54208684, -1.6045423, 0.40681285, 0.51588774, -1.9001571, 0, 0.24991792, 1.9996085, 0.09984338, -0.13676195, -1.9001571, 0, -0.25000045, -2.0000005, 3.899765, -0.13676195, -2.0000005, 0.09984338, -0.13676195, -1.7110419, 0.43891934, 0.48512796)
+
+[node name="Wall_Target_rigid" type="RigidBody3D" unique_id=221856541]
+
+[node name="Wall_Target_rigid_visual" type="Node3D" parent="." unique_id=1484341916]
+
+[node name="Wall_Target" type="MeshInstance3D" parent="Wall_Target_rigid_visual" unique_id=339436710]
+mesh = ExtResource("1_fjqbq")
+
+[node name="Wall_Target_col" type="CollisionShape3D" parent="." unique_id=79027008]
+shape = SubResource("ConvexPolygonShape3D_wf2f1")

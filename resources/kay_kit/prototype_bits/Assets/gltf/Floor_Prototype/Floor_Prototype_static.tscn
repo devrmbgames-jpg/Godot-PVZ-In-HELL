@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://lmmf6kia0frw"]
+
+[ext_resource type="ArrayMesh" uid="uid://c30a457v5dtoq" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor_Prototype_mesh/Floor_Prototype_Floor_Prototype.res" id="1_aeomx"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_hom1f"]
+data = PackedVector3Array(-2, 0, -2, 2, 0, 2, 2, 0, -2, -2, 0, -2, -2, 0, 2, 2, 0, 2, -2, 0.39999998, -2, 2, 0, -2, 2, 0.39999998, -2, -2, 0.39999998, -2, -2, 0, -2, 2, 0, -2, -2, 0.39999998, 2, 2, 0, 2, -2, 0, 2, -2, 0.39999998, 2, 2, 0.39999998, 2, 2, 0, 2, 2, 0.39999998, -2, 2, 0, 2, 2, 0.39999998, 2, 2, 0.39999998, -2, 2, 0, -2, 2, 0, 2, -1.9, 0.5, 1.9, 1.9, 0.5, -1.9, 1.9, 0.5, 1.9, -1.9, 0.5, 1.9, -1.9, 0.5, -1.9, 1.9, 0.5, -1.9, -1.9, 0.5, 1.9, -2, 0.39999998, -2, -1.9, 0.5, -1.9, -1.9, 0.5, 1.9, -2, 0.39999998, 2, -2, 0.39999998, -2, 1.9, 0.5, 1.9, -2, 0.39999998, 2, -1.9, 0.5, 1.9, 1.9, 0.5, 1.9, 2, 0.39999998, 2, -2, 0.39999998, 2, -1.9, 0.5, -1.9, 2, 0.39999998, -2, 1.9, 0.5, -1.9, -1.9, 0.5, -1.9, -2, 0.39999998, -2, 2, 0.39999998, -2, 1.9, 0.5, -1.9, 2, 0.39999998, 2, 1.9, 0.5, 1.9, 1.9, 0.5, -1.9, 2, 0.39999998, -2, 2, 0.39999998, 2, -2, 0.39999998, 2, -2, 0, -2, -2, 0.39999998, -2, -2, 0.39999998, 2, -2, 0, 2, -2, 0, -2)
+
+[node name="Floor_Prototype_static" type="StaticBody3D" unique_id=1673783965]
+
+[node name="Floor_Prototype_static_visual" type="Node3D" parent="." unique_id=930902288]
+
+[node name="Floor_Prototype" type="MeshInstance3D" parent="Floor_Prototype_static_visual" unique_id=1006474971]
+mesh = ExtResource("1_aeomx")
+
+[node name="Floor_Prototype_col" type="CollisionShape3D" parent="." unique_id=918724298]
+shape = SubResource("ConcavePolygonShape3D_hom1f")

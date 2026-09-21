@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bbv3ocotnucry"]
+
+[ext_resource type="ArrayMesh" uid="uid://tqy8k1x0birm" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pillar_A_mesh/Pillar_A_Pillar_A.res" id="1_b7vn6"]
+
+[node name="Pillar_A" type="Node3D" unique_id=23529862]
+
+[node name="Pillar_A" type="MeshInstance3D" parent="." unique_id=551241602]
+mesh = ExtResource("1_b7vn6")

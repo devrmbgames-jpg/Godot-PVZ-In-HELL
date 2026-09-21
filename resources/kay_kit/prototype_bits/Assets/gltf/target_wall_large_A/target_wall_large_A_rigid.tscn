@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://b8q3wqafjjbo4"]
+
+[ext_resource type="ArrayMesh" uid="uid://dh52520oysccd" path="res://resources/kay_kit/prototype_bits/Assets/gltf/target_wall_large_A_mesh/target_wall_large_A_target_wall_large_A.res" id="1_0bi67"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_gwl7j"]
+points = PackedVector3Array(1, 1, 0.09999996, 1, 1, -0.1, -1, 1, 0.09999996, 1, -1, 0.09999996, 1, -1, -0.1, -1, 1, -0.1, -1, -1, 0.09999996, -1, -1, -0.1)
+
+[node name="target_wall_large_A_rigid" type="RigidBody3D" unique_id=764893090]
+
+[node name="target_wall_large_A_rigid_visual" type="Node3D" parent="." unique_id=1244995826]
+
+[node name="target_wall_large_A" type="MeshInstance3D" parent="target_wall_large_A_rigid_visual" unique_id=1688216795]
+mesh = ExtResource("1_0bi67")
+
+[node name="target_wall_large_A_col" type="CollisionShape3D" parent="." unique_id=1434613153]
+shape = SubResource("ConvexPolygonShape3D_gwl7j")

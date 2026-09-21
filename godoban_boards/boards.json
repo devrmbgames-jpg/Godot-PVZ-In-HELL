@@ -1,0 +1,10 @@
+{
+  "current": "board_e0c9",
+  "boards": [
+    {
+      "id": "board_e0c9",
+      "name": "ПВЗ Симулятор",
+      "path": "res://godoban_boards/board_e0c9.json"
+    }
+  ]
+}
