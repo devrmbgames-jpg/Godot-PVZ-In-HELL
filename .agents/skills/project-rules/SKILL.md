@@ -32,7 +32,7 @@ Everything under `addons/` is read-only by default. Inspect pinned APIs when nee
 
 Load `.agents/skills/gdscript-style/SKILL.md` for `.gd` edits.
 
-Required baseline: static typing, no shadowing, no magic gameplay constants, explicit casts from Variant/untyped collections, allocation-aware hot paths, project naming conventions.
+Required baseline: static typing, no shadowing, no magic gameplay constants, explicit casts from Variant/untyped collections, allocation-aware hot paths, project naming conventions, underscore-based private API, `_on_` signal callbacks, and `##` documentation for script responsibility/public API.
 
 ## Change discipline
 

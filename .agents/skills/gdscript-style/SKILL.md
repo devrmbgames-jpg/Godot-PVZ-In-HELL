@@ -53,6 +53,155 @@ var entities: Array[Entity] = []
 var by_id: Dictionary[StringName, Item] = {}
 ```
 
+
+## Member visibility and naming
+
+Project-owned GDScript uses naming to express public/private intent.
+
+### Constants
+
+Constants use `UPPER_SNAKE_CASE`:
+
+```gdscript
+const CONST_VAR: int = 0
+const MAX_PICKUP_DISTANCE: float = 3.0
+```
+
+### Enums
+
+Enum type names use `PascalCase`. Enum members also use `PascalCase` in this project:
+
+```gdscript
+enum EnumName {
+    EnumVal1,
+    EnumVal2,
+}
+```
+
+Keep enum names semantic; do not use anonymous integer constants when an enum is the real domain model.
+
+### Public and private members
+
+A leading underscore means **private implementation detail**.
+
+Private members must start with `_`:
+
+```gdscript
+var _private_var: float = 0.0
+@onready var _private_onready_var: Node = %Node
+```
+
+Public members must **not** start with `_`:
+
+```gdscript
+var public_var: float = 0.0
+@onready var public_onready_var: Node = %Node
+@export var export_var: float = 0.0
+```
+
+All `@export` fields are considered part of the authored/public configuration surface and therefore must not use a leading underscore.
+
+Do not expose a member publicly merely because it is convenient. If external code does not need the member, make it private with `_`.
+
+### Public and private functions
+
+Private helper functions start with `_`:
+
+```gdscript
+func _private_func(value: int) -> void:
+    ...
+```
+
+Public API functions do not:
+
+```gdscript
+func public_func(value: int) -> void:
+    ...
+```
+
+Godot lifecycle/virtual callbacks such as `_ready()`, `_process()`, `_input()`, `_physics_process()`, etc. keep the engine-required leading underscore. They are callbacks, not project-private helper APIs.
+
+### Signal / connection callbacks
+
+Methods used as signal connection slots must use the `_on_` prefix.
+
+Prefer a descriptive source/signal form:
+
+```gdscript
+func _on_button_pressed() -> void:
+    ...
+```
+
+A generic/abstract slot still uses `_on_`:
+
+```gdscript
+func _on_pressed() -> void:
+    ...
+```
+
+Do not name signal callbacks as ordinary public/private helpers when they are connection slots.
+
+## Script and public API documentation
+
+Every project-owned script must begin with a short description of its responsibility.
+
+Place the documentation near the class declaration so the script's purpose is visible immediately. Prefer Godot documentation comments (`##`) for class/API documentation.
+
+Example:
+
+```gdscript
+@tool
+extends Node
+## Resolves authored item metadata and exposes it to the inventory UI.
+class_name ItemMetadataResolver
+```
+
+Public API must be briefly documented with `##` comments so Godot can pick up the descriptions.
+
+Document at minimum:
+- public member variables;
+- exported variables when their purpose, units, range, ownership or side effects are not completely obvious from the name;
+- public `@onready` references;
+- public functions;
+- public signals;
+- public classes/resources/components and non-obvious enums.
+
+Examples:
+
+```gdscript
+## Label used to display the current package registration number.
+@onready var package_number_label: Label = %PackageNumber
+
+## Maximum distance in meters at which the scanner can register a package.
+@export var scan_range: float = 3.0
+
+## True while this interaction is the active owner of player controls.
+var controls_captured: bool = false
+
+## Returns the currently assigned warehouse registration number.
+func get_registration_number() -> int:
+    return registration_number
+```
+
+Comments must explain **purpose/contract**, not restate the identifier.
+
+Bad:
+
+```gdscript
+## Scan range.
+@export var scan_range: float = 3.0
+```
+
+Better:
+
+```gdscript
+## Maximum scanner-to-package distance in meters for a valid registration attempt.
+@export var scan_range: float = 3.0
+```
+
+Private helpers/fields may use ordinary `#` comments when needed, but do not add comments that merely repeat the code.
+
+
 ## No shadowing
 
 Variable names must not shadow:
@@ -285,9 +434,63 @@ Behavioral thresholds/rates that carry meaning must be:
 
 Do not bury repeated meaningful literals in logic.
 
+
+## Canonical class layout example
+
+```gdscript
+@tool
+extends Node
+## Demonstrates the project's required GDScript naming and documentation layout.
+class_name MyClass
+
+const MY_NAME: String = "name"
+
+enum TypeProperty {
+    Title,
+    Description,
+}
+
+@onready var _label_name: Label = %LabelName
+
+## Property that controls which metadata field is presented by this node.
+@export var type_property: TypeProperty = TypeProperty.Title
+
+## True when this instance is currently selected as the preferred option.
+var is_best: bool = false
+
+var _current_position: Vector2 = Vector2.ZERO
+
+
+func _ready() -> void:
+    pass
+
+
+func _calculate_new_name() -> StringName:
+    var result: StringName = &""
+    # ...
+    return result
+
+
+## Returns the current Node name as a StringName.
+func get_current_name() -> StringName:
+    return name
+
+
+func _on_label_text_changed() -> void:
+    pass
+```
+
+
 ## Final review
 
 Before finishing a `.gd` edit, check:
+- constants use `UPPER_SNAKE_CASE`;
+- enums and enum members follow the project convention;
+- private members/helpers start with `_`;
+- public/export/onready members that are public do not start with `_`;
+- signal slots start with `_on_`;
+- every script has a short responsibility description;
+- public API has useful `##` documentation comments;
 - no shadowed names;
 - no unintended `Variant`;
 - all signatures typed;
