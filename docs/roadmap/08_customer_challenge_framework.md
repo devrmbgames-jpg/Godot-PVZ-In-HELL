@@ -1,5 +1,7 @@
 # ТЗ 08 — Framework опасных клиентов
 
+> **Implementation coverage:** Implementation coverage: shared framework/light **R14**, gaze family **R15**, floor hazard family **R16**.
+
 ## Цель
 
 Создать data-driven framework специальных правил Customer.

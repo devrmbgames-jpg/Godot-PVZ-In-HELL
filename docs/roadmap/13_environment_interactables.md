@@ -1,5 +1,7 @@
 # ТЗ 13 — Двери, окна, мебель и свет
 
+> **Implementation coverage:** Implementation task **R13**, consuming generic extended-interaction contracts from **R11.1**.
+
 ## Цель
 
 Сделать помещение физически интерактивным и пригодным для хоррор-событий.
@@ -8,7 +10,7 @@
 
 Все объекты используют общий interaction targeting/prompt framework.
 
-Базовые contracts Door lock/open-close, Drawer movement, prolonged interaction и physical placement/storage определены в [ТЗ 08.1](08_1_arrangement_extended_interactions.md). ТЗ 13 должно применять и расширять их к окружению, а не создавать параллельные системы.
+Базовые contracts Door lock/open-close, Drawer movement, prolonged interaction и physical placement/storage определены в [ТЗ 08.1](08_1_arrangement_extended_interactions.md) и реализуются generic foundation-задачей R11.1. R13 должно применять и расширять их к окружению, а не создавать параллельные системы.
 
 Не создавать отдельную систему взаимодействия для каждого типа объекта.
 

@@ -1,5 +1,7 @@
 # ТЗ 06 — Повреждение посылок и опасное содержимое
 
+> **Implementation coverage:** Implementation coverage: package damage/opening **R08**, hazards **R09**, Bubble Wrap consumable application **R19**, final feedback **R22**.
+
 ## Цель
 
 Сделать обращение с коробками значимым и опасным.

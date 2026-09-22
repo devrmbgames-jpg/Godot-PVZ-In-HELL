@@ -1,5 +1,7 @@
 # ТЗ 15 — Ночь, завершение дня и следующий цикл
 
+> **Implementation coverage:** Implementation task **R21**.
+
 ## Цель
 
 Замкнуть core loop в повторяемый игровой цикл.

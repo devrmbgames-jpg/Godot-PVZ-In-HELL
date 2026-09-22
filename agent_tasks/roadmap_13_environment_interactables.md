@@ -1,9 +1,9 @@
 # R13 — Двери, окна, ящики мебели и свет
 
 Status: planned
-Зависимости: R02
+Зависимости: R02, R11.1
 Ветка/base: зафиксировать при начале реализации.
-Источники: [ТЗ 02](../docs/roadmap/02_core_interaction_and_physics.md), [ТЗ 13](../docs/roadmap/13_environment_interactables.md).
+Источники: [ТЗ 02](../docs/roadmap/02_core_interaction_and_physics.md), [ТЗ 08.1](../docs/roadmap/08_1_arrangement_extended_interactions.md), [ТЗ 13](../docs/roadmap/13_environment_interactables.md).
 
 ## Цель
 
@@ -18,8 +18,8 @@ Status: planned
 
 ## Работы
 
-- [ ] Добавить Door и Window с открыть/закрыть и читаемым состоянием.
-- [ ] Добавить Drawer с ограниченным ходом и interaction state.
+- [ ] Добавить Door и Window с открыть/закрыть и читаемым состоянием, переиспользуя open/close/access contracts R11.1.
+- [ ] Добавить Drawer с ограниченным ходом и interaction state поверх translate/prolonged-interaction contracts R11.1.
 - [ ] Двери и выдвижные элементы должны учитывать препятствия без телепортации через коробку.
 - [ ] LightSwitch управляет заданными группами света; gameplay-состояние доступно будущим Challenge conditions.
 - [ ] Использовать единые targeting, highlight и prompts; оставить data-hook для locks/storage.
@@ -35,7 +35,7 @@ GUT: переключения/недоступность/световые гру
 
 ## Границы
 
-Без системы ключей/замков и контейнерного инвентаря. Сохранять Godot physics authority, GECS data/behavior boundaries и read-only addons. Выполненные основания переиспользовать, а не создавать заново.
+Без полноценного key/inventory UI и контейнерного stack Inventory: generic access requirement и physical slots уже принадлежат R11.1, а virtual Inventory — R19. Сохранять Godot physics authority, GECS data/behavior boundaries и read-only addons. Выполненные основания переиспользовать, а не создавать заново.
 
 ## Первый шаг
 

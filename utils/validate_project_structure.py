@@ -40,6 +40,9 @@ TEXT_RESOURCE_SUFFIXES: set[str] = {
 CLASS_NAME_RE = re.compile(r"^\s*class_name\s+([A-Za-z_][A-Za-z0-9_]*)", re.MULTILINE)
 RES_PATH_RE = re.compile(r"""["'](res://[^"']+)["']""")
 MARKDOWN_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+TASK_HEADING_RE = re.compile(r"^#\s+(R\d+(?:\.\d+)?)\b", re.MULTILINE)
+TASK_DEPENDENCIES_RE = re.compile(r"^Зависимости:\s*(.+)$", re.MULTILINE)
+IMPLEMENTATION_ID_RE = re.compile(r"\bR\d+(?:\.\d+)?\b")
 
 
 def _relative(path: Path) -> str:
@@ -125,36 +128,98 @@ def _check_res_paths(errors: list[str]) -> None:
                 )
 
 
-def _check_project_index_links(errors: list[str]) -> None:
-    index_path: Path = ROOT / "PROJECT_INDEX.md"
-    if not index_path.exists():
-        errors.append("PROJECT_INDEX.md is missing.")
-        return
+def _iter_markdown_files() -> list[Path]:
+    files: list[Path] = [ROOT / "PROJECT_INDEX.md"]
 
-    for raw_target in MARKDOWN_LINK_RE.findall(_read_text(index_path)):
-        target: str = raw_target.strip()
-        if (
-            not target
-            or target.startswith("#")
-            or "://" in target
-            or target.startswith("mailto:")
-        ):
+    for root_name in ("agent_tasks", "docs/roadmap"):
+        root_path: Path = ROOT / root_name
+        if root_path.exists():
+            files.extend(sorted(root_path.glob("*.md")))
+
+    return files
+
+
+def _check_markdown_links(errors: list[str]) -> None:
+    for source_path in _iter_markdown_files():
+        if not source_path.exists():
+            errors.append(f"{_relative(source_path)} is missing.")
             continue
 
-        target = unquote(target.split("#", 1)[0])
-        if not target:
+        for raw_target in MARKDOWN_LINK_RE.findall(_read_text(source_path)):
+            target: str = raw_target.strip()
+            if (
+                not target
+                or target.startswith("#")
+                or "://" in target
+                or target.startswith("mailto:")
+            ):
+                continue
+
+            target = unquote(target.split("#", 1)[0])
+            if not target:
+                continue
+
+            local_path: Path = (source_path.parent / target).resolve()
+            try:
+                local_path.relative_to(ROOT.resolve())
+            except ValueError:
+                errors.append(
+                    f"{_relative(source_path)}: link escapes repository root: {raw_target!r}."
+                )
+                continue
+
+            if not local_path.exists():
+                errors.append(
+                    f"{_relative(source_path)}: broken local link {raw_target!r}."
+                )
+
+
+def _check_task_dependencies(errors: list[str]) -> None:
+    task_root: Path = ROOT / "agent_tasks"
+    task_files: list[Path] = sorted(task_root.glob("roadmap_*.md"))
+    known_ids: set[str] = set()
+    task_ids: dict[str, Path] = {}
+
+    for task_path in task_files:
+        text: str = _read_text(task_path)
+        match = TASK_HEADING_RE.search(text)
+        if match is None:
+            errors.append(f"{_relative(task_path)}: missing canonical Rxx/Rxx.x heading.")
             continue
 
-        local_path: Path = (index_path.parent / target).resolve()
-        try:
-            local_path.relative_to(ROOT.resolve())
-        except ValueError:
-            errors.append(f"PROJECT_INDEX.md: link escapes repository root: {raw_target!r}.")
+        task_id: str = match.group(1)
+        if task_id in task_ids:
+            errors.append(
+                f"{_relative(task_path)}: duplicate implementation ID {task_id}; "
+                f"already used by {_relative(task_ids[task_id])}."
+            )
             continue
 
-        if not local_path.exists():
-            errors.append(f"PROJECT_INDEX.md: broken local link {raw_target!r}.")
+        task_ids[task_id] = task_path
+        known_ids.add(task_id)
 
+        if "RM" in text:
+            errors.append(
+                f"{_relative(task_path)}: RM-prefixed task IDs are not canonical; use Rxx/Rxx.x."
+            )
+
+    history_path: Path = ROOT / "task_history.md"
+    if history_path.exists():
+        known_ids.update(IMPLEMENTATION_ID_RE.findall(_read_text(history_path)))
+
+    for task_id, task_path in task_ids.items():
+        text: str = _read_text(task_path)
+        dependencies_match = TASK_DEPENDENCIES_RE.search(text)
+        if dependencies_match is None:
+            continue
+
+        dependencies: list[str] = IMPLEMENTATION_ID_RE.findall(dependencies_match.group(1))
+        for dependency in dependencies:
+            if dependency not in known_ids:
+                errors.append(
+                    f"{_relative(task_path)}: dependency {dependency} has no planned task "
+                    "and is not recorded as completed in task_history.md."
+                )
 
 def _git_output(*args: str) -> list[str]:
     try:
@@ -186,7 +251,8 @@ def main() -> int:
     _check_role_placement(errors)
     _check_uid_pairs(errors)
     _check_res_paths(errors)
-    _check_project_index_links(errors)
+    _check_markdown_links(errors)
+    _check_task_dependencies(errors)
     _check_staged_addons(errors)
 
     if errors:

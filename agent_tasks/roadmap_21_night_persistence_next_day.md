@@ -1,9 +1,9 @@
 # R21 — Сон, autosave и следующее утро
 
 Status: planned
-Зависимости: R03, R05, R09, R11, R14, R18, R19, R20
+Зависимости: R03, R05, R09, R11, R11.1, R14, R18, R19, R20
 Ветка/base: зафиксировать при начале реализации.
-Источники: [ТЗ 03](../docs/roadmap/03_day_phase_cycle.md), [ТЗ 14](../docs/roadmap/14_evening_meta_scaffold.md), [ТЗ 15](../docs/roadmap/15_night_save_next_day.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md).
+Источники: [ТЗ 03](../docs/roadmap/03_day_phase_cycle.md), [ТЗ 08.1](../docs/roadmap/08_1_arrangement_extended_interactions.md), [ТЗ 14](../docs/roadmap/14_evening_meta_scaffold.md), [ТЗ 15](../docs/roadmap/15_night_save_next_day.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md).
 
 ## Цель
 
@@ -22,6 +22,7 @@ Status: planned
 - [ ] Сохранить минимум DayIndex, Money/Penalties, Health, Hunger, upgrades/purchases, quest flags, PendingDeliveries; дополнительно сохранить Inventory и связи identity, необходимые уже работающим задачам.
 - [ ] Сохранять активные/невыданные Package через любое число дней: stable identity, reusable registration number, состояние Opened/Damaged, ownership/physical persistence и RequestedPackage identity. Ночь сама по себе не освобождает номер.
 - [ ] Сохранять actual delivery outcome отдельно от Terminal declaration, unresolved Complaints/disputes, примененные settlement operation IDs и 7-day justified-retaliation windows.
+- [ ] Сохранять persistent physical-slot/placement/fixed-object state из R11.1 там, где объект должен переживать ночь; временный interaction progress/control capture не сохранять.
 - [ ] Сбрасывать schedule, временные challenges/dialogue/hazards/reservations; сохранять явно persistent последствия.
 - [ ] Определить политику физического расположения и маркерных штрихов между днями; исключить потерю quest-target и дубликаты ID. Customer arrival может быть запланирован через 10+ дней либо никогда, поэтому отсутствие события сегодня не является cleanup condition.
 - [ ] Поддержать morning return отказной Package: lifecycle/номер закрываются только после successful return commit; существующая Complaint/штраф не отменяются автоматически.

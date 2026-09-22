@@ -1,5 +1,7 @@
 # ТЗ 16 — HUD и игровая обратная связь
 
+> **Implementation coverage:** Implementation is incremental; final HUD/world-feedback pass is **R22**.
+
 ## Цель
 
 Сделать системные состояния читаемыми, не превращая gameplay в управление через меню.

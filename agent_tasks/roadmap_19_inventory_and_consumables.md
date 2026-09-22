@@ -1,9 +1,9 @@
 # R19 — Малый инвентарь, Food и MedItem
 
 Status: planned
-Зависимости: R02, R04, R08, R18
+Зависимости: R02, R04, R08, R11.1, R18
 Ветка/base: зафиксировать при начале реализации.
-Источники: [ТЗ 06](../docs/roadmap/06_package_damage_and_hazards.md), [ТЗ 11](../docs/roadmap/11_hunger_system.md), [ТЗ 12](../docs/roadmap/12_inventory_and_consumables.md), [ТЗ 16](../docs/roadmap/16_ui_and_feedback.md).
+Источники: [ТЗ 06](../docs/roadmap/06_package_damage_and_hazards.md), [ТЗ 08.1](../docs/roadmap/08_1_arrangement_extended_interactions.md), [ТЗ 11](../docs/roadmap/11_hunger_system.md), [ТЗ 12](../docs/roadmap/12_inventory_and_consumables.md), [ТЗ 16](../docs/roadmap/16_ui_and_feedback.md).
 
 ## Цель
 
@@ -18,7 +18,7 @@ Status: planned
 
 ## Работы
 
-- [ ] Добавить Item definitions/runtime quantity и authoritative OwnedBy → InventoryOwner.
+- [ ] Добавить Item definitions/runtime quantity и authoritative OwnedBy → InventoryOwner. Не использовать virtual Inventory как authority для physical slots из R11.1.
 - [ ] Реализовать pickup, stacking совместимых consumables, use и удаление пустого стека.
 - [ ] Food вызывает эффект 18, MedItem — лечение 04; списание quantity и применение результата согласованы.
 - [ ] Добавить Consumable "Bubble Wrap": одно использование на валидной Package применяет protection modifier из R08 одним действием и списывает один consumable; сам damage/protection расчет не дублировать в Inventory.

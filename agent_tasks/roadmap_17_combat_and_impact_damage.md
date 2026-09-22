@@ -1,7 +1,7 @@
 # R17 — Ближний бой и агрессивный Customer
 
 Status: planned
-Зависимости: R04, R11, R14
+Зависимости: R04, R08, R11, R14
 Ветка/base: зафиксировать при начале реализации.
 Источники: [ТЗ 02](../docs/roadmap/02_core_interaction_and_physics.md), [ТЗ 07](../docs/roadmap/07_customer_flow_and_delivery.md), [ТЗ 10](../docs/roadmap/10_combat_damage_health.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md).
 
@@ -21,7 +21,7 @@ Status: planned
 
 - [ ] Добавить один melee/острый Weapon: окно удара, hit validation, cooldown и damage через 04.
 - [ ] Aggressive Customer прекращает сервисный разговор, преследует и атакует Player; имеет поражение и завершение schedule event. Один из источников aggression — обнаружение ложной Terminal отметки `TAKEN` по ТЗ 07.
-- [ ] Подключить физический impact damage по массе, относительной скорости и порогу; подавить повторные срабатывания одного столкновения.
+- [ ] Переиспользовать/обобщить impact contract из R08 для combat-capable физических тел: масса/относительная скорость/порог и дедупликация столкновения. Не создавать вторую параллельную формулу impact damage.
 - [ ] Соблюдать приоритет tool/grab/attack из 02, сохраняя input неизменным для других потребителей.
 - [ ] Обеспечить cleanup target/challenge/held state при смерти и выходе из боя.
 - [ ] Передавать typed combat/reputation reason: обычная атака, self-defense, fraud escalation, justified retaliation. После подтвержденной неправомерной Complaint именно этого Customer Player может атаковать 7 игровых дней без reputation penalty; окно хранится persistent и не зависит от живого Node.

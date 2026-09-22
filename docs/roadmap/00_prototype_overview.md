@@ -1,5 +1,7 @@
 # ТЗ 00 — Цель и границы прототипа
 
+> **Implementation coverage:** Overall prototype scope; final full-slice validation: **R23**.
+
 ## Цель
 
 Собрать вертикальный прототип хоррор-симулятора пункта выдачи заказов в мире с монстрами.

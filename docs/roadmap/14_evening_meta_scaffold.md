@@ -1,5 +1,7 @@
 # ТЗ 14 — Вечер и заготовка мета-механики
 
+> **Implementation coverage:** Implementation coverage: wallet/results **R10**, Trader/orders/quest **R20**, persistence **R21**.
+
 ## Цель
 
 Создать минимальный слой долгосрочных решений между сменами.

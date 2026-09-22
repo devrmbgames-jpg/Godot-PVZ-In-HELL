@@ -11,7 +11,7 @@ Status: planned
 
 ## Начать здесь
 
-- [content/entities/props/e_grabbable.gd](../content/entities/props/e_grabbable.gd)
+- [e_grabbable_body.gd](../content/entities/props/e_grabbable_body.gd)
 - [content/components/interaction/c_grabbable.gd](../content/components/interaction/c_grabbable.gd)
 
 Затем прочитать контракты, созданные задачами-зависимостями. Имена новых типов из roadmap — проектируемые контракты, а не утверждение о существующих файлах.

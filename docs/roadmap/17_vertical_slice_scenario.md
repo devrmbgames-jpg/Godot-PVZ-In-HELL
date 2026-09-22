@@ -1,5 +1,7 @@
 # ТЗ 17 — Сценарий вертикального среза
 
+> **Implementation coverage:** Scenario requirements feed several tasks; final end-to-end validation is **R23**.
+
 ## Цель
 
 Объединить системы в один полностью проходимый игровой день.

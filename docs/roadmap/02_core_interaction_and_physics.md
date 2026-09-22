@@ -1,5 +1,7 @@
 # ТЗ 02 — Базовое взаимодействие и физические предметы
 
+> **Implementation coverage:** Implementation coverage: **R02**, **RM06.1**, **R11.1**, **R13**, **R17**.
+
 ## Цель
 
 Создать единый interaction framework для объектов мира.

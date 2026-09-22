@@ -1,8 +1,12 @@
 # ТЗ 08.1 — Расстановка, продолжительные взаимодействия и физические слоты
 
+> **Implementation coverage:** Implementation task: **R11.1**; downstream consumers: **R13**, **R19**, **R21**, **R22**, **R23**.
+
 ## Позиция в roadmap
 
-Выполнить после базового interaction/hand/carry contract и до [ТЗ 09 — Диалоги](09_dialogue_system.md).
+Implementation task: [R11.1 — Extended Interaction / Arrangement](../../agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md).
+
+Выполнить после базового interaction/hand/carry contract R06.1 и до R12 Dialogue integration. Это design-ТЗ 08.1; номер `08.1` не является implementation ID.
 
 Это ТЗ добавляет общие world-interaction механики, которые затем должны переиспользоваться дверями, мебелью, инструментами, хранением и будущими puzzle/challenge сценариями.
 

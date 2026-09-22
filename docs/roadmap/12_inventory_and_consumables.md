@@ -1,5 +1,7 @@
 # ТЗ 12 — Инвентарь и расходники
 
+> **Implementation coverage:** Implementation coverage: virtual Inventory/consumables **R19**, Trader consumption **R20**; physical slots belong to **R11.1**.
+
 ## Цель
 
 Создать простой Inventory для небольших предметов.
@@ -10,7 +12,7 @@ Inventory не заменяет физическое хранение крупн
 
 Package, Furniture и другие крупные предметы остаются в мире.
 
-Physical Storage Slots из [ТЗ 08.1](08_1_arrangement_extended_interactions.md) — отдельная механика. Такой slot хранит конкретный физический Entity на теле Player, полке или tool rack и не превращает его в stack/quantity. ТЗ 12 отвечает за виртуальное ownership/stack/use небольших Consumable; обе системы не должны дублировать друг друга.
+Physical Storage Slots из [ТЗ 08.1](08_1_arrangement_extended_interactions.md), реализуемые в R11.1, — отдельная механика. Такой slot хранит конкретный физический Entity на теле Player, полке или tool rack и не превращает его в stack/quantity. ТЗ 12 отвечает за виртуальное ownership/stack/use небольших Consumable; обе системы не должны дублировать друг друга.
 
 Inventory предназначен для:
 
