@@ -22,6 +22,25 @@ Status: in progress
 
 Сначала сверить текущий HEAD: RM06.1 добавлена после незавершенной переделки hand slots, поэтому не считать существующий `RIGHT_HAND` contract завершенным.
 
+## Срочная коррекция унаследованного R06 contract
+
+**Выполнить до продолжения следующих незавершенных milestone R06.1.**
+
+Текущая/старая реализация регистрации с `DDD-NNN` и отдельным sequence на день/registration cycle противоречит актуальному [ТЗ 05](../docs/roadmap/05_scanner_terminal_marker.md).
+
+Обязательное поведение:
+
+- base registration number — положительное целое;
+- display — `№001`, `№002`, ...;
+- allocator всегда выбирает минимальный свободный base number среди активных/невыданных Package;
+- смена дня не освобождает и не меняет номер Package;
+- номер освобождается только после выхода Package из складского lifecycle и затем переиспользуется;
+- repeat scan сохраняет исходный номер;
+- будущие suffixes/tags не участвуют в allocation/order/reuse;
+- существующий receiving/scan smoke должен проверять reuse свободных номеров между днями по примеру из ТЗ 05.
+
+Не продолжать поддерживать day sequence как authority нумерации.
+
 ## Работы
 
 - [ ] Проаудировать project-owned `define_components()`; сериализуемые/static Components и Actions перенести в scene `component_resources`. Оставить в коде только обоснованные runtime-specific данные и не дублировать Component двумя способами.
