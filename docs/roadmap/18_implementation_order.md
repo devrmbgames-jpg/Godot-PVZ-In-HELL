@@ -55,11 +55,14 @@
 - Package state;
 - Scanner;
 - Terminal;
+- registration;
+- [RM06.1 — Inspector-first компоненты, Carry/две руки и Push](06_1_interaction_hands_carry_push.md);
 - Marker;
-- numbered Shelves;
-- registration.
+- numbered Shelves.
 
-Результат: Player принимает и самостоятельно организует поставку.
+RM06.1 выполняется после Scanner/Terminal и до Marker/Shelves, чтобы инструменты сразу строились на стабильном contract двух рук, независимого Carry и Push.
+
+Результат: Player принимает и самостоятельно организует поставку, а физические tools используют единый slot/input contract.
 
 ---
 
@@ -72,6 +75,9 @@
 - Heavy;
 - Liquid;
 - Opening;
+- количественный Package HP/Integrity;
+- weak / medium / strong impact severity;
+- Bubble Wrap protection modifier;
 - Damage.
 
 Результат: тип коробки меняет правила обращения.
