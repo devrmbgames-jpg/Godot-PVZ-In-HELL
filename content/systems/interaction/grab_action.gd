@@ -9,32 +9,36 @@ enum Kind {
 }
 
 var kind: Kind = Kind.PICKUP
+var hold_slot: int = -1
+var replace_occupant: bool = false
 
 
 func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(source):
 		return false
-	var held: Entity = S_Grab.held_object(actor)
+	var focus: InteractionFocus.Priority = InteractionFocus.current(actor)
+	if focus >= InteractionFocus.Priority.PUSH:
+		return false
 	if kind != Kind.PICKUP:
-		if held != source:
+		var grip: Relationship = S_Grab.held_relationship(source)
+		if grip == null or grip.target != actor:
+			return false
+		if (
+			(grip.relation as C_HeldBy).slot != C_Grabbable.HoldSlot.CARRY
+			and focus != InteractionFocus.Priority.HANDS
+		):
 			return false
 		var config: C_Grabbable = source.get_component(C_Grabbable) as C_Grabbable
 		return kind != Kind.ROTATE or (config != null and config.manual_rotation_enabled)
-	var body: RigidBody3D = source as Node as RigidBody3D
-	var interactable: C_Interactable = source.get_component(C_Interactable) as C_Interactable
-	return (
-		held == null and body != null and not body.freeze and source.has_component(C_Grabbable)
-		and S_Grab.held_relationship(source) == null and interactable != null
-		and interactable.enabled and is_instance_valid(S_Grab.object_anchor(actor, source))
-		and S_Grab.within_pickup_reach(actor, source)
-		and actor.has_component(C_CarryLoad) and actor.has_component(C_GrabControl)
-	)
+	return S_Grab.can_pickup(actor, source, hold_slot, replace_occupant)
 
 
 func execute(actor: Entity, source: Entity, _target: Entity) -> void:
+	if not is_available(actor, source, _target):
+		return
 	match kind:
 		Kind.PICKUP:
-			S_Grab.try_pickup(actor, source)
+			S_Grab.try_pickup(actor, source, hold_slot, replace_occupant)
 		Kind.RELEASE:
 			S_Grab.release(actor, source)
 		Kind.THROW:

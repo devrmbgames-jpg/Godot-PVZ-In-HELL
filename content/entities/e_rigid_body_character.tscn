@@ -59,6 +59,7 @@ script = ExtResource("Grab_interactor")
 collision_mask = 31
 
 [sub_resource type="Resource" id="Grab_grab_control"]
+resource_local_to_scene = true
 script = ExtResource("Grab_grab_control")
 
 [sub_resource type="Resource" id="Grab_carry_load"]
@@ -72,7 +73,7 @@ radius = 0.18896484
 height = 0.7059326
 radius = 0.18798828
 
-[node name="E_RigidBodyCharacter" type="RigidBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "shape_standing", "shape_crouching", "head_axis_y", "head_axis_x")]
+[node name="E_RigidBodyCharacter" type="RigidBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "lowered_right_hand_slot", "lowered_left_hand_slot", "shape_standing", "shape_crouching", "head_axis_y", "head_axis_x")]
 collision_layer = 4
 collision_mask = 13
 axis_lock_angular_x = true
@@ -88,6 +89,8 @@ interaction_ray_cast = NodePath("HeadY/HeadX/InteractionRay")
 hold_anchor = NodePath("HeadY/HeadX/Holder")
 right_hand_slot = NodePath("HeadY/HeadX/ArmRSlot")
 left_hand_slot = NodePath("HeadY/HeadX/ArmLSlot")
+lowered_right_hand_slot = NodePath("HeadY/HeadX/LoweredRightHand")
+lowered_left_hand_slot = NodePath("HeadY/HeadX/LoweredLeftHand")
 shape_standing = NodePath("ColNormal")
 shape_crouching = NodePath("ColCrouch")
 head_axis_y = NodePath("HeadY")
@@ -187,5 +190,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34265137, -0.27026367, -0.4
 
 [node name="ArmLSlot" type="Marker3D" parent="HeadY/HeadX" unique_id=278936046]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.343, -0.27, -0.411)
+
+[node name="LoweredRightHand" type="Marker3D" parent="HeadY/HeadX"]
+position = Vector3(0.4, -0.8, 0.25)
+
+[node name="LoweredLeftHand" type="Marker3D" parent="HeadY/HeadX"]
+position = Vector3(-0.4, -0.8, 0.25)
 
 [editable path="AnimationLibrary_Godot_Standard"]

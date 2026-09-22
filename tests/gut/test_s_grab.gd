@@ -11,6 +11,18 @@ class CapturedInput extends S_PlayerInput:
 		_unhandled_input(event)
 
 
+class ProbeAction extends InteractionAction:
+	var calls: int = 0
+
+
+	func is_available(_actor: Entity, _source: Entity, _target: Entity) -> bool:
+		return true
+
+
+	func execute(_actor: Entity, _source: Entity, _target: Entity) -> void:
+		calls += 1
+
+
 var grab_world: World
 var holder_entity: Entity
 var box_entity: Entity
@@ -63,6 +75,12 @@ func make_holder(location: Vector3) -> Entity:
 	var left_hand: Marker3D = Marker3D.new()
 	left_hand.position = Vector3(-0.35, 1.0, -0.5)
 	rigid.add_child(left_hand)
+	var lowered_right_hand: Marker3D = Marker3D.new()
+	lowered_right_hand.position = Vector3(0.35, -0.5, 0.25)
+	rigid.add_child(lowered_right_hand)
+	var lowered_left_hand: Marker3D = Marker3D.new()
+	lowered_left_hand.position = Vector3(-0.35, -0.5, 0.25)
+	rigid.add_child(lowered_left_hand)
 	var interaction_ray: RayCast3D = RayCast3D.new()
 	interaction_ray.position.y = 1.0
 	interaction_ray.target_position = Vector3(0.0, 0.0, -3.0)
@@ -72,6 +90,8 @@ func make_holder(location: Vector3) -> Entity:
 	actor.set("hold_anchor", origin)
 	actor.set("right_hand_slot", right_hand)
 	actor.set("left_hand_slot", left_hand)
+	actor.set("lowered_right_hand_slot", lowered_right_hand)
+	actor.set("lowered_left_hand_slot", lowered_left_hand)
 	actor.component_resources = [
 		C_Controller.new(),
 		C_Interactor.new(),
@@ -390,6 +410,330 @@ func test_hand_pickup_rotation_reset_and_relative_offset() -> void:
 	assert_true(S_Grab.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
 	var relative_grip: C_HeldBy = S_Grab.held_relationship(box_entity).relation as C_HeldBy
 	assert_true(relative_grip.rotation_offset.is_equal_approx(expected_offset))
+#endregion
+
+
+#region Slot input and capture
+func test_pickup_slot_selection_accounts_for_hands_and_swap_mapping() -> void:
+	var hand_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	_grabbable(hand_item).allowed_hand_slots = (
+		(1 << C_Grabbable.HoldSlot.RIGHT_HAND) | (1 << C_Grabbable.HoldSlot.LEFT_HAND)
+	)
+	assert_eq(S_Grab.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.RIGHT_HAND)
+	assert_eq(S_Grab.pickup_slot(holder_entity, hand_item, true), -1)
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	assert_eq(S_Grab.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.LEFT_HAND)
+	assert_eq(S_Grab.pickup_slot(holder_entity, hand_item, true), C_Grabbable.HoldSlot.RIGHT_HAND)
+	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
+	_grabbable(left_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.LEFT_HAND
+	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
+	assert_eq(S_Grab.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.RIGHT_HAND)
+	assert_eq(S_Grab.pickup_slot(holder_entity, hand_item, true), C_Grabbable.HoldSlot.LEFT_HAND)
+	grab_control.swap_hand_controls = true
+	assert_eq(S_Grab.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.LEFT_HAND)
+	assert_eq(S_Grab.pickup_slot(holder_entity, hand_item, true), C_Grabbable.HoldSlot.RIGHT_HAND)
+
+
+func test_nested_capture_lowers_hands_until_last_owner_releases() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_grabbable(left_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.LEFT_HAND
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
+	var push_owner: RefCounted = RefCounted.new()
+	var modal_owner: RefCounted = RefCounted.new()
+	var push_token: int = InteractionFocus.acquire(
+		holder_entity,
+		push_owner,
+		InteractionFocus.Priority.PUSH,
+	)
+	var modal_token: int = InteractionFocus.acquire(
+		holder_entity,
+		modal_owner,
+		InteractionFocus.Priority.MODAL,
+	)
+	assert_eq(
+		S_Grab.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
+		holder_entity.get("lowered_right_hand_slot"),
+	)
+	InteractionFocus.release(holder_entity, modal_token)
+	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.PUSH)
+	assert_eq(
+		S_Grab.slot_anchor(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND),
+		holder_entity.get("lowered_left_hand_slot"),
+	)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), left_item)
+	InteractionFocus.release(holder_entity, push_token)
+	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.HANDS)
+	assert_eq(
+		S_Grab.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
+		holder_entity.get("right_hand_slot"),
+	)
+
+
+func test_primary_action_routes_to_mapped_hand_and_swap() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_grabbable(left_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.LEFT_HAND
+	var right_action: ProbeAction = ProbeAction.new()
+	right_action.slot = InteractionAction.Slot.PRIMARY
+	var left_action: ProbeAction = ProbeAction.new()
+	left_action.slot = InteractionAction.Slot.PRIMARY
+	var right_actions: C_InteractionActions = C_InteractionActions.new()
+	right_actions.actions = [right_action]
+	var left_actions: C_InteractionActions = C_InteractionActions.new()
+	left_actions.actions = [left_action]
+	right_item.add_component(right_actions)
+	left_item.add_component(left_actions)
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
+	input_state.input_tick += 1
+	input_state.action_main_pressed = true
+	S_Grab.handle_input(holder_entity)
+	assert_eq(right_action.calls, 1)
+	assert_eq(left_action.calls, 0)
+	grab_control.swap_hand_controls = true
+	input_state.input_tick += 1
+	S_Grab.handle_input(holder_entity)
+	assert_eq(right_action.calls, 1)
+	assert_eq(left_action.calls, 1)
+
+
+func test_capture_blocks_hand_use_throw_and_rotation() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	var action: ProbeAction = ProbeAction.new()
+	action.slot = InteractionAction.Slot.PRIMARY
+	var actions: C_InteractionActions = C_InteractionActions.new()
+	actions.actions = [action]
+	right_item.add_component(actions)
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	var modal_owner: RefCounted = RefCounted.new()
+	var modal_token: int = InteractionFocus.acquire(
+		holder_entity,
+		modal_owner,
+		InteractionFocus.Priority.MODAL,
+	)
+	input_state.input_tick += 1
+	input_state.action_main_pressed = true
+	input_state.physical_override = false
+	input_state.rotate_held = true
+	S_Grab.handle_input(holder_entity)
+	assert_eq(action.calls, 0)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_false(grab_control.rotation_active)
+	input_state.input_tick += 1
+	input_state.physical_override = true
+	S_Grab.handle_input(holder_entity)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	InteractionFocus.release(holder_entity, modal_token)
+
+
+func test_drop_priority_and_long_press_placeholder() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_grabbable(left_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.LEFT_HAND
+	_add_external_grip(box_entity, C_Grabbable.HoldSlot.CARRY)
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
+	input_state.input_tick += 1
+	input_state.drop_pressed = true
+	S_Grab.handle_input(holder_entity)
+	assert_null(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY))
+	assert_not_null(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND))
+	input_state.input_tick += 1
+	S_Grab.handle_input(holder_entity)
+	assert_null(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND))
+	input_state.input_tick += 1
+	S_Grab.handle_input(holder_entity)
+	assert_null(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	input_state.drop_pressed = false
+	input_state.drop_long_pressed = true
+	input_state.input_tick += 1
+	S_Grab.handle_input(holder_entity)
+	assert_true(grab_control.context_wheel_requested)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+
+
+func test_drop_long_press_input_does_not_emit_short_drop_on_release() -> void:
+	var input_system: CapturedInput = CapturedInput.new()
+	var holders: Array[Entity] = [holder_entity]
+	var press_event: InputEventAction = InputEventAction.new()
+	press_event.action = &"drop"
+	press_event.pressed = true
+	input_system.feed_event(press_event)
+	input_system.process(holders, [[input_state]], grab_control.drop_long_press_seconds)
+	assert_true(input_state.drop_long_pressed)
+	assert_false(input_state.drop_pressed)
+	var release_event: InputEventAction = InputEventAction.new()
+	release_event.action = &"drop"
+	release_event.pressed = false
+	input_system.feed_event(release_event)
+	input_system.process(holders, [[input_state]], 1.0 / 60.0)
+	assert_false(input_state.drop_long_pressed)
+	assert_false(input_state.drop_pressed)
+	input_system.free()
+
+
+func test_generic_hand_rotation_uses_rotate_modifier_without_hand_action() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	input_state.input_tick += 1
+	input_state.rotate_held = true
+	input_state.look_delta = Vector2(30.0, 20.0)
+	S_Grab.handle_input(holder_entity)
+	var grip: C_HeldBy = S_Grab.held_relationship(right_item).relation as C_HeldBy
+	assert_true(grab_control.rotation_active)
+	assert_false(grip.rotation_offset.is_equal_approx(Quaternion.IDENTITY))
+
+
+func test_same_owner_captures_release_independently() -> void:
+	var owner: RefCounted = RefCounted.new()
+	var push_token: int = InteractionFocus.acquire(
+		holder_entity,
+		owner,
+		InteractionFocus.Priority.PUSH,
+	)
+	var modal_token: int = InteractionFocus.acquire(
+		holder_entity,
+		owner,
+		InteractionFocus.Priority.MODAL,
+	)
+	assert_ne(push_token, modal_token)
+	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.MODAL)
+	InteractionFocus.release(holder_entity, modal_token)
+	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.PUSH)
+	InteractionFocus.release(holder_entity, push_token)
+	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.HANDS)
+
+
+func test_destroyed_capture_owner_is_pruned() -> void:
+	var owner: RefCounted = RefCounted.new()
+	var token: int = InteractionFocus.acquire(holder_entity, owner, InteractionFocus.Priority.MODAL)
+	assert_ne(token, 0)
+	owner = null
+	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.HANDS)
+	assert_true(grab_control.captures.is_empty())
+
+
+func test_hand_grip_survives_lowered_anchor_and_restore_grace() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var config: C_Grabbable = _grabbable(right_item)
+	config.allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	config.break_distance = 0.5
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	var owner: RefCounted = RefCounted.new()
+	var token: int = InteractionFocus.acquire(holder_entity, owner, InteractionFocus.Priority.MODAL)
+	for physics_tick: int in 3:
+		await get_tree().physics_frame
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(
+		S_Grab.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
+		holder_entity.get("lowered_right_hand_slot"),
+	)
+	InteractionFocus.release(holder_entity, token)
+	assert_eq(
+		S_Grab.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
+		holder_entity.get("right_hand_slot"),
+	)
+	await get_tree().physics_frame
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+
+
+func test_carry_throw_does_not_route_secondary_input_to_hand_item() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	var action: ProbeAction = ProbeAction.new()
+	action.slot = InteractionAction.Slot.PRIMARY
+	var actions: C_InteractionActions = C_InteractionActions.new()
+	actions.actions = [action]
+	right_item.add_component(actions)
+	_add_external_grip(box_entity, C_Grabbable.HoldSlot.CARRY)
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	input_state.input_tick += 1
+	input_state.action_main_pressed = true
+	input_state.action_second_pressed = true
+	input_state.action_second_held = true
+	S_Grab.handle_input(holder_entity)
+	assert_null(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY))
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(action.calls, 0)
+
+
+func test_y_only_rotation_and_disabled_rotation_policy() -> void:
+	var y_only_offset: Quaternion = S_Grab.rotated_offset(
+		Quaternion.IDENTITY,
+		Vector2(30.0, 20.0),
+		C_Grabbable.RotationAxis.Y_ONLY,
+	)
+	var y_only_euler: Vector3 = y_only_offset.get_euler()
+	assert_almost_eq(y_only_euler.x, 0.0, 0.00001)
+	assert_almost_eq(y_only_euler.z, 0.0, 0.00001)
+	assert_ne(y_only_euler.y, 0.0)
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var config: C_Grabbable = _grabbable(right_item)
+	config.allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	config.manual_rotation_enabled = false
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	input_state.input_tick += 1
+	input_state.rotate_held = true
+	input_state.look_delta = Vector2(30.0, 20.0)
+	S_Grab.handle_input(holder_entity)
+	assert_false(grab_control.rotation_active)
+
+
+func test_interact_replaces_primary_hand_after_los_validation() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
+	_grabbable(box_entity).allowed_hand_slots = (
+		(1 << C_Grabbable.HoldSlot.RIGHT_HAND) | (1 << C_Grabbable.HoldSlot.LEFT_HAND)
+	)
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_grabbable(left_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.LEFT_HAND
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
+	for physics_tick: int in 2:
+		await get_tree().physics_frame
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	interactor.target = S_InteractionTargeting.find_target(holder_entity, interactor)
+	assert_eq(interactor.target, box_entity)
+	input_state.input_tick += 1
+	input_state.interact_pressed = true
+	S_Grab.handle_input(holder_entity)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), box_entity)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), left_item)
+	assert_null(S_Grab.held_relationship(right_item))
+
+
+func test_use_replaces_secondary_hand_after_los_validation() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
+	_grabbable(box_entity).allowed_hand_slots = (
+		(1 << C_Grabbable.HoldSlot.RIGHT_HAND) | (1 << C_Grabbable.HoldSlot.LEFT_HAND)
+	)
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_grabbable(left_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.LEFT_HAND
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
+	for physics_tick: int in 2:
+		await get_tree().physics_frame
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	interactor.target = S_InteractionTargeting.find_target(holder_entity, interactor)
+	assert_eq(interactor.target, box_entity)
+	input_state.input_tick += 1
+	input_state.use_pressed = true
+	S_Grab.handle_input(holder_entity)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), box_entity)
+	assert_null(S_Grab.held_relationship(left_item))
 #endregion
 
 

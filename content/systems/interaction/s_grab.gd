@@ -5,6 +5,7 @@ class_name S_Grab
 const ROTATION_SENSITIVITY: float = 0.006
 const MIN_MASS: float = 0.001
 const ROTATION_EPSILON: float = 0.00001
+const ANCHOR_TRANSITION_SECONDS: float = 0.5
 #endregion
 
 
@@ -176,14 +177,44 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 	)
 
 	var position_error: Vector3 = desired_position - state.transform.origin
-	if position_error.length() > config.break_distance:
+	var hand_suspended: bool = (
+		grip_data.slot != C_Grabbable.HoldSlot.CARRY
+		and InteractionFocus.current(holder) != InteractionFocus.Priority.HANDS
+	)
+	var allowed_break_distance: float = config.break_distance
+	if hand_suspended:
+		var hand_property: StringName = &"right_hand_slot"
+		if grip_data.slot == C_Grabbable.HoldSlot.LEFT_HAND:
+			hand_property = &"left_hand_slot"
+		var normal_anchor: Node3D = holder.get(hand_property) as Node3D
+		if is_instance_valid(normal_anchor):
+			allowed_break_distance += normal_anchor.global_position.distance_to(
+				anchor.global_position
+			)
+	if (
+		grip_data.previous_anchor_id != 0
+		and grip_data.previous_anchor_id != anchor.get_instance_id()
+	):
+		grip_data.anchor_transition_remaining = ANCHOR_TRANSITION_SECONDS
+	grip_data.anchor_transition_remaining = maxf(
+		0.0,
+		grip_data.anchor_transition_remaining - state.step,
+	)
+	if (
+		grip_data.anchor_transition_remaining <= 0.0
+		and position_error.length() > allowed_break_distance
+	):
 		release(holder, entity)
 		return
 
 	var anchor_velocity: Vector3 = Vector3.ZERO
-	if grip_data.anchor_sample_valid and state.step > 0.0:
+	if (
+		grip_data.anchor_sample_valid
+		and grip_data.previous_anchor_id == anchor.get_instance_id() and state.step > 0.0
+	):
 		anchor_velocity = (desired_position - grip_data.previous_anchor_position) / state.step
 
+	grip_data.previous_anchor_id = anchor.get_instance_id()
 	grip_data.previous_anchor_position = desired_position
 	grip_data.anchor_sample_valid = true
 	var body_mass: float = 1.0 / maxf(state.inverse_mass, MIN_MASS)
@@ -250,6 +281,11 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 
 	_set_cached(control, grip_data.slot, held)
 	if grip_data.slot == C_Grabbable.HoldSlot.CARRY:
+		grip_data.capture_token = InteractionFocus.acquire(
+			holder,
+			held,
+			InteractionFocus.Priority.CARRY,
+		)
 		load_state.active = true
 		load_state.speed_multiplier = clampf(config.movement_speed_multiplier, 0.0, 1.0)
 		load_state.acceleration_multiplier = clampf(
@@ -278,6 +314,7 @@ static func grip_removed(held: Entity, grip: Relationship) -> void:
 	var holder: Entity = grip.target as Entity if is_instance_valid(grip.target) else null
 	var body: RigidBody3D = held as Node as RigidBody3D
 	if is_instance_valid(holder):
+		InteractionFocus.release(holder, grip_data.capture_token)
 		var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 		if control != null and _cached(control, grip_data.slot) == held:
 			reset_holder(holder, grip_data.slot)
@@ -415,8 +452,9 @@ static func held_in_slot(holder: Entity, slot_index: int) -> Entity:
 	var held: Entity = _cached(control, slot_index)
 	if is_instance_valid(held):
 		var grip: Relationship = held_relationship(held)
-		if grip != null and grip.target == holder and (grip.relation as C_HeldBy).slot == slot_index:
-			return held
+		if grip != null and grip.target == holder:
+			if (grip.relation as C_HeldBy).slot == slot_index:
+				return held
 	if held != null:
 		reset_holder(holder, slot_index)
 	return null
@@ -501,10 +539,10 @@ static func object_anchor(holder: Entity, target: Entity) -> Node3D:
 	if not is_instance_valid(holder) or not is_instance_valid(target):
 		return null
 	var grip: Relationship = held_relationship(target)
-	var slot_index: int = (grip.relation as C_HeldBy).slot if grip != null else pickup_slot(
-		holder,
-		target,
-		false,
+	var slot_index: int = (
+		(grip.relation as C_HeldBy).slot
+		if grip != null
+		else pickup_slot(holder, target, false)
 	)
 	return slot_anchor(holder, slot_index)
 
@@ -512,6 +550,16 @@ static func object_anchor(holder: Entity, target: Entity) -> Node3D:
 static func slot_anchor(holder: Entity, slot_index: int) -> Node3D:
 	if not is_instance_valid(holder):
 		return null
+	if (
+		slot_index != C_Grabbable.HoldSlot.CARRY
+		and InteractionFocus.current(holder) != InteractionFocus.Priority.HANDS
+	):
+		var right_hand: bool = slot_index == C_Grabbable.HoldSlot.RIGHT_HAND
+		var lowered: Node3D = holder.get(
+			"lowered_right_hand_slot" if right_hand else "lowered_left_hand_slot"
+		) as Node3D
+		if is_instance_valid(lowered):
+			return lowered
 	match slot_index:
 		C_Grabbable.HoldSlot.CARRY:
 			return hold_anchor(holder)

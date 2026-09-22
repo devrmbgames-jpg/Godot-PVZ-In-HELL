@@ -34,15 +34,19 @@ func _run() -> void:
 	assert(ECS.world.query.with_all([C_Package]).execute().size() == 8)
 	level.set_physics_process(false)
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
+	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	(actor as Node as RigidBody3D).freeze = true
 	var scanner: E_Scanner = level.get_node("Entityes/Scanner") as E_Scanner
 	var first: Entity = level.get_node("Entityes/Parcel_001_01") as Entity
 	var second: Entity = level.get_node("Entityes/Parcel_001_02") as Entity
-	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
-	ray.look_at((scanner as Node as Node3D).global_position)
+	var first_supply_position: Vector3 = (first as Node as Node3D).global_position
+	var second_supply_position: Vector3 = (second as Node as Node3D).global_position
+	await _prepare_target(actor, scanner, Vector3(0.0, 0.0, -1.6))
+	assert(S_Grab.within_pickup_reach(actor, scanner))
 	_drive(actor, true, false, false)
 	assert(S_Grab.held_object(actor) == scanner, "E must pick up the real scanner")
-	ray.look_at((first as Node as Node3D).global_position + Vector3.UP * 0.2)
+	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
+	assert(S_InteractionTargeting.find_target(actor, interactor) == first)
 	_drive(actor, false, false, true)
 	var first_state: C_PackageState = first.get_component(C_PackageState) as C_PackageState
 	var registry: C_PackageLedger = PackageRegistrationService.ledger()
@@ -55,10 +59,8 @@ func _run() -> void:
 	_drive(actor, false, false, true)
 	assert(first_state.registration_number == "001-001" and registry.records.size() == 1)
 	assert("Уже учтена" in feedback.text)
-	(actor as Node as Node3D).global_position = (
-		(second as Node as Node3D).global_position + Vector3(0, 0.1, 1.8)
-	)
-	ray.look_at((second as Node as Node3D).global_position + Vector3.UP * 0.2)
+	await _prepare_target(actor, second, Vector3(0.0, -0.2, -2.2))
+	assert(S_InteractionTargeting.find_target(actor, interactor) == second)
 	_drive(actor, false, false, true)
 	var second_state: C_PackageState = second.get_component(C_PackageState) as C_PackageState
 	assert(second_state.registration_number == "001-002" and registry.records.size() == 2)
@@ -69,7 +71,9 @@ func _run() -> void:
 		== ScanResult.Outcome.REJECTED
 	)
 	scanner_config.scan_range = 3.0
+	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
 	ray.look_at(ray.global_position + Vector3(0, 1, -1))
+	ray.force_raycast_update()
 	assert(
 		PackageRegistrationService.scan(actor, scanner, first).outcome
 		== ScanResult.Outcome.REJECTED
@@ -85,9 +89,9 @@ func _run() -> void:
 	desk_query.transform.origin += Vector3.UP * 0.55
 	desk_query.exclude = [terminal_body.get_rid()]
 	assert(terminal_body.get_world_3d().direct_space_state.intersect_shape(desk_query).is_empty())
-	(actor as Node as Node3D).global_position = Vector3(2.1, 0.1, -3.5)
-	ray.look_at((terminal as Node as Node3D).global_position + Vector3.UP * 0.55)
-	_drive(actor, false, true, false)
+	await _prepare_target(actor, terminal, Vector3(0.0, -0.5, -1.8))
+	assert(S_InteractionTargeting.find_target(actor, interactor) == terminal)
+	_drive(actor, true, false, false)
 	assert(terminal.panel.visible)
 	assert("001-001" in terminal.panel.registry.text and "001-002" in terminal.panel.registry.text)
 	assert(
@@ -99,18 +103,33 @@ func _run() -> void:
 		var screenshot: Image = get_viewport().get_texture().get_image()
 		assert(screenshot.save_png("res://tests/artifacts/terminal_preview.png") == OK)
 	terminal.panel.close_panel()
+	var first_body: RigidBody3D = first as Node as RigidBody3D
+	var second_body: RigidBody3D = second as Node as RigidBody3D
+	first_body.global_position = first_supply_position
+	second_body.global_position = second_supply_position
+	first_body.linear_velocity = Vector3.ZERO
+	second_body.linear_velocity = Vector3.ZERO
+	first_body.angular_velocity = Vector3.ZERO
+	second_body.angular_velocity = Vector3.ZERO
+	await get_tree().physics_frame
 	var previous_location: Vector3 = (first as Node as Node3D).global_position
 	for parcel: Entity in parcels:
 		(parcel as Node as RigidBody3D).freeze = true
-	# Block the receiving footprint before the next Morning; no overlap spawning is allowed.
-	var blocker: StaticBody3D = StaticBody3D.new()
-	var collision: CollisionShape3D = CollisionShape3D.new()
-	var box_shape: BoxShape3D = BoxShape3D.new()
-	box_shape.size = Vector3(8, 1, 5)
-	collision.shape = box_shape
-	blocker.add_child(collision)
-	blocker.position = Vector3(3.8, 0.5, -5.5)
-	level.add_child(blocker)
+	# Block every receiving marker: delivery may not skip to a free spawn point.
+	var zone: E_ReceivingZone = level.get_node("Entityes/ReceivingZone") as E_ReceivingZone
+	var blockers: Array[StaticBody3D] = []
+	var spawn_points: Node = zone.get_node("SpawnPoints")
+	for spawn_point: Node in spawn_points.get_children():
+		var marker: Node3D = spawn_point as Node3D
+		var blocker: StaticBody3D = StaticBody3D.new()
+		var collision: CollisionShape3D = CollisionShape3D.new()
+		var box_shape: BoxShape3D = BoxShape3D.new()
+		box_shape.size = Vector3(0.9, 1.0, 0.9)
+		collision.shape = box_shape
+		blocker.add_child(collision)
+		blocker.global_position = marker.global_position + Vector3.UP * 0.5
+		level.add_child(blocker)
+		blockers.append(blocker)
 	await get_tree().physics_frame
 	for transition: DayTransitionRequest.Kind in [
 		DayTransitionRequest.Kind.START_SHIFT,
@@ -126,10 +145,10 @@ func _run() -> void:
 		ECS.world.process(1.0 / 60.0, "GamePlay")
 	ECS.world.process(1.0 / 60.0, "GamePlay")
 	assert(S_DayPhase.current().day_index == 2)
-	var zone: E_ReceivingZone = level.get_node("Entityes/ReceivingZone") as E_ReceivingZone
 	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
 	assert(receiving.blocked and ECS.world.query.with_all([C_Package]).execute().size() == 8)
-	blocker.queue_free()
+	for blocker: StaticBody3D in blockers:
+		blocker.queue_free()
 	# Simulate shelving yesterday's supply, leaving the first parcel untouched.
 	for parcel_index: int in range(1, parcels.size()):
 		var stored: RigidBody3D = parcels[parcel_index] as Node as RigidBody3D
@@ -141,14 +160,12 @@ func _run() -> void:
 	assert((first as Node as Node3D).global_position.is_equal_approx(previous_location))
 	assert("001-001" not in PackageRegistrationService.terminal_text(2))
 	var next_day_parcel: Entity = level.get_node("Entityes/Parcel_002_01") as Entity
-	(actor as Node as Node3D).global_position = (
-		(next_day_parcel as Node as Node3D).global_position + Vector3(0, 0.1, 1.8)
-	)
-	ray.look_at((next_day_parcel as Node as Node3D).global_position + Vector3.UP * 0.2)
+	await _prepare_target(actor, next_day_parcel, Vector3(0.0, -0.2, -2.2))
+	assert(S_InteractionTargeting.find_target(actor, interactor) == next_day_parcel)
 	assert(PackageRegistrationService.scan(actor, scanner, next_day_parcel).number == "002-001")
 	assert("002-001" in PackageRegistrationService.terminal_text(2))
-	(actor as Node as Node3D).global_position = previous_location + Vector3(0, 0.1, 1.8)
-	ray.look_at(previous_location + Vector3.UP * 0.2)
+	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
+	assert(S_InteractionTargeting.find_target(actor, interactor) == first)
 	assert(PackageRegistrationService.scan(actor, scanner, first).number == "001-001")
 	assert(registry.records.size() == 3)
 	level.free()
@@ -164,3 +181,14 @@ func _drive(actor: Entity, interact: bool, use: bool, primary: bool) -> void:
 	controller.use_pressed = use
 	controller.action_main_pressed = primary
 	ECS.world.process(1.0 / 60.0, "Interaction")
+
+
+func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> void:
+	var target_body: Node3D = target as Node as Node3D
+	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
+	target_body.global_position = ray.global_position + target_offset
+	await get_tree().physics_frame
+	ray.look_at(target_body.global_position)
+	ray.force_raycast_update()
+	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
+	interactor.target = S_InteractionTargeting.find_target(actor, interactor)

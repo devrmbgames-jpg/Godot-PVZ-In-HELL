@@ -3,11 +3,10 @@ extends Node
 
 class ProbeAction extends InteractionAction:
 	var calls: int = 0
-	var available: bool = true
 
 
 	func is_available(_actor: Entity, _source: Entity, _target: Entity) -> bool:
-		return available
+		return true
 
 
 	func execute(_actor: Entity, _source: Entity, _target: Entity) -> void:
@@ -19,16 +18,14 @@ func _ready() -> void:
 
 
 func _run() -> void:
-	var use_key: InputEventKey = InputEventKey.new()
-	use_key.physical_keycode = KEY_F
-	use_key.pressed = true
-	assert(use_key.is_action_pressed(&"use"))
-	assert(not use_key.is_action_pressed(&"interact"))
-	var grab_key: InputEventKey = InputEventKey.new()
-	grab_key.physical_keycode = KEY_E
-	grab_key.pressed = true
-	assert(grab_key.is_action_pressed(&"interact"))
-	assert(not grab_key.is_action_pressed(&"use"))
+	var primary_event: InputEventMouseButton = InputEventMouseButton.new()
+	primary_event.button_index = MOUSE_BUTTON_LEFT
+	primary_event.pressed = true
+	assert(primary_event.is_action_pressed(&"action_primary"))
+	var secondary_event: InputEventMouseButton = InputEventMouseButton.new()
+	secondary_event.button_index = MOUSE_BUTTON_RIGHT
+	secondary_event.pressed = true
+	assert(secondary_event.is_action_pressed(&"action_secondary"))
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
 	add_child(level)
@@ -37,108 +34,94 @@ func _run() -> void:
 		await get_tree().physics_frame
 		ECS.world.process(1.0 / 60.0, "GamePlay")
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
-	var tool: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
-	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
+	var scanner: Entity = level.get_node("Entityes/Scanner") as Entity
+	var parcel: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
+	var terminal: E_Terminal = level.get_node("Entityes/Terminal") as E_Terminal
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
-	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
 	(actor as Node as RigidBody3D).freeze = true
-	(actor as Node as Node3D).global_position = (tool as Node as Node3D).global_position + Vector3(
-		0,
-		0.1,
-		1.8,
-	)
-	ray.look_at((tool as Node as Node3D).global_position + Vector3.UP * 0.2)
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	interactor.target = S_InteractionTargeting.find_target(actor, interactor)
-	var usable: C_InteractionActions = C_InteractionActions.new()
-	var use_probe: ProbeAction = ProbeAction.new()
-	use_probe.slot = InteractionAction.Slot.USE
-	usable.actions = [use_probe]
-	tool.add_component(usable)
-	assert(InteractionActions.resolve(actor, InteractionAction.Slot.INTERACT).action is GrabAction)
-	assert(InteractionActions.resolve(actor, InteractionAction.Slot.USE).action == use_probe)
-	var tool_body: RigidBody3D = tool as Node as RigidBody3D
-	tool_body.freeze = true
-	assert(InteractionActions.resolve(actor, InteractionAction.Slot.INTERACT).action == use_probe)
-	controller.interact_pressed = true
-	controller.use_pressed = true
-	controller.input_tick = 1
-	S_Grab.handle_input(actor)
-	assert(use_probe.calls == 1, "Shared E/F input must perform only one available use")
-	controller.interact_pressed = false
-	controller.use_pressed = false
-	tool_body.freeze = false
-	tool.remove_component(C_InteractionActions)
-	assert(S_Grab.try_pickup(actor, tool))
-	var tool_actions: C_InteractionActions = C_InteractionActions.new()
-	var scan: ProbeAction = ProbeAction.new()
-	scan.slot = InteractionAction.Slot.PRIMARY
-	scan.action_id = &"scan"
-	scan.caption = "Сканировать"
-	var draw: ProbeAction = ProbeAction.new()
-	draw.slot = InteractionAction.Slot.SECONDARY
-	draw.continuous = true
-	draw.caption = "Рисовать"
-	tool_actions.actions = [scan, draw]
-	tool.add_component(tool_actions)
-	controller.input_tick += 1
-	controller.action_main_pressed = true
-	controller.action_second_held = true
-	S_Grab.handle_input(actor)
-	S_Grab.handle_input(actor)
-	assert(scan.calls == 1 and draw.calls == 1)
-	assert(controller.action_main_pressed)
-	assert(S_Grab.held_object(actor) == tool and not control.rotation_active)
-	assert("Сканировать" in interactor.prompt_text and "Alt + ЛКМ" in interactor.prompt_text)
-	assert(not InteractionActions.wants_rotation(actor, controller))
-	scan.available = false
-	controller.input_tick += 1
-	S_Grab.handle_input(actor)
-	assert(scan.calls == 1 and S_Grab.held_object(actor) == tool)
-	assert("Сканировать" not in interactor.prompt_text)
-	controller.physical_override = true
-	controller.action_main_pressed = false
-	controller.input_tick += 1
-	S_Grab.handle_input(actor)
-	assert(control.rotation_active and draw.calls == 2)
-	controller.action_second_held = false
-	controller.action_main_pressed = true
-	controller.input_tick += 1
-	S_Grab.handle_input(actor)
-	assert(S_Grab.held_object(actor) == null and scan.calls == 1)
-	var actor_actions: C_InteractionActions = C_InteractionActions.new()
-	var fallback: ProbeAction = ProbeAction.new()
-	fallback.slot = InteractionAction.Slot.PRIMARY
-	actor_actions.actions = [fallback]
-	actor.add_component(actor_actions)
-	controller.input_tick += 1
-	S_Grab.handle_input(actor)
-	assert(fallback.calls == 1)
-	var use_action: ProbeAction = ProbeAction.new()
-	use_action.slot = InteractionAction.Slot.USE
-	use_action.action_id = &"b"
-	var preferred: ProbeAction = ProbeAction.new()
-	preferred.slot = InteractionAction.Slot.USE
-	preferred.action_id = &"a"
-	actor_actions.actions = [use_action, preferred]
-	controller.action_main_pressed = false
-	controller.use_pressed = true
-	controller.input_tick += 1
-	S_Grab.handle_input(actor)
-	assert(preferred.calls == 1 and use_action.calls == 0)
-	tool.add_relationship(Relationship.new(C_HeldBy.new(), actor))
-	assert(S_Grab.held_object(actor) == tool)
-	ECS.world.remove_entity(tool)
-	controller.action_second_held = true
-	assert(not InteractionActions.wants_rotation(actor, controller))
-	assert(S_Grab.held_object(actor) == null)
+	await _prepare_target(actor, scanner, Vector3(0.0, 0.0, -1.6))
+	assert(S_Grab.within_pickup_reach(actor, scanner))
+	assert(S_Grab.pickup_slot(actor, scanner, false) == C_Grabbable.HoldSlot.RIGHT_HAND)
+	_drive(actor, true, false, false, false, false)
+	assert(S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+	assert(S_Grab.held_object(actor) == scanner)
+	var actions: C_InteractionActions = C_InteractionActions.new()
+	var primary_probe: ProbeAction = ProbeAction.new()
+	primary_probe.slot = InteractionAction.Slot.PRIMARY
+	primary_probe.action_id = &"hand_probe"
+	actions.actions = [primary_probe]
+	scanner.remove_component(C_InteractionActions)
+	scanner.add_component(actions)
+	_drive(actor, false, false, true, false, false)
+	assert(primary_probe.calls == 1, "LMB must use the mapped right hand tool")
+	assert(S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+	_drive(actor, false, false, false, true, false)
+	assert(primary_probe.calls == 1, "RMB must address the other hand")
+	await _prepare_target(actor, parcel, Vector3(0.0, -0.2, -1.8))
+	assert(S_Grab.within_pickup_reach(actor, parcel))
+	assert(S_Grab.try_pickup(actor, parcel, C_Grabbable.HoldSlot.CARRY))
+	assert(InteractionFocus.current(actor) == InteractionFocus.Priority.CARRY)
+	_drive(actor, false, false, true, false, false)
+	assert(primary_probe.calls == 1, "Carry capture must block hand tool use")
+	_drive(actor, false, false, false, false, true)
+	assert(S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY) == null)
+	assert(S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+	assert(InteractionFocus.current(actor) == InteractionFocus.Priority.HANDS)
+	_drive(actor, false, false, true, false, false)
+	assert(primary_probe.calls == 2, "Hand use must resume after Carry release")
+	await _prepare_target(actor, terminal, Vector3(0.0, -0.5, -1.8))
+	assert(S_InteractionTargeting.find_target(actor, interactor) == terminal)
+	_drive(actor, true, false, false, false, false)
+	assert(terminal.panel.visible)
+	assert(InteractionFocus.current(actor) == InteractionFocus.Priority.MODAL)
+	_drive(actor, false, false, true, false, false)
+	assert(primary_probe.calls == 2, "Terminal capture must block hand tool use")
+	assert(S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+	terminal.panel.close_panel()
+	assert(InteractionFocus.current(actor) == InteractionFocus.Priority.HANDS)
+	_drive(actor, false, false, true, false, false)
+	assert(primary_probe.calls == 3, "Terminal close must restore hand tool use")
+	_drive(actor, false, false, true, false, false, true)
+	assert(S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == null)
+	assert(primary_probe.calls == 3, "Alt + LMB must throw instead of using")
 	assert(
 		(InputMap.action_get_events(&"physical_override")[0] as InputEventKey).physical_keycode
 		== KEY_ALT
 	)
 	level.free()
 	ECS.world = null
-	print("R02 interaction smoke PASS")
+	print("R06.1 interaction hands smoke PASS")
 	get_tree().quit()
+
+
+func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> void:
+	var target_body: Node3D = target as Node as Node3D
+	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
+	target_body.global_position = ray.global_position + target_offset
+	await get_tree().physics_frame
+	ray.look_at(target_body.global_position)
+	ray.force_raycast_update()
+	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
+	interactor.target = S_InteractionTargeting.find_target(actor, interactor)
+
+
+func _drive(
+	actor: Entity,
+	interact: bool,
+	use: bool,
+	primary: bool,
+	secondary: bool,
+	drop: bool,
+	physical_override: bool = false,
+) -> void:
+	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
+	controller.input_tick += 1
+	controller.interact_pressed = interact
+	controller.use_pressed = use
+	controller.action_main_pressed = primary
+	controller.action_main = primary
+	controller.action_second_pressed = secondary
+	controller.action_second_held = secondary
+	controller.drop_pressed = drop
+	controller.physical_override = physical_override
+	ECS.world.process(1.0 / 60.0, "Interaction")

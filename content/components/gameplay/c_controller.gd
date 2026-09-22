@@ -10,6 +10,12 @@ var input_tick: int = 0
 var action_main_pressed: bool = false
 var action_second_held: bool = false
 var look_delta: Vector2 = Vector2.ZERO
+var rotate_held: bool = false
+var drop_pressed: bool = false
+var drop_long_pressed: bool = false
+var drop_tracking: bool = false
+var drop_elapsed: float = 0.0
+var drop_long_fired: bool = false
 
 ## Намерение куда смотреть
 @export var direction_look: Vector3 = Vector3.FORWARD

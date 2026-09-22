@@ -15,7 +15,13 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 		return false
 	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(target):
 		return false
-	if S_Grab.held_object(actor) != scanner or not scanner.has_component(C_Scanner):
+	var grip: Relationship = S_Grab.held_relationship(scanner)
+	if grip == null or grip.target != actor or not scanner.has_component(C_Scanner):
+		return false
+	if (
+		(grip.relation as C_HeldBy).slot == C_Grabbable.HoldSlot.CARRY
+		or InteractionFocus.current(actor) != InteractionFocus.Priority.HANDS
+	):
 		return false
 	var cycle: C_DayCycle = S_DayPhase.current()
 	if cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT or ledger() == null:

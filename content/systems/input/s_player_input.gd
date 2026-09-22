@@ -11,6 +11,8 @@ var _interact_pending: bool = false
 var _throw_pending: bool = false
 var _use_pending: bool = false
 var _secondary_pending: bool = false
+var _drop_start_pending: bool = false
+var _drop_end_pending: bool = false
 
 
 #region Godot input
@@ -28,6 +30,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_use_pending = true
 	if event.is_action_pressed(&"action_secondary") and not event.is_echo():
 		_secondary_pending = true
+	if event.is_action_pressed(&"drop") and not event.is_echo():
+		_drop_start_pending = true
+	if event.is_action_released(&"drop"):
+		_drop_end_pending = true
 #endregion
 
 
@@ -50,6 +56,8 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		var entity: Entity = entities[entity_index]
 		var controller: C_Controller = controllers[entity_index]
 		controller.input_tick += 1
+		controller.rotate_held = captured and Input.is_action_pressed(&"rotate_held")
+		_update_drop(controller, entity, captured, delta)
 		controller.use_pressed = captured and _use_pending
 		controller.action_second_pressed = captured and _secondary_pending
 		controller.physical_override = captured and Input.is_action_pressed(&"physical_override")
@@ -74,10 +82,39 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	_throw_pending = false
 	_use_pending = false
 	_secondary_pending = false
+	_drop_start_pending = false
+	_drop_end_pending = false
 #endregion
 
 
 #region Intent helpers
+func _update_drop(controller: C_Controller, entity: Entity, captured: bool, delta: float) -> void:
+	controller.drop_pressed = false
+	controller.drop_long_pressed = false
+	if not captured:
+		controller.drop_tracking = false
+		controller.drop_elapsed = 0.0
+		controller.drop_long_fired = false
+		return
+	if _drop_start_pending:
+		controller.drop_tracking = true
+		controller.drop_elapsed = 0.0
+		controller.drop_long_fired = false
+	if not controller.drop_tracking:
+		return
+	controller.drop_elapsed += delta
+	var control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
+	if (
+		control != null and controller.drop_elapsed >= control.drop_long_press_seconds
+		and not controller.drop_long_fired
+	):
+		controller.drop_long_fired = true
+		controller.drop_long_pressed = true
+	if _drop_end_pending:
+		controller.drop_pressed = not controller.drop_long_fired
+		controller.drop_tracking = false
+
+
 func _accepts_input() -> bool:
 	return Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 

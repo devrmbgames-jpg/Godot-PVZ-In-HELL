@@ -7,6 +7,8 @@ class_name E_RigidBodyCharacter
 @export var hold_anchor: Node3D = null
 @export var right_hand_slot: Node3D = null
 @export var left_hand_slot: Node3D = null
+@export var lowered_right_hand_slot: Node3D = null
+@export var lowered_left_hand_slot: Node3D = null
 
 @export_subgroup("Crouch")
 @export var shape_standing: CollisionShape3D

@@ -9,5 +9,8 @@ var previous_can_sleep: bool = true
 var added_collision_exception: bool = false
 var previous_anchor_position: Vector3 = Vector3.ZERO
 var anchor_sample_valid: bool = false
+var previous_anchor_id: int = 0
+var anchor_transition_remaining: float = 0.0
+var capture_token: int = 0
 ## Set only after observer side effects, cleared on teardown; never used to infer ownership.
 var lifecycle_applied: bool = false
