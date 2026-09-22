@@ -105,11 +105,15 @@ RM06.1 выполняется после Scanner/Terminal и до Marker/Shelves
 - lifecycle;
 - RequestedPackage;
 - DeliveryCounter;
-- correct/wrong package;
+- correct/wrong/opened/damaged package;
+- actual delivery outcome отдельно от Terminal declaration;
+- `Забрал / Отказался / Потеряна`;
+- Customer voluntary refusal и Player denial;
+- Complaint/dispute records;
 - Satisfaction;
 - leaving.
 
-Результат: обычного Customer можно полностью обслужить.
+Результат: Customer service поддерживает как честную выдачу, так и отказ/потерю/ложную отметку с типизированным исходом и будущими последствиями.
 
 ---
 
@@ -208,6 +212,8 @@ RM06.1 выполняется после Scanner/Terminal и до Marker/Shelves
 Реализовать:
 
 - Money;
+- Package value/settlement operations 100/120/150/200%;
+- typed future Reputation reasons;
 - Trader;
 - next-day order;
 - upgrade definitions;
@@ -223,7 +229,10 @@ RM06.1 выполняется после Scanner/Terminal и до Marker/Shelves
 - daily reset;
 - next Morning;
 - Save/Load;
-- PendingDelivery.
+- PendingDelivery;
+- active Package across days;
+- unresolved Complaint/dispute;
+- late Customer arrival and 7-day retaliation window.
 
 ---
 
