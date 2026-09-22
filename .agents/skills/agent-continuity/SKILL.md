@@ -39,6 +39,14 @@ Use as the active checklist only. Return it to idle after completion. Historical
 
 Checkpoint after a meaningful milestone, before risky broad changes, before model/session handoff, or when context is becoming large.
 
+After each completed logical milestone:
+1. run the narrow relevant validation when possible;
+2. update `CURRENT_WORK.md` if more work remains;
+3. create a **local git commit** for that milestone;
+4. only then start the next milestone/task.
+
+Keep commits small and thematic. Never combine unrelated stages merely to reduce commit count. Do not push or rewrite history unless explicitly requested.
+
 After architecture is accepted, do not re-explore alternatives unless concrete evidence invalidates it.
 
 Prefer multiple bounded milestones over one huge task.
