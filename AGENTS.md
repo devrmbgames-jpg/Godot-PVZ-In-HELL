@@ -99,7 +99,10 @@ For sizable work, maintain `WORK.md`. For interruptible work, keep `CURRENT_WORK
 
 **Create a local git commit after every completed logical stage/milestone and before starting the next stage or separate task.**
 - A commit must contain one coherent change.
-- Run the narrow relevant validation before committing when possible.
+- Milestone commits use cheap validation only: deterministic structure/path checks, formatter/lint when available, targeted static inspection, and `git diff --check`.
+- **Do not run GUT suites, headless smoke suites, or repeated runtime validation after ordinary milestones/subtasks.**
+- Run GUT + relevant headless smoke/runtime validation once near the end of the complete implementation task (`Rxx` / `Rxx.x`), before marking that task complete.
+- Early runtime/GUT execution is allowed only when the user explicitly requests it or when a concrete blocking bug cannot be diagnosed/validated without a narrow targeted run. Do not turn that exception into repeated regression runs.
 - Update `CURRENT_WORK.md` before/with the milestone commit if the task continues.
 - Do not batch several independent stages into one large commit.
 - Do not push, open a PR, or rewrite history unless the user explicitly asks.
@@ -114,10 +117,22 @@ Keep only unfinished task files in `agent_tasks/`. After completion:
 
 Validation should be the narrowest relevant check first. Do not add new GUT suites without explicit user instruction.
 
-Before a milestone commit:
+### Validation cadence
+
+Before an ordinary milestone/subtask commit:
 1. run `python utils/validate_project_structure.py`;
-2. for changed project-owned `.gd` files, run the formatter checks from `.agents/skills/gdscript-format/SKILL.md` when the CLI is available;
-3. run the narrow relevant GUT/smoke/runtime check;
-4. run `git diff --check`.
+2. for changed project-owned `.gd` files, run formatter/static checks when available;
+3. run targeted static inspection only;
+4. run `git diff --check`;
+5. **do not run GUT/smoke/runtime suites by default**.
+
+Before completing the full implementation task (`Rxx` / `Rxx.x`):
+1. run the deterministic checks above;
+2. run the relevant GUT regression surface once;
+3. run the relevant headless smoke/runtime checks once;
+4. record only concise PASS/FAIL evidence;
+5. leave visual validation to the user unless explicitly approved.
+
+Exception: a concrete blocking bug may justify one narrow early runtime/GUT run when static evidence is insufficient.
 
 If `pre-commit` is installed, `.pre-commit-config.yaml` automates the deterministic structure check, staged diff check, and optional GDScript formatter check. Do not install/upgrade it silently during unrelated work.
