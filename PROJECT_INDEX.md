@@ -1,92 +1,74 @@
 # Project Index
 
-Compact canonical map. Read [CONTEXT.md](CONTEXT.md), then the relevant subsystem context; inspect only the named code and its direct contracts.
+Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the exact subsystem; read root/subsystem `CONTEXT.md` only when the current task needs architecture, dependency, persistence, or validation facts.
 
 ## Roots
 
 | Area | Entry point | Purpose |
 | --- | --- | --- |
 | Configuration | [project.godot](project.godot) | Startup, autoloads, input, plugins, physics/rendering |
-| Startup | [main_level.tscn](content/scenes/main_level.tscn) | Player, morning supply, scanner, terminal and day stations |
-| Gameplay prototype | [content/CONTEXT.md](content/CONTEXT.md) | Project-owned ECS, character, level and attributes |
-| Resources | `resources/`, `materials/` | Imported art/audio, generated scenes and materials |
-| Editor/import helpers | `utils/` | Asset generation and import tooling |
-| Tests | [test_s_jump.gd](tests/gut/test_s_jump.gd), [test_s_grab.gd](tests/gut/test_s_grab.gd), [test_grab_main_scene.gd](tests/gut/test_grab_main_scene.gd) | Unit and real physics integration tests |
+| Startup | [main_level.tscn](content/scenes/main_level.tscn) | Main playable prototype |
+| Gameplay context | [content/CONTEXT.md](content/CONTEXT.md) | Cross-system runtime contracts; read only when relevant |
+| Components | `content/components/` | Mutable GECS data only |
+| Contracts | `content/contracts/` | Requests/results/runtime records/DTO-like typed data |
+| Definitions | `content/definitions/` | Immutable design Resources and authored `.tres` |
+| Entities | `content/entities/` | Entity scripts colocated with world scenes by category |
+| Services | `content/services/` | Shared gameplay services/resolvers that are not GECS Systems |
+| Systems | `content/systems/` | GECS `S_*` behavior only |
+| Observers | `content/observers/` | GECS `O_*` lifecycle/event behavior |
+| UI | `content/ui/` | Presentation; never gameplay authority |
+| Tests | `tests/gut/`, `tests/smoke/` | Unit/integration/smoke validation |
+| Editor/import helpers | `utils/` | Asset/import and deterministic repository validation tooling |
 | Documentation | [docs/README.md](docs/README.md) | Documentation navigation |
 | Agent efficiency | [docs/codex_token_economy.md](docs/codex_token_economy.md), [.codex/config.toml](.codex/config.toml) | Model/subagent routing and token budget |
-| Planning | `godoban_boards/`, `kanban_tasks_data.kanban` | Board data |
 | Dependencies | `addons/` | Read-only by default |
 
-## Canonical contracts
+## Canonical gameplay routes
 
-All gameplay rows route through [content/CONTEXT.md](content/CONTEXT.md).
-
-| Concern | Canonical files |
+| Concern | Start here |
 | --- | --- |
-| Level and ECS scheduling | [main_level.tscn](content/scenes/main_level.tscn), [main_level.gd](content/scenes/main_level.gd) |
-| Actor and physics callbacks | [e_rigid_body_character.gd](content/entities/e_rigid_body_character.gd), [scene](content/entities/e_rigid_body_character.tscn) |
-| Input intent | [c_controller.gd](content/components/gameplay/c_controller.gd), [s_player_input.gd](content/systems/input/s_player_input.gd), [player marker](content/components/input/c_player_input_controller.gd) |
+| Level / ECS scheduling | [main_level.gd](content/scenes/main_level.gd), [main_level.tscn](content/scenes/main_level.tscn) |
+| Character / physics callbacks | [e_rigid_body_character.gd](content/entities/characters/e_rigid_body_character.gd), [scene](content/entities/characters/e_rigid_body_character.tscn) |
+| Input intent | [c_controller.gd](content/components/gameplay/c_controller.gd), [s_player_input.gd](content/systems/input/s_player_input.gd) |
 | Motion | [c_motion.gd](content/components/motion/c_motion.gd), [s_motion.gd](content/systems/motion/s_motion.gd) |
-| Look / camera | [c_look.gd](content/components/motion/c_look.gd), [s_look.gd](content/systems/motion/s_look.gd) |
-| Jump / crouch | [s_jump.gd](content/systems/motion/s_jump.gd), [s_crouch.gd](content/systems/motion/s_crouch.gd), `content/components/motion/` |
-| Grab / interaction | [s_grab.gd](content/systems/interaction/s_grab.gd), [s_interaction_targeting.gd](content/systems/interaction/s_interaction_targeting.gd), [o_grab_lifecycle.gd](content/observers/interaction/o_grab_lifecycle.gd) |
-| Grab data / tuning | `content/components/interaction/`, [c_carry_load.gd](content/components/motion/c_carry_load.gd), [design and controls](docs/physical_grab.md) |
-| Physical props | [e_grabbable.gd](content/entities/props/e_grabbable.gd), [box.tscn](content/entities/props/box.tscn) |
-| Attributes / health | [c_attribute.gd](content/components/gameplay/c_attribute.gd), [c_attribute_changed.gd](content/components/gameplay/c_attribute_changed.gd), [c_health.gd](content/components/gameplay/c_health.gd) |
-| Resource definitions | [definition.gd](content/definitions/definition.gd), [def_attribute.gd](content/definitions/gameplay/def_attribute.gd), [health.tres](content/definitions/gameplay/attributes/health.tres) |
-| glTF import | [gltf_import_split_script.gd](utils/gltf_import_split_script.gd) |
-| Asset tooling | [material_collection_generator.gd](utils/material_collection_generator.gd), [multi_mesh_generator.gd](utils/multi_mesh_generator.gd), [assets_grid_sort.gd](utils/assets_grid_sort.gd) |
+| Look | [c_look.gd](content/components/motion/c_look.gd), [s_look.gd](content/systems/motion/s_look.gd) |
+| Jump / crouch | [s_jump.gd](content/systems/motion/s_jump.gd), [s_crouch.gd](content/systems/motion/s_crouch.gd) |
+| Grab / targeting | [s_grab.gd](content/systems/interaction/s_grab.gd), [s_interaction_targeting.gd](content/systems/interaction/s_interaction_targeting.gd), [o_grab_lifecycle.gd](content/observers/interaction/o_grab_lifecycle.gd) |
+| Interaction routing | [interaction_action_resolver.gd](content/services/interaction/interaction_action_resolver.gd), [interaction_control_focus.gd](content/services/interaction/interaction_control_focus.gd) |
+| Interaction contracts | [interaction_action_choice.gd](content/contracts/interaction/interaction_action_choice.gd), [interaction_control_capture.gd](content/contracts/interaction/interaction_control_capture.gd) |
+| Interaction definitions/data | [def_interaction_action.gd](content/definitions/interaction/def_interaction_action.gd), [c_interaction_action_set.gd](content/components/interaction/c_interaction_action_set.gd) |
+| Physical props | [e_grabbable_body.gd](content/entities/props/e_grabbable_body.gd), [box.tscn](content/entities/props/box.tscn), [bucket.tscn](content/entities/props/bucket.tscn) |
+| Attributes / health | [c_attribute.gd](content/components/gameplay/c_attribute.gd), [c_health.gd](content/components/gameplay/c_health.gd), [def_attribute.gd](content/definitions/gameplay/attributes/def_attribute.gd) |
+| Damage | [s_damage.gd](content/systems/gameplay/s_damage.gd), [damage_request.gd](content/contracts/damage/damage_request.gd), [damage_result.gd](content/contracts/damage/damage_result.gd) |
+| Day cycle | [s_day_phase.gd](content/systems/gameplay/s_day_phase.gd), [day_transition_request.gd](content/contracts/day/day_transition_request.gd), [day_phase_station.tscn](content/entities/stations/day_phase_station.tscn) |
+| Package definition/state | [def_package.gd](content/definitions/gameplay/packages/def_package.gd), [c_package.gd](content/components/gameplay/c_package.gd), [c_package_state.gd](content/components/gameplay/c_package_state.gd) |
+| Package physical entity | [e_package.gd](content/entities/packages/e_package.gd), [package.tscn](content/entities/packages/package.tscn) |
+| Receiving | [s_receiving.gd](content/systems/gameplay/s_receiving.gd), [c_receiving.gd](content/components/gameplay/c_receiving.gd), [receiving_zone.tscn](content/entities/zones/receiving_zone.tscn) |
+| Delivery data | [def_delivery.gd](content/definitions/gameplay/deliveries/def_delivery.gd), [morning_supply.tres](content/definitions/gameplay/deliveries/morning_supply.tres), [receiving_batch.gd](content/contracts/receiving/receiving_batch.gd) |
+| Scanner | [e_scanner.gd](content/entities/tools/e_scanner.gd), [scanner.tscn](content/entities/tools/scanner.tscn), [def_scan_action.gd](content/definitions/interaction/def_scan_action.gd) |
+| Registration | [package_registration_service.gd](content/services/packages/package_registration_service.gd), [package_registration_record.gd](content/contracts/packages/package_registration_record.gd), [package_scan_result.gd](content/contracts/packages/package_scan_result.gd) |
+| Terminal | [e_terminal.gd](content/entities/stations/e_terminal.gd), [terminal.tscn](content/entities/stations/terminal.tscn), [terminal_panel.tscn](content/ui/terminal_panel.tscn) |
 
-The R04 damage pipeline exists; combat sources/AI, save/load and animation systems are still planned. Imported animation assets do not establish gameplay contracts.
+## Validation routes
+
+Start with the narrowest relevant check.
+
+- Deterministic repository structure/path check: `python utils/validate_project_structure.py`.
+- GDScript formatting: see [.agents/skills/gdscript-format/SKILL.md](.agents/skills/gdscript-format/SKILL.md).
+- Grab tests: [test_s_grab.gd](tests/gut/test_s_grab.gd).
+- Jump tests: [test_s_jump.gd](tests/gut/test_s_jump.gd).
+- Receiving/scan smoke: `tests/smoke/receiving_scan_smoke.tscn`.
+- Day-cycle smoke: `tests/smoke/day_cycle_smoke.tscn`.
+- Damage smoke: `tests/smoke/damage_smoke.tscn`.
+- Always run `git diff --check` before a milestone commit.
 
 ## Dependency authority
 
 | Dependency | Version/ref | Source |
 | --- | --- | --- |
 | Godot | 4.7 project feature; editor path names 4.7.1 | `project.godot`, `.vscode/settings.json` |
-| GECS | 8.0.0 plugin; `release-v8.0.0`; commit `14d4282e5c1cb2713c187706ba2f5ff4e315d36e` | `.gitmodules`, `addons/gecs/plugin.cfg`, local submodule |
-| GUT | 9.7.1 plugin | `addons/gut/plugin.cfg` |
-| GDQuest formatter | 0.26.0 plugin | `addons/GDQuest_GDScript_formatter/plugin.cfg` |
+| GECS | 8.0.0, `release-v8.0.0`, commit `14d4282e5c1cb2713c187706ba2f5ff4e315d36e` | `.gitmodules`, local `addons/gecs/` |
+| GUT | 9.7.1 | `addons/gut/plugin.cfg` |
+| GDQuest formatter | 0.26.0 | `addons/GDQuest_GDScript_formatter/plugin.cfg` |
 
-GECS tag-based `git describe` output may refer to an older reachable tag; use the checked-out commit and local source as authority.
-
-## Validation and maintenance
-
-See [CONTEXT.md](CONTEXT.md#validation) for supported checks and current gaps. Run `git diff --check` for documentation edits.
-
-Update this map when entry points, subsystem routes, dependency pins or validation commands change. Do not add asset manifests or generated/imported files.
-
-## Package foundation
-
-- Definition: `content/definitions/gameplay/def_package.gd`.
-- Runtime identity/state: `content/components/gameplay/c_package.gd`, `c_package_state.gd`.
-- Physical scene: `content/entities/props/package.tscn`, `e_package.gd`; contracts in `content/CONTEXT.md`.
-
-## Contextual interaction
-
-- Action definition: `content/definitions/interaction/interaction_action.gd`; data: `content/components/interaction/c_interaction_actions.gd`.
-- Resolver/handlers: `content/systems/interaction/interaction_actions.gd`, `grab_action.gd`, `interaction_choice.gd`.
-- Read-only HUD: `content/ui/interaction_hud.tscn`.
-
-## Day cycle
-
-- Singleton state: `content/components/gameplay/c_day_cycle.gd` on main-level DaySession.
-- Transitions: `content/systems/gameplay/s_day_phase.gd`, `day_transition_request.gd`, `day_phase_action.gd`.
-- World controls: `content/entities/day_station.tscn`, `e_day_station.gd` (ShiftConsole and SleepPoint).
-- Standalone checks: `tests/smoke/day_cycle_smoke.tscn`, `tests/smoke/interaction_actions_smoke.tscn`; run with Godot `--headless --path . res://tests/smoke/<scene>.tscn --quit-after 120` and require the PASS marker (assertions alone do not guarantee nonzero exit).
-
-## Damage and controls
-
-- Gameplay control contract: [docs/controls.md](docs/controls.md).
-- Damage pipeline: `content/systems/gameplay/s_damage.gd`, `damage_request.gd`, `damage_result.gd`.
-- Health: `content/components/gameplay/c_health.gd`; package adapter: `c_package_integrity.gd`.
-- Physics contact check: `tests/smoke/character_contact_smoke.tscn`; damage check: `tests/smoke/damage_smoke.tscn`.
-
-## Receiving and registration
-
-- Supply data: `content/definitions/gameplay/morning_supply.tres`, `def_delivery.gd`, `def_package.gd`.
-- Receiving: `content/entities/receiving_zone.tscn`, `content/systems/gameplay/s_receiving.gd`, `content/components/gameplay/c_receiving.gd`.
-- Scanner: `content/entities/props/scanner.tscn`, `content/systems/interaction/scan_action.gd`.
-- Registry authority: `content/systems/gameplay/package_registration_service.gd`; `C_PackageLedger` on `E_DaySession`.
-- Terminal: `content/entities/terminal.tscn`, `content/ui/terminal_panel.tscn`; printer definition only: `content/definitions/gameplay/label_printer.tres`.
-- End-to-end check: `tests/smoke/receiving_scan_smoke.tscn`; add `-- --preview` with rendering to capture `tests/artifacts/terminal_preview.png`.
+Update this file immediately when canonical paths move. Do not turn it into an asset manifest or duplicate subsystem design docs.
