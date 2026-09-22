@@ -4,7 +4,7 @@ This directory stores **design specifications**. Files named `XX_*.md` use the l
 
 Implementation work uses a separate canonical ID:
 
-- `Rxx` / `RMxx.x` = implementation task/order;
+- `Rxx` / `Rxx.x` = canonical implementation task/order;
 - `ТЗ xx` = source design specification;
 - the numbers are **not required to match**.
 
@@ -22,7 +22,7 @@ Completed implementation tasks are removed from `agent_tasks/` by project policy
 | R04 | completed | ТЗ 10 foundation: common damage/health contract |
 | R05 | completed | ТЗ 04 |
 | R06 | completed | ТЗ 05: scanner / registration / terminal |
-| RM06.1 | completed | [RM06.1](06_1_interaction_hands_carry_push.md) |
+| R06.1 | completed | [R06.1](06_1_interaction_hands_carry_push.md) |
 | R07 | completed | ТЗ 05: marker / shelves |
 | R08 | planned | [ТЗ 06](06_package_damage_and_hazards.md): package damage/opening |
 | R09 | planned | [ТЗ 06](06_package_damage_and_hazards.md): package hazards |
@@ -48,7 +48,7 @@ Some ТЗ intentionally feed multiple implementation tasks:
 
 - ТЗ 00 — overall prototype scope; final authority for R23 coverage.
 - ТЗ 01 — GECS gameplay model used across all runtime tasks.
-- ТЗ 02 — base interaction/physics contract reused by RM06.1, R11.1, R13 and R17.
+- ТЗ 02 — base interaction/physics contract reused by R06.1, R11.1, R13 and R17.
 - ТЗ 04 — receiving/package foundation reused by R05, R08 and R21.
 - ТЗ 05 — scanner/terminal/marker/shelves split across R06, R07, R20 and R22.
 - ТЗ 06 — package damage/hazards split across R08, R09, R19 and R22.
