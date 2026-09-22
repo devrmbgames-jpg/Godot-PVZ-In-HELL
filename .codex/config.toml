@@ -1,0 +1,21 @@
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 3
+default_subagent_model = "gpt-5.6-terra"
+default_subagent_reasoning_effort = "low"
+
+[agents.explorer]
+description = "Token-efficient read-only repository explorer. Locate exact owners/contracts/references and return concise evidence. Do not edit or redesign architecture."
+config_file = "./agents/explorer.toml"
+
+[agents.mechanical_worker]
+description = "Implement bounded, already-designed mechanical changes in named files. Do not invent architecture or broaden scope."
+config_file = "./agents/mechanical_worker.toml"
+
+[agents.reviewer]
+description = "Review a concrete diff for correctness, regressions, physics/GECS contract violations, and missing validation. Avoid style-only churn."
+config_file = "./agents/reviewer.toml"
+
+[agents.docs_scout]
+description = "Perform narrow documentation/reference lookup and return only the facts needed by the parent agent."
+config_file = "./agents/docs_scout.toml"
