@@ -641,11 +641,15 @@ func test_destroyed_capture_owner_is_pruned() -> void:
 
 
 func test_hand_grip_survives_lowered_anchor_and_restore_grace() -> void:
-	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var normal_anchor: Node3D = holder_entity.get("right_hand_slot") as Node3D
+	var right_item: Entity = make_box(normal_anchor.global_position)
 	var config: C_Grabbable = _grabbable(right_item)
 	config.allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
 	config.break_distance = 0.5
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	await get_tree().physics_frame
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+
 	var owner: RefCounted = RefCounted.new()
 	var token: int = InteractionControlFocus.acquire(
 		holder_entity,

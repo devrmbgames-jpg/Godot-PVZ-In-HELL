@@ -1,4 +1,8 @@
 extends Node
+## Real-scene hand routing and Carry/Terminal capture regression.
+
+var _prepared_body: Node3D = null
+var _prepared_transform: Transform3D = Transform3D.IDENTITY
 
 
 class ProbeAction extends DEF_InteractionAction:
@@ -63,7 +67,7 @@ func _run() -> void:
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.CARRY)
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 1, "Carry capture must block hand tool use")
-	_drive(actor, false, false, false, false, true)
+	# Carry owns LMB: it throws Carry, without passing this tick into hand use.
 	assert(S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY) == null)
 	assert(S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.HANDS)
@@ -77,7 +81,23 @@ func _run() -> void:
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 2, "Terminal capture must block hand tool use")
 	assert(S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+	var extra_owner: RefCounted = RefCounted.new()
+	var extra_token: int = InteractionControlFocus.acquire(
+		actor,
+		extra_owner,
+		InteractionControlFocus.Priority.PUSH,
+	)
+	for physics_tick: int in 6:
+		await get_tree().physics_frame
+	assert(S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+
 	terminal.panel.close_panel()
+	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.PUSH)
+	assert(
+		S_Grab.slot_anchor(actor, C_Grabbable.HoldSlot.RIGHT_HAND)
+		== actor.get("lowered_right_hand_slot")
+	)
+	InteractionControlFocus.release(actor, extra_token)
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.HANDS)
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 3, "Terminal close must restore hand tool use")
@@ -95,7 +115,15 @@ func _run() -> void:
 
 
 func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> void:
+	if is_instance_valid(_prepared_body):
+		var previous: Entity = _prepared_body as Node as Entity
+		if S_Grab.held_relationship(previous) == null:
+			_prepared_body.global_transform = _prepared_transform
+
 	var target_body: Node3D = target as Node as Node3D
+	_prepared_body = target_body
+	_prepared_transform = target_body.global_transform
+
 	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
 	target_body.global_position = ray.global_position + target_offset
 	await get_tree().physics_frame
