@@ -83,6 +83,13 @@ Do not spawn a subagent for a trivial one-file edit. Do not delegate architectur
 
 Project subagent defaults are in `.codex/config.toml`. The project intentionally does not set the main model.
 
+## Roadmap/task IDs
+
+- `Rxx` / `RMxx.x` are implementation task/order IDs.
+- `ТЗ xx` labels in `docs/roadmap/` are design-source IDs and do not imply implementation order.
+- Use [docs/roadmap/README.md](docs/roadmap/README.md) as the canonical mapping.
+- Completed implementation tasks are intentionally absent from `agent_tasks/`; confirm them in `task_history.md` instead of recreating task files.
+
 ## Work protocol
 
 For sizable work, maintain `WORK.md`. For interruptible work, keep `CURRENT_WORK.md` as a compact durable checkpoint.
