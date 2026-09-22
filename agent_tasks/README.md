@@ -11,7 +11,7 @@ Template:
 ```md
 # <task>
 
-Status: active | blocked
+Status: planned | active | blocked
 Branch: <branch>
 Base: <base>
 
