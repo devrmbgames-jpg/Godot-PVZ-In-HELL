@@ -60,6 +60,91 @@ Package не должна иметь отдельную параллельную
 
 ---
 
+## Milestone 1.1 — Post-Health-Depletion lifecycle
+
+Переход `C_Health.value > 0 -> 0` является отдельным gameplay-событием и должен commit-иться ровно один раз.
+
+### Общий contract
+
+- [ ] Сделать generic outcome/event для исчерпания Health. Предпочтительное имя результата: `HEALTH_DEPLETED` вместо character-specific `DEFEATED`.
+- [ ] `S_Damage` отвечает только за изменение `C_Health` и публикацию typed result/event; он не решает, как конкретный Entity умирает, ломается или удаляется.
+- [ ] Повторный damage по Entity с уже нулевым Health не должен повторно запускать depletion lifecycle.
+- [ ] Depletion event должен сохранять target, source, damage type, последний applied amount и исходный `DamageRequest`, чтобы downstream systems могли атрибутировать смерть/разрушение.
+- [ ] Удаление/замена Entity во время downstream reaction не должно приводить к повторному execution того же depletion event.
+
+### Living Entity
+
+- [ ] Для живых Entity depletion reaction добавляет marker/state `C_Death` либо эквивалентный typed death-state.
+- [ ] `C_Death` не является заменой `C_Health`; это lifecycle state после исчерпания Health.
+- [ ] Добавление `C_Death` идемпотентно.
+- [ ] Character-owned death observer/system затем отвечает за control/AI disable, release/drop held objects, animation/ragdoll/corpse cleanup.
+- [ ] R08 создаёт только общий contract/минимальную заглушку death-state; полноценные Customer/combat death reactions остаются R17.
+
+### Package
+
+- [ ] Package **не получает `C_Death`**.
+- [ ] Package depletion reaction переводит `C_PackageState.Damage -> DESTROYED` ровно один раз.
+- [ ] `DESTROYED` не означает немедленный `queue_free()`/удаление Entity.
+- [ ] Разрушенная Package остаётся доступной для downstream lifecycle: debris, содержимое, Hazard, Terminal/Customer consequences, persistence/cleanup.
+- [ ] Package удаляется из ECS/world только отдельным lifecycle/cleanup решением после того, как обязательные post-destruction reactions завершены.
+
+### Generic post-depletion spawn/effect hook
+
+R08 должен подготовить **data-driven заглушку**, пригодную не только для Package.
+
+Предусмотреть optional authored component/definition с семантикой уровня `HealthDepletionEffects` / `OnHealthDepletedSpawn` (точное имя выбрать при реализации по project naming rules).
+
+Минимальный contract заглушки:
+
+- [ ] список gameplay spawn entries после Health depletion;
+- [ ] отдельные optional presentation hooks для VFX/SFX;
+- [ ] spawn выполняется только один раз на один committed depletion;
+- [ ] отсутствие компонента означает «ничего дополнительно не спавнить»;
+- [ ] generic handler не проверяет конкретный класс Entity;
+- [ ] spawn entries могут ссылаться на authored `PackedScene`/definition, но не содержат runtime Node ownership;
+- [ ] downstream-specific события (например Package Hazard) могут быть отдельным typed hook и не обязаны маскироваться обычным debris spawn.
+
+Для R08 достаточно реализовать API/placeholder и один простой test fixture. Полный набор мусора, gore, corpse assets, loot и VFX контента **не входит** в R08.
+
+### Package destruction stub
+
+Для Package предусмотреть минимум такие будущие реакции:
+
+```text
+Package Health -> 0
+    ↓
+HEALTH_DEPLETED
+    ↓
+C_PackageState.DESTROYED
+    ↓
+post-depletion dispatcher
+    ├─ debris spawn placeholder
+    ├─ content/drop spawn placeholder
+    ├─ VFX/SFX placeholder
+    └─ typed Hazard activation hook -> R09
+```
+
+На этапе R08 допускается placeholder scene/resource вместо финального мусора, но сам lifecycle и single-fire semantics должны быть рабочими.
+
+### Ownership / cleanup rules
+
+- [ ] Post-depletion spawn не должен выполняться из UI.
+- [ ] Не вызывать spawn непосредственно внутри арифметики `S_Damage`.
+- [ ] Если target был held/pushed/targeted, соответствующий domain observer безопасно освобождает relationships/control до удаления физического Entity.
+- [ ] Если destroyed Entity должен остаться физическим wreck/corpse, depletion не должен автоматически удалять его.
+- [ ] Если конкретный type должен исчезнуть после spawn, удаление выполняется только после commit всех обязательных spawn/hooks.
+- [ ] Spawned debris не наследует автоматически source `C_ThrowDamage`/combat attribution исходного Entity, если это явно не задано data.
+
+### Готовность milestone
+
+- `C_Health` пересекает zero один раз → один typed depletion event;
+- living fixture получает `C_Death`;
+- Package fixture получает `DESTROYED`, но остаётся Entity до отдельного cleanup;
+- generic spawn stub создаёт один placeholder debris/effect entry;
+- повторный damage после zero не создаёт второй debris/death/hazard hook.
+
+---
+
 ## Milestone 2 — Generic physical Impact contract
 
 - [ ] Создать typed runtime contract физического contact/impact; точное имя выбрать по текущим naming rules, но он не должен называться Package-specific.
@@ -234,6 +319,8 @@ C_NoDamage
 - `C_NoDamage` строго запрещает outgoing damage данного Entity и перекрывает `C_ThrowDamage`.
 - Один contact не наносит damage каждый frame.
 - Package использует `C_Health`, а `Damaged/Destroyed` являются package lifecycle state.
+- Переход Health через zero публикует один generic post-depletion event; living Entity получает death-state, Package — `DESTROYED` без автоматического удаления.
+- Data-driven post-depletion spawn/effect stub способен однократно породить placeholder debris/effect и предоставляет hook для будущих Package contents/Hazard.
 - Fragile/Bubble Wrap не требуют отдельной package-only формулы impact damage.
 - Liquid и Opening имеют отдельные semantics и не ломают generic collision pipeline.
 - R17 сможет использовать готовый R08 impact foundation без второго impact System/formula.
@@ -250,7 +337,9 @@ GUT:
 - `C_NoDamage`;
 - `C_ThrowDamage` normal fall vs valid throw;
 - contact dedup/re-impact;
-- Package Damaged/Destroyed;
+- Health depletion single-fire + `C_Death` living fixture;
+- Package Damaged/Destroyed без автоматического удаления;
+- post-depletion spawn stub single-fire;
 - Fragile/protection tiers;
 - Liquid duration;
 - Opening idempotency.
