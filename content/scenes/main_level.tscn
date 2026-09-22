@@ -30,6 +30,7 @@
 [ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="32_mc3p1"]
 [ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="33_k7ct6"]
 [ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/components/motion/c_carry_load.gd" id="34_efpp8"]
+[ext_resource type="PackedScene" uid="uid://cst4hp6tuv5fp" path="res://content/entities/props/bucket.tscn" id="45_8uaqh"]
 [ext_resource type="Script" uid="uid://cpsqfbyw5u8m7" path="res://content/systems/gameplay/s_damage.gd" id="Damage_system"]
 [ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/entities/e_day_session.gd" id="Day_entity"]
 [ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
@@ -174,6 +175,7 @@ group = &"Interaction"
 
 [node name="S_Grab" type="Node" parent="World/Systems/Interaction" unique_id=767923781]
 script = ExtResource("Grab_system")
+group = &"Interaction"
 
 [node name="O_GrabLifecycle" type="Node" parent="World/Systems/Interaction" unique_id=1786878994]
 script = ExtResource("Grab_lifecycle")
@@ -562,6 +564,9 @@ transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.53
 [node name="SleepPoint" parent="Entityes" unique_id=1969214162 instance=ExtResource("Day_station")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.53099465, 2.3841858e-07, -2.2939274)
 sleep_station = true
+
+[node name="Bucket" parent="Entityes" unique_id=263915687 instance=ExtResource("45_8uaqh")]
+transform = Transform3D(1, 0, 0, 0, 0.65209705, -0.7581355, 0, 0.7581355, 0.65209705, 8.994064, 0.9238361, 2.7314274)
 
 [node name="MarkerSpawnPoint" type="Marker3D" parent="Entityes" unique_id=345863772]
 editor_description = "Маркер где примерно появляются новые клиенты"

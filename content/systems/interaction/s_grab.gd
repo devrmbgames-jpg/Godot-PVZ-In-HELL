@@ -430,7 +430,7 @@ static func object_anchor(holder: Entity, target: Entity) -> Node3D:
 
 	return null
 
-
+# TODO проверить что реализовано правильно
 static func within_pickup_reach(holder: Entity, target: Entity) -> bool:
 	if not is_instance_valid(holder) or not is_instance_valid(target):
 		return false
@@ -457,7 +457,7 @@ static func within_pickup_reach(holder: Entity, target: Entity) -> bool:
 	
 	return hit_distance <= maxf(control.pickup_distance, 0.0)
 
-
+# TODO проверить что реализовано правильно
 static func carry_distance(control: C_GrabControl, config: C_Grabbable) -> float:
 	if control == null or config == null:
 		return 0.0
@@ -473,7 +473,7 @@ static func carry_distance(control: C_GrabControl, config: C_Grabbable) -> float
 
 	return control.hold_distance
 
-
+# TODO проверить что реализовано правильно
 static func entity_available(entity: Entity) -> bool:
 	return (
 		is_instance_valid(entity) and not entity.is_queued_for_deletion()
