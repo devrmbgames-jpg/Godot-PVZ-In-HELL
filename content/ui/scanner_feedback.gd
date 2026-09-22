@@ -9,7 +9,7 @@ const FEEDBACK_SECONDS: float = 5.0
 @onready var beep: AudioStreamPlayer3D = $Beep
 @onready var _icon_mesh: MeshInstance3D = $IconOK
 @onready var _clear_timer: Timer = $Timer
-var _remaining: float = 0.0
+
 
 
 #region Lifecycle
