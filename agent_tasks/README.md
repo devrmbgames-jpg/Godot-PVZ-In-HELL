@@ -44,3 +44,6 @@ Rules:
 - Dependencies must use implementation IDs (`Rxx` / `Rxx.x`), never a `ТЗ` number.
 - `Источники` must link the actual design ТЗ files; do not assume `R08 == ТЗ 08`.
 - When files/classes move, update the task's `Начать здесь` links in the same structural refactor.
+- Milestones/subtasks use cheap static/deterministic validation only; do not run GUT/smoke/runtime suites after every milestone.
+- Run the task's documented GUT + headless smoke/runtime validation once near the end of the complete `Rxx` / `Rxx.x` task before marking it complete.
+- Early targeted test execution is only for an explicit user request or a concrete blocking bug that cannot be validated statically.
