@@ -20,16 +20,18 @@ Status: planned
 ## Работы
 
 - [ ] Добавить один melee/острый Weapon: окно удара, hit validation, cooldown и damage через 04.
-- [ ] Aggressive Customer прекращает сервисный разговор, преследует и атакует Player; имеет поражение и завершение schedule event.
+- [ ] Aggressive Customer прекращает сервисный разговор, преследует и атакует Player; имеет поражение и завершение schedule event. Один из источников aggression — обнаружение ложной Terminal отметки `TAKEN` по ТЗ 07.
 - [ ] Подключить физический impact damage по массе, относительной скорости и порогу; подавить повторные срабатывания одного столкновения.
 - [ ] Соблюдать приоритет tool/grab/attack из 02, сохраняя input неизменным для других потребителей.
 - [ ] Обеспечить cleanup target/challenge/held state при смерти и выходе из боя.
+- [ ] Передавать typed combat/reputation reason: обычная атака, self-defense, fraud escalation, justified retaliation. После подтвержденной неправомерной Complaint именно этого Customer Player может атаковать 7 игровых дней без reputation penalty; окно хранится persistent и не зависит от живого Node.
 
 ## Критерии готовности
 
 - Клиент ранит Player; игрок побеждает оружием или тяжёлым предметом.
 - Слабое касание не наносит урон, собственный held object не бьёт держателя; одно ЛКМ не бросает и не атакует одновременно.
 - Коробки блокируют проход и остаются частью физического боя.
+- Combat не применяет Reputation напрямую, но сохраняет reason/context так, чтобы future Reputation могла корректно отличить разрешенную retaliation от обычной атаки.
 
 ## Проверки
 
