@@ -10,7 +10,7 @@ The scene owns World, system groups, environment and an entity root named `Entit
 
 - `scenes/main_level.gd` assigns ECS.world on ready; `_physics_process` invokes Input, Interaction, Physics, then GamePlay. Input edges/deltas belong to one physics tick.
 - Physics scene nodes are S_Motion, S_Look, S_Jump and S_Crouch; Input contains S_PlayerInput. Interaction contains S_InteractionTargeting, S_Grab and O_GrabLifecycle (under Systems so GECS discovers it). GamePlay contains S_Damage before S_DayPhase; DaySession owns the singleton C_DayCycle. ShiftConsole and SleepPoint expose phase actions through contextual E/use.
-- Do not infer solver execution from scene-node order: `entities/e_rigid_body_character.gd` explicitly calls S_Motion, S_Look and S_Crouch from `_integrate_forces`.
+- Do not infer solver execution from scene-node order: `entities/characters/e_rigid_body_character.gd` explicitly calls S_Motion, S_Look and S_Crouch from `_integrate_forces`.
 - Physical velocity/transform changes go through the body/PhysicsDirectBodyState3D. The entity exposes standing/crouching shapes, camera root and head axes for the systems.
 
 ## Task routing
@@ -49,7 +49,7 @@ S_InteractionTargeting outlines only the current enabled target and never replac
 
 ## Package foundation (R01)
 
-`entities/props/package.tscn` inherits the physical box and uses `E_Package`; receiving instantiates this scene with data-defined masses and grab profiles. `define_components()` adds fresh `C_Package` identity and `C_PackageState` resources during World registration.
+`entities/packages/package.tscn` inherits the physical box and uses `E_Package`; receiving instantiates this scene with data-defined masses and grab profiles. `define_components()` adds fresh `C_Package` identity and `C_PackageState` resources during World registration.
 
 `DEF_Package` is immutable shared shipment data: number, description, comment, recipient key and bitmask tags (Normal=1, Fragile=2, Heavy=4, Liquid=8). Heavy+Fragile is valid. Runtime registration, scan, opening and damage enums live only in `C_PackageState`; defaults are Unregistered/NotScanned/Closed/Undamaged.
 
@@ -57,7 +57,7 @@ Receiving supplies deterministic package IDs; other dynamic instances generate a
 
 ## Contextual actions (R02)
 
-`InteractionAction` resources are stateless availability/execution handlers supplied by `C_InteractionActions`. `InteractionActions` resolves held-tool actions before physical grab actions, then aimed-target actions, then actor fallback (future attack). Within each scope, higher priority wins, then lexical action_id; keep IDs unique per slot. First-hit raycast remains target/LOS authority; commands revalidate LOS. Handlers must validate their own domain preconditions and handle a null target.
+`InteractionAction` resources are stateless availability/execution handlers supplied by `C_InteractionActionSet`. `InteractionActionResolver` resolves held-tool actions before physical grab actions, then aimed-target actions, then actor fallback (future attack). Within each scope, higher priority wins, then lexical action_id; keep IDs unique per slot. First-hit raycast remains target/LOS authority; commands revalidate LOS. Handlers must validate their own domain preconditions and handle a null target.
 
 Held tools reserve configured slots (Primary=4 for Scanner, Secondary=8 for Marker) even with an unavailable target, preventing accidental throw/rotation. Alt bypasses held-tool actions for physical throw/rotation. E takes precedence over the other buttons on that tick. F/use and secondary edges are sampled by S_PlayerInput; only the producer writes input fields. `input_tick` prevents duplicate routing; zero is reserved for legacy direct/manual calls. Register future attacks as actor actions; never consume raw primary input in a second system.
 
@@ -91,9 +91,9 @@ Packages use C_PackageIntegrity (maximum/remaining), never actor health. The sam
 
 ## Morning supply (R05)
 
-`definitions/gameplay/morning_supply.tres` is a DEF_Delivery with eight ordered DEF_Package entries. Entry keys must be unique and nonempty within the supply. Definitions own recipient, description/comment, composable tags, hazard metadata, mass, carry/throw tuning and initial integrity. Hazards have no active effects yet (R08/R09).
+`definitions/gameplay/deliveries/morning_supply.tres` is a DEF_Delivery with eight ordered DEF_Package entries. Entry keys must be unique and nonempty within the supply. Definitions own recipient, description/comment, composable tags, hazard metadata, mass, carry/throw tuning and initial integrity. Hazards have no active effects yet (R08/R09).
 
-`S_Receiving` runs after S_DayPhase in GamePlay. `C_Receiving` enqueues one BASE_SUPPLY DeliveryBatch per day, retaining incomplete older batches. Source distinguishes base supply from future PENDING_ORDER deliveries; no order fulfillment exists yet. Stable identity is `supply_key:day:entry_key`; delivery day is independent of registration day. Save work must restore both parcel IDs and receiving progress.
+`S_Receiving` runs after S_DayPhase in GamePlay. `C_Receiving` enqueues one BASE_SUPPLY ReceivingBatch per day, retaining incomplete older batches. Source distinguishes base supply from future PENDING_ORDER deliveries; no order fulfillment exists yet. Stable identity is `supply_key:day:entry_key`; delivery day is independent of registration day. Save work must restore both parcel IDs and receiving progress.
 
 During Morning, receiving checks actual parcel collision shape against candidate markers before instantiating at most one body per physics tick. Occupied slots are skipped; a full zone retries every 0.25 seconds and displays a request to clear space. Existing parcels are never moved, deleted or reorganized. Later mornings resume pending supply before the new batch. Physics owns bodies after their initial spawn transform. Reprocessing an existing package ID advances progress without recreating it.
 
@@ -101,6 +101,6 @@ During Morning, receiving checks actual parcel collision shape against candidate
 
 `E_DaySession` supplies a fresh singleton C_PackageLedger beside C_DayCycle. PackageRegistrationService is the sole registration writer; ScanAction invokes it at the interaction command boundary. The held scanner reserves LMB, revalidates first-hit LOS and a 3 m range, and rejects Night/inactive actors/invalid parcels. All writes (ledger row, runtime number, registered/scanned states) happen synchronously before feedback. IDs are ledger keys. Runtime registration numbers are global reusable warehouse slot numbers: store the base as a positive integer and display it as `№001`, `№002`, etc. Never prefix it with day/cycle and never reset allocation at a day boundary. A new registration receives the **smallest free positive number** not currently occupied by an active/undelivered Package. A Package keeps its number across days until it leaves the warehouse lifecycle; only then does that base number return to the free pool and become eligible for reuse. Repeat scans return the original number without a second row. Future fragile/oversized suffixes are presentation/metadata only and must not affect allocation, numeric ordering or reuse. Immutable shipment_number is not the runtime registration number.
 
-Scanner feedback listens to ScanResult: successful and repeated scans beep and display the number. Alt+LMB retains the physical throw contract; RMB rotates the tool. Terminal E opens with free hands; F opens while holding a scanner, because E releases the held item. The read-only panel shows only registrations from the current cycle, with description, comment, current package status and warnings; no shelf/location data. Closing with E/Esc restores cursor capture; UI consumes that event before gameplay input. The ledger is runtime-only pending R21 persistence. `label_printer.tres` defines a future printer; printing is not implemented.
+Scanner feedback listens to PackageScanResult: successful and repeated scans beep and display the number. Alt+LMB retains the physical throw contract; RMB rotates the tool. Terminal E opens with free hands; F opens while holding a scanner, because E releases the held item. The read-only panel shows only registrations from the current cycle, with description, comment, current package status and warnings; no shelf/location data. Closing with E/Esc restores cursor capture; UI consumes that event before gameplay input. The ledger is runtime-only pending R21 persistence. `label_printer.tres` defines a future printer; printing is not implemented.
 
 Validation: `tests/smoke/receiving_scan_smoke.tscn` checks eight unique parcels and tags/hazards, pickup/scan/repeat/beep, range/target rejection, terminal opening, blocked delivery, resumed next-day supply, preserved old positions and cycle-scoped numbering. Rendering with `-- --preview` saves an ignored screenshot under tests/artifacts. Existing GUT fixtures now wait for receiving instead of using authored Box nodes; no new GUT suite was added.
