@@ -56,6 +56,7 @@
 - Scanner;
 - Terminal;
 - registration;
+- reusable Package numbering: `№001`, `№002`, ... using the smallest currently free base number across days;
 - [RM06.1 — Inspector-first компоненты, Carry/две руки и Push](06_1_interaction_hands_carry_push.md);
 - Marker;
 - numbered Shelves.
