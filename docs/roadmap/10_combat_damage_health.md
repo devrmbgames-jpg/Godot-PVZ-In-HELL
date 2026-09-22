@@ -1,5 +1,7 @@
 # ТЗ 10 — Урон, здоровье и базовый бой
 
+> **Implementation coverage:** Implementation coverage: common damage/health foundation **R04** (completed), combat/aggressive Customer **R17**.
+
 ## Цель
 
 Позволить опасному Customer/event перейти в физический конфликт.
