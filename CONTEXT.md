@@ -28,6 +28,7 @@
 | Physical grabbing / controls / tuning | [docs/physical_grab.md](docs/physical_grab.md) |
 | Documentation and validation | [docs/README.md](docs/README.md) |
 | Agent workflow | [AGENTS.md](AGENTS.md) |
+| Codex/Astra token economy | [docs/codex_token_economy.md](docs/codex_token_economy.md) |
 
 ## Dependencies
 
