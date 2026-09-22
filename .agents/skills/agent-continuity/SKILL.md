@@ -1,59 +1,54 @@
 ---
 name: agent-continuity
 description: >
-  Keep long Codex tasks recoverable across context limits, interruptions, model handoffs,
-  and multi-session work while minimizing token usage. Use for multi-step refactors, audits,
-  broad fixes, or whenever work may outlive the current context window.
+  Keep long Codex tasks recoverable across context limits, interruptions and model
+  handoffs while minimizing rereads and token use.
 ---
 
 # Agent continuity and token economy
 
 Repository state is durable memory. Chat history is not.
 
-## Start/resume
+## Resume
 
 1. Read `CURRENT_WORK.md`.
-2. If active, verify branch/head and changed files.
-3. Read only context/docs referenced by the checkpoint.
-4. Continue from **Next exact step**.
-5. If checkpoint and repository disagree, trust repository state and repair the checkpoint.
+2. If active, verify branch/status and named changed paths.
+3. Read only docs/files referenced by the checkpoint.
+4. Continue from the exact next step.
+5. If checkpoint disagrees with repository state, trust the repository and repair the checkpoint.
 
-## During work
+## CURRENT_WORK format
 
-Maintain `WORK.md` as checklist.
-
-Update `CURRENT_WORK.md` after a meaningful milestone, before a risky broad change, and before an expected interruption.
-
-Checkpoint only:
-- goal/acceptance criteria;
-- branch/base;
+Record only:
+- state/task;
+- accepted invariants/decisions that matter next;
 - changed paths;
-- decisions/invariants and why;
-- validation already executed;
-- unresolved blocker;
-- exact next path/symbol/command.
+- validation actually completed;
+- blocker, if any;
+- one exact next path/symbol/command.
 
-Never paste full logs, diffs, source files, or chat summaries into checkpoints.
+Do not store full logs, diffs, source, chat summaries, old experiments, or lists of every file inspected.
 
-## Token-saving search order
+When idle, keep the file to a few lines.
 
-1. root `CONTEXT.md`;
-2. nearest subsystem `CONTEXT.md`;
-3. exact class/function/path search;
-4. direct callers/callees;
-5. broader search only if needed.
+## WORK.md
 
-Do not repeatedly reread unchanged files.
+Use as the active checklist only. Return it to idle after completion. Historical completion belongs in `task_history.md`; durable architecture belongs in context/docs.
 
-## Execution rules
+## During long work
 
-- Prefer the next verifiable change over a long plan.
-- Split changes so milestones can be validated independently.
-- Use deterministic scripts/formatters/tests for questions tools can answer.
-- Record hypotheses as hypotheses until proven.
-- If blocked, leave the tree coherent and write blocker + exact evidence needed next.
-- Never save context by skipping validation.
+Checkpoint after a meaningful milestone, before risky broad changes, before model/session handoff, or when context is becoming large.
 
-## Large tasks
+After architecture is accepted, do not re-explore alternatives unless concrete evidence invalidates it.
 
-Create `agent_tasks/<name>.md` only when one short checkpoint is insufficient.
+Prefer multiple bounded milestones over one huge task.
+
+## Output economy
+
+- Successful test: command + PASS summary.
+- Failed test: relevant error/stack only.
+- Diff review: targeted diff or stat first.
+- Large scenes/logs: smallest relevant range.
+- Do not save tool output verbatim into checkpoints.
+
+Never save tokens by skipping required validation.
