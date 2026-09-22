@@ -16,7 +16,10 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 		return false
 	var held: Entity = S_Grab.held_object(actor)
 	if kind != Kind.PICKUP:
-		return held == source
+		if held != source:
+			return false
+		var config: C_Grabbable = source.get_component(C_Grabbable) as C_Grabbable
+		return kind != Kind.ROTATE or (config != null and config.manual_rotation_enabled)
 	var body: RigidBody3D = source as Node as RigidBody3D
 	var interactable: C_Interactable = source.get_component(C_Interactable) as C_Interactable
 	return (
@@ -44,7 +47,9 @@ func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 				return
 			control.rotation_active = true
 			var grip_data: C_HeldBy = grip.relation as C_HeldBy
+			var config: C_Grabbable = source.get_component(C_Grabbable) as C_Grabbable
 			grip_data.rotation_offset = S_Grab.rotated_offset(
 				grip_data.rotation_offset,
 				controller.look_delta,
+				config.rotation_axis,
 			)

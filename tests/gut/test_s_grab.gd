@@ -57,6 +57,12 @@ func make_holder(location: Vector3) -> Entity:
 	var origin: Marker3D = Marker3D.new()
 	origin.position.y = 1.0
 	rigid.add_child(origin)
+	var right_hand: Marker3D = Marker3D.new()
+	right_hand.position = Vector3(0.35, 1.0, -0.5)
+	rigid.add_child(right_hand)
+	var left_hand: Marker3D = Marker3D.new()
+	left_hand.position = Vector3(-0.35, 1.0, -0.5)
+	rigid.add_child(left_hand)
 	var interaction_ray: RayCast3D = RayCast3D.new()
 	interaction_ray.position.y = 1.0
 	interaction_ray.target_position = Vector3(0.0, 0.0, -3.0)
@@ -64,6 +70,8 @@ func make_holder(location: Vector3) -> Entity:
 	rigid.add_child(interaction_ray)
 	actor.set("interaction_ray_cast", interaction_ray)
 	actor.set("hold_anchor", origin)
+	actor.set("right_hand_slot", right_hand)
+	actor.set("left_hand_slot", left_hand)
 	actor.component_resources = [
 		C_Controller.new(),
 		C_Interactor.new(),
@@ -99,6 +107,16 @@ func make_box(location: Vector3) -> Entity:
 	actor.component_resources = [C_Interactable.new(), config]
 	grab_world.add_entity(actor)
 	return actor
+
+
+func _grabbable(entity: Entity) -> C_Grabbable:
+	return entity.get_component(C_Grabbable) as C_Grabbable
+
+
+func _add_external_grip(held: Entity, slot_index: C_Grabbable.HoldSlot) -> void:
+	var grip_data: C_HeldBy = C_HeldBy.new()
+	grip_data.slot = slot_index
+	held.add_relationship(Relationship.new(grip_data, holder_entity))
 #endregion
 
 
@@ -185,7 +203,7 @@ func test_external_relationship_removal_restores_runtime_state() -> void:
 	box_entity.remove_relationship(S_Grab.held_relationship(box_entity))
 	assert_false(carry_load.active)
 	assert_false(grab_control.rotation_active)
-	assert_null(grab_control.held_object)
+	assert_null(grab_control.held_carry)
 	assert_false(box_body.get_collision_exceptions().has(holder_body))
 
 
@@ -203,7 +221,7 @@ func test_world_removal_of_held_entity_cleans_up() -> void:
 	grab_world.remove_entity(box_entity)
 	assert_false(carry_load.active)
 	assert_false(grab_control.rotation_active)
-	assert_null(grab_control.held_object)
+	assert_null(grab_control.held_carry)
 
 
 func test_deleted_object_cleans_up_holder() -> void:
@@ -213,7 +231,7 @@ func test_deleted_object_cleans_up_holder() -> void:
 	await get_tree().process_frame
 	assert_false(carry_load.active)
 	assert_false(grab_control.rotation_active)
-	assert_null(grab_control.held_object)
+	assert_null(grab_control.held_carry)
 
 
 func test_deleted_holder_releases_object() -> void:
@@ -272,6 +290,106 @@ func test_carry_modifiers_leave_base_motion_unchanged() -> void:
 	assert_eq(motion.ground_acceleration, 25.0)
 	S_Grab.release(holder_entity, box_entity)
 	assert_eq(S_Motion.effective_speed(motion, carry_load), 6.0)
+#endregion
+
+
+#region Slot ownership
+func test_holder_can_hold_carry_and_both_hand_slots() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_grabbable(left_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.LEFT_HAND
+	_add_external_grip(box_entity, C_Grabbable.HoldSlot.CARRY)
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY), box_entity)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), left_item)
+	assert_true(carry_load.active)
+
+
+func test_releasing_hand_item_preserves_carry_load_and_cache() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_add_external_grip(box_entity, C_Grabbable.HoldSlot.CARRY)
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	S_Grab.release(holder_entity, right_item)
+	assert_null(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY), box_entity)
+	assert_true(carry_load.active)
+	assert_eq(carry_load.speed_multiplier, 0.6)
+
+
+func test_disabled_holder_releases_all_slot_relationships() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_grabbable(left_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.LEFT_HAND
+	_add_external_grip(box_entity, C_Grabbable.HoldSlot.CARRY)
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
+	grab_world.disable_entity(holder_entity)
+	assert_null(S_Grab.held_relationship(box_entity))
+	assert_null(S_Grab.held_relationship(right_item))
+	assert_null(S_Grab.held_relationship(left_item))
+	assert_false(carry_load.active)
+	assert_null(grab_control.held_carry)
+	assert_null(grab_control.held_right)
+	assert_null(grab_control.held_left)
+
+
+func test_external_invalid_or_duplicate_slot_relationship_is_rejected() -> void:
+	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var second_right_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
+	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_grabbable(second_right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_add_external_grip(box_entity, C_Grabbable.HoldSlot.RIGHT_HAND)
+	assert_null(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
+	assert_false(carry_load.active)
+	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	_add_external_grip(second_right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_null(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND))
+
+
+func test_failed_hand_replacement_keeps_existing_occupant() -> void:
+	var occupant: Entity = make_box(Vector3(1.0, 1.0, -1.5))
+	var frozen_target: Entity = make_box(Vector3(0.0, 1.0, -1.5))
+	var distant_target: Entity = make_box(Vector3(0.0, 1.0, -20.0))
+	_grabbable(occupant).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_grabbable(frozen_target).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_grabbable(distant_target).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	_add_external_grip(occupant, C_Grabbable.HoldSlot.RIGHT_HAND)
+	(frozen_target as Node as RigidBody3D).freeze = true
+	assert_false(
+		S_Grab.try_pickup(holder_entity, frozen_target, C_Grabbable.HoldSlot.RIGHT_HAND, true)
+	)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), occupant)
+	assert_false(
+		S_Grab.try_pickup(holder_entity, distant_target, C_Grabbable.HoldSlot.RIGHT_HAND, true)
+	)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), occupant)
+
+
+func test_hand_pickup_rotation_reset_and_relative_offset() -> void:
+	var config: C_Grabbable = _grabbable(box_entity)
+	config.allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
+	var right_anchor: Node3D = holder_entity.get("right_hand_slot") as Node3D
+	right_anchor.global_basis = Basis(Vector3.UP, PI * 0.25)
+	box_body.global_basis = Basis(Vector3.UP, PI * 0.75)
+	config.reset_rotation_on_pickup = true
+	assert_true(S_Grab.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
+	var reset_grip: C_HeldBy = S_Grab.held_relationship(box_entity).relation as C_HeldBy
+	assert_eq(reset_grip.rotation_offset, Quaternion.IDENTITY)
+	S_Grab.release(holder_entity, box_entity)
+	config.reset_rotation_on_pickup = false
+	var expected_offset: Quaternion = (
+		right_anchor.global_basis.orthonormalized().get_rotation_quaternion().inverse()
+		* box_body.global_basis.orthonormalized().get_rotation_quaternion()
+	).normalized()
+	assert_true(S_Grab.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
+	var relative_grip: C_HeldBy = S_Grab.held_relationship(box_entity).relation as C_HeldBy
+	assert_true(relative_grip.rotation_offset.is_equal_approx(expected_offset))
 #endregion
 
 

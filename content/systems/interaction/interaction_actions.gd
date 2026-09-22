@@ -109,8 +109,9 @@ static func reserves(source: Entity, input_slot: InteractionAction.Slot) -> bool
 
 static func wants_rotation(actor: Entity, controller: C_Controller) -> bool:
 	var held: Entity = S_Grab.held_object(actor)
+	var config: C_Grabbable = held.get_component(C_Grabbable) as C_Grabbable if held != null else null
 	return (
-		held != null and controller.action_second_held
+		config != null and config.manual_rotation_enabled and controller.action_second_held
 		and (controller.physical_override or not reserves(held, InteractionAction.Slot.SECONDARY))
 	)
 

@@ -1,10 +1,21 @@
 extends Component
 class_name C_Grabbable
 
-enum HoldSlot { CARRY, RIGHT_HAND }
+enum HoldSlot {
+	CARRY,
+	RIGHT_HAND,
+	LEFT_HAND,
+}
+enum RotationAxis {
+	FREE,
+	Y_ONLY,
+}
 
-## Tools/weapons use RIGHT_HAND; ordinary parcels use CARRY.
-@export var hold_slot: HoldSlot = HoldSlot.CARRY
+## Zero means Carry-only. Hand items declare allowed physical hands.
+@export_flags("Right:2", "Left:4") var allowed_hand_slots: int = 0
+@export var manual_rotation_enabled: bool = true
+@export var rotation_axis: RotationAxis = RotationAxis.FREE
+@export var reset_rotation_on_pickup: bool = false
 ## Negative means use the holder's C_GrabControl.hold_distance. Ignored for hand slots.
 @export var hold_distance: float = -1.0
 ## Spring coefficients are acceleration gains; the solver accounts for body mass.

@@ -46,10 +46,11 @@ static func find_target(holder: Entity, interactor: C_Interactor) -> Entity:
 	var holder_body: CollisionObject3D = holder as Node as CollisionObject3D
 	if holder_body != null:
 		interaction_raycast.add_exception_rid(holder_body.get_rid())
-	var held: Entity = S_Grab.held_object(holder)
-	var held_body: CollisionObject3D = held as Node as CollisionObject3D
-	if held_body != null:
-		interaction_raycast.add_exception_rid(held_body.get_rid())
+	for slot_index: int in 3:
+		var held: Entity = S_Grab.held_in_slot(holder, slot_index)
+		var held_body: CollisionObject3D = held as Node as CollisionObject3D
+		if held_body != null:
+			interaction_raycast.add_exception_rid(held_body.get_rid())
 	interaction_raycast.force_raycast_update()
 	if not interaction_raycast.is_colliding():
 		return null

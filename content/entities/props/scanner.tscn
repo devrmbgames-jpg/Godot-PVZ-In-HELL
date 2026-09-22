@@ -17,7 +17,9 @@ script = ExtResource("5_interactable")
 
 [sub_resource type="Resource" id="Scanner_grabbable"]
 script = ExtResource("6_grabbable")
-hold_slot = 1
+allowed_hand_slots = 6
+manual_rotation_enabled = false
+reset_rotation_on_pickup = true
 
 [sub_resource type="Resource" id="Scanner_action"]
 script = ExtResource("8_action")
