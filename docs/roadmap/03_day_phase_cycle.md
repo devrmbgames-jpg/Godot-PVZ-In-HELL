@@ -1,5 +1,7 @@
 # ТЗ 03 — Цикл игрового дня
 
+> **Implementation coverage:** Implementation coverage: **R03**, persistence/next-day continuation in **R21**.
+
 ## Цель
 
 Создать четыре фазы и единый переход между ними.
