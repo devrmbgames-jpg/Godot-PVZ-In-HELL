@@ -17,6 +17,7 @@ const DROP_ORDER: Array[int] = [
 
 
 #region Public API
+## Routes one deduplicated input tick without leaking captured buttons to lower priorities.
 static func handle_input(actor: Entity) -> void:
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
@@ -81,6 +82,7 @@ static func handle_input(actor: Entity) -> void:
 	refresh_prompt(actor)
 
 
+## Returns the highest-priority available action for this input slot without executing it.
 static func resolve(
 	actor: Entity,
 	input_slot: DEF_InteractionAction.Slot,
@@ -164,6 +166,7 @@ static func resolve(
 	return _from_source(actor, actor, target, input_slot)
 
 
+## Selects the first rotation-enabled active hand in mapped primary/secondary order.
 static func rotation_choice(actor: Entity) -> InteractionActionChoice:
 	if InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.HANDS:
 		return null
@@ -177,6 +180,7 @@ static func rotation_choice(actor: Entity) -> InteractionActionChoice:
 	return null
 
 
+## Checks explicit authored reservations for an item input slot.
 static func reserves(source: Entity, input_slot: DEF_InteractionAction.Slot) -> bool:
 	if not S_Grab.entity_available(source):
 		return false
@@ -195,6 +199,7 @@ static func reserves(source: Entity, input_slot: DEF_InteractionAction.Slot) -> 
 	return false
 
 
+## Reports whether this tick consumes camera delta for item rotation.
 static func wants_rotation(actor: Entity, controller: C_Controller) -> bool:
 	if (
 		controller.interact_pressed or controller.use_pressed
@@ -217,6 +222,7 @@ static func wants_rotation(actor: Entity, controller: C_Controller) -> bool:
 	return controller.rotate_held and rotation_choice(actor) != null
 
 
+## Publishes currently available controls for the read-only interaction HUD.
 static func refresh_prompt(actor: Entity) -> void:
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
@@ -257,6 +263,7 @@ static func refresh_prompt(actor: Entity) -> void:
 	interactor.prompt_text = "\n".join(lines)
 
 
+## Reads the active InputMap binding for a contextual button.
 static func button_label(slot_index: int) -> String:
 	for event: InputEvent in InputMap.action_get_events(INPUT_ACTIONS[slot_index]):
 		if event is InputEventKey:

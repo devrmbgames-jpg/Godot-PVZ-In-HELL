@@ -34,6 +34,7 @@ Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the
 | Look | [c_look.gd](content/components/motion/c_look.gd), [s_look.gd](content/systems/motion/s_look.gd) |
 | Jump / crouch | [s_jump.gd](content/systems/motion/s_jump.gd), [s_crouch.gd](content/systems/motion/s_crouch.gd) |
 | Grab / targeting | [s_grab.gd](content/systems/interaction/s_grab.gd), [s_interaction_targeting.gd](content/systems/interaction/s_interaction_targeting.gd), [o_grab_lifecycle.gd](content/observers/interaction/o_grab_lifecycle.gd) |
+| Physical Push | [s_push.gd](content/systems/interaction/s_push.gd), [o_push_lifecycle.gd](content/observers/interaction/o_push_lifecycle.gd), [push_cart.tscn](content/entities/props/push_cart.tscn); C_Pushable/C_PushedBy/C_PushControl under `components/interaction/` |
 | Interaction routing | [interaction_action_resolver.gd](content/services/interaction/interaction_action_resolver.gd), [interaction_control_focus.gd](content/services/interaction/interaction_control_focus.gd) |
 | Interaction contracts | [interaction_action_choice.gd](content/contracts/interaction/interaction_action_choice.gd), [interaction_control_capture.gd](content/contracts/interaction/interaction_control_capture.gd) |
 | Interaction definitions/data | [def_interaction_action.gd](content/definitions/interaction/def_interaction_action.gd), [c_interaction_action_set.gd](content/components/interaction/c_interaction_action_set.gd) |
@@ -57,7 +58,8 @@ Start with the narrowest relevant check.
 - GDScript formatting: see [.agents/skills/gdscript-format/SKILL.md](.agents/skills/gdscript-format/SKILL.md).
 - Grab tests: [test_s_grab.gd](tests/gut/test_s_grab.gd).
 - Jump tests: [test_s_jump.gd](tests/gut/test_s_jump.gd).
-- Receiving/scan smoke: `tests/smoke/receiving_scan_smoke.tscn`.
+- Receiving/scan/number-reuse smoke: `tests/smoke/receiving_scan_smoke.tscn` (`--quit-after 360`, require PASS).
+- Hands/Terminal capture smoke: `tests/smoke/interaction_actions_smoke.tscn` (`--quit-after 180`, require PASS).
 - Day-cycle smoke: `tests/smoke/day_cycle_smoke.tscn`.
 - Damage smoke: `tests/smoke/damage_smoke.tscn`.
 - Always run `git diff --check` before a milestone commit.

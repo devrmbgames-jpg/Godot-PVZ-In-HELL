@@ -1,4 +1,5 @@
 extends System
+## Validates three-slot ownership and integrates physical holding through body callbacks.
 class_name S_Grab
 
 #region Constants
@@ -26,6 +27,7 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 
 
 #region Public API
+## Releases invalid grips before routing the actor input tick.
 static func handle_input(holder: Entity) -> void:
 	if not is_instance_valid(holder):
 		return
@@ -80,6 +82,7 @@ static func can_pickup(
 	return within_pickup_reach(holder, target)
 
 
+## Atomically validates and acquires the selected slot, optionally replacing its occupant.
 static func try_pickup(
 	holder: Entity,
 	target: Entity,
@@ -110,6 +113,7 @@ static func try_pickup(
 	return held_in_slot(holder, slot_index) == target
 
 
+## Removes matching ownership and side effects while preserving physical inertia.
 static func release(holder: Entity, held: Entity) -> void:
 	if not is_instance_valid(held):
 		return
@@ -121,6 +125,7 @@ static func release(holder: Entity, held: Entity) -> void:
 		grip_removed(held, grip)
 
 
+## Releases matching ownership before applying the configured velocity-change impulse.
 static func throw(holder: Entity, held: Entity) -> void:
 	if not is_instance_valid(holder) or not is_instance_valid(held):
 		return
@@ -148,6 +153,7 @@ static func throw(holder: Entity, held: Entity) -> void:
 	body.apply_central_impulse(impulse)
 
 
+## Drives a held body toward its relation-selected anchor on the physics step.
 static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 	var grip: Relationship = held_relationship(entity)
 	if grip == null:
@@ -305,6 +311,7 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 	return true
 
 
+## Idempotently restores collision, sleep, capture and slot-cache state.
 static func grip_removed(held: Entity, grip: Relationship) -> void:
 	var grip_data: C_HeldBy = grip.relation as C_HeldBy
 	if not grip_data.lifecycle_applied:
@@ -334,6 +341,7 @@ static func grip_removed(held: Entity, grip: Relationship) -> void:
 		body.can_sleep = grip_data.previous_can_sleep
 
 
+## Releases all incoming and outgoing held relationships for an unavailable entity.
 static func entity_unavailable(entity: Entity) -> void:
 	if not is_instance_valid(entity):
 		return
@@ -349,6 +357,7 @@ static func entity_unavailable(entity: Entity) -> void:
 			release(entity, held)
 
 
+## Clears one derived cache and its Carry modifiers without creating ownership.
 static func reset_holder(holder: Entity, slot_index: int = C_Grabbable.HoldSlot.CARRY) -> void:
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	if control != null:
@@ -368,6 +377,7 @@ static func reset_holder(holder: Entity, slot_index: int = C_Grabbable.HoldSlot.
 
 
 #region Position and rotation math
+## Returns a mass-aware bounded spring force with gravity compensation.
 static func position_force(
 	position_error: Vector3,
 	velocity_error: Vector3,
@@ -382,6 +392,7 @@ static func position_force(
 	return (acceleration * body_mass).limit_length(maxf(config.max_hold_force, 0.0))
 
 
+## Returns a bounded shortest-arc angular velocity without residual spring momentum.
 static func rotation_velocity(
 	current: Quaternion,
 	desired: Quaternion,
@@ -403,6 +414,7 @@ static func rotation_velocity(
 	return (rotation_error / step).limit_length(maxf(config.max_rotation_speed, 0.0))
 
 
+## Applies manual input within the configured rotation-axis policy.
 static func rotated_offset(
 	offset: Quaternion,
 	look_delta: Vector2,
@@ -416,12 +428,14 @@ static func rotated_offset(
 	).normalized()
 
 
+## Converts a configured velocity change into a mass-scaled impulse.
 static func throw_impulse(direction: Vector3, velocity_change: float, body_mass: float) -> Vector3:
 	return direction.normalized() * maxf(velocity_change, 0.0) * body_mass
 #endregion
 
 
 #region Queries and validation
+## Finds the authoritative held relationship directly on an entity.
 static func held_relationship(entity: Entity) -> Relationship:
 	if not is_instance_valid(entity):
 		return null
@@ -443,6 +457,7 @@ static func held_object(holder: Entity) -> Entity:
 	return null
 
 
+## Returns a cached occupant only when its authoritative relation matches the slot.
 static func held_in_slot(holder: Entity, slot_index: int) -> Entity:
 	if not is_instance_valid(holder):
 		return null
@@ -481,6 +496,7 @@ static func _set_cached(control: C_GrabControl, slot_index: int, held: Entity) -
 			control.held_left = held
 
 
+## Checks whether an authored prop supports the requested Carry or hand slot.
 static func slot_allowed(config: C_Grabbable, slot_index: int) -> bool:
 	if slot_index == C_Grabbable.HoldSlot.CARRY:
 		return config.allowed_hand_slots == 0
@@ -490,6 +506,7 @@ static func slot_allowed(config: C_Grabbable, slot_index: int) -> bool:
 	)
 
 
+## Maps primary or secondary controls to a physical hand, respecting the swap option.
 static func mapped_hand(holder: Entity, secondary: bool = false) -> int:
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	if secondary != (control != null and control.swap_hand_controls):
@@ -497,6 +514,7 @@ static func mapped_hand(holder: Entity, secondary: bool = false) -> int:
 	return C_Grabbable.HoldSlot.RIGHT_HAND
 
 
+## Selects the E/F hand according to free slots, replacement role and allowed hands.
 static func pickup_slot(holder: Entity, target: Entity, replacement_button: bool) -> int:
 	if not is_instance_valid(target) or not is_instance_valid(holder):
 		return -1
@@ -521,6 +539,7 @@ static func pickup_slot(holder: Entity, target: Entity, replacement_button: bool
 	return selected if slot_allowed(config, selected) else -1
 
 
+## Returns the holder-owned LOS ray used by targeting and pickup validation.
 static func interaction_raycast(holder: Entity) -> RayCast3D:
 	if not is_instance_valid(holder):
 		return null
@@ -528,6 +547,7 @@ static func interaction_raycast(holder: Entity) -> RayCast3D:
 	return holder.get("interaction_ray_cast") as RayCast3D
 
 
+## Returns the authored Carry anchor owned by the holder entity.
 static func hold_anchor(holder: Entity) -> Node3D:
 	if not is_instance_valid(holder):
 		return null
@@ -535,6 +555,7 @@ static func hold_anchor(holder: Entity) -> Node3D:
 	return holder.get("hold_anchor") as Node3D
 
 
+## Resolves an item anchor from its runtime relationship or proposed pickup slot.
 static func object_anchor(holder: Entity, target: Entity) -> Node3D:
 	if not is_instance_valid(holder) or not is_instance_valid(target):
 		return null
@@ -547,6 +568,7 @@ static func object_anchor(holder: Entity, target: Entity) -> Node3D:
 	return slot_anchor(holder, slot_index)
 
 
+## Selects the normal or suspended authored anchor for a physical slot.
 static func slot_anchor(holder: Entity, slot_index: int) -> Node3D:
 	if not is_instance_valid(holder):
 		return null
@@ -570,6 +592,7 @@ static func slot_anchor(holder: Entity, slot_index: int) -> Node3D:
 	return null
 
 
+## Revalidates first-hit LOS and the independent pickup reach limit.
 static func within_pickup_reach(holder: Entity, target: Entity) -> bool:
 	if not is_instance_valid(holder) or not is_instance_valid(target):
 		return false
@@ -598,6 +621,7 @@ static func within_pickup_reach(holder: Entity, target: Entity) -> bool:
 
 
 # TODO проверить что реализовано правильно
+## Returns an item distance override or the holder default; hands have no extra offset.
 static func carry_distance(control: C_GrabControl, config: C_Grabbable) -> float:
 	if control == null or config == null:
 		return 0.0
@@ -615,6 +639,7 @@ static func carry_distance(control: C_GrabControl, config: C_Grabbable) -> float
 
 
 # TODO проверить что реализовано правильно
+## Checks live tree and World membership before gameplay mutation.
 static func entity_available(entity: Entity) -> bool:
 	return (
 		is_instance_valid(entity) and not entity.is_queued_for_deletion()
@@ -623,6 +648,7 @@ static func entity_available(entity: Entity) -> bool:
 	)
 
 
+## Also rejects disabled motion control and defeated holders.
 static func holder_available(holder: Entity) -> bool:
 	if not entity_available(holder):
 		return false

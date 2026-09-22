@@ -1,4 +1,5 @@
 extends Component
+## Actor hold configuration, derived slot caches and shared interaction control state.
 class_name C_GrabControl
 
 ## Maximum reach for picking up an object (metres).
@@ -12,7 +13,9 @@ var rotation_active: bool = false
 var held_carry: Entity = null
 var held_right: Entity = null
 var held_left: Entity = null
+## Swaps primary/secondary controls without moving objects between physical hands.
 @export var swap_hand_controls: bool = false
+## Holding G beyond this time reserves the future context wheel and suppresses drop.
 @export_range(0.1, 2.0, 0.05) var drop_long_press_seconds: float = 0.45
 ## Token registry is the single control-focus authority; each acquire has its own key.
 var captures: Dictionary[int, InteractionControlCapture] = { }

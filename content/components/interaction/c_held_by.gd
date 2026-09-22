@@ -1,4 +1,5 @@
 extends Component
+## Authoritative item-to-holder slot relation and reversible grip integration state.
 class_name C_HeldBy
 
 var slot: C_Grabbable.HoldSlot = C_Grabbable.HoldSlot.CARRY

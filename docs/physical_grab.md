@@ -1,56 +1,62 @@
 # Физическое взаимодействие
 
-Механика подключена в [main_level.tscn](../content/scenes/main_level.tscn). Контракты, управление и настройки описаны ниже; завершённая задача отмечена в [истории](../task_history.md).
+Механика подключена в [main_level.tscn](../content/scenes/main_level.tscn). Актуальные кнопки и таблица E/F — в [controls.md](controls.md).
 
-## Управление
+## Авторинг и владение
 
-| Действие | Клавиши |
-| --- | --- |
-| Взять предмет под центром камеры / отпустить удерживаемый | E |
-| Перенести или потянуть предмет | WASD с удерживаемым предметом |
-| Повернуть предмет перед собой | Удерживать ПКМ и двигать мышью |
-| Бросить вперёд | ЛКМ |
-| Освободить / захватить курсор | Esc |
+Статические Components и действия задаются через scene `component_resources`: Player, Scanner, Package, Terminal, DaySession, станции, приёмка и PushCart. Единственное project-owned исключение `define_components()` — spawn-specific `C_Package` с устойчивым ID и переданной definition. Состояние/целостность Package авторятся в сцене; спавнер копирует только индивидуальный grab-профиль. Изменяемые scene-ресурсы с контейнерами изолированы между экземплярами.
 
-Во время вращения предмета камера не получает то же движение мыши. После отпускания ПКМ обычный обзор возвращается без накопленного смещения. На геймпаде левый стик двигает персонажа, правый управляет обзором или вращением предмета; кнопки используют существующие InputMap-действия interact/action_primary/action_secondary.
+Источник владения — `предмет --C_HeldBy--> holder`. `C_HeldBy.slot` выбирается при pickup: CARRY, RIGHT_HAND или LEFT_HAND. Один объект имеет одного holder; каждый слот вмещает один объект. Holder может одновременно держать три предмета.
 
-Коробка остаётся динамическим телом: её можно упереть в стену, тянуть вдоль пола и сталкивать с другими коробками. Если смотреть вниз, желаемая точка удержания опускается к полу; отдельного переключателя режима перетаскивания нет. При отпускании сохраняются линейная и угловая скорости. При слишком большом отставании от точки удержания хват разрывается.
+`C_Grabbable.allowed_hand_slots=0` означает Carry-only; флаги Right=2 и Left=4 задают разрешённые руки. Scanner разрешает обе. `C_GrabControl.held_carry/held_right/held_left` — только производные индексы. `S_Grab.held_in_slot()` проверяет relation; агрегатный `held_object()` оставлен для single-object callers и не определяет вместимость.
 
-## Вес и настройки
+`S_Grab.try_pickup(holder, target, slot, replace)` полностью проверяет slot/body/ownership/LOS перед освобождением заменяемого предмета. Relationship добавляется на синхронной command boundary. `release` сохраняет инерцию; `throw` сначала освобождает связь и добавляет импульс `direction × mass × throw_velocity`.
 
-| Объект в сцене | Масса | Прибавка скорости броска | Множитель скорости / ускорения игрока |
-| --- | --- | --- | --- |
-| Box | 5 кг | 10 м/с | 1.0 / 1.0 |
-| Box2 | 30 кг | 6 м/с | 0.75 / 0.75 |
-| Box3 | 80 кг | 3 м/с | 0.45 / 0.45 |
+## Физика Grab
 
-Физическая масса задаётся в RigidBody3D. Параметры броска и штрафы задаются отдельно в C_Grabbable, как требует ТЗ. Изменение только mass не пересчитывает игровой профиль автоматически. throw_velocity означает Δскорости; импульс равен direction × throw_velocity × mass. Более тяжёлые профили летят медленнее и сильнее замедляют игрока.
+RigidBody владеет transform/velocity. `E_GrabbableBody` только передаёт `_integrate_forces` в `S_Grab`. Нет переподчинения, заморозки или телепортации тела. Перенос использует ограниченную силу пружины с компенсацией гравитации; вращение — angular-velocity servo по кратчайшей quaternion-ошибке.
 
-C_Grabbable задаёт дистанцию 1,25 м, позиционную пружину, ограничение силы и break_distance. Solver учитывает массу и компенсирует гравитацию в пределах max_hold_force. Поворот задаёт angular_velocity по кратчайшей quaternion-ошибке за один физический шаг с ограничением max_rotation_speed: без пружинного разгона и инерционного доворачивания. Transform не телепортируется; столкновения остаются физическими.
+RayCast следует за HeadX, обновляется на границе команды и исключает holder и все три удерживаемых объекта. Первый collider остаётся авторитетом LOS. `O_GrabLifecycle` обслуживает исключения столкновений с holder, can_sleep, cache и очистку. Удаление/отключение участника, смерть, заморозка предмета и чрезмерное расстояние завершают владение; world removal не требует удаления Node.
 
-## Контракты
+`C_CarryLoad` относится только к Carry: его множители не меняют исходные C_Motion speed/acceleration и не применяются к hand-items. Профили посылок 5/30/80 кг сохраняют отдельные data-driven штрафы и throw velocity. Стандартная дистанция Carry — 1,25 м; предмет может её переопределить.
 
-- C_Interactor.target — только выбранная цель. Луч учитывает препятствия и исключает игрока с удерживаемым предметом.
-- Единственный источник владения — Relationship `предмет --C_HeldBy--> держатель`. Ограничение первой версии: один предмет на держателя, один держатель на предмет.
-- C_GrabControl.held_object — производный обратный индекс; перед использованием проверяется сама связь. Он не создаёт владение.
-- O_GrabLifecycle реагирует на добавление/удаление связи. Side effects реализованы в S_Grab: исключение столкновения только с держателем, запрет засыпания на время удержания, carry-модификаторы и очистка.
-- S_Grab.try_pickup/release/throw доступны NPC и другим системам без чтения Input. При структурных изменениях во время обхода ECS следует использовать CommandBuffer.
-- E_Grabbable только передаёт `_integrate_forces` в S_Grab. Solver не переподчиняет, не замораживает и не телепортирует предмет.
-- interaction_ray_cast и hold_anchor — ссылки на дочерние узлы Entity. RayCast3D следует за осями обзора, задаёт дальность и проверяет прямую видимость; HoldAnchor задаёт базис и начало хвата, а C_HeldBy.hold_distance смещает желаемую точку вдоль его локальной оси −Z.
-- C_CarryLoad изменяет эффективные параметры движения; исходные C_Motion.max_speed/acceleration не меняются.
-- На каждом физическом шаге выполняются Input → Interaction (targeting → grab) → Physics → GamePlay. События ввода живут один физический шаг; S_Grab их не обнуляет.
-- Потеря связи, удаление/отключение Entity, смерть, заморозка предмета и чрезмерное расстояние освобождают хват. Очистка также работает при удалении Entity из World без немедленного удаления Node.
+## Capture и anchors
 
-Добавляя держателя, задайте interaction_ray_cast/hold_anchor и компоненты C_Controller, C_Interactor, C_GrabControl, C_CarryLoad. Дальность луча настраивается через C_Interactor.interaction_distance. Для предмета нужны динамическое физическое Entity с callback, C_Interactable и C_Grabbable. Зарегистрируйте O_GrabLifecycle вместе с системами в World. Исходные addon-файлы не изменяются.
+`InteractionControlFocus` хранит в C_GrabControl единый registry уникальных токенов. `acquire(actor, owner, priority)` возвращает новый token даже для повторного owner; `release(actor, token)` снимает только его. WeakRef позволяет убрать уничтоженного owner. Приоритет: MODAL > PUSH > CARRY > HANDS.
+
+Carry relation, Push relation и каждый Terminal владеют своими токенами. LEFT/RIGHT остаются owned во время capture, но выбирают authored LoweredRightHand/LoweredLeftHand вместо ArmRSlot/ArmLSlot. Обычные authored transforms не меняются. После последнего release возвращаются прежние anchors и mapping без pickup.
+
+При смене anchor сбрасывается оценка его скорости; даётся 0,5 с на физический переход. Пока руки опущены, допустимое расстояние учитывает смещение нормального anchor к lowered. Это предотвращает ложный разрыв при опускании, сохраняя проверку реального чрезмерного удаления.
+
+## Ввод и вращение
+
+`S_PlayerInput` — единственный writer input edges, move_axis и look_delta. `InteractionActionResolver` исполняется через command buffer S_Grab; input_tick предотвращает повторную обработку. E/F/G ветки исключают одновременные действия рук. Снимок focus не позволяет броску Carry передать тот же input ниже по приоритету.
+
+PRIMARY в `C_InteractionActionSet` — use-action инструмента. Resolver отображает ЛКМ/ПКМ на физические руки через swap_hand_controls; занятая рука резервирует свою кнопку даже без доступной цели. Alt бросает mapped hand. R вращает первый разрешённый предмет в порядке primary → secondary только без конфликтующего use-input. Carry использует ПКМ. Все подсказки читает HUD из C_Interactor.prompt_text; HUD не владеет gameplay.
+
+`manual_rotation_enabled` отключает ручное вращение и его prompt. FREE применяет pitch/yaw, Y_ONLY меняет только yaw rotation offset. `reset_rotation_on_pickup` задаёт identity offset относительно выбранного anchor; без него сохраняется текущая относительная ориентация. Scanner запрещает вращение и сбрасывает offset; Bucket имеет Y_ONLY и reset.
+
+G short-release освобождает один слот Carry → Left → Right. Порог `drop_long_press_seconds` настраивается в Inspector (0,45 с); long-press выставляет placeholder-состояние без short-drop. Полного radial menu нет.
+
+## Push
+
+`PushCart` имеет C_Pushable и C_Interactable, но не C_Grabbable. Authority — отдельная связь `cart --C_PushedBy--> actor`; C_PushControl.pushed_object — проверяемый reverse cache. `DEF_PushAction` начинает/заканчивает Push через общий resolver; `O_PushLifecycle` обслуживает world/tree cleanup и can_sleep.
+
+W задаёт фиксированную forward_speed, A/D — turn_speed в радианах/с; скорость не зависит от mouse sensitivity. S/E завершает режим, задней тяги нет. `S_Push.integrate_cart` задаёт скорости только на физическом шаге, сохраняя gravity/collision response. `S_Motion` передаёт планарное движение игрока в `S_Push.integrate_actor`: физическая скорость ведёт его за рукоятью с ограниченной коррекцией, без записи transform.
+
+Тележка должна оставаться впереди игрока, в focus_distance и без препятствия между actor и тележкой. Недоступность, потеря фронтального focus/дистанции/LOS безопасно снимают Push. MODAL временно останавливает мотор, сохраняя Push relation/token; закрытие UI не поднимает руки, если Push/Carry ещё активен. Полноценного vehicle framework нет.
+
+Порядок тика: Input → Interaction (targeting → Push validation → Grab/resolver) → Physics → GamePlay. Физические callbacks тел отдельно применяют solver.
 
 ## Проверки
 
 ```text
+python utils/validate_project_structure.py
 <godot> --headless --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests/gut -gexit
+<godot> --headless --path . res://tests/smoke/interaction_actions_smoke.tscn --quit-after 180
+<godot> --headless --path . res://tests/smoke/receiving_scan_smoke.tscn --quit-after 360
 ```
 
-`<godot>` — локальный исполняемый файл Godot 4.7. Тесты: [хват и физика](../tests/gut/test_s_grab.gd), [настоящая сцена](../tests/gut/test_grab_main_scene.gd), [прыжок](../tests/gut/test_s_jump.gd).
+Для smoke необходим явный PASS marker. Существующие GUT suites проверяют слоты, replacement, capture nesting, mapped input, G, rotation policies, LOS, collision cleanup, реальные силы/вращение, Push-скорости, стену и player-follow. Проверка main scene подтверждает, что стартовая тележка не пересекает геометрию. Новые GUT suites не добавлялись.
 
-Проверяются переходы владения, ограничения вместимости, отпускание/бросок, вращение и приоритет ввода, удаление участников, внешние изменения связей, модификаторы движения и чистая математика. Физические тесты действительно ждут шагов движка и проверяют удержание против гравитации, поворот управляемой угловой скоростью, препятствия и разрыв хвата. В тестах ввода заменяется только проверка захвата курсора: headless DisplayServer его не поддерживает.
-
-Ручной игровой тест: поднимите лёгкую, среднюю и тяжёлую коробки утренней поставки, сравните разгон и бросок, повращайте предмет перед стеной, потяните его по полу и отпустите на ходу. Автоматические тесты не оценивают субъективное удобство управления и поведение реального геймпада.
+Автоматические проверки не заменяют ручную оценку удобства камеры, геймпада и тесных поворотов тележки.
