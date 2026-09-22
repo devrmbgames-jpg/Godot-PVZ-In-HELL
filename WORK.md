@@ -1,6 +1,6 @@
 # Work Tracker
 
-State: R06.1 active; base master @ ff2db865612e43c69742ca61bd91eb980e148342.
+State: R06.1 active.
 
 ## Accepted migration
 
