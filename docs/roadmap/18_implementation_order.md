@@ -1,7 +1,7 @@
 # ТЗ 18 — Порядок реализации для ИИ агентов
 
 > **Важно:** номера `ТЗ xx` — это номера design specifications, а не implementation-order.
-> Канонические implementation IDs — `Rxx` / `RMxx.x`.
+> Канонические implementation IDs — `Rxx` / `Rxx.x`.
 > Полная таблица соответствия: [Roadmap canonical map](README.md).
 
 ## Правило работы
@@ -20,7 +20,7 @@
 4. **R04** — common damage/health pipeline.
 5. **R05** — morning receiving.
 6. **R06** — scanner / registration / terminal.
-7. **RM06.1** — Inspector-first components, Carry/two hands, control capture and Push.
+7. **R06.1** — Inspector-first components, Carry/two hands, control capture and Push.
 8. **R07** — physical marker and numbered shelves.
 
 Не создавать заново task-файлы этих этапов. Использовать durable contracts из roadmap/context и подтверждать завершение через `task_history.md`.
