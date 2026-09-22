@@ -1,5 +1,7 @@
 # ТЗ 05 — Сканер, терминал, маркер и полки
 
+> **Implementation coverage:** Implementation coverage: scanner/terminal **R06**, marker/shelves **R07**, later terminal/meta feedback **R20/R22**.
+
 ## Цель
 
 Создать информационный workflow приемки.
