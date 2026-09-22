@@ -1,5 +1,7 @@
 # RM06.1 — Физическое взаимодействие: Inspector-first компоненты, руки, Carry и Push
 
+> **Implementation coverage:** Implementation task **RM06.1** — **completed**; durable contract retained here.
+
 ## Позиция в roadmap
 
 Выполнить после R06 (Scanner / Registration / Terminal) и до R07 (Marker / Shelves).
