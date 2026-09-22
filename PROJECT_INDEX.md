@@ -7,7 +7,7 @@ Compact canonical map. Read [CONTEXT.md](CONTEXT.md), then the relevant subsyste
 | Area | Entry point | Purpose |
 | --- | --- | --- |
 | Configuration | [project.godot](project.godot) | Startup, autoloads, input, plugins, physics/rendering |
-| Startup | [main_level.tscn](content/scenes/main_level.tscn) | Player and three physical boxes |
+| Startup | [main_level.tscn](content/scenes/main_level.tscn) | Player, morning supply, scanner, terminal and day stations |
 | Gameplay prototype | [content/CONTEXT.md](content/CONTEXT.md) | Project-owned ECS, character, level and attributes |
 | Resources | `resources/`, `materials/` | Imported art/audio, generated scenes and materials |
 | Editor/import helpers | `utils/` | Asset generation and import tooling |
@@ -36,7 +36,7 @@ All gameplay rows route through [content/CONTEXT.md](content/CONTEXT.md).
 | glTF import | [gltf_import_split_script.gd](utils/gltf_import_split_script.gd) |
 | Asset tooling | [material_collection_generator.gd](utils/material_collection_generator.gd), [multi_mesh_generator.gd](utils/multi_mesh_generator.gd), [assets_grid_sort.gd](utils/assets_grid_sort.gd) |
 
-No project-owned combat, save/load or animation-system entry point was identified in `content/`; imported animation assets do not establish those project contracts.
+The R04 damage pipeline exists; combat sources/AI, save/load and animation systems are still planned. Imported animation assets do not establish gameplay contracts.
 
 ## Dependency authority
 
@@ -73,3 +73,19 @@ Update this map when entry points, subsystem routes, dependency pins or validati
 - Transitions: `content/systems/gameplay/s_day_phase.gd`, `day_transition_request.gd`, `day_phase_action.gd`.
 - World controls: `content/entities/day_station.tscn`, `e_day_station.gd` (ShiftConsole and SleepPoint).
 - Standalone checks: `tests/smoke/day_cycle_smoke.tscn`, `tests/smoke/interaction_actions_smoke.tscn`; run with Godot `--headless --path . res://tests/smoke/<scene>.tscn --quit-after 120` and require the PASS marker (assertions alone do not guarantee nonzero exit).
+
+## Damage and controls
+
+- Gameplay control contract: [docs/controls.md](docs/controls.md).
+- Damage pipeline: `content/systems/gameplay/s_damage.gd`, `damage_request.gd`, `damage_result.gd`.
+- Health: `content/components/gameplay/c_health.gd`; package adapter: `c_package_integrity.gd`.
+- Physics contact check: `tests/smoke/character_contact_smoke.tscn`; damage check: `tests/smoke/damage_smoke.tscn`.
+
+## Receiving and registration
+
+- Supply data: `content/definitions/gameplay/morning_supply.tres`, `def_delivery.gd`, `def_package.gd`.
+- Receiving: `content/entities/receiving_zone.tscn`, `content/systems/gameplay/s_receiving.gd`, `content/components/gameplay/c_receiving.gd`.
+- Scanner: `content/entities/props/scanner.tscn`, `content/systems/interaction/scan_action.gd`.
+- Registry authority: `content/systems/gameplay/package_registration_service.gd`; `C_PackageLedger` on `E_DaySession`.
+- Terminal: `content/entities/terminal.tscn`, `content/ui/terminal_panel.tscn`; printer definition only: `content/definitions/gameplay/label_printer.tres`.
+- End-to-end check: `tests/smoke/receiving_scan_smoke.tscn`; add `-- --preview` with rendering to capture `tests/artifacts/terminal_preview.png`.

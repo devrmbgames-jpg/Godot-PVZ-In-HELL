@@ -18,7 +18,6 @@
 [ext_resource type="PackedScene" uid="uid://c8ucvasbalruj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pillar_A/Pillar_A_static.tscn" id="8_vhk8t"]
 [ext_resource type="PackedScene" uid="uid://fjtvcn3mifma" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam/Primitive_Beam_static.tscn" id="9_ofyry"]
 [ext_resource type="PackedScene" uid="uid://dxkg7ovkuxd0i" path="res://content/entities/e_rigid_body_character.tscn" id="13_da1x8"]
-[ext_resource type="PackedScene" path="res://content/entities/props/package.tscn" id="19_jprse"]
 [ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="23_d7jx2"]
 [ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/components/input/c_player_input_controller.gd" id="24_x60uf"]
 [ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/components/motion/c_motion.gd" id="25_t1fd8"]
@@ -31,50 +30,23 @@
 [ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="32_mc3p1"]
 [ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="33_k7ct6"]
 [ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/components/motion/c_carry_load.gd" id="34_efpp8"]
+[ext_resource type="Script" uid="uid://cpsqfbyw5u8m7" path="res://content/systems/gameplay/s_damage.gd" id="Damage_system"]
+[ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/entities/e_day_session.gd" id="Day_entity"]
+[ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
+[ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/entities/day_station.tscn" id="Day_station"]
+[ext_resource type="Script" uid="uid://bl40hlhadexg3" path="res://content/systems/gameplay/s_day_phase.gd" id="Day_system"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
-[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="Grab_config"]
-[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Grab_interactable"]
 [ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
 [ext_resource type="Script" uid="uid://ccooufygakw6e" path="res://content/systems/interaction/s_grab.gd" id="Grab_system"]
 [ext_resource type="Script" uid="uid://6wrg3mgcm4e6" path="res://content/systems/interaction/s_interaction_targeting.gd" id="Grab_targeting"]
-
-[ext_resource type="Script" path="res://content/definitions/gameplay/def_package.gd" id="Package_definition"]
-
 [ext_resource type="PackedScene" path="res://content/ui/interaction_hud.tscn" id="Interaction_hud"]
+[ext_resource type="Script" uid="uid://28wsslbgucs3" path="res://content/systems/gameplay/s_receiving.gd" id="Receiving_system"]
+[ext_resource type="PackedScene" path="res://content/entities/receiving_zone.tscn" id="Receiving_zone"]
+[ext_resource type="PackedScene" path="res://content/entities/props/scanner.tscn" id="Scanner_scene"]
+[ext_resource type="PackedScene" path="res://content/entities/terminal.tscn" id="Terminal_scene"]
 
-[ext_resource type="Script" path="res://addons/gecs/ecs/entity.gd" id="Day_entity"]
-[ext_resource type="Script" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_day_phase.gd" id="Day_system"]
-[ext_resource type="PackedScene" path="res://content/entities/day_station.tscn" id="Day_station"]
-
-[sub_resource type="Resource" id="Day_state"]
-script = ExtResource("Day_state")
-
-[sub_resource type="Resource" id="Package_light"]
-script = ExtResource("Package_definition")
-key = &"sample_light"
-shipment_number = "PVZ-001"
-description = "Books"
-recipient_id = &"customer_01"
-tags = 1
-
-[sub_resource type="Resource" id="Package_medium"]
-script = ExtResource("Package_definition")
-key = &"sample_liquid"
-shipment_number = "PVZ-002"
-description = "Bottled supplies"
-comment = "Keep upright"
-recipient_id = &"customer_02"
-tags = 8
-
-[sub_resource type="Resource" id="Package_heavy"]
-script = ExtResource("Package_definition")
-key = &"sample_heavy_fragile"
-shipment_number = "PVZ-003"
-description = "Laboratory equipment"
-comment = "Heavy and fragile"
-recipient_id = &"customer_03"
-tags = 6
+[sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
+size = Vector3(24.292542, 0.50476074, 32.248352)
 
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
@@ -86,6 +58,11 @@ metadata/_custom_type_script = "uid://iq4pnvam7fq5"
 
 [sub_resource type="Resource" id="Resource_mn5t4"]
 script = ExtResource("25_t1fd8")
+max_speed = 5.0
+ground_acceleration = 50.0
+ground_deceleration = 60.0
+ground_lateral_friction = 45.0
+air_acceleration = 5.0
 metadata/_custom_type_script = "uid://cdblg8bcbkrs8"
 
 [sub_resource type="Resource" id="Resource_lf6x7"]
@@ -101,7 +78,7 @@ metadata/_custom_type_script = "uid://2wyyc10rw1bb"
 [sub_resource type="Resource" id="Resource_rthl4"]
 script = ExtResource("28_23iv7")
 camera_height_standing = 0.0
-camera_height_crouching = -0.5
+camera_height_crouching = -0.7
 metadata/_custom_type_script = "uid://cg8i3jfsnahs3"
 
 [sub_resource type="Resource" id="Resource_wo3yc"]
@@ -123,20 +100,8 @@ script = ExtResource("33_k7ct6")
 [sub_resource type="Resource" id="Grab_carry_load"]
 script = ExtResource("34_efpp8")
 
-[sub_resource type="Resource" id="Grab_interactable"]
-script = ExtResource("Grab_interactable")
-
-[sub_resource type="Resource" id="Grab_medium"]
-script = ExtResource("Grab_config")
-throw_velocity = 6.0
-movement_speed_multiplier = 0.75
-movement_acceleration_multiplier = 0.75
-
-[sub_resource type="Resource" id="Grab_heavy"]
-script = ExtResource("Grab_config")
-throw_velocity = 3.0
-movement_speed_multiplier = 0.45
-movement_acceleration_multiplier = 0.45
+[sub_resource type="Resource" id="Day_state"]
+script = ExtResource("Day_state")
 
 [node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world")]
 script = ExtResource("1_ixiin")
@@ -154,7 +119,15 @@ metadata/_custom_type_script = "uid://cdu5tlyk72uu4"
 script = ExtResource("3_ahxau")
 metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
-[node name="S_DayPhase" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_Receiving" type="Node" parent="World/Systems/GamePlay" unique_id=160792962]
+script = ExtResource("Receiving_system")
+group = &"GamePlay"
+
+[node name="S_Damage" type="Node" parent="World/Systems/GamePlay" unique_id=734003194]
+script = ExtResource("Damage_system")
+group = &"GamePlay"
+
+[node name="S_DayPhase" type="Node" parent="World/Systems/GamePlay" unique_id=525864446]
 script = ExtResource("Day_system")
 group = &"GamePlay"
 
@@ -197,11 +170,10 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_InteractionTargeting" type="Node" parent="World/Systems/Interaction" unique_id=350725269]
 script = ExtResource("Grab_targeting")
-group = "Interaction"
+group = &"Interaction"
 
 [node name="S_Grab" type="Node" parent="World/Systems/Interaction" unique_id=767923781]
 script = ExtResource("Grab_system")
-group = "Interaction"
 
 [node name="O_GrabLifecycle" type="Node" parent="World/Systems/Interaction" unique_id=1786878994]
 script = ExtResource("Grab_lifecycle")
@@ -342,6 +314,30 @@ metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, 2)
 metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 
+[node name="Floor_Dirt_static2" parent="PVZ/Floor" unique_id=832403238 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (1)2" parent="PVZ/Floor" unique_id=1388140458 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)2" parent="PVZ/Floor" unique_id=1391712313 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (3)2" parent="PVZ/Floor" unique_id=594898584 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (4)2" parent="PVZ/Floor" unique_id=358712934 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (23)2" parent="PVZ/Floor" unique_id=711271666 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
 [node name="Floor_static" parent="PVZ/Floor" unique_id=485411696 instance=ExtResource("7_eim2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -6)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
@@ -385,6 +381,12 @@ metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 [node name="Floor_static (10)" parent="PVZ/Floor" unique_id=981674001 instance=ExtResource("7_eim2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 4, -10)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="StaticBody3D" type="StaticBody3D" parent="PVZ/Floor" unique_id=1313154093]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PVZ/Floor/StaticBody3D" unique_id=2125207814]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.138031, -0.24761963, -8.121307)
+shape = SubResource("BoxShape3D_bghjr")
 
 [node name="Wall" type="Node3D" parent="PVZ" unique_id=114765866]
 
@@ -540,41 +542,38 @@ transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0)
 transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, 0, 0, 0)
 current = true
 
-[node name="Box" parent="Entityes" unique_id=173843081 instance=ExtResource("19_jprse")]
-package_id = "prototype-package-001"
-package_definition = SubResource("Package_light")
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1059058, 0.8791586, -6.0707035)
+[node name="Terminal" parent="Entityes" unique_id=911264778 instance=ExtResource("Terminal_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 0, -2)
 
-[node name="Box2" parent="Entityes" unique_id=1204978499 instance=ExtResource("19_jprse")]
-package_id = "prototype-package-002"
-package_definition = SubResource("Package_medium")
-transform = Transform3D(0.89949787, 0, -0.4369252, 0, 1, 0, 0.4369252, 0, 0.89949787, 3.045744, 0.8791586, -6.0707035)
-mass = 30.0
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Grab_interactable"), SubResource("Grab_medium")])
+[node name="Scanner" parent="Entityes" unique_id=1882453380 instance=ExtResource("Scanner_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 1.45, -2)
 
-[node name="Box3" parent="Entityes" unique_id=774843550 instance=ExtResource("19_jprse")]
-package_id = "prototype-package-003"
-package_definition = SubResource("Package_heavy")
-transform = Transform3D(0.9643942, 0, 0.26446918, 0, 1, 0, -0.26446918, 0, 0.9643942, 2.585615, 1.4837333, -6.1684566)
-mass = 80.0
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Grab_interactable"), SubResource("Grab_heavy")])
+[node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6905279, 0, 9.102254)
+package_parent = NodePath("..")
 
-[node name="DaySession" type="Node" parent="Entityes"]
+[node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state")])
 
-[node name="ShiftConsole" parent="Entityes" instance=ExtResource("Day_station")]
-position = Vector3(0.5, 0, -5)
+[node name="ShiftConsole" parent="Entityes" unique_id=1907900219 instance=ExtResource("Day_station")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.5317445, 0, -5)
 
-[node name="SleepPoint" parent="Entityes" instance=ExtResource("Day_station")]
-position = Vector3(3.7, 0, -3.8)
+[node name="SleepPoint" parent="Entityes" unique_id=1969214162 instance=ExtResource("Day_station")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.53099465, 2.3841858e-07, -2.2939274)
 sleep_station = true
 
-[node name="Sign" parent="Entityes/SleepPoint" index="2"]
-text = "ОТДЫХ\nСон до утра"
+[node name="MarkerSpawnPoint" type="Marker3D" parent="Entityes" unique_id=345863772]
+editor_description = "Маркер где примерно появляются новые клиенты"
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.530093, 0, 3.423316)
 
-[node name="InteractionHud" parent="." node_paths=PackedStringArray("player") instance=ExtResource("Interaction_hud")]
+[node name="MarkerEmplaceMail" type="Marker3D" parent="Entityes" unique_id=80436796]
+editor_description = "Маркер куда примерно игрок должен класть посылки, которые ищет клиент."
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0375915, 1.0400136, -4.9966)
+
+[node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player", "phase_system") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")
+phase_system = NodePath("../World/Systems/GamePlay/S_DayPhase")
 
 [editable path="Entityes/Player"]
 [editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]

@@ -1,0 +1,34 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://content/entities/e_terminal.gd" id="1"]
+[ext_resource type="PackedScene" path="res://content/ui/terminal_panel.tscn" id="2"]
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+albedo_color = Color(0.13, 0.16, 0.19, 1)
+
+[sub_resource type="BoxMesh" id="Desk"]
+material = SubResource("Material")
+size = Vector3(1.3, 1.1, 0.7)
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(1.3, 1.1, 0.7)
+
+[node name="Terminal" type="StaticBody3D"]
+collision_layer = 1
+script = ExtResource("1")
+
+[node name="Desk" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.55, 0)
+mesh = SubResource("Desk")
+
+[node name="CollisionShape" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.55, 0)
+shape = SubResource("Shape")
+
+[node name="Screen" type="Label3D" parent="."]
+position = Vector3(0, 1.7, 0)
+billboard = 1
+font_size = 32
+pixel_size = 0.003
+text = "ТЕРМИНАЛ\nE — открыть реестр\nСканер лежит на столе"
+
+[node name="TerminalPanel" parent="." instance=ExtResource("2")]

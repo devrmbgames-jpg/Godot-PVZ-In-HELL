@@ -5,6 +5,12 @@ class_name E_DayStation
 @export var sleep_station: bool = false
 
 
+func _ready() -> void:
+	var sign: Label3D = get_node_or_null("Sign") as Label3D
+	if sign != null:
+		sign.text = "ОТДЫХ\nСон до утра" if sleep_station else "СМЕНА\nНачать / завершить"
+
+
 func define_components() -> Array:
 	var actions: C_InteractionActions = C_InteractionActions.new()
 	if sleep_station:

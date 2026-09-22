@@ -54,7 +54,7 @@ static func handle_input(holder: Entity) -> void:
 static func try_pickup(holder: Entity, target: Entity) -> bool:
 	if not holder_available(holder) or not entity_available(target) or holder == target:
 		return false
-	var anchor: Node3D = hold_anchor(holder)
+	var anchor: Node3D = object_anchor(holder, target)
 	var interactor: C_Interactor = holder.get_component(C_Interactor) as C_Interactor
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
@@ -70,14 +70,16 @@ static func try_pickup(holder: Entity, target: Entity) -> bool:
 	if held_object(holder) != null or held_relationship(target) != null:
 		return false
 	# Revalidate range and line of sight at the command boundary (also for API callers).
-	if S_InteractionTargeting.find_target(holder, interactor) != target:
+	if not within_pickup_reach(holder, target):
 		return false
 	var grip_data: C_HeldBy = C_HeldBy.new()
-	grip_data.hold_distance = config.hold_distance
+	grip_data.hold_distance = carry_distance(control, config)
 	grip_data.rotation_offset = (
 		anchor.global_basis.orthonormalized().get_rotation_quaternion().inverse()
 		* body.global_basis.orthonormalized().get_rotation_quaternion()
 	).normalized()
+	if config.hold_slot == C_Grabbable.HoldSlot.RIGHT_HAND:
+		grip_data.rotation_offset = Quaternion.IDENTITY
 	target.add_relationship(Relationship.new(grip_data, holder))
 	return held_object(holder) == target
 
@@ -123,7 +125,7 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 		return
 	var holder: Entity = grip.target as Entity
 	var config: C_Grabbable = entity.get_component(C_Grabbable) as C_Grabbable
-	var anchor: Node3D = hold_anchor(holder)
+	var anchor: Node3D = object_anchor(holder, entity)
 	if (
 		not holder_available(holder) or not entity_available(entity)
 		or config == null or not is_instance_valid(anchor)
@@ -161,17 +163,12 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 	var desired_rotation: Quaternion = (
 		anchor.global_basis.orthonormalized().get_rotation_quaternion() * grip_data.rotation_offset
 	).normalized()
-	var angular_acceleration: Vector3 = rotation_acceleration(
+	state.angular_velocity = rotation_velocity(
 		state.transform.basis.orthonormalized().get_rotation_quaternion(),
 		desired_rotation,
-		state.angular_velocity,
+		state.step,
 		config,
 	)
-	# Convert desired angular acceleration through the world inertia tensor.
-	var inverse_inertia: Basis = state.inverse_inertia_tensor
-	if absf(inverse_inertia.determinant()) > ROTATION_EPSILON:
-		var torque: Vector3 = inverse_inertia.inverse() * angular_acceleration
-		state.apply_torque(torque.limit_length(maxf(config.max_hold_torque, 0.0)))
 #endregion
 
 
@@ -183,7 +180,7 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var config: C_Grabbable = held.get_component(C_Grabbable) as C_Grabbable
 	if (
 		not holder_available(holder) or not entity_available(held) or body == null
-		or config == null or not is_instance_valid(hold_anchor(holder))
+		or config == null or not is_instance_valid(object_anchor(holder, held))
 	):
 		return false
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
@@ -195,7 +192,7 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var grip_data: C_HeldBy = grip.relation as C_HeldBy
 	grip_data.lifecycle_applied = true
 	if grip_data.hold_distance <= 0.0:
-		grip_data.hold_distance = config.hold_distance
+		grip_data.hold_distance = carry_distance(control, config)
 	grip_data.previous_can_sleep = body.can_sleep
 	body.can_sleep = false
 	body.sleeping = false
@@ -282,10 +279,10 @@ static func position_force(
 	return (acceleration * body_mass).limit_length(maxf(config.max_hold_force, 0.0))
 
 
-static func rotation_acceleration(
+static func rotation_velocity(
 	current: Quaternion,
 	desired: Quaternion,
-	angular_velocity: Vector3,
+	step: float,
 	config: C_Grabbable,
 ) -> Vector3:
 	var error: Quaternion = (desired * current.inverse()).normalized()
@@ -295,7 +292,9 @@ static func rotation_acceleration(
 	var rotation_error: Vector3 = Vector3.ZERO
 	if axis_vector.length() > ROTATION_EPSILON:
 		rotation_error = axis_vector.normalized() * 2.0 * atan2(axis_vector.length(), error.w)
-	return rotation_error * config.rotation_stiffness - angular_velocity * config.rotation_damping
+	if step <= 0.0:
+		return Vector3.ZERO
+	return (rotation_error / step).limit_length(maxf(config.max_rotation_speed, 0.0))
 
 
 static func rotated_offset(offset: Quaternion, look_delta: Vector2) -> Quaternion:
@@ -335,6 +334,7 @@ static func held_object(holder: Entity) -> Entity:
 	return null
 
 
+
 static func interaction_raycast(holder: Entity) -> RayCast3D:
 	if not is_instance_valid(holder):
 		return null
@@ -346,6 +346,18 @@ static func hold_anchor(holder: Entity) -> Node3D:
 		return null
 	return holder.get("hold_anchor") as Node3D
 
+# TODO need IMPL
+static func object_anchor(holder: Entity, target: Entity) -> Node3D :
+	
+	return null
+
+
+static func within_pickup_reach(holder: Entity, target: Entity) -> bool :
+	return false
+
+
+static func carry_distance(control, config: C_Grabbable) -> float :
+	return 0.0
 
 static func entity_available(entity: Entity) -> bool:
 	return (

@@ -1,0 +1,5 @@
+[gd_resource type="Resource" script_class="DEF_LabelPrinter" format=3]
+[ext_resource type="Script" path="res://content/definitions/gameplay/def_label_printer.gd" id="1"]
+[resource]
+script = ExtResource("1")
+key = &"label_printer"

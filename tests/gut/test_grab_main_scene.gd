@@ -8,12 +8,15 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	add_child(level)
 	# Stop automatic input sampling; drive the real ECS groups deterministically below.
 	level.set_physics_process(false)
+	for delivery_tick: int in 12:
+		await get_tree().physics_frame
+		ECS.world.process(1.0 / 60.0, "GamePlay")
 	var world: World = level.get_node("World") as World
 	var player: Entity = level.get_node("Entityes/Player") as Entity
-	var light_box: Entity = level.get_node("Entityes/Box") as Entity
-	var medium_box: Entity = level.get_node("Entityes/Box2") as Entity
-	var heavy_box: Entity = level.get_node("Entityes/Box3") as Entity
-	assert_eq(world.entities.size(), 7)
+	var light_box: Entity = level.get_node("Entityes/Parcel_001_01") as Entity
+	var medium_box: Entity = level.get_node("Entityes/Parcel_001_02") as Entity
+	var heavy_box: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
+	assert_eq(world.entities.size(), 15)
 	assert_eq(ECS.world, world)
 	assert_true(world.entities.has(heavy_box))
 	var light_config: C_Grabbable = light_box.get_component(C_Grabbable) as C_Grabbable
@@ -29,8 +32,10 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
 	var controller: C_Controller = player.get_component(C_Controller) as C_Controller
 	var interaction_ray: RayCast3D = S_Grab.interaction_raycast(player)
-	# Aim at the upper box without moving scene bodies through their colliders.
-	interaction_ray.look_at((heavy_box as Node as Node3D).global_position)
+	(player as Node as RigidBody3D).freeze = true
+	var heavy_position: Vector3 = (heavy_box as Node as Node3D).global_position
+	(player as Node as Node3D).global_position = heavy_position + Vector3(0, 0.1, 1.8)
+	interaction_ray.look_at((heavy_box as Node as Node3D).global_position + Vector3.UP * 0.2)
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
 	controller.interact_pressed = true

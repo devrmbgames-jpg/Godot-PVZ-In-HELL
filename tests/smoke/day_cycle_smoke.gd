@@ -57,7 +57,7 @@ func _use_station(station_name: String) -> void:
 	var station: Node3D = _level.get_node("Entityes/" + station_name) as Node3D
 	var ray: RayCast3D = S_Grab.interaction_raycast(_actor)
 	ray.look_at(station.global_position + Vector3.UP * 0.55)
-	_controller.use_pressed = true
+	_controller.interact_pressed = true
 	_controller.input_tick += 1
 	ECS.world.process(1.0 / 60.0, "Interaction")
 	ECS.world.process(1.0 / 60.0, "GamePlay")

@@ -2,6 +2,12 @@ extends RefCounted
 class_name InteractionActions
 
 const BUTTON_LABELS: Array[String] = ["E", "F", "ЛКМ", "ПКМ"]
+const INPUT_ACTIONS: Array[StringName] = [
+	&"interact",
+	&"use",
+	&"action_primary",
+	&"action_secondary",
+]
 static var _grab_actions: Array[GrabAction] = []
 
 
@@ -58,12 +64,32 @@ static func resolve(actor: Entity, input_slot: InteractionAction.Slot) -> Intera
 		if held_choice != null:
 			return held_choice
 	if S_Grab.entity_available(target):
-		var target_choice: InteractionChoice = _from_source(actor, target, target, input_slot)
-		if target_choice != null:
-			return target_choice
+		# E attempts pickup first; an ungrabbable object falls through to use.
 		var pickup: InteractionChoice = _grab_choice(actor, target, target, input_slot)
 		if pickup != null:
 			return pickup
+		var target_choice: InteractionChoice = _from_source(actor, target, target, input_slot)
+		if target_choice != null:
+			if input_slot == InteractionAction.Slot.USE:
+				var primary_choice: InteractionChoice = resolve(
+					actor,
+					InteractionAction.Slot.INTERACT,
+				)
+				if (
+					primary_choice != null and primary_choice.action == target_choice.action
+					and primary_choice.source == target_choice.source
+				):
+					return null
+			return target_choice
+		if input_slot == InteractionAction.Slot.INTERACT:
+			var use_choice: InteractionChoice = _from_source(
+				actor,
+				target,
+				target,
+				InteractionAction.Slot.USE,
+			)
+			if use_choice != null:
+				return use_choice
 	return _from_source(actor, actor, target, input_slot)
 
 
@@ -93,10 +119,20 @@ static func refresh_prompt(actor: Entity) -> void:
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var lines: PackedStringArray = []
+	var primary: InteractionChoice = resolve(actor, InteractionAction.Slot.INTERACT)
 	for slot_index: int in BUTTON_LABELS.size():
 		var choice: InteractionChoice = resolve(actor, slot_index as InteractionAction.Slot)
 		if choice != null:
-			lines.append("[%s] %s" % [BUTTON_LABELS[slot_index], choice.action.caption])
+			if (
+				slot_index == InteractionAction.Slot.USE and primary != null
+				and (
+					(choice.action == primary.action and choice.source == primary.source)
+					or button_label(InteractionAction.Slot.USE)
+					== button_label(InteractionAction.Slot.INTERACT)
+				)
+			):
+				continue
+			lines.append("[%s] %s" % [button_label(slot_index), choice.action.caption])
 	var held: Entity = S_Grab.held_object(actor)
 	if held != null and not controller.physical_override:
 		if reserves(held, InteractionAction.Slot.PRIMARY):
@@ -104,6 +140,23 @@ static func refresh_prompt(actor: Entity) -> void:
 		if reserves(held, InteractionAction.Slot.SECONDARY):
 			lines.append("[Alt + ПКМ] Вращать")
 	interactor.prompt_text = "\n".join(lines)
+
+
+static func button_label(slot_index: int) -> String:
+	for event: InputEvent in InputMap.action_get_events(INPUT_ACTIONS[slot_index]):
+		if event is InputEventKey:
+			var key_event: InputEventKey = event as InputEventKey
+			return OS.get_keycode_string(
+				key_event.physical_keycode if key_event.physical_keycode != 0 else key_event.keycode
+			)
+		if event is InputEventMouseButton:
+			var mouse_event: InputEventMouseButton = event as InputEventMouseButton
+			if mouse_event.button_index == MOUSE_BUTTON_LEFT:
+				return "ЛКМ"
+			if mouse_event.button_index == MOUSE_BUTTON_RIGHT:
+				return "ПКМ"
+			return event.as_text()
+	return BUTTON_LABELS[slot_index]
 #endregion
 
 

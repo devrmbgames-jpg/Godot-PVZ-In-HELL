@@ -6,7 +6,7 @@ const HIGHLIGHT_COLOR: Color = Color(1.0, 0.72, 0.12, 1.0)
 const HIGHLIGHT_WIDTH: float = 0.035
 
 var _highlight_material: StandardMaterial3D = null
-var _previous_overlays: Dictionary[int, Material] = {}
+var _previous_overlays: Dictionary[int, Material] = { }
 #endregion
 
 
@@ -21,7 +21,9 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 		var holder: Entity = entities[entity_index]
 		var interactor: C_Interactor = interactors[entity_index]
 		var previous_target: Entity = interactor.target
-		var next_target: Entity = find_target(holder, interactor)
+		var next_target: Entity = (
+			find_target(holder, interactor) if S_Grab.holder_available(holder) else null
+		)
 		if previous_target != next_target:
 			set_highlight(previous_target, false)
 			interactor.target = next_target

@@ -293,24 +293,19 @@ func test_position_force_compensates_gravity_and_is_bounded() -> void:
 	assert_almost_eq(force.length(), config.max_hold_force, 0.001)
 
 
-func test_rotation_shortest_arc_and_damping() -> void:
+func test_rotation_shortest_arc_and_no_residual_velocity() -> void:
 	var config: C_Grabbable = C_Grabbable.new()
 	assert_eq(
-		S_Grab.rotation_acceleration(
-			Quaternion.IDENTITY,
-			-Quaternion.IDENTITY,
-			Vector3.ZERO,
-			config,
-		),
+		S_Grab.rotation_velocity(Quaternion.IDENTITY, -Quaternion.IDENTITY, 1.0 / 60.0, config),
 		Vector3.ZERO,
 	)
-	var torque: Vector3 = S_Grab.rotation_acceleration(
+	var angular_velocity: Vector3 = S_Grab.rotation_velocity(
 		Quaternion.IDENTITY,
 		Quaternion.IDENTITY,
-		Vector3.UP,
+		1.0 / 60.0,
 		config,
 	)
-	assert_eq(torque, -Vector3.UP * config.rotation_damping)
+	assert_eq(angular_velocity, Vector3.ZERO)
 	var offset: Quaternion = Quaternion.IDENTITY
 	for step_index: int in 1000:
 		offset = S_Grab.rotated_offset(offset, Vector2(4.0, 3.0))
@@ -331,7 +326,7 @@ func test_solver_moves_dynamic_box_to_anchor_without_teleporting() -> void:
 	assert_eq(box_body.global_position, initial_position)
 	for physics_tick: int in 100:
 		await get_tree().physics_frame
-	assert_almost_eq(box_body.global_position.z, -1.75, 0.1)
+	assert_almost_eq(box_body.global_position.z, -1.25, 0.1)
 	assert_almost_eq(box_body.global_position.y, 1.0, 0.1)
 	assert_not_null(S_Grab.held_relationship(box_entity))
 
@@ -444,14 +439,15 @@ func test_death_releases_hold_without_requiring_input() -> void:
 	assert_false(carry_load.active)
 
 
-func test_solver_rotates_body_through_torque() -> void:
+func test_solver_rotates_body_through_physics_velocity() -> void:
 	assert_true(S_Grab.try_pickup(holder_entity, box_entity))
 	var grip: C_HeldBy = S_Grab.held_relationship(box_entity).relation as C_HeldBy
 	grip.rotation_offset = Quaternion(Vector3.UP, PI * 0.5)
-	for physics_tick: int in 100:
+	for physics_tick: int in 6:
 		await get_tree().physics_frame
 	var result_rotation: Quaternion = box_body.global_basis.get_rotation_quaternion()
 	assert_lt(result_rotation.angle_to(grip.rotation_offset), 0.15)
+	assert_lt(box_body.angular_velocity.length(), 0.05)
 	assert_not_null(S_Grab.held_relationship(box_entity))
 #endregion
 

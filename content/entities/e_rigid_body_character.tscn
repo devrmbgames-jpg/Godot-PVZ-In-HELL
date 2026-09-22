@@ -16,6 +16,9 @@
 [ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="Grab_grab_control"]
 [ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="Grab_interactor"]
 
+[sub_resource type="PhysicsMaterial" id="CharacterMaterial"]
+friction = 0.0
+
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("3_lm6lx")
 metadata/_custom_type_script = "uid://dwgcmbar0qthw"
@@ -38,6 +41,8 @@ metadata/_custom_type_script = "uid://2wyyc10rw1bb"
 
 [sub_resource type="Resource" id="Resource_rthl4"]
 script = ExtResource("8_2gvdo")
+camera_height_standing = 0.0
+camera_height_crouching = -0.75
 metadata/_custom_type_script = "uid://cg8i3jfsnahs3"
 
 [sub_resource type="Resource" id="Resource_wo3yc"]
@@ -59,23 +64,30 @@ script = ExtResource("Grab_grab_control")
 [sub_resource type="Resource" id="Grab_carry_load"]
 script = ExtResource("Grab_carry_load")
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bghjr"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_bghjr"]
+height = 1.5362549
+radius = 0.18896484
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uo1oq"]
-height = 1.015625
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_lqn1g"]
+height = 0.7059326
+radius = 0.18798828
 
-[node name="E_RigidBodyCharacter" type="RigidBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "shape_standing", "shape_crouching", "head_axis_y", "head_axis_x")]
+[node name="E_RigidBodyCharacter" type="RigidBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "shape_standing", "shape_crouching", "head_axis_y", "head_axis_x")]
 collision_layer = 4
 collision_mask = 13
 axis_lock_angular_x = true
 axis_lock_angular_y = true
 axis_lock_angular_z = true
+physics_material_override = SubResource("CharacterMaterial")
 can_sleep = false
 contact_monitor = true
 max_contacts_reported = 8
+linear_damp_mode = 1
 script = ExtResource("1_hqtr2")
 interaction_ray_cast = NodePath("HeadY/HeadX/InteractionRay")
 hold_anchor = NodePath("HeadY/HeadX/Holder")
+right_hand_slot = NodePath("HeadY/HeadX/ArmRSlot")
+left_hand_slot = NodePath("HeadY/HeadX/ArmLSlot")
 shape_standing = NodePath("ColNormal")
 shape_crouching = NodePath("ColCrouch")
 head_axis_y = NodePath("HeadY")
@@ -83,12 +95,12 @@ head_axis_x = NodePath("HeadY/HeadX")
 component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load")])
 
 [node name="ColNormal" type="CollisionShape3D" parent="." unique_id=1584379138]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-shape = SubResource("CapsuleShape3D_bghjr")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76812744, 0)
+shape = SubResource("CylinderShape3D_bghjr")
 
 [node name="ColCrouch" type="CollisionShape3D" parent="." unique_id=1145188552]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5078125, 0)
-shape = SubResource("CapsuleShape3D_uo1oq")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3529663, 0)
+shape = SubResource("CylinderShape3D_lqn1g")
 
 [node name="AnimationLibrary_Godot_Standard" parent="." unique_id=217031396 instance=ExtResource("12_lm6lx")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
@@ -167,8 +179,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.22183037, -0.72694004)
 [node name="InteractionRay" type="RayCast3D" parent="HeadY/HeadX" unique_id=997764356]
 target_position = Vector3(0, 0, -3)
 collision_mask = 15
-enabled = true
 
 [node name="Holder" type="Marker3D" parent="HeadY/HeadX" unique_id=742222022]
+
+[node name="ArmRSlot" type="Marker3D" parent="HeadY/HeadX" unique_id=1714413596]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34265137, -0.27026367, -0.41137695)
+
+[node name="ArmLSlot" type="Marker3D" parent="HeadY/HeadX" unique_id=278936046]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.343, -0.27, -0.411)
 
 [editable path="AnimationLibrary_Godot_Standard"]

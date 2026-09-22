@@ -22,7 +22,8 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	return (
 		held == null and body != null and not body.freeze and source.has_component(C_Grabbable)
 		and S_Grab.held_relationship(source) == null and interactable != null
-		and interactable.enabled and is_instance_valid(S_Grab.hold_anchor(actor))
+		and interactable.enabled and is_instance_valid(S_Grab.object_anchor(actor, source))
+		and S_Grab.within_pickup_reach(actor, source)
 		and actor.has_component(C_CarryLoad) and actor.has_component(C_GrabControl)
 	)
 

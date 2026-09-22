@@ -5,6 +5,8 @@ class_name E_RigidBodyCharacter
 @export_subgroup("Interaction")
 @export var interaction_ray_cast: RayCast3D = null
 @export var hold_anchor: Node3D = null
+@export var right_hand_slot: Node3D = null
+@export var left_hand_slot: Node3D = null
 
 @export_subgroup("Crouch")
 @export var shape_standing: CollisionShape3D

@@ -5,3 +5,5 @@ class_name C_Package
 @export var package_id: String = ""
 ## Shared immutable design data; runtime systems must not mutate this resource.
 @export var definition: DEF_Package = null
+@export var delivery_day: int = 0
+@export var supply_key: StringName = &""

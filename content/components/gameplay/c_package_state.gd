@@ -24,3 +24,5 @@ enum Damage {
 @export var scan: Scan = Scan.NOT_SCANNED
 @export var opening: Opening = Opening.CLOSED
 @export var damage: Damage = Damage.UNDAMAGED
+@export var registration_number: String = ""
+@export var registration_day: int = 0

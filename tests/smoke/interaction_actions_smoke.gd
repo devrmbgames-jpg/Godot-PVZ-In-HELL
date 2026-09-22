@@ -23,19 +23,54 @@ func _run() -> void:
 	use_key.physical_keycode = KEY_F
 	use_key.pressed = true
 	assert(use_key.is_action_pressed(&"use"))
+	assert(not use_key.is_action_pressed(&"interact"))
+	var grab_key: InputEventKey = InputEventKey.new()
+	grab_key.physical_keycode = KEY_E
+	grab_key.pressed = true
+	assert(grab_key.is_action_pressed(&"interact"))
+	assert(not grab_key.is_action_pressed(&"use"))
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
 	add_child(level)
 	level.set_physics_process(false)
+	for delivery_tick: int in 12:
+		await get_tree().physics_frame
+		ECS.world.process(1.0 / 60.0, "GamePlay")
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
-	var tool: Entity = level.get_node("Entityes/Box3") as Entity
+	var tool: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
 	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
-	ray.look_at((tool as Node as Node3D).global_position)
+	(actor as Node as RigidBody3D).freeze = true
+	(actor as Node as Node3D).global_position = (tool as Node as Node3D).global_position + Vector3(
+		0,
+		0.1,
+		1.8,
+	)
+	ray.look_at((tool as Node as Node3D).global_position + Vector3.UP * 0.2)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
+	interactor.target = S_InteractionTargeting.find_target(actor, interactor)
+	var usable: C_InteractionActions = C_InteractionActions.new()
+	var use_probe: ProbeAction = ProbeAction.new()
+	use_probe.slot = InteractionAction.Slot.USE
+	usable.actions = [use_probe]
+	tool.add_component(usable)
+	assert(InteractionActions.resolve(actor, InteractionAction.Slot.INTERACT).action is GrabAction)
+	assert(InteractionActions.resolve(actor, InteractionAction.Slot.USE).action == use_probe)
+	var tool_body: RigidBody3D = tool as Node as RigidBody3D
+	tool_body.freeze = true
+	assert(InteractionActions.resolve(actor, InteractionAction.Slot.INTERACT).action == use_probe)
+	controller.interact_pressed = true
+	controller.use_pressed = true
+	controller.input_tick = 1
+	S_Grab.handle_input(actor)
+	assert(use_probe.calls == 1, "Shared E/F input must perform only one available use")
+	controller.interact_pressed = false
+	controller.use_pressed = false
+	tool_body.freeze = false
+	tool.remove_component(C_InteractionActions)
 	assert(S_Grab.try_pickup(actor, tool))
 	var tool_actions: C_InteractionActions = C_InteractionActions.new()
 	var scan: ProbeAction = ProbeAction.new()
@@ -48,7 +83,7 @@ func _run() -> void:
 	draw.caption = "Рисовать"
 	tool_actions.actions = [scan, draw]
 	tool.add_component(tool_actions)
-	controller.input_tick = 1
+	controller.input_tick += 1
 	controller.action_main_pressed = true
 	controller.action_second_held = true
 	S_Grab.handle_input(actor)

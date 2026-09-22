@@ -13,4 +13,4 @@ func define_components() -> Array:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = package_id
 	identity.definition = package_definition
-	return [identity, C_PackageState.new()]
+	return [identity, C_PackageState.new(), C_PackageIntegrity.new()]

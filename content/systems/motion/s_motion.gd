@@ -30,7 +30,7 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 
 	var floor_contact_index := _find_floor_contact(state, motion)
 
-	_update_floor_state(body, state, motion, floor_contact_index)
+	_update_floor_state(state, motion, floor_contact_index)
 
 	if controller == null:
 		return
@@ -243,7 +243,6 @@ static func _find_floor_contact(state: PhysicsDirectBodyState3D, motion: C_Motio
 
 
 static func _update_floor_state(
-	body: RigidBody3D,
 	state: PhysicsDirectBodyState3D,
 	motion: C_Motion,
 	floor_contact_index: int,
@@ -264,42 +263,18 @@ static func _update_floor_state(
 
 	var collider := state.get_contact_collider_object(floor_contact_index)
 
-	motion.floor_friction = _get_combined_friction(body, collider)
+	motion.floor_friction = _get_surface_traction(collider)
 
 # =========================================================================
 # Physics Material
 # =========================================================================
 
 
-static func _get_combined_friction(body: RigidBody3D, collider: Object) -> float:
-	var body_material := body.physics_material_override
-
-	var surface_material := _get_physics_material(collider)
-
-	var friction_a := DEFAULT_FRICTION
-	var friction_b := DEFAULT_FRICTION
-
-	var rough_a := false
-	var rough_b := false
-
-	if body_material != null:
-		friction_a = body_material.friction
-		rough_a = body_material.rough
-
-	if surface_material != null:
-		friction_b = surface_material.friction
-		rough_b = surface_material.rough
-
-	if rough_a and rough_b:
-		return maxf(friction_a, friction_b)
-
-	if rough_a:
-		return friction_a
-
-	if rough_b:
-		return friction_b
-
-	return minf(friction_a, friction_b)
+## Character contact friction is zero to avoid sticking to walls/ceilings.
+## Locomotion traction comes only from the floor, independently of that material.
+static func _get_surface_traction(collider: Object) -> float:
+	var surface_material: PhysicsMaterial = _get_physics_material(collider)
+	return surface_material.friction if surface_material != null else DEFAULT_FRICTION
 
 
 static func _get_physics_material(collider: Object) -> PhysicsMaterial:

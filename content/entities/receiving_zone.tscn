@@ -1,0 +1,103 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/entities/e_receiving_zone.gd" id="1"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/morning_supply.tres" id="2"]
+[ext_resource type="PackedScene" path="res://content/entities/props/package.tscn" id="3"]
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+albedo_color = Color(0.65, 0.46, 0.08, 1)
+
+[sub_resource type="PlaneMesh" id="FloorMark"]
+material = SubResource("Material")
+size = Vector2(7.4, 4.0)
+
+[node name="ReceivingZone" type="Node3D"]
+script = ExtResource("1")
+supply = ExtResource("2")
+package_scene = ExtResource("3")
+
+[node name="FloorMark" type="MeshInstance3D" parent="."]
+position = Vector3(3.8, 0.008, -5.5)
+mesh = SubResource("FloorMark")
+
+[node name="Sign" type="Label3D" parent="."]
+position = Vector3(5.8, 2, -6.5)
+billboard = 1
+font_size = 28
+pixel_size = 0.003
+text = "ПРИЁМКА"
+
+[node name="SpawnPoints" type="Node3D" parent="."]
+
+[node name="Slot1" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(0.8, 0.05, -6.0)
+
+[node name="Slot2" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(2.0, 0.05, -6.0)
+
+[node name="Slot3" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(3.2, 0.05, -6.0)
+
+[node name="Slot4" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(4.4, 0.05, -6.0)
+
+[node name="Slot5" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(5.6, 0.05, -6.0)
+
+[node name="Slot6" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(6.8, 0.05, -6.0)
+
+[node name="Slot7" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(0.8, 0.05, -7.0)
+
+[node name="Slot8" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(2.0, 0.05, -7.0)
+
+[node name="Slot9" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(3.2, 0.05, -7.0)
+
+[node name="Slot10" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(4.4, 0.05, -7.0)
+
+[node name="Slot11" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(5.6, 0.05, -7.0)
+
+[node name="Slot12" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(6.8, 0.05, -7.0)
+
+[node name="Slot13" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(0.8, 0.05, -5.0)
+
+[node name="Slot14" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(2.0, 0.05, -5.0)
+
+[node name="Slot15" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(3.2, 0.05, -5.0)
+
+[node name="Slot16" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(4.4, 0.05, -5.0)
+
+[node name="Slot17" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(5.6, 0.05, -5.0)
+
+[node name="Slot18" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(6.8, 0.05, -5.0)
+
+[node name="Slot19" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(0.8, 0.05, -4.0)
+
+[node name="Slot20" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(2.0, 0.05, -4.0)
+
+[node name="Slot21" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(3.2, 0.05, -4.0)
+
+[node name="Slot22" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(4.4, 0.05, -4.0)
+
+[node name="Slot23" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(5.6, 0.05, -4.0)
+
+[node name="Slot24" type="Marker3D" parent="SpawnPoints"]
+position = Vector3(6.8, 0.05, -4.0)
+
