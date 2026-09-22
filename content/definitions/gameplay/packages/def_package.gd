@@ -2,11 +2,14 @@
 extends GameDefinition
 class_name DEF_Package
 
+## TODO перенести типы в отдельные definitions, как это сделано с аттрибутом.
+## TODO Возможно еще придется создать отдельный настраиваемый источник урона, где будет прописана длительно, радиус, сила и т.д.
 enum Hazard {
 	NONE,
 	TOXIC,
 	EXPLOSIVE,
 }
+
 
 enum Tag {
 	NORMAL = 1,

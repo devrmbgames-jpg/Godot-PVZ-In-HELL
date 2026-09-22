@@ -1,4 +1,4 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bxgy7pv54g83m"]
 
 [ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/entities/props/box.tscn" id="1_box"]
 [ext_resource type="Script" uid="uid://byriybwy6s1rc" path="res://content/entities/packages/e_package.gd" id="2_package"]
@@ -8,13 +8,13 @@
 [ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="6_grabbable"]
 [ext_resource type="Script" uid="uid://cg5pggkojxvba" path="res://content/components/gameplay/c_package_state.gd" id="7_state"]
 [ext_resource type="Script" uid="uid://cl61pawe4uoch" path="res://content/components/gameplay/c_package_integrity.gd" id="8_integrity"]
+[ext_resource type="Script" uid="uid://j2ak34c5rfig" path="res://content/components/gameplay/c_package_marks.gd" id="Marks"]
+[ext_resource type="Script" uid="uid://dtug3ioxot1tv" path="res://content/ui/package_marks_view.gd" id="MarksView"]
 
-[ext_resource type="Script" path="res://content/components/gameplay/c_package_marks.gd" id="Marks"]
-[ext_resource type="Script" path="res://content/ui/package_marks_view.gd" id="MarksView"]
-
-[sub_resource type="Resource" id="Package_marks"]
-resource_local_to_scene = true
-script = ExtResource("Marks")
+[sub_resource type="Resource" id="Definition"]
+script = ExtResource("3_definition")
+description = "Parcel"
+key = &"default_package"
 
 [sub_resource type="Resource" id="Package_interactable"]
 script = ExtResource("5_interactable")
@@ -22,24 +22,24 @@ script = ExtResource("5_interactable")
 [sub_resource type="Resource" id="Package_grabbable"]
 script = ExtResource("6_grabbable")
 
-[sub_resource type="Resource" id="Package_state"]
+[sub_resource type="Resource" id="Resource_5a11h"]
 resource_local_to_scene = true
 script = ExtResource("7_state")
 
-[sub_resource type="Resource" id="Package_integrity"]
+[sub_resource type="Resource" id="Resource_ijugq"]
 resource_local_to_scene = true
 script = ExtResource("8_integrity")
 
-[sub_resource type="Resource" id="Definition"]
-script = ExtResource("3_definition")
-key = &"default_package"
-description = "Parcel"
+[sub_resource type="Resource" id="Resource_5vjsl"]
+resource_local_to_scene = true
+script = ExtResource("Marks")
 
-[node name="Package" instance=ExtResource("1_box")]
+[node name="Package" unique_id=1384920554 instance=ExtResource("1_box")]
 script = ExtResource("2_package")
+package_id = ""
 package_definition = SubResource("Definition")
-component_resources = Array[ExtResource("4_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Package_state"), SubResource("Package_integrity"), SubResource("Package_marks")])
+component_resources = Array[ExtResource("4_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_5a11h"), SubResource("Resource_ijugq"), SubResource("Resource_5vjsl")])
 
-[node name="Marks" type="MeshInstance3D" parent="."]
+[node name="Marks" type="MeshInstance3D" parent="." index="2" unique_id=1073720280]
 cast_shadow = 0
 script = ExtResource("MarksView")

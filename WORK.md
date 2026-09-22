@@ -1,5 +1,8 @@
 # Work Tracker
 
-State: idle.
+State: active — cart transport fix, base 9c2a2b5.
 
-R07 completed. Marker, local package ink and numbered physical storage contracts are in docs/package_marking.md and docs/controls.md. Next planned roadmap task: R08.
+- [ ] Separate cart transport: grounded kinematic drive, forward/reverse, explicit E release, collision-safe steps/slopes and driver following; smoke/GUT and local commit.
+- [ ] Cargo transport assistance with physical collisions, pickup/lifecycle release; load/turn/ramp regressions, documentation and local commit.
+
+S_Push and puzzle Push stay unchanged. Preserve the user's current cart visual geometry. Existing edits to e_pushable_body.gd, main_level.tscn, Floor_Dirt_static.tscn and dirty addons/gecs are outside the implementation and commits.

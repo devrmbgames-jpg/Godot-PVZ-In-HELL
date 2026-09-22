@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DEF_ObjectInfo" format=3 uid="uid://c5wr2u7t2vwqs"]
+
+[ext_resource type="Script" uid="uid://cvtsbtv5d5g5l" path="res://content/definitions/gameplay/objects/def_object_info.gd" id="1_l6nsb"]
+
+[resource]
+script = ExtResource("1_l6nsb")
+title = &"Мусор"
+description = "Просто какой то мусор"
+packed_scene_path = "uid://d4lbvxy4xsj8r"
+key = &"object_trash"
+metadata/_custom_type_script = "uid://cvtsbtv5d5g5l"

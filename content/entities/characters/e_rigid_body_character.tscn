@@ -9,14 +9,14 @@
 [ext_resource type="Script" uid="uid://2wyyc10rw1bb" path="res://content/components/motion/c_jump.gd" id="7_rvtjd"]
 [ext_resource type="Script" uid="uid://cg8i3jfsnahs3" path="res://content/components/motion/c_crouch.gd" id="8_2gvdo"]
 [ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/components/gameplay/c_controller.gd" id="9_oanka"]
-[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/definitions/gameplay/attributes/health.tres" id="10_5dcb1"]
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/definitions/gameplay/attributes/def_attr_health.tres" id="10_5dcb1"]
 [ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/components/gameplay/c_health.gd" id="11_fy2jt"]
 [ext_resource type="PackedScene" uid="uid://c57tjcgwtk4qh" path="res://resources/Animation Library[Standard]/AnimationLibrary_Godot_Standard.glb" id="12_lm6lx"]
 [ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/components/motion/c_carry_load.gd" id="Grab_carry_load"]
 [ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="Grab_grab_control"]
 [ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="Grab_interactor"]
+[ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
 
-[ext_resource type="Script" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
 
 [sub_resource type="PhysicsMaterial" id="CharacterMaterial"]
 friction = 0.0

@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://cpbp0t8jkh0ak"]
 
 [ext_resource type="Script" uid="uid://kestjkhe0fr5" path="res://content/entities/zones/e_receiving_zone.gd" id="1"]
-[ext_resource type="Resource" uid="uid://btuoi3maxvuq3" path="res://content/definitions/gameplay/deliveries/morning_supply.tres" id="2"]
-[ext_resource type="PackedScene" path="res://content/entities/packages/package.tscn" id="3"]
+[ext_resource type="Resource" uid="uid://btuoi3maxvuq3" path="res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres" id="2"]
+[ext_resource type="PackedScene" uid="uid://bxgy7pv54g83m" path="res://content/entities/packages/package.tscn" id="3"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="4_component"]
 [ext_resource type="Script" uid="uid://c38vbt1oqvs4f" path="res://content/components/gameplay/c_receiving.gd" id="5_receiving"]
 
