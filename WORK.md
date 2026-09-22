@@ -19,7 +19,7 @@ State: R06.1 active.
 ## Milestones
 
 - [x] Resume/refactor reconciliation: stale resource paths and action role names repaired; structure validator and script import PASS. Existing unfinished capture physics regression remains 49/50 grab tests.
-- [ ] **URGENT before remaining R06.1 work:** replace R06 `DDD-NNN`/per-cycle sequence with reusable `№XXX` allocation from ТЗ 05. New registration gets the smallest free positive base number across all active packages; numbers persist across days until the package leaves warehouse lifecycle; freed numbers are reused. Update existing receiving/scan smoke expectations.
+- [x] Urgent numbering correction: integer `№XXX`, smallest free active reservation, persistent across days, explicit release only after DELIVERED; Terminal includes active older-day parcels and last departure. Receiving/scan smoke PASS, including actual reuse after release.
 - [x] Inspector-first migration; scenes load, day-cycle smoke PASS; formatter/structure and diff check PASS. Receiving smoke reaches eight parcels but initial target ray misses; resolve fixture geometry during regression milestone. Main-scene test hardcodes 15 entities, current scene has 16 (existing Bucket).
 - [x] Three-slot ownership, prevalidated replacement API and per-item rotation data; 36/36 grab tests (147 assertions), formatter/structure and diff check PASS.
 - [ ] Shared capture, lowered hands, input resolver/G/swap/Terminal; input regressions.

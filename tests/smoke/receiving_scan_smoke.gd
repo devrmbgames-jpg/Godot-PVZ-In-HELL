@@ -1,4 +1,8 @@
 extends Node
+## End-to-end receiving, registration, number reuse and modal terminal regression.
+
+var _prepared_body: Node3D = null
+var _prepared_transform: Transform3D = Transform3D.IDENTITY
 
 
 func _ready() -> void:
@@ -50,20 +54,20 @@ func _run() -> void:
 	_drive(actor, false, false, true)
 	var first_state: C_PackageState = first.get_component(C_PackageState) as C_PackageState
 	var registry: C_PackageLedger = PackageRegistrationService.ledger()
-	assert(first_state.registration_number == "001-001" and registry.records.size() == 1)
+	assert(first_state.registration_number == 1 and registry.records.size() == 1)
 	assert(first_state.scan == C_PackageState.Scan.SCANNED)
 	assert(S_Grab.held_object(actor) == scanner, "Scan must not throw")
 	var feedback: Label3D = scanner.get_node("Feedback/Result") as Label3D
-	assert("001-001" in feedback.text)
+	assert("\u2116001" in feedback.text)
 	assert((scanner.get_node("Feedback/Beep") as AudioStreamPlayer3D).playing)
 	_drive(actor, false, false, true)
-	assert(first_state.registration_number == "001-001" and registry.records.size() == 1)
-	assert("Уже учтена" in feedback.text)
+	assert(first_state.registration_number == 1 and registry.records.size() == 1)
+	assert("\u2116001" in feedback.text)
 	await _prepare_target(actor, second, Vector3(0.0, -0.2, -2.2))
 	assert(S_InteractionTargeting.find_target(actor, interactor) == second)
 	_drive(actor, false, false, true)
 	var second_state: C_PackageState = second.get_component(C_PackageState) as C_PackageState
-	assert(second_state.registration_number == "001-002" and registry.records.size() == 2)
+	assert(second_state.registration_number == 2 and registry.records.size() == 2)
 	var scanner_config: C_Scanner = scanner.get_component(C_Scanner) as C_Scanner
 	scanner_config.scan_range = 0.1
 	assert(
@@ -93,7 +97,9 @@ func _run() -> void:
 	assert(S_InteractionTargeting.find_target(actor, interactor) == terminal)
 	_drive(actor, true, false, false)
 	assert(terminal.panel.visible)
-	assert("001-001" in terminal.panel.registry.text and "001-002" in terminal.panel.registry.text)
+	assert(
+		"\u2116001" in terminal.panel.registry.text and "\u2116002" in terminal.panel.registry.text
+	)
 	assert(
 		"Хрупкое" in terminal.panel.registry.text
 		and "Опасное содержимое" in terminal.panel.registry.text
@@ -127,8 +133,8 @@ func _run() -> void:
 		box_shape.size = Vector3(0.9, 1.0, 0.9)
 		collision.shape = box_shape
 		blocker.add_child(collision)
-		blocker.global_position = marker.global_position + Vector3.UP * 0.5
 		level.add_child(blocker)
+		blocker.global_position = marker.global_position
 		blockers.append(blocker)
 	await get_tree().physics_frame
 	for transition: DayTransitionRequest.Kind in [
@@ -158,16 +164,27 @@ func _run() -> void:
 		ECS.world.process(1.0 / 60.0, "GamePlay")
 	assert(ECS.world.query.with_all([C_Package]).execute().size() == 16)
 	assert((first as Node as Node3D).global_position.is_equal_approx(previous_location))
-	assert("001-001" not in PackageRegistrationService.terminal_text(2))
+	assert("\u2116001" in PackageRegistrationService.terminal_text())
 	var next_day_parcel: Entity = level.get_node("Entityes/Parcel_002_01") as Entity
 	await _prepare_target(actor, next_day_parcel, Vector3(0.0, -0.2, -2.2))
 	assert(S_InteractionTargeting.find_target(actor, interactor) == next_day_parcel)
-	assert(PackageRegistrationService.scan(actor, scanner, next_day_parcel).number == "002-001")
-	assert("002-001" in PackageRegistrationService.terminal_text(2))
+	assert(PackageRegistrationService.scan(actor, scanner, next_day_parcel).number == 3)
+	assert("\u2116003" in PackageRegistrationService.terminal_text())
 	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
 	assert(S_InteractionTargeting.find_target(actor, interactor) == first)
-	assert(PackageRegistrationService.scan(actor, scanner, first).number == "001-001")
+	assert(PackageRegistrationService.scan(actor, scanner, first).number == 1)
 	assert(registry.records.size() == 3)
+	assert(not PackageRegistrationService.release_number(first))
+	first_state.registration = C_PackageState.Registration.DELIVERED
+	assert(PackageRegistrationService.release_number(first))
+	assert(not PackageRegistrationService.release_number(first))
+	assert(PackageRegistrationService.smallest_free_number(registry) == 1)
+	assert(registry.records[1].active and registry.records[1].number == 2)
+	assert("\u2116001" in PackageRegistrationService.terminal_text())
+	var replacement: Entity = level.get_node("Entityes/Parcel_002_02") as Entity
+	await _prepare_target(actor, replacement, Vector3(0.0, -0.2, -2.2))
+	assert(PackageRegistrationService.scan(actor, scanner, replacement).number == 1)
+	assert(PackageRegistrationService.smallest_free_number(registry) == 4)
 	level.free()
 	ECS.world = null
 	print("R05/R06 receiving -> scan -> terminal -> next day smoke PASS")
@@ -184,7 +201,14 @@ func _drive(actor: Entity, interact: bool, use: bool, primary: bool) -> void:
 
 
 func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> void:
+	if is_instance_valid(_prepared_body):
+		var previous_entity: Entity = _prepared_body as Node as Entity
+		if S_Grab.held_relationship(previous_entity) == null:
+			_prepared_body.global_transform = _prepared_transform
+
 	var target_body: Node3D = target as Node as Node3D
+	_prepared_body = target_body
+	_prepared_transform = target_body.global_transform
 	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
 	target_body.global_position = ray.global_position + target_offset
 	await get_tree().physics_frame

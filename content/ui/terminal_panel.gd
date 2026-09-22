@@ -1,4 +1,5 @@
 extends CanvasLayer
+## Read-only warehouse registry view with its own modal control-capture token.
 class_name TerminalPanel
 
 const REFRESH_SECONDS: float = 0.2
@@ -42,11 +43,16 @@ func _process(delta: float) -> void:
 
 
 #region Public UI API
+## Opens the registry without changing held-item ownership.
 func open_for(actor: Entity) -> void:
 	if visible:
 		return
 	_reader = actor
-	_capture_token = InteractionControlFocus.acquire(actor, self, InteractionControlFocus.Priority.MODAL)
+	_capture_token = InteractionControlFocus.acquire(
+		actor,
+		self,
+		InteractionControlFocus.Priority.MODAL,
+	)
 	_previous_mouse_mode = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	visible = true
@@ -54,6 +60,7 @@ func open_for(actor: Entity) -> void:
 	close_button.grab_focus()
 
 
+## Releases only this panel's capture and restores its previous cursor mode.
 func close_panel() -> void:
 	if not visible:
 		return
@@ -68,5 +75,5 @@ func close_panel() -> void:
 func _refresh() -> void:
 	var cycle: C_DayCycle = S_DayPhase.current()
 	if cycle != null:
-		title.text = "РЕЕСТР ПОСЫЛОК · ЦИКЛ %d" % cycle.day_index
-		registry.text = PackageRegistrationService.terminal_text(cycle.day_index)
+		title.text = "СКЛАДСКОЙ РЕЕСТР · ДЕНЬ %d" % cycle.day_index
+		registry.text = PackageRegistrationService.terminal_text()
