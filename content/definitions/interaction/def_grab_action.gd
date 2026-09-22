@@ -16,8 +16,8 @@ var replace_occupant: bool = false
 func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(source):
 		return false
-	var focus: InteractionFocus.Priority = InteractionFocus.current(actor)
-	if focus >= InteractionFocus.Priority.PUSH:
+	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
+	if focus >= InteractionControlFocus.Priority.PUSH:
 		return false
 	if kind != Kind.PICKUP:
 		var grip: Relationship = S_Grab.held_relationship(source)
@@ -25,7 +25,7 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 			return false
 		if (
 			(grip.relation as C_HeldBy).slot != C_Grabbable.HoldSlot.CARRY
-			and focus != InteractionFocus.Priority.HANDS
+			and focus != InteractionControlFocus.Priority.HANDS
 		):
 			return false
 		var config: C_Grabbable = source.get_component(C_Grabbable) as C_Grabbable

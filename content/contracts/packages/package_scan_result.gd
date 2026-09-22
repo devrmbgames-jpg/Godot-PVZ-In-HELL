@@ -1,5 +1,5 @@
 extends RefCounted
-class_name ScanResult
+class_name PackageScanResult
 
 enum Outcome {
 	REJECTED,

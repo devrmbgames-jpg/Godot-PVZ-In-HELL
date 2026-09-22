@@ -3,7 +3,7 @@
 [ext_resource type="ArrayMesh" uid="uid://n56j5m3pmh5p" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Box_C_mesh/Box_C_Box_C.res" id="1_k87sv"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
 [ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="Grab_config"]
-[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/entities/e_grabbable.gd" id="Grab_entity"]
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/entities/props/e_grabbable_body.gd" id="Grab_entity"]
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Grab_interactable"]
 
 [sub_resource type="Resource" id="Grab_interactable"]

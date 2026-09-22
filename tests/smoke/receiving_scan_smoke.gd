@@ -68,7 +68,7 @@ func _run() -> void:
 	scanner_config.scan_range = 0.1
 	assert(
 		PackageRegistrationService.scan(actor, scanner, second).outcome
-		== ScanResult.Outcome.REJECTED
+		== PackageScanResult.Outcome.REJECTED
 	)
 	scanner_config.scan_range = 3.0
 	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
@@ -76,7 +76,7 @@ func _run() -> void:
 	ray.force_raycast_update()
 	assert(
 		PackageRegistrationService.scan(actor, scanner, first).outcome
-		== ScanResult.Outcome.REJECTED
+		== PackageScanResult.Outcome.REJECTED
 	)
 	assert(registry.records.size() == 2)
 	var terminal: E_Terminal = level.get_node("Entityes/Terminal") as E_Terminal

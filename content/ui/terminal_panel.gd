@@ -46,7 +46,7 @@ func open_for(actor: Entity) -> void:
 	if visible:
 		return
 	_reader = actor
-	_capture_token = InteractionFocus.acquire(actor, self, InteractionFocus.Priority.MODAL)
+	_capture_token = InteractionControlFocus.acquire(actor, self, InteractionControlFocus.Priority.MODAL)
 	_previous_mouse_mode = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	visible = true
@@ -58,7 +58,7 @@ func close_panel() -> void:
 	if not visible:
 		return
 	visible = false
-	InteractionFocus.release(_reader, _capture_token)
+	InteractionControlFocus.release(_reader, _capture_token)
 	_capture_token = 0
 	_reader = null
 	Input.mouse_mode = _previous_mouse_mode

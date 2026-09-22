@@ -1,5 +1,5 @@
 extends Component
-class_name C_InteractionActions
+class_name C_InteractionActionSet
 
 @export var actions: Array[InteractionAction] = []
 ## PRIMARY is hand-item use; the resolver maps either physical hand to this action.

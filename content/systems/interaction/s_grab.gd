@@ -52,7 +52,7 @@ static func handle_input(holder: Entity) -> void:
 		interactor.prompt_text = ""
 		return
 
-	InteractionActions.handle_input(holder)
+	InteractionActionResolver.handle_input(holder)
 
 
 ## Prevalidate the complete transaction before releasing an occupied hand.
@@ -179,7 +179,7 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 	var position_error: Vector3 = desired_position - state.transform.origin
 	var hand_suspended: bool = (
 		grip_data.slot != C_Grabbable.HoldSlot.CARRY
-		and InteractionFocus.current(holder) != InteractionFocus.Priority.HANDS
+		and InteractionControlFocus.current(holder) != InteractionControlFocus.Priority.HANDS
 	)
 	var allowed_break_distance: float = config.break_distance
 	if hand_suspended:
@@ -281,10 +281,10 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 
 	_set_cached(control, grip_data.slot, held)
 	if grip_data.slot == C_Grabbable.HoldSlot.CARRY:
-		grip_data.capture_token = InteractionFocus.acquire(
+		grip_data.capture_token = InteractionControlFocus.acquire(
 			holder,
 			held,
-			InteractionFocus.Priority.CARRY,
+			InteractionControlFocus.Priority.CARRY,
 		)
 		load_state.active = true
 		load_state.speed_multiplier = clampf(config.movement_speed_multiplier, 0.0, 1.0)
@@ -314,7 +314,7 @@ static func grip_removed(held: Entity, grip: Relationship) -> void:
 	var holder: Entity = grip.target as Entity if is_instance_valid(grip.target) else null
 	var body: RigidBody3D = held as Node as RigidBody3D
 	if is_instance_valid(holder):
-		InteractionFocus.release(holder, grip_data.capture_token)
+		InteractionControlFocus.release(holder, grip_data.capture_token)
 		var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 		if control != null and _cached(control, grip_data.slot) == held:
 			reset_holder(holder, grip_data.slot)
@@ -552,7 +552,7 @@ static func slot_anchor(holder: Entity, slot_index: int) -> Node3D:
 		return null
 	if (
 		slot_index != C_Grabbable.HoldSlot.CARRY
-		and InteractionFocus.current(holder) != InteractionFocus.Priority.HANDS
+		and InteractionControlFocus.current(holder) != InteractionControlFocus.Priority.HANDS
 	):
 		var right_hand: bool = slot_index == C_Grabbable.HoldSlot.RIGHT_HAND
 		var lowered: Node3D = holder.get(

@@ -1,5 +1,5 @@
 extends Resource
-class_name PackageRegistration
+class_name PackageRegistrationRecord
 
 @export var package_id: String = ""
 @export var day_index: int = 0

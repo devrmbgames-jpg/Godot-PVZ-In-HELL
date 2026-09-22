@@ -15,5 +15,5 @@ var held_left: Entity = null
 @export var swap_hand_controls: bool = false
 @export_range(0.1, 2.0, 0.05) var drop_long_press_seconds: float = 0.45
 ## Token registry is the single control-focus authority; each acquire has its own key.
-var captures: Dictionary[int, InteractionCapture] = { }
+var captures: Dictionary[int, InteractionControlCapture] = { }
 var context_wheel_requested: bool = false

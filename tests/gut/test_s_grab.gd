@@ -104,7 +104,7 @@ func make_holder(location: Vector3) -> Entity:
 
 func make_box(location: Vector3) -> Entity:
 	var rigid: RigidBody3D = RigidBody3D.new()
-	rigid.set_script(E_Grabbable)
+	rigid.set_script(E_GrabbableBody)
 	rigid.position = location
 	rigid.gravity_scale = 0.0
 	rigid.mass = 5.0
@@ -445,30 +445,30 @@ func test_nested_capture_lowers_hands_until_last_owner_releases() -> void:
 	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
 	var push_owner: RefCounted = RefCounted.new()
 	var modal_owner: RefCounted = RefCounted.new()
-	var push_token: int = InteractionFocus.acquire(
+	var push_token: int = InteractionControlFocus.acquire(
 		holder_entity,
 		push_owner,
-		InteractionFocus.Priority.PUSH,
+		InteractionControlFocus.Priority.PUSH,
 	)
-	var modal_token: int = InteractionFocus.acquire(
+	var modal_token: int = InteractionControlFocus.acquire(
 		holder_entity,
 		modal_owner,
-		InteractionFocus.Priority.MODAL,
+		InteractionControlFocus.Priority.MODAL,
 	)
 	assert_eq(
 		S_Grab.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
 		holder_entity.get("lowered_right_hand_slot"),
 	)
-	InteractionFocus.release(holder_entity, modal_token)
-	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.PUSH)
+	InteractionControlFocus.release(holder_entity, modal_token)
+	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.PUSH)
 	assert_eq(
 		S_Grab.slot_anchor(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND),
 		holder_entity.get("lowered_left_hand_slot"),
 	)
 	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
 	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), left_item)
-	InteractionFocus.release(holder_entity, push_token)
-	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.HANDS)
+	InteractionControlFocus.release(holder_entity, push_token)
+	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.HANDS)
 	assert_eq(
 		S_Grab.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
 		holder_entity.get("right_hand_slot"),
@@ -484,9 +484,9 @@ func test_primary_action_routes_to_mapped_hand_and_swap() -> void:
 	right_action.slot = InteractionAction.Slot.PRIMARY
 	var left_action: ProbeAction = ProbeAction.new()
 	left_action.slot = InteractionAction.Slot.PRIMARY
-	var right_actions: C_InteractionActions = C_InteractionActions.new()
+	var right_actions: C_InteractionActionSet = C_InteractionActionSet.new()
 	right_actions.actions = [right_action]
-	var left_actions: C_InteractionActions = C_InteractionActions.new()
+	var left_actions: C_InteractionActionSet = C_InteractionActionSet.new()
 	left_actions.actions = [left_action]
 	right_item.add_component(right_actions)
 	left_item.add_component(left_actions)
@@ -509,15 +509,15 @@ func test_capture_blocks_hand_use_throw_and_rotation() -> void:
 	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
 	var action: ProbeAction = ProbeAction.new()
 	action.slot = InteractionAction.Slot.PRIMARY
-	var actions: C_InteractionActions = C_InteractionActions.new()
+	var actions: C_InteractionActionSet = C_InteractionActionSet.new()
 	actions.actions = [action]
 	right_item.add_component(actions)
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
 	var modal_owner: RefCounted = RefCounted.new()
-	var modal_token: int = InteractionFocus.acquire(
+	var modal_token: int = InteractionControlFocus.acquire(
 		holder_entity,
 		modal_owner,
-		InteractionFocus.Priority.MODAL,
+		InteractionControlFocus.Priority.MODAL,
 	)
 	input_state.input_tick += 1
 	input_state.action_main_pressed = true
@@ -531,7 +531,7 @@ func test_capture_blocks_hand_use_throw_and_rotation() -> void:
 	input_state.physical_override = true
 	S_Grab.handle_input(holder_entity)
 	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
-	InteractionFocus.release(holder_entity, modal_token)
+	InteractionControlFocus.release(holder_entity, modal_token)
 
 
 func test_drop_priority_and_long_press_placeholder() -> void:
@@ -597,30 +597,30 @@ func test_generic_hand_rotation_uses_rotate_modifier_without_hand_action() -> vo
 
 func test_same_owner_captures_release_independently() -> void:
 	var owner: RefCounted = RefCounted.new()
-	var push_token: int = InteractionFocus.acquire(
+	var push_token: int = InteractionControlFocus.acquire(
 		holder_entity,
 		owner,
-		InteractionFocus.Priority.PUSH,
+		InteractionControlFocus.Priority.PUSH,
 	)
-	var modal_token: int = InteractionFocus.acquire(
+	var modal_token: int = InteractionControlFocus.acquire(
 		holder_entity,
 		owner,
-		InteractionFocus.Priority.MODAL,
+		InteractionControlFocus.Priority.MODAL,
 	)
 	assert_ne(push_token, modal_token)
-	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.MODAL)
-	InteractionFocus.release(holder_entity, modal_token)
-	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.PUSH)
-	InteractionFocus.release(holder_entity, push_token)
-	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.HANDS)
+	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.MODAL)
+	InteractionControlFocus.release(holder_entity, modal_token)
+	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.PUSH)
+	InteractionControlFocus.release(holder_entity, push_token)
+	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.HANDS)
 
 
 func test_destroyed_capture_owner_is_pruned() -> void:
 	var owner: RefCounted = RefCounted.new()
-	var token: int = InteractionFocus.acquire(holder_entity, owner, InteractionFocus.Priority.MODAL)
+	var token: int = InteractionControlFocus.acquire(holder_entity, owner, InteractionControlFocus.Priority.MODAL)
 	assert_ne(token, 0)
 	owner = null
-	assert_eq(InteractionFocus.current(holder_entity), InteractionFocus.Priority.HANDS)
+	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.HANDS)
 	assert_true(grab_control.captures.is_empty())
 
 
@@ -631,7 +631,7 @@ func test_hand_grip_survives_lowered_anchor_and_restore_grace() -> void:
 	config.break_distance = 0.5
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
 	var owner: RefCounted = RefCounted.new()
-	var token: int = InteractionFocus.acquire(holder_entity, owner, InteractionFocus.Priority.MODAL)
+	var token: int = InteractionControlFocus.acquire(holder_entity, owner, InteractionControlFocus.Priority.MODAL)
 	for physics_tick: int in 3:
 		await get_tree().physics_frame
 	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
@@ -639,7 +639,7 @@ func test_hand_grip_survives_lowered_anchor_and_restore_grace() -> void:
 		S_Grab.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
 		holder_entity.get("lowered_right_hand_slot"),
 	)
-	InteractionFocus.release(holder_entity, token)
+	InteractionControlFocus.release(holder_entity, token)
 	assert_eq(
 		S_Grab.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
 		holder_entity.get("right_hand_slot"),
@@ -653,7 +653,7 @@ func test_carry_throw_does_not_route_secondary_input_to_hand_item() -> void:
 	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
 	var action: ProbeAction = ProbeAction.new()
 	action.slot = InteractionAction.Slot.PRIMARY
-	var actions: C_InteractionActions = C_InteractionActions.new()
+	var actions: C_InteractionActionSet = C_InteractionActionSet.new()
 	actions.actions = [action]
 	right_item.add_component(actions)
 	_add_external_grip(box_entity, C_Grabbable.HoldSlot.CARRY)

@@ -1,6 +1,6 @@
 @tool
 extends Entity
-class_name E_Grabbable
+class_name E_GrabbableBody
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:

@@ -26,23 +26,23 @@ func _ready() -> void:
 
 
 #region Presentation
-func _on_scan_feedback(result: ScanResult) -> void:
+func _on_scan_feedback(result: PackageScanResult) -> void:
 	label.text = "№%03d" % result.number
 	label.visible = true
 	_icon_mesh.visible = true
 	
-	if result.outcome != ScanResult.Outcome.REJECTED:
-		beep.pitch_scale = 1.0 if result.outcome == ScanResult.Outcome.REGISTERED else 0.8
+	if result.outcome != PackageScanResult.Outcome.REJECTED:
+		beep.pitch_scale = 1.0 if result.outcome == PackageScanResult.Outcome.REGISTERED else 0.8
 		beep.play()
 	
 	match result.outcome :
-		ScanResult.Outcome.REJECTED :
+		PackageScanResult.Outcome.REJECTED :
 			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.ORANGE
 			label.modulate = Color.ORANGE
-		ScanResult.Outcome.REGISTERED :
+		PackageScanResult.Outcome.REGISTERED :
 			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.LIGHT_GREEN
 			label.modulate = Color.LIGHT_GREEN
-		ScanResult.Outcome.ALREADY_REGISTERED :
+		PackageScanResult.Outcome.ALREADY_REGISTERED :
 			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.DARK_GRAY
 			label.modulate = Color.DARK_GRAY
 	

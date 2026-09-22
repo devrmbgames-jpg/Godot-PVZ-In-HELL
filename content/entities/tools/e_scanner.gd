@@ -1,5 +1,5 @@
 @tool
-extends E_Grabbable
+extends E_GrabbableBody
 class_name E_Scanner
 
-signal scan_feedback(result: ScanResult)
+signal scan_feedback(result: PackageScanResult)

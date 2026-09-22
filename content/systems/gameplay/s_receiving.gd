@@ -35,7 +35,7 @@ func _deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index: int)
 	if not is_instance_valid(zone) or zone.supply == null or zone.package_scene == null:
 		return
 	if receiving.last_started_day < day_index:
-		var batch: DeliveryBatch = DeliveryBatch.new()
+		var batch: ReceivingBatch = ReceivingBatch.new()
 		batch.day_index = day_index
 		receiving.pending.append(batch)
 		receiving.last_started_day = day_index
@@ -44,7 +44,7 @@ func _deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index: int)
 	# Let physics register the previous body before checking another free slot.
 	if receiving.last_spawn_tick == Engine.get_physics_frames():
 		return
-	var active_batch: DeliveryBatch = receiving.pending[0]
+	var active_batch: ReceivingBatch = receiving.pending[0]
 	if active_batch.next_package >= zone.supply.packages.size():
 		receiving.pending.pop_front()
 		receiving.blocked = false
@@ -107,7 +107,7 @@ func _deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index: int)
 	receiving.retry_remaining = BLOCKED_RETRY_SECONDS
 
 
-func _advance(receiving: C_Receiving, batch: DeliveryBatch) -> void:
+func _advance(receiving: C_Receiving, batch: ReceivingBatch) -> void:
 	batch.next_package += 1
 	receiving.delivered_counts[batch.day_index] = batch.next_package
 	receiving.blocked = false

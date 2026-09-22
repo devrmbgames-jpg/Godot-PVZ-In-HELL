@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://da1gddnei47i7"]
 
-[ext_resource type="Script" uid="uid://dhmonacq8runy" path="res://content/entities/e_day_station.gd" id="1_jdulf"]
+[ext_resource type="Script" uid="uid://dhmonacq8runy" path="res://content/entities/stations/e_day_phase_station.gd" id="1_jdulf"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_bkdd8"]
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="3_2drjc"]
 [ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="4_pwle5"]
 [ext_resource type="Script" uid="uid://7emhwgdbxv7x" path="res://content/definitions/interaction/def_day_phase_action.gd" id="5_ceqq0"]
-[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_actions.gd" id="6_1der5"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="6_1der5"]
 
 [sub_resource type="Resource" id="DayStation_interactable"]
 script = ExtResource("3_2drjc")

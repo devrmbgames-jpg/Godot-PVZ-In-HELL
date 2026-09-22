@@ -1,5 +1,5 @@
 extends RefCounted
-class_name InteractionFocus
+class_name InteractionControlFocus
 
 enum Priority {
 	HANDS,
@@ -12,7 +12,7 @@ enum Priority {
 static func acquire(actor: Entity, owner: Object, priority: Priority) -> int:
 	var control: C_GrabControl = _control(actor)
 	if control != null and is_instance_valid(owner):
-		var capture: InteractionCapture = InteractionCapture.new()
+		var capture: InteractionControlCapture = InteractionControlCapture.new()
 		capture.owner = weakref(owner)
 		capture.priority = priority
 		var token: int = capture.get_instance_id()
@@ -33,7 +33,7 @@ static func current(actor: Entity) -> Priority:
 	var priority: int = Priority.HANDS
 	if control != null:
 		for token: int in control.captures.keys():
-			var capture: InteractionCapture = control.captures[token]
+			var capture: InteractionControlCapture = control.captures[token]
 			if capture.owner.get_ref() == null:
 				control.captures.erase(token)
 			else:

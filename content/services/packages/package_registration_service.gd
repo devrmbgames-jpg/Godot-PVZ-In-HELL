@@ -20,7 +20,7 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 		return false
 	if (
 		(grip.relation as C_HeldBy).slot == C_Grabbable.HoldSlot.CARRY
-		or InteractionFocus.current(actor) != InteractionFocus.Priority.HANDS
+		or InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.HANDS
 	):
 		return false
 	var cycle: C_DayCycle = S_DayPhase.current()
@@ -37,17 +37,17 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 
 
 ## Synchronous command-boundary transaction: no signals/UI/await before all writes finish.
-static func scan(actor: Entity, scanner: Entity, target: Entity) -> ScanResult:
-	var result: ScanResult = ScanResult.new()
+static func scan(actor: Entity, scanner: Entity, target: Entity) -> PackageScanResult:
+	var result: PackageScanResult = PackageScanResult.new()
 	if not can_scan(actor, scanner, target):
 		return result
 	var identity: C_Package = target.get_component(C_Package) as C_Package
 	var state: C_PackageState = target.get_component(C_PackageState) as C_PackageState
 	var registry: C_PackageLedger = ledger()
 	result.package_id = identity.package_id
-	for record: PackageRegistration in registry.records:
+	for record: PackageRegistrationRecord in registry.records:
 		if record.package_id == identity.package_id:
-			result.outcome = ScanResult.Outcome.ALREADY_REGISTERED
+			result.outcome = PackageScanResult.Outcome.ALREADY_REGISTERED
 			result.number = record.number
 			result.message = "Уже учтена · №%03d" % record.number
 			return result
@@ -62,7 +62,7 @@ static func scan(actor: Entity, scanner: Entity, target: Entity) -> ScanResult:
 	while registry.has_package_with_number(sequence) :
 		sequence += 1
 	
-	var registration: PackageRegistration = PackageRegistration.new()
+	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	registration.package_id = identity.package_id
 	registration.day_index = cycle.day_index
 	registration.number = sequence
@@ -72,7 +72,7 @@ static func scan(actor: Entity, scanner: Entity, target: Entity) -> ScanResult:
 	state.registration_day = cycle.day_index
 	state.scan = C_PackageState.Scan.SCANNED
 	state.registration = C_PackageState.Registration.REGISTERED
-	result.outcome = ScanResult.Outcome.REGISTERED
+	result.outcome = PackageScanResult.Outcome.REGISTERED
 	result.number = registration.number
 	result.message = "Зарегистрирована · №%03d" % registration.number
 	return result
@@ -89,7 +89,7 @@ static func terminal_text(day_index: int) -> String:
 		var identity: C_Package = parcel.get_component(C_Package) as C_Package
 		states[identity.package_id] = parcel.get_component(C_PackageState) as C_PackageState
 	var lines: PackedStringArray = []
-	for record: PackageRegistration in registry.records:
+	for record: PackageRegistrationRecord in registry.records:
 		if record.day_index != day_index:
 			continue
 		var definition: DEF_Package = record.definition

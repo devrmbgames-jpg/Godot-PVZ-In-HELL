@@ -1,5 +1,5 @@
 @tool
-extends E_Grabbable
+extends E_GrabbableBody
 class_name E_Package
 
 ## Authored IDs are stable across scene loads. Spawners/save loaders may supply an ID.

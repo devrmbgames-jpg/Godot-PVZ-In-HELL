@@ -1,5 +1,5 @@
 extends RefCounted
-class_name InteractionChoice
+class_name InteractionActionChoice
 
 var action: InteractionAction = null
 var source: Entity = null

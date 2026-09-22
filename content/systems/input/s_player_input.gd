@@ -73,7 +73,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			if captured
 			else Vector2.ZERO
 		)
-		var rotating: bool = InteractionActions.wants_rotation(entity, controller)
+		var rotating: bool = InteractionActionResolver.wants_rotation(entity, controller)
 		if not rotating:
 			_update_look(controller, entity as Node as Node3D)
 		_update_motion(controller, captured)

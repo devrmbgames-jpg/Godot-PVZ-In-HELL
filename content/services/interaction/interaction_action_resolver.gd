@@ -1,5 +1,5 @@
 extends RefCounted
-class_name InteractionActions
+class_name InteractionActionResolver
 
 const BUTTON_LABELS: Array[String] = ["E", "F", "ЛКМ", "ПКМ"]
 const INPUT_ACTIONS: Array[StringName] = [
@@ -24,7 +24,7 @@ static func handle_input(actor: Entity) -> void:
 		return
 	interactor.last_action_tick = controller.input_tick
 	control.rotation_active = false
-	if InteractionFocus.current(actor) >= InteractionFocus.Priority.PUSH:
+	if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.PUSH:
 		refresh_prompt(actor)
 		return
 	if controller.drop_long_pressed:
@@ -42,14 +42,14 @@ static func handle_input(actor: Entity) -> void:
 		_execute_slot(actor, InteractionAction.Slot.USE, true)
 	else:
 		# Snapshot focus: releasing Carry cannot route this same tick into hands.
-		var focus: InteractionFocus.Priority = InteractionFocus.current(actor)
+		var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
 		var primary_consumed: bool = _execute_slot(
 			actor,
 			InteractionAction.Slot.PRIMARY,
 			controller.action_main_pressed,
 			controller.action_main,
 		)
-		if focus == InteractionFocus.current(actor):
+		if focus == InteractionControlFocus.current(actor):
 			var secondary_consumed: bool = _execute_slot(
 				actor,
 				InteractionAction.Slot.SECONDARY,
@@ -57,27 +57,27 @@ static func handle_input(actor: Entity) -> void:
 				controller.action_second_held,
 			)
 			if not primary_consumed and not secondary_consumed and controller.rotate_held:
-				var rotation: InteractionChoice = rotation_choice(actor)
+				var rotation: InteractionActionChoice = rotation_choice(actor)
 				if rotation != null:
 					rotation.action.execute(actor, rotation.source, rotation.target)
 	refresh_prompt(actor)
 
 
-static func resolve(actor: Entity, input_slot: InteractionAction.Slot) -> InteractionChoice:
+static func resolve(actor: Entity, input_slot: InteractionAction.Slot) -> InteractionActionChoice:
 	if not S_Grab.holder_available(actor):
 		return null
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	if interactor == null or controller == null:
 		return null
-	var focus: InteractionFocus.Priority = InteractionFocus.current(actor)
-	if focus >= InteractionFocus.Priority.PUSH:
+	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
+	if focus >= InteractionControlFocus.Priority.PUSH:
 		return null
 	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
 	if target != null and S_InteractionTargeting.find_target(actor, interactor) != target:
 		target = null
 	var carry: Entity = S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY)
-	if focus == InteractionFocus.Priority.CARRY:
+	if focus == InteractionControlFocus.Priority.CARRY:
 		if input_slot == InteractionAction.Slot.INTERACT:
 			return _physical(actor, carry, GrabAction.Kind.RELEASE)
 		if input_slot == InteractionAction.Slot.PRIMARY:
@@ -115,12 +115,12 @@ static func resolve(actor: Entity, input_slot: InteractionAction.Slot) -> Intera
 	return _from_source(actor, actor, target, input_slot)
 
 
-static func rotation_choice(actor: Entity) -> InteractionChoice:
-	if InteractionFocus.current(actor) != InteractionFocus.Priority.HANDS:
+static func rotation_choice(actor: Entity) -> InteractionActionChoice:
+	if InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.HANDS:
 		return null
 	for secondary: bool in [false, true]:
 		var held: Entity = S_Grab.held_in_slot(actor, S_Grab.mapped_hand(actor, secondary))
-		var result: InteractionChoice = _physical(actor, held, GrabAction.Kind.ROTATE)
+		var result: InteractionActionChoice = _physical(actor, held, GrabAction.Kind.ROTATE)
 		if result != null:
 			return result
 	return null
@@ -129,7 +129,7 @@ static func rotation_choice(actor: Entity) -> InteractionChoice:
 static func reserves(source: Entity, input_slot: InteractionAction.Slot) -> bool:
 	if not S_Grab.entity_available(source):
 		return false
-	var actions: C_InteractionActions = source.get_component(C_InteractionActions)
+	var actions: C_InteractionActionSet = source.get_component(C_InteractionActionSet)
 	if actions == null:
 		return false
 	if actions.reserved_slots & (1 << input_slot):
@@ -146,13 +146,13 @@ static func wants_rotation(actor: Entity, controller: C_Controller) -> bool:
 		or controller.drop_pressed or controller.drop_long_pressed
 	):
 		return false
-	var focus: InteractionFocus.Priority = InteractionFocus.current(actor)
-	if focus == InteractionFocus.Priority.CARRY:
+	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
+	if focus == InteractionControlFocus.Priority.CARRY:
 		return (
 			not controller.action_main_pressed and controller.action_second_held
 			and resolve(actor, InteractionAction.Slot.SECONDARY) != null
 		)
-	if focus != InteractionFocus.Priority.HANDS:
+	if focus != InteractionControlFocus.Priority.HANDS:
 		return false
 	if (
 		controller.action_main or controller.action_main_pressed
@@ -168,10 +168,10 @@ static func refresh_prompt(actor: Entity) -> void:
 	var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
 	var lines: PackedStringArray = []
 	for slot_index: int in BUTTON_LABELS.size():
-		var choice: InteractionChoice = resolve(actor, slot_index as InteractionAction.Slot)
+		var choice: InteractionActionChoice = resolve(actor, slot_index as InteractionAction.Slot)
 		if choice != null:
 			lines.append("[%s] %s" % [button_label(slot_index), choice.action.caption])
-	if InteractionFocus.current(actor) == InteractionFocus.Priority.HANDS:
+	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.HANDS:
 		for secondary: bool in [false, true]:
 			if (
 				S_Grab.held_in_slot(actor, S_Grab.mapped_hand(actor, secondary)) != null
@@ -190,7 +190,7 @@ static func refresh_prompt(actor: Entity) -> void:
 		if rotation_choice(actor) != null:
 			lines.append("[R + мышь] Вращать")
 	if (
-		InteractionFocus.current(actor) < InteractionFocus.Priority.PUSH
+		InteractionControlFocus.current(actor) < InteractionControlFocus.Priority.PUSH
 		and S_Grab.held_object(actor) != null
 	):
 		lines.append("[G] Положить · [удерживать G] Контекст")
@@ -226,7 +226,7 @@ static func _execute_slot(
 ) -> bool:
 	if not pressed and not held:
 		return false
-	var choice: InteractionChoice = resolve(actor, input_slot)
+	var choice: InteractionActionChoice = resolve(actor, input_slot)
 	if choice != null and (pressed or choice.action.continuous):
 		choice.action.execute(actor, choice.source, choice.target)
 	# Hand input owns its tick even when use has no valid target.
@@ -237,20 +237,20 @@ static func _target_action(
 	actor: Entity,
 	target: Entity,
 	input_slot: InteractionAction.Slot,
-) -> InteractionChoice:
+) -> InteractionActionChoice:
 	if not S_Grab.entity_available(target):
 		return _from_source(actor, actor, target, input_slot)
-	var action: InteractionChoice = _from_source(actor, target, target, input_slot)
+	var action: InteractionActionChoice = _from_source(actor, target, target, input_slot)
 	if action == null and input_slot == InteractionAction.Slot.INTERACT:
 		action = _from_source(actor, target, target, InteractionAction.Slot.USE)
 	elif action != null and input_slot == InteractionAction.Slot.USE:
-		var primary: InteractionChoice = resolve(actor, InteractionAction.Slot.INTERACT)
+		var primary: InteractionActionChoice = resolve(actor, InteractionAction.Slot.INTERACT)
 		if primary != null and primary.action == action.action and primary.source == action.source:
 			return null
 	return action
 
 
-static func _physical(actor: Entity, source: Entity, kind: GrabAction.Kind) -> InteractionChoice:
+static func _physical(actor: Entity, source: Entity, kind: GrabAction.Kind) -> InteractionActionChoice:
 	if not S_Grab.entity_available(source):
 		return null
 	var action: GrabAction = GrabAction.new()
@@ -271,10 +271,10 @@ static func _from_source(
 	source: Entity,
 	target: Entity,
 	input_slot: InteractionAction.Slot,
-) -> InteractionChoice:
+) -> InteractionActionChoice:
 	if not S_Grab.entity_available(source):
 		return null
-	var actions: C_InteractionActions = source.get_component(C_InteractionActions)
+	var actions: C_InteractionActionSet = source.get_component(C_InteractionActionSet)
 	if actions == null:
 		return null
 	var best: InteractionAction = null
@@ -295,8 +295,8 @@ static func _from_source(
 	return _choice(best, source, target) if best != null else null
 
 
-static func _choice(action: InteractionAction, source: Entity, target: Entity) -> InteractionChoice:
-	var choice: InteractionChoice = InteractionChoice.new()
+static func _choice(action: InteractionAction, source: Entity, target: Entity) -> InteractionActionChoice:
+	var choice: InteractionActionChoice = InteractionActionChoice.new()
 	choice.action = action
 	choice.source = source
 	choice.target = target

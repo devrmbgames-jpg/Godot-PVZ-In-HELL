@@ -1,6 +1,6 @@
 @tool
 extends Entity
-class_name E_DayStation
+class_name E_DayPhaseStation
 
 @export var sleep_station: bool = false
 

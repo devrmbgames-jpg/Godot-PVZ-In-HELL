@@ -1,5 +1,5 @@
 extends Resource
-class_name DeliveryBatch
+class_name ReceivingBatch
 
 enum Source {
 	BASE_SUPPLY,
