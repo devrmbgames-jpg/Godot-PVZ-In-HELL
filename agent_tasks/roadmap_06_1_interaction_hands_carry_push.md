@@ -27,9 +27,12 @@ Status: planned
 - [ ] Проаудировать project-owned `define_components()`; сериализуемые/static Components и Actions перенести в scene `component_resources`. Оставить в коде только обоснованные runtime-specific данные и не дублировать Component двумя способами.
 - [ ] Переделать ownership на три независимых runtime-slots: `CARRY`, `RIGHT_HAND`, `LEFT_HAND`. Relation хранит slot; holder cache раздельный и остается derived.
 - [ ] Заменить жесткий hand slot предмета на allowed hand slots + runtime selection. Anchor/rotation/cleanup/release/throw должны использовать slot relation.
-- [ ] Сохранить exclusive ownership объекта, но разрешить holder одновременно владеть Carry + Left + Right. Hand-items не блокируют Carry и не занимают его capacity.
+- [ ] Сохранить exclusive ownership объекта, но разрешить holder одновременно владеть Carry + Left + Right. Hand-items не блокируют pickup Carry и не занимают его capacity; заполненный Carry при этом временно suspend'ит hand control, не освобождая hand ownership.
+- [ ] Ввести единый control-capture/focus contract для Carry, Push, Terminal/UI и будущих modal interactions. Пока capture активен, LEFT/RIGHT hand-items остаются в slots, anchors переводятся в lowered position за/ниже камеры, а конфликтующие hand-use/throw/rotation inputs не проходят на более низкий приоритет.
+- [ ] Восстанавливать руки только после завершения последнего active control capture; вернуть обычные authored hand anchors и input mapping без повторного pickup/equip.
+- [ ] Не реализовывать control capture как набор несогласованных boolean-флагов. Должен быть единый источник истины или эквивалентная модель, корректная при вложенных/перекрывающихся Carry/Push/UI состояниях.
 - [ ] Реализовать state-aware E/F hand pickup/replacement и атомарную prevalidation замены согласно RM06.1.
-- [ ] LMB/RMB направить в use-action правой/левой руки; Alt + LMB/RMB — throw соответствующей mapped hand. Добавить `swap_hand_controls` и единый prompt mapping.
+- [ ] LMB/RMB направить в use-action правой/левой руки только когда hands active; Alt + LMB/RMB — throw соответствующей mapped hand при том же условии. Добавить `swap_hand_controls` и единый prompt mapping.
 - [ ] Добавить `G`: short-drop одного объекта в порядке Carry → Left → Right; long-press suppresses drop и вызывает placeholder будущего context wheel.
 - [ ] Добавить per-item rotation settings: enable/disable, axis constraint минимум FREE/Y_ONLY и reset rotation on pickup. Rotation не должен конкурировать с hand-use input.
 - [ ] Реализовать Push как отдельный contract, не `C_Grabbable`: data-driven fixed push/turn speeds, только перед игроком, без pulling и без transform teleport.
@@ -39,7 +42,8 @@ Status: planned
 ## Критерии готовности
 
 - Inspector показывает статические Components scene-authored Entity без поиска `define_components()`.
-- Carry + две руки независимы; один holder может одновременно нести три объекта по одному на slot.
+- Carry + две руки независимы по ownership; один holder может одновременно владеть тремя объектами по одному на slot.
+- Carry/Push/Terminal control capture визуально опускает обе руки и блокирует конфликтующий hand input, но не освобождает LEFT/RIGHT slots; после последнего release руки восстанавливаются автоматически.
 - E/F replacement, LMB/RMB use, Alt throws, swap-hand option и G priority совпадают с RM06.1.
 - Rotation policies работают для Scanner/pistol-like, Y-only container и reset-on-pickup.
 - Pushable cart имеет отдельный lifecycle и предсказуемые фиксированные скорости, сохраняя физические столкновения.
@@ -47,7 +51,7 @@ Status: planned
 
 ## Проверки
 
-Расширять прежде всего существующие `tests/gut/test_s_grab.gd` и существующие smoke checks; новые GUT suites не добавлять без отдельного разрешения пользователя. Проверить slot capacity/cleanup, replacement failure, input priority, swap mapping, drop priority/long-press, rotation constraints/reset и физический Push. Обязательны formatter/static checks и `git diff --check`; запуск Godot — только согласно актуальным инструкциям пользователя/окружения.
+Расширять прежде всего существующие `tests/gut/test_s_grab.gd` и существующие smoke checks; новые GUT suites не добавлять без отдельного разрешения пользователя. Проверить slot capacity/cleanup, replacement failure, input priority, nested/overlapping control capture, lowered-hand restore, отсутствие hand-use во время Carry/Push/Terminal, swap mapping, drop priority/long-press, rotation constraints/reset и физический Push. Обязательны formatter/static checks и `git diff --check`; запуск Godot — только согласно актуальным инструкциям пользователя/окружения.
 
 ## Границы
 
