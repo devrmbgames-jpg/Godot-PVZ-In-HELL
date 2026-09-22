@@ -1,5 +1,6 @@
-extends InteractionAction
-class_name TerminalAction
+extends DEF_InteractionAction
+## Opens the warehouse terminal through contextual interaction.
+class_name DEF_TerminalAction
 
 
 func is_available(_actor: Entity, source: Entity, _target: Entity) -> bool:

@@ -1,8 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/entities/props/box.tscn" id="1_box"]
-[ext_resource type="Script" uid="uid://byriybwy6s1rc" path="res://content/entities/e_package.gd" id="2_package"]
-[ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/definitions/gameplay/def_package.gd" id="3_definition"]
+[ext_resource type="Script" uid="uid://byriybwy6s1rc" path="res://content/entities/packages/e_package.gd" id="2_package"]
+[ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/definitions/gameplay/packages/def_package.gd" id="3_definition"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="4_component"]
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="5_interactable"]
 [ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="6_grabbable"]

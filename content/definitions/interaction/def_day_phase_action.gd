@@ -1,5 +1,6 @@
-extends InteractionAction
-class_name DayPhaseAction
+extends DEF_InteractionAction
+## Requests a validated transition of the warehouse day phase.
+class_name DEF_DayPhaseAction
 
 @export var transition: DayTransitionRequest.Kind = DayTransitionRequest.Kind.START_SHIFT
 

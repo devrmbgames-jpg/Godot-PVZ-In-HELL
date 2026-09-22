@@ -1,5 +1,6 @@
-extends InteractionAction
-class_name ScanAction
+extends DEF_InteractionAction
+## Registers the aimed parcel through a held scanner.
+class_name DEF_ScanAction
 
 
 func is_available(actor: Entity, source: Entity, target: Entity) -> bool:

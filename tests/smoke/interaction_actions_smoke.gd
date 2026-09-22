@@ -1,7 +1,7 @@
 extends Node
 
 
-class ProbeAction extends InteractionAction:
+class ProbeAction extends DEF_InteractionAction:
 	var calls: int = 0
 
 
@@ -47,7 +47,7 @@ func _run() -> void:
 	assert(S_Grab.held_object(actor) == scanner)
 	var actions: C_InteractionActionSet = C_InteractionActionSet.new()
 	var primary_probe: ProbeAction = ProbeAction.new()
-	primary_probe.slot = InteractionAction.Slot.PRIMARY
+	primary_probe.slot = DEF_InteractionAction.Slot.PRIMARY
 	primary_probe.action_id = &"hand_probe"
 	actions.actions = [primary_probe]
 	scanner.remove_component(C_InteractionActionSet)

@@ -1,5 +1,6 @@
-extends InteractionAction
-class_name GrabAction
+extends DEF_InteractionAction
+## Executes validated pickup, release, throw and rotation commands.
+class_name DEF_GrabAction
 
 enum Kind {
 	PICKUP,

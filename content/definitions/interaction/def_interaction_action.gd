@@ -1,5 +1,6 @@
 extends GameDefinition
-class_name InteractionAction
+## Stateless authored availability and execution contract for contextual actions.
+class_name DEF_InteractionAction
 
 enum Slot {
 	INTERACT,

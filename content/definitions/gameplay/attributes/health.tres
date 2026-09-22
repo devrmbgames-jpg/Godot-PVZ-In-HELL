@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="DEF_Attribute" format=3 uid="uid://blh4smgwve1tl"]
 
-[ext_resource type="Script" uid="uid://bbjd3ft36b2fm" path="res://content/definitions/gameplay/def_attribute.gd" id="1_ffi4d"]
+[ext_resource type="Script" uid="uid://bbjd3ft36b2fm" path="res://content/definitions/gameplay/attributes/def_attribute.gd" id="1_ffi4d"]
 
 [resource]
 script = ExtResource("1_ffi4d")

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dxkg7ovkuxd0i"]
 
-[ext_resource type="Script" uid="uid://xrbedgy0nakm" path="res://content/entities/e_rigid_body_character.gd" id="1_hqtr2"]
+[ext_resource type="Script" uid="uid://xrbedgy0nakm" path="res://content/entities/characters/e_rigid_body_character.gd" id="1_hqtr2"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_uo1oq"]
 [ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="3_lm6lx"]
 [ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/components/input/c_player_input_controller.gd" id="4_hdpx1"]
