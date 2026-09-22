@@ -62,7 +62,22 @@ When subagents are available, delegate work that does not need the main model:
 - `explorer`: narrow repository discovery/read-only evidence;
 - `mechanical_worker`: bounded implementation after architecture is already decided;
 - `reviewer`: focused review of a concrete diff;
-- `docs_scout`: narrow documentation/reference lookup.
+- `docs_scout`: narrow documentation/reference lookup;
+- `validator`: run deterministic checks/tests and compress noisy output into concise PASS/FAIL evidence without editing authored source.
+
+### Strict sequential subagent policy
+
+Daily token allowance is more important than wall-clock speed in this repository.
+
+- Spawn **at most one subagent at a time**.
+- Always wait for that subagent to finish and integrate its concise result before deciding whether another subagent is needed.
+- Never run subagents in parallel, including read-only `explorer`, `docs_scout`, `reviewer`, or `validator` roles.
+- Do not pre-spawn speculative agents for possible future work.
+- Prefer one well-scoped delegation over several overlapping delegations.
+- After each subagent result, first decide whether the main agent can finish directly; spawn another only if it still saves meaningful context/tokens.
+- Only one write-capable worker may ever operate on the working tree, and it must complete before validation/review delegation starts.
+
+The project config enforces this with `agents.max_concurrent_threads_per_session = 1`.
 
 Do not spawn a subagent for a trivial one-file edit. Do not delegate architecture, ownership, physics authority, GECS boundaries, input priority, or cross-system lifecycle decisions just to save tokens.
 
