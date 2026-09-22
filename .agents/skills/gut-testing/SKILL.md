@@ -28,6 +28,12 @@ Do not install GUT `main` just because it is newer.
 - For bug fixes, add a regression test when practical.
 - Avoid arbitrary sleeps; await concrete signals/frames/conditions with bounded timeout.
 
+## Visual-run boundary
+
+Test validation must remain non-visual by default. Do not launch rendered Godot or capture screenshots while running or debugging tests unless the user explicitly approves visual validation in the current task/conversation.
+
+If a failure can only be reproduced visually, report the non-visual evidence and mark the visual check `NOT RUN — user visual validation required`.
+
 ## CLI
 
 Typical GUT CLI entry point:
