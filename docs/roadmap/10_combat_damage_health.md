@@ -49,6 +49,7 @@ Customer может перейти в Aggressive после:
 
 - сильного недовольства;
 - failed Challenge;
+- обнаруженной махинации с Package/ложной отметки `TAKEN`;
 - scripted event.
 
 В Aggressive:
@@ -57,6 +58,20 @@ Customer может перейти в Aggressive после:
 - Customer преследует/атакует Player;
 - Player может защищаться;
 - физические предметы мира остаются частью боя.
+
+## Reputation exception hook
+
+ТЗ 07 допускает редкую неправомерную Complaint от Customer, которому Package была фактически выдана.
+
+После подтверждения такой ложной Complaint Player получает право атаковать **этого конкретного Customer** без потери будущей Reputation в течение 7 игровых дней.
+
+Combat system не должен сам вычислять Reputation. Он должен передавать typed context/reason, позволяющий будущей Reputation системе отличить:
+
+- обычную неспровоцированную атаку;
+- self-defense;
+- разрешенное retaliation window после подтвержденной ложной Complaint.
+
+Истечение окна не должно зависеть от того, загружен ли Customer Entity в сцене.
 
 ## Критерий готовности
 
