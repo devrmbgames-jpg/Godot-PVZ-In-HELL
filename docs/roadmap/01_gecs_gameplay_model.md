@@ -1,5 +1,7 @@
 # ТЗ 01 — Gameplay-модель GECS
 
+> **Implementation coverage:** Cross-cutting gameplay model; foundation began in **R01** and is consumed by later R-tasks.
+
 ## Цель
 
 Создать базовую ECS-модель, на которой строятся механики прототипа.
