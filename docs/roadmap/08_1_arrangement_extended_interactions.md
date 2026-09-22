@@ -1,5 +1,7 @@
 # ТЗ 08.1 — Расстановка, продолжительные взаимодействия и физические слоты
 
+> **Implementation coverage:** Implementation task: **R11.1**; downstream consumers: **R13**, **R19**, **R21**, **R22**, **R23**.
+
 ## Позиция в roadmap
 
 Implementation task: [R11.1 — Extended Interaction / Arrangement](../../agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md).
