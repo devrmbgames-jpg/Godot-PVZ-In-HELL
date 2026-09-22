@@ -1,13 +1,14 @@
 [gd_scene format=3 uid="uid://bxvltfdywwg6h"]
 
-[ext_resource type="Script" uid="uid://c63j0jgnx0qx6" path="res://content/entities/props/e_scanner.gd" id="1"]
+[ext_resource type="Script" uid="uid://c63j0jgnx0qx6" path="res://content/entities/e_scanner.gd" id="1"]
 [ext_resource type="Script" uid="uid://ctrs3iak8sgmq" path="res://content/ui/scanner_feedback.gd" id="2"]
-[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="3_component"]
-[ext_resource type="Script" path="res://content/components/interaction/c_scanner.gd" id="4_scanner"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="5_interactable"]
-[ext_resource type="Script" path="res://content/components/interaction/c_grabbable.gd" id="6_grabbable"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interaction_actions.gd" id="7_actions"]
-[ext_resource type="Script" path="res://content/systems/interaction/scan_action.gd" id="8_action"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="3_component"]
+[ext_resource type="Script" uid="uid://qs041oq2ktu" path="res://content/components/interaction/c_scanner.gd" id="4_scanner"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="5_interactable"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="6_1r4br"]
+[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="6_grabbable"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_actions.gd" id="7_actions"]
+[ext_resource type="Script" uid="uid://l86pj0y5txcq" path="res://content/definitions/interaction/def_scan_action.gd" id="8_action"]
 
 [sub_resource type="Resource" id="Scanner_state"]
 script = ExtResource("4_scanner")
@@ -29,7 +30,7 @@ caption = "Сканировать"
 
 [sub_resource type="Resource" id="Scanner_actions"]
 script = ExtResource("7_actions")
-actions = [SubResource("Scanner_action")]
+actions = Array[ExtResource("6_1r4br")]([SubResource("Scanner_action")])
 reserved_slots = 4
 
 [sub_resource type="StandardMaterial3D" id="BodyMaterial"]

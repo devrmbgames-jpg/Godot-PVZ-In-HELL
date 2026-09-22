@@ -37,6 +37,7 @@ metadata/_custom_type_script = "uid://cfqxt4h2ae432"
 
 [sub_resource type="Resource" id="Resource_o5mei"]
 script = ExtResource("7_rvtjd")
+jump_force = 350.0
 metadata/_custom_type_script = "uid://2wyyc10rw1bb"
 
 [sub_resource type="Resource" id="Resource_rthl4"]
@@ -79,6 +80,7 @@ collision_mask = 13
 axis_lock_angular_x = true
 axis_lock_angular_y = true
 axis_lock_angular_z = true
+mass = 60.0
 physics_material_override = SubResource("CharacterMaterial")
 can_sleep = false
 contact_monitor = true
@@ -191,10 +193,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34265137, -0.27026367, -0.4
 [node name="ArmLSlot" type="Marker3D" parent="HeadY/HeadX" unique_id=278936046]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.343, -0.27, -0.411)
 
-[node name="LoweredRightHand" type="Marker3D" parent="HeadY/HeadX"]
-position = Vector3(0.4, -0.8, 0.25)
+[node name="LoweredRightHand" type="Marker3D" parent="HeadY/HeadX" unique_id=1191453563]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, -0.8, 0.25)
 
-[node name="LoweredLeftHand" type="Marker3D" parent="HeadY/HeadX"]
-position = Vector3(-0.4, -0.8, 0.25)
+[node name="LoweredLeftHand" type="Marker3D" parent="HeadY/HeadX" unique_id=1977669164]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, -0.8, 0.25)
 
 [editable path="AnimationLibrary_Godot_Standard"]

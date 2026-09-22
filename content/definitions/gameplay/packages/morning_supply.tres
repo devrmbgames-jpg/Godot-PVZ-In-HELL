@@ -1,17 +1,17 @@
 [gd_resource type="Resource" script_class="DEF_Delivery" format=3 uid="uid://btuoi3maxvuq3"]
 
-[ext_resource type="Script" uid="uid://ccyyq1ami2lgi" path="res://content/definitions/gameplay/def_delivery.gd" id="delivery"]
-[ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/definitions/gameplay/def_package.gd" id="package"]
+[ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/definitions/gameplay/def_package.gd" id="1_45rg7"]
+[ext_resource type="Script" uid="uid://ccyyq1ami2lgi" path="res://content/definitions/gameplay/def_delivery.gd" id="2_pfwa7"]
 
 [sub_resource type="Resource" id="Books"]
-script = ExtResource("package")
+script = ExtResource("1_45rg7")
 description = "Книги"
 comment = "Обычный заказ"
 recipient_id = &"customer_01"
 key = &"books"
 
 [sub_resource type="Resource" id="Bottles"]
-script = ExtResource("package")
+script = ExtResource("1_45rg7")
 description = "Бутылки с реагентами"
 comment = "Хранить вертикально. Не вскрывать."
 recipient_id = &"customer_02"
@@ -25,7 +25,7 @@ maximum_integrity = 60.0
 key = &"bottles"
 
 [sub_resource type="Resource" id="Equipment"]
-script = ExtResource("package")
+script = ExtResource("1_45rg7")
 description = "Лабораторное оборудование"
 comment = "Тяжёлое и хрупкое"
 recipient_id = &"customer_03"
@@ -37,7 +37,7 @@ throw_velocity = 3.0
 key = &"equipment"
 
 [sub_resource type="Resource" id="Glass"]
-script = ExtResource("package")
+script = ExtResource("1_45rg7")
 description = "Стеклянная посуда"
 comment = "Осторожно, стекло"
 recipient_id = &"customer_04"
@@ -47,7 +47,7 @@ maximum_integrity = 40.0
 key = &"glass"
 
 [sub_resource type="Resource" id="Oil"]
-script = ExtResource("package")
+script = ExtResource("1_45rg7")
 description = "Техническое масло"
 recipient_id = &"customer_05"
 tags = 8
@@ -55,7 +55,7 @@ mass_kg = 8.0
 key = &"oil"
 
 [sub_resource type="Resource" id="Cells"]
-script = ExtResource("package")
+script = ExtResource("1_45rg7")
 description = "Энергетические ячейки"
 comment = "Беречь от ударов. Опасное содержимое."
 recipient_id = &"customer_06"
@@ -66,14 +66,14 @@ maximum_integrity = 50.0
 key = &"power_cells"
 
 [sub_resource type="Resource" id="Clothes"]
-script = ExtResource("package")
+script = ExtResource("1_45rg7")
 description = "Рабочая одежда"
 recipient_id = &"customer_07"
 mass_kg = 2.0
 key = &"clothes"
 
 [sub_resource type="Resource" id="Tools"]
-script = ExtResource("package")
+script = ExtResource("1_45rg7")
 description = "Набор инструментов"
 recipient_id = &"customer_08"
 mass_kg = 12.0
@@ -83,6 +83,6 @@ throw_velocity = 8.0
 key = &"tools"
 
 [resource]
-script = ExtResource("delivery")
-packages = Array[ExtResource("package")]([SubResource("Books"), SubResource("Bottles"), SubResource("Equipment"), SubResource("Glass"), SubResource("Oil"), SubResource("Cells"), SubResource("Clothes"), SubResource("Tools")])
+script = ExtResource("2_pfwa7")
+packages = Array[ExtResource("1_45rg7")]([SubResource("Books"), SubResource("Bottles"), SubResource("Equipment"), SubResource("Glass"), SubResource("Oil"), SubResource("Cells"), SubResource("Clothes"), SubResource("Tools")])
 key = &"base_supply"

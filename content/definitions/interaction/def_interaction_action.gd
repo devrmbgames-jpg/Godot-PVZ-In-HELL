@@ -1,4 +1,4 @@
-extends Resource
+extends GameDefinition
 class_name InteractionAction
 
 enum Slot {

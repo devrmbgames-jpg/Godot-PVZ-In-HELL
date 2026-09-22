@@ -1,10 +1,11 @@
 [gd_scene format=3]
-[ext_resource type="Script" path="res://content/entities/e_terminal.gd" id="1"]
+
+[ext_resource type="Script" uid="uid://gdbocqvj23m" path="res://content/entities/e_terminal.gd" id="1"]
 [ext_resource type="PackedScene" path="res://content/ui/terminal_panel.tscn" id="2"]
-[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="3_component"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="4_interactable"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interaction_actions.gd" id="5_actions"]
-[ext_resource type="Script" path="res://content/systems/interaction/terminal_action.gd" id="6_action"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="3_component"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="4_interactable"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_actions.gd" id="5_actions"]
+[ext_resource type="Script" uid="uid://e4rnao1j28i3" path="res://content/definitions/interaction/def_terminal_action.gd" id="6_action"]
 
 [sub_resource type="Resource" id="Terminal_interactable"]
 script = ExtResource("4_interactable")

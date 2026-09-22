@@ -17,7 +17,7 @@
 [ext_resource type="Script" uid="uid://c1o1ef2y40vmv" path="res://content/systems/input/s_player_input.gd" id="8_qm6qd"]
 [ext_resource type="PackedScene" uid="uid://c8ucvasbalruj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pillar_A/Pillar_A_static.tscn" id="8_vhk8t"]
 [ext_resource type="PackedScene" uid="uid://fjtvcn3mifma" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam/Primitive_Beam_static.tscn" id="9_ofyry"]
-[ext_resource type="PackedScene" uid="uid://dxkg7ovkuxd0i" path="res://content/entities/e_rigid_body_character.tscn" id="13_da1x8"]
+[ext_resource type="PackedScene" uid="uid://dxkg7ovkuxd0i" path="res://content/entities/characters/e_rigid_body_character.tscn" id="13_da1x8"]
 [ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="23_d7jx2"]
 [ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/components/input/c_player_input_controller.gd" id="24_x60uf"]
 [ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/components/motion/c_motion.gd" id="25_t1fd8"]
@@ -30,15 +30,15 @@
 [ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="32_mc3p1"]
 [ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="33_k7ct6"]
 [ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/components/motion/c_carry_load.gd" id="34_efpp8"]
+[ext_resource type="Script" uid="uid://c38vbt1oqvs4f" path="res://content/components/gameplay/c_receiving.gd" id="41_1hfqo"]
+[ext_resource type="Script" uid="uid://bjw3cnt57gt0j" path="res://content/components/gameplay/package_registration.gd" id="44_we4vi"]
 [ext_resource type="PackedScene" uid="uid://cst4hp6tuv5fp" path="res://content/entities/props/bucket.tscn" id="45_8uaqh"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="48_eajlk"]
 [ext_resource type="Script" uid="uid://cpsqfbyw5u8m7" path="res://content/systems/gameplay/s_damage.gd" id="Damage_system"]
 [ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/entities/e_day_session.gd" id="Day_entity"]
+[ext_resource type="Script" uid="uid://04u6xvav8opi" path="res://content/components/gameplay/c_package_ledger.gd" id="Day_ledger"]
 [ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
-[ext_resource type="Script" path="res://content/components/gameplay/c_package_ledger.gd" id="Day_ledger"]
-[ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/entities/day_station.tscn" id="Day_station"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Sleep_interactable"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interaction_actions.gd" id="Sleep_actions"]
-[ext_resource type="Script" path="res://content/systems/gameplay/day_phase_action.gd" id="Sleep_action"]
+[ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/entities/stations/day_station.tscn" id="Day_station"]
 [ext_resource type="Script" uid="uid://bl40hlhadexg3" path="res://content/systems/gameplay/s_day_phase.gd" id="Day_system"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
 [ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
@@ -46,12 +46,15 @@
 [ext_resource type="Script" uid="uid://6wrg3mgcm4e6" path="res://content/systems/interaction/s_interaction_targeting.gd" id="Grab_targeting"]
 [ext_resource type="PackedScene" path="res://content/ui/interaction_hud.tscn" id="Interaction_hud"]
 [ext_resource type="Script" uid="uid://28wsslbgucs3" path="res://content/systems/gameplay/s_receiving.gd" id="Receiving_system"]
-[ext_resource type="PackedScene" path="res://content/entities/receiving_zone.tscn" id="Receiving_zone"]
-[ext_resource type="PackedScene" path="res://content/entities/props/scanner.tscn" id="Scanner_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/terminal.tscn" id="Terminal_scene"]
+[ext_resource type="PackedScene" uid="uid://cpbp0t8jkh0ak" path="res://content/entities/zones/receiving_zone.tscn" id="Receiving_zone"]
+[ext_resource type="PackedScene" uid="uid://bxvltfdywwg6h" path="res://content/entities/scanner/scanner.tscn" id="Scanner_scene"]
+[ext_resource type="Script" uid="uid://7emhwgdbxv7x" path="res://content/definitions/interaction/def_day_phase_action.gd" id="Sleep_action"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_actions.gd" id="Sleep_actions"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Sleep_interactable"]
+[ext_resource type="PackedScene" path="res://content/entities/terminal/terminal.tscn" id="Terminal_scene"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
-size = Vector3(24.292542, 0.50476074, 32.248352)
+size = Vector3(32.071198, 0.50476074, 40.240265)
 
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
@@ -78,6 +81,7 @@ metadata/_custom_type_script = "uid://cfqxt4h2ae432"
 
 [sub_resource type="Resource" id="Resource_o5mei"]
 script = ExtResource("27_bkyhs")
+jump_force = 350.0
 metadata/_custom_type_script = "uid://2wyyc10rw1bb"
 
 [sub_resource type="Resource" id="Resource_rthl4"]
@@ -105,6 +109,10 @@ script = ExtResource("33_k7ct6")
 [sub_resource type="Resource" id="Grab_carry_load"]
 script = ExtResource("34_efpp8")
 
+[sub_resource type="Resource" id="Resource_1hfqo"]
+resource_local_to_scene = true
+script = ExtResource("41_1hfqo")
+
 [sub_resource type="Resource" id="Day_state"]
 script = ExtResource("Day_state")
 
@@ -123,7 +131,7 @@ caption = "Лечь спать"
 
 [sub_resource type="Resource" id="Sleep_station_actions"]
 script = ExtResource("Sleep_actions")
-actions = [SubResource("Sleep_transition")]
+actions = Array[ExtResource("48_eajlk")]([SubResource("Sleep_transition")])
 
 [node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world")]
 script = ExtResource("1_ixiin")
@@ -361,6 +369,134 @@ metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, 6)
 metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 
+[node name="Floor_Dirt_static3" parent="PVZ/Floor" unique_id=172686895 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.5, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (1)3" parent="PVZ/Floor" unique_id=507082294 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -0.5, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)3" parent="PVZ/Floor" unique_id=2014548675 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -0.5, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (3)3" parent="PVZ/Floor" unique_id=352313736 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.5, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (4)3" parent="PVZ/Floor" unique_id=1993052351 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.5, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (23)3" parent="PVZ/Floor" unique_id=345907338 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static4" parent="PVZ/Floor" unique_id=1601313916 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (1)4" parent="PVZ/Floor" unique_id=1031383790 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)4" parent="PVZ/Floor" unique_id=1961143078 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)5" parent="PVZ/Floor" unique_id=197665388 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (7)2" parent="PVZ/Floor" unique_id=58869890 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, -0.5, -2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (8)2" parent="PVZ/Floor" unique_id=858885796 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, -0.49999952, -6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (9)2" parent="PVZ/Floor" unique_id=1634905965 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, -0.5000005, -10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (10)2" parent="PVZ/Floor" unique_id=1104249680 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (11)2" parent="PVZ/Floor" unique_id=2086046221 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 18, -0.5, -18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (12)2" parent="PVZ/Floor" unique_id=733702438 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 18, -0.5, -22)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)6" parent="PVZ/Floor" unique_id=1352474907 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)7" parent="PVZ/Floor" unique_id=168521788 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, -0.5, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)8" parent="PVZ/Floor" unique_id=1999903065 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)9" parent="PVZ/Floor" unique_id=1424721657 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (7)3" parent="PVZ/Floor" unique_id=1453412210 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, -0.5, -2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (8)3" parent="PVZ/Floor" unique_id=1237073203 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, -0.49999952, -6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (9)3" parent="PVZ/Floor" unique_id=552190838 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, -0.5000005, -10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (10)3" parent="PVZ/Floor" unique_id=1164370161 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (11)3" parent="PVZ/Floor" unique_id=1081907322 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 22, -0.5, -18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (12)3" parent="PVZ/Floor" unique_id=1551254366 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 22, -0.5, -22)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)10" parent="PVZ/Floor" unique_id=1783643415 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)11" parent="PVZ/Floor" unique_id=394381704 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, -0.5, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)12" parent="PVZ/Floor" unique_id=380438510 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (3)4" parent="PVZ/Floor" unique_id=1322432751 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (4)4" parent="PVZ/Floor" unique_id=1953634801 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (23)4" parent="PVZ/Floor" unique_id=1083210331 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
 [node name="Floor_static" parent="PVZ/Floor" unique_id=485411696 instance=ExtResource("7_eim2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -6)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
@@ -408,7 +544,7 @@ metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 [node name="StaticBody3D" type="StaticBody3D" parent="PVZ/Floor" unique_id=1313154093]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PVZ/Floor/StaticBody3D" unique_id=2125207814]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.138031, -0.24761963, -8.121307)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.027359, -0.24761963, -4.125351)
 shape = SubResource("BoxShape3D_bghjr")
 
 [node name="Wall" type="Node3D" parent="PVZ" unique_id=114765866]
@@ -571,9 +707,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 0, -2)
 [node name="Scanner" parent="Entityes" unique_id=1882453380 instance=ExtResource("Scanner_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 1.45, -2)
 
+[node name="Scanner2" parent="Entityes" unique_id=935711068 instance=ExtResource("Scanner_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2402446, 1.45, -2)
+
 [node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6905279, 0, 9.102254)
 package_parent = NodePath("..")
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_1hfqo")])
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")

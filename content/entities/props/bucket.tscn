@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cst4hp6tuv5fp"]
 
-[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/entities/props/e_grabbable.gd" id="1_7bnpv"]
+[ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/entities/e_grabbable.gd" id="1_7bnpv"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_of718"]
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="3_b84gk"]
 [ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="4_dv1qv"]
@@ -11,9 +11,9 @@ metadata/_custom_type_script = "uid://6oap3bonxec0"
 
 [sub_resource type="Resource" id="Resource_lqn1g"]
 script = ExtResource("4_dv1qv")
-hold_distance = 2.5
 rotation_axis = 1
 reset_rotation_on_pickup = true
+hold_distance = 2.5
 max_rotation_speed = 1.0
 throw_velocity = 1.0
 movement_speed_multiplier = 0.45
