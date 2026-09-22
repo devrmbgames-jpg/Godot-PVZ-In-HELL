@@ -51,7 +51,7 @@
 [ext_resource type="Script" uid="uid://7emhwgdbxv7x" path="res://content/definitions/interaction/def_day_phase_action.gd" id="Sleep_action"]
 [ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="Sleep_actions"]
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Sleep_interactable"]
-[ext_resource type="PackedScene" path="res://content/entities/terminal/terminal.tscn" id="Terminal_scene"]
+[ext_resource type="PackedScene" path="res://content/entities/stations/terminal.tscn" id="Terminal_scene"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
 size = Vector3(32.071198, 0.50476074, 40.240265)
@@ -317,6 +317,34 @@ metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -2, -0.5, -22)
 metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 
+[node name="Floor_Dirt_static (13)2" parent="PVZ/Floor" unique_id=832403238 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 10, -0.5, -18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (14)2" parent="PVZ/Floor" unique_id=287629372 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 6, -0.5, -18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (13)3" parent="PVZ/Floor" unique_id=172614930 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 10, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (14)3" parent="PVZ/Floor" unique_id=2041721161 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 6, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (14)4" parent="PVZ/Floor" unique_id=273739271 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 6, -0.5, -10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (15)2" parent="PVZ/Floor" unique_id=1329514279 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, 2, -0.5, -18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (16)2" parent="PVZ/Floor" unique_id=1342343461 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -2, -0.5, -18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
 [node name="Floor_Dirt_static (17)" parent="PVZ/Floor" unique_id=1606187881 instance=ExtResource("2_eim2b")]
 transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -22)
 metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
@@ -341,11 +369,19 @@ metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -2)
 metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 
+[node name="Floor_Dirt_static (21)2" parent="PVZ/Floor" unique_id=608142118 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -2, -0.5, -6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (22)2" parent="PVZ/Floor" unique_id=1770687008 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -2, -0.5, -2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
 [node name="Floor_Dirt_static (23)" parent="PVZ/Floor" unique_id=1195571669 instance=ExtResource("2_eim2b")]
 transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, 2)
 metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 
-[node name="Floor_Dirt_static2" parent="PVZ/Floor" unique_id=832403238 instance=ExtResource("2_eim2b")]
+[node name="Floor_Dirt_static2" parent="PVZ/Floor" unique_id=247923164 instance=ExtResource("2_eim2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.5, 6)
 metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 
@@ -711,7 +747,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 1.45, -2)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2402446, 1.45, -2)
 
 [node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6905279, 0, 9.102254)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6876402, 0, 3.4474401)
 package_parent = NodePath("..")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_1hfqo")])
 
@@ -728,7 +764,7 @@ sleep_station = true
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Sleep_interactable"), SubResource("Sleep_station_actions")])
 
 [node name="Bucket" parent="Entityes" unique_id=263915687 instance=ExtResource("45_8uaqh")]
-transform = Transform3D(1, 0, 0, 0, 0.65209705, -0.7581355, 0, 0.7581355, 0.65209705, 8.994064, 0.9238361, 2.7314274)
+transform = Transform3D(1, 0, 0, 0, 0.65209705, -0.7581355, 0, 0.7581355, 0.65209705, 8.994064, 1.8730338, 4.9519863)
 
 [node name="MarkerSpawnPoint" type="Marker3D" parent="Entityes" unique_id=345863772]
 editor_description = "Маркер где примерно появляются новые клиенты"

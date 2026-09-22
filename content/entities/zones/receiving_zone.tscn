@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cpbp0t8jkh0ak"]
 
-[ext_resource type="Script" uid="uid://kestjkhe0fr5" path="res://content/entities/e_receiving_zone.gd" id="1"]
-[ext_resource type="Resource" uid="uid://btuoi3maxvuq3" path="res://content/definitions/gameplay/packages/morning_supply.tres" id="2"]
+[ext_resource type="Script" uid="uid://kestjkhe0fr5" path="res://content/entities/zones/e_receiving_zone.gd" id="1"]
+[ext_resource type="Resource" uid="uid://btuoi3maxvuq3" path="res://content/definitions/gameplay/deliveries/morning_supply.tres" id="2"]
 [ext_resource type="PackedScene" path="res://content/entities/packages/package.tscn" id="3"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="4_component"]
 [ext_resource type="Script" uid="uid://c38vbt1oqvs4f" path="res://content/components/gameplay/c_receiving.gd" id="5_receiving"]
@@ -24,11 +24,11 @@ package_scene = ExtResource("3")
 component_resources = Array[ExtResource("4_component")]([SubResource("Receiving_state")])
 
 [node name="FloorMark" type="MeshInstance3D" parent="." unique_id=682019643]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8, 0.008, -5.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15399814, 0.008, 0.05292082)
 mesh = SubResource("FloorMark")
 
 [node name="Sign" type="Label3D" parent="." unique_id=1028654537]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8, 2, -6.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.97843623, 0.48866737, 0.21888363)
 pixel_size = 0.003
 billboard = 1
 text = "ПРИЁМКА"
@@ -37,73 +37,73 @@ font_size = 28
 [node name="SpawnPoints" type="Node3D" parent="." unique_id=1654610343]
 
 [node name="Slot1" type="Marker3D" parent="SpawnPoints" unique_id=153205906]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0.05, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8460019, 0.05, -0.44707918)
 
 [node name="Slot2" type="Marker3D" parent="SpawnPoints" unique_id=1601492699]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.05, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6460018, 0.05, -0.44707918)
 
 [node name="Slot3" type="Marker3D" parent="SpawnPoints" unique_id=1759284491]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2, 0.05, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44600177, 0.05, -0.44707918)
 
 [node name="Slot4" type="Marker3D" parent="SpawnPoints" unique_id=1718410226]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4, 0.05, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7539983, 0.05, -0.44707918)
 
 [node name="Slot5" type="Marker3D" parent="SpawnPoints" unique_id=153389248]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.6, 0.05, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9539981, 0.05, -0.44707918)
 
 [node name="Slot6" type="Marker3D" parent="SpawnPoints" unique_id=702580]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.8, 0.05, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1539984, 0.05, -0.44707918)
 
 [node name="Slot7" type="Marker3D" parent="SpawnPoints" unique_id=154580604]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0.05, -7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8460019, 0.05, -1.4470792)
 
 [node name="Slot8" type="Marker3D" parent="SpawnPoints" unique_id=1818810028]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.05, -7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6460018, 0.05, -1.4470792)
 
 [node name="Slot9" type="Marker3D" parent="SpawnPoints" unique_id=1606620070]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2, 0.05, -7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44600177, 0.05, -1.4470792)
 
 [node name="Slot10" type="Marker3D" parent="SpawnPoints" unique_id=1176995406]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4, 0.05, -7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7539983, 0.05, -1.4470792)
 
 [node name="Slot11" type="Marker3D" parent="SpawnPoints" unique_id=826225327]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.6, 0.05, -7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9539981, 0.05, -1.4470792)
 
 [node name="Slot12" type="Marker3D" parent="SpawnPoints" unique_id=1928542681]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.8, 0.05, -7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1539984, 0.05, -1.4470792)
 
 [node name="Slot13" type="Marker3D" parent="SpawnPoints" unique_id=2086103321]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0.05, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8460019, 0.05, 0.5529208)
 
 [node name="Slot14" type="Marker3D" parent="SpawnPoints" unique_id=1779538169]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.05, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6460018, 0.05, 0.5529208)
 
 [node name="Slot15" type="Marker3D" parent="SpawnPoints" unique_id=1608515330]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2, 0.05, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44600177, 0.05, 0.5529208)
 
 [node name="Slot16" type="Marker3D" parent="SpawnPoints" unique_id=1822749899]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4, 0.05, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7539983, 0.05, 0.5529208)
 
 [node name="Slot17" type="Marker3D" parent="SpawnPoints" unique_id=738583060]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.6, 0.05, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9539981, 0.05, 0.5529208)
 
 [node name="Slot18" type="Marker3D" parent="SpawnPoints" unique_id=1183501698]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.8, 0.05, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1539984, 0.05, 0.5529208)
 
 [node name="Slot19" type="Marker3D" parent="SpawnPoints" unique_id=411835542]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0.05, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8460019, 0.05, 1.5529208)
 
 [node name="Slot20" type="Marker3D" parent="SpawnPoints" unique_id=1560613620]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.05, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6460018, 0.05, 1.5529208)
 
 [node name="Slot21" type="Marker3D" parent="SpawnPoints" unique_id=1773828003]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2, 0.05, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44600177, 0.05, 1.5529208)
 
 [node name="Slot22" type="Marker3D" parent="SpawnPoints" unique_id=1622926717]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.4, 0.05, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7539983, 0.05, 1.5529208)
 
 [node name="Slot23" type="Marker3D" parent="SpawnPoints" unique_id=958306623]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.6, 0.05, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9539981, 0.05, 1.5529208)
 
 [node name="Slot24" type="Marker3D" parent="SpawnPoints" unique_id=222368150]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.8, 0.05, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1539984, 0.05, 1.5529208)
