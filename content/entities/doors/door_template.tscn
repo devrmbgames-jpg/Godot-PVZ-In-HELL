@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://bfyevmoy76bm3"]
+
+[ext_resource type="Script" uid="uid://da3on0aew0mnw" path="res://content/entities/doors/e_doors.gd" id="1_44h7p"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_h1wor"]
+[ext_resource type="PackedScene" uid="uid://xwq2rkdlfcja" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Door_A/Door_A.tscn" id="2_vvspe"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="3_g7h2j"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="4_xp8ml"]
+[ext_resource type="Script" uid="uid://cyxr2fh0ow2cw" path="res://content/definitions/interaction/def_open_door_action.gd" id="5_c4htt"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="6_avdcj"]
+
+[sub_resource type="Resource" id="Resource_kyu5v"]
+script = ExtResource("3_g7h2j")
+metadata/_custom_type_script = "uid://6oap3bonxec0"
+
+[sub_resource type="Resource" id="Resource_4qx6d"]
+script = ExtResource("5_c4htt")
+action_id = &"open_door"
+slot = 0
+metadata/_custom_type_script = "uid://cyxr2fh0ow2cw"
+
+[sub_resource type="Resource" id="Resource_uqafv"]
+script = ExtResource("6_avdcj")
+actions = Array[ExtResource("4_xp8ml")]([SubResource("Resource_4qx6d")])
+reserved_slots = 1
+metadata/_custom_type_script = "uid://dui6s0tapwhk7"
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
+size = Vector3(1.531498, 2.7119966, 0.1953125)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mn5t4"]
+size = Vector3(1.5908661, 2.737605, 0.2578125)
+
+[node name="DoorTemplate" type="AnimatableBody3D" unique_id=18274721 node_paths=PackedStringArray("hinge_joint", "door_root")]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_44h7p")
+hinge_joint = NodePath("HingeJoint3D")
+door_root = NodePath("RigidBody3D")
+component_resources = Array[ExtResource("2_h1wor")]([SubResource("Resource_kyu5v"), SubResource("Resource_uqafv")])
+
+[node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=1842995147]
+collision_mask = 29
+mass = 20.0
+
+[node name="Visual" parent="RigidBody3D" unique_id=1372148142 instance=ExtResource("2_vvspe")]
+
+[node name="ColShape" type="CollisionShape3D" parent="RigidBody3D" unique_id=2041878206]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.80653954, 1.4075797, -0.00012207031)
+shape = SubResource("BoxShape3D_bghjr")
+
+[node name="RemoteTransform3D" type="RemoteTransform3D" parent="RigidBody3D" unique_id=623068967]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8029785, 1.3941956, 0)
+remote_path = NodePath("../../ColInteract")
+
+[node name="HingeJoint3D" type="HingeJoint3D" parent="." unique_id=1179513512]
+transform = Transform3D(-4.371139e-08, 1, 4.371139e-08, 0, -4.371139e-08, 1, 1, 4.371139e-08, 1.9106855e-15, 0, 2.816675, 0)
+node_a = NodePath("..")
+node_b = NodePath("../RigidBody3D")
+params/bias = 0.99
+angular_limit/enable = true
+
+[node name="ColInteract" type="CollisionShape3D" parent="." unique_id=1810402224]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7916031, 1.4023461, 0)
+shape = SubResource("BoxShape3D_mn5t4")

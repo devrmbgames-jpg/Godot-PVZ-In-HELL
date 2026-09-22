@@ -63,7 +63,7 @@ height = 1.2080078
 [sub_resource type="BoxShape3D" id="BoxShape3D_mn5t4"]
 size = Vector3(1.2893066, 0.15661621, 2.2680664)
 
-[node name="PushCart" type="RigidBody3D" unique_id=1784173109 node_paths=PackedStringArray("exception_collision_list")]
+[node name="PushCart" type="RigidBody3D" unique_id=1784173109]
 collision_layer = 8
 collision_mask = 29
 axis_lock_angular_x = true
@@ -73,7 +73,6 @@ continuous_cd = true
 linear_damp = 2.0
 angular_damp = 2.0
 script = ExtResource("1_body")
-exception_collision_list = [NodePath("")]
 component_resources = Array[ExtResource("2_component")]([SubResource("Pushable"), SubResource("Interactable"), SubResource("Actions")])
 
 [node name="Visual" type="Node3D" parent="." unique_id=188755171]
