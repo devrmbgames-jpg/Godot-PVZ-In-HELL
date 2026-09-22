@@ -6,7 +6,7 @@ class_name E_ReceivingZone
 @export var package_scene: PackedScene = null
 @export var package_parent: Node3D = null
 @onready var spawn_points: Node3D = $SpawnPoints
-@onready var sign: Label3D = $Sign
+@onready var sign_label: Label3D = $Sign
 
 
 func define_components() -> Array:
@@ -20,7 +20,7 @@ func _process(_delta: float) -> void:
 	var cycle: C_DayCycle = S_DayPhase.current()
 	if receiving == null or cycle == null or supply == null:
 		return
-	sign.text = "ПРИЁМКА · цикл %d\nПоставка: %d / %d%s" % [
+	sign_label.text = "ПРИЁМКА · цикл %d\nПоставка: %d / %d%s" % [
 		cycle.day_index,
 		receiving.delivered_counts.get(cycle.day_index, 0),
 		supply.packages.size(),
