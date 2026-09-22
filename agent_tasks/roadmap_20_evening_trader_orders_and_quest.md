@@ -18,15 +18,16 @@ Status: planned
 
 ## Работы
 
-- [ ] Создать маленькую внешнюю зону и Trader с Food, MedItem и одним utility consumable.
+- [ ] Создать маленькую внешнюю зону и Trader с Food, MedItem и одним utility consumable. Item definitions должны иметь рыночную цену, которую можно сопоставить с учетной стоимостью содержимого Package из ТЗ 07.
 - [ ] Покупка проверяет Money и атомарно выдаёт товар через Inventory contract.
 - [ ] Terminal order создаёт PendingDelivery и однократно списывает/резервирует оплату; предусмотреть заказ расходников в Morning, как разрешает 03.
 - [ ] Добавить definitions LabelPrinter/Cart/BetterScanner/StorageUpgrade без реализации улучшений.
-- [ ] Создать Quest «Не выдавай посылку №XXXX» со связями IssuedBy/TargetsPackage и исходами Completed/Failed/Ignored/Expired; однозначно определить срок и успех.
+- [ ] Создать Quest «Не выдавай посылку №XXXX» со связями IssuedBy/TargetsPackage и исходами Completed/Failed/Ignored/Expired; однозначно определить срок и успех. Quest не должен обходить общий refusal/Complaint/settlement contract: Player всё ещё несет обычные последствия отказа, если Quest отдельно их не компенсирует.
 
 ## Критерии готовности
 
 - В Evening игрок покупает расходник, делает заказ на завтра и получает quest на конкретную Package.
+- Для хотя бы одного содержимого Package учетная стоимость и рыночная цена могут различаться, чтобы будущая дилемма присвоения была data-driven, а не hard-coded.
 - Денег/товаров/заказов не становится больше от повторного события; quest использует identity, а не текст номера.
 - Состояния готовы к сериализации, не зависят от живых Node references.
 
