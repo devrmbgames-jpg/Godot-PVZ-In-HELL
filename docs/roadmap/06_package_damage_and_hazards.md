@@ -31,6 +31,87 @@ R08 не создаёт отдельную «систему урона коро�
 
 Не помещать character-specific cleanup или Package-specific state transitions внутрь общей формулы вычитания Health, если это можно обработать Observer/System владельца соответствующего lifecycle.
 
+### Post-Health-Depletion lifecycle
+
+Переход `C_Health.value > 0 -> 0` является отдельным typed gameplay transition.
+
+Обязательные правила:
+
+- depletion фиксируется только на фактическом crossing через zero;
+- повторный damage по уже нулевому Health не запускает death/destruction повторно;
+- общий damage result должен использовать нейтральную семантику уровня `HEALTH_DEPLETED`, а не считать любой Entity «побежденным»;
+- `S_Damage` публикует результат, но не решает, нужно ли target превратить в труп, мусор, wreck, удалить или оставить в мире;
+- downstream reaction получает исходный source/damage type/request для attribution и последствий.
+
+#### Living Entity
+
+Живой Entity после depletion получает `C_Death` либо эквивалентный typed death-state.
+
+`C_Death`:
+
+- является lifecycle marker/state после zero Health;
+- не заменяет `C_Health`;
+- добавляется ровно один раз;
+- используется character-owned systems/observers для disable control/AI, release held state, death animation/ragdoll/corpse lifecycle.
+
+Полная Customer/monster death behavior относится к R17; R08 задаёт общий contract и минимальную test fixture.
+
+#### Package
+
+Package после depletion:
+
+- не получает `C_Death`;
+- становится `C_PackageState.Damage.DESTROYED`;
+- не удаляется автоматически из ECS/world;
+- должна успеть породить debris/contents/effects и typed Hazard hook;
+- может оставаться разрушенным физическим объектом до отдельного cleanup/lifecycle decision.
+
+Это необходимо, потому что destroyed Package всё ещё может иметь identity, Terminal/Customer consequences, Hazard и persistent state.
+
+### Post-depletion spawn/effect hook
+
+R08 должен предусмотреть generic data-driven hook для реакций после Health depletion.
+
+Предпочтительная архитектура: optional authored Component с definition/resource entries уровня `HealthDepletionEffects` / `OnHealthDepletedSpawn`; точные имена выбираются при реализации по project naming conventions.
+
+Контракт должен позволять без проверки класса Entity описать:
+
+- gameplay debris spawn;
+- contents/drop spawn;
+- optional VFX;
+- optional SFX;
+- отдельные typed downstream hooks.
+
+Минимальные инварианты:
+
+- hook выполняется ровно один раз на committed depletion;
+- отсутствие конфигурации означает отсутствие дополнительных spawn/effects;
+- spawned scene/definition задаются authored data;
+- generic damage arithmetic не делает `instantiate()` и не знает о конкретных debris scenes;
+- VFX/SFX являются presentation side effects и не становятся gameplay authority;
+- Hazard activation для Package может быть отдельным typed hook в R09, даже если запускается тем же depletion transition;
+- удаление исходного Entity допускается только после commit обязательных post-depletion reactions.
+
+R08 реализует contract + placeholder fixture. Финальный мусор, corpse/gore, loot content и production VFX/SFX могут добавляться соответствующими feature/content задачами.
+
+Пример Package:
+
+```text
+C_Health -> 0
+    ↓
+HEALTH_DEPLETED
+    ↓
+C_PackageState.DESTROYED
+    ↓
+PostDepletion dispatcher
+    ├─ debris placeholder
+    ├─ contents placeholder
+    ├─ VFX/SFX placeholder
+    └─ Hazard hook -> R09
+    ↓
+optional later cleanup
+```
+
 ---
 
 ## Получение урона от столкновений
@@ -368,6 +449,8 @@ Damage/Opened не обязаны немедленно списывать ден
 - `C_NoDamage` гарантированно запрещает исходящий damage своего Entity и имеет приоритет над `C_ThrowDamage`.
 - Player/Customer/Package не требуют разных формул impact damage.
 - Package использует `C_Health` вместо отдельного HP authority и сохраняет `Damaged/Destroyed` как package state.
+- Health depletion является single-fire typed transition: living Entity получает death-state, Package — `DESTROYED` без автоматического удаления.
+- Generic post-depletion hook может однократно породить authored debris/contents/VFX/SFX placeholder и передать typed downstream event.
 - Fragile повреждается от более мягкого обращения, Bubble Wrap блокирует разрешённые impact tiers, Liquid реагирует на длительный наклон.
 - Повторный physics contact не создаёт damage каждый кадр.
 - R09 может поверх этого contract реализовать ToxicLeak/Explosion без второго damage pipeline.
