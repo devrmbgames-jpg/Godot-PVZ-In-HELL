@@ -1,5 +1,7 @@
 # ТЗ 12 — Инвентарь и расходники
 
+> **Implementation coverage:** Implementation coverage: virtual Inventory/consumables **R19**, Trader consumption **R20**; physical slots belong to **R11.1**.
+
 ## Цель
 
 Создать простой Inventory для небольших предметов.
