@@ -31,9 +31,10 @@ Player:
 - сообщает номер;
 - ждет;
 - получает правильную Package;
-- уходит.
+- уходит;
+- Player отмечает в Terminal `Забрал`.
 
-Проверяет основной service loop.
+Проверяет основной service loop и раздельный actual/declaration contract.
 
 ## Day — Customer 2
 
@@ -51,6 +52,19 @@ Customer с Don't Look или Keep Looking:
 - запускает horror pressure;
 - Player одновременно ищет Package;
 - failure способен привести к Aggressive.
+
+## Optional Service / Dispute Path
+
+Минимум один альтернативный walkthrough должен проверить одно из решений Player:
+
+- Customer добровольно отказался, а Package осталась до утреннего возврата/выкупа;
+- Player нажал `Потеряна` и получил гарантированный 120% settlement;
+- Player отказал в выдаче;
+- Player не выдал Package, но указал `Забрал`, создав риск Complaint/aggression.
+
+Вертикальный срез не обязан за один день показывать все 120/150/200% ветки, но underlying contracts должны быть совместимы с ТЗ 07.
+
+Минимум одна Package должна пережить смену дня и остаться активной утром второго дня. Это подтверждает, что поздний Customer/10+ day retention не ломается daily reset.
 
 ## Optional Package Event
 
@@ -86,6 +100,8 @@ Player использует SleepPoint.
 Начинается новый Morning.
 
 PendingDelivery доставлена.
+
+Carry-over Package предыдущего дня остается в учете/мире со своим номером, если её lifecycle не был закрыт.
 
 ## Definition of Done
 
