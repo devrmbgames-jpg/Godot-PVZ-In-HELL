@@ -35,6 +35,7 @@ Do not automatically reread roadmap docs, root CONTEXT, unchanged files already 
 - Static typing is required for project GDScript.
 - GDScript visibility is naming-based: private members/helpers start with `_`; public members/functions and `@export` fields do not. Signal slots use the `_on_` prefix. Constants use `UPPER_SNAKE_CASE`.
 - Every project-owned script has a short responsibility description; public API and authored/exported configuration use useful `##` Godot doc-comments.
+- GDScript functions must be visually split into semantic blocks with single blank lines. Simplify dense boolean expressions with named predicates, clear nested `if`s, or private helpers; avoid redundant/misleading casts.
 - No magic gameplay constants; use named constants/data.
 - Never claim a formatter/test/Godot run passed unless it actually ran.
 - Never discard user edits, force-push, rewrite unrelated history, or upgrade dependencies unless requested.
