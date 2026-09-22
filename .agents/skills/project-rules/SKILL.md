@@ -43,3 +43,11 @@ For already-designed repetitive edits, prefer the `mechanical_worker` subagent. 
 ## Validation
 
 Use the narrowest relevant project checks. Never report a runtime/formatter/test result that was not actually executed.
+
+Rendered/visual Godot validation is **opt-in only**:
+- do not launch a rendered game/editor for validation;
+- do not capture screenshots or screen recordings;
+- do not inspect rendered frames through an agent;
+- do not treat a visual task as implicit permission.
+
+Only perform any of the above after explicit user approval in the current task/conversation. Headless Godot/tests/static validation are still allowed. If visual confirmation remains necessary, report it as `NOT RUN — user visual validation required`; the user performs visual tuning in the engine.
