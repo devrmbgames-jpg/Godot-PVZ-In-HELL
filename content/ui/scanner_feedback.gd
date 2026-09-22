@@ -3,10 +3,12 @@ extends Node
 const SAMPLE_RATE: int = 22050
 const BEEP_SECONDS: float = 0.12
 const BEEP_FREQUENCY: float = 1200.0
-const FEEDBACK_SECONDS: float = 2.0
+const FEEDBACK_SECONDS: float = 5.0
 
 @onready var label: Label3D = $Result
 @onready var beep: AudioStreamPlayer3D = $Beep
+@onready var _icon_mesh: MeshInstance3D = $IconOK
+@onready var _clear_timer: Timer = $Timer
 var _remaining: float = 0.0
 
 
@@ -16,23 +18,35 @@ func _ready() -> void:
 	scanner.scan_feedback.connect(_on_scan_feedback)
 	beep.stream = _make_beep()
 	label.visible = false
+	_icon_mesh.visible = false
 
 
-func _process(delta: float) -> void:
-	_remaining = maxf(0.0, _remaining - delta)
-	label.visible = _remaining > 0.0
+
 #endregion
 
 
 #region Presentation
 func _on_scan_feedback(result: ScanResult) -> void:
-	label.text = result.message
-	var success: bool = result.outcome != ScanResult.Outcome.REJECTED
-	label.modulate = Color.LIGHT_GREEN if success else Color.ORANGE
-	_remaining = FEEDBACK_SECONDS
+	label.text = "№%03d" % result.number
+	label.visible = true
+	_icon_mesh.visible = true
+	
 	if result.outcome != ScanResult.Outcome.REJECTED:
 		beep.pitch_scale = 1.0 if result.outcome == ScanResult.Outcome.REGISTERED else 0.8
 		beep.play()
+	
+	match result.outcome :
+		ScanResult.Outcome.REJECTED :
+			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.ORANGE
+			label.modulate = Color.ORANGE
+		ScanResult.Outcome.REGISTERED :
+			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.LIGHT_GREEN
+			label.modulate = Color.LIGHT_GREEN
+		ScanResult.Outcome.ALREADY_REGISTERED :
+			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.DARK_GRAY
+			label.modulate = Color.DARK_GRAY
+	
+	_clear_timer.start(FEEDBACK_SECONDS)
 
 
 func _make_beep() -> AudioStreamWAV:
@@ -49,3 +63,8 @@ func _make_beep() -> AudioStreamWAV:
 	stream.data = samples
 	return stream
 #endregion
+
+
+func _on_timer_timeout() -> void:
+	_icon_mesh.visible = false
+	label.visible = false

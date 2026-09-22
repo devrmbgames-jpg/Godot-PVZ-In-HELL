@@ -49,29 +49,32 @@ static func scan(actor: Entity, scanner: Entity, target: Entity) -> ScanResult:
 		if record.package_id == identity.package_id:
 			result.outcome = ScanResult.Outcome.ALREADY_REGISTERED
 			result.number = record.number
-			result.message = "Уже учтена · № %s" % record.number
+			result.message = "Уже учтена · №%03d" % record.number
 			return result
 	if identity.package_id.is_empty() or identity.definition == null:
 		return result
-	if state.scan == C_PackageState.Scan.SCANNED or not state.registration_number.is_empty():
+	if state.scan == C_PackageState.Scan.SCANNED or state.registration_number != 0:
 		result.message = "Ошибка реестра: запись отсутствует"
 		return result
 	var cycle: C_DayCycle = S_DayPhase.current()
-	var sequence: int = registry.next_numbers.get(cycle.day_index, 1)
+	
+	var sequence: int = 8 
+	while registry.has_package_with_number(sequence) :
+		sequence += 1
+	
 	var registration: PackageRegistration = PackageRegistration.new()
 	registration.package_id = identity.package_id
 	registration.day_index = cycle.day_index
-	registration.number = "%03d-%03d" % [cycle.day_index, sequence]
+	registration.number = sequence
 	registration.definition = identity.definition
 	registry.records.append(registration)
-	registry.next_numbers[cycle.day_index] = sequence + 1
 	state.registration_number = registration.number
 	state.registration_day = cycle.day_index
 	state.scan = C_PackageState.Scan.SCANNED
 	state.registration = C_PackageState.Registration.REGISTERED
 	result.outcome = ScanResult.Outcome.REGISTERED
 	result.number = registration.number
-	result.message = "Зарегистрирована · № %s" % registration.number
+	result.message = "Зарегистрирована · №%03d" % registration.number
 	return result
 #endregion
 

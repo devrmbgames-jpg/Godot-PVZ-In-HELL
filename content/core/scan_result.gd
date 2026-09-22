@@ -9,5 +9,5 @@ enum Outcome {
 
 var outcome: Outcome = Outcome.REJECTED
 var package_id: String = ""
-var number: String = ""
+var number: int = 0
 var message: String = "Нет доступной посылки"
