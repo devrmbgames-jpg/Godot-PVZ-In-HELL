@@ -1,5 +1,7 @@
 # ТЗ 04 — Утренняя приемка посылок
 
+> **Implementation coverage:** Implementation coverage: receiving **R05**, package handling consequences **R08**, persistence/returns **R21**.
+
 ## Цель
 
 Создать первый полный рабочий процесс ПВЗ.
