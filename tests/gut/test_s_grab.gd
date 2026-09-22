@@ -1,4 +1,5 @@
 extends GutTest
+## Regression coverage for physical holding, input capture and hand tools.
 
 
 ## Headless DisplayServer cannot capture the cursor. Replace only this OS boundary.
@@ -144,6 +145,122 @@ func _add_external_grip(held: Entity, slot_index: C_Grabbable.HoldSlot) -> void:
 
 
 #region Gameplay transitions
+func test_marker_samples_follow_package_transform_and_split_faces() -> void:
+	box_entity.add_component(C_PackageState.new())
+	box_entity.add_component(C_PackageMarks.new())
+	var marker: C_Marker = C_Marker.new()
+	box_body.rotation = Vector3(0.2, 0.6, -0.1)
+	var local_point: Vector3 = Vector3(0.1, 0.3, 0.0)
+	var normal: Vector3 = box_body.global_basis * Vector3.UP
+	S_Marker.append_sample(marker, box_entity, box_body.to_global(local_point), normal)
+	var marks: C_PackageMarks = box_entity.get_component(C_PackageMarks) as C_PackageMarks
+	assert_eq(marks.point_count, 1)
+	assert_almost_eq(
+		marks.strokes[0].points[0],
+		local_point + Vector3.UP * S_Marker.SURFACE_OFFSET,
+		Vector3.ONE * 0.0001,
+	)
+	var saved: Vector3 = marks.strokes[0].points[0]
+	box_body.position += Vector3(2.0, 0.0, 0.0)
+	box_body.rotate_y(0.5)
+	assert_eq(marks.strokes[0].points[0], saved)
+	assert_almost_eq(marks.strokes[0].normal, Vector3.UP, Vector3.ONE * 0.0001)
+
+	S_Marker.append_sample(
+		marker,
+		box_entity,
+		box_body.to_global(Vector3(0.1, 0.3, 0.0)),
+		box_body.global_basis * Vector3.RIGHT,
+	)
+	assert_eq(marks.strokes.size(), 2, "Different faces must not be joined across an edge")
+	S_Marker.break_stroke(marker)
+	S_Marker.append_sample(
+		marker,
+		box_entity,
+		box_body.to_global(local_point),
+		box_body.global_basis * Vector3.UP,
+	)
+	assert_eq(marks.strokes.size(), 3, "A miss or button release must split continuity")
+
+
+func test_marker_marks_are_bounded_and_destroyed_packages_reject_ink() -> void:
+	box_entity.add_component(C_PackageState.new())
+	box_entity.add_component(C_PackageMarks.new())
+	var marker: C_Marker = C_Marker.new()
+	marker.max_package_points = 2
+	for index: int in 3:
+		S_Marker.append_sample(
+			marker,
+			box_entity,
+			box_body.to_global(Vector3(index * 0.02, 0.3, 0.0)),
+			Vector3.UP,
+		)
+	var marks: C_PackageMarks = box_entity.get_component(C_PackageMarks) as C_PackageMarks
+	assert_eq(marks.point_count, 2)
+	var state: C_PackageState = box_entity.get_component(C_PackageState) as C_PackageState
+	state.damage = C_PackageState.Damage.DESTROYED
+	S_Marker.clear_marks(box_entity)
+	assert_eq(marks.point_count, 0)
+	assert_true(marks.strokes.is_empty())
+	S_Marker.append_sample(marker, box_entity, Vector3.ZERO, Vector3.UP)
+	assert_eq(marks.point_count, 0)
+	assert_null(marker.stroke)
+
+
+func test_marker_cancel_releases_only_its_token_and_preserves_hand() -> void:
+	_grabbable(box_entity).allowed_hand_slots = 6
+	assert_true(S_Grab.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.LEFT_HAND))
+	var marker: C_Marker = C_Marker.new()
+	box_entity.add_component(marker)
+	marker.actor = holder_entity
+	marker.capture_token = InteractionControlFocus.acquire(
+		holder_entity,
+		box_entity,
+		InteractionControlFocus.Priority.DRAWING,
+	)
+	var other_owner: RefCounted = RefCounted.new()
+	var other_token: int = InteractionControlFocus.acquire(
+		holder_entity,
+		other_owner,
+		InteractionControlFocus.Priority.PUSH,
+	)
+	input_state.cancel_pressed = true
+	S_Marker.update_session(box_entity, marker)
+	assert_eq(marker.capture_token, 0)
+	assert_null(marker.actor)
+	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.PUSH)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), box_entity)
+	InteractionControlFocus.release(holder_entity, other_token)
+	assert_eq(
+		InteractionControlFocus.current(holder_entity),
+		InteractionControlFocus.Priority.HANDS,
+	)
+
+
+func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> void:
+	var producer: CapturedInput = CapturedInput.new()
+	add_child(producer)
+	var marker: C_Marker = C_Marker.new()
+	marker.capture_token = InteractionControlFocus.acquire(
+		holder_entity,
+		box_entity,
+		InteractionControlFocus.Priority.DRAWING,
+	)
+	marker.actor = holder_entity
+	var original_look: Vector3 = input_state.direction_look
+	producer.look_mouse = Vector2(25.0, 15.0)
+	producer.process([holder_entity], [[input_state]], 1.0 / 60.0)
+	assert_eq(input_state.direction_look, original_look)
+	assert_eq(input_state.look_delta, Vector2(25.0, 15.0))
+	input_state.rotate_held = true
+	assert_false(InteractionActionResolver.wants_rotation(holder_entity, input_state))
+	S_Marker.end(marker)
+	producer.look_mouse = Vector2(25.0, 15.0)
+	producer.process([holder_entity], [[input_state]], 1.0 / 60.0)
+	assert_ne(input_state.direction_look, original_look, "Look resumes after drawing exits")
+	producer.free()
+
+
 func test_interact_picks_up_and_releases_with_load_and_collision_cleanup() -> void:
 	input_state.interact_pressed = true
 	S_Grab.handle_input(holder_entity)

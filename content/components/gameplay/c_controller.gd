@@ -4,6 +4,8 @@ class_name C_Controller
 
 ## Semantic input for the current physics tick; only the input producer writes these.
 var interact_pressed: bool = false
+## Cancel the active drawing capture without toggling the global cursor mode.
+var cancel_pressed: bool = false
 var use_pressed: bool = false
 var action_second_pressed: bool = false
 var physical_override: bool = false

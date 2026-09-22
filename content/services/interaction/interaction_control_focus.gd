@@ -6,6 +6,7 @@ enum Priority {
 	HANDS,
 	CARRY,
 	PUSH,
+	DRAWING,
 	MODAL,
 }
 

@@ -1,8 +1,8 @@
 # R07 — Свободная маркировка и пронумерованные полки
 
-Status: planned
+Status: active
 Зависимости: R02, R06, R06.1
-Ветка/base: зафиксировать при начале реализации.
+Ветка/base: master / 32f09a1.
 Источники: [ТЗ 04](../docs/roadmap/04_morning_package_receiving.md), [ТЗ 05](../docs/roadmap/05_scanner_terminal_marker.md), [RM06.1](../docs/roadmap/06_1_interaction_hands_carry_push.md), [ТЗ 16](../docs/roadmap/16_ui_and_feedback.md).
 
 ## Цель

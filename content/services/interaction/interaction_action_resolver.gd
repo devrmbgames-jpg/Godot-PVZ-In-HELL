@@ -28,7 +28,7 @@ static func handle_input(actor: Entity) -> void:
 	interactor.last_action_tick = controller.input_tick
 	control.rotation_active = false
 	var active_focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
-	if active_focus == InteractionControlFocus.Priority.MODAL:
+	if active_focus >= InteractionControlFocus.Priority.DRAWING:
 		refresh_prompt(actor)
 		return
 	if active_focus == InteractionControlFocus.Priority.PUSH:
@@ -96,7 +96,7 @@ static func resolve(
 		return null
 
 	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
-	if focus == InteractionControlFocus.Priority.MODAL:
+	if focus >= InteractionControlFocus.Priority.DRAWING:
 		return null
 
 	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
@@ -228,6 +228,10 @@ static func refresh_prompt(actor: Entity) -> void:
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
 	var lines: PackedStringArray = []
+	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.DRAWING:
+		interactor.prompt_text = "Маркер · кнопка руки + мышь · [E / Esc] Завершить"
+		return
+
 	for slot_index: int in BUTTON_LABELS.size():
 		var choice: InteractionActionChoice = resolve(
 			actor,

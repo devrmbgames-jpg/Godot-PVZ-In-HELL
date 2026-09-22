@@ -1,0 +1,69 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/entities/props/e_grabbable_body.gd" id="Entity"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/components/interaction/c_marker.gd" id="Marker"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_grabbable.gd" id="Grabbable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_interaction_action.gd" id="ActionBase"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_mark_action.gd" id="Action"]
+
+[sub_resource type="Resource" id="Marker"]
+resource_local_to_scene = true
+script = ExtResource("Marker")
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="Grabbable"]
+script = ExtResource("Grabbable")
+allowed_hand_slots = 6
+manual_rotation_enabled = false
+reset_rotation_on_pickup = true
+
+[sub_resource type="Resource" id="Action"]
+script = ExtResource("Action")
+action_id = &"mark_package"
+slot = 2
+caption = "Рисовать маркером"
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("Actions")
+actions = Array[ExtResource("ActionBase")]([SubResource("Action")])
+reserved_slots = 4
+
+[sub_resource type="StandardMaterial3D" id="BodyMaterial"]
+albedo_color = Color(0.92, 0.69, 0.13, 1)
+
+[sub_resource type="StandardMaterial3D" id="InkMaterial"]
+albedo_color = Color(0.025, 0.035, 0.09, 1)
+
+[sub_resource type="BoxMesh" id="BodyMesh"]
+material = SubResource("BodyMaterial")
+size = Vector3(0.055, 0.055, 0.24)
+
+[sub_resource type="BoxMesh" id="TipMesh"]
+material = SubResource("InkMaterial")
+size = Vector3(0.035, 0.035, 0.045)
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.06, 0.06, 0.29)
+
+[node name="Marker" type="RigidBody3D"]
+collision_layer = 10
+collision_mask = 29
+mass = 0.12
+continuous_cd = true
+script = ExtResource("Entity")
+component_resources = Array[ExtResource("Component")]([SubResource("Marker"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+
+[node name="Body" type="MeshInstance3D" parent="."]
+mesh = SubResource("BodyMesh")
+
+[node name="Tip" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0, -0.14)
+mesh = SubResource("TipMesh")
+
+[node name="CollisionShape" type="CollisionShape3D" parent="."]
+shape = SubResource("Shape")

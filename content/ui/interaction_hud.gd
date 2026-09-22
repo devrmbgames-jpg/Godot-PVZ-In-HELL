@@ -36,7 +36,10 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	var captured: bool = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	prompt.visible = captured
-	crosshair.visible = captured
+	crosshair.visible = (
+		captured
+		and InteractionControlFocus.current(player) != InteractionControlFocus.Priority.DRAWING
+	)
 	_announcement_remaining = maxf(0.0, _announcement_remaining - delta)
 	announcement.visible = _announcement_remaining > 0.0
 	var cycle: C_DayCycle = S_DayPhase.current()

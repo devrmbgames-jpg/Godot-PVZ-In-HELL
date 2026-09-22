@@ -1,6 +1,7 @@
 # Current Work
 
-- State: idle; R06.1 complete, including reusable warehouse registration numbers.
-- Validation: 64/64 GUT tests (302 assertions); five smoke checks PASS; structure, formatter/lint and diff checks PASS.
-- Durable contracts: docs/physical_grab.md, docs/controls.md, content/CONTEXT.md; current paths in PROJECT_INDEX.md.
-- Next planned task: R07. Existing dirty addons/gecs was preserved and excluded from commits.
+- State: active R07; marker stage complete, shelves next. Base master/32f09a1.
+- Contract: docs/package_marking.md; hand mapping, DRAWING capture, E/Esc exit, first-hit rays, bounded local strokes, destruction cleanup. No OCR/shelf tracking.
+- Paths: S_Marker/C_Marker/C_PackageMarks, marker.tscn, package_marks_view.gd, existing input/resolver/Grab lifecycle, marker_shelves_smoke.tscn; routes in PROJECT_INDEX.md.
+- Validation: 68/68 GUT tests (324 asserts), four smoke checks PASS; structure/formatter/diff PASS. Godot root-certificate warning is environmental. Preserve dirty addons/gecs.
+- Next: create numbered physical shelf scene, place in main_level.tscn, extend marker_shelves_smoke with physical storage/render preview.

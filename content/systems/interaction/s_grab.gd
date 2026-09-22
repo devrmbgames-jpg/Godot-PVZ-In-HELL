@@ -313,6 +313,10 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 
 ## Idempotently restores collision, sleep, capture and slot-cache state.
 static func grip_removed(held: Entity, grip: Relationship) -> void:
+	var marker: C_Marker = held.get_component(C_Marker) as C_Marker
+	if marker != null:
+		S_Marker.end(marker)
+
 	var grip_data: C_HeldBy = grip.relation as C_HeldBy
 	if not grip_data.lifecycle_applied:
 		return

@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://content/ui/interaction_hud.gd" id="1"]
+[ext_resource type="Script" path="res://content/ui/marker_pointer.gd" id="MarkerPointer"]
 
 [node name="InteractionHud" type="CanvasLayer"]
 script = ExtResource("1")
@@ -13,6 +14,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="MarkerPointer" type="Control" parent="Overlay"]
+mouse_filter = 2
+script = ExtResource("MarkerPointer")
 
 [node name="Crosshair" type="Label" parent="Overlay"]
 layout_mode = 0

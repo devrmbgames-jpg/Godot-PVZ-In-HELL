@@ -47,6 +47,7 @@ Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the
 | Receiving | [s_receiving.gd](content/systems/gameplay/s_receiving.gd), [c_receiving.gd](content/components/gameplay/c_receiving.gd), [receiving_zone.tscn](content/entities/zones/receiving_zone.tscn) |
 | Delivery data | [def_delivery.gd](content/definitions/gameplay/deliveries/def_delivery.gd), [morning_supply.tres](content/definitions/gameplay/deliveries/morning_supply.tres), [receiving_batch.gd](content/contracts/receiving/receiving_batch.gd) |
 | Scanner | [e_scanner.gd](content/entities/tools/e_scanner.gd), [scanner.tscn](content/entities/tools/scanner.tscn), [def_scan_action.gd](content/definitions/interaction/def_scan_action.gd) |
+| Marker / package ink | [s_marker.gd](content/systems/interaction/s_marker.gd), [marker.tscn](content/entities/tools/marker.tscn), [c_package_marks.gd](content/components/gameplay/c_package_marks.gd); contract: [package_marking.md](docs/package_marking.md) |
 | Registration | [package_registration_service.gd](content/services/packages/package_registration_service.gd), [package_registration_record.gd](content/contracts/packages/package_registration_record.gd), [package_scan_result.gd](content/contracts/packages/package_scan_result.gd) |
 | Terminal | [e_terminal.gd](content/entities/stations/e_terminal.gd), [terminal.tscn](content/entities/stations/terminal.tscn), [terminal_panel.tscn](content/ui/terminal_panel.tscn) |
 
@@ -62,6 +63,7 @@ Start with the narrowest relevant check.
 - Hands/Terminal capture smoke: `tests/smoke/interaction_actions_smoke.tscn` (`--quit-after 180`, require PASS).
 - Day-cycle smoke: `tests/smoke/day_cycle_smoke.tscn`.
 - Damage smoke: `tests/smoke/damage_smoke.tscn`.
+- Marker/shelves smoke: `tests/smoke/marker_shelves_smoke.tscn` (`--quit-after 360`, require PASS).
 - Always run `git diff --check` before a milestone commit.
 
 ## Dependency authority

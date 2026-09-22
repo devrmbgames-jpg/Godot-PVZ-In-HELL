@@ -15,9 +15,24 @@ var _use_pending: bool = false
 var _secondary_pending: bool = false
 var _drop_start_pending: bool = false
 var _drop_end_pending: bool = false
+var _cancel_pending: bool = false
 
 
 #region Godot input
+func _input(event: InputEvent) -> void:
+	if not event.is_action_pressed(&"menu") or event.is_echo():
+		return
+	if not is_instance_valid(ECS.world):
+		return
+
+	var players: QueryBuilder = ECS.world.query.with_all([C_PlayerInputController, C_GrabControl])
+	for actor: Entity in players.execute():
+		if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.DRAWING:
+			_cancel_pending = true
+			get_viewport().set_input_as_handled()
+			return
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not _accepts_input():
 		return
@@ -58,6 +73,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		var entity: Entity = entities[entity_index]
 		var controller: C_Controller = controllers[entity_index]
 		controller.input_tick += 1
+		controller.cancel_pressed = _cancel_pending
 		controller.rotate_held = captured and Input.is_action_pressed(&"rotate_held")
 		_update_drop(controller, entity, captured, delta)
 		controller.use_pressed = captured and _use_pending
@@ -85,9 +101,16 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			controller.direction_look = -(cart as Node as Node3D).global_basis.z
 			controller.direction_look.y = 0.0
 			controller.look_delta = Vector2.ZERO
-		elif not rotating:
+		elif (
+			not rotating
+			and InteractionControlFocus.current(entity) < InteractionControlFocus.Priority.DRAWING
+		):
 			_update_look(controller, entity as Node as Node3D)
-		_update_motion(controller, captured)
+		_update_motion(
+			controller,
+			captured
+			and InteractionControlFocus.current(entity) < InteractionControlFocus.Priority.DRAWING,
+		)
 	look_mouse = Vector2.ZERO
 	_interact_pending = false
 	_throw_pending = false
@@ -95,6 +118,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	_secondary_pending = false
 	_drop_start_pending = false
 	_drop_end_pending = false
+	_cancel_pending = false
 #endregion
 
 

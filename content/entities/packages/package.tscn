@@ -9,6 +9,13 @@
 [ext_resource type="Script" uid="uid://cg5pggkojxvba" path="res://content/components/gameplay/c_package_state.gd" id="7_state"]
 [ext_resource type="Script" uid="uid://cl61pawe4uoch" path="res://content/components/gameplay/c_package_integrity.gd" id="8_integrity"]
 
+[ext_resource type="Script" path="res://content/components/gameplay/c_package_marks.gd" id="Marks"]
+[ext_resource type="Script" path="res://content/ui/package_marks_view.gd" id="MarksView"]
+
+[sub_resource type="Resource" id="Package_marks"]
+resource_local_to_scene = true
+script = ExtResource("Marks")
+
 [sub_resource type="Resource" id="Package_interactable"]
 script = ExtResource("5_interactable")
 
@@ -31,4 +38,8 @@ description = "Parcel"
 [node name="Package" instance=ExtResource("1_box")]
 script = ExtResource("2_package")
 package_definition = SubResource("Definition")
-component_resources = Array[ExtResource("4_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Package_state"), SubResource("Package_integrity")])
+component_resources = Array[ExtResource("4_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Package_state"), SubResource("Package_integrity"), SubResource("Package_marks")])
+
+[node name="Marks" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+script = ExtResource("MarksView")

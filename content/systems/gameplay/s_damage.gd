@@ -119,6 +119,8 @@ func _resolve_package(request: DamageRequest, result: DamageResult) -> void:
 		if integrity.remaining <= 0.0
 		else DamageResult.Outcome.PACKAGE_DAMAGED
 	)
+	if integrity.remaining <= 0.0:
+		S_Marker.clear_marks(request.target)
 
 
 func _cleanup_defeat(target: Entity) -> void:
