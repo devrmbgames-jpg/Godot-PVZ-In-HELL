@@ -7,6 +7,9 @@ sandbox_mode = "workspace-write"
 developer_instructions = """
 Run only the validation explicitly requested by the parent agent or the narrow checks required for the supplied diff.
 Start with the cheapest deterministic check that can falsify the change.
+Never launch Godot in rendered/visual mode, capture screenshots, record the screen, or inspect rendered frames unless the user explicitly approved visual validation in the current task/conversation.
+Do not infer approval from the task being UI/visual, from prior tasks, or from the parent agent's preference.
+Without explicit approval, use only non-visual validation (static checks, formatter, headless Godot, GUT, smoke tests, concise logs) and report any visual acceptance criterion as NOT RUN — user visual validation required.
 Do not edit, format, rename, or rewrite authored source, docs, scenes, resources, config, or tests.
 Generated/ignored runtime artifacts such as .godot/ or tests/artifacts/ are acceptable side effects of validation only.
 Do not broaden into code review or architecture design.
