@@ -1,86 +1,62 @@
 ---
 name: project-navigation
 description: >
-  Navigate a large Godot repository with minimal token use using PROJECT_INDEX.md,
-  CONTEXT.md routing, targeted symbol searches, and incremental index maintenance.
-  Use when locating code, understanding ownership, or when the project has no usable index.
+  Navigate this Godot repository with minimal token use using CURRENT_WORK,
+  PROJECT_INDEX, targeted searches, and evidence-driven expansion.
+  Use when locating code, ownership, references, or canonical contracts.
 ---
 
 # Project navigation
 
-The goal is to find the smallest correct edit surface without scanning the entire project.
+Goal: find the smallest correct edit surface, not build a mental copy of the repository.
 
-## Primary navigation order
+## Search order
 
-1. `CURRENT_WORK.md`
-2. root `CONTEXT.md`
-3. root `PROJECT_INDEX.md`
-4. nearest subsystem `CONTEXT.md`
-5. exact implementation file(s)
-6. direct callers/callees only
+1. `CURRENT_WORK.md`.
+2. `PROJECT_INDEX.md`.
+3. Exact path/symbol named by the task/checkpoint.
+4. Relevant subsystem `CONTEXT.md` only if the contract is still unclear.
+5. Direct data contract + owner + callers/callees/tests.
+6. Broader search only when a specific missing fact requires it.
 
-Do not recursively read the whole project to "build context."
+Root `CONTEXT.md` is not mandatory for every small task.
 
-## If `PROJECT_INDEX.md` exists
+## Investigation budget
 
-Use it as the primary map.
+Before forming the first working hypothesis, normally inspect at most 6–8 implementation files.
 
-Start from the canonical file/path relevant to the task and inspect:
-- the requested symbol;
-- its data contract;
-- its direct owner;
-- direct callers/callees;
-- tests for that behavior.
+Before expanding further, name the missing fact you are trying to prove. Search only for that fact.
 
-Expand outward only when evidence requires it.
-
-## If the index is missing
-
-Create a **small canonical index** before broad exploration.
-
-Use only cheap discovery:
-1. read `project.godot`;
-2. inspect top-level directories;
-3. locate existing `CONTEXT.md`, `AGENTS.md`, `README`, test roots, and dependency roots;
-4. search exact names relevant to the current task (`class_name`, known component/system names);
-5. record only canonical entry points discovered.
-
-Do not enumerate and read every `.gd`, `.tscn`, `.tres`, or asset file.
-
-## If the index is stale
-
-Patch only the affected rows. Do not regenerate the whole index unless the architecture actually changed.
-
-## Index content
-
-`PROJECT_INDEX.md` should contain:
-- project-owned subsystem roots;
-- canonical files/contracts;
-- task -> context routing;
-- dependency pins/paths;
-- canonical validation commands.
-
-It should **not** contain:
-- every source file;
-- generated/imported files;
-- raw assets;
-- full dependency trees;
-- function-by-function descriptions;
-- copied code.
+Stop when you know:
+- authoritative owner;
+- data/state contract;
+- mutation/execution path;
+- direct regression surface.
 
 ## Search strategy
 
-Prefer:
-1. exact file path from index;
-2. exact class/function/component name;
-3. direct references to that symbol;
+Prefer, in order:
+1. exact indexed path;
+2. exact class/function/component/resource name;
+3. direct references;
 4. narrow directory search;
-5. broad search only as a last resort.
+5. broad search as last resort.
 
-After finding the owner, stop exploring unrelated matches.
+For large `.tscn` files, find the exact node/subresource/NodePath first. Do not dump the full scene unless its complete structure is actually required.
 
-## Addons boundary
+Do not:
+- recursively read directories;
+- enumerate every source file;
+- reread unchanged files already summarized in `CURRENT_WORK.md`;
+- inspect roadmap docs unless the active task depends on them;
+- inspect `addons/` except to verify a specific pinned API.
 
-`addons/` is read-only unless the user explicitly requests addon/dependency work.
+## PROJECT_INDEX maintenance
 
-You may inspect addon code to verify an API, but never patch, format, rename, refactor, or upgrade it as part of normal project work.
+Keep the index canonical and small. Patch only affected rows.
+
+Include subsystem roots, canonical contracts, dependency pins, and validation entry points. Do not add asset manifests, generated files, copied code, or function-by-function descriptions.
+
+## Subagent use
+
+If discovery is likely to require several reads but no architectural decision, prefer the project `explorer` subagent. It should return concise paths/evidence to the main agent rather than forwarding full file contents.
