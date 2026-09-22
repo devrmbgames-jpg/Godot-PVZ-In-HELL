@@ -13,6 +13,7 @@ Compact canonical map. Read [CONTEXT.md](CONTEXT.md), then the relevant subsyste
 | Editor/import helpers | `utils/` | Asset generation and import tooling |
 | Tests | [test_s_jump.gd](tests/gut/test_s_jump.gd), [test_s_grab.gd](tests/gut/test_s_grab.gd), [test_grab_main_scene.gd](tests/gut/test_grab_main_scene.gd) | Unit and real physics integration tests |
 | Documentation | [docs/README.md](docs/README.md) | Documentation navigation |
+| Agent efficiency | [docs/codex_token_economy.md](docs/codex_token_economy.md), [.codex/config.toml](.codex/config.toml) | Model/subagent routing and token budget |
 | Planning | `godoban_boards/`, `kanban_tasks_data.kanban` | Board data |
 | Dependencies | `addons/` | Read-only by default |
 
