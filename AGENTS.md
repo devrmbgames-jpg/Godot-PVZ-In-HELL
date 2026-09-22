@@ -103,3 +103,11 @@ Keep only unfinished task files in `agent_tasks/`. After completion:
 - return `WORK.md` and `CURRENT_WORK.md` to idle.
 
 Validation should be the narrowest relevant check first. Do not add new GUT suites without explicit user instruction.
+
+Before a milestone commit:
+1. run `python utils/validate_project_structure.py`;
+2. for changed project-owned `.gd` files, run the formatter checks from `.agents/skills/gdscript-format/SKILL.md` when the CLI is available;
+3. run the narrow relevant GUT/smoke/runtime check;
+4. run `git diff --check`.
+
+If `pre-commit` is installed, `.pre-commit-config.yaml` automates the deterministic structure check, staged diff check, and optional GDScript formatter check. Do not install/upgrade it silently during unrelated work.
