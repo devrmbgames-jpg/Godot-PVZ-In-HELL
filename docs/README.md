@@ -12,6 +12,7 @@ PVZ In Hell Simulator — проект на Godot 4.7 с project-owned GECS game
 | [История задач](../task_history.md) | Одна строка на выполненную задачу |
 | [Точка восстановления](../CURRENT_WORK.md) | Состояние для продолжения работы |
 | [Экономия Codex/Astra](codex_token_economy.md) | Модели, subagents, context budget и правила экономии токенов |
+| [Шпаргалка по запросам к ИИ](ai_prompt_cheatsheet.md) | Как формулировать короткие задачи без лишнего контекста |
 
 Основная project-owned сцена прототипа — `content/scenes/main_level.tscn`. COGITO удалён из текущего project-owned gameplay.
 
