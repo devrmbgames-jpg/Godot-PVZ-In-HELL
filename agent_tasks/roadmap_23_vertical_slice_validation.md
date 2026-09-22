@@ -1,9 +1,9 @@
 # R23 — Полный вертикальный срез
 
 Status: planned
-Зависимости: R01, R02, R03, R04, R05, R06, R07, R08, R09, R10, R11, R12, R13, R14, R15, R16, R17, R18, R19, R20, R21, R22
+Зависимости: R01, R02, R03, R04, R05, R06, RM06.1, R07, R08, R09, R10, R11, R11.1, R12, R13, R14, R15, R16, R17, R18, R19, R20, R21, R22
 Ветка/base: зафиксировать при начале реализации.
-Источники: [ТЗ 00](../docs/roadmap/00_prototype_overview.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md), [ТЗ 18](../docs/roadmap/18_implementation_order.md).
+Источники: [ТЗ 00](../docs/roadmap/00_prototype_overview.md), [ТЗ 08.1](../docs/roadmap/08_1_arrangement_extended_interactions.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md), [ТЗ 18](../docs/roadmap/18_implementation_order.md), [canonical map](../docs/roadmap/README.md).
 
 ## Цель
 
@@ -20,6 +20,7 @@ Status: planned
 
 - [ ] Зафиксировать воспроизводимый набор 6–10 Package, оба опасных эффекта и четыре customer events: normal, light, gaze, floor.
 - [ ] Пройти Morning: scan, Terminal, ручная маркировка/полки, повреждение/вскрытие.
+- [ ] Проверить минимум один reusable extended-interaction path R11.1: prolonged action и физическое placement/fix-unfix без softlock.
 - [ ] Пройти Day: обычная выдача, три разные challenge-семьи, ошибочная/повреждённая выдача, combat path и физические препятствия.
 - [ ] Проверить минимум один альтернативный Package outcome из ТЗ 07: voluntary refusal + return/buyout, Lost 120%, Player refusal 150% или false `TAKEN` + Complaint 200%. Убедиться, что actual outcome и Terminal declaration не схлопываются в одно поле.
 - [ ] Пройти Evening: Trader, Food/MedItem, Quest и заказ; затем Sleep, autosave/load и PendingDelivery утром второго дня.
