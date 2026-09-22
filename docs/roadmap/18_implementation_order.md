@@ -1,257 +1,256 @@
 # ТЗ 18 — Порядок реализации для ИИ агентов
 
-## Принцип
+> **Важно:** номера `ТЗ xx` — это номера design specifications, а не implementation-order.
+> Канонические implementation IDs — `Rxx` / `RMxx.x`.
+> Полная таблица соответствия: [Roadmap canonical map](README.md).
 
-Каждый этап должен давать маленький проверяемый gameplay результат.
+## Правило работы
 
-Не масштабировать контент до полного прохождения vertical slice.
+Каждый implementation task должен давать маленький проверяемый gameplay result.
 
-## Этап 1 — GECS Gameplay Foundation
+Порядок определяется этим документом + [README](README.md) + `agent_tasks/` + `task_history.md`, а не номером исходного ТЗ.
 
-Реализовать:
+Завершённые task-файлы намеренно удаляются из `agent_tasks/`; их статус подтверждается `task_history.md`.
 
-- World integration;
-- Player;
-- Package;
-- Interaction Target;
-- Prompt.
+## Завершённый foundation
 
-Результат: Player видит Package и может выбрать ее как interactable.
+1. **R01** — Package/runtime foundation.
+2. **R02** — contextual interaction foundation.
+3. **R03** — day phase cycle.
+4. **R04** — common damage/health pipeline.
+5. **R05** — morning receiving.
+6. **R06** — scanner / registration / terminal.
+7. **RM06.1** — Inspector-first components, Carry/two hands, control capture and Push.
+8. **R07** — physical marker and numbered shelves.
 
----
-
-## Этап 2 — Physical Interaction
-
-Реализовать:
-
-- Grab;
-- Release;
-- Throw;
-- Rotate;
-- Carry Penalty.
-
-Результат: физическими объектами можно манипулировать и блокировать пространство.
+Не создавать заново task-файлы этих этапов. Использовать durable contracts из roadmap/context и подтверждать завершение через `task_history.md`.
 
 ---
 
-## Этап 3 — Day Phase Cycle
+## R08 — Package Damage / Opening
 
-Реализовать:
+Task: [roadmap_08_package_damage_and_opening.md](../../agent_tasks/roadmap_08_package_damage_and_opening.md)
 
-- Morning;
-- Day;
-- Evening;
-- Night;
-- переходы.
+Основной источник: [ТЗ 06](06_package_damage_and_hazards.md).
 
-Результат: пустой игровой цикл проходит все четыре фазы.
-
----
-
-## Этап 4 — Package Workflow
-
-Реализовать:
-
-- Package state;
-- Scanner;
-- Terminal;
-- registration;
-- reusable Package numbering: `№001`, `№002`, ... using the smallest currently free base number across days;
-- [RM06.1 — Inspector-first компоненты, Carry/две руки и Push](06_1_interaction_hands_carry_push.md);
-- Marker;
-- numbered Shelves.
-
-RM06.1 выполняется после Scanner/Terminal и до Marker/Shelves, чтобы инструменты сразу строились на стабильном contract двух рук, независимого Carry и Push.
-
-Результат: Player принимает и самостоятельно организует поставку, а физические tools используют единый slot/input contract.
-
----
-
-## Этап 5 — Package Properties
-
-Реализовать:
-
-- Normal;
+Результат:
+- physical impact → typed impact contract;
+- Package HP/Integrity;
+- weak/medium/strong severity;
 - Fragile;
-- Heavy;
-- Liquid;
-- Opening;
-- количественный Package HP/Integrity;
-- weak / medium / strong impact severity;
-- Bubble Wrap protection modifier;
-- Damage.
-
-Результат: тип коробки меняет правила обращения.
+- Bubble Wrap protection state;
+- Liquid tilt;
+- opening.
 
 ---
 
-## Этап 6 — Hazard Pipeline
+## R09 — Package Hazards
 
-Реализовать:
+Task: [roadmap_09_package_hazards.md](../../agent_tasks/roadmap_09_package_hazards.md)
 
+Основной источник: [ТЗ 06](06_package_damage_and_hazards.md).
+
+Результат:
 - ToxicLeak;
 - Explosion;
-- common Damage Pipeline.
-
-Результат: содержимое Package может стать физической угрозой.
+- оба эффекта используют общий damage pipeline.
 
 ---
 
-## Этап 7 — Customer Base
+## R10 — Wallet / Daily Results
 
-Реализовать:
+Task: [roadmap_10_wallet_and_daily_results.md](../../agent_tasks/roadmap_10_wallet_and_daily_results.md)
 
-- arrival;
-- lifecycle;
+Источники: [ТЗ 07](07_customer_flow_and_delivery.md), [ТЗ 14](14_evening_meta_scaffold.md), [ТЗ 15](15_night_save_next_day.md).
+
+Результат:
+- Money/Penalties;
+- typed idempotent settlement operations;
+- daily result contract.
+
+R10 идёт **до R11**, потому что Customer outcome должен отправлять денежный результат в уже существующий authority, а не создавать деньги внутри Customer/UI.
+
+---
+
+## R11 — Customer Flow / Delivery / Disputes
+
+Task: [roadmap_11_customer_flow_and_delivery.md](../../agent_tasks/roadmap_11_customer_flow_and_delivery.md)
+
+Основной источник: [ТЗ 07](07_customer_flow_and_delivery.md).
+
+Результат:
+- Customer schedule/lifecycle;
 - RequestedPackage;
-- DeliveryCounter;
-- correct/wrong/opened/damaged package;
-- actual delivery outcome отдельно от Terminal declaration;
-- `Забрал / Отказался / Потеряна`;
-- Customer voluntary refusal и Player denial;
-- Complaint/dispute records;
-- Satisfaction;
-- leaving.
-
-Результат: Customer service поддерживает как честную выдачу, так и отказ/потерю/ложную отметку с типизированным исходом и будущими последствиями.
+- actual outcome отдельно от Terminal declaration;
+- voluntary refusal / Player denial / Lost;
+- Complaint/dispute;
+- late Customer and long-lived Package.
 
 ---
 
-## Этап 7.5 — Arrangement / Extended Interaction
+## R11.1 — Extended Interaction / Arrangement
 
-Реализовать [ТЗ 08.1](08_1_arrangement_extended_interactions.md):
+Task: [roadmap_11_1_extended_interactions_and_arrangement.md](../../agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md)
 
+Основной источник: [ТЗ 08.1](08_1_arrangement_extended_interactions.md).
+
+Результат:
 - prolonged interaction + progress/reset policies;
-- Door lock/access requirements;
-- reusable physical storage slots;
+- generic access requirements;
+- physical storage/body slots;
 - Carry PlacementArea;
-- Hammer Fix/Unfix для мебели;
+- Hammer Fix/Unfix;
 - support-neighbor unfix safety.
 
-Результат: Player может физически организовывать пространство и предметы, а инструменты/двери/мебель используют общие interaction contracts.
+R11.1 — отдельный generic foundation. R13/R19 должны **переиспользовать** его, а не создавать параллельные Door/storage/placement systems.
 
 ---
 
-## Этап 8 — Dialogue
+## R12 — Dialogue Integration
 
-Реализовать:
+Task: [roadmap_12_dialogue_integration.md](../../agent_tasks/roadmap_12_dialogue_integration.md)
 
-- lines;
-- choices;
-- conditions;
-- package number;
-- simple riddle.
+Основной источник: [ТЗ 09](09_dialogue_system.md).
 
-Результат: Customer service начинается через Dialogue.
-
----
-
-## Этап 9 — Environment Interactables
-
-Реализовать:
-
-- Doors;
-- Windows;
-- Drawers;
-- Lights.
-
-Результат: окружение готово для физических и horror challenges.
+Результат:
+- DialogueManager adapter;
+- gameplay conditions/actions;
+- package/customer/dispute integration;
+- riddle/dialogue flow.
 
 ---
 
-## Этап 10 — Challenge Framework
+## R13 — Environment Interactables
 
-По порядку:
+Task: [roadmap_13_environment_interactables.md](../../agent_tasks/roadmap_13_environment_interactables.md)
 
-1. Light On/Off;
-2. Don't Look или Keep Looking;
-3. Floor Hazard.
+Источники: [ТЗ 08.1](08_1_arrangement_extended_interactions.md), [ТЗ 13](13_environment_interactables.md).
 
-Результат: минимум три Customer Event используют общий Challenge Framework.
+Результат:
+- Door;
+- Window;
+- Drawer;
+- LightSwitch;
+- применение generic contracts R11.1.
 
 ---
 
-## Этап 11 — Combat
+## R14–R16 — Customer Challenge Families
 
-Реализовать:
+Tasks:
+- [R14](../../agent_tasks/roadmap_14_challenge_framework_and_lights.md) — shared Challenge lifecycle + Light;
+- [R15](../../agent_tasks/roadmap_15_gaze_challenges.md) — Don't Look / Keep Looking;
+- [R16](../../agent_tasks/roadmap_16_floor_hazard_challenge.md) — Floor Hazard.
 
-- Health;
-- Melee;
+Основной источник: [ТЗ 08](08_customer_challenge_framework.md).
+
+Результат: минимум три разные challenge families используют общий lifecycle.
+
+---
+
+## R17 — Combat / Aggressive Customer
+
+Task: [roadmap_17_combat_and_impact_damage.md](../../agent_tasks/roadmap_17_combat_and_impact_damage.md)
+
+Основной источник: [ТЗ 10](10_combat_damage_health.md).
+
+Результат:
+- melee;
 - Aggressive Customer;
-- Physical Impact Damage.
-
-Результат: Customer Event может перейти в бой.
-
----
-
-## Этап 12 — Hunger
-
-Реализовать:
-
-- progression;
-- Food;
-- movement/damage modifiers;
-- Starving perception.
+- combat cleanup/reasons;
+- physical impact damage **переиспользует R08 contract**, а не создаёт вторую формулу.
 
 ---
 
-## Этап 13 — Inventory
+## R18 — Hunger / Perception
 
-Реализовать:
+Task: [roadmap_18_hunger_and_perception.md](../../agent_tasks/roadmap_18_hunger_and_perception.md)
 
-- small item ownership;
-- stacks;
-- Food;
-- MedItem;
-- UI.
+Источники: [ТЗ 11](11_hunger_system.md), [ТЗ 09](09_dialogue_system.md).
+
+Результат:
+- Hunger;
+- modifiers;
+- perception/dialogue distortion без изменения gameplay identity.
 
 ---
 
-## Этап 14 — Evening / Meta Scaffold
+## R19 — Inventory / Consumables
 
-Реализовать:
+Task: [roadmap_19_inventory_and_consumables.md](../../agent_tasks/roadmap_19_inventory_and_consumables.md)
 
-- Money;
-- Package value/settlement operations 100/120/150/200%;
-- typed future Reputation reasons;
+Источники: [ТЗ 12](12_inventory_and_consumables.md), [ТЗ 08.1](08_1_arrangement_extended_interactions.md).
+
+Результат:
+- virtual small-item Inventory;
+- stack/use;
+- Food/MedItem/Bubble Wrap;
+- virtual Inventory остаётся отдельным от physical slots R11.1.
+
+---
+
+## R20 — Evening / Trader / Orders / Quest
+
+Task: [roadmap_20_evening_trader_orders_and_quest.md](../../agent_tasks/roadmap_20_evening_trader_orders_and_quest.md)
+
+Основной источник: [ТЗ 14](14_evening_meta_scaffold.md).
+
+Результат:
 - Trader;
 - next-day order;
-- upgrade definitions;
-- one Package Quest.
+- Package quest;
+- data-defined prices/upgrades.
 
 ---
 
-## Этап 15 — Night / Persistence
+## R21 — Persistence / Next Day
 
-Реализовать:
+Task: [roadmap_21_night_persistence_next_day.md](../../agent_tasks/roadmap_21_night_persistence_next_day.md)
 
-- Sleep;
-- daily reset;
-- next Morning;
+Основной источник: [ТЗ 15](15_night_save_next_day.md).
+
+Результат:
+- Night transaction;
 - Save/Load;
 - PendingDelivery;
-- active Package across days;
-- unresolved Complaint/dispute;
-- late Customer arrival and 7-day retaliation window.
+- active Packages/disputes/late Customers across days;
+- persistent world arrangement from R11.1 where applicable.
 
 ---
 
-## Этап 16 — Vertical Slice Integration
+## R22 — HUD / World Feedback
 
-Пройти сценарий из `17_vertical_slice_scenario.md`.
+Task: [roadmap_22_hud_and_world_feedback.md](../../agent_tasks/roadmap_22_hud_and_world_feedback.md)
 
-На этом этапе не добавлять новые крупные mechanics. Исправлять только разрывы core loop, UX и системные конфликты.
+Основной источник: [ТЗ 16](16_ui_and_feedback.md).
 
-## Финальный критерий
+Результат:
+- финальная читаемость существующих systems;
+- feedback не становится gameplay authority.
 
-Игрок способен самостоятельно пройти:
+---
+
+## R23 — Vertical Slice Validation
+
+Task: [roadmap_23_vertical_slice_validation.md](../../agent_tasks/roadmap_23_vertical_slice_validation.md)
+
+Источники: [ТЗ 00](00_prototype_overview.md), [ТЗ 17](17_vertical_slice_scenario.md).
+
+На этом этапе **не добавлять новые крупные mechanics**. Исправлять только разрывы уже реализованных contracts/core loop.
+
+Финальный маршрут:
 
 ```text
 Morning Receiving
+→ Package Handling / Arrangement
 → Day Customer Service + Horror Events
 → Evening Preparation
-→ Night Sleep
+→ Night Sleep / Save
 → Next Morning
 ```
 
-Все основные действия происходят через единый физический мир и GECS gameplay state.
+## Финальный критерий
+
+Игрок способен пройти полный цикл без debug-команд, а все игровые решения проходят через единый physical world + GECS gameplay state.
+
+Если старый roadmap-текст противоречит этому implementation-order по номеру задачи, использовать канонический mapping из [README](README.md) и исправить stale reference вместо догадки.
