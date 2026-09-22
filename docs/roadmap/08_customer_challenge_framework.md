@@ -90,9 +90,9 @@ Customer запускает опасную поверхность/лаву.
 - hide;
 - feed customer;
 - close/open window;
-- lock/unlock door;
+- lock/unlock door через access/door contract ТЗ 08.1;
 - sacrifice specific Package;
-- place object at target.
+- place object at target через PlacementArea/physical placement contract ТЗ 08.1.
 
 ## Критерий готовности
 
