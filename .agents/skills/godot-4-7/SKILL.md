@@ -15,6 +15,21 @@ Target Godot **4.7** unless the project explicitly declares another version.
 - Inspect the local scene/script contract before changing node ownership.
 - For version-sensitive APIs, prefer Godot 4.7 documentation or the installed engine API.
 
+## Visual-run boundary
+
+Rendered Godot/editor runs, screenshots, screen capture, and agent-side visual inspection are forbidden by default.
+
+They are allowed only after the user explicitly approves visual validation in the current task/conversation. Do not infer permission from UI/scene/graphics work or from approval in an earlier task.
+
+Prefer, in order:
+1. static/resource/scene inspection;
+2. deterministic scripts;
+3. headless Godot;
+4. GUT/headless smoke;
+5. concise runtime logs.
+
+If only visual confirmation remains, report `NOT RUN — user visual validation required` and leave visual tuning to the user.
+
 ## Runtime rules
 
 - Physics simulation and body mutations belong on the physics step.
