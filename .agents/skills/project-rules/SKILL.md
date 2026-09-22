@@ -44,6 +44,12 @@ For already-designed repetitive edits, prefer the `mechanical_worker` subagent. 
 
 Use the narrowest relevant project checks. Never report a runtime/formatter/test result that was not actually executed.
 
+Validation cadence is intentionally batched:
+- ordinary milestone/subtask commits use deterministic structure/path checks, formatter/static checks, targeted inspection, and `git diff --check`;
+- do **not** run GUT, headless smoke, or broad runtime suites after every milestone;
+- run the relevant GUT + headless smoke/runtime regression surface once near the end of the complete `Rxx` / `Rxx.x` task before marking it complete;
+- early targeted runtime/test execution is allowed only on explicit user request or for a concrete blocking bug that cannot be validated statically.
+
 Rendered/visual Godot validation is **opt-in only**:
 - do not launch a rendered game/editor for validation;
 - do not capture screenshots or screen recordings;
