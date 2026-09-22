@@ -1,6 +1,5 @@
 # Work Tracker
 
-Active: configurable pickup/carry distances, right-hand tool slot, reusable parcel numbers.
-- Preserve authored ArmRSlot/ArmLSlot transforms and existing user changes.
-- Number allocation uses smallest free positive number; undelivered parcels retain numbers across days.
-- Update contracts and existing smoke expectations. No test or Godot runs per user; formatting/static checks only.
+State: idle.
+
+Next planned roadmap task: R06.1. Use `agent_tasks/roadmap_06_1_interaction_hands_carry_push.md` when implementation starts.
