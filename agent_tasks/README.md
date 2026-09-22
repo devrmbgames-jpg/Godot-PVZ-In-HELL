@@ -1,6 +1,6 @@
 # Agent Task Notes
 
-Implementation IDs use `Rxx` / `RMxx.x`. Design documents in `docs/roadmap/` use `ТЗ xx`; these are source specifications and their numbers do **not** imply implementation order.
+Implementation IDs use only `Rxx` / `Rxx.x`. Design documents in `docs/roadmap/` use `ТЗ xx`; these are source specifications and their numbers do **not** imply implementation order.
 
 Canonical mapping/order: [docs/roadmap/README.md](../docs/roadmap/README.md).
 
@@ -41,6 +41,6 @@ Rules:
 - Keep facts a fresh agent needs; omit narration and discarded exploration.
 - Keep only unfinished tasks here. After completion and validation, move lasting facts into the relevant context/docs, append one short dated line to root `task_history.md`, delete the task file and update its references.
 - Preserve active/blocked/planned tasks and this README. Do not archive completed task files here.
-- Dependencies must use implementation IDs (`Rxx` / `RMxx.x`), never a `ТЗ` number.
+- Dependencies must use implementation IDs (`Rxx` / `Rxx.x`), never a `ТЗ` number.
 - `Источники` must link the actual design ТЗ files; do not assume `R08 == ТЗ 08`.
 - When files/classes move, update the task's `Начать здесь` links in the same structural refactor.
