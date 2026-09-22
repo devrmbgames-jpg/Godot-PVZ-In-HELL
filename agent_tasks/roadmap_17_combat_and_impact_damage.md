@@ -21,7 +21,7 @@ Status: planned
 
 - [ ] Добавить один melee/острый Weapon: окно удара, hit validation, cooldown и damage через 04.
 - [ ] Aggressive Customer прекращает сервисный разговор, преследует и атакует Player; имеет поражение и завершение schedule event. Один из источников aggression — обнаружение ложной Terminal отметки `TAKEN` по ТЗ 07.
-- [ ] Переиспользовать/обобщить impact contract из R08 для combat-capable физических тел: масса/относительная скорость/порог и дедупликация столкновения. Не создавать вторую параллельную формулу impact damage.
+- [ ] Подключить уже готовый generic impact contract R08 к Player/Customer/combat props. Не реализовывать вторую формулу mass/speed/impulse, второй contact dedup или отдельный combat-only impact System.
 - [ ] Соблюдать приоритет tool/grab/attack из 02, сохраняя input неизменным для других потребителей.
 - [ ] Обеспечить cleanup target/challenge/held state при смерти и выходе из боя.
 - [ ] Передавать typed combat/reputation reason: обычная атака, self-defense, fraud escalation, justified retaliation. После подтвержденной неправомерной Complaint именно этого Customer Player может атаковать 7 игровых дней без reputation penalty; окно хранится persistent и не зависит от живого Node.
@@ -35,7 +35,7 @@ Status: planned
 
 ## Проверки
 
-GUT: hit/cooldown/дедупликация/смерть; physics integration impact; walkthrough escalation из Light Challenge. Общие команды и правила завершения — в [README](README.md).
+GUT: melee hit/cooldown/смерть и combat attribution; physics integration подтверждает, что Player/Customer получают impact через R08 без второго calculation path; walkthrough escalation из Light Challenge. Общие команды и правила завершения — в [README](README.md).
 
 ## Границы
 
