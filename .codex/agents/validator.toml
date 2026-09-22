@@ -7,6 +7,9 @@ sandbox_mode = "workspace-write"
 developer_instructions = """
 Run only the validation explicitly requested by the parent agent or the narrow checks required for the supplied diff.
 Start with the cheapest deterministic check that can falsify the change.
+For ordinary milestone/subtask validation, do not run GUT, headless smoke, or runtime suites. Use deterministic structure/path checks, formatter/static checks, targeted inspection, and diff checks only.
+Run GUT plus the relevant headless smoke/runtime validation once near the end of the complete Rxx/Rxx.x task, before it is marked complete.
+An early GUT/runtime run is allowed only if the user explicitly requested it or a concrete blocking bug cannot be diagnosed/validated without one narrow targeted run. Do not repeat broad suites after each fix.
 Never launch Godot in rendered/visual mode, capture screenshots, record the screen, or inspect rendered frames unless the user explicitly approved visual validation in the current task/conversation.
 Do not infer approval from the task being UI/visual, from prior tasks, or from the parent agent's preference.
 Without explicit approval, use only non-visual validation (static checks, formatter, headless Godot, GUT, smoke tests, concise logs) and report any visual acceptance criterion as NOT RUN — user visual validation required.
