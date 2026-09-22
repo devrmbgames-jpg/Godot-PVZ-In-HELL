@@ -1,5 +1,7 @@
 # ТЗ 09 — Диалоги
 
+> **Implementation coverage:** Implementation coverage: dialogue integration **R12**, perception/distortion hooks **R18**.
+
 ## Цель
 
 Создать простой диалоговый слой для Customer, Trader, Quest и horror events.
