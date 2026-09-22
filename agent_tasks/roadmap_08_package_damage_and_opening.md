@@ -1,48 +1,286 @@
-# R08 — Повреждения, наклон и вскрытие Package
+# R08 — Общий Impact Damage, повреждения и вскрытие Package
 
 Status: planned
 Зависимости: R02, R04, R05, R06.1
 Ветка/base: зафиксировать при начале реализации.
-Источники: [ТЗ 04](../docs/roadmap/04_morning_package_receiving.md), [RM06.1](../docs/roadmap/06_1_interaction_hands_carry_push.md), [ТЗ 06](../docs/roadmap/06_package_damage_and_hazards.md), [ТЗ 16](../docs/roadmap/16_ui_and_feedback.md).
+Источники: [ТЗ 04](../docs/roadmap/04_morning_package_receiving.md), [R06.1](../docs/roadmap/06_1_interaction_hands_carry_push.md), [ТЗ 06](../docs/roadmap/06_package_damage_and_hazards.md), [ТЗ 16](../docs/roadmap/16_ui_and_feedback.md).
 
 ## Цель
 
-Связать обращение с коробками с количественным запасом прочности (Package HP/Integrity) и устойчивыми состояниями Damaged, Opened и Leaking.
+Расширить существующий общий damage pipeline универсальным physical impact damage и затем использовать его для Package.
+
+Ключевой контракт:
+
+```text
+C_Health
+    = Entity вообще может получать HP damage
+
+C_ImpactReceiver + C_Health
+    = Entity может получать damage от физических столкновений
+
+C_ThrowDamage
+    = source может добавить специальный бонус к валидному thrown-impact
+
+C_NoDamage
+    = source-side hard veto; Entity не может наносить damage другим
+```
+
+Package не должна иметь отдельную параллельную формулу HP/impact. Она использует общий `C_Health`, generic impact pipeline и собственные lifecycle reactions `Damaged/Destroyed/Opened/Leaking`.
 
 ## Начать здесь
 
+- [s_damage.gd](../content/systems/gameplay/s_damage.gd)
+- [c_health.gd](../content/components/gameplay/c_health.gd)
+- [damage_request.gd](../content/contracts/damage/damage_request.gd)
 - [e_grabbable_body.gd](../content/entities/props/e_grabbable_body.gd)
-- [content/components/interaction/c_grabbable.gd](../content/components/interaction/c_grabbable.gd)
+- [e_package.gd](../content/entities/packages/e_package.gd)
+- [def_package.gd](../content/definitions/gameplay/packages/def_package.gd)
+- [c_package_state.gd](../content/components/gameplay/c_package_state.gd)
 
-Затем прочитать контракты, созданные задачами-зависимостями. Имена новых типов из roadmap — проектируемые контракты, а не утверждение о существующих файлах.
+Не начинать с Bubble Wrap/Liquid/Opening. Сначала завершить generic Health + Impact foundation и зафиксировать его отдельным milestone commit.
 
-## Работы
+---
 
-- [ ] Передавать физические contact/impact-события из тонкого Entity bridge в owning System.
-- [ ] Каждая Package имеет количественный HP/Integrity, аналогичный по поведению Health игрока: damage уменьшает текущее значение, ноль означает разрушение. Допустимо сохранять отдельный `C_PackageIntegrity`, но урон должен проходить через общий damage contract, а не через параллельную ad-hoc формулу.
-- [ ] Классифицировать impact как минимум на weak / medium / strong и преобразовывать severity в фактический HP damage с учетом данных Package; Fragile имеет более низкие пороги/устойчивость.
-- [ ] Добавить Bubble Wrap protection state/modifier с уровнем защиты. Он полностью нивелирует impact damage до поддерживаемой severity включительно; более сильный удар проходит в обычный damage pipeline.
-- [ ] Отделить сам protection state от будущего consumable: R08 реализует/тестирует защитный модификатор, а одно-кликовое применение расходника "пузырчатая пленка" относится к R19.
-- [ ] Для Liquid учитывать угол от вертикали и непрерывную/накопленную длительность по явно выбранному правилу.
-- [ ] Добавить осознанное действие открытия **любой физически доступной Package** через общий interaction contract. Не блокировать вскрытие из-за ownership/recipient: Player вправе нарушить правила, а последствия обрабатываются R11/R10/Reputation hooks.
-- [ ] Фиксировать состояния и событие активации опасного содержимого однократно; показать повреждение/открытие на коробке.
+## Milestone 1 — Унифицировать Health
 
-## Критерии готовности
+- [ ] Перевести Package с `C_PackageIntegrity` на общий `C_Health`.
+- [ ] Убедиться, что любой Entity с `C_Health` может быть target обычного `DamageRequest`.
+- [ ] Удалить/свернуть package-specific HP branch из `S_Damage`; общий System не должен выбирать отдельную формулу по типу Entity.
+- [ ] Разделить generic Health depletion и entity-specific lifecycle reaction.
+- [ ] Character defeat cleanup не должен автоматически применяться к Package/props только потому, что Health достиг нуля.
+- [ ] Package-owned Observer/System обновляет `C_PackageState.Damage` по результату общего damage pipeline: первый applied damage → `DAMAGED`, zero Health → `DESTROYED`.
+- [ ] Сохранить idempotent zero-health handling: destruction/defeat effect выполняется ровно один раз.
 
-- Слабое касание безопасно, грубое обращение уменьшает Package HP и быстрее повреждает Fragile, длительный переворот портит Liquid.
-- Package HP уменьшается от валидного damage и достигает нуля предсказуемо; состояние не заменяет количественный запас прочности.
-- Bubble Wrap заданного уровня полностью гасит weak/medium/strong impacts в пределах своего protection tier, но не делает Package бессмертной против более сильного события.
-- Повторные контакты не создают бесконечные события; открытая/повреждённая посылка сохраняет состояние до фактического завершения её lifecycle, в том числе через несколько дней.
-- Деньги не списываются непосредственно в момент повреждения.
+### Готовность milestone
+
+- Player и Package получают один и тот же generic `DamageRequest`;
+- обе цели используют `C_Health`;
+- Package больше не нуждается в отдельном количественном HP authority;
+- zero-health Player и zero-health Package запускают разные lifecycle reactions без special-case HP arithmetic в `S_Damage`.
+
+---
+
+## Milestone 2 — Generic physical Impact contract
+
+- [ ] Создать typed runtime contract физического contact/impact; точное имя выбрать по текущим naming rules, но он не должен называться Package-specific.
+- [ ] Создать `C_ImpactReceiver`.
+- [ ] `C_ImpactReceiver` работает только вместе с `C_Health`; без Health collision damage не применяется.
+- [ ] Передавать contact data из тонкого Entity/physics bridge в owning System/service; Entity script не уменьшает Health напрямую.
+- [ ] Обрабатывать столкновение как два независимых направления `A -> B` и `B -> A`.
+- [ ] Для каждого направления source/receiver определяются явно.
+- [ ] Рассчитывать базовый physical impact damage минимум из:
+  - source mass;
+  - relative velocity по нормали collision;
+  - фактической силы/impulse contact.
+- [ ] Не использовать только `linear_velocity.length()` как критерий силы удара.
+- [ ] Сделать коэффициенты/thresholds data-driven; никаких magic damage values в Entity/System logic.
+- [ ] Классифицировать итоговый impact как `NONE / WEAK / MEDIUM / STRONG` для tuning/feedback, но severity не заменяет количественный damage.
+- [ ] После расчёта создавать обычный `DamageRequest` с `DamageRequest.Type.IMPACT`.
+
+### Обязательные физические инварианты
+
+- лёгкий предмет наносит существенно меньше damage тяжёлого при сопоставимом collision;
+- низкая relative speed не создаёт огромный damage только из-за массы;
+- тяжёлый быстрый объект может причинить высокий damage;
+- resting contact и скольжение не считаются повторяющимся сильным ударом;
+- damage не зависит от FPS;
+- маленькая зажигалка без специальных компонентов не может снести машину только из-за collision callback.
+
+---
+
+## Milestone 3 — Contact deduplication
+
+- [ ] Один продолжающийся contact не должен создавать damage каждый physics frame.
+- [ ] Выбрать явный owner состояния dedup: contact-pair state, impact token, separation state или эквивалентный typed contract.
+- [ ] Новый сильный удар после реального separation/re-impact снова разрешён.
+- [ ] Удаление одного Entity безопасно очищает contact state.
+- [ ] Не использовать глобальный произвольный cooldown, который блокирует независимые столкновения разных объектов.
+
+### Готовность milestone
+
+Сценарий:
+
+```text
+box falls on floor
+-> one impact
+
+box rests on floor for 5 sec
+-> no repeated damage
+
+box is lifted and dropped again
+-> new impact
+```
+
+---
+
+## Milestone 4 — C_ThrowDamage
+
+- [ ] Добавить optional source component `C_ThrowDamage`.
+- [ ] Компонент содержит data-driven `throw_damage` либо typed throw damage profile.
+- [ ] `C_ThrowDamage` **не заменяет** базовый physical impact calculation.
+- [ ] Итог валидного thrown-impact = physical base damage + permitted throw bonus.
+- [ ] Бонус применяется только при активном/валидном throw context.
+- [ ] Обычное падение, толкание, resting contact или случайный удар предмета не получают throw bonus.
+- [ ] Throw context имеет ограниченный lifecycle и снимается после первого валидного hit, истечения окна либо другого явно выбранного termination condition.
+- [ ] Один бросок не может начислить throw bonus много раз из-за нескольких contact frames.
+- [ ] Source identity сохраняет фактический damaging Entity; бросивший actor может храниться отдельно как attribution/instigator, если это потребуется будущему combat/reputation.
+
+### Примеры
+
+```text
+lighter, no C_ThrowDamage
+-> physics-only impact
+
+knife + C_ThrowDamage, falls from table
+-> physics-only impact
+
+knife + C_ThrowDamage, thrown by Player
+-> physics impact + throw bonus
+```
+
+---
+
+## Milestone 5 — C_NoDamage
+
+- [ ] Добавить optional marker/component `C_NoDamage`.
+- [ ] Его семантика строго source-side: Entity может получать damage, но не может наносить damage другим.
+- [ ] Если source имеет `C_NoDamage`, outgoing `DamageRequest` от этого source не должен применяться.
+- [ ] `C_NoDamage` имеет приоритет над `C_ThrowDamage`.
+- [ ] Проверка должна быть гарантирована общим damage contract, а не продублирована во всех producer Systems.
+- [ ] В `DamageRequest.source` указывать фактический damaging Entity, иначе veto теряет однозначность.
+- [ ] Environment/null source обрабатывается отдельно и не должен случайно считаться Entity с `C_NoDamage`.
+
+### Пример
+
+```text
+training prop:
+C_Health
+C_ImpactReceiver
+C_NoDamage
+
+может сам получить impact damage
+может физически толкать Player
+не наносит Player HP damage
+```
+
+---
+
+## Milestone 6 — Package impact rules
+
+- [ ] Package использует `C_Health + C_ImpactReceiver`.
+- [ ] Fragile выражать через data-driven impact tolerance/resistance/profile, а не через hard-coded `if Package.FRAGILE` в generic impact System.
+- [ ] Heavy должен влиять на outgoing impact прежде всего через реальную массу; не добавлять отдельный magic bonus, если масса уже выражает поведение.
+- [ ] `C_PackageState.Damage` остаётся lifecycle/presentation state, а не HP authority.
+- [ ] Первый applied damage переводит `UNDAMAGED -> DAMAGED`.
+- [ ] Health == 0 переводит `DAMAGED/UNDAMAGED -> DESTROYED` ровно один раз.
+- [ ] Package destruction предоставляет typed hook будущему Hazard R09.
+
+---
+
+## Milestone 7 — Bubble Wrap protection state
+
+- [ ] Добавить package protection state/modifier с tier.
+- [ ] Protection применяется на receiver-side внутри generic impact resolution до создания/применения HP damage.
+- [ ] Impact severity до поддерживаемого tier включительно полностью блокируется.
+- [ ] Более сильный impact проходит обычный pipeline.
+- [ ] Bubble Wrap не блокирует произвольные non-impact damage types без отдельного data rule.
+- [ ] R08 реализует только protection state/semantics.
+- [ ] Inventory item и одно-кликовое применение Bubble Wrap остаются R19.
+
+---
+
+## Milestone 8 — Liquid tilt
+
+- [ ] Для Liquid учитывать отклонение от вертикали.
+- [ ] Использовать data-driven допустимый угол и duration.
+- [ ] Явно выбрать continuous либо accumulated time semantics и покрыть тестами.
+- [ ] Нормальное краткое покачивание не должно повреждать Package.
+- [ ] По достижении условия обновить Package state `Damaged/Leaking`.
+- [ ] Если tilt должен уменьшать Health, он создаёт обычный typed `DamageRequest`, но не маскируется под collision impact.
+- [ ] Hazard trigger остаётся typed hook для R09.
+
+---
+
+## Milestone 9 — Package Opening
+
+- [ ] Добавить осознанное действие открытия **любой физически доступной Package** через общий interaction contract.
+- [ ] Не блокировать действие из-за ownership/recipient: Player вправе нарушить правила.
+- [ ] Opening не является damage по умолчанию; это отдельный Package state/event.
+- [ ] Повторное открытие не создаёт duplicate side effects.
+- [ ] State `Opened` сохраняется до фактического завершения Package lifecycle.
+- [ ] Предоставить typed hook R09/R11 для hazard/customer consequences.
+
+---
+
+## Milestone 10 — Feedback / regression
+
+- [ ] Показать минимально читаемое Package `Damaged/Destroyed/Opened` состояние без переноса authority в UI.
+- [ ] Проверить взаимодействие impact с Carry/hand/throw.
+- [ ] Проверить, что held object не наносит holder damage до валидного release/throw contract.
+- [ ] Проверить несколько одновременно сталкивающихся Entity без глобального cooldown.
+- [ ] Проверить cleanup после удаления source/target.
+- [ ] Проверить существующие damage, grab, receiving, scanner и marker regressions.
+
+---
+
+## Критерии готовности R08
+
+- Любой Entity с `C_Health` принимает обычный damage.
+- Collision damage получает только Entity с `C_Health + C_ImpactReceiver`.
+- Player, будущий Customer, Package и destructible props используют один generic impact algorithm.
+- Базовый impact учитывает source mass, relative collision speed и contact impulse/force.
+- Лёгкий обычный предмет не способен нанести нереалистичный огромный damage тяжёлому target.
+- `C_ThrowDamage` добавляет урон только валидному thrown-impact.
+- `C_NoDamage` строго запрещает outgoing damage данного Entity и перекрывает `C_ThrowDamage`.
+- Один contact не наносит damage каждый frame.
+- Package использует `C_Health`, а `Damaged/Destroyed` являются package lifecycle state.
+- Fragile/Bubble Wrap не требуют отдельной package-only формулы impact damage.
+- Liquid и Opening имеют отдельные semantics и не ломают generic collision pipeline.
+- R17 сможет использовать готовый R08 impact foundation без второго impact System/formula.
 
 ## Проверки
 
-GUT: HP/Integrity damage, weak/medium/strong thresholds, Bubble Wrap tiers, повторные контакты, длительность наклона, открытие; physics integration падения и переворота. Общие команды и правила завершения — в [README](README.md).
+GUT:
+- generic Health damage;
+- target без Health;
+- target с Health без `C_ImpactReceiver`;
+- target с Health + `C_ImpactReceiver`;
+- directional A→B / B→A;
+- mass/speed/impulse boundaries;
+- `C_NoDamage`;
+- `C_ThrowDamage` normal fall vs valid throw;
+- contact dedup/re-impact;
+- Package Damaged/Destroyed;
+- Fragile/protection tiers;
+- Liquid duration;
+- Opening idempotency.
+
+Physics integration:
+- лёгкий предмет → тяжёлый target;
+- тяжёлый предмет → damageable target;
+- Player fall/impact;
+- Package drop;
+- thrown sharp object;
+- resting contact;
+- separation + second impact.
+
+Общие команды и правила завершения — в [README](README.md).
 
 ## Границы
 
-Без реализации Hazard и штрафов; задачи 09 и 11 потребляют результаты. Сам Inventory item Bubble Wrap и его one-click применение реализуются в R19; R08 предоставляет только защитный state/modifier и damage semantics. Сохранять Godot physics authority, GECS data/behavior boundaries и read-only addons. Выполненные основания переиспользовать, а не создавать заново.
+- R08 создаёт generic impact foundation, но не полноценный combat/weapon framework.
+- R17 отвечает за melee, aggressive Customer и combat attribution/reputation, переиспользуя R08 impact.
+- R09 реализует ToxicLeak/Explosion поверх общего damage contract.
+- R19 реализует Inventory/Consumable Bubble Wrap.
+- Деньги/штрафы не применяются непосредственно в момент damage.
+- Не создавать второй parallel damage pipeline.
+- Сохранять Godot physics authority, GECS data/behavior boundaries и read-only addons.
 
 ## Первый шаг
 
-Проверить завершение зависимостей по task_history.md и существующим контрактам, затем прочитать указанные исходники и актуализировать WORK.md/CURRENT_WORK.md. При реализации не считать непроверенные пункты выполненными.
+1. Явно поставить текущую предыдущую активную задачу на паузу/завершить её checkpoint, чтобы `WORK.md/CURRENT_WORK.md` не вели агента в другой feature.
+2. Проверить завершение R02/R04/R05/R06.1 по `task_history.md`.
+3. Обновить `WORK.md/CURRENT_WORK.md` на **R08 / Milestone 1 — Generic Health unification**.
+4. Реализовать и проверить только Milestone 1.
+5. Создать локальный commit.
+6. Только затем переходить к generic impact physics.
