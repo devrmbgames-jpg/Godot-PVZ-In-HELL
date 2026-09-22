@@ -35,7 +35,7 @@ GUT: переключения/недоступность/световые гру
 
 ## Границы
 
-Без системы ключей/замков и контейнерного инвентаря. Сохранять Godot physics authority, GECS data/behavior boundaries и read-only addons. Выполненные основания переиспользовать, а не создавать заново.
+Без полноценного key/inventory UI и контейнерного stack Inventory: generic access requirement и physical slots уже принадлежат R11.1, а virtual Inventory — R19. Сохранять Godot physics authority, GECS data/behavior boundaries и read-only addons. Выполненные основания переиспользовать, а не создавать заново.
 
 ## Первый шаг
 
