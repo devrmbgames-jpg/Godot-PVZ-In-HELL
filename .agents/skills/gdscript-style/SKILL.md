@@ -425,6 +425,162 @@ for index: int in entities.size():
 
 For typed arrays, inference is acceptable when the type is unambiguous, but explicit types are preferred in hot/framework code where accidental `Variant` propagation is costly.
 
+
+## Visual structure inside functions
+
+Do not write functions as one dense uninterrupted block of statements.
+
+Split a function into **semantic blocks** with one empty line between them. A semantic block is a small group of statements that performs one immediately understandable step, for example:
+
+1. derive/validate input;
+2. allocate or prepare data;
+3. iterate/process;
+4. construct/configure a result;
+5. return/commit.
+
+Good:
+
+```gdscript
+func _make_beep() -> AudioStreamWAV:
+    var sample_count: int = int(SAMPLE_RATE * BEEP_SECONDS)
+    var samples: PackedByteArray = PackedByteArray()
+    samples.resize(sample_count * 2)
+
+    for sample_index: int in sample_count:
+        var envelope: float = sin(PI * float(sample_index) / sample_count)
+        var amplitude: float = sin(TAU * BEEP_FREQUENCY * sample_index / SAMPLE_RATE)
+        samples.encode_s16(sample_index * 2, int(amplitude * envelope * 9000.0))
+
+    var stream: AudioStreamWAV = AudioStreamWAV.new()
+    stream.format = AudioStreamWAV.FORMAT_16_BITS
+    stream.mix_rate = SAMPLE_RATE
+    stream.data = samples
+
+    return stream
+```
+
+Avoid:
+
+```gdscript
+func _make_beep() -> AudioStreamWAV:
+    var sample_count: int = int(SAMPLE_RATE * BEEP_SECONDS)
+    var samples: PackedByteArray = PackedByteArray()
+    samples.resize(sample_count * 2)
+    for sample_index: int in sample_count:
+        ...
+    var stream: AudioStreamWAV = AudioStreamWAV.new()
+    ...
+    return stream
+```
+
+Rules:
+- use exactly one empty line between neighboring semantic blocks;
+- keep tightly related assignments together;
+- separate a guard/early-return section from the next operation;
+- separate loops/branches from setup before them and result construction after them;
+- separate final `return` when it concludes a multi-step function;
+- do not add empty lines after every statement; whitespace must communicate structure;
+- do not leave trailing spaces/tabs on blank lines.
+
+The goal is that the shape of the function can be understood before reading every expression.
+
+## Readable conditions
+
+Prefer simple conditions that express one idea. Avoid deeply nested, heavily parenthesized boolean expressions when the intent is not immediately obvious.
+
+Bad:
+
+```gdscript
+if (
+    best == null or action.priority > best.priority
+    or (
+        action.priority == best.priority
+        and action.action_id < best.action_id
+    )
+):
+    best = action
+```
+
+Prefer naming the decision:
+
+```gdscript
+var has_no_best: bool = best == null
+var has_higher_priority: bool = best != null and action.priority > best.priority
+var has_same_priority: bool = best != null and action.priority == best.priority
+var comes_first: bool = best != null and action.action_id < best.action_id
+var should_replace: bool = (
+    has_no_best
+    or has_higher_priority
+    or (has_same_priority and comes_first)
+)
+
+if should_replace:
+    best = action
+```
+
+For domain logic, a helper is often better:
+
+```gdscript
+if _is_better_action(action, best):
+    best = action
+```
+
+Use nested `if` statements when they make the decision tree easier to read:
+
+```gdscript
+if best == null:
+    best = action
+elif action.priority > best.priority:
+    best = action
+elif action.priority == best.priority:
+    if action.action_id < best.action_id:
+        best = action
+```
+
+Guidelines:
+- if a boolean expression needs multiple indentation levels, repeated parentheses, or mixes several domain concepts, simplify it;
+- give important predicates semantic names such as `is_valid_target`, `has_same_priority`, `should_replace`;
+- extract repeated or domain-significant comparison logic into a private helper;
+- prefer a readable decision tree over a clever one-liner;
+- do not duplicate an expensive function call merely to make a condition shorter; cache its result when needed.
+
+## Avoid redundant and misleading conversions
+
+Do not cast a value to the type it already has merely to satisfy or decorate an expression.
+
+Bad when `action_id` is already `String`:
+
+```gdscript
+String(action.action_id) < String(best.action_id)
+```
+
+Prefer:
+
+```gdscript
+action.action_id < best.action_id
+```
+
+More importantly, choose the comparison type from the **domain meaning**, not from whichever conversion makes the expression compile.
+
+If an identifier is semantically numeric and ordering is numeric, store/parse it as an integer at the boundary and compare integers:
+
+```gdscript
+var action_order: int = action.order
+var best_order: int = best.order
+
+if action_order < best_order:
+    ...
+```
+
+If an identifier is a textual stable ID, do not convert it to `int` just to sort it unless the data contract explicitly defines a numeric representation.
+
+Rules:
+- never use redundant casts to the same known type;
+- avoid chains such as `String(...)`, `int(...)`, `float(...)` inside domain comparisons when a correctly typed value can be prepared once;
+- convert at system/data boundaries, then keep internal logic strongly typed;
+- do not introduce lexical ordering of IDs as an implicit business rule; if tie-breaking order matters, model it explicitly (`priority`, `order`, enum, or documented stable ID rule).
+
+
 ## Constants and magic numbers
 
 Behavioral thresholds/rates that carry meaning must be:
@@ -499,4 +655,7 @@ Before finishing a `.gd` edit, check:
 - authored Node names are `PascalCase`;
 - class name follows `PascalCase` / approved GECS prefix;
 - functions are grouped by responsibility;
+- function bodies are separated into readable semantic blocks;
+- complex conditions are named, nested clearly, or extracted into helpers;
+- no redundant/misleading type conversions are used;
 - no changes were made under `addons/`.
