@@ -1,9 +1,9 @@
 # R12 — Диалоги, условия и загадка
 
 Status: planned
-Зависимости: R02, R11
+Зависимости: R02, R11, R11.1
 Ветка/base: зафиксировать при начале реализации.
-Источники: [ТЗ 07](../docs/roadmap/07_customer_flow_and_delivery.md), [ТЗ 08](../docs/roadmap/08_customer_challenge_framework.md), [ТЗ 09](../docs/roadmap/09_dialogue_system.md).
+Источники: [ТЗ 07](../docs/roadmap/07_customer_flow_and_delivery.md), [ТЗ 08](../docs/roadmap/08_customer_challenge_framework.md), [ТЗ 08.1](../docs/roadmap/08_1_arrangement_extended_interactions.md), [ТЗ 09](../docs/roadmap/09_dialogue_system.md).
 
 ## Цель
 
