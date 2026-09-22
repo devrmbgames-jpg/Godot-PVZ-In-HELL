@@ -8,7 +8,7 @@ Implementation work uses a separate canonical ID:
 - `ТЗ xx` = source design specification;
 - the numbers are **not required to match**.
 
-Agents must never infer implementation order from a `ТЗ` number. Use this file, `agent_tasks/`, `task_history.md`, and `CURRENT_WORK.md`.
+Agents must never infer implementation order from a `ТЗ` number. Use this file, `agent_tasks/`, `task_history.md`, and `CURRENT_WORK.md`. If a human says `RM08`, normalize it to canonical repository ID `R08`; do not create a parallel RM-prefixed task.
 
 Completed implementation tasks are removed from `agent_tasks/` by project policy. Their durable contracts remain in roadmap/context docs and their completion is recorded in `task_history.md`.
 
@@ -24,23 +24,23 @@ Completed implementation tasks are removed from `agent_tasks/` by project policy
 | R06 | completed | ТЗ 05: scanner / registration / terminal |
 | R06.1 | completed | [R06.1](06_1_interaction_hands_carry_push.md) |
 | R07 | completed | ТЗ 05: marker / shelves |
-| R08 | planned | [ТЗ 06](06_package_damage_and_hazards.md): package damage/opening |
-| R09 | planned | [ТЗ 06](06_package_damage_and_hazards.md): package hazards |
-| R10 | planned | [ТЗ 07](07_customer_flow_and_delivery.md), ТЗ 14/15: wallet/results |
-| R11 | planned | [ТЗ 07](07_customer_flow_and_delivery.md): customers/delivery/disputes |
-| R11.1 | planned | [ТЗ 08.1](08_1_arrangement_extended_interactions.md): prolonged interactions, access, physical slots, placement/anchoring |
-| R12 | planned | [ТЗ 09](09_dialogue_system.md): dialogue integration |
-| R13 | planned | [ТЗ 13](13_environment_interactables.md) using R11.1 contracts |
-| R14 | planned | [ТЗ 08](08_customer_challenge_framework.md): challenge lifecycle/light |
-| R15 | planned | [ТЗ 08](08_customer_challenge_framework.md): gaze challenges |
-| R16 | planned | [ТЗ 08](08_customer_challenge_framework.md): floor hazard challenge |
-| R17 | planned | [ТЗ 10](10_combat_damage_health.md): combat/aggression; reuses R08 impact contract |
-| R18 | planned | [ТЗ 11](11_hunger_system.md), ТЗ 09: hunger/perception |
-| R19 | planned | [ТЗ 12](12_inventory_and_consumables.md), ТЗ 06/11: inventory/consumables |
-| R20 | planned | [ТЗ 14](14_evening_meta_scaffold.md): evening/trader/orders/quest |
-| R21 | planned | [ТЗ 15](15_night_save_next_day.md): persistence/next day |
-| R22 | planned | [ТЗ 16](16_ui_and_feedback.md): HUD/feedback |
-| R23 | planned | [ТЗ 17](17_vertical_slice_scenario.md): full vertical-slice validation |
+| [R08](../../agent_tasks/roadmap_08_package_damage_and_opening.md) | planned | [ТЗ 06](06_package_damage_and_hazards.md): package damage/opening |
+| [R09](../../agent_tasks/roadmap_09_package_hazards.md) | planned | [ТЗ 06](06_package_damage_and_hazards.md): package hazards |
+| [R10](../../agent_tasks/roadmap_10_wallet_and_daily_results.md) | planned | [ТЗ 07](07_customer_flow_and_delivery.md), ТЗ 14/15: wallet/results |
+| [R11](../../agent_tasks/roadmap_11_customer_flow_and_delivery.md) | planned | [ТЗ 07](07_customer_flow_and_delivery.md): customers/delivery/disputes |
+| [R11.1](../../agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md) | planned | [ТЗ 08.1](08_1_arrangement_extended_interactions.md): prolonged interactions, access, physical slots, placement/anchoring |
+| [R12](../../agent_tasks/roadmap_12_dialogue_integration.md) | planned | [ТЗ 09](09_dialogue_system.md): dialogue integration |
+| [R13](../../agent_tasks/roadmap_13_environment_interactables.md) | planned | [ТЗ 13](13_environment_interactables.md) using R11.1 contracts |
+| [R14](../../agent_tasks/roadmap_14_challenge_framework_and_lights.md) | planned | [ТЗ 08](08_customer_challenge_framework.md): challenge lifecycle/light |
+| [R15](../../agent_tasks/roadmap_15_gaze_challenges.md) | planned | [ТЗ 08](08_customer_challenge_framework.md): gaze challenges |
+| [R16](../../agent_tasks/roadmap_16_floor_hazard_challenge.md) | planned | [ТЗ 08](08_customer_challenge_framework.md): floor hazard challenge |
+| [R17](../../agent_tasks/roadmap_17_combat_and_impact_damage.md) | planned | [ТЗ 10](10_combat_damage_health.md): combat/aggression; reuses R08 impact contract |
+| [R18](../../agent_tasks/roadmap_18_hunger_and_perception.md) | planned | [ТЗ 11](11_hunger_system.md), ТЗ 09: hunger/perception |
+| [R19](../../agent_tasks/roadmap_19_inventory_and_consumables.md) | planned | [ТЗ 12](12_inventory_and_consumables.md), ТЗ 06/11: inventory/consumables |
+| [R20](../../agent_tasks/roadmap_20_evening_trader_orders_and_quest.md) | planned | [ТЗ 14](14_evening_meta_scaffold.md): evening/trader/orders/quest |
+| [R21](../../agent_tasks/roadmap_21_night_persistence_next_day.md) | planned | [ТЗ 15](15_night_save_next_day.md): persistence/next day |
+| [R22](../../agent_tasks/roadmap_22_hud_and_world_feedback.md) | planned | [ТЗ 16](16_ui_and_feedback.md): HUD/feedback |
+| [R23](../../agent_tasks/roadmap_23_vertical_slice_validation.md) | planned | [ТЗ 17](17_vertical_slice_scenario.md): full vertical-slice validation |
 
 ## Cross-cutting design specs
 
