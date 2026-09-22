@@ -6,7 +6,7 @@
 
 Implementation task: [R11.1 — Extended Interaction / Arrangement](../../agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md).
 
-Выполнить после базового interaction/hand/carry contract RM06.1 и до R12 Dialogue integration. Это design-ТЗ 08.1; номер `08.1` не является implementation ID.
+Выполнить после базового interaction/hand/carry contract R06.1 и до R12 Dialogue integration. Это design-ТЗ 08.1; номер `08.1` не является implementation ID.
 
 Это ТЗ добавляет общие world-interaction механики, которые затем должны переиспользоваться дверями, мебелью, инструментами, хранением и будущими puzzle/challenge сценариями.
 
