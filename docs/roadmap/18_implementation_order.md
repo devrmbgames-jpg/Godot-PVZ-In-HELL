@@ -112,6 +112,21 @@ RM06.1 выполняется после Scanner/Terminal и до Marker/Shelves
 
 ---
 
+## Этап 7.5 — Arrangement / Extended Interaction
+
+Реализовать [ТЗ 08.1](08_1_arrangement_extended_interactions.md):
+
+- prolonged interaction + progress/reset policies;
+- Door lock/access requirements;
+- reusable physical storage slots;
+- Carry PlacementArea;
+- Hammer Fix/Unfix для мебели;
+- support-neighbor unfix safety.
+
+Результат: Player может физически организовывать пространство и предметы, а инструменты/двери/мебель используют общие interaction contracts.
+
+---
+
 ## Этап 8 — Dialogue
 
 Реализовать:
