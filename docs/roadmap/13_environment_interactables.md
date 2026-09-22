@@ -1,5 +1,7 @@
 # ТЗ 13 — Двери, окна, мебель и свет
 
+> **Implementation coverage:** Implementation task **R13**, consuming generic extended-interaction contracts from **R11.1**.
+
 ## Цель
 
 Сделать помещение физически интерактивным и пригодным для хоррор-событий.
