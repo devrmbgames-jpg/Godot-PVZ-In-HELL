@@ -2,6 +2,33 @@
 
 [ext_resource type="Script" uid="uid://c63j0jgnx0qx6" path="res://content/entities/props/e_scanner.gd" id="1"]
 [ext_resource type="Script" uid="uid://ctrs3iak8sgmq" path="res://content/ui/scanner_feedback.gd" id="2"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="3_component"]
+[ext_resource type="Script" path="res://content/components/interaction/c_scanner.gd" id="4_scanner"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="5_interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_grabbable.gd" id="6_grabbable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_actions.gd" id="7_actions"]
+[ext_resource type="Script" path="res://content/systems/interaction/scan_action.gd" id="8_action"]
+
+[sub_resource type="Resource" id="Scanner_state"]
+script = ExtResource("4_scanner")
+
+[sub_resource type="Resource" id="Scanner_interactable"]
+script = ExtResource("5_interactable")
+
+[sub_resource type="Resource" id="Scanner_grabbable"]
+script = ExtResource("6_grabbable")
+hold_slot = 1
+
+[sub_resource type="Resource" id="Scanner_action"]
+script = ExtResource("8_action")
+action_id = &"scan_package"
+slot = 2
+caption = "Сканировать"
+
+[sub_resource type="Resource" id="Scanner_actions"]
+script = ExtResource("7_actions")
+actions = [SubResource("Scanner_action")]
+reserved_slots = 4
 
 [sub_resource type="StandardMaterial3D" id="BodyMaterial"]
 albedo_color = Color(0.12, 0.25, 0.32, 1)
@@ -32,6 +59,7 @@ collision_mask = 29
 mass = 0.5
 continuous_cd = true
 script = ExtResource("1")
+component_resources = Array[ExtResource("3_component")]([SubResource("Scanner_state"), SubResource("Scanner_interactable"), SubResource("Scanner_grabbable"), SubResource("Scanner_actions")])
 
 [node name="Body" type="MeshInstance3D" parent="." unique_id=1457605258]
 mesh = SubResource("BodyMesh")

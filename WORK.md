@@ -18,7 +18,7 @@ State: R06.1 active; base master @ ff2db865612e43c69742ca61bd91eb980e148342.
 
 ## Milestones
 
-- [ ] Inspector-first migration; resource/parse validation.
+- [x] Inspector-first migration; scenes load, day-cycle smoke PASS; formatter/structure and diff check PASS. Receiving smoke reaches eight parcels but initial target ray misses; resolve fixture geometry during regression milestone. Main-scene test hardcodes 15 entities, current scene has 16 (existing Bucket).
 - [ ] Three-slot ownership, replacement API and rotation data; targeted grab checks.
 - [ ] Shared capture, lowered hands, input resolver/G/swap/Terminal; input regressions.
 - [ ] Physical Push and authored cart; physics checks.

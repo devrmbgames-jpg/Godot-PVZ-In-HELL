@@ -1,8 +1,8 @@
 # R06.1 — Inspector-first компоненты, Carry/две руки и Push
 
-Status: planned
+Status: in progress
 Зависимости: R02, R06
-Ветка/base: зафиксировать при начале реализации.
+Ветка/base: master / ff2db865612e43c69742ca61bd91eb980e148342.
 Источники: [RM06.1](../docs/roadmap/06_1_interaction_hands_carry_push.md), [ТЗ 02](../docs/roadmap/02_core_interaction_and_physics.md), [ТЗ 05](../docs/roadmap/05_scanner_terminal_marker.md), [контракт Grab](../docs/physical_grab.md).
 
 ## Цель

@@ -3,6 +3,12 @@
 [ext_resource type="Script" path="res://content/entities/e_receiving_zone.gd" id="1"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/morning_supply.tres" id="2"]
 [ext_resource type="PackedScene" path="res://content/entities/props/package.tscn" id="3"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="4_component"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_receiving.gd" id="5_receiving"]
+
+[sub_resource type="Resource" id="Receiving_state"]
+resource_local_to_scene = true
+script = ExtResource("5_receiving")
 
 [sub_resource type="StandardMaterial3D" id="Material"]
 albedo_color = Color(0.65, 0.46, 0.08, 1)
@@ -15,6 +21,7 @@ size = Vector2(7.4, 4.0)
 script = ExtResource("1")
 supply = ExtResource("2")
 package_scene = ExtResource("3")
+component_resources = Array[ExtResource("4_component")]([SubResource("Receiving_state")])
 
 [node name="FloorMark" type="MeshInstance3D" parent="."]
 position = Vector3(3.8, 0.008, -5.5)

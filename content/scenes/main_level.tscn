@@ -34,7 +34,11 @@
 [ext_resource type="Script" uid="uid://cpsqfbyw5u8m7" path="res://content/systems/gameplay/s_damage.gd" id="Damage_system"]
 [ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/entities/e_day_session.gd" id="Day_entity"]
 [ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_package_ledger.gd" id="Day_ledger"]
 [ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/entities/day_station.tscn" id="Day_station"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Sleep_interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_actions.gd" id="Sleep_actions"]
+[ext_resource type="Script" path="res://content/systems/gameplay/day_phase_action.gd" id="Sleep_action"]
 [ext_resource type="Script" uid="uid://bl40hlhadexg3" path="res://content/systems/gameplay/s_day_phase.gd" id="Day_system"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
 [ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
@@ -103,6 +107,23 @@ script = ExtResource("34_efpp8")
 
 [sub_resource type="Resource" id="Day_state"]
 script = ExtResource("Day_state")
+
+[sub_resource type="Resource" id="Day_ledger"]
+resource_local_to_scene = true
+script = ExtResource("Day_ledger")
+
+[sub_resource type="Resource" id="Sleep_interactable"]
+script = ExtResource("Sleep_interactable")
+
+[sub_resource type="Resource" id="Sleep_transition"]
+script = ExtResource("Sleep_action")
+transition = 2
+action_id = &"phase_2"
+caption = "Лечь спать"
+
+[sub_resource type="Resource" id="Sleep_station_actions"]
+script = ExtResource("Sleep_actions")
+actions = [SubResource("Sleep_transition")]
 
 [node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world")]
 script = ExtResource("1_ixiin")
@@ -556,7 +577,7 @@ package_parent = NodePath("..")
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger")])
 
 [node name="ShiftConsole" parent="Entityes" unique_id=1907900219 instance=ExtResource("Day_station")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.5317445, 0, -5)
@@ -564,6 +585,7 @@ transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.53
 [node name="SleepPoint" parent="Entityes" unique_id=1969214162 instance=ExtResource("Day_station")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.53099465, 2.3841858e-07, -2.2939274)
 sleep_station = true
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Sleep_interactable"), SubResource("Sleep_station_actions")])
 
 [node name="Bucket" parent="Entityes" unique_id=263915687 instance=ExtResource("45_8uaqh")]
 transform = Transform3D(1, 0, 0, 0, 0.65209705, -0.7581355, 0, 0.7581355, 0.65209705, 8.994064, 0.9238361, 2.7314274)

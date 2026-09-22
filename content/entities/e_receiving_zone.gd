@@ -9,10 +9,6 @@ class_name E_ReceivingZone
 @onready var sign_label: Label3D = $Sign
 
 
-func define_components() -> Array:
-	return [C_Receiving.new()]
-
-
 func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		return

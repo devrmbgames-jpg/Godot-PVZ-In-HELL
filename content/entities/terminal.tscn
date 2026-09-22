@@ -1,6 +1,22 @@
 [gd_scene format=3]
 [ext_resource type="Script" path="res://content/entities/e_terminal.gd" id="1"]
 [ext_resource type="PackedScene" path="res://content/ui/terminal_panel.tscn" id="2"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="3_component"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="4_interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_actions.gd" id="5_actions"]
+[ext_resource type="Script" path="res://content/systems/interaction/terminal_action.gd" id="6_action"]
+
+[sub_resource type="Resource" id="Terminal_interactable"]
+script = ExtResource("4_interactable")
+
+[sub_resource type="Resource" id="Terminal_action"]
+script = ExtResource("6_action")
+action_id = &"open_terminal"
+caption = "Открыть реестр"
+
+[sub_resource type="Resource" id="Terminal_actions"]
+script = ExtResource("5_actions")
+actions = [SubResource("Terminal_action")]
 
 [sub_resource type="StandardMaterial3D" id="Material"]
 albedo_color = Color(0.13, 0.16, 0.19, 1)
@@ -15,6 +31,7 @@ size = Vector3(1.3, 1.1, 0.7)
 [node name="Terminal" type="StaticBody3D"]
 collision_layer = 1
 script = ExtResource("1")
+component_resources = Array[ExtResource("3_component")]([SubResource("Terminal_interactable"), SubResource("Terminal_actions")])
 
 [node name="Desk" type="MeshInstance3D" parent="."]
 position = Vector3(0, 0.55, 0)

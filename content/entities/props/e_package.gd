@@ -8,9 +8,10 @@ class_name E_Package
 
 
 func define_components() -> Array:
+	# This identity combines scene initialization with the spawned instance's stable ID.
 	if package_id.is_empty():
 		package_id = Crypto.new().generate_random_bytes(16).hex_encode()
 	var identity: C_Package = C_Package.new()
 	identity.package_id = package_id
 	identity.definition = package_definition
-	return [identity, C_PackageState.new(), C_PackageIntegrity.new()]
+	return [identity]

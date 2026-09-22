@@ -1,6 +1,28 @@
 [gd_scene format=3 uid="uid://da1gddnei47i7"]
 
 [ext_resource type="Script" uid="uid://dhmonacq8runy" path="res://content/entities/e_day_station.gd" id="1"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="2_component"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="3_interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_actions.gd" id="4_actions"]
+[ext_resource type="Script" path="res://content/systems/gameplay/day_phase_action.gd" id="5_action"]
+
+[sub_resource type="Resource" id="DayStation_interactable"]
+script = ExtResource("3_interactable")
+
+[sub_resource type="Resource" id="DayStation_start_shift"]
+script = ExtResource("5_action")
+action_id = &"phase_0"
+caption = "Начать смену"
+
+[sub_resource type="Resource" id="DayStation_finish_shift"]
+script = ExtResource("5_action")
+transition = 1
+action_id = &"phase_1"
+caption = "Завершить смену"
+
+[sub_resource type="Resource" id="DayStation_actions"]
+script = ExtResource("4_actions")
+actions = [SubResource("DayStation_start_shift"), SubResource("DayStation_finish_shift")]
 
 [sub_resource type="StandardMaterial3D" id="Material"]
 albedo_color = Color(0.12, 0.35, 0.38, 1)
@@ -14,6 +36,7 @@ size = Vector3(0.9, 1.1, 0.6)
 
 [node name="DayStation" type="StaticBody3D" unique_id=226463804]
 script = ExtResource("1")
+component_resources = Array[ExtResource("2_component")]([SubResource("DayStation_interactable"), SubResource("DayStation_actions")])
 
 [node name="Mesh" type="MeshInstance3D" parent="." unique_id=44848587]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)

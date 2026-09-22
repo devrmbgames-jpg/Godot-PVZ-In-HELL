@@ -75,11 +75,21 @@ func _deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index: int)
 		parcel.package_definition = definition
 		parcel.name = "Parcel_%03d_%02d" % [active_batch.day_index, active_batch.next_package + 1]
 		body.mass = definition.mass_kg
-		var carry: C_Grabbable = C_Grabbable.new()
+		var component_resources: Array[Component] = parcel.component_resources.duplicate()
+		var carry: C_Grabbable = null
+		for component_index: int in component_resources.size():
+			var component: Component = component_resources[component_index]
+			if component is C_Grabbable:
+				carry = component.duplicate() as C_Grabbable
+				component_resources[component_index] = carry
+				break
+		if carry == null:
+			parcel.free()
+			return
 		carry.movement_speed_multiplier = definition.carry_speed
 		carry.movement_acceleration_multiplier = definition.carry_acceleration
 		carry.throw_velocity = definition.throw_velocity
-		parcel.component_resources = [C_Interactable.new(), carry]
+		parcel.component_resources = component_resources
 		zone.package_parent.add_child(parcel)
 		body.global_transform = spawn_marker.global_transform
 		ECS.world.add_entity(parcel, null, false)
