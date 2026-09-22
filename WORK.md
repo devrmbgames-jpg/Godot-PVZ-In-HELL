@@ -23,7 +23,7 @@ State: R06.1 active.
 - [x] Inspector-first migration; scenes load, day-cycle smoke PASS; formatter/structure and diff check PASS. Receiving smoke reaches eight parcels but initial target ray misses; resolve fixture geometry during regression milestone. Main-scene test hardcodes 15 entities, current scene has 16 (existing Bucket).
 - [x] Three-slot ownership, prevalidated replacement API and per-item rotation data; 36/36 grab tests (147 assertions), formatter/structure and diff check PASS.
 - [x] Shared capture, lowered hands, E/F replacement, G short/long, swap/hand actions and Terminal: 50/50 grab tests (209 assertions), hands smoke including overlapping Terminal capture PASS. Corrected invalid initial hand pose and mistaken G-after-Carry-throw fixture.
-- [ ] Physical Push and authored cart; physics checks.
+- [x] Physical Push: separate C_Pushable/C_PushedBy, observer cleanup, fixed cart speeds and physical actor-follow; contextual E/F start and E/S stop, modal priority. Authored cart verified clear of level geometry. All 64 GUT tests PASS (302 assertions), formatter/lint/structure checks PASS.
 - [ ] Full relevant regression, durable docs and task closeout.
 
 Existing dirty addons/gecs is outside task scope. No new GUT suite; extend existing grab tests/smokes.

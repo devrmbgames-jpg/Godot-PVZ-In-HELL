@@ -53,6 +53,12 @@
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Sleep_interactable"]
 [ext_resource type="PackedScene" path="res://content/entities/stations/terminal.tscn" id="Terminal_scene"]
 
+[ext_resource type="Script" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
+
+[ext_resource type="Script" path="res://content/systems/interaction/s_push.gd" id="Push_system"]
+[ext_resource type="Script" path="res://content/observers/interaction/o_push_lifecycle.gd" id="Push_lifecycle"]
+[ext_resource type="PackedScene" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
 size = Vector3(32.071198, 0.50476074, 40.240265)
 
@@ -104,6 +110,7 @@ script = ExtResource("32_mc3p1")
 collision_mask = 31
 
 [sub_resource type="Resource" id="Grab_grab_control"]
+resource_local_to_scene = true
 script = ExtResource("33_k7ct6")
 
 [sub_resource type="Resource" id="Grab_carry_load"]
@@ -132,6 +139,9 @@ caption = "Лечь спать"
 [sub_resource type="Resource" id="Sleep_station_actions"]
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Sleep_transition")])
+
+[sub_resource type="Resource" id="Push_control"]
+script = ExtResource("Push_control")
 
 [node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world")]
 script = ExtResource("1_ixiin")
@@ -205,6 +215,13 @@ group = &"Interaction"
 [node name="S_Grab" type="Node" parent="World/Systems/Interaction" unique_id=767923781]
 script = ExtResource("Grab_system")
 group = &"Interaction"
+
+[node name="S_Push" type="Node" parent="World/Systems/Interaction"]
+script = ExtResource("Push_system")
+group = &"Interaction"
+
+[node name="O_PushLifecycle" type="Node" parent="World/Systems/Interaction"]
+script = ExtResource("Push_lifecycle")
 
 [node name="O_GrabLifecycle" type="Node" parent="World/Systems/Interaction" unique_id=1786878994]
 script = ExtResource("Grab_lifecycle")
@@ -722,7 +739,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
 collision_layer = 16
 collision_mask = 15
 camera_root = NodePath("HeadY/HeadX/RootCamera/Camera3D")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Push_control")])
 
 [node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1703744943, 217031396, 2065414162) index="0" unique_id=1494109615]
 cast_shadow = 3
@@ -773,6 +790,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.530093, 0, 3.423316)
 [node name="MarkerEmplaceMail" type="Marker3D" parent="Entityes" unique_id=80436796]
 editor_description = "Маркер куда примерно игрок должен класть посылки, которые ищет клиент."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0375915, 1.0400136, -4.9966)
+
+[node name="PushCart" parent="Entityes" instance=ExtResource("Push_cart")]
+position = Vector3(2.0, 0.5, -5.6)
 
 [node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player", "phase_system") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")

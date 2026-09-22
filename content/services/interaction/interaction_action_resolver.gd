@@ -26,7 +26,15 @@ static func handle_input(actor: Entity) -> void:
 
 	interactor.last_action_tick = controller.input_tick
 	control.rotation_active = false
-	if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.PUSH:
+	var active_focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
+	if active_focus == InteractionControlFocus.Priority.MODAL:
+		refresh_prompt(actor)
+		return
+	if active_focus == InteractionControlFocus.Priority.PUSH:
+		if controller.interact_pressed or controller.move_axis.y > S_Push.DIRECTION_EPSILON:
+			_execute_slot(actor, DEF_InteractionAction.Slot.INTERACT, true)
+		elif controller.use_pressed:
+			_execute_slot(actor, DEF_InteractionAction.Slot.USE, true)
 		refresh_prompt(actor)
 		return
 
@@ -86,12 +94,24 @@ static func resolve(
 		return null
 
 	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
-	if focus >= InteractionControlFocus.Priority.PUSH:
+	if focus == InteractionControlFocus.Priority.MODAL:
 		return null
 
 	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
 	if target != null and S_InteractionTargeting.find_target(actor, interactor) != target:
 		target = null
+	if focus == InteractionControlFocus.Priority.PUSH:
+		if input_slot == DEF_InteractionAction.Slot.INTERACT:
+			var cart: Entity = S_Push.pushed_object(actor)
+			if cart == null:
+				return null
+			var stop: DEF_PushAction = DEF_PushAction.new()
+			stop.end_push = true
+			stop.caption = "Отпустить тележку"
+			return _choice(stop, cart, target)
+		if input_slot == DEF_InteractionAction.Slot.USE:
+			return _target_action(actor, target, input_slot)
+		return null
 
 	var carry: Entity = S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY)
 	if focus == InteractionControlFocus.Priority.CARRY:

@@ -1,4 +1,5 @@
 extends System
+## Integrates grounded/airborne actor motion, with Push owning planar motion while active.
 class_name S_Motion
 
 const INPUT_EPSILON: float = 0.0001
@@ -36,6 +37,8 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 		return
 
 	if not motion.control_enabled:
+		return
+	if S_Push.integrate_actor(entity, state):
 		return
 
 	_integrate_regular_motion(

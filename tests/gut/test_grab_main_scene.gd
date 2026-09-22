@@ -16,7 +16,22 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var light_box: Entity = level.get_node("Entityes/Parcel_001_01") as Entity
 	var medium_box: Entity = level.get_node("Entityes/Parcel_001_02") as Entity
 	var heavy_box: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
-	assert_eq(world.entities.size(), 15)
+	assert_eq(world.query.with_all([C_Package]).execute().size(), 8)
+	for authored_entity: Node in level.get_node("Entityes").get_children():
+		if authored_entity is Entity:
+			assert_true(world.entities.has(authored_entity as Entity))
+	var cart: Entity = level.get_node("Entityes/PushCart") as Entity
+	assert_true(cart.has_component(C_Pushable))
+	assert_false(cart.has_component(C_Grabbable))
+	assert_true(player.has_component(C_PushControl))
+	var cart_body: RigidBody3D = cart as Node as RigidBody3D
+	var cart_shape: BoxShape3D = BoxShape3D.new()
+	cart_shape.size = Vector3(0.86, 0.66, 1.06)
+	var cart_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+	cart_query.shape = cart_shape
+	cart_query.transform = cart_body.global_transform
+	cart_query.exclude = [cart_body.get_rid()]
+	assert_true(cart_body.get_world_3d().direct_space_state.intersect_shape(cart_query).is_empty())
 	assert_eq(ECS.world, world)
 	assert_true(world.entities.has(heavy_box))
 	var light_config: C_Grabbable = light_box.get_component(C_Grabbable) as C_Grabbable

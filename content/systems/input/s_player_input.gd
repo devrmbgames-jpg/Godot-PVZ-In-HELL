@@ -1,4 +1,5 @@
 extends System
+## Produces one physics tick of player intent, respecting rotation and Push camera capture.
 class_name S_PlayerInput
 
 const LOOK_SENSITIVITY: float = 0.002
@@ -6,6 +7,7 @@ const MAX_LOOK_PITCH: float = deg_to_rad(89.0)
 const DEAD_ZONE: float = 0.1
 const GAMEPAD_LOOK_PIXELS_PER_SECOND: float = 900.0
 
+## Accumulated pointer motion; consumed once with the next physics input batch.
 var look_mouse: Vector2 = Vector2.ZERO
 var _interact_pending: bool = false
 var _throw_pending: bool = false
@@ -74,7 +76,16 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			else Vector2.ZERO
 		)
 		var rotating: bool = InteractionActionResolver.wants_rotation(entity, controller)
-		if not rotating:
+		var cart: Entity = S_Push.pushed_object(entity)
+		var pushing: bool = (
+			cart != null
+			and InteractionControlFocus.current(entity) == InteractionControlFocus.Priority.PUSH
+		)
+		if pushing:
+			controller.direction_look = -(cart as Node as Node3D).global_basis.z
+			controller.direction_look.y = 0.0
+			controller.look_delta = Vector2.ZERO
+		elif not rotating:
 			_update_look(controller, entity as Node as Node3D)
 		_update_motion(controller, captured)
 	look_mouse = Vector2.ZERO
@@ -146,6 +157,7 @@ func _update_motion(controller: C_Controller, captured: bool) -> void:
 		else Vector2.ZERO
 	)
 	var forward_direction: Vector3 = controller.direction_look
+	controller.move_axis = input_vector
 	forward_direction.y = 0.0
 	if input_vector.is_zero_approx() or forward_direction.is_zero_approx():
 		controller.direction_motion = Vector3.ZERO

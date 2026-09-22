@@ -16,6 +16,8 @@
 [ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="Grab_grab_control"]
 [ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="Grab_interactor"]
 
+[ext_resource type="Script" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
+
 [sub_resource type="PhysicsMaterial" id="CharacterMaterial"]
 friction = 0.0
 
@@ -74,6 +76,9 @@ radius = 0.18896484
 height = 0.7059326
 radius = 0.18798828
 
+[sub_resource type="Resource" id="Push_control"]
+script = ExtResource("Push_control")
+
 [node name="E_RigidBodyCharacter" type="RigidBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "lowered_right_hand_slot", "lowered_left_hand_slot", "shape_standing", "shape_crouching", "head_axis_y", "head_axis_x")]
 collision_layer = 4
 collision_mask = 13
@@ -97,7 +102,7 @@ shape_standing = NodePath("ColNormal")
 shape_crouching = NodePath("ColCrouch")
 head_axis_y = NodePath("HeadY")
 head_axis_x = NodePath("HeadY/HeadX")
-component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load")])
+component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Push_control")])
 
 [node name="ColNormal" type="CollisionShape3D" parent="." unique_id=1584379138]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76812744, 0)

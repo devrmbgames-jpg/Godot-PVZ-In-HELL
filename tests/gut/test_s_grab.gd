@@ -40,6 +40,7 @@ func before_each() -> void:
 	ECS.world = grab_world
 	var observer: O_GrabLifecycle = O_GrabLifecycle.new()
 	grab_world.add_observer(observer)
+	grab_world.add_observer(O_PushLifecycle.new())
 	holder_entity = make_holder(Vector3.ZERO)
 	box_entity = make_box(Vector3(0.0, 1.0, -1.5))
 	holder_body = holder_entity as Node as RigidBody3D
@@ -55,6 +56,7 @@ func after_each() -> void:
 	var remaining: Array[Entity] = grab_world.entities.duplicate()
 	for actor: Entity in remaining:
 		if is_instance_valid(actor):
+			S_Push.entity_unavailable(actor)
 			S_Grab.entity_unavailable(actor)
 	grab_world.free()
 	ECS.world = null
@@ -97,6 +99,7 @@ func make_holder(location: Vector3) -> Entity:
 		C_Interactor.new(),
 		C_GrabControl.new(),
 		C_CarryLoad.new(),
+		C_PushControl.new(),
 	]
 	grab_world.add_entity(actor)
 	return actor
@@ -966,4 +969,178 @@ func test_world_removal_of_holder_releases_source_relationship() -> void:
 	grab_world.remove_entity(holder_entity)
 	assert_null(S_Grab.held_relationship(box_entity))
 	assert_true(box_body.get_collision_exceptions().is_empty())
+#endregion
+
+
+#region Push lifecycle and actual physics
+func _make_push_cart() -> Entity:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var scene: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
+	var cart: Entity = scene.instantiate() as Entity
+	var body: RigidBody3D = cart as Node as RigidBody3D
+	body.position = Vector3(0.0, 1.0, -1.8)
+	body.gravity_scale = 0.0
+	grab_world.add_entity(cart)
+	return cart
+
+
+func test_push_contextual_start_stop_preserves_hands_and_uses_no_grab_slot() -> void:
+	var cart: Entity = _make_push_cart()
+	await get_tree().physics_frame
+	_grabbable(box_entity).allowed_hand_slots = 6
+	_add_external_grip(box_entity, C_Grabbable.HoldSlot.RIGHT_HAND)
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor)
+	interactor.target = cart
+
+	input_state.interact_pressed = true
+	input_state.input_tick += 1
+	S_Grab.handle_input(holder_entity)
+	assert_eq(S_Push.pushed_object(holder_entity), cart)
+	assert_null(S_Grab.held_relationship(cart))
+	assert_false(cart.has_component(C_Grabbable))
+	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.PUSH)
+
+	input_state.interact_pressed = false
+	input_state.action_main_pressed = true
+	input_state.physical_override = true
+	input_state.input_tick += 1
+	S_Grab.handle_input(holder_entity)
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), box_entity)
+
+	input_state.interact_pressed = true
+	input_state.input_tick += 1
+	S_Grab.handle_input(holder_entity)
+	assert_null(S_Push.pushed_object(holder_entity))
+	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), box_entity)
+	assert_eq(
+		InteractionControlFocus.current(holder_entity),
+		InteractionControlFocus.Priority.HANDS,
+	)
+
+
+func test_push_fixed_forward_turn_speeds_and_no_reverse_motor() -> void:
+	var cart: Entity = _make_push_cart()
+	await get_tree().physics_frame
+	var body: RigidBody3D = cart as Node as RigidBody3D
+	var config: C_Pushable = cart.get_component(C_Pushable)
+	var initial: Transform3D = body.global_transform
+	assert_true(S_Push.try_begin(holder_entity, cart))
+	assert_eq(body.global_transform, initial)
+
+	input_state.move_axis = Vector2(0.0, -1.0)
+	for physics_tick: int in 4:
+		await get_tree().physics_frame
+	assert_almost_eq(body.linear_velocity.length(), config.forward_speed, 0.08)
+	assert_lt(body.global_position.z, initial.origin.z)
+
+	input_state.move_axis = Vector2(1.0, 0.0)
+	for physics_tick: int in 3:
+		await get_tree().physics_frame
+	assert_almost_eq(body.angular_velocity.y, -config.turn_speed, 0.02)
+
+	input_state.move_axis = Vector2(0.0, 1.0)
+	for physics_tick: int in 3:
+		await get_tree().physics_frame
+	assert_almost_eq(body.linear_velocity.length(), 0.0, 0.02)
+	input_state.input_tick += 1
+	S_Grab.handle_input(holder_entity)
+	assert_null(S_Push.relationship(cart))
+
+
+func test_push_wall_collision_blocks_cart_without_teleport() -> void:
+	var cart: Entity = _make_push_cart()
+	await get_tree().physics_frame
+	assert_true(S_Push.try_begin(holder_entity, cart))
+	var wall: StaticBody3D = make_wall(Vector3(0.0, 1.0, -2.7))
+	input_state.move_axis = Vector2(0.0, -1.0)
+
+	for physics_tick: int in 45:
+		await get_tree().physics_frame
+	assert_gt((cart as Node as Node3D).global_position.z, -2.3)
+	assert_not_null(S_Push.relationship(cart))
+	wall.free()
+
+
+func test_push_actor_physically_follows_turning_handle() -> void:
+	var cart: Entity = _make_push_cart()
+	await get_tree().physics_frame
+	assert_true(S_Push.try_begin(holder_entity, cart))
+	holder_entity.add_component(C_Motion.new())
+	holder_body.freeze = false
+	holder_body.gravity_scale = 0.0
+	input_state.move_axis = Vector2(0.0, -1.0)
+
+	for physics_tick: int in 25:
+		await get_tree().physics_frame
+	assert_lt(holder_body.global_position.z, -0.2)
+	assert_not_null(S_Push.relationship(cart))
+	assert_gt(
+		(cart as Node as Node3D).global_position.distance_to(holder_body.global_position),
+		1.0,
+	)
+
+
+func test_push_lost_front_focus_and_disabled_actor_clean_up() -> void:
+	var cart: Entity = _make_push_cart()
+	await get_tree().physics_frame
+	assert_true(S_Push.try_begin(holder_entity, cart))
+	input_state.direction_look = Vector3.BACK
+	for physics_tick: int in 3:
+		await get_tree().physics_frame
+	assert_null(S_Push.relationship(cart))
+	assert_eq(
+		InteractionControlFocus.current(holder_entity),
+		InteractionControlFocus.Priority.HANDS,
+	)
+
+	input_state.direction_look = Vector3.FORWARD
+	assert_true(S_Push.try_begin(holder_entity, cart))
+	grab_world.disable_entity(holder_entity)
+	assert_null(S_Push.relationship(cart))
+	assert_true((cart as Node as RigidBody3D).can_sleep)
+
+
+func test_push_modal_overlap_pauses_motor_and_retains_capture_after_ui_release() -> void:
+	var cart: Entity = _make_push_cart()
+	await get_tree().physics_frame
+	assert_true(S_Push.try_begin(holder_entity, cart))
+	var modal: RefCounted = RefCounted.new()
+	var token: int = InteractionControlFocus.acquire(
+		holder_entity,
+		modal,
+		InteractionControlFocus.Priority.MODAL,
+	)
+	input_state.move_axis = Vector2(1.0, -1.0)
+	for physics_tick: int in 3:
+		await get_tree().physics_frame
+	assert_eq((cart as Node as RigidBody3D).linear_velocity, Vector3.ZERO)
+	assert_eq((cart as Node as RigidBody3D).angular_velocity, Vector3.ZERO)
+
+	InteractionControlFocus.release(holder_entity, token)
+	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.PUSH)
+	assert_eq(S_Push.pushed_object(holder_entity), cart)
+	grab_world.remove_entity(cart)
+	assert_null(S_Push.pushed_object(holder_entity))
+	assert_eq(
+		InteractionControlFocus.current(holder_entity),
+		InteractionControlFocus.Priority.HANDS,
+	)
+	cart.free()
+
+
+func test_push_rejects_occupied_cart_and_wall_occluded_start() -> void:
+	var cart: Entity = _make_push_cart()
+	await get_tree().physics_frame
+	assert_true(S_Push.try_begin(holder_entity, cart))
+	var other_actor: Entity = make_holder(Vector3(0.2, 0.0, 0.0))
+	assert_false(S_Push.try_begin(other_actor, cart))
+	cart.add_relationship(Relationship.new(C_PushedBy.new(), other_actor))
+	assert_eq(S_Push.pushed_object(holder_entity), cart)
+	assert_null(S_Push.pushed_object(other_actor))
+	S_Push.end(holder_entity, cart)
+
+	var wall: StaticBody3D = make_wall(Vector3(0.0, 1.0, -0.8))
+	await get_tree().physics_frame
+	assert_false(S_Push.try_begin(holder_entity, cart))
+	wall.free()
 #endregion
