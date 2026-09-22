@@ -1,5 +1,7 @@
 # ТЗ 11 — Голод
 
+> **Implementation coverage:** Implementation coverage: Hunger/perception **R18**, Food inventory/use **R19**.
+
 ## Цель
 
 Создать базовый Hunger и заготовку под будущую монструозную сторону Player.
