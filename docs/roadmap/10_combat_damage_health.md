@@ -16,6 +16,8 @@ Player и combat-capable Customer имеют:
 - damage handling;
 - defeat/death state.
 
+Переход Health через zero определяется generic depletion contract R08. Для живого Entity он создаёт `C_Death`/эквивалентный death-state ровно один раз; R17 реализует конкретную combat/AI/animation/corpse reaction и не переносит её обратно в `S_Damage`.
+
 ## Единый Damage Pipeline
 
 Минимальные источники:
