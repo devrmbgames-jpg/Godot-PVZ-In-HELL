@@ -14,3 +14,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: gdscript-format-check
+        name: check staged GDScript formatting
+        entry: python utils/check_gdscript_format.py
+        language: system
+        files: \.gd$
+        exclude: ^addons/
