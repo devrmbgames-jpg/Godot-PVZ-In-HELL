@@ -20,14 +20,18 @@ Status: planned
 
 - [ ] SleepPoint запускает одну транзакцию Night: результаты, persistent snapshot, PendingDelivery, DayIndex и новый Morning.
 - [ ] Сохранить минимум DayIndex, Money/Penalties, Health, Hunger, upgrades/purchases, quest flags, PendingDeliveries; дополнительно сохранить Inventory и связи identity, необходимые уже работающим задачам.
+- [ ] Сохранять активные/невыданные Package через любое число дней: stable identity, reusable registration number, состояние Opened/Damaged, ownership/physical persistence и RequestedPackage identity. Ночь сама по себе не освобождает номер.
+- [ ] Сохранять actual delivery outcome отдельно от Terminal declaration, unresolved Complaints/disputes, примененные settlement operation IDs и 7-day justified-retaliation windows.
 - [ ] Сбрасывать schedule, временные challenges/dialogue/hazards/reservations; сохранять явно persistent последствия.
-- [ ] Определить политику посылок, физического расположения и маркерных штрихов между днями; исключить потерю quest-target и дубликаты ID.
+- [ ] Определить политику физического расположения и маркерных штрихов между днями; исключить потерю quest-target и дубликаты ID. Customer arrival может быть запланирован через 10+ дней либо никогда, поэтому отсутствие события сегодня не является cleanup condition.
+- [ ] Поддержать morning return отказной Package: lifecycle/номер закрываются только после successful return commit; существующая Complaint/штраф не отменяются автоматически.
 - [ ] Восстанавливать ссылки по стабильным ID, не сериализовать Node/Relationship runtime напрямую; безопасно обрабатывать отсутствующий/некорректный save.
 - [ ] Доставлять каждый оплаченный order ровно один раз даже после повторного load или прерывания перехода.
 
 ## Критерии готовности
 
 - Morning второго дня сохраняет необходимые характеристики и quest flags, приносит заказанный предмет.
+- Невыданная Package предыдущего дня остается физически/логически активной с тем же номером; unresolved dispute переживает save/load без повторного штрафа.
 - Перезапуск игры восстанавливает согласованное состояние; повтор Sleep/load не дублирует доставку или DayIndex.
 - Нет оставшегося slowdown, rotation lock или временной опасности после reset.
 
