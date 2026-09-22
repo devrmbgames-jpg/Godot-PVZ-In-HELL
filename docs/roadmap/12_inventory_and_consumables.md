@@ -10,6 +10,8 @@ Inventory не заменяет физическое хранение крупн
 
 Package, Furniture и другие крупные предметы остаются в мире.
 
+Physical Storage Slots из [ТЗ 08.1](08_1_arrangement_extended_interactions.md) — отдельная механика. Такой slot хранит конкретный физический Entity на теле Player, полке или tool rack и не превращает его в stack/quantity. ТЗ 12 отвечает за виртуальное ownership/stack/use небольших Consumable; обе системы не должны дублировать друг друга.
+
 Inventory предназначен для:
 
 - Food;
