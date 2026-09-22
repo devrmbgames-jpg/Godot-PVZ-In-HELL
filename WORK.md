@@ -18,6 +18,7 @@ State: R06.1 active; base master @ ff2db865612e43c69742ca61bd91eb980e148342.
 
 ## Milestones
 
+- [ ] **URGENT before remaining R06.1 work:** replace R06 `DDD-NNN`/per-cycle sequence with reusable `№XXX` allocation from ТЗ 05. New registration gets the smallest free positive base number across all active packages; numbers persist across days until the package leaves warehouse lifecycle; freed numbers are reused. Update existing receiving/scan smoke expectations.
 - [x] Inspector-first migration; scenes load, day-cycle smoke PASS; formatter/structure and diff check PASS. Receiving smoke reaches eight parcels but initial target ray misses; resolve fixture geometry during regression milestone. Main-scene test hardcodes 15 entities, current scene has 16 (existing Bucket).
 - [x] Three-slot ownership, prevalidated replacement API and per-item rotation data; 36/36 grab tests (147 assertions), formatter/structure and diff check PASS.
 - [ ] Shared capture, lowered hands, input resolver/G/swap/Terminal; input regressions.
