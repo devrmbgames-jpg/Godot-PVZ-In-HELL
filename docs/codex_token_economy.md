@@ -192,6 +192,48 @@ NOT RUN — user visual validation required
 
 Это правило одновременно экономит token allowance и исключает ситуацию, когда агент тратит контекст на изображения, которые пользователь всё равно предпочитает проверять и настраивать вручную.
 
+## Test cadence: batch expensive validation
+
+GUT, smoke и headless runtime проверки не должны запускаться после каждой мелкой правки или milestone.
+
+Внутри одной крупной implementation-задачи, например `R08`:
+
+```text
+milestone 1
+→ static/deterministic checks
+→ local commit
+
+milestone 2
+→ static/deterministic checks
+→ local commit
+
+...
+
+последний milestone
+→ static/deterministic checks
+→ один GUT regression run
+→ один relevant headless smoke/runtime pass
+→ закрытие R08
+```
+
+Для промежуточных milestone использовать:
+
+- `python utils/validate_project_structure.py`;
+- formatter/static checks;
+- targeted source/scene/resource inspection;
+- `git diff --check`;
+- при необходимости compile/parse-like cheap checks, если они не запускают широкую runtime suite.
+
+Не запускать по умолчанию:
+
+- полный GUT после каждого commit;
+- тот же smoke test после каждой второй правки;
+- широкие runtime regression loops в ходе одного R-task.
+
+Исключение — конкретный blocking bug, который невозможно подтвердить статически. Тогда разрешён **один узкий targeted test/run**, после чего агент возвращается к обычному batching. Явная просьба пользователя запустить тесты сейчас также является исключением.
+
+Цель — один дорогой runtime validation pass на крупную roadmap-задачу, а не десятки повторов одного и того же regression surface.
+
 ## Deterministic validation
 
 Перед расходованием reasoning-токенов на поиск простых структурных ошибок сначала запускать:
