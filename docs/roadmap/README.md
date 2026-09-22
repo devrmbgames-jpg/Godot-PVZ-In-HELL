@@ -24,7 +24,7 @@ Completed implementation tasks are removed from `agent_tasks/` by project policy
 | R06 | completed | ТЗ 05: scanner / registration / terminal |
 | R06.1 | completed | [R06.1](06_1_interaction_hands_carry_push.md) |
 | R07 | completed | ТЗ 05: marker / shelves |
-| [R08](../../agent_tasks/roadmap_08_package_damage_and_opening.md) | planned | [ТЗ 06](06_package_damage_and_hazards.md): package damage/opening |
+| [R08](../../agent_tasks/roadmap_08_package_damage_and_opening.md) | planned | [ТЗ 06](06_package_damage_and_hazards.md): generic Health/Impact foundation + package damage/opening |
 | [R09](../../agent_tasks/roadmap_09_package_hazards.md) | planned | [ТЗ 06](06_package_damage_and_hazards.md): package hazards |
 | [R10](../../agent_tasks/roadmap_10_wallet_and_daily_results.md) | planned | [ТЗ 07](07_customer_flow_and_delivery.md), ТЗ 14/15: wallet/results |
 | [R11](../../agent_tasks/roadmap_11_customer_flow_and_delivery.md) | planned | [ТЗ 07](07_customer_flow_and_delivery.md): customers/delivery/disputes |
