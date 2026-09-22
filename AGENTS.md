@@ -40,6 +40,9 @@ Do not automatically reread roadmap docs, root CONTEXT, unchanged files already 
 - Never claim a formatter/test/Godot run passed unless it actually ran.
 - Never discard user edits, force-push, rewrite unrelated history, or upgrade dependencies unless requested.
 - Never write authored files into `.godot/`.
+- **Never launch Godot in rendered/visual mode, capture screenshots, record the screen, or perform visual UI/scene inspection unless the user explicitly approves visual validation in the current task/conversation.** Visual validation is user-owned by default.
+- Headless Godot, GUT, smoke tests, deterministic scripts, formatter/lint, and concise logs remain allowed unless the user restricts them separately.
+- If a task has a visual acceptance criterion but visual validation was not explicitly approved, validate everything possible non-visually and report the visual portion as **NOT RUN — user visual validation required**. Do not ask for permission unless visual validation is actually necessary to proceed.
 
 ## Token / investigation budget
 
