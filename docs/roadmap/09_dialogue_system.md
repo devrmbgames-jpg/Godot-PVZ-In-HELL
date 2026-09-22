@@ -18,7 +18,10 @@ Dialogue поддерживает:
 - передачу package number;
 - запуск Challenge;
 - запуск Aggressive state;
-- завершение разговора.
+- завершение разговора;
+- добровольный отказ Customer от Package;
+- подачу/отложенное создание Complaint;
+- обнаружение ложной отметки `TAKEN` и переход в Aggressive.
 
 ## Gameplay Context
 
@@ -29,7 +32,12 @@ Conditions должны уметь учитывать:
 - состояние RequestedPackage;
 - quest flags;
 - Customer Satisfaction;
-- результат Challenge.
+- результат Challenge;
+- фактический исход RequestedPackage;
+- Terminal declaration;
+- Customer Complaint/dispute state;
+- была ли Package Opened/Damaged;
+- подтверждена ли неправомерная Complaint.
 
 ## Package Number
 
