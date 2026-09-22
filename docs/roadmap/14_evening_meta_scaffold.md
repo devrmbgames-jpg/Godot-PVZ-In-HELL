@@ -27,7 +27,47 @@
 - CompletedDays;
 - Purchased/Unlocked Upgrades;
 - Active Quest Flags;
-- Pending Deliveries.
+- Pending Deliveries;
+- typed Package settlement/dispute records;
+- future Reputation hooks/reasons без необходимости реализовывать полный Reputation score в MVP.
+
+## Package Value / Settlements
+
+Каждая Package, участвующая в Customer service, имеет учетную стоимость, отображаемую в Terminal.
+
+Эта стоимость является базой для:
+
+- добровольного выкупа отказной Package — 100%;
+- `LOST` — 120%;
+- явного отказа Player — 150%;
+- подтвержденного скрытого/мошеннического отказа — 200%.
+
+Коэффициенты должны быть data-driven и операции идемпотентны.
+
+Учётная стоимость и рыночная цена содержимого у Trader могут отличаться. Это намеренно создает ситуации, где Player может захотеть присвоить Package ради выгодного содержимого.
+
+Экономическая система должна различать:
+
+- purchase/buyout;
+- penalty;
+- reward/payment;
+- complaint settlement;
+
+чтобы UI, история и будущая Reputation могли понимать причину изменения Money.
+
+## Future Reputation scaffold
+
+Полную Reputation систему можно реализовать позже, но уже сейчас финансовые/Customer outcomes должны выдавать typed reputation reasons.
+
+Минимум различать:
+
+- корректную выдачу;
+- Player refusal;
+- Lost admission;
+- discovered false `TAKEN`;
+- voluntary Customer refusal;
+- wrongful Customer complaint;
+- combat inside/outside justified retaliation window.
 
 ## Trader
 
