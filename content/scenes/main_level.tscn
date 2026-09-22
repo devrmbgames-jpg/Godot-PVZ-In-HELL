@@ -60,6 +60,7 @@
 [ext_resource type="PackedScene" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
 [ext_resource type="PackedScene" path="res://content/entities/tools/marker.tscn" id="Marker_scene"]
 [ext_resource type="Script" path="res://content/systems/interaction/s_marker.gd" id="Marker_system"]
+[ext_resource type="PackedScene" path="res://content/entities/props/numbered_shelves.tscn" id="Shelves_scene"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
 size = Vector3(32.071198, 0.50476074, 40.240265)
@@ -802,6 +803,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0375915, 1.0400136, -4.9966
 
 [node name="PushCart" parent="Entityes" instance=ExtResource("Push_cart")]
 position = Vector3(2.0, 0.5, -5.6)
+
+[node name="NumberedShelves" parent="PVZ" instance=ExtResource("Shelves_scene")]
+position = Vector3(6.0, 0.0, -7.2)
 
 [node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player", "phase_system") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")

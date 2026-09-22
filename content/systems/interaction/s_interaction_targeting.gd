@@ -1,4 +1,5 @@
 extends System
+## Selects first-hit interaction targets and highlights their physical presentation.
 class_name S_InteractionTargeting
 
 #region Highlight tuning
@@ -98,7 +99,7 @@ func _set_mesh_highlight(
 	material: StandardMaterial3D,
 	enabled: bool,
 ) -> void:
-	if mesh_instance == null:
+	if mesh_instance == null or mesh_instance is PackageMarksView:
 		return
 	var instance_id: int = mesh_instance.get_instance_id()
 	if enabled:

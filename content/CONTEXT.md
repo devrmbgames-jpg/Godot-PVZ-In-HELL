@@ -2,7 +2,7 @@
 
 ## Ownership and entry points
 
-`scenes/main_level.tscn` is the configured startup and project-owned prototype. It contains Player, receiving zone, scanner, terminal and day stations. Morning supply creates eight physical parcels, including 5/30/80kg carry profiles.
+`scenes/main_level.tscn` is the configured startup and project-owned prototype. It contains Player, receiving zone, scanners, marker, six numbered physical shelf compartments, terminal and day stations. Morning supply creates eight physical parcels, including 5/30/80kg carry profiles.
 
 The scene owns World, system groups, environment and an entity root named `Entityes`. World points to `../Entityes` and `Systems`.
 

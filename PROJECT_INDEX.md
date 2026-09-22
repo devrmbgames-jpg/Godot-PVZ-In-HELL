@@ -48,6 +48,7 @@ Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the
 | Delivery data | [def_delivery.gd](content/definitions/gameplay/deliveries/def_delivery.gd), [morning_supply.tres](content/definitions/gameplay/deliveries/morning_supply.tres), [receiving_batch.gd](content/contracts/receiving/receiving_batch.gd) |
 | Scanner | [e_scanner.gd](content/entities/tools/e_scanner.gd), [scanner.tscn](content/entities/tools/scanner.tscn), [def_scan_action.gd](content/definitions/interaction/def_scan_action.gd) |
 | Marker / package ink | [s_marker.gd](content/systems/interaction/s_marker.gd), [marker.tscn](content/entities/tools/marker.tscn), [c_package_marks.gd](content/components/gameplay/c_package_marks.gd); contract: [package_marking.md](docs/package_marking.md) |
+| Numbered storage | [numbered_shelves.tscn](content/entities/props/numbered_shelves.tscn); physical compartments 01–06, no Terminal shelf tracking |
 | Registration | [package_registration_service.gd](content/services/packages/package_registration_service.gd), [package_registration_record.gd](content/contracts/packages/package_registration_record.gd), [package_scan_result.gd](content/contracts/packages/package_scan_result.gd) |
 | Terminal | [e_terminal.gd](content/entities/stations/e_terminal.gd), [terminal.tscn](content/entities/stations/terminal.tscn), [terminal_panel.tscn](content/ui/terminal_panel.tscn) |
 

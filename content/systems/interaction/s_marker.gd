@@ -167,6 +167,15 @@ static func append_sample(
 	var body: Node3D = parcel as Node as Node3D
 	var local_normal: Vector3 = (body.global_basis.transposed() * world_normal).normalized()
 	var point: Vector3 = body.to_local(world_point + world_normal * SURFACE_OFFSET)
+	var package_entity: E_Package = parcel as E_Package
+	if package_entity != null and is_instance_valid(package_entity.marking_surface):
+		point = _visual_surface_point(
+			package_entity.marking_surface,
+			body,
+			world_point,
+			world_normal,
+		)
+
 	var continuing: bool = marker.parcel == parcel and marker.stroke != null
 	if continuing:
 		var previous: Vector3 = marker.stroke.points[-1]
@@ -214,3 +223,21 @@ static func drawable(parcel: Entity) -> bool:
 		and state.registration != C_PackageState.Registration.DELIVERED
 	)
 #endregion
+
+
+## The current package visual is a box; its mesh bounds may exceed collision tolerances.
+static func _visual_surface_point(
+	surface: MeshInstance3D,
+	body: Node3D,
+	world_point: Vector3,
+	world_normal: Vector3,
+) -> Vector3:
+	var normal: Vector3 = (surface.global_basis.transposed() * world_normal).normalized()
+	var point: Vector3 = surface.to_local(world_point)
+	var bounds: AABB = surface.mesh.get_aabb()
+	var axis: int = normal.abs().max_axis_index()
+	var positive: bool = normal[axis] > 0.0
+	point[axis] = bounds.end[axis] if positive else bounds.position[axis]
+	point[axis] += SURFACE_OFFSET if positive else -SURFACE_OFFSET
+
+	return body.to_local(surface.to_global(point))

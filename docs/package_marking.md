@@ -10,9 +10,13 @@ Aim at a package and press the marker hand's use button (normally right hand LMB
 
 ## Ink ownership and rendering
 
-Each Package scene authors a separate `C_PackageMarks`. `PackageMarkStroke` stores ordered local points, local face normal, width and color. S_Marker transforms first-hit world coordinates into Package space and offsets ink slightly from the collision surface. Button release, misses, occluders, package changes, face-normal changes and large sample gaps split strokes. Sample spacing and a per-package point budget bound geometry/memory. At the budget limit the package accepts no more ink; existing marks remain.
+Each Package scene authors a separate `C_PackageMarks`. `PackageMarkStroke` stores ordered local points, local face normal, width and color. S_Marker transforms first-hit world coordinates into Package space. The current box-shaped package model slightly exceeds its collider on some faces: `E_Package.marking_surface` supplies the own-child visual mesh, and S_Marker projects onto the corresponding visible mesh-bounds plane before applying a small outward offset. Physics still validates the first hit before projection. Future non-box package models need a matching surface projection contract. Button release, misses, occluders, package changes, face-normal changes and large sample gaps split strokes. Sample spacing and a per-package point budget bound geometry/memory. At the budget limit the package accepts no more ink; existing marks remain.
 
-`PackageMarksView`, a child MeshInstance3D, builds ink geometry only when the data revision changes. Moving/rotating a package moves the child mesh without changing sample data. Presentation never updates domain state. `S_Damage` clears ink when package integrity reaches DESTROYED; freeing a package frees its child mesh and component data. Marks never register a package, assign a shelf, alter warehouse numbers or supply Terminal information.
+`PackageMarksView`, a child MeshInstance3D, builds ink geometry only when the data revision changes. Moving/rotating a package moves the child mesh without changing sample data. Target highlighting skips ink geometry, preserving the authored ink color. Presentation never updates domain state. `S_Damage` clears ink when package integrity reaches DESTROYED; freeing a package frees its child mesh and component data. Marks never register a package, assign a shelf, alter warehouse numbers or supply Terminal information.
+
+## Physical storage
+
+`content/entities/props/numbered_shelves.tscn` is an authored StaticBody3D with six numbered compartments, solid boards, sides, dividers and a back. The main level places it against the warehouse wall at (6, 0, -7.2), clear of the doorway. Lower compartments are 01–03, upper compartments 04–06. Number plates are world-space Label3D presentation. Packages settle on shelves through Godot collision/gravity; shelves have no gameplay component, package assignment or connection to the Terminal ledger. Placement and mnemonic marks are the player's own organization system.
 
 ## R21 persistence boundary
 
@@ -20,4 +24,6 @@ Ink is currently runtime-only and survives day changes while the Package remains
 
 ## Validation
 
-Existing `test_s_grab.gd` covers local transforms, split faces, point budgets, destroyed-package rejection, capture cancellation and look restoration. `tests/smoke/marker_shelves_smoke.tscn` exercises the actual level and raycasts: scanner registration, both hand mappings/swap, continuous ink, occlusion, release/exit, generated geometry and authoritative damage cleanup. Require its PASS marker; `--quit-after 360` is a safety limit rather than a success condition.
+Existing `test_s_grab.gd` covers local transforms, split faces, point budgets, destroyed-package rejection, capture cancellation and look restoration. `tests/smoke/marker_shelves_smoke.tscn` exercises the actual level and raycasts: scanner registration, both hand mappings/swap, continuous ink, front/side faces, occlusion, release/E/Esc, generated geometry, physical settling in compartment 05, unchanged Terminal data and authoritative damage cleanup. Require its PASS marker; `--quit-after 360` is a safety limit rather than a success condition.
+
+Run with rendering and `-- --preview` to save ignored `tests/artifacts/r07_shelves_preview.png` and `r07_marks_preview.png`. Automated rendering verifies visible scene output; subjective mouse feel remains a human playtest concern.
