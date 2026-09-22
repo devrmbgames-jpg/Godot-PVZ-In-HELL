@@ -69,6 +69,13 @@ Project subagent defaults are in `.codex/config.toml`. The project intentionally
 
 For sizable work, maintain `WORK.md`. For interruptible work, keep `CURRENT_WORK.md` as a compact durable checkpoint.
 
+**Create a local git commit after every completed logical stage/milestone and before starting the next stage or separate task.**
+- A commit must contain one coherent change.
+- Run the narrow relevant validation before committing when possible.
+- Update `CURRENT_WORK.md` before/with the milestone commit if the task continues.
+- Do not batch several independent stages into one large commit.
+- Do not push, open a PR, or rewrite history unless the user explicitly asks.
+
 Checkpoint only current state, invariants, changed paths, validation, blocker, and one exact next step. Never paste full logs/diffs/source/chat history.
 
 Keep only unfinished task files in `agent_tasks/`. After completion:
