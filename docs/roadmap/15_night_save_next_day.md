@@ -37,7 +37,14 @@
 - upgrades;
 - quest flags;
 - PendingDeliveries;
+- активные/невыданные Package и их регистрационные номера;
+- Package actual outcome / Terminal declaration, пока lifecycle/dispute не закрыт;
+- Complaint/dispute records;
+- поздние Customer arrivals, включая Customer, который может прийти через 10+ дней;
+- justified retaliation window после подтвержденной ложной Complaint;
 - persistent world consequences.
+
+Package не должна исчезать или освобождать номер только потому, что прошла ночь.
 
 ## Next Morning Delivery
 
@@ -55,7 +62,12 @@
 - Hunger;
 - purchased/unlocked upgrades;
 - PendingDeliveries;
-- Quest Flags.
+- Quest Flags;
+- активные Package identity, runtime number, physical/persistent state и ownership;
+- Customer ↔ RequestedPackage stable identity;
+- actual delivery outcome отдельно от Terminal declaration;
+- unresolved Complaints/disputes и уже примененные settlement operation IDs;
+- future Reputation reason records, необходимые для 7-day retaliation window.
 
 ## Критерий готовности
 
