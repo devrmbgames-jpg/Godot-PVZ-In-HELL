@@ -19,9 +19,9 @@ Status: planned
 ## Работы
 
 - [ ] Оценить уже установленный DialogueManager через локальный API; использовать его без изменения addons и без второго параллельного движка.
-- [ ] Добавить типизированный адаптер conditions/actions: фаза, Satisfaction, RequestedPackage, flags, результаты Challenge и будущий Hunger tier.
+- [ ] Добавить типизированный адаптер conditions/actions: фаза, Satisfaction, RequestedPackage, Package actual outcome, Terminal declaration, Complaint/dispute state, Opened/Damaged flags, результаты Challenge и будущий Hunger tier.
 - [ ] Собрать прямой диалог с номером и загадку с выбором/повтором/альтернативной веткой.
-- [ ] Действия диалога вызывают существующие gameplay-контракты; Challenge/Aggressive подключаются через будущих получателей, а не через циклическую зависимость реализации.
+- [ ] Действия диалога вызывают существующие gameplay-контракты; поддержать voluntary Customer refusal, delayed Complaint и обнаружение false `TAKEN` с переходом в Aggressive. Challenge/Aggressive подключаются через получателей, а не через циклическую зависимость реализации.
 - [ ] Разделить действительную реплику/переход и воспринимаемый текст для последующей Hunger distortion.
 
 ## Критерии готовности
