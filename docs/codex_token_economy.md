@@ -154,6 +154,26 @@ Roadmap читать только когда задача реализует/р�
 
 Project-local `.codex/config.toml` ограничивает сохранение одного tool/function output значением `tool_output_token_limit = 6000`, чтобы случайный большой Godot/test log не занимал значительную часть контекста. Если релевантный stack обрезан, повторять только узкую команду/фильтр, а не повышать лимит глобально.
 
+## Deterministic validation
+
+Перед расходованием reasoning-токенов на поиск простых структурных ошибок сначала запускать:
+
+```bash
+python utils/validate_project_structure.py
+```
+
+Проверка без внешних Python-зависимостей ловит:
+- неправильное размещение/prefix ролей `c_/s_/e_/o_/def_`;
+- возврат неоднозначного `content/core/`;
+- orphan `.gd.uid`;
+- явные битые `res://` ссылки в project-owned text resources;
+- битые локальные ссылки `PROJECT_INDEX.md`;
+- staged changes под `addons/`.
+
+Если установлен `pre-commit`, local-only `.pre-commit-config.yaml` запускает structure check, `git diff --cached --check` и formatter-check для staged project-owned GDScript. Formatter hook делает `SKIP`, если `gdscript-formatter` отсутствует; tooling не устанавливается автоматически.
+
+Это дешевле, чем просить main model каждый раз заново обнаруживать такие нарушения.
+
 ## Разделение больших задач
 
 Плохой запрос:
