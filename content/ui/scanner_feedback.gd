@@ -53,15 +53,19 @@ func _make_beep() -> AudioStreamWAV:
 	var sample_count: int = int(SAMPLE_RATE * BEEP_SECONDS)
 	var samples: PackedByteArray = PackedByteArray()
 	samples.resize(sample_count * 2)
+	
 	for sample_index: int in sample_count:
 		var envelope: float = sin(PI * float(sample_index) / sample_count)
 		var amplitude: float = sin(TAU * BEEP_FREQUENCY * sample_index / SAMPLE_RATE)
 		samples.encode_s16(sample_index * 2, int(amplitude * envelope * 9000.0))
+	
 	var stream: AudioStreamWAV = AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
 	stream.mix_rate = SAMPLE_RATE
 	stream.data = samples
+	
 	return stream
+
 #endregion
 
 
