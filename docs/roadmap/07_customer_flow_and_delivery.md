@@ -1,5 +1,7 @@
 # ТЗ 07 — Поток клиентов, выдача, отказ и споры
 
+> **Implementation coverage:** Implementation coverage: economy **R10**, customer flow/disputes **R11**, dialogue hooks **R12**, combat/reputation context **R17**, meta/quest **R20**, final validation **R23**.
+
 ## Цель
 
 Создать базовую дневную работу ПВЗ, в которой Player не обязан действовать честно или оптимально.
