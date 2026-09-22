@@ -40,6 +40,20 @@
 
 Основные PackageTags должны читаться на самой коробке: stickers/icons/marking, а не только через HUD.
 
+## Terminal / Package Outcome Feedback
+
+Terminal должен ясно различать:
+
+- active Package;
+- фактическое состояние Package;
+- заявленный Player outcome: `Забрал / Отказался / Потеряна`;
+- стоимость Package;
+- pending/confirmed Complaint или dispute, когда Player уже должен о нём знать.
+
+Terminal всегда сохраняет видимой последнюю Package, покинувшую активный складской lifecycle, чтобы результат последнего закрытия не исчезал мгновенно из UI.
+
+UI показывает состояние, но не является authority settlement/complaint.
+
 ## Scanner Feedback
 
 Successful Scan:
