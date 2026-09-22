@@ -1,6 +1,7 @@
 # ТЗ 10 — Урон, здоровье и базовый бой
 
 > **Implementation coverage:** Implementation coverage: common damage/health foundation **R04** (completed), combat/aggressive Customer **R17**.
+> Physical collision/impact damage foundation is implemented by **R08** and consumed by combat **R17**. R17 must not create a second impact formula.
 
 ## Цель
 
