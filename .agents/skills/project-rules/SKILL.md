@@ -1,81 +1,45 @@
 ---
 name: project-rules
 description: >
-  Work safely in this Godot project using its architecture, context routing, typing,
-  documentation, physics authority, dependency boundaries, and validation rules.
-  Use for every gameplay feature, refactor, bug fix, or architecture change.
+  Repository-specific architecture, dependency, physics-authority and validation
+  rules for code changes in this Godot project.
 ---
 
 # Project rules
 
-Use this skill as the repository-specific layer. Engine/framework/style details belong to their own skills.
+Use this skill for project code/architecture changes. Navigation/token rules come from root `AGENTS.md`; do not reread project-wide docs unless the task needs them.
 
-## Workflow
+## Dependency boundary
 
-1. Read root `CONTEXT.md`.
-2. Read `PROJECT_INDEX.md`.
-3. Follow routing to the nearest subsystem `CONTEXT.md`.
-4. Read data contracts before the System/Observer that mutates them.
-5. Reuse an existing service/event/request contract before creating a new one.
-6. Make the smallest coherent change and validate direct callers.
-
-## Read-only dependency boundary
-
-**Everything under `addons/` is read-only by default.**
-
-Normal project work must never:
-- modify addon source;
-- format addon source;
-- rename/move addon files;
-- "fix" warnings inside an addon;
-- patch an addon to make project code easier;
-- upgrade an addon/submodule;
-- commit generated addon changes.
-
-Inspect addon code only to understand the pinned API.
-
-Changing `addons/` requires an explicit user request for addon/dependency work.
+Everything under `addons/` is read-only by default. Inspect pinned APIs when needed, but never patch, format, rename, upgrade, or commit addon changes unless explicitly requested.
 
 ## Architecture defaults
 
-- Godot physical bodies are authority for physical transform/velocity unless a documented sync contract explicitly says otherwise.
-- Immutable design definitions -> `Resource`.
+- Godot physical bodies own physical transform/velocity unless a documented sync contract says otherwise.
+- Immutable design data -> `Resource`.
 - Mutable runtime actor state -> `Component`.
 - Independent identity/lifecycle -> `Entity`.
 - Components are data-only.
-- Gameplay behavior belongs in Systems/Observers/services.
-- Entity subclasses may contain scene glue, child Node references, engine callbacks, and thin forwarding into Systems.
-- Node references to an entity's own scene children should not live in reusable Component Resources.
-- Prefer typed Request/Event/Result classes over semantic `Dictionary` payloads.
-- Avoid global manager objects when an existing service/System/Observer contract owns the concern.
-- Presentation must not become gameplay authority.
+- Behavior belongs in Systems/Observers/services.
+- Entity scripts may contain scene glue, own-child Node references, engine callbacks, and thin forwarding.
+- Avoid reusable Component Resources holding direct scene-child Node references.
+- Prefer typed Request/Event/Result classes over semantic Dictionaries.
+- Reuse an existing service/System/Observer contract before creating a parallel manager.
+- Presentation is never gameplay authority.
+- Scene-authored serializable Components should prefer `component_resources` so they are visible in Inspector; runtime-only construction must have a real serialization/lifecycle reason.
 
-## GDScript quality
+## GDScript
 
-Load `.agents/skills/gdscript-style/SKILL.md` for any `.gd` change.
+Load `.agents/skills/gdscript-style/SKILL.md` for `.gd` edits.
 
-Baseline:
-- static typing;
-- no variable/type/native-class shadowing;
-- project-owned filenames in `snake_case`;
-- authored Inspector Node names in `PascalCase`;
-- class names in `PascalCase`, with approved GECS prefixes such as `C_`, `S_`, `O_`, `DEF_`, `E_`, `R_`;
-- explicit type/cast when extracting values from untyped collections;
-- functions grouped by responsibility;
-- no magic constants in gameplay logic;
-- hot paths allocation-light.
+Required baseline: static typing, no shadowing, no magic gameplay constants, explicit casts from Variant/untyped collections, allocation-aware hot paths, project naming conventions.
 
-## Navigation
+## Change discipline
 
-Do not scan the repository file-by-file.
+Make the smallest coherent change. After finding the owner/contract, do not opportunistically refactor unrelated code.
 
-Use:
-`CONTEXT.md -> PROJECT_INDEX.md -> subsystem CONTEXT -> exact symbol -> direct references`.
-
-If `PROJECT_INDEX.md` does not exist, create a compact one using top-level structure and the current task's canonical entry points. Never turn it into a complete manifest.
+For already-designed repetitive edits, prefer the `mechanical_worker` subagent. Architectural decisions stay with the main agent.
 
 ## Validation
 
-Use project-specific commands from root `CONTEXT.md`.
-
-Never report runtime validation that was not executed.
+Use the narrowest relevant project checks. Never report a runtime/formatter/test result that was not actually executed.
