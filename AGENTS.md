@@ -1,88 +1,80 @@
 # Codex / Agent Instructions
 
-This is the agent entry point. Keep this file short; load detailed rules only when needed.
+This is the small always-loaded router. Detailed rules live in skills/docs and must be loaded only when relevant.
 
-## Start here
+## Start / resume
 
-1. Read `CURRENT_WORK.md`. If it describes an active matching task, resume from its exact next step.
-2. Read root `CONTEXT.md`.
-3. Read `PROJECT_INDEX.md`. Treat it as the primary map of canonical entry points.
-4. Read only the nearest subsystem `CONTEXT.md` named by `CONTEXT.md` / `PROJECT_INDEX.md`.
-5. Load only the relevant skill(s) from `.agents/skills/`. Start with at most two; add another only when the task crosses that boundary.
-6. Inspect only the named implementation files and their direct callers/callees. Prefer exact symbol/path searches over broad repository scans.
+1. Read `CURRENT_WORK.md`.
+2. Read `PROJECT_INDEX.md`.
+3. If an active checkpoint names exact docs/files, use those first.
+4. Read root or subsystem `CONTEXT.md` only when the task needs its architecture/dependency/validation facts.
+5. Load at most two relevant skills initially; add another only when the task crosses that boundary.
+6. Inspect exact symbols/paths and direct callers/callees/tests only.
 
-Do not reread documents already summarized in `CURRENT_WORK.md` unless they changed or the summary is insufficient.
+Do not automatically reread roadmap docs, root CONTEXT, unchanged files already summarized in CURRENT_WORK, or unrelated tests/assets.
 
 ## Skill router
 
-- Project architecture or any code change: `.agents/skills/project-rules/SKILL.md`
-- Project discovery/navigation/index maintenance: `.agents/skills/project-navigation/SKILL.md`
-- Godot APIs, scenes, physics, lifecycle: `.agents/skills/godot-4-7/SKILL.md`
-- GDScript coding/style/type rules: `.agents/skills/gdscript-style/SKILL.md`
-- GECS components/systems/observers/queries: `.agents/skills/gecs-v8/SKILL.md`
-- GDScript formatting/linting: `.agents/skills/gdscript-format/SKILL.md`
-- VS Code/Codex editor workflow: `.agents/skills/vscode-workflow/SKILL.md`
-- Tests or test infrastructure: `.agents/skills/gut-testing/SKILL.md`
-- Mechanics, balance, progression, game feel, level/pacing decisions: `.agents/skills/professional-game-design/SKILL.md`
-- Multi-step work, context pressure, interruption recovery: `.agents/skills/agent-continuity/SKILL.md`
+- Any project code/architecture change: `.agents/skills/project-rules/SKILL.md`
+- Repository discovery/navigation: `.agents/skills/project-navigation/SKILL.md`
+- Godot 4.7 APIs/scenes/physics: `.agents/skills/godot-4-7/SKILL.md`
+- GDScript: `.agents/skills/gdscript-style/SKILL.md`
+- GECS v8: `.agents/skills/gecs-v8/SKILL.md`
+- Formatting/lint: `.agents/skills/gdscript-format/SKILL.md`
+- Tests: `.agents/skills/gut-testing/SKILL.md`
+- Game design: `.agents/skills/professional-game-design/SKILL.md`
+- Long/multi-session work: `.agents/skills/agent-continuity/SKILL.md`
+- Codex/VS Code workflow: `.agents/skills/vscode-workflow/SKILL.md`
+- Token/model strategy: `docs/codex_token_economy.md`
 
 ## Hard boundaries
 
-- **Never modify anything under `addons/` unless the user explicitly requests dependency/addon work.**
-- Treat `addons/` as read-only reference code.
-- Do not upgrade, reformat, patch, rename, or "clean up" addon files during gameplay/project work.
-- The engine/framework version declared by the repository wins.
-- Target Godot 4.7 unless the repository explicitly says otherwise.
-- Treat the checked-out GECS version as API authority; do not silently use newer upstream APIs.
-- Godot physics bodies own transform/velocity unless an explicit sync contract says otherwise.
-- Never claim a formatter, Godot run, or test passed unless it actually ran successfully.
+- `addons/` is read-only unless the user explicitly requests dependency/addon work.
+- Target the repository-declared engine/framework versions; currently Godot 4.7 and pinned GECS v8 source are authority.
+- Godot physics bodies own physical transform/velocity unless a documented contract says otherwise.
+- Static typing is required for project GDScript.
+- No magic gameplay constants; use named constants/data.
+- Never claim a formatter/test/Godot run passed unless it actually ran.
+- Never discard user edits, force-push, rewrite unrelated history, or upgrade dependencies unless requested.
+- Never write authored files into `.godot/`.
 
-## GDScript baseline
+## Token / investigation budget
 
-- Static typing is required.
-- File names are `snake_case`, except raw source assets that intentionally preserve external/vendor naming.
-- Inspector Node names are `PascalCase`.
-- Class names are `PascalCase`. GECS role prefixes such as `C_`, `S_`, `O_`, `DEF_`, `R_`, `E_` are allowed.
-- Never shadow variables, parameters, members, globals, or class/native names in nested/local scopes.
-- When reading from an untyped collection or Variant-producing API, explicitly type/cast the result.
-- Group functions by responsibility; do not intermix lifecycle callbacks, public API, signal/UI callbacks, and private helpers.
+Before the first working hypothesis, normally inspect no more than 6–8 implementation files.
 
-Detailed rules: `.agents/skills/gdscript-style/SKILL.md`.
+If more context is required:
+- identify the exact missing contract/fact;
+- expand only toward that evidence;
+- do not recursively scan directories or read the repository file-by-file.
+
+Prefer exact search, targeted ranges, targeted diff, and relevant error output. For large `.tscn` files, locate the required node/subresource instead of dumping the whole scene.
+
+Stop exploring once the owner, data contract, and direct regression surface are known.
+
+## Model / subagent policy
+
+The main session owns architecture and final decisions.
+
+When subagents are available, delegate work that does not need the main model:
+- `explorer`: narrow repository discovery/read-only evidence;
+- `mechanical_worker`: bounded implementation after architecture is already decided;
+- `reviewer`: focused review of a concrete diff;
+- `docs_scout`: narrow documentation/reference lookup.
+
+Do not spawn a subagent for a trivial one-file edit. Do not delegate architecture, ownership, physics authority, GECS boundaries, input priority, or cross-system lifecycle decisions just to save tokens.
+
+Project subagent defaults are in `.codex/config.toml`. The project intentionally does not set the main model.
 
 ## Work protocol
 
-For a sizable task, create/update `WORK.md` before editing. For long or interruptible work, keep `CURRENT_WORK.md` current after each meaningful milestone.
+For sizable work, maintain `WORK.md`. For interruptible work, keep `CURRENT_WORK.md` as a compact durable checkpoint.
 
-Keep only unfinished task files in `agent_tasks/`. After a task is completed and validated:
-- preserve lasting architecture, contracts and usage instructions in the relevant context/docs;
-- append one short line to root `task_history.md`: `- YYYY-MM-DD — completed result` (no logs, checklists or duplicate entries);
-- delete the completed task file from `agent_tasks/` and update references to it;
-- return `WORK.md` and `CURRENT_WORK.md` to idle when no active task remains.
+Checkpoint only current state, invariants, changed paths, validation, blocker, and one exact next step. Never paste full logs/diffs/source/chat history.
 
-Do not delete active/blocked tasks or `agent_tasks/README.md`. Routine cleanup of completed task files is authorized; no additional confirmation is needed.
+Keep only unfinished task files in `agent_tasks/`. After completion:
+- move durable contracts to context/docs;
+- append one short dated line to `task_history.md`;
+- delete the completed task file;
+- return `WORK.md` and `CURRENT_WORK.md` to idle.
 
-Make small thematic changes. Validate the narrowest affected surface first.
-
-Do not manually write files into `.godot/`; it is engine-managed technical storage. Place all test scripts, temporary test scenes and test artifacts under `res://tests/`.
-Do not add new GUT tests without the user's explicit instruction.
-
-Before finishing:
-1. format/check changed GDScript when the formatter is available;
-2. run project static checks;
-3. run targeted GUT tests when installed and relevant;
-4. broaden testing only when warranted.
-
-Use git directly. Do not force-push, discard user edits, rewrite unrelated history, or upgrade dependencies unless requested.
-
-## Token and context budget
-
-- Use `PROJECT_INDEX.md` before searching the repository.
-- Do not read the project file-by-file or directory-by-directory.
-- Do not recursively inspect unrelated folders "to understand the project."
-- Search exact class/function/component/resource names first.
-- Read only the smallest useful files/ranges.
-- If `PROJECT_INDEX.md` is missing or stale, create/update a **small canonical index**, not a full manifest.
-- Record durable facts and decisions in project files instead of repeatedly explaining them.
-- Keep `CURRENT_WORK.md` factual and compact; never paste full logs or diffs into it.
-- If context is becoming large, checkpoint immediately.
-- Prefer deterministic tools (formatter, tests, static checks) over repeated prose review.
+Validation should be the narrowest relevant check first. Do not add new GUT suites without explicit user instruction.
