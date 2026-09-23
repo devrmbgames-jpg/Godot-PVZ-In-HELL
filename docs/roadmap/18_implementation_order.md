@@ -230,6 +230,26 @@ Task: [roadmap_22_hud_and_world_feedback.md](../../agent_tasks/roadmap_22_hud_an
 
 ---
 
+## R22.5 — GECS Architecture Polish
+
+Task: [roadmap_22_5_gecs_architecture_polish.md](../../agent_tasks/roadmap_22_5_gecs_architecture_polish.md)
+
+Источник: upstream GECS `BEST_PRACTICES.md` + project `.agents/skills/gecs-v8/SKILL.md`.
+
+Результат:
+- atomic Systems/sub-systems with single responsibility;
+- no direct System-to-System service calls;
+- hot-path Components supplied through specific queries + `iterate()`;
+- Cart/Push/Grab/Impact/Input decomposition;
+- presentation separated from gameplay authority;
+- static physics-only classes reclassified as independent solvers where appropriate;
+- SystemGroups/`deps()` express ordering;
+- gameplay behavior preserved.
+
+R22.5 intentionally runs late. Do not perform this broad refactor opportunistically during R08–R22 while feature contracts are still changing.
+
+---
+
 ## R23 — Vertical Slice Validation
 
 Task: [roadmap_23_vertical_slice_validation.md](../../agent_tasks/roadmap_23_vertical_slice_validation.md)
