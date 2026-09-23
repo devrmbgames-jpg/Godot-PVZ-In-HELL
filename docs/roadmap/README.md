@@ -40,6 +40,7 @@ Completed implementation tasks are removed from `agent_tasks/` by project policy
 | [R20](../../agent_tasks/roadmap_20_evening_trader_orders_and_quest.md) | planned | [ТЗ 14](14_evening_meta_scaffold.md): evening/trader/orders/quest |
 | [R21](../../agent_tasks/roadmap_21_night_persistence_next_day.md) | planned | [ТЗ 15](15_night_save_next_day.md): persistence/next day |
 | [R22](../../agent_tasks/roadmap_22_hud_and_world_feedback.md) | planned | [ТЗ 16](16_ui_and_feedback.md): HUD/feedback |
+| [R22.5](../../agent_tasks/roadmap_22_5_gecs_architecture_polish.md) | planned | GECS upstream best practices + project architecture polish |
 | [R23](../../agent_tasks/roadmap_23_vertical_slice_validation.md) | planned | [ТЗ 17](17_vertical_slice_scenario.md): full vertical-slice validation |
 
 ## Cross-cutting design specs
@@ -63,6 +64,7 @@ Some ТЗ intentionally feed multiple implementation tasks:
 - ТЗ 14 — economy/evening contracts are split across R10, R20 and R21.
 - ТЗ 15 — persistence/next-day transaction is R21.
 - ТЗ 16 — presentation requirements are implemented incrementally and finalized by R22.
+- GECS architecture polish — R22.5 runs after feature work and before R23; it must preserve gameplay while removing System coupling and query anti-patterns.
 - ТЗ 17 — scenario requirements feed multiple tasks and are fully validated by R23.
 - ТЗ 18 — implementation-order guidance; this README is the canonical ID mapping when later insertions exist.
 
