@@ -89,12 +89,12 @@ DamageRequestService.submit publishes a copied typed DamageRequest to O_Damage t
 
 Processed requests publish typed World events under DamageResult.EVENT, including rejection and blocked outcomes. Positive Health crossing zero commits HEALTH_DEPLETED once before notifications. O_HealthLifecycle handles only C_Living: C_Death, grip release and control disable; the targeting processor clears its own selection/highlight on the next tick. O_PackageDamage handles package condition independently and keeps destroyed physical entities alive. Healing restores non-depleted HP but does not undo package condition; depletion remains terminal.
 
-Packages and actors use the same C_Health arithmetic. Package definitions initialize maximum_health; there is no second integrity authority. Standalone damage_smoke was adapted to the shared contract; R08 runtime validation is user-owned.
+Packages and actors use the same C_Health arithmetic. Package definitions initialize maximum_health; there is no second integrity authority. Standalone damage_smoke was adapted to the shared contract; user accepted R08 after the current GUT suite passed and parcel impact/leak playtesting succeeded.
 
 
 ## Morning supply (R05)
 
-`definitions/gameplay/deliveries/morning_supply.tres` is a DEF_Delivery with eight ordered DEF_Package entries. Entry keys must be unique and nonempty within the supply. Definitions own recipient, description/comment, composable tags, hazard metadata, mass, carry/throw tuning and initial integrity. Hazards have no active effects yet (R08/R09).
+`definitions/gameplay/deliveries/morning_supply.tres` is a DEF_Delivery with eight ordered DEF_Package entries. Entry keys must be unique and nonempty within the supply. Definitions own recipient, description/comment, composable tags, hazard metadata, mass, carry/throw tuning and initial integrity. R08 has active one-shot Liquid leakage and separate package opening; ToxicLeak/Explosion consequences are deferred to R09.
 
 `S_Receiving` runs after S_DayPhase in GamePlay. `C_Receiving` enqueues one BASE_SUPPLY ReceivingBatch per day, retaining incomplete older batches. Source distinguishes base supply from future PENDING_ORDER deliveries; no order fulfillment exists yet. Stable identity is `supply_key:day:entry_key`; delivery day is independent of registration day. Save work must restore both parcel IDs and receiving progress.
 
@@ -112,4 +112,4 @@ Validation: `tests/smoke/receiving_scan_smoke.tscn` checks eight unique parcels 
 
 ## R08 impact and package condition
 
-Canonical contract: [damage_impact.md](../docs/damage_impact.md). ImpactCaptureSolver writes runtime body inboxes; S_Impact drains their iterate query and resolves independent contact episodes, submitting typed requests to O_Damage. S_ThrowLifetime owns its own query. No Damage/Impact System service locator or cross-System calls. Package profiles, severity protection, continuous liquid tilt and explicit F/open share typed lifecycle hooks. PackageConditionView is read-only. Runtime acceptance is user-owned; [manual checks](../docs/r08_manual_validation.md).
+Canonical contract: [damage_impact.md](../docs/damage_impact.md). ImpactCaptureSolver writes runtime body inboxes; S_Impact drains their iterate query and resolves independent contact episodes, submitting typed requests to O_Damage. S_ThrowLifetime owns its own query. No Damage/Impact System service locator or cross-System calls. Package profiles, severity protection, continuous liquid tilt and explicit F/open share typed lifecycle hooks. PackageConditionView is read-only. R08 was accepted by the user after GUT and gameplay checks on 2026-09-24; retain [manual checks](../docs/r08_manual_validation.md) for regressions. Further balancing is intentionally deferred.

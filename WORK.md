@@ -1,14 +1,10 @@
 # Work Tracker
 
-State: R08 implementation complete; awaiting user runtime acceptance.
+State: idle. R08 completed and accepted by user on 2026-09-24; see `task_history.md`.
 
-- [x] M1-4: shared Health, depletion hooks, impact/pair episodes and throw context; user updates preserved.
-- [x] M5: central source veto through O_Damage and typed request service.
-- [x] M5.1: independent capture/inbox, atomic impact processor and throw lifetime query.
-- [x] M6-9: package profiles, protection, continuous liquid tilt and deliberate opening.
-- [x] M10 code: read-only feedback, existing smoke adapter, static checks/reviews and docs.
-- [ ] Re-test R08 parcel durability after balancing: ordinary/fragile profile retune, 60%/85% visible condition thresholds and 7.5%/15% physical per-hit limits; docs/r08_manual_validation.md.
-- [ ] User gameplay/runtime acceptance: docs/r08_manual_validation.md.
-- [ ] After acceptance: task_history line, remove R08 task, return trackers to idle.
+- No active implementation task.
+- Next planned: R09 — Package Hazards (`agent_tasks/roadmap_09_package_hazards.md`); not started.
+- User reports all current GUT tests pass and confirms parcel impact damage, destruction and leakage. Final balancing is intentionally deferred to iterative playtesting.
+- R08 durable contract: `docs/damage_impact.md`; retained regression checklist: `docs/r08_manual_validation.md`.
 
-No Godot/GUT/smoke/physics/visual runs by agent. Preserve dirty addons/gecs. Contract: docs/damage_impact.md.
+No Godot/GUT/physics/visual tests were run by the agent for the R08 closure. Do not modify `addons/gecs` without an explicit request.

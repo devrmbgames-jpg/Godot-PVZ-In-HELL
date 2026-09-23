@@ -1,5 +1,7 @@
 # R08: ручная проверка
 
+Status: completed / user-accepted 2026-09-24. User confirms all current GUT tests pass and parcel impact damage, destruction and leakage work; this checklist is retained for future regressions and fine-tuning.
+
 Агент не запускал игру и тесты. Пороговые значения требуют проверки в игре. В Remote Inspector у C_Health смотрите `current` (HP) и `value` (максимум). У C_PackageState отдельно видны damage/opening/leaking.
 
 1. **Вскрытие:** наведитесь на посылку и нажмите F. Появляется «Вскрыта», HP не уменьшается, повторное действие недоступно. Повторите с переносимой посылкой, когда под прицелом нет другого действия. Стена и недостаточная дистанция должны мешать вскрытию.

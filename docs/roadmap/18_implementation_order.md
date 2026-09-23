@@ -22,14 +22,15 @@
 6. **R06** — scanner / registration / terminal.
 7. **R06.1** — Inspector-first components, Carry/two hands, control capture and Push.
 8. **R07** — physical marker and numbered shelves.
+9. **R08** — generic physical Impact, common Health/depletion, package durability and deliberate opening (accepted 2026-09-24).
 
 Не создавать заново task-файлы этих этапов. Использовать durable contracts из roadmap/context и подтверждать завершение через `task_history.md`.
 
 ---
 
-## R08 — Package Damage / Opening
+## R08 — Package Damage / Opening (completed)
 
-Task: [roadmap_08_package_damage_and_opening.md](../../agent_tasks/roadmap_08_package_damage_and_opening.md)
+Completed 2026-09-24; confirmed in [task_history.md](../../task_history.md). Durable contract: [damage_impact.md](../damage_impact.md). The completed task file was removed from `agent_tasks/`.
 
 Основной источник: [ТЗ 06](06_package_damage_and_hazards.md).
 
@@ -251,7 +252,7 @@ Task: [roadmap_22_5_gecs_architecture_polish.md](../../agent_tasks/roadmap_22_5_
 
 R22.5 intentionally runs late. Do not perform this broad refactor opportunistically during R08–R22 while feature contracts are still changing.
 
-Исключение уже принято для active R08: `S_Damage`/`S_Impact` cleanup выполняется немедленно в R08 M5.1, а не ждёт R22.5.
+Damage/Impact cleanup выполнен в R08 M5.1; в R22.5 остаётся только регрессионный аудит этих подсистем.
 
 ---
 

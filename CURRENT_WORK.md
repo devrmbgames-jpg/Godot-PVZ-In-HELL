@@ -1,9 +1,8 @@
 # Current Work
 
-- State: R08 implementation complete, awaiting user runtime acceptance. User base ac76ce3 preserved: O_Damage, C_Health.value = max and current = remaining HP.
-- Implemented M5-M10: source veto, atomic impact inbox/capture/query, throw lifetime, profiles/protection, liquid tilt, explicit opening, condition feedback. Contracts/manual checks: docs/damage_impact.md and docs/r08_manual_validation.md.
-- Validation: static structure/formatter/lint/diff and two focused read-only reviews. NO Godot/GUT/smoke/runtime/physics/visual invocation; user explicitly owns testing.
-- Existing damage smoke adapted to Observer results but not run. S_Push unchanged; no broad Grab/Cart/Input refactor. Dirty addons/gecs preserved.
-- Playtest feedback: ordinary and fragile parcels were breaking too readily. Updated both receiver profiles beyond the proposed twofold toughness, added HP-based visible-damage thresholds, impact-only per-hit caps and focused GUT regression cases (not executed). Re-test settings: docs/r08_manual_validation.md.
-- User GUT feedback: 70/73 passed; corrected four fragile authored damage thresholds that were re-saved as null, preserved the user's stronger 15% fragile per-hit cap and aligned the tests/docs, and removed the unsupported Jolt hinge bias scene override. New GUT results and gameplay acceptance pending.
-- Next: re-run the focused GUT tests and receive user gameplay re-test results; fix issues or close R08/task_history/trackers after acceptance.
+- State: idle. R08 completed and accepted by user on 2026-09-24; completion recorded in `task_history.md`. The finished task file was removed from `agent_tasks/` per repository policy.
+- Scope delivered: shared Health authority through O_Damage, typed DamageRequest snapshots, source-side C_NoDamage veto, independent physical impact capture and pair dedup, C_ThrowDamage lifetime, data-driven parcel profiles/protection, one-shot depletion and debris, continuous Liquid leakage, deliberate F/open and read-only condition feedback.
+- After the first playtest, normal and fragile parcel impact profiles, visible-damage thresholds (60%/85% remaining HP), and per-hit impact caps (7.5%/15% maximum HP) were retuned. Further balance is deferred to later gameplay iteration.
+- Validation: user confirmed all current GUT tests pass and parcel damage, destruction and leakage work in gameplay. The agent did not rerun Godot/GUT or independently validate visual/physics behavior for closure.
+- Durable contracts: `docs/damage_impact.md` and `docs/r08_manual_validation.md`. Preserve the current Health semantics: `base` authored, `value` effective maximum, `current` remaining HP.
+- No active implementation task. Next planned: R09 Package Hazards; consult `agent_tasks/roadmap_09_package_hazards.md` when explicitly started. Broad Grab/Cart/Input polish remains R22.5; preserve dirty `addons/gecs`.

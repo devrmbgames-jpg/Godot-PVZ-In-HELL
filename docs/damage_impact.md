@@ -46,4 +46,4 @@ Liquid definitions receive C_LiquidTilt. `S_LiquidTilt` uses a focused iterate q
 
 ## Validation handoff
 
-The user explicitly owns all runtime, physics and visual validation. No Godot, GUT or smoke invocation was run for this R08 continuation. Static structure/formatter/diff checks and read-only code review do not establish physics correctness or tuning. The existing damage_smoke observer adapter was updated but not executed. Manual checklist: [R08 manual validation](r08_manual_validation.md).
+R08 completed and accepted by the user on 2026-09-24: the user reports all current GUT tests passing and parcel impact damage, destruction and leakage working in gameplay. The agent did not independently rerun Godot, GUT, smoke, physics or visual validation for closure. Final gameplay balancing is intentionally deferred; preserve the [R08 regression checklist](r08_manual_validation.md).
