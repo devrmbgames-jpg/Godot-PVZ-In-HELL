@@ -237,12 +237,14 @@ Task: [roadmap_22_5_gecs_architecture_polish.md](../../agent_tasks/roadmap_22_5_
 Источник: upstream GECS `BEST_PRACTICES.md` + project `.agents/skills/gecs-v8/SKILL.md`.
 
 Результат:
+- полный disposition-аудит всех текущих `S_*`: keep / split / reclassify / remove;
 - atomic Systems/sub-systems with single responsibility;
-- no direct System-to-System service calls;
+- no direct System-to-System service calls or `ECS.world.systems` service-locator pattern;
 - hot-path Components supplied through specific queries + `iterate()`;
-- Cart/Push/Grab/Impact/Input decomposition;
-- presentation separated from gameplay authority;
-- static physics-only classes reclassified as independent solvers where appropriate;
+- Cart/Push/Grab/Impact/Input decomposition plus Receiving/DayPhase/Marker/Targeting cleanup;
+- presentation separated from gameplay authority, including Crouch camera vs collision/state;
+- static physics-only/pseudo-System classes reclassified as independent solvers/helpers and stale System nodes removed;
+- empty/obsolete System shells such as `S_Door` re-verified and removed if still unused;
 - SystemGroups/`deps()` express ordering;
 - gameplay behavior preserved.
 
