@@ -28,6 +28,32 @@ Everything under `addons/` is read-only by default. Inspect pinned APIs when nee
 - Presentation is never gameplay authority.
 - Scene-authored serializable Components should prefer `component_resources` so they are visible in Inspector; runtime-only construction must have a real serialization/lifecycle reason.
 
+## Atomic System rule
+
+Project Systems are atomic ECS processors.
+
+- A `System` must not call another `System` as a service or helper.
+- Never write `S_Foo.some_method()` from inside another `S_Bar`.
+- System ordering is expressed with `deps()`; data flow is expressed through Components, Relationships, typed Requests/Events/Results, Observers, and CommandBuffer mutations.
+- If behavior requires a reusable pure algorithm, move that algorithm to a non-System service/helper or typed data object instead of calling another System.
+- If a System needs component data for every matched Entity, declare those Components in `query().with_all(...).iterate(...)` and consume the provided component arrays. Do not repeatedly call `get_component()` inside the hot process loop when the query can supply the component.
+- Split a broad System into several small Systems when different behaviors require different component sets. Prefer multiple narrow archetype queries over one monolithic System with optional `get_component()` branches.
+- Components remain data-only; splitting Systems must not move behavior into Components.
+- Cross-Entity ownership/state must use authoritative Relationships/Components rather than caches queried through another System.
+- Static methods on System classes are not a general service layer. Imperative gameplay commands should become typed request/event/state transitions consumed by the owning System/Observer where practical.
+
+### Physics exception
+
+Godot physics integration is the only intentional exception.
+
+A physics-body Entity may forward Godot callbacks such as `_integrate_forces(state)` to dedicated solver functions because `PhysicsDirectBodyState3D` exists only in that callback. A single Entity callback may invoke multiple independent physics solvers.
+
+Even in this exception:
+- one physics solver must not call another System;
+- `S_Motion` must not dispatch to `S_Push`, `S_CartTransport`, cargo, combat, etc.;
+- each solver reads only its own required Components/Relationships and mutates only its owned state/physics contribution;
+- orchestration happens at the Entity callback boundary, not System-to-System.
+
 ## GDScript
 
 Load `.agents/skills/gdscript-style/SKILL.md` for `.gd` edits.
