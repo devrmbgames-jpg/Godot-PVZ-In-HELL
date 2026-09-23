@@ -27,6 +27,7 @@ throw_velocity = 6.0
 maximum_health = 60.0
 scene_variants = Array[String](["res://content/entities/packages/package_big.tscn"])
 impact_profile = ExtResource("FragileImpact")
+damaged_health_ratio = 0.85
 key = &"bottles"
 
 [sub_resource type="Resource" id="Equipment"]
@@ -41,6 +42,7 @@ carry_acceleration = 0.4
 throw_velocity = 3.0
 scene_variants = Array[String](["res://content/entities/packages/package_big.tscn"])
 impact_profile = ExtResource("FragileImpact")
+damaged_health_ratio = 0.85
 key = &"equipment"
 
 [sub_resource type="Resource" id="Glass"]
@@ -53,6 +55,7 @@ mass_kg = 3.0
 maximum_health = 40.0
 scene_variants = Array[String](["res://content/entities/packages/package_b.tscn"])
 impact_profile = ExtResource("FragileImpact")
+damaged_health_ratio = 0.85
 key = &"glass"
 
 [sub_resource type="Resource" id="Oil"]
@@ -75,6 +78,7 @@ mass_kg = 6.0
 maximum_health = 50.0
 scene_variants = Array[String](["res://content/entities/packages/package.tscn", "res://content/entities/packages/package_a.tscn", "res://content/entities/packages/package_b.tscn"])
 impact_profile = ExtResource("FragileImpact")
+damaged_health_ratio = 0.85
 key = &"power_cells"
 
 [sub_resource type="Resource" id="Clothes"]

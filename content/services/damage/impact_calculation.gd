@@ -43,3 +43,13 @@ static func classify(amount: float, profile: DEF_ImpactProfile) -> ImpactResult.
 	if amount >= profile.medium_damage:
 		return ImpactResult.Severity.Medium
 	return ImpactResult.Severity.Weak
+
+
+## Caps only physical HP damage; severity must be classified before calling this.
+static func cap_damage(amount: float, max_health: float, profile: DEF_ImpactProfile) -> float:
+	if profile == null or not is_finite(amount) or not is_finite(max_health):
+		return 0.0
+	if amount <= 0.0 or max_health <= 0.0:
+		return 0.0
+	var maximum: float = max_health * clampf(profile.max_hp_fraction_per_hit, 0.0, 1.0)
+	return minf(amount, maximum)

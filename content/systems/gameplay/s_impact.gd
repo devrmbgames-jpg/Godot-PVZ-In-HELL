@@ -156,6 +156,16 @@ func _resolve_direction(
 		_world.emit_event(ImpactResult.EVENT, target, result)
 		return
 
+	# Severity describes the uncapped impact; only HP loss is limited.
+	result.amount = ImpactCalculation.cap_damage(
+		result.amount,
+		health.value,
+		receiver.profile,
+	)
+	if result.amount <= 0.0:
+		_world.emit_event(ImpactResult.EVENT, target, result)
+		return
+
 	request.amount = result.amount
 	request.damage_type = DamageRequest.Type.IMPACT
 	DamageRequestService.submit(request)

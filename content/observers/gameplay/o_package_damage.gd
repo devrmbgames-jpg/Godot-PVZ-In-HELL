@@ -34,6 +34,15 @@ func _commit_condition(target: Entity, result: DamageResult) -> void:
 			result,
 		)
 	elif condition.damage == C_PackageState.Damage.UNDAMAGED:
+		var identity: C_Package = target.get_component(C_Package) as C_Package
+		var health: C_Health = target.get_component(C_Health) as C_Health
+		if identity == null or identity.definition == null or health == null:
+			return
+		var damaged_threshold: float = (
+			health.value * identity.definition.damaged_health_ratio
+		)
+		if result.current_value > damaged_threshold:
+			return
 		condition.damage = C_PackageState.Damage.DAMAGED
 		PackageLifecycle.publish(
 			target,
