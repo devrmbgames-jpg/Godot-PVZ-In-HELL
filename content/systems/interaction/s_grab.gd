@@ -663,5 +663,5 @@ static func holder_available(holder: Entity) -> bool:
 
 	var motion: C_Motion = holder.get_component(C_Motion) as C_Motion
 	var health: C_Health = holder.get_component(C_Health) as C_Health
-	return (motion == null or motion.control_enabled) and (health == null or health.value > 0.0)
+	return (motion == null or motion.control_enabled) and (health == null or health.current > 0.0)
 #endregion

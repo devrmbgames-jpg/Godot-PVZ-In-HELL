@@ -1039,7 +1039,7 @@ func test_death_releases_hold_without_requiring_input() -> void:
 	assert_true(S_Grab.try_pickup(holder_entity, box_entity))
 	var health: C_Health = C_Health.new()
 	holder_entity.add_component(health)
-	health.value = 0.0
+	health.current = 0.0
 	S_Grab.handle_input(holder_entity)
 	assert_null(S_Grab.held_relationship(box_entity))
 	assert_false(carry_load.active)

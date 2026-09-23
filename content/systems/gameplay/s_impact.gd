@@ -52,12 +52,12 @@ func process(_entities: Array[Entity], _components: Array, delta: float) -> void
 static func capture(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 	if not S_Grab.entity_available(entity):
 		return
-	var owner: S_Impact = null
+	var owner_impact: S_Impact = null
 	for system: System in ECS.world.systems:
 		if system is S_Impact and system.active:
-			owner = system as S_Impact
+			owner_impact = system as S_Impact
 			break
-	if owner == null:
+	if owner_impact == null:
 		return
 
 	var manifolds: Dictionary[int, PhysicsContact] = { }
@@ -83,7 +83,7 @@ static func capture(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 		contact.normal_speed = maxf(contact.normal_speed, relative.dot(normal))
 		contact.normal_impulse += absf(state.get_contact_impulse(index).dot(normal))
 	for contact: PhysicsContact in manifolds.values():
-		owner.enqueue(contact)
+		owner_impact.enqueue(contact)
 
 
 ## Arms only after an actual grip release and nonzero throw impulse.
@@ -181,7 +181,7 @@ func _resolve_direction(
 	if not S_Grab.entity_available(target) or not target.has_component(C_Health):
 		return
 	var health: C_Health = target.get_component(C_Health) as C_Health
-	if health.depleted or health.value <= 0.0:
+	if health.depleted or health.current <= 0.0:
 		return
 	if source != null and not S_Grab.entity_available(source):
 		return
@@ -219,7 +219,7 @@ func _resolve_direction(
 			cancel_throw(source)
 	request.amount = result.amount
 	request.damage_type = DamageRequest.Type.IMPACT
-	S_Damage.submit(request)
+	DamageRequestService.submit(request)
 	_world.emit_event(ImpactResult.EVENT, target, result)
 #endregion
 

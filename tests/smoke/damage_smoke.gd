@@ -20,16 +20,13 @@ func _run() -> void:
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var package: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
 	var other_package: Entity = level.get_node("Entityes/Parcel_001_02") as Entity
-	var system: S_Damage = level.get_node("World/Systems/GamePlay/S_Damage") as S_Damage
-	system.health_depleted.connect(_on_defeated)
-	system.damage_resolved.connect(_on_resolved)
 	var health: C_Health = actor.get_component(C_Health) as C_Health
 	_send(actor, 25.0, DamageRequest.Operation.DAMAGE, package)
-	assert(health.value == 75.0 and _last_result.applied_amount == 25.0)
+	assert(health.current == 75.0 and _last_result.applied_amount == 25.0)
 	_send(actor, 40.0, DamageRequest.Operation.HEAL, other_package)
-	assert(health.value == health.base)
+	assert(health.current == health.value)
 	_send(actor, NAN)
-	assert(health.value == 100.0 and _last_result.outcome == DamageResult.Outcome.REJECTED)
+	assert(health.current == 100.0 and _last_result.outcome == DamageResult.Outcome.REJECTED)
 	_send(package, 20.0)
 	var package_state: C_PackageState = package.get_component(C_PackageState) as C_PackageState
 	assert(package_state.damage == C_PackageState.Damage.DAMAGED)
@@ -41,16 +38,16 @@ func _run() -> void:
 	package.add_relationship(Relationship.new(C_HeldBy.new(), actor))
 	assert(S_Grab.held_object(actor) == package)
 	_send(actor, 1000.0)
-	assert(health.value == 0.0 and health.depleted and _defeat_count == 2)
+	assert(health.current == 0.0 and health.depleted and _defeat_count == 2)
 	assert(S_Grab.held_object(actor) == null)
 	assert(not (actor.get_component(C_Motion) as C_Motion).control_enabled)
 	_send(actor, 10.0)
 	_send(actor, 100.0, DamageRequest.Operation.HEAL)
-	assert(health.value == 0.0 and _defeat_count == 2)
+	assert(health.current == 0.0 and _defeat_count == 2)
 	var request: DamageRequest = DamageRequest.new()
 	request.target = other_package
 	request.amount = 10.0
-	assert(S_Damage.submit(request))
+	assert(DamageRequestService.submit(request))
 	ECS.world.remove_entity(other_package)
 	other_package.free()
 	var previous_results: int = _resolved_count
@@ -74,14 +71,5 @@ func _send(
 	request.source = source
 	request.amount = amount
 	request.operation = operation
-	assert(S_Damage.submit(request))
+	assert(DamageRequestService.submit(request))
 	ECS.world.process(1.0 / 60.0, "GamePlay")
-
-
-func _on_defeated(_target: Entity, _result: DamageResult) -> void:
-	_defeat_count += 1
-
-
-func _on_resolved(result: DamageResult) -> void:
-	_resolved_count += 1
-	_last_result = result

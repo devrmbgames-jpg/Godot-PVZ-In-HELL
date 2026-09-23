@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://bhaj6sv41s03x"]
 
 [ext_resource type="ArrayMesh" uid="uid://n56j5m3pmh5p" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Box_C_mesh/Box_C_Box_C.res" id="1_k87sv"]
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/definitions/gameplay/attributes/def_attr_health.tres" id="5_a6ap4"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/components/gameplay/c_health.gd" id="6_tj5uk"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
 [ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="Grab_config"]
 [ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/entities/props/e_grabbable_body.gd" id="Grab_entity"]
@@ -12,6 +14,14 @@ script = ExtResource("Grab_interactable")
 [sub_resource type="Resource" id="Grab_config"]
 script = ExtResource("Grab_config")
 
+[sub_resource type="Resource" id="Resource_ad8bv"]
+script = ExtResource("6_tj5uk")
+current = 10.0
+definition = ExtResource("5_a6ap4")
+base = 10.0
+value = 10.0
+metadata/_custom_type_script = "uid://ckrs5mll5pka1"
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
 size = Vector3(0.81048584, 0.4020996, 0.5946045)
 
@@ -21,7 +31,7 @@ collision_mask = 29
 mass = 5.0
 continuous_cd = true
 script = ExtResource("Grab_entity")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Grab_interactable"), SubResource("Grab_config")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Grab_interactable"), SubResource("Grab_config"), SubResource("Resource_ad8bv")])
 metadata/asset_placer_res_id = "uid://fyo1rkaatagb"
 
 [node name="Box_C" type="MeshInstance3D" parent="." unique_id=165842214]

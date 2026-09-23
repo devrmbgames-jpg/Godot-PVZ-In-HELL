@@ -3,14 +3,18 @@ class_name DamageRequestService
 
 
 
-func send_request(request: DamageRequest) -> void :
+
+
+static func submit(request: DamageRequest) -> bool :
+	if request == null or not is_instance_valid(ECS.world):
+		return false
+	
 	ECS.world.emit_event(
 		DamageRequest.EVENT,
 		request.target,
 		request
 	)
-
-
+	return true
 
 ## Фабричный вариант сборки запроса, опционально, но не рекомендую
 
@@ -45,7 +49,7 @@ class DamageRequestBuilder :
 		return self
 	
 	
-	func send() -> bool :
+	func submit() -> bool :
 		if request :
 			ECS.world.emit_event(
 				DamageRequest.EVENT,

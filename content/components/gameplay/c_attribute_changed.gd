@@ -2,6 +2,8 @@
 extends C_Attribute
 class_name C_AttributeChanged
 
+const DEFAULT_CURRENT: float = -1
+
 ## Текущее значение
 @export var current := 100.0 :
 	set = _set_current
@@ -16,11 +18,11 @@ func _set_current(new_value: float) -> void :
 	
 
 
-func _init(new_val: float = 100.0, current_val: float = -10000) -> void:
+func _init(new_val: float = 100.0, current_val: float = DEFAULT_CURRENT) -> void:
 	_init_definition()
 	base = new_val
 	value = new_val
-	if current_val > -10000 :
+	if current_val == DEFAULT_CURRENT :
 		current = new_val
 	else :
 		current = current_val

@@ -165,7 +165,7 @@ func _run() -> void:
 	var damage: DamageRequest = DamageRequest.new()
 	damage.target = parcel
 	damage.amount = 10000.0
-	S_Damage.submit(damage)
+	DamageRequestService.submit(damage)
 	ECS.world.process(STEP, "GamePlay")
 	assert(state.damage == C_PackageState.Damage.DESTROYED)
 	assert(marks.point_count == 0 and marks.strokes.is_empty())

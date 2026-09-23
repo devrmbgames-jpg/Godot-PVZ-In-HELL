@@ -47,7 +47,7 @@ func each(
 		return
 	
 	# Depletion terminal until explicit respawn.
-	if health.depleted or health.value <= 0.0:
+	if health.depleted or health.current <= 0.0:
 		return
 	
 	var is_heal: bool = (
