@@ -147,7 +147,10 @@ static func resolve(
 		if input_slot == DEF_InteractionAction.Slot.SECONDARY:
 			return _physical(actor, carry, DEF_GrabAction.Kind.ROTATE)
 
-		return _target_action(actor, target, input_slot)
+		var target_action: InteractionActionChoice = _target_action(actor, target, input_slot)
+		if target_action != null:
+			return target_action
+		return _from_source(actor, carry, carry, input_slot)
 
 	if (
 		input_slot == DEF_InteractionAction.Slot.INTERACT

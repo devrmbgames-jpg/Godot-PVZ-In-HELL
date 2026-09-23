@@ -80,6 +80,8 @@
 
 [ext_resource type="Script" path="res://content/systems/gameplay/s_liquid_tilt.gd" id="LiquidTilt"]
 
+[ext_resource type="Script" path="res://content/observers/gameplay/o_package_opening.gd" id="PackageOpening"]
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
 size = Vector3(32.071198, 0.50476074, 40.240265)
 
@@ -234,6 +236,9 @@ script = ExtResource("Receiving_system")
 
 [node name="PackageConditionSetup" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("PackageConditionSetup")
+
+[node name="PackageOpening" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("PackageOpening")
 
 [node name="O_Damage" type="Node" parent="World/Systems/GamePlay" unique_id=1820599322]
 script = ExtResource("5_ad8bv")
