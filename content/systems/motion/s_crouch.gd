@@ -2,51 +2,54 @@ extends System
 class_name S_Crouch
 
 
-static func integrate_forces(
-	entity: E_RigidBodyCharacter,
-	state: PhysicsDirectBodyState3D
-) -> void:
-	
-	assert(entity as Node as RigidBody3D, "is not rigid!")
-	
-	var controller := entity.get_component(
-		C_Controller
-	) as C_Controller
-	
-	var crouch := entity.get_component(
-		C_Crouch
-	) as C_Crouch
-	
-	if controller == null or crouch == null:
-		return
-	
-	var wants_crouch := controller.action_crouch
-	
-	if wants_crouch:
-		if not crouch.active:
-			S_Crouch._enter_crouch(
-				entity,
-				crouch
-			)
-	else:
-		if crouch.active:
-			if S_Crouch._can_stand(
-				entity,
-				state
-			):
-				S_Crouch._exit_crouch(
-					entity,
-					crouch
-				)
-	
-	S_Crouch._update_visuals(
-		entity,
-		crouch,
-		state.step
+func query() -> QueryBuilder:
+	return q.with_all(
+		[C_Controller, C_Crouch, C_RigidBody]
+	).iterate(
+		[C_Controller, C_Crouch]
 	)
 
 
-static func _enter_crouch(
+func process(entities: Array[Entity], components: Array, delta: float) -> void:
+	var c_controller_list: Array = components[0]
+	var c_crouch_list: Array = components[1]
+	
+	for idx in entities.size() :
+		var entity: E_RigidBodyCharacter = entities[idx] as E_RigidBodyCharacter
+		assert(entity)
+		var entity_rigid: RigidBody3D = entity as Node as RigidBody3D
+		assert(entity_rigid)
+		
+		var c_controller: C_Controller = c_controller_list[idx]
+		var c_crouch: C_Crouch = c_crouch_list[idx]
+		
+		var wants_crouch := c_controller.action_crouch
+		var has_crouch := c_crouch.active
+		
+		if wants_crouch and not has_crouch :
+			_enter_crouch(
+				entity,
+				c_crouch
+			)
+		elif not wants_crouch and has_crouch :
+			var can_stand: bool = entity.ray_standing.is_colliding() == false
+			if can_stand :
+				_exit_crouch(
+					entity,
+					c_crouch
+				)
+		
+		_update_visuals(
+			entity,
+			c_crouch,
+			delta
+		)
+
+
+	
+
+
+func _enter_crouch(
 	entity: E_RigidBodyCharacter,
 	crouch: C_Crouch
 ) -> void:
@@ -59,7 +62,7 @@ static func _enter_crouch(
 		entity.shape_crouching.disabled = false
 
 
-static func _exit_crouch(
+func _exit_crouch(
 	entity: E_RigidBodyCharacter,
 	crouch: C_Crouch
 ) -> void:
@@ -70,41 +73,6 @@ static func _exit_crouch(
 	
 	if entity.shape_standing != null:
 		entity.shape_standing.disabled = false
-
-
-static func _can_stand(
-	entity: E_RigidBodyCharacter,
-	state: PhysicsDirectBodyState3D
-) -> bool:
-	if entity.shape_standing == null:
-		return true
-	
-	var shape := entity.shape_standing.shape
-	
-	if shape == null:
-		return true
-	
-	var params := PhysicsShapeQueryParameters3D.new()
-	params.shape = shape
-	params.transform = entity.shape_standing.global_transform
-	
-	params.collision_mask = (
-		entity.collision_mask
-	)
-	
-	params.exclude = [
-		entity.get_rid()
-	]
-	
-	var space_state := state.get_space_state()
-	
-	var result := space_state.intersect_shape(
-		params,
-		1
-	)
-	
-	return result.is_empty()
-
 
 
 

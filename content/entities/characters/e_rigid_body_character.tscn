@@ -15,10 +15,8 @@
 [ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/components/motion/c_carry_load.gd" id="Grab_carry_load"]
 [ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="Grab_grab_control"]
 [ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="Grab_interactor"]
+[ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/components/gameplay/c_living.gd" id="Living"]
 [ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
-
-
-[ext_resource type="Script" path="res://content/components/gameplay/c_living.gd" id="Living"]
 
 [sub_resource type="PhysicsMaterial" id="CharacterMaterial"]
 friction = 0.0
@@ -70,6 +68,12 @@ script = ExtResource("Grab_grab_control")
 [sub_resource type="Resource" id="Grab_carry_load"]
 script = ExtResource("Grab_carry_load")
 
+[sub_resource type="Resource" id="Push_control"]
+script = ExtResource("Push_control")
+
+[sub_resource type="Resource" id="Living"]
+script = ExtResource("Living")
+
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_bghjr"]
 height = 1.5362549
 radius = 0.18896484
@@ -78,13 +82,7 @@ radius = 0.18896484
 height = 0.7059326
 radius = 0.18798828
 
-[sub_resource type="Resource" id="Push_control"]
-script = ExtResource("Push_control")
-
-[sub_resource type="Resource" id="Living"]
-script = ExtResource("Living")
-
-[node name="E_RigidBodyCharacter" type="RigidBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "lowered_right_hand_slot", "lowered_left_hand_slot", "shape_standing", "shape_crouching", "head_axis_y", "head_axis_x")]
+[node name="E_RigidBodyCharacter" type="RigidBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "lowered_right_hand_slot", "lowered_left_hand_slot", "shape_standing", "shape_crouching", "camera_root", "ray_standing", "head_axis_y", "head_axis_x")]
 collision_layer = 4
 collision_mask = 13
 axis_lock_angular_x = true
@@ -97,17 +95,23 @@ contact_monitor = true
 max_contacts_reported = 8
 linear_damp_mode = 1
 script = ExtResource("1_hqtr2")
-interaction_ray_cast = NodePath("HeadY/HeadX/InteractionRay")
-hold_anchor = NodePath("HeadY/HeadX/Holder")
-right_hand_slot = NodePath("HeadY/HeadX/ArmRSlot")
-left_hand_slot = NodePath("HeadY/HeadX/ArmLSlot")
-lowered_right_hand_slot = NodePath("HeadY/HeadX/LoweredRightHand")
-lowered_left_hand_slot = NodePath("HeadY/HeadX/LoweredLeftHand")
+interaction_ray_cast = NodePath("HeadY/HeadX/HeadRoot/InteractionRay")
+hold_anchor = NodePath("HeadY/HeadX/HeadRoot/Holder")
+right_hand_slot = NodePath("HeadY/HeadX/HeadRoot/ArmRSlot")
+left_hand_slot = NodePath("HeadY/HeadX/HeadRoot/ArmLSlot")
+lowered_right_hand_slot = NodePath("HeadY/HeadX/HeadRoot/LoweredRightHand")
+lowered_left_hand_slot = NodePath("HeadY/HeadX/HeadRoot/LoweredLeftHand")
 shape_standing = NodePath("ColNormal")
 shape_crouching = NodePath("ColCrouch")
+camera_root = NodePath("HeadY/HeadX/HeadRoot")
+ray_standing = NodePath("RayCanStand")
 head_axis_y = NodePath("HeadY")
 head_axis_x = NodePath("HeadY/HeadX")
 component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Push_control"), SubResource("Living")])
+
+[node name="RayCanStand" type="RayCast3D" parent="." unique_id=724995723]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7507784, 0.010172695)
+target_position = Vector3(0, 0.875, 0)
 
 [node name="ColNormal" type="CollisionShape3D" parent="." unique_id=1584379138]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76812744, 0)
@@ -175,7 +179,7 @@ bones/51/rotation = Quaternion(-0.5290733, -0.00032809481, 0.00034345797, 0.8485
 bones/52/rotation = Quaternion(-0.00013717555, 0.9643068, -0.26478708, -0.00049942714)
 
 [node name="LookAtModifier3D" type="LookAtModifier3D" parent="AnimationLibrary_Godot_Standard/Rig/Skeleton3D" index="1" unique_id=1168020029]
-target_node = NodePath("../../../../HeadY/HeadX/TargetLook")
+target_node = NodePath("../../../../HeadY/HeadX/HeadRoot/TargetLook")
 bone_name = "DEF-head"
 bone = 6
 
@@ -188,25 +192,27 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)
 [node name="HeadX" type="Marker3D" parent="HeadY" unique_id=2113340697]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11703396, 0)
 
-[node name="TargetLook" type="Marker3D" parent="HeadY/HeadX" unique_id=1662571166]
+[node name="HeadRoot" type="Marker3D" parent="HeadY/HeadX" unique_id=406904122]
+
+[node name="TargetLook" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1662571166]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.22183037, -0.72694004)
 
-[node name="InteractionRay" type="RayCast3D" parent="HeadY/HeadX" unique_id=997764356]
+[node name="InteractionRay" type="RayCast3D" parent="HeadY/HeadX/HeadRoot" unique_id=997764356]
 target_position = Vector3(0, 0, -3)
 collision_mask = 15
 
-[node name="Holder" type="Marker3D" parent="HeadY/HeadX" unique_id=742222022]
+[node name="Holder" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=742222022]
 
-[node name="ArmRSlot" type="Marker3D" parent="HeadY/HeadX" unique_id=1714413596]
+[node name="ArmRSlot" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1714413596]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34265137, -0.27026367, -0.41137695)
 
-[node name="ArmLSlot" type="Marker3D" parent="HeadY/HeadX" unique_id=278936046]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.343, -0.27, -0.411)
+[node name="ArmLSlot" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=278936046]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.343, -0.26999998, -0.411)
 
-[node name="LoweredRightHand" type="Marker3D" parent="HeadY/HeadX" unique_id=1191453563]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, -0.8, 0.25)
+[node name="LoweredRightHand" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1191453563]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, -0.8, 0.24999999)
 
-[node name="LoweredLeftHand" type="Marker3D" parent="HeadY/HeadX" unique_id=1977669164]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, -0.8, 0.25)
+[node name="LoweredLeftHand" type="Marker3D" parent="HeadY/HeadX/HeadRoot" unique_id=1977669164]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, -0.8, 0.24999999)
 
 [editable path="AnimationLibrary_Godot_Standard"]
