@@ -1,15 +1,16 @@
 [gd_resource type="Resource" script_class="DEF_Delivery" format=3 uid="uid://btuoi3maxvuq3"]
 
 [ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/definitions/gameplay/packages/def_package.gd" id="1_45rg7"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/impact_default.tres" id="2_61ali"]
+[ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/definitions/gameplay/impact_default.tres" id="2_61ali"]
 [ext_resource type="Script" uid="uid://ccyyq1ami2lgi" path="res://content/definitions/gameplay/deliveries/def_delivery.gd" id="2_pfwa7"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/impact_fragile.tres" id="FragileImpact"]
+[ext_resource type="Resource" uid="uid://ssekqccb7qe5" path="res://content/definitions/gameplay/impact_fragile.tres" id="FragileImpact"]
 
 [sub_resource type="Resource" id="Books"]
 script = ExtResource("1_45rg7")
 description = "Книги"
 comment = "Обычный заказ"
 recipient_id = &"customer_01"
+damaged_health_ratio = null
 scene_variants = Array[String](["res://content/entities/packages/package_b.tscn", "res://content/entities/packages/package_a.tscn"])
 key = &"books"
 
@@ -25,9 +26,9 @@ carry_speed = 0.75
 carry_acceleration = 0.75
 throw_velocity = 6.0
 maximum_health = 60.0
+damaged_health_ratio = null
 scene_variants = Array[String](["res://content/entities/packages/package_big.tscn"])
 impact_profile = ExtResource("FragileImpact")
-damaged_health_ratio = 0.85
 key = &"bottles"
 
 [sub_resource type="Resource" id="Equipment"]
@@ -40,9 +41,9 @@ mass_kg = 80.0
 carry_speed = 0.4
 carry_acceleration = 0.4
 throw_velocity = 3.0
+damaged_health_ratio = null
 scene_variants = Array[String](["res://content/entities/packages/package_big.tscn"])
 impact_profile = ExtResource("FragileImpact")
-damaged_health_ratio = 0.85
 key = &"equipment"
 
 [sub_resource type="Resource" id="Glass"]
@@ -53,9 +54,9 @@ recipient_id = &"customer_04"
 tags = 2
 mass_kg = 3.0
 maximum_health = 40.0
+damaged_health_ratio = null
 scene_variants = Array[String](["res://content/entities/packages/package_b.tscn"])
 impact_profile = ExtResource("FragileImpact")
-damaged_health_ratio = 0.85
 key = &"glass"
 
 [sub_resource type="Resource" id="Oil"]
@@ -64,6 +65,7 @@ description = "Техническое масло"
 recipient_id = &"customer_05"
 tags = 8
 mass_kg = 8.0
+damaged_health_ratio = null
 scene_variants = Array[String](["res://content/entities/packages/package_a.tscn", "res://content/entities/packages/package.tscn"])
 key = &"oil"
 
@@ -76,9 +78,9 @@ tags = 2
 hazard = 2
 mass_kg = 6.0
 maximum_health = 50.0
+damaged_health_ratio = null
 scene_variants = Array[String](["res://content/entities/packages/package.tscn", "res://content/entities/packages/package_a.tscn", "res://content/entities/packages/package_b.tscn"])
 impact_profile = ExtResource("FragileImpact")
-damaged_health_ratio = 0.85
 key = &"power_cells"
 
 [sub_resource type="Resource" id="Clothes"]
@@ -86,6 +88,7 @@ script = ExtResource("1_45rg7")
 description = "Рабочая одежда"
 recipient_id = &"customer_07"
 mass_kg = 2.0
+damaged_health_ratio = null
 scene_variants = Array[String](["res://content/entities/packages/package_b.tscn", "res://content/entities/packages/package_a.tscn"])
 key = &"clothes"
 
@@ -97,6 +100,7 @@ mass_kg = 12.0
 carry_speed = 0.9
 carry_acceleration = 0.9
 throw_velocity = 8.0
+damaged_health_ratio = null
 scene_variants = Array[String](["res://content/entities/packages/package.tscn", "res://content/entities/packages/package_a.tscn", "res://content/entities/packages/package_b.tscn", "res://content/entities/packages/package_big.tscn"])
 key = &"tools"
 

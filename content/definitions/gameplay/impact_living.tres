@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="DEF_ImpactProfile" format=3]
+[gd_resource type="Resource" script_class="DEF_ImpactProfile" format=3 uid="uid://bqyh8qtasvex4"]
 
-[ext_resource type="Script" path="res://content/definitions/gameplay/def_impact_profile.gd" id="Profile"]
+[ext_resource type="Script" uid="uid://u0b5xnp170" path="res://content/definitions/gameplay/def_impact_profile.gd" id="Profile"]
 
 [resource]
 script = ExtResource("Profile")
@@ -8,3 +8,6 @@ minimum_speed = 5.0
 minimum_impulse = 3.0
 damage_per_joule = 0.1
 absorption_joules = 150.0
+max_hp_fraction_per_hit = 0.25
+medium_damage = 15.0
+strong_damage = 50.0

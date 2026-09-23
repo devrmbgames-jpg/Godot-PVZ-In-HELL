@@ -21,10 +21,10 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 		if authored_entity is Entity:
 			assert_true(world.entities.has(authored_entity as Entity))
 	var cart: Entity = level.get_node("Entityes/PushCart") as Entity
-	assert_true(cart.has_component(C_Pushable))
-	assert_false(cart.has_component(C_Grabbable))
+	assert_true(cart.has_component(C_CartTransport))
+	assert_false(cart.has_component(C_Pushable))
 	assert_true(player.has_component(C_PushControl))
-	var cart_body: RigidBody3D = cart as Node as RigidBody3D
+	var cart_body: CharacterBody3D = cart as Node as CharacterBody3D
 	var cart_shape: BoxShape3D = BoxShape3D.new()
 	cart_shape.size = Vector3(0.86, 0.66, 1.06)
 	var cart_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()

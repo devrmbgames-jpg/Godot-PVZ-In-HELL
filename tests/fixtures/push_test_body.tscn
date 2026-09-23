@@ -1,11 +1,12 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cyxcnblvg4iej"]
 
-[ext_resource type="Script" path="res://content/entities/props/e_pushable_body.gd" id="1_body"]
-[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="2_component"]
-[ext_resource type="Script" path="res://content/components/interaction/c_pushable.gd" id="3_pushable"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="4_interactable"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="5_actions"]
-[ext_resource type="Script" path="res://content/definitions/interaction/def_push_action.gd" id="6_action"]
+[ext_resource type="Script" uid="uid://ct85lgjgqav4u" path="res://content/entities/props/e_pushable_body.gd" id="1_body"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_component"]
+[ext_resource type="Script" uid="uid://f63mfe65d51u" path="res://content/components/interaction/c_pushable.gd" id="3_pushable"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="4_interactable"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="5_6r04d"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="5_actions"]
+[ext_resource type="Script" uid="uid://c1hb3cuxhf0u8" path="res://content/definitions/interaction/def_push_action.gd" id="6_action"]
 
 [sub_resource type="Resource" id="Pushable"]
 script = ExtResource("3_pushable")
@@ -20,10 +21,15 @@ caption = "Толкать тележку"
 
 [sub_resource type="Resource" id="Actions"]
 script = ExtResource("5_actions")
-actions = [SubResource("PushAction")]
+actions = Array[ExtResource("5_6r04d")]([SubResource("PushAction")])
 
 [sub_resource type="BoxShape3D" id="Shape"]
 size = Vector3(0.9, 0.7, 1.1)
+
+[sub_resource type="StandardMaterial3D" id="Metal"]
+albedo_color = Color(0.14, 0.35, 0.4, 1)
+metallic = 0.6
+roughness = 0.5
 
 [sub_resource type="BoxMesh" id="Platform"]
 size = Vector3(0.9, 0.16, 1.1)
@@ -39,62 +45,53 @@ top_radius = 0.14
 bottom_radius = 0.14
 height = 0.1
 
-[sub_resource type="StandardMaterial3D" id="Metal"]
-albedo_color = Color(0.14, 0.35, 0.4, 1)
-metallic = 0.6
-roughness = 0.5
-
-[node name="PushCart" type="RigidBody3D"]
+[node name="PushCart" type="RigidBody3D" unique_id=1716910282]
 collision_layer = 8
 collision_mask = 29
+axis_lock_angular_x = true
+axis_lock_angular_z = true
 mass = 40.0
 continuous_cd = true
 linear_damp = 2.0
 angular_damp = 2.0
-axis_lock_angular_x = true
-axis_lock_angular_z = true
 script = ExtResource("1_body")
 component_resources = Array[ExtResource("2_component")]([SubResource("Pushable"), SubResource("Interactable"), SubResource("Actions")])
 
-[node name="CollisionShape" type="CollisionShape3D" parent="."]
+[node name="CollisionShape" type="CollisionShape3D" parent="." unique_id=369417090]
 shape = SubResource("Shape")
 
-[node name="Platform" type="MeshInstance3D" parent="."]
-position = Vector3(0, -0.13, 0)
+[node name="Platform" type="MeshInstance3D" parent="." unique_id=208581008]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.13, 0)
+material_override = SubResource("Metal")
 mesh = SubResource("Platform")
-material_override = SubResource("Metal")
 
-[node name="Handle" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0.5, 0.5)
+[node name="Handle" type="MeshInstance3D" parent="." unique_id=987423627]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0.5)
+material_override = SubResource("Metal")
 mesh = SubResource("Handle")
-material_override = SubResource("Metal")
 
-[node name="LeftSupport" type="MeshInstance3D" parent="."]
-position = Vector3(-0.4, 0.22, 0.5)
+[node name="LeftSupport" type="MeshInstance3D" parent="." unique_id=428238077]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, 0.22, 0.5)
+material_override = SubResource("Metal")
 mesh = SubResource("Support")
-material_override = SubResource("Metal")
 
-[node name="RightSupport" type="MeshInstance3D" parent="."]
-position = Vector3(0.4, 0.22, 0.5)
+[node name="RightSupport" type="MeshInstance3D" parent="." unique_id=243777017]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0.22, 0.5)
+material_override = SubResource("Metal")
 mesh = SubResource("Support")
-material_override = SubResource("Metal")
 
-[node name="FrontLeftWheel" type="MeshInstance3D" parent="."]
-position = Vector3(-0.45, -0.25, -0.4)
-rotation = Vector3(0, 0, 1.5707963)
+[node name="FrontLeftWheel" type="MeshInstance3D" parent="." unique_id=1892857616]
+transform = Transform3D(7.54979e-08, -1, 0, 1, 7.54979e-08, 0, 0, 0, 1, -0.45, -0.25, -0.4)
 mesh = SubResource("Wheel")
 
-[node name="FrontRightWheel" type="MeshInstance3D" parent="."]
-position = Vector3(0.45, -0.25, -0.4)
-rotation = Vector3(0, 0, 1.5707963)
+[node name="FrontRightWheel" type="MeshInstance3D" parent="." unique_id=1551970481]
+transform = Transform3D(7.54979e-08, -1, 0, 1, 7.54979e-08, 0, 0, 0, 1, 0.45, -0.25, -0.4)
 mesh = SubResource("Wheel")
 
-[node name="RearLeftWheel" type="MeshInstance3D" parent="."]
-position = Vector3(-0.45, -0.25, 0.4)
-rotation = Vector3(0, 0, 1.5707963)
+[node name="RearLeftWheel" type="MeshInstance3D" parent="." unique_id=264209676]
+transform = Transform3D(7.54979e-08, -1, 0, 1, 7.54979e-08, 0, 0, 0, 1, -0.45, -0.25, 0.4)
 mesh = SubResource("Wheel")
 
-[node name="RearRightWheel" type="MeshInstance3D" parent="."]
-position = Vector3(0.45, -0.25, 0.4)
-rotation = Vector3(0, 0, 1.5707963)
+[node name="RearRightWheel" type="MeshInstance3D" parent="." unique_id=363957077]
+transform = Transform3D(7.54979e-08, -1, 0, 1, 7.54979e-08, 0, 0, 0, 1, 0.45, -0.25, 0.4)
 mesh = SubResource("Wheel")

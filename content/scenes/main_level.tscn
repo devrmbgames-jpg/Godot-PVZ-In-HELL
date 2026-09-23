@@ -57,7 +57,7 @@
 [ext_resource type="PackedScene" path="res://content/ui/interaction_hud.tscn" id="Interaction_hud"]
 [ext_resource type="Script" uid="uid://3rvc41qs05l" path="res://content/systems/gameplay/s_liquid_tilt.gd" id="LiquidTilt"]
 [ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/components/gameplay/c_living.gd" id="Living"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/impact_living.tres" id="LivingImpact"]
+[ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/definitions/gameplay/impact_living.tres" id="LivingImpact"]
 [ext_resource type="PackedScene" uid="uid://2kqhx881j4yk" path="res://content/entities/tools/marker.tscn" id="Marker_scene"]
 [ext_resource type="Script" uid="uid://bupm4th6s12s4" path="res://content/systems/interaction/s_marker.gd" id="Marker_system"]
 [ext_resource type="Script" uid="uid://6aul5eahny" path="res://content/observers/gameplay/o_package_condition_setup.gd" id="PackageConditionSetup"]
