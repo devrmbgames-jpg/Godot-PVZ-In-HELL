@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://kestjkhe0fr5" path="res://content/entities/zones/e_receiving_zone.gd" id="1"]
 [ext_resource type="Resource" uid="uid://btuoi3maxvuq3" path="res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres" id="2"]
-[ext_resource type="PackedScene" uid="uid://bxgy7pv54g83m" path="res://content/entities/packages/package.tscn" id="3"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="4_component"]
 [ext_resource type="Script" uid="uid://c38vbt1oqvs4f" path="res://content/components/gameplay/c_receiving.gd" id="5_receiving"]
 
@@ -20,7 +19,6 @@ size = Vector2(7.4, 4)
 [node name="ReceivingZone" type="Node3D" unique_id=864761896]
 script = ExtResource("1")
 supply = ExtResource("2")
-package_scene = ExtResource("3")
 component_resources = Array[ExtResource("4_component")]([SubResource("Receiving_state")])
 
 [node name="FloorMark" type="MeshInstance3D" parent="." unique_id=682019643]

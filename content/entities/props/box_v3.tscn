@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://dedvl4qdea3qi"]
+
+[ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/entities/props/box.tscn" id="1_rnlv3"]
+[ext_resource type="ArrayMesh" uid="uid://bn8r5q2mc5scn" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Box_A_mesh/Box_A_Box_A.res" id="2_3tpqt"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bto16"]
+size = Vector3(0.4560547, 0.4020996, 0.44628906)
+
+[node name="Box" unique_id=173843081 instance=ExtResource("1_rnlv3")]
+mass = 3.0
+
+[node name="Box_C" parent="." index="0" unique_id=165842214]
+mesh = ExtResource("2_3tpqt")
+
+[node name="CollisionShape3D" parent="." index="1" unique_id=1662332440]
+shape = SubResource("BoxShape3D_bto16")

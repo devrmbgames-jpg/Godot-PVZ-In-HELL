@@ -3,50 +3,24 @@
 [ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/entities/props/box.tscn" id="1_box"]
 [ext_resource type="Script" uid="uid://byriybwy6s1rc" path="res://content/entities/packages/e_package.gd" id="2_package"]
 [ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/definitions/gameplay/packages/def_package.gd" id="3_definition"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/impact_default.tres" id="3_t7jov"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="4_component"]
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="5_interactable"]
 [ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="6_grabbable"]
 [ext_resource type="Script" uid="uid://cg5pggkojxvba" path="res://content/components/gameplay/c_package_state.gd" id="7_state"]
-[ext_resource type="Script" path="res://content/components/gameplay/c_health.gd" id="8_integrity"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/components/gameplay/c_health.gd" id="8_integrity"]
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/definitions/gameplay/attributes/def_attr_health.tres" id="9_lkmb4"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="ActionBase"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
+[ext_resource type="Script" uid="uid://5wjxyxypacw" path="res://content/ui/package_condition_view.gd" id="ConditionView"]
+[ext_resource type="PackedScene" path="res://content/entities/packages/package_debris_stub.tscn" id="Debris"]
+[ext_resource type="Script" uid="uid://bj8kcalmwyad0" path="res://content/components/gameplay/c_health_depletion_effects.gd" id="Effects"]
+[ext_resource type="Script" uid="uid://2hnkpig3umk" path="res://content/components/gameplay/c_impact_protection.gd" id="ImpactProtection"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
 [ext_resource type="Script" uid="uid://j2ak34c5rfig" path="res://content/components/gameplay/c_package_marks.gd" id="Marks"]
 [ext_resource type="Script" uid="uid://dtug3ioxot1tv" path="res://content/ui/package_marks_view.gd" id="MarksView"]
-
-[ext_resource type="Script" path="res://content/components/gameplay/c_health_depletion_effects.gd" id="Effects"]
-[ext_resource type="Script" path="res://content/definitions/gameplay/def_depletion_spawn.gd" id="Spawn"]
-[ext_resource type="PackedScene" path="res://content/entities/packages/package_debris_stub.tscn" id="Debris"]
-
-[ext_resource type="Script" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
-
-[ext_resource type="Script" path="res://content/components/gameplay/c_impact_protection.gd" id="ImpactProtection"]
-
-[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
-[ext_resource type="Script" path="res://content/definitions/interaction/def_interaction_action.gd" id="ActionBase"]
-[ext_resource type="Script" path="res://content/definitions/interaction/def_open_package_action.gd" id="OpenAction"]
-
-[ext_resource type="Script" path="res://content/ui/package_condition_view.gd" id="ConditionView"]
-
-[sub_resource type="Resource" id="OpenAction"]
-script = ExtResource("OpenAction")
-action_id = &"open_package"
-slot = 1
-caption = "Вскрыть посылку"
-
-[sub_resource type="Resource" id="Actions"]
-script = ExtResource("Actions")
-actions = Array[ExtResource("ActionBase")]([SubResource("OpenAction")])
-
-[sub_resource type="Resource" id="ImpactProtection"]
-resource_local_to_scene = true
-script = ExtResource("ImpactProtection")
-
-[sub_resource type="Resource" id="DebrisEntry"]
-script = ExtResource("Spawn")
-scene = ExtResource("Debris")
-
-[sub_resource type="Resource" id="Effects"]
-resource_local_to_scene = true
-script = ExtResource("Effects")
-spawns = Array[ExtResource("Spawn")]([SubResource("DebrisEntry")])
+[ext_resource type="Script" uid="uid://ejcfj2vkgak" path="res://content/definitions/interaction/def_open_package_action.gd" id="OpenAction"]
+[ext_resource type="Script" uid="uid://b5a5ljmyxkdmd" path="res://content/definitions/gameplay/def_depletion_spawn.gd" id="Spawn"]
 
 [sub_resource type="Resource" id="Definition"]
 script = ExtResource("3_definition")
@@ -59,37 +33,57 @@ script = ExtResource("5_interactable")
 [sub_resource type="Resource" id="Package_grabbable"]
 script = ExtResource("6_grabbable")
 
-[sub_resource type="Resource" id="Resource_5a11h"]
+[sub_resource type="Resource" id="Resource_7rdfx"]
 resource_local_to_scene = true
 script = ExtResource("7_state")
 
-[sub_resource type="Resource" id="Resource_ijugq"]
+[sub_resource type="Resource" id="Resource_3kixs"]
 resource_local_to_scene = true
 script = ExtResource("8_integrity")
+definition = ExtResource("9_lkmb4")
 
-[sub_resource type="Resource" id="Resource_5vjsl"]
+[sub_resource type="Resource" id="Resource_vy0mo"]
 resource_local_to_scene = true
 script = ExtResource("Marks")
 
-[sub_resource type="Resource" id="ImpactReceiver"]
+[sub_resource type="Resource" id="DebrisEntry"]
+script = ExtResource("Spawn")
+scene = ExtResource("Debris")
+
+[sub_resource type="Resource" id="Resource_m86xv"]
+resource_local_to_scene = true
+script = ExtResource("Effects")
+spawns = Array[ExtResource("Spawn")]([SubResource("DebrisEntry")])
+
+[sub_resource type="Resource" id="Resource_4sia5"]
 resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
+
+[sub_resource type="Resource" id="Resource_bo5wx"]
+resource_local_to_scene = true
+script = ExtResource("ImpactProtection")
+
+[sub_resource type="Resource" id="OpenAction"]
+script = ExtResource("OpenAction")
+action_id = &"open_package"
+caption = "Вскрыть посылку"
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("Actions")
+actions = Array[ExtResource("ActionBase")]([SubResource("OpenAction")])
 
 [node name="Package" unique_id=1384920554 instance=ExtResource("1_box")]
 script = ExtResource("2_package")
 package_id = ""
 package_definition = SubResource("Definition")
-component_resources = Array[ExtResource("4_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_5a11h"), SubResource("Resource_ijugq"), SubResource("Resource_5vjsl"), SubResource("Effects"), SubResource("ImpactReceiver"), SubResource("ImpactProtection"), SubResource("Actions")])
+component_resources = Array[ExtResource("4_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_7rdfx"), SubResource("Resource_3kixs"), SubResource("Resource_vy0mo"), SubResource("Resource_m86xv"), SubResource("Resource_4sia5"), SubResource("Resource_bo5wx"), SubResource("Actions")])
 
 [node name="Marks" type="MeshInstance3D" parent="." index="2" unique_id=1073720280]
 cast_shadow = 0
 script = ExtResource("MarksView")
 
-[node name="Condition" type="Label3D" parent="." index="3"]
-position = Vector3(0, 0.68, 0)
-billboard = 1
-font_size = 32
-pixel_size = 0.005
-no_depth_test = false
+[node name="Condition" type="Label3D" parent="." index="3" unique_id=13948109]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.68, 0)
 visible = false
+billboard = 1
 script = ExtResource("ConditionView")

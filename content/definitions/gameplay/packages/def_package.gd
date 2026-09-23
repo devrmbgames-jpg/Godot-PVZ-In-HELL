@@ -31,6 +31,7 @@ enum Tag {
 @export_range(0.0, 1.0) var carry_acceleration: float = 1.0
 @export var throw_velocity: float = 10.0
 @export var maximum_health: float = 100.0
+@export_file_path("*.tscn") var scene_variants: Array[String] = []
 
 ## Generic impact profile, independent of descriptive tags and package lifecycle state.
 @export var impact_profile: DEF_ImpactProfile = preload(

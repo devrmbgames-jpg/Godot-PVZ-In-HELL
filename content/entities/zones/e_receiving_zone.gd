@@ -3,7 +3,6 @@ extends Entity
 class_name E_ReceivingZone
 
 @export var supply: DEF_Delivery = null
-@export var package_scene: PackedScene = null
 @export var package_parent: Node3D = null
 @onready var spawn_points: Node3D = $SpawnPoints
 @onready var sign_label: Label3D = $Sign

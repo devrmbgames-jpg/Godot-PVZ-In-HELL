@@ -1,15 +1,7 @@
-[gd_scene format=3]
-
-[sub_resource type="StandardMaterial3D" id="Frame"]
-albedo_color = Color(0.12, 0.21, 0.25, 1)
-roughness = 0.85
+[gd_scene format=3 uid="uid://bjno5jf76nuv7"]
 
 [sub_resource type="StandardMaterial3D" id="Board"]
 albedo_color = Color(0.48, 0.32, 0.17, 1)
-roughness = 0.85
-
-[sub_resource type="StandardMaterial3D" id="Badge"]
-albedo_color = Color(0.98, 0.78, 0.24, 1)
 roughness = 0.85
 
 [sub_resource type="BoxMesh" id="BoardMesh"]
@@ -18,6 +10,10 @@ size = Vector3(3.6, 0.08, 0.9)
 
 [sub_resource type="BoxShape3D" id="BoardShape"]
 size = Vector3(3.6, 0.08, 0.9)
+
+[sub_resource type="StandardMaterial3D" id="Frame"]
+albedo_color = Color(0.12, 0.21, 0.25, 1)
+roughness = 0.85
 
 [sub_resource type="BoxMesh" id="PostMesh"]
 material = SubResource("Frame")
@@ -40,10 +36,6 @@ size = Vector3(3.6, 1.6, 0.04)
 [sub_resource type="BoxShape3D" id="BackShape"]
 size = Vector3(3.6, 1.6, 0.04)
 
-[sub_resource type="BoxMesh" id="BadgeMesh"]
-material = SubResource("Badge")
-size = Vector3(0.46, 0.22, 0.025)
-
 [sub_resource type="BoxMesh" id="HeaderMesh"]
 material = SubResource("Frame")
 size = Vector3(3.6, 0.26, 0.08)
@@ -51,165 +43,184 @@ size = Vector3(3.6, 0.26, 0.08)
 [sub_resource type="BoxShape3D" id="HeaderShape"]
 size = Vector3(3.6, 0.26, 0.08)
 
-[node name="NumberedShelves" type="StaticBody3D"]
-collision_layer = 1
+[sub_resource type="StandardMaterial3D" id="Badge"]
+albedo_color = Color(0.98, 0.78, 0.24, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BadgeMesh"]
+material = SubResource("Badge")
+size = Vector3(0.46, 0.22, 0.025)
+
+[node name="NumberedShelves" type="StaticBody3D" unique_id=1317581930]
 collision_mask = 30
 
-[node name="LowerBoard" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0.2, 0)
+[node name="LowerBoard" type="MeshInstance3D" parent="." unique_id=378399709]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
 mesh = SubResource("BoardMesh")
 
-[node name="LowerBoardCollision" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.2, 0)
+[node name="LowerBoardCollision" type="CollisionShape3D" parent="." unique_id=1958264286]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
 shape = SubResource("BoardShape")
 
-[node name="MiddleBoard" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.0, 0)
+[node name="MiddleBoard" type="MeshInstance3D" parent="." unique_id=1627840416]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("BoardMesh")
 
-[node name="MiddleBoardCollision" type="CollisionShape3D" parent="."]
-position = Vector3(0, 1.0, 0)
+[node name="MiddleBoardCollision" type="CollisionShape3D" parent="." unique_id=674659593]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("BoardShape")
 
-[node name="TopBoard" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.8, 0)
+[node name="TopBoard" type="MeshInstance3D" parent="." unique_id=1486344701]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 mesh = SubResource("BoardMesh")
 
-[node name="TopBoardCollision" type="CollisionShape3D" parent="."]
-position = Vector3(0, 1.8, 0)
+[node name="TopBoardCollision" type="CollisionShape3D" parent="." unique_id=1169905778]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 shape = SubResource("BoardShape")
 
-[node name="LeftSide" type="MeshInstance3D" parent="."]
-position = Vector3(-1.84, 0.94, 0)
+[node name="LeftSide" type="MeshInstance3D" parent="." unique_id=1936402627]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.84, 0.94, 0)
 mesh = SubResource("PostMesh")
 
-[node name="LeftSideCollision" type="CollisionShape3D" parent="."]
-position = Vector3(-1.84, 0.94, 0)
+[node name="LeftSideCollision" type="CollisionShape3D" parent="." unique_id=423609810]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.84, 0.94, 0)
 shape = SubResource("PostShape")
 
-[node name="RightSide" type="MeshInstance3D" parent="."]
-position = Vector3(1.84, 0.94, 0)
+[node name="RightSide" type="MeshInstance3D" parent="." unique_id=2123770027]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.84, 0.94, 0)
 mesh = SubResource("PostMesh")
 
-[node name="RightSideCollision" type="CollisionShape3D" parent="."]
-position = Vector3(1.84, 0.94, 0)
+[node name="RightSideCollision" type="CollisionShape3D" parent="." unique_id=1194444116]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.84, 0.94, 0)
 shape = SubResource("PostShape")
 
-[node name="LeftDivider" type="MeshInstance3D" parent="."]
-position = Vector3(-0.6, 1.0, 0)
+[node name="LeftDivider" type="MeshInstance3D" parent="." unique_id=54158352]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 1, 0)
 mesh = SubResource("DividerMesh")
 
-[node name="LeftDividerCollision" type="CollisionShape3D" parent="."]
-position = Vector3(-0.6, 1.0, 0)
+[node name="LeftDividerCollision" type="CollisionShape3D" parent="." unique_id=542907869]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 1, 0)
 shape = SubResource("DividerShape")
 
-[node name="RightDivider" type="MeshInstance3D" parent="."]
-position = Vector3(0.6, 1.0, 0)
+[node name="RightDivider" type="MeshInstance3D" parent="." unique_id=2088414500]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 1, 0)
 mesh = SubResource("DividerMesh")
 
-[node name="RightDividerCollision" type="CollisionShape3D" parent="."]
-position = Vector3(0.6, 1.0, 0)
+[node name="RightDividerCollision" type="CollisionShape3D" parent="." unique_id=1808271143]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 1, 0)
 shape = SubResource("DividerShape")
 
-[node name="Back" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.0, -0.43)
+[node name="Back" type="MeshInstance3D" parent="." unique_id=1834163482]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -0.43)
 mesh = SubResource("BackMesh")
 
-[node name="BackCollision" type="CollisionShape3D" parent="."]
-position = Vector3(0, 1.0, -0.43)
+[node name="BackCollision" type="CollisionShape3D" parent="." unique_id=1745731189]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -0.43)
 shape = SubResource("BackShape")
 
-[node name="Header" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.97, 0.41)
+[node name="Header" type="MeshInstance3D" parent="." unique_id=1305294801]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.97, 0.41)
 mesh = SubResource("HeaderMesh")
 
-[node name="HeaderCollision" type="CollisionShape3D" parent="."]
-position = Vector3(0, 1.97, 0.41)
+[node name="HeaderCollision" type="CollisionShape3D" parent="." unique_id=1427158699]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.97, 0.41)
 shape = SubResource("HeaderShape")
 
-[node name="Title" type="Label3D" parent="."]
-position = Vector3(0, 1.97, 0.458)
+[node name="Title" type="Label3D" parent="." unique_id=1695979699]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.97, 0.458)
 pixel_size = 0.0025
-font_size = 48
-outline_size = 4
+double_sided = false
 modulate = Color(1, 0.86, 0.48, 1)
 text = "СКЛАД · ЯЧЕЙКИ 01–06"
-double_sided = false
+font_size = 48
+outline_size = 4
 
-[node name="Badge01" type="MeshInstance3D" parent="."]
-position = Vector3(-1.2, 0.2, 0.47)
+[node name="Badge01" type="MeshInstance3D" parent="." unique_id=1336367599]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 0.2, 0.47)
+visible = false
 mesh = SubResource("BadgeMesh")
 
-[node name="Number01" type="Label3D" parent="."]
-position = Vector3(-1.2, 0.2, 0.485)
+[node name="Number01" type="Label3D" parent="." unique_id=37351716]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 0.2, 0.485)
+visible = false
 pixel_size = 0.003
-font_size = 64
-outline_size = 0
+double_sided = false
 modulate = Color(0.035, 0.055, 0.065, 1)
 text = "01"
-double_sided = false
-
-[node name="Badge02" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0.2, 0.47)
-mesh = SubResource("BadgeMesh")
-
-[node name="Number02" type="Label3D" parent="."]
-position = Vector3(0, 0.2, 0.485)
-pixel_size = 0.003
 font_size = 64
 outline_size = 0
+
+[node name="Badge02" type="MeshInstance3D" parent="." unique_id=687760397]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.47)
+visible = false
+mesh = SubResource("BadgeMesh")
+
+[node name="Number02" type="Label3D" parent="." unique_id=2122620762]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.485)
+visible = false
+pixel_size = 0.003
+double_sided = false
 modulate = Color(0.035, 0.055, 0.065, 1)
 text = "02"
-double_sided = false
-
-[node name="Badge03" type="MeshInstance3D" parent="."]
-position = Vector3(1.2, 0.2, 0.47)
-mesh = SubResource("BadgeMesh")
-
-[node name="Number03" type="Label3D" parent="."]
-position = Vector3(1.2, 0.2, 0.485)
-pixel_size = 0.003
 font_size = 64
 outline_size = 0
+
+[node name="Badge03" type="MeshInstance3D" parent="." unique_id=1981796153]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 0.2, 0.47)
+visible = false
+mesh = SubResource("BadgeMesh")
+
+[node name="Number03" type="Label3D" parent="." unique_id=1286084822]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 0.2, 0.485)
+visible = false
+pixel_size = 0.003
+double_sided = false
 modulate = Color(0.035, 0.055, 0.065, 1)
 text = "03"
-double_sided = false
-
-[node name="Badge04" type="MeshInstance3D" parent="."]
-position = Vector3(-1.2, 1.0, 0.47)
-mesh = SubResource("BadgeMesh")
-
-[node name="Number04" type="Label3D" parent="."]
-position = Vector3(-1.2, 1.0, 0.485)
-pixel_size = 0.003
 font_size = 64
 outline_size = 0
+
+[node name="Badge04" type="MeshInstance3D" parent="." unique_id=1973174475]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 1, 0.47)
+visible = false
+mesh = SubResource("BadgeMesh")
+
+[node name="Number04" type="Label3D" parent="." unique_id=1237994812]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 1, 0.485)
+visible = false
+pixel_size = 0.003
+double_sided = false
 modulate = Color(0.035, 0.055, 0.065, 1)
 text = "04"
-double_sided = false
-
-[node name="Badge05" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.0, 0.47)
-mesh = SubResource("BadgeMesh")
-
-[node name="Number05" type="Label3D" parent="."]
-position = Vector3(0, 1.0, 0.485)
-pixel_size = 0.003
 font_size = 64
 outline_size = 0
+
+[node name="Badge05" type="MeshInstance3D" parent="." unique_id=600930660]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.47)
+visible = false
+mesh = SubResource("BadgeMesh")
+
+[node name="Number05" type="Label3D" parent="." unique_id=28056395]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.485)
+visible = false
+pixel_size = 0.003
+double_sided = false
 modulate = Color(0.035, 0.055, 0.065, 1)
 text = "05"
-double_sided = false
-
-[node name="Badge06" type="MeshInstance3D" parent="."]
-position = Vector3(1.2, 1.0, 0.47)
-mesh = SubResource("BadgeMesh")
-
-[node name="Number06" type="Label3D" parent="."]
-position = Vector3(1.2, 1.0, 0.485)
-pixel_size = 0.003
 font_size = 64
 outline_size = 0
+
+[node name="Badge06" type="MeshInstance3D" parent="." unique_id=740666538]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 1, 0.47)
+visible = false
+mesh = SubResource("BadgeMesh")
+
+[node name="Number06" type="Label3D" parent="." unique_id=315175092]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 1, 0.485)
+visible = false
+pixel_size = 0.003
+double_sided = false
 modulate = Color(0.035, 0.055, 0.065, 1)
 text = "06"
-double_sided = false
+font_size = 64
+outline_size = 0

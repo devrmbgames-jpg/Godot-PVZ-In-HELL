@@ -32,7 +32,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 
 #region Delivery
 func _deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index: int) -> void:
-	if not is_instance_valid(zone) or zone.supply == null or zone.package_scene == null:
+	if not is_instance_valid(zone) or zone.supply == null:
 		return
 	if receiving.last_started_day < day_index:
 		var batch: ReceivingBatch = ReceivingBatch.new()
@@ -57,7 +57,9 @@ func _deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index: int)
 		if identity.package_id == package_id:
 			_advance(receiving, active_batch)
 			return
-	var parcel: E_Package = zone.package_scene.instantiate() as E_Package
+	var package_scene_path: String = definition.scene_variants.pick_random()
+	var pkg_packed: PackedScene = load(package_scene_path)
+	var parcel: E_Package = pkg_packed.instantiate() as E_Package
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	var collision: CollisionShape3D = parcel.get_node("CollisionShape3D") as CollisionShape3D
 	var query_parameters: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()

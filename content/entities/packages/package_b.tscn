@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://d1if46l23a7g2"]
+
+[ext_resource type="PackedScene" uid="uid://bxgy7pv54g83m" path="res://content/entities/packages/package.tscn" id="1_w272f"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_x8kay"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="3_2v7dd"]
+[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="4_a1uqi"]
+[ext_resource type="Script" uid="uid://cg5pggkojxvba" path="res://content/components/gameplay/c_package_state.gd" id="5_1cm54"]
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/definitions/gameplay/attributes/def_attr_health.tres" id="6_5fjdc"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/components/gameplay/c_health.gd" id="7_b4hqh"]
+[ext_resource type="Script" uid="uid://j2ak34c5rfig" path="res://content/components/gameplay/c_package_marks.gd" id="8_hw1g8"]
+[ext_resource type="Script" uid="uid://bj8kcalmwyad0" path="res://content/components/gameplay/c_health_depletion_effects.gd" id="9_kmyxc"]
+[ext_resource type="Script" uid="uid://b5a5ljmyxkdmd" path="res://content/definitions/gameplay/def_depletion_spawn.gd" id="10_oq4n6"]
+[ext_resource type="PackedScene" path="res://content/entities/packages/package_debris_stub.tscn" id="11_0cn4g"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/impact_default.tres" id="12_ljpb6"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="13_n0rfq"]
+[ext_resource type="Script" uid="uid://2hnkpig3umk" path="res://content/components/gameplay/c_impact_protection.gd" id="14_ipvho"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="15_0s68s"]
+[ext_resource type="Script" uid="uid://ejcfj2vkgak" path="res://content/definitions/interaction/def_open_package_action.gd" id="16_mlda1"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="17_u6teg"]
+[ext_resource type="ArrayMesh" uid="uid://bn8r5q2mc5scn" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Box_A_mesh/Box_A_Box_A.res" id="18_87ov2"]
+
+[sub_resource type="Resource" id="Package_interactable"]
+script = ExtResource("3_2v7dd")
+
+[sub_resource type="Resource" id="Package_grabbable"]
+script = ExtResource("4_a1uqi")
+
+[sub_resource type="Resource" id="Resource_8tn4f"]
+resource_local_to_scene = true
+script = ExtResource("5_1cm54")
+
+[sub_resource type="Resource" id="Resource_obsb4"]
+resource_local_to_scene = true
+script = ExtResource("7_b4hqh")
+definition = ExtResource("6_5fjdc")
+
+[sub_resource type="Resource" id="Resource_dt4t1"]
+resource_local_to_scene = true
+script = ExtResource("8_hw1g8")
+
+[sub_resource type="Resource" id="DebrisEntry"]
+script = ExtResource("10_oq4n6")
+scene = ExtResource("11_0cn4g")
+
+[sub_resource type="Resource" id="Resource_2ubdh"]
+resource_local_to_scene = true
+script = ExtResource("9_kmyxc")
+spawns = Array[ExtResource("10_oq4n6")]([SubResource("DebrisEntry")])
+
+[sub_resource type="Resource" id="Resource_5ucjp"]
+resource_local_to_scene = true
+script = ExtResource("13_n0rfq")
+
+[sub_resource type="Resource" id="Resource_d0k2x"]
+resource_local_to_scene = true
+script = ExtResource("14_ipvho")
+
+[sub_resource type="Resource" id="OpenAction"]
+script = ExtResource("16_mlda1")
+action_id = &"open_package"
+caption = "Вскрыть посылку"
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("17_u6teg")
+actions = Array[ExtResource("15_0s68s")]([SubResource("OpenAction")])
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lpe13"]
+size = Vector3(0.44958496, 0.39587402, 0.45263672)
+
+[node name="Package" unique_id=1384920554 instance=ExtResource("1_w272f")]
+component_resources = Array[ExtResource("2_x8kay")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_8tn4f"), SubResource("Resource_obsb4"), SubResource("Resource_dt4t1"), SubResource("Resource_2ubdh"), SubResource("Resource_5ucjp"), SubResource("Resource_d0k2x"), SubResource("Actions")])
+
+[node name="Box_C" parent="." index="0" unique_id=165842214]
+mesh = ExtResource("18_87ov2")
+
+[node name="CollisionShape3D" parent="." index="1" unique_id=1662332440]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00021362305, 0.20037842, 0.0015258789)
+shape = SubResource("BoxShape3D_lpe13")
