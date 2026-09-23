@@ -4,4 +4,5 @@
 - Implemented M5-M10: source veto, atomic impact inbox/capture/query, throw lifetime, profiles/protection, liquid tilt, explicit opening, condition feedback. Contracts/manual checks: docs/damage_impact.md and docs/r08_manual_validation.md.
 - Validation: static structure/formatter/lint/diff and two focused read-only reviews. NO Godot/GUT/smoke/runtime/physics/visual invocation; user explicitly owns testing.
 - Existing damage smoke adapted to Observer results but not run. S_Push unchanged; no broad Grab/Cart/Input refactor. Dirty addons/gecs preserved.
-- Next: receive user playtest results using docs/r08_manual_validation.md; fix issues or close R08/task_history/trackers after acceptance.
+- Playtest feedback: ordinary and fragile parcels were breaking too readily. Updated both receiver profiles beyond the proposed twofold toughness, added HP-based visible-damage thresholds, impact-only per-hit caps and focused GUT regression cases (not executed). Re-test settings: docs/r08_manual_validation.md.
+- Next: receive user re-test results for the new balancing; fix issues or close R08/task_history/trackers after acceptance.
