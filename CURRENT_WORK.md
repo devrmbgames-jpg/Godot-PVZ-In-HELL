@@ -5,4 +5,5 @@
 - User owns ALL runtime/tests; static checks only. Existing dirty addons/gecs untouched.
 - Milestone 1 implemented: C_Health migration, DamageResult.EVENT and separate living/package observers. Static checks before commit; no runtime/tests run.
 - Milestone 1.1: optional one-shot depletion spawns, presentation data event, package lifecycle hook and cardboard placeholder. No runtime/tests run.
-- Next: generic physical impact contract and bridge.
+- Milestone 2: physical contact snapshots, receiver thresholds and impulse/energy-bounded directional damage; capture precedes body assistance. Static checks only.
+- Next: pair contact lifetime and separation/re-impact dedup.

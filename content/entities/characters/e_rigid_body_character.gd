@@ -29,6 +29,7 @@ func _init() -> void:
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	S_Impact.capture(self, state)
 	S_Motion.integrate_forces(self, state)
 	S_Look.integrate_forces(self, state)
 	S_Crouch.integrate_forces(self, state)

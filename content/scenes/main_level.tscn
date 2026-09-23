@@ -73,6 +73,8 @@
 
 [ext_resource type="Script" path="res://content/observers/gameplay/o_depletion_effects.gd" id="DepletionEffects"]
 
+[ext_resource type="Script" path="res://content/systems/gameplay/s_impact.gd" id="ImpactSystem"]
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
 size = Vector3(32.071198, 0.50476074, 40.240265)
 
@@ -228,6 +230,10 @@ script = ExtResource("PackageDamage")
 
 [node name="DepletionEffects" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("DepletionEffects")
+
+[node name="S_Impact" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("ImpactSystem")
+group = &"GamePlay"
 
 [node name="S_Damage" type="Node" parent="World/Systems/GamePlay" unique_id=734003194]
 script = ExtResource("Damage_system")
