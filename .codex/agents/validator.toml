@@ -10,6 +10,11 @@ Start with the cheapest deterministic check that can falsify the change.
 For ordinary milestone/subtask validation, do not run GUT, headless smoke, or runtime suites. Use deterministic structure/path checks, formatter/static checks, targeted inspection, and diff checks only.
 Run GUT plus the relevant headless smoke/runtime validation once near the end of the complete Rxx/Rxx.x task, before it is marked complete.
 An early GUT/runtime run is allowed only if the user explicitly requested it or a concrete blocking bug cannot be diagnosed/validated without one narrow targeted run. Do not repeat broad suites after each fix.
+Per complete Rxx/Rxx.x task, default to at most one GUT invocation total and at most one headless smoke/runtime invocation total. A blocking early invocation consumes that task's corresponding runtime budget; any additional rerun requires explicit user approval.
+Do not create or extend physics smoke scenarios for gameplay feel/tuning (ramps, steps, uneven terrain, cart handling, camera feel, animation feel, etc.) unless the user explicitly requested automated coverage.
+Do not rerun the same smoke after small follow-up edits. Batch fixes from existing evidence and stop when the runtime budget is exhausted.
+Avoid --editor --import as routine validation; use it only for a specific import/scene/resource compilation need and normally once near task completion.
+When runtime validation runs, redirect and filter output before returning it. Never return full noisy Godot/GUT logs to the parent agent.
 Never launch Godot in rendered/visual mode, capture screenshots, record the screen, or inspect rendered frames unless the user explicitly approved visual validation in the current task/conversation.
 Do not infer approval from the task being UI/visual, from prior tasks, or from the parent agent's preference.
 Without explicit approval, use only non-visual validation (static checks, formatter, headless Godot, GUT, smoke tests, concise logs) and report any visual acceptance criterion as NOT RUN — user visual validation required.

@@ -30,6 +30,22 @@ Prefer, in order:
 
 If only visual confirmation remains, report `NOT RUN — user visual validation required` and leave visual tuning to the user.
 
+## Headless runtime budget
+
+Headless execution is still expensive because repeated runs and logs consume context.
+
+For a complete `Rxx` / `Rxx.x` task:
+- default to at most one headless smoke/runtime invocation total, normally at task completion;
+- an early blocking runtime invocation consumes that budget;
+- any additional runtime rerun requires explicit user approval;
+- never loop `edit -> smoke -> edit -> smoke` for tuning;
+- do not create/expand physics smoke scenes for ramps, steps, uneven terrain, vehicle handling/feel, camera feel, or similar experiential acceptance unless the user explicitly asks for automated coverage;
+- prefer static reasoning for follow-up fixes after a failed run, then stop or request approval before another runtime invocation;
+- avoid routine `--editor --import`; use it only for a specific import/resource/scene compilation need;
+- filter logs to the exact error/assertion/stack instead of reading full outputs.
+
+The user owns manual gameplay feel and visual/physics tuning in the editor.
+
 ## Runtime rules
 
 - Physics simulation and body mutations belong on the physics step.

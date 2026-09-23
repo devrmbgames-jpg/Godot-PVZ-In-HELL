@@ -47,3 +47,7 @@ Rules:
 - Milestones/subtasks use cheap static/deterministic validation only; do not run GUT/smoke/runtime suites after every milestone.
 - Run the task's documented GUT + headless smoke/runtime validation once near the end of the complete `Rxx` / `Rxx.x` task before marking it complete.
 - Early targeted test execution is only for an explicit user request or a concrete blocking bug that cannot be validated statically.
+- Runtime budget per complete `Rxx` / `Rxx.x`: at most one GUT invocation and one headless smoke/runtime invocation by default; normally both are reserved for final task validation.
+- An early blocking invocation consumes that budget. Additional runtime reruns require explicit user approval.
+- Do not add physics smoke coverage for gameplay feel/tuning (ramps, steps, uneven terrain, vehicle/camera/animation feel) unless the user explicitly asks for automated coverage.
+- Store/inspect only filtered runtime failures; do not paste full Godot/GUT logs into task/checkpoint context.
