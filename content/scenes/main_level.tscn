@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://h6ovxls42pn1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Doorway/Primitive_Doorway_static.tscn" id="3_eim2b"]
 [ext_resource type="Script" uid="uid://b7fouhp44tts1" path="res://content/systems/motion/s_motion.gd" id="4_jmtkn"]
 [ext_resource type="PackedScene" uid="uid://bmlgret82yq8q" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_Short/Primitive_Wall_Short_static.tscn" id="4_rhklt"]
+[ext_resource type="Script" uid="uid://nsdmrnqs0no0" path="res://content/observers/gameplay/o_damage.gd" id="5_ad8bv"]
 [ext_resource type="Script" uid="uid://bfdt1nh574v2r" path="res://content/systems/motion/s_look.gd" id="5_jprse"]
 [ext_resource type="Script" uid="uid://c1benmwwnwobr" path="res://content/systems/motion/s_jump.gd" id="6_gg2sc"]
 [ext_resource type="Script" uid="uid://cv8oyv1lnwa6u" path="res://content/systems/motion/s_crouch.gd" id="7_6b1dm"]
@@ -40,7 +41,6 @@
 [ext_resource type="Script" uid="uid://swt054yqxt3s" path="res://content/components/interaction/c_cart_transport.gd" id="63_3w6s4"]
 [ext_resource type="PackedScene" uid="uid://bfyevmoy76bm3" path="res://content/entities/doors/door_template.tscn" id="63_uqafv"]
 [ext_resource type="Script" uid="uid://da6i6tt1dgukj" path="res://content/definitions/interaction/def_cart_transport_action.gd" id="64_mnsyy"]
-[ext_resource type="Script" uid="uid://cpsqfbyw5u8m7" path="res://content/systems/gameplay/s_damage.gd" id="Damage_system"]
 [ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/entities/sessions/e_day_session.gd" id="Day_entity"]
 [ext_resource type="Script" uid="uid://04u6xvav8opi" path="res://content/components/gameplay/c_package_ledger.gd" id="Day_ledger"]
 [ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
@@ -114,6 +114,7 @@ metadata/_custom_type_script = "uid://c772oxgdtatqf"
 
 [sub_resource type="Resource" id="Resource_2vn7f"]
 script = ExtResource("31_8uaqh")
+current = null
 definition = ExtResource("30_4agnb")
 metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 
@@ -121,7 +122,7 @@ metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 script = ExtResource("32_mc3p1")
 collision_mask = 31
 
-[sub_resource type="Resource" id="Resource_ad8bv"]
+[sub_resource type="Resource" id="Resource_ceby8"]
 resource_local_to_scene = true
 script = ExtResource("33_k7ct6")
 
@@ -134,7 +135,7 @@ script = ExtResource("Push_control")
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
 
-[sub_resource type="Resource" id="Resource_ceby8"]
+[sub_resource type="Resource" id="Resource_kslvg"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 
@@ -158,7 +159,7 @@ script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Action")])
 reserved_slots = 4
 
-[sub_resource type="Resource" id="Resource_kslvg"]
+[sub_resource type="Resource" id="Resource_y36gv"]
 resource_local_to_scene = true
 script = ExtResource("41_1hfqo")
 
@@ -182,7 +183,7 @@ caption = "Лечь спать"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Sleep_transition")])
 
-[sub_resource type="Resource" id="Resource_y36gv"]
+[sub_resource type="Resource" id="Resource_m2brv"]
 resource_local_to_scene = true
 script = ExtResource("63_3w6s4")
 
@@ -216,23 +217,22 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_Receiving" type="Node" parent="World/Systems/GamePlay" unique_id=160792962]
 script = ExtResource("Receiving_system")
-group = &"GamePlay"
 
-[node name="HealthLifecycle" type="Node" parent="World/Systems/GamePlay" unique_id=94551561]
+[node name="O_Damage" type="Node" parent="World/Systems/GamePlay" unique_id=1820599322]
+script = ExtResource("5_ad8bv")
+metadata/_custom_type_script = "uid://nsdmrnqs0no0"
+
+[node name="O_HealthLifecycle" type="Node" parent="World/Systems/GamePlay" unique_id=94551561]
 script = ExtResource("HealthLifecycle")
 
-[node name="PackageDamage" type="Node" parent="World/Systems/GamePlay" unique_id=873750374]
+[node name="O_PackageDamage" type="Node" parent="World/Systems/GamePlay" unique_id=873750374]
 script = ExtResource("PackageDamage")
 
-[node name="DepletionEffects" type="Node" parent="World/Systems/GamePlay" unique_id=577150]
+[node name="O_DepletionEffects" type="Node" parent="World/Systems/GamePlay" unique_id=577150]
 script = ExtResource("DepletionEffects")
 
 [node name="S_Impact" type="Node" parent="World/Systems/GamePlay" unique_id=1737982216]
 script = ExtResource("ImpactSystem")
-group = &"GamePlay"
-
-[node name="S_Damage" type="Node" parent="World/Systems/GamePlay" unique_id=734003194]
-script = ExtResource("Damage_system")
 group = &"GamePlay"
 
 [node name="S_DayPhase" type="Node" parent="World/Systems/GamePlay" unique_id=525864446]
@@ -821,7 +821,7 @@ transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, 6.44
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
 collision_layer = 16
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_ad8bv"), SubResource("Grab_carry_load"), SubResource("Push_control"), SubResource("Living")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_ceby8"), SubResource("Grab_carry_load"), SubResource("Push_control"), SubResource("Living")])
 
 [node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1703744943, 217031396, 2065414162) index="0" unique_id=1494109615]
 cast_shadow = 3
@@ -843,12 +843,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2402446, 1.45, -2)
 
 [node name="Marker" parent="Entityes" unique_id=1749342287 instance=ExtResource("Marker_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.45, 1.45, -2)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_ceby8"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_kslvg"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6876402, 0, 3.4474401)
 package_parent = NodePath("..")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_kslvg")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_y36gv")])
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")
@@ -878,7 +878,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2480266, 0.09600389, -8.165
 
 [node name="PushCart" parent="Entityes" unique_id=1664321513 instance=ExtResource("Push_cart")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6.714551, 0.8329964, -4.577118)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_y36gv"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_m2brv"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 
 [node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player", "phase_system") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")

@@ -11,10 +11,10 @@ static func publish(
 	cause: DamageResult = null,
 ) -> void:
 	var identity: C_Package = package.get_component(C_Package) as C_Package
-	var notification: PackageLifecycleEvent = PackageLifecycleEvent.new()
-	notification.package = package
-	notification.package_id = identity.package_id if identity != null else ""
-	notification.kind = kind
-	notification.actor = actor
-	notification.cause = cause
-	ECS.world.emit_event(PackageLifecycleEvent.EVENT, package, notification)
+	var package_lifecycle: PackageLifecycleEvent = PackageLifecycleEvent.new()
+	package_lifecycle.package = package
+	package_lifecycle.package_id = identity.package_id if identity != null else ""
+	package_lifecycle.kind = kind
+	package_lifecycle.actor = actor
+	package_lifecycle.cause = cause
+	ECS.world.emit_event(PackageLifecycleEvent.EVENT, package, package_lifecycle)
