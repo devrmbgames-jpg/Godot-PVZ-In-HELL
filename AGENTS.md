@@ -38,6 +38,7 @@ Do not automatically reread roadmap docs, root CONTEXT, unchanged files already 
 - GDScript functions must be visually split into semantic blocks with single blank lines. Simplify dense boolean expressions with named predicates, clear nested `if`s, or private helpers; avoid redundant/misleading casts.
 - No magic gameplay constants; use named constants/data.
 - **Systems are atomic. A project `System` must not call another `System` as a service/helper.** Use `deps()` for ordering and Components/Relationships/typed events for data flow.
+- **Reserve `S_*` / `extends System` for real GECS-scheduled work.** Static-only physics solvers, helpers and domain services are non-System classes; do not keep registered no-op System nodes or scan `ECS.world.systems` as a service locator.
 - System queries are data contracts: required hot-path Components belong in `with_all(...).iterate(...)`; avoid repeated `get_component()` inside System loops when GECS can provide them.
 - Split monolithic Systems by component set/responsibility instead of branching over optional Components.
 - Physics integration is the only exception at the Entity callback boundary: a RigidBody/physics Entity may forward its Godot physics callback to multiple independent solvers, but those solvers must not call each other.
