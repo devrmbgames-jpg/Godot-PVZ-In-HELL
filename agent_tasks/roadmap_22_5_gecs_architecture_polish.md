@@ -11,6 +11,8 @@ Refactor the working gameplay code toward GECS best practices without changing g
 
 This is intentionally late-roadmap polishing. Current systems are allowed to remain functional/legacy until R22.5; agents must not opportunistically perform this refactor while implementing R08-R22 unless a blocking bug requires a minimal local fix.
 
+**Explicit exception:** `S_Damage` and `S_Impact` are owned by active R08 and must be cleaned up there immediately after R08 Milestone 5. Their System coupling/service-locator/impact-capture issues are **not deferred to R22.5**. R22.5 only re-audits them for regressions.
+
 Primary principles:
 
 - Components are pure data.
@@ -47,9 +49,9 @@ The default-branch audit covered every current `content/systems/**/*.gd` System 
 
 | Current class | R22.5 disposition |
 | --- | --- |
-| `S_Damage` | Keep Health arithmetic authority; replace System service-locator submission and foreign System availability calls with typed request/state flow. |
+| `S_Damage` | **R08-owned now.** R08 M5.1 removes service-locator submission and foreign System calls; R22.5 only verifies no regression. |
 | `S_DayPhase` | Keep scheduled transition processing; remove static global service facade from System consumers. |
-| `S_Impact` | Split physics contact capture, throw lifetime, pair dedup/resolution and Damage submission. |
+| `S_Impact` | **R08-owned now.** R08 M5.1 splits contact capture/resolution, query-driven throw lifetime and typed Damage submission; R22.5 only verifies no regression. |
 | `S_Receiving` | Split phase reaction/batch scheduling from spawn-space/package construction and identity lookup. |
 | `S_PlayerInput` | Keep raw input intent capture focused; move Push/Transport mode constraints to authoritative focus/state processing. |
 | `S_CartCargo` | Legacy pseudo-System: separate real cargo lifecycle/query work from the RigidBody cargo solver; do not keep a static-only `System`. |
@@ -93,24 +95,18 @@ Target:
 - replace direct Impact/CartCargo/Marker calls with state/event/relationship transitions;
 - keep RigidBody hold integration as an independent non-System physics solver called only from Entity physics callback.
 
-#### S_Impact + S_Damage
+#### S_Impact + S_Damage — moved forward to active R08
 
-Current issues:
-- `S_Impact` combines contact capture, throw-window lifetime, contact-pair dedup, impact calculation and damage submission;
-- `S_Impact -> S_Damage`;
-- `S_Impact -> S_Grab`;
-- `S_Damage -> S_Grab`;
-- static `submit()` scans `ECS.world.systems` to find the owning System;
-- throw timeout currently manually queries all `C_ThrowDamage` entities instead of using a dedicated query/iterate contract.
+These issues were discovered during the R22.5 audit but are now an explicit **R08 Milestone 5.1 architecture gate**.
 
-Target:
-- physics callback capture becomes an independent bridge/solver that records typed contact data only;
-- dedicated query/sub-system processes `C_ThrowDamage` lifetime using `iterate()`;
-- impact resolution consumes typed contact state/events;
-- Damage requests use typed event/request/inbox semantics rather than finding `S_Damage` by scanning systems;
-- Damage System owns only Health arithmetic/result publication;
-- availability/held-state checks consume authoritative Components/Relationships or non-System domain helpers;
-- preserve R08 formula/semantics exactly.
+R08 owns:
+- removal of `S_Impact -> S_Damage`, `S_Impact -> S_Grab` and `S_Damage -> S_Grab`;
+- replacement of `S_Damage.submit()` system scanning with a typed request/inbox/event path;
+- separation of physics contact capture from scheduled impact resolution;
+- dedicated query + `iterate()` processing for `C_ThrowDamage` lifetime;
+- preservation of existing R08 impact/dedup/throw/damage semantics.
+
+R22.5 must not schedule this work again. It only verifies that later feature work did not reintroduce those anti-patterns.
 
 #### S_Push
 
@@ -317,7 +313,7 @@ During R22.5:
 2. Refactor Cart Transport/Cargo and remove Transport/Push dispatch from Motion/Input; establish one Cart/Cargo ownership authority.
 3. Refactor Push lifecycle + physics boundaries.
 4. Refactor Grab into focused ECS/lifecycle/physics/helper responsibilities.
-5. Refactor Impact/Damage request flow and throw lifetime query; eliminate `ECS.world.systems` service-locator submission.
+5. Regression-audit the R08 Damage/Impact architecture gate; do not plan another broad `S_Damage`/`S_Impact` refactor unless later work reintroduced a violation.
 6. Split raw PlayerInput from mode-specific constraints.
 7. Separate InteractionTargeting from highlight presentation.
 8. Split Marker session/sampling/ink mutation.
@@ -339,7 +335,7 @@ Commit each numbered stage separately. Do not combine the entire refactor into o
 - no new content;
 - no GECS addon modifications;
 - no speculative performance micro-optimization without evidence;
-- do not start before R08-R22 are complete unless the user explicitly changes priority.
+- do not start the broad R22.5 polish before R08-R22 are complete. Exception: Damage/Impact cleanup has explicitly moved into active R08 M5.1 and must happen there now.
 
 ---
 
