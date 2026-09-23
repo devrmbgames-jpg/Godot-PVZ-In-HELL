@@ -34,6 +34,20 @@ Early execution is an exception only when:
 
 After such an exception, return to the normal cadence; do not rerun the full suite after every follow-up edit.
 
+### GUT budget
+
+For one complete `Rxx` / `Rxx.x` task, default to **one GUT invocation total**, normally at task completion.
+
+If a blocking bug consumes that invocation early:
+- use the result as evidence;
+- make follow-up fixes with static/deterministic checks;
+- do not rerun GUT automatically;
+- any additional GUT invocation requires explicit user approval.
+
+Do not widen a task into unrelated legacy/regression failures merely because the broad suite reports them. Record unrelated failures concisely and keep the current task scoped.
+
+Never return the complete GUT log to the parent/main context. Extract only failing test names, relevant assertions/stack, and a short totals line.
+
 ## Strategy
 
 - Pure deterministic logic -> unit tests first.
