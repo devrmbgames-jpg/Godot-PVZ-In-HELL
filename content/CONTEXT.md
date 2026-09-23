@@ -51,7 +51,7 @@ Interaction scheduling is targeting -> Push validation -> Grab/resolver, within 
 
 ## Package foundation (R01)
 
-`entities/packages/package.tscn` inherits the physical box and uses `E_Package`; receiving instantiates this scene with data-defined masses and grab profiles. `define_components()` only creates spawn-specific C_Package identity. C_PackageState and C_Health are scene-authored; receiving clones individual grab tuning without replacing those components.
+`entities/packages/package.tscn` inherits the physical box and uses `E_Package`; receiving instantiates this scene with data-defined masses and grab profiles. `define_components()` only creates spawn-specific C_Package identity. C_PackageState and C_Health are scene-authored; receiving clones individual grab tuning without replacing those components. O_PackageConditionSetup initializes definition Health and impact profile once for both authored and received packages.
 
 `DEF_Package` is immutable shared shipment data: number, description, comment, recipient key and bitmask tags (Normal=1, Fragile=2, Heavy=4, Liquid=8). Heavy+Fragile is valid. Runtime registration, scan, opening and damage enums live only in `C_PackageState`; defaults are Unregistered/NotScanned/Closed/Undamaged.
 
@@ -87,7 +87,7 @@ O_Damage is the sole gameplay damage/heal writer. C_Health extends C_AttributeCh
 
 DamageRequestService.submit publishes a copied typed DamageRequest to O_Damage through a World event, without a System service locator. Null/removed/non-Health targets are rejected at entry. O_Damage validates amounts and current Health, applies the source-side C_NoDamage veto (BLOCKED outcome, incoming damage and healing unaffected), and commits depletion before Health property notifications. The optional builder uses the same submit path.
 
-Processed requests publish typed World events under DamageResult.EVENT, including rejection and blocked outcomes. Positive Health crossing zero commits HEALTH_DEPLETED once before notifications. O_HealthLifecycle handles only C_Living: C_Death, grip release and control/target cleanup. O_PackageDamage handles package condition independently and keeps destroyed physical entities alive. Healing restores non-depleted HP but does not undo package condition; depletion remains terminal.
+Processed requests publish typed World events under DamageResult.EVENT, including rejection and blocked outcomes. Positive Health crossing zero commits HEALTH_DEPLETED once before notifications. O_HealthLifecycle handles only C_Living: C_Death, grip release and control disable; the targeting processor clears its own selection/highlight on the next tick. O_PackageDamage handles package condition independently and keeps destroyed physical entities alive. Healing restores non-depleted HP but does not undo package condition; depletion remains terminal.
 
 Packages and actors use the same C_Health arithmetic. Package definitions initialize maximum_health; there is no second integrity authority. Standalone damage_smoke was adapted to the shared contract; R08 runtime validation is user-owned.
 
@@ -109,3 +109,7 @@ Marker drawing uses the existing hand-use resolver and an independent DRAWING ca
 Scanner feedback listens to PackageScanResult: successful and repeated scans beep and display the number. Terminal shows registrations for all active warehouse parcels across days, plus the last departure. `PackageRegistrationService.release_number(parcel)` accepts only authoritative `DELIVERED` state and marks its ledger record inactive; missing/deleted Nodes, damage and day changes never release reservations. Historical records keep their original base number even after reuse. The current Terminal is read-only: customer outcomes, declarations, value/penalty fields and disputes require their later domain stages. Closing with E/Esc restores cursor capture. The ledger is runtime-only pending R21 persistence. `label_printer.tres` defines a future printer; printing is not implemented.
 
 Validation: `tests/smoke/receiving_scan_smoke.tscn` checks eight unique parcels and tags/hazards, pickup/scan/repeat/beep, range/target rejection, terminal opening, blocked delivery, resumed next-day supply, preserved old positions, stable cross-day numbers and smallest-free-number reuse after departure. Require its PASS marker; use `--quit-after 360` as the frame safety limit. Rendering with `-- --preview` saves an ignored screenshot under tests/artifacts. No new GUT suite was added.
+
+## R08 impact and package condition
+
+Canonical contract: [damage_impact.md](../docs/damage_impact.md). ImpactCaptureSolver writes runtime body inboxes; S_Impact drains their iterate query and resolves independent contact episodes, submitting typed requests to O_Damage. S_ThrowLifetime owns its own query. No Damage/Impact System service locator or cross-System calls. Package profiles, severity protection, continuous liquid tilt and explicit F/open share typed lifecycle hooks. PackageConditionView is read-only. Runtime acceptance is user-owned; [manual checks](../docs/r08_manual_validation.md).

@@ -29,8 +29,5 @@ func _commit_death(target: Entity, result: DamageResult) -> void:
 		motion.control_enabled = false
 	var interactor: C_Interactor = target.get_component(C_Interactor) as C_Interactor
 	if interactor != null:
-		for system: System in ECS.world.systems:
-			if system is S_InteractionTargeting:
-				(system as S_InteractionTargeting).set_highlight(interactor.target, false)
-		interactor.target = null
+		# The targeting processor clears its own target/highlight on the next disabled-actor tick.
 		interactor.prompt_text = ""

@@ -1,12 +1,13 @@
 # Work Tracker
 
-State: active ? R08. Base ed07f56.
+State: R08 implementation complete; awaiting user runtime acceptance.
 
-- [x] 1: Generic Health and independent lifecycle reactions.
-- [x] 1.1: Single-fire depletion effects and typed hooks.
-- [ ] 2–5: Generic impact, pair dedup, valid throw bonus and source veto (Milestones 2–4 implemented; finish M5).
-- [x] **5.1 GECS gate:** preserve `O_Damage`, refactor `S_Impact` to atomic GECS boundaries; remove System→System calls and `ECS.world.systems` service locator before any M6 work.
-- [ ] 6–9: Package profiles, protection, liquid tilt, intentional opening (M5.1 complete).
-- [ ] 10: Feedback, static review and manual verification instructions.
+- [x] M1-4: shared Health, depletion hooks, impact/pair episodes and throw context; user updates preserved.
+- [x] M5: central source veto through O_Damage and typed request service.
+- [x] M5.1: independent capture/inbox, atomic impact processor and throw lifetime query.
+- [x] M6-9: package profiles, protection, continuous liquid tilt and deliberate opening.
+- [x] M10 code: read-only feedback, existing smoke adapter, static checks/reviews and docs.
+- [ ] User gameplay/runtime acceptance: docs/r08_manual_validation.md.
+- [ ] After acceptance: task_history line, remove R08 task, return trackers to idle.
 
-User owns all runtime/tests; do not launch Godot, GUT or smoke tests. Static structure/formatter/diff checks only. Preserve dirty addons/gecs. Dependencies R02/R04/R05/R06.1 confirmed in task_history.md.
+No Godot/GUT/smoke/physics/visual runs by agent. Preserve dirty addons/gecs. Contract: docs/damage_impact.md.

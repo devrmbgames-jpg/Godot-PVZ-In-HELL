@@ -17,6 +17,8 @@ static func evaluate(
 		return result
 	if not is_finite(normal_speed) or not is_finite(normal_impulse):
 		return result
+	if normal_speed <= 0.0 or normal_impulse <= 0.0:
+		return result
 	if normal_speed < profile.minimum_speed or normal_impulse < profile.minimum_impulse:
 		return result
 
@@ -25,10 +27,19 @@ static func evaluate(
 	result.transferred_energy = minf(kinetic_energy, contact_work)
 	result.amount = maxf(0.0, result.transferred_energy - profile.absorption_joules)
 	result.amount *= maxf(0.0, profile.damage_per_joule)
-	if result.amount > 0.0:
-		result.severity = ImpactResult.Severity.Weak
-	if result.amount >= profile.medium_damage:
-		result.severity = ImpactResult.Severity.Medium
-	if result.amount >= profile.strong_damage:
-		result.severity = ImpactResult.Severity.Strong
+	if not is_finite(result.amount):
+		return ImpactResult.new()
+	result.qualifies = true
+	result.severity = classify(result.amount, profile)
 	return result
+
+
+## Classifies the total potential damage, including an optional valid throw bonus.
+static func classify(amount: float, profile: DEF_ImpactProfile) -> ImpactResult.Severity:
+	if amount <= 0.0:
+		return ImpactResult.Severity.None
+	if amount >= profile.strong_damage:
+		return ImpactResult.Severity.Strong
+	if amount >= profile.medium_damage:
+		return ImpactResult.Severity.Medium
+	return ImpactResult.Severity.Weak

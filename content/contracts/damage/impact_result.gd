@@ -19,3 +19,6 @@ var transferred_energy: float = 0.0
 
 ## True when receiver protection suppressed the physical impact before HP submission.
 var protected: bool = false
+
+## Physical thresholds passed, even if receiver absorption reduces base HP damage to zero.
+var qualifies: bool = false

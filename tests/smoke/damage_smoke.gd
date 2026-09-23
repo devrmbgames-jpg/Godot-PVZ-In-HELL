@@ -1,4 +1,5 @@
 extends Node
+## Existing damage regression, adapted to typed Observer results; run manually when requested.
 
 var _defeat_count: int = 0
 var _last_result: DamageResult = null
@@ -20,6 +21,9 @@ func _run() -> void:
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var package: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
 	var other_package: Entity = level.get_node("Entityes/Parcel_001_02") as Entity
+	var probe: ResultProbe = ResultProbe.new()
+	probe.received = _on_resolved
+	ECS.world.add_observer(probe)
 	var health: C_Health = actor.get_component(C_Health) as C_Health
 	_send(actor, 25.0, DamageRequest.Operation.DAMAGE, package)
 	assert(health.current == 75.0 and _last_result.applied_amount == 25.0)
@@ -47,13 +51,9 @@ func _run() -> void:
 	var request: DamageRequest = DamageRequest.new()
 	request.target = other_package
 	request.amount = 10.0
-	assert(DamageRequestService.submit(request))
 	ECS.world.remove_entity(other_package)
+	assert(not DamageRequestService.submit(request))
 	other_package.free()
-	var previous_results: int = _resolved_count
-	ECS.world.process(1.0 / 60.0, "GamePlay")
-	assert(_resolved_count == previous_results + 1)
-	assert(_last_result.outcome == DamageResult.Outcome.REJECTED)
 	level.free()
 	ECS.world = null
 	print("R04 damage/heal/defeat/package smoke PASS")
@@ -73,3 +73,22 @@ func _send(
 	request.operation = operation
 	assert(DamageRequestService.submit(request))
 	ECS.world.process(1.0 / 60.0, "GamePlay")
+
+
+func _on_resolved(result: DamageResult) -> void:
+	_last_result = result
+	_resolved_count += 1
+	if result.outcome == DamageResult.Outcome.HEALTH_DEPLETED:
+		_defeat_count += 1
+
+
+class ResultProbe extends Observer:
+	var received: Callable
+
+
+	func query() -> QueryBuilder:
+		return q.on_event(DamageResult.EVENT)
+
+
+	func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
+		received.call(payload as DamageResult)

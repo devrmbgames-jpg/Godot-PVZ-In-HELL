@@ -10,6 +10,8 @@ static func publish(
 	actor: Entity = null,
 	cause: DamageResult = null,
 ) -> void:
+	if not EntityAvailability.contains(package, ECS.world):
+		return
 	var identity: C_Package = package.get_component(C_Package) as C_Package
 	var package_lifecycle: PackageLifecycleEvent = PackageLifecycleEvent.new()
 	package_lifecycle.package = package

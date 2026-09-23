@@ -4,7 +4,7 @@ class_name S_LiquidTilt
 
 
 func query() -> QueryBuilder:
-	return q.with_all([C_Package, C_PackageState, C_LiquidTilt]).iterate(
+	return q.enabled().with_all([C_Package, C_PackageState, C_LiquidTilt]).iterate(
 		[C_PackageState, C_LiquidTilt]
 	)
 

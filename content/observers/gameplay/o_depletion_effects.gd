@@ -11,8 +11,10 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
 	if result == null or result.outcome != DamageResult.Outcome.HEALTH_DEPLETED:
 		return
+	if not is_instance_valid(entity):
+		return
 	var effects: C_HealthDepletionEffects = entity.get_component(C_HealthDepletionEffects)
-	if effects.committed:
+	if effects == null or effects.committed:
 		return
 	effects.committed = true
 
@@ -25,7 +27,10 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	cmd.add_custom(_dispatch.bind(entries, health_depletion_effects))
 
 
-func _dispatch(entries: Array[DEF_DepletionSpawn], health_depletion_effects: HealthDepletionEvent) -> void:
+func _dispatch(
+	entries: Array[DEF_DepletionSpawn],
+	health_depletion_effects: HealthDepletionEvent,
+) -> void:
 	if not is_instance_valid(_world):
 		return
 	for entry: DEF_DepletionSpawn in entries:

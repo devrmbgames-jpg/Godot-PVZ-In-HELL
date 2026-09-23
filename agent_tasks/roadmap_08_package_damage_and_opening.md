@@ -1,9 +1,19 @@
 # R08 — Общий Impact Damage, повреждения и вскрытие Package
 
-Status: in progress ? M5.1 architecture gate
+Status: implementation complete; awaiting user runtime acceptance
 Зависимости: R02, R04, R05, R06.1
 Ветка/base: зафиксировать при начале реализации.
 Источники: [ТЗ 04](../docs/roadmap/04_morning_package_receiving.md), [R06.1](../docs/roadmap/06_1_interaction_hands_carry_push.md), [ТЗ 06](../docs/roadmap/06_package_damage_and_hazards.md), [ТЗ 16](../docs/roadmap/16_ui_and_feedback.md).
+
+## Checkpoint 2026-09-24
+
+- M1-4 preserved, including user O_Damage and C_Health.current migration.
+- M5/M5.1 complete: central source veto, typed request path, independent contact capture/inbox and throw lifetime query. S_Damage was not restored.
+- M6-9 implemented in separate commits: receiver profiles, protection, continuous Liquid tilt and explicit F/open.
+- M10 code complete: read-only condition labels, existing damage smoke adapter, static review and manual handoff.
+- Runtime/physics/visual tests were NOT RUN, as explicitly requested by the user. Original checklists below remain acceptance criteria, not claims of test success.
+- [Manual checks](../docs/r08_manual_validation.md); [durable contract](../docs/damage_impact.md).
+- Next: user playtest; after acceptance update task_history.md, remove this task and return trackers to idle.
 
 ## Цель
 

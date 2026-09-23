@@ -8,7 +8,7 @@ func deps() -> Dictionary[int, Array]:
 
 
 func query() -> QueryBuilder:
-	return q.with_all([C_ThrowDamage]).iterate([C_ThrowDamage])
+	return q.enabled().with_all([C_ThrowDamage]).iterate([C_ThrowDamage])
 
 
 func process(_entities: Array[Entity], components: Array, delta: float) -> void:

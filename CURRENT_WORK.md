@@ -1,11 +1,7 @@
 # Current Work
 
-- Active: R08 / M5.1 architecture gate implemented; user base ac76ce3 preserved (O_Damage and Health.current).
-- Damage uses typed World event; no S_Damage. ImpactCaptureSolver writes C_ImpactInbox; S_Impact drains explicit iterate query and owns pairs. Pure formula in ImpactCalculation; ThrowContext is narrow pickup/throw seam, S_ThrowLifetime has its own iterate query.
-- No new cross-System calls/service-locator; unchanged legacy Grab/Cart/Motion beyond narrow callback/throw seams remains R22.5.
-- User owns ALL runtime/tests; static checks only. Dirty addons/gecs preserved.
-- M5.1 committed 84f99be; M6 adds immutable receiver profiles, fragile supply data, living/parcel receiver opt-in and one-shot package condition initialization. Static checks only.
-- M6 committed 9293e81; M7 adds C_ImpactProtection tier, blocks entire qualifying physical impact before HP/throw bonus; stronger impacts and non-impact damage pass normally.
-- M7 committed c4f939f; M8 uses continuous liquid tilt with full upright reset, one-shot leaking/condition events and optional ordinary LIQUID Health damage.
-- M8 committed 4a379fc; M9 adds deliberate F/open via definition, typed request and Observer. Target or carried package, LOS/reach, idempotent state; no HP/recipient restriction.
-- Next: M9 commit, then condition feedback, static audit and user validation checklist (M10).
+- State: R08 implementation complete, awaiting user runtime acceptance. User base ac76ce3 preserved: O_Damage, C_Health.value = max and current = remaining HP.
+- Implemented M5-M10: source veto, atomic impact inbox/capture/query, throw lifetime, profiles/protection, liquid tilt, explicit opening, condition feedback. Contracts/manual checks: docs/damage_impact.md and docs/r08_manual_validation.md.
+- Validation: static structure/formatter/lint/diff and two focused read-only reviews. NO Godot/GUT/smoke/runtime/physics/visual invocation; user explicitly owns testing.
+- Existing damage smoke adapted to Observer results but not run. S_Push unchanged; no broad Grab/Cart/Input refactor. Dirty addons/gecs preserved.
+- Next: receive user playtest results using docs/r08_manual_validation.md; fix issues or close R08/task_history/trackers after acceptance.

@@ -23,11 +23,13 @@
 [ext_resource type="Script" path="res://content/definitions/interaction/def_interaction_action.gd" id="ActionBase"]
 [ext_resource type="Script" path="res://content/definitions/interaction/def_open_package_action.gd" id="OpenAction"]
 
+[ext_resource type="Script" path="res://content/ui/package_condition_view.gd" id="ConditionView"]
+
 [sub_resource type="Resource" id="OpenAction"]
 script = ExtResource("OpenAction")
 action_id = &"open_package"
 slot = 1
-caption = "??????? ???????"
+caption = "Вскрыть посылку"
 
 [sub_resource type="Resource" id="Actions"]
 script = ExtResource("Actions")
@@ -82,3 +84,12 @@ component_resources = Array[ExtResource("4_component")]([SubResource("Package_in
 [node name="Marks" type="MeshInstance3D" parent="." index="2" unique_id=1073720280]
 cast_shadow = 0
 script = ExtResource("MarksView")
+
+[node name="Condition" type="Label3D" parent="." index="3"]
+position = Vector3(0, 0.68, 0)
+billboard = 1
+font_size = 32
+pixel_size = 0.005
+no_depth_test = false
+visible = false
+script = ExtResource("ConditionView")

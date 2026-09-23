@@ -33,7 +33,8 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 		return false
 	for grip: Relationship in package.relationships:
 		if grip.relation is C_HeldBy and grip.target == actor:
-			return ray.global_position.distance_to(body.global_position) <= interactor.interaction_distance
+			var held_distance: float = ray.global_position.distance_to(body.global_position)
+			return held_distance <= interactor.interaction_distance
 
 	if interactor.target != package:
 		return false
@@ -45,7 +46,8 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 		collider = collider.get_parent()
 	if collider != package:
 		return false
-	return ray.global_position.distance_to(ray.get_collision_point()) <= interactor.interaction_distance
+	var hit_distance: float = ray.global_position.distance_to(ray.get_collision_point())
+	return hit_distance <= interactor.interaction_distance
 
 
 ## Revalidates at submission; the observer revalidates again before committing.

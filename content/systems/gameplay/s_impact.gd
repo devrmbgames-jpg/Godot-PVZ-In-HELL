@@ -25,7 +25,7 @@ func setup() -> void:
 
 func query() -> QueryBuilder:
 	process_empty = true
-	return q.with_all([C_ImpactInbox]).iterate([C_ImpactInbox])
+	return q.enabled().with_all([C_ImpactInbox]).iterate([C_ImpactInbox])
 
 
 func process(_entities: Array[Entity], components: Array, _delta: float) -> void:
@@ -130,14 +130,7 @@ func _resolve_direction(
 	)
 	result.source = source
 	result.target = target
-	if result.amount <= 0.0:
-		return
-
-	var protection: C_ImpactProtection = target.get_component(C_ImpactProtection)
-	if protection != null and result.severity <= protection.tier:
-		result.protected = true
-		result.amount = 0.0
-		_world.emit_event(ImpactResult.EVENT, target, result)
+	if not result.qualifies:
 		return
 
 	var request: DamageRequest = DamageRequest.new()
@@ -149,8 +142,20 @@ func _resolve_direction(
 	if context != null and context.remaining_seconds > 0.0:
 		if contact.tick > context.armed_tick and _held_relationship(source) == null:
 			request.instigator = context.instigator
-			result.amount += maxf(0.0, context.throw_damage)
+			if is_finite(context.throw_damage):
+				result.amount += maxf(0.0, context.throw_damage)
 			ThrowContext.cancel(source)
+	result.severity = ImpactCalculation.classify(result.amount, receiver.profile)
+	if result.amount <= 0.0:
+		return
+
+	var protection: C_ImpactProtection = target.get_component(C_ImpactProtection)
+	if protection != null and result.severity <= protection.tier:
+		result.protected = true
+		result.amount = 0.0
+		_world.emit_event(ImpactResult.EVENT, target, result)
+		return
+
 	request.amount = result.amount
 	request.damage_type = DamageRequest.Type.IMPACT
 	DamageRequestService.submit(request)
