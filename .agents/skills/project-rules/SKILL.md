@@ -49,6 +49,11 @@ Validation cadence is intentionally batched:
 - do **not** run GUT, headless smoke, or broad runtime suites after every milestone;
 - run the relevant GUT + headless smoke/runtime regression surface once near the end of the complete `Rxx` / `Rxx.x` task before marking it complete;
 - early targeted runtime/test execution is allowed only on explicit user request or for a concrete blocking bug that cannot be validated statically.
+- per complete `Rxx` / `Rxx.x` task, default to at most one GUT invocation and one headless smoke/runtime invocation total; an early blocking invocation consumes that budget;
+- additional runtime reruns require explicit user approval;
+- automated physics scenarios must verify a critical deterministic contract, not gameplay feel/tuning that the user checks manually;
+- do not create/expand ramp, step, uneven-terrain, vehicle-feel, camera-feel, or animation-feel smoke coverage unless the user explicitly requests it;
+- never send full runtime logs back into context; filter to the smallest relevant failure/PASS evidence.
 
 Rendered/visual Godot validation is **opt-in only**:
 - do not launch a rendered game/editor for validation;
