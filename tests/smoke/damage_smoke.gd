@@ -21,7 +21,7 @@ func _run() -> void:
 	var package: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
 	var other_package: Entity = level.get_node("Entityes/Parcel_001_02") as Entity
 	var system: S_Damage = level.get_node("World/Systems/GamePlay/S_Damage") as S_Damage
-	system.defeated.connect(_on_defeated)
+	system.health_depleted.connect(_on_defeated)
 	system.damage_resolved.connect(_on_resolved)
 	var health: C_Health = actor.get_component(C_Health) as C_Health
 	_send(actor, 25.0, DamageRequest.Operation.DAMAGE, package)
@@ -34,19 +34,19 @@ func _run() -> void:
 	var package_state: C_PackageState = package.get_component(C_PackageState) as C_PackageState
 	assert(package_state.damage == C_PackageState.Damage.DAMAGED)
 	_send(package, 50.0, DamageRequest.Operation.HEAL)
-	assert(_last_result.outcome == DamageResult.Outcome.REJECTED)
+	assert(_last_result.outcome == DamageResult.Outcome.APPLIED)
 	_send(package, 200.0)
 	assert(package_state.damage == C_PackageState.Damage.DESTROYED)
-	assert(_last_result.outcome == DamageResult.Outcome.PACKAGE_DESTROYED)
+	assert(_last_result.outcome == DamageResult.Outcome.HEALTH_DEPLETED)
 	package.add_relationship(Relationship.new(C_HeldBy.new(), actor))
 	assert(S_Grab.held_object(actor) == package)
 	_send(actor, 1000.0)
-	assert(health.value == 0.0 and health.defeated and _defeat_count == 1)
+	assert(health.value == 0.0 and health.depleted and _defeat_count == 2)
 	assert(S_Grab.held_object(actor) == null)
 	assert(not (actor.get_component(C_Motion) as C_Motion).control_enabled)
 	_send(actor, 10.0)
 	_send(actor, 100.0, DamageRequest.Operation.HEAL)
-	assert(health.value == 0.0 and _defeat_count == 1)
+	assert(health.value == 0.0 and _defeat_count == 2)
 	var request: DamageRequest = DamageRequest.new()
 	request.target = other_package
 	request.amount = 10.0

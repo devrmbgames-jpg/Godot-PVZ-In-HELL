@@ -1,6 +1,7 @@
-﻿# Current Work
+# Current Work
 
-- State: idle. Cart transport correction completed; S_Push unchanged.
-- Delivered: dedicated grounded forward/reverse transport and settled cargo assistance; contract in docs/cart_transport.md.
-- Validation: 61 Grab/Push + 6 Jump GUT tests and cart_transport, interaction_actions, character_contact headless smokes PASS; structure/formatter/lint/diff checks PASS. Main-scene test excluded for unrelated authored door Jolt error. Visual/game-feel validation not run; user-owned.
-- Existing dirty addons/gecs preserved. No next implementation step.
+- Active: R08 / Milestone 1 ? Generic Health unification; base ed07f56.
+- Contract: one C_Health arithmetic path, generic DamageResult event, domain observers for package and living reactions. Keep physics authority and S_Push unchanged.
+- User owns ALL runtime/tests; static checks only. Existing dirty addons/gecs untouched.
+- Milestone 1 implemented: C_Health migration, DamageResult.EVENT and separate living/package observers. Static checks before commit; no runtime/tests run.
+- Next: Milestone 1.1 typed package hook and generic single-fire depletion effects.

@@ -1,14 +1,17 @@
 extends RefCounted
+## Committed Health change, retaining its request and attribution for downstream lifecycle.
 class_name DamageResult
+
+## World event carrying this typed result.
+const EVENT: StringName = &"health_damage_resolved"
 
 enum Outcome {
 	REJECTED,
 	APPLIED,
-	DEFEATED,
-	PACKAGE_DAMAGED,
-	PACKAGE_DESTROYED,
+	HEALTH_DEPLETED,
 }
 
+## Submitted snapshot, values and actual applied amount.
 var request: DamageRequest = null
 var outcome: Outcome = Outcome.REJECTED
 var previous_value: float = 0.0

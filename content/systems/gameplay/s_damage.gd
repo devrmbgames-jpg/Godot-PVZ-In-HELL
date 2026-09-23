@@ -1,8 +1,11 @@
 extends System
+## Sole queued Health arithmetic authority; publishes typed results for domain reactions.
 class_name S_Damage
 
+## Every processed request, including rejection.
 signal damage_resolved(result: DamageResult)
-signal defeated(target: Entity, result: DamageResult)
+## Published once when positive Health crosses zero.
+signal health_depleted(target: Entity, result: DamageResult)
 
 var _pending: Array[DamageRequest] = []
 
@@ -41,6 +44,7 @@ static func submit(request: DamageRequest) -> bool:
 	return false
 
 
+## Copies producer data so queued requests cannot be edited after submission.
 func enqueue(request: DamageRequest) -> void:
 	if request == null:
 		return
@@ -66,14 +70,17 @@ func _resolve(request: DamageRequest) -> void:
 		var health: C_Health = request.target.get_component(C_Health) as C_Health
 		if health != null:
 			_resolve_health(request, health, result)
-		else:
-			_resolve_package(request, result)
+
+	if result.outcome != DamageResult.Outcome.REJECTED:
+		ECS.world.emit_event(DamageResult.EVENT, request.target, result)
 	damage_resolved.emit(result)
+	if result.outcome == DamageResult.Outcome.HEALTH_DEPLETED:
+		health_depleted.emit(request.target, result)
 
 
 func _resolve_health(request: DamageRequest, health: C_Health, result: DamageResult) -> void:
 	if (
-		health.defeated or not is_finite(health.base)
+		health.depleted or health.value <= 0.0 or not is_finite(health.base)
 		or not is_finite(health.value) or health.base <= 0.0
 	):
 		return
@@ -83,56 +90,12 @@ func _resolve_health(request: DamageRequest, health: C_Health, result: DamageRes
 	)
 	result.current_value = clampf(result.previous_value + signed_amount, 0.0, health.base)
 	result.applied_amount = absf(result.current_value - result.previous_value)
-	var becomes_defeated: bool = result.current_value <= 0.0
-	if becomes_defeated:
-		health.defeated = true
+	var becomes_depleted: bool = result.previous_value > 0.0 and result.current_value <= 0.0
+	if becomes_depleted:
+		health.depleted = true
 	health.value = result.current_value
 	result.outcome = DamageResult.Outcome.APPLIED
-	if becomes_defeated:
-		result.outcome = DamageResult.Outcome.DEFEATED
-		_cleanup_defeat(request.target)
-		defeated.emit(request.target, result)
+	if becomes_depleted:
+		result.outcome = DamageResult.Outcome.HEALTH_DEPLETED
 
-
-func _resolve_package(request: DamageRequest, result: DamageResult) -> void:
-	if request.operation != DamageRequest.Operation.DAMAGE:
-		return
-	var integrity: C_PackageIntegrity = request.target.get_component(C_PackageIntegrity)
-	var package_state: C_PackageState = request.target.get_component(C_PackageState)
-	if integrity == null or package_state == null or integrity.maximum <= 0.0:
-		return
-	if not is_finite(integrity.maximum) or not is_finite(integrity.remaining):
-		return
-	if package_state.damage == C_PackageState.Damage.DESTROYED:
-		return
-	result.previous_value = clampf(integrity.remaining, 0.0, integrity.maximum)
-	integrity.remaining = maxf(0.0, result.previous_value - request.amount)
-	result.current_value = integrity.remaining
-	result.applied_amount = result.previous_value - result.current_value
-	package_state.damage = (
-		C_PackageState.Damage.DESTROYED
-		if integrity.remaining <= 0.0
-		else C_PackageState.Damage.DAMAGED
-	)
-	result.outcome = (
-		DamageResult.Outcome.PACKAGE_DESTROYED
-		if integrity.remaining <= 0.0
-		else DamageResult.Outcome.PACKAGE_DAMAGED
-	)
-	if integrity.remaining <= 0.0:
-		S_Marker.clear_marks(request.target)
-
-
-func _cleanup_defeat(target: Entity) -> void:
-	S_Grab.entity_unavailable(target)
-	var motion: C_Motion = target.get_component(C_Motion) as C_Motion
-	if motion != null:
-		motion.control_enabled = false
-	var interactor: C_Interactor = target.get_component(C_Interactor) as C_Interactor
-	if interactor != null:
-		for system: System in ECS.world.systems:
-			if system is S_InteractionTargeting:
-				(system as S_InteractionTargeting).set_highlight(interactor.target, false)
-		interactor.target = null
-		interactor.prompt_text = ""
 #endregion

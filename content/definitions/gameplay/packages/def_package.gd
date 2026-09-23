@@ -10,7 +10,6 @@ enum Hazard {
 	EXPLOSIVE,
 }
 
-
 enum Tag {
 	NORMAL = 1,
 	FRAGILE = 2,
@@ -29,4 +28,4 @@ enum Tag {
 @export_range(0.0, 1.0) var carry_speed: float = 1.0
 @export_range(0.0, 1.0) var carry_acceleration: float = 1.0
 @export var throw_velocity: float = 10.0
-@export var maximum_integrity: float = 100.0
+@export var maximum_health: float = 100.0

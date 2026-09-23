@@ -51,7 +51,7 @@ Interaction scheduling is targeting -> Push validation -> Grab/resolver, within 
 
 ## Package foundation (R01)
 
-`entities/packages/package.tscn` inherits the physical box and uses `E_Package`; receiving instantiates this scene with data-defined masses and grab profiles. `define_components()` only creates spawn-specific C_Package identity. C_PackageState and C_PackageIntegrity are scene-authored; receiving clones individual grab tuning without replacing those components.
+`entities/packages/package.tscn` inherits the physical box and uses `E_Package`; receiving instantiates this scene with data-defined masses and grab profiles. `define_components()` only creates spawn-specific C_Package identity. C_PackageState and C_Health are scene-authored; receiving clones individual grab tuning without replacing those components.
 
 `DEF_Package` is immutable shared shipment data: number, description, comment, recipient key and bitmask tags (Normal=1, Fragile=2, Heavy=4, Liquid=8). Heavy+Fragile is valid. Runtime registration, scan, opening and damage enums live only in `C_PackageState`; defaults are Unregistered/NotScanned/Closed/Undamaged.
 
@@ -83,13 +83,14 @@ HUD phase panel stays visible even with released cursor; phase_changed drives 4-
 
 ## Damage/health (R04)
 
-S_Damage is the sole gameplay damage/heal writer. C_Health.base means maximum HP; C_Health.value means current HP; defeated is terminal until a future explicit respawn/reset. C_AttributeChanged is not used for health; do not create a second current-health field.
+S_Damage is the sole gameplay damage/heal writer. C_Health.base means maximum HP; C_Health.value means current HP; depleted is terminal until a future explicit respawn/reset. C_AttributeChanged is not used for health; do not create a second current-health field.
 
 Submit a typed DamageRequest with target, optional source, amount, operation (DAMAGE/HEAL) and damage_type (GENERIC/MELEE/IMPACT/EXPLOSION/TOXIC). S_Damage.submit queues an immutable snapshot into the active World's S_Damage; command-buffer resolution runs in GamePlay before day phase changes. Nonfinite/nonpositive requests and invalid/removed targets are rejected. Producers submit one request per intended event; reusing an event every frame intentionally repeats damage.
 
-Every processed request emits damage_resolved(DamageResult), including rejection. The result carries the request, before/after values, applied amount and outcome. Lethal damage marks defeated before notifications, releases held relationships, disables motion control and clears targeting/highlights without UI participation. defeated(target, result) fires once; later damage/heal requests cannot revive the target.
+Every processed request emits damage_resolved(DamageResult), including rejection. Applied results are also typed World events under DamageResult.EVENT. Positive Health crossing zero commits HEALTH_DEPLETED once before notifications. O_HealthLifecycle handles only C_Living: C_Death, grip release and control/target cleanup. O_PackageDamage handles package condition independently and keeps destroyed physical entities alive. Healing restores non-depleted HP but does not undo package condition; depletion remains terminal.
 
-Packages use C_PackageIntegrity (maximum/remaining), never actor health. The same pipeline adapts damage into C_PackageState.DAMAGED/DESTROYED and package outcomes; healing does not repair packages. R08/R09 will add physical damage thresholds and hazards. Customer actors will reuse C_Health and the same pipeline. Standalone validation: tests/smoke/damage_smoke.tscn.
+Packages and actors use the same C_Health arithmetic. Package definitions initialize maximum_health; there is no second integrity authority. Standalone damage_smoke was adapted to the shared contract; R08 runtime validation is user-owned.
+
 
 ## Morning supply (R05)
 

@@ -21,7 +21,7 @@ mass_kg = 30.0
 carry_speed = 0.75
 carry_acceleration = 0.75
 throw_velocity = 6.0
-maximum_integrity = 60.0
+maximum_health = 60.0
 key = &"bottles"
 
 [sub_resource type="Resource" id="Equipment"]
@@ -43,7 +43,7 @@ comment = "Осторожно, стекло"
 recipient_id = &"customer_04"
 tags = 2
 mass_kg = 3.0
-maximum_integrity = 40.0
+maximum_health = 40.0
 key = &"glass"
 
 [sub_resource type="Resource" id="Oil"]
@@ -62,7 +62,7 @@ recipient_id = &"customer_06"
 tags = 2
 hazard = 2
 mass_kg = 6.0
-maximum_integrity = 50.0
+maximum_health = 50.0
 key = &"power_cells"
 
 [sub_resource type="Resource" id="Clothes"]

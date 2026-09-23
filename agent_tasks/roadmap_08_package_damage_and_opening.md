@@ -1,6 +1,6 @@
 # R08 — Общий Impact Damage, повреждения и вскрытие Package
 
-Status: planned
+Status: in progress ? Milestone 1
 Зависимости: R02, R04, R05, R06.1
 Ветка/base: зафиксировать при начале реализации.
 Источники: [ТЗ 04](../docs/roadmap/04_morning_package_receiving.md), [R06.1](../docs/roadmap/06_1_interaction_hands_carry_push.md), [ТЗ 06](../docs/roadmap/06_package_damage_and_hazards.md), [ТЗ 16](../docs/roadmap/16_ui_and_feedback.md).

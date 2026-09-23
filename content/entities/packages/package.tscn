@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="5_interactable"]
 [ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="6_grabbable"]
 [ext_resource type="Script" uid="uid://cg5pggkojxvba" path="res://content/components/gameplay/c_package_state.gd" id="7_state"]
-[ext_resource type="Script" uid="uid://cl61pawe4uoch" path="res://content/components/gameplay/c_package_integrity.gd" id="8_integrity"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_health.gd" id="8_integrity"]
 [ext_resource type="Script" uid="uid://j2ak34c5rfig" path="res://content/components/gameplay/c_package_marks.gd" id="Marks"]
 [ext_resource type="Script" uid="uid://dtug3ioxot1tv" path="res://content/ui/package_marks_view.gd" id="MarksView"]
 
