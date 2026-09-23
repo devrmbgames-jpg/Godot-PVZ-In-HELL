@@ -406,25 +406,21 @@ Terminal показывает содержание и стоимость, поэ
 
 ## Hazards MVP
 
-### ToxicLeak
+ToxicLeak и Explosion реализуются в R09 как **самостоятельные generic GECS Entity**, не как компоненты логики посылок. Протекшая Package, взрывная бочка и токсичный Customer становятся инициаторами через единый typed `HazardSpawnRequest`. Каждая исходная gameplay-система (например, `O_PackageHazard`) лишь переводит своё domain event в generic запрос: она не считает hazard damage и не управляет физикой эффекта.
 
-При разрушении подходящей Package создается опасная зона жидкости.
+Одна созданная зона/взрыв имеет собственные authored definition, world transform, source/instigator attribution, one-shot/tick guard, lifetime, cleanup и optional persistence policy. Источник может быть удалён после спавна без непредусмотренного удаления эффекта. Для токсичного Customer возможна отдельная настройка follow/attach к живому владельцу. Source-side `C_NoDamage` исходного emitter нельзя обходить переносом damage на отдельную Entity эффекта.
 
-Она может:
+### ToxicArea (ToxicLeak)
 
-- наносить periodic damage через общий `DamageRequest`;
-- воздействовать на любой Entity с `C_Health`, если правила hazard допускают target;
-- оставаться физическим препятствием/опасностью некоторое время.
+При `Leaking` либо другом data-defined trigger возникает самостоятельная мировая Entity с областью периодического урона. Она может наносить `DamageRequest.Type.TOXIC` любому разрешённому `C_Health` recipient (Player/Customer), независимо от Package; интервал и ограниченное время жизни являются её собственным состоянием. Вариант actor-attached aura использует ту же Entity/System, но отдельную owner-follow политику. Повторный `Leaking → Destroyed` не порождает второй одноразовый hazard одной Package.
 
 ### Explosion
 
-При критическом damage подходящей Package:
+При `Destroyed` либо другом data-defined trigger создаётся отдельная короткоживущая Explosion Entity. Она выполняет ровно одну radial resolution: `DamageRequest.Type.EXPLOSION` идёт через общий Damage service; физический impulse применяется через Godot/Jolt независимо от `C_Health`. Radius, falloff и LOS/obstacle policy задаются её definition, а не классом Package. Цепные взрывы должны оставаться возможными через обычные typed lifecycle события и одноразовую активацию каждого отдельного emitter.
 
-- происходит взрыв;
-- radial damage идёт через общий `DamageRequest`;
-- физические тела получают impulse независимо от наличия `C_Health`.
+Package-specific адаптер R09 подписывается на существующий `PackageLifecycleEvent`; конкретные triggers, hazards и authored настройки выбираются данными. Сам generic hazard spawn разрешён без Package. Это обеспечивает будущие exploding barrels и toxic customers без новой реализации Area/Explosion gameplay.
 
-Hazard implementation принадлежит R09.
+Hazard implementation принадлежит R09; сложная химия, новые Barrel/Customer механики и финальные VFX не требуются для его завершения.
 
 ---
 
