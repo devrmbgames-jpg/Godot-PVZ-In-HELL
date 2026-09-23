@@ -56,7 +56,6 @@ remote_path = NodePath("../../ColInteract")
 transform = Transform3D(-4.371139e-08, 1, 4.371139e-08, 0, -4.371139e-08, 1, 1, 4.371139e-08, 1.9106855e-15, 0, 2.816675, 0)
 node_a = NodePath("..")
 node_b = NodePath("../RigidBody3D")
-params/bias = 0.99
 angular_limit/enable = true
 
 [node name="ColInteract" type="CollisionShape3D" parent="." unique_id=1810402224]
