@@ -93,7 +93,7 @@ static func try_pickup(
 		slot_index = pickup_slot(holder, target, false)
 	if not can_pickup(holder, target, slot_index, replace):
 		return false
-	S_Impact.cancel_throw(target)
+	ThrowContext.cancel(target)
 	S_CartCargo.release(target)
 	var config: C_Grabbable = target.get_component(C_Grabbable) as C_Grabbable
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
@@ -154,7 +154,7 @@ static func throw(holder: Entity, held: Entity) -> void:
 	body.sleeping = false
 	body.apply_central_impulse(impulse)
 	if not impulse.is_zero_approx():
-		S_Impact.arm_throw(held, holder)
+		ThrowContext.arm(held, holder)
 
 
 ## Drives a held body toward its relation-selected anchor on the physics step.

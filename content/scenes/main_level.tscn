@@ -71,6 +71,8 @@
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Sleep_interactable"]
 [ext_resource type="PackedScene" path="res://content/entities/stations/terminal.tscn" id="Terminal_scene"]
 
+[ext_resource type="Script" path="res://content/systems/gameplay/s_throw_lifetime.gd" id="ThrowLifetime"]
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
 size = Vector3(32.071198, 0.50476074, 40.240265)
 
@@ -230,6 +232,10 @@ script = ExtResource("PackageDamage")
 
 [node name="O_DepletionEffects" type="Node" parent="World/Systems/GamePlay" unique_id=577150]
 script = ExtResource("DepletionEffects")
+
+[node name="S_ThrowLifetime" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("ThrowLifetime")
+group = &"GamePlay"
 
 [node name="S_Impact" type="Node" parent="World/Systems/GamePlay" unique_id=1737982216]
 script = ExtResource("ImpactSystem")

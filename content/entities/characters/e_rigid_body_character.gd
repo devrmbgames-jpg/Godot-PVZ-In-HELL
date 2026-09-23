@@ -21,7 +21,6 @@ class_name E_RigidBodyCharacter
 @export var head_axis_x: Node3D
 
 
-
 func _init() -> void:
 	if Engine.is_editor_hint():
 		set_physics_process(false)
@@ -31,7 +30,7 @@ func _init() -> void:
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
-	S_Impact.capture(self, state)
+	ImpactCaptureSolver.capture(self, state)
 	S_Motion.integrate_forces(self, state)
 	S_Look.integrate_forces(self, state)
 	#S_Crouch.integrate_forces(self, state)

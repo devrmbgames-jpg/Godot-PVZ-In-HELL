@@ -18,12 +18,12 @@ func _resolve(request: DamageRequest) -> void:
 	var result: DamageResult = DamageResult.new()
 	result.request = request
 	if EntityAvailability.contains(request.target, _world):
-		var health: C_Health = request.target.get_component(C_Health) as C_Health
-		if health != null:
-			_apply(request, health, result)
 		var spatial: Node3D = request.target as Node as Node3D
 		if spatial != null:
 			result.world_pose = spatial.global_transform
+		var health: C_Health = request.target.get_component(C_Health) as C_Health
+		if health != null:
+			_apply(request, health, result)
 
 	# Broadcast rejection if the target disappeared after the request was captured.
 	var target: Entity = request.target if is_instance_valid(request.target) else null

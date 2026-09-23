@@ -5,7 +5,7 @@ class_name E_GrabbableBody
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
-	S_Impact.capture(self, state)
+	ImpactCaptureSolver.capture(self, state)
 	if S_CartCargo.integrate(self, state):
 		return
 	S_Grab.integrate_forces(self, state)

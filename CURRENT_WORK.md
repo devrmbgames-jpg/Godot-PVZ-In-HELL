@@ -1,6 +1,7 @@
 # Current Work
 
-- Active: R08 / M5 complete, M5.1 next. User base ac76ce3 includes completed throw changes, C_NoDamage, O_Damage and new C_Health.current semantics.
-- Preserved user Observer damage architecture: value = computed max HP, current = remaining HP. Common service snapshots requests; O_Damage owns arithmetic and source veto. No S_Damage restoration.
+- Active: R08 / M5.1 architecture gate implemented; user base ac76ce3 preserved (O_Damage and Health.current).
+- Damage uses typed World event; no S_Damage. ImpactCaptureSolver writes C_ImpactInbox; S_Impact drains explicit iterate query and owns pairs. Pure formula in ImpactCalculation; ThrowContext is narrow pickup/throw seam, S_ThrowLifetime has its own iterate query.
+- No new cross-System calls/service-locator; unchanged legacy Grab/Cart/Motion beyond narrow callback/throw seams remains R22.5.
 - User owns ALL runtime/tests; static checks only. Dirty addons/gecs preserved.
-- Next: M5.1 gate: extract ImpactCaptureSolver + typed event inbox, narrow S_ThrowLifetime iterate query, neutral relationship helpers; no Grab/Cart/Push refactor.
+- Next: static architecture review then M5.1 commit; only then package receiver profiles (M6).
