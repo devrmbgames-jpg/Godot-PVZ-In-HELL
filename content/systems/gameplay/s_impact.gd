@@ -133,6 +133,13 @@ func _resolve_direction(
 	if result.amount <= 0.0:
 		return
 
+	var protection: C_ImpactProtection = target.get_component(C_ImpactProtection)
+	if protection != null and result.severity <= protection.tier:
+		result.protected = true
+		result.amount = 0.0
+		_world.emit_event(ImpactResult.EVENT, target, result)
+		return
+
 	var request: DamageRequest = DamageRequest.new()
 	request.source = source
 	request.target = target

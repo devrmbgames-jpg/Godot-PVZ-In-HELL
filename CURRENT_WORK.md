@@ -5,4 +5,5 @@
 - No new cross-System calls/service-locator; unchanged legacy Grab/Cart/Motion beyond narrow callback/throw seams remains R22.5.
 - User owns ALL runtime/tests; static checks only. Dirty addons/gecs preserved.
 - M5.1 committed 84f99be; M6 adds immutable receiver profiles, fragile supply data, living/parcel receiver opt-in and one-shot package condition initialization. Static checks only.
-- Next: M6 commit, then receiver-side protection tiers (M7).
+- M6 committed 9293e81; M7 adds C_ImpactProtection tier, blocks entire qualifying physical impact before HP/throw bonus; stronger impacts and non-impact damage pass normally.
+- Next: M7 commit, then continuous liquid-tilt condition (M8).

@@ -16,3 +16,6 @@ var target: Entity = null
 var severity: Severity = Severity.None
 var amount: float = 0.0
 var transferred_energy: float = 0.0
+
+## True when receiver protection suppressed the physical impact before HP submission.
+var protected: bool = false
