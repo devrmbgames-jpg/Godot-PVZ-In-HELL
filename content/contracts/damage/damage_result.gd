@@ -7,6 +7,7 @@ const EVENT: StringName = &"health_damage_resolved"
 
 enum Outcome {
 	REJECTED,
+	BLOCKED,
 	APPLIED,
 	HEALTH_DEPLETED,
 }
@@ -14,6 +15,7 @@ enum Outcome {
 ## Submitted snapshot, values and actual applied amount.
 var request: DamageRequest = null
 var outcome: Outcome = Outcome.REJECTED
+
 var previous_value: float = 0.0
 var current_value: float = 0.0
 var applied_amount: float = 0.0

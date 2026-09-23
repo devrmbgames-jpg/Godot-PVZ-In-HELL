@@ -2,6 +2,9 @@ extends RefCounted
 ## Typed queued damage/heal intent with separate damaging source and actor attribution.
 class_name DamageRequest
 
+const EVENT := &"damage_requested"
+
+
 enum Operation {
 	DAMAGE,
 	HEAL,

@@ -1,5 +1,5 @@
 @tool
-extends C_Attribute
+extends C_AttributeChanged
 ## Shared HP authority for living actors, packages and destructible props.
 class_name C_Health
 
@@ -10,3 +10,15 @@ class_name C_Health
 
 func _init_definition() -> void:
 	definition = preload("res://content/definitions/gameplay/attributes/def_attr_health.tres")
+
+
+# обертки во круг API
+
+func get_hp_max() -> float :
+	return value
+
+func get_hp_current() -> float :
+	return current
+
+func set_hp_current(val: float) -> void :
+	current = val

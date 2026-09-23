@@ -54,6 +54,7 @@ metadata/_custom_type_script = "uid://c772oxgdtatqf"
 
 [sub_resource type="Resource" id="Resource_2vn7f"]
 script = ExtResource("11_fy2jt")
+current = null
 definition = ExtResource("10_5dcb1")
 metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 
