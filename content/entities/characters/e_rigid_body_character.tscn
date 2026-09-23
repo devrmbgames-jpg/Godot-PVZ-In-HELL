@@ -19,6 +19,9 @@
 [ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/components/gameplay/c_living.gd" id="Living"]
 [ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
 
+[ext_resource type="Script" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/impact_living.tres" id="LivingImpact"]
+
 [sub_resource type="PhysicsMaterial" id="CharacterMaterial"]
 friction = 0.0
 
@@ -88,6 +91,11 @@ radius = 0.18896484
 height = 0.7059326
 radius = 0.18798828
 
+[sub_resource type="Resource" id="ImpactReceiver"]
+resource_local_to_scene = true
+script = ExtResource("ImpactReceiver")
+profile = ExtResource("LivingImpact")
+
 [node name="E_RigidBodyCharacter" type="RigidBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "lowered_right_hand_slot", "lowered_left_hand_slot", "shape_standing", "shape_crouching", "camera_root", "ray_standing", "head_axis_y", "head_axis_x")]
 collision_layer = 4
 collision_mask = 13
@@ -113,7 +121,7 @@ camera_root = NodePath("HeadY/HeadX/HeadRoot")
 ray_standing = NodePath("RayCanStand")
 head_axis_y = NodePath("HeadY")
 head_axis_x = NodePath("HeadY/HeadX")
-component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Push_control"), SubResource("Living"), SubResource("Resource_a6ap4")])
+component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Push_control"), SubResource("Living"), SubResource("Resource_a6ap4"), SubResource("ImpactReceiver")])
 
 [node name="RayCanStand" type="RayCast3D" parent="." unique_id=724995723]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7507784, 0.010172695)

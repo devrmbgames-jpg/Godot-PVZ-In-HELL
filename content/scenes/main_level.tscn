@@ -73,6 +73,11 @@
 
 [ext_resource type="Script" path="res://content/systems/gameplay/s_throw_lifetime.gd" id="ThrowLifetime"]
 
+[ext_resource type="Script" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/impact_living.tres" id="LivingImpact"]
+
+[ext_resource type="Script" path="res://content/observers/gameplay/o_package_condition_setup.gd" id="PackageConditionSetup"]
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
 size = Vector3(32.071198, 0.50476074, 40.240265)
 
@@ -201,6 +206,11 @@ caption = "Взяться за ручку"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("PushAction")])
 
+[sub_resource type="Resource" id="ImpactReceiver"]
+resource_local_to_scene = true
+script = ExtResource("ImpactReceiver")
+profile = ExtResource("LivingImpact")
+
 [node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world")]
 script = ExtResource("1_ixiin")
 world = NodePath("World")
@@ -219,6 +229,9 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_Receiving" type="Node" parent="World/Systems/GamePlay" unique_id=160792962]
 script = ExtResource("Receiving_system")
+
+[node name="PackageConditionSetup" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("PackageConditionSetup")
 
 [node name="O_Damage" type="Node" parent="World/Systems/GamePlay" unique_id=1820599322]
 script = ExtResource("5_ad8bv")
@@ -827,7 +840,7 @@ transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, 6.44
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
 collision_layer = 16
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_ceby8"), SubResource("Grab_carry_load"), SubResource("Push_control"), SubResource("Living")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_ceby8"), SubResource("Grab_carry_load"), SubResource("Push_control"), SubResource("Living"), SubResource("ImpactReceiver")])
 
 [node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1703744943, 217031396, 2065414162) index="0" unique_id=1494109615]
 cast_shadow = 3

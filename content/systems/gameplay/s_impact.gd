@@ -114,6 +114,8 @@ func _resolve_direction(
 	if _held_pair(source, target) or _held_pair(target, source):
 		return
 	var receiver: C_ImpactReceiver = target.get_component(C_ImpactReceiver) as C_ImpactReceiver
+	if receiver == null:
+		return
 	var source_rigid: RigidBody3D = source_body as RigidBody3D
 	var target_rigid: RigidBody3D = target_body as RigidBody3D
 	var source_mass: float = source_rigid.mass if source_rigid != null else 0.0
@@ -124,7 +126,7 @@ func _resolve_direction(
 		source_mass,
 		contact.normal_speed,
 		contact.normal_impulse,
-		receiver,
+		receiver.profile,
 	)
 	result.source = source
 	result.target = target

@@ -1,5 +1,6 @@
 @tool
 extends GameDefinition
+## Immutable shipment, physical handling and condition configuration.
 class_name DEF_Package
 
 ## TODO перенести типы в отдельные definitions, как это сделано с аттрибутом.
@@ -29,3 +30,8 @@ enum Tag {
 @export_range(0.0, 1.0) var carry_acceleration: float = 1.0
 @export var throw_velocity: float = 10.0
 @export var maximum_health: float = 100.0
+
+## Generic impact profile, independent of descriptive tags and package lifecycle state.
+@export var impact_profile: DEF_ImpactProfile = preload(
+	"res://content/definitions/gameplay/impact_default.tres"
+)

@@ -1,4 +1,5 @@
 extends Component
+## Stable shipment identity and initialization state, independent of physical condition.
 class_name C_Package
 
 ## Persistent identity, unrelated to Node paths or engine instance IDs.
@@ -7,3 +8,6 @@ class_name C_Package
 @export var definition: DEF_Package = null
 @export var delivery_day: int = 0
 @export var supply_key: StringName = &""
+
+## Runtime initialization guard; save loaders set this before restoring Health.
+var condition_initialized: bool = false

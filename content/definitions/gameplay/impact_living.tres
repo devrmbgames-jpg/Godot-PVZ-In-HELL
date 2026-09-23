@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_ImpactProfile" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/def_impact_profile.gd" id="Profile"]
+
+[resource]
+script = ExtResource("Profile")
+minimum_speed = 5.0
+minimum_impulse = 3.0
+damage_per_joule = 0.1
+absorption_joules = 150.0

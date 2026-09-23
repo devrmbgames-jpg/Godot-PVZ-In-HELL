@@ -97,10 +97,6 @@ func _deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index: int)
 		var identity: C_Package = parcel.get_component(C_Package) as C_Package
 		identity.delivery_day = active_batch.day_index
 		identity.supply_key = zone.supply.key
-		var health: C_Health = parcel.get_component(C_Health) as C_Health
-		health.base = definition.maximum_health
-		health.value = definition.maximum_health
-		health.current = definition.maximum_health
 		_advance(receiving, active_batch)
 		return
 	parcel.free()

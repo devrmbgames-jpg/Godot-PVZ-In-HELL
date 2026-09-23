@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/definitions/gameplay/packages/def_package.gd" id="1_45rg7"]
 [ext_resource type="Script" uid="uid://ccyyq1ami2lgi" path="res://content/definitions/gameplay/deliveries/def_delivery.gd" id="2_pfwa7"]
 
+[ext_resource type="Resource" path="res://content/definitions/gameplay/impact_fragile.tres" id="FragileImpact"]
+
 [sub_resource type="Resource" id="Books"]
 script = ExtResource("1_45rg7")
 description = "Книги"
@@ -16,6 +18,7 @@ description = "Бутылки с реагентами"
 comment = "Хранить вертикально. Не вскрывать."
 recipient_id = &"customer_02"
 tags = 10
+impact_profile = ExtResource("FragileImpact")
 hazard = 1
 mass_kg = 30.0
 carry_speed = 0.75
@@ -30,6 +33,7 @@ description = "Лабораторное оборудование"
 comment = "Тяжёлое и хрупкое"
 recipient_id = &"customer_03"
 tags = 6
+impact_profile = ExtResource("FragileImpact")
 mass_kg = 80.0
 carry_speed = 0.4
 carry_acceleration = 0.4
@@ -42,6 +46,7 @@ description = "Стеклянная посуда"
 comment = "Осторожно, стекло"
 recipient_id = &"customer_04"
 tags = 2
+impact_profile = ExtResource("FragileImpact")
 mass_kg = 3.0
 maximum_health = 40.0
 key = &"glass"
@@ -60,6 +65,7 @@ description = "Энергетические ячейки"
 comment = "Беречь от ударов. Опасное содержимое."
 recipient_id = &"customer_06"
 tags = 2
+impact_profile = ExtResource("FragileImpact")
 hazard = 2
 mass_kg = 6.0
 maximum_health = 50.0
