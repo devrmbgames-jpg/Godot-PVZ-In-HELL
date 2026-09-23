@@ -81,6 +81,31 @@ Use instead:
 
 Static methods on a System class are not a general service layer.
 
+### System identity and registration
+
+Reserve `extends System` and the `S_*` naming convention for classes that genuinely participate in GECS scheduling through a real `query()/process()`, `sub_systems()`, or an explicit `process_empty` inbox/event processor.
+
+A class is **not** a System merely because gameplay code calls it:
+- static-only RigidBody/physics callback algorithms belong in a non-System solver/helper;
+- pure calculations and imperative domain lookups belong in a non-System helper/service;
+- do not keep empty or no-op System nodes in SystemGroups;
+- do not scan `ECS.world.systems` to locate a System instance as a service locator; route commands through typed requests/events/state or explicit non-System wiring;
+- when converting a legacy pseudo-System, remove its stale SystemGroup node and keep scheduling dependencies only for work that is still actually scheduled by GECS.
+
+This keeps SystemGroups, `deps()`, profiling, and query contracts truthful instead of using `System` as a namespace for static functions.
+
+### Gameplay and presentation boundary
+
+Gameplay/physics authority writes authoritative state. Pure presentation should consume that state separately when it can do so without changing gameplay semantics.
+
+Examples of presentation that should normally be separated:
+- camera-only interpolation;
+- mesh highlight/overlay changes;
+- VFX/SFX-only reactions;
+- HUD state.
+
+Gameplay-critical child Nodes such as collision shapes, interaction raycasts, hold anchors, and other scene glue may still be accessed by the owning System/solver through the Entity. Do not split them merely because they are Nodes.
+
 ### Query is the System data contract
 
 Required hot-path Components belong in the query and should be returned via `iterate()`.
