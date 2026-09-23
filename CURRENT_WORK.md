@@ -7,4 +7,5 @@
 - Milestone 1.1: optional one-shot depletion spawns, presentation data event, package lifecycle hook and cardboard placeholder. No runtime/tests run.
 - Milestone 2: physical contact snapshots, receiver thresholds and impulse/energy-bounded directional damage; capture precedes body assistance. Static checks only.
 - Milestone 3: per-World contact episodes rearm only on body_exited; removal/disable prune pair and pending state. Sleeping contacts retain consumed state.
-- Next: explicit throw context and bounded one-hit bonus.
+- Milestone 4: optional C_ThrowDamage, explicit arm after throw release, one-hit/timeout/pickup termination and separate request instigator.
+- Next: source-side C_NoDamage veto in the common damage pipeline.

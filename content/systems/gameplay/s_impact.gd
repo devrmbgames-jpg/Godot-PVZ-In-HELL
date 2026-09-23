@@ -28,7 +28,13 @@ func query() -> QueryBuilder:
 	return q
 
 
-func process(_entities: Array[Entity], _components: Array, _delta: float) -> void:
+func process(_entities: Array[Entity], _components: Array, delta: float) -> void:
+	for entity: Entity in _world.query.with_all([C_ThrowDamage]).execute():
+		var context: C_ThrowDamage = entity.get_component(C_ThrowDamage) as C_ThrowDamage
+		context.remaining_seconds = maxf(0.0, context.remaining_seconds - delta)
+		if context.remaining_seconds <= 0.0:
+			context.instigator = null
+
 	for key: String in _pairs.keys():
 		var pair: ImpactContactPair = _pairs[key]
 		if not is_instance_valid(pair.first) or not is_instance_valid(pair.second):
@@ -78,6 +84,26 @@ static func capture(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 		contact.normal_impulse += absf(state.get_contact_impulse(index).dot(normal))
 	for contact: PhysicsContact in manifolds.values():
 		owner.enqueue(contact)
+
+
+## Arms only after an actual grip release and nonzero throw impulse.
+static func arm_throw(source: Entity, instigator: Entity) -> void:
+	var context: C_ThrowDamage = source.get_component(C_ThrowDamage) as C_ThrowDamage
+	if context == null:
+		return
+	context.instigator = instigator
+	context.remaining_seconds = maxf(0.0, context.window_seconds)
+	context.armed_tick = Engine.get_physics_frames()
+
+
+## A new grip cancels any old throw attribution immediately.
+static func cancel_throw(source: Entity) -> void:
+	if not is_instance_valid(source):
+		return
+	var context: C_ThrowDamage = source.get_component(C_ThrowDamage) as C_ThrowDamage
+	if context != null:
+		context.remaining_seconds = 0.0
+		context.instigator = null
 
 
 ## Coalesces manifold points and duplicate A/B reports within one physics tick.
@@ -154,6 +180,9 @@ func _resolve_direction(
 	var source: Entity = source_body as Node as Entity
 	if not S_Grab.entity_available(target) or not target.has_component(C_Health):
 		return
+	var health: C_Health = target.get_component(C_Health) as C_Health
+	if health.depleted or health.value <= 0.0:
+		return
 	if source != null and not S_Grab.entity_available(source):
 		return
 	# Holding is not a weapon mode; neither participant's holder receives contact damage.
@@ -180,6 +209,14 @@ func _resolve_direction(
 	var request: DamageRequest = DamageRequest.new()
 	request.source = source
 	request.target = target
+	var context: C_ThrowDamage = (
+		source.get_component(C_ThrowDamage) as C_ThrowDamage if source != null else null
+	)
+	if context != null and context.remaining_seconds > 0.0:
+		if contact.tick > context.armed_tick and S_Grab.held_relationship(source) == null:
+			request.instigator = context.instigator
+			result.amount += maxf(0.0, context.throw_damage)
+			cancel_throw(source)
 	request.amount = result.amount
 	request.damage_type = DamageRequest.Type.IMPACT
 	S_Damage.submit(request)
@@ -215,6 +252,7 @@ func _on_body_exited(other: Node, body: PhysicsBody3D) -> void:
 
 
 func _on_entity_unavailable(entity: Entity) -> void:
+	cancel_throw(entity)
 	for key: String in _pairs.keys():
 		var pair: ImpactContactPair = _pairs[key]
 		if pair.first == entity or pair.second == entity:

@@ -50,6 +50,7 @@ func enqueue(request: DamageRequest) -> void:
 		return
 	# Freeze producer data at submission; shared request mutation cannot alter queued damage.
 	var snapshot: DamageRequest = DamageRequest.new()
+	snapshot.instigator = request.instigator if is_instance_valid(request.instigator) else null
 	snapshot.source = request.source if is_instance_valid(request.source) else null
 	snapshot.target = request.target if is_instance_valid(request.target) else null
 	snapshot.amount = request.amount
