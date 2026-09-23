@@ -42,7 +42,7 @@ Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the
 | Interaction definitions/data | [def_interaction_action.gd](content/definitions/interaction/def_interaction_action.gd), [c_interaction_action_set.gd](content/components/interaction/c_interaction_action_set.gd) |
 | Physical props | [e_grabbable_body.gd](content/entities/props/e_grabbable_body.gd), [box.tscn](content/entities/props/box.tscn), [bucket.tscn](content/entities/props/bucket.tscn) |
 | Attributes / health | [c_attribute.gd](content/components/gameplay/c_attribute.gd), [c_health.gd](content/components/gameplay/c_health.gd), [def_attribute.gd](content/definitions/gameplay/attributes/def_attribute.gd) |
-| Damage | [s_damage.gd](content/systems/gameplay/s_damage.gd), [damage_request.gd](content/contracts/damage/damage_request.gd), [damage_result.gd](content/contracts/damage/damage_result.gd) |
+| Damage | [o_damage.gd](content/observers/gameplay/o_damage.gd), [request service](content/services/damage/damage_request_service.gd), [damage_request.gd](content/contracts/damage/damage_request.gd), [damage_result.gd](content/contracts/damage/damage_result.gd) |
 | Day cycle | [s_day_phase.gd](content/systems/gameplay/s_day_phase.gd), [day_transition_request.gd](content/contracts/day/day_transition_request.gd), [day_phase_station.tscn](content/entities/stations/day_phase_station.tscn) |
 | Package definition/state | [def_package.gd](content/definitions/gameplay/packages/def_package.gd), [c_package.gd](content/components/gameplay/c_package.gd), [c_package_state.gd](content/components/gameplay/c_package_state.gd) |
 | Package physical entity | [e_package.gd](content/entities/packages/e_package.gd), [package.tscn](content/entities/packages/package.tscn) |
