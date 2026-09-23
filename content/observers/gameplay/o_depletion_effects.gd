@@ -16,16 +16,16 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 	effects.committed = true
 
-	var notification: HealthDepletionEvent = HealthDepletionEvent.new()
-	notification.cause = result
-	notification.world_pose = result.world_pose
-	notification.vfx = effects.vfx
-	notification.sfx = effects.sfx
+	var health_depletion_effects: HealthDepletionEvent = HealthDepletionEvent.new()
+	health_depletion_effects.cause = result
+	health_depletion_effects.world_pose = result.world_pose
+	health_depletion_effects.vfx = effects.vfx
+	health_depletion_effects.sfx = effects.sfx
 	var entries: Array[DEF_DepletionSpawn] = effects.spawns.duplicate()
-	cmd.add_custom(_dispatch.bind(entries, notification))
+	cmd.add_custom(_dispatch.bind(entries, health_depletion_effects))
 
 
-func _dispatch(entries: Array[DEF_DepletionSpawn], notification: HealthDepletionEvent) -> void:
+func _dispatch(entries: Array[DEF_DepletionSpawn], health_depletion_effects: HealthDepletionEvent) -> void:
 	if not is_instance_valid(_world):
 		return
 	for entry: DEF_DepletionSpawn in entries:
@@ -35,10 +35,10 @@ func _dispatch(entries: Array[DEF_DepletionSpawn], notification: HealthDepletion
 		_world.add_child(spawned)
 		var spatial: Node3D = spawned as Node3D
 		if spatial != null:
-			spatial.global_transform = notification.world_pose * entry.offset
+			spatial.global_transform = health_depletion_effects.world_pose * entry.offset
 		var entity: Entity = spawned as Entity
 		if entity != null:
 			_world.add_entity(entity, null, false)
 
 	# Broadcast remains valid if a domain reaction removed the original target.
-	_world.emit_event(HealthDepletionEvent.EVENT, null, notification)
+	_world.emit_event(HealthDepletionEvent.EVENT, null, health_depletion_effects)
