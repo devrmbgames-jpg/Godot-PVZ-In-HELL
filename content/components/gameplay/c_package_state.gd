@@ -1,4 +1,5 @@
 extends Component
+## Independent registration, opening and physical condition; never an HP authority.
 class_name C_PackageState
 
 enum Registration {
@@ -26,3 +27,6 @@ enum Damage {
 @export var damage: Damage = Damage.UNDAMAGED
 @export var registration_number: int = 0
 @export var registration_day: int = 0
+
+## Committed liquid spill state; R09 may react to the typed Leaking hook.
+@export var leaking: bool = false

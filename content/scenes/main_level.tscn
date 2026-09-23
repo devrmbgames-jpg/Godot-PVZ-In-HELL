@@ -78,6 +78,8 @@
 
 [ext_resource type="Script" path="res://content/observers/gameplay/o_package_condition_setup.gd" id="PackageConditionSetup"]
 
+[ext_resource type="Script" path="res://content/systems/gameplay/s_liquid_tilt.gd" id="LiquidTilt"]
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
 size = Vector3(32.071198, 0.50476074, 40.240265)
 
@@ -248,6 +250,10 @@ script = ExtResource("DepletionEffects")
 
 [node name="S_ThrowLifetime" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("ThrowLifetime")
+group = &"GamePlay"
+
+[node name="S_LiquidTilt" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("LiquidTilt")
 group = &"GamePlay"
 
 [node name="S_Impact" type="Node" parent="World/Systems/GamePlay" unique_id=1737982216]

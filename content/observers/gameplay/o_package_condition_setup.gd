@@ -19,3 +19,10 @@ func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
 	health.value = definition.maximum_health
 	health.current = definition.maximum_health
 	receiver.profile = definition.impact_profile
+
+	if definition.tags & DEF_Package.Tag.LIQUID:
+		var tilt: C_LiquidTilt = C_LiquidTilt.new()
+		tilt.maximum_angle_degrees = definition.liquid_maximum_angle_degrees
+		tilt.duration_seconds = definition.liquid_tilt_seconds
+		tilt.damage_amount = definition.liquid_tilt_damage
+		cmd.add_component(entity, tilt)

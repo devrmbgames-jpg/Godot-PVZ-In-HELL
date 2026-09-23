@@ -4,7 +4,6 @@ class_name DamageRequest
 
 const EVENT := &"damage_requested"
 
-
 enum Operation {
 	DAMAGE,
 	HEAL,
@@ -15,6 +14,7 @@ enum Type {
 	IMPACT,
 	EXPLOSION,
 	TOXIC,
+	LIQUID,
 }
 
 ## Actual damaging body and optional actor who caused its action.

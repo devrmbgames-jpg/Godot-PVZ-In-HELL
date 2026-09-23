@@ -6,4 +6,5 @@
 - User owns ALL runtime/tests; static checks only. Dirty addons/gecs preserved.
 - M5.1 committed 84f99be; M6 adds immutable receiver profiles, fragile supply data, living/parcel receiver opt-in and one-shot package condition initialization. Static checks only.
 - M6 committed 9293e81; M7 adds C_ImpactProtection tier, blocks entire qualifying physical impact before HP/throw bonus; stronger impacts and non-impact damage pass normally.
-- Next: M7 commit, then continuous liquid-tilt condition (M8).
+- M7 committed c4f939f; M8 uses continuous liquid tilt with full upright reset, one-shot leaking/condition events and optional ordinary LIQUID Health damage.
+- Next: M8 commit, then deliberate Package opening (M9).
