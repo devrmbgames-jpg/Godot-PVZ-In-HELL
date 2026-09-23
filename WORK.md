@@ -7,7 +7,7 @@ State: R08 implementation complete; awaiting user runtime acceptance.
 - [x] M5.1: independent capture/inbox, atomic impact processor and throw lifetime query.
 - [x] M6-9: package profiles, protection, continuous liquid tilt and deliberate opening.
 - [x] M10 code: read-only feedback, existing smoke adapter, static checks/reviews and docs.
-- [ ] Re-test R08 parcel durability after balancing: ordinary/fragile profile retune, 60%/85% visible condition thresholds and 7.5%/25% physical per-hit limits; docs/r08_manual_validation.md.
+- [ ] Re-test R08 parcel durability after balancing: ordinary/fragile profile retune, 60%/85% visible condition thresholds and 7.5%/15% physical per-hit limits; docs/r08_manual_validation.md.
 - [ ] User gameplay/runtime acceptance: docs/r08_manual_validation.md.
 - [ ] After acceptance: task_history line, remove R08 task, return trackers to idle.
 

@@ -5,4 +5,5 @@
 - Validation: static structure/formatter/lint/diff and two focused read-only reviews. NO Godot/GUT/smoke/runtime/physics/visual invocation; user explicitly owns testing.
 - Existing damage smoke adapted to Observer results but not run. S_Push unchanged; no broad Grab/Cart/Input refactor. Dirty addons/gecs preserved.
 - Playtest feedback: ordinary and fragile parcels were breaking too readily. Updated both receiver profiles beyond the proposed twofold toughness, added HP-based visible-damage thresholds, impact-only per-hit caps and focused GUT regression cases (not executed). Re-test settings: docs/r08_manual_validation.md.
-- Next: receive user re-test results for the new balancing; fix issues or close R08/task_history/trackers after acceptance.
+- User GUT feedback: 70/73 passed; corrected four fragile authored damage thresholds that were re-saved as null, preserved the user's stronger 15% fragile per-hit cap and aligned the tests/docs, and removed the unsupported Jolt hinge bias scene override. New GUT results and gameplay acceptance pending.
+- Next: re-run the focused GUT tests and receive user gameplay re-test results; fix issues or close R08/task_history/trackers after acceptance.
