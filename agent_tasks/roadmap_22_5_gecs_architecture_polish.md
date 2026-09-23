@@ -41,6 +41,38 @@ Do not refactor a System merely because it is short or uses one justified bounda
 
 ## Audit summary
 
+### Full current `S_*` disposition
+
+The default-branch audit covered every current `content/systems/**/*.gd` System file. R22.5 must explicitly classify each one instead of refactoring only the largest files.
+
+| Current class | R22.5 disposition |
+| --- | --- |
+| `S_Damage` | Keep Health arithmetic authority; replace System service-locator submission and foreign System availability calls with typed request/state flow. |
+| `S_DayPhase` | Keep scheduled transition processing; remove static global service facade from System consumers. |
+| `S_Impact` | Split physics contact capture, throw lifetime, pair dedup/resolution and Damage submission. |
+| `S_Receiving` | Split phase reaction/batch scheduling from spawn-space/package construction and identity lookup. |
+| `S_PlayerInput` | Keep raw input intent capture focused; move Push/Transport mode constraints to authoritative focus/state processing. |
+| `S_CartCargo` | Legacy pseudo-System: separate real cargo lifecycle/query work from the RigidBody cargo solver; do not keep a static-only `System`. |
+| `S_CartTransport` | Legacy pseudo-System: split session/control/drive/follow responsibilities; scheduled parts become real Systems/sub-systems, physics parts become solvers. |
+| `S_Door` | Empty legacy System shell. Verify no later R13 requirement/reference needs it, then remove instead of growing a parallel Door architecture. |
+| `S_Grab` | Highest-priority decomposition: holder input, ownership lifecycle, physical hold solver, helpers and typed transitions. |
+| `S_InteractionTargeting` | Keep target selection authoritative; move mesh highlight to presentation and remove Grab System dependency. |
+| `S_Marker` | Split session/control, sampling and package mark mutation; remove Grab/Targeting System calls. |
+| `S_Push` | Split session/relationship lifecycle from independent cart and actor physics solvers. |
+| `S_Crouch` | Legacy pseudo-System: reclassify physics/state solver and separate camera-only crouch interpolation from collision/state authority. |
+| `S_Jump` | **Keep as the local reference shape** unless later feature work materially changes its contract. |
+| `S_Look` | Reclassify static callback code as a non-System solver if it remains unscheduled; preserve gameplay-critical head/raycast/anchor Entity glue. |
+| `S_Motion` | Reclassify static callback code as a non-System locomotion solver; remove Push/Transport dispatch. |
+
+### Additional findings from the full-system audit
+
+1. **Pseudo-Systems are a distinct cleanup class.** `S_CartTransport`, `S_CartCargo`, `S_Motion`, `S_Look` and `S_Crouch` currently have no meaningful GECS query/process contract and are primarily static service/physics surfaces. `S_Motion`, `S_Look` and `S_Crouch` are also registered as System nodes in the main scene despite being driven by the character physics callback. R22.5 must make the class identity and scene registration truthful.
+2. **`S_Crouch` crosses the gameplay/presentation boundary.** The same physics callback toggles collision shapes / crouch state and interpolates `camera_root`. Preserve collision/state authority in the physics path, but move camera-only interpolation to a presentation consumer unless a concrete gameplay dependency is discovered.
+3. **`S_Damage.submit()` is a service locator.** It scans `ECS.world.systems` to find the active `S_Damage` instance. Replace this with typed request/event/inbox wiring; do not generalize this lookup pattern.
+4. **`S_Door` is currently an empty shell.** It is not registered in the audited main SystemGroups and no current default-branch reference was found by the repository search. Verify again after R13 is implemented, then remove it if still unused rather than using it as a dumping ground for Door logic.
+5. **Cart cargo has duplicated mutable indexes.** `C_CartTransport.cargo/settling` coexist with per-cargo `C_CartCargo` bindings. During the Cart pass, choose one ownership authority and treat any reverse index/cache as derived and rebuildable; do not leave mirrored mutable collections as co-authorities.
+6. **Not every large physics helper needs more Systems.** `S_Look` manipulates head axes that also parent gameplay raycasts/hold anchors, so R22.5 must preserve that Entity-glue contract. Split by authority/component set, not by line count.
+
 ### Priority A — structural coupling / large monoliths
 
 #### S_Grab — highest priority
@@ -198,15 +230,18 @@ Target:
 
 Current issue:
 - these classes are registered/named as ECS Systems but mainly act as static `_integrate_forces()` solvers;
-- `S_Motion` additionally dispatches to Push/Transport.
+- `S_Motion` additionally dispatches to Push/Transport;
+- `S_Crouch` mixes collision/crouch-state authority with camera-only interpolation in the same physics callback;
+- `S_Look` touches head axes that also parent gameplay raycasts/hold anchors, so those transforms are not automatically presentation-only.
 
 Target:
 - remove Push/Transport dispatch from Motion;
-- if a class has no real ECS query/process responsibility, convert/rename it to a clearly named non-System physics solver/helper;
+- if a class has no real ECS query/process responsibility, convert/rename it to a clearly named non-System physics solver/helper and remove stale SystemGroup registration;
 - keep independent solver calls only at `E_RigidBodyCharacter._integrate_forces()`;
-- preserve scene-child references such as head axes/camera/collision shapes on the Entity as GECS recommends.
+- keep crouch collision/state changes in the physics/state owner but move camera-only crouch interpolation to presentation;
+- preserve gameplay-critical scene-child references such as head axes, raycasts, anchors and collision shapes on the Entity as GECS recommends.
 
-Do not over-split cohesive locomotion math merely to reduce line count. Split only when ownership/data contracts differ.
+Do not over-split cohesive locomotion/look math merely to reduce line count. Split only when ownership/data contracts differ.
 
 ---
 
@@ -278,18 +313,18 @@ During R22.5:
 
 ## Implementation sequence
 
-1. Baseline dependency graph of all `content/systems/*.gd`.
-2. Refactor Cart Transport/Cargo and remove Transport/Push dispatch from Motion/Input.
+1. Baseline dependency graph of all `content/systems/**/*.gd`; classify every current `S_*` as keep, split, reclassify or remove.
+2. Refactor Cart Transport/Cargo and remove Transport/Push dispatch from Motion/Input; establish one Cart/Cargo ownership authority.
 3. Refactor Push lifecycle + physics boundaries.
 4. Refactor Grab into focused ECS/lifecycle/physics/helper responsibilities.
-5. Refactor Impact/Damage request flow and throw lifetime query.
+5. Refactor Impact/Damage request flow and throw lifetime query; eliminate `ECS.world.systems` service-locator submission.
 6. Split raw PlayerInput from mode-specific constraints.
 7. Separate InteractionTargeting from highlight presentation.
 8. Split Marker session/sampling/ink mutation.
 9. Split Receiving schedule/spawn and remove DayPhase System service dependency.
-10. Reclassify Motion/Look/Crouch static solvers where appropriate.
-11. Audit remaining Systems/Observers against GECS checklist.
-12. Update scene SystemGroups/deps and remove obsolete System nodes/classes.
+10. Reclassify Motion/Look/Crouch static solvers; remove stale SystemGroup nodes and split Crouch camera presentation from physics/state.
+11. Audit remaining Systems/Observers against GECS checklist; verify `S_Jump` still needs no change and re-check/remove unused `S_Door`.
+12. Update scene SystemGroups/deps and remove obsolete System nodes/classes/services after their replacements are wired.
 13. Static architecture review, then one final allowed runtime regression pass under project validation budget.
 
 Commit each numbered stage separately. Do not combine the entire refactor into one commit.
@@ -310,11 +345,14 @@ Commit each numbered stage separately. Do not combine the entire refactor into o
 
 ## Completion criteria
 
-- zero direct project System-to-System service calls, except no exception inside Systems;
+- zero direct project System-to-System service calls, with no service-call exception inside Systems;
+- every remaining `S_*` / `extends System` has real GECS-scheduled work; static-only solvers/helpers are non-System classes;
+- zero registered no-op/pseudo-System nodes;
+- zero System-instance lookup by scanning `ECS.world.systems` as a service locator;
 - physics orchestration only at Godot Entity callback boundaries;
 - hot Systems use specific queries + `iterate()` for required Components;
 - large multi-responsibility Systems are split into atomic Systems/sub-systems/helpers;
-- presentation is separated from gameplay authority;
+- presentation is separated from gameplay authority, including crouch camera interpolation vs crouch collision/state;
 - structural mutations during iteration use CommandBuffer/approved GECS lifecycle;
 - dead/destroyed vs removal follows pending-cleanup semantics;
 - main SystemGroups and `deps()` express execution order;
