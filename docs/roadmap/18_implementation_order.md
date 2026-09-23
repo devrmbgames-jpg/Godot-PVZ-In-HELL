@@ -40,7 +40,8 @@ Task: [roadmap_08_package_damage_and_opening.md](../../agent_tasks/roadmap_08_pa
 - Fragile;
 - Bubble Wrap protection state;
 - Liquid tilt;
-- opening.
+- opening;
+- **обязательный M5.1 GECS architecture gate для `S_Damage` + `S_Impact` до начала M6**: убрать System→System coupling, `ECS.world.systems` service locator, разделить contact capture/resolution и перевести throw lifetime на specific query + `iterate()`.
 
 ---
 
@@ -241,7 +242,7 @@ Task: [roadmap_22_5_gecs_architecture_polish.md](../../agent_tasks/roadmap_22_5_
 - atomic Systems/sub-systems with single responsibility;
 - no direct System-to-System service calls or `ECS.world.systems` service-locator pattern;
 - hot-path Components supplied through specific queries + `iterate()`;
-- Cart/Push/Grab/Impact/Input decomposition plus Receiving/DayPhase/Marker/Targeting cleanup;
+- Cart/Push/Grab/Input decomposition plus Receiving/DayPhase/Marker/Targeting cleanup; Damage/Impact здесь только regression-audit, потому что их cleanup выполняется в R08 M5.1;
 - presentation separated from gameplay authority, including Crouch camera vs collision/state;
 - static physics-only/pseudo-System classes reclassified as independent solvers/helpers and stale System nodes removed;
 - empty/obsolete System shells such as `S_Door` re-verified and removed if still unused;
@@ -249,6 +250,8 @@ Task: [roadmap_22_5_gecs_architecture_polish.md](../../agent_tasks/roadmap_22_5_
 - gameplay behavior preserved.
 
 R22.5 intentionally runs late. Do not perform this broad refactor opportunistically during R08–R22 while feature contracts are still changing.
+
+Исключение уже принято для active R08: `S_Damage`/`S_Impact` cleanup выполняется немедленно в R08 M5.1, а не ждёт R22.5.
 
 ---
 
