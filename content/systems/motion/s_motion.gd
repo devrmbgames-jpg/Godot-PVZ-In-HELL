@@ -38,6 +38,8 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 
 	if not motion.control_enabled:
 		return
+	if S_CartTransport.integrate_actor(entity, state):
+		return
 	if S_Push.integrate_actor(entity, state):
 		return
 

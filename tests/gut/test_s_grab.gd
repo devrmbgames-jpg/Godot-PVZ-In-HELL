@@ -1092,7 +1092,7 @@ func test_world_removal_of_holder_releases_source_relationship() -> void:
 #region Push lifecycle and actual physics
 func _make_push_cart() -> Entity:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
-	var scene: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
+	var scene: PackedScene = load("res://tests/fixtures/push_test_body.tscn") as PackedScene
 	var cart: Entity = scene.instantiate() as Entity
 	var body: RigidBody3D = cart as Node as RigidBody3D
 	body.position = Vector3(0.0, 1.0, -1.8)

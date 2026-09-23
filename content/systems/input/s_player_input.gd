@@ -93,11 +93,22 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		)
 		var rotating: bool = InteractionActionResolver.wants_rotation(entity, controller)
 		var cart: Entity = S_Push.pushed_object(entity)
+		var transport: Entity = S_CartTransport.current(entity)
+		var driving: bool = (
+			transport != null
+			and InteractionControlFocus.current(entity)
+			== InteractionControlFocus.Priority.TRANSPORT
+		)
 		var pushing: bool = (
 			cart != null
 			and InteractionControlFocus.current(entity) == InteractionControlFocus.Priority.PUSH
 		)
-		if pushing:
+		if driving:
+			controller.direction_look = -(transport as Node as Node3D).global_basis.z
+			controller.look_delta = Vector2.ZERO
+			controller.action_jump = false
+			controller.action_crouch = false
+		elif pushing:
 			controller.direction_look = -(cart as Node as Node3D).global_basis.z
 			controller.direction_look.y = 0.0
 			controller.look_delta = Vector2.ZERO

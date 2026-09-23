@@ -31,6 +31,14 @@ static func handle_input(actor: Entity) -> void:
 	if active_focus >= InteractionControlFocus.Priority.DRAWING:
 		refresh_prompt(actor)
 		return
+	if active_focus == InteractionControlFocus.Priority.TRANSPORT:
+		if controller.interact_pressed:
+			_execute_slot(actor, DEF_InteractionAction.Slot.INTERACT, true)
+		elif controller.use_pressed:
+			_execute_slot(actor, DEF_InteractionAction.Slot.USE, true)
+		refresh_prompt(actor)
+		return
+
 	if active_focus == InteractionControlFocus.Priority.PUSH:
 		if controller.interact_pressed or controller.move_axis.y > S_Push.DIRECTION_EPSILON:
 			_execute_slot(actor, DEF_InteractionAction.Slot.INTERACT, true)
@@ -102,6 +110,19 @@ static func resolve(
 	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
 	if target != null and S_InteractionTargeting.find_target(actor, interactor) != target:
 		target = null
+	if focus == InteractionControlFocus.Priority.TRANSPORT:
+		if input_slot == DEF_InteractionAction.Slot.INTERACT:
+			var cart: Entity = S_CartTransport.current(actor)
+			if cart == null:
+				return null
+			var stop: DEF_CartTransportAction = DEF_CartTransportAction.new()
+			stop.release_handle = true
+			stop.caption = "Отпустить ручку"
+			return _choice(stop, cart, target)
+		if input_slot == DEF_InteractionAction.Slot.USE:
+			return _target_action(actor, target, input_slot)
+		return null
+
 	if focus == InteractionControlFocus.Priority.PUSH:
 		if input_slot == DEF_InteractionAction.Slot.INTERACT:
 			var cart: Entity = S_Push.pushed_object(actor)
@@ -228,6 +249,8 @@ static func refresh_prompt(actor: Entity) -> void:
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
 	var lines: PackedStringArray = []
+	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.TRANSPORT:
+		lines.append("[W / S] Вперёд / назад · [A / D] Поворот")
 	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.DRAWING:
 		interactor.prompt_text = "Маркер · кнопка руки + мышь · [E / Esc] Завершить"
 		return

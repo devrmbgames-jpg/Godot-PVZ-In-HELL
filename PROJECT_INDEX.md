@@ -34,7 +34,8 @@ Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the
 | Look | [c_look.gd](content/components/motion/c_look.gd), [s_look.gd](content/systems/motion/s_look.gd) |
 | Jump / crouch | [s_jump.gd](content/systems/motion/s_jump.gd), [s_crouch.gd](content/systems/motion/s_crouch.gd) |
 | Grab / targeting | [s_grab.gd](content/systems/interaction/s_grab.gd), [s_interaction_targeting.gd](content/systems/interaction/s_interaction_targeting.gd), [o_grab_lifecycle.gd](content/observers/interaction/o_grab_lifecycle.gd) |
-| Physical Push | [s_push.gd](content/systems/interaction/s_push.gd), [o_push_lifecycle.gd](content/observers/interaction/o_push_lifecycle.gd), [push_cart.tscn](content/entities/props/push_cart.tscn); C_Pushable/C_PushedBy/C_PushControl under `components/interaction/` |
+| Physical Push | [s_push.gd](content/systems/interaction/s_push.gd), [o_push_lifecycle.gd](content/observers/interaction/o_push_lifecycle.gd); C_Pushable/C_PushedBy/C_PushControl; independent puzzle mechanic |
+| Cart transport | [push_cart.tscn](content/entities/props/push_cart.tscn), [s_cart_transport.gd](content/systems/interaction/s_cart_transport.gd), [c_cart_transport.gd](content/components/interaction/c_cart_transport.gd); CharacterBody3D forward/reverse transport |
 | Interaction routing | [interaction_action_resolver.gd](content/services/interaction/interaction_action_resolver.gd), [interaction_control_focus.gd](content/services/interaction/interaction_control_focus.gd) |
 | Interaction contracts | [interaction_action_choice.gd](content/contracts/interaction/interaction_action_choice.gd), [interaction_control_capture.gd](content/contracts/interaction/interaction_control_capture.gd) |
 | Interaction definitions/data | [def_interaction_action.gd](content/definitions/interaction/def_interaction_action.gd), [c_interaction_action_set.gd](content/components/interaction/c_interaction_action_set.gd) |
@@ -45,7 +46,7 @@ Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the
 | Package definition/state | [def_package.gd](content/definitions/gameplay/packages/def_package.gd), [c_package.gd](content/components/gameplay/c_package.gd), [c_package_state.gd](content/components/gameplay/c_package_state.gd) |
 | Package physical entity | [e_package.gd](content/entities/packages/e_package.gd), [package.tscn](content/entities/packages/package.tscn) |
 | Receiving | [s_receiving.gd](content/systems/gameplay/s_receiving.gd), [c_receiving.gd](content/components/gameplay/c_receiving.gd), [receiving_zone.tscn](content/entities/zones/receiving_zone.tscn) |
-| Delivery data | [def_delivery.gd](content/definitions/gameplay/deliveries/def_delivery.gd), [morning_supply.tres](content/definitions/gameplay/deliveries/morning_supply.tres), [receiving_batch.gd](content/contracts/receiving/receiving_batch.gd) |
+| Delivery data | [def_delivery.gd](content/definitions/gameplay/deliveries/def_delivery.gd), [def_delivery_morning_supply.tres](content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres), [receiving_batch.gd](content/contracts/receiving/receiving_batch.gd) |
 | Scanner | [e_scanner.gd](content/entities/tools/e_scanner.gd), [scanner.tscn](content/entities/tools/scanner.tscn), [def_scan_action.gd](content/definitions/interaction/def_scan_action.gd) |
 | Marker / package ink | [s_marker.gd](content/systems/interaction/s_marker.gd), [marker.tscn](content/entities/tools/marker.tscn), [c_package_marks.gd](content/components/gameplay/c_package_marks.gd); contract: [package_marking.md](docs/package_marking.md) |
 | Numbered storage | [numbered_shelves.tscn](content/entities/props/numbered_shelves.tscn); physical compartments 01–06, no Terminal shelf tracking |
