@@ -42,7 +42,7 @@ static func begin(actor: Entity, cart: Entity) -> void:
 		cart,
 		InteractionControlFocus.Priority.TRANSPORT,
 	)
-	var cleanup: Callable = end.bind(cart)
+	var cleanup: Callable = _on_driver_exiting.bind(cart)
 	if not actor.tree_exiting.is_connected(cleanup):
 		actor.tree_exiting.connect(cleanup)
 
@@ -61,7 +61,7 @@ static func end(cart: Entity) -> void:
 		var driver_state: C_CartDriver = actor.get_component(C_CartDriver) as C_CartDriver
 		if driver_state != null and driver_state.cart == cart:
 			driver_state.cart = null
-		var cleanup: Callable = end.bind(cart)
+		var cleanup: Callable = _on_driver_exiting.bind(cart)
 		if actor.tree_exiting.is_connected(cleanup):
 			actor.tree_exiting.disconnect(cleanup)
 
@@ -86,6 +86,7 @@ static func current(actor: Entity) -> Entity:
 ## CharacterBody owns movement: floor snap, slope sliding and tested small-step traversal.
 static func step(cart: Entity, delta: float) -> void:
 	if not S_Grab.entity_available(cart) or delta <= 0.0:
+		S_CartCargo.release_all(cart)
 		end(cart)
 		return
 	var body: CharacterBody3D = cart as Node as CharacterBody3D
@@ -128,6 +129,7 @@ static func step(cart: Entity, delta: float) -> void:
 	if not _try_step(body, planar_velocity * delta, config.step_height):
 		body.move_and_slide()
 	config.actual_velocity = (body.global_position - previous_position) / delta
+	S_CartCargo.update(cart as E_TransportCart, delta)
 
 
 ## Follows the handle with bounded rigid-body velocity; collisions still own actor motion.
@@ -156,6 +158,10 @@ static func integrate_actor(actor: Entity, state: PhysicsDirectBodyState3D) -> b
 
 
 #region Collision helpers
+static func _on_driver_exiting(cart: Entity) -> void:
+	end(cart)
+
+
 static func _lift_driver(
 	actor: Entity,
 	body: CharacterBody3D,

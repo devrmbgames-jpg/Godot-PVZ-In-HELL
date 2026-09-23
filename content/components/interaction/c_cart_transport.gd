@@ -20,6 +20,15 @@ class_name C_CartTransport
 ## Stop the cart if the driver cannot physically follow; release only beyond focus distance.
 @export var follow_tolerance: float = 0.65
 @export var focus_distance: float = 4.0
+## Cargo must rest on the deck or supported cargo before transport assistance engages.
+@export var cargo_settle_seconds: float = 0.15
+@export var cargo_settle_speed: float = 0.5
+## Bounded rigid-body correction; obstructed cargo detaches instead of crossing walls.
+@export var cargo_follow_speed: float = 8.0
+@export var cargo_break_distance: float = 0.35
+## Derived loaded-body list and transient settling timers; S_CartCargo is their writer.
+var cargo: Array[Entity] = []
+var settling: Dictionary[int, float] = { }
 ## Cart-side session authority; only S_CartTransport changes it.
 var driver: Entity = null
 var capture_token: int = 0

@@ -8,6 +8,8 @@ The scene owns World, system groups, environment and an entity root named `Entit
 
 ## Scheduling and physics
 
+Warehouse `push_cart.tscn` uses a dedicated CharacterBody3D transport, separate from unchanged puzzle S_Push. S_CartTransport owns grounded forward/reverse/turning on the cart physics callback; S_Motion delegates driver following while TRANSPORT capture is active. Settled rigid cargo uses bounded custom-integration assistance through S_CartCargo and restores ordinary physics on pickup/removal. Physical authority, cleanup, controls and supported terrain are documented in [cart_transport.md](../docs/cart_transport.md).
+
 - `scenes/main_level.gd` assigns ECS.world on ready; `_physics_process` invokes Input, Interaction, Physics, then GamePlay. Input edges/deltas belong to one physics tick.
 - Physics scene nodes are S_Motion, S_Look, S_Jump and S_Crouch; Input contains S_PlayerInput. Interaction contains S_InteractionTargeting, S_Grab and O_GrabLifecycle (under Systems so GECS discovers it). GamePlay contains S_Damage before S_DayPhase; DaySession owns the singleton C_DayCycle. ShiftConsole and SleepPoint expose phase actions through contextual E/use.
 - Do not infer solver execution from scene-node order: `entities/characters/e_rigid_body_character.gd` explicitly calls S_Motion, S_Look and S_Crouch from `_integrate_forces`.

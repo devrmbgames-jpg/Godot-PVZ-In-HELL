@@ -14,3 +14,4 @@
 - 2026-09-22 — R06: physical scanner with idempotent cycle-scoped registration, result feedback and current-cycle terminal; printer definition prepared, rendered flow and 37 existing regressions validated.
 - 2026-09-23 — R06.1: Inspector-first components, independent Carry/two hands, nested capture, E/F/G/swap/rotation and physical Push; reusable warehouse numbers corrected; 64 GUT tests and five smoke checks PASS.
 - 2026-09-23 — R07: hand-mapped physical marker, bounded package-local ink with visible-face projection and lifecycle cleanup, numbered physical shelves 01–06; 68 GUT tests, five headless smokes and rendered storage preview PASS; R21 ink persistence contract documented.
+- 2026-09-23 — Cart correction: independent grounded reversible transport, assisted stacked cargo and pickup/lifecycle cleanup; S_Push unchanged; 67 relevant GUT tests and three headless smokes PASS, visual playtest user-owned.

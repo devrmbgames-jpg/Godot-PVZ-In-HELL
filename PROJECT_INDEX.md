@@ -36,6 +36,7 @@ Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the
 | Grab / targeting | [s_grab.gd](content/systems/interaction/s_grab.gd), [s_interaction_targeting.gd](content/systems/interaction/s_interaction_targeting.gd), [o_grab_lifecycle.gd](content/observers/interaction/o_grab_lifecycle.gd) |
 | Physical Push | [s_push.gd](content/systems/interaction/s_push.gd), [o_push_lifecycle.gd](content/observers/interaction/o_push_lifecycle.gd); C_Pushable/C_PushedBy/C_PushControl; independent puzzle mechanic |
 | Cart transport | [push_cart.tscn](content/entities/props/push_cart.tscn), [s_cart_transport.gd](content/systems/interaction/s_cart_transport.gd), [c_cart_transport.gd](content/components/interaction/c_cart_transport.gd); CharacterBody3D forward/reverse transport |
+| Cart cargo | [s_cart_cargo.gd](content/systems/interaction/s_cart_cargo.gd), [c_cart_cargo.gd](content/components/interaction/c_cart_cargo.gd); [transport contract](docs/cart_transport.md) |
 | Interaction routing | [interaction_action_resolver.gd](content/services/interaction/interaction_action_resolver.gd), [interaction_control_focus.gd](content/services/interaction/interaction_control_focus.gd) |
 | Interaction contracts | [interaction_action_choice.gd](content/contracts/interaction/interaction_action_choice.gd), [interaction_control_capture.gd](content/contracts/interaction/interaction_control_capture.gd) |
 | Interaction definitions/data | [def_interaction_action.gd](content/definitions/interaction/def_interaction_action.gd), [c_interaction_action_set.gd](content/components/interaction/c_interaction_action_set.gd) |
@@ -60,6 +61,7 @@ Start with the narrowest relevant check.
 - Deterministic repository structure/path check: `python utils/validate_project_structure.py`.
 - GDScript formatting: see [.agents/skills/gdscript-format/SKILL.md](.agents/skills/gdscript-format/SKILL.md).
 - Grab tests: [test_s_grab.gd](tests/gut/test_s_grab.gd).
+- Cart transport smoke: `tests/smoke/cart_transport_smoke.tscn` (`--quit-after 2400`, require PASS without script/assertion errors).
 - Jump tests: [test_s_jump.gd](tests/gut/test_s_jump.gd).
 - Receiving/scan/number-reuse smoke: `tests/smoke/receiving_scan_smoke.tscn` (`--quit-after 360`, require PASS).
 - Hands/Terminal capture smoke: `tests/smoke/interaction_actions_smoke.tscn` (`--quit-after 180`, require PASS).

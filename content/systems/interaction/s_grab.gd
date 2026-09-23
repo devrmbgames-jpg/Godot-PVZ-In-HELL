@@ -93,6 +93,7 @@ static func try_pickup(
 		slot_index = pickup_slot(holder, target, false)
 	if not can_pickup(holder, target, slot_index, replace):
 		return false
+	S_CartCargo.release(target)
 	var config: C_Grabbable = target.get_component(C_Grabbable) as C_Grabbable
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	var body: RigidBody3D = target as Node as RigidBody3D
