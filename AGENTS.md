@@ -135,4 +135,25 @@ Before completing the full implementation task (`Rxx` / `Rxx.x`):
 
 Exception: a concrete blocking bug may justify one narrow early runtime/GUT run when static evidence is insufficient.
 
+### Runtime validation budget
+
+Token allowance is more important than repeatedly proving the same runtime behavior.
+
+For one complete `Rxx` / `Rxx.x` implementation task, the default budget is:
+- **at most one GUT invocation total**;
+- **at most one headless smoke/runtime invocation total**;
+- **zero rendered/visual invocations** unless the user explicitly approves them.
+
+Normally the GUT and headless smoke/runtime invocations happen at task completion.
+
+If a blocking bug requires an earlier targeted GUT/runtime invocation, that invocation consumes the corresponding task budget. Continue with static/deterministic validation afterward. Any additional GUT/smoke/runtime rerun requires explicit user approval.
+
+Do not create or expand automated physics smoke scenarios merely to judge gameplay feel/tuning such as ramps, steps, uneven terrain, cart handling, camera feel, animation feel, or similar experiential behavior unless the user explicitly requests automated coverage. Those acceptance checks are user-owned.
+
+Do not rerun the same smoke after each small patch. Use the existing failure evidence to batch fixes, then run only within the remaining budget.
+
+Avoid `--editor --import` as routine validation. Use it only when import/scene/resource compilation specifically requires it, and normally only once near task completion.
+
+Runtime logs must be redirected/filtered. Return only the relevant error/assertion/stack or a short PASS summary; never feed the complete noisy Godot/GUT log back into the main context.
+
 If `pre-commit` is installed, `.pre-commit-config.yaml` automates the deterministic structure check, staged diff check, and optional GDScript formatter check. Do not install/upgrade it silently during unrelated work.
