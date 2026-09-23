@@ -67,6 +67,9 @@ func _resolve(request: DamageRequest) -> void:
 		is_instance_valid(request.target) and S_Grab.entity_available(request.target)
 		and is_finite(request.amount) and request.amount > 0.0
 	):
+		var spatial: Node3D = request.target as Node as Node3D
+		if spatial != null:
+			result.world_pose = spatial.global_transform
 		var health: C_Health = request.target.get_component(C_Health) as C_Health
 		if health != null:
 			_resolve_health(request, health, result)

@@ -11,6 +11,19 @@
 [ext_resource type="Script" uid="uid://j2ak34c5rfig" path="res://content/components/gameplay/c_package_marks.gd" id="Marks"]
 [ext_resource type="Script" uid="uid://dtug3ioxot1tv" path="res://content/ui/package_marks_view.gd" id="MarksView"]
 
+[ext_resource type="Script" path="res://content/components/gameplay/c_health_depletion_effects.gd" id="Effects"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/def_depletion_spawn.gd" id="Spawn"]
+[ext_resource type="PackedScene" path="res://content/entities/packages/package_debris_stub.tscn" id="Debris"]
+
+[sub_resource type="Resource" id="DebrisEntry"]
+script = ExtResource("Spawn")
+scene = ExtResource("Debris")
+
+[sub_resource type="Resource" id="Effects"]
+resource_local_to_scene = true
+script = ExtResource("Effects")
+spawns = Array[ExtResource("Spawn")]([SubResource("DebrisEntry")])
+
 [sub_resource type="Resource" id="Definition"]
 script = ExtResource("3_definition")
 description = "Parcel"
@@ -38,7 +51,7 @@ script = ExtResource("Marks")
 script = ExtResource("2_package")
 package_id = ""
 package_definition = SubResource("Definition")
-component_resources = Array[ExtResource("4_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_5a11h"), SubResource("Resource_ijugq"), SubResource("Resource_5vjsl")])
+component_resources = Array[ExtResource("4_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_5a11h"), SubResource("Resource_ijugq"), SubResource("Resource_5vjsl"), SubResource("Effects")])
 
 [node name="Marks" type="MeshInstance3D" parent="." index="2" unique_id=1073720280]
 cast_shadow = 0

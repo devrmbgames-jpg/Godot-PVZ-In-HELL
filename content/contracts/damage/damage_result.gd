@@ -17,3 +17,6 @@ var outcome: Outcome = Outcome.REJECTED
 var previous_value: float = 0.0
 var current_value: float = 0.0
 var applied_amount: float = 0.0
+
+## Physics pose captured before any downstream lifecycle reaction can remove the target.
+var world_pose: Transform3D = Transform3D.IDENTITY

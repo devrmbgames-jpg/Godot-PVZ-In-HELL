@@ -27,5 +27,17 @@ func _commit_condition(target: Entity, result: DamageResult) -> void:
 		S_CartCargo.release(target)
 		S_Grab.entity_unavailable(target)
 		S_Marker.clear_marks(target)
-	else:
+		PackageLifecycle.publish(
+			target,
+			PackageLifecycleEvent.Kind.Destroyed,
+			result.request.source,
+			result,
+		)
+	elif condition.damage == C_PackageState.Damage.UNDAMAGED:
 		condition.damage = C_PackageState.Damage.DAMAGED
+		PackageLifecycle.publish(
+			target,
+			PackageLifecycleEvent.Kind.Damaged,
+			result.request.source,
+			result,
+		)

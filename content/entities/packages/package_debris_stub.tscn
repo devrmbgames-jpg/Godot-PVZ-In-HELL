@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[sub_resource type="BoxMesh" id="Mesh"]
+size = Vector3(0.35, 0.025, 0.35)
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+albedo_color = Color(0.38, 0.24, 0.12, 1)
+
+[node name="PackageDebrisStub" type="Node3D"]
+
+[node name="FlattenedCardboard" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh")
+material_override = SubResource("Material")
