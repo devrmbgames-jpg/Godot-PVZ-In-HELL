@@ -41,6 +41,32 @@ Express ordering with `deps()` when correctness depends on another System.
 
 Avoid repeated `get_component()` inside hot loops when `iterate()` can provide components.
 
+## Atomic Systems
+
+Systems do not call other Systems.
+
+Use:
+- `deps()` for execution ordering;
+- query composition for required data;
+- Components/Relationships for state;
+- typed Requests/Events/Results + Observers for discrete transitions;
+- CommandBuffer for structural changes during iteration.
+
+Do not use another `S_*` class as a service API from inside a System.
+
+A System query is its data contract. If the behavior requires `C_A + C_B + C_C`, prefer:
+
+```gdscript
+func query() -> QueryBuilder:
+    return q.with_all([C_A, C_B, C_C]).iterate([C_A, C_B, C_C])
+```
+
+over matching `C_A` and repeatedly calling `get_component(C_B/C_C)` in `process()`.
+
+When different behavior needs different component sets, split it into separate Systems rather than accumulating optional branches and lookups in one System.
+
+Physics-body callbacks are the narrow exception: an Entity may forward `_integrate_forces()` to multiple independent solvers. Those solvers still must not call each other.
+
 Use `CommandBuffer` for structural mutations during iteration unless the exact pinned implementation guarantees safety otherwise.
 
 ## Observers
