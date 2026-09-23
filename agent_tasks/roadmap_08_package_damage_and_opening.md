@@ -39,6 +39,15 @@ Package не должна иметь отдельную параллельную
 
 Не начинать с Bubble Wrap/Liquid/Opening. Сначала завершить generic Health + Impact foundation и зафиксировать его отдельным milestone commit.
 
+> **НЕМЕДЛЕННЫЙ ARCHITECTURE GATE ДЛЯ R08**
+>
+> Damage/Impact pipeline уже активно меняется в R08, поэтому найденные GECS-проблемы `S_Damage` и `S_Impact` **не откладывать до R22.5**.
+> После завершения source-side `C_NoDamage` (Milestone 5) немедленно выполнить Milestone 5.1 ниже и только затем переходить к Package-specific Milestone 6–9.
+>
+> Разрешённый scope сейчас: `S_Damage`, `S_Impact`, их typed contracts/components/physics bridge и минимальные нейтральные helpers/observers, необходимые для устранения их прямых System-зависимостей.
+> Не использовать этот gate как повод раньше времени рефакторить Grab/Push/Cart/Input целиком; их широкий polish остаётся R22.5.
+
+
 ---
 
 ## Milestone 1 — Унифицировать Health
@@ -250,6 +259,56 @@ C_NoDamage
 
 ---
 
+## Milestone 5.1 — НЕМЕДЛЕННО: GECS cleanup S_Damage + S_Impact
+
+**Порядок:** выполнить сразу после Milestone 5 и **до Milestone 6**. Это часть R08, а не R22.5.
+
+### S_Damage — исправить сейчас
+
+- [ ] Удалить прямую зависимость `S_Damage -> S_Grab`. Проверка доступности target/source не должна обращаться к чужому System как к helper/service.
+- [ ] Удалить service-locator pattern из `S_Damage.submit()`: не сканировать `ECS.world.systems` в поисках экземпляра `S_Damage`.
+- [ ] Завести явный typed request/inbox/event путь для `DamageRequest`, совместимый с текущим GECS scheduling.
+- [ ] `S_Damage` оставить единственным authority **только для Health arithmetic + DamageResult publication**.
+- [ ] Source-side veto `C_NoDamage`, validation request и Health mutation должны находиться в общем damage contract, а не дублироваться по producer Systems.
+- [ ] Не помещать в `S_Damage` Package/Living-specific lifecycle, debris, death, presentation или impact calculation.
+- [ ] Если queue/inbox требует отдельного Component/contract/service, он должен быть typed и не превращаться во второй damage authority.
+
+### S_Impact — исправить сейчас
+
+- [ ] Удалить прямую зависимость `S_Impact -> S_Damage`; impact producer отправляет обычный typed `DamageRequest` через новый общий damage request path.
+- [ ] Удалить прямую зависимость `S_Impact -> S_Grab`; held/availability semantics читать через authoritative Components/Relationships либо нейтральный non-System helper.
+- [ ] Разделить physics callback capture и scheduled impact resolution:
+  - physics bridge/solver только снимает typed contact snapshot;
+  - GECS System/sub-system обрабатывает pending contacts, dedup и impact resolution.
+- [ ] Не использовать `S_Impact` как static service namespace, если часть кода не является GECS-scheduled work.
+- [ ] Throw-window lifetime перевести на явный query по `C_ThrowDamage` с `iterate()`, а не на broad/manual world scan.
+- [ ] Contact-pair dedup ownership оставить однозначным и независимым от presentation/Grab implementation.
+- [ ] Structural mutations во время GECS iteration выполнять через `cmd`/разрешённый deferred lifecycle.
+- [ ] Сохранить уже реализованные R08 semantics: directional impact, pair rearm after separation, throw one-hit/timeout/pickup termination, instigator/source attribution.
+
+### Boundary / non-goals этого gate
+
+- [ ] Не рефакторить сейчас весь `S_Grab`; допускается только вынести минимальный neutral helper/relationship query, необходимый для устранения `S_Damage/S_Impact -> S_Grab`.
+- [ ] Не менять формулу impact damage, thresholds, severity или balance без отдельной причины из R08.
+- [ ] Не менять Push/Cart/Motion/Input архитектуру в этом milestone.
+- [ ] Не создавать второй damage pipeline для Package, Combat или Hazard.
+- [ ] Не переносить gameplay authority в Entity callback или UI.
+
+### Готовность Milestone 5.1
+
+До перехода к Milestone 6 должны выполняться все условия:
+
+- `S_Damage` не вызывает другие `S_*` как service/helper;
+- `S_Damage` не ищет себя через `ECS.world.systems`;
+- `S_Impact` не вызывает `S_Damage` и `S_Grab`;
+- contact capture отделён от scheduled impact resolution;
+- `C_ThrowDamage` lifetime имеет специфичный GECS query + `iterate()`;
+- все impact producers используют один typed `DamageRequest` path;
+- текущие Health/depletion, contact dedup и throw semantics сохранены;
+- после этого R22.5 рассматривает Damage/Impact только как regression audit, а не как отложенный основной рефакторинг.
+
+---
+
 ## Milestone 6 — Package impact rules
 
 - [ ] Package использует `C_Health + C_ImpactReceiver`.
@@ -296,6 +355,8 @@ C_NoDamage
 - [ ] Предоставить typed hook R09/R11 для hazard/customer consequences.
 
 ---
+
+> **R08 ordering invariant:** Milestone 6–9 запрещено считать начатыми/готовыми, пока Milestone 5.1 Damage/Impact architecture gate не завершён.
 
 ## Milestone 10 — Feedback / regression
 
