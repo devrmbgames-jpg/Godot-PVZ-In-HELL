@@ -29,7 +29,7 @@ Package не должна иметь отдельную параллельную
 
 ## Начать здесь
 
-- [s_damage.gd](../content/systems/gameplay/s_damage.gd)
+- [o_damage.gd](../content/observers/gameplay/o_damage.gd)
 - [c_health.gd](../content/components/gameplay/c_health.gd)
 - [damage_request.gd](../content/contracts/damage/damage_request.gd)
 - [e_grabbable_body.gd](../content/entities/props/e_grabbable_body.gd)

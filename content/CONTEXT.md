@@ -11,7 +11,7 @@ The scene owns World, system groups, environment and an entity root named `Entit
 Warehouse `push_cart.tscn` uses a dedicated CharacterBody3D transport, separate from unchanged puzzle S_Push. S_CartTransport owns grounded forward/reverse/turning on the cart physics callback; S_Motion delegates driver following while TRANSPORT capture is active. Settled rigid cargo uses bounded custom-integration assistance through S_CartCargo and restores ordinary physics on pickup/removal. Physical authority, cleanup, controls and supported terrain are documented in [cart_transport.md](../docs/cart_transport.md).
 
 - `scenes/main_level.gd` assigns ECS.world on ready; `_physics_process` invokes Input, Interaction, Physics, then GamePlay. Input edges/deltas belong to one physics tick.
-- Physics scene nodes are S_Motion, S_Look, S_Jump and S_Crouch; Input contains S_PlayerInput. Interaction contains S_InteractionTargeting, S_Grab and O_GrabLifecycle (under Systems so GECS discovers it). GamePlay contains S_Damage before S_DayPhase; DaySession owns the singleton C_DayCycle. ShiftConsole and SleepPoint expose phase actions through contextual E/use.
+- Physics scene nodes are S_Motion, S_Look, S_Jump and S_Crouch; Input contains S_PlayerInput. Interaction contains S_InteractionTargeting, S_Grab and O_GrabLifecycle (under Systems so GECS discovers it). GamePlay contains O_Damage for typed damage events and S_DayPhase; DaySession owns the singleton C_DayCycle. ShiftConsole and SleepPoint expose phase actions through contextual E/use.
 - Do not infer solver execution from scene-node order: `entities/characters/e_rigid_body_character.gd` explicitly calls S_Motion, S_Look and S_Crouch from `_integrate_forces`.
 - Physical velocity/transform changes go through the body/PhysicsDirectBodyState3D. The entity exposes standing/crouching shapes, camera root and head axes for the systems.
 
@@ -83,11 +83,11 @@ HUD phase panel stays visible even with released cursor; phase_changed drives 4-
 
 ## Damage/health (R04)
 
-S_Damage is the sole gameplay damage/heal writer. C_Health.base means maximum HP; C_Health.value means current HP; depleted is terminal until a future explicit respawn/reset. C_AttributeChanged is not used for health; do not create a second current-health field.
+O_Damage is the sole gameplay damage/heal writer. C_Health extends C_AttributeChanged: base is authored HP, value is computed maximum HP and current is remaining HP. Depletion is terminal until an explicit respawn/reset.
 
-Submit a typed DamageRequest with target, optional source, amount, operation (DAMAGE/HEAL) and damage_type (GENERIC/MELEE/IMPACT/EXPLOSION/TOXIC). S_Damage.submit queues an immutable snapshot into the active World's S_Damage; command-buffer resolution runs in GamePlay before day phase changes. Nonfinite/nonpositive requests and invalid/removed targets are rejected. Producers submit one request per intended event; reusing an event every frame intentionally repeats damage.
+DamageRequestService.submit publishes a copied typed DamageRequest to O_Damage through a World event, without a System service locator. Null/removed/non-Health targets are rejected at entry. O_Damage validates amounts and current Health, applies the source-side C_NoDamage veto (BLOCKED outcome, incoming damage and healing unaffected), and commits depletion before Health property notifications. The optional builder uses the same submit path.
 
-Every processed request emits damage_resolved(DamageResult), including rejection. Applied results are also typed World events under DamageResult.EVENT. Positive Health crossing zero commits HEALTH_DEPLETED once before notifications. O_HealthLifecycle handles only C_Living: C_Death, grip release and control/target cleanup. O_PackageDamage handles package condition independently and keeps destroyed physical entities alive. Healing restores non-depleted HP but does not undo package condition; depletion remains terminal.
+Processed requests publish typed World events under DamageResult.EVENT, including rejection and blocked outcomes. Positive Health crossing zero commits HEALTH_DEPLETED once before notifications. O_HealthLifecycle handles only C_Living: C_Death, grip release and control/target cleanup. O_PackageDamage handles package condition independently and keeps destroyed physical entities alive. Healing restores non-depleted HP but does not undo package condition; depletion remains terminal.
 
 Packages and actors use the same C_Health arithmetic. Package definitions initialize maximum_health; there is no second integrity authority. Standalone damage_smoke was adapted to the shared contract; R08 runtime validation is user-owned.
 
