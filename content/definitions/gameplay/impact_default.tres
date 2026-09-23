@@ -4,7 +4,10 @@
 
 [resource]
 script = ExtResource("Profile")
-minimum_speed = 4.0
-minimum_impulse = 1.0
+minimum_speed = 5.0
+minimum_impulse = 3.0
+damage_per_joule = 0.0175
+absorption_joules = 200.0
+max_hp_fraction_per_hit = 0.075
 medium_damage = 20.0
 strong_damage = 60.0

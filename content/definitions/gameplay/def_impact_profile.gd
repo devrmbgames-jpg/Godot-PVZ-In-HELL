@@ -8,6 +8,8 @@ class_name DEF_ImpactProfile
 ## Damage per transferred joule and energy absorbed without HP loss.
 @export_range(0.0, 10.0) var damage_per_joule: float = 0.15
 @export_range(0.0, 10000.0) var absorption_joules: float = 5.0
+## Portion of effective maximum HP that one physical hit can remove. 1.0 means no cap.
+@export_range(0.0, 1.0, 0.005) var max_hp_fraction_per_hit: float = 1.0
 ## Damage thresholds used for feedback severity, not a replacement for numeric HP damage.
 @export var medium_damage: float = 8.0
 @export var strong_damage: float = 30.0
