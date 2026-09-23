@@ -6,4 +6,5 @@
 - Milestone 1 implemented: C_Health migration, DamageResult.EVENT and separate living/package observers. Static checks before commit; no runtime/tests run.
 - Milestone 1.1: optional one-shot depletion spawns, presentation data event, package lifecycle hook and cardboard placeholder. No runtime/tests run.
 - Milestone 2: physical contact snapshots, receiver thresholds and impulse/energy-bounded directional damage; capture precedes body assistance. Static checks only.
-- Next: pair contact lifetime and separation/re-impact dedup.
+- Milestone 3: per-World contact episodes rearm only on body_exited; removal/disable prune pair and pending state. Sleeping contacts retain consumed state.
+- Next: explicit throw context and bounded one-hit bonus.

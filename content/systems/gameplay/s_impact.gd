@@ -5,6 +5,8 @@ class_name S_Impact
 const CONTACT_LIMIT: int = 16
 const ENERGY_FACTOR: float = 0.5
 
+var _pairs: Dictionary[String, ImpactContactPair] = { }
+
 var _pending: Dictionary[String, PhysicsContact] = { }
 
 
@@ -15,6 +17,8 @@ func deps() -> Dictionary[int, Array]:
 
 func setup() -> void:
 	_world.entity_added.connect(_on_entity_added)
+	_world.entity_removed.connect(_on_entity_unavailable)
+	_world.entity_disabled.connect(_on_entity_unavailable)
 	for entity: Entity in _world.query.execute():
 		_on_entity_added(entity)
 
@@ -25,6 +29,11 @@ func query() -> QueryBuilder:
 
 
 func process(_entities: Array[Entity], _components: Array, _delta: float) -> void:
+	for key: String in _pairs.keys():
+		var pair: ImpactContactPair = _pairs[key]
+		if not is_instance_valid(pair.first) or not is_instance_valid(pair.second):
+			_pairs.erase(key)
+
 	var contacts: Dictionary[String, PhysicsContact] = _pending
 	_pending = { }
 	for contact: PhysicsContact in contacts.values():
@@ -118,6 +127,20 @@ static func evaluate(
 func _resolve(contact: PhysicsContact) -> void:
 	if not _valid(contact):
 		return
+	var key: String = _pair_key(contact)
+	var pair: ImpactContactPair = _pairs.get(key) as ImpactContactPair
+	if pair == null:
+		pair = ImpactContactPair.new()
+		pair.first = contact.body_a
+		pair.second = contact.body_b
+		_pairs[key] = pair
+	if pair.separated_tick >= 0 and contact.tick > pair.separated_tick:
+		pair.resolved = false
+		pair.separated_tick = -1
+	if pair.resolved:
+		return
+	pair.resolved = true
+
 	_resolve_direction(contact.body_a, contact.body_b, contact)
 	_resolve_direction(contact.body_b, contact.body_a, contact)
 
@@ -168,8 +191,38 @@ func _resolve_direction(
 func _on_entity_added(entity: Entity) -> void:
 	var body: RigidBody3D = entity as Node as RigidBody3D
 	if body != null:
+		var on_exit: Callable = _on_body_exited.bind(body)
+		if not body.body_exited.is_connected(on_exit):
+			body.body_exited.connect(on_exit)
 		body.contact_monitor = true
 		body.max_contacts_reported = maxi(body.max_contacts_reported, CONTACT_LIMIT)
+
+
+func _on_body_exited(other: Node, body: PhysicsBody3D) -> void:
+	if not is_instance_valid(other) or not is_instance_valid(body):
+		return
+	var first_id: int = body.get_instance_id()
+	var second_id: int = other.get_instance_id()
+	var key: String = "%d:%d" % [mini(first_id, second_id), maxi(first_id, second_id)]
+	var pair: ImpactContactPair = _pairs.get(key) as ImpactContactPair
+	if pair == null:
+		# Preserve separation even when the first impact is still queued.
+		pair = ImpactContactPair.new()
+		pair.first = body
+		pair.second = other as PhysicsBody3D
+		_pairs[key] = pair
+	pair.separated_tick = Engine.get_physics_frames()
+
+
+func _on_entity_unavailable(entity: Entity) -> void:
+	for key: String in _pairs.keys():
+		var pair: ImpactContactPair = _pairs[key]
+		if pair.first == entity or pair.second == entity:
+			_pairs.erase(key)
+	for key: String in _pending.keys():
+		var contact: PhysicsContact = _pending[key]
+		if contact.body_a == entity or contact.body_b == entity:
+			_pending.erase(key)
 
 
 static func _valid(contact: PhysicsContact) -> bool:
