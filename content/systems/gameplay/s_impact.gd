@@ -11,8 +11,7 @@ var _pending: Dictionary[String, PhysicsContact] = { }
 
 
 #region GECS
-func deps() -> Dictionary[int, Array]:
-	return { Runs.Before: [S_Damage] }
+
 
 
 func setup() -> void:

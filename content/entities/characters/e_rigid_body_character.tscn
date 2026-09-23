@@ -12,6 +12,7 @@
 [ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/definitions/gameplay/attributes/def_attr_health.tres" id="10_5dcb1"]
 [ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/components/gameplay/c_health.gd" id="11_fy2jt"]
 [ext_resource type="PackedScene" uid="uid://c57tjcgwtk4qh" path="res://resources/Animation Library[Standard]/AnimationLibrary_Godot_Standard.glb" id="12_lm6lx"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="17_i8ahg"]
 [ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/components/motion/c_carry_load.gd" id="Grab_carry_load"]
 [ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="Grab_grab_control"]
 [ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="Grab_interactor"]
@@ -75,6 +76,10 @@ script = ExtResource("Push_control")
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
 
+[sub_resource type="Resource" id="Resource_a6ap4"]
+script = ExtResource("17_i8ahg")
+metadata/_custom_type_script = "uid://b3if3it5ryfeh"
+
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_bghjr"]
 height = 1.5362549
 radius = 0.18896484
@@ -108,7 +113,7 @@ camera_root = NodePath("HeadY/HeadX/HeadRoot")
 ray_standing = NodePath("RayCanStand")
 head_axis_y = NodePath("HeadY")
 head_axis_x = NodePath("HeadY/HeadX")
-component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Push_control"), SubResource("Living")])
+component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Push_control"), SubResource("Living"), SubResource("Resource_a6ap4")])
 
 [node name="RayCanStand" type="RayCast3D" parent="." unique_id=724995723]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7507784, 0.010172695)
