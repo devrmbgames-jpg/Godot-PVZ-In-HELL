@@ -37,6 +37,10 @@ Do not automatically reread roadmap docs, root CONTEXT, unchanged files already 
 - Every project-owned script has a short responsibility description; public API and authored/exported configuration use useful `##` Godot doc-comments.
 - GDScript functions must be visually split into semantic blocks with single blank lines. Simplify dense boolean expressions with named predicates, clear nested `if`s, or private helpers; avoid redundant/misleading casts.
 - No magic gameplay constants; use named constants/data.
+- **Systems are atomic. A project `System` must not call another `System` as a service/helper.** Use `deps()` for ordering and Components/Relationships/typed events for data flow.
+- System queries are data contracts: required hot-path Components belong in `with_all(...).iterate(...)`; avoid repeated `get_component()` inside System loops when GECS can provide them.
+- Split monolithic Systems by component set/responsibility instead of branching over optional Components.
+- Physics integration is the only exception at the Entity callback boundary: a RigidBody/physics Entity may forward its Godot physics callback to multiple independent solvers, but those solvers must not call each other.
 - Never claim a formatter/test/Godot run passed unless it actually ran.
 - Never discard user edits, force-push, rewrite unrelated history, or upgrade dependencies unless requested.
 - Never write authored files into `.godot/`.
