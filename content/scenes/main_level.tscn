@@ -31,6 +31,8 @@
 [ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="32_mc3p1"]
 [ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="33_k7ct6"]
 [ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/components/motion/c_carry_load.gd" id="34_efpp8"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_strength.gd" id="Strength"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/attributes/def_attr_strength.tres" id="StrengthDef"]
 [ext_resource type="Script" uid="uid://c38vbt1oqvs4f" path="res://content/components/gameplay/c_receiving.gd" id="41_1hfqo"]
 [ext_resource type="Script" uid="uid://bjw3cnt57gt0j" path="res://content/contracts/packages/package_registration_record.gd" id="44_we4vi"]
 [ext_resource type="PackedScene" uid="uid://cst4hp6tuv5fp" path="res://content/entities/props/bucket.tscn" id="45_8uaqh"]
@@ -144,6 +146,12 @@ script = ExtResource("33_k7ct6")
 
 [sub_resource type="Resource" id="Grab_carry_load"]
 script = ExtResource("34_efpp8")
+
+[sub_resource type="Resource" id="Strength"]
+script = ExtResource("Strength")
+base = 1.0
+value = 1.0
+definition = ExtResource("StrengthDef")
 
 [sub_resource type="Resource" id="Push_control"]
 script = ExtResource("Push_control")
@@ -865,7 +873,7 @@ transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, 6.44
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
 collision_layer = 16
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_m2brv"), SubResource("Grab_carry_load"), SubResource("Push_control"), SubResource("Living"), SubResource("Resource_o1xcv")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_m2brv"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Living"), SubResource("Resource_o1xcv")])
 
 [node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1703744943, 217031396, 2065414162) index="0" unique_id=1494109615]
 cast_shadow = 3

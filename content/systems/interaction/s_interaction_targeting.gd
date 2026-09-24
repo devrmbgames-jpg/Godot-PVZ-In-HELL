@@ -124,9 +124,10 @@ static func _visual_target(holder: Entity, interactor: C_Interactor) -> Node:
 	if not is_instance_valid(interactor.physics_target):
 		return null
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
+	var strength: C_Strength = holder.get_component(C_Strength) as C_Strength
 	return (
 		interactor.physics_target
-		if control != null and control.can_carry_body(interactor.physics_target)
+		if control != null and control.can_carry_body(interactor.physics_target, strength)
 		else null
 	)
 
