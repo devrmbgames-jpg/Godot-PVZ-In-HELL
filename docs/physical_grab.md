@@ -10,7 +10,7 @@
 
 `C_Grabbable.allowed_hand_slots=0` означает Carry-only; флаги Right=2 и Left=4 задают разрешённые руки. Scanner разрешает обе. `C_GrabControl.held_carry/held_right/held_left` — только производные индексы. `S_Grab.held_in_slot()` проверяет relation; агрегатный `held_object()` оставлен для single-object callers и не определяет вместимость.
 
-`S_Grab.try_pickup(holder, target, slot, replace)` полностью проверяет slot/body/ownership/LOS перед освобождением заменяемого предмета. Relationship добавляется на синхронной command boundary. `release` сохраняет инерцию; `throw` сначала освобождает связь и добавляет импульс `direction × mass × throw_velocity`.
+`S_Grab.try_pickup(holder, target, slot, replace)` полностью проверяет slot/body/ownership/LOS перед освобождением заменяемого предмета. Relationship добавляется на синхронной command boundary. `release` сохраняет инерцию; `throw` сначала вычисляет Strength/mass mobility текущего Carry, затем освобождает связь и добавляет импульс `direction × mass × throw_velocity × mobility`.
 
 ## Физика Grab
 
@@ -24,7 +24,7 @@ RigidBody владеет transform/velocity. Для authored `E_GrabbableBody` �
 
 RayCast следует за HeadX, обновляется на границе команды и исключает holder и все три удерживаемых объекта. Первый collider остаётся авторитетом LOS. `O_GrabLifecycle` обслуживает исключения столкновений с holder, can_sleep, cache и очистку. Удаление/отключение участника, смерть, заморозка предмета и чрезмерное расстояние завершают владение; world removal не требует удаления Node.
 
-`C_CarryLoad` относится только к Carry и хранит фактическую массу удерживаемого `RigidBody3D`; hand-items не влияют на него. Player имеет `C_Strength` (default `base=value=1.0`). Общая политика `CarryLoadPolicy` вычисляет границы: `min = 10 + 20 * Strength.value`, `max = 90 + 30 * Strength.value`. До `min` сохраняется 100% `C_Motion.max_speed`; между `min` и `max` скорость линейно падает до нуля; тяжелее `max` поднять нельзя. При Strength=1 это 30 кг без штрафа и предел 120 кг. Ускорение движения не масштабируется массой. Значение пересчитывается из текущего Strength каждый physics tick, поэтому modifier Strength сразу влияет на уже удерживаемый объект. Стандартная дистанция Carry — 1,25 м; предмет может её переопределить.
+`C_CarryLoad` относится только к Carry и хранит фактическую массу удерживаемого `RigidBody3D`; hand-items не влияют на него. Player имеет `C_Strength` (default `base=value=1.0`). Общая политика `CarryLoadPolicy` вычисляет границы: `min = 10 + 20 * Strength.value`, `max = 90 + 30 * Strength.value`. До `min` mobility = 1; между `min` и `max` mobility линейно падает до нуля; тяжелее `max` поднять нельзя. При Strength=1 это 30 кг без штрафа и предел 120 кг. Один и тот же mobility multiplier применяется к `C_Motion.max_speed`, mouse/gamepad look, физическому повороту головы/корпуса, ручному вращению удерживаемого предмета и базовой `throw_velocity`. Ускорение движения отдельно не масштабируется. Значение пересчитывается из текущего Strength каждый physics tick/input action, поэтому modifier Strength сразу влияет на уже удерживаемый объект. Например 75 кг при Strength=1 даёт 50% скорости/поворота/броска, а 120 кг — 0%; предмет всё ещё можно отпустить через Drop/Release. Стандартная дистанция Carry — 1,25 м; предмет может её переопределить.
 
 ## Capture и anchors
 
@@ -40,7 +40,7 @@ Carry relation, Push relation и каждый Terminal владеют своим
 
 PRIMARY в `C_InteractionActionSet` — use-action инструмента. Resolver отображает ЛКМ/ПКМ на физические руки через swap_hand_controls; занятая рука резервирует свою кнопку даже без доступной цели. Alt бросает mapped hand. R вращает первый разрешённый предмет в порядке primary → secondary только без конфликтующего use-input. Carry использует ПКМ. Все подсказки читает HUD из C_Interactor.prompt_text; HUD не владеет gameplay.
 
-`manual_rotation_enabled` отключает ручное вращение и его prompt. FREE применяет pitch/yaw, Y_ONLY меняет только yaw rotation offset. `reset_rotation_on_pickup` задаёт identity offset относительно выбранного anchor; без него сохраняется текущая относительная ориентация. Scanner запрещает вращение и сбрасывает offset; Bucket имеет Y_ONLY и reset.
+`manual_rotation_enabled` отключает ручное вращение и его prompt. FREE применяет pitch/yaw, Y_ONLY меняет только yaw rotation offset. Rotation input масштабируется тем же Carry mobility, что и locomotion/camera; тяжёлый предмет нельзя мгновенно прокрутить на месте. `reset_rotation_on_pickup` задаёт identity offset относительно выбранного anchor; без него сохраняется текущая относительная ориентация. Scanner запрещает вращение и сбрасывает offset; Bucket имеет Y_ONLY и reset.
 
 G short-release освобождает один слот Carry → Left → Right. Порог `drop_long_press_seconds` настраивается в Inspector (0,45 с); long-press выставляет placeholder-состояние без short-drop. Полного radial menu нет.
 
