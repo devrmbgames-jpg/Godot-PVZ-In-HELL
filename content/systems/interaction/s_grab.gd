@@ -1,5 +1,5 @@
 extends System
-## Validates three-slot ownership and integrates physical holding through body callbacks.
+## Validates three-slot ownership and integrates callback-driven or generic rigid-body holding.
 class_name S_Grab
 
 #region Constants

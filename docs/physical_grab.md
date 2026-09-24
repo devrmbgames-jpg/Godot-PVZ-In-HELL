@@ -63,6 +63,6 @@ python utils/validate_project_structure.py
 <godot> --headless --path . res://tests/smoke/receiving_scan_smoke.tscn --quit-after 360
 ```
 
-Для smoke необходим явный PASS marker. Существующие GUT suites проверяют слоты, replacement, capture nesting, mapped input, G, rotation policies, LOS, collision cleanup, реальные силы/вращение, Push-скорости, стену и player-follow. Проверка main scene подтверждает, что стартовая тележка не пересекает геометрию. Новые GUT suites не добавлялись.
+Для smoke необходим явный PASS marker. Существующий `test_s_grab.gd` дополнительно содержит шесть regression cases для полностью scriptless `RigidBody3D`: separate physics targeting, lazy proxy pickup через E, mass/`no_carry` policy, inertia/collision cleanup, force-based follow без teleport и cleanup при удалении исходного body. Остальные проверки покрывают слоты, replacement, capture nesting, mapped input, G, rotation policies, LOS, реальные силы/вращение, Push-скорости, стену и player-follow. Проверка main scene подтверждает, что стартовая тележка не пересекает геометрию.
 
 Автоматические проверки не заменяют ручную оценку удобства камеры, геймпада и тесных поворотов тележки.
