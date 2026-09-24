@@ -418,6 +418,7 @@ func test_raycast_selects_and_highlights_only_the_current_target() -> void:
 	var previous_overlay: StandardMaterial3D = StandardMaterial3D.new()
 	mesh_instance.material_overlay = previous_overlay
 	interactor.target = null
+	interactor.physics_target = null
 	targeting.process([holder_entity], [[interactor]], 0.0)
 	assert_eq(interactor.target, box_entity)
 	assert_not_null(mesh_instance.material_overlay)
