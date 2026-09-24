@@ -1,5 +1,5 @@
 extends RefCounted
-## Bridges arbitrary RigidBody3D nodes into the existing C_HeldBy relationship model.
+## Bridges arbitrary RigidBody3D nodes into the existing R_HeldBy relationship model.
 class_name PhysicsGrabTarget
 
 const META_PROXY: StringName = &"_gecs_grab_proxy"

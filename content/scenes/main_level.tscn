@@ -54,6 +54,8 @@
 [ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
 [ext_resource type="Script" uid="uid://ccooufygakw6e" path="res://content/systems/interaction/s_grab.gd" id="Grab_system"]
 [ext_resource type="Script" uid="uid://6wrg3mgcm4e6" path="res://content/systems/interaction/s_interaction_targeting.gd" id="Grab_targeting"]
+[ext_resource type="Script" uid="uid://egauqyysrjr" path="res://content/observers/gameplay/o_hazard_emitter.gd" id="HazardEmitter"]
+[ext_resource type="Script" uid="uid://ehhc4j05ncp" path="res://content/observers/gameplay/o_hazard_spawn.gd" id="HazardSpawn"]
 [ext_resource type="Script" uid="uid://11f2xganwshj" path="res://content/observers/gameplay/o_health_lifecycle.gd" id="HealthLifecycle"]
 [ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
 [ext_resource type="Script" uid="uid://cynilnihkqgor" path="res://content/systems/gameplay/s_impact.gd" id="ImpactSystem"]
@@ -65,11 +67,20 @@
 [ext_resource type="Script" uid="uid://bupm4th6s12s4" path="res://content/systems/interaction/s_marker.gd" id="Marker_system"]
 [ext_resource type="Script" uid="uid://6aul5eahny" path="res://content/observers/gameplay/o_package_condition_setup.gd" id="PackageConditionSetup"]
 [ext_resource type="Script" uid="uid://23bxju80ro1e" path="res://content/observers/gameplay/o_package_damage.gd" id="PackageDamage"]
+[ext_resource type="Script" uid="uid://b6kqjvf7okt" path="res://content/observers/gameplay/o_package_hazard.gd" id="PackageHazard"]
+[ext_resource type="Script" uid="uid://4yk6mcke0o7" path="res://content/observers/gameplay/o_package_hazard_setup.gd" id="PackageHazardSetup"]
 [ext_resource type="Script" uid="uid://87f03fqiuik" path="res://content/observers/gameplay/o_package_opening.gd" id="PackageOpening"]
 [ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
 [ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
 [ext_resource type="Script" uid="uid://b1kydo46m6k8r" path="res://content/observers/interaction/o_push_lifecycle.gd" id="Push_lifecycle"]
 [ext_resource type="Script" uid="uid://dh02s00t856fk" path="res://content/systems/interaction/s_push.gd" id="Push_system"]
+[ext_resource type="Script" uid="uid://fnxn6hvx534" path="res://content/observers/gameplay/o_explosion_setup.gd" id="R09_o_explosion_setup"]
+[ext_resource type="Script" uid="uid://hkxsuarcavw" path="res://content/observers/gameplay/o_toxic_area_setup.gd" id="R09_o_toxic_area_setup"]
+[ext_resource type="Script" uid="uid://bg3goeeojlb" path="res://content/observers/gameplay/o_hazard_reset.gd" id="R09_reset"]
+[ext_resource type="Script" uid="uid://75atwmsugfb" path="res://content/systems/gameplay/s_explosion.gd" id="R09_s_explosion"]
+[ext_resource type="Script" uid="uid://g8pfaexm0ub" path="res://content/systems/gameplay/s_hazard_follow.gd" id="R09_s_hazard_follow"]
+[ext_resource type="Script" uid="uid://5d23da8irja" path="res://content/systems/gameplay/s_hazard_lifetime.gd" id="R09_s_hazard_lifetime"]
+[ext_resource type="Script" uid="uid://bbu8jbx3xpd" path="res://content/systems/gameplay/s_toxic_area.gd" id="R09_s_toxic_area"]
 [ext_resource type="Script" uid="uid://28wsslbgucs3" path="res://content/systems/gameplay/s_receiving.gd" id="Receiving_system"]
 [ext_resource type="PackedScene" uid="uid://cpbp0t8jkh0ak" path="res://content/entities/zones/receiving_zone.tscn" id="Receiving_zone"]
 [ext_resource type="PackedScene" uid="uid://bxvltfdywwg6h" path="res://content/entities/tools/scanner.tscn" id="Scanner_scene"]
@@ -81,21 +92,6 @@
 [ext_resource type="Resource" path="res://content/definitions/gameplay/attributes/def_attr_strength.tres" id="StrengthDef"]
 [ext_resource type="PackedScene" path="res://content/entities/stations/terminal.tscn" id="Terminal_scene"]
 [ext_resource type="Script" uid="uid://d374l476phm" path="res://content/systems/gameplay/s_throw_lifetime.gd" id="ThrowLifetime"]
-
-[ext_resource type="Script" path="res://content/observers/gameplay/o_hazard_spawn.gd" id="HazardSpawn"]
-[ext_resource type="Script" path="res://content/observers/gameplay/o_hazard_emitter.gd" id="HazardEmitter"]
-[ext_resource type="Script" path="res://content/observers/gameplay/o_package_hazard.gd" id="PackageHazard"]
-[ext_resource type="Script" path="res://content/observers/gameplay/o_package_hazard_setup.gd" id="PackageHazardSetup"]
-
-[ext_resource type="Script" path="res://content/observers/gameplay/o_toxic_area_setup.gd" id="R09_o_toxic_area_setup"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_toxic_area.gd" id="R09_s_toxic_area"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_hazard_follow.gd" id="R09_s_hazard_follow"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_hazard_lifetime.gd" id="R09_s_hazard_lifetime"]
-
-[ext_resource type="Script" path="res://content/systems/gameplay/s_explosion.gd" id="R09_s_explosion"]
-[ext_resource type="Script" path="res://content/observers/gameplay/o_explosion_setup.gd" id="R09_o_explosion_setup"]
-
-[ext_resource type="Script" path="res://content/observers/gameplay/o_hazard_reset.gd" id="R09_reset"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
@@ -158,7 +154,7 @@ metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 script = ExtResource("32_mc3p1")
 collision_mask = 31
 
-[sub_resource type="Resource" id="Resource_ypydk"]
+[sub_resource type="Resource" id="Resource_3t88y"]
 resource_local_to_scene = true
 script = ExtResource("33_k7ct6")
 
@@ -177,12 +173,12 @@ script = ExtResource("Push_control")
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
 
-[sub_resource type="Resource" id="Resource_2te2u"]
+[sub_resource type="Resource" id="Resource_fy0f5"]
 resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
 profile = ExtResource("LivingImpact")
 
-[sub_resource type="Resource" id="Resource_e02qi"]
+[sub_resource type="Resource" id="Resource_2lnc1"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 
@@ -206,7 +202,7 @@ script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Action")])
 reserved_slots = 4
 
-[sub_resource type="Resource" id="Resource_oa1kg"]
+[sub_resource type="Resource" id="Resource_6yccx"]
 resource_local_to_scene = true
 script = ExtResource("41_1hfqo")
 
@@ -230,7 +226,7 @@ caption = "Лечь спать"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Sleep_transition")])
 
-[sub_resource type="Resource" id="Resource_btesk"]
+[sub_resource type="Resource" id="Resource_sx74o"]
 resource_local_to_scene = true
 script = ExtResource("63_3w6s4")
 
@@ -274,49 +270,45 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 script = ExtResource("Receiving_system")
 group = &"GamePlay"
 
-[node name="PackageConditionSetup" type="Node" parent="World/Systems/GamePlay" unique_id=902458022]
+[node name="O_PackageConditionSetup" type="Node" parent="World/Systems/GamePlay" unique_id=902458022]
 script = ExtResource("PackageConditionSetup")
 
-[node name="PackageOpening" type="Node" parent="World/Systems/GamePlay" unique_id=59264951]
+[node name="O_PackageOpening" type="Node" parent="World/Systems/GamePlay" unique_id=59264951]
 script = ExtResource("PackageOpening")
 
-[node name="HazardSpawn" type="Node" parent="World/Systems/GamePlay"]
+[node name="O_HazardSpawn" type="Node" parent="World/Systems/GamePlay" unique_id=317172111]
 script = ExtResource("HazardSpawn")
 
-[node name="HazardEmitter" type="Node" parent="World/Systems/GamePlay"]
+[node name="O_HazardEmitter" type="Node" parent="World/Systems/GamePlay" unique_id=1690692378]
 script = ExtResource("HazardEmitter")
 
-[node name="PackageHazard" type="Node" parent="World/Systems/GamePlay"]
+[node name="O_PackageHazard" type="Node" parent="World/Systems/GamePlay" unique_id=1324523525]
 script = ExtResource("PackageHazard")
 
-[node name="PackageHazardSetup" type="Node" parent="World/Systems/GamePlay"]
+[node name="O_PackageHazardSetup" type="Node" parent="World/Systems/GamePlay" unique_id=2050366717]
 script = ExtResource("PackageHazardSetup")
 
-
-[node name="OToxicAreaSetup" type="Node" parent="World/Systems/GamePlay"]
+[node name="O_ToxicAreaSetup" type="Node" parent="World/Systems/GamePlay" unique_id=180493485]
 script = ExtResource("R09_o_toxic_area_setup")
 
-[node name="SToxicArea" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_ToxicArea" type="Node" parent="World/Systems/GamePlay" unique_id=102074688]
 script = ExtResource("R09_s_toxic_area")
 group = &"GamePlay"
 
-[node name="SHazardFollow" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_HazardFollow" type="Node" parent="World/Systems/GamePlay" unique_id=1158140279]
 script = ExtResource("R09_s_hazard_follow")
 group = &"GamePlay"
 
-[node name="SHazardLifetime" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_HazardLifetime" type="Node" parent="World/Systems/GamePlay" unique_id=1315152219]
 script = ExtResource("R09_s_hazard_lifetime")
-group = &"GamePlay"
 
-
-[node name="SExplosion" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_Explosion" type="Node" parent="World/Systems/GamePlay" unique_id=1112609335]
 script = ExtResource("R09_s_explosion")
-group = &"GamePlay"
 
-[node name="OExplosionSetup" type="Node" parent="World/Systems/GamePlay"]
+[node name="O_ExplosionSetup" type="Node" parent="World/Systems/GamePlay" unique_id=1007185748]
 script = ExtResource("R09_o_explosion_setup")
 
-[node name="HazardReset" type="Node" parent="World/Systems/GamePlay"]
+[node name="O_HazardReset" type="Node" parent="World/Systems/GamePlay" unique_id=295873802]
 script = ExtResource("R09_reset")
 
 [node name="O_Damage" type="Node" parent="World/Systems/GamePlay" unique_id=1820599322]
@@ -334,7 +326,6 @@ script = ExtResource("DepletionEffects")
 
 [node name="S_ThrowLifetime" type="Node" parent="World/Systems/GamePlay" unique_id=1650643555]
 script = ExtResource("ThrowLifetime")
-group = &"GamePlay"
 
 [node name="S_LiquidTilt" type="Node" parent="World/Systems/GamePlay" unique_id=1536960542]
 script = ExtResource("LiquidTilt")
@@ -391,6 +382,7 @@ group = &"Interaction"
 
 [node name="S_Grab" type="Node" parent="World/Systems/Interaction" unique_id=767923781]
 script = ExtResource("Grab_system")
+group = &"Interaction"
 
 [node name="S_Push" type="Node" parent="World/Systems/Interaction" unique_id=285721213]
 script = ExtResource("Push_system")
@@ -929,7 +921,7 @@ transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, 6.44
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
 collision_layer = 16
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_ypydk"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Living"), SubResource("Resource_2te2u")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_3t88y"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Living"), SubResource("Resource_fy0f5")])
 
 [node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1703744943, 217031396, 2065414162) index="0" unique_id=1494109615]
 cast_shadow = 3
@@ -951,12 +943,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2402446, 1.45, -2)
 
 [node name="Marker" parent="Entityes" unique_id=1749342287 instance=ExtResource("Marker_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.45, 1.45, -2)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_e02qi"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_2lnc1"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6876402, 0, 3.4474401)
 package_parent = NodePath("..")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_oa1kg")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_6yccx")])
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")
@@ -986,7 +978,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2480266, 0.09600389, -8.165
 
 [node name="PushCart" parent="Entityes" unique_id=1664321513 instance=ExtResource("Push_cart")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6.714551, 0.8329964, 2.8046627)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_btesk"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_sx74o"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 
 [node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player", "phase_system") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")

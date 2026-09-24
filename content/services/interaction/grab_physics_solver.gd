@@ -10,7 +10,7 @@ const ANCHOR_TRANSITION_SECONDS: float = 0.5
 static func integrate_state(
 	state: PhysicsDirectBodyState3D,
 	anchor: Node3D,
-	grip: C_HeldBy,
+	grip: R_HeldBy,
 	profile: GrabControlProfile,
 	allowed_break_distance: float,
 ) -> bool:
@@ -57,7 +57,7 @@ static func integrate_body(
 	body: RigidBody3D,
 	step: float,
 	anchor: Node3D,
-	grip: C_HeldBy,
+	grip: R_HeldBy,
 	profile: GrabControlProfile,
 	allowed_break_distance: float,
 ) -> bool:
@@ -140,11 +140,11 @@ static func rotation_velocity(
 	return (rotation_error / step).limit_length(maxf(profile.max_rotation_speed, 0.0))
 
 
-static func _desired_position(anchor: Node3D, grip: C_HeldBy) -> Vector3:
+static func _desired_position(anchor: Node3D, grip: R_HeldBy) -> Vector3:
 	return anchor.global_position - anchor.global_basis.z * grip.hold_distance
 
 
-static func _desired_rotation(anchor: Node3D, grip: C_HeldBy) -> Quaternion:
+static func _desired_rotation(anchor: Node3D, grip: R_HeldBy) -> Quaternion:
 	return (
 		anchor.global_basis.orthonormalized().get_rotation_quaternion()
 		* grip.rotation_offset
@@ -153,7 +153,7 @@ static func _desired_rotation(anchor: Node3D, grip: C_HeldBy) -> Quaternion:
 
 static func _sample_anchor(
 	anchor: Node3D,
-	grip: C_HeldBy,
+	grip: R_HeldBy,
 	step: float,
 	position_error: Vector3,
 	allowed_break_distance: float,
@@ -169,7 +169,7 @@ static func _sample_anchor(
 
 static func _sampled_anchor_velocity(
 	anchor: Node3D,
-	grip: C_HeldBy,
+	grip: R_HeldBy,
 	desired_position: Vector3,
 	step: float,
 ) -> Vector3:
@@ -184,7 +184,7 @@ static func _sampled_anchor_velocity(
 
 static func _commit_anchor_sample(
 	anchor: Node3D,
-	grip: C_HeldBy,
+	grip: R_HeldBy,
 	desired_position: Vector3,
 ) -> void:
 	grip.previous_anchor_id = anchor.get_instance_id()

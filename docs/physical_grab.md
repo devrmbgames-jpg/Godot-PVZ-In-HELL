@@ -6,7 +6,7 @@
 
 Статические Components и действия задаются через scene `component_resources`: Player, Scanner, Package, Terminal, DaySession, станции, приёмка и PushCart. Единственное project-owned исключение `define_components()` — spawn-specific `C_Package` с устойчивым ID и переданной definition. Состояние/целостность Package авторятся в сцене; спавнер меняет только физическую массу и индивидуальную скорость броска. Скорость движения с Carry не авторится на предметах. Изменяемые scene-ресурсы с контейнерами изолированы между экземплярами.
 
-Источник владения — `предмет --C_HeldBy--> holder`. `C_HeldBy.slot` выбирается при pickup: CARRY, RIGHT_HAND или LEFT_HAND. Один объект имеет одного holder; каждый слот вмещает один объект. Holder может одновременно держать три предмета.
+Источник владения — `предмет --R_HeldBy--> holder`. `R_HeldBy.slot` выбирается при pickup: CARRY, RIGHT_HAND или LEFT_HAND. Один объект имеет одного holder; каждый слот вмещает один объект. Holder может одновременно держать три предмета.
 
 `C_Grabbable.allowed_hand_slots=0` означает Carry-only; флаги Right=2 и Left=4 задают разрешённые руки. Scanner разрешает обе. `C_GrabControl.held_carry/held_right/held_left` — только производные индексы. `S_Grab.held_in_slot()` проверяет relation; агрегатный `held_object()` оставлен для single-object callers и не определяет вместимость.
 
@@ -16,7 +16,7 @@
 
 RigidBody владеет transform/velocity. Для authored `E_GrabbableBody` существующий `_integrate_forces` продолжает передавать state в общий `GrabPhysicsSolver`. Обычный `RigidBody3D` **вообще без script/Entity/Components** может использовать тот же Carry: `S_InteractionTargeting` хранит первый rigid collider в `C_Interactor.physics_target`, а при фактическом pickup `PhysicsGrabTarget` создаёт лёгкий runtime GECS proxy с `C_PhysicsBodyRef`. Сам исходный body не получает script и не становится gameplay Entity.
 
-`C_HeldBy` остаётся единственным ownership-authority и хранится на Entity либо на таком proxy. Для scriptless/foreign rigid body `S_Grab` применяет `GrabPhysicsSolver` перед physics step через обычные forces/angular velocity; callback чужого body не подменяется. Нет reparent, freeze или teleport. Удаление исходного body удаляет proxy и освобождает Carry.
+`R_HeldBy` остаётся единственным ownership-authority и хранится на Entity либо на таком proxy. Для scriptless/foreign rigid body `S_Grab` применяет `GrabPhysicsSolver` перед physics step через обычные forces/angular velocity; callback чужого body не подменяется. Нет reparent, freeze или teleport. Удаление исходного body удаляет proxy и освобождает Carry.
 
 По умолчанию raw rigid body является **Carry-only** и использует `GrabControlProfile` со стандартными коэффициентами. `C_Grabbable` является authored override для hand slots и throw/rotation/hold tuning, но не задаёт штраф скорости и не является обязательным маркером физической поднимаемости. Группа `no_carry` остаётся Inspector-friendly opt-out; freeze и невалидная масса также запрещают generic pickup. Валидный Carry-candidate, который не проходит только Strength/mass limit, всё равно подсвечивается. Вместо pickup action HUD показывает `Слишком Тяжелое` без кнопки `[E]`; `no_carry`, freeze и невалидная масса не используют это сообщение.
 
@@ -46,7 +46,7 @@ G short-release освобождает один слот Carry → Left → Righ
 
 ## Push
 
-`PushCart` имеет C_Pushable и C_Interactable, но не C_Grabbable. Authority — отдельная связь `cart --C_PushedBy--> actor`; C_PushControl.pushed_object — проверяемый reverse cache. `DEF_PushAction` начинает/заканчивает Push через общий resolver; `O_PushLifecycle` обслуживает world/tree cleanup и can_sleep.
+`PushCart` имеет C_Pushable и C_Interactable, но не C_Grabbable. Authority — отдельная связь `cart --R_PushedBy--> actor`; C_PushControl.pushed_object — проверяемый reverse cache. `DEF_PushAction` начинает/заканчивает Push через общий resolver; `O_PushLifecycle` обслуживает world/tree cleanup и can_sleep.
 
 W задаёт фиксированную forward_speed, A/D — turn_speed в радианах/с; скорость не зависит от mouse sensitivity. S/E завершает режим, задней тяги нет. `S_Push.integrate_cart` задаёт скорости только на физическом шаге, сохраняя gravity/collision response. `S_Motion` передаёт планарное движение игрока в `S_Push.integrate_actor`: физическая скорость ведёт его за рукоятью с ограниченной коррекцией, без записи transform.
 

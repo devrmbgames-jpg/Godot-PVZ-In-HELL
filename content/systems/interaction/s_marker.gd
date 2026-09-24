@@ -46,7 +46,7 @@ static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
 	var grip: Relationship = S_Grab.held_relationship(tool)
 	if grip == null or grip.target != actor:
 		return false
-	if (grip.relation as C_HeldBy).slot == C_Grabbable.HoldSlot.CARRY:
+	if (grip.relation as R_HeldBy).slot == C_Grabbable.HoldSlot.CARRY:
 		return false
 
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor

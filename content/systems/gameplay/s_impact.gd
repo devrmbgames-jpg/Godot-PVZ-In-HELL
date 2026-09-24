@@ -242,6 +242,6 @@ static func _held_relationship(entity: Entity) -> Relationship:
 	if not is_instance_valid(entity):
 		return null
 	for grip: Relationship in entity.relationships:
-		if grip.relation is C_HeldBy:
+		if grip.relation is R_HeldBy:
 			return grip
 	return null

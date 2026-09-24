@@ -40,7 +40,7 @@ static func try_begin(actor: Entity, cart: Entity) -> bool:
 	if not can_begin(actor, cart):
 		return false
 
-	cart.add_relationship(Relationship.new(C_PushedBy.new(), actor))
+	cart.add_relationship(Relationship.new(R_PushedBy.new(), actor))
 	return pushed_object(actor) == cart
 
 
@@ -66,7 +66,7 @@ static func push_added(cart: Entity, relation: Relationship) -> bool:
 	if pushed_object(actor) != null:
 		return false
 
-	var data: C_PushedBy = relation.relation as C_PushedBy
+	var data: R_PushedBy = relation.relation as R_PushedBy
 	var body: RigidBody3D = cart as Node as RigidBody3D
 	data.previous_can_sleep = body.can_sleep
 	data.capture_token = InteractionControlFocus.acquire(
@@ -90,7 +90,7 @@ static func push_added(cart: Entity, relation: Relationship) -> bool:
 
 ## Idempotent teardown also works when World removal disconnects relation signals first.
 static func push_removed(cart: Entity, relation: Relationship) -> void:
-	var data: C_PushedBy = relation.relation as C_PushedBy
+	var data: R_PushedBy = relation.relation as R_PushedBy
 	if not data.lifecycle_applied:
 		return
 
@@ -181,7 +181,7 @@ static func integrate_actor(actor: Entity, state: PhysicsDirectBodyState3D) -> b
 static func relationship(cart: Entity) -> Relationship:
 	if is_instance_valid(cart):
 		for relation: Relationship in cart.relationships:
-			if relation.relation is C_PushedBy:
+			if relation.relation is R_PushedBy:
 				return relation
 
 	return null

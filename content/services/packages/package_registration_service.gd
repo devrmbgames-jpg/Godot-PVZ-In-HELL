@@ -22,7 +22,7 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	if grip == null or grip.target != actor or not scanner.has_component(C_Scanner):
 		return false
 	if (
-		(grip.relation as C_HeldBy).slot == C_Grabbable.HoldSlot.CARRY
+		(grip.relation as R_HeldBy).slot == C_Grabbable.HoldSlot.CARRY
 		or InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.HANDS
 	):
 		return false

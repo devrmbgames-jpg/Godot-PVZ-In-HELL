@@ -9,7 +9,8 @@ Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the
 | Configuration | [project.godot](project.godot) | Startup, autoloads, input, plugins, physics/rendering |
 | Startup | [main_level.tscn](content/scenes/main_level.tscn) | Main playable prototype |
 | Gameplay context | [content/CONTEXT.md](content/CONTEXT.md) | Cross-system runtime contracts; read only when relevant |
-| Components | `content/components/` | Mutable GECS data only |
+| Components | `content/components/` | Mutable GECS actor/effect data |
+| Relationships | `content/relationships/` | `R_*` ownership/link data by subsystem; GECS payloads still extend Component |
 | Contracts | `content/contracts/` | Requests/results/runtime records/DTO-like typed data |
 | Definitions | `content/definitions/` | Immutable design Resources and authored `.tres` |
 | Entities | `content/entities/` | Entity scripts colocated with world scenes by category |
@@ -34,7 +35,7 @@ Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the
 | Look | [c_look.gd](content/components/motion/c_look.gd), [s_look.gd](content/systems/motion/s_look.gd) |
 | Jump / crouch | [s_jump.gd](content/systems/motion/s_jump.gd), [s_crouch.gd](content/systems/motion/s_crouch.gd) |
 | Grab / targeting | [s_grab.gd](content/systems/interaction/s_grab.gd), [s_interaction_targeting.gd](content/systems/interaction/s_interaction_targeting.gd), [o_grab_lifecycle.gd](content/observers/interaction/o_grab_lifecycle.gd), [PhysicsGrabTarget](content/services/interaction/physics_grab_target.gd), [GrabPhysicsSolver](content/services/interaction/grab_physics_solver.gd), [CarryLoadPolicy](content/services/interaction/carry_load_policy.gd); scriptless RigidBody3D Carry + Strength-based mobility for move/look/rotate/throw |
-| Physical Push | [s_push.gd](content/systems/interaction/s_push.gd), [o_push_lifecycle.gd](content/observers/interaction/o_push_lifecycle.gd); C_Pushable/C_PushedBy/C_PushControl; independent puzzle mechanic |
+| Physical Push | [s_push.gd](content/systems/interaction/s_push.gd), [o_push_lifecycle.gd](content/observers/interaction/o_push_lifecycle.gd); C_Pushable/R_PushedBy/C_PushControl; independent puzzle mechanic |
 | Cart transport | [push_cart.tscn](content/entities/props/push_cart.tscn), [s_cart_transport.gd](content/systems/interaction/s_cart_transport.gd), [c_cart_transport.gd](content/components/interaction/c_cart_transport.gd); CharacterBody3D forward/reverse transport |
 | Cart cargo | [s_cart_cargo.gd](content/systems/interaction/s_cart_cargo.gd), [c_cart_cargo.gd](content/components/interaction/c_cart_cargo.gd); [transport contract](docs/cart_transport.md) |
 | Interaction routing | [interaction_action_resolver.gd](content/services/interaction/interaction_action_resolver.gd), [interaction_control_focus.gd](content/services/interaction/interaction_control_focus.gd) |
@@ -90,3 +91,5 @@ Update this file immediately when canonical paths move. Do not turn it into an a
 - Definitions/prefabs: `content/definitions/gameplay/hazards/`, `content/entities/hazards/`.
 - Hazard contracts/attachment/reset: [docs/hazards.md](docs/hazards.md).
 - User-operated smoke: `utils/run_smoke.ps1 -Name hazards`; standalone fixture `tests/smoke/hazards_smoke.tscn`; [runner usage](docs/smoke_runner.md).
+
+- Relationship types: `content/relationships/interaction/r_held_by.gd`, `r_pushed_by.gd`; `content/relationships/gameplay/r_hazard_follow.gd`. Follow uses direct owner-link state; HeldBy/PushedBy are GECS edge payloads.

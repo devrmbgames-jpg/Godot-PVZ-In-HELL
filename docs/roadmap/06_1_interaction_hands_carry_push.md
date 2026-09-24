@@ -39,7 +39,7 @@
 
 Авторитет владения остается relationship, а не поле на holder.
 
-`C_HeldBy` или эквивалентная relation должна хранить выбранный runtime-slot:
+`R_HeldBy` или эквивалентная relation должна хранить выбранный runtime-slot:
 
 - `CARRY`;
 - `RIGHT_HAND`;
@@ -169,7 +169,7 @@ LMB/RMB hand-use имеют приоритет над generic rotate, когда
 
 Контракт:
 
-- Pushable не занимает Carry/hand slot и не получает `C_HeldBy`;
+- Pushable не занимает Carry/hand slot и не получает `R_HeldBy`;
 - взаимодействие начинается через общий contextual interaction resolver;
 - во время активного push/focus объект находится только перед игроком: механика не должна превращаться в pulling сзади;
 - движение вперед толкает объект с фиксированной, data-driven скоростью;

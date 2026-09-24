@@ -42,7 +42,7 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	var grip: Relationship = S_Grab.held_relationship(source)
 	if grip == null or grip.target != actor:
 		return false
-	var grip_data: C_HeldBy = grip.relation as C_HeldBy
+	var grip_data: R_HeldBy = grip.relation as R_HeldBy
 	if (
 		grip_data.slot != C_Grabbable.HoldSlot.CARRY
 		and focus != InteractionControlFocus.Priority.HANDS
@@ -74,7 +74,7 @@ func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 			if control == null or controller == null or grip == null:
 				return
 			control.rotation_active = true
-			var grip_data: C_HeldBy = grip.relation as C_HeldBy
+			var grip_data: R_HeldBy = grip.relation as R_HeldBy
 			var profile: GrabControlProfile = (
 				grip_data.profile if grip_data.profile != null else S_Grab.profile_for(source)
 			)

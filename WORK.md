@@ -15,4 +15,4 @@ Implementation complete; acceptance pending user-run hazards smoke and gameplay 
 ## User follow-up
 
 - [x] Fix freed-object availability boundary and explosion origin handoff (static validation only).
-- [ ] Separate relationship types into structured content/relationships/ with R_ naming; preserve UIDs/references and user scene edits.
+- [x] Separate relationship types into structured content/relationships/ with R_ naming; preserve UIDs/references and user scene edits.

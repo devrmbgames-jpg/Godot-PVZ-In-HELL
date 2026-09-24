@@ -147,7 +147,7 @@ func _grabbable(entity: Entity) -> C_Grabbable:
 
 
 func _add_external_grip(held: Entity, slot_index: C_Grabbable.HoldSlot) -> void:
-	var grip_data: C_HeldBy = C_HeldBy.new()
+	var grip_data: R_HeldBy = R_HeldBy.new()
 	grip_data.slot = slot_index
 	held.add_relationship(Relationship.new(grip_data, holder_entity))
 #endregion
@@ -326,7 +326,7 @@ func test_rotation_uses_offset_and_preserves_input_and_look() -> void:
 	var initial_look: Vector3 = input_state.direction_look
 	var initial_basis: Basis = box_body.basis
 	S_Grab.handle_input(holder_entity)
-	var grip: C_HeldBy = S_Grab.held_relationship(box_entity).relation as C_HeldBy
+	var grip: R_HeldBy = S_Grab.held_relationship(box_entity).relation as R_HeldBy
 	assert_true(grab_control.rotation_active)
 	assert_false(grip.rotation_offset.is_equal_approx(Quaternion.IDENTITY))
 	assert_eq(input_state.look_delta, Vector2(30.0, 20.0))
@@ -357,7 +357,7 @@ func test_external_relationship_removal_restores_runtime_state() -> void:
 
 
 func test_external_relationship_addition_applies_lifecycle() -> void:
-	box_entity.add_relationship(Relationship.new(C_HeldBy.new(), holder_entity))
+	box_entity.add_relationship(Relationship.new(R_HeldBy.new(), holder_entity))
 	assert_eq(S_Grab.held_object(holder_entity), box_entity)
 	assert_true(carry_load.active)
 	S_Grab.release(holder_entity, box_entity)
@@ -490,7 +490,7 @@ func test_carry_mobility_scales_camera_manual_rotation_and_throw_velocity() -> v
 	input_state.input_tick += 1
 	input_state.look_delta = Vector2(100.0, 0.0)
 	S_Grab.handle_input(holder_entity)
-	var grip: C_HeldBy = S_Grab.held_relationship(box_entity).relation as C_HeldBy
+	var grip: R_HeldBy = S_Grab.held_relationship(box_entity).relation as R_HeldBy
 	assert_almost_eq(absf(grip.rotation_offset.get_euler().y), 0.3, 0.001)
 
 	input_state.action_second_held = false
@@ -616,7 +616,7 @@ func test_hand_pickup_rotation_reset_and_relative_offset() -> void:
 	box_body.global_basis = Basis(Vector3.UP, PI * 0.75)
 	config.reset_rotation_on_pickup = true
 	assert_true(S_Grab.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
-	var reset_grip: C_HeldBy = S_Grab.held_relationship(box_entity).relation as C_HeldBy
+	var reset_grip: R_HeldBy = S_Grab.held_relationship(box_entity).relation as R_HeldBy
 	assert_eq(reset_grip.rotation_offset, Quaternion.IDENTITY)
 	S_Grab.release(holder_entity, box_entity)
 	config.reset_rotation_on_pickup = false
@@ -625,7 +625,7 @@ func test_hand_pickup_rotation_reset_and_relative_offset() -> void:
 		* box_body.global_basis.orthonormalized().get_rotation_quaternion()
 	).normalized()
 	assert_true(S_Grab.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
-	var relative_grip: C_HeldBy = S_Grab.held_relationship(box_entity).relation as C_HeldBy
+	var relative_grip: R_HeldBy = S_Grab.held_relationship(box_entity).relation as R_HeldBy
 	assert_true(relative_grip.rotation_offset.is_equal_approx(expected_offset))
 #endregion
 
@@ -810,7 +810,7 @@ func test_generic_hand_rotation_uses_rotate_modifier_without_hand_action() -> vo
 	input_state.rotate_held = true
 	input_state.look_delta = Vector2(30.0, 20.0)
 	S_Grab.handle_input(holder_entity)
-	var grip: C_HeldBy = S_Grab.held_relationship(right_item).relation as C_HeldBy
+	var grip: R_HeldBy = S_Grab.held_relationship(right_item).relation as R_HeldBy
 	assert_true(grab_control.rotation_active)
 	assert_false(grip.rotation_offset.is_equal_approx(Quaternion.IDENTITY))
 
@@ -1061,7 +1061,7 @@ func test_wall_occludes_targeting_and_pickup() -> void:
 func test_held_box_collides_with_wall_instead_of_snapping_through() -> void:
 	assert_true(S_Grab.try_pickup(holder_entity, box_entity))
 	var wall: StaticBody3D = make_wall(Vector3(0.0, 1.0, -2.5))
-	var grip: C_HeldBy = S_Grab.held_relationship(box_entity).relation as C_HeldBy
+	var grip: R_HeldBy = S_Grab.held_relationship(box_entity).relation as R_HeldBy
 	grip.hold_distance = 3.3
 	for physics_tick: int in 100:
 		await get_tree().physics_frame
@@ -1149,7 +1149,7 @@ func test_death_releases_hold_without_requiring_input() -> void:
 
 func test_solver_rotates_body_through_physics_velocity() -> void:
 	assert_true(S_Grab.try_pickup(holder_entity, box_entity))
-	var grip: C_HeldBy = S_Grab.held_relationship(box_entity).relation as C_HeldBy
+	var grip: R_HeldBy = S_Grab.held_relationship(box_entity).relation as R_HeldBy
 	grip.rotation_offset = Quaternion(Vector3.UP, PI * 0.5)
 	for physics_tick: int in 6:
 		await get_tree().physics_frame
@@ -1164,7 +1164,7 @@ func test_solver_rotates_body_through_physics_velocity() -> void:
 func test_external_second_holder_is_rejected_without_changing_original_grip() -> void:
 	assert_true(S_Grab.try_pickup(holder_entity, box_entity))
 	var other_holder: Entity = make_holder(Vector3(1.0, 0.0, 0.0))
-	box_entity.add_relationship(Relationship.new(C_HeldBy.new(), other_holder))
+	box_entity.add_relationship(Relationship.new(R_HeldBy.new(), other_holder))
 	assert_eq(box_entity.relationships.size(), 1)
 	assert_eq(S_Grab.held_object(holder_entity), box_entity)
 	assert_null(S_Grab.held_object(other_holder))
@@ -1174,7 +1174,7 @@ func test_external_second_holder_is_rejected_without_changing_original_grip() ->
 
 func test_external_duplicate_relation_cannot_leave_lifecycle_effects() -> void:
 	assert_true(S_Grab.try_pickup(holder_entity, box_entity))
-	box_entity.add_relationship(Relationship.new(C_HeldBy.new(), holder_entity))
+	box_entity.add_relationship(Relationship.new(R_HeldBy.new(), holder_entity))
 	assert_lte(box_entity.relationships.size(), 1)
 	# GECS removes matching pairs, so rejecting an identical duplicate releases both.
 	if S_Grab.held_relationship(box_entity) == null:
@@ -1223,7 +1223,7 @@ func test_interact_picks_up_scriptless_rigid_body_through_runtime_proxy() -> voi
 	assert_eq(PhysicsGrabTarget.body_for(held), rock)
 	assert_true(carry_load.active)
 	assert_true(rock.get_collision_exceptions().has(holder_body))
-	assert_eq((S_Grab.held_relationship(held).relation as C_HeldBy).profile.allowed_hand_slots, 0)
+	assert_eq((S_Grab.held_relationship(held).relation as R_HeldBy).profile.allowed_hand_slots, 0)
 
 
 func test_overweight_scriptless_body_stays_highlighted_and_shows_weight_message() -> void:
@@ -1321,7 +1321,7 @@ func test_scriptless_solver_moves_body_without_assigning_transform() -> void:
 	assert_true(S_Grab.try_pickup_body(holder_entity, rock))
 	var held: Entity = S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
 	var relation: Relationship = S_Grab.held_relationship(held)
-	var grip: C_HeldBy = relation.relation as C_HeldBy
+	var grip: R_HeldBy = relation.relation as R_HeldBy
 	var anchor: Node3D = S_Grab.object_anchor(holder_entity, held)
 	var initial_position: Vector3 = rock.global_position
 
@@ -1571,7 +1571,7 @@ func test_push_rejects_occupied_cart_and_wall_occluded_start() -> void:
 	assert_true(S_Push.try_begin(holder_entity, cart))
 	var other_actor: Entity = make_holder(Vector3(0.2, 0.0, 0.0))
 	assert_false(S_Push.try_begin(other_actor, cart))
-	cart.add_relationship(Relationship.new(C_PushedBy.new(), other_actor))
+	cart.add_relationship(Relationship.new(R_PushedBy.new(), other_actor))
 	assert_eq(S_Push.pushed_object(holder_entity), cart)
 	assert_null(S_Push.pushed_object(other_actor))
 	S_Push.end(holder_entity, cart)

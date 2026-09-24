@@ -32,7 +32,7 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 	if body == null:
 		return false
 	for grip: Relationship in package.relationships:
-		if grip.relation is C_HeldBy and grip.target == actor:
+		if grip.relation is R_HeldBy and grip.target == actor:
 			var held_distance: float = ray.global_position.distance_to(body.global_position)
 			return held_distance <= interactor.interaction_distance
 

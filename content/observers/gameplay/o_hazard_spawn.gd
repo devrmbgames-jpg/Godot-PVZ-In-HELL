@@ -63,7 +63,7 @@ func _spawn(request: HazardSpawnRequest) -> void:
 				node.free()
 				return
 		else:
-			var follow: C_HazardFollow = C_HazardFollow.new()
+			var follow: R_HazardFollow = R_HazardFollow.new()
 			follow.origin = request.origin
 			follow.on_loss = request.owner_loss
 			follow.local_offset = owner_node.global_transform.affine_inverse() * request.world_pose

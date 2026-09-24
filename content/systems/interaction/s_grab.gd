@@ -134,7 +134,7 @@ static func try_pickup(
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	var anchor: Node3D = slot_anchor(holder, slot_index)
 	var profile: GrabControlProfile = profile_for(target)
-	var grip_data: C_HeldBy = C_HeldBy.new()
+	var grip_data: R_HeldBy = R_HeldBy.new()
 	grip_data.slot = slot_index as C_Grabbable.HoldSlot
 	grip_data.profile = profile
 	if slot_index == C_Grabbable.HoldSlot.CARRY:
@@ -193,7 +193,7 @@ static func throw(holder: Entity, held: Entity) -> void:
 
 	var controller: C_Controller = holder.get_component(C_Controller) as C_Controller
 	var body: RigidBody3D = physical_body(held)
-	var grip_data: C_HeldBy = grip.relation as C_HeldBy
+	var grip_data: R_HeldBy = grip.relation as R_HeldBy
 	var profile: GrabControlProfile = _grip_profile(held, grip_data)
 
 	if controller == null or body == null or profile == null:
@@ -229,7 +229,7 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 	var holder: Entity = grip.target as Entity
 	var body: RigidBody3D = physical_body(entity)
 	var anchor: Node3D = object_anchor(holder, entity)
-	var grip_data: C_HeldBy = grip.relation as C_HeldBy
+	var grip_data: R_HeldBy = grip.relation as R_HeldBy
 	var profile: GrabControlProfile = _grip_profile(entity, grip_data)
 	if (
 		not holder_available(holder) or not entity_available(entity)
@@ -266,7 +266,7 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var holder: Entity = grip.target as Entity
 	var body: RigidBody3D = physical_body(held)
-	var grip_data: C_HeldBy = grip.relation as C_HeldBy
+	var grip_data: R_HeldBy = grip.relation as R_HeldBy
 	var profile: GrabControlProfile = _grip_profile(held, grip_data)
 	var is_invalid: bool = (
 		not holder_available(holder) or not entity_available(held) or body == null
@@ -326,7 +326,7 @@ static func grip_removed(held: Entity, grip: Relationship) -> void:
 	if marker != null:
 		S_Marker.end(marker)
 
-	var grip_data: C_HeldBy = grip.relation as C_HeldBy
+	var grip_data: R_HeldBy = grip.relation as R_HeldBy
 	if not grip_data.lifecycle_applied:
 		return
 
@@ -449,7 +449,7 @@ static func held_relationship(entity: Entity) -> Relationship:
 
 	# Read the authoritative local relationships without allocating query patterns.
 	for grip: Relationship in entity.relationships:
-		if grip.relation is C_HeldBy:
+		if grip.relation is R_HeldBy:
 			return grip
 
 	return null
@@ -475,7 +475,7 @@ static func held_in_slot(holder: Entity, slot_index: int) -> Entity:
 	if is_instance_valid(held):
 		var grip: Relationship = held_relationship(held)
 		if grip != null and grip.target == holder:
-			if (grip.relation as C_HeldBy).slot == slot_index:
+			if (grip.relation as R_HeldBy).slot == slot_index:
 				return held
 	if held != null:
 		reset_holder(holder, slot_index)
@@ -588,7 +588,7 @@ static func object_anchor(holder: Entity, target: Entity) -> Node3D:
 		return null
 	var grip: Relationship = held_relationship(target)
 	var slot_index: int = (
-		(grip.relation as C_HeldBy).slot
+		(grip.relation as R_HeldBy).slot
 		if grip != null
 		else pickup_slot(holder, target, false)
 	)
@@ -689,7 +689,7 @@ static func profile_for(handle: Entity) -> GrabControlProfile:
 	return GrabControlProfile.from_grabbable(config)
 
 
-static func _grip_profile(handle: Entity, grip_data: C_HeldBy) -> GrabControlProfile:
+static func _grip_profile(handle: Entity, grip_data: R_HeldBy) -> GrabControlProfile:
 	if grip_data == null:
 		return null
 	if grip_data.profile == null:
@@ -700,7 +700,7 @@ static func _grip_profile(handle: Entity, grip_data: C_HeldBy) -> GrabControlPro
 static func _allowed_break_distance(
 	holder: Entity,
 	anchor: Node3D,
-	grip_data: C_HeldBy,
+	grip_data: R_HeldBy,
 	profile: GrabControlProfile,
 ) -> float:
 	var allowed: float = profile.break_distance
@@ -734,7 +734,7 @@ static func _integrate_generic_bodies(holder: Entity, delta: float) -> void:
 		var grip: Relationship = held_relationship(held)
 		if grip == null or grip.target != holder:
 			continue
-		var grip_data: C_HeldBy = grip.relation as C_HeldBy
+		var grip_data: R_HeldBy = grip.relation as R_HeldBy
 		var profile: GrabControlProfile = _grip_profile(held, grip_data)
 		var anchor: Node3D = object_anchor(holder, held)
 		if (

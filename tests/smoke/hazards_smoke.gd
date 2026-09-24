@@ -130,7 +130,7 @@ func _follow_and_reset_contract() -> void:
 	assert(effect_node.global_position.is_equal_approx(customer_node.global_position))
 	_world.remove_entity(customer)
 	await _tick(0.01)
-	assert(EntityAvailability.contains(effect, _world) and not effect.has_component(C_HazardFollow))
+	assert(EntityAvailability.contains(effect, _world) and not effect.has_component(R_HazardFollow))
 
 	definition = _toxic(10.0)
 	definition.ownership = DEF_Hazard.Ownership.FollowOrigin

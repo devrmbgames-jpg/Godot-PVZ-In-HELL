@@ -13,6 +13,7 @@ ROOT: Path = Path(__file__).resolve().parents[1]
 
 ROLE_RULES: tuple[tuple[str, str, str], ...] = (
     ("content/components", "c_", "C_"),
+    ("content/relationships", "r_", "R_"),
     ("content/systems", "s_", "S_"),
     ("content/entities", "e_", "E_"),
     ("content/observers", "o_", "O_"),

@@ -8,7 +8,7 @@ func setup() -> void:
 
 
 func query() -> QueryBuilder:
-	return q.on_relationship_added([C_HeldBy]).on_relationship_removed([C_HeldBy])
+	return q.on_relationship_added([R_HeldBy]).on_relationship_removed([R_HeldBy])
 
 
 func each(event: Variant, entity: Entity, payload: Variant = null) -> void:

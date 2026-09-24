@@ -87,7 +87,7 @@ Current issues:
 - repeated `get_component()` / `has_component()` across hot and imperative paths.
 
 Target:
-- keep authoritative ownership in `C_HeldBy` Relationship;
+- keep authoritative ownership in `R_HeldBy` Relationship;
 - move relationship add/remove side effects fully into lifecycle Observer(s);
 - separate holder input processing from physical hold solver;
 - move pure slot/anchor/query math into non-System helper/service where it is not ECS processing;

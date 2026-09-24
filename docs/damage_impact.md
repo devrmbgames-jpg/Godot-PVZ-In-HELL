@@ -16,7 +16,7 @@ Null, unavailable and non-Health targets are rejected at entry (false). The Obse
 
 `ImpactCaptureSolver` is a non-System physics bridge. E_GrabbableBody and E_RigidBodyCharacter invoke it before their motion/holding solvers. It only writes `PhysicsContact` snapshots into a runtime `C_ImpactInbox`; it never mutates HP or locates Systems. Additional custom physics Entities should forward their own integration callback to this same bridge.
 
-`S_Impact` enables contact reporting when rigid Entities enter the World and owns their runtime inboxes. Its explicit `with_all([C_ImpactInbox]).iterate(...)` query drains inboxes across all archetype batches, then one command-buffer flush coalesces reports and resolves each pair. Empty queries are supported. Held-object/holder contacts are excluded using authoritative C_HeldBy relationships directly. No S_Grab service dependency exists in impact processing.
+`S_Impact` enables contact reporting when rigid Entities enter the World and owns their runtime inboxes. Its explicit `with_all([C_ImpactInbox]).iterate(...)` query drains inboxes across all archetype batches, then one command-buffer flush coalesces reports and resolves each pair. Empty queries are supported. Held-object/holder contacts are excluded using authoritative R_HeldBy relationships directly. No S_Grab service dependency exists in impact processing.
 
 A pair resolves once per contact episode, including harmless contacts. `body_exited` marks real separation; a later physics snapshot rearms the pair. Resting/sleeping contacts stay consumed. Removal/disable clears pending/pair state; separated stale records expire. Different pairs have independent state.
 

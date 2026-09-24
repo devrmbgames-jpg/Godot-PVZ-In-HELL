@@ -15,7 +15,7 @@
 - `docs/`: documentation entry point; `godoban_boards/` and `kanban_tasks_data.kanban`: planning data.
 - `main_level.gd` sets ECS.world and processes Input -> Interaction -> Physics -> GamePlay on each physics tick. Interaction runs targeting before grab.
 - `E_RigidBodyCharacter._integrate_forces` forwards to S_Motion, S_Look and S_Crouch, in that order. Physics state owns physical transform/velocity.
-- Physical props use E_Grabbable; its integration callback delegates translation force and held angular-velocity control to S_Grab. A C_HeldBy relationship is the authority for ownership; O_GrabLifecycle maintains collision exceptions and carry modifiers.
+- Physical props use E_Grabbable; its integration callback delegates translation force and held angular-velocity control to S_Grab. A R_HeldBy relationship is the authority for ownership; O_GrabLifecycle maintains collision exceptions and carry modifiers.
 - Resource definitions live in `content/definitions/`; runtime components in `content/components/`.
 - Autoloads: Audio (quick_audio), InputHelper, DialogueManager, Console, ECS (GECS).
 

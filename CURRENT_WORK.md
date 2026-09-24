@@ -13,4 +13,5 @@
 
 - User reported freed owner argument failure in S_HazardFollow. Fixed EntityAvailability boundary to validate Variant before narrowing to Entity; explosion origin normalized before typed helper. Runtime NOT RUN.
 - User changes present: content/scenes/main_level.tscn and addons/gecs; preserve and exclude from commits.
-- Next: move relationship data types to content/relationships/{interaction,gameplay}/ with R_ prefixes, preserving UIDs and behavior.
+- Relationship migration: R_HeldBy/R_PushedBy under content/relationships/interaction; R_HazardFollow under content/relationships/gameplay. UIDs/storage/behavior retained; references and structural role rule updated.
+- Next: user reruns hazards smoke; runtime validation still user-owned.

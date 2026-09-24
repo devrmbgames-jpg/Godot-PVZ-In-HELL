@@ -39,7 +39,7 @@ func _run() -> void:
 	_send(package, 200.0)
 	assert(package_state.damage == C_PackageState.Damage.DESTROYED)
 	assert(_last_result.outcome == DamageResult.Outcome.HEALTH_DEPLETED)
-	package.add_relationship(Relationship.new(C_HeldBy.new(), actor))
+	package.add_relationship(Relationship.new(R_HeldBy.new(), actor))
 	assert(S_Grab.held_object(actor) == package)
 	_send(actor, 1000.0)
 	assert(health.current == 0.0 and health.depleted and _defeat_count == 2)

@@ -33,6 +33,7 @@ Do not automatically reread roadmap docs, root CONTEXT, unchanged files already 
 - Target the repository-declared engine/framework versions; currently Godot 4.7 and pinned GECS v8 source are authority.
 - Godot physics bodies own physical transform/velocity unless a documented contract says otherwise.
 - Static typing is required for project GDScript.
+- Relationship/owner-link data belongs in `content/relationships/<subsystem>/`, with `r_*.gd` filenames and `R_*` classes, even when GECS requires the `Component` base. Keep ordinary actor/effect state in `components/` with `C_*`.
 - GDScript visibility is naming-based: private members/helpers start with `_`; public members/functions and `@export` fields do not. Signal slots use the `_on_` prefix. Constants use `UPPER_SNAKE_CASE`.
 - Every project-owned script has a short responsibility description; public API and authored/exported configuration use useful `##` Godot doc-comments.
 - GDScript functions must be visually split into semantic blocks with single blank lines. Simplify dense boolean expressions with named predicates, clear nested `if`s, or private helpers; avoid redundant/misleading casts.
