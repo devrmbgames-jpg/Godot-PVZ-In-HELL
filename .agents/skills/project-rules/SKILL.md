@@ -40,6 +40,7 @@ Project Systems are atomic ECS processors.
 - Split a broad System into several small Systems when different behaviors require different component sets. Prefer multiple narrow archetype queries over one monolithic System with optional `get_component()` branches.
 - Components remain data-only; splitting Systems must not move behavior into Components.
 - Cross-Entity ownership/state must use authoritative Relationships/Components rather than caches queried through another System.
+- Project-owned Relationship/owner-link data lives under `content/relationships/<subsystem>/`; filenames use `r_*.gd` and classes use `R_*`. Do not introduce `C_*` relationship payloads under `content/components/`. Derived lookup/cache Components remain `C_*` when they are not ownership authority.
 - Static methods on System classes are not a general service layer. Imperative gameplay commands should become typed request/event/state transitions consumed by the owning System/Observer where practical.
 
 ### Physics exception
