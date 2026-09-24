@@ -3,6 +3,8 @@ extends Component
 class_name C_HeldBy
 
 var slot: C_Grabbable.HoldSlot = C_Grabbable.HoldSlot.CARRY
+## Snapshot of the effective authored/default policy used by this grip.
+var profile: GrabControlProfile = null
 var rotation_offset: Quaternion = Quaternion.IDENTITY
 var hold_distance: float = 0.0
 ## Lifecycle bookkeeping; these fields are not an alternative ownership flag.

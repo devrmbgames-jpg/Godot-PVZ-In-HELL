@@ -2,10 +2,14 @@ extends Component
 ## Actor hold configuration, derived slot caches and shared interaction control state.
 class_name C_GrabControl
 
+const NO_CARRY_GROUP: StringName = &"no_carry"
+
 ## Maximum reach for picking up an object (metres).
 @export_range(0.1, 10.0, 0.1, "or_greater") var pickup_distance: float = 3.0
 ## Distance in front of Holder for ordinary carried objects (metres).
 @export_range(0.1, 5.0, 0.05, "or_greater") var hold_distance: float = 1.25
+## Maximum RigidBody mass accepted by the generic Carry path.
+@export_range(0.1, 10000.0, 0.5, "or_greater") var max_carry_mass: float = 80.0
 
 var rotation_active: bool = false
 ## Derived reverse index maintained by O_GrabLifecycle and checked against the relation.
@@ -21,21 +25,13 @@ var held_left: Entity = null
 var captures: Dictionary[int, InteractionControlCapture] = { }
 var context_wheel_requested: bool = false
 
-#max mass
-@export var max_carry_mass: float = 80.0
 
-
-func can_carry_body(
-	body: RigidBody3D,
-) -> bool:
-	if body == null:
+## Generic Carry eligibility for authored or completely scriptless rigid bodies.
+func can_carry_body(body: RigidBody3D) -> bool:
+	if not is_instance_valid(body) or body.is_queued_for_deletion():
 		return false
-	
-	if body.freeze:
+	if not body.is_inside_tree() or body.freeze or body.is_in_group(NO_CARRY_GROUP):
 		return false
-	
-	if body.is_in_group(&"no_carry"):
+	if not is_finite(body.mass) or body.mass <= 0.0:
 		return false
-	
-	
-	return body.mass <= max_carry_mass
+	return body.mass <= maxf(max_carry_mass, 0.0)
