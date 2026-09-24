@@ -166,6 +166,8 @@ Use `cmd` when Observer reactions cause structural changes or recursive cascades
 
 ## Relationships
 
+Project-owned Relationship/owner-link data belongs in `content/relationships/<subsystem>/`, with `r_*.gd` filenames and `R_*` class names. Do not place relationship payloads in `content/components/` or give them `C_*` names. A derived reverse lookup/cache that is not ownership authority remains an ordinary `C_*` Component.
+
 Use Relationships for authoritative cross-Entity ownership/state when the relation itself matters.
 
 When the project accumulates repeated relationship construction/patterns, prefer a centralized typed relationship factory/helper instead of duplicating `Relationship.new(...)` shapes everywhere.
