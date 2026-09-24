@@ -44,6 +44,11 @@ MARKDOWN_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 TASK_HEADING_RE = re.compile(r"^#\s+(R\d+(?:\.\d+)?)\b", re.MULTILINE)
 TASK_DEPENDENCIES_RE = re.compile(r"^Зависимости:\s*(.+)$", re.MULTILINE)
 IMPLEMENTATION_ID_RE = re.compile(r"\bR\d+(?:\.\d+)?\b")
+RELATIONSHIP_COMPONENT_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"\bRelationship\.new\(\s*(C_[A-Za-z_][A-Za-z0-9_]*)"),
+    re.compile(r"\.relation\s+(?:is|as)\s+(C_[A-Za-z_][A-Za-z0-9_]*)"),
+    re.compile(r"\bon_relationship_(?:added|removed)\(\[\s*(C_[A-Za-z_][A-Za-z0-9_]*)"),
+)
 
 
 def _relative(path: Path) -> str:
@@ -82,6 +87,23 @@ def _check_role_placement(errors: list[str]) -> None:
                 errors.append(
                     f"{relative}: class_name {match.group(1)!r} should use '{class_prefix}' role prefix."
                 )
+
+
+def _check_relationship_role_usage(errors: list[str]) -> None:
+    """Reject legacy C_* types used as project-owned GECS relationship payloads."""
+    for root_name in ("content", "tests"):
+        root_path: Path = ROOT / root_name
+        if not root_path.exists():
+            continue
+
+        for script_path in sorted(root_path.rglob("*.gd")):
+            text: str = _read_text(script_path)
+            for pattern in RELATIONSHIP_COMPONENT_PATTERNS:
+                for match in pattern.finditer(text):
+                    errors.append(
+                        f"{_relative(script_path)}: relationship payload {match.group(1)!r} "
+                        "must use an R_* class under content/relationships/."
+                    )
 
 
 def _check_uid_pairs(errors: list[str]) -> None:
@@ -250,6 +272,7 @@ def main() -> int:
     errors: list[str] = []
 
     _check_role_placement(errors)
+    _check_relationship_role_usage(errors)
     _check_uid_pairs(errors)
     _check_res_paths(errors)
     _check_markdown_links(errors)
