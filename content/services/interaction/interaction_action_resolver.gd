@@ -110,6 +110,14 @@ static func resolve(
 	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
 	if target != null and S_InteractionTargeting.find_target(actor, interactor) != target:
 		target = null
+	var physics_target: RigidBody3D = (
+		interactor.physics_target if is_instance_valid(interactor.physics_target) else null
+	)
+	if (
+		physics_target != null
+		and S_InteractionTargeting.find_physics_target(actor, interactor) != physics_target
+	):
+		physics_target = null
 	if focus == InteractionControlFocus.Priority.TRANSPORT:
 		if input_slot == DEF_InteractionAction.Slot.INTERACT:
 			var cart: Entity = S_CartTransport.current(actor)
@@ -156,27 +164,38 @@ static func resolve(
 		input_slot == DEF_InteractionAction.Slot.INTERACT
 		or input_slot == DEF_InteractionAction.Slot.USE
 	):
-		var selected: int = S_Grab.pickup_slot(
+		var target_action: InteractionActionChoice = _target_action(actor, target, input_slot)
+		var authored_grab: bool = (
+			target != null
+			and target.get_component(C_Grabbable) as C_Grabbable != null
+			and S_Grab.physical_body(target) == physics_target
+		)
+		# Explicit gameplay actions keep priority unless this Entity authored Grab behavior.
+		if target_action != null and not authored_grab:
+			return target_action
+
+		var selected: int = S_Grab.pickup_slot_for_body(
 			actor,
-			target,
+			physics_target,
 			input_slot == DEF_InteractionAction.Slot.USE,
 		)
-
 		var replace: bool = selected != C_Grabbable.HoldSlot.CARRY
-
-		if S_Grab.can_pickup(actor, target, selected, replace):
+		var handle: Entity = PhysicsGrabTarget.handle_for(physics_target, false)
+		if S_Grab.can_pickup_body(actor, physics_target, selected, replace, handle):
 			var pickup: DEF_GrabAction = DEF_GrabAction.new()
 			pickup.kind = DEF_GrabAction.Kind.PICKUP
 			pickup.hold_slot = selected
 			pickup.replace_occupant = replace
+			pickup.physical_body = physics_target
 			pickup.caption = "Заменить" if S_Grab.held_in_slot(actor, selected) != null else "Взять"
 
 			if selected != C_Grabbable.HoldSlot.CARRY:
 				var right_hand: bool = selected == C_Grabbable.HoldSlot.RIGHT_HAND
 				pickup.caption += " · правая рука" if right_hand else " · левая рука"
 
-			return _choice(pickup, target, target)
-		return _target_action(actor, target, input_slot)
+			return _choice(pickup, handle, target)
+		return target_action
+
 
 	var held: Entity = S_Grab.held_in_slot(
 		actor,

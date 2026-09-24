@@ -4,9 +4,6 @@ class_name S_Grab
 
 #region Constants
 const ROTATION_SENSITIVITY: float = 0.006
-const MIN_MASS: float = 0.001
-const ROTATION_EPSILON: float = 0.00001
-const ANCHOR_TRANSITION_SECONDS: float = 0.5
 #endregion
 
 
@@ -19,10 +16,12 @@ func query() -> QueryBuilder:
 	return q.with_all([C_Controller, C_Interactor, C_GrabControl, C_CarryLoad])
 
 
-func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
+func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for holder: Entity in entities:
+		_integrate_generic_bodies(holder, delta)
 		# Flush after iteration so relationship changes cannot move the active archetype.
 		cmd.add_custom(handle_input.bind(holder))
+
 #endregion
 
 
@@ -42,12 +41,12 @@ static func handle_input(holder: Entity) -> void:
 		var held: Entity = held_in_slot(holder, slot_index)
 		if held == null:
 			continue
-		var body: RigidBody3D = held as Node as RigidBody3D
+		var body: RigidBody3D = physical_body(held)
 		var interactable: C_Interactable = held.get_component(C_Interactable) as C_Interactable
 		if (
 			not holder_available(holder) or not entity_available(held)
-			or body == null or body.freeze or interactable == null
-			or not interactable.enabled or not held.has_component(C_Grabbable)
+			or body == null or body.freeze
+			or (interactable != null and not interactable.enabled)
 		):
 			release(holder, held)
 	if not holder_available(holder):
@@ -64,22 +63,52 @@ static func can_pickup(
 	slot_index: int,
 	replace: bool = false,
 ) -> bool:
-	if not holder_available(holder) or not entity_available(target) or holder == target:
+	if not entity_available(target):
 		return false
-	var config: C_Grabbable = target.get_component(C_Grabbable) as C_Grabbable
-	var body: RigidBody3D = target as Node as RigidBody3D
-	var interactable: C_Interactable = target.get_component(C_Interactable) as C_Interactable
-	if (
-		config == null or body == null or body.freeze or interactable == null
-		or not interactable.enabled or not slot_allowed(config, slot_index)
-		or not is_instance_valid(slot_anchor(holder, slot_index))
-		or not holder.has_component(C_GrabControl)
-		or not holder.has_component(C_CarryLoad) or held_relationship(target) != null
-	):
+	var body: RigidBody3D = physical_body(target)
+	return can_pickup_body(holder, body, slot_index, replace, target)
+
+
+## Validates arbitrary rigid bodies without requiring GECS membership on the body itself.
+static func can_pickup_body(
+	holder: Entity,
+	body: RigidBody3D,
+	slot_index: int,
+	replace: bool = false,
+	handle: Entity = null,
+) -> bool:
+	if not holder_available(holder) or not is_instance_valid(body):
+		return false
+	if body == (holder as Node as RigidBody3D) or slot_index < 0:
+		return false
+
+	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
+	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
+	if control == null or load_state == null or body.freeze:
+		return false
+
+	var resolved_handle: Entity = handle
+	if resolved_handle == null:
+		resolved_handle = PhysicsGrabTarget.handle_for(body, false)
+	if resolved_handle != null:
+		if not entity_available(resolved_handle) or held_relationship(resolved_handle) != null:
+			return false
+		var interactable: C_Interactable = (
+			resolved_handle.get_component(C_Interactable) as C_Interactable
+		)
+		if interactable != null and not interactable.enabled:
+			return false
+
+	var profile: GrabControlProfile = profile_for(resolved_handle)
+	if not profile_slot_allowed(profile, slot_index):
+		return false
+	if slot_index == C_Grabbable.HoldSlot.CARRY and not control.can_carry_body(body):
+		return false
+	if not is_instance_valid(slot_anchor(holder, slot_index)):
 		return false
 	if held_in_slot(holder, slot_index) != null and not replace:
 		return false
-	return within_pickup_reach(holder, target)
+	return within_pickup_reach_body(holder, body)
 
 
 ## Atomically validates and acquires the selected slot, optionally replacing its occupant.
@@ -89,30 +118,55 @@ static func try_pickup(
 	slot_index: int = -1,
 	replace: bool = false,
 ) -> bool:
+	if not entity_available(target):
+		return false
+	var body: RigidBody3D = physical_body(target)
+	if body == null:
+		return false
 	if slot_index < 0:
-		slot_index = pickup_slot(holder, target, false)
+		slot_index = pickup_slot_for_body(holder, body, false)
 	if not can_pickup(holder, target, slot_index, replace):
 		return false
+
 	ThrowContext.cancel(target)
 	S_CartCargo.release(target)
-	var config: C_Grabbable = target.get_component(C_Grabbable) as C_Grabbable
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
-	var body: RigidBody3D = target as Node as RigidBody3D
 	var anchor: Node3D = slot_anchor(holder, slot_index)
+	var profile: GrabControlProfile = profile_for(target)
 	var grip_data: C_HeldBy = C_HeldBy.new()
 	grip_data.slot = slot_index as C_Grabbable.HoldSlot
+	grip_data.profile = profile
 	if slot_index == C_Grabbable.HoldSlot.CARRY:
-		grip_data.hold_distance = carry_distance(control, config)
-	if not config.reset_rotation_on_pickup:
+		grip_data.hold_distance = carry_distance_profile(control, profile)
+	if not profile.reset_rotation_on_pickup:
 		grip_data.rotation_offset = (
 			anchor.global_basis.orthonormalized().get_rotation_quaternion().inverse()
 			* body.global_basis.orthonormalized().get_rotation_quaternion()
 		).normalized()
+
 	var occupant: Entity = held_in_slot(holder, slot_index)
 	if occupant != null:
 		release(holder, occupant)
 	target.add_relationship(Relationship.new(grip_data, holder))
 	return held_in_slot(holder, slot_index) == target
+
+
+## Creates a lightweight GECS handle only when a raw body is actually picked up.
+static func try_pickup_body(
+	holder: Entity,
+	body: RigidBody3D,
+	slot_index: int = -1,
+	replace: bool = false,
+) -> bool:
+	if slot_index < 0:
+		slot_index = pickup_slot_for_body(holder, body, false)
+	var existing: Entity = PhysicsGrabTarget.handle_for(body, false)
+	if not can_pickup_body(holder, body, slot_index, replace, existing):
+		return false
+	var handle: Entity = PhysicsGrabTarget.handle_for(body, true)
+	if handle == null:
+		return false
+	return try_pickup(holder, handle, slot_index, replace)
 
 
 ## Removes matching ownership and side effects while preserving physical inertia.
@@ -136,17 +190,18 @@ static func throw(holder: Entity, held: Entity) -> void:
 	if grip == null or grip.target != holder:
 		return
 
-	var config: C_Grabbable = held.get_component(C_Grabbable) as C_Grabbable
 	var controller: C_Controller = holder.get_component(C_Controller) as C_Controller
-	var body: RigidBody3D = held as Node as RigidBody3D
+	var body: RigidBody3D = physical_body(held)
+	var grip_data: C_HeldBy = grip.relation as C_HeldBy
+	var profile: GrabControlProfile = _grip_profile(held, grip_data)
 
-	if config == null or controller == null or body == null:
+	if controller == null or body == null or profile == null:
 		release(holder, held)
 		return
 
 	var impulse: Vector3 = throw_impulse(
 		controller.direction_look,
-		config.throw_velocity,
+		profile.throw_velocity,
 		body.mass,
 	)
 
@@ -164,90 +219,36 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 		return
 
 	var holder: Entity = grip.target as Entity
-	var config: C_Grabbable = entity.get_component(C_Grabbable) as C_Grabbable
+	var body: RigidBody3D = physical_body(entity)
 	var anchor: Node3D = object_anchor(holder, entity)
-
-	var is_invalid := (
+	var grip_data: C_HeldBy = grip.relation as C_HeldBy
+	var profile: GrabControlProfile = _grip_profile(entity, grip_data)
+	if (
 		not holder_available(holder) or not entity_available(entity)
-		or config == null or not is_instance_valid(anchor)
-	)
-	if is_invalid:
+		or body == null or body.freeze or profile == null or not is_instance_valid(anchor)
+	):
 		release(holder, entity)
 		return
 
 	var interactable: C_Interactable = entity.get_component(C_Interactable) as C_Interactable
-	var body: RigidBody3D = entity as Node as RigidBody3D
-	if body == null or body.freeze or interactable == null or not interactable.enabled:
+	if interactable != null and not interactable.enabled:
 		release(holder, entity)
 		return
 
-	var grip_data: C_HeldBy = grip.relation as C_HeldBy
-	var desired_position: Vector3 = (
-		anchor.global_position - anchor.global_basis.z * grip_data.hold_distance
+	var allowed_break_distance: float = _allowed_break_distance(
+		holder,
+		anchor,
+		grip_data,
+		profile,
 	)
-
-	var position_error: Vector3 = desired_position - state.transform.origin
-	var hand_suspended: bool = (
-		grip_data.slot != C_Grabbable.HoldSlot.CARRY
-		and InteractionControlFocus.current(holder) != InteractionControlFocus.Priority.HANDS
-	)
-	var allowed_break_distance: float = config.break_distance
-	if hand_suspended:
-		var hand_property: StringName = &"right_hand_slot"
-		if grip_data.slot == C_Grabbable.HoldSlot.LEFT_HAND:
-			hand_property = &"left_hand_slot"
-		var normal_anchor: Node3D = holder.get(hand_property) as Node3D
-		if is_instance_valid(normal_anchor):
-			allowed_break_distance += normal_anchor.global_position.distance_to(
-				anchor.global_position
-			)
-	if (
-		grip_data.previous_anchor_id != 0
-		and grip_data.previous_anchor_id != anchor.get_instance_id()
-	):
-		grip_data.anchor_transition_remaining = ANCHOR_TRANSITION_SECONDS
-	grip_data.anchor_transition_remaining = maxf(
-		0.0,
-		grip_data.anchor_transition_remaining - state.step,
-	)
-	if (
-		grip_data.anchor_transition_remaining <= 0.0
-		and position_error.length() > allowed_break_distance
+	if not GrabPhysicsSolver.integrate_state(
+		state,
+		anchor,
+		grip_data,
+		profile,
+		allowed_break_distance,
 	):
 		release(holder, entity)
-		return
-
-	var anchor_velocity: Vector3 = Vector3.ZERO
-	if (
-		grip_data.anchor_sample_valid
-		and grip_data.previous_anchor_id == anchor.get_instance_id() and state.step > 0.0
-	):
-		anchor_velocity = (desired_position - grip_data.previous_anchor_position) / state.step
-
-	grip_data.previous_anchor_id = anchor.get_instance_id()
-	grip_data.previous_anchor_position = desired_position
-	grip_data.anchor_sample_valid = true
-	var body_mass: float = 1.0 / maxf(state.inverse_mass, MIN_MASS)
-	state.apply_central_force(
-		position_force(
-			position_error,
-			anchor_velocity - state.linear_velocity,
-			state.total_gravity,
-			body_mass,
-			config,
-		)
-	)
-
-	var desired_rotation: Quaternion = (
-		anchor.global_basis.orthonormalized().get_rotation_quaternion() * grip_data.rotation_offset
-	).normalized()
-
-	state.angular_velocity = rotation_velocity(
-		state.transform.basis.orthonormalized().get_rotation_quaternion(),
-		desired_rotation,
-		state.step,
-		config,
-	)
 
 #endregion
 
@@ -256,11 +257,12 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 ## Called by O_GrabLifecycle for any relationship producer, not just try_pickup.
 static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var holder: Entity = grip.target as Entity
-	var body: RigidBody3D = held as Node as RigidBody3D
-	var config: C_Grabbable = held.get_component(C_Grabbable) as C_Grabbable
+	var body: RigidBody3D = physical_body(held)
+	var grip_data: C_HeldBy = grip.relation as C_HeldBy
+	var profile: GrabControlProfile = _grip_profile(held, grip_data)
 	var is_invalid: bool = (
 		not holder_available(holder) or not entity_available(held) or body == null
-		or config == null or not is_instance_valid(object_anchor(holder, held))
+		or body.freeze or profile == null or not is_instance_valid(object_anchor(holder, held))
 	)
 	if is_invalid:
 		return false
@@ -269,16 +271,17 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
 	if control == null or load_state == null:
 		return false
-
-	var grip_data: C_HeldBy = grip.relation as C_HeldBy
+	if grip_data.slot == C_Grabbable.HoldSlot.CARRY and not control.can_carry_body(body):
+		return false
 	if (
-		held_relationship(held) != grip or not slot_allowed(config, grip_data.slot)
+		held_relationship(held) != grip or not profile_slot_allowed(profile, grip_data.slot)
 		or held_in_slot(holder, grip_data.slot) != null
 	):
 		return false
+
 	grip_data.lifecycle_applied = true
 	if grip_data.slot == C_Grabbable.HoldSlot.CARRY and grip_data.hold_distance <= 0.0:
-		grip_data.hold_distance = carry_distance(control, config)
+		grip_data.hold_distance = carry_distance_profile(control, profile)
 	grip_data.previous_can_sleep = body.can_sleep
 
 	body.can_sleep = false
@@ -297,18 +300,16 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 			InteractionControlFocus.Priority.CARRY,
 		)
 		load_state.active = true
-		load_state.speed_multiplier = clampf(config.movement_speed_multiplier, 0.0, 1.0)
+		load_state.speed_multiplier = clampf(profile.movement_speed_multiplier, 0.0, 1.0)
 		load_state.acceleration_multiplier = clampf(
-			config.movement_acceleration_multiplier,
+			profile.movement_acceleration_multiplier,
 			0.0,
 			1.0,
 		)
 
 	var cleanup: Callable = release.bind(holder, held)
-
 	if not held.tree_exiting.is_connected(cleanup):
 		held.tree_exiting.connect(cleanup)
-
 	if not holder.tree_exiting.is_connected(cleanup):
 		holder.tree_exiting.connect(cleanup)
 
@@ -327,7 +328,7 @@ static func grip_removed(held: Entity, grip: Relationship) -> void:
 
 	grip_data.lifecycle_applied = false
 	var holder: Entity = grip.target as Entity if is_instance_valid(grip.target) else null
-	var body: RigidBody3D = held as Node as RigidBody3D
+	var body: RigidBody3D = physical_body(held)
 	if is_instance_valid(holder):
 		InteractionControlFocus.release(holder, grip_data.capture_token)
 		var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
@@ -393,11 +394,13 @@ static func position_force(
 	body_mass: float,
 	config: C_Grabbable,
 ) -> Vector3:
-	var acceleration: Vector3 = (
-		position_error * config.position_stiffness + velocity_error * config.position_damping
-		- gravity
+	return GrabPhysicsSolver.position_force(
+		position_error,
+		velocity_error,
+		gravity,
+		body_mass,
+		GrabControlProfile.from_grabbable(config),
 	)
-	return (acceleration * body_mass).limit_length(maxf(config.max_hold_force, 0.0))
 
 
 ## Returns a bounded shortest-arc angular velocity without residual spring momentum.
@@ -407,19 +410,12 @@ static func rotation_velocity(
 	step: float,
 	config: C_Grabbable,
 ) -> Vector3:
-	var error: Quaternion = (desired * current.inverse()).normalized()
-	if error.w < 0.0:
-		error = -error
-
-	var axis_vector: Vector3 = Vector3(error.x, error.y, error.z)
-	var rotation_error: Vector3 = Vector3.ZERO
-	if axis_vector.length() > ROTATION_EPSILON:
-		rotation_error = axis_vector.normalized() * 2.0 * atan2(axis_vector.length(), error.w)
-
-	if step <= 0.0:
-		return Vector3.ZERO
-
-	return (rotation_error / step).limit_length(maxf(config.max_rotation_speed, 0.0))
+	return GrabPhysicsSolver.rotation_velocity(
+		current,
+		desired,
+		step,
+		GrabControlProfile.from_grabbable(config),
+	)
 
 
 ## Applies manual input within the configured rotation-axis policy.
@@ -506,11 +502,17 @@ static func _set_cached(control: C_GrabControl, slot_index: int, held: Entity) -
 
 ## Checks whether an authored prop supports the requested Carry or hand slot.
 static func slot_allowed(config: C_Grabbable, slot_index: int) -> bool:
+	return profile_slot_allowed(GrabControlProfile.from_grabbable(config), slot_index)
+
+
+static func profile_slot_allowed(profile: GrabControlProfile, slot_index: int) -> bool:
+	if profile == null:
+		return false
 	if slot_index == C_Grabbable.HoldSlot.CARRY:
-		return config.allowed_hand_slots == 0
+		return profile.allowed_hand_slots == 0
 	return (
 		slot_index in [C_Grabbable.HoldSlot.RIGHT_HAND, C_Grabbable.HoldSlot.LEFT_HAND]
-		and (config.allowed_hand_slots & (1 << slot_index)) != 0
+		and (profile.allowed_hand_slots & (1 << slot_index)) != 0
 	)
 
 
@@ -545,6 +547,20 @@ static func pickup_slot(holder: Entity, target: Entity, replacement_button: bool
 		if not primary_busy and not secondary_busy and not slot_allowed(config, selected):
 			selected = secondary
 	return selected if slot_allowed(config, selected) else -1
+
+
+## Raw bodies are Carry-only; authored C_Grabbable keeps its hand-slot policy.
+static func pickup_slot_for_body(
+	holder: Entity,
+	body: RigidBody3D,
+	replacement_button: bool,
+) -> int:
+	if not is_instance_valid(holder) or not is_instance_valid(body):
+		return -1
+	var handle: Entity = PhysicsGrabTarget.handle_for(body, false)
+	if handle != null and handle.get_component(C_Grabbable) as C_Grabbable != null:
+		return pickup_slot(holder, handle, replacement_button)
+	return C_Grabbable.HoldSlot.CARRY if not replacement_button else -1
 
 
 ## Returns the holder-owned LOS ray used by targeting and pickup validation.
@@ -602,51 +618,136 @@ static func slot_anchor(holder: Entity, slot_index: int) -> Node3D:
 
 ## Revalidates first-hit LOS and the independent pickup reach limit.
 static func within_pickup_reach(holder: Entity, target: Entity) -> bool:
-	if not is_instance_valid(holder) or not is_instance_valid(target):
+	if not entity_available(target):
+		return false
+	return within_pickup_reach_body(holder, physical_body(target))
+
+
+static func within_pickup_reach_body(holder: Entity, body: RigidBody3D) -> bool:
+	if not is_instance_valid(holder) or not is_instance_valid(body):
 		return false
 
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	var interactor: C_Interactor = holder.get_component(C_Interactor) as C_Interactor
 	var raycast: RayCast3D = interaction_raycast(holder)
-
 	if control == null or interactor == null or not is_instance_valid(raycast):
 		return false
-
-	# Сохраняем прежнее правило:
-	# target должен быть первым объектом под RayCast.
-	# Это одновременно проверяет line of sight.
-	if S_InteractionTargeting.find_target(holder, interactor) != target:
+	if S_InteractionTargeting.find_physics_target(holder, interactor) != body:
 		return false
-
 	if not raycast.is_colliding():
 		return false
 
-	# pickup_distance ограничивает именно возможность взять предмет,
-	# независимо от общей interaction_distance.
 	var hit_distance: float = raycast.global_position.distance_to(raycast.get_collision_point())
-
 	return hit_distance <= maxf(control.pickup_distance, 0.0)
 
 
 # TODO проверить что реализовано правильно
 ## Returns an item distance override or the holder default; hands have no extra offset.
 static func carry_distance(control: C_GrabControl, config: C_Grabbable) -> float:
-	if control == null or config == null:
+	return carry_distance_profile(control, GrabControlProfile.from_grabbable(config))
+
+
+static func carry_distance_profile(
+	control: C_GrabControl,
+	profile: GrabControlProfile,
+) -> float:
+	if control == null or profile == null:
 		return 0.0
-
-	# Hand slot сам является конечной точкой предмета.
-	# Поэтому дополнительного смещения вдоль -Z нет.
-	if config.allowed_hand_slots != 0:
+	if profile.allowed_hand_slots != 0:
 		return 0.0
-
-	# Предмет может переопределить стандартную дистанцию.
-	if config.hold_distance >= 0.0:
-		return config.hold_distance
-
+	if profile.hold_distance >= 0.0:
+		return profile.hold_distance
 	return control.hold_distance
 
 
-# TODO проверить что реализовано правильно
+## Resolves the physical body behind either a normal Entity or a runtime proxy.
+static func physical_body(handle: Entity) -> RigidBody3D:
+	return PhysicsGrabTarget.body_for(handle)
+
+
+## Creates an effective default/override profile without making C_Grabbable mandatory.
+static func profile_for(handle: Entity) -> GrabControlProfile:
+	var config: C_Grabbable = null
+	if is_instance_valid(handle):
+		config = handle.get_component(C_Grabbable) as C_Grabbable
+	return GrabControlProfile.from_grabbable(config)
+
+
+static func _grip_profile(handle: Entity, grip_data: C_HeldBy) -> GrabControlProfile:
+	if grip_data == null:
+		return null
+	if grip_data.profile == null:
+		grip_data.profile = profile_for(handle)
+	return grip_data.profile
+
+
+static func _allowed_break_distance(
+	holder: Entity,
+	anchor: Node3D,
+	grip_data: C_HeldBy,
+	profile: GrabControlProfile,
+) -> float:
+	var allowed: float = profile.break_distance
+	var hand_suspended: bool = (
+		grip_data.slot != C_Grabbable.HoldSlot.CARRY
+		and InteractionControlFocus.current(holder) != InteractionControlFocus.Priority.HANDS
+	)
+	if not hand_suspended:
+		return allowed
+	var hand_property: StringName = &"right_hand_slot"
+	if grip_data.slot == C_Grabbable.HoldSlot.LEFT_HAND:
+		hand_property = &"left_hand_slot"
+	var normal_anchor: Node3D = holder.get(hand_property) as Node3D
+	if is_instance_valid(normal_anchor):
+		allowed += normal_anchor.global_position.distance_to(anchor.global_position)
+	return allowed
+
+
+## Bodies that already call integrate_forces keep the exact callback solver.
+## Other rigid bodies use the same spring profile from the holder System before physics.
+static func _integrate_generic_bodies(holder: Entity, delta: float) -> void:
+	if delta <= 0.0:
+		return
+	for slot_index: int in 3:
+		var held: Entity = held_in_slot(holder, slot_index)
+		if held == null:
+			continue
+		var body: RigidBody3D = physical_body(held)
+		if body == null or body is E_GrabbableBody:
+			continue
+		var grip: Relationship = held_relationship(held)
+		if grip == null or grip.target != holder:
+			continue
+		var grip_data: C_HeldBy = grip.relation as C_HeldBy
+		var profile: GrabControlProfile = _grip_profile(held, grip_data)
+		var anchor: Node3D = object_anchor(holder, held)
+		if (
+			not holder_available(holder) or body.freeze or profile == null
+			or not is_instance_valid(anchor)
+		):
+			release(holder, held)
+			continue
+		var interactable: C_Interactable = held.get_component(C_Interactable) as C_Interactable
+		if interactable != null and not interactable.enabled:
+			release(holder, held)
+			continue
+		var allowed_break_distance: float = _allowed_break_distance(
+			holder,
+			anchor,
+			grip_data,
+			profile,
+		)
+		if not GrabPhysicsSolver.integrate_body(
+			body,
+			delta,
+			anchor,
+			grip_data,
+			profile,
+			allowed_break_distance,
+		):
+			release(holder, held)
+
+
 ## Checks live tree and World membership before gameplay mutation.
 static func entity_available(entity: Entity) -> bool:
 	return (

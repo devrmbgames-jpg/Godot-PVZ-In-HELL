@@ -12,26 +12,46 @@ enum Kind {
 var kind: Kind = Kind.PICKUP
 var hold_slot: int = -1
 var replace_occupant: bool = false
+## Raw physics target for generic Carry. A GECS handle is created only on execute.
+var physical_body: RigidBody3D = null
 
 
 func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
-	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(source):
+	if not S_Grab.holder_available(actor):
 		return false
 	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
 	if focus >= InteractionControlFocus.Priority.PUSH:
 		return false
-	if kind != Kind.PICKUP:
-		var grip: Relationship = S_Grab.held_relationship(source)
-		if grip == null or grip.target != actor:
-			return false
-		if (
-			(grip.relation as C_HeldBy).slot != C_Grabbable.HoldSlot.CARRY
-			and focus != InteractionControlFocus.Priority.HANDS
-		):
-			return false
-		var config: C_Grabbable = source.get_component(C_Grabbable) as C_Grabbable
-		return kind != Kind.ROTATE or (config != null and config.manual_rotation_enabled)
-	return S_Grab.can_pickup(actor, source, hold_slot, replace_occupant)
+
+	if kind == Kind.PICKUP:
+		if is_instance_valid(physical_body):
+			return S_Grab.can_pickup_body(
+				actor,
+				physical_body,
+				hold_slot,
+				replace_occupant,
+				source,
+			)
+		return (
+			S_Grab.entity_available(source)
+			and S_Grab.can_pickup(actor, source, hold_slot, replace_occupant)
+		)
+
+	if not S_Grab.entity_available(source):
+		return false
+	var grip: Relationship = S_Grab.held_relationship(source)
+	if grip == null or grip.target != actor:
+		return false
+	var grip_data: C_HeldBy = grip.relation as C_HeldBy
+	if (
+		grip_data.slot != C_Grabbable.HoldSlot.CARRY
+		and focus != InteractionControlFocus.Priority.HANDS
+	):
+		return false
+	var profile: GrabControlProfile = (
+		grip_data.profile if grip_data.profile != null else S_Grab.profile_for(source)
+	)
+	return kind != Kind.ROTATE or profile.manual_rotation_enabled
 
 
 func execute(actor: Entity, source: Entity, _target: Entity) -> void:
@@ -39,7 +59,10 @@ func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 		return
 	match kind:
 		Kind.PICKUP:
-			S_Grab.try_pickup(actor, source, hold_slot, replace_occupant)
+			if is_instance_valid(physical_body):
+				S_Grab.try_pickup_body(actor, physical_body, hold_slot, replace_occupant)
+			else:
+				S_Grab.try_pickup(actor, source, hold_slot, replace_occupant)
 		Kind.RELEASE:
 			S_Grab.release(actor, source)
 		Kind.THROW:
@@ -52,9 +75,11 @@ func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 				return
 			control.rotation_active = true
 			var grip_data: C_HeldBy = grip.relation as C_HeldBy
-			var config: C_Grabbable = source.get_component(C_Grabbable) as C_Grabbable
+			var profile: GrabControlProfile = (
+				grip_data.profile if grip_data.profile != null else S_Grab.profile_for(source)
+			)
 			grip_data.rotation_offset = S_Grab.rotated_offset(
 				grip_data.rotation_offset,
 				controller.look_delta,
-				config.rotation_axis,
+				profile.rotation_axis,
 			)
