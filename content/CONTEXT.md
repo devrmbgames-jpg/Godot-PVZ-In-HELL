@@ -37,9 +37,11 @@ Health uses `definitions/gameplay/attributes/health.tres`. The presence of healt
 
 `tests/gut/test_s_jump.gd` covers impulse composition, held/repeated input, airborne/disabled input and invalid jump force through S_Jump.process. These unit tests do not validate full scene physics. For changes to GECS contracts, inspect the checked-out `addons/gecs/` source without modifying it.
 
-## Grab ownership, capture and Push (R06.1)
+## Grab ownership, capture and Push (R06.1 + generic rigid-body extension)
 
-The sole held-item authority is `item --C_HeldBy(slot)--> actor`. CARRY, RIGHT_HAND and LEFT_HAND have independent validated reverse caches in C_GrabControl. Allowed hand flags replace fixed item hands; anchors come from the runtime relation. Only Carry affects C_CarryLoad. Replacement validates target/slot/body/LOS before releasing the old occupant. RayCast excludes the actor and all three held objects.
+The sole held-item authority is `item --C_HeldBy(slot)--> actor`. CARRY, RIGHT_HAND and LEFT_HAND have independent validated reverse caches in C_GrabControl. Allowed hand flags replace fixed item hands; anchors come from the runtime relation. Only Carry affects C_CarryLoad. Replacement validates target/slot/body/LOS before releasing the old occupant. RayCast excludes the actor and all three held physical bodies.
+
+Generic Carry also accepts a scriptless/non-GECS `RigidBody3D` when it is within reach, unfrozen, not in group `no_carry`, and its mass is within `C_GrabControl.max_carry_mass` (default 80 kg). Targeting keeps this separately in `C_Interactor.physics_target`; pickup lazily creates a runtime Entity proxy with `C_PhysicsBodyRef` so the same C_HeldBy authority/lifecycle is preserved without modifying the original Node. Raw bodies are Carry-only with default `GrabControlProfile`; authored `C_Grabbable` overrides that profile and enables hand slots/tool-specific behavior.
 
 InteractionControlFocus owns a registry of unique capture tokens (including nested captures from the same owner): MODAL > PUSH > CARRY > HANDS. Carry/Push relations and each Terminal release only their own token. Hand ownership remains intact while authored lowered anchors suspend hand control; the last release restores normal authored Arm anchors. Anchor transitions reset velocity sampling and allow a bounded physical transition. See [physical_grab.md](../docs/physical_grab.md) for solver and break-distance contracts.
 

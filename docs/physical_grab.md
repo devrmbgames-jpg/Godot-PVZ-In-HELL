@@ -14,7 +14,13 @@
 
 ## Физика Grab
 
-RigidBody владеет transform/velocity. `E_GrabbableBody` только передаёт `_integrate_forces` в `S_Grab`. Нет переподчинения, заморозки или телепортации тела. Перенос использует ограниченную силу пружины с компенсацией гравитации; вращение — angular-velocity servo по кратчайшей quaternion-ошибке.
+RigidBody владеет transform/velocity. Для authored `E_GrabbableBody` существующий `_integrate_forces` продолжает передавать state в общий `GrabPhysicsSolver`. Обычный `RigidBody3D` **вообще без script/Entity/Components** может использовать тот же Carry: `S_InteractionTargeting` хранит первый rigid collider в `C_Interactor.physics_target`, а при фактическом pickup `PhysicsGrabTarget` создаёт лёгкий runtime GECS proxy с `C_PhysicsBodyRef`. Сам исходный body не получает script и не становится gameplay Entity.
+
+`C_HeldBy` остаётся единственным ownership-authority и хранится на Entity либо на таком proxy. Для scriptless/foreign rigid body `S_Grab` применяет `GrabPhysicsSolver` перед physics step через обычные forces/angular velocity; callback чужого body не подменяется. Нет reparent, freeze или teleport. Удаление исходного body удаляет proxy и освобождает Carry.
+
+По умолчанию raw rigid body является **Carry-only** и использует `GrabControlProfile` со стандартными коэффициентами. `C_Grabbable` теперь является authored override для hand slots, throw/rotation/hold tuning и Carry penalties, а не обязательным маркером физической поднимаемости. `C_GrabControl.max_carry_mass` (80 кг по умолчанию) задаёт предел generic Carry; группа `no_carry` является Inspector-friendly opt-out для конкретного RigidBody. Freeze и невалидная масса также запрещают generic pickup.
+
+Нет переподчинения, заморозки или телепортации тела. Перенос использует ограниченную силу пружины с компенсацией гравитации; вращение — angular-velocity servo по кратчайшей quaternion-ошибке.
 
 RayCast следует за HeadX, обновляется на границе команды и исключает holder и все три удерживаемых объекта. Первый collider остаётся авторитетом LOS. `O_GrabLifecycle` обслуживает исключения столкновений с holder, can_sleep, cache и очистку. Удаление/отключение участника, смерть, заморозка предмета и чрезмерное расстояние завершают владение; world removal не требует удаления Node.
 

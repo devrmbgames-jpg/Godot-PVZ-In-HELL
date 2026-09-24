@@ -133,6 +133,15 @@ func make_box(location: Vector3) -> Entity:
 	return actor
 
 
+func make_raw_rigid_body(location: Vector3, mass: float = 5.0) -> RigidBody3D:
+	var scene: PackedScene = load("res://tests/fixtures/raw_rigid_body.tscn") as PackedScene
+	var body: RigidBody3D = scene.instantiate() as RigidBody3D
+	body.position = location
+	body.mass = mass
+	grab_world.add_child(body)
+	return body
+
+
 func _grabbable(entity: Entity) -> C_Grabbable:
 	return entity.get_component(C_Grabbable) as C_Grabbable
 
@@ -1086,6 +1095,144 @@ func test_world_removal_of_holder_releases_source_relationship() -> void:
 	grab_world.remove_entity(holder_entity)
 	assert_null(S_Grab.held_relationship(box_entity))
 	assert_true(box_body.get_collision_exceptions().is_empty())
+#endregion
+
+
+#region Generic scriptless RigidBody Carry
+func test_scriptless_rigid_body_is_a_physics_target_without_becoming_gameplay_target() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	assert_null(rock.get_script())
+	assert_null(S_InteractionTargeting.find_target(holder_entity, interactor))
+	assert_eq(S_InteractionTargeting.find_physics_target(holder_entity, interactor), rock)
+	assert_null(PhysicsGrabTarget.handle_for(rock, false))
+
+
+func test_interact_picks_up_scriptless_rigid_body_through_runtime_proxy() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5), 12.0)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	interactor.target = null
+	interactor.physics_target = rock
+	input_state.interact_pressed = true
+	input_state.input_tick += 1
+
+	S_Grab.handle_input(holder_entity)
+
+	var held: Entity = S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	assert_not_null(held)
+	assert_true(PhysicsGrabTarget.is_proxy(held))
+	assert_eq(PhysicsGrabTarget.body_for(held), rock)
+	assert_true(carry_load.active)
+	assert_true(rock.get_collision_exceptions().has(holder_body))
+	assert_eq((S_Grab.held_relationship(held).relation as C_HeldBy).profile.allowed_hand_slots, 0)
+
+
+func test_scriptless_rigid_body_respects_mass_and_no_carry_policy() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	grab_control.max_carry_mass = 10.0
+	var heavy: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5), 20.0)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_false(
+		S_Grab.can_pickup_body(
+			holder_entity,
+			heavy,
+			C_Grabbable.HoldSlot.CARRY,
+		)
+	)
+	assert_null(PhysicsGrabTarget.handle_for(heavy, false))
+
+	heavy.mass = 5.0
+	heavy.add_to_group(C_GrabControl.NO_CARRY_GROUP)
+	assert_false(
+		S_Grab.can_pickup_body(
+			holder_entity,
+			heavy,
+			C_Grabbable.HoldSlot.CARRY,
+		)
+	)
+	assert_null(PhysicsGrabTarget.handle_for(heavy, false))
+
+
+func test_scriptless_release_preserves_inertia_and_restores_collision() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_true(S_Grab.try_pickup_body(holder_entity, rock))
+	var held: Entity = S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	rock.linear_velocity = Vector3(2.0, 3.0, 4.0)
+	rock.angular_velocity = Vector3(0.0, 2.0, 1.0)
+
+	S_Grab.release(holder_entity, held)
+
+	assert_eq(rock.linear_velocity, Vector3(2.0, 3.0, 4.0))
+	assert_eq(rock.angular_velocity, Vector3(0.0, 2.0, 1.0))
+	assert_false(rock.get_collision_exceptions().has(holder_body))
+	assert_false(carry_load.active)
+
+
+func test_scriptless_solver_moves_body_without_assigning_transform() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.8))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_true(S_Grab.try_pickup_body(holder_entity, rock))
+	var held: Entity = S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	var relation: Relationship = S_Grab.held_relationship(held)
+	var grip: C_HeldBy = relation.relation as C_HeldBy
+	var anchor: Node3D = S_Grab.object_anchor(holder_entity, held)
+	var initial_position: Vector3 = rock.global_position
+
+	assert_true(
+		GrabPhysicsSolver.integrate_body(
+			rock,
+			1.0 / 60.0,
+			anchor,
+			grip,
+			grip.profile,
+			grip.profile.break_distance,
+		)
+	)
+	assert_eq(rock.global_position, initial_position, "Solver must apply force, not teleport")
+
+	for physics_tick: int in 10:
+		await get_tree().physics_frame
+		assert_true(
+			GrabPhysicsSolver.integrate_body(
+				rock,
+				1.0 / 60.0,
+				anchor,
+				grip,
+				grip.profile,
+				grip.profile.break_distance,
+			)
+		)
+	assert_gt(rock.global_position.z, initial_position.z)
+
+
+func test_scriptless_body_removal_cleans_runtime_proxy_and_holder() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_true(S_Grab.try_pickup_body(holder_entity, rock))
+	var proxy: Entity = S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	assert_not_null(proxy)
+
+	rock.queue_free()
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	assert_null(grab_control.held_carry)
+	assert_false(carry_load.active)
+	assert_false(is_instance_valid(proxy))
 #endregion
 
 
