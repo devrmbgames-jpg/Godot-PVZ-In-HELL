@@ -51,6 +51,7 @@ func before_each() -> void:
 	carry_load = holder_entity.get_component(C_CarryLoad) as C_CarryLoad
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
 	interactor.target = box_entity
+	interactor.physics_target = box_body
 
 
 func after_each() -> void:
@@ -943,7 +944,9 @@ func test_interact_replaces_primary_hand_after_los_validation() -> void:
 		await get_tree().physics_frame
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
 	interactor.target = S_InteractionTargeting.find_target(holder_entity, interactor)
+	interactor.physics_target = S_InteractionTargeting.find_physics_target(holder_entity, interactor)
 	assert_eq(interactor.target, box_entity)
+	assert_eq(interactor.physics_target, box_body)
 	input_state.input_tick += 1
 	input_state.interact_pressed = true
 	S_Grab.handle_input(holder_entity)
@@ -966,7 +969,9 @@ func test_use_replaces_secondary_hand_after_los_validation() -> void:
 		await get_tree().physics_frame
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
 	interactor.target = S_InteractionTargeting.find_target(holder_entity, interactor)
+	interactor.physics_target = S_InteractionTargeting.find_physics_target(holder_entity, interactor)
 	assert_eq(interactor.target, box_entity)
+	assert_eq(interactor.physics_target, box_body)
 	input_state.input_tick += 1
 	input_state.use_pressed = true
 	S_Grab.handle_input(holder_entity)
@@ -1372,7 +1377,7 @@ func test_character_body_transport_remains_interactable_after_generic_rigidbody_
 	var cart: Entity = scene.instantiate() as Entity
 	var cart_body: CharacterBody3D = cart as Node as CharacterBody3D
 	cart_body.position = Vector3(0.0, 0.7, -1.8)
-	cart_body.process_mode = Node.PROCESS_MODE_DISABLED
+	cart_body.set_physics_process(false)
 	grab_world.add_entity(cart)
 
 	await get_tree().physics_frame
