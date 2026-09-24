@@ -1,6 +1,6 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cfvy544haihs2"]
 
-[ext_resource type="Script" path="res://tests/smoke/marker_shelves_smoke.gd" id="1"]
+[ext_resource type="Script" uid="uid://bq343jiu2q7rt" path="res://tests/smoke/marker_shelves_smoke.gd" id="1"]
 
-[node name="MarkerShelvesSmoke" type="Node"]
+[node name="MarkerShelvesSmoke" type="Node" unique_id=1780682041]
 script = ExtResource("1")

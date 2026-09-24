@@ -712,7 +712,7 @@ static func _integrate_generic_bodies(holder: Entity, delta: float) -> void:
 		if held == null:
 			continue
 		var body: RigidBody3D = physical_body(held)
-		if body == null or body is E_GrabbableBody:
+		if body == null or held is E_GrabbableBody:
 			continue
 		var grip: Relationship = held_relationship(held)
 		if grip == null or grip.target != holder:
