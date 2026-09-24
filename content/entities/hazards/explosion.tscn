@@ -15,7 +15,7 @@ height = 0.6
 [sub_resource type="StandardMaterial3D" id="Material"]
 transparency = 1
 shading_mode = 0
-albedo_color = Color(0.3, 0.9, 0.2, 0.18)
+albedo_color = Color(1, 0.45, 0.08, 0.35)
 
 [node name="Explosion" type="Node3D"]
 script = ExtResource("Entity")

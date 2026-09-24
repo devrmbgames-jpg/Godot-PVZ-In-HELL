@@ -1,6 +1,6 @@
 # R09 — Generic Toxic Area / Explosion и активация из Package
 
-Status: in progress - R09.1
+Status: in progress - R09.4; runtime acceptance is user-owned
 Зависимости: R04, R08
 Base: master / e9ecb7f.
 Источники: [ТЗ 06](../docs/roadmap/06_package_damage_and_hazards.md), [ТЗ 10](../docs/roadmap/10_combat_damage_health.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md).

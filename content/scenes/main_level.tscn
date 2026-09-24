@@ -92,6 +92,9 @@
 [ext_resource type="Script" path="res://content/systems/gameplay/s_hazard_follow.gd" id="R09_s_hazard_follow"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_hazard_lifetime.gd" id="R09_s_hazard_lifetime"]
 
+[ext_resource type="Script" path="res://content/systems/gameplay/s_explosion.gd" id="R09_s_explosion"]
+[ext_resource type="Script" path="res://content/observers/gameplay/o_explosion_setup.gd" id="R09_o_explosion_setup"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -302,6 +305,14 @@ group = &"GamePlay"
 [node name="SHazardLifetime" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("R09_s_hazard_lifetime")
 group = &"GamePlay"
+
+
+[node name="SExplosion" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("R09_s_explosion")
+group = &"GamePlay"
+
+[node name="OExplosionSetup" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("R09_o_explosion_setup")
 
 [node name="O_Damage" type="Node" parent="World/Systems/GamePlay" unique_id=1820599322]
 script = ExtResource("5_ad8bv")

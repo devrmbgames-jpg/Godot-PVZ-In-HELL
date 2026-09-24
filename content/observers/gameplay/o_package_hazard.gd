@@ -24,6 +24,9 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 
 	if emitter.triggers & trigger:
 		var actor: Entity = event.actor if is_instance_valid(event.actor) else null
-		if event.cause != null and is_instance_valid(event.cause.request.instigator):
-			actor = event.cause.request.instigator
-		HazardEmitter.activate(entity, actor, event.package_id)
+		var actor_id: String = ""
+		if event.cause != null and event.cause.request != null:
+			actor_id = event.cause.request.instigator_id
+			if is_instance_valid(event.cause.request.instigator):
+				actor = event.cause.request.instigator
+		HazardEmitter.activate(entity, actor, event.package_id, actor_id)

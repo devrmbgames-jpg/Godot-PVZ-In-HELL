@@ -8,6 +8,7 @@ static func activate(
 	origin: Entity,
 	instigator: Entity = null,
 	stable_origin_id: String = "",
+	stable_instigator_id: String = "",
 ) -> bool:
 	if not EntityAvailability.contains(origin, ECS.world):
 		return false
@@ -25,6 +26,7 @@ static func activate(
 	request.request_id = "%s:%d" % [request.origin_id, emitter.sequence + 1]
 	request.origin = origin
 	request.instigator = instigator
+	request.instigator_id = stable_instigator_id
 	request.definition = emitter.definition
 	request.world_pose = spatial.global_transform
 	request.ownership = emitter.definition.ownership
