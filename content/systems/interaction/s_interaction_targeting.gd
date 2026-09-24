@@ -34,39 +34,56 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 
 #region Public API
 ## The first collider wins: an occluding wall never permits interaction behind it.
-static func find_target(holder: Entity, interactor: C_Interactor) -> Entity:
+static func find_target(holder: Entity, interactor: C_Interactor) -> Node:
 	var interaction_raycast: RayCast3D = S_Grab.interaction_raycast(holder)
 	if not is_instance_valid(interaction_raycast) or not interaction_raycast.is_inside_tree():
 		return null
+	
 	interaction_raycast.enabled = true
 	interaction_raycast.target_position = (
 		Vector3.FORWARD * maxf(interactor.interaction_distance, 0.1)
 	)
 	interaction_raycast.collision_mask = interactor.collision_mask
 	interaction_raycast.clear_exceptions()
+
 	var holder_body: CollisionObject3D = holder as Node as CollisionObject3D
 	if holder_body != null:
 		interaction_raycast.add_exception_rid(holder_body.get_rid())
+	
 	for slot_index: int in 3:
 		var held: Entity = S_Grab.held_in_slot(holder, slot_index)
 		var held_body: CollisionObject3D = held as Node as CollisionObject3D
 		if held_body != null:
 			interaction_raycast.add_exception_rid(held_body.get_rid())
+	
 	interaction_raycast.force_raycast_update()
 	if not interaction_raycast.is_colliding():
 		return null
-	var candidate: Entity = collider_entity(interaction_raycast.get_collider())
-	if not is_instance_valid(candidate) or candidate == holder or not candidate.enabled:
+	
+	var candidate: Node = collider_node(interaction_raycast.get_collider()) as Node
+	if not is_instance_valid(candidate) or candidate == holder :
 		return null
-	var interactable: C_Interactable = candidate.get_component(C_Interactable) as C_Interactable
-	return candidate if interactable != null and interactable.enabled else null
+	
+	if candidate is Entity and candidate.enabled :
+		var interactable: C_Interactable = candidate.get_component(C_Interactable) as C_Interactable
+		return candidate if interactable != null and interactable.enabled else null
+	elif candidate is RigidBody3D and not candidate.freeze :
+		return candidate
+	else :
+		return null
 
 
-static func collider_entity(collider: Object) -> Entity:
+
+
+
+
+static func collider_node(collider: Object) -> Node :
 	var candidate_node: Node = collider as Node
 	while candidate_node != null:
-		if candidate_node is Entity:
-			return candidate_node as Entity
+		if candidate_node is Entity :
+			return candidate_node
+		if candidate_node is RigidBody3D:
+			return candidate_node
 		candidate_node = candidate_node.get_parent()
 	return null
 

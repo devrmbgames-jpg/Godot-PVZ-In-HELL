@@ -20,3 +20,22 @@ var held_left: Entity = null
 ## Token registry is the single control-focus authority; each acquire has its own key.
 var captures: Dictionary[int, InteractionControlCapture] = { }
 var context_wheel_requested: bool = false
+
+#max mass
+@export var max_carry_mass: float = 80.0
+
+
+func can_carry_body(
+	body: RigidBody3D,
+) -> bool:
+	if body == null:
+		return false
+	
+	if body.freeze:
+		return false
+	
+	if body.is_in_group(&"no_carry"):
+		return false
+	
+	
+	return body.mass <= max_carry_mass
