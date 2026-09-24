@@ -3,8 +3,8 @@
 Active: R09, base e9ecb7f.
 
 - [x] R09.1: generic spawn, definitions, independent prefabs, reusable emitter and package adapter.
-- [ ] User smoke runner: PowerShell script and usage (separate local commit).
-- [ ] R09.2: bounded independent toxic ticks and generic lifetime/follow.
+- [x] User smoke runner: PowerShell script and usage (separate local commit).
+- [x] R09.2: bounded independent toxic ticks and generic lifetime/follow.
 - [ ] R09.3: one-shot radial explosion, explicit LOS and physical impulses.
 - [ ] R09.4: reset/persistence hooks, presentation, independent fixture, static review and handoff.
 

@@ -24,3 +24,7 @@ var target: Entity = null
 var amount: float = 0.0
 var operation: Operation = Operation.DAMAGE
 var damage_type: Type = Type.GENERIC
+
+## Durable effect attribution, independent of live origin/instigator Node references.
+var origin_id: String = ""
+var instigator_id: String = ""

@@ -87,6 +87,11 @@
 [ext_resource type="Script" path="res://content/observers/gameplay/o_package_hazard.gd" id="PackageHazard"]
 [ext_resource type="Script" path="res://content/observers/gameplay/o_package_hazard_setup.gd" id="PackageHazardSetup"]
 
+[ext_resource type="Script" path="res://content/observers/gameplay/o_toxic_area_setup.gd" id="R09_o_toxic_area_setup"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_toxic_area.gd" id="R09_s_toxic_area"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_hazard_follow.gd" id="R09_s_hazard_follow"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_hazard_lifetime.gd" id="R09_s_hazard_lifetime"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -281,6 +286,22 @@ script = ExtResource("PackageHazard")
 
 [node name="PackageHazardSetup" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("PackageHazardSetup")
+
+
+[node name="OToxicAreaSetup" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("R09_o_toxic_area_setup")
+
+[node name="SToxicArea" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("R09_s_toxic_area")
+group = &"GamePlay"
+
+[node name="SHazardFollow" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("R09_s_hazard_follow")
+group = &"GamePlay"
+
+[node name="SHazardLifetime" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("R09_s_hazard_lifetime")
+group = &"GamePlay"
 
 [node name="O_Damage" type="Node" parent="World/Systems/GamePlay" unique_id=1820599322]
 script = ExtResource("5_ad8bv")

@@ -13,6 +13,8 @@ static func submit(request: DamageRequest) -> bool:
 	snapshot.target = request.target
 	snapshot.source = request.source
 	snapshot.instigator = request.instigator
+	snapshot.origin_id = request.origin_id
+	snapshot.instigator_id = request.instigator_id
 	snapshot.amount = request.amount
 	snapshot.operation = request.operation
 	snapshot.damage_type = request.damage_type
