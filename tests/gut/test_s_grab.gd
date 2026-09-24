@@ -100,6 +100,7 @@ func make_holder(location: Vector3) -> Entity:
 		C_Interactor.new(),
 		C_GrabControl.new(),
 		C_CarryLoad.new(),
+		C_Strength.new(),
 		C_PushControl.new(),
 	]
 	grab_world.add_entity(actor)
@@ -126,8 +127,6 @@ func make_box(location: Vector3) -> Entity:
 	rigid.add_child(mesh_instance)
 	var actor: Entity = rigid as Node as Entity
 	var config: C_Grabbable = C_Grabbable.new()
-	config.movement_speed_multiplier = 0.6
-	config.movement_acceleration_multiplier = 0.5
 	actor.component_resources = [C_Interactable.new(), config]
 	grab_world.add_entity(actor)
 	return actor
@@ -275,13 +274,13 @@ func test_interact_picks_up_and_releases_with_load_and_collision_cleanup() -> vo
 	S_Grab.handle_input(holder_entity)
 	assert_eq(S_Grab.held_object(holder_entity), box_entity)
 	assert_true(carry_load.active)
-	assert_eq(carry_load.speed_multiplier, 0.6)
+	assert_eq(carry_load.mass_kg, 5.0)
 	assert_true(box_body.get_collision_exceptions().has(holder_body))
 	assert_false(box_body.freeze)
 	S_Grab.handle_input(holder_entity)
 	assert_null(S_Grab.held_relationship(box_entity))
 	assert_false(carry_load.active)
-	assert_eq(carry_load.speed_multiplier, 1.0)
+	assert_eq(carry_load.mass_kg, 0.0)
 	assert_false(box_body.get_collision_exceptions().has(holder_body))
 
 
@@ -430,15 +429,35 @@ func test_raycast_selects_and_highlights_only_the_current_target() -> void:
 	targeting.free()
 
 
-func test_carry_modifiers_leave_base_motion_unchanged() -> void:
+func test_carry_speed_is_linear_from_mass_and_current_strength() -> void:
 	var motion: C_Motion = C_Motion.new()
+	var strength: C_Strength = holder_entity.get_component(C_Strength) as C_Strength
+	assert_not_null(strength)
+	assert_eq(strength.base, 1.0)
+	assert_eq(strength.value, 1.0)
+	assert_eq(CarryLoadPolicy.minimum_mass_kg(strength), 30.0)
+	assert_eq(CarryLoadPolicy.maximum_mass_kg(strength), 120.0)
+	assert_eq(CarryLoadPolicy.speed_multiplier(30.0, strength), 1.0)
+	assert_almost_eq(CarryLoadPolicy.speed_multiplier(75.0, strength), 0.5, 0.001)
+	assert_eq(CarryLoadPolicy.speed_multiplier(120.0, strength), 0.0)
+	assert_true(CarryLoadPolicy.can_carry(120.0, strength))
+	assert_false(CarryLoadPolicy.can_carry(120.01, strength))
+
+	box_body.mass = 75.0
 	assert_true(S_Grab.try_pickup(holder_entity, box_entity))
-	assert_almost_eq(S_Motion.effective_speed(motion, carry_load), 3.6, 0.001)
-	assert_eq(S_Motion.effective_acceleration(motion.ground_acceleration, carry_load), 12.5)
+	assert_eq(carry_load.mass_kg, 75.0)
+	assert_almost_eq(S_Motion.effective_speed(motion, carry_load, strength), 3.0, 0.001)
 	assert_eq(motion.max_speed, 6.0)
 	assert_eq(motion.ground_acceleration, 25.0)
+
+	strength.value = 2.0
+	assert_eq(CarryLoadPolicy.minimum_mass_kg(strength), 50.0)
+	assert_eq(CarryLoadPolicy.maximum_mass_kg(strength), 150.0)
+	assert_almost_eq(S_Motion.effective_speed(motion, carry_load, strength), 4.5, 0.001)
+
 	S_Grab.release(holder_entity, box_entity)
-	assert_eq(S_Motion.effective_speed(motion, carry_load), 6.0)
+	assert_eq(carry_load.mass_kg, 0.0)
+	assert_eq(S_Motion.effective_speed(motion, carry_load, strength), 6.0)
 #endregion
 
 
@@ -466,7 +485,7 @@ func test_releasing_hand_item_preserves_carry_load_and_cache() -> void:
 	assert_null(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
 	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY), box_entity)
 	assert_true(carry_load.active)
-	assert_eq(carry_load.speed_multiplier, 0.6)
+	assert_eq(carry_load.mass_kg, 5.0)
 
 
 func test_disabled_holder_releases_all_slot_relationships() -> void:
@@ -1135,8 +1154,9 @@ func test_interact_picks_up_scriptless_rigid_body_through_runtime_proxy() -> voi
 
 func test_scriptless_rigid_body_respects_mass_and_no_carry_policy() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
-	grab_control.max_carry_mass = 10.0
-	var heavy: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5), 20.0)
+	var strength: C_Strength = holder_entity.get_component(C_Strength) as C_Strength
+	assert_eq(CarryLoadPolicy.maximum_mass_kg(strength), 120.0)
+	var heavy: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5), 121.0)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_false(
