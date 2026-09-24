@@ -78,8 +78,14 @@ func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 			var profile: GrabControlProfile = (
 				grip_data.profile if grip_data.profile != null else S_Grab.profile_for(source)
 			)
+			var carry_load: C_CarryLoad = actor.get_component(C_CarryLoad) as C_CarryLoad
+			var strength: C_Strength = actor.get_component(C_Strength) as C_Strength
+			var mobility_multiplier: float = CarryLoadPolicy.active_multiplier(
+				carry_load,
+				strength,
+			)
 			grip_data.rotation_offset = S_Grab.rotated_offset(
 				grip_data.rotation_offset,
-				controller.look_delta,
+				controller.look_delta * mobility_multiplier,
 				profile.rotation_axis,
 			)

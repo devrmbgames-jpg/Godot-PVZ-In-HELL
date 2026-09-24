@@ -200,9 +200,16 @@ static func throw(holder: Entity, held: Entity) -> void:
 		release(holder, held)
 		return
 
+	var carry_load: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
+	var strength: C_Strength = holder.get_component(C_Strength) as C_Strength
+	var effective_throw_velocity: float = CarryLoadPolicy.scaled_value(
+		profile.throw_velocity,
+		carry_load,
+		strength,
+	)
 	var impulse: Vector3 = throw_impulse(
 		controller.direction_look,
-		profile.throw_velocity,
+		effective_throw_velocity,
 		body.mass,
 	)
 

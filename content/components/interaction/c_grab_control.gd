@@ -23,12 +23,24 @@ var captures: Dictionary[int, InteractionControlCapture] = { }
 var context_wheel_requested: bool = false
 
 
-## Generic Carry eligibility for authored or completely scriptless rigid bodies.
-func can_carry_body(body: RigidBody3D, strength: C_Strength) -> bool:
+## Generic physical Carry candidate independent of the holder's current Strength.
+func is_carry_candidate(body: RigidBody3D) -> bool:
 	if not is_instance_valid(body) or body.is_queued_for_deletion():
 		return false
 	if not body.is_inside_tree() or body.freeze or body.is_in_group(NO_CARRY_GROUP):
 		return false
-	if not is_finite(body.mass) or body.mass <= 0.0:
-		return false
-	return CarryLoadPolicy.can_carry(body.mass, strength)
+	return is_finite(body.mass) and body.mass > 0.0
+
+
+## True only when mass is the reason a valid Carry candidate cannot be lifted.
+func is_too_heavy(body: RigidBody3D, strength: C_Strength) -> bool:
+	return (
+		is_carry_candidate(body)
+		and strength != null
+		and not CarryLoadPolicy.can_carry(body.mass, strength)
+	)
+
+
+## Generic Carry eligibility for authored or completely scriptless rigid bodies.
+func can_carry_body(body: RigidBody3D, strength: C_Strength) -> bool:
+	return is_carry_candidate(body) and CarryLoadPolicy.can_carry(body.mass, strength)

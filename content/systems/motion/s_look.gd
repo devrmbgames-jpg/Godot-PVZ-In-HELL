@@ -11,6 +11,9 @@ static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectB
 	var controller := entity.get_component(C_Controller) as C_Controller
 
 	var look := entity.get_component(C_Look) as C_Look
+	var carry_load: C_CarryLoad = entity.get_component(C_CarryLoad) as C_CarryLoad
+	var strength: C_Strength = entity.get_component(C_Strength) as C_Strength
+	var mobility_multiplier: float = CarryLoadPolicy.active_multiplier(carry_load, strength)
 
 	if controller == null:
 		return
@@ -25,9 +28,21 @@ static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectB
 
 	look_direction = look_direction.normalized()
 
-	var max_rotation_step := deg_to_rad(look.look_acceleration) * state.step
+	var max_rotation_step: float = (
+		deg_to_rad(look.look_acceleration)
+		* state.step
+		* mobility_multiplier
+	)
 
-	_integrate_yaw(entity, state, look, controller, look_direction, max_rotation_step)
+	_integrate_yaw(
+		entity,
+		state,
+		look,
+		controller,
+		look_direction,
+		max_rotation_step,
+		mobility_multiplier,
+	)
 
 	_integrate_pitch(entity, look_direction, max_rotation_step)
 
@@ -39,6 +54,7 @@ static func _integrate_yaw(
 	controller: C_Controller,
 	look_direction: Vector3,
 	max_rotation_step: float,
+	mobility_multiplier: float,
 ) -> void:
 	var flat_look_direction := Vector3(
 		look_direction.x,
@@ -125,6 +141,7 @@ static func _integrate_yaw(
 		var motion_rotation_step: float = (
 			deg_to_rad(look.motion_alignment_acceleration)
 			* state.step
+			* mobility_multiplier
 		)
 
 		var motion_new_body_yaw: float = _move_toward_angle(

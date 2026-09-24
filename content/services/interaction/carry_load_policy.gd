@@ -22,8 +22,9 @@ static func can_carry(mass_kg: float, strength: C_Strength) -> bool:
 	return mass_kg <= maximum_mass_kg(strength)
 
 
-## Full speed through minimum_mass_kg(), then linear to zero at maximum_mass_kg().
-static func speed_multiplier(mass_kg: float, strength: C_Strength) -> float:
+## Full control through minimum_mass_kg(), then linear to zero at maximum_mass_kg().
+## One factor drives locomotion, look/body turning, held rotation and throw velocity.
+static func mobility_multiplier(mass_kg: float, strength: C_Strength) -> float:
 	if strength == null or not is_finite(mass_kg) or mass_kg <= 0.0:
 		return 0.0
 	var minimum: float = minimum_mass_kg(strength)
@@ -33,6 +34,20 @@ static func speed_multiplier(mass_kg: float, strength: C_Strength) -> float:
 	if mass_kg >= maximum:
 		return 0.0
 	return 1.0 - inverse_lerp(minimum, maximum, mass_kg)
+
+
+static func active_multiplier(carry_load: C_CarryLoad, strength: C_Strength) -> float:
+	if carry_load == null or not carry_load.active:
+		return 1.0
+	return mobility_multiplier(carry_load.mass_kg, strength)
+
+
+static func scaled_value(
+	base_value: float,
+	carry_load: C_CarryLoad,
+	strength: C_Strength,
+) -> float:
+	return maxf(base_value, 0.0) * active_multiplier(carry_load, strength)
 
 
 static func _strength_value(strength: C_Strength) -> float:
