@@ -1392,7 +1392,8 @@ func test_character_body_transport_remains_interactable_after_generic_rigidbody_
 		DEF_InteractionAction.Slot.INTERACT,
 	)
 	assert_not_null(choice)
-	assert_true(choice.action is DEF_CartTransportAction)
+	if choice :
+		assert_true(choice.action is DEF_CartTransportAction)
 
 	input_state.interact_pressed = true
 	input_state.input_tick += 1
