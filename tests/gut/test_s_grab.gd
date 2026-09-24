@@ -1365,6 +1365,43 @@ func test_scriptless_body_removal_cleans_runtime_proxy_and_holder() -> void:
 #endregion
 
 
+#region Transport interaction regression
+func test_character_body_transport_remains_interactable_after_generic_rigidbody_carry() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var scene: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
+	var cart: Entity = scene.instantiate() as Entity
+	var cart_body: CharacterBody3D = cart as Node as CharacterBody3D
+	cart_body.position = Vector3(0.0, 0.7, -1.8)
+	cart_body.process_mode = Node.PROCESS_MODE_DISABLED
+	grab_world.add_entity(cart)
+
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	interactor.target = S_InteractionTargeting.find_target(holder_entity, interactor)
+	interactor.physics_target = S_InteractionTargeting.find_physics_target(holder_entity, interactor)
+
+	assert_eq(interactor.target, cart)
+	assert_null(interactor.physics_target)
+	assert_true(S_Grab.within_pickup_reach(holder_entity, cart))
+	assert_true(S_CartTransport.can_begin(holder_entity, cart))
+
+	var choice: InteractionActionChoice = InteractionActionResolver.resolve(
+		holder_entity,
+		DEF_InteractionAction.Slot.INTERACT,
+	)
+	assert_not_null(choice)
+	assert_true(choice.action is DEF_CartTransportAction)
+
+	input_state.interact_pressed = true
+	input_state.input_tick += 1
+	S_Grab.handle_input(holder_entity)
+	assert_eq(S_CartTransport.current(holder_entity), cart)
+	S_CartTransport.end(cart)
+#endregion
+
+
 #region Push lifecycle and actual physics
 func _make_push_cart() -> Entity:
 	box_body.position = Vector3(8.0, 1.0, -1.5)

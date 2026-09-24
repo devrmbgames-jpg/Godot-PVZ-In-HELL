@@ -619,11 +619,25 @@ static func slot_anchor(holder: Entity, slot_index: int) -> Node3D:
 	return null
 
 
-## Revalidates first-hit LOS and the independent pickup reach limit.
+## Revalidates first-hit LOS and the shared physical-interaction reach limit.
+## Gameplay Entity targets may be CharacterBody3D/AnimatableBody3D; only generic Carry
+## requires RigidBody3D and therefore uses within_pickup_reach_body().
 static func within_pickup_reach(holder: Entity, target: Entity) -> bool:
 	if not entity_available(target):
 		return false
-	return within_pickup_reach_body(holder, physical_body(target))
+
+	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
+	var interactor: C_Interactor = holder.get_component(C_Interactor) as C_Interactor
+	var raycast: RayCast3D = interaction_raycast(holder)
+	if control == null or interactor == null or not is_instance_valid(raycast):
+		return false
+	if S_InteractionTargeting.find_target(holder, interactor) != target:
+		return false
+	if not raycast.is_colliding():
+		return false
+
+	var hit_distance: float = raycast.global_position.distance_to(raycast.get_collision_point())
+	return hit_distance <= maxf(control.pickup_distance, 0.0)
 
 
 static func within_pickup_reach_body(holder: Entity, body: RigidBody3D) -> bool:
