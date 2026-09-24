@@ -18,7 +18,7 @@ RigidBody владеет transform/velocity. Для authored `E_GrabbableBody` �
 
 `C_HeldBy` остаётся единственным ownership-authority и хранится на Entity либо на таком proxy. Для scriptless/foreign rigid body `S_Grab` применяет `GrabPhysicsSolver` перед physics step через обычные forces/angular velocity; callback чужого body не подменяется. Нет reparent, freeze или teleport. Удаление исходного body удаляет proxy и освобождает Carry.
 
-По умолчанию raw rigid body является **Carry-only** и использует `GrabControlProfile` со стандартными коэффициентами. `C_Grabbable` является authored override для hand slots и throw/rotation/hold tuning, но не задаёт штраф скорости и не является обязательным маркером физической поднимаемости. Группа `no_carry` остаётся Inspector-friendly opt-out; freeze и невалидная масса также запрещают generic pickup.
+По умолчанию raw rigid body является **Carry-only** и использует `GrabControlProfile` со стандартными коэффициентами. `C_Grabbable` является authored override для hand slots и throw/rotation/hold tuning, но не задаёт штраф скорости и не является обязательным маркером физической поднимаемости. Группа `no_carry` остаётся Inspector-friendly opt-out; freeze и невалидная масса также запрещают generic pickup. Валидный Carry-candidate, который не проходит только Strength/mass limit, всё равно подсвечивается. Вместо pickup action HUD показывает `Слишком Тяжелое` без кнопки `[E]`; `no_carry`, freeze и невалидная масса не используют это сообщение.
 
 Нет переподчинения, заморозки или телепортации тела. Перенос использует ограниченную силу пружины с компенсацией гравитации; вращение — angular-velocity servo по кратчайшей quaternion-ошибке.
 

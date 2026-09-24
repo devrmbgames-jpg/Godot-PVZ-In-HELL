@@ -277,10 +277,18 @@ static func refresh_prompt(actor: Entity) -> void:
 		interactor.prompt_text = "Маркер · кнопка руки + мышь · [E / Esc] Завершить"
 		return
 
+	var interact_choice: InteractionActionChoice = resolve(
+		actor,
+		DEF_InteractionAction.Slot.INTERACT,
+	)
+	if interact_choice == null and _is_overweight_carry_target(actor, interactor):
+		lines.append("Слишком Тяжелое")
+
 	for slot_index: int in BUTTON_LABELS.size():
-		var choice: InteractionActionChoice = resolve(
-			actor,
-			slot_index as DEF_InteractionAction.Slot,
+		var choice: InteractionActionChoice = (
+			interact_choice
+			if slot_index == DEF_InteractionAction.Slot.INTERACT
+			else resolve(actor, slot_index as DEF_InteractionAction.Slot)
 		)
 		if choice != null:
 			lines.append("[%s] %s" % [button_label(slot_index), choice.action.caption])
@@ -310,6 +318,31 @@ static func refresh_prompt(actor: Entity) -> void:
 	if control.context_wheel_requested:
 		lines.append("Контекстное колесо — в разработке")
 	interactor.prompt_text = "\n".join(lines)
+
+
+## Reports weight-only Carry rejection for a currently raycast physical body.
+static func _is_overweight_carry_target(actor: Entity, interactor: C_Interactor) -> bool:
+	if interactor == null or not is_instance_valid(interactor.physics_target):
+		return false
+	if InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.HANDS:
+		return false
+
+	var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
+	var strength: C_Strength = actor.get_component(C_Strength) as C_Strength
+	if control == null or strength == null:
+		return false
+
+	var body: RigidBody3D = interactor.physics_target
+	if S_InteractionTargeting.find_physics_target(actor, interactor) != body:
+		return false
+
+	var handle: Entity = PhysicsGrabTarget.handle_for(body, false)
+	if handle != null:
+		var profile: GrabControlProfile = S_Grab.profile_for(handle)
+		if profile.allowed_hand_slots != 0:
+			return false
+
+	return control.is_too_heavy(body, strength)
 
 
 ## Reads the active InputMap binding for a contextual button.

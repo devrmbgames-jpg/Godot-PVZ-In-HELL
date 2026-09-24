@@ -1220,6 +1220,47 @@ func test_interact_picks_up_scriptless_rigid_body_through_runtime_proxy() -> voi
 	assert_eq((S_Grab.held_relationship(held).relation as C_HeldBy).profile.allowed_hand_slots, 0)
 
 
+func test_overweight_scriptless_body_stays_highlighted_and_shows_weight_message() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5), 121.0)
+	var mesh: MeshInstance3D = rock.get_node("MeshInstance3D") as MeshInstance3D
+	var previous_overlay: StandardMaterial3D = StandardMaterial3D.new()
+	mesh.material_overlay = previous_overlay
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var targeting_system: S_InteractionTargeting = S_InteractionTargeting.new()
+	targeting_system.process([holder_entity], [[interactor]], 0.0)
+
+	assert_eq(interactor.physics_target, rock)
+	assert_not_null(mesh.material_overlay)
+	assert_ne(mesh.material_overlay, previous_overlay)
+	assert_null(
+		InteractionActionResolver.resolve(
+			holder_entity,
+			DEF_InteractionAction.Slot.INTERACT,
+		)
+	)
+
+	InteractionActionResolver.refresh_prompt(holder_entity)
+	assert_eq(interactor.prompt_text, "Слишком Тяжелое")
+
+	input_state.interact_pressed = true
+	input_state.input_tick += 1
+	S_Grab.handle_input(holder_entity)
+	assert_null(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY))
+	assert_null(PhysicsGrabTarget.handle_for(rock, false))
+
+	rock.mass = 5.0
+	targeting_system.process([holder_entity], [[interactor]], 0.0)
+	InteractionActionResolver.refresh_prompt(holder_entity)
+	assert_true(interactor.prompt_text.contains("[E]"))
+	assert_true(interactor.prompt_text.contains("Взять"))
+
+	targeting_system.free()
+
+
 func test_scriptless_rigid_body_respects_mass_and_no_carry_policy() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
 	var strength: C_Strength = holder_entity.get_component(C_Strength) as C_Strength
