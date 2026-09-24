@@ -1,5 +1,5 @@
 extends Component
-## Authored hold, throw, Carry penalty and manual rotation policy for a physical prop.
+## Optional authored hold, throw and manual rotation overrides for a physical prop.
 class_name C_Grabbable
 
 enum HoldSlot {
@@ -34,7 +34,3 @@ enum RotationAxis {
 @export var break_distance: float = 4.0
 ## Desired velocity change. Heavy-object profiles use a smaller value.
 @export var throw_velocity: float = 10.0
-## Speed penalty while this item occupies Carry; hand-items do not apply it.
-@export_range(0.0, 1.0, 0.01) var movement_speed_multiplier: float = 1.0
-## Acceleration penalty while this item occupies Carry.
-@export_range(0.0, 1.0, 0.01) var movement_acceleration_multiplier: float = 1.0

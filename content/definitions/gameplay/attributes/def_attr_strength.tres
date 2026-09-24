@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_Attribute" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/attributes/def_attribute.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+key_base = &"strength_base"
+key_value = &"strength_value"
+key_current = &"strength_current"
+key = &"strength"

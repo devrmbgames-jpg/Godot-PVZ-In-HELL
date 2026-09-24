@@ -4,7 +4,7 @@
 
 ## Авторинг и владение
 
-Статические Components и действия задаются через scene `component_resources`: Player, Scanner, Package, Terminal, DaySession, станции, приёмка и PushCart. Единственное project-owned исключение `define_components()` — spawn-specific `C_Package` с устойчивым ID и переданной definition. Состояние/целостность Package авторятся в сцене; спавнер копирует только индивидуальный grab-профиль. Изменяемые scene-ресурсы с контейнерами изолированы между экземплярами.
+Статические Components и действия задаются через scene `component_resources`: Player, Scanner, Package, Terminal, DaySession, станции, приёмка и PushCart. Единственное project-owned исключение `define_components()` — spawn-specific `C_Package` с устойчивым ID и переданной definition. Состояние/целостность Package авторятся в сцене; спавнер меняет только физическую массу и индивидуальную скорость броска. Скорость движения с Carry не авторится на предметах. Изменяемые scene-ресурсы с контейнерами изолированы между экземплярами.
 
 Источник владения — `предмет --C_HeldBy--> holder`. `C_HeldBy.slot` выбирается при pickup: CARRY, RIGHT_HAND или LEFT_HAND. Один объект имеет одного holder; каждый слот вмещает один объект. Holder может одновременно держать три предмета.
 
@@ -18,13 +18,13 @@ RigidBody владеет transform/velocity. Для authored `E_GrabbableBody` �
 
 `C_HeldBy` остаётся единственным ownership-authority и хранится на Entity либо на таком proxy. Для scriptless/foreign rigid body `S_Grab` применяет `GrabPhysicsSolver` перед physics step через обычные forces/angular velocity; callback чужого body не подменяется. Нет reparent, freeze или teleport. Удаление исходного body удаляет proxy и освобождает Carry.
 
-По умолчанию raw rigid body является **Carry-only** и использует `GrabControlProfile` со стандартными коэффициентами. `C_Grabbable` теперь является authored override для hand slots, throw/rotation/hold tuning и Carry penalties, а не обязательным маркером физической поднимаемости. `C_GrabControl.max_carry_mass` (80 кг по умолчанию) задаёт предел generic Carry; группа `no_carry` является Inspector-friendly opt-out для конкретного RigidBody. Freeze и невалидная масса также запрещают generic pickup.
+По умолчанию raw rigid body является **Carry-only** и использует `GrabControlProfile` со стандартными коэффициентами. `C_Grabbable` является authored override для hand slots и throw/rotation/hold tuning, но не задаёт штраф скорости и не является обязательным маркером физической поднимаемости. Группа `no_carry` остаётся Inspector-friendly opt-out; freeze и невалидная масса также запрещают generic pickup.
 
 Нет переподчинения, заморозки или телепортации тела. Перенос использует ограниченную силу пружины с компенсацией гравитации; вращение — angular-velocity servo по кратчайшей quaternion-ошибке.
 
 RayCast следует за HeadX, обновляется на границе команды и исключает holder и все три удерживаемых объекта. Первый collider остаётся авторитетом LOS. `O_GrabLifecycle` обслуживает исключения столкновений с holder, can_sleep, cache и очистку. Удаление/отключение участника, смерть, заморозка предмета и чрезмерное расстояние завершают владение; world removal не требует удаления Node.
 
-`C_CarryLoad` относится только к Carry: его множители не меняют исходные C_Motion speed/acceleration и не применяются к hand-items. Профили посылок 5/30/80 кг сохраняют отдельные data-driven штрафы и throw velocity. Стандартная дистанция Carry — 1,25 м; предмет может её переопределить.
+`C_CarryLoad` относится только к Carry и хранит фактическую массу удерживаемого `RigidBody3D`; hand-items не влияют на него. Player имеет `C_Strength` (default `base=value=1.0`). Общая политика `CarryLoadPolicy` вычисляет границы: `min = 10 + 20 * Strength.value`, `max = 90 + 30 * Strength.value`. До `min` сохраняется 100% `C_Motion.max_speed`; между `min` и `max` скорость линейно падает до нуля; тяжелее `max` поднять нельзя. При Strength=1 это 30 кг без штрафа и предел 120 кг. Ускорение движения не масштабируется массой. Значение пересчитывается из текущего Strength каждый physics tick, поэтому modifier Strength сразу влияет на уже удерживаемый объект. Стандартная дистанция Carry — 1,25 м; предмет может её переопределить.
 
 ## Capture и anchors
 

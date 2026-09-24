@@ -27,8 +27,6 @@ enum Tag {
 @export_flags("Normal:1", "Fragile:2", "Heavy:4", "Liquid:8") var tags: int = Tag.NORMAL
 @export var hazard: Hazard = Hazard.NONE
 @export_range(0.1, 100.0, 0.1, "or_greater") var mass_kg: float = 5.0
-@export_range(0.0, 1.0) var carry_speed: float = 1.0
-@export_range(0.0, 1.0) var carry_acceleration: float = 1.0
 @export var throw_velocity: float = 10.0
 @export var maximum_health: float = 100.0
 ## Remaining fraction of maximum HP at which ordinary damage becomes visible.

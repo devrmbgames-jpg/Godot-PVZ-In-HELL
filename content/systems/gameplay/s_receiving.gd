@@ -88,8 +88,6 @@ func _deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index: int)
 		if carry == null:
 			parcel.free()
 			return
-		carry.movement_speed_multiplier = definition.carry_speed
-		carry.movement_acceleration_multiplier = definition.carry_acceleration
 		carry.throw_velocity = definition.throw_velocity
 		parcel.component_resources = component_resources
 		zone.package_parent.add_child(parcel)

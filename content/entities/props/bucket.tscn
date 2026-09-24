@@ -16,7 +16,6 @@ reset_rotation_on_pickup = true
 hold_distance = 2.5
 max_rotation_speed = 1.0
 throw_velocity = 1.0
-movement_speed_multiplier = 0.45
 metadata/_custom_type_script = "uid://dp2r3vovlpl83"
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lqn1g"]

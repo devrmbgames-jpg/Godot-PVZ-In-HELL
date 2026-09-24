@@ -13,8 +13,6 @@ var max_hold_force: float = 12000.0
 var break_distance: float = 4.0
 var throw_velocity: float = 10.0
 var max_rotation_speed: float = 30.0
-var movement_speed_multiplier: float = 1.0
-var movement_acceleration_multiplier: float = 1.0
 
 
 static func from_grabbable(config: C_Grabbable) -> GrabControlProfile:
@@ -32,6 +30,4 @@ static func from_grabbable(config: C_Grabbable) -> GrabControlProfile:
 	profile.break_distance = config.break_distance
 	profile.throw_velocity = config.throw_velocity
 	profile.max_rotation_speed = config.max_rotation_speed
-	profile.movement_speed_multiplier = config.movement_speed_multiplier
-	profile.movement_acceleration_multiplier = config.movement_acceleration_multiplier
 	return profile

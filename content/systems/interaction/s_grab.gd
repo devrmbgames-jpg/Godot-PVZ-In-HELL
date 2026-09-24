@@ -102,7 +102,8 @@ static func can_pickup_body(
 	var profile: GrabControlProfile = profile_for(resolved_handle)
 	if not profile_slot_allowed(profile, slot_index):
 		return false
-	if slot_index == C_Grabbable.HoldSlot.CARRY and not control.can_carry_body(body):
+	var strength: C_Strength = holder.get_component(C_Strength) as C_Strength
+	if slot_index == C_Grabbable.HoldSlot.CARRY and not control.can_carry_body(body, strength):
 		return false
 	if not is_instance_valid(slot_anchor(holder, slot_index)):
 		return false
@@ -271,7 +272,8 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
 	if control == null or load_state == null:
 		return false
-	if grip_data.slot == C_Grabbable.HoldSlot.CARRY and not control.can_carry_body(body):
+	var strength: C_Strength = holder.get_component(C_Strength) as C_Strength
+	if grip_data.slot == C_Grabbable.HoldSlot.CARRY and not control.can_carry_body(body, strength):
 		return false
 	if (
 		held_relationship(held) != grip or not profile_slot_allowed(profile, grip_data.slot)
@@ -300,12 +302,7 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 			InteractionControlFocus.Priority.CARRY,
 		)
 		load_state.active = true
-		load_state.speed_multiplier = clampf(profile.movement_speed_multiplier, 0.0, 1.0)
-		load_state.acceleration_multiplier = clampf(
-			profile.movement_acceleration_multiplier,
-			0.0,
-			1.0,
-		)
+		load_state.mass_kg = body.mass
 
 	var cleanup: Callable = release.bind(holder, held)
 	if not held.tree_exiting.is_connected(cleanup):
@@ -379,8 +376,7 @@ static func reset_holder(holder: Entity, slot_index: int = C_Grabbable.HoldSlot.
 	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
 	if load_state != null and slot_index == C_Grabbable.HoldSlot.CARRY:
 		load_state.active = false
-		load_state.speed_multiplier = 1.0
-		load_state.acceleration_multiplier = 1.0
+		load_state.mass_kg = 0.0
 
 #endregion
 
