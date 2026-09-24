@@ -337,4 +337,4 @@ static func effective_speed(
 ) -> float:
 	if carry_load == null or not carry_load.active:
 		return motion.max_speed
-	return motion.max_speed * CarryLoadPolicy.speed_multiplier(carry_load.mass_kg, strength)
+	return motion.max_speed * CarryLoadPolicy.active_multiplier(carry_load, strength)

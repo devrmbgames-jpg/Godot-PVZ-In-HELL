@@ -116,7 +116,13 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			not rotating
 			and InteractionControlFocus.current(entity) < InteractionControlFocus.Priority.DRAWING
 		):
-			_update_look(controller, entity as Node as Node3D)
+			var carry_load: C_CarryLoad = entity.get_component(C_CarryLoad) as C_CarryLoad
+			var strength: C_Strength = entity.get_component(C_Strength) as C_Strength
+			_update_look(
+				controller,
+				entity as Node as Node3D,
+				CarryLoadPolicy.active_multiplier(carry_load, strength),
+			)
 		_update_motion(
 			controller,
 			captured
@@ -165,15 +171,27 @@ func _accepts_input() -> bool:
 	return Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 
 
-func _update_look(controller: C_Controller, character: Node3D) -> void:
+func _update_look(
+	controller: C_Controller,
+	character: Node3D,
+	mobility_multiplier: float,
+) -> void:
 	var look_direction: Vector3 = controller.direction_look
 	if look_direction.is_zero_approx():
 		look_direction = -character.global_basis.z
 	look_direction = look_direction.normalized()
-	look_direction = look_direction.rotated(Vector3.UP, -controller.look_delta.x * LOOK_SENSITIVITY)
+	var scaled_look_delta: Vector2 = controller.look_delta * clampf(
+		mobility_multiplier,
+		0.0,
+		1.0,
+	)
+	look_direction = look_direction.rotated(
+		Vector3.UP,
+		-scaled_look_delta.x * LOOK_SENSITIVITY,
+	)
 	var current_pitch: float = asin(clampf(look_direction.y, -1.0, 1.0))
 	var target_pitch: float = clampf(
-		current_pitch - controller.look_delta.y * LOOK_SENSITIVITY,
+		current_pitch - scaled_look_delta.y * LOOK_SENSITIVITY,
 		-MAX_LOOK_PITCH,
 		MAX_LOOK_PITCH,
 	)
