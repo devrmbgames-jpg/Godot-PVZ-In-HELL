@@ -82,3 +82,9 @@ Start with the narrowest relevant check.
 | GDQuest formatter | 0.26.0 | `addons/GDQuest_GDScript_formatter/plugin.cfg` |
 
 Update this file immediately when canonical paths move. Do not turn it into an asset manifest or duplicate subsystem design docs.
+
+## Hazard mechanics (R09)
+
+- Generic factory: `HazardSpawnService` / `O_HazardSpawn`, typed contracts in `content/contracts/hazards/`.
+- Reusable producer: `C_HazardEmitter` / `HazardEmitter`; package-only adapters: `O_PackageHazardSetup`, `O_PackageHazard`.
+- Definitions/prefabs: `content/definitions/gameplay/hazards/`, `content/entities/hazards/`.

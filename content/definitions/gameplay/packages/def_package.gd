@@ -43,3 +43,8 @@ enum Tag {
 @export_range(0.0, 30.0) var liquid_tilt_seconds: float = 2.0
 ## One-time ordinary Health damage when leaking starts; zero keeps only condition effects.
 @export_range(0.0, 10000.0) var liquid_tilt_damage: float = 10.0
+
+## Optional reusable effect override; null uses the existing hazard enum's default prefab.
+@export var hazard_effect: DEF_Hazard = null
+## Zero selects enum defaults; explicitly opt into opening only when authored.
+@export_flags("Destroyed:2", "Leaking:4", "Opened:8") var hazard_triggers: int = 0

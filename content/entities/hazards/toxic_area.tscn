@@ -1,0 +1,38 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/entities/hazards/e_toxic_area.gd" id="Entity"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_toxic_area.gd" id="Effect"]
+
+[sub_resource type="Resource" id="Effect"]
+resource_local_to_scene = true
+script = ExtResource("Effect")
+
+[sub_resource type="SphereMesh" id="Mesh"]
+radius = 0.3
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.3, 0.9, 0.2, 0.18)
+
+[sub_resource type="SphereShape3D" id="Shape"]
+radius = 0.3
+
+[node name="ToxicArea" type="Node3D"]
+script = ExtResource("Entity")
+component_resources = Array[ExtResource("Component")]([SubResource("Effect")])
+
+[node name="Visual" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh")
+material_override = SubResource("Material")
+cast_shadow = 0
+
+[node name="Area" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 31
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="Area"]
+shape = SubResource("Shape")

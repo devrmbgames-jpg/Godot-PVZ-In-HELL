@@ -1,8 +1,8 @@
 # R09 — Generic Toxic Area / Explosion и активация из Package
 
-Status: planned
+Status: in progress - R09.1
 Зависимости: R04, R08
-Ветка/base: зафиксировать при начале реализации.
+Base: master / e9ecb7f.
 Источники: [ТЗ 06](../docs/roadmap/06_package_damage_and_hazards.md), [ТЗ 10](../docs/roadmap/10_combat_damage_health.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md).
 Подтверждённое архитектурное решение: ToxicLeak/Explosion — самостоятельные Entity/эффекты. Package — только один из возможных инициаторов. В будущем те же эффекты должны создавать взрывная бочка, токсичный Customer, ловушка или scripted ability без модификации hazard logic.
 
@@ -18,7 +18,7 @@ Status: planned
 - [DEF_Package](../content/definitions/gameplay/packages/def_package.gd) и [R08 contract](../docs/damage_impact.md).
 - [e_grabbable_body.gd](../content/entities/props/e_grabbable_body.gd) и [s_motion.gd](../content/systems/motion/s_motion.gd) читать только перед физическим этапом Explosion.
 
-Имена новых типов ниже — проектируемые, а не утверждение о существовании файлов. Не создавать параллельный RM09: канонический ID — R09.
+Имена новых типов ниже — проектируемые, а не утверждение о существовании файлов. Не создавать параллельный R09: канонический ID — R09.
 
 ## Архитектурный контракт
 

@@ -82,6 +82,11 @@
 [ext_resource type="PackedScene" path="res://content/entities/stations/terminal.tscn" id="Terminal_scene"]
 [ext_resource type="Script" uid="uid://d374l476phm" path="res://content/systems/gameplay/s_throw_lifetime.gd" id="ThrowLifetime"]
 
+[ext_resource type="Script" path="res://content/observers/gameplay/o_hazard_spawn.gd" id="HazardSpawn"]
+[ext_resource type="Script" path="res://content/observers/gameplay/o_hazard_emitter.gd" id="HazardEmitter"]
+[ext_resource type="Script" path="res://content/observers/gameplay/o_package_hazard.gd" id="PackageHazard"]
+[ext_resource type="Script" path="res://content/observers/gameplay/o_package_hazard_setup.gd" id="PackageHazardSetup"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -264,6 +269,18 @@ script = ExtResource("PackageConditionSetup")
 
 [node name="PackageOpening" type="Node" parent="World/Systems/GamePlay" unique_id=59264951]
 script = ExtResource("PackageOpening")
+
+[node name="HazardSpawn" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("HazardSpawn")
+
+[node name="HazardEmitter" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("HazardEmitter")
+
+[node name="PackageHazard" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("PackageHazard")
+
+[node name="PackageHazardSetup" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("PackageHazardSetup")
 
 [node name="O_Damage" type="Node" parent="World/Systems/GamePlay" unique_id=1820599322]
 script = ExtResource("5_ad8bv")

@@ -1,10 +1,11 @@
 # Work Tracker
 
-State: idle. R08 completed and accepted by user on 2026-09-24; see `task_history.md`.
+Active: R09, base e9ecb7f.
 
-- No active implementation task.
-- Next planned: R09 — Package Hazards (`agent_tasks/roadmap_09_package_hazards.md`); not started.
-- User reports all current GUT tests pass and confirms parcel impact damage, destruction and leakage. Final balancing is intentionally deferred to iterative playtesting.
-- R08 durable contract: `docs/damage_impact.md`; retained regression checklist: `docs/r08_manual_validation.md`.
+- [x] R09.1: generic spawn, definitions, independent prefabs, reusable emitter and package adapter.
+- [ ] User smoke runner: PowerShell script and usage (separate local commit).
+- [ ] R09.2: bounded independent toxic ticks and generic lifetime/follow.
+- [ ] R09.3: one-shot radial explosion, explicit LOS and physical impulses.
+- [ ] R09.4: reset/persistence hooks, presentation, independent fixture, static review and handoff.
 
-No Godot/GUT/physics/visual tests were run by the agent for the R08 closure. Do not modify `addons/gecs` without an explicit request.
+User runs ALL Godot/GUT/smoke/physics/visual validation. Static checks only. Local commit after each stage; no pushes. Preserve dirty addons/gecs and user's current R08/Carry work.

@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/entities/hazards/e_explosion.gd" id="Entity"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_explosion.gd" id="Effect"]
+
+[sub_resource type="Resource" id="Effect"]
+resource_local_to_scene = true
+script = ExtResource("Effect")
+
+[sub_resource type="SphereMesh" id="Mesh"]
+radius = 0.3
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.3, 0.9, 0.2, 0.18)
+
+[node name="Explosion" type="Node3D"]
+script = ExtResource("Entity")
+component_resources = Array[ExtResource("Component")]([SubResource("Effect")])
+
+[node name="Visual" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh")
+material_override = SubResource("Material")
+cast_shadow = 0
