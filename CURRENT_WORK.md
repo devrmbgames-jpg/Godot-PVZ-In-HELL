@@ -4,6 +4,6 @@
 - User requires reusable component-driven mechanics and a simple smoke runner. All runtime/physics/tests remain user-owned; static checks only.
 - Design: independent ToxicArea/Explosion prefabs, immutable definitions, C_HazardEmitter on any Entity, typed deduplicated spawn requests, optional follow policy, propagated source veto. Package is an event adapter only.
 - Preserve user R08 balance, split Grab/Carry changes and dirty addons/gecs. No broad refactors.
-- Delegation: smoke_runner owns only utils/run_smoke.ps1 + docs/smoke_runner.md; no runtime, no commits.
+- Smoke runner complete: utils/run_smoke.ps1 + docs/smoke_runner.md; parser/static review PASS. No smoke executed.
 - R09.1 complete: generic factory/prefabs/emitter adapters, source veto, stable IDs, request deduplication. Static structure/formatter/lint/diff checks only; runtime NOT RUN.
-- Next: review and commit smoke runner separately, then R09.2 independent toxic ticks/lifetime.
+- Next: R09.2 independent toxic ticks/lifetime.
