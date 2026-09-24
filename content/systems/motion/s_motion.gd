@@ -48,6 +48,7 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 		controller,
 		motion,
 		entity.get_component(C_CarryLoad) as C_CarryLoad,
+		entity.get_component(C_Strength) as C_Strength,
 	)
 
 # =========================================================================
@@ -60,6 +61,7 @@ static func _integrate_regular_motion(
 	controller: C_Controller,
 	motion: C_Motion,
 	carry_load: C_CarryLoad,
+	strength: C_Strength,
 ) -> void:
 	var input_motion := controller.direction_motion
 
@@ -79,9 +81,23 @@ static func _integrate_regular_motion(
 	var input_direction := input_motion.normalized()
 
 	if motion.is_on_floor:
-		_integrate_ground_motion(state, motion, input_direction, input_strength, carry_load)
+		_integrate_ground_motion(
+			state,
+			motion,
+			input_direction,
+			input_strength,
+			carry_load,
+			strength,
+		)
 	else:
-		_integrate_air_motion(state, motion, input_direction, input_strength, carry_load)
+		_integrate_air_motion(
+			state,
+			motion,
+			input_direction,
+			input_strength,
+			carry_load,
+			strength,
+		)
 
 
 static func _integrate_ground_motion(
@@ -90,6 +106,7 @@ static func _integrate_ground_motion(
 	input_direction: Vector3,
 	input_strength: float,
 	carry_load: C_CarryLoad,
+	strength: C_Strength,
 ) -> void:
 	var wish_direction := input_direction.slide(motion.floor_normal)
 
@@ -101,7 +118,7 @@ static func _integrate_ground_motion(
 	# Убираем боковой занос.
 	_apply_ground_lateral_friction(state, motion, wish_direction)
 
-	var acceleration: float = effective_acceleration(motion.ground_acceleration, carry_load)
+	var acceleration: float = motion.ground_acceleration
 
 	if motion.surface_friction_affects_control:
 		var traction := clampf(motion.floor_friction, motion.minimum_ground_traction, 1.0)
@@ -110,7 +127,7 @@ static func _integrate_ground_motion(
 
 	var relative_velocity := (state.linear_velocity - motion.floor_velocity)
 
-	var wish_speed := (effective_speed(motion, carry_load) * input_strength)
+	var wish_speed: float = effective_speed(motion, carry_load, strength) * input_strength
 
 	_accelerate(state, relative_velocity, wish_direction, wish_speed, acceleration)
 
@@ -121,15 +138,16 @@ static func _integrate_air_motion(
 	input_direction: Vector3,
 	input_strength: float,
 	carry_load: C_CarryLoad,
+	strength: C_Strength,
 ) -> void:
-	var wish_speed := (effective_speed(motion, carry_load) * input_strength)
+	var wish_speed: float = effective_speed(motion, carry_load, strength) * input_strength
 
 	_accelerate(
 		state,
 		state.linear_velocity,
 		input_direction,
 		wish_speed,
-		effective_acceleration(motion.air_acceleration, carry_load),
+		motion.air_acceleration,
 	)
 
 # =========================================================================
@@ -311,14 +329,12 @@ static func _apply_pending_impulse(state: PhysicsDirectBodyState3D, motion: C_Mo
 	motion.pending_impulse = Vector3.ZERO
 
 
-## Carry modifiers never overwrite base tuning or external physical momentum.
-static func effective_speed(motion: C_Motion, carry_load: C_CarryLoad) -> float:
-	return motion.max_speed * (
-		carry_load.speed_multiplier if carry_load != null and carry_load.active else 1.0
-	)
-
-
-static func effective_acceleration(base_acceleration: float, carry_load: C_CarryLoad) -> float:
-	return base_acceleration * (
-		carry_load.acceleration_multiplier if carry_load != null and carry_load.active else 1.0
-	)
+## Carry slowdown is derived from actual body mass and current Strength every physics tick.
+static func effective_speed(
+	motion: C_Motion,
+	carry_load: C_CarryLoad,
+	strength: C_Strength,
+) -> float:
+	if carry_load == null or not carry_load.active:
+		return motion.max_speed
+	return motion.max_speed * CarryLoadPolicy.speed_multiplier(carry_load.mass_kg, strength)
