@@ -23,8 +23,6 @@
 script = ExtResource("3_2b2w0")
 description = "Parcel"
 tags = 4
-carry_speed = 0.5
-carry_acceleration = 0.75
 key = &"default_package_big"
 
 [sub_resource type="Resource" id="Package_interactable"]
