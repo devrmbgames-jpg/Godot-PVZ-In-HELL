@@ -21,7 +21,6 @@ static func integrate_state(
 	if not _sample_anchor(
 		anchor,
 		grip,
-		desired_position,
 		state.step,
 		position_error,
 		allowed_break_distance,
@@ -72,7 +71,6 @@ static func integrate_body(
 	if not _sample_anchor(
 		anchor,
 		grip,
-		desired_position,
 		step,
 		position_error,
 		allowed_break_distance,
@@ -156,7 +154,6 @@ static func _desired_rotation(anchor: Node3D, grip: C_HeldBy) -> Quaternion:
 static func _sample_anchor(
 	anchor: Node3D,
 	grip: C_HeldBy,
-	_desired_position_value: Vector3,
 	step: float,
 	position_error: Vector3,
 	allowed_break_distance: float,

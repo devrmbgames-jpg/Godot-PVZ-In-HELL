@@ -558,7 +558,7 @@ static func pickup_slot_for_body(
 	if not is_instance_valid(holder) or not is_instance_valid(body):
 		return -1
 	var handle: Entity = PhysicsGrabTarget.handle_for(body, false)
-	if handle != null and handle.get_component(C_Grabbable) as C_Grabbable != null:
+	if handle != null and (handle.get_component(C_Grabbable) as C_Grabbable) != null:
 		return pickup_slot(holder, handle, replacement_button)
 	return C_Grabbable.HoldSlot.CARRY if not replacement_button else -1
 
@@ -641,7 +641,6 @@ static func within_pickup_reach_body(holder: Entity, body: RigidBody3D) -> bool:
 	return hit_distance <= maxf(control.pickup_distance, 0.0)
 
 
-# TODO проверить что реализовано правильно
 ## Returns an item distance override or the holder default; hands have no extra offset.
 static func carry_distance(control: C_GrabControl, config: C_Grabbable) -> float:
 	return carry_distance_profile(control, GrabControlProfile.from_grabbable(config))

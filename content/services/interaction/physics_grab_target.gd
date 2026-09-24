@@ -46,7 +46,7 @@ static func handle_for(body: RigidBody3D, create_proxy: bool = false) -> Entity:
 static func is_proxy(handle: Entity) -> bool:
 	return (
 		is_instance_valid(handle)
-		and handle.get_component(C_PhysicsBodyRef) as C_PhysicsBodyRef != null
+		and (handle.get_component(C_PhysicsBodyRef) as C_PhysicsBodyRef) != null
 	)
 
 

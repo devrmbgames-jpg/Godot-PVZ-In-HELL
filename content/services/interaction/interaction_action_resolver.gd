@@ -167,7 +167,7 @@ static func resolve(
 		var target_action: InteractionActionChoice = _target_action(actor, target, input_slot)
 		var authored_grab: bool = (
 			target != null
-			and target.get_component(C_Grabbable) as C_Grabbable != null
+			and (target.get_component(C_Grabbable) as C_Grabbable) != null
 			and S_Grab.physical_body(target) == physics_target
 		)
 		# Explicit gameplay actions keep priority unless this Entity authored Grab behavior.
