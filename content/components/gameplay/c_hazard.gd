@@ -10,3 +10,6 @@ var origin_id: String = ""
 var instigator_id: String = ""
 ## Optional live attribution, never required for independent effect lifetime.
 var instigator: Entity = null
+
+## Optional origin only for excluding its colliders from blast LOS; never a lifetime owner.
+var origin: Entity = null

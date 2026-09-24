@@ -26,6 +26,8 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 	for overlap: Dictionary in overlaps:
 		_collect_hit(overlap, effect.spatial.global_position, profile.radius, hits)
 
+	var origin_exclusions: Array[RID] = _origin_exclusions(hazard.origin)
+
 	# One representative point/ray per Entity (or standalone body), nearest shape center wins.
 	for hit: BlastHit in hits.values():
 		if not is_instance_valid(hit.body) or hit.body.is_queued_for_deletion():
@@ -36,7 +38,9 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 			hit.point,
 			profile.obstacle_mask,
 		)
-		ray.exclude = [hit.body.get_rid()]
+		var exclusions: Array[RID] = origin_exclusions.duplicate()
+		exclusions.append(hit.body.get_rid())
+		ray.exclude = exclusions
 		ray.hit_from_inside = true
 		if not hit.point.is_equal_approx(effect.spatial.global_position):
 			if not space.intersect_ray(ray).is_empty():
@@ -58,6 +62,22 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 				profile.damage * weight,
 				DamageRequest.Type.EXPLOSION,
 			)
+
+
+static func _origin_exclusions(origin: Entity) -> Array[RID]:
+	var exclusions: Array[RID] = []
+	if not is_instance_valid(origin):
+		return exclusions
+
+	var root_body: PhysicsBody3D = origin as Node as PhysicsBody3D
+	if root_body != null:
+		exclusions.append(root_body.get_rid())
+
+	# Rare boundary traversal supports authored child bodies without retaining physics handles.
+	for body: PhysicsBody3D in origin.find_children("*", "PhysicsBody3D", true, false):
+		exclusions.append(body.get_rid())
+
+	return exclusions
 
 
 static func _collect_hit(

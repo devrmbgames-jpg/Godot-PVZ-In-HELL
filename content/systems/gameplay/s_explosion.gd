@@ -26,4 +26,5 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 
 		# Commit before any callback can publish damage/depletion or another spawn.
 		explosion.resolved = true
+		lifetime.awaiting_resolution = false
 		cmd.add_custom(ExplosionResolver.resolve.bind(entities[index], hazard, _world))

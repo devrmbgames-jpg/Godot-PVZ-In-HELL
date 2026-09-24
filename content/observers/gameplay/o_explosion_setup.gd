@@ -4,7 +4,7 @@ class_name O_ExplosionSetup
 
 
 func query() -> QueryBuilder:
-	return q.with_all([C_Hazard, C_Explosion]).on_match()
+	return q.with_all([C_Hazard, C_Explosion, C_HazardLifetime]).on_event(HazardSpawnResult.EVENT)
 
 
 func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
@@ -34,6 +34,9 @@ func _configure(entity: Entity) -> void:
 		push_error("Explosion tuning must be finite, with positive radius/falloff/target limit")
 		HazardLifecycle.retire(entity, _world)
 		return
+
+	var lifetime: C_HazardLifetime = entity.get_component(C_HazardLifetime) as C_HazardLifetime
+	lifetime.awaiting_resolution = true
 
 	var mesh: SphereMesh = SphereMesh.new()
 	mesh.radius = profile.radius

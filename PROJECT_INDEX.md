@@ -88,3 +88,5 @@ Update this file immediately when canonical paths move. Do not turn it into an a
 - Generic factory: `HazardSpawnService` / `O_HazardSpawn`, typed contracts in `content/contracts/hazards/`.
 - Reusable producer: `C_HazardEmitter` / `HazardEmitter`; package-only adapters: `O_PackageHazardSetup`, `O_PackageHazard`.
 - Definitions/prefabs: `content/definitions/gameplay/hazards/`, `content/entities/hazards/`.
+- Hazard contracts/attachment/reset: [docs/hazards.md](docs/hazards.md).
+- User-operated smoke: `utils/run_smoke.ps1 -Name hazards`; standalone fixture `tests/smoke/hazards_smoke.tscn`; [runner usage](docs/smoke_runner.md).

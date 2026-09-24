@@ -97,7 +97,7 @@ function Test-IgnoredCertificateStoreError([string]$Line) {
 
 function Test-SmokeLog([string[]]$LogLines) {
 	[string[]]$failures = @()
-	if (-not ($LogLines -match "(?m)\bPASS(?:\s|:|$)")) {
+	if (-not ($LogLines -match "(?m)(?:^PASS(?:\s|:|$)|\bsmoke PASS\s*$)")) {
 		$failures += "PASS line was not found"
 	}
 
@@ -107,7 +107,7 @@ function Test-SmokeLog([string[]]$LogLines) {
 			continue
 		}
 
-		if ($line -match "(?i)ERROR" -and -not (Test-IgnoredCertificateStoreError $line)) {
+		if ($line -match "(?i)\bERROR:" -and -not (Test-IgnoredCertificateStoreError $line)) {
 			$failures += $line
 		}
 	}
@@ -118,7 +118,7 @@ function Test-SmokeLog([string[]]$LogLines) {
 [string]$repositoryRoot = Split-Path -Parent $PSScriptRoot
 [string]$smokeDirectory = Join-Path $repositoryRoot "tests/smoke"
 [string]$artifactDirectory = Join-Path $repositoryRoot "tests/artifacts"
-[System.IO.FileInfo[]]$scenes = Get-SmokeScenes $smokeDirectory
+[System.IO.FileInfo[]]$scenes = @(Get-SmokeScenes $smokeDirectory)
 
 if ($List) {
 	foreach ($scene in $scenes) {
@@ -154,17 +154,27 @@ foreach ($scene in $selectedScenes) {
 	[string]$logPath = Join-Path $artifactDirectory "$smokeName-$timestamp.log"
 	[string]$scenePath = $scene.FullName
 
-	# Windows PowerShell wraps native stderr in ErrorRecord; inspect the saved log ourselves.
-	$previousErrorAction = $ErrorActionPreference
-	$ErrorActionPreference = "Continue"
-	try {
-		& $godot --headless --fixed-fps 60 --path $repositoryRoot $scenePath --quit-after $frameBudget 2>&1 | Tee-Object -FilePath $logPath | Out-Null
-		[int]$exitCode = $LASTEXITCODE
-	} finally {
-		$ErrorActionPreference = $previousErrorAction
+	[string]$stdoutPath = "$logPath.stdout"
+	[string]$stderrPath = "$logPath.stderr"
+	[hashtable]$launch = @{
+		FilePath = $godot
+		ArgumentList = @("--headless", "--fixed-fps", "60", "--path", ('"' + $repositoryRoot + '"'), ('"' + $scenePath + '"'), "--quit-after", $frameBudget)
+		RedirectStandardOutput = $stdoutPath
+		RedirectStandardError = $stderrPath
+		Wait = $true
+		PassThru = $true
 	}
+	if ($env:OS -eq "Windows_NT") {
+		$launch.WindowStyle = "Hidden"
+	}
+	# Native file redirects avoid Windows PowerShell turning stderr into terminating ErrorRecords.
+	[System.Diagnostics.Process]$process = Start-Process @launch
+	[int]$exitCode = $process.ExitCode
+	[string[]]$nativeLines = @(Get-Content -LiteralPath @($stdoutPath, $stderrPath))
+	[System.IO.File]::WriteAllLines($logPath, $nativeLines, [System.Text.Encoding]::UTF8)
+	Remove-Item -LiteralPath @($stdoutPath, $stderrPath)
 	[string[]]$logLines = @(Get-Content -LiteralPath $logPath)
-	[string[]]$failures = Test-SmokeLog $logLines
+	[string[]]$failures = @(Test-SmokeLog $logLines)
 	if ($exitCode -ne 0) {
 		$failures += "Godot exited with code $exitCode"
 	}

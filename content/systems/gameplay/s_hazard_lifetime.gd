@@ -11,6 +11,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var lifetimes: Array = components[0]
 	for index: int in entities.size():
 		var lifetime: C_HazardLifetime = lifetimes[index]
-		lifetime.remaining_seconds = maxf(0.0, lifetime.remaining_seconds - delta)
+		if not lifetime.awaiting_resolution:
+			lifetime.remaining_seconds = maxf(0.0, lifetime.remaining_seconds - delta)
 		if not entities[index].enabled or lifetime.remaining_seconds <= 0.0:
 			cmd.add_custom(HazardLifecycle.retire.bind(entities[index], _world))

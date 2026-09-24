@@ -1,6 +1,6 @@
 # R09 — Generic Toxic Area / Explosion и активация из Package
 
-Status: in progress - R09.4; runtime acceptance is user-owned
+Status: implementation ready; awaiting user runtime/visual acceptance (R09.1-R09.4 committed in stages)
 Зависимости: R04, R08
 Base: master / e9ecb7f.
 Источники: [ТЗ 06](../docs/roadmap/06_package_damage_and_hazards.md), [ТЗ 10](../docs/roadmap/10_combat_damage_health.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md).
@@ -43,34 +43,34 @@ Base: master / e9ecb7f.
 
 ### R09.1 — Generic spawn и package adapter
 
-- [ ] Создать generic typed `HazardSpawnRequest`, authored hazard definitions/prefabs и единственный безопасный dispatcher/factory.
-- [ ] Подготовить две независимые Entity/prefab с data-only компонентами и lifecycle/attribution.
-- [ ] `O_PackageHazard` подписывается на `PackageLifecycleEvent.EVENT`; один выбранный `Leaking` или `Destroyed` запускает ToxicArea, `Destroyed` — Explosion. `Opened` — опциональный authored trigger, не универсальное правило.
-- [ ] Повторные переходы `Leaking → Destroyed` не спавнят вторую зону для одноразовой Package. Несколько разных посылок дают независимые эффекты.
-- [ ] Проверить, что прямой generic spawn без Package работает; запланировать подключение будущих Barrel/Customer через этот контракт.
+- [x] Создать generic typed `HazardSpawnRequest`, authored hazard definitions/prefabs и единственный безопасный dispatcher/factory.
+- [x] Подготовить две независимые Entity/prefab с data-only компонентами и lifecycle/attribution.
+- [x] `O_PackageHazard` подписывается на `PackageLifecycleEvent.EVENT`; один выбранный `Leaking` или `Destroyed` запускает ToxicArea, `Destroyed` — Explosion. `Opened` — опциональный authored trigger, не универсальное правило.
+- [x] Повторные переходы `Leaking → Destroyed` не спавнят вторую зону для одноразовой Package. Несколько разных посылок дают независимые эффекты.
+- [ ] Проверить, что прямой generic spawn без Package работает; запланировать подключение будущих Barrel/Customer через этот контракт. [NOT RUN: user-owned acceptance; standalone smoke fixture prepared.]
 
 ### R09.2 — ToxicArea
 
-- [ ] Система с конкретным GECS query по компоненту зоны; периодический tick с независимым состоянием каждой области и ограниченным временем жизни.
-- [ ] Получатели выбираются spatial query/overlap; допускаются Player и будущие Customer с `C_Health` согласно authored eligibility.
-- [ ] Урон идёт только через `DamageRequestService.submit()` с `DamageRequest.Type.TOXIC`. Учитывать source-side запрет и валидность target; один непрерывный overlap не превращается в бесконечный damage per frame.
-- [ ] Независимый pool/зона сохраняется или очищается по собственному lifecycle; optional attached variant использует generic owner-follow, а не Package logic.
+- [x] Система с конкретным GECS query по компоненту зоны; периодический tick с независимым состоянием каждой области и ограниченным временем жизни.
+- [x] Получатели выбираются spatial query/overlap; допускаются Player и будущие Customer с `C_Health` согласно authored eligibility.
+- [x] Урон идёт только через `DamageRequestService.submit()` с `DamageRequest.Type.TOXIC`. Учитывать source-side запрет и валидность target; один непрерывный overlap не превращается в бесконечный damage per frame.
+- [x] Независимый pool/зона сохраняется или очищается по собственному lifecycle; optional attached variant использует generic owner-follow, а не Package logic.
 
 ### R09.3 — Explosion
 
-- [ ] Одноразовая atomic resolution через generic Explosion Entity/систему, независимо от класса инициатора.
-- [ ] Spatial radius/затухание задаются ресурсом; установить явную LOS/obstacle policy (MVP: один raycast по цели; blocked полностью, без сложного частичного укрытия).
-- [ ] Radial HP damage — только typed `DamageRequest.Type.EXPLOSION` через сервис. Физические тела получают `apply_central_impulse`/соответствующий Godot/Jolt impulse, включая тела без `C_Health`; не присваивать напрямую скорость.
-- [ ] Идемпотентный single-shot, устойчивость к удалению origin/target, отсутствие self-recursion/непредусмотренного бесконечного взрывного цикла.
-- [ ] Цепные реакции возможны через обычные typed damage/lifecycle события и отдельные one-shot guards; не кодировать Package-specific branch внутри Explosion.
+- [x] Одноразовая atomic resolution через generic Explosion Entity/систему, независимо от класса инициатора.
+- [x] Spatial radius/затухание задаются ресурсом; установить явную LOS/obstacle policy (MVP: один raycast по цели; blocked полностью, без сложного частичного укрытия).
+- [x] Radial HP damage — только typed `DamageRequest.Type.EXPLOSION` через сервис. Физические тела получают `apply_central_impulse`/соответствующий Godot/Jolt impulse, включая тела без `C_Health`; не присваивать напрямую скорость.
+- [x] Идемпотентный single-shot, устойчивость к удалению origin/target, отсутствие self-recursion/непредусмотренного бесконечного взрывного цикла.
+- [x] Цепные реакции возможны через обычные typed damage/lifecycle события и отдельные one-shot guards; не кодировать Package-specific branch внутри Explosion.
 
 ### R09.4 — Lifecycle, регрессии и приёмка
 
-- [ ] Очистка временных Hazard и cleanup world/physics references после окончания lifetime, disable либо удаления origin согласно выбранной policy.
-- [ ] Data-driven persist flag и контракт будущего nightly reset (реальная R21 serialization вне R09).
-- [ ] Readable MVP visualization для обеих самостоятельных Entity; gameplay authority не переносить в UI.
-- [ ] Финальная GUT-проверка: независимый spawn без Package, one-shot активация, Leaking+Destroyed dedup, tick interval, радиус/LOS, удаление исходного объекта, cleanup, источник/instigator, запрет исходящего damage и несколько активных зон.
-- [ ] Финальная physics/user-проверка: взрыв реально разбрасывает тела; ToxicArea наносит периодический урон; Barrel/Customer fixtures создают те же эффекты без второй реализации; существующий R08 Impact/Grab/Package pipeline не сломан.
+- [x] Очистка временных Hazard и cleanup world/physics references после окончания lifetime, disable либо удаления origin согласно выбранной policy.
+- [x] Data-driven persist flag и контракт будущего nightly reset (реальная R21 serialization вне R09).
+- [x] Readable MVP visualization для обеих самостоятельных Entity; gameplay authority не переносить в UI.
+- [ ] Финальная GUT-проверка: независимый spawn без Package, one-shot активация, Leaking+Destroyed dedup, tick interval, радиус/LOS, удаление исходного объекта, cleanup, источник/instigator, запрет исходящего damage и несколько активных зон. [NOT RUN: user-owned acceptance; standalone smoke fixture prepared.]
+- [ ] Финальная physics/user-проверка: взрыв реально разбрасывает тела; ToxicArea наносит периодический урон; Barrel/Customer fixtures создают те же эффекты без второй реализации; существующий R08 Impact/Grab/Package pipeline не сломан. [NOT RUN: user-owned acceptance; standalone smoke fixture prepared.]
 
 ## Критерии готовности
 
@@ -88,3 +88,7 @@ Base: master / e9ecb7f.
 ## Первый шаг
 
 Проверить R04/R08 по `task_history.md`, зафиксировать base и актуализировать `WORK.md`/`CURRENT_WORK.md` только при реальном старте реализации. Реализовать **R09.1 generic request/factory + independent prefab** отдельным коммитом, не добавляя в этот этап periodic damage и explosion resolution. Затем двигаться последовательно. Статус до начала реализации — planned.
+
+## Handoff (2026-09-25)
+
+Implementation and standalone non-Package fixture are ready. Runtime/GUT/smoke/visual validation NOT RUN per user instruction; no new GUT suite was added. Run `utils/run_smoke.ps1 -Name hazards`, then check effect readability/impulses and existing gameplay manually. Keep this task open until acceptance. Static checks: repository structure, GDScript formatter/lint, PowerShell parser, diff; focused static review completed. Durable contracts: `docs/hazards.md`; runner: `docs/smoke_runner.md`.

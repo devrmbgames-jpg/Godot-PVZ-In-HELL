@@ -4,7 +4,7 @@ class_name O_ToxicAreaSetup
 
 
 func query() -> QueryBuilder:
-	return q.with_all([C_Hazard, C_ToxicArea]).on_match()
+	return q.with_all([C_Hazard, C_ToxicArea]).on_event(HazardSpawnResult.EVENT)
 
 
 func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:

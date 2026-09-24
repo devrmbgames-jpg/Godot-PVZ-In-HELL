@@ -117,3 +117,11 @@ Validation: `tests/smoke/receiving_scan_smoke.tscn` checks eight unique parcels 
 ## R08 impact and package condition
 
 Canonical contract: [damage_impact.md](../docs/damage_impact.md). ImpactCaptureSolver writes runtime body inboxes; S_Impact drains their iterate query and resolves independent contact episodes, submitting typed requests to O_Damage. S_ThrowLifetime owns its own query. No Damage/Impact System service locator or cross-System calls. Package profiles, severity protection, continuous liquid tilt and explicit F/open share typed lifecycle hooks. PackageConditionView is read-only. R08 was accepted by the user after GUT and gameplay checks on 2026-09-24; retain [manual checks](../docs/r08_manual_validation.md) for regressions. Further balancing is intentionally deferred.
+
+## Autonomous hazards (R09)
+
+`C_HazardEmitter` attaches reusable toxic/explosion definitions to any spatial Entity. `HazardSpawnService` snapshots typed requests; `O_HazardSpawn` creates independent nonphysical prefabs and deduplicates request IDs for the World lifetime. Package lifecycle has separate setup/event adapters. Effect setup consumes `HazardSpawnResult` after complete registration.
+
+`S_HazardFollow` precedes `S_ToxicArea`/`S_Explosion`; `S_HazardLifetime` runs afterward. Sources are actual effects, HP passes only through O_Damage, and impulses use Godot. C_NoDamage propagates from emitter, stable origin/instigator IDs survive removal. Pending one-shot resolution holds lifetime aging so a chain-created blast cannot expire before its first scheduled turn. Independent zones outlive their origins; follow policy explicitly detaches or despawns.
+
+`HazardResetRequest` removes nonpersistent effects (or all when requested); future night/save wiring belongs to R21. Reuse, tuning, LOS limitations and user-run acceptance are in [hazards.md](../docs/hazards.md). `tests/smoke/hazards_smoke.tscn` uses a separate World and non-Package fixtures; user runs it through `utils/run_smoke.ps1`.

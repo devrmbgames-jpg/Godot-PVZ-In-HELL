@@ -36,6 +36,7 @@ func _spawn(request: HazardSpawnRequest) -> void:
 
 	var hazard: C_Hazard = C_Hazard.new()
 	hazard.definition = request.definition
+	hazard.origin = request.origin if is_instance_valid(request.origin) else null
 	hazard.request_id = request.request_id
 	hazard.origin_id = request.origin_id
 	hazard.instigator_id = request.instigator_id
