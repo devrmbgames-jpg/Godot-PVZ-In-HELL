@@ -48,9 +48,9 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	assert_eq((light_box as Node as RigidBody3D).mass, 5.0)
 	assert_eq((medium_box as Node as RigidBody3D).mass, 30.0)
 	assert_eq((heavy_box as Node as RigidBody3D).mass, 80.0)
-	assert_eq(CarryLoadPolicy.speed_multiplier(5.0, strength), 1.0)
-	assert_eq(CarryLoadPolicy.speed_multiplier(30.0, strength), 1.0)
-	assert_almost_eq(CarryLoadPolicy.speed_multiplier(80.0, strength), 4.0 / 9.0, 0.001)
+	assert_eq(CarryLoadPolicy.mobility_multiplier(5.0, strength), 1.0)
+	assert_eq(CarryLoadPolicy.mobility_multiplier(30.0, strength), 1.0)
+	assert_almost_eq(CarryLoadPolicy.mobility_multiplier(80.0, strength), 4.0 / 9.0, 0.001)
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
 	var controller: C_Controller = player.get_component(C_Controller) as C_Controller
 	var interaction_ray: RayCast3D = S_Grab.interaction_raycast(player)

@@ -437,9 +437,9 @@ func test_carry_speed_is_linear_from_mass_and_current_strength() -> void:
 	assert_eq(strength.value, 1.0)
 	assert_eq(CarryLoadPolicy.minimum_mass_kg(strength), 30.0)
 	assert_eq(CarryLoadPolicy.maximum_mass_kg(strength), 120.0)
-	assert_eq(CarryLoadPolicy.speed_multiplier(30.0, strength), 1.0)
-	assert_almost_eq(CarryLoadPolicy.speed_multiplier(75.0, strength), 0.5, 0.001)
-	assert_eq(CarryLoadPolicy.speed_multiplier(120.0, strength), 0.0)
+	assert_eq(CarryLoadPolicy.mobility_multiplier(30.0, strength), 1.0)
+	assert_almost_eq(CarryLoadPolicy.mobility_multiplier(75.0, strength), 0.5, 0.001)
+	assert_eq(CarryLoadPolicy.mobility_multiplier(120.0, strength), 0.0)
 	assert_true(CarryLoadPolicy.can_carry(120.0, strength))
 	assert_false(CarryLoadPolicy.can_carry(120.01, strength))
 
@@ -458,6 +458,73 @@ func test_carry_speed_is_linear_from_mass_and_current_strength() -> void:
 	S_Grab.release(holder_entity, box_entity)
 	assert_eq(carry_load.mass_kg, 0.0)
 	assert_eq(S_Motion.effective_speed(motion, carry_load, strength), 6.0)
+
+
+func test_carry_mobility_scales_camera_manual_rotation_and_throw_velocity() -> void:
+	var strength: C_Strength = holder_entity.get_component(C_Strength) as C_Strength
+	box_body.mass = 75.0
+	assert_true(S_Grab.try_pickup(holder_entity, box_entity))
+	assert_almost_eq(CarryLoadPolicy.active_multiplier(carry_load, strength), 0.5, 0.001)
+	assert_almost_eq(
+		CarryLoadPolicy.scaled_value(10.0, carry_load, strength),
+		5.0,
+		0.001,
+	)
+
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	var input_system: CapturedInput = CapturedInput.new()
+	add_child(input_system)
+	var holders: Array[Entity] = [holder_entity]
+	input_state.direction_look = Vector3.FORWARD
+	input_system.look_mouse = Vector2(100.0, 0.0)
+	input_system.process(holders, [[input_state]], 1.0 / 60.0)
+	assert_almost_eq(
+		Vector3.FORWARD.angle_to(input_state.direction_look),
+		0.1,
+		0.001,
+	)
+
+	input_state.action_second_held = true
+	input_state.input_tick += 1
+	input_state.look_delta = Vector2(100.0, 0.0)
+	S_Grab.handle_input(holder_entity)
+	var grip: C_HeldBy = S_Grab.held_relationship(box_entity).relation as C_HeldBy
+	assert_almost_eq(absf(grip.rotation_offset.get_euler().y), 0.3, 0.001)
+
+	input_state.action_second_held = false
+	input_state.action_main_pressed = true
+	input_state.direction_look = Vector3.FORWARD
+	input_state.input_tick += 1
+	S_Grab.handle_input(holder_entity)
+	assert_null(S_Grab.held_relationship(box_entity))
+	for physics_tick: int in 2:
+		await get_tree().physics_frame
+	assert_almost_eq(box_body.linear_velocity.z, -5.0, 0.15)
+
+	input_system.free()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func test_maximum_carry_mass_has_zero_look_rotation_and_throw_control() -> void:
+	var strength: C_Strength = holder_entity.get_component(C_Strength) as C_Strength
+	carry_load.active = true
+	carry_load.mass_kg = 120.0
+	assert_eq(CarryLoadPolicy.active_multiplier(carry_load, strength), 0.0)
+	assert_eq(CarryLoadPolicy.scaled_value(10.0, carry_load, strength), 0.0)
+
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	var input_system: CapturedInput = CapturedInput.new()
+	add_child(input_system)
+	var holders: Array[Entity] = [holder_entity]
+	input_state.direction_look = Vector3.FORWARD
+	input_system.look_mouse = Vector2(200.0, 100.0)
+	input_system.process(holders, [[input_state]], 1.0 / 60.0)
+	assert_eq(input_state.direction_look, Vector3.FORWARD)
+	input_system.free()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+	carry_load.active = false
+	carry_load.mass_kg = 0.0
 #endregion
 
 
@@ -946,9 +1013,10 @@ func test_rotation_shortest_arc_and_no_residual_velocity() -> void:
 	assert_almost_eq(offset.length(), 1.0, 0.00001)
 
 
-func test_throw_impulse_preserves_velocity_semantics_for_mass_profiles() -> void:
+func test_throw_impulse_converts_scaled_velocity_change_to_mass_impulse() -> void:
 	assert_eq(S_Grab.throw_impulse(Vector3.FORWARD, 10.0, 5.0), Vector3(0.0, 0.0, -50.0))
-	assert_eq(S_Grab.throw_impulse(Vector3.FORWARD, 3.0, 80.0), Vector3(0.0, 0.0, -240.0))
+	assert_eq(S_Grab.throw_impulse(Vector3.FORWARD, 5.0, 75.0), Vector3(0.0, 0.0, -375.0))
+	assert_eq(S_Grab.throw_impulse(Vector3.FORWARD, 0.0, 120.0), Vector3.ZERO)
 #endregion
 
 
