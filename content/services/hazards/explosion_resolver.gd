@@ -26,7 +26,8 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 	for overlap: Dictionary in overlaps:
 		_collect_hit(overlap, effect.spatial.global_position, profile.radius, hits)
 
-	var origin_exclusions: Array[RID] = _origin_exclusions(hazard.origin)
+	var origin: Entity = hazard.origin if is_instance_valid(hazard.origin) else null
+	var origin_exclusions: Array[RID] = _origin_exclusions(origin)
 
 	# One representative point/ray per Entity (or standalone body), nearest shape center wins.
 	for hit: BlastHit in hits.values():

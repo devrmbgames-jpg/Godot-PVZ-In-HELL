@@ -11,3 +11,8 @@ Active: R09, base e9ecb7f.
 User runs ALL Godot/GUT/smoke/physics/visual validation. Static checks only. Local commit after each stage; no pushes. Preserve dirty addons/gecs and user's current R08/Carry work.
 
 Implementation complete; acceptance pending user-run hazards smoke and gameplay checks. Task file remains active; no runtime validation claimed.
+
+## User follow-up
+
+- [x] Fix freed-object availability boundary and explosion origin handoff (static validation only).
+- [ ] Separate relationship types into structured content/relationships/ with R_ naming; preserve UIDs/references and user scene edits.

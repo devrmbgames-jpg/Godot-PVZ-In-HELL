@@ -8,3 +8,9 @@
 - Preserve dirty addons/gecs and existing user R08/Carry changes. No pushes.
 - Exact next step: user runs .\utils\run_smoke.ps1 -Name hazards and reports results; address reported failures, then close R09 only after acceptance.
 - Canonical details: docs/hazards.md, docs/smoke_runner.md, tests/smoke/hazards_smoke.tscn. WORK.md tracks implementation complete/pending acceptance.
+
+## Follow-up
+
+- User reported freed owner argument failure in S_HazardFollow. Fixed EntityAvailability boundary to validate Variant before narrowing to Entity; explosion origin normalized before typed helper. Runtime NOT RUN.
+- User changes present: content/scenes/main_level.tscn and addons/gecs; preserve and exclude from commits.
+- Next: move relationship data types to content/relationships/{interaction,gameplay}/ with R_ prefixes, preserving UIDs and behavior.
