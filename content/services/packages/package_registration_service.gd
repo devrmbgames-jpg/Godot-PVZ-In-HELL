@@ -193,7 +193,7 @@ static func _tag_text(definition: DEF_Package) -> String:
 		tags.append("Тяжёлое")
 	if definition.tags & DEF_Package.Tag.LIQUID:
 		tags.append("Жидкость")
-	if definition.hazard != DEF_Package.Hazard.NONE:
+	if definition.hazard_on_damaged != null or definition.hazard_on_destroyed != null:
 		tags.append("Опасное содержимое")
 	return " / ".join(tags) if not tags.is_empty() else "Обычная посылка"
 #endregion

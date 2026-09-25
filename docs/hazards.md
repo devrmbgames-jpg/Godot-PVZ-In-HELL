@@ -6,8 +6,8 @@
 
 1. Объект должен быть GECS Entity на пространственном узле, зарегистрированном в World.
 2. Добавить в `component_resources` компонент `C_HazardEmitter`.
-3. Назначить ему `definition`: собственный ресурс `DEF_ToxicArea` или `DEF_Explosion`. Готовые образцы находятся в `content/definitions/gameplay/hazards/`.
-4. Для взрыва при исчерпании HP добавить `C_Health` и оставить триггер `Health depleted`. Для ручной активации вызвать `HazardEmitter.activate(owner, instigator)`; маска автоматических триггеров её не ограничивает.
+3. Назначить `hazard_scene`: автономную сцену эффекта (`explosion.tscn`, `toxic_area.tscn` или другую `E_Hazard`). Сама сцена содержит свой `DEF_Hazard` с радиусом, уроном, lifetime и прочими параметрами.
+4. Для автоматического срабатывания при исчерпании HP добавить `C_Health`. Для ручной активации вызвать `HazardEmitter.activate(owner, instigator)`.
 
 `one_shot = true` защищает инициатора от повторного запуска. У повторяемого инициатора каждый запуск увеличивает `sequence`. Фабрика дополнительно запоминает `request_id` на время существования World: повторная доставка того же запроса не создаёт второй эффект, даже после его удаления/reset. Разные объекты не делят cooldown.
 
@@ -19,14 +19,12 @@
 var request: HazardSpawnRequest = HazardSpawnRequest.new()
 request.request_id = "trap-17:activation-3"
 request.origin_id = "trap-17"
-request.definition = preload("res://content/definitions/gameplay/hazards/parcel_blast.tres")
+request.scene = preload("res://content/entities/hazards/explosion.tscn")
 request.world_pose = Transform3D(Basis.IDENTITY, Vector3(2, 1, 3))
 HazardSpawnService.submit(request)
 ```
 
-`submit()` возвращает принятие корректного запроса на канал событий, а не число созданных объектов. Факт создания публикуется как `HazardSpawnResult.EVENT`. Настройка формы/представления выполняется на этом событии, после полной регистрации компонентов Entity. Созданный prefab должен иметь нефизический Node3D-корень с `E_ToxicArea`/`E_Explosion` и соответствующим компонентом эффекта. Запросы отправляют после регистрации фабрики в World.
-
-Ресурс содержит prefab и конечное `lifetime_seconds`. Он считается неизменяемым после отправки. При прямом запросе `ownership`/`owner_loss` задаются в запросе явно; `HazardEmitter` копирует их из ресурса автоматически. `origin` и `instigator` необязательны. Для атрибуции, переживающей удаление объектов, служат `origin_id` и `instigator_id`.
+`submit()` возвращает принятие корректного запроса на канал событий, а не число созданных объектов. Факт создания публикуется как `HazardSpawnResult.EVENT`. Созданный prefab должен иметь нефизический `E_Hazard`/Node3D-корень; его exported `definition` содержит immutable tuning и lifetime. Запрос не содержит тип эффекта, definition или ownership-policy — всё это принадлежит самой сцене. `origin` и `instigator` необязательны. Для атрибуции, переживающей удаление объектов, служат `origin_id` и `instigator_id`.
 
 ## Поведение
 
@@ -42,7 +40,7 @@ HazardSpawnService.submit(request)
 
 ## Посылки
 
-`O_PackageHazardSetup` только подбирает ресурс и триггеры. `O_PackageHazard` переводит lifecycle-события в обычную активацию emitter. По умолчанию Toxic запускается от `Leaking` или `Destroyed` один раз; Explosive — от `Destroyed`. `Opened` включается только явно в `DEF_Package.hazard_triggers`. `hazard_effect` позволяет заменить ресурс; заранее заданный `C_HazardEmitter` позволяет настроить объект непосредственно. Внутри обработки эффектов нет зависимости от Package.
+`DEF_Package` не содержит enum/type Hazard. У него только две необязательные ссылки: `hazard_on_damaged` и `hazard_on_destroyed`, обе типа `PackedScene`. `O_PackageHazard` на соответствующем lifecycle-переходе отправляет эту сцену в generic factory. Если одна и та же сцена назначена обоим переходам, request-id по package+scene дедуплицирует повторный spawn; разные сцены могут сработать независимо. `Leaking` и `Opened` сами по себе больше не выбирают hazard.
 
 ## Время жизни, следование и будущий reset
 

@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://content/entities/hazards/e_explosion.gd" id="Entity"]
 [ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_explosion.gd" id="Effect"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/hazards/parcel_blast.tres" id="Definition"]
 
 [sub_resource type="Resource" id="Effect"]
 resource_local_to_scene = true
@@ -20,6 +21,7 @@ albedo_color = Color(1, 0.45, 0.08, 0.35)
 
 [node name="Explosion" type="Node3D"]
 script = ExtResource("Entity")
+definition = ExtResource("Definition")
 component_resources = Array[ExtResource("Component")]([SubResource("Effect")])
 
 [node name="Visual" type="MeshInstance3D" parent="."]

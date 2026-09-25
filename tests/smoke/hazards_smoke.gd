@@ -51,7 +51,6 @@ func _setup_world() -> void:
 		O_ToxicAreaSetup.new(),
 		O_ExplosionSetup.new(),
 		O_HazardReset.new(),
-		O_PackageHazardSetup.new(),
 		O_PackageHazard.new(),
 	]
 	_world.add_observers(observers)
@@ -65,17 +64,17 @@ func _setup_world() -> void:
 
 
 func _toxic_contract() -> void:
-	var profile: DEF_ToxicArea = _toxic(0.75)
+	var scene: PackedScene = _toxic_scene(0.75)
 	var origin: Entity = _body(Vector3.ZERO, false)
 	var victim: Entity = _body(Vector3(0.5, 0, 0))
 	var prop: Entity = _body(Vector3(-0.5, 0, 0), true, false)
 	var outside: Entity = _body(Vector3(8, 0, 0))
-	var request: HazardSpawnRequest = _request(profile, Vector3.ZERO, "toxic-a", origin)
+	var request: HazardSpawnRequest = _request(scene, Vector3.ZERO, "toxic-a", origin)
 	request.instigator = origin
 	assert(HazardSpawnService.submit(request))
 	assert(HazardSpawnService.submit(request))
 	assert(_effects().size() == 1, "Factory deduplicates request ID")
-	assert(HazardSpawnService.submit(_request(profile, Vector3.ZERO, "toxic-b")))
+	assert(HazardSpawnService.submit(_request(scene, Vector3.ZERO, "toxic-b")))
 	assert(_effects().size() == 2, "Independent volumes have no global cooldown")
 	var actor_id: String = origin.id
 	_world.remove_entity(origin)
@@ -99,7 +98,7 @@ func _toxic_contract() -> void:
 
 	var blocked_origin: Entity = _body(Vector3.ZERO, false, false, false, [C_NoDamage.new()])
 	var blocked: HazardSpawnRequest = _request(
-		_toxic(1.0),
+		_toxic_scene(1.0),
 		Vector3.ZERO,
 		"toxic-blocked",
 		blocked_origin,
@@ -114,10 +113,12 @@ func _toxic_contract() -> void:
 
 
 func _follow_and_reset_contract() -> void:
-	var definition: DEF_ToxicArea = _toxic(10.0)
-	definition.ownership = DEF_Hazard.Ownership.FollowOrigin
+	var scene: PackedScene = _toxic_scene(
+		10.0,
+		DEF_Hazard.Ownership.FollowOrigin,
+	)
 	var emitter: C_HazardEmitter = C_HazardEmitter.new()
-	emitter.definition = definition
+	emitter.hazard_scene = scene
 	var customer: Entity = _body(Vector3(20, 0, 0), false, false, false, [emitter])
 	assert(not customer.has_component(C_Package))
 	assert(HazardEmitter.activate(customer))
@@ -132,21 +133,27 @@ func _follow_and_reset_contract() -> void:
 	await _tick(0.01)
 	assert(EntityAvailability.contains(effect, _world) and not effect.has_component(R_HazardFollow))
 
-	definition = _toxic(10.0)
-	definition.ownership = DEF_Hazard.Ownership.FollowOrigin
-	definition.owner_loss = DEF_Hazard.OwnerLoss.Despawn
+	scene = _toxic_scene(
+		10.0,
+		DEF_Hazard.Ownership.FollowOrigin,
+		DEF_Hazard.OwnerLoss.Despawn,
+	)
 	var owner: Entity = _body(Vector3(24, 0, 0), false)
 	assert(
-		HazardSpawnService.submit(_request(definition, Vector3(24, 0, 0), "follow-despawn", owner))
+		HazardSpawnService.submit(_request(scene, Vector3(24, 0, 0), "follow-despawn", owner))
 	)
 	var attached: Entity = _spawned.back()
 	_world.remove_entity(owner)
 	await _tick(0.01)
 	assert(not EntityAvailability.contains(attached, _world))
 
-	definition = _toxic(10.0)
-	definition.persistent = true
-	assert(HazardSpawnService.submit(_request(definition, Vector3(26, 0, 0), "persistent")))
+	scene = _toxic_scene(
+		10.0,
+		DEF_Hazard.Ownership.Independent,
+		DEF_Hazard.OwnerLoss.Detach,
+		true,
+	)
+	assert(HazardSpawnService.submit(_request(scene, Vector3(26, 0, 0), "persistent")))
 	_reset(false)
 	assert(_effects().size() == 1, "Night reset retains only persistent hazards")
 	_reset(true)
@@ -157,16 +164,17 @@ func _package_adapter_contract() -> void:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "hazard-fixture-package"
 	identity.definition = DEF_Package.new()
-	identity.definition.hazard = DEF_Package.Hazard.TOXIC
-	identity.definition.hazard_effect = _toxic(10.0)
+	var package_hazard: PackedScene = _toxic_scene(10.0)
+	identity.definition.hazard_on_damaged = package_hazard
+	identity.definition.hazard_on_destroyed = package_hazard
 	var package_state: C_PackageState = C_PackageState.new()
 	var package: Entity = _body(Vector3(30, 0, 0), false, false, false, [identity, package_state])
 	var condition: C_PackageState = package.get_component(C_PackageState) as C_PackageState
-	condition.leaking = true
-	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Leaking)
+	condition.damage = C_PackageState.Damage.DAMAGED
+	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Damaged)
 	condition.damage = C_PackageState.Damage.DESTROYED
 	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Destroyed)
-	assert(_effects().size() == 1, "Leaking then destroyed emits one zone")
+	assert(_effects().size() == 1, "Same scene on Damaged and Destroyed is deduplicated")
 	_world.remove_entity(package)
 	await _tick(0.01)
 	assert(_effects().size() == 1, "Package removal cannot retire its independent pool")
@@ -174,17 +182,24 @@ func _package_adapter_contract() -> void:
 
 
 func _explosion_contract() -> void:
-	var profile: DEF_Explosion = _blast()
+	var scene: PackedScene = _blast_scene()
 	var emitter_a: C_HazardEmitter = C_HazardEmitter.new()
-	emitter_a.definition = profile
+	emitter_a.hazard_scene = scene
 	var emitter_b: C_HazardEmitter = C_HazardEmitter.new()
-	emitter_b.definition = profile
+	emitter_b.hazard_scene = scene
 	var barrel_a: Entity = _body(Vector3(40, 0, 0), true, false, false, [emitter_a])
 	var barrel_b: Entity = _body(Vector3(41, 0, 0), true, false, false, [emitter_b])
 	var receiver: Entity = _body(Vector3(40, 0, 2))
 	var blocked: Entity = _body(Vector3(40, 0, -2))
 	var outside: Entity = _body(Vector3(46, 0, 0))
 	var loose: Entity = _body(Vector3(42, 0, 1), false, false, true)
+	var controlled: Entity = _body(
+		Vector3(39, 0, 1),
+		true,
+		true,
+		true,
+		[C_Motion.new()],
+	)
 	# Low-HP barrel fixture uses the same health and emitter composition as any destructible.
 	(barrel_b.get_component(C_Health) as C_Health).current = 10.0
 	_wall(Vector3(40, 0, -1))
@@ -208,6 +223,11 @@ func _explosion_contract() -> void:
 	assert(_hp(receiver) == after_blasts, "Explosion never resolves twice")
 	var rigid: RigidBody3D = loose as Node as RigidBody3D
 	assert(not rigid.linear_velocity.is_zero_approx(), "Impulse applies to bodies without Health")
+	var controlled_motion: C_Motion = controlled.get_component(C_Motion) as C_Motion
+	assert(
+		not controlled_motion.pending_impulse.is_zero_approx(),
+		"Controlled characters receive explosion through pending gameplay impulse",
+	)
 	assert((_spawned.back().get_component(C_Hazard) as C_Hazard).instigator_id == receiver.id)
 	_reset(true)
 
@@ -217,7 +237,7 @@ func _blocked_explosion_contract() -> void:
 	var receiver: Entity = _body(Vector3(81, 0, 0))
 	await _settle()
 	assert(
-		HazardSpawnService.submit(_request(_blast(), Vector3(80, 0, 0), "blast-blocked", origin))
+		HazardSpawnService.submit(_request(_blast_scene(), Vector3(80, 0, 0), "blast-blocked", origin))
 	)
 	_world.remove_entity(origin)
 	await _tick(0.01)
@@ -226,10 +246,9 @@ func _blocked_explosion_contract() -> void:
 
 func _short_chain_contract() -> void:
 	_reset(true)
-	var profile: DEF_Explosion = _blast()
-	profile.lifetime_seconds = 0.005
+	var scene: PackedScene = _blast_scene(0.005)
 	var emitter: C_HazardEmitter = C_HazardEmitter.new()
-	emitter.definition = profile
+	emitter.hazard_scene = scene
 	var origin: Entity = _body(Vector3(100, 0, 0), false)
 	# An ordinary layer-1 physical emitter must not block its own ray from inside the body.
 	var origin_body: PhysicsBody3D = origin as Node as PhysicsBody3D
@@ -237,7 +256,7 @@ func _short_chain_contract() -> void:
 	var successor: Entity = _body(Vector3(101, 0, 0), true, false, false, [emitter])
 	(successor.get_component(C_Health) as C_Health).current = 10.0
 	await _settle()
-	assert(HazardSpawnService.submit(_request(profile, Vector3(100, 0, 0), "short-chain", origin)))
+	assert(HazardSpawnService.submit(_request(scene, Vector3(100, 0, 0), "short-chain", origin)))
 	await _tick(0.01)
 	assert(_hp(successor) == 0.0, "Origin collider is excluded from LOS")
 	assert(_effects().size() == 1, "New chained blast survives until its first resolution")
@@ -291,39 +310,60 @@ func _wall(location: Vector3) -> void:
 	_world.add_child(wall)
 
 
-func _toxic(lifetime: float) -> DEF_ToxicArea:
+
+func _toxic_scene(
+	lifetime: float,
+	ownership: DEF_Hazard.Ownership = DEF_Hazard.Ownership.Independent,
+	owner_loss: DEF_Hazard.OwnerLoss = DEF_Hazard.OwnerLoss.Detach,
+	persistent: bool = false,
+) -> PackedScene:
 	var definition: DEF_ToxicArea = DEF_ToxicArea.new()
-	definition.scene = preload("res://content/entities/hazards/toxic_area.tscn")
 	definition.tick_seconds = 0.25
 	definition.damage_per_tick = 5.0
 	definition.radius = 2.0
 	definition.lifetime_seconds = lifetime
-	return definition
+	definition.ownership = ownership
+	definition.owner_loss = owner_loss
+	definition.persistent = persistent
+	return _scene_with_definition(
+		preload("res://content/entities/hazards/toxic_area.tscn"),
+		definition,
+	)
 
 
-func _blast() -> DEF_Explosion:
+func _blast_scene(lifetime: float = 0.35) -> PackedScene:
 	var definition: DEF_Explosion = DEF_Explosion.new()
-	definition.scene = preload("res://content/entities/hazards/explosion.tscn")
 	definition.damage = 100.0
 	definition.impulse = 4.0
-	definition.lifetime_seconds = 0.35
-	return definition
+	definition.lifetime_seconds = lifetime
+	return _scene_with_definition(
+		preload("res://content/entities/hazards/explosion.tscn"),
+		definition,
+	)
+
+
+func _scene_with_definition(template: PackedScene, definition: DEF_Hazard) -> PackedScene:
+	var root: E_Hazard = template.instantiate() as E_Hazard
+	assert(root != null)
+	root.definition = definition
+	var packed: PackedScene = PackedScene.new()
+	assert(packed.pack(root) == OK)
+	root.free()
+	return packed
 
 
 func _request(
-	definition: DEF_Hazard,
+	scene: PackedScene,
 	location: Vector3,
 	key: String,
 	origin: Entity = null,
 ) -> HazardSpawnRequest:
 	var request: HazardSpawnRequest = HazardSpawnRequest.new()
-	request.definition = definition
+	request.scene = scene
 	request.request_id = key
 	request.origin_id = key
 	request.world_pose.origin = location
 	request.origin = origin
-	request.ownership = definition.ownership
-	request.owner_loss = definition.owner_loss
 	return request
 
 

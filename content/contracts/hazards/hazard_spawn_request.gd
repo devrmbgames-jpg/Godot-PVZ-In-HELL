@@ -8,13 +8,10 @@ const EVENT: StringName = &"hazard_spawn_requested"
 var request_id: String = ""
 var origin_id: String = ""
 var instigator_id: String = ""
-## Authored effect and world-space snapshot; origin may disappear after submission.
-var definition: DEF_Hazard = null
+## Autonomous authored hazard prefab and world-space snapshot.
+var scene: PackedScene = null
 var world_pose: Transform3D = Transform3D.IDENTITY
 var origin: Entity = null
 var instigator: Entity = null
-## Explicit ownership policy, copied into runtime state at spawn.
-var ownership: DEF_Hazard.Ownership = DEF_Hazard.Ownership.Independent
-var owner_loss: DEF_Hazard.OwnerLoss = DEF_Hazard.OwnerLoss.Detach
 ## Sticky source-side veto snapshot; factories may strengthen but never clear it.
 var damage_blocked: bool = false

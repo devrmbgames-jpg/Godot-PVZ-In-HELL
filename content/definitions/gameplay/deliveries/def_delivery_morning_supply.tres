@@ -4,6 +4,8 @@
 [ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/definitions/gameplay/impact_default.tres" id="2_61ali"]
 [ext_resource type="Script" uid="uid://ccyyq1ami2lgi" path="res://content/definitions/gameplay/deliveries/def_delivery.gd" id="2_pfwa7"]
 [ext_resource type="Resource" uid="uid://ssekqccb7qe5" path="res://content/definitions/gameplay/impact_fragile.tres" id="FragileImpact"]
+[ext_resource type="PackedScene" path="res://content/entities/hazards/toxic_area.tscn" id="ToxicHazard"]
+[ext_resource type="PackedScene" path="res://content/entities/hazards/explosion.tscn" id="ExplosionHazard"]
 
 [sub_resource type="Resource" id="Books"]
 script = ExtResource("1_45rg7")
@@ -19,13 +21,14 @@ description = "Бутылки с реагентами"
 comment = "Хранить вертикально. Не вскрывать."
 recipient_id = &"customer_02"
 tags = 10
-hazard = 1
 mass_kg = 30.0
 throw_velocity = 6.0
 maximum_health = 60.0
 damaged_health_ratio = 0.85
 scene_variants = Array[String](["res://content/entities/packages/package_big.tscn"])
 impact_profile = ExtResource("FragileImpact")
+hazard_on_damaged = ExtResource("ToxicHazard")
+hazard_on_destroyed = ExtResource("ToxicHazard")
 key = &"bottles"
 
 [sub_resource type="Resource" id="Equipment"]
@@ -69,12 +72,12 @@ description = "Энергетические ячейки"
 comment = "Беречь от ударов. Опасное содержимое."
 recipient_id = &"customer_06"
 tags = 2
-hazard = 2
 mass_kg = 6.0
 maximum_health = 50.0
 damaged_health_ratio = 0.85
 scene_variants = Array[String](["res://content/entities/packages/package.tscn", "res://content/entities/packages/package_a.tscn", "res://content/entities/packages/package_b.tscn"])
 impact_profile = ExtResource("FragileImpact")
+hazard_on_destroyed = ExtResource("ExplosionHazard")
 key = &"power_cells"
 
 [sub_resource type="Resource" id="Clothes"]
