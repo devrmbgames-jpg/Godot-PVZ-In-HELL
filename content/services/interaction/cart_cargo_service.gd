@@ -1,14 +1,20 @@
-extends System
-## Temporary compatibility shell for cart cargo; R_CartCargo is the sole binding authority.
-class_name S_CartCargo
+extends RefCounted
+## Owns cargo binding lifecycle and cart-local discovery. R_CartCargo is sole authority.
+class_name CartCargoService
 
 const SUPPORT_DISTANCE: float = 0.06
 const MIN_SUPPORT_NORMAL: float = 0.7
-const MAX_ANGULAR_SPEED: float = 6.0
-const ROTATION_EPSILON: float = 0.0001
 
 
-#region Loading and lifecycle
+static func relationship(cargo: Entity) -> Relationship:
+	if not is_instance_valid(cargo):
+		return null
+	for candidate: Relationship in cargo.relationships:
+		if candidate.relation is R_CartCargo:
+			return candidate
+	return null
+
+
 static func update(cart: E_TransportCart, delta: float) -> void:
 	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
 	if config == null:
@@ -33,7 +39,7 @@ static func update(cart: E_TransportCart, delta: float) -> void:
 			config.settling.erase(instance_id)
 			continue
 
-		var elapsed: float = config.settling.get(instance_id, 0.0) + delta
+		var elapsed: float = float(config.settling.get(instance_id, 0.0)) + delta
 		config.settling[instance_id] = elapsed
 		if elapsed >= config.cargo_settle_seconds:
 			_load(cart, candidate, body)
@@ -42,15 +48,6 @@ static func update(cart: E_TransportCart, delta: float) -> void:
 	for instance_id: int in config.settling.keys():
 		if not present.has(instance_id):
 			config.settling.erase(instance_id)
-
-
-static func relationship(cargo: Entity) -> Relationship:
-	if not is_instance_valid(cargo):
-		return null
-	for candidate: Relationship in cargo.relationships:
-		if candidate.relation is R_CartCargo:
-			return candidate
-	return null
 
 
 static func release(cargo: Entity) -> void:
@@ -128,53 +125,8 @@ static func cargo_removed(cargo: Entity, binding: Relationship) -> void:
 		var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
 		if config != null:
 			config.cargo.erase(cargo)
-#endregion
 
 
-#region Rigid-body solver
-static func integrate(cargo: Entity, state: PhysicsDirectBodyState3D) -> bool:
-	var binding: Relationship = relationship(cargo)
-	if binding == null:
-		return false
-	var cart: Entity = binding.target as Entity
-	var data: R_CartCargo = binding.relation as R_CartCargo
-	if not S_Grab.entity_available(cart) or not S_Grab.entity_available(cargo):
-		release(cargo)
-		return false
-	if S_Grab.held_relationship(cargo) != null or _destroyed(cargo):
-		release(cargo)
-		return false
-
-	var cart_body: Node3D = cart as Node as Node3D
-	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
-	if cart_body == null or config == null or data == null:
-		release(cargo)
-		return false
-	var desired: Transform3D = cart_body.global_transform * data.local_pose
-	var offset: Vector3 = desired.origin - state.transform.origin
-	if offset.length() > config.cargo_break_distance:
-		release(cargo)
-		return false
-
-	state.linear_velocity = (offset / state.step).limit_length(config.cargo_follow_speed)
-	var rotation_error: Quaternion = (
-		desired.basis.get_rotation_quaternion()
-		* state.transform.basis.get_rotation_quaternion().inverse()
-	).normalized()
-	if rotation_error.w < 0.0:
-		rotation_error = -rotation_error
-	var angle: float = rotation_error.get_angle()
-	state.angular_velocity = Vector3.ZERO
-	if angle > ROTATION_EPSILON:
-		state.angular_velocity = rotation_error.get_axis() * minf(
-			angle / state.step,
-			MAX_ANGULAR_SPEED,
-		)
-	return true
-#endregion
-
-
-#region Private helpers
 static func _loadable(cargo: Entity) -> bool:
 	if not S_Grab.entity_available(cargo) or not cargo.has_component(C_Grabbable):
 		return false
@@ -216,4 +168,3 @@ static func _load(cart: Entity, cargo: Entity, body: RigidBody3D) -> void:
 	cargo.add_relationship(binding)
 	if not data.lifecycle_applied and not cargo_added(cargo, binding):
 		cargo.remove_relationship(binding)
-#endregion

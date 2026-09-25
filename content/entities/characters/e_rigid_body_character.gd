@@ -25,12 +25,14 @@ func _init() -> void:
 	if Engine.is_editor_hint():
 		set_physics_process(false)
 		set_process(false)
-
 	assert(self as Node as RigidBody3D, "is not rigid!")
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	ImpactCaptureSolver.capture(self, state)
+	if CartDriverSolver.integrate(self, state):
+		return
+	if S_Push.integrate_actor(self, state):
+		return
 	S_Motion.integrate_forces(self, state)
 	S_Look.integrate_forces(self, state)
-	#S_Crouch.integrate_forces(self, state)
