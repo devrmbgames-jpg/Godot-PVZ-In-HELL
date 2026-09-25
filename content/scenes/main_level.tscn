@@ -16,6 +16,7 @@
 [ext_resource type="Script" uid="uid://cv8oyv1lnwa6u" path="res://content/systems/motion/s_crouch.gd" id="7_6b1dm"]
 [ext_resource type="PackedScene" uid="uid://boxna5m5n5ofv" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor/Floor_static.tscn" id="7_eim2b"]
 [ext_resource type="Script" uid="uid://c1o1ef2y40vmv" path="res://content/systems/input/s_player_input.gd" id="8_qm6qd"]
+[ext_resource type="Script" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
 [ext_resource type="PackedScene" uid="uid://c8ucvasbalruj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pillar_A/Pillar_A_static.tscn" id="8_vhk8t"]
 [ext_resource type="PackedScene" uid="uid://fjtvcn3mifma" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam/Primitive_Beam_static.tscn" id="9_ofyry"]
 [ext_resource type="PackedScene" uid="uid://dxkg7ovkuxd0i" path="res://content/entities/characters/e_rigid_body_character.tscn" id="13_da1x8"]
@@ -371,6 +372,10 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 script = ExtResource("8_qm6qd")
 group = &"Input"
 metadata/_custom_type_script = "uid://c1o1ef2y40vmv"
+
+[node name="S_PlayerIntent" type="Node" parent="World/Systems/Input"]
+script = ExtResource("Player_intent")
+group = &"Input"
 
 [node name="Interaction" type="Node" parent="World/Systems" unique_id=1721666486]
 script = ExtResource("3_ahxau")
