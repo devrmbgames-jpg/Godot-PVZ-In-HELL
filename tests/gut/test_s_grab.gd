@@ -221,7 +221,6 @@ func test_marker_cancel_releases_only_its_token_and_preserves_hand() -> void:
 	assert_true(S_Grab.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.LEFT_HAND))
 	var marker: C_Marker = C_Marker.new()
 	box_entity.add_component(marker)
-	marker.actor = holder_entity
 	marker.capture_token = InteractionControlFocus.acquire(
 		holder_entity,
 		box_entity,
@@ -236,7 +235,6 @@ func test_marker_cancel_releases_only_its_token_and_preserves_hand() -> void:
 	input_state.cancel_pressed = true
 	S_Marker.update_session(box_entity, marker)
 	assert_eq(marker.capture_token, 0)
-	assert_null(marker.actor)
 	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.PUSH)
 	assert_eq(S_Grab.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), box_entity)
 	InteractionControlFocus.release(holder_entity, other_token)
@@ -255,7 +253,6 @@ func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> vo
 		box_entity,
 		InteractionControlFocus.Priority.DRAWING,
 	)
-	marker.actor = holder_entity
 	var original_look: Vector3 = input_state.direction_look
 	producer.look_mouse = Vector2(25.0, 15.0)
 	producer.process([holder_entity], [[input_state]], 1.0 / 60.0)
@@ -263,7 +260,7 @@ func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> vo
 	assert_eq(input_state.look_delta, Vector2(25.0, 15.0))
 	input_state.rotate_held = true
 	assert_false(InteractionActionResolver.wants_rotation(holder_entity, input_state))
-	S_Marker.end(marker)
+	S_Marker.end(marker, holder_entity)
 	producer.look_mouse = Vector2(25.0, 15.0)
 	producer.process([holder_entity], [[input_state]], 1.0 / 60.0)
 	assert_ne(input_state.direction_look, original_look, "Look resumes after drawing exits")

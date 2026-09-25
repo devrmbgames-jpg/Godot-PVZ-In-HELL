@@ -19,9 +19,10 @@ func _physics_process(_delta: float) -> void:
 	_controller.direction_look = -(_cart as Node as Node3D).global_basis.z
 	S_Grab.handle_input(_actor)
 	for cargo: Entity in _cargo:
-		var binding: C_CartCargo = cargo.get_component(C_CartCargo) as C_CartCargo
-		if binding != null:
-			var desired: Transform3D = (_cart as Node as Node3D).global_transform * binding.local_pose
+		var binding: Relationship = S_CartCargo.relationship(cargo)
+		var data: R_CartCargo = binding.relation as R_CartCargo if binding != null else null
+		if data != null and binding.target == _cart:
+			var desired: Transform3D = (_cart as Node as Node3D).global_transform * data.local_pose
 			var cargo_position: Vector3 = (cargo as Node as Node3D).global_position
 			var drift: float = desired.origin.distance_to(cargo_position)
 			_maximum_cargo_drift = maxf(_maximum_cargo_drift, drift)
@@ -32,6 +33,7 @@ func _run() -> void:
 	add_child(world)
 	ECS.world = world
 	world.add_observer(O_GrabLifecycle.new())
+	world.add_observer(O_CartLifecycle.new())
 	_obstacle(Vector3(0, -0.5, 0), Vector3(40, 1, 40))
 	var scene: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
 	var cart_body: CharacterBody3D = scene.instantiate() as CharacterBody3D
@@ -107,12 +109,12 @@ func _run() -> void:
 	_controller.interact_pressed = false
 	assert(S_CartTransport.current(_actor) == null, "E explicitly releases the handle")
 	assert(InteractionControlFocus.current(_actor) == InteractionControlFocus.Priority.HANDS)
-	assert(config.capture_token == 0)
+	assert(S_CartTransport.driver_relationship(_cart) == null)
 	# Pick the exposed rear box; the front lower box is occluded by the stack.
 	var target: Entity = _cargo[1]
 	ray.look_at((target as Node as Node3D).global_position + Vector3.UP * 0.2)
 	assert(S_Grab.try_pickup(_actor, target, C_Grabbable.HoldSlot.CARRY))
-	assert(not target.has_component(C_CartCargo), "Picking up cargo must release the restraint")
+	assert(S_CartCargo.relationship(target) == null, "Picking up cargo must release the restraint")
 	assert(not (target as Node as RigidBody3D).custom_integrator)
 	S_Grab.release(_actor, target)
 
@@ -123,7 +125,7 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	for cargo: Entity in saved_cargo:
-		assert(not cargo.has_component(C_CartCargo), "Disabling transport must restore free cargo")
+		assert(S_CartCargo.relationship(cargo) == null, "Disabling transport must restore free cargo")
 		assert(not (cargo as Node as RigidBody3D).custom_integrator)
 
 	set_physics_process(false)

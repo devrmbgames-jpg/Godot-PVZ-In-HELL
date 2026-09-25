@@ -71,14 +71,15 @@ static func begin(actor: Entity, tool: Entity, target: Entity) -> void:
 		tool.tree_exiting.connect(cleanup, CONNECT_ONE_SHOT)
 
 
-static func end(tool: Entity, actor_hint: Entity = null) -> void:
-	if not is_instance_valid(tool):
-		return
-	var marker: C_Marker = tool.get_component(C_Marker) as C_Marker
+static func end(tool_or_marker: Variant, actor_hint: Entity = null) -> void:
+	var tool: Entity = tool_or_marker as Entity
+	var marker: C_Marker = tool_or_marker as C_Marker
+	if marker == null and is_instance_valid(tool):
+		marker = tool.get_component(C_Marker) as C_Marker
 	if marker == null:
 		return
 	var actor: Entity = actor_hint
-	if not is_instance_valid(actor):
+	if not is_instance_valid(actor) and is_instance_valid(tool):
 		var grip: Relationship = S_Grab.held_relationship(tool)
 		actor = grip.target as Entity if grip != null else null
 	if is_instance_valid(actor):
