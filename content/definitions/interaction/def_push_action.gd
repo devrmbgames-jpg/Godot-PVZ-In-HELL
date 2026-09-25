@@ -8,9 +8,9 @@ class_name DEF_PushAction
 
 func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	if end_push:
-		return S_Push.pushed_object(actor) == source
+		return PushService.pushed_object(actor) == source
 
-	return S_Push.can_begin(actor, source)
+	return PushService.can_begin(actor, source)
 
 
 func execute(actor: Entity, source: Entity, target: Entity) -> void:
@@ -18,6 +18,6 @@ func execute(actor: Entity, source: Entity, target: Entity) -> void:
 		return
 
 	if end_push:
-		S_Push.end(actor, source)
+		PushService.end(actor, source)
 	else:
-		S_Push.try_begin(actor, source)
+		PushService.try_begin(actor, source)

@@ -32,7 +32,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	ImpactCaptureSolver.capture(self, state)
 	if CartDriverSolver.integrate(self, state):
 		return
-	if S_Push.integrate_actor(self, state):
+	if PushActorSolver.integrate(self, state):
 		return
 	S_Motion.integrate_forces(self, state)
 	S_Look.integrate_forces(self, state)

@@ -92,7 +92,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			else Vector2.ZERO
 		)
 		var rotating: bool = InteractionActionResolver.wants_rotation(entity, controller)
-		var cart: Entity = S_Push.pushed_object(entity)
+		var cart: Entity = PushService.pushed_object(entity)
 		var transport: Entity = CartTransportService.current(entity)
 		var driving: bool = (
 			transport != null

@@ -40,7 +40,7 @@ static func handle_input(actor: Entity) -> void:
 		return
 
 	if active_focus == InteractionControlFocus.Priority.PUSH:
-		if controller.interact_pressed or controller.move_axis.y > S_Push.DIRECTION_EPSILON:
+		if controller.interact_pressed or controller.move_axis.y > PushService.DIRECTION_EPSILON:
 			_execute_slot(actor, DEF_InteractionAction.Slot.INTERACT, true)
 		elif controller.use_pressed:
 			_execute_slot(actor, DEF_InteractionAction.Slot.USE, true)
@@ -133,7 +133,7 @@ static func resolve(
 
 	if focus == InteractionControlFocus.Priority.PUSH:
 		if input_slot == DEF_InteractionAction.Slot.INTERACT:
-			var cart: Entity = S_Push.pushed_object(actor)
+			var cart: Entity = PushService.pushed_object(actor)
 			if cart == null:
 				return null
 			var stop: DEF_PushAction = DEF_PushAction.new()

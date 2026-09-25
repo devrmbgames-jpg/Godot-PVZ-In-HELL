@@ -4,8 +4,8 @@ class_name O_PushLifecycle
 
 
 func setup() -> void:
-	_world.entity_removed.connect(S_Push.entity_unavailable)
-	_world.entity_disabled.connect(S_Push.entity_unavailable)
+	_world.entity_removed.connect(PushService.entity_unavailable)
+	_world.entity_disabled.connect(PushService.entity_unavailable)
 
 
 func query() -> QueryBuilder:
@@ -18,7 +18,7 @@ func each(event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 
 	if event == Observer.Event.RELATIONSHIP_ADDED:
-		if not S_Push.push_added(entity, relation):
+		if not PushService.push_added(entity, relation):
 			cmd.add_custom(entity.remove_relationship.bind(relation))
 	elif event == Observer.Event.RELATIONSHIP_REMOVED:
-		S_Push.push_removed(entity, relation)
+		PushService.push_removed(entity, relation)
