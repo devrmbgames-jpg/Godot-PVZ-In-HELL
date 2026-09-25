@@ -14,16 +14,16 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 
 
 func _commit_death(target: Entity, result: DamageResult) -> void:
-	if not S_Grab.entity_available(target) or target.has_component(C_Death):
+	if not GrabService.entity_available(target) or target.has_component(C_Death):
 		return
 	var death: C_Death = C_Death.new()
 	death.cause = result
 	target.add_component(death)
 
-	S_Grab.entity_unavailable(target)
-	var cart: Entity = S_CartTransport.current(target)
+	GrabService.entity_unavailable(target)
+	var cart: Entity = CartTransportService.current(target)
 	if cart != null:
-		S_CartTransport.end(cart)
+		CartTransportService.end(cart)
 	var motion: C_Motion = target.get_component(C_Motion) as C_Motion
 	if motion != null:
 		motion.control_enabled = false

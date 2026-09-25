@@ -17,15 +17,15 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 
 
 func _commit_condition(target: Entity, result: DamageResult) -> void:
-	if not S_Grab.entity_available(target):
+	if not GrabService.entity_available(target):
 		return
 	var condition: C_PackageState = target.get_component(C_PackageState) as C_PackageState
 	if condition.damage == C_PackageState.Damage.DESTROYED:
 		return
 	if result.outcome == DamageResult.Outcome.HEALTH_DEPLETED:
 		condition.damage = C_PackageState.Damage.DESTROYED
-		S_CartCargo.release(target)
-		S_Grab.entity_unavailable(target)
+		CartCargoService.release(target)
+		GrabService.entity_unavailable(target)
 		PackageMarkService.clear_marks(target)
 		PackageLifecycle.publish(
 			target,
