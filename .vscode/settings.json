@@ -5,7 +5,5 @@
   },
   "godotFormatter.enableLinter": true,
   "godotFormatter.verifyStructure": true,
-  "godotFormatter.reorderCode": false,
-  
-  "godotTools.editorPath.godot4": "c:\\Users\\Valeryn\\Desktop\\Godot_v4.7.1-stable_win64.exe"
+  "godotFormatter.reorderCode": false
 }
