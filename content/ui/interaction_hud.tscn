@@ -72,6 +72,74 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 
+[node name="PlayerDebugPanel" type="PanelContainer" parent="Overlay"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -304.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 96.0
+grow_horizontal = 0
+mouse_filter = 2
+
+[node name="Debug" type="VBoxContainer" parent="Overlay/PlayerDebugPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HealthLabel" type="Label" parent="Overlay/PlayerDebugPanel/Debug"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+text = "PLAYER HP"
+
+[node name="HealthBar" type="ProgressBar" parent="Overlay/PlayerDebugPanel/Debug"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+mouse_filter = 2
+show_percentage = false
+
+[node name="PackageDebugPanel" type="PanelContainer" parent="Overlay"]
+visible = false
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 28.0
+offset_top = 34.0
+offset_right = 388.0
+offset_bottom = 136.0
+mouse_filter = 2
+
+[node name="Debug" type="VBoxContainer" parent="Overlay/PackageDebugPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TypeLabel" type="Label" parent="Overlay/PackageDebugPanel/Debug"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+text = "ПОСЫЛКА"
+
+[node name="HealthLabel" type="Label" parent="Overlay/PackageDebugPanel/Debug"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+text = "HP"
+
+[node name="HealthBar" type="ProgressBar" parent="Overlay/PackageDebugPanel/Debug"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+mouse_filter = 2
+show_percentage = false
+
 [node name="Announcement" type="Label" parent="Overlay"]
 layout_mode = 0
 anchor_left = 0.5

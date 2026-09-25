@@ -69,8 +69,9 @@ Base: master / e9ecb7f.
 - [x] Очистка временных Hazard и cleanup world/physics references после окончания lifetime, disable либо удаления origin согласно выбранной policy.
 - [x] Data-driven persist flag и контракт будущего nightly reset (реальная R21 serialization вне R09).
 - [x] Readable MVP visualization для обеих самостоятельных Entity; gameplay authority не переносить в UI.
-- [ ] Финальная GUT-проверка: независимый spawn без Package, one-shot активация, Leaking+Destroyed dedup, tick interval, радиус/LOS, удаление исходного объекта, cleanup, источник/instigator, запрет исходящего damage и несколько активных зон. [NOT RUN: user-owned acceptance; standalone smoke fixture prepared.]
-- [ ] Финальная physics/user-проверка: взрыв реально разбрасывает тела; ToxicArea наносит периодический урон; Barrel/Customer fixtures создают те же эффекты без второй реализации; существующий R08 Impact/Grab/Package pipeline не сломан. [NOT RUN: user-owned acceptance; standalone smoke fixture prepared.]
+- [x] Debug acceptance HUD: постоянный HP игрока; при выделении Package показывать authored tags/hazard и шкалу HP, читая только существующие `C_Health` / `C_Package.definition`.
+- [x] Финальная GUT-проверка: независимый spawn без Package, one-shot активация, Leaking+Destroyed dedup, tick interval, радиус/LOS, удаление исходного объекта, cleanup, источник/instigator, запрет исходящего damage и несколько активных зон. [PASSED: user-reported 2026-09-25.]
+- [ ] Финальная physics/user-проверка: взрыв реально разбрасывает тела; ToxicArea наносит периодический урон; Barrel/Customer fixtures создают те же эффекты без второй реализации; существующий R08 Impact/Grab/Package pipeline не сломан. [PENDING: debug HUD added for visible Player/Package HP and Package type; user still needs to validate damage and body impulse/scatter.]
 
 ## Критерии готовности
 
@@ -91,4 +92,4 @@ Base: master / e9ecb7f.
 
 ## Handoff (2026-09-25)
 
-Implementation and standalone non-Package fixture are ready. Runtime/GUT/smoke/visual validation NOT RUN per user instruction; no new GUT suite was added. Run `utils/run_smoke.ps1 -Name hazards`, then check effect readability/impulses and existing gameplay manually. Keep this task open until acceptance. Static checks: repository structure, GDScript formatter/lint, PowerShell parser, diff; focused static review completed. Durable contracts: `docs/hazards.md`; runner: `docs/smoke_runner.md`.
+Implementation and standalone non-Package fixture are ready. Final GUT coverage was reported passing by the user on 2026-09-25. Physics/visual acceptance remains open because damage and explosion body scatter were not yet readable enough to validate manually. The interaction HUD now exposes Player HP continuously and hovered Package authored type/hazard plus Package HP for that acceptance pass. Keep this task open until the user confirms ToxicArea damage and Explosion impulses/scatter. Durable contracts: `docs/hazards.md`; runner: `docs/smoke_runner.md`.
