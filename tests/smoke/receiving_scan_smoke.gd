@@ -46,17 +46,17 @@ func _run() -> void:
 	var first_supply_position: Vector3 = (first as Node as Node3D).global_position
 	var second_supply_position: Vector3 = (second as Node as Node3D).global_position
 	await _prepare_target(actor, scanner, Vector3(0.0, 0.0, -1.6))
-	assert(S_Grab.within_pickup_reach(actor, scanner))
+	assert(GrabService.within_pickup_reach(actor, scanner))
 	_drive(actor, true, false, false)
-	assert(S_Grab.held_object(actor) == scanner, "E must pick up the real scanner")
+	assert(GrabService.held_object(actor) == scanner, "E must pick up the real scanner")
 	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
-	assert(S_InteractionTargeting.find_target(actor, interactor) == first)
+	assert(InteractionTargetingService.find_target(actor, interactor) == first)
 	_drive(actor, false, false, true)
 	var first_state: C_PackageState = first.get_component(C_PackageState) as C_PackageState
 	var registry: C_PackageLedger = PackageRegistrationService.ledger()
 	assert(first_state.registration_number == 1 and registry.records.size() == 1)
 	assert(first_state.scan == C_PackageState.Scan.SCANNED)
-	assert(S_Grab.held_object(actor) == scanner, "Scan must not throw")
+	assert(GrabService.held_object(actor) == scanner, "Scan must not throw")
 	var feedback: Label3D = scanner.get_node("Feedback/Result") as Label3D
 	assert("\u2116001" in feedback.text)
 	assert((scanner.get_node("Feedback/Beep") as AudioStreamPlayer3D).playing)
@@ -64,7 +64,7 @@ func _run() -> void:
 	assert(first_state.registration_number == 1 and registry.records.size() == 1)
 	assert("\u2116001" in feedback.text)
 	await _prepare_target(actor, second, Vector3(0.0, -0.2, -2.2))
-	assert(S_InteractionTargeting.find_target(actor, interactor) == second)
+	assert(InteractionTargetingService.find_target(actor, interactor) == second)
 	_drive(actor, false, false, true)
 	var second_state: C_PackageState = second.get_component(C_PackageState) as C_PackageState
 	assert(second_state.registration_number == 2 and registry.records.size() == 2)
@@ -75,7 +75,7 @@ func _run() -> void:
 		== PackageScanResult.Outcome.REJECTED
 	)
 	scanner_config.scan_range = 3.0
-	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
+	var ray: RayCast3D = GrabService.interaction_raycast(actor)
 	ray.look_at(ray.global_position + Vector3(0, 1, -1))
 	ray.force_raycast_update()
 	assert(
@@ -94,7 +94,7 @@ func _run() -> void:
 	desk_query.exclude = [terminal_body.get_rid()]
 	assert(terminal_body.get_world_3d().direct_space_state.intersect_shape(desk_query).is_empty())
 	await _prepare_target(actor, terminal, Vector3(0.0, -0.5, -1.8))
-	assert(S_InteractionTargeting.find_target(actor, interactor) == terminal)
+	assert(InteractionTargetingService.find_target(actor, interactor) == terminal)
 	_drive(actor, true, false, false)
 	assert(terminal.panel.visible)
 	assert(
@@ -142,15 +142,15 @@ func _run() -> void:
 		DayTransitionRequest.Kind.FINISH_SHIFT,
 		DayTransitionRequest.Kind.SLEEP,
 	]:
-		var cycle: C_DayCycle = S_DayPhase.current()
+		var cycle: C_DayCycle = DayPhaseService.current()
 		var request: DayTransitionRequest = DayTransitionRequest.new()
 		request.kind = transition
 		request.expected_day = cycle.day_index
 		request.expected_phase = cycle.phase
-		assert(S_DayPhase.submit(request))
+		assert(DayPhaseService.submit(request))
 		ECS.world.process(1.0 / 60.0, "GamePlay")
 	ECS.world.process(1.0 / 60.0, "GamePlay")
-	assert(S_DayPhase.current().day_index == 2)
+	assert(DayPhaseService.current().day_index == 2)
 	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
 	assert(receiving.blocked and ECS.world.query.with_all([C_Package]).execute().size() == 8)
 	for blocker: StaticBody3D in blockers:
@@ -167,11 +167,11 @@ func _run() -> void:
 	assert("\u2116001" in PackageRegistrationService.terminal_text())
 	var next_day_parcel: Entity = level.get_node("Entityes/Parcel_002_01") as Entity
 	await _prepare_target(actor, next_day_parcel, Vector3(0.0, -0.2, -2.2))
-	assert(S_InteractionTargeting.find_target(actor, interactor) == next_day_parcel)
+	assert(InteractionTargetingService.find_target(actor, interactor) == next_day_parcel)
 	assert(PackageRegistrationService.scan(actor, scanner, next_day_parcel).number == 3)
 	assert("\u2116003" in PackageRegistrationService.terminal_text())
 	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
-	assert(S_InteractionTargeting.find_target(actor, interactor) == first)
+	assert(InteractionTargetingService.find_target(actor, interactor) == first)
 	assert(PackageRegistrationService.scan(actor, scanner, first).number == 1)
 	assert(registry.records.size() == 3)
 	assert(not PackageRegistrationService.release_number(first))
@@ -203,16 +203,16 @@ func _drive(actor: Entity, interact: bool, use: bool, primary: bool) -> void:
 func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> void:
 	if is_instance_valid(_prepared_body):
 		var previous_entity: Entity = _prepared_body as Node as Entity
-		if S_Grab.held_relationship(previous_entity) == null:
+		if GrabService.held_relationship(previous_entity) == null:
 			_prepared_body.global_transform = _prepared_transform
 
 	var target_body: Node3D = target as Node as Node3D
 	_prepared_body = target_body
 	_prepared_transform = target_body.global_transform
-	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
+	var ray: RayCast3D = GrabService.interaction_raycast(actor)
 	target_body.global_position = ray.global_position + target_offset
 	await get_tree().physics_frame
 	ray.look_at(target_body.global_position)
 	ray.force_raycast_update()
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = S_InteractionTargeting.find_target(actor, interactor)
+	interactor.target = InteractionTargetingService.find_target(actor, interactor)

@@ -16,9 +16,9 @@ static func ledger() -> C_PackageLedger:
 static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	if not is_instance_valid(target) or not is_instance_valid(scanner):
 		return false
-	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(target):
+	if not GrabService.holder_available(actor) or not GrabService.entity_available(target):
 		return false
-	var grip: Relationship = S_Grab.held_relationship(scanner)
+	var grip: Relationship = GrabService.held_relationship(scanner)
 	if grip == null or grip.target != actor or not scanner.has_component(C_Scanner):
 		return false
 	if (
@@ -26,7 +26,7 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 		or InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.HANDS
 	):
 		return false
-	var cycle: C_DayCycle = S_DayPhase.current()
+	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT or ledger() == null:
 		return false
 	if not target.has_component(C_Package) or not target.has_component(C_PackageState):
@@ -35,9 +35,9 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	if package_state.registration == C_PackageState.Registration.DELIVERED:
 		return false
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	if interactor == null or S_InteractionTargeting.find_target(actor, interactor) != target:
+	if interactor == null or InteractionTargetingService.find_target(actor, interactor) != target:
 		return false
-	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
+	var ray: RayCast3D = GrabService.interaction_raycast(actor)
 	var config: C_Scanner = scanner.get_component(C_Scanner) as C_Scanner
 	return ray.global_position.distance_to(ray.get_collision_point()) <= config.scan_range
 
@@ -64,7 +64,7 @@ static func scan(actor: Entity, scanner: Entity, target: Entity) -> PackageScanR
 	if state.scan == C_PackageState.Scan.SCANNED or state.registration_number != 0:
 		result.message = "Ошибка реестра: запись отсутствует"
 		return result
-	var cycle: C_DayCycle = S_DayPhase.current()
+	var cycle: C_DayCycle = DayPhaseService.current()
 
 	var sequence: int = smallest_free_number(registry)
 

@@ -18,9 +18,9 @@ func _run() -> void:
 	_controller = _actor.get_component(C_Controller) as C_Controller
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	var cycle: C_DayCycle = S_DayPhase.current()
+	var cycle: C_DayCycle = DayPhaseService.current()
 	assert(cycle != null and cycle.phase == C_DayCycle.Phase.MORNING)
-	assert(not S_DayPhase.permits(cycle, DayTransitionRequest.Kind.SLEEP))
+	assert(not DayPhaseService.permits(cycle, DayTransitionRequest.Kind.SLEEP))
 	var stale: DayTransitionRequest = DayTransitionRequest.new()
 	stale.expected_day = cycle.day_index
 	stale.expected_phase = cycle.phase
@@ -29,7 +29,7 @@ func _run() -> void:
 	assert(cycle.phase == C_DayCycle.Phase.MORNING)
 	_use_station("ShiftConsole")
 	assert(cycle.phase == C_DayCycle.Phase.DAY)
-	assert(not S_DayPhase.submit(stale))
+	assert(not DayPhaseService.submit(stale))
 	cycle.remaining_customer_events = 1
 	_use_station("ShiftConsole")
 	assert(cycle.phase == C_DayCycle.Phase.DAY)
@@ -44,7 +44,7 @@ func _run() -> void:
 	cycle.night_ready = true
 	ECS.world.process(1.0, "GamePlay")
 	assert(cycle.phase == C_DayCycle.Phase.MORNING and cycle.day_index == 2)
-	assert(not S_DayPhase.submit(stale))
+	assert(not DayPhaseService.submit(stale))
 	ECS.world.process(1.0, "GamePlay")
 	assert(cycle.day_index == 2)
 	_level.free()
@@ -55,7 +55,7 @@ func _run() -> void:
 
 func _use_station(station_name: String) -> void:
 	var station: Node3D = _level.get_node("Entityes/" + station_name) as Node3D
-	var ray: RayCast3D = S_Grab.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
 	ray.look_at(station.global_position + Vector3.UP * 0.55)
 	_controller.interact_pressed = true
 	_controller.input_tick += 1
