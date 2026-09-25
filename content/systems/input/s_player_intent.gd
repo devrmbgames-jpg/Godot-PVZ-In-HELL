@@ -17,10 +17,10 @@ func query() -> QueryBuilder:
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var controllers: Array = components[0]
 	for index: int in entities.size():
-		apply(entities[index], controllers[index] as C_Controller)
+		_apply(entities[index], controllers[index] as C_Controller)
 
 
-static func apply(entity: Entity, controller: C_Controller) -> void:
+func _apply(entity: Entity, controller: C_Controller) -> void:
 	if controller == null or not is_instance_valid(entity):
 		return
 	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(entity)
@@ -59,7 +59,7 @@ static func apply(entity: Entity, controller: C_Controller) -> void:
 		_update_motion(controller)
 
 
-static func _update_look(
+func _update_look(
 	controller: C_Controller,
 	character: Node3D,
 	mobility_multiplier: float,
@@ -92,7 +92,7 @@ static func _update_look(
 	).normalized()
 
 
-static func _update_motion(controller: C_Controller) -> void:
+func _update_motion(controller: C_Controller) -> void:
 	var forward_direction: Vector3 = controller.direction_look
 	forward_direction.y = 0.0
 	if controller.move_axis.is_zero_approx() or forward_direction.is_zero_approx():

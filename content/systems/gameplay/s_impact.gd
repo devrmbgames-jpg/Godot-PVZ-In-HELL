@@ -221,20 +221,20 @@ func _on_entity_unavailable(entity: Entity) -> void:
 			_pending.erase(key)
 
 
-static func _valid(contact: PhysicsContact) -> bool:
+func _valid(contact: PhysicsContact) -> bool:
 	return (
 		contact != null and is_instance_valid(contact.body_a)
 		and is_instance_valid(contact.body_b) and contact.body_a != contact.body_b
 	)
 
 
-static func _pair_key(contact: PhysicsContact) -> String:
+func _pair_key(contact: PhysicsContact) -> String:
 	var first: int = contact.body_a.get_instance_id()
 	var second: int = contact.body_b.get_instance_id()
 	return "%d:%d" % [mini(first, second), maxi(first, second)]
 
 
-static func _held_pair(candidate: Entity, other: Entity) -> bool:
+func _held_pair(candidate: Entity, other: Entity) -> bool:
 	if not is_instance_valid(candidate):
 		return false
 	var grip: Relationship = _held_relationship(candidate)
@@ -242,7 +242,7 @@ static func _held_pair(candidate: Entity, other: Entity) -> bool:
 #endregion
 
 
-static func _held_relationship(entity: Entity) -> Relationship:
+func _held_relationship(entity: Entity) -> Relationship:
 	if not is_instance_valid(entity):
 		return null
 	for grip: Relationship in entity.relationships:

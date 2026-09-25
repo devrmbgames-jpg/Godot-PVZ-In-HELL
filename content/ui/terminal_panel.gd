@@ -32,7 +32,7 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if not visible:
 		return
-	if not is_instance_valid(_reader) or not S_Grab.holder_available(_reader):
+	if not is_instance_valid(_reader) or not GrabService.holder_available(_reader):
 		close_panel()
 		return
 	_refresh_remaining -= delta
@@ -73,7 +73,7 @@ func close_panel() -> void:
 
 
 func _refresh() -> void:
-	var cycle: C_DayCycle = S_DayPhase.current()
+	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle != null:
 		title.text = "СКЛАДСКОЙ РЕЕСТР · ДЕНЬ %d" % cycle.day_index
 		registry.text = PackageRegistrationService.terminal_text()

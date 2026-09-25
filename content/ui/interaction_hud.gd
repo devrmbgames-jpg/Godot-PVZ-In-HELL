@@ -28,7 +28,7 @@ var _announcement_remaining: float = 0.0
 func _ready() -> void:
 	if phase_system != null:
 		phase_system.phase_changed.connect(_on_phase_changed)
-	var cycle: C_DayCycle = S_DayPhase.current()
+	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle != null:
 		_on_phase_changed(cycle.day_index, cycle.phase)
 
@@ -42,13 +42,13 @@ func _process(delta: float) -> void:
 	)
 	_announcement_remaining = maxf(0.0, _announcement_remaining - delta)
 	announcement.visible = _announcement_remaining > 0.0
-	var cycle: C_DayCycle = S_DayPhase.current()
+	var cycle: C_DayCycle = DayPhaseService.current()
 	phase_label.text = (
 		"ЦИКЛ %d  •  %s\n%s" % [cycle.day_index, PHASE_NAMES[cycle.phase], PHASE_HINTS[cycle.phase]]
 		if cycle != null
 		else ""
 	)
-	if not S_Grab.holder_available(player):
+	if not GrabService.holder_available(player):
 		prompt.text = ""
 		return
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor

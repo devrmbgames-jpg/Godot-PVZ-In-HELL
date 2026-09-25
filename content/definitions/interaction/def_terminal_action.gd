@@ -4,7 +4,7 @@ class_name DEF_TerminalAction
 
 
 func is_available(_actor: Entity, source: Entity, _target: Entity) -> bool:
-	var cycle: C_DayCycle = S_DayPhase.current()
+	var cycle: C_DayCycle = DayPhaseService.current()
 	return source is E_Terminal and cycle != null and cycle.phase != C_DayCycle.Phase.NIGHT
 
 
