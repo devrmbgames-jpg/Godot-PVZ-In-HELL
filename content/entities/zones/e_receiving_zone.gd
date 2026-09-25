@@ -12,7 +12,7 @@ func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 	var receiving: C_Receiving = get_component(C_Receiving) as C_Receiving
-	var cycle: C_DayCycle = S_DayPhase.current()
+	var cycle: C_DayCycle = DayPhaseService.current()
 	if receiving == null or cycle == null or supply == null:
 		return
 	sign_label.text = "ПРИЁМКА · цикл %d\nПоставка: %d / %d%s" % [
