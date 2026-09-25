@@ -8,3 +8,5 @@ script = ExtResource("Definition")
 key = &"parcel_blast"
 scene = ExtResource("Scene")
 lifetime_seconds = 0.35
+impulse = 600.0
+upward_bias = 0.35

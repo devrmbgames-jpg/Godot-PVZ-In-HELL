@@ -26,10 +26,11 @@ func _configure(entity: Entity) -> void:
 	var valid_radius: bool = is_finite(profile.radius) and profile.radius > 0.0
 	var valid_damage: bool = is_finite(profile.damage) and profile.damage >= 0.0
 	var valid_impulse: bool = is_finite(profile.impulse) and profile.impulse >= 0.0
+	var valid_upward_bias: bool = is_finite(profile.upward_bias) and profile.upward_bias >= 0.0
 	var valid_falloff: bool = is_finite(profile.falloff_power) and profile.falloff_power > 0.0
 	if (
 		not valid_radius or not valid_damage or not valid_impulse
-		or not valid_falloff or profile.maximum_targets < 1
+		or not valid_upward_bias or not valid_falloff or profile.maximum_targets < 1
 	):
 		push_error("Explosion tuning must be finite, with positive radius/falloff/target limit")
 		HazardLifecycle.retire(entity, _world)

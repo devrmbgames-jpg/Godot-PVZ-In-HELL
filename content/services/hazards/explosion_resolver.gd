@@ -48,12 +48,14 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 				continue
 
 		var weight: float = pow(hit.weight, profile.falloff_power)
-		var rigid: RigidBody3D = hit.body as RigidBody3D
-		if rigid != null and not rigid.freeze and profile.impulse > 0.0:
-			var direction: Vector3 = (hit.point - effect.spatial.global_position).normalized()
+		if profile.impulse > 0.0:
+			var direction: Vector3 = hit.point - effect.spatial.global_position
 			if direction.is_zero_approx():
 				direction = Vector3.UP
-			rigid.apply_central_impulse(direction * profile.impulse * weight)
+			else:
+				direction = direction.normalized()
+			direction = (direction + Vector3.UP * profile.upward_bias).normalized()
+			_apply_impulse(hit, direction * profile.impulse * weight)
 
 		if EntityAvailability.contains(hit.target, world) and hit.target.has_component(C_Health):
 			HazardDamage.submit(
@@ -125,3 +127,21 @@ class BlastHit extends RefCounted:
 	var target: Entity = null
 	var point: Vector3 = Vector3.ZERO
 	var weight: float = 0.0
+
+
+static func _apply_impulse(hit: BlastHit, impulse: Vector3) -> void:
+	if impulse.is_zero_approx():
+		return
+
+	if is_instance_valid(hit.target):
+		var motion: C_Motion = hit.target.get_component(C_Motion) as C_Motion
+		if motion != null:
+			# Controlled RigidBody characters consume gameplay impulses in their physics callback.
+			motion.pending_impulse += impulse
+			return
+
+	var rigid: RigidBody3D = hit.body as RigidBody3D
+	if rigid == null or rigid.freeze:
+		return
+	rigid.sleeping = false
+	rigid.apply_central_impulse(impulse)

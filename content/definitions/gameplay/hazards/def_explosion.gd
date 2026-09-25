@@ -6,6 +6,8 @@ class_name DEF_Explosion
 @export_range(0.1, 100.0) var radius: float = 4.0
 @export_range(0.0, 10000.0) var damage: float = 60.0
 @export_range(0.0, 10000.0) var impulse: float = 80.0
+## Adds an upward component before normalization so grounded bodies visibly leave the floor.
+@export_range(0.0, 2.0, 0.05) var upward_bias: float = 0.25
 @export_range(0.1, 8.0) var falloff_power: float = 1.0
 ## One center-to-target ray; any authored blocking layer fully absorbs the blast.
 @export_flags_3d_physics var collision_mask: int = 31
