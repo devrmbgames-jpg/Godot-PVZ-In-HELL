@@ -108,14 +108,14 @@ static func resolve(
 		return null
 
 	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
-	if target != null and S_InteractionTargeting.find_target(actor, interactor) != target:
+	if target != null and InteractionTargetingService.find_target(actor, interactor) != target:
 		target = null
 	var physics_target: RigidBody3D = (
 		interactor.physics_target if is_instance_valid(interactor.physics_target) else null
 	)
 	if (
 		physics_target != null
-		and S_InteractionTargeting.find_physics_target(actor, interactor) != physics_target
+		and InteractionTargetingService.find_physics_target(actor, interactor) != physics_target
 	):
 		physics_target = null
 	if focus == InteractionControlFocus.Priority.TRANSPORT:
@@ -333,7 +333,7 @@ static func _is_overweight_carry_target(actor: Entity, interactor: C_Interactor)
 		return false
 
 	var body: RigidBody3D = interactor.physics_target
-	if S_InteractionTargeting.find_physics_target(actor, interactor) != body:
+	if InteractionTargetingService.find_physics_target(actor, interactor) != body:
 		return false
 
 	var handle: Entity = PhysicsGrabTarget.handle_for(body, false)

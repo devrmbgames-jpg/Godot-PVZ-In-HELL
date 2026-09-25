@@ -48,7 +48,7 @@ static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
 		return false
 
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	if interactor == null or S_InteractionTargeting.find_target(actor, interactor) != target:
+	if interactor == null or InteractionTargetingService.find_target(actor, interactor) != target:
 		return false
 
 	var ray: RayCast3D = GrabService.interaction_raycast(actor)
@@ -141,7 +141,7 @@ static func update_session(tool: Entity, marker: C_Marker) -> void:
 		break_stroke(marker)
 		return
 
-	var parcel: Entity = S_InteractionTargeting.collider_entity(hit["collider"] as Object)
+	var parcel: Entity = InteractionTargetingService.collider_entity(hit["collider"] as Object)
 	if not drawable(parcel):
 		break_stroke(marker)
 		return

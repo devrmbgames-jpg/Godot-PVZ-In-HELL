@@ -55,6 +55,7 @@
 [ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
 [ext_resource type="Script" uid="uid://ccooufygakw6e" path="res://content/systems/interaction/s_grab.gd" id="Grab_system"]
 [ext_resource type="Script" uid="uid://6wrg3mgcm4e6" path="res://content/systems/interaction/s_interaction_targeting.gd" id="Grab_targeting"]
+[ext_resource type="Script" path="res://content/systems/interaction/s_interaction_highlight.gd" id="Interaction_highlight"]
 [ext_resource type="Script" uid="uid://egauqyysrjr" path="res://content/observers/gameplay/o_hazard_emitter.gd" id="HazardEmitter"]
 [ext_resource type="Script" uid="uid://ehhc4j05ncp" path="res://content/observers/gameplay/o_hazard_spawn.gd" id="HazardSpawn"]
 [ext_resource type="Script" uid="uid://11f2xganwshj" path="res://content/observers/gameplay/o_health_lifecycle.gd" id="HealthLifecycle"]
@@ -383,6 +384,10 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_InteractionTargeting" type="Node" parent="World/Systems/Interaction" unique_id=350725269]
 script = ExtResource("Grab_targeting")
+group = &"Interaction"
+
+[node name="S_InteractionHighlight" type="Node" parent="World/Systems/Interaction"]
+script = ExtResource("Interaction_highlight")
 group = &"Interaction"
 
 [node name="S_Grab" type="Node" parent="World/Systems/Interaction" unique_id=767923781]

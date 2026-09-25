@@ -615,7 +615,7 @@ static func within_pickup_reach(holder: Entity, target: Entity) -> bool:
 	var raycast: RayCast3D = interaction_raycast(holder)
 	if control == null or interactor == null or not is_instance_valid(raycast):
 		return false
-	if S_InteractionTargeting.find_target(holder, interactor) != target:
+	if InteractionTargetingService.find_target(holder, interactor) != target:
 		return false
 	if not raycast.is_colliding():
 		return false
@@ -633,7 +633,7 @@ static func within_pickup_reach_body(holder: Entity, body: RigidBody3D) -> bool:
 	var raycast: RayCast3D = interaction_raycast(holder)
 	if control == null or interactor == null or not is_instance_valid(raycast):
 		return false
-	if S_InteractionTargeting.find_physics_target(holder, interactor) != body:
+	if InteractionTargetingService.find_physics_target(holder, interactor) != body:
 		return false
 	if not raycast.is_colliding():
 		return false

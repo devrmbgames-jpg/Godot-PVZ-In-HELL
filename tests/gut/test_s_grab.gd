@@ -411,7 +411,7 @@ func test_disabled_or_distant_target_is_rejected() -> void:
 func test_raycast_selects_and_highlights_only_the_current_target() -> void:
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
-	var targeting: S_InteractionTargeting = S_InteractionTargeting.new()
+	var targeting: S_InteractionTargeting = InteractionTargetingService.new()
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
 	var mesh_instance: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
 	var previous_overlay: StandardMaterial3D = StandardMaterial3D.new()
@@ -946,8 +946,8 @@ func test_interact_replaces_primary_hand_after_los_validation() -> void:
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
-	interactor.target = S_InteractionTargeting.find_target(holder_entity, interactor)
-	interactor.physics_target = S_InteractionTargeting.find_physics_target(holder_entity, interactor)
+	interactor.target = InteractionTargetingService.find_target(holder_entity, interactor)
+	interactor.physics_target = InteractionTargetingService.find_physics_target(holder_entity, interactor)
 	assert_eq(interactor.target, box_entity)
 	assert_eq(interactor.physics_target, box_body)
 	input_state.input_tick += 1
@@ -971,8 +971,8 @@ func test_use_replaces_secondary_hand_after_los_validation() -> void:
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
-	interactor.target = S_InteractionTargeting.find_target(holder_entity, interactor)
-	interactor.physics_target = S_InteractionTargeting.find_physics_target(holder_entity, interactor)
+	interactor.target = InteractionTargetingService.find_target(holder_entity, interactor)
+	interactor.physics_target = InteractionTargetingService.find_physics_target(holder_entity, interactor)
 	assert_eq(interactor.target, box_entity)
 	assert_eq(interactor.physics_target, box_body)
 	input_state.input_tick += 1
@@ -1055,7 +1055,7 @@ func test_wall_occludes_targeting_and_pickup() -> void:
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
-	assert_null(S_InteractionTargeting.find_target(holder_entity, interactor))
+	assert_null(InteractionTargetingService.find_target(holder_entity, interactor))
 	assert_false(GrabService.try_pickup(holder_entity, box_entity))
 	wall.free()
 
@@ -1206,8 +1206,8 @@ func test_scriptless_rigid_body_is_a_physics_target_without_becoming_gameplay_ta
 	await get_tree().physics_frame
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
 	assert_null(rock.get_script())
-	assert_null(S_InteractionTargeting.find_target(holder_entity, interactor))
-	assert_eq(S_InteractionTargeting.find_physics_target(holder_entity, interactor), rock)
+	assert_null(InteractionTargetingService.find_target(holder_entity, interactor))
+	assert_eq(InteractionTargetingService.find_physics_target(holder_entity, interactor), rock)
 	assert_null(PhysicsGrabTarget.handle_for(rock, false))
 
 
@@ -1243,7 +1243,7 @@ func test_overweight_scriptless_body_stays_highlighted_and_shows_weight_message(
 	await get_tree().physics_frame
 
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
-	var targeting_system: S_InteractionTargeting = S_InteractionTargeting.new()
+	var targeting_system: S_InteractionTargeting = InteractionTargetingService.new()
 	targeting_system.process([holder_entity], [[interactor]], 0.0)
 
 	assert_eq(interactor.physics_target, rock)
@@ -1267,10 +1267,12 @@ func test_overweight_scriptless_body_stays_highlighted_and_shows_weight_message(
 
 	rock.mass = 5.0
 	targeting_system.process([holder_entity], [[interactor]], 0.0)
+	highlight_system.process([holder_entity], [[interactor]], 0.0)
 	InteractionActionResolver.refresh_prompt(holder_entity)
 	assert_true(interactor.prompt_text.contains("[E]"))
 	assert_true(interactor.prompt_text.contains("Взять"))
 
+	highlight_system.free()
 	targeting_system.free()
 
 
@@ -1392,8 +1394,8 @@ func test_character_body_transport_remains_interactable_after_generic_rigidbody_
 	await get_tree().physics_frame
 
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
-	interactor.target = S_InteractionTargeting.find_target(holder_entity, interactor)
-	interactor.physics_target = S_InteractionTargeting.find_physics_target(holder_entity, interactor)
+	interactor.target = InteractionTargetingService.find_target(holder_entity, interactor)
+	interactor.physics_target = InteractionTargetingService.find_physics_target(holder_entity, interactor)
 
 	assert_eq(interactor.target, cart)
 	assert_null(interactor.physics_target)

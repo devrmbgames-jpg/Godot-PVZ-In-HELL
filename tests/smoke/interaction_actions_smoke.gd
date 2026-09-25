@@ -74,7 +74,7 @@ func _run() -> void:
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 2, "Hand use must resume after Carry release")
 	await _prepare_target(actor, terminal, Vector3(0.0, -0.5, -1.8))
-	assert(S_InteractionTargeting.find_target(actor, interactor) == terminal)
+	assert(InteractionTargetingService.find_target(actor, interactor) == terminal)
 	_drive(actor, true, false, false, false, false)
 	assert(terminal.panel.visible)
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.MODAL)
@@ -130,7 +130,7 @@ func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> v
 	ray.look_at(target_body.global_position)
 	ray.force_raycast_update()
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = S_InteractionTargeting.find_target(actor, interactor)
+	interactor.target = InteractionTargetingService.find_target(actor, interactor)
 
 
 func _drive(
