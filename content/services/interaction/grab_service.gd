@@ -308,7 +308,7 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 static func grip_removed(held: Entity, grip: Relationship) -> void:
 	var marker: C_Marker = held.get_component(C_Marker) as C_Marker
 	if marker != null:
-		S_Marker.end(held, grip.target as Entity)
+		MarkerSessionService.end(held, grip.target as Entity)
 
 	var grip_data: R_HeldBy = grip.relation as R_HeldBy
 	if not grip_data.lifecycle_applied:

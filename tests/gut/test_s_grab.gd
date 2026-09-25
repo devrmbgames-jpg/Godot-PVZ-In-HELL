@@ -161,12 +161,12 @@ func test_marker_samples_follow_package_transform_and_split_faces() -> void:
 	box_body.rotation = Vector3(0.2, 0.6, -0.1)
 	var local_point: Vector3 = Vector3(0.1, 0.3, 0.0)
 	var normal: Vector3 = box_body.global_basis * Vector3.UP
-	S_Marker.append_sample(marker, box_entity, box_body.to_global(local_point), normal)
+	PackageMarkService.append_sample(marker, box_entity, box_body.to_global(local_point), normal)
 	var marks: C_PackageMarks = box_entity.get_component(C_PackageMarks) as C_PackageMarks
 	assert_eq(marks.point_count, 1)
 	assert_almost_eq(
 		marks.strokes[0].points[0],
-		local_point + Vector3.UP * S_Marker.SURFACE_OFFSET,
+		local_point + Vector3.UP * PackageMarkService.SURFACE_OFFSET,
 		Vector3.ONE * 0.0001,
 	)
 	var saved: Vector3 = marks.strokes[0].points[0]
@@ -175,15 +175,15 @@ func test_marker_samples_follow_package_transform_and_split_faces() -> void:
 	assert_eq(marks.strokes[0].points[0], saved)
 	assert_almost_eq(marks.strokes[0].normal, Vector3.UP, Vector3.ONE * 0.0001)
 
-	S_Marker.append_sample(
+	PackageMarkService.append_sample(
 		marker,
 		box_entity,
 		box_body.to_global(Vector3(0.1, 0.3, 0.0)),
 		box_body.global_basis * Vector3.RIGHT,
 	)
 	assert_eq(marks.strokes.size(), 2, "Different faces must not be joined across an edge")
-	S_Marker.break_stroke(marker)
-	S_Marker.append_sample(
+	PackageMarkService.break_stroke(marker)
+	PackageMarkService.append_sample(
 		marker,
 		box_entity,
 		box_body.to_global(local_point),
@@ -198,7 +198,7 @@ func test_marker_marks_are_bounded_and_destroyed_packages_reject_ink() -> void:
 	var marker: C_Marker = C_Marker.new()
 	marker.max_package_points = 2
 	for index: int in 3:
-		S_Marker.append_sample(
+		PackageMarkService.append_sample(
 			marker,
 			box_entity,
 			box_body.to_global(Vector3(index * 0.02, 0.3, 0.0)),
@@ -208,10 +208,10 @@ func test_marker_marks_are_bounded_and_destroyed_packages_reject_ink() -> void:
 	assert_eq(marks.point_count, 2)
 	var state: C_PackageState = box_entity.get_component(C_PackageState) as C_PackageState
 	state.damage = C_PackageState.Damage.DESTROYED
-	S_Marker.clear_marks(box_entity)
+	PackageMarkService.clear_marks(box_entity)
 	assert_eq(marks.point_count, 0)
 	assert_true(marks.strokes.is_empty())
-	S_Marker.append_sample(marker, box_entity, Vector3.ZERO, Vector3.UP)
+	PackageMarkService.append_sample(marker, box_entity, Vector3.ZERO, Vector3.UP)
 	assert_eq(marks.point_count, 0)
 	assert_null(marker.stroke)
 
@@ -261,7 +261,7 @@ func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> vo
 	assert_eq(input_state.look_delta, Vector2(25.0, 15.0))
 	input_state.rotate_held = true
 	assert_false(InteractionActionResolver.wants_rotation(holder_entity, input_state))
-	S_Marker.end(marker, holder_entity)
+	MarkerSessionService.end(marker, holder_entity)
 	producer.look_mouse = Vector2(25.0, 15.0)
 	producer.process([holder_entity], [[input_state]], 1.0 / 60.0)
 	S_PlayerIntent.apply(holder_entity, input_state)
