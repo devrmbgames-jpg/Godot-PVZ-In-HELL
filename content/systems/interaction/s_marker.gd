@@ -27,14 +27,12 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 func _exit_tree() -> void:
 	if not is_instance_valid(ECS.world):
 		return
-
 	for tool: Entity in ECS.world.query.with_all([C_Marker]).execute():
-		end(tool.get_component(C_Marker) as C_Marker)
+		end(tool)
 #endregion
 
 
 #region Drawing API
-## Requires a live hand-held marker and an unobstructed drawable package.
 static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
 	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(tool):
 		return false
@@ -58,56 +56,58 @@ static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
 	return ray.global_position.distance_to(ray.get_collision_point()) <= marker.drawing_range
 
 
-## Acquires one token without moving the marker or the target package.
 static func begin(actor: Entity, tool: Entity, target: Entity) -> void:
 	if not can_begin(actor, tool, target):
 		return
-
 	var marker: C_Marker = tool.get_component(C_Marker) as C_Marker
-	marker.actor = actor
 	marker.pointer = (actor as Node).get_viewport().get_visible_rect().size * 0.5
 	marker.capture_token = InteractionControlFocus.acquire(
 		actor,
 		tool,
 		InteractionControlFocus.Priority.DRAWING,
 	)
-	if not tool.tree_exiting.is_connected(end.bind(marker)):
-		tool.tree_exiting.connect(end.bind(marker), CONNECT_ONE_SHOT)
+	var cleanup: Callable = end.bind(tool, actor)
+	if not tool.tree_exiting.is_connected(cleanup):
+		tool.tree_exiting.connect(cleanup, CONNECT_ONE_SHOT)
 
 
-## Releases only this session's token; completed ink remains owned by packages.
-static func end(marker: C_Marker) -> void:
-	InteractionControlFocus.release(marker.actor, marker.capture_token)
+static func end(tool: Entity, actor_hint: Entity = null) -> void:
+	if not is_instance_valid(tool):
+		return
+	var marker: C_Marker = tool.get_component(C_Marker) as C_Marker
+	if marker == null:
+		return
+	var actor: Entity = actor_hint
+	if not is_instance_valid(actor):
+		var grip: Relationship = S_Grab.held_relationship(tool)
+		actor = grip.target as Entity if grip != null else null
+	if is_instance_valid(actor):
+		InteractionControlFocus.release(actor, marker.capture_token)
 	marker.capture_token = 0
-	marker.actor = null
 	break_stroke(marker)
 
 
-## Validates ownership each physics tick and samples only the mapped hand-use button.
 static func update_session(tool: Entity, marker: C_Marker) -> void:
-	var actor: Entity = marker.actor
-	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(tool):
-		end(marker)
-		return
-
 	var grip: Relationship = S_Grab.held_relationship(tool)
+	var actor: Entity = grip.target as Entity if grip != null else null
+	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(tool):
+		end(tool, actor)
+		return
 	if grip == null or grip.target != actor:
-		end(marker)
+		end(tool, actor)
 		return
 
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
-	if (
-		controller.cancel_pressed or controller.interact_pressed
-		or focus != InteractionControlFocus.Priority.DRAWING
-	):
-		end(marker)
+	if controller.cancel_pressed or controller.interact_pressed or focus != InteractionControlFocus.Priority.DRAWING:
+		end(tool, actor)
 		return
 
 	var viewport: Viewport = (actor as Node).get_viewport()
-	marker.pointer = (
-		marker.pointer + controller.look_delta
-	).clamp(Vector2.ZERO, viewport.get_visible_rect().size)
+	marker.pointer = (marker.pointer + controller.look_delta).clamp(
+		Vector2.ZERO,
+		viewport.get_visible_rect().size,
+	)
 	var secondary: bool = S_Grab.held_in_slot(actor, S_Grab.mapped_hand(actor, true)) == tool
 	var drawing: bool = controller.action_second if secondary else controller.action_main
 	if not drawing:
@@ -144,11 +144,9 @@ static func update_session(tool: Entity, marker: C_Marker) -> void:
 	if not drawable(parcel):
 		break_stroke(marker)
 		return
-
 	append_sample(marker, parcel, hit["position"] as Vector3, hit["normal"] as Vector3)
 
 
-## Converts a validated first-hit sample to local ink and splits discontinuous faces.
 static func append_sample(
 	marker: C_Marker,
 	parcel: Entity,
@@ -158,7 +156,6 @@ static func append_sample(
 	if not drawable(parcel):
 		break_stroke(marker)
 		return
-
 	var marks: C_PackageMarks = parcel.get_component(C_PackageMarks) as C_PackageMarks
 	if marks.point_count >= marker.max_package_points:
 		break_stroke(marker)
@@ -197,13 +194,11 @@ static func append_sample(
 	marks.revision += 1
 
 
-## Breaks continuity after release, occlusion or a missed surface.
 static func break_stroke(marker: C_Marker) -> void:
 	marker.parcel = null
 	marker.stroke = null
 
 
-## Destruction removes all ink data; node deletion also removes its child presentation.
 static func clear_marks(parcel: Entity) -> void:
 	var marks: C_PackageMarks = parcel.get_component(C_PackageMarks) as C_PackageMarks
 	if marks != null and marks.point_count > 0:
@@ -212,11 +207,9 @@ static func clear_marks(parcel: Entity) -> void:
 		marks.revision += 1
 
 
-## Only active, undelivered, non-destroyed packages accept ink.
 static func drawable(parcel: Entity) -> bool:
 	if not S_Grab.entity_available(parcel) or not parcel.has_component(C_PackageMarks):
 		return false
-
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	return (
 		state != null and state.damage != C_PackageState.Damage.DESTROYED
@@ -225,7 +218,6 @@ static func drawable(parcel: Entity) -> bool:
 #endregion
 
 
-## The current package visual is a box; its mesh bounds may exceed collision tolerances.
 static func _visual_surface_point(
 	surface: MeshInstance3D,
 	body: Node3D,
@@ -239,5 +231,4 @@ static func _visual_surface_point(
 	var positive: bool = normal[axis] > 0.0
 	point[axis] = bounds.end[axis] if positive else bounds.position[axis]
 	point[axis] += SURFACE_OFFSET if positive else -SURFACE_OFFSET
-
 	return body.to_local(surface.to_global(point))

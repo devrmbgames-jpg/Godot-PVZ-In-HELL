@@ -1,5 +1,5 @@
 extends System
-## Grounded cart transport and driver following; never changes generic S_Push behavior.
+## Temporary compatibility shell for transport; R_CartDrivenBy is the sole driver authority.
 class_name S_CartTransport
 
 const MOTION_EPSILON: float = 0.0001
@@ -9,81 +9,124 @@ const TERRAIN_MASK: int = 1
 
 
 #region Session API
-## Validates live participants, reach, free transport ownership and unobstructed targeting.
+static func driver_relationship(cart: Entity) -> Relationship:
+	if not is_instance_valid(cart):
+		return null
+	for candidate: Relationship in cart.relationships:
+		if candidate.relation is R_CartDrivenBy:
+			return candidate
+	return null
+
+
 static func can_begin(actor: Entity, cart: Entity) -> bool:
 	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(cart):
 		return false
 	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
-	if config == null or is_instance_valid(config.driver) or current(actor) != null:
+	if config == null or driver_relationship(cart) != null or current(actor) != null:
 		return false
 	if not actor.has_component(C_Controller) or not actor.has_component(C_GrabControl):
 		return false
 	if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.PUSH:
 		return false
-
 	return S_Grab.within_pickup_reach(actor, cart)
 
 
-## Acquires one transport token without changing either hand or Carry ownership.
 static func begin(actor: Entity, cart: Entity) -> void:
 	if not can_begin(actor, cart):
 		return
-
-	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
-	var driver_state: C_CartDriver = actor.get_component(C_CartDriver) as C_CartDriver
-	if driver_state == null:
-		driver_state = C_CartDriver.new()
-		actor.add_component(driver_state)
-
-	driver_state.cart = cart
-	config.driver = actor
-	config.capture_token = InteractionControlFocus.acquire(
-		actor,
-		cart,
-		InteractionControlFocus.Priority.TRANSPORT,
-	)
-	var cleanup: Callable = _on_driver_exiting.bind(cart)
-	if not actor.tree_exiting.is_connected(cleanup):
-		actor.tree_exiting.connect(cleanup)
+	var data: R_CartDrivenBy = R_CartDrivenBy.new()
+	var binding: Relationship = Relationship.new(data, actor)
+	cart.add_relationship(binding)
+	if not data.lifecycle_applied and not driver_added(cart, binding):
+		cart.remove_relationship(binding)
 
 
-## Releases only this cart's capture and brakes; safe on repeated lifecycle cleanup.
 static func end(cart: Entity) -> void:
 	if not is_instance_valid(cart):
 		return
-	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
-	if config == null:
+	var binding: Relationship = driver_relationship(cart)
+	if binding == null:
 		return
-
-	var actor: Entity = config.driver
-	if is_instance_valid(actor):
-		InteractionControlFocus.release(actor, config.capture_token)
-		var driver_state: C_CartDriver = actor.get_component(C_CartDriver) as C_CartDriver
-		if driver_state != null and driver_state.cart == cart:
-			driver_state.cart = null
-		var cleanup: Callable = _on_driver_exiting.bind(cart)
-		if actor.tree_exiting.is_connected(cleanup):
-			actor.tree_exiting.disconnect(cleanup)
-
-	config.driver = null
-	config.capture_token = 0
-	config.drive_speed = 0.0
+	cart.remove_relationship(binding)
+	driver_removed(cart, binding)
 
 
-## Returns the live transport binding rather than a stale actor cache.
 static func current(actor: Entity) -> Entity:
 	if not is_instance_valid(actor):
 		return null
 	var driver_state: C_CartDriver = actor.get_component(C_CartDriver) as C_CartDriver
 	if driver_state == null or not S_Grab.entity_available(driver_state.cart):
 		return null
-	var config: C_CartTransport = driver_state.cart.get_component(C_CartTransport)
-	return driver_state.cart if config != null and config.driver == actor else null
+	var binding: Relationship = driver_relationship(driver_state.cart)
+	if binding != null and binding.target == actor:
+		return driver_state.cart
+	driver_state.cart = null
+	return null
+
+
+static func driver_added(cart: Entity, binding: Relationship) -> bool:
+	var data: R_CartDrivenBy = binding.relation as R_CartDrivenBy
+	var actor: Entity = binding.target as Entity
+	if data == null or data.lifecycle_applied:
+		return data != null
+	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(cart):
+		return false
+	if driver_relationship(cart) != binding:
+		return false
+	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
+	if config == null or current(actor) != null:
+		return false
+
+	var driver_state: C_CartDriver = actor.get_component(C_CartDriver) as C_CartDriver
+	if driver_state == null:
+		driver_state = C_CartDriver.new()
+		actor.add_component(driver_state)
+	driver_state.cart = cart
+	data.capture_token = InteractionControlFocus.acquire(
+		actor,
+		cart,
+		InteractionControlFocus.Priority.TRANSPORT,
+	)
+	data.lifecycle_applied = true
+
+	var cleanup: Callable = _on_driver_exiting.bind(cart)
+	if not actor.tree_exiting.is_connected(cleanup):
+		actor.tree_exiting.connect(cleanup)
+	return true
+
+
+static func driver_removed(cart: Entity, binding: Relationship) -> void:
+	var data: R_CartDrivenBy = binding.relation as R_CartDrivenBy
+	if data == null or not data.lifecycle_applied:
+		return
+	data.lifecycle_applied = false
+	var actor: Entity = binding.target as Entity if is_instance_valid(binding.target) else null
+	if is_instance_valid(actor):
+		InteractionControlFocus.release(actor, data.capture_token)
+		var driver_state: C_CartDriver = actor.get_component(C_CartDriver) as C_CartDriver
+		if driver_state != null and driver_state.cart == cart:
+			driver_state.cart = null
+		var cleanup: Callable = _on_driver_exiting.bind(cart)
+		if actor.tree_exiting.is_connected(cleanup):
+			actor.tree_exiting.disconnect(cleanup)
+	if is_instance_valid(cart):
+		var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
+		if config != null:
+			config.drive_speed = 0.0
+
+
+static func entity_unavailable(entity: Entity) -> void:
+	if not is_instance_valid(entity):
+		return
+	if driver_relationship(entity) != null:
+		end(entity)
+	var driver_state: C_CartDriver = entity.get_component(C_CartDriver) as C_CartDriver
+	if driver_state != null and is_instance_valid(driver_state.cart):
+		end(driver_state.cart)
 #endregion
 
 
 #region Physics
-## CharacterBody owns movement: floor snap, slope sliding and tested small-step traversal.
 static func step(cart: Entity, delta: float) -> void:
 	if not S_Grab.entity_available(cart) or delta <= 0.0:
 		S_CartCargo.release_all(cart)
@@ -95,12 +138,15 @@ static func step(cart: Entity, delta: float) -> void:
 		return
 
 	var input_axis: Vector2 = Vector2.ZERO
-	if config.capture_token != 0:
-		var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(config.driver)
-		if not _driver_valid(body, config):
+	var binding: Relationship = driver_relationship(cart)
+	if binding != null:
+		var actor: Entity = binding.target as Entity
+		var data: R_CartDrivenBy = binding.relation as R_CartDrivenBy
+		var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
+		if not _driver_valid(body, config, actor):
 			end(cart)
-		elif focus == InteractionControlFocus.Priority.TRANSPORT:
-			var controller: C_Controller = config.driver.get_component(C_Controller) as C_Controller
+		elif data != null and data.capture_token != 0 and focus == InteractionControlFocus.Priority.TRANSPORT:
+			var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 			input_axis = controller.move_axis
 		else:
 			config.drive_speed = 0.0
@@ -108,14 +154,15 @@ static func step(cart: Entity, delta: float) -> void:
 	var speed_limit: float = config.forward_speed if input_axis.y < 0.0 else config.reverse_speed
 	var desired_speed: float = -input_axis.y * speed_limit
 	config.drive_speed = move_toward(config.drive_speed, desired_speed, config.acceleration * delta)
-	if _driver_lag(body, config) > config.follow_tolerance:
-		var separation: Vector3 = _handle_position(body, config) - (
-			config.driver as Node as Node3D
-		).global_position
-		var requested_motion: Vector3 = -body.global_basis.z * config.drive_speed
-		if separation.dot(requested_motion) > 0.0:
-			config.drive_speed = 0.0
-		input_axis.x = 0.0
+	binding = driver_relationship(cart)
+	if binding != null:
+		var actor: Entity = binding.target as Entity
+		if _driver_lag(body, config, actor) > config.follow_tolerance:
+			var separation: Vector3 = _handle_position(body, config) - (actor as Node as Node3D).global_position
+			var requested_motion: Vector3 = -body.global_basis.z * config.drive_speed
+			if separation.dot(requested_motion) > 0.0:
+				config.drive_speed = 0.0
+			input_axis.x = 0.0
 
 	var previous_position: Vector3 = body.global_position
 	_turn(body, -input_axis.x * config.turn_speed * delta)
@@ -132,25 +179,19 @@ static func step(cart: Entity, delta: float) -> void:
 	S_CartCargo.update(cart as E_TransportCart, delta)
 
 
-## Follows the handle with bounded rigid-body velocity; collisions still own actor motion.
 static func integrate_actor(actor: Entity, state: PhysicsDirectBodyState3D) -> bool:
 	var cart: Entity = current(actor)
-	if (
-		cart == null
-		or InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.TRANSPORT
-	):
+	if cart == null or InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.TRANSPORT:
 		return false
 	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
 	var body: CharacterBody3D = cart as Node as CharacterBody3D
-	if not _driver_valid(body, config):
+	if not _driver_valid(body, config, actor):
 		end(cart)
 		return false
 
 	var correction: Vector3 = _handle_position(body, config) - state.transform.origin
 	correction.y = 0.0
-	var velocity: Vector3 = (
-		correction / maxf(state.step, MOTION_EPSILON)
-	).limit_length(config.follow_speed)
+	var velocity: Vector3 = (correction / maxf(state.step, MOTION_EPSILON)).limit_length(config.follow_speed)
 	state.linear_velocity = Vector3(velocity.x, minf(state.linear_velocity.y, 0.0), velocity.z)
 	_lift_driver(actor, body, config, state)
 	return true
@@ -186,7 +227,6 @@ static func _lift_driver(
 		return
 	if rise > config.step_height:
 		return
-
 	state.linear_velocity.y = maxf(
 		state.linear_velocity.y,
 		minf(rise / state.step, config.follow_speed),
@@ -203,7 +243,6 @@ static func _turn(body: CharacterBody3D, angle: float) -> void:
 		for index: int in collision.get_collision_count():
 			if collision.get_normal(index).dot(Vector3.UP) < cos(body.floor_max_angle):
 				return
-
 	body.global_transform = proposed
 
 
@@ -244,7 +283,6 @@ static func _try_step(body: CharacterBody3D, motion: Vector3, height: float) -> 
 		return false
 	if landing.get_normal().y <= MOTION_EPSILON:
 		return false
-
 	body.move_and_collide(up)
 	body.move_and_collide(motion)
 	body.move_and_collide(down)
@@ -253,19 +291,17 @@ static func _try_step(body: CharacterBody3D, motion: Vector3, height: float) -> 
 	return true
 
 
-static func _driver_valid(body: CharacterBody3D, config: C_CartTransport) -> bool:
-	if not S_Grab.holder_available(config.driver):
+static func _driver_valid(body: CharacterBody3D, config: C_CartTransport, actor: Entity) -> bool:
+	if body == null or config == null or not S_Grab.holder_available(actor):
 		return false
-	var driver_position: Vector3 = (config.driver as Node as Node3D).global_position
+	var driver_position: Vector3 = (actor as Node as Node3D).global_position
 	return body.global_position.distance_to(driver_position) <= config.focus_distance
 
 
-static func _driver_lag(body: CharacterBody3D, config: C_CartTransport) -> float:
-	if not is_instance_valid(config.driver):
+static func _driver_lag(body: CharacterBody3D, config: C_CartTransport, actor: Entity) -> float:
+	if not is_instance_valid(actor):
 		return 0.0
-	var offset: Vector3 = _handle_position(body, config) - (
-		config.driver as Node as Node3D
-	).global_position
+	var offset: Vector3 = _handle_position(body, config) - (actor as Node as Node3D).global_position
 	offset.y = 0.0
 	return offset.length()
 

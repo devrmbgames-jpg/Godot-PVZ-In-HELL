@@ -1,6 +1,6 @@
 extends Component
-## Runtime-only lookup, created when an actor first operates a transport cart.
+## Runtime-only reverse lookup for an actor operating a transport cart.
 class_name C_CartDriver
 
-## Derived cache; the cart's C_CartTransport.driver remains authoritative.
+## Derived/rebuildable cache. R_CartDrivenBy on the cart is the sole authority.
 var cart: Entity = null
