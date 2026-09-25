@@ -1,58 +1,36 @@
-# Codex Godot 4.7 + GECS Agent Kit
+# PVZ In Hell Simulator — Codex setup
 
-Portable project setup for Codex / AI coding agents working with:
+Godot 4.7 + GDScript + GECS v8 project.
 
-- Godot Engine 4.7
-- GDScript with strict project style/typing rules
-- GECS
-- GDQuest GDScript Formatter
-- VS Code
-- GUT
-- Professional game-design rules
-- Low-token project navigation
-- Long-task/context-limit recovery
+## AI workflow
 
-## Install
+Codex automatically receives the short project rules from `AGENTS.md`. Do not start a task by preloading `CONTEXT.md`, `PROJECT_INDEX.md`, checkpoints, roadmap files, or multiple skills.
 
-Copy the contents of this archive into the root of your Godot project.
+Default path:
 
-Then edit:
-- `CONTEXT.md` — stable project facts and subsystem routing;
-- `PROJECT_INDEX.md` — short canonical code map, not a full file manifest;
-- `.agents/skills/project-rules/SKILL.md` — project-specific architecture rules if needed;
-- GECS/GUT dependency pins in `CONTEXT.md` and `PROJECT_INDEX.md`.
+```text
+user task
+  -> exact named symbol/path
+  -> direct owner + contract + callers/tests
+  -> edit
+  -> narrow validation
+```
+
+Use `PROJECT_INDEX.md` only when the owning subsystem is unclear. Use a `CONTEXT.md` only when a concrete architecture/dependency contract is missing. Read `CURRENT_WORK.md` only when resuming unfinished work.
+
+Specialized skills are intentionally limited to:
+- `.agents/skills/gecs-v8/SKILL.md`
+- `.agents/skills/gut-testing/SKILL.md`
+- `.agents/skills/professional-game-design/SKILL.md`
+
+Subagents are opt-in for substantial independent review/validation, not a default navigation or implementation layer.
 
 ## Important defaults
 
-- `addons/` is read-only unless the user explicitly requests addon/dependency work.
-- Project-owned filenames use `snake_case`.
-- Inspector Node names use `PascalCase`.
-- Classes use `PascalCase`; GECS prefixes such as `C_`, `S_`, `O_`, `DEF_`, `E_`, `R_` are allowed.
-- Static typing is required.
-- Shadowed variables/parameters/members/types are treated as errors.
-- Functions are grouped by responsibility.
-- Untyped collection/API results are explicitly typed/cast before use.
+- `addons/` is read-only unless dependency work is explicitly requested.
+- Static typing is required for project-owned GDScript.
+- GECS Systems are atomic and do not call other Systems as services.
+- Rendered/visual Godot validation is user-owned unless explicitly approved for the current task.
+- Do not run broad GUT/smoke/runtime validation after each small edit; batch it near completion of a large implementation task.
 
-## Recommended first prompt to Codex
-
-> Read AGENTS.md, CURRENT_WORK.md, CONTEXT.md and PROJECT_INDEX.md. Load only the skills relevant to this task. Do not scan the whole repository and do not modify addons/.
-
-## Navigation model
-
-```text
-AGENTS.md
-  -> CONTEXT.md
-  -> PROJECT_INDEX.md
-  -> subsystem CONTEXT.md
-  -> exact symbol/file
-  -> direct callers/callees only
-```
-
-If `PROJECT_INDEX.md` is missing, the agent should create a small one from top-level structure and current-task entry points. It must not enumerate every file.
-
-## Long tasks
-
-Use:
-- `WORK.md` — checklist;
-- `CURRENT_WORK.md` — crash/context-limit checkpoint;
-- `agent_tasks/<task>.md` — only for genuinely large multi-session tasks.
+See `AGENTS.md` for the authoritative agent rules.

@@ -1,413 +1,78 @@
-# Экономия токенов Codex / Astra
+# Codex lean workflow
 
-## Цель
+## Goal
 
-Использовать сильную модель только там, где нужна сложная архитектура или расследование, а поиск, чтение больших файлов, механические правки и повторяемые проверки отдавать более дешёвым subagents.
+Keep project-specific context small without weakening correctness.
 
-Главный принцип:
+The main model should work directly from the user's task and code. Repository documents are references, not a mandatory startup sequence.
 
-```text
-Astra/Sol думает и принимает архитектурные решения.
-Terra/Luna ищут, читают, выполняют ограниченные механические подзадачи.
-Репозиторий хранит контекст между сессиями.
-```
+## Default context path
 
-## Что расходует больше всего
-
-Основные причины быстрого расхода:
-
-- большая модель для простых задач;
-- высокий reasoning effort без необходимости;
-- широкое чтение репозитория;
-- повторное чтение уже известных файлов;
-- полный вывод больших `.tscn`, diff и test logs;
-- одна огромная многоэтапная задача вместо нескольких проверяемых этапов;
-- повторное проектирование уже принятой архитектуры.
-
-## Выбор основной модели
-
-Рекомендуемая схема на момент написания документа:
-
-| Тип работы | Модель | Effort |
-| --- | --- | --- |
-| Сложная архитектура, трудно воспроизводимый баг, cross-system refactor | GPT-6 Astra | low, затем medium при необходимости |
-| Обычная реализация утвержденного ТЗ | GPT-5.6 Sol | medium |
-| Ограниченная механическая реализация, миграция сцен, типовой refactor | GPT-5.6 Terra | low/medium |
-| Узкий поиск, классификация, простая документация, повторяемая работа | GPT-5.6 Luna | low |
-
-Не повышать reasoning только потому, что ответ неполный. Сначала проверить scope, инструкции, доступ к файлам и разрешения.
-
-Fast mode не использовать ради экономии allowance.
-
-## Основная сессия и автоматическое переключение
-
-Codex не должен предполагать, что может автоматически заменить модель **главной сессии** посреди задачи.
-
-Модель главной сессии выбирается пользователем через model picker/config/profile.
-
-Автоматизация в этом репозитории строится иначе:
-
-1. main agent остаётся на выбранной пользователем модели;
-2. main agent классифицирует подзадачу;
-3. дешёвые подзадачи передаются project-defined subagents из `.codex/config.toml`;
-4. main agent получает только короткий синтез результата и принимает финальное решение.
-
-Это экономит контекст сильной модели без скрытого изменения модели основной сессии.
-
-## Project subagents
-
-Проект определяет роли:
-
-- `explorer` — точечный read-only поиск владельца/контракта, Terra Low;
-- `mechanical_worker` — ограниченные, уже спроектированные правки, Terra Low;
-- `reviewer` — проверка конкретного diff на реальные регрессии, Terra Medium;
-- `docs_scout` — узкий поиск документации/ссылок/имен, Luna Low;
-- `validator` — deterministic checks, formatter/tests/smokes и сжатие больших логов до PASS/FAIL + релевантной ошибки, Luna Medium.
-
-Main agent должен использовать их только когда делегирование дешевле самостоятельной работы.
-
-Не создавать subagent ради тривиальной правки одного маленького файла: orchestration тоже имеет стоимость.
-
-### Только последовательный запуск
-
-В этом проекте экономия дневного лимита важнее скорости выполнения.
-
-1. Main agent запускает только **одного** subagent.
-2. Полностью ждёт его завершения.
-3. Получает короткий результат и решает, нужен ли следующий subagent вообще.
-4. Только после этого может запускаться следующая роль.
-
-Параллельный запуск запрещён даже для нескольких read-only задач. Не создавать speculative subagents «на всякий случай». `max_concurrent_threads_per_session = 1` является технической страховкой этого правила.
-
-### Когда делегировать
-
-Делегировать `explorer`, если нужно:
-
-- найти точный owner неизвестного поведения;
-- проверить несколько прямых references;
-- прочитать крупную сцену/файл и вернуть только релевантные узлы;
-- сопоставить существующие contracts без внесения изменений.
-
-Делегировать `mechanical_worker`, если:
-
-- архитектура уже утверждена;
-- scope ограничен конкретными файлами;
-- задача состоит из переноса полей, сериализации, rename, scene migration или другого детерминированного изменения;
-- worker не должен принимать новое архитектурное решение.
-
-Делегировать `reviewer`, если уже есть diff и нужна проверка correctness/regressions.
-
-Делегировать `docs_scout` для простого поиска по документации и вспомогательным данным.
-
-Делегировать `validator`, когда test/formatter/Godot smoke способен породить большой лог. Validator не исправляет код: он возвращает команду, PASS/FAIL и только релевантную ошибку/stack.
-
-Не делегировать сложную архитектуру только ради экономии. Решение, влияющее на ownership, physics authority, GECS boundaries, input priority или cross-system lifecycle, принимает main agent.
-
-## Context routing
-
-Перед работой не нужно «изучать проект».
-
-Порядок:
-
-1. `CURRENT_WORK.md`.
-2. `PROJECT_INDEX.md`.
-3. Только relevant `CONTEXT.md`, если он нужен для текущего subsystem.
-4. Максимум две relevant skills в начале.
-5. Exact symbol/path.
-6. Direct callers/callees/tests.
-7. Расширять поиск только при конкретном пробеле в доказательствах.
-
-Root `CONTEXT.md` не нужно перечитывать автоматически для каждой мелкой правки. Он нужен, когда задача затрагивает архитектуру, dependency/version, validation или когда на него ссылается checkpoint.
-
-Roadmap читать только когда задача реализует/редактирует конкретный roadmap item или checkpoint прямо на него ссылается.
-
-## Investigation budget
-
-До первой рабочей гипотезы обычно достаточно не более 6–8 implementation files.
-
-Если после этого причина всё ещё неизвестна:
-
-- сформулировать, какой именно контракт/факт отсутствует;
-- расширить поиск только в эту сторону;
-- не переходить к рекурсивному чтению каталогов.
-
-Запрещено:
-
-- читать проект файл-за-файлом;
-- рекурсивно открывать папки «для понимания»;
-- читать `addons/` без конкретной необходимости проверить pinned API;
-- перечитывать неизменённые файлы, уже кратко описанные в `CURRENT_WORK.md`;
-- открывать весь большой `.tscn`, если можно найти нужный node/subresource точным поиском.
-
-## Tool output budget
-
-Предпочитать:
-
-- exact symbol search вместо broad grep;
-- targeted diff вместо полного `git diff`;
-- `git diff --stat` для обзора;
-- только relevant error + stack при падении;
-- command + PASS summary для успешных tests;
-- узкий диапазон/узел сцены вместо полного файла.
-
-Не переносить полные logs/diffs/source в `CURRENT_WORK.md`.
-
-Project-local `.codex/config.toml` ограничивает сохранение одного tool/function output значением `tool_output_token_limit = 6000`, чтобы случайный большой Godot/test log не занимал значительную часть контекста. Если релевантный stack обрезан, повторять только узкую команду/фильтр, а не повышать лимит глобально.
-
-## Visual validation is opt-in only
-
-В этом проекте визуальную проверку и визуальную настройку выполняет пользователь самостоятельно в Godot.
-
-Поэтому агенты **не имеют права по собственной инициативе**:
-
-- запускать Godot в rendered/visual режиме;
-- открывать игру/сцену ради визуальной проверки;
-- делать screenshots;
-- записывать экран;
-- анализировать серии кадров;
-- повторять visual run после каждой правки.
-
-Разрешение требуется явно **в текущей задаче/разговоре**. Разрешение из предыдущей задачи не переносится автоматически.
-
-По умолчанию использовать:
+For an ordinary task:
 
 ```text
-static validation
-→ deterministic project checks
-→ formatter
-→ headless Godot
-→ GUT/headless smoke
-→ concise relevant logs
+AGENTS.md (automatic)
+-> exact task paths/symbols
+-> direct owner/contract/callers/tests
+-> edit
+-> narrow validation
 ```
 
-Даже если задача касается UI, камеры, shader/material, сцены или визуального feedback, это не является автоматическим разрешением на visual run.
+Do **not** automatically read `CURRENT_WORK.md`, `PROJECT_INDEX.md`, root/subsystem `CONTEXT.md`, roadmap files, or multiple skills.
 
-Если всё, что можно проверить без визуализации, уже проверено:
+Use:
+- `CURRENT_WORK.md` only to resume unfinished work;
+- `PROJECT_INDEX.md` only when the owner/path is unclear;
+- `CONTEXT.md` only when a concrete contract is missing;
+- roadmap/task docs only for that exact roadmap task.
 
-```text
-NOT RUN — user visual validation required
-```
+Prefer exact symbol search and targeted ranges over repository-wide reading. Avoid full large `.tscn`, logs, and diffs when a narrow query is enough.
 
-и продолжать без screenshot/visual loop.
+## Skills
 
-Это правило одновременно экономит token allowance и исключает ситуацию, когда агент тратит контекст на изображения, которые пользователь всё равно предпочитает проверять и настраивать вручную.
+Skills are specialized references, not generic coding instructions.
 
-## Test cadence: batch expensive validation
+Keep only:
+- `gecs-v8` for GECS-specific API/architecture work;
+- `gut-testing` for authoring/running GUT tests;
+- `professional-game-design` for design work.
 
-GUT, smoke и headless runtime проверки не должны запускаться после каждой мелкой правки или milestone.
+General Godot/GDScript/project rules belong in the short `AGENTS.md` and should not require additional skill loading.
 
-Внутри одной крупной implementation-задачи, например `R08`:
+## Subagents
 
-```text
-milestone 1
-→ static/deterministic checks
-→ local commit
+Subagents are disabled by policy for routine navigation, implementation, and validation even though the feature remains available.
 
-milestone 2
-→ static/deterministic checks
-→ local commit
+Only two project roles remain:
+- `reviewer`: opt-in independent review of a substantial completed diff;
+- `validator`: opt-in execution of explicitly requested noisy validation.
 
-...
+Use one at a time. Do not spawn speculative agents. The main agent owns architecture and final decisions.
 
-последний milestone
-→ static/deterministic checks
-→ один GUT regression run
-→ один relevant headless smoke/runtime pass
-→ закрытие R08
-```
+## Checkpoints
 
-Для промежуточных milestone использовать:
+Do not create bookkeeping for small/medium tasks.
 
-- `python utils/validate_project_structure.py`;
-- formatter/static checks;
-- targeted source/scene/resource inspection;
-- `git diff --check`;
-- при необходимости compile/parse-like cheap checks, если они не запускают широкую runtime suite.
+For long or interruptible work:
+- `agent_tasks/<task>.md` contains detailed task scope;
+- `CURRENT_WORK.md` contains only a compact resume checkpoint;
+- `task_history.md` gets one short completion line.
 
-Не запускать по умолчанию:
+There is no second `WORK.md` checklist.
 
-- полный GUT после каждого commit;
-- тот же smoke test после каждой второй правки;
-- широкие runtime regression loops в ходе одного R-task.
+## Validation economy
 
-Исключение — конкретный blocking bug, который невозможно подтвердить статически. Тогда разрешён **один узкий targeted test/run**, после чего агент возвращается к обычному batching. Явная просьба пользователя запустить тесты сейчас также является исключением.
+Milestones use static/deterministic checks and changed-file formatting/lint.
 
-Цель — один дорогой runtime validation pass на крупную roadmap-задачу, а не десятки повторов одного и того же regression surface.
+For a complete large `Rxx` / `Rxx.x` implementation, normally run the relevant GUT surface once and the relevant headless smoke/runtime surface once near completion. A blocking failure may justify one earlier targeted run.
 
-### Жёсткий runtime budget
+Rendered/visual Godot validation remains opt-in and user-owned.
 
-Для одной полной `Rxx` / `Rxx.x` задачи по умолчанию разрешено не более:
+## Config guardrails
 
-```text
-1 × GUT invocation
-1 × headless smoke/runtime invocation
-0 × rendered/visual run
-```
+Project `.codex/config.toml` uses:
+- `project_doc_max_bytes = 8192` to keep automatically loaded project instructions bounded;
+- `tool_output_token_limit = 4000` to limit accidental log/diff flooding;
+- `max_concurrent_threads_per_session = 1` so opt-in subagents cannot race/duplicate work.
 
-Обычно оба runtime-запуска резервируются на финальную проверку всей задачи.
-
-Если конкретный blocking bug действительно требует раннего GUT или headless smoke, этот ранний запуск **расходует соответствующий budget**. После него агент продолжает static/deterministic validation. Второй запуск того же типа допускается только после явного разрешения пользователя.
-
-Запрещён цикл:
-
-```text
-правка
-→ smoke
-→ правка
-→ smoke
-→ debug print
-→ smoke
-→ formatter
-→ smoke
-```
-
-После одного runtime failure агент должен извлечь минимальное доказательство, пакетно исправить найденные причины статически и не перезапускать движок автоматически.
-
-### Physics/game-feel validation принадлежит пользователю
-
-Не создавать и не расширять автоматические physics smoke-сценарии только ради проверки ощущений или tuning:
-
-- пандусы;
-- ступеньки;
-- мелкие неровности;
-- «приятность» управления тележкой/транспортом;
-- поведение на разных покрытиях;
-- camera feel;
-- animation feel;
-- другие experiential acceptance criteria.
-
-Такие проверки пользователь выполняет вручную в Godot.
-
-Автоматический physics smoke допустим только для узкого критического deterministic contract, который невозможно разумно подтвердить статически, например single-fire lifecycle, отсутствие softlock или конкретная воспроизводимая regression. Если для этого уже исчерпан runtime budget — требуется явное разрешение пользователя.
-
-`--editor --import` также не является дешёвой стандартной проверкой. Запускать его только при конкретной необходимости проверить import/resource/scene compilation и обычно не более одного раза ближе к завершению задачи.
-
-### Log discipline
-
-Godot/GUT output всегда сначала писать в artifact/log file, затем возвращать модели только:
-
-- имя упавшего test/check;
-- одну релевантную assertion/error;
-- минимальный stack;
-- короткий totals/PASS summary.
-
-Не читать и не возвращать полные runtime logs без конкретной причины. Ошибки unrelated legacy tests фиксировать кратко и не превращать их в новую задачу автоматически.
-
-## Deterministic validation
-
-Перед расходованием reasoning-токенов на поиск простых структурных ошибок сначала запускать:
-
-```bash
-python utils/validate_project_structure.py
-```
-
-Проверка без внешних Python-зависимостей ловит:
-- неправильное размещение/prefix ролей `c_/s_/e_/o_/def_`;
-- возврат неоднозначного `content/core/`;
-- orphan `.gd.uid`;
-- явные битые `res://` ссылки в project-owned text resources;
-- битые локальные ссылки `PROJECT_INDEX.md`;
-- staged changes под `addons/`.
-
-Если установлен `pre-commit`, local-only `.pre-commit-config.yaml` запускает structure check, `git diff --cached --check` и formatter-check для staged project-owned GDScript. Formatter hook делает `SKIP`, если `gdscript-formatter` отсутствует; tooling не устанавливается автоматически.
-
-Это дешевле, чем просить main model каждый раз заново обнаруживать такие нарушения.
-
-## Разделение больших задач
-
-Плохой запрос:
-
-```text
-Реализуй полностью R06.1.
-```
-
-Предпочтительно:
-
-```text
-1. Спроектируй data model slots и запиши решение.
-2. Реализуй только slot ownership.
-3. Реализуй input routing поверх утверждённого contract.
-4. Реализуй control capture.
-5. Мигрируй scene components.
-6. Проверь diff и regression surface.
-```
-
-После утверждения архитектуры не исследовать альтернативы заново, пока текущий подход не опровергнут конкретным фактом.
-
-## CURRENT_WORK.md как durable memory
-
-Checkpoint должен быть коротким и содержать только:
-
-- state;
-- текущую задачу;
-- уже принятые invariants;
-- changed paths;
-- выполненную validation;
-- blocker, если есть;
-- один точный next step.
-
-Не хранить:
-
-- историю разговора;
-- полные логи;
-- полные diff;
-- перечисление всех просмотренных файлов;
-- устаревшие результаты прошлой задачи.
-
-Когда задачи нет, `CURRENT_WORK.md` должен быть почти пустым.
-
-## WORK.md
-
-`WORK.md` — только текущий checklist.
-
-После завершения задачи вернуть его в idle. Не использовать как архив.
-
-Долгосрочная история — `task_history.md`, architecture/contracts — `CONTEXT.md` или соответствующая документация.
-
-## Профили основной модели
-
-Профили хранятся в пользовательском `CODEX_HOME`, а не в репозитории.
-
-Пример:
-
-`~/.codex/astra.config.toml`
-
-```toml
-model = "gpt-6-astra"
-model_reasoning_effort = "low"
-```
-
-`~/.codex/sol.config.toml`
-
-```toml
-model = "gpt-5.6-sol"
-model_reasoning_effort = "medium"
-```
-
-`~/.codex/terra.config.toml`
-
-```toml
-model = "gpt-5.6-terra"
-model_reasoning_effort = "low"
-```
-
-CLI:
-
-```powershell
-codex --profile astra
-codex --profile sol
-codex --profile terra
-```
-
-Project-local `.codex/config.toml` намеренно **не задаёт main `model`**, поэтому он не перебивает пользовательский выбор основной модели.
-
-## Критерий хорошей сессии
-
-Хорошая дорогая сессия:
-
-- быстро находит owner;
-- принимает одно архитектурное решение;
-- делегирует дешёвую работу;
-- выполняет небольшие проверяемые изменения;
-- оставляет короткий checkpoint;
-- следующая сессия продолжает работу без повторного аудита репозитория.
+The project does not select the main model. The user/session remains responsible for that choice.

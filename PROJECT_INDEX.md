@@ -1,6 +1,6 @@
 # Project Index
 
-Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the exact subsystem; read root/subsystem `CONTEXT.md` only when the current task needs architecture, dependency, persistence, or validation facts.
+Optional routing map. Do not read this file by default. Use it only when the task does not already identify the owning subsystem/path; read root/subsystem `CONTEXT.md` only when a specific architecture, dependency, persistence, or validation contract is still unclear.
 
 ## Roots
 
@@ -62,7 +62,7 @@ Compact routing map. Read `CURRENT_WORK.md` first. Use this index to jump to the
 Start with the narrowest relevant check.
 
 - Deterministic repository structure/path check: `python utils/validate_project_structure.py`.
-- GDScript formatting: see [.agents/skills/gdscript-format/SKILL.md](.agents/skills/gdscript-format/SKILL.md).
+- GDScript formatting/lint: run the configured formatter/static check on changed project-owned `.gd` files only; `.pre-commit-config.yaml` provides the repository hook.
 - Grab tests: [test_s_grab.gd](tests/gut/test_s_grab.gd).
 - Cart transport smoke: `tests/smoke/cart_transport_smoke.tscn` (`--quit-after 2400`, require PASS without script/assertion errors).
 - Jump tests: [test_s_jump.gd](tests/gut/test_s_jump.gd).
@@ -77,7 +77,7 @@ Start with the narrowest relevant check.
 
 | Dependency | Version/ref | Source |
 | --- | --- | --- |
-| Godot | 4.7 project feature; editor path names 4.7.1 | `project.godot`, `.vscode/settings.json` |
+| Godot | 4.7 project feature | `project.godot` |
 | GECS | 8.0.0, `release-v8.0.0`, commit `14d4282e5c1cb2713c187706ba2f5ff4e315d36e` | `.gitmodules`, local `addons/gecs/` |
 | GUT | 9.7.1 | `addons/gut/plugin.cfg` |
 | GDQuest formatter | 0.26.0 | `addons/GDQuest_GDScript_formatter/plugin.cfg` |
