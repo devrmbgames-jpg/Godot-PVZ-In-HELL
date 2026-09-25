@@ -1,27 +1,14 @@
-tool_output_token_limit = 6000
+project_doc_max_bytes = 8192
+tool_output_token_limit = 4000
 
 [agents]
 enabled = true
 max_concurrent_threads_per_session = 1
-default_subagent_model = "gpt-5.6-terra"
-default_subagent_reasoning_effort = "low"
-
-[agents.explorer]
-description = "Token-efficient read-only repository explorer. Locate exact owners/contracts/references and return concise evidence. Do not edit or redesign architecture."
-config_file = "./agents/explorer.toml"
-
-[agents.mechanical_worker]
-description = "Implement bounded, already-designed mechanical changes in named files. Do not invent architecture or broaden scope."
-config_file = "./agents/mechanical_worker.toml"
 
 [agents.reviewer]
-description = "Review a concrete diff for correctness, regressions, physics/GECS contract violations, and missing validation. Avoid style-only churn."
+description = "Opt-in focused review of a substantial completed diff for correctness and regressions."
 config_file = "./agents/reviewer.toml"
 
-[agents.docs_scout]
-description = "Perform narrow documentation/reference lookup and return only the facts needed by the parent agent."
-config_file = "./agents/docs_scout.toml"
-
 [agents.validator]
-description = "Run deterministic project checks, formatter/tests/smokes when requested, and return only concise PASS/FAIL evidence. Never edit authored source."
+description = "Opt-in execution of explicitly requested validation with concise PASS/FAIL output."
 config_file = "./agents/validator.toml"
