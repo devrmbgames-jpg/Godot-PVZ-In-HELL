@@ -130,7 +130,7 @@ static func try_pickup(
 		return false
 
 	ThrowContext.cancel(target)
-	S_CartCargo.release(target)
+	CartCargoService.release(target)
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	var anchor: Node3D = slot_anchor(holder, slot_index)
 	var profile: GrabControlProfile = profile_for(target)

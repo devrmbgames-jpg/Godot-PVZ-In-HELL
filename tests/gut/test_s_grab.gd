@@ -1388,7 +1388,7 @@ func test_character_body_transport_remains_interactable_after_generic_rigidbody_
 	assert_eq(interactor.target, cart)
 	assert_null(interactor.physics_target)
 	assert_true(S_Grab.within_pickup_reach(holder_entity, cart))
-	assert_true(S_CartTransport.can_begin(holder_entity, cart))
+	assert_true(CartTransportService.can_begin(holder_entity, cart))
 
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(
 		holder_entity,
@@ -1401,8 +1401,8 @@ func test_character_body_transport_remains_interactable_after_generic_rigidbody_
 	input_state.interact_pressed = true
 	input_state.input_tick += 1
 	S_Grab.handle_input(holder_entity)
-	assert_eq(S_CartTransport.current(holder_entity), cart)
-	S_CartTransport.end(cart)
+	assert_eq(CartTransportService.current(holder_entity), cart)
+	CartTransportService.end(cart)
 #endregion
 
 

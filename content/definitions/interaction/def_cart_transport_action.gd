@@ -8,9 +8,9 @@ class_name DEF_CartTransportAction
 
 func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	if release_handle:
-		return S_CartTransport.current(actor) == source
+		return CartTransportService.current(actor) == source
 
-	return S_CartTransport.can_begin(actor, source)
+	return CartTransportService.can_begin(actor, source)
 
 
 func execute(actor: Entity, source: Entity, target: Entity) -> void:
@@ -18,6 +18,6 @@ func execute(actor: Entity, source: Entity, target: Entity) -> void:
 		return
 
 	if release_handle:
-		S_CartTransport.end(source)
+		CartTransportService.end(source)
 	else:
-		S_CartTransport.begin(actor, source)
+		CartTransportService.begin(actor, source)

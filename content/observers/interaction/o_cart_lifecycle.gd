@@ -21,21 +21,21 @@ func each(event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 	if binding.relation is R_CartCargo:
 		if event == Observer.Event.RELATIONSHIP_ADDED:
-			if not S_CartCargo.cargo_added(entity, binding):
+			if not CartCargoService.cargo_added(entity, binding):
 				cmd.add_custom(entity.remove_relationship.bind(binding))
 		elif event == Observer.Event.RELATIONSHIP_REMOVED:
-			S_CartCargo.cargo_removed(entity, binding)
+			CartCargoService.cargo_removed(entity, binding)
 	elif binding.relation is R_CartDrivenBy:
 		if event == Observer.Event.RELATIONSHIP_ADDED:
-			if not S_CartTransport.driver_added(entity, binding):
+			if not CartTransportService.driver_added(entity, binding):
 				cmd.add_custom(entity.remove_relationship.bind(binding))
 		elif event == Observer.Event.RELATIONSHIP_REMOVED:
-			S_CartTransport.driver_removed(entity, binding)
+			CartTransportService.driver_removed(entity, binding)
 
 
 func _entity_unavailable(entity: Entity) -> void:
 	if not is_instance_valid(entity):
 		return
-	S_CartCargo.release(entity)
-	S_CartCargo.release_all(entity)
-	S_CartTransport.entity_unavailable(entity)
+	CartCargoService.release(entity)
+	CartCargoService.release_all(entity)
+	CartTransportService.entity_unavailable(entity)

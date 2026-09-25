@@ -120,7 +120,7 @@ static func resolve(
 		physics_target = null
 	if focus == InteractionControlFocus.Priority.TRANSPORT:
 		if input_slot == DEF_InteractionAction.Slot.INTERACT:
-			var cart: Entity = S_CartTransport.current(actor)
+			var cart: Entity = CartTransportService.current(actor)
 			if cart == null:
 				return null
 			var stop: DEF_CartTransportAction = DEF_CartTransportAction.new()
