@@ -97,6 +97,17 @@ func _run() -> void:
 	for tick: int in 35:
 		await get_tree().physics_frame
 	assert(absf(cart_body.rotation.y - start_yaw) > 0.3, "A/D must steer while coupled")
+	var actor_character: E_RigidBodyCharacter = _actor as E_RigidBodyCharacter
+	var cart_forward: Vector3 = -cart_body.global_basis.z
+	cart_forward.y = 0.0
+	cart_forward = cart_forward.normalized()
+	var head_forward: Vector3 = -actor_character.head_axis_y.global_basis.z
+	head_forward.y = 0.0
+	head_forward = head_forward.normalized()
+	assert(
+		head_forward.dot(cart_forward) > 0.98,
+		"Driver camera yaw must follow cart steering",
+	)
 	assert(
 		_maximum_cargo_drift < 0.12,
 		"Cargo must follow the platform rather than slide off on turns",

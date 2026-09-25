@@ -31,6 +31,9 @@ func _init() -> void:
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	ImpactCaptureSolver.capture(self, state)
 	if CartDriverSolver.integrate(self, state):
+		# Transport replaces locomotion, not look: S_PlayerIntent keeps
+		# direction_look aligned with the cart while steering.
+		CharacterLookSolver.integrate_forces(self, state)
 		return
 	if PushActorSolver.integrate(self, state):
 		return
