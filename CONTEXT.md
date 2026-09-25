@@ -4,7 +4,7 @@
 
 - PVZ In Hell Simulator; Godot 4.7, GDScript, Forward Plus, Jolt Physics.
 - Configured startup / project-owned ECS prototype: `content/scenes/main_level.tscn`.
-- VS Code settings point to a local Godot 4.7.1 executable and enable DoHe.godot-format.
+- Repository VS Code settings enable DoHe.godot-format; machine-specific Godot executable paths belong in local user settings.
 
 ## Architecture
 

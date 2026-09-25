@@ -1,20 +1,19 @@
 # Документация проекта
 
-PVZ In Hell Simulator — проект на Godot 4.7 с project-owned GECS gameplay.
+PVZ In Hell Simulator — Godot 4.7 project with project-owned GECS gameplay.
 
 | Документ | Назначение |
 | --- | --- |
-| [Контекст проекта](../CONTEXT.md) | Архитектура, зависимости, ограничения проверок |
-| [Индекс проекта](../PROJECT_INDEX.md) | Канонические файлы и маршруты поиска |
-| [Контекст gameplay](../content/CONTEXT.md) | Ввод, персонаж, физика, системы и атрибуты |
-| [Правила работы](../AGENTS.md) | Инструкции для агентов |
-| [План работ](../WORK.md) | Чек-лист текущей задачи |
-| [История задач](../task_history.md) | Одна строка на выполненную задачу |
-| [Точка восстановления](../CURRENT_WORK.md) | Состояние для продолжения работы |
-| [Экономия Codex/Astra](codex_token_economy.md) | Модели, subagents, context budget и правила экономии токенов |
-| [Шпаргалка по запросам к ИИ](ai_prompt_cheatsheet.md) | Как формулировать короткие задачи без лишнего контекста |
-| [Roadmap: canonical IDs](roadmap/README.md) | Связь design-ТЗ с implementation tasks Rxx/RMxx.x и фактический порядок выполнения |
+| [Правила работы агентов](../AGENTS.md) | Короткие project-specific ограничения; загружаются Codex автоматически |
+| [Контекст проекта](../CONTEXT.md) | Стабильные факты об архитектуре и зависимостях; читать только при необходимости |
+| [Индекс проекта](../PROJECT_INDEX.md) | Канонические маршруты к подсистемам; использовать только когда owner/path неясен |
+| [Контекст gameplay](../content/CONTEXT.md) | Runtime-контракты gameplay-подсистем |
+| [Точка восстановления](../CURRENT_WORK.md) | Только checkpoint незавершённой/долгой задачи |
+| [История задач](../task_history.md) | Краткая история завершённых больших задач |
+| [Codex lean workflow](codex_token_economy.md) | Почему проект избегает preloading, лишних skills и автоматических subagents |
+| [Шпаргалка по запросам к ИИ](ai_prompt_cheatsheet.md) | Как формулировать задачи |
+| [Roadmap: canonical IDs](roadmap/README.md) | Связь design-ТЗ с implementation tasks |
 
-Основная project-owned сцена прототипа — `content/scenes/main_level.tscn`. COGITO удалён из текущего project-owned gameplay.
+Основная project-owned сцена прототипа — `content/scenes/main_level.tscn`.
 
-Храните здесь развёрнутые описания архитектуры, механик и решений по мере их появления. Краткая карта остаётся в корневом индексе, а контекст подсистем — рядом с кодом. Индекс не перечисляет все ресурсы и импортированные файлы.
+Развёрнутые описания механик и архитектуры хранятся рядом с соответствующей подсистемой. Корневые документы не должны дублировать детали друг друга.
