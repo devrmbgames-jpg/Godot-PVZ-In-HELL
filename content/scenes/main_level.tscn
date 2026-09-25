@@ -983,9 +983,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2480266, 0.09600389, -8.165
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6.714551, 0.8329964, 2.8046627)
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_sx74o"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 
-[node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player", "phase_system") instance=ExtResource("Interaction_hud")]
+[node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")
-phase_system = NodePath("../World/Systems/GamePlay/S_DayPhase")
 
 [node name="Barrel_C_rigid" parent="." unique_id=1866096492 instance=ExtResource("79_ypydk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.663954, 0.50476074, 6.634577)

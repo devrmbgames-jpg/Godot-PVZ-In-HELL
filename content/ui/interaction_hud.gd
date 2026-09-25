@@ -1,7 +1,6 @@
 extends CanvasLayer
 
 @export var player: Entity = null
-@export var phase_system: S_DayPhase = null
 @onready var prompt: Label = $Overlay/Prompt
 @onready var phase_label: Label = $Overlay/StatusPanel/DayPhase
 @onready var announcement: Label = $Overlay/Announcement
@@ -22,15 +21,13 @@ const ANNOUNCEMENTS: Array[String] = [
 ]
 const ANNOUNCEMENT_SECONDS: float = 4.0
 var _announcement_remaining: float = 0.0
+var _last_day_index: int = -1
+var _last_phase: int = -1
 
 
 #region Lifecycle
 func _ready() -> void:
-	if phase_system != null:
-		phase_system.phase_changed.connect(_on_phase_changed)
-	var cycle: C_DayCycle = DayPhaseService.current()
-	if cycle != null:
-		_on_phase_changed(cycle.day_index, cycle.phase)
+	_refresh_phase_presentation()
 
 
 func _process(delta: float) -> void:
@@ -42,12 +39,21 @@ func _process(delta: float) -> void:
 	)
 	_announcement_remaining = maxf(0.0, _announcement_remaining - delta)
 	announcement.visible = _announcement_remaining > 0.0
+
 	var cycle: C_DayCycle = DayPhaseService.current()
-	phase_label.text = (
-		"ЦИКЛ %d  •  %s\n%s" % [cycle.day_index, PHASE_NAMES[cycle.phase], PHASE_HINTS[cycle.phase]]
-		if cycle != null
-		else ""
-	)
+	if cycle != null:
+		if cycle.day_index != _last_day_index or cycle.phase != _last_phase:
+			_on_phase_changed(cycle.day_index, cycle.phase)
+		phase_label.text = "ЦИКЛ %d  •  %s\n%s" % [
+			cycle.day_index,
+			PHASE_NAMES[cycle.phase],
+			PHASE_HINTS[cycle.phase],
+		]
+	else:
+		_last_day_index = -1
+		_last_phase = -1
+		phase_label.text = ""
+
 	if not GrabService.holder_available(player):
 		prompt.text = ""
 		return
@@ -57,7 +63,19 @@ func _process(delta: float) -> void:
 
 
 #region Presentation callbacks
+func _refresh_phase_presentation() -> void:
+	var cycle: C_DayCycle = DayPhaseService.current()
+	if cycle != null:
+		_on_phase_changed(cycle.day_index, cycle.phase)
+
+
 func _on_phase_changed(day_index: int, phase: C_DayCycle.Phase) -> void:
-	announcement.text = "%s\nЦикл %d · %s" % [ANNOUNCEMENTS[phase], day_index, PHASE_NAMES[phase]]
+	_last_day_index = day_index
+	_last_phase = phase
+	announcement.text = "%s\nЦикл %d · %s" % [
+		ANNOUNCEMENTS[phase],
+		day_index,
+		PHASE_NAMES[phase],
+	]
 	_announcement_remaining = ANNOUNCEMENT_SECONDS
 #endregion
