@@ -233,7 +233,7 @@ func test_marker_cancel_releases_only_its_token_and_preserves_hand() -> void:
 		InteractionControlFocus.Priority.PUSH,
 	)
 	input_state.cancel_pressed = true
-	S_Marker.update_session(box_entity, marker)
+	MarkerSessionService.update(box_entity, marker)
 	assert_eq(marker.capture_token, 0)
 	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.PUSH)
 	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), box_entity)

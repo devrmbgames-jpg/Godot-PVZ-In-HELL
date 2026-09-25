@@ -7,11 +7,11 @@ func _ready() -> void:
 	add_child(level)
 	for frame_index: int in 8:
 		await get_tree().process_frame
-	var cycle: C_DayCycle = S_DayPhase.current()
+	var cycle: C_DayCycle = DayPhaseService.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
-	assert(S_DayPhase.submit(request))
+	assert(DayPhaseService.submit(request))
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	await RenderingServer.frame_post_draw

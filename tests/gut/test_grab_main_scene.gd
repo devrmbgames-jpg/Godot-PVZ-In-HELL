@@ -53,7 +53,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	assert_almost_eq(CarryLoadPolicy.mobility_multiplier(80.0, strength), 4.0 / 9.0, 0.001)
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
 	var controller: C_Controller = player.get_component(C_Controller) as C_Controller
-	var interaction_ray: RayCast3D = S_Grab.interaction_raycast(player)
+	var interaction_ray: RayCast3D = GrabService.interaction_raycast(player)
 	(player as Node as RigidBody3D).freeze = true
 	var heavy_position: Vector3 = (heavy_box as Node as Node3D).global_position
 	(player as Node as Node3D).global_position = heavy_position + Vector3(0, 0.1, 1.8)
@@ -62,7 +62,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 		await get_tree().physics_frame
 	controller.interact_pressed = true
 	world.process(1.0 / 60.0, "Interaction")
-	assert_eq(S_Grab.held_object(player), heavy_box)
+	assert_eq(GrabService.held_object(player), heavy_box)
 	assert_eq(interactor.target, heavy_box)
 	var carry_load: C_CarryLoad = player.get_component(C_CarryLoad) as C_CarryLoad
 	var motion: C_Motion = player.get_component(C_Motion) as C_Motion
@@ -80,7 +80,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	assert_true(control.rotation_active)
 	controller.interact_pressed = true
 	world.process(1.0 / 60.0, "Interaction")
-	assert_null(S_Grab.held_relationship(heavy_box))
+	assert_null(GrabService.held_relationship(heavy_box))
 	assert_false(control.rotation_active)
 	level.free()
 	ECS.world = null

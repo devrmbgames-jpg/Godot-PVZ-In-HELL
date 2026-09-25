@@ -62,7 +62,7 @@ func _run() -> void:
 		CartTransportService.current(_actor) == _cart,
 		"The aimed cart must acquire its own transport capture",
 	)
-	assert(S_Push.pushed_object(_actor) == null)
+	assert(PushService.pushed_object(_actor) == null)
 	assert(not _cart.has_component(C_Pushable))
 
 	_controller.move_axis = Vector2(0, -1)
