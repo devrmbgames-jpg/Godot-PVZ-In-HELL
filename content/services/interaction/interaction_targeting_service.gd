@@ -42,7 +42,7 @@ static func visual_target(holder: Entity, interactor: C_Interactor) -> Node:
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	return (
 		interactor.physics_target
-		if control != null and control.is_carry_candidate(interactor.physics_target)
+		if control != null and GrabService.is_carry_candidate(interactor.physics_target)
 		else null
 	)
 

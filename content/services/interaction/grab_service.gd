@@ -4,6 +4,7 @@ class_name GrabService
 
 #region Constants
 const ROTATION_SENSITIVITY: float = 0.006
+const NO_CARRY_GROUP: StringName = &"no_carry"
 #endregion
 
 
@@ -87,7 +88,7 @@ static func can_pickup_body(
 	if not profile_slot_allowed(profile, slot_index):
 		return false
 	var strength: C_Strength = holder.get_component(C_Strength) as C_Strength
-	if slot_index == C_Grabbable.HoldSlot.CARRY and not control.can_carry_body(body, strength):
+	if slot_index == C_Grabbable.HoldSlot.CARRY and not can_carry_body(body, strength):
 		return false
 	if not is_instance_valid(slot_anchor(holder, slot_index)):
 		return false
@@ -264,7 +265,7 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 	if control == null or load_state == null:
 		return false
 	var strength: C_Strength = holder.get_component(C_Strength) as C_Strength
-	if grip_data.slot == C_Grabbable.HoldSlot.CARRY and not control.can_carry_body(body, strength):
+	if grip_data.slot == C_Grabbable.HoldSlot.CARRY and not can_carry_body(body, strength):
 		return false
 	if (
 		held_relationship(held) != grip or not profile_slot_allowed(profile, grip_data.slot)
@@ -485,6 +486,29 @@ static func _set_cached(control: C_GrabControl, slot_index: int, held: Entity) -
 			control.held_right = held
 		C_Grabbable.HoldSlot.LEFT_HAND:
 			control.held_left = held
+
+
+## Generic physical Carry candidate independent of the holder's current Strength.
+static func is_carry_candidate(body: RigidBody3D) -> bool:
+	if not is_instance_valid(body) or body.is_queued_for_deletion():
+		return false
+	if not body.is_inside_tree() or body.freeze or body.is_in_group(NO_CARRY_GROUP):
+		return false
+	return is_finite(body.mass) and body.mass > 0.0
+
+
+## True only when mass is the reason a valid Carry candidate cannot be lifted.
+static func is_too_heavy(body: RigidBody3D, strength: C_Strength) -> bool:
+	return (
+		is_carry_candidate(body)
+		and strength != null
+		and not CarryLoadPolicy.can_carry(body.mass, strength)
+	)
+
+
+## Generic Carry eligibility for authored or completely scriptless rigid bodies.
+static func can_carry_body(body: RigidBody3D, strength: C_Strength) -> bool:
+	return is_carry_candidate(body) and CarryLoadPolicy.can_carry(body.mass, strength)
 
 
 ## Checks whether an authored prop supports the requested Carry or hand slot.

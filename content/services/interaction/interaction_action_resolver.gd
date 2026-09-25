@@ -342,7 +342,7 @@ static func _is_overweight_carry_target(actor: Entity, interactor: C_Interactor)
 		if profile.allowed_hand_slots != 0:
 			return false
 
-	return control.is_too_heavy(body, strength)
+	return GrabService.is_too_heavy(body, strength)
 
 
 ## Reads the active InputMap binding for a contextual button.
