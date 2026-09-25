@@ -3,14 +3,6 @@
 extends Entity
 class_name E_Door
 
+## Scene glue stays on the Entity; gameplay state belongs in C_Door when authored.
 @export var hinge_joint: HingeJoint3D = null
 @export var door_root: Node3D = null
-
-
-
-
-func on_ready() -> void:
-	var door: C_Door = get_component(C_Door) as C_Door
-	if door :
-		door.hinge_joint = hinge_joint
-		door.door_root = door_root
