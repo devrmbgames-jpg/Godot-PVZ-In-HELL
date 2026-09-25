@@ -1,6 +1,6 @@
-extends System
-## Integrates grounded/airborne actor motion, with Push owning planar motion while active.
-class_name S_Motion
+extends RefCounted
+## RigidBody callback solver for grounded/airborne character locomotion.
+class_name CharacterMotionSolver
 
 const INPUT_EPSILON: float = 0.0001
 const DEFAULT_FRICTION: float = 1.0
@@ -12,8 +12,6 @@ const DEFAULT_FRICTION: float = 1.0
 ##
 ##     E_RigidBodyCharacter._integrate_forces()
 ##
-## S_Motion не обязан быть зарегистрирован в ECS World,
-## если используется только как physics solver.
 static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 	var body := entity as Node as RigidBody3D
 

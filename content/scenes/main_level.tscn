@@ -8,12 +8,11 @@
 [ext_resource type="PackedScene" uid="uid://wk6sf3v5qnfc" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Window/Primitive_Window_static.tscn" id="2_wp74p"]
 [ext_resource type="Script" uid="uid://b3vi2ingux88g" path="res://addons/gecs/lib/system_group.gd" id="3_ahxau"]
 [ext_resource type="PackedScene" uid="uid://h6ovxls42pn1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Doorway/Primitive_Doorway_static.tscn" id="3_eim2b"]
-[ext_resource type="Script" uid="uid://b7fouhp44tts1" path="res://content/systems/motion/s_motion.gd" id="4_jmtkn"]
 [ext_resource type="PackedScene" uid="uid://bmlgret82yq8q" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_Short/Primitive_Wall_Short_static.tscn" id="4_rhklt"]
 [ext_resource type="Script" uid="uid://nsdmrnqs0no0" path="res://content/observers/gameplay/o_damage.gd" id="5_ad8bv"]
-[ext_resource type="Script" uid="uid://bfdt1nh574v2r" path="res://content/systems/motion/s_look.gd" id="5_jprse"]
 [ext_resource type="Script" uid="uid://c1benmwwnwobr" path="res://content/systems/motion/s_jump.gd" id="6_gg2sc"]
 [ext_resource type="Script" uid="uid://cv8oyv1lnwa6u" path="res://content/systems/motion/s_crouch.gd" id="7_6b1dm"]
+[ext_resource type="Script" path="res://content/systems/motion/s_crouch_presentation.gd" id="Crouch_presentation"]
 [ext_resource type="PackedScene" uid="uid://boxna5m5n5ofv" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor/Floor_static.tscn" id="7_eim2b"]
 [ext_resource type="Script" uid="uid://c1o1ef2y40vmv" path="res://content/systems/input/s_player_input.gd" id="8_qm6qd"]
 [ext_resource type="Script" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
@@ -345,16 +344,6 @@ group = &"GamePlay"
 script = ExtResource("3_ahxau")
 metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
-[node name="S_Motion" type="Node" parent="World/Systems/Physics" unique_id=1377338896]
-script = ExtResource("4_jmtkn")
-group = &"Physics"
-metadata/_custom_type_script = "uid://b7fouhp44tts1"
-
-[node name="S_Look" type="Node" parent="World/Systems/Physics" unique_id=1945368884]
-script = ExtResource("5_jprse")
-group = &"Physics"
-metadata/_custom_type_script = "uid://bfdt1nh574v2r"
-
 [node name="S_Jump" type="Node" parent="World/Systems/Physics" unique_id=831820991]
 script = ExtResource("6_gg2sc")
 group = &"Physics"
@@ -364,6 +353,10 @@ metadata/_custom_type_script = "uid://c1benmwwnwobr"
 script = ExtResource("7_6b1dm")
 group = &"Physics"
 metadata/_custom_type_script = "uid://cv8oyv1lnwa6u"
+
+[node name="S_CrouchPresentation" type="Node" parent="World/Systems/Physics"]
+script = ExtResource("Crouch_presentation")
+group = &"Physics"
 
 [node name="Input" type="Node" parent="World/Systems" unique_id=2007238412]
 script = ExtResource("3_ahxau")

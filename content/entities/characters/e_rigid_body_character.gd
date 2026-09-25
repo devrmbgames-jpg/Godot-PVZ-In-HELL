@@ -34,5 +34,5 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		return
 	if PushActorSolver.integrate(self, state):
 		return
-	S_Motion.integrate_forces(self, state)
-	S_Look.integrate_forces(self, state)
+	CharacterMotionSolver.integrate_forces(self, state)
+	CharacterLookSolver.integrate_forces(self, state)

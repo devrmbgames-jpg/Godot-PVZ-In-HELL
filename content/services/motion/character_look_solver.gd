@@ -1,5 +1,5 @@
-extends System
-class_name S_Look
+extends RefCounted
+class_name CharacterLookSolver
 
 const ANGLE_EPSILON: float = 0.001
 

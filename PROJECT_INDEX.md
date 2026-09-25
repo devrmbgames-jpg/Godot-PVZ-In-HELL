@@ -31,8 +31,8 @@ Optional routing map. Do not read this file by default. Use it only when the tas
 | Level / ECS scheduling | [main_level.gd](content/scenes/main_level.gd), [main_level.tscn](content/scenes/main_level.tscn) |
 | Character / physics callbacks | [e_rigid_body_character.gd](content/entities/characters/e_rigid_body_character.gd), [scene](content/entities/characters/e_rigid_body_character.tscn) |
 | Input intent | [c_controller.gd](content/components/gameplay/c_controller.gd), [s_player_input.gd](content/systems/input/s_player_input.gd) |
-| Motion | [c_motion.gd](content/components/motion/c_motion.gd), [s_motion.gd](content/systems/motion/s_motion.gd) |
-| Look | [c_look.gd](content/components/motion/c_look.gd), [s_look.gd](content/systems/motion/s_look.gd) |
+| Motion | [c_motion.gd](content/components/motion/c_motion.gd), [s_motion.gd](content/services/motion/character_motion_solver.gd) |
+| Look | [c_look.gd](content/components/motion/c_look.gd), [s_look.gd](content/services/motion/character_look_solver.gd) |
 | Jump / crouch | [s_jump.gd](content/systems/motion/s_jump.gd), [s_crouch.gd](content/systems/motion/s_crouch.gd) |
 | Grab / targeting | [s_grab.gd](content/systems/interaction/s_grab.gd), [s_interaction_targeting.gd](content/systems/interaction/s_interaction_targeting.gd), [o_grab_lifecycle.gd](content/observers/interaction/o_grab_lifecycle.gd), [PhysicsGrabTarget](content/services/interaction/physics_grab_target.gd), [GrabPhysicsSolver](content/services/interaction/grab_physics_solver.gd), [CarryLoadPolicy](content/services/interaction/carry_load_policy.gd); scriptless RigidBody3D Carry + Strength-based mobility for move/look/rotate/throw |
 | Physical Push | [s_push.gd](content/systems/interaction/s_push.gd), [o_push_lifecycle.gd](content/observers/interaction/o_push_lifecycle.gd); C_Pushable/R_PushedBy/C_PushControl; independent puzzle mechanic |

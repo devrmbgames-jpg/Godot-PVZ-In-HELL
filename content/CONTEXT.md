@@ -8,11 +8,11 @@ The scene owns World, system groups, environment and an entity root named `Entit
 
 ## Scheduling and physics
 
-Warehouse `push_cart.tscn` uses a dedicated CharacterBody3D transport, separate from unchanged puzzle S_Push. S_CartTransport owns grounded forward/reverse/turning on the cart physics callback; S_Motion delegates driver following while TRANSPORT capture is active. Settled rigid cargo uses bounded custom-integration assistance through S_CartCargo and restores ordinary physics on pickup/removal. Physical authority, cleanup, controls and supported terrain are documented in [cart_transport.md](../docs/cart_transport.md).
+Warehouse `push_cart.tscn` uses a dedicated CharacterBody3D transport, separate from unchanged puzzle S_Push. S_CartTransport owns grounded forward/reverse/turning on the cart physics callback; CharacterMotionSolver delegates driver following while TRANSPORT capture is active. Settled rigid cargo uses bounded custom-integration assistance through S_CartCargo and restores ordinary physics on pickup/removal. Physical authority, cleanup, controls and supported terrain are documented in [cart_transport.md](../docs/cart_transport.md).
 
 - `scenes/main_level.gd` assigns ECS.world on ready; `_physics_process` invokes Input, Interaction, Physics, then GamePlay. Input edges/deltas belong to one physics tick.
-- Physics scene nodes are S_Motion, S_Look, S_Jump and S_Crouch; Input contains S_PlayerInput. Interaction contains S_InteractionTargeting, S_Grab and O_GrabLifecycle (under Systems so GECS discovers it). GamePlay contains O_Damage for typed damage events and S_DayPhase; DaySession owns the singleton C_DayCycle. ShiftConsole and SleepPoint expose phase actions through contextual E/use.
-- Do not infer solver execution from scene-node order: `entities/characters/e_rigid_body_character.gd` explicitly calls S_Motion, S_Look and S_Crouch from `_integrate_forces`.
+- Physics scene nodes are CharacterMotionSolver, CharacterLookSolver, S_Jump and S_Crouch; Input contains S_PlayerInput. Interaction contains S_InteractionTargeting, S_Grab and O_GrabLifecycle (under Systems so GECS discovers it). GamePlay contains O_Damage for typed damage events and S_DayPhase; DaySession owns the singleton C_DayCycle. ShiftConsole and SleepPoint expose phase actions through contextual E/use.
+- Do not infer solver execution from scene-node order: `entities/characters/e_rigid_body_character.gd` explicitly calls CharacterMotionSolver, CharacterLookSolver and S_Crouch from `_integrate_forces`.
 - Physical velocity/transform changes go through the body/PhysicsDirectBodyState3D. The entity exposes standing/crouching shapes, camera root and head axes for the systems.
 
 ## Task routing
@@ -31,7 +31,7 @@ Paths in this table are relative to `content/`; filenames without a directory sh
 
 ## Current behavior and boundaries
 
-S_PlayerInput writes motion/look directions and primary, secondary, crouch and jump actions into C_Controller. S_Jump requires C_Jump, C_Controller and C_Motion. A fresh jump press while grounded and control-enabled adds an upward impulse to C_Motion.pending_impulse; S_Motion consumes it during body integration. jump_force is an impulse in N*s, so the resulting velocity depends on body mass. Held buttons do not auto-jump on landing; airborne/disabled presses are not buffered. C_Jump.active is true only for the physics tick accepting the jump, and was_pressed tracks input history.
+S_PlayerInput writes motion/look directions and primary, secondary, crouch and jump actions into C_Controller. S_Jump requires C_Jump, C_Controller and C_Motion. A fresh jump press while grounded and control-enabled adds an upward impulse to C_Motion.pending_impulse; CharacterMotionSolver consumes it during body integration. jump_force is an impulse in N*s, so the resulting velocity depends on body mass. Held buttons do not auto-jump on landing; airborne/disabled presses are not buffered. C_Jump.active is true only for the physics tick accepting the jump, and was_pressed tracks input history.
 
 Health uses `definitions/gameplay/attributes/health.tres`. The presence of health data does not establish a combat system.
 
@@ -49,7 +49,7 @@ InteractionControlFocus owns a registry of unique capture tokens (including nest
 
 S_Grab commands flush after ECS iteration; O_GrabLifecycle applies collision exceptions, sleeping state, Strength-derived Carry load state and idempotent cleanup. Physics bodies remain transform/velocity authority. Release preserves inertia; throw applies mass * configured delta-velocity * current Carry mobility. Manual rotation is configured per item (enabled, FREE/Y_ONLY offset, pickup reset) and scaled by the same mobility; Scanner disables it and Bucket uses Y_ONLY. No held transforms are teleported.
 
-Push is separate: C_Pushable + `cart --R_PushedBy--> actor`, with C_PushControl as derived cache and O_PushLifecycle for lifecycle. S_Push validates front/range/LOS and actor/cart availability. W drives fixed forward speed, A/D fixed yaw speed; E/S ends without reverse traction. E_PushableBody integrates cart velocity and S_Motion delegates planar actor handle-follow to S_Push. Modal capture pauses motors without releasing Push or hands. Authored PushCart is in the main scene, outside starting geometry.
+Push is separate: C_Pushable + `cart --R_PushedBy--> actor`, with C_PushControl as derived cache and O_PushLifecycle for lifecycle. S_Push validates front/range/LOS and actor/cart availability. W drives fixed forward speed, A/D fixed yaw speed; E/S ends without reverse traction. E_PushableBody integrates cart velocity and CharacterMotionSolver delegates planar actor handle-follow to S_Push. Modal capture pauses motors without releasing Push or hands. Authored PushCart is in the main scene, outside starting geometry.
 
 Interaction scheduling is targeting -> Push validation -> Grab/resolver, within Input -> Interaction -> Physics -> GamePlay. S_PlayerInput alone writes edges/move_axis/look_delta; Push captures camera heading, rotation consumes mouse delta without also rotating the camera. S_InteractionTargeting owns highlighting and restores previous overlays.
 
@@ -81,7 +81,7 @@ S_DayPhase emits night_started, morning_started and phase_changed. R21 can set n
 
 Canonical controls: [docs/controls.md](../docs/controls.md). E first picks up when eligible, otherwise falls back to a target's USE action; F selects a distinct secondary action. Capture priority and physical hand mapping follow R06.1 above. Shared E/F edges execute once; prompt keys come from InputMap. Slot names INTERACT/USE denote primary/secondary interaction, not hardcoded keys.
 
-CharacterMaterial has zero contact friction and the body replaces global linear damping with zero. S_Motion controls stopping/lateral friction and reads only floor material for ground traction, avoiding wall/ceiling friction without losing control acceleration. Preserve the user's collider/camera tuning. Held distance is 1.25 m. S_Grab sets angular velocity from shortest-arc rotation error / physics step (capped at max_rotation_speed); translation retains its physical spring. No transforms are teleported.
+CharacterMaterial has zero contact friction and the body replaces global linear damping with zero. CharacterMotionSolver controls stopping/lateral friction and reads only floor material for ground traction, avoiding wall/ceiling friction without losing control acceleration. Preserve the user's collider/camera tuning. Held distance is 1.25 m. S_Grab sets angular velocity from shortest-arc rotation error / physics step (capped at max_rotation_speed); translation retains its physical spring. No transforms are teleported.
 
 HUD phase panel stays visible even with released cursor; phase_changed drives 4-second announcements. A rendered preview is available via tests/smoke/hud_preview.tscn (requires rendering; writes ignored tests/artifacts/hud_preview.png).
 

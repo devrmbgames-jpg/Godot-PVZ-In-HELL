@@ -68,7 +68,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var motion: C_Motion = player.get_component(C_Motion) as C_Motion
 	assert_eq(carry_load.mass_kg, 80.0)
 	assert_almost_eq(
-		S_Motion.effective_speed(motion, carry_load, strength),
+		CharacterMotionSolver.effective_speed(motion, carry_load, strength),
 		motion.max_speed * 4.0 / 9.0,
 		0.001,
 	)

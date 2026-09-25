@@ -447,18 +447,18 @@ func test_carry_speed_is_linear_from_mass_and_current_strength() -> void:
 	box_body.mass = 75.0
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	assert_eq(carry_load.mass_kg, 75.0)
-	assert_almost_eq(S_Motion.effective_speed(motion, carry_load, strength), 3.0, 0.001)
+	assert_almost_eq(CharacterMotionSolver.effective_speed(motion, carry_load, strength), 3.0, 0.001)
 	assert_eq(motion.max_speed, 6.0)
 	assert_eq(motion.ground_acceleration, 25.0)
 
 	strength.value = 2.0
 	assert_eq(CarryLoadPolicy.minimum_mass_kg(strength), 50.0)
 	assert_eq(CarryLoadPolicy.maximum_mass_kg(strength), 150.0)
-	assert_almost_eq(S_Motion.effective_speed(motion, carry_load, strength), 4.5, 0.001)
+	assert_almost_eq(CharacterMotionSolver.effective_speed(motion, carry_load, strength), 4.5, 0.001)
 
 	GrabService.release(holder_entity, box_entity)
 	assert_eq(carry_load.mass_kg, 0.0)
-	assert_eq(S_Motion.effective_speed(motion, carry_load, strength), 6.0)
+	assert_eq(CharacterMotionSolver.effective_speed(motion, carry_load, strength), 6.0)
 
 
 func test_carry_mobility_scales_camera_manual_rotation_and_throw_velocity() -> void:
