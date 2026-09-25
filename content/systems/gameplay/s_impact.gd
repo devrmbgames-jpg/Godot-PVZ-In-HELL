@@ -136,14 +136,18 @@ func _resolve_direction(
 	var request: DamageRequest = DamageRequest.new()
 	request.source = source
 	request.target = target
-	var context: C_ThrowDamage = (
+	var throw_config: C_ThrowDamage = (
 		source.get_component(C_ThrowDamage) as C_ThrowDamage if source != null else null
 	)
-	if context != null and context.remaining_seconds > 0.0:
-		if contact.tick > context.armed_tick and _held_relationship(source) == null:
-			request.instigator = context.instigator
-			if is_finite(context.throw_damage):
-				result.amount += maxf(0.0, context.throw_damage)
+	var throw_relation: Relationship = ThrowContext.relationship(source)
+	var throw_data: R_ThrownBy = (
+		throw_relation.relation as R_ThrownBy if throw_relation != null else null
+	)
+	if throw_config != null and throw_data != null and throw_data.remaining_seconds > 0.0:
+		if contact.tick > throw_data.armed_tick and _held_relationship(source) == null:
+			request.instigator = throw_relation.target as Entity
+			if is_finite(throw_config.throw_damage):
+				result.amount += maxf(0.0, throw_config.throw_damage)
 			ThrowContext.cancel(source)
 	result.severity = ImpactCalculation.classify(result.amount, receiver.profile)
 	if result.amount <= 0.0:

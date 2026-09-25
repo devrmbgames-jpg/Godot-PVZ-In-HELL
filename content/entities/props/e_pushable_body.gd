@@ -17,4 +17,4 @@ func _ready() -> void:
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
-	S_Push.integrate_cart(self, state)
+	PushCartSolver.integrate(self, state)

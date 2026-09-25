@@ -17,11 +17,12 @@ func _physics_process(_delta: float) -> void:
 		return
 	_controller.input_tick += 1
 	_controller.direction_look = -(_cart as Node as Node3D).global_basis.z
-	S_Grab.handle_input(_actor)
+	GrabService.handle_input(_actor)
 	for cargo: Entity in _cargo:
-		var binding: C_CartCargo = cargo.get_component(C_CartCargo) as C_CartCargo
-		if binding != null:
-			var desired: Transform3D = (_cart as Node as Node3D).global_transform * binding.local_pose
+		var binding: Relationship = CartCargoService.relationship(cargo)
+		var data: R_CartCargo = binding.relation as R_CartCargo if binding != null else null
+		if data != null and binding.target == _cart:
+			var desired: Transform3D = (_cart as Node as Node3D).global_transform * data.local_pose
 			var cargo_position: Vector3 = (cargo as Node as Node3D).global_position
 			var drift: float = desired.origin.distance_to(cargo_position)
 			_maximum_cargo_drift = maxf(_maximum_cargo_drift, drift)
@@ -32,6 +33,7 @@ func _run() -> void:
 	add_child(world)
 	ECS.world = world
 	world.add_observer(O_GrabLifecycle.new())
+	world.add_observer(O_CartLifecycle.new())
 	_obstacle(Vector3(0, -0.5, 0), Vector3(40, 1, 40))
 	var scene: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
 	var cart_body: CharacterBody3D = scene.instantiate() as CharacterBody3D
@@ -53,11 +55,11 @@ func _run() -> void:
 	var rest_height: float = cart_body.position.y
 	var load_ready: bool = await _load_cargo(cart_body)
 	assert(load_ready)
-	var ray: RayCast3D = S_Grab.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
 	ray.look_at(cart_body.global_position)
-	S_CartTransport.begin(_actor, _cart)
+	CartTransportService.begin(_actor, _cart)
 	assert(
-		S_CartTransport.current(_actor) == _cart,
+		CartTransportService.current(_actor) == _cart,
 		"The aimed cart must acquire its own transport capture",
 	)
 	assert(S_Push.pushed_object(_actor) == null)
@@ -78,13 +80,13 @@ func _run() -> void:
 	for tick: int in 15:
 		await get_tree().physics_frame
 	assert(cart_body.position.distance_to(paused_position) < 0.02)
-	assert(S_CartTransport.current(_actor) == _cart)
+	assert(CartTransportService.current(_actor) == _cart)
 	InteractionControlFocus.release(_actor, modal_token)
 	_controller.move_axis = Vector2(0, 1)
 	for tick: int in 90:
 		await get_tree().physics_frame
 	assert(cart_body.position.z > forward_position + 1.0, "S must reverse instead of releasing")
-	assert(S_CartTransport.current(_actor) == _cart)
+	assert(CartTransportService.current(_actor) == _cart)
 	assert(absf(cart_body.position.y - rest_height) < 0.025)
 
 	_controller.move_axis = Vector2.ZERO
@@ -105,16 +107,16 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	_controller.interact_pressed = false
-	assert(S_CartTransport.current(_actor) == null, "E explicitly releases the handle")
+	assert(CartTransportService.current(_actor) == null, "E explicitly releases the handle")
 	assert(InteractionControlFocus.current(_actor) == InteractionControlFocus.Priority.HANDS)
-	assert(config.capture_token == 0)
+	assert(CartTransportService.relationship(_cart) == null)
 	# Pick the exposed rear box; the front lower box is occluded by the stack.
 	var target: Entity = _cargo[1]
 	ray.look_at((target as Node as Node3D).global_position + Vector3.UP * 0.2)
-	assert(S_Grab.try_pickup(_actor, target, C_Grabbable.HoldSlot.CARRY))
-	assert(not target.has_component(C_CartCargo), "Picking up cargo must release the restraint")
+	assert(GrabService.try_pickup(_actor, target, C_Grabbable.HoldSlot.CARRY))
+	assert(CartCargoService.relationship(target) == null, "Picking up cargo must release the restraint")
 	assert(not (target as Node as RigidBody3D).custom_integrator)
-	S_Grab.release(_actor, target)
+	GrabService.release(_actor, target)
 
 	var terrain_passed: bool = await _terrain_checks(cart_body, actor_body, rest_height)
 	assert(terrain_passed)
@@ -123,7 +125,7 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	for cargo: Entity in saved_cargo:
-		assert(not cargo.has_component(C_CartCargo), "Disabling transport must restore free cargo")
+		assert(CartCargoService.relationship(cargo) == null, "Disabling transport must restore free cargo")
 		assert(not (cargo as Node as RigidBody3D).custom_integrator)
 
 	set_physics_process(false)
@@ -149,13 +151,13 @@ func _terrain_checks(
 	for tick: int in 150:
 		await get_tree().physics_frame
 	assert(cart_body.position.y > rest_height + 0.4, "Cart must climb a ramp with its driver")
-	assert(S_CartTransport.current(_actor) == _cart)
+	assert(CartTransportService.current(_actor) == _cart)
 	var uphill: float = cart_body.position.y
 	_controller.move_axis = Vector2(0, 1)
 	for tick: int in 180:
 		await get_tree().physics_frame
 	assert(cart_body.position.y < uphill - 0.3, "Reverse must descend the ramp without detaching")
-	assert(S_CartTransport.current(_actor) == _cart)
+	assert(CartTransportService.current(_actor) == _cart)
 	assert((_cart.get_component(C_CartTransport) as C_CartTransport).cargo.size() == 3)
 
 	_obstacle(Vector3(-8, 0.06, 0), Vector3(4, 0.12, 1))
@@ -179,9 +181,9 @@ func _terrain_checks(
 		cart_body.position.z > at_wall + 1.0,
 		"Reverse must get the cart out of a blocked corner",
 	)
-	assert(S_CartTransport.current(_actor) == _cart)
+	assert(CartTransportService.current(_actor) == _cart)
 	assert((_cart.get_component(C_CartTransport) as C_CartTransport).cargo.size() == 3)
-	S_CartTransport.end(_cart)
+	CartTransportService.end(_cart)
 	_controller.move_axis = Vector2.ZERO
 	return true
 
@@ -209,7 +211,7 @@ func _load_cargo(cart_body: CharacterBody3D) -> bool:
 
 
 func _place(cart_body: CharacterBody3D, actor_body: RigidBody3D, location: Vector3) -> void:
-	S_CartTransport.end(_cart)
+	CartTransportService.end(_cart)
 	_controller.move_axis = Vector2.ZERO
 	cart_body.position = location
 	cart_body.rotation = Vector3.ZERO
@@ -218,10 +220,10 @@ func _place(cart_body: CharacterBody3D, actor_body: RigidBody3D, location: Vecto
 	actor_body.linear_velocity = Vector3.ZERO
 	for tick: int in 30:
 		await get_tree().physics_frame
-	var ray: RayCast3D = S_Grab.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
 	ray.look_at(cart_body.global_position)
-	S_CartTransport.begin(_actor, _cart)
-	assert(S_CartTransport.current(_actor) == _cart)
+	CartTransportService.begin(_actor, _cart)
+	assert(CartTransportService.current(_actor) == _cart)
 
 
 func _obstacle(location: Vector3, dimensions: Vector3) -> StaticBody3D:

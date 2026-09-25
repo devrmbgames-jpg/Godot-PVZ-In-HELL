@@ -16,6 +16,7 @@
 [ext_resource type="Script" uid="uid://cv8oyv1lnwa6u" path="res://content/systems/motion/s_crouch.gd" id="7_6b1dm"]
 [ext_resource type="PackedScene" uid="uid://boxna5m5n5ofv" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor/Floor_static.tscn" id="7_eim2b"]
 [ext_resource type="Script" uid="uid://c1o1ef2y40vmv" path="res://content/systems/input/s_player_input.gd" id="8_qm6qd"]
+[ext_resource type="Script" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
 [ext_resource type="PackedScene" uid="uid://c8ucvasbalruj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pillar_A/Pillar_A_static.tscn" id="8_vhk8t"]
 [ext_resource type="PackedScene" uid="uid://fjtvcn3mifma" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam/Primitive_Beam_static.tscn" id="9_ofyry"]
 [ext_resource type="PackedScene" uid="uid://dxkg7ovkuxd0i" path="res://content/entities/characters/e_rigid_body_character.tscn" id="13_da1x8"]
@@ -54,6 +55,7 @@
 [ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
 [ext_resource type="Script" uid="uid://ccooufygakw6e" path="res://content/systems/interaction/s_grab.gd" id="Grab_system"]
 [ext_resource type="Script" uid="uid://6wrg3mgcm4e6" path="res://content/systems/interaction/s_interaction_targeting.gd" id="Grab_targeting"]
+[ext_resource type="Script" path="res://content/systems/interaction/s_interaction_highlight.gd" id="Interaction_highlight"]
 [ext_resource type="Script" uid="uid://egauqyysrjr" path="res://content/observers/gameplay/o_hazard_emitter.gd" id="HazardEmitter"]
 [ext_resource type="Script" uid="uid://ehhc4j05ncp" path="res://content/observers/gameplay/o_hazard_spawn.gd" id="HazardSpawn"]
 [ext_resource type="Script" uid="uid://11f2xganwshj" path="res://content/observers/gameplay/o_health_lifecycle.gd" id="HealthLifecycle"]
@@ -372,12 +374,20 @@ script = ExtResource("8_qm6qd")
 group = &"Input"
 metadata/_custom_type_script = "uid://c1o1ef2y40vmv"
 
+[node name="S_PlayerIntent" type="Node" parent="World/Systems/Input"]
+script = ExtResource("Player_intent")
+group = &"Input"
+
 [node name="Interaction" type="Node" parent="World/Systems" unique_id=1721666486]
 script = ExtResource("3_ahxau")
 metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_InteractionTargeting" type="Node" parent="World/Systems/Interaction" unique_id=350725269]
 script = ExtResource("Grab_targeting")
+group = &"Interaction"
+
+[node name="S_InteractionHighlight" type="Node" parent="World/Systems/Interaction"]
+script = ExtResource("Interaction_highlight")
 group = &"Interaction"
 
 [node name="S_Grab" type="Node" parent="World/Systems/Interaction" unique_id=767923781]

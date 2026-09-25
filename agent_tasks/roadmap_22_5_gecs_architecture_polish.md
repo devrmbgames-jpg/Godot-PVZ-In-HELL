@@ -1,6 +1,6 @@
 # R22.5 — GECS Architecture Polish
 
-Status: planned
+Status: active
 Dependencies: R08, R09, R10, R11, R11.1, R12, R13, R14, R15, R16, R17, R18, R19, R20, R21, R22
 Timing: execute after feature work is stable and before R23 vertical-slice validation.
 Source: upstream GECS `addons/gecs/docs/BEST_PRACTICES.md` snapshot `69c7a2b9ad75f1a12a35c57895d6a751081055c0`, plus project `.agents/skills/gecs-v8/SKILL.md`.

@@ -40,7 +40,7 @@ static func handle_input(actor: Entity) -> void:
 		return
 
 	if active_focus == InteractionControlFocus.Priority.PUSH:
-		if controller.interact_pressed or controller.move_axis.y > S_Push.DIRECTION_EPSILON:
+		if controller.interact_pressed or controller.move_axis.y > PushService.DIRECTION_EPSILON:
 			_execute_slot(actor, DEF_InteractionAction.Slot.INTERACT, true)
 		elif controller.use_pressed:
 			_execute_slot(actor, DEF_InteractionAction.Slot.USE, true)
@@ -53,9 +53,9 @@ static func handle_input(actor: Entity) -> void:
 	elif controller.drop_pressed:
 		control.context_wheel_requested = false
 		for slot_index: int in DROP_ORDER:
-			var dropped: Entity = S_Grab.held_in_slot(actor, slot_index)
+			var dropped: Entity = GrabService.held_in_slot(actor, slot_index)
 			if dropped != null:
-				S_Grab.release(actor, dropped)
+				GrabService.release(actor, dropped)
 				break
 
 	elif controller.interact_pressed:
@@ -95,7 +95,7 @@ static func resolve(
 	actor: Entity,
 	input_slot: DEF_InteractionAction.Slot,
 ) -> InteractionActionChoice:
-	if not S_Grab.holder_available(actor):
+	if not GrabService.holder_available(actor):
 		return null
 
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
@@ -108,19 +108,19 @@ static func resolve(
 		return null
 
 	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
-	if target != null and S_InteractionTargeting.find_target(actor, interactor) != target:
+	if target != null and InteractionTargetingService.find_target(actor, interactor) != target:
 		target = null
 	var physics_target: RigidBody3D = (
 		interactor.physics_target if is_instance_valid(interactor.physics_target) else null
 	)
 	if (
 		physics_target != null
-		and S_InteractionTargeting.find_physics_target(actor, interactor) != physics_target
+		and InteractionTargetingService.find_physics_target(actor, interactor) != physics_target
 	):
 		physics_target = null
 	if focus == InteractionControlFocus.Priority.TRANSPORT:
 		if input_slot == DEF_InteractionAction.Slot.INTERACT:
-			var cart: Entity = S_CartTransport.current(actor)
+			var cart: Entity = CartTransportService.current(actor)
 			if cart == null:
 				return null
 			var stop: DEF_CartTransportAction = DEF_CartTransportAction.new()
@@ -133,7 +133,7 @@ static func resolve(
 
 	if focus == InteractionControlFocus.Priority.PUSH:
 		if input_slot == DEF_InteractionAction.Slot.INTERACT:
-			var cart: Entity = S_Push.pushed_object(actor)
+			var cart: Entity = PushService.pushed_object(actor)
 			if cart == null:
 				return null
 			var stop: DEF_PushAction = DEF_PushAction.new()
@@ -144,7 +144,7 @@ static func resolve(
 			return _target_action(actor, target, input_slot)
 		return null
 
-	var carry: Entity = S_Grab.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY)
+	var carry: Entity = GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY)
 	if focus == InteractionControlFocus.Priority.CARRY:
 		if input_slot == DEF_InteractionAction.Slot.INTERACT:
 			return _physical(actor, carry, DEF_GrabAction.Kind.RELEASE)
@@ -168,26 +168,26 @@ static func resolve(
 		var authored_grab: bool = (
 			target != null
 			and (target.get_component(C_Grabbable) as C_Grabbable) != null
-			and S_Grab.physical_body(target) == physics_target
+			and GrabService.physical_body(target) == physics_target
 		)
 		# Explicit gameplay actions keep priority unless this Entity authored Grab behavior.
 		if target_action != null and not authored_grab:
 			return target_action
 
-		var selected: int = S_Grab.pickup_slot_for_body(
+		var selected: int = GrabService.pickup_slot_for_body(
 			actor,
 			physics_target,
 			input_slot == DEF_InteractionAction.Slot.USE,
 		)
 		var replace: bool = selected != C_Grabbable.HoldSlot.CARRY
 		var handle: Entity = PhysicsGrabTarget.handle_for(physics_target, false)
-		if S_Grab.can_pickup_body(actor, physics_target, selected, replace, handle):
+		if GrabService.can_pickup_body(actor, physics_target, selected, replace, handle):
 			var pickup: DEF_GrabAction = DEF_GrabAction.new()
 			pickup.kind = DEF_GrabAction.Kind.PICKUP
 			pickup.hold_slot = selected
 			pickup.replace_occupant = replace
 			pickup.physical_body = physics_target
-			pickup.caption = "Заменить" if S_Grab.held_in_slot(actor, selected) != null else "Взять"
+			pickup.caption = "Заменить" if GrabService.held_in_slot(actor, selected) != null else "Взять"
 
 			if selected != C_Grabbable.HoldSlot.CARRY:
 				var right_hand: bool = selected == C_Grabbable.HoldSlot.RIGHT_HAND
@@ -197,9 +197,9 @@ static func resolve(
 		return target_action
 
 
-	var held: Entity = S_Grab.held_in_slot(
+	var held: Entity = GrabService.held_in_slot(
 		actor,
-		S_Grab.mapped_hand(actor, input_slot == DEF_InteractionAction.Slot.SECONDARY),
+		GrabService.mapped_hand(actor, input_slot == DEF_InteractionAction.Slot.SECONDARY),
 	)
 	if held != null:
 		if controller.physical_override:
@@ -215,7 +215,7 @@ static func rotation_choice(actor: Entity) -> InteractionActionChoice:
 		return null
 
 	for secondary: bool in [false, true]:
-		var held: Entity = S_Grab.held_in_slot(actor, S_Grab.mapped_hand(actor, secondary))
+		var held: Entity = GrabService.held_in_slot(actor, GrabService.mapped_hand(actor, secondary))
 		var result: InteractionActionChoice = _physical(actor, held, DEF_GrabAction.Kind.ROTATE)
 		if result != null:
 			return result
@@ -225,7 +225,7 @@ static func rotation_choice(actor: Entity) -> InteractionActionChoice:
 
 ## Checks explicit authored reservations for an item input slot.
 static func reserves(source: Entity, input_slot: DEF_InteractionAction.Slot) -> bool:
-	if not S_Grab.entity_available(source):
+	if not GrabService.entity_available(source):
 		return false
 
 	var actions: C_InteractionActionSet = source.get_component(C_InteractionActionSet)
@@ -295,7 +295,7 @@ static func refresh_prompt(actor: Entity) -> void:
 	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.HANDS:
 		for secondary: bool in [false, true]:
 			if (
-				S_Grab.held_in_slot(actor, S_Grab.mapped_hand(actor, secondary)) != null
+				GrabService.held_in_slot(actor, GrabService.mapped_hand(actor, secondary)) != null
 				and not controller.physical_override
 			):
 				lines.append(
@@ -312,7 +312,7 @@ static func refresh_prompt(actor: Entity) -> void:
 			lines.append("[R + мышь] Вращать")
 	if (
 		InteractionControlFocus.current(actor) < InteractionControlFocus.Priority.PUSH
-		and S_Grab.held_object(actor) != null
+		and GrabService.held_object(actor) != null
 	):
 		lines.append("[G] Положить · [удерживать G] Контекст")
 	if control.context_wheel_requested:
@@ -333,12 +333,12 @@ static func _is_overweight_carry_target(actor: Entity, interactor: C_Interactor)
 		return false
 
 	var body: RigidBody3D = interactor.physics_target
-	if S_InteractionTargeting.find_physics_target(actor, interactor) != body:
+	if InteractionTargetingService.find_physics_target(actor, interactor) != body:
 		return false
 
 	var handle: Entity = PhysicsGrabTarget.handle_for(body, false)
 	if handle != null:
-		var profile: GrabControlProfile = S_Grab.profile_for(handle)
+		var profile: GrabControlProfile = GrabService.profile_for(handle)
 		if profile.allowed_hand_slots != 0:
 			return false
 
@@ -385,7 +385,7 @@ static func _target_action(
 	target: Entity,
 	input_slot: DEF_InteractionAction.Slot,
 ) -> InteractionActionChoice:
-	if not S_Grab.entity_available(target):
+	if not GrabService.entity_available(target):
 		return _from_source(actor, actor, target, input_slot)
 	var action: InteractionActionChoice = _from_source(actor, target, target, input_slot)
 	if action == null and input_slot == DEF_InteractionAction.Slot.INTERACT:
@@ -402,7 +402,7 @@ static func _physical(
 	source: Entity,
 	kind: DEF_GrabAction.Kind,
 ) -> InteractionActionChoice:
-	if not S_Grab.entity_available(source):
+	if not GrabService.entity_available(source):
 		return null
 	var action: DEF_GrabAction = DEF_GrabAction.new()
 	action.kind = kind
@@ -423,7 +423,7 @@ static func _from_source(
 	target: Entity,
 	input_slot: DEF_InteractionAction.Slot,
 ) -> InteractionActionChoice:
-	if not S_Grab.entity_available(source):
+	if not GrabService.entity_available(source):
 		return null
 	var actions: C_InteractionActionSet = source.get_component(C_InteractionActionSet)
 	if actions == null:
