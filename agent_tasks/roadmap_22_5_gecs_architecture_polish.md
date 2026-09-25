@@ -28,6 +28,170 @@ Primary principles:
 - Separate dead/destroyed state from actual entity removal.
 - RigidBody callback forwarding is the only physics orchestration exception.
 
+## Milestone 0 — Relationship Authority Cleanup
+
+Before broader System decomposition, normalize Entity-to-Entity authority that is still stored inside ordinary `C_*` Components. This milestone must preserve gameplay behavior; it changes ownership representation, lifecycle cleanup and lookup paths only.
+
+### Goal
+
+After this milestone:
+- authoritative live Entity-to-Entity ownership/session/binding state uses `Relationship` + project `R_*` payloads;
+- ordinary `C_*` Components contain intrinsic entity state/configuration or explicitly documented derived caches only;
+- mirrored Entity references must not remain co-authorities;
+- existing `R_HeldBy`, `R_PushedBy` and `R_HazardFollow` conventions remain the reference shape.
+
+### M0.1 — Cart cargo binding: `C_CartCargo` -> Relationship
+
+Current problem:
+- `C_CartCargo.cart` is the authoritative `cargo -> cart` binding;
+- `local_pose`, previous integration/sleep state and collision-exception bookkeeping describe the lifetime of that binding, not intrinsic cargo state;
+- `C_CartTransport.cargo` mirrors the same ownership from the cart side.
+
+Required target:
+- replace `C_CartCargo` with an interaction Relationship payload, preferably `R_CartCargo` (or another equally explicit `R_*` name chosen once and used consistently);
+- relationship direction is **cargo Entity -> cart Entity**;
+- move binding-owned payload into the Relationship:
+  - `local_pose`;
+  - `previous_custom_integrator`;
+  - `previous_can_sleep`;
+  - `added_exception`;
+  - any additional reversible lifecycle fields introduced during the refactor;
+- Relationship presence is the single authority for whether cargo is currently attached to a cart;
+- loading adds the Relationship; unloading/destruction/cart loss removes it and restores physics policy exactly once;
+- stacked-cargo support checks must resolve the supporting cargo's cart through the Relationship, not an ordinary Component field.
+
+`C_CartTransport.cargo: Array[Entity]`:
+- remove it if pinned GECS relationship lookup is sufficient;
+- otherwise it may remain only as an explicitly documented **derived/rebuildable cache** maintained from Relationship lifecycle;
+- it must never be consulted as an independent authority when the Relationship disagrees.
+
+`C_CartTransport.settling` is not automatically a Relationship: it is cart-local transient candidate timing and may remain ordinary runtime state unless implementation reveals a stronger ownership contract.
+
+Acceptance:
+- no project-owned `C_CartCargo` class/path/reference remains;
+- no cargo ownership decision is made from a mirrored `Array[Entity]` alone;
+- loading/unloading preserves current collision exception, custom integrator, sleep and local-pose behavior.
+
+### M0.2 — Cart driver session: `C_CartTransport.driver` -> Relationship
+
+Current problem:
+- `C_CartTransport.driver` is explicitly the cart-side authoritative `cart -> actor` session;
+- `capture_token` is lifecycle data of that session;
+- `C_CartDriver.cart` mirrors the relation from the actor side.
+
+Required target:
+- introduce an interaction Relationship payload such as `R_CartDrivenBy`;
+- relationship direction is **cart Entity -> actor Entity**;
+- move `capture_token` and other session-lifetime bookkeeping out of `C_CartTransport` into the Relationship;
+- `C_CartTransport` keeps authored cart motion configuration and intrinsic runtime motion state (`drive_speed`, `actual_velocity`, settling configuration/state as appropriate), not driver ownership;
+- begin/end/lifecycle cleanup add/remove the Relationship idempotently;
+- actor/cart removal must not leave a stale control capture.
+
+`C_CartDriver`:
+- prefer removing it if current-driver lookup can be expressed cleanly through pinned GECS Relationships;
+- if a reverse actor-side index is required for hot lookup, keep it only as a **derived cache** whose comment and lifecycle make the Relationship the sole authority;
+- never create two mutable ownership authorities.
+
+Acceptance:
+- `C_CartTransport` contains no authoritative `driver: Entity`;
+- cart operation validity is proven from `R_CartDrivenBy`;
+- no stale driver session/capture survives actor or cart teardown.
+
+### M0.3 — Deliberate throw attribution: split `C_ThrowDamage`
+
+Current problem:
+- `C_ThrowDamage` mixes authored/capability configuration with temporary `source -> instigator` relationship state;
+- `instigator`, `remaining_seconds` and `armed_tick` exist only while a deliberate throw attribution is active.
+
+Required target:
+- keep `C_ThrowDamage` as intrinsic/configuration data:
+  - `throw_damage`;
+  - `window_seconds`;
+- represent an active deliberate throw with a gameplay Relationship such as `R_ThrownBy`, direction **thrown source Entity -> instigator Entity**;
+- move relation-lifetime state into its payload:
+  - `remaining_seconds`;
+  - `armed_tick`;
+- `ThrowContext.arm()` creates/replaces the relation after a valid throw;
+- pickup/new grip, expiration and first qualifying impact remove the relation;
+- `S_ThrowLifetime` (or its R22.5 replacement) processes the active relation rather than using a nullable Entity field in `C_ThrowDamage`;
+- impact attribution reads the relation target;
+- preserve current semantics if the instigator Entity becomes unavailable: do not invent durable identity behavior in this milestone. If later persistence requires durable attribution, add a stable ID contract separately rather than keeping a second live Entity authority.
+
+Acceptance:
+- `C_ThrowDamage` has no `instigator: Entity`, `remaining_seconds` or `armed_tick`;
+- active throw attribution exists iff the throw Relationship exists;
+- expiration/pickup/impact cleanup is idempotent;
+- existing impact damage amount/window behavior is unchanged.
+
+### M0.4 — Marker actor duplication: remove redundant Entity authority
+
+Current problem:
+- `C_Marker.actor` duplicates the holder already represented by the marker's authoritative `R_HeldBy.target`;
+- drawing cannot currently begin or remain active unless the marker is held by that actor.
+
+Required target:
+- remove `C_Marker.actor`;
+- derive the live actor from the marker's `R_HeldBy` relationship whenever starting/updating/ending a drawing session;
+- keep marker-local session data that is not ownership (`capture_token`, pointer and stroke continuity) in the appropriate marker/session state;
+- releasing/transferring the marker must terminate drawing and release capture using relationship lifecycle/session cleanup.
+
+Do **not** introduce `R_DrawingBy` merely to replace the deleted field. Add a separate drawing Relationship only if the refactor proves that drawing-session ownership has semantics independent of `R_HeldBy` (for example, it can legitimately outlive or differ from the holder). Under current behavior it is redundant.
+
+`C_Marker.parcel` is not part of this migration: it is transient current-stroke continuity state, not package ownership.
+
+Acceptance:
+- no `C_Marker.actor` remains;
+- marker session validation has one holder authority: `R_HeldBy`;
+- grip loss/transfer cannot leave a stale drawing capture.
+
+### M0.5 — Explicit non-candidates / audit guard
+
+Do not mechanically convert every Entity/Object reference into a Relationship.
+
+Keep these as ordinary state unless a separate semantic reason is discovered:
+- `C_Interactor.target`: transient gameplay targeting, not ownership;
+- `C_PhysicsBodyRef.body`: GECS proxy -> Godot object reference, not Entity-to-Entity ownership;
+- `C_GrabControl.held_carry/right/left`: derived reverse indexes for `R_HeldBy`; may be removed later, but are not new authoritative Relationships;
+- `C_PushControl.pushed_object`: derived reverse index for `R_PushedBy`;
+- `C_Hazard.origin` / `C_Hazard.instigator`: live attribution/cache only; actual follow/lifetime ownership is already `R_HazardFollow`, while stable string IDs carry durable attribution;
+- `C_Marker.parcel`: transient stroke continuity.
+
+During implementation, audit every remaining project-owned `C_*` field typed as `Entity`, `Array[Entity]` or equivalent Entity reference. For each one, classify it explicitly as:
+1. intrinsic/transient state;
+2. derived cache/index;
+3. authoritative cross-Entity relation.
+
+Any item in category 3 must become an `R_*` Relationship or be documented with a concrete reason why GECS Relationship semantics do not fit.
+
+### M0.6 — Migration/validation requirements
+
+- Preserve existing `.gd.uid` identity where moving/renaming an existing script is appropriate; update scene/resource/script references atomically.
+- Use strict typing throughout.
+- Do not introduce direct System-to-System service calls as part of the migration.
+- Update `PROJECT_INDEX.md`, relevant subsystem docs and structure validation rules if canonical relationship paths/classes change.
+- Update focused tests for cargo attach/detach, transport driver lifecycle, deliberate throw attribution/expiry and marker grip/session cleanup.
+- Do not add broad new gameplay behavior.
+
+Milestone validation:
+1. `python utils/validate_project_structure.py`;
+2. changed-file formatter/lint/static checks;
+3. repository search confirms removed legacy classes/fields have no production references;
+4. `git diff --check`;
+5. no GUT/smoke/runtime invocation yet unless a blocking issue cannot be established statically.
+
+Final R22.5 validation later covers the relevant GUT + headless smoke surfaces once, per project runtime budget.
+
+### M0 implementation checklist
+
+- [ ] M0.1 migrate cart cargo authority to an `R_*` Relationship and eliminate/coherently derive cart cargo reverse indexes.
+- [ ] M0.2 migrate cart driver authority/capture token to an `R_*` Relationship; remove or explicitly derive `C_CartDriver`.
+- [ ] M0.3 split `C_ThrowDamage` configuration from active `R_ThrownBy` attribution/lifetime.
+- [ ] M0.4 remove `C_Marker.actor` and use `R_HeldBy` as the only holder authority.
+- [ ] M0.5 audit every remaining Entity reference in project-owned Components and classify it.
+- [ ] M0.6 update references/docs/tests/static validation and create one coherent local commit for this milestone.
+
+---
+
 ## Existing good reference
 
 `S_Jump` is the local shape to preserve:
