@@ -22,7 +22,7 @@ static func update(cart: E_TransportCart, delta: float) -> void:
 
 	for loaded: Entity in config.cargo.duplicate():
 		var binding: Relationship = relationship(loaded)
-		if binding == null or binding.target != cart or not S_Grab.entity_available(loaded):
+		if binding == null or binding.target != cart or not GrabService.entity_available(loaded):
 			release(loaded)
 			config.cargo.erase(loaded)
 
@@ -79,7 +79,7 @@ static func cargo_added(cargo: Entity, binding: Relationship) -> bool:
 	var cart: Entity = binding.target as Entity
 	if data == null or data.lifecycle_applied:
 		return data != null
-	if not S_Grab.entity_available(cargo) or not S_Grab.entity_available(cart):
+	if not GrabService.entity_available(cargo) or not GrabService.entity_available(cart):
 		return false
 	if relationship(cargo) != binding:
 		return false
@@ -128,9 +128,9 @@ static func cargo_removed(cargo: Entity, binding: Relationship) -> void:
 
 
 static func _loadable(cargo: Entity) -> bool:
-	if not S_Grab.entity_available(cargo) or not cargo.has_component(C_Grabbable):
+	if not GrabService.entity_available(cargo) or not cargo.has_component(C_Grabbable):
 		return false
-	if relationship(cargo) != null or S_Grab.held_relationship(cargo) != null:
+	if relationship(cargo) != null or GrabService.held_relationship(cargo) != null:
 		return false
 	var body: RigidBody3D = cargo as Node as RigidBody3D
 	return body != null and not body.freeze and not _destroyed(cargo)

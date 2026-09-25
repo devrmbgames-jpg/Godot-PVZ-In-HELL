@@ -14,7 +14,7 @@ static func can_begin(actor: Entity, cart: Entity) -> bool:
 		return false
 	if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.PUSH:
 		return false
-	return S_Grab.within_pickup_reach(actor, cart)
+	return GrabService.within_pickup_reach(actor, cart)
 
 
 static func try_begin(actor: Entity, cart: Entity) -> bool:
@@ -131,7 +131,7 @@ static func validate_actor(actor: Entity) -> void:
 
 
 static func valid_pair(actor: Entity, cart: Entity) -> bool:
-	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(cart):
+	if not GrabService.holder_available(actor) or not GrabService.entity_available(cart):
 		return false
 	if cart.has_component(C_Grabbable) or not actor.has_component(C_Controller):
 		return false
@@ -169,7 +169,7 @@ static func forward(cart: Entity) -> Vector3:
 
 
 static func _clear_path(actor: Entity, body: RigidBody3D) -> bool:
-	var anchor: Node3D = S_Grab.hold_anchor(actor)
+	var anchor: Node3D = GrabService.hold_anchor(actor)
 	if not is_instance_valid(anchor):
 		return false
 	var excluded: Array[RID] = []
@@ -177,7 +177,7 @@ static func _clear_path(actor: Entity, body: RigidBody3D) -> bool:
 	if actor_body != null:
 		excluded.append(actor_body.get_rid())
 	for slot_index: int in 3:
-		var held_entity: Entity = S_Grab.held_in_slot(actor, slot_index)
+		var held_entity: Entity = GrabService.held_in_slot(actor, slot_index)
 		var held: CollisionObject3D = held_entity as Node as CollisionObject3D
 		if held != null:
 			excluded.append(held.get_rid())

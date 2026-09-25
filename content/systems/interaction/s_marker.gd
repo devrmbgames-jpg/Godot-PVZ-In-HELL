@@ -34,14 +34,14 @@ func _exit_tree() -> void:
 
 #region Drawing API
 static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
-	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(tool):
+	if not GrabService.holder_available(actor) or not GrabService.entity_available(tool):
 		return false
 	if not tool.has_component(C_Marker) or not drawable(target):
 		return false
 	if InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.HANDS:
 		return false
 
-	var grip: Relationship = S_Grab.held_relationship(tool)
+	var grip: Relationship = GrabService.held_relationship(tool)
 	if grip == null or grip.target != actor:
 		return false
 	if (grip.relation as R_HeldBy).slot == C_Grabbable.HoldSlot.CARRY:
@@ -51,7 +51,7 @@ static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
 	if interactor == null or S_InteractionTargeting.find_target(actor, interactor) != target:
 		return false
 
-	var ray: RayCast3D = S_Grab.interaction_raycast(actor)
+	var ray: RayCast3D = GrabService.interaction_raycast(actor)
 	var marker: C_Marker = tool.get_component(C_Marker) as C_Marker
 	return ray.global_position.distance_to(ray.get_collision_point()) <= marker.drawing_range
 
@@ -80,7 +80,7 @@ static func end(tool_or_marker: Variant, actor_hint: Entity = null) -> void:
 		return
 	var actor: Entity = actor_hint
 	if not is_instance_valid(actor) and is_instance_valid(tool):
-		var grip: Relationship = S_Grab.held_relationship(tool)
+		var grip: Relationship = GrabService.held_relationship(tool)
 		actor = grip.target as Entity if grip != null else null
 	if is_instance_valid(actor):
 		InteractionControlFocus.release(actor, marker.capture_token)
@@ -89,9 +89,9 @@ static func end(tool_or_marker: Variant, actor_hint: Entity = null) -> void:
 
 
 static func update_session(tool: Entity, marker: C_Marker) -> void:
-	var grip: Relationship = S_Grab.held_relationship(tool)
+	var grip: Relationship = GrabService.held_relationship(tool)
 	var actor: Entity = grip.target as Entity if grip != null else null
-	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(tool):
+	if not GrabService.holder_available(actor) or not GrabService.entity_available(tool):
 		end(tool, actor)
 		return
 	if grip == null or grip.target != actor:
@@ -109,7 +109,7 @@ static func update_session(tool: Entity, marker: C_Marker) -> void:
 		Vector2.ZERO,
 		viewport.get_visible_rect().size,
 	)
-	var secondary: bool = S_Grab.held_in_slot(actor, S_Grab.mapped_hand(actor, true)) == tool
+	var secondary: bool = GrabService.held_in_slot(actor, GrabService.mapped_hand(actor, true)) == tool
 	var drawing: bool = controller.action_second if secondary else controller.action_main
 	if not drawing:
 		break_stroke(marker)
@@ -209,7 +209,7 @@ static func clear_marks(parcel: Entity) -> void:
 
 
 static func drawable(parcel: Entity) -> bool:
-	if not S_Grab.entity_available(parcel) or not parcel.has_component(C_PackageMarks):
+	if not GrabService.entity_available(parcel) or not parcel.has_component(C_PackageMarks):
 		return false
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	return (

@@ -24,7 +24,7 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 		var previous_visual: Node = _visual_target(holder, interactor)
 
 		var collider: Object = (
-			_raycast_collider(holder, interactor) if S_Grab.holder_available(holder) else null
+			_raycast_collider(holder, interactor) if GrabService.holder_available(holder) else null
 		)
 		interactor.target = _interactable_entity(collider, holder)
 		interactor.physics_target = collider_rigid_body(collider, holder)
@@ -80,7 +80,7 @@ func set_highlight(target: Node, enabled: bool) -> void:
 
 #region Private helpers
 static func _raycast_collider(holder: Entity, interactor: C_Interactor) -> Object:
-	var interaction_raycast: RayCast3D = S_Grab.interaction_raycast(holder)
+	var interaction_raycast: RayCast3D = GrabService.interaction_raycast(holder)
 	if (
 		not is_instance_valid(interaction_raycast)
 		or not interaction_raycast.is_inside_tree()
@@ -99,7 +99,7 @@ static func _raycast_collider(holder: Entity, interactor: C_Interactor) -> Objec
 	if holder_body != null:
 		interaction_raycast.add_exception_rid(holder_body.get_rid())
 	for slot_index: int in 3:
-		var held: Entity = S_Grab.held_in_slot(holder, slot_index)
+		var held: Entity = GrabService.held_in_slot(holder, slot_index)
 		var held_body: CollisionObject3D = PhysicsGrabTarget.body_for(held)
 		if held_body != null:
 			interaction_raycast.add_exception_rid(held_body.get_rid())

@@ -13,7 +13,7 @@ static func relationship(cart: Entity) -> Relationship:
 
 
 static func can_begin(actor: Entity, cart: Entity) -> bool:
-	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(cart):
+	if not GrabService.holder_available(actor) or not GrabService.entity_available(cart):
 		return false
 	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
 	if config == null or relationship(cart) != null or current(actor) != null:
@@ -22,7 +22,7 @@ static func can_begin(actor: Entity, cart: Entity) -> bool:
 		return false
 	if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.PUSH:
 		return false
-	return S_Grab.within_pickup_reach(actor, cart)
+	return GrabService.within_pickup_reach(actor, cart)
 
 
 static func begin(actor: Entity, cart: Entity) -> void:
@@ -49,7 +49,7 @@ static func current(actor: Entity) -> Entity:
 	if not is_instance_valid(actor):
 		return null
 	var cache: C_CartDriver = actor.get_component(C_CartDriver) as C_CartDriver
-	if cache == null or not S_Grab.entity_available(cache.cart):
+	if cache == null or not GrabService.entity_available(cache.cart):
 		return null
 	var binding: Relationship = relationship(cache.cart)
 	if binding != null and binding.target == actor:
@@ -63,7 +63,7 @@ static func driver_added(cart: Entity, binding: Relationship) -> bool:
 	var actor: Entity = binding.target as Entity
 	if data == null or data.lifecycle_applied:
 		return data != null
-	if not S_Grab.holder_available(actor) or not S_Grab.entity_available(cart):
+	if not GrabService.holder_available(actor) or not GrabService.entity_available(cart):
 		return false
 	if relationship(cart) != binding:
 		return false
@@ -119,7 +119,7 @@ static func entity_unavailable(entity: Entity) -> void:
 
 
 static func driver_valid(body: CharacterBody3D, config: C_CartTransport, actor: Entity) -> bool:
-	if body == null or config == null or not S_Grab.holder_available(actor):
+	if body == null or config == null or not GrabService.holder_available(actor):
 		return false
 	var actor_node: Node3D = actor as Node as Node3D
 	if actor_node == null:

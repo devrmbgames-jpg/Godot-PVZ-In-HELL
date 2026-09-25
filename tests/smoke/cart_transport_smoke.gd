@@ -17,7 +17,7 @@ func _physics_process(_delta: float) -> void:
 		return
 	_controller.input_tick += 1
 	_controller.direction_look = -(_cart as Node as Node3D).global_basis.z
-	S_Grab.handle_input(_actor)
+	GrabService.handle_input(_actor)
 	for cargo: Entity in _cargo:
 		var binding: Relationship = CartCargoService.relationship(cargo)
 		var data: R_CartCargo = binding.relation as R_CartCargo if binding != null else null
@@ -55,7 +55,7 @@ func _run() -> void:
 	var rest_height: float = cart_body.position.y
 	var load_ready: bool = await _load_cargo(cart_body)
 	assert(load_ready)
-	var ray: RayCast3D = S_Grab.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
 	ray.look_at(cart_body.global_position)
 	CartTransportService.begin(_actor, _cart)
 	assert(
@@ -113,10 +113,10 @@ func _run() -> void:
 	# Pick the exposed rear box; the front lower box is occluded by the stack.
 	var target: Entity = _cargo[1]
 	ray.look_at((target as Node as Node3D).global_position + Vector3.UP * 0.2)
-	assert(S_Grab.try_pickup(_actor, target, C_Grabbable.HoldSlot.CARRY))
+	assert(GrabService.try_pickup(_actor, target, C_Grabbable.HoldSlot.CARRY))
 	assert(CartCargoService.relationship(target) == null, "Picking up cargo must release the restraint")
 	assert(not (target as Node as RigidBody3D).custom_integrator)
-	S_Grab.release(_actor, target)
+	GrabService.release(_actor, target)
 
 	var terrain_passed: bool = await _terrain_checks(cart_body, actor_body, rest_height)
 	assert(terrain_passed)
@@ -220,7 +220,7 @@ func _place(cart_body: CharacterBody3D, actor_body: RigidBody3D, location: Vecto
 	actor_body.linear_velocity = Vector3.ZERO
 	for tick: int in 30:
 		await get_tree().physics_frame
-	var ray: RayCast3D = S_Grab.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
 	ray.look_at(cart_body.global_position)
 	CartTransportService.begin(_actor, _cart)
 	assert(CartTransportService.current(_actor) == _cart)

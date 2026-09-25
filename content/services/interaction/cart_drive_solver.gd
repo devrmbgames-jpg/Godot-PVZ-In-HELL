@@ -9,7 +9,7 @@ const TERRAIN_MASK: int = 1
 
 
 static func step(cart: E_TransportCart, delta: float) -> void:
-	if not S_Grab.entity_available(cart) or delta <= 0.0:
+	if not GrabService.entity_available(cart) or delta <= 0.0:
 		CartCargoService.release_all(cart)
 		CartTransportService.end(cart)
 		return
