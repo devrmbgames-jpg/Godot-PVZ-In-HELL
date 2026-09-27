@@ -29,6 +29,8 @@ This applies to project-owned code under:
 
 Do not remove the underscore merely because another class wants the value. Create a deliberate public method/property instead.
 
+**Default decision rule:** if you are asking whether a behavior-class member needs to be public, it is private. Public mutable member state must be part of an explicit data contract, not a convenience.
+
 ### @onready
 
 Every project-owned `@onready` cache is private:
@@ -85,11 +87,17 @@ Project-authored `.tres` resources use a short type prefix so global search grou
 | Resource role/type | Prefix | Example |
 | --- | --- | --- |
 | Definition / `DEF_*` | `def_` | `def_impact_fragile.tres` |
-| Material (`StandardMaterial3D`, `ShaderMaterial`, etc.) | `mat_` | `mat_cardboard.tres` |
+| Material (`StandardMaterial3D`, `ShaderMaterial`, `CanvasItemMaterial`, `PhysicsMaterial`, etc.) | `mat_` | `mat_cardboard.tres` |
 | Theme | `theme_` | `theme_terminal.tres` |
 | StyleBox / UI style | `style_` | `style_panel_warning.tres` |
 | Mesh resource | `mesh_` | `mesh_package_debris.tres` |
 | Shape resource | `shape_` | `shape_package_box.tres` |
+| Texture resource authored as `.tres` | `tex_` | `tex_noise_mask.tres` |
+| Font resource authored as `.tres` | `font_` | `font_terminal.tres` |
+| Environment | `env_` | `env_warehouse.tres` |
+| LabelSettings | `label_` | `label_world_hint.tres` |
+| NavigationMesh | `navmesh_` | `navmesh_warehouse.tres` |
+| Noise resource | `noise_` | `noise_grass_variation.tres` |
 | Curve | `curve_` | `curve_damage_falloff.tres` |
 | Gradient | `grad_` | `grad_health_bar.tres` |
 | Animation | `anim_` | `anim_door_open.tres` |
@@ -99,7 +107,7 @@ Rules:
 - the prefix describes the resource type/role, not the folder name;
 - use one prefix only; do not stack prefixes;
 - keep the descriptive suffix concise and searchable;
-- new reusable resource types should get a canonical prefix in this table before many files are created;
+- new reusable resource types must get a canonical prefix in this table and in `utils/validate_project_structure.py` before multiple files of that type are created;
 - `content/definitions/**/*.tres` always uses `def_`;
 - third-party/imported/vendor content under `addons/` or imported asset collections under `resources/` is exempt unless the project deliberately takes ownership of those files;
 - engine-conventional files such as `default_bus_layout.tres` are exempt.
