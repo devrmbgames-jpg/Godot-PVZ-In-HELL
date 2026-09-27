@@ -13,6 +13,12 @@ const PACKAGE_SPAWN_COMMAND: String = "pkg_spawn"
 const PACKAGE_REMOVE_COMMAND: String = "pkg_remove"
 const PACKAGE_PURGE_COMMAND: String = "pkg_purge"
 const PACKAGE_REGISTER_COMMAND: String = "pkg_register"
+const VISIT_CREATE_COMMAND: String = "visit_create"
+const PACKAGE_ACTUAL_COMMAND: String = "pkg_actual"
+const PACKAGE_DECLARE_COMMAND: String = "pkg_declare"
+const PACKAGE_COMPLAINT_COMMAND: String = "pkg_complaint"
+const COMPLAINT_RESOLVE_COMMAND: String = "complaint_resolve"
+const PACKAGE_APPROVE_COMMAND: String = "pkg_approve"
 
 var _registered_commands: PackedStringArray = []
 
@@ -90,6 +96,18 @@ func _ready() -> void:
 		1,
 		"Register a live Package without Scanner gesture.",
 	)
+	_register_command(VISIT_CREATE_COMMAND, _visit_create, ["package", "customer_key"], 1, "Create a persistent debug CustomerVisit.")
+	_register_command(PACKAGE_ACTUAL_COMMAND, _pkg_actual, ["package", "actual"], 2, "Force factual CustomerVisit outcome only.")
+	_register_command(PACKAGE_DECLARE_COMMAND, _pkg_declare, ["package", "taken|refused|lost"], 2, "Submit Terminal declaration through CustomerFlowService.")
+	_register_command(PACKAGE_COMPLAINT_COMMAND, _pkg_complaint, ["package", "reason", "pending|resolve"], 2, "Create or resolve a typed Customer complaint.")
+	_register_command(COMPLAINT_RESOLVE_COMMAND, _complaint_resolve, ["package"], 1, "Resolve an existing complaint immediately.")
+	_register_command(PACKAGE_APPROVE_COMMAND, _pkg_approve, ["package", "satisfaction"], 1, "Record positive Customer feedback.")
+	_register_command("pkg_taken", _pkg_taken, ["package"], 1, "Alias for pkg_declare taken.")
+	_register_command("pkg_lost", _pkg_lost, ["package"], 1, "Alias for pkg_declare lost.")
+	_register_command("pkg_refused", _pkg_refused, ["package"], 1, "Alias for pkg_declare refused.")
+	_register_command("pkg_delivered", _pkg_delivered, ["package"], 1, "Alias for factual delivered.")
+	_register_command("pkg_customer_refused", _pkg_customer_refused, ["package"], 1, "Alias for factual customer refusal.")
+	_register_command("pkg_player_denied", _pkg_player_denied, ["package"], 1, "Alias for factual player denial.")
 	var common_targets: PackedStringArray = PackedStringArray(["self", "target"])
 	Console.add_command_autocomplete_list(RESOLVE_COMMAND, common_targets)
 	Console.add_command_autocomplete_list(HEALTH_INFO_COMMAND, common_targets)
@@ -277,3 +295,113 @@ func _print_service_result(command: String, result: DebugServiceResult) -> void:
 		DeveloperConsoleOutput.ok(command, details)
 		return
 	DeveloperConsoleOutput.error(command, result.message)
+
+
+
+func _visit_create(raw_target: String, customer_key: String = "") -> void:
+	_print_service_result(
+		VISIT_CREATE_COMMAND,
+		DebugCustomerService.create_visit(DebugTargetResolver.resolve(raw_target), customer_key),
+	)
+
+
+func _pkg_actual(raw_target: String, actual_text: String) -> void:
+	var target: DebugTarget = DebugTargetResolver.resolve(raw_target)
+	match actual_text.strip_edges().to_lower():
+		"not_resolved":
+			_print_service_result(PACKAGE_ACTUAL_COMMAND, DebugCustomerService.set_actual(target, CustomerVisit.Actual.NOT_RESOLVED))
+		"delivered":
+			_print_service_result(PACKAGE_ACTUAL_COMMAND, DebugCustomerService.set_actual(target, CustomerVisit.Actual.DELIVERED))
+		"customer_refused":
+			_print_service_result(PACKAGE_ACTUAL_COMMAND, DebugCustomerService.set_actual(target, CustomerVisit.Actual.CUSTOMER_REFUSED))
+		"player_denied":
+			_print_service_result(PACKAGE_ACTUAL_COMMAND, DebugCustomerService.set_actual(target, CustomerVisit.Actual.PLAYER_DENIED))
+		_:
+			DeveloperConsoleOutput.error(
+				PACKAGE_ACTUAL_COMMAND,
+				"actual must be delivered, customer_refused, player_denied or not_resolved",
+			)
+
+
+func _pkg_declare(raw_target: String, declaration_text: String) -> void:
+	var target: DebugTarget = DebugTargetResolver.resolve(raw_target)
+	match declaration_text.strip_edges().to_lower():
+		"taken":
+			_print_service_result(PACKAGE_DECLARE_COMMAND, DebugCustomerService.declare(target, CustomerVisit.Declaration.TAKEN))
+		"refused":
+			_print_service_result(PACKAGE_DECLARE_COMMAND, DebugCustomerService.declare(target, CustomerVisit.Declaration.REFUSED))
+		"lost":
+			_print_service_result(PACKAGE_DECLARE_COMMAND, DebugCustomerService.declare(target, CustomerVisit.Declaration.LOST))
+		_:
+			DeveloperConsoleOutput.error(PACKAGE_DECLARE_COMMAND, "declaration must be taken, refused or lost")
+
+
+func _pkg_complaint(
+	raw_target: String,
+	reason_text: String,
+	mode_text: String = "",
+) -> void:
+	var mode: String = mode_text.strip_edges().to_lower()
+	if mode.is_empty():
+		mode = "pending"
+	if mode != "pending" and mode != "resolve":
+		DeveloperConsoleOutput.error(PACKAGE_COMPLAINT_COMMAND, "mode must be pending or resolve")
+		return
+	var target: DebugTarget = DebugTargetResolver.resolve(raw_target)
+	match reason_text.strip_edges().to_lower():
+		"not_delivered":
+			_print_service_result(
+				PACKAGE_COMPLAINT_COMMAND,
+				DebugCustomerService.complaint(target, CustomerComplaint.Reason.NOT_DELIVERED, mode == "resolve"),
+			)
+		"damaged":
+			_print_service_result(
+				PACKAGE_COMPLAINT_COMMAND,
+				DebugCustomerService.complaint(target, CustomerComplaint.Reason.DAMAGED, mode == "resolve"),
+			)
+		_:
+			DeveloperConsoleOutput.error(PACKAGE_COMPLAINT_COMMAND, "reason must be not_delivered or damaged")
+
+
+func _complaint_resolve(raw_target: String) -> void:
+	_print_service_result(
+		COMPLAINT_RESOLVE_COMMAND,
+		DebugCustomerService.resolve_complaint(DebugTargetResolver.resolve(raw_target)),
+	)
+
+
+func _pkg_approve(raw_target: String, satisfaction_text: String = "") -> void:
+	var satisfaction: int = CustomerOutcomeService.SATISFACTION_SCALE
+	if not satisfaction_text.strip_edges().is_empty():
+		if not satisfaction_text.is_valid_int():
+			DeveloperConsoleOutput.error(PACKAGE_APPROVE_COMMAND, "satisfaction must be an integer from 0 to 100")
+			return
+		satisfaction = satisfaction_text.to_int()
+	_print_service_result(
+		PACKAGE_APPROVE_COMMAND,
+		DebugCustomerService.approve(DebugTargetResolver.resolve(raw_target), satisfaction),
+	)
+
+
+func _pkg_taken(raw_target: String) -> void:
+	_pkg_declare(raw_target, "taken")
+
+
+func _pkg_lost(raw_target: String) -> void:
+	_pkg_declare(raw_target, "lost")
+
+
+func _pkg_refused(raw_target: String) -> void:
+	_pkg_declare(raw_target, "refused")
+
+
+func _pkg_delivered(raw_target: String) -> void:
+	_pkg_actual(raw_target, "delivered")
+
+
+func _pkg_customer_refused(raw_target: String) -> void:
+	_pkg_actual(raw_target, "customer_refused")
+
+
+func _pkg_player_denied(raw_target: String) -> void:
+	_pkg_actual(raw_target, "player_denied")

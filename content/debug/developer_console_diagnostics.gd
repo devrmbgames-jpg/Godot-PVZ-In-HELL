@@ -76,6 +76,9 @@ static func visit_info(visit: CustomerVisit) -> PackedStringArray:
 		"disposition=%s" % _enum_name(CustomerVisit.Disposition, visit.disposition),
 		"reputation=%s" % _enum_name(CustomerVisit.Reputation, visit.reputation),
 		"satisfaction=%d" % visit.satisfaction,
+		"feedback=%s" % _enum_name(CustomerVisit.Feedback, visit.feedback),
+		"package_damaged=%s" % str(visit.package_damaged),
+		"package_opened=%s" % str(visit.package_opened),
 		"started=%s" % str(visit.started),
 		"finished=%s" % str(visit.finished),
 		"settlement_committed=%s" % str(visit.settlement_committed),
@@ -85,6 +88,10 @@ static func visit_info(visit: CustomerVisit) -> PackedStringArray:
 		lines.append("complaint=none")
 	else:
 		lines.append("complaint=%s" % String(visit.complaint.complaint_id))
+		lines.append(
+			"complaint_reason=%s"
+			% _enum_name(CustomerComplaint.Reason, visit.complaint.reason)
+		)
 		lines.append(
 			"complaint_outcome=%s"
 			% _enum_name(CustomerComplaint.Outcome, visit.complaint.outcome)
