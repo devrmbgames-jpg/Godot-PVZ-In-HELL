@@ -32,7 +32,7 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	if not target.has_component(C_Package) or not target.has_component(C_PackageState):
 		return false
 	var package_state: C_PackageState = target.get_component(C_PackageState)
-	if package_state.registration == C_PackageState.Registration.DELIVERED:
+	if package_state.registration >= C_PackageState.Registration.DELIVERED:
 		return false
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	if interactor == null or InteractionTargetingService.find_target(actor, interactor) != target:
@@ -109,12 +109,13 @@ static func release_number(parcel: Entity) -> bool:
 	var registry: C_PackageLedger = ledger()
 	if identity == null or state == null or registry == null:
 		return false
-	if state.registration != C_PackageState.Registration.DELIVERED:
+	if state.registration < C_PackageState.Registration.DELIVERED:
 		return false
 
 	for record: PackageRegistrationRecord in registry.records:
 		if record.package_id == identity.package_id and record.active:
 			record.active = false
+			record.departure = state.registration
 			registry.last_departed_package_id = identity.package_id
 			return true
 
@@ -142,7 +143,8 @@ static func terminal_text() -> String:
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
 		var status: String = "Нет в ПВЗ" if state == null else _status_text(state)
 		if not record.active:
-			status = "Выдана · последняя завершённая"
+			var departures: Array[String] = ["Выдана", "Возвращена", "Выкуплена"]
+			status = departures[record.departure - C_PackageState.Registration.DELIVERED] + " · последняя завершённая"
 		lines.append(
 			"№%03d   ·   %s\n%s\n%s\n%s\nУчётная стоимость: %d"
 			% [

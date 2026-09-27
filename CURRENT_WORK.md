@@ -9,5 +9,5 @@ Task: `agent_tasks/roadmap_11_customer_flow_and_delivery.md`
 - Preserve pre-existing debris scene/addon edits and R09 UID files.
 
 Changed: customer contracts, definitions, C_CustomerFlow/C_CustomerAgent, R_AssignedTo, CustomerOutcomeService.
-Validation: pending milestone static checks; no R11 runtime run yet.
-Next: wire CustomerFlowService, customer/counter scenes and terminal.
+Validation: structure PASS; headless import without script parse/compile errors; GUT/smoke not run yet.
+Next: add focused customer GUT and headless physical-counter walkthrough; run final checks once.

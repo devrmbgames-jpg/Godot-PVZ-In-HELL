@@ -99,6 +99,11 @@
 [ext_resource type="Script" path="res://content/components/gameplay/c_wallet.gd" id="Wallet_state"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_wallet_day.gd" id="Wallet_system"]
 
+[ext_resource type="Script" path="res://content/components/gameplay/c_customer_flow.gd" id="Customer_flow"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_customer_flow.gd" id="Customer_system"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/customers/def_customer_schedule_default.tres" id="Customer_schedule"]
+[ext_resource type="PackedScene" path="res://content/entities/stations/delivery_counter.tscn" id="Delivery_counter"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -211,6 +216,10 @@ reserved_slots = 4
 [sub_resource type="Resource" id="Resource_6yccx"]
 resource_local_to_scene = true
 script = ExtResource("41_1hfqo")
+
+[sub_resource type="Resource" id="Customer_flow"]
+script = ExtResource("Customer_flow")
+schedule = ExtResource("Customer_schedule")
 
 [sub_resource type="Resource" id="Wallet_state"]
 script = ExtResource("Wallet_state")
@@ -351,6 +360,10 @@ group = &"GamePlay"
 
 [node name="S_Impact" type="Node" parent="World/Systems/GamePlay" unique_id=1737982216]
 script = ExtResource("ImpactSystem")
+group = &"GamePlay"
+
+[node name="S_CustomerFlow" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Customer_system")
 group = &"GamePlay"
 
 [node name="S_WalletDay" type="Node" parent="World/Systems/GamePlay"]
@@ -956,6 +969,9 @@ transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.117033
 [node name="Camera3D" type="Camera3D" parent="Entityes/Player/HeadY/HeadX/HeadRoot" parent_id_path=PackedInt32Array(1703744943, 406904122) index="7" unique_id=387684179]
 current = true
 
+[node name="DeliveryCounter" parent="Entityes" instance=ExtResource("Delivery_counter")]
+position = Vector3(4.7, 0, -3.8)
+
 [node name="Terminal" parent="Entityes" unique_id=911264778 instance=ExtResource("Terminal_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 0, -2)
 
@@ -976,7 +992,7 @@ component_resources = Array[ExtResource("Grab_component")]([SubResource("Resourc
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow")])
 
 [node name="ShiftConsole" parent="Entityes" unique_id=1907900219 instance=ExtResource("Day_station")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.5317445, 0, -5)

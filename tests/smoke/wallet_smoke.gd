@@ -10,6 +10,9 @@ func _run() -> void:
 	var level: Node = scene.instantiate()
 	add_child(level)
 	level.set_physics_process(false)
+	# This fixture isolates the day/wallet contract; R11 has its own full flow smoke.
+	var session: Entity = level.get_node("Entityes/DaySession") as Entity
+	session.remove_component(C_CustomerFlow)
 	var wallet: C_Wallet = WalletService.current()
 	assert(wallet != null)
 	var cycle: C_DayCycle = DayPhaseService.current()

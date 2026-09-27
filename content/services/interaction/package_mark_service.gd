@@ -80,7 +80,7 @@ static func drawable(parcel: Entity) -> bool:
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	return (
 		state != null and state.damage != C_PackageState.Damage.DESTROYED
-		and state.registration != C_PackageState.Registration.DELIVERED
+		and state.registration < C_PackageState.Registration.DELIVERED
 	)
 
 

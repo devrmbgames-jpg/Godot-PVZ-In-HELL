@@ -8,3 +8,6 @@ class_name PackageRegistrationRecord
 @export var definition: DEF_Package = null
 ## Only active warehouse records reserve a base number across days.
 @export var active: bool = true
+
+## Explicit warehouse exit reason, independent of the player declaration.
+@export var departure: C_PackageState.Registration = C_PackageState.Registration.DELIVERED

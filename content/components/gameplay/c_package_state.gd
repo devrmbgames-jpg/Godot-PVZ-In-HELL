@@ -6,6 +6,8 @@ enum Registration {
 	UNREGISTERED,
 	REGISTERED,
 	DELIVERED,
+	RETURNED,
+	BOUGHT_OUT,
 }
 enum Scan {
 	NOT_SCANNED,

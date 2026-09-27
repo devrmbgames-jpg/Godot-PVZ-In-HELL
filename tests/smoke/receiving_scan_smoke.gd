@@ -13,6 +13,9 @@ func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
 	add_child(level)
+	# Isolate receiving/registration; customer scheduling has its own smoke.
+	var session: Entity = level.get_node("Entityes/DaySession") as Entity
+	session.remove_component(C_CustomerFlow)
 	for tick_index: int in 30:
 		await get_tree().physics_frame
 	var parcels: Array = ECS.world.query.with_all([C_Package]).execute()

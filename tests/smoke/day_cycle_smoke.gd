@@ -14,6 +14,9 @@ func _run() -> void:
 	_level = scene.instantiate()
 	add_child(_level)
 	_level.set_physics_process(false)
+	# This fixture isolates the day/wallet contract; R11 has its own full flow smoke.
+	var session: Entity = _level.get_node("Entityes/DaySession") as Entity
+	session.remove_component(C_CustomerFlow)
 	_actor = _level.get_node("Entityes/Player") as Entity
 	_controller = _actor.get_component(C_Controller) as C_Controller
 	await get_tree().physics_frame

@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="DEF_CustomerSchedule" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/customers/def_customer_schedule.gd" id="Schedule"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/customers/def_customer_event.gd" id="Event"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/customers/def_customer.gd" id="Customer"]
+[ext_resource type="PackedScene" path="res://content/entities/customers/customer.tscn" id="Scene"]
+
+[sub_resource type="Resource" id="Ordinary"]
+script = ExtResource("Customer")
+key = &"ordinary"
+display_name = "Покупатель книг"
+
+[sub_resource type="Resource" id="Careful"]
+script = ExtResource("Customer")
+key = &"careful"
+display_name = "Покупатель посуды"
+accepts_damaged = false
+accepts_opened = false
+
+[sub_resource type="Resource" id="Refusal"]
+script = ExtResource("Customer")
+key = &"voluntary_refusal"
+display_name = "Покупатель одежды"
+voluntary_refusal = true
+
+[sub_resource type="Resource" id="Late"]
+script = ExtResource("Customer")
+key = &"late"
+display_name = "Поздний покупатель оборудования"
+
+[sub_resource type="Resource" id="Books"]
+script = ExtResource("Event")
+package_key = &"books"
+customer = SubResource("Ordinary")
+
+[sub_resource type="Resource" id="Glass"]
+script = ExtResource("Event")
+package_key = &"glass"
+customer = SubResource("Careful")
+
+[sub_resource type="Resource" id="Clothes"]
+script = ExtResource("Event")
+package_key = &"clothes"
+customer = SubResource("Refusal")
+
+[sub_resource type="Resource" id="Equipment"]
+script = ExtResource("Event")
+package_key = &"equipment"
+arrival_delay_days = 10
+customer = SubResource("Late")
+
+[resource]
+script = ExtResource("Schedule")
+key = &"warehouse_customers"
+events = Array[ExtResource("Event")]([SubResource("Books"), SubResource("Glass"), SubResource("Clothes"), SubResource("Equipment")])
+customer_scene = ExtResource("Scene")

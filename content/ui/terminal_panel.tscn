@@ -65,6 +65,44 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/normal_font_size = 20
 
+[node name="Visits" type="OptionButton" parent="Root/Panel/Margin/Rows"]
+layout_mode = 2
+
+[node name="VisitSummary" type="Label" parent="Root/Panel/Margin/Rows"]
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Closeout" type="HBoxContainer" parent="Root/Panel/Margin/Rows"]
+layout_mode = 2
+
+[node name="Taken" type="Button" parent="Root/Panel/Margin/Rows/Closeout"]
+layout_mode = 2
+text = "Забрал"
+
+[node name="Refused" type="Button" parent="Root/Panel/Margin/Rows/Closeout"]
+layout_mode = 2
+text = "Отказался"
+
+[node name="Lost" type="Button" parent="Root/Panel/Margin/Rows/Closeout"]
+layout_mode = 2
+text = "Потеряна"
+
+[node name="Deny" type="Button" parent="Root/Panel/Margin/Rows/Closeout"]
+layout_mode = 2
+text = "Отказать в выдаче"
+
+[node name="Buyout" type="Button" parent="Root/Panel/Margin/Rows/Closeout"]
+layout_mode = 2
+text = "Выкупить отказную"
+
+[node name="Return" type="Button" parent="Root/Panel/Margin/Rows/Closeout"]
+layout_mode = 2
+text = "Вернуть утром"
+
+[node name="ActionFeedback" type="Label" parent="Root/Panel/Margin/Rows"]
+layout_mode = 2
+autowrap_mode = 2
+
 [node name="Close" type="Button" parent="Root/Panel/Margin/Rows"]
 theme_override_font_sizes/font_size = 20
 layout_mode = 2

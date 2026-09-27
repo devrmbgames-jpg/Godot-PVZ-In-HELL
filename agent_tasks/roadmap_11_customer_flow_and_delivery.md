@@ -55,3 +55,5 @@ GUT: все варианты выдачи, однократная оплата, 
 3. Focused GUT and one headless customer-flow walkthrough; durable docs and closure.
 
 Preserve pre-existing edits: `addons/gecs`, `content/entities/packages/package_debris_stub.tscn`, eight untracked R09 `.gd.uid` files. No rendered validation authorized.
+
+Milestones 1–2 implemented. Static structure PASS; headless editor import found no GDScript parse/compile errors. GUT and gameplay smoke still pending.
