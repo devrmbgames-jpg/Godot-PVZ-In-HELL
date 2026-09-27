@@ -44,6 +44,59 @@ MARKDOWN_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 TASK_HEADING_RE = re.compile(r"^#\s+(R\d+(?:\.\d+)?)\b", re.MULTILINE)
 TASK_DEPENDENCIES_RE = re.compile(r"^Зависимости:\s*(.+)$", re.MULTILINE)
 IMPLEMENTATION_ID_RE = re.compile(r"\bR\d+(?:\.\d+)?\b")
+BEHAVIOR_PRIVATE_ROOTS: tuple[str, ...] = (
+    "content/entities",
+    "content/ui",
+    "content/services",
+    "content/systems",
+    "content/observers",
+)
+
+ONREADY_VAR_RE = re.compile(
+    r"^\s*@onready\s+var\s+([A-Za-z_][A-Za-z0-9_]*)",
+    re.MULTILINE,
+)
+TOP_LEVEL_VAR_RE = re.compile(
+    r"^(?:static\s+)?var\s+([A-Za-z_][A-Za-z0-9_]*)",
+)
+TOP_LEVEL_ONREADY_RE = re.compile(
+    r"^@onready\s+var\s+([A-Za-z_][A-Za-z0-9_]*)",
+)
+RESOURCE_HEADER_RE = re.compile(r'^\[gd_resource\s+type="([^"]+)"([^]]*)\]', re.MULTILINE)
+SCRIPT_CLASS_RE = re.compile(r'\bscript_class="([^"]+)"')
+
+RESOURCE_TYPE_PREFIXES: dict[str, str] = {
+    "Theme": "theme_",
+    "StyleBox": "style_",
+    "StyleBoxEmpty": "style_",
+    "StyleBoxFlat": "style_",
+    "StyleBoxLine": "style_",
+    "StyleBoxTexture": "style_",
+    "StandardMaterial3D": "mat_",
+    "ShaderMaterial": "mat_",
+    "ORMMaterial3D": "mat_",
+    "ArrayMesh": "mesh_",
+    "BoxMesh": "mesh_",
+    "CapsuleMesh": "mesh_",
+    "CylinderMesh": "mesh_",
+    "PlaneMesh": "mesh_",
+    "PrismMesh": "mesh_",
+    "QuadMesh": "mesh_",
+    "SphereMesh": "mesh_",
+    "TextMesh": "mesh_",
+    "TorusMesh": "mesh_",
+    "Curve": "curve_",
+    "Curve2D": "curve_",
+    "Curve3D": "curve_",
+    "Gradient": "grad_",
+    "Animation": "anim_",
+    "AnimationLibrary": "animlib_",
+}
+
+RESOURCE_PREFIX_EXCEPTIONS: set[str] = {
+    "default_bus_layout.tres",
+}
+
 RELATIONSHIP_COMPONENT_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\bRelationship\.new\(\s*(C_[A-Za-z_][A-Za-z0-9_]*)"),
     re.compile(r"\.relation\s+(?:is|as)\s+(C_[A-Za-z_][A-Za-z0-9_]*)"),
@@ -86,6 +139,81 @@ def _check_role_placement(errors: list[str]) -> None:
             if match is not None and not match.group(1).startswith(class_prefix):
                 errors.append(
                     f"{relative}: class_name {match.group(1)!r} should use '{class_prefix}' role prefix."
+                )
+
+
+
+def _check_private_member_naming(errors: list[str]) -> None:
+    """Enforce private runtime caches/state in behavior/glue/UI code."""
+    content_root: Path = ROOT / "content"
+    if content_root.exists():
+        for script_path in sorted(content_root.rglob("*.gd")):
+            relative: str = _relative(script_path)
+            text: str = _read_text(script_path)
+            for match in ONREADY_VAR_RE.finditer(text):
+                name: str = match.group(1)
+                if not name.startswith("_"):
+                    errors.append(
+                        f"{relative}: @onready cache {name!r} must be private and start with '_'."
+                    )
+
+    for root_name in BEHAVIOR_PRIVATE_ROOTS:
+        root_path: Path = ROOT / root_name
+        if not root_path.exists():
+            continue
+
+        for script_path in sorted(root_path.rglob("*.gd")):
+            relative: str = _relative(script_path)
+            for line_number, raw_line in enumerate(_read_text(script_path).splitlines(), start=1):
+                if not raw_line or raw_line[0].isspace():
+                    continue
+                if raw_line.startswith("@export"):
+                    continue
+
+                match = TOP_LEVEL_ONREADY_RE.match(raw_line)
+                if match is None:
+                    match = TOP_LEVEL_VAR_RE.match(raw_line)
+                if match is None:
+                    continue
+
+                name: str = match.group(1)
+                if not name.startswith("_"):
+                    errors.append(
+                        f"{relative}:{line_number}: non-exported member state {name!r} "
+                        "must be private and start with '_'."
+                    )
+
+
+def _resource_prefix(path: Path, text: str) -> str | None:
+    relative: str = _relative(path)
+    if relative.startswith("content/definitions/"):
+        return "def_"
+
+    header = RESOURCE_HEADER_RE.search(text)
+    if header is None:
+        return None
+
+    script_class_match = SCRIPT_CLASS_RE.search(header.group(2))
+    if script_class_match is not None and script_class_match.group(1).startswith("DEF_"):
+        return "def_"
+
+    return RESOURCE_TYPE_PREFIXES.get(header.group(1))
+
+
+def _check_resource_file_naming(errors: list[str]) -> None:
+    roots: tuple[str, ...] = ("content", "materials")
+    for root_name in roots:
+        root_path: Path = ROOT / root_name
+        if not root_path.exists():
+            continue
+        for resource_path in sorted(root_path.rglob("*.tres")):
+            relative: str = _relative(resource_path)
+            if relative in RESOURCE_PREFIX_EXCEPTIONS or resource_path.name in RESOURCE_PREFIX_EXCEPTIONS:
+                continue
+            prefix: str | None = _resource_prefix(resource_path, _read_text(resource_path))
+            if prefix is not None and not resource_path.name.startswith(prefix):
+                errors.append(
+                    f"{relative}: expected resource filename prefix {prefix!r}."
                 )
 
 
@@ -272,6 +400,8 @@ def main() -> int:
     errors: list[str] = []
 
     _check_role_placement(errors)
+    _check_private_member_naming(errors)
+    _check_resource_file_naming(errors)
     _check_relationship_role_usage(errors)
     _check_uid_pairs(errors)
     _check_res_paths(errors)

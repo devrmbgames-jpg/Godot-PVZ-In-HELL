@@ -21,6 +21,7 @@ Optional routing map. Do not read this file by default. Use it only when the tas
 | Tooling | `utils/` |
 | Docs | `docs/README.md` |
 | Agent workflow | `AGENTS.md` |
+| Code/resource naming | `docs/code_style.md` |
 
 ## Gameplay routes
 

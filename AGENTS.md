@@ -14,6 +14,10 @@ Keep the default path short: start from the user's task and the exact files/symb
 - Project Systems are atomic: no System calls another System as a service/helper. Use `deps()`, groups, Components, Relationships, typed requests/events/results.
 - Godot physics bodies own physical transform/velocity unless a documented synchronization contract says otherwise.
 - No magic gameplay constants; use named constants or authored/data-driven values.
+- Private member state uses a leading underscore. In behavior/glue/UI code, non-exported member variables are private by default: `var _value`, never accidental `var value`.
+- Every `@onready` cache is private and starts with `_`. Do not expose child-node caches as fields; expose an intentional method/property API when another object needs access.
+- Public data fields without `_` are appropriate only when they are intentionally part of a data/API contract (for example Components, Relationships, typed contracts, Definitions, or explicit `@export` scene configuration).
+- Project-authored `.tres` filenames use searchable type prefixes. Definitions use `def_*`, materials `mat_*`, themes `theme_*`, styles `style_*`, meshes `mesh_*`; see `docs/code_style.md` for the canonical table. Imported/vendor resources are not renamed solely for style.
 - Never discard user edits, rewrite unrelated history, force-push, upgrade dependencies, or write authored files into `.godot/`.
 
 ## Context policy
