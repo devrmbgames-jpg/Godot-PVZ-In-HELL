@@ -3,7 +3,7 @@
 Status: active
 Task: Developer Console Testing
 Source: agent_tasks/developer_console_testing.md
-Current milestone: Stage 2 complete
+Current milestone: Stage 3 complete
 
 Invariants:
 - addons/console stays generic; project commands live under content/debug/.
@@ -17,10 +17,13 @@ Changed paths:
 - content/debug/developer_console_output.gd
 - content/debug/developer_console_commands.gd
 - content/debug/developer_console_diagnostics.gd
+- content/debug/debug_service_result.gd
+- content/debug/debug_package_service.gd
+- content/services/packages/package_registration_service.gd
 - content/scenes/main_level.tscn
 
 Validation:
 - static inspection only; Godot/GUT not run.
 
 Next:
-- Stage 3: implement Package spawn/remove/register through domain-safe debug adapters.
+- Stage 4: implement CustomerVisit creation, Actual/Declaration commands, typed complaint reasons and positive approval.

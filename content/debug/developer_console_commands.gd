@@ -9,6 +9,10 @@ const PACKAGE_INFO_COMMAND: String = "pkg_info"
 const VISIT_INFO_COMMAND: String = "visit_info"
 const WALLET_INFO_COMMAND: String = "wallet_info"
 const HEALTH_INFO_COMMAND: String = "health_info"
+const PACKAGE_SPAWN_COMMAND: String = "pkg_spawn"
+const PACKAGE_REMOVE_COMMAND: String = "pkg_remove"
+const PACKAGE_PURGE_COMMAND: String = "pkg_purge"
+const PACKAGE_REGISTER_COMMAND: String = "pkg_register"
 
 var _registered_commands: PackedStringArray = []
 
@@ -57,6 +61,34 @@ func _ready() -> void:
 		["target"],
 		0,
 		"Show Health/death state. Defaults to self.",
+	)
+	_register_command(
+		PACKAGE_SPAWN_COMMAND,
+		_pkg_spawn,
+		["definition_key", "count", "receiving|self", "registered"],
+		1,
+		"Spawn debug Package instances from an existing definition.",
+	)
+	_register_command(
+		PACKAGE_REMOVE_COMMAND,
+		_pkg_remove,
+		["package"],
+		1,
+		"Remove only the live physical Package.",
+	)
+	_register_command(
+		PACKAGE_PURGE_COMMAND,
+		_pkg_purge,
+		["package"],
+		1,
+		"Purge safe debug-created Package state.",
+	)
+	_register_command(
+		PACKAGE_REGISTER_COMMAND,
+		_pkg_register,
+		["package"],
+		1,
+		"Register a live Package without Scanner gesture.",
 	)
 	var common_targets: PackedStringArray = PackedStringArray(["self", "target"])
 	Console.add_command_autocomplete_list(RESOLVE_COMMAND, common_targets)
@@ -180,3 +212,68 @@ func _health_info(raw_target: String = "") -> void:
 		HEALTH_INFO_COMMAND,
 		DeveloperConsoleDiagnostics.health_info(target),
 	)
+
+
+
+func _pkg_spawn(
+	definition_key: String,
+	count_text: String = "",
+	mode_text: String = "",
+	registered_text: String = "",
+) -> void:
+	var count: int = 1
+	if not count_text.strip_edges().is_empty():
+		if not count_text.is_valid_int():
+			DeveloperConsoleOutput.error(PACKAGE_SPAWN_COMMAND, "count must be an integer")
+			return
+		count = count_text.to_int()
+	var mode: String = mode_text.strip_edges().to_lower()
+	if mode.is_empty():
+		mode = DebugPackageService.MODE_RECEIVING
+	var register_packages: bool = false
+	if not registered_text.strip_edges().is_empty():
+		if registered_text != "0" and registered_text != "1":
+			DeveloperConsoleOutput.error(
+				PACKAGE_SPAWN_COMMAND,
+				"registered must be 0 or 1",
+			)
+			return
+		register_packages = registered_text == "1"
+
+	var result: DebugServiceResult = DebugPackageService.spawn(
+		StringName(definition_key),
+		count,
+		mode,
+		register_packages,
+	)
+	_print_service_result(PACKAGE_SPAWN_COMMAND, result)
+
+
+func _pkg_remove(raw_target: String) -> void:
+	_print_service_result(
+		PACKAGE_REMOVE_COMMAND,
+		DebugPackageService.remove(DebugTargetResolver.resolve(raw_target)),
+	)
+
+
+func _pkg_purge(raw_target: String) -> void:
+	_print_service_result(
+		PACKAGE_PURGE_COMMAND,
+		DebugPackageService.purge(DebugTargetResolver.resolve(raw_target)),
+	)
+
+
+func _pkg_register(raw_target: String) -> void:
+	_print_service_result(
+		PACKAGE_REGISTER_COMMAND,
+		DebugPackageService.register(DebugTargetResolver.resolve(raw_target)),
+	)
+
+
+func _print_service_result(command: String, result: DebugServiceResult) -> void:
+	if result.success:
+		var details: PackedStringArray = PackedStringArray([result.message])
+		details.append_array(result.details)
+		DeveloperConsoleOutput.ok(command, details)
+		return
+	DeveloperConsoleOutput.error(command, result.message)
