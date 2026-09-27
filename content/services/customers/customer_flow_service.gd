@@ -103,14 +103,21 @@ static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
 	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		_step(customer as E_Customer, cycle, delta)
 	cycle.remaining_customer_events = remaining(flow, cycle.day_index)
-	if cycle.phase != C_DayCycle.Phase.DAY:
-		return
+	spawn_next_due(flow, cycle)
+
+
+## Bounded domain entry point used by the normal tick and developer tooling.
+## Returns true only when a due visit was actually started.
+static func spawn_next_due(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
+	if flow == null or cycle == null or cycle.phase != C_DayCycle.Phase.DAY:
+		return false
 	if not ECS.world.query.with_all([C_CustomerAgent]).execute().is_empty():
-		return
+		return false
 	for visit: CustomerVisit in flow.visits:
 		if not visit.started and visit.arrival_day <= cycle.day_index:
 			_spawn(flow, visit, cycle.day_index)
-			break
+			return true
+	return false
 
 
 static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void:

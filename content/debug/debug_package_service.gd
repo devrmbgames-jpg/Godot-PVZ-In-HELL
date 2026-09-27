@@ -170,6 +170,47 @@ static func register(target: DebugTarget) -> DebugServiceResult:
 	return result
 
 
+static func reset(target: DebugTarget) -> DebugServiceResult:
+	var result: DebugServiceResult = DebugServiceResult.new()
+	if target.kind != DebugTarget.Kind.PACKAGE:
+		result.message = target.error if not target.error.is_empty() else "target is not a package"
+		return result
+	if not EntityAvailability.contains(target.entity, ECS.world):
+		result.message = "package is not live; destroyed packages must be respawned"
+		return result
+
+	var health: C_Health = target.entity.get_component(C_Health) as C_Health
+	var state: C_PackageState = target.entity.get_component(C_PackageState) as C_PackageState
+	if health == null or state == null:
+		result.message = "package Health/state is unavailable"
+		return result
+	if health.depleted or state.damage == C_PackageState.Damage.DESTROYED:
+		result.message = "destroyed package must be respawned"
+		return result
+	if not is_finite(health.value) or health.value <= 0.0:
+		result.message = "package maximum Health is invalid"
+		return result
+
+	var previous_health: float = health.current
+	var previous_damage: C_PackageState.Damage = state.damage
+	health.current = health.value
+	health.depleted = false
+	state.damage = C_PackageState.Damage.UNDAMAGED
+	state.leaking = false
+
+	result.success = true
+	result.message = "package reset"
+	result.details.append(
+		"hp=%.1f -> %.1f" % [previous_health, health.current]
+	)
+	result.details.append(
+		"damage=%s -> UNDAMAGED"
+		% String(C_PackageState.Damage.keys()[previous_damage])
+	)
+	result.details.append("leaking=false")
+	return result
+
+
 static func definition_keys() -> PackedStringArray:
 	var keys: PackedStringArray = []
 	var zone: E_ReceivingZone = _receiving_zone()

@@ -138,6 +138,79 @@ static func wallet_info() -> PackedStringArray:
 	return lines
 
 
+static func day_info() -> PackedStringArray:
+	var cycle: C_DayCycle = DayPhaseService.current()
+	if cycle == null:
+		return PackedStringArray(["day_cycle=unavailable"])
+	var lines: PackedStringArray = [
+		"day=%d" % cycle.day_index,
+		"phase=%s" % String(C_DayCycle.Phase.keys()[cycle.phase]),
+		"remaining_customers=%d" % cycle.remaining_customer_events,
+		"night_ready=%s" % str(cycle.night_ready),
+	]
+	if cycle.pending_transition == null:
+		lines.append("pending_transition=none")
+	else:
+		lines.append(
+			"pending_transition=%s"
+			% String(DayTransitionRequest.Kind.keys()[cycle.pending_transition.kind])
+		)
+	return lines
+
+
+static func debug_targets() -> PackedStringArray:
+	const MAX_LINES: int = 64
+	var lines: PackedStringArray = []
+	if not is_instance_valid(ECS.world):
+		return PackedStringArray(["world=unavailable"])
+
+	var player: Entity = DebugTargetResolver.player()
+	if EntityAvailability.contains(player, ECS.world):
+		lines.append("self | entity:%s | PLAYER" % player.id)
+
+	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	for entity: Entity in ECS.world.entities:
+		if lines.size() >= MAX_LINES:
+			lines.append("... truncated at %d targets" % MAX_LINES)
+			break
+		if not EntityAvailability.contains(entity, ECS.world) or entity == player:
+			continue
+		if entity.has_component(C_Package):
+			var identity: C_Package = entity.get_component(C_Package) as C_Package
+			var number_text: String = _package_number_text(identity.package_id, ledger)
+			lines.append(
+				"%s | pkg:%s | entity:%s | PACKAGE"
+				% [number_text, identity.package_id, entity.id]
+			)
+			continue
+		if entity.has_component(C_CustomerAgent):
+			var agent: C_CustomerAgent = (
+				entity.get_component(C_CustomerAgent) as C_CustomerAgent
+			)
+			lines.append(
+				"visit:%s | entity:%s | CUSTOMER"
+				% [String(agent.visit_id), entity.id]
+			)
+			continue
+		if entity.has_component(C_Health):
+			lines.append("entity:%s | HEALTH_TARGET" % entity.id)
+
+	if lines.is_empty():
+		lines.append("no debug targets")
+	return lines
+
+
+static func _package_number_text(
+	package_id: String,
+	ledger: C_PackageLedger,
+) -> String:
+	if ledger != null:
+		for record: PackageRegistrationRecord in ledger.records:
+			if record.active and record.package_id == package_id:
+				return "#%03d" % record.number
+	return "---"
+
+
 static func health_info(target: DebugTarget) -> PackedStringArray:
 	if not EntityAvailability.contains(target.entity, ECS.world):
 		return PackedStringArray(["live=false"])

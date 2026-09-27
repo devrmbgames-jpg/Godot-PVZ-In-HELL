@@ -27,6 +27,11 @@ const APPLY_DAMAGE_COMMAND: String = "apply_damage"
 const HEAL_COMMAND: String = "heal"
 const KILL_COMMAND: String = "kill"
 const RESET_COMMAND: String = "reset"
+const PACKAGE_RESET_COMMAND: String = "pkg_reset"
+const DAY_INFO_COMMAND: String = "day_info"
+const DAY_NEXT_COMMAND: String = "day_next"
+const CUSTOMER_NEXT_COMMAND: String = "customer_next"
+const DEBUG_TARGETS_COMMAND: String = "debug_targets"
 
 var _registered_commands: PackedStringArray = []
 
@@ -124,6 +129,11 @@ func _ready() -> void:
 	_register_command(HEAL_COMMAND, _heal, ["target", "amount"], 2, "Submit typed healing to a non-depleted Health target.")
 	_register_command(KILL_COMMAND, _kill, ["target"], 0, "Deplete a Health target through DamageRequest. Defaults to self.")
 	_register_command(RESET_COMMAND, _reset, ["target"], 0, "Reset a live C_Living entity. Defaults to self.")
+	_register_command(PACKAGE_RESET_COMMAND, _pkg_reset, ["package"], 1, "Reset a live damaged Package.")
+	_register_command(DAY_INFO_COMMAND, _day_info, [], 0, "Show current day-cycle state.")
+	_register_command(DAY_NEXT_COMMAND, _day_next, [], 0, "Queue the next normal day transition.")
+	_register_command(CUSTOMER_NEXT_COMMAND, _customer_next, [], 0, "Start the next due CustomerVisit when valid.")
+	_register_command(DEBUG_TARGETS_COMMAND, _debug_targets, [], 0, "List concise live debug target handles.")
 	var common_targets: PackedStringArray = PackedStringArray(["self", "target"])
 	Console.add_command_autocomplete_list(RESOLVE_COMMAND, common_targets)
 	Console.add_command_autocomplete_list(HEALTH_INFO_COMMAND, common_targets)
@@ -540,3 +550,33 @@ func _positive_float(command: String, value: String) -> float:
 		DeveloperConsoleOutput.error(command, "amount must be a finite positive number")
 		return -1.0
 	return parsed
+
+
+
+func _pkg_reset(raw_target: String) -> void:
+	_print_service_result(
+		PACKAGE_RESET_COMMAND,
+		DebugPackageService.reset(DebugTargetResolver.resolve(raw_target)),
+	)
+
+
+func _day_info() -> void:
+	DeveloperConsoleOutput.ok(
+		DAY_INFO_COMMAND,
+		DeveloperConsoleDiagnostics.day_info(),
+	)
+
+
+func _day_next() -> void:
+	_print_service_result(DAY_NEXT_COMMAND, DebugWorldService.day_next())
+
+
+func _customer_next() -> void:
+	_print_service_result(CUSTOMER_NEXT_COMMAND, DebugWorldService.customer_next())
+
+
+func _debug_targets() -> void:
+	DeveloperConsoleOutput.ok(
+		DEBUG_TARGETS_COMMAND,
+		DeveloperConsoleDiagnostics.debug_targets(),
+	)

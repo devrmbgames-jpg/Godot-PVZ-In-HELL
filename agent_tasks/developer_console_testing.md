@@ -1,6 +1,6 @@
 # Developer Console Testing
 
-Status: active — Stage 6 complete; Stage 7 convenience day/customer commands next.
+Status: active — Stage 7 complete; Stage 8 autocomplete/help next.
 Scope: specification only; implementation has not started.
 
 ## Goal
@@ -155,7 +155,7 @@ No silent failures and no bare boolean result as user-facing output.
 - [x] Stage 4 — Customer outcomes/feedback/complaints.
 - [x] Stage 5 — Wallet/penalty operations.
 - [x] Stage 6 — Damage/kill/heal/reset.
-- [ ] Stage 7 — Convenience day/customer commands.
+- [x] Stage 7 — Convenience day/customer commands.
 - [ ] Stage 8 — Autocomplete/help.
 - [ ] Stage 9 — focused GUT + one headless smoke.
 

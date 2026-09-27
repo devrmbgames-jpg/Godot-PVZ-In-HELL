@@ -3,7 +3,7 @@
 Status: active
 Task: Developer Console Testing
 Source: agent_tasks/developer_console_testing.md
-Current milestone: Stage 6 complete
+Current milestone: Stage 7 complete
 
 Invariants:
 - addons/console stays generic; project commands live under content/debug/.
@@ -27,6 +27,8 @@ Changed paths:
 - content/contracts/economy/money_operation.gd
 - content/services/economy/wallet_service.gd
 - content/debug/debug_health_service.gd
+- content/debug/debug_world_service.gd
+- content/services/customers/customer_flow_service.gd
 - content/services/packages/package_registration_service.gd
 - content/scenes/main_level.tscn
 
@@ -34,4 +36,4 @@ Validation:
 - static inspection only; Godot/GUT not run.
 
 Next:
-- Stage 7: implement pkg_reset, day_info/day_next, customer_next and debug_targets.
+- Stage 8: finish autocomplete/help and refresh command discovery.
