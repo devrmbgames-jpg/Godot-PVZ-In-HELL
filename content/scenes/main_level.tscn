@@ -68,6 +68,7 @@
 [ext_resource type="Script" uid="uid://6aul5eahny" path="res://content/observers/gameplay/o_package_condition_setup.gd" id="PackageConditionSetup"]
 [ext_resource type="Script" uid="uid://23bxju80ro1e" path="res://content/observers/gameplay/o_package_damage.gd" id="PackageDamage"]
 [ext_resource type="Script" uid="uid://b6kqjvf7okt" path="res://content/observers/gameplay/o_package_hazard.gd" id="PackageHazard"]
+[ext_resource type="Script" path="res://content/observers/gameplay/o_package_destroyed_hazard.gd" id="PackageDestroyedHazard"]
 [ext_resource type="Script" uid="uid://87f03fqiuik" path="res://content/observers/gameplay/o_package_opening.gd" id="PackageOpening"]
 [ext_resource type="Script" uid="uid://t4dhuaxsabxv" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
 [ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
@@ -284,6 +285,9 @@ script = ExtResource("HazardEmitter")
 
 [node name="O_PackageHazard" type="Node" parent="World/Systems/GamePlay" unique_id=1324523525]
 script = ExtResource("PackageHazard")
+
+[node name="O_PackageDestroyedHazard" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("PackageDestroyedHazard")
 
 [node name="O_ToxicAreaSetup" type="Node" parent="World/Systems/GamePlay" unique_id=180493485]
 script = ExtResource("R09_o_toxic_area_setup")
