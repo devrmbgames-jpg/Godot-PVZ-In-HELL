@@ -52,6 +52,7 @@ func _setup_world() -> void:
 		O_ExplosionSetup.new(),
 		O_HazardReset.new(),
 		O_PackageHazard.new(),
+		O_PackageDestruction.new(),
 		O_PackageDestroyedHazard.new(),
 	]
 	_world.add_observers(observers)
@@ -165,19 +166,24 @@ func _package_adapter_contract() -> void:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "hazard-fixture-package"
 	identity.definition = DEF_Package.new()
+	identity.definition.description = "Fixture cabinet"
 	identity.definition.hazard_on_damaged = _toxic_scene(0.5)
 	identity.definition.hazard_on_destroyed = _toxic_scene(
 		10.0,
 		DEF_Hazard.Ownership.FollowOrigin,
 		DEF_Hazard.OwnerLoss.Despawn,
 	)
+	var destruction: C_PackageDestruction = C_PackageDestruction.new()
+	destruction.debris_scene = preload(
+		"res://content/entities/packages/package_debris_stub.tscn"
+	)
 	var package_state: C_PackageState = C_PackageState.new()
 	var package: Entity = _body(
 		Vector3(30, 0, 0),
 		false,
 		false,
-		false,
-		[identity, package_state],
+		true,
+		[identity, package_state, destruction],
 	)
 	var condition: C_PackageState = package.get_component(C_PackageState) as C_PackageState
 	condition.damage = C_PackageState.Damage.DAMAGED
@@ -186,18 +192,28 @@ func _package_adapter_contract() -> void:
 	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Damaged)
 	assert(_effects().size() == 1, "Damaged toxic zone must not stack")
 
-	var debris: Entity = _body(Vector3(30, 0, 0), false, false, true)
 	var request: DamageRequest = DamageRequest.new()
 	request.target = package
 	var result: DamageResult = DamageResult.new()
 	result.request = request
 	result.outcome = DamageResult.Outcome.HEALTH_DEPLETED
-	var depletion: HealthDepletionEvent = HealthDepletionEvent.new()
-	depletion.cause = result
-	depletion.spawned_entities[&"debris"] = debris
-	_world.emit_event(HealthDepletionEvent.EVENT, null, depletion)
+	result.world_pose = (package as Node as Node3D).global_transform
+	condition.damage = C_PackageState.Damage.DESTROYED
+	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Destroyed, null, result)
+	await _tick(0.01)
 
-	assert(_effects().size() == 2, "Destroyed package creates a separate debris-owned residue")
+	assert(
+		not EntityAvailability.contains(package, _world),
+		"Destroyed Package must be removed after debris spawn",
+	)
+	var debris_entities: Array = _world.query.with_all([C_PackageDebris]).execute()
+	assert(debris_entities.size() == 1, "Destroyed Package leaves exactly one debris Entity")
+	var debris: Entity = debris_entities[0]
+	var metadata: C_PackageDebris = debris.get_component(C_PackageDebris) as C_PackageDebris
+	assert(metadata.package_id == identity.package_id)
+	assert(metadata.definition == identity.definition, "Debris retains original DEF_Package metadata")
+
+	assert(_effects().size() == 2, "Destroyed Package creates a separate debris-owned residue")
 	var residue: Entity = _spawned.back()
 	var hazard: C_Hazard = residue.get_component(C_Hazard) as C_Hazard
 	assert(hazard.origin == debris, "Destroyed toxic residue source must be debris")

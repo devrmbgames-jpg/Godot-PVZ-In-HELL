@@ -40,7 +40,7 @@ HazardSpawnService.submit(request)
 
 ## Посылки
 
-`DEF_Package` не содержит enum/type Hazard. `hazard_on_damaged` создаётся от самой Package на первом переходе в `DAMAGED`; стабильный request-id не позволяет короткому эффекту стакаться. `hazard_on_destroyed` запускается только после generic depletion-spawn: `O_PackageDestroyedHazard` берёт Entity с ключом `debris` из `HealthDepletionEvent` и использует именно debris как origin. Поэтому independent Explosion лишь стартует с позиции debris, а `FollowOrigin + Despawn` ToxicResidue следует за debris и удаляется вместе с ним. Для текущей токсичной посылки короткая зона живёт 12 секунд, а long residue — 900 секунд (15 минут, внутри требуемого окна 10–20 минут).
+`DEF_Package` не содержит enum/type Hazard. `hazard_on_damaged` создаётся от самой Package на первом переходе в `DAMAGED`; стабильный request-id не позволяет короткому эффекту стакаться. При разрушении `O_PackageDestruction` создаёт scene-local debris из `C_PackageDestruction`, переносит в него `C_PackageDebris(package_id, DEF_Package)` и удаляет исходную Package. Затем `PackageDebrisSpawnedEvent` позволяет `O_PackageDestroyedHazard` запустить `hazard_on_destroyed` уже от debris. Independent Explosion только стартует с его позиции; `FollowOrigin + Despawn` ToxicResidue следует за debris и удаляется вместе с ним. Текущий long residue живёт 900 секунд (15 минут).
 
 ## Время жизни, следование и будущий reset
 

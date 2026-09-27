@@ -91,7 +91,7 @@ O_Damage is the sole gameplay damage/heal writer. C_Health extends C_AttributeCh
 
 DamageRequestService.submit publishes a copied typed DamageRequest to O_Damage through a World event, without a System service locator. Null/removed/non-Health targets are rejected at entry. O_Damage validates amounts and current Health, applies the source-side C_NoDamage veto (BLOCKED outcome, incoming damage and healing unaffected), and commits depletion before Health property notifications. The optional builder uses the same submit path.
 
-Processed requests publish typed World events under DamageResult.EVENT, including rejection and blocked outcomes. Positive Health crossing zero commits HEALTH_DEPLETED once before notifications. O_HealthLifecycle handles only C_Living: C_Death, grip release and control disable; the targeting processor clears its own selection/highlight on the next tick. O_PackageDamage handles package condition independently and keeps destroyed physical entities alive. Healing restores non-depleted HP but does not undo package condition; depletion remains terminal.
+Processed requests publish typed World events under DamageResult.EVENT, including rejection and blocked outcomes. Positive Health crossing zero commits HEALTH_DEPLETED once before notifications. O_HealthLifecycle handles only C_Living: C_Death, grip release and control disable; the targeting processor clears its own selection/highlight on the next tick. O_PackageDamage commits Package condition; O_PackageDestruction replaces DESTROYED Package with scene-authored debris, preserves DEF_Package metadata on C_PackageDebris, then removes the original Package Entity. Healing restores non-depleted HP but does not undo package condition; depletion remains terminal.
 
 Packages and actors use the same C_Health arithmetic. Package definitions initialize maximum_health; there is no second integrity authority. Standalone damage_smoke was adapted to the shared contract; user accepted R08 after the current GUT suite passed and parcel impact/leak playtesting succeeded.
 
@@ -120,7 +120,7 @@ Canonical contract: [damage_impact.md](../docs/damage_impact.md). ImpactCaptureS
 
 ## Autonomous hazards (R09)
 
-`C_HazardEmitter` attaches reusable toxic/explosion definitions to any spatial Entity. `HazardSpawnService` snapshots typed requests; `O_HazardSpawn` creates independent nonphysical prefabs and deduplicates request IDs for the World lifetime. Package lifecycle has separate setup/event adapters. Effect setup consumes `HazardSpawnResult` after complete registration.
+`C_HazardEmitter` attaches reusable toxic/explosion scenes to any spatial Entity. `HazardSpawnService` snapshots typed requests; `O_HazardSpawn` creates independent nonphysical prefabs and deduplicates request IDs for the World lifetime. Package damage hazard starts from Package; destroyed hazard starts from the replacement debris via `PackageDebrisSpawnedEvent`. Effect setup consumes `HazardSpawnResult` after complete registration.
 
 `S_HazardFollow` precedes `S_ToxicArea`/`S_Explosion`; `S_HazardLifetime` runs afterward. Sources are actual effects, HP passes only through O_Damage, and impulses use Godot. C_NoDamage propagates from emitter, stable origin/instigator IDs survive removal. Pending one-shot resolution holds lifetime aging so a chain-created blast cannot expire before its first scheduled turn. Independent zones outlive their origins; follow policy explicitly detaches or despawns.
 

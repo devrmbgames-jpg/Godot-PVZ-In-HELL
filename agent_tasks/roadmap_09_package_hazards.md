@@ -26,7 +26,7 @@ Base: master / e9ecb7f.
 
 - Trigger owner (Package/Barrel/Customer/Trap) публикует generic `HazardSpawnRequest`, а не инстанцирует напрямую токсичную зону или взрыв.
 - `HazardSpawnRequest` содержит автономный `PackedScene`, world transform, устойчивый origin_id и необязательный origin/instigator; definition/lifetime/ownership принадлежат самой hazard-сцене.
-- `O_PackageHazard` адаптирует первый `Damaged` transition в short hazard request. `O_PackageDestroyedHazard` адаптирует generic `HealthDepletionEvent` после spawn debris в destroyed hazard request. Оба не вычисляют damage/радиус/physics; barrel/customer producers используют ту же generic фабрику.
+- `O_PackageHazard` адаптирует первый `Damaged` transition в short hazard request. При Destroyed отдельный `O_PackageDestruction` заменяет Package на scene-authored debris, сохраняет `DEF_Package` в `C_PackageDebris` и публикует `PackageDebrisSpawnedEvent`; `O_PackageDestroyedHazard` создаёт destroyed hazard уже от debris. Эти adapters не вычисляют damage/радиус/physics.
 - Настройки эффекта остаются `Resource`/Definition внутри автономной hazard-сцены. `DEF_Package` не классифицирует эффект: только `hazard_on_damaged: PackedScene` и `hazard_on_destroyed: PackedScene`.
 - Дедупликация принадлежит производителю (например, одноразовая активация для конкретной посылки и hazard), плюс фабрика не должна дважды создавать instance по тому же одноразовому request ID. Не запрещать независимые повторные активации от других владельцев и способности Customer.
 - `DamageRequest.source` — фактическая hazard Entity. `instigator` — actor/owner, вызвавший её. Сохранять устойчивую атрибуцию, даже если исходная посылка уже удалена. Не обходить source-side `C_NoDamage`: решать/пропагировать запрет при генерации независимого эффекта, чтобы запрещённый emitter не причинял урон через созданный им hazard.
@@ -45,7 +45,7 @@ Base: master / e9ecb7f.
 
 - [x] Создать generic typed `HazardSpawnRequest`, authored hazard definitions/prefabs и единственный безопасный dispatcher/factory.
 - [x] Подготовить две независимые Entity/prefab с data-only компонентами и lifecycle/attribution.
-- [x] `O_PackageHazard` создаёт short non-stacking `hazard_on_damaged` от Package; `O_PackageDestroyedHazard` ждёт depletion spawn и создаёт `hazard_on_destroyed` от Entity с ключом `debris`. Hazard enum/type отсутствует.
+- [x] `O_PackageHazard` создаёт short non-stacking `hazard_on_damaged` от Package; `O_PackageDestruction` заменяет DESTROYED Package на variant-specific debris; `O_PackageDestroyedHazard` создаёт `hazard_on_destroyed` от этого debris. Hazard enum/type отсутствует.
 - [x] Повторные переходы `Leaking → Destroyed` не спавнят вторую зону для одноразовой Package. Несколько разных посылок дают независимые эффекты.
 - [ ] Проверить, что прямой generic spawn без Package работает; запланировать подключение будущих Barrel/Customer через этот контракт. [NOT RUN: user-owned acceptance; standalone smoke fixture prepared.]
 
