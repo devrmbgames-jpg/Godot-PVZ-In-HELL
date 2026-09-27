@@ -18,7 +18,7 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 	var shape_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 	shape_query.shape = sphere
 	shape_query.transform = Transform3D(Basis.IDENTITY, effect.spatial.global_position)
-	shape_query.collision_mask = profile.collision_mask
+	shape_query.collision_mask = profile.target_mask
 	shape_query.collide_with_areas = false
 	var space: PhysicsDirectSpaceState3D = effect.spatial.get_world_3d().direct_space_state
 	var overlaps: Array[Dictionary] = space.intersect_shape(shape_query, profile.maximum_targets)
@@ -42,7 +42,9 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 		var exclusions: Array[RID] = origin_exclusions.duplicate()
 		exclusions.append(hit.body.get_rid())
 		ray.exclude = exclusions
-		ray.hit_from_inside = true
+		# A ground-contact explosion must not self-occlude merely because its center
+		# starts on/inside Environment. We only care about an obstacle between points.
+		ray.hit_from_inside = false
 		if not hit.point.is_equal_approx(effect.spatial.global_position):
 			if not space.intersect_ray(ray).is_empty():
 				continue
