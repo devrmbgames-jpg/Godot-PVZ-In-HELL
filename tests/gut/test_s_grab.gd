@@ -64,6 +64,11 @@ func after_each() -> void:
 	ECS.world = null
 
 
+func _apply_player_intent() -> void:
+	var intent_system: S_PlayerIntent = S_PlayerIntent.new()
+	intent_system.process([holder_entity], [[input_state]], 0.0)
+
+
 func make_holder(location: Vector3) -> Entity:
 	var rigid: RigidBody3D = RigidBody3D.new()
 	rigid.set_script(E_RigidBodyCharacter)
@@ -256,7 +261,7 @@ func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> vo
 	var original_look: Vector3 = input_state.direction_look
 	producer.look_mouse = Vector2(25.0, 15.0)
 	producer.process([holder_entity], [[input_state]], 1.0 / 60.0)
-	S_PlayerIntent.apply(holder_entity, input_state)
+	_apply_player_intent()
 	assert_eq(input_state.direction_look, original_look)
 	assert_eq(input_state.look_delta, Vector2(25.0, 15.0))
 	input_state.rotate_held = true
@@ -264,7 +269,7 @@ func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> vo
 	MarkerSessionService.end(marker, holder_entity)
 	producer.look_mouse = Vector2(25.0, 15.0)
 	producer.process([holder_entity], [[input_state]], 1.0 / 60.0)
-	S_PlayerIntent.apply(holder_entity, input_state)
+	_apply_player_intent()
 	assert_ne(input_state.direction_look, original_look, "Look resumes after drawing exits")
 	producer.free()
 
@@ -411,7 +416,8 @@ func test_disabled_or_distant_target_is_rejected() -> void:
 func test_raycast_selects_and_highlights_only_the_current_target() -> void:
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
-	var targeting: S_InteractionTargeting = InteractionTargetingService.new()
+	var targeting: S_InteractionTargeting = S_InteractionTargeting.new()
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
 	var mesh_instance: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
 	var previous_overlay: StandardMaterial3D = StandardMaterial3D.new()
@@ -419,14 +425,17 @@ func test_raycast_selects_and_highlights_only_the_current_target() -> void:
 	interactor.target = null
 	interactor.physics_target = null
 	targeting.process([holder_entity], [[interactor]], 0.0)
+	highlight.process([holder_entity], [[interactor]], 0.0)
 	assert_eq(interactor.target, box_entity)
 	assert_not_null(mesh_instance.material_overlay)
 	assert_ne(mesh_instance.material_overlay, previous_overlay)
 	var interaction_ray: RayCast3D = GrabService.interaction_raycast(holder_entity)
 	interaction_ray.rotation.y = PI
 	targeting.process([holder_entity], [[interactor]], 0.0)
+	highlight.process([holder_entity], [[interactor]], 0.0)
 	assert_null(interactor.target)
 	assert_eq(mesh_instance.material_overlay, previous_overlay)
+	highlight.free()
 	targeting.free()
 
 
@@ -479,7 +488,7 @@ func test_carry_mobility_scales_camera_manual_rotation_and_throw_velocity() -> v
 	input_state.direction_look = Vector3.FORWARD
 	input_system.look_mouse = Vector2(100.0, 0.0)
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
-	S_PlayerIntent.apply(holder_entity, input_state)
+	_apply_player_intent()
 	assert_almost_eq(
 		Vector3.FORWARD.angle_to(input_state.direction_look),
 		0.1,
@@ -521,7 +530,7 @@ func test_maximum_carry_mass_has_zero_look_rotation_and_throw_control() -> void:
 	input_state.direction_look = Vector3.FORWARD
 	input_system.look_mouse = Vector2(200.0, 100.0)
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
-	S_PlayerIntent.apply(holder_entity, input_state)
+	_apply_player_intent()
 	assert_eq(input_state.direction_look, Vector3.FORWARD)
 	input_system.free()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -798,7 +807,7 @@ func test_drop_long_press_input_does_not_emit_short_drop_on_release() -> void:
 	release_event.pressed = false
 	input_system.feed_event(release_event)
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
-	S_PlayerIntent.apply(holder_entity, input_state)
+	_apply_player_intent()
 	assert_false(input_state.drop_long_pressed)
 	assert_false(input_state.drop_pressed)
 	input_system.free()
@@ -1095,12 +1104,12 @@ func test_player_input_edges_are_consumed_once_on_physics_tick() -> void:
 	input_system.feed_event(event)
 	var holders: Array[Entity] = [holder_entity]
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
-	S_PlayerIntent.apply(holder_entity, input_state)
+	_apply_player_intent()
 	assert_true(input_state.interact_pressed)
 	GrabService.handle_input(holder_entity)
 	assert_eq(GrabService.held_object(holder_entity), box_entity)
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
-	S_PlayerIntent.apply(holder_entity, input_state)
+	_apply_player_intent()
 	assert_false(input_state.interact_pressed)
 	GrabService.handle_input(holder_entity)
 	assert_eq(GrabService.held_object(holder_entity), box_entity)
@@ -1116,20 +1125,20 @@ func test_rotation_priority_does_not_accumulate_camera_input() -> void:
 	Input.action_press(&"action_secondary")
 	input_system.look_mouse = Vector2(40.0, 20.0)
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
-	S_PlayerIntent.apply(holder_entity, input_state)
+	_apply_player_intent()
 	GrabService.handle_input(holder_entity)
 	assert_true(grab_control.rotation_active)
 	assert_eq(input_state.direction_look, Vector3.FORWARD)
 	assert_eq(input_state.look_delta, Vector2(40.0, 20.0))
 	Input.action_release(&"action_secondary")
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
-	S_PlayerIntent.apply(holder_entity, input_state)
+	_apply_player_intent()
 	GrabService.handle_input(holder_entity)
 	assert_false(grab_control.rotation_active)
 	assert_eq(input_state.direction_look, Vector3.FORWARD)
 	input_system.look_mouse = Vector2(10.0, 0.0)
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
-	S_PlayerIntent.apply(holder_entity, input_state)
+	_apply_player_intent()
 	assert_ne(input_state.direction_look, Vector3.FORWARD)
 	input_system.free()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -1243,8 +1252,10 @@ func test_overweight_scriptless_body_stays_highlighted_and_shows_weight_message(
 	await get_tree().physics_frame
 
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
-	var targeting_system: S_InteractionTargeting = InteractionTargetingService.new()
+	var targeting_system: S_InteractionTargeting = S_InteractionTargeting.new()
+	var highlight_system: S_InteractionHighlight = S_InteractionHighlight.new()
 	targeting_system.process([holder_entity], [[interactor]], 0.0)
+	highlight_system.process([holder_entity], [[interactor]], 0.0)
 
 	assert_eq(interactor.physics_target, rock)
 	assert_not_null(mesh.material_overlay)
@@ -1293,7 +1304,7 @@ func test_scriptless_rigid_body_respects_mass_and_no_carry_policy() -> void:
 	assert_null(PhysicsGrabTarget.handle_for(heavy, false))
 
 	heavy.mass = 5.0
-	heavy.add_to_group(C_GrabControl.NO_CARRY_GROUP)
+	heavy.add_to_group(GrabService.NO_CARRY_GROUP)
 	assert_false(
 		GrabService.can_pickup_body(
 			holder_entity,
