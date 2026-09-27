@@ -302,7 +302,7 @@ def _iter_markdown_files() -> list[Path]:
     for root_name in ("agent_tasks", "docs/roadmap"):
         root_path: Path = ROOT / root_name
         if root_path.exists():
-            files.extend(sorted(root_path.glob("*.md")))
+            files.extend(sorted(root_path.rglob("*.md")))
 
     return files
 
