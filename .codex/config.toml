@@ -1,8 +1,11 @@
+# Keep the main model/reasoning session-owned. Do not pin Astra here.
+# These bounds intentionally protect context/quota without truncating normal Godot diagnostics.
 project_doc_max_bytes = 8192
 tool_output_token_limit = 4000
 
 [agents]
 enabled = true
+# Opt-in subagents must run sequentially; avoid duplicate exploration/token races.
 max_concurrent_threads_per_session = 1
 
 [agents.reviewer]
