@@ -1,11 +1,16 @@
 # Current Work
 
-Task: R22.5 — GECS Architecture Polish
-Status: active
+Status: none
 
-- Working branch: `master` (repository has no remote `main` branch).
-- Source task: `agent_tasks/roadmap_22_5_gecs_architecture_polish.md`.
-- Preserve gameplay behavior; no addon/dependency edits and no rendered/visual Godot runs.
-- Implement by numbered architecture milestones with a commit after each coherent stage.
-- Runtime/GUT validation is reserved for the final R22.5 pass; milestone checks are static/deterministic.
-- Next: relationship authority + Cart Transport/Cargo migration (M0 / implementation stage 2).
+Populate this file only for a large interrupted task that the next agent is expected to resume.
+
+When active, keep only:
+- task + status;
+- exact source task/doc;
+- 2–5 non-obvious invariants;
+- changed paths;
+- validation already performed;
+- blocker, if any;
+- one exact next step.
+
+Do not duplicate roadmap text or subsystem documentation here.

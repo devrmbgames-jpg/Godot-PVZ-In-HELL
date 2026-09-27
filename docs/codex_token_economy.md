@@ -1,78 +1,103 @@
-# Codex lean workflow
+# Astra lean workflow
 
 ## Goal
 
-Keep project-specific context small without weakening correctness.
+Optimize this repository for GPT-6 Astra without paying a permanent context cost for documentation that is only occasionally relevant.
 
-The main model should work directly from the user's task and code. Repository documents are references, not a mandatory startup sequence.
-
-## Default context path
-
-For an ordinary task:
+The default workflow is progressive disclosure:
 
 ```text
 AGENTS.md (automatic)
--> exact task paths/symbols
--> direct owner/contract/callers/tests
+-> exact task symbols/paths
+-> direct owner + contract + callers/tests
 -> edit
 -> narrow validation
 ```
 
-Do **not** automatically read `CURRENT_WORK.md`, `PROJECT_INDEX.md`, root/subsystem `CONTEXT.md`, roadmap files, or multiple skills.
+Do not preload `CURRENT_WORK.md`, `PROJECT_INDEX.md`, root/subsystem `CONTEXT.md`, roadmap files, token-economy docs, or multiple skills.
 
-Use:
-- `CURRENT_WORK.md` only to resume unfinished work;
-- `PROJECT_INDEX.md` only when the owner/path is unclear;
-- `CONTEXT.md` only when a concrete contract is missing;
-- roadmap/task docs only for that exact roadmap task.
+## Context routing
 
-Prefer exact symbol search and targeted ranges over repository-wide reading. Avoid full large `.tscn`, logs, and diffs when a narrow query is enough.
+Read only when needed:
+- `CURRENT_WORK.md`: resume an interrupted task explicitly referenced by the user;
+- `PROJECT_INDEX.md`: owner/path is unclear;
+- root/subsystem `CONTEXT.md`: a concrete cross-system invariant is missing;
+- `agent_tasks/*`: that exact roadmap task is being implemented/resumed;
+- subsystem docs: the edited feature depends on their contract;
+- dependency source under `addons/`: version-sensitive API is uncertain.
+
+Prefer exact symbol search and file ranges over full-file/repository dumps. Large `.tscn`, logs, roadmaps, and diffs should be filtered before they enter the main context.
+
+## Astra reasoning
+
+The repository does not pin the main model or reasoning level. Keep that choice session-owned.
+
+Suggested Astra usage:
+- ordinary bugfix / focused implementation: medium;
+- cross-system ECS/physics refactor: high;
+- difficult architecture audit with conflicting evidence: high, occasionally xhigh;
+- max: exceptional cases only.
+
+Do not raise reasoning merely because the repository is large. Reduce input context first.
 
 ## Skills
 
-Skills are specialized references, not generic coding instructions.
+Keep the installed project skill set intentionally small:
+- `gecs-v8`;
+- `gut-testing`;
+- `professional-game-design`.
 
-Keep only:
-- `gecs-v8` for GECS-specific API/architecture work;
-- `gut-testing` for authoring/running GUT tests;
-- `professional-game-design` for design work.
+Descriptions should stay narrow. Do not create generic Godot, GDScript, coding-style, repository-navigation, or “project rules” skills that duplicate `AGENTS.md`.
 
-General Godot/GDScript/project rules belong in the short `AGENTS.md` and should not require additional skill loading.
+A skill is a specialized on-demand reference, not another startup instruction file.
 
 ## Subagents
 
-Subagents are disabled by policy for routine navigation, implementation, and validation even though the feature remains available.
+Routine work stays with the main agent. Only two opt-in roles exist:
+- `reviewer`: focused independent review of a substantial completed diff;
+- `validator`: explicitly requested noisy validation with compressed output.
 
-Only two project roles remain:
-- `reviewer`: opt-in independent review of a substantial completed diff;
-- `validator`: opt-in execution of explicitly requested noisy validation.
-
-Use one at a time. Do not spawn speculative agents. The main agent owns architecture and final decisions.
+Never spawn speculative agents. Run at most one subagent at a time. The main agent owns architecture and final decisions.
 
 ## Checkpoints
 
-Do not create bookkeeping for small/medium tasks.
+Small/medium tasks have no bookkeeping.
 
-For long or interruptible work:
-- `agent_tasks/<task>.md` contains detailed task scope;
-- `CURRENT_WORK.md` contains only a compact resume checkpoint;
-- `task_history.md` gets one short completion line.
+For long interruptible work:
+- `agent_tasks/<task>.md` holds task scope;
+- large task docs act as routers and link smaller milestone files;
+- `CURRENT_WORK.md` holds only the resume checkpoint and otherwise stays `Status: none`;
+- `task_history.md` stores one short completion line.
 
-There is no second `WORK.md` checklist.
+Do not create a second `WORK.md`.
 
 ## Validation economy
 
-Milestones use static/deterministic checks and changed-file formatting/lint.
+Ordinary milestones use static/deterministic checks only.
 
-For a complete large `Rxx` / `Rxx.x` implementation, normally run the relevant GUT surface once and the relevant headless smoke/runtime surface once near completion. A blocking failure may justify one earlier targeted run.
+For a complete large `Rxx` / `Rxx.x` task, normally use one relevant GUT invocation and one relevant headless smoke/runtime invocation near completion. An early blocking run consumes that budget; additional reruns should have a concrete reason or explicit approval.
 
-Rendered/visual Godot validation remains opt-in and user-owned.
+Rendered/visual Godot remains opt-in and user-owned.
 
 ## Config guardrails
 
-Project `.codex/config.toml` uses:
-- `project_doc_max_bytes = 8192` to keep automatically loaded project instructions bounded;
-- `tool_output_token_limit = 4000` to limit accidental log/diff flooding;
-- `max_concurrent_threads_per_session = 1` so opt-in subagents cannot race/duplicate work.
+`.codex/config.toml` intentionally keeps:
+- `project_doc_max_bytes = 8192`;
+- `tool_output_token_limit = 4000`;
+- `max_concurrent_threads_per_session = 1`.
 
-The project does not select the main model. The user/session remains responsible for that choice.
+Do not reduce the tool output limit aggressively: Godot/GUT parse errors and stacks can require a few thousand tokens before filtering.
+
+Do not pin the main Astra model in repository config. Session/model switching should remain possible; cheaper reviewer/validator models may be used for their bounded roles.
+
+## Document size targets
+
+These are maintenance targets, not hard runtime rules:
+- `AGENTS.md`: <= 8 KB;
+- root `CONTEXT.md`: <= 5 KB;
+- subsystem `CONTEXT.md`: preferably <= 8 KB;
+- `PROJECT_INDEX.md`: preferably <= 7 KB;
+- active roadmap router: preferably <= 5 KB;
+- `CURRENT_WORK.md`: <= 1 KB.
+
+If a document grows beyond its target, split detail into on-demand subsystem or milestone docs instead of increasing startup context.
