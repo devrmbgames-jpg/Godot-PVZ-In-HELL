@@ -27,7 +27,7 @@ static func update(cart: E_TransportCart, delta: float) -> void:
 			config.cargo.erase(loaded)
 
 	var present: Dictionary[int, bool] = { }
-	for node: Node3D in cart.cargo_area.get_overlapping_bodies():
+	for node: Node3D in cart.get_cargo_area().get_overlapping_bodies():
 		var candidate: Entity = node as Node as Entity
 		if not _loadable(candidate):
 			continue

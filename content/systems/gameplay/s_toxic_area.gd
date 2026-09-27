@@ -41,7 +41,7 @@ func _apply_tick(effect: E_ToxicArea, hazard: C_Hazard, profile: DEF_ToxicArea, 
 		return
 
 	var seen: Dictionary[int, bool] = { }
-	for body: Node3D in effect.area.get_overlapping_bodies():
+	for body: Node3D in effect.get_area().get_overlapping_bodies():
 		var target: Entity = HazardTargets.entity_for(body)
 		if target == effect or not EntityAvailability.contains(target, _world):
 			continue

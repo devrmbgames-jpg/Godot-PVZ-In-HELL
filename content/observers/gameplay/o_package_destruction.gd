@@ -65,8 +65,7 @@ func _replace_with_debris(
 		push_error("Package debris scene must use E_PackageDebris on a Node3D root")
 		return
 
-	debris.source_package_id = package_id
-	debris.source_definition = definition
+	debris.configure_source(package_id, definition)
 	debris.name = "Debris_%s" % package_id if not package_id.is_empty() else "PackageDebris"
 	_world.add_child(debris)
 	spatial.global_transform = world_pose

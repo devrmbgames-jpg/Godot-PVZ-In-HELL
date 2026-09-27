@@ -42,4 +42,4 @@ func _configure(entity: Entity) -> void:
 	var mesh: SphereMesh = SphereMesh.new()
 	mesh.radius = profile.radius
 	mesh.height = profile.radius * 2.0
-	effect.visual.mesh = mesh
+	effect.get_visual().mesh = mesh

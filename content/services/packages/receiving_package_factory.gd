@@ -71,7 +71,7 @@ static func try_place(zone: E_ReceivingZone, parcel: E_Package) -> bool:
 	query.collision_mask = body.collision_mask | body.collision_layer
 	var zone_node: Node3D = zone as Node as Node3D
 	var space: PhysicsDirectSpaceState3D = zone_node.get_world_3d().direct_space_state
-	for child: Node in zone.spawn_points.get_children():
+	for child: Node in zone.get_spawn_points().get_children():
 		var marker: Node3D = child as Node3D
 		if marker == null:
 			continue

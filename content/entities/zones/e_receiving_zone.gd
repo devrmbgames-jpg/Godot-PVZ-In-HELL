@@ -4,8 +4,12 @@ class_name E_ReceivingZone
 
 @export var supply: DEF_Delivery = null
 @export var package_parent: Node3D = null
-@onready var spawn_points: Node3D = $SpawnPoints
-@onready var sign_label: Label3D = $Sign
+@onready var _spawn_points: Node3D = $SpawnPoints
+@onready var _sign_label: Label3D = $Sign
+
+
+func get_spawn_points() -> Node3D:
+	return _spawn_points
 
 
 func _process(_delta: float) -> void:
@@ -15,7 +19,7 @@ func _process(_delta: float) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if receiving == null or cycle == null or supply == null:
 		return
-	sign_label.text = "ПРИЁМКА · цикл %d\nПоставка: %d / %d%s" % [
+	_sign_label.text = "ПРИЁМКА · цикл %d\nПоставка: %d / %d%s" % [
 		cycle.day_index,
 		receiving.delivered_counts.get(cycle.day_index, 0),
 		supply.packages.size(),

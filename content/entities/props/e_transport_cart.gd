@@ -3,7 +3,11 @@ extends Entity
 ## Owns the CharacterBody cart callback boundary.
 class_name E_TransportCart
 
-@onready var cargo_area: Area3D = $CargoArea
+@onready var _cargo_area: Area3D = $CargoArea
+
+
+func get_cargo_area() -> Area3D:
+	return _cargo_area
 
 
 func _physics_process(delta: float) -> void:

@@ -17,14 +17,14 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 	sphere.radius = profile.radius
 	var shape_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 	shape_query.shape = sphere
-	shape_query.transform = Transform3D(Basis.IDENTITY, effect.spatial.global_position)
+	shape_query.transform = Transform3D(Basis.IDENTITY, effect.get_spatial().global_position)
 	shape_query.collision_mask = profile.target_mask
 	shape_query.collide_with_areas = false
-	var space: PhysicsDirectSpaceState3D = effect.spatial.get_world_3d().direct_space_state
+	var space: PhysicsDirectSpaceState3D = effect.get_spatial().get_world_3d().direct_space_state
 	var overlaps: Array[Dictionary] = space.intersect_shape(shape_query, profile.maximum_targets)
 	var hits: Dictionary[int, BlastHit] = { }
 	for overlap: Dictionary in overlaps:
-		_collect_hit(overlap, effect.spatial.global_position, profile.radius, hits)
+		_collect_hit(overlap, effect.get_spatial().global_position, profile.radius, hits)
 
 	var origin: Entity = hazard.origin if is_instance_valid(hazard.origin) else null
 	var origin_exclusions: Array[RID] = _origin_exclusions(origin)
@@ -35,7 +35,7 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 			continue
 
 		var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-			effect.spatial.global_position,
+			effect.get_spatial().global_position,
 			hit.point,
 			profile.obstacle_mask,
 		)
@@ -45,13 +45,13 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 		# A ground-contact explosion must not self-occlude merely because its center
 		# starts on/inside Environment. We only care about an obstacle between points.
 		ray.hit_from_inside = false
-		if not hit.point.is_equal_approx(effect.spatial.global_position):
+		if not hit.point.is_equal_approx(effect.get_spatial().global_position):
 			if not space.intersect_ray(ray).is_empty():
 				continue
 
 		var weight: float = pow(hit.weight, profile.falloff_power)
 		if profile.impulse > 0.0:
-			var direction: Vector3 = hit.point - effect.spatial.global_position
+			var direction: Vector3 = hit.point - effect.get_spatial().global_position
 			if direction.is_zero_approx():
 				direction = Vector3.UP
 			else:
