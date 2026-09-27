@@ -1,6 +1,6 @@
 # Developer Console Testing
 
-Status: active — Stage 1 complete; Stage 2 read-only diagnostics next.
+Status: active — Stage 2 complete; Stage 3 Package spawn/remove/register next.
 Scope: specification only; implementation has not started.
 
 ## Goal
@@ -150,7 +150,7 @@ No silent failures and no bare boolean result as user-facing output.
 ## Implementation progress
 
 - [x] Stage 1 — command registrar, target resolver, uniform output formatting.
-- [ ] Stage 2 — read-only diagnostics.
+- [x] Stage 2 — read-only diagnostics.
 - [ ] Stage 3 — Package spawn/remove/register.
 - [ ] Stage 4 — Customer outcomes/feedback/complaints.
 - [ ] Stage 5 — Wallet/penalty operations.
