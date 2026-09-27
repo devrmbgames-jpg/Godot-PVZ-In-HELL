@@ -1,127 +1,93 @@
 # Gameplay Context
 
-## Ownership and entry points
+Read this file only when a task crosses subsystem boundaries or the owning contract is unclear. For a focused bugfix, start from the named code and direct callers instead.
 
-`scenes/main_level.tscn` is the configured startup and project-owned prototype. It contains Player, receiving zone, scanners, marker, six numbered physical shelf compartments, terminal and day stations. Morning supply creates eight physical parcels, including 5/30/80kg carry profiles.
+## Runtime entry and scheduling
 
-The scene owns World, system groups, environment and an entity root named `Entityes`. World points to `../Entityes` and `Systems`.
+- Startup: `content/scenes/main_level.tscn`; glue: `content/scenes/main_level.gd`.
+- `main_level.gd` assigns `ECS.world` and processes coarse groups in the order Input -> Interaction -> Physics -> GamePlay.
+- Group/node order does not replace explicit `deps()` or physics-callback ownership.
+- RigidBody transform/velocity authority stays in Godot/Jolt. Character/body integration is orchestrated from Entity physics callbacks through independent solvers; scheduled Systems must not be used as imperative physics services.
+- Structural ECS mutation during iteration uses the pinned GECS-safe command/lifecycle path.
 
-## Scheduling and physics
+## ECS authority
 
-Warehouse `push_cart.tscn` uses a dedicated CharacterBody3D transport, separate from unchanged puzzle S_Push. S_CartTransport owns grounded forward/reverse/turning on the cart physics callback; CharacterMotionSolver delegates driver following while TRANSPORT capture is active. Settled rigid cargo uses bounded custom-integration assistance through S_CartCargo and restores ordinary physics on pickup/removal. Physical authority, cleanup, controls and supported terrain are documented in [cart_transport.md](../docs/cart_transport.md).
+- `C_*`: intrinsic/config/runtime state, or explicitly documented derived cache.
+- `R_*`: authoritative live Entity-to-Entity ownership/session/binding.
+- `S_*`: scheduled GECS behavior with a real query/process responsibility.
+- `O_*`: discrete/reactive lifecycle/event behavior.
+- services/solvers: reusable imperative domain logic or physics helpers that are not scheduled Systems.
+- `DEF_*`: immutable/shared authored design data.
+- UI/presentation reads authoritative state; it does not become gameplay authority.
 
-- `scenes/main_level.gd` assigns ECS.world on ready; `_physics_process` invokes Input, Interaction, Physics, then GamePlay. Input edges/deltas belong to one physics tick.
-- Physics scene nodes are CharacterMotionSolver, CharacterLookSolver, S_Jump and S_Crouch; Input contains S_PlayerInput. Interaction contains S_InteractionTargeting, S_Grab and O_GrabLifecycle (under Systems so GECS discovers it). GamePlay contains O_Damage for typed damage events and S_DayPhase; DaySession owns the singleton C_DayCycle. ShiftConsole and SleepPoint expose phase actions through contextual E/use.
-- Do not infer solver execution from scene-node order: `entities/characters/e_rigid_body_character.gd` explicitly calls CharacterMotionSolver, CharacterLookSolver and S_Crouch from `_integrate_forces`.
-- Physical velocity/transform changes go through the body/PhysicsDirectBodyState3D. The entity exposes standing/crouching shapes, camera root and head axes for the systems.
+A System never calls another System as a service. Order is expressed through groups/`deps()`; cross-system communication uses Components, Relationships, typed requests/events/results.
 
-## Task routing
+## Input and interaction
 
-| Task | Read contracts first | Implementation |
-| --- | --- | --- |
-| Input | `components/gameplay/c_controller.gd`, `components/input/c_player_input_controller.gd` | `systems/input/s_player_input.gd` |
-| Movement / floor contacts / impulses | `components/motion/c_motion.gd` | `systems/motion/s_motion.gd` |
-| Look | `components/motion/c_look.gd`, controller | `systems/motion/s_look.gd` |
-| Jump | `components/motion/c_jump.gd`, controller | `systems/motion/s_jump.gd`, motion solver |
-| Crouch | `components/motion/c_crouch.gd`, entity child references | `systems/motion/s_crouch.gd` |
-| Interaction / physical props | `components/interaction/`, `components/motion/c_carry_load.gd`, [mechanic contract](../docs/physical_grab.md) | `systems/interaction/`, `observers/interaction/o_grab_lifecycle.gd`, `entities/props/e_grabbable.gd` |
-| Attributes | `definitions/definition.gd`, `definitions/gameplay/def_attribute.gd` | `components/gameplay/c_attribute.gd`, `c_attribute_changed.gd`, `c_health.gd` |
+- `S_PlayerInput` captures raw input into `C_Controller`.
+- `S_PlayerIntent` converts controller input into gameplay-space motion/look according to current control focus.
+- Targeting and presentation are separate: `S_InteractionTargeting` writes `C_Interactor.target/physics_target`; `S_InteractionHighlight` renders highlight from that state.
+- `InteractionControlFocus` is the control-priority authority. Current priority order is MODAL > TRANSPORT/PUSH/CARRY as defined by the service > HANDS; drawing reserves its documented capture priority.
+- Contextual actions route through `InteractionActionResolver`; do not add parallel raw E/F/LMB/RMB consumers for ordinary item interactions.
+- Stable interaction contracts and control mapping live in `docs/physical_grab.md` and `docs/controls.md`.
 
-Paths in this table are relative to `content/`; filenames without a directory share the preceding component directory.
+## Grab, Push and Cart
 
-## Current behavior and boundaries
+- Held-item authority is `item --R_HeldBy--> actor`. `C_GrabControl.held_*` fields are derived reverse caches only.
+- Push authority is `cart --R_PushedBy--> actor`; `C_PushControl` is derived/cache state.
+- Cart driver/cargo authority is being normalized under R22.5; read the current code and the exact R22.5 milestone before changing those relationships.
+- Raw/scriptless `RigidBody3D` Carry is supported through `C_PhysicsBodyRef` proxy Entities; the physical body remains physics authority.
+- Carry mobility is Strength/mass driven. Detailed tuning, slots, anchors, collision exceptions, throws and rotation belong in `docs/physical_grab.md`.
+- Cart movement/cargo behavior belongs in `docs/cart_transport.md`.
 
-S_PlayerInput writes motion/look directions and primary, secondary, crouch and jump actions into C_Controller. S_Jump requires C_Jump, C_Controller and C_Motion. A fresh jump press while grounded and control-enabled adds an upward impulse to C_Motion.pending_impulse; CharacterMotionSolver consumes it during body integration. jump_force is an impulse in N*s, so the resulting velocity depends on body mass. Held buttons do not auto-jump on landing; airborne/disabled presses are not buffered. C_Jump.active is true only for the physics tick accepting the jump, and was_pressed tracks input history.
+## Damage and Health
 
-Health uses `definitions/gameplay/attributes/health.tres`. The presence of health data does not establish a combat system.
+- `C_Health` is the sole HP authority.
+- Damage enters through typed `DamageRequest` / `DamageRequestService` and is resolved by `O_Damage`; do not mutate HP from hazards/impact/UI directly.
+- Impact capture and throw attribution are separate from HP resolution. Source veto such as `C_NoDamage` must not be bypassed by spawned effects.
+- Living defeat and package destruction are different lifecycles. Do not infer removal merely from zero Health.
+- Canonical contract: `docs/damage_impact.md`.
 
-`tests/gut/test_s_jump.gd` covers impulse composition, held/repeated input, airborne/disabled input and invalid jump force through S_Jump.process. These unit tests do not validate full scene physics. For changes to GECS contracts, inspect the checked-out `addons/gecs/` source without modifying it.
+## Packages
 
-## Grab ownership, capture and Push (R06.1 + generic rigid-body extension)
+- `DEF_Package` is shared shipment metadata/configuration. It does not select the physical package variant; `scene_variants` are chosen by Receiving.
+- Runtime package identity is `C_Package.package_id`; Node paths/instance IDs are not persistent identity.
+- `C_PackageState` owns registration/scan/open/damage condition.
+- Concrete Package scenes own physical/presentation-specific configuration through scene-authored components.
+- Destruction: `C_PackageDestruction.debris_scene` is authored on each concrete Package scene. `O_PackageDestruction` creates that debris, transfers pose/velocities, registers it, stores source `package_id + DEF_Package` in `C_PackageDebris`, emits `PackageDebrisSpawnedEvent`, then removes the original Package.
+- Destruction does not release the warehouse registration number; domain departure/delivery owns that later lifecycle.
 
-The sole held-item authority is `item --R_HeldBy(slot)--> actor`. CARRY, RIGHT_HAND and LEFT_HAND have independent validated reverse caches in C_GrabControl. Allowed hand flags replace fixed item hands; anchors come from the runtime relation. Only Carry affects C_CarryLoad. Replacement validates target/slot/body/LOS before releasing the old occupant. RayCast excludes the actor and all three held physical bodies.
+## Hazards
 
-Player carries `C_Strength` derived from `C_Attribute`; default `base=value=1.0`. Carry limits are global and mass-based for both raw and GECS rigid bodies: full-control threshold `10 + 20 * Strength.value`, hard lift limit `90 + 30 * Strength.value`, with one linear mobility multiplier between them. `C_CarryLoad` stores actual held mass only. The same current-Strength multiplier scales locomotion max speed, mouse/gamepad look, physical head/body yaw, held-object manual rotation and throw velocity; movement acceleration stays unscaled. At Strength=1: <=30 kg is full control, 75 kg is 50%, 120 kg is 0%, >120 kg cannot be picked up.
+- Hazard effects are autonomous scenes. Package does not store a hazard enum/type.
+- `DEF_Package.hazard_on_damaged` and `hazard_on_destroyed` are optional `PackedScene` hooks only.
+- `O_PackageHazard` creates the short damaged effect from the Package.
+- Destroyed effects start from replacement debris via `PackageDebrisSpawnedEvent` / `O_PackageDestroyedHazard`.
+- `HazardSpawnService` + `O_HazardSpawn` are the generic factory path; definitions/lifetime/ownership live inside the hazard scene.
+- Follow ownership uses `R_HazardFollow`. A `FollowOrigin + Despawn` residue disappears when its owner is removed.
+- Explosion HP goes through Damage requests; physical blast impulse goes through `C_Motion.pending_impulse` for controlled characters and Godot/Jolt impulse for free RigidBodies.
+- Canonical contract and tuning: `docs/hazards.md`.
 
-Generic Carry also accepts a scriptless/non-GECS `RigidBody3D` when it is within reach, unfrozen, not in group `no_carry`, and its mass is within the holder's Strength-derived limit. Targeting keeps this separately in `C_Interactor.physics_target`; pickup lazily creates a runtime Entity proxy with `C_PhysicsBodyRef` so the same R_HeldBy authority/lifecycle is preserved without modifying the original Node. Raw bodies are Carry-only with default `GrabControlProfile`; authored `C_Grabbable` overrides hand-slot/throw/rotation/hold behavior, never movement slowdown.
+## Day, Receiving and registration
 
-InteractionControlFocus owns a registry of unique capture tokens (including nested captures from the same owner): MODAL > PUSH > CARRY > HANDS. Carry/Push relations and each Terminal release only their own token. Hand ownership remains intact while authored lowered anchors suspend hand control; the last release restores normal authored Arm anchors. Anchor transitions reset velocity sampling and allow a bounded physical transition. See [physical_grab.md](../docs/physical_grab.md) for solver and break-distance contracts.
+- `E_DaySession` owns the singleton `C_DayCycle`; phase transitions use typed requests and the day-phase processor.
+- Receiving spawns physical Package scenes from `DEF_Package.scene_variants`; it must preserve deterministic package identity and existing occupied space.
+- Registration number allocation is warehouse-global for active/undelivered packages: smallest free positive base number, displayed as `№001` etc. Day changes do not reset it; only authoritative departure releases it.
+- Scanner/terminal/receiving details live in their direct services/contracts and `PROJECT_INDEX.md` routes.
 
-S_Grab commands flush after ECS iteration; O_GrabLifecycle applies collision exceptions, sleeping state, Strength-derived Carry load state and idempotent cleanup. Physics bodies remain transform/velocity authority. Release preserves inertia; throw applies mass * configured delta-velocity * current Carry mobility. Manual rotation is configured per item (enabled, FREE/Y_ONLY offset, pickup reset) and scaled by the same mobility; Scanner disables it and Bucket uses Y_ONLY. No held transforms are teleported.
+## Persistence and IDs
 
-Push is separate: C_Pushable + `cart --R_PushedBy--> actor`, with C_PushControl as derived cache and O_PushLifecycle for lifecycle. S_Push validates front/range/LOS and actor/cart availability. W drives fixed forward speed, A/D fixed yaw speed; E/S ends without reverse traction. E_PushableBody integrates cart velocity and CharacterMotionSolver delegates planar actor handle-follow to S_Push. Modal capture pauses motors without releasing Push or hands. Authored PushCart is in the main scene, outside starting geometry.
+- Persistent/domain identity uses explicit stable IDs, never NodePath or instance ID.
+- Runtime Entity references are not durable save identity.
+- Relationships with durable meaning require an explicit persistence representation when R21 serialization is implemented; do not silently serialize live Object references.
 
-Interaction scheduling is targeting -> Push validation -> Grab/resolver, within Input -> Interaction -> Physics -> GamePlay. S_PlayerInput alone writes edges/move_axis/look_delta; Push captures camera heading, rotation consumes mouse delta without also rotating the camera. S_InteractionTargeting owns highlighting and restores previous overlays.
+## Validation routing
 
-## Package foundation (R01)
+Use the narrowest relevant surface:
+- repository structure: `python utils/validate_project_structure.py`;
+- changed-file formatter/lint/static checks;
+- Grab/input: `tests/gut/test_s_grab.gd`;
+- Jump: `tests/gut/test_s_jump.gd`;
+- feature smoke scenes under `tests/smoke/` via documented runner.
 
-`entities/packages/package.tscn` inherits the physical box and uses `E_Package`; receiving instantiates this scene with data-defined masses and grab profiles. `define_components()` only creates spawn-specific C_Package identity. C_PackageState and C_Health are scene-authored; receiving clones individual grab tuning without replacing those components. O_PackageConditionSetup initializes definition Health and impact profile once for both authored and received packages.
-
-`DEF_Package` is immutable shared shipment data: number, description, comment, recipient key and bitmask tags (Normal=1, Fragile=2, Heavy=4, Liquid=8). Heavy+Fragile is valid. Runtime registration, scan, opening and damage enums live only in `C_PackageState`; defaults are Unregistered/NotScanned/Closed/Undamaged.
-
-Receiving supplies deterministic package IDs; other dynamic instances generate a random 128-bit ID once at registration if none was supplied. Save/spawn code must restore that ID rather than regenerate it; Node paths and instance IDs are not persistent identity. `C_Package.package_id` is the registered identity; the entity export is initialization data. Future Customer work resolves `definition.recipient_id` into an authoritative `AssignedTo` relationship; no placeholder Customer Node is created.
-
-## Contextual actions (R02/R06.1)
-
-DEF_InteractionAction definitions are stateless handlers in C_InteractionActionSet. InteractionActionResolver selects one action per input through capture priority; within a source, higher priority wins with a documented lexical action_id tie-break. Commands revalidate target LOS. Handlers validate their own domain and tolerate a null target.
-
-E/F select free/replacement hands using state and C_GrabControl.swap_hand_controls; Carry capacity is independent. Tool PRIMARY means item use, mapped to LMB/RMB according to its physical hand; Alt throws that mapped hand. An occupied hand reserves input even without a valid action target. Carry owns E release/LMB throw/RMB rotate; generic active-hand rotation uses R only without hand-use input. G short-release drops Carry -> Left -> Right; configurable long-press opens a placeholder and suppresses drop. E/F/G and capture transitions cannot leak the same input into lower-priority actions. input_tick prevents duplicate routing; zero supports legacy direct/manual calls.
-
-C_Interactor.prompt_text is a gameplay-generated snapshot read by interaction_hud.tscn. InputMap provides E/F/mouse labels; phase status stays visible with free cursor. New attack/tool behavior belongs in this resolver contract, never in a parallel consumer of raw mouse input. Full player mapping: [controls.md](../docs/controls.md).
-
-## Day phases (R03)
-
-`DaySession` owns the only `C_DayCycle` (startup asserts uniqueness). `S_DayPhase` alone changes phase/day index; `DayTransitionRequest` captures the expected day and phase so duplicate/stale requests cannot skip phases. `DEF_DayPhaseAction` uses the R02 availability/execution contract, so contextual E prompts honor permissions.
-
-Morning and Evening have no timeout. ShiftConsole starts the shift; a second use finishes Day only when remaining_customer_events is zero. The explicit empty-schedule policy is zero events and manual FinishShift; R11 will own the actual remaining-event count. SleepPoint is available only in Evening. Sleep enters Night; a separate gameplay tick advances to Morning and increments day_index once.
-
-S_DayPhase emits night_started, morning_started and phase_changed. R21 can set night_ready=false synchronously on night_started, finish results/orders/save, then set it true to allow the next Morning. No save implementation exists yet. The HUD reads day/phase. Both stations are reachable from the starting area; `tests/smoke/day_cycle_smoke.tscn` drives their real raycast/E actions through a complete cycle and checks event gating, stale requests and the Night hold hook.
-
-## Playtest controls and character contacts
-
-Canonical controls: [docs/controls.md](../docs/controls.md). E first picks up when eligible, otherwise falls back to a target's USE action; F selects a distinct secondary action. Capture priority and physical hand mapping follow R06.1 above. Shared E/F edges execute once; prompt keys come from InputMap. Slot names INTERACT/USE denote primary/secondary interaction, not hardcoded keys.
-
-CharacterMaterial has zero contact friction and the body replaces global linear damping with zero. CharacterMotionSolver controls stopping/lateral friction and reads only floor material for ground traction, avoiding wall/ceiling friction without losing control acceleration. Preserve the user's collider/camera tuning. Held distance is 1.25 m. S_Grab sets angular velocity from shortest-arc rotation error / physics step (capped at max_rotation_speed); translation retains its physical spring. No transforms are teleported.
-
-HUD phase panel stays visible even with released cursor; phase_changed drives 4-second announcements. A rendered preview is available via tests/smoke/hud_preview.tscn (requires rendering; writes ignored tests/artifacts/hud_preview.png).
-
-## Damage/health (R04)
-
-O_Damage is the sole gameplay damage/heal writer. C_Health extends C_AttributeChanged: base is authored HP, value is computed maximum HP and current is remaining HP. Depletion is terminal until an explicit respawn/reset.
-
-DamageRequestService.submit publishes a copied typed DamageRequest to O_Damage through a World event, without a System service locator. Null/removed/non-Health targets are rejected at entry. O_Damage validates amounts and current Health, applies the source-side C_NoDamage veto (BLOCKED outcome, incoming damage and healing unaffected), and commits depletion before Health property notifications. The optional builder uses the same submit path.
-
-Processed requests publish typed World events under DamageResult.EVENT, including rejection and blocked outcomes. Positive Health crossing zero commits HEALTH_DEPLETED once before notifications. O_HealthLifecycle handles only C_Living: C_Death, grip release and control disable; the targeting processor clears its own selection/highlight on the next tick. O_PackageDamage commits Package condition; O_PackageDestruction replaces DESTROYED Package with scene-authored debris, preserves DEF_Package metadata on C_PackageDebris, then removes the original Package Entity. Healing restores non-depleted HP but does not undo package condition; depletion remains terminal.
-
-Packages and actors use the same C_Health arithmetic. Package definitions initialize maximum_health; there is no second integrity authority. Standalone damage_smoke was adapted to the shared contract; user accepted R08 after the current GUT suite passed and parcel impact/leak playtesting succeeded.
-
-
-## Morning supply (R05)
-
-`definitions/gameplay/deliveries/morning_supply.tres` is a DEF_Delivery with eight ordered DEF_Package entries. Entry keys must be unique and nonempty within the supply. Definitions own recipient, description/comment, composable tags, optional autonomous hazard scene hooks for Damaged/Destroyed, mass, carry/throw tuning and initial integrity. R08 owns package condition/opening; R09 resolves configured hazard scenes generically without a Package hazard type.
-
-`S_Receiving` runs after S_DayPhase in GamePlay. `C_Receiving` enqueues one BASE_SUPPLY ReceivingBatch per day, retaining incomplete older batches. Source distinguishes base supply from future PENDING_ORDER deliveries; no order fulfillment exists yet. Stable identity is `supply_key:day:entry_key`; delivery day is independent of registration day. Save work must restore both parcel IDs and receiving progress.
-
-During Morning, receiving checks actual parcel collision shape against candidate markers before instantiating at most one body per physics tick. Occupied slots are skipped; a full zone retries every 0.25 seconds and displays a request to clear space. Existing parcels are never moved, deleted or reorganized. Later mornings resume pending supply before the new batch. Physics owns bodies after their initial spawn transform. Reprocessing an existing package ID advances progress without recreating it.
-
-## Scanner and terminal (R06)
-
-Marker drawing uses the existing hand-use resolver and an independent DRAWING capture below MODAL. `S_Marker` runs after S_Grab; first-hit rays produce bounded package-local `C_PackageMarks` strokes, rendered by a child mesh. E/Esc restores look; loss of ownership cancels capture; authoritative package destruction clears ink. Registration and physical storage remain independent. Full ownership/input/R21 persistence contract: [package_marking.md](../docs/package_marking.md).
-
-`E_DaySession` supplies a fresh singleton C_PackageLedger beside C_DayCycle. PackageRegistrationService is the sole registration writer; DEF_ScanAction invokes it at the interaction command boundary. The held scanner reserves LMB, revalidates first-hit LOS and a 3 m range, and rejects Night/inactive actors/invalid parcels. All writes (ledger row, runtime number, registered/scanned states) happen synchronously before feedback. IDs are ledger keys. Runtime registration numbers are global reusable warehouse slot numbers: store the base as a positive integer and display it as `№001`, `№002`, etc. Never prefix it with day/cycle and never reset allocation at a day boundary. A new registration receives the **smallest free positive number** not currently occupied by an active/undelivered Package. A Package keeps its number across days until it leaves the warehouse lifecycle; only then does that base number return to the free pool and become eligible for reuse. Repeat scans return the original number without a second row. Future fragile/oversized suffixes are presentation/metadata only and must not affect allocation, numeric ordering or reuse. Immutable shipment_number is not the runtime registration number.
-
-Scanner feedback listens to PackageScanResult: successful and repeated scans beep and display the number. Terminal shows registrations for all active warehouse parcels across days, plus the last departure. `PackageRegistrationService.release_number(parcel)` accepts only authoritative `DELIVERED` state and marks its ledger record inactive; missing/deleted Nodes, damage and day changes never release reservations. Historical records keep their original base number even after reuse. The current Terminal is read-only: customer outcomes, declarations, value/penalty fields and disputes require their later domain stages. Closing with E/Esc restores cursor capture. The ledger is runtime-only pending R21 persistence. `label_printer.tres` defines a future printer; printing is not implemented.
-
-Validation: `tests/smoke/receiving_scan_smoke.tscn` checks eight unique parcels and tags/hazards, pickup/scan/repeat/beep, range/target rejection, terminal opening, blocked delivery, resumed next-day supply, preserved old positions, stable cross-day numbers and smallest-free-number reuse after departure. Require its PASS marker; use `--quit-after 360` as the frame safety limit. Rendering with `-- --preview` saves an ignored screenshot under tests/artifacts. No new GUT suite was added.
-
-## R08 impact and package condition
-
-Canonical contract: [damage_impact.md](../docs/damage_impact.md). ImpactCaptureSolver writes runtime body inboxes; S_Impact drains their iterate query and resolves independent contact episodes, submitting typed requests to O_Damage. S_ThrowLifetime owns its own query. No Damage/Impact System service locator or cross-System calls. Package profiles, severity protection, continuous liquid tilt and explicit F/open share typed lifecycle hooks. PackageConditionView is read-only. R08 was accepted by the user after GUT and gameplay checks on 2026-09-24; retain [manual checks](../docs/r08_manual_validation.md) for regressions. Further balancing is intentionally deferred.
-
-## Autonomous hazards (R09)
-
-`C_HazardEmitter` attaches reusable toxic/explosion scenes to any spatial Entity. `HazardSpawnService` snapshots typed requests; `O_HazardSpawn` creates independent nonphysical prefabs and deduplicates request IDs for the World lifetime. Package damage hazard starts from Package; destroyed hazard starts from the replacement debris via `PackageDebrisSpawnedEvent`. Effect setup consumes `HazardSpawnResult` after complete registration.
-
-`S_HazardFollow` precedes `S_ToxicArea`/`S_Explosion`; `S_HazardLifetime` runs afterward. Sources are actual effects, HP passes only through O_Damage, and impulses use Godot. C_NoDamage propagates from emitter, stable origin/instigator IDs survive removal. Pending one-shot resolution holds lifetime aging so a chain-created blast cannot expire before its first scheduled turn. Independent zones outlive their origins; follow policy explicitly detaches or despawns.
-
-`HazardResetRequest` removes nonpersistent effects (or all when requested); future night/save wiring belongs to R21. Reuse, tuning, LOS limitations and user-run acceptance are in [hazards.md](../docs/hazards.md). `tests/smoke/hazards_smoke.tscn` uses a separate World and non-Package fixtures; user runs it through `utils/run_smoke.ps1`.
+Do not run every suite after ordinary edits. See `AGENTS.md` for cadence.

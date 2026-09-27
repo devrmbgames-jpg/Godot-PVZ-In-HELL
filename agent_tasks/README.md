@@ -6,6 +6,8 @@ Canonical mapping/order: [docs/roadmap/README.md](../docs/roadmap/README.md).
 
 Create a file here only for unfinished work too large to recover from `CURRENT_WORK.md`. Completed task files are intentionally removed; verify completion in `task_history.md` instead of recreating them.
 
+For a large task that grows beyond roughly 5–8 KB, keep the root task file as a compact router and move detailed milestones into `agent_tasks/<task_slug>/`. The agent should read only the current milestone file, not the entire task folder.
+
 Template:
 
 ```md
@@ -36,6 +38,7 @@ Next exact file/symbol/command.
 ```
 
 Rules:
+- Keep the root task/router concise; prefer links over duplicated contracts.
 - Update after meaningful milestones.
 - Link exact paths/symbols instead of pasting source code.
 - Keep facts a fresh agent needs; omit narration and discarded exploration.
