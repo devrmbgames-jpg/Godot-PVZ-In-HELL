@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://8mucu2wcla8t"]
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+albedo_color = Color(0.38, 0.24, 0.12, 1)
+
+[sub_resource type="BoxMesh" id="Mesh"]
+size = Vector3(0.25, 0.25, 0.25)
+
+[node name="FlattenedCardboard_backup" type="Node3D" unique_id=1261367933]
+
+[node name="FlattenedCardboard" type="MeshInstance3D" parent="." unique_id=124880716]
+transform = Transform3D(0.92984486, -0.2421972, 0.2770002, 0.34252346, 0.84475434, -0.41117856, -0.1344108, 0.47721133, 0.8684487, 0, 0, 0)
+material_override = SubResource("Material")
+mesh = SubResource("Mesh")
+
+[node name="FlattenedCardboard2" type="MeshInstance3D" parent="." unique_id=43255567]
+transform = Transform3D(0.70203286, -0.18285887, 0.20913512, 0.25860518, 0.6377895, -0.3104398, -0.10148015, 0.36029455, 0.65567875, 0.12058884, 0, 0.12828591)
+material_override = SubResource("Material")
+mesh = SubResource("Mesh")
+
+[node name="FlattenedCardboard3" type="MeshInstance3D" parent="." unique_id=1703331928]
+transform = Transform3D(-0.060264237, 0.45650625, 0.8876769, 0.3425234, 0.84475434, -0.4111786, -0.93757445, 0.27927074, -0.20727256, 0.1411146, 0, -0.103484005)
+material_override = SubResource("Material")
+mesh = SubResource("Mesh")
+
+[node name="FlattenedCardboard4" type="MeshInstance3D" parent="." unique_id=606499113]
+transform = Transform3D(0.6018899, 0.008719299, 0.5193049, 0.2723061, 0.6715797, -0.32688695, -0.4422702, 0.42535836, 0.5054625, -0.14025927, 0, -0.13170691)
+material_override = SubResource("Material")
+mesh = SubResource("Mesh")
+
+[node name="FlattenedCardboard6" type="MeshInstance3D" parent="." unique_id=649821392]
+transform = Transform3D(0.6918865, -0.35787496, -0.15888244, 0.2723061, 0.6715797, -0.32688695, 0.28136715, 0.23006798, 0.7070547, -0.21124414, 0, 0.02907814)
+material_override = SubResource("Material")
+mesh = SubResource("Mesh")
+
+[node name="FlattenedCardboard7" type="MeshInstance3D" parent="." unique_id=1677263674]
+transform = Transform3D(0.41774282, -0.21607544, -0.09592902, 0.16441125, 0.40548205, -0.19736575, 0.16988206, 0.13890897, 0.4269009, 0.28308427, 0, 0.07098486)
+material_override = SubResource("Material")
+mesh = SubResource("Mesh")
+
+[node name="FlattenedCardboard8" type="MeshInstance3D" parent="." unique_id=378896879]
+transform = Transform3D(0.41774282, -0.21607544, -0.09592902, 0.16441125, 0.40548205, -0.19736575, 0.16988206, 0.13890897, 0.4269009, -0.028222919, 0, 0.23348036)
+material_override = SubResource("Material")
+mesh = SubResource("Mesh")
+
+[node name="FlattenedCardboard9" type="MeshInstance3D" parent="." unique_id=1104274005]
+transform = Transform3D(0.41774282, -0.21607544, -0.09592902, 0.16441125, 0.40548205, -0.19736575, 0.16988206, 0.13890897, 0.4269009, -0.020525753, 0, -0.23176995)
+material_override = SubResource("Material")
+mesh = SubResource("Mesh")
+
+[node name="FlattenedCardboard5" type="MeshInstance3D" parent="." unique_id=2126137154]
+transform = Transform3D(-0.29890797, 0.37332422, 0.51798457, 0.24147901, 0.5955517, -0.289881, -0.5910726, 0.054517243, -0.38037607, -0.16164023, 0, 0.18900792)
+material_override = SubResource("Material")
+mesh = SubResource("Mesh")
