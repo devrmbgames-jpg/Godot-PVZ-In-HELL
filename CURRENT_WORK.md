@@ -1,13 +1,25 @@
 # Current Work
 
-Status: active — R11.1 milestone 1 complete; runtime integration pending
-Task: `agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md`
+Status: active
+Task: Developer Console Testing
+Source: agent_tasks/developer_console_testing.md
+Current milestone: Stage 1 complete
 
-- Progress lives on affected target/action; live actor/target/tool binding uses Relationships.
-- A held input completes once; ON_COMPLETE rearms only after release/interruption.
-- Physical storage owns concrete entities; Placement only assists physics placement, never owns them.
-- Preserve existing user edits to main_level, customer schedule, debris scene, addons and UID files.
+Invariants:
+- addons/console stays generic; project commands live under content/debug/.
+- console callbacks do not become gameplay authority.
+- Actual Customer outcome and Terminal declaration remain separate.
+- debug commands are production-disabled by default.
 
-Changed: prolonged timing/progress/session data, pure progress solver, prepared GUT coverage.
-Validation: structure and diff whitespace PASS; formatter unavailable; no GUT/Godot/visual run.
-Next: wire prolonged lifecycle into InteractionActionResolver, held E/F input and read-only HUD.
+Changed paths:
+- content/debug/debug_target.gd
+- content/debug/debug_target_resolver.gd
+- content/debug/developer_console_output.gd
+- content/debug/developer_console_commands.gd
+- content/scenes/main_level.tscn
+
+Validation:
+- static inspection only; Godot/GUT not run.
+
+Next:
+- Stage 2: implement pkg_list, pkg_info, visit_info, wallet_info and health_info as read-only commands.

@@ -103,6 +103,7 @@
 [ext_resource type="Script" path="res://content/systems/gameplay/s_customer_flow.gd" id="Customer_system"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/customers/def_customer_schedule_default.tres" id="Customer_schedule"]
 [ext_resource type="PackedScene" path="res://content/entities/stations/delivery_counter.tscn" id="Delivery_counter"]
+[ext_resource type="Script" path="res://content/debug/developer_console_commands.gd" id="DeveloperConsole"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
@@ -281,6 +282,9 @@ script = ExtResource("2_da1x8")
 entity_nodes_root = NodePath("../Entityes")
 system_nodes_root = NodePath("Systems")
 metadata/_custom_type_script = "uid://cdu5tlyk72uu4"
+
+[node name="DeveloperConsoleCommands" type="Node" parent="World"]
+script = ExtResource("DeveloperConsole")
 
 [node name="Systems" type="Node" parent="World" unique_id=2085808117]
 
