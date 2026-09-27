@@ -19,6 +19,10 @@ const PACKAGE_DECLARE_COMMAND: String = "pkg_declare"
 const PACKAGE_COMPLAINT_COMMAND: String = "pkg_complaint"
 const COMPLAINT_RESOLVE_COMMAND: String = "complaint_resolve"
 const PACKAGE_APPROVE_COMMAND: String = "pkg_approve"
+const MONEY_ADD_COMMAND: String = "money_add"
+const MONEY_REMOVE_COMMAND: String = "money_remove"
+const PENALTY_ADD_COMMAND: String = "penalty_add"
+const PENALTY_REMOVE_COMMAND: String = "penalty_remove"
 
 var _registered_commands: PackedStringArray = []
 
@@ -108,6 +112,10 @@ func _ready() -> void:
 	_register_command("pkg_delivered", _pkg_delivered, ["package"], 1, "Alias for factual delivered.")
 	_register_command("pkg_customer_refused", _pkg_customer_refused, ["package"], 1, "Alias for factual customer refusal.")
 	_register_command("pkg_player_denied", _pkg_player_denied, ["package"], 1, "Alias for factual player denial.")
+	_register_command(MONEY_ADD_COMMAND, _money_add, ["amount", "note"], 1, "Journaled debug credit.")
+	_register_command(MONEY_REMOVE_COMMAND, _money_remove, ["amount", "note"], 1, "Journaled forced debug debit.")
+	_register_command(PENALTY_ADD_COMMAND, _penalty_add, ["amount", "note"], 1, "Journaled manual debug penalty.")
+	_register_command(PENALTY_REMOVE_COMMAND, _penalty_remove, ["amount", "note"], 1, "Compensating reversal of manual debug penalty.")
 	var common_targets: PackedStringArray = PackedStringArray(["self", "target"])
 	Console.add_command_autocomplete_list(RESOLVE_COMMAND, common_targets)
 	Console.add_command_autocomplete_list(HEALTH_INFO_COMMAND, common_targets)
@@ -405,3 +413,48 @@ func _pkg_customer_refused(raw_target: String) -> void:
 
 func _pkg_player_denied(raw_target: String) -> void:
 	_pkg_actual(raw_target, "player_denied")
+
+
+
+func _money_add(amount_text: String, note: String = "") -> void:
+	_run_money_command(MONEY_ADD_COMMAND, amount_text, note, MoneyOperation.Reason.DEBUG_CREDIT)
+
+
+func _money_remove(amount_text: String, note: String = "") -> void:
+	_run_money_command(MONEY_REMOVE_COMMAND, amount_text, note, MoneyOperation.Reason.DEBUG_DEBIT)
+
+
+func _penalty_add(amount_text: String, note: String = "") -> void:
+	_run_money_command(PENALTY_ADD_COMMAND, amount_text, note, MoneyOperation.Reason.DEBUG_PENALTY)
+
+
+func _penalty_remove(amount_text: String, note: String = "") -> void:
+	_run_money_command(
+		PENALTY_REMOVE_COMMAND,
+		amount_text,
+		note,
+		MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL,
+	)
+
+
+func _run_money_command(
+	command: String,
+	amount_text: String,
+	note: String,
+	reason: MoneyOperation.Reason,
+) -> void:
+	if not amount_text.is_valid_int():
+		DeveloperConsoleOutput.error(command, "amount must be a positive integer")
+		return
+	var amount: int = amount_text.to_int()
+	var result: DebugServiceResult = DebugServiceResult.new()
+	match reason:
+		MoneyOperation.Reason.DEBUG_CREDIT:
+			result = DebugEconomyService.credit(amount, note)
+		MoneyOperation.Reason.DEBUG_DEBIT:
+			result = DebugEconomyService.debit(amount, note)
+		MoneyOperation.Reason.DEBUG_PENALTY:
+			result = DebugEconomyService.penalty(amount, note)
+		MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL:
+			result = DebugEconomyService.reverse_penalty(amount, note)
+	_print_service_result(command, result)

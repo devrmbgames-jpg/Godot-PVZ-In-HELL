@@ -2,7 +2,18 @@ extends Resource
 ## Stable identity is supplied by the producer and must survive retries/save-load.
 class_name MoneyOperation
 
-enum Reason { PAYMENT, PURCHASE, VOLUNTARY_BUYOUT, LOST, PLAYER_REFUSAL, CONFIRMED_FRAUD }
+enum Reason {
+	PAYMENT,
+	PURCHASE,
+	VOLUNTARY_BUYOUT,
+	LOST,
+	PLAYER_REFUSAL,
+	CONFIRMED_FRAUD,
+	DEBUG_CREDIT,
+	DEBUG_DEBIT,
+	DEBUG_PENALTY,
+	DEBUG_PENALTY_REVERSAL,
+}
 
 @export var operation_id: StringName = &""
 @export var reason: Reason = Reason.PAYMENT
@@ -10,3 +21,5 @@ enum Reason { PAYMENT, PURCHASE, VOLUNTARY_BUYOUT, LOST, PLAYER_REFUSAL, CONFIRM
 @export var day_index: int = 1
 ## Shipment/dispute outcome identity; required for package settlements.
 @export var settlement_id: StringName = &""
+## Optional human-readable context for explicit debug/manual operations.
+@export var note: String = ""

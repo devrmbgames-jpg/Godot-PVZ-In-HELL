@@ -1,6 +1,6 @@
 # Developer Console Testing
 
-Status: active — Stage 4 complete; Stage 5 Wallet/penalty operations next.
+Status: active — Stage 5 complete; Stage 6 Damage/kill/heal/reset next.
 Scope: specification only; implementation has not started.
 
 ## Goal
@@ -153,7 +153,7 @@ No silent failures and no bare boolean result as user-facing output.
 - [x] Stage 2 — read-only diagnostics.
 - [x] Stage 3 — Package spawn/remove/register.
 - [x] Stage 4 — Customer outcomes/feedback/complaints.
-- [ ] Stage 5 — Wallet/penalty operations.
+- [x] Stage 5 — Wallet/penalty operations.
 - [ ] Stage 6 — Damage/kill/heal/reset.
 - [ ] Stage 7 — Convenience day/customer commands.
 - [ ] Stage 8 — Autocomplete/help.

@@ -109,6 +109,7 @@ static func wallet_info() -> PackedStringArray:
 	var lines: PackedStringArray = [
 		"balance=%d" % wallet.balance,
 		"penalties=%d" % wallet.penalties,
+		"debug_penalty_outstanding=%d" % DebugEconomyService.manual_penalty_outstanding(wallet),
 		"completed_days=%d" % wallet.completed_days,
 	]
 	if cycle != null:
@@ -132,6 +133,8 @@ static func wallet_info() -> PackedStringArray:
 				String(operation.operation_id),
 			]
 		)
+		if not operation.note.is_empty():
+			lines.append("  note=%s" % operation.note)
 	return lines
 
 

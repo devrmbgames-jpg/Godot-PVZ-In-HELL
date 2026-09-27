@@ -31,9 +31,17 @@ static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int)
 		return Status.INVALID
 	if operation.amount < 0 or operation.amount > MAX_AMOUNT:
 		return Status.INVALID
-	if operation.reason < MoneyOperation.Reason.PAYMENT or operation.reason > MoneyOperation.Reason.CONFIRMED_FRAUD:
+	if (
+		operation.reason < MoneyOperation.Reason.PAYMENT
+		or operation.reason > MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL
+	):
 		return Status.INVALID
-	if operation.reason >= MoneyOperation.Reason.VOLUNTARY_BUYOUT and operation.settlement_id == &"":
+	if _requires_settlement(operation.reason) and operation.settlement_id == &"":
+		return Status.INVALID
+	if (
+		operation.reason == MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL
+		and operation.amount > _debug_penalty_outstanding(wallet)
+	):
 		return Status.INVALID
 	for previous: MoneyOperation in wallet.operations:
 		var same_id: bool = previous.operation_id == operation.operation_id
@@ -44,7 +52,7 @@ static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int)
 			return Status.CONFLICT
 	if operation.day_index != current_day or current_day < 1:
 		return Status.INVALID
-	var credit: bool = operation.reason == MoneyOperation.Reason.PAYMENT
+	var credit: bool = _is_credit(operation.reason)
 	if operation.reason == MoneyOperation.Reason.PURCHASE and wallet.balance < operation.amount:
 		return Status.INSUFFICIENT_FUNDS
 	var change: int = operation.amount if credit else -operation.amount
@@ -54,11 +62,14 @@ static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int)
 	var daily: DailyMoneyResult = _day(wallet, current_day)
 	wallet.balance += change
 	wallet.operations.append(record)
-	if credit:
-		daily.income += operation.amount
-	elif operation.reason >= MoneyOperation.Reason.LOST:
+	if operation.reason == MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL:
+		wallet.penalties -= operation.amount
+		daily.penalties -= operation.amount
+	elif _is_penalty(operation.reason):
 		wallet.penalties += operation.amount
 		daily.penalties += operation.amount
+	elif credit:
+		daily.income += operation.amount
 	else:
 		daily.spending += operation.amount
 	daily.closing_balance = wallet.balance
@@ -104,3 +115,40 @@ static func _day(wallet: C_Wallet, day_index: int) -> DailyMoneyResult:
 	daily.closing_balance = wallet.balance
 	wallet.daily_results.append(daily)
 	return daily
+
+
+
+static func _requires_settlement(reason: MoneyOperation.Reason) -> bool:
+	return (
+		reason == MoneyOperation.Reason.VOLUNTARY_BUYOUT
+		or reason == MoneyOperation.Reason.LOST
+		or reason == MoneyOperation.Reason.PLAYER_REFUSAL
+		or reason == MoneyOperation.Reason.CONFIRMED_FRAUD
+	)
+
+
+static func _is_credit(reason: MoneyOperation.Reason) -> bool:
+	return (
+		reason == MoneyOperation.Reason.PAYMENT
+		or reason == MoneyOperation.Reason.DEBUG_CREDIT
+		or reason == MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL
+	)
+
+
+static func _is_penalty(reason: MoneyOperation.Reason) -> bool:
+	return (
+		reason == MoneyOperation.Reason.LOST
+		or reason == MoneyOperation.Reason.PLAYER_REFUSAL
+		or reason == MoneyOperation.Reason.CONFIRMED_FRAUD
+		or reason == MoneyOperation.Reason.DEBUG_PENALTY
+	)
+
+
+static func _debug_penalty_outstanding(wallet: C_Wallet) -> int:
+	var outstanding: int = 0
+	for operation: MoneyOperation in wallet.operations:
+		if operation.reason == MoneyOperation.Reason.DEBUG_PENALTY:
+			outstanding += operation.amount
+		elif operation.reason == MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL:
+			outstanding -= operation.amount
+	return maxi(0, outstanding)
