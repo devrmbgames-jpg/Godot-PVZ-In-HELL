@@ -96,6 +96,9 @@
 [ext_resource type="PackedScene" path="res://content/entities/stations/terminal.tscn" id="Terminal_scene"]
 [ext_resource type="Script" uid="uid://d374l476phm" path="res://content/systems/gameplay/s_throw_lifetime.gd" id="ThrowLifetime"]
 
+[ext_resource type="Script" path="res://content/components/gameplay/c_wallet.gd" id="Wallet_state"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_wallet_day.gd" id="Wallet_system"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -208,6 +211,9 @@ reserved_slots = 4
 [sub_resource type="Resource" id="Resource_6yccx"]
 resource_local_to_scene = true
 script = ExtResource("41_1hfqo")
+
+[sub_resource type="Resource" id="Wallet_state"]
+script = ExtResource("Wallet_state")
 
 [sub_resource type="Resource" id="Day_state"]
 script = ExtResource("Day_state")
@@ -345,6 +351,10 @@ group = &"GamePlay"
 
 [node name="S_Impact" type="Node" parent="World/Systems/GamePlay" unique_id=1737982216]
 script = ExtResource("ImpactSystem")
+group = &"GamePlay"
+
+[node name="S_WalletDay" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Wallet_system")
 group = &"GamePlay"
 
 [node name="S_DayPhase" type="Node" parent="World/Systems/GamePlay" unique_id=525864446]
@@ -966,7 +976,7 @@ component_resources = Array[ExtResource("Grab_component")]([SubResource("Resourc
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state")])
 
 [node name="ShiftConsole" parent="Entityes" unique_id=1907900219 instance=ExtResource("Day_station")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.5317445, 0, -5)

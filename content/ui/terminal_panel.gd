@@ -80,4 +80,19 @@ func _refresh() -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle != null:
 		_title.text = "СКЛАДСКОЙ РЕЕСТР · ДЕНЬ %d" % cycle.day_index
-		_registry.text = PackageRegistrationService.terminal_text()
+		_registry.text = _economy_text(cycle) + PackageRegistrationService.terminal_text()
+
+
+func _economy_text(cycle: C_DayCycle) -> String:
+	var wallet: C_Wallet = WalletService.current()
+	if wallet == null:
+		return ""
+	var summary: String = "Баланс: %d · Штрафы всего: %d · Завершено смен: %d\n" % [
+		wallet.balance, wallet.penalties, wallet.completed_days,
+	]
+	for daily: DailyMoneyResult in wallet.daily_results:
+		if daily.day_index == cycle.day_index:
+			summary += "За день: доход %d · покупки/выкуп %d · штрафы %d\n" % [
+				daily.income, daily.spending, daily.penalties,
+			]
+	return summary + "\n"

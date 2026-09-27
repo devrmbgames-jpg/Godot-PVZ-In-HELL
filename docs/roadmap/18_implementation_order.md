@@ -48,7 +48,7 @@ Completed 2026-09-24; confirmed in [task_history.md](../../task_history.md). Dur
 
 ## R09 — Package Hazards
 
-Task: [roadmap_09_package_hazards.md](../../agent_tasks/roadmap_09_package_hazards.md)
+Completed: [hazard contract](../hazards.md); user acceptance 2026-09-27.
 
 Основной источник: [ТЗ 06](06_package_damage_and_hazards.md).
 
@@ -61,7 +61,7 @@ Task: [roadmap_09_package_hazards.md](../../agent_tasks/roadmap_09_package_hazar
 
 ## R10 — Wallet / Daily Results
 
-Task: [roadmap_10_wallet_and_daily_results.md](../../agent_tasks/roadmap_10_wallet_and_daily_results.md)
+Completed: [wallet contract](../economy.md); GUT and headless wallet smoke 2026-09-27.
 
 Источники: [ТЗ 07](07_customer_flow_and_delivery.md), [ТЗ 14](14_evening_meta_scaffold.md), [ТЗ 15](15_night_save_next_day.md).
 

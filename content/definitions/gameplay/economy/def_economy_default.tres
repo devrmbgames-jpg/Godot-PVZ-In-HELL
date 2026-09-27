@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DEF_Economy" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/economy/def_economy.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+key = &"default_economy"

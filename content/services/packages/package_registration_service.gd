@@ -144,13 +144,14 @@ static func terminal_text() -> String:
 		if not record.active:
 			status = "Выдана · последняя завершённая"
 		lines.append(
-			"№%03d   ·   %s\n%s\n%s\n%s"
+			"№%03d   ·   %s\n%s\n%s\n%s\nУчётная стоимость: %d"
 			% [
 				record.number,
 				status,
 				definition.description,
 				definition.comment,
 				_tag_text(definition),
+				definition.accounting_value,
 			]
 		)
 	return (

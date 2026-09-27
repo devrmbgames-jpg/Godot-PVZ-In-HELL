@@ -9,6 +9,8 @@ enum Tag {
 	LIQUID = 8,
 }
 
+## Accounting value in whole monetary units; independent of trader resale price.
+@export_range(0, 1000000000) var accounting_value: int = 100
 @export var shipment_number: String = ""
 @export_multiline var description: String = ""
 @export_multiline var comment: String = ""
