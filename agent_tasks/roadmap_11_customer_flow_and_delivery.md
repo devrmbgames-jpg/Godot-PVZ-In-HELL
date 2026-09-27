@@ -1,8 +1,8 @@
 # R11 — Клиенты, расписание и физическая выдача
 
-Status: planned
+Status: active
 Зависимости: R03, R06, R08, R10
-Ветка/base: зафиксировать при начале реализации.
+Branch/base: master / c21ec7a.
 Источники: [ТЗ 01](../docs/roadmap/01_gecs_gameplay_model.md), [ТЗ 07](../docs/roadmap/07_customer_flow_and_delivery.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md).
 
 ## Цель
@@ -47,3 +47,11 @@ GUT: все варианты выдачи, однократная оплата, 
 ## Первый шаг
 
 Проверить завершение зависимостей по task_history.md и существующим контрактам, затем прочитать указанные исходники и актуализировать WORK.md/CURRENT_WORK.md. При реализации не считать непроверенные пункты выполненными.
+
+## Milestones
+
+1. Persistent visit/complaint contracts, customer data and deterministic outcome/settlement rules.
+2. Live AssignedTo, schedule, customer physics glue, counter and terminal closeout.
+3. Focused GUT and one headless customer-flow walkthrough; durable docs and closure.
+
+Preserve pre-existing edits: `addons/gecs`, `content/entities/packages/package_debris_stub.tscn`, eight untracked R09 `.gd.uid` files. No rendered validation authorized.
