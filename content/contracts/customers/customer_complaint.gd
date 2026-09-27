@@ -1,9 +1,11 @@
 extends Resource
 class_name CustomerComplaint
 
+enum Reason { NOT_DELIVERED, DAMAGED }
 enum Outcome { PENDING, CONFIRMED, FALSE_CLAIM, WAIVED_PLAYER_DEFEAT, ALREADY_SETTLED, NO_LIVING_CLAIMANT }
 
 @export var complaint_id: StringName = &""
+@export var reason: Reason = Reason.NOT_DELIVERED
 @export var created_day: int = 0
 @export var resolve_day: int = 0
 @export var outcome: Outcome = Outcome.PENDING

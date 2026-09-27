@@ -5,7 +5,16 @@ class_name CustomerVisit
 enum Actual { NOT_RESOLVED, DELIVERED, CUSTOMER_REFUSED, PLAYER_DENIED }
 enum Declaration { NONE, TAKEN, REFUSED, LOST }
 enum Disposition { WAREHOUSE, DELIVERED, RETURNED, BOUGHT_OUT }
-enum Reputation { NONE, PLAYER_DENIAL, LOST, CONFIRMED_REFUSAL, FRAUD, FALSE_COMPLAINT }
+enum Reputation {
+	NONE,
+	PLAYER_DENIAL,
+	LOST,
+	CONFIRMED_REFUSAL,
+	FRAUD,
+	FALSE_COMPLAINT,
+	DAMAGED_COMPLAINT,
+}
+enum Feedback { NONE, APPROVED }
 
 @export var visit_id: StringName = &""
 @export var customer_id: StringName = &""
@@ -19,6 +28,10 @@ enum Reputation { NONE, PLAYER_DENIAL, LOST, CONFIRMED_REFUSAL, FRAUD, FALSE_COM
 @export var disposition: Disposition = Disposition.WAREHOUSE
 @export var reputation: Reputation = Reputation.NONE
 @export var satisfaction: int = 0
+@export var feedback: Feedback = Feedback.NONE
+## Persistent delivery facts used by delayed complaint adjudication.
+@export var package_damaged: bool = false
+@export var package_opened: bool = false
 @export var started: bool = false
 @export var finished: bool = false
 @export var finished_day: int = 0

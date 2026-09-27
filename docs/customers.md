@@ -24,9 +24,11 @@ R10 remains the only monetary writer. Delivered + Taken pays the authored delive
 
 Voluntary refusal is distinct from player denial. The player can buy the physical parcel out for 100%, leaving it in the world, or bring it back to the counter the following Morning and choose Return. Both release its number through an explicit warehouse departure reason (BOUGHT_OUT/RETURNED); the terminal retains the latest departed parcel. Return neither refunds nor deletes an already-created complaint. A legitimate complaint about a voluntarily refused order is a separate operation from legal buyout. Future inventory/ownership can consume the visit's BOUGHT_OUT disposition.
 
+Complaint records retain a typed reason (`NOT_DELIVERED` or `DAMAGED`). Delivery stores persistent damaged/opened facts on the visit so delayed damaged-package complaints remain adjudicable after the physical Package is gone. A confirmed damaged complaint currently records a dedicated reputation hook with zero monetary delta; its future monetary penalty is intentionally not hard-coded without a separate game-design value.
+
 Complaint decisions retain the true physical outcome. Successful delivery makes a non-delivery complaint false: the customer-specific record grants a default seven-game-day retaliation reputation window, [resolved_day, resolved_day + 7). A false Taken complaint from a customer defeated by the player before resolution records WAIVED_PLAYER_DEFEAT, keeps the negative fraud reputation reason and charges no money. Other dead claimants have an explicit NO_LIVING_CLAIMANT result. Records remain usable after customer Nodes disappear.
 
-`CustomerVisit.reputation` and complaint reason/window fields are future reputation hooks; no global reputation score is implemented. Satisfaction does not replace these reasons. Policy probabilities and timeouts are authored in `DEF_Customer`; rolls are drawn once per stable visit ID and persisted.
+`CustomerVisit.reputation`, typed positive feedback (`APPROVED`) and complaint reason/window fields are future reputation hooks; no global reputation score is implemented. Satisfaction does not replace these reasons. Policy probabilities and timeouts are authored in `DEF_Customer`; rolls are drawn once per stable visit ID and persisted.
 
 ## Persistence and regression
 
