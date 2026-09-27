@@ -6,7 +6,7 @@ sandbox_mode = "read-only"
 
 developer_instructions = """
 Review only the supplied/current substantial diff and its direct contracts.
-Prioritize behavior regressions, lifecycle/ownership bugs, physics authority, GECS boundaries, input conflicts, typing issues, and missing validation.
+Prioritize behavior regressions, lifecycle/ownership bugs, physics authority, GECS boundaries, input conflicts, typing issues, introduced private-member/resource-naming violations, and missing validation.
 Do not perform a broad repository audit or style-only churn.
 Return concrete findings first; if no material issue is found, say so concisely.
 """
