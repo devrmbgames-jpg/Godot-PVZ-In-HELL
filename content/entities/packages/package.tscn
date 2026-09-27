@@ -14,7 +14,7 @@
 [ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
 [ext_resource type="Script" uid="uid://5wjxyxypacw" path="res://content/ui/package_condition_view.gd" id="ConditionView"]
 [ext_resource type="PackedScene" path="res://content/entities/packages/package_debris_stub.tscn" id="Debris"]
-[ext_resource type="Script" uid="uid://bj8kcalmwyad0" path="res://content/components/gameplay/c_package_destruction.gd" id="Effects"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_package_destruction.gd" id="Effects"]
 [ext_resource type="Script" uid="uid://2hnkpig3umk" path="res://content/components/gameplay/c_impact_protection.gd" id="ImpactProtection"]
 [ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
 [ext_resource type="Script" uid="uid://j2ak34c5rfig" path="res://content/components/gameplay/c_package_marks.gd" id="Marks"]
@@ -46,7 +46,7 @@ resource_local_to_scene = true
 script = ExtResource("Marks")
 
 
-[sub_resource type="Resource" id="Resource_m86xv"]
+[sub_resource type="Resource" id="PackageDestruction"]
 resource_local_to_scene = true
 script = ExtResource("Effects")
 debris_scene = ExtResource("Debris")
@@ -72,7 +72,7 @@ actions = Array[ExtResource("ActionBase")]([SubResource("OpenAction")])
 script = ExtResource("2_package")
 package_id = ""
 package_definition = SubResource("Definition")
-component_resources = Array[ExtResource("4_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_7rdfx"), SubResource("Resource_3kixs"), SubResource("Resource_vy0mo"), SubResource("Resource_m86xv"), SubResource("Resource_4sia5"), SubResource("Resource_bo5wx"), SubResource("Actions")])
+component_resources = Array[ExtResource("4_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_7rdfx"), SubResource("Resource_3kixs"), SubResource("Resource_vy0mo"), SubResource("PackageDestruction"), SubResource("Resource_4sia5"), SubResource("Resource_bo5wx"), SubResource("Actions")])
 
 [node name="Marks" type="MeshInstance3D" parent="." index="2" unique_id=1073720280]
 cast_shadow = 0
