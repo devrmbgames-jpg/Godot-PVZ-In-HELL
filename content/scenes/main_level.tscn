@@ -987,14 +987,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0375915, 1.0400136, -4.9966
 
 [node name="Barrel_C_rigid" parent="." unique_id=1866096492 instance=ExtResource("79_ypydk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.046048, 0.50476074, 9.94565)
+collision_layer = 8
 mass = 60.0
 
 [node name="Barrel_B_rigid" parent="." unique_id=1117412504 instance=ExtResource("78_at2gx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.036787, 0.50476074, 10.108931)
+collision_layer = 8
 mass = 118.0
 
 [node name="Barrel_A_rigid" parent="." unique_id=821314681 instance=ExtResource("77_iit40")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.9766665, 0.5047612, 10.233412)
+collision_layer = 8
 mass = 130.0
 
 [editable path="Entityes/Player"]
