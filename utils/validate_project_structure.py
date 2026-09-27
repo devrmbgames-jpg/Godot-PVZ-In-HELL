@@ -289,6 +289,8 @@ def _check_res_paths(errors: list[str]) -> None:
                 continue
 
             file_part: str = resource_path.split("::", 1)[0]
+            if file_part.endswith("/") or file_part.startswith("res://tests/artifacts/"):
+                continue
             local_path: Path = ROOT / file_part.removeprefix("res://")
             if not local_path.exists():
                 errors.append(

@@ -16,7 +16,7 @@ Base: master / e9ecb7f.
 - [O_PackageDamage](../content/observers/gameplay/o_package_damage.gd), [O_PackageOpening](../content/observers/gameplay/o_package_opening.gd), [S_LiquidTilt](../content/systems/gameplay/s_liquid_tilt.gd);
 - [DamageRequestService](../content/services/damage/damage_request_service.gd) и [damage_request.gd](../content/contracts/damage/damage_request.gd);
 - [DEF_Package](../content/definitions/gameplay/packages/def_package.gd) и [R08 contract](../docs/damage_impact.md).
-- [e_grabbable_body.gd](../content/entities/props/e_grabbable_body.gd) и [s_motion.gd](../content/systems/motion/s_motion.gd) читать только перед физическим этапом Explosion.
+- [e_grabbable_body.gd](../content/entities/props/e_grabbable_body.gd) и [CharacterMotionSolver](../content/services/motion/character_motion_solver.gd) читать только перед физическим этапом Explosion.
 
 Имена новых типов ниже — проектируемые, а не утверждение о существовании файлов. Не создавать параллельный R09: канонический ID — R09.
 

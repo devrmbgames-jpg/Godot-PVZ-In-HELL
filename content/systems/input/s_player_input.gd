@@ -5,7 +5,7 @@ class_name S_PlayerInput
 const DEAD_ZONE: float = 0.1
 const GAMEPAD_LOOK_PIXELS_PER_SECOND: float = 900.0
 
-var look_mouse: Vector2 = Vector2.ZERO
+var _look_mouse: Vector2 = Vector2.ZERO
 var _interact_pending: bool = false
 var _throw_pending: bool = false
 var _use_pending: bool = false
@@ -33,7 +33,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseMotion:
 		var mouse_event: InputEventMouseMotion = event as InputEventMouseMotion
-		look_mouse += mouse_event.relative
+		_look_mouse += mouse_event.relative
 	if event.is_action_pressed(&"interact") and not event.is_echo():
 		_interact_pending = true
 	if event.is_action_pressed(&"action_primary") and not event.is_echo():
@@ -84,12 +84,12 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		controller.action_crouch = captured and Input.is_action_pressed(&"crouch")
 		controller.action_jump = captured and Input.is_action_pressed(&"jump")
 		controller.look_delta = (
-			look_mouse + gamepad_look * GAMEPAD_LOOK_PIXELS_PER_SECOND * delta
+			_look_mouse + gamepad_look * GAMEPAD_LOOK_PIXELS_PER_SECOND * delta
 			if captured else Vector2.ZERO
 		)
 		controller.move_axis = move_axis
 
-	look_mouse = Vector2.ZERO
+	_look_mouse = Vector2.ZERO
 	_interact_pending = false
 	_throw_pending = false
 	_use_pending = false

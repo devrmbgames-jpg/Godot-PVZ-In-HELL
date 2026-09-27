@@ -12,7 +12,7 @@ Status: planned
 ## Начать здесь
 
 - [content/systems/interaction/s_grab.gd](../content/systems/interaction/s_grab.gd)
-- [content/systems/motion/s_motion.gd](../content/systems/motion/s_motion.gd)
+- [CharacterMotionSolver](../content/services/motion/character_motion_solver.gd)
 - [content/scenes/main_level.tscn](../content/scenes/main_level.tscn)
 
 Затем прочитать контракты, созданные задачами-зависимостями. Имена новых типов из roadmap — проектируемые контракты, а не утверждение о существующих файлах.

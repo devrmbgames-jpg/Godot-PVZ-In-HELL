@@ -11,7 +11,7 @@ Status: planned
 
 ## Начать здесь
 
-- [content/systems/motion/s_motion.gd](../content/systems/motion/s_motion.gd)
+- [CharacterMotionSolver](../content/services/motion/character_motion_solver.gd)
 - [content/components/motion/c_carry_load.gd](../content/components/motion/c_carry_load.gd)
 
 Затем прочитать контракты, созданные задачами-зависимостями. Имена новых типов из roadmap — проектируемые контракты, а не утверждение о существующих файлах.

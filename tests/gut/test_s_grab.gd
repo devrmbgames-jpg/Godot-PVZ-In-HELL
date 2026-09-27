@@ -12,6 +12,12 @@ class CapturedInput extends S_PlayerInput:
 		_unhandled_input(event)
 
 
+func _mouse_motion(relative: Vector2) -> InputEventMouseMotion:
+	var event: InputEventMouseMotion = InputEventMouseMotion.new()
+	event.relative = relative
+	return event
+
+
 class ProbeAction extends DEF_InteractionAction:
 	var calls: int = 0
 
@@ -259,7 +265,7 @@ func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> vo
 		InteractionControlFocus.Priority.DRAWING,
 	)
 	var original_look: Vector3 = input_state.direction_look
-	producer.look_mouse = Vector2(25.0, 15.0)
+	producer.feed_event(_mouse_motion(Vector2(25.0, 15.0)))
 	producer.process([holder_entity], [[input_state]], 1.0 / 60.0)
 	_apply_player_intent()
 	assert_eq(input_state.direction_look, original_look)
@@ -267,7 +273,7 @@ func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> vo
 	input_state.rotate_held = true
 	assert_false(InteractionActionResolver.wants_rotation(holder_entity, input_state))
 	MarkerSessionService.end(marker, holder_entity)
-	producer.look_mouse = Vector2(25.0, 15.0)
+	producer.feed_event(_mouse_motion(Vector2(25.0, 15.0)))
 	producer.process([holder_entity], [[input_state]], 1.0 / 60.0)
 	_apply_player_intent()
 	assert_ne(input_state.direction_look, original_look, "Look resumes after drawing exits")
@@ -486,7 +492,7 @@ func test_carry_mobility_scales_camera_manual_rotation_and_throw_velocity() -> v
 	add_child(input_system)
 	var holders: Array[Entity] = [holder_entity]
 	input_state.direction_look = Vector3.FORWARD
-	input_system.look_mouse = Vector2(100.0, 0.0)
+	input_system.feed_event(_mouse_motion(Vector2(100.0, 0.0)))
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
 	_apply_player_intent()
 	assert_almost_eq(
@@ -528,7 +534,7 @@ func test_maximum_carry_mass_has_zero_look_rotation_and_throw_control() -> void:
 	add_child(input_system)
 	var holders: Array[Entity] = [holder_entity]
 	input_state.direction_look = Vector3.FORWARD
-	input_system.look_mouse = Vector2(200.0, 100.0)
+	input_system.feed_event(_mouse_motion(Vector2(200.0, 100.0)))
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
 	_apply_player_intent()
 	assert_eq(input_state.direction_look, Vector3.FORWARD)
@@ -1120,10 +1126,10 @@ func test_player_input_edges_are_consumed_once_on_physics_tick() -> void:
 func test_rotation_priority_does_not_accumulate_camera_input() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
-	var input_system: S_PlayerInput = CapturedInput.new()
+	var input_system: CapturedInput = CapturedInput.new()
 	var holders: Array[Entity] = [holder_entity]
 	Input.action_press(&"action_secondary")
-	input_system.look_mouse = Vector2(40.0, 20.0)
+	input_system.feed_event(_mouse_motion(Vector2(40.0, 20.0)))
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
 	_apply_player_intent()
 	GrabService.handle_input(holder_entity)
@@ -1136,7 +1142,7 @@ func test_rotation_priority_does_not_accumulate_camera_input() -> void:
 	GrabService.handle_input(holder_entity)
 	assert_false(grab_control.rotation_active)
 	assert_eq(input_state.direction_look, Vector3.FORWARD)
-	input_system.look_mouse = Vector2(10.0, 0.0)
+	input_system.feed_event(_mouse_motion(Vector2(10.0, 0.0)))
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
 	_apply_player_intent()
 	assert_ne(input_state.direction_look, Vector3.FORWARD)

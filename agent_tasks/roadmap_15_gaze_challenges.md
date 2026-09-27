@@ -11,7 +11,7 @@ Status: planned
 
 ## Начать здесь
 
-- [content/systems/motion/s_look.gd](../content/systems/motion/s_look.gd)
+- [CharacterLookSolver](../content/services/motion/character_look_solver.gd)
 - [content/scenes/main_level.tscn](../content/scenes/main_level.tscn)
 
 Затем прочитать контракты, созданные задачами-зависимостями. Имена новых типов из roadmap — проектируемые контракты, а не утверждение о существующих файлах.
