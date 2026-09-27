@@ -20,3 +20,5 @@
 - 2026-09-27 — Astra context refactor: shortened always/routinely read docs, reset stale checkpoint, split R22.5 into milestone-on-demand files, retained bounded tool/project context and sequential opt-in subagents.
 - 2026-09-27 — Project code-style guardrails added: private non-exported behavior state and all @onready caches require "_" prefixes; authored .tres resources use searchable type prefixes; structure validator enforces both and existing definitions were renamed to def_*.
 - 2026-09-27 — Code-style guardrails hardened: private-by-default behavior members, private-only @onready caches, and searchable canonical prefixes for project-authored Resource files enforced by project structure validation.
+
+- 2026-09-27 ? R09 completed: autonomous ToxicArea/Explosion and package adapters; tests and runtime acceptance confirmed by user. Durable contract: `docs/hazards.md`.
