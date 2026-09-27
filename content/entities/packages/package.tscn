@@ -14,13 +14,12 @@
 [ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
 [ext_resource type="Script" uid="uid://5wjxyxypacw" path="res://content/ui/package_condition_view.gd" id="ConditionView"]
 [ext_resource type="PackedScene" path="res://content/entities/packages/package_debris_stub.tscn" id="Debris"]
-[ext_resource type="Script" uid="uid://bj8kcalmwyad0" path="res://content/components/gameplay/c_health_depletion_effects.gd" id="Effects"]
+[ext_resource type="Script" uid="uid://bj8kcalmwyad0" path="res://content/components/gameplay/c_package_destruction.gd" id="Effects"]
 [ext_resource type="Script" uid="uid://2hnkpig3umk" path="res://content/components/gameplay/c_impact_protection.gd" id="ImpactProtection"]
 [ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
 [ext_resource type="Script" uid="uid://j2ak34c5rfig" path="res://content/components/gameplay/c_package_marks.gd" id="Marks"]
 [ext_resource type="Script" uid="uid://dtug3ioxot1tv" path="res://content/ui/package_marks_view.gd" id="MarksView"]
 [ext_resource type="Script" uid="uid://ejcfj2vkgak" path="res://content/definitions/interaction/def_open_package_action.gd" id="OpenAction"]
-[ext_resource type="Script" uid="uid://b5a5ljmyxkdmd" path="res://content/definitions/gameplay/def_depletion_spawn.gd" id="Spawn"]
 
 [sub_resource type="Resource" id="Definition"]
 script = ExtResource("3_definition")
@@ -46,15 +45,11 @@ definition = ExtResource("9_lkmb4")
 resource_local_to_scene = true
 script = ExtResource("Marks")
 
-[sub_resource type="Resource" id="DebrisEntry"]
-script = ExtResource("Spawn")
-key = &"debris"
-scene = ExtResource("Debris")
 
 [sub_resource type="Resource" id="Resource_m86xv"]
 resource_local_to_scene = true
 script = ExtResource("Effects")
-spawns = Array[ExtResource("Spawn")]([SubResource("DebrisEntry")])
+debris_scene = ExtResource("Debris")
 
 [sub_resource type="Resource" id="Resource_4sia5"]
 resource_local_to_scene = true

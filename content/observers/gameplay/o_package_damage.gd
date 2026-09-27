@@ -1,5 +1,5 @@
 extends Observer
-## Maps generic applied Health damage to package condition without deleting physical wrecks.
+## Maps generic Health damage to Package condition; destruction replacement is handled separately.
 class_name O_PackageDamage
 
 

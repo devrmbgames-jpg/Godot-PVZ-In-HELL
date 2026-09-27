@@ -68,6 +68,7 @@
 [ext_resource type="Script" uid="uid://bupm4th6s12s4" path="res://content/systems/interaction/s_marker.gd" id="Marker_system"]
 [ext_resource type="Script" uid="uid://6aul5eahny" path="res://content/observers/gameplay/o_package_condition_setup.gd" id="PackageConditionSetup"]
 [ext_resource type="Script" uid="uid://23bxju80ro1e" path="res://content/observers/gameplay/o_package_damage.gd" id="PackageDamage"]
+[ext_resource type="Script" path="res://content/observers/gameplay/o_package_destruction.gd" id="PackageDestruction"]
 [ext_resource type="Script" uid="uid://b6kqjvf7okt" path="res://content/observers/gameplay/o_package_hazard.gd" id="PackageHazard"]
 [ext_resource type="Script" path="res://content/observers/gameplay/o_package_destroyed_hazard.gd" id="PackageDestroyedHazard"]
 [ext_resource type="Script" uid="uid://87f03fqiuik" path="res://content/observers/gameplay/o_package_opening.gd" id="PackageOpening"]
@@ -327,6 +328,9 @@ script = ExtResource("RemoveOnHealthDepleted")
 
 [node name="O_PackageDamage" type="Node" parent="World/Systems/GamePlay" unique_id=873750374]
 script = ExtResource("PackageDamage")
+
+[node name="O_PackageDestruction" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("PackageDestruction")
 
 [node name="O_DepletionEffects" type="Node" parent="World/Systems/GamePlay" unique_id=577150]
 script = ExtResource("DepletionEffects")
