@@ -1,8 +1,8 @@
 # R11.1 — Расширенные взаимодействия, физические слоты и расстановка
 
-Status: planned
+Status: active — milestone 1 implemented; runtime integration pending
 Зависимости: R02, R06.1
-Ветка/base: зафиксировать при начале реализации.
+Branch/base: master / 2d07761.
 Источники: [ТЗ 02](../docs/roadmap/02_core_interaction_and_physics.md), [R06.1](../docs/roadmap/06_1_interaction_hands_carry_push.md), [ТЗ 08.1](../docs/roadmap/08_1_arrangement_extended_interactions.md), [ТЗ 12](../docs/roadmap/12_inventory_and_consumables.md), [ТЗ 13](../docs/roadmap/13_environment_interactables.md).
 
 ## Цель
@@ -64,3 +64,7 @@ Physics integration: placement collision validity, неподвижность п
 ## Первый шаг
 
 Проверить завершение R02/R06.1 по `task_history.md`, затем зафиксировать data model prolonged interaction + physical slot/placement ownership в WORK.md/CURRENT_WORK.md и реализовать только первый маленький milestone.
+
+## Текущий этап
+
+Первый небольшой milestone выполнен: данные и расчёт prolonged progress, без runtime wiring. Модель владения, решения, проверки и точный следующий шаг: [milestone 1](r11_1/milestone_1_prolonged_foundation.md). R11.1 остаётся открытой.
