@@ -2,10 +2,10 @@ extends GutTest
 ## Regression checks for R08 parcel toughness, impact caps and authored thresholds.
 
 const REGULAR: DEF_ImpactProfile = preload(
-	"res://content/definitions/gameplay/impact_default.tres"
+	"res://content/definitions/gameplay/def_impact_default.tres"
 )
 const FRAGILE: DEF_ImpactProfile = preload(
-	"res://content/definitions/gameplay/impact_fragile.tres"
+	"res://content/definitions/gameplay/def_impact_fragile.tres"
 )
 const SUPPLY: DEF_Delivery = preload(
 	"res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres"

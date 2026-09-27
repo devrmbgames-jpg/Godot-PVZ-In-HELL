@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://content/entities/hazards/toxic_area.tscn" id="Base"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/hazards/toxic_residue.tres" id="Definition"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/hazards/def_toxic_residue.tres" id="Definition"]
 
 [node name="ToxicResidue" instance=ExtResource("Base")]
 definition = ExtResource("Definition")

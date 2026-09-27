@@ -22,7 +22,7 @@
 [ext_resource type="Resource" path="res://content/definitions/gameplay/attributes/def_attr_strength.tres" id="StrengthDef"]
 
 [ext_resource type="Script" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/impact_living.tres" id="LivingImpact"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/def_impact_living.tres" id="LivingImpact"]
 
 [sub_resource type="PhysicsMaterial" id="CharacterMaterial"]
 friction = 0.0

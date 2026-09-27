@@ -24,7 +24,7 @@ enum Tag {
 
 ## Generic impact profile, independent of descriptive tags and package lifecycle state.
 @export var impact_profile: DEF_ImpactProfile = preload(
-	"res://content/definitions/gameplay/impact_default.tres"
+	"res://content/definitions/gameplay/def_impact_default.tres"
 )
 
 ## Liquid-only continuous exposure; returning upright resets the timer completely.

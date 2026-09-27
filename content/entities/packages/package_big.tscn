@@ -11,7 +11,7 @@
 [ext_resource type="Script" uid="uid://j2ak34c5rfig" path="res://content/components/gameplay/c_package_marks.gd" id="8_adrli"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_package_destruction.gd" id="9_85caw"]
 [ext_resource type="PackedScene" path="res://content/entities/packages/package_debris_stub.tscn" id="11_4hhpw"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/impact_default.tres" id="12_tca5u"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/def_impact_default.tres" id="12_tca5u"]
 [ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="13_qu43d"]
 [ext_resource type="Script" uid="uid://2hnkpig3umk" path="res://content/components/gameplay/c_impact_protection.gd" id="14_wwa0k"]
 [ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="15_uvvrq"]

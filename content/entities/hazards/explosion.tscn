@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://xw8mjih3muua"]
 
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Component"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/hazards/parcel_blast.tres" id="Definition"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/hazards/def_parcel_blast.tres" id="Definition"]
 [ext_resource type="Script" uid="uid://o0wmd4xwoq" path="res://content/components/gameplay/c_explosion.gd" id="Effect"]
 [ext_resource type="Script" uid="uid://ealj1ax256s" path="res://content/entities/hazards/e_explosion.gd" id="Entity"]
 
