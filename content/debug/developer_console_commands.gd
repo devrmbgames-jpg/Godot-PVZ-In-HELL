@@ -23,6 +23,10 @@ const MONEY_ADD_COMMAND: String = "money_add"
 const MONEY_REMOVE_COMMAND: String = "money_remove"
 const PENALTY_ADD_COMMAND: String = "penalty_add"
 const PENALTY_REMOVE_COMMAND: String = "penalty_remove"
+const APPLY_DAMAGE_COMMAND: String = "apply_damage"
+const HEAL_COMMAND: String = "heal"
+const KILL_COMMAND: String = "kill"
+const RESET_COMMAND: String = "reset"
 
 var _registered_commands: PackedStringArray = []
 
@@ -116,6 +120,10 @@ func _ready() -> void:
 	_register_command(MONEY_REMOVE_COMMAND, _money_remove, ["amount", "note"], 1, "Journaled forced debug debit.")
 	_register_command(PENALTY_ADD_COMMAND, _penalty_add, ["amount", "note"], 1, "Journaled manual debug penalty.")
 	_register_command(PENALTY_REMOVE_COMMAND, _penalty_remove, ["amount", "note"], 1, "Compensating reversal of manual debug penalty.")
+	_register_command(APPLY_DAMAGE_COMMAND, _apply_damage, ["target", "amount", "damage_type"], 2, "Submit typed damage to a Health target.")
+	_register_command(HEAL_COMMAND, _heal, ["target", "amount"], 2, "Submit typed healing to a non-depleted Health target.")
+	_register_command(KILL_COMMAND, _kill, ["target"], 0, "Deplete a Health target through DamageRequest. Defaults to self.")
+	_register_command(RESET_COMMAND, _reset, ["target"], 0, "Reset a live C_Living entity. Defaults to self.")
 	var common_targets: PackedStringArray = PackedStringArray(["self", "target"])
 	Console.add_command_autocomplete_list(RESOLVE_COMMAND, common_targets)
 	Console.add_command_autocomplete_list(HEALTH_INFO_COMMAND, common_targets)
@@ -458,3 +466,77 @@ func _run_money_command(
 		MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL:
 			result = DebugEconomyService.reverse_penalty(amount, note)
 	_print_service_result(command, result)
+
+
+
+func _apply_damage(
+	raw_target: String,
+	amount_text: String,
+	damage_type_text: String = "",
+) -> void:
+	var amount: float = _positive_float(APPLY_DAMAGE_COMMAND, amount_text)
+	if amount <= 0.0:
+		return
+	var target: DebugTarget = DebugTargetResolver.resolve(raw_target)
+	var normalized: String = damage_type_text.strip_edges().to_lower()
+	if normalized.is_empty():
+		normalized = "generic"
+	match normalized:
+		"generic":
+			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.GENERIC))
+		"melee":
+			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.MELEE))
+		"impact":
+			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.IMPACT))
+		"explosion":
+			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.EXPLOSION))
+		"toxic":
+			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.TOXIC))
+		"liquid":
+			_print_service_result(APPLY_DAMAGE_COMMAND, DebugHealthService.apply_damage(target, amount, DamageRequest.Type.LIQUID))
+		_:
+			DeveloperConsoleOutput.error(
+				APPLY_DAMAGE_COMMAND,
+				"damage_type must be generic, melee, impact, explosion, toxic or liquid",
+			)
+
+
+func _heal(raw_target: String, amount_text: String) -> void:
+	var amount: float = _positive_float(HEAL_COMMAND, amount_text)
+	if amount <= 0.0:
+		return
+	_print_service_result(
+		HEAL_COMMAND,
+		DebugHealthService.heal(DebugTargetResolver.resolve(raw_target), amount),
+	)
+
+
+func _kill(raw_target: String = "") -> void:
+	var normalized: String = raw_target.strip_edges()
+	if normalized.is_empty():
+		normalized = "self"
+	_print_service_result(
+		KILL_COMMAND,
+		DebugHealthService.kill(DebugTargetResolver.resolve(normalized)),
+	)
+
+
+func _reset(raw_target: String = "") -> void:
+	var normalized: String = raw_target.strip_edges()
+	if normalized.is_empty():
+		normalized = "self"
+	_print_service_result(
+		RESET_COMMAND,
+		DebugHealthService.reset(DebugTargetResolver.resolve(normalized)),
+	)
+
+
+func _positive_float(command: String, value: String) -> float:
+	if not value.is_valid_float():
+		DeveloperConsoleOutput.error(command, "amount must be a finite positive number")
+		return -1.0
+	var parsed: float = value.to_float()
+	if not is_finite(parsed) or parsed <= 0.0:
+		DeveloperConsoleOutput.error(command, "amount must be a finite positive number")
+		return -1.0
+	return parsed
