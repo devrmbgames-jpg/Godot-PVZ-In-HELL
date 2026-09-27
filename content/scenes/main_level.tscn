@@ -56,6 +56,7 @@
 [ext_resource type="Script" uid="uid://egauqyysrjr" path="res://content/observers/gameplay/o_hazard_emitter.gd" id="HazardEmitter"]
 [ext_resource type="Script" uid="uid://ehhc4j05ncp" path="res://content/observers/gameplay/o_hazard_spawn.gd" id="HazardSpawn"]
 [ext_resource type="Script" uid="uid://11f2xganwshj" path="res://content/observers/gameplay/o_health_lifecycle.gd" id="HealthLifecycle"]
+[ext_resource type="Script" path="res://content/observers/gameplay/o_remove_on_health_depleted.gd" id="RemoveOnHealthDepleted"]
 [ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
 [ext_resource type="Script" uid="uid://cynilnihkqgor" path="res://content/systems/gameplay/s_impact.gd" id="ImpactSystem"]
 [ext_resource type="Script" uid="uid://cdwei5go7godr" path="res://content/systems/interaction/s_interaction_highlight.gd" id="Interaction_highlight"]
@@ -320,6 +321,9 @@ metadata/_custom_type_script = "uid://nsdmrnqs0no0"
 
 [node name="O_HealthLifecycle" type="Node" parent="World/Systems/GamePlay" unique_id=94551561]
 script = ExtResource("HealthLifecycle")
+
+[node name="O_RemoveOnHealthDepleted" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("RemoveOnHealthDepleted")
 
 [node name="O_PackageDamage" type="Node" parent="World/Systems/GamePlay" unique_id=873750374]
 script = ExtResource("PackageDamage")
