@@ -218,16 +218,20 @@ resource_local_to_scene = true
 script = ExtResource("41_1hfqo")
 
 [sub_resource type="Resource" id="Customer_flow"]
+resource_local_to_scene = true
 script = ExtResource("Customer_flow")
 schedule = ExtResource("Customer_schedule")
 
 [sub_resource type="Resource" id="Wallet_state"]
+resource_local_to_scene = true
 script = ExtResource("Wallet_state")
 
 [sub_resource type="Resource" id="Day_state"]
+resource_local_to_scene = true
 script = ExtResource("Day_state")
 
 [sub_resource type="Resource" id="Day_ledger"]
+resource_local_to_scene = true
 resource_local_to_scene = true
 script = ExtResource("Day_ledger")
 
@@ -970,7 +974,7 @@ transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.117033
 current = true
 
 [node name="DeliveryCounter" parent="Entityes" instance=ExtResource("Delivery_counter")]
-position = Vector3(4.7, 0, -3.8)
+position = Vector3(3, 0, -5.5)
 
 [node name="Terminal" parent="Entityes" unique_id=911264778 instance=ExtResource("Terminal_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 0, -2)

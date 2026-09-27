@@ -1,13 +1,16 @@
 # Current Work
 
-Status: active — R11 customers / delivery / disputes
-Task: `agent_tasks/roadmap_11_customer_flow_and_delivery.md`
+Status: none
 
-- Actual outcome and terminal declaration remain separate; false TAKEN is legal.
-- Live parcel assignment uses R_AssignedTo; persistent records use stable IDs only.
-- Customer movement remains Godot body-owned; no storage teleport for delivery.
-- Preserve pre-existing debris scene/addon edits and R09 UID files.
+Populate this file only for a large interrupted task that the next agent is expected to resume.
 
-Changed: customer contracts, definitions, C_CustomerFlow/C_CustomerAgent, R_AssignedTo, CustomerOutcomeService.
-Validation: structure PASS; headless import without script parse/compile errors; GUT/smoke not run yet.
-Next: add focused customer GUT and headless physical-counter walkthrough; run final checks once.
+When active, keep only:
+- task + status;
+- exact source task/doc;
+- 2–5 non-obvious invariants;
+- changed paths;
+- validation already performed;
+- blocker, if any;
+- one exact next step.
+
+Do not duplicate roadmap text or subsystem documentation here.

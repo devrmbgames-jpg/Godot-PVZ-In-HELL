@@ -76,7 +76,7 @@ R10 идёт **до R11**, потому что Customer outcome должен о�
 
 ## R11 — Customer Flow / Delivery / Disputes
 
-Task: [roadmap_11_customer_flow_and_delivery.md](../../agent_tasks/roadmap_11_customer_flow_and_delivery.md)
+Completed: [customer contract](../customers.md); GUT and headless customer flow 2026-09-27.
 
 Основной источник: [ТЗ 07](07_customer_flow_and_delivery.md).
 

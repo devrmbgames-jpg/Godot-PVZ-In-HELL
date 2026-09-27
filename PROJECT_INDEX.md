@@ -51,6 +51,7 @@ Optional routing map. Do not read this file by default. Use it only when the tas
 | Registration | `content/services/packages/package_registration_service.gd`, `content/contracts/packages/package_registration_record.gd` |
 | Scanner | `content/entities/tools/scanner.tscn`, `content/definitions/interaction/def_scan_action.gd` |
 | Terminal | `content/entities/stations/terminal.tscn`, `content/ui/terminal_panel.tscn` |
+| Customers / delivery / disputes | `content/services/customers/customer_flow_service.gd`, `customer_outcome_service.gd`, `docs/customers.md` |
 | Day cycle | `content/systems/gameplay/s_day_phase.gd`, `content/contracts/day/day_transition_request.gd` |
 
 ## Relevant regression surfaces
@@ -65,6 +66,7 @@ Use only the surface related to the edited contract.
 | Cart | `tests/smoke/cart_transport_smoke.tscn` |
 | Receiving/scan | `tests/smoke/receiving_scan_smoke.tscn` |
 | Interaction actions | `tests/smoke/interaction_actions_smoke.tscn` |
+| Customers / delivery / disputes | `content/services/customers/customer_flow_service.gd`, `customer_outcome_service.gd`, `docs/customers.md` |
 | Day cycle | `tests/smoke/day_cycle_smoke.tscn` |
 | Damage | `tests/smoke/damage_smoke.tscn` |
 | Hazards | `tests/smoke/hazards_smoke.tscn` |

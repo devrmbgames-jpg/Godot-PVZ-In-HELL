@@ -24,3 +24,5 @@
 - 2026-09-27 — R09 completed: autonomous ToxicArea/Explosion and package adapters; tests and runtime acceptance confirmed by user. Durable contract: `docs/hazards.md`.
 
 - 2026-09-27 - R10: session-owned wallet, atomic purchases, data-driven 100/120/150/200% settlements, persistent deduplication, daily results and Terminal feedback; 7 GUT tests / 42 assertions and headless wallet smoke PASS. Contract: `docs/economy.md`.
+
+- 2026-09-27 — R11: persistent customer schedule/AssignedTo, physical counter, actual vs terminal outcomes, refusal/return/buyout and delayed complaints with reputation hooks; 27 GUT tests / 176 assertions and headless customer walkthrough PASS. Contract: `docs/customers.md`; visual acceptance not run.

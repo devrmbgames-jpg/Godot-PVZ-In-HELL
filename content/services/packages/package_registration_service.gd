@@ -98,7 +98,7 @@ static func smallest_free_number(registry: C_PackageLedger) -> int:
 	return candidate
 
 
-## Called after actual delivery marks DELIVERED; UI declarations cannot free numbers.
+## Called after explicit DELIVERED/RETURNED/BOUGHT_OUT departure; declarations cannot free numbers.
 ## Node removal, damage, missing parcels and day changes do not imply warehouse departure.
 static func release_number(parcel: Entity) -> bool:
 	if not is_instance_valid(parcel):

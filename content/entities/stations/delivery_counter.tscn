@@ -64,7 +64,7 @@ pixel_size = 0.003
 text = "ВЫДАЧА\nПоложите одну коробку и нажмите F"
 
 [node name="Entry" type="Marker3D" parent="."]
-position = Vector3(2.5, 0, 1.2)
+position = Vector3(1, 0, 3.5)
 
 [node name="Waiting" type="Marker3D" parent="."]
 position = Vector3(0, 0, 1.2)

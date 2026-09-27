@@ -19,3 +19,5 @@ PVZ In Hell Simulator — Godot 4.7 project with project-owned GECS gameplay.
 Развёрнутые описания механик и архитектуры хранятся рядом с соответствующей подсистемой. Корневые документы не должны дублировать детали друг друга.
 
 - [Wallet and daily results](economy.md): R10 monetary operations, settlement identity and save contract.
+
+- [Customers and delivery](customers.md): R11 schedules, physical counter, declarations, complaints and return/buyout.

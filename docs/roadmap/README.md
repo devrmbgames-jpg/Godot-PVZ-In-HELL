@@ -27,7 +27,7 @@ Completed implementation tasks are removed from `agent_tasks/` by project policy
 | R08 | completed | [ТЗ 06](06_package_damage_and_hazards.md): generic Health/Impact foundation + package damage/opening; [durable contract](../damage_impact.md) |
 | R09 | completed | [ТЗ 06](06_package_damage_and_hazards.md): package hazards |
 | R10 | completed | [ТЗ 07](07_customer_flow_and_delivery.md), ТЗ 14/15: wallet/results |
-| [R11](../../agent_tasks/roadmap_11_customer_flow_and_delivery.md) | planned | [ТЗ 07](07_customer_flow_and_delivery.md): customers/delivery/disputes |
+| R11 | completed | [ТЗ 07](07_customer_flow_and_delivery.md): customers/delivery/disputes |
 | [R11.1](../../agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md) | planned | [ТЗ 08.1](08_1_arrangement_extended_interactions.md): prolonged interactions, access, physical slots, placement/anchoring |
 | [R12](../../agent_tasks/roadmap_12_dialogue_integration.md) | planned | [ТЗ 09](09_dialogue_system.md): dialogue integration |
 | [R13](../../agent_tasks/roadmap_13_environment_interactables.md) | planned | [ТЗ 13](13_environment_interactables.md) using R11.1 contracts |
