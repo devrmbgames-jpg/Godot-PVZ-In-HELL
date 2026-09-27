@@ -40,12 +40,12 @@ HazardSpawnService.submit(request)
 
 ## Посылки
 
-`DEF_Package` не содержит enum/type Hazard. У него только две необязательные ссылки: `hazard_on_damaged` и `hazard_on_destroyed`, обе типа `PackedScene`. `O_PackageHazard` на соответствующем lifecycle-переходе отправляет эту сцену в generic factory. Если одна и та же сцена назначена обоим переходам, request-id по package+scene дедуплицирует повторный spawn; разные сцены могут сработать независимо. `Leaking` и `Opened` сами по себе больше не выбирают hazard.
+`DEF_Package` не содержит enum/type Hazard. `hazard_on_damaged` создаётся от самой Package на первом переходе в `DAMAGED`; стабильный request-id не позволяет короткому эффекту стакаться. `hazard_on_destroyed` запускается только после generic depletion-spawn: `O_PackageDestroyedHazard` берёт Entity с ключом `debris` из `HealthDepletionEvent` и использует именно debris как origin. Поэтому independent Explosion лишь стартует с позиции debris, а `FollowOrigin + Despawn` ToxicResidue следует за debris и удаляется вместе с ним. Для текущей токсичной посылки короткая зона живёт 12 секунд, а long residue — 900 секунд (15 минут, внутри требуемого окна 10–20 минут).
 
 ## Время жизни, следование и будущий reset
 
 - `Independent`: эффект остаётся в мире после удаления инициатора.
-- `FollowOrigin`: компонент `R_HazardFollow` перемещает только нефизический корень эффекта. При потере/отключении владельца `Detach` оставляет эффект на последней позиции, `Despawn` удаляет его.
+- `FollowOrigin`: компонент `R_HazardFollow` перемещает только нефизический корень эффекта. При потере/отключении владельца `Detach` оставляет эффект на последней позиции, `Despawn` удаляет его. Long ToxicResidue уничтоженной посылки использует `Despawn` и debris как owner.
 - Истечение TTL или отключение самого эффекта удаляет регистрацию и узлы; удаление через `World.remove_entity()` также освобождает сцену. У взрыва отсчёт TTL начинается с разрешения, чтобы короткий цепной эффект не исчез до первого хода своей системы.
 - `persistent` исключает эффект из обычного reset, но не отменяет TTL.
 

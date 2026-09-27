@@ -26,7 +26,7 @@ Base: master / e9ecb7f.
 
 - Trigger owner (Package/Barrel/Customer/Trap) публикует generic `HazardSpawnRequest`, а не инстанцирует напрямую токсичную зону или взрыв.
 - `HazardSpawnRequest` содержит автономный `PackedScene`, world transform, устойчивый origin_id и необязательный origin/instigator; definition/lifetime/ownership принадлежат самой hazard-сцене.
-- `O_PackageHazard` — только адаптер `PackageLifecycleEvent.EVENT` → `HazardSpawnRequest`. Он не вычисляет периодический урон, радиус взрыва или физические импульсы. В будущем barrel/customer adapters пользуются **тем же** generic request и фабрикой.
+- `O_PackageHazard` адаптирует первый `Damaged` transition в short hazard request. `O_PackageDestroyedHazard` адаптирует generic `HealthDepletionEvent` после spawn debris в destroyed hazard request. Оба не вычисляют damage/радиус/physics; barrel/customer producers используют ту же generic фабрику.
 - Настройки эффекта остаются `Resource`/Definition внутри автономной hazard-сцены. `DEF_Package` не классифицирует эффект: только `hazard_on_damaged: PackedScene` и `hazard_on_destroyed: PackedScene`.
 - Дедупликация принадлежит производителю (например, одноразовая активация для конкретной посылки и hazard), плюс фабрика не должна дважды создавать instance по тому же одноразовому request ID. Не запрещать независимые повторные активации от других владельцев и способности Customer.
 - `DamageRequest.source` — фактическая hazard Entity. `instigator` — actor/owner, вызвавший её. Сохранять устойчивую атрибуцию, даже если исходная посылка уже удалена. Не обходить source-side `C_NoDamage`: решать/пропагировать запрет при генерации независимого эффекта, чтобы запрещённый emitter не причинял урон через созданный им hazard.
@@ -45,7 +45,7 @@ Base: master / e9ecb7f.
 
 - [x] Создать generic typed `HazardSpawnRequest`, authored hazard definitions/prefabs и единственный безопасный dispatcher/factory.
 - [x] Подготовить две независимые Entity/prefab с data-only компонентами и lifecycle/attribution.
-- [x] `O_PackageHazard` подписывается на `PackageLifecycleEvent.EVENT` и при `Damaged`/`Destroyed` спавнит напрямую соответствующую scene-ссылку из `DEF_Package`; hazard enum/type отсутствует.
+- [x] `O_PackageHazard` создаёт short non-stacking `hazard_on_damaged` от Package; `O_PackageDestroyedHazard` ждёт depletion spawn и создаёт `hazard_on_destroyed` от Entity с ключом `debris`. Hazard enum/type отсутствует.
 - [x] Повторные переходы `Leaking → Destroyed` не спавнят вторую зону для одноразовой Package. Несколько разных посылок дают независимые эффекты.
 - [ ] Проверить, что прямой generic spawn без Package работает; запланировать подключение будущих Barrel/Customer через этот контракт. [NOT RUN: user-owned acceptance; standalone smoke fixture prepared.]
 
