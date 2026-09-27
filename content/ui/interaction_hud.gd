@@ -76,7 +76,7 @@ func _process(delta: float) -> void:
 
 
 #region Debug acceptance presentation
-func _update_debug_presentation(target: Entity) -> void:
+func _update_debug_presentation(target: Variant) -> void:
 	if not debug_status_enabled:
 		player_debug_panel.visible = false
 		package_debug_panel.visible = false
@@ -98,11 +98,15 @@ func _update_player_health_debug() -> void:
 	player_health_label.text = "PLAYER HP  %.1f / %.1f" % [values.x, values.y]
 
 
-func _update_package_debug(target: Entity) -> void:
+func _update_package_debug(target: Variant) -> void:
 	if not is_instance_valid(target):
 		package_debug_panel.visible = false
 		return
-	var package: C_Package = target.get_component(C_Package) as C_Package
+	var entity: Entity = target as Entity
+	if entity == null:
+		package_debug_panel.visible = false
+		return
+	var package: C_Package = entity.get_component(C_Package) as C_Package
 	if package == null:
 		package_debug_panel.visible = false
 		return
@@ -110,7 +114,7 @@ func _update_package_debug(target: Entity) -> void:
 	package_debug_panel.visible = true
 	package_type_label.text = _package_debug_text(package.definition)
 
-	var health: C_Health = target.get_component(C_Health) as C_Health
+	var health: C_Health = entity.get_component(C_Health) as C_Health
 	var has_health: bool = health != null
 	package_health_label.visible = has_health
 	package_health_bar.visible = has_health
