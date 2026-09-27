@@ -3,7 +3,7 @@
 Status: active
 Task: Developer Console Testing
 Source: agent_tasks/developer_console_testing.md
-Current milestone: Stage 7 complete
+Current milestone: Stage 8 complete
 
 Invariants:
 - addons/console stays generic; project commands live under content/debug/.
@@ -36,4 +36,4 @@ Validation:
 - static inspection only; Godot/GUT not run.
 
 Next:
-- Stage 8: finish autocomplete/help and refresh command discovery.
+- Stage 9: add focused GUT coverage, run the project structure/static checks, then one relevant GUT invocation and one headless smoke.

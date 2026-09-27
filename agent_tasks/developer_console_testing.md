@@ -1,7 +1,7 @@
 # Developer Console Testing
 
-Status: active — Stage 7 complete; Stage 8 autocomplete/help next.
-Scope: specification only; implementation has not started.
+Status: active — Stage 8 complete; Stage 9 focused validation next.
+Scope: implementation active; Stages 1–8 are implemented in small commits.
 
 ## Goal
 
@@ -156,7 +156,7 @@ No silent failures and no bare boolean result as user-facing output.
 - [x] Stage 5 — Wallet/penalty operations.
 - [x] Stage 6 — Damage/kill/heal/reset.
 - [x] Stage 7 — Convenience day/customer commands.
-- [ ] Stage 8 — Autocomplete/help.
+- [x] Stage 8 — Autocomplete/help.
 - [ ] Stage 9 — focused GUT + one headless smoke.
 
 ## Implementation order

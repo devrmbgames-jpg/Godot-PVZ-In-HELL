@@ -32,6 +32,7 @@ const DAY_INFO_COMMAND: String = "day_info"
 const DAY_NEXT_COMMAND: String = "day_next"
 const CUSTOMER_NEXT_COMMAND: String = "customer_next"
 const DEBUG_TARGETS_COMMAND: String = "debug_targets"
+const DEBUG_HELP_COMMAND: String = "debug_help"
 
 var _registered_commands: PackedStringArray = []
 
@@ -134,10 +135,8 @@ func _ready() -> void:
 	_register_command(DAY_NEXT_COMMAND, _day_next, [], 0, "Queue the next normal day transition.")
 	_register_command(CUSTOMER_NEXT_COMMAND, _customer_next, [], 0, "Start the next due CustomerVisit when valid.")
 	_register_command(DEBUG_TARGETS_COMMAND, _debug_targets, [], 0, "List concise live debug target handles.")
-	var common_targets: PackedStringArray = PackedStringArray(["self", "target"])
-	Console.add_command_autocomplete_list(RESOLVE_COMMAND, common_targets)
-	Console.add_command_autocomplete_list(HEALTH_INFO_COMMAND, common_targets)
-	Console.add_command_autocomplete_list(PACKAGE_LIST_COMMAND, PackedStringArray(["active", "all"]))
+	_register_command(DEBUG_HELP_COMMAND, _debug_help, [], 0, "Show project developer-console workflows and target syntax.")
+	_register_autocomplete()
 
 
 func _exit_tree() -> void:
@@ -162,6 +161,52 @@ func _register_command(
 ) -> void:
 	Console.add_command(command, callback, arguments, required, description)
 	_registered_commands.append(command)
+
+
+func _register_autocomplete() -> void:
+	var entity_targets: PackedStringArray = PackedStringArray(["self", "target"])
+	var package_targets: PackedStringArray = PackedStringArray(["target"])
+
+	for command: String in [
+		RESOLVE_COMMAND,
+		HEALTH_INFO_COMMAND,
+		APPLY_DAMAGE_COMMAND,
+		HEAL_COMMAND,
+		KILL_COMMAND,
+		RESET_COMMAND,
+	]:
+		Console.add_command_autocomplete_list(command, entity_targets)
+
+	for command: String in [
+		PACKAGE_INFO_COMMAND,
+		VISIT_INFO_COMMAND,
+		PACKAGE_REMOVE_COMMAND,
+		PACKAGE_PURGE_COMMAND,
+		PACKAGE_REGISTER_COMMAND,
+		PACKAGE_RESET_COMMAND,
+		VISIT_CREATE_COMMAND,
+		PACKAGE_ACTUAL_COMMAND,
+		PACKAGE_DECLARE_COMMAND,
+		PACKAGE_COMPLAINT_COMMAND,
+		COMPLAINT_RESOLVE_COMMAND,
+		PACKAGE_APPROVE_COMMAND,
+		"pkg_taken",
+		"pkg_lost",
+		"pkg_refused",
+		"pkg_delivered",
+		"pkg_customer_refused",
+		"pkg_player_denied",
+	]:
+		Console.add_command_autocomplete_list(command, package_targets)
+
+	Console.add_command_autocomplete_list(
+		PACKAGE_LIST_COMMAND,
+		PackedStringArray(["active", "all"]),
+	)
+	Console.add_command_autocomplete_list(
+		PACKAGE_SPAWN_COMMAND,
+		DebugPackageService.definition_keys(),
+	)
 
 
 func _debug_resolve(raw_target: String) -> void:
@@ -579,4 +624,22 @@ func _debug_targets() -> void:
 	DeveloperConsoleOutput.ok(
 		DEBUG_TARGETS_COMMAND,
 		DeveloperConsoleDiagnostics.debug_targets(),
+	)
+
+
+
+func _debug_help() -> void:
+	DeveloperConsoleOutput.ok(
+		DEBUG_HELP_COMMAND,
+		PackedStringArray([
+			"Targets: self | target | #001 | pkg:<package_id> | visit:<visit_id> | entity:<entity_id>",
+			"Discovery: debug_targets | pkg_list [active|all] | pkg_info <pkg> | visit_info <pkg|visit:id>",
+			"Package: pkg_spawn | pkg_register | pkg_remove | pkg_purge | pkg_reset",
+			"Customer facts: visit_create | pkg_actual | pkg_declare | pkg_complaint | complaint_resolve | pkg_approve",
+			"Aliases: pkg_taken | pkg_lost | pkg_refused | pkg_delivered | pkg_customer_refused | pkg_player_denied",
+			"Economy: wallet_info | money_add | money_remove | penalty_add | penalty_remove",
+			"Health: health_info | apply_damage | heal | kill | reset",
+			"Flow: day_info | day_next | customer_next",
+			"Use commands_list for exact positional arguments. Tab autocomplete covers the first argument only.",
+		]),
 	)
