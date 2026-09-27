@@ -44,6 +44,11 @@ func _dispatch(
 		var entity: Entity = spawned as Entity
 		if entity != null:
 			_world.add_entity(entity, null, false)
+			if not entry.key.is_empty():
+				if health_depletion_effects.spawned_entities.has(entry.key):
+					push_warning("Duplicate depletion spawn key: %s" % entry.key)
+				else:
+					health_depletion_effects.spawned_entities[entry.key] = entity
 
 	# Broadcast remains valid if a domain reaction removed the original target.
 	_world.emit_event(HealthDepletionEvent.EVENT, null, health_depletion_effects)

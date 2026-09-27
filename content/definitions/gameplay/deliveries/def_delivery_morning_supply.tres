@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://xw8mjih3muua" path="res://content/entities/hazards/explosion.tscn" id="ExplosionHazard"]
 [ext_resource type="Resource" uid="uid://ssekqccb7qe5" path="res://content/definitions/gameplay/impact_fragile.tres" id="FragileImpact"]
 [ext_resource type="PackedScene" path="res://content/entities/hazards/toxic_area.tscn" id="ToxicHazard"]
+[ext_resource type="PackedScene" path="res://content/entities/hazards/toxic_residue.tscn" id="ToxicResidue"]
 
 [sub_resource type="Resource" id="Books"]
 script = ExtResource("1_45rg7")
@@ -28,7 +29,7 @@ damaged_health_ratio = 0.85
 scene_variants = Array[String](["res://content/entities/packages/package_big.tscn"])
 impact_profile = ExtResource("FragileImpact")
 hazard_on_damaged = ExtResource("ToxicHazard")
-hazard_on_destroyed = ExtResource("ToxicHazard")
+hazard_on_destroyed = ExtResource("ToxicResidue")
 key = &"bottles"
 
 [sub_resource type="Resource" id="Equipment"]

@@ -52,6 +52,7 @@ func _setup_world() -> void:
 		O_ExplosionSetup.new(),
 		O_HazardReset.new(),
 		O_PackageHazard.new(),
+		O_PackageDestroyedHazard.new(),
 	]
 	_world.add_observers(observers)
 
@@ -164,20 +165,51 @@ func _package_adapter_contract() -> void:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "hazard-fixture-package"
 	identity.definition = DEF_Package.new()
-	var package_hazard: PackedScene = _toxic_scene(10.0)
-	identity.definition.hazard_on_damaged = package_hazard
-	identity.definition.hazard_on_destroyed = package_hazard
+	identity.definition.hazard_on_damaged = _toxic_scene(0.5)
+	identity.definition.hazard_on_destroyed = _toxic_scene(
+		10.0,
+		DEF_Hazard.Ownership.FollowOrigin,
+		DEF_Hazard.OwnerLoss.Despawn,
+	)
 	var package_state: C_PackageState = C_PackageState.new()
-	var package: Entity = _body(Vector3(30, 0, 0), false, false, false, [identity, package_state])
+	var package: Entity = _body(
+		Vector3(30, 0, 0),
+		false,
+		false,
+		false,
+		[identity, package_state],
+	)
 	var condition: C_PackageState = package.get_component(C_PackageState) as C_PackageState
 	condition.damage = C_PackageState.Damage.DAMAGED
 	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Damaged)
-	condition.damage = C_PackageState.Damage.DESTROYED
-	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Destroyed)
-	assert(_effects().size() == 1, "Same scene on Damaged and Destroyed is deduplicated")
-	_world.remove_entity(package)
+	assert(_effects().size() == 1, "Damaged package creates one short toxic zone")
+	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Damaged)
+	assert(_effects().size() == 1, "Damaged toxic zone must not stack")
+
+	var debris: Entity = _body(Vector3(30, 0, 0), false, false, true)
+	var request: DamageRequest = DamageRequest.new()
+	request.target = package
+	var result: DamageResult = DamageResult.new()
+	result.request = request
+	result.outcome = DamageResult.Outcome.HEALTH_DEPLETED
+	var depletion: HealthDepletionEvent = HealthDepletionEvent.new()
+	depletion.cause = result
+	depletion.spawned_entities[&"debris"] = debris
+	_world.emit_event(HealthDepletionEvent.EVENT, null, depletion)
+
+	assert(_effects().size() == 2, "Destroyed package creates a separate debris-owned residue")
+	var residue: Entity = _spawned.back()
+	var hazard: C_Hazard = residue.get_component(C_Hazard) as C_Hazard
+	assert(hazard.origin == debris, "Destroyed toxic residue source must be debris")
+	var follow: R_HazardFollow = residue.get_component(R_HazardFollow) as R_HazardFollow
+	assert(follow != null and follow.origin == debris)
+
+	_world.remove_entity(debris)
 	await _tick(0.01)
-	assert(_effects().size() == 1, "Package removal cannot retire its independent pool")
+	assert(
+		not EntityAvailability.contains(residue, _world),
+		"Removing debris must retire its long toxic residue",
+	)
 	_reset(true)
 
 

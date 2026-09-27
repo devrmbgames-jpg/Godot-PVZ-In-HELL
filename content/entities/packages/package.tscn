@@ -48,6 +48,7 @@ script = ExtResource("Marks")
 
 [sub_resource type="Resource" id="DebrisEntry"]
 script = ExtResource("Spawn")
+key = &"debris"
 scene = ExtResource("Debris")
 
 [sub_resource type="Resource" id="Resource_m86xv"]

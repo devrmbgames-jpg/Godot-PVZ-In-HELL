@@ -46,6 +46,7 @@ script = ExtResource("8_adrli")
 
 [sub_resource type="Resource" id="DebrisEntry"]
 script = ExtResource("10_23t5n")
+key = &"debris"
 scene = ExtResource("11_4hhpw")
 
 [sub_resource type="Resource" id="Resource_scvkk"]
