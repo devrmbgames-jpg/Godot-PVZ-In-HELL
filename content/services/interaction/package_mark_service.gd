@@ -28,9 +28,9 @@ static func append_sample(
 	var local_normal: Vector3 = (body.global_basis.transposed() * world_normal).normalized()
 	var point: Vector3 = body.to_local(world_point + world_normal * SURFACE_OFFSET)
 	var package_entity: E_Package = parcel as E_Package
-	if package_entity != null and is_instance_valid(package_entity.marking_surface):
+	if package_entity != null and is_instance_valid(package_entity.get_marking_surface()):
 		point = _visual_surface_point(
-			package_entity.marking_surface,
+			package_entity.get_marking_surface(),
 			body,
 			world_point,
 			world_normal,

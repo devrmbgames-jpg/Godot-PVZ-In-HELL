@@ -1,12 +1,12 @@
 extends CanvasLayer
-## Read-only warehouse registry view with its own modal control-capture token.
+## Read-only warehouse _registry view with its own modal control-capture token.
 class_name TerminalPanel
 
 const REFRESH_SECONDS: float = 0.2
 
-@onready var title: Label = $Root/Panel/Margin/Rows/Title
-@onready var registry: RichTextLabel = $Root/Panel/Margin/Rows/Registry
-@onready var close_button: Button = $Root/Panel/Margin/Rows/Close
+@onready var _title: Label = $Root/Panel/Margin/Rows/Title
+@onready var _registry: RichTextLabel = $Root/Panel/Margin/Rows/Registry
+@onready var _close_button: Button = $Root/Panel/Margin/Rows/Close
 var _reader: Entity = null
 var _capture_token: int = 0
 var _refresh_remaining: float = 0.0
@@ -16,7 +16,7 @@ var _previous_mouse_mode: Input.MouseMode = Input.MOUSE_MODE_CAPTURED
 #region Lifecycle
 func _ready() -> void:
 	visible = false
-	close_button.pressed.connect(close_panel)
+	_close_button.pressed.connect(close_panel)
 
 
 func _exit_tree() -> void:
@@ -43,7 +43,7 @@ func _process(delta: float) -> void:
 
 
 #region Public UI API
-## Opens the registry without changing held-item ownership.
+## Opens the _registry without changing held-item ownership.
 func open_for(actor: Entity) -> void:
 	if visible:
 		return
@@ -57,7 +57,7 @@ func open_for(actor: Entity) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	visible = true
 	_refresh()
-	close_button.grab_focus()
+	_close_button.grab_focus()
 
 
 ## Releases only this panel's capture and restores its previous cursor mode.
@@ -72,8 +72,12 @@ func close_panel() -> void:
 #endregion
 
 
+func get_registry_text() -> String:
+	return _registry.text
+
+
 func _refresh() -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle != null:
-		title.text = "СКЛАДСКОЙ РЕЕСТР · ДЕНЬ %d" % cycle.day_index
-		registry.text = PackageRegistrationService.terminal_text()
+		_title.text = "СКЛАДСКОЙ РЕЕСТР · ДЕНЬ %d" % cycle.day_index
+		_registry.text = PackageRegistrationService.terminal_text()

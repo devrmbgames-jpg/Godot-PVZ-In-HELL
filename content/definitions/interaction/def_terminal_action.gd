@@ -11,4 +11,4 @@ func is_available(_actor: Entity, source: Entity, _target: Entity) -> bool:
 func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 	var terminal: E_Terminal = source as E_Terminal
 	if terminal != null:
-		terminal.panel.open_for(actor)
+		terminal.open_for(actor)

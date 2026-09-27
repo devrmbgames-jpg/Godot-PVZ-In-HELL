@@ -5,8 +5,8 @@ const BEEP_SECONDS: float = 0.12
 const BEEP_FREQUENCY: float = 1200.0
 const FEEDBACK_SECONDS: float = 5.0
 
-@onready var label: Label3D = $Result
-@onready var beep: AudioStreamPlayer3D = $Beep
+@onready var _label: Label3D = $Result
+@onready var _beep: AudioStreamPlayer3D = $Beep
 @onready var _icon_mesh: MeshInstance3D = $IconOK
 @onready var _clear_timer: Timer = $Timer
 
@@ -16,8 +16,8 @@ const FEEDBACK_SECONDS: float = 5.0
 func _ready() -> void:
 	var scanner: E_Scanner = get_parent() as E_Scanner
 	scanner.scan_feedback.connect(_on_scan_feedback)
-	beep.stream = _make_beep()
-	label.visible = false
+	_beep.stream = _make_beep()
+	_label.visible = false
 	_icon_mesh.visible = false
 
 
@@ -27,24 +27,24 @@ func _ready() -> void:
 
 #region Presentation
 func _on_scan_feedback(result: PackageScanResult) -> void:
-	label.text = "№%03d" % result.number
-	label.visible = true
+	_label.text = "№%03d" % result.number
+	_label.visible = true
 	_icon_mesh.visible = true
 	
 	if result.outcome != PackageScanResult.Outcome.REJECTED:
-		beep.pitch_scale = 1.0 if result.outcome == PackageScanResult.Outcome.REGISTERED else 0.8
-		beep.play()
+		_beep.pitch_scale = 1.0 if result.outcome == PackageScanResult.Outcome.REGISTERED else 0.8
+		_beep.play()
 	
 	match result.outcome :
 		PackageScanResult.Outcome.REJECTED :
 			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.ORANGE
-			label.modulate = Color.ORANGE
+			_label.modulate = Color.ORANGE
 		PackageScanResult.Outcome.REGISTERED :
 			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.LIGHT_GREEN
-			label.modulate = Color.LIGHT_GREEN
+			_label.modulate = Color.LIGHT_GREEN
 		PackageScanResult.Outcome.ALREADY_REGISTERED :
 			(_icon_mesh.material_override as BaseMaterial3D).emission = Color.DARK_GRAY
-			label.modulate = Color.DARK_GRAY
+			_label.modulate = Color.DARK_GRAY
 	
 	_clear_timer.start(FEEDBACK_SECONDS)
 
@@ -71,4 +71,4 @@ func _make_beep() -> AudioStreamWAV:
 
 func _on_timer_timeout() -> void:
 	_icon_mesh.visible = false
-	label.visible = false
+	_label.visible = false

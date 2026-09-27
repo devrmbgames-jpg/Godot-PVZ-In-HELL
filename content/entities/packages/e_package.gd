@@ -9,8 +9,11 @@ class_name E_Package
 @export var package_definition: DEF_Package = null
 
 ## Box-shaped visual surface used to place ink outside collider/model tolerances.
-@onready var marking_surface: MeshInstance3D = $Box_C
+@onready var _marking_surface: MeshInstance3D = $Box_C
 
+
+func get_marking_surface() -> MeshInstance3D:
+	return _marking_surface
 
 
 func define_components() -> Array:

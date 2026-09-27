@@ -76,7 +76,7 @@ func _run() -> void:
 	await _prepare_target(actor, terminal, Vector3(0.0, -0.5, -1.8))
 	assert(InteractionTargetingService.find_target(actor, interactor) == terminal)
 	_drive(actor, true, false, false, false, false)
-	assert(terminal.panel.visible)
+	assert(terminal.is_panel_open())
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.MODAL)
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 2, "Terminal capture must block hand tool use")
@@ -91,7 +91,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
 
-	terminal.panel.close_panel()
+	terminal.close_panel()
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.PUSH)
 	assert(
 		GrabService.slot_anchor(actor, C_Grabbable.HoldSlot.RIGHT_HAND)

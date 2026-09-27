@@ -102,19 +102,19 @@ func _run() -> void:
 	await _prepare_target(actor, terminal, Vector3(0.0, -0.5, -1.8))
 	assert(InteractionTargetingService.find_target(actor, interactor) == terminal)
 	_drive(actor, true, false, false)
-	assert(terminal.panel.visible)
+	assert(terminal.is_panel_open())
 	assert(
-		"\u2116001" in terminal.panel.registry.text and "\u2116002" in terminal.panel.registry.text
+		"\u2116001" in terminal.registry_text() and "\u2116002" in terminal.registry_text()
 	)
 	assert(
-		"Хрупкое" in terminal.panel.registry.text
-		and "Опасное содержимое" in terminal.panel.registry.text
+		"Хрупкое" in terminal.registry_text()
+		and "Опасное содержимое" in terminal.registry_text()
 	)
 	if OS.get_cmdline_user_args().has("--preview"):
 		await RenderingServer.frame_post_draw
 		var screenshot: Image = get_viewport().get_texture().get_image()
 		assert(screenshot.save_png("res://tests/artifacts/terminal_preview.png") == OK)
-	terminal.panel.close_panel()
+	terminal.close_panel()
 	var first_body: RigidBody3D = first as Node as RigidBody3D
 	var second_body: RigidBody3D = second as Node as RigidBody3D
 	first_body.global_position = first_supply_position
