@@ -1,22 +1,8 @@
 extends Component
-## Attach to any Entity to emit a reusable hazard manually or through lifecycle events.
+## Reusable one-shot/repeatable producer of an autonomous hazard scene.
 class_name C_HazardEmitter
 
-enum Trigger {
-	HealthDepleted = 1,
-	PackageDestroyed = 2,
-	PackageLeaking = 4,
-	PackageOpened = 8,
-}
-
-## Effect and automatic triggers; a generic explicit activation can ignore the trigger mask.
-@export var definition: DEF_Hazard = null
-@export_flags(
-	"Health depleted:1",
-	"Package destroyed:2",
-	"Package leaking:4",
-	"Package opened:8",
-) var triggers: int = Trigger.HealthDepleted
+@export var hazard_scene: PackedScene = null
 @export var one_shot: bool = true
 ## Runtime producer guard/counter; persist these alongside origin identity when saving.
 var fired: bool = false

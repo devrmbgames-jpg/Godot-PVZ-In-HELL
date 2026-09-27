@@ -1,5 +1,5 @@
 extends GameDefinition
-## Immutable generic hazard prefab, lifetime and optional owner-follow policy.
+## Immutable generic hazard tuning embedded by an autonomous hazard scene.
 class_name DEF_Hazard
 
 enum Ownership {
@@ -11,8 +11,6 @@ enum OwnerLoss {
 	Despawn,
 }
 
-## Independent gameplay Entity prefab; no runtime Node references belong in definitions.
-@export var scene: PackedScene = null
 ## Finite lifetime in simulation seconds; persistent only controls future nightly reset.
 @export_range(0.05, 3600.0) var lifetime_seconds: float = 10.0
 @export var persistent: bool = false

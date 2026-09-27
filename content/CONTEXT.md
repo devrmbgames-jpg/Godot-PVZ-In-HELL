@@ -98,7 +98,7 @@ Packages and actors use the same C_Health arithmetic. Package definitions initia
 
 ## Morning supply (R05)
 
-`definitions/gameplay/deliveries/morning_supply.tres` is a DEF_Delivery with eight ordered DEF_Package entries. Entry keys must be unique and nonempty within the supply. Definitions own recipient, description/comment, composable tags, hazard metadata, mass, carry/throw tuning and initial integrity. R08 has active one-shot Liquid leakage and separate package opening; ToxicLeak/Explosion consequences are deferred to R09.
+`definitions/gameplay/deliveries/morning_supply.tres` is a DEF_Delivery with eight ordered DEF_Package entries. Entry keys must be unique and nonempty within the supply. Definitions own recipient, description/comment, composable tags, optional autonomous hazard scene hooks for Damaged/Destroyed, mass, carry/throw tuning and initial integrity. R08 owns package condition/opening; R09 resolves configured hazard scenes generically without a Package hazard type.
 
 `S_Receiving` runs after S_DayPhase in GamePlay. `C_Receiving` enqueues one BASE_SUPPLY ReceivingBatch per day, retaining incomplete older batches. Source distinguishes base supply from future PENDING_ORDER deliveries; no order fulfillment exists yet. Stable identity is `supply_key:day:entry_key`; delivery day is independent of registration day. Save work must restore both parcel IDs and receiving progress.
 

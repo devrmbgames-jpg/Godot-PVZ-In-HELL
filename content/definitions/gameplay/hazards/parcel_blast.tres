@@ -1,11 +1,10 @@
-[gd_resource type="Resource" script_class="DEF_Explosion" format=3 uid="uid://cyn3mq43cic1t"]
+[gd_resource type="Resource" script_class="DEF_Explosion" format=3]
 
-[ext_resource type="Script" uid="uid://baqqdo580q68" path="res://content/definitions/gameplay/hazards/def_explosion.gd" id="Definition"]
-[ext_resource type="PackedScene" uid="uid://fn4usso2aj8f" path="res://content/entities/hazards/explosion.tscn" id="Scene"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/hazards/def_explosion.gd" id="Definition"]
 
 [resource]
 script = ExtResource("Definition")
-impulse = 200.0
-scene = ExtResource("Scene")
-lifetime_seconds = 0.35
 key = &"parcel_blast"
+lifetime_seconds = 0.35
+impulse = 160.0
+upward_bias = 0.35

@@ -1,16 +1,6 @@
-@tool
 extends GameDefinition
 ## Immutable shipment, physical handling and condition configuration.
 class_name DEF_Package
-
-## TODO перенести типы в отдельные definitions, как это сделано с аттрибутом.
-## TODO Возможно еще придется создать отдельный настраиваемый источник урона, где будет
-## прописана длительно, радиус, сила и т.д.
-enum Hazard {
-	NONE,
-	TOXIC,
-	EXPLOSIVE,
-}
 
 enum Tag {
 	NORMAL = 1,
@@ -25,7 +15,6 @@ enum Tag {
 ## Stable recipient key; later resolved to an AssignedTo relationship with a Customer.
 @export var recipient_id: StringName = &""
 @export_flags("Normal:1", "Fragile:2", "Heavy:4", "Liquid:8") var tags: int = Tag.NORMAL
-@export var hazard: Hazard = Hazard.NONE
 @export_range(0.1, 100.0, 0.1, "or_greater") var mass_kg: float = 5.0
 @export var throw_velocity: float = 10.0
 @export var maximum_health: float = 100.0
@@ -44,7 +33,8 @@ enum Tag {
 ## One-time ordinary Health damage when leaking starts; zero keeps only condition effects.
 @export_range(0.0, 10000.0) var liquid_tilt_damage: float = 10.0
 
-## Optional reusable effect override; null uses the existing hazard enum's default prefab.
-@export var hazard_effect: DEF_Hazard = null
-## Zero selects enum defaults; explicitly opt into opening only when authored.
-@export_flags("Destroyed:2", "Leaking:4", "Opened:8") var hazard_triggers: int = 0
+## Optional autonomous hazard prefabs. Package does not classify/configure their behavior.
+## Fires only on the first transition into C_PackageState.Damage.DAMAGED.
+@export var hazard_on_damaged: PackedScene = null
+## Fires on the terminal transition into C_PackageState.Damage.DESTROYED.
+@export var hazard_on_destroyed: PackedScene = null

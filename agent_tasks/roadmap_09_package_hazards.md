@@ -25,9 +25,9 @@ Base: master / e9ecb7f.
 ### 1. Источник и эффект независимы
 
 - Trigger owner (Package/Barrel/Customer/Trap) публикует generic `HazardSpawnRequest`, а не инстанцирует напрямую токсичную зону или взрыв.
-- `HazardSpawnRequest` содержит authored definition/PackedScene, world transform, устойчивый origin_id, необязательный origin/instigator и политику ownership/lifetime; фабрика/dispatcher создаёт отдельную Entity в World через безопасную GECS/SceneTree boundary.
+- `HazardSpawnRequest` содержит автономный `PackedScene`, world transform, устойчивый origin_id и необязательный origin/instigator; definition/lifetime/ownership принадлежат самой hazard-сцене.
 - `O_PackageHazard` — только адаптер `PackageLifecycleEvent.EVENT` → `HazardSpawnRequest`. Он не вычисляет периодический урон, радиус взрыва или физические импульсы. В будущем barrel/customer adapters пользуются **тем же** generic request и фабрикой.
-- Настройки эффекта должны быть `Resource`/Definition; не выбирать тип воздействия по `if source is E_Package` внутри generic Systems. Существующий `DEF_Package.hazard` можно использовать для определения authored эффекта/триггеров.
+- Настройки эффекта остаются `Resource`/Definition внутри автономной hazard-сцены. `DEF_Package` не классифицирует эффект: только `hazard_on_damaged: PackedScene` и `hazard_on_destroyed: PackedScene`.
 - Дедупликация принадлежит производителю (например, одноразовая активация для конкретной посылки и hazard), плюс фабрика не должна дважды создавать instance по тому же одноразовому request ID. Не запрещать независимые повторные активации от других владельцев и способности Customer.
 - `DamageRequest.source` — фактическая hazard Entity. `instigator` — actor/owner, вызвавший её. Сохранять устойчивую атрибуцию, даже если исходная посылка уже удалена. Не обходить source-side `C_NoDamage`: решать/пропагировать запрет при генерации независимого эффекта, чтобы запрещённый emitter не причинял урон через созданный им hazard.
 
@@ -45,7 +45,7 @@ Base: master / e9ecb7f.
 
 - [x] Создать generic typed `HazardSpawnRequest`, authored hazard definitions/prefabs и единственный безопасный dispatcher/factory.
 - [x] Подготовить две независимые Entity/prefab с data-only компонентами и lifecycle/attribution.
-- [x] `O_PackageHazard` подписывается на `PackageLifecycleEvent.EVENT`; один выбранный `Leaking` или `Destroyed` запускает ToxicArea, `Destroyed` — Explosion. `Opened` — опциональный authored trigger, не универсальное правило.
+- [x] `O_PackageHazard` подписывается на `PackageLifecycleEvent.EVENT` и при `Damaged`/`Destroyed` спавнит напрямую соответствующую scene-ссылку из `DEF_Package`; hazard enum/type отсутствует.
 - [x] Повторные переходы `Leaking → Destroyed` не спавнят вторую зону для одноразовой Package. Несколько разных посылок дают независимые эффекты.
 - [ ] Проверить, что прямой generic spawn без Package работает; запланировать подключение будущих Barrel/Customer через этот контракт. [NOT RUN: user-owned acceptance; standalone smoke fixture prepared.]
 
@@ -92,4 +92,4 @@ Base: master / e9ecb7f.
 
 ## Handoff (2026-09-25)
 
-Implementation and standalone non-Package fixture are ready. Final GUT coverage was reported passing by the user on 2026-09-25. Physics/visual acceptance remains open because damage and explosion body scatter were not yet readable enough to validate manually. The interaction HUD now exposes Player HP continuously and hovered Package authored type/hazard plus Package HP for that acceptance pass. Keep this task open until the user confirms ToxicArea damage and Explosion impulses/scatter. Durable contracts: `docs/hazards.md`; runner: `docs/smoke_runner.md`.
+Implementation and standalone non-Package fixture are ready. Final GUT coverage was reported passing by the user on 2026-09-25. Physics/visual acceptance remains open. Explosion impulse routing was corrected for controlled characters and free RigidBody3D, and parcel blast impulse was retuned for visible scatter; user validation is still required. The interaction HUD now exposes Player HP continuously and hovered Package authored type/hazard plus Package HP for that acceptance pass. Keep this task open until the user confirms ToxicArea damage and Explosion impulses/scatter. Durable contracts: `docs/hazards.md`; runner: `docs/smoke_runner.md`.

@@ -145,14 +145,22 @@ func _package_debug_text(definition: DEF_Package) -> String:
 	if tags.is_empty():
 		tags.append("Без тегов")
 
-	var hazard: String = "Нет"
-	match definition.hazard:
-		DEF_Package.Hazard.TOXIC:
-			hazard = "Токсичная"
-		DEF_Package.Hazard.EXPLOSIVE:
-			hazard = "Взрывная"
+	var damaged_hazard: String = _hazard_scene_name(definition.hazard_on_damaged)
+	var destroyed_hazard: String = _hazard_scene_name(definition.hazard_on_destroyed)
+	return "ПОСЫЛКА: %s\nHAZARD DAMAGE: %s\nHAZARD DESTROYED: %s" % [
+		" · ".join(tags),
+		damaged_hazard,
+		destroyed_hazard,
+	]
 
-	return "ПОСЫЛКА: %s\nОПАСНОСТЬ: %s" % [" · ".join(tags), hazard]
+
+func _hazard_scene_name(scene: PackedScene) -> String:
+	if scene == null:
+		return "Нет"
+	var path: String = scene.resource_path
+	if not path.is_empty():
+		return path.get_file().get_basename()
+	return scene.resource_name if not scene.resource_name.is_empty() else "scene"
 #endregion
 
 

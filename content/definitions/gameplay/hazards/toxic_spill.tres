@@ -1,10 +1,8 @@
 [gd_resource type="Resource" script_class="DEF_ToxicArea" format=3]
 
 [ext_resource type="Script" path="res://content/definitions/gameplay/hazards/def_toxic_area.gd" id="Definition"]
-[ext_resource type="PackedScene" path="res://content/entities/hazards/toxic_area.tscn" id="Scene"]
 
 [resource]
 script = ExtResource("Definition")
 key = &"toxic_spill"
-scene = ExtResource("Scene")
 lifetime_seconds = 12.0

@@ -20,7 +20,8 @@ func _run() -> void:
 	assert(parcels.size() == 8)
 	var ids: Dictionary[String, bool] = { }
 	var found_tags: int = 0
-	var found_hazards: int = 0
+	var found_damage_hazard: bool = false
+	var found_destroyed_hazard: bool = false
 	for parcel: Entity in parcels:
 		var identity: C_Package = parcel.get_component(C_Package) as C_Package
 		var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
@@ -31,8 +32,13 @@ func _run() -> void:
 			and state.registration == C_PackageState.Registration.UNREGISTERED
 		)
 		found_tags |= identity.definition.tags
-		found_hazards |= 1 << identity.definition.hazard
-	assert(found_tags == 15 and found_hazards == 7)
+		found_damage_hazard = (
+			found_damage_hazard or identity.definition.hazard_on_damaged != null
+		)
+		found_destroyed_hazard = (
+			found_destroyed_hazard or identity.definition.hazard_on_destroyed != null
+		)
+	assert(found_tags == 15 and found_damage_hazard and found_destroyed_hazard)
 	for tick_index: int in 20:
 		await get_tree().physics_frame
 	assert(ECS.world.query.with_all([C_Package]).execute().size() == 8)
