@@ -12,10 +12,8 @@
 [ext_resource type="Script" uid="uid://nsdmrnqs0no0" path="res://content/observers/gameplay/o_damage.gd" id="5_ad8bv"]
 [ext_resource type="Script" uid="uid://c1benmwwnwobr" path="res://content/systems/motion/s_jump.gd" id="6_gg2sc"]
 [ext_resource type="Script" uid="uid://cv8oyv1lnwa6u" path="res://content/systems/motion/s_crouch.gd" id="7_6b1dm"]
-[ext_resource type="Script" path="res://content/systems/motion/s_crouch_presentation.gd" id="Crouch_presentation"]
 [ext_resource type="PackedScene" uid="uid://boxna5m5n5ofv" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor/Floor_static.tscn" id="7_eim2b"]
 [ext_resource type="Script" uid="uid://c1o1ef2y40vmv" path="res://content/systems/input/s_player_input.gd" id="8_qm6qd"]
-[ext_resource type="Script" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
 [ext_resource type="PackedScene" uid="uid://c8ucvasbalruj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pillar_A/Pillar_A_static.tscn" id="8_vhk8t"]
 [ext_resource type="PackedScene" uid="uid://fjtvcn3mifma" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam/Primitive_Beam_static.tscn" id="9_ofyry"]
 [ext_resource type="PackedScene" uid="uid://dxkg7ovkuxd0i" path="res://content/entities/characters/e_rigid_body_character.tscn" id="13_da1x8"]
@@ -44,6 +42,7 @@
 [ext_resource type="PackedScene" uid="uid://cubcn0opxbk6v" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_A/Barrel_A_rigid.tscn" id="77_iit40"]
 [ext_resource type="PackedScene" uid="uid://cbskdoyjbjixx" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_B/Barrel_B_rigid.tscn" id="78_at2gx"]
 [ext_resource type="PackedScene" uid="uid://bf2ntstxhdr1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_C/Barrel_C_rigid.tscn" id="79_ypydk"]
+[ext_resource type="Script" uid="uid://uhapbxf3vhgs" path="res://content/systems/motion/s_crouch_presentation.gd" id="Crouch_presentation"]
 [ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/entities/sessions/e_day_session.gd" id="Day_entity"]
 [ext_resource type="Script" uid="uid://04u6xvav8opi" path="res://content/components/gameplay/c_package_ledger.gd" id="Day_ledger"]
 [ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
@@ -54,12 +53,12 @@
 [ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
 [ext_resource type="Script" uid="uid://ccooufygakw6e" path="res://content/systems/interaction/s_grab.gd" id="Grab_system"]
 [ext_resource type="Script" uid="uid://6wrg3mgcm4e6" path="res://content/systems/interaction/s_interaction_targeting.gd" id="Grab_targeting"]
-[ext_resource type="Script" path="res://content/systems/interaction/s_interaction_highlight.gd" id="Interaction_highlight"]
 [ext_resource type="Script" uid="uid://egauqyysrjr" path="res://content/observers/gameplay/o_hazard_emitter.gd" id="HazardEmitter"]
 [ext_resource type="Script" uid="uid://ehhc4j05ncp" path="res://content/observers/gameplay/o_hazard_spawn.gd" id="HazardSpawn"]
 [ext_resource type="Script" uid="uid://11f2xganwshj" path="res://content/observers/gameplay/o_health_lifecycle.gd" id="HealthLifecycle"]
 [ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
 [ext_resource type="Script" uid="uid://cynilnihkqgor" path="res://content/systems/gameplay/s_impact.gd" id="ImpactSystem"]
+[ext_resource type="Script" uid="uid://cdwei5go7godr" path="res://content/systems/interaction/s_interaction_highlight.gd" id="Interaction_highlight"]
 [ext_resource type="PackedScene" path="res://content/ui/interaction_hud.tscn" id="Interaction_hud"]
 [ext_resource type="Script" uid="uid://3rvc41qs05l" path="res://content/systems/gameplay/s_liquid_tilt.gd" id="LiquidTilt"]
 [ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/components/gameplay/c_living.gd" id="Living"]
@@ -70,6 +69,7 @@
 [ext_resource type="Script" uid="uid://23bxju80ro1e" path="res://content/observers/gameplay/o_package_damage.gd" id="PackageDamage"]
 [ext_resource type="Script" uid="uid://b6kqjvf7okt" path="res://content/observers/gameplay/o_package_hazard.gd" id="PackageHazard"]
 [ext_resource type="Script" uid="uid://87f03fqiuik" path="res://content/observers/gameplay/o_package_opening.gd" id="PackageOpening"]
+[ext_resource type="Script" uid="uid://t4dhuaxsabxv" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
 [ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
 [ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
 [ext_resource type="Script" uid="uid://b1kydo46m6k8r" path="res://content/observers/interaction/o_push_lifecycle.gd" id="Push_lifecycle"]
@@ -285,7 +285,6 @@ script = ExtResource("HazardEmitter")
 [node name="O_PackageHazard" type="Node" parent="World/Systems/GamePlay" unique_id=1324523525]
 script = ExtResource("PackageHazard")
 
-
 [node name="O_ToxicAreaSetup" type="Node" parent="World/Systems/GamePlay" unique_id=180493485]
 script = ExtResource("R09_o_toxic_area_setup")
 
@@ -299,9 +298,11 @@ group = &"GamePlay"
 
 [node name="S_HazardLifetime" type="Node" parent="World/Systems/GamePlay" unique_id=1315152219]
 script = ExtResource("R09_s_hazard_lifetime")
+group = &"GamePlay"
 
 [node name="S_Explosion" type="Node" parent="World/Systems/GamePlay" unique_id=1112609335]
 script = ExtResource("R09_s_explosion")
+group = &"GamePlay"
 
 [node name="O_ExplosionSetup" type="Node" parent="World/Systems/GamePlay" unique_id=1007185748]
 script = ExtResource("R09_o_explosion_setup")
@@ -324,6 +325,7 @@ script = ExtResource("DepletionEffects")
 
 [node name="S_ThrowLifetime" type="Node" parent="World/Systems/GamePlay" unique_id=1650643555]
 script = ExtResource("ThrowLifetime")
+group = &"GamePlay"
 
 [node name="S_LiquidTilt" type="Node" parent="World/Systems/GamePlay" unique_id=1536960542]
 script = ExtResource("LiquidTilt")
@@ -351,7 +353,7 @@ script = ExtResource("7_6b1dm")
 group = &"Physics"
 metadata/_custom_type_script = "uid://cv8oyv1lnwa6u"
 
-[node name="S_CrouchPresentation" type="Node" parent="World/Systems/Physics"]
+[node name="S_CrouchPresentation" type="Node" parent="World/Systems/Physics" unique_id=1906974582]
 script = ExtResource("Crouch_presentation")
 group = &"Physics"
 
@@ -364,7 +366,7 @@ script = ExtResource("8_qm6qd")
 group = &"Input"
 metadata/_custom_type_script = "uid://c1o1ef2y40vmv"
 
-[node name="S_PlayerIntent" type="Node" parent="World/Systems/Input"]
+[node name="S_PlayerIntent" type="Node" parent="World/Systems/Input" unique_id=1207384990]
 script = ExtResource("Player_intent")
 group = &"Input"
 
@@ -376,7 +378,7 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 script = ExtResource("Grab_targeting")
 group = &"Interaction"
 
-[node name="S_InteractionHighlight" type="Node" parent="World/Systems/Interaction"]
+[node name="S_InteractionHighlight" type="Node" parent="World/Systems/Interaction" unique_id=1519690915]
 script = ExtResource("Interaction_highlight")
 group = &"Interaction"
 
@@ -965,14 +967,6 @@ component_resources = Array[ExtResource("Grab_component")]([SubResource("Sleep_i
 [node name="Bucket" parent="Entityes" unique_id=263915687 instance=ExtResource("45_8uaqh")]
 transform = Transform3D(1, 0, 0, 0, 0.65209705, -0.7581355, 0, 0.7581355, 0.65209705, 15.433494, 1.8730338, 2.313034)
 
-[node name="MarkerSpawnPoint" type="Marker3D" parent="Entityes" unique_id=345863772]
-editor_description = "Маркер где примерно появляются новые клиенты"
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.530093, 0, 3.423316)
-
-[node name="MarkerEmplaceMail" type="Marker3D" parent="Entityes" unique_id=80436796]
-editor_description = "Маркер куда примерно игрок должен класть посылки, которые ищет клиент."
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0375915, 1.0400136, -4.9966)
-
 [node name="DoorTemplate" parent="Entityes" unique_id=964464054 instance=ExtResource("63_uqafv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2480266, 0.09600389, -8.165544)
 
@@ -983,12 +977,20 @@ component_resources = Array[ExtResource("Grab_component")]([SubResource("Resourc
 [node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")
 
+[node name="MarkerNPCSpawnPoint" type="Marker3D" parent="." unique_id=345863772]
+editor_description = "Маркер где примерно появляются новые клиенты"
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.530093, 0, 3.423316)
+
+[node name="MarkerEmplaceMail" type="Marker3D" parent="." unique_id=80436796]
+editor_description = "Маркер куда примерно игрок должен класть посылки, которые ищет клиент."
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0375915, 1.0400136, -4.9966)
+
 [node name="Barrel_C_rigid" parent="." unique_id=1866096492 instance=ExtResource("79_ypydk")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.663954, 0.50476074, 6.634577)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.046048, 0.50476074, 9.94565)
 mass = 60.0
 
 [node name="Barrel_B_rigid" parent="." unique_id=1117412504 instance=ExtResource("78_at2gx")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.036787, 0.50476074, 8.555586)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.036787, 0.50476074, 10.108931)
 mass = 118.0
 
 [node name="Barrel_A_rigid" parent="." unique_id=821314681 instance=ExtResource("77_iit40")]
