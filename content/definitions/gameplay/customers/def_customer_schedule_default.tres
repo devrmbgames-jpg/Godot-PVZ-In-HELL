@@ -1,47 +1,47 @@
-[gd_resource type="Resource" script_class="DEF_CustomerSchedule" format=3]
+[gd_resource type="Resource" script_class="DEF_CustomerSchedule" format=3 uid="uid://ct5hbf2hdp6tl"]
 
-[ext_resource type="Script" path="res://content/definitions/gameplay/customers/def_customer_schedule.gd" id="Schedule"]
-[ext_resource type="Script" path="res://content/definitions/gameplay/customers/def_customer_event.gd" id="Event"]
-[ext_resource type="Script" path="res://content/definitions/gameplay/customers/def_customer.gd" id="Customer"]
+[ext_resource type="Resource" uid="uid://btuoi3maxvuq3" path="res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres" id="5_rrbex"]
+[ext_resource type="Script" uid="uid://vyx4wrt4eqv7" path="res://content/definitions/gameplay/customers/def_customer.gd" id="Customer"]
+[ext_resource type="Script" uid="uid://c1wdbe15l5tk3" path="res://content/definitions/gameplay/customers/def_customer_event.gd" id="Event"]
 [ext_resource type="PackedScene" path="res://content/entities/customers/customer.tscn" id="Scene"]
+[ext_resource type="Script" uid="uid://bfp6pc2vc71rw" path="res://content/definitions/gameplay/customers/def_customer_schedule.gd" id="Schedule"]
 
 [sub_resource type="Resource" id="Ordinary"]
 script = ExtResource("Customer")
-key = &"ordinary"
 display_name = "Покупатель книг"
-
-[sub_resource type="Resource" id="Careful"]
-script = ExtResource("Customer")
-key = &"careful"
-display_name = "Покупатель посуды"
-accepts_damaged = false
-accepts_opened = false
-
-[sub_resource type="Resource" id="Refusal"]
-script = ExtResource("Customer")
-key = &"voluntary_refusal"
-display_name = "Покупатель одежды"
-voluntary_refusal = true
-
-[sub_resource type="Resource" id="Late"]
-script = ExtResource("Customer")
-key = &"late"
-display_name = "Поздний покупатель оборудования"
+key = &"ordinary"
 
 [sub_resource type="Resource" id="Books"]
 script = ExtResource("Event")
-package_key = &"books"
 customer = SubResource("Ordinary")
+
+[sub_resource type="Resource" id="Careful"]
+script = ExtResource("Customer")
+display_name = "Покупатель посуды"
+accepts_damaged = false
+accepts_opened = false
+key = &"careful"
 
 [sub_resource type="Resource" id="Glass"]
 script = ExtResource("Event")
 package_key = &"glass"
 customer = SubResource("Careful")
 
+[sub_resource type="Resource" id="Refusal"]
+script = ExtResource("Customer")
+display_name = "Покупатель одежды"
+voluntary_refusal = true
+key = &"voluntary_refusal"
+
 [sub_resource type="Resource" id="Clothes"]
 script = ExtResource("Event")
 package_key = &"clothes"
 customer = SubResource("Refusal")
+
+[sub_resource type="Resource" id="Late"]
+script = ExtResource("Customer")
+display_name = "Поздний покупатель оборудования"
+key = &"late"
 
 [sub_resource type="Resource" id="Equipment"]
 script = ExtResource("Event")
@@ -51,6 +51,6 @@ customer = SubResource("Late")
 
 [resource]
 script = ExtResource("Schedule")
-key = &"warehouse_customers"
 events = Array[ExtResource("Event")]([SubResource("Books"), SubResource("Glass"), SubResource("Clothes"), SubResource("Equipment")])
 customer_scene = ExtResource("Scene")
+key = &"warehouse_customers"
