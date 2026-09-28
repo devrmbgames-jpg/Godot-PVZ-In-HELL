@@ -14,6 +14,8 @@ enum Slot {
 @export var caption: String = "Использовать"
 @export var priority: int = 0
 @export var continuous: bool = false
+## USE actions may opt out of the legacy E -> F fallback when the buttons are semantically distinct.
+@export var allow_interact_fallback: bool = true
 @export var timing: DEF_ProlongedInteraction = null
 
 

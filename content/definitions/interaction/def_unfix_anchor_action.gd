@@ -7,6 +7,7 @@ func _init() -> void:
 	action_id = &"unfix_anchor"
 	slot = Slot.USE
 	caption = "Снять фиксацию"
+	allow_interact_fallback = false
 	timing = DEF_ProlongedInteraction.new()
 
 
