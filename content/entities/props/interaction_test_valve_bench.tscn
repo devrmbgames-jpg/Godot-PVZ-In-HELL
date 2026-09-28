@@ -157,8 +157,10 @@ material = SubResource("LampOnMaterial")
 size = Vector3(0.56, 0.72, 0.46)
 
 [node name="ValveResetPolicyTestBench" type="Node3D"]
+editor_description = "R11.1 interaction demo. Each Valve*.activated signal is connected below to its IndicatorLamp.set_active() method; replace that connection with any authored scene effect."
 
 [node name="ValveInstant" type="StaticBody3D" parent="."]
+editor_description = "Immediate E interaction. No prolonged progress/reset policy."
 position = Vector3(0, 0.42, 0)
 collision_layer = 2
 collision_mask = 0
@@ -210,6 +212,7 @@ light_energy = 1.2
 omni_range = 1.5
 
 [node name="ValveDecay" type="StaticBody3D" parent="."]
+editor_description = "Hold F. Interrupted progress decays gradually (DECAY)."
 position = Vector3(1.45, 0.42, 0)
 collision_layer = 2
 collision_mask = 0
@@ -261,6 +264,7 @@ light_energy = 1.2
 omni_range = 1.5
 
 [node name="ValveInstantReset" type="StaticBody3D" parent="."]
+editor_description = "Hold F. Interrupted progress resets immediately to 0 (INSTANT)."
 position = Vector3(2.9, 0.42, 0)
 collision_layer = 2
 collision_mask = 0
@@ -312,6 +316,7 @@ light_energy = 1.2
 omni_range = 1.5
 
 [node name="ValveOnComplete" type="StaticBody3D" parent="."]
+editor_description = "Hold F. Partial progress is retained; successful completion resets for the next use (ON_COMPLETE)."
 position = Vector3(4.35, 0.42, 0)
 collision_layer = 2
 collision_mask = 0
@@ -363,6 +368,7 @@ light_energy = 1.2
 omni_range = 1.5
 
 [node name="ValveNever" type="StaticBody3D" parent="."]
+editor_description = "Hold F. Completion is permanent/one-shot (NEVER)."
 position = Vector3(5.8, 0.42, 0)
 collision_layer = 2
 collision_mask = 0
