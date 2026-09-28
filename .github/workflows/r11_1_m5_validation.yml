@@ -42,12 +42,17 @@ jobs:
         run: godot --headless --path . --import --quit
 
       - name: Focused M5 GUT
-        run: >-
-          godot --headless --path .
-          -s addons/gut/gut_cmdln.gd
-          -gdir=res://tests/gut
-          -gselect test_anchoring.gd
-          -gexit
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . \
+            -s addons/gut/gut_cmdln.gd \
+            -gdir=res://tests/gut \
+            -gselect test_anchoring.gd \
+            -gexit 2>&1 | tee m5-gut.log
+          grep -q "Passing Tests" m5-gut.log
+          grep -q 'Ran Scripts matching "test_anchoring.gd"' m5-gut.log
+          if grep -q "GUT ERROR" m5-gut.log; then exit 1; fi
 
       - name: M5 anchoring physics smoke
         shell: pwsh

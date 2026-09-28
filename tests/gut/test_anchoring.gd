@@ -136,7 +136,7 @@ func _drive_input(primary_pressed: bool, use_pressed: bool, use_held: bool, delt
 	_controller.use_pressed = use_pressed
 	_controller.use_held = use_held
 	_controller.input_tick += 1
-	InteractionActionResolver.handle_drive_input(_actor, delta)
+	InteractionActionResolver.handle_input(_actor, delta)
 	_controller.action_main_pressed = false
 	_controller.use_pressed = false
 
@@ -203,7 +203,7 @@ func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> voi
 
 	_controller.use_held = false
 	_controller.input_tick += 1
-	InteractionActionResolver.handle_drive_input(_actor, 0.0)
+	InteractionActionResolver.handle_input(_actor, 0.0)
 	assert_null(ProlongedInteractionService.session(_actor))
 
 
