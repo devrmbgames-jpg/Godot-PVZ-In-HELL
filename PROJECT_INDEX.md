@@ -20,7 +20,9 @@ Optional routing map. Do not read this file by default. Use it only when the tas
 | Tests | `tests/gut/`, `tests/smoke/` |
 | Tooling | `utils/` |
 | Docs | `docs/README.md` |
-| Agent workflow | `AGENTS.md` |
+| Agent policy | `AGENTS.md` |
+| Implementation workflow | `.agents/skills/develop/SKILL.md` |
+| Specialized workflows | `.agents/skills/gecs-v8/`, `.agents/skills/gut-testing/`, `.agents/skills/professional-game-design/` |
 | Code/resource naming | `docs/code_style.md` |
 
 ## Gameplay routes
