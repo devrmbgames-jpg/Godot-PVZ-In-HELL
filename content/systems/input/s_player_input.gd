@@ -74,6 +74,8 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		controller.rotate_held = captured and Input.is_action_pressed(&"rotate_held")
 		_update_drop(controller, entity, captured, delta)
 		controller.use_pressed = captured and _use_pending
+		controller.use_held = captured and Input.is_action_pressed(&"use")
+		controller.interact_held = captured and Input.is_action_pressed(&"interact")
 		controller.action_second_pressed = captured and _secondary_pending
 		controller.physical_override = captured and Input.is_action_pressed(&"physical_override")
 		controller.interact_pressed = captured and _interact_pending

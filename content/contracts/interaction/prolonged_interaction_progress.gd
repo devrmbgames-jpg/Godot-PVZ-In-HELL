@@ -5,5 +5,6 @@ class_name ProlongedInteractionProgress
 enum Phase { IDLE, ADVANCING, READY, WAITING_FOR_RELEASE, COMPLETED }
 
 @export var action_id: StringName = &""
+@export var timing: DEF_ProlongedInteraction = null
 @export_range(0.0, 1.0) var fraction: float = 0.0
 @export var phase: Phase = Phase.IDLE

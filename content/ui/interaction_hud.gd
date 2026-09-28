@@ -6,6 +6,7 @@ extends CanvasLayer
 @onready var _phase_label: Label = $Overlay/StatusPanel/DayPhase
 @onready var _announcement: Label = $Overlay/Announcement
 @onready var _crosshair: Label = $Overlay/Crosshair
+@onready var _interaction_progress: ProgressBar = $Overlay/InteractionProgress
 @onready var _player_debug_panel: PanelContainer = $Overlay/PlayerDebugPanel
 @onready var _player_health_label: Label = $Overlay/PlayerDebugPanel/Debug/HealthLabel
 @onready var _player_health_bar: ProgressBar = $Overlay/PlayerDebugPanel/Debug/HealthBar
@@ -43,6 +44,9 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	var captured: bool = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+	var progress: ProlongedInteractionProgress = ProlongedInteractionService.active_progress(player)
+	_interaction_progress.visible = captured and progress != null
+	_interaction_progress.value = progress.fraction if progress != null else 0.0
 	_prompt.visible = captured
 	_crosshair.visible = (
 		captured

@@ -7,6 +7,7 @@ enum Priority {
 	CARRY,
 	PUSH,
 	TRANSPORT,
+	PROLONGED,
 	DRAWING,
 	MODAL,
 }
@@ -36,12 +37,14 @@ static func release(actor: Entity, token: int) -> void:
 
 
 ## Returns the highest live capture priority and prunes destroyed owners.
-static func current(actor: Entity) -> Priority:
+static func current(actor: Entity, excluded_token: int = 0) -> Priority:
 	var control: C_GrabControl = _control(actor)
 	var priority: int = Priority.HANDS
 
 	if control != null:
 		for token: int in control.captures.keys():
+			if token == excluded_token:
+				continue
 			var capture: InteractionControlCapture = control.captures[token]
 			if capture.owner.get_ref() == null:
 				control.captures.erase(token)

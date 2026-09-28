@@ -18,7 +18,7 @@ const DROP_ORDER: Array[int] = [
 
 #region Public API
 ## Routes one deduplicated input tick without leaking captured buttons to lower priorities.
-static func handle_input(actor: Entity) -> void:
+static func handle_input(actor: Entity, delta: float = 0.0) -> void:
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
@@ -27,6 +27,9 @@ static func handle_input(actor: Entity) -> void:
 
 	interactor.last_action_tick = controller.input_tick
 	control.rotation_active = false
+	if ProlongedInteractionService.tick(actor, delta):
+		refresh_prompt(actor)
+		return
 	var active_focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
 	if active_focus >= InteractionControlFocus.Priority.DRAWING:
 		refresh_prompt(actor)
@@ -94,6 +97,7 @@ static func handle_input(actor: Entity) -> void:
 static func resolve(
 	actor: Entity,
 	input_slot: DEF_InteractionAction.Slot,
+	excluded_capture: int = 0,
 ) -> InteractionActionChoice:
 	if not GrabService.holder_available(actor):
 		return null
@@ -103,8 +107,8 @@ static func resolve(
 	if interactor == null or controller == null:
 		return null
 
-	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
-	if focus >= InteractionControlFocus.Priority.DRAWING:
+	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor, excluded_capture)
+	if focus >= InteractionControlFocus.Priority.PROLONGED:
 		return null
 
 	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
@@ -271,6 +275,11 @@ static func refresh_prompt(actor: Entity) -> void:
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
 	var lines: PackedStringArray = []
+	var prolonged: Relationship = ProlongedInteractionService.session(actor)
+	if prolonged != null and InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.PROLONGED:
+		var data: R_ProlongedOn = prolonged.relation as R_ProlongedOn
+		interactor.prompt_text = "[удерживать %s] %s" % [button_label(data.input_slot), data.action.caption]
+		return
 	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.TRANSPORT:
 		lines.append("[W / S] Вперёд / назад · [A / D] Поворот")
 	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.DRAWING:
@@ -375,7 +384,11 @@ static func _execute_slot(
 		return false
 	var choice: InteractionActionChoice = resolve(actor, input_slot)
 	if choice != null and (pressed or choice.action.continuous):
-		choice.action.execute(actor, choice.source, choice.target)
+		if choice.action.timing != null:
+			if pressed:
+				ProlongedInteractionService.begin(actor, choice, input_slot)
+		else:
+			choice.action.execute(actor, choice.source, choice.target)
 	# Hand input owns its tick even when use has no valid target.
 	return pressed or held
 

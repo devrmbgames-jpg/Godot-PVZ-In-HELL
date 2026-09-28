@@ -15,7 +15,7 @@ Add reusable prolonged interaction, access/open-close, physical slot/placement, 
 
 ### Milestones
 - [x] M1 — prolonged timing/progress/session foundation.
-- [ ] M2 — runtime resolver/input/focus/HUD integration and atomic completion/cleanup.
+- [x] M2 — runtime resolver/input/focus/HUD integration and atomic completion/cleanup.
 - [ ] M3 — access requirements and common open/close/translate contract.
 - [ ] M4 — physical slots and collision-validated Carry placement.
 - [ ] M5 — hammer anchor/unfix, physics-state restore, support query, final validation.
@@ -24,10 +24,10 @@ Add reusable prolonged interaction, access/open-close, physical slot/placement, 
 One authoritative prolonged session per actor/target; progress readiness is not effect completion. Existing task body/design sources remain scope reference, not a parallel state tracker.
 
 ### Current
-M1 is implemented. Next: wire prolonged interaction into the existing resolver/input/focus path and HUD with atomic completion plus cleanup on release/interruption.
+M1–M2 are implemented. M2 evidence: [runtime integration](r11_1/milestone_2_prolonged_runtime.md). Next: M3 generic access requirement and reusable open/close/translate state contract.
 
 ### Validation
-M1 has prepared focused GUT coverage; runtime execution is intentionally deferred until the complete R11.1 validation stage unless a blocking bug requires earlier evidence.
+M1–M2 have prepared focused GUT coverage (7 progress + 11 session cases). M2 structure validation and diff checks passed; optional formatter unavailable. Runtime execution is intentionally deferred until the complete R11.1 validation stage unless a blocking bug requires earlier evidence.
 
 ### Owner QA / blockers
 No blocker recorded. Owner visual/gameplay QA remains after runtime integration is complete.
@@ -100,4 +100,4 @@ Physics integration: placement collision validity, неподвижность п
 
 ## Текущий этап
 
-Первый небольшой milestone выполнен: данные и расчёт prolonged progress, без runtime wiring. Модель владения, решения, проверки и точный следующий шаг: [milestone 1](r11_1/milestone_1_prolonged_foundation.md). R11.1 остаётся открытой.
+M1 и M2 выполнены: foundation и runtime wiring prolonged interaction. Модель владения: [milestone 1](r11_1/milestone_1_prolonged_foundation.md); реализация, review и проверки M2: [milestone 2](r11_1/milestone_2_prolonged_runtime.md). Следующий этап — M3. R11.1 остаётся открытой; итоговые runtime-проверки и owner QA ещё впереди.

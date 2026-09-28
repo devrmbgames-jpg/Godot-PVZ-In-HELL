@@ -1,5 +1,8 @@
 [gd_scene format=3 uid="uid://b357k3h2k7kuh"]
 
+[ext_resource type="Script" path="res://content/systems/interaction/s_prolonged_decay.gd" id="Prolonged_decay"]
+[ext_resource type="Script" path="res://content/observers/interaction/o_prolonged_lifecycle.gd" id="Prolonged_lifecycle"]
+
 [ext_resource type="Script" uid="uid://c2jikq1w8bhv2" path="res://content/scenes/main_level.gd" id="1_ixiin"]
 [ext_resource type="PackedScene" uid="uid://dl0sa03fbgiro" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall/Primitive_Wall_static.tscn" id="1_ojrfc"]
 [ext_resource type="PackedScene" uid="uid://lmmf6kia0frw" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor_Prototype/Floor_Prototype_static.tscn" id="1_wp74p"]
@@ -424,6 +427,13 @@ group = &"Interaction"
 [node name="S_InteractionHighlight" type="Node" parent="World/Systems/Interaction" unique_id=1519690915]
 script = ExtResource("Interaction_highlight")
 group = &"Interaction"
+
+[node name="S_ProlongedDecay" type="Node" parent="World/Systems/Interaction"]
+script = ExtResource("Prolonged_decay")
+group = &"Interaction"
+
+[node name="O_ProlongedLifecycle" type="Node" parent="World/Systems/Interaction"]
+script = ExtResource("Prolonged_lifecycle")
 
 [node name="S_Grab" type="Node" parent="World/Systems/Interaction" unique_id=767923781]
 script = ExtResource("Grab_system")

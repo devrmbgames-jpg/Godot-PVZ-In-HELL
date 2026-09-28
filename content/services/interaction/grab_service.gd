@@ -12,7 +12,7 @@ const NO_CARRY_GROUP: StringName = &"no_carry"
 
 #region Public API
 ## Releases invalid grips before routing the actor input tick.
-static func handle_input(holder: Entity) -> void:
+static func handle_input(holder: Entity, delta: float = 0.0) -> void:
 	if not is_instance_valid(holder):
 		return
 
@@ -20,6 +20,7 @@ static func handle_input(holder: Entity) -> void:
 	var controller: C_Controller = holder.get_component(C_Controller) as C_Controller
 	var interactor: C_Interactor = holder.get_component(C_Interactor) as C_Interactor
 	if control == null or controller == null or interactor == null:
+		ProlongedInteractionService.cancel(holder)
 		return
 
 	for slot_index: int in 3:
@@ -35,10 +36,11 @@ static func handle_input(holder: Entity) -> void:
 		):
 			release(holder, held)
 	if not holder_available(holder):
+		ProlongedInteractionService.cancel(holder)
 		interactor.prompt_text = ""
 		return
 
-	InteractionActionResolver.handle_input(holder)
+	InteractionActionResolver.handle_input(holder, delta)
 
 
 ## Prevalidate the complete transaction before releasing an occupied hand.
