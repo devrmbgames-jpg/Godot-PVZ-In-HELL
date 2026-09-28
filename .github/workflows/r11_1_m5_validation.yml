@@ -1,0 +1,59 @@
+name: R11.1 M5 validation
+
+on:
+  push:
+    branches:
+      - task/r11-1-m5-hammer-anchor
+    paths:
+      - content/components/interaction/c_anchor_tool.gd
+      - content/components/interaction/c_anchorable.gd
+      - content/components/interaction/c_player_anchored.gd
+      - content/contracts/interaction/anchored_body_snapshot.gd
+      - content/definitions/interaction/def_anchor_action.gd
+      - content/definitions/interaction/def_unfix_anchor_action.gd
+      - content/services/interaction/anchoring_service.gd
+      - content/systems/interaction/s_anchor_stability.gd
+      - content/scenes/main_level.tscn
+      - tests/gut/test_anchoring.gd
+      - tests/smoke/anchoring_smoke.gd
+      - tests/smoke/anchoring_smoke.tscn
+      - .github/workflows/r11_1_m5_validation.yml
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Godot 4.7.1
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.1
+          use-dotnet: false
+          include-templates: false
+
+      - name: Verify Godot
+        run: godot --version
+
+      - name: Import project
+        run: godot --headless --path . --import --quit
+
+      - name: Focused M5 GUT
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . \
+            -s addons/gut/gut_cmdln.gd \
+            -gdir=res://tests/gut \
+            -gselect test_anchoring.gd \
+            -gexit 2>&1 | tee m5-gut.log
+          grep -q "Passing Tests" m5-gut.log
+          grep -q 'Ran Scripts matching "test_anchoring.gd"' m5-gut.log
+          if grep -q "GUT ERROR" m5-gut.log; then exit 1; fi
+
+      - name: M5 anchoring physics smoke
+        shell: pwsh
+        run: ./utils/run_smoke.ps1 -Name anchoring
