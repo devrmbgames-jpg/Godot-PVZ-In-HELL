@@ -104,6 +104,7 @@ static func attach(item: Entity, binding: Relationship) -> bool:
 	body.angular_velocity = Vector3.ZERO
 	body.set_physics_process(false)
 	body.top_level = snapshot.top_level
+	body.global_transform = slot.anchor.global_transform
 	slot.driver.remote_path = slot.driver.get_path_to(body)
 	slot.driver.use_global_coordinates = true
 	slot.driver.update_position = true

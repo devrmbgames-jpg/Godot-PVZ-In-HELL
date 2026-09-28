@@ -2,6 +2,8 @@ extends RefCounted
 ## First-hit gameplay target resolution with no presentation side effects.
 class_name InteractionTargetingService
 
+const MAX_HELD_RECASTS: int = 3
+
 
 static func find_target(holder: Entity, interactor: C_Interactor) -> Entity:
 	return _interactable_entity(_raycast_collider(holder, interactor), holder)
@@ -74,7 +76,16 @@ static func _raycast_collider(holder: Entity, interactor: C_Interactor) -> Objec
 			interaction_raycast.add_exception_rid(held_body.get_rid())
 
 	interaction_raycast.force_raycast_update()
-	return interaction_raycast.get_collider() if interaction_raycast.is_colliding() else null
+	for _attempt: int in MAX_HELD_RECASTS + 1:
+		if not interaction_raycast.is_colliding():
+			return null
+		var collider: Object = interaction_raycast.get_collider()
+		var collider_body: RigidBody3D = collider_rigid_body(collider)
+		if collider_body == null or not _body_is_held_by(collider_body, holder):
+			return collider
+		interaction_raycast.add_exception_rid(collider_body.get_rid())
+		interaction_raycast.force_raycast_update()
+	return null
 
 
 static func _interactable_entity(collider: Object, holder: Entity) -> Entity:
@@ -83,3 +94,11 @@ static func _interactable_entity(collider: Object, holder: Entity) -> Entity:
 		return null
 	var interactable: C_Interactable = candidate.get_component(C_Interactable) as C_Interactable
 	return candidate if interactable != null and interactable.enabled else null
+
+
+static func _body_is_held_by(body: RigidBody3D, holder: Entity) -> bool:
+	if not is_instance_valid(body) or not is_instance_valid(holder):
+		return false
+	var handle: Entity = PhysicsGrabTarget.handle_for(body, false)
+	var grip: Relationship = GrabService.held_relationship(handle)
+	return grip != null and grip.target == holder

@@ -95,7 +95,6 @@ func test_store_freezes_attaches_and_restores_physics_on_take() -> void:
 	assert_eq(_body.collision_mask, 0)
 	assert_false(_body.is_physics_processing())
 	assert_eq(_body.get_parent(), original_parent)
-	assert_eq(_slot.driver.remote_path, NodePath())
 	assert_eq(_slot.driver.remote_path, _slot.driver.get_path_to(_body))
 	(_slot as Node as Node3D).position.x += 0.2
 	assert_eq(_body.global_position, _slot.anchor.global_position)
@@ -109,6 +108,7 @@ func test_store_freezes_attaches_and_restores_physics_on_take() -> void:
 	assert_eq(_body.collision_mask, 29)
 	assert_true(_body.is_physics_processing())
 	assert_eq(_body.get_parent(), original_parent)
+	assert_eq(_slot.driver.remote_path, NodePath())
 
 
 func test_occupied_slot_and_filter_failure_preserve_hand() -> void:

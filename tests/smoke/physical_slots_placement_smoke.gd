@@ -52,7 +52,14 @@ func _run() -> void:
 	blocker.position = Vector3(10, 1, 0)
 	await _sync_physics()
 	interactor = _actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = _area
+	var ray: RayCast3D = _actor.get("interaction_raycast") as RayCast3D
+	ray.global_position = Vector3(0, 1, 0)
+	ray.target_position = Vector3(0, 0, -3)
+	var carried_body: RigidBody3D = GrabService.physical_body(item)
+	carried_body.global_position = Vector3(0, 1, -1)
+	await _sync_physics()
+	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
+	assert(interactor.target == _area, "Held Carry body must not steal PlacementArea focus")
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
 	assert(choice != null and choice.action is DEF_CarryPlacementAction)
 	assert(choice.action.complete(_actor, choice.source, choice.target))
