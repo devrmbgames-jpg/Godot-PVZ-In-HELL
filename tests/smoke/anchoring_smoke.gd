@@ -72,7 +72,7 @@ func _make_actor() -> Entity:
 	actor.set("lowered_right_hand_slot", hand)
 	actor.set("lowered_left_hand_slot", hand)
 	_interactor = C_Interactor.new()
-	_interactor.collision_mask = 2
+	_interactor.collision_mask = 8
 	actor.component_resources = [
 		C_Controller.new(),
 		_interactor,
@@ -110,7 +110,7 @@ func _box(location: Vector3) -> Entity:
 	body.set_script(E_GrabbableBody)
 	body.position = location
 	body.gravity_scale = 0.0
-	body.collision_layer = 2
+	body.collision_layer = 8
 	body.collision_mask = 29
 	body.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
 	var collision: CollisionShape3D = CollisionShape3D.new()

@@ -130,13 +130,13 @@ func _stabilize(seconds: float = 0.5) -> void:
 	AnchoringService.update_stability(_target, _config, seconds)
 
 
-func _input(primary_pressed: bool, use_pressed: bool, use_held: bool, delta: float = 0.0) -> void:
+func _drive_input(primary_pressed: bool, use_pressed: bool, use_held: bool, delta: float = 0.0) -> void:
 	_controller.action_main_pressed = primary_pressed
 	_controller.action_main = primary_pressed
 	_controller.use_pressed = use_pressed
 	_controller.use_held = use_held
 	_controller.input_tick += 1
-	InteractionActionResolver.handle_input(_actor, delta)
+	InteractionActionResolver.handle_drive_input(_actor, delta)
 	_controller.action_main_pressed = false
 	_controller.use_pressed = false
 
@@ -168,7 +168,7 @@ func test_authored_frozen_body_is_never_inferred_as_player_anchor() -> void:
 func test_primary_hammer_action_anchors_and_blocks_grab() -> void:
 	_stabilize()
 	assert_true(AnchoringService.can_anchor(_actor, _hammer, _target))
-	_input(true, false, false)
+	_drive_input(true, false, false)
 	assert_true(AnchoringService.is_player_anchored(_target))
 	assert_true(_body.freeze)
 	assert_eq(_body.freeze_mode, RigidBody3D.FREEZE_MODE_STATIC)
@@ -184,15 +184,15 @@ func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> voi
 	var expected_linear: Vector3 = _body.linear_velocity
 	var expected_angular: Vector3 = _body.angular_velocity
 	_stabilize()
-	_input(true, false, false)
+	_drive_input(true, false, false)
 	assert_true(_body.freeze)
 
 	_controller.action_main = false
-	_input(false, true, true)
+	_drive_input(false, true, true)
 	assert_not_null(ProlongedInteractionService.session(_actor))
-	_input(false, false, true, 0.75)
+	_drive_input(false, false, true, 0.75)
 	assert_true(AnchoringService.is_player_anchored(_target))
-	_input(false, false, true, 0.75)
+	_drive_input(false, false, true, 0.75)
 	assert_false(AnchoringService.is_player_anchored(_target))
 	assert_false(_body.freeze)
 	assert_eq(_body.freeze_mode, RigidBody3D.FREEZE_MODE_KINEMATIC)
@@ -203,7 +203,7 @@ func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> voi
 
 	_controller.use_held = false
 	_controller.input_tick += 1
-	InteractionActionResolver.handle_input(_actor, 0.0)
+	InteractionActionResolver.handle_drive_input(_actor, 0.0)
 	assert_null(ProlongedInteractionService.session(_actor))
 
 
