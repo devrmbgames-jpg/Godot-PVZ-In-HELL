@@ -121,8 +121,11 @@ static func release(item: Entity) -> void:
 	var binding: Relationship = relationship(item)
 	if binding == null:
 		return
-	# Relationship removal synchronously dispatches the lifecycle observer, which restores slot side effects.
+	# Relationship removal normally dispatches the lifecycle observer synchronously.
 	item.remove_relationship(binding)
+	var data: R_StoredIn = binding.relation as R_StoredIn
+	if data.applied:
+		detach(item, binding)
 
 
 static func detach(item: Entity, binding: Relationship) -> void:

@@ -1,0 +1,70 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/entities/props/e_grabbable_body.gd" id="Entity"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_grabbable.gd" id="Grabbable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_anchor_tool.gd" id="AnchorTool"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_interaction_action.gd" id="ActionBase"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_anchor_action.gd" id="AnchorAction"]
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="Grabbable"]
+script = ExtResource("Grabbable")
+allowed_hand_slots = 6
+manual_rotation_enabled = false
+reset_rotation_on_pickup = true
+
+[sub_resource type="Resource" id="AnchorTool"]
+script = ExtResource("AnchorTool")
+
+[sub_resource type="Resource" id="AnchorAction"]
+script = ExtResource("AnchorAction")
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("Actions")
+actions = Array[ExtResource("ActionBase")]([SubResource("AnchorAction")])
+reserved_slots = 4
+
+[sub_resource type="StandardMaterial3D" id="HandleMaterial"]
+albedo_color = Color(0.34, 0.16, 0.06, 1)
+
+[sub_resource type="StandardMaterial3D" id="HeadMaterial"]
+albedo_color = Color(0.23, 0.25, 0.28, 1)
+metallic = 0.65
+roughness = 0.45
+
+[sub_resource type="CylinderMesh" id="HandleMesh"]
+top_radius = 0.035
+bottom_radius = 0.045
+height = 0.42
+material = SubResource("HandleMaterial")
+
+[sub_resource type="BoxMesh" id="HeadMesh"]
+size = Vector3(0.28, 0.11, 0.12)
+material = SubResource("HeadMaterial")
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.30, 0.48, 0.14)
+
+[node name="Hammer" type="RigidBody3D"]
+collision_layer = 10
+collision_mask = 29
+mass = 0.65
+continuous_cd = true
+script = ExtResource("Entity")
+component_resources = Array[ExtResource("Component")]([SubResource("Interactable"), SubResource("Grabbable"), SubResource("AnchorTool"), SubResource("Actions")])
+
+[node name="Handle" type="MeshInstance3D" parent="."]
+mesh = SubResource("HandleMesh")
+
+[node name="Head" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.18, 0)
+mesh = SubResource("HeadMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.03, 0)
+shape = SubResource("Shape")

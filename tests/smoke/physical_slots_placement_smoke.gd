@@ -30,7 +30,7 @@ func _run() -> void:
 	actor_body.add_child(anchor)
 	_actor.set("hold_anchor", anchor)
 	var interactor: C_Interactor = C_Interactor.new()
-	interactor.collision_mask = 2
+	interactor.collision_mask = 31
 	_actor.component_resources = [C_Controller.new(), interactor, C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
 	_world.add_entity(_actor)
 	_area = (load("res://content/entities/props/placement_area.tscn") as PackedScene).instantiate() as E_PlacementArea
