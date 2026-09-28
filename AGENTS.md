@@ -1,74 +1,64 @@
-# Agent Instructions
+# Godot PVZ In Hell — agent policy
 
-Keep the default path short: start from the user's task and the exact files/symbols it names. Do not preload project documentation "for context".
+Keep the default path short: start from the user's task and the exact files, symbols, errors, or scene/resource paths it names. Do not preload project documentation for general context.
 
-## Project invariants
+## Hard invariants
 
-- Godot 4.7, GDScript, Forward Plus, Jolt Physics.
-- GECS v8 is pinned under `addons/gecs/`; local pinned source is the API authority.
-- `addons/` is read-only unless dependency/addon work is explicitly requested.
-- Static typing is required for project-owned GDScript. If inference is ambiguous or an API returns Variant/untyped data, declare the concrete type explicitly.
-- Project-owned filenames use `snake_case`; classes use `PascalCase`. GECS prefixes such as `C_`, `S_`, `O_`, `E_`, `DEF_`, `R_` are allowed.
-- Components are data/state only. Behavior belongs in Systems, Observers, services/solvers, or thin Entity/engine glue.
-- Authoritative live Entity-to-Entity ownership/session/binding uses Relationships under `content/relationships/<subsystem>/`. Documented reverse caches may remain Components but are never co-authority.
-- Project Systems are atomic: no System calls another System as a service/helper. Use `deps()`, groups, Components, Relationships, typed requests/events/results.
-- Godot physics bodies own physical transform/velocity unless a documented synchronization contract says otherwise.
-- No magic gameplay constants; use named constants or authored/data-driven values.
-- **Private-by-default:** in behavior/glue/UI code, every non-exported member variable is private unless it is deliberately part of a public data contract. Private members use `_snake_case`: `var _value: int = 0`, never accidental `var value: int = 0`.
-- **All `@onready` members are private.** Always write `@onready var _node: Type = $Node`; never expose cached child nodes through public fields. If another object needs access, expose a narrow method/property API.
-- Public data fields without `_` are allowed only when intentionally part of a data/API contract: Components, Relationships, typed request/result/event records, Definitions, or explicit `@export` scene configuration. Behavior classes must not use public mutable fields as a shortcut for cross-object access.
-- Project-authored `.tres` filenames use searchable type prefixes. Definitions use `def_*`, materials `mat_*`, themes `theme_*`, styles `style_*`, meshes `mesh_*`; see `docs/code_style.md` for the canonical table. Imported/vendor resources are not renamed solely for style.
-- Never discard user edits, rewrite unrelated history, force-push, upgrade dependencies, or write authored files into `.godot/`.
+- Runtime: Godot 4.7, GDScript, Forward Plus, Jolt Physics.
+- GECS v8 is pinned under `addons/gecs/`; checked-out local source is the API authority. `addons/` is read-only unless dependency/addon work is explicitly requested.
+- Project-owned GDScript is statically typed. When inference crosses Variant/untyped APIs, Array/Dictionary values, dynamic lookup, or broad Object/Node boundaries, declare the concrete type explicitly.
+- Components contain data/state only. Behavior belongs in Systems, Observers, services/solvers, or thin Entity/engine glue.
+- Authoritative live Entity-to-Entity ownership/session/binding uses Relationships under `content/relationships/<subsystem>/`. Derived caches may exist but are not co-authority.
+- Project Systems are atomic: a System does not call another System as a service/helper. Use scheduling/dependencies plus Components, Relationships, and typed contracts.
+- Godot physics bodies own physical transform/velocity unless an explicit synchronization contract says otherwise.
+- Behavior/glue/UI members are private by default; all `@onready` members are private. Public mutable fields are for deliberate data/API contracts only.
+- No unexplained gameplay magic constants. Use named constants or authored/data-driven values.
+- Preserve scene/resource/data contracts unless migration is explicit: exported properties, node paths/names, signals, relationship/component ownership, resource paths, authored IDs.
+- Preserve unrelated user edits. Do not rewrite unrelated history, force-push, upgrade dependencies, write authored files into `.godot/`, or use `gh`.
 
-## Context policy
+## Context routing
 
-For ordinary work:
-1. Start with the task and exact named paths/symbols.
-2. Inspect the direct owner, data contract, callers/callees, and smallest relevant regression surface.
-3. Use `PROJECT_INDEX.md` only when the owning subsystem/path is unclear.
-4. Use root/subsystem `CONTEXT.md` only when a concrete cross-system contract is still unclear.
-5. Read roadmap/task docs only for the exact roadmap task being implemented or resumed.
-6. Read `CURRENT_WORK.md` only when the user asks to resume/continue prior unfinished work.
+1. Start from the task and named code.
+2. Inspect the authoritative owner, direct data/scene contract, direct callers/callees, and smallest regression surface.
+3. Use `PROJECT_INDEX.md` only when ownership is unclear.
+4. Read root/subsystem `CONTEXT.md` only when a concrete architecture, lifecycle, persistence, physics-authority, or cross-system fact is missing.
+5. Read roadmap/task documents only for the exact tracked item being implemented or resumed.
+6. Read `CURRENT_WORK.md` only when resuming prior unfinished work.
 
-Prefer exact symbol search and targeted ranges. Do not recursively scan directories, reread unchanged context, or dump full large `.tscn`, logs, diffs, roadmaps, or context files when a narrow lookup is enough. Stop exploring once owner, contract, and direct regression surface are known.
-
-`docs/codex_token_economy.md` and `docs/ai_prompt_cheatsheet.md` are human-facing guidance; do not load them during ordinary implementation.
+Stop exploring once owner, contract, and direct regression surface are known. Prefer exact symbol/path search and targeted ranges over recursive inventories or full-file dumps.
 
 ## Skills
 
-Load a skill only when its specialized workflow is needed:
-- GECS API/architecture: `.agents/skills/gecs-v8/SKILL.md`
-- GUT authoring/execution: `.agents/skills/gut-testing/SKILL.md`
-- Game-design work: `.agents/skills/professional-game-design/SKILL.md`
+Load skills only when their workflow is needed:
+- implementation, bug fixing, refactoring, tracked-task execution, or substantial code review: `.agents/skills/develop/SKILL.md`;
+- GECS-specific API/architecture: `.agents/skills/gecs-v8/SKILL.md`;
+- GUT authoring/execution: `.agents/skills/gut-testing/SKILL.md`;
+- player-facing game design: `.agents/skills/professional-game-design/SKILL.md`.
 
-Do not load a skill merely because a task edits Godot/GDScript. Do not add generic Godot/GDScript/coding skills that duplicate this file; keep the skill set narrow unless the user explicitly requests a new specialized workflow.
+Do not load skills speculatively. Ordinary Godot/GDScript work does not require the GECS or GUT skill unless the task actually crosses those contracts.
 
 ## Subagents
 
-Do not use subagents for ordinary navigation, implementation, or validation.
+Routine work stays in the main session. Use project subagents only when the user explicitly requests delegation or a substantial bounded review/validation step benefits from separate context:
+- `reviewer` — read-only review of a substantial completed diff;
+- `validator` — explicitly assigned bounded validation with compressed PASS/FAIL output.
 
-Use a project subagent only when the user explicitly requests delegation or a substantial completed diff has a genuinely independent bounded review/validation step. Available roles are `reviewer` and `validator`. Run at most one at a time and await it before starting another. Architecture, ownership, physics authority, GECS boundaries, input priority, and cross-system lifecycle decisions stay with the main agent.
+Run at most one subagent at a time, including nested delegation. Await and integrate it before starting another. Architecture, ownership, physics authority, GECS boundaries, input priority, and cross-system lifecycle remain with the main agent.
 
-## Work and checkpoints
+## Work state and commits
 
-For small/medium tasks, do not create bookkeeping files.
+Do not create bookkeeping for local fixes. For long or interruptible work, keep detailed state in the repository's existing task/roadmap file and keep `CURRENT_WORK.md` only as a compact resume checkpoint.
 
-For a large interruptible task:
-- detailed active scope belongs in `agent_tasks/<task>.md`;
-- `CURRENT_WORK.md` is only a compact resume checkpoint and should otherwise remain `Status: none`;
-- durable contracts belong in subsystem docs;
-- completed work gets one concise dated line in `task_history.md`.
+Commit completed logical milestones separately when a task spans multiple stages. Do not push or open a PR unless requested.
 
-Create a local commit after each completed logical milestone when a task spans multiple stages. Do not push or open a PR unless requested.
+## Validation
 
-## Validation cadence
+Use the cheapest check that can falsify the change.
 
-Use the narrowest relevant validation.
+- Ordinary edits/milestones: targeted static/deterministic checks, changed-file formatter/lint where available, `python utils/validate_project_structure.py` when structure is affected, and diff inspection.
+- Do not run GUT, smoke, or broad runtime checks after every small edit.
+- For a complete large `Rxx` / `Rxx.x` implementation, normally run the relevant GUT surface once and one relevant headless smoke/runtime check near completion, unless the active task states otherwise.
+- Never launch rendered/visual Godot, capture screenshots/video, or perform visual scene inspection unless explicitly approved for the current task.
+- Never claim a formatter, test, engine run, or visual check passed unless it actually ran.
 
-For ordinary milestones:
-- use deterministic/static checks such as `python utils/validate_project_structure.py`, changed-file formatter/lint when available, targeted inspection, and `git diff --check`;
-- do not run GUT, smoke, or broad runtime validation after every small edit.
-
-For a complete `Rxx` / `Rxx.x` implementation, normally run the relevant GUT surface once and one relevant headless smoke/runtime check near completion. An earlier runtime run is justified only by an explicit request or a blocking bug that static evidence cannot resolve.
-
-Never launch rendered/visual Godot, capture screenshots/video, or perform agent-side visual scene inspection unless explicitly approved for the current task. Never claim a formatter, test, Godot run, or visual check passed unless it actually ran.
+Keep reports concise: material findings first, then validation, then remaining owner QA.
