@@ -188,6 +188,14 @@ func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> voi
 	assert_true(_body.freeze)
 
 	_controller.action_main = false
+	assert_null(
+		InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT),
+		"Unfix is F-only and must not leak into the E fallback",
+	)
+	assert_not_null(
+		InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.USE),
+		"F must resolve the prolonged unfix action",
+	)
 	_drive_input(false, true, true)
 	assert_not_null(ProlongedInteractionService.session(_actor))
 	_drive_input(false, false, true, 0.75)

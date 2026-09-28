@@ -406,8 +406,14 @@ static func _target_action(
 	var action: InteractionActionChoice = _from_source(actor, target, target, input_slot)
 	if action == null and input_slot == DEF_InteractionAction.Slot.INTERACT:
 		action = _from_source(actor, target, target, DEF_InteractionAction.Slot.USE)
-		# Slot E/F name distinct hands, so F must not be aliased onto an empty E.
-		if action != null and action.action is DEF_PhysicalSlotAction:
+		# Some USE actions are intentionally F-only and must not fill an empty E slot.
+		if (
+			action != null
+			and (
+				action.action is DEF_PhysicalSlotAction
+				or not action.action.allow_interact_fallback
+			)
+		):
 			return null
 	elif action != null and input_slot == DEF_InteractionAction.Slot.USE:
 		var primary: InteractionActionChoice = resolve(actor, DEF_InteractionAction.Slot.INTERACT)
