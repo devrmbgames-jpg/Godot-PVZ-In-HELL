@@ -142,7 +142,7 @@ func _run() -> void:
 func _expect_console(command: String, expected_marker: String) -> void:
 	Console.clear()
 	Console.call(&"_on_text_entered", command)
-	var output: String = Console.rich_label.text
+	var output: String = Console.rich_label.get_parsed_text()
 	assert(
 		expected_marker in output,
 		"Expected '%s' for command '%s', got: %s"
