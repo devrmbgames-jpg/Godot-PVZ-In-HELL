@@ -184,6 +184,23 @@ func test_removing_slot_configuration_restores_stored_body() -> void:
 	assert_eq(_body.collision_layer, 8)
 
 
+func test_player_belt_slots_are_mounted_to_body_root() -> void:
+	var player_scene: PackedScene = load("res://content/entities/characters/e_rigid_body_character.tscn") as PackedScene
+	var player: E_RigidBodyCharacter = player_scene.instantiate() as E_RigidBodyCharacter
+	assert_not_null(player)
+	if player == null:
+		return
+	var left_slot: E_PhysicalSlot = player.get_node("BeltSlotLeft") as E_PhysicalSlot
+	var right_slot: E_PhysicalSlot = player.get_node("BeltSlotRight") as E_PhysicalSlot
+	assert_not_null(left_slot)
+	assert_not_null(right_slot)
+	if left_slot != null:
+		assert_eq(left_slot.get_parent(), player)
+	if right_slot != null:
+		assert_eq(right_slot.get_parent(), player)
+	player.free()
+
+
 func test_mount_owner_removal_releases_stored_item() -> void:
 	_slot.reparent(_actor)
 	_slot.add_relationship(Relationship.new(R_SlotMountedOn.new(), _actor))
