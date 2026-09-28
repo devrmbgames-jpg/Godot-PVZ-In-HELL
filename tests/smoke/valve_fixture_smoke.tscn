@@ -1,6 +1,0 @@
-[gd_scene format=3]
-
-[ext_resource type="Script" path="res://tests/smoke/valve_fixture_smoke.gd" id="1"]
-
-[node name="ValveFixtureSmoke" type="Node"]
-script = ExtResource("1")
