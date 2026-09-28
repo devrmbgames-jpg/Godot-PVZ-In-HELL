@@ -29,6 +29,15 @@ Choose the smallest level that safely fits:
 - **Task** — several files/components, meaningful regression surface, or multiple implementation stages. Reuse the project's existing task/roadmap artifact when one exists; create bookkeeping only when the work is genuinely interruptible/long-running or the user requests it.
 - **Feature** — new subsystem, architecture/migration work, cross-system ownership/physics/GECS contract change, or work spanning multiple sessions. Durable tracked state is required, using the repository's existing task/roadmap convention.
 
+Tracked status vocabulary:
+- `PLANNED` — scope exists, implementation has not started;
+- `IN_PROGRESS` — implementation has started and remains unfinished;
+- `DEFERRED` — intentionally paused until a named dependency/phase becomes ready;
+- `BLOCKED` — cannot advance because of an external dependency/problem;
+- `OWNER_QA` — implementation/agent validation is complete enough for required owner runtime/visual/device verification;
+- `DONE` — acceptance work is complete;
+- `SUPPORT` — evidence/spec/inventory owned by another task, not separately executable work.
+
 Escalate or de-escalate if inspection changes the real scope.
 
 ## 3. Plan only enough

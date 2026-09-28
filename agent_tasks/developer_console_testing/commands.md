@@ -1,5 +1,10 @@
 # Developer Console Testing — Command Contract
 
+Artifact: **SUPPORT**  
+Owner task: [Developer Console Testing](../developer_console_testing.md)
+
+This file defines command grammar/behavior only. It does not own task status, implementation progress, or the next action.
+
 Read this file only when implementing or modifying developer-console commands.
 
 ## Targets
