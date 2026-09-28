@@ -310,6 +310,7 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_Receiving" type="Node" parent="World/Systems/GamePlay" unique_id=160792962]
 script = ExtResource("Receiving_system")
+group = &"GamePlay"
 
 [node name="O_PackageConditionSetup" type="Node" parent="World/Systems/GamePlay" unique_id=902458022]
 script = ExtResource("PackageConditionSetup")
@@ -334,15 +335,19 @@ script = ExtResource("R09_o_toxic_area_setup")
 
 [node name="S_ToxicArea" type="Node" parent="World/Systems/GamePlay" unique_id=102074688]
 script = ExtResource("R09_s_toxic_area")
+group = &"GamePlay"
 
 [node name="S_HazardFollow" type="Node" parent="World/Systems/GamePlay" unique_id=1158140279]
 script = ExtResource("R09_s_hazard_follow")
+group = &"GamePlay"
 
 [node name="S_HazardLifetime" type="Node" parent="World/Systems/GamePlay" unique_id=1315152219]
 script = ExtResource("R09_s_hazard_lifetime")
+group = &"GamePlay"
 
 [node name="S_Explosion" type="Node" parent="World/Systems/GamePlay" unique_id=1112609335]
 script = ExtResource("R09_s_explosion")
+group = &"GamePlay"
 
 [node name="O_ExplosionSetup" type="Node" parent="World/Systems/GamePlay" unique_id=1007185748]
 script = ExtResource("R09_o_explosion_setup")
@@ -371,21 +376,27 @@ script = ExtResource("DepletionEffects")
 
 [node name="S_ThrowLifetime" type="Node" parent="World/Systems/GamePlay" unique_id=1650643555]
 script = ExtResource("ThrowLifetime")
+group = &"GamePlay"
 
 [node name="S_LiquidTilt" type="Node" parent="World/Systems/GamePlay" unique_id=1536960542]
 script = ExtResource("LiquidTilt")
+group = &"GamePlay"
 
 [node name="S_Impact" type="Node" parent="World/Systems/GamePlay" unique_id=1737982216]
 script = ExtResource("ImpactSystem")
+group = &"GamePlay"
 
 [node name="S_CustomerFlow" type="Node" parent="World/Systems/GamePlay" unique_id=697136852]
 script = ExtResource("Customer_system")
+group = &"GamePlay"
 
 [node name="S_WalletDay" type="Node" parent="World/Systems/GamePlay" unique_id=729224599]
 script = ExtResource("Wallet_system")
+group = &"GamePlay"
 
 [node name="S_DayPhase" type="Node" parent="World/Systems/GamePlay" unique_id=525864446]
 script = ExtResource("Day_system")
+group = &"GamePlay"
 
 [node name="Physics" type="Node" parent="World/Systems" unique_id=52509126]
 script = ExtResource("3_ahxau")
@@ -393,14 +404,17 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_Jump" type="Node" parent="World/Systems/Physics" unique_id=831820991]
 script = ExtResource("6_gg2sc")
+group = &"Physics"
 metadata/_custom_type_script = "uid://c1benmwwnwobr"
 
 [node name="S_Crouch" type="Node" parent="World/Systems/Physics" unique_id=88081910]
 script = ExtResource("7_6b1dm")
+group = &"Physics"
 metadata/_custom_type_script = "uid://cv8oyv1lnwa6u"
 
 [node name="S_CrouchPresentation" type="Node" parent="World/Systems/Physics" unique_id=1906974582]
 script = ExtResource("Crouch_presentation")
+group = &"Physics"
 
 [node name="Input" type="Node" parent="World/Systems" unique_id=2007238412]
 script = ExtResource("3_ahxau")
@@ -408,10 +422,12 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_PlayerInput" type="Node" parent="World/Systems/Input" unique_id=122299141]
 script = ExtResource("8_qm6qd")
+group = &"Input"
 metadata/_custom_type_script = "uid://c1o1ef2y40vmv"
 
 [node name="S_PlayerIntent" type="Node" parent="World/Systems/Input" unique_id=1207384990]
 script = ExtResource("Player_intent")
+group = &"Input"
 
 [node name="Interaction" type="Node" parent="World/Systems" unique_id=1721666486]
 script = ExtResource("3_ahxau")
@@ -419,15 +435,19 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_InteractionTargeting" type="Node" parent="World/Systems/Interaction" unique_id=350725269]
 script = ExtResource("Grab_targeting")
+group = &"Interaction"
 
 [node name="S_InteractionHighlight" type="Node" parent="World/Systems/Interaction" unique_id=1519690915]
 script = ExtResource("Interaction_highlight")
+group = &"Interaction"
 
 [node name="S_ProlongedDecay" type="Node" parent="World/Systems/Interaction" unique_id=964352449]
 script = ExtResource("Prolonged_decay")
+group = &"Interaction"
 
 [node name="S_AnchorStability" type="Node" parent="World/Systems/Interaction" unique_id=267872292]
 script = ExtResource("Anchor_stability")
+group = &"Interaction"
 
 [node name="O_ProlongedLifecycle" type="Node" parent="World/Systems/Interaction" unique_id=1954151916]
 script = ExtResource("Prolonged_lifecycle")
@@ -437,15 +457,18 @@ script = ExtResource("PhysicalSlot_lifecycle")
 
 [node name="S_Grab" type="Node" parent="World/Systems/Interaction" unique_id=767923781]
 script = ExtResource("Grab_system")
+group = &"Interaction"
 
 [node name="S_Push" type="Node" parent="World/Systems/Interaction" unique_id=285721213]
 script = ExtResource("Push_system")
+group = &"Interaction"
 
 [node name="O_PushLifecycle" type="Node" parent="World/Systems/Interaction" unique_id=1548305461]
 script = ExtResource("Push_lifecycle")
 
 [node name="S_Marker" type="Node" parent="World/Systems/Interaction" unique_id=1232131295]
 script = ExtResource("Marker_system")
+group = &"Interaction"
 
 [node name="O_GrabLifecycle" type="Node" parent="World/Systems/Interaction" unique_id=1786878994]
 script = ExtResource("Grab_lifecycle")
