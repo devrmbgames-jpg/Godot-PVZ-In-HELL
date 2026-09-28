@@ -1,0 +1,83 @@
+name: Valve interaction demo validation
+
+on:
+  push:
+    branches:
+      - fix/r11-1-m5-live-test-regressions
+    paths:
+      - content/entities/props/e_interaction_test_valve.gd
+      - content/entities/props/interaction_test_indicator_lamp.gd
+      - content/entities/props/interaction_test_valve_bench.tscn
+      - content/definitions/interaction/def_interaction_test_valve_action.gd
+      - content/scenes/main_level.tscn
+      - .github/workflows/r11_1_valve_demo_validation.yml
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Godot 4.7.1
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.1
+          use-dotnet: false
+          include-templates: false
+
+      - name: Import project
+        run: godot --headless --path . --import --quit
+
+      - name: Validate valve scene and signal wiring
+        shell: bash
+        run: |
+          cat > /tmp/valve_demo_smoke.gd <<'GDSCRIPT'
+          extends SceneTree
+
+          func _initialize() -> void:
+              _run.call_deferred()
+
+          func _run() -> void:
+              var packed: PackedScene = load("res://content/entities/props/interaction_test_valve_bench.tscn") as PackedScene
+              assert(packed != null)
+              var bench: Node = packed.instantiate()
+              root.add_child(bench)
+              await process_frame
+
+              var names: Array[String] = [
+                  "ValveInstant",
+                  "ValveDecay",
+                  "ValveInstantReset",
+                  "ValveOnComplete",
+                  "ValveNever",
+              ]
+              var expected_policies: Array[int] = [-1, 0, 1, 2, 3]
+              for index: int in names.size():
+                  var valve: E_InteractionTestValve = bench.get_node(names[index]) as E_InteractionTestValve
+                  assert(valve != null)
+                  var actions: C_InteractionActionSet = valve.get_component(C_InteractionActionSet) as C_InteractionActionSet
+                  assert(actions != null and actions.actions.size() == 1)
+                  var action: DEF_InteractionAction = actions.actions[0]
+                  if expected_policies[index] < 0:
+                      assert(action.slot == DEF_InteractionAction.Slot.INTERACT)
+                      assert(action.timing == null)
+                  else:
+                      assert(action.slot == DEF_InteractionAction.Slot.USE)
+                      assert(action.timing != null)
+                      assert(action.timing.reset_policy == expected_policies[index])
+                  var lamp: Node = valve.get_node("IndicatorLamp")
+                  var on_bulb: MeshInstance3D = lamp.get_node("OnBulb") as MeshInstance3D
+                  assert(not on_bulb.visible)
+                  valve.activate()
+                  await process_frame
+                  assert(on_bulb.visible)
+
+              print("R11.1 valve interaction demo PASS")
+              quit()
+          GDSCRIPT
+          set -o pipefail
+          godot --headless --path . --script /tmp/valve_demo_smoke.gd 2>&1 | tee valve-demo.log
+          grep -q "R11.1 valve interaction demo PASS" valve-demo.log
