@@ -1,5 +1,24 @@
 # R22.5 M3 — Physics Solvers and Scheduling
 
+Status: **PLANNED**  
+Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
+
+## Task state
+
+### Goal
+Make scheduled GECS Systems and callback-driven physics solvers/helpers truthfully separated while preserving body authority.
+
+### Current
+Not started. Reconfirm current physics callback and scheduling shape before editing.
+
+### Validation
+Not run.
+
+### Owner QA / blockers
+Deferred by the R22.5 dependency gate.
+
+---
+
 ## Goal
 
 Make class identity truthful: real scheduled work remains `System`; callback-driven physics math becomes non-System solvers/helpers.

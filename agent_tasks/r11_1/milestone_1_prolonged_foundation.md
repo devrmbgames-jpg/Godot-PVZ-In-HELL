@@ -1,5 +1,36 @@
 # R11.1 — Prolonged foundation / milestone 1
 
+Status: **DONE**  
+Owner task: [R11.1](../roadmap_11_1_extended_interactions_and_arrangement.md)
+
+## Task state
+
+### Goal
+Establish the data/session/progress foundation for prolonged interactions without runtime wiring.
+
+### Constraints / acceptance
+Keep timing/reset policy data-driven; Relationships own live session bindings; readiness and effect completion remain separate.
+
+### Milestones
+- [x] Timing definition and reset policy.
+- [x] Target-owned progress state.
+- [x] Actor/source/target Relationship session data.
+- [x] Pure progress solver and focused test coverage prepared.
+
+### Decisions
+The detailed ownership rules below are durable output of M1 and remain authoritative for later milestones.
+
+### Current
+Milestone complete. R11.1 continues in its root task with M2 runtime integration.
+
+### Validation
+Seven focused GUT cases are prepared. Execution is deferred to the owner task's final validation cadence.
+
+### Owner QA / blockers
+None for this completed milestone.
+
+---
+
 ## Этапы и модель владения
 
 1. **Выполнено:** timing definition, target-owned progress record/component, session relationship data и pure progress solver. Покрытие GUT подготовлено; исполнение отложено до финальной проверки R11.1.

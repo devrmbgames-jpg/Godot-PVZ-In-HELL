@@ -1,5 +1,24 @@
 # R22.5 M1 — System Decomposition
 
+Status: **PLANNED**  
+Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
+
+## Task state
+
+### Goal
+Remove structural System coupling and pseudo-System/service patterns while preserving behavior.
+
+### Current
+Not started under the lean workflow. On resume, verify each historical target against current master before choosing the first bounded change.
+
+### Validation
+Not run.
+
+### Owner QA / blockers
+Deferred by the R22.5 dependency gate.
+
+---
+
 ## Goal
 
 Remove structural coupling and pseudo-System/service patterns while preserving behavior. Verify every historical issue against current `master` before editing.

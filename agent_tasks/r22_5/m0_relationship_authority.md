@@ -1,5 +1,24 @@
 # R22.5 M0 — Relationship Authority
 
+Status: **DONE**  
+Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
+
+## Task state
+
+### Goal
+Normalize live Entity-to-Entity ownership/session/binding so Relationships are sole authority where applicable.
+
+### Current
+Milestone complete. Do not re-run these migrations unless a current regression demonstrates the authority boundary was reintroduced.
+
+### Validation
+Recorded in the detailed validation section below.
+
+### Owner QA / blockers
+None for this completed milestone.
+
+---
+
 ## Purpose
 
 Normalize live Entity-to-Entity ownership/session/binding so Relationships are the sole authority. Ordinary Components may keep intrinsic/transient state or explicitly documented derived caches.
