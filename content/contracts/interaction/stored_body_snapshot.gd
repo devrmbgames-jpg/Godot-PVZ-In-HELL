@@ -2,7 +2,6 @@ extends RefCounted
 ## Reversible physical attachment state; contains no Entity ownership.
 class_name StoredBodySnapshot
 
-var parent: WeakRef
 var freeze: bool = false
 var freeze_mode: RigidBody3D.FreezeMode = RigidBody3D.FREEZE_MODE_STATIC
 var collision_layer: int = 0

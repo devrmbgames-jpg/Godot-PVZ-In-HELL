@@ -3,6 +3,7 @@ extends Entity
 class_name E_PhysicalSlot
 
 @export var anchor: Node3D = null
+@export var driver: RemoteTransform3D = null
 
 
 func on_ready() -> void:

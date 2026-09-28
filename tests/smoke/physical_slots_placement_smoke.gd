@@ -30,7 +30,7 @@ func _run() -> void:
 	actor_body.add_child(anchor)
 	_actor.set("hold_anchor", anchor)
 	var interactor: C_Interactor = C_Interactor.new()
-	interactor.collision_mask = 2
+	interactor.collision_mask = 31
 	_actor.component_resources = [C_Controller.new(), interactor, C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
 	_world.add_entity(_actor)
 	_area = (load("res://content/entities/props/placement_area.tscn") as PackedScene).instantiate() as E_PlacementArea
@@ -52,7 +52,14 @@ func _run() -> void:
 	blocker.position = Vector3(10, 1, 0)
 	await _sync_physics()
 	interactor = _actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = _area
+	ray.target_position = Vector3(0, 0, -3)
+	anchor.position = Vector3(0, 1, -1)
+	var carried_body: RigidBody3D = GrabService.physical_body(item)
+	assert(carried_body != null)
+	carried_body.global_position = Vector3(0, 1, -1)
+	await _sync_physics()
+	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
+	assert(interactor.target == _area, "Held Carry body must not steal PlacementArea focus")
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
 	assert(choice != null and choice.action is DEF_CarryPlacementAction)
 	assert(choice.action.complete(_actor, choice.source, choice.target))
