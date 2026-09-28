@@ -27,3 +27,5 @@
 
 - 2026-09-27 — R11: persistent customer schedule/AssignedTo, physical counter, actual vs terminal outcomes, refusal/return/buyout and delayed complaints with reputation hooks; 27 GUT tests / 176 assertions and headless customer walkthrough PASS. Contract: `docs/customers.md`; visual acceptance not run.
 - 2026-09-29 — Agent architecture migrated to right-sized Fix/Task/Feature workflow with on-demand develop/GECS/GUT/design skills, authoritative task state, compact CURRENT_WORK, task status index, review triage, DEFERRED status, and structural validation of normalized task metadata.
+
+- 2026-09-29 — R11.1: prolonged interaction/reset policies, generic access/openable contracts, RemoteTransform3D-backed physical slots, collision-validated Carry placement, Hammer anchor/unfix with reversible physics/support safety; focused GUT and both physics smokes PASS, owner gameplay QA confirmed.

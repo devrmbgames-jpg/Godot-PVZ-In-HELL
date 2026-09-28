@@ -1,0 +1,183 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/entities/props/e_interaction_test_valve.gd" id="ValveEntity"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="ActionSet"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_interaction_action.gd" id="ActionBase"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_prolonged_interaction.gd" id="Timing"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_interaction_test_valve_action.gd" id="ValveAction"]
+[ext_resource type="Script" path="res://content/ui/interaction_test_indicator_lamp.gd" id="LampScript"]
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="TimingDecay"]
+script = ExtResource("Timing")
+duration_seconds = 2.0
+reset_policy = 0
+decay_per_second = 0.35
+
+[sub_resource type="Resource" id="TimingInstant"]
+script = ExtResource("Timing")
+duration_seconds = 2.0
+reset_policy = 1
+
+[sub_resource type="Resource" id="TimingOnComplete"]
+script = ExtResource("Timing")
+duration_seconds = 2.0
+reset_policy = 2
+
+[sub_resource type="Resource" id="TimingNever"]
+script = ExtResource("Timing")
+duration_seconds = 2.0
+reset_policy = 3
+
+[sub_resource type="Resource" id="ActionImmediate"]
+script = ExtResource("ValveAction")
+action_id = &"test_valve_immediate"
+slot = 0
+caption = "Переключить вентиль"
+mode = 0
+
+[sub_resource type="Resource" id="ActionDecay"]
+script = ExtResource("ValveAction")
+action_id = &"test_valve_decay"
+slot = 1
+caption = "Крутить · DECAY"
+allow_interact_fallback = false
+timing = SubResource("TimingDecay")
+mode = 1
+
+[sub_resource type="Resource" id="ActionInstant"]
+script = ExtResource("ValveAction")
+action_id = &"test_valve_instant"
+slot = 1
+caption = "Крутить · INSTANT"
+allow_interact_fallback = false
+timing = SubResource("TimingInstant")
+mode = 2
+
+[sub_resource type="Resource" id="ActionOnComplete"]
+script = ExtResource("ValveAction")
+action_id = &"test_valve_on_complete"
+slot = 1
+caption = "Крутить · ON_COMPLETE"
+allow_interact_fallback = false
+timing = SubResource("TimingOnComplete")
+mode = 3
+
+[sub_resource type="Resource" id="ActionNever"]
+script = ExtResource("ValveAction")
+action_id = &"test_valve_never"
+slot = 1
+caption = "Крутить · NEVER"
+allow_interact_fallback = false
+timing = SubResource("TimingNever")
+mode = 4
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("ActionSet")
+actions = Array[ExtResource("ActionBase")]([SubResource("ActionImmediate"), SubResource("ActionDecay"), SubResource("ActionInstant"), SubResource("ActionOnComplete"), SubResource("ActionNever")])
+reserved_slots = 3
+
+[sub_resource type="StandardMaterial3D" id="ValveBodyMaterial"]
+albedo_color = Color(0.16, 0.18, 0.2, 1)
+metallic = 0.55
+roughness = 0.48
+
+[sub_resource type="StandardMaterial3D" id="ValveWheelMaterial"]
+albedo_color = Color(0.55, 0.08, 0.055, 1)
+metallic = 0.42
+roughness = 0.55
+
+[sub_resource type="StandardMaterial3D" id="LampOffMaterial"]
+albedo_color = Color(0.16, 0.03, 0.025, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="LampOnMaterial"]
+albedo_color = Color(0.1, 0.9, 0.16, 1)
+emission_enabled = true
+emission = Color(0.08, 0.85, 0.12, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="BoxMesh" id="ValveBodyMesh"]
+size = Vector3(0.42, 0.52, 0.28)
+material = SubResource("ValveBodyMaterial")
+
+[sub_resource type="CylinderMesh" id="ValveWheelMesh"]
+top_radius = 0.22
+bottom_radius = 0.22
+height = 0.055
+radial_segments = 20
+material = SubResource("ValveWheelMaterial")
+
+[sub_resource type="BoxMesh" id="ValveSpokeMesh"]
+size = Vector3(0.46, 0.055, 0.055)
+material = SubResource("ValveWheelMaterial")
+
+[sub_resource type="SphereMesh" id="LampMeshOff"]
+radius = 0.085
+height = 0.17
+material = SubResource("LampOffMaterial")
+
+[sub_resource type="SphereMesh" id="LampMeshOn"]
+radius = 0.085
+height = 0.17
+material = SubResource("LampOnMaterial")
+
+[sub_resource type="BoxShape3D" id="ValveCollision"]
+size = Vector3(0.56, 0.72, 0.46)
+
+[node name="InteractionTestValve" type="StaticBody3D"]
+editor_description = "R11.1 interaction demo. Root signal 'activated(bool)' is connected to IndicatorLamp.set_active(). Replace/add scene signal connections to test other authored effects."
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("ValveEntity")
+component_resources = Array[ExtResource("Component")]([SubResource("Interactable"), SubResource("Actions")])
+
+[node name="Body" type="MeshInstance3D" parent="."]
+mesh = SubResource("ValveBodyMesh")
+
+[node name="Wheel" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0, -0.19)
+rotation = Vector3(1.5707963, 0, 0)
+mesh = SubResource("ValveWheelMesh")
+
+[node name="SpokeH" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0, -0.225)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="SpokeV" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0, -0.225)
+rotation = Vector3(0, 0, 1.5707963)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("ValveCollision")
+
+[node name="Label3D" type="Label3D" parent="."]
+position = Vector3(0, 0.62, 0)
+text = "TEST VALVE"
+font_size = 28
+outline_size = 6
+billboard = 1
+
+[node name="IndicatorLamp" type="Node3D" parent="."]
+position = Vector3(0.38, 0.24, -0.18)
+script = ExtResource("LampScript")
+
+[node name="OffBulb" type="MeshInstance3D" parent="IndicatorLamp"]
+mesh = SubResource("LampMeshOff")
+
+[node name="OnBulb" type="MeshInstance3D" parent="IndicatorLamp"]
+visible = false
+mesh = SubResource("LampMeshOn")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="IndicatorLamp"]
+visible = false
+light_color = Color(0.2, 1, 0.3, 1)
+light_energy = 1.2
+omni_range = 1.5
+
+[connection signal="activated" from="." to="IndicatorLamp" method="set_active"]
