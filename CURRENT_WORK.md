@@ -6,6 +6,4 @@ Checkpoint: M1–M3 implemented. Focused GUT: 18 prolonged + 9 access/openable c
 
 Next: M4 — physical slots and collision-validated Carry placement. Use selective tests; ask owner for complex/ambiguous gameplay scenarios.
 
-Previous unfinished task: [Developer Console Testing](agent_tasks/developer_console_testing.md), stages 1–8 complete; stage 9 validation remains. Its detailed state is unchanged.
-
 All detailed constraints, decisions, changed paths, milestones, and validation state live in the task file. The full active/planned queue is indexed in [agent_tasks/CONTEXT.md](agent_tasks/CONTEXT.md).

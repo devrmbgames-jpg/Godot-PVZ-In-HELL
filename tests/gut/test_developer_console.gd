@@ -35,6 +35,11 @@ func _create_core_world() -> void:
 	_ledger = C_PackageLedger.new()
 	session.component_resources = [_cycle, _wallet, _flow, _ledger]
 	_world.add_entity(session)
+	# Entity resources are runtime-owned after insertion; reacquire authoritative instances.
+	_cycle = DayPhaseService.current()
+	_wallet = WalletService.current()
+	_flow = CustomerFlowService.current()
+	_ledger = PackageRegistrationService.ledger()
 
 
 func _add_player() -> Entity:
@@ -114,12 +119,17 @@ func test_target_resolver_uses_stable_identity_and_rejects_freed_handles() -> vo
 		"pkg:" + identity.package_id,
 		"#1",
 		"#001",
-		"visit:" + String(visit.visit_id),
 		"entity:" + String(parcel.id),
 	]:
 		var resolved: DebugTarget = DebugTargetResolver.resolve(query)
 		assert_eq(resolved.kind, DebugTarget.Kind.PACKAGE, query)
 		assert_eq(resolved.package_id, identity.package_id, query)
+
+	var visit_query: String = "visit:" + String(visit.visit_id)
+	var visit_target: DebugTarget = DebugTargetResolver.resolve(visit_query)
+	assert_eq(visit_target.kind, DebugTarget.Kind.VISIT, visit_query)
+	assert_eq(visit_target.package_id, identity.package_id, visit_query)
+	assert_eq(visit_target.visit, visit, visit_query)
 
 	var entity_query: String = "entity:" + String(parcel.id)
 	record.active = false

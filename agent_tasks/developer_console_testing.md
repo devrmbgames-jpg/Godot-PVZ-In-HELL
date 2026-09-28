@@ -1,6 +1,6 @@
 # Developer Console Testing
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 ## Task state
 
@@ -23,19 +23,24 @@ Extend the existing Developer Console with project-specific testing commands for
 - [x] Stage 6 — economy operations.
 - [x] Stage 7 — health / lifecycle / world helpers.
 - [x] Stage 8 — autocomplete/help.
-- [ ] Stage 9 — focused validation and completion review.
+- [x] Stage 9 — focused validation and completion review.
 
 ### Decisions
 The console is a debug frontend only. Domain services/contracts remain authoritative; command handlers must not become alternate business logic.
 
 ### Current
-Stages 1–8 are implemented. Next: add/finish focused GUT coverage, run project structure/static checks, then one relevant GUT invocation and one headless smoke according to the validation policy.
+Stages 1–9 are complete. Stage 9 added focused GUT coverage and a dedicated headless developer-console smoke. Completion review did not require production-code changes.
 
 ### Validation
-Static inspection has been performed during implementation. Godot/GUT runtime validation for final Stage 9 has not run yet.
+- Project structure/static validation: PASS.
+- Godot: 4.7.1 stable, headless.
+- Focused GUT: GUT 9.7.1, 4/4 tests passing, 93 assertions.
+- Headless smoke: `utils/run_smoke.ps1 -Name developer_console` — PASS.
+- The runtime validation checkout included the repository-pinned GECS submodule.
+- No rendered/visual Godot run was performed.
 
 ### Owner QA / blockers
-No blocker recorded. Owner gameplay/visual QA is only needed if Stage 9 or review identifies behavior that cannot be falsified headlessly.
+No blocker recorded. The required Stage 9 scenarios were falsified headlessly; no additional gameplay/visual QA is required for task completion.
 
 ---
 
@@ -193,7 +198,7 @@ No silent failures and no bare boolean result as user-facing output.
 - [x] Stage 6 — Damage/kill/heal/reset.
 - [x] Stage 7 — Convenience day/customer commands.
 - [x] Stage 8 — Autocomplete/help.
-- [ ] Stage 9 — focused GUT + one headless smoke.
+- [x] Stage 9 — focused GUT + one headless smoke.
 
 ## Implementation order
 
@@ -232,6 +237,11 @@ Headless smoke:
 - kill/reset Player;
 - remove spawned Package;
 - verify expected OK/ERROR results.
+
+Stage 9 result:
+- focused `test_developer_console.gd`: 4/4 tests, 93 assertions, PASS;
+- `developer_console` headless smoke: PASS;
+- project structure/static validation: PASS.
 
 ## Completion criteria
 
