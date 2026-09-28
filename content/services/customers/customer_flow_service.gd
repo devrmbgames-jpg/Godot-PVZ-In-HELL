@@ -213,7 +213,8 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 
 static func greet(customer: E_Customer) -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	var visit: CustomerVisit = find_visit(agent.visit_id)
+	if agent == null or find_visit(agent.visit_id) == null:
+		return
 	if agent.phase != C_CustomerAgent.Phase.WAITING and agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
 		return
 	_transition(agent, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)

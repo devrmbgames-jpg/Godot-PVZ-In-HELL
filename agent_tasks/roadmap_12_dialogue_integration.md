@@ -28,7 +28,7 @@ Do not create a parallel planning document. This file remains the authoritative 
 Branch `feature/r12-dialogue-integration` started from `master@bd1e5a4d928084aa94b346e05a4ebe888dd5c9d1`. R02/R11 are complete; R11.1 runtime contracts required by R12 are present with M1–M5 implementation complete and owner QA recorded. M1 implements a typed DialogueManager context, project-owned modal presentation, and the direct package-number conversation without changing addon code. Next: riddle branching plus idempotent Satisfaction effects.
 
 ### Validation
-Not run for this task under the lean workflow.
+Static review after M1: R1 (cyclic `CustomerDialogueService <-> CustomerDialoguePanel` class dependency) = **FIXED** by removing the panel-to-service reference. Runtime checks have not yet run.
 
 ### Owner QA / blockers
 No new blocker is recorded. Any unmet dependency discovered during startup moves the task to `BLOCKED` or `DEFERRED` with the exact dependency named.
@@ -53,7 +53,7 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 ## Работы
 
 - [x] Оценить уже установленный DialogueManager 4.1.0 через локальный API; использовать его без изменения addons и без второго параллельного движка.
-- [x] Добавить типизированный адаптер conditions/actions: фаза, Satisfaction, RequestedPackage, Package actual outcome, Terminal declaration, Complaint/dispute state, Opened/Damaged flags, результаты Challenge и будущий Hunger tier.
+- [ ] Добавить типизированный адаптер conditions/actions: фаза, Satisfaction, RequestedPackage, Package actual outcome, Terminal declaration, Complaint/dispute state, Opened/Damaged flags, результаты Challenge и будущий Hunger tier.
 - [ ] Собрать прямой диалог с номером и загадку с выбором/повтором/альтернативной веткой.
 - [ ] Действия диалога вызывают существующие gameplay-контракты; поддержать voluntary Customer refusal, delayed Complaint и обнаружение false `TAKEN` с переходом в Aggressive. Challenge/Aggressive подключаются через получателей, а не через циклическую зависимость реализации.
 - [ ] Разделить действительную реплику/переход и воспринимаемый текст для последующей Hunger distortion.

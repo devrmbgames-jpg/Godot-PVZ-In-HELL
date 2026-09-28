@@ -5,6 +5,7 @@ class_name CustomerDialoguePanel
 const PANEL_MIN_WIDTH: float = 720.0
 const PANEL_MIN_HEIGHT: float = 220.0
 const ROOT_MARGIN: float = 32.0
+const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
 
 var _actor: Entity = null
 var _context: CustomerDialogueContext = null
@@ -23,7 +24,7 @@ var _close_button: Button = null
 
 
 func _ready() -> void:
-	add_to_group(CustomerDialogueService.ACTIVE_GROUP)
+	add_to_group(ACTIVE_GROUP)
 	layer = 90
 	_build_ui()
 
