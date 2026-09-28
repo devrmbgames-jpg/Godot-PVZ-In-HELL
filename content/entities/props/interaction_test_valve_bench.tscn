@@ -1,0 +1,420 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/entities/props/e_interaction_test_valve.gd" id="ValveEntity"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="ActionSet"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_interaction_action.gd" id="ActionBase"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_prolonged_interaction.gd" id="Timing"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_interaction_test_valve_action.gd" id="ValveAction"]
+[ext_resource type="Script" path="res://content/entities/props/interaction_test_indicator_lamp.gd" id="LampScript"]
+
+[sub_resource type="Resource" id="InteractableInstant"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="ActionInstant"]
+script = ExtResource("ValveAction")
+action_id = &"test_valve_instant"
+slot = 0
+caption = "Переключить вентиль"
+
+[sub_resource type="Resource" id="ActionsInstant"]
+script = ExtResource("ActionSet")
+actions = Array[ExtResource("ActionBase")]([SubResource("ActionInstant")])
+reserved_slots = 1
+
+[sub_resource type="Resource" id="TimingDecay"]
+script = ExtResource("Timing")
+duration_seconds = 2.0
+reset_policy = 0
+decay_per_second = 0.35
+
+[sub_resource type="Resource" id="InteractableDecay"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="ActionDecay"]
+script = ExtResource("ValveAction")
+action_id = &"test_valve_decay"
+slot = 1
+caption = "Крутить · DECAY"
+allow_interact_fallback = false
+timing = SubResource("TimingDecay")
+
+[sub_resource type="Resource" id="ActionsDecay"]
+script = ExtResource("ActionSet")
+actions = Array[ExtResource("ActionBase")]([SubResource("ActionDecay")])
+reserved_slots = 2
+
+[sub_resource type="Resource" id="TimingInstantReset"]
+script = ExtResource("Timing")
+duration_seconds = 2.0
+reset_policy = 1
+
+[sub_resource type="Resource" id="InteractableInstantReset"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="ActionInstantReset"]
+script = ExtResource("ValveAction")
+action_id = &"test_valve_instant_reset"
+slot = 1
+caption = "Крутить · INSTANT"
+allow_interact_fallback = false
+timing = SubResource("TimingInstantReset")
+
+[sub_resource type="Resource" id="ActionsInstantReset"]
+script = ExtResource("ActionSet")
+actions = Array[ExtResource("ActionBase")]([SubResource("ActionInstantReset")])
+reserved_slots = 2
+
+[sub_resource type="Resource" id="TimingOnComplete"]
+script = ExtResource("Timing")
+duration_seconds = 2.0
+reset_policy = 2
+
+[sub_resource type="Resource" id="InteractableOnComplete"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="ActionOnComplete"]
+script = ExtResource("ValveAction")
+action_id = &"test_valve_on_complete"
+slot = 1
+caption = "Крутить · ON_COMPLETE"
+allow_interact_fallback = false
+timing = SubResource("TimingOnComplete")
+
+[sub_resource type="Resource" id="ActionsOnComplete"]
+script = ExtResource("ActionSet")
+actions = Array[ExtResource("ActionBase")]([SubResource("ActionOnComplete")])
+reserved_slots = 2
+
+[sub_resource type="Resource" id="TimingNever"]
+script = ExtResource("Timing")
+duration_seconds = 2.0
+reset_policy = 3
+
+[sub_resource type="Resource" id="InteractableNever"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="ActionNever"]
+script = ExtResource("ValveAction")
+action_id = &"test_valve_never"
+slot = 1
+caption = "Крутить · NEVER"
+allow_interact_fallback = false
+timing = SubResource("TimingNever")
+
+[sub_resource type="Resource" id="ActionsNever"]
+script = ExtResource("ActionSet")
+actions = Array[ExtResource("ActionBase")]([SubResource("ActionNever")])
+reserved_slots = 2
+
+[sub_resource type="StandardMaterial3D" id="ValveBodyMaterial"]
+albedo_color = Color(0.16, 0.18, 0.2, 1)
+metallic = 0.55
+roughness = 0.48
+
+[sub_resource type="StandardMaterial3D" id="ValveWheelMaterial"]
+albedo_color = Color(0.55, 0.08, 0.055, 1)
+metallic = 0.42
+roughness = 0.55
+
+[sub_resource type="StandardMaterial3D" id="LampOffMaterial"]
+albedo_color = Color(0.16, 0.03, 0.025, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="LampOnMaterial"]
+albedo_color = Color(0.1, 0.9, 0.16, 1)
+emission_enabled = true
+emission = Color(0.08, 0.85, 0.12, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="BoxMesh" id="ValveBodyMesh"]
+size = Vector3(0.42, 0.52, 0.28)
+material = SubResource("ValveBodyMaterial")
+
+[sub_resource type="CylinderMesh" id="ValveWheelMesh"]
+top_radius = 0.22
+bottom_radius = 0.22
+height = 0.055
+radial_segments = 20
+material = SubResource("ValveWheelMaterial")
+
+[sub_resource type="BoxMesh" id="ValveSpokeMesh"]
+size = Vector3(0.46, 0.055, 0.055)
+material = SubResource("ValveWheelMaterial")
+
+[sub_resource type="SphereMesh" id="LampMeshOff"]
+radius = 0.085
+height = 0.17
+material = SubResource("LampOffMaterial")
+
+[sub_resource type="SphereMesh" id="LampMeshOn"]
+radius = 0.085
+height = 0.17
+material = SubResource("LampOnMaterial")
+
+[sub_resource type="BoxShape3D" id="ValveCollision"]
+size = Vector3(0.56, 0.72, 0.46)
+
+[node name="ValveResetPolicyTestBench" type="Node3D"]
+
+[node name="ValveInstant" type="StaticBody3D" parent="."]
+position = Vector3(0, 0.42, 0)
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("ValveEntity")
+component_resources = Array[ExtResource("Component")]([SubResource("InteractableInstant"), SubResource("ActionsInstant")])
+
+[node name="Body" type="MeshInstance3D" parent="ValveInstant"]
+mesh = SubResource("ValveBodyMesh")
+
+[node name="Wheel" type="MeshInstance3D" parent="ValveInstant"]
+position = Vector3(0, 0, -0.19)
+rotation = Vector3(1.5707963, 0, 0)
+mesh = SubResource("ValveWheelMesh")
+
+[node name="SpokeH" type="MeshInstance3D" parent="ValveInstant"]
+position = Vector3(0, 0, -0.225)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="SpokeV" type="MeshInstance3D" parent="ValveInstant"]
+position = Vector3(0, 0, -0.225)
+rotation = Vector3(0, 0, 1.5707963)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ValveInstant"]
+shape = SubResource("ValveCollision")
+
+[node name="Label3D" type="Label3D" parent="ValveInstant"]
+position = Vector3(0, 0.62, 0)
+text = "E · INSTANT ACTION"
+font_size = 28
+outline_size = 6
+billboard = 1
+
+[node name="IndicatorLamp" type="Node3D" parent="ValveInstant"]
+position = Vector3(0.38, 0.24, -0.18)
+script = ExtResource("LampScript")
+
+[node name="OffBulb" type="MeshInstance3D" parent="ValveInstant/IndicatorLamp"]
+mesh = SubResource("LampMeshOff")
+
+[node name="OnBulb" type="MeshInstance3D" parent="ValveInstant/IndicatorLamp"]
+visible = false
+mesh = SubResource("LampMeshOn")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="ValveInstant/IndicatorLamp"]
+visible = false
+light_color = Color(0.2, 1, 0.3, 1)
+light_energy = 1.2
+omni_range = 1.5
+
+[node name="ValveDecay" type="StaticBody3D" parent="."]
+position = Vector3(1.45, 0.42, 0)
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("ValveEntity")
+component_resources = Array[ExtResource("Component")]([SubResource("InteractableDecay"), SubResource("ActionsDecay")])
+
+[node name="Body" type="MeshInstance3D" parent="ValveDecay"]
+mesh = SubResource("ValveBodyMesh")
+
+[node name="Wheel" type="MeshInstance3D" parent="ValveDecay"]
+position = Vector3(0, 0, -0.19)
+rotation = Vector3(1.5707963, 0, 0)
+mesh = SubResource("ValveWheelMesh")
+
+[node name="SpokeH" type="MeshInstance3D" parent="ValveDecay"]
+position = Vector3(0, 0, -0.225)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="SpokeV" type="MeshInstance3D" parent="ValveDecay"]
+position = Vector3(0, 0, -0.225)
+rotation = Vector3(0, 0, 1.5707963)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ValveDecay"]
+shape = SubResource("ValveCollision")
+
+[node name="Label3D" type="Label3D" parent="ValveDecay"]
+position = Vector3(0, 0.62, 0)
+text = "F HOLD · DECAY"
+font_size = 28
+outline_size = 6
+billboard = 1
+
+[node name="IndicatorLamp" type="Node3D" parent="ValveDecay"]
+position = Vector3(0.38, 0.24, -0.18)
+script = ExtResource("LampScript")
+
+[node name="OffBulb" type="MeshInstance3D" parent="ValveDecay/IndicatorLamp"]
+mesh = SubResource("LampMeshOff")
+
+[node name="OnBulb" type="MeshInstance3D" parent="ValveDecay/IndicatorLamp"]
+visible = false
+mesh = SubResource("LampMeshOn")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="ValveDecay/IndicatorLamp"]
+visible = false
+light_color = Color(0.2, 1, 0.3, 1)
+light_energy = 1.2
+omni_range = 1.5
+
+[node name="ValveInstantReset" type="StaticBody3D" parent="."]
+position = Vector3(2.9, 0.42, 0)
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("ValveEntity")
+component_resources = Array[ExtResource("Component")]([SubResource("InteractableInstantReset"), SubResource("ActionsInstantReset")])
+
+[node name="Body" type="MeshInstance3D" parent="ValveInstantReset"]
+mesh = SubResource("ValveBodyMesh")
+
+[node name="Wheel" type="MeshInstance3D" parent="ValveInstantReset"]
+position = Vector3(0, 0, -0.19)
+rotation = Vector3(1.5707963, 0, 0)
+mesh = SubResource("ValveWheelMesh")
+
+[node name="SpokeH" type="MeshInstance3D" parent="ValveInstantReset"]
+position = Vector3(0, 0, -0.225)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="SpokeV" type="MeshInstance3D" parent="ValveInstantReset"]
+position = Vector3(0, 0, -0.225)
+rotation = Vector3(0, 0, 1.5707963)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ValveInstantReset"]
+shape = SubResource("ValveCollision")
+
+[node name="Label3D" type="Label3D" parent="ValveInstantReset"]
+position = Vector3(0, 0.62, 0)
+text = "F HOLD · INSTANT"
+font_size = 28
+outline_size = 6
+billboard = 1
+
+[node name="IndicatorLamp" type="Node3D" parent="ValveInstantReset"]
+position = Vector3(0.38, 0.24, -0.18)
+script = ExtResource("LampScript")
+
+[node name="OffBulb" type="MeshInstance3D" parent="ValveInstantReset/IndicatorLamp"]
+mesh = SubResource("LampMeshOff")
+
+[node name="OnBulb" type="MeshInstance3D" parent="ValveInstantReset/IndicatorLamp"]
+visible = false
+mesh = SubResource("LampMeshOn")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="ValveInstantReset/IndicatorLamp"]
+visible = false
+light_color = Color(0.2, 1, 0.3, 1)
+light_energy = 1.2
+omni_range = 1.5
+
+[node name="ValveOnComplete" type="StaticBody3D" parent="."]
+position = Vector3(4.35, 0.42, 0)
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("ValveEntity")
+component_resources = Array[ExtResource("Component")]([SubResource("InteractableOnComplete"), SubResource("ActionsOnComplete")])
+
+[node name="Body" type="MeshInstance3D" parent="ValveOnComplete"]
+mesh = SubResource("ValveBodyMesh")
+
+[node name="Wheel" type="MeshInstance3D" parent="ValveOnComplete"]
+position = Vector3(0, 0, -0.19)
+rotation = Vector3(1.5707963, 0, 0)
+mesh = SubResource("ValveWheelMesh")
+
+[node name="SpokeH" type="MeshInstance3D" parent="ValveOnComplete"]
+position = Vector3(0, 0, -0.225)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="SpokeV" type="MeshInstance3D" parent="ValveOnComplete"]
+position = Vector3(0, 0, -0.225)
+rotation = Vector3(0, 0, 1.5707963)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ValveOnComplete"]
+shape = SubResource("ValveCollision")
+
+[node name="Label3D" type="Label3D" parent="ValveOnComplete"]
+position = Vector3(0, 0.62, 0)
+text = "F HOLD · ON_COMPLETE"
+font_size = 28
+outline_size = 6
+billboard = 1
+
+[node name="IndicatorLamp" type="Node3D" parent="ValveOnComplete"]
+position = Vector3(0.38, 0.24, -0.18)
+script = ExtResource("LampScript")
+
+[node name="OffBulb" type="MeshInstance3D" parent="ValveOnComplete/IndicatorLamp"]
+mesh = SubResource("LampMeshOff")
+
+[node name="OnBulb" type="MeshInstance3D" parent="ValveOnComplete/IndicatorLamp"]
+visible = false
+mesh = SubResource("LampMeshOn")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="ValveOnComplete/IndicatorLamp"]
+visible = false
+light_color = Color(0.2, 1, 0.3, 1)
+light_energy = 1.2
+omni_range = 1.5
+
+[node name="ValveNever" type="StaticBody3D" parent="."]
+position = Vector3(5.8, 0.42, 0)
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("ValveEntity")
+component_resources = Array[ExtResource("Component")]([SubResource("InteractableNever"), SubResource("ActionsNever")])
+
+[node name="Body" type="MeshInstance3D" parent="ValveNever"]
+mesh = SubResource("ValveBodyMesh")
+
+[node name="Wheel" type="MeshInstance3D" parent="ValveNever"]
+position = Vector3(0, 0, -0.19)
+rotation = Vector3(1.5707963, 0, 0)
+mesh = SubResource("ValveWheelMesh")
+
+[node name="SpokeH" type="MeshInstance3D" parent="ValveNever"]
+position = Vector3(0, 0, -0.225)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="SpokeV" type="MeshInstance3D" parent="ValveNever"]
+position = Vector3(0, 0, -0.225)
+rotation = Vector3(0, 0, 1.5707963)
+mesh = SubResource("ValveSpokeMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ValveNever"]
+shape = SubResource("ValveCollision")
+
+[node name="Label3D" type="Label3D" parent="ValveNever"]
+position = Vector3(0, 0.62, 0)
+text = "F HOLD · NEVER"
+font_size = 28
+outline_size = 6
+billboard = 1
+
+[node name="IndicatorLamp" type="Node3D" parent="ValveNever"]
+position = Vector3(0.38, 0.24, -0.18)
+script = ExtResource("LampScript")
+
+[node name="OffBulb" type="MeshInstance3D" parent="ValveNever/IndicatorLamp"]
+mesh = SubResource("LampMeshOff")
+
+[node name="OnBulb" type="MeshInstance3D" parent="ValveNever/IndicatorLamp"]
+visible = false
+mesh = SubResource("LampMeshOn")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="ValveNever/IndicatorLamp"]
+visible = false
+light_color = Color(0.2, 1, 0.3, 1)
+light_energy = 1.2
+omni_range = 1.5
+
+[connection signal="activated" from="ValveInstant" to="ValveInstant/IndicatorLamp" method="set_active"]
+[connection signal="activated" from="ValveDecay" to="ValveDecay/IndicatorLamp" method="set_active"]
+[connection signal="activated" from="ValveInstantReset" to="ValveInstantReset/IndicatorLamp" method="set_active"]
+[connection signal="activated" from="ValveOnComplete" to="ValveOnComplete/IndicatorLamp" method="set_active"]
+[connection signal="activated" from="ValveNever" to="ValveNever/IndicatorLamp" method="set_active"]
