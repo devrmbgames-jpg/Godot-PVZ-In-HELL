@@ -216,11 +216,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)
 [node name="HeadX" type="Marker3D" parent="HeadY" unique_id=2113340697]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11703396, 0)
 
-[node name="BeltSlotLeft" parent="HeadY" instance=ExtResource("PhysicalSlot")]
-position = Vector3(-0.25, -0.6, -0.35)
+[node name="BeltSlotLeft" parent="." instance=ExtResource("PhysicalSlot")]
+position = Vector3(-0.25, 0.7946805, -0.305326)
 
-[node name="BeltSlotRight" parent="HeadY" instance=ExtResource("PhysicalSlot")]
-position = Vector3(0.25, -0.6, -0.35)
+[node name="BeltSlotRight" parent="." instance=ExtResource("PhysicalSlot")]
+position = Vector3(0.25, 0.7946805, -0.305326)
 
 [node name="HeadRoot" type="Marker3D" parent="HeadY/HeadX" unique_id=406904122]
 
