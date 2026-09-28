@@ -445,58 +445,7 @@ def _check_main_level_system_groups(errors: list[str]) -> None:
     lines: list[str] = _read_text(scene_path).splitlines()
     for index, line in enumerate(lines):
         match = re.match(
-            r'^\[node name="(S_[^"]+)" type="Node" parent="World/Systems/([^"]+)"[^]]*\]
-    try:
-        result = subprocess.run(
-            ["git", *args],
-            cwd=ROOT,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-    except FileNotFoundError:
-        return []
-
-    if result.returncode != 0:
-        return []
-
-    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
-
-
-def _check_staged_addons(errors: list[str]) -> None:
-    staged_addons: list[str] = _git_output("diff", "--cached", "--name-only", "--", "addons")
-    for path in staged_addons:
-        errors.append(f"{path}: staged addon/dependency change is forbidden by default.")
-
-
-def main() -> int:
-    errors: list[str] = []
-
-    _check_role_placement(errors)
-    _check_private_member_naming(errors)
-    _check_resource_file_naming(errors)
-    _check_relationship_role_usage(errors)
-    _check_uid_pairs(errors)
-    _check_res_paths(errors)
-    _check_markdown_links(errors)
-    _check_task_state_contract(errors)
-    _check_task_dependencies(errors)
-    _check_main_level_system_groups(errors)
-    _check_staged_addons(errors)
-
-    if errors:
-        print("Project structure validation: FAIL")
-        for error in errors:
-            print(f"- {error}")
-        return 1
-
-    print("Project structure validation: PASS")
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
-,
+            r'^\[node name="(S_[^"]+)" type="Node" parent="World/Systems/([^"]+)"[^]]*\]$',
             line,
         )
         if match is None:
@@ -509,57 +458,7 @@ if __name__ == "__main__":
         for body_line in lines[index + 1 :]:
             if body_line.startswith("[node "):
                 break
-            group_match = re.match(r'^group = &"([^"]*)"
-    try:
-        result = subprocess.run(
-            ["git", *args],
-            cwd=ROOT,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-    except FileNotFoundError:
-        return []
-
-    if result.returncode != 0:
-        return []
-
-    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
-
-
-def _check_staged_addons(errors: list[str]) -> None:
-    staged_addons: list[str] = _git_output("diff", "--cached", "--name-only", "--", "addons")
-    for path in staged_addons:
-        errors.append(f"{path}: staged addon/dependency change is forbidden by default.")
-
-
-def main() -> int:
-    errors: list[str] = []
-
-    _check_role_placement(errors)
-    _check_private_member_naming(errors)
-    _check_resource_file_naming(errors)
-    _check_relationship_role_usage(errors)
-    _check_uid_pairs(errors)
-    _check_res_paths(errors)
-    _check_markdown_links(errors)
-    _check_task_state_contract(errors)
-    _check_task_dependencies(errors)
-    _check_staged_addons(errors)
-
-    if errors:
-        print("Project structure validation: FAIL")
-        for error in errors:
-            print(f"- {error}")
-        return 1
-
-    print("Project structure validation: PASS")
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
-, body_line)
+            group_match = re.match(r'^group = &"([^"]*)"$', body_line)
             if group_match is not None:
                 actual_group = group_match.group(1)
                 break
@@ -607,6 +506,7 @@ def main() -> int:
     _check_markdown_links(errors)
     _check_task_state_contract(errors)
     _check_task_dependencies(errors)
+    _check_main_level_system_groups(errors)
     _check_staged_addons(errors)
 
     if errors:
