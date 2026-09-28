@@ -1,9 +1,9 @@
 # Current Work
 
-Active task: [Developer Console Testing](agent_tasks/developer_console_testing.md)  
-Status: **IN_PROGRESS**  
-Checkpoint: Stages 1–8 complete.
+Active task: none  
+Status: **IDLE**  
+Last completed: [Developer Console Testing](agent_tasks/developer_console_testing.md) — Stages 1–9 complete.
 
-Next: Stage 9 — focused GUT coverage, project structure/static checks, then one relevant GUT invocation and one headless smoke/runtime check.
+Validation: project structure/static check PASS; focused GUT 4/4 tests with 93 assertions PASS; `developer_console` headless smoke PASS on Godot 4.7.1 with the repository-pinned GECS submodule.
 
-All detailed constraints, decisions, changed paths, milestones, and validation state live in the task file. The full active/planned queue is indexed in [agent_tasks/CONTEXT.md](agent_tasks/CONTEXT.md).
+No next task is selected. The full active/planned queue is indexed in [agent_tasks/CONTEXT.md](agent_tasks/CONTEXT.md).
