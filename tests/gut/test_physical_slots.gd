@@ -97,6 +97,7 @@ func test_store_freezes_attaches_and_restores_physics_on_take() -> void:
 	assert_eq(_body.get_parent(), original_parent)
 	assert_eq(_slot.driver.remote_path, _slot.driver.get_path_to(_body))
 	(_slot as Node as Node3D).position.x += 0.2
+	await get_tree().process_frame
 	assert_eq(_body.global_position, _slot.anchor.global_position)
 	(_slot as Node as Node3D).position.x -= 0.2
 	assert_true(GrabService.take_from_storage(_actor, _item, C_Grabbable.HoldSlot.LEFT_HAND))
