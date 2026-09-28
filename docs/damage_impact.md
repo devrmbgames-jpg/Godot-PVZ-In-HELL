@@ -2,7 +2,7 @@
 
 ## Health authority and events
 
-`C_Health` follows the user's attribute model: `base` is authored HP, `value` is computed maximum HP, `current` is remaining HP. `O_Damage` is the only gameplay HP writer. Initialization/reset is separate. `DamageRequestService.submit()` snapshots a request and emits `DamageRequest.EVENT`; its optional builder uses the same path. No System lookup or `S_Damage` exists.
+`C_Health` follows the user's attribute model: `base` is authored HP, `value` is computed maximum HP, `current` is remaining HP. `O_Damage` is the only ordinary gameplay HP writer. Initialization/reset is separate. Developer-console damage/heal/kill still submit normal `DamageRequest`; explicit living `reset` is the only debug lifecycle exception and restores Health/control after removing terminal `C_Death`. `DamageRequestService.submit()` snapshots a request and emits `DamageRequest.EVENT`; its optional builder uses the same path. No System lookup or `S_Damage` exists.
 
 Null, unavailable and non-Health targets are rejected at entry (false). The Observer validates finite positive amounts, live source, valid current/max Health and operation. `C_NoDamage` is a source-side veto for DAMAGE, producing BLOCKED without mutating HP; incoming damage and HEAL remain permitted. A null source represents the environment. `source` identifies the actual damaging Entity, while `instigator` records a throwing actor separately.
 

@@ -34,6 +34,8 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck) ->
 	if check_result.result != PackageDeliveryCheck.Result.READY:
 		return false
 	var policy: DEF_Customer = visit.definition
+	visit.package_damaged = check_result.damaged
+	visit.package_opened = check_result.opened
 	if policy.voluntary_refusal or (check_result.damaged and not policy.accepts_damaged) or (check_result.opened and not policy.accepts_opened):
 		visit.actual = CustomerVisit.Actual.CUSTOMER_REFUSED
 		visit.satisfaction = 0
@@ -91,32 +93,60 @@ static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 		visit.money_delta = operation.amount if operation.reason == MoneyOperation.Reason.PAYMENT else -operation.amount
 
 
-static func create_complaint(visit: CustomerVisit, day: int) -> void:
-	if visit.complaint != null or not visit.finished:
-		return
-	var probability: float = visit.definition.complaint_probability
-	if visit.actual == CustomerVisit.Actual.DELIVERED:
-		probability = visit.definition.false_complaint_probability
-	elif visit.actual == CustomerVisit.Actual.CUSTOMER_REFUSED:
-		probability = visit.definition.voluntary_complaint_probability
-	if visit.complaint_roll >= probability:
-		return
+static func create_complaint(
+	visit: CustomerVisit,
+	day: int,
+	reason: CustomerComplaint.Reason = CustomerComplaint.Reason.NOT_DELIVERED,
+	force: bool = false,
+) -> bool:
+	if visit == null or visit.definition == null:
+		return false
+	if visit.complaint != null:
+		return visit.complaint.reason == reason
+	if not force and not visit.finished:
+		return false
+
+	if not force:
+		var probability: float = visit.definition.complaint_probability
+		if visit.actual == CustomerVisit.Actual.DELIVERED:
+			probability = visit.definition.false_complaint_probability
+		elif visit.actual == CustomerVisit.Actual.CUSTOMER_REFUSED:
+			probability = visit.definition.voluntary_complaint_probability
+		if visit.complaint_roll >= probability:
+			return false
+
 	var complaint: CustomerComplaint = CustomerComplaint.new()
 	complaint.complaint_id = StringName("complaint/" + String(visit.visit_id))
+	complaint.reason = reason
 	complaint.created_day = day
 	complaint.resolve_day = day + maxi(1, visit.definition.complaint_delay_days)
 	visit.complaint = complaint
+	return true
 
 
-static func resolve_complaint(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
+static func resolve_complaint(
+	visit: CustomerVisit,
+	wallet: C_Wallet,
+	day: int,
+	ignore_delay: bool = false,
+) -> void:
 	var complaint: CustomerComplaint = visit.complaint
-	if complaint == null or complaint.outcome != CustomerComplaint.Outcome.PENDING or day < complaint.resolve_day:
+	if complaint == null or complaint.outcome != CustomerComplaint.Outcome.PENDING:
 		return
+	if not ignore_delay and day < complaint.resolve_day:
+		return
+
+	if complaint.reason == CustomerComplaint.Reason.DAMAGED:
+		if visit.package_damaged:
+			complaint.outcome = CustomerComplaint.Outcome.CONFIRMED
+			visit.reputation = CustomerVisit.Reputation.DAMAGED_COMPLAINT
+		else:
+			_mark_false_claim(visit, complaint, day)
+		complaint.resolved_day = day
+		return
+
 	if visit.actual == CustomerVisit.Actual.DELIVERED:
-		complaint.outcome = CustomerComplaint.Outcome.FALSE_CLAIM
-		complaint.retaliation_start_day = day
-		complaint.retaliation_end_day = day + visit.definition.retaliation_days
-		visit.reputation = CustomerVisit.Reputation.FALSE_COMPLAINT
+		_mark_false_claim(visit, complaint, day)
 	elif visit.declaration == CustomerVisit.Declaration.TAKEN and visit.defeated_by_player:
 		complaint.outcome = CustomerComplaint.Outcome.WAIVED_PLAYER_DEFEAT
 		visit.reputation = CustomerVisit.Reputation.FRAUD
@@ -127,7 +157,13 @@ static func resolve_complaint(visit: CustomerVisit, wallet: C_Wallet, day: int) 
 	else:
 		if wallet == null:
 			return
-		var operation: MoneyOperation = WalletService.package_settlement(wallet, complaint.complaint_id, MoneyOperation.Reason.CONFIRMED_FRAUD, visit.accounting_value, day)
+		var operation: MoneyOperation = WalletService.package_settlement(
+			wallet,
+			complaint.complaint_id,
+			MoneyOperation.Reason.CONFIRMED_FRAUD,
+			visit.accounting_value,
+			day,
+		)
 		var result: WalletService.Status = WalletService.apply(wallet, operation, day)
 		if result != WalletService.Status.COMMITTED and result != WalletService.Status.DUPLICATE:
 			return
@@ -136,8 +172,31 @@ static func resolve_complaint(visit: CustomerVisit, wallet: C_Wallet, day: int) 
 		if visit.actual != CustomerVisit.Actual.CUSTOMER_REFUSED:
 			visit.settlement_committed = true
 			visit.settlement_day = day
-		visit.reputation = CustomerVisit.Reputation.FRAUD if visit.declaration == CustomerVisit.Declaration.TAKEN else CustomerVisit.Reputation.CONFIRMED_REFUSAL
+			visit.reputation = (
+				CustomerVisit.Reputation.FRAUD
+				if visit.declaration == CustomerVisit.Declaration.TAKEN
+				else CustomerVisit.Reputation.CONFIRMED_REFUSAL
+			)
 	complaint.resolved_day = day
+
+
+static func approve(visit: CustomerVisit, satisfaction: int) -> bool:
+	if visit == null:
+		return false
+	visit.feedback = CustomerVisit.Feedback.APPROVED
+	visit.satisfaction = clampi(satisfaction, 0, SATISFACTION_SCALE)
+	return true
+
+
+static func _mark_false_claim(
+	visit: CustomerVisit,
+	complaint: CustomerComplaint,
+	day: int,
+) -> void:
+	complaint.outcome = CustomerComplaint.Outcome.FALSE_CLAIM
+	complaint.retaliation_start_day = day
+	complaint.retaliation_end_day = day + visit.definition.retaliation_days
+	visit.reputation = CustomerVisit.Reputation.FALSE_COMPLAINT
 
 
 static func retaliation_allowed(visit: CustomerVisit, day: int) -> bool:

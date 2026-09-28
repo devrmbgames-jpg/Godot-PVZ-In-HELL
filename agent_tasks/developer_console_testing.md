@@ -1,7 +1,7 @@
 # Developer Console Testing
 
-Status: planned
-Scope: specification only; implementation has not started.
+Status: active — Stage 8 complete; Stage 9 focused validation next.
+Scope: implementation active; Stages 1–8 are implemented in small commits.
 
 ## Goal
 
@@ -146,6 +146,18 @@ hint: visit_create #009
 ```
 
 No silent failures and no bare boolean result as user-facing output.
+
+## Implementation progress
+
+- [x] Stage 1 — command registrar, target resolver, uniform output formatting.
+- [x] Stage 2 — read-only diagnostics.
+- [x] Stage 3 — Package spawn/remove/register.
+- [x] Stage 4 — Customer outcomes/feedback/complaints.
+- [x] Stage 5 — Wallet/penalty operations.
+- [x] Stage 6 — Damage/kill/heal/reset.
+- [x] Stage 7 — Convenience day/customer commands.
+- [x] Stage 8 — Autocomplete/help.
+- [ ] Stage 9 — focused GUT + one headless smoke.
 
 ## Implementation order
 

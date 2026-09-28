@@ -42,32 +42,48 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	return ray.global_position.distance_to(ray.get_collision_point()) <= config.scan_range
 
 
-## Synchronous command-boundary transaction: no signals/UI/await before all writes finish.
+## Scanner-specific validation delegates the actual transaction to register_package().
 static func scan(actor: Entity, scanner: Entity, target: Entity) -> PackageScanResult:
-	var result: PackageScanResult = PackageScanResult.new()
 	if not can_scan(actor, scanner, target):
+		return PackageScanResult.new()
+	return register_package(target)
+
+
+## Shared synchronous registration transaction for trusted domain/debug callers.
+## Scanner reach/held checks intentionally stay in scan().
+static func register_package(target: Entity) -> PackageScanResult:
+	var result: PackageScanResult = PackageScanResult.new()
+	if not EntityAvailability.contains(target, ECS.world):
 		return result
+	if not target.has_component(C_Package) or not target.has_component(C_PackageState):
+		return result
+	var registry: C_PackageLedger = ledger()
+	var cycle: C_DayCycle = DayPhaseService.current()
+	if registry == null or cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:
+		return result
+
 	var identity: C_Package = target.get_component(C_Package) as C_Package
 	var state: C_PackageState = target.get_component(C_PackageState) as C_PackageState
-	var registry: C_PackageLedger = ledger()
 	result.package_id = identity.package_id
 	for record: PackageRegistrationRecord in registry.records:
-		if record.package_id == identity.package_id:
-			if not record.active:
-				return result
-			result.outcome = PackageScanResult.Outcome.ALREADY_REGISTERED
-			result.number = record.number
-			result.message = "Уже учтена · №%03d" % record.number
+		if record.package_id != identity.package_id:
+			continue
+		if not record.active:
 			return result
+		result.outcome = PackageScanResult.Outcome.ALREADY_REGISTERED
+		result.number = record.number
+		result.message = "Уже учтена · №%03d" % record.number
+		return result
+
 	if identity.package_id.is_empty() or identity.definition == null:
+		return result
+	if state.registration >= C_PackageState.Registration.DELIVERED:
 		return result
 	if state.scan == C_PackageState.Scan.SCANNED or state.registration_number != 0:
 		result.message = "Ошибка реестра: запись отсутствует"
 		return result
-	var cycle: C_DayCycle = DayPhaseService.current()
 
 	var sequence: int = smallest_free_number(registry)
-
 	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	registration.package_id = identity.package_id
 	registration.day_index = cycle.day_index
