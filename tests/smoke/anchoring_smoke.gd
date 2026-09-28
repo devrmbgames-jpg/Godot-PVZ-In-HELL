@@ -81,6 +81,7 @@ func _make_actor() -> Entity:
 		C_Strength.new(),
 	]
 	_world.add_entity(actor)
+	_interactor = actor.get_component(C_Interactor) as C_Interactor
 	return actor
 
 
