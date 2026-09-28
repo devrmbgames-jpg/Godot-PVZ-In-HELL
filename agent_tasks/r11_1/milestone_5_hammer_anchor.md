@@ -1,6 +1,6 @@
 # R11.1 — Hammer anchor / unfix / milestone 5
 
-Status: **OWNER_QA**
+Status: **DONE**
 
 Owner task: [R11.1](../roadmap_11_1_extended_interactions_and_arrangement.md)
 
@@ -30,8 +30,5 @@ Validation:
 - `anchoring` smoke: PASS.
 - Project structure validation: PASS.
 
-Owner QA:
-- store/take a hand item in a PhysicalSlot and confirm no scene-tree errors;
-- Carry a box, aim at CarryPlacement through/around the held body, and place it;
-- pick up Hammer, wait for AnchorableTestBox to settle, LMB Fix, then hold F to Unfix.
+Owner QA: completed on 2026-09-29. User confirmed the live gameplay flow works.
 

@@ -1,6 +1,6 @@
 # R11.1 — Расширенные взаимодействия, физические слоты и расстановка
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 ## Task state
 
@@ -18,7 +18,7 @@ Add reusable prolonged interaction, access/open-close, physical slot/placement, 
 - [x] M2 — runtime resolver/input/focus/HUD integration and atomic completion/cleanup.
 - [x] M3 — access requirements and common open/close/translate contract.
 - [x] M4 — physical slots and collision-validated Carry placement.
-- [ ] M5 — hammer anchor/unfix, physics-state restore, support query, final validation.
+- [x] M5 — hammer anchor/unfix, physics-state restore, support query, final validation.
 
 ### Decisions
 One authoritative prolonged session per actor/target; progress readiness is not effect completion. Existing task body/design sources remain scope reference, not a parallel state tracker.
@@ -26,13 +26,13 @@ One authoritative prolonged session per actor/target; progress readiness is not 
 M4 clarification: user explicitly permits freezing/turning off physics for stored clothing/shelf items. Slots suspend simulation and collisions and attach the visible Entity to an authored anchor; removal restores its prior settings. Placement remains a one-time, collision-validated alignment with no storage ownership/freeze.
 
 ### Current
-M1–M5 implementation is complete and awaiting owner live QA. M5 uses authored C_Anchorable policy, distinct C_PlayerAnchored runtime state, reversible physics snapshot, Hammer PRIMARY Fix and prolonged USE/F Unfix. Live regressions were addressed with RemoteTransform3D-backed PhysicalSlots and held-body-safe CarryPlacement targeting.
+R11.1 is complete. M1–M5 are implemented and owner gameplay QA on 2026-09-29 confirmed the live slot, CarryPlacement and Hammer flows work in-game. M5 uses authored C_Anchorable policy, distinct C_PlayerAnchored runtime state, reversible physics snapshot, Hammer PRIMARY Fix and prolonged USE/F Unfix. Live regressions were addressed with RemoteTransform3D-backed PhysicalSlots and held-body-safe CarryPlacement targeting.
 
 ### Validation
-User authorized selective GUT/smoke execution on 2026-09-29; avoid repeated/broad checks and request owner gameplay QA for complex or ambiguous scenarios. M1–M2 GUT: 18/18 passed. M3 GUT: 9/9 passed after correcting a fixture to read the live GECS component. M4 final focused GUT: 10/10 passed, 60 assertions; `physical_slots_placement` headless smoke: PASS; structure validation: PASS. The standalone editor import step still emits unrelated read-only addon diagnostics (GECS `system.gd:418` type inference, Dialogue Manager theme initialization and exit leak diagnostics), so it is not recorded as a clean whole-project import. M5/final integration checks remain.
+User authorized selective GUT/smoke execution on 2026-09-29; avoid repeated/broad checks and request owner gameplay QA for complex or ambiguous scenarios. M1–M2 GUT: 18/18 passed. M3 GUT: 9/9 passed after correcting a fixture to read the live GECS component. M4 final focused GUT: 10/10 passed, 60 assertions; `physical_slots_placement` headless smoke: PASS; structure validation: PASS. The standalone editor import step still emits unrelated read-only addon diagnostics (GECS `system.gd:418` type inference, Dialogue Manager theme initialization and exit leak diagnostics), so it is not recorded as a clean whole-project import. M5 final focused GUT: 5/5, 31 assertions; PhysicalSlot regression GUT: 10/10, 62 assertions; `physical_slots_placement` and `anchoring` headless smokes PASS; project structure validation PASS.
 
 ### Owner QA / blockers
-No blocker recorded. No rendered/visual Godot run was performed for M4; owner gameplay/visual QA remains useful for authored belt-slot reach/visibility and placement-area feel.
+No blocker. Owner gameplay QA completed on 2026-09-29 and confirmed the R11.1 live flows are working.
 
 ---
 
@@ -64,11 +64,11 @@ Branch/base: master / 2d07761.
 - [x] Реализовать reusable open/close/translate state contract, достаточный для дверей и выдвижных элементов; физическое применение конкретных Door/Drawer остаётся R13.
 - [x] Добавить physical storage/body slots для конкретных Entity. Они отдельны от LEFT_HAND/RIGHT_HAND/CARRY и отдельны от будущего virtual stack Inventory R19.
 - [x] Добавить authored PlacementSlot/PlacementArea assist для аккуратной установки Carry-объекта. Placement не становится ownership authority и не телепортирует объект сквозь препятствия.
-- [ ] Добавить data-driven возможность зафиксировать физический предмет/мебель в мире Hammer interaction: LMB фиксирует валидный неподвижный target; prolonged F с Hammer снимает фиксацию.
-- [ ] Перед фиксацией требовать устойчивое/достаточно неподвижное физическое состояние; не фиксировать объект во время активного grab/push/control capture.
-- [ ] При снятии фиксации проверить непосредственную поддержку/соседство одним коротким physics query (~0.05 m по фактическому направлению опоры), чтобы не оставлять очевидно зависимые объекты в некорректном состоянии.
-- [ ] Сохранять исходные freeze/grab/physics параметры, нужные для обратимого unfix; не использовать набор несвязанных boolean flags.
-- [ ] Поддержать свободную расстановку мебели/предметов без превращения PlacementArea в обязательную сетку.
+- [x] Добавить data-driven возможность зафиксировать физический предмет/мебель в мире Hammer interaction: LMB фиксирует валидный неподвижный target; prolonged F с Hammer снимает фиксацию.
+- [x] Перед фиксацией требовать устойчивое/достаточно неподвижное физическое состояние; не фиксировать объект во время активного grab/push/control capture.
+- [x] При снятии фиксации проверить непосредственную поддержку/соседство одним коротким physics query (~0.05 m по фактическому направлению опоры), чтобы не оставлять очевидно зависимые объекты в некорректном состоянии.
+- [x] Сохранять исходные freeze/grab/physics параметры, нужные для обратимого unfix; не использовать набор несвязанных boolean flags.
+- [x] Поддержать свободную расстановку мебели/предметов без превращения PlacementArea в обязательную сетку.
 
 ## Критерии готовности
 
@@ -102,4 +102,4 @@ Physics integration: placement collision validity, неподвижность п
 
 ## Текущий этап
 
-M1–M4 выполнены: prolonged foundation/runtime, access/openable contracts, physical slots и collision-validated Carry placement. Подробности: [M1](r11_1/milestone_1_prolonged_foundation.md), [M2](r11_1/milestone_2_prolonged_runtime.md), [M3](r11_1/milestone_3_access_openable.md), [M4](r11_1/milestone_4_physical_slots_placement.md). Следующий этап — M5: Hammer anchor/unfix и финальная physics validation. R11.1 остаётся открытой.
+R11.1 завершена: M1–M5 выполнены, automated validation зелёная, owner gameplay QA подтверждён 2026-09-29. Подробности: [M1](r11_1/milestone_1_prolonged_foundation.md), [M2](r11_1/milestone_2_prolonged_runtime.md), [M3](r11_1/milestone_3_access_openable.md), [M4](r11_1/milestone_4_physical_slots_placement.md), [M5](r11_1/milestone_5_hammer_anchor.md).
