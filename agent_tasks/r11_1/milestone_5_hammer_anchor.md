@@ -1,6 +1,6 @@
 # R11.1 — Hammer anchor / unfix / milestone 5
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Owner task: [R11.1](../roadmap_11_1_extended_interactions_and_arrangement.md)
 
@@ -16,4 +16,22 @@ Owner task: [R11.1](../roadmap_11_1_extended_interactions_and_arrangement.md)
 
 ## Current
 
-Core data/service/action/system contracts are being implemented. Next: wire stability into the Interaction system group, add focused GUT + real-physics support smoke, review and run final R11.1 validation.
+Implementation and automated regression validation are complete.
+
+Live-test regressions fixed:
+- PhysicalSlot no longer reparents stored items during observer dispatch; the authored slot owns a `RemoteTransform3D` driver and the item keeps its original parent.
+- Carry targeting authoritatively skips/recasts through the actor's held body so CarryPlacement remains the gameplay target.
+- `hammer.tscn` and `anchorable_test_box.tscn` are authored runtime fixtures and are instanced into the current `main_level.tscn` without rewriting existing scene transforms.
+
+Validation:
+- `test_physical_slots.gd`: 10/10, 62 assertions.
+- `test_anchoring.gd`: 5/5, 31 assertions.
+- `physical_slots_placement` smoke: PASS.
+- `anchoring` smoke: PASS.
+- Project structure validation: PASS.
+
+Owner QA:
+- store/take a hand item in a PhysicalSlot and confirm no scene-tree errors;
+- Carry a box, aim at CarryPlacement through/around the held body, and place it;
+- pick up Hammer, wait for AnchorableTestBox to settle, LMB Fix, then hold F to Unfix.
+
