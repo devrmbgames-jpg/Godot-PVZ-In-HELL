@@ -8,9 +8,14 @@
 
 Каждый implementation task должен давать маленький проверяемый gameplay result.
 
-Порядок определяется этим документом + [README](README.md) + `agent_tasks/` + `task_history.md`, а не номером исходного ТЗ.
+- [README](README.md) владеет canonical ID mapping/order.
+- [agent_tasks/CONTEXT.md](../../agent_tasks/CONTEXT.md) владеет live queue/status.
+- Конкретный task/router владеет Status / Current / Next / Validation.
+- `CURRENT_WORK.md` — только указатель на текущий execution focus.
+- `task_history.md` подтверждает завершённые задачи.
+- Design-ТЗ задают требования, но не дублируют implementation progress.
 
-Завершённые task-файлы намеренно удаляются из `agent_tasks/`; их статус подтверждается `task_history.md`.
+При начале задачи агент сначала проверяет текущие production contracts и зависимости, затем выбирает bounded milestone. Не создавать параллельный WORK/plan, если task/router уже существует.
 
 ## Завершённый foundation
 
@@ -250,7 +255,7 @@ Task: [roadmap_22_5_gecs_architecture_polish.md](../../agent_tasks/roadmap_22_5_
 - SystemGroups/`deps()` express ordering;
 - gameplay behavior preserved.
 
-R22.5 intentionally runs late. Do not perform this broad refactor opportunistically during R08–R22 while feature contracts are still changing.
+R22.5 сейчас имеет статус **DEFERRED**: он intentionally runs late. Do not perform this broad refactor opportunistically while feature contracts R08–R22 are still changing. Resume through its root router and current milestone only when the dependency gate is satisfied.
 
 Damage/Impact cleanup выполнен в R08 M5.1; в R22.5 остаётся только регрессионный аудит этих подсистем.
 
