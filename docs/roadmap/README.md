@@ -8,9 +8,9 @@ Implementation work uses a separate canonical ID:
 - `ТЗ xx` = source design specification;
 - the numbers are **not required to match**.
 
-Agents must never infer implementation order from a `ТЗ` number. Use this file, `agent_tasks/`, `task_history.md`, and `CURRENT_WORK.md`. If a human says `RM08`, normalize it to canonical repository ID `R08`; do not create a parallel RM-prefixed task.
+Agents must never infer implementation order from a `ТЗ` number. Use this file for ID mapping, `agent_tasks/CONTEXT.md` for the live queue/status, the exact task/router for Current/Next, and `task_history.md` for completed history. `CURRENT_WORK.md` is only the current execution pointer. If a human says `RM08`, normalize it to canonical repository ID `R08`; do not create a parallel RM-prefixed task.
 
-Completed implementation tasks are removed from `agent_tasks/` by project policy. Their durable contracts remain in roadmap/context docs and their completion is recorded in `task_history.md`.
+Design specs in this directory do not own implementation status. Completed implementation tasks may be removed from `agent_tasks/`; their durable product contracts remain in roadmap/subsystem docs and completion is recorded in `task_history.md`.
 
 ## Canonical implementation order
 
@@ -28,20 +28,20 @@ Completed implementation tasks are removed from `agent_tasks/` by project policy
 | R09 | completed | [ТЗ 06](06_package_damage_and_hazards.md): package hazards |
 | R10 | completed | [ТЗ 07](07_customer_flow_and_delivery.md), ТЗ 14/15: wallet/results |
 | R11 | completed | [ТЗ 07](07_customer_flow_and_delivery.md): customers/delivery/disputes |
-| [R11.1](../../agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md) | active | [ТЗ 08.1](08_1_arrangement_extended_interactions.md): prolonged interactions, access, physical slots, placement/anchoring |
-| [R12](../../agent_tasks/roadmap_12_dialogue_integration.md) | planned | [ТЗ 09](09_dialogue_system.md): dialogue integration |
-| [R13](../../agent_tasks/roadmap_13_environment_interactables.md) | planned | [ТЗ 13](13_environment_interactables.md) using R11.1 contracts |
-| [R14](../../agent_tasks/roadmap_14_challenge_framework_and_lights.md) | planned | [ТЗ 08](08_customer_challenge_framework.md): challenge lifecycle/light |
-| [R15](../../agent_tasks/roadmap_15_gaze_challenges.md) | planned | [ТЗ 08](08_customer_challenge_framework.md): gaze challenges |
-| [R16](../../agent_tasks/roadmap_16_floor_hazard_challenge.md) | planned | [ТЗ 08](08_customer_challenge_framework.md): floor hazard challenge |
-| [R17](../../agent_tasks/roadmap_17_combat_and_impact_damage.md) | planned | [ТЗ 10](10_combat_damage_health.md): combat/aggression; reuses R08 impact contract |
-| [R18](../../agent_tasks/roadmap_18_hunger_and_perception.md) | planned | [ТЗ 11](11_hunger_system.md), ТЗ 09: hunger/perception |
-| [R19](../../agent_tasks/roadmap_19_inventory_and_consumables.md) | planned | [ТЗ 12](12_inventory_and_consumables.md), ТЗ 06/11: inventory/consumables |
-| [R20](../../agent_tasks/roadmap_20_evening_trader_orders_and_quest.md) | planned | [ТЗ 14](14_evening_meta_scaffold.md): evening/trader/orders/quest |
-| [R21](../../agent_tasks/roadmap_21_night_persistence_next_day.md) | planned | [ТЗ 15](15_night_save_next_day.md): persistence/next day |
-| [R22](../../agent_tasks/roadmap_22_hud_and_world_feedback.md) | planned | [ТЗ 16](16_ui_and_feedback.md): HUD/feedback |
-| [R22.5](../../agent_tasks/roadmap_22_5_gecs_architecture_polish.md) | planned | GECS upstream best practices + project architecture polish |
-| [R23](../../agent_tasks/roadmap_23_vertical_slice_validation.md) | planned | [ТЗ 17](17_vertical_slice_scenario.md): full vertical-slice validation |
+| [R11.1](../../agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md) | IN_PROGRESS | [ТЗ 08.1](08_1_arrangement_extended_interactions.md): prolonged interactions, access, physical slots, placement/anchoring |
+| [R12](../../agent_tasks/roadmap_12_dialogue_integration.md) | PLANNED | [ТЗ 09](09_dialogue_system.md): dialogue integration |
+| [R13](../../agent_tasks/roadmap_13_environment_interactables.md) | PLANNED | [ТЗ 13](13_environment_interactables.md) using R11.1 contracts |
+| [R14](../../agent_tasks/roadmap_14_challenge_framework_and_lights.md) | PLANNED | [ТЗ 08](08_customer_challenge_framework.md): challenge lifecycle/light |
+| [R15](../../agent_tasks/roadmap_15_gaze_challenges.md) | PLANNED | [ТЗ 08](08_customer_challenge_framework.md): gaze challenges |
+| [R16](../../agent_tasks/roadmap_16_floor_hazard_challenge.md) | PLANNED | [ТЗ 08](08_customer_challenge_framework.md): floor hazard challenge |
+| [R17](../../agent_tasks/roadmap_17_combat_and_impact_damage.md) | PLANNED | [ТЗ 10](10_combat_damage_health.md): combat/aggression; reuses R08 impact contract |
+| [R18](../../agent_tasks/roadmap_18_hunger_and_perception.md) | PLANNED | [ТЗ 11](11_hunger_system.md), ТЗ 09: hunger/perception |
+| [R19](../../agent_tasks/roadmap_19_inventory_and_consumables.md) | PLANNED | [ТЗ 12](12_inventory_and_consumables.md), ТЗ 06/11: inventory/consumables |
+| [R20](../../agent_tasks/roadmap_20_evening_trader_orders_and_quest.md) | PLANNED | [ТЗ 14](14_evening_meta_scaffold.md): evening/trader/orders/quest |
+| [R21](../../agent_tasks/roadmap_21_night_persistence_next_day.md) | PLANNED | [ТЗ 15](15_night_save_next_day.md): persistence/next day |
+| [R22](../../agent_tasks/roadmap_22_hud_and_world_feedback.md) | PLANNED | [ТЗ 16](16_ui_and_feedback.md): HUD/feedback |
+| [R22.5](../../agent_tasks/roadmap_22_5_gecs_architecture_polish.md) | DEFERRED | GECS upstream best practices + project architecture polish |
+| [R23](../../agent_tasks/roadmap_23_vertical_slice_validation.md) | PLANNED | [ТЗ 17](17_vertical_slice_scenario.md): full vertical-slice validation |
 
 ## Cross-cutting design specs
 
@@ -70,6 +70,6 @@ Some ТЗ intentionally feed multiple implementation tasks:
 
 ## Agent rule
 
-When an implementation task says, for example, `R08`, open `agent_tasks/roadmap_08_*.md` first. Treat linked `ТЗ` files as source requirements, not as alternative task IDs.
+When an implementation task exists, its `Task state` is authoritative for status/current/next. Treat linked `ТЗ` files as source requirements, not alternative task IDs or parallel progress trackers. Use `agent_tasks/CONTEXT.md` to find the current task/router.
 
 If this mapping and an old prose reference disagree, this mapping plus the active task/checkpoint wins until the stale reference is corrected.

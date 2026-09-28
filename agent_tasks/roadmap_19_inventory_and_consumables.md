@@ -1,6 +1,40 @@
 # R19 — Малый инвентарь, Food и MedItem
 
-Status: planned
+Status: **PLANNED**
+
+## Task state
+
+### Goal
+Дать игроку хранить и использовать небольшие расходники с однозначным владельцем.
+
+### Constraints / acceptance
+- This is a Feature-level tracked task.
+- Зависимости: R02, R04, R08, R11.1, R18
+- Reuse existing authoritative contracts from completed dependencies; do not duplicate them.
+- The existing `## Работы`, `## Критерии готовности`, `## Проверки`, and `## Границы` sections remain the detailed implementation specification.
+- Follow Godot 4.7, GECS ownership, physics authority, and validation rules from `AGENTS.md`.
+
+### Milestones
+- [ ] Reconfirm dependency completion and current production owners/contracts.
+- [ ] Implement the existing work checklist in small coherent milestones.
+- [ ] Independently review material changes and resolve all R-findings.
+- [ ] Run final task validation according to the documented GUT/headless budget.
+- [ ] Record remaining owner gameplay/visual QA.
+
+### Decisions
+Do not create a parallel planning document. This file remains the authoritative state/router for the feature; source design docs are references, not task state.
+
+### Current
+Not started under the lean workflow. Next: verify dependencies in `task_history.md` and current code, then choose the first bounded implementation milestone from the existing work list.
+
+### Validation
+Not run for this task under the lean workflow.
+
+### Owner QA / blockers
+No new blocker is recorded. Any unmet dependency discovered during startup moves the task to `BLOCKED` or `DEFERRED` with the exact dependency named.
+
+---
+
 Зависимости: R02, R04, R08, R11.1, R18
 Ветка/base: зафиксировать при начале реализации.
 Источники: [ТЗ 06](../docs/roadmap/06_package_damage_and_hazards.md), [ТЗ 08.1](../docs/roadmap/08_1_arrangement_extended_interactions.md), [ТЗ 11](../docs/roadmap/11_hunger_system.md), [ТЗ 12](../docs/roadmap/12_inventory_and_consumables.md), [ТЗ 16](../docs/roadmap/16_ui_and_feedback.md).

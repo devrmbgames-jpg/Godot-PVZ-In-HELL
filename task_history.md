@@ -26,3 +26,4 @@
 - 2026-09-27 - R10: session-owned wallet, atomic purchases, data-driven 100/120/150/200% settlements, persistent deduplication, daily results and Terminal feedback; 7 GUT tests / 42 assertions and headless wallet smoke PASS. Contract: `docs/economy.md`.
 
 - 2026-09-27 — R11: persistent customer schedule/AssignedTo, physical counter, actual vs terminal outcomes, refusal/return/buyout and delayed complaints with reputation hooks; 27 GUT tests / 176 assertions and headless customer walkthrough PASS. Contract: `docs/customers.md`; visual acceptance not run.
+- 2026-09-29 — Agent architecture migrated to right-sized Fix/Task/Feature workflow with on-demand develop/GECS/GUT/design skills, authoritative task state, compact CURRENT_WORK, task status index, review triage, DEFERRED status, and structural validation of normalized task metadata.

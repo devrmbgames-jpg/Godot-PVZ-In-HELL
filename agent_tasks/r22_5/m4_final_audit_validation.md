@@ -1,5 +1,24 @@
 # R22.5 M4 — Final Audit and Validation
 
+Status: **PLANNED**  
+Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
+
+## Task state
+
+### Goal
+Perform the final architecture audit and bounded validation after M1–M3 are complete.
+
+### Current
+Not started. This milestone is final-only and must not run before earlier milestones complete.
+
+### Validation
+Not run.
+
+### Owner QA / blockers
+Deferred by the R22.5 dependency gate and earlier milestones.
+
+---
+
 ## Audit checklist
 
 Audit project Systems/Observers for:

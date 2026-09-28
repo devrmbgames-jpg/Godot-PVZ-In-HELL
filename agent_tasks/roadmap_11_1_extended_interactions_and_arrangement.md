@@ -1,6 +1,39 @@
 # R11.1 — Расширенные взаимодействия, физические слоты и расстановка
 
-Status: active — milestone 1 implemented; runtime integration pending
+Status: **IN_PROGRESS**
+
+## Task state
+
+### Goal
+Add reusable prolonged interaction, access/open-close, physical slot/placement, and anchoring contracts that later environment/inventory tasks can reuse without ad-hoc systems.
+
+### Constraints / acceptance
+- Reuse R02/R06.1 interaction/control boundaries and the existing GECS ownership model.
+- Relationships remain authority for live actor/source/target/session bindings.
+- Physics placement/anchoring must preserve Godot body authority.
+- This root file owns R11.1 status/current/next step; milestone files own only their bounded implementation evidence.
+
+### Milestones
+- [x] M1 — prolonged timing/progress/session foundation.
+- [ ] M2 — runtime resolver/input/focus/HUD integration and atomic completion/cleanup.
+- [ ] M3 — access requirements and common open/close/translate contract.
+- [ ] M4 — physical slots and collision-validated Carry placement.
+- [ ] M5 — hammer anchor/unfix, physics-state restore, support query, final validation.
+
+### Decisions
+One authoritative prolonged session per actor/target; progress readiness is not effect completion. Existing task body/design sources remain scope reference, not a parallel state tracker.
+
+### Current
+M1 is implemented. Next: wire prolonged interaction into the existing resolver/input/focus path and HUD with atomic completion plus cleanup on release/interruption.
+
+### Validation
+M1 has prepared focused GUT coverage; runtime execution is intentionally deferred until the complete R11.1 validation stage unless a blocking bug requires earlier evidence.
+
+### Owner QA / blockers
+No blocker recorded. Owner visual/gameplay QA remains after runtime integration is complete.
+
+---
+
 Зависимости: R02, R06.1
 Branch/base: master / 2d07761.
 Источники: [ТЗ 02](../docs/roadmap/02_core_interaction_and_physics.md), [R06.1](../docs/roadmap/06_1_interaction_hands_carry_push.md), [ТЗ 08.1](../docs/roadmap/08_1_arrangement_extended_interactions.md), [ТЗ 12](../docs/roadmap/12_inventory_and_consumables.md), [ТЗ 13](../docs/roadmap/13_environment_interactables.md).

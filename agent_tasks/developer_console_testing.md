@@ -1,7 +1,43 @@
 # Developer Console Testing
 
-Status: active — Stage 8 complete; Stage 9 focused validation next.
-Scope: implementation active; Stages 1–8 are implemented in small commits.
+Status: **IN_PROGRESS**
+
+## Task state
+
+### Goal
+Extend the existing Developer Console with project-specific testing commands for Packages, Customers, Economy, Health and lifecycle scenarios without creating a second gameplay authority.
+
+### Constraints / acceptance
+- `addons/console/` stays generic; project-specific commands live under project code.
+- Commands call authoritative domain/services/contracts instead of mutating ECS state directly.
+- Customer actual outcome and Terminal declaration remain separate concepts.
+- Debug commands are disabled for production by default.
+- Detailed command grammar is supporting specification: [commands.md](developer_console_testing/commands.md).
+
+### Milestones
+- [x] Stage 1 — command infrastructure / target resolution.
+- [x] Stage 2 — package create/remove/register flows.
+- [x] Stage 3 — actual package outcome / Terminal declaration.
+- [x] Stage 4 — customer visit controls.
+- [x] Stage 5 — complaint / approval flows.
+- [x] Stage 6 — economy operations.
+- [x] Stage 7 — health / lifecycle / world helpers.
+- [x] Stage 8 — autocomplete/help.
+- [ ] Stage 9 — focused validation and completion review.
+
+### Decisions
+The console is a debug frontend only. Domain services/contracts remain authoritative; command handlers must not become alternate business logic.
+
+### Current
+Stages 1–8 are implemented. Next: add/finish focused GUT coverage, run project structure/static checks, then one relevant GUT invocation and one headless smoke according to the validation policy.
+
+### Validation
+Static inspection has been performed during implementation. Godot/GUT runtime validation for final Stage 9 has not run yet.
+
+### Owner QA / blockers
+No blocker recorded. Owner gameplay/visual QA is only needed if Stage 9 or review identifies behavior that cannot be falsified headlessly.
+
+---
 
 ## Goal
 

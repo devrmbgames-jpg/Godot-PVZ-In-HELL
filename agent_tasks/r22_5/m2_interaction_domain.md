@@ -1,5 +1,24 @@
 # R22.5 M2 — Interaction and Domain Boundaries
 
+Status: **PLANNED**  
+Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
+
+## Task state
+
+### Goal
+Separate authoritative interaction/domain state transitions from presentation and construction helpers.
+
+### Current
+Not started. Reconfirm current targeting/highlight/marker/receiving/day-phase boundaries before editing.
+
+### Validation
+Not run.
+
+### Owner QA / blockers
+Deferred by the R22.5 dependency gate.
+
+---
+
 ## Goal
 
 Separate authoritative state transitions from presentation and construction helpers.

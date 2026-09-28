@@ -35,8 +35,11 @@
 | Damage/impact | [docs/damage_impact.md](docs/damage_impact.md) |
 | Hazards | [docs/hazards.md](docs/hazards.md) |
 | Documentation/validation navigation | [docs/README.md](docs/README.md) |
-| Agent workflow | [AGENTS.md](AGENTS.md) |
-| Human-facing Astra/token guidance | [docs/codex_token_economy.md](docs/codex_token_economy.md) |
+| Agent policy | [AGENTS.md](AGENTS.md) |
+| Implementation workflow | [.agents/skills/develop/SKILL.md](.agents/skills/develop/SKILL.md) |
+| Task queue/status | [agent_tasks/CONTEXT.md](agent_tasks/CONTEXT.md) |
+| Current resume checkpoint | [CURRENT_WORK.md](CURRENT_WORK.md) |
+| Human-facing lean-workflow guidance | [docs/codex_token_economy.md](docs/codex_token_economy.md) |
 
 Do not read all routing targets as startup context.
 

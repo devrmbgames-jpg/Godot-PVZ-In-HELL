@@ -1,6 +1,40 @@
 # R22.5 — GECS Architecture Polish
 
-Status: paused after relationship-authority cleanup; resume broader polish after feature work R08–R22 is stable.
+Status: **DEFERRED**
+
+## Task state
+
+### Goal
+Refactor working gameplay toward GECS best practices without changing gameplay design, after the feature layer is stable enough that architecture polish will not race active feature work.
+
+### Constraints / acceptance
+- Pinned GECS v8 source is API authority.
+- Verify every historical issue against current production code before editing.
+- Preserve behavior and physics authority.
+- Do not re-plan or redo completed M0 relationship migrations.
+- Resume only after feature work R08–R22 is stable enough for the targeted milestone.
+
+### Milestones
+- [x] M0 — Relationship authority cleanup.
+- [ ] M1 — System decomposition.
+- [ ] M2 — Interaction/domain boundaries.
+- [ ] M3 — Physics solvers and scheduling.
+- [ ] M4 — Final architecture audit and bounded validation.
+
+### Decisions
+R22.5 is intentionally deferred, not blocked. Root router owns overall status; milestone files are bounded executable units and must be verified against current code when resumed.
+
+### Current
+M0 is complete. No implementation is active. When dependencies are ready, resume with M1 and first rebuild the current system/dependency disposition before editing.
+
+### Validation
+M0 validation is recorded in its milestone file. No later-milestone validation has run.
+
+### Owner QA / blockers
+Dependency gate: broader feature work R08–R22 must be stable before resuming architecture polish.
+
+---
+
 Dependencies: R08, R09, R10, R11, R11.1, R12, R13, R14, R15, R16, R17, R18, R19, R20, R21, R22.
 Timing: late-roadmap polish before R23 vertical-slice validation.
 Source authority: pinned GECS v8 under `addons/gecs/` plus `.agents/skills/gecs-v8/SKILL.md`.

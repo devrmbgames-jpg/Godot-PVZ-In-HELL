@@ -1,103 +1,112 @@
-# Astra lean workflow
+# Lean agent architecture
 
 ## Goal
 
-Optimize this repository for GPT-6 Astra without paying a permanent context cost for documentation that is only occasionally relevant.
+Use Astra/Codex intelligence without paying a permanent context cost for project history, roadmaps, specialized workflows, or unrelated subsystem documentation.
 
-The default workflow is progressive disclosure:
+The design borrows the useful parts of BMad-style execution without installing BMad as a framework.
 
-```text
-AGENTS.md (automatic)
--> exact task symbols/paths
--> direct owner + contract + callers/tests
--> edit
--> narrow validation
-```
+## Five core patterns
 
-Do not preload `CURRENT_WORK.md`, `PROJECT_INDEX.md`, root/subsystem `CONTEXT.md`, roadmap files, token-economy docs, or multiple skills.
+| Pattern | Project implementation |
+| --- | --- |
+| Right-sized workflow | `Fix / Task / Feature` chosen after investigation |
+| Quick Dev | `investigate → classify → plan only enough → implement → review → verify` |
+| Durable task/story state | authoritative `agent_tasks/<task>.md` or roadmap router |
+| Context isolation | load index/context/docs/skills only when the task needs them |
+| Review triage | material findings get `R1/R2/...` and end `FIXED / ACCEPTED / FALSE_POSITIVE` |
 
-## Context routing
+## Context layers
 
-Read only when needed:
-- `CURRENT_WORK.md`: resume an interrupted task explicitly referenced by the user;
-- `PROJECT_INDEX.md`: owner/path is unclear;
-- root/subsystem `CONTEXT.md`: a concrete cross-system invariant is missing;
-- `agent_tasks/*`: that exact roadmap task is being implemented/resumed;
-- subsystem docs: the edited feature depends on their contract;
-- dependency source under `addons/`: version-sensitive API is uncertain.
+### Always on
 
-Prefer exact symbol search and file ranges over full-file/repository dumps. Large `.tscn`, logs, roadmaps, and diffs should be filtered before they enter the main context.
+`AGENTS.md` contains only correctness-critical project invariants, routing, subagent policy, task-state policy, and validation permissions.
 
-## Astra reasoning
+### On-demand process
 
-The repository does not pin the main model or reasoning level. Keep that choice session-owned.
+`.agents/skills/develop/SKILL.md` owns the implementation workflow. It may load:
+- `gecs-v8` for GECS API/architecture;
+- `gut-testing` for GUT authoring/execution;
+- `professional-game-design` for player-facing design.
 
-Suggested Astra usage:
-- ordinary bugfix / focused implementation: medium;
-- cross-system ECS/physics refactor: high;
-- difficult architecture audit with conflicting evidence: high, occasionally xhigh;
-- max: exceptional cases only.
+Do not preload all skills.
 
-Do not raise reasoning merely because the repository is large. Reduce input context first.
+### On-demand facts
 
-## Skills
+Use:
+- `PROJECT_INDEX.md` only when ownership/path is unclear;
+- root/subsystem `CONTEXT.md` only for a missing concrete invariant;
+- subsystem docs only when the edited contract depends on them;
+- dependency source under `addons/` only for version-sensitive API uncertainty.
 
-Keep the installed project skill set intentionally small:
-- `gecs-v8`;
-- `gut-testing`;
-- `professional-game-design`.
+## Task state architecture
 
-Descriptions should stay narrow. Do not create generic Godot, GDScript, coding-style, repository-navigation, or “project rules” skills that duplicate `AGENTS.md`.
+`agent_tasks/CONTEXT.md` is the queue/status index.
 
-A skill is a specialized on-demand reference, not another startup instruction file.
+An executable task/router is authoritative for:
+- status;
+- goal;
+- constraints/acceptance;
+- milestones;
+- durable decisions;
+- exact current checkpoint and next action;
+- validation;
+- owner QA/blockers;
+- material review findings when present.
 
-## Subagents
+Supported statuses:
+- `PLANNED`
+- `IN_PROGRESS`
+- `DEFERRED`
+- `BLOCKED`
+- `OWNER_QA`
+- `DONE`
+- `SUPPORT` for non-executable specs/inventories owned by another task.
 
-Routine work stays with the main agent. Only two opt-in roles exist:
-- `reviewer`: focused independent review of a substantial completed diff;
-- `validator`: explicitly requested noisy validation with compressed output.
+`CURRENT_WORK.md` is not a second task document. It points only to the current execution focus and its next step.
 
-Never spawn speculative agents. Run at most one subagent at a time. The main agent owns architecture and final decisions.
+`task_history.md` stores completed-history summaries. Removed completed task files do not need to be recreated.
 
-## Checkpoints
+Large tasks may use bounded milestone files. The root/router still owns overall task status; a milestone owns only its own bounded state/evidence.
 
-Small/medium tasks have no bookkeeping.
+## Roadmap relationship
 
-For long interruptible work:
-- `agent_tasks/<task>.md` holds task scope;
-- large task docs act as routers and link smaller milestone files;
-- `CURRENT_WORK.md` holds only the resume checkpoint and otherwise stays `Status: none`;
-- `task_history.md` stores one short completion line.
+`docs/roadmap/` contains design specifications (`ТЗ xx`). They are source requirements, not current implementation state.
 
-Do not create a second `WORK.md`.
+Canonical implementation IDs are `Rxx` / `Rxx.x`. The mapping lives in `docs/roadmap/README.md`; the live queue/status lives in `agent_tasks/CONTEXT.md`.
+
+Never maintain the same Current/Next state in both a design doc and a task file.
+
+## Review triage
+
+For substantial tracked work:
+1. review the resulting diff independently of the implementation plan;
+2. assign material findings stable IDs `R1`, `R2`, ...;
+3. classify severity as `BLOCKER`, `BUG`, `RISK`, or `CLEANUP`;
+4. resolve every emitted finding to `FIXED`, `ACCEPTED`, or `FALSE_POSITIVE`;
+5. persist only findings that materially matter to the tracked task.
+
+The optional `reviewer` subagent emits OPEN findings; the main agent owns resolution.
 
 ## Validation economy
 
-Ordinary milestones use static/deterministic checks only.
+Ordinary milestones use the cheapest deterministic checks that can falsify the change.
 
-For a complete large `Rxx` / `Rxx.x` task, normally use one relevant GUT invocation and one relevant headless smoke/runtime invocation near completion. An early blocking run consumes that budget; additional reruns should have a concrete reason or explicit approval.
+For a complete large `Rxx` / `Rxx.x`, normally reserve:
+- one relevant GUT invocation;
+- one relevant headless smoke/runtime invocation.
 
-Rendered/visual Godot remains opt-in and user-owned.
+Earlier runtime runs require a blocking reason or explicit request. Rendered/visual validation remains opt-in and user-owned.
 
 ## Config guardrails
 
-`.codex/config.toml` intentionally keeps:
-- `project_doc_max_bytes = 8192`;
+Repository defaults intentionally keep:
+- `project_doc_max_bytes = 6144`;
 - `tool_output_token_limit = 4000`;
 - `max_concurrent_threads_per_session = 1`.
 
-Do not reduce the tool output limit aggressively: Godot/GUT parse errors and stacks can require a few thousand tokens before filtering.
+The repository does not pin the main model or subagent models. Model/reasoning choice stays session-owned.
 
-Do not pin the main Astra model in repository config. Session/model switching should remain possible; cheaper reviewer/validator models may be used for their bounded roles.
+## Maintenance rule
 
-## Document size targets
-
-These are maintenance targets, not hard runtime rules:
-- `AGENTS.md`: <= 8 KB;
-- root `CONTEXT.md`: <= 5 KB;
-- subsystem `CONTEXT.md`: preferably <= 8 KB;
-- `PROJECT_INDEX.md`: preferably <= 7 KB;
-- active roadmap router: preferably <= 5 KB;
-- `CURRENT_WORK.md`: <= 1 KB.
-
-If a document grows beyond its target, split detail into on-demand subsystem or milestone docs instead of increasing startup context.
+Before adding always-on instructions, ask whether the rule applies to most work and whether missing it creates a correctness/safety failure. If not, put it in a specialized skill, subsystem context, task artifact, or durable domain doc instead.

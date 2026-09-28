@@ -20,7 +20,9 @@ Optional routing map. Do not read this file by default. Use it only when the tas
 | Tests | `tests/gut/`, `tests/smoke/` |
 | Tooling | `utils/` |
 | Docs | `docs/README.md` |
-| Agent workflow | `AGENTS.md` |
+| Agent policy | `AGENTS.md` |
+| Implementation workflow | `.agents/skills/develop/SKILL.md` |
+| Specialized workflows | `.agents/skills/gecs-v8/`, `.agents/skills/gut-testing/`, `.agents/skills/professional-game-design/` |
 | Code/resource naming | `docs/code_style.md` |
 
 ## Gameplay routes
@@ -76,8 +78,11 @@ Validation cadence and commands belong in `AGENTS.md` / `docs/smoke_runner.md`, 
 
 ## Architecture tasks
 
-- Active/planned task files: `agent_tasks/`.
-- R22.5 router: `agent_tasks/roadmap_22_5_gecs_architecture_polish.md`; read only its current milestone file.
+- Live queue/status: `agent_tasks/CONTEXT.md`.
+- Current execution pointer: `CURRENT_WORK.md` only when resuming current work.
+- Exact task/router owns status/current/next; milestone/support files do not compete with it.
+- R22.5 router: `agent_tasks/roadmap_22_5_gecs_architecture_polish.md`; currently DEFERRED after M0.
+- Implementation workflow: `.agents/skills/develop/SKILL.md`.
 - GECS-specific workflow: `.agents/skills/gecs-v8/SKILL.md`.
 
 ## Dependencies

@@ -1,6 +1,6 @@
-# Keep the main model/reasoning session-owned. Do not pin Astra here.
-# These bounds intentionally protect context/quota without truncating normal Godot diagnostics.
-project_doc_max_bytes = 8192
+# Keep the main model/reasoning session-owned; do not pin Astra/Sol here.
+# Bounds protect context/quota without truncating normal Godot diagnostics.
+project_doc_max_bytes = 6144
 tool_output_token_limit = 4000
 
 [agents]

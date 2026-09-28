@@ -4,20 +4,25 @@ PVZ In Hell Simulator — Godot 4.7 project with project-owned GECS gameplay.
 
 | Документ | Назначение |
 | --- | --- |
-| [Правила работы агентов](../AGENTS.md) | Короткие project-specific ограничения; загружаются Codex автоматически |
-| [Контекст проекта](../CONTEXT.md) | Стабильные факты об архитектуре и зависимостях; читать только при необходимости |
-| [Индекс проекта](../PROJECT_INDEX.md) | Канонические маршруты к подсистемам; использовать только когда owner/path неясен |
-| [Контекст gameplay](../content/CONTEXT.md) | Runtime-контракты gameplay-подсистем |
-| [Точка восстановления](../CURRENT_WORK.md) | Только checkpoint незавершённой/долгой задачи |
-| [История задач](../task_history.md) | Краткая история завершённых больших задач |
-| [Codex lean workflow](codex_token_economy.md) | Почему проект избегает preloading, лишних skills и автоматических subagents |
-| [Шпаргалка по запросам к ИИ](ai_prompt_cheatsheet.md) | Как формулировать задачи |
-| [Roadmap: canonical IDs](roadmap/README.md) | Связь design-ТЗ с implementation tasks |
+| [Правила агентов](../AGENTS.md) | Небольшие always-on invariants и routing |
+| [Develop skill](../.agents/skills/develop/SKILL.md) | Fix/Task/Feature workflow: investigate → implement → review → verify |
+| [Контекст проекта](../CONTEXT.md) | Стабильные архитектурные факты; читать только по необходимости |
+| [Индекс проекта](../PROJECT_INDEX.md) | Найти owner/path, если задача сама их не указала |
+| [Контекст gameplay](../content/CONTEXT.md) | Cross-system runtime contracts |
+| [Task status index](../agent_tasks/CONTEXT.md) | Каноническая очередь текущих implementation tasks |
+| [Current Work](../CURRENT_WORK.md) | Только один resume checkpoint текущего execution focus |
+| [История задач](../task_history.md) | Краткая история завершённых задач |
+| [Lean workflow](codex_token_economy.md) | Контекстная экономика и новая task architecture |
+| [Шпаргалка запросов](ai_prompt_cheatsheet.md) | Как формулировать задачи без лишнего контекста |
+| [Roadmap canonical IDs](roadmap/README.md) | Связь design-ТЗ с implementation tasks |
 
-Основная project-owned сцена прототипа — `content/scenes/main_level.tscn`.
+Design specifications в `docs/roadmap/` описывают продуктовый контракт и не владеют текущим статусом реализации. Статус/current/next action принадлежат соответствующему task/router в `agent_tasks/`.
 
-Развёрнутые описания механик и архитектуры хранятся рядом с соответствующей подсистемой. Корневые документы не должны дублировать детали друг друга.
+Развёрнутые механические и архитектурные контракты хранятся рядом с подсистемами и читаются только когда изменение реально зависит от них.
 
-- [Wallet and daily results](economy.md): R10 monetary operations, settlement identity and save contract.
-
-- [Customers and delivery](customers.md): R11 schedules, physical counter, declarations, complaints and return/buyout.
+- [Wallet and daily results](economy.md)
+- [Customers and delivery](customers.md)
+- [Damage and impact](damage_impact.md)
+- [Hazards](hazards.md)
+- [Physical grab](physical_grab.md)
+- [Cart transport](cart_transport.md)
