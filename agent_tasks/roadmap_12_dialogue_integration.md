@@ -1,6 +1,6 @@
 # R12 — Диалоги, условия и загадка
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 ## Task state
 
@@ -15,7 +15,7 @@ Status: **PLANNED**
 - Follow Godot 4.7, GECS ownership, physics authority, and validation rules from `AGENTS.md`.
 
 ### Milestones
-- [ ] Reconfirm dependency completion and current production owners/contracts.
+- [x] Reconfirm dependency completion and current production owners/contracts.
 - [ ] Implement the existing work checklist in small coherent milestones.
 - [ ] Independently review material changes and resolve all R-findings.
 - [ ] Run final task validation according to the documented GUT/headless budget.
@@ -25,7 +25,7 @@ Status: **PLANNED**
 Do not create a parallel planning document. This file remains the authoritative state/router for the feature; source design docs are references, not task state.
 
 ### Current
-Not started under the lean workflow. Next: verify dependencies in `task_history.md` and current code, then choose the first bounded implementation milestone from the existing work list.
+Branch `feature/r12-dialogue-integration` started from `master@bd1e5a4d928084aa94b346e05a4ebe888dd5c9d1`. R02/R11 are complete; R11.1 runtime contracts required by R12 are present with M1–M5 implementation complete and owner QA recorded. M1 implements a typed DialogueManager context, project-owned modal presentation, and the direct package-number conversation without changing addon code. Next: riddle branching plus idempotent Satisfaction effects.
 
 ### Validation
 Not run for this task under the lean workflow.
@@ -36,7 +36,7 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 ---
 
 Зависимости: R02, R11, R11.1
-Ветка/base: зафиксировать при начале реализации.
+Ветка/base: `feature/r12-dialogue-integration` / `master@bd1e5a4d928084aa94b346e05a4ebe888dd5c9d1`.
 Источники: [ТЗ 07](../docs/roadmap/07_customer_flow_and_delivery.md), [ТЗ 08](../docs/roadmap/08_customer_challenge_framework.md), [ТЗ 08.1](../docs/roadmap/08_1_arrangement_extended_interactions.md), [ТЗ 09](../docs/roadmap/09_dialogue_system.md).
 
 ## Цель
@@ -52,8 +52,8 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 
 ## Работы
 
-- [ ] Оценить уже установленный DialogueManager через локальный API; использовать его без изменения addons и без второго параллельного движка.
-- [ ] Добавить типизированный адаптер conditions/actions: фаза, Satisfaction, RequestedPackage, Package actual outcome, Terminal declaration, Complaint/dispute state, Opened/Damaged flags, результаты Challenge и будущий Hunger tier.
+- [x] Оценить уже установленный DialogueManager 4.1.0 через локальный API; использовать его без изменения addons и без второго параллельного движка.
+- [x] Добавить типизированный адаптер conditions/actions: фаза, Satisfaction, RequestedPackage, Package actual outcome, Terminal declaration, Complaint/dispute state, Opened/Damaged flags, результаты Challenge и будущий Hunger tier.
 - [ ] Собрать прямой диалог с номером и загадку с выбором/повтором/альтернативной веткой.
 - [ ] Действия диалога вызывают существующие gameplay-контракты; поддержать voluntary Customer refusal, delayed Complaint и обнаружение false `TAKEN` с переходом в Aggressive. Challenge/Aggressive подключаются через получателей, а не через циклическую зависимость реализации.
 - [ ] Разделить действительную реплику/переход и воспринимаемый текст для последующей Hunger distortion.

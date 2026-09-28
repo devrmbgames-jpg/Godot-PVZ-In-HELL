@@ -1,9 +1,10 @@
 # Current Work
 
-Active task: [R11.1](agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md)
-Status: **OWNER_QA**  
-Checkpoint: M1–M5 implementation is complete. M5 live regressions fixed: PhysicalSlot uses RemoteTransform3D, Carry placement ignores the held body as a targeting occluder, and live Hammer/Anchorable fixtures are present in main_level.
+Active task: [R12](agent_tasks/roadmap_12_dialogue_integration.md)
+Status: **IN_PROGRESS**  
+Branch/base: `feature/r12-dialogue-integration` / `master@bd1e5a4d928084aa94b346e05a4ebe888dd5c9d1`  
+Checkpoint: R02/R11 completion and the required R11.1 runtime contracts are confirmed. M1 adds the typed DialogueManager context, project-owned modal dialogue UI, and direct package-number conversation without changing `addons/`.
 
-Next: owner live QA for slot store/take, CarryPlacement focus/place, and Hammer Fix/Unfix. Automated validation: PhysicalSlot GUT 10/10 (62 asserts), Anchoring GUT 5/5 (31 asserts), both physics smokes PASS.
+Next: implement the riddle branch and idempotent Satisfaction penalty, then gameplay dialogue actions and final GUT/headless validation.
 
 All detailed constraints, decisions, changed paths, milestones, and validation state live in the task file. The full active/planned queue is indexed in [agent_tasks/CONTEXT.md](agent_tasks/CONTEXT.md).

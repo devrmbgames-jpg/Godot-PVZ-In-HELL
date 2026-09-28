@@ -217,7 +217,7 @@ static func greet(customer: E_Customer) -> void:
 	if agent.phase != C_CustomerAgent.Phase.WAITING and agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
 		return
 	_transition(agent, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
-	customer.show_message(CustomerPresentation.request_text(visit))
+	customer.show_message("Здравствуйте. Поговорите со мной, чтобы узнать номер заказа.")
 
 
 static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck.Result:
