@@ -435,6 +435,41 @@ def _check_task_dependencies(errors: list[str]) -> None:
                     "and is not recorded as completed in task_history.md."
                 )
 
+
+def _check_main_level_system_groups(errors: list[str]) -> None:
+    """Every runtime System under a main-level SystemGroup must keep its coarse tick group."""
+    scene_path: Path = ROOT / "content/scenes/main_level.tscn"
+    if not scene_path.exists():
+        return
+
+    lines: list[str] = _read_text(scene_path).splitlines()
+    for index, line in enumerate(lines):
+        match = re.match(
+            r'^\[node name="(S_[^"]+)" type="Node" parent="World/Systems/([^"]+)"[^]]*\]$',
+            line,
+        )
+        if match is None:
+            continue
+
+        system_name: str = match.group(1)
+        expected_group: str = match.group(2)
+        actual_group: str | None = None
+
+        for body_line in lines[index + 1 :]:
+            if body_line.startswith("[node "):
+                break
+            group_match = re.match(r'^group = &"([^"]*)"$', body_line)
+            if group_match is not None:
+                actual_group = group_match.group(1)
+                break
+
+        if actual_group != expected_group:
+            errors.append(
+                f"content/scenes/main_level.tscn: {system_name} must keep "
+                f'group=&"{expected_group}" (found {actual_group!r}).'
+            )
+
+
 def _git_output(*args: str) -> list[str]:
     try:
         result = subprocess.run(
@@ -471,6 +506,7 @@ def main() -> int:
     _check_markdown_links(errors)
     _check_task_state_contract(errors)
     _check_task_dependencies(errors)
+    _check_main_level_system_groups(errors)
     _check_staged_addons(errors)
 
     if errors:
