@@ -23,6 +23,7 @@ static func can_use(actor: Entity, slot: E_PhysicalSlot) -> bool:
 	return (
 		GrabService.holder_available(actor) and GrabService.entity_available(slot)
 		and slot.has_component(C_PhysicalSlot) and is_instance_valid(slot.anchor)
+		and is_instance_valid(slot.driver)
 		and InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.HANDS
 		and GrabService.within_pickup_reach(actor, slot)
 	)
@@ -71,7 +72,8 @@ static func attach(item: Entity, binding: Relationship) -> bool:
 	var body: RigidBody3D = GrabService.physical_body(item)
 	if (
 		not GrabService.entity_available(item) or not GrabService.entity_available(slot)
-		or not is_instance_valid(slot.anchor) or body == null or body.freeze
+		or not is_instance_valid(slot.anchor) or not is_instance_valid(slot.driver)
+		or body == null or body.freeze
 		or not slot.has_component(C_PhysicalSlot) or relationship(item) != binding
 		or GrabService.held_relationship(item) != null or CartCargoService.relationship(item) != null
 		or (body as Node) != (item as Node) or item.is_ancestor_of(slot)
@@ -86,7 +88,6 @@ static func attach(item: Entity, binding: Relationship) -> bool:
 		if other != item:
 			return false
 	var snapshot: StoredBodySnapshot = StoredBodySnapshot.new()
-	snapshot.parent = weakref(body.get_parent())
 	snapshot.freeze = body.freeze
 	snapshot.freeze_mode = body.freeze_mode
 	snapshot.collision_layer = body.collision_layer
@@ -102,9 +103,13 @@ static func attach(item: Entity, binding: Relationship) -> bool:
 	body.linear_velocity = Vector3.ZERO
 	body.angular_velocity = Vector3.ZERO
 	body.set_physics_process(false)
-	body.top_level = false
-	body.reparent(slot.anchor, false)
-	body.transform = Transform3D.IDENTITY
+	body.top_level = snapshot.top_level
+	slot.driver.remote_path = slot.driver.get_path_to(body)
+	slot.driver.use_global_coordinates = true
+	slot.driver.update_position = true
+	slot.driver.update_rotation = true
+	slot.driver.update_scale = true
+	slot.driver.force_update_cache()
 	var cleanup: Callable = release.bind(item)
 	slot.tree_exiting.connect(cleanup)
 	item.tree_exiting.connect(cleanup)
@@ -115,9 +120,8 @@ static func release(item: Entity) -> void:
 	var binding: Relationship = relationship(item)
 	if binding == null:
 		return
-	# Clear authority before reparenting emits tree-exit notifications.
+	# Relationship removal synchronously dispatches the lifecycle observer, which restores slot side effects.
 	item.remove_relationship(binding)
-	detach(item, binding)
 
 
 static func detach(item: Entity, binding: Relationship) -> void:
@@ -134,11 +138,9 @@ static func detach(item: Entity, binding: Relationship) -> void:
 	if body == null:
 		return
 	var snapshot: StoredBodySnapshot = data.snapshot
-	var original_parent: Node = snapshot.parent.get_ref() as Node
-	if not is_instance_valid(original_parent) or original_parent.is_queued_for_deletion():
-		original_parent = ECS.world.get_node(ECS.world.entity_nodes_root) if is_instance_valid(ECS.world) else null
-	if is_instance_valid(original_parent) and not original_parent.is_queued_for_deletion() and body.get_parent() != original_parent:
-		body.reparent(original_parent, true)
+	var storage_slot: E_PhysicalSlot = slot as E_PhysicalSlot
+	if storage_slot != null and is_instance_valid(storage_slot.driver):
+		storage_slot.driver.remote_path = NodePath()
 	body.top_level = snapshot.top_level
 	body.collision_layer = snapshot.collision_layer
 	body.collision_mask = snapshot.collision_mask
