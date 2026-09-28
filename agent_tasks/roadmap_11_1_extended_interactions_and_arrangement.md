@@ -16,7 +16,7 @@ Add reusable prolonged interaction, access/open-close, physical slot/placement, 
 ### Milestones
 - [x] M1 — prolonged timing/progress/session foundation.
 - [x] M2 — runtime resolver/input/focus/HUD integration and atomic completion/cleanup.
-- [ ] M3 — access requirements and common open/close/translate contract.
+- [x] M3 — access requirements and common open/close/translate contract.
 - [ ] M4 — physical slots and collision-validated Carry placement.
 - [ ] M5 — hammer anchor/unfix, physics-state restore, support query, final validation.
 
@@ -24,10 +24,10 @@ Add reusable prolonged interaction, access/open-close, physical slot/placement, 
 One authoritative prolonged session per actor/target; progress readiness is not effect completion. Existing task body/design sources remain scope reference, not a parallel state tracker.
 
 ### Current
-M1–M2 are implemented. M2 evidence: [runtime integration](r11_1/milestone_2_prolonged_runtime.md). Next: M3 generic access requirement and reusable open/close/translate state contract.
+M1–M3 are implemented. M3 evidence: [access and openable contracts](r11_1/milestone_3_access_openable.md). Next: M4 physical slots and collision-validated Carry placement.
 
 ### Validation
-M1–M2 have prepared focused GUT coverage (7 progress + 11 session cases). M2 structure validation and diff checks passed; optional formatter unavailable. Runtime execution is intentionally deferred until the complete R11.1 validation stage unless a blocking bug requires earlier evidence.
+User authorized selective GUT/smoke execution on 2026-09-29; avoid repeated/broad checks and request owner gameplay QA for complex or ambiguous scenarios. M1–M2 GUT: 18/18 passed. M3 GUT: 9/9 passed after correcting a fixture to read the live GECS component. Structure validation passed; optional formatter unavailable. Final physics integration checks remain for M4–M5.
 
 ### Owner QA / blockers
 No blocker recorded. Owner visual/gameplay QA remains after runtime integration is complete.
@@ -100,4 +100,4 @@ Physics integration: placement collision validity, неподвижность п
 
 ## Текущий этап
 
-M1 и M2 выполнены: foundation и runtime wiring prolonged interaction. Модель владения: [milestone 1](r11_1/milestone_1_prolonged_foundation.md); реализация, review и проверки M2: [milestone 2](r11_1/milestone_2_prolonged_runtime.md). Следующий этап — M3. R11.1 остаётся открытой; итоговые runtime-проверки и owner QA ещё впереди.
+M1–M3 выполнены: prolonged foundation/runtime, access predicates и общий openable contract. Подробности: [M1](r11_1/milestone_1_prolonged_foundation.md), [M2](r11_1/milestone_2_prolonged_runtime.md), [M3](r11_1/milestone_3_access_openable.md). Следующий этап — M4. R11.1 остаётся открытой; physics integration и owner QA ещё впереди.

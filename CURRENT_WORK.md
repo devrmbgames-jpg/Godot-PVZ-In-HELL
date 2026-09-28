@@ -2,9 +2,9 @@
 
 Active task: [R11.1](agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md)
 Status: **IN_PROGRESS**  
-Checkpoint: M1–M2 implemented; M2 static checks and independent review complete. Runtime verification deferred to final R11.1 validation.
+Checkpoint: M1–M3 implemented. Focused GUT: 18 prolonged + 9 access/openable cases passed. Physics integration remains for M4–M5.
 
-Next: M3 — generic access requirements and reusable open/close/translate contract.
+Next: M4 — physical slots and collision-validated Carry placement. Use selective tests; ask owner for complex/ambiguous gameplay scenarios.
 
 Previous unfinished task: [Developer Console Testing](agent_tasks/developer_console_testing.md), stages 1–8 complete; stage 9 validation remains. Its detailed state is unchanged.
 
