@@ -17,7 +17,7 @@ Add reusable prolonged interaction, access/open-close, physical slot/placement, 
 - [x] M1 — prolonged timing/progress/session foundation.
 - [x] M2 — runtime resolver/input/focus/HUD integration and atomic completion/cleanup.
 - [x] M3 — access requirements and common open/close/translate contract.
-- [ ] M4 — physical slots and collision-validated Carry placement.
+- [x] M4 — physical slots and collision-validated Carry placement.
 - [ ] M5 — hammer anchor/unfix, physics-state restore, support query, final validation.
 
 ### Decisions
@@ -26,13 +26,13 @@ One authoritative prolonged session per actor/target; progress readiness is not 
 M4 clarification: user explicitly permits freezing/turning off physics for stored clothing/shelf items. Slots suspend simulation and collisions and attach the visible Entity to an authored anchor; removal restores its prior settings. Placement remains a one-time, collision-validated alignment with no storage ownership/freeze.
 
 ### Current
-M1–M3 are implemented. M4 implementation is in progress: relationship-owned frozen slots, hand transfers, worn item access and swept Carry placement. Next: focused regression/physics validation and lifecycle review.
+M1–M4 are implemented. M4 adds relationship-owned frozen physical slots, common E/F hand transfers, worn-item access and swept collision-validated Carry placement. Review also corrected the authored player belt slots so they mount to the body root rather than the independent HeadY look axis. Next: M5 — hammer anchor/unfix, reversible physics-state restore and support query.
 
 ### Validation
-User authorized selective GUT/smoke execution on 2026-09-29; avoid repeated/broad checks and request owner gameplay QA for complex or ambiguous scenarios. M1–M2 GUT: 18/18 passed. M3 GUT: 9/9 passed after correcting a fixture to read the live GECS component. Structure validation passed; optional formatter unavailable. Final physics integration checks remain for M4–M5.
+User authorized selective GUT/smoke execution on 2026-09-29; avoid repeated/broad checks and request owner gameplay QA for complex or ambiguous scenarios. M1–M2 GUT: 18/18 passed. M3 GUT: 9/9 passed after correcting a fixture to read the live GECS component. M4 final focused GUT: 10/10 passed, 60 assertions; `physical_slots_placement` headless smoke: PASS; structure validation: PASS. The standalone editor import step still emits unrelated read-only addon diagnostics (GECS `system.gd:418` type inference, Dialogue Manager theme initialization and exit leak diagnostics), so it is not recorded as a clean whole-project import. M5/final integration checks remain.
 
 ### Owner QA / blockers
-No blocker recorded. Owner visual/gameplay QA remains after runtime integration is complete.
+No blocker recorded. No rendered/visual Godot run was performed for M4; owner gameplay/visual QA remains useful for authored belt-slot reach/visibility and placement-area feel.
 
 ---
 
@@ -58,12 +58,12 @@ Branch/base: master / 2d07761.
 
 ## Работы
 
-- [ ] Добавить общий prolonged-interaction contract с progress, default duration 1.5 s и data-driven reset policy: DECAY / INSTANT / ON_COMPLETE / NEVER.
-- [ ] Progress является gameplay state; HUD только отображает его. Прерывание target/control capture/недоступность объекта завершаются по выбранной reset policy без softlock.
-- [ ] Добавить generic access requirement для interactable: required item ID/tag и явный результат allowed/denied. Не встраивать Inventory implementation в Door.
-- [ ] Реализовать reusable open/close/translate state contract, достаточный для дверей и выдвижных элементов; физическое применение конкретных Door/Drawer остаётся R13.
-- [ ] Добавить physical storage/body slots для конкретных Entity. Они отдельны от LEFT_HAND/RIGHT_HAND/CARRY и отдельны от будущего virtual stack Inventory R19.
-- [ ] Добавить authored PlacementSlot/PlacementArea assist для аккуратной установки Carry-объекта. Placement не становится ownership authority и не телепортирует объект сквозь препятствия.
+- [x] Добавить общий prolonged-interaction contract с progress, default duration 1.5 s и data-driven reset policy: DECAY / INSTANT / ON_COMPLETE / NEVER.
+- [x] Progress является gameplay state; HUD только отображает его. Прерывание target/control capture/недоступность объекта завершаются по выбранной reset policy без softlock.
+- [x] Добавить generic access requirement для interactable: required item ID/tag и явный результат allowed/denied. Не встраивать Inventory implementation в Door.
+- [x] Реализовать reusable open/close/translate state contract, достаточный для дверей и выдвижных элементов; физическое применение конкретных Door/Drawer остаётся R13.
+- [x] Добавить physical storage/body slots для конкретных Entity. Они отдельны от LEFT_HAND/RIGHT_HAND/CARRY и отдельны от будущего virtual stack Inventory R19.
+- [x] Добавить authored PlacementSlot/PlacementArea assist для аккуратной установки Carry-объекта. Placement не становится ownership authority и не телепортирует объект сквозь препятствия.
 - [ ] Добавить data-driven возможность зафиксировать физический предмет/мебель в мире Hammer interaction: LMB фиксирует валидный неподвижный target; prolonged F с Hammer снимает фиксацию.
 - [ ] Перед фиксацией требовать устойчивое/достаточно неподвижное физическое состояние; не фиксировать объект во время активного grab/push/control capture.
 - [ ] При снятии фиксации проверить непосредственную поддержку/соседство одним коротким physics query (~0.05 m по фактическому направлению опоры), чтобы не оставлять очевидно зависимые объекты в некорректном состоянии.
@@ -102,4 +102,4 @@ Physics integration: placement collision validity, неподвижность п
 
 ## Текущий этап
 
-M1–M3 выполнены: prolonged foundation/runtime, access predicates и общий openable contract. Подробности: [M1](r11_1/milestone_1_prolonged_foundation.md), [M2](r11_1/milestone_2_prolonged_runtime.md), [M3](r11_1/milestone_3_access_openable.md). Следующий этап — M4. R11.1 остаётся открытой; physics integration и owner QA ещё впереди.
+M1–M4 выполнены: prolonged foundation/runtime, access/openable contracts, physical slots и collision-validated Carry placement. Подробности: [M1](r11_1/milestone_1_prolonged_foundation.md), [M2](r11_1/milestone_2_prolonged_runtime.md), [M3](r11_1/milestone_3_access_openable.md), [M4](r11_1/milestone_4_physical_slots_placement.md). Следующий этап — M5: Hammer anchor/unfix и финальная physics validation. R11.1 остаётся открытой.

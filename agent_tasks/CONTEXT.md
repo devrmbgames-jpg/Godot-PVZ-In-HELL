@@ -4,8 +4,7 @@ This file is the queue/index. It does not replace individual task state.
 
 | Status | Task |
 | --- | --- |
-| **IN_PROGRESS** | [Developer Console Testing](developer_console_testing.md) — current execution focus, Stage 9 validation next |
-| **IN_PROGRESS** | [R11.1 Extended Interactions / Arrangement](roadmap_11_1_extended_interactions_and_arrangement.md) — milestone 1 implemented, runtime integration pending |
+| **IN_PROGRESS** | [R11.1 Extended Interactions / Arrangement](roadmap_11_1_extended_interactions_and_arrangement.md) — M1–M4 implemented; M5 Hammer anchoring/final physics validation next |
 | **DEFERRED** | [R22.5 GECS Architecture Polish](roadmap_22_5_gecs_architecture_polish.md) — resume after feature work R08–R22 is stable |
 | **PLANNED** | [R12 Dialogue Integration](roadmap_12_dialogue_integration.md) |
 | **PLANNED** | [R13 Environment Interactables](roadmap_13_environment_interactables.md) |
