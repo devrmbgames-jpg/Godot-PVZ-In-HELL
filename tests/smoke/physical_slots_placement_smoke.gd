@@ -52,10 +52,10 @@ func _run() -> void:
 	blocker.position = Vector3(10, 1, 0)
 	await _sync_physics()
 	interactor = _actor.get_component(C_Interactor) as C_Interactor
-	var target_ray: RayCast3D = _actor.get("interaction_raycast") as RayCast3D
-	target_ray.global_position = Vector3(0, 1, 0)
-	target_ray.target_position = Vector3(0, 0, -3)
+	ray.target_position = Vector3(0, 0, -3)
+	anchor.position = Vector3(0, 1, -1)
 	var carried_body: RigidBody3D = GrabService.physical_body(item)
+	assert(carried_body != null)
 	carried_body.global_position = Vector3(0, 1, -1)
 	await _sync_physics()
 	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
