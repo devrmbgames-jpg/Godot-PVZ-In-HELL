@@ -1,0 +1,71 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/entities/props/e_physical_slot.gd" id="Entity"]
+[ext_resource type="Script" path="res://content/components/interaction/c_physical_slot.gd" id="Slot"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_physical_slot_action.gd" id="Action"]
+
+[sub_resource type="Resource" id="Slot"]
+script = ExtResource("Slot")
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="StorePrimary"]
+script = ExtResource("Action")
+action_id = &"store_primary"
+slot = 0
+caption = "В слот · основная рука"
+
+[sub_resource type="Resource" id="StoreSecondary"]
+script = ExtResource("Action")
+action_id = &"store_secondary"
+slot = 1
+caption = "В слот · вторая рука"
+secondary_hand = true
+
+[sub_resource type="Resource" id="TakePrimary"]
+script = ExtResource("Action")
+action_id = &"take_primary"
+slot = 0
+caption = "Из слота · основная рука"
+take = true
+
+[sub_resource type="Resource" id="TakeSecondary"]
+script = ExtResource("Action")
+action_id = &"take_secondary"
+slot = 1
+caption = "Из слота · вторая рука"
+secondary_hand = true
+take = true
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("Actions")
+actions = [SubResource("StorePrimary"), SubResource("StoreSecondary"), SubResource("TakePrimary"), SubResource("TakeSecondary")]
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.22, 0.18, 0.16)
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+albedo_color = Color(0.24, 0.29, 0.18, 1)
+
+[sub_resource type="BoxMesh" id="Mesh"]
+size = Vector3(0.22, 0.12, 0.16)
+material = SubResource("Material")
+
+[node name="PhysicalSlot" type="StaticBody3D" node_paths=PackedStringArray("anchor")]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("Entity")
+anchor = NodePath("Anchor")
+component_resources = [SubResource("Slot"), SubResource("Interactable"), SubResource("Actions")]
+
+[node name="Anchor" type="Marker3D" parent="."]
+position = Vector3(0, 0.12, 0)
+
+[node name="Target" type="CollisionShape3D" parent="."]
+shape = SubResource("Shape")
+
+[node name="Visual" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh")

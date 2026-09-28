@@ -1,5 +1,8 @@
 [gd_scene format=3 uid="uid://b357k3h2k7kuh"]
 
+[ext_resource type="Script" path="res://content/observers/interaction/o_physical_slot_lifecycle.gd" id="PhysicalSlot_lifecycle"]
+[ext_resource type="PackedScene" path="res://content/entities/props/placement_area.tscn" id="PlacementArea"]
+
 [ext_resource type="Script" path="res://content/systems/interaction/s_prolonged_decay.gd" id="Prolonged_decay"]
 [ext_resource type="Script" path="res://content/observers/interaction/o_prolonged_lifecycle.gd" id="Prolonged_lifecycle"]
 
@@ -434,6 +437,9 @@ group = &"Interaction"
 
 [node name="O_ProlongedLifecycle" type="Node" parent="World/Systems/Interaction"]
 script = ExtResource("Prolonged_lifecycle")
+
+[node name="O_PhysicalSlotLifecycle" type="Node" parent="World/Systems/Interaction"]
+script = ExtResource("PhysicalSlot_lifecycle")
 
 [node name="S_Grab" type="Node" parent="World/Systems/Interaction" unique_id=767923781]
 script = ExtResource("Grab_system")
@@ -972,6 +978,9 @@ omni_range = 7.915
 transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, 6.445291, 0, -7.0047317)
 
 [node name="Entityes" type="Node3D" parent="." unique_id=118950221]
+
+[node name="CarryPlacement" parent="Entityes" instance=ExtResource("PlacementArea")]
+position = Vector3(3.5, 0.02, -5.5)
 
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)

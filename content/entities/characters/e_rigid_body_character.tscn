@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://dxkg7ovkuxd0i"]
 
+[ext_resource type="PackedScene" path="res://content/entities/props/physical_slot.tscn" id="PhysicalSlot"]
+
 [ext_resource type="Script" uid="uid://xrbedgy0nakm" path="res://content/entities/characters/e_rigid_body_character.gd" id="1_hqtr2"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_uo1oq"]
 [ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="3_lm6lx"]
@@ -213,6 +215,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)
 
 [node name="HeadX" type="Marker3D" parent="HeadY" unique_id=2113340697]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11703396, 0)
+
+[node name="BeltSlotLeft" parent="HeadY" instance=ExtResource("PhysicalSlot")]
+position = Vector3(-0.25, -0.6, -0.35)
+
+[node name="BeltSlotRight" parent="HeadY" instance=ExtResource("PhysicalSlot")]
+position = Vector3(0.25, -0.6, -0.35)
 
 [node name="HeadRoot" type="Marker3D" parent="HeadY/HeadX" unique_id=406904122]
 

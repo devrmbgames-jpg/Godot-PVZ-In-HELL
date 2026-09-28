@@ -29,7 +29,7 @@ static func evaluate(actor: Entity, requirement: DEF_AccessRequirement) -> Acces
 		)
 		return result
 	var config: C_ItemAccess = actor.get_component(C_ItemAccess) as C_ItemAccess
-	var providers: Array[DEF_ItemAccessProvider] = [DEF_HeldItemAccess.new()]
+	var providers: Array[DEF_ItemAccessProvider] = [DEF_HeldItemAccess.new(), DEF_WornItemAccess.new()]
 	if config != null and not config.providers.is_empty():
 		providers = config.providers
 	for provider: DEF_ItemAccessProvider in providers:

@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/smoke/physical_slots_placement_smoke.gd" id="1"]
+
+[node name="PhysicalSlotsPlacementSmoke" type="Node"]
+script = ExtResource("1")

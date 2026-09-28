@@ -63,6 +63,7 @@ static func can_pickup_body(
 	slot_index: int,
 	replace: bool = false,
 	handle: Entity = null,
+	storage_binding: Relationship = null,
 ) -> bool:
 	if not holder_available(holder) or not is_instance_valid(body):
 		return false
@@ -71,7 +72,7 @@ static func can_pickup_body(
 
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
-	if control == null or load_state == null or body.freeze:
+	if control == null or load_state == null or (body.freeze and storage_binding == null):
 		return false
 
 	var resolved_handle: Entity = handle
@@ -79,6 +80,8 @@ static func can_pickup_body(
 		resolved_handle = PhysicsGrabTarget.handle_for(body, false)
 	if resolved_handle != null:
 		if not entity_available(resolved_handle) or held_relationship(resolved_handle) != null:
+			return false
+		if PhysicalSlotService.relationship(resolved_handle) != storage_binding:
 			return false
 		var interactable: C_Interactable = (
 			resolved_handle.get_component(C_Interactable) as C_Interactable
@@ -96,6 +99,14 @@ static func can_pickup_body(
 		return false
 	if held_in_slot(holder, slot_index) != null and not replace:
 		return false
+	if storage_binding != null:
+		var stored: R_StoredIn = storage_binding.relation as R_StoredIn
+		var storage_slot: E_PhysicalSlot = storage_binding.target as E_PhysicalSlot
+		return (
+			stored != null and stored.applied and stored.snapshot != null
+			and slot_index != C_Grabbable.HoldSlot.CARRY
+			and PhysicalSlotService.can_use(holder, storage_slot)
+		)
 	return within_pickup_reach_body(holder, body)
 
 
@@ -115,6 +126,26 @@ static func try_pickup(
 		slot_index = pickup_slot_for_body(holder, body, false)
 	if not can_pickup(holder, target, slot_index, replace):
 		return false
+	return _acquire_validated(holder, target, slot_index)
+
+
+## Storage uses its target's raycast, since the frozen item has no collider.
+static func can_take_from_storage(holder: Entity, target: Entity, slot_index: int, replace: bool = false) -> bool:
+	var binding: Relationship = PhysicalSlotService.relationship(target)
+	if binding == null:
+		return false
+	return can_pickup_body(holder, physical_body(target), slot_index, replace, target, binding)
+
+
+static func take_from_storage(holder: Entity, target: Entity, slot_index: int, replace: bool = false) -> bool:
+	if not can_take_from_storage(holder, target, slot_index, replace):
+		return false
+	PhysicalSlotService.release(target)
+	return _acquire_validated(holder, target, slot_index)
+
+
+static func _acquire_validated(holder: Entity, target: Entity, slot_index: int) -> bool:
+	var body: RigidBody3D = physical_body(target)
 
 	ThrowContext.cancel(target)
 	CartCargoService.release(target)
@@ -257,6 +288,7 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var profile: GrabControlProfile = _grip_profile(held, grip_data)
 	var is_invalid: bool = (
 		not holder_available(holder) or not entity_available(held) or body == null
+		or PhysicalSlotService.relationship(held) != null
 		or body.freeze or profile == null or not is_instance_valid(object_anchor(holder, held))
 	)
 	if is_invalid:

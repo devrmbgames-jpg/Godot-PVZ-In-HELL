@@ -23,8 +23,10 @@ Add reusable prolonged interaction, access/open-close, physical slot/placement, 
 ### Decisions
 One authoritative prolonged session per actor/target; progress readiness is not effect completion. Existing task body/design sources remain scope reference, not a parallel state tracker.
 
+M4 clarification: user explicitly permits freezing/turning off physics for stored clothing/shelf items. Slots suspend simulation and collisions and attach the visible Entity to an authored anchor; removal restores its prior settings. Placement remains a one-time, collision-validated alignment with no storage ownership/freeze.
+
 ### Current
-M1–M3 are implemented. M3 evidence: [access and openable contracts](r11_1/milestone_3_access_openable.md). Next: M4 physical slots and collision-validated Carry placement.
+M1–M3 are implemented. M4 implementation is in progress: relationship-owned frozen slots, hand transfers, worn item access and swept Carry placement. Next: focused regression/physics validation and lifecycle review.
 
 ### Validation
 User authorized selective GUT/smoke execution on 2026-09-29; avoid repeated/broad checks and request owner gameplay QA for complex or ambiguous scenarios. M1–M2 GUT: 18/18 passed. M3 GUT: 9/9 passed after correcting a fixture to read the live GECS component. Structure validation passed; optional formatter unavailable. Final physics integration checks remain for M4–M5.

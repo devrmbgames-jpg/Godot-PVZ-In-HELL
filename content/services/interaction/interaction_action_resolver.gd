@@ -151,6 +151,9 @@ static func resolve(
 	var carry: Entity = GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY)
 	if focus == InteractionControlFocus.Priority.CARRY:
 		if input_slot == DEF_InteractionAction.Slot.INTERACT:
+			var placement: InteractionActionChoice = _from_source(actor, target, target, input_slot)
+			if placement != null and placement.action is DEF_CarryPlacementAction:
+				return placement
 			return _physical(actor, carry, DEF_GrabAction.Kind.RELEASE)
 
 		if input_slot == DEF_InteractionAction.Slot.PRIMARY:
@@ -403,6 +406,9 @@ static func _target_action(
 	var action: InteractionActionChoice = _from_source(actor, target, target, input_slot)
 	if action == null and input_slot == DEF_InteractionAction.Slot.INTERACT:
 		action = _from_source(actor, target, target, DEF_InteractionAction.Slot.USE)
+		# Slot E/F name distinct hands, so F must not be aliased onto an empty E.
+		if action != null and action.action is DEF_PhysicalSlotAction:
+			return null
 	elif action != null and input_slot == DEF_InteractionAction.Slot.USE:
 		var primary: InteractionActionChoice = resolve(actor, DEF_InteractionAction.Slot.INTERACT)
 		if primary != null and primary.action == action.action and primary.source == action.source:
