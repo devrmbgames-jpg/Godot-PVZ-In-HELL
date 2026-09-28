@@ -1,0 +1,62 @@
+name: R11.1 M4 validation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - content/components/interaction/c_physical_slot.gd
+      - content/components/interaction/c_placement_area.gd
+      - content/contracts/interaction/stored_body_snapshot.gd
+      - content/definitions/interaction/def_carry_placement_action.gd
+      - content/definitions/interaction/def_physical_slot_action.gd
+      - content/definitions/interaction/def_worn_item_access.gd
+      - content/entities/props/e_physical_slot.gd
+      - content/entities/props/e_placement_area.gd
+      - content/entities/props/physical_slot.tscn
+      - content/entities/props/placement_area.tscn
+      - content/observers/interaction/o_physical_slot_lifecycle.gd
+      - content/relationships/interaction/r_slot_mounted_on.gd
+      - content/relationships/interaction/r_stored_in.gd
+      - content/services/interaction/body_placement_query.gd
+      - content/services/interaction/carry_placement_service.gd
+      - content/services/interaction/grab_service.gd
+      - content/services/interaction/physical_slot_service.gd
+      - tests/gut/test_physical_slots.gd
+      - tests/smoke/physical_slots_placement_smoke.gd
+      - tests/smoke/physical_slots_placement_smoke.tscn
+      - .github/workflows/r11_1_m4_validation.yml
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Godot 4.7.1
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.1
+          use-dotnet: false
+          include-templates: false
+
+      - name: Verify Godot
+        run: godot --version
+
+      - name: Import project
+        run: godot --headless --path . --import --quit
+
+      - name: Focused R11.1 M4 GUT
+        run: >-
+          godot --headless --path .
+          -s addons/gut/gut_cmdln.gd
+          -gdir=res://tests/gut
+          -gselect test_physical_slots.gd
+          -gexit
+
+      - name: R11.1 M4 placement smoke
+        shell: pwsh
+        run: ./utils/run_smoke.ps1 -Name physical_slots_placement
