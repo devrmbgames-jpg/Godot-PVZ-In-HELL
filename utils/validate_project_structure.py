@@ -43,6 +43,10 @@ RES_PATH_RE = re.compile(r"""["'](res://[^"']+)["']""")
 MARKDOWN_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 TASK_HEADING_RE = re.compile(r"^#\s+(R\d+(?:\.\d+)?)\b", re.MULTILINE)
 TASK_DEPENDENCIES_RE = re.compile(r"^Зависимости:\s*(.+)$", re.MULTILINE)
+TASK_STATUS_RE = re.compile(
+    r"^Status:\s*\*\*(PLANNED|IN_PROGRESS|DEFERRED|BLOCKED|OWNER_QA|DONE)\*\*$",
+    re.MULTILINE,
+)
 IMPLEMENTATION_ID_RE = re.compile(r"\bR\d+(?:\.\d+)?\b")
 BEHAVIOR_PRIVATE_ROOTS: tuple[str, ...] = (
     "content/entities",
@@ -358,6 +362,32 @@ def _check_markdown_links(errors: list[str]) -> None:
                 )
 
 
+def _check_task_state_contract(errors: list[str]) -> None:
+    task_root: Path = ROOT / "agent_tasks"
+    if not task_root.exists():
+        return
+
+    index_path: Path = task_root / "CONTEXT.md"
+    if not index_path.exists():
+        errors.append("agent_tasks/CONTEXT.md is missing; task queue/status index is required.")
+
+    for task_path in sorted(task_root.glob("*.md")):
+        if task_path.name in {"README.md", "CONTEXT.md"}:
+            continue
+
+        text: str = _read_text(task_path)
+        if TASK_STATUS_RE.search(text) is None:
+            errors.append(
+                f"{_relative(task_path)}: missing normalized task status "
+                "(PLANNED/IN_PROGRESS/DEFERRED/BLOCKED/OWNER_QA/DONE)."
+            )
+        if "## Task state" not in text:
+            errors.append(f"{_relative(task_path)}: missing authoritative '## Task state' block.")
+        for heading in ("### Goal", "### Current", "### Validation", "### Owner QA / blockers"):
+            if heading not in text:
+                errors.append(f"{_relative(task_path)}: task state is missing {heading!r}.")
+
+
 def _check_task_dependencies(errors: list[str]) -> None:
     task_root: Path = ROOT / "agent_tasks"
     task_files: list[Path] = sorted(task_root.glob("roadmap_*.md"))
@@ -439,6 +469,7 @@ def main() -> int:
     _check_uid_pairs(errors)
     _check_res_paths(errors)
     _check_markdown_links(errors)
+    _check_task_state_contract(errors)
     _check_task_dependencies(errors)
     _check_staged_addons(errors)
 
