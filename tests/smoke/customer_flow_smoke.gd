@@ -65,7 +65,9 @@ func _run() -> void:
 	assert(PackageRegistrationService.smallest_free_number(PackageRegistrationService.ledger()) == number)
 	var terminal: E_Terminal = _level.get_node("Entityes/Terminal") as E_Terminal
 	terminal.open_for(actor)
-	var taken: Button = terminal.get_node("TerminalPanel/Root/Panel/Margin/Rows/Closeout/Taken") as Button
+	var first_line: UI_TerminalButtonPackage = _terminal_line_for(terminal, first.package_id)
+	assert(first_line != null)
+	var taken: Button = first_line.get_node("%ButtonOK") as Button
 	taken.pressed.emit()
 	taken.pressed.emit()
 	assert(first.declaration == CustomerVisit.Declaration.TAKEN)
@@ -83,7 +85,6 @@ func _run() -> void:
 	assert(second.actual == CustomerVisit.Actual.CUSTOMER_REFUSED)
 	assert(is_instance_valid(glass))
 	assert(CustomerFlowService.declare(second.visit_id, CustomerVisit.Declaration.REFUSED))
-	assert(not CustomerFlowService.dispose_refusal(second.visit_id, false))
 	_register(clothes)
 	customer = await _wait_for_customer()
 	var third: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
@@ -110,12 +111,10 @@ func _run() -> void:
 	assert(_cycle.day_index == 2 and _cycle.phase == C_DayCycle.Phase.MORNING)
 	assert(third.complaint.outcome == CustomerComplaint.Outcome.CONFIRMED)
 	assert(second.complaint.outcome == CustomerComplaint.Outcome.CONFIRMED)
-	var before_return: int = WalletService.current().balance
-	assert(CustomerFlowService.dispose_refusal(second.visit_id, false))
-	assert(second.disposition == CustomerVisit.Disposition.RETURNED)
-	assert(WalletService.current().balance == before_return)
-	assert(PackageRegistrationService.ledger().last_departed_package_id == second.package_id)
-	assert("Возвращена" in PackageRegistrationService.terminal_text())
+	var glass_record: PackageRegistrationRecord = _registration_for_package(second.package_id)
+	assert(glass_record != null and glass_record.active)
+	assert(second.disposition == CustomerVisit.Disposition.WAREHOUSE)
+	assert(is_instance_valid(glass))
 	assert(is_instance_valid(late))
 	assert((late.get_component(C_PackageState) as C_PackageState).registration_number == late_number)
 	assert(CustomerFlowService.find_visit(&"visit/base_supply:1:equipment").arrival_day == 11)
@@ -169,6 +168,7 @@ func _register(parcel: Entity) -> void:
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = identity.package_id
+	record.history_id = identity.history_id
 	record.definition = identity.definition
 	record.number = PackageRegistrationService.smallest_free_number(ledger)
 	record.day_index = _cycle.day_index
@@ -177,3 +177,22 @@ func _register(parcel: Entity) -> void:
 	state.scan = C_PackageState.Scan.SCANNED
 	state.registration_number = record.number
 	state.registration_day = _cycle.day_index
+
+
+func _terminal_line_for(terminal: E_Terminal, package_id: String) -> UI_TerminalButtonPackage:
+	var package_list: VBoxContainer = terminal.get_node("TerminalPanel/%PackageList") as VBoxContainer
+	for child: Node in package_list.get_children():
+		var line: UI_TerminalButtonPackage = child as UI_TerminalButtonPackage
+		if line != null and line.package_id() == package_id:
+			return line
+	return null
+
+
+func _registration_for_package(package_id: String) -> PackageRegistrationRecord:
+	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	if ledger == null:
+		return null
+	for record: PackageRegistrationRecord in ledger.records:
+		if record.package_id == package_id:
+			return record
+	return null

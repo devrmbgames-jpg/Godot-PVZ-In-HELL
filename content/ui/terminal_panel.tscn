@@ -74,76 +74,6 @@ anchor_right = 0.9
 anchor_bottom = 0.92
 theme_override_styles/panel = SubResource("PanelStyle")
 
-[node name="Margin" type="MarginContainer" parent="Root/Panel" unique_id=1889686531]
-visible = false
-layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 20
-
-[node name="Rows" type="VBoxContainer" parent="Root/Panel/Margin" unique_id=1177298789]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="Title" type="Label" parent="Root/Panel/Margin/Rows" unique_id=724911729]
-layout_mode = 2
-theme_override_font_sizes/font_size = 26
-
-[node name="Hint" type="Label" parent="Root/Panel/Margin/Rows" unique_id=1593436942]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Номер · содержимое · комментарий · состояние
-Место хранения выбираете и запоминаете вы."
-
-[node name="Registry" type="RichTextLabel" parent="Root/Panel/Margin/Rows" unique_id=774275299]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_font_sizes/normal_font_size = 20
-
-[node name="Visits" type="OptionButton" parent="Root/Panel/Margin/Rows" unique_id=1163404130]
-layout_mode = 2
-
-[node name="VisitSummary" type="Label" parent="Root/Panel/Margin/Rows" unique_id=1406894650]
-layout_mode = 2
-autowrap_mode = 2
-
-[node name="Closeout" type="HBoxContainer" parent="Root/Panel/Margin/Rows" unique_id=1759003723]
-layout_mode = 2
-
-[node name="Taken" type="Button" parent="Root/Panel/Margin/Rows/Closeout" unique_id=657114122]
-layout_mode = 2
-text = "Забрал"
-
-[node name="Refused" type="Button" parent="Root/Panel/Margin/Rows/Closeout" unique_id=385892768]
-layout_mode = 2
-text = "Отказался"
-
-[node name="Lost" type="Button" parent="Root/Panel/Margin/Rows/Closeout" unique_id=493013515]
-layout_mode = 2
-text = "Потеряна"
-
-[node name="Deny" type="Button" parent="Root/Panel/Margin/Rows/Closeout" unique_id=1610573367]
-layout_mode = 2
-text = "Отказать в выдаче"
-
-[node name="Buyout" type="Button" parent="Root/Panel/Margin/Rows/Closeout" unique_id=2097264012]
-layout_mode = 2
-text = "Выкупить отказную"
-
-[node name="Return" type="Button" parent="Root/Panel/Margin/Rows/Closeout" unique_id=1218006202]
-layout_mode = 2
-text = "Вернуть утром"
-
-[node name="ActionFeedback" type="Label" parent="Root/Panel/Margin/Rows" unique_id=1155788935]
-layout_mode = 2
-autowrap_mode = 2
-
-[node name="Close" type="Button" parent="Root/Panel/Margin/Rows" unique_id=384322353]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Закрыть  [E / Esc]"
-
 [node name="NewUI" type="MarginContainer" parent="Root/Panel" unique_id=1240099320]
 unique_name_in_owner = true
 layout_mode = 2
@@ -254,12 +184,14 @@ editor_description = "Детальная информация об посылк�
 layout_mode = 2
 
 [node name="PanelLogHistory" parent="Root/Panel/NewUI/HBoxContainer/VBoxContainer/InfoContainer" unique_id=1303871094 instance=ExtResource("12_7hkf1")]
+unique_name_in_owner = true
 editor_description = "Лог истории об посылках в простом тексте
 "
 visible = false
 layout_mode = 2
 
 [node name="PanelLogTransaction" parent="Root/Panel/NewUI/HBoxContainer/VBoxContainer/InfoContainer" unique_id=1415936097 instance=ExtResource("12_7hkf1")]
+unique_name_in_owner = true
 editor_description = "Лог прихода/расхода денег"
 visible = false
 layout_mode = 2

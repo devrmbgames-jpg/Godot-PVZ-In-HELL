@@ -429,37 +429,6 @@ static func enter_aggressive(customer: E_Customer) -> bool:
 	return true
 
 
-static func dispose_refusal(visit_id: StringName, buyout: bool) -> bool:
-	var visit: CustomerVisit = find_visit(visit_id)
-	var cycle: C_DayCycle = DayPhaseService.current()
-	if visit == null or cycle == null or visit.actual != CustomerVisit.Actual.CUSTOMER_REFUSED:
-		return false
-	if visit.disposition != CustomerVisit.Disposition.WAREHOUSE:
-		return false
-	var parcel: Entity = parcel_for(visit.package_id)
-	if parcel == null or GrabService.held_relationship(parcel) != null:
-		return false
-	if buyout:
-		var wallet: C_Wallet = WalletService.current()
-		var operation: MoneyOperation = WalletService.package_settlement(wallet, StringName("buyout/" + String(visit.visit_id)), MoneyOperation.Reason.VOLUNTARY_BUYOUT, visit.accounting_value, cycle.day_index)
-		var result: WalletService.Status = WalletService.submit(operation)
-		if result != WalletService.Status.COMMITTED and result != WalletService.Status.DUPLICATE:
-			return false
-		visit.money_delta -= operation.amount
-		visit.disposition = CustomerVisit.Disposition.BOUGHT_OUT
-	else:
-		if cycle.phase != C_DayCycle.Phase.MORNING or not visit.finished or cycle.day_index <= visit.finished_day:
-			return false
-		var station: E_DeliveryCounter = counter()
-		if station == null or not station.parcels().has(parcel):
-			return false
-		visit.disposition = CustomerVisit.Disposition.RETURNED
-	_depart_parcel(parcel, C_PackageState.Registration.BOUGHT_OUT if buyout else C_PackageState.Registration.RETURNED)
-	if not buyout:
-		ECS.world.remove_entity(parcel)
-	return true
-
-
 static func _depart_parcel(parcel: Entity, departure: C_PackageState.Registration = C_PackageState.Registration.DELIVERED) -> void:
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	state.registration = departure

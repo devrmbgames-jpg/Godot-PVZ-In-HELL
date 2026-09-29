@@ -106,13 +106,23 @@ func _run() -> void:
 	assert(InteractionTargetingService.find_target(actor, interactor) == terminal)
 	_drive(actor, true, false, false)
 	assert(terminal.is_panel_open())
-	assert(
-		"\u2116001" in terminal.registry_text() and "\u2116002" in terminal.registry_text()
-	)
-	assert(
-		"Хрупкое" in terminal.registry_text()
-		and "Опасное содержимое" in terminal.registry_text()
-	)
+	var terminal_panel: TerminalPanel = terminal.get_node("TerminalPanel") as TerminalPanel
+	var package_list: VBoxContainer = terminal_panel.get_node("%PackageList") as VBoxContainer
+	assert(package_list.get_child_count() == 2)
+	var found_number_one: bool = false
+	var found_number_two: bool = false
+	var found_fragile: bool = false
+	var found_hazard: bool = false
+	for child: Node in package_list.get_children():
+		var package_line: UI_TerminalButtonPackage = child as UI_TerminalButtonPackage
+		assert(package_line != null)
+		var number_label: Label = package_line.get_node("%LabelNumber") as Label
+		found_number_one = found_number_one or number_label.text == "№001"
+		found_number_two = found_number_two or number_label.text == "№002"
+		found_fragile = found_fragile or (package_line.get_node("%IconFragile") as Control).visible
+		found_hazard = found_hazard or (package_line.get_node("%IconAnomaly") as Control).visible
+	assert(found_number_one and found_number_two)
+	assert(found_fragile and found_hazard)
 	if OS.get_cmdline_user_args().has("--preview"):
 		await RenderingServer.frame_post_draw
 		var screenshot: Image = get_viewport().get_texture().get_image()
@@ -173,12 +183,12 @@ func _run() -> void:
 		ECS.world.process(1.0 / 60.0, "GamePlay")
 	assert(ECS.world.query.with_all([C_Package]).execute().size() == 16)
 	assert((first as Node as Node3D).global_position.is_equal_approx(previous_location))
-	assert("\u2116001" in PackageRegistrationService.terminal_text())
+	assert(_has_active_number(registry, 1))
 	var next_day_parcel: Entity = level.get_node("Entityes/Parcel_002_01") as Entity
 	await _prepare_target(actor, next_day_parcel, Vector3(0.0, -0.2, -2.2))
 	assert(InteractionTargetingService.find_target(actor, interactor) == next_day_parcel)
 	assert(PackageRegistrationService.scan(actor, scanner, next_day_parcel).number == 3)
-	assert("\u2116003" in PackageRegistrationService.terminal_text())
+	assert(_has_active_number(registry, 3))
 	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
 	assert(InteractionTargetingService.find_target(actor, interactor) == first)
 	assert(PackageRegistrationService.scan(actor, scanner, first).number == 1)
@@ -189,7 +199,7 @@ func _run() -> void:
 	assert(not PackageRegistrationService.release_number(first))
 	assert(PackageRegistrationService.smallest_free_number(registry) == 1)
 	assert(registry.records[1].active and registry.records[1].number == 2)
-	assert("\u2116001" in PackageRegistrationService.terminal_text())
+	assert(registry.last_departed_package_id == (first.get_component(C_Package) as C_Package).package_id)
 	var replacement: Entity = level.get_node("Entityes/Parcel_002_02") as Entity
 	await _prepare_target(actor, replacement, Vector3(0.0, -0.2, -2.2))
 	assert(PackageRegistrationService.scan(actor, scanner, replacement).number == 1)
@@ -225,3 +235,10 @@ func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> v
 	ray.force_raycast_update()
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingService.find_target(actor, interactor)
+
+
+func _has_active_number(registry: C_PackageLedger, number: int) -> bool:
+	for record: PackageRegistrationRecord in registry.records:
+		if record.active and record.number == number:
+			return true
+	return false

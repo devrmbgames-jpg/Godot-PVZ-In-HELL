@@ -15,7 +15,3 @@ func close_panel() -> void:
 
 func is_panel_open() -> bool:
 	return _panel.visible
-
-
-func registry_text() -> String:
-	return _panel.get_registry_text()

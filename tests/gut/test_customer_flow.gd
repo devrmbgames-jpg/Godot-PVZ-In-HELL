@@ -273,7 +273,7 @@ func test_live_assignment_is_relationship_and_disappears_with_customer() -> void
 	assert_eq(visit.package_id, "shipment1")
 
 
-func test_buyout_is_once_keeps_physical_entity_and_releases_number() -> void:
+func test_customer_refusal_keeps_package_and_number_until_physical_departure() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	visit.actual = CustomerVisit.Actual.CUSTOMER_REFUSED
 	var parcel: Entity = _live_parcel(visit)
@@ -281,14 +281,12 @@ func test_buyout_is_once_keeps_physical_entity_and_releases_number() -> void:
 	record.package_id = visit.package_id
 	record.number = 1
 	PackageRegistrationService.ledger().records.append(record)
-	assert_true(CustomerFlowService.dispose_refusal(visit.visit_id, true))
-	assert_false(CustomerFlowService.dispose_refusal(visit.visit_id, true))
-	assert_eq(WalletService.current().balance, -100)
+
 	assert_true(is_instance_valid(parcel))
-	assert_false(record.active)
-	assert_eq(record.departure, C_PackageState.Registration.BOUGHT_OUT)
-	assert_eq(visit.disposition, CustomerVisit.Disposition.BOUGHT_OUT)
-	assert_eq(PackageRegistrationService.smallest_free_number(PackageRegistrationService.ledger()), 1)
+	assert_true(record.active)
+	assert_eq(visit.disposition, CustomerVisit.Disposition.WAREHOUSE)
+	assert_eq(WalletService.current().balance, 0)
+	assert_eq(PackageRegistrationService.smallest_free_number(PackageRegistrationService.ledger()), 2)
 
 
 func test_disappeared_customer_finishes_event_without_releasing_package_number() -> void:

@@ -53,7 +53,10 @@ func _run() -> void:
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	assert(state.registration_number == 1, "Scan before drawing must register the package")
 	(scanner.get_node("Feedback/Beep") as AudioStreamPlayer3D).stop()
-	var registry_text: String = PackageRegistrationService.terminal_text()
+	var registry: C_PackageLedger = PackageRegistrationService.ledger()
+	assert(registry != null and registry.records.size() == 1)
+	var registered_package_id: String = registry.records[0].package_id
+	var registered_number: int = registry.records[0].number
 	var marker: C_Marker = marker_tool.get_component(C_Marker) as C_Marker
 	_drive(actor, false, true)
 	assert(marker.capture_token != 0, "Left hand starts on RMB")
@@ -157,10 +160,10 @@ func _run() -> void:
 		"Front ink must sit outside the visible mesh, not inside its collider tolerance",
 	)
 	await _store_on_shelf(level, actor, parcel_body, marks, camera)
-	assert(
-		PackageRegistrationService.terminal_text() == registry_text,
-		"Storage must not disclose shelf placement to Terminal",
-	)
+	assert(registry.records.size() == 1)
+	assert(registry.records[0].package_id == registered_package_id)
+	assert(registry.records[0].number == registered_number)
+	assert(registry.records[0].active, "Storage placement must not change registry lifecycle")
 
 	var damage: DamageRequest = DamageRequest.new()
 	damage.target = parcel

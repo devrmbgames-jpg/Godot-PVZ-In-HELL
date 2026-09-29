@@ -42,6 +42,7 @@ func present(
 	state: C_PackageState,
 	visit: CustomerVisit,
 	selected: bool,
+	actions_enabled: bool = true,
 ) -> void:
 	_package_id = record.package_id
 	_button_body.set_pressed_no_signal(selected)
@@ -63,7 +64,8 @@ func present(
 		_set_status_icons(definition)
 
 	var can_declare: bool = (
-		visit != null
+		actions_enabled
+		and visit != null
 		and visit.started
 		and visit.declaration == CustomerVisit.Declaration.NONE
 	)
