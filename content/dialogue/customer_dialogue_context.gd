@@ -112,6 +112,23 @@ func dialogue_cue() -> String:
 	return "direct"
 
 
+func apply_response_tags(tags: Array[String]) -> bool:
+	var intent: CustomerDialogueIntent.Type = CustomerDialogueIntent.from_tags(tags)
+	if intent == CustomerDialogueIntent.Type.NONE:
+		return true
+	var visit: CustomerVisit = _visit()
+	return CustomerOutcomeService.apply_dialogue_intent(visit, intent)
+
+
+func commit_denial() -> bool:
+	return is_valid() and CustomerFlowService.deny(_visit_id)
+
+
+func is_followup() -> bool:
+	var visit: CustomerVisit = _visit()
+	return visit != null and visit.visit_count > 1
+
+
 func answer_riddle_wrong() -> bool:
 	var visit: CustomerVisit = _visit()
 	if visit == null or visit.definition == null:

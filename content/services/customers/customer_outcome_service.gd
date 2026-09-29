@@ -55,6 +55,51 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck) ->
 	return true
 
 
+static func apply_dialogue_intent(
+	visit: CustomerVisit,
+	intent: CustomerDialogueIntent.Type,
+) -> bool:
+	if visit == null or visit.definition == null or intent == CustomerDialogueIntent.Type.NONE:
+		return false
+	visit.last_dialogue_intent = intent
+	var intent_bit: int = CustomerDialogueIntent.bit(intent)
+	if intent_bit != 0 and bool(visit.applied_dialogue_intents & intent_bit):
+		return true
+
+	for reaction: DEF_CustomerDialogueReaction in visit.definition.dialogue_reactions:
+		if reaction == null or reaction.intent != intent:
+			continue
+		visit.dialogue_satisfaction_delta += reaction.satisfaction_delta
+		visit.complaint_probability_delta += reaction.complaint_probability_delta
+		visit.aggression_probability_delta += reaction.aggression_probability_delta
+		visit.followup_probability_delta += reaction.followup_probability_delta
+		break
+
+	if intent_bit != 0:
+		visit.applied_dialogue_intents |= intent_bit
+	return true
+
+
+static func commit_player_denial(visit: CustomerVisit) -> bool:
+	if (
+		visit == null
+		or visit.definition == null
+		or visit.finished
+		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+	):
+		return false
+	visit.actual = CustomerVisit.Actual.PLAYER_DENIED
+	visit.reputation = CustomerVisit.Reputation.PLAYER_DENIAL
+	visit.player_denial_count += 1
+	var probability: float = clampf(
+		visit.definition.immediate_aggression_probability + visit.aggression_probability_delta,
+		0.0,
+		1.0,
+	)
+	visit.aggressive = visit.aggression_roll < probability
+	return true
+
+
 static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> bool:
 	if not visit.started or value == CustomerVisit.Declaration.NONE:
 		return false
@@ -63,15 +108,18 @@ static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> b
 	if visit.declaration != CustomerVisit.Declaration.NONE:
 		return visit.declaration == value
 	visit.declaration = value
-	if visit.actual == CustomerVisit.Actual.NOT_RESOLVED and value != CustomerVisit.Declaration.TAKEN:
-		visit.actual = CustomerVisit.Actual.PLAYER_DENIED
 	if value == CustomerVisit.Declaration.LOST:
 		visit.loss_cause = CustomerVisit.LossCause.DECLARED_LOST
 		visit.reputation = CustomerVisit.Reputation.LOST
 	elif visit.actual == CustomerVisit.Actual.PLAYER_DENIED:
 		visit.reputation = CustomerVisit.Reputation.PLAYER_DENIAL
 	if value == CustomerVisit.Declaration.TAKEN and visit.actual != CustomerVisit.Actual.DELIVERED:
-		visit.aggressive = visit.aggression_roll < visit.definition.immediate_aggression_probability
+		var probability: float = clampf(
+			visit.definition.immediate_aggression_probability + visit.aggression_probability_delta,
+			0.0,
+			1.0,
+		)
+		visit.aggressive = visit.aggression_roll < probability
 	return true
 
 
@@ -145,10 +193,17 @@ static func create_complaint(
 
 	if not force:
 		var probability: float = visit.definition.complaint_probability
-		if visit.actual == CustomerVisit.Actual.DELIVERED:
+		if visit.actual == CustomerVisit.Actual.NOT_RESOLVED:
+			probability = visit.definition.unresolved_complaint_probability
+		elif visit.actual == CustomerVisit.Actual.DELIVERED:
 			probability = visit.definition.false_complaint_probability
 		elif visit.actual == CustomerVisit.Actual.CUSTOMER_REFUSED:
 			probability = visit.definition.voluntary_complaint_probability
+		probability = clampf(
+			probability + visit.complaint_probability_delta,
+			0.0,
+			1.0,
+		)
 		if visit.complaint_roll >= probability:
 			return false
 

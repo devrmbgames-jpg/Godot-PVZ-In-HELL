@@ -360,26 +360,27 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 		return false
 	CustomerOutcomeService.settle(visit, WalletService.current(), cycle.day_index)
 	var customer: E_Customer = customer_for(visit_id)
-	if customer != null:
+	if customer != null and visit.aggressive:
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-		if visit.aggressive and agent.phase != C_CustomerAgent.Phase.LEAVING:
-			# R11 decides the aggression fact. R12 owns the dialogue reaction and
-			# invokes enter_aggressive() after the complaint line has been resolved.
+		if agent.phase != C_CustomerAgent.Phase.LEAVING:
+			# Declaration is accounting only. A false TAKEN may be noticed, but
+			# Dialogue still owns the reaction before the bounded Aggressive transition.
 			customer.show_message("Вы ничего мне не выдали! Поговорите со мной.")
-		elif agent.phase != C_CustomerAgent.Phase.LEAVING:
-			_leave(customer, visit)
 	return true
 
 
 static func deny(visit_id: StringName) -> bool:
 	var visit: CustomerVisit = find_visit(visit_id)
-	if visit == null or not visit.started or visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED:
+	if visit == null or not visit.started:
 		return false
-	visit.actual = CustomerVisit.Actual.PLAYER_DENIED
-	visit.reputation = CustomerVisit.Reputation.PLAYER_DENIAL
+	if not CustomerOutcomeService.commit_player_denial(visit):
+		return false
 	var customer: E_Customer = customer_for(visit_id)
 	if customer != null:
-		_leave(customer, visit)
+		if visit.aggressive:
+			enter_aggressive(customer)
+		else:
+			_leave(customer, visit)
 	return true
 
 

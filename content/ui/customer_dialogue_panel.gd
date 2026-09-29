@@ -120,7 +120,7 @@ func _render_line() -> void:
 			continue
 		var button: Button = Button.new()
 		button.text = _context.perceived_text(response.text)
-		button.pressed.connect(_on_response_pressed.bind(response.next_id))
+		button.pressed.connect(_on_response_pressed.bind(response))
 		_responses.add_child(button)
 	if _responses.get_child_count() > 0:
 		var first: Button = _responses.get_child(0) as Button
@@ -130,8 +130,11 @@ func _render_line() -> void:
 		_continue_button.grab_focus()
 
 
-func _on_response_pressed(next_id: String) -> void:
-	_advance(next_id)
+func _on_response_pressed(response: DialogueResponse) -> void:
+	if response == null:
+		return
+	_context.apply_response_tags(response.tags)
+	_advance(response.next_id)
 
 
 func _on_continue_pressed() -> void:
