@@ -161,12 +161,13 @@ jobs:
           grep -q '\[#flr\]' content/dialogue/customer_service.dialogue
           grep -q '\[#jok\]' content/dialogue/customer_service.dialogue
           python - <<'PY'
+          import re
           from pathlib import Path
           text = Path("content/services/customers/customer_outcome_service.gd").read_text()
           start = text.index("static func declare(")
           end = text.index("static func mark_missed_registration_lost", start)
           body = text[start:end]
-          assert "visit.actual =" not in body, body
+          assert re.search(r"visit\.actual\s*=(?!=)", body) is None, body
           assert "visit.declaration = value" in body
 
           flow = Path("content/services/customers/customer_flow_service.gd").read_text()
