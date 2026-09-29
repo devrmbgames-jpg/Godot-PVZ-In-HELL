@@ -16,7 +16,7 @@ Start the shift at its console. The customer approaches, greets and states the r
 
 Damaged/opened flags remain separate; customer policy may accept with reduced Satisfaction/payment or voluntarily refuse. An accepted parcel leaves the world only after explicit confirmation. Refused parcels stay physical. Arrival, timeouts and terminal declarations never fetch or teleport storage boxes.
 
-Terminal has visit selection and separate actual/declaration display. Its Taken/Refused/Lost buttons submit closeout commands. An initial false Taken is allowed and preserved. Committed declarations cannot be overwritten; repeated commands are idempotent. Explicit Deny records player refusal before a declaration, so lying afterward does not erase the denial fact/reputation reason. Missing/denied parcels retain their registration until an explicit warehouse departure.
+Terminal has visit selection and separate actual/declaration display. Its Taken/Refused/Lost buttons submit closeout commands. An initial false Taken is allowed and preserved. Committed declarations cannot be overwritten; repeated commands are idempotent. Explicit Deny records player refusal before a declaration, so lying afterward does not erase the denial fact/reputation reason. Missing/denied parcels retain their registration until an explicit warehouse departure. A separate next-morning audit handles the one exception: if a customer visit already started and finished on an earlier day and its requested package still has no registration record, that unregistered shipment is automatically declared `LOST`, charged through R10's Lost settlement, marked with Lost disposition, and removed from the physical warehouse. A package registered before the next Morning is not auto-lost, even if the customer already left; registered unresolved packages continue to persist normally.
 
 ## Money, refusal and complaints
 
@@ -32,7 +32,7 @@ Complaint decisions retain the true physical outcome. Successful delivery makes 
 
 ## Persistence and regression
 
-R21 must save the complete flow journal, planned-through day, visit policies/rolls/outcomes/disposition/death attribution/settlement flags, complaints and windows, together with the full R10 wallet journal and R06 registry. Live Nodes/AssignedTo are reconstructed from IDs; destroyed scenes are never stored as authority.
+R21 must save the complete flow journal, planned-through day, visit policies/rolls/outcomes/disposition/death attribution/settlement flags, complaints and windows, together with the full R10 wallet journal and R06 registry. Live Nodes/AssignedTo are reconstructed from IDs; destroyed scenes are never stored as authority. Each physical shipment also carries a hidden `C_Package.history_id` used only by package history/debugging; customer dialogue and Terminal registration continue to use the independent warehouse number.
 
 `tests/gut/test_customer_flow.gd` covers outcome/financial branches, relationship cleanup, schedule retention, copied records, death attribution and scene-local state. `tests/smoke/customer_flow_smoke.tscn` uses real bodies and counter overlaps through main-scene scheduling, wrong/unregistered/correct/refused delivery, terminal buttons, false Taken, delayed complaints, next-day return and retained late/absent orders. Its fixture seeds the existing scanner registration contract; R06's scanner interaction is covered separately. Existing day/wallet/receiving fixtures disable only customer scheduling to preserve their original focused contracts.
 

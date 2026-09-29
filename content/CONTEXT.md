@@ -91,3 +91,9 @@ Use the narrowest relevant surface:
 - feature smoke scenes under `tests/smoke/` via documented runner.
 
 Do not run every suite after ordinary edits. See `AGENTS.md` for cadence.
+
+## Package history identity and missed registration
+
+- Customer-facing registration numbers (`№001`, etc.) remain reusable warehouse numbers and are not stable history identity.
+- Every physically created package receives a hidden `C_Package.history_id` formatted as `<day>-<day-local number>-<5-char diagnostic code>`. The code is reversible: hazard class, physical size class, and mass in 0.1 kg encoded as three base36 characters. Do not show this ID in customer dialogue or the Terminal registry; it is reserved for package history/debugging.
+- A customer visit that started and finished, whose package is still unregistered at the next Morning, is automatically closed as Lost and charged through the existing R10 Lost settlement. Registered unresolved packages and packages whose customer has not yet arrived are not affected.

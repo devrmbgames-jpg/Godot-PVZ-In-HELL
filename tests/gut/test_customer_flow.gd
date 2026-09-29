@@ -331,6 +331,61 @@ func test_player_caused_death_finishes_live_event_and_records_attribution() -> v
 	assert_eq(visit.complaint.outcome, CustomerComplaint.Outcome.WAIVED_PLAYER_DEFEAT)
 
 
+
+func test_next_morning_auto_loses_finished_unregistered_visit_once() -> void:
+	var visit: CustomerVisit = _live_fixture()
+	visit.finished = true
+	visit.finished_day = 1
+	var parcel: Entity = Entity.new()
+	var identity: C_Package = C_Package.new()
+	identity.package_id = visit.package_id
+	identity.history_id = "1-01-NM01E"
+	var state: C_PackageState = C_PackageState.new()
+	parcel.component_resources = [identity, state]
+	_world.add_entity(parcel)
+	var cycle: C_DayCycle = DayPhaseService.current()
+	cycle.day_index = 2
+	cycle.phase = C_DayCycle.Phase.MORNING
+	var wallet: C_Wallet = WalletService.current()
+
+	assert_eq(CustomerFlowService.finalize_missed_unregistered(CustomerFlowService.current(), cycle, wallet), 1)
+	assert_eq(visit.declaration, CustomerVisit.Declaration.LOST)
+	assert_eq(visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
+	assert_eq(visit.disposition, CustomerVisit.Disposition.LOST)
+	assert_eq(visit.package_history_id, identity.history_id)
+	assert_true(visit.settlement_committed)
+	assert_eq(wallet.balance, -120)
+	assert_null(CustomerFlowService.parcel_for(visit.package_id))
+	assert_eq(CustomerFlowService.finalize_missed_unregistered(CustomerFlowService.current(), cycle, wallet), 0)
+	assert_eq(wallet.operations.size(), 1)
+
+
+func test_next_morning_keeps_previously_registered_unresolved_package() -> void:
+	var visit: CustomerVisit = _live_fixture()
+	visit.finished = true
+	visit.finished_day = 1
+	var parcel: Entity = _live_parcel(visit)
+	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
+	record.package_id = visit.package_id
+	record.number = 1
+	PackageRegistrationService.ledger().records.append(record)
+	var cycle: C_DayCycle = DayPhaseService.current()
+	cycle.day_index = 2
+	cycle.phase = C_DayCycle.Phase.MORNING
+
+	assert_eq(
+		CustomerFlowService.finalize_missed_unregistered(
+			CustomerFlowService.current(),
+			cycle,
+			WalletService.current(),
+		),
+		0,
+	)
+	assert_eq(visit.declaration, CustomerVisit.Declaration.NONE)
+	assert_eq(visit.disposition, CustomerVisit.Disposition.WAREHOUSE)
+	assert_true(is_instance_valid(parcel))
+	assert_eq(WalletService.current().balance, 0)
+
 func test_main_scene_sessions_do_not_share_mutable_customer_records() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var first: Node = scene.instantiate()

@@ -31,3 +31,5 @@
 - 2026-09-29 — R11.1: prolonged interaction/reset policies, generic access/openable contracts, RemoteTransform3D-backed physical slots, collision-validated Carry placement, Hammer anchor/unfix with reversible physics/support safety; focused GUT and both physics smokes PASS, owner gameplay QA confirmed.
 
 - 2026-09-29 — R12: DialogueManager integrated through typed customer context and project modal UI; direct package-number dialogue, riddle/retry with idempotent Satisfaction penalty, voluntary refusal, delayed complaint and false TAKEN/Aggressive handoff implemented. Focused R12 GUT and lifecycle smoke PASS; owner confirmed the dialogue flow works in main_level.
+
+- 2026-09-29 — Added hidden reversible package history IDs (`day-number-hazard/size/mass`) and a next-Morning audit that auto-declares previously requested but still-unregistered shipments Lost, applies the existing 120% Lost settlement once, and removes the lost physical parcel while preserving registered unresolved shipments.
