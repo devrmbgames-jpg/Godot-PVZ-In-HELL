@@ -1,0 +1,73 @@
+name: Terminal NewUI validation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - content/ui/terminal_panel.gd
+      - content/ui/terminal_panel.tscn
+      - content/ui/ui_terminal_package_line.gd
+      - content/ui/ui_terminal_package_line.tscn
+      - content/ui/ui_terminal_package_detail_info.gd
+      - content/ui/ui_terminal_log_history.gd
+      - content/contracts/packages/package_registration_record.gd
+      - content/services/packages/package_registration_service.gd
+      - content/services/customers/customer_flow_service.gd
+      - tests/gut/test_customer_flow.gd
+      - tests/smoke/receiving_scan_smoke.gd
+      - tests/smoke/customer_flow_smoke.gd
+      - tests/smoke/marker_shelves_smoke.gd
+      - .github/workflows/terminal_new_ui_validation.yml
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Godot 4.7.1
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.1
+          use-dotnet: false
+          include-templates: false
+
+      - name: Bootstrap Godot class cache
+        shell: bash
+        run: bash utils/bootstrap_godot_class_cache.sh
+
+      - name: Customer flow GUT
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests/gut -gselect test_customer_flow.gd -gexit 2>&1 | tee customer-flow-gut.log
+          grep -q 'Ran Scripts matching "test_customer_flow.gd"' customer-flow-gut.log
+          grep -q -- '---- All tests passed! ----' customer-flow-gut.log
+
+      - name: Receiving and terminal smoke
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --fixed-fps 60 --path . res://tests/smoke/receiving_scan_smoke.tscn --quit-after 1800 2>&1 | tee receiving-terminal.log
+          grep -q "R05/R06 receiving -> scan -> terminal -> next day smoke PASS" receiving-terminal.log
+          if grep -Eq "SCRIPT ERROR|Parse Error|Assertion failed" receiving-terminal.log; then exit 1; fi
+
+      - name: Customer flow terminal action smoke
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --fixed-fps 60 --path . res://tests/smoke/customer_flow_smoke.tscn --quit-after 1800 2>&1 | tee customer-flow.log
+          grep -q "R11 customer physical delivery and dispute smoke PASS" customer-flow.log
+          if grep -Eq "SCRIPT ERROR|Parse Error|Assertion failed" customer-flow.log; then exit 1; fi
+
+      - name: Marker shelves regression smoke
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --fixed-fps 60 --path . res://tests/smoke/marker_shelves_smoke.tscn --quit-after 1800 2>&1 | tee marker-shelves.log
+          grep -q "R07 marker/shelves smoke PASS" marker-shelves.log
+          if grep -Eq "SCRIPT ERROR|Parse Error|Assertion failed" marker-shelves.log; then exit 1; fi
