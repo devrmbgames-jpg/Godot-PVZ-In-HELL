@@ -66,7 +66,7 @@ func _add_requested_package() -> C_PackageState:
 	state.registration = C_PackageState.Registration.REGISTERED
 	parcel.component_resources = [identity, state]
 	_world.add_entity(parcel)
-	return state
+	return parcel.get_component(C_PackageState) as C_PackageState
 
 
 func test_riddle_wrong_answer_is_idempotent_and_affects_final_satisfaction() -> void:

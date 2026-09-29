@@ -481,7 +481,11 @@ static func _leave(customer: E_Customer, visit: CustomerVisit) -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	_transition(agent, C_CustomerAgent.Phase.LEAVING)
 	var station: E_DeliveryCounter = counter()
-	agent.destination = station.entry_position() if station != null else (customer as Node as Node3D).global_position
+	var body: Node3D = customer as Node3D
+	if station != null:
+		agent.destination = station.entry_position()
+	elif body != null:
+		agent.destination = body.global_position
 	agent.arrived = false
 	agent.moving = true
 	if visit.actual == CustomerVisit.Actual.NOT_RESOLVED:
