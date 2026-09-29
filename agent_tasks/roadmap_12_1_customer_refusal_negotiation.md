@@ -1,6 +1,6 @@
 # R12.1 - Customer refusal negotiation and repeat visits
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -21,8 +21,8 @@ Add dialogue refusal/stall/deception approaches while keeping CustomerVisit.actu
 - [x] Refusal dialogue branch and response-tag forwarding.
 - [x] Separate declaration from actual; bounded dialogue denial transition.
 - [x] Follow-up scheduling and repeat customer reactivation.
-- [ ] Focused regression validation and docs.
-- [ ] Independent review; move to OWNER_QA.
+- [x] Focused regression validation and docs.
+- [x] Independent review; move to OWNER_QA.
 
 ### Decisions
 - A response tag identifies intent only. It never directly encodes rage, complaint percentages or other balance values.
@@ -32,10 +32,19 @@ Add dialogue refusal/stall/deception approaches while keeping CustomerVisit.actu
 - On follow-up reactivation, current actual resets to NOT_RESOLVED so the package can still be delivered; player_denial_count preserves prior factual denials.
 
 ### Current
-Core implementation is in master through refusal intents, declaration separation, and follow-up reactivation. Next: focused validation, review findings, and documentation.
+Technical implementation and review are complete on master. Next: owner gameplay/visual QA only.
 
 ### Validation
-Project structure validation is currently blocked only by this task file metadata shape; gameplay validation has not yet been run for R12.1.
+- Project validation PASS on final implementation SHA.
+- R12.1 negotiation validation PASS: target GDScript parser checks, CustomerFlowService parser copy, DialogueManager source compile, and static authority invariants.
+- Validation runs: 36571644697 (Project validation) and 36571644653 (R12.1 negotiation validation).
 
 ### Owner QA / blockers
-Owner gameplay/visual QA remains required for refusal branches, Terminal lies in both directions, NONE declaration, and at least one repeat visit.
+Gameplay/visual QA required:
+- Talk to a waiting Customer and choose refusal branches for honest/lie/persuade/threat/flirt/joke.
+- Confirm joke returns to a non-denied path; other refusal outcomes can leave or become aggressive according to policy.
+- Deliver a Package but declare REFUSED or LOST in Terminal; actual must remain DELIVERED.
+- Refuse/withhold a Package but declare TAKEN in Terminal; actual must remain PLAYER_DENIED/NOT_RESOLVED as appropriate.
+- Leave declaration NONE and advance days until at least one repeat visit occurs; confirm the Customer asks about the same registered Package again.
+- After a repeat visit, confirm the Package can still be delivered and prior player_denial_count/history is preserved.
+No technical blocker is currently recorded.
