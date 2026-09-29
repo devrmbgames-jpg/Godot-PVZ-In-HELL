@@ -16,7 +16,7 @@ Status: **IN_PROGRESS**
 
 ### Milestones
 - [x] Reconfirm dependency completion and current production owners/contracts.
-- [ ] Implement the existing work checklist in small coherent milestones.
+- [x] Implement the existing work checklist in small coherent milestones.
 - [ ] Independently review material changes and resolve all R-findings.
 - [ ] Run final task validation according to the documented GUT/headless budget.
 - [ ] Record remaining owner gameplay/visual QA.
@@ -31,7 +31,7 @@ Branch `feature/r12-dialogue-integration` started from `master@bd1e5a4d928084aa9
 Static review findings:
 - R1 (cyclic `CustomerDialogueService <-> CustomerDialoguePanel` class dependency) = **FIXED** by removing the panel-to-service reference.
 - R2 (false `TAKEN` dialogue branch unreachable because R11 transitioned directly to Aggressive) = **FIXED**: R11 remains authority for the `visit.aggressive` decision, while R12 now owns the reaction dialogue and invokes the bounded Aggressive receiver after complaint creation.
-Runtime checks have not yet run.
+Focused GUT coverage and a headless lifecycle smoke are prepared. Runtime checks have not yet run in this GitHub-only execution environment.
 
 ### Owner QA / blockers
 No new blocker is recorded. Any unmet dependency discovered during startup moves the task to `BLOCKED` or `DEFERRED` with the exact dependency named.
