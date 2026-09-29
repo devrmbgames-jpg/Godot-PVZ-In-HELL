@@ -1,0 +1,63 @@
+name: R12 dialogue validation
+
+on:
+  push:
+    branches:
+      - feature/r12-dialogue-integration
+    paths:
+      - content/contracts/customers/customer_visit.gd
+      - content/definitions/gameplay/customers/def_customer.gd
+      - content/definitions/gameplay/customers/def_customer_schedule_default.tres
+      - content/definitions/interaction/def_customer_action.gd
+      - content/dialogue/**
+      - content/entities/customers/customer.tscn
+      - content/services/customers/**
+      - content/ui/customer_dialogue_panel.gd
+      - tests/gut/test_customer_dialogue.gd
+      - tests/gut/test_customer_flow.gd
+      - tests/smoke/customer_dialogue_smoke.gd
+      - tests/smoke/customer_dialogue_smoke.tscn
+      - tests/smoke/customer_flow_smoke.gd
+      - .github/workflows/r12_validation.yml
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Godot 4.7.1
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.1
+          use-dotnet: false
+          include-templates: false
+
+      - name: Verify Godot
+        run: godot --version
+
+      - name: Import project
+        run: godot --headless --path . --import --quit
+
+      - name: Focused R12 GUT
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . \
+            -s addons/gut/gut_cmdln.gd \
+            -gdir=res://tests/gut \
+            -gselect test_customer_dialogue.gd \
+            -gselect test_customer_flow.gd \
+            -gexit 2>&1 | tee r12-gut.log
+          grep -q "Passing Tests" r12-gut.log
+          if grep -q "GUT ERROR" r12-gut.log; then exit 1; fi
+
+      - name: R12 dialogue lifecycle smoke
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . res://tests/smoke/customer_dialogue_smoke.tscn --quit-after 600 2>&1 | tee r12-smoke.log
+          grep -q "R12 customer dialogue lifecycle smoke PASS" r12-smoke.log
