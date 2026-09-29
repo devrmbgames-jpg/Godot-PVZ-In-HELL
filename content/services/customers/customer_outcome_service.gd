@@ -47,6 +47,11 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck) ->
 		visit.satisfaction = mini(visit.satisfaction, policy.damaged_satisfaction)
 	if check_result.opened:
 		visit.satisfaction = mini(visit.satisfaction, policy.opened_satisfaction)
+	visit.satisfaction = clampi(
+		visit.satisfaction + visit.dialogue_satisfaction_delta,
+		0,
+		SATISFACTION_SCALE,
+	)
 	return true
 
 

@@ -3,7 +3,6 @@ extends RefCounted
 class_name CustomerDialogueService
 
 const DIALOGUE_PATH: String = "res://content/dialogue/customer_service.dialogue"
-const DIRECT_CUE: String = "direct"
 const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
 
 
@@ -37,7 +36,7 @@ static func start(actor: Entity, customer: E_Customer) -> bool:
 	if host == null:
 		host = tree.root
 	host.add_child(panel)
-	if not panel.open_for(actor, context, resource, DIRECT_CUE):
+	if not panel.open_for(actor, context, resource, context.dialogue_cue()):
 		context.end()
 		panel.queue_free()
 		return false

@@ -75,7 +75,54 @@ func customer_phase() -> int:
 
 func satisfaction() -> int:
 	var visit: CustomerVisit = _visit()
-	return visit.satisfaction if visit != null else 0
+	if visit == null:
+		return 0
+	if visit.actual != CustomerVisit.Actual.NOT_RESOLVED:
+		return visit.satisfaction
+	var base: int = (
+		visit.definition.healthy_satisfaction
+		if visit.definition != null
+		else CustomerOutcomeService.SATISFACTION_SCALE
+	)
+	return clampi(
+		base + visit.dialogue_satisfaction_delta,
+		0,
+		CustomerOutcomeService.SATISFACTION_SCALE,
+	)
+
+
+func dialogue_cue() -> String:
+	var visit: CustomerVisit = _visit()
+	if (
+		visit != null
+		and visit.definition != null
+		and visit.definition.dialogue_mode == DEF_Customer.DialogueMode.RIDDLE
+		and not visit.riddle_solved
+	):
+		return "riddle"
+	return "direct"
+
+
+func answer_riddle_wrong() -> bool:
+	var visit: CustomerVisit = _visit()
+	if visit == null or visit.definition == null:
+		return false
+	if visit.riddle_wrong_answer_applied:
+		return true
+	visit.dialogue_satisfaction_delta -= maxi(
+		0,
+		visit.definition.riddle_wrong_satisfaction_penalty,
+	)
+	visit.riddle_wrong_answer_applied = true
+	return true
+
+
+func answer_riddle_correct() -> bool:
+	var visit: CustomerVisit = _visit()
+	if visit == null:
+		return false
+	visit.riddle_solved = true
+	return true
 
 
 func requested_package_id() -> String:

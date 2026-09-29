@@ -28,6 +28,9 @@ enum Feedback { NONE, APPROVED }
 @export var disposition: Disposition = Disposition.WAREHOUSE
 @export var reputation: Reputation = Reputation.NONE
 @export var satisfaction: int = 0
+@export var dialogue_satisfaction_delta: int = 0
+@export var riddle_wrong_answer_applied: bool = false
+@export var riddle_solved: bool = false
 @export var feedback: Feedback = Feedback.NONE
 ## Persistent delivery facts used by delayed complaint adjudication.
 @export var package_damaged: bool = false

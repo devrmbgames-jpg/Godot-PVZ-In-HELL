@@ -1,10 +1,14 @@
 extends GameDefinition
 class_name DEF_Customer
 
+enum DialogueMode { DIRECT, RIDDLE }
+
 @export var display_name: String = "Клиент"
 @export var accepts_damaged: bool = true
 @export var accepts_opened: bool = true
 @export var voluntary_refusal: bool = false
+@export var dialogue_mode: DialogueMode = DialogueMode.DIRECT
+@export_range(0, 100) var riddle_wrong_satisfaction_penalty: int = 20
 @export var move_speed: float = 1.8
 @export var arrival_distance: float = 0.25
 @export var approach_timeout: float = 30.0

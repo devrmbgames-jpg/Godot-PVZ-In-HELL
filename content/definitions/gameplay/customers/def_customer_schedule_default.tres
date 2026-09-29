@@ -18,6 +18,7 @@ customer = SubResource("Ordinary")
 [sub_resource type="Resource" id="Careful"]
 script = ExtResource("Customer")
 display_name = "Покупатель посуды"
+dialogue_mode = 1
 accepts_damaged = false
 accepts_opened = false
 key = &"careful"
