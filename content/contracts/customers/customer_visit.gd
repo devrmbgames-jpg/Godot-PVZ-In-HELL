@@ -21,6 +21,8 @@ enum Feedback { NONE, APPROVED }
 @export var package_id: String = ""
 ## Hidden warehouse history identity; never shown as the customer order number.
 @export var package_history_id: String = ""
+## Default package-pickup visits wait for a registration record before spawning.
+@export var requires_registered_package: bool = true
 @export var arrival_day: int = 1
 @export var definition: DEF_Customer = null
 @export var accounting_value: int = 0

@@ -37,24 +37,25 @@ func _run() -> void:
 		(parcel as Node as RigidBody3D).freeze = true
 	var books: Entity = CustomerFlowService.parcel_for("base_supply:1:books")
 	var glass: Entity = CustomerFlowService.parcel_for("base_supply:1:glass")
+	var clothes: Entity = CustomerFlowService.parcel_for("base_supply:1:clothes")
 	var late: Entity = CustomerFlowService.parcel_for("base_supply:1:equipment")
-	_register(glass)
+	_register(books)
 	_register(late)
 	var late_number: int = (late.get_component(C_PackageState) as C_PackageState).registration_number
-	assert(_cycle.remaining_customer_events == 3)
+	ECS.world.process(FRAME_DELTA, "GamePlay")
+	assert(_cycle.remaining_customer_events == 1)
 	_transition(DayTransitionRequest.Kind.START_SHIFT)
 	assert(not DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
 	var customer: E_Customer = await _wait_for_customer()
 	var first: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	assert(first.package_id == "base_supply:1:books")
 	assert(CustomerFlowService.confirm_delivery(_counter) == PackageDeliveryCheck.Result.MISSING)
+	_register(glass)
 	var glass_origin: Vector3 = (glass as Node as Node3D).global_position
 	await _place(glass)
 	assert(CustomerFlowService.confirm_delivery(_counter) == PackageDeliveryCheck.Result.WRONG_PACKAGE)
 	(glass as Node as Node3D).global_position = glass_origin
 	await _place(books)
-	assert(CustomerFlowService.confirm_delivery(_counter) == PackageDeliveryCheck.Result.UNREGISTERED)
-	_register(books)
 	var number: int = (books.get_component(C_PackageState) as C_PackageState).registration_number
 	var action: DEF_DeliveryAction = DEF_DeliveryAction.new()
 	assert(action.is_available(actor, _counter, _counter))
@@ -83,6 +84,7 @@ func _run() -> void:
 	assert(is_instance_valid(glass))
 	assert(CustomerFlowService.declare(second.visit_id, CustomerVisit.Declaration.REFUSED))
 	assert(not CustomerFlowService.dispose_refusal(second.visit_id, false))
+	_register(clothes)
 	customer = await _wait_for_customer()
 	var third: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	third.complaint_roll = 0.0

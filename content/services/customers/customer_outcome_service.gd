@@ -74,6 +74,25 @@ static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> b
 	return true
 
 
+## System-owned closeout for a package-pickup visit that never spawned because the
+## parcel was not registered before the next Morning.
+static func mark_missed_registration_lost(visit: CustomerVisit, day: int) -> bool:
+	if (
+		visit == null
+		or day <= visit.arrival_day
+		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+		or visit.declaration != CustomerVisit.Declaration.NONE
+	):
+		return false
+	visit.declaration = CustomerVisit.Declaration.LOST
+	visit.actual = CustomerVisit.Actual.PLAYER_DENIED
+	visit.disposition = CustomerVisit.Disposition.LOST
+	visit.reputation = CustomerVisit.Reputation.LOST
+	visit.finished = true
+	visit.finished_day = day
+	return true
+
+
 static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 	if visit.settlement_committed or wallet == null:
 		return
