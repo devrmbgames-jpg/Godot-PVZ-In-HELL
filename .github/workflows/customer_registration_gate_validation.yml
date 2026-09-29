@@ -33,9 +33,6 @@ jobs:
           use-dotnet: false
           include-templates: false
 
-      - name: Import project
-        run: godot --headless --path . --import --quit
-
       - name: Customer flow GUT
         shell: bash
         run: |
