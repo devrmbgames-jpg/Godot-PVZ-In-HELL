@@ -1,0 +1,67 @@
+name: Customer registration gate validation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - content/contracts/customers/customer_visit.gd
+      - content/definitions/gameplay/customers/def_customer_event.gd
+      - content/services/customers/customer_flow_service.gd
+      - content/services/customers/customer_outcome_service.gd
+      - tests/gut/test_customer_flow.gd
+      - tests/smoke/customer_flow_smoke.gd
+      - tests/smoke/customer_dialogue_smoke.gd
+      - tests/smoke/unregistered_loss_smoke.gd
+      - .github/workflows/customer_registration_gate_validation.yml
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Godot 4.7.1
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.1
+          use-dotnet: false
+          include-templates: false
+
+      - name: Import project
+        run: godot --headless --path . --import --quit
+
+      - name: Focused customer GUT
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path .             -s addons/gut/gut_cmdln.gd             -gdir=res://tests/gut             -gselect test_customer_flow.gd             -gselect test_package_history_id.gd             -gselect test_customer_dialogue.gd             -gexit 2>&1 | tee customer-gate-gut.log
+          grep -q "Passing Tests" customer-gate-gut.log
+          if grep -Eq "GUT ERROR|SCRIPT ERROR|Parse Error|Assertion failed" customer-gate-gut.log; then exit 1; fi
+
+      - name: Registration gate and next-morning loss smoke
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --fixed-fps 60 --path .             res://tests/smoke/unregistered_loss_smoke.tscn             --quit-after 1200 2>&1 | tee unregistered-loss.log
+          grep -q "Unregistered customer gate and next-morning loss smoke PASS" unregistered-loss.log
+          if grep -Eq "SCRIPT ERROR|Parse Error|Assertion failed" unregistered-loss.log; then exit 1; fi
+
+      - name: Customer flow smoke
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --fixed-fps 60 --path .             res://tests/smoke/customer_flow_smoke.tscn             --quit-after 1800 2>&1 | tee customer-flow.log
+          grep -q "R11 customer physical delivery and dispute smoke PASS" customer-flow.log
+          if grep -Eq "SCRIPT ERROR|Parse Error|Assertion failed" customer-flow.log; then exit 1; fi
+
+      - name: Dialogue lifecycle smoke
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --fixed-fps 60 --path .             res://tests/smoke/customer_dialogue_smoke.tscn             --quit-after 1200 2>&1 | tee customer-dialogue.log
+          grep -q "R12 customer dialogue lifecycle smoke PASS" customer-dialogue.log
+          if grep -Eq "SCRIPT ERROR|Parse Error|Assertion failed" customer-dialogue.log; then exit 1; fi
