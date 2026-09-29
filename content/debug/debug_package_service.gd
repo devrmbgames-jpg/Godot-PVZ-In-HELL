@@ -74,11 +74,18 @@ static func spawn(
 			result.message = "failed to place package"
 			return result
 
-		var identity: C_Package = parcel.get_component(C_Package) as C_Package
-		if identity != null:
-			identity.delivery_day = cycle.day_index
-			identity.supply_key = zone.supply.key
 		spawned.append(parcel)
+		var identity: C_Package = parcel.get_component(C_Package) as C_Package
+		if identity == null:
+			_rollback(spawned)
+			result.message = "spawned package has no identity"
+			return result
+		identity.delivery_day = cycle.day_index
+		identity.supply_key = zone.supply.key
+		if PackageHistoryService.ensure_history_id(parcel, cycle.day_index).is_empty():
+			_rollback(spawned)
+			result.message = "failed to allocate package history ID"
+			return result
 
 		var number_text: String = "unregistered"
 		if register_packages:

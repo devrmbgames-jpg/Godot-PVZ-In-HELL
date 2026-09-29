@@ -51,11 +51,20 @@ static func deliver_one(
 		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
 		return
 
-	receiving.last_spawn_tick = Engine.get_physics_frames()
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
-	if identity != null:
-		identity.delivery_day = batch.day_index
-		identity.supply_key = zone.supply.key
+	if identity == null:
+		ECS.world.remove_entity(parcel)
+		receiving.blocked = true
+		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
+		return
+	identity.delivery_day = batch.day_index
+	identity.supply_key = zone.supply.key
+	if PackageHistoryService.ensure_history_id(parcel, batch.day_index).is_empty():
+		ECS.world.remove_entity(parcel)
+		receiving.blocked = true
+		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
+		return
+	receiving.last_spawn_tick = Engine.get_physics_frames()
 	_advance(receiving, batch)
 
 

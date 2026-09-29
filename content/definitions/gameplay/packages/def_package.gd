@@ -9,6 +9,17 @@ enum Tag {
 	LIQUID = 8,
 }
 
+## Stable diagnostic class encoded into the hidden package history ID.
+## This does not replace gameplay tags or hazard prefabs.
+enum HazardClass {
+	NORMAL,
+	FRAGILE,
+	LIQUID,
+	TOXIC,
+	EXPLOSIVE,
+	OTHER,
+}
+
 ## Accounting value in whole monetary units; independent of trader resale price.
 @export_range(0, 1000000000) var accounting_value: int = 100
 @export var shipment_number: String = ""
@@ -17,6 +28,7 @@ enum Tag {
 ## Stable recipient key; later resolved to an AssignedTo relationship with a Customer.
 @export var recipient_id: StringName = &""
 @export_flags("Normal:1", "Fragile:2", "Heavy:4", "Liquid:8") var tags: int = Tag.NORMAL
+@export var history_hazard_class: HazardClass = HazardClass.NORMAL
 @export_range(0.1, 100.0, 0.1, "or_greater") var mass_kg: float = 5.0
 @export var throw_velocity: float = 10.0
 @export var maximum_health: float = 100.0

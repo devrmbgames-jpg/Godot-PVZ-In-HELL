@@ -4,6 +4,8 @@ class_name C_Package
 
 ## Persistent identity, unrelated to Node paths or engine instance IDs.
 @export var package_id: String = ""
+## Hidden, human-readable history/debug identity. Never use this as customer-facing registration.
+@export var history_id: String = ""
 ## Shared immutable design data; runtime systems must not mutate this resource.
 @export var definition: DEF_Package = null
 @export var delivery_day: int = 0
