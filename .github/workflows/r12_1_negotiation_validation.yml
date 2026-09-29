@@ -1,0 +1,102 @@
+name: R12.1 negotiation validation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - content/contracts/customers/customer_dialogue_intent.gd
+      - content/contracts/customers/customer_visit.gd
+      - content/definitions/gameplay/customers/def_customer_dialogue_reaction.gd
+      - content/definitions/gameplay/customers/def_customer.gd
+      - content/definitions/gameplay/customers/def_customer_schedule_default.tres
+      - content/dialogue/customer_dialogue_context.gd
+      - content/dialogue/customer_service.dialogue
+      - content/services/customers/customer_outcome_service.gd
+      - content/services/customers/customer_flow_service.gd
+      - content/ui/customer_dialogue_panel.gd
+      - tests/gut/test_customer_dialogue.gd
+      - tests/gut/test_customer_flow.gd
+      - .github/workflows/r12_1_negotiation_validation.yml
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Godot 4.7.1
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.1
+          use-dotnet: false
+          include-templates: false
+
+      - name: Bootstrap Godot class cache
+        shell: bash
+        run: bash utils/bootstrap_godot_class_cache.sh
+
+      - name: Compile new dialogue data scripts
+        shell: bash
+        run: |
+          godot --headless --path . --check-only --script content/contracts/customers/customer_dialogue_intent.gd
+          godot --headless --path . --check-only --script content/definitions/gameplay/customers/def_customer_dialogue_reaction.gd
+          godot --headless --path . --check-only --script content/definitions/gameplay/customers/def_customer.gd
+          godot --headless --path . --check-only --script content/contracts/customers/customer_visit.gd
+
+      - name: Compile dialogue gameplay adapter
+        shell: bash
+        run: |
+          godot --headless --path . --check-only --script content/services/customers/customer_outcome_service.gd
+          godot --headless --path . --check-only --script content/dialogue/customer_dialogue_context.gd
+          godot --headless --path . --check-only --script content/ui/customer_dialogue_panel.gd
+
+      - name: Compile CustomerFlowService parser copy
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          src = Path("content/services/customers/customer_flow_service.gd").read_text()
+          src = src.replace(
+              "class_name CustomerFlowService",
+              "class_name CustomerFlowServiceCheck\nstatic var ECS: Variant = null",
+              1,
+          )
+          Path("/tmp/customer_flow_service_check.gd").write_text(src)
+          PY
+          godot --headless --path . --check-only --script /tmp/customer_flow_service_check.gd
+
+      - name: Compile DialogueManager source
+        shell: bash
+        run: |
+          cat >/tmp/validate_dialogue.gd <<'GD'
+          extends SceneTree
+
+          func _init() -> void:
+              var path: String = "res://content/dialogue/customer_service.dialogue"
+              var source: String = FileAccess.get_file_as_string(path)
+              var result: DMCompilerResult = DMCompiler.compile_string(source, path)
+              if not result.errors.is_empty():
+                  for error: DMError in result.errors:
+                      printerr(error)
+                  quit(1)
+                  return
+              print("R12.1 dialogue compiler PASS; cues=", result.cues.size())
+              quit(0)
+          GD
+          godot --headless --path . --script /tmp/validate_dialogue.gd
+
+      - name: Static negotiation contract checks
+        shell: bash
+        run: |
+          grep -q '\[#hon\]' content/dialogue/customer_service.dialogue
+          grep -q '\[#lie\]' content/dialogue/customer_service.dialogue
+          grep -q '\[#prs\]' content/dialogue/customer_service.dialogue
+          grep -q '\[#thr\]' content/dialogue/customer_service.dialogue
+          grep -q '\[#flr\]' content/dialogue/customer_service.dialogue
+          grep -q '\[#jok\]' content/dialogue/customer_service.dialogue
+          grep -q 'visit.actual = CustomerVisit.Actual.PLAYER_DENIED' content/services/customers/customer_outcome_service.gd
+          ! grep -A12 'static func declare' content/services/customers/customer_outcome_service.gd | grep -q 'visit.actual ='
