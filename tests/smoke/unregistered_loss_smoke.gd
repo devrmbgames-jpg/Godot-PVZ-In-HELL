@@ -60,10 +60,11 @@ func _run() -> void:
 		assert(not visit.started)
 		assert(visit.finished)
 		assert(visit.declaration == CustomerVisit.Declaration.LOST)
+		assert(visit.loss_cause == CustomerVisit.LossCause.MISSED_REGISTRATION)
 		assert(visit.disposition == CustomerVisit.Disposition.LOST)
 		assert(visit.settlement_committed)
 		assert(CustomerFlowService.parcel_for(visit.package_id) == null)
-	assert(wallet.balance == balance_before - 360)
+	assert(wallet.balance == balance_before - 900)
 	assert(CustomerFlowService.parcel_for("base_supply:1:equipment") == late)
 	assert(not CustomerFlowService.find_visit(&"visit/base_supply:1:equipment").finished)
 

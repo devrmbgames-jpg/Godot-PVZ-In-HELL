@@ -4,6 +4,7 @@ class_name CustomerVisit
 
 enum Actual { NOT_RESOLVED, DELIVERED, CUSTOMER_REFUSED, PLAYER_DENIED }
 enum Declaration { NONE, TAKEN, REFUSED, LOST }
+enum LossCause { NONE, DECLARED_LOST, MISSED_REGISTRATION }
 enum Disposition { WAREHOUSE, DELIVERED, RETURNED, BOUGHT_OUT, LOST }
 enum Reputation {
 	NONE,
@@ -29,6 +30,8 @@ enum Feedback { NONE, APPROVED }
 @export var payment: int = 0
 @export var actual: Actual = Actual.NOT_RESOLVED
 @export var declaration: Declaration = Declaration.NONE
+## Why a LOST declaration exists. Keeps honest LOST distinct from ignored registration.
+@export var loss_cause: LossCause = LossCause.NONE
 @export var disposition: Disposition = Disposition.WAREHOUSE
 @export var reputation: Reputation = Reputation.NONE
 @export var satisfaction: int = 0

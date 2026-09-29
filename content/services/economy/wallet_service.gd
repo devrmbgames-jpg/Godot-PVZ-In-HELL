@@ -33,7 +33,7 @@ static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int)
 		return Status.INVALID
 	if (
 		operation.reason < MoneyOperation.Reason.PAYMENT
-		or operation.reason > MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL
+		or operation.reason > MoneyOperation.Reason.MISSED_REGISTRATION
 	):
 		return Status.INVALID
 	if _requires_settlement(operation.reason) and operation.settlement_id == &"":
@@ -85,6 +85,8 @@ static func package_settlement(wallet: C_Wallet, outcome_id: StringName, reason:
 		MoneyOperation.Reason.LOST: percent = wallet.policy.lost_percent
 		MoneyOperation.Reason.PLAYER_REFUSAL: percent = wallet.policy.refusal_percent
 		MoneyOperation.Reason.CONFIRMED_FRAUD: percent = wallet.policy.fraud_percent
+		MoneyOperation.Reason.MISSED_REGISTRATION:
+			percent = wallet.policy.missed_registration_percent
 		_: return null
 	if percent < 0 or percent > 1000:
 		return null
@@ -124,6 +126,7 @@ static func _requires_settlement(reason: MoneyOperation.Reason) -> bool:
 		or reason == MoneyOperation.Reason.LOST
 		or reason == MoneyOperation.Reason.PLAYER_REFUSAL
 		or reason == MoneyOperation.Reason.CONFIRMED_FRAUD
+		or reason == MoneyOperation.Reason.MISSED_REGISTRATION
 	)
 
 
@@ -140,6 +143,7 @@ static func _is_penalty(reason: MoneyOperation.Reason) -> bool:
 		reason == MoneyOperation.Reason.LOST
 		or reason == MoneyOperation.Reason.PLAYER_REFUSAL
 		or reason == MoneyOperation.Reason.CONFIRMED_FRAUD
+		or reason == MoneyOperation.Reason.MISSED_REGISTRATION
 		or reason == MoneyOperation.Reason.DEBUG_PENALTY
 	)
 

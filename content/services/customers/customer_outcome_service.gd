@@ -66,6 +66,7 @@ static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> b
 	if visit.actual == CustomerVisit.Actual.NOT_RESOLVED and value != CustomerVisit.Declaration.TAKEN:
 		visit.actual = CustomerVisit.Actual.PLAYER_DENIED
 	if value == CustomerVisit.Declaration.LOST:
+		visit.loss_cause = CustomerVisit.LossCause.DECLARED_LOST
 		visit.reputation = CustomerVisit.Reputation.LOST
 	elif visit.actual == CustomerVisit.Actual.PLAYER_DENIED:
 		visit.reputation = CustomerVisit.Reputation.PLAYER_DENIAL
@@ -85,6 +86,7 @@ static func mark_missed_registration_lost(visit: CustomerVisit, day: int) -> boo
 	):
 		return false
 	visit.declaration = CustomerVisit.Declaration.LOST
+	visit.loss_cause = CustomerVisit.LossCause.MISSED_REGISTRATION
 	visit.actual = CustomerVisit.Actual.PLAYER_DENIED
 	visit.disposition = CustomerVisit.Disposition.LOST
 	visit.reputation = CustomerVisit.Reputation.LOST
@@ -98,7 +100,18 @@ static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 		return
 	var operation: MoneyOperation = null
 	if visit.declaration == CustomerVisit.Declaration.LOST:
-		operation = WalletService.package_settlement(wallet, visit.visit_id, MoneyOperation.Reason.LOST, visit.accounting_value, day)
+		var reason: MoneyOperation.Reason = (
+			MoneyOperation.Reason.MISSED_REGISTRATION
+			if visit.loss_cause == CustomerVisit.LossCause.MISSED_REGISTRATION
+			else MoneyOperation.Reason.LOST
+		)
+		operation = WalletService.package_settlement(
+			wallet,
+			visit.visit_id,
+			reason,
+			visit.accounting_value,
+			day,
+		)
 	elif visit.actual == CustomerVisit.Actual.PLAYER_DENIED and visit.declaration == CustomerVisit.Declaration.REFUSED:
 		operation = WalletService.package_settlement(wallet, visit.visit_id, MoneyOperation.Reason.PLAYER_REFUSAL, visit.accounting_value, day)
 	elif visit.actual == CustomerVisit.Actual.DELIVERED and visit.declaration == CustomerVisit.Declaration.TAKEN:

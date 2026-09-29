@@ -66,7 +66,7 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 ## Критерии готовности
 
 - Morning второго дня сохраняет необходимые характеристики и quest flags, приносит заказанный предмет.
-- Зарегистрированная, но невыданная Package предыдущего дня остается физически/логически активной с тем же номером; unresolved dispute переживает save/load без повторного штрафа. Если package-pickup Customer был due, но NPC не появился из-за отсутствия registration record, а Package к следующему Morning всё ещё не зарегистрирована, визит автоматически закрывается как LOST без спавна NPC, штрафуется один раз и Package удаляется из физического склада.
+- Зарегистрированная, но невыданная Package предыдущего дня остается физически/логически активной с тем же номером; unresolved dispute переживает save/load без повторного штрафа. Если package-pickup Customer был due, но NPC не появился из-за отсутствия registration record, а Package к следующему Morning всё ещё не зарегистрирована, визит автоматически закрывается как LOST / MISSED_REGISTRATION без спавна NPC, получает отдельный существенный штраф (default 300% accounting value) один раз и Package удаляется из физического склада.
 - Перезапуск игры восстанавливает согласованное состояние; повтор Sleep/load не дублирует доставку или DayIndex.
 - Нет оставшегося slowdown, rotation lock или временной опасности после reset.
 
