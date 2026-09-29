@@ -1,7 +1,7 @@
 # Current Work
 
-No active implementation task.
+Active: [R12.1](agent_tasks/roadmap_12_1_customer_refusal_negotiation.md) - **IN_PROGRESS**.
 
-Last completed: [R12](agent_tasks/roadmap_12_dialogue_integration.md) — **DONE** on 2026-09-29 after focused automated validation and owner gameplay QA in `main_level`.
+Current checkpoint: typed dialogue intents/reactions and unresolved-case follow-up state on master.
 
-Next work should be selected explicitly from [agent_tasks/CONTEXT.md](agent_tasks/CONTEXT.md).
+Next: wire response tags through CustomerDialoguePanel, then implement refusal and follow-up branches.
