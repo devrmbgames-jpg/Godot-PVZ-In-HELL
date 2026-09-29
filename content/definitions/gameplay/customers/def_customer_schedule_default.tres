@@ -53,6 +53,14 @@ script = ExtResource("Reaction")
 intent = 6
 satisfaction_delta = -5
 
+[sub_resource type="Resource" id="ReactionCarefulFlirt"]
+script = ExtResource("Reaction")
+intent = 5
+satisfaction_delta = -15
+complaint_probability_delta = 0.1
+aggression_probability_delta = 0.15
+followup_probability_delta = -0.1
+
 [sub_resource type="Resource" id="Ordinary"]
 script = ExtResource("Customer")
 dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
@@ -65,7 +73,7 @@ customer = SubResource("Ordinary")
 
 [sub_resource type="Resource" id="Careful"]
 script = ExtResource("Customer")
-dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
+dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionCarefulFlirt"), SubResource("ReactionJoke")])
 display_name = "Покупатель посуды"
 accepts_damaged = false
 accepts_opened = false

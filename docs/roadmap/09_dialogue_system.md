@@ -23,7 +23,9 @@ Dialogue поддерживает:
 - завершение разговора;
 - добровольный отказ Customer от Package;
 - подачу/отложенное создание Complaint;
-- обнаружение ложной отметки `TAKEN` и переход в Aggressive.
+- обнаружение ложной отметки `TAKEN` и переход в Aggressive;
+- ветку отказа/переговоров с короткими response intent tags;
+- повторный разговор по unresolved Package case.
 
 ## Gameplay Context
 
@@ -40,6 +42,21 @@ Conditions должны уметь учитывать:
 - Customer Complaint/dispute state;
 - была ли Package Opened/Damaged;
 - подтверждена ли неправомерная Complaint.
+
+## Negotiation intents
+
+Dialogue response может нести короткий intent-tag:
+
+- `[#hon]` — честность;
+- `[#lie]` — обман;
+- `[#prs]` — убеждение/отсрочка;
+- `[#thr]` — угроза;
+- `[#flr]` — флирт;
+- `[#jok]` — шутка/отмена отказа.
+
+Tag описывает намерение Player, а не прямой эффект. Satisfaction, Complaint chance, Aggression chance и вероятность follow-up принадлежат data-driven реакции конкретного `DEF_Customer`. Одинаковый `[#flr]` поэтому может успокоить одного Customer и раздражать другого.
+
+`[#jok]` сам по себе не создаёт фактический отказ. Остальные intent-ветки могут закончиться фактом `PLAYER_DENIED` через gameplay service, а не через DialogueManager mutation данных напрямую.
 
 ## Package Number
 
