@@ -1,17 +1,84 @@
-# Детальная информация об посылки
-# TODO Необходимо доделать
+# Детальная информация о выбранной посылке.
 extends PanelContainer
 class_name UI_TerminalPackageDetailInfo
 
-## Иконка привью посылки
 @onready var _icon_preview: TextureRect = %TextureIconPreview
-## ID посылки который присвоил игрок сканером
 @onready var _label_package_id: Label = %LabelID
-## UID посылки присвоиный системой при создании, для истори и отладки
 @onready var _label_package_uid: Label = %LabelUID
-## Название посылки (например "Посуда")
 @onready var _label_package_name: Label = %LabelName
-## Контейнер для картинок. Например тут могут быть дополнительные картинки об содержании посылки. Что бы заинтересовать игрока вскрыть ее
 @onready var _contaner_images: Control = %HBoxContainerImages
-## Детальное описание посылки с подробностями, если надо.
 @onready var _rich_label_description: RichTextLabel = %RichTextLabelDescription
+
+
+func present(
+	record: PackageRegistrationRecord,
+	state: C_PackageState,
+	visit: CustomerVisit,
+) -> void:
+	visible = true
+	_label_package_id.text = "№%03d" % record.number
+	_label_package_uid.text = record.history_id if not record.history_id.is_empty() else "—"
+
+	var definition: DEF_Package = record.definition
+	if definition == null:
+		_label_package_name.text = record.package_id
+		_rich_label_description.text = "Данные посылки недоступны."
+		return
+
+	_label_package_name.text = (
+		definition.description
+		if not definition.description.is_empty()
+		else String(definition.key)
+	)
+
+	var lines: PackedStringArray = []
+	if not definition.comment.is_empty():
+		lines.append(definition.comment)
+	lines.append("Вес: %.1f кг" % definition.mass_kg)
+	lines.append("Учётная стоимость: %d" % definition.accounting_value)
+	lines.append("Дата регистрации: день %d" % record.day_index)
+	lines.append("Статус: %s" % UI_TerminalButtonPackage.status_text(record, state, visit))
+	if state != null:
+		lines.append("Состояние: %s" % _condition_text(state))
+	if visit != null and visit.complaint != null:
+		lines.append("Жалоба: %s" % _complaint_text(visit.complaint))
+	_rich_label_description.text = "\n".join(lines)
+
+
+func clear_info() -> void:
+	_label_package_id.text = "—"
+	_label_package_uid.text = "—"
+	_label_package_name.text = "Посылка не выбрана"
+	_rich_label_description.text = ""
+
+
+static func _condition_text(state: C_PackageState) -> String:
+	var parts: PackedStringArray = []
+	match state.damage:
+		C_PackageState.Damage.UNDAMAGED:
+			parts.append("целая")
+		C_PackageState.Damage.DAMAGED:
+			parts.append("повреждена")
+		C_PackageState.Damage.DESTROYED:
+			parts.append("уничтожена")
+	parts.append("вскрыта" if state.opening == C_PackageState.Opening.OPENED else "закрыта")
+	if state.leaking:
+		parts.append("протекает")
+	return " · ".join(parts)
+
+
+static func _complaint_text(complaint: CustomerComplaint) -> String:
+	match complaint.outcome:
+		CustomerComplaint.Outcome.PENDING:
+			return "на рассмотрении"
+		CustomerComplaint.Outcome.CONFIRMED:
+			return "подтверждена"
+		CustomerComplaint.Outcome.FALSE_CLAIM:
+			return "ложная"
+		CustomerComplaint.Outcome.WAIVED_PLAYER_DEFEAT:
+			return "штраф отменён"
+		CustomerComplaint.Outcome.ALREADY_SETTLED:
+			return "расчёт уже выполнен"
+		CustomerComplaint.Outcome.NO_LIVING_CLAIMANT:
+			return "заявитель отсутствует"
+	return "—"

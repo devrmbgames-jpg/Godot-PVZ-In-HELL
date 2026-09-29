@@ -86,6 +86,7 @@ static func register_package(target: Entity) -> PackageScanResult:
 	var sequence: int = smallest_free_number(registry)
 	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	registration.package_id = identity.package_id
+	registration.history_id = identity.history_id
 	registration.day_index = cycle.day_index
 	registration.number = sequence
 	registration.definition = identity.definition
