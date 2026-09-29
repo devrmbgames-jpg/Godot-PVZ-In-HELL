@@ -282,6 +282,52 @@ static func deny(visit_id: StringName) -> bool:
 	return true
 
 
+## Dialogue-owned choice only requests the domain transition; CustomerVisit remains authority.
+static func voluntary_refuse(customer: E_Customer) -> bool:
+	if not is_instance_valid(customer):
+		return false
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent == null:
+		return false
+	var visit: CustomerVisit = find_visit(agent.visit_id)
+	if (
+		visit == null
+		or visit.definition == null
+		or not visit.definition.voluntary_refusal
+		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+		or visit.finished
+	):
+		return false
+	if agent.phase != C_CustomerAgent.Phase.DIALOGUE and agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
+		return false
+	visit.actual = CustomerVisit.Actual.CUSTOMER_REFUSED
+	visit.satisfaction = 0
+	_leave(customer, visit)
+	return true
+
+
+## R12 receiver for a previously decided aggression fact; it does not decide aggression.
+static func enter_aggressive(customer: E_Customer) -> bool:
+	if not is_instance_valid(customer):
+		return false
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent == null:
+		return false
+	var visit: CustomerVisit = find_visit(agent.visit_id)
+	if (
+		visit == null
+		or not visit.aggressive
+		or visit.finished
+		or agent.phase == C_CustomerAgent.Phase.LEAVING
+		or agent.phase == C_CustomerAgent.Phase.FINISHED
+	):
+		return false
+	_transition(agent, C_CustomerAgent.Phase.AGGRESSIVE)
+	agent.moving = false
+	customer.show_message("Вы меня обманули!")
+	return true
+
+
 static func dispose_refusal(visit_id: StringName, buyout: bool) -> bool:
 	var visit: CustomerVisit = find_visit(visit_id)
 	var cycle: C_DayCycle = DayPhaseService.current()

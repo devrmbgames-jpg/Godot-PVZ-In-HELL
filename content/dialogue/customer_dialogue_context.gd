@@ -93,6 +93,15 @@ func satisfaction() -> int:
 
 func dialogue_cue() -> String:
 	var visit: CustomerVisit = _visit()
+	if false_taken_detected():
+		return "false_taken"
+	if (
+		visit != null
+		and visit.definition != null
+		and visit.definition.voluntary_refusal
+		and visit.actual == CustomerVisit.Actual.NOT_RESOLVED
+	):
+		return "voluntary_refusal"
 	if (
 		visit != null
 		and visit.definition != null
@@ -125,6 +134,37 @@ func answer_riddle_correct() -> bool:
 	return true
 
 
+func voluntary_refuse() -> bool:
+	return is_valid() and CustomerFlowService.voluntary_refuse(_customer)
+
+
+func schedule_non_delivery_complaint() -> bool:
+	var visit: CustomerVisit = _visit()
+	var cycle: C_DayCycle = DayPhaseService.current()
+	if visit == null or cycle == null:
+		return false
+	return CustomerOutcomeService.create_complaint(
+		visit,
+		cycle.day_index,
+		CustomerComplaint.Reason.NOT_DELIVERED,
+		true,
+	)
+
+
+func false_taken_detected() -> bool:
+	var visit: CustomerVisit = _visit()
+	return (
+		visit != null
+		and visit.declaration == CustomerVisit.Declaration.TAKEN
+		and visit.actual != CustomerVisit.Actual.DELIVERED
+		and visit.aggressive
+	)
+
+
+func enter_aggressive() -> bool:
+	return false_taken_detected() and CustomerFlowService.enter_aggressive(_customer)
+
+
 func requested_package_id() -> String:
 	var visit: CustomerVisit = _visit()
 	return visit.package_id if visit != null else ""
@@ -145,6 +185,27 @@ func complaint_outcome() -> int:
 	if visit == null or visit.complaint == null:
 		return NO_COMPLAINT
 	return visit.complaint.outcome
+
+
+func has_complaint() -> bool:
+	var visit: CustomerVisit = _visit()
+	return visit != null and visit.complaint != null
+
+
+func complaint_reason() -> int:
+	var visit: CustomerVisit = _visit()
+	if visit == null or visit.complaint == null:
+		return NO_COMPLAINT
+	return visit.complaint.reason
+
+
+func complaint_pending() -> bool:
+	var visit: CustomerVisit = _visit()
+	return (
+		visit != null
+		and visit.complaint != null
+		and visit.complaint.outcome == CustomerComplaint.Outcome.PENDING
+	)
 
 
 func package_opened() -> bool:

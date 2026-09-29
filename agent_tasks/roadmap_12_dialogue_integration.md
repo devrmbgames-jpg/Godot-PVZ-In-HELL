@@ -25,7 +25,7 @@ Status: **IN_PROGRESS**
 Do not create a parallel planning document. This file remains the authoritative state/router for the feature; source design docs are references, not task state.
 
 ### Current
-Branch `feature/r12-dialogue-integration` started from `master@bd1e5a4d928084aa94b346e05a4ebe888dd5c9d1`. M1 implements the typed DialogueManager context, project-owned modal presentation, and direct package-number conversation. M2 adds a data-driven riddle customer, repeatable riddle branch, persistent one-shot wrong-answer penalty, and final Satisfaction integration. Next: gameplay dialogue actions (voluntary refusal, delayed Complaint, false `TAKEN`/Aggressive receiver hooks) and completion of the remaining condition adapter surface.
+Branch `feature/r12-dialogue-integration` started from `master@bd1e5a4d928084aa94b346e05a4ebe888dd5c9d1`. M1 implements the typed DialogueManager context, project-owned modal presentation, and direct package-number conversation. M2 adds a data-driven riddle customer, repeatable riddle branch, persistent one-shot wrong-answer penalty, and final Satisfaction integration. M3 adds bounded gameplay actions for voluntary refusal, forced delayed non-delivery Complaint creation, and false `TAKEN` detection routed into the existing Aggressive receiver. Complaint reason/pending conditions are exposed without moving authority into dialogue. Next: tests, independent review, final validation, and owner QA.
 
 ### Validation
 Static review after M1: R1 (cyclic `CustomerDialogueService <-> CustomerDialoguePanel` class dependency) = **FIXED** by removing the panel-to-service reference. Runtime checks have not yet run.
@@ -53,9 +53,9 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 ## Работы
 
 - [x] Оценить уже установленный DialogueManager 4.1.0 через локальный API; использовать его без изменения addons и без второго параллельного движка.
-- [ ] Добавить типизированный адаптер conditions/actions: фаза, Satisfaction, RequestedPackage, Package actual outcome, Terminal declaration, Complaint/dispute state, Opened/Damaged flags, результаты Challenge и будущий Hunger tier.
+- [x] Добавить типизированный адаптер conditions/actions: фаза, Satisfaction, RequestedPackage, Package actual outcome, Terminal declaration, Complaint/dispute state, Opened/Damaged flags, результаты Challenge и будущий Hunger tier.
 - [x] Собрать прямой диалог с номером и загадку с выбором/повтором/альтернативной веткой.
-- [ ] Действия диалога вызывают существующие gameplay-контракты; поддержать voluntary Customer refusal, delayed Complaint и обнаружение false `TAKEN` с переходом в Aggressive. Challenge/Aggressive подключаются через получателей, а не через циклическую зависимость реализации.
+- [x] Действия диалога вызывают существующие gameplay-контракты; поддержать voluntary Customer refusal, delayed Complaint и обнаружение false `TAKEN` с переходом в Aggressive. Challenge/Aggressive подключаются через получателей, а не через циклическую зависимость реализации.
 - [ ] Разделить действительную реплику/переход и воспринимаемый текст для последующей Hunger distortion.
 
 ## Критерии готовности
