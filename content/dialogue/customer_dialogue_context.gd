@@ -104,6 +104,12 @@ func dialogue_cue() -> String:
 		return "voluntary_refusal"
 	if (
 		visit != null
+		and visit.visit_count > 1
+		and visit.declaration == CustomerVisit.Declaration.NONE
+	):
+		return "followup"
+	if (
+		visit != null
 		and visit.definition != null
 		and visit.definition.dialogue_mode == DEF_Customer.DialogueMode.RIDDLE
 		and not visit.riddle_solved

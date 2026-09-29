@@ -134,6 +134,7 @@ static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
 	sync_package_history(flow)
 	if cycle.phase == C_DayCycle.Phase.MORNING:
 		finalize_missed_unregistered(flow, cycle, wallet)
+	reactivate_due_followups(flow, cycle.day_index)
 	for visit: CustomerVisit in flow.visits:
 		CustomerOutcomeService.settle(visit, wallet, cycle.day_index)
 		CustomerOutcomeService.resolve_complaint(visit, wallet, cycle.day_index)
@@ -237,6 +238,8 @@ static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void
 	agent.destination = station.waiting_position()
 	agent.moving = true
 	visit.started = true
+	visit.visit_count += 1
+	visit.last_visit_day = day
 	bind_parcel(customer, visit)
 	customer.show_message(visit.definition.display_name)
 
@@ -358,6 +361,8 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 		return true
 	if not CustomerOutcomeService.declare(visit, declaration):
 		return false
+	if declaration != CustomerVisit.Declaration.NONE:
+		visit.next_followup_day = 0
 	CustomerOutcomeService.settle(visit, WalletService.current(), cycle.day_index)
 	var customer: E_Customer = customer_for(visit_id)
 	if customer != null and visit.aggressive:
@@ -444,7 +449,65 @@ static func finish(visit: CustomerVisit, day: int) -> void:
 		return
 	visit.finished = true
 	visit.finished_day = day
-	CustomerOutcomeService.create_complaint(visit, day)
+	if CustomerOutcomeService.create_complaint(visit, day):
+		visit.next_followup_day = 0
+		return
+	schedule_followup(visit, day)
+
+
+static func schedule_followup(visit: CustomerVisit, day: int) -> bool:
+	if (
+		visit == null
+		or visit.definition == null
+		or visit.customer_dead
+		or visit.declaration != CustomerVisit.Declaration.NONE
+		or (
+			visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+			and visit.actual != CustomerVisit.Actual.PLAYER_DENIED
+		)
+		or visit.followup_count >= visit.definition.max_followup_visits
+	):
+		return false
+	var probability: float = clampf(
+		visit.definition.followup_probability + visit.followup_probability_delta,
+		0.0,
+		1.0,
+	)
+	var random: RandomNumberGenerator = RandomNumberGenerator.new()
+	random.seed = String(
+		"%s/followup/%d" % [visit.visit_id, visit.followup_count + 1]
+	).hash()
+	if random.randf() >= probability:
+		return false
+	visit.followup_count += 1
+	visit.next_followup_day = day + maxi(1, visit.definition.followup_delay_days)
+	return true
+
+
+static func reactivate_due_followups(flow: C_CustomerFlow, day: int) -> int:
+	if flow == null:
+		return 0
+	var reactivated: int = 0
+	for visit: CustomerVisit in flow.visits:
+		if (
+			not visit.finished
+			or visit.next_followup_day <= 0
+			or visit.next_followup_day > day
+			or visit.declaration != CustomerVisit.Declaration.NONE
+			or visit.complaint != null
+			or visit.customer_dead
+		):
+			continue
+		if visit.requires_registered_package and not arrival_allowed(visit):
+			continue
+		visit.started = false
+		visit.finished = false
+		visit.finished_day = 0
+		visit.next_followup_day = 0
+		visit.actual = CustomerVisit.Actual.NOT_RESOLVED
+		visit.aggressive = false
+		reactivated += 1
+	return reactivated
 
 
 static func _leave(customer: E_Customer, visit: CustomerVisit) -> void:
