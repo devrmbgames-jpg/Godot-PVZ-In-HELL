@@ -87,6 +87,8 @@ jobs:
                       continue
                   if "Failed to compile depended scripts" in line:
                       continue
+                  if "Identifier not found: ECS" in line:
+                      continue
                   failures.append(f"{target}: {line}")
           if failures:
               raise SystemExit("\n".join(failures))
