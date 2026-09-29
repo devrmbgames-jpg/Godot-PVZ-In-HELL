@@ -1,0 +1,48 @@
+name: Fast Godot class cache validation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - utils/bootstrap_godot_class_cache.sh
+      - AGENTS.md
+      - .github/workflows/r11_1_m5_validation.yml
+      - .github/workflows/class_cache_bootstrap_validation.yml
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Godot 4.7.1
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.1
+          use-dotnet: false
+          include-templates: false
+
+      - name: Count skipped image sources
+        shell: bash
+        run: |
+          image_count=$(find . -type f \( -iname '*.svg' -o -iname '*.png' \) | wc -l)
+          echo "Image sources not needed for class cache: $image_count"
+
+      - name: Bootstrap Godot class cache
+        shell: bash
+        run: |
+          time bash utils/bootstrap_godot_class_cache.sh
+          test -s .godot/global_script_class_cache.cfg
+          grep -q '"GutTest"' .godot/global_script_class_cache.cfg
+
+      - name: Prove GUT works without full import
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests/gut -gselect test_package_history_id.gd -gexit 2>&1 | tee class-cache-gut.log
+          grep -q 'Ran Scripts matching "test_package_history_id.gd"' class-cache-gut.log
+          grep -q -- '---- All tests passed! ----' class-cache-gut.log
