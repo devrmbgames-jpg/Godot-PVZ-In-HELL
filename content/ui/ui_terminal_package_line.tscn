@@ -1,0 +1,176 @@
+[gd_scene format=3 uid="uid://dgsb0j06iiqcg"]
+
+[ext_resource type="Script" uid="uid://dur260lxg5o1d" path="res://content/ui/ui_terminal_package_line.gd" id="1_ag5v5"]
+[ext_resource type="Texture2D" uid="uid://tf44l1f01tpp" path="res://addons/at-icons/animation/box.svg" id="1_hv628"]
+[ext_resource type="ButtonGroup" uid="uid://btmhdlgjpndkq" path="res://content/ui/button_group_package_button_terminal.tres" id="1_iqip0"]
+[ext_resource type="Texture2D" uid="uid://ki6osksbg3g2" path="res://addons/at-icons/control/checkmark.svg" id="2_wy1ir"]
+[ext_resource type="Texture2D" uid="uid://bprhcoty4m42s" path="res://addons/at-icons/node3d/cross.svg" id="3_4tpgq"]
+[ext_resource type="Texture2D" uid="uid://b1fd7hcrt118w" path="res://addons/at-icons/mesh/danger.svg" id="4_vfd67"]
+[ext_resource type="Texture2D" uid="uid://ds5svynpktbm4" path="res://addons/at-icons/node3d/explosion.svg" id="5_ojfob"]
+[ext_resource type="Texture2D" uid="uid://daheo0tpwdffd" path="res://addons/at-icons/control/radioactive_symbol.svg" id="6_ub8ok"]
+[ext_resource type="Texture2D" uid="uid://dwqpa2k6l3q3q" path="res://addons/at-icons/animation/brain.svg" id="7_iqip0"]
+[ext_resource type="Texture2D" uid="uid://dd1ms1oleh4nc" path="res://addons/at-icons/node3d/fire.svg" id="9_j7tcp"]
+[ext_resource type="Texture2D" uid="uid://dvlkiys0peqr7" path="res://addons/at-icons/node/weight.svg" id="10_ag5v5"]
+[ext_resource type="Texture2D" uid="uid://c3cc2m2q4v7ai" path="res://addons/at-icons/animation/vortex.svg" id="11_uj1xn"]
+[ext_resource type="Texture2D" uid="uid://ctb4scdjy5tbx" path="res://addons/at-icons/mesh/lightning_bolt.svg" id="12_admd5"]
+[ext_resource type="Texture2D" uid="uid://pfqi8fvmj3bu" path="res://addons/at-icons/node/egg.svg" id="13_u7mvr"]
+[ext_resource type="Texture2D" uid="uid://cbblqmhf16dnh" path="res://addons/at-icons/node2d/glass.svg" id="15_uj1xn"]
+[ext_resource type="Texture2D" uid="uid://m4m78vcobqn4" path="res://addons/at-icons/mesh/coins.svg" id="16_admd5"]
+[ext_resource type="Texture2D" uid="uid://i323r3ahtjlh" path="res://addons/at-icons/node/arrow_right_to_bracket.svg" id="17_u7mvr"]
+
+[node name="PackageButton" type="PanelContainer" unique_id=1285062657]
+script = ExtResource("1_ag5v5")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=468534476]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="Button" type="Button" parent="MarginContainer" unique_id=112444276]
+unique_name_in_owner = true
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("1_iqip0")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=792371102]
+layout_mode = 2
+
+[node name="TexturePreviewPackage" type="TextureRect" parent="MarginContainer/HBoxContainer" unique_id=1305583667]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("1_hv628")
+stretch_mode = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1997283692]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 1
+
+[node name="Header" type="HBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=466712022]
+layout_mode = 2
+theme_override_constants/separation = 21
+
+[node name="LabelNumber" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/Header" unique_id=1988420623]
+unique_name_in_owner = true
+layout_mode = 2
+text = "#100"
+
+[node name="LabelStatus" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/Header" unique_id=1233318296]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ОЖИДАЕТ"
+
+[node name="Separator" type="Control" parent="MarginContainer/HBoxContainer/VBoxContainer/Header" unique_id=869958779]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ButtonOK" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/Header" unique_id=1894937842]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Клиент получил посылку"
+icon = ExtResource("2_wy1ir")
+icon_alignment = 1
+
+[node name="ButtonCancel" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/Header" unique_id=129348707]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Клиент отказался от посылки"
+icon = ExtResource("3_4tpgq")
+
+[node name="ButtonLost" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/Header" unique_id=1594840740]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("4_vfd67")
+
+[node name="IconsStatusesType" type="HBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=1971368123]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="IconExplotion" type="TextureRect" parent="MarginContainer/HBoxContainer/VBoxContainer/IconsStatusesType" unique_id=67086035]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Взрывоопасно"
+texture = ExtResource("5_ojfob")
+
+[node name="IconToxic" type="TextureRect" parent="MarginContainer/HBoxContainer/VBoxContainer/IconsStatusesType" unique_id=22266987]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Токсично"
+texture = ExtResource("6_ub8ok")
+
+[node name="IconPsico" type="TextureRect" parent="MarginContainer/HBoxContainer/VBoxContainer/IconsStatusesType" unique_id=1541128541]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Опасно для психики"
+texture = ExtResource("7_iqip0")
+
+[node name="IconFire" type="TextureRect" parent="MarginContainer/HBoxContainer/VBoxContainer/IconsStatusesType" unique_id=825297156]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Воспламеняющийся"
+texture = ExtResource("9_j7tcp")
+
+[node name="IconWeight" type="TextureRect" parent="MarginContainer/HBoxContainer/VBoxContainer/IconsStatusesType" unique_id=1234845581]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Тяжелый"
+texture = ExtResource("10_ag5v5")
+
+[node name="IconAnomaly" type="TextureRect" parent="MarginContainer/HBoxContainer/VBoxContainer/IconsStatusesType" unique_id=1281296136]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Аномальный"
+texture = ExtResource("11_uj1xn")
+
+[node name="IconLight" type="TextureRect" parent="MarginContainer/HBoxContainer/VBoxContainer/IconsStatusesType" unique_id=1915788443]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Электризованный"
+texture = ExtResource("12_admd5")
+
+[node name="IconFragile" type="TextureRect" parent="MarginContainer/HBoxContainer/VBoxContainer/IconsStatusesType" unique_id=1682582840]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Хрупкий"
+texture = ExtResource("13_u7mvr")
+
+[node name="IconFluid" type="TextureRect" parent="MarginContainer/HBoxContainer/VBoxContainer/IconsStatusesType" unique_id=1635092909]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Хрупкий"
+texture = ExtResource("15_uj1xn")
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=1948778152]
+layout_mode = 2
+
+[node name="PriceInfo" type="HBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=113108060]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/VBoxContainer/PriceInfo" unique_id=1985159981]
+layout_mode = 2
+texture = ExtResource("16_admd5")
+stretch_mode = 5
+
+[node name="LabelPrice" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/PriceInfo" unique_id=190322725]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "1000"
+
+[node name="LabelDescriptionShort" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=2083466854]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Краткое описание"
+
+[node name="_TextureIconNext" type="TextureRect" parent="MarginContainer/HBoxContainer" unique_id=929708614]
+layout_mode = 2
+texture = ExtResource("17_u7mvr")
+stretch_mode = 5
+
+[connection signal="button_down" from="MarginContainer/Button" to="." method="_on_button_button_down"]
+[connection signal="button_up" from="MarginContainer/Button" to="." method="_on_button_button_up"]
+[connection signal="pressed" from="MarginContainer/Button" to="." method="_on_button_pressed"]
+[connection signal="toggled" from="MarginContainer/Button" to="." method="_on_button_toggled"]

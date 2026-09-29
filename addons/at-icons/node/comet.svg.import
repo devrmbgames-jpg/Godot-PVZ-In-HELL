@@ -5,7 +5,6 @@ type="CompressedTexture2D"
 uid="uid://qkmr4ei4ji4d"
 path="res://.godot/imported/comet.svg-31a3fa82764918dca2e996602e05c1e5.ctex"
 metadata={
-"has_editor_variant": true,
 "vram_texture": false
 }
 
@@ -26,7 +25,7 @@ compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1
-roughness/mode=0
+roughness/mode=1
 roughness/src_normal=""
 process/channel_remap/red=0
 process/channel_remap/green=1
@@ -38,7 +37,7 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=true
-editor/convert_colors_with_editor_theme=true
+detect_3d/compress_to=0
+svg/scale=2.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

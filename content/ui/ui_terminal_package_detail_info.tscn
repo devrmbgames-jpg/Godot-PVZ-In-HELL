@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://b5l0p8kkhwxpg"]
+
+[ext_resource type="Texture2D" uid="uid://tf44l1f01tpp" path="res://addons/at-icons/animation/box.svg" id="1_0386r"]
+[ext_resource type="Script" uid="uid://y28alrd1jtin" path="res://content/ui/ui_terminal_package_detail_info.gd" id="1_n1noy"]
+
+[node name="PackageDetailInfo" type="PanelContainer" unique_id=1787924404]
+offset_right = 688.0
+offset_bottom = 639.0
+size_flags_vertical = 3
+script = ExtResource("1_n1noy")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=507454693]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1394491497]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=662643441]
+layout_mode = 2
+
+[node name="TextureIconPreview" type="TextureRect" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1652949097]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+texture = ExtResource("1_0386r")
+stretch_mode = 5
+
+[node name="VBoxContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=683110753]
+layout_mode = 2
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 2
+
+[node name="_LabelID" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=871212810]
+layout_mode = 2
+text = "ID:"
+horizontal_alignment = 2
+
+[node name="LabelID" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1295997692]
+unique_name_in_owner = true
+layout_mode = 2
+text = "#100"
+
+[node name="_LabelUID" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=727373438]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "UID :"
+
+[node name="LabelUID" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1699254883]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "123-123-374abcd"
+
+[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=505362305]
+layout_mode = 2
+
+[node name="LabelName" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1749669670]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Name Package"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=504935105]
+layout_mode = 2
+
+[node name="HBoxContainerImages" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1630002483]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=1971953469]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer" unique_id=1192224915]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/PanelContainer" unique_id=693480417]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="RichTextLabelDescription" type="RichTextLabel" parent="MarginContainer/VBoxContainer/PanelContainer/MarginContainer" unique_id=841042375]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
