@@ -262,9 +262,9 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 	if customer != null:
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 		if visit.aggressive and agent.phase != C_CustomerAgent.Phase.LEAVING:
-			_transition(agent, C_CustomerAgent.Phase.AGGRESSIVE)
-			agent.moving = false
-			customer.show_message("Вы ничего мне не выдали! Я подам жалобу!")
+			# R11 decides the aggression fact. R12 owns the dialogue reaction and
+			# invokes enter_aggressive() after the complaint line has been resolved.
+			customer.show_message("Вы ничего мне не выдали! Поговорите со мной.")
 		elif agent.phase != C_CustomerAgent.Phase.LEAVING:
 			_leave(customer, visit)
 	return true

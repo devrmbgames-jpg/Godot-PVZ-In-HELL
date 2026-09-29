@@ -110,10 +110,15 @@ func test_forced_delayed_complaint_is_idempotent() -> void:
 
 
 func test_false_taken_detection_routes_to_existing_aggressive_receiver() -> void:
-	_visit.declaration = CustomerVisit.Declaration.TAKEN
-	_visit.aggressive = true
+	_visit.aggression_roll = 0.0
+	_visit.definition.immediate_aggression_probability = 1.0
+	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.TAKEN))
+	var waiting_agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	assert_eq(waiting_agent.phase, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
 	assert_true(_context.false_taken_detected())
+	assert_eq(_context.dialogue_cue(), "false_taken")
 	assert_true(_context.begin())
+	assert_true(_context.schedule_non_delivery_complaint())
 	assert_true(_context.enter_aggressive())
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(agent.phase, C_CustomerAgent.Phase.AGGRESSIVE)

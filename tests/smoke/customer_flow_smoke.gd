@@ -89,6 +89,12 @@ func _run() -> void:
 	third.aggression_roll = 0.0
 	assert(CustomerFlowService.declare(third.visit_id, CustomerVisit.Declaration.TAKEN))
 	assert(third.actual == CustomerVisit.Actual.NOT_RESOLVED)
+	assert((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
+	var dialogue_context: CustomerDialogueContext = CustomerDialogueContext.new(actor, customer)
+	assert(dialogue_context.dialogue_cue() == "false_taken")
+	assert(dialogue_context.begin())
+	assert(dialogue_context.schedule_non_delivery_complaint())
+	assert(dialogue_context.enter_aggressive())
 	assert((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.AGGRESSIVE)
 	ECS.world.process(third.definition.aggressive_seconds, "GamePlay")
 	ECS.world.process(third.definition.leaving_seconds, "GamePlay")

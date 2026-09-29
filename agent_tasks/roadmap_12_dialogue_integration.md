@@ -28,7 +28,10 @@ Do not create a parallel planning document. This file remains the authoritative 
 Branch `feature/r12-dialogue-integration` started from `master@bd1e5a4d928084aa94b346e05a4ebe888dd5c9d1`. M1 implements the typed DialogueManager context, project-owned modal presentation, and direct package-number conversation. M2 adds a data-driven riddle customer, repeatable riddle branch, persistent one-shot wrong-answer penalty, and final Satisfaction integration. M3 adds bounded gameplay actions for voluntary refusal, forced delayed non-delivery Complaint creation, and false `TAKEN` detection routed into the existing Aggressive receiver. Complaint reason/pending conditions are exposed without moving authority into dialogue. Next: tests, independent review, final validation, and owner QA.
 
 ### Validation
-Static review after M1: R1 (cyclic `CustomerDialogueService <-> CustomerDialoguePanel` class dependency) = **FIXED** by removing the panel-to-service reference. Runtime checks have not yet run.
+Static review findings:
+- R1 (cyclic `CustomerDialogueService <-> CustomerDialoguePanel` class dependency) = **FIXED** by removing the panel-to-service reference.
+- R2 (false `TAKEN` dialogue branch unreachable because R11 transitioned directly to Aggressive) = **FIXED**: R11 remains authority for the `visit.aggressive` decision, while R12 now owns the reaction dialogue and invokes the bounded Aggressive receiver after complaint creation.
+Runtime checks have not yet run.
 
 ### Owner QA / blockers
 No new blocker is recorded. Any unmet dependency discovered during startup moves the task to `BLOCKED` or `DEFERRED` with the exact dependency named.
@@ -56,7 +59,7 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 - [x] Добавить типизированный адаптер conditions/actions: фаза, Satisfaction, RequestedPackage, Package actual outcome, Terminal declaration, Complaint/dispute state, Opened/Damaged flags, результаты Challenge и будущий Hunger tier.
 - [x] Собрать прямой диалог с номером и загадку с выбором/повтором/альтернативной веткой.
 - [x] Действия диалога вызывают существующие gameplay-контракты; поддержать voluntary Customer refusal, delayed Complaint и обнаружение false `TAKEN` с переходом в Aggressive. Challenge/Aggressive подключаются через получателей, а не через циклическую зависимость реализации.
-- [ ] Разделить действительную реплику/переход и воспринимаемый текст для последующей Hunger distortion.
+- [x] Разделить действительную реплику/переход и воспринимаемый текст для последующей Hunger distortion.
 
 ## Критерии готовности
 
