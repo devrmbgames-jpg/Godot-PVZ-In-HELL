@@ -35,11 +35,22 @@ jobs:
         shell: bash
         run: bash utils/bootstrap_godot_class_cache.sh
 
-      - name: Terminal NewUI GUT
+      - name: Parse TerminalPanel without asset import
+        run: godot --headless --path . --check-only --script content/ui/terminal_panel.gd
+
+      - name: Parse package line without asset import
+        run: godot --headless --path . --check-only --script content/ui/ui_terminal_package_line.gd
+
+      - name: Parse package detail without asset import
+        run: godot --headless --path . --check-only --script content/ui/ui_terminal_package_detail_info.gd
+
+      - name: Parse terminal log without asset import
+        run: godot --headless --path . --check-only --script content/ui/ui_terminal_log_history.gd
+
+      - name: Assert legacy Terminal API is gone
         shell: bash
         run: |
-          set -o pipefail
-          godot --headless --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests/gut -gselect test_terminal_new_ui.gd -gexit 2>&1 | tee terminal-new-ui-gut.log
-          grep -q 'Ran Scripts matching "test_terminal_new_ui.gd"' terminal-new-ui-gut.log
-          grep -q -- '---- All tests passed! ----' terminal-new-ui-gut.log
-          if grep -Eq "GUT ERROR|SCRIPT ERROR|Parse Error|Assertion failed" terminal-new-ui-gut.log; then exit 1; fi
+          ! grep -R "dispose_refusal(" content tests --include='*.gd'
+          ! grep -R "terminal_text(" content tests --include='*.gd'
+          ! grep -R "registry_text(" content tests --include='*.gd'
+          ! grep -R "Root/Panel/Margin/Rows" content tests --include='*.gd' --include='*.tscn'

@@ -12,6 +12,18 @@ static func ledger() -> C_PackageLedger:
 	return session.get_component(C_PackageLedger) as C_PackageLedger if session != null else null
 
 
+## Read-only live state snapshot for package-facing UI. Registry remains the durable authority.
+static func live_states() -> Dictionary[String, C_PackageState]:
+	var result: Dictionary[String, C_PackageState] = {}
+	if not is_instance_valid(ECS.world):
+		return result
+	for parcel: Entity in ECS.world.query.with_all([C_Package, C_PackageState]).execute():
+		var identity: C_Package = parcel.get_component(C_Package) as C_Package
+		var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
+		result[identity.package_id] = state
+	return result
+
+
 ## Requires an active hand scanner, valid parcel and unobstructed scan range.
 static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	if not is_instance_valid(target) or not is_instance_valid(scanner):

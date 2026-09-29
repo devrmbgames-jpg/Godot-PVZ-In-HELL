@@ -410,12 +410,7 @@ static func _help_entries() -> PackedStringArray:
 
 
 func _live_states() -> Dictionary[String, C_PackageState]:
-	var result: Dictionary[String, C_PackageState] = {}
-	for parcel: Entity in ECS.world.query.with_all([C_Package, C_PackageState]).execute():
-		var identity: C_Package = parcel.get_component(C_Package) as C_Package
-		var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
-		result[identity.package_id] = state
-	return result
+	return PackageRegistrationService.live_states()
 
 
 func _visits_by_package() -> Dictionary[String, CustomerVisit]:
