@@ -3,11 +3,59 @@
 [ext_resource type="Resource" uid="uid://btuoi3maxvuq3" path="res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres" id="5_rrbex"]
 [ext_resource type="Script" uid="uid://vyx4wrt4eqv7" path="res://content/definitions/gameplay/customers/def_customer.gd" id="Customer"]
 [ext_resource type="Script" uid="uid://c1wdbe15l5tk3" path="res://content/definitions/gameplay/customers/def_customer_event.gd" id="Event"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/customers/def_customer_dialogue_reaction.gd" id="Reaction"]
 [ext_resource type="PackedScene" path="res://content/entities/customers/customer.tscn" id="Scene"]
 [ext_resource type="Script" uid="uid://bfp6pc2vc71rw" path="res://content/definitions/gameplay/customers/def_customer_schedule.gd" id="Schedule"]
 
+
+[sub_resource type="Resource" id="ReactionHonest"]
+script = ExtResource("Reaction")
+intent = 1
+satisfaction_delta = 5
+complaint_probability_delta = -0.2
+aggression_probability_delta = -0.1
+followup_probability_delta = 0.1
+
+[sub_resource type="Resource" id="ReactionLie"]
+script = ExtResource("Reaction")
+intent = 2
+satisfaction_delta = -20
+complaint_probability_delta = 0.2
+aggression_probability_delta = 0.1
+followup_probability_delta = 0.05
+
+[sub_resource type="Resource" id="ReactionPersuade"]
+script = ExtResource("Reaction")
+intent = 3
+satisfaction_delta = -5
+complaint_probability_delta = -0.55
+aggression_probability_delta = -0.05
+followup_probability_delta = 0.2
+
+[sub_resource type="Resource" id="ReactionThreat"]
+script = ExtResource("Reaction")
+intent = 4
+satisfaction_delta = -40
+complaint_probability_delta = 0.15
+aggression_probability_delta = 0.55
+followup_probability_delta = -0.25
+
+[sub_resource type="Resource" id="ReactionFlirt"]
+script = ExtResource("Reaction")
+intent = 5
+satisfaction_delta = 5
+complaint_probability_delta = -0.15
+aggression_probability_delta = -0.05
+followup_probability_delta = 0.05
+
+[sub_resource type="Resource" id="ReactionJoke"]
+script = ExtResource("Reaction")
+intent = 6
+satisfaction_delta = -5
+
 [sub_resource type="Resource" id="Ordinary"]
 script = ExtResource("Customer")
+dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
 display_name = "Покупатель книг"
 key = &"ordinary"
 
@@ -17,6 +65,7 @@ customer = SubResource("Ordinary")
 
 [sub_resource type="Resource" id="Careful"]
 script = ExtResource("Customer")
+dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
 display_name = "Покупатель посуды"
 accepts_damaged = false
 accepts_opened = false
@@ -30,6 +79,7 @@ customer = SubResource("Careful")
 
 [sub_resource type="Resource" id="Refusal"]
 script = ExtResource("Customer")
+dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
 display_name = "Покупатель одежды"
 voluntary_refusal = true
 key = &"voluntary_refusal"
@@ -41,6 +91,7 @@ customer = SubResource("Refusal")
 
 [sub_resource type="Resource" id="Late"]
 script = ExtResource("Customer")
+dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
 display_name = "Поздний покупатель оборудования"
 key = &"late"
 

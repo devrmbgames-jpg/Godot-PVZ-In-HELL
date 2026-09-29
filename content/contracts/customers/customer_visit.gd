@@ -36,6 +36,11 @@ enum Feedback { NONE, APPROVED }
 @export var reputation: Reputation = Reputation.NONE
 @export var satisfaction: int = 0
 @export var dialogue_satisfaction_delta: int = 0
+@export var last_dialogue_intent: CustomerDialogueIntent.Type = CustomerDialogueIntent.Type.NONE
+@export var applied_dialogue_intents: int = 0
+@export var complaint_probability_delta: float = 0.0
+@export var aggression_probability_delta: float = 0.0
+@export var followup_probability_delta: float = 0.0
 @export var riddle_wrong_answer_applied: bool = false
 @export var riddle_solved: bool = false
 @export var feedback: Feedback = Feedback.NONE
@@ -45,6 +50,11 @@ enum Feedback { NONE, APPROVED }
 @export var started: bool = false
 @export var finished: bool = false
 @export var finished_day: int = 0
+@export var visit_count: int = 0
+@export var followup_count: int = 0
+@export var next_followup_day: int = 0
+@export var last_visit_day: int = 0
+@export var player_denial_count: int = 0
 @export var customer_dead: bool = false
 @export var defeated_by_player: bool = false
 @export var settlement_committed: bool = false
