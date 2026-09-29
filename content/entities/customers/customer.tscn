@@ -24,7 +24,7 @@ script = ExtResource("Interactable")
 [sub_resource type="Resource" id="Action"]
 script = ExtResource("Action")
 action_id = &"customer_request"
-caption = "Узнать номер заказа"
+caption = "Поговорить"
 
 [sub_resource type="Resource" id="Actions"]
 script = ExtResource("Actions")

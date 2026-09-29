@@ -213,11 +213,12 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 
 static func greet(customer: E_Customer) -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	var visit: CustomerVisit = find_visit(agent.visit_id)
+	if agent == null or find_visit(agent.visit_id) == null:
+		return
 	if agent.phase != C_CustomerAgent.Phase.WAITING and agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
 		return
 	_transition(agent, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
-	customer.show_message(CustomerPresentation.request_text(visit))
+	customer.show_message("Здравствуйте. Поговорите со мной, чтобы узнать номер заказа.")
 
 
 static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck.Result:
@@ -261,9 +262,9 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 	if customer != null:
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 		if visit.aggressive and agent.phase != C_CustomerAgent.Phase.LEAVING:
-			_transition(agent, C_CustomerAgent.Phase.AGGRESSIVE)
-			agent.moving = false
-			customer.show_message("Вы ничего мне не выдали! Я подам жалобу!")
+			# R11 decides the aggression fact. R12 owns the dialogue reaction and
+			# invokes enter_aggressive() after the complaint line has been resolved.
+			customer.show_message("Вы ничего мне не выдали! Поговорите со мной.")
 		elif agent.phase != C_CustomerAgent.Phase.LEAVING:
 			_leave(customer, visit)
 	return true
@@ -278,6 +279,52 @@ static func deny(visit_id: StringName) -> bool:
 	var customer: E_Customer = customer_for(visit_id)
 	if customer != null:
 		_leave(customer, visit)
+	return true
+
+
+## Dialogue-owned choice only requests the domain transition; CustomerVisit remains authority.
+static func voluntary_refuse(customer: E_Customer) -> bool:
+	if not is_instance_valid(customer):
+		return false
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent == null:
+		return false
+	var visit: CustomerVisit = find_visit(agent.visit_id)
+	if (
+		visit == null
+		or visit.definition == null
+		or not visit.definition.voluntary_refusal
+		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+		or visit.finished
+	):
+		return false
+	if agent.phase != C_CustomerAgent.Phase.DIALOGUE and agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
+		return false
+	visit.actual = CustomerVisit.Actual.CUSTOMER_REFUSED
+	visit.satisfaction = 0
+	_leave(customer, visit)
+	return true
+
+
+## R12 receiver for a previously decided aggression fact; it does not decide aggression.
+static func enter_aggressive(customer: E_Customer) -> bool:
+	if not is_instance_valid(customer):
+		return false
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent == null:
+		return false
+	var visit: CustomerVisit = find_visit(agent.visit_id)
+	if (
+		visit == null
+		or not visit.aggressive
+		or visit.finished
+		or agent.phase == C_CustomerAgent.Phase.LEAVING
+		or agent.phase == C_CustomerAgent.Phase.FINISHED
+	):
+		return false
+	_transition(agent, C_CustomerAgent.Phase.AGGRESSIVE)
+	agent.moving = false
+	customer.show_message("Вы меня обманули!")
 	return true
 
 

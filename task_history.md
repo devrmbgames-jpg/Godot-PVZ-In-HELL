@@ -29,3 +29,5 @@
 - 2026-09-29 — Agent architecture migrated to right-sized Fix/Task/Feature workflow with on-demand develop/GECS/GUT/design skills, authoritative task state, compact CURRENT_WORK, task status index, review triage, DEFERRED status, and structural validation of normalized task metadata.
 
 - 2026-09-29 — R11.1: prolonged interaction/reset policies, generic access/openable contracts, RemoteTransform3D-backed physical slots, collision-validated Carry placement, Hammer anchor/unfix with reversible physics/support safety; focused GUT and both physics smokes PASS, owner gameplay QA confirmed.
+
+- 2026-09-29 — R12: DialogueManager integrated through typed customer context and project modal UI; direct package-number dialogue, riddle/retry with idempotent Satisfaction penalty, voluntary refusal, delayed complaint and false TAKEN/Aggressive handoff implemented. Focused R12 GUT and lifecycle smoke PASS; owner confirmed the dialogue flow works in main_level.

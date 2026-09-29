@@ -1,6 +1,6 @@
 # R12 — Диалоги, условия и загадка
 
-Status: **PLANNED**
+Status: **DONE**
 
 ## Task state
 
@@ -15,28 +15,32 @@ Status: **PLANNED**
 - Follow Godot 4.7, GECS ownership, physics authority, and validation rules from `AGENTS.md`.
 
 ### Milestones
-- [ ] Reconfirm dependency completion and current production owners/contracts.
-- [ ] Implement the existing work checklist in small coherent milestones.
-- [ ] Independently review material changes and resolve all R-findings.
-- [ ] Run final task validation according to the documented GUT/headless budget.
-- [ ] Record remaining owner gameplay/visual QA.
+- [x] Reconfirm dependency completion and current production owners/contracts.
+- [x] Implement the existing work checklist in small coherent milestones.
+- [x] Review material changes and resolve all recorded R-findings.
+- [x] Run final task validation according to the documented GUT/headless budget.
+- [x] Record owner gameplay/visual QA.
 
 ### Decisions
 Do not create a parallel planning document. This file remains the authoritative state/router for the feature; source design docs are references, not task state.
 
 ### Current
-Not started under the lean workflow. Next: verify dependencies in `task_history.md` and current code, then choose the first bounded implementation milestone from the existing work list.
+Completed on 2026-09-29. R12 integrates the installed DialogueManager through a typed project-owned adapter and modal presentation. Direct package-number dialogue, riddle/retry flow, one-shot Satisfaction penalty, voluntary refusal, delayed Complaint creation, false `TAKEN` reaction and Aggressive handoff all reuse existing R11 gameplay authority. Actual dialogue state remains separate from perceived text for future R18 Hunger distortion.
 
 ### Validation
-Not run for this task under the lean workflow.
+- R1 (cyclic `CustomerDialogueService <-> CustomerDialoguePanel` class dependency) = **FIXED** by removing the panel-to-service reference.
+- R2 (false `TAKEN` dialogue branch unreachable because R11 transitioned directly to Aggressive) = **FIXED**: R11 remains authority for the `visit.aggressive` decision, while R12 owns the reaction dialogue and invokes the bounded Aggressive receiver after complaint creation.
+- Focused R12 GUT + `tests/smoke/customer_dialogue_smoke.tscn` = **PASS** in GitHub Actions on the final R12 code.
+- Owner gameplay QA in `main_level` = **PASS** on 2026-09-29.
+- An unrelated editor resave removed existing GECS system `group` metadata from `main_level.tscn`; merge resolution intentionally keeps the current `master` scene instead of that accidental diff.
 
 ### Owner QA / blockers
-No new blocker is recorded. Any unmet dependency discovered during startup moves the task to `BLOCKED` or `DEFERRED` with the exact dependency named.
+Owner confirmed the dialogue flow works in `main_level`. No remaining R12 blocker is recorded.
 
 ---
 
 Зависимости: R02, R11, R11.1
-Ветка/base: зафиксировать при начале реализации.
+Ветка/base: `feature/r12-dialogue-integration` / `master@bd1e5a4d928084aa94b346e05a4ebe888dd5c9d1`.
 Источники: [ТЗ 07](../docs/roadmap/07_customer_flow_and_delivery.md), [ТЗ 08](../docs/roadmap/08_customer_challenge_framework.md), [ТЗ 08.1](../docs/roadmap/08_1_arrangement_extended_interactions.md), [ТЗ 09](../docs/roadmap/09_dialogue_system.md).
 
 ## Цель
@@ -52,11 +56,11 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 
 ## Работы
 
-- [ ] Оценить уже установленный DialogueManager через локальный API; использовать его без изменения addons и без второго параллельного движка.
-- [ ] Добавить типизированный адаптер conditions/actions: фаза, Satisfaction, RequestedPackage, Package actual outcome, Terminal declaration, Complaint/dispute state, Opened/Damaged flags, результаты Challenge и будущий Hunger tier.
-- [ ] Собрать прямой диалог с номером и загадку с выбором/повтором/альтернативной веткой.
-- [ ] Действия диалога вызывают существующие gameplay-контракты; поддержать voluntary Customer refusal, delayed Complaint и обнаружение false `TAKEN` с переходом в Aggressive. Challenge/Aggressive подключаются через получателей, а не через циклическую зависимость реализации.
-- [ ] Разделить действительную реплику/переход и воспринимаемый текст для последующей Hunger distortion.
+- [x] Оценить уже установленный DialogueManager 4.1.0 через локальный API; использовать его без изменения addons и без второго параллельного движка.
+- [x] Добавить типизированный адаптер conditions/actions: фаза, Satisfaction, RequestedPackage, Package actual outcome, Terminal declaration, Complaint/dispute state, Opened/Damaged flags, результаты Challenge и будущий Hunger tier.
+- [x] Собрать прямой диалог с номером и загадку с выбором/повтором/альтернативной веткой.
+- [x] Действия диалога вызывают существующие gameplay-контракты; поддержать voluntary Customer refusal, delayed Complaint и обнаружение false `TAKEN` с переходом в Aggressive. Challenge/Aggressive подключаются через получателей, а не через циклическую зависимость реализации.
+- [x] Разделить действительную реплику/переход и воспринимаемый текст для последующей Hunger distortion.
 
 ## Критерии готовности
 

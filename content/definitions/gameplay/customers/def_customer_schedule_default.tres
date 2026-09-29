@@ -20,6 +20,7 @@ script = ExtResource("Customer")
 display_name = "Покупатель посуды"
 accepts_damaged = false
 accepts_opened = false
+dialogue_mode = 1
 key = &"careful"
 
 [sub_resource type="Resource" id="Glass"]

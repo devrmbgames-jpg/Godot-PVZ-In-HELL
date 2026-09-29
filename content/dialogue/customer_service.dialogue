@@ -1,0 +1,36 @@
+~ direct
+Клиент: Здравствуйте.
+if ctx.has_registered_number()
+	Клиент: Мой заказ №{{ctx.package_number_text()}}. Найдите коробку и принесите её на стойку выдачи.
+else
+	Клиент: Мой заказ ещё не зарегистрирован. Сначала просканируйте поступившие коробки.
+=> END
+
+~ riddle
+Клиент: Сначала загадка. Что становится мокрее, пока сушит?
+- Полотенце => riddle_correct
+- Зонт => riddle_wrong
+- Коробка => riddle_wrong
+
+~ riddle_correct
+do ctx.answer_riddle_correct()
+Клиент: Верно. Мой заказ №{{ctx.package_number_text()}}.
+=> END
+
+~ riddle_wrong
+do ctx.answer_riddle_wrong()
+Клиент: Нет. Подумайте ещё — за неправильный ответ я уже немного недоволен.
+- Попробовать ещё раз => riddle
+- Закончить разговор => END
+
+~ voluntary_refusal
+Клиент: Я передумал и не буду забирать этот заказ. Оставьте коробку у себя на складе.
+do ctx.voluntary_refuse()
+=> END
+
+~ false_taken
+Клиент: В терминале стоит «Забрал», но вы ничего мне не выдали.
+do ctx.schedule_non_delivery_complaint()
+Клиент: Я это так не оставлю!
+do ctx.enter_aggressive()
+=> END

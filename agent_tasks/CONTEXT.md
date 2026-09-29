@@ -5,7 +5,6 @@ This file is the queue/index. It does not replace individual task state.
 | Status | Task |
 | --- | --- |
 | **DEFERRED** | [R22.5 GECS Architecture Polish](roadmap_22_5_gecs_architecture_polish.md) — resume after feature work R08–R22 is stable |
-| **PLANNED** | [R12 Dialogue Integration](roadmap_12_dialogue_integration.md) |
 | **PLANNED** | [R13 Environment Interactables](roadmap_13_environment_interactables.md) |
 | **PLANNED** | [R14 Challenge Framework / Light](roadmap_14_challenge_framework_and_lights.md) |
 | **PLANNED** | [R15 Gaze Challenges](roadmap_15_gaze_challenges.md) |

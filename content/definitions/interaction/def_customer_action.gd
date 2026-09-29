@@ -9,5 +9,5 @@ func is_available(_actor: Entity, source: Entity, _target: Entity) -> bool:
 	return agent.phase == C_CustomerAgent.Phase.WAITING or agent.phase == C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 
 
-func execute(_actor: Entity, source: Entity, _target: Entity) -> void:
-	CustomerFlowService.greet(source as E_Customer)
+func execute(actor: Entity, source: Entity, _target: Entity) -> void:
+	CustomerDialogueService.start(actor, source as E_Customer)
