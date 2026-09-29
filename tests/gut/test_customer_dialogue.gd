@@ -89,11 +89,11 @@ func test_response_intent_tags_are_typed_and_idempotent() -> void:
 	_visit.definition.dialogue_reactions = [
 		_reaction(CustomerDialogueIntent.Type.LIE, -20, 0.25, 0.1, 0.05),
 	]
-	assert_true(_context.apply_response_tags(["lie"]))
+	assert_true(_context.apply_response_tags(PackedStringArray(["lie"])))
 	assert_eq(_visit.last_dialogue_intent, CustomerDialogueIntent.Type.LIE)
 	assert_eq(_visit.dialogue_satisfaction_delta, -20)
 	assert_almost_eq(_visit.complaint_probability_delta, 0.25, 0.001)
-	assert_true(_context.apply_response_tags(["lie"]))
+	assert_true(_context.apply_response_tags(PackedStringArray(["lie"])))
 	assert_eq(_visit.dialogue_satisfaction_delta, -20)
 
 
@@ -101,7 +101,7 @@ func test_joke_tag_does_not_commit_denial() -> void:
 	_visit.definition.dialogue_reactions = [
 		_reaction(CustomerDialogueIntent.Type.JOKE, -5, 0.0, 0.0, 0.0),
 	]
-	assert_true(_context.apply_response_tags(["jok"]))
+	assert_true(_context.apply_response_tags(PackedStringArray(["jok"])))
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(_visit.dialogue_satisfaction_delta, -5)
 
@@ -112,7 +112,7 @@ func test_threat_reaction_can_escalate_dialogue_denial_to_aggressive() -> void:
 		_reaction(CustomerDialogueIntent.Type.THREAT, -40, 0.2, 1.0, -0.2),
 	]
 	_visit.aggression_roll = 0.5
-	assert_true(_context.apply_response_tags(["thr"]))
+	assert_true(_context.apply_response_tags(PackedStringArray(["thr"])))
 	assert_true(_context.commit_denial())
 	assert_eq(_visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
 	assert_eq(_visit.player_denial_count, 1)
@@ -127,7 +127,7 @@ func test_persuasion_modifier_reduces_complaint_and_increases_followup() -> void
 	_visit.definition.dialogue_reactions = [
 		_reaction(CustomerDialogueIntent.Type.PERSUADE, -5, -0.55, 0.0, 0.25),
 	]
-	assert_true(_context.apply_response_tags(["prs"]))
+	assert_true(_context.apply_response_tags(PackedStringArray(["prs"])))
 	assert_almost_eq(_visit.complaint_probability_delta, -0.55, 0.001)
 	assert_almost_eq(_visit.followup_probability_delta, 0.25, 0.001)
 

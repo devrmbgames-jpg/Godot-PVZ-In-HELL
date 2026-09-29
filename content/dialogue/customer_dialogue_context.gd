@@ -118,7 +118,7 @@ func dialogue_cue() -> String:
 	return "direct"
 
 
-func apply_response_tags(tags: Array[String]) -> bool:
+func apply_response_tags(tags: PackedStringArray) -> bool:
 	var intent: CustomerDialogueIntent.Type = CustomerDialogueIntent.from_tags(tags)
 	if intent == CustomerDialogueIntent.Type.NONE:
 		return true

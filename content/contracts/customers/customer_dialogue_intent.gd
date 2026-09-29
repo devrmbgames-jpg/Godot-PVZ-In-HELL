@@ -20,7 +20,7 @@ const TAG_FLIRT: String = "flr"
 const TAG_JOKE: String = "jok"
 
 
-static func from_tags(tags: Array[String]) -> Type:
+static func from_tags(tags: PackedStringArray) -> Type:
 	for raw_tag: String in tags:
 		var tag: String = raw_tag.strip_edges().to_lower()
 		match tag:
