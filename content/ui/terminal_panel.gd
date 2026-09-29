@@ -18,9 +18,9 @@ enum InfoMode {
 }
 
 const REFRESH_SECONDS: float = 0.25
-const PACKAGE_LINE_SCENE: PackedScene = preload("res://content/ui/ui_terminal_package_line.tscn")
-const SORT_ICON_ASCENDING: Texture2D = preload("res://addons/at-icons/control/file_arrow_up.svg")
-const SORT_ICON_DESCENDING: Texture2D = preload("res://addons/at-icons/control/file_arrow_down.svg")
+const PACKAGE_LINE_SCENE_PATH: String = "res://content/ui/ui_terminal_package_line.tscn"
+const SORT_ICON_ASCENDING_PATH: String = "res://addons/at-icons/control/file_arrow_up.svg"
+const SORT_ICON_DESCENDING_PATH: String = "res://addons/at-icons/control/file_arrow_down.svg"
 
 @onready var _sort_type: MenuButton = %ButtonMenuSortType
 @onready var _sort_direction: Button = %ButtonSortUpDown
@@ -35,6 +35,7 @@ const SORT_ICON_DESCENDING: Texture2D = preload("res://addons/at-icons/control/f
 @onready var _help_button: Button = %ButtonHelp
 
 var _reader: Entity = null
+var _package_line_scene: PackedScene = null
 var _capture_token: int = 0
 var _refresh_remaining: float = 0.0
 var _previous_mouse_mode: Input.MouseMode = Input.MOUSE_MODE_CAPTURED
@@ -49,6 +50,8 @@ var _last_data_signature: String = ""
 #region Lifecycle
 func _ready() -> void:
 	visible = false
+	_package_line_scene = load(PACKAGE_LINE_SCENE_PATH) as PackedScene
+	assert(_package_line_scene != null)
 	_clear_designer_rows()
 	_sort_type.get_popup().id_pressed.connect(_on_sort_mode_selected)
 	_sort_direction.pressed.connect(_on_sort_direction_pressed)
@@ -154,7 +157,7 @@ func _rebuild_package_rows(
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var actions_enabled: bool = cycle != null and cycle.phase != C_DayCycle.Phase.NIGHT
 	for record: PackageRegistrationRecord in records:
-		var line: UI_TerminalButtonPackage = PACKAGE_LINE_SCENE.instantiate() as UI_TerminalButtonPackage
+		var line: UI_TerminalButtonPackage = _package_line_scene.instantiate() as UI_TerminalButtonPackage
 		_package_list.add_child(line)
 		line.package_selected.connect(_on_package_selected)
 		line.taken_requested.connect(_on_taken_requested)
@@ -520,7 +523,17 @@ func _declare_package(
 func _on_sort_mode_selected(id: int) -> void:
 	if id < SortMode.WEIGHT or id > SortMode.PRICE:
 		return
-	_sort_mode = id as SortMode
+	match id:
+		SortMode.WEIGHT:
+			_sort_mode = SortMode.WEIGHT
+		SortMode.NUMBER:
+			_sort_mode = SortMode.NUMBER
+		SortMode.DATE:
+			_sort_mode = SortMode.DATE
+		SortMode.TYPE:
+			_sort_mode = SortMode.TYPE
+		SortMode.PRICE:
+			_sort_mode = SortMode.PRICE
 	_apply_sort_presentation()
 	_refresh(true)
 
@@ -534,7 +547,12 @@ func _on_sort_direction_pressed() -> void:
 func _apply_sort_presentation() -> void:
 	var labels: Array[String] = ["Весу", "Номеру", "Дате", "Типу", "Цене"]
 	_sort_type.text = "Сортировать: %s" % labels[_sort_mode]
-	_sort_direction.icon = SORT_ICON_ASCENDING if _sort_ascending else SORT_ICON_DESCENDING
+	var icon_path: String = (
+		SORT_ICON_ASCENDING_PATH
+		if _sort_ascending
+		else SORT_ICON_DESCENDING_PATH
+	)
+	_sort_direction.icon = load(icon_path) as Texture2D
 	_sort_direction.tooltip_text = (
 		"От меньшего к большему"
 		if _sort_ascending
