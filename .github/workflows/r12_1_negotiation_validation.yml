@@ -89,6 +89,72 @@ jobs:
           GD
           godot --headless --path . --script /tmp/validate_dialogue.gd
 
+      - name: Run pure negotiation logic check
+        shell: bash
+        run: |
+          mkdir -p .ci
+          python - <<'PY'
+          from pathlib import Path
+          src = Path("content/services/customers/customer_flow_service.gd").read_text()
+          src = src.replace(
+              "class_name CustomerFlowService",
+              "class_name CustomerFlowServiceCheck\nstatic var ECS: Variant = null",
+              1,
+          )
+          Path(".ci/customer_flow_service_check.gd").write_text(src)
+          PY
+          cat >.ci/r12_1_logic_check.gd <<'GD'
+          extends SceneTree
+
+          func _init() -> void:
+              var definition: DEF_Customer = DEF_Customer.new()
+              definition.complaint_probability = 0.85
+              definition.followup_probability = 1.0
+              definition.followup_delay_days = 1
+              definition.max_followup_visits = 2
+
+              var reaction: DEF_CustomerDialogueReaction = DEF_CustomerDialogueReaction.new()
+              reaction.intent = CustomerDialogueIntent.Type.PERSUADE
+              reaction.satisfaction_delta = -5
+              reaction.complaint_probability_delta = -0.55
+              reaction.followup_probability_delta = 0.2
+              definition.dialogue_reactions = [reaction]
+
+              var visit: CustomerVisit = CustomerVisit.new()
+              visit.visit_id = &"visit/ci"
+              visit.definition = definition
+              visit.started = true
+              visit.visit_count = 1
+              visit.aggression_roll = 1.0
+
+              assert(CustomerOutcomeService.apply_dialogue_intent(visit, CustomerDialogueIntent.Type.PERSUADE))
+              assert(visit.dialogue_satisfaction_delta == -5)
+              assert(is_equal_approx(visit.complaint_probability_delta, -0.55))
+              assert(CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.REFUSED))
+              assert(visit.actual == CustomerVisit.Actual.NOT_RESOLVED)
+
+              visit.declaration = CustomerVisit.Declaration.NONE
+              assert(CustomerOutcomeService.commit_player_denial(visit))
+              assert(visit.actual == CustomerVisit.Actual.PLAYER_DENIED)
+              assert(visit.player_denial_count == 1)
+
+              var flow: C_CustomerFlow = C_CustomerFlow.new()
+              flow.visits.append(visit)
+              visit.finished = true
+              assert(CustomerFlowServiceCheck.schedule_followup(visit, 1))
+              assert(visit.next_followup_day == 2)
+              visit.requires_registered_package = false
+              assert(CustomerFlowServiceCheck.reactivate_due_followups(flow, 2) == 1)
+              assert(not visit.finished)
+              assert(not visit.started)
+              assert(visit.actual == CustomerVisit.Actual.NOT_RESOLVED)
+              assert(visit.player_denial_count == 1)
+
+              print("R12.1 pure negotiation logic PASS")
+              quit(0)
+          GD
+          godot --headless --path . --script .ci/r12_1_logic_check.gd
+
       - name: Static negotiation contract checks
         shell: bash
         run: |
@@ -98,5 +164,12 @@ jobs:
           grep -q '\[#thr\]' content/dialogue/customer_service.dialogue
           grep -q '\[#flr\]' content/dialogue/customer_service.dialogue
           grep -q '\[#jok\]' content/dialogue/customer_service.dialogue
-          grep -q 'visit.actual = CustomerVisit.Actual.PLAYER_DENIED' content/services/customers/customer_outcome_service.gd
-          ! grep -A12 'static func declare' content/services/customers/customer_outcome_service.gd | grep -q 'visit.actual ='
+          python - <<'PY'
+          from pathlib import Path
+          text = Path("content/services/customers/customer_outcome_service.gd").read_text()
+          start = text.index("static func declare(")
+          end = text.index("static func mark_missed_registration_lost", start)
+          body = text[start:end]
+          assert "visit.actual =" not in body, body
+          assert "visit.declaration = value" in body
+          PY
