@@ -468,7 +468,7 @@ func _clear_designer_rows() -> void:
 
 func _clear_package_rows() -> void:
 	for child: Node in _package_list.get_children():
-		child.visible = false
+		_package_list.remove_child(child)
 		child.queue_free()
 
 
