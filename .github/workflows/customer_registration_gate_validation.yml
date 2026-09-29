@@ -33,6 +33,16 @@ jobs:
           use-dotnet: false
           include-templates: false
 
+      - name: Bootstrap Godot class cache
+        shell: bash
+        run: |
+          set +e
+          timeout 90s godot --headless --path . --import --quit 2>&1 | tee godot-import.log
+          status=${PIPESTATUS[0]}
+          set -e
+          if [ "$status" -ne 0 ] && [ "$status" -ne 124 ]; then exit "$status"; fi
+          test -f .godot/global_script_class_cache.cfg
+
       - name: Customer flow GUT
         shell: bash
         run: |
