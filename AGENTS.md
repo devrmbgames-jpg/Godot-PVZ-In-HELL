@@ -57,6 +57,7 @@ Use the cheapest check that can falsify the change.
 
 - Ordinary edits/milestones: targeted static/deterministic checks, changed-file formatter/lint where available, `python utils/validate_project_structure.py` when structure is affected, and diff inspection.
 - Do not run GUT, smoke, or broad runtime checks after every small edit.
+- GitHub GUT jobs that only need `global_script_class_cache.cfg` must use `bash utils/bootstrap_godot_class_cache.sh`, not `godot --import`. The helper exits immediately after Godot writes the script-class cache, before `EditorFileSystem::_update_scan_actions()` performs the expensive asset reimport pass (notably thousands of SVG/PNG files).
 - For a complete large `Rxx` / `Rxx.x` implementation, normally run the relevant GUT surface once and one relevant headless smoke/runtime check near completion, unless the active task states otherwise.
 - Never launch rendered/visual Godot, capture screenshots/video, or perform visual scene inspection unless explicitly approved for the current task.
 - Never claim a formatter, test, engine run, or visual check passed unless it actually ran.

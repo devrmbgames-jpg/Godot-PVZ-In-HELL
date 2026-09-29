@@ -38,8 +38,9 @@ jobs:
       - name: Verify Godot
         run: godot --version
 
-      - name: Import project
-        run: godot --headless --path . --import --quit
+      - name: Bootstrap Godot class cache
+        shell: bash
+        run: bash utils/bootstrap_godot_class_cache.sh
 
       - name: Focused M5 GUT
         shell: bash
