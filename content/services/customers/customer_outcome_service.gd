@@ -5,7 +5,14 @@ class_name CustomerOutcomeService
 const SATISFACTION_SCALE: int = 100
 
 
-static func check(visit: CustomerVisit, package: C_Package, state: C_PackageState, assigned: bool, held: bool) -> PackageDeliveryCheck:
+static func check(
+	visit: CustomerVisit,
+	package: C_Package,
+	state: C_PackageState,
+	assigned: bool,
+	held: bool,
+	allow_held: bool = false,
+) -> PackageDeliveryCheck:
 	var check_result: PackageDeliveryCheck = PackageDeliveryCheck.new()
 	if visit.actual != CustomerVisit.Actual.NOT_RESOLVED or visit.finished:
 		check_result.result = PackageDeliveryCheck.Result.ALREADY_CLOSED
@@ -19,7 +26,7 @@ static func check(visit: CustomerVisit, package: C_Package, state: C_PackageStat
 		check_result.result = PackageDeliveryCheck.Result.UNASSIGNED
 	elif state.damage == C_PackageState.Damage.DESTROYED:
 		check_result.result = PackageDeliveryCheck.Result.DESTROYED
-	elif held:
+	elif held and not allow_held:
 		check_result.result = PackageDeliveryCheck.Result.HELD
 	else:
 		check_result.result = PackageDeliveryCheck.Result.READY

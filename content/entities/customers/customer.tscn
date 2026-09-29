@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
 [ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
 [ext_resource type="Script" path="res://content/definitions/interaction/def_customer_action.gd" id="Action"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_customer_handoff_action.gd" id="HandoffAction"]
 [ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
 
 [sub_resource type="Resource" id="Agent"]
@@ -26,9 +27,16 @@ script = ExtResource("Action")
 action_id = &"customer_request"
 caption = "Поговорить"
 
+[sub_resource type="Resource" id="HandoffAction"]
+script = ExtResource("HandoffAction")
+action_id = &"customer_handoff"
+caption = "Передать посылку"
+priority = 10
+allow_interact_fallback = false
+
 [sub_resource type="Resource" id="Actions"]
 script = ExtResource("Actions")
-actions = [SubResource("Action")]
+actions = [SubResource("Action"), SubResource("HandoffAction")]
 
 [sub_resource type="StandardMaterial3D" id="Material"]
 albedo_color = Color(0.32, 0.48, 0.56, 1)

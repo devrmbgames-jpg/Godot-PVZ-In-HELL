@@ -7,7 +7,7 @@ static func request_text(visit: CustomerVisit) -> String:
 	if ledger != null:
 		for record: PackageRegistrationRecord in ledger.records:
 			if record.package_id == visit.package_id and record.active:
-				return "%s\nМой заказ №%03d. Положите его на стойку выдачи." % [visit.definition.display_name, record.number]
+				return "%s\nМой заказ №%03d. Передайте коробку мне или положите её на стойку выдачи." % [visit.definition.display_name, record.number]
 	return "%s\nМой заказ ещё не зарегистрирован. Просканируйте поступившие коробки." % visit.definition.display_name
 
 

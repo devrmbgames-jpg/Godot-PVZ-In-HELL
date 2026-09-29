@@ -51,6 +51,10 @@ func test_delivery_requires_registration_identity_assignment_and_released_box() 
 	package.package_id = "shipment1"
 	assert_eq(CustomerOutcomeService.check(visit, package, state, false, false).result, PackageDeliveryCheck.Result.UNASSIGNED)
 	assert_eq(CustomerOutcomeService.check(visit, package, state, true, true).result, PackageDeliveryCheck.Result.HELD)
+	assert_eq(
+		CustomerOutcomeService.check(visit, package, state, true, true, true).result,
+		PackageDeliveryCheck.Result.READY,
+	)
 	state.damage = C_PackageState.Damage.DESTROYED
 	assert_eq(CustomerOutcomeService.check(visit, package, state, true, false).result, PackageDeliveryCheck.Result.DESTROYED)
 

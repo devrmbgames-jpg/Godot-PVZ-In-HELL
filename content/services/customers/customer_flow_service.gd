@@ -331,24 +331,122 @@ static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck
 		return PackageDeliveryCheck.Result.MISSING
 	var parcels: Array[Entity] = station.parcels()
 	if parcels.size() != 1:
-		var result: PackageDeliveryCheck.Result = PackageDeliveryCheck.Result.MISSING if parcels.is_empty() else PackageDeliveryCheck.Result.MULTIPLE
+		var result: PackageDeliveryCheck.Result = (
+			PackageDeliveryCheck.Result.MISSING
+			if parcels.is_empty()
+			else PackageDeliveryCheck.Result.MULTIPLE
+		)
 		station.show_message(CustomerPresentation.check_text(result))
 		return result
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = find_visit(agent.visit_id)
-	var parcel: Entity = parcels[0]
-	var check_result: PackageDeliveryCheck = CustomerOutcomeService.check(visit, parcel.get_component(C_Package) as C_Package, parcel.get_component(C_PackageState) as C_PackageState, assigned(parcel, customer, visit), GrabService.held_relationship(parcel) != null)
+	var result: PackageDeliveryCheck.Result = _resolve_delivery(
+		customer,
+		visit,
+		parcels[0],
+		null,
+	)
+	if result != PackageDeliveryCheck.Result.READY:
+		station.show_message(CustomerPresentation.check_text(result))
+		return result
+	station.show_message("Выдача обработана. Отметьте исход в терминале.")
+	return result
+
+
+## Returns the held Package offered to this Customer. Prefer the requested shipment when
+## the Player carries more than one Package across Carry/right/left slots.
+static func direct_handoff_package(actor: Entity, customer: E_Customer) -> Entity:
+	if not is_instance_valid(actor) or not is_instance_valid(customer):
+		return null
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent == null or agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
+		return null
+	var visit: CustomerVisit = find_visit(agent.visit_id)
+	if (
+		visit == null
+		or visit.finished
+		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+	):
+		return null
+
+	var fallback: Entity = null
+	for slot_index: int in [
+		C_Grabbable.HoldSlot.CARRY,
+		C_Grabbable.HoldSlot.RIGHT_HAND,
+		C_Grabbable.HoldSlot.LEFT_HAND,
+	]:
+		var held: Entity = GrabService.held_in_slot(actor, slot_index)
+		if held == null:
+			continue
+		var identity: C_Package = held.get_component(C_Package) as C_Package
+		if identity == null:
+			continue
+		if fallback == null:
+			fallback = held
+		if identity.package_id == visit.package_id:
+			return held
+	return fallback
+
+
+static func confirm_direct_delivery(
+	actor: Entity,
+	customer: E_Customer,
+) -> PackageDeliveryCheck.Result:
+	var parcel: Entity = direct_handoff_package(actor, customer)
+	if parcel == null:
+		return PackageDeliveryCheck.Result.MISSING
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	var visit: CustomerVisit = find_visit(agent.visit_id)
+	var result: PackageDeliveryCheck.Result = _resolve_delivery(
+		customer,
+		visit,
+		parcel,
+		actor,
+	)
+	if result != PackageDeliveryCheck.Result.READY:
+		customer.show_message(CustomerPresentation.check_text(result))
+	return result
+
+
+static func _resolve_delivery(
+	customer: E_Customer,
+	visit: CustomerVisit,
+	parcel: Entity,
+	direct_holder: Entity,
+) -> PackageDeliveryCheck.Result:
+	if customer == null or visit == null or parcel == null:
+		return PackageDeliveryCheck.Result.MISSING
+	var held: bool = GrabService.held_relationship(parcel) != null
+	var allow_held: bool = is_instance_valid(direct_holder)
+	var check_result: PackageDeliveryCheck = CustomerOutcomeService.check(
+		visit,
+		parcel.get_component(C_Package) as C_Package,
+		parcel.get_component(C_PackageState) as C_PackageState,
+		assigned(parcel, customer, visit),
+		held,
+		allow_held,
+	)
 	if not CustomerOutcomeService.receive(visit, check_result):
-		station.show_message(CustomerPresentation.check_text(check_result.result))
 		return check_result.result
+
 	if visit.actual == CustomerVisit.Actual.DELIVERED:
+		if allow_held:
+			GrabService.release(direct_holder, parcel)
 		_depart_parcel(parcel)
 		ECS.world.remove_entity(parcel)
-		customer.show_message("Спасибо!" if visit.satisfaction == visit.definition.healthy_satisfaction else "Заказ принят, но его состояние меня не устраивает.")
+		customer.show_message(
+			"Спасибо!"
+			if visit.satisfaction == visit.definition.healthy_satisfaction
+			else "Заказ принят, но его состояние меня не устраивает."
+		)
 	else:
+		# Direct refusal keeps the physical Package in the Player's grip; counter
+		# refusal leaves the already released Package on the counter.
 		customer.show_message("Я отказываюсь от заказа. Коробка остаётся у вас.")
-	_transition(agent, C_CustomerAgent.Phase.RECEIVING)
-	station.show_message("Выдача обработана. Отметьте исход в терминале.")
+
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent != null:
+		_transition(agent, C_CustomerAgent.Phase.RECEIVING)
 	return check_result.result
 
 

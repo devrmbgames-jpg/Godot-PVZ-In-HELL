@@ -1,6 +1,6 @@
 # R12.1 - Customer refusal negotiation and repeat visits
 
-Status: **OWNER_QA**
+Status: **IN_PROGRESS**
 
 ## Task state
 
@@ -22,7 +22,9 @@ Add dialogue refusal/stall/deception approaches while keeping CustomerVisit.actu
 - [x] Separate declaration from actual; bounded dialogue denial transition.
 - [x] Follow-up scheduling and repeat customer reactivation.
 - [x] Focused regression validation and docs.
-- [x] Independent review; move to OWNER_QA.
+- [x] Independent review of refusal/repeat-visit work.
+- [x] Add direct held-Package handoff to waiting Customer while retaining counter delivery.
+- [ ] Validate direct handoff extension and return to OWNER_QA.
 
 ### Decisions
 - A response tag identifies intent only. It never directly encodes rage, complaint percentages or other balance values.
@@ -32,7 +34,7 @@ Add dialogue refusal/stall/deception approaches while keeping CustomerVisit.actu
 - On follow-up reactivation, current actual resets to NOT_RESOLVED so the package can still be delivered; player_denial_count preserves prior factual denials.
 
 ### Current
-Technical implementation and review are complete on master. Next: owner gameplay/visual QA only.
+Refusal/repeat-visit implementation is complete. Direct held-Package handoff was added as an extension and is awaiting focused technical validation before returning to OWNER_QA.
 
 ### Validation
 - Project validation PASS on final implementation SHA.
@@ -47,4 +49,6 @@ Gameplay/visual QA required:
 - Refuse/withhold a Package but declare TAKEN in Terminal; actual must remain PLAYER_DENIED/NOT_RESOLVED as appropriate.
 - Leave declaration NONE and advance days until at least one repeat visit occurs; confirm the Customer asks about the same registered Package again.
 - After a repeat visit, confirm the Package can still be delivered and prior player_denial_count/history is preserved.
+- While holding the requested Package, aim at the waiting Customer and confirm F shows "Передать посылку" and delivers without using the counter.
+- Offer a wrong/unregistered/refused-condition Package directly and confirm it remains in the Player's grip; large boxes can still be released onto the counter and delivered through the original path.
 No technical blocker is currently recorded.
