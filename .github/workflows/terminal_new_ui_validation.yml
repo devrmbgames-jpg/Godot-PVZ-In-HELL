@@ -12,7 +12,7 @@ on:
       - content/contracts/packages/package_registration_record.gd
       - content/services/packages/package_registration_service.gd
       - content/services/customers/customer_flow_service.gd
-      - tests/gut/test_customer_flow.gd
+      - tests/gut/test_terminal_new_ui.gd
       - .github/workflows/terminal_new_ui_validation.yml
 
 jobs:
@@ -35,20 +35,11 @@ jobs:
         shell: bash
         run: bash utils/bootstrap_godot_class_cache.sh
 
-      - name: Parse TerminalPanel
-        run: godot --headless --path . --check-only --script content/ui/terminal_panel.gd
-
-      - name: Parse package line
-        run: godot --headless --path . --check-only --script content/ui/ui_terminal_package_line.gd
-
-      - name: Parse package detail
-        run: godot --headless --path . --check-only --script content/ui/ui_terminal_package_detail_info.gd
-
-      - name: Parse terminal log
-        run: godot --headless --path . --check-only --script content/ui/ui_terminal_log_history.gd
-
-      - name: Parse customer flow contract
-        run: godot --headless --path . --check-only --script content/services/customers/customer_flow_service.gd
-
-      - name: Parse customer regression test
-        run: godot --headless --path . --check-only --script tests/gut/test_customer_flow.gd
+      - name: Terminal NewUI GUT
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests/gut -gselect test_terminal_new_ui.gd -gexit 2>&1 | tee terminal-new-ui-gut.log
+          grep -q 'Ran Scripts matching "test_terminal_new_ui.gd"' terminal-new-ui-gut.log
+          grep -q -- '---- All tests passed! ----' terminal-new-ui-gut.log
+          if grep -Eq "GUT ERROR|SCRIPT ERROR|Parse Error|Assertion failed" terminal-new-ui-gut.log; then exit 1; fi
