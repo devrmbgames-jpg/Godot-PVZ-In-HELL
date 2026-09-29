@@ -77,7 +77,7 @@ jobs:
           ]
           failures = []
           for target in targets:
-              name = target.replace("/", "__").replace(".", "__") + ".log"
+              name = target.replace("/", "_").replace(".", "_") + ".log"
               lines = Path(".ci_logs", name).read_text(errors="replace").splitlines()
               for index, line in enumerate(lines):
                   if "SCRIPT ERROR:" not in line:
