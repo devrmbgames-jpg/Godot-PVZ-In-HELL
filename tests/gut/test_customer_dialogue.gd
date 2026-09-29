@@ -69,6 +69,69 @@ func _add_requested_package() -> C_PackageState:
 	return parcel.get_component(C_PackageState) as C_PackageState
 
 
+func _reaction(
+	intent: CustomerDialogueIntent.Type,
+	satisfaction_delta: int,
+	complaint_delta: float,
+	aggression_delta: float,
+	followup_delta: float,
+) -> DEF_CustomerDialogueReaction:
+	var reaction: DEF_CustomerDialogueReaction = DEF_CustomerDialogueReaction.new()
+	reaction.intent = intent
+	reaction.satisfaction_delta = satisfaction_delta
+	reaction.complaint_probability_delta = complaint_delta
+	reaction.aggression_probability_delta = aggression_delta
+	reaction.followup_probability_delta = followup_delta
+	return reaction
+
+
+func test_response_intent_tags_are_typed_and_idempotent() -> void:
+	_visit.definition.dialogue_reactions = [
+		_reaction(CustomerDialogueIntent.Type.LIE, -20, 0.25, 0.1, 0.05),
+	]
+	assert_true(_context.apply_response_tags(["lie"]))
+	assert_eq(_visit.last_dialogue_intent, CustomerDialogueIntent.Type.LIE)
+	assert_eq(_visit.dialogue_satisfaction_delta, -20)
+	assert_almost_eq(_visit.complaint_probability_delta, 0.25, 0.001)
+	assert_true(_context.apply_response_tags(["lie"]))
+	assert_eq(_visit.dialogue_satisfaction_delta, -20)
+
+
+func test_joke_tag_does_not_commit_denial() -> void:
+	_visit.definition.dialogue_reactions = [
+		_reaction(CustomerDialogueIntent.Type.JOKE, -5, 0.0, 0.0, 0.0),
+	]
+	assert_true(_context.apply_response_tags(["jok"]))
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq(_visit.dialogue_satisfaction_delta, -5)
+
+
+func test_threat_reaction_can_escalate_dialogue_denial_to_aggressive() -> void:
+	_visit.definition.immediate_aggression_probability = 0.0
+	_visit.definition.dialogue_reactions = [
+		_reaction(CustomerDialogueIntent.Type.THREAT, -40, 0.2, 1.0, -0.2),
+	]
+	_visit.aggression_roll = 0.5
+	assert_true(_context.apply_response_tags(["thr"]))
+	assert_true(_context.commit_denial())
+	assert_eq(_visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
+	assert_eq(_visit.player_denial_count, 1)
+	assert_true(_visit.aggressive)
+	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	assert_eq(agent.phase, C_CustomerAgent.Phase.AGGRESSIVE)
+
+
+func test_persuasion_modifier_reduces_complaint_and_increases_followup() -> void:
+	_visit.definition.complaint_probability = 0.85
+	_visit.definition.followup_probability = 0.5
+	_visit.definition.dialogue_reactions = [
+		_reaction(CustomerDialogueIntent.Type.PERSUADE, -5, -0.55, 0.0, 0.25),
+	]
+	assert_true(_context.apply_response_tags(["prs"]))
+	assert_almost_eq(_visit.complaint_probability_delta, -0.55, 0.001)
+	assert_almost_eq(_visit.followup_probability_delta, 0.25, 0.001)
+
+
 func test_riddle_wrong_answer_is_idempotent_and_affects_final_satisfaction() -> void:
 	_visit.definition.dialogue_mode = DEF_Customer.DialogueMode.RIDDLE
 	_visit.definition.riddle_wrong_satisfaction_penalty = 20
@@ -151,6 +214,15 @@ func test_dialogue_resource_exposes_direct_and_riddle_branches() -> void:
 	var direct: DialogueLine = await resource.get_next_dialogue_line("direct", [{"ctx": _context}])
 	assert_not_null(direct)
 	assert_eq(direct.character, "Клиент")
+	var deny_start: DialogueLine = await resource.get_next_dialogue_line("deny_start", [{"ctx": _context}])
+	assert_not_null(deny_start)
+	assert_eq(deny_start.responses.size(), 6)
+	assert_true((deny_start.responses[1] as DialogueResponse).has_tag("lie"))
+	assert_true((deny_start.responses[4] as DialogueResponse).has_tag("thr"))
+	assert_true((deny_start.responses[5] as DialogueResponse).has_tag("jok"))
+	_visit.visit_count = 2
+	assert_eq(_context.dialogue_cue(), "followup")
+	_visit.visit_count = 1
 	_visit.definition.dialogue_mode = DEF_Customer.DialogueMode.RIDDLE
 	var riddle: DialogueLine = await resource.get_next_dialogue_line("riddle", [{"ctx": _context}])
 	assert_not_null(riddle)

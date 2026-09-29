@@ -109,19 +109,35 @@ func test_voluntary_refusal_is_authored_even_for_healthy_package() -> void:
 	assert_eq(visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
 
 
-func test_lost_and_honest_refusal_have_distinct_costs_and_reputation() -> void:
-	var declarations: Array[CustomerVisit.Declaration] = [CustomerVisit.Declaration.LOST, CustomerVisit.Declaration.REFUSED]
-	var costs: Array[int] = [120, 150]
-	for index: int in declarations.size():
-		var visit: CustomerVisit = _visit()
-		var wallet: C_Wallet = C_Wallet.new()
-		CustomerOutcomeService.declare(visit, declarations[index])
-		CustomerOutcomeService.settle(visit, wallet, 1)
-		assert_eq(wallet.balance, -costs[index])
-		assert_eq(visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
-		assert_ne(visit.reputation, CustomerVisit.Reputation.NONE)
-		CustomerOutcomeService.settle(visit, wallet, 2)
-		assert_eq(wallet.operations.size(), 1)
+func test_terminal_declaration_does_not_invent_actual_outcome() -> void:
+	var visit: CustomerVisit = _visit()
+	assert_true(CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.REFUSED))
+	assert_eq(visit.declaration, CustomerVisit.Declaration.REFUSED)
+	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	var wallet: C_Wallet = C_Wallet.new()
+	CustomerOutcomeService.settle(visit, wallet, 1)
+	assert_eq(wallet.balance, 0)
+
+
+func test_lost_and_actual_player_refusal_have_distinct_costs_and_reputation() -> void:
+	var lost: CustomerVisit = _visit()
+	var lost_wallet: C_Wallet = C_Wallet.new()
+	assert_true(CustomerOutcomeService.declare(lost, CustomerVisit.Declaration.LOST))
+	CustomerOutcomeService.settle(lost, lost_wallet, 1)
+	assert_eq(lost_wallet.balance, -120)
+	assert_eq(lost.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq(lost.reputation, CustomerVisit.Reputation.LOST)
+
+	var refused: CustomerVisit = _visit()
+	var refused_wallet: C_Wallet = C_Wallet.new()
+	assert_true(CustomerOutcomeService.commit_player_denial(refused))
+	assert_true(CustomerOutcomeService.declare(refused, CustomerVisit.Declaration.REFUSED))
+	CustomerOutcomeService.settle(refused, refused_wallet, 1)
+	assert_eq(refused_wallet.balance, -150)
+	assert_eq(refused.actual, CustomerVisit.Actual.PLAYER_DENIED)
+	assert_eq(refused.reputation, CustomerVisit.Reputation.PLAYER_DENIAL)
+	CustomerOutcomeService.settle(refused, refused_wallet, 2)
+	assert_eq(refused_wallet.operations.size(), 1)
 
 
 func test_false_taken_is_legal_and_can_trigger_aggression() -> void:
@@ -414,6 +430,57 @@ func test_next_morning_keeps_registered_or_other_purpose_visit() -> void:
 	assert_eq(other_purpose.declaration, CustomerVisit.Declaration.NONE)
 	assert_false(other_purpose.finished)
 	assert_eq(WalletService.current().balance, 0)
+
+func test_unresolved_case_can_schedule_and_reactivate_followup() -> void:
+	var visit: CustomerVisit = _live_fixture()
+	visit.definition.complaint_probability = 0.0
+	visit.definition.unresolved_complaint_probability = 0.0
+	visit.definition.followup_probability = 1.0
+	visit.definition.followup_delay_days = 1
+	visit.definition.max_followup_visits = 2
+	visit.visit_count = 1
+	var parcel: Entity = _live_parcel(visit)
+	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
+	record.package_id = visit.package_id
+	record.number = 1
+	PackageRegistrationService.ledger().records.append(record)
+
+	assert_true(CustomerOutcomeService.commit_player_denial(visit))
+	CustomerFlowService.finish(visit, 1)
+	assert_true(visit.finished)
+	assert_eq(visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
+	assert_eq(visit.next_followup_day, 2)
+	assert_eq(visit.followup_count, 1)
+	assert_true(is_instance_valid(parcel))
+
+	assert_eq(CustomerFlowService.reactivate_due_followups(CustomerFlowService.current(), 1), 0)
+	assert_eq(CustomerFlowService.reactivate_due_followups(CustomerFlowService.current(), 2), 1)
+	assert_false(visit.started)
+	assert_false(visit.finished)
+	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq(visit.next_followup_day, 0)
+	assert_eq(visit.player_denial_count, 1)
+
+
+func test_terminal_declaration_blocks_pending_followup_without_changing_actual() -> void:
+	var visit: CustomerVisit = _live_fixture()
+	visit.definition.complaint_probability = 0.0
+	visit.definition.followup_probability = 1.0
+	visit.visit_count = 1
+	_live_parcel(visit)
+	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
+	record.package_id = visit.package_id
+	record.number = 1
+	PackageRegistrationService.ledger().records.append(record)
+
+	assert_true(CustomerOutcomeService.commit_player_denial(visit))
+	CustomerFlowService.finish(visit, 1)
+	assert_eq(visit.next_followup_day, 2)
+	assert_true(CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.TAKEN))
+	assert_eq(visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
+	assert_eq(CustomerFlowService.reactivate_due_followups(CustomerFlowService.current(), 2), 0)
+	assert_true(visit.finished)
+
 
 func test_main_scene_sessions_do_not_share_mutable_customer_records() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
