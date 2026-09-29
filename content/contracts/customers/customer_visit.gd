@@ -4,7 +4,7 @@ class_name CustomerVisit
 
 enum Actual { NOT_RESOLVED, DELIVERED, CUSTOMER_REFUSED, PLAYER_DENIED }
 enum Declaration { NONE, TAKEN, REFUSED, LOST }
-enum Disposition { WAREHOUSE, DELIVERED, RETURNED, BOUGHT_OUT }
+enum Disposition { WAREHOUSE, DELIVERED, RETURNED, BOUGHT_OUT, LOST }
 enum Reputation {
 	NONE,
 	PLAYER_DENIAL,
@@ -19,6 +19,8 @@ enum Feedback { NONE, APPROVED }
 @export var visit_id: StringName = &""
 @export var customer_id: StringName = &""
 @export var package_id: String = ""
+## Hidden warehouse history identity; never shown as the customer order number.
+@export var package_history_id: String = ""
 @export var arrival_day: int = 1
 @export var definition: DEF_Customer = null
 @export var accounting_value: int = 0

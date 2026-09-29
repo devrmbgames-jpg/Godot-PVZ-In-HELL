@@ -95,6 +95,8 @@ static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
 	var wallet: C_Wallet = WalletService.current()
 	var payment: int = wallet.policy.delivery_payment if wallet != null and wallet.policy != null else 0
 	plan_day(flow, cycle.day_index, payment)
+	if cycle.phase == C_DayCycle.Phase.MORNING:
+		finalize_missed_unregistered(flow, cycle, wallet)
 	for visit: CustomerVisit in flow.visits:
 		CustomerOutcomeService.settle(visit, wallet, cycle.day_index)
 		CustomerOutcomeService.resolve_complaint(visit, wallet, cycle.day_index)
@@ -108,6 +110,63 @@ static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
 
 ## Bounded domain entry point used by the normal tick and developer tooling.
 ## Returns true only when a due visit was actually started.
+## Morning audit: a customer already came and left, but their package still has no
+## registration record. The warehouse treats it as lost before the next shift.
+static func finalize_missed_unregistered(
+	flow: C_CustomerFlow,
+	cycle: C_DayCycle,
+	wallet: C_Wallet,
+) -> int:
+	if (
+		flow == null
+		or cycle == null
+		or cycle.phase != C_DayCycle.Phase.MORNING
+		or cycle.day_index <= 1
+	):
+		return 0
+	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	if ledger == null:
+		return 0
+
+	var lost_count: int = 0
+	for visit: CustomerVisit in flow.visits:
+		if (
+			not visit.started
+			or not visit.finished
+			or visit.finished_day >= cycle.day_index
+			or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+			or visit.declaration != CustomerVisit.Declaration.NONE
+		):
+			continue
+		if _has_registration_record(ledger, visit.package_id):
+			continue
+
+		var parcel: Entity = parcel_for(visit.package_id)
+		if parcel != null:
+			var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
+			if state == null or state.registration != C_PackageState.Registration.UNREGISTERED:
+				continue
+			var identity: C_Package = parcel.get_component(C_Package) as C_Package
+			if identity != null and visit.package_history_id.is_empty():
+				visit.package_history_id = identity.history_id
+
+		if not CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.LOST):
+			continue
+		visit.disposition = CustomerVisit.Disposition.LOST
+		CustomerOutcomeService.settle(visit, wallet, cycle.day_index)
+		if parcel != null:
+			ECS.world.remove_entity(parcel)
+		lost_count += 1
+	return lost_count
+
+
+static func _has_registration_record(ledger: C_PackageLedger, package_id: String) -> bool:
+	for record: PackageRegistrationRecord in ledger.records:
+		if record.package_id == package_id:
+			return true
+	return false
+
+
 static func spawn_next_due(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 	if flow == null or cycle == null or cycle.phase != C_DayCycle.Phase.DAY:
 		return false
@@ -147,6 +206,9 @@ static func bind_parcel(customer: Entity, visit: CustomerVisit) -> void:
 	var parcel: Entity = parcel_for(visit.package_id)
 	if parcel == null:
 		return
+	var identity: C_Package = parcel.get_component(C_Package) as C_Package
+	if identity != null and visit.package_history_id.is_empty():
+		visit.package_history_id = identity.history_id
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	if state == null or state.registration >= C_PackageState.Registration.DELIVERED:
 		return
