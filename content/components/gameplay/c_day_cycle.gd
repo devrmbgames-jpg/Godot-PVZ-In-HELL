@@ -10,7 +10,7 @@ enum Phase {
 
 @export var phase: Phase = Phase.MORNING
 @export var day_index: int = 1
-## S_CustomerFlow owns this count for scheduled mandatory customer events.
+## S_CustomerFlow owns this count for customer events currently eligible to arrive.
 @export var remaining_customer_events: int = 0
 ## R21 may hold Night until results, orders and persistence finish successfully.
 var night_ready: bool = true

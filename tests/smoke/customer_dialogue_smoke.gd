@@ -28,6 +28,9 @@ func _run() -> void:
 
 	var actor: Entity = _level.get_node("Entityes/Player") as Entity
 	(actor as Node as RigidBody3D).freeze = true
+	var books: Entity = CustomerFlowService.parcel_for("base_supply:1:books")
+	var glass: Entity = CustomerFlowService.parcel_for("base_supply:1:glass")
+	assert(PackageRegistrationService.register_package(books).outcome == PackageScanResult.Outcome.REGISTERED)
 	_transition(DayTransitionRequest.Kind.START_SHIFT)
 
 	var leaving_customer: E_Customer = await _wait_for_customer()
@@ -43,6 +46,7 @@ func _run() -> void:
 
 	var leaving_visit: CustomerVisit = CustomerFlowService.find_visit(leaving_agent.visit_id)
 	ECS.world.process(leaving_visit.definition.leaving_seconds, "GamePlay")
+	assert(PackageRegistrationService.register_package(glass).outcome == PackageScanResult.Outcome.REGISTERED)
 	var dead_customer: E_Customer = await _wait_for_customer()
 	assert(CustomerDialogueService.start(actor, dead_customer))
 	await get_tree().process_frame

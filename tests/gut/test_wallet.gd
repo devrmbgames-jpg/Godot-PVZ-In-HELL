@@ -34,8 +34,14 @@ func test_purchase_check_and_debit_are_atomic_and_failed_request_can_retry() -> 
 
 
 func test_package_rates_debt_and_penalty_classification() -> void:
-	var reasons: Array[MoneyOperation.Reason] = [MoneyOperation.Reason.VOLUNTARY_BUYOUT, MoneyOperation.Reason.LOST, MoneyOperation.Reason.PLAYER_REFUSAL, MoneyOperation.Reason.CONFIRMED_FRAUD]
-	var expected: Array[int] = [100, 120, 150, 200]
+	var reasons: Array[MoneyOperation.Reason] = [
+		MoneyOperation.Reason.VOLUNTARY_BUYOUT,
+		MoneyOperation.Reason.LOST,
+		MoneyOperation.Reason.PLAYER_REFUSAL,
+		MoneyOperation.Reason.CONFIRMED_FRAUD,
+		MoneyOperation.Reason.MISSED_REGISTRATION,
+	]
+	var expected: Array[int] = [100, 120, 150, 200, 300]
 	for index: int in reasons.size():
 		var wallet: C_Wallet = C_Wallet.new()
 		var operation: MoneyOperation = WalletService.package_settlement(wallet, &"shipment/outcome", reasons[index], 100, 1)

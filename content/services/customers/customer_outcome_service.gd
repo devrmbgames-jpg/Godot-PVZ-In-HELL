@@ -66,6 +66,7 @@ static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> b
 	if visit.actual == CustomerVisit.Actual.NOT_RESOLVED and value != CustomerVisit.Declaration.TAKEN:
 		visit.actual = CustomerVisit.Actual.PLAYER_DENIED
 	if value == CustomerVisit.Declaration.LOST:
+		visit.loss_cause = CustomerVisit.LossCause.DECLARED_LOST
 		visit.reputation = CustomerVisit.Reputation.LOST
 	elif visit.actual == CustomerVisit.Actual.PLAYER_DENIED:
 		visit.reputation = CustomerVisit.Reputation.PLAYER_DENIAL
@@ -74,12 +75,43 @@ static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> b
 	return true
 
 
+## System-owned closeout for a package-pickup visit that never spawned because the
+## parcel was not registered before the next Morning.
+static func mark_missed_registration_lost(visit: CustomerVisit, day: int) -> bool:
+	if (
+		visit == null
+		or day <= visit.arrival_day
+		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+		or visit.declaration != CustomerVisit.Declaration.NONE
+	):
+		return false
+	visit.declaration = CustomerVisit.Declaration.LOST
+	visit.loss_cause = CustomerVisit.LossCause.MISSED_REGISTRATION
+	visit.actual = CustomerVisit.Actual.PLAYER_DENIED
+	visit.disposition = CustomerVisit.Disposition.LOST
+	visit.reputation = CustomerVisit.Reputation.LOST
+	visit.finished = true
+	visit.finished_day = day
+	return true
+
+
 static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 	if visit.settlement_committed or wallet == null:
 		return
 	var operation: MoneyOperation = null
 	if visit.declaration == CustomerVisit.Declaration.LOST:
-		operation = WalletService.package_settlement(wallet, visit.visit_id, MoneyOperation.Reason.LOST, visit.accounting_value, day)
+		var reason: MoneyOperation.Reason = (
+			MoneyOperation.Reason.MISSED_REGISTRATION
+			if visit.loss_cause == CustomerVisit.LossCause.MISSED_REGISTRATION
+			else MoneyOperation.Reason.LOST
+		)
+		operation = WalletService.package_settlement(
+			wallet,
+			visit.visit_id,
+			reason,
+			visit.accounting_value,
+			day,
+		)
 	elif visit.actual == CustomerVisit.Actual.PLAYER_DENIED and visit.declaration == CustomerVisit.Declaration.REFUSED:
 		operation = WalletService.package_settlement(wallet, visit.visit_id, MoneyOperation.Reason.PLAYER_REFUSAL, visit.accounting_value, day)
 	elif visit.actual == CustomerVisit.Actual.DELIVERED and visit.declaration == CustomerVisit.Declaration.TAKEN:

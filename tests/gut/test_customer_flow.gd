@@ -332,10 +332,28 @@ func test_player_caused_death_finishes_live_event_and_records_attribution() -> v
 
 
 
-func test_next_morning_auto_loses_finished_unregistered_visit_once() -> void:
+func test_package_pickup_arrival_waits_for_registration_unless_event_opts_out() -> void:
 	var visit: CustomerVisit = _live_fixture()
-	visit.finished = true
-	visit.finished_day = 1
+	visit.started = false
+	assert_false(CustomerFlowService.arrival_allowed(visit))
+	assert_eq(CustomerFlowService.actionable_remaining(CustomerFlowService.current(), 1), 0)
+
+	visit.requires_registered_package = false
+	assert_true(CustomerFlowService.arrival_allowed(visit))
+	assert_eq(CustomerFlowService.actionable_remaining(CustomerFlowService.current(), 1), 1)
+
+	visit.requires_registered_package = true
+	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
+	record.package_id = visit.package_id
+	record.number = 1
+	PackageRegistrationService.ledger().records.append(record)
+	assert_true(CustomerFlowService.arrival_allowed(visit))
+	assert_eq(CustomerFlowService.actionable_remaining(CustomerFlowService.current(), 1), 1)
+
+
+func test_next_morning_auto_loses_due_unregistered_visit_without_npc_once() -> void:
+	var visit: CustomerVisit = _live_fixture()
+	visit.started = false
 	var parcel: Entity = Entity.new()
 	var identity: C_Package = C_Package.new()
 	identity.package_id = visit.package_id
@@ -349,30 +367,41 @@ func test_next_morning_auto_loses_finished_unregistered_visit_once() -> void:
 	var wallet: C_Wallet = WalletService.current()
 
 	assert_eq(CustomerFlowService.finalize_missed_unregistered(CustomerFlowService.current(), cycle, wallet), 1)
+	assert_false(visit.started)
+	assert_true(visit.finished)
 	assert_eq(visit.declaration, CustomerVisit.Declaration.LOST)
 	assert_eq(visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
 	assert_eq(visit.disposition, CustomerVisit.Disposition.LOST)
+	assert_eq(visit.loss_cause, CustomerVisit.LossCause.MISSED_REGISTRATION)
 	assert_eq(visit.package_history_id, identity.history_id)
 	assert_true(visit.settlement_committed)
-	assert_eq(wallet.balance, -120)
+	assert_eq(wallet.balance, -300)
+	assert_eq(wallet.operations[0].reason, MoneyOperation.Reason.MISSED_REGISTRATION)
 	assert_null(CustomerFlowService.parcel_for(visit.package_id))
 	assert_eq(CustomerFlowService.finalize_missed_unregistered(CustomerFlowService.current(), cycle, wallet), 0)
 	assert_eq(wallet.operations.size(), 1)
 
 
-func test_next_morning_keeps_previously_registered_unresolved_package() -> void:
-	var visit: CustomerVisit = _live_fixture()
-	visit.finished = true
-	visit.finished_day = 1
-	var parcel: Entity = _live_parcel(visit)
+func test_next_morning_keeps_registered_or_other_purpose_visit() -> void:
+	var registered: CustomerVisit = _live_fixture()
+	registered.started = false
+	var parcel: Entity = _live_parcel(registered)
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
-	record.package_id = visit.package_id
+	record.package_id = registered.package_id
 	record.number = 1
 	PackageRegistrationService.ledger().records.append(record)
+
+	var other_purpose: CustomerVisit = CustomerVisit.new()
+	other_purpose.visit_id = &"visit/other-purpose"
+	other_purpose.package_id = "other-purpose-package"
+	other_purpose.definition = DEF_Customer.new()
+	other_purpose.arrival_day = 1
+	other_purpose.requires_registered_package = false
+	CustomerFlowService.current().visits.append(other_purpose)
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	cycle.day_index = 2
 	cycle.phase = C_DayCycle.Phase.MORNING
-
 	assert_eq(
 		CustomerFlowService.finalize_missed_unregistered(
 			CustomerFlowService.current(),
@@ -381,9 +410,11 @@ func test_next_morning_keeps_previously_registered_unresolved_package() -> void:
 		),
 		0,
 	)
-	assert_eq(visit.declaration, CustomerVisit.Declaration.NONE)
-	assert_eq(visit.disposition, CustomerVisit.Disposition.WAREHOUSE)
+	assert_eq(registered.declaration, CustomerVisit.Declaration.NONE)
+	assert_eq(registered.disposition, CustomerVisit.Disposition.WAREHOUSE)
 	assert_true(is_instance_valid(parcel))
+	assert_eq(other_purpose.declaration, CustomerVisit.Declaration.NONE)
+	assert_false(other_purpose.finished)
 	assert_eq(WalletService.current().balance, 0)
 
 func test_main_scene_sessions_do_not_share_mutable_customer_records() -> void:

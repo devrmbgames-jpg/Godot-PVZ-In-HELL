@@ -13,6 +13,8 @@ enum Reason {
 	DEBUG_DEBIT,
 	DEBUG_PENALTY,
 	DEBUG_PENALTY_REVERSAL,
+	## Automatic penalty for ignoring a due package registration until the next Morning.
+	MISSED_REGISTRATION,
 }
 
 @export var operation_id: StringName = &""
