@@ -1,6 +1,6 @@
 # R12.1 - Customer refusal negotiation and repeat visits
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -24,7 +24,7 @@ Add dialogue refusal/stall/deception approaches while keeping CustomerVisit.actu
 - [x] Focused regression validation and docs.
 - [x] Independent review of refusal/repeat-visit work.
 - [x] Add direct held-Package handoff to waiting Customer while retaining counter delivery.
-- [ ] Validate direct handoff extension and return to OWNER_QA.
+- [x] Validate direct handoff extension and return to OWNER_QA.
 
 ### Decisions
 - A response tag identifies intent only. It never directly encodes rage, complaint percentages or other balance values.
@@ -34,11 +34,12 @@ Add dialogue refusal/stall/deception approaches while keeping CustomerVisit.actu
 - On follow-up reactivation, current actual resets to NOT_RESOLVED so the package can still be delivered; player_denial_count preserves prior factual denials.
 
 ### Current
-Refusal/repeat-visit implementation is complete. Direct held-Package handoff was added as an extension and is awaiting focused technical validation before returning to OWNER_QA.
+Technical implementation and review are complete on master, including direct held-Package handoff and retained counter delivery. Next: owner gameplay/visual QA only.
 
 ### Validation
 - Project validation PASS on final implementation SHA.
-- R12.1 negotiation validation PASS: target GDScript parser checks, CustomerFlowService parser copy, DialogueManager source compile, and static authority invariants.
+- R12.1 negotiation validation PASS: target GDScript parser checks (including DEF_CustomerHandoffAction), CustomerFlowService parser copy, DialogueManager source compile, and static authority invariants.
+- Direct handoff extension validation PASS on runs 36598607830 (Project validation) and 36598607907 (R12.1 negotiation validation).
 - Validation runs: 36571644697 (Project validation) and 36571644653 (R12.1 negotiation validation).
 
 ### Owner QA / blockers
