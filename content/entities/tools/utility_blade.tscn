@@ -1,0 +1,73 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/entities/props/e_grabbable_body.gd" id="Entity"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_grabbable.gd" id="Grabbable"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_melee_weapon.gd" id="Weapon"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/combat/def_blade_attack.tres" id="Attack"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_melee_action.gd" id="Action"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="Grabbable"]
+script = ExtResource("Grabbable")
+allowed_hand_slots = 6
+reset_rotation_on_pickup = true
+manual_rotation_enabled = false
+
+[sub_resource type="Resource" id="Weapon"]
+script = ExtResource("Weapon")
+attack = ExtResource("Attack")
+
+[sub_resource type="Resource" id="Action"]
+script = ExtResource("Action")
+action_id = &"melee_strike"
+slot = 2
+caption = "Ударить ножом"
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("Actions")
+actions = [SubResource("Action")]
+reserved_slots = 4
+
+[sub_resource type="StandardMaterial3D" id="Steel"]
+albedo_color = Color(0.7, 0.75, 0.8, 1)
+metallic = 0.8
+roughness = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Grip"]
+albedo_color = Color(0.18, 0.09, 0.03, 1)
+
+[sub_resource type="BoxMesh" id="BladeMesh"]
+material = SubResource("Steel")
+size = Vector3(0.08, 0.45, 0.025)
+
+[sub_resource type="BoxMesh" id="GripMesh"]
+material = SubResource("Grip")
+size = Vector3(0.07, 0.18, 0.07)
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.08, 0.63, 0.07)
+
+[node name="UtilityBlade" type="RigidBody3D"]
+collision_layer = 10
+collision_mask = 31
+mass = 0.7
+continuous_cd = true
+script = ExtResource("Entity")
+component_resources = Array[ExtResource("Component")]([SubResource("Interactable"), SubResource("Grabbable"), SubResource("Weapon"), SubResource("Actions")])
+
+[node name="Blade" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.13, 0)
+mesh = SubResource("BladeMesh")
+
+[node name="Grip" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.185, 0)
+mesh = SubResource("GripMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.04, 0)
+shape = SubResource("Shape")

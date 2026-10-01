@@ -8,6 +8,9 @@
 [ext_resource type="Script" path="res://content/components/motion/c_motion.gd" id="Motion"]
 [ext_resource type="Script" path="res://content/components/motion/c_look.gd" id="Look"]
 [ext_resource type="Script" path="res://content/components/motion/c_npc_intent.gd" id="NpcIntent"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_npc_combat.gd" id="NpcCombat"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/combat/def_npc_punch.tres" id="NpcPunch"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/combat/def_npc_shot.tres" id="NpcShot"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_challenge.gd" id="Challenge"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_gaze_challenge.gd" id="GazeChallenge"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_floor_challenge.gd" id="FloorChallenge"]
@@ -39,6 +42,11 @@ script = ExtResource("NpcIntent")
 
 [sub_resource type="Resource" id="Challenge"]
 script = ExtResource("Challenge")
+
+[sub_resource type="Resource" id="NpcCombat"]
+script = ExtResource("NpcCombat")
+melee_attacks = [ExtResource("NpcPunch")]
+ranged_attacks = [ExtResource("NpcShot")]
 
 [sub_resource type="Resource" id="GazeChallenge"]
 script = ExtResource("GazeChallenge")
@@ -88,7 +96,7 @@ collision_mask = 31
 script = ExtResource("Entity")
 animation_player = NodePath("Body/AnimationPlayer")
 navigation_agent = NodePath("NavigationAgent3D")
-component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("NpcIntent"), SubResource("Challenge"), SubResource("GazeChallenge"), SubResource("FloorChallenge"), SubResource("ImpactReceiver"), SubResource("Agent"), SubResource("Health"), SubResource("Living"), SubResource("Interactable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("NpcIntent"), SubResource("NpcCombat"), SubResource("Challenge"), SubResource("GazeChallenge"), SubResource("FloorChallenge"), SubResource("ImpactReceiver"), SubResource("Agent"), SubResource("Health"), SubResource("Living"), SubResource("Interactable"), SubResource("Actions")])
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 radius = 0.3

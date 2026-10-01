@@ -21,6 +21,8 @@ func _commit_death(target: Entity, result: DamageResult) -> void:
 	target.add_component(death)
 
 	GrabService.entity_unavailable(target)
+	CombatService.entity_unavailable(target)
+	ChallengeService.entity_unavailable(target)
 	var cart: Entity = CartTransportService.current(target)
 	if cart != null:
 		CartTransportService.end(cart)

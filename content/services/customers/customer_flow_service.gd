@@ -575,6 +575,8 @@ static func enter_aggressive(customer: E_Customer) -> bool:
 		or agent.phase == C_CustomerAgent.Phase.FINISHED
 	):
 		return false
+	if agent.phase == C_CustomerAgent.Phase.AGGRESSIVE:
+		return true
 	_transition(agent, C_CustomerAgent.Phase.AGGRESSIVE)
 	NpcIntentService.stop(customer)
 	_watch_player(customer)
@@ -663,6 +665,7 @@ static func reactivate_due_followups(flow: C_CustomerFlow, day: int) -> int:
 
 
 static func _leave(customer: E_Customer, visit: CustomerVisit) -> void:
+	CombatService.end_combat(customer)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	_transition(agent, C_CustomerAgent.Phase.LEAVING)
 	var station: E_DeliveryCounter = counter()

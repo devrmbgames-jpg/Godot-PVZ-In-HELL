@@ -18,7 +18,7 @@ enum DialogueMode { DIRECT, RIDDLE }
 @export var patience_seconds: float = 180.0
 @export var receiving_seconds: float = 1.0
 @export var leaving_seconds: float = 4.0
-@export var aggressive_seconds: float = 5.0
+@export var aggressive_seconds: float = 45.0
 ## Legacy authored property retained for resource compatibility; Godot/Jolt owns gravity.
 @export var gravity: float = 20.0
 @export var healthy_satisfaction: int = 100

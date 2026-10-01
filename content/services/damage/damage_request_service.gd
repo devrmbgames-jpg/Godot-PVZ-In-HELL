@@ -18,6 +18,8 @@ static func submit(request: DamageRequest) -> bool:
 	snapshot.amount = request.amount
 	snapshot.operation = request.operation
 	snapshot.damage_type = request.damage_type
+	if request.operation == DamageRequest.Operation.DAMAGE:
+		snapshot.combat_context = request.combat_context.duplicate(true) as CombatContext if request.combat_context != null else CombatAttribution.describe(snapshot)
 	ECS.world.emit_event(DamageRequest.EVENT, snapshot.target, snapshot)
 	return true
 

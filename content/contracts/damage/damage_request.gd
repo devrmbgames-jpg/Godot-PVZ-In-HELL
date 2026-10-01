@@ -15,6 +15,7 @@ enum Type {
 	EXPLOSION,
 	TOXIC,
 	LIQUID,
+	PROJECTILE,
 }
 
 ## Actual damaging body and optional actor who caused its action.
@@ -28,3 +29,4 @@ var damage_type: Type = Type.GENERIC
 ## Durable effect attribution, independent of live origin/instigator Node references.
 var origin_id: String = ""
 var instigator_id: String = ""
+var combat_context: CombatContext = null

@@ -130,6 +130,15 @@
 [ext_resource type="Script" uid="uid://cecnkpuxts58i" path="res://content/components/gameplay/c_wallet.gd" id="Wallet_state"]
 [ext_resource type="Script" uid="uid://dx38hpfqbykum" path="res://content/systems/gameplay/s_wallet_day.gd" id="Wallet_system"]
 
+[ext_resource type="Script" path="res://content/components/gameplay/c_combat.gd" id="Player_combat"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_customer_combat.gd" id="Customer_combat"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_npc_combat.gd" id="Npc_combat"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_combat_projectile.gd" id="Combat_projectile"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_player_melee.gd" id="Player_melee"]
+[ext_resource type="Script" path="res://content/observers/combat/o_combat_lifecycle.gd" id="Combat_lifecycle"]
+[ext_resource type="Script" path="res://content/observers/combat/o_combat_damage.gd" id="Combat_damage"]
+[ext_resource type="PackedScene" path="res://content/entities/tools/utility_blade.tscn" id="Utility_blade"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -206,6 +215,9 @@ value = 1.0
 
 [sub_resource type="Resource" id="Push_control"]
 script = ExtResource("Push_control")
+
+[sub_resource type="Resource" id="Player_combat"]
+script = ExtResource("Player_combat")
 
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
@@ -531,6 +543,28 @@ group = &"Interaction"
 
 [node name="O_GrabLifecycle" type="Node" parent="World/Systems/Interaction" unique_id=1786878994]
 script = ExtResource("Grab_lifecycle")
+
+[node name="S_CustomerCombat" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Customer_combat")
+group = &"GamePlay"
+
+[node name="S_NpcCombat" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Npc_combat")
+group = &"GamePlay"
+
+[node name="S_CombatProjectile" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Combat_projectile")
+group = &"GamePlay"
+
+[node name="S_PlayerMelee" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Player_melee")
+group = &"GamePlay"
+
+[node name="O_CombatLifecycle" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Combat_lifecycle")
+
+[node name="O_CombatDamage" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Combat_damage")
 
 [node name="PVZ" type="Node3D" parent="." unique_id=627123053]
 
@@ -1058,7 +1092,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4560537, 0.12648739, -2.874
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
 collision_layer = 16
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_1brdc"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Living"), SubResource("Resource_p0mrl")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_1brdc"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Living"), SubResource("Resource_p0mrl")])
 
 [node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1703744943, 217031396, 2065414162) index="0" unique_id=1494109615]
 cast_shadow = 3
@@ -1162,6 +1196,9 @@ position = Vector3(1.5, 0.775, -3.3)
 [node name="LightSwitch" parent="Entityes" instance=ExtResource("Light_switch_scene")]
 position = Vector3(0.55, 1.5, -6)
 rotation = Vector3(0, 1.5707964, 0)
+
+[node name="UtilityBlade" parent="Entityes" instance=ExtResource("Utility_blade")]
+position = Vector3(0.8, 1.1, -0.8)
 
 [node name="FloorSafeBox1" parent="Entityes" instance=ExtResource("Safe_box")]
 position = Vector3(1.5, 0.0, -2.0)

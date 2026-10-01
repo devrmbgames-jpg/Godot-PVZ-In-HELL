@@ -71,6 +71,8 @@ func _run() -> void:
 	assert(_escalations == 1)
 	var second_visit: CustomerVisit = _visit(second)
 	assert(CustomerFlowService.deny(second_visit.visit_id))
+	# R17 now executes aggression. Let its authored bounded conflict end before exit.
+	ECS.world.process(second_visit.definition.aggressive_seconds, "GamePlay")
 	ECS.world.process(second_visit.definition.leaving_seconds, "GamePlay")
 	var clothes: Entity = CustomerFlowService.parcel_for("base_supply:1:clothes")
 	assert(PackageRegistrationService.register_package(clothes).outcome == PackageScanResult.Outcome.REGISTERED)

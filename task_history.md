@@ -1,5 +1,7 @@
 # История выполненных задач
 
+- 2026-10-02 — R17 implementation (OWNER_QA): separate simple NPC melee/ranged 3+3 variants with animation hooks and projectiles, Player blade, same-body NavigationAgent pursuit/escalation, typed durable combat context and seven-day retaliation lookup, combat debug conditions/timers. GUT 104/104 (881 assertions), strict real R08 impact/main combat and light challenge smokes PASS; owner animation/gameplay/layout QA remains. See `agent_tasks/roadmap_17_combat_and_impact_damage.md`.
+
 - 2026-09-21 — Изучен и проиндексирован проект, создана папка docs/ и контекст подсистемы gameplay.
 - 2026-09-21 — Добавлен прыжок с земли в S_Jump с проверками ввода и импульса.
 - 2026-09-21 — Реализованы физический хват, перенос, вращение и бросок коробок с весовыми профилями; пройдены 36 тестов.

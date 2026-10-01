@@ -188,6 +188,11 @@ func test_false_taken_detection_routes_to_existing_aggressive_receiver() -> void
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(agent.phase, C_CustomerAgent.Phase.AGGRESSIVE)
 	assert_false((_customer.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
+	NpcIntentService.follow(_customer, _actor, 1.0)
+	agent.elapsed = 2.0
+	assert_true(CustomerFlowService.enter_aggressive(_customer))
+	assert_eq(agent.elapsed, 2.0, "Repeated aggression must not reset the bounded conflict")
+	assert_true((_customer.get_component(C_NpcIntent) as C_NpcIntent).movement_active, "A subsequent hit must not stop pursuit")
 
 
 func test_voluntary_refusal_uses_customer_flow_transition() -> void:

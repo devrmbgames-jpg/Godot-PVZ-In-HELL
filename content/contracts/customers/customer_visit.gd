@@ -70,3 +70,4 @@ enum Feedback { NONE, APPROVED }
 @export var aggression_roll: float = 1.0
 @export var aggressive: bool = false
 @export var complaint: CustomerComplaint = null
+@export var last_combat_context: CombatContext = null
