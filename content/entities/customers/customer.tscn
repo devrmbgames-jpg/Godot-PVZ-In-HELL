@@ -1,6 +1,15 @@
 [gd_scene format=3]
 
+[ext_resource type="PackedScene" path="res://content/entities/characters/physical_character.tscn" id="Foundation"]
+[ext_resource type="PackedScene" path="res://resources/Animation Library[Standard]/AnimationLibrary_Godot_Standard.glb" id="Model"]
 [ext_resource type="Script" path="res://content/entities/customers/e_customer.gd" id="Entity"]
+[ext_resource type="Script" path="res://content/components/physics/c_rigid_body.gd" id="RigidBody"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_controller.gd" id="Controller"]
+[ext_resource type="Script" path="res://content/components/motion/c_motion.gd" id="Motion"]
+[ext_resource type="Script" path="res://content/components/motion/c_look.gd" id="Look"]
+[ext_resource type="Script" path="res://content/components/motion/c_npc_intent.gd" id="NpcIntent"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/def_impact_living.tres" id="LivingImpact"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_customer_agent.gd" id="Agent"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_health.gd" id="Health"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_living.gd" id="Living"]
@@ -9,6 +18,25 @@
 [ext_resource type="Script" path="res://content/definitions/interaction/def_customer_action.gd" id="Action"]
 [ext_resource type="Script" path="res://content/definitions/interaction/def_customer_handoff_action.gd" id="HandoffAction"]
 [ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+
+[sub_resource type="Resource" id="RigidBody"]
+script = ExtResource("RigidBody")
+
+[sub_resource type="Resource" id="Controller"]
+script = ExtResource("Controller")
+
+[sub_resource type="Resource" id="Motion"]
+script = ExtResource("Motion")
+
+[sub_resource type="Resource" id="Look"]
+script = ExtResource("Look")
+
+[sub_resource type="Resource" id="NpcIntent"]
+script = ExtResource("NpcIntent")
+
+[sub_resource type="Resource" id="ImpactReceiver"]
+script = ExtResource("ImpactReceiver")
+profile = ExtResource("LivingImpact")
 
 [sub_resource type="Resource" id="Agent"]
 script = ExtResource("Agent")
@@ -38,27 +66,30 @@ allow_interact_fallback = false
 script = ExtResource("Actions")
 actions = [SubResource("Action"), SubResource("HandoffAction")]
 
-[sub_resource type="StandardMaterial3D" id="Material"]
-albedo_color = Color(0.32, 0.48, 0.56, 1)
-
-[sub_resource type="CapsuleMesh" id="Mesh"]
-material = SubResource("Material")
-radius = 0.3
-height = 1.7
-
 [sub_resource type="CapsuleShape3D" id="Shape"]
 radius = 0.3
 height = 1.7
 
-[node name="Customer" type="CharacterBody3D"]
+[node name="Customer" node_paths=PackedStringArray("animation_player") instance=ExtResource("Foundation")]
 collision_layer = 2
 collision_mask = 31
 script = ExtResource("Entity")
-component_resources = Array[ExtResource("Component")]([SubResource("Agent"), SubResource("Health"), SubResource("Living"), SubResource("Interactable"), SubResource("Actions")])
+animation_player = NodePath("Body/AnimationPlayer")
+component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("NpcIntent"), SubResource("ImpactReceiver"), SubResource("Agent"), SubResource("Health"), SubResource("Living"), SubResource("Interactable"), SubResource("Actions")])
 
-[node name="Body" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0.85, 0)
-mesh = SubResource("Mesh")
+[node name="Body" parent="." instance=ExtResource("Model")]
+rotation = Vector3(0, 3.1415927, 0)
+
+[node name="LookAtModifier3D" type="LookAtModifier3D" parent="Body/Rig/Skeleton3D" index="1"]
+target_node = NodePath("../../../../HeadY/HeadX/TargetLook")
+bone_name = "DEF-head"
+bone = 6
+
+[node name="AnimationPlayer" parent="Body" index="1"]
+autoplay = &"Idle"
+
+[node name="TargetLook" type="Marker3D" parent="HeadY/HeadX"]
+position = Vector3(0, 0, -1)
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 position = Vector3(0, 0.85, 0)
@@ -69,3 +100,5 @@ position = Vector3(0, 2.15, 0)
 billboard = 1
 font_size = 32
 pixel_size = 0.003
+
+[editable path="Body"]

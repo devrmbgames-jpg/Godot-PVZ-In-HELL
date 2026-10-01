@@ -5,9 +5,9 @@ This file is the queue/index. It does not replace individual task state.
 | Status | Task |
 | --- | --- |
 | **DEFERRED** | [R22.5 GECS Architecture Polish](roadmap_22_5_gecs_architecture_polish.md) — resume after feature work R08–R22 is stable |
-| **IN_PROGRESS** | [R12.1 Customer refusal negotiation / repeat visits](roadmap_12_1_customer_refusal_negotiation.md) |
-| **PLANNED** | [R12 Dialogue integration — visible intent prefixes](roadmap_12_dialogue_integration.md) |
-| **PLANNED** | [R12.2 Physical NPC / Customer character foundation](roadmap_12_2_customer_npc_character.md) |
+| **OWNER_QA** | [R12.1 Customer refusal negotiation / repeat visits](roadmap_12_1_customer_refusal_negotiation.md) |
+| **OWNER_QA** | [R12 Dialogue integration — visible intent prefixes](roadmap_12_dialogue_integration.md) |
+| **OWNER_QA** | [R12.2 Physical NPC / Customer character foundation](roadmap_12_2_customer_npc_character.md) |
 | **PLANNED** | [R13 Environment Interactables](roadmap_13_environment_interactables.md) |
 | **PLANNED** | [R14 Challenge Framework / Light](roadmap_14_challenge_framework_and_lights.md) |
 | **PLANNED** | [R15 Gaze Challenges](roadmap_15_gaze_challenges.md) |

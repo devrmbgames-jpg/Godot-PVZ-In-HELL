@@ -1,7 +1,7 @@
 # Current Work
 
-Active: [R12.1](agent_tasks/roadmap_12_1_customer_refusal_negotiation.md) - **OWNER_QA**.
+Active: [R13](agent_tasks/roadmap_13_environment_interactables.md) - **PLANNED**.
 
-Current checkpoint: direct held-Package handoff is implemented; explicit "Приходите завтра" now guarantees a next-day repeat visit without converting the interaction into PLAYER_DENIED or rolling a complaint for that appearance.
+Current checkpoint: R12 prefixes committed as 06019cfa; R12.2 implementation/review complete, OWNER_QA. NPC/customer GUT 45/45 and Player grab GUT 1/1 pass; strict flow/contact/NPC physics smokes pass. Dialogue/handoff shutdown leaks remain tracked in R12.2 for R23.
 
-Next: owner local gameplay QA. Do not wait for GitHub Actions.
+Next: R13 dependency/contracts inspection and first environment-interactable milestone. Preserve pre-existing edits in main_level, customer schedule and addons/gecs.

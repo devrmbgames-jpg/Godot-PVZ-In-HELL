@@ -3,7 +3,7 @@ class_name S_CustomerFlow
 
 
 func deps() -> Dictionary[int, Array]:
-	return { Runs.Before: [S_DayPhase] }
+	return { Runs.Before: [S_DayPhase, S_NpcIntent] }
 
 
 func query() -> QueryBuilder:

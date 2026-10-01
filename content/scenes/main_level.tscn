@@ -87,6 +87,7 @@
 [ext_resource type="Script" uid="uid://b6qu7a8c8gr3g" path="res://content/observers/interaction/o_physical_slot_lifecycle.gd" id="PhysicalSlot_lifecycle"]
 [ext_resource type="PackedScene" path="res://content/entities/props/placement_area.tscn" id="PlacementArea"]
 [ext_resource type="Script" uid="uid://t4dhuaxsabxv" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
+[ext_resource type="Script" path="res://content/systems/motion/s_npc_intent.gd" id="Npc_intent"]
 [ext_resource type="Script" uid="uid://ba41bxunv3irm" path="res://content/systems/interaction/s_prolonged_decay.gd" id="Prolonged_decay"]
 [ext_resource type="Script" uid="uid://b4iyihjwplrg4" path="res://content/observers/interaction/o_prolonged_lifecycle.gd" id="Prolonged_lifecycle"]
 [ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
@@ -391,6 +392,10 @@ group = &"GamePlay"
 
 [node name="S_CustomerFlow" type="Node" parent="World/Systems/GamePlay" unique_id=697136852]
 script = ExtResource("Customer_system")
+group = &"GamePlay"
+
+[node name="S_NpcIntent" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Npc_intent")
 group = &"GamePlay"
 
 [node name="S_WalletDay" type="Node" parent="World/Systems/GamePlay" unique_id=729224599]

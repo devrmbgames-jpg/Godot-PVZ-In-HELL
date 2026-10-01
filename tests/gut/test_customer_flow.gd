@@ -330,7 +330,9 @@ func test_player_caused_death_finishes_live_event_and_records_attribution() -> v
 	var actor: Entity = Entity.new()
 	actor.component_resources = [C_PlayerInputController.new()]
 	_world.add_entity(actor)
-	var customer: E_Customer = E_Customer.new()
+	var customer_body: RigidBody3D = RigidBody3D.new()
+	customer_body.set_script(load("res://content/entities/customers/e_customer.gd"))
+	var customer: E_Customer = customer_body as Node as E_Customer
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = visit.visit_id
 	customer.component_resources = [agent]
@@ -437,6 +439,11 @@ func test_next_morning_keeps_registered_or_other_purpose_visit() -> void:
 
 func test_explicit_come_back_tomorrow_skips_complaint_and_reactivates_exactly_next_day() -> void:
 	var visit: CustomerVisit = _live_fixture()
+	_live_parcel(visit)
+	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
+	record.package_id = visit.package_id
+	record.number = 1
+	PackageRegistrationService.ledger().records.append(record)
 	visit.definition.complaint_probability = 1.0
 	visit.definition.unresolved_complaint_probability = 1.0
 	visit.definition.max_followup_visits = 2

@@ -31,11 +31,13 @@ func before_each() -> void:
 	_actor = Entity.new()
 	_world.add_entity(_actor)
 
-	_customer = E_Customer.new()
+	var customer_body: RigidBody3D = RigidBody3D.new()
+	customer_body.set_script(load("res://content/entities/customers/e_customer.gd"))
+	_customer = customer_body as Node as E_Customer
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = _visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	_customer.component_resources = [agent]
+	_customer.component_resources = [agent, C_NpcIntent.new(), C_Controller.new()]
 	_world.add_entity(_customer)
 
 	_context = CustomerDialogueContext.new(_actor, _customer)
@@ -185,7 +187,7 @@ func test_false_taken_detection_routes_to_existing_aggressive_receiver() -> void
 	assert_true(_context.enter_aggressive())
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(agent.phase, C_CustomerAgent.Phase.AGGRESSIVE)
-	assert_false(agent.moving)
+	assert_false((_customer.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 
 
 func test_voluntary_refusal_uses_customer_flow_transition() -> void:

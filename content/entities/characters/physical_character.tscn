@@ -1,0 +1,62 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/entities/characters/e_rigid_body_character.gd" id="Entity"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/components/physics/c_rigid_body.gd" id="RigidBody"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_controller.gd" id="Controller"]
+[ext_resource type="Script" path="res://content/components/motion/c_motion.gd" id="Motion"]
+[ext_resource type="Script" path="res://content/components/motion/c_look.gd" id="Look"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_health.gd" id="Health"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/attributes/def_attr_health.tres" id="HealthDef"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_living.gd" id="Living"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/def_impact_living.tres" id="LivingImpact"]
+
+[sub_resource type="PhysicsMaterial" id="Material"]
+friction = 0.0
+
+[sub_resource type="Resource" id="RigidBody"]
+script = ExtResource("RigidBody")
+
+[sub_resource type="Resource" id="Controller"]
+script = ExtResource("Controller")
+
+[sub_resource type="Resource" id="Motion"]
+script = ExtResource("Motion")
+
+[sub_resource type="Resource" id="Look"]
+script = ExtResource("Look")
+
+[sub_resource type="Resource" id="Health"]
+script = ExtResource("Health")
+definition = ExtResource("HealthDef")
+
+[sub_resource type="Resource" id="Living"]
+script = ExtResource("Living")
+
+[sub_resource type="Resource" id="ImpactReceiver"]
+script = ExtResource("ImpactReceiver")
+profile = ExtResource("LivingImpact")
+
+[node name="PhysicalCharacter" type="RigidBody3D" node_paths=PackedStringArray("head_axis_y", "head_axis_x")]
+collision_layer = 4
+collision_mask = 13
+mass = 60.0
+axis_lock_angular_x = true
+axis_lock_angular_y = true
+axis_lock_angular_z = true
+physics_material_override = SubResource("Material")
+can_sleep = false
+contact_monitor = true
+max_contacts_reported = 8
+linear_damp_mode = 1
+script = ExtResource("Entity")
+head_axis_y = NodePath("HeadY")
+head_axis_x = NodePath("HeadY/HeadX")
+component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("Health"), SubResource("Living"), SubResource("ImpactReceiver")])
+
+[node name="HeadY" type="Marker3D" parent="."]
+position = Vector3(0, 1.3946805, 0.044673994)
+
+[node name="HeadX" type="Marker3D" parent="HeadY"]
+position = Vector3(0, 0.11703396, 0)

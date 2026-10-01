@@ -235,8 +235,11 @@ static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void
 	ECS.world.add_entity(customer, null, false)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id
-	agent.destination = station.waiting_position()
-	agent.moving = true
+	var motion: C_Motion = customer.get_component(C_Motion) as C_Motion
+	if motion != null:
+		motion.max_speed = maxf(0.0, visit.definition.move_speed)
+	NpcIntentService.move_to(customer, station.waiting_position(), visit.definition.arrival_distance)
+	NpcIntentService.look_along_movement(customer)
 	visit.started = true
 	visit.visit_count += 1
 	visit.last_visit_day = day
@@ -288,11 +291,13 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 		return
 	bind_parcel(customer, visit)
 	agent.elapsed += delta
+	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
 	match agent.phase:
 		C_CustomerAgent.Phase.APPROACHING:
-			if agent.arrived:
+			if intent != null and intent.arrived:
 				_transition(agent, C_CustomerAgent.Phase.WAITING)
-				agent.moving = false
+				NpcIntentService.stop(customer)
+				_watch_player(customer)
 				customer.show_message("Здравствуйте!")
 			elif agent.elapsed >= visit.definition.approach_timeout:
 				_leave(customer, visit)
@@ -309,7 +314,7 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 			if agent.elapsed >= visit.definition.aggressive_seconds:
 				_leave(customer, visit)
 		C_CustomerAgent.Phase.LEAVING:
-			if agent.arrived or agent.elapsed >= visit.definition.leaving_seconds:
+			if (intent != null and intent.arrived) or agent.elapsed >= visit.definition.leaving_seconds:
 				_transition(agent, C_CustomerAgent.Phase.FINISHED)
 				finish(visit, cycle.day_index)
 				ECS.world.remove_entity(customer)
@@ -555,7 +560,8 @@ static func enter_aggressive(customer: E_Customer) -> bool:
 	):
 		return false
 	_transition(agent, C_CustomerAgent.Phase.AGGRESSIVE)
-	agent.moving = false
+	NpcIntentService.stop(customer)
+	_watch_player(customer)
 	customer.show_message("Вы меня обманули!")
 	return true
 
@@ -647,13 +653,24 @@ static func _leave(customer: E_Customer, visit: CustomerVisit) -> void:
 	var customer_node: Node = customer as Node
 	var body: Node3D = customer_node as Node3D
 	if station != null:
-		agent.destination = station.entry_position()
+		NpcIntentService.move_to(customer, station.entry_position(), visit.definition.arrival_distance)
 	elif body != null:
-		agent.destination = body.global_position
-	agent.arrived = false
-	agent.moving = true
+		NpcIntentService.move_to(customer, body.global_position, visit.definition.arrival_distance)
+	NpcIntentService.look_along_movement(customer)
 	if visit.actual == CustomerVisit.Actual.NOT_RESOLVED:
 		customer.show_message("Я ухожу без заказа.")
+
+
+static func _watch_player(customer: E_Customer) -> void:
+	for player: Entity in ECS.world.query.with_all([C_PlayerInputController]).execute():
+		var character: E_RigidBodyCharacter = player as E_RigidBodyCharacter
+		var offset: Vector3 = Vector3.ZERO
+		if character != null and character.head_axis_x != null:
+			var player_body: Node3D = player as Node as Node3D
+			offset = character.head_axis_x.global_position - player_body.global_position
+		NpcIntentService.watch(customer, player, offset)
+		return
+	NpcIntentService.look_along_movement(customer)
 
 
 static func _transition(agent: C_CustomerAgent, phase: C_CustomerAgent.Phase) -> void:

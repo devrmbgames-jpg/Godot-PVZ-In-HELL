@@ -1,13 +1,7 @@
 @tool
-extends Entity
-## Thin engine glue: CharacterBody3D is the only owner of physical movement.
+extends E_NpcCharacter
+## Customer presentation over the shared rigid character physics callback.
 class_name E_Customer
-
-
-func _physics_process(delta: float) -> void:
-	if Engine.is_editor_hint():
-		return
-	CustomerMotionService.step(self, delta)
 
 
 func show_message(message: String) -> void:

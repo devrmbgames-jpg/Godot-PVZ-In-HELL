@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://dxkg7ovkuxd0i"]
 
+[ext_resource type="PackedScene" path="res://content/entities/characters/physical_character.tscn" id="Foundation"]
 [ext_resource type="PackedScene" path="res://content/entities/props/physical_slot.tscn" id="PhysicalSlot"]
 
 [ext_resource type="Script" uid="uid://xrbedgy0nakm" path="res://content/entities/characters/e_rigid_body_character.gd" id="1_hqtr2"]
@@ -106,7 +107,7 @@ resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
 profile = ExtResource("LivingImpact")
 
-[node name="E_RigidBodyCharacter" type="RigidBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "lowered_right_hand_slot", "lowered_left_hand_slot", "shape_standing", "shape_crouching", "camera_root", "ray_standing", "head_axis_y", "head_axis_x")]
+[node name="E_RigidBodyCharacter" instance=ExtResource("Foundation") unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "lowered_right_hand_slot", "lowered_left_hand_slot", "shape_standing", "shape_crouching", "camera_root", "ray_standing", "head_axis_y", "head_axis_x")]
 collision_layer = 4
 collision_mask = 13
 axis_lock_angular_x = true
@@ -210,10 +211,10 @@ bone = 6
 [node name="AnimationPlayer" parent="AnimationLibrary_Godot_Standard" index="1" unique_id=1771309942]
 autoplay = &"Idle"
 
-[node name="HeadY" type="Marker3D" parent="." unique_id=45462056]
+[node name="HeadY" parent="." index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)
 
-[node name="HeadX" type="Marker3D" parent="HeadY" unique_id=2113340697]
+[node name="HeadX" parent="HeadY" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11703396, 0)
 
 [node name="BeltSlotLeft" parent="." instance=ExtResource("PhysicalSlot")]

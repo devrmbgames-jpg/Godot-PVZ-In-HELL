@@ -1,6 +1,6 @@
 # R12.2 — Полноценный физический NPC / Customer character foundation
 
-Status: **PLANNED**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -20,14 +20,14 @@ Status: **PLANNED**
 - Не требовать новых animation assets; если текущая character library уже содержит подходящие Idle/Walk, подключить их без создания отдельного animation subsystem.
 
 ### Milestones
-- [ ] M1. Выделить общий physical character foundation из текущей player-oriented scene без регрессии Player.
-- [ ] M2. Добавить generic NPC intent/controller data contract для move/look target и System, который пишет semantic intent в `C_Controller`.
-- [ ] M3. Перевести `Customer` на общий RigidBody character foundation и удалить Customer-only ownership физического движения.
-- [ ] M4. Подключить head/look behavior Customer и минимальное locomotion presentation (Idle/Walk, если уже доступно).
-- [ ] M5. Мигрировать CustomerFlow на generic NPC commands/intents, сохранив все текущие visit/dialogue/delivery semantics.
-- [ ] M6. Добавить focused GUT + headless physics/customer regression coverage.
-- [ ] M7. Независимо проверить diff; все material findings завершить как FIXED / ACCEPTED / FALSE_POSITIVE.
-- [ ] M8. Передать owner gameplay/visual QA.
+- [x] M1. Выделить общий physical character foundation из текущей player-oriented scene без регрессии Player.
+- [x] M2. Добавить generic NPC intent/controller data contract для move/look target и System, который пишет semantic intent в `C_Controller`.
+- [x] M3. Перевести `Customer` на общий RigidBody character foundation и удалить Customer-only ownership физического движения.
+- [x] M4. Подключить head/look behavior Customer и минимальное locomotion presentation (Idle/Walk, если уже доступно).
+- [x] M5. Мигрировать CustomerFlow на generic NPC commands/intents, сохранив все текущие visit/dialogue/delivery semantics.
+- [x] M6. Добавить focused GUT + headless physics/customer regression coverage.
+- [x] M7. Независимо проверить diff; все material findings завершить как FIXED / ACCEPTED / FALSE_POSITIVE.
+- [x] M8. Передать owner gameplay/visual QA.
 
 ### Decisions
 - `C_CustomerAgent` остаётся customer-domain state: visit/phase/service lifecycle. Generic movement/look state не должен жить в Customer-only component.
@@ -39,10 +39,20 @@ Status: **PLANNED**
 - R17 должен иметь возможность переключить того же NPC из service behavior в pursuit/attack без замены физического тела или параллельной locomotion системы.
 
 ### Current
-Не начато. Следующий шаг: зафиксировать player/common component split на основе `e_rigid_body_character.tscn`, затем определить минимальный generic NPC intent contract до изменения Customer scene.
+Implementation and independent review complete on 2026-10-02. Player and Customer specialize physical_character.tscn, Customer uses generic NPC goals/relationships and existing Motion/Look/Impact solvers. Next: local gameplay/visual acceptance; continue executable queue with R13.
 
 ### Validation
-Not run for this task.
+- Godot 4.7.1 / GUT 9.7.1: test_npc_intent + test_customer_dialogue + test_customer_flow: 45/45 tests, 323 assertions PASS. Shutdown reports 3 ObjectDB / 2 Resource leaks, so this is assertion evidence rather than clean teardown evidence.
+- Player main-scene grab regression: 1/1 test, 58 assertions PASS with clean shutdown.
+- Strict headless smoke PASS: customer_flow (2400 frames), character_contact (360 frames), npc_character (2400 frames). NPC smoke proves obstacle blocking, external impulse retention, arrival recovery, existing Idle/Walk availability and shared head look.
+- Direct-handoff smoke reaches all wrong/delivered/refused grip assertions and prints PASS; strict runner FAIL for 29 resources at shutdown. Customer-dialogue smoke reaches lifecycle PASS but strict runner FAIL for existing RID/resource leaks also seen before this migration. Clean teardown follow-up belongs to final R23 validation.
+- Existing next-day test fixture lacked a registered package; corrected to match production registration-gated arrival.
+- Project structure validation PASS after restoring missing explicit System.group metadata in main_level while preserving other local scene changes. git diff --check PASS. gdtoolkit unavailable; no formatter run claimed.
+- Headless editor cache refresh completed, but reported AssetPlacer assertions and sandbox-denied editor-settings save; this is not a clean editor validation.
+
+### Review
+- Independent read-only reviewer: no material findings in the migration. Shared Player node/body contracts and NPC relationship lifecycle checked.
+- R1 (BUG, existing shutdown resource retention in dialogue/handoff surfaces): ACCEPTED for R12.2 scope; gameplay assertions pass, clean teardown remains required by R23. No addon modification made.
 
 ### Owner QA / blockers
 Требуется owner QA после реализации:
@@ -56,7 +66,7 @@ Not run for this task.
 ---
 
 Зависимости: R08, R11, R12.1
-Ветка/base: зафиксировать при начале реализации.
+Ветка/base: master / 06019cfa (R12 visible intent prefixes).
 Источники: [Customers](../docs/customers.md), [Gameplay context](../content/CONTEXT.md), [R12.1](roadmap_12_1_customer_refusal_negotiation.md), [R17](roadmap_17_combat_and_impact_damage.md).
 
 ## Проблема сейчас
@@ -78,7 +88,7 @@ Not run for this task.
 
 - [Customer scene](../content/entities/customers/customer.tscn)
 - [Customer entity glue](../content/entities/customers/e_customer.gd)
-- [CustomerMotionService](../content/services/customers/customer_motion_service.gd)
+- [Generic NPC commands](../content/services/motion/npc_intent_service.gd) (replaces removed CustomerMotionService)
 - [Generic rigid-body character](../content/entities/characters/e_rigid_body_character.gd)
 - [Generic character scene](../content/entities/characters/e_rigid_body_character.tscn)
 - [Controller](../content/components/gameplay/c_controller.gd)

@@ -143,10 +143,9 @@ func _wait_for_customer() -> E_Customer:
 			return customer
 	for entity: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
-		var body: CharacterBody3D = entity as Node as CharacterBody3D
-		print("Customer timeout: phase=", agent.phase, " elapsed=", agent.elapsed, " moving=", agent.moving, " position=", body.global_position, " destination=", agent.destination, " physics=", body.is_physics_processing())
-		for index: int in body.get_slide_collision_count():
-			print("Customer collider: ", body.get_slide_collision(index).get_collider())
+		var body: RigidBody3D = entity as Node as RigidBody3D
+		var intent: C_NpcIntent = entity.get_component(C_NpcIntent) as C_NpcIntent
+		print("Customer timeout: phase=", agent.phase, " elapsed=", agent.elapsed, " moving=", intent.movement_active, " position=", body.global_position, " destination=", intent.move_position, " velocity=", body.linear_velocity)
 	assert(false, "Customer must physically reach the authored counter within frame budget")
 	return null
 
