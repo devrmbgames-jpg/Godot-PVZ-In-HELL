@@ -81,7 +81,6 @@ component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"),
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 radius = 0.3
 height = 1.7
-# Baked floor height is above the physical feet; the 3D waypoint tolerance must cover it.
 path_desired_distance = 0.35
 target_desired_distance = 0.25
 path_max_distance = 1.0

@@ -1,0 +1,64 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/entities/props/e_openable.gd" id="Entity"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_openable.gd" id="Openable"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_openable_motion.gd" id="Motion"]
+[ext_resource type="Resource" path="res://content/definitions/interaction/def_openable_actions.tres" id="Actions"]
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="Motion"]
+script = ExtResource("Motion")
+open_transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0, 0, 0)
+duration_seconds = 0.8
+hinge_motor_max_impulse = 0.5
+
+[sub_resource type="Resource" id="Openable"]
+script = ExtResource("Openable")
+motion = SubResource("Motion")
+
+[sub_resource type="StandardMaterial3D" id="Glass"]
+albedo_color = Color(0.35, 0.62, 0.7, 0.65)
+transparency = 1
+roughness = 0.2
+
+[sub_resource type="BoxMesh" id="Mesh"]
+size = Vector3(1.9, 1.9, 0.08)
+material = SubResource("Glass")
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(1.9, 1.9, 0.08)
+
+[node name="Window" type="StaticBody3D" node_paths=PackedStringArray("door_root", "hinge_joint")]
+collision_layer = 0
+collision_mask = 0
+script = ExtResource("Entity")
+door_root = NodePath("Panel")
+hinge_joint = NodePath("HingeJoint3D")
+component_resources = Array[ExtResource("Component")]([SubResource("Interactable"), SubResource("Openable"), ExtResource("Actions")])
+
+[node name="Panel" type="RigidBody3D" parent="."]
+collision_layer = 1
+collision_mask = 29
+mass = 5.0
+gravity_scale = 0.0
+can_sleep = false
+
+[node name="Visual" type="MeshInstance3D" parent="Panel"]
+position = Vector3(0.95, 0.95, 0)
+mesh = SubResource("Mesh")
+
+[node name="Collision" type="CollisionShape3D" parent="Panel"]
+position = Vector3(0.95, 0.95, 0)
+shape = SubResource("Shape")
+
+[node name="HingeJoint3D" type="HingeJoint3D" parent="."]
+rotation = Vector3(-1.5707964, 0, 0)
+node_a = NodePath("..")
+node_b = NodePath("../Panel")
+angular_limit/enable = true
+angular_limit/lower = 0.0
+angular_limit/upper = 1.5707964

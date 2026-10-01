@@ -89,6 +89,10 @@
 [ext_resource type="Script" uid="uid://t4dhuaxsabxv" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
 [ext_resource type="Script" path="res://content/systems/motion/s_npc_intent.gd" id="Npc_intent"]
 [ext_resource type="NavigationMesh" path="res://content/navigation/navmesh_warehouse.tres" id="Warehouse_navigation"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_light_circuit.gd" id="Light_circuit"]
+[ext_resource type="PackedScene" path="res://content/entities/props/window.tscn" id="Window_scene"]
+[ext_resource type="PackedScene" path="res://content/entities/props/drawer.tscn" id="Drawer_scene"]
+[ext_resource type="PackedScene" path="res://content/entities/props/light_switch.tscn" id="Light_switch_scene"]
 [ext_resource type="Script" uid="uid://ba41bxunv3irm" path="res://content/systems/interaction/s_prolonged_decay.gd" id="Prolonged_decay"]
 [ext_resource type="Script" uid="uid://b4iyihjwplrg4" path="res://content/observers/interaction/o_prolonged_lifecycle.gd" id="Prolonged_lifecycle"]
 [ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
@@ -400,6 +404,10 @@ group = &"GamePlay"
 
 [node name="S_NpcIntent" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("Npc_intent")
+group = &"GamePlay"
+
+[node name="S_LightCircuit" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Light_circuit")
 group = &"GamePlay"
 
 [node name="S_WalletDay" type="Node" parent="World/Systems/GamePlay" unique_id=729224599]
@@ -966,7 +974,7 @@ transform = Transform3D(1.7717475e-07, 3.584333e-08, -0.82, 0.82, -3.584334e-08,
 metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
 
 [node name="Primitive_Beam_static3" parent="PVZ/Wall" unique_id=1787659410 instance=ExtResource("9_ofyry")]
-transform = Transform3D(1.7717475e-07, 3.584333e-08, -0.82, 0.82, -3.584334e-08, 1.7717475e-07, -3.584333e-08, -0.82, -3.584334e-08, 0.8346243, 1.5345902, -7.744841)
+transform = Transform3D(1.7717475e-07, 3.584333e-08, -0.82, 0.82, -3.584334e-08, 1.7717475e-07, -3.584333e-08, -0.82, -3.584334e-08, 0.7, 1.5345902, -7.744841)
 metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
 
 [node name="Primitive_Beam_static4" parent="PVZ/Wall" unique_id=320954148 instance=ExtResource("9_ofyry")]
@@ -983,17 +991,17 @@ metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
 
 [node name="Light" type="Node3D" parent="PVZ" unique_id=1992506087]
 
-[node name="OmniLight3D" type="OmniLight3D" parent="PVZ/Light" unique_id=566469930]
+[node name="OmniLight3D" type="OmniLight3D" parent="PVZ/Light" unique_id=566469930 groups=["warehouse_lights"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.696652, 3.362012, -5.191838)
 shadow_enabled = true
 omni_range = 7.915
 
-[node name="OmniLight3D3" type="OmniLight3D" parent="PVZ/Light" unique_id=1554456456]
+[node name="OmniLight3D3" type="OmniLight3D" parent="PVZ/Light" unique_id=1554456456 groups=["warehouse_lights"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8443918, 2.8907986, -9.669686)
 shadow_enabled = true
 omni_range = 7.915
 
-[node name="OmniLight3D2" type="OmniLight3D" parent="PVZ/Light" unique_id=1184650244]
+[node name="OmniLight3D2" type="OmniLight3D" parent="PVZ/Light" unique_id=1184650244 groups=["warehouse_lights"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.140583, 3.2822776, -3.644451)
 shadow_enabled = true
 omni_range = 7.915
@@ -1105,6 +1113,16 @@ transform = Transform3D(1, 0, 0, 0, 0.65209705, -0.7581355, 0, 0.7581355, 0.6520
 
 [node name="DoorTemplate" parent="Entityes" unique_id=964464054 instance=ExtResource("63_uqafv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2480266, 0.09600389, -8.165544)
+
+[node name="Window" parent="Entityes" instance=ExtResource("Window_scene")]
+position = Vector3(1.05, 1.05, 0.55)
+
+[node name="Drawer" parent="Entityes" instance=ExtResource("Drawer_scene")]
+position = Vector3(1.5, 0.775, -3.3)
+
+[node name="LightSwitch" parent="Entityes" instance=ExtResource("Light_switch_scene")]
+position = Vector3(0.55, 1.5, -6)
+rotation = Vector3(0, 1.5707964, 0)
 
 [node name="PushCart" parent="Entityes" unique_id=1664321513 instance=ExtResource("Push_cart")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6.714551, 0.8329964, 2.8046627)

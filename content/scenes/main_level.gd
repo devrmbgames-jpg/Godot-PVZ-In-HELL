@@ -9,6 +9,22 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and is_instance_valid(world):
+		# GECS archetypes have transition edges that retain each other and their
+		# component resources. Purge breaks those cycles before the scene is freed.
+		# Tree shutdown can free Entity children before this parent notification.
+		while not world.entities.is_empty():
+			world.entities = world.entities.filter(func(entity: Variant) -> bool: return is_instance_valid(entity))
+			if world.entities.is_empty():
+				break
+			var entity: Entity = world.entities.back() as Entity
+			world.remove_entity(entity)
+		world.purge(false)
+		if ECS.world == world:
+			ECS.world = null
+
+
 func _physics_process(delta: float) -> void:
 	if world == null:
 		return

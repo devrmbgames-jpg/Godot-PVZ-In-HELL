@@ -41,9 +41,10 @@ Status: **OWNER_QA**
 - R17 должен иметь возможность переключить того же NPC из service behavior в pursuit/attack без замены физического тела или параллельной locomotion системы.
 
 ### Current
-Base migration committed as 7464a941. NavigationAgent3D extension implemented and validated on 2026-10-02: Customer follows actual waypoints; warehouse map contains 121 baked polygons. Includes offline rebuild utility and pending/blocked state. Next implementation: resume R13 environment joints/light circuits.
+Base migration committed as 7464a941. NavigationAgent3D extension implemented and validated on 2026-10-02: Customer follows actual waypoints; warehouse map initially contained 121 baked polygons (R13 clearance rebake: 122). Includes offline rebuild utility and pending/blocked state. Next implementation: resume R13 environment joints/light circuits.
 
 ### Validation
+- R13 follow-up: actual waypoint tolerance is 0.35 after removing an unsupported hash comment in scene text. Wall-detour smoke PASS. Main customer_flow and handoff now strictly PASS after project level purge cleanup; dialogue fixture retains two script resources for R23. Warehouse map rebaked to 122 polygons.
 - Navigation extension: strict npc_navigation smoke PASS (wall detour, initial zero target, 1800-frame budget); focused NPC GUT 6/6 tests, 22 assertions PASS. Main customer_flow completes all physical delivery/dispute assertions, but strict teardown currently FAIL (31 resources associated with ongoing R13 openable/action resources). Navigation bake utility saved 121 polygons; same scene teardown retention is reported. Structure validation PASS.
 - Godot 4.7.1 / GUT 9.7.1: test_npc_intent + test_customer_dialogue + test_customer_flow: 45/45 tests, 323 assertions PASS. Shutdown reports 3 ObjectDB / 2 Resource leaks, so this is assertion evidence rather than clean teardown evidence.
 - Player main-scene grab regression: 1/1 test, 58 assertions PASS with clean shutdown.

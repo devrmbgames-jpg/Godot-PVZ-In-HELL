@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="C_InteractionActionSet" format=3]
+
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_interaction_action.gd" id="ActionBase"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_openable_action.gd" id="Action"]
+
+[sub_resource type="Resource" id="Open"]
+script = ExtResource("Action")
+action_id = &"openable_open"
+slot = 0
+caption = "Открыть"
+priority = 1
+operation = 0
+
+[sub_resource type="Resource" id="Close"]
+script = ExtResource("Action")
+action_id = &"openable_close"
+slot = 0
+caption = "Закрыть"
+operation = 1
+
+[sub_resource type="Resource" id="Unlock"]
+script = ExtResource("Action")
+action_id = &"openable_unlock"
+slot = 0
+caption = "Отпереть"
+operation = 2
+
+[resource]
+script = ExtResource("Actions")
+actions = Array[ExtResource("ActionBase")]([SubResource("Open"), SubResource("Close"), SubResource("Unlock")])
+reserved_slots = 1
