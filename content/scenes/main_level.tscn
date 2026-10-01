@@ -162,6 +162,8 @@
 [ext_resource type="Script" path="res://content/systems/gameplay/s_order_delivery.gd" id="Order_delivery_system"]
 [ext_resource type="PackedScene" path="res://content/entities/commerce/order_receiving.tscn" id="Order_receiving_scene"]
 
+[ext_resource type="PackedScene" path="res://content/entities/stations/package_return_point.tscn" id="Package_return_point"]
+
 [sub_resource type="Resource" id="Autosave_state"]
 script = ExtResource("Autosave_state")
 
@@ -1229,6 +1231,9 @@ mode = 4
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6876402, 0, 3.4474401)
 package_parent = NodePath("..")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_v2668")])
+
+[node name="PackageReturnPoint" parent="Entityes" instance=ExtResource("Package_return_point")]
+position = Vector3(16.5, 0.4, 0.5)
 
 [node name="OrderReceiving" parent="Entityes" instance=ExtResource("Order_receiving_scene")]
 position = Vector3(11, 0.22, 0.5)

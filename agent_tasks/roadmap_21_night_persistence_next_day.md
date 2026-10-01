@@ -16,7 +16,9 @@ Status: **IN_PROGRESS**
 
 ### Milestones
 - [x] Reconfirm dependency completion and current production owners/contracts.
-- [ ] Implement the existing work checklist in small coherent milestones.
+- [x] Foundation: Night/store/codec/world restore/physical orders (`baaa8478`).
+- [x] Physical Morning refusal return and two-Night consumed-order persistence scenario.
+- [ ] Complete relationship validation/permanent completion/reset regressions and the remaining work checklist.
 - [ ] Independently review material changes and resolve all R-findings.
 - [ ] Run final task validation according to the documented GUT/headless budget.
 - [ ] Record remaining owner gameplay/visual QA.
@@ -29,9 +31,11 @@ This file remains authoritative.
 - Physical paid orders carry order/<operation ID>; fulfilled records survive pickup/consumption. Blocked receiving retries without charging again.
 
 ### Current
-Foundation milestone implemented: atomic checksummed primitive autosave, closed typed codec, persistent world snapshot, stable runtime/Package IDs, ownership/slot/cart/anchor/ink restore, quest binding reconstruction, Night save gate/retry and startup restore before simulation. Morning physical order receiving is scene-wired, collision-tested and deduplicated by operation ID. Night transient capture/combat/customer/projectile/nonpersistent hazard reset included. R21 remains IN_PROGRESS: next implement physical Morning refusal return and strengthen relationship-role validation/reset/persistence regressions before final feature review.
+Foundation milestone committed `baaa8478`: atomic checksummed primitive autosave, closed typed codec, persistent world snapshot, stable runtime/Package IDs, ownership/slot/cart/anchor/ink restore, quest binding reconstruction, Night save gate/retry and startup restore before simulation. Morning physical order receiving is scene-wired, collision-tested and deduplicated by operation ID. Night transient capture/combat/customer/projectile/nonpersistent hazard reset included. Physical Morning refusal return now implemented: actual prior-day refusal + active identity/number + held parcel + reachable F return point; commit releases the number and removes the parcel while preserving settlement/complaint/actual/declaration records. R21 remains IN_PROGRESS: next strengthen relationship-role/capacity validation, permanent interaction completion, and reset/fixed-object/hazard regressions before final feature review.
 
 ### Validation
+- Return milestone GUT 53/53 PASS, 402 assertions (`tests/artifacts/r21_return_gut.log`): return eligibility, identity/number, future target/false declaration/unheld rejection plus save/world/customer/commerce regressions.
+- Strict `night_persistence-20261002-083948714.log` PASS: two Sleeps/recreated levels, consumed paid order never respawns, actual ray/automatic authored grab profile/F return point, retained refusal penalty and lifecycle/number release, returned parcel remains gone, late quest target remains physical. Fixture supplies the prior refusal fact through CustomerOutcomeService; no full customer dialogue/day playthrough claim.
 - Foundation GUT 15/15 PASS, 114 assertions (`tests/artifacts/r21_foundation_gut.log`): codec/records/canonical definitions, atomic overwrite/checksum corruption, negative debt, write failure/retry without day increment, repeated owned-item restore, unknown/missing fields/targets, null Package definition, real swapped physical slots and disabled Entity lifecycle.
 - Strict `night_persistence-20261002-082146990.log` PASS after review fixes: main Sleep -> autosave -> level recreation -> Morning, one physical paid order, inventory ownership, late quest target and reusable number, HP/opening/damage/ink and stale Sleep rejection. Isolated test slot removed afterwards; no rendered/visual claim.
 - Structure validator and diff checks PASS. Headless editor imports resolved classes; external certificate/editor settings/plugin errors prevent a clean editor claim.
@@ -76,7 +80,7 @@ Owner rendered sleep/receiving/return route, gamepad UI and multi-day pacing rem
 - [ ] Сохранять persistent physical-slot/placement/fixed-object state из R11.1 там, где объект должен переживать ночь; временный interaction progress/control capture не сохранять.
 - [ ] Сбрасывать schedule, временные challenges/dialogue/hazards/reservations; сохранять явно persistent последствия.
 - [ ] Определить политику физического расположения и маркерных штрихов между днями; исключить потерю quest-target и дубликаты ID. Customer arrival может быть запланирован через 10+ дней либо никогда, поэтому отсутствие события сегодня не является cleanup condition.
-- [ ] Поддержать morning return отказной Package: lifecycle/номер закрываются только после successful return commit; существующая Complaint/штраф не отменяются автоматически.
+- [x] Поддержать morning return отказной Package: lifecycle/номер закрываются только после successful return commit; существующая Complaint/штраф не отменяются автоматически.
 - [ ] Восстанавливать ссылки по стабильным ID, не сериализовать Node/Relationship runtime напрямую; безопасно обрабатывать отсутствующий/некорректный save.
 - [ ] Доставлять каждый оплаченный order ровно один раз даже после повторного load или прерывания перехода.
 

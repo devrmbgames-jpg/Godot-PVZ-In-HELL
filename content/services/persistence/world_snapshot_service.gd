@@ -81,7 +81,7 @@ static func valid(data: Dictionary, root: Node) -> bool:
 		var scene: String = String(record.get("scene", ""))
 		if not authored.is_empty() and not root.get_node_or_null(NodePath(authored)) is Entity:
 			return false
-		if authored.is_empty() and not scene.is_empty() and (not scene.begins_with("res://content/entities/") or not ResourceLoader.exists(scene)):
+		if authored.is_empty() and not scene.is_empty() and (not scene.begins_with("res://content/entities/") or not ResourceLoader.exists(scene, "PackedScene")):
 			return false
 		if record.has("pose") and (not record.pose is Transform3D or not (record.pose as Transform3D).is_finite()):
 			return false
@@ -146,8 +146,10 @@ static func restore(data: Dictionary, root: Node) -> bool:
 		if entity == null:
 			var scene: String = String(record.scene)
 			var packed: PackedScene = load(scene) as PackedScene if not scene.is_empty() else null
-			entity = packed.instantiate() as Entity if packed != null else Entity.new()
+			var instance: Node = packed.instantiate() if packed != null else Entity.new()
+			entity = instance as Entity
 			if entity == null:
+				instance.free()
 				for candidate: Entity in fresh:
 					candidate.free()
 				return false

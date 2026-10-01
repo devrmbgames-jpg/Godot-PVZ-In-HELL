@@ -10,4 +10,6 @@ R21 owner: `agent_tasks/roadmap_21_night_persistence_next_day.md` (IN_PROGRESS).
 - Preserve physical transforms, fixed-object snapshots, slot/cart membership and package-local ink. Hand/push/cart driving, dialogue/modal/challenge captures, projectiles, transient hazards and body velocities do not cross Night. Persistent hazards retain their own lifetime/data; fulfilled emitter guards are preserved.
 - `OrderDeliveryService` creates one authored physical pickup per paid order when a receiving slot is free. Blocked space leaves the order pending. Existing order identity reconciles an interrupted delivery; fulfilled records remain after pickup/consumption. No second charge occurs.
 
-Foundation checks: codec/store/world GUT and strict main Night/restart/Morning smoke. Morning refusal return and final R21 hardening remain in the owner task.
+- Morning physical refusal return requires a prior actual refusal, an active registered identity/number and the held parcel at the reachable F return point. Successful commit releases the number and removes the parcel. Actual/declaration, penalties, settlement IDs and complaints remain unchanged.
+
+Checks: GUT 53/53 and strict main two-Night/restart/consume-order/physical-return smoke. Final R21 graph/reset/permanent-completion hardening remains in the owner task.
