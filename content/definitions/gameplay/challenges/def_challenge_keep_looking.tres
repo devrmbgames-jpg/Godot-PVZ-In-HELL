@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="DEF_Challenge" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/challenges/def_challenge.gd" id="Challenge"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/challenges/def_gaze_challenge_condition.gd" id="Gaze"]
+
+[sub_resource type="Resource" id="Condition"]
+script = ExtResource("Gaze")
+required_attention = true
+warning_text = "Смотрите на меня!"
+
+[resource]
+script = ExtResource("Challenge")
+key = &"customer-keep-looking"
+completion = 2
+condition = SubResource("Condition")
+rule_text = "Не отводите взгляд от меня дольше 3 секунд подряд, пока я здесь. Найдите и выдайте мой заказ."
+timeout_seconds = 0.0
+preparation_seconds = 3.0
+violation_grace_seconds = 3.0

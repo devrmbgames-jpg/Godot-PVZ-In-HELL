@@ -327,7 +327,7 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 				if challenge != null and challenge.definition != null:
 					# The light evaluator/runtime/receiver run after CustomerFlow.
 					# Keep the departing subject alive until they consume the last condition.
-					if challenge.phase == C_Challenge.Phase.ACTIVE and challenge.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE:
+					if challenge.phase == C_Challenge.Phase.ACTIVE and challenge.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]:
 						return
 					if challenge.pending_result != null and not challenge.consequences_applied:
 						return

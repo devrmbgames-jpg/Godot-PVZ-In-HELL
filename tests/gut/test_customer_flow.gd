@@ -221,13 +221,13 @@ func test_return_does_not_erase_valid_refusal_complaint() -> void:
 	assert_eq(visit.complaint.outcome, CustomerComplaint.Outcome.CONFIRMED)
 
 
-func test_schedule_is_idempotent_has_three_daily_and_ten_day_late_visit() -> void:
+func test_schedule_is_idempotent_has_four_daily_including_gaze_and_ten_day_late_visit() -> void:
 	var flow: C_CustomerFlow = C_CustomerFlow.new()
 	flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
 	CustomerFlowService.plan_day(flow, 1, 100)
 	CustomerFlowService.plan_day(flow, 1, 100)
-	assert_eq(flow.visits.size(), 4)
-	assert_eq(CustomerFlowService.remaining(flow, 1), 3)
+	assert_eq(flow.visits.size(), 5)
+	assert_eq(CustomerFlowService.remaining(flow, 1), 4)
 	assert_eq(flow.visits[3].arrival_day, 11)
 	assert_eq(flow.visits[3].package_id, "base_supply:1:equipment")
 	for day: int in range(1, 11):
@@ -236,9 +236,14 @@ func test_schedule_is_idempotent_has_three_daily_and_ten_day_late_visit() -> voi
 			if visit.arrival_day <= day:
 				visit.finished = true
 	CustomerFlowService.plan_day(flow, 11, 100)
-	assert_eq(CustomerFlowService.remaining(flow, 11), 4)
+	assert_eq(CustomerFlowService.remaining(flow, 11), 5)
+	var gaze_visits: int = 0
 	for visit: CustomerVisit in flow.visits:
-		assert_false(visit.package_id.ends_with(":bottles"))
+		if visit.package_id.ends_with(":bottles"):
+			gaze_visits += 1
+			assert_eq(visit.definition.key, &"gaze_customer")
+			assert_true(visit.definition.challenge.condition is DEF_GazeChallengeCondition)
+	assert_eq(gaze_visits, 11)
 
 
 func test_persistent_record_copy_retains_dispute_and_settlement_flags() -> void:

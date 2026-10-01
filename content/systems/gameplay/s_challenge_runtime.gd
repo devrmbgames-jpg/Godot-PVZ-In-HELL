@@ -5,7 +5,7 @@ signal resolved(subject: Entity, actor: Entity, event: ChallengeResolution)
 
 
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_ChallengeLight, S_DayPhase, S_CustomerFlow]}
+	return {Runs.After: [S_ChallengeLight, S_ChallengeGaze, S_DayPhase, S_CustomerFlow]}
 
 
 func query() -> QueryBuilder:

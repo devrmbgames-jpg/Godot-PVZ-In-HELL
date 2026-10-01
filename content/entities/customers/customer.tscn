@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://content/components/motion/c_look.gd" id="Look"]
 [ext_resource type="Script" path="res://content/components/motion/c_npc_intent.gd" id="NpcIntent"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_challenge.gd" id="Challenge"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_gaze_challenge.gd" id="GazeChallenge"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/def_impact_living.tres" id="LivingImpact"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_customer_agent.gd" id="Agent"]
@@ -37,6 +38,9 @@ script = ExtResource("NpcIntent")
 
 [sub_resource type="Resource" id="Challenge"]
 script = ExtResource("Challenge")
+
+[sub_resource type="Resource" id="GazeChallenge"]
+script = ExtResource("GazeChallenge")
 
 [sub_resource type="Resource" id="ImpactReceiver"]
 script = ExtResource("ImpactReceiver")
@@ -80,7 +84,7 @@ collision_mask = 31
 script = ExtResource("Entity")
 animation_player = NodePath("Body/AnimationPlayer")
 navigation_agent = NodePath("NavigationAgent3D")
-component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("NpcIntent"), SubResource("Challenge"), SubResource("ImpactReceiver"), SubResource("Agent"), SubResource("Health"), SubResource("Living"), SubResource("Interactable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("NpcIntent"), SubResource("Challenge"), SubResource("GazeChallenge"), SubResource("ImpactReceiver"), SubResource("Agent"), SubResource("Health"), SubResource("Living"), SubResource("Interactable"), SubResource("Actions")])
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 radius = 0.3

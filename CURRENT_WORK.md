@@ -1,7 +1,7 @@
 # Current Work
 
-Next: [R15 Gaze Challenges](agent_tasks/roadmap_15_gaze_challenges.md).
+Next: [R16 Floor Hazard Challenge](agent_tasks/roadmap_16_floor_hazard_challenge.md).
 
-R14 framework/light and user arrival-to-departure/debug UI requirements implemented, reviewed and validated. GUT 61/61 PASS (547 assertions); strict challenge_light and customer_flow PASS; direct main headless shutdown clean except external certificate store. Dialogue resource self-cycle now released in project adapter, addons untouched. R14 owner rendered timing/readability QA remains.
+R14 b1238958 implements generic/light/arrival-to-departure rules and debug UI. R15 gaze implementation independently reviewed, GUT 65/65 PASS (561 assertions), strict challenge_gaze/light PASS, main headless shutdown clean except external certificate store. Owner timing/readability/motion QA remains. NPC NavigationAgent 030bba72 and R13 b00c3118 are preserved.
 
-NPC NavigationAgent is committed in 030bba72; R13 environment in b00c3118. Preserve user config, main scene/schedule resaves, addons/gecs and pre-existing untracked UIDs. Config limits have not blocked work; do not modify them. Continue the existing agent_tasks queue; goal remains active.
+Next: inspect R16 and direct R09 damage/hazard/contact owners. Preserve user config, main scene/schedule resaves, addons/gecs and pre-existing untracked UIDs; stage only task scene/schedule hunks. Config limits have not blocked work. Goal remains active.

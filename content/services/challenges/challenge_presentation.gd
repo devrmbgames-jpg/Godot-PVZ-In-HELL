@@ -14,7 +14,7 @@ static func text_for(actor: Entity) -> String:
 			continue
 		match state.phase:
 			C_Challenge.Phase.ACTIVE:
-				if state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE:
+				if state.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]:
 					var preparation: int = ceili(maxf(0.0, state.definition.preparation_seconds - state.elapsed))
 					if preparation > 0:
 						return "%s\nПодготовка: %d с • условие действует до ухода клиента" % [state.definition.rule_text, preparation]
@@ -50,7 +50,13 @@ static func debug_text_for(actor: Entity) -> String:
 			var circuit: C_LightCircuit = LightCircuitService.state_for(condition.circuit_id)
 			var actual: String = "недоступен" if circuit == null else ("ВКЛ" if circuit.enabled else "ВЫКЛ")
 			lines.append("Условие %s: нужно %s • сейчас %s" % [condition.circuit_id, "ВКЛ" if condition.required_enabled else "ВЫКЛ", actual])
-		if state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE:
+		var gaze_rule: DEF_GazeChallengeCondition = state.definition.condition as DEF_GazeChallengeCondition
+		var gaze: C_GazeChallenge = subject.get_component(C_GazeChallenge) as C_GazeChallenge
+		if gaze_rule != null and gaze != null:
+			lines.append("Взгляд: нужно %s • сейчас %s" % ["смотреть" if gaze_rule.required_attention else "отвести", "видит" if gaze.attention else "не видит"])
+			lines.append("Угол %.1f / %.1f° • расстояние %.1f / %.1f м" % [gaze.angle_degrees, gaze_rule.half_angle_degrees, gaze.distance, gaze_rule.maximum_distance])
+			lines.append("LOS: %s • данные: %s" % ["есть" if gaze.line_of_sight else "нет", "готовы" if gaze.sample_valid else "нет"])
+		if state.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]:
 			lines.append("До ухода • прошло %.1f с • подготовка %.1f с" % [state.elapsed, maxf(0.0, state.definition.preparation_seconds - state.elapsed)])
 			lines.append("Нарушение %.1f / %.1f с • учтено: %s" % [state.violation_elapsed, state.definition.violation_grace_seconds, "да" if state.condition_violated else "нет"])
 		else:

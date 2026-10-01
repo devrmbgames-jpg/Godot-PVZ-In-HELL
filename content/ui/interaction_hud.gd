@@ -3,6 +3,7 @@ extends CanvasLayer
 @export var player: Entity = null
 @export var debug_status_enabled: bool = true
 @export var challenge_debug_enabled: bool = true
+@export var reduced_gaze_motion: bool = true
 @onready var _prompt: Label = $Overlay/Prompt
 @onready var _phase_label: Label = $Overlay/StatusPanel/DayPhase
 @onready var _announcement: Label = $Overlay/Announcement
@@ -11,6 +12,9 @@ extends CanvasLayer
 @onready var _challenge_status: Label = $Overlay/ChallengeStatus
 @onready var _challenge_debug_panel: PanelContainer = $Overlay/ChallengeDebugPanel
 @onready var _challenge_debug_text: Label = $Overlay/ChallengeDebugPanel/Text
+@onready var _gaze_distortion: ColorRect = $Overlay/GazeDistortion
+@onready var _gaze_warning: Label = $Overlay/GazeWarning
+@onready var _gaze_progress: ProgressBar = $Overlay/GazeWarningProgress
 @onready var _player_debug_panel: PanelContainer = $Overlay/PlayerDebugPanel
 @onready var _player_health_label: Label = $Overlay/PlayerDebugPanel/Debug/HealthLabel
 @onready var _player_health_bar: ProgressBar = $Overlay/PlayerDebugPanel/Debug/HealthBar
@@ -47,6 +51,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_update_gaze_warning()
 	_challenge_status.text = ChallengePresentation.text_for(player)
 	_challenge_status.visible = not _challenge_status.text.is_empty()
 	_challenge_debug_panel.visible = challenge_debug_enabled
@@ -109,6 +114,19 @@ func _update_player_health_debug() -> void:
 	_player_debug_panel.visible = true
 	var values: Vector2 = _update_health_bar(_player_health_bar, health)
 	_player_health_label.text = "PLAYER HP  %.1f / %.1f" % [values.x, values.y]
+
+
+func _update_gaze_warning() -> void:
+	var state: C_Challenge = GazeChallengePresentation.state_for(player)
+	var strength: float = GazeChallengePresentation.strength(state)
+	_gaze_distortion.visible = strength > 0.0
+	var material: ShaderMaterial = _gaze_distortion.material as ShaderMaterial
+	material.set_shader_parameter("strength", strength)
+	material.set_shader_parameter("reduced_motion", reduced_gaze_motion)
+	_gaze_warning.text = GazeChallengePresentation.text(state)
+	_gaze_warning.visible = strength > 0.0
+	_gaze_progress.visible = strength > 0.0
+	_gaze_progress.value = strength
 
 
 func _update_package_debug(target: Variant) -> void:

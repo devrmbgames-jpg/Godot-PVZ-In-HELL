@@ -50,7 +50,7 @@ static func request_departure(subject: Entity) -> void:
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	if (
 		state != null and state.definition != null and state.phase == C_Challenge.Phase.ACTIVE
-		and state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE
+		and state.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]
 	):
 		state.departure_requested = true
 
@@ -81,10 +81,15 @@ static func tick(subject: Entity, state: C_Challenge, delta: float) -> void:
 		C_Challenge.Phase.ACTIVE:
 			var previous_elapsed: float = state.elapsed
 			state.elapsed += delta
-			if state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE:
+			if state.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]:
 				_track_visit_condition(state, previous_elapsed)
-				if state.departure_requested:
-					var satisfied: bool = not state.condition_violated and state.condition_result == ChallengeResult.Type.SUCCESS
+				if state.condition_violated and state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE:
+					_resolve(state, ChallengeResult.Type.FAILURE)
+				elif state.departure_requested:
+					var satisfied: bool = not state.condition_violated and (
+						state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE
+						or state.condition_result == ChallengeResult.Type.SUCCESS
+					)
 					_resolve(state, ChallengeResult.Type.SUCCESS if satisfied else ChallengeResult.Type.FAILURE)
 			elif state.condition_result in [ChallengeResult.Type.SUCCESS, ChallengeResult.Type.FAILURE]:
 				_resolve(state, state.condition_result)
@@ -152,7 +157,8 @@ static func _resolve(state: C_Challenge, result: ChallengeResult.Type) -> void:
 
 static func _track_visit_condition(state: C_Challenge, previous_elapsed: float) -> void:
 	if state.condition_result == ChallengeResult.Type.SUCCESS:
-		state.violation_elapsed = 0.0
+		if state.definition.reset_violation_on_compliance:
+			state.violation_elapsed = 0.0
 		return
 	var checked_seconds: float = maxf(0.0, state.elapsed - maxf(previous_elapsed, state.definition.preparation_seconds))
 	state.violation_elapsed += checked_seconds

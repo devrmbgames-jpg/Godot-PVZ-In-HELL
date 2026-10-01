@@ -91,6 +91,7 @@
 [ext_resource type="NavigationMesh" path="res://content/navigation/navmesh_warehouse.tres" id="Warehouse_navigation"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_light_circuit.gd" id="Light_circuit"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_light.gd" id="Challenge_light"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_gaze.gd" id="Challenge_gaze"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_runtime.gd" id="Challenge_runtime"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_customer_challenge_outcome.gd" id="Challenge_outcome"]
 [ext_resource type="Script" path="res://content/observers/challenges/o_challenge_lifecycle.gd" id="Challenge_lifecycle"]
@@ -416,6 +417,10 @@ group = &"GamePlay"
 
 [node name="S_ChallengeLight" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("Challenge_light")
+group = &"GamePlay"
+
+[node name="S_ChallengeGaze" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Challenge_gaze")
 group = &"GamePlay"
 
 [node name="S_ChallengeRuntime" type="Node" parent="World/Systems/GamePlay"]
