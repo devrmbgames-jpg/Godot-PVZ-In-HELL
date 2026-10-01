@@ -8,6 +8,7 @@ const WALK_STOP_SPEED: float = 0.1
 const ANIMATION_BLEND_SECONDS: float = 0.15
 
 @export var animation_player: AnimationPlayer = null
+@export var navigation_agent: NavigationAgent3D = null
 @export var idle_animation: StringName = &"Idle"
 @export var walk_animation: StringName = &"Walk"
 

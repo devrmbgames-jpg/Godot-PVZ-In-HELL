@@ -88,6 +88,7 @@
 [ext_resource type="PackedScene" path="res://content/entities/props/placement_area.tscn" id="PlacementArea"]
 [ext_resource type="Script" uid="uid://t4dhuaxsabxv" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
 [ext_resource type="Script" path="res://content/systems/motion/s_npc_intent.gd" id="Npc_intent"]
+[ext_resource type="NavigationMesh" path="res://content/navigation/navmesh_warehouse.tres" id="Warehouse_navigation"]
 [ext_resource type="Script" uid="uid://ba41bxunv3irm" path="res://content/systems/interaction/s_prolonged_decay.gd" id="Prolonged_decay"]
 [ext_resource type="Script" uid="uid://b4iyihjwplrg4" path="res://content/observers/interaction/o_prolonged_lifecycle.gd" id="Prolonged_lifecycle"]
 [ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
@@ -288,6 +289,9 @@ actions = Array[ExtResource("48_eajlk")]([SubResource("PushAction")])
 [node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world")]
 script = ExtResource("1_ixiin")
 world = NodePath("World")
+
+[node name="WarehouseNavigation" type="NavigationRegion3D" parent="."]
+navigation_mesh = ExtResource("Warehouse_navigation")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1125172366]
 environment = SubResource("Environment_bghjr")

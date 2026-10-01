@@ -11,9 +11,13 @@ enum LookMode { MOVEMENT, TARGET, HOLD }
 @export var look_mode: LookMode = LookMode.MOVEMENT
 @export var look_position: Vector3 = Vector3.ZERO
 @export var look_offset: Vector3 = Vector3.ZERO
+## May be disabled only for direct authored movement/isolated physics fixtures.
+@export var navigation_enabled: bool = true
 
 ## Relationship-target mode must not silently fall back to the previous world position.
 var move_uses_entity: bool = false
 var look_uses_entity: bool = false
 var arrived: bool = false
 var distance_to_target: float = 0.0
+var navigation_pending: bool = false
+var navigation_blocked: bool = false

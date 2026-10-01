@@ -70,12 +70,22 @@ actions = [SubResource("Action"), SubResource("HandoffAction")]
 radius = 0.3
 height = 1.7
 
-[node name="Customer" node_paths=PackedStringArray("animation_player") instance=ExtResource("Foundation")]
+[node name="Customer" node_paths=PackedStringArray("animation_player", "navigation_agent") instance=ExtResource("Foundation")]
 collision_layer = 2
 collision_mask = 31
 script = ExtResource("Entity")
 animation_player = NodePath("Body/AnimationPlayer")
+navigation_agent = NodePath("NavigationAgent3D")
 component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("NpcIntent"), SubResource("ImpactReceiver"), SubResource("Agent"), SubResource("Health"), SubResource("Living"), SubResource("Interactable"), SubResource("Actions")])
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+radius = 0.3
+height = 1.7
+# Baked floor height is above the physical feet; the 3D waypoint tolerance must cover it.
+path_desired_distance = 0.35
+target_desired_distance = 0.25
+path_max_distance = 1.0
+avoidance_enabled = false
 
 [node name="Body" parent="." instance=ExtResource("Model")]
 rotation = Vector3(0, 3.1415927, 0)

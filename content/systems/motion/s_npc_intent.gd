@@ -19,6 +19,8 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller) -> voi
 	if body == null:
 		return
 	controller.direction_motion = Vector3.ZERO
+	intent.navigation_pending = false
+	intent.navigation_blocked = false
 	if actor.has_component(C_Death):
 		intent.movement_active = false
 		controller.direction_look = Vector3.ZERO
@@ -40,6 +42,9 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller) -> voi
 			intent.distance_to_target = direction.length()
 			intent.arrived = intent.distance_to_target <= intent.arrival_distance
 			if not intent.arrived:
+				var npc: E_NpcCharacter = actor as E_NpcCharacter
+				if intent.navigation_enabled and npc != null and npc.navigation_agent != null:
+					direction = _path_direction(npc.navigation_agent, intent, body.global_position, position)
 				controller.direction_motion = direction.normalized() * clampf(intent.speed_fraction, 0.0, 1.0)
 	var look_direction: Vector3 = controller.direction_motion
 	if intent.look_mode == C_NpcIntent.LookMode.HOLD:
@@ -60,6 +65,29 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller) -> voi
 			intent.look_uses_entity = false
 	if not look_direction.is_zero_approx():
 		controller.direction_look = look_direction.normalized()
+
+
+func _path_direction(
+	agent: NavigationAgent3D,
+	intent: C_NpcIntent,
+	origin: Vector3,
+	goal: Vector3,
+) -> Vector3:
+	var map: RID = agent.get_navigation_map()
+	if not map.is_valid() or NavigationServer3D.map_get_iteration_id(map) == 0:
+		intent.navigation_pending = true
+		return Vector3.ZERO
+	if not agent.target_position.is_equal_approx(goal) or agent.get_current_navigation_path().is_empty():
+		agent.target_position = goal
+	if not is_equal_approx(agent.target_desired_distance, intent.arrival_distance):
+		agent.target_desired_distance = intent.arrival_distance
+	var waypoint: Vector3 = agent.get_next_path_position()
+	if agent.is_navigation_finished():
+		intent.navigation_blocked = not intent.arrived
+		return Vector3.ZERO
+	var direction: Vector3 = waypoint - origin
+	direction.y = 0.0
+	return direction
 
 
 func _target(actor: Entity, relation_type: Script) -> Node3D:

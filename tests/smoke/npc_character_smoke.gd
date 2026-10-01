@@ -31,6 +31,8 @@ func _run() -> void:
 	_customer = scene.instantiate() as E_Customer
 	_body = _customer as Node as RigidBody3D
 	_world.add_entity(_customer)
+	# This fixture isolates collision/impulse behavior; routing has its own real-map smoke.
+	(_customer.get_component(C_NpcIntent) as C_NpcIntent).navigation_enabled = false
 	var motion: C_Motion = _customer.get_component(C_Motion) as C_Motion
 	motion.max_speed = 1.8
 	assert(not _customer.has_component(C_PlayerInputController))

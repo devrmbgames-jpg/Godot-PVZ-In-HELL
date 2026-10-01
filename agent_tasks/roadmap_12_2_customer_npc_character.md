@@ -28,6 +28,8 @@ Status: **OWNER_QA**
 - [x] M6. Добавить focused GUT + headless physics/customer regression coverage.
 - [x] M7. Независимо проверить diff; все material findings завершить как FIXED / ACCEPTED / FALSE_POSITIVE.
 - [x] M8. Передать owner gameplay/visual QA.
+- [x] M9. User-requested NavigationAgent3D + real pathfinding/navmesh integration.
+- [x] M10. Validate wall detour and customer-flow arrival using navigation waypoints.
 
 ### Decisions
 - `C_CustomerAgent` остаётся customer-domain state: visit/phase/service lifecycle. Generic movement/look state не должен жить в Customer-only component.
@@ -35,13 +37,14 @@ Status: **OWNER_QA**
 - NPC physics не должен читать `CustomerVisit` каждый physics tick. Customer domain один раз/по событию задаёт generic target/config; character physics работает независимо от customer subsystem.
 - Arrival/target tracking — generic NPC concern. Customer phase transitions читают generic arrived/result state, но не вычисляют velocity.
 - Look target и move target независимы: NPC может идти в одну точку и смотреть на Player.
-- Для R12.2 достаточно authored/direct target movement в текущем warehouse layout, но data/API не должны блокировать последующее подключение navigation/pathfinding. Не вшивать Customer в path planner.
+- По уточнению пользователя NPC использует NavigationAgent3D и warehouse NavigationRegion; waypoint adapter принадлежит generic NPC layer, body velocity остаётся в shared physics callback. Direct movement отключается при ожидании карты или отсутствии пути.
 - R17 должен иметь возможность переключить того же NPC из service behavior в pursuit/attack без замены физического тела или параллельной locomotion системы.
 
 ### Current
-Implementation and independent review complete on 2026-10-02. Player and Customer specialize physical_character.tscn, Customer uses generic NPC goals/relationships and existing Motion/Look/Impact solvers. Next: local gameplay/visual acceptance; continue executable queue with R13.
+Base migration committed as 7464a941. NavigationAgent3D extension implemented and validated on 2026-10-02: Customer follows actual waypoints; warehouse map contains 121 baked polygons. Includes offline rebuild utility and pending/blocked state. Next implementation: resume R13 environment joints/light circuits.
 
 ### Validation
+- Navigation extension: strict npc_navigation smoke PASS (wall detour, initial zero target, 1800-frame budget); focused NPC GUT 6/6 tests, 22 assertions PASS. Main customer_flow completes all physical delivery/dispute assertions, but strict teardown currently FAIL (31 resources associated with ongoing R13 openable/action resources). Navigation bake utility saved 121 polygons; same scene teardown retention is reported. Structure validation PASS.
 - Godot 4.7.1 / GUT 9.7.1: test_npc_intent + test_customer_dialogue + test_customer_flow: 45/45 tests, 323 assertions PASS. Shutdown reports 3 ObjectDB / 2 Resource leaks, so this is assertion evidence rather than clean teardown evidence.
 - Player main-scene grab regression: 1/1 test, 58 assertions PASS with clean shutdown.
 - Strict headless smoke PASS: customer_flow (2400 frames), character_contact (360 frames), npc_character (2400 frames). NPC smoke proves obstacle blocking, external impulse retention, arrival recovery, existing Idle/Walk availability and shared head look.
