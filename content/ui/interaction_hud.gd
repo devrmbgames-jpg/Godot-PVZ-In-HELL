@@ -2,11 +2,15 @@ extends CanvasLayer
 
 @export var player: Entity = null
 @export var debug_status_enabled: bool = true
+@export var challenge_debug_enabled: bool = true
 @onready var _prompt: Label = $Overlay/Prompt
 @onready var _phase_label: Label = $Overlay/StatusPanel/DayPhase
 @onready var _announcement: Label = $Overlay/Announcement
 @onready var _crosshair: Label = $Overlay/Crosshair
 @onready var _interaction_progress: ProgressBar = $Overlay/InteractionProgress
+@onready var _challenge_status: Label = $Overlay/ChallengeStatus
+@onready var _challenge_debug_panel: PanelContainer = $Overlay/ChallengeDebugPanel
+@onready var _challenge_debug_text: Label = $Overlay/ChallengeDebugPanel/Text
 @onready var _player_debug_panel: PanelContainer = $Overlay/PlayerDebugPanel
 @onready var _player_health_label: Label = $Overlay/PlayerDebugPanel/Debug/HealthLabel
 @onready var _player_health_bar: ProgressBar = $Overlay/PlayerDebugPanel/Debug/HealthBar
@@ -43,6 +47,11 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_challenge_status.text = ChallengePresentation.text_for(player)
+	_challenge_status.visible = not _challenge_status.text.is_empty()
+	_challenge_debug_panel.visible = challenge_debug_enabled
+	if challenge_debug_enabled:
+		_challenge_debug_text.text = ChallengePresentation.debug_text_for(player)
 	var captured: bool = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	var progress: ProlongedInteractionProgress = ProlongedInteractionService.active_progress(player)
 	_interaction_progress.visible = captured and progress != null

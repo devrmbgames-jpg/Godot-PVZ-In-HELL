@@ -41,6 +41,9 @@ func end() -> void:
 			_customer,
 			C_CustomerAgent.Phase.WAITING_FOR_PACKAGE,
 		)
+		# Panel releases modal capture before calling end(). The timer therefore
+		# starts with movement/interaction already returned to the player.
+		ChallengeService.activate(_customer)
 
 
 ## True only while the same live CustomerVisit is still eligible for this conversation.
@@ -85,7 +88,7 @@ func satisfaction() -> int:
 		else CustomerOutcomeService.SATISFACTION_SCALE
 	)
 	return clampi(
-		base + visit.dialogue_satisfaction_delta,
+		base + visit.dialogue_satisfaction_delta + visit.challenge_satisfaction_delta,
 		0,
 		CustomerOutcomeService.SATISFACTION_SCALE,
 	)
@@ -95,6 +98,8 @@ func dialogue_cue() -> String:
 	var visit: CustomerVisit = _visit()
 	if false_taken_detected():
 		return "false_taken"
+	if has_pending_challenge():
+		return "challenge"
 	if (
 		visit != null
 		and visit.definition != null
@@ -275,9 +280,35 @@ func package_number_text() -> String:
 	return "%03d" % number if number > 0 else "---"
 
 
-## R14 will own challenge authority. R12 only exposes the future typed query surface.
 func challenge_result() -> StringName:
-	return NO_CHALLENGE_RESULT
+	return ChallengeResult.key(ChallengeService.result_for(_customer))
+
+
+func has_pending_challenge() -> bool:
+	if not is_valid():
+		return false
+	var state: C_Challenge = _customer.get_component(C_Challenge) as C_Challenge
+	return (
+		state != null and state.definition != null and state.definition.condition != null
+		and state.definition.trigger == DEF_Challenge.Trigger.AFTER_DIALOGUE
+		and state.phase == C_Challenge.Phase.INACTIVE and not state.consumed
+	)
+
+
+func challenge_rule() -> String:
+	if not is_instance_valid(_customer):
+		return ""
+	var state: C_Challenge = _customer.get_component(C_Challenge) as C_Challenge
+	if state == null or state.definition == null:
+		return ""
+	var text: String = state.definition.rule_text
+	if state.definition.timeout_seconds > 0.0:
+		text += " У вас %d секунд после разговора." % ceili(state.definition.timeout_seconds)
+	return text
+
+
+func arm_challenge() -> bool:
+	return has_pending_challenge() and ChallengeService.arm(_customer, _actor)
 
 
 ## R18 will replace this placeholder with its authoritative Hunger tier.

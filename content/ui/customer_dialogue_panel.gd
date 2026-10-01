@@ -98,8 +98,11 @@ func _enable_input() -> void:
 func _advance(next_id: String) -> void:
 	if _closed or _resource == null or _context == null:
 		return
-	_line = await _resource.get_next_dialogue_line(next_id, [{ "ctx": _context }])
+	var resource: DialogueResource = _resource
+	_line = await resource.get_next_dialogue_line(next_id, [{ "ctx": _context }])
 	if _closed:
+		DialogueResourceLifecycle.release_runtime_references(resource)
+		_line = null
 		return
 	if _line == null:
 		close_dialogue()
@@ -182,6 +185,7 @@ func _close_internal(return_to_service: bool) -> void:
 		_context.end()
 	_actor = null
 	_context = null
+	DialogueResourceLifecycle.release_runtime_references(_resource)
 	_resource = null
 	_line = null
 	Input.mouse_mode = _previous_mouse_mode

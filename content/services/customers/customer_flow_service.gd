@@ -136,7 +136,7 @@ static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
 		finalize_missed_unregistered(flow, cycle, wallet)
 	reactivate_due_followups(flow, cycle.day_index)
 	for visit: CustomerVisit in flow.visits:
-		CustomerOutcomeService.settle(visit, wallet, cycle.day_index)
+		_settle_visit(visit, wallet, cycle.day_index)
 		CustomerOutcomeService.resolve_complaint(visit, wallet, cycle.day_index)
 		if visit.started and not visit.finished and customer_for(visit.visit_id) == null:
 			finish(visit, cycle.day_index)
@@ -235,6 +235,9 @@ static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void
 	ECS.world.add_entity(customer, null, false)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id
+	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
+	if challenge != null:
+		challenge.definition = visit.definition.challenge
 	var motion: C_Motion = customer.get_component(C_Motion) as C_Motion
 	if motion != null:
 		motion.max_speed = maxf(0.0, visit.definition.move_speed)
@@ -299,6 +302,10 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 				NpcIntentService.stop(customer)
 				_watch_player(customer)
 				customer.show_message("Здравствуйте!")
+				var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
+				if ChallengeService.begin_on_arrival(customer, player):
+					var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
+					customer.show_message(challenge.definition.rule_text)
 			elif agent.elapsed >= visit.definition.approach_timeout:
 				_leave(customer, visit)
 		C_CustomerAgent.Phase.WAITING:
@@ -315,6 +322,15 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 				_leave(customer, visit)
 		C_CustomerAgent.Phase.LEAVING:
 			if (intent != null and intent.arrived) or agent.elapsed >= visit.definition.leaving_seconds:
+				ChallengeService.request_departure(customer)
+				var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
+				if challenge != null and challenge.definition != null:
+					# The light evaluator/runtime/receiver run after CustomerFlow.
+					# Keep the departing subject alive until they consume the last condition.
+					if challenge.phase == C_Challenge.Phase.ACTIVE and challenge.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE:
+						return
+					if challenge.pending_result != null and not challenge.consequences_applied:
+						return
 				_transition(agent, C_CustomerAgent.Phase.FINISHED)
 				finish(visit, cycle.day_index)
 				ECS.world.remove_entity(customer)
@@ -467,7 +483,7 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 	if declaration != CustomerVisit.Declaration.NONE:
 		visit.next_followup_day = 0
 		visit.followup_committed = false
-	CustomerOutcomeService.settle(visit, WalletService.current(), cycle.day_index)
+	_settle_visit(visit, WalletService.current(), cycle.day_index)
 	var customer: E_Customer = customer_for(visit_id)
 	if customer != null and visit.aggressive:
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -659,6 +675,18 @@ static func _leave(customer: E_Customer, visit: CustomerVisit) -> void:
 	NpcIntentService.look_along_movement(customer)
 	if visit.actual == CustomerVisit.Actual.NOT_RESOLVED:
 		customer.show_message("Я ухожу без заказа.")
+
+
+static func _settle_visit(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
+	if visit.actual == CustomerVisit.Actual.DELIVERED and visit.declaration == CustomerVisit.Declaration.TAKEN:
+		var customer: E_Customer = customer_for(visit.visit_id)
+		var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge if customer != null else null
+		if challenge != null:
+			if challenge.phase in [C_Challenge.Phase.ARMED, C_Challenge.Phase.ACTIVE]:
+				return
+			if challenge.pending_result != null and not challenge.consequences_applied:
+				return
+	CustomerOutcomeService.settle(visit, wallet, day)
 
 
 static func _watch_player(customer: E_Customer) -> void:

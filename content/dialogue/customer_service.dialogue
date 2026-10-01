@@ -1,3 +1,8 @@
+~ challenge
+Клиент: {{ctx.challenge_rule()}}
+do ctx.arm_challenge()
+=> END
+
 ~ direct
 Клиент: Здравствуйте.
 if ctx.has_registered_number()

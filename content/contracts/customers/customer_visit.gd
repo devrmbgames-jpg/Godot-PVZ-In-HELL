@@ -36,6 +36,10 @@ enum Feedback { NONE, APPROVED }
 @export var reputation: Reputation = Reputation.NONE
 @export var satisfaction: int = 0
 @export var dialogue_satisfaction_delta: int = 0
+@export var challenge_satisfaction_delta: int = 0
+@export var challenge_visit_count: int = -1
+@export var challenge_key: StringName = &""
+@export var challenge_result: StringName = &""
 @export var last_dialogue_intent: CustomerDialogueIntent.Type = CustomerDialogueIntent.Type.NONE
 @export var applied_dialogue_intents: int = 0
 @export var complaint_probability_delta: float = 0.0

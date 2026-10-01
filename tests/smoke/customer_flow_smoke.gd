@@ -101,6 +101,8 @@ func _run() -> void:
 	assert((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.AGGRESSIVE)
 	ECS.world.process(third.definition.aggressive_seconds, "GamePlay")
 	ECS.world.process(third.definition.leaving_seconds, "GamePlay")
+	# Departure challenges publish/consume their outcome before the next flow tick removes the NPC.
+	ECS.world.process(FRAME_DELTA, "GamePlay")
 	assert(_cycle.remaining_customer_events == 0)
 	assert(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
 	_transition(DayTransitionRequest.Kind.FINISH_SHIFT)

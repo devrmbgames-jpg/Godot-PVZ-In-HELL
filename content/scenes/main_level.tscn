@@ -90,6 +90,10 @@
 [ext_resource type="Script" path="res://content/systems/motion/s_npc_intent.gd" id="Npc_intent"]
 [ext_resource type="NavigationMesh" path="res://content/navigation/navmesh_warehouse.tres" id="Warehouse_navigation"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_light_circuit.gd" id="Light_circuit"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_light.gd" id="Challenge_light"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_runtime.gd" id="Challenge_runtime"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_customer_challenge_outcome.gd" id="Challenge_outcome"]
+[ext_resource type="Script" path="res://content/observers/challenges/o_challenge_lifecycle.gd" id="Challenge_lifecycle"]
 [ext_resource type="PackedScene" path="res://content/entities/props/window.tscn" id="Window_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/props/drawer.tscn" id="Drawer_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/props/light_switch.tscn" id="Light_switch_scene"]
@@ -409,6 +413,21 @@ group = &"GamePlay"
 [node name="S_LightCircuit" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("Light_circuit")
 group = &"GamePlay"
+
+[node name="S_ChallengeLight" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Challenge_light")
+group = &"GamePlay"
+
+[node name="S_ChallengeRuntime" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Challenge_runtime")
+group = &"GamePlay"
+
+[node name="S_CustomerChallengeOutcome" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Challenge_outcome")
+group = &"GamePlay"
+
+[node name="O_ChallengeLifecycle" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Challenge_lifecycle")
 
 [node name="S_WalletDay" type="Node" parent="World/Systems/GamePlay" unique_id=729224599]
 script = ExtResource("Wallet_system")

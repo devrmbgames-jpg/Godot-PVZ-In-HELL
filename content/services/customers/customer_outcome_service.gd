@@ -55,10 +55,28 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck) ->
 	if check_result.opened:
 		visit.satisfaction = mini(visit.satisfaction, policy.opened_satisfaction)
 	visit.satisfaction = clampi(
-		visit.satisfaction + visit.dialogue_satisfaction_delta,
+		visit.satisfaction + visit.dialogue_satisfaction_delta + visit.challenge_satisfaction_delta,
 		0,
 		SATISFACTION_SCALE,
 	)
+	return true
+
+
+static func apply_challenge_result(visit: CustomerVisit, event: ChallengeResolution) -> bool:
+	if (
+		visit == null or visit.definition == null or event == null
+		or event.result not in [ChallengeResult.Type.SUCCESS, ChallengeResult.Type.FAILURE]
+		or (visit.challenge_visit_count == visit.visit_count and visit.challenge_key == event.challenge_key)
+	):
+		return false
+	visit.challenge_visit_count = visit.visit_count
+	visit.challenge_key = event.challenge_key
+	visit.challenge_result = ChallengeResult.key(event.result)
+	visit.challenge_satisfaction_delta += event.satisfaction_delta
+	if visit.actual == CustomerVisit.Actual.NOT_RESOLVED:
+		visit.satisfaction = clampi(visit.definition.healthy_satisfaction + visit.dialogue_satisfaction_delta + visit.challenge_satisfaction_delta, 0, SATISFACTION_SCALE)
+	elif visit.actual == CustomerVisit.Actual.DELIVERED:
+		visit.satisfaction = clampi(visit.satisfaction + event.satisfaction_delta, 0, SATISFACTION_SCALE)
 	return true
 
 

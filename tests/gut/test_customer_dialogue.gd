@@ -251,3 +251,7 @@ func test_dialogue_resource_exposes_direct_and_riddle_branches() -> void:
 	var riddle: DialogueLine = await resource.get_next_dialogue_line("riddle", [{"ctx": _context}])
 	assert_not_null(riddle)
 	assert_eq(riddle.responses.size(), 3)
+	DialogueResourceLifecycle.release_runtime_references(resource)
+	for value: Variant in resource.lines.values():
+		var data: Dictionary = value as Dictionary
+		assert_false(data.has("resource"), "Session close must break per-line resource self references")

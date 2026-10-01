@@ -1,7 +1,7 @@
 # Current Work
 
-Next: [R14 Challenge Framework / Light](agent_tasks/roadmap_14_challenge_framework_and_lights.md).
+Next: [R15 Gaze Challenges](agent_tasks/roadmap_15_gaze_challenges.md).
 
-Completed agent implementation: R12 prefixes 06019cfa, R12.2 base 7464a941, NPC NavigationAgent 030bba72, R13 environment props/light circuits (pending local commit). Strict environment/main interaction/customer flow/handoff pass; GUT 14/14 pass. Level cleanup now handles explicit disposal and engine shutdown. Warehouse map rebaked to 122 polygons.
+R14 framework/light and user arrival-to-departure/debug UI requirements implemented, reviewed and validated. GUT 61/61 PASS (547 assertions); strict challenge_light and customer_flow PASS; direct main headless shutdown clean except external certificate store. Dialogue resource self-cycle now released in project adapter, addons untouched. R14 owner rendered timing/readability QA remains.
 
-Next action: inspect R14 task and direct package/day/light owners; implement the tracked challenge/light milestones. Preserve user scene/schedule/addon edits. Owner visual QA remains for R12/R12.2/R13; R23 still owns dialogue-fixture two-resource shutdown retention.
+NPC NavigationAgent is committed in 030bba72; R13 environment in b00c3118. Preserve user config, main scene/schedule resaves, addons/gecs and pre-existing untracked UIDs. Config limits have not blocked work; do not modify them. Continue the existing agent_tasks queue; goal remains active.

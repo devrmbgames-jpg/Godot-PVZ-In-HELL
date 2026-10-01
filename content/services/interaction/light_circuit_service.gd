@@ -32,10 +32,15 @@ static func toggle(circuit: Entity) -> bool:
 
 
 static func is_enabled(circuit_id: StringName) -> bool:
+	var state: C_LightCircuit = state_for(circuit_id)
+	return state != null and state.enabled
+
+
+static func state_for(circuit_id: StringName) -> C_LightCircuit:
 	if not is_instance_valid(ECS.world):
-		return false
+		return null
 	for circuit: Entity in ECS.world.query.with_all([C_LightCircuit]).execute():
 		var state: C_LightCircuit = circuit.get_component(C_LightCircuit) as C_LightCircuit
 		if state.circuit_id == circuit_id:
-			return state.enabled
-	return false
+			return state
+	return null
