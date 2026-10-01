@@ -19,6 +19,7 @@ extends CanvasLayer
 @onready var _player_health_label: Label = $Overlay/PlayerDebugPanel/Debug/HealthLabel
 @onready var _player_health_bar: ProgressBar = $Overlay/PlayerDebugPanel/Debug/HealthBar
 @onready var _combat_debug: Label = $Overlay/PlayerDebugPanel/Debug/CombatDebug
+@onready var _inventory_debug: Label = $Overlay/PlayerDebugPanel/Debug/InventoryDebug
 @onready var _hunger_debug: Label = $Overlay/PlayerDebugPanel/Debug/HungerDebug
 @onready var _package_debug_panel: PanelContainer = $Overlay/PackageDebugPanel
 @onready var _package_type_label: Label = $Overlay/PackageDebugPanel/Debug/TypeLabel
@@ -54,6 +55,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_combat_debug.text = CombatPresentation.debug_text(player) if debug_status_enabled else ""
+	_inventory_debug.text = InventoryPresentation.debug_text(player) if debug_status_enabled else ""
 	_hunger_debug.text = HungerPresentation.debug_text(player) if debug_status_enabled else ""
 	_update_gaze_warning()
 	_challenge_status.text = ChallengePresentation.text_for(player)

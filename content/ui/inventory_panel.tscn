@@ -1,0 +1,60 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/ui/inventory_panel.gd" id="Panel"]
+
+[node name="InventoryPanel" type="CanvasLayer"]
+layer = 85
+script = ExtResource("Panel")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Shade" type="ColorRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.65)
+
+[node name="Center" type="CenterContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Panel" type="PanelContainer" parent="Root/Center"]
+custom_minimum_size = Vector2(650, 330)
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="Root/Center/Panel"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/Center/Panel/Content"]
+layout_mode = 2
+text = "Инвентарь"
+theme_override_font_sizes/font_size = 24
+
+[node name="Condition" type="Label" parent="Root/Center/Panel/Content"]
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="Root/Center/Panel/Content"]
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Rows" type="VBoxContainer" parent="Root/Center/Panel/Content/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Feedback" type="Label" parent="Root/Center/Panel/Content"]
+layout_mode = 2
+
+[node name="Close" type="Button" parent="Root/Center/Panel/Content"]
+layout_mode = 2
+text = "Закрыть [Tab / Esc]"

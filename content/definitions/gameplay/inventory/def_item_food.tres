@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/inventory/def_inventory_item.gd" id="Item"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/hunger/def_food_bread.tres" id="Food"]
+
+[resource]
+script = ExtResource("Item")
+key = &"food"
+display_name = "Хлеб"
+kind = 0
+maximum_stack = 10
+food_effect = ExtResource("Food")

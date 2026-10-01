@@ -143,6 +143,14 @@
 [ext_resource type="Resource" path="res://content/definitions/gameplay/hunger/def_hunger_default.tres" id="Hunger_policy"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_hunger.gd" id="Hunger_system"]
 
+[ext_resource type="Script" path="res://content/components/inventory/c_inventory.gd" id="Inventory_state"]
+[ext_resource type="Script" path="res://content/observers/inventory/o_inventory_effect.gd" id="Inventory_effect"]
+[ext_resource type="Script" path="res://content/observers/inventory/o_inventory_lifecycle.gd" id="Inventory_lifecycle"]
+[ext_resource type="PackedScene" path="res://content/ui/inventory_panel.tscn" id="Inventory_panel"]
+[ext_resource type="PackedScene" path="res://content/entities/inventory/food_pickup.tscn" id="Food_pickup"]
+[ext_resource type="PackedScene" path="res://content/entities/inventory/med_pickup.tscn" id="Med_pickup"]
+[ext_resource type="PackedScene" path="res://content/entities/inventory/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -226,6 +234,9 @@ script = ExtResource("Player_combat")
 [sub_resource type="Resource" id="Hunger_state"]
 script = ExtResource("Hunger_state")
 policy = ExtResource("Hunger_policy")
+
+[sub_resource type="Resource" id="Inventory_state"]
+script = ExtResource("Inventory_state")
 
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
@@ -577,6 +588,12 @@ script = ExtResource("Combat_damage")
 [node name="S_Hunger" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("Hunger_system")
 group = &"GamePlay"
+
+[node name="O_InventoryEffect" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Inventory_effect")
+
+[node name="O_InventoryLifecycle" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Inventory_lifecycle")
 
 [node name="PVZ" type="Node3D" parent="." unique_id=627123053]
 
@@ -1104,7 +1121,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4560537, 0.12648739, -2.874
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
 collision_layer = 16
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_1brdc"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Living"), SubResource("Resource_p0mrl")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_1brdc"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_p0mrl")])
 
 [node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1703744943, 217031396, 2065414162) index="0" unique_id=1494109615]
 cast_shadow = 3
@@ -1209,6 +1226,15 @@ position = Vector3(1.5, 0.775, -3.3)
 position = Vector3(0.55, 1.5, -6)
 rotation = Vector3(0, 1.5707964, 0)
 
+[node name="FoodPickup" parent="Entityes" instance=ExtResource("Food_pickup")]
+position = Vector3(2.35, 1.22, -1.8)
+
+[node name="MedPickup" parent="Entityes" instance=ExtResource("Med_pickup")]
+position = Vector3(2.8, 1.23, -1.8)
+
+[node name="WrapPickup" parent="Entityes" instance=ExtResource("Wrap_pickup")]
+position = Vector3(3.25, 1.22, -1.8)
+
 [node name="UtilityBlade" parent="Entityes" instance=ExtResource("Utility_blade")]
 position = Vector3(0.8, 1.1, -0.8)
 
@@ -1226,6 +1252,9 @@ transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6.71
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_8wt2x"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 
 [node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player") instance=ExtResource("Interaction_hud")]
+player = NodePath("../Entityes/Player")
+
+[node name="InventoryPanel" parent="." node_paths=PackedStringArray("player") instance=ExtResource("Inventory_panel")]
 player = NodePath("../Entityes/Player")
 
 [node name="MarkerNPCSpawnPoint" type="Marker3D" parent="." unique_id=345863772]

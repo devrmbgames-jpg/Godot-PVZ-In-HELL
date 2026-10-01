@@ -1,7 +1,7 @@
 # Current Work
 
-Next: [R19 Inventory / Consumables](agent_tasks/roadmap_19_inventory_and_consumables.md).
+Next: [R20 Evening / Trader / Orders / Quest](agent_tasks/roadmap_20_evening_trader_orders_and_quest.md).
 
-R17 `4615d3b3` implements separate NPC melee/ranged variants (up to three each), animation hooks, player blade, physical combat and attribution. R18 implementation complete, OWNER_QA: growth, typed Food effect, reversible modifiers, NPC perception and debug UI. Final GUT 69/69 (725 assertions), strict Hunger/combat smoke, structure/diff checks PASS; main headless shutdown clean except external certificate error. Rendered presentation/balance/animation QA remains in task files.
+R17 `4615d3b3`: simple NPC 3+3 attack variants, animation hooks, combat/attribution. R18 `86f91acc`: Hunger/Food/reversible modifiers/perception/debug. R19 implementation complete, OWNER_QA: OwnedBy/quantity/stack/transfer, success-only Food/Med/Wrap, E world pickups, existing Tab modal input and HUD. Separate review R4 integrated; final GUT 35/35 (377 assertions), strict main inventory walkthrough and structure/diff PASS. Owner rendered/gamepad/balance QA remains in task files. Contract: `docs/inventory.md`.
 
-Next: inspect R19 ownership/quantity, interaction resolver, Health healing and Package protection contracts; implement small consumable inventory without replacing physical slots. Preserve user config, main scene/schedule resaves, addons/gecs and pre-existing untracked UIDs. Stage only task authored scene hunks. Config limits have not blocked work. Goal remains active.
+Next: read R20 source 14, existing Wallet purchase/day transition/Terminal contracts and scope first evening milestone. Preserve user config, main scene/schedule resaves, addons/gecs and pre-existing untracked UIDs; stage only task authored scene hunks. Limits have not blocked work. Goal remains active.
