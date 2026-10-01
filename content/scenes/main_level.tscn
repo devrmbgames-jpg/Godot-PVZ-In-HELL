@@ -92,6 +92,10 @@
 [ext_resource type="Script" path="res://content/systems/gameplay/s_light_circuit.gd" id="Light_circuit"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_light.gd" id="Challenge_light"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_gaze.gd" id="Challenge_gaze"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_floor_setup.gd" id="Challenge_floor"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_floor_hazard.gd" id="Floor_hazard"]
+[ext_resource type="Script" path="res://content/observers/challenges/o_floor_challenge_spawn.gd" id="Floor_spawn"]
+[ext_resource type="PackedScene" path="res://content/entities/props/box.tscn" id="Safe_box"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_runtime.gd" id="Challenge_runtime"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_customer_challenge_outcome.gd" id="Challenge_outcome"]
 [ext_resource type="Script" path="res://content/observers/challenges/o_challenge_lifecycle.gd" id="Challenge_lifecycle"]
@@ -422,6 +426,17 @@ group = &"GamePlay"
 [node name="S_ChallengeGaze" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("Challenge_gaze")
 group = &"GamePlay"
+
+[node name="S_ChallengeFloorSetup" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Challenge_floor")
+group = &"GamePlay"
+
+[node name="S_FloorHazard" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Floor_hazard")
+group = &"GamePlay"
+
+[node name="O_FloorChallengeSpawn" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Floor_spawn")
 
 [node name="S_ChallengeRuntime" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("Challenge_runtime")
@@ -1147,6 +1162,15 @@ position = Vector3(1.5, 0.775, -3.3)
 [node name="LightSwitch" parent="Entityes" instance=ExtResource("Light_switch_scene")]
 position = Vector3(0.55, 1.5, -6)
 rotation = Vector3(0, 1.5707964, 0)
+
+[node name="FloorSafeBox1" parent="Entityes" instance=ExtResource("Safe_box")]
+position = Vector3(1.5, 0.0, -2.0)
+
+[node name="FloorSafeBox2" parent="Entityes" instance=ExtResource("Safe_box")]
+position = Vector3(3.0, 0.0, -2.8)
+
+[node name="FloorSafeBox3" parent="Entityes" instance=ExtResource("Safe_box")]
+position = Vector3(4.4, 0.0, -3.6)
 
 [node name="PushCart" parent="Entityes" unique_id=1664321513 instance=ExtResource("Push_cart")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6.714551, 0.8329964, 2.8046627)

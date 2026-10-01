@@ -1,6 +1,6 @@
 # R16 — Клиент с опасным полом
 
-Status: **PLANNED**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -15,23 +15,35 @@ Status: **PLANNED**
 - Follow Godot 4.7, GECS ownership, physics authority, and validation rules from `AGENTS.md`.
 
 ### Milestones
-- [ ] Reconfirm dependency completion and current production owners/contracts.
-- [ ] Implement the existing work checklist in small coherent milestones.
-- [ ] Independently review material changes and resolve all R-findings.
-- [ ] Run final task validation according to the documented GUT/headless budget.
-- [ ] Record remaining owner gameplay/visual QA.
+- [x] Reconfirm dependency completion and current production owners/contracts.
+- [x] Implement the existing work checklist in small coherent milestones.
+- [x] Independently review material changes and resolve all R-findings.
+- [x] Run final task validation according to the documented GUT/headless budget.
+- [x] Record remaining owner gameplay/visual QA.
 
 ### Decisions
-Do not create a parallel planning document. This file remains the authoritative state/router for the feature; source design docs are references, not task state.
+This file owns feature state. Base: R15 6247b4cc; R09 completion confirmed in task_history and direct damage/hazard services.
+- Experience: read the floor warning, climb/reposition physical boxes or use the safe perimeter, then service the customer. Pillars: readable danger, physical agency, shared customer lifecycle.
+- Use actual CharacterMotionSolver support contact (world contact position and collider RID) to distinguish floor from elevated box support; no XZ projection-only damage and no transform override.
+- Autonomous floor prefab uses R09 spawn/attribution/damage/retirement. Subject-to-effect ownership is a challenge Relationship. Generic lifecycle owns preparation, continuous contact limit and duration result.
+- Authored hypothesis: 3 seconds preparation, 12 seconds danger, half-second damage ticks and 2 seconds continuous floor contact before challenge failure. Owner playtest must verify route/climb feasibility.
+- Add safe physical movable boxes outside/inside the marked zone and a separate tools-customer profile. Debug UI shows preparation/duration, actual support height, contact state and violation/damage timer.
 
 ### Current
-Not started under the lean workflow. Next: verify dependencies in `task_history.md` and current code, then choose the first bounded implementation milestone from the existing work list.
+Actual support snapshot, autonomous floor prefab, challenge effect Relationship, generic duration/contact outcome, tools customer and three movable support boxes implemented. Independent review R1 session/damage ordering fixed and re-reviewed. Next queue task: R17 combat/impact.
 
 ### Validation
-Not run for this task under the lean workflow.
+- GUT floor/gaze/light/customer flow/main grab: 65/65 PASS, 522 assertions; clean shutdown (r16_final_gut.log). Floor surface/bounds, elevated/airborne support, damage ticks/reset, duration overrun, NoDamage, duplicate consequence and actor/subject/effect/day/phase cleanup covered.
+- Strict challenge_floor smoke PASS: real Jolt floor support damages through O_Damage; movable box top remains safe; airborne support clears; default tools profile, authored boxes and actual debug contact/damage timer present; effect cleanup validated.
+- Strict regressions npc_navigation, challenge_light and challenge_gaze PASS. Direct main headless startup/shutdown (120 frames) has no game script/resource/RID errors; external certificate-store error remains.
+- Project structure and diff whitespace PASS. Formatter unavailable; rendered gameplay/visual checks not claimed.
+- Support point uses get_contact_collider_position, whose world-coordinate contract is documented in [Godot PhysicsDirectBodyState3D](https://docs.godotengine.org/en/stable/classes/class_physicsdirectbodystate3d.html#class-physicsdirectbodystate3d-method-get-contact-collider-position) and confirmed by actual floor/box integration.
+
+### Review findings
+- R1 — FIXED: floor damage could precede generic cancellation after day/phase invalidation. Session predicate now guards setup and damage, setup follows day transitions, and two regressions invalidate a partially accumulated damage interval without losing HP.
 
 ### Owner QA / blockers
-No new blocker is recorded. Any unmet dependency discovered during startup moves the task to `BLOCKED` or `DEFERRED` with the exact dependency named.
+Owner QA: play the 3-second preparation/12-second hazard route with movable boxes, perimeter and furniture; inspect zone colors/readability and confirm jump/carry timing. No implementation blocker remains.
 
 ---
 
@@ -52,11 +64,11 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 
 ## Работы
 
-- [ ] Подключить опасную поверхность к общему Challenge lifecycle и damage pipeline.
-- [ ] Разместить безопасные участки и доступные коробки/мебель, позволяющие физически избегать контакта.
-- [ ] Определить trigger, длительность/условие успеха, escalation и cleanup.
-- [ ] Отличать реальный контакт с опасным полом от положения над ним на коробке.
-- [ ] Добавить отдельный профиль клиента; не заменять механику QTE.
+- [x] Подключить опасную поверхность к общему Challenge lifecycle и damage pipeline.
+- [x] Разместить безопасные участки и доступные коробки/мебель, позволяющие физически избегать контакта.
+- [x] Определить trigger, длительность/условие успеха, escalation и cleanup.
+- [x] Отличать реальный контакт с опасным полом от положения над ним на коробке.
+- [x] Добавить отдельный профиль клиента; не заменять механику QTE.
 
 ## Критерии готовности
 

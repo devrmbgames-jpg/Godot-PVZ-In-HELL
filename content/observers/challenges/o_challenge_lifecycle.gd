@@ -8,7 +8,7 @@ func setup() -> void:
 
 
 func query() -> QueryBuilder:
-	return q.on_relationship_removed([R_ChallengeActor])
+	return q.on_relationship_removed([R_ChallengeActor, R_ChallengeEffect])
 
 
 func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:

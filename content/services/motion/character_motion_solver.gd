@@ -265,6 +265,8 @@ static func _update_floor_state(
 ) -> void:
 	if floor_contact_index < 0:
 		motion.is_on_floor = false
+		motion.floor_body_rid = RID()
+		motion.floor_contact_position = Vector3.ZERO
 		motion.floor_normal = Vector3.UP
 		motion.floor_velocity = Vector3.ZERO
 		motion.floor_friction = DEFAULT_FRICTION
@@ -272,6 +274,8 @@ static func _update_floor_state(
 		return
 
 	motion.is_on_floor = true
+	motion.floor_body_rid = state.get_contact_collider(floor_contact_index)
+	motion.floor_contact_position = state.get_contact_collider_position(floor_contact_index)
 
 	motion.floor_normal = (state.get_contact_local_normal(floor_contact_index).normalized())
 

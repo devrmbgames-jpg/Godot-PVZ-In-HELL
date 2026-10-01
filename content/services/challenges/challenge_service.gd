@@ -81,7 +81,15 @@ static func tick(subject: Entity, state: C_Challenge, delta: float) -> void:
 		C_Challenge.Phase.ACTIVE:
 			var previous_elapsed: float = state.elapsed
 			state.elapsed += delta
-			if state.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]:
+			if state.definition.completion == DEF_Challenge.Completion.SURVIVE_DURATION:
+				if state.definition.timeout_seconds > 0.0:
+					state.elapsed = minf(state.elapsed, state.definition.timeout_seconds)
+				_track_visit_condition(state, previous_elapsed)
+				if state.condition_violated:
+					_resolve(state, ChallengeResult.Type.FAILURE)
+				elif state.definition.timeout_seconds > 0.0 and state.elapsed >= state.definition.timeout_seconds:
+					_resolve(state, ChallengeResult.Type.SUCCESS)
+			elif state.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]:
 				_track_visit_condition(state, previous_elapsed)
 				if state.condition_violated and state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE:
 					_resolve(state, ChallengeResult.Type.FAILURE)
@@ -122,6 +130,11 @@ static func entity_unavailable(entity: Entity) -> void:
 			if relation.relation is R_ChallengeActor and relation.target == entity:
 				cancel(subject)
 				break
+			if relation.relation is R_ChallengeEffect and relation.target == entity:
+				var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
+				if state.phase in [C_Challenge.Phase.ARMED, C_Challenge.Phase.ACTIVE]:
+					cancel(subject)
+				break
 
 
 static func result_for(subject: Entity) -> ChallengeResult.Type:
@@ -129,6 +142,13 @@ static func result_for(subject: Entity) -> ChallengeResult.Type:
 		return ChallengeResult.Type.NONE
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	return state.result if state != null else ChallengeResult.Type.NONE
+
+
+static func session_valid(subject: Entity) -> bool:
+	if not _available(subject):
+		return false
+	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
+	return state != null and _valid_session(subject, state)
 
 
 static func _valid_session(subject: Entity, state: C_Challenge) -> bool:
@@ -174,6 +194,7 @@ static func _cleanup(subject: Entity, state: C_Challenge) -> void:
 	state.violation_elapsed = 0.0
 	state.departure_requested = false
 	state.pending_result = null
+	ChallengeEffectLifecycle.retire(subject)
 	for relation: Relationship in subject.relationships.duplicate():
 		if relation.relation is R_ChallengeActor:
 			subject.remove_relationship(relation)

@@ -21,6 +21,9 @@ static func text_for(actor: Entity) -> String:
 					return "%s\nДо ухода клиента%s" % [state.definition.rule_text, " • нарушение учтено" if state.condition_violated else ""]
 				if state.definition.timeout_seconds > 0.0:
 					var remaining: int = ceili(maxf(0.0, state.definition.timeout_seconds - state.elapsed))
+					if state.definition.completion == DEF_Challenge.Completion.SURVIVE_DURATION:
+						var preparation: int = ceili(maxf(0.0, state.definition.preparation_seconds - state.elapsed))
+						return "%s\n%s • до завершения: %d с" % [state.definition.rule_text, "Подготовка: %d с" % preparation if preparation > 0 else "Опасный пол активен", remaining]
 					return "%s\nОсталось: %d с" % [state.definition.rule_text, remaining]
 				return state.definition.rule_text
 			C_Challenge.Phase.SUCCESS:
@@ -68,6 +71,17 @@ static func debug_text_for(actor: Entity) -> String:
 			if visit != null:
 				lines.append("Satisfaction Δ: %d" % visit.challenge_satisfaction_delta)
 		lines.append("Результат: %s • escalation: %s" % [ChallengeResult.key(state.result), "да" if state.escalation_request != null else "нет"])
+		var floor: C_FloorChallenge = subject.get_component(C_FloorChallenge) as C_FloorChallenge
+		if state.definition.condition is DEF_FloorChallengeCondition and floor != null:
+			var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
+			lines.append("Пол: %s • контакт %.1f / %.1f с" % ["опасный контакт" if floor.touching_danger else "безопасно", state.violation_elapsed, state.definition.violation_grace_seconds])
+			lines.append("Подготовка %.1f с • опора Y: %.2f" % [maxf(0.0, state.definition.preparation_seconds - state.elapsed), motion.floor_contact_position.y if motion != null and motion.is_on_floor else -1.0])
+			for relation: Relationship in subject.relationships:
+				if relation.relation is R_ChallengeEffect and EntityAvailability.contains(relation.target, ECS.world):
+					var effect: Entity = relation.target as Entity
+					var timer: C_FloorHazard = effect.get_component(C_FloorHazard) as C_FloorHazard
+					if timer != null:
+						lines.append("Таймер урона %.2f с" % timer.damage_elapsed)
 	if not found:
 		lines.append("Челлендж: ожидание клиента")
 	return "\n".join(lines)

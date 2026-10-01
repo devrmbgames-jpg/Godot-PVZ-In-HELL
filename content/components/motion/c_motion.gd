@@ -50,6 +50,9 @@ var minimum_ground_traction: float = 0.05
 #region Runtime
 
 var is_on_floor: bool = false
+## Derived physics support snapshot; RID is not an Entity ownership/binding.
+var floor_body_rid: RID = RID()
+var floor_contact_position: Vector3 = Vector3.ZERO
 
 var floor_normal: Vector3 = Vector3.UP
 

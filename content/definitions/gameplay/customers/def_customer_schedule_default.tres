@@ -10,6 +10,7 @@
 [ext_resource type="Resource" path="res://content/definitions/gameplay/challenges/def_challenge_light_on.tres" id="ChallengeOn"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/challenges/def_challenge_light_visit.tres" id="ChallengeVisit"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/customers/def_customer_gaze.tres" id="GazeCustomer"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/customers/def_customer_floor.tres" id="FloorCustomer"]
 
 
 [sub_resource type="Resource" id="ReactionHonest"]
@@ -121,8 +122,13 @@ script = ExtResource("Event")
 package_key = &"bottles"
 customer = ExtResource("GazeCustomer")
 
+[sub_resource type="Resource" id="FloorEvent"]
+script = ExtResource("Event")
+package_key = &"tools"
+customer = ExtResource("FloorCustomer")
+
 [resource]
 script = ExtResource("Schedule")
-events = Array[ExtResource("Event")]([SubResource("Books"), SubResource("Glass"), SubResource("Clothes"), SubResource("Equipment"), SubResource("GazeEvent")])
+events = Array[ExtResource("Event")]([SubResource("Books"), SubResource("Glass"), SubResource("Clothes"), SubResource("Equipment"), SubResource("GazeEvent"), SubResource("FloorEvent")])
 customer_scene = ExtResource("Scene")
 key = &"warehouse_customers"

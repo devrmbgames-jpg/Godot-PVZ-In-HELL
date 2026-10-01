@@ -1,0 +1,30 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/entities/hazards/e_floor_hazard.gd" id="Entity"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_floor_hazard.gd" id="Floor"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/hazards/def_floor_hazard.gd" id="Definition"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+
+[sub_resource type="Resource" id="Definition"]
+script = ExtResource("Definition")
+lifetime_seconds = 60.0
+
+[sub_resource type="Resource" id="Floor"]
+script = ExtResource("Floor")
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+resource_local_to_scene = true
+transparency = 1
+shading_mode = 0
+cull_mode = 2
+albedo_color = Color(1, 0.65, 0.05, 0.45)
+
+[node name="FloorHazard" type="Node3D"]
+script = ExtResource("Entity")
+definition = SubResource("Definition")
+component_resources = Array[ExtResource("Component")]([SubResource("Floor")])
+
+[node name="Visual" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.015, 0)
+material_override = SubResource("Material")
+cast_shadow = 0
