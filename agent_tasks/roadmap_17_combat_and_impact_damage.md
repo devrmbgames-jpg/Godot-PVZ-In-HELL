@@ -9,8 +9,9 @@ Status: **PLANNED**
 
 ### Constraints / acceptance
 - This is a Feature-level tracked task.
-- Зависимости: R04, R08, R11, R14
+- Зависимости: R04, R08, R11, R12.2, R14
 - Reuse existing authoritative contracts from completed dependencies; do not duplicate them.
+- Aggressive Customer must reuse the generic physical NPC/controller foundation from R12.2; R17 must not reintroduce a Customer-only locomotion/look/impact path.
 - The existing `## Работы`, `## Критерии готовности`, `## Проверки`, and `## Границы` sections remain the detailed implementation specification.
 - Follow Godot 4.7, GECS ownership, physics authority, and validation rules from `AGENTS.md`.
 
@@ -24,6 +25,8 @@ Status: **PLANNED**
 ### Decisions
 Do not create a parallel planning document. This file remains the authoritative state/router for the feature; source design docs are references, not task state.
 
+R12.2 owns the generic physical NPC/Customer character foundation. R17 only adds combat/pursuit/attack behavior on top of that actor/controller contract.
+
 ### Current
 Not started under the lean workflow. Next: verify dependencies in `task_history.md` and current code, then choose the first bounded implementation milestone from the existing work list.
 
@@ -35,9 +38,9 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 
 ---
 
-Зависимости: R04, R08, R11, R14
+Зависимости: R04, R08, R11, R12.2, R14
 Ветка/base: зафиксировать при начале реализации.
-Источники: [ТЗ 02](../docs/roadmap/02_core_interaction_and_physics.md), [ТЗ 07](../docs/roadmap/07_customer_flow_and_delivery.md), [ТЗ 10](../docs/roadmap/10_combat_damage_health.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md).
+Источники: [ТЗ 02](../docs/roadmap/02_core_interaction_and_physics.md), [ТЗ 07](../docs/roadmap/07_customer_flow_and_delivery.md), [ТЗ 10](../docs/roadmap/10_combat_damage_health.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md), [R12.2](roadmap_12_2_customer_npc_character.md).
 
 ## Цель
 
@@ -47,6 +50,7 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 
 - [content/systems/interaction/s_grab.gd](../content/systems/interaction/s_grab.gd)
 - [CharacterMotionSolver](../content/services/motion/character_motion_solver.gd)
+- [R12.2 NPC foundation](roadmap_12_2_customer_npc_character.md)
 - [content/scenes/main_level.tscn](../content/scenes/main_level.tscn)
 
 Затем прочитать контракты, созданные задачами-зависимостями. Имена новых типов из roadmap — проектируемые контракты, а не утверждение о существующих файлах.
@@ -54,7 +58,7 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 ## Работы
 
 - [ ] Добавить один melee/острый Weapon: окно удара, hit validation, cooldown и damage через 04.
-- [ ] Aggressive Customer прекращает сервисный разговор, преследует и атакует Player; имеет поражение и завершение schedule event. Один из источников aggression — обнаружение ложной Terminal отметки `TAKEN` по ТЗ 07.
+- [ ] Aggressive Customer прекращает сервисный разговор, использует generic NPC controller R12.2 для pursuit/look target Player и атакует Player; имеет поражение и завершение schedule event. Один из источников aggression — обнаружение ложной Terminal отметки `TAKEN` по ТЗ 07.
 - [ ] Подключить уже готовый generic impact contract R08 к Player/Customer/combat props. Не реализовывать вторую формулу mass/speed/impulse, второй contact dedup или отдельный combat-only impact System.
 - [ ] Соблюдать приоритет tool/grab/attack из 02, сохраняя input неизменным для других потребителей.
 - [ ] Обеспечить cleanup target/challenge/held state при смерти и выходе из боя.
@@ -63,18 +67,19 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 ## Критерии готовности
 
 - Клиент ранит Player; игрок побеждает оружием или тяжёлым предметом.
+- Aggressive Customer преследует Player через тот же physical NPC body/controller, который использует сервисный Customer; смена service -> combat не заменяет Entity/physics body.
 - Слабое касание не наносит урон, собственный held object не бьёт держателя; одно ЛКМ не бросает и не атакует одновременно.
 - Коробки блокируют проход и остаются частью физического боя.
 - Combat не применяет Reputation напрямую, но сохраняет reason/context так, чтобы future Reputation могла корректно отличить разрешенную retaliation от обычной атаки.
 
 ## Проверки
 
-GUT: melee hit/cooldown/смерть и combat attribution; physics integration подтверждает, что Player/Customer получают impact через R08 без второго calculation path; walkthrough escalation из Light Challenge. Общие команды и правила завершения — в [README](README.md).
+GUT: melee hit/cooldown/смерть и combat attribution; physics integration подтверждает, что Player/Customer получают impact через R08 без второго calculation path; pursuit использует R12.2 NPC intent/controller; walkthrough escalation из Light Challenge. Общие команды и правила завершения — в [README](README.md).
 
 ## Границы
 
-Без полного арсенала и сложной боевой AI. Сохранять Godot physics authority, GECS data/behavior boundaries и read-only addons. Выполненные основания переиспользовать, а не создавать заново.
+Без полного арсенала и сложной боевой AI. Generic locomotion/look/physical NPC принадлежит R12.2 и здесь не дублируется. Сохранять Godot physics authority, GECS data/behavior boundaries и read-only addons. Выполненные основания переиспользовать, а не создавать заново.
 
 ## Первый шаг
 
-Проверить завершение зависимостей по task_history.md и существующим контрактам, затем прочитать указанные исходники и актуализировать WORK.md/CURRENT_WORK.md. При реализации не считать непроверенные пункты выполненными.
+Проверить завершение зависимостей по task_history.md и существующим контрактам, особенно R12.2, затем прочитать указанные исходники и актуализировать WORK.md/CURRENT_WORK.md. При реализации не считать непроверенные пункты выполненными.
