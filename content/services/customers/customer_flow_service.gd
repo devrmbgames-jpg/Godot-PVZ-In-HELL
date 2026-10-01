@@ -461,6 +461,7 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 		return false
 	if declaration != CustomerVisit.Declaration.NONE:
 		visit.next_followup_day = 0
+		visit.followup_committed = false
 	CustomerOutcomeService.settle(visit, WalletService.current(), cycle.day_index)
 	var customer: E_Customer = customer_for(visit_id)
 	if customer != null and visit.aggressive:
@@ -469,6 +470,32 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 			# Declaration is accounting only. A false TAKEN may be noticed, but
 			# Dialogue still owns the reaction before the bounded Aggressive transition.
 			customer.show_message("Вы ничего мне не выдали! Поговорите со мной.")
+	return true
+
+
+## Explicit dialogue postponement. This is not a denial and must guarantee the next visit.
+static func defer_until_next_day(visit_id: StringName) -> bool:
+	var visit: CustomerVisit = find_visit(visit_id)
+	var cycle: C_DayCycle = DayPhaseService.current()
+	if (
+		visit == null
+		or cycle == null
+		or not visit.started
+		or visit.finished
+		or visit.declaration != CustomerVisit.Declaration.NONE
+		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+		or visit.definition == null
+		or visit.followup_count >= visit.definition.max_followup_visits
+	):
+		return false
+	var customer: E_Customer = customer_for(visit_id)
+	if customer == null:
+		return false
+
+	visit.followup_count += 1
+	visit.next_followup_day = cycle.day_index + 1
+	visit.followup_committed = true
+	_leave(customer, visit)
 	return true
 
 
@@ -547,8 +574,11 @@ static func finish(visit: CustomerVisit, day: int) -> void:
 		return
 	visit.finished = true
 	visit.finished_day = day
+	if visit.followup_committed and visit.next_followup_day > day:
+		return
 	if CustomerOutcomeService.create_complaint(visit, day):
 		visit.next_followup_day = 0
+		visit.followup_committed = false
 		return
 	schedule_followup(visit, day)
 
@@ -579,6 +609,7 @@ static func schedule_followup(visit: CustomerVisit, day: int) -> bool:
 		return false
 	visit.followup_count += 1
 	visit.next_followup_day = day + maxi(1, visit.definition.followup_delay_days)
+	visit.followup_committed = true
 	return true
 
 
@@ -602,6 +633,7 @@ static func reactivate_due_followups(flow: C_CustomerFlow, day: int) -> int:
 		visit.finished = false
 		visit.finished_day = 0
 		visit.next_followup_day = 0
+		visit.followup_committed = false
 		visit.actual = CustomerVisit.Actual.NOT_RESOLVED
 		visit.aggressive = false
 		reactivated += 1

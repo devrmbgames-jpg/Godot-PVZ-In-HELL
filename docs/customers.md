@@ -46,3 +46,8 @@ A waiting package Customer can be told that the Package cannot be issued. Dialog
 Reaction data can change Satisfaction and the Complaint/Aggression/follow-up probability thresholds. Applied intent modifiers are persistent and idempotent per intent category. Joke does not commit a refusal. A committed dialogue refusal records the factual `PLAYER_DENIED` independently from whatever Terminal declaration the Player later chooses.
 
 A finished NPC appearance is not necessarily a resolved package case. For registered cases with declaration `NONE` and actual `NOT_RESOLVED` or `PLAYER_DENIED`, complaint creation is evaluated first. If no complaint is created, a deterministic data-driven follow-up may be scheduled. On its due day the same persistent case is reactivated, current actual returns to `NOT_RESOLVED` so delivery is still possible, while prior denial count and dialogue modifiers remain persistent. Terminal declaration or an existing complaint prevents that pending follow-up.
+
+
+### Explicit postponement
+
+The persuasion branch "Приходите завтра" is an explicit service postponement, not PLAYER_DENIED. It stores a committed follow-up for exactly the next day, suppresses complaint RNG for that departing appearance, and reactivates the same registered package case on the next Morning. Random follow-up logic remains available for unresolved cases that did not receive an explicit promise.

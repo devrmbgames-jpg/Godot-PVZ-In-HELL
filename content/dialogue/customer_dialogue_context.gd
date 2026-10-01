@@ -130,6 +130,10 @@ func commit_denial() -> bool:
 	return is_valid() and CustomerFlowService.deny(_visit_id)
 
 
+func defer_until_tomorrow() -> bool:
+	return is_valid() and CustomerFlowService.defer_until_next_day(_visit_id)
+
+
 func is_followup() -> bool:
 	var visit: CustomerVisit = _visit()
 	return visit != null and visit.visit_count > 1

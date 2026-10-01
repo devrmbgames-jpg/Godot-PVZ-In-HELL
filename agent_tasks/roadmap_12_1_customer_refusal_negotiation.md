@@ -31,10 +31,11 @@ Add dialogue refusal/stall/deception approaches while keeping CustomerVisit.actu
 - Joke intent never commits denial.
 - Dialogue/physical interaction owns actual; Terminal owns declaration.
 - A finished physical visit may leave the package case unresolved. If no complaint is created, deterministic follow-up scheduling may reactivate the same case on a later day.
+- Explicit persuasion `Приходите завтра` is stronger than probabilistic follow-up: it keeps actual = NOT_RESOLVED, suppresses complaint roll for that appearance, and guarantees reactivation on the next day.
 - On follow-up reactivation, current actual resets to NOT_RESOLVED so the package can still be delivered; player_denial_count preserves prior factual denials.
 
 ### Current
-Technical implementation and review are complete on master, including direct held-Package handoff and retained counter delivery. Next: owner gameplay/visual QA only.
+Technical implementation is on master, including direct held-Package handoff, retained counter delivery, and guaranteed next-day defer semantics for `Приходите завтра`. Next: owner local gameplay QA.
 
 ### Validation
 - Project validation PASS on final implementation SHA.

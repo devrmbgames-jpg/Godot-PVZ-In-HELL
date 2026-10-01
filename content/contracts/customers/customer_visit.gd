@@ -53,6 +53,8 @@ enum Feedback { NONE, APPROVED }
 @export var visit_count: int = 0
 @export var followup_count: int = 0
 @export var next_followup_day: int = 0
+## Explicit "come back later" agreement. While true, finishing this appearance must not roll a complaint.
+@export var followup_committed: bool = false
 @export var last_visit_day: int = 0
 @export var player_denial_count: int = 0
 @export var customer_dead: bool = false

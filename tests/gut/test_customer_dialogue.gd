@@ -220,6 +220,8 @@ func test_dialogue_resource_exposes_direct_and_riddle_branches() -> void:
 	assert_true((deny_start.responses[1] as DialogueResponse).has_tag("lie"))
 	assert_true((deny_start.responses[4] as DialogueResponse).has_tag("thr"))
 	assert_true((deny_start.responses[5] as DialogueResponse).has_tag("jok"))
+	var persuade: DialogueLine = await resource.get_next_dialogue_line("deny_persuade", [{"ctx": _context}])
+	assert_not_null(persuade)
 	_visit.visit_count = 2
 	assert_eq(_context.dialogue_cue(), "followup")
 	_visit.visit_count = 1

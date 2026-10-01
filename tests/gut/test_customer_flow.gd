@@ -435,6 +435,33 @@ func test_next_morning_keeps_registered_or_other_purpose_visit() -> void:
 	assert_false(other_purpose.finished)
 	assert_eq(WalletService.current().balance, 0)
 
+func test_explicit_come_back_tomorrow_skips_complaint_and_reactivates_exactly_next_day() -> void:
+	var visit: CustomerVisit = _live_fixture()
+	visit.definition.complaint_probability = 1.0
+	visit.definition.unresolved_complaint_probability = 1.0
+	visit.definition.max_followup_visits = 2
+	visit.visit_count = 1
+	visit.followup_count = 1
+	visit.next_followup_day = 2
+	visit.followup_committed = true
+
+	CustomerFlowService.finish(visit, 1)
+	assert_true(visit.finished)
+	assert_null(visit.complaint)
+	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq(visit.next_followup_day, 2)
+	assert_true(visit.followup_committed)
+
+	var flow: C_CustomerFlow = CustomerFlowService.current()
+	assert_eq(CustomerFlowService.reactivate_due_followups(flow, 1), 0)
+	assert_eq(CustomerFlowService.reactivate_due_followups(flow, 2), 1)
+	assert_false(visit.finished)
+	assert_false(visit.started)
+	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq(visit.next_followup_day, 0)
+	assert_false(visit.followup_committed)
+
+
 func test_unresolved_case_can_schedule_and_reactivate_followup() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	visit.definition.complaint_probability = 0.0
