@@ -8,6 +8,7 @@ script = ExtResource("Item")
 key = &"food"
 market_price = 25
 display_name = "Хлеб"
+world_pickup_scene = "res://content/entities/inventory/food_pickup.tscn"
 kind = 0
 maximum_stack = 10
 food_effect = ExtResource("Food")

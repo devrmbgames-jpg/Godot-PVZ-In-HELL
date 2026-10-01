@@ -1,0 +1,19 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://addons/gecs/ecs/entity.gd" id="Entity"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/components/commerce/c_order_receiving.gd" id="State"]
+
+[sub_resource type="Resource" id="State"]
+script = ExtResource("State")
+
+[node name="OrderReceiving" type="Node3D"]
+script = ExtResource("Entity")
+component_resources = Array[ExtResource("Component")]([SubResource("State")])
+
+[node name="Caption" type="Label3D" parent="."]
+position = Vector3(1.125, 1, 0.75)
+text = "Утренние заказы\nE — в инвентарь"
+billboard = 1
+font_size = 26
+pixel_size = 0.002

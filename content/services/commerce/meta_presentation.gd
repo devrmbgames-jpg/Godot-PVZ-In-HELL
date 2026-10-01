@@ -14,4 +14,13 @@ static func debug_text() -> String:
 			lines.append("Заказ %s ×%d · утро дня %d · осталось %d дней" % [pending.item.display_name, pending.quantity, pending.delivery_day, maxi(0, pending.delivery_day - cycle.day_index)])
 	for quest: RefusalQuestRecord in quests.records:
 		lines.append("Не выдавай №%03d · %s · срок Night дня %d (ещё %d дней)" % [quest.display_number, RefusalQuestRecord.State.keys()[quest.state], quest.deadline_day, maxi(0, quest.deadline_day - cycle.day_index)])
+	var session: Entity = ECS.world.query.with_all([C_Autosave]).execute_one() if is_instance_valid(ECS.world) else null
+	if session != null:
+		var save: C_Autosave = session.get_component(C_Autosave) as C_Autosave
+		lines.append("Сон / autosave: %s · сохранённое утро %d" % [save.startup_status, save.last_saved_morning])
+		if save.last_error != OK:
+			lines.append("Задача: завершить сохранение · ошибка %d · повтор через %.1f с" % [save.last_error, save.retry_remaining])
+		for zone: Entity in ECS.world.query.with_all([C_OrderReceiving]).execute():
+			if (zone.get_component(C_OrderReceiving) as C_OrderReceiving).blocked:
+				lines.append("Задача: освободить место в зоне утренних заказов")
 	return "\n".join(lines)

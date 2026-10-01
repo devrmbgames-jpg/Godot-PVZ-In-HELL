@@ -1,11 +1,19 @@
 extends Node3D
 
 @export var world: World = null
+## Tests/embedded scenes may isolate their slot; empty disables automatic loading.
+@export var autosave_path: String = AutosaveStore.DEFAULT_PATH
 
 
 func _ready() -> void:
 	ECS.world = world
 	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
+	var session: Entity = world.query.with_all([C_Autosave]).execute_one()
+	if session != null:
+		var save: C_Autosave = session.get_component(C_Autosave) as C_Autosave
+		save.path = autosave_path
+		if not autosave_path.is_empty():
+			NightSaveService.restore_startup(self, save)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 

@@ -16,7 +16,7 @@ This file is the queue/index. It does not replace individual task state.
 | **OWNER_QA** | [R18 Hunger / Perception](roadmap_18_hunger_and_perception.md) |
 | **OWNER_QA** | [R19 Inventory / Consumables](roadmap_19_inventory_and_consumables.md) |
 | **OWNER_QA** | [R20 Evening / Trader / Orders / Quest](roadmap_20_evening_trader_orders_and_quest.md) |
-| **PLANNED** | [R21 Night / Persistence / Next Day](roadmap_21_night_persistence_next_day.md) |
+| **IN_PROGRESS** | [R21 Night / Persistence / Next Day](roadmap_21_night_persistence_next_day.md) |
 | **PLANNED** | [R22 HUD / World Feedback](roadmap_22_hud_and_world_feedback.md) |
 | **PLANNED** | [R23 Vertical Slice Validation](roadmap_23_vertical_slice_validation.md) |
 

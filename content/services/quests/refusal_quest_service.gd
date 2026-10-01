@@ -9,6 +9,37 @@ static func current() -> C_QuestSession:
 	return session.get_component(C_QuestSession) as C_QuestSession if session != null else null
 
 
+## Rebuild only live bindings from durable facts after save/load; never invent missing targets.
+static func restore_bindings() -> void:
+	var state: C_QuestSession = current()
+	if state == null:
+		return
+	for record: RefusalQuestRecord in state.records:
+		if record.state not in [RefusalQuestRecord.State.OFFERED, RefusalQuestRecord.State.ACTIVE]:
+			continue
+		var already_bound: bool = false
+		for existing: Entity in ECS.world.query.with_all([C_QuestBinding]).execute():
+			if (existing.get_component(C_QuestBinding) as C_QuestBinding).quest_id == record.quest_id:
+				already_bound = true
+		if already_bound:
+			continue
+		var parcel: Entity = CustomerFlowService.parcel_for(record.package_id)
+		if parcel == null:
+			continue
+		for trader: Entity in ECS.world.query.with_all([C_Trader]).execute():
+			if (trader.get_component(C_Trader) as C_Trader).trader_key != record.issuer_key:
+				continue
+			var binding: Entity = Entity.new()
+			var identity: C_QuestBinding = C_QuestBinding.new()
+			identity.quest_id = record.quest_id
+			binding.component_resources = [identity]
+			ECS.world.add_entity(binding)
+			binding.add_relationship(Relationship.new(R_IssuedBy.new(), trader))
+			binding.add_relationship(Relationship.new(R_TargetsPackage.new(), parcel))
+			binding.add_relationship(Relationship.new(R_QuestSession.new(), _session()))
+			break
+
+
 static func find(quest_id: StringName) -> RefusalQuestRecord:
 	var state: C_QuestSession = current()
 	if state != null:

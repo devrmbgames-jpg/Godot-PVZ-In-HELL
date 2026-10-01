@@ -7,6 +7,7 @@ script = ExtResource("Item")
 key = &"med"
 market_price = 60
 display_name = "Аптечка"
+world_pickup_scene = "res://content/entities/inventory/med_pickup.tscn"
 kind = 1
 maximum_stack = 10
 healing = 35.0

@@ -157,6 +157,14 @@
 [ext_resource type="PackedScene" path="res://content/entities/commerce/trader.tscn" id="Trader_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/commerce/exterior_yard.tscn" id="Exterior_yard"]
 
+[ext_resource type="Script" path="res://content/components/persistence/c_autosave.gd" id="Autosave_state"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_night_save.gd" id="Night_save_system"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_order_delivery.gd" id="Order_delivery_system"]
+[ext_resource type="PackedScene" path="res://content/entities/commerce/order_receiving.tscn" id="Order_receiving_scene"]
+
+[sub_resource type="Resource" id="Autosave_state"]
+script = ExtResource("Autosave_state")
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -606,6 +614,14 @@ script = ExtResource("Inventory_effect")
 
 [node name="O_InventoryLifecycle" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("Inventory_lifecycle")
+
+[node name="S_NightSave" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Night_save_system")
+group = &"GamePlay"
+
+[node name="S_OrderDelivery" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Order_delivery_system")
+group = &"GamePlay"
 
 [node name="S_RefusalQuest" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("Quest_system")
@@ -1214,9 +1230,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6876402, 0, 3.4474401)
 package_parent = NodePath("..")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_v2668")])
 
+[node name="OrderReceiving" parent="Entityes" instance=ExtResource("Order_receiving_scene")]
+position = Vector3(11, 0.22, 0.5)
+
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state")])
 
 [node name="ShiftConsole" parent="Entityes" unique_id=1907900219 instance=ExtResource("Day_station")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.5317445, 0, -5)

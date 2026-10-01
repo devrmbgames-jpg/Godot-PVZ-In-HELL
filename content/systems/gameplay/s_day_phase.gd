@@ -13,7 +13,8 @@ func query() -> QueryBuilder:
 
 func process(_entities: Array[Entity], components: Array, _delta: float) -> void:
 	var cycles: Array = components[0]
-	for cycle: C_DayCycle in cycles:
+	for index: int in cycles.size():
+		var cycle: C_DayCycle = cycles[index] as C_DayCycle
 		if cycle.phase == C_DayCycle.Phase.NIGHT:
 			if cycle.night_ready:
 				cycle.day_index += 1
@@ -39,6 +40,6 @@ func process(_entities: Array[Entity], components: Array, _delta: float) -> void
 				cycle.phase = C_DayCycle.Phase.EVENING
 			DayTransitionRequest.Kind.SLEEP:
 				cycle.phase = C_DayCycle.Phase.NIGHT
-				cycle.night_ready = true
+				cycle.night_ready = not _entities[index].has_component(C_Autosave)
 				night_started.emit(cycle.day_index)
 		phase_changed.emit(cycle.day_index, cycle.phase)
