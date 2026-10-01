@@ -175,6 +175,27 @@ func test_ranged_effect_launches_once_and_projectile_hits_real_collider() -> voi
 	assert_true(_world.query.with_all([C_CombatProjectile]).execute().is_empty())
 
 
+func test_projectile_snapshots_hunger_damage_before_food_restores_shooter() -> void:
+	var hunger: C_Hunger = C_Hunger.new()
+	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.value = 75.0
+	_npc.add_component(hunger)
+	hunger = _npc.get_component(C_Hunger) as C_Hunger
+	(_target as Node as Node3D).global_position.z = -4.0
+	await get_tree().physics_frame
+	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.RANGED, 0))
+	assert_true(NpcAttackService.commit_effect(_npc))
+	var projectile: Entity = _world.query.with_all([C_CombatProjectile]).execute_one()
+	assert_eq((projectile.get_component(C_CombatProjectile) as C_CombatProjectile).damage, 12.0)
+	var food: DEF_FoodEffect = DEF_FoodEffect.new()
+	food.hunger_relief = 100.0
+	assert_true(HungerService.apply_food(_npc, food))
+	assert_eq(hunger.value, 0.0)
+	ProjectileService.tick(projectile, 1.0)
+	assert_eq(_health.current, 88.0, "Already launched projectiles retain their effective damage")
+	assert_eq(_state.ranged_attacks[0].damage, 8.0)
+
+
 func test_wall_blocks_projectile_even_for_long_frame() -> void:
 	(_target as Node as Node3D).global_position.z = -4.0
 	await get_tree().physics_frame

@@ -13,7 +13,7 @@ This file is the queue/index. It does not replace individual task state.
 | **OWNER_QA** | [R15 Gaze Challenges](roadmap_15_gaze_challenges.md) |
 | **OWNER_QA** | [R16 Floor Hazard Challenge](roadmap_16_floor_hazard_challenge.md) |
 | **OWNER_QA** | [R17 Combat / Impact Damage](roadmap_17_combat_and_impact_damage.md) |
-| **PLANNED** | [R18 Hunger / Perception](roadmap_18_hunger_and_perception.md) |
+| **OWNER_QA** | [R18 Hunger / Perception](roadmap_18_hunger_and_perception.md) |
 | **PLANNED** | [R19 Inventory / Consumables](roadmap_19_inventory_and_consumables.md) |
 | **PLANNED** | [R20 Evening / Trader / Orders / Quest](roadmap_20_evening_trader_orders_and_quest.md) |
 | **PLANNED** | [R21 Night / Persistence / Next Day](roadmap_21_night_persistence_next_day.md) |

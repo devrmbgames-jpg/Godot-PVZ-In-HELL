@@ -311,14 +311,14 @@ func arm_challenge() -> bool:
 	return has_pending_challenge() and ChallengeService.arm(_customer, _actor)
 
 
-## R18 will replace this placeholder with its authoritative Hunger tier.
+## Derived tier only; the context never changes Hunger or customer identity.
 func hunger_tier() -> int:
-	return DEFAULT_HUNGER_TIER
+	return HungerService.tier(_actor.get_component(C_Hunger) as C_Hunger) if is_instance_valid(_actor) else DEFAULT_HUNGER_TIER
 
 
-## Dialogue always resolves the real line first. R18 may later transform only this presentation result.
+## Dialogue resolves the real line/branch first; only perceived NPC speech changes.
 func perceived_text(actual_text: String) -> String:
-	return actual_text
+	return "Съешь меня" if hunger_tier() == C_Hunger.Tier.STARVING and not actual_text.is_empty() else actual_text
 
 
 func _visit() -> CustomerVisit:

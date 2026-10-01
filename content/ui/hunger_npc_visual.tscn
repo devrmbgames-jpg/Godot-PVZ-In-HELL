@@ -1,0 +1,49 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/ui/hunger_npc_visual.gd" id="Presentation"]
+
+[sub_resource type="StandardMaterial3D" id="BreadMaterial"]
+albedo_color = Color(0.83, 0.43, 0.12, 1)
+roughness = 0.9
+
+[sub_resource type="CapsuleMesh" id="BreadMesh"]
+material = SubResource("BreadMaterial")
+radius = 0.25
+height = 1.1
+
+[sub_resource type="StandardMaterial3D" id="CrustMaterial"]
+albedo_color = Color(1, 0.8, 0.45, 1)
+
+[sub_resource type="BoxMesh" id="CrustMesh"]
+material = SubResource("CrustMaterial")
+size = Vector3(0.04, 0.02, 0.3)
+
+[node name="HungerPerception" type="Node3D"]
+script = ExtResource("Presentation")
+
+[node name="Food" type="Node3D" parent="."]
+visible = false
+position = Vector3(0, 1.25, 0)
+
+[node name="Bread" type="MeshInstance3D" parent="Food"]
+rotation = Vector3(0, 0, 1.5707964)
+mesh = SubResource("BreadMesh")
+
+[node name="Crust1" type="MeshInstance3D" parent="Food"]
+position = Vector3(-0.25, 0.245, 0)
+mesh = SubResource("CrustMesh")
+
+[node name="Crust2" type="MeshInstance3D" parent="Food"]
+position = Vector3(0, 0.245, 0)
+mesh = SubResource("CrustMesh")
+
+[node name="Crust3" type="MeshInstance3D" parent="Food"]
+position = Vector3(0.25, 0.245, 0)
+mesh = SubResource("CrustMesh")
+
+[node name="Caption" type="Label3D" parent="Food"]
+position = Vector3(0, 0.8, 0)
+text = "Съешь меня"
+billboard = 1
+font_size = 32
+pixel_size = 0.003

@@ -42,6 +42,7 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 		motion,
 		entity.get_component(C_CarryLoad) as C_CarryLoad,
 		entity.get_component(C_Strength) as C_Strength,
+		entity.get_component(C_Hunger) as C_Hunger,
 	)
 
 # =========================================================================
@@ -55,6 +56,7 @@ static func _integrate_regular_motion(
 	motion: C_Motion,
 	carry_load: C_CarryLoad,
 	strength: C_Strength,
+	hunger: C_Hunger,
 ) -> void:
 	var input_motion := controller.direction_motion
 
@@ -81,6 +83,7 @@ static func _integrate_regular_motion(
 			input_strength,
 			carry_load,
 			strength,
+			hunger,
 		)
 	else:
 		_integrate_air_motion(
@@ -90,6 +93,7 @@ static func _integrate_regular_motion(
 			input_strength,
 			carry_load,
 			strength,
+			hunger,
 		)
 
 
@@ -100,6 +104,7 @@ static func _integrate_ground_motion(
 	input_strength: float,
 	carry_load: C_CarryLoad,
 	strength: C_Strength,
+	hunger: C_Hunger,
 ) -> void:
 	var wish_direction := input_direction.slide(motion.floor_normal)
 
@@ -120,7 +125,7 @@ static func _integrate_ground_motion(
 
 	var relative_velocity := (state.linear_velocity - motion.floor_velocity)
 
-	var wish_speed: float = effective_speed(motion, carry_load, strength) * input_strength
+	var wish_speed: float = effective_speed(motion, carry_load, strength, hunger) * input_strength
 
 	_accelerate(state, relative_velocity, wish_direction, wish_speed, acceleration)
 
@@ -132,8 +137,9 @@ static func _integrate_air_motion(
 	input_strength: float,
 	carry_load: C_CarryLoad,
 	strength: C_Strength,
+	hunger: C_Hunger,
 ) -> void:
-	var wish_speed: float = effective_speed(motion, carry_load, strength) * input_strength
+	var wish_speed: float = effective_speed(motion, carry_load, strength, hunger) * input_strength
 
 	_accelerate(
 		state,
@@ -331,7 +337,7 @@ static func effective_speed(
 	motion: C_Motion,
 	carry_load: C_CarryLoad,
 	strength: C_Strength,
+	hunger: C_Hunger = null,
 ) -> float:
-	if carry_load == null or not carry_load.active:
-		return motion.max_speed
-	return motion.max_speed * CarryLoadPolicy.active_multiplier(carry_load, strength)
+	var carry_multiplier: float = CarryLoadPolicy.active_multiplier(carry_load, strength) if carry_load != null and carry_load.active else 1.0
+	return motion.max_speed * carry_multiplier * HungerService.speed_multiplier(hunger)

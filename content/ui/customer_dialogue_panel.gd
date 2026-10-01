@@ -43,6 +43,8 @@ func _process(_delta: float) -> void:
 		or not _context.can_continue()
 	):
 		close_dialogue()
+	elif _line != null:
+		_text.text = _context.perceived_text(_line.text)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -122,7 +124,7 @@ func _render_line() -> void:
 		if response == null or not response.is_allowed:
 			continue
 		var button: Button = Button.new()
-		button.text = format_response_text(_context.perceived_text(response.text), response.tags)
+		button.text = format_response_text(response.text, response.tags)
 		button.pressed.connect(_on_response_pressed.bind(response))
 		_responses.add_child(button)
 	if _responses.get_child_count() > 0:

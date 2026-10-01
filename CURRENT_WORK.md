@@ -1,7 +1,7 @@
 # Current Work
 
-Next: [R18 Hunger / Perception](agent_tasks/roadmap_18_hunger_and_perception.md).
+Next: [R19 Inventory / Consumables](agent_tasks/roadmap_19_inventory_and_consumables.md).
 
-R14 b1238958 and R15 6247b4cc implement light/arrival-to-departure/debug and camera/LOS gaze rules. R16 floor hazard implementation reviewed; GUT 65/65 PASS (522 assertions), strict physical floor/box/airborne/default customer smoke and NPC/navigation/light/gaze regressions PASS. Main headless shutdown clean except external certificate store. Owner route/timing/rendered readability QA remains.
+R17 `4615d3b3` implements separate NPC melee/ranged variants (up to three each), animation hooks, player blade, physical combat and attribution. R18 implementation complete, OWNER_QA: growth, typed Food effect, reversible modifiers, NPC perception and debug UI. Final GUT 69/69 (725 assertions), strict Hunger/combat smoke, structure/diff checks PASS; main headless shutdown clean except external certificate error. Rendered presentation/balance/animation QA remains in task files.
 
-R16 committed `63b340ec`. R17 implementation reviewed (R1–R6 FIXED), final GUT 104/104 PASS (881 assertions), strict combat and light challenge regression PASS; main headless shutdown clean except certificate store. Separate NPC mechanic supports 3 melee + 3 ranged variants, animation hooks, swept projectiles, future AI kind/index API; Player blade and typed attribution use R04/R08. Owner animation/gameplay/layout QA remains. Next: inspect exact R18 hunger/perception owners and specification. Preserve user config, main scene/schedule resaves, addons/gecs and pre-existing untracked UIDs; stage only task authored hunks. Config limits have not blocked work. Goal remains active.
+Next: inspect R19 ownership/quantity, interaction resolver, Health healing and Package protection contracts; implement small consumable inventory without replacing physical slots. Preserve user config, main scene/schedule resaves, addons/gecs and pre-existing untracked UIDs. Stage only task authored scene hunks. Config limits have not blocked work. Goal remains active.

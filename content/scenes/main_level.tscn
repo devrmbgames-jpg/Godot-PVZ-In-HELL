@@ -139,6 +139,10 @@
 [ext_resource type="Script" path="res://content/observers/combat/o_combat_damage.gd" id="Combat_damage"]
 [ext_resource type="PackedScene" path="res://content/entities/tools/utility_blade.tscn" id="Utility_blade"]
 
+[ext_resource type="Script" path="res://content/components/gameplay/c_hunger.gd" id="Hunger_state"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/hunger/def_hunger_default.tres" id="Hunger_policy"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_hunger.gd" id="Hunger_system"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -218,6 +222,10 @@ script = ExtResource("Push_control")
 
 [sub_resource type="Resource" id="Player_combat"]
 script = ExtResource("Player_combat")
+
+[sub_resource type="Resource" id="Hunger_state"]
+script = ExtResource("Hunger_state")
+policy = ExtResource("Hunger_policy")
 
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
@@ -565,6 +573,10 @@ script = ExtResource("Combat_lifecycle")
 
 [node name="O_CombatDamage" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("Combat_damage")
+
+[node name="S_Hunger" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Hunger_system")
+group = &"GamePlay"
 
 [node name="PVZ" type="Node3D" parent="." unique_id=627123053]
 
@@ -1092,7 +1104,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4560537, 0.12648739, -2.874
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
 collision_layer = 16
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_1brdc"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Living"), SubResource("Resource_p0mrl")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_1brdc"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Living"), SubResource("Resource_p0mrl")])
 
 [node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1703744943, 217031396, 2065414162) index="0" unique_id=1494109615]
 cast_shadow = 3

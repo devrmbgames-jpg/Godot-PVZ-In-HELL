@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://content/entities/characters/physical_character.tscn" id="Foundation"]
+[ext_resource type="PackedScene" path="res://content/ui/hunger_npc_visual.tscn" id="HungerPerception"]
 [ext_resource type="PackedScene" path="res://resources/Animation Library[Standard]/AnimationLibrary_Godot_Standard.glb" id="Model"]
 [ext_resource type="Script" path="res://content/entities/customers/e_customer.gd" id="Entity"]
 [ext_resource type="Script" path="res://content/components/physics/c_rigid_body.gd" id="RigidBody"]
@@ -129,5 +130,7 @@ position = Vector3(0, 2.15, 0)
 billboard = 1
 font_size = 32
 pixel_size = 0.003
+
+[node name="HungerPerception" parent="." instance=ExtResource("HungerPerception")]
 
 [editable path="Body"]
