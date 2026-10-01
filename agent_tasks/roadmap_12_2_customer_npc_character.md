@@ -17,6 +17,7 @@ Status: **OWNER_QA**
 - Сохранить текущие Customer contracts: schedule/visit identity, dialogue, interaction actions, direct handoff, counter delivery, refusal/follow-up, health/death/outcome.
 - Не ломать Player, Grab/Carry/Push/Cart и существующие physics contracts при выделении общего character foundation.
 - Не добавлять сложный combat AI: R17 использует подготовленный здесь NPC foundation.
+- Уточнение владельца: [R17](roadmap_17_combat_and_impact_damage.md) добавляет отдельную простую механику атак NPC — до 3 ближних и до 3 дальних вариантов, каждый с привязкой к анимации и явным запросом для будущего ИИ. Movement/NavigationAgent/physics foundation остаётся в R12.2.
 - Не требовать новых animation assets; если текущая character library уже содержит подходящие Idle/Walk, подключить их без создания отдельного animation subsystem.
 
 ### Milestones

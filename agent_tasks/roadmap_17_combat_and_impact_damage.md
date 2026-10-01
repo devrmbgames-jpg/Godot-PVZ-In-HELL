@@ -1,6 +1,6 @@
 # R17 — Ближний бой и агрессивный Customer
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 ## Task state
 
@@ -27,8 +27,12 @@ Do not create a parallel planning document. This file remains the authoritative 
 
 R12.2 owns the generic physical NPC/Customer character foundation. R17 only adds combat/pursuit/attack behavior on top of that actor/controller contract.
 
+NPC attacks have a separate, simple execution mechanic from Player weapon input: up to three authored melee variants and up to three authored ranged variants. Each variant supplies damage, usable range, timing/cooldown and an optional animation name. Animation method-track hooks commit the melee hit or launch the projectile once; timed execution keeps the prototype playable before attack animations are assigned. Both paths use the existing damage pipeline.
+
+Expose an explicit attack-kind/variant request for future AI. The initial AI uses a deterministic available attack by range; tactical scoring, ability trees and complex combo systems are outside this task. Navigation, physics, ownership and damage attribution remain shared foundations.
+
 ### Current
-Not started under the lean workflow. Next: verify dependencies in `task_history.md` and current code, then choose the first bounded implementation milestone from the existing work list.
+R16 committed as `63b340ec`. Inspected current grab/action routing, customer aggression/death, challenge escalation, generic NPC intent/NavigationAgent and R08 impact/damage contracts. Early uncommitted Player melee/attribution scaffolding exists; NPC attacks will use the separate mechanic requested by the owner. Next: implement NPC melee/ranged variants and animation hooks, then connect pursuit/escalation and Player weapon routing.
 
 ### Validation
 Not run for this task under the lean workflow.
@@ -58,6 +62,9 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 ## Работы
 
 - [ ] Добавить один melee/острый Weapon: окно удара, hit validation, cooldown и damage через 04.
+- [ ] Отдельная простая механика атак NPC: до 3 вариантов ближней и до 3 вариантов дальней атаки на NPC; authored параметры урона, дистанции, таймингов/cooldown и привязка каждого варианта к отдельной анимации.
+- [ ] Вызов момента удара/запуска снаряда из method track анимации; защита от повторного попадания/запуска за одну атаку, отмена при смерти/потере цели. Пока анимации не назначены, таймер обеспечивает рабочий прототип.
+- [ ] Явный запрос типа/индекса атаки для будущего ИИ; сейчас простой выбор доступного варианта по дистанции, без оценки выгодности, дерева способностей и комбо.
 - [ ] Aggressive Customer прекращает сервисный разговор, использует generic NPC controller R12.2 для pursuit/look target Player и атакует Player; имеет поражение и завершение schedule event. Один из источников aggression — обнаружение ложной Terminal отметки `TAKEN` по ТЗ 07.
 - [ ] Подключить уже готовый generic impact contract R08 к Player/Customer/combat props. Не реализовывать вторую формулу mass/speed/impulse, второй contact dedup или отдельный combat-only impact System.
 - [ ] Соблюдать приоритет tool/grab/attack из 02, сохраняя input неизменным для других потребителей.
@@ -67,6 +74,7 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 ## Критерии готовности
 
 - Клиент ранит Player; игрок побеждает оружием или тяжёлым предметом.
+- NPC выполняет ближнюю и дальнюю атаку, поддерживает независимую привязку до трёх вариантов каждого типа к анимациям. Hit/release hook выполняет эффект ровно один раз; отсутствующая анимация не ломает прототип.
 - Aggressive Customer преследует Player через тот же physical NPC body/controller, который использует сервисный Customer; смена service -> combat не заменяет Entity/physics body.
 - Слабое касание не наносит урон, собственный held object не бьёт держателя; одно ЛКМ не бросает и не атакует одновременно.
 - Коробки блокируют проход и остаются частью физического боя.
@@ -79,6 +87,8 @@ GUT: melee hit/cooldown/смерть и combat attribution; physics integration 
 ## Границы
 
 Без полного арсенала и сложной боевой AI. Generic locomotion/look/physical NPC принадлежит R12.2 и здесь не дублируется. Сохранять Godot physics authority, GECS data/behavior boundaries и read-only addons. Выполненные основания переиспользовать, а не создавать заново.
+
+Проверки NPC: обе дистанции и ограничения 3+3; запуск заданного варианта; animation hit/release hook и защита от дублей; отмена по смерти/потере цели; cooldown; снаряд не проходит сквозь физические препятствия. На debug UI отображаются тип/вариант, фаза, условия дистанции и таймеры атаки/cooldown.
 
 ## Первый шаг
 
