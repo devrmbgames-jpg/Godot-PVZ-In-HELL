@@ -1,0 +1,112 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://content/entities/characters/physical_character.tscn" id="Foundation"]
+[ext_resource type="Script" path="res://content/entities/characters/e_npc_character.gd" id="Entity"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_trader_action.gd" id="Action"]
+[ext_resource type="PackedScene" path="res://content/ui/hunger_npc_visual.tscn" id="HungerPerception"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/def_impact_living.tres" id="LivingImpact"]
+[ext_resource type="Script" path="res://content/components/physics/c_rigid_body.gd" id="RigidBody"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_controller.gd" id="Controller"]
+[ext_resource type="Script" path="res://content/components/motion/c_motion.gd" id="Motion"]
+[ext_resource type="Script" path="res://content/components/motion/c_look.gd" id="Look"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_health.gd" id="Health"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_living.gd" id="Living"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_impact_receiver.gd" id="Impact"]
+[ext_resource type="Script" path="res://content/components/motion/c_npc_intent.gd" id="NpcIntent"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_npc_combat.gd" id="NpcCombat"]
+[ext_resource type="Script" path="res://content/components/commerce/c_trader.gd" id="Trader"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_food.tres" id="food"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_med.tres" id="med"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_bubble_wrap.tres" id="bubble_wrap"]
+
+[sub_resource type="Resource" id="RigidBody"]
+script = ExtResource("RigidBody")
+
+[sub_resource type="Resource" id="Controller"]
+script = ExtResource("Controller")
+
+[sub_resource type="Resource" id="Motion"]
+script = ExtResource("Motion")
+
+[sub_resource type="Resource" id="Look"]
+script = ExtResource("Look")
+
+[sub_resource type="Resource" id="Health"]
+script = ExtResource("Health")
+
+[sub_resource type="Resource" id="Living"]
+script = ExtResource("Living")
+
+[sub_resource type="Resource" id="Impact"]
+script = ExtResource("Impact")
+profile = ExtResource("LivingImpact")
+
+[sub_resource type="Resource" id="NpcIntent"]
+script = ExtResource("NpcIntent")
+
+[sub_resource type="Resource" id="NpcCombat"]
+script = ExtResource("NpcCombat")
+
+[sub_resource type="Resource" id="Trader"]
+script = ExtResource("Trader")
+catalog = [ExtResource("food"), ExtResource("med"), ExtResource("bubble_wrap")]
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="Action"]
+script = ExtResource("Action")
+action_id = &"trade"
+slot = 1
+caption = "Торговля и задание"
+allow_interact_fallback = false
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("Actions")
+actions = [SubResource("Action")]
+
+[sub_resource type="CapsuleShape3D" id="Shape"]
+radius = 0.3
+height = 1.7
+
+[sub_resource type="StandardMaterial3D" id="Coat"]
+albedo_color = Color(0.3, 0.12, 0.08, 1)
+
+[sub_resource type="CapsuleMesh" id="BodyMesh"]
+material = SubResource("Coat")
+radius = 0.3
+height = 1.7
+
+[node name="Trader" node_paths=PackedStringArray("navigation_agent") instance=ExtResource("Foundation")]
+collision_layer = 2
+collision_mask = 31
+script = ExtResource("Entity")
+navigation_agent = NodePath("NavigationAgent3D")
+component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("Health"), SubResource("Living"), SubResource("Impact"), SubResource("NpcIntent"), SubResource("NpcCombat"), SubResource("Trader"), SubResource("Interactable"), SubResource("Actions")])
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+radius = 0.3
+height = 1.7
+path_desired_distance = 0.35
+target_desired_distance = 0.25
+avoidance_enabled = false
+
+[node name="Body" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.85, 0)
+mesh = SubResource("BodyMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.85, 0)
+shape = SubResource("Shape")
+
+[node name="Message" type="Label3D" parent="."]
+position = Vector3(0, 2.0, 0)
+text = "Торговец · Evening · [F]"
+billboard = 1
+font_size = 28
+pixel_size = 0.003
+
+[node name="HungerPerception" parent="." instance=ExtResource("HungerPerception")]

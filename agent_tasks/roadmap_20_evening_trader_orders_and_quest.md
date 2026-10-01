@@ -1,6 +1,6 @@
 # R20 — Вечер, торговец, заказы и квест
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -16,10 +16,10 @@ Status: **IN_PROGRESS**
 
 ### Milestones
 - [x] Reconfirm dependency completion and current production owners/contracts.
-- [ ] Implement the existing work checklist in small coherent milestones.
-- [ ] Independently review material changes and resolve all R-findings.
-- [ ] Run final task validation according to the documented GUT/headless budget.
-- [ ] Record remaining owner gameplay/visual QA.
+- [x] Implement the existing work checklist in small coherent milestones.
+- [x] Independently review material changes and resolve all R-findings.
+- [x] Run final task validation according to the documented GUT/headless budget.
+- [x] Record remaining owner gameplay/visual QA.
 
 ### Decisions
 This task is authoritative; implementations reuse WalletService, InventoryService, CustomerFlowService and PackageRegistrationService.
@@ -29,15 +29,16 @@ This task is authoritative; implementations reuse WalletService, InventoryServic
 - Quest candidates are registered, unresolved future warehouse packages (including late equipment). Quest deadline is its target visit arrival day or later; completion requires actual Player denial, failure actual delivery, ignored explicitly declined, expired after deadline without completion. All ordinary refusal/complaint/settlement consequences remain. Persistent records store IDs, day and outcomes; live IssuedBy/TargetsPackage use Relationships.
 
 ### Current
-R19 committed `c11dea8b`; wallet/Inventory/day/Terminal/customer/ledger owners inspected. First backend milestone implemented and reviewed: authored prices/content mapping and upgrade stubs, persistent receipts/PendingDelivery, atomic Wallet+Inventory purchase and paid order contracts, stored request serial and canonical catalog validation. Next: live Trader/external zone, Terminal order UI and identity-based refusal quest.
+Implementation complete: physical external Trader with NavigationAgent, evening purchases, Terminal Morning/Evening paid orders, identity-bound refusal quest and debug task/deadline/delivery UI. Backend milestone `9da353db`; final integration independently reviewed with no material findings. Next: R21 autosave and exactly-once next-Morning fulfillment.
 
 ### Validation
-- Backend milestone GUT 7/7 PASS, 66 assertions (`tests/artifacts/r20_backend_gut.log`): exact debit/grant, ID replay/conflicts, insufficient funds/retry, full inventory, catalog, phases, quantity/death rejection, persistent record copy/serial, market/accounting difference and upgrade definitions.
-- Structure validator and diff checks PASS. Headless editor import resolved classes without project script errors; editor settings/plugin errors and external certificate-store error prevent a clean editor claim.
-- Main independently reread backend diff and transaction ordering. Final feature review/runtime walkthrough remain after UI/quest integration.
+- Final relevant GUT 73/73 PASS, 662 assertions across commerce, quest, inventory, wallet, customer flow and dialogue (`tests/artifacts/r20_final_gut.log`). Backend 7/7 and quest 7/7 cover replay/conflict, funds/capacity, record copies and every actual quest outcome/deadline; ordinary refusal penalty remains independent from reward.
+- Strict `evening_meta-20261002-074451980.log` PASS: actual main scene, phase transitions, Trader physical/nav contracts, F ray interaction, purchases, quest acceptance, Terminal modal handoff/orders, debug deadlines and capture restoration. Actor repositioning is a fixture; walking route was not visually verified.
+- Headless main shutdown has no project errors/leaks; external Windows certificate-store error remains. Structure validator and diff checks PASS. Editor import resolved classes without project script errors; editor settings/plugin errors prevent a clean editor claim.
+- Separate read-only reviewer found no material issues in transaction/quest ownership, actual outcomes, modal UI and scene contracts. Reviewer ran no tests.
 
 ### Owner QA / blockers
-No new blocker is recorded. Any unmet dependency discovered during startup moves the task to `BLOCKED` or `DEFERRED` with the exact dependency named.
+Owner rendered external walking route, keyboard/gamepad navigation and economy balance remain. Physical next-Morning fulfillment and restart durability are R21 scope. No implementation blocker.
 
 ---
 
@@ -58,11 +59,11 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 
 ## Работы
 
-- [ ] Создать маленькую внешнюю зону и Trader с Food, MedItem и одним utility consumable. Item definitions должны иметь рыночную цену, которую можно сопоставить с учетной стоимостью содержимого Package из ТЗ 07.
-- [ ] Покупка проверяет Money и атомарно выдаёт товар через Inventory contract.
-- [ ] Terminal order создаёт PendingDelivery и однократно списывает/резервирует оплату; предусмотреть заказ расходников в Morning, как разрешает 03.
-- [ ] Добавить definitions LabelPrinter/Cart/BetterScanner/StorageUpgrade без реализации улучшений.
-- [ ] Создать Quest «Не выдавай посылку №XXXX» со связями IssuedBy/TargetsPackage и исходами Completed/Failed/Ignored/Expired; однозначно определить срок и успех. Quest не должен обходить общий refusal/Complaint/settlement contract: Player всё ещё несет обычные последствия отказа, если Quest отдельно их не компенсирует.
+- [x] Создать маленькую внешнюю зону и Trader с Food, MedItem и одним utility consumable. Item definitions должны иметь рыночную цену, которую можно сопоставить с учетной стоимостью содержимого Package из ТЗ 07.
+- [x] Покупка проверяет Money и атомарно выдаёт товар через Inventory contract.
+- [x] Terminal order создаёт PendingDelivery и однократно списывает/резервирует оплату; предусмотреть заказ расходников в Morning, как разрешает 03.
+- [x] Добавить definitions LabelPrinter/Cart/BetterScanner/StorageUpgrade без реализации улучшений.
+- [x] Создать Quest «Не выдавай посылку №XXXX» со связями IssuedBy/TargetsPackage и исходами Completed/Failed/Ignored/Expired; однозначно определить срок и успех. Quest не должен обходить общий refusal/Complaint/settlement contract: Player всё ещё несет обычные последствия отказа, если Quest отдельно их не компенсирует.
 
 ## Критерии готовности
 

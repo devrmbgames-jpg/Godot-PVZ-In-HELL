@@ -1,5 +1,7 @@
 # История выполненных задач
 
+- 2026-10-02 — R20 implementation (OWNER_QA): physical NavigationAgent Trader/exterior, atomic evening purchases, paid Terminal orders, identity-bound refusal quest retaining ordinary penalties, debug deadlines/delivery conditions. Separate review found no material issues; GUT 73/73 (662 assertions), strict main evening walkthrough and structure/diff PASS. Physical fulfillment/restart belongs to R21; owner walking/UI/balance QA remains.
+
 - 2026-10-02 — R19 implementation (OWNER_QA): sole OwnedBy inventory ownership, bounded stack/transfer, quantity-driven world pickups, success-only Food/Med/Wrap effects, Tab modal UI and debug tasks/conditions. Separate review R4 fixed; GUT 35/35 (377 assertions), strict main pickup/UI/cleanup smoke and structure/diff checks PASS. Contract: `docs/inventory.md`; owner rendered/gamepad/balance QA remains.
 
 - 2026-10-02 — R18 implementation (OWNER_QA): active-time Hunger, typed Food backend, reversible carry/speed/attack modifiers, Starving food visual and NPC speech with unchanged identity/orders/response routing, debug conditions/timers/tasks. GUT 69/69 (725 assertions), strict Hunger/combat smokes and structure/diff checks PASS; owner rendered/balance QA remains. See `agent_tasks/roadmap_18_hunger_and_perception.md`.

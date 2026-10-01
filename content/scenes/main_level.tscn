@@ -151,6 +151,12 @@
 [ext_resource type="PackedScene" path="res://content/entities/inventory/med_pickup.tscn" id="Med_pickup"]
 [ext_resource type="PackedScene" path="res://content/entities/inventory/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
 
+[ext_resource type="Script" path="res://content/components/commerce/c_commerce.gd" id="Commerce_state"]
+[ext_resource type="Script" path="res://content/components/quests/c_quest_session.gd" id="Quest_state"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_refusal_quest.gd" id="Quest_system"]
+[ext_resource type="PackedScene" path="res://content/entities/commerce/trader.tscn" id="Trader_scene"]
+[ext_resource type="PackedScene" path="res://content/entities/commerce/exterior_yard.tscn" id="Exterior_yard"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -237,6 +243,12 @@ policy = ExtResource("Hunger_policy")
 
 [sub_resource type="Resource" id="Inventory_state"]
 script = ExtResource("Inventory_state")
+
+[sub_resource type="Resource" id="Commerce_state"]
+script = ExtResource("Commerce_state")
+
+[sub_resource type="Resource" id="Quest_state"]
+script = ExtResource("Quest_state")
 
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
@@ -594,6 +606,10 @@ script = ExtResource("Inventory_effect")
 
 [node name="O_InventoryLifecycle" type="Node" parent="World/Systems/GamePlay"]
 script = ExtResource("Inventory_lifecycle")
+
+[node name="S_RefusalQuest" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Quest_system")
+group = &"GamePlay"
 
 [node name="PVZ" type="Node3D" parent="." unique_id=627123053]
 
@@ -1200,7 +1216,7 @@ component_resources = Array[ExtResource("Grab_component")]([SubResource("Resourc
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state")])
 
 [node name="ShiftConsole" parent="Entityes" unique_id=1907900219 instance=ExtResource("Day_station")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.5317445, 0, -5)
@@ -1235,6 +1251,9 @@ position = Vector3(2.8, 1.23, -1.8)
 [node name="WrapPickup" parent="Entityes" instance=ExtResource("Wrap_pickup")]
 position = Vector3(3.25, 1.22, -1.8)
 
+[node name="Trader" parent="Entityes" instance=ExtResource("Trader_scene")]
+position = Vector3(14, 0, 1.5)
+
 [node name="UtilityBlade" parent="Entityes" instance=ExtResource("Utility_blade")]
 position = Vector3(0.8, 1.1, -0.8)
 
@@ -1256,6 +1275,9 @@ player = NodePath("../Entityes/Player")
 
 [node name="InventoryPanel" parent="." node_paths=PackedStringArray("player") instance=ExtResource("Inventory_panel")]
 player = NodePath("../Entityes/Player")
+
+[node name="ExteriorYard" parent="." instance=ExtResource("Exterior_yard")]
+position = Vector3(14, 0, 1.5)
 
 [node name="MarkerNPCSpawnPoint" type="Marker3D" parent="." unique_id=345863772]
 editor_description = "Маркер где примерно появляются новые клиенты"

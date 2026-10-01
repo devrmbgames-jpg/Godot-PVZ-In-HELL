@@ -32,6 +32,7 @@ const SORT_ICON_DESCENDING_PATH: String = "res://addons/at-icons/control/file_ar
 @onready var _transaction_history: UI_TerminalLogHistory = %PanelLogTransaction
 @onready var _show_history_button: Button = %ButtonShowHistory
 @onready var _show_transactions_button: Button = %ButtonTransaction
+@onready var _orders_button: Button = %ButtonOrders
 @onready var _help_button: Button = %ButtonHelp
 
 var _reader: Entity = null
@@ -59,6 +60,7 @@ func _ready() -> void:
 	_package_find.text_changed.connect(_on_search_changed)
 	_show_history_button.pressed.connect(_on_show_history_pressed)
 	_show_transactions_button.pressed.connect(_on_show_transactions_pressed)
+	_orders_button.pressed.connect(_on_orders_pressed)
 	_help_button.pressed.connect(_on_help_pressed)
 	_apply_sort_presentation()
 	_set_info_mode(InfoMode.DETAIL)
@@ -123,6 +125,8 @@ func close_panel() -> void:
 
 
 func _refresh(force: bool = false) -> void:
+	var cycle: C_DayCycle = DayPhaseService.current()
+	_orders_button.disabled = CommerceService.current() == null or cycle == null or cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING]
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	if ledger == null:
 		_clear_package_rows()
@@ -577,3 +581,11 @@ func _on_show_transactions_pressed() -> void:
 func _on_help_pressed() -> void:
 	_set_info_mode(InfoMode.HELP)
 	_refresh(true)
+
+
+func _on_orders_pressed() -> void:
+	if not is_instance_valid(_reader) or CommerceService.current() == null:
+		return
+	var actor: Entity = _reader
+	close_panel()
+	CommercePanelService.open(actor, null, true)

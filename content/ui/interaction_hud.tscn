@@ -196,6 +196,12 @@ layout_mode = 2
 mouse_filter = 2
 show_percentage = false
 
+[node name="MetaDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 13
+autowrap_mode = 2
+
 [node name="InventoryDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug"]
 layout_mode = 2
 mouse_filter = 2

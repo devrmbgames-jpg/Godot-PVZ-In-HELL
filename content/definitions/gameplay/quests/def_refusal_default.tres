@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_RefusalQuest" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/quests/def_refusal_quest.gd" id="Quest"]
+
+[resource]
+script = ExtResource("Quest")
+key = &"refuse_specific_package"
+reward = 60
+minimum_deadline_days = 1

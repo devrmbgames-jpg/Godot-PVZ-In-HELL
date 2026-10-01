@@ -225,6 +225,11 @@ layout_mode = 2
 text = "Транзакции"
 icon = ExtResource("6_m6rtl")
 
+[node name="ButtonOrders" type="Button" parent="Root/Panel/NewUI/HBoxContainer/VBoxContainer/Tools/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Заказ расходников"
+
 [node name="ButtonHelp" type="Button" parent="Root/Panel/NewUI/HBoxContainer/VBoxContainer/Tools/MarginContainer/HBoxContainer" unique_id=1710965412]
 unique_name_in_owner = true
 editor_description = "Справочная информация  - заготовка
