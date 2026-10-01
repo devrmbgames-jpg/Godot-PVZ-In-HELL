@@ -1,6 +1,6 @@
 # R20 — Вечер, торговец, заказы и квест
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 ## Task state
 
@@ -15,20 +15,26 @@ Status: **PLANNED**
 - Follow Godot 4.7, GECS ownership, physics authority, and validation rules from `AGENTS.md`.
 
 ### Milestones
-- [ ] Reconfirm dependency completion and current production owners/contracts.
+- [x] Reconfirm dependency completion and current production owners/contracts.
 - [ ] Implement the existing work checklist in small coherent milestones.
 - [ ] Independently review material changes and resolve all R-findings.
 - [ ] Run final task validation according to the documented GUT/headless budget.
 - [ ] Record remaining owner gameplay/visual QA.
 
 ### Decisions
-Do not create a parallel planning document. This file remains the authoritative state/router for the feature; source design docs are references, not task state.
+This task is authoritative; implementations reuse WalletService, InventoryService, CustomerFlowService and PackageRegistrationService.
+- Trader sells Food/Med/Wrap during Evening. Terminal orders work during Morning/Evening, debit once and persist next-Morning PendingDelivery; physical fulfillment/restart belongs to R21.
+- Stable producer operation IDs deduplicate receipts and wallet operations; different item/quantity/mode under the same ID conflicts. Validate before mutation, no yield inside commit. Inventory capacity/funds rejection grants nothing.
+- Item market price and Package content_item_key/content_quantity are authored; accounting value remains independent.
+- Quest candidates are registered, unresolved future warehouse packages (including late equipment). Quest deadline is its target visit arrival day or later; completion requires actual Player denial, failure actual delivery, ignored explicitly declined, expired after deadline without completion. All ordinary refusal/complaint/settlement consequences remain. Persistent records store IDs, day and outcomes; live IssuedBy/TargetsPackage use Relationships.
 
 ### Current
-Not started under the lean workflow. Next: verify dependencies in `task_history.md` and current code, then choose the first bounded implementation milestone from the existing work list.
+R19 committed `c11dea8b`; wallet/Inventory/day/Terminal/customer/ledger owners inspected. First backend milestone implemented and reviewed: authored prices/content mapping and upgrade stubs, persistent receipts/PendingDelivery, atomic Wallet+Inventory purchase and paid order contracts, stored request serial and canonical catalog validation. Next: live Trader/external zone, Terminal order UI and identity-based refusal quest.
 
 ### Validation
-Not run for this task under the lean workflow.
+- Backend milestone GUT 7/7 PASS, 66 assertions (`tests/artifacts/r20_backend_gut.log`): exact debit/grant, ID replay/conflicts, insufficient funds/retry, full inventory, catalog, phases, quantity/death rejection, persistent record copy/serial, market/accounting difference and upgrade definitions.
+- Structure validator and diff checks PASS. Headless editor import resolved classes without project script errors; editor settings/plugin errors and external certificate-store error prevent a clean editor claim.
+- Main independently reread backend diff and transaction ordering. Final feature review/runtime walkthrough remain after UI/quest integration.
 
 ### Owner QA / blockers
 No new blocker is recorded. Any unmet dependency discovered during startup moves the task to `BLOCKED` or `DEFERRED` with the exact dependency named.
@@ -36,7 +42,7 @@ No new blocker is recorded. Any unmet dependency discovered during startup moves
 ---
 
 Зависимости: R06, R10, R12, R19
-Ветка/base: зафиксировать при начале реализации.
+Ветка/base: master / `c11dea8b`.
 Источники: [ТЗ 05](../docs/roadmap/05_scanner_terminal_marker.md), [ТЗ 14](../docs/roadmap/14_evening_meta_scaffold.md), [ТЗ 17](../docs/roadmap/17_vertical_slice_scenario.md).
 
 ## Цель

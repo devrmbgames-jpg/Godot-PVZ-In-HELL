@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("Item")
 key = &"med"
+market_price = 60
 display_name = "Аптечка"
 kind = 1
 maximum_stack = 10

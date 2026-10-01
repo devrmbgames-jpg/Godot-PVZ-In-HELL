@@ -22,6 +22,9 @@ enum HazardClass {
 
 ## Accounting value in whole monetary units; independent of trader resale price.
 @export_range(0, 1000000000) var accounting_value: int = 100
+## Market-comparable contents; no physical extraction mechanic in R20.
+@export var content_item_key: StringName = &""
+@export_range(1, 99) var content_quantity: int = 1
 @export var shipment_number: String = ""
 @export_multiline var description: String = ""
 @export_multiline var comment: String = ""

@@ -96,6 +96,8 @@ key = &"clothes"
 
 [sub_resource type="Resource" id="Tools"]
 script = ExtResource("1_45rg7")
+content_item_key = &"bubble_wrap"
+content_quantity = 4
 description = "Набор инструментов"
 recipient_id = &"customer_08"
 mass_kg = 12.0
