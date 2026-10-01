@@ -1,6 +1,6 @@
 # R12 — Диалоги, условия и загадка
 
-Status: **PLANNED**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -21,8 +21,8 @@ Status: **PLANNED**
 - [x] Review material changes and resolve all recorded R-findings.
 - [x] Run final task validation according to the documented GUT/headless budget.
 - [x] Record owner gameplay/visual QA.
-- [ ] Add visible intent prefixes to tagged dialogue answers for testing/debugging.
-- [ ] Validate that displayed prefixes do not alter response tags or gameplay intent.
+- [x] Add visible intent prefixes to tagged dialogue answers for testing/debugging.
+- [x] Validate that displayed prefixes do not alter response tags or gameplay intent.
 
 ### Decisions
 Do not create a parallel planning document. This file remains the authoritative state/router for the feature; source design docs are references, not task state.
@@ -40,14 +40,16 @@ Required mapping:
 Example: an authored answer with tag `lie` and text `Посылки ещё не было` is displayed as `[обман] Посылки ещё не было`. The visible prefix is not part of the gameplay tag and must not be parsed back as authority.
 
 ### Current
-Base R12 implementation was completed on 2026-09-29. The task is reopened only for the dialogue-answer testability extension: tagged responses must visibly show their intent prefix. Existing dialogue/gameplay behavior remains authoritative and should not be rewritten for this change.
+Visible intent prefixes are implemented in CustomerDialoguePanel.format_response_text. Original response text/tags remain unchanged; repeated formatting is idempotent. Next: confirm the six prefixes in local gameplay while completing R12.2.
 
 ### Validation
 - R1 (cyclic `CustomerDialogueService <-> CustomerDialoguePanel` class dependency) = **FIXED** by removing the panel-to-service reference.
 - R2 (false `TAKEN` dialogue branch unreachable because R11 transitioned directly to Aggressive) = **FIXED**: R11 remains authority for the `visit.aggressive` decision, while R12 owns the reaction dialogue and invokes the bounded Aggressive receiver after complaint creation.
 - Focused R12 GUT + `tests/smoke/customer_dialogue_smoke.tscn` = **PASS** in GitHub Actions on the original final R12 code.
 - Owner gameplay QA in `main_level` = **PASS** on 2026-09-29.
-- New visible intent-prefix extension: not yet implemented/validated.
+- 2026-10-02: Godot 4.7.1 / GUT 9.7.1 focused test_customer_dialogue.gd: 12/12 tests, 105 assertions PASS, including all six prefixes, unchanged tags/text and idempotence.
+- Headless customer_dialogue smoke with 1800-frame budget reached lifecycle PASS; strict runner FAIL due to shutdown RID/resource leaks. GUT also reports shutdown resource leaks. Clean shutdown remains unresolved.
+- git diff --check PASS.
 - An unrelated editor resave removed existing GECS system `group` metadata from `main_level.tscn`; merge resolution intentionally keeps the current `master` scene instead of that accidental diff.
 
 ### Owner QA / blockers
@@ -81,7 +83,7 @@ After the intent-prefix extension:
 - [x] Собрать прямой диалог с номером и загадку с выбором/повтором/альтернативной веткой.
 - [x] Действия диалога вызывают существующие gameplay-контракты; поддержать voluntary Customer refusal, delayed Complaint и обнаружение false `TAKEN` с переходом в Aggressive. Challenge/Aggressive подключаются через получателей, а не через циклическую зависимость реализации.
 - [x] Разделить действительную реплику/переход и воспринимаемый текст для последующей Hunger distortion.
-- [ ] Для каждого варианта ответа с intent-тегом показывать перед текстом тестовый префикс: `[честно]`, `[обман]`, `[убедить]`, `[угроза]`, `[флирт]`, `[шутка]` согласно тегам `hon/lie/prs/thr/flr/jok`. Префикс добавляется только на уровне presentation; сами теги и gameplay routing не менять.
+- [x] Для каждого варианта ответа с intent-тегом показывать перед текстом тестовый префикс: `[честно]`, `[обман]`, `[убедить]`, `[угроза]`, `[флирт]`, `[шутка]` согласно тегам `hon/lie/prs/thr/flr/jok`. Префикс добавляется только на уровне presentation; сами теги и gameplay routing не менять.
 
 ## Критерии готовности
 

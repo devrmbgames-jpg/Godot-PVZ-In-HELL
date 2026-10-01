@@ -119,7 +119,7 @@ func _render_line() -> void:
 		if response == null or not response.is_allowed:
 			continue
 		var button: Button = Button.new()
-		button.text = _context.perceived_text(response.text)
+		button.text = format_response_text(_context.perceived_text(response.text), response.tags)
 		button.pressed.connect(_on_response_pressed.bind(response))
 		_responses.add_child(button)
 	if _responses.get_child_count() > 0:
@@ -128,6 +128,27 @@ func _render_line() -> void:
 			first.grab_focus()
 	else:
 		_continue_button.grab_focus()
+
+
+## Presentation only: keep the authored response and its routing tags untouched.
+static func format_response_text(text: String, tags: PackedStringArray) -> String:
+	var prefix: String = ""
+	match CustomerDialogueIntent.from_tags(tags):
+		CustomerDialogueIntent.Type.HONEST:
+			prefix = "[честно]"
+		CustomerDialogueIntent.Type.LIE:
+			prefix = "[обман]"
+		CustomerDialogueIntent.Type.PERSUADE:
+			prefix = "[убедить]"
+		CustomerDialogueIntent.Type.THREAT:
+			prefix = "[угроза]"
+		CustomerDialogueIntent.Type.FLIRT:
+			prefix = "[флирт]"
+		CustomerDialogueIntent.Type.JOKE:
+			prefix = "[шутка]"
+	if prefix.is_empty() or text == prefix or text.begins_with(prefix + " "):
+		return text
+	return prefix + " " + text
 
 
 func _on_response_pressed(response: DialogueResponse) -> void:

@@ -208,6 +208,26 @@ func test_context_invalidates_when_customer_dies_or_visit_finishes() -> void:
 	assert_false(_context.is_valid())
 
 
+func test_response_prefixes_preserve_authored_text_and_routing_tags() -> void:
+	var cases: Dictionary[String, String] = {
+		"hon": "[честно]", "lie": "[обман]", "prs": "[убедить]",
+		"thr": "[угроза]", "flr": "[флирт]", "jok": "[шутка]",
+	}
+	for tag: String in cases:
+		var response: DialogueResponse = DialogueResponse.new()
+		response.text = "Посылки ещё не было"
+		response.tags = PackedStringArray([tag])
+		var intent: CustomerDialogueIntent.Type = CustomerDialogueIntent.from_tags(response.tags)
+		var displayed: String = CustomerDialoguePanel.format_response_text(response.text, response.tags)
+		assert_eq(displayed, cases[tag] + " " + response.text)
+		assert_eq(CustomerDialoguePanel.format_response_text(displayed, response.tags), displayed)
+		assert_eq(response.text, "Посылки ещё не было")
+		assert_eq(response.tags, PackedStringArray([tag]))
+		assert_eq(CustomerDialogueIntent.from_tags(response.tags), intent)
+	assert_eq(CustomerDialoguePanel.format_response_text("Хорошо.", PackedStringArray()), "Хорошо.")
+	assert_eq(CustomerDialoguePanel.format_response_text("Хорошо.", PackedStringArray(["unknown"])), "Хорошо.")
+
+
 func test_dialogue_resource_exposes_direct_and_riddle_branches() -> void:
 	var resource: DialogueResource = load(CustomerDialogueService.DIALOGUE_PATH) as DialogueResource
 	assert_not_null(resource)
