@@ -1,11 +1,14 @@
 # Windows QA builds
 
 Запуск последней готовой сборки: `LATEST.cmd` в этой папке.
+Простая тестовая карта со всеми готовыми механиками: `TEST_LEVEL.cmd`.
+У неё отдельный слот сохранения; основной уровень и тестовая карта используют общий World.
 
 Сборки создаются между завершёнными крупными этапами разработки командой:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File utils/export_windows.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File utils/export_windows.ps1 -TestLevel -Label primitive-test
 ```
 
 Каждая сборка находится в собственной папке `windows/<date-time>-<commit>/`.
@@ -14,6 +17,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File utils/export_windows.ps1
 Сборка предназначена для игрового QA; отладочная консоль доступна.
 
 `LATEST.cmd` обновляется только после успешного экспорта и проверки запуска без графического окна.
+`TEST_LEVEL.cmd` обновляется отдельно по тому же правилу; проверяется также имя реально запущенной сцены.
 Бинарные файлы и журналы не добавляются в Git. Экспорт допускается только из ветки `dev`.
 
 Если нет шаблонов Godot нужной версии, загрузить официальные Windows-шаблоны в локальный кеш:

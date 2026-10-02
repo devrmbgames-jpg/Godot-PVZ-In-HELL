@@ -3,6 +3,8 @@ extends SceneTree
 
 const LEVEL_PATH: String = "res://content/scenes/main_level.tscn"
 const OUTPUT_PATH: String = "res://content/navigation/navmesh_warehouse.tres"
+const TEST_LEVEL_PATH: String = "res://content/scenes/primitive_test_level.tscn"
+const TEST_OUTPUT_PATH: String = "res://content/navigation/navmesh_primitive_test.tres"
 const CELL_SIZE: float = 0.15
 const CELL_HEIGHT: float = 0.1
 ## Match the authored NPC capsule/NavigationAgent; exact voxel multiple avoids 0.45m rounding.
@@ -17,7 +19,10 @@ func _init() -> void:
 
 
 func _bake() -> void:
-	var scene: PackedScene = load(LEVEL_PATH) as PackedScene
+	var primitive: bool = OS.get_cmdline_user_args().has("--primitive")
+	var level_path: String = TEST_LEVEL_PATH if primitive else LEVEL_PATH
+	var output_path: String = TEST_OUTPUT_PATH if primitive else OUTPUT_PATH
+	var scene: PackedScene = load(level_path) as PackedScene
 	var level: Node = scene.instantiate()
 	level.set("autosave_path", "")
 	root.add_child(level)
@@ -34,10 +39,10 @@ func _bake() -> void:
 	NavigationServer3D.parse_source_geometry_data(mesh, source, level.get_node("PVZ"))
 	NavigationServer3D.bake_from_source_geometry_data(mesh, source)
 	assert(mesh.get_polygon_count() > 0)
-	DirAccess.make_dir_recursive_absolute(OUTPUT_PATH.get_base_dir())
-	var error: Error = ResourceSaver.save(mesh, OUTPUT_PATH)
+	DirAccess.make_dir_recursive_absolute(output_path.get_base_dir())
+	var error: Error = ResourceSaver.save(mesh, output_path)
 	assert(error == OK)
-	print("Warehouse navigation bake PASS: polygons=", mesh.get_polygon_count())
+	print("Navigation bake PASS: ", level_path, " polygons=", mesh.get_polygon_count())
 	level.free()
 	var ecs: Node = root.get_node("ECS")
 	ecs.set("world", null)

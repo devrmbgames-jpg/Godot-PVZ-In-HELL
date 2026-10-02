@@ -21,7 +21,7 @@ This file is the queue/index. It does not replace individual task state.
 | **IN_PROGRESS** | [R23 Vertical Slice Validation](roadmap_23_vertical_slice_validation.md) — resumed on dev; QA-01/02 repair batch and Windows QA export implemented |
 | **PLANNED** | [Developer Console Testing](developer_console_testing.md) — **LOW priority**, additional task: expanded gameplay commands, `help` and open-console scrolling; base Stages 1–9 complete |
 | **DONE** | [Организация игрового QA](player_qa_tasks_organization.md) — очередь и девять сценариев в `qa_tasks/`, исходные задачи ссылаются на проверки игроков |
-| **PLANNED** | [Тестовая сцена и общий World](primitive_test_scene_shared_world.md) — примитивы, все механики, интервалы около 2 м, большой пол и одна подсцена World для тестового уровня/main_level |
+| **OWNER_QA** | [Тестовая сцена и общий World](primitive_test_scene_shared_world.md) — извлечение общей конфигурации и построение простого уровня |
 
 Supporting artifacts are linked from their owner tasks and are not separate queue entries.
 

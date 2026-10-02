@@ -443,6 +443,14 @@ def _check_main_level_system_groups(errors: list[str]) -> None:
         return
 
     text: str = _read_text(scene_path)
+    world_instance = re.search(r'^\[node name="World"[^\n]*instance=ExtResource\("([^"]+)"\)', text, re.MULTILINE)
+    if world_instance:
+        declaration = re.search(r'^\[ext_resource type="PackedScene"[^\n]*path="res://([^"]+)"[^\n]*\bid="' + re.escape(world_instance.group(1)) + r'"\]', text, re.MULTILINE)
+        if declaration is None:
+            errors.append("main_level: shared World instance has no PackedScene declaration.")
+            return
+        scene_path = ROOT / declaration.group(1)
+        text = _read_text(scene_path)
     lines: list[str] = text.splitlines()
     group_scripts: set[str] = set(re.findall(
         r'^\[ext_resource type="Script"[^\n]*path="res://addons/gecs/lib/system_group.gd"[^\n]*id="([^"]+)"',
@@ -458,14 +466,15 @@ def _check_main_level_system_groups(errors: list[str]) -> None:
             automatic_groups.add(f'{parent.group(1)}/{name.group(1)}')
     for index, line in enumerate(lines):
         match = re.match(
-            r'^\[node name="(S_[^"]+)" type="Node" parent="World/Systems/([^"]+)"[^]]*\]$',
+            r'^\[node name="(S_[^"]+)" type="Node" parent="((?:World/)?Systems/([^"]+))"[^]]*\]$',
             line,
         )
         if match is None:
             continue
 
         system_name: str = match.group(1)
-        expected_group: str = match.group(2)
+        system_parent: str = match.group(2)
+        expected_group: str = match.group(3)
         actual_group: str | None = None
 
         for body_line in lines[index + 1 :]:
@@ -477,11 +486,11 @@ def _check_main_level_system_groups(errors: list[str]) -> None:
                 break
 
         # GECS SystemGroup._enter_tree assigns omitted groups before World registration.
-        if actual_group is None and f"World/Systems/{expected_group}" in automatic_groups:
+        if actual_group is None and system_parent in automatic_groups:
             continue
         if actual_group != expected_group:
             errors.append(
-                f"content/scenes/main_level.tscn: {system_name} must keep "
+                f"{scene_path.relative_to(ROOT)}: {system_name} must keep "
                 f'group=&"{expected_group}" (found {actual_group!r}).'
             )
 

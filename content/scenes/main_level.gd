@@ -14,6 +14,8 @@ func _ready() -> void:
 		save.path = autosave_path
 		if not autosave_path.is_empty():
 			NightSaveService.restore_startup(self, save)
+	if OS.has_feature("qa_build"):
+		print("QA level: ", scene_file_path, "; save slot=", autosave_path)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
