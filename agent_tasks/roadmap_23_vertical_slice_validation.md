@@ -112,3 +112,7 @@ R22.5 dependency gate complete: 151/151 GUT (921 assertions), strict hazards/int
 ### Latest automated evidence / owner handoff
 
 Major M2 full suite426/426,3375; no broad repeat for subsequent small edits. Focused inspection/customer prototype/console cases and actual-main native inspection/trader placement/developer-console smoke PASS; separate substantial reviews resolved findings. Latest console:22 existing regressions PASS,6 new parser tests52 assertions, R7 changed regression1/1,14, actual-main developer_console smoke PASS. Final Windows export follows logical commit. M2/M3 full ordinary-input day and alternative-outcome routes remain player QA; dependency/headless evidence is not a claim that these walkthroughs passed.
+
+### Published owner QA build
+
+Windows9d06320c main/test exported; both actual-scene120-frame headless startup PASS. Launch `.export/LATEST.cmd` / `.export/TEST_LEVEL.cmd`. Main: `.export/windows/20261002-234243Z-9d06320c-gameplay-console-main/PVZInHell.exe`; test: `.export/windows/20261002-234409Z-9d06320c-gameplay-console-test/PVZInHell.exe`. Next: owner full-day main scene walkthrough and targeted QA checklists. No full rendered/gameplay/audio acceptance claimed. Master unchanged, user main/project/addons edits preserved.

@@ -9,3 +9,5 @@
 - 2026-10-03 — M4 Windows57533cb1 main/test: actual-scene120-frame startup PASS, .export/LATEST.cmd и TEST_LEVEL.cmd обновлены. LOW console help/scroll: проектный adapter, видимый курсор, колесо/скроллбар, help command/group из реестра; addon не изменён. Focused2/2,14. Остальное расширение консоли продолжается.
 
 - 2026-10-03 — LOW console Stages10–15:28 новых команд по текущим игровым API, live visit option, справка/примеры/группы, diagnostics hazards/valves. Только именованные debug_slots в Morning; R7/P2 сохранение во время push/cart FIXED и подтверждено review.22 старые regressions PASS,6 новые parser tests52 + R7 alone1/1,14; actual-main developer_console smoke PASS. Полный GUT не повторялся. R23/R24/console переведены OWNER_QA: полносуточный игровой срез вручную проверяет владелец.
+
+- 2026-10-03 — Final Windows9d06320c main/test exported, both actual-scene120-frame startup PASS. Launch .export/LATEST.cmd / TEST_LEVEL.cmd. Все новые R24 механики и console28/help/scroll включены. Ручной полный проход main_level передан владельцу по его запросу; статус OWNER_QA, успешная игровая приёмка не заявлена.

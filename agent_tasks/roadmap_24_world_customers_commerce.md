@@ -181,3 +181,7 @@ Focused GUT2/2,17 assertions (`.export/customer-prototype-gut.log`): profile ove
 ### Final implementation checkpoint
 
 M0–M6 complete; LOW console stages10–15 also implemented and reviewed (R7 FIXED). M4 Windows57533cb1 main/test both actual-scene120-frame startup PASS. Final updated Windows builds follow the console commit. Owner takes full main-level day walkthrough; no agent rendered/audio/full-slice acceptance performed. Detailed player scenarios remain in qa_tasks/.
+
+### Published owner QA build
+
+Windows9d06320c main/test exported; both actual-scene120-frame headless startup PASS. Launch `.export/LATEST.cmd` / `.export/TEST_LEVEL.cmd`. Main: `.export/windows/20261002-234243Z-9d06320c-gameplay-console-main/PVZInHell.exe`; test: `.export/windows/20261002-234409Z-9d06320c-gameplay-console-test/PVZInHell.exe`. Next: owner full-day main scene walkthrough and targeted QA checklists. No full rendered/gameplay/audio acceptance claimed. Master unchanged, user main/project/addons edits preserved.
