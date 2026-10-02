@@ -235,3 +235,120 @@ func test_restore_swapped_slots_clears_all_old_occupancy_before_attaching() -> v
 		assert_true((binding.relation as R_StoredIn).applied)
 		assert_false((boxes[index] as Node as RigidBody3D).is_physics_processing())
 		assert_eq(slots[index].driver.get_node(slots[index].driver.remote_path), boxes[index])
+
+
+func test_duplicate_owners_wrong_role_or_capacity_fail_before_any_mutation() -> void:
+	for invalid: String in ["owners", "role", "capacity", "ids", "paths"]:
+		var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+		var records: Array = snapshot.entities as Array
+		for record: Dictionary in records:
+			if String(record.key) == WorldSnapshotService.key_for(_item, _root):
+				if invalid == "owners":
+					(record.links as Array).append((record.links[0] as Dictionary).duplicate())
+				elif invalid == "role":
+					(record.links as Array)[0].target = WorldSnapshotService.key_for(_session, _root)
+			if invalid == "capacity" and String(record.key) == WorldSnapshotService.key_for(_actor, _root):
+				for component: Dictionary in record.components:
+					if SaveDataCodec.component_script(String(component.type)) == C_Inventory:
+						(component.fields as Dictionary).maximum_stacks = 0
+		if invalid == "ids":
+			(records[1] as Dictionary).entity_id = (records[0] as Dictionary).entity_id
+		if invalid == "paths":
+			(records[1] as Dictionary).authored_path = (records[0] as Dictionary).authored_path
+		assert_false(WorldSnapshotService.restore(snapshot, _root), invalid)
+		assert_eq(DayPhaseService.current().day_index, 1)
+		assert_eq(InventoryService.owner_for(_item), _actor)
+
+
+func test_authored_ids_restore_as_a_group_and_reindex_world_lookup() -> void:
+	var session_id: String = _session.id
+	var actor_id: String = _actor.id
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	_world.entity_id_registry.erase(session_id)
+	_world.entity_id_registry.erase(actor_id)
+	_session.id = actor_id
+	_actor.id = session_id
+	_world.entity_id_registry[_actor.id] = _actor
+	_world.entity_id_registry[_session.id] = _session
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(_session.id, session_id)
+	assert_eq(_actor.id, actor_id)
+	assert_eq(_world.get_entity_by_id(session_id), _session)
+	assert_eq(_world.get_entity_by_id(actor_id), _actor)
+
+
+func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -> void:
+	var slot: E_PhysicalSlot = (load("res://content/entities/props/physical_slot.tscn") as PackedScene).instantiate() as E_PhysicalSlot
+	slot.name = "ValidationSlot"
+	_root.add_child(slot)
+	slot.owner = _root
+	_world.add_entity(slot, null, false)
+	for index: int in 2:
+		var box: Entity = (load("res://content/entities/props/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
+		box.name = "ValidationBox%d" % index
+		_root.add_child(box)
+		box.owner = _root
+		_world.add_entity(box, null, false)
+		box.add_relationship(Relationship.new(R_StoredIn.new(), slot))
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_false(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(DayPhaseService.current().day_index, 1)
+	# Keep one occupant but target an Entity that is not a physical slot.
+	var first: bool = true
+	for record: Dictionary in snapshot.entities:
+		if not (record.links as Array).is_empty() and String(record.links[0].kind) == WorldSnapshotService.STORED:
+			if first:
+				(record.links as Array)[0].target = WorldSnapshotService.key_for(_actor, _root)
+				first = false
+			else:
+				(record.links as Array).clear()
+	assert_false(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(DayPhaseService.current().day_index, 1)
+
+
+func test_authored_path_alias_or_outside_root_is_rejected_before_registry_changes() -> void:
+	var id: String = _actor.id
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	var records: Array = snapshot.entities as Array
+	for record: Dictionary in records:
+		if String(record.key) == WorldSnapshotService.key_for(_actor, _root):
+			var alias: Dictionary = record.duplicate(true)
+			alias.key = "scene/AliasActor"
+			alias.entity_id = "alias_actor"
+			alias.authored_path = "./Actor"
+			records.append(alias)
+			break
+	assert_false(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(_world.get_entity_by_id(id), _actor)
+	assert_null(_world.get_entity_by_id("alias_actor"))
+	assert_eq(DayPhaseService.current().day_index, 1)
+	var outside: Entity = Entity.new()
+	outside.name = "Outside"
+	add_child(outside)
+	snapshot = WorldSnapshotService.capture(_root, 2)
+	for record: Dictionary in snapshot.entities:
+		if String(record.key) == WorldSnapshotService.key_for(_actor, _root):
+			record.authored_path = "../Outside"
+	assert_false(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(InventoryService.owner_for(_item), _actor)
+	outside.free()
+
+
+func test_omitted_package_identity_is_rejected_before_instantiation_commit() -> void:
+	var package: E_Package = (load("res://content/entities/packages/package.tscn") as PackedScene).instantiate() as E_Package
+	package.package_id = "test/required_identity"
+	package.package_definition = (load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery).packages[0]
+	_world.add_entity(package)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	_world.remove_entity(package)
+	for record: Dictionary in snapshot.entities:
+		if String(record.key) == "package/test/required_identity":
+			var components: Array = record.components as Array
+			for index: int in range(components.size() - 1, -1, -1):
+				if SaveDataCodec.component_script(String(components[index].type)) == C_Package:
+					components.remove_at(index)
+	var count: int = _world.entities.size()
+	assert_false(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(_world.entities.size(), count)
+	assert_eq(DayPhaseService.current().day_index, 1)
+	assert_eq(InventoryService.owner_for(_item), _actor)

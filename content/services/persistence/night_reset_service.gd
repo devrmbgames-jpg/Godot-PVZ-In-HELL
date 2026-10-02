@@ -19,6 +19,7 @@ static func reset() -> void:
 			continue
 		ChallengeService.cancel(entity)
 		ProlongedInteractionService.cancel(entity)
+		PersistentInteractionState.reset_incomplete(entity)
 		CombatService.end_combat(entity)
 		if entity.has_component(C_CartTransport):
 			CartTransportService.end(entity)
@@ -45,3 +46,4 @@ static func reset() -> void:
 		if body != null:
 			body.linear_velocity = Vector3.ZERO
 			body.angular_velocity = Vector3.ZERO
+	PersistentHazardState.reset_missing_owners()

@@ -48,6 +48,10 @@ static func capture(root: Node, morning_day: int) -> Dictionary:
 		var record: Dictionary = {"key": key_for(entity, root), "entity_id": entity.id, "scene": entity.scene_file_path, "authored_path": String(root.get_path_to(entity)) if entity.owner != null and root.is_ancestor_of(entity) else "", "enabled": entity.enabled, "components": components, "links": links, "death": entity.has_component(C_Death)}
 		if node != null:
 			record.pose = node.global_transform
+		record.completed_actions = PersistentInteractionState.completed(entity)
+		var hazard_refs: Dictionary = PersistentHazardState.capture(entity, root)
+		if not hazard_refs.is_empty():
+			record.hazard_refs = hazard_refs
 		var marks: C_PackageMarks = entity.get_component(C_PackageMarks) as C_PackageMarks
 		if marks != null:
 			var strokes: Array[Dictionary] = []
@@ -67,6 +71,11 @@ static func valid(data: Dictionary, root: Node) -> bool:
 	if data.get("version") != AutosaveStore.SCHEMA_VERSION or not data.get("morning_day") is int or int(data.morning_day) < 1 or not data.get("entities") is Array:
 		return false
 	var keys: Dictionary = {}
+	var ids: Dictionary[String, bool] = {}
+	var paths: Dictionary[String, bool] = {}
+	var authored_entities: Array[Entity] = []
+	var records: Dictionary[String, Dictionary] = {}
+	var all_components: Dictionary[String, Dictionary] = {}
 	var session_count: int = 0
 	for value: Variant in data.entities:
 		if not value is Dictionary:
@@ -77,10 +86,21 @@ static func valid(data: Dictionary, root: Node) -> bool:
 		if not record.get("key") is String or not record.get("entity_id") is String or String(record.entity_id).is_empty() or String(record.key).is_empty() or keys.has(record.key) or not record.get("components") is Array or not record.get("links") is Array or not record.get("enabled") is bool or not record.get("death") is bool:
 			return false
 		keys[record.key] = true
+		if ids.has(String(record.entity_id)):
+			return false
+		ids[String(record.entity_id)] = true
+		records[String(record.key)] = record
 		var authored: String = String(record.get("authored_path", ""))
 		var scene: String = String(record.get("scene", ""))
-		if not authored.is_empty() and not root.get_node_or_null(NodePath(authored)) is Entity:
-			return false
+		if not authored.is_empty():
+			if paths.has(authored):
+				return false
+			paths[authored] = true
+		if not authored.is_empty():
+			var target: Entity = root.get_node_or_null(NodePath(authored)) as Entity
+			if target == null or not root.is_ancestor_of(target) or target in authored_entities:
+				return false
+			authored_entities.append(target)
 		if authored.is_empty() and not scene.is_empty() and (not scene.begins_with("res://content/entities/") or not ResourceLoader.exists(scene, "PackedScene")):
 			return false
 		if record.has("pose") and (not record.pose is Transform3D or not (record.pose as Transform3D).is_finite()):
@@ -93,12 +113,12 @@ static func valid(data: Dictionary, root: Node) -> bool:
 			var script: Script = SaveDataCodec.component_script(String(component.get("type", "")))
 			if script == null or types.has(script) or not component.get("fields") is Dictionary:
 				return false
-			types[script] = true
 			var probe: Component = script.new() as Component
 			if not SaveDataCodec.complete_component_data(script, component.fields as Dictionary):
 				return false
 			if not SaveDataCodec.apply_fields(probe, component.fields as Dictionary):
 				return false
+			types[script] = probe
 			if probe is C_DayCycle:
 				session_count += 1
 				if (probe as C_DayCycle).day_index != int(data.morning_day) or (probe as C_DayCycle).phase != C_DayCycle.Phase.MORNING:
@@ -111,8 +131,11 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				var package: C_Package = probe as C_Package
 				if package.definition == null or package.package_id.is_empty() or String(record.key) != "package/" + package.package_id:
 					return false
-			if probe is C_Health and (not is_finite((probe as C_Health).current) or (probe as C_Health).current < 0.0 or (probe as C_Health).current > (probe as C_Health).value):
+			if probe is C_Health and (not is_finite((probe as C_Health).value) or (probe as C_Health).value <= 0.0 or not is_finite((probe as C_Health).current) or (probe as C_Health).current < 0.0 or (probe as C_Health).current > (probe as C_Health).value):
 				return false
+			if probe is C_Hunger and (not is_finite((probe as C_Hunger).value) or (probe as C_Hunger).value < 0.0):
+				return false
+		all_components[String(record.key)] = types
 		if record.has("ink"):
 			if not record.ink is Array:
 				return false
@@ -122,12 +145,14 @@ static func valid(data: Dictionary, root: Node) -> bool:
 		if record.has("anchor") and (not record.anchor is Dictionary or not (record.anchor as Dictionary).get("freeze") is bool or not (record.anchor as Dictionary).get("freeze_mode") is int or not (record.anchor as Dictionary).get("can_sleep") is bool):
 			return false
 	for record: Dictionary in data.entities:
+		if record.has("hazard_refs") and (not record.hazard_refs is Dictionary or not all_components[String(record.key)].has(C_Hazard) or not PersistentHazardState.valid(record.hazard_refs as Dictionary, records)):
+			return false
 		for link: Variant in record.links:
 			if not link is Dictionary or link.get("kind") not in [OWNED, STORED, CARGO] or not keys.has(link.get("target")):
 				return false
 			if link.kind == CARGO and not link.get("local_pose") is Transform3D:
 				return false
-	return session_count == 1
+	return session_count == 1 and SnapshotGraphRules.valid(records, all_components)
 
 
 static func restore(data: Dictionary, root: Node) -> bool:
@@ -154,12 +179,29 @@ static func restore(data: Dictionary, root: Node) -> bool:
 					candidate.free()
 				return false
 			fresh.append(entity)
+		if entity in entities.values():
+			for candidate: Entity in fresh:
+				candidate.free()
+			return false
 		entities[String(record.key)] = entity
+	if not SnapshotGraphRules.valid_entities(data.entities as Array, entities) or not _valid_ids(data.entities as Array, entities):
+		for candidate: Entity in fresh:
+			candidate.free()
+		return false
 	for existing: Entity in ECS.world.entities.duplicate():
 		if not is_instance_valid(existing) or not _persistent(existing):
 			continue
-		if existing not in entities.values() and not entities.has(key_for(existing, root)):
+		if existing not in entities.values() and not entities.has(key_for(existing, root)) and (existing.owner == null or (existing as Node) is RigidBody3D):
 			ECS.world.remove_entity(existing)
+	# Entity.id is authority; reindex GECS's derived registry once at this boundary.
+	for entity: Entity in entities.values():
+		if entity not in fresh:
+			ECS.world.entity_id_registry.erase(entity.id)
+	for record: Dictionary in data.entities:
+		var entity: Entity = entities[String(record.key)]
+		entity.id = String(record.entity_id)
+		if entity not in fresh:
+			ECS.world.entity_id_registry[entity.id] = entity
 	# Clear every old binding before any physical pose or saved binding is restored.
 	for entity: Entity in entities.values():
 		if entity not in fresh and not entity.enabled:
@@ -180,6 +222,13 @@ static func restore(data: Dictionary, root: Node) -> bool:
 				CartCargoService.cargo_removed(entity, existing)
 		if item_state != null:
 			item_state.transfer_in_progress = false
+		var old_anchor: C_PlayerAnchored = entity.get_component(C_PlayerAnchored) as C_PlayerAnchored
+		var old_body: RigidBody3D = entity as Node as RigidBody3D
+		if old_anchor != null and old_anchor.snapshot != null and old_body != null:
+			old_body.freeze = old_anchor.snapshot.freeze
+			old_body.freeze_mode = old_anchor.snapshot.freeze_mode
+			old_body.can_sleep = old_anchor.snapshot.can_sleep
+			entity.remove_component(old_anchor)
 	for record: Dictionary in data.entities:
 		var entity: Entity = entities[String(record.key)]
 		if entity in fresh:
@@ -199,6 +248,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			SaveDataCodec.apply_fields(target, component.fields as Dictionary)
 			if target is C_Package:
 				(target as C_Package).condition_initialized = true
+		PersistentInteractionState.restore(record.get("completed_actions", []) as Array, entity)
 		var node: Node3D = entity as Node as Node3D
 		if node != null and record.has("pose"):
 			node.global_transform = record.pose as Transform3D
@@ -210,6 +260,8 @@ static func restore(data: Dictionary, root: Node) -> bool:
 				body.mass = (entity.get_component(C_Package) as C_Package).definition.mass_kg
 		if record.death and not entity.has_component(C_Death):
 			entity.add_component(C_Death.new())
+		elif not record.death and entity.has_component(C_Death):
+			entity.remove_component(C_Death)
 		if record.has("ink"):
 			var marks: C_PackageMarks = entity.get_component(C_PackageMarks) as C_PackageMarks
 			if marks == null:
@@ -258,9 +310,23 @@ static func restore(data: Dictionary, root: Node) -> bool:
 					var binding: Relationship = Relationship.new(cargo, target)
 					entity.add_relationship(binding)
 					CartCargoService.cargo_added(entity, binding)
+	for record: Dictionary in data.entities:
+		var entity: Entity = entities[String(record.key)]
+		if entity.has_component(C_Hazard):
+			PersistentHazardState.restore(record.get("hazard_refs", {}) as Dictionary, entity, entities)
+	# Setup observers require live enabled prefabs. Apply saved disabled state last.
+	for record: Dictionary in data.entities:
 		if not bool(record.enabled):
-			ECS.world.disable_entity(entity)
+			ECS.world.disable_entity(entities[String(record.key)])
 	RefusalQuestService.restore_bindings()
+	return true
+
+
+static func _valid_ids(records: Array, entities: Dictionary[String, Entity]) -> bool:
+	for record: Dictionary in records:
+		var existing: Entity = ECS.world.entity_id_registry.get(String(record.entity_id)) as Entity
+		if is_instance_valid(existing) and existing not in entities.values() and (not _persistent(existing) or (existing.owner != null and not (existing as Node) is RigidBody3D)):
+			return false
 	return true
 
 
@@ -269,4 +335,4 @@ static func _persistent(entity: Entity) -> bool:
 		return false
 	if entity.has_component(C_HazardLifetime):
 		return (entity.get_component(C_HazardLifetime) as C_HazardLifetime).persistent
-	return (entity as Node) is RigidBody3D or entity is E_PhysicalSlot or entity.components.values().any(func(value: Variant) -> bool: return value is Component and not SaveDataCodec.component_data(value as Component).is_empty())
+	return (entity as Node) is RigidBody3D or entity is E_PhysicalSlot or not PersistentInteractionState.completed(entity).is_empty() or entity.components.values().any(func(value: Variant) -> bool: return value is Component and not SaveDataCodec.component_data(value as Component).is_empty())

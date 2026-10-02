@@ -8,3 +8,5 @@ const EVENT: StringName = &"hazard_spawned"
 var hazard: Entity = null
 var request_id: String = ""
 var origin_id: String = ""
+## Restore rebuilds native geometry while preserving already-resolved gameplay state.
+var restored: bool = false

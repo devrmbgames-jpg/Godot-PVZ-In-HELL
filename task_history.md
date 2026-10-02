@@ -1,5 +1,7 @@
 # История выполненных задач
 
+- 2026-10-02 — R21 implementation (OWNER_QA): atomic next-Morning autosave/retry/startup, stable identity/ownership/slots/anchor/ink/quest restore, physical exactly-once paid delivery, Morning refusal return retaining penalties, permanent NEVER effects and transient reset, persistent hazard clocks/geometry/follow/attribution. Separate review R1–R10 FIXED; final GUT 72/72 (530 assertions), strict twelve-Night main scenario, headless shutdown and structure/diff PASS. Owner rendered/gamepad/full-day/layout/balance QA remains. Contract: `docs/persistence.md`.
+
 - 2026-10-02 — R20 implementation (OWNER_QA): physical NavigationAgent Trader/exterior, atomic evening purchases, paid Terminal orders, identity-bound refusal quest retaining ordinary penalties, debug deadlines/delivery conditions. Separate review found no material issues; GUT 73/73 (662 assertions), strict main evening walkthrough and structure/diff PASS. Physical fulfillment/restart belongs to R21; owner walking/UI/balance QA remains.
 
 - 2026-10-02 — R19 implementation (OWNER_QA): sole OwnedBy inventory ownership, bounded stack/transfer, quantity-driven world pickups, success-only Food/Med/Wrap effects, Tab modal UI and debug tasks/conditions. Separate review R4 fixed; GUT 35/35 (377 assertions), strict main pickup/UI/cleanup smoke and structure/diff checks PASS. Contract: `docs/inventory.md`; owner rendered/gamepad/balance QA remains.

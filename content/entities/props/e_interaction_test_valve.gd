@@ -19,7 +19,6 @@ signal activated(active: bool)
 		if is_node_ready():
 			_refresh_label()
 
-var _active: bool = false
 @onready var _label: Label3D = $Label3D
 
 
@@ -27,13 +26,19 @@ func _ready() -> void:
 	_refresh_label()
 
 
+func define_components() -> Array[Component]:
+	return [C_InteractionToggle.new()]
+
+
 func activate() -> void:
-	_active = not _active
-	activated.emit(_active)
+	var state: C_InteractionToggle = get_component(C_InteractionToggle) as C_InteractionToggle
+	state.active = not state.active
+	activated.emit(state.active)
 
 
 func is_active() -> bool:
-	return _active
+	var state: C_InteractionToggle = get_component(C_InteractionToggle) as C_InteractionToggle
+	return state != null and state.active
 
 
 func _refresh_label() -> void:

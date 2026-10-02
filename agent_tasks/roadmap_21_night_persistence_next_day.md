@@ -1,6 +1,6 @@
 # R21 — Сон, autosave и следующее утро
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -18,10 +18,10 @@ Status: **IN_PROGRESS**
 - [x] Reconfirm dependency completion and current production owners/contracts.
 - [x] Foundation: Night/store/codec/world restore/physical orders (`baaa8478`).
 - [x] Physical Morning refusal return and two-Night consumed-order persistence scenario.
-- [ ] Complete relationship validation/permanent completion/reset regressions and the remaining work checklist.
-- [ ] Independently review material changes and resolve all R-findings.
-- [ ] Run final task validation according to the documented GUT/headless budget.
-- [ ] Record remaining owner gameplay/visual QA.
+- [x] Complete relationship validation/permanent completion/reset regressions and the remaining work checklist.
+- [x] Independently review material changes and resolve all R-findings.
+- [x] Run final task validation according to the documented GUT/headless budget.
+- [x] Record remaining owner gameplay/visual QA.
 
 ### Decisions
 This file remains authoritative.
@@ -31,15 +31,18 @@ This file remains authoritative.
 - Physical paid orders carry order/<operation ID>; fulfilled records survive pickup/consumption. Blocked receiving retries without charging again.
 
 ### Current
-Foundation milestone committed `baaa8478`: atomic checksummed primitive autosave, closed typed codec, persistent world snapshot, stable runtime/Package IDs, ownership/slot/cart/anchor/ink restore, quest binding reconstruction, Night save gate/retry and startup restore before simulation. Morning physical order receiving is scene-wired, collision-tested and deduplicated by operation ID. Night transient capture/combat/customer/projectile/nonpersistent hazard reset included. Physical Morning refusal return now implemented: actual prior-day refusal + active identity/number + held parcel + reachable F return point; commit releases the number and removes the parcel while preserving settlement/complaint/actual/declaration records. R21 remains IN_PROGRESS: next strengthen relationship-role/capacity validation, permanent interaction completion, and reset/fixed-object/hazard regressions before final feature review.
+Agent implementation complete. Foundation `baaa8478`, physical Morning return `daf17670`, final hardening in the current milestone. Preflight checks stable IDs, resolved authored paths, ownership roles/capacity, physical slot/cart types and required prefab/profile data before mutation. Reindex the derived World ID registry once on restore. Preserve NEVER completion and valve effect without executing again; reset incomplete progress. Restore persistent hazard clocks, native geometry, live attribution/follow by stable keys and source veto, preserving resolved explosion guards. Apply saved disabled state after geometry setup. All review R1–R10 FIXED. Next roadmap task: R22 HUD/world feedback. Owner rendered full-day scenario, gamepad, physical layout and multi-day balance QA remain.
 
 ### Validation
+- Final GUT 72/72 PASS, 530 assertions (`tests/artifacts/r21_final_gut.log`): save/codec/world/permanent runtime/return/customer/commerce/anchoring surfaces, including malformed path/role/capacity/required-profile no-mutation regressions.
+- Strict `night_persistence-20261002-091151100.log` PASS: twelve Nights through Morning 13 and level recreation; preserved registered late target/number/condition/ink, consumed order never respawns, physical refusal return keeps penalties, permanent NEVER effect survives, real Carry slowdown/rotation capture reset. Fixture skips customer Day playthrough and supplies actual refusal through OutcomeService; no full customer/scenario or rendered claim.
+- Main headless startup/shutdown 120 frames: no project runtime error/resource leak; external Windows certificate-store error only. Structure/diff checks PASS. Separate read-only review R7–R10 FIXED/rechecked, no tests run by reviewer.
 - Return milestone GUT 53/53 PASS, 402 assertions (`tests/artifacts/r21_return_gut.log`): return eligibility, identity/number, future target/false declaration/unheld rejection plus save/world/customer/commerce regressions.
 - Strict `night_persistence-20261002-083948714.log` PASS: two Sleeps/recreated levels, consumed paid order never respawns, actual ray/automatic authored grab profile/F return point, retained refusal penalty and lifecycle/number release, returned parcel remains gone, late quest target remains physical. Fixture supplies the prior refusal fact through CustomerOutcomeService; no full customer dialogue/day playthrough claim.
 - Foundation GUT 15/15 PASS, 114 assertions (`tests/artifacts/r21_foundation_gut.log`): codec/records/canonical definitions, atomic overwrite/checksum corruption, negative debt, write failure/retry without day increment, repeated owned-item restore, unknown/missing fields/targets, null Package definition, real swapped physical slots and disabled Entity lifecycle.
 - Strict `night_persistence-20261002-082146990.log` PASS after review fixes: main Sleep -> autosave -> level recreation -> Morning, one physical paid order, inventory ownership, late quest target and reusable number, HP/opening/damage/ink and stale Sleep rejection. Isolated test slot removed afterwards; no rendered/visual claim.
 - Structure validator and diff checks PASS. Headless editor imports resolved classes; external certificate/editor settings/plugin errors prevent a clean editor claim.
-- Separate read-only review R2–R6 integrated; reviewer rechecked R4–R6 as FIXED and ran no tests. Final broad R21 regression/review still pending.
+- Separate read-only review R2–R6 integrated; reviewer rechecked R4–R6 as FIXED and ran no tests. Final hardening regression/review completed above.
 
 ### Owner QA / blockers
 Owner rendered sleep/receiving/return route, gamepad UI and multi-day pacing remain. No implementation blocker.
@@ -52,6 +55,10 @@ Owner rendered sleep/receiving/return route, gamepad UI and multi-day pacing rem
 | R4 | BUG | Restore retained obsolete ownership/slot bindings; per-item replacement failed swapped slots. | FIXED | Clear all old links before all saved state/bindings; transfer guard; owner swap and real slot swap regressions PASS; reviewer rechecked. |
 | R5 | BUG | Null Package definition could fail after world mutation. | FIXED | Definition and matching nonempty Package ID validated before commit; regression PASS; reviewer rechecked. |
 | R6 | BUG | Entity enabled flag bypassed World lifecycle and processing changes. | FIXED | World enable/disable APIs, preserving stored-item processing; callbacks/flags GUT PASS; reviewer rechecked. |
+| R7 | BUG | Alternate authored paths could map two records to one Entity or outside the level. | FIXED | Resolve/deduplicate actual instances and require root descendants before mutation; registry/path regressions PASS; reviewer rechecked. |
+| R8 | BUG | Omitted required Package/Hazard component could fail after commit began. | FIXED | Required prefab component preflight; omitted-component no-mutation regressions PASS; reviewer rechecked. |
+| R9 | BUG | Disabled hazards skipped native geometry setup. | FIXED | Rehydrate while enabled, then World.disable; recreate/enable shape-mask regression PASS; reviewer rechecked. |
+| R10 | BUG | Null/incompatible hazard profile could retire a restored entity after mutation. | FIXED | Shared setup/load profile validator and concrete prefab compatibility; malformed-profile no-mutation regressions PASS; reviewer rechecked. |
 
 
 ---

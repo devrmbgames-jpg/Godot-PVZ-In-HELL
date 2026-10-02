@@ -77,6 +77,28 @@ func _run() -> void:
 	var expected_balance: int = wallet.balance
 	var item: Entity = level.get_node("Entityes/MedPickup") as Entity
 	assert(InventoryService.transfer(item, actor))
+	var valve: E_InteractionTestValve = level.get_node("Entityes/Valve_F_Never") as E_InteractionTestValve
+	var completed: ProlongedInteractionProgress = ProlongedInteractionProgress.new()
+	completed.action_id = &"test_valve_never"
+	for action: DEF_InteractionAction in (valve.get_component(C_InteractionActionSet) as C_InteractionActionSet).actions:
+		if action.action_id == completed.action_id:
+			completed.timing = action.timing
+	var progress_state: C_ProlongedInteraction = C_ProlongedInteraction.new()
+	progress_state.actions.append(completed)
+	valve.add_component(progress_state)
+	assert(ProlongedProgressService.advance(completed, completed.timing, 2.0, true))
+	valve.activate()
+	assert(ProlongedProgressService.commit_success(completed, completed.timing))
+	var carry_box: Entity = level.get_node("Entityes/AnchorableTestBox") as Entity
+	(carry_box as Node as RigidBody3D).global_position = Vector3(17.5, 1.4, 1.5)
+	var strength: C_Strength = actor.get_component(C_Strength) as C_Strength
+	(carry_box as Node as RigidBody3D).mass = (CarryLoadPolicy.minimum_mass_kg(strength) + CarryLoadPolicy.maximum_mass_kg(strength)) * 0.5
+	await _aim(actor, carry_box)
+	assert(GrabService.try_pickup(actor, carry_box, C_Grabbable.HoldSlot.CARRY))
+	var carry: C_CarryLoad = actor.get_component(C_CarryLoad) as C_CarryLoad
+	assert(CarryLoadPolicy.active_multiplier(carry, strength) < 1.0)
+	var controls: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
+	controls.rotation_active = true
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.SLEEP
 	request.expected_day = 1
@@ -90,6 +112,9 @@ func _run() -> void:
 	assert(FileAccess.file_exists(SAVE_PATH))
 	assert(CommerceService.current().pending_deliveries[0].fulfilled)
 	assert(WalletService.current().balance == expected_balance)
+	assert(not carry.active and is_equal_approx(CarryLoadPolicy.active_multiplier(carry, strength), 1.0))
+	assert(not controls.rotation_active and controls.captures.is_empty())
+	assert(GrabService.held_relationship(carry_box) == null)
 	var physical_id: String = OrderDeliveryService.key_for(CommerceService.current().pending_deliveries[0])
 	assert(_delivery_count(physical_id) == 1)
 	assert(not DayPhaseService.submit(request), "Stale sleep cannot increment DayIndex")
@@ -100,6 +125,11 @@ func _run() -> void:
 	(actor as Node as RigidBody3D).freeze = true
 	cycle = DayPhaseService.current()
 	assert(cycle.day_index == 2 and cycle.phase == C_DayCycle.Phase.MORNING)
+	valve = level.get_node("Entityes/Valve_F_Never") as E_InteractionTestValve
+	assert(valve.is_active())
+	completed = (valve.get_component(C_ProlongedInteraction) as C_ProlongedInteraction).actions[0]
+	assert(completed.phase == ProlongedInteractionProgress.Phase.COMPLETED)
+	assert(not ProlongedProgressService.advance(completed, completed.timing, 10.0, true))
 	assert(WalletService.current().balance == expected_balance)
 	assert((actor.get_component(C_Hunger) as C_Hunger).value >= 55.0)
 	assert(InventoryService.items(actor).size() == 1)
@@ -178,9 +208,35 @@ func _run() -> void:
 	assert(CustomerFlowService.parcel_for("base_supply:1:equipment") != null)
 	await _step(10)
 	assert(_delivery_count(physical_id) == 0, "Consumed order cannot respawn after another Night/restart")
+	# No customer Day is played here: prove an unissued registered target is not
+	# swept away merely because ten more Nights pass, including its due day.
+	for morning: int in range(4, 14):
+		cycle = DayPhaseService.current()
+		cycle.phase = C_DayCycle.Phase.EVENING
+		request = DayTransitionRequest.new()
+		request.kind = DayTransitionRequest.Kind.SLEEP
+		request.expected_day = morning - 1
+		request.expected_phase = C_DayCycle.Phase.EVENING
+		assert(DayPhaseService.submit(request))
+		for frame: int in MAX_FRAMES:
+			await _step(1)
+			if cycle.day_index == morning:
+				break
+		assert(cycle.day_index == morning)
+		parcel = CustomerFlowService.parcel_for("base_supply:1:equipment")
+		assert(parcel != null)
+		assert((parcel.get_component(C_PackageState) as C_PackageState).registration_number == number)
+	level.free()
+	await get_tree().process_frame
+	level = _load_level()
+	assert(DayPhaseService.current().day_index == 13)
+	parcel = CustomerFlowService.parcel_for("base_supply:1:equipment")
+	assert(parcel != null and (parcel.get_component(C_PackageState) as C_PackageState).registration_number == number)
+	assert((level.get_node("Entityes/Valve_F_Never") as E_InteractionTestValve).is_active())
+	assert(CustomerFlowService.parcel_for(refused_id) == null)
 	level.free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
-	print("PASS: night persistence: two Nights/restarts, paid order consumed without respawn, inventory, late target/number/condition/ink, physical refusal return retaining penalties and stale requests")
+	print("PASS: night persistence: twelve Nights/restarts, paid order consumed without respawn, late target/number/condition/ink, physical refusal return retaining penalties, NEVER completion, carry/rotation reset and stale requests")
 	get_tree().quit()
 
 

@@ -7,11 +7,12 @@ func query() -> QueryBuilder:
 	return q.with_all([C_Hazard, C_Explosion, C_HazardLifetime]).on_event(HazardSpawnResult.EVENT)
 
 
-func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
-	cmd.add_custom(_configure.bind(entity))
+func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
+	var result: HazardSpawnResult = payload as HazardSpawnResult
+	cmd.add_custom(_configure.bind(entity, result != null and result.restored))
 
 
-func _configure(entity: Entity) -> void:
+func _configure(entity: Entity, restored: bool) -> void:
 	if not EntityAvailability.contains(entity, _world):
 		return
 
@@ -23,21 +24,14 @@ func _configure(entity: Entity) -> void:
 		HazardLifecycle.retire(entity, _world)
 		return
 
-	var valid_radius: bool = is_finite(profile.radius) and profile.radius > 0.0
-	var valid_damage: bool = is_finite(profile.damage) and profile.damage >= 0.0
-	var valid_impulse: bool = is_finite(profile.impulse) and profile.impulse >= 0.0
-	var valid_upward_bias: bool = is_finite(profile.upward_bias) and profile.upward_bias >= 0.0
-	var valid_falloff: bool = is_finite(profile.falloff_power) and profile.falloff_power > 0.0
-	if (
-		not valid_radius or not valid_damage or not valid_impulse
-		or not valid_upward_bias or not valid_falloff or profile.maximum_targets < 1
-	):
+	if not HazardProfileRules.valid(profile):
 		push_error("Explosion tuning must be finite, with positive radius/falloff/target limit")
 		HazardLifecycle.retire(entity, _world)
 		return
 
 	var lifetime: C_HazardLifetime = entity.get_component(C_HazardLifetime) as C_HazardLifetime
-	lifetime.awaiting_resolution = true
+	if not restored:
+		lifetime.awaiting_resolution = true
 
 	var mesh: SphereMesh = SphereMesh.new()
 	mesh.radius = profile.radius

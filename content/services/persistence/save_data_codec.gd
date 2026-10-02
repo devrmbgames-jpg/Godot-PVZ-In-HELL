@@ -23,6 +23,10 @@ static var _component_fields: Dictionary = {
 	C_Hazard: ["definition", "request_id", "origin_id", "instigator_id"],
 	C_HazardLifetime: ["remaining_seconds", "persistent", "awaiting_resolution"],
 	C_PersistentIdentity: ["key"],
+	C_InteractionToggle: ["active"],
+	C_ToxicArea: ["tick_elapsed"],
+	C_Explosion: ["resolved"],
+	C_NoDamage: [],
 }
 static var _record_types: Array[Script] = [CustomerVisit, CustomerComplaint, CombatContext, MoneyOperation, DailyMoneyResult, PackageRegistrationRecord, PurchaseReceipt, PendingDelivery, RefusalQuestRecord, ReceivingBatch]
 const MAX_DEPTH: int = 16
@@ -148,7 +152,7 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			return false
 		if decoded is Resource and int(property.hint) == PROPERTY_HINT_RESOURCE_TYPE:
 			var actual: Script = (decoded as Resource).get_script() as Script
-			if actual == null or String(actual.get_global_name()) != String(property.hint_string):
+			if not _script_matches(actual, StringName(property.hint_string)):
 				return false
 		if current is Array:
 			if not decoded is Array:
@@ -182,3 +186,11 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 				return false
 			resource.set(field, decoded)
 	return true
+
+
+static func _script_matches(actual: Script, expected: StringName) -> bool:
+	while actual != null:
+		if actual.get_global_name() == expected:
+			return true
+		actual = actual.get_base_script()
+	return false

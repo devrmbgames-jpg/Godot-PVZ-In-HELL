@@ -10,6 +10,12 @@ func _ready() -> void:
 	set_active(false)
 
 
+func _process(_delta: float) -> void:
+	var valve: E_InteractionTestValve = get_parent() as E_InteractionTestValve
+	if valve != null:
+		set_active(valve.is_active())
+
+
 func set_active(active: bool) -> void:
 	_off_bulb.visible = not active
 	_on_bulb.visible = active

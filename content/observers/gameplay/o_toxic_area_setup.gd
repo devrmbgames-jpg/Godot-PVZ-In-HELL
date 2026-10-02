@@ -23,10 +23,7 @@ func _configure(entity: Entity) -> void:
 		HazardLifecycle.retire(entity, _world)
 		return
 
-	var valid_radius: bool = is_finite(profile.radius) and profile.radius > 0.0
-	var valid_tick: bool = is_finite(profile.tick_seconds) and profile.tick_seconds > 0.0
-	var valid_damage: bool = is_finite(profile.damage_per_tick) and profile.damage_per_tick >= 0.0
-	if not valid_radius or not valid_tick or not valid_damage:
+	if not HazardProfileRules.valid(profile):
 		push_error(
 			"ToxicArea tuning must contain finite positive radius/tick and nonnegative damage"
 		)
