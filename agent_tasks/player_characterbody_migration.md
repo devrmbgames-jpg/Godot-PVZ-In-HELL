@@ -17,20 +17,20 @@ Status: **IN_PROGRESS**
 - Сохранить старую авторскую Rigid-player сцену/профиль в архиве; NPC и их runtime rigid physics не архивировать как неиспользуемые.
 
 ### Milestones
-- [ ] Зафиксировать текущие player/body/slot и прямые physics/input/damage/transport/persistence контракты; определить общую typed character API.
-- [ ] Архивировать текущий player и внедрить native CharacterBody контроллер с камерой, ходьбой, прыжком, crouch и Ground RayCast.
-- [ ] Адаптировать непосредственно зависимые системы/сервисы, rigid опору, контактный урон/отскок, тележку и save/load.
-- [ ] Обновить main и primitive hosts; выполнить узкие physics/input/slot/damage регрессии и MCP-проверку.
+- [x] Зафиксировать текущие player/body/slot и прямые physics/input/damage/transport/persistence контракты; определить общую typed character API.
+- [x] Архивировать текущий player и внедрить native CharacterBody контроллер с камерой, ходьбой, прыжком, crouch и Ground RayCast.
+- [x] Адаптировать непосредственно зависимые системы/сервисы, rigid опору, контактный урон/отскок, тележку и save/load.
+- [x] Обновить main и primitive hosts; выполнить узкие physics/input/slot/damage регрессии и MCP-проверку.
 - [ ] Собрать Windows main/test и передать manual feel/full-slice QA владельцу.
 
 ### Decisions
 Миграция касается игрока. Общие typed head/slot/crouch API нужны Player и rigid NPC; engine-specific движение разделено по native body. Старые данные игрока сохраняются архивной сценой; shared World остаётся единственным.
 
 ### Current
-Начат аудит. Прямые typed потребители E_RigidBodyCharacter: S_Crouch/S_CrouchPresentation, CombatGeometry, GazeTrackingService, CustomerFlowService; GrabService уже предоставляет anchors через Entity API. Jump пишет pending impulse; C_RigidBody сейчас служит marker для crouch. NPC avoidance завершён и остаётся совместимым с rigid NPC. MCP подтвердил Godot 4.7.1, открытый main_level, editor ready, игра остановлена. Следующий шаг: завершить минимальный аудит body-dependent transport/impact/snapshot contracts и внедрить общий character API + новый player.
+Implementation complete; Windows main/test export remains before closing the task. Shared E_PhysicalCharacter API preserves head/hand/slot paths, native player owns move_and_slide, rigid NPC physics stays active. Archived authored player is content/entities/characters/archive/rigid_player.tscn. Contact rebound from either native bridge is queued as data and consumed by the player callback. Collision-safe small-step assistance preserves cart accompaniment.
 
 ### Validation
-До миграции: 14/14 GUT, 56 assertions для NPC avoidance + rigid player/input; эти доказательства исторические. После изменения нужны новые реальные CharacterBody regressions и relevant headless/MCP smoke. Rendered проверки разрешены новым запросом владельца; full-day приёмка остаётся игрокам.
+Combined relevant GUT: 46/46, 571 assertions (controls, native physics, both hosts, actual grab pipeline, melee, gaze, snapshot, NPC avoidance). Final native physics rerun after pending-impulse restore guard: 6/6, 33 assertions. Structure/diff PASS. MCP confirmed actual running CharacterBody3D in primitive host and accepted frame-timed forward/jump input; no claim about visual/full-day acceptance. Separate read-only review R2: lost driver step assistance FIXED and rereviewed; actual cart/player 15cm step regression PASS. Formatter unavailable (SKIP). Next: export Windows main/test and confirm actual scene/120-frame startup.
 
 ### Owner QA / blockers
 Полное ощущение управления, иммерсивные поясные слоты, прыжки/ступени/опора и impact feel — [сценарий владельца](../qa_tasks/owner_qa_fixes.md). Блокеров реализации нет.

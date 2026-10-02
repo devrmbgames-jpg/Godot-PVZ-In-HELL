@@ -253,6 +253,17 @@ static func restore(data: Dictionary, root: Node) -> bool:
 		if node != null and record.has("pose"):
 			node.global_transform = record.pose as Transform3D
 		var body: RigidBody3D = node as RigidBody3D
+		var character_body: CharacterBody3D = node as CharacterBody3D
+		if character_body != null:
+			character_body.velocity = Vector3.ZERO
+			var motion: C_Motion = entity.get_component(C_Motion) as C_Motion
+			if motion != null:
+				motion.pending_impulse = Vector3.ZERO
+			var kinematic: C_CharacterBody = entity.get_component(C_CharacterBody) as C_CharacterBody
+			if kinematic != null:
+				kinematic.impulse_velocity = Vector3.ZERO
+				kinematic.pending_rebound_velocity = Vector3.ZERO
+				kinematic.contact_bodies.clear()
 		if body != null:
 			body.linear_velocity = Vector3.ZERO
 			body.angular_velocity = Vector3.ZERO

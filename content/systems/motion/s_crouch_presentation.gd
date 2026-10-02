@@ -9,14 +9,14 @@ func deps() -> Dictionary[int, Array]:
 
 
 func query() -> QueryBuilder:
-	return q.with_all([C_Crouch, C_RigidBody]).iterate([C_Crouch])
+	return q.with_all([C_Crouch]).with_any([C_RigidBody, C_CharacterBody]).iterate([C_Crouch])
 
 
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var crouches: Array = components[0]
 
 	for index: int in entities.size():
-		var entity: E_RigidBodyCharacter = entities[index] as E_RigidBodyCharacter
+		var entity: E_PhysicalCharacter = entities[index] as E_PhysicalCharacter
 		if entity == null or entity.camera_root == null:
 			continue
 		var crouch: C_Crouch = crouches[index]

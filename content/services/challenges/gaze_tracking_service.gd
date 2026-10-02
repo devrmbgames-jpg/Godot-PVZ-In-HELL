@@ -10,8 +10,8 @@ static func sample(actor: Entity, subject: Entity, rule: DEF_GazeChallengeCondit
 	clear(observation)
 	if rule == null or not EntityAvailability.contains(actor, ECS.world) or not EntityAvailability.contains(subject, ECS.world):
 		return
-	var character: E_RigidBodyCharacter = actor as E_RigidBodyCharacter
-	var target: E_RigidBodyCharacter = subject as E_RigidBodyCharacter
+	var character: E_PhysicalCharacter = actor as E_PhysicalCharacter
+	var target: E_PhysicalCharacter = subject as E_PhysicalCharacter
 	if character == null or target == null or character.head_axis_x == null or target.head_axis_x == null:
 		return
 	var eyes: Node3D = character.head_axis_x

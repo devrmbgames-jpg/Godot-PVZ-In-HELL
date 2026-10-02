@@ -32,7 +32,10 @@ static func capture(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 			state.get_contact_collider_velocity_at_position(index)
 			- state.get_contact_local_velocity_at_position(index)
 		)
-		contact.normal_speed = maxf(contact.normal_speed, relative.dot(normal))
+		var normal_speed: float = maxf(0.0, relative.dot(normal))
+		if normal_speed >= contact.normal_speed:
+			contact.normal_on_a = normal
+		contact.normal_speed = maxf(contact.normal_speed, normal_speed)
 		contact.normal_impulse += absf(state.get_contact_impulse(index).dot(normal))
 	for contact: PhysicsContact in manifolds.values():
 		inbox.contacts.append(contact)

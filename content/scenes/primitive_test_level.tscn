@@ -1,8 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" uid="uid://c2jikq1w8bhv2" path="res://content/scenes/main_level.gd" id="1_ixiin"]
-[ext_resource type="PackedScene" uid="uid://dxkg7ovkuxd0i" path="res://content/entities/characters/e_rigid_body_character.tscn" id="13_da1x8"]
-[ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="23_d7jx2"]
+[ext_resource type="PackedScene" path="res://content/entities/characters/character_body_player.tscn" id="13_da1x8"]
+[ext_resource type="Script" path="res://content/components/physics/c_character_body.gd" id="23_d7jx2"]
 [ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/components/input/c_player_input_controller.gd" id="24_x60uf"]
 [ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/components/motion/c_motion.gd" id="25_t1fd8"]
 [ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/components/motion/c_look.gd" id="26_t86in"]
@@ -80,7 +80,6 @@
 
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
-metadata/_custom_type_script = "uid://dwgcmbar0qthw"
 
 [sub_resource type="Resource" id="Resource_lqn1g"]
 script = ExtResource("24_x60uf")

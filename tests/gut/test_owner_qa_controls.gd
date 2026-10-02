@@ -9,7 +9,7 @@ const TRAVEL_FRAMES: int = 100
 const FLOOR_HEIGHT_TOLERANCE: float = 0.04
 
 var _world: World = null
-var _player: E_RigidBodyCharacter = null
+var _player: E_CharacterBodyPlayer = null
 var _floors: Array[StaticBody3D] = []
 var _cycle: C_DayCycle = null
 
@@ -31,10 +31,12 @@ func before_each() -> void:
 	# Use the actual level-authored player, including component overrides.
 	# Do not start its World or autosave; this fixture owns isolated physics/support.
 	var authored_level: Node3D = MAIN_SCENE.instantiate() as Node3D
-	_player = authored_level.get_node("Entityes/Player") as E_RigidBodyCharacter
+	_player = authored_level.get_node("Entityes/Player") as E_CharacterBodyPlayer
 	_player.get_parent().remove_child(_player)
 	authored_level.free()
 	_world.add_entity(_player)
+	for child: Node in (_player as Node).find_children("*", "Entity", true, false):
+		_world.add_entity(child as Entity, null, false)
 	_player.global_position = Vector3(0.0, 0.01, 4.0)
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new()]
@@ -64,7 +66,7 @@ func test_sharp_turn_reaches_requested_view_in_one_physics_step() -> void:
 	await get_tree().process_frame
 	var view_forward: Vector3 = -_player.head_axis_x.global_basis.z
 	assert_gt(view_forward.normalized().dot(requested), 0.999, "Fast yaw/pitch is not turn-rate limited or clamped by NPC head limits")
-	assert_almost_eq(_player.head_axis_y.rotation.y, 0.0, 0.001)
+	assert_gt(absf(_player.head_axis_y.rotation.y), 0.01, "Immediate view stays independent of torso turn rate")
 
 
 func test_flat_tile_seam_does_not_launch_or_stop_player() -> void:
@@ -79,7 +81,7 @@ func test_flat_tile_seam_does_not_launch_or_stop_player() -> void:
 		await get_tree().physics_frame
 		if _player.global_position.y > highest:
 			var motion: C_Motion = _player.get_component(C_Motion) as C_Motion
-			peak_state = "%s velocity=%s floor=%s normal=%s" % [_player.global_position, _player.linear_velocity, motion.is_on_floor, motion.floor_normal]
+			peak_state = "%s velocity=%s floor=%s normal=%s" % [_player.global_position, (_player as Node as CharacterBody3D).velocity, motion.is_on_floor, motion.floor_normal]
 		highest = maxf(highest, _player.global_position.y)
 		lowest = minf(lowest, _player.global_position.y)
 	assert_gt(4.0 - _player.global_position.z, 6.0, "Player crosses the seam without sticking")
@@ -130,5 +132,20 @@ func test_ground_adhesion_preserves_authored_jump_impulse() -> void:
 	_world.process(1.0 / 60.0)
 	for frame: int in 3:
 		await get_tree().physics_frame
-	assert_gt(_player.linear_velocity.y, 4.0, "Jump is not canceled by floor adhesion")
+	assert_gt((_player as Node as CharacterBody3D).velocity.y, 4.0, "Jump is not canceled by floor adhesion")
 	assert_gt(_player.global_position.y, FLOOR_HEIGHT_TOLERANCE)
+
+
+func test_looking_down_reaches_both_own_belt_slots_without_turning_them_away() -> void:
+	var controller: C_Controller = _player.get_component(C_Controller) as C_Controller
+	var interactor: C_Interactor = _player.get_component(C_Interactor) as C_Interactor
+	var initial_yaw: float = (_player as Node as CharacterBody3D).rotation.y
+	for path: String in ["BeltSlotLeft", "BeltSlotRight"]:
+		var slot: Entity = _player.get_node(path) as Entity
+		var slot_body: Node3D = slot as Node as Node3D
+		controller.direction_look = (slot_body.global_position - _player.interaction_ray_cast.global_position).normalized()
+		for frame: int in 2:
+			await get_tree().physics_frame
+		_player.interaction_ray_cast.force_raycast_update()
+		assert_eq(InteractionTargetingService.find_target(_player, interactor), slot, "Head ray reaches %s" % path)
+		assert_almost_eq((_player as Node as CharacterBody3D).rotation.y, initial_yaw, 0.001, "Belt remains still while aiming down")

@@ -694,7 +694,7 @@ static func _settle_visit(visit: CustomerVisit, wallet: C_Wallet, day: int) -> v
 
 static func _watch_player(customer: E_Customer) -> void:
 	for player: Entity in ECS.world.query.with_all([C_PlayerInputController]).execute():
-		var character: E_RigidBodyCharacter = player as E_RigidBodyCharacter
+		var character: E_PhysicalCharacter = player as E_PhysicalCharacter
 		var offset: Vector3 = Vector3.ZERO
 		if character != null and character.head_axis_x != null:
 			var player_body: Node3D = player as Node as Node3D

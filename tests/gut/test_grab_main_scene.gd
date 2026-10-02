@@ -55,7 +55,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
 	var controller: C_Controller = player.get_component(C_Controller) as C_Controller
 	var interaction_ray: RayCast3D = GrabService.interaction_raycast(player)
-	(player as Node as RigidBody3D).freeze = true
+	(player as Node).set_physics_process(false)
 	var heavy_position: Vector3 = (heavy_box as Node as Node3D).global_position
 	(player as Node as Node3D).global_position = heavy_position + Vector3(0, 0.1, 1.8)
 	interaction_ray.look_at((heavy_box as Node as Node3D).global_position + Vector3.UP * 0.2)

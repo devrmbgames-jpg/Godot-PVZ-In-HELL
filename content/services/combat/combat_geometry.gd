@@ -6,7 +6,7 @@ const GENERIC_TARGET_HEIGHT: float = 0.2
 
 
 static func origin(actor: Entity) -> Vector3:
-	var character: E_RigidBodyCharacter = actor as E_RigidBodyCharacter
+	var character: E_PhysicalCharacter = actor as E_PhysicalCharacter
 	if character != null and character.head_axis_x != null:
 		return character.head_axis_x.global_position
 	var node: Node3D = actor as Node as Node3D
@@ -14,7 +14,7 @@ static func origin(actor: Entity) -> Vector3:
 
 
 static func forward(actor: Entity) -> Vector3:
-	var character: E_RigidBodyCharacter = actor as E_RigidBodyCharacter
+	var character: E_PhysicalCharacter = actor as E_PhysicalCharacter
 	if character != null and character.head_axis_x != null:
 		return -character.head_axis_x.global_basis.z.normalized()
 	var node: Node3D = actor as Node as Node3D
@@ -23,7 +23,7 @@ static func forward(actor: Entity) -> Vector3:
 
 static func aim_point(target: Entity) -> Vector3:
 	var node: Node3D = target as Node as Node3D
-	var character: E_RigidBodyCharacter = target as E_RigidBodyCharacter
+	var character: E_PhysicalCharacter = target as E_PhysicalCharacter
 	if character != null and character.head_axis_x != null:
 		return node.global_position.lerp(character.head_axis_x.global_position, 0.5)
 	return node.global_position + Vector3.UP * GENERIC_TARGET_HEIGHT
