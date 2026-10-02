@@ -12,4 +12,6 @@ Targeting writes `C_Interactor`; highlight reads it and restores overlays throug
 
 Derived cargo/driver/holder caches remain rebuildable. Durable identity and saved operation IDs do not replace live relationship authority. Structural mutation during scheduled iteration uses CommandBuffer or explicitly safe copied-query/lifecycle paths. Dead/depleted state and actual removal have distinct owners.
 
-R22.5 milestone evidence and remaining audit/validation are recorded in its task and milestone files. Rendered/gameplay acceptance remains in the owning feature tasks and R23.
+Hazard follow is a native effect → owner Relationship, with offset/loss policy in `R_HazardFollow`. `HazardFollowService` provides binding lookup and explicit restore replacement; the lifecycle observer handles incoming-link removal. Disabled effects keep a direct listener because pinned GECS disconnects their World relationship forwarding. Pending owner-loss retirement is transient lifetime state, drained before Night capture and excluded from saves. A fresh explicit restore cancels stale deferred retirement. Primitive save target/offset/policy keys and schema are unchanged.
+
+R22.5 complete: static 39-System/28-Observer gate, 151 GUT tests/921 assertions, strict hazards and integrated main feedback smokes; no runtime leaks. Findings R1–R7 fixed/rechecked. Rendered/gameplay acceptance remains in the owning feature tasks and R23.

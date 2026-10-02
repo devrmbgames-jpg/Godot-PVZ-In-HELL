@@ -4,21 +4,23 @@ class_name S_HazardFollow
 
 
 func query() -> QueryBuilder:
-	return q.enabled().with_all([R_HazardFollow]).iterate([R_HazardFollow])
+	return q.enabled().with_relationship([Relationship.new(R_HazardFollow.new(), null)])
 
 
-func process(entities: Array[Entity], components: Array, _delta: float) -> void:
-	var follows: Array = components[0]
-	for index: int in entities.size():
-		var follow: R_HazardFollow = follows[index]
-		var effect: Node3D = entities[index] as Node as Node3D
-		if not EntityAvailability.contains(follow.origin, _world):
+func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
+	for entity: Entity in entities:
+		var relationship: Relationship = HazardFollowService.binding(entity)
+		if relationship == null:
+			continue
+		var follow: R_HazardFollow = relationship.relation as R_HazardFollow
+		var effect: Node3D = entity as Node as Node3D
+		if not EntityAvailability.contains(relationship.target, _world):
 			if follow.on_loss == DEF_Hazard.OwnerLoss.Despawn:
-				cmd.add_custom(HazardLifecycle.retire.bind(entities[index], _world))
+				cmd.add_custom(HazardLifecycle.retire.bind(entity, _world))
 			else:
-				cmd.remove_component(entities[index], R_HazardFollow)
+				cmd.remove_relationship(entity, relationship)
 			continue
 
-		var origin: Node3D = follow.origin as Node as Node3D
+		var origin: Node3D = relationship.target as Node3D
 		if effect != null and origin != null and not effect is PhysicsBody3D:
 			effect.global_transform = origin.global_transform * follow.local_offset

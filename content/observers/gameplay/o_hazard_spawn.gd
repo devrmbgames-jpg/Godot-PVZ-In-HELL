@@ -59,6 +59,7 @@ func _spawn(request: HazardSpawnRequest) -> void:
 	if blocked:
 		components.append(C_NoDamage.new())
 
+	var follow: R_HazardFollow = null
 	if definition.ownership == DEF_Hazard.Ownership.FollowOrigin:
 		var owner_node: Node3D = null
 		if is_instance_valid(request.origin):
@@ -68,15 +69,15 @@ func _spawn(request: HazardSpawnRequest) -> void:
 				node.free()
 				return
 		else:
-			var follow: R_HazardFollow = R_HazardFollow.new()
-			follow.origin = request.origin
+			follow = R_HazardFollow.new()
 			follow.on_loss = definition.owner_loss
 			follow.local_offset = owner_node.global_transform.affine_inverse() * request.world_pose
-			components.append(follow)
 
 	_world.add_child(node)
 	spatial.global_transform = request.world_pose
 	_world.add_entity(entity, components, false)
+	if follow != null:
+		HazardFollowService.replace(entity, request.origin, follow)
 
 	var result: HazardSpawnResult = HazardSpawnResult.new()
 	result.hazard = entity

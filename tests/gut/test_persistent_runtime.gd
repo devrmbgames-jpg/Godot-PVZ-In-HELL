@@ -18,6 +18,7 @@ func before_each() -> void:
 	_world.add_entity(session, null, false)
 	_world.add_observer(O_ToxicAreaSetup.new())
 	_world.add_observer(O_ExplosionSetup.new())
+	_world.add_observer(O_HazardFollowLifecycle.new())
 
 
 func after_each() -> void:
@@ -123,9 +124,8 @@ func test_persistent_toxic_clock_follow_attribution_and_geometry_survive_recreat
 	hazard.instigator_id = id
 	toxin.add_component(C_NoDamage.new())
 	var follow: R_HazardFollow = R_HazardFollow.new()
-	follow.origin = valve
 	follow.local_offset.origin = Vector3(2, 0, 0)
-	toxin.add_component(follow)
+	HazardFollowService.replace(toxin, valve, follow)
 	(toxin.get_component(C_ToxicArea) as C_ToxicArea).tick_elapsed = 0.35
 	var key: String = WorldSnapshotService.key_for(toxin, _root)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
@@ -142,9 +142,88 @@ func test_persistent_toxic_clock_follow_attribution_and_geometry_survive_recreat
 	assert_true(toxin.has_component(C_NoDamage))
 	assert_eq((toxin.get_component(C_HazardLifetime) as C_HazardLifetime).remaining_seconds, 42.5)
 	assert_eq((toxin.get_component(C_ToxicArea) as C_ToxicArea).tick_elapsed, 0.35)
-	assert_eq((toxin.get_component(R_HazardFollow) as R_HazardFollow).origin, valve)
-	assert_eq((toxin.get_component(R_HazardFollow) as R_HazardFollow).local_offset.origin, Vector3(2, 0, 0))
+	var restored_binding: Relationship = HazardFollowService.binding(toxin)
+	assert_not_null(restored_binding)
+	assert_eq(restored_binding.target, valve)
+	assert_eq((restored_binding.relation as R_HazardFollow).local_offset.origin, Vector3(2, 0, 0))
 	assert_eq(((toxin as E_ToxicArea).get_shape().shape as SphereShape3D).radius, (hazard.definition as DEF_ToxicArea).radius)
+
+
+func test_follow_restore_preserves_despawn_effect_until_owner_relationship_is_lost() -> void:
+	var valve: E_InteractionTestValve = _valve()
+	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var follow: R_HazardFollow = R_HazardFollow.new()
+	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
+	HazardFollowService.replace(toxin, valve, follow)
+	var saved: Dictionary = PersistentHazardState.capture(toxin, _root)
+	var entities: Dictionary[String, Entity] = {}
+	entities[WorldSnapshotService.key_for(valve, _root)] = valve
+	PersistentHazardState.restore(saved, toxin, entities)
+	assert_true(EntityAvailability.contains(toxin, _world))
+	assert_false(toxin.has_component(R_HazardFollow))
+	assert_eq(HazardFollowService.binding(toxin).target, valve)
+	assert_eq(toxin.relationships.size(), 1)
+	_world.remove_entity(valve)
+	assert_null(HazardFollowService.binding(toxin))
+	assert_false(EntityAvailability.contains(toxin, _world))
+
+
+func test_disabled_follow_effect_honours_owner_loss_and_cannot_resume_damage() -> void:
+	var valve: E_InteractionTestValve = _valve()
+	var detached: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var despawned: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var despawned_id: String = despawned.id
+	for effect: Entity in [detached, despawned]:
+		var follow: R_HazardFollow = R_HazardFollow.new()
+		follow.on_loss = DEF_Hazard.OwnerLoss.Despawn if effect == despawned else DEF_Hazard.OwnerLoss.Detach
+		HazardFollowService.replace(effect, valve, follow)
+		_world.disable_entity(effect)
+	_world.remove_entity(valve)
+	await get_tree().process_frame
+	assert_false(EntityAvailability.contains(despawned, _world))
+	assert_false(_world.entities.any(func(entity: Entity) -> bool: return entity.id == despawned_id))
+	assert_true(_world.entities.has(detached))
+	assert_null(HazardFollowService.binding(detached))
+	_world.enable_entity(detached)
+	assert_true(EntityAvailability.contains(detached, _world))
+
+
+func test_independent_restore_cancels_deferred_owner_loss_retirement() -> void:
+	var owner: E_InteractionTestValve = _valve()
+	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var follow: R_HazardFollow = R_HazardFollow.new()
+	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
+	HazardFollowService.replace(toxin, owner, follow)
+	_world.disable_entity(toxin)
+	_world.remove_entity(owner)
+	var lifetime: C_HazardLifetime = toxin.get_component(C_HazardLifetime) as C_HazardLifetime
+	assert_true(lifetime.owner_loss_pending)
+	var entities: Dictionary[String, Entity] = {}
+	PersistentHazardState.restore({"origin": "", "instigator": ""}, toxin, entities)
+	assert_false(lifetime.owner_loss_pending)
+	await get_tree().process_frame
+	assert_true(_world.entities.has(toxin))
+	assert_null(HazardFollowService.binding(toxin))
+	_world.enable_entity(toxin)
+	assert_true(EntityAvailability.contains(toxin, _world))
+
+
+func test_night_drains_disabled_owner_loss_before_persistent_snapshot_capture() -> void:
+	var customer: E_InteractionTestValve = _valve()
+	customer.add_component(C_CustomerAgent.new())
+	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var key: String = WorldSnapshotService.key_for(toxin, _root)
+	var follow: R_HazardFollow = R_HazardFollow.new()
+	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
+	HazardFollowService.replace(toxin, customer, follow)
+	_world.disable_entity(toxin)
+	NightResetService.reset()
+	assert_false(_world.entities.has(toxin))
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	for record: Dictionary in snapshot.entities:
+		assert_ne(String(record.key), key)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_true(_world.query.with_all([C_Hazard]).execute().is_empty())
 
 
 func test_resolved_persistent_explosion_does_not_rearm_resolution_gate_on_load() -> void:
@@ -204,15 +283,14 @@ func test_night_removes_temporary_hazards_and_applies_persistent_owner_loss() ->
 	var despawned: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
 	for entity: Entity in [detached, despawned]:
 		var follow: R_HazardFollow = R_HazardFollow.new()
-		follow.origin = valve
 		follow.on_loss = DEF_Hazard.OwnerLoss.Despawn if entity == despawned else DEF_Hazard.OwnerLoss.Detach
-		entity.add_component(follow)
+		HazardFollowService.replace(entity, valve, follow)
 	_world.remove_entity(valve)
 	NightResetService.reset()
 	assert_false(_world.entities.has(temporary))
 	assert_false(_world.entities.has(despawned))
 	assert_true(_world.entities.has(detached))
-	assert_false(detached.has_component(R_HazardFollow))
+	assert_null(HazardFollowService.binding(detached))
 
 
 func test_loading_unfixed_snapshot_clears_old_anchor_and_restores_body_policy() -> void:

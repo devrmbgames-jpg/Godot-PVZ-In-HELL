@@ -5,6 +5,7 @@ const MAIN_LEVEL: PackedScene = preload("res://content/scenes/main_level.tscn")
 
 func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var level: Node3D = MAIN_LEVEL.instantiate() as Node3D
+	level.set("autosave_path", "")
 	add_child(level)
 	# Stop automatic input sampling; drive the real ECS groups deterministically below.
 	level.set_physics_process(false)

@@ -37,9 +37,12 @@ static func collider_rigid_body(collider: Object, holder: Entity = null) -> Rigi
 static func visual_target(holder: Entity, interactor: C_Interactor) -> Node:
 	if interactor == null:
 		return null
-	if is_instance_valid(interactor.target):
+	if GrabService.entity_available(interactor.target):
 		return interactor.target as Node
 	if not is_instance_valid(interactor.physics_target):
+		return null
+	var physics_entity: Entity = collider_entity(interactor.physics_target)
+	if physics_entity != null and not GrabService.entity_available(physics_entity):
 		return null
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	return (

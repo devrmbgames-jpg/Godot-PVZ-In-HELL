@@ -45,7 +45,7 @@ HazardSpawnService.submit(request)
 ## Время жизни, следование и будущий reset
 
 - `Independent`: эффект остаётся в мире после удаления инициатора.
-- `FollowOrigin`: компонент `R_HazardFollow` перемещает только нефизический корень эффекта. При потере/отключении владельца `Detach` оставляет эффект на последней позиции, `Despawn` удаляет его. Long ToxicResidue уничтоженной посылки использует `Despawn` и debris как owner.
+- `FollowOrigin`: native GECS Relationship effect → owner с payload `R_HazardFollow` перемещает только нефизический корень эффекта. При потере/отключении владельца `Detach` оставляет эффект на последней позиции, `Despawn` удаляет его. Long ToxicResidue уничтоженной посылки использует `Despawn` и debris как owner. Отключённый source сохраняет listener потери связи; pending retirement не попадает в Night snapshot. Restore перепривязывает связь без повторения owner-loss effects; формат сохранённых target/offset/policy не меняется.
 - Истечение TTL или отключение самого эффекта удаляет регистрацию и узлы; удаление через `World.remove_entity()` также освобождает сцену. У взрыва отсчёт TTL начинается с разрешения, чтобы короткий цепной эффект не исчез до первого хода своей системы.
 - `persistent` исключает эффект из обычного reset, но не отменяет TTL.
 

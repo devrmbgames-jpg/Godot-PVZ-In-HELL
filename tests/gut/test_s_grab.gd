@@ -66,6 +66,7 @@ func after_each() -> void:
 		if is_instance_valid(actor):
 			PushService.entity_unavailable(actor)
 			GrabService.entity_unavailable(actor)
+	grab_world.entities = grab_world.entities.filter(func(entity: Variant) -> bool: return is_instance_valid(entity))
 	grab_world.purge(false)
 	grab_world.free()
 	ECS.world = null
@@ -479,6 +480,26 @@ func test_shared_highlight_survives_one_holder_removal_and_restores_on_last() ->
 	holder_entity.remove_component(C_Interactor)
 	assert_eq(mesh_instance.material_overlay, original)
 	assert_eq(first_interactor.target, box_entity)
+
+
+func test_disabled_physical_target_cannot_regain_highlight_on_next_targeting_tick() -> void:
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
+	grab_world.add_system(highlight)
+	var targeting: S_InteractionTargeting = S_InteractionTargeting.new()
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var mesh_instance: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
+	var original: StandardMaterial3D = StandardMaterial3D.new()
+	mesh_instance.material_overlay = original
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	grab_world.disable_entity(box_entity)
+	assert_eq(mesh_instance.material_overlay, original)
+	for physics_tick: int in 2:
+		await get_tree().physics_frame
+	targeting.process([holder_entity], [[interactor]], 0.0)
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_null(interactor.target)
+	assert_eq(mesh_instance.material_overlay, original)
+	targeting.free()
 
 
 func test_carry_speed_is_linear_from_mass_and_current_strength() -> void:

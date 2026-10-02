@@ -8,3 +8,6 @@ var persistent: bool = false
 
 ## A queued one-shot must resolve before its visible lifetime can expire.
 var awaiting_resolution: bool = false
+
+## Transient pending retirement; never saved as a detached persistent hazard.
+var owner_loss_pending: bool = false

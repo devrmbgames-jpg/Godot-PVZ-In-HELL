@@ -8,9 +8,10 @@ static func capture(entity: Entity, root: Node) -> Dictionary:
 	if hazard == null:
 		return {}
 	var data: Dictionary = {"origin": _key(hazard.origin, root), "instigator": _key(hazard.instigator, root)}
-	var follow: R_HazardFollow = entity.get_component(R_HazardFollow) as R_HazardFollow
-	if follow != null:
-		data.follow = {"target": _key(follow.origin, root), "offset": follow.local_offset, "on_loss": follow.on_loss}
+	var binding: Relationship = HazardFollowService.binding(entity)
+	if binding != null:
+		var follow: R_HazardFollow = binding.relation as R_HazardFollow
+		data.follow = {"target": _key(binding.target as Entity, root), "offset": follow.local_offset, "on_loss": follow.on_loss}
 	return data
 
 
@@ -33,15 +34,15 @@ static func restore(data: Dictionary, entity: Entity, entities: Dictionary[Strin
 		return
 	hazard.origin = entities.get(String(data.get("origin", ""))) as Entity
 	hazard.instigator = entities.get(String(data.get("instigator", ""))) as Entity
-	if entity.has_component(R_HazardFollow):
-		entity.remove_component(R_HazardFollow)
+	var owner: Entity = null
+	var follow: R_HazardFollow = null
 	if data.has("follow"):
 		var saved: Dictionary = data.follow as Dictionary
-		var follow: R_HazardFollow = R_HazardFollow.new()
-		follow.origin = entities[String(saved.target)]
+		follow = R_HazardFollow.new()
+		owner = entities[String(saved.target)]
 		follow.local_offset = saved.offset as Transform3D
 		follow.on_loss = int(saved.on_loss) as DEF_Hazard.OwnerLoss
-		entity.add_component(follow)
+	HazardFollowService.replace(entity, owner, follow)
 	# Rebuild native collision/visual geometry without replaying a resolved explosion.
 	if entity.has_component(C_ToxicArea) or entity.has_component(C_Explosion):
 		var result: HazardSpawnResult = HazardSpawnResult.new()
@@ -54,13 +55,20 @@ static func restore(data: Dictionary, entity: Entity, entities: Dictionary[Strin
 
 static func reset_missing_owners() -> void:
 	for entity: Entity in ECS.world.entities.duplicate():
-		var follow: R_HazardFollow = entity.get_component(R_HazardFollow) as R_HazardFollow
-		if follow == null or EntityAvailability.contains(follow.origin, ECS.world):
+		if not is_instance_valid(entity):
 			continue
+		var lifetime: C_HazardLifetime = entity.get_component(C_HazardLifetime) as C_HazardLifetime
+		if lifetime != null and lifetime.owner_loss_pending:
+			HazardLifecycle.retire(entity, ECS.world)
+			continue
+		var binding: Relationship = HazardFollowService.binding(entity)
+		if binding == null or EntityAvailability.contains(binding.target, ECS.world):
+			continue
+		var follow: R_HazardFollow = binding.relation as R_HazardFollow
 		if follow.on_loss == DEF_Hazard.OwnerLoss.Despawn:
 			HazardLifecycle.retire(entity, ECS.world)
 		else:
-			entity.remove_component(follow)
+			entity.remove_relationship(binding)
 
 
 static func _key(entity: Entity, root: Node) -> String:

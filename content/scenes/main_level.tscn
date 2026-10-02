@@ -166,6 +166,8 @@
 
 [ext_resource type="Script" path="res://content/observers/gameplay/o_damage_feedback.gd" id="Damage_feedback"]
 
+[ext_resource type="Script" path="res://content/observers/gameplay/o_hazard_follow_lifecycle.gd" id="Hazard_follow_lifecycle"]
+
 [sub_resource type="Resource" id="Autosave_state"]
 script = ExtResource("Autosave_state")
 
@@ -393,6 +395,9 @@ script = ExtResource("PackageConditionSetup")
 
 [node name="O_PackageOpening" type="Node" parent="World/Systems/GamePlay" unique_id=59264951]
 script = ExtResource("PackageOpening")
+
+[node name="O_HazardFollowLifecycle" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Hazard_follow_lifecycle")
 
 [node name="O_HazardSpawn" type="Node" parent="World/Systems/GamePlay" unique_id=317172111]
 script = ExtResource("HazardSpawn")

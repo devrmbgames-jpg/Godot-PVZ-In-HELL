@@ -24,6 +24,7 @@ func _run() -> void:
 	await _short_chain_contract()
 	_reset(true)
 	assert(_effects().is_empty(), "All hazard registrations must be removed")
+	_world.purge(false)
 	_world.queue_free()
 	ECS.world = null
 	await get_tree().process_frame
@@ -47,6 +48,7 @@ func _setup_world() -> void:
 	var observers: Array[Observer] = [
 		O_Damage.new(),
 		O_HazardSpawn.new(),
+		O_HazardFollowLifecycle.new(),
 		O_HazardEmitter.new(),
 		O_ToxicAreaSetup.new(),
 		O_ExplosionSetup.new(),
@@ -133,7 +135,7 @@ func _follow_and_reset_contract() -> void:
 	assert(effect_node.global_position.is_equal_approx(customer_node.global_position))
 	_world.remove_entity(customer)
 	await _tick(0.01)
-	assert(EntityAvailability.contains(effect, _world) and not effect.has_component(R_HazardFollow))
+	assert(EntityAvailability.contains(effect, _world) and HazardFollowService.binding(effect) == null)
 
 	scene = _toxic_scene(
 		10.0,
@@ -217,8 +219,8 @@ func _package_adapter_contract() -> void:
 	var residue: Entity = _spawned.back()
 	var hazard: C_Hazard = residue.get_component(C_Hazard) as C_Hazard
 	assert(hazard.origin == debris, "Destroyed toxic residue source must be debris")
-	var follow: R_HazardFollow = residue.get_component(R_HazardFollow) as R_HazardFollow
-	assert(follow != null and follow.origin == debris)
+	var follow: Relationship = HazardFollowService.binding(residue)
+	assert(follow != null and follow.target == debris)
 
 	_world.remove_entity(debris)
 	await _tick(0.01)

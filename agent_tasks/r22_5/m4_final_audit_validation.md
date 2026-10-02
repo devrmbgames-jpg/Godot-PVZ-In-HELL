@@ -1,6 +1,6 @@
 # R22.5 M4 — Final Audit and Validation
 
-Status: **PLANNED**  
+Status: **DONE**
 Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
 
 ## Task state
@@ -9,13 +9,24 @@ Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
 Perform the final architecture audit and bounded validation after M1–M3 are complete.
 
 ### Current
-Not started. This milestone is final-only and must not run before earlier milestones complete.
+Final audit and bounded validation complete after M1–M3. Hazard follow migrated to native GECS Relationship with preserved owner-loss and save contracts; Hunger consumes its iterated state; unavailable Entity targets cannot regain fallback highlight. R1–R7 FIXED and independently reviewed. Next: R23 full-day validation.
 
 ### Validation
-Not run.
+Final `r225_final_gut.log`: 151/151 PASS, 921 assertions, no project errors/orphans/ObjectDB/resource leaks; external Windows certificate error only. Eleven scripts cover grab/main scene, access, prolonged session/progress, melee/NPC attacks, impact, damage feedback, persistent runtime and Hunger. Strict hazards-20261002-144233354.log and integrated player_feedback-20261002-144441861.log PASS. Static gate: 39 scheduled Systems, 28 reactive Observers, no System helper/locator/frame-machine or legacy follow-origin field violations. Structure/diff PASS. No formatter available; no formatter claim. Class-cache refresh was headless; editor settings/certificate/editor shutdown messages are separate from clean runtime evidence. Initial validation exposed test cleanup errors/leaks and a freed-object assertion; corrected and final rerun clean. Separate read-only reviewer rechecked fixes; no unresolved material findings.
 
 ### Owner QA / blockers
-Deferred by the R22.5 dependency gate and earlier milestones.
+No implementation blocker. Rendered/full-day/gamepad/audio acceptance remains in owning feature tasks and R23; this architecture task has no outstanding runtime check.
+
+## Audit disposition and review findings
+
+- Component methods in Attribute/Health/Strength are intrinsic state initialization/access/change notification, not gameplay decisions. Godot child references stay in Entity glue; `C_PhysicsBodyRef` is the explicit raw-body proxy boundary. Target/cursor and documented reverse caches are not ownership co-authority.
+- Systems have specific component/relationship queries. Homogeneous state processing consumes iterated fields. Deferred domain transactions intentionally revalidate current components after earlier commands; optional mode/protection components are not made universally required merely to remove lookups.
+- Structural commands in scheduled loops use CommandBuffer. Impact setup/entity callbacks use copied queries and the approved World lifecycle. Observers react to discrete signals/events, not per-frame state machines. Dead/depleted state and retirement remain distinct; no speculative pending-delete group is added.
+- **R4 FIXED:** `R_HazardFollow` previously stored a direct `origin` field as an ordinary component. Effect → owner now uses native `Relationship.target`; payload contains offset/policy only. Spawn, scheduled follow, cleanup and persistence use one authority. Saved primitive target/offset/policy format and schema remain unchanged; explicit replace is guarded against replaying owner-loss effects.
+- **R5 FIXED:** synchronous Hunger scheduling discarded its iterated state and fetched it again. It now passes the typed state to the existing service; optional old service call form is preserved.
+- **R6 FIXED (separate review):** disabled source hazards lose World relationship forwarding. A direct source listener preserves Despawn semantics through deferred weak-reference retirement. Transient pending state is synchronously drained before Night capture and excluded from snapshots. Explicit independent restore cancels stale deferred retirement. Tests prove actual registry removal, immediate Night capture/load and restoration cancellation.
+- **R7 FIXED (separate review):** disabled rigid Entity targets could regain highlight through the raw-body fallback after targeting cleared them. Availability now gates Entity-backed visual targets while preserving scriptless-body Carry support. Regression covers disable → targeting/highlight tick.
+- M2 R1/R2 and M3 R3 remain FIXED. Their regressions and integrated scene run passed in this final surface. Shared crouch HeadRoot is explicitly gameplay geometry; paths/timing are preserved.
 
 ---
 

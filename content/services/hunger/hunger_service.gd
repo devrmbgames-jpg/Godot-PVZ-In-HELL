@@ -37,11 +37,13 @@ static func advance(state: C_Hunger, delta: float, phase: C_DayCycle.Phase, paus
 	state.active_seconds += delta
 
 
-static func tick(actor: Entity, delta: float) -> void:
+static func tick(actor: Entity, delta: float, state: C_Hunger = null) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null or not is_instance_valid(actor) or not actor.is_inside_tree():
 		return
-	advance(actor.get_component(C_Hunger) as C_Hunger, delta, cycle.phase, actor.get_tree().paused, GrabService.holder_available(actor) and not actor.has_component(C_Death))
+	if state == null:
+		state = actor.get_component(C_Hunger) as C_Hunger
+	advance(state, delta, cycle.phase, actor.get_tree().paused, GrabService.holder_available(actor) and not actor.has_component(C_Death))
 
 
 static func apply_food(actor: Entity, effect: DEF_FoodEffect) -> bool:

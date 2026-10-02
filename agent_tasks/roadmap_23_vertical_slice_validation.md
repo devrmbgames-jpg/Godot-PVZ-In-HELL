@@ -1,6 +1,6 @@
 # R23 — Полный вертикальный срез
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 ## Task state
 
@@ -16,22 +16,25 @@ Status: **PLANNED**
 
 ### Milestones
 - [ ] Reconfirm dependency completion and current production owners/contracts.
-- [ ] Implement the existing work checklist in small coherent milestones.
+- [ ] M1: fixed authored supply/customer families and scenario route/feedback audit.
+- [ ] M2: ordinary-input Morning → Day → Evening → Night → Morning walkthrough.
+- [ ] M3: alternative outcomes/combat/carry-over and lifecycle gaps, preserving existing owners.
+- [ ] M4: independent review, full-project GUT, integrated smoke and owner checklist.
 - [ ] Independently review material changes and resolve all R-findings.
 - [ ] Run final task validation according to the documented GUT/headless budget.
 - [ ] Record remaining owner gameplay/visual QA.
 
 ### Decisions
-Do not create a parallel planning document. This file remains the authoritative state/router for the feature; source design docs are references, not task state.
+This file is the authoritative router. Existing fixture smokes are dependency evidence, not a complete no-debug day walkthrough. Preserve the authored arrival-to-physical-departure challenge, simple NPC 3+3 attacks/animation hooks/NavigationAgent and screen debug timers/conditions/tasks. Headless native-node/sound-state checks do not establish rendered/audio perception.
 
 ### Current
-Not started under the lean workflow. Next: verify dependencies in `task_history.md` and current code, then choose the first bounded implementation milestone from the existing work list.
+M1 started after R22.5 final automation/review. Exact scenario source read; current default schedule has light challenges even on Ordinary, so genuine normal + light/gaze/floor composition needs correction while preserving user schedule resave. Supply/scenario IDs and ordinary input route are the next direct owners to verify. No complete day walkthrough claim yet.
 
 ### Validation
-Not run for this task under the lean workflow.
+R22.5 dependency gate complete: 151/151 GUT (921 assertions), strict hazards/integrated main feedback smokes, static/structure/diff and independent review. R23-specific full-project GUT/no-debug day walkthrough has not run.
 
 ### Owner QA / blockers
-No new blocker is recorded. Any unmet dependency discovered during startup moves the task to `BLOCKED` or `DEFERRED` with the exact dependency named.
+No implementation blocker. Owner rendered full-day/readability/gamepad/audio playtest remains; keep implementation and automated evidence separate from that acceptance.
 
 ---
 

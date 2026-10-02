@@ -334,5 +334,6 @@ static func _persistent(entity: Entity) -> bool:
 	if entity.has_component(C_CustomerAgent) or entity.has_component(C_QuestBinding) or entity.has_component(C_CombatProjectile):
 		return false
 	if entity.has_component(C_HazardLifetime):
-		return (entity.get_component(C_HazardLifetime) as C_HazardLifetime).persistent
+		var lifetime: C_HazardLifetime = entity.get_component(C_HazardLifetime) as C_HazardLifetime
+		return lifetime.persistent and not lifetime.owner_loss_pending
 	return (entity as Node) is RigidBody3D or entity is E_PhysicalSlot or not PersistentInteractionState.completed(entity).is_empty() or entity.components.values().any(func(value: Variant) -> bool: return value is Component and not SaveDataCodec.component_data(value as Component).is_empty())
