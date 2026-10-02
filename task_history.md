@@ -61,3 +61,7 @@
 QA-01 rigid movement changes are historical and superseded by the new CharacterBody requirement. QA-02 Trader and QA-11 avoidance implementation are complete; their regression checklists remain in qa_tasks/owner_qa_fixes.md.
 
 Completed implementation IDs retained for dependency resolution: R11.1, R12, R12.1, R12.2, R13, R14, R15, R16, R17, R18, R19, R20, R21, R22, R22.5. Их игровая приёмка отдельно ожидается в qa_tasks.
+
+## 2026-10-03 — CharacterBody player (QA-16/20)
+
+Completed dev79b6aefc: archived authored rigid player, shared typed character API, native CharacterBody movement/immediate camera/independent torso for belt access, Ground support impulse, shared contact damage + queued rebound, collision-safe small steps, crouch/cart/save adaptation. Original rigid NPC physics retained. Relevant GUT46/46,571 assertions; final physics6/6,33. Actual native falling/recontact, flying rigid damage+knockback, support, belt rays, cart+15cm step and legacy authored-save rebinding proved. Review R2 lost driver step assistance FIXED/rereviewed. Structure/diff PASS, formatter SKIP; MCP running native primitive player/input verified. Windows main20261002-183229Z-79b6aefc-characterbody-main and test20261002-183324Z-79b6aefc-characterbody-test both actual-scene/120-frame startup PASS. Export editor settings write/unload diagnostics are separate from clean exported game startup. Completed migration task deleted by owner policy; manual feel/full-day acceptance remains qa_tasks.

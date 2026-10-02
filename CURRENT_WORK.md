@@ -1,9 +1,9 @@
 # Current Work
 
-Active: [CharacterBody migration](agent_tasks/player_characterbody_migration.md) implementation complete; Windows main/test export next. Updated owner goal QA-14?QA-20 lives in [R23](agent_tasks/roadmap_23_vertical_slice_validation.md). Work only dev; master read-only; user main/project editor resaves and addon edits preserved.
+Active: [R23](agent_tasks/roadmap_23_vertical_slice_validation.md), updated owner QA-14–QA-20. Next: QA-14 refusal only after actual handoff and QA-15 debug-only true parcel state in Terminal. Work only dev; master read-only; user main/project resaves and addon edits preserved.
 
-Native player retains authored head/hand/slot paths through shared E_PhysicalCharacter; archived rigid player is content/entities/characters/archive/rigid_player.tscn, NPCs remain rigid. Small collision-safe steps, Ground support impulse, native/rigid contact damage and queued rebound, crouch/cart/save bindings checked. GUT 46/46,571 assertions; final physics rerun 6/6,33. Independent R2 step assistance FIXED/rereviewed. Structure/diff PASS; formatter SKIP. MCP actual native primitive player + frame-timed input verified; visual/full-day acceptance belongs to owner.
+Completed79b6aefc: CharacterBody player/archive/immersive belt, support impulse, contact damage/rebound, crouch/cart/small-step/save adaptation. Relevant GUT46/46,571 assertions; final physics6/6,33. ReviewR2 FIXED/rereviewed, structure/diff PASS, MCP native primitive/input verified. Completed migration task deleted; player QA remains qa_tasks/owner_qa_fixes.md.
 
-Windows launchers currently .export/LATEST.cmd and .export/TEST_LEVEL.cmd (bd8d333c). Rebuild both at completed large milestones, update pointers only after actual scene/120-frame startup. Then remove completed migration task, retain QA scenarios, continue remaining owner fixes.
+Windows .export/LATEST.cmd and .export/TEST_LEVEL.cmd now use79b6aefc. Both actual-scene/120-frame startup PASS. Rebuild between large completed milestones; generated binaries/logs ignored. Full-day/visual feel acceptance belongs to owner.
 
-Completed history: shared World/test map cc638f5d; stairs/nav UID a2e81594; NPC RVO + both nav cell_size0.25 bd8d333c; completed task cleanup1457721f. Pending player checklists remain qa_tasks; runtime logs/builds are ignored.
+Previous: shared World/test mapcc638f5d; stairs/navUIDa2e81594; NPC RVO/navcell_size0.25bd8d333c; completed queue cleanup1457721f. Current scope and proof live in R23/task_history.md.
