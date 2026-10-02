@@ -36,7 +36,7 @@ Owner feedback dated 2026-10-02 extends R23 with [thirteen QA tasks](roadmap_23_
 
 ### Current
 
-R23 QA03/04/05/06/07/08/09/10/13/14/15/17/18/19 implemented; owner full-slice/visual/audio acceptance pending. R24 M0/M1/M5/M6 and visitor pacing/remains also implemented. QA07/08 focused4/4,40 + console case1/1,12; read-only review clean. One full M5 milestone suite409/409,3185 passed; subsequent edits use focused checks only. Next R23 QA12 AI seam, then R24 commerce/customer booth/shift/prototype queue. Dev only; preserve user resaves/addons. Evidence/checklists in linked owner_qa and R24.
+R23 QA03/04/05/06/07/08/09/10/12/13/14/15/17/18/19 implemented; owner full-slice/visual/audio acceptance pending. R24 M0/M1/M5/M6 and visitor pacing/remains also implemented. QA07/08 focused4/4,40 + console case1/1,14; read-only review clean. One full M5 milestone suite409/409,3185 passed; subsequent edits use focused checks only. QA12 selector3/3,30 PASS. Next R24 commerce/customer booth/shift/prototype queue; older low-priority console expansion remains pending. Dev only; preserve user resaves/addons. Evidence/checklists in linked owner_qa and R24.
 
 ### Validation
 CharacterBody: relevant GUT 46/46,571 assertions; final physics 6/6,33. Real controls/belt rays, fall/recontact/rebound, flying rigid response, support impulse, crouch, cart+15cm step, old authored-player save restore. MCP running native primitive player/input checked. Separate R2 lost cart step assistance FIXED/rereviewed. Structure/diff PASS; formatter SKIP. Both Windows exports79b6aefc actual scene + 120-frame startup PASS; full-day/visual acceptance pending.

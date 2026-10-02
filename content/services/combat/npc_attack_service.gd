@@ -3,6 +3,7 @@ extends RefCounted
 class_name NpcAttackService
 
 const MELEE_HALF_ANGLE_DEGREES: float = 70.0
+const MINIMUM_ESTIMATED_CYCLE_SECONDS: float = 0.001
 
 
 static func variant_for(state: C_NpcCombat, kind: C_NpcCombat.Kind, index: int) -> DEF_NpcAttack:
@@ -39,13 +40,37 @@ static func start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 	return true
 
 
-## Initial deterministic choice only. No tactical scoring or ability tree.
-static func choose_and_start(actor: Entity) -> bool:
+## Read-only decision seam for generic behavior adapters. No live target cache is returned.
+static func choose(actor: Entity) -> NpcAttackChoice:
+	if not GrabService.holder_available(actor):
+		return null
+	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
+	if state == null:
+		return null
+	var choice: NpcAttackChoice = null
 	for kind: C_NpcCombat.Kind in [C_NpcCombat.Kind.MELEE, C_NpcCombat.Kind.RANGED]:
 		for index: int in C_NpcCombat.MAX_VARIANTS:
-			if start(actor, kind, index):
-				return true
-	return false
+			if not can_start(actor, kind, index):
+				continue
+			var attack: DEF_NpcAttack = variant_for(state, kind, index)
+			if not is_finite(attack.selection_priority):
+				continue
+			var duration: float = maxf(MINIMUM_ESTIMATED_CYCLE_SECONDS, attack.windup_seconds + attack.active_seconds + attack.recovery_seconds + attack.cooldown_seconds)
+			var rate: float = attack.damage / duration
+			if choice != null and (attack.selection_priority < choice.priority or (attack.selection_priority == choice.priority and rate <= choice.damage_rate)):
+				continue
+			choice = NpcAttackChoice.new()
+			choice.kind = kind
+			choice.variant = index
+			choice.priority = attack.selection_priority
+			choice.damage_rate = rate
+	return choice
+
+
+static func choose_and_start(actor: Entity) -> bool:
+	var choice: NpcAttackChoice = choose(actor)
+	# Availability may change between decision and execution; the runner revalidates it.
+	return choice != null and start(actor, choice.kind, choice.variant)
 
 
 static func tick(actor: Entity, delta: float) -> void:

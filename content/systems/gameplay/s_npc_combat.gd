@@ -19,4 +19,6 @@ func _step(actor: Entity, delta: float) -> void:
 	if CombatService.target_for(actor) == null:
 		return
 	NpcAttackService.tick(actor, delta)
-	NpcAttackService.choose_and_start(actor)
+	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
+	if state != null and state.automatic_attack_selection:
+		NpcAttackService.choose_and_start(actor)

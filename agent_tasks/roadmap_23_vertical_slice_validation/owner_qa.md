@@ -95,9 +95,9 @@ QA10 validation: only3 valve_progress-filtered tests,29 assertions PASS. Actual 
 
 ## QA-12 — Заготовка полноценного ИИ
 
-- [ ] Выделить простой контракт выбора намерения/действия, пригодный для будущего адаптера LimboAI.
-- [ ] Сохранить NavigationAgent, текущие сценарии визита и отдельные способности: до трёх ближних и трёх дальних атак с привязкой к анимациям.
-- [ ] Предусмотреть выбор выгодной доступной способности по ситуации через данные/контракт, без сложного нового фреймворка.
+- [x] Выделить простой контракт выбора намерения/действия, пригодный для будущего адаптера LimboAI.
+- [x] Сохранить NavigationAgent, текущие сценарии визита и отдельные способности: до трёх ближних и трёх дальних атак с привязкой к анимациям.
+- [x] Предусмотреть выбор выгодной доступной способности по ситуации через данные/контракт, без сложного нового фреймворка.
 
 Приёмка: существующий ИИ продолжает работать через понятный шов для будущего поведения. Установка LimboAI и полноценное дерево поведения в этот пункт не входят; Components остаются данными, Systems не вызывают друг друга как сервисы.
 
@@ -139,3 +139,11 @@ QA13 validation: only9 highlight-filtered tests,41 assertions in test_s_grab; re
 One authored DEF_Customer introduction mode: manual / announce order / first-approach dialogue; authored approach distance2m. Quick customer's real active ledger number appears once after spawn/registration, without modal dialogue; approaching/waiting transitions preserve it. Riddle/wall-order clients retain their contract. Auto dialogue starts once per physical visit only in waiting phases, with live player, clear LOS/range, no modal/prolonged/push/transport; busy state retries when free, successful manual/automatic start consumes the same guard. Closing/walking away does not replay. Default books quick; clothes first-approach. Timers/challenges retain existing owners. Focused behavioral checks justified, no broad rerun.
 
 QA07/08 implemented: DEF_Customer.Introduction MANUAL/ANNOUNCE_ORDER/FIRST_APPROACH_DIALOGUE, auto_dialogue_distance2m. Per-appearance C_CustomerAgent guards; active ledger number, no dialogue for quick mode; riddle and arrival wall-order unaffected. Actual player/NPC LOS/range and captures/console gate auto; manual start consumes same guard, success-only. Debug status shows introduction conditions above NPC. Default books quick, clothes auto. Focused4/4,40 assertions (`.export/customer-introductions-gut.log`); added console exclusion, changed first_approach regression alone1/1,14 assertions (`.export/customer-introductions-console-gut.log`). Independent read-only review clean; structure/diff PASS. Owner visual/full-slice QA pending; no broad rerun/smoke.
+
+## Active QA12 contract (recorded before implementation)
+
+Reuse existing NpcIntentService move/follow/stop/watch and Relationship targets; no duplicate behavior framework. Add detached typed NpcAttackChoice and read-only NpcAttackService.choose(): at most3+3 actually available abilities, authored selection_priority first, estimated damage/cycle as tie-break, stable kind/index on equal scores. choose_and_start validates chosen kind/index through existing runner. C_NpcCombat.automatic_attack_selection opt-out gives future LimboAI ownership of choosing, while System continues timed/animation execution and cooldown. Navigation/native motion/visit/challenge owners unchanged. Focused selector/opt-out/ability tests, no broad run.
+
+Windows5542b6d7 introductions main/test exported, both actual-scene/120-frame startup PASS. Owner QA pending.
+
+QA12 implemented: existing semantic NpcIntentService and R_CombatTarget remain the behavior boundary; detached NpcAttackChoice, read-only available selection with authored priority/damage-cycle tie-break and stable order. External adapter disables only C_NpcCombat.automatic_attack_selection; execution/cooldown/animation tracks remain active. Docs content/contracts/combat/README.md. Targeted selector3/3,30 assertions, `.export/npc-ai-selector-gut.log`; actual damage runner/default opt-in/LOS/stale decision verified. Self-review clean; structure/diff PASS. No new framework/addon/System coupling; no broad rerun/smoke. Owner existing-scenario/animation acceptance pending.

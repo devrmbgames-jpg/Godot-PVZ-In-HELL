@@ -40,3 +40,6 @@
 
 - 2026-10-03 — Windows b3168432 player-events main/test exported, both actual-scene/120-frame startup PASS; launchers updated.
 - 2026-10-03 — R23 QA07/08: authored manual/quick-number/first-approach modes, real active ledger number, successful conversation guards per appearance. LOS/distance/native captures/console exclude auto interrupt; closing does not replay; riddle/wall unchanged. Default books quick, clothes auto; local debug conditions. Focused4/4,40 + changed console case1/1,14; independent review clean; structure/diff PASS. Owner QA pending, no broad run.
+
+- 2026-10-03 — Windows5542b6d7 customer-introductions main/test exported, both actual-scene/120-frame startup PASS; launchers updated.
+- 2026-10-03 — R23 QA12 AI seam: detached read-only NpcAttackChoice, choose available3+3 by authored priority/damage-cycle, explicit execution revalidation. External selection opt-out preserves execution/cooldown/native intent/navigation/animation contracts. No new framework/addon, live targets stay Relationships. Targeted selector3/3,30 PASS; self-review/structure/diff PASS, no broad run/smoke. Included in next Windows milestone; owner QA pending.
