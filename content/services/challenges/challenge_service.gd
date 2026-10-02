@@ -182,7 +182,7 @@ static func _track_visit_condition(state: C_Challenge, previous_elapsed: float) 
 		return
 	var checked_seconds: float = maxf(0.0, state.elapsed - maxf(previous_elapsed, state.definition.preparation_seconds))
 	state.violation_elapsed += checked_seconds
-	if checked_seconds > 0.0 and state.violation_elapsed >= state.definition.violation_grace_seconds:
+	if checked_seconds > 0.0 and (state.violation_elapsed >= state.definition.violation_grace_seconds or is_equal_approx(state.violation_elapsed, state.definition.violation_grace_seconds)):
 		state.condition_violated = true
 
 

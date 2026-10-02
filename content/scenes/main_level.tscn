@@ -99,6 +99,8 @@
 
 [ext_resource type="PackedScene" path="res://content/scenes/game_world.tscn" id="Game_world"]
 
+[ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="Gaze_order_clue"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -1610,6 +1612,19 @@ shadow_enabled = true
 omni_range = 7.915
 
 [node name="Props" type="Node3D" parent="PVZ" unique_id=1153816839]
+
+[node name="GazeOrderClues" type="Node3D" parent="."]
+
+[node name="NorthWall" parent="GazeOrderClues" instance=ExtResource("Gaze_order_clue")]
+position = Vector3(6, 1.9, -7.44)
+
+[node name="EastWall" parent="GazeOrderClues" instance=ExtResource("Gaze_order_clue")]
+position = Vector3(11.44, 1.9, -2)
+rotation_degrees = Vector3(0, -90, 0)
+
+[node name="FrontWall" parent="GazeOrderClues" instance=ExtResource("Gaze_order_clue")]
+position = Vector3(6, 1.9, -0.56)
+rotation_degrees = Vector3(0, 180, 0)
 
 [node name="Entityes" type="Node3D" parent="." unique_id=118950221]
 

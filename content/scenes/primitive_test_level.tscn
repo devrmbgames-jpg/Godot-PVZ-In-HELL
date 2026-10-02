@@ -78,6 +78,8 @@
 [ext_resource type="PackedScene" path="res://content/scenes/game_world.tscn" id="Game_world"]
 [ext_resource type="NavigationMesh" path="res://content/navigation/navmesh_primitive_test.tres" id="Test_navigation"]
 
+[ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="Gaze_order_clue"]
+
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
 
@@ -291,6 +293,12 @@ size = Vector3(0.5, 1.5, 64)
 [sub_resource type="PlaneMesh" id="ReceivingMark"]
 size = Vector2(12, 8)
 
+[sub_resource type="BoxMesh" id="ClueWallMesh"]
+size = Vector3(2.5, 2.8, 0.3)
+
+[sub_resource type="BoxShape3D" id="ClueWallShape"]
+size = Vector3(2.5, 2.8, 0.3)
+
 [node name="PrimitiveTestLevel" type="Node3D" node_paths=PackedStringArray("world")]
 script = ExtResource("1_ixiin")
 world = NodePath("World")
@@ -444,6 +452,42 @@ mesh = SubResource("PedestalMesh")
 
 [node name="Collision" type="CollisionShape3D" parent="PVZ/Pedestal10"]
 shape = SubResource("PedestalShape")
+
+[node name="ClueWall0" type="StaticBody3D" parent="PVZ"]
+position = Vector3(-10, 1.4, -14)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall0"]
+mesh = SubResource("ClueWallMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall0"]
+shape = SubResource("ClueWallShape")
+
+[node name="OrderClue" parent="PVZ/ClueWall0" instance=ExtResource("Gaze_order_clue")]
+position = Vector3(0, 0.4, 0.21)
+
+[node name="ClueWall1" type="StaticBody3D" parent="PVZ"]
+position = Vector3(0, 1.4, -14)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall1"]
+mesh = SubResource("ClueWallMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall1"]
+shape = SubResource("ClueWallShape")
+
+[node name="OrderClue" parent="PVZ/ClueWall1" instance=ExtResource("Gaze_order_clue")]
+position = Vector3(0, 0.4, 0.21)
+
+[node name="ClueWall2" type="StaticBody3D" parent="PVZ"]
+position = Vector3(10, 1.4, -14)
+
+[node name="Visual" type="MeshInstance3D" parent="PVZ/ClueWall2"]
+mesh = SubResource("ClueWallMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="PVZ/ClueWall2"]
+shape = SubResource("ClueWallShape")
+
+[node name="OrderClue" parent="PVZ/ClueWall2" instance=ExtResource("Gaze_order_clue")]
+position = Vector3(0, 0.4, 0.21)
 
 [node name="Entityes" type="Node3D" parent="."]
 

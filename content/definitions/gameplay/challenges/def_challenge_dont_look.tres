@@ -8,10 +8,11 @@ script = ExtResource("Gaze")
 
 [resource]
 script = ExtResource("Challenge")
+trigger = 1
 completion = 2
 condition = SubResource("Condition")
 rule_text = "Не смотрите на меня дольше 3 секунд подряд, пока я здесь. Найдите и выдайте мой заказ."
 timeout_seconds = 0.0
-preparation_seconds = 3.0
+preparation_seconds = 0.0
 violation_grace_seconds = 3.0
 key = &"customer-dont-look"

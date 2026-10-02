@@ -248,6 +248,9 @@ static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void
 	visit.last_visit_day = day
 	bind_parcel(customer, visit)
 	customer.show_message(visit.definition.display_name)
+	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
+	if ChallengeService.begin_on_arrival(customer, player):
+		customer.show_message(challenge.definition.rule_text)
 
 
 static func bind_parcel(customer: Entity, visit: CustomerVisit) -> void:
@@ -302,9 +305,8 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 				NpcIntentService.stop(customer)
 				_watch_player(customer)
 				customer.show_message("Здравствуйте!")
-				var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
-				if ChallengeService.begin_on_arrival(customer, player):
-					var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
+				var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
+				if challenge != null and challenge.phase == C_Challenge.Phase.ACTIVE:
 					customer.show_message(challenge.definition.rule_text)
 			elif agent.elapsed >= visit.definition.approach_timeout:
 				_leave(customer, visit)
@@ -343,7 +345,11 @@ static func greet(customer: E_Customer) -> void:
 	if agent.phase != C_CustomerAgent.Phase.WAITING and agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
 		return
 	_transition(agent, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
-	customer.show_message("Здравствуйте. Поговорите со мной, чтобы узнать номер заказа.")
+	var visit: CustomerVisit = find_visit(agent.visit_id)
+	if CustomerPresentation.uses_wall_order(visit.definition):
+		customer.show_message("Номер моего заказа появился на стене. Выдайте его на стойке, не смотрите на меня.")
+	else:
+		customer.show_message("Здравствуйте. Поговорите со мной, чтобы узнать номер заказа.")
 
 
 static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck.Result:
