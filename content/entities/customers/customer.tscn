@@ -119,7 +119,10 @@ path_desired_distance = 0.35
 target_desired_distance = 0.25
 path_max_distance = 1.0
 height = 1.7
-radius = 0.3
+radius = 0.4
+avoidance_enabled = true
+neighbor_distance = 6.0
+time_horizon_agents = 1.0
 
 [node name="Body" parent="." index="2" unique_id=1355080631 instance=ExtResource("Model")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)

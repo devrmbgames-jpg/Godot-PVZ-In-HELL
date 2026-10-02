@@ -5,9 +5,9 @@ const LEVEL_PATH: String = "res://content/scenes/main_level.tscn"
 const OUTPUT_PATH: String = "res://content/navigation/navmesh_warehouse.tres"
 const TEST_LEVEL_PATH: String = "res://content/scenes/primitive_test_level.tscn"
 const TEST_OUTPUT_PATH: String = "res://content/navigation/navmesh_primitive_test.tres"
-const CELL_SIZE: float = 0.15
+const CELL_SIZE: float = 0.25
 const CELL_HEIGHT: float = 0.1
-## Match the authored NPC capsule/NavigationAgent; exact voxel multiple avoids 0.45m rounding.
+## Authored capsule clearance; Recast rounds it upward on the production 0.25m grid.
 const AGENT_RADIUS: float = 0.3
 const AGENT_HEIGHT: float = 1.7
 const MAX_CLIMB: float = 0.2

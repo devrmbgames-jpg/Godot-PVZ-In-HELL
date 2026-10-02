@@ -13,6 +13,36 @@ const ANIMATION_BLEND_SECONDS: float = 0.15
 @export var walk_animation: StringName = &"Walk"
 
 var _walking: bool = false
+var _navigation_dead: bool = false
+var _avoidance_before_death: bool = false
+
+
+func _ready() -> void:
+	if not Engine.is_editor_hint() and navigation_agent != null:
+		navigation_agent.velocity_computed.connect(_on_navigation_velocity_computed)
+
+
+func _on_navigation_velocity_computed(safe_velocity: Vector3) -> void:
+	var intent: C_NpcIntent = get_component(C_NpcIntent) as C_NpcIntent
+	if intent != null:
+		intent.avoidance_velocity = Vector3(safe_velocity.x, 0.0, safe_velocity.z)
+		intent.avoidance_frame = Engine.get_physics_frames()
+
+
+## Engine participation only; reset restores the native agent's authored policy.
+func sync_navigation_lifecycle(living: bool) -> void:
+	if navigation_agent == null or living == (not _navigation_dead):
+		return
+	if living:
+		navigation_agent.avoidance_enabled = _avoidance_before_death
+	else:
+		_avoidance_before_death = navigation_agent.avoidance_enabled
+		navigation_agent.avoidance_enabled = false
+	_navigation_dead = not living
+	var intent: C_NpcIntent = get_component(C_NpcIntent) as C_NpcIntent
+	if intent != null:
+		intent.avoidance_velocity = Vector3.ZERO
+		intent.avoidance_frame = -1
 
 
 func _process(_delta: float) -> void:

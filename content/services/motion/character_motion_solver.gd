@@ -115,6 +115,9 @@ static func _integrate_regular_motion(
 	input_motion.y = 0.0
 
 	var input_strength := clampf(input_motion.length(), 0.0, 1.0)
+	if controller.limit_motion_velocity and motion.is_on_floor:
+		_integrate_limited_velocity(state, motion, input_motion, carry_load, strength, hunger)
+		return
 
 	if input_strength <= INPUT_EPSILON:
 		if motion.is_on_floor:
@@ -143,6 +146,31 @@ static func _integrate_regular_motion(
 			strength,
 			hunger,
 		)
+
+
+static func _integrate_limited_velocity(
+	state: PhysicsDirectBodyState3D,
+	motion: C_Motion,
+	input_motion: Vector3,
+	carry_load: C_CarryLoad,
+	strength: C_Strength,
+	hunger: C_Hunger,
+) -> void:
+	var max_speed: float = effective_speed(motion, carry_load, strength, hunger)
+	var relative: Vector3 = state.linear_velocity - motion.floor_velocity
+	var planar: Vector3 = relative.slide(motion.floor_normal)
+	# Fast external knockback remains a physics impulse, outside locomotion's budget.
+	if planar.length() > max_speed + INPUT_EPSILON:
+		if input_motion.is_zero_approx():
+			_apply_ground_deceleration(state, motion)
+		else:
+			_integrate_ground_motion(state, motion, input_motion.normalized(), input_motion.length(), carry_load, strength, hunger)
+		return
+	var desired: Vector3 = input_motion.slide(motion.floor_normal).limit_length(1.0) * max_speed
+	var acceleration: float = motion.ground_acceleration if desired.length_squared() > planar.length_squared() else motion.ground_deceleration
+	if motion.surface_friction_affects_control:
+		acceleration *= clampf(motion.floor_friction, motion.minimum_ground_traction, 1.0)
+	state.linear_velocity += planar.move_toward(desired, acceleration * state.step) - planar
 
 
 static func _integrate_ground_motion(

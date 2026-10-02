@@ -29,6 +29,9 @@ var drop_long_fired: bool = false
 
 ## Намерение куда идти
 @export var direction_motion: Vector3 = Vector3.ZERO
+## Navigation avoidance supplies a speed ceiling as well as a direction.
+## Regular player motion keeps momentum/impulses through the default false value.
+var limit_motion_velocity: bool = false
 
 ## Намерение вызвать какое то взаимодействие (E)
 @export var interract_main: bool = false

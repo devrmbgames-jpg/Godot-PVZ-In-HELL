@@ -2,6 +2,11 @@ extends System
 ## Produces semantic intent only. Character solvers retain physics authority.
 class_name S_NpcIntent
 
+const MAX_AVOIDANCE_AGE_FRAMES: int = 2
+const MOVING_AVOIDANCE_PRIORITY: float = 0.5
+const WAITING_AVOIDANCE_PRIORITY: float = 1.0
+const MINIMUM_NAVIGATION_SPEED: float = 0.001
+const MAX_PASSING_NAV_DISTANCE: float = 0.2
 
 func query() -> QueryBuilder:
 	return q.with_all([C_NpcIntent, C_Controller]).with_none([C_PlayerInputController]).iterate([C_NpcIntent, C_Controller])
@@ -10,17 +15,23 @@ func query() -> QueryBuilder:
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var intents: Array = components[0]
 	var controllers: Array = components[1]
+	# GECS batches by archetype: a Trader is outside the current Customer batch.
+	var neighbours: Array[Entity] = ECS.world.query.with_all([C_NpcIntent, C_Controller]).with_none([C_PlayerInputController, C_Death]).execute()
 	for index: int in entities.size():
-		_apply(entities[index], intents[index] as C_NpcIntent, controllers[index] as C_Controller)
+		_apply(entities[index], intents[index] as C_NpcIntent, controllers[index] as C_Controller, neighbours)
 
 
-func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller) -> void:
+func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighbours: Array[Entity]) -> void:
 	var body: Node3D = actor as Node as Node3D
 	if body == null:
 		return
 	controller.direction_motion = Vector3.ZERO
+	controller.limit_motion_velocity = false
 	intent.navigation_pending = false
 	intent.navigation_blocked = false
+	var npc: E_NpcCharacter = actor as E_NpcCharacter
+	if npc != null:
+		npc.sync_navigation_lifecycle(not actor.has_component(C_Death))
 	if actor.has_component(C_Death):
 		intent.movement_active = false
 		controller.direction_look = Vector3.ZERO
@@ -42,11 +53,11 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller) -> voi
 			intent.distance_to_target = direction.length()
 			intent.arrived = intent.distance_to_target <= intent.arrival_distance
 			if not intent.arrived:
-				var npc: E_NpcCharacter = actor as E_NpcCharacter
 				if intent.navigation_enabled and npc != null and npc.navigation_agent != null:
 					direction = _path_direction(npc.navigation_agent, intent, body.global_position, position)
 				controller.direction_motion = direction.normalized() * clampf(intent.speed_fraction, 0.0, 1.0)
 	var look_direction: Vector3 = controller.direction_motion
+	_apply_avoidance(actor, intent, controller, neighbours)
 	if intent.look_mode == C_NpcIntent.LookMode.HOLD:
 		return
 	if intent.look_mode == C_NpcIntent.LookMode.TARGET:
@@ -65,6 +76,67 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller) -> voi
 			intent.look_uses_entity = false
 	if not look_direction.is_zero_approx():
 		controller.direction_look = look_direction.normalized()
+
+
+func _apply_avoidance(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighbours: Array[Entity]) -> void:
+	var npc: E_NpcCharacter = actor as E_NpcCharacter
+	if npc == null or npc.navigation_agent == null:
+		return
+	var agent: NavigationAgent3D = npc.navigation_agent
+	if not intent.navigation_enabled or not agent.avoidance_enabled:
+		return
+	var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
+	if motion == null:
+		return
+	var speed: float = CharacterMotionSolver.effective_speed(
+		motion, actor.get_component(C_CarryLoad) as C_CarryLoad,
+		actor.get_component(C_Strength) as C_Strength, actor.get_component(C_Hunger) as C_Hunger,
+	)
+	agent.max_speed = maxf(speed, MINIMUM_NAVIGATION_SPEED)
+	var moving: bool = not controller.direction_motion.is_zero_approx() and motion.control_enabled
+	agent.avoidance_priority = MOVING_AVOIDANCE_PRIORITY if moving else WAITING_AVOIDANCE_PRIORITY
+	var preferred: Vector3 = _passing_direction(npc, intent, controller.direction_motion, neighbours) if moving else Vector3.ZERO
+	agent.velocity = preferred * speed
+	controller.limit_motion_velocity = true
+	controller.direction_motion = Vector3.ZERO
+	# A waiting NPC is a stationary obstacle; neighbours go around it.
+	if moving and intent.avoidance_frame >= 0 and Engine.get_physics_frames() - intent.avoidance_frame <= MAX_AVOIDANCE_AGE_FRAMES:
+		controller.direction_motion = intent.avoidance_velocity.limit_length(speed) / maxf(speed, MINIMUM_NAVIGATION_SPEED)
+
+
+func _passing_direction(npc: E_NpcCharacter, intent: C_NpcIntent, desired: Vector3, neighbours: Array[Entity]) -> Vector3:
+	if intent.passing_distance <= 0.0 or intent.passing_bias <= 0.0:
+		return desired
+	var forward: Vector3 = desired.normalized()
+	var right: Vector3 = forward.cross(Vector3.UP)
+	var nearest: float = intent.passing_distance
+	var obstacle: E_NpcCharacter = null
+	for actor: Entity in neighbours:
+		var other: E_NpcCharacter = actor as E_NpcCharacter
+		if other == null or other == npc or other.navigation_agent == null or actor.has_component(C_Death):
+			continue
+		var offset: Vector3 = other.global_position - npc.global_position
+		if absf(offset.y) > npc.navigation_agent.height:
+			continue
+		offset.y = 0.0
+		var distance: float = offset.length()
+		var clearance: float = npc.navigation_agent.radius + other.navigation_agent.radius
+		if distance < nearest and offset.dot(forward) > 0.0 and absf(offset.dot(right)) < clearance:
+			nearest = distance
+			obstacle = other
+	if obstacle == null:
+		return desired
+	var offset: Vector3 = obstacle.global_position - npc.global_position
+	var side: Vector3 = -right if offset.dot(right) > 0.0 else right
+	var clearance: float = npc.navigation_agent.radius + obstacle.navigation_agent.radius
+	var map: RID = npc.navigation_agent.get_navigation_map()
+	var candidate: Vector3 = npc.global_position + side * clearance
+	if NavigationServer3D.map_get_closest_point(map, candidate).distance_to(candidate) > MAX_PASSING_NAV_DISTANCE:
+		side = -side
+		candidate = npc.global_position + side * clearance
+		if NavigationServer3D.map_get_closest_point(map, candidate).distance_to(candidate) > MAX_PASSING_NAV_DISTANCE:
+			return desired
+	return (forward + side * intent.passing_bias).normalized() * desired.length()
 
 
 func _path_direction(

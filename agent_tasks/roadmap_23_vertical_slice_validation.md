@@ -19,6 +19,8 @@ Status: **IN_PROGRESS**
 - [x] Reconfirm dependency implementation and current production owners/contracts; owner QA remains in dependencies.
 - [x] M1: fixed authored supply/customer families and scenario route/feedback audit.
 - [x] QA batch A implementation: Windows export, direct player view, seam adhesion/jump guard, living grab guard and Trader interaction; player acceptance pending.
+- [x] QA-11: native NPC avoidance, stationary/queue/corridor/reset regressions; Navigation cell_size 0.25 on main/test. Player acceptance pending.
+- [ ] Updated owner scope QA-14–QA-20: CharacterBody player/archive/immersive slots, refusal after handoff, Terminal debug-only truth, liquid alignment, immediate gaze and light-client entrance effects, knife/hammer animation.
 - [ ] Owner QA batch: implement and verify [QA-01–QA-13](roadmap_23_vertical_slice_validation/owner_qa.md) on the enlarged main scene.
 - [ ] M2: ordinary-input Morning → Day → Evening → Night → Morning walkthrough.
 - [ ] M3: alternative outcomes/combat/carry-over and lifecycle gaps, preserving existing owners.
@@ -33,9 +35,7 @@ This file is the authoritative router. Existing fixture smokes are dependency ev
 Owner feedback dated 2026-10-02 extends R23 with [thirteen QA tasks](roadmap_23_vertical_slice_validation/owner_qa.md), including corpse/meat, inventory grid, future AI integration preparation and editable highlight materials/global overlay contract. The enlarged main scene and hidden DebugMarkers are authored owner changes; markers provide visual orientation only. Console/help extension is owned separately by [Developer Console Testing](developer_console_testing.md).
 
 ### Current
-Resumed by owner 2026-10-03 on dev; master is read-only. Windows export infrastructure committed 8ebf7c55. First QA repair batch implemented: direct physics-owned view, screen-relative input, authored floor adhesion preserving jump impulses, initially disabled crouch shape, no grabbing living NPCs, Trader E/F action accessible before Evening with purchases still gated. Nonuniformly scaled stairs use baked convex hulls preserving authored geometry. Next: organize player QA, then common World/primitive test level and remaining QA-03–QA-13.
-
-M1 c33d40a9 and prior M2 input-driver evidence remain historical. The eight scans/Terminal/arrival/dialogue were on the previous geometry; no full-day PASS. The enlarged map requires fresh navigation validation. Prior handoff failed before delivery with NPC aggression; cause still requires investigation after the physical/interaction repairs. Full-slice manual testing remains assigned to the owner.
+Owner updated goal 2026-10-03: pursue QA-14–QA-20 in owner_qa.md, starting with [CharacterBody migration](player_characterbody_migration.md). Previous completed milestones remain useful: Windows main/test launchers, player QA queue, shared World, primitive map, NPC avoidance. Master read-only, user editor resaves remain untouched. Latest native RVO regression 14/14, 56 asserts; R1 reset lifecycle repaired and rereviewed. All authored navmesh cell_size now 0.25 (198/70 polygons). Old rigid player control acceptance is superseded by explicit migration; full-day/rendered feel acceptance belongs to owner. Next: common typed character API, archive authored rigid player, new native CharacterBody controller.
 
 ### Validation
 2026-10-03 repair batch: focused control/Trader physical regression, Commerce, Jump and melee checks — 23/23 GUT, 143 assertions, no leaks (qa-controls-final-gut.log under .export). Main and exported Windows startup checked headlessly (120 frames); no game errors after scale-safe stair migration, external certificate-store warning recorded separately. Structure validator now accepts native SystemGroup auto_group initialization; formatter unavailable (SKIP). Separate read-only review found no material findings. These checks do not establish full-day or visual acceptance.
