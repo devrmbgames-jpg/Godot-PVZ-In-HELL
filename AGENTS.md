@@ -37,6 +37,14 @@ Load skills only when their workflow is needed:
 
 Do not load skills speculatively. Ordinary Godot/GDScript work does not require the GECS or GUT skill unless the task actually crosses those contracts.
 
+## Godot AI MCP
+
+Godot AI MCP is available as an optional live bridge to the editor and running game. Use it when it materially improves understanding, implementation, or validation; the agent should decide when it is useful rather than treating MCP as a mandatory step.
+
+Prefer ordinary file/search/edit tools when they are simpler or cheaper. When using MCP, start with the relevant scene, subtree, node, resource, or log range and widen the inspection if the task benefits from more context. Large hierarchy/property/log dumps and visual captures are reasonable when they genuinely help, but do not collect them by default just because the tools are available.
+
+If the MCP/editor is unavailable and live inspection is not essential, continue with normal repository tools instead of blocking the task.
+
 ## Subagents
 
 Routine work stays in the main session. Use project subagents only when the user explicitly requests delegation or a substantial bounded review/validation step benefits from separate context:
