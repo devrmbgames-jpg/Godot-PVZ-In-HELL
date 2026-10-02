@@ -81,7 +81,7 @@ Validation cadence and commands belong in `AGENTS.md` / `docs/smoke_runner.md`, 
 - Live queue/status: `agent_tasks/CONTEXT.md`.
 - Current execution pointer: `CURRENT_WORK.md` only when resuming current work.
 - Exact task/router owns status/current/next; milestone/support files do not compete with it.
-- R22.5 router: `agent_tasks/roadmap_22_5_gecs_architecture_polish.md`; currently DEFERRED after M0.
+- Completed implementation evidence: `task_history.md`; current development queue: `agent_tasks/CONTEXT.md`, manual acceptance: `qa_tasks/README.md`.
 - Implementation workflow: `.agents/skills/develop/SKILL.md`.
 - GECS-specific workflow: `.agents/skills/gecs-v8/SKILL.md`.
 

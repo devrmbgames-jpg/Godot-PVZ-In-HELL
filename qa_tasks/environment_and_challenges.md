@@ -1,6 +1,6 @@
 # Окружение и челленджи
 
-Источники: [R13](../agent_tasks/roadmap_13_environment_interactables.md), [R14](../agent_tasks/roadmap_14_challenge_framework_and_lights.md), [R15](../agent_tasks/roadmap_15_gaze_challenges.md), [R16](../agent_tasks/roadmap_16_floor_hazard_challenge.md).
+Источники: [R13](../task_history.md), [R14](../task_history.md), [R15](../task_history.md), [R16](../task_history.md).
 
 Готовность: **ГОТОВО К ПРОВЕРКЕ** для текущих механик. Результат: **ОЖИДАЕТ ИГРОКА**. Новые тайминги ×4 и вращаемые вентили с сигналом ещё ожидают реализации; используйте реальные таймеры на экране.
 

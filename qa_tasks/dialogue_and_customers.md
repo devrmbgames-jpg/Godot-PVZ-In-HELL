@@ -1,6 +1,6 @@
 # Диалоги и физические клиенты
 
-Источники: [R12](../agent_tasks/roadmap_12_dialogue_integration.md), [R12.1](../agent_tasks/roadmap_12_1_customer_refusal_negotiation.md), [R12.2](../agent_tasks/roadmap_12_2_customer_npc_character.md).
+Источники: [R12](../task_history.md), [R12.1](../task_history.md), [R12.2](../task_history.md).
 
 Готовность: **ГОТОВО К ПРОВЕРКЕ**. Результат: **ОЖИДАЕТ ИГРОКА**. Взаимный обход готов (QA-11); новые способы начала разговора ждут QA-07/08, отказ после передачи — QA-14.
 

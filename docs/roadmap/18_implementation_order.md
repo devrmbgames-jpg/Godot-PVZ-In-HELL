@@ -97,7 +97,7 @@ Completed: [customer contract](../customers.md); GUT and headless customer flow 
 
 ## R11.1 — Extended Interaction / Arrangement
 
-Task: [roadmap_11_1_extended_interactions_and_arrangement.md](../../agent_tasks/roadmap_11_1_extended_interactions_and_arrangement.md)
+Task: [roadmap_11_1_extended_interactions_and_arrangement.md](../../task_history.md)
 
 Основной источник: [ТЗ 08.1](08_1_arrangement_extended_interactions.md).
 
@@ -115,7 +115,7 @@ R11.1 — отдельный generic foundation. R13/R19 должны **пере
 
 ## R12 — Dialogue Integration
 
-Task: [roadmap_12_dialogue_integration.md](../../agent_tasks/roadmap_12_dialogue_integration.md)
+Task: [roadmap_12_dialogue_integration.md](../../task_history.md)
 
 Основной источник: [ТЗ 09](09_dialogue_system.md).
 
@@ -129,7 +129,7 @@ Task: [roadmap_12_dialogue_integration.md](../../agent_tasks/roadmap_12_dialogue
 
 ## R13 — Environment Interactables
 
-Task: [roadmap_13_environment_interactables.md](../../agent_tasks/roadmap_13_environment_interactables.md)
+Task: [roadmap_13_environment_interactables.md](../../task_history.md)
 
 Источники: [ТЗ 08.1](08_1_arrangement_extended_interactions.md), [ТЗ 13](13_environment_interactables.md).
 
@@ -145,9 +145,9 @@ Task: [roadmap_13_environment_interactables.md](../../agent_tasks/roadmap_13_env
 ## R14–R16 — Customer Challenge Families
 
 Tasks:
-- [R14](../../agent_tasks/roadmap_14_challenge_framework_and_lights.md) — shared Challenge lifecycle + Light;
-- [R15](../../agent_tasks/roadmap_15_gaze_challenges.md) — Don't Look / Keep Looking;
-- [R16](../../agent_tasks/roadmap_16_floor_hazard_challenge.md) — Floor Hazard.
+- [R14](../../task_history.md) — shared Challenge lifecycle + Light;
+- [R15](../../task_history.md) — Don't Look / Keep Looking;
+- [R16](../../task_history.md) — Floor Hazard.
 
 Основной источник: [ТЗ 08](08_customer_challenge_framework.md).
 
@@ -157,7 +157,7 @@ Tasks:
 
 ## R17 — Combat / Aggressive Customer
 
-Task: [roadmap_17_combat_and_impact_damage.md](../../agent_tasks/roadmap_17_combat_and_impact_damage.md)
+Task: [roadmap_17_combat_and_impact_damage.md](../../task_history.md)
 
 Основной источник: [ТЗ 10](10_combat_damage_health.md).
 
@@ -171,7 +171,7 @@ Task: [roadmap_17_combat_and_impact_damage.md](../../agent_tasks/roadmap_17_comb
 
 ## R18 — Hunger / Perception
 
-Task: [roadmap_18_hunger_and_perception.md](../../agent_tasks/roadmap_18_hunger_and_perception.md)
+Task: [roadmap_18_hunger_and_perception.md](../../task_history.md)
 
 Источники: [ТЗ 11](11_hunger_system.md), [ТЗ 09](09_dialogue_system.md).
 
@@ -184,7 +184,7 @@ Task: [roadmap_18_hunger_and_perception.md](../../agent_tasks/roadmap_18_hunger_
 
 ## R19 — Inventory / Consumables
 
-Task: [roadmap_19_inventory_and_consumables.md](../../agent_tasks/roadmap_19_inventory_and_consumables.md)
+Task: [roadmap_19_inventory_and_consumables.md](../../task_history.md)
 
 Источники: [ТЗ 12](12_inventory_and_consumables.md), [ТЗ 08.1](08_1_arrangement_extended_interactions.md).
 
@@ -198,7 +198,7 @@ Task: [roadmap_19_inventory_and_consumables.md](../../agent_tasks/roadmap_19_inv
 
 ## R20 — Evening / Trader / Orders / Quest
 
-Task: [roadmap_20_evening_trader_orders_and_quest.md](../../agent_tasks/roadmap_20_evening_trader_orders_and_quest.md)
+Task: [roadmap_20_evening_trader_orders_and_quest.md](../../task_history.md)
 
 Основной источник: [ТЗ 14](14_evening_meta_scaffold.md).
 
@@ -212,7 +212,7 @@ Task: [roadmap_20_evening_trader_orders_and_quest.md](../../agent_tasks/roadmap_
 
 ## R21 — Persistence / Next Day
 
-Task: [roadmap_21_night_persistence_next_day.md](../../agent_tasks/roadmap_21_night_persistence_next_day.md)
+Task: [roadmap_21_night_persistence_next_day.md](../../task_history.md)
 
 Основной источник: [ТЗ 15](15_night_save_next_day.md).
 
@@ -227,7 +227,7 @@ Task: [roadmap_21_night_persistence_next_day.md](../../agent_tasks/roadmap_21_ni
 
 ## R22 — HUD / World Feedback
 
-Task: [roadmap_22_hud_and_world_feedback.md](../../agent_tasks/roadmap_22_hud_and_world_feedback.md)
+Task: [roadmap_22_hud_and_world_feedback.md](../../task_history.md)
 
 Основной источник: [ТЗ 16](16_ui_and_feedback.md).
 
@@ -239,7 +239,7 @@ Task: [roadmap_22_hud_and_world_feedback.md](../../agent_tasks/roadmap_22_hud_an
 
 ## R22.5 — GECS Architecture Polish
 
-Task: [roadmap_22_5_gecs_architecture_polish.md](../../agent_tasks/roadmap_22_5_gecs_architecture_polish.md)
+Task: [roadmap_22_5_gecs_architecture_polish.md](../../task_history.md)
 
 Источник: upstream GECS `BEST_PRACTICES.md` + project `.agents/skills/gecs-v8/SKILL.md`.
 

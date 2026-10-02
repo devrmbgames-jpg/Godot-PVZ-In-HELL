@@ -50,3 +50,14 @@
 - 2026-09-29 — Corrected customer arrival semantics: package-pickup NPCs now wait for an active package registration and do not block shift completion while gated; due shipments still unregistered on the next Morning are closed Lost without spawning the NPC. Customer events with another authored purpose can opt out of the registration gate.
 - 2026-09-29 — Split ignored registration from honest LOST economics: ordinary declared LOST remains 120% to preserve the refusal/fraud dilemma, while a due Package left unregistered until the next Morning now records LossCause.MISSED_REGISTRATION and a dedicated data-driven 300% settlement.
 - 2026-09-29 — Migrated Terminal presentation to `Root/Panel/NewUI`: package-centric rows, detail view with durable history UID, search/sort/archive filters, package history and transaction logs, and only Taken/Refused/Lost outcome actions. Removed the legacy RichText/visit/Closeout UI, `terminal_text`/`registry_text`, and Terminal-driven refusal buyout/return path; refused parcels now remain warehouse-owned until a future physical unload/trash/vehicle interaction. Godot 4.7 UI script checks and project structure validation PASS; owner visual/gameplay QA remains.
+
+
+## 2026-10-03 — Завершённые задачи удалены из очереди
+
+По прямому требованию владельца удалены implementation task-файлы DONE/OWNER_QA; ожидающие игрока сценарии сохранены в qa_tasks. Ссылки на выполненные R11.1–R22.5 и организационные задачи перенаправлены сюда; исходные подробности сохраняются в Git. Открытые R23, новые замечания, CharacterBody-миграция и низкоприоритетная консоль остаются в agent_tasks.
+
+Последние завершённые этапы dev: Windows QA export 8ebf7c55; rigid player/trader fixes 357a49b6/eb68777c; player QA migration 0fc15546; shared World/primitive level cc638f5d (2/2 GUT, 224 asserts); stair/nav UID repair a2e81594; native NPC avoidance + navigation cell_size 0.25 bd8d333c (14/14 GUT, 56 asserts; corridor, Trader, queue, reset; review R1 FIXED). Production nav bakes main 198/primitive 70 polygons; shared-world suite rerun 2/2, 224 asserts. Windows main/test bd8d333c each passed actual-scene confirmation + 120-frame startup, external certificate-store warning only. Manual player acceptance remains pending.
+
+QA-01 rigid movement changes are historical and superseded by the new CharacterBody requirement. QA-02 Trader and QA-11 avoidance implementation are complete; their regression checklists remain in qa_tasks/owner_qa_fixes.md.
+
+Completed implementation IDs retained for dependency resolution: R11.1, R12, R12.1, R12.2, R13, R14, R15, R16, R17, R18, R19, R20, R21, R22, R22.5. Их игровая приёмка отдельно ожидается в qa_tasks.

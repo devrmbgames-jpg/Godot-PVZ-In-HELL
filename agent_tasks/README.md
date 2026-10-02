@@ -69,3 +69,7 @@ Historical details may remain below the control block as evidence/reference, but
 Do not run GUT/smoke after every milestone. For a complete large `Rxx` / `Rxx.x`, normally reserve one relevant GUT invocation and one relevant headless smoke/runtime invocation near completion unless the task explicitly requires otherwise.
 
 Completed work is summarized in [task_history.md](../task_history.md). Do not recreate removed completed task files merely to satisfy the new format.
+
+## Завершённые задачи
+
+По требованию владельца (2026-10-03) готовые implementation-задачи удаляются из этой папки после фиксации этапа. Здесь остаётся только открытая работа. Ожидающая игроков ручная приёмка находится в `qa_tasks/`; краткие доказательства и IDs завершённых реализаций — в `task_history.md`, подробные удалённые документы доступны в Git. Новый обнаруженный баг оформляется новой задачей, завершённый файл не возвращается в очередь.

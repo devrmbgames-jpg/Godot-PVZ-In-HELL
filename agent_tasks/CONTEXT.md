@@ -4,24 +4,8 @@ This file is the queue/index. It does not replace individual task state.
 
 | Status | Task |
 | --- | --- |
-| **DONE** | [R22.5 GECS Architecture Polish](roadmap_22_5_gecs_architecture_polish.md) — final review/regressions complete |
-| **OWNER_QA** | [R12.1 Customer refusal negotiation / repeat visits](roadmap_12_1_customer_refusal_negotiation.md) |
-| **OWNER_QA** | [R12 Dialogue integration — visible intent prefixes](roadmap_12_dialogue_integration.md) |
-| **OWNER_QA** | [R12.2 Physical NPC / Customer character foundation](roadmap_12_2_customer_npc_character.md) |
-| **OWNER_QA** | [R13 Environment Interactables](roadmap_13_environment_interactables.md) |
-| **OWNER_QA** | [R14 Challenge Framework / Light](roadmap_14_challenge_framework_and_lights.md) |
-| **OWNER_QA** | [R15 Gaze Challenges](roadmap_15_gaze_challenges.md) |
-| **OWNER_QA** | [R16 Floor Hazard Challenge](roadmap_16_floor_hazard_challenge.md) |
-| **OWNER_QA** | [R17 Combat / Impact Damage](roadmap_17_combat_and_impact_damage.md) |
-| **OWNER_QA** | [R18 Hunger / Perception](roadmap_18_hunger_and_perception.md) |
-| **OWNER_QA** | [R19 Inventory / Consumables](roadmap_19_inventory_and_consumables.md) |
-| **OWNER_QA** | [R20 Evening / Trader / Orders / Quest](roadmap_20_evening_trader_orders_and_quest.md) |
-| **OWNER_QA** | [R21 Night / Persistence / Next Day](roadmap_21_night_persistence_next_day.md) |
-| **OWNER_QA** | [R22 HUD / World Feedback](roadmap_22_hud_and_world_feedback.md) |
 | **IN_PROGRESS** | [R23 Vertical Slice Validation](roadmap_23_vertical_slice_validation.md) — resumed on dev; QA-01/02 repair batch and Windows QA export implemented |
 | **PLANNED** | [Developer Console Testing](developer_console_testing.md) — **LOW priority**, additional task: expanded gameplay commands, `help` and open-console scrolling; base Stages 1–9 complete |
-| **DONE** | [Организация игрового QA](player_qa_tasks_organization.md) — очередь и девять сценариев в `qa_tasks/`, исходные задачи ссылаются на проверки игроков |
-| **OWNER_QA** | [Тестовая сцена и общий World](primitive_test_scene_shared_world.md) — извлечение общей конфигурации и построение простого уровня |
 | **IN_PROGRESS** | [Игрок CharacterBody и иммерсивные слоты](player_characterbody_migration.md) — новое требование владельца, QA-16/20 |
 
 Supporting artifacts are linked from their owner tasks and are not separate queue entries.

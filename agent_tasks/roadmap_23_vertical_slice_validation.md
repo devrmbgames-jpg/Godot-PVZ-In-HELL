@@ -63,7 +63,7 @@ R22.5 dependency gate complete: 151/151 GUT (921 assertions), strict hazards/int
 - [content/scenes/main_level.tscn](../content/scenes/main_level.tscn)
 - [docs/roadmap/17_vertical_slice_scenario.md](../docs/roadmap/17_vertical_slice_scenario.md)
 
-Затем прочитать контракты, созданные задачами-зависимостями. Перед end-to-end validation подтвердить завершение [R22.5 GECS Architecture Polish](roadmap_22_5_gecs_architecture_polish.md). Имена новых типов из roadmap — проектируемые контракты, а не утверждение о существующих файлах.
+Затем прочитать контракты, созданные задачами-зависимостями. Перед end-to-end validation подтвердить завершение [R22.5 GECS Architecture Polish](../task_history.md). Имена новых типов из roadmap — проектируемые контракты, а не утверждение о существующих файлах.
 
 ## Работы
 

@@ -1,6 +1,6 @@
 # Бой, голод и инвентарь
 
-Источники: [R17](../agent_tasks/roadmap_17_combat_and_impact_damage.md), [R18](../agent_tasks/roadmap_18_hunger_and_perception.md), [R19](../agent_tasks/roadmap_19_inventory_and_consumables.md).
+Источники: [R17](../task_history.md), [R18](../task_history.md), [R19](../task_history.md).
 
 Готовность: **ГОТОВО К ПРОВЕРКЕ** для текущих механик. Результат: **ОЖИДАЕТ ИГРОКА**. Труп/мясо, молоток как оружие, сетка и новая анимация ножа пока ждут реализации.
 
