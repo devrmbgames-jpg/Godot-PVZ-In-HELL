@@ -4,9 +4,10 @@ This file is the queue/index. It does not replace individual task state.
 
 | Status | Task |
 | --- | --- |
-| **IN_PROGRESS** | [R23 Vertical Slice Validation](roadmap_23_vertical_slice_validation.md) — resumed on dev; QA-01/02 repair batch and Windows QA export implemented |
-| **PLANNED** | [R24 World, Customers and Commerce](roadmap_24_world_customers_commerce.md) — additional owner requirements; preserves the open R23 queue |
-| **PLANNED** | [Developer Console Testing](developer_console_testing.md) — **LOW priority**, additional task: expanded gameplay commands, `help` and open-console scrolling; base Stages 1–9 complete |
+| **OWNER_QA** | [R23 Vertical Slice Validation](roadmap_23_vertical_slice_validation.md) — implementation ready; full main-level day and player acceptance pending |
+| **OWNER_QA** | [R24 World, Customers and Commerce](roadmap_24_world_customers_commerce.md) — M0–M6 implemented; manual acceptance pending |
+| **OWNER_QA** | [Developer Console Testing](developer_console_testing.md) — Stages1–15,28 extended commands, help and scrolling implemented; player QA pending |
+| **DEFERRED** | [R25 GDScript Documentation](roadmap_25_gdscript_documentation.md) — **LAST**, русские `##` и смысловые регионы; выполнять после предыдущих задач и исправлений QA |
 
 Supporting artifacts are linked from their owner tasks and are not separate queue entries.
 
