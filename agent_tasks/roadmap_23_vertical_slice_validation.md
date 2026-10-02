@@ -15,8 +15,8 @@ Status: **IN_PROGRESS**
 - Follow Godot 4.7, GECS ownership, physics authority, and validation rules from `AGENTS.md`.
 
 ### Milestones
-- [ ] Reconfirm dependency completion and current production owners/contracts.
-- [ ] M1: fixed authored supply/customer families and scenario route/feedback audit.
+- [x] Reconfirm dependency implementation and current production owners/contracts; owner QA remains in dependencies.
+- [x] M1: fixed authored supply/customer families and scenario route/feedback audit.
 - [ ] M2: ordinary-input Morning → Day → Evening → Night → Morning walkthrough.
 - [ ] M3: alternative outcomes/combat/carry-over and lifecycle gaps, preserving existing owners.
 - [ ] M4: independent review, full-project GUT, integrated smoke and owner checklist.
@@ -28,10 +28,10 @@ Status: **IN_PROGRESS**
 This file is the authoritative router. Existing fixture smokes are dependency evidence, not a complete no-debug day walkthrough. Preserve the authored arrival-to-physical-departure challenge, simple NPC 3+3 attacks/animation hooks/NavigationAgent and screen debug timers/conditions/tasks. Headless native-node/sound-state checks do not establish rendered/audio perception.
 
 ### Current
-M1 started after R22.5 final automation/review. Exact scenario source read; current default schedule has light challenges even on Ordinary, so genuine normal + light/gaze/floor composition needs correction while preserving user schedule resave. Supply/scenario IDs and ordinary input route are the next direct owners to verify. No complete day walkthrough claim yet.
+M1 complete: eight fixed package definitions; Ordinary genuinely has no challenge, Light/Gaze/Floor and arrival-to-physical-departure remain. Hazard TTL/owner-loss debug added. Route/evidence: [docs/vertical_slice_validation.md](../docs/vertical_slice_validation.md). Next M2: ordinary-input full-day walkthrough, preserving native physics and isolated autosave. No complete day walkthrough claim yet.
 
 ### Validation
-R22.5 dependency gate complete: 151/151 GUT (921 assertions), strict hazards/integrated main feedback smokes, static/structure/diff and independent review. R23-specific full-project GUT/no-debug day walkthrough has not run.
+R22.5 dependency gate complete: 151/151 GUT (921 assertions), strict hazards/integrated main feedback smokes, static/structure/diff and independent review. R23 M1 authored manifest PASS; strict challenge_light-20261002-145614714.log PASS; diff PASS. R23-specific full-project GUT/no-debug day walkthrough has not run.
 
 ### Owner QA / blockers
 No implementation blocker. Owner rendered full-day/readability/gamepad/audio playtest remains; keep implementation and automated evidence separate from that acceptance.
@@ -55,7 +55,7 @@ No implementation blocker. Owner rendered full-day/readability/gamepad/audio pla
 
 ## Работы
 
-- [ ] Зафиксировать воспроизводимый набор 6–10 Package, оба опасных эффекта и четыре customer events: normal, light, gaze, floor.
+- [x] Зафиксировать воспроизводимый набор 6–10 Package, оба опасных эффекта и четыре customer events: normal, light, gaze, floor.
 - [ ] Пройти Morning: scan, Terminal, ручная маркировка/полки, повреждение/вскрытие.
 - [ ] Проверить минимум один reusable extended-interaction path R11.1: prolonged action и физическое placement/fix-unfix без softlock.
 - [ ] Пройти Day: обычная выдача, три разные challenge-семьи, ошибочная/повреждённая выдача, combat path и физические препятствия.

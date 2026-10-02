@@ -68,7 +68,6 @@ followup_probability_delta = -0.1
 
 [sub_resource type="Resource" id="Ordinary"]
 script = ExtResource("Customer")
-challenge = ExtResource("ChallengeOff")
 dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
 display_name = "Покупатель книг"
 key = &"ordinary"

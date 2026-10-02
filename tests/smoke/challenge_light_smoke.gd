@@ -4,6 +4,7 @@ extends Node
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 900
 const UI_WAIT_FRAMES: int = 32
+const LIGHT_OFF_FIXTURE: DEF_Challenge = preload("res://content/definitions/gameplay/challenges/def_challenge_light_off.tres")
 
 var _level: Node = null
 var _actor: Entity = null
@@ -17,6 +18,7 @@ func _ready() -> void:
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	_level = scene.instantiate()
+	_level.set("autosave_path", "")
 	add_child(_level)
 	_level.set_physics_process(false)
 	_actor = _level.get_node("Entityes/Player") as Entity
@@ -29,6 +31,12 @@ func _run() -> void:
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
 	var books: Entity = CustomerFlowService.parcel_for("base_supply:1:books")
+	# The default Ordinary now has no challenge. This bounded fixture still covers Light Off.
+	var flow: C_CustomerFlow = CustomerFlowService.current()
+	for visit: CustomerVisit in flow.visits:
+		if visit.definition.key == &"ordinary":
+			visit.definition = visit.definition.duplicate(true) as DEF_Customer
+			visit.definition.challenge = LIGHT_OFF_FIXTURE
 	assert(PackageRegistrationService.register_package(books).outcome == PackageScanResult.Outcome.REGISTERED)
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
