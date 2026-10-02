@@ -6,6 +6,7 @@ var allowed_hand_slots: int = 0
 var manual_rotation_enabled: bool = true
 var rotation_axis: C_Grabbable.RotationAxis = C_Grabbable.RotationAxis.FREE
 var reset_rotation_on_pickup: bool = false
+var keep_upright: bool = false
 var hold_distance: float = -1.0
 var position_stiffness: float = 110.0
 var position_damping: float = 22.0

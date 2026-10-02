@@ -15,6 +15,7 @@ class CapturedInput extends S_PlayerInput:
 func _mouse_motion(relative: Vector2) -> InputEventMouseMotion:
 	var event: InputEventMouseMotion = InputEventMouseMotion.new()
 	event.relative = relative
+	event.screen_relative = relative
 	return event
 
 
@@ -41,6 +42,40 @@ var carry_load: C_CarryLoad
 
 
 #region Fixture
+func test_held_liquid_rights_itself_and_stays_upright_when_camera_tilts() -> void:
+	box_entity.add_component(C_LiquidTilt.new())
+	box_body.rotation = Vector3(1.2, 0.4, 0.2)
+	for frame: int in 2:
+		await get_tree().physics_frame
+	assert_true(GrabService.try_pickup(holder_entity, box_entity))
+	var anchor: Node3D = GrabService.slot_anchor(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	anchor.rotation = Vector3(-0.9, 0.65, 0.0)
+	for frame: int in 50:
+		await get_tree().physics_frame
+	assert_gt(box_body.global_basis.y.normalized().dot(Vector3.UP), 0.99, "Liquid stands upright despite the tilted carry anchor")
+	var profile: GrabControlProfile = GrabService.profile_for(box_entity)
+	assert_eq(profile.rotation_axis, C_Grabbable.RotationAxis.Y_ONLY, "Manual yaw remains available")
+	assert_eq(profile.max_rotation_speed, 3.0)
+	GrabService.release(holder_entity, box_entity)
+	assert_null(GrabService.held_relationship(box_entity))
+
+
+func test_regular_prop_keeps_free_rotation_when_held_and_liquid_policy_can_opt_out() -> void:
+	for frame: int in 2:
+		await get_tree().physics_frame
+	assert_true(GrabService.try_pickup(holder_entity, box_entity))
+	var anchor: Node3D = GrabService.slot_anchor(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	anchor.rotation.x = 0.7
+	for frame: int in 12:
+		await get_tree().physics_frame
+	assert_lt(box_body.global_basis.y.normalized().dot(Vector3.UP), 0.9, "Ordinary prop follows manual/camera pitch")
+	assert_false(GrabService.profile_for(box_entity).keep_upright)
+	var liquid: C_LiquidTilt = C_LiquidTilt.new()
+	liquid.keep_upright_while_held = false
+	box_entity.add_component(liquid)
+	assert_false(GrabService.profile_for(box_entity).keep_upright)
+
+
 func before_each() -> void:
 	grab_world = World.new()
 	add_child(grab_world)

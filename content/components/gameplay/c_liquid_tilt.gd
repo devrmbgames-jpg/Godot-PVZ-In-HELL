@@ -7,6 +7,9 @@ class_name C_LiquidTilt
 @export_range(0.0, 30.0) var duration_seconds: float = 2.0
 ## Optional one-shot non-impact HP damage when leaking starts.
 @export_range(0.0, 10000.0) var damage_amount: float = 10.0
+## Holding corrects pitch/roll through the existing physical rotation solver.
+@export var keep_upright_while_held: bool = true
+@export_range(0.0, 30.0) var upright_rotation_speed: float = 3.0
 ## Runtime timer and committed exposure guard.
 var unsafe_seconds: float = 0.0
 var triggered: bool = false

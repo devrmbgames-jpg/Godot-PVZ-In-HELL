@@ -729,9 +729,16 @@ static func physical_body(handle: Entity) -> RigidBody3D:
 ## Creates an effective default/override profile without making C_Grabbable mandatory.
 static func profile_for(handle: Entity) -> GrabControlProfile:
 	var config: C_Grabbable = null
+	var liquid: C_LiquidTilt = null
 	if is_instance_valid(handle):
 		config = handle.get_component(C_Grabbable) as C_Grabbable
-	return GrabControlProfile.from_grabbable(config)
+		liquid = handle.get_component(C_LiquidTilt) as C_LiquidTilt
+	var profile: GrabControlProfile = GrabControlProfile.from_grabbable(config)
+	if liquid != null and liquid.keep_upright_while_held:
+		profile.keep_upright = true
+		profile.rotation_axis = C_Grabbable.RotationAxis.Y_ONLY
+		profile.max_rotation_speed = minf(profile.max_rotation_speed, liquid.upright_rotation_speed)
+	return profile
 
 
 static func _grip_profile(handle: Entity, grip_data: R_HeldBy) -> GrabControlProfile:
