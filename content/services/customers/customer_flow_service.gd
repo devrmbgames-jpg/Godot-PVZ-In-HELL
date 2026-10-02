@@ -128,6 +128,10 @@ static func sync_package_history(flow: C_CustomerFlow) -> void:
 
 
 static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
+	if cycle.phase == C_DayCycle.Phase.MORNING:
+		flow.arrival_cooldown_seconds = 0.0
+	elif is_finite(delta) and delta >= 0.0:
+		flow.arrival_cooldown_seconds = maxf(0.0, flow.arrival_cooldown_seconds - delta)
 	var wallet: C_Wallet = WalletService.current()
 	var payment: int = wallet.policy.delivery_payment if wallet != null and wallet.policy != null else 0
 	plan_day(flow, cycle.day_index, payment)
@@ -206,11 +210,14 @@ static func _has_active_registration_record(
 static func spawn_next_due(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 	if flow == null or cycle == null or cycle.phase != C_DayCycle.Phase.DAY:
 		return false
+	if flow.arrival_cooldown_seconds > 0.0:
+		return false
 	if not ECS.world.query.with_all([C_CustomerAgent]).execute().is_empty():
 		return false
 	for visit: CustomerVisit in flow.visits:
 		if (
 			not visit.started
+			and not visit.finished
 			and visit.arrival_day <= cycle.day_index
 			and arrival_allowed(visit)
 		):
@@ -327,7 +334,10 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 			if agent.elapsed >= visit.definition.aggressive_seconds:
 				_leave(customer, visit)
 		C_CustomerAgent.Phase.LEAVING:
-			if (intent != null and intent.arrived) or agent.elapsed >= visit.definition.leaving_seconds:
+			var departure_timeout: float = maxf(
+				DEF_Customer.MINIMUM_LEAVING_SECONDS, visit.definition.leaving_seconds,
+			)
+			if (intent != null and intent.arrived) or agent.elapsed >= departure_timeout:
 				ChallengeService.request_departure(customer)
 				var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 				if challenge != null and challenge.definition != null:
@@ -621,6 +631,13 @@ static func _depart_parcel(parcel: Entity, departure: C_PackageState.Registratio
 static func finish(visit: CustomerVisit, day: int) -> void:
 	if visit.finished:
 		return
+	var flow: C_CustomerFlow = current()
+	var cycle: C_DayCycle = DayPhaseService.current()
+	if (
+		visit.visit_count > 0 and flow != null and flow.schedule != null
+		and cycle != null and cycle.phase == C_DayCycle.Phase.DAY
+	):
+		flow.arrival_cooldown_seconds = maxf(flow.arrival_cooldown_seconds, flow.schedule.arrival_interval_seconds)
 	visit.finished = true
 	visit.finished_day = day
 	if visit.followup_committed and visit.next_followup_day > day:

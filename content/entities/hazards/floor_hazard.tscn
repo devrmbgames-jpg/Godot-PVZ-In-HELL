@@ -7,7 +7,7 @@
 
 [sub_resource type="Resource" id="Definition"]
 script = ExtResource("Definition")
-lifetime_seconds = 60.0
+lifetime_seconds = 240.0
 
 [sub_resource type="Resource" id="Floor"]
 script = ExtResource("Floor")

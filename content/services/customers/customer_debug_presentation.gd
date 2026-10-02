@@ -7,6 +7,15 @@ const MINIMUM_HEALTH_MAXIMUM: float = 0.001
 const PHASE_NAMES: Array[String] = ["Подходит", "Приветствие", "Диалог", "Ждёт посылку", "Получил заказ", "Осматривает", "Уходит", "Агрессивен", "Закончил", "Ждёт темноты"]
 
 
+static func summary() -> String:
+	if not is_instance_valid(ECS.world):
+		return ""
+	var count: int = ECS.world.query.with_all([C_CustomerAgent]).execute().size()
+	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var interval: float = flow.arrival_cooldown_seconds if flow != null else 0.0
+	return "Клиенты: %d · Пауза до следующего: %.0f с\nТаймеры, условия и задачи — над NPC" % [count, ceilf(interval)]
+
+
 static func text_for(customer: E_Customer) -> String:
 	if not DebugHudService.is_enabled() or not EntityAvailability.contains(customer, ECS.world):
 		return ""
@@ -54,7 +63,7 @@ static func _phase_duration(agent: C_CustomerAgent, definition: DEF_Customer) ->
 		C_CustomerAgent.Phase.WAITING: return definition.greeting_seconds
 		C_CustomerAgent.Phase.WAITING_FOR_PACKAGE, C_CustomerAgent.Phase.DIALOGUE, C_CustomerAgent.Phase.OPTIONAL_FITTING: return definition.patience_seconds
 		C_CustomerAgent.Phase.RECEIVING: return definition.receiving_seconds
-		C_CustomerAgent.Phase.LEAVING: return definition.leaving_seconds
+		C_CustomerAgent.Phase.LEAVING: return maxf(DEF_Customer.MINIMUM_LEAVING_SECONDS, definition.leaving_seconds)
 		C_CustomerAgent.Phase.AGGRESSIVE: return definition.aggressive_seconds
 		C_CustomerAgent.Phase.WAITING_FOR_DARKNESS: return definition.challenge.timeout_seconds if definition.challenge != null else 0.0
 	return 0.0

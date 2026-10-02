@@ -82,7 +82,7 @@ func test_night_discards_incomplete_decay_and_never_but_retains_committed_action
 	assert_eq(never.fraction, 0.0)
 	assert_eq(decay.phase, ProlongedInteractionProgress.Phase.IDLE)
 	assert_eq(never.phase, ProlongedInteractionProgress.Phase.IDLE)
-	ProlongedProgressService.advance(never, never.timing, 2.0, true)
+	ProlongedProgressService.advance(never, never.timing, never.timing.duration_seconds, true)
 	assert_true(ProlongedProgressService.commit_success(never, never.timing))
 	NightResetService.reset()
 	assert_eq(never.phase, ProlongedInteractionProgress.Phase.COMPLETED)

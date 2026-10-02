@@ -5,4 +5,4 @@
 [resource]
 script = ExtResource("Definition")
 key = &"toxic_spill"
-lifetime_seconds = 12.0
+lifetime_seconds = 48.0

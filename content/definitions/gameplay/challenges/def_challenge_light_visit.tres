@@ -14,5 +14,5 @@ completion = 1
 condition = SubResource("Condition")
 rule_text = "Пока я здесь, держите свет включённым."
 timeout_seconds = 0.0
-preparation_seconds = 10.0
+preparation_seconds = 40.0
 key = &"warehouse-light-during-visit"

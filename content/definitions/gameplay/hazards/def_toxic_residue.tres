@@ -5,9 +5,9 @@
 [resource]
 script = ExtResource("Definition")
 key = &"toxic_residue"
-lifetime_seconds = 900.0
+lifetime_seconds = 3600.0
 ownership = 1
 owner_loss = 1
 radius = 2.5
-tick_seconds = 1.0
+tick_seconds = 4.0
 damage_per_tick = 5.0

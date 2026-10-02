@@ -87,7 +87,8 @@ func _run() -> void:
 	retry.definition = visit.definition
 	retry.arrival_day = cycle.day_index
 	CustomerFlowService.current().visits.append(retry)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	assert(not CustomerFlowService.spawn_next_due(CustomerFlowService.current(), cycle), "New visit must respect the authored gap")
+	ECS.world.process(CustomerFlowService.current().arrival_cooldown_seconds + FRAME_DELTA, "GamePlay")
 	var second: E_Customer = CustomerFlowService.customer_for(retry.visit_id)
 	assert(second != null)
 	(second as Node as RigidBody3D).freeze = true

@@ -3,6 +3,7 @@ extends GutTest
 
 func _definition(policy: DEF_ProlongedInteraction.ResetPolicy) -> DEF_ProlongedInteraction:
 	var definition: DEF_ProlongedInteraction = DEF_ProlongedInteraction.new()
+	definition.duration_seconds = 1.5
 	definition.reset_policy = policy
 	return definition
 
@@ -10,11 +11,11 @@ func _definition(policy: DEF_ProlongedInteraction.ResetPolicy) -> DEF_ProlongedI
 func test_default_duration_and_one_success_per_hold() -> void:
 	var definition: DEF_ProlongedInteraction = DEF_ProlongedInteraction.new()
 	var progress: ProlongedInteractionProgress = ProlongedInteractionProgress.new()
-	assert_eq(definition.duration_seconds, 1.5)
-	assert_false(ProlongedProgressService.advance(progress, definition, 0.75, true))
+	assert_eq(definition.duration_seconds, 6.0)
+	assert_false(ProlongedProgressService.advance(progress, definition, 3.0, true))
 	assert_almost_eq(progress.fraction, 0.5, 0.0001)
 	assert_false(ProlongedProgressService.commit_success(progress, definition))
-	assert_true(ProlongedProgressService.advance(progress, definition, 0.75, true))
+	assert_true(ProlongedProgressService.advance(progress, definition, 3.0, true))
 	assert_true(ProlongedProgressService.commit_success(progress, definition))
 	assert_false(ProlongedProgressService.commit_success(progress, definition))
 	assert_false(ProlongedProgressService.advance(progress, definition, 10.0, true))

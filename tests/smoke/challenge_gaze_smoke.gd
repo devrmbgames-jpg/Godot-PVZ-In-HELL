@@ -2,7 +2,7 @@ extends Node
 ## Arrival gaze: wall number, real camera/LOS, vignette, physical service without dialogue.
 
 const FRAME_DELTA: float = 1.0 / 60.0
-const WAIT_FRAMES: int = 900
+const WAIT_FRAMES: int = 3600
 const UI_WAIT_FRAMES: int = 32
 
 var _level: Node = null

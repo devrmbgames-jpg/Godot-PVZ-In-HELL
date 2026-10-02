@@ -20,9 +20,9 @@ caption = "Переключить вентиль"
 
 [sub_resource type="Resource" id="TimingDecay"]
 script = ExtResource("Timing")
-duration_seconds = 2.0
+duration_seconds = 8.0
 reset_policy = 0
-decay_per_second = 0.35
+decay_per_second = 0.0875
 
 [sub_resource type="Resource" id="ActionDecay"]
 script = ExtResource("ValveAction")
@@ -34,7 +34,7 @@ timing = SubResource("TimingDecay")
 
 [sub_resource type="Resource" id="TimingInstant"]
 script = ExtResource("Timing")
-duration_seconds = 2.0
+duration_seconds = 8.0
 
 [sub_resource type="Resource" id="ActionInstant"]
 script = ExtResource("ValveAction")
@@ -46,7 +46,7 @@ timing = SubResource("TimingInstant")
 
 [sub_resource type="Resource" id="TimingOnComplete"]
 script = ExtResource("Timing")
-duration_seconds = 2.0
+duration_seconds = 8.0
 reset_policy = 2
 
 [sub_resource type="Resource" id="ActionOnComplete"]
@@ -59,7 +59,7 @@ timing = SubResource("TimingOnComplete")
 
 [sub_resource type="Resource" id="TimingNever"]
 script = ExtResource("Timing")
-duration_seconds = 2.0
+duration_seconds = 8.0
 reset_policy = 3
 
 [sub_resource type="Resource" id="ActionNever"]

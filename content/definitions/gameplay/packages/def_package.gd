@@ -46,7 +46,7 @@ enum HazardClass {
 
 ## Liquid-only continuous exposure; returning upright resets the timer completely.
 @export_range(0.0, 180.0) var liquid_maximum_angle_degrees: float = 60.0
-@export_range(0.0, 30.0) var liquid_tilt_seconds: float = 2.0
+@export_range(0.0, 30.0) var liquid_tilt_seconds: float = 8.0
 ## One-time ordinary Health damage when leaking starts; zero keeps only condition effects.
 @export_range(0.0, 10000.0) var liquid_tilt_damage: float = 10.0
 

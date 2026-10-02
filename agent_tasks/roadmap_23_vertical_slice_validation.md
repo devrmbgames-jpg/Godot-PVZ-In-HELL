@@ -35,7 +35,7 @@ This file is the authoritative router. Existing fixture smokes are dependency ev
 Owner feedback dated 2026-10-02 extends R23 with [thirteen QA tasks](roadmap_23_vertical_slice_validation/owner_qa.md), including corpse/meat, inventory grid, future AI integration preparation and editable highlight materials/global overlay contract. The enlarged main scene and hidden DebugMarkers are authored owner changes; markers provide visual orientation only. Console/help extension is owned separately by [Developer Console Testing](developer_console_testing.md).
 
 ### Current
-Windows main/test2ce8e5ac available through both launchers, actual-scene/120-frame startup PASS. QA-14/15 implementation complete: refusal occurs after valid physical handoff, released parcel drops beside the customer or stays on the counter; normal Terminal reflects player declarations, true condition/outcome is explicitly debug-only across rows/detail/search/history/archive. GUT46/46,428 assertions; strict actual-main handoff smoke PASS. QA-17 upright held-liquid alignment complete (grab suite76/76,369 assertions). QA-09 knife/hammer AnimationPlayer and hammer weapon complete (melee/anchoring14/14,108 assertions). QA-18 arrival gaze/wall order complete, GUT68/68,618 assertions + strict actual-main no-dialogue gaze smoke PASS. QA-19 light entrance complete: event relay/subscribed lamps, outside wait, manual off or80s timeout/off/aggression; GUT67/67,492 assertions + strict actual-main darkness smoke PASS. R3 cancellation leak FIXED/rereviewed. QA-05 per-client status/health/condition/timers and compact screen debug complete, R24 debug_hud on/off/toggle integrated (GUT7/7,115 assertions + actual-main gaze/status smoke PASS). Windows01ce5bbb main/test startup PASS includes QA-19; next export includes QA-05. Next: QA-06 timers + R24 visitor gaps/leaving lifetime, remaining queue; rebuild Windows at the next coherent milestone. User main/project resaves and addon edits preserved; dev only.
+QA-14/15/17/09/18/19/05 implementation complete, evidence in task_history. QA-06 complete with [baseline/exclusions](roadmap_23_vertical_slice_validation/timing_audit.md), R24 gap30s and departure181s/endpoint. GUT195/195,1207 assertions (11 scripts); final UI/timing9/9,52; strict actual-main gaze/darkness smokes PASS. ReviewR4 FIXED/rereviewed. Structure/diff PASS; formatter SKIP. Windows e195a3da main/test startup PASS includes HUD/debug_hud; next export publishes timers. Next: R24 doors and remaining queue. Owner full-slice acceptance pending; dev only, user resaves/addons preserved.
 
 ### Validation
 CharacterBody: relevant GUT 46/46,571 assertions; final physics 6/6,33. Real controls/belt rays, fall/recontact/rebound, flying rigid response, support impulse, crouch, cart+15cm step, old authored-player save restore. MCP running native primitive player/input checked. Separate R2 lost cart step assistance FIXED/rereviewed. Structure/diff PASS; formatter SKIP. Both Windows exports79b6aefc actual scene + 120-frame startup PASS; full-day/visual acceptance pending.
@@ -101,3 +101,9 @@ R22.5 dependency gate complete: 151/151 GUT (921 assertions), strict hazards/int
 | ID | Severity | Finding | State | Evidence / decision |
 | --- | --- | --- | --- | --- |
 | R3 | P2 | Lamp flicker outlived customer cancellation/phase/death | FIXED | Challenge cleanup sends token-specific STOP; circuit-off clears immediately. Phase/removal/stale-token tests PASS; separate read-only re-review confirmed fix. |
+
+### QA-06 review
+
+| ID | Severity | Finding | State | Evidence / decision |
+| --- | --- | --- | --- | --- |
+| R4 | P2 | Floor instructions described old timings | FIXED | Rule12s preparation/48s danger/8s exposure matches60s total. Separate re-review confirmed fix. |

@@ -31,6 +31,8 @@ func before_each() -> void:
 	(_subject as Node as Node3D).position = Vector3(0.0, 0.0, -3.0)
 	_state = C_Challenge.new()
 	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_dont_look.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	# Mechanics fixture remains short; authored deadlines are verified separately.
+	_state.definition.violation_grace_seconds = 3.0
 	_observation = C_GazeChallenge.new()
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = &"gaze-test"
@@ -175,6 +177,7 @@ func test_dont_look_warns_resets_and_fails_at_continuous_threshold_once() -> voi
 
 func test_keep_looking_is_inverse_configuration_and_compliance_is_not_early_success() -> void:
 	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_keep_looking.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition.violation_grace_seconds = 3.0
 	_rule = _state.definition.condition as DEF_GazeChallengeCondition
 	_start()
 	_world.process(4.0)

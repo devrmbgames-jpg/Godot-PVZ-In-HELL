@@ -44,6 +44,10 @@ func before_each() -> void:
 	_subject = Entity.new()
 	_state = C_Challenge.new()
 	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_floor.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	# Short isolated clocks keep mechanics tests independent of the authored QA pacing.
+	_state.definition.timeout_seconds = 15.0
+	_state.definition.preparation_seconds = 3.0
+	_state.definition.violation_grace_seconds = 2.0
 	(_state.definition.condition as DEF_FloorChallengeCondition).world_position = Vector3.ZERO
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = &"floor-test"
@@ -76,6 +80,10 @@ func _start() -> void:
 	assert_true(ChallengeService.activate(_subject))
 	_world.process(_state.definition.preparation_seconds)
 	assert_eq(_world.query.with_all([C_FloorHazard]).execute().size(), 1)
+	var effect: Entity = _world.query.with_all([C_FloorHazard]).execute_one()
+	var hazard: C_Hazard = effect.get_component(C_Hazard) as C_Hazard
+	hazard.definition = hazard.definition.duplicate(true) as DEF_FloorHazard
+	(hazard.definition as DEF_FloorHazard).tick_seconds = 0.5
 
 
 func test_support_contact_needs_real_support_height_and_authored_bounds() -> void:

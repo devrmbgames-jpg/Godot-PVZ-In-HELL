@@ -2,6 +2,7 @@ extends GameDefinition
 class_name DEF_Customer
 
 enum DialogueMode { DIRECT, RIDDLE }
+const MINIMUM_LEAVING_SECONDS: float = 181.0
 
 @export var display_name: String = "Клиент"
 @export var accepts_damaged: bool = true
@@ -15,12 +16,12 @@ enum DialogueMode { DIRECT, RIDDLE }
 @export_range(0, 100) var riddle_wrong_satisfaction_penalty: int = 20
 @export var move_speed: float = 1.8
 @export var arrival_distance: float = 0.25
-@export var approach_timeout: float = 30.0
-@export var greeting_seconds: float = 2.0
-@export var patience_seconds: float = 180.0
-@export var receiving_seconds: float = 1.0
-@export var leaving_seconds: float = 4.0
-@export var aggressive_seconds: float = 45.0
+@export var approach_timeout: float = 120.0
+@export var greeting_seconds: float = 8.0
+@export var patience_seconds: float = 720.0
+@export var receiving_seconds: float = 4.0
+@export_range(181.0, 3600.0, 1.0, "or_greater") var leaving_seconds: float = MINIMUM_LEAVING_SECONDS
+@export var aggressive_seconds: float = 180.0
 ## Legacy authored property retained for resource compatibility; Godot/Jolt owns gravity.
 @export var gravity: float = 20.0
 @export var healthy_satisfaction: int = 100

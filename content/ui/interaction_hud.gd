@@ -80,7 +80,7 @@ func _process(delta: float) -> void:
 	_challenge_status.visible = not _challenge_status.text.is_empty()
 	_challenge_debug_panel.visible = challenge_debug_enabled and DebugHudService.is_enabled()
 	if _challenge_debug_panel.visible:
-		_challenge_debug_text.text = "Клиенты: %d\nТаймеры, условия и задачи — над NPC" % (ECS.world.query.with_all([C_CustomerAgent]).execute().size() if is_instance_valid(ECS.world) else 0)
+		_challenge_debug_text.text = CustomerDebugPresentation.summary()
 	var captured: bool = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	var progress: ProlongedInteractionProgress = ProlongedInteractionService.active_progress(player)
 	_interaction_progress.visible = captured and progress != null
