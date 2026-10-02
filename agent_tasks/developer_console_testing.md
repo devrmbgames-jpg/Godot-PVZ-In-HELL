@@ -1,6 +1,6 @@
 # Developer Console Testing
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Priority: **LOW** — дополнительная задача; выполнять после основных исправлений игрового QA.
 
@@ -36,7 +36,7 @@ Extension requested by owner: cover expanded gameplay and QA-01–QA-13, and exp
 - [ ] Stage 12 — NPC attacks/navigation, visit behavior, Challenges and Hazards commands.
 - [ ] Stage 13 — isolated persistence testing, world/client debug presentation and interactive progress commands.
 - [ ] Stage 14 — corpse/meat and new client modes after their R23 QA implementations exist.
-- [ ] Console scrolling — reproduce inability to scroll while open; restore output scrolling and verify focus/input behavior.
+- [x] Console scrolling — reproduce inability to scroll while open; restore output scrolling and verify focus/input behavior.
 - [ ] Stage 15 — focused regression validation, updated command contract and completion review.
 
 ### Decisions
@@ -45,7 +45,7 @@ The console is a debug frontend only. Domain services/contracts remain authorita
 The addon already owns generic `help`; integrate project help through project-side registration without editing addons or losing built-in discovery. Proposed extension grammar lives in the supporting contract and is not a claim that commands already exist. Stage 14 depends on the relevant [R23 owner QA tasks](roadmap_23_vertical_slice_validation/owner_qa.md).
 
 ### Current
-Stages 1–9 are complete. The task is reopened as PLANNED for Stages 10–15. Next step: audit authoritative current feature APIs and help registration, then implement project help and existing-feature commands. New corpse/meat/client-mode commands follow their gameplay implementations. The 2026-10-02 update records scope only.
+Stages1–9 complete. Grouped help and scrolling implemented; Stage10 current-feature audit underway, Stages11–15 pending. Next: extend gameplay commands using audited current services, then update grammar/QA. All corpse/meat/client-mode dependencies now exist.
 
 Owner follow-up recorded: LOW priority for the whole extension; include console scrolling. When this task is selected after the main QA fixes, reproduce the scrolling defect with output longer than the console viewport and check input routing/focus before changing behavior.
 
@@ -277,3 +277,11 @@ The developer console can reproduce all required testing scenarios without direc
 ### Дополнение R24 / QA-05
 
 Реализовано `debug_hud [on|off|toggle]`: отключает экранные отладочные панели и статусы над клиентами, оставляет обычный HUD и игровые эффекты. Без аргумента переключает состояние. Команда включена в `debug_help`, `commands_list` и автодополнение. GUT7/7,115 assertions; расширение остальных команд/help и прокрутка остаются LOW priority.
+
+### Active help / scroll milestone (recorded before implementation)
+
+Addon Console builds a scroll-enabled RichTextLabel and owns PageUp/PageDown but opening only grabs LineEdit focus: it never releases captured game mouse. Project-owned presentation adapter listens to open/close, preserves/restores mouse and underlying modal UI focus, permits wheel/scrollbar with visible pointer. Keep addon input/key behavior and generic help callable; wrap help with optional registered command/group lookup, derive syntax/description from Console metadata and keep debug_help compatible. Adapter lifetime restores the previous help registration. Focused actual-console routing/long-output/headless checks justified; no rendered run or broad suite.
+
+### Help / scroll validation
+
+Project adapter restores visible mouse on open and previous mode/focus on close; output wheel/scrollbar and existing PageUp/PageDown remain available. `help [command|group]` derives syntax/descriptions from live registry, includes built-in instructions, debug_help compatible. Addon untouched. Focused actual-console long-output/help checks2/2,14 assertions (`.export/console-presentation-gut.log`); no broad/runtime/visual rerun. Full extended command metadata/examples follow Stage11–14 implementations.

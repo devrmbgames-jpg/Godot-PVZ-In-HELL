@@ -136,9 +136,11 @@ func _ready() -> void:
 	_register_command(DAY_NEXT_COMMAND, _day_next, [], 0, "Queue the next normal day transition.")
 	_register_command(CUSTOMER_NEXT_COMMAND, _customer_next, [], 0, "Start the next due CustomerVisit when valid.")
 	_register_command(DEBUG_TARGETS_COMMAND, _debug_targets, [], 0, "List concise live debug target handles.")
-	_register_command(DEBUG_HELP_COMMAND, _debug_help, [], 0, "Show project developer-console workflows and target syntax.")
+	_register_command(DEBUG_HELP_COMMAND, _debug_help, ["command|group"], 0, "Show project developer-console workflows and target syntax.")
 	_register_command(DEBUG_HUD_COMMAND, _debug_hud, ["on|off|toggle"], 0, "Toggle all debug HUD and customer status labels; ordinary gameplay UI stays active.")
 	_register_autocomplete()
+	var presentation: Node = preload("res://content/debug/developer_console_presentation.gd").new()
+	add_child(presentation)
 
 
 func _exit_tree() -> void:
@@ -631,22 +633,8 @@ func _debug_targets() -> void:
 
 
 
-func _debug_help() -> void:
-	DeveloperConsoleOutput.ok(
-		DEBUG_HELP_COMMAND,
-		PackedStringArray([
-			"Targets: self | target | #001 | pkg:<package_id> | visit:<visit_id> | entity:<entity_id>",
-			"Discovery: debug_targets | pkg_list [active|all] | pkg_info <pkg> | visit_info <pkg|visit:id>",
-			"Package: pkg_spawn | pkg_register | pkg_remove | pkg_purge | pkg_reset",
-			"Customer facts: visit_create | pkg_actual | pkg_declare | pkg_complaint | complaint_resolve | pkg_approve",
-			"Aliases: pkg_taken | pkg_lost | pkg_refused | pkg_delivered | pkg_customer_refused | pkg_player_denied",
-			"Economy: wallet_info | money_add | money_remove | penalty_add | penalty_remove",
-			"Health: health_info | apply_damage | heal | kill | reset",
-			"Flow: day_info | day_next | customer_next",
-			"HUD: debug_hud [on|off|toggle] — hide/show screen debug and customer labels",
-			"Use commands_list for exact positional arguments. Tab autocomplete covers the first argument only.",
-		]),
-	)
+func _debug_help(subject: String = "") -> void:
+	Console.console_commands["help"].function.call(subject)
 
 
 func _debug_hud(mode: String = "toggle") -> void:

@@ -1,7 +1,7 @@
 # Current Work
 
-R24 M0–M6 implemented; M4 prototype finishing commit/export. R23 listed QA fixes implemented, owner acceptance pending. Next: LOW developer_console_testing stages10–15 (extended commands/help/scroll), then owner full-slice QA.
+R24 M0–M6 implemented, owner acceptance pending. Windows57533cb1 main/test startup PASS, .export/LATEST.cmd and TEST_LEVEL.cmd. LOW developer_console_testing active: help/scroll completed, extend gameplay commands stages10–15 next. Addon remains read-only.
 
-M4 focused2/2,17 + changed dialogue guard1/1,13, no broad rerun. M3 native customer-inspection main smoke PASS and review clean. Last full major M2:426/426,3375. Windows877e26b1 main/test startup PASS, .export/LATEST.cmd and TEST_LEVEL.cmd; update after M4 commit. Detailed contracts/evidence agent_tasks/roadmap_24_world_customers_commerce.md, player checklists qa_tasks/world_customers_commerce.md. task_history rotated to archive0002 at12KiB.
+M4 focused2/2,17 + dialogue guard1/1,13. Console presentation focused2/2,14. Last major full M2:426/426,3375; no repeat. Detailed contracts/evidence in exact task files; player QA under qa_tasks/. History archive0002 preserves completed milestones.
 
-Dev only; master read-only. Preserve user main_level UID resaves, project settings reorder, addons/gecs changes. No rendered/audio/full-slice checks by agent. Small edits static + justified task-specific tests; full at major milestones.
+Dev only; master read-only. Preserve user main_level UID resaves, project settings reorder, addons/gecs changes. No rendered/audio/full-slice checks by agent. Minor edits static + justified task-specific tests; full at major milestones. Owner gets main scene for full-slice QA.
