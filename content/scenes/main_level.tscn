@@ -93,7 +93,7 @@
 [ext_resource type="PackedScene" path="res://content/entities/tools/utility_blade.tscn" id="Utility_blade"]
 [ext_resource type="PackedScene" uid="uid://d36ymw1qbl12t" path="res://content/entities/props/interaction_test_valve.tscn" id="Valve_test"]
 [ext_resource type="Script" uid="uid://cecnkpuxts58i" path="res://content/components/gameplay/c_wallet.gd" id="Wallet_state"]
-[ext_resource type="NavigationMesh" uid="uid://y78bx2e6uxwb" path="res://content/navigation/navmesh_warehouse.tres" id="Warehouse_navigation"]
+[ext_resource type="NavigationMesh" uid="uid://bd0sp42a7x3qr" path="res://content/navigation/navmesh_warehouse.tres" id="Warehouse_navigation"]
 [ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/entities/props/window.tscn" id="Window_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/inventory/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
 

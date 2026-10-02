@@ -22,6 +22,7 @@ func _bake() -> void:
 	var primitive: bool = OS.get_cmdline_user_args().has("--primitive")
 	var level_path: String = TEST_LEVEL_PATH if primitive else LEVEL_PATH
 	var output_path: String = TEST_OUTPUT_PATH if primitive else OUTPUT_PATH
+	var previous_uid: int = ResourceLoader.get_resource_uid(output_path)
 	var scene: PackedScene = load(level_path) as PackedScene
 	var level: Node = scene.instantiate()
 	level.set("autosave_path", "")
@@ -42,6 +43,8 @@ func _bake() -> void:
 	DirAccess.make_dir_recursive_absolute(output_path.get_base_dir())
 	var error: Error = ResourceSaver.save(mesh, output_path)
 	assert(error == OK)
+	if previous_uid != ResourceUID.INVALID_ID:
+		assert(ResourceSaver.set_uid(output_path, previous_uid) == OK)
 	print("Navigation bake PASS: ", level_path, " polygons=", mesh.get_polygon_count())
 	level.free()
 	var ecs: Node = root.get_node("ECS")
