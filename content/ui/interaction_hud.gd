@@ -69,17 +69,18 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_update_player_status()
-	_feedback_debug.text = _damage_view.debug_text() if debug_status_enabled else ""
-	_combat_debug.text = CombatPresentation.debug_text(player) if debug_status_enabled else ""
-	_meta_debug.text = MetaPresentation.debug_text() if debug_status_enabled else ""
-	_inventory_debug.text = InventoryPresentation.debug_text(player) if debug_status_enabled else ""
-	_hunger_debug.text = HungerPresentation.debug_text(player) if debug_status_enabled else ""
+	var show_debug: bool = debug_status_enabled and DebugHudService.is_enabled()
+	_feedback_debug.text = _compact_debug(_damage_view.debug_text()) if show_debug else ""
+	_combat_debug.text = _compact_debug(CombatPresentation.debug_text(player)) if show_debug else ""
+	_meta_debug.text = _compact_debug(MetaPresentation.debug_text()) if show_debug else ""
+	_inventory_debug.text = _compact_debug(InventoryPresentation.debug_text(player)) if show_debug else ""
+	_hunger_debug.text = _compact_debug(HungerPresentation.debug_text(player)) if show_debug else ""
 	_update_gaze_warning()
 	_challenge_status.text = ChallengePresentation.text_for(player)
 	_challenge_status.visible = not _challenge_status.text.is_empty()
-	_challenge_debug_panel.visible = challenge_debug_enabled
-	if challenge_debug_enabled:
-		_challenge_debug_text.text = ChallengePresentation.debug_text_for(player)
+	_challenge_debug_panel.visible = challenge_debug_enabled and DebugHudService.is_enabled()
+	if _challenge_debug_panel.visible:
+		_challenge_debug_text.text = "Клиенты: %d\nТаймеры, условия и задачи — над NPC" % (ECS.world.query.with_all([C_CustomerAgent]).execute().size() if is_instance_valid(ECS.world) else 0)
 	var captured: bool = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	var progress: ProlongedInteractionProgress = ProlongedInteractionService.active_progress(player)
 	_interaction_progress.visible = captured and progress != null
@@ -142,8 +143,13 @@ func _update_player_status() -> void:
 
 
 #region Debug acceptance presentation
+func _compact_debug(message: String) -> String:
+	var lines: PackedStringArray = message.split("\n")
+	return lines[0] if not lines.is_empty() else ""
+
+
 func _update_debug_presentation(target: Variant) -> void:
-	if not debug_status_enabled:
+	if not debug_status_enabled or not DebugHudService.is_enabled():
 		_player_debug_panel.visible = false
 		_package_debug_panel.visible = false
 		return

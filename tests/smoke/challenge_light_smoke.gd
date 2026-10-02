@@ -93,10 +93,10 @@ func _run() -> void:
 	ECS.world.process(FRAME_DELTA, "GamePlay")
 	assert(third_state.phase == C_Challenge.Phase.ACTIVE, "Correct light must not end the visit challenge early")
 	await get_tree().process_frame
-	var debug: Label = _level.get_node("InteractionHud/Overlay/ChallengeDebugPanel/Text") as Label
+	var debug: Label3D = third.get_node("DebugStatus") as Label3D
 	assert(debug.text.contains("Задача:"))
-	assert(debug.text.contains("Условие warehouse:"))
-	assert(debug.text.contains("До ухода"))
+	assert(debug.text.contains("Свет:"))
+	assert(debug.text.contains("До физического ухода"))
 	assert(CustomerFlowService.voluntary_refuse(third))
 	ECS.world.process(FRAME_DELTA, "GamePlay")
 	assert(third_state.phase == C_Challenge.Phase.ACTIVE, "Walking away still belongs to the visit")

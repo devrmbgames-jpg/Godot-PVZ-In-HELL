@@ -29,6 +29,8 @@
 [ext_resource type="Resource" path="res://content/definitions/gameplay/combat/def_npc_shot.tres" id="NpcShot"]
 [ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="RigidBody"]
 
+[ext_resource type="Script" path="res://content/ui/customer_debug_status.gd" id="Customer_debug_status"]
+
 [sub_resource type="Resource" id="RigidBody"]
 script = ExtResource("RigidBody")
 
@@ -145,5 +147,15 @@ pixel_size = 0.003
 billboard = 1
 
 [node name="HungerPerception" parent="." index="5" unique_id=1914732137 instance=ExtResource("HungerPerception")]
+
+[node name="DebugStatus" type="Label3D" parent="."]
+position = Vector3(0, 3.0, 0)
+script = ExtResource("Customer_debug_status")
+font_size = 24
+pixel_size = 0.004
+billboard = 1
+modulate = Color(0.7, 1, 0.8, 1)
+outline_size = 6
+text = ""
 
 [editable path="Body"]

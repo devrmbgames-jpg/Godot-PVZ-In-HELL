@@ -81,7 +81,7 @@ func _run() -> void:
 			break
 	assert((hud.get_node("GazeWarning") as Label).visible)
 	assert((hud.get_node("GazeDistortion") as ColorRect).visible)
-	assert((hud.get_node("ChallengeDebugPanel/Text") as Label).text.contains("LOS:"))
+	assert((_customer.get_node("DebugStatus") as Label3D).text.contains("LOS:"))
 	assert(visit.customer_id == identity and visit.definition.key == &"gaze_customer")
 	_camera.look_at(_camera.global_position + Vector3.LEFT)
 	ECS.world.process(FRAME_DELTA, "GamePlay")

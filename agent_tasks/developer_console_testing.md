@@ -273,3 +273,7 @@ Extension validation (Stages 10–15, pending): help enumeration/specific-comman
 ## Completion criteria
 
 The developer console can reproduce all required testing scenarios without direct gameplay-state mutation from the console callback, while existing Package, Customer, Wallet, Damage and Day services remain authoritative.
+
+### Дополнение R24 / QA-05
+
+Реализовано `debug_hud [on|off|toggle]`: отключает экранные отладочные панели и статусы над клиентами, оставляет обычный HUD и игровые эффекты. Без аргумента переключает состояние. Команда включена в `debug_help`, `commands_list` и автодополнение. GUT7/7,115 assertions; расширение остальных команд/help и прокрутка остаются LOW priority.

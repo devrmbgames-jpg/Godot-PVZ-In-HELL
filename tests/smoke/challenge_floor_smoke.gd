@@ -157,7 +157,7 @@ func _main_customer() -> void:
 	assert(level.get_node("Entityes/FloorSafeBox2") is RigidBody3D)
 	assert(level.get_node("Entityes/FloorSafeBox3") is RigidBody3D)
 	await get_tree().process_frame
-	var debug: Label = level.get_node("InteractionHud/Overlay/ChallengeDebugPanel/Text") as Label
+	var debug: Label3D = customer.get_node("DebugStatus") as Label3D
 	for frame: int in 8:
 		if debug.text.contains("Пол:") and debug.text.contains("Таймер урона"):
 			break
