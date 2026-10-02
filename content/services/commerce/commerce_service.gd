@@ -32,7 +32,7 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not actor.has_component(C_Inventory) or not EntityAvailability.contains(trader, ECS.world):
 		return Status.INVALID
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
-	if shop == null or item not in shop.catalog:
+	if shop == null or trader.has_component(C_Death) or item not in shop.catalog:
 		return Status.INVALID
 	state.transaction_in_progress = true
 	var grant: Entity = Entity.new()

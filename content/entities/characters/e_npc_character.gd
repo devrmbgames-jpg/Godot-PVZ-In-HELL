@@ -15,9 +15,19 @@ const ANIMATION_BLEND_SECONDS: float = 0.15
 var _walking: bool = false
 var _navigation_dead: bool = false
 var _avoidance_before_death: bool = false
+var _death_presented: bool = false
+var _living_layer: int = 0
+var _living_mask: int = 0
+var _living_freeze: bool = false
+var _living_visible: bool = true
 
 
 func _ready() -> void:
+	var body: RigidBody3D = self as Node as RigidBody3D
+	_living_layer = body.collision_layer
+	_living_mask = body.collision_mask
+	_living_freeze = body.freeze
+	_living_visible = body.visible
 	if not Engine.is_editor_hint() and navigation_agent != null:
 		navigation_agent.velocity_computed.connect(_on_navigation_velocity_computed)
 
@@ -46,7 +56,10 @@ func sync_navigation_lifecycle(living: bool) -> void:
 
 
 func _process(_delta: float) -> void:
-	if Engine.is_editor_hint() or animation_player == null:
+	if Engine.is_editor_hint():
+		return
+	sync_death_presentation()
+	if _death_presented or animation_player == null:
 		return
 	var combat: C_NpcCombat = get_component(C_NpcCombat) as C_NpcCombat
 	if combat != null and combat.animation_driven and combat.phase != C_NpcCombat.Phase.READY:
@@ -57,6 +70,23 @@ func _process(_delta: float) -> void:
 	var animation: StringName = walk_animation if _walking else idle_animation
 	if animation_player.has_animation(animation) and animation_player.current_animation != animation:
 		animation_player.play(animation, ANIMATION_BLEND_SECONDS)
+
+
+## Saved NPCs retain a tombstone Entity. Native body participation follows terminal state.
+func sync_death_presentation() -> void:
+	var health: C_Health = get_component(C_Health) as C_Health
+	var dead: bool = has_component(C_Death) or (health != null and health.depleted)
+	if dead == _death_presented:
+		return
+	_death_presented = dead
+	var body: RigidBody3D = self as Node as RigidBody3D
+	body.visible = false if dead else _living_visible
+	body.collision_layer = 0 if dead else _living_layer
+	body.collision_mask = 0 if dead else _living_mask
+	body.freeze = true if dead else _living_freeze
+	sync_navigation_lifecycle(not dead)
+	if dead and animation_player != null:
+		animation_player.stop()
 
 
 ## Method-track callbacks target this Entity, not the presentation AnimationPlayer.

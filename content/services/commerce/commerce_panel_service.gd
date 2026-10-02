@@ -5,6 +5,8 @@ class_name CommercePanelService
 static func open(actor: Entity, trader: Entity = null, order_mode: bool = false) -> CommercePanel:
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or CommerceService.current() == null or InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.MODAL:
 		return null
+	if trader != null and (not EntityAvailability.contains(trader, ECS.world) or trader.has_component(C_Death)):
+		return null
 	for child: Node in actor.get_children():
 		if child is CommercePanel and not child.is_queued_for_deletion():
 			return null

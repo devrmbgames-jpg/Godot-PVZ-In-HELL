@@ -32,7 +32,7 @@ R23 продолжает текущую реализацию замечаний.
 
 ### Current
 
-Новые требования записаны, M0 выполнен: история 16 336 байт сохранена целиком в архив №1, текущий файл короткий и содержит ссылку. R23 QA-18/19/05 завершены по реализации и узкой проверке. QA-06 и интервалы/уход M3 реализованы: пауза30с после физического удаления, endpoint либо минимум181с. M1 двери/посылки завершён; большая75кг полка подготовлена для M2. Следующий шаг: экспорт M1, затем съедобные останки QA-04/M4 и остальная очередь. Также выполнен пункт debug HUD: `debug_hud on/off/toggle`; остальные дополнения ещё не реализованы.
+Новые требования записаны, M0 выполнен: история 16 336 байт сохранена целиком в архив №1, текущий файл короткий и содержит ссылку. R23 QA-18/19/05 завершены по реализации и узкой проверке. QA-06 и интервалы/уход M3 реализованы: пауза30с после физического удаления, endpoint либо минимум181с. M1 двери/посылки завершён; большая75кг полка подготовлена для M2. M1 Windows main/test91e00d6c exported, actual-scene/120-frame startup PASS. Active next milestone QA-04/M4: immediate edible meat, optional valuable loot. Observe actual lethal DamageResult rather than restored C_Death; preserve persistent Trader tombstone and one-shot guard. Затем остальная очередь. Также выполнен пункт debug HUD: `debug_hud on/off/toggle`; остальные дополнения ещё не реализованы.
 
 ### Validation
 
@@ -74,8 +74,8 @@ M0: сохранение прежнего содержимого целиком;
 
 ### Смерть и обратная связь
 
-- [ ] После смерти клиент оставляет доступные для осмотра/разрубания/еды останки. Для прототипа разрешена немедленная груда кусков мяса.
-- [ ] Останки съедобны и утоляют голод; с authored вероятностью выпадают ценные предметы, например аптечка.
+- [x] После смерти клиент оставляет доступные для осмотра/разрубания/еды останки. Для прототипа разрешена немедленная груда кусков мяса.
+- [x] Останки съедобны и утоляют голод; с authored вероятностью выпадают ценные предметы, например аптечка.
 - [ ] Простая тестовая виньетка для ранений, голода и запрета смотреть на существо; эффекты совместимы и очищаются при прекращении причины.
 - [ ] Подключить персонажам footstepper из `res://addons/footstepper/`, чтобы слышались шаги. Подключать существующий addon, не менять его исходники.
 - [ ] Лёгкое покачивание камеры игрока с настройкой/отключением для проверки и reduced motion.
@@ -97,3 +97,9 @@ M1 unpack contract: optional DEF_Package.unpack_scene and existing content_quant
 ### M1 validation
 
 GUT58/58,469 assertions (7scripts), `.export/doors-contents-final-gut.log`: real knife/hammer windows, padlock cannot unlock before damage, leaf clears both colliders, tombstones intact/broken snapshot/Night; five individual food/med items, physical opening, inventory eating/healing, one-shot across repeated lifecycle/load, opened hazard dedup; small shelf real ground support, actual hammer fastening and anchored snapshot. Existing unfix test now waits its authored duration (QA06 extended default). Strict actual-primitive `doors_contents-20261003-063148543.log` PASS; separate read-only door/contents reviews found no material findings. Structure/diff PASS; formatter unavailable SKIP. Full-day/visual QA belongs to owner.
+
+### QA04 / M4 edible remains milestone
+
+Implemented immediate edible pile permitted by latest owner scope. Authored DEF_NpcRemains:3 physical meat/bone pickups,25 hunger relief each,25% extra medkit. C_NpcRemains.released persists independently; O_NpcRemains reacts to real lethal DamageResult, not restored C_Death. Visitor removal releases remains as normal unowned inventory entities; persistent Trader stays a hidden/frozen noncolliding tombstone, cannot trade, open panel closes/releases input. No extra live Entity ownership authority; existing R_OwnedBy handles pickup.
+
+Validation: GUT40/40,332 assertions (4scripts), `.export/npc-remains-final-gut.log`; real damage/partial/repeated hits, chance0/1, pickup/food consumption, native collision/avoidance, open/dead trading UI, visitor death cleanup, saved death/remains/Night. Strict actual-main `npc_remains-20261003-064735213.log` PASS. Structure/diff PASS; formatter SKIP. Separate read-only review found no material findings. Next: publish Windows milestone, then QA03 inventory grid; client prototype and other M4 requirements remain pending.

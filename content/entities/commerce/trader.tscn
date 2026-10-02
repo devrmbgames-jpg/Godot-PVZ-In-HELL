@@ -22,6 +22,13 @@
 [ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_med.tres" id="med"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_bubble_wrap.tres" id="bubble_wrap"]
 
+[ext_resource type="Script" path="res://content/components/gameplay/c_npc_remains.gd" id="Remains"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/def_npc_remains_default.tres" id="RemainsDefinition"]
+
+[sub_resource type="Resource" id="Remains"]
+script = ExtResource("Remains")
+definition = ExtResource("RemainsDefinition")
+
 [sub_resource type="Resource" id="RigidBody"]
 script = ExtResource("RigidBody")
 
@@ -85,7 +92,7 @@ collision_layer = 2
 collision_mask = 31
 script = ExtResource("Entity")
 navigation_agent = NodePath("NavigationAgent3D")
-component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("Health"), SubResource("Living"), SubResource("Impact"), SubResource("NpcIntent"), SubResource("NpcCombat"), SubResource("Trader"), SubResource("Interactable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("Health"), SubResource("Living"), SubResource("Remains"), SubResource("Impact"), SubResource("NpcIntent"), SubResource("NpcCombat"), SubResource("Trader"), SubResource("Interactable"), SubResource("Actions")])
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 radius = 0.4

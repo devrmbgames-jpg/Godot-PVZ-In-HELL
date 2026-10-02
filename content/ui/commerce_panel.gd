@@ -66,7 +66,8 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if _capture == 0:
 		return
-	if not GrabService.holder_available(_actor) or _actor.has_component(C_Death) or (not _order_mode and not EntityAvailability.contains(_shop(), ECS.world)):
+	var trader: Entity = _shop()
+	if not GrabService.holder_available(_actor) or _actor.has_component(C_Death) or (not _order_mode and (not EntityAvailability.contains(trader, ECS.world) or trader.has_component(C_Death))):
 		close_panel()
 		return
 	_refresh_remaining -= delta

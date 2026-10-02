@@ -76,6 +76,8 @@
 
 [ext_resource type="Script" path="res://content/observers/gameplay/o_package_contents.gd" id="Package_contents"]
 
+[ext_resource type="Script" path="res://content/observers/gameplay/o_npc_remains.gd" id="Npc_remains"]
+
 [node name="World" type="Node" unique_id=1962298586]
 script = ExtResource("2_da1x8")
 entity_nodes_root = NodePath("../Entityes")
@@ -314,3 +316,6 @@ script = ExtResource("Door_breakage")
 
 [node name="O_PackageContents" type="Node" parent="Systems/GamePlay"]
 script = ExtResource("Package_contents")
+
+[node name="O_NpcRemains" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("Npc_remains")
