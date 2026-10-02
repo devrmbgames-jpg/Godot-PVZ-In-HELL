@@ -19,7 +19,7 @@ Status: **IN_PROGRESS**
 
 - [x] M0: архивировать разросшуюся историю, оставить ссылки и правило дальнейшей ротации.
 - [x] M1: разрушимые двери и тестовые наполненные посылки.
-- [ ] M2: мебель, зона выдачи, доставка и настраиваемый каталог торговца.
+- [x] M2: мебель, зона выдачи, доставка и настраиваемый каталог торговца.
 - [ ] M3: интервалы/уход клиентов, ограничения завершения смены, кабинки и осмотр посылок.
 - [ ] M4: шаблон клиента, съедобные останки и вероятностный ценный дроп.
 - [x] M5: виньетки, шаги, покачивание камеры, переключение debug HUD.
@@ -129,3 +129,15 @@ Windows cfda84a0 character-feedback main/test exported, both actual-scene/120-fr
 PlayerInteractionEvent.EVENT = player_interaction, six typed kinds; affected object is World event entity. Actor/object references plus stable IDs and package_id. Terminal reports committed visible/modal transitions; parcel pickup reports successful grip, placement reports actual release/transfer/throw, not floor contact. Failed/repeated actions, NPC, removal/death/invalid grip/Night cleanup do not publish player placement. Door endpoint tolerance2% uses physical fraction, transient R_OpenableRequestedBy is consumed before publication and canceled/superseded/reset at load/Night. Existing report_fraction callers remain compatible.
 
 Focused GUT5/5,48 assertions (`.export/player-interaction-events-gut.log`). Independent review R5/P2 invalid-grip handle_input falsely notified placement: FIXED, equivalent cleanup now suppresses notification. Changed regression alone rerun1/1, additional assertions logged in `.export/player-interaction-events-review-fix.log`. No broad rerun/smoke. Structure/diff PASS. Owner full-slice acceptance pending; no screamer/behavior subscriber invented.
+
+### Active M2 contract (recorded before implementation)
+
+Optional DEF_TraderProfile owns authored catalog, first day/repeat days/open phases, paid home delivery fee and delay. Existing C_Trader.catalog remains fallback; different trader catalogs no longer require global terminal-order whitelist membership. Furniture is an appended inventory definition kind with world prefab path, maximum quantity1; it never becomes a weightless inventory grant. Large shelf is existing3x3x1.5m75kg anchorable prefab. Shop has authored FurniturePickup marker with nearby placement candidates; prepare floor-supported, collision-free detached physical entity before wallet commit, then register once under operation identity. Spawn as sibling, not under moving NPC. Blocked/unsupported zone must not charge; duplicate operation must not respawn.
+
+Trader delivery pays item price+authored fee, uses appended receipt mode and existing persistent PendingDelivery/Morning OrderReceiving/home zone. Generic furniture placement extends that existing fulfillment owner, preserves static stack pickup path/old records. Blocked paid deliveries stay pending/retry; fulfilled identity guard prevents replay after load/consumption. UI shows store schedule, physical pickup vs inventory, delivery fee/day and blocked reason. No second commerce bus, live cross-Entity refs or addon changes. Relevant commerce/physical fulfillment/persistence tests at coherent completion; full run only if major milestone warrants it.
+
+### M2 implementation / validation
+
+DEF_TraderProfile owns independent catalog/day recurrence/open phases/courier fee and delay, legacy catalog fallback preserved. Large3x3x1.5m75kg shelf stays native physical/anchorable furniture, never inventory. Marker pickup tries free floor-supported volume before charging; stable operation identities prevent duplicates. Paid home courier reuses persisted pending deliveries/Morning receiving area; blocked deliveries retry without another payment. Panel scrolls offers and shows physical pickup, price+fee/day/schedule; overhead store label follows actual profile. Configuration: content/definitions/gameplay/commerce/README.md.
+
+Targeted commerce12/12,128 assertions PASS. Independent review R6/P2 malformed prefab accepted before courier payment: FIXED by shared intrinsic furniture validation and required enabled pickup collider/C_InventoryItem; changed courier regression alone1/1,16 assertions PASS, rereview closed. Full suite once at this major commerce milestone426/426,3375 assertions,47 scripts (.export/m2-full-gut.log). Actual-main physical furniture pickup/home delivery smoke PASS (trader_furniture-20261003-082140977.log); smoke fixture parse cast corrected before successful run. Structure/diff PASS; no rendered/full-slice check. Owner checklist qa_tasks/world_customers_commerce.md; exports follow commit.

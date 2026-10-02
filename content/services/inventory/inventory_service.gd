@@ -39,7 +39,7 @@ static func can_transfer(item: Entity, destination: Entity, expected_owner: Enti
 	if not _owner_available(destination) or not EntityAvailability.contains(item, ECS.world) or item == destination or item.has_component(C_Package) or item.has_component(C_Grabbable):
 		return false
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
-	if not _valid_item(state) or state.transfer_in_progress or not state.pending_use_id.is_empty():
+	if not _valid_item(state) or state.definition.kind == DEF_InventoryItem.Kind.FURNITURE or state.transfer_in_progress or not state.pending_use_id.is_empty():
 		return false
 	var ownership_count: int = 0
 	for link: Relationship in item.relationships:

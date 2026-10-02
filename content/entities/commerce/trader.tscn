@@ -26,6 +26,8 @@
 [ext_resource type="Resource" path="res://content/definitions/gameplay/def_npc_remains_default.tres" id="RemainsDefinition"]
 
 [ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/commerce/def_trader_default.tres" id="Profile"]
+[ext_resource type="Script" path="res://content/ui/trader_status.gd" id="StoreStatus"]
 
 [sub_resource type="Resource" id="Remains"]
 script = ExtResource("Remains")
@@ -62,6 +64,7 @@ script = ExtResource("NpcCombat")
 [sub_resource type="Resource" id="Trader"]
 script = ExtResource("Trader")
 catalog = [ExtResource("food"), ExtResource("med"), ExtResource("bubble_wrap")]
+profile = ExtResource("Profile")
 
 [sub_resource type="Resource" id="Interactable"]
 script = ExtResource("Interactable")
@@ -114,6 +117,7 @@ position = Vector3(0, 0.85, 0)
 shape = SubResource("Shape")
 
 [node name="Message" type="Label3D" parent="."]
+script = ExtResource("StoreStatus")
 position = Vector3(0, 2.0, 0)
 text = "Торговец · Evening · [F]"
 billboard = 1
@@ -126,3 +130,13 @@ pixel_size = 0.003
 spatial_audio = true
 volume_db = -18.0
 bob_enabled = false
+
+[node name="FurniturePickup" type="Marker3D" parent="."]
+position = Vector3(3, 0, -1.5)
+editor_description = "Centre of the furniture pickup zone. Goods spawn independently beside the trader."
+
+[node name="Caption" type="Label3D" parent="FurniturePickup"]
+position = Vector3(0, 1, 0)
+text = "Выдача мебели\nОсвободите место"
+billboard = 1
+pixel_size = 0.003

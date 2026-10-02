@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/entities/props/e_grabbable_body.gd" id="Entity"]
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(3, 3, 1.5)
+
+[node name="InvalidFurniture" type="RigidBody3D"]
+script = ExtResource("Entity")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+shape = SubResource("Shape")
+disabled = true

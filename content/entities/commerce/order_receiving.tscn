@@ -13,7 +13,7 @@ component_resources = Array[ExtResource("Component")]([SubResource("State")])
 
 [node name="Caption" type="Label3D" parent="."]
 position = Vector3(1.125, 1, 0.75)
-text = "Утренние заказы\nE — в инвентарь"
+text = "Доставка домой / утренние заказы\nПредметы: E · мебель: перенести и закрепить"
 billboard = 1
 font_size = 26
 pixel_size = 0.002

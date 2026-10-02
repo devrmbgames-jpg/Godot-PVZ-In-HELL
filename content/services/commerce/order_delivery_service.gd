@@ -9,6 +9,32 @@ static func key_for(delivery: PendingDelivery) -> String:
 	return "order/%s" % delivery.delivery_id
 
 
+## Courier charges only for definitions with a supported physical fulfillment prefab.
+static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
+	if item == null or item.world_pickup_scene.is_empty() or not ResourceLoader.exists(item.world_pickup_scene):
+		return false
+	if item.kind == DEF_InventoryItem.Kind.FURNITURE:
+		var furniture: Entity = FurniturePlacement.create_validated(item)
+		if furniture == null:
+			return false
+		furniture.free()
+		return true
+	var packed: PackedScene = load(item.world_pickup_scene) as PackedScene
+	var node: Node = packed.instantiate() if packed != null else null
+	if node == null:
+		return false
+	var valid: bool = false
+	if node is E_InventoryPickup and node is StaticBody3D:
+		var collision: CollisionShape3D = node.get_node_or_null("Collision") as CollisionShape3D
+		if collision != null and not collision.disabled and collision.shape != null:
+			for component: Component in (node as E_InventoryPickup).component_resources:
+				if component is C_InventoryItem:
+					valid = true
+					break
+	node.free()
+	return valid
+
+
 static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Commerce, day: int) -> bool:
 	if not EntityAvailability.contains(zone, ECS.world) or state == null or commerce == null or day < 1:
 		return false
@@ -27,6 +53,22 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 				delivery.fulfilled = true
 				state.blocked = false
 				return true
+		if delivery.item.kind == DEF_InventoryItem.Kind.FURNITURE:
+			if delivery.quantity != 1:
+				state.blocked = true
+				return false
+			for index: int in state.columns * state.rows:
+				var pose: Transform3D = anchor.global_transform
+				pose.origin += pose.basis * Vector3((index % state.columns) * state.spacing.x, 0, (index / state.columns) * state.spacing.y)
+				var proposal: PreparedFurniture = FurniturePlacement.prepare(delivery.item, anchor, pose)
+				if proposal == null:
+					continue
+				delivery.fulfilled = true
+				FurniturePlacement.commit(proposal, key_for(delivery))
+				state.blocked = false
+				return true
+			state.blocked = true
+			return false
 		var packed: PackedScene = load(delivery.item.world_pickup_scene) as PackedScene if not delivery.item.world_pickup_scene.is_empty() else null
 		var pickup: E_InventoryPickup = packed.instantiate() as E_InventoryPickup if packed != null else null
 		if pickup == null:

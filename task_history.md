@@ -43,3 +43,5 @@
 
 - 2026-10-03 — Windows5542b6d7 customer-introductions main/test exported, both actual-scene/120-frame startup PASS; launchers updated.
 - 2026-10-03 — R23 QA12 AI seam: detached read-only NpcAttackChoice, choose available3+3 by authored priority/damage-cycle, explicit execution revalidation. External selection opt-out preserves execution/cooldown/native intent/navigation/animation contracts. No new framework/addon, live targets stay Relationships. Targeted selector3/3,30 PASS; self-review/structure/diff PASS, no broad run/smoke. Included in next Windows milestone; owner QA pending.
+
+- 2026-10-03 — R24 M2: настраиваемые магазин/расписание/каталог, физическая полка3×3×1,5м75кг в зоне выдачи, отдельная оплаченная доставка домой. До оплаты проверяются префаб/свободный поддержанный объём; занятая доставка ждёт без повторной оплаты. Legacy каталоги/receipt IDs сохранены. GUT12/12,128; R6 FIXED/rereview + regression1/1,16; один полный прогон на крупном milestone426/426,3375,47 scripts. Actual-main pickup/home smoke PASS; structure/diff PASS. Owner перенос/UI/полный срез ожидаются в qa_tasks.
