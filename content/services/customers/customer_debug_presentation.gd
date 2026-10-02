@@ -13,7 +13,9 @@ static func summary() -> String:
 	var count: int = ECS.world.query.with_all([C_CustomerAgent]).execute().size()
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	var interval: float = flow.arrival_cooldown_seconds if flow != null else 0.0
-	return "Клиенты: %d · Пауза до следующего: %.0f с\nТаймеры, условия и задачи — над NPC" % [count, ceilf(interval)]
+	var result: String = "Клиенты: %d · Пауза до следующего: %.0f с\nТаймеры, условия и задачи — над NPC" % [count, ceilf(interval)]
+	var shift: String = DayPhaseService.shift_status(DayPhaseService.current())
+	return result + ("\n" + shift if not shift.is_empty() else "")
 
 
 static func text_for(customer: E_Customer) -> String:

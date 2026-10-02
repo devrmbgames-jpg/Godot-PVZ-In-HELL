@@ -58,16 +58,16 @@ M5: focused GUT3/3,23 assertions; один полный прогон на кру
 - [x] Тестовая посылка распаковывается в небольшую полку **1,5 × 3 × 1,5 м**, две секции. Полку можно закрепить молотком.
 - [x] Тестовая посылка выдаёт **пять аптечек**.
 - [x] Тестовая посылка выдаёт **пять кусков хлеба**.
-- [ ] Торговец продаёт большую тяжёлую полку **3 × 3 × 1,5 м**; игрок может закрепить её молотком.
-- [ ] Купленная мебель появляется в специальной authored зоне возле торговца; игрок тащит её сам.
-- [ ] Торговец предлагает платную доставку предметов на дом.
-- [ ] Каталог и расписание торговца настраиваются ресурсами, допускают несколько разновидностей торговцев.
+- [x] Торговец продаёт большую тяжёлую полку **3 × 3 × 1,5 м**; игрок может закрепить её молотком.
+- [x] Купленная мебель появляется в специальной authored зоне возле торговца; игрок тащит её сам.
+- [x] Торговец предлагает платную доставку предметов на дом.
+- [x] Каталог и расписание торговца настраиваются ресурсами, допускают несколько разновидностей торговцев.
 
 ### Посетители и смена
 
 - [x] Увеличить authored интервал между посетителями; не спавнить следующего сразу при удалении предыдущего.
 - [x] Уходящий клиент остаётся до достижения конечной точки либо до истечения **более трёх минут**; убрать прежнее быстрое исчезновение.
-- [ ] Настраиваемые ограничения окончания смены: пока в здании посетитель / пока не прошло заданное время / пока не пришли все запланированные посетители. Предусмотреть выбор/сочетание условий без отдельной сложной системы.
+- [x] Настраиваемые ограничения окончания смены: пока в здании посетитель / пока не прошло заданное время / пока не пришли все запланированные посетители. Предусмотреть выбор/сочетание условий без отдельной сложной системы.
 - [ ] После получения посылки клиент может пойти в одну из специальных зон — приватных кабинок, затем вернуться и решить, забирает её или отказывается.
 - [ ] Некоторые клиенты с authored вероятностью распаковывают посылку при осмотре и забирают или отказываются от полученного предмета. Сохранять явную Relationship для владения посылкой/результатом; существующие опасные эффекты распаковки должны реально срабатывать.
 - [ ] Подготовить копируемую сцену-прототип клиента с поведением и анимациями, настраиваемыми диалогами, интересами, параметрами и челленджами.
@@ -141,3 +141,15 @@ Trader delivery pays item price+authored fee, uses appended receipt mode and exi
 DEF_TraderProfile owns independent catalog/day recurrence/open phases/courier fee and delay, legacy catalog fallback preserved. Large3x3x1.5m75kg shelf stays native physical/anchorable furniture, never inventory. Marker pickup tries free floor-supported volume before charging; stable operation identities prevent duplicates. Paid home courier reuses persisted pending deliveries/Morning receiving area; blocked deliveries retry without another payment. Panel scrolls offers and shows physical pickup, price+fee/day/schedule; overhead store label follows actual profile. Configuration: content/definitions/gameplay/commerce/README.md.
 
 Targeted commerce12/12,128 assertions PASS. Independent review R6/P2 malformed prefab accepted before courier payment: FIXED by shared intrinsic furniture validation and required enabled pickup collider/C_InventoryItem; changed courier regression alone1/1,16 assertions PASS, rereview closed. Full suite once at this major commerce milestone426/426,3375 assertions,47 scripts (.export/m2-full-gut.log). Actual-main physical furniture pickup/home delivery smoke PASS (trader_furniture-20261003-082140977.log); smoke fixture parse cast corrected before successful run. Structure/diff PASS; no rendered/full-slice check. Owner checklist qa_tasks/world_customers_commerce.md; exports follow commit.
+
+### Active M3 shift-gate contract (recorded before implementation)
+
+Extend existing C_DayCycle with independent authored require_finished_customers (legacy true), require_empty_customer_room (default false), minimum_shift_seconds (default0), require_all_planned_arrivals (default false) and optional Area3D path relative to DaySession. Empty room path conservatively means no live customer anywhere; configured area checks live visitor bodies, not trader or dead remains. Combine enabled gates with AND. All-planned checks due unfinished/unstarted visits including unregistered packages; future visits and explicitly closed/cancelled visits do not block. No additional timer/scheduler/System: S_DayPhase advances a transient shift clock only in DAY, resets at accepted START_SHIFT/Morning (snapshots remain Morning-only). Submission and commit both validate current gates, preserving queue freshness. Shared read-only blocker text appears on shift station, compact customer HUD and console rejection. No broad test rerun after M2; bounded conjunction/area/clock/revalidation regression only.
+
+Windows7c17ead8 trader-furniture main/test exported, both actual-scene/120-frame startup PASS; launchers updated. Owner full-slice/visual/furniture QA remains.
+
+### M3 shift gates implementation / validation
+
+C_DayCycle exposes independent require_finished_customers (true legacy), require_empty_customer_room (false), minimum_shift_seconds (0), require_all_planned_arrivals (false), customer_room_path (optional Area3D relative DaySession). Gates combine with AND. Real actionable visits override stale derived count; all-planned additionally includes due unregistered unfinished visits. Closed/cancelled and future visits do not trap the shift. Configured room counts overlapping live C_CustomerAgent bodies, not merchants/dead remains; blank path conservatively counts all live customers. Missing configured room/plan fails closed with visible reason. Existing S_DayPhase owns transient Day-only clock, resets accepted start/Morning; no snapshot schema change. Commit revalidates after accepted command. Shift station/compact HUD/console expose actual blocker countdown.
+
+Focused4/4,30 assertions (.export/shift-completion-gut.log): independent/conjoined gates, stale cache, late visitor queue revalidation, Day-only clock/reset, real native Area3D overlap/outside/dead and conservative fallback. Self-review/diff PASS. No broad run/smoke/export for this small part; next full M3 export includes it. Owner QA below.

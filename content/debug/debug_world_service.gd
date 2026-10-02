@@ -32,10 +32,8 @@ static func day_next() -> DebugServiceResult:
 
 	if not DayPhaseService.submit(request):
 		result.message = "DayPhaseService rejected transition"
-		if cycle.phase == C_DayCycle.Phase.DAY and cycle.remaining_customer_events > 0:
-			result.details.append(
-				"remaining_customers=%d" % cycle.remaining_customer_events
-			)
+		if cycle.phase == C_DayCycle.Phase.DAY:
+			result.details.append_array(DayPhaseService.finish_blockers(cycle))
 		return result
 
 	result.success = true

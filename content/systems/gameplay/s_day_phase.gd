@@ -11,10 +11,14 @@ func query() -> QueryBuilder:
 	return q.with_all([C_DayCycle]).iterate([C_DayCycle])
 
 
-func process(_entities: Array[Entity], components: Array, _delta: float) -> void:
+func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 	var cycles: Array = components[0]
 	for index: int in cycles.size():
 		var cycle: C_DayCycle = cycles[index] as C_DayCycle
+		if cycle.phase == C_DayCycle.Phase.DAY and is_finite(delta) and delta >= 0.0:
+			cycle.shift_elapsed_seconds += delta
+		elif cycle.phase == C_DayCycle.Phase.MORNING:
+			cycle.shift_elapsed_seconds = 0.0
 		if cycle.phase == C_DayCycle.Phase.NIGHT:
 			if cycle.night_ready:
 				cycle.day_index += 1
@@ -35,6 +39,7 @@ func process(_entities: Array[Entity], components: Array, _delta: float) -> void
 			continue
 		match request.kind:
 			DayTransitionRequest.Kind.START_SHIFT:
+				cycle.shift_elapsed_seconds = 0.0
 				cycle.phase = C_DayCycle.Phase.DAY
 			DayTransitionRequest.Kind.FINISH_SHIFT:
 				cycle.phase = C_DayCycle.Phase.EVENING
