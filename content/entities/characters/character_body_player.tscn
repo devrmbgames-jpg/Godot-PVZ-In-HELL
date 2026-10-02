@@ -26,6 +26,8 @@
 [ext_resource type="Script" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/def_impact_living.tres" id="LivingImpact"]
 
+[ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
+
 [sub_resource type="PhysicsMaterial" id="CharacterMaterial"]
 friction = 0.0
 
@@ -245,3 +247,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, -0.8, 0.24999999)
 position = Vector3(0, 0.15, 0)
 target_position = Vector3(0, -0.5, 0)
 collision_mask = 31
+
+[node name="CharacterFeedback" parent="." instance=ExtResource("CharacterFeedback")]

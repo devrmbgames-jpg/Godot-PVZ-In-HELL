@@ -22,7 +22,7 @@ Status: **IN_PROGRESS**
 - [ ] M2: мебель, зона выдачи, доставка и настраиваемый каталог торговца.
 - [ ] M3: интервалы/уход клиентов, ограничения завершения смены, кабинки и осмотр посылок.
 - [ ] M4: шаблон клиента, съедобные останки и вероятностный ценный дроп.
-- [ ] M5: виньетки, шаги, покачивание камеры, переключение debug HUD.
+- [x] M5: виньетки, шаги, покачивание камеры, переключение debug HUD.
 - [ ] M6: типизированные события терминала, посылок и дверей.
 - [ ] Узкие проверки изменённых контрактов, независимая проверка существенного результата, экспорт между крупными этапами; ручной QA передать игроку.
 
@@ -32,11 +32,11 @@ R23 продолжает текущую реализацию замечаний.
 
 ### Current
 
-Новые требования записаны, M0 выполнен: история 16 336 байт сохранена целиком в архив №1, текущий файл короткий и содержит ссылку. R23 QA-18/19/05 завершены по реализации и узкой проверке. QA-06 и интервалы/уход M3 реализованы: пауза30с после физического удаления, endpoint либо минимум181с. M1 двери/посылки завершён; большая75кг полка подготовлена для M2. M1 Windows main/test91e00d6c exported, actual-scene/120-frame startup PASS. Active next milestone QA-04/M4: immediate edible meat, optional valuable loot. Observe actual lethal DamageResult rather than restored C_Death; preserve persistent Trader tombstone and one-shot guard. Затем остальная очередь. Также выполнен пункт debug HUD: `debug_hud on/off/toggle`; остальные дополнения ещё не реализованы.
+M0 и M1 завершены. M3 интервалы/уход и M4 съедобные останки реализованы; кабинка/ограничения смены/шаблон клиента остаются в очереди. R23 QA03/04/05/06/09/10/13/14/15/17/18/19 реализованы. M5 завершён: Footstepper игрока/NPC, камера с малым покачиванием, совместимые виньетки ранения/голода/взгляда, debug_hud. Следующий шаг: экспорт M5, затем M6 события реальных действий игрока. Каталог/доставка M2 и остальные прежние требования сохранены.
 
 ### Validation
 
-M0: сохранение прежнего содержимого целиком; запись требований. M3 интервалы/уход: GUT195/195,1207 assertions (11 scripts); final UI/timing9/9,52; strict actual-main gaze/darkness smokes PASS. ReviewR4 FIXED/rereviewed. Structure/diff PASS; formatter SKIP. Остальные дополнения не проверены.
+M5: focused GUT3/3,23 assertions; один полный прогон на крупном milestone — GUT409/409,3185 assertions,44 scripts (`.export/m5-full-gut.log`). Read-only review: no material findings. Structure/diff PASS; formatter unavailable SKIP. Windows startup следует при экспорте. Исторические доказательства M1/M3/M4 ниже; ручной полный срез/звук/комфорт камеры ожидают игрока.
 
 ### Owner QA / blockers
 
@@ -76,9 +76,9 @@ M0: сохранение прежнего содержимого целиком;
 
 - [x] После смерти клиент оставляет доступные для осмотра/разрубания/еды останки. Для прототипа разрешена немедленная груда кусков мяса.
 - [x] Останки съедобны и утоляют голод; с authored вероятностью выпадают ценные предметы, например аптечка.
-- [ ] Простая тестовая виньетка для ранений, голода и запрета смотреть на существо; эффекты совместимы и очищаются при прекращении причины.
-- [ ] Подключить персонажам footstepper из `res://addons/footstepper/`, чтобы слышались шаги. Подключать существующий addon, не менять его исходники.
-- [ ] Лёгкое покачивание камеры игрока с настройкой/отключением для проверки и reduced motion.
+- [x] Простая тестовая виньетка для ранений, голода и запрета смотреть на существо; эффекты совместимы и очищаются при прекращении причины.
+- [x] Подключить персонажам footstepper из `res://addons/footstepper/`, чтобы слышались шаги. Подключать существующий addon, не менять его исходники.
+- [x] Лёгкое покачивание камеры игрока с настройкой/отключением для проверки и reduced motion.
 - [x] Команда консоли включает/выключает весь debug HUD, позволяя тестировать чистую игру и отладочный вариант.
 
 ### Игровые события
@@ -103,3 +103,17 @@ GUT58/58,469 assertions (7scripts), `.export/doors-contents-final-gut.log`: real
 Implemented immediate edible pile permitted by latest owner scope. Authored DEF_NpcRemains:3 physical meat/bone pickups,25 hunger relief each,25% extra medkit. C_NpcRemains.released persists independently; O_NpcRemains reacts to real lethal DamageResult, not restored C_Death. Visitor removal releases remains as normal unowned inventory entities; persistent Trader stays a hidden/frozen noncolliding tombstone, cannot trade, open panel closes/releases input. No extra live Entity ownership authority; existing R_OwnedBy handles pickup.
 
 Validation: GUT40/40,332 assertions (4scripts), `.export/npc-remains-final-gut.log`; real damage/partial/repeated hits, chance0/1, pickup/food consumption, native collision/avoidance, open/dead trading UI, visitor death cleanup, saved death/remains/Night. Strict actual-main `npc_remains-20261003-064735213.log` PASS. Structure/diff PASS; formatter SKIP. Separate read-only review found no material findings. Next: publish Windows milestone, then QA03 inventory grid; client prototype and other M4 requirements remain pending.
+
+### Active M5 prototype contract (recorded before implementation)
+
+Player experience: sense walking and danger while retaining instant aiming, clear center view and agency. Pillars: readable feedback; unchanged native input/physics. Walking -> quiet Footstepper audio/at most1.2cm camera displacement -> grounded movement readable; hunger/wounds/gaze -> distinct edge tint -> eat/heal/look away.
+
+Use existing read-only addon in fully manual mode for both native CharacterBody and rigid NPCs. Project-owned presentation reads actual grounded displacement plus locomotion intent; no steps/bob while stationary, airborne, dead, modal or transported. NPC sound is spatial3D; player2D. Tiny camera-local translation only, never HeadRoot/ray/arms or rotation; configurable/disableable, quickly returns neutral. Combine injury/hunger with existing gaze Canvas shader, leave center/UI clear and avoid new flashing. Expose authored amplitudes/cadence/volume/opacities. Owner playtest hypothesis: audible steps distinguish nearby moving NPCs, bob does not impair turns/aim, edge tint identifies cause.
+
+Previous combined Windows803fbcd3 main/test startup PASS includes QA03/13/10. Full game/visual/audio acceptance remains owner QA. Small edits static; justified task-filtered checks only; full run reserved for major milestones.
+
+### M5 implementation / validation
+
+Project-owned CharacterFeedback reads actual grounded displacement plus movement intent. Existing addon uses fully manual footsteps, project adapter safely supports rigid NPCs without modifying addon. Player2D / NPC3D, no steps while idle/airborne/dead/modal/transported. Camera translation up to1.2cm, configurable reduced motion/disable, no body/head/ray/arms/rotation writes. Existing gaze shader combines amber hunger/red wounds/purple gaze edge feedback. Ordinary feedback survives debug_hud off.
+
+Targeted3/3,23 assertions validates real audio voices, native rigid NPC adapter, camera-only movement and stop gates. Full suite once at M5:409/409,3185 assertions,44 scripts,33.281s. Separate read-only review clean; no rendered/audio playtest claimed. Owner checklist in qa_tasks/world_customers_commerce.md.

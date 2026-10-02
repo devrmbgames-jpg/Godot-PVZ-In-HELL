@@ -4,8 +4,13 @@ extends CanvasLayer
 @export var debug_status_enabled: bool = true
 @export var challenge_debug_enabled: bool = true
 @export var reduced_gaze_motion: bool = true
+@export var status_vignette_enabled: bool = true
+@export_range(0.1, 1.0, 0.05) var injury_vignette_onset_ratio: float = 0.75
+@export_range(0.0, 0.8, 0.05) var status_vignette_opacity: float = 0.35
 @export var player_status_enabled: bool = true
 @export var damage_feedback: O_DamageFeedback = null
+const MINIMUM_VIGNETTE_RATIO: float = 0.1
+const MINIMUM_HUNGER_SPAN: float = 1.0
 @onready var _damage_view: DamageFeedbackView = $DamageFeedback
 @onready var _feedback_debug: Label = $Overlay/PlayerDebugPanel/Debug/FeedbackDebug
 @onready var _player_status: PanelContainer = $Overlay/PlayerStatusPanel
@@ -173,14 +178,34 @@ func _update_player_health_debug() -> void:
 func _update_gaze_warning() -> void:
 	var state: C_Challenge = GazeChallengePresentation.state_for(player)
 	var strength: float = GazeChallengePresentation.strength(state)
-	_gaze_distortion.visible = strength > 0.0
+	var status: Vector2 = _status_vignette_strengths()
+	_gaze_distortion.visible = strength > 0.0 or not status.is_zero_approx()
 	var material: ShaderMaterial = _gaze_distortion.material as ShaderMaterial
 	material.set_shader_parameter("strength", strength)
+	material.set_shader_parameter("injury_strength", status.x)
+	material.set_shader_parameter("hunger_strength", status.y)
+	material.set_shader_parameter("status_opacity", status_vignette_opacity)
 	material.set_shader_parameter("reduced_motion", reduced_gaze_motion)
 	_gaze_warning.text = GazeChallengePresentation.text(state)
 	_gaze_warning.visible = strength > 0.0
 	_gaze_progress.visible = strength > 0.0
 	_gaze_progress.value = strength
+
+
+func _status_vignette_strengths() -> Vector2:
+	if not status_vignette_enabled or not EntityAvailability.contains(player, ECS.world):
+		return Vector2.ZERO
+	var health: C_Health = player.get_component(C_Health) as C_Health
+	var hunger: C_Hunger = player.get_component(C_Hunger) as C_Hunger
+	var injury: float = 0.0
+	var starvation: float = 0.0
+	if health != null:
+		var ratio: float = health.current / maxf(health.value, MINIMUM_HEALTH_BAR_MAXIMUM)
+		injury = clampf((injury_vignette_onset_ratio - ratio) / maxf(injury_vignette_onset_ratio, MINIMUM_VIGNETTE_RATIO), 0.0, 1.0)
+	if hunger != null and hunger.policy != null:
+		var policy: DEF_HungerPolicy = hunger.policy
+		starvation = clampf((hunger.value - policy.hungry_threshold) / maxf(policy.maximum - policy.hungry_threshold, MINIMUM_HUNGER_SPAN), 0.0, 1.0)
+	return Vector2(injury, starvation)
 
 
 func _update_package_debug(target: Variant) -> void:
