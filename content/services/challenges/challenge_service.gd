@@ -187,6 +187,9 @@ static func _track_visit_condition(state: C_Challenge, previous_elapsed: float) 
 
 
 static func _cleanup(subject: Entity, state: C_Challenge) -> void:
+	var light_rule: DEF_LightChallengeCondition = state.definition.condition as DEF_LightChallengeCondition if state.definition != null else null
+	if light_rule != null and light_rule.wait_outside_until_dark:
+		LightCircuitService.stop_flicker(light_rule.circuit_id, StringName(subject.id))
 	state.phase = C_Challenge.Phase.CLEANUP
 	state.elapsed = 0.0
 	state.result_remaining = 0.0

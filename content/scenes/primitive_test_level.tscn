@@ -80,6 +80,8 @@
 
 [ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="Gaze_order_clue"]
 
+[ext_resource type="Script" path="res://content/ui/circuit_light_view.gd" id="Circuit_light_view"]
+
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
 
@@ -488,6 +490,9 @@ shape = SubResource("ClueWallShape")
 
 [node name="OrderClue" parent="PVZ/ClueWall2" instance=ExtResource("Gaze_order_clue")]
 position = Vector3(0, 0.4, 0.21)
+
+[node name="CircuitLightView" type="Node" parent="Sun"]
+script = ExtResource("Circuit_light_view")
 
 [node name="Entityes" type="Node3D" parent="."]
 

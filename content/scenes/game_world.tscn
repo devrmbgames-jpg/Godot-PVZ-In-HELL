@@ -70,6 +70,8 @@
 [ext_resource type="Script" uid="uid://d374l476phm" path="res://content/systems/gameplay/s_throw_lifetime.gd" id="ThrowLifetime"]
 [ext_resource type="Script" uid="uid://dx38hpfqbykum" path="res://content/systems/gameplay/s_wallet_day.gd" id="Wallet_system"]
 
+[ext_resource type="Script" path="res://content/observers/challenges/o_light_flicker.gd" id="Light_flicker"]
+
 [node name="World" type="Node" unique_id=1962298586]
 script = ExtResource("2_da1x8")
 entity_nodes_root = NodePath("../Entityes")
@@ -299,3 +301,6 @@ script = ExtResource("Marker_system")
 [node name="O_GrabLifecycle" type="Node" parent="Systems/Interaction" unique_id=1786878994]
 script = ExtResource("Grab_lifecycle")
 
+
+[node name="O_LightFlicker" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("Light_flicker")

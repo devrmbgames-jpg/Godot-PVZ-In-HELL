@@ -11,6 +11,7 @@ func before_each() -> void:
 	add_child(_world)
 	ECS.world = _world
 	_world.add_system(S_LightCircuit.new())
+	_world.add_observer(O_LightFlicker.new())
 	_actor = Entity.new()
 	_world.add_entity(_actor)
 	var scene: PackedScene = load("res://content/entities/props/light_switch.tscn") as PackedScene
@@ -79,3 +80,49 @@ func test_disabled_or_removed_switch_cannot_be_activated() -> void:
 	assert_false(LightCircuitService.set_enabled(_switch, false))
 	assert_false(action.is_available(_actor, null, null))
 	assert_false(LightCircuitService.toggle(null))
+
+
+func test_flicker_subscriber_changes_visual_only_and_switch_off_wins() -> void:
+	var light: OmniLight3D = _light(&"warehouse_lights")
+	var view: CircuitLightView = CircuitLightView.new()
+	view.name = "CircuitLightView"
+	light.add_child(view)
+	view.set_process(false)
+	assert_true(LightCircuitService.flicker(&"warehouse", 2.0, 0.1))
+	view._process(0.15)
+	assert_false(light.visible)
+	assert_true(_state.enabled, "A dark flicker pulse is not a switched-off room")
+	_world.process(0.1)
+	assert_false(light.visible, "Circuit synchronization must not overwrite the flicker")
+	view._process(0.1)
+	assert_true(light.visible)
+	assert_true(LightCircuitService.set_enabled(_switch, false))
+	assert_false(light.visible)
+	view._process(0.1)
+	assert_false(light.visible)
+	assert_true(LightCircuitService.set_enabled(_switch, true))
+	view._process(0.1)
+	assert_true(light.visible, "Switching on must not resume the stale request")
+
+
+func test_flicker_expires_and_does_not_affect_other_circuits() -> void:
+	var light: OmniLight3D = _light(&"warehouse_lights")
+	var view: CircuitLightView = CircuitLightView.new()
+	view.name = "CircuitLightView"
+	light.add_child(view)
+	view.set_process(false)
+	var unrelated: OmniLight3D = _light(&"outside_lights")
+	var other: CircuitLightView = CircuitLightView.new()
+	other.circuit_id = &"outside"
+	unrelated.add_child(other)
+	other.set_process(false)
+	assert_false(LightCircuitService.flicker(&"missing", 2.0, 0.1))
+	assert_false(LightCircuitService.flicker(&"warehouse", -1.0, 0.1))
+	assert_true(LightCircuitService.flicker(&"warehouse", 0.3, 0.1))
+	view._process(0.15)
+	other._process(0.15)
+	assert_false(light.visible)
+	assert_true(unrelated.visible)
+	view._process(0.2)
+	assert_true(light.visible)
+	assert_true(_state.enabled)

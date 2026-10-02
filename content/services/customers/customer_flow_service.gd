@@ -251,6 +251,7 @@ static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	if ChallengeService.begin_on_arrival(customer, player):
 		customer.show_message(challenge.definition.rule_text)
+		CustomerArrivalService.begin(customer, challenge)
 
 
 static func bind_parcel(customer: Entity, visit: CustomerVisit) -> void:
@@ -299,6 +300,9 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 	agent.elapsed += delta
 	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
 	match agent.phase:
+		C_CustomerAgent.Phase.WAITING_FOR_DARKNESS:
+			if CustomerArrivalService.tick(customer, agent, visit, cycle):
+				_leave(customer, visit)
 		C_CustomerAgent.Phase.APPROACHING:
 			if intent != null and intent.arrived:
 				_transition(agent, C_CustomerAgent.Phase.WAITING)

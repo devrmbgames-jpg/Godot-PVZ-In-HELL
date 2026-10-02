@@ -11,6 +11,8 @@
 [ext_resource type="PackedScene" uid="uid://ceby1m7bivr66" path="res://content/entities/customers/customer.tscn" id="Scene"]
 [ext_resource type="Script" uid="uid://bfp6pc2vc71rw" path="res://content/definitions/gameplay/customers/def_customer_schedule.gd" id="Schedule"]
 
+[ext_resource type="Resource" path="res://content/definitions/gameplay/customers/def_customer_light_sensitive.tres" id="LightCustomer"]
+
 [sub_resource type="Resource" id="ReactionHonest"]
 script = ExtResource("Reaction")
 intent = 1
@@ -124,8 +126,13 @@ script = ExtResource("Event")
 package_key = &"tools"
 customer = ExtResource("FloorCustomer")
 
+[sub_resource type="Resource" id="LightEvent"]
+script = ExtResource("Event")
+package_key = &"oil"
+customer = ExtResource("LightCustomer")
+
 [resource]
 script = ExtResource("Schedule")
-events = Array[ExtResource("Event")]([SubResource("Books"), SubResource("Glass"), SubResource("Clothes"), SubResource("Equipment"), SubResource("GazeEvent"), SubResource("FloorEvent")])
+events = Array[ExtResource("Event")]([SubResource("Books"), SubResource("Glass"), SubResource("Clothes"), SubResource("Equipment"), SubResource("GazeEvent"), SubResource("FloorEvent"), SubResource("LightEvent")])
 customer_scene = ExtResource("Scene")
 key = &"warehouse_customers"

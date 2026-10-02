@@ -101,6 +101,8 @@
 
 [ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="Gaze_order_clue"]
 
+[ext_resource type="Script" path="res://content/ui/circuit_light_view.gd" id="Circuit_light_view"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -1625,6 +1627,27 @@ rotation_degrees = Vector3(0, -90, 0)
 [node name="FrontWall" parent="GazeOrderClues" instance=ExtResource("Gaze_order_clue")]
 position = Vector3(6, 1.9, -0.56)
 rotation_degrees = Vector3(0, 180, 0)
+
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D"]
+script = ExtResource("Circuit_light_view")
+
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D6"]
+script = ExtResource("Circuit_light_view")
+
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D7"]
+script = ExtResource("Circuit_light_view")
+
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D3"]
+script = ExtResource("Circuit_light_view")
+
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D4"]
+script = ExtResource("Circuit_light_view")
+
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D5"]
+script = ExtResource("Circuit_light_view")
+
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D2"]
+script = ExtResource("Circuit_light_view")
 
 [node name="Entityes" type="Node3D" parent="." unique_id=118950221]
 
