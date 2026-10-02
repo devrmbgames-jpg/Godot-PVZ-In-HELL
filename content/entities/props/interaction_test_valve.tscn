@@ -1,16 +1,22 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://d36ymw1qbl12t"]
 
-[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
-[ext_resource type="Script" path="res://content/entities/props/e_interaction_test_valve.gd" id="ValveEntity"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="ActionSet"]
-[ext_resource type="Script" path="res://content/definitions/interaction/def_interaction_action.gd" id="ActionBase"]
-[ext_resource type="Script" path="res://content/definitions/interaction/def_prolonged_interaction.gd" id="Timing"]
-[ext_resource type="Script" path="res://content/definitions/interaction/def_interaction_test_valve_action.gd" id="ValveAction"]
-[ext_resource type="Script" path="res://content/ui/interaction_test_indicator_lamp.gd" id="LampScript"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="ActionBase"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="ActionSet"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" uid="uid://dfmlpgmrihcr3" path="res://content/ui/interaction_test_indicator_lamp.gd" id="LampScript"]
+[ext_resource type="Script" uid="uid://dkujwrnqnibo2" path="res://content/definitions/interaction/def_prolonged_interaction.gd" id="Timing"]
+[ext_resource type="Script" uid="uid://bvh1spypjtoau" path="res://content/definitions/interaction/def_interaction_test_valve_action.gd" id="ValveAction"]
+[ext_resource type="Script" uid="uid://cy00o363snh40" path="res://content/entities/props/e_interaction_test_valve.gd" id="ValveEntity"]
 
 [sub_resource type="Resource" id="Interactable"]
 script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="ActionImmediate"]
+script = ExtResource("ValveAction")
+action_id = &"test_valve_immediate"
+slot = 0
+caption = "Переключить вентиль"
 
 [sub_resource type="Resource" id="TimingDecay"]
 script = ExtResource("Timing")
@@ -18,63 +24,51 @@ duration_seconds = 2.0
 reset_policy = 0
 decay_per_second = 0.35
 
+[sub_resource type="Resource" id="ActionDecay"]
+script = ExtResource("ValveAction")
+mode = 1
+action_id = &"test_valve_decay"
+caption = "Крутить · DECAY"
+allow_interact_fallback = false
+timing = SubResource("TimingDecay")
+
 [sub_resource type="Resource" id="TimingInstant"]
 script = ExtResource("Timing")
 duration_seconds = 2.0
-reset_policy = 1
+
+[sub_resource type="Resource" id="ActionInstant"]
+script = ExtResource("ValveAction")
+mode = 2
+action_id = &"test_valve_instant"
+caption = "Крутить · INSTANT"
+allow_interact_fallback = false
+timing = SubResource("TimingInstant")
 
 [sub_resource type="Resource" id="TimingOnComplete"]
 script = ExtResource("Timing")
 duration_seconds = 2.0
 reset_policy = 2
 
+[sub_resource type="Resource" id="ActionOnComplete"]
+script = ExtResource("ValveAction")
+mode = 3
+action_id = &"test_valve_on_complete"
+caption = "Крутить · ON_COMPLETE"
+allow_interact_fallback = false
+timing = SubResource("TimingOnComplete")
+
 [sub_resource type="Resource" id="TimingNever"]
 script = ExtResource("Timing")
 duration_seconds = 2.0
 reset_policy = 3
 
-[sub_resource type="Resource" id="ActionImmediate"]
-script = ExtResource("ValveAction")
-action_id = &"test_valve_immediate"
-slot = 0
-caption = "Переключить вентиль"
-mode = 0
-
-[sub_resource type="Resource" id="ActionDecay"]
-script = ExtResource("ValveAction")
-action_id = &"test_valve_decay"
-slot = 1
-caption = "Крутить · DECAY"
-allow_interact_fallback = false
-timing = SubResource("TimingDecay")
-mode = 1
-
-[sub_resource type="Resource" id="ActionInstant"]
-script = ExtResource("ValveAction")
-action_id = &"test_valve_instant"
-slot = 1
-caption = "Крутить · INSTANT"
-allow_interact_fallback = false
-timing = SubResource("TimingInstant")
-mode = 2
-
-[sub_resource type="Resource" id="ActionOnComplete"]
-script = ExtResource("ValveAction")
-action_id = &"test_valve_on_complete"
-slot = 1
-caption = "Крутить · ON_COMPLETE"
-allow_interact_fallback = false
-timing = SubResource("TimingOnComplete")
-mode = 3
-
 [sub_resource type="Resource" id="ActionNever"]
 script = ExtResource("ValveAction")
+mode = 4
 action_id = &"test_valve_never"
-slot = 1
 caption = "Крутить · NEVER"
 allow_interact_fallback = false
 timing = SubResource("TimingNever")
-mode = 4
 
 [sub_resource type="Resource" id="Actions"]
 script = ExtResource("ActionSet")
@@ -86,14 +80,37 @@ albedo_color = Color(0.16, 0.18, 0.2, 1)
 metallic = 0.55
 roughness = 0.48
 
+[sub_resource type="BoxMesh" id="ValveBodyMesh"]
+material = SubResource("ValveBodyMaterial")
+size = Vector3(0.42, 0.52, 0.28)
+
 [sub_resource type="StandardMaterial3D" id="ValveWheelMaterial"]
 albedo_color = Color(0.55, 0.08, 0.055, 1)
 metallic = 0.42
 roughness = 0.55
 
+[sub_resource type="CylinderMesh" id="ValveWheelMesh"]
+material = SubResource("ValveWheelMaterial")
+top_radius = 0.22
+bottom_radius = 0.22
+height = 0.055
+radial_segments = 20
+
+[sub_resource type="BoxMesh" id="ValveSpokeMesh"]
+material = SubResource("ValveWheelMaterial")
+size = Vector3(0.46, 0.055, 0.055)
+
+[sub_resource type="BoxShape3D" id="ValveCollision"]
+size = Vector3(0.56, 0.72, 0.46)
+
 [sub_resource type="StandardMaterial3D" id="LampOffMaterial"]
 albedo_color = Color(0.16, 0.03, 0.025, 1)
 roughness = 0.85
+
+[sub_resource type="SphereMesh" id="LampMeshOff"]
+material = SubResource("LampOffMaterial")
+radius = 0.085
+height = 0.17
 
 [sub_resource type="StandardMaterial3D" id="LampOnMaterial"]
 albedo_color = Color(0.1, 0.9, 0.16, 1)
@@ -101,80 +118,55 @@ emission_enabled = true
 emission = Color(0.08, 0.85, 0.12, 1)
 emission_energy_multiplier = 2.0
 
-[sub_resource type="BoxMesh" id="ValveBodyMesh"]
-size = Vector3(0.42, 0.52, 0.28)
-material = SubResource("ValveBodyMaterial")
-
-[sub_resource type="CylinderMesh" id="ValveWheelMesh"]
-top_radius = 0.22
-bottom_radius = 0.22
-height = 0.055
-radial_segments = 20
-material = SubResource("ValveWheelMaterial")
-
-[sub_resource type="BoxMesh" id="ValveSpokeMesh"]
-size = Vector3(0.46, 0.055, 0.055)
-material = SubResource("ValveWheelMaterial")
-
-[sub_resource type="SphereMesh" id="LampMeshOff"]
-radius = 0.085
-height = 0.17
-material = SubResource("LampOffMaterial")
-
 [sub_resource type="SphereMesh" id="LampMeshOn"]
+material = SubResource("LampOnMaterial")
 radius = 0.085
 height = 0.17
-material = SubResource("LampOnMaterial")
 
-[sub_resource type="BoxShape3D" id="ValveCollision"]
-size = Vector3(0.56, 0.72, 0.46)
-
-[node name="InteractionTestValve" type="StaticBody3D"]
+[node name="InteractionTestValve" type="StaticBody3D" unique_id=1736677320]
 editor_description = "R11.1 interaction demo. Root signal 'activated(bool)' is connected to IndicatorLamp.set_active(). Replace/add scene signal connections to test other authored effects."
 collision_layer = 2
 collision_mask = 0
 script = ExtResource("ValveEntity")
 component_resources = Array[ExtResource("Component")]([SubResource("Interactable"), SubResource("Actions")])
 
-[node name="Body" type="MeshInstance3D" parent="."]
+[node name="Body" type="MeshInstance3D" parent="." unique_id=1645127384]
 mesh = SubResource("ValveBodyMesh")
 
-[node name="Wheel" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0, -0.19)
-rotation = Vector3(1.5707963, 0, 0)
+[node name="Wheel" type="MeshInstance3D" parent="." unique_id=2082460608]
+transform = Transform3D(1, 0, 0, 0, 7.54979e-08, -1, 0, 1, 7.54979e-08, 0, 0, -0.19)
 mesh = SubResource("ValveWheelMesh")
 
-[node name="SpokeH" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0, -0.225)
+[node name="SpokeH" type="MeshInstance3D" parent="Wheel" unique_id=591620686]
+transform = Transform3D(1, 0, 0, 0, 7.54979e-08, 1, 0, -1, 7.54979e-08, 0, -0.034999996, -2.6424258e-09)
 mesh = SubResource("ValveSpokeMesh")
 
-[node name="SpokeV" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0, -0.225)
-rotation = Vector3(0, 0, 1.5707963)
+[node name="SpokeV" type="MeshInstance3D" parent="Wheel" unique_id=332345026]
+transform = Transform3D(7.54979e-08, -1, 0, 7.54979e-08, 5.6999333e-15, 1, -1, -7.54979e-08, 7.54979e-08, 0, -0.034999996, -2.6424258e-09)
 mesh = SubResource("ValveSpokeMesh")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=928266231]
 shape = SubResource("ValveCollision")
 
-[node name="Label3D" type="Label3D" parent="."]
-position = Vector3(0, 0.62, 0)
-text = "TEST VALVE"
+[node name="Label3D" type="Label3D" parent="." unique_id=1347079345]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.62, 0)
+billboard = 1
+text = "E · PRESS"
 font_size = 28
 outline_size = 6
-billboard = 1
 
-[node name="IndicatorLamp" type="Node3D" parent="."]
-position = Vector3(0.38, 0.24, -0.18)
+[node name="IndicatorLamp" type="Node3D" parent="." unique_id=457205163]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.24, -0.18)
 script = ExtResource("LampScript")
 
-[node name="OffBulb" type="MeshInstance3D" parent="IndicatorLamp"]
+[node name="OffBulb" type="MeshInstance3D" parent="IndicatorLamp" unique_id=263770366]
 mesh = SubResource("LampMeshOff")
 
-[node name="OnBulb" type="MeshInstance3D" parent="IndicatorLamp"]
+[node name="OnBulb" type="MeshInstance3D" parent="IndicatorLamp" unique_id=882654827]
 visible = false
 mesh = SubResource("LampMeshOn")
 
-[node name="OmniLight3D" type="OmniLight3D" parent="IndicatorLamp"]
+[node name="OmniLight3D" type="OmniLight3D" parent="IndicatorLamp" unique_id=34501550]
 visible = false
 light_color = Color(0.2, 1, 0.3, 1)
 light_energy = 1.2

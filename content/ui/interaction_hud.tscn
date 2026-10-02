@@ -1,18 +1,20 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dx3ysmmpho68c"]
 
-[ext_resource type="Script" path="res://content/ui/interaction_hud.gd" id="1"]
-[ext_resource type="Script" path="res://content/ui/marker_pointer.gd" id="MarkerPointer"]
-[ext_resource type="Shader" path="res://content/ui/shaders/gaze_warning.gdshader" id="GazeShader"]
+[ext_resource type="Script" uid="uid://cc6f8inf5424a" path="res://content/ui/interaction_hud.gd" id="1"]
 [ext_resource type="PackedScene" path="res://content/ui/damage_feedback_view.tscn" id="DamageFeedback"]
+[ext_resource type="Shader" uid="uid://d38s446njw1re" path="res://content/ui/shaders/gaze_warning.gdshader" id="GazeShader"]
+[ext_resource type="Script" uid="uid://deelgucfnux40" path="res://content/ui/marker_pointer.gd" id="MarkerPointer"]
 
 [sub_resource type="ShaderMaterial" id="GazeMaterial"]
 resource_local_to_scene = true
 shader = ExtResource("GazeShader")
+shader_parameter/strength = 0.0
+shader_parameter/reduced_motion = true
 
-[node name="InteractionHud" type="CanvasLayer"]
+[node name="InteractionHud" type="CanvasLayer" unique_id=937056692]
 script = ExtResource("1")
 
-[node name="Overlay" type="Control" parent="."]
+[node name="Overlay" type="Control" parent="." unique_id=1818357939]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -21,22 +23,22 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="GazeDistortion" type="ColorRect" parent="Overlay"]
+[node name="GazeDistortion" type="ColorRect" parent="Overlay" unique_id=870529017]
 visible = false
 material = SubResource("GazeMaterial")
 layout_mode = 0
-anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="MarkerPointer" type="Control" parent="Overlay"]
+[node name="MarkerPointer" type="Control" parent="Overlay" unique_id=685668646]
+anchors_preset = 0
 mouse_filter = 2
 script = ExtResource("MarkerPointer")
 
-[node name="Crosshair" type="Label" parent="Overlay"]
+[node name="Crosshair" type="Label" parent="Overlay" unique_id=1088005302]
 layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
@@ -46,14 +48,13 @@ offset_left = -8.0
 offset_top = -14.0
 offset_right = 8.0
 offset_bottom = 14.0
-mouse_filter = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
 text = "+"
 horizontal_alignment = 1
 
-[node name="InteractionProgress" type="ProgressBar" parent="Overlay"]
+[node name="InteractionProgress" type="ProgressBar" parent="Overlay" unique_id=1791122088]
 visible = false
 layout_mode = 0
 anchor_left = 0.5
@@ -69,7 +70,7 @@ max_value = 1.0
 step = 0.001
 show_percentage = false
 
-[node name="Prompt" type="Label" parent="Overlay"]
+[node name="Prompt" type="Label" parent="Overlay" unique_id=1132074882]
 layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
@@ -79,13 +80,12 @@ offset_left = -240.0
 offset_top = 30.0
 offset_right = 240.0
 offset_bottom = 180.0
-mouse_filter = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 horizontal_alignment = 1
 
-[node name="ChallengeStatus" type="Label" parent="Overlay"]
+[node name="ChallengeStatus" type="Label" parent="Overlay" unique_id=1207593263]
 visible = false
 layout_mode = 0
 anchor_left = 0.5
@@ -94,7 +94,6 @@ offset_left = -260.0
 offset_top = 120.0
 offset_right = 260.0
 offset_bottom = 196.0
-mouse_filter = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
@@ -102,7 +101,7 @@ theme_override_font_sizes/font_size = 22
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="GazeWarning" type="Label" parent="Overlay"]
+[node name="GazeWarning" type="Label" parent="Overlay" unique_id=1193111735]
 visible = false
 layout_mode = 0
 anchor_left = 0.5
@@ -111,7 +110,6 @@ offset_left = -260.0
 offset_top = 208.0
 offset_right = 260.0
 offset_bottom = 252.0
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.45, 0.35, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 2
@@ -120,7 +118,7 @@ theme_override_font_sizes/font_size = 20
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="GazeWarningProgress" type="ProgressBar" parent="Overlay"]
+[node name="GazeWarningProgress" type="ProgressBar" parent="Overlay" unique_id=165702689]
 visible = false
 layout_mode = 0
 anchor_left = 0.5
@@ -134,7 +132,7 @@ max_value = 1.0
 step = 0.001
 show_percentage = false
 
-[node name="ChallengeDebugPanel" type="PanelContainer" parent="Overlay"]
+[node name="ChallengeDebugPanel" type="PanelContainer" parent="Overlay" unique_id=2028953800]
 layout_mode = 0
 offset_left = 24.0
 offset_top = 116.0
@@ -142,13 +140,12 @@ offset_right = 420.0
 offset_bottom = 420.0
 mouse_filter = 2
 
-[node name="Text" type="Label" parent="Overlay/ChallengeDebugPanel"]
+[node name="Text" type="Label" parent="Overlay/ChallengeDebugPanel" unique_id=659873156]
 layout_mode = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 14
 autowrap_mode = 3
 
-[node name="StatusPanel" type="PanelContainer" parent="Overlay"]
+[node name="StatusPanel" type="PanelContainer" parent="Overlay" unique_id=209647380]
 layout_mode = 0
 offset_left = 24.0
 offset_top = 24.0
@@ -156,19 +153,14 @@ offset_right = 760.0
 offset_bottom = 104.0
 mouse_filter = 2
 
-[node name="DayPhase" type="Label" parent="Overlay/StatusPanel"]
-theme_override_font_sizes/font_size = 22
-layout_mode = 0
-offset_left = 24.0
-offset_top = 24.0
-offset_right = 340.0
-offset_bottom = 60.0
-mouse_filter = 2
+[node name="DayPhase" type="Label" parent="Overlay/StatusPanel" unique_id=675290416]
+layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 22
 
-[node name="PlayerDebugPanel" type="PanelContainer" parent="Overlay"]
+[node name="PlayerDebugPanel" type="PanelContainer" parent="Overlay" unique_id=1118667593]
 layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
@@ -179,94 +171,85 @@ offset_bottom = 96.0
 grow_horizontal = 0
 mouse_filter = 2
 
-[node name="Debug" type="VBoxContainer" parent="Overlay/PlayerDebugPanel"]
+[node name="Debug" type="VBoxContainer" parent="Overlay/PlayerDebugPanel" unique_id=12865980]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="HealthLabel" type="Label" parent="Overlay/PlayerDebugPanel/Debug"]
+[node name="HealthLabel" type="Label" parent="Overlay/PlayerDebugPanel/Debug" unique_id=208261554]
 layout_mode = 2
-mouse_filter = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
 text = "PLAYER HP"
 
-[node name="HealthBar" type="ProgressBar" parent="Overlay/PlayerDebugPanel/Debug"]
+[node name="HealthBar" type="ProgressBar" parent="Overlay/PlayerDebugPanel/Debug" unique_id=1596769888]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 mouse_filter = 2
 show_percentage = false
 
-[node name="MetaDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug"]
+[node name="MetaDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug" unique_id=1074105091]
 layout_mode = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 13
 autowrap_mode = 2
 
-[node name="InventoryDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug"]
+[node name="InventoryDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug" unique_id=1573278286]
 layout_mode = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 13
 autowrap_mode = 2
 
-[node name="HungerDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug"]
+[node name="HungerDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug" unique_id=1030894623]
 layout_mode = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 13
 autowrap_mode = 2
 
-[node name="CombatDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug"]
+[node name="CombatDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug" unique_id=1991041157]
 layout_mode = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 13
 autowrap_mode = 2
 
-[node name="FeedbackDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug"]
+[node name="FeedbackDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug" unique_id=601765654]
 layout_mode = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 13
 autowrap_mode = 2
 
-[node name="PackageDebugPanel" type="PanelContainer" parent="Overlay"]
-visible = false
-layout_mode = 0
+[node name="PackageDebugPanel" type="PanelContainer" parent="Overlay" unique_id=1681450332]
+layout_mode = 1
+anchors_preset = 5
 anchor_left = 0.5
-anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 28.0
-offset_top = 34.0
-offset_right = 388.0
-offset_bottom = 136.0
+offset_left = -180.0
+offset_top = 24.0
+offset_right = 180.0
+offset_bottom = 142.0
+grow_horizontal = 2
 mouse_filter = 2
 
-[node name="Debug" type="VBoxContainer" parent="Overlay/PackageDebugPanel"]
+[node name="Debug" type="VBoxContainer" parent="Overlay/PackageDebugPanel" unique_id=1459458217]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="TypeLabel" type="Label" parent="Overlay/PackageDebugPanel/Debug"]
+[node name="TypeLabel" type="Label" parent="Overlay/PackageDebugPanel/Debug" unique_id=53790457]
 layout_mode = 2
-mouse_filter = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
 text = "ПОСЫЛКА"
 
-[node name="HealthLabel" type="Label" parent="Overlay/PackageDebugPanel/Debug"]
+[node name="HealthLabel" type="Label" parent="Overlay/PackageDebugPanel/Debug" unique_id=989344562]
 layout_mode = 2
-mouse_filter = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
 text = "HP"
 
-[node name="HealthBar" type="ProgressBar" parent="Overlay/PackageDebugPanel/Debug"]
+[node name="HealthBar" type="ProgressBar" parent="Overlay/PackageDebugPanel/Debug" unique_id=2105034792]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 mouse_filter = 2
 show_percentage = false
 
-[node name="Announcement" type="Label" parent="Overlay"]
+[node name="Announcement" type="Label" parent="Overlay" unique_id=320229373]
 layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.25
@@ -276,14 +259,13 @@ offset_left = -400.0
 offset_top = -40.0
 offset_right = 400.0
 offset_bottom = 60.0
-mouse_filter = 2
-theme_override_font_sizes/font_size = 32
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 32
 horizontal_alignment = 1
 
-[node name="PlayerStatusPanel" type="PanelContainer" parent="Overlay"]
+[node name="PlayerStatusPanel" type="PanelContainer" parent="Overlay" unique_id=365617864]
 layout_mode = 0
 anchor_top = 1.0
 anchor_bottom = 1.0
@@ -294,36 +276,33 @@ offset_bottom = -24.0
 grow_vertical = 0
 mouse_filter = 2
 
-[node name="Stats" type="VBoxContainer" parent="Overlay/PlayerStatusPanel"]
+[node name="Stats" type="VBoxContainer" parent="Overlay/PlayerStatusPanel" unique_id=654700761]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 5
 
-[node name="Health" type="Label" parent="Overlay/PlayerStatusPanel/Stats"]
+[node name="Health" type="Label" parent="Overlay/PlayerStatusPanel/Stats" unique_id=1806890316]
 layout_mode = 2
-mouse_filter = 2
 text = "Здоровье"
 
-[node name="HealthBar" type="ProgressBar" parent="Overlay/PlayerStatusPanel/Stats"]
-layout_mode = 2
+[node name="HealthBar" type="ProgressBar" parent="Overlay/PlayerStatusPanel/Stats" unique_id=198497561]
 custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
 mouse_filter = 2
 show_percentage = false
 
-[node name="Hunger" type="Label" parent="Overlay/PlayerStatusPanel/Stats"]
+[node name="Hunger" type="Label" parent="Overlay/PlayerStatusPanel/Stats" unique_id=136916297]
 layout_mode = 2
-mouse_filter = 2
 text = "Голод"
 
-[node name="HungerBar" type="ProgressBar" parent="Overlay/PlayerStatusPanel/Stats"]
-layout_mode = 2
+[node name="HungerBar" type="ProgressBar" parent="Overlay/PlayerStatusPanel/Stats" unique_id=604885224]
 custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
 mouse_filter = 2
 show_percentage = false
 
-[node name="Money" type="Label" parent="Overlay/PlayerStatusPanel/Stats"]
+[node name="Money" type="Label" parent="Overlay/PlayerStatusPanel/Stats" unique_id=680346]
 layout_mode = 2
-mouse_filter = 2
 text = "Баланс"
 
-[node name="DamageFeedback" parent="." instance=ExtResource("DamageFeedback")]
+[node name="DamageFeedback" parent="." unique_id=156642565 instance=ExtResource("DamageFeedback")]

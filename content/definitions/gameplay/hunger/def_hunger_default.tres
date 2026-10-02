@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="DEF_HungerPolicy" format=3]
+[gd_resource type="Resource" script_class="DEF_HungerPolicy" format=3 uid="uid://dnhtf6evpqsc8"]
 
-[ext_resource type="Script" path="res://content/definitions/gameplay/hunger/def_hunger_policy.gd" id="Policy"]
+[ext_resource type="Script" uid="uid://bxm7u327ewk3" path="res://content/definitions/gameplay/hunger/def_hunger_policy.gd" id="Policy"]
 
 [resource]
 script = ExtResource("Policy")
+growth_per_second = 0.05
 key = &"default_hunger"

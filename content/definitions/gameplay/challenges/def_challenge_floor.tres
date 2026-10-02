@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="DEF_Challenge" format=3]
+[gd_resource type="Resource" script_class="DEF_Challenge" format=3 uid="uid://biw60iepq3xi7"]
 
-[ext_resource type="Script" path="res://content/definitions/gameplay/challenges/def_challenge.gd" id="Challenge"]
-[ext_resource type="Script" path="res://content/definitions/gameplay/challenges/def_floor_challenge_condition.gd" id="Floor"]
+[ext_resource type="Script" uid="uid://thvox5ipe6i" path="res://content/definitions/gameplay/challenges/def_challenge.gd" id="Challenge"]
+[ext_resource type="Script" uid="uid://ctoi5a15eg55s" path="res://content/definitions/gameplay/challenges/def_floor_challenge_condition.gd" id="Floor"]
 [ext_resource type="PackedScene" path="res://content/entities/hazards/floor_hazard.tscn" id="Hazard"]
 
 [sub_resource type="Resource" id="Condition"]
@@ -10,10 +10,10 @@ hazard_scene = ExtResource("Hazard")
 
 [resource]
 script = ExtResource("Challenge")
-key = &"customer-floor-hazard"
 completion = 3
 condition = SubResource("Condition")
 rule_text = "Через 3 секунды отмеченный пол станет опасным на 12 секунд. Встаньте на коробку или уйдите за границу зоны. Не стойте на опасном полу 2 секунды подряд."
 timeout_seconds = 15.0
 preparation_seconds = 3.0
 violation_grace_seconds = 2.0
+key = &"customer-floor-hazard"

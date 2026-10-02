@@ -1,11 +1,17 @@
 # Developer Console Testing
 
-Status: **DONE**
+Status: **PLANNED**
+
+Priority: **LOW** — дополнительная задача; выполнять после основных исправлений игрового QA.
 
 ## Task state
 
 ### Goal
 Extend the existing Developer Console with project-specific testing commands for Packages, Customers, Economy, Health and lifecycle scenarios without creating a second gameplay authority.
+
+Extension requested by owner: cover expanded gameplay and QA-01–QA-13, and expose discoverable `help` with command syntax/examples.
+
+Дополнение владельца: исправить прокрутку открытой консоли. Расширение команд, справка и прокрутка составляют одну дополнительную задачу низкого приоритета.
 
 ### Constraints / acceptance
 - `addons/console/` stays generic; project-specific commands live under project code.
@@ -13,6 +19,7 @@ Extend the existing Developer Console with project-specific testing commands for
 - Customer actual outcome and Terminal declaration remain separate concepts.
 - Debug commands are disabled for production by default.
 - Detailed command grammar is supporting specification: [commands.md](developer_console_testing/commands.md).
+- При открытой консоли длинный вывод можно прокручивать колёсиком мыши и полосой прокрутки; сохранить доступные PageUp/PageDown и ввод команд. События консоли не должны одновременно управлять игроком.
 
 ### Milestones
 - [x] Stage 1 — command infrastructure / target resolution.
@@ -24,14 +31,28 @@ Extend the existing Developer Console with project-specific testing commands for
 - [x] Stage 7 — health / lifecycle / world helpers.
 - [x] Stage 8 — autocomplete/help.
 - [x] Stage 9 — focused validation and completion review.
+- [ ] Stage 10 — audit current gameplay contracts; grouped `help [command|group]`, preserve built-in help and `debug_help` compatibility.
+- [ ] Stage 11 — Hunger, Inventory, Trader, Orders and Quest commands.
+- [ ] Stage 12 — NPC attacks/navigation, visit behavior, Challenges and Hazards commands.
+- [ ] Stage 13 — isolated persistence testing, world/client debug presentation and interactive progress commands.
+- [ ] Stage 14 — corpse/meat and new client modes after their R23 QA implementations exist.
+- [ ] Console scrolling — reproduce inability to scroll while open; restore output scrolling and verify focus/input behavior.
+- [ ] Stage 15 — focused regression validation, updated command contract and completion review.
 
 ### Decisions
 The console is a debug frontend only. Domain services/contracts remain authoritative; command handlers must not become alternate business logic.
 
+The addon already owns generic `help`; integrate project help through project-side registration without editing addons or losing built-in discovery. Proposed extension grammar lives in the supporting contract and is not a claim that commands already exist. Stage 14 depends on the relevant [R23 owner QA tasks](roadmap_23_vertical_slice_validation/owner_qa.md).
+
 ### Current
-Stages 1–9 are complete. Stage 9 added focused GUT coverage and a dedicated headless developer-console smoke. Completion review did not require production-code changes.
+Stages 1–9 are complete. The task is reopened as PLANNED for Stages 10–15. Next step: audit authoritative current feature APIs and help registration, then implement project help and existing-feature commands. New corpse/meat/client-mode commands follow their gameplay implementations. The 2026-10-02 update records scope only.
+
+Owner follow-up recorded: LOW priority for the whole extension; include console scrolling. When this task is selected after the main QA fixes, reproduce the scrolling defect with output longer than the console viewport and check input routing/focus before changing behavior.
 
 ### Validation
+2026-10-02 extension task recording: project structure validator and changed-document diff check PASS; gameplay/command implementation and runtime validation remain pending.
+
+Historical validation for Stages 1–9 only; extension Stages 10–15 have not been run:
 - Project structure/static validation: PASS.
 - Godot: 4.7.1 stable, headless.
 - Focused GUT: GUT 9.7.1, 4/4 tests passing, 93 assertions.
@@ -40,13 +61,17 @@ Stages 1–9 are complete. Stage 9 added focused GUT coverage and a dedicated he
 - No rendered/visual Godot run was performed.
 
 ### Owner QA / blockers
-No blocker recorded. The required Stage 9 scenarios were falsified headlessly; no additional gameplay/visual QA is required for task completion.
+No blocker for existing-feature/help work. New-feature commands depend on corresponding R23 implementation. Required extension QA: help is usable from the console and reports registered commands; new commands exercise authoritative gameplay contracts. Full gameplay-slice testing remains with the owner as requested.
+
+Scroll acceptance: open console, generate several screens of output (including help), scroll to old lines and back with mouse wheel/scrollbar, check PageUp/PageDown, enter another command, close/reopen console. Text input remains usable and scrolling the console does not move the player/camera. Record the result when implemented.
 
 ---
 
 ## Goal
 
 Extend the existing Developer Console under `res://addons/console/` with project-specific testing commands for Packages, Customers, Economy, Health and lifecycle scenarios.
+
+Also cover Hunger/Inventory, Trader/Orders/Quest, NPC/Challenges/Hazards, persistence and the new R23 QA mechanics. Implement the proposed [extension and help contract](developer_console_testing/commands.md#planned-extension--2026-10-02).
 
 The console is a debug frontend, never a second gameplay authority.
 
@@ -242,6 +267,8 @@ Stage 9 result:
 - focused `test_developer_console.gd`: 4/4 tests, 93 assertions, PASS;
 - `developer_console` headless smoke: PASS;
 - project structure/static validation: PASS.
+
+Extension validation (Stages 10–15, pending): help enumeration/specific-command examples/unknown subject; built-in command preservation; typed invalid/freed targets; inventory capacity and consumable use; food/hunger; legal Trader/Quest/Order transitions; NPC attack slot limits and cooldowns; visit-mode once-per-visit behavior; challenge arrival/departure lifecycle; isolated save/load without ordinary-slot overwrite; valve signal/progress; one-time corpse conversion and edible meat. Use relevant focused tests once and one relevant headless smoke near completion, rather than a full game run after each command. Commands requiring ordinary interaction eligibility should return an explanatory ERROR when unavailable.
 
 ## Completion criteria
 

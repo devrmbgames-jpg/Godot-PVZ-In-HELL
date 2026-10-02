@@ -1,16 +1,14 @@
-[gd_resource type="Resource" script_class="DEF_Challenge" format=3]
+[gd_resource type="Resource" script_class="DEF_Challenge" format=3 uid="uid://b0k2u7q42pcgm"]
 
-[ext_resource type="Script" path="res://content/definitions/gameplay/challenges/def_challenge.gd" id="Challenge"]
-[ext_resource type="Script" path="res://content/definitions/gameplay/challenges/def_light_challenge_condition.gd" id="Condition"]
+[ext_resource type="Script" uid="uid://thvox5ipe6i" path="res://content/definitions/gameplay/challenges/def_challenge.gd" id="Challenge"]
+[ext_resource type="Script" uid="uid://bstj44cb1edir" path="res://content/definitions/gameplay/challenges/def_light_challenge_condition.gd" id="Condition"]
 
 [sub_resource type="Resource" id="Condition"]
 script = ExtResource("Condition")
-circuit_id = &"warehouse"
 required_enabled = true
 
 [resource]
 script = ExtResource("Challenge")
-key = &"warehouse-light-on"
 condition = SubResource("Condition")
 rule_text = "Включите свет в помещении. Выключатель рядом с пультом смены."
-timeout_seconds = 20.0
+key = &"warehouse-light-on"

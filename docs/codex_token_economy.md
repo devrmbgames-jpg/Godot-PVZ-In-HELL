@@ -2,7 +2,7 @@
 
 ## Goal
 
-Use Astra/Codex intelligence without paying a permanent context cost for project history, roadmaps, specialized workflows, or unrelated subsystem documentation.
+Use Astra/Sol/Codex intelligence without paying a permanent context cost for project history, roadmaps, specialized workflows, or unrelated subsystem documentation.
 
 The design borrows the useful parts of BMad-style execution without installing BMad as a framework.
 

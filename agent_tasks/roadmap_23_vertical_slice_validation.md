@@ -13,10 +13,12 @@ Status: **IN_PROGRESS**
 - Reuse existing authoritative contracts from completed dependencies; do not duplicate them.
 - The existing `## Работы`, `## Критерии готовности`, `## Проверки`, and `## Границы` sections remain the detailed implementation specification.
 - Follow Godot 4.7, GECS ownership, physics authority, and validation rules from `AGENTS.md`.
+- Общий игровой контракт владельца: `MeshInstance3D.material_overlay` предназначен только для интерактивной обратной связи и выделений; материалы выделения — внешние редактируемые ресурсы (QA-13).
 
 ### Milestones
 - [x] Reconfirm dependency implementation and current production owners/contracts; owner QA remains in dependencies.
 - [x] M1: fixed authored supply/customer families and scenario route/feedback audit.
+- [ ] Owner QA batch: implement and verify [QA-01–QA-13](roadmap_23_vertical_slice_validation/owner_qa.md) on the enlarged main scene.
 - [ ] M2: ordinary-input Morning → Day → Evening → Night → Morning walkthrough.
 - [ ] M3: alternative outcomes/combat/carry-over and lifecycle gaps, preserving existing owners.
 - [ ] M4: independent review, full-project GUT, integrated smoke and owner checklist.
@@ -27,14 +29,22 @@ Status: **IN_PROGRESS**
 ### Decisions
 This file is the authoritative router. Existing fixture smokes are dependency evidence, not a complete no-debug day walkthrough. Preserve the authored arrival-to-physical-departure challenge, simple NPC 3+3 attacks/animation hooks/NavigationAgent and screen debug timers/conditions/tasks. Headless native-node/sound-state checks do not establish rendered/audio perception.
 
+Owner feedback dated 2026-10-02 extends R23 with [thirteen QA tasks](roadmap_23_vertical_slice_validation/owner_qa.md), including corpse/meat, inventory grid, future AI integration preparation and editable highlight materials/global overlay contract. The enlarged main scene and hidden DebugMarkers are authored owner changes; markers provide visual orientation only. Console/help extension is owned separately by [Developer Console Testing](developer_console_testing.md).
+
 ### Current
-M1 complete: eight fixed package definitions; Ordinary genuinely has no challenge, Light/Gaze/Floor and arrival-to-physical-departure remain. Hazard TTL/owner-loss debug added. Route/evidence: [docs/vertical_slice_validation.md](../docs/vertical_slice_validation.md). Next M2: ordinary-input full-day walkthrough, preserving native physics and isolated autosave. No complete day walkthrough claim yet.
+Owner feedback received and recorded as QA-01–QA-13. This update records tasks only. Next implementation step after resume: inspect current enlarged geometry, player control and Trader interaction before revalidating routes. Earlier bake/path results apply to the previous geometry and require revalidation.
+
+Paused at the owner’s explicit request: full manual slice will be tested in main_level.tscn by the owner. M1 committed c33d40a9. M2 draft ordinary-input driver remains uncommitted in tests/smoke/vertical_slice_smoke.gd/.tscn; it substitutes only headless mouse capture, uses native input/physics/UI and an isolated save slot. It confirms eight scanner registrations, Terminal UI, ordinary NPC physical arrival and dialogue. No full-day PASS. Native warehouse bake radius was 0.35m rounded to 0.45m versus NPC 0.3m; uncommitted utility/resource correction to 0.3m reconnects the room/yard path. Bake utility now disables startup autosave. Latest draft stops at handoff: carried books still held, F prompt present, NPC becomes aggressive before delivery resolves. Cause is not yet established; investigate physical contact/attribution/timing after owner feedback. Preserve simple NPC 3+3 attacks and animation hooks.
 
 ### Validation
-R22.5 dependency gate complete: 151/151 GUT (921 assertions), strict hazards/integrated main feedback smokes, static/structure/diff and independent review. R23 M1 authored manifest PASS; strict challenge_light-20261002-145614714.log PASS; diff PASS. R23-specific full-project GUT/no-debug day walkthrough has not run.
+2026-10-02 QA task recording: project structure validator and changed-document diff check PASS; no gameplay implementation or runtime validation in this documentation update.
+
+R22.5 dependency gate complete: 151/151 GUT (921 assertions), strict hazards/integrated main feedback smokes, static/structure/diff and independent review. R23 M1 authored manifest PASS; strict challenge_light-20261002-145614714.log PASS; diff PASS. R23-specific full-project GUT/no-debug day walkthrough has not run. M2 native bake PASS (156 polygons, no radius precision warning); draft logs r23_input_day_draft.log contain a failing handoff and are not final smoke evidence. Earlier draft eight-input-scans PASS had two native audio objects pending at accelerated shutdown; do not report it as strict leak-free PASS.
 
 ### Owner QA / blockers
-No implementation blocker. Owner rendered full-day/readability/gamepad/audio playtest remains; keep implementation and automated evidence separate from that acceptance.
+User explicitly paused agent work to test the main scene. Do not continue full-day input automation without resume. No implementation blocker. Owner rendered full-day/readability/gamepad/audio playtest remains; keep implementation and automated evidence separate from that acceptance.
+
+Feedback is now captured in the linked QA batch; none of its thirteen items is marked implemented. Further full-slice playtesting is handed to the owner as requested.
 
 ---
 
@@ -77,7 +87,7 @@ No implementation blocker. Owner rendered full-day/readability/gamepad/audio pla
 
 ## Границы
 
-Без новых крупных механик, процедурного расширения контента и кампании. Сохранять Godot physics authority, GECS data/behavior boundaries и read-only addons. Выполненные основания переиспользовать, а не создавать заново.
+Помимо явно заказанного расширения QA-01–QA-13 — без новых крупных механик, процедурного расширения контента и кампании. Сохранять Godot physics authority, GECS data/behavior boundaries и read-only addons. Выполненные основания переиспользовать, а не создавать заново.
 
 ## Первый шаг
 

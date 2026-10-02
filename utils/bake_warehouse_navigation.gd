@@ -5,7 +5,8 @@ const LEVEL_PATH: String = "res://content/scenes/main_level.tscn"
 const OUTPUT_PATH: String = "res://content/navigation/navmesh_warehouse.tres"
 const CELL_SIZE: float = 0.15
 const CELL_HEIGHT: float = 0.1
-const AGENT_RADIUS: float = 0.35
+## Match the authored NPC capsule/NavigationAgent; exact voxel multiple avoids 0.45m rounding.
+const AGENT_RADIUS: float = 0.3
 const AGENT_HEIGHT: float = 1.7
 const MAX_CLIMB: float = 0.2
 const MAX_SLOPE: float = 50.0
@@ -18,6 +19,7 @@ func _init() -> void:
 func _bake() -> void:
 	var scene: PackedScene = load(LEVEL_PATH) as PackedScene
 	var level: Node = scene.instantiate()
+	level.set("autosave_path", "")
 	root.add_child(level)
 	level.set_physics_process(false)
 	var mesh: NavigationMesh = NavigationMesh.new()

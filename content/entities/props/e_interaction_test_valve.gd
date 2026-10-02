@@ -21,6 +21,7 @@ signal activated(active: bool)
 
 @onready var _label: Label3D = $Label3D
 
+#TODO Wheel должен вращаться по мере прогресса
 
 func _ready() -> void:
 	_refresh_label()

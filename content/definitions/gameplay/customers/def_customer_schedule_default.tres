@@ -1,17 +1,15 @@
 [gd_resource type="Resource" script_class="DEF_CustomerSchedule" format=3 uid="uid://ct5hbf2hdp6tl"]
 
 [ext_resource type="Resource" uid="uid://btuoi3maxvuq3" path="res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres" id="5_rrbex"]
+[ext_resource type="Resource" uid="uid://b0k2u7q42pcgm" path="res://content/definitions/gameplay/challenges/def_challenge_light_on.tres" id="ChallengeOn"]
+[ext_resource type="Resource" uid="uid://bn08dhchhy0mx" path="res://content/definitions/gameplay/challenges/def_challenge_light_visit.tres" id="ChallengeVisit"]
 [ext_resource type="Script" uid="uid://vyx4wrt4eqv7" path="res://content/definitions/gameplay/customers/def_customer.gd" id="Customer"]
 [ext_resource type="Script" uid="uid://c1wdbe15l5tk3" path="res://content/definitions/gameplay/customers/def_customer_event.gd" id="Event"]
-[ext_resource type="Script" path="res://content/definitions/gameplay/customers/def_customer_dialogue_reaction.gd" id="Reaction"]
-[ext_resource type="PackedScene" path="res://content/entities/customers/customer.tscn" id="Scene"]
-[ext_resource type="Script" uid="uid://bfp6pc2vc71rw" path="res://content/definitions/gameplay/customers/def_customer_schedule.gd" id="Schedule"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/challenges/def_challenge_light_off.tres" id="ChallengeOff"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/challenges/def_challenge_light_on.tres" id="ChallengeOn"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/challenges/def_challenge_light_visit.tres" id="ChallengeVisit"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/customers/def_customer_gaze.tres" id="GazeCustomer"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/customers/def_customer_floor.tres" id="FloorCustomer"]
-
+[ext_resource type="Resource" path="res://content/definitions/gameplay/customers/def_customer_gaze.tres" id="GazeCustomer"]
+[ext_resource type="Script" uid="uid://cag2l6cxrwiii" path="res://content/definitions/gameplay/customers/def_customer_dialogue_reaction.gd" id="Reaction"]
+[ext_resource type="PackedScene" uid="uid://ceby1m7bivr66" path="res://content/entities/customers/customer.tscn" id="Scene"]
+[ext_resource type="Script" uid="uid://bfp6pc2vc71rw" path="res://content/definitions/gameplay/customers/def_customer_schedule.gd" id="Schedule"]
 
 [sub_resource type="Resource" id="ReactionHonest"]
 script = ExtResource("Reaction")
@@ -58,6 +56,16 @@ script = ExtResource("Reaction")
 intent = 6
 satisfaction_delta = -5
 
+[sub_resource type="Resource" id="Ordinary"]
+script = ExtResource("Customer")
+display_name = "Покупатель книг"
+dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
+key = &"ordinary"
+
+[sub_resource type="Resource" id="Books"]
+script = ExtResource("Event")
+customer = SubResource("Ordinary")
+
 [sub_resource type="Resource" id="ReactionCarefulFlirt"]
 script = ExtResource("Reaction")
 intent = 5
@@ -66,24 +74,14 @@ complaint_probability_delta = 0.1
 aggression_probability_delta = 0.15
 followup_probability_delta = -0.1
 
-[sub_resource type="Resource" id="Ordinary"]
-script = ExtResource("Customer")
-dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
-display_name = "Покупатель книг"
-key = &"ordinary"
-
-[sub_resource type="Resource" id="Books"]
-script = ExtResource("Event")
-customer = SubResource("Ordinary")
-
 [sub_resource type="Resource" id="Careful"]
 script = ExtResource("Customer")
-challenge = ExtResource("ChallengeOn")
-dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionCarefulFlirt"), SubResource("ReactionJoke")])
 display_name = "Покупатель посуды"
 accepts_damaged = false
 accepts_opened = false
 dialogue_mode = 1
+dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionCarefulFlirt"), SubResource("ReactionJoke")])
+challenge = ExtResource("ChallengeOn")
 key = &"careful"
 
 [sub_resource type="Resource" id="Glass"]
@@ -93,10 +91,10 @@ customer = SubResource("Careful")
 
 [sub_resource type="Resource" id="Refusal"]
 script = ExtResource("Customer")
-challenge = ExtResource("ChallengeVisit")
-dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
 display_name = "Покупатель одежды"
 voluntary_refusal = true
+dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
+challenge = ExtResource("ChallengeVisit")
 key = &"voluntary_refusal"
 
 [sub_resource type="Resource" id="Clothes"]
@@ -106,8 +104,8 @@ customer = SubResource("Refusal")
 
 [sub_resource type="Resource" id="Late"]
 script = ExtResource("Customer")
-dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
 display_name = "Поздний покупатель оборудования"
+dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
 key = &"late"
 
 [sub_resource type="Resource" id="Equipment"]

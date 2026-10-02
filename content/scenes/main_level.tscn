@@ -8,13 +8,11 @@
 [ext_resource type="PackedScene" uid="uid://wk6sf3v5qnfc" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Window/Primitive_Window_static.tscn" id="2_wp74p"]
 [ext_resource type="Script" uid="uid://b3vi2ingux88g" path="res://addons/gecs/lib/system_group.gd" id="3_ahxau"]
 [ext_resource type="PackedScene" uid="uid://h6ovxls42pn1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Doorway/Primitive_Doorway_static.tscn" id="3_eim2b"]
-[ext_resource type="PackedScene" uid="uid://bmlgret82yq8q" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall_Short/Primitive_Wall_Short_static.tscn" id="4_rhklt"]
 [ext_resource type="Script" uid="uid://nsdmrnqs0no0" path="res://content/observers/gameplay/o_damage.gd" id="5_ad8bv"]
 [ext_resource type="Script" uid="uid://c1benmwwnwobr" path="res://content/systems/motion/s_jump.gd" id="6_gg2sc"]
 [ext_resource type="Script" uid="uid://cv8oyv1lnwa6u" path="res://content/systems/motion/s_crouch.gd" id="7_6b1dm"]
 [ext_resource type="PackedScene" uid="uid://boxna5m5n5ofv" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor/Floor_static.tscn" id="7_eim2b"]
 [ext_resource type="Script" uid="uid://c1o1ef2y40vmv" path="res://content/systems/input/s_player_input.gd" id="8_qm6qd"]
-[ext_resource type="PackedScene" uid="uid://c8ucvasbalruj" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Pillar_A/Pillar_A_static.tscn" id="8_vhk8t"]
 [ext_resource type="PackedScene" uid="uid://fjtvcn3mifma" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam/Primitive_Beam_static.tscn" id="9_ofyry"]
 [ext_resource type="PackedScene" uid="uid://dxkg7ovkuxd0i" path="res://content/entities/characters/e_rigid_body_character.tscn" id="13_da1x8"]
 [ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="23_d7jx2"]
@@ -42,17 +40,38 @@
 [ext_resource type="PackedScene" uid="uid://cubcn0opxbk6v" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_A/Barrel_A_rigid.tscn" id="77_iit40"]
 [ext_resource type="PackedScene" uid="uid://cbskdoyjbjixx" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_B/Barrel_B_rigid.tscn" id="78_at2gx"]
 [ext_resource type="PackedScene" uid="uid://bf2ntstxhdr1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_C/Barrel_C_rigid.tscn" id="79_ypydk"]
-[ext_resource type="PackedScene" path="res://content/entities/props/interaction_test_valve.tscn" id="Valve_test"]
 [ext_resource type="Script" uid="uid://beak7vlgbw1xn" path="res://content/contracts/economy/daily_money_result.gd" id="94_dtq54"]
 [ext_resource type="Script" uid="uid://cel5d7cs0026u" path="res://content/contracts/economy/money_operation.gd" id="95_say4p"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/economy/def_economy_default.tres" id="96_1brdc"]
 [ext_resource type="Script" uid="uid://6wrc7la1nb8v" path="res://content/contracts/customers/customer_visit.gd" id="100_p0mrl"]
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/definitions/gameplay/inventory/def_inventory_item.gd" id="135_jjqtf"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_food.tres" id="136_2peb6"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_med.tres" id="137_5und5"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_bubble_wrap.tres" id="138_jpldi"]
+[ext_resource type="Script" uid="uid://b4mppsv72drxx" path="res://content/contracts/commerce/pending_delivery.gd" id="139_vmj2w"]
+[ext_resource type="Script" uid="uid://vocpbv1orkxs" path="res://content/contracts/commerce/purchase_receipt.gd" id="140_w4uhm"]
+[ext_resource type="Script" uid="uid://d12bthrxw322h" path="res://content/contracts/quests/refusal_quest_record.gd" id="142_ldc4y"]
+[ext_resource type="PackedScene" path="res://content/entities/props/physical_slot.tscn" id="155_5h1gn"]
+[ext_resource type="PackedScene" uid="uid://j6xcte7ugbf2" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Stairs_Half/Primitive_Stairs_Half_static.tscn" id="165_3xfrw"]
 [ext_resource type="PackedScene" path="res://content/entities/props/anchorable_test_box.tscn" id="AnchorTest_scene"]
 [ext_resource type="Script" uid="uid://dkb2c2k1cmk1v" path="res://content/systems/interaction/s_anchor_stability.gd" id="Anchor_stability"]
+[ext_resource type="Script" uid="uid://00y5l3hnucd5" path="res://content/components/persistence/c_autosave.gd" id="Autosave_state"]
+[ext_resource type="Script" uid="uid://cgqgtiq38w0ep" path="res://content/systems/gameplay/s_challenge_floor_setup.gd" id="Challenge_floor"]
+[ext_resource type="Script" uid="uid://1lt5dpwlayff" path="res://content/systems/gameplay/s_challenge_gaze.gd" id="Challenge_gaze"]
+[ext_resource type="Script" uid="uid://cswr1rtmadl02" path="res://content/observers/challenges/o_challenge_lifecycle.gd" id="Challenge_lifecycle"]
+[ext_resource type="Script" uid="uid://dgnc3qp12o736" path="res://content/systems/gameplay/s_challenge_light.gd" id="Challenge_light"]
+[ext_resource type="Script" uid="uid://g8wfgg4u2lm7" path="res://content/systems/gameplay/s_customer_challenge_outcome.gd" id="Challenge_outcome"]
+[ext_resource type="Script" uid="uid://bj76h4v2jcnh4" path="res://content/systems/gameplay/s_challenge_runtime.gd" id="Challenge_runtime"]
+[ext_resource type="Script" uid="uid://bjvg86wmi8k3a" path="res://content/observers/combat/o_combat_damage.gd" id="Combat_damage"]
+[ext_resource type="Script" uid="uid://d3nvoiqqlp2f" path="res://content/observers/combat/o_combat_lifecycle.gd" id="Combat_lifecycle"]
+[ext_resource type="Script" uid="uid://du8i3g0cfkdjl" path="res://content/systems/gameplay/s_combat_projectile.gd" id="Combat_projectile"]
+[ext_resource type="Script" uid="uid://cf2u01epo1k4k" path="res://content/components/commerce/c_commerce.gd" id="Commerce_state"]
 [ext_resource type="Script" uid="uid://uhapbxf3vhgs" path="res://content/systems/motion/s_crouch_presentation.gd" id="Crouch_presentation"]
+[ext_resource type="Script" uid="uid://chiyg4jo65ukd" path="res://content/systems/gameplay/s_customer_combat.gd" id="Customer_combat"]
 [ext_resource type="Script" uid="uid://d18j5e5xkjfsg" path="res://content/components/gameplay/c_customer_flow.gd" id="Customer_flow"]
 [ext_resource type="Resource" uid="uid://ct5hbf2hdp6tl" path="res://content/definitions/gameplay/customers/def_customer_schedule_default.tres" id="Customer_schedule"]
 [ext_resource type="Script" uid="uid://ua74ragnn5q7" path="res://content/systems/gameplay/s_customer_flow.gd" id="Customer_system"]
+[ext_resource type="Script" uid="uid://k0iqcgm3nmxd" path="res://content/observers/gameplay/o_damage_feedback.gd" id="Damage_feedback"]
 [ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/entities/sessions/e_day_session.gd" id="Day_entity"]
 [ext_resource type="Script" uid="uid://04u6xvav8opi" path="res://content/components/gameplay/c_package_ledger.gd" id="Day_ledger"]
 [ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
@@ -61,6 +80,10 @@
 [ext_resource type="PackedScene" path="res://content/entities/stations/delivery_counter.tscn" id="Delivery_counter"]
 [ext_resource type="Script" uid="uid://y2myaxe0cbnd" path="res://content/observers/gameplay/o_depletion_effects.gd" id="DepletionEffects"]
 [ext_resource type="Script" uid="uid://cdl4djdlh8phk" path="res://content/debug/developer_console_commands.gd" id="DeveloperConsole"]
+[ext_resource type="PackedScene" path="res://content/entities/props/drawer.tscn" id="Drawer_scene"]
+[ext_resource type="Script" uid="uid://c53it1qvcnb8m" path="res://content/systems/gameplay/s_floor_hazard.gd" id="Floor_hazard"]
+[ext_resource type="Script" uid="uid://bixywcktalc1s" path="res://content/observers/challenges/o_floor_challenge_spawn.gd" id="Floor_spawn"]
+[ext_resource type="PackedScene" path="res://content/entities/inventory/food_pickup.tscn" id="Food_pickup"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
 [ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
 [ext_resource type="Script" uid="uid://ccooufygakw6e" path="res://content/systems/interaction/s_grab.gd" id="Grab_system"]
@@ -68,46 +91,52 @@
 [ext_resource type="PackedScene" path="res://content/entities/tools/hammer.tscn" id="Hammer_scene"]
 [ext_resource type="Script" uid="uid://egauqyysrjr" path="res://content/observers/gameplay/o_hazard_emitter.gd" id="HazardEmitter"]
 [ext_resource type="Script" uid="uid://ehhc4j05ncp" path="res://content/observers/gameplay/o_hazard_spawn.gd" id="HazardSpawn"]
+[ext_resource type="Script" uid="uid://b4web80ypdnqr" path="res://content/observers/gameplay/o_hazard_follow_lifecycle.gd" id="Hazard_follow_lifecycle"]
 [ext_resource type="Script" uid="uid://11f2xganwshj" path="res://content/observers/gameplay/o_health_lifecycle.gd" id="HealthLifecycle"]
+[ext_resource type="Resource" uid="uid://dnhtf6evpqsc8" path="res://content/definitions/gameplay/hunger/def_hunger_default.tres" id="Hunger_policy"]
+[ext_resource type="Script" uid="uid://ok26p4khdh4e" path="res://content/components/gameplay/c_hunger.gd" id="Hunger_state"]
+[ext_resource type="Script" uid="uid://d8bqecnifq8g" path="res://content/systems/gameplay/s_hunger.gd" id="Hunger_system"]
 [ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
 [ext_resource type="Script" uid="uid://cynilnihkqgor" path="res://content/systems/gameplay/s_impact.gd" id="ImpactSystem"]
 [ext_resource type="Script" uid="uid://cdwei5go7godr" path="res://content/systems/interaction/s_interaction_highlight.gd" id="Interaction_highlight"]
-[ext_resource type="PackedScene" path="res://content/ui/interaction_hud.tscn" id="Interaction_hud"]
+[ext_resource type="PackedScene" uid="uid://dx3ysmmpho68c" path="res://content/ui/interaction_hud.tscn" id="Interaction_hud"]
+[ext_resource type="Script" uid="uid://bjybow0ofbf30" path="res://content/observers/inventory/o_inventory_effect.gd" id="Inventory_effect"]
+[ext_resource type="Script" uid="uid://cl8wk6dmtityy" path="res://content/observers/inventory/o_inventory_lifecycle.gd" id="Inventory_lifecycle"]
+[ext_resource type="PackedScene" path="res://content/ui/inventory_panel.tscn" id="Inventory_panel"]
+[ext_resource type="Script" uid="uid://t8kbpaposqpt" path="res://content/components/inventory/c_inventory.gd" id="Inventory_state"]
+[ext_resource type="Script" uid="uid://bksdk5n1luin1" path="res://content/systems/gameplay/s_light_circuit.gd" id="Light_circuit"]
+[ext_resource type="PackedScene" path="res://content/entities/props/light_switch.tscn" id="Light_switch_scene"]
 [ext_resource type="Script" uid="uid://3rvc41qs05l" path="res://content/systems/gameplay/s_liquid_tilt.gd" id="LiquidTilt"]
 [ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/components/gameplay/c_living.gd" id="Living"]
 [ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/definitions/gameplay/def_impact_living.tres" id="LivingImpact"]
 [ext_resource type="PackedScene" uid="uid://2kqhx881j4yk" path="res://content/entities/tools/marker.tscn" id="Marker_scene"]
 [ext_resource type="Script" uid="uid://bupm4th6s12s4" path="res://content/systems/interaction/s_marker.gd" id="Marker_system"]
+[ext_resource type="PackedScene" path="res://content/entities/inventory/med_pickup.tscn" id="Med_pickup"]
+[ext_resource type="Script" uid="uid://vvee5q27rhon" path="res://content/systems/gameplay/s_night_save.gd" id="Night_save_system"]
+[ext_resource type="Script" uid="uid://bknxe15k0dr0u" path="res://content/systems/gameplay/s_npc_combat.gd" id="Npc_combat"]
+[ext_resource type="Script" uid="uid://dxqnrpxm2pr5l" path="res://content/systems/motion/s_npc_intent.gd" id="Npc_intent"]
+[ext_resource type="Script" uid="uid://b501bsvk8m4xf" path="res://content/systems/gameplay/s_order_delivery.gd" id="Order_delivery_system"]
+[ext_resource type="PackedScene" path="res://content/entities/commerce/order_receiving.tscn" id="Order_receiving_scene"]
 [ext_resource type="Script" uid="uid://6aul5eahny" path="res://content/observers/gameplay/o_package_condition_setup.gd" id="PackageConditionSetup"]
 [ext_resource type="Script" uid="uid://23bxju80ro1e" path="res://content/observers/gameplay/o_package_damage.gd" id="PackageDamage"]
 [ext_resource type="Script" uid="uid://brndd61fr2e7a" path="res://content/observers/gameplay/o_package_destroyed_hazard.gd" id="PackageDestroyedHazard"]
 [ext_resource type="Script" uid="uid://oskus8laisoe" path="res://content/observers/gameplay/o_package_destruction.gd" id="PackageDestruction"]
 [ext_resource type="Script" uid="uid://b6kqjvf7okt" path="res://content/observers/gameplay/o_package_hazard.gd" id="PackageHazard"]
 [ext_resource type="Script" uid="uid://87f03fqiuik" path="res://content/observers/gameplay/o_package_opening.gd" id="PackageOpening"]
+[ext_resource type="PackedScene" path="res://content/entities/stations/package_return_point.tscn" id="Package_return_point"]
 [ext_resource type="Script" uid="uid://b6qu7a8c8gr3g" path="res://content/observers/interaction/o_physical_slot_lifecycle.gd" id="PhysicalSlot_lifecycle"]
 [ext_resource type="PackedScene" path="res://content/entities/props/placement_area.tscn" id="PlacementArea"]
+[ext_resource type="Script" uid="uid://bex7ad2uqbdgp" path="res://content/components/gameplay/c_combat.gd" id="Player_combat"]
 [ext_resource type="Script" uid="uid://t4dhuaxsabxv" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
-[ext_resource type="Script" path="res://content/systems/motion/s_npc_intent.gd" id="Npc_intent"]
-[ext_resource type="NavigationMesh" path="res://content/navigation/navmesh_warehouse.tres" id="Warehouse_navigation"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_light_circuit.gd" id="Light_circuit"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_light.gd" id="Challenge_light"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_gaze.gd" id="Challenge_gaze"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_floor_setup.gd" id="Challenge_floor"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_floor_hazard.gd" id="Floor_hazard"]
-[ext_resource type="Script" path="res://content/observers/challenges/o_floor_challenge_spawn.gd" id="Floor_spawn"]
-[ext_resource type="PackedScene" path="res://content/entities/props/box.tscn" id="Safe_box"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_challenge_runtime.gd" id="Challenge_runtime"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_customer_challenge_outcome.gd" id="Challenge_outcome"]
-[ext_resource type="Script" path="res://content/observers/challenges/o_challenge_lifecycle.gd" id="Challenge_lifecycle"]
-[ext_resource type="PackedScene" path="res://content/entities/props/window.tscn" id="Window_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/props/drawer.tscn" id="Drawer_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/props/light_switch.tscn" id="Light_switch_scene"]
+[ext_resource type="Script" uid="uid://b0fgwkeudhkho" path="res://content/systems/gameplay/s_player_melee.gd" id="Player_melee"]
 [ext_resource type="Script" uid="uid://ba41bxunv3irm" path="res://content/systems/interaction/s_prolonged_decay.gd" id="Prolonged_decay"]
 [ext_resource type="Script" uid="uid://b4iyihjwplrg4" path="res://content/observers/interaction/o_prolonged_lifecycle.gd" id="Prolonged_lifecycle"]
 [ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
 [ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
 [ext_resource type="Script" uid="uid://b1kydo46m6k8r" path="res://content/observers/interaction/o_push_lifecycle.gd" id="Push_lifecycle"]
 [ext_resource type="Script" uid="uid://dh02s00t856fk" path="res://content/systems/interaction/s_push.gd" id="Push_system"]
+[ext_resource type="Script" uid="uid://dmxtpoip5hrcv" path="res://content/components/quests/c_quest_session.gd" id="Quest_state"]
+[ext_resource type="Script" uid="uid://c0c1muc5vgl8g" path="res://content/systems/gameplay/s_refusal_quest.gd" id="Quest_system"]
 [ext_resource type="Script" uid="uid://fnxn6hvx534" path="res://content/observers/gameplay/o_explosion_setup.gd" id="R09_o_explosion_setup"]
 [ext_resource type="Script" uid="uid://hkxsuarcavw" path="res://content/observers/gameplay/o_toxic_area_setup.gd" id="R09_o_toxic_area_setup"]
 [ext_resource type="Script" uid="uid://bg3goeeojlb" path="res://content/observers/gameplay/o_hazard_reset.gd" id="R09_reset"]
@@ -118,6 +147,7 @@
 [ext_resource type="Script" uid="uid://28wsslbgucs3" path="res://content/systems/gameplay/s_receiving.gd" id="Receiving_system"]
 [ext_resource type="PackedScene" uid="uid://cpbp0t8jkh0ak" path="res://content/entities/zones/receiving_zone.tscn" id="Receiving_zone"]
 [ext_resource type="Script" uid="uid://bd3ei7nk8pjsv" path="res://content/observers/gameplay/o_remove_on_health_depleted.gd" id="RemoveOnHealthDepleted"]
+[ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/entities/props/box.tscn" id="Safe_box"]
 [ext_resource type="PackedScene" uid="uid://bxvltfdywwg6h" path="res://content/entities/tools/scanner.tscn" id="Scanner_scene"]
 [ext_resource type="PackedScene" uid="uid://bjno5jf76nuv7" path="res://content/entities/props/numbered_shelves.tscn" id="Shelves_scene"]
 [ext_resource type="Script" uid="uid://7emhwgdbxv7x" path="res://content/definitions/interaction/def_day_phase_action.gd" id="Sleep_action"]
@@ -125,51 +155,16 @@
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Sleep_interactable"]
 [ext_resource type="Script" uid="uid://bnia5xop2e6wt" path="res://content/components/gameplay/c_strength.gd" id="Strength"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/attributes/def_attr_strength.tres" id="StrengthDef"]
-[ext_resource type="PackedScene" path="res://content/entities/stations/terminal.tscn" id="Terminal_scene"]
+[ext_resource type="PackedScene" uid="uid://cxcaew8qdooi6" path="res://content/entities/stations/terminal.tscn" id="Terminal_scene"]
 [ext_resource type="Script" uid="uid://d374l476phm" path="res://content/systems/gameplay/s_throw_lifetime.gd" id="ThrowLifetime"]
+[ext_resource type="PackedScene" path="res://content/entities/commerce/trader.tscn" id="Trader_scene"]
+[ext_resource type="PackedScene" path="res://content/entities/tools/utility_blade.tscn" id="Utility_blade"]
+[ext_resource type="PackedScene" uid="uid://d36ymw1qbl12t" path="res://content/entities/props/interaction_test_valve.tscn" id="Valve_test"]
 [ext_resource type="Script" uid="uid://cecnkpuxts58i" path="res://content/components/gameplay/c_wallet.gd" id="Wallet_state"]
 [ext_resource type="Script" uid="uid://dx38hpfqbykum" path="res://content/systems/gameplay/s_wallet_day.gd" id="Wallet_system"]
-
-[ext_resource type="Script" path="res://content/components/gameplay/c_combat.gd" id="Player_combat"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_customer_combat.gd" id="Customer_combat"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_npc_combat.gd" id="Npc_combat"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_combat_projectile.gd" id="Combat_projectile"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_player_melee.gd" id="Player_melee"]
-[ext_resource type="Script" path="res://content/observers/combat/o_combat_lifecycle.gd" id="Combat_lifecycle"]
-[ext_resource type="Script" path="res://content/observers/combat/o_combat_damage.gd" id="Combat_damage"]
-[ext_resource type="PackedScene" path="res://content/entities/tools/utility_blade.tscn" id="Utility_blade"]
-
-[ext_resource type="Script" path="res://content/components/gameplay/c_hunger.gd" id="Hunger_state"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/hunger/def_hunger_default.tres" id="Hunger_policy"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_hunger.gd" id="Hunger_system"]
-
-[ext_resource type="Script" path="res://content/components/inventory/c_inventory.gd" id="Inventory_state"]
-[ext_resource type="Script" path="res://content/observers/inventory/o_inventory_effect.gd" id="Inventory_effect"]
-[ext_resource type="Script" path="res://content/observers/inventory/o_inventory_lifecycle.gd" id="Inventory_lifecycle"]
-[ext_resource type="PackedScene" path="res://content/ui/inventory_panel.tscn" id="Inventory_panel"]
-[ext_resource type="PackedScene" path="res://content/entities/inventory/food_pickup.tscn" id="Food_pickup"]
-[ext_resource type="PackedScene" path="res://content/entities/inventory/med_pickup.tscn" id="Med_pickup"]
+[ext_resource type="NavigationMesh" uid="uid://y78bx2e6uxwb" path="res://content/navigation/navmesh_warehouse.tres" id="Warehouse_navigation"]
+[ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/entities/props/window.tscn" id="Window_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/inventory/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
-
-[ext_resource type="Script" path="res://content/components/commerce/c_commerce.gd" id="Commerce_state"]
-[ext_resource type="Script" path="res://content/components/quests/c_quest_session.gd" id="Quest_state"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_refusal_quest.gd" id="Quest_system"]
-[ext_resource type="PackedScene" path="res://content/entities/commerce/trader.tscn" id="Trader_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/commerce/exterior_yard.tscn" id="Exterior_yard"]
-
-[ext_resource type="Script" path="res://content/components/persistence/c_autosave.gd" id="Autosave_state"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_night_save.gd" id="Night_save_system"]
-[ext_resource type="Script" path="res://content/systems/gameplay/s_order_delivery.gd" id="Order_delivery_system"]
-[ext_resource type="PackedScene" path="res://content/entities/commerce/order_receiving.tscn" id="Order_receiving_scene"]
-
-[ext_resource type="PackedScene" path="res://content/entities/stations/package_return_point.tscn" id="Package_return_point"]
-
-[ext_resource type="Script" path="res://content/observers/gameplay/o_damage_feedback.gd" id="Damage_feedback"]
-
-[ext_resource type="Script" path="res://content/observers/gameplay/o_hazard_follow_lifecycle.gd" id="Hazard_follow_lifecycle"]
-
-[sub_resource type="Resource" id="Autosave_state"]
-script = ExtResource("Autosave_state")
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
@@ -182,9 +177,6 @@ sky = SubResource("Sky_bghjr")
 ambient_light_source = 2
 ambient_light_color = Color(0.296875, 0.12756348, 0.12756348, 1)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
-size = Vector3(32.071198, 0.50476074, 40.240265)
-
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
 metadata/_custom_type_script = "uid://dwgcmbar0qthw"
@@ -196,9 +188,9 @@ metadata/_custom_type_script = "uid://iq4pnvam7fq5"
 [sub_resource type="Resource" id="Resource_mn5t4"]
 script = ExtResource("25_t1fd8")
 max_speed = 5.0
-ground_acceleration = 50.0
-ground_deceleration = 60.0
-ground_lateral_friction = 45.0
+ground_acceleration = 70.0
+ground_deceleration = 80.0
+ground_lateral_friction = 90.0
 air_acceleration = 5.0
 metadata/_custom_type_script = "uid://cdblg8bcbkrs8"
 
@@ -232,7 +224,7 @@ metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 script = ExtResource("32_mc3p1")
 collision_mask = 31
 
-[sub_resource type="Resource" id="Resource_1brdc"]
+[sub_resource type="Resource" id="Resource_3xfrw"]
 resource_local_to_scene = true
 script = ExtResource("33_k7ct6")
 
@@ -258,21 +250,15 @@ policy = ExtResource("Hunger_policy")
 [sub_resource type="Resource" id="Inventory_state"]
 script = ExtResource("Inventory_state")
 
-[sub_resource type="Resource" id="Commerce_state"]
-script = ExtResource("Commerce_state")
-
-[sub_resource type="Resource" id="Quest_state"]
-script = ExtResource("Quest_state")
-
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
 
-[sub_resource type="Resource" id="Resource_p0mrl"]
+[sub_resource type="Resource" id="Resource_jjqtf"]
 resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
 profile = ExtResource("LivingImpact")
 
-[sub_resource type="Resource" id="Resource_jxwan"]
+[sub_resource type="Resource" id="Resource_2peb6"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 
@@ -296,17 +282,17 @@ script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Action")])
 reserved_slots = 4
 
-[sub_resource type="Resource" id="Resource_3auy4"]
+[sub_resource type="Resource" id="Resource_5und5"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(1, 0.13787842, 0.0234375, 1)
 
-[sub_resource type="Resource" id="Resource_sseuf"]
+[sub_resource type="Resource" id="Resource_jpldi"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(0.96875, 0, 1, 1)
 
-[sub_resource type="Resource" id="Resource_v2668"]
+[sub_resource type="Resource" id="Resource_vmj2w"]
 resource_local_to_scene = true
 script = ExtResource("41_1hfqo")
 
@@ -327,6 +313,15 @@ resource_local_to_scene = true
 script = ExtResource("Customer_flow")
 schedule = ExtResource("Customer_schedule")
 
+[sub_resource type="Resource" id="Commerce_state"]
+script = ExtResource("Commerce_state")
+
+[sub_resource type="Resource" id="Quest_state"]
+script = ExtResource("Quest_state")
+
+[sub_resource type="Resource" id="Autosave_state"]
+script = ExtResource("Autosave_state")
+
 [sub_resource type="Resource" id="Sleep_interactable"]
 script = ExtResource("Sleep_interactable")
 
@@ -340,7 +335,7 @@ caption = "Лечь спать"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Sleep_transition")])
 
-[sub_resource type="Resource" id="Resource_8wt2x"]
+[sub_resource type="Resource" id="Resource_w4uhm"]
 resource_local_to_scene = true
 script = ExtResource("63_3w6s4")
 
@@ -356,11 +351,71 @@ caption = "Взяться за ручку"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("PushAction")])
 
-[node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world")]
+[sub_resource type="BoxMesh" id="BoxMesh_lqn1g"]
+size = Vector3(1.3466797, 0.14172363, 5.6000977)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mn5t4"]
+albedo_color = Color(0.9140625, 0.86764526, 0.86764526, 1)
+metallic = 1.0
+metallic_specular = 0.83
+roughness = 0.8
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_patme"]
+size = Vector3(1.3466797, 0.14172363, 5.6000977)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bghjr"]
+size = Vector3(4.223633, 3.7236938, 7.4051514)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_patme"]
+albedo_color = Color(0.9453125, 0.05908203, 0.05908203, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_patme"]
+size = Vector3(2.2294312, 3.7236938, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5h1gn"]
+albedo_color = Color(0.94509804, 0.74430144, 0.058823526, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_3xfrw"]
+size = Vector3(1, 3.7236938, 2.1971436)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jjqtf"]
+albedo_color = Color(0.70968133, 0.94509804, 0.058823526, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_2peb6"]
+size = Vector3(7.9189453, 3.7236938, 8.709595)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5und5"]
+albedo_color = Color(0.43964463, 0.94509804, 0.058823526, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_jjqtf"]
+size = Vector3(4.760742, 3.7236938, 4.1996155)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vmj2w"]
+albedo_color = Color(0.94509804, 0.058823526, 0.76507354, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_jpldi"]
+size = Vector3(16.259277, 3.7236938, 15.9678955)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3xfrw"]
+albedo_color = Color(0.058823526, 0.94509804, 0.57120097, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5h1gn"]
+size = Vector3(12.360474, 3.7236938, 12.4609375)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2peb6"]
+albedo_color = Color(0.058823526, 0.73737746, 0.94509804, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5und5"]
+size = Vector3(1.6518555, 3.7236938, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jpldi"]
+albedo_color = Color(0.058823526, 0.17653187, 0.94509804, 1)
+
+[node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world") groups=["navigation_mesh_source_group"]]
 script = ExtResource("1_ixiin")
 world = NodePath("World")
 
-[node name="WarehouseNavigation" type="NavigationRegion3D" parent="."]
+[node name="WarehouseNavigation" type="NavigationRegion3D" parent="." unique_id=1799420389]
 navigation_mesh = ExtResource("Warehouse_navigation")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1125172366]
@@ -396,7 +451,7 @@ script = ExtResource("PackageConditionSetup")
 [node name="O_PackageOpening" type="Node" parent="World/Systems/GamePlay" unique_id=59264951]
 script = ExtResource("PackageOpening")
 
-[node name="O_HazardFollowLifecycle" type="Node" parent="World/Systems/GamePlay"]
+[node name="O_HazardFollowLifecycle" type="Node" parent="World/Systems/GamePlay" unique_id=1414912097]
 script = ExtResource("Hazard_follow_lifecycle")
 
 [node name="O_HazardSpawn" type="Node" parent="World/Systems/GamePlay" unique_id=317172111]
@@ -440,7 +495,7 @@ script = ExtResource("R09_reset")
 script = ExtResource("5_ad8bv")
 metadata/_custom_type_script = "uid://nsdmrnqs0no0"
 
-[node name="O_DamageFeedback" type="Node" parent="World/Systems/GamePlay"]
+[node name="O_DamageFeedback" type="Node" parent="World/Systems/GamePlay" unique_id=1498305941]
 script = ExtResource("Damage_feedback")
 
 [node name="O_HealthLifecycle" type="Node" parent="World/Systems/GamePlay" unique_id=94551561]
@@ -474,42 +529,42 @@ group = &"GamePlay"
 script = ExtResource("Customer_system")
 group = &"GamePlay"
 
-[node name="S_NpcIntent" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_NpcIntent" type="Node" parent="World/Systems/GamePlay" unique_id=617759106]
 script = ExtResource("Npc_intent")
 group = &"GamePlay"
 
-[node name="S_LightCircuit" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_LightCircuit" type="Node" parent="World/Systems/GamePlay" unique_id=880915263]
 script = ExtResource("Light_circuit")
 group = &"GamePlay"
 
-[node name="S_ChallengeLight" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_ChallengeLight" type="Node" parent="World/Systems/GamePlay" unique_id=139315923]
 script = ExtResource("Challenge_light")
 group = &"GamePlay"
 
-[node name="S_ChallengeGaze" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_ChallengeGaze" type="Node" parent="World/Systems/GamePlay" unique_id=391903066]
 script = ExtResource("Challenge_gaze")
 group = &"GamePlay"
 
-[node name="S_ChallengeFloorSetup" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_ChallengeFloorSetup" type="Node" parent="World/Systems/GamePlay" unique_id=2028100959]
 script = ExtResource("Challenge_floor")
 group = &"GamePlay"
 
-[node name="S_FloorHazard" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_FloorHazard" type="Node" parent="World/Systems/GamePlay" unique_id=486139]
 script = ExtResource("Floor_hazard")
 group = &"GamePlay"
 
-[node name="O_FloorChallengeSpawn" type="Node" parent="World/Systems/GamePlay"]
+[node name="O_FloorChallengeSpawn" type="Node" parent="World/Systems/GamePlay" unique_id=247153534]
 script = ExtResource("Floor_spawn")
 
-[node name="S_ChallengeRuntime" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_ChallengeRuntime" type="Node" parent="World/Systems/GamePlay" unique_id=900684797]
 script = ExtResource("Challenge_runtime")
 group = &"GamePlay"
 
-[node name="S_CustomerChallengeOutcome" type="Node" parent="World/Systems/GamePlay"]
+[node name="S_CustomerChallengeOutcome" type="Node" parent="World/Systems/GamePlay" unique_id=1231108932]
 script = ExtResource("Challenge_outcome")
 group = &"GamePlay"
 
-[node name="O_ChallengeLifecycle" type="Node" parent="World/Systems/GamePlay"]
+[node name="O_ChallengeLifecycle" type="Node" parent="World/Systems/GamePlay" unique_id=2123583786]
 script = ExtResource("Challenge_lifecycle")
 
 [node name="S_WalletDay" type="Node" parent="World/Systems/GamePlay" unique_id=729224599]
@@ -518,6 +573,50 @@ group = &"GamePlay"
 
 [node name="S_DayPhase" type="Node" parent="World/Systems/GamePlay" unique_id=525864446]
 script = ExtResource("Day_system")
+group = &"GamePlay"
+
+[node name="S_CustomerCombat" type="Node" parent="World/Systems/GamePlay" unique_id=939921077]
+script = ExtResource("Customer_combat")
+group = &"GamePlay"
+
+[node name="S_NpcCombat" type="Node" parent="World/Systems/GamePlay" unique_id=1036596502]
+script = ExtResource("Npc_combat")
+group = &"GamePlay"
+
+[node name="S_CombatProjectile" type="Node" parent="World/Systems/GamePlay" unique_id=1827029901]
+script = ExtResource("Combat_projectile")
+group = &"GamePlay"
+
+[node name="S_PlayerMelee" type="Node" parent="World/Systems/GamePlay" unique_id=495617184]
+script = ExtResource("Player_melee")
+group = &"GamePlay"
+
+[node name="O_CombatLifecycle" type="Node" parent="World/Systems/GamePlay" unique_id=1503832486]
+script = ExtResource("Combat_lifecycle")
+
+[node name="O_CombatDamage" type="Node" parent="World/Systems/GamePlay" unique_id=1484734746]
+script = ExtResource("Combat_damage")
+
+[node name="S_Hunger" type="Node" parent="World/Systems/GamePlay" unique_id=1002406967]
+script = ExtResource("Hunger_system")
+group = &"GamePlay"
+
+[node name="O_InventoryEffect" type="Node" parent="World/Systems/GamePlay" unique_id=279958387]
+script = ExtResource("Inventory_effect")
+
+[node name="O_InventoryLifecycle" type="Node" parent="World/Systems/GamePlay" unique_id=1404685658]
+script = ExtResource("Inventory_lifecycle")
+
+[node name="S_NightSave" type="Node" parent="World/Systems/GamePlay" unique_id=994431759]
+script = ExtResource("Night_save_system")
+group = &"GamePlay"
+
+[node name="S_OrderDelivery" type="Node" parent="World/Systems/GamePlay" unique_id=2137672552]
+script = ExtResource("Order_delivery_system")
+group = &"GamePlay"
+
+[node name="S_RefusalQuest" type="Node" parent="World/Systems/GamePlay" unique_id=1355928431]
+script = ExtResource("Quest_system")
 group = &"GamePlay"
 
 [node name="Physics" type="Node" parent="World/Systems" unique_id=52509126]
@@ -595,51 +694,23 @@ group = &"Interaction"
 [node name="O_GrabLifecycle" type="Node" parent="World/Systems/Interaction" unique_id=1786878994]
 script = ExtResource("Grab_lifecycle")
 
-[node name="S_CustomerCombat" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Customer_combat")
-group = &"GamePlay"
-
-[node name="S_NpcCombat" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Npc_combat")
-group = &"GamePlay"
-
-[node name="S_CombatProjectile" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Combat_projectile")
-group = &"GamePlay"
-
-[node name="S_PlayerMelee" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Player_melee")
-group = &"GamePlay"
-
-[node name="O_CombatLifecycle" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Combat_lifecycle")
-
-[node name="O_CombatDamage" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Combat_damage")
-
-[node name="S_Hunger" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Hunger_system")
-group = &"GamePlay"
-
-[node name="O_InventoryEffect" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Inventory_effect")
-
-[node name="O_InventoryLifecycle" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Inventory_lifecycle")
-
-[node name="S_NightSave" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Night_save_system")
-group = &"GamePlay"
-
-[node name="S_OrderDelivery" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Order_delivery_system")
-group = &"GamePlay"
-
-[node name="S_RefusalQuest" type="Node" parent="World/Systems/GamePlay"]
-script = ExtResource("Quest_system")
-group = &"GamePlay"
-
 [node name="PVZ" type="Node3D" parent="." unique_id=627123053]
+
+[node name="Primitive_Stairs_Half_static" parent="PVZ" unique_id=889352795 instance=ExtResource("165_3xfrw")]
+transform = Transform3D(-3.6146318e-07, 0, 0.7, 0, 0.31533858, 0, -0.565, 0, -4.4783047e-07, -4, -0.109, 20)
+metadata/asset_placer_res_id = "uid://j6xcte7ugbf2"
+
+[node name="Primitive_Stairs_Half_static (1)" parent="PVZ" unique_id=1771313133 instance=ExtResource("165_3xfrw")]
+transform = Transform3D(0.565, 0, 4.9024715e-07, 0, 0.31533858, 0, -3.956995e-07, 0, 0.7, -16, -0.109, 12)
+metadata/asset_placer_res_id = "uid://j6xcte7ugbf2"
+
+[node name="Primitive_Stairs_Half_static (2)" parent="PVZ" unique_id=1812785583 instance=ExtResource("165_3xfrw")]
+transform = Transform3D(0.565, 0, 4.9024715e-07, 0, 0.31533858, 0, -3.956995e-07, 0, 0.7, -16, -0.109, -4)
+metadata/asset_placer_res_id = "uid://j6xcte7ugbf2"
+
+[node name="Primitive_Stairs_Half_static (3)" parent="PVZ" unique_id=1601822387 instance=ExtResource("165_3xfrw")]
+transform = Transform3D(-6.308761e-07, 0, 0.7, 0, 0.31533858, 0, -0.565, 0, -7.8161645e-07, 24, -0.109, 20)
+metadata/asset_placer_res_id = "uid://j6xcte7ugbf2"
 
 [node name="Floor" type="Node3D" parent="PVZ" unique_id=1691859226]
 
@@ -781,30 +852,6 @@ metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 
 [node name="Floor_Dirt_static (18)" parent="PVZ/Floor" unique_id=1388055721 instance=ExtResource("2_eim2b")]
 transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -18)
-metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
-
-[node name="Floor_Dirt_static (19)" parent="PVZ/Floor" unique_id=786014078 instance=ExtResource("2_eim2b")]
-transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -14)
-metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
-
-[node name="Floor_Dirt_static (20)" parent="PVZ/Floor" unique_id=541807468 instance=ExtResource("2_eim2b")]
-transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -10)
-metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
-
-[node name="Floor_Dirt_static (21)" parent="PVZ/Floor" unique_id=1843899173 instance=ExtResource("2_eim2b")]
-transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -6)
-metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
-
-[node name="Floor_Dirt_static (22)" parent="PVZ/Floor" unique_id=1542455934 instance=ExtResource("2_eim2b")]
-transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, -2)
-metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
-
-[node name="Floor_Dirt_static (21)2" parent="PVZ/Floor" unique_id=608142118 instance=ExtResource("2_eim2b")]
-transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -2, -0.5, -6)
-metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
-
-[node name="Floor_Dirt_static (22)2" parent="PVZ/Floor" unique_id=1770687008 instance=ExtResource("2_eim2b")]
-transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -2, -0.5, -2)
 metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 
 [node name="Floor_Dirt_static (23)" parent="PVZ/Floor" unique_id=1195571669 instance=ExtResource("2_eim2b")]
@@ -963,55 +1010,701 @@ metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 transform = Transform3D(1.0000001, 0, -7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1.0000001, -6, -0.5, 14)
 metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
 
-[node name="Floor_static" parent="PVZ/Floor" unique_id=485411696 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -6)
+[node name="Floor_Dirt_static5" parent="PVZ/Floor" unique_id=1117319921 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (1)5" parent="PVZ/Floor" unique_id=1687396995 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.49999952, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (2)13" parent="PVZ/Floor" unique_id=732917761 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (3)5" parent="PVZ/Floor" unique_id=1748995417 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (4)5" parent="PVZ/Floor" unique_id=68302021 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.5, -2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (5)" parent="PVZ/Floor" unique_id=1006511360 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.5, -6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (6)" parent="PVZ/Floor" unique_id=1855790899 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.5, -10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (7)4" parent="PVZ/Floor" unique_id=2067513882 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (8)4" parent="PVZ/Floor" unique_id=1702926149 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.5, -18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (9)4" parent="PVZ/Floor" unique_id=813329564 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.5, -22)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (10)4" parent="PVZ/Floor" unique_id=623004367 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (11)4" parent="PVZ/Floor" unique_id=511314835 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (12)4" parent="PVZ/Floor" unique_id=267596921 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (13)4" parent="PVZ/Floor" unique_id=97709056 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (14)5" parent="PVZ/Floor" unique_id=1306192723 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (15)3" parent="PVZ/Floor" unique_id=987708524 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (16)3" parent="PVZ/Floor" unique_id=350976678 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (17)2" parent="PVZ/Floor" unique_id=502561389 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (18)2" parent="PVZ/Floor" unique_id=1294077133 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (19)" parent="PVZ/Floor" unique_id=766321748 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (20)" parent="PVZ/Floor" unique_id=178688530 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (21)" parent="PVZ/Floor" unique_id=306867559 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (22)" parent="PVZ/Floor" unique_id=1261102741 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (23)5" parent="PVZ/Floor" unique_id=1181247568 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (28)" parent="PVZ/Floor" unique_id=1281414467 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, -18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (29)" parent="PVZ/Floor" unique_id=1880870962 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, -22)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (30)" parent="PVZ/Floor" unique_id=1444014422 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, -26)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (31)" parent="PVZ/Floor" unique_id=675260951 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -0.5, -26)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (32)" parent="PVZ/Floor" unique_id=418835358 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.5, -26)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (33)" parent="PVZ/Floor" unique_id=1531196734 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.5, -26)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (34)" parent="PVZ/Floor" unique_id=131117041 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -0.5, -26)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (35)" parent="PVZ/Floor" unique_id=1318663313 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -0.5, -26)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (36)" parent="PVZ/Floor" unique_id=2093837758 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -0.5, -26)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (37)" parent="PVZ/Floor" unique_id=1714563392 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, -0.5, -26)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (38)" parent="PVZ/Floor" unique_id=388282902 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, -0.5, -26)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (39)" parent="PVZ/Floor" unique_id=1945739920 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.5, -26)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_static" parent="PVZ/Floor" unique_id=2017931775 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 22)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="Floor_static (1)" parent="PVZ/Floor" unique_id=894285954 instance=ExtResource("7_eim2b")]
+[node name="Floor_static (1)" parent="PVZ/Floor" unique_id=1201097206 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (2)" parent="PVZ/Floor" unique_id=447499985 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (3)" parent="PVZ/Floor" unique_id=1660986173 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (4)" parent="PVZ/Floor" unique_id=452981508 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (5)" parent="PVZ/Floor" unique_id=1601526741 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (6)" parent="PVZ/Floor" unique_id=437290119 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (7)" parent="PVZ/Floor" unique_id=646134527 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (8)" parent="PVZ/Floor" unique_id=869067964 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (9)" parent="PVZ/Floor" unique_id=704193192 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -1.9073486e-06, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (10)" parent="PVZ/Floor" unique_id=1505495645 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (11)" parent="PVZ/Floor" unique_id=442579452 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 1.9073486e-06, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (12)" parent="PVZ/Floor" unique_id=329284915 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (13)" parent="PVZ/Floor" unique_id=892282424 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (14)" parent="PVZ/Floor" unique_id=1341864633 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (15)" parent="PVZ/Floor" unique_id=1035916567 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (16)" parent="PVZ/Floor" unique_id=1202630641 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (17)" parent="PVZ/Floor" unique_id=1349749741 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (18)" parent="PVZ/Floor" unique_id=1383754846 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (19)" parent="PVZ/Floor" unique_id=1336340086 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_Prototype_static2" parent="PVZ/Floor" unique_id=1673783965 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.5, -6)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (1)2" parent="PVZ/Floor" unique_id=724571092 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.5, -2)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (2)2" parent="PVZ/Floor" unique_id=2105610754 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -0.5, -2)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (3)2" parent="PVZ/Floor" unique_id=1748551172 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, -2)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (4)2" parent="PVZ/Floor" unique_id=1292093046 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, -6)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (5)2" parent="PVZ/Floor" unique_id=1150373731 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -0.5, -6)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (6)2" parent="PVZ/Floor" unique_id=341208242 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -0.5, -10)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (7)2" parent="PVZ/Floor" unique_id=165387844 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -0.5, -14)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (8)2" parent="PVZ/Floor" unique_id=1640725648 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, -14)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (9)2" parent="PVZ/Floor" unique_id=1390748016 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.5, -10)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Dirt_static (36)2" parent="PVZ/Floor" unique_id=903398270 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.5000019, -26)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (37)2" parent="PVZ/Floor" unique_id=1354914204 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.5, -22)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (38)2" parent="PVZ/Floor" unique_id=1688924845 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.5, -18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (39)2" parent="PVZ/Floor" unique_id=2044674313 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (40)" parent="PVZ/Floor" unique_id=1095143690 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.5, -10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (41)" parent="PVZ/Floor" unique_id=251419621 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.5, -6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (42)" parent="PVZ/Floor" unique_id=879355292 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.5, -2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (43)" parent="PVZ/Floor" unique_id=326505736 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (44)" parent="PVZ/Floor" unique_id=863746452 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (45)" parent="PVZ/Floor" unique_id=674264786 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.5000019, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (46)" parent="PVZ/Floor" unique_id=1796701253 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (47)" parent="PVZ/Floor" unique_id=433867601 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -0.4999981, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_static (20)" parent="PVZ/Floor" unique_id=697445189 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (21)" parent="PVZ/Floor" unique_id=405949561 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -1.9073486e-06, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (22)" parent="PVZ/Floor" unique_id=689976205 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (23)" parent="PVZ/Floor" unique_id=939330652 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, -1.9073486e-06, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (24)" parent="PVZ/Floor" unique_id=238013100 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 18)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (25)" parent="PVZ/Floor" unique_id=1227926811 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, -1.9073486e-06, 14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (26)" parent="PVZ/Floor" unique_id=2035797151 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (27)" parent="PVZ/Floor" unique_id=2067186073 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (28)" parent="PVZ/Floor" unique_id=322716149 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (29)" parent="PVZ/Floor" unique_id=236368719 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (30)" parent="PVZ/Floor" unique_id=726726263 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (31)" parent="PVZ/Floor" unique_id=1296334189 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (32)" parent="PVZ/Floor" unique_id=1029686761 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (33)" parent="PVZ/Floor" unique_id=1806988030 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -18)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (34)" parent="PVZ/Floor" unique_id=1104130920 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (35)" parent="PVZ/Floor" unique_id=616014527 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (36)" parent="PVZ/Floor" unique_id=1217069471 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (37)" parent="PVZ/Floor" unique_id=1506947819 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (38)" parent="PVZ/Floor" unique_id=903307067 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -18)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (39)" parent="PVZ/Floor" unique_id=188774710 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (40)" parent="PVZ/Floor" unique_id=2004123702 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (41)" parent="PVZ/Floor" unique_id=814844118 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (42)" parent="PVZ/Floor" unique_id=702213280 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (43)" parent="PVZ/Floor" unique_id=693584625 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, 2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (44)" parent="PVZ/Floor" unique_id=1681706561 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, 6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (45)" parent="PVZ/Floor" unique_id=1544219069 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, -1.9073486e-06, 10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (46)" parent="PVZ/Floor" unique_id=1973431034 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, 14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (47)" parent="PVZ/Floor" unique_id=227560688 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 1.9073486e-06, 18)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (48)" parent="PVZ/Floor" unique_id=2013541095 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 1.9073486e-06, 22)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (49)" parent="PVZ/Floor" unique_id=1717915146 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, 26)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_Prototype_static (10)2" parent="PVZ/Floor" unique_id=1241585880 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.5, -2)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (11)" parent="PVZ/Floor" unique_id=1569083959 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.5, -6)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (12)" parent="PVZ/Floor" unique_id=1205780584 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.5, -10)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (13)" parent="PVZ/Floor" unique_id=181201526 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.5, -10)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (14)" parent="PVZ/Floor" unique_id=1031905438 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.5, -6)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (15)" parent="PVZ/Floor" unique_id=1580808091 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.5, -2)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (16)" parent="PVZ/Floor" unique_id=453420745 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.5, -10)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (17)" parent="PVZ/Floor" unique_id=760353842 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.5, -6)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_Prototype_static (18)" parent="PVZ/Floor" unique_id=1927456697 instance=ExtResource("1_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.5, -2)
+metadata/asset_placer_res_id = "uid://lmmf6kia0frw"
+
+[node name="Floor_static (50)" parent="PVZ/Floor" unique_id=1985546462 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.5, 2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (51)" parent="PVZ/Floor" unique_id=1284157739 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.5, 6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (52)" parent="PVZ/Floor" unique_id=486180110 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.5, 10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (53)" parent="PVZ/Floor" unique_id=150306210 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.5, 14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (54)" parent="PVZ/Floor" unique_id=385791442 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.5, 14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (55)" parent="PVZ/Floor" unique_id=1987244113 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.5, 10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (56)" parent="PVZ/Floor" unique_id=946334181 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.5, 6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (57)" parent="PVZ/Floor" unique_id=257598884 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.5, 6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (58)" parent="PVZ/Floor" unique_id=1776758379 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.5, 10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (59)" parent="PVZ/Floor" unique_id=1458533415 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.5, 14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_Dirt_static (48)" parent="PVZ/Floor" unique_id=63592562 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (49)" parent="PVZ/Floor" unique_id=1867296799 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (50)" parent="PVZ/Floor" unique_id=345369562 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (51)" parent="PVZ/Floor" unique_id=1538332594 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (52)" parent="PVZ/Floor" unique_id=1344216616 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (53)" parent="PVZ/Floor" unique_id=2059359278 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, -0.5, 18)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (54)" parent="PVZ/Floor" unique_id=960622398 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, -0.5, 14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (55)" parent="PVZ/Floor" unique_id=2011612317 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, -0.5, 10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (56)" parent="PVZ/Floor" unique_id=569299990 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, -0.5, 6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (57)" parent="PVZ/Floor" unique_id=1063160073 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, -0.5, 2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (58)" parent="PVZ/Floor" unique_id=18949257 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, -0.5, -2)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (59)" parent="PVZ/Floor" unique_id=766495941 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, -0.5, -6)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (60)" parent="PVZ/Floor" unique_id=1430247415 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, -0.5, -10)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (61)" parent="PVZ/Floor" unique_id=681558284 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (62)" parent="PVZ/Floor" unique_id=138697291 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (63)" parent="PVZ/Floor" unique_id=458858846 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_Dirt_static (64)" parent="PVZ/Floor" unique_id=2028780699 instance=ExtResource("2_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.5, -14)
+metadata/asset_placer_res_id = "uid://djjxlfsq2i5pi"
+
+[node name="Floor_static (60)" parent="PVZ/Floor" unique_id=84087089 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 4, -14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (61)" parent="PVZ/Floor" unique_id=77011072 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 4, -14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (62)" parent="PVZ/Floor" unique_id=14104038 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 4, -10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (63)" parent="PVZ/Floor" unique_id=510866423 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 4.000001, -10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (64)" parent="PVZ/Floor" unique_id=1458874176 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 4, -6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (65)" parent="PVZ/Floor" unique_id=1537934884 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 4, -6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (66)" parent="PVZ/Floor" unique_id=1668423071 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 4, -2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (67)" parent="PVZ/Floor" unique_id=193372974 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 4, -2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (68)" parent="PVZ/Floor" unique_id=154322078 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3.999999, -2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (69)" parent="PVZ/Floor" unique_id=1462320951 instance=ExtResource("7_eim2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -2)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="Floor_static (2)" parent="PVZ/Floor" unique_id=1722283123 instance=ExtResource("7_eim2b")]
+[node name="Floor_static (70)" parent="PVZ/Floor" unique_id=1345612999 instance=ExtResource("7_eim2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 4, -2)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="Floor_static (3)" parent="PVZ/Floor" unique_id=438182643 instance=ExtResource("7_eim2b")]
+[node name="Floor_static (71)" parent="PVZ/Floor" unique_id=1967419863 instance=ExtResource("7_eim2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 4, -2)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="Floor_static (4)" parent="PVZ/Floor" unique_id=1369847561 instance=ExtResource("7_eim2b")]
+[node name="Floor_static (72)" parent="PVZ/Floor" unique_id=1536684860 instance=ExtResource("7_eim2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 4, -6)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="Floor_static (5)" parent="PVZ/Floor" unique_id=2092705149 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 4, -6)
-metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
-
-[node name="Floor_static (6)" parent="PVZ/Floor" unique_id=1586050895 instance=ExtResource("7_eim2b")]
+[node name="Floor_static (73)" parent="PVZ/Floor" unique_id=1736774989 instance=ExtResource("7_eim2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 4, -10)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="Floor_static (7)" parent="PVZ/Floor" unique_id=1896669335 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -10)
+[node name="Floor_static (74)" parent="PVZ/Floor" unique_id=1454550042 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 4, -6)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="Floor_static (8)" parent="PVZ/Floor" unique_id=1495388890 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -14)
+[node name="Floor_static (75)" parent="PVZ/Floor" unique_id=71442980 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -6)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="Floor_static (9)" parent="PVZ/Floor" unique_id=1734562027 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 4, -14)
+[node name="Floor_static (76)" parent="PVZ/Floor" unique_id=2103181213 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 4, -6)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="Floor_static (10)" parent="PVZ/Floor" unique_id=981674001 instance=ExtResource("7_eim2b")]
+[node name="Floor_static (77)" parent="PVZ/Floor" unique_id=2074004383 instance=ExtResource("7_eim2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 4, -10)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="StaticBody3D" type="StaticBody3D" parent="PVZ/Floor" unique_id=1313154093]
+[node name="Floor_static (78)" parent="PVZ/Floor" unique_id=561138856 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 4, -14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="PVZ/Floor/StaticBody3D" unique_id=2125207814]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.027359, -0.24761963, -4.125351)
-shape = SubResource("BoxShape3D_bghjr")
+[node name="Floor_static (79)" parent="PVZ/Floor" unique_id=967752094 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -14)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (80)" parent="PVZ/Floor" unique_id=1337788285 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (81)" parent="PVZ/Floor" unique_id=404775550 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 4.000002, -10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (82)" parent="PVZ/Floor" unique_id=1914538597 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 4, -10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (83)" parent="PVZ/Floor" unique_id=1900301098 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 4, -10)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (84)" parent="PVZ/Floor" unique_id=23779816 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 4, -6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (85)" parent="PVZ/Floor" unique_id=1074541884 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 4, -6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (86)" parent="PVZ/Floor" unique_id=536096091 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 4, -6)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (87)" parent="PVZ/Floor" unique_id=140118082 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 4, -2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (88)" parent="PVZ/Floor" unique_id=2038269899 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 4, -2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
+
+[node name="Floor_static (89)" parent="PVZ/Floor" unique_id=224805568 instance=ExtResource("7_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 4, -2)
+metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
 [node name="Wall" type="Node3D" parent="PVZ" unique_id=114765866]
 
@@ -1022,10 +1715,6 @@ metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
 [node name="Primitive_Window_static" parent="PVZ/Wall" unique_id=2087211154 instance=ExtResource("2_wp74p")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
 metadata/asset_placer_res_id = "uid://wk6sf3v5qnfc"
-
-[node name="Primitive_Doorway_static" parent="PVZ/Wall" unique_id=540084677 instance=ExtResource("3_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -8)
-metadata/asset_placer_res_id = "uid://h6ovxls42pn1"
 
 [node name="Primitive_Doorway_static (1)" parent="PVZ/Wall" unique_id=1439638060 instance=ExtResource("3_eim2b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -8)
@@ -1045,14 +1734,6 @@ metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
 
 [node name="Primitive_Wall_static (2)" parent="PVZ/Wall" unique_id=1215224431 instance=ExtResource("1_ojrfc")]
 transform = Transform3D(-1.0000007, 0, -3.9488077e-07, 0, 1, 0, 3.9488077e-07, 0, -1.0000007, 6, 0, -8)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
-[node name="Primitive_Wall_static (3)" parent="PVZ/Wall" unique_id=1459932380 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(-5.662441e-07, 0, 1.0000013, 0, 1, 0, -1.0000013, 0, -5.662441e-07, 0, 0, -2)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
-[node name="Primitive_Wall_static (4)" parent="PVZ/Wall" unique_id=757045545 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(-5.662441e-07, 0, 1.0000013, 0, 1, 0, -1.0000013, 0, -5.662441e-07, 0, 0, -6)
 metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
 
 [node name="Primitive_Wall_static (5)" parent="PVZ/Wall" unique_id=1674132242 instance=ExtResource("1_ojrfc")]
@@ -1075,10 +1756,6 @@ metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
 transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 4, 0, -14)
 metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
 
-[node name="Primitive_Wall_static (9)" parent="PVZ/Wall" unique_id=604854329 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(-1.0000007, 0, -3.9488077e-07, 0, 1, 0, 3.9488077e-07, 0, -1.0000007, -2, 0, -8)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
 [node name="Primitive_Wall_static (10)" parent="PVZ/Wall" unique_id=236138219 instance=ExtResource("1_ojrfc")]
 transform = Transform3D(-5.736947e-07, 0, 1.0000014, 0, 1, 0, -1.0000014, 0, -5.736947e-07, -4, 0, -10)
 metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
@@ -1095,36 +1772,8 @@ metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
 transform = Transform3D(1.0000018, 0, 7.003546e-07, 0, 1, 0, -7.003546e-07, 0, 1.0000018, -2, 0, -16)
 metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
 
-[node name="Primitive_Wall_Short_static" parent="PVZ/Wall" unique_id=1478879511 instance=ExtResource("4_rhklt")]
-transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 8, -4.7683716e-07, -1)
-metadata/asset_placer_res_id = "uid://bmlgret82yq8q"
-
-[node name="Primitive_Wall_Short_static (1)" parent="PVZ/Wall" unique_id=255502237 instance=ExtResource("4_rhklt")]
-transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 5, 0, -1)
-metadata/asset_placer_res_id = "uid://bmlgret82yq8q"
-
-[node name="Pillar_A_static" parent="PVZ/Wall" unique_id=1928021939 instance=ExtResource("8_vhk8t")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -3)
-metadata/asset_placer_res_id = "uid://c8ucvasbalruj"
-
-[node name="Pillar_A_static (1)" parent="PVZ/Wall" unique_id=967669382 instance=ExtResource("8_vhk8t")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -3)
-metadata/asset_placer_res_id = "uid://c8ucvasbalruj"
-
 [node name="Primitive_Beam_static" parent="PVZ/Wall" unique_id=345228263 instance=ExtResource("9_ofyry")]
 transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 4, -0.13274181, -3.6208415)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
-[node name="Primitive_Beam_static2" parent="PVZ/Wall" unique_id=1702320795 instance=ExtResource("9_ofyry")]
-transform = Transform3D(1.7717475e-07, 3.584333e-08, -0.82, 0.82, -3.584334e-08, 1.7717475e-07, -3.584333e-08, -0.82, -3.584334e-08, 3.2621207, 1.5345902, -7.744841)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
-[node name="Primitive_Beam_static3" parent="PVZ/Wall" unique_id=1787659410 instance=ExtResource("9_ofyry")]
-transform = Transform3D(1.7717475e-07, 3.584333e-08, -0.82, 0.82, -3.584334e-08, 1.7717475e-07, -3.584333e-08, -0.82, -3.584334e-08, 0.7, 1.5345902, -7.744841)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
-[node name="Primitive_Beam_static4" parent="PVZ/Wall" unique_id=320954148 instance=ExtResource("9_ofyry")]
-transform = Transform3D(0.82, -3.5843335e-08, 2.130181e-07, -2.130181e-07, -3.5843325e-08, 0.82, -3.584333e-08, -0.82, -3.5843335e-08, 2.049804, 3.3121254, -7.744841)
 metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
 
 [node name="Primitive_Beam_static (1)" parent="PVZ/Wall" unique_id=1174702755 instance=ExtResource("9_ofyry")]
@@ -1132,8 +1781,128 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -1)
 metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
 
 [node name="Primitive_Beam_static (2)" parent="PVZ/Wall" unique_id=418135916 instance=ExtResource("9_ofyry")]
-transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 4, 0, -2)
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 4, -0.06357527, -2)
 metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Wall_static2" parent="PVZ/Wall" unique_id=258305419 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.004760742, 0)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Window_static2" parent="PVZ/Wall" unique_id=1972997520 instance=ExtResource("2_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.004760742, 0)
+metadata/asset_placer_res_id = "uid://wk6sf3v5qnfc"
+
+[node name="Primitive_Wall_static (1)2" parent="PVZ/Wall" unique_id=230877486 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -0.0036010742, 0)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (2)2" parent="PVZ/Wall" unique_id=1533597067 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(2.1606684e-07, 0, 1.0000004, 0, 1, 0, -1.0000004, 0, 2.1606684e-07, -12, 0, -2)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (3)" parent="PVZ/Wall" unique_id=1906322824 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(2.1606684e-07, 0, 1.0000004, 0, 1, 0, -1.0000004, 0, 2.1606684e-07, -12, 0, -6)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Window_static (1)2" parent="PVZ/Wall" unique_id=1129064099 instance=ExtResource("2_wp74p")]
+transform = Transform3D(2.1606684e-07, 0, 1.0000004, 0, 1, 0, -1.0000004, 0, 2.1606684e-07, -12, 9.536743e-07, -14)
+metadata/asset_placer_res_id = "uid://wk6sf3v5qnfc"
+
+[node name="Primitive_Wall_static (4)" parent="PVZ/Wall" unique_id=522863319 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 4.7683716e-07, -16)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (5)2" parent="PVZ/Wall" unique_id=1053828410 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.004760742, -16)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (6)2" parent="PVZ/Wall" unique_id=53545694 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -12)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (7)2" parent="PVZ/Wall" unique_id=802158606 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.0036010742, -12)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Doorway_static" parent="PVZ/Wall" unique_id=674441714 instance=ExtResource("3_eim2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 0, -12)
+metadata/asset_placer_res_id = "uid://h6ovxls42pn1"
+
+[node name="Primitive_Wall_static (8)2" parent="PVZ/Wall" unique_id=240220055 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 28, -0.0036010742, -10)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (9)" parent="PVZ/Wall" unique_id=2062015837 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 28, 0, -6)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (10)2" parent="PVZ/Wall" unique_id=560432148 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 28, -9.536743e-07, -2)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (11)2" parent="PVZ/Wall" unique_id=1170471643 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 40, -0.0036001205, -10)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (12)2" parent="PVZ/Wall" unique_id=2049365310 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 40, 0, -6)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (13)2" parent="PVZ/Wall" unique_id=846189286 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1.0000007, 0, 1.4156103e-07, 0, 1, 0, -1.4156103e-07, 0, 1.0000007, 38, 9.536743e-07, 0)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Wall_static (14)" parent="PVZ/Wall" unique_id=996958923 instance=ExtResource("1_ojrfc")]
+transform = Transform3D(1.0000007, 0, 1.4156103e-07, 0, 1, 0, -1.4156103e-07, 0, 1.0000007, 34, -0.0036010742, 0)
+metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
+
+[node name="Primitive_Window_static (2)2" parent="PVZ/Wall" unique_id=1949980333 instance=ExtResource("2_wp74p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 4.7683716e-07, 0)
+metadata/asset_placer_res_id = "uid://wk6sf3v5qnfc"
+
+[node name="Primitive_Doorway_static (1)2" parent="PVZ/Wall" unique_id=1744466140 instance=ExtResource("3_eim2b")]
+transform = Transform3D(1.937151e-07, 0, 1.0000004, 0, 1, 0, -1.0000004, 0, 1.937151e-07, 40, -0.0036010742, -2)
+metadata/asset_placer_res_id = "uid://h6ovxls42pn1"
+
+[node name="Primitive_Beam_static2" parent="PVZ/Wall" unique_id=1702320795 instance=ExtResource("9_ofyry")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.0036010742, 4)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Beam_static (1)2" parent="PVZ/Wall" unique_id=472908460 instance=ExtResource("9_ofyry")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.0036005974, 4)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Beam_static (2)2" parent="PVZ/Wall" unique_id=1315241991 instance=ExtResource("9_ofyry")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 40, -0.0036010742, 6)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Beam_static (3)" parent="PVZ/Wall" unique_id=1505535922 instance=ExtResource("9_ofyry")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 40, -0.0036010742, 10)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Beam_static (4)" parent="PVZ/Wall" unique_id=3082414 instance=ExtResource("9_ofyry")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 40, -0.0036010742, 14)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Beam_static (5)" parent="PVZ/Wall" unique_id=1454918843 instance=ExtResource("9_ofyry")]
+transform = Transform3D(1.0000008, 0, 1.4156103e-07, 0, 1, 0, -1.4156103e-07, 0, 1.0000008, 38, -0.03843689, 16)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Beam_static (6)" parent="PVZ/Wall" unique_id=335685659 instance=ExtResource("9_ofyry")]
+transform = Transform3D(1.0000008, 0, 1.4156103e-07, 0, 1, 0, -1.4156103e-07, 0, 1.0000008, 34, -0.0036005974, 16)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Beam_static (7)" parent="PVZ/Wall" unique_id=1983988361 instance=ExtResource("9_ofyry")]
+transform = Transform3D(1.0000008, 0, 1.4156103e-07, 0, 1, 0, -1.4156103e-07, 0, 1.0000008, 30, -0.0036010742, 16)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Beam_static (8)" parent="PVZ/Wall" unique_id=1802078430 instance=ExtResource("9_ofyry")]
+transform = Transform3D(3.2782555e-07, 0, -1.0000011, 0, 1, 0, 1.0000011, 0, 3.2782555e-07, 32, -0.0036010742, 2)
+metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
+
+[node name="Primitive_Doorway_static (2)2" parent="PVZ/Wall" unique_id=72321029 instance=ExtResource("3_eim2b")]
+transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, -12, 9.536743e-07, -10)
+metadata/asset_placer_res_id = "uid://h6ovxls42pn1"
 
 [node name="Light" type="Node3D" parent="PVZ" unique_id=1992506087]
 
@@ -1142,8 +1911,28 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.696652, 3.362012, -5.191838
 shadow_enabled = true
 omni_range = 7.915
 
+[node name="OmniLight3D6" type="OmniLight3D" parent="PVZ/Light" unique_id=25084848 groups=["warehouse_lights"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.630451, 3.362012, -1.8652256)
+shadow_enabled = true
+omni_range = 7.915
+
+[node name="OmniLight3D7" type="OmniLight3D" parent="PVZ/Light" unique_id=1373126384 groups=["warehouse_lights"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.630451, 3.362012, 1.4662755)
+shadow_enabled = true
+omni_range = 7.915
+
 [node name="OmniLight3D3" type="OmniLight3D" parent="PVZ/Light" unique_id=1554456456 groups=["warehouse_lights"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8443918, 2.8907986, -9.669686)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.13916802, 2.8907986, -9.669686)
+shadow_enabled = true
+omni_range = 7.915
+
+[node name="OmniLight3D4" type="OmniLight3D" parent="PVZ/Light" unique_id=579227206 groups=["warehouse_lights"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.373597, 2.8907986, -9.669686)
+shadow_enabled = true
+omni_range = 7.915
+
+[node name="OmniLight3D5" type="OmniLight3D" parent="PVZ/Light" unique_id=1030884749 groups=["warehouse_lights"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.4642487, 2.8907986, -4.1413074)
 shadow_enabled = true
 omni_range = 7.915
 
@@ -1154,27 +1943,45 @@ omni_range = 7.915
 
 [node name="Props" type="Node3D" parent="PVZ" unique_id=1153816839]
 
-[node name="NumberedShelves" parent="PVZ" unique_id=1232558496 instance=ExtResource("Shelves_scene")]
-transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, 6.445291, 0, -7.0047317)
-
 [node name="Entityes" type="Node3D" parent="." unique_id=118950221]
 
 [node name="CarryPlacement" parent="Entityes" unique_id=311356828 instance=ExtResource("PlacementArea")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4560537, 0.12648739, -2.8741093)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -1.3605773)
+
+[node name="CarryPlacement2" parent="Entityes" unique_id=1589903994 instance=ExtResource("PlacementArea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -2.7532282)
+
+[node name="CarryPlacement3" parent="Entityes" unique_id=1189909820 instance=ExtResource("PlacementArea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -3.997128)
+
+[node name="CarryPlacement4" parent="Entityes" unique_id=2131764686 instance=ExtResource("PlacementArea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -5.272379)
+
+[node name="CarryPlacement5" parent="Entityes" unique_id=2042384809 instance=ExtResource("PlacementArea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -5.272379)
+
+[node name="CarryPlacement6" parent="Entityes" unique_id=54381134 instance=ExtResource("PlacementArea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -4.178487)
+
+[node name="CarryPlacement7" parent="Entityes" unique_id=1100157914 instance=ExtResource("PlacementArea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -3.1088612)
+
+[node name="CarryPlacement8" parent="Entityes" unique_id=1309072910 instance=ExtResource("PlacementArea")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -1.7013781)
 
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
 collision_layer = 16
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_1brdc"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_p0mrl")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_3xfrw"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_jjqtf")])
 
-[node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1703744943, 217031396, 2065414162) index="0" unique_id=1494109615]
-cast_shadow = 3
-
-[node name="HeadX" parent="Entityes/Player/HeadY" parent_id_path=PackedInt32Array(1703744943, 45462056) index="0" unique_id=2113340697]
+[node name="HeadX" parent="Entityes/Player/HeadY" index="0"]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.11703396, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Entityes/Player/HeadY/HeadX/HeadRoot" parent_id_path=PackedInt32Array(1703744943, 406904122) index="7" unique_id=387684179]
 current = true
+
+[node name="Mannequin" parent="Entityes/Player/AnimationLibrary_Godot_Standard/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1703744943, 217031396, 2065414162) index="0" unique_id=1494109615]
+cast_shadow = 3
 
 [node name="BeltSlotLeft" parent="Entityes/Player" index="5"]
 transform = Transform3D(0.41083163, -0.9117112, 0, 0, -4.371139e-08, 1, -0.91171116, -0.4108317, 0, -0.25, 0.7946805, -0.1371026)
@@ -1184,6 +1991,24 @@ transform = Transform3D(0.21199018, 0.9772718, 2.9802322e-08, 1.3716061e-08, -5.
 
 [node name="DeliveryCounter" parent="Entityes" unique_id=1492129627 instance=ExtResource("Delivery_counter")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4.0657115, 0, -4.821111)
+
+[node name="Desk" parent="Entityes/DeliveryCounter" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+
+[node name="Collision" parent="Entityes/DeliveryCounter" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+
+[node name="DeliveryArea" parent="Entityes/DeliveryCounter" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0)
+
+[node name="Sign" parent="Entityes/DeliveryCounter" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+
+[node name="Entry" parent="Entityes/DeliveryCounter" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.4079137, 2.3841858e-07, 10.923304)
+
+[node name="Waiting" parent="Entityes/DeliveryCounter" index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2)
 
 [node name="Terminal" parent="Entityes" unique_id=911264778 instance=ExtResource("Terminal_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 0, -2)
@@ -1196,15 +2021,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2402446, 1.45, -2)
 
 [node name="Marker" parent="Entityes" unique_id=1749342287 instance=ExtResource("Marker_scene")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.2880824)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_jxwan"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_2peb6"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Marker2" parent="Entityes" unique_id=1086911559 instance=ExtResource("Marker_scene")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.1790984)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_3auy4"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_5und5"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Marker3" parent="Entityes" unique_id=529574383 instance=ExtResource("Marker_scene")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.0586202)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_sseuf"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_jpldi"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Hammer" parent="Entityes" unique_id=1856779010 instance=ExtResource("Hammer_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7814434, 1.5211676, -2.8830624)
@@ -1212,127 +2037,229 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7814434, 1.5211676, -2.8830
 [node name="AnchorableTestBox" parent="Entityes" unique_id=1059473200 instance=ExtResource("AnchorTest_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.101066, 1.421769, -3.45)
 
-[node name="Valve_E_Press" parent="Entityes" instance=ExtResource("Valve_test")]
+[node name="Valve_E_Press" parent="Entityes" unique_id=294277559 instance=ExtResource("Valve_test")]
 editor_description = "Immediate E action. No prolonged progress/reset policy. Signal: activated(bool) -> child IndicatorLamp.set_active()."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 0.36, 7.75)
-mode = 0
 
-[node name="Valve_F_Decay" parent="Entityes" instance=ExtResource("Valve_test")]
+[node name="Valve_F_Decay" parent="Entityes" unique_id=1149222845 instance=ExtResource("Valve_test")]
 editor_description = "Hold F. Interrupted progress decays gradually according to decay_per_second."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.95, 0.36, 7.75)
 mode = 1
 
-[node name="Valve_F_Instant" parent="Entityes" instance=ExtResource("Valve_test")]
+[node name="Valve_F_Instant" parent="Entityes" unique_id=1286648369 instance=ExtResource("Valve_test")]
 editor_description = "Hold F. Interrupted progress resets immediately to zero."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.15, 0.36, 7.75)
 mode = 2
 
-[node name="Valve_F_OnComplete" parent="Entityes" instance=ExtResource("Valve_test")]
+[node name="Valve_F_OnComplete" parent="Entityes" unique_id=1314564000 instance=ExtResource("Valve_test")]
 editor_description = "Hold F. Partial progress is retained; successful completion resets progress for another use."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.35, 0.36, 7.75)
 mode = 3
 
-[node name="Valve_F_Never" parent="Entityes" instance=ExtResource("Valve_test")]
+[node name="Valve_F_Never" parent="Entityes" unique_id=933290534 instance=ExtResource("Valve_test")]
 editor_description = "Hold F. Successful completion is permanent/one-shot; action becomes unavailable."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.55, 0.36, 7.75)
 mode = 4
 
 [node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6876402, 0, 3.4474401)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -18.18865, 0.51578665, -6.508998)
 package_parent = NodePath("..")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_v2668")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_vmj2w")])
 
-[node name="PackageReturnPoint" parent="Entityes" instance=ExtResource("Package_return_point")]
-position = Vector3(16.5, 0.4, 0.5)
+[node name="PackageReturnPoint" parent="Entityes" unique_id=622721691 instance=ExtResource("Package_return_point")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.839949, 0.4, -7.3298917)
 
-[node name="OrderReceiving" parent="Entityes" instance=ExtResource("Order_receiving_scene")]
-position = Vector3(11, 0.22, 0.5)
+[node name="OrderReceiving" parent="Entityes" unique_id=1034245790 instance=ExtResource("Order_receiving_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.22, 0.5)
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state")])
 
 [node name="ShiftConsole" parent="Entityes" unique_id=1907900219 instance=ExtResource("Day_station")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.5317445, 0, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.175833, 0, -0.95899534)
 
 [node name="SleepPoint" parent="Entityes" unique_id=1969214162 instance=ExtResource("Day_station")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.53099465, 2.3841858e-07, -2.2939274)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.510403, 2.3841858e-07, -0.6614268)
 sleep_station = true
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Sleep_interactable"), SubResource("Sleep_station_actions")])
 
 [node name="Bucket" parent="Entityes" unique_id=263915687 instance=ExtResource("45_8uaqh")]
-transform = Transform3D(1, 0, 0, 0, 0.65209705, -0.7581355, 0, 0.7581355, 0.65209705, 15.433494, 1.8730338, 2.313034)
+transform = Transform3D(1, 0, 0, 0, 0.65209705, -0.7581355, 0, 0.7581355, 0.65209705, 15.433494, 1.8730338, 8.573659)
 
-[node name="DoorTemplate" parent="Entityes" unique_id=964464054 instance=ExtResource("63_uqafv")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2480266, 0.09600389, -8.165544)
+[node name="Drawer" parent="Entityes" unique_id=1881781064 instance=ExtResource("Drawer_scene")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 11.044259, 0.775, -3.3000002)
 
-[node name="Window" parent="Entityes" instance=ExtResource("Window_scene")]
-position = Vector3(1.05, 1.05, 0.55)
+[node name="LightSwitch" parent="Entityes" unique_id=610409684 instance=ExtResource("Light_switch_scene")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.9202886, 1.5, -7.70335)
 
-[node name="Drawer" parent="Entityes" instance=ExtResource("Drawer_scene")]
-position = Vector3(1.5, 0.775, -3.3)
+[node name="FoodPickup" parent="Entityes" unique_id=249401670 instance=ExtResource("Food_pickup")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 2.5887012, 1.22, -1.3590674)
 
-[node name="LightSwitch" parent="Entityes" instance=ExtResource("Light_switch_scene")]
-position = Vector3(0.55, 1.5, -6)
-rotation = Vector3(0, 1.5707964, 0)
+[node name="MedPickup" parent="Entityes" unique_id=1873845329 instance=ExtResource("Med_pickup")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.193355, 1.23, -1.357756)
 
-[node name="FoodPickup" parent="Entityes" instance=ExtResource("Food_pickup")]
-position = Vector3(2.35, 1.22, -1.8)
+[node name="WrapPickup" parent="Entityes" unique_id=1375654069 instance=ExtResource("Wrap_pickup")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.25, 1.22, -1.2911086)
 
-[node name="MedPickup" parent="Entityes" instance=ExtResource("Med_pickup")]
-position = Vector3(2.8, 1.23, -1.8)
+[node name="Trader" parent="Entityes" unique_id=50836948 instance=ExtResource("Trader_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.031166, 0.30710316, -0.9131813)
+idle_animation = &"Idle"
+walk_animation = &"Walk"
 
-[node name="WrapPickup" parent="Entityes" instance=ExtResource("Wrap_pickup")]
-position = Vector3(3.25, 1.22, -1.8)
-
-[node name="Trader" parent="Entityes" instance=ExtResource("Trader_scene")]
-position = Vector3(14, 0, 1.5)
-
-[node name="UtilityBlade" parent="Entityes" instance=ExtResource("Utility_blade")]
-position = Vector3(0.8, 1.1, -0.8)
-
-[node name="FloorSafeBox1" parent="Entityes" instance=ExtResource("Safe_box")]
-position = Vector3(1.5, 0.0, -2.0)
-
-[node name="FloorSafeBox2" parent="Entityes" instance=ExtResource("Safe_box")]
-position = Vector3(3.0, 0.0, -2.8)
-
-[node name="FloorSafeBox3" parent="Entityes" instance=ExtResource("Safe_box")]
-position = Vector3(4.4, 0.0, -3.6)
+[node name="UtilityBlade" parent="Entityes" unique_id=1068136048 instance=ExtResource("Utility_blade")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 1.328057, -0.8)
 
 [node name="PushCart" parent="Entityes" unique_id=1664321513 instance=ExtResource("Push_cart")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6.714551, 0.8329964, 2.8046627)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_8wt2x"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -13.95594, 0.8329964, 2.4201646)
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_w4uhm"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
+
+[node name="Props" type="Node3D" parent="Entityes" unique_id=1751720738]
+
+[node name="PhysicalSlot" parent="Entityes/Props" unique_id=1249143366 instance=ExtResource("155_5h1gn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1632135, 1.602072, -0.58928645)
+
+[node name="PhysicalSlot2" parent="Entityes/Props" unique_id=786696989 instance=ExtResource("155_5h1gn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7266517, 1.602072, -0.58928645)
+
+[node name="PhysicalSlot3" parent="Entityes/Props" unique_id=174843533 instance=ExtResource("155_5h1gn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.345997, 1.602072, -0.58928645)
+
+[node name="PhysicalSlot4" parent="Entityes/Props" unique_id=1008855800 instance=ExtResource("155_5h1gn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.345997, 0.90635705, -0.58928645)
+
+[node name="PhysicalSlot5" parent="Entityes/Props" unique_id=354012702 instance=ExtResource("155_5h1gn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6207736, 0.90635705, -0.58928645)
+
+[node name="PhysicalSlot6" parent="Entityes/Props" unique_id=614431075 instance=ExtResource("155_5h1gn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.070337, 0.90635705, -0.58928645)
+
+[node name="FloorSafeBox1" parent="Entityes/Props" unique_id=2047682183 instance=ExtResource("Safe_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.251211, 0.25295496, -6.9118934)
+
+[node name="FloorSafeBox2" parent="Entityes/Props" unique_id=1620710891 instance=ExtResource("Safe_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4508557, 0.23964107, -7.071574)
+
+[node name="FloorSafeBox3" parent="Entityes/Props" unique_id=1503957729 instance=ExtResource("Safe_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.699815, 0.24764371, -7.077774)
+
+[node name="Barrel_C_rigid" parent="Entityes/Props" unique_id=1866096492 instance=ExtResource("79_ypydk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.046048, 0.50476074, 9.94565)
+mass = 60.0
+
+[node name="Barrel_B_rigid" parent="Entityes/Props" unique_id=1117412504 instance=ExtResource("78_at2gx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.036787, 0.50476074, 10.108931)
+mass = 118.0
+
+[node name="Barrel_A_rigid" parent="Entityes/Props" unique_id=821314681 instance=ExtResource("77_iit40")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.9766665, 0.5047612, 10.233412)
+mass = 130.0
+
+[node name="NumberedShelves" parent="Entityes/Props" unique_id=1232558496 instance=ExtResource("Shelves_scene")]
+transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, -1.5516043, 0, -14.929561)
+
+[node name="NumberedShelves2" parent="Entityes/Props" unique_id=1317581930 instance=ExtResource("Shelves_scene")]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 3.0266194, 0, -13.643952)
+
+[node name="ShelvesSimple" type="MeshInstance3D" parent="Entityes/Props" unique_id=1135745548]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.908317, 1.2033167, -3.2701101)
+mesh = SubResource("BoxMesh_lqn1g")
+surface_material_override/0 = SubResource("StandardMaterial3D_mn5t4")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Entityes/Props/ShelvesSimple" unique_id=595568820]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Entityes/Props/ShelvesSimple/StaticBody3D" unique_id=492392531]
+shape = SubResource("BoxShape3D_patme")
+
+[node name="ShelvesSimple2" type="MeshInstance3D" parent="Entityes/Props" unique_id=673702394]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.908317, 2.8681524, -3.2701101)
+mesh = SubResource("BoxMesh_lqn1g")
+surface_material_override/0 = SubResource("StandardMaterial3D_mn5t4")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Entityes/Props/ShelvesSimple2" unique_id=1822242806]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Entityes/Props/ShelvesSimple2/StaticBody3D" unique_id=314542352]
+shape = SubResource("BoxShape3D_patme")
+
+[node name="Doors" type="Node3D" parent="Entityes" unique_id=1409983500]
+
+[node name="DoorTemplate" parent="Entityes/Doors" unique_id=964464054 instance=ExtResource("63_uqafv")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.583366, 0.09600389, -9.215219)
+
+[node name="DoorTemplate2" parent="Entityes/Doors" unique_id=18274721 instance=ExtResource("63_uqafv")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 34.839096, 0.030319393, -12.266246)
+
+[node name="Windows" type="Node3D" parent="Entityes" unique_id=1063944992]
+
+[node name="Window" parent="Entityes/Windows" unique_id=1384280089 instance=ExtResource("Window_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.05, 1.05, 0.55)
+
+[node name="Window2" parent="Entityes/Windows" unique_id=506919701 instance=ExtResource("Window_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.95, 1.05, 0.55)
+
+[node name="Window3" parent="Entityes/Windows" unique_id=406812796 instance=ExtResource("Window_scene")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -12.588538, 1.05, -14.9925995)
+
+[node name="Window4" parent="Entityes/Windows" unique_id=1546946061 instance=ExtResource("Window_scene")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12.608209, 1.05, -4.9855013)
+
+[node name="Window5" parent="Entityes/Windows" unique_id=84975236 instance=ExtResource("Window_scene")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12.608209, 1.05, -8.969203)
 
 [node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player", "damage_feedback") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")
 damage_feedback = NodePath("../World/Systems/GamePlay/O_DamageFeedback")
 
-[node name="InventoryPanel" parent="." node_paths=PackedStringArray("player") instance=ExtResource("Inventory_panel")]
+[node name="InventoryPanel" parent="." unique_id=654166897 node_paths=PackedStringArray("player") instance=ExtResource("Inventory_panel")]
 player = NodePath("../Entityes/Player")
 
-[node name="ExteriorYard" parent="." instance=ExtResource("Exterior_yard")]
-position = Vector3(14, 0, 1.5)
+[node name="DebugMarkers" type="Node3D" parent="." unique_id=313082165]
+visible = false
 
-[node name="MarkerNPCSpawnPoint" type="Marker3D" parent="." unique_id=345863772]
+[node name="ReceivingZone" type="MeshInstance3D" parent="DebugMarkers" unique_id=185141184]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.16763, 2.1978455, -6.673581)
+mesh = SubResource("BoxMesh_bghjr")
+surface_material_override/0 = SubResource("StandardMaterial3D_patme")
+
+[node name="MainDoor" type="MeshInstance3D" parent="DebugMarkers" unique_id=570226506]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.000706, 2.1978455, 0.4341169)
+mesh = SubResource("BoxMesh_patme")
+surface_material_override/0 = SubResource("StandardMaterial3D_5h1gn")
+
+[node name="BackDoor" type="MeshInstance3D" parent="DebugMarkers" unique_id=1710591621]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.545395, 2.1978455, -9.766479)
+mesh = SubResource("BoxMesh_3xfrw")
+surface_material_override/0 = SubResource("StandardMaterial3D_jjqtf")
+
+[node name="RoomClient" type="MeshInstance3D" parent="DebugMarkers" unique_id=520045165]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.485403, 1.8705113, -4.2108765)
+mesh = SubResource("BoxMesh_2peb6")
+surface_material_override/0 = SubResource("StandardMaterial3D_5und5")
+
+[node name="RoomClientBathroom" type="MeshInstance3D" parent="DebugMarkers" unique_id=1644181131]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.064505, 1.8705113, -10.139877)
+mesh = SubResource("BoxMesh_jjqtf")
+surface_material_override/0 = SubResource("StandardMaterial3D_vmj2w")
+
+[node name="RoomPrivate" type="MeshInstance3D" parent="DebugMarkers" unique_id=1333363]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.110375, 1.6805131, -7.9696674)
+mesh = SubResource("BoxMesh_jpldi")
+surface_material_override/0 = SubResource("StandardMaterial3D_3xfrw")
+
+[node name="RoomTraderPrivate" type="MeshInstance3D" parent="DebugMarkers" unique_id=1383429815]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.086002, 2.1978455, -6.1258674)
+mesh = SubResource("BoxMesh_5h1gn")
+surface_material_override/0 = SubResource("StandardMaterial3D_2peb6")
+
+[node name="TraderClientZone" type="MeshInstance3D" parent="DebugMarkers" unique_id=1724719815]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29.747765, 1.6612353, 1.6596766)
+mesh = SubResource("BoxMesh_5und5")
+surface_material_override/0 = SubResource("StandardMaterial3D_jpldi")
+
+[node name="MarkerNPCSpawnPoint" type="Marker3D" parent="DebugMarkers" unique_id=345863772]
 editor_description = "Маркер где примерно появляются новые клиенты"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.530093, 0, 3.423316)
 
-[node name="MarkerEmplaceMail" type="Marker3D" parent="." unique_id=80436796]
-editor_description = "Маркер куда примерно игрок должен класть посылки, которые ищет клиент."
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0375915, 1.0400136, -4.9966)
-
-[node name="Barrel_C_rigid" parent="." unique_id=1866096492 instance=ExtResource("79_ypydk")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.046048, 0.50476074, 9.94565)
-mass = 60.0
-
-[node name="Barrel_B_rigid" parent="." unique_id=1117412504 instance=ExtResource("78_at2gx")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.036787, 0.50476074, 10.108931)
-mass = 118.0
-
-[node name="Barrel_A_rigid" parent="." unique_id=821314681 instance=ExtResource("77_iit40")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.9766665, 0.5047612, 10.233412)
-mass = 130.0
-
 [editable path="Entityes/Player"]
 [editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]
+[editable path="Entityes/DeliveryCounter"]
