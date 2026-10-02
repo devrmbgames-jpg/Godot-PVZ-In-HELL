@@ -447,12 +447,15 @@ static func _resolve_delivery(
 		held,
 		allow_held,
 	)
+	if check_result.result != PackageDeliveryCheck.Result.READY:
+		return check_result.result
+	# Valid handoff releases the player's grip before the customer accepts or refuses.
+	if allow_held:
+		GrabService.release(direct_holder, parcel)
 	if not CustomerOutcomeService.receive(visit, check_result):
 		return check_result.result
 
 	if visit.actual == CustomerVisit.Actual.DELIVERED:
-		if allow_held:
-			GrabService.release(direct_holder, parcel)
 		_depart_parcel(parcel)
 		ECS.world.remove_entity(parcel)
 		customer.show_message(
@@ -461,14 +464,28 @@ static func _resolve_delivery(
 			else "Заказ принят, но его состояние меня не устраивает."
 		)
 	else:
-		# Direct refusal keeps the physical Package in the Player's grip; counter
-		# refusal leaves the already released Package on the counter.
+		if allow_held:
+			_place_refused_parcel(customer, visit, parcel)
+		# Counter handoff already leaves the released parcel on the counter.
 		customer.show_message("Я отказываюсь от заказа. Коробка остаётся у вас.")
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent != null:
 		_transition(agent, C_CustomerAgent.Phase.RECEIVING)
 	return check_result.result
+
+
+## One-time physical synchronization at handoff, like slot attach/save restoration.
+## The native rigid body resumes authority immediately after this transfer boundary.
+static func _place_refused_parcel(customer: E_Customer, visit: CustomerVisit, parcel: Entity) -> void:
+	var body: RigidBody3D = parcel as Node as RigidBody3D
+	if body == null or visit.definition == null:
+		return
+	var npc: Node3D = customer as Node as Node3D
+	body.global_position = npc.global_transform * visit.definition.refused_parcel_offset
+	body.linear_velocity = Vector3.ZERO
+	body.angular_velocity = Vector3.ZERO
+	body.sleeping = false
 
 
 static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration) -> bool:
@@ -535,7 +552,7 @@ static func deny(visit_id: StringName) -> bool:
 	return true
 
 
-## Dialogue-owned choice only requests the domain transition; CustomerVisit remains authority.
+## Legacy dialogue acknowledgement can finish a refusal only after an actual handoff.
 static func voluntary_refuse(customer: E_Customer) -> bool:
 	if not is_instance_valid(customer):
 		return false
@@ -547,14 +564,12 @@ static func voluntary_refuse(customer: E_Customer) -> bool:
 		visit == null
 		or visit.definition == null
 		or not visit.definition.voluntary_refusal
-		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+		or visit.actual != CustomerVisit.Actual.CUSTOMER_REFUSED
 		or visit.finished
 	):
 		return false
-	if agent.phase != C_CustomerAgent.Phase.DIALOGUE and agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
+	if agent.phase != C_CustomerAgent.Phase.DIALOGUE and agent.phase != C_CustomerAgent.Phase.RECEIVING:
 		return false
-	visit.actual = CustomerVisit.Actual.CUSTOMER_REFUSED
-	visit.satisfaction = 0
 	_leave(customer, visit)
 	return true
 

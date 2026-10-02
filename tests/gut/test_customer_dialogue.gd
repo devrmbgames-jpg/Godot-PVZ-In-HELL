@@ -195,13 +195,18 @@ func test_false_taken_detection_routes_to_existing_aggressive_receiver() -> void
 	assert_true((_customer.get_component(C_NpcIntent) as C_NpcIntent).movement_active, "A subsequent hit must not stop pursuit")
 
 
-func test_voluntary_refusal_uses_customer_flow_transition() -> void:
+func test_voluntary_refusal_waits_for_handoff_then_dialogue_can_acknowledge() -> void:
 	_visit.definition.voluntary_refusal = true
-	assert_eq(_context.dialogue_cue(), "voluntary_refusal")
+	assert_eq(_context.dialogue_cue(), "direct")
 	assert_true(_context.begin())
-	assert_true(_context.voluntary_refuse())
+	assert_false(_context.voluntary_refuse())
+	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_true(CustomerOutcomeService.receive(_visit, _ready_check()))
+	assert_eq(_context.dialogue_cue(), "voluntary_refusal")
 	assert_eq(_visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.phase = C_CustomerAgent.Phase.RECEIVING
+	assert_true(_context.voluntary_refuse())
 	assert_eq(agent.phase, C_CustomerAgent.Phase.LEAVING)
 	assert_false(_context.voluntary_refuse())
 

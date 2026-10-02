@@ -43,11 +43,12 @@ func present(
 	visit: CustomerVisit,
 	selected: bool,
 	actions_enabled: bool = true,
+	debug_status: bool = false,
 ) -> void:
 	_package_id = record.package_id
 	_button_body.set_pressed_no_signal(selected)
 	_label_number_info.text = "№%03d" % record.number
-	_label_status_info.text = status_text(record, state, visit)
+	_label_status_info.text = status_text(record, state, visit, debug_status)
 
 	var definition: DEF_Package = record.definition
 	if definition == null:
@@ -82,6 +83,7 @@ static func status_text(
 	record: PackageRegistrationRecord,
 	state: C_PackageState,
 	visit: CustomerVisit,
+	debug_status: bool = false,
 ) -> String:
 	if visit != null:
 		match visit.declaration:
@@ -91,6 +93,9 @@ static func status_text(
 				return "ОТКАЗАЛИСЬ"
 			CustomerVisit.Declaration.LOST:
 				return "ПОТЕРЯНА"
+	if not debug_status:
+		return "БЕЗ ОТМЕТКИ"
+	if visit != null:
 		if visit.actual == CustomerVisit.Actual.DELIVERED:
 			return "ВЫДАНА · НЕ ОТМЕЧЕНА"
 		if visit.actual == CustomerVisit.Actual.CUSTOMER_REFUSED:

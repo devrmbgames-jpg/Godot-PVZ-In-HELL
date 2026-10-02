@@ -2,6 +2,9 @@ extends CanvasLayer
 ## Package-centric warehouse terminal. Gameplay authority remains in package/customer/economy services.
 class_name TerminalPanel
 
+## Explicit author/debug opt-in; a debug executable alone does not reveal parcel truth.
+@export var debug_package_status_enabled: bool = false
+
 enum SortMode {
 	WEIGHT,
 	NUMBER,
@@ -173,6 +176,7 @@ func _rebuild_package_rows(
 			visits.get(record.package_id) as CustomerVisit,
 			record.package_id == _selected_package_id,
 			actions_enabled,
+			debug_package_status_enabled,
 		)
 
 
@@ -185,7 +189,7 @@ func _visible_records(
 	var needle: String = _package_find.text.strip_edges().to_lower()
 	for record: PackageRegistrationRecord in ledger.records:
 		var visit: CustomerVisit = visits.get(record.package_id) as CustomerVisit
-		if not _show_archive and _is_archived(record, visit):
+		if not _show_archive and _is_archived(record, visit, debug_package_status_enabled):
 			continue
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
 		if not needle.is_empty() and not _matches_search(record, state, visit, needle):
@@ -208,7 +212,7 @@ func _matches_search(
 		record.history_id,
 		definition.description if definition != null else "",
 		definition.comment if definition != null else "",
-		UI_TerminalButtonPackage.status_text(record, state, visit),
+		UI_TerminalButtonPackage.status_text(record, state, visit, debug_package_status_enabled),
 	]
 	return needle in haystack.to_lower()
 
@@ -264,10 +268,11 @@ static func _compare_float(first: float, second: float) -> int:
 static func _is_archived(
 	record: PackageRegistrationRecord,
 	visit: CustomerVisit,
+	debug_status: bool = false,
 ) -> bool:
 	if visit != null:
 		return visit.declaration != CustomerVisit.Declaration.NONE
-	return not record.active
+	return debug_status and not record.active
 
 
 func _refresh_info(
@@ -285,6 +290,7 @@ func _refresh_info(
 					record,
 					states.get(record.package_id) as C_PackageState,
 					visits.get(record.package_id) as CustomerVisit,
+					debug_package_status_enabled,
 				)
 		InfoMode.PACKAGE_HISTORY:
 			_package_history.present(
@@ -324,7 +330,7 @@ func _package_history_entries(
 				uid,
 				record.number,
 				title,
-				UI_TerminalButtonPackage.status_text(record, state, visit),
+				UI_TerminalButtonPackage.status_text(record, state, visit, debug_package_status_enabled),
 			]
 		)
 	return entries
@@ -432,7 +438,7 @@ func _data_signature(
 	states: Dictionary[String, C_PackageState],
 	visits: Dictionary[String, CustomerVisit],
 ) -> String:
-	var parts: PackedStringArray = []
+	var parts: PackedStringArray = ["debug:%s" % debug_package_status_enabled]
 	for record: PackageRegistrationRecord in ledger.records:
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
 		var visit: CustomerVisit = visits.get(record.package_id) as CustomerVisit

@@ -104,7 +104,7 @@ func dialogue_cue() -> String:
 		visit != null
 		and visit.definition != null
 		and visit.definition.voluntary_refusal
-		and visit.actual == CustomerVisit.Actual.NOT_RESOLVED
+		and visit.actual == CustomerVisit.Actual.CUSTOMER_REFUSED
 	):
 		return "voluntary_refusal"
 	if (

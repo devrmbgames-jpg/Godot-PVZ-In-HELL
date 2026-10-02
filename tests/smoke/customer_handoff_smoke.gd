@@ -16,10 +16,11 @@ func _ready() -> void:
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	_level = scene.instantiate()
+	_level.set("autosave_path", "")
 	add_child(_level)
 	_level.set_physics_process(false)
 	_actor = _level.get_node("Entityes/Player") as Entity
-	(_actor as Node as RigidBody3D).freeze = true
+	(_actor as Node).set_physics_process(false)
 	for frame: int in WAIT_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
 		await get_tree().physics_frame
@@ -59,12 +60,19 @@ func _run() -> void:
 	customer = await _waiting_customer()
 	var second: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	assert(second.package_id == "base_supply:1:glass")
+	second.definition.voluntary_refusal = true
+	assert(not CustomerFlowService.voluntary_refuse(customer), "Customer cannot refuse before physical handoff")
+	assert(second.actual == CustomerVisit.Actual.NOT_RESOLVED)
 	(glass.get_component(C_PackageState) as C_PackageState).damage = C_PackageState.Damage.DAMAGED
 	await _pickup(glass)
 	assert(CustomerFlowService.confirm_direct_delivery(_actor, customer) == PackageDeliveryCheck.Result.READY)
 	assert(second.actual == CustomerVisit.Actual.CUSTOMER_REFUSED)
-	assert(GrabService.held_object(_actor) == glass, "Refused package must stay held")
-	GrabService.release(_actor, glass)
+	assert(GrabService.held_object(_actor) == null, "Refused parcel has actually left the player's hands")
+	assert(GrabService.held_relationship(glass) == null)
+	assert(ECS.world.entities.has(glass), "Refused parcel remains physical in the warehouse")
+	var drop: Vector3 = (customer as Node as Node3D).global_transform * second.definition.refused_parcel_offset
+	assert((glass as Node as Node3D).global_position.is_equal_approx(drop), "Customer leaves it next to self")
+	assert(CustomerFlowService.confirm_direct_delivery(_actor, customer) == PackageDeliveryCheck.Result.MISSING)
 	_level.free()
 	ECS.world = null
 	print("Customer direct handoff wrong/delivered/refused grip smoke PASS")
@@ -83,7 +91,7 @@ func _waiting_customer() -> E_Customer:
 
 
 func _pickup(parcel: Entity) -> void:
-	# Fixture placement only; gameplay handoff never teleports a package.
+	# Fixture placement before pickup; direct refusal has its explicit transfer boundary.
 	var actor_body: Node3D = _actor as Node as Node3D
 	var parcel_body: RigidBody3D = parcel as Node as RigidBody3D
 	parcel_body.global_position = actor_body.global_position + PICKUP_OFFSET

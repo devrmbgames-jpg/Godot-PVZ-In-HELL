@@ -7,6 +7,8 @@ enum DialogueMode { DIRECT, RIDDLE }
 @export var accepts_damaged: bool = true
 @export var accepts_opened: bool = true
 @export var voluntary_refusal: bool = false
+## Local drop position for a refused parcel received directly from the player's hands.
+@export var refused_parcel_offset: Vector3 = Vector3(0.75, 0.75, 0.0)
 @export var dialogue_mode: DialogueMode = DialogueMode.DIRECT
 @export var dialogue_reactions: Array[DEF_CustomerDialogueReaction] = []
 @export var challenge: DEF_Challenge = null
