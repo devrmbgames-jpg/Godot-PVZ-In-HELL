@@ -1,0 +1,88 @@
+~ challenge
+Клиент: {{ctx.challenge_rule()}}
+do ctx.arm_challenge()
+=> END
+
+~ direct
+Клиент: Здравствуйте. Мои интересы: {{ctx.interests_text()}}.
+if ctx.has_registered_number()
+	Клиент: Мой заказ №{{ctx.package_number_text()}}. Найдите коробку и передайте её мне или положите на стойку выдачи.
+	- Хорошо. => END
+	- Я не могу выдать вам посылку. => deny_start
+else
+	Клиент: Мой заказ ещё не зарегистрирован. Сначала просканируйте поступившие коробки.
+=> END
+
+~ followup
+Клиент: Я снова по поводу заказа №{{ctx.package_number_text()}}. Сегодня получится его забрать?
+- Да, сейчас посмотрю. => END
+- Я всё ещё не могу выдать вам посылку. => deny_start
+
+~ deny_start
+Клиент: Почему?
+- Мы не можем найти вашу посылку. [#hon] => deny_honest
+- Похоже, её ещё не привезли. [#lie] => deny_lie
+- Приходите завтра, я постараюсь решить вопрос. [#prs] => deny_persuade
+- Может, договоримся и забудем про эту коробку? [#flr] => deny_flirt
+- Лучше просто уходите, пока всё спокойно. [#thr] => deny_threat
+- Да ладно, это была шутка. [#jok] => deny_joke
+
+~ deny_honest
+Клиент: Плохо. Но хотя бы сказали прямо.
+do ctx.commit_denial()
+=> END
+
+~ deny_lie
+Клиент: Странно. Мне сообщили, что заказ уже здесь.
+do ctx.commit_denial()
+=> END
+
+~ deny_persuade
+Клиент: Хорошо. Я зайду завтра.
+do ctx.defer_until_tomorrow()
+=> END
+
+~ deny_flirt
+Клиент: Это не очень похоже на решение моей проблемы.
+do ctx.commit_denial()
+=> END
+
+~ deny_threat
+Клиент: Вы мне угрожаете?
+do ctx.commit_denial()
+=> END
+
+~ deny_joke
+Клиент: Очень смешно.
+- Ладно, сейчас поищу заказ. => END
+- Нет, всё-таки выдать его не получится. => deny_start
+
+~ riddle
+Клиент: Сначала загадка. Что становится мокрее, пока сушит?
+- Полотенце => riddle_correct
+- Зонт => riddle_wrong
+- Коробка => riddle_wrong
+
+~ riddle_correct
+do ctx.answer_riddle_correct()
+Клиент: Верно. Мой заказ №{{ctx.package_number_text()}}.
+- Хорошо, сейчас принесу. => END
+- Я не могу выдать вам посылку. => deny_start
+
+~ riddle_wrong
+do ctx.answer_riddle_wrong()
+Клиент: Нет. Подумайте ещё — за неправильный ответ я уже немного недоволен.
+- Попробовать ещё раз => riddle
+- Закончить разговор => END
+
+~ voluntary_refusal
+Клиент: Я посмотрел заказ и передумал его забирать. Коробка остаётся у вас.
+do ctx.voluntary_refuse()
+=> END
+
+~ false_taken
+Клиент: В терминале стоит «Забрал», но вы ничего мне не выдали.
+do ctx.schedule_non_delivery_complaint()
+Клиент: Я это так не оставлю!
+do ctx.enter_aggressive()
+=> END

@@ -228,12 +228,17 @@ static func spawn_next_due(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 
 static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void:
 	var station: E_DeliveryCounter = counter()
-	if station == null or flow.schedule.customer_scene == null:
+	var scene: PackedScene = flow.schedule.customer_scene
+	if not visit.definition.customer_scene_path.is_empty():
+		scene = load(visit.definition.customer_scene_path) as PackedScene if ResourceLoader.exists(visit.definition.customer_scene_path) else null
+	if station == null or scene == null:
 		visit.started = true
 		finish(visit, day)
 		return
-	var customer: E_Customer = flow.schedule.customer_scene.instantiate() as E_Customer
+	var node: Node = scene.instantiate()
+	var customer: E_Customer = node as E_Customer
 	if customer == null:
+		node.free()
 		visit.started = true
 		finish(visit, day)
 		return

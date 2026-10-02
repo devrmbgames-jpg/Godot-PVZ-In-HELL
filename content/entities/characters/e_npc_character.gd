@@ -67,9 +67,14 @@ func _process(_delta: float) -> void:
 	var body: RigidBody3D = self as Node as RigidBody3D
 	var speed: float = Vector2(body.linear_velocity.x, body.linear_velocity.z).length()
 	_walking = speed > WALK_STOP_SPEED if _walking else speed >= WALK_START_SPEED
-	var animation: StringName = walk_animation if _walking else idle_animation
+	var animation: StringName = walk_animation if _walking else _stationary_animation()
 	if animation_player.has_animation(animation) and animation_player.current_animation != animation:
 		animation_player.play(animation, ANIMATION_BLEND_SECONDS)
+
+
+## Scene-authored service poses may replace stationary Idle; native motion still chooses Walk.
+func _stationary_animation() -> StringName:
+	return idle_animation
 
 
 ## Saved NPCs retain a tombstone Entity. Native body participation follows terminal state.

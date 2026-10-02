@@ -71,6 +71,11 @@ func day_phase() -> int:
 	return cycle.phase if cycle != null else C_DayCycle.Phase.NIGHT
 
 
+func interests_text() -> String:
+	var visit: CustomerVisit = _visit()
+	return ", ".join(visit.definition.interests) if visit != null and visit.definition != null else ""
+
+
 func customer_phase() -> int:
 	var agent: C_CustomerAgent = _agent()
 	return agent.phase if agent != null else C_CustomerAgent.Phase.FINISHED

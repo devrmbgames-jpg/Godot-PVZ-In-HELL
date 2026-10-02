@@ -21,7 +21,7 @@ Status: **IN_PROGRESS**
 - [x] M1: разрушимые двери и тестовые наполненные посылки.
 - [x] M2: мебель, зона выдачи, доставка и настраиваемый каталог торговца.
 - [x] M3: интервалы/уход клиентов, ограничения завершения смены, кабинки и осмотр посылок.
-- [ ] M4: шаблон клиента, съедобные останки и вероятностный ценный дроп.
+- [x] M4: шаблон клиента, съедобные останки и вероятностный ценный дроп.
 - [x] M5: виньетки, шаги, покачивание камеры, переключение debug HUD.
 - [x] M6: типизированные события терминала, посылок и дверей.
 - [ ] Узкие проверки изменённых контрактов, независимая проверка существенного результата, экспорт между крупными этапами; ручной QA передать игроку.
@@ -32,7 +32,7 @@ R23 продолжает текущую реализацию замечаний.
 
 ### Current
 
-M0 и M1 завершены. M3 интервалы/уход и M4 съедобные останки реализованы; кабинка/ограничения смены/шаблон клиента остаются в очереди. R23 QA03/04/05/06/09/10/13/14/15/17/18/19 реализованы. M5 завершён: Footstepper игрока/NPC, камера с малым покачиванием, совместимые виньетки ранения/голода/взгляда, debug_hud. M5 Windows main/test startup PASS; M6 события реальных действий игрока реализованы. Следующий шаг: R23 QA07/08 варианты общения клиентов. Каталог/доставка M2 и остальные прежние требования сохранены.
+M0–M6 реализованы, включая мебель/каталоги/курьера, условия смены, приватный осмотр и копируемый шаблон клиента. R23 QA03/04/05/06/07/08/09/10/12/13/14/15/17/18/19 реализованы. Следующий шаг: LOW console extension/help/scroll; ручная приёмка полного среза, управления, интерфейсов, звука и визуального представления ожидает игрока. Прежние требования не отменены.
 
 ### Validation
 
@@ -70,7 +70,7 @@ M5: focused GUT3/3,23 assertions; один полный прогон на кру
 - [x] Настраиваемые ограничения окончания смены: пока в здании посетитель / пока не прошло заданное время / пока не пришли все запланированные посетители. Предусмотреть выбор/сочетание условий без отдельной сложной системы.
 - [x] После получения посылки клиент может пойти в одну из специальных зон — приватных кабинок, затем вернуться и решить, забирает её или отказывается.
 - [x] Некоторые клиенты с authored вероятностью распаковывают посылку при осмотре и забирают или отказываются от полученного предмета. Сохранять явную Relationship для владения посылкой/результатом; существующие опасные эффекты распаковки должны реально срабатывать.
-- [ ] Подготовить копируемую сцену-прототип клиента с поведением и анимациями, настраиваемыми диалогами, интересами, параметрами и челленджами.
+- [x] Подготовить копируемую сцену-прототип клиента с поведением и анимациями, настраиваемыми диалогами, интересами, параметрами и челленджами.
 
 ### Смерть и обратная связь
 
@@ -165,3 +165,15 @@ At handoff validate first, then borrow parcel without declaring final delivered/
 Private-inspection optional phases/booth/cargo reservations implemented; existing physical slot carries real parcel and native NavigationAgent walks to reserved zone/returns. Final delivered/refused state is committed once at return, with current damage/opening policy and authored keep roll. Normal opening emits existing contents/hazards, NPC attribution preserved; reservation blocks player pickup/open/inventory, rejection leaves usable items. Death/external removal/Night/invalid parcel release mounts/cargo/booth. Default books: inspect/75% keep. Clothes: inspect/50% unpack physical clothing stub/previous voluntary refusal. No missing-content fallback invented. Config: content/entities/customers/README.md.
 
 Affected GUT initial37 ran:32 existing customer_flow/package_contents +4 new inspection PASS; one Night fixture held mutable query result across cleanup and errored. Fixture changed to snapshot duplicate, corrected/added cleanup3/3,43 assertions PASS; closed-visit begin guard changed and that test alone1/1,15 PASS. All7 new inspection scenarios covered; no broad rerun. Independent read-only lifecycle/ownership/physics/accounting review clean. Actual-main native walk/carry/return/refusal smoke PASS customer_inspection-20261003-084936425.log. Initial bathroom zones unreachable, moved to accessible client room; strict smoke then found headless fixed-fps active footstep Ogg mixer shutdown reference, verbose isolated to audio. Navigation fixture disables NPC footsteps (audio remains owner QA), successful strict run has no shutdown leak. Structure/diff PASS after EOF cleanup. Defensive cargo query snapshot reran only unpack/cleanup3/3,47 PASS (.export/customer-inspection-snapshot-gut.log). No full-slice/rendered acceptance.
+
+### Active M4 prototype contract (recorded before implementation)
+
+Copyable inherited CustomerPrototype scene preserves native body/NavAgent/slots/feedback/remains/combat callbacks. Separate external DEF_Customer profile and DEF_CustomerEvent example choose optional scene path and dialogue path (empty preserves schedule/default dialogue), interests are authored descriptive context, not invented tactical scoring. Profile is authoritative on persistent CustomerVisit; scene config controls visuals/animation names. Add stationary inspection/receiving/dialogue animation hooks in thin Entity presentation, preserving real velocity Walk, combat animation priority, death and no root motion. Copyable custom dialogue retains existing ctx/intent/phase APIs/cues. No second behavior graph or Limbo dependency. Bounded prototype spawn/animation/custom-dialogue checks only; no full suite.
+
+Windows877e26b1 inspection main/test both actual-scene/120-frame startup PASS, launchers published.
+
+### M4 prototype implementation / validation
+
+Inherited CustomerPrototype + external DEF_Customer / DEF_CustomerEvent / custom dialogue examples. Optional profile scene/dialogue paths preserve legacy defaults, interests exposed read-only to dialogue; profile remains visit authority. Stationary inspection/receiving/dialogue animation names preserve real-speed Walk and active combat. Invalid scene root freed; missing dialogue/cue cannot enter modal dialogue. Existing NavAgent, physical slot, damage/remains, challenge and attack contracts inherited.
+
+Focused GUT2/2,17 assertions (`.export/customer-prototype-gut.log`): profile override with no schedule base scene, imported custom dialogue/interests and modal release, stationary pose/real movement/combat priority. Cue preflight changed dialogue check rerun1/1,13 (`.export/customer-prototype-cue-gut.log`). No full rerun; last major M2 full426/426,3375. Structure/diff verification and exports follow completion. Remaining: LOW console extension/help/scroll, owner main/test gameplay/visual/audio acceptance.

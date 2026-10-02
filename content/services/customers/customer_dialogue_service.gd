@@ -36,12 +36,18 @@ static func start(actor: Entity, customer: E_Customer) -> bool:
 	if agent == null or agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
 		return false
 
-	var resource: DialogueResource = load(DIALOGUE_PATH) as DialogueResource
+	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+	var path: String = visit.definition.dialogue_resource_path if visit != null and visit.definition != null and not visit.definition.dialogue_resource_path.is_empty() else DIALOGUE_PATH
+	var resource: DialogueResource = load(path) as DialogueResource if ResourceLoader.exists(path) else null
 	if resource == null:
-		push_error("R12 dialogue resource is unavailable: %s" % DIALOGUE_PATH)
+		push_error("Customer dialogue resource is unavailable: %s" % path)
 		return false
 
 	var context: CustomerDialogueContext = CustomerDialogueContext.new(actor, customer)
+	var cue: String = context.dialogue_cue()
+	if not resource.cues.has(cue):
+		push_warning("Customer dialogue has no '%s' cue: %s" % [cue, path])
+		return false
 	if not context.begin():
 		return false
 
@@ -50,7 +56,7 @@ static func start(actor: Entity, customer: E_Customer) -> bool:
 	if host == null:
 		host = tree.root
 	host.add_child(panel)
-	if not panel.open_for(actor, context, resource, context.dialogue_cue()):
+	if not panel.open_for(actor, context, resource, cue):
 		context.end()
 		panel.queue_free()
 		return false

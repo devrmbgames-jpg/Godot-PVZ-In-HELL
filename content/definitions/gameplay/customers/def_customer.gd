@@ -6,6 +6,11 @@ enum Introduction { MANUAL, ANNOUNCE_ORDER, FIRST_APPROACH_DIALOGUE }
 const MINIMUM_LEAVING_SECONDS: float = 181.0
 
 @export var display_name: String = "Клиент"
+## Empty keeps the schedule's shared customer scene / standard service dialogue.
+@export_file("*.tscn") var customer_scene_path: String = ""
+@export_file("*.dialogue") var dialogue_resource_path: String = ""
+## Descriptive authored context for custom dialogue and future behavior; no hidden score.
+@export var interests: PackedStringArray = []
 @export var accepts_damaged: bool = true
 @export var accepts_opened: bool = true
 @export var voluntary_refusal: bool = false

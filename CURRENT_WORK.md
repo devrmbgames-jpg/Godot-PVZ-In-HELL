@@ -1,7 +1,7 @@
 # Current Work
 
-Active R23/R24. R24 M0/M1/M2/M3/M5/M6 implemented, M4 edible remains done, copyable client prototype pending. R23 QA03/04/05/06/07/08/09/10/12/13/14/15/17/18/19 implemented; owner acceptance pending. Next: commit/export completed private inspection M3, then M4 customer prototype and LOW console extension/help/scroll.
+R24 M0–M6 implemented; M4 prototype finishing commit/export. R23 listed QA fixes implemented, owner acceptance pending. Next: LOW developer_console_testing stages10–15 (extended commands/help/scroll), then owner full-slice QA.
 
-M3 shift gates committeda7bc4751, focused4/4,30. Private inspection:32 existing regressions +7 new cases covered; initial Night fixture alias fixed, filtered cleanup3/3,43 + closed guard1/1,15; independent review clean; actual-main native walk/carry/return smoke PASS (audio disabled only in fixed-fps fixture). Structure/diff PASS. No broad rerun after major M2 full426/426,3375. M3 main own scene edits must stage with .export/m3-main-owned.patch, preserving user UID-only resaves; never git add whole main_level. Windows7c17ead8 commerce main/test startup PASS launchers available; M3 exports follow commit.
+M4 focused2/2,17 + changed dialogue guard1/1,13, no broad rerun. M3 native customer-inspection main smoke PASS and review clean. Last full major M2:426/426,3375. Windows877e26b1 main/test startup PASS, .export/LATEST.cmd and TEST_LEVEL.cmd; update after M4 commit. Detailed contracts/evidence agent_tasks/roadmap_24_world_customers_commerce.md, player checklists qa_tasks/world_customers_commerce.md. task_history rotated to archive0002 at12KiB.
 
-Dev only; master read-only. Preserve user main/project/addons changes. Detailed R24 contracts/evidence, player checklists qa_tasks/world_customers_commerce.md. Small edits static + justified targeted tests only; full run at major milestones. Owner handles full-slice/visual/audio QA.
+Dev only; master read-only. Preserve user main_level UID resaves, project settings reorder, addons/gecs changes. No rendered/audio/full-slice checks by agent. Small edits static + justified task-specific tests; full at major milestones.
