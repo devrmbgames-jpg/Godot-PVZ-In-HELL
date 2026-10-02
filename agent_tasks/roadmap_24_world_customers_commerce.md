@@ -20,7 +20,7 @@ Status: **IN_PROGRESS**
 - [x] M0: архивировать разросшуюся историю, оставить ссылки и правило дальнейшей ротации.
 - [x] M1: разрушимые двери и тестовые наполненные посылки.
 - [x] M2: мебель, зона выдачи, доставка и настраиваемый каталог торговца.
-- [ ] M3: интервалы/уход клиентов, ограничения завершения смены, кабинки и осмотр посылок.
+- [x] M3: интервалы/уход клиентов, ограничения завершения смены, кабинки и осмотр посылок.
 - [ ] M4: шаблон клиента, съедобные останки и вероятностный ценный дроп.
 - [x] M5: виньетки, шаги, покачивание камеры, переключение debug HUD.
 - [x] M6: типизированные события терминала, посылок и дверей.
@@ -68,8 +68,8 @@ M5: focused GUT3/3,23 assertions; один полный прогон на кру
 - [x] Увеличить authored интервал между посетителями; не спавнить следующего сразу при удалении предыдущего.
 - [x] Уходящий клиент остаётся до достижения конечной точки либо до истечения **более трёх минут**; убрать прежнее быстрое исчезновение.
 - [x] Настраиваемые ограничения окончания смены: пока в здании посетитель / пока не прошло заданное время / пока не пришли все запланированные посетители. Предусмотреть выбор/сочетание условий без отдельной сложной системы.
-- [ ] После получения посылки клиент может пойти в одну из специальных зон — приватных кабинок, затем вернуться и решить, забирает её или отказывается.
-- [ ] Некоторые клиенты с authored вероятностью распаковывают посылку при осмотре и забирают или отказываются от полученного предмета. Сохранять явную Relationship для владения посылкой/результатом; существующие опасные эффекты распаковки должны реально срабатывать.
+- [x] После получения посылки клиент может пойти в одну из специальных зон — приватных кабинок, затем вернуться и решить, забирает её или отказывается.
+- [x] Некоторые клиенты с authored вероятностью распаковывают посылку при осмотре и забирают или отказываются от полученного предмета. Сохранять явную Relationship для владения посылкой/результатом; существующие опасные эффекты распаковки должны реально срабатывать.
 - [ ] Подготовить копируемую сцену-прототип клиента с поведением и анимациями, настраиваемыми диалогами, интересами, параметрами и челленджами.
 
 ### Смерть и обратная связь
@@ -153,3 +153,15 @@ Windows7c17ead8 trader-furniture main/test exported, both actual-scene/120-frame
 C_DayCycle exposes independent require_finished_customers (true legacy), require_empty_customer_room (false), minimum_shift_seconds (0), require_all_planned_arrivals (false), customer_room_path (optional Area3D relative DaySession). Gates combine with AND. Real actionable visits override stale derived count; all-planned additionally includes due unregistered unfinished visits. Closed/cancelled and future visits do not trap the shift. Configured room counts overlapping live C_CustomerAgent bodies, not merchants/dead remains; blank path conservatively counts all live customers. Missing configured room/plan fails closed with visible reason. Existing S_DayPhase owns transient Day-only clock, resets accepted start/Morning; no snapshot schema change. Commit revalidates after accepted command. Shift station/compact HUD/console expose actual blocker countdown.
 
 Focused4/4,30 assertions (.export/shift-completion-gut.log): independent/conjoined gates, stale cache, late visitor queue revalidation, Day-only clock/reset, real native Area3D overlap/outside/dead and conservative fallback. Self-review/diff PASS. No broad run/smoke/export for this small part; next full M3 export includes it. Owner QA below.
+
+### Active M3 private-inspection contract (recorded before implementation)
+
+Optional DEF_Customer private_inspection, inspection_seconds (12 = baseline3x4), unpack_probability and keep_probability. Preserve current immediate handoff when disabled/no available booth. Append three runtime phases without renumbering older phases: walking to booth, inspecting, returning. Booth reservation is customer->booth R_InspectingAt; live parcel/contents ownership is item->customer R_InspectionCargo. Reuse a noninteractive E_PhysicalSlot child of customer with R_StoredIn/R_SlotMountedOn and its existing explicit mounted-physics synchronization contract to carry the actual parcel; no per-frame transform teleport or second carry solver. Original reservation/contents stay physical Entities; kept goods leave the world once at return, rejected goods remain usable. Existing package opening/lifecycle/content/hazard pipeline is used, including actual NPC opener attribution. Physical/inventory pickup respects active reservation.
+
+At handoff validate first, then borrow parcel without declaring final delivered/refused accounting outcome. Return rechecks current package state and applies explicit decline + existing damaged/opened policy once. NPC death/removal/timeout/Night must release native mounted body, reservations and booth; lost/invalid parcel cannot be declared delivered. Authored zones in main follow DebugMarkers client-room coordinates, but runtime never depends on hidden markers. Primitive two clearly separated booth zones. Independent bounded lifecycle review + focused handoff/return/refusal/unpack/hazard/cleanup tests and one actual-scene navigation smoke at major M3 completion; no redundant full suite.
+
+### M3 private inspection implementation / validation
+
+Private-inspection optional phases/booth/cargo reservations implemented; existing physical slot carries real parcel and native NavigationAgent walks to reserved zone/returns. Final delivered/refused state is committed once at return, with current damage/opening policy and authored keep roll. Normal opening emits existing contents/hazards, NPC attribution preserved; reservation blocks player pickup/open/inventory, rejection leaves usable items. Death/external removal/Night/invalid parcel release mounts/cargo/booth. Default books: inspect/75% keep. Clothes: inspect/50% unpack physical clothing stub/previous voluntary refusal. No missing-content fallback invented. Config: content/entities/customers/README.md.
+
+Affected GUT initial37 ran:32 existing customer_flow/package_contents +4 new inspection PASS; one Night fixture held mutable query result across cleanup and errored. Fixture changed to snapshot duplicate, corrected/added cleanup3/3,43 assertions PASS; closed-visit begin guard changed and that test alone1/1,15 PASS. All7 new inspection scenarios covered; no broad rerun. Independent read-only lifecycle/ownership/physics/accounting review clean. Actual-main native walk/carry/return/refusal smoke PASS customer_inspection-20261003-084936425.log. Initial bathroom zones unreachable, moved to accessible client room; strict smoke then found headless fixed-fps active footstep Ogg mixer shutdown reference, verbose isolated to audio. Navigation fixture disables NPC footsteps (audio remains owner QA), successful strict run has no shutdown leak. Structure/diff PASS after EOF cleanup. Defensive cargo query snapshot reran only unpack/cleanup3/3,47 PASS (.export/customer-inspection-snapshot-gut.log). No full-slice/rendered acceptance.

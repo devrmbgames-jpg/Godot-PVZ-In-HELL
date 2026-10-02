@@ -23,6 +23,12 @@ const MINIMUM_LEAVING_SECONDS: float = 181.0
 @export var greeting_seconds: float = 8.0
 @export var patience_seconds: float = 720.0
 @export var receiving_seconds: float = 4.0
+@export_group("Private inspection")
+@export var private_inspection: bool = false
+@export_range(0.0, 600.0, 1.0, "or_greater") var inspection_seconds: float = 12.0
+@export_range(0.0, 1.0) var inspection_unpack_probability: float = 0.0
+@export_range(0.0, 1.0) var inspection_keep_probability: float = 1.0
+@export_group("")
 @export_range(181.0, 3600.0, 1.0, "or_greater") var leaving_seconds: float = MINIMUM_LEAVING_SECONDS
 @export var aggressive_seconds: float = 180.0
 ## Legacy authored property retained for resource compatibility; Godot/Jolt owns gravity.

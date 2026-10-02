@@ -38,6 +38,7 @@ static func reset() -> void:
 			control.captures.clear()
 			control.rotation_active = false
 		if entity.has_component(C_CustomerAgent):
+			CustomerInspectionService.end(entity)
 			ECS.world.remove_entity(entity)
 		elif entity.has_component(C_CombatProjectile):
 			ECS.world.remove_entity(entity)

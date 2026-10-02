@@ -36,6 +36,8 @@ static func item_by_id(owner: Entity, item_id: String) -> Entity:
 
 
 static func can_transfer(item: Entity, destination: Entity, expected_owner: Entity = null) -> bool:
+	if CustomerInspectionService.owner_for(item) != null:
+		return false
 	if not _owner_available(destination) or not EntityAvailability.contains(item, ECS.world) or item == destination or item.has_component(C_Package) or item.has_component(C_Grabbable):
 		return false
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem

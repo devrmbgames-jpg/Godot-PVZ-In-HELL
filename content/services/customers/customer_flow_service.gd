@@ -291,10 +291,12 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = find_visit(agent.visit_id)
 	if visit == null:
+		CustomerInspectionService.end(customer)
 		ECS.world.remove_entity(customer)
 		return
 	var death: C_Death = customer.get_component(C_Death) as C_Death
 	if death != null:
+		CustomerInspectionService.end(customer)
 		visit.customer_dead = true
 		if death.cause != null and death.cause.request != null:
 			var actor: Entity = death.cause.request.instigator
@@ -333,6 +335,9 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 		C_CustomerAgent.Phase.RECEIVING:
 			if agent.elapsed >= visit.definition.receiving_seconds:
 				_leave(customer, visit)
+		C_CustomerAgent.Phase.GOING_TO_BOOTH, C_CustomerAgent.Phase.INSPECTING, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH:
+			if CustomerInspectionService.tick(customer, visit):
+				_complete_inspection(customer, visit)
 		C_CustomerAgent.Phase.AGGRESSIVE:
 			if agent.elapsed >= visit.definition.aggressive_seconds:
 				_leave(customer, visit)
@@ -479,8 +484,30 @@ static func _resolve_delivery(
 	# Valid handoff releases the player's grip before the customer accepts or refuses.
 	if allow_held:
 		GrabService.release(direct_holder, parcel)
-	if not CustomerOutcomeService.receive(visit, check_result):
+	if CustomerInspectionService.begin(customer, visit, parcel):
 		return check_result.result
+	return _complete_delivery(customer, visit, parcel, check_result, allow_held)
+
+
+static func _complete_inspection(customer: E_Customer, visit: CustomerVisit) -> void:
+	var parcel: Entity = CustomerInspectionService.parcel_for(customer)
+	if parcel == null:
+		_leave(customer, visit)
+		return
+	var check_result: PackageDeliveryCheck = CustomerOutcomeService.check(visit, parcel.get_component(C_Package) as C_Package, parcel.get_component(C_PackageState) as C_PackageState, assigned(parcel, customer, visit), false)
+	if check_result.result != PackageDeliveryCheck.Result.READY:
+		_leave(customer, visit)
+		return
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	var declined: bool = agent.inspection_force_refusal or CustomerInspectionService.roll(visit, "keep") >= visit.definition.inspection_keep_probability
+	_complete_delivery(customer, visit, parcel, check_result, true, declined, true)
+
+
+static func _complete_delivery(customer: E_Customer, visit: CustomerVisit, parcel: Entity, check_result: PackageDeliveryCheck, place_refused: bool, declined: bool = false, inspection: bool = false) -> PackageDeliveryCheck.Result:
+	if not CustomerOutcomeService.receive(visit, check_result, declined):
+		return check_result.result
+	if inspection:
+		CustomerInspectionService.end(customer, visit.actual == CustomerVisit.Actual.DELIVERED)
 
 	if visit.actual == CustomerVisit.Actual.DELIVERED:
 		_depart_parcel(parcel)
@@ -491,7 +518,7 @@ static func _resolve_delivery(
 			else "Заказ принят, но его состояние меня не устраивает."
 		)
 	else:
-		if allow_held:
+		if place_refused:
 			_place_refused_parcel(customer, visit, parcel)
 		# Counter handoff already leaves the released parcel on the counter.
 		customer.show_message("Я отказываюсь от заказа. Коробка остаётся у вас.")
@@ -714,6 +741,7 @@ static func reactivate_due_followups(flow: C_CustomerFlow, day: int) -> int:
 
 
 static func _leave(customer: E_Customer, visit: CustomerVisit) -> void:
+	CustomerInspectionService.end(customer)
 	CombatService.end_combat(customer)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	_transition(agent, C_CustomerAgent.Phase.LEAVING)

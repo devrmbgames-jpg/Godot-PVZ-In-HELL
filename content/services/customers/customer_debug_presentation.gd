@@ -4,7 +4,7 @@ class_name CustomerDebugPresentation
 
 const HEALTH_SEGMENTS: int = 10
 const MINIMUM_HEALTH_MAXIMUM: float = 0.001
-const PHASE_NAMES: Array[String] = ["Подходит", "Приветствие", "Диалог", "Ждёт посылку", "Получил заказ", "Осматривает", "Уходит", "Агрессивен", "Закончил", "Ждёт темноты"]
+const PHASE_NAMES: Array[String] = ["Подходит", "Приветствие", "Диалог", "Ждёт посылку", "Получил заказ", "Осматривает", "Уходит", "Агрессивен", "Закончил", "Ждёт темноты", "Идёт в кабинку", "Осмотр в кабинке", "Возвращается к выдаче"]
 
 
 static func summary() -> String:
@@ -29,6 +29,8 @@ static func text_for(customer: E_Customer) -> String:
 	var lines: Array[String] = ["%s · %s" % [visit.definition.display_name, "№%03d" % number if number >= 0 else "без номера"]]
 	var duration: float = _phase_duration(agent, visit.definition)
 	lines.append("%s · %.1f / %.1f с" % [PHASE_NAMES[agent.phase], agent.elapsed, duration])
+	if agent.phase in [C_CustomerAgent.Phase.GOING_TO_BOOTH, C_CustomerAgent.Phase.INSPECTING, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH]:
+		lines.append("Распаковка %.0f%% · забрать %.0f%% · решение после возврата" % [visit.definition.inspection_unpack_probability * 100.0, visit.definition.inspection_keep_probability * 100.0])
 	if CustomerPresentation.uses_quick_order(visit.definition):
 		lines.append("Без диалога · номер %s" % ["сообщён" if agent.order_announced else "ждёт регистрации"])
 	elif visit.definition.introduction == DEF_Customer.Introduction.FIRST_APPROACH_DIALOGUE and not agent.dialogue_started and agent.phase in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]:
@@ -69,6 +71,8 @@ static func _phase_duration(agent: C_CustomerAgent, definition: DEF_Customer) ->
 		C_CustomerAgent.Phase.WAITING: return definition.greeting_seconds
 		C_CustomerAgent.Phase.WAITING_FOR_PACKAGE, C_CustomerAgent.Phase.DIALOGUE, C_CustomerAgent.Phase.OPTIONAL_FITTING: return definition.patience_seconds
 		C_CustomerAgent.Phase.RECEIVING: return definition.receiving_seconds
+		C_CustomerAgent.Phase.INSPECTING: return definition.inspection_seconds
+		C_CustomerAgent.Phase.GOING_TO_BOOTH, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH: return definition.approach_timeout
 		C_CustomerAgent.Phase.LEAVING: return maxf(DEF_Customer.MINIMUM_LEAVING_SECONDS, definition.leaving_seconds)
 		C_CustomerAgent.Phase.AGGRESSIVE: return definition.aggressive_seconds
 		C_CustomerAgent.Phase.WAITING_FOR_DARKNESS: return definition.challenge.timeout_seconds if definition.challenge != null else 0.0

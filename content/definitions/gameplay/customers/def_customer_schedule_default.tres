@@ -62,6 +62,8 @@ satisfaction_delta = -5
 script = ExtResource("Customer")
 display_name = "Покупатель книг"
 introduction = 1
+private_inspection = true
+inspection_keep_probability = 0.75
 dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
 key = &"ordinary"
 
@@ -96,6 +98,8 @@ customer = SubResource("Careful")
 script = ExtResource("Customer")
 display_name = "Покупатель одежды"
 introduction = 2
+private_inspection = true
+inspection_unpack_probability = 0.5
 voluntary_refusal = true
 dialogue_reactions = Array[ExtResource("Reaction")]([SubResource("ReactionHonest"), SubResource("ReactionLie"), SubResource("ReactionPersuade"), SubResource("ReactionThreat"), SubResource("ReactionFlirt"), SubResource("ReactionJoke")])
 challenge = ExtResource("ChallengeVisit")

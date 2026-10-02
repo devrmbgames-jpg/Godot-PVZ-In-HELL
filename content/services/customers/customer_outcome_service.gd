@@ -35,7 +35,7 @@ static func check(
 	return check_result
 
 
-static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck) -> bool:
+static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, declined: bool = false) -> bool:
 	if visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED:
 		return false
 	if check_result.result != PackageDeliveryCheck.Result.READY:
@@ -43,7 +43,7 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck) ->
 	var policy: DEF_Customer = visit.definition
 	visit.package_damaged = check_result.damaged
 	visit.package_opened = check_result.opened
-	if policy.voluntary_refusal or (check_result.damaged and not policy.accepts_damaged) or (check_result.opened and not policy.accepts_opened):
+	if declined or policy.voluntary_refusal or (check_result.damaged and not policy.accepts_damaged) or (check_result.opened and not policy.accepts_opened):
 		visit.actual = CustomerVisit.Actual.CUSTOMER_REFUSED
 		visit.satisfaction = 0
 		return true

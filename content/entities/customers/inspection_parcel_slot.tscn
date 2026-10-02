@@ -1,0 +1,19 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/entities/props/e_physical_slot.gd" id="Entity"]
+[ext_resource type="Script" path="res://content/components/interaction/c_physical_slot.gd" id="Slot"]
+
+[sub_resource type="Resource" id="Slot"]
+script = ExtResource("Slot")
+maximum_mass = 100.0
+
+[node name="InspectionParcelSlot" type="Node3D" node_paths=PackedStringArray("anchor", "driver")]
+script = ExtResource("Entity")
+anchor = NodePath("Anchor")
+driver = NodePath("Anchor/StoredRemoteTransform")
+component_resources = [SubResource("Slot")]
+
+[node name="Anchor" type="Marker3D" parent="."]
+position = Vector3(0, 1, -0.6)
+
+[node name="StoredRemoteTransform" type="RemoteTransform3D" parent="Anchor"]

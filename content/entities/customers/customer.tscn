@@ -35,6 +35,7 @@
 [ext_resource type="Resource" path="res://content/definitions/gameplay/def_npc_remains_default.tres" id="RemainsDefinition"]
 
 [ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
+[ext_resource type="PackedScene" path="res://content/entities/customers/inspection_parcel_slot.tscn" id="InspectionSlot"]
 
 [sub_resource type="Resource" id="Remains"]
 script = ExtResource("Remains")
@@ -173,3 +174,5 @@ text = ""
 spatial_audio = true
 volume_db = -18.0
 bob_enabled = false
+
+[node name="InspectionParcelSlot" parent="." instance=ExtResource("InspectionSlot")]
