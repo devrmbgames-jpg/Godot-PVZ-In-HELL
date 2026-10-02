@@ -27,13 +27,15 @@ func _ready() -> void:
 
 #region Presentation
 func _on_scan_feedback(result: PackageScanResult) -> void:
-	_label.text = "№%03d" % result.number
+	_label.text = result.message if result.outcome == PackageScanResult.Outcome.REJECTED else "№%03d%s" % [result.number, " · уже зарегистрировано" if result.outcome == PackageScanResult.Outcome.ALREADY_REGISTERED else " · готово"]
 	_label.visible = true
 	_icon_mesh.visible = true
 	
 	if result.outcome != PackageScanResult.Outcome.REJECTED:
 		_beep.pitch_scale = 1.0 if result.outcome == PackageScanResult.Outcome.REGISTERED else 0.8
 		_beep.play()
+	else:
+		_beep.stop()
 	
 	match result.outcome :
 		PackageScanResult.Outcome.REJECTED :

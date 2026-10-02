@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://content/ui/interaction_hud.gd" id="1"]
 [ext_resource type="Script" path="res://content/ui/marker_pointer.gd" id="MarkerPointer"]
 [ext_resource type="Shader" path="res://content/ui/shaders/gaze_warning.gdshader" id="GazeShader"]
+[ext_resource type="PackedScene" path="res://content/ui/damage_feedback_view.tscn" id="DamageFeedback"]
 
 [sub_resource type="ShaderMaterial" id="GazeMaterial"]
 resource_local_to_scene = true
@@ -220,6 +221,12 @@ mouse_filter = 2
 theme_override_font_sizes/font_size = 13
 autowrap_mode = 2
 
+[node name="FeedbackDebug" type="Label" parent="Overlay/PlayerDebugPanel/Debug"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 13
+autowrap_mode = 2
+
 [node name="PackageDebugPanel" type="PanelContainer" parent="Overlay"]
 visible = false
 layout_mode = 0
@@ -318,3 +325,5 @@ show_percentage = false
 layout_mode = 2
 mouse_filter = 2
 text = "Баланс"
+
+[node name="DamageFeedback" parent="." instance=ExtResource("DamageFeedback")]

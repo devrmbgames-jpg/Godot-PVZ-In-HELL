@@ -45,6 +45,7 @@ func before_each() -> void:
 func after_each() -> void:
 	for entity: Entity in _world.entities.duplicate():
 		ProlongedInteractionService.entity_unavailable(entity)
+	_world.purge(false)
 	_world.free()
 	ECS.world = null
 

@@ -276,7 +276,6 @@ static func wants_rotation(actor: Entity, controller: C_Controller) -> bool:
 static func refresh_prompt(actor: Entity) -> void:
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
-	var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
 	var lines: PackedStringArray = []
 	var prolonged: Relationship = ProlongedInteractionService.session(actor)
 	if prolonged != null and InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.PROLONGED:
@@ -326,10 +325,31 @@ static func refresh_prompt(actor: Entity) -> void:
 		InteractionControlFocus.current(actor) < InteractionControlFocus.Priority.PUSH
 		and GrabService.held_object(actor) != null
 	):
-		lines.append("[G] Положить · [удерживать G] Контекст")
-	if control.context_wheel_requested:
-		lines.append("Контекстное колесо — в разработке")
+		lines.append("[G] Положить")
+	var denial: String = _access_denial(actor, interactor)
+	if not denial.is_empty():
+		lines.append(denial)
 	interactor.prompt_text = "\n".join(lines)
+
+
+static func _access_denial(actor: Entity, interactor: C_Interactor) -> String:
+	if InteractionControlFocus.current(actor) > InteractionControlFocus.Priority.CARRY:
+		return ""
+	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
+	if target == null or InteractionTargetingService.find_target(actor, interactor) != target:
+		return ""
+	var lock: C_Openable = target.get_component(C_Openable) as C_Openable
+	if lock == null or not lock.locked:
+		return ""
+	var result: AccessResult = ItemAccessService.evaluate(actor, lock.access)
+	match result.outcome:
+		AccessResult.Outcome.ITEM_REQUIRED:
+			return "Заперто · нужен подходящий ключ или предмет"
+		AccessResult.Outcome.CONSUMPTION_UNAVAILABLE:
+			return "Заперто · нужен расходуемый предмет"
+		AccessResult.Outcome.INVALID_REQUIREMENT:
+			return "Замок недоступен"
+	return ""
 
 
 ## Reports weight-only Carry rejection for a currently raycast physical body.

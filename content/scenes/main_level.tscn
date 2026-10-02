@@ -164,6 +164,8 @@
 
 [ext_resource type="PackedScene" path="res://content/entities/stations/package_return_point.tscn" id="Package_return_point"]
 
+[ext_resource type="Script" path="res://content/observers/gameplay/o_damage_feedback.gd" id="Damage_feedback"]
+
 [sub_resource type="Resource" id="Autosave_state"]
 script = ExtResource("Autosave_state")
 
@@ -432,6 +434,9 @@ script = ExtResource("R09_reset")
 [node name="O_Damage" type="Node" parent="World/Systems/GamePlay" unique_id=1820599322]
 script = ExtResource("5_ad8bv")
 metadata/_custom_type_script = "uid://nsdmrnqs0no0"
+
+[node name="O_DamageFeedback" type="Node" parent="World/Systems/GamePlay"]
+script = ExtResource("Damage_feedback")
 
 [node name="O_HealthLifecycle" type="Node" parent="World/Systems/GamePlay" unique_id=94551561]
 script = ExtResource("HealthLifecycle")
@@ -1294,8 +1299,9 @@ position = Vector3(4.4, 0.0, -3.6)
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6.714551, 0.8329964, 2.8046627)
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_8wt2x"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 
-[node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player") instance=ExtResource("Interaction_hud")]
+[node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player", "damage_feedback") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")
+damage_feedback = NodePath("../World/Systems/GamePlay/O_DamageFeedback")
 
 [node name="InventoryPanel" parent="." node_paths=PackedStringArray("player") instance=ExtResource("Inventory_panel")]
 player = NodePath("../Entityes/Player")

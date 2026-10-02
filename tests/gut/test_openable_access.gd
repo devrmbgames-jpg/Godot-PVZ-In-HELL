@@ -28,6 +28,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	_world.purge(false)
 	_world.free()
 	ECS.world = null
 

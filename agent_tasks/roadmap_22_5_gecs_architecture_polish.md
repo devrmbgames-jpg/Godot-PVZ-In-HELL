@@ -1,6 +1,6 @@
 # R22.5 — GECS Architecture Polish
 
-Status: **DEFERRED**
+Status: **IN_PROGRESS**
 
 ## Task state
 
@@ -22,16 +22,16 @@ Refactor working gameplay toward GECS best practices without changing gameplay d
 - [ ] M4 — Final architecture audit and bounded validation.
 
 ### Decisions
-R22.5 is intentionally deferred, not blocked. Root router owns overall status; milestone files are bounded executable units and must be verified against current code when resumed.
+Feature implementation R08–R22 is stable for targeted polish; owner rendered/playability QA remains in the owning tasks. Root router owns overall status; milestone files are bounded executable units and must be verified against current code when resumed.
 
 ### Current
-M0 is complete. No implementation is active. When dependencies are ready, resume with M1 and first rebuild the current system/dependency disposition before editing.
+M0 is complete. M1 resumed after R22 automation/review: rebuild current system/dependency disposition before editing. Historical decomposition targets may already be satisfied by subsequent feature work.
 
 ### Validation
 M0 validation is recorded in its milestone file. No later-milestone validation has run.
 
 ### Owner QA / blockers
-Dependency gate: broader feature work R08–R22 must be stable before resuming architecture polish.
+Feature implementation gate satisfied; owner rendered/full-scenario QA remains separate. No agent implementation blocker.
 
 ---
 
@@ -63,7 +63,7 @@ Read only the milestone being worked on.
 | Milestone | Status | File |
 | --- | --- | --- |
 | M0 Relationship authority | implemented for Cart cargo/driver, throw attribution and Marker holder; retain audit guard | [m0_relationship_authority.md](r22_5/m0_relationship_authority.md) |
-| M1 System decomposition | planned | [m1_system_decomposition.md](r22_5/m1_system_decomposition.md) |
+| M1 System decomposition | in progress: current production audit | [m1_system_decomposition.md](r22_5/m1_system_decomposition.md) |
 | M2 Interaction/domain boundaries | planned | [m2_interaction_domain.md](r22_5/m2_interaction_domain.md) |
 | M3 Physics solver classification | planned | [m3_physics_solvers.md](r22_5/m3_physics_solvers.md) |
 | M4 Final audit/validation | planned | [m4_final_audit_validation.md](r22_5/m4_final_audit_validation.md) |

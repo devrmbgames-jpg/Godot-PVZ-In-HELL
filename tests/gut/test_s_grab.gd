@@ -73,6 +73,7 @@ func after_each() -> void:
 func _apply_player_intent() -> void:
 	var intent_system: S_PlayerIntent = S_PlayerIntent.new()
 	intent_system.process([holder_entity], [[input_state]], 0.0)
+	intent_system.free()
 
 
 func make_holder(location: Vector3) -> Entity:

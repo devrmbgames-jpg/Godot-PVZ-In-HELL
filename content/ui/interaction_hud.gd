@@ -5,6 +5,9 @@ extends CanvasLayer
 @export var challenge_debug_enabled: bool = true
 @export var reduced_gaze_motion: bool = true
 @export var player_status_enabled: bool = true
+@export var damage_feedback: O_DamageFeedback = null
+@onready var _damage_view: DamageFeedbackView = $DamageFeedback
+@onready var _feedback_debug: Label = $Overlay/PlayerDebugPanel/Debug/FeedbackDebug
 @onready var _player_status: PanelContainer = $Overlay/PlayerStatusPanel
 @onready var _status_health: Label = $Overlay/PlayerStatusPanel/Stats/Health
 @onready var _status_health_bar: ProgressBar = $Overlay/PlayerStatusPanel/Stats/HealthBar
@@ -57,12 +60,16 @@ var _last_phase: int = -1
 
 #region Lifecycle
 func _ready() -> void:
+	_damage_view.player = player
+	_damage_view.observer = damage_feedback
+	_damage_view.bind_observer()
 	_refresh_phase_presentation()
 	_update_debug_presentation(null)
 
 
 func _process(delta: float) -> void:
 	_update_player_status()
+	_feedback_debug.text = _damage_view.debug_text() if debug_status_enabled else ""
 	_combat_debug.text = CombatPresentation.debug_text(player) if debug_status_enabled else ""
 	_meta_debug.text = MetaPresentation.debug_text() if debug_status_enabled else ""
 	_inventory_debug.text = InventoryPresentation.debug_text(player) if debug_status_enabled else ""

@@ -1,6 +1,6 @@
 # R22 — HUD и читаемость систем
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -17,20 +17,20 @@ Status: **IN_PROGRESS**
 ### Milestones
 - [x] Reconfirm dependency completion and current production owners/contracts.
 - [x] M1: ordinary Health/Hunger/Money HUD plus native package face markings.
-- [ ] M2: context prompt/scanner/challenge audit and distinct damage/hazard feedback.
-- [ ] Complete the remaining work checklist.
-- [ ] Independently review material changes and resolve all R-findings.
-- [ ] Run final task validation according to the documented GUT/headless budget.
-- [ ] Record remaining owner gameplay/visual QA.
+- [x] M2: context prompt/scanner/challenge audit and distinct damage/hazard feedback.
+- [x] Complete the remaining implementation work checklist.
+- [x] Independently review material changes and resolve all R-findings.
+- [x] Run final task validation according to the documented GUT/headless budget.
+- [x] Record remaining owner gameplay/visual QA.
 
 ### Decisions
 Read-only feedback consumes gameplay state/results; debug toggles never affect gameplay. Keep existing debug timers/conditions/tasks available. Player-facing Health/Hunger/Money remain visible with debug disabled. Native text markings attach to four mesh faces and inherit physical motion; condition billboard is preserved. No visual/rendered validation claim. Existing prompt/progress, scanner beep/number, challenge rules/countdown/gaze and Terminal facts are already owning-system presentation; inspect before adding duplicates.
 
 ### Current
-M1 implemented: bottom-left ordinary status panel independent from debug panels, including debt/penalties and Hunger tier; four native box-face markings for Fragile/Heavy/Liquid plus condition labels. Existing node names/signals preserved. Dependencies confirmed by task_history and direct production owners; R21 `a5e72672` OWNER_QA. Next: audit context prompt availability and typed DamageResult consumers; add distinct player/box/toxic/explosion feedback without moving authority into UI.
+Implementation complete. M1 `9d4abdec`: bottom-left ordinary status panel and four native box-face markings. M2: read-only committed DamageResult snapshots, distinct player/toxic/explosion warnings/tones and bounded world hit labels surviving target removal. Feedback observer precedes destructive lifecycle observers. Locked-door prompts explain missing access items, scanner rejection shows the actual reason and stops success beep, unavailable context-wheel hints removed. Existing dialogue/tool/throw/combat/prolonged prompt routing, Terminal facts and challenge/gaze presentation reused. Contract: `docs/player_feedback.md`. Next agent task: R22.5 M1; owner full-scenario presentation QA remains here.
 
 ### Validation
-M1 strict `player_feedback-20261002-133929439.log` PASS: real main level with debug panels disabled, live Health/Hunger/debt/penalties, inherited four-face package tags/condition, disabling ordinary HUD leaves gameplay state unchanged. Fixture uses direct state setup and headless native-node inspection; no visual/audio/perceptual claim. One initial fixture timing failure (oil not yet received) corrected by waiting for the complete supply. Structure/diff checks PASS. GUT and final combined runtime checks reserved for completed R22; owner visual/gamepad/layout/readability QA remains.
+Final GUT `r22_final_gut.log`: 109/109 PASS, 548 assertions, no orphans/ObjectDB/resource leaks. Includes damage feedback, grab, openable access, prolonged session/progress and player melee. New feedback tests prove committed-only delivery, cleanup/depletion safety, disabled UI preserves damage, bounded labels and signal disconnection. Initial combined run exposed existing test fixture leaks: temporary PlayerIntent systems now freed; openable/prolonged Worlds purged before free. Narrow diagnostic runs and final rerun verified cleanup. Separate read-only review: no material findings. Strict `player_feedback-20261002-140308131.log` PASS with debug disabled: status/face markings, damage types, UI-off damage, native door ray/real item pickup and scanner confirmation/rejection. Fixture setup is synthetic; no full gameplay playthrough or visual/audio-perceptual claim. Strict `challenge_gaze-20261002-140626943.log` PASS; main headless 120-frame shutdown has external Windows certificate error only, no project errors/leaks. Structure/diff PASS. Owner visual/gamepad/layout/readability QA remains.
 
 ### Owner QA / blockers
 Owner rendered full-scenario readability, UI layout, gamepad and audio perception QA remain. No implementation blocker.
@@ -55,10 +55,10 @@ Owner rendered full-scenario readability, UI layout, gamepad and audio perceptio
 ## Работы
 
 - [x] Расширить ранний HUD из 02 показателями Health/Hunger и Money там, где это полезно.
-- [ ] Проверить доступность и актуальность prompt во всех контекстах, включая prolonged interaction/access denial из R11.1, dialogue/tool/throw/combat.
+- [x] Проверить доступность и актуальность prompt во всех контекстах, включая prolonged interaction/access denial из R11.1, dialogue/tool/throw/combat (code/regression audit; rendered full scenario remains owner QA).
 - [x] Показать Fragile/Heavy/Liquid и Damaged/Opened на самих коробках, а не только в HUD.
-- [ ] Проверить scan beep/подтверждение/Terminal, требования Challenge, gaze warning и достаточный countdown.
-- [ ] Различить feedback повреждения игрока, коробки, ToxicLeak и Explosion; убрать debug-зависимости.
+- [x] Проверить scan beep/подтверждение/Terminal, требования Challenge, gaze warning и countdown (native state/contract audit and smoke; perceptual sufficiency remains owner QA).
+- [x] Различить feedback повреждения игрока, коробки, ToxicLeak и Explosion; убрать debug-зависимости.
 
 ## Критерии готовности
 
