@@ -3,6 +3,8 @@
 [ext_resource type="Script" path="res://content/definitions/gameplay/inventory/def_inventory_item.gd" id="Item"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/hunger/def_food_npc_meat.tres" id="Food"]
 
+[ext_resource type="Texture2D" path="res://addons/at-icons/mesh/meat.svg" id="Icon"]
+
 [resource]
 script = ExtResource("Item")
 key = &"npc_meat"
@@ -12,3 +14,5 @@ world_pickup_scene = "res://content/entities/inventory/npc_meat_pickup.tscn"
 kind = 0
 maximum_stack = 10
 food_effect = ExtResource("Food")
+
+icon = ExtResource("Icon")

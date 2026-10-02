@@ -3,6 +3,9 @@ extends CanvasLayer
 class_name InventoryPanel
 
 const REFRESH_INTERVAL: float = 0.15
+const SLOT_SIZE: Vector2 = Vector2(140, 130)
+const ICON_SIZE: Vector2 = Vector2(46, 46)
+const SLOT_PADDING: int = 8
 
 @export var player: Entity = null
 var _capture: int = 0
@@ -11,16 +14,22 @@ var _refresh_remaining: float = 0.0
 var _rows_signature: String = ""
 var _target: WeakRef = null
 var _status: String = ""
+var _selected_id: String = ""
 @onready var _root: Control = $Root
-@onready var _rows: VBoxContainer = $Root/Center/Panel/Content/Scroll/Rows
+@onready var _rows: GridContainer = $Root/Center/Panel/Content/Scroll/Rows
 @onready var _condition: Label = $Root/Center/Panel/Content/Condition
 @onready var _feedback: Label = $Root/Center/Panel/Content/Feedback
 @onready var _close: Button = $Root/Center/Panel/Content/Close
+@onready var _details: Label = $Root/Center/Panel/Content/Details
+@onready var _use: Button = $Root/Center/Panel/Content/Actions/Use
+@onready var _drop: Button = $Root/Center/Panel/Content/Actions/Drop
 
 
 func _ready() -> void:
 	_root.hide()
 	_close.pressed.connect(close_inventory)
+	_use.pressed.connect(_use_selected)
+	_drop.pressed.connect(_drop_selected)
 
 
 func _exit_tree() -> void:
@@ -92,35 +101,100 @@ func _package_target() -> Entity:
 func _refresh() -> void:
 	var owned: Array[Entity] = InventoryService.items(player)
 	var inventory: C_Inventory = player.get_component(C_Inventory) as C_Inventory
-	_condition.text = "Стеков %d / %d · [Tab / Esc] Закрыть\nЗадача: используйте еду при голоде, аптечку при ранениях. Для плёнки наведитесь на посылку перед открытием." % [owned.size(), inventory.maximum_stacks]
+	_condition.text = "Стеков %d / %d · [Tab / Esc] Закрыть\nВыберите предмет. Для плёнки наведитесь на посылку перед открытием." % [owned.size(), inventory.maximum_stacks]
 	_feedback.text = _status
 	var target: Entity = _package_target()
-	var signature: String = ""
+	var selected: Entity = InventoryService.item_by_id(player, _selected_id)
+	if selected == null and not owned.is_empty():
+		selected = owned[0]
+	_selected_id = selected.id if selected != null else ""
+	var reason: String = InventoryService.use_reason(player, selected, target) if selected != null else "Выберите предмет"
+	_use.disabled = not reason.is_empty()
+	_drop.disabled = selected == null or not InventoryDropService.drop_reason(player, selected).is_empty()
+	_details.text = "%s\n%s" % [(selected.get_component(C_InventoryItem) as C_InventoryItem).definition.display_name, "Можно использовать" if reason.is_empty() else reason] if selected != null else "Пусто. Подберите небольшой расходник кнопкой E."
+	_use.tooltip_text = reason
+	_drop.tooltip_text = InventoryDropService.drop_reason(player, selected) if selected != null else "Выберите предмет"
+	var signature: String = "%d:%s;" % [inventory.maximum_stacks, _selected_id]
 	for item: Entity in owned:
 		var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
-		signature += "%s:%d:%s;" % [item.id, state.quantity, InventoryService.use_reason(player, item, target)]
+		signature += "%s:%d;" % [item.id, state.quantity]
 	if signature == _rows_signature and _rows.get_child_count() > 0:
 		return
 	_rows_signature = signature
 	for row: Node in _rows.get_children():
 		_rows.remove_child(row)
 		row.queue_free()
-	if owned.is_empty():
-		var empty: Label = Label.new()
-		empty.text = "Пусто. Подберите небольшой расходник кнопкой E."
-		_rows.add_child(empty)
-	for item: Entity in owned:
-		var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
-		var reason: String = InventoryService.use_reason(player, item, target)
-		var button: Button = Button.new()
-		button.text = "%s ×%d · %s" % [state.definition.display_name, state.quantity, "Использовать" if reason.is_empty() else reason]
-		button.disabled = not reason.is_empty()
-		button.pressed.connect(_use_item.bind(item.id))
-		_rows.add_child(button)
+	for index: int in maxi(inventory.maximum_stacks, owned.size()):
+		_add_slot(owned[index] if index < owned.size() else null, index)
+
+
+func _add_slot(item: Entity, index: int) -> void:
+	var button: Button = Button.new()
+	button.name = "Slot%d" % index
+	button.custom_minimum_size = SLOT_SIZE
+	button.toggle_mode = true
+	button.disabled = item == null
+	button.button_pressed = item != null and item.id == _selected_id
+	_rows.add_child(button)
+	var margin: MarginContainer = MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for edge: String in ["left", "top", "right", "bottom"]:
+		margin.add_theme_constant_override("margin_" + edge, SLOT_PADDING)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(margin)
+	var content: VBoxContainer = VBoxContainer.new()
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(content)
+	var icon: TextureRect = TextureRect.new()
+	icon.custom_minimum_size = ICON_SIZE
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(icon)
+	var caption: Label = Label.new()
+	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caption.add_theme_font_size_override("font_size", 14)
+	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(caption)
+	if item == null:
+		caption.text = "Пусто"
+		return
+	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
+	icon.texture = state.definition.icon
+	caption.text = "%s\n×%d" % [state.definition.display_name, state.quantity]
+	button.tooltip_text = "%s ×%d" % [state.definition.display_name, state.quantity]
+	button.pressed.connect(_select_item.bind(item.id))
+
+
+func _select_item(item_id: String) -> void:
+	_selected_id = item_id
+	_refresh()
+	for slot: Node in _rows.get_children():
+		var button: Button = slot as Button
+		if button != null and button.button_pressed:
+			button.grab_focus()
+			break
+
+
+func _use_selected() -> void:
+	_use_item(_selected_id)
+
+
+func _drop_selected() -> void:
+	if not _can_submit():
+		return
+	var item: Entity = InventoryService.item_by_id(player, _selected_id)
+	_status = "Весь стек выложен на землю" if InventoryDropService.drop(player, item) else "Не удалось выложить стек. Нужно свободное место на полу рядом."
+	_refresh()
+
+
+func _can_submit() -> bool:
+	return _capture != 0 and GrabService.holder_available(player) and InteractionControlFocus.current(player, _capture) < InteractionControlFocus.Priority.MODAL
 
 
 func _use_item(item_id: String) -> void:
-	if _capture == 0 or not GrabService.holder_available(player) or InteractionControlFocus.current(player, _capture) >= InteractionControlFocus.Priority.MODAL:
+	if not _can_submit():
 		return
 	var item: Entity = InventoryService.item_by_id(player, item_id)
 	var reason: String = InventoryService.use_reason(player, item, _package_target())

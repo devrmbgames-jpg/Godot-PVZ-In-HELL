@@ -15,11 +15,15 @@ Owner task: [R23 Vertical Slice Validation](../roadmap_23_vertical_slice_validat
 
 ## QA-03 — Инвентарь сеткой
 
-- [ ] Заменить представление инвентаря сеткой слотов с иконками.
-- [ ] Использовать существующие иконки из `addons/at-icons`, предпочитать ещё не используемые в игре.
-- [ ] Сохранить выбор, использование, выбрасывание, подсказки, пустые слоты и действующие ограничения инвентаря.
+- [x] Заменить представление инвентаря сеткой слотов с иконками.
+- [x] Использовать существующие иконки из `addons/at-icons`, предпочитать ещё не используемые в игре.
+- [x] Сохранить выбор, использование, выбрасывание, подсказки, пустые слоты и действующие ограничения инвентаря.
 
 Приёмка: предметы различимы, действия доступны мышью и текущими способами ввода. Иконки только ссылать из проекта; содержимое addon не менять.
+
+Current QA03 contract before implementation: preserve Rows node path/name as GridContainer, four columns with capacity-sized slots; icons are optional authored DEF_InventoryItem.icon references. Select slot first, independent use/drop buttons show actual eligibility. Whole-stack drop materializes an unowned world pickup on validated support; never deletes an item when blocked/invalid and never performs physics transform writes outside this explicit inventory spawn boundary.
+
+Validation: targeted InventoryPanel GUT6/6,74 assertions, no orphans; separate read-only review clean. No extra smoke or broad runtime run. Layout/playtest owner QA pending.
 
 ## QA-04 — Съедобные останки NPC и молоток
 

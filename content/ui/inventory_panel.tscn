@@ -28,7 +28,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 
 [node name="Panel" type="PanelContainer" parent="Root/Center"]
-custom_minimum_size = Vector2(650, 330)
+custom_minimum_size = Vector2(650, 460)
 layout_mode = 2
 
 [node name="Content" type="VBoxContainer" parent="Root/Center/Panel"]
@@ -44,13 +44,31 @@ layout_mode = 2
 autowrap_mode = 2
 
 [node name="Scroll" type="ScrollContainer" parent="Root/Center/Panel/Content"]
-custom_minimum_size = Vector2(0, 180)
+custom_minimum_size = Vector2(0, 270)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Rows" type="VBoxContainer" parent="Root/Center/Panel/Content/Scroll"]
+[node name="Rows" type="GridContainer" parent="Root/Center/Panel/Content/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
+columns = 4
+
+[node name="Details" type="Label" parent="Root/Center/Panel/Content"]
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="Root/Center/Panel/Content"]
+layout_mode = 2
+
+[node name="Use" type="Button" parent="Root/Center/Panel/Content/Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Использовать"
+
+[node name="Drop" type="Button" parent="Root/Center/Panel/Content/Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Выложить весь стек"
 
 [node name="Feedback" type="Label" parent="Root/Center/Panel/Content"]
 layout_mode = 2

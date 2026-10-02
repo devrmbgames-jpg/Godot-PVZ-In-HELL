@@ -21,3 +21,7 @@
 
 - 2026-10-03 — Windows91e00d6c doors-contents main/test exported, both actual-scene/120-frame startup PASS; LATEST.cmd/TEST_LEVEL.cmd updated.
 - 2026-10-03 — QA04/R24M4 remains: immediate3 edible meat/bone pickups,25hunger each, authored25%Med chance. Real lethal DamageResult commits persistent one-shot guard; saved C_Death does not re-drop. Visitor cleanup preserves meat; dead Trader tombstone hidden/frozen/noncolliding and cannot trade; open panel releases input. GUT40/40,332 assertions; strict actual-main npc_remains smoke PASS; separate read-only review clean. Structure/diff PASS, formatter SKIP. Windows milestone follows, owner QA pending; client prototype and remaining queue continue.
+
+- 2026-10-03 — Windows e15bf73a npc-remains main/test exported, both actual-scene/120-frame startup PASS; LATEST.cmd/TEST_LEVEL.cmd updated.
+
+- 2026-10-03 — R23 QA03: capacity grid4columns, authored unused at-icons (food/med/wrap/meat), selected item/actions/reasons. Whole-stack physical drop prevalidates floor/path/occupancy before guarded replacement, preserves quantity and R_OwnedBy ownership; rejects blocked/unsupported placement unchanged. Targeted6/6,74 assertions, no orphans; independent review clean; diff PASS. No extra smoke/broad run per owner request. Next combined Windows milestone includes grid; owner visual acceptance pending.
