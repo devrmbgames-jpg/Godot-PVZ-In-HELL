@@ -23,7 +23,7 @@ Status: **IN_PROGRESS**
 - [ ] M3: интервалы/уход клиентов, ограничения завершения смены, кабинки и осмотр посылок.
 - [ ] M4: шаблон клиента, съедобные останки и вероятностный ценный дроп.
 - [x] M5: виньетки, шаги, покачивание камеры, переключение debug HUD.
-- [ ] M6: типизированные события терминала, посылок и дверей.
+- [x] M6: типизированные события терминала, посылок и дверей.
 - [ ] Узкие проверки изменённых контрактов, независимая проверка существенного результата, экспорт между крупными этапами; ручной QA передать игроку.
 
 ### Decisions
@@ -32,7 +32,7 @@ R23 продолжает текущую реализацию замечаний.
 
 ### Current
 
-M0 и M1 завершены. M3 интервалы/уход и M4 съедобные останки реализованы; кабинка/ограничения смены/шаблон клиента остаются в очереди. R23 QA03/04/05/06/09/10/13/14/15/17/18/19 реализованы. M5 завершён: Footstepper игрока/NPC, камера с малым покачиванием, совместимые виньетки ранения/голода/взгляда, debug_hud. Следующий шаг: экспорт M5, затем M6 события реальных действий игрока. Каталог/доставка M2 и остальные прежние требования сохранены.
+M0 и M1 завершены. M3 интервалы/уход и M4 съедобные останки реализованы; кабинка/ограничения смены/шаблон клиента остаются в очереди. R23 QA03/04/05/06/09/10/13/14/15/17/18/19 реализованы. M5 завершён: Footstepper игрока/NPC, камера с малым покачиванием, совместимые виньетки ранения/голода/взгляда, debug_hud. M5 Windows main/test startup PASS; M6 события реальных действий игрока реализованы. Следующий шаг: R23 QA07/08 варианты общения клиентов. Каталог/доставка M2 и остальные прежние требования сохранены.
 
 ### Validation
 
@@ -83,10 +83,10 @@ M5: focused GUT3/3,23 assertions; один полный прогон на кру
 
 ### Игровые события
 
-- [ ] Игрок открыл/закрыл терминал.
-- [ ] Игрок взял/поставил посылку.
-- [ ] Игрок открыл/закрыл дверь.
-- [ ] События содержат игрока и конкретный объект, срабатывают один раз после фактического перехода и доступны будущему поведению NPC/скриммерам.
+- [x] Игрок открыл/закрыл терминал.
+- [x] Игрок взял/поставил посылку.
+- [x] Игрок открыл/закрыл дверь.
+- [x] События содержат игрока и конкретный объект, срабатывают один раз после фактического перехода и доступны будущему поведению NPC/скриммерам.
 
 ### M1 active implementation contract
 
@@ -117,3 +117,15 @@ Previous combined Windows803fbcd3 main/test startup PASS includes QA03/13/10. Fu
 Project-owned CharacterFeedback reads actual grounded displacement plus movement intent. Existing addon uses fully manual footsteps, project adapter safely supports rigid NPCs without modifying addon. Player2D / NPC3D, no steps while idle/airborne/dead/modal/transported. Camera translation up to1.2cm, configurable reduced motion/disable, no body/head/ray/arms/rotation writes. Existing gaze shader combines amber hunger/red wounds/purple gaze edge feedback. Ordinary feedback survives debug_hud off.
 
 Targeted3/3,23 assertions validates real audio voices, native rigid NPC adapter, camera-only movement and stop gates. Full suite once at M5:409/409,3185 assertions,44 scripts,33.281s. Separate read-only review clean; no rendered/audio playtest claimed. Owner checklist in qa_tasks/world_customers_commerce.md.
+
+### Active M6 contract (recorded before implementation)
+
+Reuse GECS World events with one typed PlayerInteractionEvent carrying six transition kinds, actor/object stable IDs and parcel ID. Subscribers query the affected object; only actors marked C_PlayerInputController generate player events. Terminal emits after visible/capture transition; parcel emits once after accepted grip and after real release (including transfer/throw, not a claim of floor contact), not failed/stale grip/teardown. Doors emit when native reported fraction reaches requested endpoint within authored/named tolerance, not at command acceptance or while blocked. Pending door attribution is transient R_OpenableRequestedBy, not an Entity pointer in Component. Cancel/supersede pending intent without replaying load state. No new System or parallel event bus. Justified focused transition tests only; no second broad run after M5.
+
+Windows cfda84a0 character-feedback main/test exported, both actual-scene/120-frame startup PASS. Owner audio/visual acceptance pending.
+
+### M6 implementation / validation
+
+PlayerInteractionEvent.EVENT = player_interaction, six typed kinds; affected object is World event entity. Actor/object references plus stable IDs and package_id. Terminal reports committed visible/modal transitions; parcel pickup reports successful grip, placement reports actual release/transfer/throw, not floor contact. Failed/repeated actions, NPC, removal/death/invalid grip/Night cleanup do not publish player placement. Door endpoint tolerance2% uses physical fraction, transient R_OpenableRequestedBy is consumed before publication and canceled/superseded/reset at load/Night. Existing report_fraction callers remain compatible.
+
+Focused GUT5/5,48 assertions (`.export/player-interaction-events-gut.log`). Independent review R5/P2 invalid-grip handle_input falsely notified placement: FIXED, equivalent cleanup now suppresses notification. Changed regression alone rerun1/1, additional assertions logged in `.export/player-interaction-events-review-fix.log`. No broad rerun/smoke. Structure/diff PASS. Owner full-slice acceptance pending; no screamer/behavior subscriber invented.

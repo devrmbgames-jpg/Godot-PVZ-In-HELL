@@ -34,7 +34,7 @@ static func handle_input(holder: Entity, delta: float = 0.0) -> void:
 			or body == null or body.freeze
 			or (interactable != null and not interactable.enabled)
 		):
-			release(holder, held)
+			release(holder, held, false)
 	if not holder_available(holder):
 		ProlongedInteractionService.cancel(holder)
 		interactor.prompt_text = ""
@@ -192,15 +192,19 @@ static func try_pickup_body(
 
 
 ## Removes matching ownership and side effects while preserving physical inertia.
-static func release(holder: Entity, held: Entity) -> void:
+static func release(holder: Entity, held: Entity, notify_player: bool = true) -> void:
 	if not is_instance_valid(held):
 		return
 	var grip: Relationship = held_relationship(held)
 	if grip != null and grip.target == holder:
+		var grip_data: R_HeldBy = grip.relation as R_HeldBy
+		var notify: bool = notify_player and grip_data.lifecycle_applied and holder_available(holder) and entity_available(held)
 		held.remove_relationship(grip)
 		# World removal disconnects entity signals before notifying lifecycle listeners.
 		# Cleanup is idempotent, so it also covers this teardown path.
 		grip_removed(held, grip)
+		if notify and held.has_component(C_Package):
+			PlayerInteractionEvents.publish(holder, held, PlayerInteractionEvent.Kind.PARCEL_PLACED)
 
 
 ## Releases matching ownership before applying the configured velocity-change impulse.
@@ -256,12 +260,12 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 		not holder_available(holder) or not entity_available(entity)
 		or body == null or body.freeze or profile == null or not is_instance_valid(anchor)
 	):
-		release(holder, entity)
+		release(holder, entity, false)
 		return
 
 	var interactable: C_Interactable = entity.get_component(C_Interactable) as C_Interactable
 	if interactable != null and not interactable.enabled:
-		release(holder, entity)
+		release(holder, entity, false)
 		return
 
 	var allowed_break_distance: float = _allowed_break_distance(
@@ -277,7 +281,7 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 		profile,
 		allowed_break_distance,
 	):
-		release(holder, entity)
+		release(holder, entity, false)
 
 #endregion
 
@@ -333,12 +337,14 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 		load_state.active = true
 		load_state.mass_kg = body.mass
 
-	var cleanup: Callable = release.bind(holder, held)
+	var cleanup: Callable = release.bind(holder, held, false)
 	if not held.tree_exiting.is_connected(cleanup):
 		held.tree_exiting.connect(cleanup)
 	if not holder.tree_exiting.is_connected(cleanup):
 		holder.tree_exiting.connect(cleanup)
 
+	if held.has_component(C_Package):
+		PlayerInteractionEvents.publish(holder, held, PlayerInteractionEvent.Kind.PARCEL_PICKED)
 	return true
 
 
@@ -363,7 +369,7 @@ static func grip_removed(held: Entity, grip: Relationship) -> void:
 		if control != null and _cached(control, grip_data.slot) == held:
 			reset_holder(holder, grip_data.slot)
 
-	var cleanup: Callable = release.bind(holder, held)
+	var cleanup: Callable = release.bind(holder, held, false)
 	if is_instance_valid(held) and held.tree_exiting.is_connected(cleanup):
 		held.tree_exiting.disconnect(cleanup)
 
@@ -391,7 +397,7 @@ static func entity_unavailable(entity: Entity) -> void:
 	for slot_index: int in 3:
 		var held: Entity = held_in_slot(entity, slot_index)
 		if held != null:
-			release(entity, held)
+			release(entity, held, false)
 
 
 ## Clears one derived cache and its Carry modifiers without creating ownership.
@@ -795,11 +801,11 @@ static func integrate_generic_bodies(holder: Entity, delta: float) -> void:
 			not holder_available(holder) or body.freeze or profile == null
 			or not is_instance_valid(anchor)
 		):
-			release(holder, held)
+			release(holder, held, false)
 			continue
 		var interactable: C_Interactable = held.get_component(C_Interactable) as C_Interactable
 		if interactable != null and not interactable.enabled:
-			release(holder, held)
+			release(holder, held, false)
 			continue
 		var allowed_break_distance: float = _allowed_break_distance(
 			holder,
@@ -815,7 +821,7 @@ static func integrate_generic_bodies(holder: Entity, delta: float) -> void:
 			profile,
 			allowed_break_distance,
 		):
-			release(holder, held)
+			release(holder, held, false)
 
 
 ## Checks live tree and World membership before gameplay mutation.

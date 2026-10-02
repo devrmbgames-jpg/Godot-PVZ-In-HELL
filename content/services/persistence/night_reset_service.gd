@@ -20,6 +20,7 @@ static func reset() -> void:
 		ChallengeService.cancel(entity)
 		ProlongedInteractionService.cancel(entity)
 		PersistentInteractionState.reset_incomplete(entity)
+		OpenableService.cancel_player_request(entity)
 		CombatService.end_combat(entity)
 		if entity.has_component(C_CartTransport):
 			CartTransportService.end(entity)
@@ -32,7 +33,7 @@ static func reset() -> void:
 			for slot: int in 3:
 				var item: Entity = GrabService.held_in_slot(entity, slot)
 				if item != null:
-					GrabService.release(entity, item)
+					GrabService.release(entity, item, false)
 			var control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
 			control.captures.clear()
 			control.rotation_active = false

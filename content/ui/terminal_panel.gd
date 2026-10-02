@@ -102,6 +102,8 @@ func open_for(actor: Entity) -> void:
 	if visible:
 		_refresh(true)
 		return
+	if not GrabService.holder_available(actor):
+		return
 	_reader = actor
 	_capture_token = InteractionControlFocus.acquire(
 		actor,
@@ -114,6 +116,7 @@ func open_for(actor: Entity) -> void:
 	_refresh_remaining = 0.0
 	_last_data_signature = ""
 	_refresh(true)
+	PlayerInteractionEvents.publish(_reader, get_parent() as E_Terminal, PlayerInteractionEvent.Kind.TERMINAL_OPENED)
 
 
 func close_panel() -> void:
@@ -122,8 +125,10 @@ func close_panel() -> void:
 	visible = false
 	InteractionControlFocus.release(_reader, _capture_token)
 	_capture_token = 0
+	var reader: Entity = _reader
 	_reader = null
 	Input.mouse_mode = _previous_mouse_mode
+	PlayerInteractionEvents.publish(reader, get_parent() as E_Terminal, PlayerInteractionEvent.Kind.TERMINAL_CLOSED)
 #endregion
 
 

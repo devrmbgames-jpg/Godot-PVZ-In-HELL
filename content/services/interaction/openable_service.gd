@@ -4,6 +4,9 @@ class_name OpenableService
 
 enum Operation { OPEN, CLOSE, UNLOCK }
 
+## Joint motors approach their endpoint asymptotically; use a bounded settled range.
+const ENDPOINT_TOLERANCE: float = 0.02
+
 
 static func can_request(actor: Entity, target: Entity, operation: Operation) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.entity_available(target):
@@ -36,8 +39,10 @@ static func request(actor: Entity, target: Entity, operation: Operation) -> bool
 	match operation:
 		Operation.OPEN:
 			state.requested_open = true
+			_track_player_request(actor, target, true, state.actual_fraction < 1.0 - ENDPOINT_TOLERANCE)
 		Operation.CLOSE:
 			state.requested_open = false
+			_track_player_request(actor, target, false, state.actual_fraction > ENDPOINT_TOLERANCE)
 		Operation.UNLOCK:
 			if not ItemAccessService.fulfill(actor, state.access):
 				return false
@@ -47,11 +52,46 @@ static func request(actor: Entity, target: Entity, operation: Operation) -> bool
 
 ## A blocked controller reports its unchanged actual fraction, so intent alone
 ## cannot falsely mark an obstruction as passed or the object as fully open.
-static func report_fraction(state: C_Openable, fraction: float) -> bool:
+static func report_fraction(state: C_Openable, fraction: float, target: Entity = null) -> bool:
 	if state == null or not is_finite(fraction) or fraction < 0.0 or fraction > 1.0:
 		return false
 	state.actual_fraction = fraction
+	if EntityAvailability.contains(target, ECS.world) and target.get_component(C_Openable) == state:
+		_complete_player_request(target, state)
 	return true
+
+
+static func cancel_player_request(target: Entity) -> void:
+	if not is_instance_valid(target):
+		return
+	for binding: Relationship in target.relationships.duplicate():
+		if binding.relation is R_OpenableRequestedBy:
+			target.remove_relationship(binding)
+
+
+static func _track_player_request(actor: Entity, target: Entity, goal_open: bool, needs_motion: bool) -> void:
+	cancel_player_request(target)
+	if not needs_motion or not actor.has_component(C_PlayerInputController):
+		return
+	var pending: R_OpenableRequestedBy = R_OpenableRequestedBy.new()
+	pending.goal_open = goal_open
+	target.add_relationship(Relationship.new(pending, actor))
+
+
+static func _complete_player_request(target: Entity, state: C_Openable) -> void:
+	for binding: Relationship in target.relationships.duplicate():
+		var pending: R_OpenableRequestedBy = binding.relation as R_OpenableRequestedBy
+		if pending == null:
+			continue
+		var actor: Entity = binding.target as Entity if is_instance_valid(binding.target) else null
+		if not GrabService.holder_available(actor) or pending.goal_open != state.requested_open or state.locked:
+			target.remove_relationship(binding)
+			continue
+		var reached: bool = state.actual_fraction >= 1.0 - ENDPOINT_TOLERANCE if pending.goal_open else state.actual_fraction <= ENDPOINT_TOLERANCE
+		if reached:
+			# Consume first: reentrant subscribers must never see the same pending transition.
+			target.remove_relationship(binding)
+			PlayerInteractionEvents.publish(actor, target, PlayerInteractionEvent.Kind.DOOR_OPENED if pending.goal_open else PlayerInteractionEvent.Kind.DOOR_CLOSED)
 
 
 static func proposed_fraction(state: C_Openable, delta: float) -> float:

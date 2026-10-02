@@ -204,6 +204,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			ECS.world.entity_id_registry[entity.id] = entity
 	# Clear every old binding before any physical pose or saved binding is restored.
 	for entity: Entity in entities.values():
+		OpenableService.cancel_player_request(entity)
 		if entity not in fresh and not entity.enabled:
 			ECS.world.enable_entity(entity)
 		# Replace runtime ownership under the same guard used by Inventory transfer.

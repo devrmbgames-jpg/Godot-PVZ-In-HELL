@@ -33,3 +33,7 @@
 - 2026-10-03 — Windows803fbcd3 inventory-overlays-valves main/test exported, both actual-scene/120-frame startup PASS; LATEST.cmd/TEST_LEVEL.cmd updated.
 
 - 2026-10-03 — R24 M5: existing read-only Footstepper manual adapter for native player/rigid NPC, spatial NPC audio; camera-only tiny tunable bob; combined hunger/injury/gaze edge vignette. No input/body/physics authority changes. Targeted3/3,23; one full major-milestone GUT409/409,3185 assertions,44scripts,33.281s; independent read-only review clean, structure/diff PASS. Windows follows; owner sound/comfort/visual QA pending.
+
+- 2026-10-03 — Windows cfda84a0 character-feedback main/test exported, both actual-scene/120-frame startup PASS; LATEST.cmd/TEST_LEVEL.cmd updated.
+
+- 2026-10-03 — R24 M6 typed player_interaction World channel: six terminal/parcel/physical-door transitions, object/player stable IDs. Transient door attribution Relationship,2% actual endpoint tolerance, one-shot consume before publish; load/Night cancellation. No failed/NPC/teardown placement events. Focused5/5,48; independent review R5 automatic input cleanup FIXED, changed regression only rerun. No broad run; next QA07/08 and remaining queue.

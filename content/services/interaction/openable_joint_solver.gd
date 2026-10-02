@@ -23,7 +23,7 @@ static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: 
 		var axis: Vector3 = rotation.get_axis()
 		var actual: Quaternion = (closed.inverse() * local.basis.get_rotation_quaternion()).normalized()
 		var actual_angle: float = actual.get_angle() * actual.get_axis().dot(axis)
-		OpenableService.report_fraction(state, clampf(actual_angle / angle, 0.0, 1.0))
+		OpenableService.report_fraction(state, clampf(actual_angle / angle, 0.0, 1.0), entity)
 		var error: float = target_fraction * angle - actual_angle
 		var velocity: float = _motor_velocity(error, angle, state)
 		var world_axis: Vector3 = root.global_basis * motion.closed_transform.basis * axis
@@ -39,7 +39,7 @@ static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: 
 		if distance <= MOTION_EPSILON:
 			return
 		var actual_distance: float = (local.origin - motion.closed_transform.origin).dot(travel / distance)
-		OpenableService.report_fraction(state, clampf(actual_distance / distance, 0.0, 1.0))
+		OpenableService.report_fraction(state, clampf(actual_distance / distance, 0.0, 1.0), entity)
 		var error: float = target_fraction * distance - actual_distance
 		var velocity: float = _motor_velocity(error, distance, state)
 		var axis: Vector3 = slide.global_basis.inverse() * root.global_basis * (travel / distance)
