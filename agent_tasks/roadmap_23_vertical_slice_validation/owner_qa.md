@@ -99,13 +99,17 @@ Implementation complete: GUT40/40,332 assertions (4scripts); actual-main npc_rem
 
 ## QA-13 — Редактируемые материалы выделения и контракт overlay
 
-- [ ] Вынести материалы выделения во внешние файлы ресурсов `.res`, которые владелец может менять в редакторе без правки кода.
-- [ ] Создать несколько отдельных материалов по состояниям: как минимум «доступно» и «недоступно» (например, предмет слишком тяжёлый). Предусмотреть замену материалов и добавление других состояний через authored настройки.
-- [ ] Выбирать материал по действительной доступности взаимодействия; базовый материал объекта сохранять.
-- [ ] Зафиксировать и соблюдать общий игровой контракт: `MeshInstance3D.material_overlay` всегда предназначен для интерактивной обратной связи и выделений. Остальные визуальные эффекты не должны занимать этот слот.
-- [ ] Проверить существующие назначения overlay и корректную смену/очистку интерактивного выделения при смене цели, потере доступности, закрытии интерфейса и удалении объекта. Несколько источников интерактивной обратной связи не должны перезаписывать друг друга произвольно.
+- [x] Вынести материалы выделения во внешние файлы ресурсов `.res`, которые владелец может менять в редакторе без правки кода.
+- [x] Создать несколько отдельных материалов по состояниям: как минимум «доступно» и «недоступно» (например, предмет слишком тяжёлый). Предусмотреть замену материалов и добавление других состояний через authored настройки.
+- [x] Выбирать материал по действительной доступности взаимодействия; базовый материал объекта сохранять.
+- [x] Зафиксировать и соблюдать общий игровой контракт: `MeshInstance3D.material_overlay` всегда предназначен для интерактивной обратной связи и выделений. Остальные визуальные эффекты не должны занимать этот слот.
+- [x] Проверить существующие назначения overlay и корректную смену/очистку интерактивного выделения при смене цели, потере доступности, закрытии интерфейса и удалении объекта. Несколько источников интерактивной обратной связи не должны перезаписывать друг друга произвольно.
 
 Приёмка: внешние `.res` доступны для редактирования и замены; доступный и недоступный объект используют соответствующие материалы. Изменение ресурса меняет выделение в игре без изменения скриптов; базовый материал сохраняется, зависшего выделения нет. Контракт `material_overlay` действует для всего проекта.
+
+Current QA13 contract before implementation: external StandardMaterial3D .res files (available/unavailable/busy) referenced by exported System properties. Re-evaluate authoritative action/grab eligibility while target remains unchanged; aggregate multi-holder state deterministically. Overlay is reserved for interaction feedback, with previous interactive overlay restored only if this System still owns its current write. No shader overlay for unrelated visual effects; basic mesh material untouched.
+
+QA13 validation: only9 highlight-filtered tests,41 assertions in test_s_grab; resources created/inspected through MCP as native .res. Same-target weight/authoring transitions, multi-holder priority, modal cleanup, external writer yielding and baseline restoration PASS. Static overlay audit: only interaction System writes this slot. Structure/diff PASS; self-review no material findings; owner colors/visual acceptance pending.
 
 ## Порядок и проверка
 

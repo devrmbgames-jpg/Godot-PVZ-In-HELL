@@ -537,6 +537,98 @@ func test_disabled_physical_target_cannot_regain_highlight_on_next_targeting_tic
 	targeting.free()
 
 
+func test_highlight_authored_material_changes_with_weight_on_same_target() -> void:
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var config: C_Grabbable = box_entity.get_component(C_Grabbable) as C_Grabbable
+	config.allowed_hand_slots = 0
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
+	grab_world.add_system(highlight)
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var mesh: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
+	var base: StandardMaterial3D = StandardMaterial3D.new()
+	mesh.material_override = base
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, highlight.available_material)
+	assert_true(highlight.available_material.resource_path.ends_with("highlight_available.res"))
+	box_body.mass = 200.0
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, highlight.unavailable_material)
+	var custom: StandardMaterial3D = StandardMaterial3D.new()
+	highlight.unavailable_material = custom
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, custom, "An authored replacement is used without changing the target")
+	assert_eq(mesh.material_override, base)
+	box_body.mass = 5.0
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, highlight.available_material)
+	grab_world.remove_system(highlight)
+	await get_tree().process_frame
+	assert_null(mesh.material_overlay)
+
+
+func test_highlight_multi_holder_material_priority_and_removal_are_deterministic() -> void:
+	var second: Entity = make_holder(Vector3.ZERO)
+	var first_interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var second_interactor: C_Interactor = second.get_component(C_Interactor) as C_Interactor
+	second_interactor.target = box_entity
+	second_interactor.physics_target = box_body
+	var token: int = InteractionControlFocus.acquire(second, self, InteractionControlFocus.Priority.PROLONGED)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
+	grab_world.add_system(highlight)
+	var mesh: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
+	highlight.process([second, holder_entity], [[second_interactor, first_interactor]], 0.0)
+	assert_eq(mesh.material_overlay, highlight.available_material)
+	highlight.process([holder_entity, second], [[first_interactor, second_interactor]], 0.0)
+	assert_eq(mesh.material_overlay, highlight.available_material)
+	grab_world.remove_entity(holder_entity)
+	assert_eq(mesh.material_overlay, highlight.busy_material)
+	InteractionControlFocus.release(second, token)
+	second.remove_component(C_Interactor)
+	assert_null(mesh.material_overlay)
+
+
+func test_highlight_modal_clears_and_restores_without_target_change() -> void:
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
+	grab_world.add_system(highlight)
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var mesh: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
+	var original: StandardMaterial3D = StandardMaterial3D.new()
+	mesh.material_overlay = original
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_ne(mesh.material_overlay, original)
+	var token: int = InteractionControlFocus.acquire(holder_entity, self, InteractionControlFocus.Priority.MODAL)
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, original)
+	InteractionControlFocus.release(holder_entity, token)
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_ne(mesh.material_overlay, original)
+	grab_world.remove_system(highlight)
+	await get_tree().process_frame
+	assert_eq(mesh.material_overlay, original)
+
+
+func test_highlight_yields_to_other_interaction_overlay_and_does_not_erase_it() -> void:
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
+	grab_world.add_system(highlight)
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var mesh: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	var feedback: StandardMaterial3D = StandardMaterial3D.new()
+	mesh.material_overlay = feedback
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, feedback)
+	interactor.target = null
+	interactor.physics_target = null
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, feedback)
+	grab_world.remove_system(highlight)
+	await get_tree().process_frame
+	assert_eq(mesh.material_overlay, feedback)
+
+
 func test_carry_speed_is_linear_from_mass_and_current_strength() -> void:
 	var motion: C_Motion = C_Motion.new()
 	var strength: C_Strength = holder_entity.get_component(C_Strength) as C_Strength
