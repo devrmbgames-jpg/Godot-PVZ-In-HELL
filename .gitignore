@@ -13,6 +13,9 @@
 .import/
 export.cfg
 export_credentials.cfg
+.export/*
+!.export/.gdignore
+!.export/README.md
 *.tmp
 
 # Imported translations (automatically generated from CSV files)

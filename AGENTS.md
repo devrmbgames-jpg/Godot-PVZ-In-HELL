@@ -15,6 +15,8 @@ Keep the default path short: start from the user's task and the exact files, sym
 - No unexplained gameplay magic constants. Use named constants or authored/data-driven values.
 - Preserve scene/resource/data contracts unless migration is explicit: exported properties, node paths/names, signals, relationship/component ownership, resource paths, authored IDs.
 - Preserve unrelated user edits. Do not rewrite unrelated history, force-push, upgrade dependencies, write authored files into `.godot/`, or use `gh`.
+- All implementation and commits stay on `dev`. `master` is strictly read-only by the owner's instruction.
+- `MeshInstance3D.material_overlay` is reserved for interactive feedback/highlights; authored highlight materials are external editable resources.
 
 ## Context routing
 
@@ -58,6 +60,8 @@ Run at most one subagent at a time, including nested delegation. Await and integ
 Do not create bookkeeping for local fixes. For long or interruptible work, keep detailed state in the repository's existing task/roadmap file and keep `CURRENT_WORK.md` only as a compact resume checkpoint.
 
 Commit completed logical milestones separately when a task spans multiple stages. Do not push or open a PR unless requested.
+
+Between completed large tasks, create a runnable Windows QA build under `.export/` with `utils/export_windows.ps1`. Keep versioned build directories so the owner can play an earlier build during ongoing work. Generated binaries/logs are not committed.
 
 ## Validation
 
