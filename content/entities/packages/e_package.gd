@@ -24,4 +24,7 @@ func define_components() -> Array:
 	identity.package_id = package_id
 	identity.definition = package_definition
 	
-	return [identity]
+	var components: Array[Component] = [identity]
+	if package_definition != null and package_definition.unpack_scene != null:
+		components.append(C_PackageContents.new())
+	return components

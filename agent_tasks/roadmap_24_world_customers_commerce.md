@@ -1,6 +1,6 @@
 # R24 — Двери, посылки, торговля и поведение клиентов
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 ## Task state
 
@@ -18,7 +18,7 @@ Status: **PLANNED**
 ### Milestones
 
 - [x] M0: архивировать разросшуюся историю, оставить ссылки и правило дальнейшей ротации.
-- [ ] M1: разрушимые двери и тестовые наполненные посылки.
+- [x] M1: разрушимые двери и тестовые наполненные посылки.
 - [ ] M2: мебель, зона выдачи, доставка и настраиваемый каталог торговца.
 - [ ] M3: интервалы/уход клиентов, ограничения завершения смены, кабинки и осмотр посылок.
 - [ ] M4: шаблон клиента, съедобные останки и вероятностный ценный дроп.
@@ -32,7 +32,7 @@ R23 продолжает текущую реализацию замечаний.
 
 ### Current
 
-Новые требования записаны, M0 выполнен: история 16 336 байт сохранена целиком в архив №1, текущий файл короткий и содержит ссылку. R23 QA-18/19/05 завершены по реализации и узкой проверке. QA-06 и интервалы/уход M3 реализованы: пауза30с после физического удаления, endpoint либо минимум181с. Следующий шаг: двери M1 и оставшаяся очередь. Также выполнен пункт debug HUD: `debug_hud on/off/toggle`; остальные дополнения ещё не реализованы.
+Новые требования записаны, M0 выполнен: история 16 336 байт сохранена целиком в архив №1, текущий файл короткий и содержит ссылку. R23 QA-18/19/05 завершены по реализации и узкой проверке. QA-06 и интервалы/уход M3 реализованы: пауза30с после физического удаления, endpoint либо минимум181с. M1 двери/посылки завершён; большая75кг полка подготовлена для M2. Следующий шаг: экспорт M1, затем съедобные останки QA-04/M4 и остальная очередь. Также выполнен пункт debug HUD: `debug_hud on/off/toggle`; остальные дополнения ещё не реализованы.
 
 ### Validation
 
@@ -50,14 +50,14 @@ M0: сохранение прежнего содержимого целиком;
 
 ### Двери
 
-- [ ] Вариант двери с навесным замком: замок можно сломать, после чего дверь разблокируется.
-- [ ] Вариант двери с `C_Health`: саму дверь можно сломать; открытый проход больше не блокирует игрока/NPC.
+- [x] Вариант двери с навесным замком: замок можно сломать, после чего дверь разблокируется.
+- [x] Вариант двери с `C_Health`: саму дверь можно сломать; открытый проход больше не блокирует игрока/NPC.
 
 ### Посылки и мебель
 
-- [ ] Тестовая посылка распаковывается в небольшую полку **1,5 × 3 × 1,5 м**, две секции. Полку можно закрепить молотком.
-- [ ] Тестовая посылка выдаёт **пять аптечек**.
-- [ ] Тестовая посылка выдаёт **пять кусков хлеба**.
+- [x] Тестовая посылка распаковывается в небольшую полку **1,5 × 3 × 1,5 м**, две секции. Полку можно закрепить молотком.
+- [x] Тестовая посылка выдаёт **пять аптечек**.
+- [x] Тестовая посылка выдаёт **пять кусков хлеба**.
 - [ ] Торговец продаёт большую тяжёлую полку **3 × 3 × 1,5 м**; игрок может закрепить её молотком.
 - [ ] Купленная мебель появляется в специальной authored зоне возле торговца; игрок тащит её сам.
 - [ ] Торговец предлагает платную доставку предметов на дом.
@@ -87,3 +87,13 @@ M0: сохранение прежнего содержимого целиком;
 - [ ] Игрок взял/поставил посылку.
 - [ ] Игрок открыл/закрыл дверь.
 - [ ] События содержат игрока и конкретный объект, срабатывают один раз после фактического перехода и доступны будущему поведению NPC/скриммерам.
+
+### M1 active implementation contract
+
+Сначала двери: сохранять door_template и C_Openable authority; навесной замок — внутренний узел той же двери, HP на владельце; C_BreakableDoor выбирает PADLOCK/LEAF без второго Entity/session. Уничтожение замка разблокирует, дверь с Health освобождает проход. Использовать существующий damage pipeline; health/lock состояние сохранять через текущий snapshot boundary, не возвращать разрушенный authored объект после load. Добавить оба варианта в тестовую сцену с отдельными местами. Далее посылки с физическим содержимым.
+
+M1 unpack contract: optional DEF_Package.unpack_scene and existing content_quantity; C_PackageContents.released is a saveable one-shot guard, separate optional component so old PackageState save schema remains unchanged. Opened lifecycle spawns individual floor-projected physical contents, inventory quantity1 each. Small18kg/large75kg shelves have open cavities and real panel colliders, C_Anchorable and current physical grab. Optional hazard_on_opened uses existing autonomous emitter.
+
+### M1 validation
+
+GUT58/58,469 assertions (7scripts), `.export/doors-contents-final-gut.log`: real knife/hammer windows, padlock cannot unlock before damage, leaf clears both colliders, tombstones intact/broken snapshot/Night; five individual food/med items, physical opening, inventory eating/healing, one-shot across repeated lifecycle/load, opened hazard dedup; small shelf real ground support, actual hammer fastening and anchored snapshot. Existing unfix test now waits its authored duration (QA06 extended default). Strict actual-primitive `doors_contents-20261003-063148543.log` PASS; separate read-only door/contents reviews found no material findings. Structure/diff PASS; formatter unavailable SKIP. Full-day/visual QA belongs to owner.

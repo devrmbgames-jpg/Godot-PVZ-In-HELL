@@ -12,6 +12,13 @@ static func can_request(actor: Entity, target: Entity, operation: Operation) -> 
 	var interactable: C_Interactable = target.get_component(C_Interactable) as C_Interactable
 	if state == null or (interactable != null and not interactable.enabled):
 		return false
+	var breakable: C_BreakableDoor = target.get_component(C_BreakableDoor) as C_BreakableDoor
+	var health: C_Health = target.get_component(C_Health) as C_Health
+	if breakable != null and health != null:
+		if breakable.mode == C_BreakableDoor.Mode.LEAF and health.depleted:
+			return false
+		if breakable.mode == C_BreakableDoor.Mode.PADLOCK and not health.depleted and operation == Operation.UNLOCK:
+			return false
 	match operation:
 		Operation.OPEN:
 			return not state.locked and not state.requested_open

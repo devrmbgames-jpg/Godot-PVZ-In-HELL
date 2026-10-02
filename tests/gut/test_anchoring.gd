@@ -232,9 +232,10 @@ func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> voi
 	)
 	_drive_input(false, true, true)
 	assert_not_null(ProlongedInteractionService.session(_actor))
-	_drive_input(false, false, true, 0.75)
+	var half_duration: float = ProlongedInteractionService.active_progress(_actor).timing.duration_seconds * 0.5
+	_drive_input(false, false, true, half_duration)
 	assert_true(AnchoringService.is_player_anchored(_target))
-	_drive_input(false, false, true, 0.75)
+	_drive_input(false, false, true, half_duration)
 	assert_false(AnchoringService.is_player_anchored(_target))
 	assert_false(_body.freeze)
 	assert_eq(_body.freeze_mode, RigidBody3D.FREEZE_MODE_KINEMATIC)

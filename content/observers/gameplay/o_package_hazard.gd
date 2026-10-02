@@ -1,5 +1,5 @@
 extends Observer
-## Maps the first package Damaged transition to its autonomous short hazard scene.
+## Maps first damage/opening transitions to their authored autonomous hazard scenes.
 class_name O_PackageHazard
 
 func query() -> QueryBuilder:
@@ -7,14 +7,17 @@ func query() -> QueryBuilder:
 
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var event: PackageLifecycleEvent = payload as PackageLifecycleEvent
-	if event == null or event.kind != PackageLifecycleEvent.Kind.Damaged:
+	if event == null or event.kind not in [PackageLifecycleEvent.Kind.Damaged, PackageLifecycleEvent.Kind.Opened]:
 		return
 	if not is_instance_valid(entity):
 		return
 
 	var identity: C_Package = entity.get_component(C_Package) as C_Package
 	var definition: DEF_Package = identity.definition if identity != null else null
-	if definition == null or definition.hazard_on_damaged == null:
+	if definition == null:
+		return
+	var scene: PackedScene = definition.hazard_on_opened if event.kind == PackageLifecycleEvent.Kind.Opened else definition.hazard_on_damaged
+	if scene == null:
 		return
 
 	var actor: Entity = event.actor if is_instance_valid(event.actor) else null
@@ -25,11 +28,12 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 			actor = event.cause.request.instigator
 
 	var origin_id: String = event.package_id if not event.package_id.is_empty() else entity.id
-	var scene_key: String = _scene_key(definition.hazard_on_damaged)
+	var scene_key: String = _scene_key(scene)
+	var trigger: String = "opened" if event.kind == PackageLifecycleEvent.Kind.Opened else "damaged"
 	HazardEmitter.emit_scene(
 		entity,
-		definition.hazard_on_damaged,
-		"%s:damaged:%s" % [origin_id, scene_key],
+		scene,
+		"%s:%s:%s" % [origin_id, trigger, scene_key],
 		actor,
 		origin_id,
 		actor_id,

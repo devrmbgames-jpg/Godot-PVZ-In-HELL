@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DEF_Package" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/packages/def_package.gd" id="Definition"]
+[ext_resource type="PackedScene" path="res://content/entities/inventory/med_pickup.tscn" id="Contents"]
+
+[resource]
+script = ExtResource("Definition")
+key = &"test_unpack_medkits"
+shipment_number = "TEST-MEDKITS"
+description = "В коробке пять отдельных аптечек."
+comment = "Тестовая распаковка: F по коробке (Вскрыть посылку)."
+content_item_key = &"med"
+content_quantity = 5
+unpack_scene = ExtResource("Contents")

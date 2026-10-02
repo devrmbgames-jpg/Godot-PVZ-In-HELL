@@ -82,6 +82,15 @@
 
 [ext_resource type="Script" path="res://content/ui/circuit_light_view.gd" id="Circuit_light_view"]
 
+[ext_resource type="PackedScene" path="res://content/entities/doors/breakable_door.tscn" id="Breakable_door"]
+[ext_resource type="PackedScene" path="res://content/entities/doors/padlocked_door.tscn" id="Padlocked_door"]
+
+[ext_resource type="PackedScene" path="res://content/entities/packages/test_small_shelf.tscn" id="Unpack_small_shelf"]
+
+[ext_resource type="PackedScene" path="res://content/entities/packages/test_medkits.tscn" id="Unpack_medkits"]
+
+[ext_resource type="PackedScene" path="res://content/entities/packages/test_bread.tscn" id="Unpack_bread"]
+
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
 
@@ -838,3 +847,37 @@ text = "10 ВЕНТИЛИ: E / удержание F / сброс прогрес�
 [editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]
 [editable path="Entityes/DeliveryCounter"]
 [editable path="Entityes/ReceivingZone"]
+
+[node name="PadlockedDoor" parent="Entityes/Doors" instance=ExtResource("Padlocked_door")]
+position = Vector3(4, 0, 12)
+
+[node name="BreakableDoor" parent="Entityes/Doors" instance=ExtResource("Breakable_door")]
+position = Vector3(0, 0, 12)
+
+[node name="DoorBreakage" type="Label3D" parent="Signs"]
+position = Vector3(2, 3, 12)
+billboard = 1
+font_size = 28
+pixel_size = 0.004
+text = "ЗАМОК: разбейте ножом/молотком → откройте
+ДВЕРЬ: удары освобождают проход"
+
+[node name="UnpackSmallShelf" parent="Entityes/Props" instance=ExtResource("Unpack_small_shelf")]
+position = Vector3(-12, 0.5, -18)
+package_id = "test-unpack-small_shelf"
+
+[node name="UnpackMedkits" parent="Entityes/Props" instance=ExtResource("Unpack_medkits")]
+position = Vector3(-6, 0.5, -18)
+package_id = "test-unpack-medkits"
+
+[node name="UnpackBread" parent="Entityes/Props" instance=ExtResource("Unpack_bread")]
+position = Vector3(0, 0.5, -18)
+package_id = "test-unpack-bread"
+
+[node name="UnpackPackages" type="Label3D" parent="Signs"]
+position = Vector3(-6, 3, -18)
+billboard = 1
+font_size = 28
+pixel_size = 0.004
+text = "РАСПАКОВКА: полка / 5 аптечек / 5 хлеба
+F → вскрыть посылку. Полка закрепляется молотком."

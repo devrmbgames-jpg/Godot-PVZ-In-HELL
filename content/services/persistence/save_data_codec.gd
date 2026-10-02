@@ -13,6 +13,7 @@ static var _component_fields: Dictionary = {
 	C_InventoryItem: ["definition", "quantity"],
 	C_Package: ["package_id", "history_id", "definition", "delivery_day", "supply_key"],
 	C_PackageState: ["registration", "scan", "opening", "damage", "registration_number", "registration_day", "leaking"],
+	C_PackageContents: ["released"],
 	C_Health: ["base", "value", "current", "depleted"],
 	C_Hunger: ["value"],
 	C_ImpactProtection: ["tier"],

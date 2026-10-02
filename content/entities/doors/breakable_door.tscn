@@ -1,0 +1,42 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://content/entities/doors/door_template.tscn" id="Base"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_health.gd" id="Health"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_breakable_door.gd" id="Breakable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_openable.gd" id="Openable"]
+[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/definitions/interaction/def_openable_motion.gd" id="Motion"]
+[ext_resource type="Resource" path="res://content/definitions/interaction/def_openable_actions.tres" id="Actions"]
+
+[sub_resource type="Resource" id="Motion"]
+script = ExtResource("Motion")
+open_transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 0, 0)
+duration_seconds = 1.0
+
+[sub_resource type="Resource" id="Openable"]
+script = ExtResource("Openable")
+locked = false
+motion = SubResource("Motion")
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="Health"]
+script = ExtResource("Health")
+base = 90.0
+value = 90.0
+current = 90.0
+
+[sub_resource type="Resource" id="Breakable"]
+script = ExtResource("Breakable")
+mode = 0
+
+[node name="BreakableDoor" instance=ExtResource("Base")]
+component_resources = Array[ExtResource("Component")]([SubResource("Interactable"), ExtResource("Actions"), SubResource("Openable"), SubResource("Health"), SubResource("Breakable")])
+
+[node name="BreakageStatus" type="Label3D" parent="."]
+position = Vector3(0.8, 3.1, 0)
+billboard = 1
+font_size = 22
+pixel_size = 0.004

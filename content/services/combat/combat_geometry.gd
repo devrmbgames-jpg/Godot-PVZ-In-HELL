@@ -26,6 +26,9 @@ static func aim_point(target: Entity) -> Vector3:
 	var character: E_PhysicalCharacter = target as E_PhysicalCharacter
 	if character != null and character.head_axis_x != null:
 		return node.global_position.lerp(character.head_axis_x.global_position, 0.5)
+	var door: E_Door = target as E_Door
+	if door != null:
+		return door.strike_point()
 	return node.global_position + Vector3.UP * GENERIC_TARGET_HEIGHT
 
 
@@ -48,7 +51,7 @@ static func clear_line(actor: Entity, target: Entity, mask: int) -> bool:
 		return false
 	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin(actor), aim_point(target), mask, exclusions(actor))
 	var hit: Dictionary = node.get_world_3d().direct_space_state.intersect_ray(ray)
-	return hit.is_empty() or hit.get("collider") == target
+	return hit.is_empty() or InteractionTargetingService.collider_entity(hit.get("collider") as Object) == target
 
 
 static func in_cone(actor: Entity, target: Entity, reach: float, half_angle_degrees: float) -> bool:

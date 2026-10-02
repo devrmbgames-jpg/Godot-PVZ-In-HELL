@@ -72,6 +72,10 @@
 
 [ext_resource type="Script" path="res://content/observers/challenges/o_light_flicker.gd" id="Light_flicker"]
 
+[ext_resource type="Script" path="res://content/observers/gameplay/o_door_breakage.gd" id="Door_breakage"]
+
+[ext_resource type="Script" path="res://content/observers/gameplay/o_package_contents.gd" id="Package_contents"]
+
 [node name="World" type="Node" unique_id=1962298586]
 script = ExtResource("2_da1x8")
 entity_nodes_root = NodePath("../Entityes")
@@ -304,3 +308,9 @@ script = ExtResource("Grab_lifecycle")
 
 [node name="O_LightFlicker" type="Node" parent="Systems/GamePlay"]
 script = ExtResource("Light_flicker")
+
+[node name="O_DoorBreakage" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("Door_breakage")
+
+[node name="O_PackageContents" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("Package_contents")
