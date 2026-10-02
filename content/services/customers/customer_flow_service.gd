@@ -259,6 +259,7 @@ static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void
 	if ChallengeService.begin_on_arrival(customer, player):
 		customer.show_message(challenge.definition.rule_text)
 		CustomerArrivalService.begin(customer, challenge)
+	CustomerGreetingService.announce_order(customer, visit)
 
 
 static func bind_parcel(customer: Entity, visit: CustomerVisit) -> void:
@@ -305,6 +306,7 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 		return
 	bind_parcel(customer, visit)
 	agent.elapsed += delta
+	CustomerGreetingService.tick(customer, visit)
 	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
 	match agent.phase:
 		C_CustomerAgent.Phase.WAITING_FOR_DARKNESS:
@@ -315,9 +317,10 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 				_transition(agent, C_CustomerAgent.Phase.WAITING)
 				NpcIntentService.stop(customer)
 				_watch_player(customer)
-				customer.show_message("Здравствуйте!")
+				if not agent.order_announced:
+					customer.show_message("Здравствуйте!")
 				var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
-				if challenge != null and challenge.phase == C_Challenge.Phase.ACTIVE:
+				if challenge != null and challenge.phase == C_Challenge.Phase.ACTIVE and not agent.order_announced:
 					customer.show_message(challenge.definition.rule_text)
 			elif agent.elapsed >= visit.definition.approach_timeout:
 				_leave(customer, visit)
@@ -362,6 +365,10 @@ static func greet(customer: E_Customer) -> void:
 	var visit: CustomerVisit = find_visit(agent.visit_id)
 	if CustomerPresentation.uses_wall_order(visit.definition):
 		customer.show_message("Номер моего заказа появился на стене. Выдайте его на стойке, не смотрите на меня.")
+	elif CustomerPresentation.uses_quick_order(visit.definition):
+		if not agent.order_announced:
+			customer.show_message(CustomerPresentation.request_text(visit))
+		CustomerGreetingService.announce_order(customer, visit)
 	else:
 		customer.show_message("Здравствуйте. Поговорите со мной, чтобы узнать номер заказа.")
 

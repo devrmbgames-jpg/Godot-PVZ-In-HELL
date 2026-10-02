@@ -9,6 +9,14 @@ static func request_text(visit: CustomerVisit) -> String:
 	return "%s\nМой заказ ещё не зарегистрирован. Просканируйте поступившие коробки." % visit.definition.display_name
 
 
+static func uses_quick_order(definition: DEF_Customer) -> bool:
+	return (
+		definition != null and definition.introduction == DEF_Customer.Introduction.ANNOUNCE_ORDER
+		and definition.dialogue_mode == DEF_Customer.DialogueMode.DIRECT
+		and not uses_wall_order(definition)
+	)
+
+
 static func registered_number(visit: CustomerVisit) -> int:
 	if visit == null:
 		return -1

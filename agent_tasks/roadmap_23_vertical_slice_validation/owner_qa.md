@@ -59,16 +59,16 @@ Implementation complete: GUT40/40,332 assertions (4scripts); actual-main npc_rem
 
 ## QA-07 — Номер посылки сразу при входе
 
-- [ ] Добавить authored вариант клиента, который при входе в помещение сообщает номер посылки баблом без открытия диалога.
-- [ ] Использовать его для клиентов, ожидающих быстрой выдачи и не собирающихся вступать в полемику.
-- [ ] Сообщение выдаётся один раз за визит после определения действительного номера; такой клиент может получить посылку без обязательного диалога.
+- [x] Добавить authored вариант клиента, который при входе в помещение сообщает номер посылки баблом без открытия диалога.
+- [x] Использовать его для клиентов, ожидающих быстрой выдачи и не собирающихся вступать в полемику.
+- [x] Сообщение выдаётся один раз за визит после определения действительного номера; такой клиент может получить посылку без обязательного диалога.
 
 Приёмка: виден правильный номер, повторный вход/обновление состояния не спамит баблами; обычные диалоговые и опасные клиенты сохраняют свои правила.
 
 ## QA-08 — Клиент сам начинает диалог
 
-- [ ] Добавить authored вариант клиента, который инициирует диалог при первом подходе игрока.
-- [ ] Задать дистанцию данными, запускать один раз за визит, учитывать занятый диалог/модальное действие и состояние клиента.
+- [x] Добавить authored вариант клиента, который инициирует диалог при первом подходе игрока.
+- [x] Задать дистанцию данными, запускать один раз за визит, учитывать занятый диалог/модальное действие и состояние клиента.
 
 Приёмка: выбранный клиент начинает разговор без клика; закрытие диалога или повторный подход не запускает его снова. Обычный клиент по-прежнему ждёт взаимодействия; быстрый клиент QA-07 не получает обязательный разговор.
 
@@ -133,3 +133,9 @@ QA13 validation: only9 highlight-filtered tests,41 assertions in test_s_grab; re
 Сначала актуальная карта, управление и торговец (QA-01/02/11), затем тайминги, читабельность и выделение (QA-05/06/13), инвентарь/оружие/труп/еда (QA-03/04/09), поведение клиентов (QA-07/08), glue и заготовка ИИ (QA-10/12). Каждый пункт закрывать отдельно по фактическому результату.
 
 Команды проверки расширяются в [Developer Console Testing](../developer_console_testing.md); это вспомогательное воспроизведение, не доказательство прохождения дня без debug. Выполнить узкую проверку изменяемых контрактов, интеграционную проверку близко к завершению и передать основную сцену владельцу для повторного игрового QA согласно его просьбе.
+
+## Active QA07/08 contract (recorded before implementation)
+
+One authored DEF_Customer introduction mode: manual / announce order / first-approach dialogue; authored approach distance2m. Quick customer's real active ledger number appears once after spawn/registration, without modal dialogue; approaching/waiting transitions preserve it. Riddle/wall-order clients retain their contract. Auto dialogue starts once per physical visit only in waiting phases, with live player, clear LOS/range, no modal/prolonged/push/transport; busy state retries when free, successful manual/automatic start consumes the same guard. Closing/walking away does not replay. Default books quick; clothes first-approach. Timers/challenges retain existing owners. Focused behavioral checks justified, no broad rerun.
+
+QA07/08 implemented: DEF_Customer.Introduction MANUAL/ANNOUNCE_ORDER/FIRST_APPROACH_DIALOGUE, auto_dialogue_distance2m. Per-appearance C_CustomerAgent guards; active ledger number, no dialogue for quick mode; riddle and arrival wall-order unaffected. Actual player/NPC LOS/range and captures/console gate auto; manual start consumes same guard, success-only. Debug status shows introduction conditions above NPC. Default books quick, clothes auto. Focused4/4,40 assertions (`.export/customer-introductions-gut.log`); added console exclusion, changed first_approach regression alone1/1,14 assertions (`.export/customer-introductions-console-gut.log`). Independent read-only review clean; structure/diff PASS. Owner visual/full-slice QA pending; no broad rerun/smoke.

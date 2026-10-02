@@ -27,6 +27,10 @@ static func text_for(customer: E_Customer) -> String:
 	var lines: Array[String] = ["%s · %s" % [visit.definition.display_name, "№%03d" % number if number >= 0 else "без номера"]]
 	var duration: float = _phase_duration(agent, visit.definition)
 	lines.append("%s · %.1f / %.1f с" % [PHASE_NAMES[agent.phase], agent.elapsed, duration])
+	if CustomerPresentation.uses_quick_order(visit.definition):
+		lines.append("Без диалога · номер %s" % ["сообщён" if agent.order_announced else "ждёт регистрации"])
+	elif visit.definition.introduction == DEF_Customer.Introduction.FIRST_APPROACH_DIALOGUE and not agent.dialogue_started and agent.phase in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]:
+		lines.append("Автодиалог: ≤%.1f м · видимость · свободный ввод" % visit.definition.auto_dialogue_distance)
 	var health: C_Health = customer.get_component(C_Health) as C_Health
 	if health != null:
 		var fraction: float = clampf(health.get_hp_current() / maxf(health.get_hp_max(), MINIMUM_HEALTH_MAXIMUM), 0.0, 1.0)

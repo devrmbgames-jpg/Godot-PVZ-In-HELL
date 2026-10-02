@@ -2,6 +2,7 @@ extends GameDefinition
 class_name DEF_Customer
 
 enum DialogueMode { DIRECT, RIDDLE }
+enum Introduction { MANUAL, ANNOUNCE_ORDER, FIRST_APPROACH_DIALOGUE }
 const MINIMUM_LEAVING_SECONDS: float = 181.0
 
 @export var display_name: String = "Клиент"
@@ -11,6 +12,8 @@ const MINIMUM_LEAVING_SECONDS: float = 181.0
 ## Local drop position for a refused parcel received directly from the player's hands.
 @export var refused_parcel_offset: Vector3 = Vector3(0.75, 0.75, 0.0)
 @export var dialogue_mode: DialogueMode = DialogueMode.DIRECT
+@export var introduction: Introduction = Introduction.MANUAL
+@export_range(0.5, 5.0, 0.1) var auto_dialogue_distance: float = 2.0
 @export var dialogue_reactions: Array[DEF_CustomerDialogueReaction] = []
 @export var challenge: DEF_Challenge = null
 @export_range(0, 100) var riddle_wrong_satisfaction_penalty: int = 20

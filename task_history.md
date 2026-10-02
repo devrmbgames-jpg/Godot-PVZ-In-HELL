@@ -37,3 +37,6 @@
 - 2026-10-03 — Windows cfda84a0 character-feedback main/test exported, both actual-scene/120-frame startup PASS; LATEST.cmd/TEST_LEVEL.cmd updated.
 
 - 2026-10-03 — R24 M6 typed player_interaction World channel: six terminal/parcel/physical-door transitions, object/player stable IDs. Transient door attribution Relationship,2% actual endpoint tolerance, one-shot consume before publish; load/Night cancellation. No failed/NPC/teardown placement events. Focused5/5,48; independent review R5 automatic input cleanup FIXED, changed regression only rerun. No broad run; next QA07/08 and remaining queue.
+
+- 2026-10-03 — Windows b3168432 player-events main/test exported, both actual-scene/120-frame startup PASS; launchers updated.
+- 2026-10-03 — R23 QA07/08: authored manual/quick-number/first-approach modes, real active ledger number, successful conversation guards per appearance. LOS/distance/native captures/console exclude auto interrupt; closing does not replay; riddle/wall unchanged. Default books quick, clothes auto; local debug conditions. Focused4/4,40 + changed console case1/1,14; independent review clean; structure/diff PASS. Owner QA pending, no broad run.

@@ -6,8 +6,22 @@ const DIALOGUE_PATH: String = "res://content/dialogue/customer_service.dialogue"
 const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
 
 
+static func can_start(actor: Entity, customer: E_Customer) -> bool:
+	if not GrabService.holder_available(actor) or not EntityAvailability.contains(customer, ECS.world) or customer.has_component(C_Death):
+		return false
+	if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.PUSH or bool(Console.is_visible()):
+		return false
+	var visit: CustomerVisit = null
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent != null:
+		visit = CustomerFlowService.find_visit(agent.visit_id)
+	if visit == null or visit.finished or CustomerPresentation.uses_quick_order(visit.definition):
+		return false
+	return agent.phase in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE] and customer.get_tree().get_nodes_in_group(ACTIVE_GROUP).is_empty()
+
+
 static func start(actor: Entity, customer: E_Customer) -> bool:
-	if not is_instance_valid(actor) or not is_instance_valid(customer):
+	if not can_start(actor, customer):
 		return false
 	var tree: SceneTree = customer.get_tree()
 	if tree == null or not tree.get_nodes_in_group(ACTIVE_GROUP).is_empty():
@@ -40,4 +54,5 @@ static func start(actor: Entity, customer: E_Customer) -> bool:
 		context.end()
 		panel.queue_free()
 		return false
+	agent.dialogue_started = true
 	return true
