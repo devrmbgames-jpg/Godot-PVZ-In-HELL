@@ -45,7 +45,9 @@ Implementation complete: three quantity-driven world pickups, 8-stack inventory 
 - Separate read-only reviewer completed bounded ownership/transaction/lifecycle/UI review; R4 integrated. Main independently reviewed integration and serialized scene/input contracts.
 
 ### Owner QA / blockers
-Rendered UI layout/readability, pickup visuals and table placement, gamepad navigation and consumable balance remain owner QA. Existing inventory action uses Tab/gamepad; no InputMap migration. No rendered visual engine check performed. No implementation blocker.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/combat_hunger_inventory.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

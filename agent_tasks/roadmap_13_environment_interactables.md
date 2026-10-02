@@ -40,7 +40,9 @@ Do not create a parallel planning document. This file remains the authoritative 
 - Project structure and git diff --check PASS. Formatter unavailable; no formatter success claimed.
 
 ### Owner QA / blockers
-Required owner walkthrough: E open/close on Door, Window and Drawer; light switch changes indoor lamps; prompts/highlights remain readable; boxes/player can block motion and motion resumes when clear. Check visible clearance and cabinet/window appearance. No implementation blocker remains.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/environment_and_challenges.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ### Review findings
 - R1 (BUG, GECS archetype transition cycles retained scene action/motion resources at teardown): FIXED in project level lifecycle with live-Entity removal and World.purge; addons unchanged. Both scene disposal and actual engine shutdown validated. Customer dialogue fixture still reports two retained script resources; tracked by R12.2/R23.

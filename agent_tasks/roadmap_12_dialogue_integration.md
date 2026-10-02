@@ -53,11 +53,9 @@ Visible intent prefixes are implemented in CustomerDialoguePanel.format_response
 - An unrelated editor resave removed existing GECS system `group` metadata from `main_level.tscn`; merge resolution intentionally keeps the current `master` scene instead of that accidental diff.
 
 ### Owner QA / blockers
-After the intent-prefix extension:
-- every tagged answer visibly shows the expected prefix;
-- selecting the answer still forwards the original short tag (`hon/lie/prs/thr/flr/jok`);
-- the prefix is not duplicated after reopening/rebuilding the dialogue UI;
-- untagged answers remain unchanged.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/dialogue_and_customers.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

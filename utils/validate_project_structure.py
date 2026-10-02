@@ -319,7 +319,7 @@ def _check_res_paths(errors: list[str]) -> None:
 def _iter_markdown_files() -> list[Path]:
     files: list[Path] = [ROOT / "PROJECT_INDEX.md"]
 
-    for root_name in ("agent_tasks", "docs/roadmap"):
+    for root_name in ("agent_tasks", "qa_tasks", "docs/roadmap"):
         root_path: Path = ROOT / root_name
         if root_path.exists():
             files.extend(sorted(root_path.rglob("*.md")))

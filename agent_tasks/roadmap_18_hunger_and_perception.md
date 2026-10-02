@@ -38,7 +38,9 @@ Implementation complete: authored policy/state, active-time System, typed Food e
 - Resulting diff reviewed independently in the main session; no material open findings.
 
 ### Owner QA / blockers
-Rendered food readability, debug panel layout, speed/damage balance and longer gameplay pacing remain owner QA. No rendered/visual engine check performed. No implementation blocker.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/combat_hunger_inventory.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

@@ -60,13 +60,9 @@ Base migration committed as 7464a941. NavigationAgent3D extension implemented an
 - R1 (BUG, existing shutdown resource retention in dialogue/handoff surfaces): ACCEPTED for R12.2 scope; gameplay assertions pass, clean teardown remains required by R23. No addon modification made.
 
 ### Owner QA / blockers
-Требуется owner QA после реализации:
-- Customer физически приходит к стойке, ждёт и уходит как раньше.
-- Во время ожидания/диалога Customer естественно смотрит на Player; голова и корпус не дёргаются.
-- Коробки/другие RigidBody физически мешают NPC; NPC не проходит сквозь них и не телепортируется.
-- Сильный физический impulse/impact реально сдвигает Customer; после стабилизации NPC способен продолжить движение к цели.
-- Прямой handoff в руках, counter delivery, dialogue/refusal/follow-up остаются рабочими.
-- Player movement/look/grab/push/cart не изменились после выделения общего character foundation.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/dialogue_and_customers.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

@@ -44,13 +44,6 @@ Technical implementation is on master, including direct held-Package handoff, re
 - Validation runs: 36571644697 (Project validation) and 36571644653 (R12.1 negotiation validation).
 
 ### Owner QA / blockers
-Gameplay/visual QA required:
-- Talk to a waiting Customer and choose refusal branches for honest/lie/persuade/threat/flirt/joke.
-- Confirm joke returns to a non-denied path; other refusal outcomes can leave or become aggressive according to policy.
-- Deliver a Package but declare REFUSED or LOST in Terminal; actual must remain DELIVERED.
-- Refuse/withhold a Package but declare TAKEN in Terminal; actual must remain PLAYER_DENIED/NOT_RESOLVED as appropriate.
-- Leave declaration NONE and advance days until at least one repeat visit occurs; confirm the Customer asks about the same registered Package again.
-- After a repeat visit, confirm the Package can still be delivered and prior player_denial_count/history is preserved.
-- While holding the requested Package, aim at the waiting Customer and confirm F shows "Передать посылку" and delivers without using the counter.
-- Offer a wrong/unregistered/refused-condition Package directly and confirm it remains in the Player's grip; large boxes can still be released onto the counter and delivered through the original path.
-No technical blocker is currently recorded.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/dialogue_and_customers.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.

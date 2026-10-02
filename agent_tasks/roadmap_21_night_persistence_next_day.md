@@ -45,7 +45,9 @@ Agent implementation complete. Foundation `baaa8478`, physical Morning return `d
 - Separate read-only review R2–R6 integrated; reviewer rechecked R4–R6 as FIXED and ran no tests. Final hardening regression/review completed above.
 
 ### Owner QA / blockers
-Owner rendered sleep/receiving/return route, gamepad UI and multi-day pacing remain. No implementation blocker.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/commerce_and_persistence.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ### Review
 | ID | Severity | Finding | State | Evidence / decision |

@@ -48,7 +48,9 @@ Implementation, independent review and final checks complete. R1 payment-order d
 - R1 — FIXED: delivery could settle before a later challenge failure reduced satisfaction. Settlement now defers until resolution/cancellation and consumption. Regressions cover delivery → TAKEN → failure for timed and departure variants, preserving one payment operation.
 
 ### Owner QA / blockers
-Owner QA: verify switch-route timing, demand comprehension and HUD readability in rendered play; tune 20-second requests, 10-second preparation and 1-second violation grace as needed. No implementation blocker.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/environment_and_challenges.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

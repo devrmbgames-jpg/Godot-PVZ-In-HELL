@@ -61,9 +61,9 @@ Historical validation for Stages 1–9 only; extension Stages 10–15 have not b
 - No rendered/visual Godot run was performed.
 
 ### Owner QA / blockers
-No blocker for existing-feature/help work. New-feature commands depend on corresponding R23 implementation. Required extension QA: help is usable from the console and reports registered commands; new commands exercise authoritative gameplay contracts. Full gameplay-slice testing remains with the owner as requested.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/developer_console.md).
 
-Scroll acceptance: open console, generate several screens of output (including help), scroll to old lines and back with mouse wheel/scrollbar, check PageUp/PageDown, enter another command, close/reopen console. Text input remains usable and scrolling the console does not move the player/camera. Record the result when implemented.
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

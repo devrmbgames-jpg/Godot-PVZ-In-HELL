@@ -41,7 +41,9 @@ Shared geometry/LOS producer, inverse configurations, continuous reset policy, i
 - Formatter unavailable; no rendered/visual check claimed.
 
 ### Owner QA / blockers
-Owner QA: search/carry/issue a parcel under both gaze configurations; verify warning readability, wall occlusion intuition and timing. Reduced gaze motion defaults on; optional shader ripple needs rendered review. No implementation blocker remains.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/environment_and_challenges.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

@@ -38,7 +38,9 @@ Implementation complete: physical external Trader with NavigationAgent, evening 
 - Separate read-only reviewer found no material issues in transaction/quest ownership, actual outcomes, modal UI and scene contracts. Reviewer ran no tests.
 
 ### Owner QA / blockers
-Owner rendered external walking route, keyboard/gamepad navigation and economy balance remain. Physical next-Morning fulfillment and restart durability are R21 scope. No implementation blocker.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/commerce_and_persistence.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

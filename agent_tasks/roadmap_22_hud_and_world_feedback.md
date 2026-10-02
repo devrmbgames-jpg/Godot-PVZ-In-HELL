@@ -33,7 +33,9 @@ Implementation complete. M1 `9d4abdec`: bottom-left ordinary status panel and fo
 Final GUT `r22_final_gut.log`: 109/109 PASS, 548 assertions, no orphans/ObjectDB/resource leaks. Includes damage feedback, grab, openable access, prolonged session/progress and player melee. New feedback tests prove committed-only delivery, cleanup/depletion safety, disabled UI preserves damage, bounded labels and signal disconnection. Initial combined run exposed existing test fixture leaks: temporary PlayerIntent systems now freed; openable/prolonged Worlds purged before free. Narrow diagnostic runs and final rerun verified cleanup. Separate read-only review: no material findings. Strict `player_feedback-20261002-140308131.log` PASS with debug disabled: status/face markings, damage types, UI-off damage, native door ray/real item pickup and scanner confirmation/rejection. Fixture setup is synthetic; no full gameplay playthrough or visual/audio-perceptual claim. Strict `challenge_gaze-20261002-140626943.log` PASS; main headless 120-frame shutdown has external Windows certificate error only, no project errors/leaks. Structure/diff PASS. Owner visual/gamepad/layout/readability QA remains.
 
 ### Owner QA / blockers
-Owner rendered full-scenario readability, UI layout, gamepad and audio perception QA remain. No implementation blocker.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/feedback_and_audio.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

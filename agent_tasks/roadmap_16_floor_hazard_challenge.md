@@ -43,7 +43,9 @@ Actual support snapshot, autonomous floor prefab, challenge effect Relationship,
 - R1 — FIXED: floor damage could precede generic cancellation after day/phase invalidation. Session predicate now guards setup and damage, setup follows day transitions, and two regressions invalidate a partially accumulated damage interval without losing HP.
 
 ### Owner QA / blockers
-Owner QA: play the 3-second preparation/12-second hazard route with movable boxes, perimeter and furniture; inspect zone colors/readability and confirm jump/carry timing. No implementation blocker remains.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/environment_and_challenges.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

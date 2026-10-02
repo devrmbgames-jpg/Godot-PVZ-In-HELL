@@ -31,7 +31,9 @@ M0–M4 complete. Current owners audited; highlight/domain lookup, native hazard
 M4 final GUT 151/151 PASS, 921 assertions, no project errors/orphans/resource leaks. Strict hazards and integrated main player_feedback smokes PASS. Static gate: 39 scheduled Systems, 28 reactive Observers, no System helper/locator/frame-machine violations or legacy follow-owner field. Structure/diff PASS; separate reviewer: no unresolved material findings. M1–M3 used static-only validation. Detailed evidence/fixture corrections in M4; rendered/full-day/gamepad/audio QA remains in feature tasks/R23.
 
 ### Owner QA / blockers
-Feature implementation gate satisfied; owner rendered/full-scenario QA remains separate. No agent implementation blocker.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/feedback_and_audio.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

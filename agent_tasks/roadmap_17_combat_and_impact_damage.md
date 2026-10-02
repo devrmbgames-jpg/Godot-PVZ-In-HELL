@@ -50,7 +50,9 @@ NPC 3+3 slots, independent attack execution, animation hooks/timed fallback, swe
 - Separate reviewer delivered R1/R2, then stopped due to usage limit. Main agent completed the remaining resulting-code/scene/data/lifecycle/input review; no other material findings remain. This is partial separate-agent review plus completed main-session review, not a completed separate-agent review.
 
 ### Owner QA / blockers
-No implementation blocker. Owner gameplay/visual QA: assign authored attack clips, check method-track hit/release moments, motion/telegraph feel, ranged dodging and blade readability. Check warehouse routes/physical box interference and debug panel layout at target resolution. No rendered check was performed in this task.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/combat_hunger_inventory.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 

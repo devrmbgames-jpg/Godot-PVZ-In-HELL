@@ -38,13 +38,15 @@ Resumed by owner 2026-10-03 on dev; master is read-only. Windows export infrastr
 M1 c33d40a9 and prior M2 input-driver evidence remain historical. The eight scans/Terminal/arrival/dialogue were on the previous geometry; no full-day PASS. The enlarged map requires fresh navigation validation. Prior handoff failed before delivery with NPC aggression; cause still requires investigation after the physical/interaction repairs. Full-slice manual testing remains assigned to the owner.
 
 ### Validation
-2026-10-03 repair batch: focused control/Trader physical regression, Commerce, Jump and melee checks — 23/23 GUT, 145 assertions, no leaks (qa-controls-final-gut.log under .export). Main and exported Windows startup checked headlessly (120 frames); no game errors after scale-safe stair migration, external certificate-store warning recorded separately. Structure validator now accepts native SystemGroup auto_group initialization; formatter unavailable (SKIP). Separate read-only review found no material findings. These checks do not establish full-day or visual acceptance.
+2026-10-03 repair batch: focused control/Trader physical regression, Commerce, Jump and melee checks — 23/23 GUT, 143 assertions, no leaks (qa-controls-final-gut.log under .export). Main and exported Windows startup checked headlessly (120 frames); no game errors after scale-safe stair migration, external certificate-store warning recorded separately. Structure validator now accepts native SystemGroup auto_group initialization; formatter unavailable (SKIP). Separate read-only review found no material findings. These checks do not establish full-day or visual acceptance.
 2026-10-02 QA task recording: project structure validator and changed-document diff check PASS; no gameplay implementation or runtime validation in this documentation update.
 
 R22.5 dependency gate complete: 151/151 GUT (921 assertions), strict hazards/integrated main feedback smokes, static/structure/diff and independent review. R23 M1 authored manifest PASS; strict challenge_light-20261002-145614714.log PASS; diff PASS. R23-specific full-project GUT/no-debug day walkthrough has not run. M2 native bake PASS (156 polygons, no radius precision warning); draft logs r23_input_day_draft.log contain a failing handoff and are not final smoke evidence. Earlier draft eight-input-scans PASS had two native audio objects pending at accelerated shutdown; do not report it as strict leak-free PASS.
 
 ### Owner QA / blockers
-Owner resumed implementation and requested Windows builds between large tasks. Full-slice playtesting remains with the owner; development proceeds on remaining mechanics without rendered gameplay automation. QA-01/02 implementation is covered by the first repair batch; player verification, especially slopes/moving support/camera feel, remains. Other QA items remain pending.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/full_day.md).
+
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 
