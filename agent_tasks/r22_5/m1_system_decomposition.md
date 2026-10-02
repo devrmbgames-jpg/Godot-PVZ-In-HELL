@@ -1,6 +1,6 @@
 # R22.5 M1 — System Decomposition
 
-Status: **PLANNED**  
+Status: **DONE**
 Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
 
 ## Task state
@@ -9,13 +9,26 @@ Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
 Remove structural System coupling and pseudo-System/service patterns while preserving behavior.
 
 ### Current
-Not started under the lean workflow. On resume, verify each historical target against current master before choosing the first bounded change.
+Verified against current production after R22 `5feee8fb`. All historical decomposition targets are already implemented; retain current owners rather than repeat migrations. Current disposition is recorded below. Next: M2 targeting/marker/domain presentation audit.
 
 ### Validation
-Not run.
+Static current-source audit: 39 scheduled System scripts each define query/process; no static System helpers, class calls, System-instance construction or System locator scans in production systems/services/entities/observers/definitions. Exact lifecycle/physics/input/receiving/day/damage owners inspected. Independent reread: no material M1 findings. Diff whitespace check PASS. No GUT/engine run for M1; final task runtime budget remains M4.
 
 ### Owner QA / blockers
-Deferred by the R22.5 dependency gate.
+No implementation blocker. Gameplay/visual QA remains in the owning feature tasks.
+
+## Verified production disposition (2026-10-02)
+
+| Area | Current owners and decision |
+| --- | --- |
+| Grab | `S_Grab` schedules input/validation through CommandBuffer; `O_GrabLifecycle` reacts to `R_HeldBy`; `GrabService` owns imperative transactions/anchor helpers; `GrabPhysicsSolver` performs spring math. Authored body callbacks retain physics authority; generic rigid bodies use the explicit pre-physics velocity/force fallback. No System service API. |
+| Push | `S_Push` queues session validation; `O_PushLifecycle` reacts to `R_PushedBy`; `PushService` owns begin/end; `PushCartSolver`/`PushActorSolver` run from their respective body callbacks. |
+| Cart | `O_CartLifecycle` and cargo/transport services own `R_CartCargo`/`R_CartDrivenBy`; `E_TransportCart` calls `CartDriveSolver`, actor/cargo callbacks call their separate solvers. No empty Cart pseudo-System is registered. Derived caches remain secondary. |
+| Player input | `S_PlayerInput` captures raw input/edges; `S_PlayerIntent` derives modes from focus and relationship services. Escape capture checks drawing focus only to route/consume the OS event; it does not perform a drawing transition. No Push/Transport System lookup. |
+| Receiving | `S_Receiving` owns Morning retry scheduling; `ReceivingDeliveryService` arms/advances typed `ReceivingBatch` transactions; `ReceivingPackageFactory` constructs/places packages. Domain identity/history paths reused. |
+| Day | `S_DayPhase` processes `DayTransitionRequest` in `C_DayCycle`; consumers use `DayPhaseService` or state/signals. Night persistence consumer remains independently scheduled. |
+| Damage/Impact | Health arithmetic is `O_Damage`; typed request/result events separate lifecycle/presentation. `ImpactCaptureSolver` captures physics snapshots; `S_Impact` consumes/coalesces inboxes; `R_ThrownBy` owns deliberate throw attribution/lifetime. No historical `S_Damage` service facade remains. |
+| Empty/legacy | All 39 current System classes have scheduled query/process work. Static services/solvers are `RefCounted`, not registered Systems. No removal needed. |
 
 ---
 

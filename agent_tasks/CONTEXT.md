@@ -4,7 +4,7 @@ This file is the queue/index. It does not replace individual task state.
 
 | Status | Task |
 | --- | --- |
-| **IN_PROGRESS** | [R22.5 GECS Architecture Polish](roadmap_22_5_gecs_architecture_polish.md) — M1 current-production disposition audit |
+| **IN_PROGRESS** | [R22.5 GECS Architecture Polish](roadmap_22_5_gecs_architecture_polish.md) — M1 done, M2 interaction/domain boundaries |
 | **OWNER_QA** | [R12.1 Customer refusal negotiation / repeat visits](roadmap_12_1_customer_refusal_negotiation.md) |
 | **OWNER_QA** | [R12 Dialogue integration — visible intent prefixes](roadmap_12_dialogue_integration.md) |
 | **OWNER_QA** | [R12.2 Physical NPC / Customer character foundation](roadmap_12_2_customer_npc_character.md) |
