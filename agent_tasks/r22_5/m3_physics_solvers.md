@@ -1,6 +1,6 @@
 # R22.5 M3 — Physics Solvers and Scheduling
 
-Status: **PLANNED**  
+Status: **DONE**
 Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
 
 ## Task state
@@ -9,13 +9,21 @@ Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
 Make scheduled GECS Systems and callback-driven physics solvers/helpers truthfully separated while preserving body authority.
 
 ### Current
-Not started. Reconfirm current physics callback and scheduling shape before editing.
+Current callbacks/solvers/groups audited; historical Motion/Look/Cart pseudo-System issues already resolved. Shared crouch head geometry explicitly classified as gameplay glue while preserving legacy class/scene/exported paths. Broad physics collider/material lookup has explicit concrete annotations. Contract: `docs/gecs_architecture.md`. Next: final M4 remaining owners audit and bounded runtime validation.
 
 ### Validation
-Not run.
+Static direct source/hierarchy audit and diff review PASS. Main groups are Input → Interaction → Physics → GamePlay; deps express local order. Callback helpers extend RefCounted, and Motion does not dispatch Push/Transport. No M3 GUT/engine run; final runtime budget remains M4.
 
 ### Owner QA / blockers
-Deferred by the R22.5 dependency gate.
+No implementation blocker. Owner runtime/rendered acceptance remains in feature tasks and R23.
+
+## Verified classification / decisions
+
+- `E_RigidBodyCharacter` orchestrates its physics callback; independent CharacterMotion/Look, PushActor and CartDriver helpers own contributions. `E_GrabbableBody` orchestrates impact/cargo/hold handling; `E_TransportCart` owns CharacterBody stepping.
+- `S_Jump` writes pending impulse state consumed by the motion callback. Crouch collision transitions remain scheduled gameplay, not presentation.
+- **R3 FIXED:** `S_CrouchPresentation` claimed camera-only behavior, but authored `camera_root = HeadY/HeadX/HeadRoot` also parents InteractionRay, Holder, hand and lowered-hand anchors. Source/docs now classify this as shared gameplay geometry. Its exported/node/class/resource paths and interpolation are deliberately preserved; disabling it cannot be used as a visual-only toggle. No gameplay or physics redesign.
+- Generic raw rigid bodies keep their existing explicit pre-physics force/velocity hold contract; do not pretend their callback can be replaced by injecting a script.
+- No additional cleanup group, sub-System lifecycle or callback-only System is needed. Independent scheduled queries already have actual work.
 
 ---
 

@@ -287,7 +287,7 @@ static func _update_floor_state(
 
 	motion.floor_velocity = (state.get_contact_collider_velocity_at_position(floor_contact_index))
 
-	var collider := state.get_contact_collider_object(floor_contact_index)
+	var collider: Object = state.get_contact_collider_object(floor_contact_index)
 
 	motion.floor_friction = _get_surface_traction(collider)
 
@@ -311,7 +311,7 @@ static func _get_physics_material(collider: Object) -> PhysicsMaterial:
 	# StaticBody3D/RigidBody3D.
 	#
 	# Любое тело с physics_material_override будет работать.
-	var value := collider.get(&"physics_material_override") as PhysicsMaterial
+	var value: PhysicsMaterial = collider.get(&"physics_material_override") as PhysicsMaterial
 
 	if value:
 		return value

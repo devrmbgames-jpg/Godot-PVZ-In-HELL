@@ -18,17 +18,17 @@ Refactor working gameplay toward GECS best practices without changing gameplay d
 - [x] M0 — Relationship authority cleanup.
 - [x] M1 — System decomposition (current-production audit; already satisfied).
 - [x] M2 — Interaction/domain boundaries.
-- [ ] M3 — Physics solvers and scheduling.
+- [x] M3 — Physics solvers and scheduling.
 - [ ] M4 — Final architecture audit and bounded validation.
 
 ### Decisions
 Feature implementation R08–R22 is stable for targeted polish; owner rendered/playability QA remains in the owning tasks. Root router owns overall status; milestone files are bounded executable units and must be verified against current code when resumed.
 
 ### Current
-M0–M2 complete. M1 verified existing decomposition; M2 hardened highlight cleanup and routed receiving live package lookup through the domain service. M2 R1/R2 FIXED. Next: M3 physics callback/scheduling and gameplay-critical head geometry audit.
+M0–M3 complete. M1 verified decomposition; M2 hardened highlight cleanup/domain lookup; M3 verified callback/groups and explicitly classified shared crouch HeadRoot as gameplay geometry. R1–R3 FIXED. Next: M4 remaining System/Observer audit, independent review and final bounded GUT/main smoke.
 
 ### Validation
-M0 validation is recorded in its milestone file. M1 static gate PASS: 39 scheduled classes, no static System helpers/locators/class calls. M2 direct-owner/diff review PASS; two highlight regressions authored but not yet executed. No M1/M2 runtime run; reserve GUT/smoke for M4.
+M0 validation is recorded in its milestone file. M1 static gate PASS: 39 scheduled classes, no static System helpers/locators/class calls. M2/M3 direct-owner/diff/hierarchy audit PASS; two highlight regressions authored but not yet executed. No M1–M3 runtime run; reserve GUT/smoke for M4.
 
 ### Owner QA / blockers
 Feature implementation gate satisfied; owner rendered/full-scenario QA remains separate. No agent implementation blocker.
@@ -65,7 +65,7 @@ Read only the milestone being worked on.
 | M0 Relationship authority | implemented for Cart cargo/driver, throw attribution and Marker holder; retain audit guard | [m0_relationship_authority.md](r22_5/m0_relationship_authority.md) |
 | M1 System decomposition | done: current owners satisfy historical targets | [m1_system_decomposition.md](r22_5/m1_system_decomposition.md) |
 | M2 Interaction/domain boundaries | done: cleanup and domain lookup hardened | [m2_interaction_domain.md](r22_5/m2_interaction_domain.md) |
-| M3 Physics solver classification | planned | [m3_physics_solvers.md](r22_5/m3_physics_solvers.md) |
+| M3 Physics solver classification | done: callbacks/groups and shared head geometry verified | [m3_physics_solvers.md](r22_5/m3_physics_solvers.md) |
 | M4 Final audit/validation | planned | [m4_final_audit_validation.md](r22_5/m4_final_audit_validation.md) |
 
 ## Current repository facts

@@ -13,6 +13,7 @@ class_name E_RigidBodyCharacter
 @export_subgroup("Crouch")
 @export var shape_standing: CollisionShape3D
 @export var shape_crouching: CollisionShape3D
+## Shared HeadRoot (camera, interaction ray and hand/hold anchors); path/API is preserved.
 @export var camera_root: Node3D
 @export var ray_standing: RayCast3D
 

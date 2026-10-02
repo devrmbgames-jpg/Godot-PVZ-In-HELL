@@ -1,5 +1,6 @@
 extends System
-## Camera-only presentation of authoritative C_Crouch state.
+## Shared head-root geometry driven by C_Crouch; legacy class/scene name is preserved.
+## HeadRoot also carries the interaction ray and hold anchors, so this is gameplay glue.
 class_name S_CrouchPresentation
 
 
