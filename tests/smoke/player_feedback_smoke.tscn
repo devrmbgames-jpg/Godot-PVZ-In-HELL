@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/smoke/player_feedback_smoke.gd" id="Script"]
+
+[node name="PlayerFeedbackSmoke" type="Node"]
+script = ExtResource("Script")

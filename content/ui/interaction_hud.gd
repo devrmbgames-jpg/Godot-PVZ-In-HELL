@@ -4,6 +4,13 @@ extends CanvasLayer
 @export var debug_status_enabled: bool = true
 @export var challenge_debug_enabled: bool = true
 @export var reduced_gaze_motion: bool = true
+@export var player_status_enabled: bool = true
+@onready var _player_status: PanelContainer = $Overlay/PlayerStatusPanel
+@onready var _status_health: Label = $Overlay/PlayerStatusPanel/Stats/Health
+@onready var _status_health_bar: ProgressBar = $Overlay/PlayerStatusPanel/Stats/HealthBar
+@onready var _status_hunger: Label = $Overlay/PlayerStatusPanel/Stats/Hunger
+@onready var _status_hunger_bar: ProgressBar = $Overlay/PlayerStatusPanel/Stats/HungerBar
+@onready var _status_money: Label = $Overlay/PlayerStatusPanel/Stats/Money
 @onready var _prompt: Label = $Overlay/Prompt
 @onready var _phase_label: Label = $Overlay/StatusPanel/DayPhase
 @onready var _announcement: Label = $Overlay/Announcement
@@ -55,6 +62,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_update_player_status()
 	_combat_debug.text = CombatPresentation.debug_text(player) if debug_status_enabled else ""
 	_meta_debug.text = MetaPresentation.debug_text() if debug_status_enabled else ""
 	_inventory_debug.text = InventoryPresentation.debug_text(player) if debug_status_enabled else ""
@@ -99,6 +107,31 @@ func _process(delta: float) -> void:
 	_prompt.text = interactor.prompt_text if interactor != null else ""
 	_update_debug_presentation(interactor.target if interactor != null else null)
 #endregion
+
+
+func _update_player_status() -> void:
+	_player_status.visible = player_status_enabled and is_instance_valid(player)
+	if not _player_status.visible:
+		return
+	var health: C_Health = player.get_component(C_Health) as C_Health
+	_status_health.visible = health != null
+	_status_health_bar.visible = health != null
+	if health != null:
+		var values: Vector2 = _update_health_bar(_status_health_bar, health)
+		_status_health.text = "Здоровье  %.0f / %.0f%s" % [values.x, values.y, " · Вы повержены" if health.depleted else ""]
+	var hunger: C_Hunger = player.get_component(C_Hunger) as C_Hunger
+	var has_hunger: bool = hunger != null and hunger.policy != null
+	_status_hunger.visible = has_hunger
+	_status_hunger_bar.visible = has_hunger
+	if has_hunger:
+		const HUNGER_NAMES: Array[String] = ["Сыт", "Голоден", "Сильный голод"]
+		_status_hunger.text = "Голод  %.0f / %.0f · %s" % [hunger.value, hunger.policy.maximum, HUNGER_NAMES[HungerService.tier(hunger)]]
+		_status_hunger_bar.max_value = hunger.policy.maximum
+		_status_hunger_bar.value = hunger.value
+	var wallet: C_Wallet = WalletService.current()
+	_status_money.visible = wallet != null
+	if wallet != null:
+		_status_money.text = "Баланс  %d ₽ · Штрафы  %d ₽" % [wallet.balance, wallet.penalties]
 
 
 #region Debug acceptance presentation
