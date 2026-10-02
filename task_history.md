@@ -73,3 +73,7 @@ Valid direct handoff releases the grip before outcome resolution. Refused parcel
 ## 2026-10-03 — Held liquids upright (QA-17)
 
 Existing Liquid C_LiquidTilt now supplies authored keep_upright_while_held and upright_rotation_speed; effective grip profile keeps yaw while the same physical solver corrects pitch/roll regardless of camera inclination. No body transform teleport, new System or immunity to liquid-tilt exposure. Normal props keep free rotation; authored opt-out supported. Actual native held-body and tilted-anchor regressions + grab/control suite76/76,369 assertions PASS. Three stale synthetic mouse fixtures initially supplied relative only; corrected helper to populate the actual screen_relative input contract and reran entire relevant suite. Structure/diff PASS.
+
+## 2026-10-03 — Knife/hammer AnimationPlayer and hammer weapon (QA-09)
+
+Authored strike/RESET animations preserve existing Blade/Grip/Head/Handle paths and animate meshes only: knife forward stab, hammer overhead-downward swing. C_MeleeWeapon exposes animation path/name; CombatService remains one-hit authority and drives animation pose from its strike clock. Drop/cancellation restores mesh pose immediately. Hammer receives its own attack definition; available fastening has higher action priority and plays the swing without entering combat or dealing damage. Relevant melee/anchoring GUT14/14,108 assertions PASS, including actual mesh poses/body-transform invariant, one hit, cancellation and real authored hammer fastening. Structure/diff PASS; visible feel remains owner QA.

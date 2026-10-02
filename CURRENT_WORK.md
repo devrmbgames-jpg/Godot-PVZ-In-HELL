@@ -1,6 +1,6 @@
 # Current Work
 
-Active: [R23](agent_tasks/roadmap_23_vertical_slice_validation.md), updated owner QA-14–QA-20. QA-14/15 implementation complete: GUT46/46,428 assertions + strict actual-main handoff smoke PASS. QA-17 upright liquid holding complete, grab/control suite76/76,369 assertions PASS. Next: knife/hammer AnimationPlayer and hammer combat; then remaining owner fixes. Windows still79b6aefc until next coherent milestone export. Work only dev; master read-only; user main/project resaves and addon edits preserved.
+Active: [R23](agent_tasks/roadmap_23_vertical_slice_validation.md), updated owner QA-14–QA-20. QA-14/15 implementation complete: GUT46/46,428 assertions + strict actual-main handoff smoke PASS. QA-17 upright liquid holding complete, grab/control suite76/76,369 assertions PASS. QA-09 knife/hammer animation/combat complete,14/14 melee/anchoring,108 assertions PASS. Next: Windows main/test export, then arrival gaze/light effects QA-18/19. Windows still79b6aefc until next coherent milestone export. Work only dev; master read-only; user main/project resaves and addon edits preserved.
 
 Completed79b6aefc: CharacterBody player/archive/immersive belt, support impulse, contact damage/rebound, crouch/cart/small-step/save adaptation. Relevant GUT46/46,571 assertions; final physics6/6,33. ReviewR2 FIXED/rereviewed, structure/diff PASS, MCP native primitive/input verified. Completed migration task deleted; player QA remains qa_tasks/owner_qa_fixes.md.
 

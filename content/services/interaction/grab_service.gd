@@ -353,6 +353,8 @@ static func grip_removed(held: Entity, grip: Relationship) -> void:
 		return
 
 	grip_data.lifecycle_applied = false
+	if is_instance_valid(held) and held.has_component(C_MeleeWeapon):
+		MeleeWeaponPresentation.reset(held)
 	var holder: Entity = grip.target as Entity if is_instance_valid(grip.target) else null
 	var body: RigidBody3D = physical_body(held)
 	if is_instance_valid(holder):
