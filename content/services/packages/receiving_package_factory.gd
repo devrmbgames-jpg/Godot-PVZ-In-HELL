@@ -6,13 +6,7 @@ const SPAWN_MARGIN: float = 0.03
 
 
 static func exists(package_id: String) -> bool:
-	if not is_instance_valid(ECS.world):
-		return false
-	for existing: Entity in ECS.world.query.with_all([C_Package]).execute():
-		var identity: C_Package = existing.get_component(C_Package) as C_Package
-		if identity != null and identity.package_id == package_id:
-			return true
-	return false
+	return PackageRegistrationService.find_live_package(package_id) != null
 
 
 static func create(

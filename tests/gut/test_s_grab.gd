@@ -66,6 +66,7 @@ func after_each() -> void:
 		if is_instance_valid(actor):
 			PushService.entity_unavailable(actor)
 			GrabService.entity_unavailable(actor)
+	grab_world.purge(false)
 	grab_world.free()
 	ECS.world = null
 
@@ -444,6 +445,40 @@ func test_raycast_selects_and_highlights_only_the_current_target() -> void:
 	assert_eq(mesh_instance.material_overlay, previous_overlay)
 	highlight.free()
 	targeting.free()
+
+
+func test_highlight_cleanup_restores_overlay_without_changing_target() -> void:
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
+	grab_world.add_system(highlight)
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var mesh_instance: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
+	var original: StandardMaterial3D = StandardMaterial3D.new()
+	mesh_instance.material_overlay = original
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_ne(mesh_instance.material_overlay, original)
+	grab_world.remove_system(highlight)
+	await get_tree().process_frame
+	assert_eq(mesh_instance.material_overlay, original)
+	assert_eq(interactor.target, box_entity)
+
+
+func test_shared_highlight_survives_one_holder_removal_and_restores_on_last() -> void:
+	var second: Entity = make_holder(Vector3(5.0, 0.0, 0.0))
+	var first_interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var second_interactor: C_Interactor = second.get_component(C_Interactor) as C_Interactor
+	second_interactor.target = box_entity
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
+	grab_world.add_system(highlight)
+	var mesh_instance: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
+	var original: StandardMaterial3D = StandardMaterial3D.new()
+	mesh_instance.material_overlay = original
+	highlight.process([holder_entity, second], [[first_interactor, second_interactor]], 0.0)
+	var selected: Material = mesh_instance.material_overlay
+	grab_world.remove_entity(second)
+	assert_eq(mesh_instance.material_overlay, selected)
+	holder_entity.remove_component(C_Interactor)
+	assert_eq(mesh_instance.material_overlay, original)
+	assert_eq(first_interactor.target, box_entity)
 
 
 func test_carry_speed_is_linear_from_mass_and_current_strength() -> void:

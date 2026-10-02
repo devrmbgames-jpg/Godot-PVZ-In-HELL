@@ -8,6 +8,13 @@ const HIGHLIGHT_WIDTH: float = 0.035
 var _highlight_material: StandardMaterial3D = null
 var _previous_overlays: Dictionary[int, Material] = { }
 var _previous_targets: Dictionary[int, WeakRef] = { }
+var _previous_meshes: Dictionary[int, WeakRef] = { }
+
+
+func setup() -> void:
+	_world.entity_removed.connect(_entity_unavailable)
+	_world.entity_disabled.connect(_entity_unavailable)
+	_world.component_removed.connect(_component_removed)
 
 
 func deps() -> Dictionary[int, Array]:
@@ -19,6 +26,10 @@ func query() -> QueryBuilder:
 
 
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
+	for instance_id: int in _previous_meshes.keys():
+		if _previous_meshes[instance_id].get_ref() == null:
+			_previous_meshes.erase(instance_id)
+			_previous_overlays.erase(instance_id)
 	var interactors: Array = components[0]
 	for index: int in entities.size():
 		var holder: Entity = entities[index]
@@ -28,13 +39,56 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 		var previous: Node = previous_ref.get_ref() as Node if previous_ref != null else null
 		var next: Node = InteractionTargetingService.visual_target(holder, interactor)
 		if previous == next:
+			if next == null:
+				_previous_targets.erase(key)
 			continue
-		_set_highlight(previous, false)
-		_set_highlight(next, true)
 		if next == null:
 			_previous_targets.erase(key)
 		else:
 			_previous_targets[key] = weakref(next)
+		if not _has_target(previous):
+			_set_highlight(previous, false)
+		_set_highlight(next, true)
+
+
+func _exit_tree() -> void:
+	for instance_id: int in _previous_meshes.keys():
+		var mesh_reference: WeakRef = _previous_meshes[instance_id]
+		var mesh_instance: MeshInstance3D = mesh_reference.get_ref() as MeshInstance3D
+		_set_mesh_highlight(mesh_instance, _highlight_material, false)
+	_previous_meshes.clear()
+	_previous_overlays.clear()
+	_previous_targets.clear()
+	super._exit_tree()
+
+
+func _has_target(target: Node) -> bool:
+	if not is_instance_valid(target):
+		return false
+	for reference: WeakRef in _previous_targets.values():
+		if reference.get_ref() == target:
+			return true
+	return false
+
+
+func _clear_holder(instance_id: int) -> void:
+	var reference: WeakRef = _previous_targets.get(instance_id) as WeakRef
+	var target: Node = reference.get_ref() as Node if reference != null else null
+	_previous_targets.erase(instance_id)
+	if not _has_target(target):
+		_set_highlight(target, false)
+
+
+func _entity_unavailable(entity: Entity) -> void:
+	_clear_holder(entity.get_instance_id())
+	for instance_id: int in _previous_targets.keys():
+		if _previous_targets[instance_id].get_ref() == entity:
+			_clear_holder(instance_id)
+
+
+func _component_removed(entity: Entity, component: Variant) -> void:
+	if component is C_Interactor:
+		_clear_holder(entity.get_instance_id())
 
 
 func _set_highlight(target: Node, enabled: bool) -> void:
@@ -68,8 +122,10 @@ func _set_mesh_highlight(
 	if enabled:
 		if not _previous_overlays.has(instance_id):
 			_previous_overlays[instance_id] = mesh_instance.material_overlay
+			_previous_meshes[instance_id] = weakref(mesh_instance)
 		mesh_instance.material_overlay = material
 	elif _previous_overlays.has(instance_id):
 		if mesh_instance.material_overlay == material:
 			mesh_instance.material_overlay = _previous_overlays[instance_id]
 		_previous_overlays.erase(instance_id)
+		_previous_meshes.erase(instance_id)

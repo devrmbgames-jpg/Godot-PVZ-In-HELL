@@ -4,6 +4,17 @@ class_name PackageRegistrationService
 
 
 #region Registration API
+## Resolves a live physical package by domain identity; registration numbers are separate.
+static func find_live_package(package_id: String) -> Entity:
+	if not is_instance_valid(ECS.world):
+		return null
+	for parcel: Entity in ECS.world.query.with_all([C_Package]).execute():
+		var identity: C_Package = parcel.get_component(C_Package) as C_Package
+		if identity != null and identity.package_id == package_id:
+			return parcel
+	return null
+
+
 ## Returns the current warehouse ledger, independent of the day index.
 static func ledger() -> C_PackageLedger:
 	if not is_instance_valid(ECS.world):

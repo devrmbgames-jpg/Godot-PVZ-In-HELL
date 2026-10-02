@@ -1,6 +1,6 @@
 # Current Work
 
-Active: [R22.5 Architecture Polish](agent_tasks/roadmap_22_5_gecs_architecture_polish.md), [M2 interaction/domain boundaries](agent_tasks/r22_5/m2_interaction_domain.md).
+Active: [R22.5 Architecture Polish](agent_tasks/roadmap_22_5_gecs_architecture_polish.md), [M3 physics/scheduling](agent_tasks/r22_5/m3_physics_solvers.md).
 
 R17 `4615d3b3`: NPC NavigationAgent combat, simple 3+3 melee/ranged and animation hooks. R18 `86f91acc`: Hunger/perception; R19 `c11dea8b`: owned inventory; R20 `0390f1b7`: physical Trader/orders/refusal quest. Timers/conditions/tasks debug UI and arrival-to-physical-departure challenge remain implemented.
 
@@ -8,4 +8,4 @@ R21 agent implementation complete (OWNER_QA): foundation `baaa8478`, return `daf
 
 R22 OWNER_QA: M1 `9d4abdec`, M2 complete: ordinary status/box markings plus typed committed damage feedback and context/scanner prompts. Final GUT 109/109 (548 assertions), no leaks; strict player_feedback-20261002-140308131.log and challenge_gaze-20261002-140626943.log PASS. Main headless shutdown: external certificate error only. Structure/diff PASS; separate review no material findings. Details: R22 task and docs/player_feedback.md. No rendered/audio-readability claim.
 
-R22.5 M1 DONE: current owner disposition verified and recorded; 39 scheduled classes, no static System helper/locator/class-call violations. Existing decomposition satisfies historical targets, no rewrite required. Next: audit M2 targeting/highlight/marker/receiving/day/presentation contracts. Preserve ownership/physics/input contracts and use static-only milestone validation, reserving GUT/runtime for M4. Preserve user config, main/schedule resaves, addons/gecs and unrelated UIDs. Limits unchanged; goal active.
+R22.5 M1 `a32cea51` DONE: 39 scheduled classes, no static System helper/locator/class-call violations; existing decomposition satisfies historical targets. M2 DONE: highlight overlay/weak-cache cleanup and shared target handling, receiving live identity lookup delegates to registration domain. R1/R2 FIXED; two regressions authored, execution reserved for M4. Next: M3 callback/scheduling and gameplay-critical head geometry audit. Preserve ownership/physics/input contracts; static-only milestone validation. Preserve user config, main/schedule resaves, addons/gecs and unrelated UIDs. Limits unchanged; goal active.

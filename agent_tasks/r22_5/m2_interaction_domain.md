@@ -1,6 +1,6 @@
 # R22.5 M2 — Interaction and Domain Boundaries
 
-Status: **PLANNED**  
+Status: **DONE**
 Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
 
 ## Task state
@@ -9,13 +9,23 @@ Owner task: [R22.5](../roadmap_22_5_gecs_architecture_polish.md)
 Separate authoritative interaction/domain state transitions from presentation and construction helpers.
 
 ### Current
-Not started. Reconfirm current targeting/highlight/marker/receiving/day-phase boundaries before editing.
+Current owners audited. Targeting/highlight, marker session/surface/ink/view and receiving/day request boundaries already separate. Highlight cleanup hardened; receiving identity lookup now uses `PackageRegistrationService.find_live_package()` while preserving `ReceivingPackageFactory.exists()` callers. Next: M3 callback/scheduling and gameplay-critical head geometry audit.
 
 ### Validation
-Not run.
+Static direct-owner/diff review PASS. No foreign System calls in inspected paths. Two focused highlight regressions authored for final M4 run (not executed at this milestone). Existing receiving/main fixture is the lookup regression surface. No GUT/engine run for M2, per task runtime budget.
 
 ### Owner QA / blockers
-Deferred by the R22.5 dependency gate.
+No implementation blocker. Rendered gameplay QA remains in owning feature tasks.
+
+## Decisions / review findings
+
+- Target authority stays in `S_InteractionTargeting` / `C_Interactor`; presentation never gates target validity.
+- Marker holder is derived from `R_HeldBy`; `MarkerSessionService`, `MarkerSurfaceSampler`, `PackageMarkService` and `PackageMarksView` retain separate ownership. `C_Marker.parcel/stroke` remain transient stroke continuity, not a holder/session binding.
+- Receiving batch state/transaction and package construction remain separate; the domain identity query moved to the existing registration service without changing query enabled-state semantics or ID matching.
+- Day consumers use `DayPhaseService` and typed `DayTransitionRequest`, not a System instance.
+- **R1 FIXED:** highlight overlays/caches previously survived holder removal, loss of `C_Interactor` or System removal. Weak mesh tracking now restores prior overlays and prunes freed meshes; shared targets stay highlighted until the final holder releases. Base System exit cleanup is preserved; targeting state is untouched.
+- **R2 FIXED:** receiving factory contained its own live package identity scan. Existing public factory API now delegates to the domain registration lookup. No new cache/identity authority.
+- Authored tests cover presentation teardown without target mutation and shared target cleanup through real World/entity/component lifecycle. Final execution belongs to M4.
 
 ---
 
