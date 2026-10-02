@@ -83,11 +83,15 @@ Implementation complete: GUT40/40,332 assertions (4scripts); actual-main npc_rem
 
 ## QA-10 — Вращаемые кнопки/вентили
 
-- [ ] Поддержать вращение этого типа интерактивных объектов с authored осью и диапазоном угла.
-- [ ] В thin Entity glue предоставить типизированный сигнал `progress_changed(progress: float)`; предложенный контракт — нормализованный прогресс `0..1`.
-- [ ] Эмитировать изменение действительного прогресса, включая reset/restore; определить начальное значение и подключение к кнопке/двери без дублирования действия завершения.
+- [x] Поддержать вращение этого типа интерактивных объектов с authored осью и диапазоном угла.
+- [x] В thin Entity glue предоставить типизированный сигнал `progress_changed(progress: float)`; предложенный контракт — нормализованный прогресс `0..1`.
+- [x] Эмитировать изменение действительного прогресса, включая reset/restore; определить начальное значение и подключение к кнопке/двери без дублирования действия завершения.
 
 Приёмка: вентиль вращается, подписчик получает актуальный прогресс и может управлять другим объектом. Переиспользовать существующее prolonged interaction; отдельную System ради этого сигнала не создавать.
+
+Current QA10 contract before implementation: Wheel transform follows normalized authoritative prolonged fraction (or immediate active0/1), authored local axis and angle. Thin Entity emits progress_changed(float) only on changed values, initial0, cancellation/decay, completion and restored NEVER1; existing activated(bool) remains one completion signal. Local debug label reports actual progress/timer. Scene signal glue, no new System.
+
+QA10 validation: only3 valve_progress-filtered tests,29 assertions PASS. Actual Wheel basis/progress math, immediate initial/toggle signals, decay/ON_COMPLETE reset and saved NEVER restoration without reactivation. Diff/self-review PASS; no extra runtime or broad suite. Owner visible rotation/signal glue QA pending.
 
 ## QA-12 — Заготовка полноценного ИИ
 

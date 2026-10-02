@@ -101,6 +101,78 @@ func test_unknown_or_repeatable_completed_action_fails_before_day_or_effect_chan
 		assert_false(valve.is_active())
 
 
+func test_valve_progress_initial_and_immediate_toggle_emit_only_changed_values() -> void:
+	var valve: E_InteractionTestValve = _valve()
+	watch_signals(valve)
+	await get_tree().process_frame
+	assert_signal_emitted_with_parameters(valve, "progress_changed", [0.0])
+	assert_signal_not_emitted(valve, "activated")
+	valve.activate()
+	assert_signal_emitted_with_parameters(valve, "progress_changed", [1.0], 1)
+	valve.activate()
+	valve._process(0.0)
+	assert_signal_emit_count(valve, "progress_changed", 3)
+	assert_signal_emit_count(valve, "activated", 2)
+	assert_eq(valve.get_progress(), 0.0)
+
+
+func test_valve_progress_follows_rotation_decay_and_oncomplete_reset_without_reactivation() -> void:
+	var valve: E_InteractionTestValve = _valve()
+	valve.mode = E_InteractionTestValve.Mode.HOLD_DECAY
+	var wheel: Node3D = valve.get_node("Wheel") as Node3D
+	var rest: Basis = wheel.basis
+	var progress: ProlongedInteractionProgress = _progress(valve, &"test_valve_decay")
+	ProlongedProgressService.advance(progress, progress.timing, progress.timing.duration_seconds / 2.0, true)
+	valve._process(0.0)
+	assert_eq(valve.get_progress(), 0.5)
+	assert_true(wheel.basis.is_equal_approx(rest * Basis(Vector3.UP, PI / 2.0)))
+	assert_string_contains((valve.get_node("ProgressStatus") as Label3D).text, "4.0 с")
+	ProlongedProgressService.interrupt(progress, progress.timing)
+	ProlongedInteractionService.decay(valve.get_component(C_ProlongedInteraction) as C_ProlongedInteraction, 1.0)
+	valve._process(0.0)
+	assert_almost_eq(valve.get_progress(), 0.4125, 0.00001)
+	valve.mode = E_InteractionTestValve.Mode.HOLD_ON_COMPLETE
+	var reset_progress: ProlongedInteractionProgress = _progress(valve, &"test_valve_on_complete")
+	watch_signals(valve)
+	assert_true(ProlongedProgressService.advance(reset_progress, reset_progress.timing, reset_progress.timing.duration_seconds, true))
+	valve.activate()
+	assert_eq(valve.get_progress(), 1.0)
+	assert_signal_emitted_with_parameters(valve, "progress_changed", [1.0])
+	assert_true(ProlongedProgressService.commit_success(reset_progress, reset_progress.timing))
+	valve._process(0.0)
+	assert_eq(valve.get_progress(), 0.0)
+	assert_signal_emit_count(valve, "activated", 1)
+	assert_signal_emit_count(valve, "progress_changed", 2)
+	assert_true(wheel.basis.is_equal_approx(rest))
+
+
+func test_valve_progress_saved_never_restores_signal_and_wheel_without_executing_effect() -> void:
+	var valve: E_InteractionTestValve = _valve()
+	valve.mode = E_InteractionTestValve.Mode.HOLD_NEVER
+	var progress: ProlongedInteractionProgress = _progress(valve, &"test_valve_never")
+	assert_true(ProlongedProgressService.advance(progress, progress.timing, progress.timing.duration_seconds, true))
+	valve.activate()
+	assert_true(ProlongedProgressService.commit_success(progress, progress.timing))
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	(valve.get_component(C_ProlongedInteraction) as C_ProlongedInteraction).actions.clear()
+	(valve.get_component(C_InteractionToggle) as C_InteractionToggle).active = false
+	valve._process(0.0)
+	watch_signals(valve)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	valve._process(0.0)
+	assert_eq(valve.get_progress(), 1.0)
+	assert_true(valve.is_active())
+	assert_signal_emitted_with_parameters(valve, "progress_changed", [1.0])
+	assert_signal_not_emitted(valve, "activated")
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	valve._process(0.0)
+	assert_signal_emit_count(valve, "progress_changed", 1)
+	NightResetService.reset()
+	valve._process(0.0)
+	assert_eq(valve.get_progress(), 1.0)
+	assert_signal_emit_count(valve, "progress_changed", 1)
+
+
 func _hazard(path: String, persistent: bool) -> Entity:
 	var entity: Entity = (load(path) as PackedScene).instantiate() as Entity
 	var hazard: C_Hazard = C_Hazard.new()

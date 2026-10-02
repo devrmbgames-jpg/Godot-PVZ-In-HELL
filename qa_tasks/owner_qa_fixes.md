@@ -38,11 +38,12 @@
 
 - [ ] QA-13: доступный и недоступный/слишком тяжёлый объект выделяются разными материалами; выделение меняется/снимается корректно.
 
+- [ ] QA-10: вентиль вращается, подключённый объект следует прогрессу; сброс/восстановление не дублируют завершение.
+
 ## Ожидают реализации
 
 - [ ] QA-07: выбранный клиент сообщает правильный номер баблом при входе без обязательного диалога и без повторного спама.
 - [ ] QA-08: выбранный клиент сам начинает диалог при первом подходе; закрытие/повторный подход его не перезапускают.
-- [ ] QA-10: вентиль вращается, подключённый объект следует прогрессу; сброс/восстановление не дублируют завершение.
 - [ ] QA-12: текущие сценарии NPC и выбор доступной атаки продолжают работать после подготовки интеграции ИИ.
 
 Ресурсные настройки, сигнал `progress_changed` и контракт будущего ИИ проверяет разработчик. Здесь игрок проверяет их видимый результат.
@@ -57,3 +58,5 @@
 QA03 check: четыре колонки, пустые слоты, иконки еды/аптечки/плёнки/мяса; клик выбирает, отдельная кнопка использует, запрет показан в описании. Выложить весь стек создаёт подбираемый предмет рядом на полу, сохраняет количество; стена/отсутствие пола не расходуют предмет. Windows availability is recorded in CURRENT_WORK.md; grid export follows next combined milestone.
 
 QA13 check: amber available, red unavailable/heavy, blue busy; open modal inventory/Terminal clears aim outline, close restores aiming feedback. Edit .res resources under content/materials/interaction in inspector; base material stays unchanged. Grid + overlays export follows combined milestone.
+
+QA10 check: F8s rotates Wheel to180 degrees around authored local axis; DECAY moves back gradually, INSTANT resets, ON_COMPLETE resets progress after one toggle, NEVER keeps1 through save/load. Local debug label shows percent/remaining seconds; debug_hud off hides it. Existing activated(bool) still drives the lamp; progress_changed(float) can be connected separately in editor.
