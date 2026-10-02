@@ -317,9 +317,9 @@ def _check_res_paths(errors: list[str]) -> None:
 
 
 def _iter_markdown_files() -> list[Path]:
-    files: list[Path] = [ROOT / "PROJECT_INDEX.md"]
+    files: list[Path] = [ROOT / "PROJECT_INDEX.md", ROOT / "task_history.md"]
 
-    for root_name in ("agent_tasks", "qa_tasks", "docs/roadmap"):
+    for root_name in ("agent_tasks", "qa_tasks", "docs/roadmap", "task_history_archive"):
         root_path: Path = ROOT / root_name
         if root_path.exists():
             files.extend(sorted(root_path.rglob("*.md")))
@@ -420,6 +420,10 @@ def _check_task_dependencies(errors: list[str]) -> None:
     history_path: Path = ROOT / "task_history.md"
     if history_path.exists():
         known_ids.update(IMPLEMENTATION_ID_RE.findall(_read_text(history_path)))
+    archive_root: Path = ROOT / "task_history_archive"
+    if archive_root.exists():
+        for archive_path in sorted(archive_root.glob("*.md")):
+            known_ids.update(IMPLEMENTATION_ID_RE.findall(_read_text(archive_path)))
 
     for task_id, task_path in task_ids.items():
         text: str = _read_text(task_path)
@@ -432,7 +436,7 @@ def _check_task_dependencies(errors: list[str]) -> None:
             if dependency not in known_ids:
                 errors.append(
                     f"{_relative(task_path)}: dependency {dependency} has no planned task "
-                    "and is not recorded as completed in task_history.md."
+                    "and is not recorded as completed in task_history.md or its archives."
                 )
 
 
