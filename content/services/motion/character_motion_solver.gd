@@ -4,6 +4,7 @@ class_name CharacterMotionSolver
 
 const INPUT_EPSILON: float = 0.0001
 const DEFAULT_FRICTION: float = 1.0
+const FLOOR_QUERY_MARGIN: float = 0.05
 
 
 ## Главная точка входа locomotion.
@@ -30,6 +31,7 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 	var floor_contact_index := _find_floor_contact(state, motion)
 
 	_update_floor_state(state, motion, floor_contact_index)
+	_snap_to_support(body, state, motion)
 
 	if controller == null:
 		return
@@ -48,6 +50,52 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 # =========================================================================
 # Locomotion
 # =========================================================================
+
+
+static func _snap_to_support(
+	body: RigidBody3D,
+	state: PhysicsDirectBodyState3D,
+	motion: C_Motion,
+) -> void:
+	if not motion.control_enabled:
+		return
+	if motion.floor_snap_blocked:
+		if state.linear_velocity.y > 0.0:
+			return
+		motion.floor_snap_blocked = false
+	if motion.floor_snap_distance <= 0.0 or state.linear_velocity.y > motion.floor_snap_max_upward_speed:
+		return
+	var foot: Vector3 = state.transform.origin + Vector3.UP * motion.floor_snap_foot_offset
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+		foot + Vector3.UP * FLOOR_QUERY_MARGIN,
+		foot - Vector3.UP * motion.floor_snap_distance,
+		body.collision_mask,
+		[body.get_rid()],
+	)
+	var hit: Dictionary = body.get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty():
+		return
+	var normal: Vector3 = hit["normal"]
+	if normal.dot(Vector3.UP) < cos(deg_to_rad(motion.floor_max_angle_degrees)):
+		return
+	var point: Vector3 = hit["position"]
+	var gap: float = foot.y - point.y
+	if gap < 0.0 or gap > motion.floor_snap_distance:
+		return
+	var collider: Object = hit["collider"]
+	var support: RigidBody3D = collider as RigidBody3D
+	var support_velocity: Vector3 = support.linear_velocity if support != null else Vector3.ZERO
+	var pose: Transform3D = state.transform
+	pose.origin.y -= gap
+	state.transform = pose
+	state.linear_velocity.y = minf(state.linear_velocity.y, support_velocity.y)
+	if not motion.is_on_floor:
+		motion.is_on_floor = true
+		motion.floor_body_rid = hit["rid"]
+		motion.floor_contact_position = point
+		motion.floor_normal = normal
+		motion.floor_velocity = support_velocity
+		motion.floor_friction = _get_surface_traction(collider)
 
 
 static func _integrate_regular_motion(
@@ -328,6 +376,8 @@ static func _apply_pending_impulse(state: PhysicsDirectBodyState3D, motion: C_Mo
 		return
 
 	state.apply_central_impulse(motion.pending_impulse)
+	if motion.pending_impulse.y > 0.0:
+		motion.floor_snap_blocked = true
 
 	motion.pending_impulse = Vector3.ZERO
 

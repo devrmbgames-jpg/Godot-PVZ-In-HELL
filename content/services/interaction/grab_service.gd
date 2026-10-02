@@ -81,6 +81,9 @@ static func can_pickup_body(
 	if resolved_handle != null:
 		if not entity_available(resolved_handle) or held_relationship(resolved_handle) != null:
 			return false
+		# A physical body is not automatically a prop: living characters cannot be carried.
+		if resolved_handle.has_component(C_Living) and not resolved_handle.has_component(C_Death):
+			return false
 		if PhysicalSlotService.relationship(resolved_handle) != storage_binding:
 			return false
 		var interactable: C_Interactable = (

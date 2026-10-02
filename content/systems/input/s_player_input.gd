@@ -33,7 +33,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseMotion:
 		var mouse_event: InputEventMouseMotion = event as InputEventMouseMotion
-		_look_mouse += mouse_event.relative
+		_look_mouse += mouse_event.screen_relative
 	if event.is_action_pressed(&"interact") and not event.is_echo():
 		_interact_pending = true
 	if event.is_action_pressed(&"action_primary") and not event.is_echo():

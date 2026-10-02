@@ -18,7 +18,7 @@ This file is the queue/index. It does not replace individual task state.
 | **OWNER_QA** | [R20 Evening / Trader / Orders / Quest](roadmap_20_evening_trader_orders_and_quest.md) |
 | **OWNER_QA** | [R21 Night / Persistence / Next Day](roadmap_21_night_persistence_next_day.md) |
 | **OWNER_QA** | [R22 HUD / World Feedback](roadmap_22_hud_and_world_feedback.md) |
-| **IN_PROGRESS** | [R23 Vertical Slice Validation](roadmap_23_vertical_slice_validation.md) — paused; owner QA-01–QA-13 recorded for enlarged main scene |
+| **IN_PROGRESS** | [R23 Vertical Slice Validation](roadmap_23_vertical_slice_validation.md) — resumed on dev; QA-01/02 repair batch and Windows QA export implemented |
 | **PLANNED** | [Developer Console Testing](developer_console_testing.md) — **LOW priority**, additional task: expanded gameplay commands, `help` and open-console scrolling; base Stages 1–9 complete |
 | **PLANNED** | [Организация игрового QA](player_qa_tasks_organization.md) — создать `qa_tasks/` и перенести туда все ожидающие проверки для игроков |
 | **PLANNED** | [Тестовая сцена и общий World](primitive_test_scene_shared_world.md) — примитивы, все механики, интервалы около 2 м, большой пол и одна подсцена World для тестового уровня/main_level |

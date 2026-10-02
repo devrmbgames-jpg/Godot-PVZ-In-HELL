@@ -2,6 +2,9 @@ extends Component
 class_name C_Look
 
 @export var look_direction: Vector3 = Vector3.FORWARD
+## First-person input follows the requested view immediately in the physics callback.
+## NPCs keep the authored body/head turn speeds below.
+@export var direct_input: bool = false
 ## Скорость поворота, градусов в секунду.
 ## Для игрока можно поставить 9999.
 @export var look_acceleration: float = 360.0

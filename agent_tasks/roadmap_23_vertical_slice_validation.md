@@ -18,6 +18,7 @@ Status: **IN_PROGRESS**
 ### Milestones
 - [x] Reconfirm dependency implementation and current production owners/contracts; owner QA remains in dependencies.
 - [x] M1: fixed authored supply/customer families and scenario route/feedback audit.
+- [x] QA batch A implementation: Windows export, direct player view, seam adhesion/jump guard, living grab guard and Trader interaction; player acceptance pending.
 - [ ] Owner QA batch: implement and verify [QA-01–QA-13](roadmap_23_vertical_slice_validation/owner_qa.md) on the enlarged main scene.
 - [ ] M2: ordinary-input Morning → Day → Evening → Night → Morning walkthrough.
 - [ ] M3: alternative outcomes/combat/carry-over and lifecycle gaps, preserving existing owners.
@@ -32,19 +33,18 @@ This file is the authoritative router. Existing fixture smokes are dependency ev
 Owner feedback dated 2026-10-02 extends R23 with [thirteen QA tasks](roadmap_23_vertical_slice_validation/owner_qa.md), including corpse/meat, inventory grid, future AI integration preparation and editable highlight materials/global overlay contract. The enlarged main scene and hidden DebugMarkers are authored owner changes; markers provide visual orientation only. Console/help extension is owned separately by [Developer Console Testing](developer_console_testing.md).
 
 ### Current
-Owner feedback received and recorded as QA-01–QA-13. This update records tasks only. Next implementation step after resume: inspect current enlarged geometry, player control and Trader interaction before revalidating routes. Earlier bake/path results apply to the previous geometry and require revalidation.
+Resumed by owner 2026-10-03 on dev; master is read-only. Windows export infrastructure committed 8ebf7c55. First QA repair batch implemented: direct physics-owned view, screen-relative input, authored floor adhesion preserving jump impulses, initially disabled crouch shape, no grabbing living NPCs, Trader E/F action accessible before Evening with purchases still gated. Nonuniformly scaled stairs use baked convex hulls preserving authored geometry. Next: organize player QA, then common World/primitive test level and remaining QA-03–QA-13.
 
-Paused at the owner’s explicit request: full manual slice will be tested in main_level.tscn by the owner. M1 committed c33d40a9. M2 draft ordinary-input driver remains uncommitted in tests/smoke/vertical_slice_smoke.gd/.tscn; it substitutes only headless mouse capture, uses native input/physics/UI and an isolated save slot. It confirms eight scanner registrations, Terminal UI, ordinary NPC physical arrival and dialogue. No full-day PASS. Native warehouse bake radius was 0.35m rounded to 0.45m versus NPC 0.3m; uncommitted utility/resource correction to 0.3m reconnects the room/yard path. Bake utility now disables startup autosave. Latest draft stops at handoff: carried books still held, F prompt present, NPC becomes aggressive before delivery resolves. Cause is not yet established; investigate physical contact/attribution/timing after owner feedback. Preserve simple NPC 3+3 attacks and animation hooks.
+M1 c33d40a9 and prior M2 input-driver evidence remain historical. The eight scans/Terminal/arrival/dialogue were on the previous geometry; no full-day PASS. The enlarged map requires fresh navigation validation. Prior handoff failed before delivery with NPC aggression; cause still requires investigation after the physical/interaction repairs. Full-slice manual testing remains assigned to the owner.
 
 ### Validation
+2026-10-03 repair batch: focused control/Trader physical regression, Commerce, Jump and melee checks — 23/23 GUT, 145 assertions, no leaks (qa-controls-final-gut.log under .export). Main and exported Windows startup checked headlessly (120 frames); no game errors after scale-safe stair migration, external certificate-store warning recorded separately. Structure validator now accepts native SystemGroup auto_group initialization; formatter unavailable (SKIP). Separate read-only review found no material findings. These checks do not establish full-day or visual acceptance.
 2026-10-02 QA task recording: project structure validator and changed-document diff check PASS; no gameplay implementation or runtime validation in this documentation update.
 
 R22.5 dependency gate complete: 151/151 GUT (921 assertions), strict hazards/integrated main feedback smokes, static/structure/diff and independent review. R23 M1 authored manifest PASS; strict challenge_light-20261002-145614714.log PASS; diff PASS. R23-specific full-project GUT/no-debug day walkthrough has not run. M2 native bake PASS (156 polygons, no radius precision warning); draft logs r23_input_day_draft.log contain a failing handoff and are not final smoke evidence. Earlier draft eight-input-scans PASS had two native audio objects pending at accelerated shutdown; do not report it as strict leak-free PASS.
 
 ### Owner QA / blockers
-User explicitly paused agent work to test the main scene. Do not continue full-day input automation without resume. No implementation blocker. Owner rendered full-day/readability/gamepad/audio playtest remains; keep implementation and automated evidence separate from that acceptance.
-
-Feedback is now captured in the linked QA batch; none of its thirteen items is marked implemented. Further full-slice playtesting is handed to the owner as requested.
+Owner resumed implementation and requested Windows builds between large tasks. Full-slice playtesting remains with the owner; development proceeds on remaining mechanics without rendered gameplay automation. QA-01/02 implementation is covered by the first repair batch; player verification, especially slopes/moving support/camera feel, remains. Other QA items remain pending.
 
 ---
 

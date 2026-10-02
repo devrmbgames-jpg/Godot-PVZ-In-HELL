@@ -62,7 +62,7 @@ script = ExtResource("Action")
 action_id = &"trade"
 slot = 1
 caption = "Торговля и задание"
-allow_interact_fallback = false
+allow_interact_fallback = true
 
 [sub_resource type="Resource" id="Actions"]
 script = ExtResource("Actions")

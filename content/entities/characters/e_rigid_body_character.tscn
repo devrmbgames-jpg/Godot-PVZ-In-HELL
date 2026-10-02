@@ -40,10 +40,12 @@ metadata/_custom_type_script = "uid://iq4pnvam7fq5"
 
 [sub_resource type="Resource" id="Resource_mn5t4"]
 script = ExtResource("5_d0m3p")
+floor_snap_distance = 0.12
 metadata/_custom_type_script = "uid://cdblg8bcbkrs8"
 
 [sub_resource type="Resource" id="Resource_f5i5i"]
 script = ExtResource("6_r8al5")
+direct_input = true
 metadata/_custom_type_script = "uid://cfqxt4h2ae432"
 
 [sub_resource type="Resource" id="Resource_o5mei"]
@@ -94,11 +96,11 @@ script = ExtResource("Living")
 script = ExtResource("17_i8ahg")
 metadata/_custom_type_script = "uid://b3if3it5ryfeh"
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_bghjr"]
+[sub_resource type="CapsuleShape3D" id="CylinderShape3D_bghjr"]
 height = 1.5362549
 radius = 0.18896484
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_lqn1g"]
+[sub_resource type="CapsuleShape3D" id="CylinderShape3D_lqn1g"]
 height = 0.7059326
 radius = 0.18798828
 
@@ -145,6 +147,7 @@ shape = SubResource("CylinderShape3D_bghjr")
 [node name="ColCrouch" type="CollisionShape3D" parent="." unique_id=1145188552]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3529663, 0)
 shape = SubResource("CylinderShape3D_lqn1g")
+disabled = true
 
 [node name="AnimationLibrary_Godot_Standard" parent="." unique_id=217031396 instance=ExtResource("12_lm6lx")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)

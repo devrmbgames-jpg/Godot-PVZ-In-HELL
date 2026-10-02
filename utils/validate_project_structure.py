@@ -442,7 +442,20 @@ def _check_main_level_system_groups(errors: list[str]) -> None:
     if not scene_path.exists():
         return
 
-    lines: list[str] = _read_text(scene_path).splitlines()
+    text: str = _read_text(scene_path)
+    lines: list[str] = text.splitlines()
+    group_scripts: set[str] = set(re.findall(
+        r'^\[ext_resource type="Script"[^\n]*path="res://addons/gecs/lib/system_group.gd"[^\n]*id="([^"]+)"',
+        text, re.MULTILINE,
+    ))
+    automatic_groups: set[str] = set()
+    for node in re.finditer(r'^\[node ([^\n]+)\]\n(.*?)(?=^\[node |\Z)', text, re.MULTILINE | re.DOTALL):
+        header, body = node.groups()
+        name = re.search(r'name="([^"]+)"', header)
+        parent = re.search(r'parent="([^"]+)"', header)
+        script = re.search(r'^script = ExtResource\("([^"]+)"\)', body, re.MULTILINE)
+        if name and parent and script and script.group(1) in group_scripts and not re.search(r'^auto_group = false$', body, re.MULTILINE):
+            automatic_groups.add(f'{parent.group(1)}/{name.group(1)}')
     for index, line in enumerate(lines):
         match = re.match(
             r'^\[node name="(S_[^"]+)" type="Node" parent="World/Systems/([^"]+)"[^]]*\]$',
@@ -458,11 +471,14 @@ def _check_main_level_system_groups(errors: list[str]) -> None:
         for body_line in lines[index + 1 :]:
             if body_line.startswith("[node "):
                 break
-            group_match = re.match(r'^group = &"([^"]*)"$', body_line)
+            group_match = re.match(r'^group = &?"([^"]*)"$', body_line)
             if group_match is not None:
                 actual_group = group_match.group(1)
                 break
 
+        # GECS SystemGroup._enter_tree assigns omitted groups before World registration.
+        if actual_group is None and f"World/Systems/{expected_group}" in automatic_groups:
+            continue
         if actual_group != expected_group:
             errors.append(
                 f"content/scenes/main_level.tscn: {system_name} must keep "
