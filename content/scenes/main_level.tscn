@@ -187,6 +187,7 @@ metadata/_custom_type_script = "uid://iq4pnvam7fq5"
 
 [sub_resource type="Resource" id="Resource_mn5t4"]
 script = ExtResource("25_t1fd8")
+floor_snap_distance = 0.12
 max_speed = 5.0
 ground_acceleration = 70.0
 ground_deceleration = 80.0
@@ -196,6 +197,7 @@ metadata/_custom_type_script = "uid://cdblg8bcbkrs8"
 
 [sub_resource type="Resource" id="Resource_lf6x7"]
 script = ExtResource("26_t86in")
+direct_input = true
 look_acceleration = 9999.0
 motion_alignment_acceleration = 260.0
 metadata/_custom_type_script = "uid://cfqxt4h2ae432"

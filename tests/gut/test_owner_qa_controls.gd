@@ -1,7 +1,7 @@
 extends GutTest
 ## Regression surface for owner QA: sharp look, flat-floor motion and Trader actions.
 
-const PLAYER_SCENE: PackedScene = preload("res://content/entities/characters/e_rigid_body_character.tscn")
+const MAIN_SCENE: PackedScene = preload("res://content/scenes/main_level.tscn")
 const TRADER_SCENE: PackedScene = preload("res://content/entities/commerce/trader.tscn")
 const FLOOR_TILE_SIZE: Vector3 = Vector3(8.0, 0.5, 8.0)
 const FLOOR_SETTLE_FRAMES: int = 12
@@ -28,7 +28,12 @@ func before_each() -> void:
 		floor_body.position = Vector3(0.0, -FLOOR_TILE_SIZE.y / 2.0, z)
 		add_child(floor_body)
 		_floors.append(floor_body)
-	_player = PLAYER_SCENE.instantiate() as E_RigidBodyCharacter
+	# Use the actual level-authored player, including component overrides.
+	# Do not start its World or autosave; this fixture owns isolated physics/support.
+	var authored_level: Node3D = MAIN_SCENE.instantiate() as Node3D
+	_player = authored_level.get_node("Entityes/Player") as E_RigidBodyCharacter
+	_player.get_parent().remove_child(_player)
+	authored_level.free()
 	_world.add_entity(_player)
 	_player.global_position = Vector3(0.0, 0.01, 4.0)
 	var session: Entity = Entity.new()
