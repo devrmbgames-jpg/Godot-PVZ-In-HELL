@@ -111,7 +111,7 @@ func _ready() -> void:
 		1,
 		"Register a live Package without Scanner gesture.",
 	)
-	_register_command(VISIT_CREATE_COMMAND, _visit_create, ["package", "customer_key"], 1, "Create a persistent debug CustomerVisit.")
+	_register_command(VISIT_CREATE_COMMAND, _visit_create, ["package", "customer_key=default", "arrive=0|1"], 1, "Create an accounting visit (default) or queue a live visit (arrive=1) with authored customer behavior.")
 	_register_command(PACKAGE_ACTUAL_COMMAND, _pkg_actual, ["package", "actual"], 2, "Force factual CustomerVisit outcome only.")
 	_register_command(PACKAGE_DECLARE_COMMAND, _pkg_declare, ["package", "taken|refused|lost"], 2, "Submit Terminal declaration through CustomerFlowService.")
 	_register_command(PACKAGE_COMPLAINT_COMMAND, _pkg_complaint, ["package", "reason", "pending|resolve"], 2, "Create or resolve a typed Customer complaint.")
@@ -139,6 +139,8 @@ func _ready() -> void:
 	_register_command(DEBUG_HELP_COMMAND, _debug_help, ["command|group"], 0, "Show project developer-console workflows and target syntax.")
 	_register_command(DEBUG_HUD_COMMAND, _debug_hud, ["on|off|toggle"], 0, "Toggle all debug HUD and customer status labels; ordinary gameplay UI stays active.")
 	_register_autocomplete()
+	var gameplay: Node = preload("res://content/debug/developer_console_gameplay.gd").new()
+	add_child(gameplay)
 	var presentation: Node = preload("res://content/debug/developer_console_presentation.gd").new()
 	add_child(presentation)
 
@@ -374,10 +376,14 @@ func _print_service_result(command: String, result: DebugServiceResult) -> void:
 
 
 
-func _visit_create(raw_target: String, customer_key: String = "") -> void:
+func _visit_create(raw_target: String, customer_key: String = "", arrive_text: String = "0") -> void:
+	if arrive_text.is_empty(): arrive_text = "0"
+	if arrive_text not in ["0", "1"]:
+		DeveloperConsoleOutput.error(VISIT_CREATE_COMMAND, "arrive must be 0 or 1")
+		return
 	_print_service_result(
 		VISIT_CREATE_COMMAND,
-		DebugCustomerService.create_visit(DebugTargetResolver.resolve(raw_target), customer_key),
+		DebugCustomerService.create_visit(DebugTargetResolver.resolve(raw_target), customer_key, arrive_text == "1"),
 	)
 
 

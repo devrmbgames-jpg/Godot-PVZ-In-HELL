@@ -13,6 +13,7 @@ func _ready() -> void:
 
 func _run() -> void:
 	_level = MAIN_LEVEL.instantiate() as Node3D
+	_level.set("autosave_path", "")
 	add_child(_level)
 	_level.set_physics_process(false)
 	await get_tree().physics_frame
@@ -20,6 +21,21 @@ func _run() -> void:
 	assert(Console.console_commands.has(DeveloperConsoleCommands.PACKAGE_SPAWN_COMMAND))
 	assert(Console.console_commands.has(DeveloperConsoleCommands.APPLY_DAMAGE_COMMAND))
 	assert(Console.console_commands.has(DeveloperConsoleCommands.MONEY_ADD_COMMAND))
+	_expect_console("help inventory", "inventory_use <slot>")
+	_expect_console("hunger_set 50", "OK hunger_set")
+	_expect_console("inventory_give food", "OK inventory_give")
+	_expect_console("inventory_info", "slot=0")
+	_expect_console("inventory_use 0", "OK inventory_use")
+	_expect_console("hunger_info", "OK hunger_info")
+	_expect_console("trader_info", "courier=")
+	_expect_console("order_info", "OK order_info")
+	_expect_console("quest_info", "OK quest_info")
+	_expect_console("debug_markers on", "OK debug_markers")
+	_expect_console("debug_markers off", "OK debug_markers")
+	var slot: String = "smoke_console_%d" % Time.get_ticks_usec()
+	_expect_console("save_write " + slot, "OK save_write")
+	_expect_console("save_load " + slot, "OK save_load")
+	DirAccess.remove_absolute(DebugGameplayService.slot_path(slot))
 
 	var definition_keys: PackedStringArray = DebugPackageService.definition_keys()
 	assert(not definition_keys.is_empty())

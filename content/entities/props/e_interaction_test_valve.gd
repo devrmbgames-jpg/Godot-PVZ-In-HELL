@@ -66,6 +66,23 @@ func get_progress() -> float:
 	return clampf(progress.fraction, 0.0, 1.0) if progress != null else 0.0
 
 
+## Debug-only preview of retained progress; does not execute a hold completion effect.
+func set_progress(value: float) -> bool:
+	if not is_finite(value) or value < 0.0 or value > 1.0 or not EntityAvailability.contains(self, ECS.world):
+		return false
+	if mode == Mode.IMMEDIATE_E:
+		if value != 0.0 and value != 1.0:
+			return false
+		if is_active() != (value == 1.0):
+			activate()
+	else:
+		var action: DEF_InteractionTestValveAction = _mode_action()
+		if action == null or not ProlongedInteractionService.debug_set_progress(self, action, value):
+			return false
+	_sync_progress()
+	return true
+
+
 func _mode_action() -> DEF_InteractionTestValveAction:
 	var actions: C_InteractionActionSet = get_component(C_InteractionActionSet) as C_InteractionActionSet
 	if actions != null:

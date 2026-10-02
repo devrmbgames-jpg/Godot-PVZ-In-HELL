@@ -13,6 +13,34 @@ const EXAMPLES: Dictionary[String, String] = {
 	"money_add": "money_add 500 qa",
 	"money_remove": "money_remove 20 qa",
 	"debug_hud": "debug_hud off",
+	"hunger_info": "hunger_info self",
+	"hunger_set": "hunger_set 50",
+	"inventory_info": "inventory_info self",
+	"inventory_give": "inventory_give food 2",
+	"inventory_use": "inventory_use 0",
+	"trader_info": "trader_info",
+	"trader_open": "trader_open target",
+	"trader_buy": "trader_buy large_shelf 1",
+	"trader_delivery": "trader_delivery large_shelf 1",
+	"order_info": "order_info",
+	"order_place": "order_place med 2",
+	"quest_info": "quest_info",
+	"npc_info": "npc_info target",
+	"npc_attack": "npc_attack target melee 0 self",
+	"nav_info": "nav_info target",
+	"challenge_info": "challenge_info target",
+	"challenge_start": "challenge_start target warehouse-light-during-visit",
+	"challenge_stop": "challenge_stop target",
+	"hazard_info": "hazard_info target",
+	"save_info": "save_info",
+	"save_write": "save_write qa_console",
+	"save_load": "save_load qa_console",
+	"debug_ui": "debug_ui off",
+	"debug_markers": "debug_markers on",
+	"progress_info": "progress_info target",
+	"progress_set": "progress_set target 0.5",
+	"corpse_info": "corpse_info target",
+	"meat_spawn": "meat_spawn",
 }
 
 var _previous_help: Console.ConsoleCommand
@@ -60,11 +88,18 @@ func _opened() -> void:
 	Console.rich_label.scroll_following = true
 
 
+func _process(_delta: float) -> void:
+	# An underlying timed dialogue may close while the console remains open.
+	if _mouse_acquired and bool(Console.is_visible()) and Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
 func _closed() -> void:
 	if not _mouse_acquired:
 		return
 	_mouse_acquired = false
-	Input.mouse_mode = _previous_mouse_mode
+	var actor: Entity = DebugTargetResolver.player()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.MODAL else _previous_mouse_mode
 	if _previous_focus != null:
 		var control: Control = _previous_focus.get_ref() as Control
 		if is_instance_valid(control) and control.is_visible_in_tree():
@@ -107,10 +142,11 @@ func _help(subject: String = "") -> void:
 			var entry: Console.ConsoleCommand = Console.console_commands[command_name]
 			if not entry.hidden and _group(command_name) == name_text:
 				_print_command(command_name, entry)
+		_print_workflow(name_text)
 		return
 	var command: Console.ConsoleCommand = Console.console_commands.get(name_text) as Console.ConsoleCommand
 	if command == null or command.hidden:
-		DeveloperConsoleOutput.error("help", "Unknown subject: %s" % name_text, "Use help, commands_list or help <group>.")
+		DeveloperConsoleOutput.error("help", "Unknown subject: %s" % name_text, "Groups: %s; registered names: commands_list." % ", ".join(GROUPS))
 		return
 	_print_command(name_text, command)
 
@@ -126,6 +162,15 @@ func _print_command(command_name: String, command: Console.ConsoleCommand) -> vo
 	if EXAMPLES.has(command_name):
 		Console.print_line("Example: %s" % EXAMPLES[command_name])
 	Console.print_line("Domain eligibility is enforced. Mutation commands are explicit QA actions; info/help commands are read-only.")
+
+
+func _print_workflow(group_name: String) -> void:
+	match group_name:
+		"inventory", "health": Console.print_line("Food: hunger_set 50 -> inventory_give food 2 -> inventory_info -> inventory_use 0 -> hunger_info. Meat: kill target -> meat_spawn -> normal pickup/eat.")
+		"trader": Console.print_line("Commerce: trader_info -> money_add 500 qa -> trader_buy large_shelf 1 / trader_delivery large_shelf 1. Orders: order_place med 2 -> order_info -> normal day_next until next Morning -> order_info.")
+		"customers", "challenges": Console.print_line("Live client: pkg_spawn books 1 receiving 1 -> visit_create pkg:<id> ordinary 1 (if no visit) -> day_next -> customer_next -> visit_info pkg:<id> -> challenge_info visit:<id>. Departure completes visit-scoped challenges.")
+		"npc": Console.print_line("Combat: npc_info target -> npc_attack target melee 0 self -> health_info self. Kill NPC, inspect remains/physical meat, pick up and consume normally.")
+		"world": Console.print_line("Valve: progress_info target -> progress_set target 0.5. Save: Morning/no live sessions -> save_write qa_console -> change state -> save_load qa_console -> inspect restored facts. Load replaces Morning world state; default autosave untouched.")
 
 
 func _group(command_name: String) -> String:

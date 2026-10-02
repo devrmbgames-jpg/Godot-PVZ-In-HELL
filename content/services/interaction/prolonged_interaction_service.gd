@@ -22,6 +22,31 @@ static func progress_for(target: Entity, action_id: StringName) -> ProlongedInte
 	return null
 
 
+## Preview adjustment cannot steal an active session or revive completed actions.
+static func debug_set_progress(target: Entity, action: DEF_InteractionAction, value: float) -> bool:
+	if not EntityAvailability.contains(target, ECS.world) or action == null or action.timing == null or action.action_id == &"" or not is_finite(value) or value < 0.0 or value > 1.0:
+		return false
+	for actor: Entity in ECS.world.entities:
+		var binding: Relationship = session(actor)
+		if binding != null and binding.target == target:
+			return false
+	var progress: ProlongedInteractionProgress = progress_for(target, action.action_id)
+	if progress != null and (progress.phase == ProlongedInteractionProgress.Phase.COMPLETED or progress.timing != action.timing):
+		return false
+	if progress == null:
+		var state: C_ProlongedInteraction = target.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+		if state == null:
+			state = C_ProlongedInteraction.new()
+			target.add_component(state)
+		progress = ProlongedInteractionProgress.new()
+		progress.action_id = action.action_id
+		progress.timing = action.timing
+		state.actions.append(progress)
+	progress.fraction = value
+	progress.phase = ProlongedInteractionProgress.Phase.IDLE
+	return true
+
+
 static func active_progress(actor: Entity) -> ProlongedInteractionProgress:
 	var binding: Relationship = session(actor)
 	if binding == null:

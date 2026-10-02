@@ -46,6 +46,17 @@ static func tick(actor: Entity, delta: float, state: C_Hunger = null) -> void:
 	advance(state, delta, cycle.phase, actor.get_tree().paused, GrabService.holder_available(actor) and not actor.has_component(C_Death))
 
 
+## Explicit debug adjustment through the same bounds/availability owner as food.
+static func set_value(actor: Entity, value: float) -> bool:
+	if not GrabService.holder_available(actor) or actor.has_component(C_Death):
+		return false
+	var state: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
+	if state == null or not _valid_policy(state.policy) or not is_finite(value) or value < 0.0 or value > state.policy.maximum:
+		return false
+	state.value = value
+	return true
+
+
 static func apply_food(actor: Entity, effect: DEF_FoodEffect) -> bool:
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or effect == null or not is_finite(effect.hunger_relief) or effect.hunger_relief <= 0.0:
 		return false

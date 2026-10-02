@@ -1,6 +1,6 @@
 # R23 — Полный вертикальный срез
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -20,14 +20,14 @@ Status: **IN_PROGRESS**
 - [x] M1: fixed authored supply/customer families and scenario route/feedback audit.
 - [x] QA batch A implementation: Windows export, direct player view, seam adhesion/jump guard, living grab guard and Trader interaction; player acceptance pending.
 - [x] QA-11: native NPC avoidance, stationary/queue/corridor/reset regressions; Navigation cell_size 0.25 on main/test. Player acceptance pending.
-- [ ] Updated owner scope QA-14–QA-20: CharacterBody player/archive/immersive slots, refusal after handoff, Terminal debug-only truth, liquid alignment, immediate gaze and light-client entrance effects, knife/hammer animation.
-- [ ] Owner QA batch: implement and verify [QA-01–QA-13](roadmap_23_vertical_slice_validation/owner_qa.md) on the enlarged main scene.
+- [x] Updated owner scope QA-14–QA-20 implementation (owner acceptance pending): CharacterBody player/archive/immersive slots, refusal after handoff, Terminal debug-only truth, liquid alignment, immediate gaze and light-client entrance effects, knife/hammer animation.
+- [x] Owner QA batch implementation and scoped automated verification (manual enlarged-scene acceptance pending): [QA-01–QA-13](roadmap_23_vertical_slice_validation/owner_qa.md) on the enlarged main scene.
 - [ ] M2: ordinary-input Morning → Day → Evening → Night → Morning walkthrough.
 - [ ] M3: alternative outcomes/combat/carry-over and lifecycle gaps, preserving existing owners.
 - [ ] M4: independent review, full-project GUT, integrated smoke and owner checklist.
-- [ ] Independently review material changes and resolve all R-findings.
+- [x] Independently review material changes and resolve all R-findings (latest console R7 FIXED).
 - [ ] Run final task validation according to the documented GUT/headless budget.
-- [ ] Record remaining owner gameplay/visual QA.
+- [x] Record remaining owner gameplay/visual QA under qa_tasks/.
 
 ### Decisions
 This file is the authoritative router. Existing fixture smokes are dependency evidence, not a complete no-debug day walkthrough. Preserve the authored arrival-to-physical-departure challenge, simple NPC 3+3 attacks/animation hooks/NavigationAgent and screen debug timers/conditions/tasks. Headless native-node/sound-state checks do not establish rendered/audio perception.
@@ -36,7 +36,7 @@ Owner feedback dated 2026-10-02 extends R23 with [thirteen QA tasks](roadmap_23_
 
 ### Current
 
-R23 QA03/04/05/06/07/08/09/10/12/13/14/15/17/18/19 implemented; owner full-slice/visual/audio acceptance pending. R24 M0/M1/M5/M6 and visitor pacing/remains also implemented. QA07/08 focused4/4,40 + console case1/1,14; read-only review clean. One full M5 milestone suite409/409,3185 passed; subsequent edits use focused checks only. QA12 selector3/3,30 PASS. Next R24 commerce/customer booth/shift/prototype queue; older low-priority console expansion remains pending. Dev only; preserve user resaves/addons. Evidence/checklists in linked owner_qa and R24.
+R23 owner-requested QA implementations and R24 M0–M6 complete; LOW console expansion/help/scroll complete. Owner full-day walkthrough, comfort of controls, routes, UI, visuals and audio remain unaccepted. Next: export latest main/test build and hand main scene to owner, as explicitly requested for full-slice testing. No rendered run or full no-debug walkthrough claimed. Dev only; preserve authored user edits/addons.
 
 ### Validation
 CharacterBody: relevant GUT 46/46,571 assertions; final physics 6/6,33. Real controls/belt rays, fall/recontact/rebound, flying rigid response, support impulse, crouch, cart+15cm step, old authored-player save restore. MCP running native primitive player/input checked. Separate R2 lost cart step assistance FIXED/rereviewed. Structure/diff PASS; formatter SKIP. Both Windows exports79b6aefc actual scene + 120-frame startup PASS; full-day/visual acceptance pending.
@@ -108,3 +108,7 @@ R22.5 dependency gate complete: 151/151 GUT (921 assertions), strict hazards/int
 | ID | Severity | Finding | State | Evidence / decision |
 | --- | --- | --- | --- | --- |
 | R4 | P2 | Floor instructions described old timings | FIXED | Rule12s preparation/48s danger/8s exposure matches60s total. Separate re-review confirmed fix. |
+
+### Latest automated evidence / owner handoff
+
+Major M2 full suite426/426,3375; no broad repeat for subsequent small edits. Focused inspection/customer prototype/console cases and actual-main native inspection/trader placement/developer-console smoke PASS; separate substantial reviews resolved findings. Latest console:22 existing regressions PASS,6 new parser tests52 assertions, R7 changed regression1/1,14, actual-main developer_console smoke PASS. Final Windows export follows logical commit. M2/M3 full ordinary-input day and alternative-outcome routes remain player QA; dependency/headless evidence is not a claim that these walkthroughs passed.

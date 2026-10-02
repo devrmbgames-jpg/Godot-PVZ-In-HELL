@@ -1,6 +1,6 @@
 # R24 — Двери, посылки, торговля и поведение клиентов
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -24,7 +24,7 @@ Status: **IN_PROGRESS**
 - [x] M4: шаблон клиента, съедобные останки и вероятностный ценный дроп.
 - [x] M5: виньетки, шаги, покачивание камеры, переключение debug HUD.
 - [x] M6: типизированные события терминала, посылок и дверей.
-- [ ] Узкие проверки изменённых контрактов, независимая проверка существенного результата, экспорт между крупными этапами; ручной QA передать игроку.
+- [x] Узкие проверки изменённых контрактов, независимая проверка существенного результата, экспорт между крупными этапами; ручной QA передать игроку.
 
 ### Decisions
 
@@ -32,7 +32,7 @@ R23 продолжает текущую реализацию замечаний.
 
 ### Current
 
-M0–M6 реализованы, включая мебель/каталоги/курьера, условия смены, приватный осмотр и копируемый шаблон клиента. R23 QA03/04/05/06/07/08/09/10/12/13/14/15/17/18/19 реализованы. Следующий шаг: LOW console extension/help/scroll; ручная приёмка полного среза, управления, интерфейсов, звука и визуального представления ожидает игрока. Прежние требования не отменены.
+M0–M6 реализованы, включая мебель/каталоги/курьера, условия смены, приватный осмотр и копируемый шаблон клиента. R23 QA03/04/05/06/07/08/09/10/12/13/14/15/17/18/19 реализованы. LOW console extension/help/scroll завершено; следующий шаг — ручная приёмка полного среза, управления, интерфейсов, звука и визуального представления ожидает игрока. Прежние требования не отменены.
 
 ### Validation
 
@@ -177,3 +177,7 @@ Windows877e26b1 inspection main/test both actual-scene/120-frame startup PASS, l
 Inherited CustomerPrototype + external DEF_Customer / DEF_CustomerEvent / custom dialogue examples. Optional profile scene/dialogue paths preserve legacy defaults, interests exposed read-only to dialogue; profile remains visit authority. Stationary inspection/receiving/dialogue animation names preserve real-speed Walk and active combat. Invalid scene root freed; missing dialogue/cue cannot enter modal dialogue. Existing NavAgent, physical slot, damage/remains, challenge and attack contracts inherited.
 
 Focused GUT2/2,17 assertions (`.export/customer-prototype-gut.log`): profile override with no schedule base scene, imported custom dialogue/interests and modal release, stationary pose/real movement/combat priority. Cue preflight changed dialogue check rerun1/1,13 (`.export/customer-prototype-cue-gut.log`). No full rerun; last major M2 full426/426,3375. Structure/diff verification and exports follow completion. Remaining: LOW console extension/help/scroll, owner main/test gameplay/visual/audio acceptance.
+
+### Final implementation checkpoint
+
+M0–M6 complete; LOW console stages10–15 also implemented and reviewed (R7 FIXED). M4 Windows57533cb1 main/test both actual-scene120-frame startup PASS. Final updated Windows builds follow the console commit. Owner takes full main-level day walkthrough; no agent rendered/audio/full-slice acceptance performed. Detailed player scenarios remain in qa_tasks/.

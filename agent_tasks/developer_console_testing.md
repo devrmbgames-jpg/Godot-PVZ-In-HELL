@@ -1,6 +1,6 @@
 # Developer Console Testing
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Priority: **LOW** — дополнительная задача; выполнять после основных исправлений игрового QA.
 
@@ -31,13 +31,13 @@ Extension requested by owner: cover expanded gameplay and QA-01–QA-13, and exp
 - [x] Stage 7 — health / lifecycle / world helpers.
 - [x] Stage 8 — autocomplete/help.
 - [x] Stage 9 — focused validation and completion review.
-- [ ] Stage 10 — audit current gameplay contracts; grouped `help [command|group]`, preserve built-in help and `debug_help` compatibility.
-- [ ] Stage 11 — Hunger, Inventory, Trader, Orders and Quest commands.
-- [ ] Stage 12 — NPC attacks/navigation, visit behavior, Challenges and Hazards commands.
-- [ ] Stage 13 — isolated persistence testing, world/client debug presentation and interactive progress commands.
-- [ ] Stage 14 — corpse/meat and new client modes after their R23 QA implementations exist.
+- [x] Stage 10 — audit current gameplay contracts; grouped `help [command|group]`, preserve built-in help and `debug_help` compatibility.
+- [x] Stage 11 — Hunger, Inventory, Trader, Orders and Quest commands.
+- [x] Stage 12 — NPC attacks/navigation, visit behavior, Challenges and Hazards commands.
+- [x] Stage 13 — isolated persistence testing, world/client debug presentation and interactive progress commands.
+- [x] Stage 14 — corpse/meat and new client modes after their R23 QA implementations exist.
 - [x] Console scrolling — reproduce inability to scroll while open; restore output scrolling and verify focus/input behavior.
-- [ ] Stage 15 — focused regression validation, updated command contract and completion review.
+- [x] Stage 15 — focused regression validation, updated command contract and completion review.
 
 ### Decisions
 The console is a debug frontend only. Domain services/contracts remain authoritative; command handlers must not become alternate business logic.
@@ -45,9 +45,8 @@ The console is a debug frontend only. Domain services/contracts remain authorita
 The addon already owns generic `help`; integrate project help through project-side registration without editing addons or losing built-in discovery. Proposed extension grammar lives in the supporting contract and is not a claim that commands already exist. Stage 14 depends on the relevant [R23 owner QA tasks](roadmap_23_vertical_slice_validation/owner_qa.md).
 
 ### Current
-Stages1–9 complete. Grouped help and scrolling implemented; Stage10 current-feature audit underway, Stages11–15 pending. Next: extend gameplay commands using audited current services, then update grammar/QA. All corpse/meat/client-mode dependencies now exist.
 
-Owner follow-up recorded: LOW priority for the whole extension; include console scrolling. When this task is selected after the main QA fixes, reproduce the scrolling defect with output longer than the console viewport and check input routing/focus before changing behavior.
+Stages1–15 implemented: grouped registry help, scrolling/focus,28 new commands over current gameplay APIs, live visit option and diagnostic targets. Next: final Windows export, then owner full-day/visual/UI QA. Addon untouched; production defaults preserve disabling. Persistent debug slots are Morning-only and require idle interactions.
 
 ### Validation
 2026-10-02 extension task recording: project structure validator and changed-document diff check PASS; gameplay/command implementation and runtime validation remain pending.
@@ -285,3 +284,17 @@ Addon Console builds a scroll-enabled RichTextLabel and owns PageUp/PageDown but
 ### Help / scroll validation
 
 Project adapter restores visible mouse on open and previous mode/focus on close; output wheel/scrollbar and existing PageUp/PageDown remain available. `help [command|group]` derives syntax/descriptions from live registry, includes built-in instructions, debug_help compatible. Addon untouched. Focused actual-console long-output/help checks2/2,14 assertions (`.export/console-presentation-gut.log`); no broad/runtime/visual rerun. Full extended command metadata/examples follow Stage11–14 implementations.
+
+### Active extended-command contract (recorded before implementation)
+
+Audit: HungerService owns bound transitions; InventoryService owns grants/transfers/use. CommerceService/Panel own orders/payments/UI, TraderCatalogService owns hours/catalog. NpcAttackService accepts kind/index over R_CombatTarget; debug failure restores previous target. ChallengeService owns arm/activate/cancel, debug start may replace only inactive unconsumed authored challenge. Valve debug adjustment goes through Entity glue and retained progress owner, rejects active/completed sessions; no duplicate completion effects. NPC remains now spawn edible pickups immediately: corpse_info reports release state, no fictitious corpse hit meter.
+
+Persistence is Morning-snapshot only: save_write/load require named alphanumeric isolated user://debug_slots slot, Morning, no live customer/modal/grip/active challenge; never touch production autosave. Preserve normal snapshot validation/restore. visit_create optional arrive0|1 requests live queued visit using existing authored customer_key; old invocation retains finished accounting-only visit. Update proposed grammar to actual contracts before release. One relevant extended-console GUT surface near stage completion, no broad repeat after M2.
+
+### Extended commands implementation / validation
+
+28 commands: hunger/inventory, profile trading and paid buy/courier/orders, quests, NPC3+3/navigation, challenge start/cancel/diagnostics, hazard lifetime, isolated Morning saves, HUD/markers, valve progress and edible remains. Info is read-only; writes go through existing owners plus narrow explicit APIs. Optional parser blanks normalized; visit_create arrive preserves legacy accounting-only invocation. Help shows live syntax/defaults/restrictions/examples/workflows.
+
+Initial bounded GUT:22 existing regressions PASS (console4, presentation2, NPC attacks16); three new fixture failures used pre-initialization component references, corrected to actual Entity components. Six new command/parser cases PASS52 (`.export/console-extension-parser-gut.log`). No broad rerun. Independent review R7/P2 OPEN: Morning restore allowed push/cart. FIXED: reject all captures above HANDS and authoritative Push/CartDriver links before writes/loads. Changed regression alone1/1,14 (`.export/console-extension-review-fix.log`); reviewer confirmed FIXED, no other material findings.
+
+Integrated actual-main developer_console smoke PASS (`tests/artifacts/developer_console-20261003-093440520.log`): real parser/help, food consumption, trader/quest/order projection, runtime markers, named Morning snapshot roundtrip, legacy package/accounting/health operations. Fixture disables automatic owner autosave loading and deletes only its own isolated slot. No rendered/gameplay acceptance claimed. Structure/diff PASS; formatter SKIP (unavailable). Windows exports follow; last full suite remains major M2:426/426,3375.

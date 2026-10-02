@@ -84,6 +84,12 @@ static func visit_info(visit: CustomerVisit) -> PackedStringArray:
 		"settlement_committed=%s" % str(visit.settlement_committed),
 		"money_delta=%d" % visit.money_delta,
 	]
+	if visit.definition != null:
+		lines.append("profile=%s introduction=%s inspection=%s interests=%s" % [visit.definition.key, DEF_Customer.Introduction.keys()[visit.definition.introduction], visit.definition.private_inspection, ", ".join(visit.definition.interests)])
+	var customer: E_Customer = CustomerFlowService.customer_for(visit.visit_id)
+	if customer != null:
+		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+		lines.append("phase=%s announced=%s dialogue_started=%s elapsed=%.1fs" % [C_CustomerAgent.Phase.keys()[agent.phase], agent.order_announced, agent.dialogue_started, agent.elapsed])
 	if visit.complaint == null:
 		lines.append("complaint=none")
 	else:
@@ -194,6 +200,12 @@ static func debug_targets() -> PackedStringArray:
 			continue
 		if entity.has_component(C_Health):
 			lines.append("entity:%s | HEALTH_TARGET" % entity.id)
+		elif entity.has_component(C_Hazard):
+			lines.append("entity:%s | HAZARD" % entity.id)
+		elif entity is E_InteractionTestValve:
+			lines.append("entity:%s | VALVE" % entity.id)
+		elif entity.has_component(C_InventoryItem):
+			lines.append("entity:%s | INVENTORY_ITEM" % entity.id)
 
 	if lines.is_empty():
 		lines.append("no debug targets")

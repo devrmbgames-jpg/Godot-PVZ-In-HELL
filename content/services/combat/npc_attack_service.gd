@@ -12,14 +12,22 @@ static func variant_for(state: C_NpcCombat, kind: C_NpcCombat.Kind, index: int) 
 
 
 static func can_start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
+	return can_start_against(actor, CombatService.target_for(actor), kind, index)
+
+
+static func can_start_against(actor: Entity, target: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 	if not GrabService.holder_available(actor) or kind not in [C_NpcCombat.Kind.MELEE, C_NpcCombat.Kind.RANGED]:
 		return false
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state == null or state.phase != C_NpcCombat.Phase.READY or state.cooldown_remaining > 0.0:
 		return false
-	var target: Entity = CombatService.target_for(actor)
 	var attack: DEF_NpcAttack = variant_for(state, kind, index)
 	return _valid_attack(attack, kind) and _valid_pair(actor, target) and in_range(actor, target, attack) and CombatGeometry.clear_line(actor, target, attack.collision_mask)
+
+
+## Failed explicit requests leave the current opponent/intent/cooldown untouched.
+static func start_against(actor: Entity, target: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
+	return can_start_against(actor, target, kind, index) and CombatService.bind_target(actor, target) and start(actor, kind, index)
 
 
 static func start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
