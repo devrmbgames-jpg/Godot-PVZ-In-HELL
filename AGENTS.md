@@ -6,7 +6,7 @@ Start from the user's task and the exact files, symbols, errors, scenes, or reso
 
 - Runtime: Godot 4.7, GDScript, Forward Plus, Jolt Physics.
 - GECS v8 is pinned under `addons/gecs/`; checked-out source is the API authority. `addons/` is read-only unless addon/dependency work is explicit.
-- Project-owned GDScript is statically typed. Declare concrete types when inference crosses Variant/untyped APIs, containers, dynamic lookup, or broad Object/Node boundaries.
+- Project-owned GDScript is statically typed. Declare concrete types when inference crosses Variant/untyped APIs, containers, dynamic lookup, or broad Object/Node boundaries. Avoid local/member/parameter names that shadow existing or inherited properties/methods.
 - Components contain data/state. Relationships own authoritative live Entity-to-Entity bindings. Systems are scheduled behavior and do not call other Systems as services. Reusable imperative logic belongs in services/solvers/observers or thin Entity/engine glue.
 - Godot physics bodies own physical transform/velocity unless an explicit synchronization contract says otherwise.
 - Preserve scene/resource/data contracts unless migration is explicit: exported properties, node names/paths, signals, authored IDs, relationship/component ownership, and resource paths.
@@ -39,6 +39,7 @@ One durable task file owns its own status/current/next/validation. There is no s
 Load a skill only when its domain is actually involved:
 - GECS-specific API/architecture: `.agents/skills/gecs-v8/SKILL.md`;
 - GUT test authoring/execution: `.agents/skills/gut-testing/SKILL.md`;
+- Godot AI MCP, GDScript parser diagnostics, live ClassDB/scene/editor inspection: `.agents/skills/godot-ai-mcp/SKILL.md`;
 - LimboAI v1.8.1 behavior trees/HSM/Blackboard/custom tasks: `.agents/skills/limboai-v1.8/SKILL.md`;
 - player-facing game design: `.agents/skills/professional-game-design/SKILL.md`.
 
@@ -48,7 +49,7 @@ Ordinary Godot/GDScript implementation does not require a general-purpose workfl
 
 Codex loads the Godot AI MCP entry from the user-level `~/.codex/config.toml` (or `$CODEX_HOME/config.toml` when overridden). Do not duplicate the server entry in project config. Godot AI MCP is optional live editor/runtime context, not a mandatory step.
 
-Prefer ordinary file/search/edit tools when cheaper. Use MCP when live scene tree, node/resource state, editor diagnostics, or runtime state materially improves the task. Query the smallest relevant scene/subtree/resource/log range first and widen only when useful.
+Prefer ordinary file/search/edit tools when cheaper. Use MCP when live scene tree, node/resource state, editor diagnostics, ClassDB introspection, or runtime state materially improves the task. For changed project-owned GDScript, use the Godot parser/diagnostics near completion; MCP `script_patch`/`script_create` is the preferred path when the editor is available. Query the smallest relevant scene/subtree/resource/log range first and widen only when useful.
 
 If live MCP access matters and the editor is not running, the agent may start it with `.vscode/start-godot.ps1`. Do not launch gameplay/rendered playtests, capture visual evidence, or perform subjective visual validation unless the user explicitly approved it for the task.
 
@@ -65,6 +66,7 @@ Run at most one subagent at a time and integrate it before starting another. Arc
 Use the cheapest check that can falsify the change. Do not run GUT, smoke, or broad runtime checks after every small edit.
 
 - Run changed-file/static checks and `python utils/validate_project_structure.py` when structure/contracts are affected.
+- Before completing GDScript work, validate the changed project-owned `.gd` files with Godot's parser near the end of the coherent edit batch. Resolve new/relevant parse or reload warnings as well as errors; do not launch gameplay merely for this check.
 - For a complete large implementation, normally run one relevant GUT surface and one relevant headless smoke/runtime check near completion unless the exact task says otherwise.
 - Never claim a test, formatter, engine run, MCP inspection, or visual check passed unless it actually ran.
 - Commit coherent milestones separately for long work. Do not push, merge, or open a PR unless requested.
