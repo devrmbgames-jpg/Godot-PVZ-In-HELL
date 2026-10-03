@@ -53,3 +53,8 @@ R34 Windows97a0ef71: main20261003-092610Z/test20261003-092744Z, оба menu120 +
 
 
 R30 M4 Windows f7c1b8cc: main20261003-094515Z/test20261003-094648Z, оба menu120 + actual-level120 startup PASS; новые PNG включены, старые atlas paths отсутствуют. Launchers обновлены, включая полный help bd59ecad. Player QA pending.
+
+
+## 2026-10-03 — R27 QA: два клиента в одном пакете
+
+Воспроизведён обход допуска: два запроса в CommandBuffer видели старый пустой query cache и создавали2 NPC. spawn_next_due и customer_for теперь читают зарегистрированные World.entities/C_CustomerAgent непосредственно. Прежний клиент сохраняет очередь во всех фазах до удаления; интервал не изменён. Before0/1 FAIL; timing9 + flow27 =36/36,263 PASS (.export/r27-batch-arrival-after.log). Addon не менялся. Windows exports следующий шаг; player QA pending. Full/rendered не выполнялись. Dev only, пользовательские изменения сохранены.

@@ -31,10 +31,15 @@ static func parcel_for(package_id: String) -> Entity:
 	return null
 
 
+## Читает зарегистрированных клиентов сразу: query-кеш GECS обновляется только в конце пакета команд.
 static func customer_for(visit_id: StringName) -> E_Customer:
-	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
+	if not is_instance_valid(ECS.world):
+		return null
+	for customer: Entity in ECS.world.entities:
+		if not is_instance_valid(customer):
+			continue
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-		if agent.visit_id == visit_id:
+		if agent != null and agent.visit_id == visit_id:
 			return customer as E_Customer
 	return null
 
@@ -208,12 +213,14 @@ static func _has_active_registration_record(
 
 
 static func spawn_next_due(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
-	if flow == null or cycle == null or cycle.phase != C_DayCycle.Phase.DAY:
+	if flow == null or cycle == null or cycle.phase != C_DayCycle.Phase.DAY or not is_instance_valid(ECS.world):
 		return false
 	if flow.arrival_cooldown_seconds > 0.0:
 		return false
-	if not ECS.world.query.with_all([C_CustomerAgent]).execute().is_empty():
-		return false
+	# Внутри CommandBuffer query ещё может быть пустым после появления первого клиента.
+	for customer: Entity in ECS.world.entities:
+		if is_instance_valid(customer) and customer.has_component(C_CustomerAgent):
+			return false
 	for visit: CustomerVisit in flow.visits:
 		if (
 			not visit.started
