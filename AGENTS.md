@@ -39,6 +39,7 @@ One durable task file owns its own status/current/next/validation. There is no s
 Load a skill only when its domain is actually involved:
 - GECS-specific API/architecture: `.agents/skills/gecs-v8/SKILL.md`;
 - GUT test authoring/execution: `.agents/skills/gut-testing/SKILL.md`;
+- LimboAI v1.8.1 behavior trees/HSM/Blackboard/custom tasks: `.agents/skills/limboai-v1.8/SKILL.md`;
 - player-facing game design: `.agents/skills/professional-game-design/SKILL.md`.
 
 Ordinary Godot/GDScript implementation does not require a general-purpose workflow skill.
