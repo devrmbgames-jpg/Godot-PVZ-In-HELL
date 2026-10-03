@@ -3,6 +3,7 @@ extends Node
 
 const SAVE_PATH: String = "user://smoke_living_district.pvzh"
 const PHASE_FRAMES: int = 720
+const NAVIGATION_CHECKS: GDScript = preload("res://utils/warehouse_navigation_checks.gd")
 
 var _level: Node3D = null
 var _failed: bool = false
@@ -18,6 +19,16 @@ func _run() -> void:
 	get_tree().root.add_child(_level)
 	get_tree().current_scene = _level
 	print("District smoke: level initialized")
+	var navigation_region: NavigationRegion3D = _level.get_node("WarehouseNavigation") as NavigationRegion3D
+	var navigation_errors: Array[String] = await NAVIGATION_CHECKS.failures(_level, navigation_region)
+	for navigation_error: String in navigation_errors:
+		_check(false, navigation_error)
+	if not navigation_errors.is_empty():
+		_level.free()
+		ECS.world = null
+		get_tree().quit(1)
+		return
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var district: C_District = DistrictPopulationService.current()
 	var session: Entity = ECS.world.query.with_all([C_Autosave]).execute_one()
