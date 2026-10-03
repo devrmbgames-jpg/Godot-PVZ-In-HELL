@@ -33,7 +33,7 @@ Status: **OWNER_QA**
 
 ### Current
 
-QA fix реализован: spawn_next_due проверяет World.entities/C_CustomerAgent напрямую; customer_for видит зарегистрированного клиента немедленно. Пакетный query-кеш больше не допускает второго NPC и не закрывает ошибочно первый визит. Уходящий/осматривающий клиент продолжает занимать очередь до удаления, после него сохраняется авторский интервал. Addon не менялся. Следующий шаг — commit и Windows main/test, затем owner QA.
+QA fix реализован: spawn_next_due проверяет World.entities/C_CustomerAgent напрямую; customer_for видит зарегистрированного клиента немедленно. Пакетный query-кеш больше не допускает второго NPC и не закрывает ошибочно первый визит. Уходящий/осматривающий клиент продолжает занимать очередь до удаления, после него сохраняется авторский интервал. Addon не менялся. Windows main/test ab42a1bc готовы; следующий шаг — owner QA.
 
 ### Decisions
 
@@ -59,3 +59,6 @@ QA fix реализован: spawn_next_due проверяет World.entities/C_
 
 
 QA fix validation: реальный CommandBuffer regression before0/1 FAIL (создано2 NPC), после исправления timing9 + flow27 =36/36,263 assertions PASS (.export/r27-batch-arrival-after.log). Повторный flow tick видит первого клиента до cache invalidation, не закрывает его визит, второй остаётся в очереди. Related diff --check PASS. Полный suite/rendered не запускались. Старое утверждение об отсутствии обходов относится только к прежним синхронным проверкам; пакетная регрессия добавлена по замечанию владельца.
+
+
+QA fix Windows ab42a1bc: main `.export/windows/20261003-112039Z-ab42a1bc-single-customer-main/PVZInHell.exe`; test `.export/windows/20261003-112205Z-ab42a1bc-single-customer-test/PVZInHell.exe`. Оба menu120 + actual-level120 headless startup PASS; LATEST.cmd/TEST_LEVEL.cmd обновлены. Полный срез и визуальную проверку выполняет владелец.
