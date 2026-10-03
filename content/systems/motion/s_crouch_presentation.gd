@@ -26,9 +26,15 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			else crouch.camera_height_standing
 		)
 		var position: Vector3 = entity.camera_root.position
+		var previous_height: float = position.y
 		position.y = move_toward(
 			position.y,
 			target_height,
 			crouch.transition_speed * delta,
 		)
 		entity.camera_root.position = position
+		# Авторизованная геометрия крепления StaticBody; stored body ведёт его RemoteTransform.
+		var belt_delta: float = (position.y - previous_height) * crouch.belt_lowering_ratio
+		for mount: Node3D in entity.crouch_mounts:
+			if is_instance_valid(mount):
+				mount.position.y += belt_delta

@@ -60,7 +60,7 @@ func test_grounded_motion_plays_manual_audio_and_bobs_only_camera_then_returns_n
 	assert_eq(_voices(footsteps), 0)
 	var head_pose: Transform3D = _head.transform
 	var body: RigidBody3D = _actor as Node as RigidBody3D
-	body.position = Vector3(0, 0, -0.8)
+	body.position = Vector3(0, 0, -1.4)
 	var physical_pose: Transform3D = body.transform
 	_feedback._physics_process(1.0 / 60.0)
 	assert_eq(_voices(footsteps), 1)
@@ -115,3 +115,41 @@ func test_real_customer_prefab_uses_spatial_addon_players_under_rigid_body() -> 
 		assert_true(child is AudioStreamPlayer3D)
 	assert_not_null(footsteps.current_sound_profile)
 	assert_false((npc.get_node("CharacterFeedback") as CharacterFeedback).bob_enabled)
+
+
+func test_normal_cadence_and_camera_share_phase_even_when_audio_is_muted() -> void:
+	var footsteps: Footstepper = _feedback.get_node("Footstepper") as Footstepper
+	_feedback.bob_response = 10000.0
+	(_actor as Node as Node3D).position.z -= 0.7
+	_feedback._physics_process(0.1)
+	assert_eq(_voices(footsteps), 0, "Обычный шаг ещё не закончился")
+	(_actor as Node as Node3D).position.z -= 0.7
+	_feedback._physics_process(0.1)
+	assert_eq(_voices(footsteps), 1)
+	assert_almost_eq(_camera.position.y, -_feedback.bob_amplitude.y, 0.00001, "Звук на нижней точке камеры")
+	_feedback.footsteps_enabled = false
+	(_actor as Node as Node3D).position.z -= 1.4
+	_feedback._physics_process(0.2)
+	assert_almost_eq(_camera.position.y, _feedback.bob_amplitude.y, 0.00001, "Отключение звука не меняет фазу")
+
+
+func test_player_belt_lowers_without_camera_pitch_and_returns_to_authored_pose() -> void:
+	var actor: E_PhysicalCharacter = (load("res://content/entities/characters/character_body_player.tscn") as PackedScene).instantiate() as E_PhysicalCharacter
+	_root.add_child(actor as Node)
+	_world.add_entity(actor, null, false)
+	assert_eq(actor.crouch_mounts.size(), 2)
+	var mount: Node3D = actor.crouch_mounts[0]
+	var standing: Vector3 = mount.position
+	var crouch: C_Crouch = actor.get_component(C_Crouch) as C_Crouch
+	var system: S_CrouchPresentation = S_CrouchPresentation.new()
+	crouch.active = true
+	actor.head_axis_x.rotation.x = 0.5
+	system.process([actor], [[crouch]], 1.0)
+	assert_lt(mount.position.y, standing.y - 0.5)
+	assert_gt(mount.position.y, 0.1, "Пояс не пересекает пол")
+	assert_eq(mount.position.x, standing.x)
+	assert_true(mount.rotation.is_zero_approx(), "Pitch камеры не вращает пояс")
+	crouch.active = false
+	system.process([actor], [[crouch]], 1.0)
+	assert_true(mount.position.is_equal_approx(standing))
+	system.free()

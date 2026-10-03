@@ -5,25 +5,24 @@ class_name CharacterFeedback
 @export var footsteps_enabled: bool = true
 @export var spatial_audio: bool = false
 @export_range(-80.0, 0.0, 1.0) var volume_db: float = -14.0
-@export_range(0.2, 4.0, 0.1) var step_distance: float = 1.4
+@export_range(0.2, 4.0, 0.1) var step_distance: float = 2.8
 @export var bob_enabled: bool = true
 @export var reduced_motion: bool = false
 @export var camera_path: NodePath = NodePath("HeadY/HeadX/HeadRoot/Camera3D")
 @export var bob_amplitude: Vector2 = Vector2(0.006, 0.012)
-@export_range(0.2, 6.0, 0.1) var bob_cycle_distance: float = 2.8
 @export_range(1.0, 30.0, 1.0) var bob_response: float = 12.0
 
 const MINIMUM_WALK_SPEED: float = 0.2
 const MAXIMUM_FRAME_TRAVEL: float = 3.0
 const MINIMUM_DISTANCE: float = 0.1
+const PHASE_EPSILON: float = 0.000001
 
 var _actor: E_PhysicalCharacter = null
 var _camera: Camera3D = null
 var _camera_rest: Vector3 = Vector3.ZERO
 var _camera_offset: Vector3 = Vector3.ZERO
 var _previous_position: Vector3 = Vector3.ZERO
-var _step_travel: float = 0.0
-var _bob_phase: float = 0.0
+var _bob_phase: float = PI / 2.0
 @onready var _footsteps: Footstepper = $Footstepper
 
 
@@ -39,7 +38,7 @@ func _ready() -> void:
 	if _actor == null:
 		return
 	_previous_position = (_actor as Node as Node3D).global_position
-	_step_travel = step_distance / 2.0
+	_bob_phase = PI / 2.0
 	_camera = _actor.get_node_or_null(camera_path) as Camera3D
 	if _camera != null:
 		_camera_rest = _camera.position
@@ -65,17 +64,18 @@ func _physics_process(delta: float) -> void:
 	allowed = allowed and CartTransportService.current(_actor) == null
 	var walking: bool = allowed and distance < MAXIMUM_FRAME_TRAVEL and distance / delta >= MINIMUM_WALK_SPEED
 	if walking:
+		# Одна фаза: PI на шаг; звук и нижняя точка камеры совпадают.
+		var next_phase: float = _bob_phase + PI * distance / maxf(step_distance, MINIMUM_DISTANCE)
+		var strikes: int = int(floor((next_phase + PHASE_EPSILON) / PI)) - int(floor((_bob_phase + PHASE_EPSILON) / PI))
+		_bob_phase = fposmod(next_phase, TAU)
 		if footsteps_enabled:
-			_step_travel += distance
-			if _step_travel >= maxf(step_distance, MINIMUM_DISTANCE):
-				_step_travel = fmod(_step_travel, maxf(step_distance, MINIMUM_DISTANCE))
+			for strike: int in strikes:
 				_footsteps.play_footstep()
-		_bob_phase = fposmod(_bob_phase + TAU * distance / maxf(bob_cycle_distance, MINIMUM_DISTANCE), TAU)
 	else:
-		_step_travel = step_distance / 2.0
+		_bob_phase = PI / 2.0
 	var target: Vector3 = Vector3.ZERO
 	if walking and bob_enabled and not reduced_motion and not (_actor.has_component(C_PlayerInputController) and bool(GameSettingsService.value("reduced_motion"))):
-		target = Vector3(sin(_bob_phase) * bob_amplitude.x, sin(_bob_phase * 2.0) * bob_amplitude.y, 0.0)
+		target = Vector3(sin(_bob_phase) * bob_amplitude.x, -cos(_bob_phase * 2.0) * bob_amplitude.y, 0.0)
 	_camera_offset = _camera_offset.lerp(target, 1.0 - exp(-bob_response * delta))
 	if _camera != null:
 		_camera.position = _camera_rest + _camera_offset
