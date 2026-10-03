@@ -34,3 +34,6 @@
 ## 2026-10-03 — R31–R33: ресурсы, походка, приседание и бег
 
 Планы записаны до реализации (66ab4683). R31 root resources migration:1417 unchanged hashes, atlas1416/0writes. R32 shared stride/audio/bob, реже шаги и ниже пояс при crouch; targeted5/5,33. R33 typed C_Stamina + owning S_Sprint, Shift/left stick hold/toggle, strength capacity/carry drain/recovery, common native speed multiplier, main/test component overrides, HUD/debug/read-only console/help, snapshot reserve/runtime reset. Full484/484,3996,55; subsequent heavy-load-only9/9,55. Native main raw input/settings/real console parser smoke PASS20261003-183557159. Reviewer R1 optional stamina target FIXED/confirmed. Player QA pending; qa_tasks/sprint_stamina.md. Только dev; пользовательские правки сохранены. Windows builds — следующий шаг. R25 остаётся LAST.
+
+
+R33 Windows ecd95df9: main20261003-084015Z/test20261003-084159Z, оба actual-scene120 startup PASS; launchers обновлены. Очистка6 failed sprint smoke logs (4529 bytes), успешные evidence/build logs сохранены. Player QA PENDING.

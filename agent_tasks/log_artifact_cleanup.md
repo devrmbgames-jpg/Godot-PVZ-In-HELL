@@ -26,3 +26,8 @@ Dev branch check; каждый абсолютный путь проверен в
 ### Owner QA / blockers
 
 Нет. Билды и QA-результаты текущей версии сохраняются.
+
+
+### Дополнение после R33
+
+Удалены6 локальных failed sprint smoke logs (4529 bytes), заменённых успешными проверками. Успешные/ссылаемые логи и новые Windows exports ecd95df9 сохранены. Пути, reparse flags, размер/mtime проверены перед отдельными Remove-Item; удаление/retained evidence проверены. .export/r33_log_cleanup_manifest.json. Временный собственный файл для изолированного Git index удалён; пустая content/resources тоже удалена. Gameplay проверки ради очистки не запускались.

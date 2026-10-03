@@ -18,7 +18,7 @@ M0: компонент/владеющая система и скорость. M1
 
 ### Current
 
-M0–M1 реализованы. Компонент C_Stamina, Input S_Sprint after S_PlayerIntent; native solver читает C_Motion.sprint_multiplier. Main/test overrides явно содержат Stamina. Настройки sprint_toggle/default hold сохраняются отдельно; Shift/JOY_BUTTON_LEFT_STICK уже имелись в project.godot (не менялся). HUD шкала + debug conditions/timer, stamina_info/help. Snapshot сохраняет current/initialized и сбрасывает режим, в том числе при загрузке старого snapshot. Реализация завершена, следующий шаг — Windows exports и owner QA. Старые задачи не отменены, R25 остаётся последней. Работа только в dev.
+M0–M1 реализованы. Компонент C_Stamina, Input S_Sprint after S_PlayerIntent; native solver читает C_Motion.sprint_multiplier. Main/test overrides явно содержат Stamina. Настройки sprint_toggle/default hold сохраняются отдельно; Shift/JOY_BUTTON_LEFT_STICK уже имелись в project.godot (не менялся). HUD шкала + debug conditions/timer, stamina_info/help. Snapshot сохраняет current/initialized и сбрасывает режим, в том числе при загрузке старого snapshot. Реализация завершена (ecd95df9). Windows main/test от этого commit экспортированы; actual-scene120-frame startup обоих PASS, launchers обновлены. Следующий шаг — owner QA. Старые задачи не отменены, R25 остаётся последней. Работа только в dev.
 
 ### Validation
 
@@ -32,3 +32,6 @@ M0–M1 реализованы. Компонент C_Stamina, Input S_Sprint aft
 ### Review findings
 
 - R1/P2 FIXED: console parser дополняет пропущенные optional args пустой строкой; `_info` нормализует stamina target в self. Smoke проверяет bare `stamina_info` и `help stamina_info` через настоящий parser.
+
+
+Windows main: .export/windows/20261003-084015Z-ecd95df9-gait-sprint-main/PVZInHell.exe; test: .export/windows/20261003-084159Z-ecd95df9-gait-sprint-test/PVZInHell.exe. Build_info: dev, player_qa PENDING, рабочее дерево содержит сохранённые пользовательские изменения.
