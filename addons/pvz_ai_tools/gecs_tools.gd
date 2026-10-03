@@ -38,15 +38,17 @@ func world_summary(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 			_increment(relationship_classes, _object_type(relationship.relation))
 
 	return {
-		"ok": true,
-		"source": source.get("source", "unknown"),
-		"scene": source.get("scene", ""),
-		"entity_count": entities.size(),
-		"relationship_count": relationship_count,
-		"entity_types": _rank_counts(entity_classes, max_types),
-		"component_types": _rank_counts(component_classes, max_types),
-		"relationship_types": _rank_counts(relationship_classes, max_types),
-		"runtime_note": _runtime_note(source),
+		"data": {
+			"ok": true,
+			"source": source.get("source", "unknown"),
+			"scene": source.get("scene", ""),
+			"entity_count": entities.size(),
+			"relationship_count": relationship_count,
+			"entity_types": _rank_counts(entity_classes, max_types),
+			"component_types": _rank_counts(component_classes, max_types),
+			"relationship_types": _rank_counts(relationship_classes, max_types),
+			"runtime_note": _runtime_note(source),
+		},
 	}
 
 
@@ -78,13 +80,15 @@ func find_entities(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 			break
 
 	return {
-		"ok": true,
-		"source": source.get("source", "unknown"),
-		"scene": source.get("scene", ""),
-		"matches": matches,
-		"returned": matches.size(),
-		"limit": limit,
-		"runtime_note": _runtime_note(source),
+		"data": {
+			"ok": true,
+			"source": source.get("source", "unknown"),
+			"scene": source.get("scene", ""),
+			"matches": matches,
+			"returned": matches.size(),
+			"limit": limit,
+			"runtime_note": _runtime_note(source),
+		},
 	}
 
 
@@ -97,7 +101,7 @@ func entity_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	var source: Dictionary = _entity_source()
 	var resolution: Dictionary = _resolve_entity(params, _entities_from_source(source))
 	if not resolution.get("ok", false):
-		return resolution
+		return {"data": resolution}
 
 	var entity: Entity = resolution["entity"] as Entity
 	var include_private: bool = bool(params.get("include_private", false))
@@ -124,16 +128,18 @@ func entity_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 				incoming_count += 1
 
 	return {
-		"ok": true,
-		"source": source.get("source", "unknown"),
-		"scene": source.get("scene", ""),
-		"entity": _entity_summary(entity),
-		"components": components,
-		"relationships": {
-			"outgoing": outgoing_count,
-			"incoming": incoming_count,
+		"data": {
+			"ok": true,
+			"source": source.get("source", "unknown"),
+			"scene": source.get("scene", ""),
+			"entity": _entity_summary(entity),
+			"components": components,
+			"relationships": {
+				"outgoing": outgoing_count,
+				"incoming": incoming_count,
+			},
+			"runtime_note": _runtime_note(source),
 		},
-		"runtime_note": _runtime_note(source),
 	}
 
 
@@ -147,7 +153,7 @@ func relationships_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictiona
 	var entities: Array[Entity] = _entities_from_source(source)
 	var resolution: Dictionary = _resolve_entity(params, entities)
 	if not resolution.get("ok", false):
-		return resolution
+		return {"data": resolution}
 
 	var entity: Entity = resolution["entity"] as Entity
 	var relation_filter: String = String(params.get("relation", "")).strip_edges().to_lower()
@@ -181,14 +187,16 @@ func relationships_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictiona
 				break
 
 	return {
-		"ok": true,
-		"source": source.get("source", "unknown"),
-		"scene": source.get("scene", ""),
-		"entity": _entity_summary(entity),
-		"relationships": rows,
-		"returned": rows.size(),
-		"limit": limit,
-		"runtime_note": _runtime_note(source),
+		"data": {
+			"ok": true,
+			"source": source.get("source", "unknown"),
+			"scene": source.get("scene", ""),
+			"entity": _entity_summary(entity),
+			"relationships": rows,
+			"returned": rows.size(),
+			"limit": limit,
+			"runtime_note": _runtime_note(source),
+		},
 	}
 
 #endregion
@@ -204,8 +212,10 @@ func _runtime_request(
 	var source_mode: String = String(params.get("source", "auto")).strip_edges().to_lower()
 	if source_mode not in ["auto", "runtime", "editor"]:
 		return {
-			"ok": false,
-			"error": "source must be auto, runtime, or editor",
+			"data": {
+				"ok": false,
+				"error": "source must be auto, runtime, or editor",
+			},
 		}
 	if source_mode == "editor":
 		return {}
@@ -217,8 +227,10 @@ func _runtime_request(
 
 	if source_mode == "runtime":
 		return {
-			"ok": false,
-			"error": "No running game is connected to the PVZ runtime inspection bridge.",
+			"data": {
+				"ok": false,
+				"error": "No running game is connected to the PVZ runtime inspection bridge.",
+			},
 		}
 	return {}
 
