@@ -41,6 +41,10 @@ Load a skill only when its domain is actually involved:
 - GECS-specific API/architecture: `.agents/skills/gecs-v8/SKILL.md`;
 - GUT test authoring/execution: `.agents/skills/gut-testing/SKILL.md`;
 - Godot AI MCP, GDScript parser diagnostics, live ClassDB/scene/editor inspection: `.agents/skills/godot-ai-mcp/SKILL.md`;
+- Godot 4.7/Jolt physics bodies, contacts, joints and queries: `.agents/skills/godot-physics-4.7/SKILL.md`;
+- Godot 4.7 AnimationPlayer/AnimationTree/Tween work: `.agents/skills/godot-animation-4.7/SKILL.md`;
+- Godot 4.7 shaders/material parameters and shader-performance work: `.agents/skills/godot-shaders-4.7/SKILL.md`;
+- measured Godot performance/profiling/optimization work: `.agents/skills/godot-performance/SKILL.md`;
 - LimboAI v1.8.1 behavior trees/HSM/Blackboard/custom tasks: `.agents/skills/limboai-v1.8/SKILL.md`;
 - player-facing game design: `.agents/skills/professional-game-design/SKILL.md`.
 
