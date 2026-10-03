@@ -48,6 +48,7 @@ Load a skill only when its domain is actually involved:
 - NPC decision architecture, sensing, navigation intent and utility/BT composition: `.agents/skills/game-ai/SKILL.md`;
 - LimboAI v1.8.1 behavior trees/HSM/Blackboard/custom tasks: `.agents/skills/limboai-v1.8/SKILL.md`;
 - Customer/NPC dialogue branching, response tags and dialogue-side actions: `.agents/skills/dialogue-systems/SKILL.md`;
+- Dialogue Manager v4.1.0 syntax/API, `.dialogue` resources, cues/conditions/mutations and custom runtime integration: `.agents/skills/dialogue-manager-v4.1/SKILL.md`;
 - persistence, stable-ID serialization, schema migration and save/load: `.agents/skills/save-systems/SKILL.md`;
 - player input/rebinding/deadzones and control-focus routing: `.agents/skills/input-systems/SKILL.md`;
 - first/third-person camera ownership, smoothing, recoil/shake and camera bugs: `.agents/skills/camera-systems/SKILL.md`;
