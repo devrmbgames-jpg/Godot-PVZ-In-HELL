@@ -1,5 +1,7 @@
 # Current Work
 
+Активная очередь: R31 resource_location → R32 gait_crouch → R33 sprint_stamina (agent_tasks). Записаны до реализации по запросу пользователя. R25 остаётся LAST. Следующий шаг: безопасно переместить content/resources/input_prompts в resources/input_prompts и обновить runtime catalog.
+
 R23/R24/developer_console_testing и R26–R30: OWNER_QA. Реализация текущей игровой очереди готова к ручной приёмке. Полный основной игровой срез, реальные устройства, визуальное оформление и звук по явному запросу проверяет владелец. Исправлять замечания в соответствующей существующей задаче; player checklists — qa_tasks/README.md.
 
 Финальные Windows QA: gameplay commit be10abab, dev. Main: .export/windows/20261003-074906Z-be10abab-settings-input-final-main/PVZInHell.exe; test: .export/windows/20261003-075037Z-be10abab-settings-input-final-test/PVZInHell.exe. Обе actual-scene headless startup120frames PASS; .export/LATEST.cmd / TEST_LEVEL.cmd обновлены. Build_info отмечает пользовательские dirty files и player_qa PENDING.

@@ -13,6 +13,9 @@ This file is the queue/index. It does not replace individual task state.
 | **OWNER_QA** | [R29 CharacterBody толкает мелкие предметы](roadmap_29_character_push.md) |
 | **OWNER_QA** | [R30 AtlasTexture, настройки и переназначение управления](roadmap_30_settings_input_prompts.md) |
 | **DONE** | [Очистка устаревших логов](log_artifact_cleanup.md) |
+| **PLANNED** | [R31 — Корневая папка ресурсов](roadmap_31_resource_location.md) |
+| **PLANNED** | [R32 — Ритм шагов, камера и пояс](roadmap_32_gait_crouch.md) |
+| **PLANNED** | [R33 — Бег и выносливость](roadmap_33_sprint_stamina.md) |
 | **DEFERRED** | [R25 GDScript Documentation](roadmap_25_gdscript_documentation.md) — **LAST**, русские `##` и смысловые регионы; выполнять после предыдущих задач и исправлений QA |
 
 Supporting artifacts are linked from their owner tasks and are not separate queue entries.
