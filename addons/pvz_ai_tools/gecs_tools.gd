@@ -1,6 +1,6 @@
+## Read-only GECS/entity inspection handlers for PVZ Godot AI custom MCP tools.
 @tool
 extends RefCounted
-## Read-only GECS/entity inspection handlers for PVZ Godot AI custom MCP tools.
 
 const DEFAULT_MAX_TYPES: int = 30
 const DEFAULT_LIMIT: int = 50
@@ -159,7 +159,12 @@ func relationships_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictiona
 	var relation_filter: String = String(params.get("relation", "")).strip_edges().to_lower()
 	var direction: String = String(params.get("direction", "both"))
 	if direction not in ["both", "outgoing", "incoming"]:
-		return {"ok": false, "error": "direction must be both, outgoing, or incoming"}
+		return {
+			"data": {
+				"ok": false,
+				"error": "direction must be both, outgoing, or incoming",
+			},
+		}
 	var limit: int = clampi(int(params.get("limit", DEFAULT_LIMIT)), 1, 200)
 	var rows: Array[Dictionary] = []
 
