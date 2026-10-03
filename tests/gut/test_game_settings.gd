@@ -1,5 +1,5 @@
 extends GutTest
-## Настройки/назначения через реальные InputMap, ConfigFile, AtlasTexture и modal lifecycle.
+## Настройки/назначения через реальные InputMap, ConfigFile, Texture2D и modal lifecycle.
 
 const TEST_PATH: String = "user://r30_settings_test.cfg"
 var _events: Dictionary[StringName, Array] = {}
@@ -74,8 +74,8 @@ func test_axis_direction_and_modifier_are_separate_bindings() -> void:
 	assert_true(GameSettingsService.rebind(&"interact", _key(KEY_K, true)))
 	assert_false(InputMap.action_has_event(&"interact", _key(KEY_K)))
 	assert_true(InputMap.action_has_event(&"interact", _key(KEY_K, true)))
-	var textures: Array[AtlasTexture] = InputPromptService.textures(&"interact", 0)
-	assert_eq(textures.size(), 2, "Modifier and main key use atlas icons")
+	var textures: Array[Texture2D] = InputPromptService.textures(&"interact", 0)
+	assert_eq(textures.size(), 2, "Modifier and main key use individual icons")
 
 
 func test_settings_and_input_survive_config_roundtrip_and_reset() -> void:
@@ -114,20 +114,40 @@ func test_invalid_bindings_keep_defaults_and_settings_are_bounded() -> void:
 	assert_eq(GameSettingsService.value("mouse_sensitivity"), 1.0)
 
 
-func test_actual_key_pad_and_axis_regions_are_atlas_resources() -> void:
-	var key: AtlasTexture = InputPromptService.texture_for(_key(KEY_E))
-	assert_eq(key.resource_path, PromptAtlasCatalog.atlas_path("keyboard_mouse", "keyboard_e"))
+func test_actual_keys_pad_and_axes_use_individual_outline_sprites() -> void:
+	var key: Texture2D = InputPromptService.texture_for(_key(KEY_E))
+	assert_eq(key.resource_path, "res://resources/kenney/kenney_input_prompts/keyboard_mouse/Default/keyboard_e_outline.png")
+	assert_false(key is AtlasTexture)
 	var button: InputEventJoypadButton = InputEventJoypadButton.new()
 	button.button_index = JOY_BUTTON_A
-	var pad: AtlasTexture = InputPromptService.texture_for(button, "playstation_series")
-	assert_eq(pad.resource_path, PromptAtlasCatalog.atlas_path("playstation_series", "playstation_button_cross"))
-	var left: AtlasTexture = InputPromptService.texture_for(_axis(JOY_AXIS_RIGHT_X, -1), "xbox_series")
-	var right: AtlasTexture = InputPromptService.texture_for(_axis(JOY_AXIS_RIGHT_X, 1), "xbox_series")
-	assert_ne(left.region, right.region)
-	assert_eq(left.atlas.resource_path, right.atlas.resource_path)
-	assert_not_null(PromptAtlasCatalog.texture("keyboard_mouse", "keyboard_escape", "double"))
+	var pad: Texture2D = InputPromptService.texture_for(button, "playstation_series")
+	assert_eq(pad.resource_path, "res://resources/kenney/kenney_input_prompts/playstation_series/Default/playstation_button_cross_outline.png")
+	var left: Texture2D = InputPromptService.texture_for(_axis(JOY_AXIS_RIGHT_X, -1), "xbox_series")
+	var right: Texture2D = InputPromptService.texture_for(_axis(JOY_AXIS_RIGHT_X, 1), "xbox_series")
+	assert_true(left.resource_path.ends_with("/xbox_stick_r_left.png"))
+	assert_true(right.resource_path.ends_with("/xbox_stick_r_right.png"))
+	assert_ne(left.resource_path, right.resource_path, "Directions load distinct complete sprites")
 	button.button_index = JOY_BUTTON_MISC1
-	assert_eq(InputPromptService.texture_for(button, "xbox_series").resource_path, PromptAtlasCatalog.atlas_path("xbox_series", "controller_xboxseries"), "Unsupported button uses device icon, not a keyboard key")
+	assert_true(InputPromptService.texture_for(button, "xbox_series").resource_path.ends_with("/controller_xboxseries.png"), "Unsupported button uses device icon")
+	assert_null(InputPromptCatalog.texture("unknown", "keyboard_e"))
+	assert_null(InputPromptCatalog.texture("keyboard_mouse", "missing_button"))
+
+
+func test_supported_device_families_use_face_and_direction_sprites() -> void:
+	var prefixes: Dictionary[String, String] = {"xbox_series": "xbox", "playstation_series": "playstation", "steam_deck": "steamdeck", "steam_controller": "steam"}
+	var button: InputEventJoypadButton = InputEventJoypadButton.new()
+	for family: String in prefixes:
+		var prefix: String = prefixes[family]
+		button.button_index = JOY_BUTTON_A
+		var face: Texture2D = InputPromptService.texture_for(button, family)
+		var face_name: String = "button_cross" if family == "playstation_series" else "button_a"
+		assert_true(face.resource_path.ends_with("/" + prefix + "_" + face_name + "_outline.png"), family + " face button")
+		button.button_index = JOY_BUTTON_DPAD_UP
+		var dpad: Texture2D = InputPromptService.texture_for(button, family)
+		assert_true(dpad.resource_path.ends_with("/" + prefix + "_dpad_up_outline.png"), family + " dpad up")
+		var stick: Texture2D = InputPromptService.texture_for(_axis(JOY_AXIS_LEFT_Y, -1), family)
+		var stick_name: String = "stick_up" if family == "steam_controller" else "stick_l_up"
+		assert_true(stick.resource_path.ends_with("/" + prefix + "_" + stick_name + ".png"), family + " negative vertical axis")
 
 
 func test_prompt_tokens_render_icons_and_plain_caption() -> void:
@@ -173,7 +193,7 @@ func test_sprint_mode_and_modifier_key_binding_round_trip() -> void:
 	var shift: InputEventKey = _key(KEY_SHIFT)
 	shift.shift_pressed = true
 	assert_true(GameSettingsService.rebind(&"sprint", shift, true))
-	var icons: Array[AtlasTexture] = InputPromptService.textures(&"sprint", 0)
+	var icons: Array[Texture2D] = InputPromptService.textures(&"sprint", 0)
 	assert_eq(icons.size(), 1, "Сама Shift не рисует двойной модификатор")
 	assert_eq(GameSettingsService.save(TEST_PATH), OK)
 	GameSettingsService.set_value("sprint_toggle", false)

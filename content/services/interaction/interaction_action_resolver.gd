@@ -376,7 +376,7 @@ static func _is_overweight_carry_target(actor: Entity, interactor: C_Interactor)
 	return GrabService.is_too_heavy(body, strength)
 
 
-## Семантический token; UI подставляет AtlasTexture фактического назначения.
+## Семантический token; UI подставляет Texture2D фактического назначения.
 static func button_label(slot_index: int) -> String:
 	return InputPromptService.token(INPUT_ACTIONS[slot_index])
 #endregion

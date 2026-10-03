@@ -34,9 +34,9 @@ func _exit_tree() -> void:
 
 
 func _process(_delta: float) -> void:
-	var continue_icons: Array[AtlasTexture] = InputPromptService.textures(&"interact")
+	var continue_icons: Array[Texture2D] = InputPromptService.textures(&"interact")
 	_continue_button.icon = continue_icons[0] if not continue_icons.is_empty() else null
-	var close_icons: Array[AtlasTexture] = InputPromptService.textures(&"menu")
+	var close_icons: Array[Texture2D] = InputPromptService.textures(&"menu")
 	_close_button.icon = close_icons[0] if not close_icons.is_empty() else null
 	if _closed:
 		return

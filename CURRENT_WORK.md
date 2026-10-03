@@ -1,5 +1,7 @@
 # Current Work
 
+R30 M4 OWNER_QA: атласы/XML заменены отдельными PNG, outline приоритет; authoritative state agent_tasks/roadmap_30_settings_input_prompts.md.1417 generated files и30 sheet files удалены, InputPromptCatalog/Texture2D consumers заменили старый каталог/генератор.1488 отдельных PNG unchanged SHA256; exact deleted files backup .export/r30-m4-removal-backup. Settings10/10,74 (.export/r30-m4-settings-gut.log), raw settings smoke194114840 PASS; structure/diff PASS. Следующий шаг — commit + Windows main/test exports; затем owner visual/device QA. Полный suite не повторять для этой миграции.
+
 R34 OWNER_QA — главное меню и игровой save/load/new/main/exit реализованы; authoritative state agent_tasks/roadmap_34_main_menu_saves.md. Сохранение — безопасная Morning checkpoint, mid-visit state не сериализуется. Main/test bootstrap общий, слоты отдельные; invalid preflight сохраняет текущую сцену/паузу. Настройки пишутся при закрытии и успешных переходах. Следующий шаг — player QA qa_tasks/main_menu_and_saves.md.
 
 Validation R34: related30/30,203; full491/491,4029,56scripts (.export/r34-milestone-full-gut.log); GUI pointer/session lifecycle smoke192144176 PASS; raw settings/binding safety input smoke192408372 PASS. Reviewer R1 FALSE_POSITIVE, R2 FIXED/confirmed. Structure/diff checks PASS. Rendered/full slice/device QA не выполнялись.

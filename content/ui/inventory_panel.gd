@@ -50,7 +50,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	var icons: Array[AtlasTexture] = InputPromptService.textures(&"inventory")
+	var icons: Array[Texture2D] = InputPromptService.textures(&"inventory")
 	_close.icon = icons[0] if not icons.is_empty() else null
 	if _capture == 0:
 		return

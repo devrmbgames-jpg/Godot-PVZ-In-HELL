@@ -185,12 +185,12 @@ func _process(_delta: float) -> void:
 	_revision = InputPromptService.revision()
 	for button: Button in _binding_buttons:
 		var binding: Array = _binding_buttons[button]
-		var icons: Array[AtlasTexture] = InputPromptService.textures(StringName(binding[0]), int(binding[1]))
+		var icons: Array[Texture2D] = InputPromptService.textures(StringName(binding[0]), int(binding[1]))
 		var hint: InputPromptLabel = button.get_node("BindingHint") as InputPromptLabel
 		hint.visible = not icons.is_empty()
 		button.text = "" if not icons.is_empty() else "Не назначено"
 		button.tooltip_text = "Заменить назначения для этого устройства"
-	var close_icons: Array[AtlasTexture] = InputPromptService.textures(&"menu")
+	var close_icons: Array[Texture2D] = InputPromptService.textures(&"menu")
 	_close.icon = close_icons[0] if not close_icons.is_empty() else null
 
 

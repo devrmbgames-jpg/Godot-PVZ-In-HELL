@@ -27,7 +27,7 @@
 | [Автоприём и CarryPlacement](customer_handoff_placement.md) | R26 готов; обе полки, ручной/авто приём | Ожидает игрока |
 | [Очередь клиентов и толкание предметов](customer_queue_and_push.md) | R27/R29 реализованы; один клиент, лёгкие тела при ходьбе | Ожидает игрока |
 | [Физическое содержимое посылок](physical_package_contents.md) | R28 реализован; содержимое, эффекты, пустые коробки | Ожидает игрока |
-| [Настройки, управление и иконки](settings_and_controls.md) | R30 реализован; keyboard/gamepad capture, persistence, AtlasTexture | Ожидает игрока |
+| [Настройки, управление и иконки](settings_and_controls.md) | R30 реализован; keyboard/gamepad capture, persistence, outline PNG | Ожидает игрока |
 | [Главное меню и сохранения](main_menu_and_saves.md) | R34 реализован; Morning slots, new/load/save, подтверждения | Ожидает игрока |
 | [Бег и выносливость](sprint_stamina.md) | R33 реализован; Shift/left stick, hold/toggle, вес и восстановление | Ожидает игрока |
 

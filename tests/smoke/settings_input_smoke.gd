@@ -46,8 +46,8 @@ func _run() -> void:
 	axis.axis_value = -1.0
 	await _send(axis)
 	assert(InputMap.action_has_event(&"look_left", axis), "Negative axis capture is supported")
-	var prompt: Array[AtlasTexture] = InputPromptService.textures(&"look_left", 1)
-	assert(not prompt.is_empty() and prompt[0].resource_path.ends_with("xbox_stick_r_left.res"))
+	var prompt: Array[Texture2D] = InputPromptService.textures(&"look_left", 1)
+	assert(not prompt.is_empty() and prompt[0].resource_path.ends_with("xbox_stick_r_left.png"))
 	interact_button.pressed.emit()
 	await _send(_key(KEY_ESCAPE))
 	await _send(_key(KEY_ESCAPE, false))

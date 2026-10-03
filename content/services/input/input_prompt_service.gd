@@ -63,10 +63,10 @@ static func token(action: StringName) -> String:
 	return "[input=%s]" % action
 
 
-static func textures(action: StringName, gamepad: int = -1) -> Array[AtlasTexture]:
-	var result: Array[AtlasTexture] = []
+static func textures(action: StringName, gamepad: int = -1) -> Array[Texture2D]:
+	var result: Array[Texture2D] = []
 	for group: Array in groups(action, gamepad):
-		for icon: AtlasTexture in group:
+		for icon: Texture2D in group:
 			result.append(icon)
 	return result
 
@@ -81,13 +81,13 @@ static func groups(action: StringName, gamepad: int = -1) -> Array[Array]:
 	for event: InputEvent in InputMap.action_get_events(action):
 		if InputBindingCodec.is_gamepad(event) != pad:
 			continue
-		var icons: Array[AtlasTexture] = []
+		var icons: Array[Texture2D] = []
 		if event is InputEventWithModifiers:
 			var modified: InputEventWithModifiers = event as InputEventWithModifiers
 			for pair: Array in [[modified.ctrl_pressed, "ctrl"], [modified.alt_pressed, "alt"], [modified.shift_pressed, "shift"], [modified.meta_pressed, "command"]]:
 				if bool(pair[0]):
-					icons.append(PromptAtlasCatalog.texture("keyboard_mouse", "keyboard_" + String(pair[1])))
-		var texture: AtlasTexture = texture_for(event, family)
+					icons.append(InputPromptCatalog.texture("keyboard_mouse", "keyboard_" + String(pair[1])))
+		var texture: Texture2D = texture_for(event, family)
 		if texture != null:
 			icons.append(texture)
 		if not icons.is_empty():
@@ -95,7 +95,7 @@ static func groups(action: StringName, gamepad: int = -1) -> Array[Array]:
 	return result
 
 
-static func texture_for(event: InputEvent, family: String = "keyboard_mouse") -> AtlasTexture:
+static func texture_for(event: InputEvent, family: String = "keyboard_mouse") -> Texture2D:
 	var name: String = ""
 	if event is InputEventKey:
 		var key: InputEventKey = event as InputEventKey
@@ -143,10 +143,10 @@ static func texture_for(event: InputEvent, family: String = "keyboard_mouse") ->
 			elif name.begins_with("stick_r_"):
 				name = name.replace("stick_r_", "pad_")
 		name = prefix + "_" + name if not prefix.is_empty() else name
-	var result: AtlasTexture = PromptAtlasCatalog.texture(family, name)
+	var result: Texture2D = InputPromptCatalog.texture(family, name)
 	if result != null:
 		return result
 	if family != "keyboard_mouse":
 		var fallback: String = {"xbox_series": "controller_xboxseries", "playstation_series": "controller_playstation5", "steam_deck": "controller_steamdeck", "steam_controller": "controller_steam"}.get(family, "controller_xboxseries")
-		result = PromptAtlasCatalog.texture(family, fallback)
-	return result if result != null else PromptAtlasCatalog.texture("keyboard_mouse", "keyboard_any")
+		result = InputPromptCatalog.texture(family, fallback)
+	return result if result != null else InputPromptCatalog.texture("keyboard_mouse", "keyboard_any")
