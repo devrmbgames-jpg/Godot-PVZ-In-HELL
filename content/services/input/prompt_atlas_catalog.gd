@@ -3,7 +3,7 @@ extends RefCounted
 class_name PromptAtlasCatalog
 
 const SOURCE: String = "res://resources/kenney/kenney_input_prompts/"
-const OUTPUT: String = "res://content/resources/input_prompts/"
+const OUTPUT: String = "res://resources/input_prompts/"
 const SHEETS: Dictionary[String, String] = {
 	"keyboard_mouse": "keyboard-&-mouse",
 	"xbox_series": "xbox-series",
