@@ -1,6 +1,6 @@
 # Current Work
 
-R26 implemented/OWNER_QA: automatic parcel receive (profile1.5m), CarryTarget Area only while Carry, swept shelf approach;44/44 related Gut417, old/new8 main placements/retrieve smokes PASS, reviewer clean. Export next, then R27 strict customer queue. New R27–R30 recorded in agent_tasks/CONTEXT.md; R28 physical unpack/empty boxes, R29 player small-body push, R30 AtlasTexture/settings/rebind. R25 stays LAST.
+R26 implemented/OWNER_QA: automatic parcel receive (profile1.5m), CarryTarget Area only while Carry, swept shelf approach;44/44 related Gut417, old/new8 main placements/retrieve smokes PASS, reviewer clean. R26 Windows main b699f423 exported/startup PASS (.export/LATEST.cmd). R27 strict queue verified; fix compile-time schedule preload cycle and keep mutation in CustomerFlow. R29 push implemented,8/8 native physics Gut41; commit/QA/export pending. R28 design plan recorded before code; next physical contents. New R27–R30 recorded in agent_tasks/CONTEXT.md; R28 physical unpack/empty boxes, R29 player small-body push, R30 AtlasTexture/settings/rebind. R25 stays LAST.
 
 R23/R24/developer_console_testing OWNER_QA. Requested implementations complete; owner must test full main-level day, controls, routes, UI, visuals and audio. Windows code9d06320c main/test both actual-scene120-frame startup PASS; .export/LATEST.cmd / TEST_LEVEL.cmd updated. No agent rendered/full-slice acceptance. Await owner results, fix reproducible bugs under exact existing task.
 
