@@ -21,10 +21,14 @@
 [ext_resource type="Script" uid="uid://dtug3ioxot1tv" path="res://content/ui/package_marks_view.gd" id="MarksView"]
 [ext_resource type="Script" uid="uid://ejcfj2vkgak" path="res://content/definitions/interaction/def_open_package_action.gd" id="OpenAction"]
 
+[ext_resource type="PackedScene" path="res://content/entities/packages/content_stub.tscn" id="DefaultContents"]
+
 [sub_resource type="Resource" id="Definition"]
 script = ExtResource("3_definition")
 description = "Parcel"
 key = &"default_package"
+unpack_scene = ExtResource("DefaultContents")
+unpack_offset = Vector3(0, 0, 0)
 
 [sub_resource type="Resource" id="Package_interactable"]
 script = ExtResource("5_interactable")

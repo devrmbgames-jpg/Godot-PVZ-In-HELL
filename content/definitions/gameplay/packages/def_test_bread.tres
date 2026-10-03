@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DEF_Package" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/packages/def_package.gd" id="Definition"]
+[ext_resource type="PackedScene" path="res://content/entities/inventory/food_pickup.tscn" id="Contents"]
+
+[resource]
+script = ExtResource("Definition")
+key = &"test_unpack_bread"
+shipment_number = "TEST-BREAD"
+description = "В коробке пять отдельных кусков хлеба."
+comment = "Тестовая распаковка: F по коробке (Вскрыть посылку)."
+content_item_key = &"food"
+content_quantity = 5
+unpack_scene = ExtResource("Contents")
+unpack_offset = Vector3(0, 0, 0)

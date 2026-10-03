@@ -45,7 +45,7 @@ static func integrate_state(
 	)
 	state.angular_velocity = rotation_velocity(
 		state.transform.basis.orthonormalized().get_rotation_quaternion(),
-		_desired_rotation(anchor, grip),
+		_desired_rotation(anchor, grip, profile),
 		state.step,
 		profile,
 	)
@@ -94,7 +94,7 @@ static func integrate_body(
 	)
 	body.angular_velocity = rotation_velocity(
 		body.global_basis.orthonormalized().get_rotation_quaternion(),
-		_desired_rotation(anchor, grip),
+		_desired_rotation(anchor, grip, profile),
 		step,
 		profile,
 	)
@@ -144,11 +144,21 @@ static func _desired_position(anchor: Node3D, grip: R_HeldBy) -> Vector3:
 	return anchor.global_position - anchor.global_basis.z * grip.hold_distance
 
 
-static func _desired_rotation(anchor: Node3D, grip: R_HeldBy) -> Quaternion:
-	return (
+static func _desired_rotation(anchor: Node3D, grip: R_HeldBy, profile: GrabControlProfile) -> Quaternion:
+	var desired: Quaternion = (
 		anchor.global_basis.orthonormalized().get_rotation_quaternion()
 		* grip.rotation_offset
 	).normalized()
+	if not profile.keep_upright:
+		return desired
+	var basis: Basis = Basis(desired)
+	var forward: Vector3 = -basis.z
+	forward.y = 0.0
+	if forward.length_squared() <= ROTATION_EPSILON:
+		var right: Vector3 = basis.x
+		right.y = 0.0
+		forward = Vector3.UP.cross(right)
+	return Basis.looking_at(forward.normalized(), Vector3.UP).get_rotation_quaternion()
 
 
 static func _sample_anchor(

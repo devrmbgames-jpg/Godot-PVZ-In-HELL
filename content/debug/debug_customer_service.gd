@@ -8,6 +8,7 @@ const DEFAULT_CUSTOMER_KEY: String = "default"
 static func create_visit(
 	target: DebugTarget,
 	customer_key: String,
+	arrive: bool = false,
 ) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if target.kind != DebugTarget.Kind.PACKAGE:
@@ -50,13 +51,13 @@ static func create_visit(
 	random.seed = String(visit.visit_id).hash()
 	visit.complaint_roll = random.randf()
 	visit.aggression_roll = random.randf()
-	visit.started = true
-	visit.finished = true
-	visit.finished_day = cycle.day_index
+	visit.started = not arrive
+	visit.finished = not arrive
+	visit.finished_day = cycle.day_index if not arrive else 0
 	flow.visits.append(visit)
 
 	result.success = true
-	result.message = "created visit"
+	result.message = "queued live visit" if arrive else "created accounting visit"
 	result.details.append("visit=%s" % String(visit.visit_id))
 	result.details.append("customer=%s" % String(policy.key))
 	return result

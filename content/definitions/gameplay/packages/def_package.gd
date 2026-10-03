@@ -2,6 +2,8 @@ extends GameDefinition
 ## Immutable shipment, physical handling and condition configuration.
 class_name DEF_Package
 
+const MAX_CONTENT_QUANTITY: int = 99
+
 enum Tag {
 	NORMAL = 1,
 	FRAGILE = 2,
@@ -22,9 +24,17 @@ enum HazardClass {
 
 ## Accounting value in whole monetary units; independent of trader resale price.
 @export_range(0, 1000000000) var accounting_value: int = 100
-## Market-comparable contents; no physical extraction mechanic in R20.
+## Market-comparable contents and optional physical extraction prefab.
 @export var content_item_key: StringName = &""
-@export_range(1, 99) var content_quantity: int = 1
+@export_range(1, MAX_CONTENT_QUANTITY) var content_quantity: int = 1
+@export var unpack_scene: PackedScene = null
+## Offset from the parcel before projecting contents onto real floor/support geometry.
+@export var unpack_offset: Vector3 = Vector3(2.0, 0.0, 0.0)
+## Мелкое содержимое выбрасывается над коробкой; мебель размещается на опоре.
+@export var spill_contents: bool = true
+@export_range(0.0, 5.0, 0.1) var spill_speed: float = 1.2
+@export var activate_contents_hazard: bool = false
+@export_range(0.1, 10.0, 0.1) var empty_mass_kg: float = 1.0
 @export var shipment_number: String = ""
 @export_multiline var description: String = ""
 @export_multiline var comment: String = ""
@@ -46,7 +56,7 @@ enum HazardClass {
 
 ## Liquid-only continuous exposure; returning upright resets the timer completely.
 @export_range(0.0, 180.0) var liquid_maximum_angle_degrees: float = 60.0
-@export_range(0.0, 30.0) var liquid_tilt_seconds: float = 2.0
+@export_range(0.0, 30.0) var liquid_tilt_seconds: float = 8.0
 ## One-time ordinary Health damage when leaking starts; zero keeps only condition effects.
 @export_range(0.0, 10000.0) var liquid_tilt_damage: float = 10.0
 
@@ -55,3 +65,5 @@ enum HazardClass {
 @export var hazard_on_damaged: PackedScene = null
 ## Fires on the terminal transition into C_PackageState.Damage.DESTROYED.
 @export var hazard_on_destroyed: PackedScene = null
+## Optional opening effect, using the same autonomous emitter as ordinary damage.
+@export var hazard_on_opened: PackedScene = null

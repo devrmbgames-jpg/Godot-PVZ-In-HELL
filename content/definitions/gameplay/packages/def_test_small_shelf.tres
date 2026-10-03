@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DEF_Package" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/packages/def_package.gd" id="Definition"]
+[ext_resource type="PackedScene" path="res://content/entities/props/small_shelf.tscn" id="Contents"]
+
+[resource]
+script = ExtResource("Definition")
+key = &"test_unpack_small_shelf"
+shipment_number = "TEST-SMALL_SHELF"
+description = "Малая полка 1,5 × 3 × 1,5 м, две секции. После установки закрепите молотком."
+comment = "Тестовая распаковка: F по коробке (Вскрыть посылку)."
+content_item_key = &"small_shelf"
+content_quantity = 1
+unpack_scene = ExtResource("Contents")
+spill_contents = false

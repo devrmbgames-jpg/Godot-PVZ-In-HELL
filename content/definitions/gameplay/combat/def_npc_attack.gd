@@ -9,6 +9,8 @@ class_name DEF_NpcAttack
 @export var active_seconds: float = 0.2
 @export var recovery_seconds: float = 0.4
 @export var cooldown_seconds: float = 1.2
+## Higher priority wins among available abilities; equal priority prefers damage/cycle.
+@export_range(-100.0, 100.0, 0.1, "or_less", "or_greater") var selection_priority: float = 0.0
 ## Nonempty, available animation uses npc_attack_hit()/npc_attack_finished() method tracks.
 @export var animation: StringName = &""
 @export_flags_3d_physics var collision_mask: int = 31

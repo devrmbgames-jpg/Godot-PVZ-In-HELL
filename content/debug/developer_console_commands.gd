@@ -33,6 +33,7 @@ const DAY_NEXT_COMMAND: String = "day_next"
 const CUSTOMER_NEXT_COMMAND: String = "customer_next"
 const DEBUG_TARGETS_COMMAND: String = "debug_targets"
 const DEBUG_HELP_COMMAND: String = "debug_help"
+const DEBUG_HUD_COMMAND: String = "debug_hud"
 
 var _registered_commands: PackedStringArray = []
 
@@ -110,7 +111,7 @@ func _ready() -> void:
 		1,
 		"Register a live Package without Scanner gesture.",
 	)
-	_register_command(VISIT_CREATE_COMMAND, _visit_create, ["package", "customer_key"], 1, "Create a persistent debug CustomerVisit.")
+	_register_command(VISIT_CREATE_COMMAND, _visit_create, ["package", "customer_key=default", "arrive=0|1"], 1, "Create an accounting visit (default) or queue a live visit (arrive=1) with authored customer behavior.")
 	_register_command(PACKAGE_ACTUAL_COMMAND, _pkg_actual, ["package", "actual"], 2, "Force factual CustomerVisit outcome only.")
 	_register_command(PACKAGE_DECLARE_COMMAND, _pkg_declare, ["package", "taken|refused|lost"], 2, "Submit Terminal declaration through CustomerFlowService.")
 	_register_command(PACKAGE_COMPLAINT_COMMAND, _pkg_complaint, ["package", "reason", "pending|resolve"], 2, "Create or resolve a typed Customer complaint.")
@@ -135,8 +136,13 @@ func _ready() -> void:
 	_register_command(DAY_NEXT_COMMAND, _day_next, [], 0, "Queue the next normal day transition.")
 	_register_command(CUSTOMER_NEXT_COMMAND, _customer_next, [], 0, "Start the next due CustomerVisit when valid.")
 	_register_command(DEBUG_TARGETS_COMMAND, _debug_targets, [], 0, "List concise live debug target handles.")
-	_register_command(DEBUG_HELP_COMMAND, _debug_help, [], 0, "Show project developer-console workflows and target syntax.")
+	_register_command(DEBUG_HELP_COMMAND, _debug_help, ["command|group"], 0, "Show project developer-console workflows and target syntax.")
+	_register_command(DEBUG_HUD_COMMAND, _debug_hud, ["on|off|toggle"], 0, "Toggle all debug HUD and customer status labels; ordinary gameplay UI stays active.")
 	_register_autocomplete()
+	var gameplay: Node = preload("res://content/debug/developer_console_gameplay.gd").new()
+	add_child(gameplay)
+	var presentation: Node = preload("res://content/debug/developer_console_presentation.gd").new()
+	add_child(presentation)
 
 
 func _exit_tree() -> void:
@@ -203,6 +209,7 @@ func _register_autocomplete() -> void:
 		PACKAGE_LIST_COMMAND,
 		PackedStringArray(["active", "all"]),
 	)
+	Console.add_command_autocomplete_list(DEBUG_HUD_COMMAND, PackedStringArray(["on", "off", "toggle"]))
 	Console.add_command_autocomplete_list(
 		PACKAGE_SPAWN_COMMAND,
 		DebugPackageService.definition_keys(),
@@ -369,10 +376,14 @@ func _print_service_result(command: String, result: DebugServiceResult) -> void:
 
 
 
-func _visit_create(raw_target: String, customer_key: String = "") -> void:
+func _visit_create(raw_target: String, customer_key: String = "", arrive_text: String = "0") -> void:
+	if arrive_text.is_empty(): arrive_text = "0"
+	if arrive_text not in ["0", "1"]:
+		DeveloperConsoleOutput.error(VISIT_CREATE_COMMAND, "arrive must be 0 or 1")
+		return
 	_print_service_result(
 		VISIT_CREATE_COMMAND,
-		DebugCustomerService.create_visit(DebugTargetResolver.resolve(raw_target), customer_key),
+		DebugCustomerService.create_visit(DebugTargetResolver.resolve(raw_target), customer_key, arrive_text == "1"),
 	)
 
 
@@ -628,18 +639,16 @@ func _debug_targets() -> void:
 
 
 
-func _debug_help() -> void:
-	DeveloperConsoleOutput.ok(
-		DEBUG_HELP_COMMAND,
-		PackedStringArray([
-			"Targets: self | target | #001 | pkg:<package_id> | visit:<visit_id> | entity:<entity_id>",
-			"Discovery: debug_targets | pkg_list [active|all] | pkg_info <pkg> | visit_info <pkg|visit:id>",
-			"Package: pkg_spawn | pkg_register | pkg_remove | pkg_purge | pkg_reset",
-			"Customer facts: visit_create | pkg_actual | pkg_declare | pkg_complaint | complaint_resolve | pkg_approve",
-			"Aliases: pkg_taken | pkg_lost | pkg_refused | pkg_delivered | pkg_customer_refused | pkg_player_denied",
-			"Economy: wallet_info | money_add | money_remove | penalty_add | penalty_remove",
-			"Health: health_info | apply_damage | heal | kill | reset",
-			"Flow: day_info | day_next | customer_next",
-			"Use commands_list for exact positional arguments. Tab autocomplete covers the first argument only.",
-		]),
-	)
+func _debug_help(subject: String = "") -> void:
+	Console.console_commands["help"].function.call(subject)
+
+
+func _debug_hud(mode: String = "toggle") -> void:
+	match mode.strip_edges().to_lower():
+		"on": DebugHudService.set_enabled(true)
+		"off": DebugHudService.set_enabled(false)
+		"toggle", "": DebugHudService.set_enabled(not DebugHudService.is_enabled())
+		_:
+			DeveloperConsoleOutput.error(DEBUG_HUD_COMMAND, "mode must be on, off or toggle")
+			return
+	DeveloperConsoleOutput.ok(DEBUG_HUD_COMMAND, PackedStringArray(["enabled=%s" % DebugHudService.is_enabled()]))

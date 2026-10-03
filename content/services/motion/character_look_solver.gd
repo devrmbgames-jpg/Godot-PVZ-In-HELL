@@ -27,6 +27,9 @@ static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectB
 		return
 
 	look_direction = look_direction.normalized()
+	if look.direct_input:
+		_integrate_direct_look(entity, state, look_direction)
+		return
 
 	var max_rotation_step: float = (
 		deg_to_rad(look.look_acceleration)
@@ -45,6 +48,23 @@ static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectB
 	)
 
 	_integrate_pitch(entity, look_direction, max_rotation_step)
+
+
+static func _integrate_direct_look(
+	entity: E_RigidBodyCharacter,
+	state: PhysicsDirectBodyState3D,
+	look_direction: Vector3,
+) -> void:
+	# The rigid body remains the yaw authority. The camera has no extra turn-rate cap.
+	var yaw: float = atan2(-look_direction.x, -look_direction.z)
+	var pose: Transform3D = state.transform
+	pose.basis = Basis(Vector3.UP, yaw)
+	state.transform = pose
+	if entity.head_axis_y != null:
+		entity.head_axis_y.rotation.y = 0.0
+	if entity.head_axis_x != null:
+		var horizontal_length: float = Vector2(look_direction.x, look_direction.z).length()
+		entity.head_axis_x.rotation.x = atan2(look_direction.y, horizontal_length)
 
 
 static func _integrate_yaw(

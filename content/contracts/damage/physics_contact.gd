@@ -9,3 +9,5 @@ var body_b: PhysicsBody3D = null
 var tick: int = 0
 var normal_speed: float = 0.0
 var normal_impulse: float = 0.0
+## World-space normal pointing toward body_a; used for explicit kinematic rebound.
+var normal_on_a: Vector3 = Vector3.ZERO

@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/ui/character_feedback.gd" id="Feedback"]
+[ext_resource type="Script" path="res://content/ui/character_footstepper.gd" id="Footstepper"]
+[ext_resource type="Resource" path="res://addons/footstepper/example-profiles/default_profile.tres" id="Profile"]
+
+[node name="CharacterFeedback" type="Node3D"]
+process_physics_priority = 1
+script = ExtResource("Feedback")
+
+[node name="Footstepper" type="Node3D" parent="."]
+script = ExtResource("Footstepper")
+manual_footstep = true
+manual_jump = true
+manual_land = true
+default_sound_profile = ExtResource("Profile")

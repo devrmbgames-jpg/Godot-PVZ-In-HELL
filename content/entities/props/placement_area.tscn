@@ -17,7 +17,7 @@ script = ExtResource("Interactable")
 script = ExtResource("Action")
 action_id = &"place_carry"
 slot = 0
-caption = "Сложить"
+caption = "Поставить"
 
 [sub_resource type="Resource" id="Actions"]
 script = ExtResource("Actions")
@@ -25,6 +25,9 @@ actions = [SubResource("Action")]
 
 [sub_resource type="BoxShape3D" id="Shape"]
 size = Vector3(0.9, 0.02, 0.9)
+
+[sub_resource type="BoxShape3D" id="TargetVolumeShape"]
+size = Vector3(0.9, 1, 0.9)
 
 [sub_resource type="StandardMaterial3D" id="Material"]
 albedo_color = Color(0.2, 0.55, 0.48, 1)
@@ -45,6 +48,16 @@ position = Vector3(0, 0.6, 0)
 
 [node name="Target" type="CollisionShape3D" parent="."]
 shape = SubResource("Shape")
+
+[node name="CarryTarget" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 0
+monitoring = false
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="CarryTarget"]
+position = Vector3(0, 0.5, 0)
+shape = SubResource("TargetVolumeShape")
 
 [node name="Visual" type="MeshInstance3D" parent="."]
 mesh = SubResource("Mesh")

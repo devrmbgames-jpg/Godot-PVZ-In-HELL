@@ -34,7 +34,7 @@ static func handle_input(holder: Entity, delta: float = 0.0) -> void:
 			or body == null or body.freeze
 			or (interactable != null and not interactable.enabled)
 		):
-			release(holder, held)
+			release(holder, held, false)
 	if not holder_available(holder):
 		ProlongedInteractionService.cancel(holder)
 		interactor.prompt_text = ""
@@ -80,6 +80,11 @@ static func can_pickup_body(
 		resolved_handle = PhysicsGrabTarget.handle_for(body, false)
 	if resolved_handle != null:
 		if not entity_available(resolved_handle) or held_relationship(resolved_handle) != null:
+			return false
+		if CustomerInspectionService.owner_for(resolved_handle) != null:
+			return false
+		# A physical body is not automatically a prop: living characters cannot be carried.
+		if resolved_handle.has_component(C_Living) and not resolved_handle.has_component(C_Death):
 			return false
 		if PhysicalSlotService.relationship(resolved_handle) != storage_binding:
 			return false
@@ -189,15 +194,19 @@ static func try_pickup_body(
 
 
 ## Removes matching ownership and side effects while preserving physical inertia.
-static func release(holder: Entity, held: Entity) -> void:
+static func release(holder: Entity, held: Entity, notify_player: bool = true) -> void:
 	if not is_instance_valid(held):
 		return
 	var grip: Relationship = held_relationship(held)
 	if grip != null and grip.target == holder:
+		var grip_data: R_HeldBy = grip.relation as R_HeldBy
+		var notify: bool = notify_player and grip_data.lifecycle_applied and holder_available(holder) and entity_available(held)
 		held.remove_relationship(grip)
 		# World removal disconnects entity signals before notifying lifecycle listeners.
 		# Cleanup is idempotent, so it also covers this teardown path.
 		grip_removed(held, grip)
+		if notify and held.has_component(C_Package):
+			PlayerInteractionEvents.publish(holder, held, PlayerInteractionEvent.Kind.PARCEL_PLACED)
 
 
 ## Releases matching ownership before applying the configured velocity-change impulse.
@@ -253,12 +262,12 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 		not holder_available(holder) or not entity_available(entity)
 		or body == null or body.freeze or profile == null or not is_instance_valid(anchor)
 	):
-		release(holder, entity)
+		release(holder, entity, false)
 		return
 
 	var interactable: C_Interactable = entity.get_component(C_Interactable) as C_Interactable
 	if interactable != null and not interactable.enabled:
-		release(holder, entity)
+		release(holder, entity, false)
 		return
 
 	var allowed_break_distance: float = _allowed_break_distance(
@@ -274,12 +283,29 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 		profile,
 		allowed_break_distance,
 	):
-		release(holder, entity)
+		release(holder, entity, false)
 
 #endregion
 
 
 #region Lifecycle transitions
+## Обновляет производный вес переноски по действующему владению, не меняя захват.
+static func refresh_carry_mass(held: Entity) -> void:
+	var grip: Relationship = held_relationship(held)
+	var body: RigidBody3D = physical_body(held)
+	if grip == null or body == null:
+		return
+	var data: R_HeldBy = grip.relation as R_HeldBy
+	if not data.lifecycle_applied or data.slot != C_Grabbable.HoldSlot.CARRY:
+		return
+	var holder: Entity = grip.target as Entity
+	if not holder_available(holder):
+		return
+	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
+	if load_state != null:
+		load_state.mass_kg = body.mass
+
+
 ## Called by O_GrabLifecycle for any relationship producer, not just try_pickup.
 static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var holder: Entity = grip.target as Entity
@@ -330,12 +356,14 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 		load_state.active = true
 		load_state.mass_kg = body.mass
 
-	var cleanup: Callable = release.bind(holder, held)
+	var cleanup: Callable = release.bind(holder, held, false)
 	if not held.tree_exiting.is_connected(cleanup):
 		held.tree_exiting.connect(cleanup)
 	if not holder.tree_exiting.is_connected(cleanup):
 		holder.tree_exiting.connect(cleanup)
 
+	if held.has_component(C_Package):
+		PlayerInteractionEvents.publish(holder, held, PlayerInteractionEvent.Kind.PARCEL_PICKED)
 	return true
 
 
@@ -350,6 +378,8 @@ static func grip_removed(held: Entity, grip: Relationship) -> void:
 		return
 
 	grip_data.lifecycle_applied = false
+	if is_instance_valid(held) and held.has_component(C_MeleeWeapon):
+		MeleeWeaponPresentation.reset(held)
 	var holder: Entity = grip.target as Entity if is_instance_valid(grip.target) else null
 	var body: RigidBody3D = physical_body(held)
 	if is_instance_valid(holder):
@@ -358,7 +388,7 @@ static func grip_removed(held: Entity, grip: Relationship) -> void:
 		if control != null and _cached(control, grip_data.slot) == held:
 			reset_holder(holder, grip_data.slot)
 
-	var cleanup: Callable = release.bind(holder, held)
+	var cleanup: Callable = release.bind(holder, held, false)
 	if is_instance_valid(held) and held.tree_exiting.is_connected(cleanup):
 		held.tree_exiting.disconnect(cleanup)
 
@@ -386,7 +416,7 @@ static func entity_unavailable(entity: Entity) -> void:
 	for slot_index: int in 3:
 		var held: Entity = held_in_slot(entity, slot_index)
 		if held != null:
-			release(entity, held)
+			release(entity, held, false)
 
 
 ## Clears one derived cache and its Carry modifiers without creating ownership.
@@ -726,9 +756,16 @@ static func physical_body(handle: Entity) -> RigidBody3D:
 ## Creates an effective default/override profile without making C_Grabbable mandatory.
 static func profile_for(handle: Entity) -> GrabControlProfile:
 	var config: C_Grabbable = null
+	var liquid: C_LiquidTilt = null
 	if is_instance_valid(handle):
 		config = handle.get_component(C_Grabbable) as C_Grabbable
-	return GrabControlProfile.from_grabbable(config)
+		liquid = handle.get_component(C_LiquidTilt) as C_LiquidTilt
+	var profile: GrabControlProfile = GrabControlProfile.from_grabbable(config)
+	if liquid != null and liquid.keep_upright_while_held:
+		profile.keep_upright = true
+		profile.rotation_axis = C_Grabbable.RotationAxis.Y_ONLY
+		profile.max_rotation_speed = minf(profile.max_rotation_speed, liquid.upright_rotation_speed)
+	return profile
 
 
 static func _grip_profile(handle: Entity, grip_data: R_HeldBy) -> GrabControlProfile:
@@ -783,11 +820,11 @@ static func integrate_generic_bodies(holder: Entity, delta: float) -> void:
 			not holder_available(holder) or body.freeze or profile == null
 			or not is_instance_valid(anchor)
 		):
-			release(holder, held)
+			release(holder, held, false)
 			continue
 		var interactable: C_Interactable = held.get_component(C_Interactable) as C_Interactable
 		if interactable != null and not interactable.enabled:
-			release(holder, held)
+			release(holder, held, false)
 			continue
 		var allowed_break_distance: float = _allowed_break_distance(
 			holder,
@@ -803,7 +840,7 @@ static func integrate_generic_bodies(holder: Entity, delta: float) -> void:
 			profile,
 			allowed_break_distance,
 		):
-			release(holder, held)
+			release(holder, held, false)
 
 
 ## Checks live tree and World membership before gameplay mutation.

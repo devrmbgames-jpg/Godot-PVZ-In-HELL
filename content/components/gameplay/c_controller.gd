@@ -6,6 +6,9 @@ class_name C_Controller
 var interact_pressed: bool = false
 var interact_held: bool = false
 var use_held: bool = false
+var sprint_pressed: bool = false
+var sprint_held: bool = false
+var sprint_input_enabled: bool = false
 ## Cancel the active drawing capture without toggling the global cursor mode.
 var cancel_pressed: bool = false
 var use_pressed: bool = false
@@ -29,6 +32,9 @@ var drop_long_fired: bool = false
 
 ## Намерение куда идти
 @export var direction_motion: Vector3 = Vector3.ZERO
+## Navigation avoidance supplies a speed ceiling as well as a direction.
+## Regular player motion keeps momentum/impulses through the default false value.
+var limit_motion_velocity: bool = false
 
 ## Намерение вызвать какое то взаимодействие (E)
 @export var interract_main: bool = false

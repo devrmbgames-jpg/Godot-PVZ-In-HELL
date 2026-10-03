@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://addons/gecs/ecs/entity.gd" id="Entity"]
+[ext_resource type="Script" path="res://content/components/gameplay/c_inspection_booth.gd" id="Booth"]
+
+[sub_resource type="Resource" id="Booth"]
+script = ExtResource("Booth")
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+albedo_color = Color(0.2, 0.4, 0.55, 0.4)
+transparency = 1
+
+[sub_resource type="BoxMesh" id="Mesh"]
+size = Vector3(1.8, 0.02, 1.8)
+material = SubResource("Material")
+
+[node name="InspectionBooth" type="Node3D"]
+script = ExtResource("Entity")
+component_resources = [SubResource("Booth")]
+
+[node name="FloorMark" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.03, 0)
+mesh = SubResource("Mesh")
+
+[node name="Caption" type="Label3D" parent="."]
+position = Vector3(0, 2.1, 0)
+text = "КАБИНКА\nОсмотр посылки"
+billboard = 1
+pixel_size = 0.003

@@ -9,3 +9,5 @@ var package_id: String = ""
 var definition: DEF_Package = null
 var cause: DamageResult = null
 var world_pose: Transform3D = Transform3D.IDENTITY
+## Пустая оболочка не наследует опасность уничтоженного содержимого.
+var contents_released: bool = false

@@ -26,6 +26,8 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 			continue
 		var applied: bool = CustomerOutcomeService.apply_challenge_result(visit, state.pending_result)
 		state.consequences_applied = true
+		if applied:
+			CustomerArrivalService.apply_result(entities[index], state.pending_result)
 		if applied and state.pending_result.request_escalation:
 			state.escalation_request = state.pending_result
 			escalation_requested.emit(entities[index], ChallengeService.actor_for(entities[index]), state.pending_result)

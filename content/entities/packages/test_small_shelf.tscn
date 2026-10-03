@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://content/entities/packages/package.tscn" id="Base"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/packages/def_test_small_shelf.tres" id="Definition"]
+
+[node name="TestSmallShelfPackage" instance=ExtResource("Base")]
+package_definition = ExtResource("Definition")

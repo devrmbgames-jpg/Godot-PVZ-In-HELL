@@ -15,6 +15,7 @@ class CapturedInput extends S_PlayerInput:
 func _mouse_motion(relative: Vector2) -> InputEventMouseMotion:
 	var event: InputEventMouseMotion = InputEventMouseMotion.new()
 	event.relative = relative
+	event.screen_relative = relative
 	return event
 
 
@@ -41,6 +42,40 @@ var carry_load: C_CarryLoad
 
 
 #region Fixture
+func test_held_liquid_rights_itself_and_stays_upright_when_camera_tilts() -> void:
+	box_entity.add_component(C_LiquidTilt.new())
+	box_body.rotation = Vector3(1.2, 0.4, 0.2)
+	for frame: int in 2:
+		await get_tree().physics_frame
+	assert_true(GrabService.try_pickup(holder_entity, box_entity))
+	var anchor: Node3D = GrabService.slot_anchor(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	anchor.rotation = Vector3(-0.9, 0.65, 0.0)
+	for frame: int in 50:
+		await get_tree().physics_frame
+	assert_gt(box_body.global_basis.y.normalized().dot(Vector3.UP), 0.99, "Liquid stands upright despite the tilted carry anchor")
+	var profile: GrabControlProfile = GrabService.profile_for(box_entity)
+	assert_eq(profile.rotation_axis, C_Grabbable.RotationAxis.Y_ONLY, "Manual yaw remains available")
+	assert_eq(profile.max_rotation_speed, 3.0)
+	GrabService.release(holder_entity, box_entity)
+	assert_null(GrabService.held_relationship(box_entity))
+
+
+func test_regular_prop_keeps_free_rotation_when_held_and_liquid_policy_can_opt_out() -> void:
+	for frame: int in 2:
+		await get_tree().physics_frame
+	assert_true(GrabService.try_pickup(holder_entity, box_entity))
+	var anchor: Node3D = GrabService.slot_anchor(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	anchor.rotation.x = 0.7
+	for frame: int in 12:
+		await get_tree().physics_frame
+	assert_lt(box_body.global_basis.y.normalized().dot(Vector3.UP), 0.9, "Ordinary prop follows manual/camera pitch")
+	assert_false(GrabService.profile_for(box_entity).keep_upright)
+	var liquid: C_LiquidTilt = C_LiquidTilt.new()
+	liquid.keep_upright_while_held = false
+	box_entity.add_component(liquid)
+	assert_false(GrabService.profile_for(box_entity).keep_upright)
+
+
 func before_each() -> void:
 	grab_world = World.new()
 	add_child(grab_world)
@@ -502,6 +537,98 @@ func test_disabled_physical_target_cannot_regain_highlight_on_next_targeting_tic
 	targeting.free()
 
 
+func test_highlight_authored_material_changes_with_weight_on_same_target() -> void:
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var config: C_Grabbable = box_entity.get_component(C_Grabbable) as C_Grabbable
+	config.allowed_hand_slots = 0
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
+	grab_world.add_system(highlight)
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var mesh: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
+	var base: StandardMaterial3D = StandardMaterial3D.new()
+	mesh.material_override = base
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, highlight.available_material)
+	assert_true(highlight.available_material.resource_path.ends_with("highlight_available.res"))
+	box_body.mass = 200.0
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, highlight.unavailable_material)
+	var custom: StandardMaterial3D = StandardMaterial3D.new()
+	highlight.unavailable_material = custom
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, custom, "An authored replacement is used without changing the target")
+	assert_eq(mesh.material_override, base)
+	box_body.mass = 5.0
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, highlight.available_material)
+	grab_world.remove_system(highlight)
+	await get_tree().process_frame
+	assert_null(mesh.material_overlay)
+
+
+func test_highlight_multi_holder_material_priority_and_removal_are_deterministic() -> void:
+	var second: Entity = make_holder(Vector3.ZERO)
+	var first_interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var second_interactor: C_Interactor = second.get_component(C_Interactor) as C_Interactor
+	second_interactor.target = box_entity
+	second_interactor.physics_target = box_body
+	var token: int = InteractionControlFocus.acquire(second, self, InteractionControlFocus.Priority.PROLONGED)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
+	grab_world.add_system(highlight)
+	var mesh: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
+	highlight.process([second, holder_entity], [[second_interactor, first_interactor]], 0.0)
+	assert_eq(mesh.material_overlay, highlight.available_material)
+	highlight.process([holder_entity, second], [[first_interactor, second_interactor]], 0.0)
+	assert_eq(mesh.material_overlay, highlight.available_material)
+	grab_world.remove_entity(holder_entity)
+	assert_eq(mesh.material_overlay, highlight.busy_material)
+	InteractionControlFocus.release(second, token)
+	second.remove_component(C_Interactor)
+	assert_null(mesh.material_overlay)
+
+
+func test_highlight_modal_clears_and_restores_without_target_change() -> void:
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
+	grab_world.add_system(highlight)
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var mesh: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
+	var original: StandardMaterial3D = StandardMaterial3D.new()
+	mesh.material_overlay = original
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_ne(mesh.material_overlay, original)
+	var token: int = InteractionControlFocus.acquire(holder_entity, self, InteractionControlFocus.Priority.MODAL)
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, original)
+	InteractionControlFocus.release(holder_entity, token)
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_ne(mesh.material_overlay, original)
+	grab_world.remove_system(highlight)
+	await get_tree().process_frame
+	assert_eq(mesh.material_overlay, original)
+
+
+func test_highlight_yields_to_other_interaction_overlay_and_does_not_erase_it() -> void:
+	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
+	grab_world.add_system(highlight)
+	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
+	var mesh: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	var feedback: StandardMaterial3D = StandardMaterial3D.new()
+	mesh.material_overlay = feedback
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, feedback)
+	interactor.target = null
+	interactor.physics_target = null
+	highlight.process([holder_entity], [[interactor]], 0.0)
+	assert_eq(mesh.material_overlay, feedback)
+	grab_world.remove_system(highlight)
+	await get_tree().process_frame
+	assert_eq(mesh.material_overlay, feedback)
+
+
 func test_carry_speed_is_linear_from_mass_and_current_strength() -> void:
 	var motion: C_Motion = C_Motion.new()
 	var strength: C_Strength = holder_entity.get_component(C_Strength) as C_Strength
@@ -853,6 +980,34 @@ func test_drop_priority_and_long_press_placeholder() -> void:
 	GrabService.handle_input(holder_entity)
 	assert_true(grab_control.context_wheel_requested)
 	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+
+
+func test_pause_cancels_drop_tracking_and_pending_mouse_and_interaction() -> void:
+	var input_system: CapturedInput = CapturedInput.new()
+	input_system.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(input_system)
+	holder_entity.add_component(C_PlayerInputController.new())
+	var holders: Array[Entity] = [holder_entity]
+	var press: InputEventAction = InputEventAction.new()
+	press.action = &"drop"
+	press.pressed = true
+	input_system.feed_event(press)
+	input_system.process(holders, [[input_state]], 0.1)
+	assert_true(input_state.drop_tracking)
+	input_system.feed_event(_mouse_motion(Vector2(100, 40)))
+	press = InputEventAction.new()
+	press.action = &"interact"
+	press.pressed = true
+	input_system.feed_event(press)
+	get_tree().paused = true
+	get_tree().paused = false
+	assert_false(input_state.drop_tracking)
+	input_system.process(holders, [[input_state]], grab_control.drop_long_press_seconds)
+	assert_false(input_state.drop_long_pressed)
+	assert_false(input_state.drop_pressed)
+	assert_false(input_state.interact_pressed)
+	assert_eq(input_state.look_delta, Vector2.ZERO)
+	input_system.free()
 
 
 func test_drop_long_press_input_does_not_emit_short_drop_on_release() -> void:
@@ -1343,7 +1498,7 @@ func test_overweight_scriptless_body_stays_highlighted_and_shows_weight_message(
 	targeting_system.process([holder_entity], [[interactor]], 0.0)
 	highlight_system.process([holder_entity], [[interactor]], 0.0)
 	InteractionActionResolver.refresh_prompt(holder_entity)
-	assert_true(interactor.prompt_text.contains("[E]"))
+	assert_true(interactor.prompt_text.contains("[input=interact]"))
 	assert_true(interactor.prompt_text.contains("Взять"))
 
 	highlight_system.free()

@@ -36,9 +36,11 @@ size = Vector3(0.45,0.2,0.25)
 [sub_resource type="BoxShape3D" id="Shape"]
 size = Vector3(0.45,0.2,0.25)
 
-[node name="FoodPickup" type="StaticBody3D"]
+[node name="FoodPickup" type="RigidBody3D"]
 collision_layer = 8
-collision_mask = 0
+collision_mask = 29
+mass = 0.25
+continuous_cd = true
 script = ExtResource("Entity")
 component_resources = Array[ExtResource("Component")]([SubResource("Item"), SubResource("Interactable"), SubResource("Actions")])
 

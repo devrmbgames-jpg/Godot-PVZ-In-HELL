@@ -15,6 +15,8 @@ Keep the default path short: start from the user's task and the exact files, sym
 - No unexplained gameplay magic constants. Use named constants or authored/data-driven values.
 - Preserve scene/resource/data contracts unless migration is explicit: exported properties, node paths/names, signals, relationship/component ownership, resource paths, authored IDs.
 - Preserve unrelated user edits. Do not rewrite unrelated history, force-push, upgrade dependencies, write authored files into `.godot/`, or use `gh`.
+- All implementation and commits stay on `dev`. `master` is strictly read-only by the owner's instruction.
+- `MeshInstance3D.material_overlay` is reserved for interactive feedback/highlights; authored highlight materials are external editable resources.
 
 ## Context routing
 
@@ -37,6 +39,14 @@ Load skills only when their workflow is needed:
 
 Do not load skills speculatively. Ordinary Godot/GDScript work does not require the GECS or GUT skill unless the task actually crosses those contracts.
 
+## Godot AI MCP
+
+Godot AI MCP is available as an optional live bridge to the editor and running game. Use it when it materially improves understanding, implementation, or validation; the agent should decide when it is useful rather than treating MCP as a mandatory step.
+
+Prefer ordinary file/search/edit tools when they are simpler or cheaper. When using MCP, start with the relevant scene, subtree, node, resource, or log range and widen the inspection if the task benefits from more context. Large hierarchy/property/log dumps and visual captures are reasonable when they genuinely help, but do not collect them by default just because the tools are available.
+
+If the MCP/editor is unavailable and live inspection is not essential, continue with normal repository tools instead of blocking the task. If live MCP access would materially help, the agent may start the project-local Godot editor with `.vscode/start-godot.ps1` and then retry the MCP connection; the helper already guards against duplicate editor launches.
+
 ## Subagents
 
 Routine work stays in the main session. Use project subagents only when the user explicitly requests delegation or a substantial bounded review/validation step benefits from separate context:
@@ -51,6 +61,8 @@ Do not create bookkeeping for local fixes. For long or interruptible work, keep 
 
 Commit completed logical milestones separately when a task spans multiple stages. Do not push or open a PR unless requested.
 
+Between completed large tasks, create a runnable Windows QA build under `.export/` with `utils/export_windows.ps1`. Keep versioned build directories so the owner can play an earlier build during ongoing work. Generated binaries/logs are not committed.
+
 ## Validation
 
 Use the cheapest check that can falsify the change.
@@ -59,7 +71,7 @@ Use the cheapest check that can falsify the change.
 - Do not run GUT, smoke, or broad runtime checks after every small edit.
 - GitHub GUT jobs that only need `global_script_class_cache.cfg` must use `bash utils/bootstrap_godot_class_cache.sh`, not `godot --import`. The helper exits immediately after Godot writes the script-class cache, before `EditorFileSystem::_update_scan_actions()` performs the expensive asset reimport pass (notably thousands of SVG/PNG files).
 - For a complete large `Rxx` / `Rxx.x` implementation, normally run the relevant GUT surface once and one relevant headless smoke/runtime check near completion, unless the active task states otherwise.
-- Never launch rendered/visual Godot, capture screenshots/video, or perform visual scene inspection unless explicitly approved for the current task.
+- Starting the Godot editor solely to establish useful MCP access is allowed. Do not launch gameplay/rendered playtests, capture screenshots/video, or perform visual scene inspection unless explicitly approved for the current task.
 - Never claim a formatter, test, engine run, or visual check passed unless it actually ran.
 
 Keep reports concise: material findings first, then validation, then remaining owner QA.

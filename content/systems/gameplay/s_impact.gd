@@ -32,6 +32,10 @@ func process(_entities: Array[Entity], components: Array, _delta: float) -> void
 	if not components.is_empty():
 		var inboxes: Array = components[0]
 		for inbox: C_ImpactInbox in inboxes:
+			for separation: PhysicsContact in inbox.separations:
+				if _valid(separation):
+					_on_body_exited(separation.body_b, separation.body_a)
+			inbox.separations.clear()
 			for contact: PhysicsContact in inbox.contacts:
 				_enqueue(contact)
 			inbox.contacts.clear()
@@ -68,6 +72,8 @@ func _enqueue(contact: PhysicsContact) -> void:
 	if existing == null:
 		_pending[key] = contact
 	else:
+		if contact.normal_speed >= existing.normal_speed:
+			existing.normal_on_a = contact.normal_on_a if contact.body_a == existing.body_a else -contact.normal_on_a
 		existing.normal_speed = maxf(existing.normal_speed, contact.normal_speed)
 		existing.normal_impulse = maxf(existing.normal_impulse, contact.normal_impulse)
 #endregion
@@ -90,6 +96,7 @@ func _resolve(contact: PhysicsContact) -> void:
 	if pair.resolved:
 		return
 	pair.resolved = true
+	KinematicImpactCapture.queue_rebound(contact)
 
 	_resolve_direction(contact.body_a, contact.body_b, contact)
 	if _valid(contact):
@@ -116,12 +123,10 @@ func _resolve_direction(
 	var receiver: C_ImpactReceiver = target.get_component(C_ImpactReceiver) as C_ImpactReceiver
 	if receiver == null:
 		return
-	var source_rigid: RigidBody3D = source_body as RigidBody3D
-	var target_rigid: RigidBody3D = target_body as RigidBody3D
-	var source_mass: float = source_rigid.mass if source_rigid != null else 0.0
-	if source_rigid == null and target_rigid != null:
+	var source_mass: float = KinematicImpactCapture.mass_of(source_body)
+	if source_mass <= 0.0:
 		# An immovable environment exchanges the receiver's own moving mass, not infinity.
-		source_mass = target_rigid.mass
+		source_mass = KinematicImpactCapture.mass_of(target_body)
 	var result: ImpactResult = ImpactCalculation.evaluate(
 		source_mass,
 		contact.normal_speed,
@@ -179,6 +184,8 @@ func _resolve_direction(
 
 #region Helpers
 func _on_entity_added(entity: Entity) -> void:
+	if entity.has_component(C_CharacterBody) and not entity.has_component(C_ImpactInbox):
+		entity.add_component(C_ImpactInbox.new())
 	var body: RigidBody3D = entity as Node as RigidBody3D
 	if body != null:
 		var on_exit: Callable = _on_body_exited.bind(body)
@@ -211,6 +218,7 @@ func _on_entity_unavailable(entity: Entity) -> void:
 	var inbox: C_ImpactInbox = entity.get_component(C_ImpactInbox) as C_ImpactInbox
 	if inbox != null:
 		inbox.contacts.clear()
+		inbox.separations.clear()
 	for key: String in _pairs.keys():
 		var pair: ImpactContactPair = _pairs[key]
 		if pair.first == entity or pair.second == entity:

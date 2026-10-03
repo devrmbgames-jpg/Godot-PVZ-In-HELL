@@ -15,9 +15,8 @@ static func state_for(actor: Entity) -> C_Challenge:
 static func strength(state: C_Challenge) -> float:
 	if state == null or state.condition_result == ChallengeResult.Type.SUCCESS or state.elapsed < state.definition.preparation_seconds:
 		return 0.0
-	var rule: DEF_GazeChallengeCondition = state.definition.condition as DEF_GazeChallengeCondition
 	var progress: float = clampf(state.violation_elapsed / maxf(state.definition.violation_grace_seconds, GazeTrackingService.DIRECTION_EPSILON), 0.0, 1.0)
-	return clampf((progress - rule.warning_fraction) / (1.0 - rule.warning_fraction), 0.0, 1.0)
+	return progress
 
 
 static func text(state: C_Challenge) -> String:

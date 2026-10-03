@@ -135,6 +135,8 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				return false
 			if probe is C_Hunger and (not is_finite((probe as C_Hunger).value) or (probe as C_Hunger).value < 0.0):
 				return false
+			if probe is C_Stamina and (not is_finite((probe as C_Stamina).current) or (probe as C_Stamina).current < 0.0):
+				return false
 		all_components[String(record.key)] = types
 		if record.has("ink"):
 			if not record.ink is Array:
@@ -153,6 +155,32 @@ static func valid(data: Dictionary, root: Node) -> bool:
 			if link.kind == CARGO and not link.get("local_pose") is Transform3D:
 				return false
 	return session_count == 1 and SnapshotGraphRules.valid(records, all_components)
+
+
+## Проверяет роли и prefab-контракты без регистрации Entities и без изменения живого World.
+static func can_restore(data: Dictionary, root: Node) -> bool:
+	if not valid(data, root):
+		return false
+	var entities: Dictionary[String, Entity] = {}
+	var temporary: Array[Entity] = []
+	for record: Dictionary in data.entities:
+		var entity: Entity = root.get_node_or_null(NodePath(String(record.authored_path))) as Entity if not String(record.authored_path).is_empty() else null
+		if entity == null:
+			var scene: String = String(record.scene)
+			var packed: PackedScene = load(scene) as PackedScene if not scene.is_empty() else null
+			var instance: Node = packed.instantiate() if packed != null else Entity.new()
+			entity = instance as Entity
+			if entity == null:
+				instance.free()
+				for candidate: Entity in temporary:
+					candidate.free()
+				return false
+			temporary.append(entity)
+		entities[String(record.key)] = entity
+	var compatible: bool = SnapshotGraphRules.valid_entities(data.entities as Array, entities)
+	for candidate: Entity in temporary:
+		candidate.free()
+	return compatible
 
 
 static func restore(data: Dictionary, root: Node) -> bool:
@@ -204,6 +232,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			ECS.world.entity_id_registry[entity.id] = entity
 	# Clear every old binding before any physical pose or saved binding is restored.
 	for entity: Entity in entities.values():
+		OpenableService.cancel_player_request(entity)
 		if entity not in fresh and not entity.enabled:
 			ECS.world.enable_entity(entity)
 		# Replace runtime ownership under the same guard used by Inventory transfer.
@@ -248,16 +277,40 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			SaveDataCodec.apply_fields(target, component.fields as Dictionary)
 			if target is C_Package:
 				(target as C_Package).condition_initialized = true
+		# Включая старые snapshots без C_Stamina: режим бега не переживает restore.
+		var stamina: C_Stamina = entity.get_component(C_Stamina) as C_Stamina
+		if stamina != null:
+			stamina.toggled = false
+			stamina.running = false
+			stamina.exhausted = false
+			stamina.recovery_remaining = 0.0
+			stamina.drain_multiplier = 1.0
+		var restored_motion: C_Motion = entity.get_component(C_Motion) as C_Motion
+		if restored_motion != null:
+			restored_motion.sprint_multiplier = 1.0
 		PersistentInteractionState.restore(record.get("completed_actions", []) as Array, entity)
 		var node: Node3D = entity as Node as Node3D
 		if node != null and record.has("pose"):
 			node.global_transform = record.pose as Transform3D
 		var body: RigidBody3D = node as RigidBody3D
+		var character_body: CharacterBody3D = node as CharacterBody3D
+		if character_body != null:
+			character_body.velocity = Vector3.ZERO
+			var motion: C_Motion = entity.get_component(C_Motion) as C_Motion
+			if motion != null:
+				motion.pending_impulse = Vector3.ZERO
+				motion.sprint_multiplier = 1.0
+			var kinematic: C_CharacterBody = entity.get_component(C_CharacterBody) as C_CharacterBody
+			if kinematic != null:
+				kinematic.impulse_velocity = Vector3.ZERO
+				kinematic.pending_rebound_velocity = Vector3.ZERO
+				kinematic.contact_bodies.clear()
 		if body != null:
 			body.linear_velocity = Vector3.ZERO
 			body.angular_velocity = Vector3.ZERO
 			if entity is E_Package:
-				body.mass = (entity.get_component(C_Package) as C_Package).definition.mass_kg
+				var definition: DEF_Package = (entity.get_component(C_Package) as C_Package).definition
+				body.mass = definition.empty_mass_kg if PackageContentsService.is_empty(entity) else definition.mass_kg
 		if record.death and not entity.has_component(C_Death):
 			entity.add_component(C_Death.new())
 		elif not record.death and entity.has_component(C_Death):

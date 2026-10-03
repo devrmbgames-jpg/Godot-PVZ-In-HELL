@@ -1,52 +1,35 @@
 model = "gpt-6.1-sol"
 
-# Основная работа: достаточно глубоко, но без постоянного max.
+# Main development: deep reasoning without paying xhigh/max for every edit.
 model_reasoning_effort = "high"
 
-# Планирование сложных задач — глубже.
+# Use deeper reasoning for explicit planning work.
 plan_mode_reasoning_effort = "xhigh"
 
-# Не раздувать ответы и отчеты без необходимости.
 model_verbosity = "medium"
 model_reasoning_summary = "auto"
-
-# Удобные ссылки на файлы из ответов Codex.
 file_opener = "vscode"
 
-# Разрешать команды с запросом подтверждения при необходимости.
 approval_policy = "on-request"
-
-# Разрешаем редактирование workspace и явно добавленных каталогов.
 sandbox_mode = "workspace-write"
-
-# Codex может использовать актуальный web search.
 web_search = "live"
 
-# AGENTS.md и вложенные проектные инструкции.
-# Default у Codex сейчас 32 KiB; 16 KiB для твоих проектов выглядит
-# разумным компромиссом между экономией контекста и сохранением правил.
+# Keep project instructions compact but large enough for root + scoped AGENTS.md.
 project_doc_max_bytes = 16384
 
-# Ограничиваем огромные логи/вывод shell, чтобы они не засоряли контекст.
+# Prevent noisy Godot/tool output from consuming excessive context.
 tool_output_token_limit = 4000
 
 
 [agents]
 enabled = true
-
-# Никакой параллельной гонки суб-агентов.
 max_concurrent_threads_per_session = 1
-
-# Если spawn не указал модель явно.
 default_subagent_model = "gpt-6.1-sol"
-
-# Суб-агенты дешевле основной работы.
-# Конкретный reviewer может переопределить это своим toml.
 default_subagent_reasoning_effort = "medium"
 
 
 [agents.reviewer]
-description = "Opt-in focused review of a substantial completed diff for Godot 3.6 correctness and regressions."
+description = "Opt-in focused review of a substantial completed diff for Godot 4.7+, GECS correctness, and regressions."
 config_file = "./agents/reviewer.toml"
 
 
@@ -56,12 +39,50 @@ config_file = "./agents/validator.toml"
 
 
 [sandbox_workspace_write]
-
-# Разрешаем shell/network внутри workspace-write sandbox.
 network_access = true
 
-# Дополнительный каталог вне репозитория:
-# Godot user:// для всех локальных проектов.
+# Godot user:// data lives outside the repository.
 writable_roots = [
     "C:\\Users\\Valeryn\\AppData\\Roaming\\Godot\\app_userdata"
 ]
+
+
+# Project-local Godot AI MCP bridge.
+# Godot AI v4.2.3 runs the backend from the enabled editor plugin.
+# The bridge is pinned to the same package version and talks only to localhost.
+[mcp_servers."godot-ai"]
+command = "C:\\Users\\Valeryn\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0/pythonw.exe"
+args = [
+  "-c",
+  "import subprocess,sys; raise SystemExit(subprocess.call(sys.argv[1:], stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, creationflags=0x08000000))",
+  "C:\\Users\\Valeryn/.local/bin/uvx.exe",
+  "--isolated",
+  "--no-config",
+  "--no-env-file",
+  "--no-sources",
+  "--no-build",
+  "--index-strategy",
+  "first-index",
+  "--keyring-provider",
+  "disabled",
+  "--index",
+  "https://pypi.org/simple",
+  "--default-index",
+  "https://pypi.org/simple",
+  "--find-links",
+  "https://pypi.org/simple/godot-ai/",
+  "--link-mode",
+  "copy",
+  "--from",
+  "godot-ai==4.2.3",
+  "godot-ai",
+  "attach",
+  "--port",
+  "8001",
+  "--ws-port",
+  "9500",
+  "--disable-telemetry",
+]
+enabled = true
+startup_timeout_sec = 60
+tool_timeout_sec = 360

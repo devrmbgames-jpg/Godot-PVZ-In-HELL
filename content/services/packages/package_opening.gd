@@ -13,6 +13,8 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 	var interactable: C_Interactable = package.get_component(C_Interactable) as C_Interactable
 	if condition == null or condition.opening == C_PackageState.Opening.OPENED:
 		return false
+	if condition.damage == C_PackageState.Damage.DESTROYED:
+		return false
 	if interactable == null or not interactable.enabled:
 		return false
 	var health: C_Health = actor.get_component(C_Health) as C_Health
@@ -20,6 +22,12 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 	if health != null and (health.depleted or health.current <= 0.0):
 		return false
 	if motion != null and not motion.control_enabled:
+		return false
+	if actor is E_Customer:
+		var agent: C_CustomerAgent = actor.get_component(C_CustomerAgent) as C_CustomerAgent
+		var stored: Relationship = PhysicalSlotService.relationship(package)
+		return agent != null and agent.phase == C_CustomerAgent.Phase.INSPECTING and CustomerInspectionService.owner_for(package) == actor and stored != null and (stored.relation as R_StoredIn).applied
+	if CustomerInspectionService.owner_for(package) != null:
 		return false
 	if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.DRAWING:
 		return false

@@ -4,7 +4,7 @@ class_name CommercePanel
 const PANEL_SIZE: Vector2 = Vector2(720, 450)
 const MARGIN: float = 32.0
 const REFRESH_SECONDS: float = 0.2
-const RESULT_TEXT: Array[String] = ["Готово", "Уже выполнено", "Действие недоступно", "Запрос конфликтует", "Недостаточно денег", "Инвентарь заполнен", "Сейчас недоступно"]
+const RESULT_TEXT: Array[String] = ["Готово", "Уже выполнено", "Действие недоступно", "Запрос конфликтует", "Недостаточно денег", "Инвентарь заполнен", "Сейчас недоступно", "Освободите место в зоне выдачи мебели"]
 
 var _actor: Entity = null
 var _trader: WeakRef = null
@@ -20,6 +20,7 @@ var _title: Label = null
 var _status: Label = null
 var _offers: VBoxContainer = null
 var _quest: VBoxContainer = null
+var _close: Button = null
 
 
 func _ready() -> void:
@@ -43,14 +44,20 @@ func _ready() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(_status)
 	_offers = VBoxContainer.new()
-	content.add_child(_offers)
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.custom_minimum_size.y = 200.0
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	content.add_child(scroll)
+	_offers.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_offers)
 	_quest = VBoxContainer.new()
 	content.add_child(_quest)
-	var close: Button = Button.new()
-	close.text = "Закрыть [Esc]"
-	close.pressed.connect(close_panel)
-	content.add_child(close)
-	close.grab_focus()
+	_close = Button.new()
+	_close.text = "Закрыть"
+	_close.pressed.connect(close_panel)
+	content.add_child(_close)
+	_close.grab_focus()
 
 
 func _exit_tree() -> void:
@@ -64,9 +71,12 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	var icons: Array[Texture2D] = InputPromptService.textures(&"menu")
+	_close.icon = icons[0] if not icons.is_empty() else null
 	if _capture == 0:
 		return
-	if not GrabService.holder_available(_actor) or _actor.has_component(C_Death) or (not _order_mode and not EntityAvailability.contains(_shop(), ECS.world)):
+	var trader: Entity = _shop()
+	if not GrabService.holder_available(_actor) or _actor.has_component(C_Death) or (not _order_mode and (not EntityAvailability.contains(trader, ECS.world) or trader.has_component(C_Death))):
 		close_panel()
 		return
 	_refresh_remaining -= delta
@@ -116,19 +126,25 @@ func _refresh() -> void:
 	var commerce: C_Commerce = CommerceService.current()
 	if cycle == null or wallet == null or commerce == null:
 		return
-	var allowed: bool = cycle.phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING] if _order_mode else cycle.phase == C_DayCycle.Phase.EVENING
-	_title.text = "Заказ на следующее утро" if _order_mode else "Вечерний торговец"
+	var shop: Entity = _shop()
+	var shop_state: C_Trader = shop.get_component(C_Trader) as C_Trader if shop != null else null
+	var profile: DEF_TraderProfile = shop_state.profile if shop_state != null else null
+	var allowed: bool = cycle.phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING] if _order_mode else TraderCatalogService.is_open(shop_state, cycle)
+	_title.text = "Заказ на следующее утро" if _order_mode else profile.display_name if profile != null else "Торговец"
 	var inventory: C_Inventory = _actor.get_component(C_Inventory) as C_Inventory
 	var capacity: String = "%d / %d" % [InventoryService.items(_actor).size(), inventory.maximum_stacks] if inventory != null else "нет"
 	_status.text = "День %d · деньги %d · инвентарь %s\nУсловие: %s · доставка в Morning дня %d\nЗадача: подготовьтесь к следующей смене. %s" % [cycle.day_index, wallet.balance, capacity, "заказы доступны" if allowed else "дождитесь Morning / Evening" if _order_mode else "дождитесь Evening", cycle.day_index + 1, _message]
+	if not _order_mode and shop_state != null:
+		_status.text = "День %d · деньги %d · инвентарь %s\n%s · %s\nМебель: забрать в зоне возле торговца, перенести и закрепить молотком. %s" % [cycle.day_index, wallet.balance, capacity, TraderCatalogService.schedule_text(shop_state), "открыто" if allowed else "закрыто", _message]
 	var catalog: Array[DEF_InventoryItem] = commerce.catalog
-	var shop: Entity = _shop()
 	if not _order_mode and shop != null:
-		catalog = (shop.get_component(C_Trader) as C_Trader).catalog
+		catalog = TraderCatalogService.catalog(shop_state)
 	var record: RefusalQuestRecord = RefusalQuestService.find(_quest_id)
 	var signature: String = "%d:%d:%d:%s:%s:%d" % [cycle.day_index, cycle.phase, wallet.balance, capacity, _message, record.state if record != null else -1]
 	for item: DEF_InventoryItem in catalog:
 		signature += "%s:%d;" % [item.key, item.market_price]
+	if profile != null:
+		signature += "%s:%s:%d:%d:%s" % [allowed, profile.display_name, profile.delivery_fee, profile.delivery_delay_days, profile.home_delivery_enabled]
 	for delivery: PendingDelivery in commerce.pending_deliveries:
 		signature += "%s:%d:%s;" % [delivery.delivery_id, delivery.delivery_day, delivery.fulfilled]
 	if signature == _last_signature:
@@ -137,11 +153,19 @@ func _refresh() -> void:
 	_clear(_offers)
 	_clear(_quest)
 	for item: DEF_InventoryItem in catalog:
+		var row: VBoxContainer = VBoxContainer.new()
+		_offers.add_child(row)
 		var button: Button = Button.new()
-		button.text = "%s · %d · %s" % [item.display_name, item.market_price, "Заказать ×1" if _order_mode else "Купить ×1"]
+		button.text = "%s · %d · %s" % [item.display_name, item.market_price, "Заказать ×1" if _order_mode else "Забрать возле торговца" if item.kind == DEF_InventoryItem.Kind.FURNITURE else "Купить ×1"]
 		button.disabled = not allowed or wallet.balance < item.market_price
 		button.pressed.connect(_buy.bind(item))
-		_offers.add_child(button)
+		row.add_child(button)
+		if not _order_mode and profile != null and profile.home_delivery_enabled:
+			var delivery: Button = Button.new()
+			delivery.text = "Доставить домой · %d + доставка %d = %d · утро дня%d" % [item.market_price, profile.delivery_fee, item.market_price + profile.delivery_fee, cycle.day_index + profile.delivery_delay_days]
+			delivery.disabled = not allowed or wallet.balance < item.market_price + profile.delivery_fee
+			delivery.pressed.connect(_buy.bind(item, true))
+			row.add_child(delivery)
 	if _order_mode:
 		for delivery: PendingDelivery in commerce.pending_deliveries:
 			if not delivery.fulfilled:
@@ -175,11 +199,11 @@ func _show_quest(record: RefusalQuestRecord, cycle: C_DayCycle) -> void:
 		_quest.add_child(resolved)
 
 
-func _buy(item: DEF_InventoryItem) -> void:
+func _buy(item: DEF_InventoryItem, home_delivery: bool = false) -> void:
 	if not _can_click():
 		return
-	var operation_id: StringName = CommerceService.next_id("order" if _order_mode else "buy")
-	var result: CommerceService.Status = CommerceService.order(_actor, item, 1, operation_id) if _order_mode else CommerceService.purchase(_actor, _shop(), item, 1, operation_id)
+	var operation_id: StringName = CommerceService.next_id("order" if _order_mode else "courier" if home_delivery else "buy")
+	var result: CommerceService.Status = CommerceService.order(_actor, item, 1, operation_id) if _order_mode else CommerceService.home_delivery(_actor, _shop(), item, 1, operation_id) if home_delivery else CommerceService.purchase(_actor, _shop(), item, 1, operation_id)
 	_message = RESULT_TEXT[result]
 	_refresh()
 

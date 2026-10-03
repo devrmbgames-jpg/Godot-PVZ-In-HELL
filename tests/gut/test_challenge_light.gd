@@ -92,6 +92,112 @@ func test_armed_waits_for_dialogue_close_before_countdown() -> void:
 	assert_almost_eq(_state.elapsed, FRAME_DELTA, 0.0001)
 
 
+func _arrival_customer() -> E_Customer:
+	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_light_entrance.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition.timeout_seconds = TIMEOUT
+	_visit.definition.challenge = _state.definition
+	assert_true(ChallengeService.begin_on_arrival(_subject, _actor))
+	var customer: E_Customer = _subject as E_Customer
+	CustomerArrivalService.begin(customer, _state)
+	return customer
+
+
+func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
+	var customer: E_Customer = _arrival_customer()
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
+	assert_false(CustomerArrivalService.tick(customer, agent, _visit, _cycle))
+	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
+	_world.process(FRAME_DELTA)
+	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
+	var scene: PackedScene = load("res://content/entities/stations/delivery_counter.tscn") as PackedScene
+	var station: E_DeliveryCounter = scene.instantiate() as E_DeliveryCounter
+	_world.add_entity(station)
+	assert_true(LightCircuitService.set_enabled(_circuit, false))
+	_world.process(FRAME_DELTA)
+	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
+	assert_false(CustomerArrivalService.tick(customer, agent, _visit, _cycle))
+	assert_eq(agent.phase, C_CustomerAgent.Phase.APPROACHING)
+	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
+	assert_eq(intent.move_position, station.waiting_position())
+	assert_eq(_escalations, 0)
+
+
+func test_dark_room_timeout_turns_lights_off_and_reuses_combat_escalation_once() -> void:
+	var customer: E_Customer = _arrival_customer()
+	_actor.add_components([C_PlayerInputController.new(), C_Health.new()])
+	customer.add_component(C_NpcCombat.new())
+	_world.process(TIMEOUT)
+	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
+	assert_false(LightCircuitService.is_enabled(&"warehouse"))
+	assert_eq(_escalations, 1)
+	CustomerCombatService.tick(customer)
+	assert_true(_visit.aggressive)
+	assert_eq((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.AGGRESSIVE)
+	assert_same(CombatService.target_for(customer), _actor)
+	_world.process(FRAME_DELTA)
+	CustomerCombatService.tick(customer)
+	assert_eq(_escalations, 1)
+
+
+func test_already_dark_arrival_does_not_gate_or_flicker_and_phase_cancel_departs() -> void:
+	assert_true(LightCircuitService.set_enabled(_circuit, false))
+	var customer: E_Customer = _arrival_customer()
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	assert_eq(agent.phase, C_CustomerAgent.Phase.APPROACHING)
+	assert_false(LightCircuitService.flicker(&"warehouse", 2.0, 0.1))
+	_world.process(FRAME_DELTA)
+	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
+	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_DARKNESS
+	_cycle.phase = C_DayCycle.Phase.EVENING
+	assert_true(CustomerArrivalService.tick(customer, agent, _visit, _cycle), "Phase change must not strand the entrance")
+
+
+func _flickering_view() -> CircuitLightView:
+	_world.add_observer(O_LightFlicker.new())
+	var light: OmniLight3D = OmniLight3D.new()
+	_world.add_child(light)
+	light.add_to_group(&"warehouse_lights")
+	var view: CircuitLightView = CircuitLightView.new()
+	view.name = "CircuitLightView"
+	light.add_child(view)
+	view.set_process(false)
+	return view
+
+
+func test_phase_change_cancels_arrival_flicker_without_switching_room_off() -> void:
+	var view: CircuitLightView = _flickering_view()
+	_arrival_customer()
+	view._process(0.16)
+	assert_false((view.get_parent() as Light3D).visible)
+	_cycle.phase = C_DayCycle.Phase.EVENING
+	_world.process(FRAME_DELTA)
+	view._process(0.0)
+	assert_eq(_state.result, ChallengeResult.Type.CANCELLED)
+	assert_true(LightCircuitService.is_enabled(&"warehouse"))
+	assert_true((view.get_parent() as Light3D).visible, "No request may survive its challenge into the next phase")
+	assert_eq(_escalations, 0)
+
+
+func test_subject_removal_cancels_owned_flicker_and_stale_stop_cannot_clear_new_request() -> void:
+	var view: CircuitLightView = _flickering_view()
+	_arrival_customer()
+	view._process(0.16)
+	assert_false((view.get_parent() as Light3D).visible)
+	_world.remove_entity(_subject)
+	view._process(0.0)
+	assert_true((view.get_parent() as Light3D).visible)
+	assert_true(LightCircuitService.flicker(&"warehouse", 2.0, 0.15, &"new-request"))
+	view._process(0.16)
+	assert_false((view.get_parent() as Light3D).visible)
+	LightCircuitService.stop_flicker(&"warehouse", &"old-request")
+	view._process(0.0)
+	assert_false((view.get_parent() as Light3D).visible)
+	LightCircuitService.stop_flicker(&"warehouse", &"new-request")
+	view._process(0.0)
+	assert_true((view.get_parent() as Light3D).visible)
+
+
 func test_physical_circuit_command_succeeds_and_cleans_binding() -> void:
 	_start()
 	assert_true(LightCircuitService.toggle(_circuit))

@@ -35,6 +35,8 @@ func before_each() -> void:
 	_action.action_id = &"probe"
 	_action.slot = DEF_InteractionAction.Slot.PRIMARY
 	_action.timing = DEF_ProlongedInteraction.new()
+	_action.timing.duration_seconds = 1.5
+	_action.timing.decay_per_second = 0.5
 	_actor = _make_actor()
 	_controller = _actor.get_component(C_Controller) as C_Controller
 	var actions: C_InteractionActionSet = C_InteractionActionSet.new()

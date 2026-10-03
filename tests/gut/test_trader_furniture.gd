@@ -1,0 +1,238 @@
+extends GutTest
+## Real physical placement, courier fulfillment and persistent commerce records.
+
+var _root: Node3D
+var _world: World
+var _actor: Entity
+var _trader: E_NpcCharacter
+var _shop: C_Trader
+var _commerce: C_Commerce
+var _cycle: C_DayCycle
+var _wallet: C_Wallet
+var _shelf: DEF_InventoryItem
+var _floor: StaticBody3D
+
+
+func before_each() -> void:
+	_root = Node3D.new()
+	add_child(_root)
+	_world = World.new()
+	_root.add_child(_world)
+	ECS.world = _world
+	_world.add_observer(O_InventoryLifecycle.new())
+	var session: Entity = Entity.new()
+	session.name = "Session"
+	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new()]
+	_root.add_child(session)
+	session.owner = _root
+	_world.add_entity(session, null, false)
+	_commerce = session.get_component(C_Commerce) as C_Commerce
+	_cycle = session.get_component(C_DayCycle) as C_DayCycle
+	_wallet = session.get_component(C_Wallet) as C_Wallet
+	_cycle.phase = C_DayCycle.Phase.EVENING
+	_wallet.balance = 1000
+	_actor = Entity.new()
+	_actor.name = "Player"
+	_actor.component_resources = [C_Inventory.new(), C_GrabControl.new()]
+	_root.add_child(_actor)
+	_actor.owner = _root
+	_world.add_entity(_actor, null, false)
+	_trader = (load("res://content/entities/commerce/trader.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	(_trader as Node as RigidBody3D).freeze = true
+	_root.add_child(_trader)
+	_trader.owner = _root
+	_world.add_entity(_trader, null, false)
+	_shop = _trader.get_component(C_Trader) as C_Trader
+	_shelf = load("res://content/definitions/gameplay/inventory/def_item_large_shelf.tres") as DEF_InventoryItem
+	_floor = _block(Vector3(0, -0.1, 0), Vector3(40, 0.2, 40))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+
+
+func after_each() -> void:
+	for child: Node in _actor.get_children():
+		if child is CommercePanel:
+			(child as CommercePanel).close_panel()
+	await get_tree().process_frame
+	_world.purge(false)
+	_root.free()
+	ECS.world = null
+	await get_tree().process_frame
+
+
+func _block(position: Vector3, size: Vector3) -> StaticBody3D:
+	var body: StaticBody3D = StaticBody3D.new()
+	body.position = position
+	var collider: CollisionShape3D = CollisionShape3D.new()
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = size
+	collider.shape = shape
+	body.add_child(collider)
+	_root.add_child(body)
+	return body
+
+
+func _goods(key: String) -> Entity:
+	for entity: Entity in _world.query.with_all([C_PersistentIdentity]).execute():
+		if (entity.get_component(C_PersistentIdentity) as C_PersistentIdentity).key == key:
+			return entity
+	return null
+
+
+func _home() -> Entity:
+	var zone: Entity = (load("res://content/entities/commerce/order_receiving.tscn") as PackedScene).instantiate() as Entity
+	(zone as Node as Node3D).position = Vector3(-6, 0.22, -6)
+	_world.add_entity(zone)
+	return zone
+
+
+func test_purchase_spawns_massive_anchorable_shelf_beside_trader_without_inventory_or_repeat() -> void:
+	(_actor.get_component(C_Inventory) as C_Inventory).maximum_stacks = 0
+	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"shelf/one"), CommerceService.Status.COMMITTED)
+	var shelf: Entity = _goods("purchase/shelf/one")
+	assert_not_null(shelf)
+	assert_true(shelf.has_component(C_Anchorable))
+	assert_true(shelf.has_component(C_Grabbable))
+	assert_false(shelf.has_component(C_InventoryItem))
+	var body: RigidBody3D = shelf as Node as RigidBody3D
+	assert_eq(body.mass, 75.0)
+	assert_eq(body.global_position.x, 3.0)
+	assert_almost_eq(body.global_position.y, 1.55, 0.001)
+	assert_eq(body.get_parent(), _root, "Goods never move as children of the trader")
+	assert_eq(_wallet.balance, 820)
+	assert_true(InventoryService.items(_actor).is_empty())
+	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"shelf/one"), CommerceService.Status.DUPLICATE)
+	assert_eq(_world.query.with_all([C_Anchorable]).execute().size(), 1)
+	assert_eq(_wallet.operations.size(), 1)
+
+
+func test_blocked_or_unsupported_zone_never_charges_and_paid_retry_is_atomic() -> void:
+	var blocker: StaticBody3D = _block(Vector3(5, 1.5, -3), Vector3(9, 3, 8))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"blocked"), CommerceService.Status.SPAWN_BLOCKED)
+	assert_eq(_wallet.balance, 1000)
+	assert_true(_commerce.receipts.is_empty())
+	blocker.queue_free()
+	_floor.queue_free()
+	await get_tree().process_frame
+	await get_tree().physics_frame
+	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"unsupported"), CommerceService.Status.SPAWN_BLOCKED)
+	assert_eq(_wallet.balance, 1000)
+	_floor = _block(Vector3(0, -0.1, 0), Vector3(40, 0.2, 40))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_wallet.balance = 10
+	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"retry"), CommerceService.Status.INSUFFICIENT_FUNDS)
+	assert_null(_goods("purchase/retry"))
+	assert_false(_commerce.transaction_in_progress)
+	_wallet.balance = 200
+	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"retry"), CommerceService.Status.COMMITTED)
+	assert_eq(_wallet.balance, 20)
+
+
+func test_configured_catalog_and_schedule_are_independent_from_terminal_orders() -> void:
+	var profile: DEF_TraderProfile = (load("res://content/definitions/gameplay/commerce/def_trader_medical.tres") as DEF_TraderProfile).duplicate() as DEF_TraderProfile
+	profile.catalog = [_shelf]
+	_shop.profile = profile
+	assert_false(_shelf in _commerce.catalog)
+	_cycle.phase = C_DayCycle.Phase.MORNING
+	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"schedule"), CommerceService.Status.WRONG_PHASE)
+	_cycle.day_index = 2
+	assert_true(TraderCatalogService.is_open(_shop, _cycle))
+	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"schedule"), CommerceService.Status.COMMITTED)
+	_cycle.day_index = 3
+	assert_false(TraderCatalogService.is_open(_shop, _cycle))
+	assert_eq(CommerceService.order(_actor, _shelf, 1, &"terminal"), CommerceService.Status.INVALID)
+	assert_eq(_wallet.balance, 820)
+
+
+func test_consumable_deliveries_create_physical_pickups_and_do_not_stall_queue() -> void:
+	var zone: Entity = _home()
+	var receiving: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
+	for key: String in ["food", "med", "bubble_wrap", "npc_meat"]:
+		var item: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_%s.tres" % key) as DEF_InventoryItem
+		assert_not_null(item)
+		assert_true(OrderDeliveryService.can_fulfill_definition(item))
+		var delivery: PendingDelivery = PendingDelivery.new()
+		delivery.delivery_id = key
+		delivery.delivery_day = 2
+		delivery.item = item
+		delivery.quantity = 1
+		_commerce.pending_deliveries.append(delivery)
+		assert_true(OrderDeliveryService.fulfill_one(zone, receiving, _commerce, 2))
+		var goods: Entity = _goods("order/%s" % key)
+		assert_not_null(goods)
+		assert_true((goods as Node) is RigidBody3D)
+		assert_false((goods as Node as RigidBody3D).freeze)
+		assert_true(delivery.fulfilled)
+		assert_false(receiving.blocked)
+		await get_tree().physics_frame
+	assert_false(OrderDeliveryService.fulfill_one(zone, receiving, _commerce, 2))
+
+
+func test_paid_home_delivery_waits_for_day_and_space_then_fulfills_once_after_save() -> void:
+	assert_eq(CommerceService.home_delivery(_actor, _trader, _shelf, 1, &"home/one"), CommerceService.Status.COMMITTED)
+	assert_eq(_wallet.balance, 790)
+	assert_eq(_commerce.receipts[0].total_price, 210)
+	assert_eq(_commerce.receipts[0].delivery_fee, 30)
+	assert_eq(CommerceService.home_delivery(_actor, _trader, _shelf, 1, &"home/one"), CommerceService.Status.DUPLICATE)
+	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"home/one"), CommerceService.Status.CONFLICT)
+	var copy: C_Commerce = C_Commerce.new()
+	assert_true(SaveDataCodec.apply_fields(copy, SaveDataCodec.component_data(_commerce).fields as Dictionary))
+	assert_eq(copy.receipts[0].delivery_fee, 30)
+	assert_eq(copy.pending_deliveries[0].delivery_day, 2)
+	var zone: Entity = _home()
+	var receiving: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
+	assert_false(OrderDeliveryService.fulfill_one(zone, receiving, copy, 1))
+	var blocker: StaticBody3D = _block(Vector3(-5, 1.5, -5), Vector3(8, 3, 8))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_false(OrderDeliveryService.fulfill_one(zone, receiving, copy, 2))
+	assert_true(receiving.blocked)
+	assert_false(copy.pending_deliveries[0].fulfilled)
+	blocker.queue_free()
+	await get_tree().process_frame
+	await get_tree().physics_frame
+	assert_true(OrderDeliveryService.fulfill_one(zone, receiving, copy, 2))
+	var shelf: Entity = _goods("order/home/one")
+	assert_not_null(shelf)
+	assert_eq((shelf as Node as RigidBody3D).mass, 75.0)
+	assert_true(copy.pending_deliveries[0].fulfilled)
+	assert_false(OrderDeliveryService.fulfill_one(zone, receiving, copy, 2))
+	copy.pending_deliveries[0].fulfilled = false
+	assert_true(OrderDeliveryService.fulfill_one(zone, receiving, copy, 2), "Existing operation identity repairs stale fulfillment guard")
+	assert_eq(_world.query.with_all([C_Anchorable]).execute().size(), 1)
+	assert_eq(_wallet.operations.size(), 1)
+
+
+func test_courier_rejects_unfulfillable_definition_and_trader_panel_offers_separate_delivery() -> void:
+	var invalid: DEF_InventoryItem = _shelf.duplicate() as DEF_InventoryItem
+	invalid.world_pickup_scene = ""
+	var profile: DEF_TraderProfile = _shop.profile.duplicate() as DEF_TraderProfile
+	profile.catalog = [invalid]
+	_shop.profile = profile
+	assert_eq(CommerceService.home_delivery(_actor, _trader, invalid, 1, &"invalid"), CommerceService.Status.INVALID)
+	assert_eq(_wallet.balance, 1000)
+	invalid.world_pickup_scene = "res://tests/fixtures/invalid_furniture.tscn"
+	assert_eq(CommerceService.home_delivery(_actor, _trader, invalid, 1, &"disabled_shape"), CommerceService.Status.INVALID)
+	invalid.kind = DEF_InventoryItem.Kind.FOOD
+	invalid.world_pickup_scene = "res://tests/fixtures/invalid_delivery_pickup.tscn"
+	assert_eq(CommerceService.home_delivery(_actor, _trader, invalid, 1, &"missing_item"), CommerceService.Status.INVALID)
+	assert_eq(_wallet.balance, 1000)
+	assert_true(_wallet.operations.is_empty())
+	assert_true(_commerce.receipts.is_empty())
+	assert_true(_commerce.pending_deliveries.is_empty())
+	profile.catalog = [_shelf]
+	var panel: CommercePanel = CommercePanelService.open(_actor, _trader)
+	assert_not_null(panel)
+	assert_eq(panel._offers.get_child_count(), 1)
+	var row: Node = panel._offers.get_child(0)
+	assert_true((row.get_child(0) as Button).text.contains("Забрать возле торговца"))
+	var delivery: Button = row.get_child(1) as Button
+	assert_true(delivery.text.contains("210"))
+	assert_true(delivery.text.contains("дня2"))
+	delivery.pressed.emit()
+	assert_eq(_wallet.balance, 790)
+	assert_eq(_commerce.pending_deliveries.size(), 1)
+	assert_true(_world.query.with_all([C_Anchorable]).execute().is_empty())

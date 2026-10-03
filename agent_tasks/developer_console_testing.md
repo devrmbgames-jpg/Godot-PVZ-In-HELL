@@ -1,6 +1,6 @@
 # Developer Console Testing
 
-Status: **PLANNED**
+Status: **OWNER_QA**
 
 Priority: **LOW** — дополнительная задача; выполнять после основных исправлений игрового QA.
 
@@ -31,13 +31,13 @@ Extension requested by owner: cover expanded gameplay and QA-01–QA-13, and exp
 - [x] Stage 7 — health / lifecycle / world helpers.
 - [x] Stage 8 — autocomplete/help.
 - [x] Stage 9 — focused validation and completion review.
-- [ ] Stage 10 — audit current gameplay contracts; grouped `help [command|group]`, preserve built-in help and `debug_help` compatibility.
-- [ ] Stage 11 — Hunger, Inventory, Trader, Orders and Quest commands.
-- [ ] Stage 12 — NPC attacks/navigation, visit behavior, Challenges and Hazards commands.
-- [ ] Stage 13 — isolated persistence testing, world/client debug presentation and interactive progress commands.
-- [ ] Stage 14 — corpse/meat and new client modes after their R23 QA implementations exist.
-- [ ] Console scrolling — reproduce inability to scroll while open; restore output scrolling and verify focus/input behavior.
-- [ ] Stage 15 — focused regression validation, updated command contract and completion review.
+- [x] Stage 10 — audit current gameplay contracts; grouped `help [command|group]`, preserve built-in help and `debug_help` compatibility.
+- [x] Stage 11 — Hunger, Inventory, Trader, Orders and Quest commands.
+- [x] Stage 12 — NPC attacks/navigation, visit behavior, Challenges and Hazards commands.
+- [x] Stage 13 — isolated persistence testing, world/client debug presentation and interactive progress commands.
+- [x] Stage 14 — corpse/meat and new client modes after their R23 QA implementations exist.
+- [x] Console scrolling — reproduce inability to scroll while open; restore output scrolling and verify focus/input behavior.
+- [x] Stage 15 — focused regression validation, updated command contract and completion review.
 
 ### Decisions
 The console is a debug frontend only. Domain services/contracts remain authoritative; command handlers must not become alternate business logic.
@@ -45,9 +45,8 @@ The console is a debug frontend only. Domain services/contracts remain authorita
 The addon already owns generic `help`; integrate project help through project-side registration without editing addons or losing built-in discovery. Proposed extension grammar lives in the supporting contract and is not a claim that commands already exist. Stage 14 depends on the relevant [R23 owner QA tasks](roadmap_23_vertical_slice_validation/owner_qa.md).
 
 ### Current
-Stages 1–9 are complete. The task is reopened as PLANNED for Stages 10–15. Next step: audit authoritative current feature APIs and help registration, then implement project help and existing-feature commands. New corpse/meat/client-mode commands follow their gameplay implementations. The 2026-10-02 update records scope only.
 
-Owner follow-up recorded: LOW priority for the whole extension; include console scrolling. When this task is selected after the main QA fixes, reproduce the scrolling defect with output longer than the console viewport and check input routing/focus before changing behavior.
+Stages1–15 implemented: grouped registry help, scrolling/focus,28 new commands over current gameplay APIs, live visit option and diagnostic targets. Next: final Windows export, then owner full-day/visual/UI QA. Addon untouched; production defaults preserve disabling. Persistent debug slots are Morning-only and require idle interactions.
 
 ### Validation
 2026-10-02 extension task recording: project structure validator and changed-document diff check PASS; gameplay/command implementation and runtime validation remain pending.
@@ -61,9 +60,9 @@ Historical validation for Stages 1–9 only; extension Stages 10–15 have not b
 - No rendered/visual Godot run was performed.
 
 ### Owner QA / blockers
-No blocker for existing-feature/help work. New-feature commands depend on corresponding R23 implementation. Required extension QA: help is usable from the console and reports registered commands; new commands exercise authoritative gameplay contracts. Full gameplay-slice testing remains with the owner as requested.
+Ручные проверки и результаты игроков: [сценарий QA](../qa_tasks/developer_console.md).
 
-Scroll acceptance: open console, generate several screens of output (including help), scroll to old lines and back with mouse wheel/scrollbar, check PageUp/PageDown, enter another command, close/reopen console. Text input remains usable and scrolling the console does not move the player/camera. Record the result when implemented.
+Игровая приёмка ожидается; перенос не означает успешного прохождения. Реализация и автоматические доказательства остаются в этой задаче.
 
 ---
 
@@ -273,3 +272,43 @@ Extension validation (Stages 10–15, pending): help enumeration/specific-comman
 ## Completion criteria
 
 The developer console can reproduce all required testing scenarios without direct gameplay-state mutation from the console callback, while existing Package, Customer, Wallet, Damage and Day services remain authoritative.
+
+### Дополнение R24 / QA-05
+
+Реализовано `debug_hud [on|off|toggle]`: отключает экранные отладочные панели и статусы над клиентами, оставляет обычный HUD и игровые эффекты. Без аргумента переключает состояние. Команда включена в `debug_help`, `commands_list` и автодополнение. GUT7/7,115 assertions; расширение остальных команд/help и прокрутка остаются LOW priority.
+
+### Active help / scroll milestone (recorded before implementation)
+
+Addon Console builds a scroll-enabled RichTextLabel and owns PageUp/PageDown but opening only grabs LineEdit focus: it never releases captured game mouse. Project-owned presentation adapter listens to open/close, preserves/restores mouse and underlying modal UI focus, permits wheel/scrollbar with visible pointer. Keep addon input/key behavior and generic help callable; wrap help with optional registered command/group lookup, derive syntax/description from Console metadata and keep debug_help compatible. Adapter lifetime restores the previous help registration. Focused actual-console routing/long-output/headless checks justified; no rendered run or broad suite.
+
+### Help / scroll validation
+
+Project adapter restores visible mouse on open and previous mode/focus on close; output wheel/scrollbar and existing PageUp/PageDown remain available. `help [command|group]` derives syntax/descriptions from live registry, includes built-in instructions, debug_help compatible. Addon untouched. Focused actual-console long-output/help checks2/2,14 assertions (`.export/console-presentation-gut.log`); no broad/runtime/visual rerun. Full extended command metadata/examples follow Stage11–14 implementations.
+
+### Active extended-command contract (recorded before implementation)
+
+Audit: HungerService owns bound transitions; InventoryService owns grants/transfers/use. CommerceService/Panel own orders/payments/UI, TraderCatalogService owns hours/catalog. NpcAttackService accepts kind/index over R_CombatTarget; debug failure restores previous target. ChallengeService owns arm/activate/cancel, debug start may replace only inactive unconsumed authored challenge. Valve debug adjustment goes through Entity glue and retained progress owner, rejects active/completed sessions; no duplicate completion effects. NPC remains now spawn edible pickups immediately: corpse_info reports release state, no fictitious corpse hit meter.
+
+Persistence is Morning-snapshot only: save_write/load require named alphanumeric isolated user://debug_slots slot, Morning, no live customer/modal/grip/active challenge; never touch production autosave. Preserve normal snapshot validation/restore. visit_create optional arrive0|1 requests live queued visit using existing authored customer_key; old invocation retains finished accounting-only visit. Update proposed grammar to actual contracts before release. One relevant extended-console GUT surface near stage completion, no broad repeat after M2.
+
+### Extended commands implementation / validation
+
+28 commands: hunger/inventory, profile trading and paid buy/courier/orders, quests, NPC3+3/navigation, challenge start/cancel/diagnostics, hazard lifetime, isolated Morning saves, HUD/markers, valve progress and edible remains. Info is read-only; writes go through existing owners plus narrow explicit APIs. Optional parser blanks normalized; visit_create arrive preserves legacy accounting-only invocation. Help shows live syntax/defaults/restrictions/examples/workflows.
+
+Initial bounded GUT:22 existing regressions PASS (console4, presentation2, NPC attacks16); three new fixture failures used pre-initialization component references, corrected to actual Entity components. Six new command/parser cases PASS52 (`.export/console-extension-parser-gut.log`). No broad rerun. Independent review R7/P2 OPEN: Morning restore allowed push/cart. FIXED: reject all captures above HANDS and authoritative Push/CartDriver links before writes/loads. Changed regression alone1/1,14 (`.export/console-extension-review-fix.log`); reviewer confirmed FIXED, no other material findings.
+
+Integrated actual-main developer_console smoke PASS (`tests/artifacts/developer_console-20261003-093440520.log`): real parser/help, food consumption, trader/quest/order projection, runtime markers, named Morning snapshot roundtrip, legacy package/accounting/health operations. Fixture disables automatic owner autosave loading and deletes only its own isolated slot. No rendered/gameplay acceptance claimed. Structure/diff PASS; formatter SKIP (unavailable). Windows exports follow; last full suite remains major M2:426/426,3375.
+
+### Published owner QA build
+
+Windows9d06320c main/test exported; both actual-scene120-frame headless startup PASS. Launch `.export/LATEST.cmd` / `.export/TEST_LEVEL.cmd`. Main: `.export/windows/20261002-234243Z-9d06320c-gameplay-console-main/PVZInHell.exe`; test: `.export/windows/20261002-234409Z-9d06320c-gameplay-console-test/PVZInHell.exe`. Next: owner full-day main scene walkthrough and targeted QA checklists. No full rendered/gameplay/audio acceptance claimed. Master unchanged, user main/project/addons edits preserved.
+
+
+## R33: выносливость
+
+`stamina_info [target=self]` читает запас/максимум, running, hold/toggle, множитель расхода груза, таймер восстановления и exhaustion. `help stamina_info` и `help health` включают команду; обычный HUD показывает шкалу, `debug_hud on` добавляет условия/таймер. QA: пробежать, остановиться, сверить восстановление; повторить с грузом и режимом переключения. Чтение через открытую консоль прекращает переключённый бег по правилу input focus.
+
+
+### 2026-10-03 — исправление неполного help
+
+`help` без аргументов теперь после встроенной справки выводит все публичные команды из живого Console registry через commands_list, с аргументами и описаниями. `debug_help` наследует тот же вывод; detailed command/group help сохранён, hidden commands исключены. Regression проверяет реальный parser, позднюю регистрацию, публичные имена, описание/аргументы, hidden и alias; focused test_console_presentation3/3,101 assertions PASS (.export/console-help-regression-gut.log). Полный suite/runtime/export не повторялись для локальной правки. Owner checklist qa_tasks/developer_console.md обновлён; addon не менялся.

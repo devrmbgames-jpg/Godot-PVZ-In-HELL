@@ -2,14 +2,17 @@
 
 [ext_resource type="ArrayMesh" uid="uid://ccabq3i4yne7w" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Stairs_Half_mesh/Primitive_Stairs_Half_Primitive_Stairs_Half.res" id="1_i8d4j"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
-size = Vector3(2.8308105, 0.2763672, 3.9404297)
+[sub_resource type="ConvexPolygonShape3D" id="ScaleSafeCollision_1"]
+points = PackedVector3Array(2.02003612, -0.638711364, -1.9702148, 2.02003612, -0.638711364, 1.9702148, 2.221602, -0.449634621, -1.9702148, 2.221602, -0.449634621, 1.9702148, 3.95673635, -2.70333714, -1.9702148, 3.95673635, -2.70333714, 1.9702148, 4.15830242, -2.51426052, -1.9702148, 4.15830242, -2.51426052, 1.9702148)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_lqn1g"]
-size = Vector3(0.35687256, 2.342163, 3.9091797)
+[sub_resource type="ConvexPolygonShape3D" id="ScaleSafeCollision_2"]
+points = PackedVector3Array(-0.0078125, -0.3375244, -1.9545898, -0.0078125, -0.3375244, 1.9545898, -0.0078125, 2.0046387, -1.9545898, -0.0078125, 2.0046387, 1.9545898, 0.34906006, -0.3375244, -1.9545898, 0.34906006, -0.3375244, 1.9545898, 0.34906006, 2.0046387, -1.9545898, 0.34906006, 2.0046387, 1.9545898)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_mn5t4"]
-size = Vector3(1, 1, 3.9570313)
+[sub_resource type="ConvexPolygonShape3D" id="ScaleSafeCollision_3"]
+points = PackedVector3Array(2.3465137, -0.344575, -1.9545898, 2.3465137, -0.344575, 1.9545898, 0.004350708, -0.3445751, -1.9545898, 0.004350708, -0.3445751, 1.9545898, 2.3465137, 0.012297561, -1.9545898, 2.3465137, 0.012297561, 1.9545898, 0.004350692, 0.012297459, -1.9545898, 0.004350692, 0.012297459, 1.9545898)
+
+[sub_resource type="ConvexPolygonShape3D" id="ScaleSafeCollision_4"]
+points = PackedVector3Array(0.8635072, -0.2753529, -1.9785156, 0.8635072, -0.2753529, 1.9785156, 0.15640043, 0.43175387, -1.9785156, 0.15640043, 0.43175387, 1.9785156, 1.570614, 0.43175387, -1.9785156, 1.570614, 0.43175387, 1.9785156, 0.8635072, 1.1388606, -1.9785156, 0.8635072, 1.1388606, 1.9785156)
 
 [node name="Primitive_Stairs_Half_static" type="StaticBody3D" unique_id=889352795]
 
@@ -19,17 +22,13 @@ size = Vector3(1, 1, 3.9570313)
 mesh = ExtResource("1_i8d4j")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=616104475]
-transform = Transform3D(0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 0, 0, 1, 1.257653, 0.90825164, 0)
-shape = SubResource("BoxShape3D_bghjr")
+shape = SubResource("ScaleSafeCollision_1")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="." unique_id=1908117786]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17062378, 0.8335571, 0)
-shape = SubResource("BoxShape3D_lqn1g")
+shape = SubResource("ScaleSafeCollision_2")
 
 [node name="CollisionShape3D3" type="CollisionShape3D" parent="." unique_id=1769595284]
-transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, 1.1754322, -0.16613877, 0)
-shape = SubResource("BoxShape3D_lqn1g")
+shape = SubResource("ScaleSafeCollision_3")
 
 [node name="CollisionShape3D4" type="CollisionShape3D" parent="." unique_id=1018399849]
-transform = Transform3D(0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 0, 0, 1, 0.8635072, 0.43175387, 0)
-shape = SubResource("BoxShape3D_mn5t4")
+shape = SubResource("ScaleSafeCollision_4")

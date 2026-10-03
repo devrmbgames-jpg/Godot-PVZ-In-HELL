@@ -20,9 +20,9 @@ caption = "Переключить вентиль"
 
 [sub_resource type="Resource" id="TimingDecay"]
 script = ExtResource("Timing")
-duration_seconds = 2.0
+duration_seconds = 8.0
 reset_policy = 0
-decay_per_second = 0.35
+decay_per_second = 0.0875
 
 [sub_resource type="Resource" id="ActionDecay"]
 script = ExtResource("ValveAction")
@@ -34,7 +34,7 @@ timing = SubResource("TimingDecay")
 
 [sub_resource type="Resource" id="TimingInstant"]
 script = ExtResource("Timing")
-duration_seconds = 2.0
+duration_seconds = 8.0
 
 [sub_resource type="Resource" id="ActionInstant"]
 script = ExtResource("ValveAction")
@@ -46,7 +46,7 @@ timing = SubResource("TimingInstant")
 
 [sub_resource type="Resource" id="TimingOnComplete"]
 script = ExtResource("Timing")
-duration_seconds = 2.0
+duration_seconds = 8.0
 reset_policy = 2
 
 [sub_resource type="Resource" id="ActionOnComplete"]
@@ -59,7 +59,7 @@ timing = SubResource("TimingOnComplete")
 
 [sub_resource type="Resource" id="TimingNever"]
 script = ExtResource("Timing")
-duration_seconds = 2.0
+duration_seconds = 8.0
 reset_policy = 3
 
 [sub_resource type="Resource" id="ActionNever"]
@@ -124,7 +124,7 @@ radius = 0.085
 height = 0.17
 
 [node name="InteractionTestValve" type="StaticBody3D" unique_id=1736677320]
-editor_description = "R11.1 interaction demo. Root signal 'activated(bool)' is connected to IndicatorLamp.set_active(). Replace/add scene signal connections to test other authored effects."
+editor_description = "Connect progress_changed(float) for normalized 0..1 glue; Wheel local rotation axis/angle are authored. activated(bool) remains one completion/toggle signal. Progress reset/restore never executes completion."
 collision_layer = 2
 collision_mask = 0
 script = ExtResource("ValveEntity")
@@ -158,6 +158,13 @@ outline_size = 6
 [node name="IndicatorLamp" type="Node3D" parent="." unique_id=457205163]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.24, -0.18)
 script = ExtResource("LampScript")
+
+[node name="ProgressStatus" type="Label3D" parent="."]
+position = Vector3(0, 0.82, 0)
+billboard = 1
+font_size = 22
+pixel_size = 0.002
+text = ""
 
 [node name="OffBulb" type="MeshInstance3D" parent="IndicatorLamp" unique_id=263770366]
 mesh = SubResource("LampMeshOff")

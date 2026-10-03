@@ -2,7 +2,6 @@ extends RefCounted
 ## Routes interaction input and prompts through control focus and physical hand mapping.
 class_name InteractionActionResolver
 
-const BUTTON_LABELS: Array[String] = ["E", "F", "ЛКМ", "ПКМ"]
 const INPUT_ACTIONS: Array[StringName] = [
 	&"interact",
 	&"use",
@@ -283,9 +282,9 @@ static func refresh_prompt(actor: Entity) -> void:
 		interactor.prompt_text = "[удерживать %s] %s" % [button_label(data.input_slot), data.action.caption]
 		return
 	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.TRANSPORT:
-		lines.append("[W / S] Вперёд / назад · [A / D] Поворот")
+		lines.append("%s / %s Вперёд / назад · %s / %s Поворот" % [InputPromptService.token(&"forward"), InputPromptService.token(&"back"), InputPromptService.token(&"left"), InputPromptService.token(&"right")])
 	if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.DRAWING:
-		interactor.prompt_text = "Маркер · кнопка руки + мышь · [E / Esc] Завершить"
+		interactor.prompt_text = "Маркер · кнопка руки + мышь · %s / %s Завершить" % [InputPromptService.token(&"interact"), InputPromptService.token(&"menu")]
 		return
 
 	var interact_choice: InteractionActionChoice = resolve(
@@ -295,7 +294,7 @@ static func refresh_prompt(actor: Entity) -> void:
 	if interact_choice == null and _is_overweight_carry_target(actor, interactor):
 		lines.append("Слишком Тяжелое")
 
-	for slot_index: int in BUTTON_LABELS.size():
+	for slot_index: int in INPUT_ACTIONS.size():
 		var choice: InteractionActionChoice = (
 			interact_choice
 			if slot_index == DEF_InteractionAction.Slot.INTERACT
@@ -310,22 +309,22 @@ static func refresh_prompt(actor: Entity) -> void:
 				and not controller.physical_override
 			):
 				lines.append(
-					"[Alt + %s] Бросить"
-					% button_label(
+					"%s + %s Бросить"
+					% [InputPromptService.token(&"physical_override"), button_label(
 						(
 							DEF_InteractionAction.Slot.SECONDARY
 							if secondary
 							else DEF_InteractionAction.Slot.PRIMARY
 						)
-					)
+					)]
 				)
 		if rotation_choice(actor) != null:
-			lines.append("[R + мышь] Вращать")
+			lines.append("%s + мышь Вращать" % InputPromptService.token(&"rotate_held"))
 	if (
 		InteractionControlFocus.current(actor) < InteractionControlFocus.Priority.PUSH
 		and GrabService.held_object(actor) != null
 	):
-		lines.append("[G] Положить")
+		lines.append("%s Положить" % InputPromptService.token(&"drop"))
 	var denial: String = _access_denial(actor, interactor)
 	if not denial.is_empty():
 		lines.append(denial)
@@ -377,22 +376,9 @@ static func _is_overweight_carry_target(actor: Entity, interactor: C_Interactor)
 	return GrabService.is_too_heavy(body, strength)
 
 
-## Reads the active InputMap binding for a contextual button.
+## Семантический token; UI подставляет Texture2D фактического назначения.
 static func button_label(slot_index: int) -> String:
-	for event: InputEvent in InputMap.action_get_events(INPUT_ACTIONS[slot_index]):
-		if event is InputEventKey:
-			var key_event: InputEventKey = event as InputEventKey
-			return OS.get_keycode_string(
-				key_event.physical_keycode if key_event.physical_keycode != 0 else key_event.keycode
-			)
-		if event is InputEventMouseButton:
-			var mouse_event: InputEventMouseButton = event as InputEventMouseButton
-			if mouse_event.button_index == MOUSE_BUTTON_LEFT:
-				return "ЛКМ"
-			if mouse_event.button_index == MOUSE_BUTTON_RIGHT:
-				return "ПКМ"
-			return event.as_text()
-	return BUTTON_LABELS[slot_index]
+	return InputPromptService.token(INPUT_ACTIONS[slot_index])
 #endregion
 
 

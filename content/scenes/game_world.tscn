@@ -1,0 +1,326 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://cdu5tlyk72uu4" path="res://addons/gecs/ecs/world.gd" id="2_da1x8"]
+[ext_resource type="Script" uid="uid://b3vi2ingux88g" path="res://addons/gecs/lib/system_group.gd" id="3_ahxau"]
+[ext_resource type="Script" uid="uid://nsdmrnqs0no0" path="res://content/observers/gameplay/o_damage.gd" id="5_ad8bv"]
+[ext_resource type="Script" uid="uid://c1benmwwnwobr" path="res://content/systems/motion/s_jump.gd" id="6_gg2sc"]
+[ext_resource type="Script" uid="uid://cv8oyv1lnwa6u" path="res://content/systems/motion/s_crouch.gd" id="7_6b1dm"]
+[ext_resource type="Script" uid="uid://c1o1ef2y40vmv" path="res://content/systems/input/s_player_input.gd" id="8_qm6qd"]
+[ext_resource type="Script" uid="uid://dkb2c2k1cmk1v" path="res://content/systems/interaction/s_anchor_stability.gd" id="Anchor_stability"]
+[ext_resource type="Script" uid="uid://cgqgtiq38w0ep" path="res://content/systems/gameplay/s_challenge_floor_setup.gd" id="Challenge_floor"]
+[ext_resource type="Script" uid="uid://1lt5dpwlayff" path="res://content/systems/gameplay/s_challenge_gaze.gd" id="Challenge_gaze"]
+[ext_resource type="Script" uid="uid://cswr1rtmadl02" path="res://content/observers/challenges/o_challenge_lifecycle.gd" id="Challenge_lifecycle"]
+[ext_resource type="Script" uid="uid://dgnc3qp12o736" path="res://content/systems/gameplay/s_challenge_light.gd" id="Challenge_light"]
+[ext_resource type="Script" uid="uid://g8wfgg4u2lm7" path="res://content/systems/gameplay/s_customer_challenge_outcome.gd" id="Challenge_outcome"]
+[ext_resource type="Script" uid="uid://bj76h4v2jcnh4" path="res://content/systems/gameplay/s_challenge_runtime.gd" id="Challenge_runtime"]
+[ext_resource type="Script" uid="uid://bjvg86wmi8k3a" path="res://content/observers/combat/o_combat_damage.gd" id="Combat_damage"]
+[ext_resource type="Script" uid="uid://d3nvoiqqlp2f" path="res://content/observers/combat/o_combat_lifecycle.gd" id="Combat_lifecycle"]
+[ext_resource type="Script" uid="uid://du8i3g0cfkdjl" path="res://content/systems/gameplay/s_combat_projectile.gd" id="Combat_projectile"]
+[ext_resource type="Script" uid="uid://uhapbxf3vhgs" path="res://content/systems/motion/s_crouch_presentation.gd" id="Crouch_presentation"]
+[ext_resource type="Script" uid="uid://chiyg4jo65ukd" path="res://content/systems/gameplay/s_customer_combat.gd" id="Customer_combat"]
+[ext_resource type="Script" uid="uid://ua74ragnn5q7" path="res://content/systems/gameplay/s_customer_flow.gd" id="Customer_system"]
+[ext_resource type="Script" uid="uid://k0iqcgm3nmxd" path="res://content/observers/gameplay/o_damage_feedback.gd" id="Damage_feedback"]
+[ext_resource type="Script" uid="uid://bl40hlhadexg3" path="res://content/systems/gameplay/s_day_phase.gd" id="Day_system"]
+[ext_resource type="Script" uid="uid://y2myaxe0cbnd" path="res://content/observers/gameplay/o_depletion_effects.gd" id="DepletionEffects"]
+[ext_resource type="Script" uid="uid://cdl4djdlh8phk" path="res://content/debug/developer_console_commands.gd" id="DeveloperConsole"]
+[ext_resource type="Script" uid="uid://c53it1qvcnb8m" path="res://content/systems/gameplay/s_floor_hazard.gd" id="Floor_hazard"]
+[ext_resource type="Script" uid="uid://bixywcktalc1s" path="res://content/observers/challenges/o_floor_challenge_spawn.gd" id="Floor_spawn"]
+[ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
+[ext_resource type="Script" uid="uid://ccooufygakw6e" path="res://content/systems/interaction/s_grab.gd" id="Grab_system"]
+[ext_resource type="Script" uid="uid://6wrg3mgcm4e6" path="res://content/systems/interaction/s_interaction_targeting.gd" id="Grab_targeting"]
+[ext_resource type="Script" uid="uid://egauqyysrjr" path="res://content/observers/gameplay/o_hazard_emitter.gd" id="HazardEmitter"]
+[ext_resource type="Script" uid="uid://ehhc4j05ncp" path="res://content/observers/gameplay/o_hazard_spawn.gd" id="HazardSpawn"]
+[ext_resource type="Script" uid="uid://b4web80ypdnqr" path="res://content/observers/gameplay/o_hazard_follow_lifecycle.gd" id="Hazard_follow_lifecycle"]
+[ext_resource type="Script" uid="uid://11f2xganwshj" path="res://content/observers/gameplay/o_health_lifecycle.gd" id="HealthLifecycle"]
+[ext_resource type="Script" uid="uid://d8bqecnifq8g" path="res://content/systems/gameplay/s_hunger.gd" id="Hunger_system"]
+[ext_resource type="Script" uid="uid://cynilnihkqgor" path="res://content/systems/gameplay/s_impact.gd" id="ImpactSystem"]
+[ext_resource type="Script" uid="uid://cdwei5go7godr" path="res://content/systems/interaction/s_interaction_highlight.gd" id="Interaction_highlight"]
+[ext_resource type="Script" uid="uid://bjybow0ofbf30" path="res://content/observers/inventory/o_inventory_effect.gd" id="Inventory_effect"]
+[ext_resource type="Script" uid="uid://cl8wk6dmtityy" path="res://content/observers/inventory/o_inventory_lifecycle.gd" id="Inventory_lifecycle"]
+[ext_resource type="Script" uid="uid://bksdk5n1luin1" path="res://content/systems/gameplay/s_light_circuit.gd" id="Light_circuit"]
+[ext_resource type="Script" uid="uid://3rvc41qs05l" path="res://content/systems/gameplay/s_liquid_tilt.gd" id="LiquidTilt"]
+[ext_resource type="Script" uid="uid://bupm4th6s12s4" path="res://content/systems/interaction/s_marker.gd" id="Marker_system"]
+[ext_resource type="Script" uid="uid://vvee5q27rhon" path="res://content/systems/gameplay/s_night_save.gd" id="Night_save_system"]
+[ext_resource type="Script" uid="uid://bknxe15k0dr0u" path="res://content/systems/gameplay/s_npc_combat.gd" id="Npc_combat"]
+[ext_resource type="Script" uid="uid://dxqnrpxm2pr5l" path="res://content/systems/motion/s_npc_intent.gd" id="Npc_intent"]
+[ext_resource type="Script" uid="uid://b501bsvk8m4xf" path="res://content/systems/gameplay/s_order_delivery.gd" id="Order_delivery_system"]
+[ext_resource type="Script" uid="uid://6aul5eahny" path="res://content/observers/gameplay/o_package_condition_setup.gd" id="PackageConditionSetup"]
+[ext_resource type="Script" uid="uid://23bxju80ro1e" path="res://content/observers/gameplay/o_package_damage.gd" id="PackageDamage"]
+[ext_resource type="Script" uid="uid://brndd61fr2e7a" path="res://content/observers/gameplay/o_package_destroyed_hazard.gd" id="PackageDestroyedHazard"]
+[ext_resource type="Script" uid="uid://oskus8laisoe" path="res://content/observers/gameplay/o_package_destruction.gd" id="PackageDestruction"]
+[ext_resource type="Script" uid="uid://b6kqjvf7okt" path="res://content/observers/gameplay/o_package_hazard.gd" id="PackageHazard"]
+[ext_resource type="Script" uid="uid://87f03fqiuik" path="res://content/observers/gameplay/o_package_opening.gd" id="PackageOpening"]
+[ext_resource type="Script" uid="uid://b6qu7a8c8gr3g" path="res://content/observers/interaction/o_physical_slot_lifecycle.gd" id="PhysicalSlot_lifecycle"]
+[ext_resource type="Script" uid="uid://t4dhuaxsabxv" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
+[ext_resource type="Script" uid="uid://b0fgwkeudhkho" path="res://content/systems/gameplay/s_player_melee.gd" id="Player_melee"]
+[ext_resource type="Script" uid="uid://ba41bxunv3irm" path="res://content/systems/interaction/s_prolonged_decay.gd" id="Prolonged_decay"]
+[ext_resource type="Script" uid="uid://b4iyihjwplrg4" path="res://content/observers/interaction/o_prolonged_lifecycle.gd" id="Prolonged_lifecycle"]
+[ext_resource type="Script" uid="uid://b1kydo46m6k8r" path="res://content/observers/interaction/o_push_lifecycle.gd" id="Push_lifecycle"]
+[ext_resource type="Script" uid="uid://dh02s00t856fk" path="res://content/systems/interaction/s_push.gd" id="Push_system"]
+[ext_resource type="Script" uid="uid://c0c1muc5vgl8g" path="res://content/systems/gameplay/s_refusal_quest.gd" id="Quest_system"]
+[ext_resource type="Script" uid="uid://fnxn6hvx534" path="res://content/observers/gameplay/o_explosion_setup.gd" id="R09_o_explosion_setup"]
+[ext_resource type="Script" uid="uid://hkxsuarcavw" path="res://content/observers/gameplay/o_toxic_area_setup.gd" id="R09_o_toxic_area_setup"]
+[ext_resource type="Script" uid="uid://bg3goeeojlb" path="res://content/observers/gameplay/o_hazard_reset.gd" id="R09_reset"]
+[ext_resource type="Script" uid="uid://75atwmsugfb" path="res://content/systems/gameplay/s_explosion.gd" id="R09_s_explosion"]
+[ext_resource type="Script" uid="uid://g8pfaexm0ub" path="res://content/systems/gameplay/s_hazard_follow.gd" id="R09_s_hazard_follow"]
+[ext_resource type="Script" uid="uid://5d23da8irja" path="res://content/systems/gameplay/s_hazard_lifetime.gd" id="R09_s_hazard_lifetime"]
+[ext_resource type="Script" uid="uid://bbu8jbx3xpd" path="res://content/systems/gameplay/s_toxic_area.gd" id="R09_s_toxic_area"]
+[ext_resource type="Script" uid="uid://28wsslbgucs3" path="res://content/systems/gameplay/s_receiving.gd" id="Receiving_system"]
+[ext_resource type="Script" uid="uid://bd3ei7nk8pjsv" path="res://content/observers/gameplay/o_remove_on_health_depleted.gd" id="RemoveOnHealthDepleted"]
+[ext_resource type="Script" uid="uid://d374l476phm" path="res://content/systems/gameplay/s_throw_lifetime.gd" id="ThrowLifetime"]
+[ext_resource type="Script" uid="uid://dx38hpfqbykum" path="res://content/systems/gameplay/s_wallet_day.gd" id="Wallet_system"]
+
+[ext_resource type="Script" path="res://content/observers/challenges/o_light_flicker.gd" id="Light_flicker"]
+
+[ext_resource type="Script" path="res://content/observers/gameplay/o_door_breakage.gd" id="Door_breakage"]
+
+[ext_resource type="Script" path="res://content/observers/gameplay/o_package_contents.gd" id="Package_contents"]
+
+[ext_resource type="Script" path="res://content/observers/gameplay/o_npc_remains.gd" id="Npc_remains"]
+
+[ext_resource type="Script" path="res://content/systems/motion/s_sprint.gd" id="Sprint"]
+
+[node name="World" type="Node" unique_id=1962298586]
+script = ExtResource("2_da1x8")
+entity_nodes_root = NodePath("../Entityes")
+system_nodes_root = NodePath("Systems")
+metadata/_custom_type_script = "uid://cdu5tlyk72uu4"
+
+[node name="DeveloperConsoleCommands" type="Node" parent="." unique_id=1828195528]
+script = ExtResource("DeveloperConsole")
+
+[node name="Systems" type="Node" parent="." unique_id=2085808117]
+
+[node name="GamePlay" type="Node" parent="Systems" unique_id=187611965]
+script = ExtResource("3_ahxau")
+metadata/_custom_type_script = "uid://b3vi2ingux88g"
+
+[node name="S_Receiving" type="Node" parent="Systems/GamePlay" unique_id=160792962]
+script = ExtResource("Receiving_system")
+
+[node name="O_PackageConditionSetup" type="Node" parent="Systems/GamePlay" unique_id=902458022]
+script = ExtResource("PackageConditionSetup")
+
+[node name="O_PackageOpening" type="Node" parent="Systems/GamePlay" unique_id=59264951]
+script = ExtResource("PackageOpening")
+
+[node name="O_HazardFollowLifecycle" type="Node" parent="Systems/GamePlay" unique_id=1414912097]
+script = ExtResource("Hazard_follow_lifecycle")
+
+[node name="O_HazardSpawn" type="Node" parent="Systems/GamePlay" unique_id=317172111]
+script = ExtResource("HazardSpawn")
+
+[node name="O_HazardEmitter" type="Node" parent="Systems/GamePlay" unique_id=1690692378]
+script = ExtResource("HazardEmitter")
+
+[node name="O_PackageHazard" type="Node" parent="Systems/GamePlay" unique_id=1324523525]
+script = ExtResource("PackageHazard")
+
+[node name="O_PackageDestroyedHazard" type="Node" parent="Systems/GamePlay" unique_id=309169702]
+script = ExtResource("PackageDestroyedHazard")
+
+[node name="O_ToxicAreaSetup" type="Node" parent="Systems/GamePlay" unique_id=180493485]
+script = ExtResource("R09_o_toxic_area_setup")
+
+[node name="S_ToxicArea" type="Node" parent="Systems/GamePlay" unique_id=102074688]
+script = ExtResource("R09_s_toxic_area")
+
+[node name="S_HazardFollow" type="Node" parent="Systems/GamePlay" unique_id=1158140279]
+script = ExtResource("R09_s_hazard_follow")
+
+[node name="S_HazardLifetime" type="Node" parent="Systems/GamePlay" unique_id=1315152219]
+script = ExtResource("R09_s_hazard_lifetime")
+
+[node name="S_Explosion" type="Node" parent="Systems/GamePlay" unique_id=1112609335]
+script = ExtResource("R09_s_explosion")
+
+[node name="O_ExplosionSetup" type="Node" parent="Systems/GamePlay" unique_id=1007185748]
+script = ExtResource("R09_o_explosion_setup")
+
+[node name="O_HazardReset" type="Node" parent="Systems/GamePlay" unique_id=295873802]
+script = ExtResource("R09_reset")
+
+[node name="O_Damage" type="Node" parent="Systems/GamePlay" unique_id=1820599322]
+script = ExtResource("5_ad8bv")
+metadata/_custom_type_script = "uid://nsdmrnqs0no0"
+
+[node name="O_DamageFeedback" type="Node" parent="Systems/GamePlay" unique_id=1498305941]
+script = ExtResource("Damage_feedback")
+
+[node name="O_HealthLifecycle" type="Node" parent="Systems/GamePlay" unique_id=94551561]
+script = ExtResource("HealthLifecycle")
+
+[node name="O_RemoveOnHealthDepleted" type="Node" parent="Systems/GamePlay" unique_id=298885568]
+script = ExtResource("RemoveOnHealthDepleted")
+
+[node name="O_PackageDamage" type="Node" parent="Systems/GamePlay" unique_id=873750374]
+script = ExtResource("PackageDamage")
+
+[node name="O_PackageDestruction" type="Node" parent="Systems/GamePlay" unique_id=1832330485]
+script = ExtResource("PackageDestruction")
+
+[node name="O_DepletionEffects" type="Node" parent="Systems/GamePlay" unique_id=577150]
+script = ExtResource("DepletionEffects")
+
+[node name="S_ThrowLifetime" type="Node" parent="Systems/GamePlay" unique_id=1650643555]
+script = ExtResource("ThrowLifetime")
+
+[node name="S_LiquidTilt" type="Node" parent="Systems/GamePlay" unique_id=1536960542]
+script = ExtResource("LiquidTilt")
+
+[node name="S_Impact" type="Node" parent="Systems/GamePlay" unique_id=1737982216]
+script = ExtResource("ImpactSystem")
+
+[node name="S_CustomerFlow" type="Node" parent="Systems/GamePlay" unique_id=697136852]
+script = ExtResource("Customer_system")
+
+[node name="S_NpcIntent" type="Node" parent="Systems/GamePlay" unique_id=617759106]
+script = ExtResource("Npc_intent")
+
+[node name="S_LightCircuit" type="Node" parent="Systems/GamePlay" unique_id=880915263]
+script = ExtResource("Light_circuit")
+
+[node name="S_ChallengeLight" type="Node" parent="Systems/GamePlay" unique_id=139315923]
+script = ExtResource("Challenge_light")
+
+[node name="S_ChallengeGaze" type="Node" parent="Systems/GamePlay" unique_id=391903066]
+script = ExtResource("Challenge_gaze")
+
+[node name="S_ChallengeFloorSetup" type="Node" parent="Systems/GamePlay" unique_id=2028100959]
+script = ExtResource("Challenge_floor")
+
+[node name="S_FloorHazard" type="Node" parent="Systems/GamePlay" unique_id=486139]
+script = ExtResource("Floor_hazard")
+
+[node name="O_FloorChallengeSpawn" type="Node" parent="Systems/GamePlay" unique_id=247153534]
+script = ExtResource("Floor_spawn")
+
+[node name="S_ChallengeRuntime" type="Node" parent="Systems/GamePlay" unique_id=900684797]
+script = ExtResource("Challenge_runtime")
+
+[node name="S_CustomerChallengeOutcome" type="Node" parent="Systems/GamePlay" unique_id=1231108932]
+script = ExtResource("Challenge_outcome")
+
+[node name="O_ChallengeLifecycle" type="Node" parent="Systems/GamePlay" unique_id=2123583786]
+script = ExtResource("Challenge_lifecycle")
+
+[node name="S_WalletDay" type="Node" parent="Systems/GamePlay" unique_id=729224599]
+script = ExtResource("Wallet_system")
+
+[node name="S_DayPhase" type="Node" parent="Systems/GamePlay" unique_id=525864446]
+script = ExtResource("Day_system")
+
+[node name="S_CustomerCombat" type="Node" parent="Systems/GamePlay" unique_id=939921077]
+script = ExtResource("Customer_combat")
+
+[node name="S_NpcCombat" type="Node" parent="Systems/GamePlay" unique_id=1036596502]
+script = ExtResource("Npc_combat")
+
+[node name="S_CombatProjectile" type="Node" parent="Systems/GamePlay" unique_id=1827029901]
+script = ExtResource("Combat_projectile")
+
+[node name="S_PlayerMelee" type="Node" parent="Systems/GamePlay" unique_id=495617184]
+script = ExtResource("Player_melee")
+
+[node name="O_CombatLifecycle" type="Node" parent="Systems/GamePlay" unique_id=1503832486]
+script = ExtResource("Combat_lifecycle")
+
+[node name="O_CombatDamage" type="Node" parent="Systems/GamePlay" unique_id=1484734746]
+script = ExtResource("Combat_damage")
+
+[node name="S_Hunger" type="Node" parent="Systems/GamePlay" unique_id=1002406967]
+script = ExtResource("Hunger_system")
+
+[node name="O_InventoryEffect" type="Node" parent="Systems/GamePlay" unique_id=279958387]
+script = ExtResource("Inventory_effect")
+
+[node name="O_InventoryLifecycle" type="Node" parent="Systems/GamePlay" unique_id=1404685658]
+script = ExtResource("Inventory_lifecycle")
+
+[node name="S_NightSave" type="Node" parent="Systems/GamePlay" unique_id=994431759]
+script = ExtResource("Night_save_system")
+
+[node name="S_OrderDelivery" type="Node" parent="Systems/GamePlay" unique_id=2137672552]
+script = ExtResource("Order_delivery_system")
+
+[node name="S_RefusalQuest" type="Node" parent="Systems/GamePlay" unique_id=1355928431]
+script = ExtResource("Quest_system")
+
+[node name="Physics" type="Node" parent="Systems" unique_id=52509126]
+script = ExtResource("3_ahxau")
+metadata/_custom_type_script = "uid://b3vi2ingux88g"
+
+[node name="S_Jump" type="Node" parent="Systems/Physics" unique_id=831820991]
+script = ExtResource("6_gg2sc")
+metadata/_custom_type_script = "uid://c1benmwwnwobr"
+
+[node name="S_Crouch" type="Node" parent="Systems/Physics" unique_id=88081910]
+script = ExtResource("7_6b1dm")
+metadata/_custom_type_script = "uid://cv8oyv1lnwa6u"
+
+[node name="S_CrouchPresentation" type="Node" parent="Systems/Physics" unique_id=1906974582]
+script = ExtResource("Crouch_presentation")
+
+[node name="Input" type="Node" parent="Systems" unique_id=2007238412]
+script = ExtResource("3_ahxau")
+metadata/_custom_type_script = "uid://b3vi2ingux88g"
+
+[node name="S_PlayerInput" type="Node" parent="Systems/Input" unique_id=122299141]
+script = ExtResource("8_qm6qd")
+metadata/_custom_type_script = "uid://c1o1ef2y40vmv"
+
+[node name="S_PlayerIntent" type="Node" parent="Systems/Input" unique_id=1207384990]
+script = ExtResource("Player_intent")
+
+[node name="S_Sprint" type="Node" parent="Systems/Input"]
+script = ExtResource("Sprint")
+
+[node name="Interaction" type="Node" parent="Systems" unique_id=1721666486]
+script = ExtResource("3_ahxau")
+metadata/_custom_type_script = "uid://b3vi2ingux88g"
+
+[node name="S_InteractionTargeting" type="Node" parent="Systems/Interaction" unique_id=350725269]
+script = ExtResource("Grab_targeting")
+
+[node name="S_InteractionHighlight" type="Node" parent="Systems/Interaction" unique_id=1519690915]
+script = ExtResource("Interaction_highlight")
+
+[node name="S_ProlongedDecay" type="Node" parent="Systems/Interaction" unique_id=964352449]
+script = ExtResource("Prolonged_decay")
+
+[node name="S_AnchorStability" type="Node" parent="Systems/Interaction" unique_id=267872292]
+script = ExtResource("Anchor_stability")
+
+[node name="O_ProlongedLifecycle" type="Node" parent="Systems/Interaction" unique_id=1954151916]
+script = ExtResource("Prolonged_lifecycle")
+
+[node name="O_PhysicalSlotLifecycle" type="Node" parent="Systems/Interaction" unique_id=20007239]
+script = ExtResource("PhysicalSlot_lifecycle")
+
+[node name="S_Grab" type="Node" parent="Systems/Interaction" unique_id=767923781]
+script = ExtResource("Grab_system")
+
+[node name="S_Push" type="Node" parent="Systems/Interaction" unique_id=285721213]
+script = ExtResource("Push_system")
+
+[node name="O_PushLifecycle" type="Node" parent="Systems/Interaction" unique_id=1548305461]
+script = ExtResource("Push_lifecycle")
+
+[node name="S_Marker" type="Node" parent="Systems/Interaction" unique_id=1232131295]
+script = ExtResource("Marker_system")
+
+[node name="O_GrabLifecycle" type="Node" parent="Systems/Interaction" unique_id=1786878994]
+script = ExtResource("Grab_lifecycle")
+
+
+[node name="O_LightFlicker" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("Light_flicker")
+
+[node name="O_DoorBreakage" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("Door_breakage")
+
+[node name="O_PackageContents" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("Package_contents")
+
+[node name="O_NpcRemains" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("Npc_remains")

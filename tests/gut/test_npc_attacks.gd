@@ -95,6 +95,77 @@ func test_explicit_variant_request_supports_three_of_each_and_rejects_fourth() -
 	assert_eq(_state.variant, 2)
 
 
+func test_selector_reads_priority_then_damage_rate_without_starting_attack() -> void:
+	var slow: DEF_NpcAttack = _state.melee_attacks[0].duplicate(true) as DEF_NpcAttack
+	var fast: DEF_NpcAttack = slow.duplicate(true) as DEF_NpcAttack
+	fast.cooldown_seconds = 0.0
+	_state.melee_attacks = [slow, fast, fast]
+	var ranged: DEF_NpcAttack = _state.ranged_attacks[0].duplicate(true) as DEF_NpcAttack
+	ranged.minimum_range = 0.0
+	ranged.selection_priority = 10.0
+	_state.ranged_attacks = [ranged]
+	var choice: NpcAttackChoice = NpcAttackService.choose(_npc)
+	assert_not_null(choice)
+	assert_eq(choice.kind, C_NpcCombat.Kind.RANGED)
+	assert_eq(choice.variant, 0)
+	assert_eq(_state.phase, C_NpcCombat.Phase.READY)
+	assert_eq(_health.current, 100.0)
+	ranged.selection_priority = 0.0
+	choice = NpcAttackService.choose(_npc)
+	assert_eq(choice.kind, C_NpcCombat.Kind.MELEE)
+	assert_eq(choice.variant, 1, "Same score keeps the first matching variant")
+	assert_gt(choice.damage_rate, slow.damage / (slow.windup_seconds + slow.active_seconds + slow.recovery_seconds + slow.cooldown_seconds))
+	assert_true(NpcAttackService.choose_and_start(_npc))
+	assert_eq(_state.variant, 1)
+	assert_eq(_state.kind, C_NpcCombat.Kind.MELEE)
+
+
+func test_selector_rejects_unavailable_or_stale_decision_without_side_effect() -> void:
+	_state.cooldown_remaining = 0.5
+	assert_null(NpcAttackService.choose(_npc))
+	_state.cooldown_remaining = 0.0
+	var choice: NpcAttackChoice = NpcAttackService.choose(_npc)
+	assert_not_null(choice)
+	(_target as Node as Node3D).position.z = -4.0
+	assert_false(NpcAttackService.start(_npc, choice.kind, choice.variant), "Decision is revalidated after the target moved")
+	choice = NpcAttackService.choose(_npc)
+	assert_eq(choice.kind, C_NpcCombat.Kind.RANGED)
+	var wall: StaticBody3D = StaticBody3D.new()
+	wall.position = Vector3(0, 1.5, -2)
+	var collision: CollisionShape3D = CollisionShape3D.new()
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = Vector3(3, 3, 0.2)
+	collision.shape = shape
+	wall.add_child(collision)
+	_world.add_child(wall)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_null(NpcAttackService.choose(_npc), "No ability can shoot through the wall")
+	assert_false(NpcAttackService.choose_and_start(_npc))
+	assert_eq(_state.phase, C_NpcCombat.Phase.READY)
+	assert_eq(_health.current, 100.0)
+
+
+func test_selector_external_control_keeps_execution_and_cooldown_then_restores_default() -> void:
+	_state.automatic_attack_selection = false
+	_world.add_system(S_NpcCombat.new())
+	_world.process(0.1)
+	assert_eq(_state.phase, C_NpcCombat.Phase.READY)
+	var choice: NpcAttackChoice = NpcAttackService.choose(_npc)
+	assert_true(NpcAttackService.start(_npc, choice.kind, choice.variant))
+	_world.process(0.46)
+	assert_eq(_health.current, 88.0, "The external decision still uses the real damage runner")
+	_world.process(1.0)
+	assert_eq(_state.phase, C_NpcCombat.Phase.READY)
+	assert_gt(_state.cooldown_remaining, 0.0)
+	_world.process(2.0)
+	assert_eq(_state.phase, C_NpcCombat.Phase.READY, "Disabled selection cannot restart after cooldown")
+	assert_eq(_state.cooldown_remaining, 0.0)
+	_state.automatic_attack_selection = true
+	_world.process(0.0)
+	assert_eq(_state.phase, C_NpcCombat.Phase.WINDUP)
+
+
 func test_actual_animation_method_tracks_commit_once_and_finish_with_cooldown() -> void:
 	var player: AnimationPlayer = AnimationPlayer.new()
 	(_npc as Node).add_child(player)

@@ -317,9 +317,9 @@ def _check_res_paths(errors: list[str]) -> None:
 
 
 def _iter_markdown_files() -> list[Path]:
-    files: list[Path] = [ROOT / "PROJECT_INDEX.md"]
+    files: list[Path] = [ROOT / "PROJECT_INDEX.md", ROOT / "task_history.md"]
 
-    for root_name in ("agent_tasks", "docs/roadmap"):
+    for root_name in ("agent_tasks", "qa_tasks", "docs/roadmap", "task_history_archive"):
         root_path: Path = ROOT / root_name
         if root_path.exists():
             files.extend(sorted(root_path.rglob("*.md")))
@@ -420,6 +420,10 @@ def _check_task_dependencies(errors: list[str]) -> None:
     history_path: Path = ROOT / "task_history.md"
     if history_path.exists():
         known_ids.update(IMPLEMENTATION_ID_RE.findall(_read_text(history_path)))
+    archive_root: Path = ROOT / "task_history_archive"
+    if archive_root.exists():
+        for archive_path in sorted(archive_root.glob("*.md")):
+            known_ids.update(IMPLEMENTATION_ID_RE.findall(_read_text(archive_path)))
 
     for task_id, task_path in task_ids.items():
         text: str = _read_text(task_path)
@@ -432,7 +436,7 @@ def _check_task_dependencies(errors: list[str]) -> None:
             if dependency not in known_ids:
                 errors.append(
                     f"{_relative(task_path)}: dependency {dependency} has no planned task "
-                    "and is not recorded as completed in task_history.md."
+                    "and is not recorded as completed in task_history.md or its archives."
                 )
 
 
@@ -442,30 +446,55 @@ def _check_main_level_system_groups(errors: list[str]) -> None:
     if not scene_path.exists():
         return
 
-    lines: list[str] = _read_text(scene_path).splitlines()
+    text: str = _read_text(scene_path)
+    world_instance = re.search(r'^\[node name="World"[^\n]*instance=ExtResource\("([^"]+)"\)', text, re.MULTILINE)
+    if world_instance:
+        declaration = re.search(r'^\[ext_resource type="PackedScene"[^\n]*path="res://([^"]+)"[^\n]*\bid="' + re.escape(world_instance.group(1)) + r'"\]', text, re.MULTILINE)
+        if declaration is None:
+            errors.append("main_level: shared World instance has no PackedScene declaration.")
+            return
+        scene_path = ROOT / declaration.group(1)
+        text = _read_text(scene_path)
+    lines: list[str] = text.splitlines()
+    group_scripts: set[str] = set(re.findall(
+        r'^\[ext_resource type="Script"[^\n]*path="res://addons/gecs/lib/system_group.gd"[^\n]*id="([^"]+)"',
+        text, re.MULTILINE,
+    ))
+    automatic_groups: set[str] = set()
+    for node in re.finditer(r'^\[node ([^\n]+)\]\n(.*?)(?=^\[node |\Z)', text, re.MULTILINE | re.DOTALL):
+        header, body = node.groups()
+        name = re.search(r'name="([^"]+)"', header)
+        parent = re.search(r'parent="([^"]+)"', header)
+        script = re.search(r'^script = ExtResource\("([^"]+)"\)', body, re.MULTILINE)
+        if name and parent and script and script.group(1) in group_scripts and not re.search(r'^auto_group = false$', body, re.MULTILINE):
+            automatic_groups.add(f'{parent.group(1)}/{name.group(1)}')
     for index, line in enumerate(lines):
         match = re.match(
-            r'^\[node name="(S_[^"]+)" type="Node" parent="World/Systems/([^"]+)"[^]]*\]$',
+            r'^\[node name="(S_[^"]+)" type="Node" parent="((?:World/)?Systems/([^"]+))"[^]]*\]$',
             line,
         )
         if match is None:
             continue
 
         system_name: str = match.group(1)
-        expected_group: str = match.group(2)
+        system_parent: str = match.group(2)
+        expected_group: str = match.group(3)
         actual_group: str | None = None
 
         for body_line in lines[index + 1 :]:
             if body_line.startswith("[node "):
                 break
-            group_match = re.match(r'^group = &"([^"]*)"$', body_line)
+            group_match = re.match(r'^group = &?"([^"]*)"$', body_line)
             if group_match is not None:
                 actual_group = group_match.group(1)
                 break
 
+        # GECS SystemGroup._enter_tree assigns omitted groups before World registration.
+        if actual_group is None and system_parent in automatic_groups:
+            continue
         if actual_group != expected_group:
             errors.append(
-                f"content/scenes/main_level.tscn: {system_name} must keep "
+                f"{scene_path.relative_to(ROOT)}: {system_name} must keep "
                 f'group=&"{expected_group}" (found {actual_group!r}).'
             )
 

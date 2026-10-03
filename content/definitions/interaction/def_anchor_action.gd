@@ -14,8 +14,11 @@ func is_available(actor: Entity, source: Entity, target: Entity) -> bool:
 
 
 func execute(actor: Entity, source: Entity, target: Entity) -> void:
-	AnchoringService.anchor(actor, source, target)
+	complete(actor, source, target)
 
 
 func complete(actor: Entity, source: Entity, target: Entity) -> bool:
-	return AnchoringService.anchor(actor, source, target)
+	var anchored: bool = AnchoringService.anchor(actor, source, target)
+	if anchored:
+		MeleeWeaponPresentation.play_tool_action(source)
+	return anchored

@@ -121,6 +121,55 @@ func test_dropped_weapon_cancels_pending_hit() -> void:
 	assert_eq((_player.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.READY)
 
 
+func test_knife_animation_stabs_forward_on_strike_clock_and_resets_on_drop() -> void:
+	var blade: Node3D = _weapon.get_node("Blade") as Node3D
+	var baseline: Vector3 = blade.position
+	var body: Node3D = _weapon as Node as Node3D
+	var physical_pose: Transform3D = body.global_transform
+	var animation: AnimationPlayer = _weapon.get_node("AttackAnimation") as AnimationPlayer
+	assert_true(CombatService.start_strike(_player, _weapon))
+	CombatService.tick_strike(_player, 0.2)
+	assert_lt(blade.position.z, -0.5, "AnimationPlayer produces a forward stab at the hit window")
+	assert_eq((_target.get_component(C_Health) as C_Health).current, 60.0)
+	assert_eq(body.global_transform, physical_pose, "Animation leaves native rigid transform alone")
+	CombatService.tick_strike(_player, 0.1)
+	assert_eq((_target.get_component(C_Health) as C_Health).current, 60.0, "Pose updates do not duplicate damage")
+	GrabService.release(_player, _weapon)
+	CombatService.tick_strike(_player, 0.1)
+	assert_false(animation.is_playing())
+	assert_eq(blade.position, baseline, "Cancellation restores authored mesh pose")
+
+
+func test_hammer_can_attack_with_overhead_swing_and_preserves_anchoring_action() -> void:
+	GrabService.release(_player, _weapon)
+	_weapon = (load("res://content/entities/tools/hammer.tscn") as PackedScene).instantiate() as Entity
+	_world.add_entity(_weapon)
+	(_weapon as Node as RigidBody3D).gravity_scale = 0.0
+	(_weapon as Node as Node3D).global_position = (_player as E_PhysicalCharacter).right_hand_slot.global_position
+	var grip: R_HeldBy = R_HeldBy.new()
+	grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
+	_weapon.add_relationship(Relationship.new(grip, _player))
+	assert_true(_weapon.has_component(C_AnchorTool))
+	var actions: C_InteractionActionSet = _weapon.get_component(C_InteractionActionSet) as C_InteractionActionSet
+	assert_true(actions.actions[0] is DEF_AnchorAction)
+	assert_gt(actions.actions[0].priority, actions.actions[1].priority, "Valid fastening takes precedence")
+	(_player.get_component(C_Interactor) as C_Interactor).target = _target
+	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_player, DEF_InteractionAction.Slot.PRIMARY)
+	assert_not_null(choice)
+	if choice != null:
+		assert_true(choice.action is DEF_MeleeAction, "NPC target uses the strike action")
+	var head: Node3D = _weapon.get_node("Head") as Node3D
+	var baseline: Vector3 = head.position
+	assert_true(CombatService.start_strike(_player, _weapon))
+	CombatService.tick_strike(_player, 0.12)
+	assert_gt(head.position.y, baseline.y + 0.2, "Hammer raises overhead in windup")
+	CombatService.tick_strike(_player, 0.13)
+	assert_lt(head.position.y, baseline.y, "Hammer swings downward into the active window")
+	assert_eq((_target.get_component(C_Health) as C_Health).current, 75.0)
+	CombatService.tick_strike(_player, 1.0)
+	assert_eq(head.position, baseline)
+
+
 func test_actor_no_damage_guard_applies_to_held_weapon() -> void:
 	_player.add_component(C_NoDamage.new())
 	assert_true(CombatService.start_strike(_player, _weapon))

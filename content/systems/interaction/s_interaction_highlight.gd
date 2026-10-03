@@ -1,14 +1,16 @@
 extends System
-## Presentation-only mesh highlight driven by authoritative C_Interactor target state.
+## material_overlay is reserved for interaction feedback. Base materials remain untouched.
 class_name S_InteractionHighlight
 
-const HIGHLIGHT_COLOR: Color = Color(1.0, 0.72, 0.12, 1.0)
-const HIGHLIGHT_WIDTH: float = 0.035
+@export var available_material: Material = preload("res://content/materials/interaction/highlight_available.res")
+@export var unavailable_material: Material = preload("res://content/materials/interaction/highlight_unavailable.res")
+@export var busy_material: Material = preload("res://content/materials/interaction/highlight_busy.res")
 
-var _highlight_material: StandardMaterial3D = null
-var _previous_overlays: Dictionary[int, Material] = { }
-var _previous_targets: Dictionary[int, WeakRef] = { }
-var _previous_meshes: Dictionary[int, WeakRef] = { }
+var _previous_overlays: Dictionary[int, Material] = {}
+var _applied_materials: Dictionary[int, Material] = {}
+var _previous_targets: Dictionary[int, WeakRef] = {}
+var _previous_meshes: Dictionary[int, WeakRef] = {}
+var _holder_states: Dictionary[int, int] = {}
 
 
 func setup() -> void:
@@ -18,7 +20,7 @@ func setup() -> void:
 
 
 func deps() -> Dictionary[int, Array]:
-	return { Runs.After: [S_InteractionTargeting] }
+	return {Runs.After: [S_InteractionTargeting]}
 
 
 func query() -> QueryBuilder:
@@ -26,64 +28,46 @@ func query() -> QueryBuilder:
 
 
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
-	for instance_id: int in _previous_meshes.keys():
-		if _previous_meshes[instance_id].get_ref() == null:
-			_previous_meshes.erase(instance_id)
-			_previous_overlays.erase(instance_id)
 	var interactors: Array = components[0]
 	for index: int in entities.size():
 		var holder: Entity = entities[index]
-		var interactor: C_Interactor = interactors[index]
+		var interactor: C_Interactor = interactors[index] as C_Interactor
 		var key: int = holder.get_instance_id()
-		var previous_ref: WeakRef = _previous_targets.get(key) as WeakRef
-		var previous: Node = previous_ref.get_ref() as Node if previous_ref != null else null
-		var next: Node = InteractionTargetingService.visual_target(holder, interactor)
-		if previous == next:
-			if next == null:
-				_previous_targets.erase(key)
-			continue
-		if next == null:
+		var target: Node = InteractionTargetingService.visual_target(holder, interactor)
+		if not GrabService.holder_available(holder) or holder.has_component(C_Death) or InteractionControlFocus.current(holder) >= InteractionControlFocus.Priority.MODAL:
+			target = null
+		if target == null:
 			_previous_targets.erase(key)
+			_holder_states.erase(key)
 		else:
-			_previous_targets[key] = weakref(next)
-		if not _has_target(previous):
-			_set_highlight(previous, false)
-		_set_highlight(next, true)
+			_previous_targets[key] = weakref(target)
+			_holder_states[key] = InteractionHighlightService.state_for(holder, target)
+	_refresh_meshes()
 
 
 func _exit_tree() -> void:
-	for instance_id: int in _previous_meshes.keys():
-		var mesh_reference: WeakRef = _previous_meshes[instance_id]
-		var mesh_instance: MeshInstance3D = mesh_reference.get_ref() as MeshInstance3D
-		_set_mesh_highlight(mesh_instance, _highlight_material, false)
-	_previous_meshes.clear()
-	_previous_overlays.clear()
+	for key: int in _previous_meshes.keys():
+		_clear_mesh(key)
 	_previous_targets.clear()
+	_holder_states.clear()
 	super._exit_tree()
 
 
-func _has_target(target: Node) -> bool:
-	if not is_instance_valid(target):
-		return false
-	for reference: WeakRef in _previous_targets.values():
-		if reference.get_ref() == target:
-			return true
-	return false
-
-
-func _clear_holder(instance_id: int) -> void:
-	var reference: WeakRef = _previous_targets.get(instance_id) as WeakRef
-	var target: Node = reference.get_ref() as Node if reference != null else null
-	_previous_targets.erase(instance_id)
-	if not _has_target(target):
-		_set_highlight(target, false)
+func _clear_holder(key: int) -> void:
+	_previous_targets.erase(key)
+	_holder_states.erase(key)
+	_refresh_meshes()
 
 
 func _entity_unavailable(entity: Entity) -> void:
-	_clear_holder(entity.get_instance_id())
-	for instance_id: int in _previous_targets.keys():
-		if _previous_targets[instance_id].get_ref() == entity:
-			_clear_holder(instance_id)
+	var key: int = entity.get_instance_id()
+	_previous_targets.erase(key)
+	_holder_states.erase(key)
+	for holder_key: int in _previous_targets.keys():
+		if _previous_targets[holder_key].get_ref() == entity:
+			_previous_targets.erase(holder_key)
+			_holder_states.erase(holder_key)
+	_refresh_meshes()
 
 
 func _component_removed(entity: Entity, component: Variant) -> void:
@@ -91,41 +75,56 @@ func _component_removed(entity: Entity, component: Variant) -> void:
 		_clear_holder(entity.get_instance_id())
 
 
-func _set_highlight(target: Node, enabled: bool) -> void:
-	if not is_instance_valid(target):
-		return
-	var material: StandardMaterial3D = _get_highlight_material()
-	for descendant: Node in target.find_children("*", "MeshInstance3D", true, false):
-		_set_mesh_highlight(descendant as MeshInstance3D, material, enabled)
+func _refresh_meshes() -> void:
+	var meshes: Dictionary[int, MeshInstance3D] = {}
+	var states: Dictionary[int, int] = {}
+	for holder_key: int in _previous_targets.keys():
+		var target: Node = _previous_targets[holder_key].get_ref() as Node
+		if target == null:
+			_previous_targets.erase(holder_key)
+			_holder_states.erase(holder_key)
+			continue
+		var state: int = _holder_states[holder_key]
+		for descendant: Node in target.find_children("*", "MeshInstance3D", true, false):
+			var mesh: MeshInstance3D = descendant as MeshInstance3D
+			if mesh is PackageMarksView:
+				continue
+			var mesh_key: int = mesh.get_instance_id()
+			meshes[mesh_key] = mesh
+			states[mesh_key] = maxi(states.get(mesh_key, InteractionHighlightService.State.UNAVAILABLE), state)
+	for mesh_key: int in _previous_meshes.keys():
+		if not meshes.has(mesh_key):
+			_clear_mesh(mesh_key)
+	for mesh_key: int in meshes:
+		var mesh: MeshInstance3D = meshes[mesh_key]
+		var material: Material = _material_for(states[mesh_key])
+		if material == null:
+			_clear_mesh(mesh_key)
+			continue
+		if _applied_materials.has(mesh_key) and mesh.material_overlay != _applied_materials[mesh_key]:
+			# Another interaction writer replaced our feedback: yield until target is released.
+			continue
+		if not _previous_overlays.has(mesh_key):
+			_previous_overlays[mesh_key] = mesh.material_overlay
+			_previous_meshes[mesh_key] = weakref(mesh)
+		mesh.material_overlay = material
+		_applied_materials[mesh_key] = material
 
 
-func _get_highlight_material() -> StandardMaterial3D:
-	if _highlight_material == null:
-		_highlight_material = StandardMaterial3D.new()
-		_highlight_material.resource_name = "InteractionHighlight"
-		_highlight_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_highlight_material.albedo_color = HIGHLIGHT_COLOR
-		_highlight_material.cull_mode = BaseMaterial3D.CULL_FRONT
-		_highlight_material.grow = true
-		_highlight_material.grow_amount = HIGHLIGHT_WIDTH
-	return _highlight_material
+func _clear_mesh(key: int) -> void:
+	var reference: WeakRef = _previous_meshes.get(key) as WeakRef
+	var mesh: MeshInstance3D = reference.get_ref() as MeshInstance3D if reference != null else null
+	if mesh != null and mesh.material_overlay == _applied_materials.get(key):
+		mesh.material_overlay = _previous_overlays.get(key) as Material
+	_previous_meshes.erase(key)
+	_previous_overlays.erase(key)
+	_applied_materials.erase(key)
 
 
-func _set_mesh_highlight(
-	mesh_instance: MeshInstance3D,
-	material: StandardMaterial3D,
-	enabled: bool,
-) -> void:
-	if mesh_instance == null or mesh_instance is PackageMarksView:
-		return
-	var instance_id: int = mesh_instance.get_instance_id()
-	if enabled:
-		if not _previous_overlays.has(instance_id):
-			_previous_overlays[instance_id] = mesh_instance.material_overlay
-			_previous_meshes[instance_id] = weakref(mesh_instance)
-		mesh_instance.material_overlay = material
-	elif _previous_overlays.has(instance_id):
-		if mesh_instance.material_overlay == material:
-			mesh_instance.material_overlay = _previous_overlays[instance_id]
-		_previous_overlays.erase(instance_id)
-		_previous_meshes.erase(instance_id)
+func _material_for(state: int) -> Material:
+	match state:
+		InteractionHighlightService.State.AVAILABLE:
+			return available_material
+		InteractionHighlightService.State.BUSY:
+			return busy_material
+	return unavailable_material

@@ -35,11 +35,29 @@ static func item_by_id(owner: Entity, item_id: String) -> Entity:
 	return null
 
 
+## Capacity and stacking still use the ordinary synchronous transfer contract.
+static func grant(owner: Entity, definition: DEF_InventoryItem, quantity: int) -> bool:
+	if not _owner_available(owner) or definition == null or definition.kind == DEF_InventoryItem.Kind.FURNITURE or quantity < 1 or quantity > definition.maximum_stack:
+		return false
+	var item: Entity = Entity.new()
+	var state: C_InventoryItem = C_InventoryItem.new()
+	state.definition = definition
+	state.quantity = quantity
+	item.component_resources = [state]
+	ECS.world.add_entity(item)
+	if transfer(item, owner):
+		return true
+	ECS.world.remove_entity(item)
+	return false
+
+
 static func can_transfer(item: Entity, destination: Entity, expected_owner: Entity = null) -> bool:
+	if CustomerInspectionService.owner_for(item) != null:
+		return false
 	if not _owner_available(destination) or not EntityAvailability.contains(item, ECS.world) or item == destination or item.has_component(C_Package) or item.has_component(C_Grabbable):
 		return false
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
-	if not _valid_item(state) or state.transfer_in_progress or not state.pending_use_id.is_empty():
+	if not _valid_item(state) or state.definition.kind == DEF_InventoryItem.Kind.FURNITURE or state.transfer_in_progress or not state.pending_use_id.is_empty():
 		return false
 	var ownership_count: int = 0
 	for link: Relationship in item.relationships:

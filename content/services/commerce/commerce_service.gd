@@ -1,8 +1,11 @@
 extends RefCounted
 class_name CommerceService
 
-enum Status { COMMITTED, DUPLICATE, INVALID, CONFLICT, INSUFFICIENT_FUNDS, INVENTORY_FULL, WRONG_PHASE }
+enum Status { COMMITTED, DUPLICATE, INVALID, CONFLICT, INSUFFICIENT_FUNDS, INVENTORY_FULL, WRONG_PHASE, SPAWN_BLOCKED }
 const WALLET_PREFIX: String = "commerce/"
+const FURNITURE_COLUMNS: int = 2
+const FURNITURE_ROWS: int = 2
+const FURNITURE_SPACING: Vector2 = Vector2(3.5, 2.5)
 
 
 static func current() -> C_Commerce:
@@ -24,15 +27,19 @@ static func next_id(prefix: String) -> StringName:
 static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, quantity: int, operation_id: StringName) -> Status:
 	var state: C_Commerce = current()
 	var cycle: C_DayCycle = DayPhaseService.current()
-	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.PURCHASE)
+	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.PURCHASE, false)
 	if valid != Status.COMMITTED:
 		return valid
-	if cycle.phase != C_DayCycle.Phase.EVENING:
-		return Status.WRONG_PHASE
-	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not actor.has_component(C_Inventory) or not EntityAvailability.contains(trader, ECS.world):
+	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not EntityAvailability.contains(trader, ECS.world):
 		return Status.INVALID
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
-	if shop == null or item not in shop.catalog:
+	if shop == null or trader.has_component(C_Death) or item not in TraderCatalogService.catalog(shop):
+		return Status.INVALID
+	if not TraderCatalogService.is_open(shop, cycle):
+		return Status.WRONG_PHASE
+	if item.kind == DEF_InventoryItem.Kind.FURNITURE:
+		return _purchase_furniture(trader, shop, item, quantity, operation_id, state, cycle)
+	if not actor.has_component(C_Inventory):
 		return Status.INVALID
 	state.transaction_in_progress = true
 	var grant: Entity = Entity.new()
@@ -54,6 +61,70 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 	var transferred: bool = InventoryService.transfer(grant, actor)
 	assert(transferred, "Commerce grant must honor its validated synchronous Inventory contract")
 	_record(state, item, quantity, operation_id, cycle.day_index, PurchaseReceipt.Mode.PURCHASE)
+	state.transaction_in_progress = false
+	return Status.COMMITTED
+
+
+static func _purchase_furniture(trader: Entity, shop: C_Trader, item: DEF_InventoryItem, quantity: int, operation_id: StringName, state: C_Commerce, cycle: C_DayCycle) -> Status:
+	if quantity != 1:
+		return Status.INVALID
+	var zone: Node3D = trader.get_node_or_null(shop.furniture_pickup_path) as Node3D
+	var parent: Node3D = trader.get_parent() as Node3D
+	if zone == null or parent == null:
+		return Status.SPAWN_BLOCKED
+	state.transaction_in_progress = true
+	var proposal: PreparedFurniture = null
+	for index: int in FURNITURE_COLUMNS * FURNITURE_ROWS:
+		var pose: Transform3D = zone.global_transform
+		pose.origin += pose.basis * Vector3((index % FURNITURE_COLUMNS) * FURNITURE_SPACING.x, 0, -(index / FURNITURE_COLUMNS) * FURNITURE_SPACING.y)
+		proposal = FurniturePlacement.prepare(item, parent, pose)
+		if proposal != null:
+			break
+	if proposal == null:
+		state.transaction_in_progress = false
+		return Status.SPAWN_BLOCKED
+	var paid: Status = _pay(item, quantity, operation_id, cycle.day_index)
+	if paid != Status.COMMITTED:
+		proposal.entity.free()
+		state.transaction_in_progress = false
+		return paid
+	_record(state, item, quantity, operation_id, cycle.day_index, PurchaseReceipt.Mode.PURCHASE)
+	FurniturePlacement.commit(proposal, "purchase/%s" % operation_id)
+	state.transaction_in_progress = false
+	return Status.COMMITTED
+
+
+static func home_delivery(actor: Entity, trader: Entity, item: DEF_InventoryItem, quantity: int, operation_id: StringName) -> Status:
+	var state: C_Commerce = current()
+	var cycle: C_DayCycle = DayPhaseService.current()
+	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.TRADER_DELIVERY, false)
+	if valid != Status.COMMITTED:
+		return valid
+	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not EntityAvailability.contains(trader, ECS.world) or trader.has_component(C_Death):
+		return Status.INVALID
+	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
+	if shop == null or shop.profile == null or not shop.profile.home_delivery_enabled or item not in TraderCatalogService.catalog(shop):
+		return Status.INVALID
+	if not TraderCatalogService.is_open(shop, cycle):
+		return Status.WRONG_PHASE
+	var profile: DEF_TraderProfile = shop.profile
+	if profile.delivery_fee < 0 or profile.delivery_delay_days < 1 or profile.delivery_fee > WalletService.MAX_AMOUNT - item.market_price * quantity or (item.kind == DEF_InventoryItem.Kind.FURNITURE and quantity != 1):
+		return Status.INVALID
+	if not OrderDeliveryService.can_fulfill_definition(item):
+		return Status.INVALID
+	state.transaction_in_progress = true
+	var paid: Status = _pay(item, quantity, operation_id, cycle.day_index, profile.delivery_fee)
+	if paid != Status.COMMITTED:
+		state.transaction_in_progress = false
+		return paid
+	var delivery: PendingDelivery = PendingDelivery.new()
+	delivery.delivery_id = operation_id
+	delivery.item = item
+	delivery.quantity = quantity
+	delivery.ordered_day = cycle.day_index
+	delivery.delivery_day = cycle.day_index + profile.delivery_delay_days
+	state.pending_deliveries.append(delivery)
+	_record(state, item, quantity, operation_id, cycle.day_index, PurchaseReceipt.Mode.TRADER_DELIVERY, profile.delivery_fee)
 	state.transaction_in_progress = false
 	return Status.COMMITTED
 
@@ -85,10 +156,10 @@ static func order(actor: Entity, item: DEF_InventoryItem, quantity: int, operati
 	return Status.COMMITTED
 
 
-static func _validate(state: C_Commerce, cycle: C_DayCycle, item: DEF_InventoryItem, quantity: int, operation_id: StringName, mode: PurchaseReceipt.Mode) -> Status:
+static func _validate(state: C_Commerce, cycle: C_DayCycle, item: DEF_InventoryItem, quantity: int, operation_id: StringName, mode: PurchaseReceipt.Mode, terminal_catalog: bool = true) -> Status:
 	if state == null or cycle == null or state.transaction_in_progress or operation_id.is_empty() or item == null or item.key.is_empty() or quantity < 1 or quantity > item.maximum_stack or item.market_price < 0 or item.market_price > WalletService.MAX_AMOUNT or quantity * item.market_price > WalletService.MAX_AMOUNT:
 		return Status.INVALID
-	if item not in state.catalog:
+	if terminal_catalog and item not in state.catalog:
 		return Status.INVALID
 	for receipt: PurchaseReceipt in state.receipts:
 		if receipt.operation_id == operation_id:
@@ -96,11 +167,11 @@ static func _validate(state: C_Commerce, cycle: C_DayCycle, item: DEF_InventoryI
 	return Status.COMMITTED
 
 
-static func _pay(item: DEF_InventoryItem, quantity: int, operation_id: StringName, day_index: int) -> Status:
+static func _pay(item: DEF_InventoryItem, quantity: int, operation_id: StringName, day_index: int, delivery_fee: int = 0) -> Status:
 	var operation: MoneyOperation = MoneyOperation.new()
 	operation.operation_id = StringName(WALLET_PREFIX + String(operation_id))
 	operation.reason = MoneyOperation.Reason.PURCHASE
-	operation.amount = item.market_price * quantity
+	operation.amount = item.market_price * quantity + delivery_fee
 	operation.day_index = day_index
 	match WalletService.submit(operation):
 		WalletService.Status.COMMITTED:
@@ -112,12 +183,13 @@ static func _pay(item: DEF_InventoryItem, quantity: int, operation_id: StringNam
 	return Status.INVALID
 
 
-static func _record(state: C_Commerce, item: DEF_InventoryItem, quantity: int, operation_id: StringName, day_index: int, mode: PurchaseReceipt.Mode) -> void:
+static func _record(state: C_Commerce, item: DEF_InventoryItem, quantity: int, operation_id: StringName, day_index: int, mode: PurchaseReceipt.Mode, delivery_fee: int = 0) -> void:
 	var receipt: PurchaseReceipt = PurchaseReceipt.new()
 	receipt.operation_id = operation_id
 	receipt.mode = mode
 	receipt.item_key = item.key
 	receipt.quantity = quantity
-	receipt.total_price = item.market_price * quantity
+	receipt.total_price = item.market_price * quantity + delivery_fee
+	receipt.delivery_fee = delivery_fee
 	receipt.day_index = day_index
 	state.receipts.append(receipt)

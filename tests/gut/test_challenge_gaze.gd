@@ -31,6 +31,8 @@ func before_each() -> void:
 	(_subject as Node as Node3D).position = Vector3(0.0, 0.0, -3.0)
 	_state = C_Challenge.new()
 	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_dont_look.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	# Mechanics fixture remains short; authored deadlines are verified separately.
+	_state.definition.violation_grace_seconds = 3.0
 	_observation = C_GazeChallenge.new()
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = &"gaze-test"
@@ -175,6 +177,7 @@ func test_dont_look_warns_resets_and_fails_at_continuous_threshold_once() -> voi
 
 func test_keep_looking_is_inverse_configuration_and_compliance_is_not_early_success() -> void:
 	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_keep_looking.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition.violation_grace_seconds = 3.0
 	_rule = _state.definition.condition as DEF_GazeChallengeCondition
 	_start()
 	_world.process(4.0)
@@ -192,6 +195,7 @@ func test_keep_looking_is_inverse_configuration_and_compliance_is_not_early_succ
 
 
 func test_preparation_and_short_final_violation_can_finish_successfully() -> void:
+	_state.definition.preparation_seconds = 3.0
 	assert_true(ChallengeService.arm(_subject, _actor))
 	assert_true(ChallengeService.activate(_subject))
 	_world.process(_state.definition.preparation_seconds)
@@ -202,6 +206,94 @@ func test_preparation_and_short_final_violation_can_finish_successfully() -> voi
 	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
 	assert_eq(_visit.challenge_satisfaction_delta, 10)
 	assert_eq(_escalations, 0)
+
+
+func test_arrival_definition_and_vignette_start_before_warning_threshold() -> void:
+	assert_eq(_state.definition.trigger, DEF_Challenge.Trigger.ON_ARRIVAL)
+	assert_eq(_state.definition.preparation_seconds, 0.0)
+	assert_true(ChallengeService.begin_on_arrival(_subject, _actor))
+	_world.process(FRAME_DELTA)
+	var first: float = GazeChallengePresentation.strength(_state)
+	assert_gt(first, 0.0, "Even the first sustained gaze frame must darken the screen")
+	assert_lt(_state.violation_elapsed, _state.definition.violation_grace_seconds * _rule.warning_fraction)
+	_world.process(FRAME_DELTA)
+	assert_gt(GazeChallengePresentation.strength(_state), first)
+	assert_false(ChallengeService.begin_on_arrival(_subject, _actor), "Arrival cannot restart the timer")
+	_actor.head_axis_x.rotation.y = PI
+	_world.process(FRAME_DELTA)
+	assert_eq(GazeChallengePresentation.strength(_state), 0.0)
+
+
+func test_wall_clue_uses_one_registered_number_and_clears_with_session() -> void:
+	_visit.definition.challenge = _state.definition
+	var ledger: C_PackageLedger = C_PackageLedger.new()
+	var session: Entity = _world.query.with_all([C_CustomerFlow]).execute_one()
+	session.add_component(ledger)
+	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
+	record.package_id = _visit.package_id
+	record.number = 37
+	ledger.records.append(record)
+	var clues: Array[Label3D] = []
+	var scene: PackedScene = load("res://content/ui/gaze_order_clue.tscn") as PackedScene
+	for index: int in 3:
+		var clue: Label3D = scene.instantiate() as Label3D
+		clue.name = "Clue%d" % index
+		add_child(clue)
+		clue.set_process(false)
+		clues.append(clue)
+		assert_eq(GazeOrderCluePresentation.text_for(clue), "")
+	assert_true(ChallengeService.begin_on_arrival(_subject, _actor))
+	var shown: int = 0
+	for clue: Label3D in clues:
+		var message: String = GazeOrderCluePresentation.text_for(clue)
+		if not message.is_empty():
+			shown += 1
+			assert_eq(message, "ЗАКАЗ\n№037", "Physical package identity is not the player's order number")
+	assert_eq(shown, 1)
+	ChallengeService.request_departure(_subject)
+	_world.process(FRAME_DELTA)
+	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
+	for clue: Label3D in clues:
+		assert_eq(GazeOrderCluePresentation.text_for(clue), "")
+		clue.free()
+
+
+func test_customer_spawn_activates_arrival_challenge_before_approach_and_dialogue() -> void:
+	_world.remove_entity(_subject)
+	_subject = null
+	_actor.add_component(C_PlayerInputController.new())
+	var session: Entity = _world.query.with_all([C_CustomerFlow]).execute_one()
+	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
+	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+	flow.visits.clear()
+	flow.schedule = DEF_CustomerSchedule.new()
+	flow.schedule.customer_scene = load("res://content/entities/customers/customer.tscn") as PackedScene
+	var visit: CustomerVisit = CustomerVisit.new()
+	visit.visit_id = &"arrival-gaze"
+	visit.requires_registered_package = false
+	visit.arrival_day = cycle.day_index
+	visit.definition = load("res://content/definitions/gameplay/customers/def_customer_gaze.tres") as DEF_Customer
+	flow.visits.append(visit)
+	var scene: PackedScene = load("res://content/entities/stations/delivery_counter.tscn") as PackedScene
+	var station: E_DeliveryCounter = scene.instantiate() as E_DeliveryCounter
+	_world.add_entity(station)
+	assert_true(CustomerFlowService.spawn_next_due(flow, cycle))
+	var customer: E_Customer = CustomerFlowService.customer_for(visit.visit_id)
+	assert_not_null(customer)
+	if customer == null:
+		return
+	(customer as Node as RigidBody3D).freeze = true
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
+	assert_eq(agent.phase, C_CustomerAgent.Phase.APPROACHING)
+	assert_eq(challenge.phase, C_Challenge.Phase.ACTIVE)
+	assert_same(ChallengeService.actor_for(customer), _actor)
+	assert_true(challenge.consumed, "The challenge is already bound before any dialogue")
+	agent.phase = C_CustomerAgent.Phase.WAITING
+	CustomerFlowService.greet(customer)
+	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
+	assert_string_contains((customer.get_node("Message") as Label3D).text, "на стене")
+	assert_eq(challenge.phase, C_Challenge.Phase.ACTIVE)
 
 
 func test_authored_accumulating_reset_policy_preserves_prior_violations() -> void:

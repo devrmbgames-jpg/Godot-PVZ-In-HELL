@@ -1,0 +1,11 @@
+[gd_scene format=3]
+[ext_resource type="PackedScene" path="res://content/entities/hazards/floor_hazard.tscn" id="Base"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/hazards/def_floor_hazard.gd" id="Definition"]
+[sub_resource type="Resource" id="Definition"]
+script = ExtResource("Definition")
+lifetime_seconds = 240.0
+damage_per_tick = 0.0
+preparation_color = Color(0.25, 0.2, 0.05, 0.5)
+active_color = Color(0.25, 0.2, 0.05, 0.5)
+[node name="OilSpill" instance=ExtResource("Base")]
+definition = SubResource("Definition")

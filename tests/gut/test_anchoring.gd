@@ -130,6 +130,40 @@ func _stabilize(seconds: float = 0.5) -> void:
 	AnchoringService.update_stability(_target, _config, seconds)
 
 
+func test_authored_hammer_fastens_instead_of_attacking_and_plays_swing_without_damage() -> void:
+	GrabService.release(_actor, _hammer)
+	_hammer = (load("res://content/entities/tools/hammer.tscn") as PackedScene).instantiate() as Entity
+	_world.add_entity(_hammer)
+	(_hammer as Node as RigidBody3D).gravity_scale = 0.0
+	(_hammer as Node as Node3D).global_position = _actor.right_hand_slot.global_position
+	_actor.add_component(C_Combat.new())
+	var health: C_Health = C_Health.new()
+	health.value = 100.0
+	health.current = 100.0
+	_target.add_component(health)
+	_hold_hammer()
+	_stabilize()
+	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.PRIMARY)
+	assert_not_null(choice)
+	if choice != null:
+		assert_true(choice.action is DEF_AnchorAction)
+	_controller.action_main_pressed = true
+	_controller.input_tick += 1
+	InteractionActionResolver.handle_input(_actor)
+	assert_true(_body.freeze)
+	assert_eq((_actor.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.READY)
+	var animation: AnimationPlayer = _hammer.get_node("AttackAnimation") as AnimationPlayer
+	assert_eq(animation.current_animation, &"strike")
+	for frame: int in 8:
+		await get_tree().physics_frame
+	var head: Node3D = _hammer.get_node("Head") as Node3D
+	assert_gt(head.position.y, 0.4, "Fastening has visible overhead swing")
+	assert_eq(health.current, 100.0, "Tool animation never schedules weapon damage")
+	GrabService.release(_actor, _hammer)
+	assert_false(animation.is_playing())
+	assert_eq(head.position, Vector3(0.0, 0.18, 0.0), "Drop cancels tool presentation immediately")
+
+
 func _drive_input(primary_pressed: bool, use_pressed: bool, use_held: bool, delta: float = 0.0) -> void:
 	_controller.action_main_pressed = primary_pressed
 	_controller.action_main = primary_pressed
@@ -198,9 +232,10 @@ func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> voi
 	)
 	_drive_input(false, true, true)
 	assert_not_null(ProlongedInteractionService.session(_actor))
-	_drive_input(false, false, true, 0.75)
+	var half_duration: float = ProlongedInteractionService.active_progress(_actor).timing.duration_seconds * 0.5
+	_drive_input(false, false, true, half_duration)
 	assert_true(AnchoringService.is_player_anchored(_target))
-	_drive_input(false, false, true, 0.75)
+	_drive_input(false, false, true, half_duration)
 	assert_false(AnchoringService.is_player_anchored(_target))
 	assert_false(_body.freeze)
 	assert_eq(_body.freeze_mode, RigidBody3D.FREEZE_MODE_KINEMATIC)

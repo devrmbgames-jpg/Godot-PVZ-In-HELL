@@ -53,19 +53,19 @@ func test_growth_uses_active_non_night_unpaused_living_time() -> void:
 	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		_cycle.phase = phase
 		_world.process(10.0)
-	assert_eq(_state.value, 6.0)
+	assert_eq(_state.value, 1.5)
 	assert_eq(_state.active_seconds, 30.0)
 	_cycle.phase = C_DayCycle.Phase.NIGHT
 	_world.process(100.0)
-	assert_eq(_state.value, 6.0)
+	assert_eq(_state.value, 1.5)
 	_cycle.phase = C_DayCycle.Phase.DAY
 	get_tree().paused = true
 	_world.process(100.0)
 	get_tree().paused = false
-	assert_eq(_state.value, 6.0)
+	assert_eq(_state.value, 1.5)
 	_actor.add_component(C_Death.new())
 	_world.process(100.0)
-	assert_eq(_state.value, 6.0)
+	assert_eq(_state.value, 1.5)
 	assert_eq(_state.active_seconds, 30.0)
 
 

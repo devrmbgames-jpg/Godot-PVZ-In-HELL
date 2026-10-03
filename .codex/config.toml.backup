@@ -1,0 +1,76 @@
+model = "gpt-6.1-sol"
+
+# Main development: deep reasoning without paying xhigh/max for every edit.
+model_reasoning_effort = "high"
+
+# Use deeper reasoning for explicit planning work.
+plan_mode_reasoning_effort = "xhigh"
+
+model_verbosity = "medium"
+model_reasoning_summary = "auto"
+file_opener = "vscode"
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "live"
+
+# Keep project instructions compact but large enough for root + scoped AGENTS.md.
+project_doc_max_bytes = 16384
+
+# Prevent noisy Godot/tool output from consuming excessive context.
+tool_output_token_limit = 4000
+
+
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 1
+default_subagent_model = "gpt-6.1-sol"
+default_subagent_reasoning_effort = "medium"
+
+
+[agents.reviewer]
+description = "Opt-in focused review of a substantial completed diff for Godot 4.7+, GECS correctness, and regressions."
+config_file = "./agents/reviewer.toml"
+
+
+[agents.validator]
+description = "Opt-in execution of explicitly assigned validation with concise PASS/FAIL output."
+config_file = "./agents/validator.toml"
+
+
+[sandbox_workspace_write]
+network_access = true
+
+# Godot user:// data lives outside the repository.
+writable_roots = [
+    "C:\\Users\\Valeryn\\AppData\\Roaming\\Godot\\app_userdata"
+]
+
+
+# Project-local Godot AI MCP bridge.
+# Godot AI v4.2.3 runs the backend from the enabled editor plugin.
+# The bridge is pinned to the same package version and talks only to localhost.
+[mcp_servers."godot-ai"]
+command = "uvx"
+args = [
+    "--isolated",
+    "--no-config",
+    "--no-env-file",
+    "--no-sources",
+    "--no-build",
+    "--index-strategy", "first-index",
+    "--keyring-provider", "disabled",
+    "--index", "https://pypi.org/simple",
+    "--default-index", "https://pypi.org/simple",
+    "--find-links", "https://pypi.org/simple/godot-ai/",
+    "--link-mode", "copy",
+    "--from", "godot-ai==4.2.3",
+    "godot-ai",
+    "attach",
+    "--port", "8000",
+    "--ws-port", "9500",
+    "--disable-telemetry"
+]
+enabled = true
+startup_timeout_sec = 60
+tool_timeout_sec = 360

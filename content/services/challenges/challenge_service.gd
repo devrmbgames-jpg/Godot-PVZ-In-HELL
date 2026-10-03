@@ -3,6 +3,21 @@ extends RefCounted
 class_name ChallengeService
 
 
+## Debug configuration is allowed only before the one-shot challenge has begun.
+static func debug_start(subject: Entity, actor: Entity, definition: DEF_Challenge) -> bool:
+	if not _available(subject) or not _available(actor) or definition == null or definition.condition == null:
+		return false
+	var cycle: C_DayCycle = DayPhaseService.current()
+	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
+	if cycle == null or cycle.phase != C_DayCycle.Phase.DAY or (state != null and (state.consumed or state.phase != C_Challenge.Phase.INACTIVE)):
+		return false
+	if state == null:
+		state = C_Challenge.new()
+		subject.add_component(state)
+	state.definition = definition
+	return arm(subject, actor) and activate(subject)
+
+
 static func arm(subject: Entity, actor: Entity) -> bool:
 	if not _available(subject) or not _available(actor):
 		return false
@@ -182,11 +197,14 @@ static func _track_visit_condition(state: C_Challenge, previous_elapsed: float) 
 		return
 	var checked_seconds: float = maxf(0.0, state.elapsed - maxf(previous_elapsed, state.definition.preparation_seconds))
 	state.violation_elapsed += checked_seconds
-	if checked_seconds > 0.0 and state.violation_elapsed >= state.definition.violation_grace_seconds:
+	if checked_seconds > 0.0 and (state.violation_elapsed >= state.definition.violation_grace_seconds or is_equal_approx(state.violation_elapsed, state.definition.violation_grace_seconds)):
 		state.condition_violated = true
 
 
 static func _cleanup(subject: Entity, state: C_Challenge) -> void:
+	var light_rule: DEF_LightChallengeCondition = state.definition.condition as DEF_LightChallengeCondition if state.definition != null else null
+	if light_rule != null and light_rule.wait_outside_until_dark:
+		LightCircuitService.stop_flicker(light_rule.circuit_id, StringName(subject.id))
 	state.phase = C_Challenge.Phase.CLEANUP
 	state.elapsed = 0.0
 	state.result_remaining = 0.0

@@ -36,9 +36,11 @@ size = Vector3(0.4,0.2,0.2)
 [sub_resource type="BoxShape3D" id="Shape"]
 size = Vector3(0.4,0.2,0.2)
 
-[node name="BubbleWrapPickup" type="StaticBody3D"]
+[node name="BubbleWrapPickup" type="RigidBody3D"]
 collision_layer = 8
-collision_mask = 0
+collision_mask = 29
+mass = 0.15
+continuous_cd = true
 script = ExtResource("Entity")
 component_resources = Array[ExtResource("Component")]([SubResource("Item"), SubResource("Interactable"), SubResource("Actions")])
 

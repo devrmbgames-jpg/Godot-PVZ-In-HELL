@@ -4,24 +4,20 @@ This file is the queue/index. It does not replace individual task state.
 
 | Status | Task |
 | --- | --- |
-| **DONE** | [R22.5 GECS Architecture Polish](roadmap_22_5_gecs_architecture_polish.md) — final review/regressions complete |
-| **OWNER_QA** | [R12.1 Customer refusal negotiation / repeat visits](roadmap_12_1_customer_refusal_negotiation.md) |
-| **OWNER_QA** | [R12 Dialogue integration — visible intent prefixes](roadmap_12_dialogue_integration.md) |
-| **OWNER_QA** | [R12.2 Physical NPC / Customer character foundation](roadmap_12_2_customer_npc_character.md) |
-| **OWNER_QA** | [R13 Environment Interactables](roadmap_13_environment_interactables.md) |
-| **OWNER_QA** | [R14 Challenge Framework / Light](roadmap_14_challenge_framework_and_lights.md) |
-| **OWNER_QA** | [R15 Gaze Challenges](roadmap_15_gaze_challenges.md) |
-| **OWNER_QA** | [R16 Floor Hazard Challenge](roadmap_16_floor_hazard_challenge.md) |
-| **OWNER_QA** | [R17 Combat / Impact Damage](roadmap_17_combat_and_impact_damage.md) |
-| **OWNER_QA** | [R18 Hunger / Perception](roadmap_18_hunger_and_perception.md) |
-| **OWNER_QA** | [R19 Inventory / Consumables](roadmap_19_inventory_and_consumables.md) |
-| **OWNER_QA** | [R20 Evening / Trader / Orders / Quest](roadmap_20_evening_trader_orders_and_quest.md) |
-| **OWNER_QA** | [R21 Night / Persistence / Next Day](roadmap_21_night_persistence_next_day.md) |
-| **OWNER_QA** | [R22 HUD / World Feedback](roadmap_22_hud_and_world_feedback.md) |
-| **IN_PROGRESS** | [R23 Vertical Slice Validation](roadmap_23_vertical_slice_validation.md) — paused; owner QA-01–QA-13 recorded for enlarged main scene |
-| **PLANNED** | [Developer Console Testing](developer_console_testing.md) — **LOW priority**, additional task: expanded gameplay commands, `help` and open-console scrolling; base Stages 1–9 complete |
-| **PLANNED** | [Организация игрового QA](player_qa_tasks_organization.md) — создать `qa_tasks/` и перенести туда все ожидающие проверки для игроков |
-| **PLANNED** | [Тестовая сцена и общий World](primitive_test_scene_shared_world.md) — примитивы, все механики, интервалы около 2 м, большой пол и одна подсцена World для тестового уровня/main_level |
+| **OWNER_QA** | [R23 Vertical Slice Validation](roadmap_23_vertical_slice_validation.md) — implementation ready; full main-level day and player acceptance pending |
+| **OWNER_QA** | [R24 World, Customers and Commerce](roadmap_24_world_customers_commerce.md) — M0–M6 implemented; manual acceptance pending |
+| **OWNER_QA** | [Developer Console Testing](developer_console_testing.md) — Stages1–15,28 extended commands, help and scrolling implemented; player QA pending |
+| **OWNER_QA** | [R26 Customer Handoff / CarryPlacement](roadmap_26_customer_handoff_placement.md) — реализация/44 GUT/оба placement smoke готовы; player QA pending |
+| **OWNER_QA** | [R27 Клиенты строго по одному](roadmap_27_customer_queue.md) |
+| **OWNER_QA** | [R28 Физическое содержимое и пустые посылки](roadmap_28_physical_package_contents.md) |
+| **OWNER_QA** | [R29 CharacterBody толкает мелкие предметы](roadmap_29_character_push.md) |
+| **OWNER_QA** | [R30 Настройки/управление, замена атласов отдельными PNG](roadmap_30_settings_input_prompts.md) |
+| **DONE** | [Очистка устаревших логов](log_artifact_cleanup.md) |
+| **DONE** | [R31 — Корневая папка ресурсов](roadmap_31_resource_location.md) |
+| **OWNER_QA** | [R32 — Ритм шагов, камера и пояс](roadmap_32_gait_crouch.md) |
+| **OWNER_QA** | [R33 — Бег и выносливость](roadmap_33_sprint_stamina.md) |
+| **OWNER_QA** | [R34 — Главное меню и сохранение/загрузка/новая игра](roadmap_34_main_menu_saves.md) |
+| **DEFERRED** | [R25 GDScript Documentation](roadmap_25_gdscript_documentation.md) — **LAST**, русские `##` и смысловые регионы; выполнять после предыдущих задач и исправлений QA |
 
 Supporting artifacts are linked from their owner tasks and are not separate queue entries.
 

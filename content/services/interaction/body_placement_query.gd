@@ -7,10 +7,19 @@ const ROTATION_EPSILON: float = 0.001
 
 
 static func clear_path(body: RigidBody3D, destination: Transform3D, excluded: Array[RID], mask: int, margin: float) -> bool:
+	if not is_instance_valid(body):
+		return false
+	return clear_path_from(body, body.global_transform, destination, excluded, mask, margin)
+
+
+## Проверяет сегмент предполагаемого пути без перемещения физического тела.
+static func clear_path_from(body: RigidBody3D, start: Transform3D, destination: Transform3D, excluded: Array[RID], mask: int, margin: float) -> bool:
 	if not is_instance_valid(body) or not body.is_inside_tree() or not destination.is_finite():
 		return false
+	if not start.is_finite():
+		return false
 	var space: PhysicsDirectSpaceState3D = body.get_world_3d().direct_space_state
-	var moving_rotation: bool = not body.global_basis.is_equal_approx(destination.basis)
+	var moving_rotation: bool = not start.basis.is_equal_approx(destination.basis)
 	var count: int = 0
 	var radius: float = 0.0
 	for owner_id: int in body.get_shape_owners():
@@ -31,11 +40,11 @@ static func clear_path(body: RigidBody3D, destination: Transform3D, excluded: Ar
 			query.margin = margin
 			if not space.intersect_shape(query, 1).is_empty():
 				return false
-			query.transform = body.global_transform * local
+			query.transform = start * local
 			if not space.intersect_shape(query, 1).is_empty():
 				return false
 			if not moving_rotation:
-				query.motion = destination.origin - body.global_position
+				query.motion = destination.origin - start.origin
 				var fractions: PackedFloat32Array = space.cast_motion(query)
 				if fractions.size() != 2 or fractions[0] < 1.0:
 					return false
@@ -43,7 +52,7 @@ static func clear_path(body: RigidBody3D, destination: Transform3D, excluded: Ar
 				var bounds: AABB = shape.get_debug_mesh().get_aabb()
 				for corner: int in 8:
 					var offset: Vector3 = local * bounds.get_endpoint(corner)
-					radius = maxf(radius, (body.global_basis * offset).length())
+					radius = maxf(radius, (start.basis * offset).length())
 					radius = maxf(radius, (destination.basis * offset).length())
 	if count == 0:
 		return false
@@ -52,13 +61,13 @@ static func clear_path(body: RigidBody3D, destination: Transform3D, excluded: Ar
 		sphere.radius = maxf(radius, ROTATION_EPSILON)
 		var sweep: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 		sweep.shape = sphere
-		sweep.transform = Transform3D(Basis.IDENTITY, body.global_position)
+		sweep.transform = Transform3D(Basis.IDENTITY, start.origin)
 		sweep.exclude = excluded
 		sweep.collision_mask = mask
 		sweep.margin = margin
 		if not space.intersect_shape(sweep, 1).is_empty():
 			return false
-		sweep.motion = destination.origin - body.global_position
+		sweep.motion = destination.origin - start.origin
 		var fractions: PackedFloat32Array = space.cast_motion(sweep)
 		if fractions.size() != 2 or fractions[0] < 1.0:
 			return false

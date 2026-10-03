@@ -4,8 +4,13 @@ extends CanvasLayer
 @export var debug_status_enabled: bool = true
 @export var challenge_debug_enabled: bool = true
 @export var reduced_gaze_motion: bool = true
+@export var status_vignette_enabled: bool = true
+@export_range(0.1, 1.0, 0.05) var injury_vignette_onset_ratio: float = 0.75
+@export_range(0.0, 0.8, 0.05) var status_vignette_opacity: float = 0.35
 @export var player_status_enabled: bool = true
 @export var damage_feedback: O_DamageFeedback = null
+const MINIMUM_VIGNETTE_RATIO: float = 0.1
+const MINIMUM_HUNGER_SPAN: float = 1.0
 @onready var _damage_view: DamageFeedbackView = $DamageFeedback
 @onready var _feedback_debug: Label = $Overlay/PlayerDebugPanel/Debug/FeedbackDebug
 @onready var _player_status: PanelContainer = $Overlay/PlayerStatusPanel
@@ -13,8 +18,11 @@ extends CanvasLayer
 @onready var _status_health_bar: ProgressBar = $Overlay/PlayerStatusPanel/Stats/HealthBar
 @onready var _status_hunger: Label = $Overlay/PlayerStatusPanel/Stats/Hunger
 @onready var _status_hunger_bar: ProgressBar = $Overlay/PlayerStatusPanel/Stats/HungerBar
+@onready var _status_stamina: Label = $Overlay/PlayerStatusPanel/Stats/Stamina
+@onready var _status_stamina_bar: ProgressBar = $Overlay/PlayerStatusPanel/Stats/StaminaBar
+@onready var _stamina_debug: Label = $Overlay/PlayerDebugPanel/Debug/StaminaDebug
 @onready var _status_money: Label = $Overlay/PlayerStatusPanel/Stats/Money
-@onready var _prompt: Label = $Overlay/Prompt
+@onready var _prompt: InputPromptLabel = $Overlay/Prompt
 @onready var _phase_label: Label = $Overlay/StatusPanel/DayPhase
 @onready var _announcement: Label = $Overlay/Announcement
 @onready var _crosshair: Label = $Overlay/Crosshair
@@ -39,7 +47,7 @@ extends CanvasLayer
 
 const PHASE_NAMES: Array[String] = ["Утро", "День", "Вечер", "Ночь"]
 const PHASE_HINTS: Array[String] = [
-	"Приёмка · Сканер на столе; ЛКМ — регистрация. Пульт — начало смены.",
+	"Приёмка · Сканер на столе; регистрация сканером. Пульт — начало смены.",
 	"Смена идёт · Завершите обслуживание и закройте смену на пульте",
 	"Смена завершена · Место отдыха доступно для сна",
 	"Завершение дня…",
@@ -56,10 +64,20 @@ const MINIMUM_HEALTH_BAR_MAXIMUM: float = 0.001
 var _announcement_remaining: float = 0.0
 var _last_day_index: int = -1
 var _last_phase: int = -1
+var _menu_hint: InputPromptLabel
 
 
 #region Lifecycle
 func _ready() -> void:
+	var settings: SettingsMenu = SettingsMenu.new()
+	settings.setup(player)
+	add_child(settings)
+	_menu_hint = InputPromptLabel.new()
+	_menu_hint.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_menu_hint.position = Vector2(-260, 20)
+	_menu_hint.size = Vector2(240, 90)
+	$Overlay.add_child(_menu_hint)
+	_menu_hint.set_prompt("%s Настройки\n%s Инвентарь\n%s Бег" % [InputPromptService.token(&"menu"), InputPromptService.token(&"inventory"), InputPromptService.token(&"sprint")])
 	_damage_view.player = player
 	_damage_view.observer = damage_feedback
 	_damage_view.bind_observer()
@@ -69,18 +87,20 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_update_player_status()
-	_feedback_debug.text = _damage_view.debug_text() if debug_status_enabled else ""
-	_combat_debug.text = CombatPresentation.debug_text(player) if debug_status_enabled else ""
-	_meta_debug.text = MetaPresentation.debug_text() if debug_status_enabled else ""
-	_inventory_debug.text = InventoryPresentation.debug_text(player) if debug_status_enabled else ""
-	_hunger_debug.text = HungerPresentation.debug_text(player) if debug_status_enabled else ""
+	var show_debug: bool = debug_status_enabled and DebugHudService.is_enabled()
+	_feedback_debug.text = _compact_debug(_damage_view.debug_text()) if show_debug else ""
+	_combat_debug.text = _compact_debug(CombatPresentation.debug_text(player)) if show_debug else ""
+	_meta_debug.text = _compact_debug(MetaPresentation.debug_text()) if show_debug else ""
+	_inventory_debug.text = _compact_debug(InventoryPresentation.debug_text(player)) if show_debug else ""
+	_hunger_debug.text = _compact_debug(HungerPresentation.debug_text(player)) if show_debug else ""
 	_update_gaze_warning()
 	_challenge_status.text = ChallengePresentation.text_for(player)
 	_challenge_status.visible = not _challenge_status.text.is_empty()
-	_challenge_debug_panel.visible = challenge_debug_enabled
-	if challenge_debug_enabled:
-		_challenge_debug_text.text = ChallengePresentation.debug_text_for(player)
+	_challenge_debug_panel.visible = challenge_debug_enabled and DebugHudService.is_enabled()
+	if _challenge_debug_panel.visible:
+		_challenge_debug_text.text = CustomerDebugPresentation.summary()
 	var captured: bool = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+	_menu_hint.visible = not bool(Console.is_visible()) and InteractionControlFocus.current(player) < InteractionControlFocus.Priority.DRAWING
 	var progress: ProlongedInteractionProgress = ProlongedInteractionService.active_progress(player)
 	_interaction_progress.visible = captured and progress != null
 	_interaction_progress.value = progress.fraction if progress != null else 0.0
@@ -107,11 +127,11 @@ func _process(delta: float) -> void:
 		_phase_label.text = ""
 
 	if not GrabService.holder_available(player):
-		_prompt.text = ""
+		_prompt.set_prompt("")
 		_update_debug_presentation(null)
 		return
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	_prompt.text = interactor.prompt_text if interactor != null else ""
+	_prompt.set_prompt(interactor.prompt_text if interactor != null else "")
 	_update_debug_presentation(interactor.target if interactor != null else null)
 #endregion
 
@@ -135,6 +155,15 @@ func _update_player_status() -> void:
 		_status_hunger.text = "Голод  %.0f / %.0f · %s" % [hunger.value, hunger.policy.maximum, HUNGER_NAMES[HungerService.tier(hunger)]]
 		_status_hunger_bar.max_value = hunger.policy.maximum
 		_status_hunger_bar.value = hunger.value
+	var stamina: C_Stamina = player.get_component(C_Stamina) as C_Stamina
+	_status_stamina.visible = stamina != null
+	_status_stamina_bar.visible = stamina != null
+	_stamina_debug.visible = stamina != null
+	if stamina != null:
+		_status_stamina.text = "Выносливость  %.0f / %.0f%s" % [stamina.current, stamina.maximum, " · Отдых" if stamina.exhausted else ""]
+		_status_stamina_bar.max_value = stamina.maximum
+		_status_stamina_bar.value = stamina.current
+		_stamina_debug.text = "Бег %s · %s · расход ×%.2f\nОтдых %.1f с · порог %.0f" % ["да" if stamina.running else "нет", "переключение" if stamina.toggle_mode else "удержание", stamina.drain_multiplier, stamina.recovery_remaining, stamina.maximum * stamina.restart_ratio]
 	var wallet: C_Wallet = WalletService.current()
 	_status_money.visible = wallet != null
 	if wallet != null:
@@ -142,8 +171,13 @@ func _update_player_status() -> void:
 
 
 #region Debug acceptance presentation
+func _compact_debug(message: String) -> String:
+	var lines: PackedStringArray = message.split("\n")
+	return lines[0] if not lines.is_empty() else ""
+
+
 func _update_debug_presentation(target: Variant) -> void:
-	if not debug_status_enabled:
+	if not debug_status_enabled or not DebugHudService.is_enabled():
 		_player_debug_panel.visible = false
 		_package_debug_panel.visible = false
 		return
@@ -167,14 +201,34 @@ func _update_player_health_debug() -> void:
 func _update_gaze_warning() -> void:
 	var state: C_Challenge = GazeChallengePresentation.state_for(player)
 	var strength: float = GazeChallengePresentation.strength(state)
-	_gaze_distortion.visible = strength > 0.0
+	var status: Vector2 = _status_vignette_strengths()
+	_gaze_distortion.visible = strength > 0.0 or not status.is_zero_approx()
 	var material: ShaderMaterial = _gaze_distortion.material as ShaderMaterial
 	material.set_shader_parameter("strength", strength)
-	material.set_shader_parameter("reduced_motion", reduced_gaze_motion)
+	material.set_shader_parameter("injury_strength", status.x)
+	material.set_shader_parameter("hunger_strength", status.y)
+	material.set_shader_parameter("status_opacity", status_vignette_opacity)
+	material.set_shader_parameter("reduced_motion", reduced_gaze_motion or bool(GameSettingsService.value("reduced_motion")))
 	_gaze_warning.text = GazeChallengePresentation.text(state)
 	_gaze_warning.visible = strength > 0.0
 	_gaze_progress.visible = strength > 0.0
 	_gaze_progress.value = strength
+
+
+func _status_vignette_strengths() -> Vector2:
+	if not status_vignette_enabled or not EntityAvailability.contains(player, ECS.world):
+		return Vector2.ZERO
+	var health: C_Health = player.get_component(C_Health) as C_Health
+	var hunger: C_Hunger = player.get_component(C_Hunger) as C_Hunger
+	var injury: float = 0.0
+	var starvation: float = 0.0
+	if health != null:
+		var ratio: float = health.current / maxf(health.value, MINIMUM_HEALTH_BAR_MAXIMUM)
+		injury = clampf((injury_vignette_onset_ratio - ratio) / maxf(injury_vignette_onset_ratio, MINIMUM_VIGNETTE_RATIO), 0.0, 1.0)
+	if hunger != null and hunger.policy != null:
+		var policy: DEF_HungerPolicy = hunger.policy
+		starvation = clampf((hunger.value - policy.hungry_threshold) / maxf(policy.maximum - policy.hungry_threshold, MINIMUM_HUNGER_SPAN), 0.0, 1.0)
+	return Vector2(injury, starvation)
 
 
 func _update_package_debug(target: Variant) -> void:

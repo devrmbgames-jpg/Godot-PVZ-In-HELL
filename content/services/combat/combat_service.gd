@@ -53,6 +53,7 @@ static func start_strike(actor: Entity, weapon: Entity) -> bool:
 	state.elapsed = 0.0
 	state.hit_committed = false
 	actor.add_relationship(Relationship.new(R_AttackWeapon.new(), weapon))
+	MeleeWeaponPresentation.start(weapon)
 	return true
 
 
@@ -68,6 +69,7 @@ static func tick_strike(actor: Entity, delta: float) -> void:
 	var previous: float = state.elapsed
 	state.elapsed += maxf(0.0, delta)
 	var attack: DEF_MeleeAttack = state.strike
+	MeleeWeaponPresentation.update(weapon, state.elapsed, attack)
 	var active_end: float = attack.windup_seconds + attack.active_seconds
 	if state.elapsed >= attack.windup_seconds and previous < active_end and not state.hit_committed:
 		_scan_strike(actor, weapon, state)
@@ -135,6 +137,7 @@ static func _weapon_for(actor: Entity) -> Entity:
 
 
 static func _cancel_strike(actor: Entity) -> void:
+	MeleeWeaponPresentation.reset(_weapon_for(actor))
 	var state: C_Combat = actor.get_component(C_Combat) as C_Combat
 	if state != null:
 		state.phase = C_Combat.Phase.READY

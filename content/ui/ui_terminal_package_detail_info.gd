@@ -14,6 +14,7 @@ func present(
 	record: PackageRegistrationRecord,
 	state: C_PackageState,
 	visit: CustomerVisit,
+	debug_status: bool = false,
 ) -> void:
 	visible = true
 	_label_package_id.text = "№%03d" % record.number
@@ -37,8 +38,8 @@ func present(
 	lines.append("Вес: %.1f кг" % definition.mass_kg)
 	lines.append("Учётная стоимость: %d" % definition.accounting_value)
 	lines.append("Дата регистрации: день %d" % record.day_index)
-	lines.append("Статус: %s" % UI_TerminalButtonPackage.status_text(record, state, visit))
-	if state != null:
+	lines.append("Отметка: %s" % UI_TerminalButtonPackage.status_text(record, state, visit, debug_status))
+	if debug_status and state != null:
 		lines.append("Состояние: %s" % _condition_text(state))
 	if visit != null and visit.complaint != null:
 		lines.append("Жалоба: %s" % _complaint_text(visit.complaint))

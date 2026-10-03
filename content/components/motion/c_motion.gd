@@ -38,6 +38,12 @@ var floor_max_angle_degrees: float = 55.0
 @export_range(0.0, 1.0, 0.01)
 var minimum_ground_traction: float = 0.05
 
+## Optional support adhesion for small floor seams. Zero disables it (NPC default).
+@export_range(0.0, 0.5, 0.01) var floor_snap_distance: float = 0.0
+@export var floor_snap_foot_offset: float = 0.0
+## Faster upward motion is a launch/jump and must not be snapped to support.
+@export var floor_snap_max_upward_speed: float = 2.0
+
 
 
 ## Полностью отключает locomotion control,
@@ -48,6 +54,9 @@ var minimum_ground_traction: float = 0.05
 
 
 #region Runtime
+
+## S_Sprint владеет усилением; native solver читает его, не меняя max_speed.
+var sprint_multiplier: float = 1.0
 
 var is_on_floor: bool = false
 ## Derived physics support snapshot; RID is not an Entity ownership/binding.
@@ -63,5 +72,7 @@ var floor_friction: float = 1.0
 ## Одноразовые игровые импульсы:
 ## explosion, knockback, jump pad и т.д.
 var pending_impulse: Vector3 = Vector3.ZERO
+## Explicit upward gameplay impulses suspend adhesion until descent.
+var floor_snap_blocked: bool = false
 
 #endregion

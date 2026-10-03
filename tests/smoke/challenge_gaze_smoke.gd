@@ -1,8 +1,8 @@
 extends Node
-## Default gaze customer: real demand, camera/LOS, warning, physical package service and cleanup.
+## Arrival gaze: wall number, real camera/LOS, vignette, physical service without dialogue.
 
 const FRAME_DELTA: float = 1.0 / 60.0
-const WAIT_FRAMES: int = 900
+const WAIT_FRAMES: int = 3600
 const UI_WAIT_FRAMES: int = 32
 
 var _level: Node = null
@@ -17,12 +17,14 @@ func _ready() -> void:
 
 func _run() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
+	_level.set("autosave_path", "")
 	add_child(_level)
 	_level.set_physics_process(false)
 	_actor = _level.get_node("Entityes/Player") as Entity
-	(_actor as Node as RigidBody3D).freeze = true
+	(_actor as Node).set_physics_process(false)
 	_camera = _actor.get_viewport().get_camera_3d()
 	assert(_camera != null and (_actor as Node).is_ancestor_of(_camera))
+	_camera.look_at(_camera.global_position + Vector3.DOWN, Vector3.RIGHT)
 	for frame: int in WAIT_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
 		await get_tree().physics_frame
@@ -50,44 +52,43 @@ func _run() -> void:
 	assert(visit.definition.key == &"gaze_customer")
 	var state: C_Challenge = _customer.get_component(C_Challenge) as C_Challenge
 	assert(state.definition.condition is DEF_GazeChallengeCondition)
-	assert(CustomerDialogueService.start(_actor, _customer))
-	var panel: CustomerDialoguePanel = null
-	for frame: int in UI_WAIT_FRAMES:
-		await get_tree().process_frame
-		var panels: Array[Node] = get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP)
-		if not panels.is_empty():
-			panel = panels[0] as CustomerDialoguePanel
-			if panel.find_children("*", "RichTextLabel", true, false).size() > 0:
-				var label: RichTextLabel = panel.find_children("*", "RichTextLabel", true, false)[0] as RichTextLabel
-				if label.text.contains("3 секунд"):
-					break
-	assert(panel != null)
-	var acknowledged: bool = false
-	for node: Node in panel.find_children("*", "Button", true, false):
-		var button: Button = node as Button
-		if button.text == "Продолжить" and button.visible:
-			button.pressed.emit()
-			acknowledged = true
-			break
-	assert(acknowledged)
-	for frame: int in UI_WAIT_FRAMES:
-		await get_tree().process_frame
-		if state.phase == C_Challenge.Phase.ACTIVE:
-			break
 	assert(state.phase == C_Challenge.Phase.ACTIVE)
+	assert(state.consumed and state.definition.preparation_seconds == 0.0)
+	assert(get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP).is_empty())
+	var wall_number: String = "ЗАКАЗ\n№%03d" % CustomerPresentation.registered_number(visit)
+	var clues: Array[Node] = get_tree().get_nodes_in_group(GazeOrderCluePresentation.CLUE_GROUP)
+	assert(clues.size() == 3)
+	var visible_clues: int = 0
+	for clue: Node in clues:
+		var label: Label3D = clue as Label3D
+		var front: Vector3 = label.global_basis.z.normalized()
+		var origin: Vector3 = label.global_position + front
+		var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, label.global_position - front, 1)
+		var hit: Dictionary = label.get_world_3d().direct_space_state.intersect_ray(ray)
+		assert(not hit.is_empty(), "Each authored clue must sit on a physical wall")
+		var point: Vector3 = hit.get("position", origin) as Vector3
+		assert(origin.distance_to(point) > 1.0, "The wall must not hide the label inside its geometry")
+		if GazeOrderCluePresentation.text_for(clue) == wall_number:
+			visible_clues += 1
+	assert(visible_clues == 1)
 	assert(InteractionControlFocus.current(_actor) != InteractionControlFocus.Priority.MODAL)
 	_camera.look_at(_customer.head_axis_x.global_position)
-	ECS.world.process(state.definition.preparation_seconds, "GamePlay")
-	ECS.world.process(2.0, "GamePlay")
-	await get_tree().process_frame
+	ECS.world.process(FRAME_DELTA, "GamePlay")
 	var hud: Node = _level.get_node("InteractionHud/Overlay")
+	for frame: int in UI_WAIT_FRAMES:
+		await get_tree().process_frame
+		if (hud.get_node("GazeDistortion") as ColorRect).visible:
+			break
 	assert((hud.get_node("GazeWarning") as Label).visible)
 	assert((hud.get_node("GazeDistortion") as ColorRect).visible)
-	assert((hud.get_node("ChallengeDebugPanel/Text") as Label).text.contains("LOS:"))
+	assert((_customer.get_node("DebugStatus") as Label3D).text.contains("LOS:"))
 	assert(visit.customer_id == identity and visit.definition.key == &"gaze_customer")
 	_camera.look_at(_camera.global_position + Vector3.LEFT)
 	ECS.world.process(FRAME_DELTA, "GamePlay")
-	await get_tree().process_frame
+	for frame: int in UI_WAIT_FRAMES:
+		await get_tree().process_frame
+		if not (hud.get_node("GazeDistortion") as ColorRect).visible:
+			break
 	assert(state.violation_elapsed == 0.0)
 	assert(not (hud.get_node("GazeDistortion") as ColorRect).visible)
 	# The authored rule remains active while a real parcel enters the counter's physical area.
@@ -115,5 +116,5 @@ func _run() -> void:
 	assert(not (hud.get_node("GazeWarning") as Label).visible)
 	_level.free()
 	ECS.world = null
-	print("Challenge gaze actual dialogue camera warning physical service departure and cleanup smoke PASS")
+	print("Challenge gaze arrival wall number camera vignette no-dialogue physical service cleanup smoke PASS")
 	get_tree().quit.call_deferred()

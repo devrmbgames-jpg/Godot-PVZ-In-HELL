@@ -41,6 +41,7 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 			linear_velocity,
 			angular_velocity,
 			event.cause,
+			PackageContentsService.is_empty(package),
 		)
 	)
 
@@ -53,6 +54,7 @@ func _replace_with_debris(
 	linear_velocity: Vector3,
 	angular_velocity: Vector3,
 	cause: DamageResult,
+	contents_released: bool,
 ) -> void:
 	if not is_instance_valid(_world) or not EntityAvailability.contains(package, _world):
 		return
@@ -83,6 +85,7 @@ func _replace_with_debris(
 	spawned.definition = definition
 	spawned.cause = cause
 	spawned.world_pose = world_pose
+	spawned.contents_released = contents_released or PackageContentsService.is_empty(package)
 	_world.emit_event(PackageDebrisSpawnedEvent.EVENT, debris, spawned)
 
 	_world.remove_entity(package)

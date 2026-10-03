@@ -62,6 +62,8 @@ static func _raycast_collider(holder: Entity, interactor: C_Interactor) -> Objec
 		return null
 
 	interaction_raycast.enabled = true
+	# Объём площадки помогает наводиться с Carry; без груза луч видит саму посылку.
+	interaction_raycast.collide_with_areas = GrabService.held_in_slot(holder, C_Grabbable.HoldSlot.CARRY) != null
 	interaction_raycast.target_position = Vector3.FORWARD * maxf(
 		interactor.interaction_distance,
 		0.1,
