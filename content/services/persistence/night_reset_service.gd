@@ -37,6 +37,11 @@ static func reset() -> void:
 			var control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
 			control.captures.clear()
 			control.rotation_active = false
+		if entity is E_DistrictNpc and entity.has_component(C_CustomerAgent):
+			var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
+			var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+			if visit != null:
+				NpcServiceRole.finish_appearance(entity as E_DistrictNpc, visit)
 		if entity.has_component(C_CustomerAgent) and not entity.has_component(C_NpcIdentity):
 			CustomerInspectionService.end(entity)
 			ECS.world.remove_entity(entity)

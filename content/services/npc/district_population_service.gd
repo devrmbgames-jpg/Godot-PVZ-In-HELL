@@ -188,6 +188,8 @@ static func complete_phase(person: NpcRecord, body: E_DistrictNpc) -> void:
 static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) -> void:
 	if person.death_day != 0:
 		return
+	NpcRemainsService.release(body)
+	NpcServiceRole.mark_dead(person, body, day_index)
 	person.death_day = day_index
 	person.phase_complete = true
 	set_placement(person, body, NpcRecord.Placement.DEAD)

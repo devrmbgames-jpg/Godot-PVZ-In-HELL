@@ -1,12 +1,19 @@
 extends RefCounted
+## Parcel presentation with permanent district names and unchanged order numbering.
 class_name CustomerPresentation
+
+#region Customer presentation
+## Resolves a permanent person name, falling back to legacy case policy.
+static func customer_name(visit: CustomerVisit) -> String:
+	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id) if visit != null else null
+	return person.profile.display_name if person != null else visit.definition.display_name if visit != null and visit.definition != null else "Клиент"
 
 
 static func request_text(visit: CustomerVisit) -> String:
 	var number: int = registered_number(visit)
 	if number >= 0:
-		return "%s\nМой заказ №%03d. Передайте коробку мне или положите её на стойку выдачи." % [visit.definition.display_name, number]
-	return "%s\nМой заказ ещё не зарегистрирован. Просканируйте поступившие коробки." % visit.definition.display_name
+		return "%s\nМой заказ №%03d. Передайте коробку мне или положите её на стойку выдачи." % [customer_name(visit), number]
+	return "%s\nМой заказ ещё не зарегистрирован. Просканируйте поступившие коробки." % customer_name(visit)
 
 
 static func uses_quick_order(definition: DEF_Customer) -> bool:
@@ -55,3 +62,4 @@ static func visit_text(visit: CustomerVisit) -> String:
 		var outcomes: Array[String] = ["на рассмотрении", "подтверждена", "ложная", "штраф отменён: клиент побеждён игроком", "расчёт уже выполнен", "клиент мёртв"]
 		result += "\nЖалоба: %s · расчёт: %+d" % [outcomes[visit.complaint.outcome], visit.complaint.money_delta]
 	return result
+#endregion

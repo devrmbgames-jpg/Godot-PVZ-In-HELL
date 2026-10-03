@@ -68,6 +68,11 @@ static func _flee(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAware
 			portal = place.key
 	var destination: Vector3 = DistrictPopulationService.position_for(portal)
 	if actor_position.distance_to(destination) <= ARRIVAL_DISTANCE:
+		var agent: C_CustomerAgent = actor.get_component(C_CustomerAgent) as C_CustomerAgent
+		if agent != null:
+			var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+			if visit != null:
+				NpcServiceRole.finish_appearance(actor, visit)
 		CombatService.end_combat(actor)
 		awareness.fleeing = false
 		awareness.has_last_seen = false

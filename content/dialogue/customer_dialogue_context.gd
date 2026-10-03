@@ -73,7 +73,9 @@ func day_phase() -> int:
 
 func interests_text() -> String:
 	var visit: CustomerVisit = _visit()
-	return ", ".join(visit.definition.interests) if visit != null and visit.definition != null else ""
+	var identity: C_NpcIdentity = _customer.get_component(C_NpcIdentity) as C_NpcIdentity if is_instance_valid(_customer) else null
+	var person: NpcRecord = DistrictPopulationService.person_for(identity.npc_id) if identity != null else null
+	return ", ".join(person.profile.interests) if person != null else ", ".join(visit.definition.interests) if visit != null and visit.definition != null else ""
 
 
 func customer_phase() -> int:

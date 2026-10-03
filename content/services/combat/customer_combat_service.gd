@@ -7,6 +7,8 @@ const DEFAULT_STOP_DISTANCE: float = 1.0
 
 
 static func tick(customer: E_Customer) -> void:
+	if customer.has_component(C_NpcIdentity):
+		return
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
 	if visit == null or visit.finished or customer.has_component(C_Death):

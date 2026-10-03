@@ -25,15 +25,15 @@ Complete all six accepted implementation stages and their focused validation.
 
 ### Current
 
-Stages 1–2 implemented. Stage 1 commit: 274c57d5. Added native LimboAI priority tree with five reusable subtrees, single movement owner, staggered 5 Hz sight/hearing, actual-motion footsteps, light exposure, physical multi-point occlusion, last-seen search and escape. Existing service behavior is not yet migrated. Baseline `dev`; pre-existing GECS modification is untouched.
+Stages 1–3 implemented. Commits: 274c57d5 (foundation), 6e37f466 (AI/perception). Persistent district now binds new daily cases to lifetime IDs, enqueues retained bodies, reserves one counter through R_NpcServiceAt, and releases appearances without deleting the person. Native tree executes service timers. Legacy no-district fixtures retain their original implementation. Permanent death reaches every case. Night clears appearances while retaining bodies. Baseline `dev`; pre-existing GECS modification is untouched.
 
 ### Next
 
-Commit stage 2, then migrate customer creation/departure/night reset into persistent NPC service roles and queue. Preserve case policy and all parcel/accounting contracts. Add traits/social reactions/hazard routing and then home delivery.
+Commit stage 3. Implement personalities and intrinsic supernatural rules, fire damage/resistance, aura lifecycle and hazard-aware routes; then witnessed incidents, street dialogue, loot, distinct replacement names/profiles and evening home delivery. Important remaining details: merchant replacement needs its catalog/action; caches/BT state must reset on snapshot restore; disabled NPC inventory ownership must be permitted in snapshot graph; full save roundtrip/domain validation and connected district smoke still needed.
 
 ### Validation
 
-Population/native-tree GUT: 5/5, 27 assertions PASS. Physical perception GUT: 4/4, 12 assertions PASS. Fresh-process parser: two batches of seven scripts, zero failures. Structure validation PASS. Navigation bake PASS (113 polygons). Fixed native BT null scene root in minimal fixtures with explicit scene-root hint. Live in-use scripts sometimes reject reload with error 43; fresh-process checks cover current disk code. Editor-only global settings writes are sandboxed; headless runtime checks require no such write. Full service/persistence regression and connected smoke remain pending.
+Population/native-tree GUT 5/5 (27 assertions), physical perception 4/4 (12), district service 8/8 (41), existing customer flow/timing/dialogue 48/48 (465): PASS. Three fresh-process parser batches (7, 7, 6 scripts) zero failures. Structure PASS. Navigation bake PASS (113 polygons). Native BT null scene-root fixture issue fixed. Live in-use scripts sometimes reject reload with error 43; fresh-process checks cover disk code. Editor-only global settings writes are sandboxed; headless runtime checks require no such write. Full persistence regression and connected smoke remain pending.
 
 ### Owner QA / blockers
 

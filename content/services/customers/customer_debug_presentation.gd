@@ -26,7 +26,7 @@ static func text_for(customer: E_Customer) -> String:
 	if visit == null or visit.definition == null:
 		return ""
 	var number: int = CustomerPresentation.registered_number(visit)
-	var lines: Array[String] = ["%s · %s" % [visit.definition.display_name, "№%03d" % number if number >= 0 else "без номера"]]
+	var lines: Array[String] = ["%s · %s" % [CustomerPresentation.customer_name(visit), "№%03d" % number if number >= 0 else "без номера"]]
 	var duration: float = _phase_duration(agent, visit.definition)
 	lines.append("%s · %.1f / %.1f с" % [PHASE_NAMES[agent.phase], agent.elapsed, duration])
 	if agent.phase in [C_CustomerAgent.Phase.GOING_TO_BOOTH, C_CustomerAgent.Phase.INSPECTING, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH]:

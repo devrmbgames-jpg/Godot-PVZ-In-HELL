@@ -73,10 +73,14 @@ static func plan_day(flow: C_CustomerFlow, day: int, payment: int) -> void:
 						already_planned = true
 				if already_planned:
 					continue
+				var district: C_District = DistrictPopulationService.current()
+				var recipient: NpcRecord = DistrictPopulationService.recipient_for(definition.recipient_id) if district != null else null
+				if district != null and recipient == null:
+					continue
 				var visit: CustomerVisit = CustomerVisit.new()
 				visit.visit_id = visit_id
 				visit.package_id = package_id
-				visit.customer_id = StringName("%s:%d" % [definition.recipient_id, supply_day])
+				visit.customer_id = recipient.npc_id if recipient != null else StringName("%s:%d" % [definition.recipient_id, supply_day])
 				visit.definition = event.customer
 				visit.requires_registered_package = event.requires_registered_package
 				visit.arrival_day = supply_day + event.arrival_delay_days
@@ -150,7 +154,8 @@ static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
 		if visit.started and not visit.finished and customer_for(visit.visit_id) == null:
 			finish(visit, cycle.day_index)
 	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
-		_step(customer as E_Customer, cycle, delta)
+		if not customer.has_component(C_NpcIdentity):
+			_step(customer as E_Customer, cycle, delta)
 	cycle.remaining_customer_events = actionable_remaining(flow, cycle.day_index)
 	spawn_next_due(flow, cycle)
 
@@ -217,6 +222,8 @@ static func spawn_next_due(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 		return false
 	if flow.arrival_cooldown_seconds > 0.0:
 		return false
+	if DistrictPopulationService.current() != null:
+		return NpcServiceRole.enqueue_next(flow, cycle)
 	# Внутри CommandBuffer query ещё может быть пустым после появления первого клиента.
 	for customer: Entity in ECS.world.entities:
 		if is_instance_valid(customer) and customer.has_component(C_CustomerAgent):
@@ -310,7 +317,7 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 	var visit: CustomerVisit = find_visit(agent.visit_id)
 	if visit == null:
 		CustomerInspectionService.end(customer)
-		ECS.world.remove_entity(customer)
+		_remove_appearance(customer, visit)
 		return
 	var death: C_Death = customer.get_component(C_Death) as C_Death
 	if death != null:
@@ -322,13 +329,15 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 				actor = death.cause.request.source
 			visit.defeated_by_player = is_instance_valid(actor) and actor.has_component(C_PlayerInputController)
 		finish(visit, cycle.day_index)
-		ECS.world.remove_entity(customer)
+		_remove_appearance(customer, visit)
 		return
 	bind_parcel(customer, visit)
 	agent.elapsed += delta
 	CustomerGreetingService.tick(customer, visit)
 	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
 	match agent.phase:
+		C_CustomerAgent.Phase.QUEUED:
+			NpcServiceRole.step_queue(customer as E_DistrictNpc, visit)
 		C_CustomerAgent.Phase.WAITING_FOR_DARKNESS:
 			if CustomerArrivalService.tick(customer, agent, visit, cycle):
 				_leave(customer, visit)
@@ -361,7 +370,7 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 			if CustomerInspectionService.tick(customer, visit):
 				_complete_inspection(customer, visit)
 		C_CustomerAgent.Phase.AGGRESSIVE:
-			if agent.elapsed >= visit.definition.aggressive_seconds:
+			if (customer is E_DistrictNpc and CombatService.target_for(customer) == null) or agent.elapsed >= visit.definition.aggressive_seconds:
 				_leave(customer, visit)
 		C_CustomerAgent.Phase.LEAVING:
 			var departure_timeout: float = maxf(
@@ -379,7 +388,19 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 						return
 				_transition(agent, C_CustomerAgent.Phase.FINISHED)
 				finish(visit, cycle.day_index)
-				ECS.world.remove_entity(customer)
+				_remove_appearance(customer, visit)
+
+
+static func _remove_appearance(customer: E_Customer, visit: CustomerVisit) -> void:
+	if customer is E_DistrictNpc:
+		if visit != null:
+			NpcServiceRole.finish_appearance(customer as E_DistrictNpc, visit)
+		else:
+			var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+			if agent != null:
+				NpcServiceRole.release(customer, agent.visit_id)
+	else:
+		ECS.world.remove_entity(customer)
 
 
 static func greet(customer: E_Customer) -> void:
@@ -686,6 +707,8 @@ static func enter_aggressive(customer: E_Customer) -> bool:
 	if agent.phase == C_CustomerAgent.Phase.AGGRESSIVE:
 		return true
 	_transition(agent, C_CustomerAgent.Phase.AGGRESSIVE)
+	if customer is E_DistrictNpc:
+		NpcServiceRole.escalate(customer as E_DistrictNpc)
 	NpcIntentService.stop(customer)
 	_watch_player(customer)
 	customer.show_message("Вы меня обманули!")
@@ -809,6 +832,10 @@ static func _settle_visit(visit: CustomerVisit, wallet: C_Wallet, day: int) -> v
 
 
 static func _watch_player(customer: E_Customer) -> void:
+	var awareness: C_NpcAwareness = customer.get_component(C_NpcAwareness) as C_NpcAwareness
+	if awareness != null and not awareness.player_visible:
+		NpcIntentService.look_along_movement(customer)
+		return
 	for player: Entity in ECS.world.query.with_all([C_PlayerInputController]).execute():
 		var character: E_PhysicalCharacter = player as E_PhysicalCharacter
 		var offset: Vector3 = Vector3.ZERO

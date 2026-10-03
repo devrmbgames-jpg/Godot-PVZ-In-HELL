@@ -14,6 +14,8 @@ var noises: Array[NpcNoise] = []
 var next_noise_sequence: int = 1
 ## Derived player footstep cadence; not saved.
 var player_step_elapsed: float = 0.0
+## Monotonic service appearance ordering, independent of archetype query order.
+@export var next_service_order: int = 1
 ## Monotonic lifetime sequence for newly settled persons.
 @export var next_person: int = 1
 ## Last committed morning prevents duplicate resettlement on save retries.

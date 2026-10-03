@@ -64,6 +64,10 @@ static func customers_in_room(cycle: C_DayCycle) -> int:
 	var count: int = 0
 	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		var body: Node3D = customer as Node as Node3D
+		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+		var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+		if visit != null and visit.finished:
+			continue
 		if not customer.has_component(C_Death) and (room == null or (body != null and room.overlaps_body(body))):
 			count += 1
 	return count
