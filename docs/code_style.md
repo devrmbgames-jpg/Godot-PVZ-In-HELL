@@ -80,6 +80,49 @@ Do not use public member state as a shortcut for cross-system access.
 
 Use explicit types whenever inference is ambiguous or an API returns Variant/untyped data.
 
+## GDScript readability and spacing
+
+Code should be easy to scan by humans, not merely compact.
+
+- Inside non-trivial functions, separate distinct logical phases with exactly one blank line when it improves scanning.
+- Typical phase boundaries include: input/setup, guard clauses, data lookup, state mutation, external side effects, and result/follow-up work.
+- Keep tightly related statements together. Do not insert blank lines mechanically after every statement.
+- Do not collapse several conceptual steps into one dense uninterrupted block just to save vertical space.
+- Nested blocks should remain visually clear through indentation plus sensible spacing around separate phases.
+- Formatting-only cleanup must not change control flow, evaluation order, API, signals, resource/scene contracts, or gameplay behavior.
+
+Example:
+
+```gdscript
+# GOOD
+func begin_delivery(actor: Entity, order: DeliveryOrder) -> bool:
+    if actor == null or order == null:
+        return false
+
+    var inventory: C_Inventory = actor.get_component(C_Inventory) as C_Inventory
+    if inventory == null:
+        return false
+
+    order.status = DeliveryOrder.Status.ACTIVE
+    inventory.active_order_id = order.order_id
+
+    DeliveryEvents.started.emit(actor, order)
+    return true
+
+
+# BAD
+func begin_delivery(actor: Entity, order: DeliveryOrder) -> bool:
+    if actor == null or order == null:
+        return false
+    var inventory: C_Inventory = actor.get_component(C_Inventory) as C_Inventory
+    if inventory == null:
+        return false
+    order.status = DeliveryOrder.Status.ACTIVE
+    inventory.active_order_id = order.order_id
+    DeliveryEvents.started.emit(actor, order)
+    return true
+```
+
 ## GDScript documentation and regions
 
 Project-owned scripts are documented for humans using Godot documentation comments.

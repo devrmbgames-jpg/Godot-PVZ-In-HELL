@@ -62,6 +62,17 @@ A parser-clean file with avoidable type/shadowing warnings is not considered cle
 
 Use incremental cursors when doing repeated checks; do not repeatedly dump the whole editor log.
 
+## PVZ custom GECS tools
+
+When `addons/pvz_ai_tools/` is enabled, prefer its compact read-only tools before broad SceneTree or source-code reconstruction for GECS inspection:
+
+- `custom_pvz_gecs_world_summary` — entity/component/relationship counts.
+- `custom_pvz_gecs_find_entities` — narrow entity lookup by id/name/path/class/component.
+- `custom_pvz_gecs_entity_inspect` — compact component state for one entity.
+- `custom_pvz_gecs_relationships` — incoming/outgoing relationship inspection.
+
+The custom-tool handler starts in the Godot **Editor** process but can route read-only inspection over the project's dedicated debugger bridge into the running game's real `ECS.world`. Use `source="runtime"` when live gameplay state is required, `source="editor"` for authored/editor state, and the default `source="auto"` to prefer runtime then fall back. Always respect the returned `source` field.
+
 ## Context discipline for GPT-6.1 Sol
 
 Do not use MCP as a broad exploratory mirror of the project. Query the smallest relevant script/class/scene/log range. Prefer one targeted diagnostic or ClassDB call over loading whole scenes, full API sections, screenshots, or runtime state that the task does not need.

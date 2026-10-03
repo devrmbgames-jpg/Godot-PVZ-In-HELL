@@ -7,7 +7,7 @@ Start from the user's task and the exact files, symbols, errors, scenes, or reso
 - Runtime: Godot 4.7, GDScript, Forward Plus, Jolt Physics.
 - GECS v8 is pinned under `addons/gecs/`; checked-out source is the API authority. `addons/` is read-only unless addon/dependency work is explicit.
 - Project-owned GDScript is statically typed. Declare concrete types when inference crosses Variant/untyped APIs, containers, dynamic lookup, or broad Object/Node boundaries. Avoid local/member/parameter names that shadow existing or inherited properties/methods.
-- Project-owned GDScript must be human-readable: give each script a short `##` description; document public variables, every `@export` field, signals, and public methods with concise `##` comments; group methods by responsibility inside named `#region ...` / `#endregion` blocks.
+- Project-owned GDScript must be human-readable: give each script a short `##` description; document public variables, every `@export` field, signals, and public methods with concise `##` comments; group methods by responsibility inside named `#region ...` / `#endregion` blocks. Inside non-trivial functions, separate distinct logical phases with a single blank line; do not compress setup, guards, state changes, side effects, and follow-up work into one dense uninterrupted block. Keep closely related statements together and do not add blank lines mechanically after every statement.
 - Components contain data/state. Relationships own authoritative live Entity-to-Entity bindings. Systems are scheduled behavior and do not call other Systems as services. Reusable imperative logic belongs in services/solvers/observers or thin Entity/engine glue.
 - Godot physics bodies own physical transform/velocity unless an explicit synchronization contract says otherwise.
 - Preserve scene/resource/data contracts unless migration is explicit: exported properties, node names/paths, signals, authored IDs, relationship/component ownership, and resource paths.
@@ -26,6 +26,14 @@ Start from the user's task and the exact files, symbols, errors, scenes, or reso
 5. Read an `agent_tasks/*.md` file only when the user references that task or durable cross-session state is needed.
 
 Stop exploring once owner, contract, and regression surface are known. Prefer exact symbol/path search and targeted ranges over recursive inventories or full-file dumps.
+
+## Tool batching and reasoning efficiency
+
+- Prefer coherent batches of related reads, edits, and validations over many tiny tool calls.
+- Before calling a tool, consider whether several independent operations can safely be combined.
+- Avoid alternating `reason -> read one file -> reason -> read one file` when the needed files are already known.
+- Validate after a coherent implementation batch, not after every small edit.
+- Do not reduce verification quality to save time.
 
 ## Plan, Goal, and durable task state
 
