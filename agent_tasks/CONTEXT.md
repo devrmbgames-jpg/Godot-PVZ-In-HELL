@@ -8,7 +8,6 @@ This file is the queue/index. It does not replace individual task state.
 | **OWNER_QA** | [R24 World, Customers and Commerce](roadmap_24_world_customers_commerce.md) — M0–M6 implemented; manual acceptance pending |
 | **OWNER_QA** | [Developer Console Testing](developer_console_testing.md) — Stages1–15,28 extended commands, help and scrolling implemented; player QA pending |
 | **OWNER_QA** | [R26 Customer Handoff / CarryPlacement](roadmap_26_customer_handoff_placement.md) — реализация/44 GUT/оба placement smoke готовы; player QA pending |
-
 | **OWNER_QA** | [R27 Клиенты строго по одному](roadmap_27_customer_queue.md) |
 | **OWNER_QA** | [R28 Физическое содержимое и пустые посылки](roadmap_28_physical_package_contents.md) |
 | **OWNER_QA** | [R29 CharacterBody толкает мелкие предметы](roadmap_29_character_push.md) |
