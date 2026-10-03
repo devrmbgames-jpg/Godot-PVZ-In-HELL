@@ -50,3 +50,6 @@ R34 Windows97a0ef71: main20261003-092610Z/test20261003-092744Z, оба menu120 +
 ## 2026-10-03 — R30 M4: отдельные PNG вместо неверного атласа
 
 Владелец отменил AtlasTexture/XML контракт. InputPromptCatalog и все UI consumers используют целые PNG/Texture2D; outline при наличии, обычный PNG/иконка устройства fallback.1417 generated files,30 sheet PNG/XML/import, старый каталог/генератор удалены;1488 отдельных PNG unchanged SHA256. Изменённый исходный XML и остальные удаляемые sheet/code сохранены в .export/r30-m4-removal-backup перед разрешённым повторным automatic review. Settings10/10,74, raw settings smoke194114840 PASS; structure/diff PASS, full/rendered не повторялись. Owner device/visual QA pending; Windows exports следующий шаг. Dev only; unrelated user changes сохранены.
+
+
+R30 M4 Windows f7c1b8cc: main20261003-094515Z/test20261003-094648Z, оба menu120 + actual-level120 startup PASS; новые PNG включены, старые atlas paths отсутствуют. Launchers обновлены, включая полный help bd59ecad. Player QA pending.
