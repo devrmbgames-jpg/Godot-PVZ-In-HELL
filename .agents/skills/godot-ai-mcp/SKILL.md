@@ -71,7 +71,7 @@ When `addons/pvz_ai_tools/` is enabled, prefer its compact read-only tools befor
 - `custom_pvz_gecs_entity_inspect` — compact component state for one entity.
 - `custom_pvz_gecs_relationships` — incoming/outgoing relationship inspection.
 
-These tools execute in the Godot **Editor** process. Their result explicitly reports its source and must not be mistaken for the separate running-game ECS world. If runtime-only state is required, use an appropriate game-side inspection path instead of assuming editor-side data is live gameplay state.
+The custom-tool handler starts in the Godot **Editor** process but can route read-only inspection over the project's dedicated debugger bridge into the running game's real `ECS.world`. Use `source="runtime"` when live gameplay state is required, `source="editor"` for authored/editor state, and the default `source="auto"` to prefer runtime then fall back. Always respect the returned `source` field.
 
 ## Context discipline for GPT-6.1 Sol
 
