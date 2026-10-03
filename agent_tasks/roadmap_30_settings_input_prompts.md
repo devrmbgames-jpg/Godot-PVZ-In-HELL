@@ -1,6 +1,6 @@
 # R30 — AtlasTexture, настройки и переназначение управления
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 ## Task state
 
@@ -14,7 +14,7 @@ Status: **PLANNED**
 
 Цикл: открыть настройки → выбрать параметр/действие → изменить и увидеть актуальную кнопку → применить → вернуться к игре; после перезапуска выбор сохранён. Решение игрока — удобное личное назначение, при конфликте явное переназначение/отмена.
 
-1. Atlas milestone: детерминированный XML generator, отдельные .res AtlasTexture по регионам существующих sheet PNG, таблица кнопок; проверить границы и полноту данных. В gameplay UI использовать ресурсы, XML не парсить каждый кадр.
+1. Atlas milestone: детерминированный XML generator, отдельные .res AtlasTexture по регионам существующих sheet PNG, таблица кнопок; проверить границы и полноту данных. В gameplay UI использовать ресурсы, XML парсить один раз, когда нет .res файлов.
 2. Settings milestone: единое модальное меню с возвратом в игру, audio/video параметрами, применением и сбросом. Реализовать доступные движку параметры без нерабочих обещаний.
 3. Input milestone: список semantic actions, отдельно клавиатура и геймпад; capture следующего допустимого события, Escape/Back отменяют, конфликты разрешаются явно, analog axes учитывают направление/deadzone. Сохранение binding и default reset.
 4. Prompt milestone: централизованное определение AtlasTexture для актуального binding/устройства; заменить текст кнопок в HUD, терминалах, диалогах, инвентаре, меню настроек и остальных проектных UI. Названия действий остаются текстом.
@@ -35,18 +35,18 @@ Status: **PLANNED**
 
 ### Milestones
 
-- [ ] Изучить XML/atlas и текущие владельцы HUD/input/settings; генерировать отдельные ресурсы и таблицу соответствий.
+- [x] Изучить XML/atlas: сгенерированы все1416 ресурсов из10 XML; event→icon mapping продолжается.
 - [ ] Добавить меню настроек и сохранение рабочих параметров.
 - [ ] Добавить capture/rebind клавиатуры и gamepad, конфликты/сброс/сохранение; заменить button hints во всех проектных UI.
 - [ ] Целевые проверки XML/ресурсов/rebind/persistence, player device QA и Windows build.
 
 ### Current
 
-Задача записана до реализации. Следующий шаг: исследовать прямого владельца первого milestone после текущего R26.
+M0: PromptAtlasCatalog и utils/generate_input_prompt_atlases.gd. Готовые binary AtlasTexture в content/resources/input_prompts/<family>/<default|double>/*.res. На отсутствие .res — одноразовый XML fallback/cache по листу (уточнение владельца сохранено). Следующий шаг: mapping InputEvent→иконка, меню настроек и persistence/rebind; подключение к общему HUD обеих сцен.
 
 ### Validation
 
-Не выполнялась. На небольших этапах только оправданные целевые проверки; полный прогон на крупных milestone.
+M0: генератор проверил границы, уникальность имён и roundtrip каждого из1416 binary .res (.export/r30-atlases.log). Повторная генерация:1416 проверено,0 записано (.export/r30-atlases-idempotent.log). Structure PASS. GUT/rendered gameplay для этой генерации не запускались.
 
 ### Owner QA / blockers
 
