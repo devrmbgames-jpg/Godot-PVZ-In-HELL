@@ -2,8 +2,11 @@
   "mcpServers": {
     "godot-ai": {
       "type": "stdio",
-      "command": "uvx",
+      "command": "C:\\Users\\Valeryn\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\pythonw.exe",
       "args": [
+        "-c",
+        "import subprocess,sys; raise SystemExit(subprocess.call(sys.argv[1:], stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, creationflags=0x08000000))",
+        "C:\\Users\\Valeryn/.local/bin/uvx.exe",
         "--isolated",
         "--no-config",
         "--no-env-file",
@@ -28,8 +31,7 @@
         "--port",
         "8001",
         "--ws-port",
-        "9500",
-        "--disable-telemetry"
+        "9500"
       ]
     }
   }
