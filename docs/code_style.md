@@ -80,6 +80,49 @@ Do not use public member state as a shortcut for cross-system access.
 
 Use explicit types whenever inference is ambiguous or an API returns Variant/untyped data.
 
+## GDScript documentation and regions
+
+Project-owned scripts are documented for humans using Godot documentation comments.
+
+- Every `.gd` script gets a short script-level `##` description of its responsibility.
+- Every public variable (name without a leading `_`) gets a concise `##` description.
+- Every `@export` field gets a concise `##` description, even when its name is private. Place the documentation immediately before the annotation/field so Godot can use it as Inspector documentation.
+- Every signal gets a concise `##` description.
+- Every public method (name without a leading `_`) gets a concise `##` description of its contract/intent.
+- Keep documentation short and useful; normally one line is enough. Do not narrate obvious implementation details or document private helpers merely to add comments.
+
+Functions must be grouped into named Godot code regions by responsibility, for example:
+
+```gdscript
+#region Lifecycle
+
+func _ready() -> void:
+    pass
+
+#endregion
+
+#region Public API
+
+## Opens the terminal for the given actor.
+func open_for(actor: Entity) -> void:
+    pass
+
+#endregion
+
+#region Signal handlers
+
+func _on_button_pressed() -> void:
+    pass
+
+#endregion
+```
+
+Use logical groups such as `Lifecycle`, `Public API`, `GECS`, `Input`, `Presentation`, `Signal handlers`, or `Internal` according to the script. Do not create arbitrary one-function regions when a nearby logical group exists.
+
+Godot region syntax is exact: use `#region` and `#endregion` with **no space** after `#`. Do not write `# region`.
+
+Reference: https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_documentation_comments.html
+
 ## Resource filenames
 
 Project-authored `.tres` resources use a short type prefix so global search groups similar assets immediately.
