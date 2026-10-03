@@ -4,7 +4,7 @@
 
 ## Позиция в roadmap
 
-Implementation task: [R11.1 — Extended Interaction / Arrangement](../../task_history.md).
+Implementation task: R11.1 — Extended Interaction / Arrangement.
 
 Выполнить после базового interaction/hand/carry contract R06.1 и до R12 Dialogue integration. Это design-ТЗ 08.1; номер `08.1` не является implementation ID.
 

@@ -1,6 +1,6 @@
-# Gameplay Context
+# Gameplay Architecture
 
-Read this file only when a task crosses subsystem boundaries or the owning contract is unclear. For a focused bugfix, start from the named code and direct callers instead.
+Durable cross-system gameplay contracts. Read on demand only when a task crosses subsystem boundaries or the owning authority is unclear; focused work should start from the named code.
 
 ## Runtime entry and scheduling
 

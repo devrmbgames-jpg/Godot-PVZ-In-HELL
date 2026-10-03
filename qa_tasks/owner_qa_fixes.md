@@ -1,6 +1,6 @@
 # Повторная проверка замечаний владельца
 
-Источник: [R23 QA-01–QA-13](../agent_tasks/roadmap_23_vertical_slice_validation/owner_qa.md).
+Источник: R23 QA-01–QA-13; implementation evidence сохранены в Git history.
 
 Готовность: **ГОТОВО К ПРОВЕРКЕ QA-01–20 и R24** в последней Windows сборке. Реализация завершена; результат: **ОЖИДАЕТ ИГРОКА**.
 
