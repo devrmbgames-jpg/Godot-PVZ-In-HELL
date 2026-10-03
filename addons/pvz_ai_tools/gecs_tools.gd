@@ -217,7 +217,7 @@ func _entity_source() -> Dictionary:
 func _entities_from_source(source: Dictionary) -> Array[Entity]:
 	var result: Array[Entity] = []
 	var raw_entities: Variant = source.get("entities", [])
-	if not raw_entities is Array:
+	if not (raw_entities is Array):
 		return result
 	for value: Variant in raw_entities:
 		var entity: Entity = value as Entity
