@@ -9,6 +9,8 @@ func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 	var event: PackageDebrisSpawnedEvent = payload as PackageDebrisSpawnedEvent
 	if event == null or event.definition == null:
 		return
+	if event.contents_released:
+		return
 	if event.definition.hazard_on_destroyed == null:
 		return
 	if not EntityAvailability.contains(event.debris, _world):

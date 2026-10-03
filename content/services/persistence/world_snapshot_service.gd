@@ -269,7 +269,8 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			body.linear_velocity = Vector3.ZERO
 			body.angular_velocity = Vector3.ZERO
 			if entity is E_Package:
-				body.mass = (entity.get_component(C_Package) as C_Package).definition.mass_kg
+				var definition: DEF_Package = (entity.get_component(C_Package) as C_Package).definition
+				body.mass = definition.empty_mass_kg if PackageContentsService.is_empty(entity) else definition.mass_kg
 		if record.death and not entity.has_component(C_Death):
 			entity.add_component(C_Death.new())
 		elif not record.death and entity.has_component(C_Death):

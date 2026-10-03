@@ -9,8 +9,18 @@
 [ext_resource type="PackedScene" path="res://content/entities/hazards/toxic_residue.tscn" id="ToxicResidue"]
 [ext_resource type="PackedScene" path="res://content/entities/props/cloth_sample.tscn" id="ClothContents"]
 
+[ext_resource type="PackedScene" path="res://content/entities/packages/content_books.tscn" id="Contents_Books"]
+[ext_resource type="PackedScene" path="res://content/entities/packages/content_bottles.tscn" id="Contents_Bottles"]
+[ext_resource type="PackedScene" path="res://content/entities/packages/content_equipment.tscn" id="Contents_Equipment"]
+[ext_resource type="PackedScene" path="res://content/entities/packages/content_glass.tscn" id="Contents_Glass"]
+[ext_resource type="PackedScene" path="res://content/entities/packages/content_oil.tscn" id="Contents_Oil"]
+[ext_resource type="PackedScene" path="res://content/entities/packages/content_power_cells.tscn" id="Contents_Cells"]
+[ext_resource type="PackedScene" path="res://content/entities/packages/content_tools.tscn" id="Contents_Tools"]
+
 [sub_resource type="Resource" id="Books"]
 script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Books")
+unpack_offset = Vector3(0, 0, 0)
 description = "Книги"
 comment = "Обычный заказ"
 recipient_id = &"customer_01"
@@ -19,6 +29,9 @@ key = &"books"
 
 [sub_resource type="Resource" id="Bottles"]
 script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Bottles")
+unpack_offset = Vector3(0, 0, 0)
+activate_contents_hazard = true
 description = "Бутылки с реагентами"
 comment = "Хранить вертикально. Не вскрывать."
 recipient_id = &"customer_02"
@@ -36,6 +49,8 @@ key = &"bottles"
 
 [sub_resource type="Resource" id="Equipment"]
 script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Equipment")
+unpack_offset = Vector3(0, 0, 0)
 description = "Лабораторное оборудование"
 comment = "Тяжёлое и хрупкое"
 recipient_id = &"customer_03"
@@ -50,6 +65,8 @@ key = &"equipment"
 
 [sub_resource type="Resource" id="Glass"]
 script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Glass")
+unpack_offset = Vector3(0, 0, 0)
 description = "Стеклянная посуда"
 comment = "Осторожно, стекло"
 recipient_id = &"customer_04"
@@ -64,6 +81,8 @@ key = &"glass"
 
 [sub_resource type="Resource" id="Oil"]
 script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Oil")
+unpack_offset = Vector3(0, 0, 0)
 description = "Техническое масло"
 recipient_id = &"customer_05"
 tags = 8
@@ -74,6 +93,8 @@ key = &"oil"
 
 [sub_resource type="Resource" id="Cells"]
 script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Cells")
+unpack_offset = Vector3(0, 0, 0)
 description = "Энергетические ячейки"
 comment = "Беречь от ударов. Опасное содержимое."
 recipient_id = &"customer_06"
@@ -90,6 +111,7 @@ key = &"power_cells"
 [sub_resource type="Resource" id="Clothes"]
 script = ExtResource("1_45rg7")
 unpack_scene = ExtResource("ClothContents")
+unpack_offset = Vector3(0, 0, 0)
 content_quantity = 1
 description = "Рабочая одежда"
 recipient_id = &"customer_07"
@@ -99,6 +121,8 @@ key = &"clothes"
 
 [sub_resource type="Resource" id="Tools"]
 script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Tools")
+unpack_offset = Vector3(0, 0, 0)
 content_item_key = &"bubble_wrap"
 content_quantity = 4
 description = "Набор инструментов"

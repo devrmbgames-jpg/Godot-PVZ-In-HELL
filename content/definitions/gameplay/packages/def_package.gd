@@ -30,6 +30,11 @@ enum HazardClass {
 @export var unpack_scene: PackedScene = null
 ## Offset from the parcel before projecting contents onto real floor/support geometry.
 @export var unpack_offset: Vector3 = Vector3(2.0, 0.0, 0.0)
+## Мелкое содержимое выбрасывается над коробкой; мебель размещается на опоре.
+@export var spill_contents: bool = true
+@export_range(0.0, 5.0, 0.1) var spill_speed: float = 1.2
+@export var activate_contents_hazard: bool = false
+@export_range(0.1, 10.0, 0.1) var empty_mass_kg: float = 1.0
 @export var shipment_number: String = ""
 @export_multiline var description: String = ""
 @export_multiline var comment: String = ""

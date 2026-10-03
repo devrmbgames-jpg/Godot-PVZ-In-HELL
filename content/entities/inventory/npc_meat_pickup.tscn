@@ -48,9 +48,11 @@ height = 0.44
 [sub_resource type="BoxShape3D" id="Shape"]
 size = Vector3(0.44, 0.24, 0.24)
 
-[node name="NpcMeat" type="StaticBody3D"]
+[node name="NpcMeat" type="RigidBody3D"]
 collision_layer = 8
-collision_mask = 0
+collision_mask = 29
+mass = 0.4
+continuous_cd = true
 script = ExtResource("Entity")
 component_resources = Array[ExtResource("Component")]([SubResource("Item"), SubResource("Interactable"), SubResource("Actions")])
 

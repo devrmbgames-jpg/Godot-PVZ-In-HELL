@@ -12,3 +12,4 @@ comment = "Тестовая распаковка: F по коробке (Вск�
 content_item_key = &"med"
 content_quantity = 5
 unpack_scene = ExtResource("Contents")
+unpack_offset = Vector3(0, 0, 0)

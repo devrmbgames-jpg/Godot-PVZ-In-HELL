@@ -36,7 +36,7 @@ static func drop(actor: Entity, item: Entity) -> bool:
 	var instance: Node = prefab.instantiate()
 	var pickup: E_InventoryPickup = instance as E_InventoryPickup
 	var collider: CollisionShape3D = instance.get_node_or_null("Collision") as CollisionShape3D
-	if pickup == null or not instance is StaticBody3D or collider == null or collider.shape == null:
+	if pickup == null or not instance is RigidBody3D or collider == null or collider.shape == null:
 		instance.free()
 		return false
 	var components: Array[Component] = pickup.component_resources.duplicate()
@@ -51,7 +51,7 @@ static func drop(actor: Entity, item: Entity) -> bool:
 	if not replaced:
 		instance.free()
 		return false
-	var body: StaticBody3D = instance as StaticBody3D
+	var body: RigidBody3D = instance as RigidBody3D
 	var position: Variant = _placement(actor, collider)
 	if not position is Vector3:
 		instance.free()

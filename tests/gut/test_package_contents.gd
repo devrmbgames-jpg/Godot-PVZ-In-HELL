@@ -84,6 +84,24 @@ func _open(parcel: E_Package) -> void:
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
 
 
+func test_opening_held_package_refreshes_empty_carry_mass_without_releasing() -> void:
+	var parcel: E_Package = _package("bread")
+	var body: RigidBody3D = parcel as Node as RigidBody3D
+	body.freeze = false
+	body.mass = 10.0
+	var grip: R_HeldBy = R_HeldBy.new()
+	grip.slot = C_Grabbable.HoldSlot.CARRY
+	parcel.add_relationship(Relationship.new(grip, _actor))
+	var load_state: C_CarryLoad = _actor.get_component(C_CarryLoad) as C_CarryLoad
+	assert_true(load_state.active)
+	assert_eq(load_state.mass_kg, 10.0)
+	assert_true(PackageOpening.request_open(_actor, parcel))
+	assert_true(load_state.active)
+	assert_eq(load_state.mass_kg, 1.0)
+	assert_eq(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.CARRY), parcel)
+	GrabService.release(_actor, parcel)
+
+
 func test_bread_box_produces_five_individual_usable_items_once() -> void:
 	var parcel: E_Package = _package("bread")
 	await _open(parcel)
@@ -94,7 +112,10 @@ func test_bread_box_produces_five_individual_usable_items_once() -> void:
 		assert_eq(state.quantity, 1)
 		assert_eq(state.definition.key, &"food")
 		assert_false(state.definition.resource_path.is_empty())
-		assert_almost_eq((item as Node as Node3D).global_position.y, 0.13, 0.01)
+		var rigid: RigidBody3D = item as Node as RigidBody3D
+		assert_not_null(rigid)
+		assert_gt(rigid.global_position.y, (parcel as Node as Node3D).global_position.y, "Contents spill above the parcel")
+		assert_gt(rigid.linear_velocity.length(), 0.0, "Real contents have an ejection velocity")
 		assert_true(InventoryService.transfer(item, _actor))
 	var owned: Array[Entity] = InventoryService.items(_actor)
 	assert_eq(owned.size(), 1)
@@ -132,11 +153,119 @@ func test_released_contents_and_inventory_state_restore_without_duplication() ->
 	assert_true(WorldSnapshotService.valid(snapshot, _root))
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
+	assert_eq((parcel as Node as RigidBody3D).mass, parcel.package_definition.empty_mass_kg)
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 5)
 	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Opened, _actor)
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 5)
 	NightResetService.reset()
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
+
+
+func _catalog_package(definition: DEF_Package) -> E_Package:
+	var scene: PackedScene = load(definition.scene_variants[0]) as PackedScene
+	var parcel: E_Package = scene.instantiate() as E_Package
+	parcel.package_definition = definition
+	(parcel as Node as RigidBody3D).freeze = true
+	(parcel as Node as Node3D).position = Vector3(5, 1, 5)
+	_world.add_entity(parcel)
+	(parcel.get_component(C_PackageState) as C_PackageState).opening = C_PackageState.Opening.OPENED
+	return parcel
+
+
+func _supply_definition(key: StringName) -> DEF_Package:
+	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
+	for definition: DEF_Package in supply.packages:
+		if definition.key == key: return definition
+	return null
+
+
+func test_every_supply_type_has_real_one_shot_contents_and_leaves_empty_light_shell() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_ToxicAreaSetup.new())
+	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
+	for definition: DEF_Package in supply.packages:
+		assert_not_null(definition.unpack_scene, String(definition.key))
+		var parcel: E_Package = _catalog_package(definition)
+		(parcel.get_component(C_PackageState) as C_PackageState).leaking = true
+		var contents: Array[Entity] = PackageContentsService.release(parcel, _actor)
+		assert_eq(contents.size(), definition.content_quantity, String(definition.key))
+		for item: Entity in contents:
+			assert_true((item as Node) is RigidBody3D)
+			assert_false((item as Node as RigidBody3D).freeze)
+		assert_true(PackageContentsService.is_empty(parcel))
+		assert_false((parcel.get_component(C_PackageState) as C_PackageState).leaking)
+		assert_eq((parcel as Node as RigidBody3D).mass, definition.empty_mass_kg)
+		assert_true(PackageContentsService.release(parcel).is_empty())
+
+
+func test_toxic_effect_follows_extracted_bottle_and_empty_shell_has_no_hazards_or_leaks() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_ToxicAreaSetup.new())
+	_world.add_observer(O_PackageHazard.new())
+	_world.add_observer(O_PackageDestruction.new())
+	_world.add_observer(O_PackageDestroyedHazard.new())
+	_world.add_system(S_LiquidTilt.new())
+	var parcel: E_Package = _catalog_package(_supply_definition(&"bottles"))
+	var tilt: C_LiquidTilt = C_LiquidTilt.new()
+	tilt.duration_seconds = 0.0
+	parcel.add_component(tilt)
+	var contents: Array[Entity] = PackageContentsService.release(parcel, _actor)
+	var effect: Entity = _world.query.with_all([C_ToxicArea]).execute_one()
+	assert_not_null(effect)
+	assert_eq(HazardFollowService.binding(effect).target, contents[0])
+	(parcel as Node as Node3D).rotation.z = PI / 2.0
+	_world.process(30.0)
+	assert_false((parcel.get_component(C_PackageState) as C_PackageState).leaking)
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Damaged, _actor)
+	assert_eq(_world.query.with_all([C_ToxicArea]).execute().size(), 1, "Empty shell cannot emit damage toxin")
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Destroyed, _actor)
+	assert_eq(_world.query.with_all([C_ToxicArea]).execute().size(), 1, "Empty debris cannot emit toxin")
+	assert_eq(HazardFollowService.binding(effect).target, contents[0])
+
+
+func test_extracted_power_cell_can_explode_but_its_empty_package_cannot() -> void:
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_observer(O_ExplosionSetup.new())
+	_world.add_observer(O_HazardEmitter.new())
+	_world.add_observer(O_PackageDestruction.new())
+	_world.add_observer(O_PackageDestroyedHazard.new())
+	var parcel: E_Package = _catalog_package(_supply_definition(&"power_cells"))
+	var contents: Array[Entity] = PackageContentsService.release(parcel, _actor)
+	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Destroyed, _actor)
+	assert_eq(_world.query.with_all([C_Explosion]).execute().size(), 0)
+	var request: DamageRequest = DamageRequest.new()
+	request.target = contents[0]
+	request.source = _actor
+	request.instigator = _actor
+	request.amount = 100.0
+	assert_true(DamageRequestService.submit(request))
+	assert_eq(_world.query.with_all([C_Explosion]).execute().size(), 1)
+	assert_true((contents[0].get_component(C_HazardEmitter) as C_HazardEmitter).fired)
+	assert_false(HazardEmitter.activate(contents[0], _actor))
+
+
+func test_inventory_freezes_real_pickup_and_drop_spawns_live_rigid_body() -> void:
+	var parcel: E_Package = _package("bread")
+	await _open(parcel)
+	var item: Entity = _world.query.with_all([C_InventoryItem]).execute_one()
+	var body: RigidBody3D = item as Node as RigidBody3D
+	assert_true(InventoryService.transfer(item, _actor))
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_true(body.freeze)
+	assert_eq(body.collision_layer, 0)
+	var before: Array[Entity] = _world.query.with_all([C_InventoryItem]).execute().duplicate()
+	assert_true(InventoryDropService.drop(_actor, item))
+	var dropped: RigidBody3D = null
+	for candidate: Entity in _world.query.with_all([C_InventoryItem]).execute():
+		if candidate not in before:
+			dropped = candidate as Node as RigidBody3D
+	assert_not_null(dropped)
+	if dropped == null: return
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_false(dropped.freeze)
+	assert_eq(dropped.collision_layer, 8)
 
 
 func test_authored_opening_hazard_uses_existing_emitter_and_deduplicates_hook() -> void:

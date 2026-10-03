@@ -13,6 +13,8 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 	var interactable: C_Interactable = package.get_component(C_Interactable) as C_Interactable
 	if condition == null or condition.opening == C_PackageState.Opening.OPENED:
 		return false
+	if condition.damage == C_PackageState.Damage.DESTROYED:
+		return false
 	if interactable == null or not interactable.enabled:
 		return false
 	var health: C_Health = actor.get_component(C_Health) as C_Health

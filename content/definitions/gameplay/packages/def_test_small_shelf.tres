@@ -12,3 +12,4 @@ comment = "Тестовая распаковка: F по коробке (Вск�
 content_item_key = &"small_shelf"
 content_quantity = 1
 unpack_scene = ExtResource("Contents")
+spill_contents = false

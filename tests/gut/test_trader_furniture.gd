@@ -147,6 +147,30 @@ func test_configured_catalog_and_schedule_are_independent_from_terminal_orders()
 	assert_eq(_wallet.balance, 820)
 
 
+func test_consumable_deliveries_create_physical_pickups_and_do_not_stall_queue() -> void:
+	var zone: Entity = _home()
+	var receiving: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
+	for key: String in ["food", "med", "bubble_wrap", "npc_meat"]:
+		var item: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_%s.tres" % key) as DEF_InventoryItem
+		assert_not_null(item)
+		assert_true(OrderDeliveryService.can_fulfill_definition(item))
+		var delivery: PendingDelivery = PendingDelivery.new()
+		delivery.delivery_id = key
+		delivery.delivery_day = 2
+		delivery.item = item
+		delivery.quantity = 1
+		_commerce.pending_deliveries.append(delivery)
+		assert_true(OrderDeliveryService.fulfill_one(zone, receiving, _commerce, 2))
+		var goods: Entity = _goods("order/%s" % key)
+		assert_not_null(goods)
+		assert_true((goods as Node) is RigidBody3D)
+		assert_false((goods as Node as RigidBody3D).freeze)
+		assert_true(delivery.fulfilled)
+		assert_false(receiving.blocked)
+		await get_tree().physics_frame
+	assert_false(OrderDeliveryService.fulfill_one(zone, receiving, _commerce, 2))
+
+
 func test_paid_home_delivery_waits_for_day_and_space_then_fulfills_once_after_save() -> void:
 	assert_eq(CommerceService.home_delivery(_actor, _trader, _shelf, 1, &"home/one"), CommerceService.Status.COMMITTED)
 	assert_eq(_wallet.balance, 790)

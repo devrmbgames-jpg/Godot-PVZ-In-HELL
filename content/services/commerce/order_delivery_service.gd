@@ -24,7 +24,7 @@ static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 	if node == null:
 		return false
 	var valid: bool = false
-	if node is E_InventoryPickup and node is StaticBody3D:
+	if node is E_InventoryPickup and node is RigidBody3D:
 		var collision: CollisionShape3D = node.get_node_or_null("Collision") as CollisionShape3D
 		if collision != null and not collision.disabled and collision.shape != null:
 			for component: Component in (node as E_InventoryPickup).component_resources:
@@ -75,7 +75,7 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 			state.blocked = true
 			return false
 		var collision: CollisionShape3D = pickup.get_node_or_null("Collision") as CollisionShape3D
-		var body: StaticBody3D = pickup as Node as StaticBody3D
+		var body: RigidBody3D = pickup as Node as RigidBody3D
 		if collision == null or collision.shape == null or body == null:
 			pickup.free()
 			state.blocked = true

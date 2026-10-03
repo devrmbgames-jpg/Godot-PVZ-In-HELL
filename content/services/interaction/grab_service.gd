@@ -289,6 +289,23 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 
 
 #region Lifecycle transitions
+## Обновляет производный вес переноски по действующему владению, не меняя захват.
+static func refresh_carry_mass(held: Entity) -> void:
+	var grip: Relationship = held_relationship(held)
+	var body: RigidBody3D = physical_body(held)
+	if grip == null or body == null:
+		return
+	var data: R_HeldBy = grip.relation as R_HeldBy
+	if not data.lifecycle_applied or data.slot != C_Grabbable.HoldSlot.CARRY:
+		return
+	var holder: Entity = grip.target as Entity
+	if not holder_available(holder):
+		return
+	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
+	if load_state != null:
+		load_state.mass_kg = body.mass
+
+
 ## Called by O_GrabLifecycle for any relationship producer, not just try_pickup.
 static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var holder: Entity = grip.target as Entity

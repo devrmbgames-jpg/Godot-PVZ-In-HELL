@@ -13,6 +13,7 @@ class_name PackageConditionView
 var _damage: int = -1
 var _opening: int = -1
 var _leaking: bool = false
+var _empty: bool = false
 var _definition: DEF_Package = null
 var _stickers: Array[Label3D] = []
 @onready var _package: Entity = get_parent() as Entity
@@ -61,6 +62,7 @@ func _process(_delta: float) -> void:
 		_damage == condition.damage and _opening == condition.opening
 		and _leaking == condition.leaking
 		and _definition == package_data.definition
+		and _empty == PackageContentsService.is_empty(_package)
 	)
 	if unchanged:
 		return
@@ -68,11 +70,12 @@ func _process(_delta: float) -> void:
 	_opening = condition.opening
 	_leaking = condition.leaking
 	_definition = package_data.definition
+	_empty = PackageContentsService.is_empty(_package)
 
 	var lines: PackedStringArray = []
 	modulate = opened_color
 	if condition.opening == C_PackageState.Opening.OPENED:
-		lines.append("Вскрыта")
+		lines.append("Пустая коробка" if _empty else "Вскрыта")
 	if condition.leaking:
 		lines.append("Протекает")
 		modulate = leaking_color
@@ -85,7 +88,7 @@ func _process(_delta: float) -> void:
 	text = " · ".join(lines)
 	visible = not lines.is_empty()
 	var marking: PackedStringArray = []
-	if _definition != null:
+	if _definition != null and not _empty:
 		if _definition.tags & DEF_Package.Tag.FRAGILE:
 			marking.append("ХРУПКОЕ")
 		if _definition.tags & DEF_Package.Tag.HEAVY:
