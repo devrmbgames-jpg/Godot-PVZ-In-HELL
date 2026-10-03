@@ -31,6 +31,9 @@ func _exit_tree() -> void:
 #region Debugger requests
 
 func _on_debug_message(message: String, data: Array) -> bool:
+	if message == "pvz_ai:ping":
+		EngineDebugger.send_message("pvz_ai:hello", [])
+		return true
 	if message != "pvz_ai:inspect":
 		return false
 	if data.size() < 3:
@@ -39,7 +42,9 @@ func _on_debug_message(message: String, data: Array) -> bool:
 	var request_id: String = String(data[0])
 	var operation: String = String(data[1])
 	var raw_params: Variant = data[2]
-	var params: Dictionary = raw_params as Dictionary if raw_params is Dictionary else {}
+	var params: Dictionary = {}
+	if raw_params is Dictionary:
+		params = raw_params as Dictionary
 	var payload: Dictionary = _dispatch(operation, params)
 	EngineDebugger.send_message("pvz_ai:response", [request_id, payload])
 	return true
