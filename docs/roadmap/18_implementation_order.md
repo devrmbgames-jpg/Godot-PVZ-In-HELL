@@ -1,287 +1,41 @@
-# ТЗ 18 — Порядок реализации для ИИ агентов
-
-> **Важно:** номера `ТЗ xx` — это номера design specifications, а не implementation-order.
-> Канонические implementation IDs — `Rxx` / `Rxx.x`.
-> Полная таблица соответствия: [Roadmap canonical map](README.md).
-
-## Правило работы
-
-Каждый implementation task должен давать маленький проверяемый gameplay result.
-
-- [README](README.md) владеет canonical ID mapping/order.
-- [agent_tasks/CONTEXT.md](../../agent_tasks/CONTEXT.md) владеет live queue/status.
-- Конкретный task/router владеет Status / Current / Next / Validation.
-- `CURRENT_WORK.md` — только указатель на текущий execution focus.
-- `task_history.md` подтверждает завершённые задачи.
-- Design-ТЗ задают требования, но не дублируют implementation progress.
-
-При начале задачи агент сначала проверяет текущие production contracts и зависимости, затем выбирает bounded milestone. Не создавать параллельный WORK/plan, если task/router уже существует.
-
-## Завершённый foundation
-
-1. **R01** — Package/runtime foundation.
-2. **R02** — contextual interaction foundation.
-3. **R03** — day phase cycle.
-4. **R04** — common damage/health pipeline.
-5. **R05** — morning receiving.
-6. **R06** — scanner / registration / terminal.
-7. **R06.1** — Inspector-first components, Carry/two hands, control capture and Push.
-8. **R07** — physical marker and numbered shelves.
-9. **R08** — generic physical Impact, common Health/depletion, package durability and deliberate opening (accepted 2026-09-24).
-
-Не создавать заново task-файлы этих этапов. Использовать durable contracts из roadmap/context и подтверждать завершение через `task_history.md`.
-
----
-
-## R08 — Package Damage / Opening (completed)
-
-Completed 2026-09-24; confirmed in [task_history.md](../../task_history.md). Durable contract: [damage_impact.md](../damage_impact.md). The completed task file was removed from `agent_tasks/`.
-
-Основной источник: [ТЗ 06](06_package_damage_and_hazards.md).
-
-Результат:
-- physical impact → typed impact contract;
-- Package HP/Integrity;
-- weak/medium/strong severity;
-- Fragile;
-- Bubble Wrap protection state;
-- Liquid tilt;
-- opening;
-- **обязательный M5.1 GECS architecture gate для `S_Damage` + `S_Impact` до начала M6**: убрать System→System coupling, `ECS.world.systems` service locator, разделить contact capture/resolution и перевести throw lifetime на specific query + `iterate()`.
-
----
-
-## R09 — Package Hazards
-
-Completed: [hazard contract](../hazards.md); user acceptance 2026-09-27.
-
-Основной источник: [ТЗ 06](06_package_damage_and_hazards.md).
-
-Результат:
-- ToxicLeak;
-- Explosion;
-- оба эффекта используют общий damage pipeline.
-
----
-
-## R10 — Wallet / Daily Results
-
-Completed: [wallet contract](../economy.md); GUT and headless wallet smoke 2026-09-27.
-
-Источники: [ТЗ 07](07_customer_flow_and_delivery.md), [ТЗ 14](14_evening_meta_scaffold.md), [ТЗ 15](15_night_save_next_day.md).
-
-Результат:
-- Money/Penalties;
-- typed idempotent settlement operations;
-- daily result contract.
-
-R10 идёт **до R11**, потому что Customer outcome должен отправлять денежный результат в уже существующий authority, а не создавать деньги внутри Customer/UI.
-
----
-
-## R11 — Customer Flow / Delivery / Disputes
-
-Completed: [customer contract](../customers.md); GUT and headless customer flow 2026-09-27.
-
-Основной источник: [ТЗ 07](07_customer_flow_and_delivery.md).
-
-Результат:
-- Customer schedule/lifecycle;
-- RequestedPackage;
-- actual outcome отдельно от Terminal declaration;
-- voluntary refusal / Player denial / Lost;
-- Complaint/dispute;
-- late Customer and long-lived Package.
-
----
-
-## R11.1 — Extended Interaction / Arrangement
-
-Task: [roadmap_11_1_extended_interactions_and_arrangement.md](../../task_history.md)
-
-Основной источник: [ТЗ 08.1](08_1_arrangement_extended_interactions.md).
-
-Результат:
-- prolonged interaction + progress/reset policies;
-- generic access requirements;
-- physical storage/body slots;
-- Carry PlacementArea;
-- Hammer Fix/Unfix;
-- support-neighbor unfix safety.
-
-R11.1 — отдельный generic foundation. R13/R19 должны **переиспользовать** его, а не создавать параллельные Door/storage/placement systems.
-
----
-
-## R12 — Dialogue Integration
-
-Task: [roadmap_12_dialogue_integration.md](../../task_history.md)
-
-Основной источник: [ТЗ 09](09_dialogue_system.md).
-
-Результат:
-- DialogueManager adapter;
-- gameplay conditions/actions;
-- package/customer/dispute integration;
-- riddle/dialogue flow.
-
----
-
-## R13 — Environment Interactables
-
-Task: [roadmap_13_environment_interactables.md](../../task_history.md)
-
-Источники: [ТЗ 08.1](08_1_arrangement_extended_interactions.md), [ТЗ 13](13_environment_interactables.md).
-
-Результат:
-- Door;
-- Window;
-- Drawer;
-- LightSwitch;
-- применение generic contracts R11.1.
-
----
-
-## R14–R16 — Customer Challenge Families
-
-Tasks:
-- [R14](../../task_history.md) — shared Challenge lifecycle + Light;
-- [R15](../../task_history.md) — Don't Look / Keep Looking;
-- [R16](../../task_history.md) — Floor Hazard.
-
-Основной источник: [ТЗ 08](08_customer_challenge_framework.md).
-
-Результат: минимум три разные challenge families используют общий lifecycle.
-
----
-
-## R17 — Combat / Aggressive Customer
-
-Task: [roadmap_17_combat_and_impact_damage.md](../../task_history.md)
-
-Основной источник: [ТЗ 10](10_combat_damage_health.md).
-
-Результат:
-- melee;
-- Aggressive Customer;
-- combat cleanup/reasons;
-- physical impact damage **переиспользует R08 contract**, а не создаёт вторую формулу.
-
----
-
-## R18 — Hunger / Perception
-
-Task: [roadmap_18_hunger_and_perception.md](../../task_history.md)
-
-Источники: [ТЗ 11](11_hunger_system.md), [ТЗ 09](09_dialogue_system.md).
-
-Результат:
-- Hunger;
-- modifiers;
-- perception/dialogue distortion без изменения gameplay identity.
-
----
-
-## R19 — Inventory / Consumables
-
-Task: [roadmap_19_inventory_and_consumables.md](../../task_history.md)
-
-Источники: [ТЗ 12](12_inventory_and_consumables.md), [ТЗ 08.1](08_1_arrangement_extended_interactions.md).
-
-Результат:
-- virtual small-item Inventory;
-- stack/use;
-- Food/MedItem/Bubble Wrap;
-- virtual Inventory остаётся отдельным от physical slots R11.1.
-
----
-
-## R20 — Evening / Trader / Orders / Quest
-
-Task: [roadmap_20_evening_trader_orders_and_quest.md](../../task_history.md)
-
-Основной источник: [ТЗ 14](14_evening_meta_scaffold.md).
-
-Результат:
-- Trader;
-- next-day order;
-- Package quest;
-- data-defined prices/upgrades.
-
----
-
-## R21 — Persistence / Next Day
-
-Task: [roadmap_21_night_persistence_next_day.md](../../task_history.md)
-
-Основной источник: [ТЗ 15](15_night_save_next_day.md).
-
-Результат:
-- Night transaction;
-- Save/Load;
-- PendingDelivery;
-- active Packages/disputes/late Customers across days;
-- persistent world arrangement from R11.1 where applicable.
-
----
-
-## R22 — HUD / World Feedback
-
-Task: [roadmap_22_hud_and_world_feedback.md](../../task_history.md)
-
-Основной источник: [ТЗ 16](16_ui_and_feedback.md).
-
-Результат:
-- финальная читаемость существующих systems;
-- feedback не становится gameplay authority.
-
----
-
-## R22.5 — GECS Architecture Polish
-
-Task: [roadmap_22_5_gecs_architecture_polish.md](../../task_history.md)
-
-Источник: upstream GECS `BEST_PRACTICES.md` + project `.agents/skills/gecs-v8/SKILL.md`.
-
-Результат:
-- полный disposition-аудит всех текущих `S_*`: keep / split / reclassify / remove;
-- atomic Systems/sub-systems with single responsibility;
-- no direct System-to-System service calls or `ECS.world.systems` service-locator pattern;
-- hot-path Components supplied through specific queries + `iterate()`;
-- Cart/Push/Grab/Input decomposition plus Receiving/DayPhase/Marker/Targeting cleanup; Damage/Impact здесь только regression-audit, потому что их cleanup выполняется в R08 M5.1;
-- presentation separated from gameplay authority, including Crouch camera vs collision/state;
-- static physics-only/pseudo-System classes reclassified as independent solvers/helpers and stale System nodes removed;
-- empty/obsolete System shells such as `S_Door` re-verified and removed if still unused;
-- SystemGroups/`deps()` express ordering;
-- gameplay behavior preserved.
-
-R22.5 сейчас имеет статус **DEFERRED**: он intentionally runs late. Do not perform this broad refactor opportunistically while feature contracts R08–R22 are still changing. Resume through its root router and current milestone only when the dependency gate is satisfied.
-
-Damage/Impact cleanup выполнен в R08 M5.1; в R22.5 остаётся только регрессионный аудит этих подсистем.
-
----
-
-## R23 — Vertical Slice Validation
-
-Task: [roadmap_23_vertical_slice_validation.md](../../agent_tasks/roadmap_23_vertical_slice_validation.md)
-
-Источники: [ТЗ 00](00_prototype_overview.md), [ТЗ 17](17_vertical_slice_scenario.md).
-
-На этом этапе **не добавлять новые крупные mechanics**. Исправлять только разрывы уже реализованных contracts/core loop.
-
-Финальный маршрут:
-
-```text
-Morning Receiving
-→ Package Handling / Arrangement
-→ Day Customer Service + Horror Events
-→ Evening Preparation
-→ Night Sleep / Save
-→ Next Morning
-```
-
-## Финальный критерий
-
-Игрок способен пройти полный цикл без debug-команд, а все игровые решения проходят через единый physical world + GECS gameplay state.
-
-Если старый roadmap-текст противоречит этому implementation-order по номеру задачи, использовать канонический mapping из [README](README.md) и исправить stale reference вместо догадки.
+# ТЗ 18 — Порядок реализации
+
+Номера `ТЗ xx` — номера design specifications. Implementation IDs — `Rxx` / `Rxx.x`. Этот документ хранит зависимости и рекомендуемый порядок, но **не live status**.
+
+Текущее выполнение ведётся через Codex Plan + Goal. Если конкретной работе нужен durable cross-session checkpoint, его хранит единственный соответствующий файл в `agent_tasks/`.
+
+## Foundation
+
+1. R01 — Package/runtime foundation.
+2. R02 — contextual interaction foundation.
+3. R03 — day phase cycle.
+4. R04 — common damage/health pipeline.
+5. R05 — morning receiving.
+6. R06 — scanner / registration / terminal.
+7. R06.1 — inspector-first interaction, Carry/two hands, control capture and Push.
+8. R07 — physical marker and numbered shelves.
+9. R08 — package damage/opening on the common Impact/Health contract.
+10. R09 — package hazards reusing the common damage pipeline.
+11. R10 — wallet / daily results before Customer outcomes.
+12. R11 — customer flow / delivery / disputes.
+13. R11.1 — generic extended interaction / arrangement foundation.
+
+## Feature dependencies
+
+- **R12 Dialogue** uses [ТЗ 09](09_dialogue_system.md) and existing Customer/outcome contracts.
+- **R13 Environment interactables** uses [ТЗ 13](13_environment_interactables.md) and must reuse R11.1 access/slot/placement contracts.
+- **R14–R16 Challenges** use [ТЗ 08](08_customer_challenge_framework.md) and share one lifecycle.
+- **R17 Combat** uses [ТЗ 10](10_combat_damage_health.md) and reuses R08 damage/impact.
+- **R18 Hunger / perception** uses [ТЗ 11](11_hunger_system.md) plus dialogue/perception hooks.
+- **R19 Inventory / consumables** uses [ТЗ 12](12_inventory_and_consumables.md); virtual inventory remains distinct from physical slots.
+- **R20 Evening / trader / orders / quest** uses [ТЗ 14](14_evening_meta_scaffold.md).
+- **R21 Persistence / next day** uses [ТЗ 15](15_night_save_next_day.md) and stable IDs rather than live Object/NodePath identity.
+- **R22 HUD / feedback** uses [ТЗ 16](16_ui_and_feedback.md); presentation never becomes gameplay authority.
+- **R22.5 GECS architecture polish** is a broad architecture pass and must not be performed opportunistically inside unrelated feature work.
+- **R23 Vertical slice validation** uses [ТЗ 00](00_prototype_overview.md) + [ТЗ 17](17_vertical_slice_scenario.md) and validates the complete day loop without inventing new major mechanics.
+
+## Cross-cutting rule
+
+Design documents own product requirements, not implementation progress. Never add PLANNED/IN_PROGRESS/DONE tables here. Inspect current code and the exact active durable task, when one exists, instead of inferring status from roadmap prose.
+
+Canonical design mapping: [README.md](README.md).

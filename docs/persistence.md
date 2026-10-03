@@ -1,6 +1,6 @@
 # Persistence / Night contract
 
-R21 owner: `agent_tasks/roadmap_21_night_persistence_next_day.md` (OWNER_QA).
+Durable implementation source: Git history; remaining manual acceptance is tracked under `qa_tasks/`.
 
 - Main startup reads one `user://autosave.pvzh` before simulation. Tests supply an isolated `autosave_path`. Missing, invalid checksum or incompatible schema starts a fresh scene and reports the reason in debug UI.
 - Sleep enters Night with `night_ready=false`. `S_NightSave` runs after phase, wallet/customer settlement and quest outcomes. It clears transient participation, captures the next Morning, writes/flushes a temporary file and atomically renames it into the slot. Failed writes keep Night and retry the same target day; successful writes permit the existing phase System to advance once.
@@ -12,4 +12,4 @@ R21 owner: `agent_tasks/roadmap_21_night_persistence_next_day.md` (OWNER_QA).
 
 - Morning physical refusal return requires a prior actual refusal, an active registered identity/number and the held parcel at the reachable F return point. Successful commit releases the number and removes the parcel. Actual/declaration, penalties, settlement IDs and complaints remain unchanged.
 
-Checks: final GUT 72/72 (530 assertions), strict main twelve-Night/restart/consume-order/physical-return/NEVER/Carry-reset smoke, headless main shutdown and structure/diff. Separate review R1–R10 fixed. Owner rendered/gamepad/layout/full-day/balance QA remains in the task.
+Checks: final GUT 72/72 (530 assertions), strict main twelve-Night/restart/consume-order/physical-return/NEVER/Carry-reset smoke, headless main shutdown and structure/diff. Separate review R1–R10 fixed. Owner rendered/gamepad/layout/full-day/balance QA remains under `qa_tasks/`.

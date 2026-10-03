@@ -1,90 +1,38 @@
 # Project Index
 
-Optional routing map. Do not read this file by default. Use it only when the task does not already identify the owning subsystem/path.
+Optional routing map. Read only when the task does not already identify the owning subsystem/path.
 
-## Roots
-
-| Area | Start here |
+| Concern | Start here |
 | --- | --- |
 | Startup / scheduling | `content/scenes/main_level.gd`, `content/scenes/main_level.tscn` |
-| Cross-system gameplay invariants | `content/CONTEXT.md` |
-| Components | `content/components/` |
-| Relationships | `content/relationships/` |
-| Typed contracts | `content/contracts/` |
-| Definitions/data | `content/definitions/` |
-| Entities/authored scenes | `content/entities/` |
-| Systems | `content/systems/` |
-| Observers | `content/observers/` |
-| Services/solvers | `content/services/` |
+| Cross-system gameplay architecture | `content/ARCHITECTURE.md` |
+| Components / Relationships | `content/components/`, `content/relationships/` |
+| Contracts / definitions | `content/contracts/`, `content/definitions/` |
+| Entities / authored scenes | `content/entities/` |
+| Systems / observers | `content/systems/`, `content/observers/` |
+| Services / solvers | `content/services/` |
 | UI | `content/ui/` |
 | Tests | `tests/gut/`, `tests/smoke/` |
 | Tooling | `utils/` |
-| Docs | `docs/README.md` |
-| Agent policy | `AGENTS.md` |
-| Implementation workflow | `.agents/skills/develop/SKILL.md` |
-| Specialized workflows | `.agents/skills/gecs-v8/`, `.agents/skills/gut-testing/`, `.agents/skills/professional-game-design/` |
-| Code/resource naming | `docs/code_style.md` |
+| Design / mechanics docs | `docs/README.md` |
+| Durable cross-session tasks | `agent_tasks/` |
+| Manual acceptance | `qa_tasks/` |
 
-## Gameplay routes
+## Common gameplay routes
 
 | Concern | Start with |
 | --- | --- |
-| Character physics callback | `content/entities/characters/e_rigid_body_character.gd` |
-| Raw input | `content/systems/input/s_player_input.gd`, `content/components/input/c_player_input_controller.gd` |
-| Player intent | `content/systems/input/s_player_intent.gd`, `content/components/gameplay/c_controller.gd` |
-| Motion | `content/services/motion/character_motion_solver.gd`, `content/components/motion/c_motion.gd` |
-| Look | `content/services/motion/character_look_solver.gd`, `content/components/motion/c_look.gd` |
-| Jump / crouch | `content/systems/motion/s_jump.gd`, `content/systems/motion/s_crouch.gd` |
-| Targeting | `content/systems/interaction/s_interaction_targeting.gd`, `content/services/interaction/interaction_targeting_service.gd` |
-| Highlight | `content/systems/interaction/s_interaction_highlight.gd` |
-| Grab / Carry | `content/services/interaction/grab_service.gd`, `content/observers/interaction/o_grab_lifecycle.gd`, `docs/physical_grab.md` |
-| Push | `content/services/interaction/push_service.gd`, `content/observers/interaction/o_push_lifecycle.gd` |
-| Cart transport | `content/services/interaction/cart_transport_service.gd`, `content/entities/props/push_cart.tscn`, `docs/cart_transport.md` |
-| Context actions / focus | `content/services/interaction/interaction_action_resolver.gd`, `interaction_control_focus.gd` |
-| Marker | `content/systems/interaction/s_marker.gd`, `content/entities/tools/marker.tscn`, `docs/package_marking.md` |
-| Attributes / Health | `content/components/gameplay/c_health.gd`, `content/definitions/gameplay/attributes/def_attr_health.tres` |
-| Damage | `content/observers/gameplay/o_damage.gd`, `content/services/damage/damage_request_service.gd`, `docs/damage_impact.md` |
-| Impact / throw attribution | `content/services/damage/impact_capture_solver.gd`, `content/systems/gameplay/s_impact.gd`, `content/services/damage/throw_context.gd` |
-| Package data/state | `content/definitions/gameplay/packages/def_package.gd`, `content/components/gameplay/c_package.gd`, `c_package_state.gd` |
-| Package physical scene | `content/entities/packages/e_package.gd`, `content/entities/packages/package.tscn` |
-| Package destruction/debris | `content/components/gameplay/c_package_destruction.gd`, `c_package_debris.gd`, `content/observers/gameplay/o_package_destruction.gd` |
-| Hazards | `content/services/hazards/hazard_spawn_service.gd`, `content/observers/gameplay/o_hazard_spawn.gd`, `docs/hazards.md` |
-| Receiving | `content/systems/gameplay/s_receiving.gd`, `content/services/packages/receiving_package_factory.gd`, `content/entities/zones/receiving_zone.tscn` |
-| Registration | `content/services/packages/package_registration_service.gd`, `content/contracts/packages/package_registration_record.gd` |
-| Scanner | `content/entities/tools/scanner.tscn`, `content/definitions/interaction/def_scan_action.gd` |
-| Terminal | `content/entities/stations/terminal.tscn`, `content/ui/terminal_panel.tscn` |
-| Customers / delivery / disputes | `content/services/customers/customer_flow_service.gd`, `customer_outcome_service.gd`, `docs/customers.md` |
-| Day cycle | `content/systems/gameplay/s_day_phase.gd`, `content/contracts/day/day_transition_request.gd` |
+| Character physics | `content/entities/characters/e_rigid_body_character.gd` |
+| Raw input / intent | `content/systems/input/` |
+| Motion / look | `content/services/motion/` |
+| Interaction targeting / actions | `content/systems/interaction/`, `content/services/interaction/` |
+| Grab / carry / push | `content/services/interaction/`, `docs/physical_grab.md` |
+| Cart | `content/services/interaction/cart_transport_service.gd`, `docs/cart_transport.md` |
+| Damage / impact | `content/services/damage/`, `content/observers/gameplay/o_damage.gd`, `docs/damage_impact.md` |
+| Packages / receiving | `content/entities/packages/`, `content/services/packages/` |
+| Hazards | `content/services/hazards/`, `content/observers/gameplay/`, `docs/hazards.md` |
+| Customers / commerce | `content/services/customers/`, `docs/customers.md`, `docs/economy.md` |
+| Day cycle | `content/systems/gameplay/s_day_phase.gd` |
+| Persistence | `docs/persistence.md` |
 
-## Relevant regression surfaces
-
-Use only the surface related to the edited contract.
-
-| Area | Regression |
-| --- | --- |
-| Grab/input/Push | `tests/gut/test_s_grab.gd` |
-| Jump | `tests/gut/test_s_jump.gd` |
-| Main-scene grab wiring | `tests/gut/test_grab_main_scene.gd` |
-| Cart | `tests/smoke/cart_transport_smoke.tscn` |
-| Receiving/scan | `tests/smoke/receiving_scan_smoke.tscn` |
-| Interaction actions | `tests/smoke/interaction_actions_smoke.tscn` |
-| Customers / delivery / disputes | `content/services/customers/customer_flow_service.gd`, `customer_outcome_service.gd`, `docs/customers.md` |
-| Day cycle | `tests/smoke/day_cycle_smoke.tscn` |
-| Damage | `tests/smoke/damage_smoke.tscn` |
-| Hazards | `tests/smoke/hazards_smoke.tscn` |
-| Marker/shelves | `tests/smoke/marker_shelves_smoke.tscn` |
-
-Validation cadence and commands belong in `AGENTS.md` / `docs/smoke_runner.md`, not here.
-
-## Architecture tasks
-
-- Live queue/status: `agent_tasks/CONTEXT.md`.
-- Current execution pointer: `CURRENT_WORK.md` only when resuming current work.
-- Exact task/router owns status/current/next; milestone/support files do not compete with it.
-- Completed implementation evidence: `task_history.md`; current development queue: `agent_tasks/CONTEXT.md`, manual acceptance: `qa_tasks/README.md`.
-- Implementation workflow: `.agents/skills/develop/SKILL.md`.
-- GECS-specific workflow: `.agents/skills/gecs-v8/SKILL.md`.
-
-## Dependencies
-
-For version-sensitive APIs inspect the checked-out local dependency source. Do not preload dependency docs for ordinary project work.
+For version-sensitive APIs inspect the checked-out dependency source. Do not expand this index into a second architecture document.

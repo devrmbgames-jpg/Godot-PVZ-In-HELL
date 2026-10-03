@@ -1,41 +1,40 @@
-# PVZ In Hell Simulator — agent-ready Godot project
+# PVZ In Hell Simulator
 
 Godot 4.7 + GDScript + GECS v8.
 
 ## AI workflow
 
-Codex automatically receives the compact invariants from `AGENTS.md`. Ordinary work should not preload the project context, roadmap, task queue, or multiple skills.
+The repository is optimized for GPT-6.1 Sol in VS Code/Codex without preloading project history.
 
-Default implementation path:
+Default flow:
 
 ```text
-user task
-  -> exact named symbol/path
-  -> investigate direct owner + contract + regression surface
-  -> classify Fix / Task / Feature
-  -> plan only enough
+focused prompt
+  -> inspect exact owner + contract
+  -> Plan Mode when the task benefits from planning
+  -> Goal for the active completion condition
   -> implement
-  -> independent review
+  -> focused review
   -> narrow validation
 ```
 
-Use the on-demand `develop` skill for implementation/refactoring work. It loads `gecs-v8`, `gut-testing`, or `professional-game-design` only when the task actually needs those workflows.
+Repository task files are **not** the default planning mechanism. Use `agent_tasks/<task>.md` only when a task must survive another session/thread, is genuinely long/interruptible, or durable tracking was explicitly requested.
 
-Task state is split deliberately:
-- `agent_tasks/CONTEXT.md` — queue/status index;
-- exact `agent_tasks/<task>.md` / roadmap router — authoritative durable state;
-- `CURRENT_WORK.md` — only the current resume pointer/checkpoint;
-- `task_history.md` — completed-history summary;
-- `docs/roadmap/` — design/source specifications, not parallel task state.
+Documentation is split by purpose:
+- `AGENTS.md` — small always-on correctness and execution rules;
+- `PROJECT_INDEX.md` — optional owner/path router;
+- `content/ARCHITECTURE.md` — on-demand cross-system gameplay invariants;
+- `docs/` — durable design/mechanics documentation;
+- `agent_tasks/` — only active durable cross-session implementation state;
+- `qa_tasks/` — manual player acceptance;
+- Git history — completed implementation history.
 
-## Important defaults
+## VS Code / Codex / Godot MCP
 
-- `addons/` is read-only unless dependency work is explicit.
-- Static typing is required for project-owned GDScript.
-- Components are state; Relationships own live Entity-to-Entity bindings; Systems do not call other Systems as services.
-- Godot physics bodies retain physical authority unless a documented synchronization contract says otherwise.
-- Subagents are optional bounded reviewer/validator roles and run sequentially.
-- Do not run broad GUT/smoke/runtime validation after every edit; reserve runtime checks for the task's documented validation stage.
-- Rendered/visual Godot validation is user-owned unless explicitly approved.
+- GPT-6.1 Sol defaults live in `.codex/config.toml`.
+- VS Code Agent Host is enabled in `.vscode/settings.json`.
+- Workspace MCP is defined once in root `.mcp.json`; this is the portable Agent Host configuration.
+- Godot does not auto-start just because the folder opens. Run the `Godot: Start project editor` task or let the agent start `.vscode/start-godot.ps1` when live MCP context is useful.
+- MCP is optional: normal code/search tools remain the default for focused source work.
 
-See `AGENTS.md` for authoritative always-on rules.
+See `AGENTS.md` for authoritative project rules.

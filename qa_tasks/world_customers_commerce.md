@@ -1,7 +1,7 @@
 # R24 — Проверка новых механик игроком
 
 Artifact: **SUPPORT**
-Источник: [R24](../agent_tasks/roadmap_24_world_customers_commerce.md). Результат: **ОЖИДАЕТ ИГРОКА**.
+Источник: R24. Результат: **ОЖИДАЕТ ИГРОКА**.
 
 M1 реализован и доступен в Windows91e00d6c, main/test startup PASS. Запуск тестовой карты: `.export/TEST_LEVEL.cmd`. Интервалы и уход уже доступны в a3a7c276.
 
