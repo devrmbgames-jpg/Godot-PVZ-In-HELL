@@ -659,6 +659,9 @@ static func deny(visit_id: StringName) -> bool:
 		return false
 	var customer: E_Customer = customer_for(visit_id)
 	if customer != null:
+		if customer is E_DistrictNpc:
+			NpcServiceRole.escalate(customer as E_DistrictNpc)
+			visit.aggressive = CombatService.target_for(customer) != null
 		if visit.aggressive:
 			enter_aggressive(customer)
 		else:

@@ -9,6 +9,7 @@ static var _component_fields: Dictionary = {
 	C_CustomerFlow: ["planned_through_day", "visits"],
 	C_District: ["definition", "people", "next_person", "prepared_morning", "replacement_morning", "conflict_phase", "ambient_conflicts", "next_service_order"],
 	C_NpcIdentity: ["npc_id"],
+	C_DamageResistance: ["multipliers"],
 	C_Commerce: ["receipts", "pending_deliveries", "next_request"],
 	C_QuestSession: ["records"],
 	C_Inventory: ["maximum_stacks"],

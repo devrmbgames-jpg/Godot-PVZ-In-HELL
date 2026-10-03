@@ -32,3 +32,5 @@ var warned_rules: Array[int] = []
 var reacted_rules: Array[int] = []
 ## Search point currently being checked.
 var search_index: int = 0
+## Lighting distress requests a dark refuge through the emergency branch.
+var light_distress: bool = false

@@ -1,10 +1,12 @@
 [gd_resource type="Resource" script_class="DEF_NpcTrait" format=3]
 
 [ext_resource type="Script" path="res://content/definitions/gameplay/npc/def_npc_trait.gd" id="Script"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/hazards/def_npc_fire_aura.tres" id="Aura"]
 
 [resource]
 script = ExtResource("Script")
 key = &"trait_2"
 kind = 2
+aura = ExtResource("Aura")
 warning_text = "Держись подальше. Я обжигаю."
 countermeasure = "Держать дистанцию"

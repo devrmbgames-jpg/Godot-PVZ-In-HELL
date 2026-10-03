@@ -10,6 +10,9 @@ static func customer_name(visit: CustomerVisit) -> String:
 
 
 static func request_text(visit: CustomerVisit) -> String:
+	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
+	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null and not visit.riddle_solved:
+		return "%s · Номер узнаешь, когда ответишь на мою загадку." % customer_name(visit)
 	var number: int = registered_number(visit)
 	if number >= 0:
 		return "%s\nМой заказ №%03d. Передайте коробку мне или положите её на стойку выдачи." % [customer_name(visit), number]

@@ -53,6 +53,16 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighb
 			intent.distance_to_target = direction.length()
 			intent.arrived = intent.distance_to_target <= intent.arrival_distance
 			if not intent.arrived:
+				var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+				if route != null and not route.reachable:
+					intent.navigation_blocked = true
+					_apply_avoidance(actor, intent, controller, neighbours)
+					return
+				if route != null and not route.points.is_empty() and not intent.move_uses_entity:
+					var tolerance: float = DistrictPopulationService.current().definition.waypoint_distance
+					while route.point_index < route.points.size() - 1 and body.global_position.distance_to(route.points[route.point_index]) <= tolerance:
+						route.point_index += 1
+					position = route.points[route.point_index]
 				if intent.navigation_enabled and npc != null and npc.navigation_agent != null:
 					direction = _path_direction(npc.navigation_agent, intent, body.global_position, position)
 				controller.direction_motion = direction.normalized() * clampf(intent.speed_fraction, 0.0, 1.0)

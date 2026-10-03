@@ -18,7 +18,9 @@ enum Kind { GAZE_AVERSION, LIGHT_AVERSION, FIRE_AURA, DARK_PREDATOR, STRENGTH_TE
 @export_range(0.2, 20.0) var radius: float = 3.0
 ## Light threshold used by light-sensitive and dark-hunting traits.
 @export_range(0.0, 1.0) var light_threshold: float = 0.35
-## Fire damage per second within the damaging area.
-@export_range(0.0, 100.0) var damage_per_second: float = 8.0
+## Single configuration source for actual aura damage, size and predicted route risk.
+@export var aura: DEF_ToxicArea = null
 ## Traits that cannot coexist with this rule.
 @export var incompatible: Array[Kind] = []
+## Cosine of the player's sustained gaze angle.
+@export_range(0.5, 1.0) var gaze_alignment: float = 0.96

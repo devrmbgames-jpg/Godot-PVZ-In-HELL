@@ -16,6 +16,10 @@ static func execute_branch(actor: E_DistrictNpc, owner_kind: C_NpcDecision.Owner
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	match owner_kind:
 		C_NpcDecision.Owner.EMERGENCY:
+			if awareness.light_distress and not awareness.fleeing and CombatService.target_for(actor) == null:
+				NpcIntentArbiter.acquire(actor, owner_kind, "Укрыться от света")
+				NpcIntentArbiter.move_to(actor, NpcTraitService.dark_refuge(actor, person), ARRIVAL_DISTANCE, owner_kind)
+				return true
 			var health: C_Health = actor.get_component(C_Health) as C_Health
 			if not awareness.fleeing and not (CombatService.target_for(actor) != null and health.current < health.value * person.profile.pursuit_health_reserve):
 				return false

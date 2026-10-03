@@ -15,7 +15,7 @@ static func can_start(actor: Entity, customer: E_Customer) -> bool:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent != null:
 		visit = CustomerFlowService.find_visit(agent.visit_id)
-	if visit == null or visit.finished or CustomerPresentation.uses_quick_order(visit.definition):
+	if visit == null or visit.finished or (not customer.has_component(C_NpcIdentity) and CustomerPresentation.uses_quick_order(visit.definition)):
 		return false
 	return agent.phase in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE] and customer.get_tree().get_nodes_in_group(ACTIVE_GROUP).is_empty()
 

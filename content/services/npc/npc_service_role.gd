@@ -135,5 +135,8 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 static func escalate(body: E_DistrictNpc) -> void:
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	if player != null:
-		CombatService.bind_target(body, player)
+		var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+		var incident: StringName = StringName("service/%s/offense" % agent.visit_id)
+		body.show_message("Вы нарушили условия выдачи. Объяснитесь.")
+		NpcSocialService.react(body, player, NpcMemory.Kind.OFFENSE, incident)
 #endregion

@@ -9,3 +9,5 @@ class_name DEF_ToxicArea
 ## Spatial broad phase and semantic eligibility; living-only includes future Customer actors.
 @export_flags_3d_physics var collision_mask: int = 31
 @export var living_only: bool = true
+## Typed exposure shared by damage and route prediction.
+@export var damage_type: DamageRequest.Type = DamageRequest.Type.TOXIC

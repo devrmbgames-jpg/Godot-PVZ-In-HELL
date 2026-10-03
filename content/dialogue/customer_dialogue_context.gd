@@ -63,7 +63,8 @@ func is_valid() -> bool:
 
 func can_continue() -> bool:
 	var agent: C_CustomerAgent = _agent()
-	return is_valid() and agent.phase == C_CustomerAgent.Phase.DIALOGUE
+	var awareness: C_NpcAwareness = _customer.get_component(C_NpcAwareness) as C_NpcAwareness if is_instance_valid(_customer) else null
+	return is_valid() and agent.phase == C_CustomerAgent.Phase.DIALOGUE and CombatService.target_for(_customer) == null and (awareness == null or not awareness.fleeing)
 
 
 func day_phase() -> int:
@@ -103,6 +104,10 @@ func satisfaction() -> int:
 
 func dialogue_cue() -> String:
 	var visit: CustomerVisit = _visit()
+	var identity: C_NpcIdentity = _customer.get_component(C_NpcIdentity) as C_NpcIdentity if is_instance_valid(_customer) else null
+	var person: NpcRecord = DistrictPopulationService.person_for(identity.npc_id) if identity != null else null
+	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null and not visit.riddle_solved:
+		return "riddle"
 	if false_taken_detected():
 		return "false_taken"
 	if has_pending_challenge():
@@ -135,7 +140,10 @@ func apply_response_tags(tags: PackedStringArray) -> bool:
 	if intent == CustomerDialogueIntent.Type.NONE:
 		return true
 	var visit: CustomerVisit = _visit()
-	return CustomerOutcomeService.apply_dialogue_intent(visit, intent)
+	var applied: bool = CustomerOutcomeService.apply_dialogue_intent(visit, intent)
+	if applied and _customer is E_DistrictNpc:
+		NpcSocialService.dialogue_response(_customer as E_DistrictNpc, _actor, intent, StringName("dialogue/%s/%d" % [_visit_id, intent]))
+	return applied
 
 
 func commit_denial() -> bool:

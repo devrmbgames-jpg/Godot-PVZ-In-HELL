@@ -7,6 +7,10 @@ const TREE_PATH: String = "res://content/ai/trees/bt_district_npc.tres"
 #region Brain lifecycle
 ## Creates derived sensors and one manually scheduled BTPlayer.
 static func install(actor: E_DistrictNpc) -> void:
+	var profile_identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
+	var person: NpcRecord = DistrictPopulationService.person_for(profile_identity.npc_id)
+	if person != null:
+		NpcTraitService.install(actor, person.profile)
 	if not actor.has_component(C_NpcAwareness):
 		actor.add_component(C_NpcAwareness.new())
 	if not actor.has_component(C_NpcDecision):
@@ -49,6 +53,7 @@ static func tick(district: C_District, delta: float) -> void:
 			continue
 		NpcPerceptionService.footsteps(actor, decision.update_elapsed)
 		NpcPerceptionService.sense(actor, person, player, decision.update_elapsed)
+		NpcTraitService.tick(actor, person, player, decision.update_elapsed)
 		due.append(actor)
 	for actor: E_DistrictNpc in due:
 		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
@@ -56,6 +61,8 @@ static func tick(district: C_District, delta: float) -> void:
 		decision.intent_owner = C_NpcDecision.Owner.NONE
 		if runner != null:
 			runner.update(decision.update_elapsed)
+		var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
+		NpcRouteService.tick(actor, DistrictPopulationService.person_for(identity.npc_id), decision.update_elapsed)
 		decision.update_elapsed = 0.0
 	for noise: NpcNoise in district.noises.duplicate():
 		noise.remaining -= maxf(0.0, delta)

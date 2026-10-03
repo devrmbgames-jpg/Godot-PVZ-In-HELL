@@ -16,6 +16,7 @@ enum Type {
 	TOXIC,
 	LIQUID,
 	PROJECTILE,
+	FIRE,
 }
 
 ## Actual damaging body and optional actor who caused its action.
@@ -30,3 +31,5 @@ var damage_type: Type = Type.GENERIC
 var origin_id: String = ""
 var instigator_id: String = ""
 var combat_context: CombatContext = null
+## Stable personal incident assigned when committed violence is first observed.
+var incident_id: StringName = &""

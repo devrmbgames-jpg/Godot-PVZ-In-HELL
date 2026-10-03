@@ -1,6 +1,14 @@
 extends GameDefinition
 ## District population, replacement and perception tuning.
 class_name DEF_District
+## Seconds between hazard route evaluations.
+@export_range(0.1, 5.0) var route_interval: float = 0.6
+## Bounded wait before abandoning an unreachable activity.
+@export_range(1.0, 120.0) var route_timeout: float = 20.0
+## Length-equivalent penalty for one expected lost HP.
+@export_range(0.1, 20.0) var danger_penalty: float = 4.0
+## Waypoint arrival tolerance independent of final service arrival.
+@export_range(0.1, 1.0) var waypoint_distance: float = 0.5
 
 ## Authored initial people and replacement pool.
 @export var profiles: Array[DEF_NpcProfile] = []

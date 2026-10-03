@@ -10,6 +10,8 @@ var origin_id: String = ""
 var instigator_id: String = ""
 ## Autonomous authored hazard prefab and world-space snapshot.
 var scene: PackedScene = null
+## Optional authored configuration for reusable emitter scenes.
+var definition: DEF_Hazard = null
 var world_pose: Transform3D = Transform3D.IDENTITY
 var origin: Entity = null
 var instigator: Entity = null

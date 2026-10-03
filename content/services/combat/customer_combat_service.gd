@@ -43,6 +43,8 @@ static func tick(customer: E_Customer) -> void:
 
 
 static func retaliate(customer: Entity, context: CombatContext) -> void:
+	if customer.has_component(C_NpcIdentity):
+		return
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or customer.has_component(C_Death):
 		return
