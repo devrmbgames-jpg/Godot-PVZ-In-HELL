@@ -15,4 +15,4 @@ Durable implementation source: Git history; remaining manual acceptance is track
 
 - Morning physical refusal return requires a prior actual refusal, an active registered identity/number and the held parcel at the reachable F return point. Successful commit releases the number and removes the parcel. Actual/declaration, penalties, settlement IDs and complaints remain unchanged.
 
-Checks: final GUT 72/72 (530 assertions), strict main twelve-Night/restart/consume-order/physical-return/NEVER/Carry-reset smoke, headless main shutdown and structure/diff. Separate review R1–R10 fixed. Owner rendered/gamepad/layout/full-day/balance QA remains under `qa_tasks/`.
+Checks include the existing save/world snapshot regression, district absent-body/item roundtrip, duplicate-person rejection, actual failed Night write followed by retry, and a connected seven-day district save/reload smoke. Night retry preserves replacement identity and promise memory. Owner rendered/gamepad/layout/full-day/balance acceptance remains under `qa_tasks/`.
