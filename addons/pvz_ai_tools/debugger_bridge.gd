@@ -28,6 +28,7 @@ func _setup_session(session_id: int) -> void:
 	var stopped_callback: Callable = Callable(self, "_on_session_stopped").bind(session_id)
 	if not session.stopped.is_connected(stopped_callback):
 		session.stopped.connect(stopped_callback)
+	session.send_message("pvz_ai:ping", [])
 
 
 func _capture(message: String, data: Array, session_id: int) -> bool:
@@ -142,14 +143,14 @@ func _handle_response(data: Array, session_id: int) -> void:
 		return
 
 	var raw_payload: Variant = data[1]
-	var payload: Dictionary = (
-		raw_payload as Dictionary
-		if raw_payload is Dictionary
-		else {
+	var payload: Dictionary = {}
+	if raw_payload is Dictionary:
+		payload = raw_payload as Dictionary
+	else:
+		payload = {
 			"ok": false,
 			"error": "PVZ runtime bridge returned a malformed payload.",
 		}
-	)
 	ctx.send_deferred({"data": payload})
 
 
