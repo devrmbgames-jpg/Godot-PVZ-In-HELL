@@ -1,6 +1,6 @@
 # Living district
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 ## Accepted contract
 
@@ -25,7 +25,7 @@ Complete all six accepted implementation stages and their focused validation.
 
 ### Current
 
-2026-10-04 PLAN.md audit implementation completed: authored window/observation/shop activities and interests; observed retreat and current respect/submission; intrinsic service provocations/riddles; shared conversation bindings with live patience and cleanup; local moving-hazard routes and physical progress watchdog; release of blocked home meetings; retreat cancels pursuit; fresh transient AI/noise state each morning; actual crouched head and visible lower-body sight samples. Final parser/regression/week smoke and current Windows QA export are being closed out. The requirement/evidence matrix is in docs/living_district.md. Owner geometry/navmesh remains untouched.
+2026-10-04 PLAN.md audit completed in eaba7a34: authored free activities and interests; observed retreat/respect/submission; intrinsic service provocations/riddles; conversation Relationships and live patience; local moving-hazard routes, real movement risk and physical progress watchdog; blocked home meeting recovery; retreat releases pursuit; fresh transient morning AI/noise; actual crouched head and visible lower-body sight. Final parser, regression, connected week and current Windows QA export PASS. Requirement/evidence matrix: docs/living_district.md. Owner geometry/navmesh and unrelated edits are preserved.
 
 Stages 1–6 implemented. Commits: 274c57d5 (foundation), 6e37f466 (AI/perception), 9d0dd5fd (service roles), 21d78a56 (intrinsic traits/routing), 43a00509 (community), 1be478f8 (home delivery and acceptance). Stage 6 adds two optional real-box home deliveries, door-local inspection, idempotent base/bonus payment and failed promises; sleep safety gates, complete district snapshot validation and restoration of derived AI. Shared dialogue interface has separate street/service adapters. Pickup reservations release on interruption, absence, Night and restore. Nearby authored cover points support search. Main dev and the pre-existing dirty GECS checkout are preserved. Windows QA exported from 1be478f8.
 
@@ -33,9 +33,11 @@ Owner corrected district placement and warehouse navmesh after finding the origi
 
 ### Next
 
-2026-10-04 PLAN.md audit reopened implementation. Complete distinct window/observation/shop activities and authored interests; observe physical player retreat; prevent legacy parcel events from imposing personality; add provocateur service dialogue; bind service participants through Relationships without freezing patience. Verify local hazard detours, participant interruption, full regression and week smoke. Preserve the owner's level/navmesh and unrelated edits. Rendered acceptance and long-day balance remain in qa_tasks/living_district.md.
+Implementation and automated acceptance are complete. Owner rendered acceptance and full-day balance hypotheses remain only in qa_tasks/living_district.md; use the audited Windows QA build or current dev level.
 
 ### Validation
+
+2026-10-04 PLAN.md audit, core commit eaba7a34: final 33-script regression PASS 296/296, 2246 assertions; fresh-process parser PASS 21/21 changed/new scripts, no script errors or warnings. Editor MCP log is empty of errors. Final connected week PASS: tests/artifacts/district-20261004-062945284.log; mornings 2–8 retain 12 records/bodies and reload without duplicates. Native coverage PASS 43 points, 42 complete counter routes, 13 junctions and 36 graph edges. Additional native acceptance covers moving fire, physical stalls, blocked home meeting recovery, actual motion modifiers, observation occlusion, retreat/sleep, transient morning reset, real held cover and crouched sight. Main-level geometry and the owner's saved navmesh have no diff. Whitespace PASS. Structure check still reports only the unchanged readability task headings below. No rendered playtest ran. Windows QA PASS: .export/windows/20261003-203912Z-eaba7a34-living-district-plan-audit/PVZInHell.exe; packaged menu and current main level each pass 120 headless frames. build_info.json records eaba7a34, separate QA save profile and pending owner playtest. Exporter emits the existing editor-addon errors; packaged runtime has only the known Windows certificate-store message. .export/LATEST.cmd points to this audited build.
 
 2026-10-04 navigation correction: owner's saved 307-polygon mesh and an in-memory 317-polygon rebake both PASS: 42 covered points, 41 complete counter routes, 13 connected hazard-route junctions and 36 traversable directed edges. All stored bake settings are preserved; main_level, district_blockout and the owner's baked navmesh are unchanged. Primitive dry bake PASS (101 polygons); its authored 0.3 agent radius still produces Godot's voxel-rounding warning. Native navigation GUT 4/4 (7 assertions), population GUT 5/5 (27): PASS. Four changed scripts passed fresh-process parser and final MCP diagnostics with no relevant script warnings/errors. Whitespace PASS. Structure check reports only the pre-existing task-state document failure described below. Updated seven-day smoke PASS, tests/artifacts/district-20261004-050915657.log: navigation preflight succeeds, mornings 2–8 retain twelve records/bodies and restoration succeeds without duplicates. No rendered playtest ran. The earlier Windows QA build predates the owner's level correction.
 
