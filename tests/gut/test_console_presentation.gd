@@ -18,6 +18,8 @@ func before_each() -> void:
 func after_each() -> void:
 	if bool(Console.is_visible()): Console.toggle_console()
 	_commands.free()
+	Console.remove_command("qa_help_late")
+	Console.remove_command("qa_help_hidden")
 	Input.mouse_mode = _mouse
 	Console.clear()
 
@@ -41,6 +43,23 @@ func test_help_uses_registered_syntax_and_preserves_builtin_and_alias() -> void:
 	assert_same(Console.console_commands["help"], _original_help)
 	_commands = DeveloperConsoleCommands.new()
 	add_child(_commands)
+
+
+func test_plain_help_lists_live_registry_including_late_commands_but_not_hidden() -> void:
+	Console.add_command("qa_help_late", func(_value: String) -> void: pass, ["value"], 1, "Late registered help probe")
+	Console.add_hidden_command("qa_help_hidden", func() -> void: pass)
+	Console._on_text_entered("help")
+	var output: String = Console.rich_label.get_parsed_text()
+	for command_name: String in Console.console_commands:
+		var command: Console.ConsoleCommand = Console.console_commands[command_name]
+		if not command.hidden:
+			assert_true(output.contains(command_name), "Plain help includes " + command_name)
+	assert_true(output.contains("Late registered help probe"), "Registry descriptions are discoverable")
+	assert_true(output.contains("<value>"), "Required argument syntax is included")
+	assert_false(output.contains("qa_help_hidden"), "Internal commands remain hidden")
+	Console.clear()
+	Console._on_text_entered("debug_help")
+	assert_true(Console.rich_label.get_parsed_text().contains("qa_help_late"), "Alias also enumerates the current registry")
 
 
 func test_long_output_scrolls_with_mouse_and_preserves_command_input() -> void:

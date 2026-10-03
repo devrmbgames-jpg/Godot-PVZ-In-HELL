@@ -134,6 +134,8 @@ func _help(subject: String = "") -> void:
 	if name_text.is_empty():
 		if _previous_help != null:
 			_previous_help.function.call()
+		Console.print_line("Available commands:")
+		Console.commands_list()
 		Console.print_line("Project groups: %s" % ", ".join(GROUPS))
 		Console.print_line("help <command|group>; debug_help is an alias. Targets: self | target | pkg:<id> | visit:<id> | entity:<id>")
 		Console.print_line("Examples: help inventory; help pkg_spawn; help npc; help world. commands_list includes addon commands.")

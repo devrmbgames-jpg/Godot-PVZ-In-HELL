@@ -307,3 +307,8 @@ Windows9d06320c main/test exported; both actual-scene120-frame headless startup 
 ## R33: выносливость
 
 `stamina_info [target=self]` читает запас/максимум, running, hold/toggle, множитель расхода груза, таймер восстановления и exhaustion. `help stamina_info` и `help health` включают команду; обычный HUD показывает шкалу, `debug_hud on` добавляет условия/таймер. QA: пробежать, остановиться, сверить восстановление; повторить с грузом и режимом переключения. Чтение через открытую консоль прекращает переключённый бег по правилу input focus.
+
+
+### 2026-10-03 — исправление неполного help
+
+`help` без аргументов теперь после встроенной справки выводит все публичные команды из живого Console registry через commands_list, с аргументами и описаниями. `debug_help` наследует тот же вывод; detailed command/group help сохранён, hidden commands исключены. Regression проверяет реальный parser, позднюю регистрацию, публичные имена, описание/аргументы, hidden и alias; focused test_console_presentation3/3,101 assertions PASS (.export/console-help-regression-gut.log). Полный suite/runtime/export не повторялись для локальной правки. Owner checklist qa_tasks/developer_console.md обновлён; addon не менялся.
