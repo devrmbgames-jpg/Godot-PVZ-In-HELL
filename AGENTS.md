@@ -45,7 +45,7 @@ Ordinary Godot/GDScript implementation does not require a general-purpose workfl
 
 ## Godot AI MCP
 
-The workspace `.mcp.json` is the portable MCP source for VS Code Agent Host. Godot AI MCP is optional live editor/runtime context, not a mandatory step.
+Codex loads the Godot AI MCP entry from the user-level `~/.codex/config.toml` (or `$CODEX_HOME/config.toml` when overridden). Do not duplicate the server entry in project config. Godot AI MCP is optional live editor/runtime context, not a mandatory step.
 
 Prefer ordinary file/search/edit tools when cheaper. Use MCP when live scene tree, node/resource state, editor diagnostics, or runtime state materially improves the task. Query the smallest relevant scene/subtree/resource/log range first and widen only when useful.
 
