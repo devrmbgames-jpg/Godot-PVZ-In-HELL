@@ -38,7 +38,23 @@ static func can_place(actor: Entity, area: E_PlacementArea) -> bool:
 	query.exclude = excluded
 	if not body.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty():
 		return false
-	return BodyPlacementQuery.clear_path(body, area.anchor.global_transform, excluded, config.collision_mask | body.collision_mask, config.clearance_margin)
+	return _clear_path(body, area.anchor.global_transform, excluded, config.collision_mask | body.collision_mask, config.clearance_margin)
+
+
+## Перед полкой можно выровнять посылку по высоте, затем задвинуть её внутрь.
+## Каждый сегмент проверяется до отпускания; обход стен и занятых мест не допускается.
+static func _clear_path(body: RigidBody3D, destination: Transform3D, excluded: Array[RID], mask: int, margin: float) -> bool:
+	if BodyPlacementQuery.clear_path(body, destination, excluded, mask, margin):
+		return true
+	var start: Transform3D = body.global_transform
+	var oriented: Transform3D = Transform3D(destination.basis, start.origin)
+	var aligned: Transform3D = oriented
+	aligned.origin.y = destination.origin.y
+	return (
+		BodyPlacementQuery.clear_path_from(body, start, oriented, excluded, mask, margin)
+		and BodyPlacementQuery.clear_path_from(body, oriented, aligned, excluded, mask, margin)
+		and BodyPlacementQuery.clear_path_from(body, aligned, destination, excluded, mask, margin)
+	)
 
 
 static func place(actor: Entity, area: E_PlacementArea) -> bool:

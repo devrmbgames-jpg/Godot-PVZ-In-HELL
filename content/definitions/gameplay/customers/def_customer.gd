@@ -19,6 +19,9 @@ const MINIMUM_LEAVING_SECONDS: float = 181.0
 @export var dialogue_mode: DialogueMode = DialogueMode.DIRECT
 @export var introduction: Introduction = Introduction.MANUAL
 @export_range(0.5, 5.0, 0.1) var auto_dialogue_distance: float = 2.0
+## Клиент принимает свой зарегистрированный заказ из рук игрока вблизи, вне диалога.
+@export var automatic_handoff: bool = true
+@export_range(0.2, 3.0, 0.1) var automatic_handoff_distance: float = 1.5
 @export var dialogue_reactions: Array[DEF_CustomerDialogueReaction] = []
 @export var challenge: DEF_Challenge = null
 @export_range(0, 100) var riddle_wrong_satisfaction_penalty: int = 20

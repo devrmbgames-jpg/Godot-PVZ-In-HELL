@@ -332,9 +332,13 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 			elif agent.elapsed >= visit.definition.approach_timeout:
 				_leave(customer, visit)
 		C_CustomerAgent.Phase.WAITING:
+			if CustomerHandoffService.try_receive(customer, visit):
+				return
 			if agent.elapsed >= visit.definition.greeting_seconds:
 				greet(customer)
 		C_CustomerAgent.Phase.WAITING_FOR_PACKAGE, C_CustomerAgent.Phase.DIALOGUE, C_CustomerAgent.Phase.OPTIONAL_FITTING:
+			if CustomerHandoffService.try_receive(customer, visit):
+				return
 			if agent.elapsed >= visit.definition.patience_seconds:
 				_leave(customer, visit)
 		C_CustomerAgent.Phase.RECEIVING:
@@ -413,11 +417,11 @@ static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck
 
 ## Returns the held Package offered to this Customer. Prefer the requested shipment when
 ## the Player carries more than one Package across Carry/right/left slots.
-static func direct_handoff_package(actor: Entity, customer: E_Customer) -> Entity:
+static func direct_handoff_package(actor: Entity, customer: E_Customer, allow_greeting: bool = false) -> Entity:
 	if not is_instance_valid(actor) or not is_instance_valid(customer):
 		return null
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	if agent == null or agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
+	if agent == null or (agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE and not (allow_greeting and agent.phase == C_CustomerAgent.Phase.WAITING)):
 		return null
 	var visit: CustomerVisit = find_visit(agent.visit_id)
 	if (
