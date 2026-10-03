@@ -1,5 +1,7 @@
 # Current Work
 
+Активная задача R34 — главное меню, игровое save/load/new. План agent_tasks/roadmap_34_main_menu_saves.md записан до реализации. Существующий snapshot утренний; frontend использует его без обещания mid-visit save. Следующий шаг — сервис безопасных слотов/переходов.
+
 R31 DONE: content/resources/input_prompts → resources/input_prompts; SHA2561417 файлов unchanged, atlas1416/0 written. R32/R33 OWNER_QA: единая фаза шагов/bob, step_distance2.8, опускание поясных креплений; sprint Shift/left-stick-click hold/toggle, C_Stamina70+30×сила,100/60 drain, груз×1.5..8, recovery10/s after2s, restart20%. Main/test overrides явно включают Stamina. Обычная скорость main5м/с сохранена; sprint7.5. HUD/debug timers и stamina_info/help.
 
 Validation: R32 feedback5/5,33. R33 related23/23,151; full milestone484/484,3996,55scripts (.export/r33-milestone-full-gut.log). После полного — только heavy-load9/9,55 (.export/r33-heavy-load-gut.log), без повторения full. Native main sprint/settings/console parser smoke PASS20261003-183557159. Reviewer R1 empty optional console target FIXED/confirmed; old snapshot session reset hardened. Rendered/device/audio QA не выполнялась; чек-листы qa_tasks/sprint_stamina.md и feedback_and_audio.md.
