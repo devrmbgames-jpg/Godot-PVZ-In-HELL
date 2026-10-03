@@ -40,6 +40,12 @@ static func position_for(place_id: StringName) -> Vector3:
 	var district: C_District = current()
 	var place: DEF_DistrictPlace = district.definition.place_for(place_id) if district != null and district.definition != null else null
 	var district_root: Node3D = origin()
+	if place != null and not place.anchor_path.is_empty() and is_instance_valid(ECS.world):
+		var anchor: Node3D = ECS.world.get_parent().get_node_or_null(place.anchor_path) as Node3D
+		if anchor != null:
+			var anchored: Vector3 = anchor.global_position
+			anchored.y = district_root.global_position.y + place.position.y if district_root != null else place.position.y
+			return anchored
 	return district_root.to_global(place.position) if place != null and district_root != null else place.position if place != null else Vector3.ZERO
 
 ## Resolves a readable destination without exposing its authored stable key.

@@ -10,6 +10,8 @@ enum Kind { HOME, PORTAL, ACTIVITY, SHOP, JUNCTION, COVER }
 @export var kind: Kind = Kind.ACTIVITY
 ## Position relative to the district blockout root.
 @export var position: Vector3 = Vector3.ZERO
+## Optional main-level marker supplies X/Z; position.y remains the authored ground height.
+@export var anchor_path: NodePath = NodePath("")
 ## Connections in the district route graph.
 @export var neighbours: PackedStringArray = []
 ## Base illumination independent of nearby lamps.

@@ -1,5 +1,5 @@
 extends SceneTree
-## Offline rebuild of the authored warehouse map from its static physics geometry.
+## Rebuilds one shared navmesh from grouped PVZ and district static geometry and validates coverage.
 
 const LEVEL_PATH: String = "res://content/scenes/main_level.tscn"
 const OUTPUT_PATH: String = "res://content/navigation/navmesh_warehouse.tres"
@@ -12,6 +12,7 @@ const AGENT_RADIUS: float = 0.3
 const AGENT_HEIGHT: float = 1.7
 const MAX_CLIMB: float = 0.2
 const MAX_SLOPE: float = 50.0
+const GEOMETRY_GROUP: StringName = &"navigation_geometry"
 
 
 func _init() -> void:
@@ -37,10 +38,14 @@ func _bake() -> void:
 	mesh.agent_max_climb = MAX_CLIMB
 	mesh.agent_max_slope = MAX_SLOPE
 	var source: NavigationMeshSourceGeometryData3D = NavigationMeshSourceGeometryData3D.new()
-	NavigationServer3D.parse_source_geometry_data(mesh, source, level.get_node("PVZ"))
-	var district_geometry: Node = level.get_node_or_null("District")
-	if district_geometry != null:
-		NavigationServer3D.parse_source_geometry_data(mesh, source, district_geometry)
+	if primitive:
+		NavigationServer3D.parse_source_geometry_data(mesh, source, level.get_node("PVZ"))
+	else:
+		mesh.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_GROUPS_WITH_CHILDREN
+		mesh.geometry_source_group_name = GEOMETRY_GROUP
+		# Parsing clears the source and changes its local coordinate frame. Both
+		# grouped roots must be collected in one call from their common level root.
+		NavigationServer3D.parse_source_geometry_data(mesh, source, level)
 	NavigationServer3D.bake_from_source_geometry_data(mesh, source)
 	assert(mesh.get_polygon_count() > 0)
 	DirAccess.make_dir_recursive_absolute(output_path.get_base_dir())

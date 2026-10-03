@@ -6,6 +6,10 @@
 size = Vector3(56, 0.2, 44)
 [sub_resource type="BoxShape3D" id="GroundShape"]
 size = Vector3(56, 0.2, 44)
+[sub_resource type="BoxMesh" id="ApproachMesh"]
+size = Vector3(12, 0.2, 20)
+[sub_resource type="BoxShape3D" id="ApproachShape"]
+size = Vector3(12, 0.2, 20)
 [sub_resource type="StandardMaterial3D" id="GroundMaterial"]
 albedo_color = Color(0.16, 0.13, 0.12, 1)
 [sub_resource type="BoxMesh" id="HouseMesh"]
@@ -30,24 +34,24 @@ size = Vector3(1, 3, 20)
 size = Vector3(1, 3, 20)
 
 [sub_resource type="BoxShape3D" id="WallShapeNorthWest"]
-size = Vector3(47, 3, 1)
+size = Vector3(40, 3, 1)
 [sub_resource type="BoxMesh" id="WallMeshNorthWest"]
-size = Vector3(47, 3, 1)
+size = Vector3(40, 3, 1)
 
 [sub_resource type="BoxShape3D" id="WallShapeNorthEast"]
-size = Vector3(5, 3, 1)
+size = Vector3(10, 3, 1)
 [sub_resource type="BoxMesh" id="WallMeshNorthEast"]
-size = Vector3(5, 3, 1)
+size = Vector3(10, 3, 1)
 
 [sub_resource type="BoxShape3D" id="WallShapeSouthWest"]
-size = Vector3(21, 3, 1)
+size = Vector3(24, 3, 1)
 [sub_resource type="BoxMesh" id="WallMeshSouthWest"]
-size = Vector3(21, 3, 1)
+size = Vector3(24, 3, 1)
 
 [sub_resource type="BoxShape3D" id="WallShapeSouthEast"]
-size = Vector3(31, 3, 1)
+size = Vector3(26, 3, 1)
 [sub_resource type="BoxMesh" id="WallMeshSouthEast"]
-size = Vector3(31, 3, 1)
+size = Vector3(26, 3, 1)
 
 [sub_resource type="BoxShape3D" id="WallShapeWestUpper"]
 size = Vector3(1, 3, 13)
@@ -69,6 +73,15 @@ mesh = SubResource("GroundMesh")
 material_override = SubResource("GroundMaterial")
 [node name="Collision" type="CollisionShape3D" parent="Ground"]
 shape = SubResource("GroundShape")
+
+[node name="Approach" type="StaticBody3D" parent="."]
+position = Vector3(10, -0.1, -6)
+collision_layer = 1
+[node name="Mesh" type="MeshInstance3D" parent="Approach"]
+mesh = SubResource("ApproachMesh")
+material_override = SubResource("GroundMaterial")
+[node name="Collision" type="CollisionShape3D" parent="Approach"]
+shape = SubResource("ApproachShape")
 
 [node name="House1" type="StaticBody3D" parent="."]
 position = Vector3(36, 2.5, -11)
@@ -215,7 +228,7 @@ text = "ВЫХОД ИЗ РАЙОНА"
 billboard = 1
 
 [node name="portal_north" type="Marker3D" parent="."]
-position = Vector3(62, 0, -10)
+position = Vector3(56, 0, -12)
 
 [node name="Caption" type="Label3D" parent="portal_north"]
 position = Vector3(0, 2, 0)
@@ -223,7 +236,7 @@ text = "ВЫХОД ИЗ РАЙОНА"
 billboard = 1
 
 [node name="portal_south" type="Marker3D" parent="."]
-position = Vector3(36, 0, 28)
+position = Vector3(40, 0, 28)
 
 [node name="Caption" type="Label3D" parent="portal_south"]
 position = Vector3(0, 2, 0)
@@ -321,7 +334,7 @@ shape = SubResource("WallShapeEastLower")
 mesh = SubResource("WallMeshEastLower")
 
 [node name="BoundaryNorthWest" type="StaticBody3D" parent="."]
-position = Vector3(36.5, 1.5, -13)
+position = Vector3(33, 1.5, -13)
 collision_layer = 1
 [node name="Collision" type="CollisionShape3D" parent="BoundaryNorthWest"]
 shape = SubResource("WallShapeNorthWest")
@@ -329,7 +342,7 @@ shape = SubResource("WallShapeNorthWest")
 mesh = SubResource("WallMeshNorthWest")
 
 [node name="BoundaryNorthEast" type="StaticBody3D" parent="."]
-position = Vector3(66.5, 1.5, -13)
+position = Vector3(64, 1.5, -13)
 collision_layer = 1
 [node name="Collision" type="CollisionShape3D" parent="BoundaryNorthEast"]
 shape = SubResource("WallShapeNorthEast")
@@ -337,7 +350,7 @@ shape = SubResource("WallShapeNorthEast")
 mesh = SubResource("WallMeshNorthEast")
 
 [node name="BoundarySouthWest" type="StaticBody3D" parent="."]
-position = Vector3(23.5, 1.5, 29)
+position = Vector3(25, 1.5, 29)
 collision_layer = 1
 [node name="Collision" type="CollisionShape3D" parent="BoundarySouthWest"]
 shape = SubResource("WallShapeSouthWest")
@@ -345,7 +358,7 @@ shape = SubResource("WallShapeSouthWest")
 mesh = SubResource("WallMeshSouthWest")
 
 [node name="BoundarySouthEast" type="StaticBody3D" parent="."]
-position = Vector3(53.5, 1.5, 29)
+position = Vector3(56, 1.5, 29)
 collision_layer = 1
 [node name="Collision" type="CollisionShape3D" parent="BoundarySouthEast"]
 shape = SubResource("WallShapeSouthEast")

@@ -1,9 +1,11 @@
-[gd_resource type="Resource" script_class="DEF_NpcProfile" format=3]
+[gd_resource type="Resource" script_class="DEF_NpcProfile" format=3 uid="uid://e5j7iq2pdsb7"]
 
-[ext_resource type="Script" path="res://content/definitions/gameplay/npc/def_npc_profile.gd" id="Profile"]
-[ext_resource type="Script" path="res://content/definitions/gameplay/npc/def_npc_schedule.gd" id="Schedule"]
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/definitions/gameplay/combat/def_npc_attack.gd" id="1_s447k"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/combat/def_npc_punch.tres" id="2_s17fl"]
+[ext_resource type="Script" uid="uid://b5sdb0rpo1bdu" path="res://content/definitions/gameplay/npc/def_npc_profile.gd" id="Profile"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/npc/def_npc_trait_5.tres" id="Rule"]
-[ext_resource type="Script" path="res://content/definitions/gameplay/npc/def_npc_trait.gd" id="RuleScript"]
+[ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/definitions/gameplay/npc/def_npc_trait.gd" id="RuleScript"]
+[ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/definitions/gameplay/npc/def_npc_schedule.gd" id="Schedule"]
 
 [sub_resource type="Resource" id="Schedule"]
 script = ExtResource("Schedule")
@@ -14,14 +16,11 @@ evening = 2
 
 [resource]
 script = ExtResource("Profile")
-key = &"person_10"
 display_name = "Приставала"
 resident = false
-merchant = false
 recipient_key = &"visitor_2"
 personality = 1
 schedule = SubResource("Schedule")
 rules = Array[ExtResource("RuleScript")]([ExtResource("Rule")])
-interests = PackedStringArray("сила")
-initiates_conflicts = false
 body_color = Color(0.95, 0.3, 0.1, 1)
+key = &"person_10"
