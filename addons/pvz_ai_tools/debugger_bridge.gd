@@ -76,6 +76,11 @@ func request_runtime(
 	return true
 
 
+## Returns true while at least one runtime custom-tool reply is outstanding.
+func has_pending() -> bool:
+	return not _pending.is_empty()
+
+
 ## Drops custom-tool requests whose MCP deadline has already elapsed.
 func expire_pending() -> void:
 	for request_key: Variant in _pending.keys():
