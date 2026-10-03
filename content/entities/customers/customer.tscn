@@ -7,8 +7,10 @@
 [ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
 [ext_resource type="Script" uid="uid://nl83f43oqa4h" path="res://content/components/gameplay/c_customer_agent.gd" id="Agent"]
 [ext_resource type="Script" uid="uid://dhgwcpds3v85h" path="res://content/components/gameplay/c_challenge.gd" id="Challenge"]
+[ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Component"]
 [ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/components/gameplay/c_controller.gd" id="Controller"]
+[ext_resource type="Script" uid="uid://c6m2fq7itnjdo" path="res://content/ui/customer_debug_status.gd" id="Customer_debug_status"]
 [ext_resource type="Script" uid="uid://c5d3qdy5m6sgl" path="res://content/entities/customers/e_customer.gd" id="Entity"]
 [ext_resource type="Script" uid="uid://msokk2te2ouj" path="res://content/components/gameplay/c_floor_challenge.gd" id="FloorChallenge"]
 [ext_resource type="PackedScene" path="res://content/entities/characters/physical_character.tscn" id="Foundation"]
@@ -17,6 +19,7 @@
 [ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/components/gameplay/c_health.gd" id="Health"]
 [ext_resource type="PackedScene" path="res://content/ui/hunger_npc_visual.tscn" id="HungerPerception"]
 [ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
+[ext_resource type="PackedScene" path="res://content/entities/customers/inspection_parcel_slot.tscn" id="InspectionSlot"]
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
 [ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/components/gameplay/c_living.gd" id="Living"]
 [ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/definitions/gameplay/def_impact_living.tres" id="LivingImpact"]
@@ -27,19 +30,9 @@
 [ext_resource type="Script" uid="uid://cgf0j12tlcr1q" path="res://content/components/motion/c_npc_intent.gd" id="NpcIntent"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/combat/def_npc_punch.tres" id="NpcPunch"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/combat/def_npc_shot.tres" id="NpcShot"]
-[ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="RigidBody"]
-
-[ext_resource type="Script" path="res://content/ui/customer_debug_status.gd" id="Customer_debug_status"]
-
-[ext_resource type="Script" path="res://content/components/gameplay/c_npc_remains.gd" id="Remains"]
+[ext_resource type="Script" uid="uid://b4ih834b7gts0" path="res://content/components/gameplay/c_npc_remains.gd" id="Remains"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/def_npc_remains_default.tres" id="RemainsDefinition"]
-
-[ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
-[ext_resource type="PackedScene" path="res://content/entities/customers/inspection_parcel_slot.tscn" id="InspectionSlot"]
-
-[sub_resource type="Resource" id="Remains"]
-script = ExtResource("Remains")
-definition = ExtResource("RemainsDefinition")
+[ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="RigidBody"]
 
 [sub_resource type="Resource" id="RigidBody"]
 script = ExtResource("RigidBody")
@@ -84,6 +77,10 @@ definition = ExtResource("19_q7am6")
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
 
+[sub_resource type="Resource" id="Remains"]
+script = ExtResource("Remains")
+definition = ExtResource("RemainsDefinition")
+
 [sub_resource type="Resource" id="Interactable"]
 script = ExtResource("Interactable")
 
@@ -111,6 +108,9 @@ height = 1.7
 collision_layer = 2
 collision_mask = 31
 script = ExtResource("Entity")
+inspection_animation = &""
+receiving_animation = &""
+dialogue_animation = &""
 animation_player = NodePath("Body/AnimationPlayer")
 navigation_agent = NodePath("NavigationAgent3D")
 idle_animation = &"Idle"
@@ -130,11 +130,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 path_desired_distance = 0.35
 target_desired_distance = 0.25
 path_max_distance = 1.0
+avoidance_enabled = true
 height = 1.7
 radius = 0.4
-avoidance_enabled = true
 neighbor_distance = 6.0
-time_horizon_agents = 1.0
 
 [node name="Body" parent="." index="2" unique_id=1355080631 instance=ExtResource("Model")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
@@ -158,21 +157,20 @@ billboard = 1
 
 [node name="HungerPerception" parent="." index="5" unique_id=1914732137 instance=ExtResource("HungerPerception")]
 
-[node name="DebugStatus" type="Label3D" parent="."]
-position = Vector3(0, 3.0, 0)
-script = ExtResource("Customer_debug_status")
-font_size = 24
+[node name="DebugStatus" type="Label3D" parent="." index="6" unique_id=2030974460]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 pixel_size = 0.004
 billboard = 1
 modulate = Color(0.7, 1, 0.8, 1)
+font_size = 24
 outline_size = 6
-text = ""
+script = ExtResource("Customer_debug_status")
 
-[editable path="Body"]
-
-[node name="CharacterFeedback" parent="." instance=ExtResource("CharacterFeedback")]
+[node name="CharacterFeedback" parent="." index="7" unique_id=1273590992 instance=ExtResource("CharacterFeedback")]
 spatial_audio = true
 volume_db = -18.0
 bob_enabled = false
 
-[node name="InspectionParcelSlot" parent="." instance=ExtResource("InspectionSlot")]
+[node name="InspectionParcelSlot" parent="." index="8" unique_id=968083495 instance=ExtResource("InspectionSlot")]
+
+[editable path="Body"]
