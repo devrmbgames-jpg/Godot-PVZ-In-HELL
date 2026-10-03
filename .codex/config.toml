@@ -15,7 +15,7 @@ sandbox_mode = "workspace-write"
 web_search = "live"
 
 # Guard against instruction creep. AGENTS.md + scoped instructions should stay lean.
-project_doc_max_bytes = 8192
+project_doc_max_bytes = 16384
 
 # Keep noisy Godot/tool output from consuming the session context.
 tool_output_token_limit = 4000
