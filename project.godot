@@ -33,6 +33,7 @@ Console="*uid://ouiu5xh1cs8n"
 ECS="*uid://dfqwl5njvdnmq"
 DebugD3D="*res://addons/debug_draw/debug_draw_3d.tscn"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
+_pvz_ai_runtime_bridge="*res://addons/pvz_ai_tools/runtime_bridge.gd"
 
 [display]
 
