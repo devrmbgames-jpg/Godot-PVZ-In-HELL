@@ -24,7 +24,7 @@ Status: **OWNER_QA**
 
 ### Current
 
-M0–M2 реализованы: типизированный GameSessionService и GameSaveResult, detached preflight без изменения ECS.world, главное меню и общий bootstrap main/test, standalone settings, игровой save/load/new/main/exit с подтверждениями. Настройки сохраняются также при успешном переходе/выходе. Экспорт проверяет главный экран и выбранный игровой уровень отдельно. Следующий шаг — Windows main/test builds после commit; затем owner QA.
+M0–M2 реализованы: типизированный GameSessionService и GameSaveResult, detached preflight без изменения ECS.world, главное меню и общий bootstrap main/test, standalone settings, игровой save/load/new/main/exit с подтверждениями. Настройки сохраняются также при успешном переходе/выходе. Экспорт проверяет главный экран и выбранный игровой уровень отдельно. Gameplay milestone97a0ef71, dev. Windows main/test готовы; следующий шаг — owner QA.
 
 ### Review
 
@@ -38,7 +38,9 @@ M0–M2 реализованы: типизированный GameSessionService 
 - Один полный milestone GUT:491/491,4029 assertions,56 scripts (.export/r34-milestone-full-gut.log). Нет script errors/leaks; native Windows certificate-store diagnostic присутствует, как прежде.
 - Scene lifecycle + реальные Viewport GUI pointer clicks new/save/load, preferences ConfigFile и checksum/preflight отказ: menu_session smoke PASS (tests/artifacts/menu_session-20261003-192144176.log).
 - Raw menu safety key/binding capture/resume regression: settings_input smoke PASS (tests/artifacts/settings_input-20261003-192408372.log).
-- Rendered/device/full slice не запускались. Windows builds — следующий шаг, результат будет записан после экспорта.
+- Windows97a0ef71: main `.export/windows/20261003-092610Z-97a0ef71-menu-saves-main/PVZInHell.exe`; test `.export/windows/20261003-092744Z-97a0ef71-menu-saves-test/PVZInHell.exe`. Оба главных экрана и обе фактические игровые карты: headless startup120frames PASS; LATEST.cmd/TEST_LEVEL.cmd обновлены.
+- Rendered/device/full slice не запускались.
+- Удалены2 промежуточных failed GUI smoke logs (1795bytes) и временный файл selective project index; успешные evidence/build logs сохранены (.export/r34_log_cleanup_manifest.json).
 
 ### Owner QA / blockers
 
