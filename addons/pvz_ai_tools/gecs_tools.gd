@@ -10,6 +10,17 @@ const MAX_VALUE_DEPTH: int = 2
 
 #region Public tool handlers
 
+## Lets Godot AI verify this handler owns no in-flight work before a script swap.
+func quiesce_for_script_swap() -> Dictionary:
+	var bridge: PvzAiDebuggerBridge = PvzAiDebuggerBridge.get_instance()
+	if bridge != null and bridge.has_pending():
+		return {
+			"ok": false,
+			"error": "PVZ runtime GECS inspection still has a pending debugger request.",
+		}
+	return {"ok": true}
+
+
 ## Returns compact counts for entities, components and relationships.
 func world_summary(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	var runtime_result: Dictionary = _runtime_request("world_summary", params, _ctx)
