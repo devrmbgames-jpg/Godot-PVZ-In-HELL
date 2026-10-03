@@ -37,6 +37,16 @@ Collision layer = what the object is on. Collision mask = what it queries/reacts
 - Enable CCD only for bodies whose speed/thickness actually requires it; it has a cost.
 - Let sleeping work unless gameplay requires permanent activity.
 
+## Tuning and stability
+
+- Keep simulation work in the physics step; do not apply forces/movement from render-frame callbacks.
+- Prefer Godot's built-in physics interpolation before inventing a parallel visual-transform simulation.
+- Treat mass as relative collision weight, not fall speed; use gravity scale/damping/material friction/restitution for feel.
+- For tunneling, first reason about speed, collider thickness and physics tick distance; then use CCD, thicker collision, a speed cap, or a higher physics rate as justified by the mechanic.
+- Extreme mass ratios, unnecessary awake bodies, and unstable joints can create jitter and solver cost. Tune them before replacing the solver.
+- Do not globally raise physics tick rate or solver cost to fix one local interaction without measuring the project-wide effect.
+- After teleports/discontinuities, reset interpolation/history where needed so visuals do not smear or snap from stale state.
+
 ## Queries
 
 Use the cheapest representation that fits the lifecycle:
