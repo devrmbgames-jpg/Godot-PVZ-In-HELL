@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://d3vj5iyw4p75d"]
 
 [ext_resource type="Script" uid="uid://cdu5tlyk72uu4" path="res://addons/gecs/ecs/world.gd" id="2_da1x8"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_district.gd" id="District_system"]
 [ext_resource type="Script" uid="uid://b3vi2ingux88g" path="res://addons/gecs/lib/system_group.gd" id="3_ahxau"]
 [ext_resource type="Script" uid="uid://nsdmrnqs0no0" path="res://content/observers/gameplay/o_damage.gd" id="5_ad8bv"]
 [ext_resource type="Script" uid="uid://c1benmwwnwobr" path="res://content/systems/motion/s_jump.gd" id="6_gg2sc"]
@@ -358,3 +359,7 @@ group = &"Interaction"
 
 [node name="O_GrabLifecycle" type="Node" parent="Systems/Interaction" unique_id=1786878994]
 script = ExtResource("Grab_lifecycle")
+
+[node name="S_District" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("District_system")
+group = &"GamePlay"

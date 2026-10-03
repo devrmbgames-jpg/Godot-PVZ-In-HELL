@@ -372,6 +372,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 		if not bool(record.enabled):
 			ECS.world.disable_entity(entities[String(record.key)])
 	RefusalQuestService.restore_bindings()
+	DistrictPopulationService.restore_participation()
 	return true
 
 
@@ -384,7 +385,7 @@ static func _valid_ids(records: Array, entities: Dictionary[String, Entity]) -> 
 
 
 static func _persistent(entity: Entity) -> bool:
-	if entity.has_component(C_CustomerAgent) or entity.has_component(C_QuestBinding) or entity.has_component(C_CombatProjectile):
+	if (entity.has_component(C_CustomerAgent) and not entity.has_component(C_NpcIdentity)) or entity.has_component(C_QuestBinding) or entity.has_component(C_CombatProjectile):
 		return false
 	if entity.has_component(C_HazardLifetime):
 		var lifetime: C_HazardLifetime = entity.get_component(C_HazardLifetime) as C_HazardLifetime

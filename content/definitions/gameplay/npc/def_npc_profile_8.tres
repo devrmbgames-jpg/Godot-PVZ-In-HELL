@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="DEF_NpcProfile" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/npc/def_npc_profile.gd" id="Profile"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/npc/def_npc_schedule.gd" id="Schedule"]
+
+[sub_resource type="Resource" id="Schedule"]
+script = ExtResource("Schedule")
+weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
+morning = 0
+day = 0
+evening = 0
+
+[resource]
+script = ExtResource("Profile")
+key = &"person_8"
+display_name = "Торговец"
+resident = true
+merchant = true
+recipient_key = &"customer_08"
+personality = 2
+schedule = SubResource("Schedule")
+interests = PackedStringArray("торговля")
+initiates_conflicts = false
+body_color = Color(0.8, 0.6, 0.3, 1)

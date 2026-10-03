@@ -32,12 +32,15 @@ func _bake() -> void:
 	mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
 	mesh.cell_size = CELL_SIZE
 	mesh.cell_height = CELL_HEIGHT
-	mesh.agent_radius = AGENT_RADIUS
+	mesh.agent_radius = ceilf(AGENT_RADIUS / CELL_SIZE) * CELL_SIZE
 	mesh.agent_height = AGENT_HEIGHT
 	mesh.agent_max_climb = MAX_CLIMB
 	mesh.agent_max_slope = MAX_SLOPE
 	var source: NavigationMeshSourceGeometryData3D = NavigationMeshSourceGeometryData3D.new()
 	NavigationServer3D.parse_source_geometry_data(mesh, source, level.get_node("PVZ"))
+	var district_geometry: Node = level.get_node_or_null("District")
+	if district_geometry != null:
+		NavigationServer3D.parse_source_geometry_data(mesh, source, district_geometry)
 	NavigationServer3D.bake_from_source_geometry_data(mesh, source)
 	assert(mesh.get_polygon_count() > 0)
 	DirAccess.make_dir_recursive_absolute(output_path.get_base_dir())

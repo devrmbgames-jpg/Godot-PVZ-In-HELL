@@ -4,7 +4,7 @@ class_name AutosaveStore
 
 const DEFAULT_PATH: String = "user://autosave.pvzh"
 const MAGIC: String = "PVZH1"
-const SCHEMA_VERSION: int = 1
+const SCHEMA_VERSION: int = 2
 const MAX_BYTES: int = 64 * 1024 * 1024
 
 

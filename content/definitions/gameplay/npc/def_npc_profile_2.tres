@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="DEF_NpcProfile" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/npc/def_npc_profile.gd" id="Profile"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/npc/def_npc_schedule.gd" id="Schedule"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/npc/def_npc_trait_2.tres" id="Rule"]
+[ext_resource type="Script" path="res://content/definitions/gameplay/npc/def_npc_trait.gd" id="RuleScript"]
+
+[sub_resource type="Resource" id="Schedule"]
+script = ExtResource("Schedule")
+weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
+morning = 0
+day = 2
+evening = 0
+
+[resource]
+script = ExtResource("Profile")
+key = &"person_2"
+display_name = "Зольник"
+resident = true
+merchant = false
+recipient_key = &"customer_02"
+personality = 0
+schedule = SubResource("Schedule")
+rules = Array[ExtResource("RuleScript")]([ExtResource("Rule")])
+interests = PackedStringArray("тепло")
+initiates_conflicts = false
+body_color = Color(0.95, 0.3, 0.1, 1)

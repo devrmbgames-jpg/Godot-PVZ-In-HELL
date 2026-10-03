@@ -14,6 +14,7 @@ static func process(session: Entity, cycle: C_DayCycle, state: C_Autosave, delta
 	if state.started_night != cycle.day_index:
 		state.started_night = cycle.day_index
 		NightResetService.reset()
+		DistrictPopulationService.prepare_morning(cycle.day_index + 1)
 	state.retry_remaining = maxf(0.0, state.retry_remaining - delta)
 	if state.retry_remaining > 0.0:
 		return

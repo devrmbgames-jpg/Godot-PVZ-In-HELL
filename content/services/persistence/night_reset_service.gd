@@ -37,7 +37,7 @@ static func reset() -> void:
 			var control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
 			control.captures.clear()
 			control.rotation_active = false
-		if entity.has_component(C_CustomerAgent):
+		if entity.has_component(C_CustomerAgent) and not entity.has_component(C_NpcIdentity):
 			CustomerInspectionService.end(entity)
 			ECS.world.remove_entity(entity)
 		elif entity.has_component(C_CombatProjectile):
