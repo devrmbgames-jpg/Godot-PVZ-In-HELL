@@ -12,6 +12,7 @@ This file is the queue/index. It does not replace individual task state.
 | **OWNER_QA** | [R28 Физическое содержимое и пустые посылки](roadmap_28_physical_package_contents.md) |
 | **OWNER_QA** | [R29 CharacterBody толкает мелкие предметы](roadmap_29_character_push.md) |
 | **OWNER_QA** | [R30 AtlasTexture, настройки и переназначение управления](roadmap_30_settings_input_prompts.md) |
+| **DONE** | [Очистка устаревших логов](log_artifact_cleanup.md) |
 | **DEFERRED** | [R25 GDScript Documentation](roadmap_25_gdscript_documentation.md) — **LAST**, русские `##` и смысловые регионы; выполнять после предыдущих задач и исправлений QA |
 
 Supporting artifacts are linked from their owner tasks and are not separate queue entries.

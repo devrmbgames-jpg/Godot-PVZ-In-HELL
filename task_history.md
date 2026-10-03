@@ -27,3 +27,5 @@
 - 2026-10-03 — R30 final pause-input fix: clear producer pending mouse/buttons and drop tracking on NOTIFICATION_PAUSED; no accidental throw/view jump on resume. Only related drop3/3,16 PASS (.export/r30-pause-drop-gut.log); full milestone not repeated. Main60b92d56 startup PASS, final main/test exports after fix commit.
 
 - 2026-10-03 — Финальные Windows QA be10abab dev: main .export/windows/20261003-074906Z-be10abab-settings-input-final-main/PVZInHell.exe; test .export/windows/20261003-075037Z-be10abab-settings-input-final-test/PVZInHell.exe. Оба actual-scene120-frame startup PASS, launchers обновлены.10 source XML включены для missing-.res fallback. Полный срез и device/visual/audio acceptance переданы владельцу; R25 LAST после QA-исправлений.
+
+- 2026-10-03 — Очистка log-артефактов:336 ненужных промежуточных/повторных/старых экспортных логов удалено,7542725 bytes /7.19MiB.75 referenced/latest smoke/current Windows logs сохранены; файлы/mtime/границы workspace проверены до удаления, защищённые файлы после него существуют. Билды/исходники/сохранения не менялись; tests/engine не запускались. Task agent_tasks/log_artifact_cleanup.md DONE.
