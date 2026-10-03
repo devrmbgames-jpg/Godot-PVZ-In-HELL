@@ -14,6 +14,17 @@ var _drop_end_pending: bool = false
 var _cancel_pending: bool = false
 
 
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_PAUSED:
+		return
+	_clear_pending()
+	if not is_instance_valid(ECS.world):
+		return
+	for actor: Entity in ECS.world.query.with_all([C_Controller, C_PlayerInputController]).execute():
+		var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
+		_update_drop(controller, actor, false, 0.0)
+
+
 func _input(event: InputEvent) -> void:
 	if not event.is_action_pressed(&"menu") or event.is_echo():
 		return
@@ -90,6 +101,11 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		)
 		controller.move_axis = move_axis
 
+	_clear_pending()
+
+
+## Пауза не переносит старое движение мыши/нажатия в следующий игровой tick.
+func _clear_pending() -> void:
 	_look_mouse = Vector2.ZERO
 	_interact_pending = false
 	_throw_pending = false

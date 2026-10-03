@@ -48,9 +48,13 @@ M0: PromptAtlasCatalog и utils/generate_input_prompt_atlases.gd. Готовые
 
 M0: генератор проверил границы, уникальность имён и roundtrip каждого из1416 binary .res (.export/r30-atlases.log). Повторная генерация:1416 проверено,0 записано (.export/r30-atlases-idempotent.log). Structure PASS. GUT/rendered gameplay для генерации не запускались. M1–M3: related111/111,811 (.export/r30-related-gut.log); после review settings8/8,53 (.export/r30-settings-review-gut.log). Финальный крупный milestone:471/471,3914,54 scripts (.export/r30-milestone-full-gut.log), без пропущенных скриптов/ошибок парсинга. Последний узкий check добавленного fallback:1/1,6 (.export/r30-prompt-fallback-gut.log). Actual-main raw input/settings/capture negative axis/cancel/exit smoke PASS: tests/artifacts/settings_input-20261003-173619701.log. Structure/diff PASS. Единственное окружение Windows предупреждение certificate store. Rendered/device acceptance не выполнялась.
 
+Final local fix: S_PlayerInput очищает накопленный mouse/button input и drop tracking на NOTIFICATION_PAUSED. Только связанная drop-поверхность3/3,16 (.export/r30-pause-drop-gut.log); полный GUT повторно не запускался.
+
 ### Review findings
 
 - R1/P2 FIXED, reviewer confirmed: Ctrl+E и E пересекаются при runtime non-exact InputMap matching; InputBindingCodec.overlaps/confirmed removal теперь учитывают базовую клавишу без модификаторов, знак joy axis сохраняется. Регрессия проверяет actual InputMap.event_is_action до/после назначения.
+
+- R2/P2 FIXED (self-review): во время Settings pause release кнопки мог не поступить paused producer, а pending look/drop сохранялся до resume; engine pause notification сбрасывает producer-owned input/derived drop tracking.
 
 ### Owner QA / blockers
 

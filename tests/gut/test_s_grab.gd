@@ -982,6 +982,34 @@ func test_drop_priority_and_long_press_placeholder() -> void:
 	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
 
 
+func test_pause_cancels_drop_tracking_and_pending_mouse_and_interaction() -> void:
+	var input_system: CapturedInput = CapturedInput.new()
+	input_system.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(input_system)
+	holder_entity.add_component(C_PlayerInputController.new())
+	var holders: Array[Entity] = [holder_entity]
+	var press: InputEventAction = InputEventAction.new()
+	press.action = &"drop"
+	press.pressed = true
+	input_system.feed_event(press)
+	input_system.process(holders, [[input_state]], 0.1)
+	assert_true(input_state.drop_tracking)
+	input_system.feed_event(_mouse_motion(Vector2(100, 40)))
+	press = InputEventAction.new()
+	press.action = &"interact"
+	press.pressed = true
+	input_system.feed_event(press)
+	get_tree().paused = true
+	get_tree().paused = false
+	assert_false(input_state.drop_tracking)
+	input_system.process(holders, [[input_state]], grab_control.drop_long_press_seconds)
+	assert_false(input_state.drop_long_pressed)
+	assert_false(input_state.drop_pressed)
+	assert_false(input_state.interact_pressed)
+	assert_eq(input_state.look_delta, Vector2.ZERO)
+	input_system.free()
+
+
 func test_drop_long_press_input_does_not_emit_short_drop_on_release() -> void:
 	var input_system: CapturedInput = CapturedInput.new()
 	var holders: Array[Entity] = [holder_entity]
