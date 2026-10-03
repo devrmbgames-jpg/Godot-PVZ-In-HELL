@@ -99,16 +99,16 @@ func entity_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 		components.append(_component_snapshot(component, include_private, max_items))
 
 	var outgoing_count: int = 0
-	for relationship: Relationship in entity.relationships:
-		if relationship != null:
+	for outgoing_relationship: Relationship in entity.relationships:
+		if outgoing_relationship != null:
 			outgoing_count += 1
 
 	var incoming_count: int = 0
 	for candidate: Entity in _entities_from_source(source):
 		if not is_instance_valid(candidate):
 			continue
-		for relationship: Relationship in candidate.relationships:
-			if relationship != null and relationship.target == entity:
+		for candidate_relationship: Relationship in candidate.relationships:
+			if candidate_relationship != null and candidate_relationship.target == entity:
 				incoming_count += 1
 
 	return {
@@ -128,7 +128,7 @@ func entity_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 ## Inspects outgoing/incoming relationships of one uniquely selected entity.
 func relationships_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	var source: Dictionary = _entity_source()
-	var entities: Array[Entity] = source.get("entities", [])
+	var entities: Array[Entity] = _entities_from_source(source)
 	var resolution: Dictionary = _resolve_entity(params, entities)
 	if not resolution.get("ok", false):
 		return resolution
@@ -142,10 +142,10 @@ func relationships_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictiona
 	var rows: Array[Dictionary] = []
 
 	if direction == "both" or direction == "outgoing":
-		for relationship: Relationship in entity.relationships:
-			if relationship == null or not _relation_matches(relationship, relation_filter):
+		for outgoing_relationship: Relationship in entity.relationships:
+			if outgoing_relationship == null or not _relation_matches(outgoing_relationship, relation_filter):
 				continue
-			rows.append(_relationship_snapshot(entity, relationship, "outgoing"))
+			rows.append(_relationship_snapshot(entity, outgoing_relationship, "outgoing"))
 			if rows.size() >= limit:
 				break
 
@@ -153,12 +153,12 @@ func relationships_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictiona
 		for source_entity: Entity in entities:
 			if not is_instance_valid(source_entity):
 				continue
-			for relationship: Relationship in source_entity.relationships:
-				if relationship == null or relationship.target != entity:
+			for incoming_relationship: Relationship in source_entity.relationships:
+				if incoming_relationship == null or incoming_relationship.target != entity:
 					continue
-				if not _relation_matches(relationship, relation_filter):
+				if not _relation_matches(incoming_relationship, relation_filter):
 					continue
-				rows.append(_relationship_snapshot(source_entity, relationship, "incoming"))
+				rows.append(_relationship_snapshot(source_entity, incoming_relationship, "incoming"))
 				if rows.size() >= limit:
 					break
 			if rows.size() >= limit:
@@ -197,7 +197,7 @@ func _entity_source() -> Dictionary:
 		return {
 			"source": "none",
 			"scene": "",
-			"entities": [] as Array[Entity],
+			"entities": [],
 		}
 
 	var scene_entities: Array[Entity] = []
@@ -306,23 +306,23 @@ func _components_for(entity: Entity) -> Array[Component]:
 	var result: Array[Component] = []
 	var seen: Dictionary = {}
 
-	for value: Variant in entity.components.values():
-		var component: Component = value as Component
-		if component == null:
+	for runtime_value: Variant in entity.components.values():
+		var runtime_component: Component = runtime_value as Component
+		if runtime_component == null:
 			continue
-		var key: int = component.get_instance_id()
-		if not seen.has(key):
-			seen[key] = true
-			result.append(component)
+		var runtime_key: int = runtime_component.get_instance_id()
+		if not seen.has(runtime_key):
+			seen[runtime_key] = true
+			result.append(runtime_component)
 
-	for value: Variant in entity.component_resources:
-		var component: Component = value as Component
-		if component == null:
+	for resource_value: Variant in entity.component_resources:
+		var resource_component: Component = resource_value as Component
+		if resource_component == null:
 			continue
-		var key: int = component.get_instance_id()
-		if not seen.has(key):
-			seen[key] = true
-			result.append(component)
+		var resource_key: int = resource_component.get_instance_id()
+		if not seen.has(resource_key):
+			seen[resource_key] = true
+			result.append(resource_component)
 
 	return result
 
