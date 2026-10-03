@@ -77,7 +77,7 @@ func test_waiting_customer_takes_correct_carry_once_without_button_or_greeting_d
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.RECEIVING)
 	assert_null(GrabService.held_object(_actor))
 	assert_false(EntityAvailability.contains(_parcel, _world))
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	assert_false(_agent.dialogue_started)
 	assert_eq(_visit.declaration, CustomerVisit.Declaration.NONE, "Actual delivery does not replace terminal accounting")
 
@@ -88,21 +88,21 @@ func test_wrong_unregistered_destroyed_and_unassigned_orders_stay_held_silently(
 	var original_text: String = message.text
 	var identity: C_Package = _parcel.get_component(C_Package) as C_Package
 	identity.package_id = "someone-else"
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	identity.package_id = _visit.package_id
 	var state: C_PackageState = _parcel.get_component(C_PackageState) as C_PackageState
 	state.registration = C_PackageState.Registration.UNREGISTERED
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	state.registration = C_PackageState.Registration.REGISTERED
 	state.damage = C_PackageState.Damage.DESTROYED
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	state.damage = C_PackageState.Damage.UNDAMAGED
 	for binding: Relationship in _parcel.relationships.duplicate():
 		if binding.relation is R_AssignedTo: _parcel.remove_relationship(binding)
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	assert_eq(message.text, original_text, "Automatic retries must not spam rejection bubbles")
 
@@ -110,7 +110,7 @@ func test_wrong_unregistered_destroyed_and_unassigned_orders_stay_held_silently(
 func test_profile_distance_and_wall_reject_then_clear_path_allows_receive() -> void:
 	await get_tree().physics_frame
 	_visit.definition.automatic_handoff_distance = 0.5
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	_visit.definition.automatic_handoff_distance = 1.5
 	var wall: StaticBody3D = StaticBody3D.new()
@@ -123,12 +123,12 @@ func test_profile_distance_and_wall_reject_then_clear_path_allows_receive() -> v
 	_world.add_child(wall)
 	await get_tree().physics_frame
 	await get_tree().process_frame
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	wall.position.x = 10.0
 	await get_tree().physics_frame
 	await get_tree().process_frame
-	assert_true(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_true(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
 
 
@@ -136,28 +136,28 @@ func test_busy_controls_dialogue_departure_and_defeated_participants_reject() ->
 	await get_tree().physics_frame
 	for priority: InteractionControlFocus.Priority in [InteractionControlFocus.Priority.PUSH, InteractionControlFocus.Priority.PROLONGED, InteractionControlFocus.Priority.MODAL]:
 		var token: int = InteractionControlFocus.acquire(_actor, self, priority)
-		assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+		assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 		_expect_held()
 		InteractionControlFocus.release(_actor, token)
 	Console.toggle_console()
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	Console.toggle_console()
 	for phase: C_CustomerAgent.Phase in [C_CustomerAgent.Phase.DIALOGUE, C_CustomerAgent.Phase.LEAVING, C_CustomerAgent.Phase.AGGRESSIVE]:
 		_agent.phase = phase
-		assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+		assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 		_expect_held()
 	_agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	(_actor.get_component(C_Motion) as C_Motion).control_enabled = false
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	(_actor.get_component(C_Motion) as C_Motion).control_enabled = true
 	(_customer.get_component(C_Health) as C_Health).current = 0.0
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	(_customer.get_component(C_Health) as C_Health).current = 10.0
 	_actor.add_component(C_Death.new())
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 
 
@@ -165,7 +165,7 @@ func test_disabled_automatic_mode_keeps_manual_handoff_and_refusal_policy() -> v
 	_visit.definition.automatic_handoff = false
 	_visit.definition.voluntary_refusal = true
 	await get_tree().physics_frame
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	assert_eq(CustomerFlowService.confirm_direct_delivery(_actor, _customer), PackageDeliveryCheck.Result.READY)
 	assert_eq(_visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
@@ -179,10 +179,10 @@ func test_automatic_receive_borrows_to_booth_without_finishing_delivery() -> voi
 	(booth as Node as Node3D).position.x = 4.0
 	_world.add_entity(booth)
 	await get_tree().physics_frame
-	assert_true(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_true(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.GOING_TO_BOOTH)
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_null(GrabService.held_object(_actor))
 	assert_eq(CustomerInspectionService.owner_for(_parcel), _customer)
 	assert_true((_parcel as Node as RigidBody3D).freeze)
-	assert_false(CustomerHandoffService.try_receive(_customer, _visit))
+	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))

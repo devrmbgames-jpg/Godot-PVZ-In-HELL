@@ -332,12 +332,12 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 			elif agent.elapsed >= visit.definition.approach_timeout:
 				_leave(customer, visit)
 		C_CustomerAgent.Phase.WAITING:
-			if CustomerHandoffService.try_receive(customer, visit):
+			if try_automatic_handoff(customer, visit):
 				return
 			if agent.elapsed >= visit.definition.greeting_seconds:
 				greet(customer)
 		C_CustomerAgent.Phase.WAITING_FOR_PACKAGE, C_CustomerAgent.Phase.DIALOGUE, C_CustomerAgent.Phase.OPTIONAL_FITTING:
-			if CustomerHandoffService.try_receive(customer, visit):
+			if try_automatic_handoff(customer, visit):
 				return
 			if agent.elapsed >= visit.definition.patience_seconds:
 				_leave(customer, visit)
@@ -417,6 +417,7 @@ static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck
 
 ## Returns the held Package offered to this Customer. Prefer the requested shipment when
 ## the Player carries more than one Package across Carry/right/left slots.
+## allow_greeting разрешает только предварительный поиск для ближнего автоприёма.
 static func direct_handoff_package(actor: Entity, customer: E_Customer, allow_greeting: bool = false) -> Entity:
 	if not is_instance_valid(actor) or not is_instance_valid(customer):
 		return null
@@ -448,6 +449,22 @@ static func direct_handoff_package(actor: Entity, customer: E_Customer, allow_gr
 		if identity.package_id == visit.package_id:
 			return held
 	return fallback
+
+
+## Автоприём проходит те же правила выдачи/осмотра; ошибочные предложения не меняют мир.
+static func try_automatic_handoff(customer: E_Customer, visit: CustomerVisit) -> bool:
+	if visit == null or not is_instance_valid(ECS.world):
+		return false
+	var actor: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
+	var parcel: Entity = direct_handoff_package(actor, customer, true)
+	if not GrabService.entity_available(parcel):
+		return false
+	if not CustomerHandoffService.can_receive(actor, customer, visit, parcel, assigned(parcel, customer, visit)):
+		return false
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent.phase == C_CustomerAgent.Phase.WAITING:
+		greet(customer)
+	return confirm_direct_delivery(actor, customer) == PackageDeliveryCheck.Result.READY
 
 
 static func confirm_direct_delivery(

@@ -1,14 +1,13 @@
 extends RefCounted
-## Автоматическая передача использует обычную выдачу; владение остаётся в R_HeldBy.
+## Проверяет близость, управление и готовность автоприёма без изменения владения.
 class_name CustomerHandoffService
 
 const FALLBACK_EYE_HEIGHT: float = 1.3
 const OCCLUSION_MASK: int = 31
 
 
-## Ошибочный заказ остаётся в руках без сообщений. Успешная передача запускает
-## обычный отказ, приём или осмотр в кабинке и не повторяется в следующих тиках.
-static func try_receive(customer: E_Customer, visit: CustomerVisit) -> bool:
+## CustomerFlow передаёт назначение из Relationship и сам выполняет обычную выдачу.
+static func can_receive(actor: Entity, customer: E_Customer, visit: CustomerVisit, parcel: Entity, assigned: bool) -> bool:
 	if visit == null or visit.definition == null or visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED or not visit.definition.automatic_handoff:
 		return false
 	if not GrabService.holder_available(customer) or customer.has_component(C_Death):
@@ -16,7 +15,6 @@ static func try_receive(customer: E_Customer, visit: CustomerVisit) -> bool:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or agent.visit_id != visit.visit_id or agent.phase not in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]:
 		return false
-	var actor: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or bool(Console.is_visible()):
 		return false
 	if InteractionControlFocus.current(actor) > InteractionControlFocus.Priority.CARRY:
@@ -26,19 +24,16 @@ static func try_receive(customer: E_Customer, visit: CustomerVisit) -> bool:
 	var distance: float = visit.definition.automatic_handoff_distance
 	if actor_body == null or customer_body == null or not is_finite(distance) or distance <= 0.0 or actor_body.global_position.distance_squared_to(customer_body.global_position) > distance * distance:
 		return false
-	var parcel: Entity = CustomerFlowService.direct_handoff_package(actor, customer, true)
 	if not GrabService.entity_available(parcel) or CustomerInspectionService.owner_for(parcel) != null:
 		return false
 	var check: PackageDeliveryCheck = CustomerOutcomeService.check(
 		visit, parcel.get_component(C_Package) as C_Package,
 		parcel.get_component(C_PackageState) as C_PackageState,
-		CustomerFlowService.assigned(parcel, customer, visit), true, true,
+		assigned, true, true,
 	)
 	if check.result != PackageDeliveryCheck.Result.READY or not _has_line_of_sight(actor, customer):
 		return false
-	if agent.phase == C_CustomerAgent.Phase.WAITING:
-		CustomerFlowService.greet(customer)
-	return CustomerFlowService.confirm_direct_delivery(actor, customer) == PackageDeliveryCheck.Result.READY
+	return true
 
 
 static func _has_line_of_sight(actor: Entity, customer: E_Customer) -> bool:

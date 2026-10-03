@@ -109,6 +109,24 @@ func test_first_customer_and_morning_are_not_delayed_by_previous_day_gap() -> vo
 	assert_eq(_flow.arrival_cooldown_seconds, 0.0)
 
 
+func test_single_live_customer_blocks_queue_and_debug_even_after_accounting_finished() -> void:
+	var previous: CustomerVisit = _visit(&"still-physically-present")
+	var customer: E_Customer = _leaving_customer(previous)
+	var queued: CustomerVisit = _visit(&"queued")
+	previous.finished = true
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	for phase: C_CustomerAgent.Phase in [C_CustomerAgent.Phase.RECEIVING, C_CustomerAgent.Phase.GOING_TO_BOOTH, C_CustomerAgent.Phase.INSPECTING, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH, C_CustomerAgent.Phase.AGGRESSIVE, C_CustomerAgent.Phase.LEAVING]:
+		agent.phase = phase
+		assert_false(CustomerFlowService.spawn_next_due(_flow, _cycle))
+		assert_false(DebugWorldService.customer_next().success)
+		assert_false(queued.started)
+		assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 1)
+	_world.remove_entity(customer)
+	assert_true(CustomerFlowService.spawn_next_due(_flow, _cycle))
+	assert_true(queued.started)
+	assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 1)
+
+
 func test_unspawned_visit_completion_does_not_add_artificial_delay() -> void:
 	var missed: CustomerVisit = _visit(&"unspawned")
 	CustomerFlowService.finish(missed, _cycle.day_index)

@@ -13,3 +13,5 @@
 - 2026-10-03 — Final Windows9d06320c main/test exported, both actual-scene120-frame startup PASS. Launch .export/LATEST.cmd / TEST_LEVEL.cmd. Все новые R24 механики и console28/help/scroll включены. Ручной полный проход main_level передан владельцу по его запросу; статус OWNER_QA, успешная игровая приёмка не заявлена.
 
 - 2026-10-03 — R26 автоприём правильной посылки в1.5м через прежний delivery/refusal/inspection owner; CarryPlacement удобный объём наведения, безопасный ступенчатый путь под полку, повторный захват сохранён.44/44 related GUT417; existing physical placement и actual-main8 placement/retrieve smoke PASS. Review чистый; полный срез/рендер не запускались. QA qa_tasks/customer_handoff_placement.md. Новые запросы R27–R30 записаны, R25 LAST.
+
+- 2026-10-03 — R27 строгая очередь уже имеет общий запрет второго живого C_CustomerAgent в штатном/debug spawn;7 timing +6 handoff =13/13,129. Новая регрессия проверяет6 фаз и закрытый accounting outcome. R1 compile-time supply preload cycle FIXED загрузкой того же ресурса при _init; mutation автоприёма остаётся только CustomerFlow. R26 Windows main b699f423 startup PASS, LATEST обновлён.
