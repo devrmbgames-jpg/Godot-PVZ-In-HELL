@@ -67,6 +67,8 @@ func _ready() -> void:
 	get_viewport().gui_focus_changed.connect(_focus_changed)
 	if bool(Console.is_visible()):
 		_opened()
+	
+	Console.font_size = 12
 
 
 func _exit_tree() -> void:
