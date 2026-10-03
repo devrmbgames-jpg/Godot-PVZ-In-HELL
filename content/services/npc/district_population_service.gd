@@ -42,6 +42,12 @@ static func position_for(place_id: StringName) -> Vector3:
 	var district_root: Node3D = origin()
 	return district_root.to_global(place.position) if place != null and district_root != null else place.position if place != null else Vector3.ZERO
 
+## Resolves a readable destination without exposing its authored stable key.
+static func place_name(place_id: StringName) -> String:
+	var district: C_District = current()
+	var place: DEF_DistrictPlace = district.definition.place_for(place_id) if district != null else null
+	return place.display_name if place != null else str(place_id)
+
 ## Selects the current living recipient for a newly created parcel case.
 static func recipient_for(recipient_key: StringName) -> NpcRecord:
 	var district: C_District = current()
@@ -53,16 +59,42 @@ static func recipient_for(recipient_key: StringName) -> NpcRecord:
 #endregion
 
 #region Native restoration
+static func _reset_brain(body: E_DistrictNpc) -> void:
+	NpcCommunityService.cancel_activity(body)
+	NpcDialogueService.end(body)
+	NpcHomeDeliveryService.release_meeting(body)
+	CombatService.end_combat(body)
+	NpcAttackService.cancel(body)
+	NpcIntentService.stop(body)
+	if body.has_component(C_CustomerAgent):
+		var service: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+		NpcServiceRole.release(body, service.visit_id)
+	for script: Script in [C_NpcAwareness, C_NpcDecision, C_NpcRoute]:
+		if body.has_component(script):
+			body.remove_component(script)
+	var runner: BTPlayer = body.get_node_or_null("Brain") as BTPlayer
+	if runner != null:
+		runner.free()
+
 ## Restores native participation and readable identity after a snapshot.
 static func restore_participation() -> void:
 	var district: C_District = current()
 	if district == null:
 		return
+	district.noises.clear()
+	district.route_edges.clear()
+	district.route_map_iteration = -1
+	district.light_sources.clear()
+	for lamp: Node in ECS.world.get_parent().find_children("*", "Light3D", true, false):
+		district.light_sources.append(lamp as Light3D)
 	for person: NpcRecord in district.people:
 		var body: E_DistrictNpc = body_for(person.npc_id)
 		if body == null:
 			continue
+		_reset_brain(body)
+		_install_roles(body, person)
 		body.present_profile(person.profile)
+		body.show_message(person.display_name)
 		NpcBrainService.install(body)
 		body.set_participating(person.placement == NpcRecord.Placement.STREET and person.death_day == 0)
 		if person.death_day != 0:
@@ -76,6 +108,7 @@ static func initialize() -> void:
 	var district: C_District = current()
 	if district == null or district.definition == null or not district.people.is_empty():
 		return
+	_spawn_addresses()
 	for light_node: Node in ECS.world.get_parent().find_children("*", "Light3D", true, false):
 		district.light_sources.append(light_node as Light3D)
 	var homes: Array[StringName] = []
@@ -96,12 +129,28 @@ static func initialize() -> void:
 		person.display_name = profile.display_name
 		person.recipient_key = profile.recipient_key
 		person.portal_id = portals[(district.next_person - 2) % portals.size()]
+		person.exit_id = portals[(district.next_person - 1) % portals.size()]
 		if profile.resident and home_index < homes.size():
 			person.home_id = homes[home_index]
 			home_index += 1
 		district.people.append(person)
 		_spawn_body(person)
 	prepare_morning(1)
+
+static func _spawn_addresses() -> void:
+	var district: C_District = current()
+	var prefab: PackedScene = load("res://content/entities/npc/npc_address.tscn") as PackedScene
+	for place: DEF_DistrictPlace in district.definition.places:
+		if place.kind != DEF_DistrictPlace.Kind.HOME:
+			continue
+		var address: Entity = prefab.instantiate() as Entity
+		ECS.world.get_parent().add_child(address)
+		(address as Node as Node3D).global_position = position_for(place.key)
+		ECS.world.add_entity(address, null, false)
+		(address.get_component(C_NpcAddress) as C_NpcAddress).address_id = place.key
+		(address.get_node("Address") as Label3D).text = place.display_name
+	var hud: DistrictDeliveryView = DistrictDeliveryView.new()
+	ECS.world.get_parent().add_child(hud)
 
 static func _spawn_body(person: NpcRecord) -> E_DistrictNpc:
 	var scene: PackedScene = load(person.profile.npc_scene_path) as PackedScene
@@ -160,11 +209,12 @@ static func plan_phase(person: NpcRecord, day_index: int, phase: C_DayCycle.Phas
 	person.phase_complete = false
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	if awareness != null:
+		awareness.called_out = false
 		awareness.warned_rules.clear()
 		awareness.reacted_rules.clear()
 		awareness.rule_exposure.clear()
 	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(day_index, phase)
-	person.goal_id = person.home_id if location == DEF_NpcSchedule.Location.HOME else person.portal_id if location == DEF_NpcSchedule.Location.OUTSIDE else _activity_for(person)
+	person.goal_id = person.home_id if location == DEF_NpcSchedule.Location.HOME else person.portal_id if location == DEF_NpcSchedule.Location.OUTSIDE else _activity_for(person) if person.profile.resident else person.exit_id
 	if synchronize:
 		body.place_at(position_for(person.home_id if person.profile.resident else person.portal_id))
 		set_placement(person, body, NpcRecord.Placement.STREET if location == DEF_NpcSchedule.Location.STREET else NpcRecord.Placement.HOME if location == DEF_NpcSchedule.Location.HOME else NpcRecord.Placement.OUTSIDE)
@@ -179,6 +229,7 @@ static func set_placement(person: NpcRecord, body: E_DistrictNpc, placement: Npc
 	if active and not body.enabled:
 		ECS.world.enable_entity(body)
 	elif not active and body.enabled:
+		NpcCommunityService.cancel_activity(body)
 		NpcDialogueService.end(body)
 		NpcIntentService.stop(body)
 		CombatService.end_combat(body)
@@ -191,7 +242,9 @@ static func set_placement(person: NpcRecord, body: E_DistrictNpc, placement: Npc
 static func complete_phase(person: NpcRecord, body: E_DistrictNpc) -> void:
 	person.phase_complete = true
 	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(person.planned_day, person.planned_phase as C_DayCycle.Phase)
-	if location != DEF_NpcSchedule.Location.STREET:
+	if not person.profile.resident and location == DEF_NpcSchedule.Location.STREET:
+		set_placement(person, body, NpcRecord.Placement.OUTSIDE)
+	elif location != DEF_NpcSchedule.Location.STREET:
 		set_placement(person, body, NpcRecord.Placement.HOME if location == DEF_NpcSchedule.Location.HOME else NpcRecord.Placement.OUTSIDE)
 
 ## Records terminal death once; future cases cannot reuse the deceased person.
@@ -254,7 +307,7 @@ static func _replace_person(district: C_District, deceased: NpcRecord) -> void:
 		if person.death_day == 0 and person.profile.resident and person.profile.initiates_conflicts:
 			initiators += 1
 	for candidate: DEF_NpcProfile in district.definition.profiles:
-		if candidate.resident == deceased.profile.resident and candidate.merchant == deceased.profile.merchant and candidate.valid_rules() and (not candidate.initiates_conflicts or initiators < 2):
+		if candidate.resident == deceased.profile.resident and candidate.merchant == deceased.profile.merchant and candidate.valid_rules() and (not candidate.initiates_conflicts or initiators < district.definition.maximum_conflict_initiators):
 			pool.append(candidate)
 	replacement.profile = pool[abs(hash(replacement.npc_id)) % pool.size()] if not pool.is_empty() else deceased.profile
 	var names: PackedStringArray = district.definition.replacement_names
@@ -262,6 +315,7 @@ static func _replace_person(district: C_District, deceased: NpcRecord) -> void:
 	replacement.recipient_key = deceased.recipient_key
 	replacement.home_id = deceased.home_id
 	replacement.portal_id = deceased.portal_id
+	replacement.exit_id = deceased.exit_id
 	deceased.home_id = &""
 	deceased.portal_id = &""
 	district.people.append(replacement)
@@ -284,7 +338,8 @@ static func _install_roles(body: E_DistrictNpc, person: NpcRecord) -> void:
 	street.caption = "Поговорить с жителем"
 	street.slot = DEF_InteractionAction.Slot.INTERACT
 	street.priority = 5
-	actions.actions.append(street)
+	if not actions.actions.any(func(action: DEF_InteractionAction) -> bool: return action.action_id == street.action_id):
+		actions.actions.append(street)
 	if person.profile.merchant and not body.has_component(C_Trader):
 		var trader: C_Trader = C_Trader.new()
 		trader.profile = load("res://content/definitions/gameplay/commerce/def_trader_default.tres") as DEF_TraderProfile

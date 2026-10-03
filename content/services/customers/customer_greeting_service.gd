@@ -7,7 +7,7 @@ const DEFAULT_OCCLUSION_MASK: int = 31
 
 
 static func announce_order(customer: E_Customer, visit: CustomerVisit) -> void:
-	if visit == null or visit.finished or not CustomerPresentation.uses_quick_order(visit.definition):
+	if visit == null or visit.finished or not CustomerPresentation.uses_quick_visit(visit):
 		return
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or agent.order_announced or agent.phase not in [C_CustomerAgent.Phase.APPROACHING, C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]:

@@ -100,11 +100,12 @@ static func observe_damage(result: DamageResult) -> void:
 		return
 	var request: DamageRequest = result.request
 	var victim: Entity = request.target
-	NpcPerceptionService.emit_noise(victim, result.world_pose.origin, 14.0)
+	var district: C_District = DistrictPopulationService.current()
+	if district != null:
+		NpcPerceptionService.emit_noise(victim, result.world_pose.origin, district.definition.damage_noise_radius)
 	if request.combat_context == null:
 		return
 	var actor: Entity = request.instigator if is_instance_valid(request.instigator) else request.source
-	var district: C_District = DistrictPopulationService.current()
 	if district == null or not is_instance_valid(victim):
 		return
 	if request.incident_id == &"":
@@ -124,6 +125,6 @@ static func observe_damage(result: DamageResult) -> void:
 			else:
 				var awareness: C_NpcAwareness = observer.get_component(C_NpcAwareness) as C_NpcAwareness
 				awareness.fleeing = true
-		elif sees_actor and NpcPerceptionService.can_see(observer, victim, person.profile):
+		elif sees_actor and NpcPerceptionService.can_see(observer, victim, person.profile, true):
 			remember(person, actor, victim, kind, request.incident_id)
 #endregion

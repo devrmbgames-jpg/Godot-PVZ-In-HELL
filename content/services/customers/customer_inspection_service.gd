@@ -43,6 +43,9 @@ static func begin(customer: E_Customer, visit: CustomerVisit, parcel: Entity) ->
 		if config.enabled and (candidate as Node) is Node3D and ECS.world.query.with_relationship([Relationship.new(R_InspectingAt.new(), candidate)]).execute().is_empty():
 			booth = candidate
 			break
+	var home_door: Entity = NpcHomeDeliveryService.door_for(customer)
+	if home_door != null:
+		booth = home_door
 	if booth == null:
 		return false
 	if not EntityAvailability.contains(slot, ECS.world):
@@ -59,6 +62,11 @@ static func begin(customer: E_Customer, visit: CustomerVisit, parcel: Entity) ->
 	customer.add_relationship(Relationship.new(R_InspectingAt.new(), booth))
 	agent.inspection_open_attempted = false
 	agent.inspection_force_refusal = false
+	if home_door != null:
+		_transition(agent, C_CustomerAgent.Phase.INSPECTING)
+		NpcIntentService.stop(customer)
+		customer.show_message("Осмотрю заказ здесь, у двери.")
+		return true
 	_transition(agent, C_CustomerAgent.Phase.GOING_TO_BOOTH)
 	NpcIntentService.move_to(customer, (booth as Node as Node3D).global_position, visit.definition.arrival_distance)
 	NpcIntentService.look_along_movement(customer)
@@ -132,6 +140,10 @@ static func end(customer: Entity, keep_contents: bool = false) -> void:
 
 static func _return(customer: E_Customer, agent: C_CustomerAgent, visit: CustomerVisit) -> void:
 	_transition(agent, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH)
+	var home_door: Entity = NpcHomeDeliveryService.door_for(customer)
+	if home_door != null:
+		NpcIntentService.move_to(customer, (home_door as Node as Node3D).global_position, visit.definition.arrival_distance)
+		return
 	var counter: E_DeliveryCounter = CustomerFlowService.counter()
 	if counter != null:
 		NpcIntentService.move_to(customer, counter.waiting_position(), visit.definition.arrival_distance)

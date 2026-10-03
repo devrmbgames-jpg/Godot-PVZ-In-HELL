@@ -54,6 +54,9 @@ static func start_strike(actor: Entity, weapon: Entity) -> bool:
 	state.hit_committed = false
 	actor.add_relationship(Relationship.new(R_AttackWeapon.new(), weapon))
 	MeleeWeaponPresentation.start(weapon)
+	var district: C_District = DistrictPopulationService.current()
+	if district != null:
+		NpcPerceptionService.action_noise(actor, district.definition.strike_noise_radius)
 	return true
 
 

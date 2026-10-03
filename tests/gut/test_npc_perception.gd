@@ -119,6 +119,43 @@ func test_hidden_target_position_never_updates_search_memory() -> void:
 #endregion
 
 #region Hearing
+## The gameplay circuit and visual light switch together and change actual detection.
+func test_light_switch_changes_visibility() -> void:
+	_target.place_at(Vector3(0, 0, -8))
+	_profile.dark_vision_fraction = 0.1
+	var circuit: Entity = _world.query.with_all([C_District]).execute_one()
+	var state: C_LightCircuit = C_LightCircuit.new()
+	state.circuit_id = &"test_sight"
+	state.light_groups = [&"test_sight_lamps"]
+	circuit.add_component(state)
+	var lamp: OmniLight3D = OmniLight3D.new()
+	lamp.omni_range = 12.0
+	lamp.light_energy = 4.0
+	lamp.add_to_group(&"test_sight_lamps")
+	var view: CircuitLightView = CircuitLightView.new()
+	view.name = "CircuitLightView"
+	view.circuit_id = &"test_sight"
+	lamp.add_child(view)
+	_root.add_child(lamp)
+	lamp.position = Vector3(0, 3, -8)
+	_district.light_sources.append(lamp)
+	await _synchronize()
+	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_true(LightCircuitService.set_enabled(circuit, false))
+	assert_false(lamp.visible)
+	assert_false(NpcPerceptionService.can_see(_observer, _target, _profile))
+	assert_true(LightCircuitService.set_enabled(circuit, true))
+	assert_true(lamp.visible)
+	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+
+## Opening a physical door emits a location but creates no social accusation.
+func test_interaction_noise_is_anonymous() -> void:
+	_observer.add_component(C_PlayerInputController.new())
+	PlayerInteractionEvents.publish(_observer, _target, PlayerInteractionEvent.Kind.DOOR_OPENED)
+	assert_eq(_district.noises.size(), 1)
+	assert_eq(_district.noises[0].position, _target.global_position)
+	assert_null(CombatService.target_for(_target))
+
 ## A noise behind cover supplies a position without inventing a combat opponent.
 func test_hearing_does_not_reveal_source_identity() -> void:
 	_wall.position = Vector3(0, 1.5, -1.5)

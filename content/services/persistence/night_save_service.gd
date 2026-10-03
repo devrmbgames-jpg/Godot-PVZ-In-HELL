@@ -1,9 +1,12 @@
 extends RefCounted
+## Prepares one coherent district morning and retries its atomic save without replaying closeout.
 class_name NightSaveService
 
 const MIN_RETRY_SECONDS: float = 0.1
 
 
+#region Night commit
+## Resolves evening promises and placement once, then retries the same morning until written.
 static func process(session: Entity, cycle: C_DayCycle, state: C_Autosave, delta: float) -> void:
 	if cycle.phase != C_DayCycle.Phase.NIGHT:
 		return
@@ -13,6 +16,7 @@ static func process(session: Entity, cycle: C_DayCycle, state: C_Autosave, delta
 		return
 	if state.started_night != cycle.day_index:
 		state.started_night = cycle.day_index
+		NpcHomeDeliveryService.finish_evening(cycle.day_index)
 		NightResetService.reset()
 		DistrictPopulationService.prepare_morning(cycle.day_index + 1)
 	state.retry_remaining = maxf(0.0, state.retry_remaining - delta)
@@ -29,12 +33,18 @@ static func process(session: Entity, cycle: C_DayCycle, state: C_Autosave, delta
 		cycle.night_ready = true
 	else:
 		state.retry_remaining = maxf(MIN_RETRY_SECONDS, state.retry_seconds)
+#endregion
 
 
+#region Startup restore
+## Restores a compatible slot or explains incompatibility without deleting its file.
 static func restore_startup(root: Node, state: C_Autosave) -> bool:
 	var snapshot: Dictionary = AutosaveStore.read(state.path)
 	if snapshot.is_empty():
 		state.startup_status = "Сохранение повреждено — новое прохождение" if FileAccess.file_exists(state.path) else "Новое прохождение"
+		return false
+	if snapshot.get("version") != AutosaveStore.SCHEMA_VERSION:
+		state.startup_status = "Старое сохранение несовместимо с живым районом. Файл сохранён; начните новое прохождение."
 		return false
 	if not WorldSnapshotService.restore(snapshot, root):
 		state.startup_status = "Сохранение несовместимо — новое прохождение"
@@ -42,3 +52,4 @@ static func restore_startup(root: Node, state: C_Autosave) -> bool:
 	state.last_saved_morning = int(snapshot.morning_day)
 	state.startup_status = "Восстановлено утро %d" % state.last_saved_morning
 	return true
+#endregion

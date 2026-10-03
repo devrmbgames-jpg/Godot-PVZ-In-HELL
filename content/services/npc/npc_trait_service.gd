@@ -17,6 +17,7 @@ static func install(actor: E_DistrictNpc, profile: DEF_NpcProfile) -> void:
 ## Evaluates sustained observable conditions at the shared perception cadence.
 static func tick(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: float) -> void:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	awareness.hazard_distress = NpcRouteService.danger_here(actor)
 	awareness.light_distress = false
 	for rule: DEF_NpcTrait in person.profile.rules:
 		if rule.kind == DEF_NpcTrait.Kind.FIRE_AURA:

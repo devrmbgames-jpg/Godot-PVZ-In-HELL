@@ -91,11 +91,14 @@ static func saved_game(level: String, path_overrides: Array[String] = []) -> Gam
 	var manual_slot: String = manual_path(level) if path_overrides.is_empty() else path_overrides[0]
 	paths.sort_custom(func(left: String, right: String) -> bool: return FileAccess.get_modified_time(left) > FileAccess.get_modified_time(right))
 	var found_file: bool = false
+	var incompatible_version: bool = false
 	for path: String in paths:
 		if not FileAccess.file_exists(path):
 			continue
 		found_file = true
 		var data: Dictionary = AutosaveStore.read(path)
+		if not data.is_empty() and data.get("version") != AutosaveStore.SCHEMA_VERSION:
+			incompatible_version = true
 		if data.is_empty() or data.get("level_scene", level) != level or not WorldSnapshotService.can_restore(data, probe):
 			continue
 		result.success = true
@@ -106,6 +109,8 @@ static func saved_game(level: String, path_overrides: Array[String] = []) -> Gam
 	probe.free()
 	if not result.success:
 		result.message = "Сохранение повреждено или несовместимо." if found_file else "Сохранений пока нет."
+		if incompatible_version:
+			result.message = "Старый формат несовместим с живым районом. Файл сохранён; начните новое прохождение."
 	return result
 
 

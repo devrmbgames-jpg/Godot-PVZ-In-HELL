@@ -1,7 +1,10 @@
 extends RefCounted
+## Cancels transient actions and reservations while preserving durable district bodies and items.
 class_name NightResetService
 
 
+#region Night lifecycle
+## Clears live participation before the next morning is captured.
 static func reset() -> void:
 	if not is_instance_valid(ECS.world):
 		return
@@ -22,6 +25,9 @@ static func reset() -> void:
 		PersistentInteractionState.reset_incomplete(entity)
 		OpenableService.cancel_player_request(entity)
 		CombatService.end_combat(entity)
+		NpcDialogueService.end(entity)
+		NpcCommunityService.cancel_activity(entity)
+		NpcHomeDeliveryService.release_meeting(entity)
 		if entity.has_component(C_CartTransport):
 			CartTransportService.end(entity)
 		var pushed: Entity = PushService.pushed_object(entity)
@@ -54,3 +60,4 @@ static func reset() -> void:
 			body.linear_velocity = Vector3.ZERO
 			body.angular_velocity = Vector3.ZERO
 	PersistentHazardState.reset_missing_owners()
+#endregion

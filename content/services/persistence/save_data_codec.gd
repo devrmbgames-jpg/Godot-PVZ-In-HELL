@@ -7,7 +7,7 @@ static var _component_fields: Dictionary = {
 	C_Wallet: ["balance", "penalties", "completed_days", "operations", "daily_results"],
 	C_PackageLedger: ["records", "history_sequence_day", "next_history_number", "last_departed_package_id"],
 	C_CustomerFlow: ["planned_through_day", "visits"],
-	C_District: ["definition", "people", "next_person", "prepared_morning", "replacement_morning", "conflict_phase", "ambient_conflicts", "next_service_order"],
+	C_District: ["definition", "people", "home_deliveries", "next_incident", "next_person", "prepared_morning", "replacement_morning", "conflict_phase", "ambient_conflicts", "next_service_order"],
 	C_NpcIdentity: ["npc_id"],
 	C_DamageResistance: ["multipliers"],
 	C_Commerce: ["receipts", "pending_deliveries", "next_request"],
@@ -34,7 +34,7 @@ static var _component_fields: Dictionary = {
 	C_Explosion: ["resolved"],
 	C_NoDamage: [],
 }
-static var _record_types: Array[Script] = [NpcRecord, NpcMemory, CustomerVisit, CustomerComplaint, CombatContext, MoneyOperation, DailyMoneyResult, PackageRegistrationRecord, PurchaseReceipt, PendingDelivery, RefusalQuestRecord, ReceivingBatch]
+static var _record_types: Array[Script] = [NpcRecord, NpcMemory, NpcHomeDelivery, CustomerVisit, CustomerComplaint, CombatContext, MoneyOperation, DailyMoneyResult, PackageRegistrationRecord, PurchaseReceipt, PendingDelivery, RefusalQuestRecord, ReceivingBatch]
 const MAX_DEPTH: int = 16
 
 

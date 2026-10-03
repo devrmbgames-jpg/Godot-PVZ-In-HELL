@@ -13,7 +13,7 @@ static func idle(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 			InventoryService.use(actor, item)
 			return true
 	var loot: Entity = _loot_target(actor)
-	if loot != null and _available_loot(loot):
+	if loot != null and _available_loot(loot, actor):
 		var point: Vector3 = (loot as Node as Node3D).global_position
 		if actor.global_position.distance_to(point) <= district.definition.loot_distance:
 			InventoryService.transfer(loot, actor)
@@ -24,7 +24,7 @@ static func idle(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 	_clear_loot(actor)
 	for item: Entity in ECS.world.query.with_all([C_InventoryItem]).execute():
 		var spatial: Node3D = item as Node as Node3D
-		if spatial == null or not _available_loot(item) or actor.global_position.distance_to(spatial.global_position) > person.profile.vision_range:
+		if spatial == null or not _available_loot(item, actor) or actor.global_position.distance_to(spatial.global_position) > person.profile.vision_range:
 			continue
 		var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(actor.global_position + Vector3.UP, spatial.global_position + Vector3.UP * 0.1, 31, [actor.get_rid()])
 		var hit: Dictionary = actor.get_world_3d().direct_space_state.intersect_ray(ray)
@@ -33,6 +33,10 @@ static func idle(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 		actor.add_relationship(Relationship.new(R_NpcLootTarget.new(), item))
 		return true
 	return _conflict(actor, person)
+
+## Releases the live pickup reservation when a higher priority interrupts free activity.
+static func cancel_activity(actor: Entity) -> void:
+	_clear_loot(actor)
 
 ## Spends the phase budget only for a motivated, perceived and affordable new attack.
 static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_DistrictNpc) -> bool:
@@ -71,11 +75,14 @@ static func _conflict(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 				return true
 	return false
 
-static func _available_loot(item: Entity) -> bool:
+static func _available_loot(item: Entity, claimant: Entity) -> bool:
 	if not EntityAvailability.contains(item, ECS.world) or item.has_component(C_Package) or InventoryService.owner_for(item) != null or GrabService.held_relationship(item) != null:
 		return false
 	for link: Relationship in item.relationships:
 		if link.relation is R_AssignedTo or link.relation is R_StoredIn:
+			return false
+	for participant: Entity in ECS.world.query.with_relationship([Relationship.new(R_NpcLootTarget.new(), item)]).execute():
+		if participant != claimant:
 			return false
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
 	return state != null and state.definition != null and not state.transfer_in_progress and state.pending_use_id.is_empty()

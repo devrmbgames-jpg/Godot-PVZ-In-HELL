@@ -8,7 +8,7 @@ const ROOT_MARGIN: float = 32.0
 const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
 
 var _actor: Entity = null
-var _context: CustomerDialogueContext = null
+var _context: NpcDialogueContext = null
 var _resource: DialogueResource = null
 var _line: DialogueLine = null
 var _capture_token: int = 0
@@ -67,7 +67,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func open_for(
 	actor: Entity,
-	context: CustomerDialogueContext,
+	context: NpcDialogueContext,
 	resource: DialogueResource,
 	cue: String,
 ) -> bool:

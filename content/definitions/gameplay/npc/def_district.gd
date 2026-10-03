@@ -1,6 +1,8 @@
 extends GameDefinition
 ## District population, replacement and perception tuning.
 class_name DEF_District
+## Radius around the resting player in which an immediate danger prevents sleep.
+@export_range(0.1, 8.0) var sleep_danger_radius: float = 1.5
 ## Conversation remains open only within this distance.
 @export_range(1.0, 10.0) var conversation_range: float = 4.0
 ## Physical pickup arrival tolerance.
@@ -38,6 +40,8 @@ class_name DEF_District
 @export_range(0.05, 1.0) var decision_interval: float = 0.2
 ## Self-initiated NPC conflicts permitted per phase.
 @export_range(0, 10) var ambient_conflicts_per_phase: int = 1
+## Limits the number of initiating local profiles during authored replacement.
+@export_range(0, 8) var maximum_conflict_initiators: int = 2
 ## Idle delay before choosing another simple activity.
 @export_range(1.0, 300.0) var activity_seconds: float = 30.0
 ## Maximum accepted home deliveries per evening.
@@ -53,6 +57,12 @@ class_name DEF_District
 @export_range(0.1, 30.0) var walking_noise_radius: float = 6.0
 ## Running sound radius.
 @export_range(0.1, 40.0) var running_noise_radius: float = 12.0
+## Physical doors and pickup interactions emit a location within this radius.
+@export_range(0.1, 30.0) var interaction_noise_radius: float = 4.0
+## An attempted weapon strike remains audible even when it misses.
+@export_range(0.1, 40.0) var strike_noise_radius: float = 10.0
+## Actual damage produces an impact or pain stimulus.
+@export_range(0.1, 40.0) var damage_noise_radius: float = 14.0
 ## Crouched movement sound multiplier.
 @export_range(0.0, 1.0) var crouching_noise_fraction: float = 0.3
 

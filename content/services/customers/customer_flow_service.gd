@@ -46,6 +46,8 @@ static func customer_for(visit_id: StringName) -> E_Customer:
 
 static func waiting_customer() -> E_Customer:
 	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
+		if NpcHomeDeliveryService.meeting_for(customer) != null:
+			continue
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 		if agent.phase == C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
 			return customer as E_Customer
@@ -368,7 +370,7 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 				_leave(customer, visit)
 		C_CustomerAgent.Phase.GOING_TO_BOOTH, C_CustomerAgent.Phase.INSPECTING, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH:
 			if CustomerInspectionService.tick(customer, visit):
-				_complete_inspection(customer, visit)
+				complete_inspection(customer, visit)
 		C_CustomerAgent.Phase.AGGRESSIVE:
 			if (customer is E_DistrictNpc and CombatService.target_for(customer) == null) or agent.elapsed >= visit.definition.aggressive_seconds:
 				_leave(customer, visit)
@@ -413,7 +415,7 @@ static func greet(customer: E_Customer) -> void:
 	var visit: CustomerVisit = find_visit(agent.visit_id)
 	if CustomerPresentation.uses_wall_order(visit.definition):
 		customer.show_message("Номер моего заказа появился на стене. Выдайте его на стойке, не смотрите на меня.")
-	elif CustomerPresentation.uses_quick_order(visit.definition):
+	elif CustomerPresentation.uses_quick_visit(visit):
 		if not agent.order_announced:
 			customer.show_message(CustomerPresentation.request_text(visit))
 		CustomerGreetingService.announce_order(customer, visit)
@@ -549,7 +551,8 @@ static func _resolve_delivery(
 	return _complete_delivery(customer, visit, parcel, check_result, allow_held)
 
 
-static func _complete_inspection(customer: E_Customer, visit: CustomerVisit) -> void:
+## Finishes shared inspection for counter and home meetings.
+static func complete_inspection(customer: E_Customer, visit: CustomerVisit) -> void:
 	var parcel: Entity = CustomerInspectionService.parcel_for(customer)
 	if parcel == null:
 		_leave(customer, visit)

@@ -298,7 +298,7 @@ look_down={
 [internationalization]
 
 locale/translation_remaps={}
-locale/translations_pot_files=PackedStringArray("res://content/dialogue/customer_prototype.dialogue", "res://content/dialogue/customer_service.dialogue")
+locale/translations_pot_files=PackedStringArray("res://content/dialogue/customer_prototype.dialogue", "res://content/dialogue/customer_service.dialogue", "res://content/dialogue/npc_street.dialogue")
 
 [layer_names]
 

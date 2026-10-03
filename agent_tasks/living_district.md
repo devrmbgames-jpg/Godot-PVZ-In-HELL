@@ -25,15 +25,15 @@ Complete all six accepted implementation stages and their focused validation.
 
 ### Current
 
-Stages 1–5 implemented. Commits: 274c57d5 (foundation), 6e37f466 (AI/perception), 9d0dd5fd (service roles), 21d78a56 (intrinsic traits/routing). Street conversations use the existing modal panel and live participant relationships. Personal violence witnesses have physical sight requirements. Free activities consume real food and acquire available loot; motivated ambient conflicts use the phase budget. Temporary absence preserves inventory. Replacement profiles come from the compatible authored pool, have new names/IDs and their own memory; merchant replacements keep the catalog. Baseline dev; pre-existing GECS modification is untouched.
+Stages 1–6 implemented. Committed stages: 274c57d5 (foundation), 6e37f466 (AI/perception), 9d0dd5fd (service roles), 21d78a56 (intrinsic traits/routing), 43a00509 (community). Stage 6 adds two optional real-box home deliveries, door-local inspection, idempotent base/bonus payment and failed promises; sleep safety gates, complete district snapshot validation and restoration of derived AI. Shared dialogue interface has separate street/service adapters. Pickup reservations release on interruption, absence, Night and restore. Nearby authored cover points support search. Main dev and the pre-existing dirty GECS checkout are preserved.
 
 ### Next
 
-Implement evening home delivery and sleep threat gates; reset derived brain/perception/roles on snapshot restoration, validate district domain snapshot, run full save roundtrip and connected district smoke.
+Commit stage 6 and export the Windows QA build. Manual readability, full-day behavior and balance belong to qa_tasks/living_district.md.
 
 ### Validation
 
-Population/native-tree GUT 5/5 (27 assertions), physical perception 4/4 (12), district service 8/8 (41), intrinsic rules/risk 8/8 (36), community 9/9 (46), existing customer flow/timing/dialogue 48/48 (465): PASS. Fresh-process parser batches (7, 7, 6, 6, 5 scripts) zero failures. Structure PASS. Navigation bake PASS (113 polygons). Live in-use scripts sometimes reject reload with error 43; fresh-process checks cover disk code. Full persistence regression and connected smoke remain pending.
+2026-10-04: main regression 126/126 (975 assertions), additional combat/interaction regression 30/30 (218), final district snapshot/retry/sleep feedback 9/9 (60): PASS. New acceptance covers visible killing versus wall occlusion, circuit toggling, anonymous physical interaction sound, exclusive pickup reservation, phase conflict budget with self-defense, home inspection and interruption, real failed-write retry with replacement/promise conservation. Fresh-process parser checked 92 changed scripts, then five closeout and three final presentation scripts: zero failures and no script warnings/errors. Structure and diff whitespace PASS. Clean navigation bake PASS (132 polygons). Final seven-day runner PASS, tests/artifacts/district-20261004-041459990.log, mornings 2–8 retain twelve identities/bodies and reload without duplicates. Smoke phases last 720 physics frames and cannot establish full-day balance. No rendered playtest or visual capture ran. Windows export pending.
 
 ### Owner QA / blockers
 

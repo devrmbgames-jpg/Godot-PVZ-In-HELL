@@ -4,7 +4,6 @@ class_name NpcDecisionService
 
 const ARRIVAL_DISTANCE: float = 0.3
 const COMBAT_STOP_DISTANCE: float = 1.2
-const SEARCH_POINT_COUNT: int = 3
 
 #region Decision branches
 ## Executes only the applicable branch; the tree owns priority and interruption.
@@ -16,6 +15,10 @@ static func execute_branch(actor: E_DistrictNpc, owner_kind: C_NpcDecision.Owner
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	match owner_kind:
 		C_NpcDecision.Owner.EMERGENCY:
+			if awareness.hazard_distress:
+				NpcIntentArbiter.acquire(actor, owner_kind, "Выйти из опасной зоны")
+				NpcIntentArbiter.move_to(actor, NpcRouteService.refuge(actor), ARRIVAL_DISTANCE, owner_kind)
+				return true
 			if awareness.light_distress and not awareness.fleeing and CombatService.target_for(actor) == null:
 				NpcIntentArbiter.acquire(actor, owner_kind, "Укрыться от света")
 				NpcIntentArbiter.move_to(actor, NpcTraitService.dark_refuge(actor, person), ARRIVAL_DISTANCE, owner_kind)
@@ -33,6 +36,10 @@ static func execute_branch(actor: E_DistrictNpc, owner_kind: C_NpcDecision.Owner
 			_combat(actor, person, awareness, delta)
 			return true
 		C_NpcDecision.Owner.SERVICE:
+			var home_job: NpcHomeDelivery = NpcHomeDeliveryService.meeting_for(actor)
+			if home_job != null:
+				NpcHomeDeliveryService.step(actor, home_job, delta)
+				return true
 			var participant: Entity = NpcDialogueService.participant(actor)
 			if participant != null:
 				NpcIntentArbiter.acquire(actor, owner_kind, "Разговор")
@@ -103,17 +110,18 @@ static func _combat(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwa
 			awareness.has_last_seen = false
 			return
 		var search_point: Vector3 = awareness.last_seen_position
-		awareness.search_index = mini(SEARCH_POINT_COUNT - 1, int(awareness.search_elapsed / (person.profile.search_seconds / SEARCH_POINT_COUNT)))
+		awareness.search_index = mini(person.profile.search_point_count - 1, int(awareness.search_elapsed / (person.profile.search_seconds / person.profile.search_point_count)))
 		if awareness.search_index > 0:
 			var district: C_District = DistrictPopulationService.current()
-			var index: int = 0
+			var covers: Array[DEF_DistrictPlace] = []
 			for place: DEF_DistrictPlace in district.definition.places:
-				var candidate: Vector3 = DistrictPopulationService.position_for(place.key)
-				if place.kind == DEF_DistrictPlace.Kind.ACTIVITY and candidate.distance_to(awareness.last_seen_position) < person.profile.vision_range:
-					index += 1
-					if index == awareness.search_index:
-						search_point = candidate
-						break
+				if place.kind == DEF_DistrictPlace.Kind.COVER and DistrictPopulationService.position_for(place.key).distance_to(awareness.last_seen_position) < person.profile.vision_range:
+					covers.append(place)
+			covers.sort_custom(func(first: DEF_DistrictPlace, second: DEF_DistrictPlace) -> bool:
+				return DistrictPopulationService.position_for(first.key).distance_squared_to(awareness.last_seen_position) < DistrictPopulationService.position_for(second.key).distance_squared_to(awareness.last_seen_position)
+			)
+			if not covers.is_empty():
+				search_point = DistrictPopulationService.position_for(covers[mini(awareness.search_index - 1, covers.size() - 1)].key)
 		NpcIntentArbiter.move_to(actor, search_point, ARRIVAL_DISTANCE, C_NpcDecision.Owner.COMBAT)
 		return
 	var combat: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
@@ -139,6 +147,10 @@ static func _idle(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAware
 	NpcIntentArbiter.stop(actor, C_NpcDecision.Owner.IDLE)
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	if awareness.player_visible and player != null:
+		if not awareness.called_out and actor.global_position.distance_to((player as Node as Node3D).global_position) <= DistrictPopulationService.current().definition.conversation_range:
+			awareness.called_out = true
+			actor.show_message(person.display_name + " · Эй, как дела? Подойди, поговорим.")
+			NpcPerceptionService.emit_noise(actor, actor.global_position, person.profile.hearing_range * 0.5)
 		NpcIntentService.watch(actor, player, Vector3.UP * NpcPerceptionService.EYE_HEIGHT)
 	awareness.idle_elapsed += delta
 	var district: C_District = DistrictPopulationService.current()

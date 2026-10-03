@@ -154,7 +154,7 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				return false
 			if link.kind == CARGO and not link.get("local_pose") is Transform3D:
 				return false
-	return session_count == 1 and SnapshotGraphRules.valid(records, all_components)
+	return session_count == 1 and SnapshotGraphRules.valid(records, all_components) and DistrictSnapshotRules.valid(records, all_components, int(data.morning_day))
 
 
 ## Проверяет роли и prefab-контракты без регистрации Entities и без изменения живого World.

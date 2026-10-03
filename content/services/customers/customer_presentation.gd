@@ -19,6 +19,12 @@ static func request_text(visit: CustomerVisit) -> String:
 	return "%s\nМой заказ ещё не зарегистрирован. Просканируйте поступившие коробки." % customer_name(visit)
 
 
+## Intrinsic riddles keep their number behind the existing dialogue solution.
+static func uses_quick_visit(visit: CustomerVisit) -> bool:
+	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
+	return uses_quick_order(visit.definition) and (person == null or person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) == null)
+
+
 static func uses_quick_order(definition: DEF_Customer) -> bool:
 	return (
 		definition != null and definition.introduction == DEF_Customer.Introduction.ANNOUNCE_ORDER

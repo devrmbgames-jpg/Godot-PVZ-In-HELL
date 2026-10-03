@@ -16,6 +16,16 @@ static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 		var body: E_DistrictNpc = DistrictPopulationService.body_for(visit.customer_id)
 		if person == null or person.death_day != 0 or body == null or body.has_component(C_CustomerAgent) or CombatService.target_for(body) != null:
 			continue
+		var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+		if awareness != null and (awareness.fleeing or awareness.hazard_distress or awareness.light_distress):
+			continue
+		var light_rule: DEF_NpcTrait = person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
+		var station: E_DeliveryCounter = CustomerFlowService.counter()
+		if light_rule != null and station != null and NpcLightingService.exposure_at(station.waiting_position() + Vector3.UP) > light_rule.light_threshold:
+			if awareness != null and not awareness.warned_rules.has(light_rule.kind):
+				awareness.warned_rules.append(light_rule.kind)
+				body.show_message(light_rule.warning_text + " " + light_rule.countermeasure)
+			continue
 		begin(body, person, visit, cycle.day_index)
 		flow.arrival_cooldown_seconds = flow.schedule.arrival_interval_seconds
 		return true
@@ -80,6 +90,28 @@ static func step_queue(body: E_DistrictNpc, visit: CustomerVisit) -> void:
 #endregion
 
 #region Role termination
+## Interrupts an unresolved appearance, releasing its cargo and reservation without inventing an outcome.
+static func suspend(body: E_DistrictNpc) -> void:
+	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent == null:
+		return
+	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+	var home: NpcHomeDelivery = NpcHomeDeliveryService.meeting_for(body)
+	if visit == null:
+		release(body, agent.visit_id)
+		return
+	if visit.actual in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
+		if home != null:
+			NpcHomeDeliveryService.complete(home)
+		else:
+			finish_appearance(body, visit)
+		return
+	CustomerInspectionService.end(body)
+	NpcHomeDeliveryService.release_meeting(body)
+	release(body, visit.visit_id)
+	visit.started = false
+	visit.finished = home != null
+
 ## Ends only this appearance, preserving the person and unresolved case rules.
 static func finish_appearance(body: E_DistrictNpc, visit: CustomerVisit) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()

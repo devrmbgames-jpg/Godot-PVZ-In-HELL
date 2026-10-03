@@ -19,6 +19,7 @@
 [sub_resource type="Resource" id="home_1"]
 script = ExtResource("PlaceScript")
 key = &"home_1"
+display_name = "Дом 1"
 kind = 0
 position = Vector3(36, 0, -8)
 neighbours = PackedStringArray("street_0")
@@ -27,6 +28,7 @@ ambient_light = 0.05
 [sub_resource type="Resource" id="home_2"]
 script = ExtResource("PlaceScript")
 key = &"home_2"
+display_name = "Дом 2"
 kind = 0
 position = Vector3(44, 0, -8)
 neighbours = PackedStringArray("street_1")
@@ -35,6 +37,7 @@ ambient_light = 0.05
 [sub_resource type="Resource" id="home_3"]
 script = ExtResource("PlaceScript")
 key = &"home_3"
+display_name = "Дом 3"
 kind = 0
 position = Vector3(52, 0, -8)
 neighbours = PackedStringArray("street_2")
@@ -43,6 +46,7 @@ ambient_light = 0.05
 [sub_resource type="Resource" id="home_4"]
 script = ExtResource("PlaceScript")
 key = &"home_4"
+display_name = "Дом 4"
 kind = 0
 position = Vector3(60, 0, -8)
 neighbours = PackedStringArray("street_3")
@@ -51,6 +55,7 @@ ambient_light = 0.05
 [sub_resource type="Resource" id="home_5"]
 script = ExtResource("PlaceScript")
 key = &"home_5"
+display_name = "Дом 5"
 kind = 0
 position = Vector3(36, 0, 24)
 neighbours = PackedStringArray("street_0")
@@ -59,6 +64,7 @@ ambient_light = 0.05
 [sub_resource type="Resource" id="home_6"]
 script = ExtResource("PlaceScript")
 key = &"home_6"
+display_name = "Дом 6"
 kind = 0
 position = Vector3(44, 0, 24)
 neighbours = PackedStringArray("street_1")
@@ -67,6 +73,7 @@ ambient_light = 0.05
 [sub_resource type="Resource" id="home_7"]
 script = ExtResource("PlaceScript")
 key = &"home_7"
+display_name = "Дом 7"
 kind = 0
 position = Vector3(52, 0, 24)
 neighbours = PackedStringArray("street_2")
@@ -75,6 +82,7 @@ ambient_light = 0.05
 [sub_resource type="Resource" id="home_8"]
 script = ExtResource("PlaceScript")
 key = &"home_8"
+display_name = "Дом 8"
 kind = 0
 position = Vector3(60, 0, 24)
 neighbours = PackedStringArray("street_3")
@@ -248,8 +256,43 @@ position = Vector3(60, 0, 18)
 neighbours = PackedStringArray("street_3", "south_2")
 ambient_light = 0.05
 
+[sub_resource type="Resource" id="cover_pvz_east"]
+script = ExtResource("PlaceScript")
+key = &"cover_pvz_east"
+kind = 5
+position = Vector3(15, 0, 3.5)
+ambient_light = 0.05
+
+[sub_resource type="Resource" id="cover_pvz_back"]
+script = ExtResource("PlaceScript")
+key = &"cover_pvz_back"
+kind = 5
+position = Vector3(15, 0, -4)
+ambient_light = 0.05
+
+[sub_resource type="Resource" id="cover_0"]
+script = ExtResource("PlaceScript")
+key = &"cover_0"
+kind = 5
+position = Vector3(40, 0, 17)
+ambient_light = 0.05
+
+[sub_resource type="Resource" id="cover_1"]
+script = ExtResource("PlaceScript")
+key = &"cover_1"
+kind = 5
+position = Vector3(48, 0, 17)
+ambient_light = 0.05
+
+[sub_resource type="Resource" id="cover_2"]
+script = ExtResource("PlaceScript")
+key = &"cover_2"
+kind = 5
+position = Vector3(56, 0, 17)
+ambient_light = 0.05
+
 [resource]
 script = ExtResource("District")
 key = &"hell_district"
 profiles = Array[ExtResource("ProfileScript")]([ExtResource("Person1"), ExtResource("Person2"), ExtResource("Person3"), ExtResource("Person4"), ExtResource("Person5"), ExtResource("Person6"), ExtResource("Person7"), ExtResource("Person8"), ExtResource("Person9"), ExtResource("Person10"), ExtResource("Person11"), ExtResource("Person12")])
-places = Array[ExtResource("PlaceScript")]([SubResource("home_1"), SubResource("home_2"), SubResource("home_3"), SubResource("home_4"), SubResource("home_5"), SubResource("home_6"), SubResource("home_7"), SubResource("home_8"), SubResource("portal_east"), SubResource("portal_north"), SubResource("portal_south"), SubResource("activity_0"), SubResource("activity_1"), SubResource("activity_2"), SubResource("activity_3"), SubResource("shop"), SubResource("pvz_entry"), SubResource("street_0"), SubResource("street_1"), SubResource("street_2"), SubResource("street_3"), SubResource("north_0"), SubResource("north_1"), SubResource("north_2"), SubResource("north_3"), SubResource("south_0"), SubResource("south_1"), SubResource("south_2"), SubResource("south_3")])
+places = Array[ExtResource("PlaceScript")]([SubResource("home_1"), SubResource("home_2"), SubResource("home_3"), SubResource("home_4"), SubResource("home_5"), SubResource("home_6"), SubResource("home_7"), SubResource("home_8"), SubResource("portal_east"), SubResource("portal_north"), SubResource("portal_south"), SubResource("activity_0"), SubResource("activity_1"), SubResource("activity_2"), SubResource("activity_3"), SubResource("shop"), SubResource("pvz_entry"), SubResource("street_0"), SubResource("street_1"), SubResource("street_2"), SubResource("street_3"), SubResource("north_0"), SubResource("north_1"), SubResource("north_2"), SubResource("north_3"), SubResource("south_0"), SubResource("south_1"), SubResource("south_2"), SubResource("south_3"), SubResource("cover_pvz_east"), SubResource("cover_pvz_back"), SubResource("cover_0"), SubResource("cover_1"), SubResource("cover_2")])

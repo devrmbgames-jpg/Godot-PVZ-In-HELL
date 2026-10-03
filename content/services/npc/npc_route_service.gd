@@ -54,7 +54,10 @@ static func plan(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: 
 		district.route_edges.clear()
 		district.route_map_iteration = iteration
 	var direct: PackedVector3Array = _nav_path(map, start, goal)
-	var best: PackedVector3Array = direct if acceptable(actor, person, expected_damage(actor, direct)) else PackedVector3Array()
+	var direct_damage: float = expected_damage(actor, direct)
+	if not direct.is_empty() and direct_damage == 0.0 and person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION) == null:
+		return direct
+	var best: PackedVector3Array = direct if acceptable(actor, person, direct_damage) else PackedVector3Array()
 	var best_cost: float = _cost(actor, person, best) if not best.is_empty() else INF
 	var starts: Array[DEF_DistrictPlace] = _nearest(start)
 	var ends: Array[DEF_DistrictPlace] = _nearest(goal)
@@ -82,6 +85,9 @@ static func plan(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: 
 						best_cost = cost
 			for neighbour: String in place.neighbours:
 				var next_key: StringName = StringName(neighbour)
+				var next_place: DEF_DistrictPlace = district.definition.place_for(next_key)
+				if next_place == null or next_place.kind != DEF_DistrictPlace.Kind.JUNCTION:
+					continue
 				var edge_key: String = "%s>%s" % [key, next_key]
 				if not district.route_edges.has(edge_key):
 					district.route_edges[edge_key] = _nav_path(map, DistrictPopulationService.position_for(key), DistrictPopulationService.position_for(next_key))
@@ -102,6 +108,33 @@ static func plan(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: 
 #endregion
 
 #region Shared risk calculation
+## Detects real harmful overlap, including a body clearance around the authored sphere.
+static func danger_here(actor: E_DistrictNpc) -> bool:
+	for effect: Entity in ECS.world.query.with_all([C_Hazard, C_ToxicArea]).execute():
+		var profile: DEF_ToxicArea = (effect.get_component(C_Hazard) as C_Hazard).definition as DEF_ToxicArea
+		var spatial: Node3D = effect as Node as Node3D
+		if profile != null and spatial != null and not effect.has_component(C_NoDamage) and DamageResistanceRules.effective(actor, profile.damage_per_tick, profile.damage_type) > 0.0 and spatial.global_position.distance_to(actor.global_position + Vector3.UP * NpcPerceptionService.TORSO_HEIGHT) < profile.radius + actor.navigation_agent.radius:
+			return true
+	return false
+
+## Chooses the closest actual refuge outside damaging volumes; the route planner still validates travel.
+static func refuge(actor: E_DistrictNpc) -> Vector3:
+	var best: Vector3 = actor.global_position
+	var closest: float = INF
+	for place: DEF_DistrictPlace in DistrictPopulationService.current().definition.places:
+		var point: Vector3 = DistrictPopulationService.position_for(place.key)
+		var danger: bool = false
+		for effect: Entity in ECS.world.query.with_all([C_Hazard, C_ToxicArea]).execute():
+			var profile: DEF_ToxicArea = (effect.get_component(C_Hazard) as C_Hazard).definition as DEF_ToxicArea
+			var spatial: Node3D = effect as Node as Node3D
+			if profile != null and spatial != null and not effect.has_component(C_NoDamage) and DamageResistanceRules.effective(actor, profile.damage_per_tick, profile.damage_type) > 0.0 and point.distance_to(spatial.global_position) < profile.radius + actor.navigation_agent.radius:
+				danger = true
+		var distance: float = actor.global_position.distance_squared_to(point)
+		if not danger and distance < closest:
+			best = point
+			closest = distance
+	return best
+
 ## Expected periodic exposure uses the same type multiplier as O_Damage.
 static func expected_damage(actor: Entity, path: PackedVector3Array) -> float:
 	if path.is_empty():
@@ -116,7 +149,7 @@ static func expected_damage(actor: Entity, path: PackedVector3Array) -> float:
 		if profile == null or spatial == null or effect.has_component(C_NoDamage):
 			continue
 		for index: int in range(1, path.size()):
-			var duration: float = _inside_length(path[index - 1], path[index], spatial.global_position, profile.radius) / speed
+			var duration: float = _inside_length(path[index - 1], path[index], spatial.global_position, profile.radius + (actor as E_DistrictNpc).navigation_agent.radius if actor is E_DistrictNpc else profile.radius) / speed
 			damage += DamageResistanceRules.effective(actor, duration * profile.damage_per_tick / profile.tick_seconds, profile.damage_type)
 	return damage
 
@@ -126,6 +159,9 @@ static func acceptable(actor: Entity, person: NpcRecord, damage: float) -> bool:
 		return false
 	var health: C_Health = actor.get_component(C_Health) as C_Health
 	var district: C_District = DistrictPopulationService.current()
+	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	if awareness != null and awareness.hazard_distress:
+		return damage < health.current
 	var budget: float = health.current - health.value * person.profile.pursuit_health_reserve if CombatService.target_for(actor) != null else health.value * district.definition.ordinary_route_risk
 	return damage <= maxf(0.0, budget)
 

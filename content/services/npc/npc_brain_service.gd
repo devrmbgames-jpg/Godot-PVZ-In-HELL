@@ -21,6 +21,9 @@ static func install(actor: E_DistrictNpc) -> void:
 		actor.add_component(decision)
 	var combat: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if combat != null:
+		if person != null:
+			combat.melee_attacks.assign(person.profile.melee_attacks)
+			combat.ranged_attacks.assign(person.profile.ranged_attacks)
 		combat.automatic_attack_selection = false
 	if actor.get_node_or_null("Brain") != null:
 		return
@@ -61,6 +64,11 @@ static func tick(district: C_District, delta: float) -> void:
 		decision.intent_owner = C_NpcDecision.Owner.NONE
 		if runner != null:
 			runner.update(decision.update_elapsed)
+		if decision.intent_owner != C_NpcDecision.Owner.IDLE:
+			NpcCommunityService.cancel_activity(actor)
+		if decision.intent_owner in [C_NpcDecision.Owner.EMERGENCY, C_NpcDecision.Owner.COMBAT]:
+			NpcDialogueService.end(actor)
+			NpcServiceRole.suspend(actor)
 		var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
 		NpcRouteService.tick(actor, DistrictPopulationService.person_for(identity.npc_id), decision.update_elapsed)
 		decision.update_elapsed = 0.0

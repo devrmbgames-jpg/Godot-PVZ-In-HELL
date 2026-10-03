@@ -19,7 +19,7 @@ static func permits(cycle: C_DayCycle, kind: DayTransitionRequest.Kind) -> bool:
 		DayTransitionRequest.Kind.FINISH_SHIFT:
 			return cycle.phase == C_DayCycle.Phase.DAY and finish_blockers(cycle).is_empty()
 		DayTransitionRequest.Kind.SLEEP:
-			return cycle.phase == C_DayCycle.Phase.EVENING
+			return cycle.phase == C_DayCycle.Phase.EVENING and NpcSleepService.blockers().is_empty()
 	return false
 
 
@@ -74,7 +74,12 @@ static func customers_in_room(cycle: C_DayCycle) -> int:
 
 
 static func shift_status(cycle: C_DayCycle) -> String:
-	if cycle == null or cycle.phase != C_DayCycle.Phase.DAY:
+	if cycle == null:
+		return ""
+	if cycle.phase == C_DayCycle.Phase.EVENING:
+		var sleep_reasons: PackedStringArray = NpcSleepService.blockers()
+		return "Сон доступен" if sleep_reasons.is_empty() else "Сон: " + " · ".join(sleep_reasons)
+	if cycle.phase != C_DayCycle.Phase.DAY:
 		return ""
 	var reasons: PackedStringArray = finish_blockers(cycle)
 	return "Смена %.0f с · %s" % [floorf(cycle.shift_elapsed_seconds), "Завершение доступно" if reasons.is_empty() else " · ".join(reasons)]

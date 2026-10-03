@@ -34,3 +34,9 @@ var reacted_rules: Array[int] = []
 var search_index: int = 0
 ## Lighting distress requests a dark refuge through the emergency branch.
 var light_distress: bool = false
+
+## Immediate effective hazard exposure requires escaping the current volume.
+var hazard_distress: bool = false
+
+## Once per phase the person may call out; opening the modal always requires interaction.
+var called_out: bool = false

@@ -6,6 +6,8 @@ class_name C_District
 @export var definition: DEF_District = null
 ## Full living and historical population.
 @export var people: Array[NpcRecord] = []
+## Voluntary obligations including durable terminal results.
+@export var home_deliveries: Array[NpcHomeDelivery] = []
 ## Derived lighting sources, rebuilt after scene creation; not saved.
 var light_sources: Array[Light3D] = []
 ## Audible events awaiting the next perception batch; not saved.

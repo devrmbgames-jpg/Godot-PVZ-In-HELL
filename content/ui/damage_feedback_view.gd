@@ -13,6 +13,8 @@ class_name DamageFeedbackView
 @export var damage_color: Color = Color(1.0, 0.3, 0.25)
 @export var toxic_color: Color = Color(0.3, 1.0, 0.55)
 @export var explosion_color: Color = Color(1.0, 0.7, 0.2)
+## Fire exposure warning tint; remains legible with reduced motion.
+@export var fire_color: Color = Color(1.0, 0.4, 0.05)
 
 const SAMPLE_RATE: int = 22050
 const PEAK_SAMPLE: float = 32767.0
@@ -20,7 +22,7 @@ const SOUND_GAIN: float = 0.2
 const WARNING_TINT_ALPHA: float = 0.08
 const LABEL_HEIGHT: float = 0.35
 const LABEL_RISE_SPEED: float = 0.18
-const WARNING_NAMES: Array[String] = ["Ранение", "Ближняя атака", "Удар", "Взрыв", "Токсичная зона", "Протечка", "Попадание"]
+const WARNING_NAMES: Array[String] = ["Ранение", "Ближняя атака", "Удар", "Взрыв", "Токсичная зона", "Протечка", "Попадание", "Огненная аура"]
 
 var _remaining: float = 0.0
 var _labels: Array[Label3D] = []
@@ -114,7 +116,7 @@ func debug_text() -> String:
 
 
 func _color(kind: DamageRequest.Type) -> Color:
-	return toxic_color if kind == DamageRequest.Type.TOXIC else explosion_color if kind == DamageRequest.Type.EXPLOSION else damage_color
+	return toxic_color if kind == DamageRequest.Type.TOXIC else explosion_color if kind == DamageRequest.Type.EXPLOSION else fire_color if kind == DamageRequest.Type.FIRE else damage_color
 
 
 func _clear_warning() -> void:

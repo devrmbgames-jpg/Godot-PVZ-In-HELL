@@ -19,6 +19,46 @@ size = Vector3(2, 2.4, 1)
 [sub_resource type="BoxShape3D" id="CoverShape"]
 size = Vector3(2, 2.4, 1)
 
+[sub_resource type="BoxShape3D" id="WallShapeEastUpper"]
+size = Vector3(1, 3, 20)
+[sub_resource type="BoxMesh" id="WallMeshEastUpper"]
+size = Vector3(1, 3, 20)
+
+[sub_resource type="BoxShape3D" id="WallShapeEastLower"]
+size = Vector3(1, 3, 20)
+[sub_resource type="BoxMesh" id="WallMeshEastLower"]
+size = Vector3(1, 3, 20)
+
+[sub_resource type="BoxShape3D" id="WallShapeNorthWest"]
+size = Vector3(47, 3, 1)
+[sub_resource type="BoxMesh" id="WallMeshNorthWest"]
+size = Vector3(47, 3, 1)
+
+[sub_resource type="BoxShape3D" id="WallShapeNorthEast"]
+size = Vector3(5, 3, 1)
+[sub_resource type="BoxMesh" id="WallMeshNorthEast"]
+size = Vector3(5, 3, 1)
+
+[sub_resource type="BoxShape3D" id="WallShapeSouthWest"]
+size = Vector3(21, 3, 1)
+[sub_resource type="BoxMesh" id="WallMeshSouthWest"]
+size = Vector3(21, 3, 1)
+
+[sub_resource type="BoxShape3D" id="WallShapeSouthEast"]
+size = Vector3(31, 3, 1)
+[sub_resource type="BoxMesh" id="WallMeshSouthEast"]
+size = Vector3(31, 3, 1)
+
+[sub_resource type="BoxShape3D" id="WallShapeWestUpper"]
+size = Vector3(1, 3, 13)
+[sub_resource type="BoxMesh" id="WallMeshWestUpper"]
+size = Vector3(1, 3, 13)
+
+[sub_resource type="BoxShape3D" id="WallShapeWestLower"]
+size = Vector3(1, 3, 12)
+[sub_resource type="BoxMesh" id="WallMeshWestLower"]
+size = Vector3(1, 3, 12)
+
 [node name="District" type="Node3D"]
 
 [node name="Ground" type="StaticBody3D" parent="."]
@@ -263,3 +303,67 @@ shadow_enabled = true
 [node name="CircuitView" type="Node" parent="StreetLamp1"]
 script = ExtResource("LightView")
 circuit_id = &"warehouse"
+
+[node name="BoundaryEastUpper" type="StaticBody3D" parent="."]
+position = Vector3(68, 1.5, -4)
+collision_layer = 1
+[node name="Collision" type="CollisionShape3D" parent="BoundaryEastUpper"]
+shape = SubResource("WallShapeEastUpper")
+[node name="Visual" type="MeshInstance3D" parent="BoundaryEastUpper"]
+mesh = SubResource("WallMeshEastUpper")
+
+[node name="BoundaryEastLower" type="StaticBody3D" parent="."]
+position = Vector3(68, 1.5, 20)
+collision_layer = 1
+[node name="Collision" type="CollisionShape3D" parent="BoundaryEastLower"]
+shape = SubResource("WallShapeEastLower")
+[node name="Visual" type="MeshInstance3D" parent="BoundaryEastLower"]
+mesh = SubResource("WallMeshEastLower")
+
+[node name="BoundaryNorthWest" type="StaticBody3D" parent="."]
+position = Vector3(36.5, 1.5, -13)
+collision_layer = 1
+[node name="Collision" type="CollisionShape3D" parent="BoundaryNorthWest"]
+shape = SubResource("WallShapeNorthWest")
+[node name="Visual" type="MeshInstance3D" parent="BoundaryNorthWest"]
+mesh = SubResource("WallMeshNorthWest")
+
+[node name="BoundaryNorthEast" type="StaticBody3D" parent="."]
+position = Vector3(66.5, 1.5, -13)
+collision_layer = 1
+[node name="Collision" type="CollisionShape3D" parent="BoundaryNorthEast"]
+shape = SubResource("WallShapeNorthEast")
+[node name="Visual" type="MeshInstance3D" parent="BoundaryNorthEast"]
+mesh = SubResource("WallMeshNorthEast")
+
+[node name="BoundarySouthWest" type="StaticBody3D" parent="."]
+position = Vector3(23.5, 1.5, 29)
+collision_layer = 1
+[node name="Collision" type="CollisionShape3D" parent="BoundarySouthWest"]
+shape = SubResource("WallShapeSouthWest")
+[node name="Visual" type="MeshInstance3D" parent="BoundarySouthWest"]
+mesh = SubResource("WallMeshSouthWest")
+
+[node name="BoundarySouthEast" type="StaticBody3D" parent="."]
+position = Vector3(53.5, 1.5, 29)
+collision_layer = 1
+[node name="Collision" type="CollisionShape3D" parent="BoundarySouthEast"]
+shape = SubResource("WallShapeSouthEast")
+[node name="Visual" type="MeshInstance3D" parent="BoundarySouthEast"]
+mesh = SubResource("WallMeshSouthEast")
+
+[node name="BoundaryWestUpper" type="StaticBody3D" parent="."]
+position = Vector3(14, 1.5, -7.5)
+collision_layer = 1
+[node name="Collision" type="CollisionShape3D" parent="BoundaryWestUpper"]
+shape = SubResource("WallShapeWestUpper")
+[node name="Visual" type="MeshInstance3D" parent="BoundaryWestUpper"]
+mesh = SubResource("WallMeshWestUpper")
+
+[node name="BoundaryWestLower" type="StaticBody3D" parent="."]
+position = Vector3(14, 1.5, 24)
+collision_layer = 1
+[node name="Collision" type="CollisionShape3D" parent="BoundaryWestLower"]
+shape = SubResource("WallShapeWestLower")
+[node name="Visual" type="MeshInstance3D" parent="BoundaryWestLower"]
+mesh = SubResource("WallMeshWestLower")

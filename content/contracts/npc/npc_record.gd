@@ -18,6 +18,8 @@ enum Placement { STREET, HOME, OUTSIDE, DEAD }
 @export var placement: Placement = Placement.HOME
 ## Assigned entry and exit portal.
 @export var portal_id: StringName = &""
+## Different exit for recurring pass-through visitors.
+@export var exit_id: StringName = &""
 ## Phase goal place.
 @export var goal_id: StringName = &""
 ## Last committed schedule day.

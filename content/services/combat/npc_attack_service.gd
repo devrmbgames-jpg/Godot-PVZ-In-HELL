@@ -127,6 +127,12 @@ static func commit_effect(actor: Entity) -> bool:
 		return false
 	state.effect_committed = true
 	state.phase = C_NpcCombat.Phase.ACTIVE
+	var district: C_District = DistrictPopulationService.current()
+	if district != null:
+		NpcPerceptionService.action_noise(actor, district.definition.strike_noise_radius)
+	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	if awareness != null and not awareness.target_visible:
+		return false
 	var attack: DEF_NpcAttack = state.attack
 	if not in_range(actor, target, attack) or not CombatGeometry.clear_line(actor, target, attack.collision_mask):
 		return false

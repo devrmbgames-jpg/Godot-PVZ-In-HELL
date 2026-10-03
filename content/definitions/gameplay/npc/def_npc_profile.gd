@@ -2,6 +2,11 @@ extends GameDefinition
 ## Immutable identity, personality and capabilities; parcel policy belongs to each case.
 class_name DEF_NpcProfile
 
+## Authored melee capabilities; assigned to the existing attack executor.
+@export var melee_attacks: Array[DEF_NpcAttack] = [preload("res://content/definitions/gameplay/combat/def_npc_punch.tres")]
+## Authored ranged capabilities; empty for ordinary residents.
+@export var ranged_attacks: Array[DEF_NpcAttack] = []
+
 enum Personality { AGGRESSIVE, BRAZEN, CHEERFUL, TIMID }
 
 ## Name used in dialogue and above the body.
@@ -46,6 +51,8 @@ enum Personality { AGGRESSIVE, BRAZEN, CHEERFUL, TIMID }
 @export_range(0.0, 1.0) var dark_vision_fraction: float = 0.15
 ## Search duration after the last confirmed sighting.
 @export_range(1.0, 120.0) var search_seconds: float = 12.0
+## Last sighting plus this bounded number of nearby authored hiding-place checks.
+@export_range(1, 8) var search_point_count: int = 3
 ## Lowest remaining HP fraction accepted during a risky pursuit.
 @export_range(0.0, 1.0) var pursuit_health_reserve: float = 0.35
 ## Whether this profile may initiate a bounded ambient attack.

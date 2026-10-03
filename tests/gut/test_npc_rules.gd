@@ -45,7 +45,7 @@ func test_reaction_is_cached_and_new_incident_is_distinct() -> void:
 func test_pursuit_risk_requires_health_reserve() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
-	var target: E_DistrictNpc = DistrictPopulationService.body_for(_district.people[2].npc_id)
+	var target: E_DistrictNpc = DistrictPopulationService.body_for(_district.people[3].npc_id)
 	CombatService.bind_target(body, target)
 	var health: C_Health = body.get_component(C_Health) as C_Health
 	assert_true(NpcRouteService.acceptable(body, person, 20.0))

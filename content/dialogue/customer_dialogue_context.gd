@@ -1,4 +1,4 @@
-extends RefCounted
+extends NpcDialogueContext
 ## Typed read/action adapter exposed to DialogueManager as the "ctx" game state.
 ## Persistent authority remains in CustomerVisit, package state, and gameplay services.
 class_name CustomerDialogueContext
@@ -13,6 +13,7 @@ var _visit_id: StringName = &""
 
 
 func _init(actor: Entity, customer: E_Customer) -> void:
+	super(actor, customer)
 	_actor = actor
 	_customer = customer
 	var agent: C_CustomerAgent = _agent()
@@ -144,6 +145,16 @@ func apply_response_tags(tags: PackedStringArray) -> bool:
 	if applied and _customer is E_DistrictNpc:
 		NpcSocialService.dialogue_response(_customer as E_DistrictNpc, _actor, intent, StringName("dialogue/%s/%d" % [_visit_id, intent]))
 	return applied
+
+
+## Whether this recipient can offer a real registered parcel for tonight.
+func can_offer_delivery() -> bool:
+	return _customer is E_DistrictNpc and NpcHomeDeliveryService.offer_for(_customer as E_DistrictNpc) != null
+
+
+## Accepts the optional service through its authoritative owner.
+func accept_home_delivery() -> bool:
+	return _customer is E_DistrictNpc and NpcHomeDeliveryService.accept(_customer as E_DistrictNpc)
 
 
 func commit_denial() -> bool:

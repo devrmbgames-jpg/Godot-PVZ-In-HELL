@@ -149,7 +149,7 @@ New-Item -ItemType Directory -Path $artifactDirectory -Force | Out-Null
 
 foreach ($scene in $selectedScenes) {
 	[string]$smokeName = Get-SmokeName $scene
-	[int]$frameBudget = if ($PSBoundParameters.ContainsKey("Frames")) { $Frames } elseif ($smokeName -eq "cart_transport") { 2400 } else { 360 }
+	[int]$frameBudget = if ($PSBoundParameters.ContainsKey("Frames")) { $Frames } elseif ($smokeName -eq "district") { 16000 } elseif ($smokeName -eq "cart_transport") { 2400 } else { 360 }
 	[string]$timestamp = Get-Date -Format "yyyyMMdd-HHmmssfff"
 	[string]$logPath = Join-Path $artifactDirectory "$smokeName-$timestamp.log"
 	[string]$scenePath = $scene.FullName

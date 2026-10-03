@@ -2,7 +2,9 @@ extends GameDefinition
 ## Stable address, portal, activity or route junction authored in district space.
 class_name DEF_DistrictPlace
 
-enum Kind { HOME, PORTAL, ACTIVITY, SHOP, JUNCTION }
+enum Kind { HOME, PORTAL, ACTIVITY, SHOP, JUNCTION, COVER }
+## Human-readable destination; stable key remains an internal binding.
+@export var display_name: String = "Место района"
 
 ## Placement category.
 @export var kind: Kind = Kind.ACTIVITY

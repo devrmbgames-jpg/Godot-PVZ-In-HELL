@@ -9,8 +9,9 @@ const SIGHT_MASK: int = 31
 
 #region Sight
 ## Checks physical visibility against authored eyes, light and partial cover.
-static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile) -> bool:
-	if observer == target or not GrabService.holder_available(target) or not GrabService.holder_available(observer):
+static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile, allow_dead_target: bool = false) -> bool:
+	var target_available: bool = is_instance_valid(target) and is_instance_valid(ECS.world) and ECS.world.entities.has(target) if allow_dead_target else GrabService.holder_available(target)
+	if observer == target or not target_available or not GrabService.holder_available(observer):
 		return false
 	var observer_body: PhysicsBody3D = observer as Node as PhysicsBody3D
 	var target_body: PhysicsBody3D = target as Node as PhysicsBody3D
@@ -43,6 +44,8 @@ static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile) -
 static func sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: float) -> void:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.player_visible = player != null and can_see(actor, player, person.profile)
+	if not awareness.player_visible and NpcDialogueService.participant(actor) == null:
+		NpcIntentService.look_along_movement(actor)
 	var opponent: Entity = CombatService.target_for(actor)
 	awareness.target_visible = opponent != null and can_see(actor, opponent, person.profile)
 	if awareness.target_visible:
@@ -61,6 +64,12 @@ static func sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta
 #endregion
 
 #region Hearing
+## Emits a spatial action using the body's actual position without identifying it to listeners.
+static func action_noise(source: Entity, radius: float) -> void:
+	var spatial: Node3D = source as Node as Node3D if is_instance_valid(source) else null
+	if spatial != null and spatial.is_inside_tree():
+		emit_noise(source, spatial.global_position, radius)
+
 ## Emits a stimulus without revealing actor identity to listeners.
 static func emit_noise(source: Entity, world_position: Vector3, radius: float) -> void:
 	var district: C_District = DistrictPopulationService.current()
