@@ -45,7 +45,14 @@ Load a skill only when its domain is actually involved:
 - Godot 4.7 AnimationPlayer/AnimationTree/Tween work: `.agents/skills/godot-animation-4.7/SKILL.md`;
 - Godot 4.7 shaders/material parameters and shader-performance work: `.agents/skills/godot-shaders-4.7/SKILL.md`;
 - measured Godot performance/profiling/optimization work: `.agents/skills/godot-performance/SKILL.md`;
+- NPC decision architecture, sensing, navigation intent and utility/BT composition: `.agents/skills/game-ai/SKILL.md`;
 - LimboAI v1.8.1 behavior trees/HSM/Blackboard/custom tasks: `.agents/skills/limboai-v1.8/SKILL.md`;
+- Customer/NPC dialogue branching, response tags and dialogue-side actions: `.agents/skills/dialogue-systems/SKILL.md`;
+- persistence, stable-ID serialization, schema migration and save/load: `.agents/skills/save-systems/SKILL.md`;
+- player input/rebinding/deadzones and control-focus routing: `.agents/skills/input-systems/SKILL.md`;
+- first/third-person camera ownership, smoothing, recoil/shake and camera bugs: `.agents/skills/camera-systems/SKILL.md`;
+- HUD/menu/dialogue UI layout, focus, modal lifecycle and accessibility: `.agents/skills/game-ui-ux/SKILL.md`;
+- first-person combat targeting/feel and damage-boundary composition: `.agents/skills/first-person-combat/SKILL.md`;
 - player-facing game design: `.agents/skills/professional-game-design/SKILL.md`.
 
 Ordinary Godot/GDScript implementation does not require a general-purpose workflow skill.
