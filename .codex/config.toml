@@ -41,6 +41,3 @@ network_access = true
 writable_roots = [
     "C:\\Users\\Valeryn\\AppData\\Roaming\\Godot\\app_userdata"
 ]
-
-# MCP is intentionally not duplicated here.
-# VS Code Agent Host reads the workspace's portable root .mcp.json.
