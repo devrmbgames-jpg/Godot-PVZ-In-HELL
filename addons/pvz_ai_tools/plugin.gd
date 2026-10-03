@@ -1,12 +1,14 @@
+## Registers compact, read-only PVZ/GECS inspection tools with Godot AI MCP.
 @tool
 extends EditorPlugin
-## Registers compact, read-only PVZ/GECS inspection tools with Godot AI MCP.
 
 const SOURCE_CFG: String = "res://addons/pvz_ai_tools/plugin.cfg"
 const HANDLER_PATH: String = "res://addons/pvz_ai_tools/gecs_tools.gd"
 const RETRY_SECONDS: float = 1.0
+const DebuggerBridgeScript := preload("res://addons/pvz_ai_tools/debugger_bridge.gd")
 
 var _registry: McpToolRegistry = null
+var _debugger_bridge: PvzAiDebuggerBridge = null
 var _retry_elapsed: float = 0.0
 var _registered: bool = false
 
@@ -14,6 +16,9 @@ var _registered: bool = false
 #region Lifecycle
 
 func _enter_tree() -> void:
+	_debugger_bridge = DebuggerBridgeScript.new() as PvzAiDebuggerBridge
+	if _debugger_bridge != null:
+		add_debugger_plugin(_debugger_bridge)
 	set_process(true)
 	call_deferred("_refresh_registry")
 
@@ -23,10 +28,18 @@ func _exit_tree() -> void:
 	if registry != null:
 		registry.unregister_source(SOURCE_CFG)
 	_disconnect_registry()
+
+	if _debugger_bridge != null:
+		_debugger_bridge.shutdown()
+		remove_debugger_plugin(_debugger_bridge)
+		_debugger_bridge = null
 	_registered = false
 
 
 func _process(delta: float) -> void:
+	if _debugger_bridge != null:
+		_debugger_bridge.expire_pending()
+
 	_retry_elapsed += delta
 	if _retry_elapsed < RETRY_SECONDS:
 		return
@@ -74,11 +87,12 @@ func _register_tools() -> void:
 	var specs: Array[McpCustomToolSpec] = [
 		_make_spec(
 			"pvz_gecs_world_summary",
-			"Summarize GECS entities, component types and relationships in the editor-side world or edited scene.",
+			"Summarize PVZ GECS entities, component types and relationships from runtime when available or the edited scene.",
 			&"world_summary",
 			{
 				"type": "object",
 				"properties": {
+					"source": _source_property(),
 					"max_types": {"type": "integer", "minimum": 1, "maximum": 100, "default": 30},
 				},
 				"additionalProperties": false,
@@ -91,6 +105,7 @@ func _register_tools() -> void:
 			{
 				"type": "object",
 				"properties": {
+					"source": _source_property(),
 					"query": {"type": "string", "default": ""},
 					"class_name": {"type": "string", "default": ""},
 					"component": {"type": "string", "default": ""},
@@ -101,11 +116,12 @@ func _register_tools() -> void:
 		),
 		_make_spec(
 			"pvz_gecs_entity_inspect",
-			"Inspect one GECS entity, including compact component values and relationship counts.",
+			"Inspect one PVZ GECS entity, including compact component values and relationship counts.",
 			&"entity_inspect",
 			{
 				"type": "object",
 				"properties": {
+					"source": _source_property(),
 					"entity_id": {"type": "string", "default": ""},
 					"node_path": {"type": "string", "default": ""},
 					"name": {"type": "string", "default": ""},
@@ -117,11 +133,12 @@ func _register_tools() -> void:
 		),
 		_make_spec(
 			"pvz_gecs_relationships",
-			"Inspect outgoing and incoming GECS relationships for one entity with optional relation filtering.",
+			"Inspect outgoing and incoming PVZ GECS relationships for one entity with optional relation filtering.",
 			&"relationships_inspect",
 			{
 				"type": "object",
 				"properties": {
+					"source": _source_property(),
 					"entity_id": {"type": "string", "default": ""},
 					"node_path": {"type": "string", "default": ""},
 					"name": {"type": "string", "default": ""},
@@ -156,8 +173,17 @@ func _make_spec(
 	spec.promoted = true
 	spec.requires_writable = false
 	spec.undoable = false
-	spec.deferred = false
-	spec.timeout_ms = 5000
+	spec.deferred = true
+	spec.timeout_ms = 7000
 	return spec
+
+
+func _source_property() -> Dictionary:
+	return {
+		"type": "string",
+		"enum": ["auto", "runtime", "editor"],
+		"default": "auto",
+		"description": "auto prefers the running game's GECS world, then falls back to editor-side state.",
+	}
 
 #endregion
