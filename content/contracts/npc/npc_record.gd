@@ -8,6 +8,10 @@ enum Placement { STREET, HOME, OUTSIDE, DEAD }
 @export var npc_id: StringName = &""
 ## Immutable profile reference.
 @export var profile: DEF_NpcProfile = null
+## Lifetime name, including new names selected for replacement people.
+@export var display_name: String = ""
+## Address recipient alias used for future shipments, never for reassigning old cases.
+@export var recipient_key: StringName = &""
 ## Stable home address; empty for outsiders.
 @export var home_id: StringName = &""
 ## Current logical placement.

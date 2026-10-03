@@ -3,7 +3,7 @@ class_name O_InventoryLifecycle
 
 
 func setup() -> void:
-	_world.entity_disabled.connect(InventoryService.entity_unavailable)
+	_world.entity_disabled.connect(_on_disabled)
 	_world.entity_removed.connect(InventoryService.entity_unavailable)
 
 
@@ -17,4 +17,16 @@ func _bind_item(_event: Variant, item: Entity, _payload: Variant = null) -> void
 
 
 func _on_death(_event: Variant, owner: Entity, _payload: Variant = null) -> void:
-	cmd.add_custom(InventoryService.clear_owner.bind(owner))
+	cmd.add_custom(_death_inventory.bind(owner))
+
+
+func _on_disabled(owner: Entity) -> void:
+	if owner.has_component(C_NpcIdentity) and not owner.has_component(C_Death):
+		return
+	InventoryService.entity_unavailable(owner)
+
+
+func _death_inventory(owner: Entity) -> void:
+	if owner.has_component(C_NpcIdentity):
+		InventoryDropService.release_on_death(owner)
+	InventoryService.clear_owner(owner)

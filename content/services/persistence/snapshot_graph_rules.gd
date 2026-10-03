@@ -15,7 +15,8 @@ static func valid(records: Dictionary[String, Dictionary], components: Dictionar
 		for link: Dictionary in links:
 			var target_key: String = String(link.target)
 			var target: Dictionary = components[target_key]
-			if target_key == key or not bool(records[target_key].enabled):
+			var absent_npc_inventory: bool = String(link.kind) == WorldSnapshotService.OWNED and target.has(C_NpcIdentity) and target.has(C_Inventory) and not target.has(C_Death)
+			if target_key == key or (not bool(records[target_key].enabled) and not absent_npc_inventory):
 				return false
 			match String(link.kind):
 				WorldSnapshotService.OWNED:

@@ -6,7 +6,7 @@ class_name CustomerPresentation
 ## Resolves a permanent person name, falling back to legacy case policy.
 static func customer_name(visit: CustomerVisit) -> String:
 	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id) if visit != null else null
-	return person.profile.display_name if person != null else visit.definition.display_name if visit != null and visit.definition != null else "Клиент"
+	return person.display_name if person != null else visit.definition.display_name if visit != null and visit.definition != null else "Клиент"
 
 
 static func request_text(visit: CustomerVisit) -> String:

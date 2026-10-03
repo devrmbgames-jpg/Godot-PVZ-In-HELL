@@ -1,6 +1,18 @@
 extends GameDefinition
 ## District population, replacement and perception tuning.
 class_name DEF_District
+## Conversation remains open only within this distance.
+@export_range(1.0, 10.0) var conversation_range: float = 4.0
+## Physical pickup arrival tolerance.
+@export_range(0.2, 2.0) var loot_distance: float = 0.8
+## Appetite permitting ordinary food consumption.
+@export_range(0.0, 100.0) var npc_food_threshold: float = 30.0
+## Hunger that can justify an otherwise affordable ambient attack.
+@export_range(0.0, 100.0) var npc_attack_hunger: float = 80.0
+## Initial appetite; growth follows the existing Hunger policy while on map.
+@export_range(0.0, 100.0) var npc_start_hunger: float = 20.0
+## Authored compatible replacement names; stable sequence disambiguates reuse.
+@export var replacement_names: PackedStringArray = ["Счетовод", "Грач", "Моль", "Сажа", "Свечник", "Тихоня", "Нитка", "Дымник"]
 ## Seconds between hazard route evaluations.
 @export_range(0.1, 5.0) var route_interval: float = 0.6
 ## Bounded wait before abandoning an unreachable activity.

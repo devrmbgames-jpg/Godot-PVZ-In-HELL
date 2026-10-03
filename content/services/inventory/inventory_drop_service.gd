@@ -71,6 +71,34 @@ static func drop(actor: Entity, item: Entity) -> bool:
 	return true
 
 
+## Releases NPC possessions once at the death boundary using their ordinary pickup prefabs.
+static func release_on_death(owner: Entity) -> void:
+	var spatial: Node3D = owner as Node as Node3D
+	if spatial == null:
+		return
+	for item: Entity in InventoryService.items(owner).duplicate():
+		var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
+		if state == null or state.definition == null or state.definition.world_pickup_scene.is_empty():
+			continue
+		var prefab: PackedScene = load(state.definition.world_pickup_scene) as PackedScene
+		var pickup: E_InventoryPickup = prefab.instantiate() as E_InventoryPickup if prefab != null else null
+		if pickup == null:
+			continue
+		var components: Array[Component] = pickup.component_resources.duplicate()
+		for index: int in components.size():
+			if components[index] is C_InventoryItem:
+				var stack: C_InventoryItem = C_InventoryItem.new()
+				stack.definition = state.definition
+				stack.quantity = state.quantity
+				components[index] = stack
+		pickup.component_resources = components
+		state.transfer_in_progress = true
+		owner.get_parent().add_child(pickup)
+		(pickup as Node as Node3D).global_position = spatial.global_position + Vector3(0.6, 0.4, 0.0)
+		ECS.world.add_entity(pickup, null, false)
+		ECS.world.remove_entity(item)
+
+
 static func _placement(actor: Entity, collider: CollisionShape3D) -> Variant:
 	var node: Node3D = actor as Node as Node3D
 	var basis: Basis = node.global_basis

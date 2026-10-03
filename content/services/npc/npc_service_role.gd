@@ -40,7 +40,7 @@ static func begin(body: E_DistrictNpc, person: NpcRecord, visit: CustomerVisit, 
 	visit.visit_count += 1
 	visit.last_visit_day = day_index
 	CustomerFlowService.bind_parcel(body, visit)
-	body.show_message(person.profile.display_name + " · за посылкой")
+	body.show_message(person.display_name + " · за посылкой")
 
 ## Advances the queue or owns the counter; only the service branch calls this.
 static func step_queue(body: E_DistrictNpc, visit: CustomerVisit) -> void:
@@ -93,6 +93,7 @@ static func finish_appearance(body: E_DistrictNpc, visit: CustomerVisit) -> void
 	if person != null and person.death_day == 0:
 		person.planned_phase = -1
 		body.present_profile(person.profile)
+		body.show_message(person.display_name)
 
 ## Releases the role and only its live parcel/reservation bindings.
 static func release(body: Entity, visit_id: StringName) -> void:

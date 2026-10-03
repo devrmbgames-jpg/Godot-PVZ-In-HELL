@@ -33,6 +33,12 @@ static func execute_branch(actor: E_DistrictNpc, owner_kind: C_NpcDecision.Owner
 			_combat(actor, person, awareness, delta)
 			return true
 		C_NpcDecision.Owner.SERVICE:
+			var participant: Entity = NpcDialogueService.participant(actor)
+			if participant != null:
+				NpcIntentArbiter.acquire(actor, owner_kind, "Разговор")
+				NpcIntentArbiter.stop(actor, owner_kind)
+				NpcIntentService.watch(actor, participant, Vector3.UP * NpcPerceptionService.EYE_HEIGHT)
+				return true
 			if not actor.has_component(C_CustomerAgent):
 				return false
 			NpcIntentArbiter.acquire(actor, owner_kind, "Обслуживание")
@@ -122,6 +128,8 @@ static func _combat(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwa
 
 #region Free activity
 static func _idle(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwareness, delta: float) -> void:
+	if not person.profile.merchant and NpcCommunityService.idle(actor, person):
+		return
 	if awareness.heard_remaining > 0.0 and not person.profile.merchant:
 		NpcIntentArbiter.move_to(actor, awareness.heard_position, ARRIVAL_DISTANCE, C_NpcDecision.Owner.IDLE)
 		return

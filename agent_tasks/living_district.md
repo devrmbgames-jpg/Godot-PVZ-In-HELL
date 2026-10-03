@@ -25,15 +25,15 @@ Complete all six accepted implementation stages and their focused validation.
 
 ### Current
 
-Stages 1–4 implemented. Commits: 274c57d5 (foundation), 6e37f466 (AI/perception), 9d0dd5fd (service roles). Intrinsic rules use shared perception, warnings and cached personal incident reactions. Fire aura uses existing hazard factory/follow/damage with real typed immunity. A passage graph with two bypasses compares actual navmesh routes and effective damage; final arrival semantics stay unchanged. Baseline dev; pre-existing GECS modification is untouched.
+Stages 1–5 implemented. Commits: 274c57d5 (foundation), 6e37f466 (AI/perception), 9d0dd5fd (service roles), 21d78a56 (intrinsic traits/routing). Street conversations use the existing modal panel and live participant relationships. Personal violence witnesses have physical sight requirements. Free activities consume real food and acquire available loot; motivated ambient conflicts use the phase budget. Temporary absence preserves inventory. Replacement profiles come from the compatible authored pool, have new names/IDs and their own memory; merchant replacements keep the catalog. Baseline dev; pre-existing GECS modification is untouched.
 
 ### Next
 
-Implement street dialogue, loot, bounded conflicts, distinct replacements and evening home delivery. Merchant replacement needs its catalog/action; caches/BT state must reset on snapshot restore; disabled NPC inventory ownership must be permitted in snapshot graph; full save roundtrip/domain validation and connected district smoke still needed.
+Implement evening home delivery and sleep threat gates; reset derived brain/perception/roles on snapshot restoration, validate district domain snapshot, run full save roundtrip and connected district smoke.
 
 ### Validation
 
-Population/native-tree GUT 5/5 (27 assertions), physical perception 4/4 (12), district service 8/8 (41), intrinsic rules/risk 8/8 (36), existing customer flow/timing/dialogue 48/48 (465): PASS. Fresh-process parser batches (7, 7, 6, 6 scripts) zero failures. Structure PASS. Navigation bake PASS (113 polygons). Live in-use scripts sometimes reject reload with error 43; fresh-process checks cover disk code. Full persistence regression and connected smoke remain pending.
+Population/native-tree GUT 5/5 (27 assertions), physical perception 4/4 (12), district service 8/8 (41), intrinsic rules/risk 8/8 (36), community 9/9 (46), existing customer flow/timing/dialogue 48/48 (465): PASS. Fresh-process parser batches (7, 7, 6, 6, 5 scripts) zero failures. Structure PASS. Navigation bake PASS (113 polygons). Live in-use scripts sometimes reject reload with error 43; fresh-process checks cover disk code. Full persistence regression and connected smoke remain pending.
 
 ### Owner QA / blockers
 

@@ -47,7 +47,7 @@ static func recipient_for(recipient_key: StringName) -> NpcRecord:
 	var district: C_District = current()
 	if district != null:
 		for person: NpcRecord in district.people:
-			if person.death_day == 0 and person.profile.recipient_key == recipient_key:
+			if person.death_day == 0 and person.recipient_key == recipient_key:
 				return person
 	return null
 #endregion
@@ -93,6 +93,8 @@ static func initialize() -> void:
 		person.npc_id = StringName("npc/%d" % district.next_person)
 		district.next_person += 1
 		person.profile = profile
+		person.display_name = profile.display_name
+		person.recipient_key = profile.recipient_key
 		person.portal_id = portals[(district.next_person - 2) % portals.size()]
 		if profile.resident and home_index < homes.size():
 			person.home_id = homes[home_index]
@@ -123,6 +125,8 @@ static func _spawn_body(person: NpcRecord) -> E_DistrictNpc:
 	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
 	motion.max_speed = person.profile.move_speed
 	body.present_profile(person.profile)
+	body.show_message(person.display_name)
+	_install_roles(body, person)
 	NpcBrainService.install(body)
 	body.place_at(position_for(person.home_id if person.profile.resident else person.portal_id))
 	return body
@@ -154,6 +158,11 @@ static func plan_phase(person: NpcRecord, day_index: int, phase: C_DayCycle.Phas
 	person.planned_day = day_index
 	person.planned_phase = phase
 	person.phase_complete = false
+	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	if awareness != null:
+		awareness.warned_rules.clear()
+		awareness.reacted_rules.clear()
+		awareness.rule_exposure.clear()
 	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(day_index, phase)
 	person.goal_id = person.home_id if location == DEF_NpcSchedule.Location.HOME else person.portal_id if location == DEF_NpcSchedule.Location.OUTSIDE else _activity_for(person)
 	if synchronize:
@@ -170,6 +179,7 @@ static func set_placement(person: NpcRecord, body: E_DistrictNpc, placement: Npc
 	if active and not body.enabled:
 		ECS.world.enable_entity(body)
 	elif not active and body.enabled:
+		NpcDialogueService.end(body)
 		NpcIntentService.stop(body)
 		CombatService.end_combat(body)
 		ECS.world.disable_entity(body)
@@ -238,11 +248,53 @@ static func _replace_person(district: C_District, deceased: NpcRecord) -> void:
 	var replacement: NpcRecord = NpcRecord.new()
 	replacement.npc_id = StringName("npc/%d" % district.next_person)
 	district.next_person += 1
-	replacement.profile = deceased.profile
+	var pool: Array[DEF_NpcProfile] = []
+	var initiators: int = 0
+	for person: NpcRecord in district.people:
+		if person.death_day == 0 and person.profile.resident and person.profile.initiates_conflicts:
+			initiators += 1
+	for candidate: DEF_NpcProfile in district.definition.profiles:
+		if candidate.resident == deceased.profile.resident and candidate.merchant == deceased.profile.merchant and candidate.valid_rules() and (not candidate.initiates_conflicts or initiators < 2):
+			pool.append(candidate)
+	replacement.profile = pool[abs(hash(replacement.npc_id)) % pool.size()] if not pool.is_empty() else deceased.profile
+	var names: PackedStringArray = district.definition.replacement_names
+	replacement.display_name = "%s %d" % [names[(district.next_person - 2) % names.size()] if not names.is_empty() else replacement.profile.display_name, district.next_person - 1]
+	replacement.recipient_key = deceased.recipient_key
 	replacement.home_id = deceased.home_id
 	replacement.portal_id = deceased.portal_id
 	deceased.home_id = &""
 	deceased.portal_id = &""
 	district.people.append(replacement)
 	_spawn_body(replacement)
+
+static func _install_roles(body: E_DistrictNpc, person: NpcRecord) -> void:
+	if not body.has_component(C_Inventory):
+		body.add_component(C_Inventory.new())
+	if not body.has_component(C_Hunger):
+		var hunger: C_Hunger = C_Hunger.new()
+		hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+		hunger.value = current().definition.npc_start_hunger
+		body.add_component(hunger)
+	var actions: C_InteractionActionSet = body.get_component(C_InteractionActionSet) as C_InteractionActionSet
+	if actions == null:
+		actions = C_InteractionActionSet.new()
+		body.add_component(actions)
+	var street: DEF_NpcDialogueAction = DEF_NpcDialogueAction.new()
+	street.action_id = &"npc_street_dialogue"
+	street.caption = "Поговорить с жителем"
+	street.slot = DEF_InteractionAction.Slot.INTERACT
+	street.priority = 5
+	actions.actions.append(street)
+	if person.profile.merchant and not body.has_component(C_Trader):
+		var trader: C_Trader = C_Trader.new()
+		trader.profile = load("res://content/definitions/gameplay/commerce/def_trader_default.tres") as DEF_TraderProfile
+		body.add_component(trader)
+		var trade: DEF_TraderAction = DEF_TraderAction.new()
+		trade.action_id = &"trade"
+		trade.caption = "Торговля и задание"
+		actions.actions.append(trade)
+		var pickup: Marker3D = Marker3D.new()
+		pickup.name = "FurniturePickup"
+		pickup.position = Vector3(2, 0, 0)
+		body.add_child(pickup)
 #endregion
