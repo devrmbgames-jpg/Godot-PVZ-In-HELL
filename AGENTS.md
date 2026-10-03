@@ -27,6 +27,14 @@ Start from the user's task and the exact files, symbols, errors, scenes, or reso
 
 Stop exploring once owner, contract, and regression surface are known. Prefer exact symbol/path search and targeted ranges over recursive inventories or full-file dumps.
 
+## Tool batching and reasoning efficiency
+
+- Prefer coherent batches of related reads, edits, and validations over many tiny tool calls.
+- Before calling a tool, consider whether several independent operations can safely be combined.
+- Avoid alternating `reason -> read one file -> reason -> read one file` when the needed files are already known.
+- Validate after a coherent implementation batch, not after every small edit.
+- Do not reduce verification quality to save time.
+
 ## Plan, Goal, and durable task state
 
 Use the session's Plan Mode for non-trivial investigation/approach when planning is useful. Use a Goal as the active completion condition for multi-step work.
