@@ -2,8 +2,19 @@ extends CanvasLayer
 ## Модальное меню пользователя; приостановка мира принадлежит только открытому меню.
 class_name SettingsMenu
 
+signal closed
+
 const CAPTURE_THRESHOLD: float = 0.65
 const PANEL_SIZE: Vector2 = Vector2(900, 650)
+
+var _standalone: bool = false
+var _standalone_open: bool = false
+var _session_dialog: ConfirmationDialog
+var _session_action: String = ""
+var _session_buttons: Dictionary[String, Button] = {}
+var _slot_status: Label
+var _manual_path: String = ""
+var _auto_path: String = ""
 
 var _actor: Entity
 var _root: Control
@@ -24,7 +35,25 @@ var _settings_path: String = GameSettingsService.FILE_PATH
 
 func setup(actor: Entity, settings_path: String = GameSettingsService.FILE_PATH) -> void:
 	_actor = actor
+	_standalone = false
 	_settings_path = settings_path
+
+
+## Настройки из главного меню не требуют World/actor и не захватывают игровые руки.
+func setup_main_menu(settings_path: String = GameSettingsService.FILE_PATH) -> void:
+	_standalone = true
+	_actor = null
+	_settings_path = settings_path
+
+
+## Авторский профиль либо изолированный слот теста; пустые пути используют стандартный профиль уровня.
+func setup_save_paths(manual: String, autosave: String) -> void:
+	_manual_path = manual
+	_auto_path = autosave
+
+
+func is_open() -> bool:
+	return _capture != 0 or _standalone_open
 
 
 func _ready() -> void:
@@ -40,13 +69,15 @@ func _ready() -> void:
 	var content: VBoxContainer = VBoxContainer.new()
 	panel.add_child(content)
 	var title: Label = Label.new()
-	title.text = "Настройки"
+	title.text = "Настройки" if _standalone else "Меню игры"
 	content.add_child(title)
 	var tabs: TabContainer = TabContainer.new()
 	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content.add_child(tabs)
+	if not _standalone:
+		_build_session_menu(tabs)
 	var settings: VBoxContainer = VBoxContainer.new()
-	settings.name = "Игра"
+	settings.name = "Настройки"
 	tabs.add_child(settings)
 	_slider(settings, "Громкость", "volume", 0.0, 1.0, 0.05)
 	_slider(settings, "Чувствительность мыши", "mouse_sensitivity", 0.1, 4.0, 0.1)
@@ -72,7 +103,7 @@ func _ready() -> void:
 	reset.pressed.connect(_reset)
 	content.add_child(reset)
 	_close = Button.new()
-	_close.text = "Сохранить и вернуться"
+	_close.text = "Применить и вернуться" if _standalone else "Вернуться в игру"
 	_close.pressed.connect(close_menu)
 	content.add_child(_close)
 	_conflict = ConfirmationDialog.new()
@@ -90,14 +121,20 @@ func _exit_tree() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _capture == 0 and event.is_pressed() and not event.is_echo() and (event.is_action_pressed(&"menu") or GameSettingsService.is_safety_back(event)):
+	if not _standalone and not is_open() and event.is_pressed() and not event.is_echo() and (event.is_action_pressed(&"menu") or GameSettingsService.is_safety_back(event)):
 		if open_menu():
 			get_viewport().set_input_as_handled()
 
 
 func _input(event: InputEvent) -> void:
 	InputPromptService.observe(event)
-	if _capture == 0 or bool(Console.is_visible()) or (not event.is_pressed() and not event is InputEventJoypadMotion) or event.is_echo():
+	if not is_open() or bool(Console.is_visible()) or (not event.is_pressed() and not event is InputEventJoypadMotion) or event.is_echo():
+		return
+	if _session_dialog != null and _session_dialog.visible:
+		if GameSettingsService.is_safety_back(event) or event.is_action_pressed(&"menu"):
+			_session_dialog.hide()
+			_session_action = ""
+			get_viewport().set_input_as_handled()
 		return
 	if GameSettingsService.is_safety_back(event):
 		if _await_action != &"":
@@ -141,7 +178,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
-	if _capture != 0 and not is_instance_valid(_actor):
+	if not _standalone and is_open() and not is_instance_valid(_actor):
 		close_menu()
 	if _revision == InputPromptService.revision():
 		return
@@ -158,41 +195,141 @@ func _process(_delta: float) -> void:
 
 
 func open_menu() -> bool:
-	if _capture != 0 or not EntityAvailability.contains(_actor, ECS.world) or bool(Console.is_visible()) or InteractionControlFocus.current(_actor) >= InteractionControlFocus.Priority.DRAWING:
+	if is_open() or bool(Console.is_visible()):
 		return false
-	_capture = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
-	if _capture == 0:
-		return false
+	if _standalone:
+		_standalone_open = true
+	else:
+		if not EntityAvailability.contains(_actor, ECS.world) or InteractionControlFocus.current(_actor) >= InteractionControlFocus.Priority.DRAWING:
+			return false
+		_capture = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
+		if _capture == 0:
+			return false
 	_previous_pause = get_tree().paused
 	_previous_mouse = Input.mouse_mode
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_root.show()
 	_status.text = "Выберите действие и устройство. Кнопка возврата всегда отменяет ввод."
+	_refresh_session_menu()
 	_close.grab_focus()
 	return true
 
 
 func close_menu() -> void:
-	if _capture == 0:
+	if not is_open():
 		return
+	_save_preferences()
+	_cancel_binding()
+	_conflict.hide()
+	_root.hide()
+	if _session_dialog != null:
+		_session_dialog.hide()
+	_release()
+
+
+func _save_preferences() -> void:
 	GameSettingsService.apply()
 	var error: Error = GameSettingsService.save(_settings_path)
 	if error != OK:
 		push_warning("Не удалось сохранить настройки: %s" % error_string(error))
-	_cancel_binding()
-	_conflict.hide()
-	_root.hide()
-	_release()
-
 
 func _release() -> void:
-	if _capture == 0:
+	if not is_open():
 		return
-	InteractionControlFocus.release(_actor, _capture)
+	if _capture != 0:
+		InteractionControlFocus.release(_actor, _capture)
 	_capture = 0
+	_standalone_open = false
 	get_tree().paused = _previous_pause
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if bool(Console.is_visible()) else _previous_mouse
+	closed.emit()
+
+
+func _build_session_menu(tabs: TabContainer) -> void:
+	var page: VBoxContainer = VBoxContainer.new()
+	page.name = "Игра"
+	tabs.add_child(page)
+	_slot_status = Label.new()
+	_slot_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	page.add_child(_slot_status)
+	var labels: Dictionary[String, String] = {"save": "Сохранить", "load": "Загрузить", "new": "Новая игра", "main": "Главное меню", "exit": "Выйти из игры"}
+	for action: String in labels:
+		var button: Button = Button.new()
+		button.name = "Session_" + action
+		button.text = labels[action]
+		button.custom_minimum_size.y = 40.0
+		page.add_child(button)
+		_session_buttons[action] = button
+		button.pressed.connect(_request_session_action.bind(action))
+	_session_dialog = ConfirmationDialog.new()
+	_session_dialog.title = "Несохранённый прогресс"
+	_session_dialog.dialog_text = "Несохранённый прогресс будет потерян. Продолжить?"
+	_session_dialog.ok_button_text = "Продолжить"
+	_session_dialog.cancel_button_text = "Отмена"
+	_session_dialog.confirmed.connect(_confirm_session_action)
+	_session_dialog.canceled.connect(func() -> void: _session_action = "")
+	add_child(_session_dialog)
+
+
+func _game_root() -> Node:
+	return ECS.world.get_parent() if is_instance_valid(ECS.world) else null
+
+
+func _saved_game(level: String) -> GameSaveResult:
+	var paths: Array[String] = []
+	if not _manual_path.is_empty() and not _auto_path.is_empty():
+		paths = [_manual_path, _auto_path]
+	return GameSessionService.saved_game(level, paths)
+
+
+func _refresh_session_menu() -> void:
+	if _standalone or _slot_status == null:
+		return
+	var root: Node = _game_root()
+	var reason: String = GameSessionService.save_reason(root, self)
+	_session_buttons["save"].disabled = not reason.is_empty()
+	_session_buttons["save"].tooltip_text = reason
+	var saved: GameSaveResult = _saved_game(root.scene_file_path if root != null else "")
+	_session_buttons["load"].disabled = not saved.success
+	_slot_status.text = "%s\n%s" % [saved.message, "Можно сохранить утреннюю контрольную точку." if reason.is_empty() else reason]
+
+
+func _request_session_action(action: String) -> void:
+	if _standalone or not is_open():
+		return
+	if action == "save":
+		var result: GameSaveResult = GameSessionService.save_game(_game_root(), self, _manual_path)
+		_status.text = result.message
+		_refresh_session_menu()
+		return
+	_session_action = action
+	_session_dialog.popup_centered()
+	_session_dialog.get_cancel_button().grab_focus()
+
+
+func _confirm_session_action() -> void:
+	var action: String = _session_action
+	_session_action = ""
+	var root: Node = _game_root()
+	if root == null:
+		_status.text = "Уровень недоступен."
+		return
+	var error: Error = OK
+	match action:
+		"new": error = GameSessionService.start_game(get_tree(), root.scene_file_path)
+		"load":
+			var saved: GameSaveResult = _saved_game(root.scene_file_path)
+			if not saved.success:
+				_status.text = saved.message
+				return
+			error = GameSessionService.start_game(get_tree(), root.scene_file_path, saved)
+		"main": error = GameSessionService.return_to_menu(get_tree())
+		"exit": get_tree().quit()
+	if error != OK:
+		_status.text = "Не удалось выполнить действие: %s." % error_string(error)
+	elif action in ["new", "load", "main", "exit"]:
+		_save_preferences()
 
 
 func _build_controls() -> void:
@@ -239,13 +376,13 @@ func _confirm_binding() -> void:
 		_status.text = "Кнопка зарезервирована для меню или консоли. Выберите другую."
 	_await_action = &""
 	_pending = null
-	_close.text = "Сохранить и вернуться"
+	_close.text = "Применить и вернуться" if _standalone else "Вернуться в игру"
 
 
 func _cancel_binding() -> void:
 	_await_action = &""
 	_pending = null
-	_close.text = "Сохранить и вернуться"
+	_close.text = "Применить и вернуться" if _standalone else "Вернуться в игру"
 	if _status != null:
 		_status.text = "Изменения управления отменены."
 

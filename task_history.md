@@ -37,3 +37,8 @@
 
 
 R33 Windows ecd95df9: main20261003-084015Z/test20261003-084159Z, оба actual-scene120 startup PASS; launchers обновлены. Очистка6 failed sprint smoke logs (4529 bytes), успешные evidence/build logs сохранены. Player QA PENDING.
+
+
+## 2026-10-03 — R34: главное меню и игровые слоты
+
+План e5b31ff6 записан до реализации. Главное меню new/load/settings/exit и игровой save/load/new/main/exit, standalone settings без actor, подтверждение потери прогресса. Morning manual slot + существующий night autosave, main/test отдельные; detached graph preflight до смены live world; новый старт не читает/не удаляет старые файлы. Параметры сохраняются также при переходах. Related30/30,203; full491/491,4029,56; real GUI clicks/session lifecycle smoke192144176 и raw settings input192408372 PASS. Reviewer R1 FALSE_POSITIVE (indentation), R2 FIXED/confirmed (preferences). QA qa_tasks/main_menu_and_saves.md ожидает игрока; rendered/full slice/device не запускались. Windows exports следующий шаг. Только dev, unrelated user changes сохранены; R25 LAST.

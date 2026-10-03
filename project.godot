@@ -12,8 +12,7 @@ config_version=5
 
 config/name="PVZ In Hell Simulator"
 config/tags=PackedStringArray("game", "gecs")
-run/main_scene="uid://b357k3h2k7kuh"
-run/main_scene.qa_test_level="res://content/scenes/primitive_test_level.tscn"
+run/main_scene="res://content/ui/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 run/max_fps=120
 boot_splash/stretch_mode=0

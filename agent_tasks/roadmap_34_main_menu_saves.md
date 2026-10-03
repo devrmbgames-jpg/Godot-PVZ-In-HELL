@@ -1,6 +1,6 @@
 # R34 — Главное меню и сохранение/загрузка/новая игра
 
-Status: **PLANNED**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -24,12 +24,22 @@ Status: **PLANNED**
 
 ### Current
 
-Задача записана до реализации. Следующий шаг — точный контракт безопасного snapshot и сервиса перехода.
+M0–M2 реализованы: типизированный GameSessionService и GameSaveResult, detached preflight без изменения ECS.world, главное меню и общий bootstrap main/test, standalone settings, игровой save/load/new/main/exit с подтверждениями. Настройки сохраняются также при успешном переходе/выходе. Экспорт проверяет главный экран и выбранный игровой уровень отдельно. Следующий шаг — Windows main/test builds после commit; затем owner QA.
+
+### Review
+
+- R1 FALSE_POSITIVE: обзор неверно прочёл вложенность _input; обычные GUI события уже не поглощались в HEAD. Изменение не понадобилось, реальные pointer clicks покрыты smoke.
+- R2 FIXED: успешные new/load/main/exit сохраняют параметры и InputMap через _save_preferences с авторским settings_path. Повреждённая загрузка оставляет прежний paused world/menu. Независимый read-only reviewer подтвердил закрытие.
 
 ### Validation
 
-Ещё не выполнялась. Узкие проверки малых этапов; один полный milestone и один lifecycle smoke near completion.
+- Project structure и git diff --check PASS.
+- Related GUT:30/30,203 assertions (.export/r34-related-gut.log).
+- Один полный milestone GUT:491/491,4029 assertions,56 scripts (.export/r34-milestone-full-gut.log). Нет script errors/leaks; native Windows certificate-store diagnostic присутствует, как прежде.
+- Scene lifecycle + реальные Viewport GUI pointer clicks new/save/load, preferences ConfigFile и checksum/preflight отказ: menu_session smoke PASS (tests/artifacts/menu_session-20261003-192144176.log).
+- Raw menu safety key/binding capture/resume regression: settings_input smoke PASS (tests/artifacts/settings_input-20261003-192408372.log).
+- Rendered/device/full slice не запускались. Windows builds — следующий шаг, результат будет записан после экспорта.
 
 ### Owner QA / blockers
 
-Главное меню/подтверждения/мышь/геймпад/визуальная читаемость и полный игровой срез проверяет владелец. Автоматический запуск только headless.
+[Главное меню и сохранения](../qa_tasks/main_menu_and_saves.md): мышь/клавиатурный фокус/геймпад, разрешение/читаемость, подтверждения, перезапуск и восстановление. Полный основной игровой срез проверяет владелец по его запросу. Автоматический запуск только headless. R25 остаётся LAST после предыдущих задач и QA fixes; прежние задачи не отменены.

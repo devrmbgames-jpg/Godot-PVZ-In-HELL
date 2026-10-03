@@ -16,7 +16,7 @@ This file is the queue/index. It does not replace individual task state.
 | **DONE** | [R31 — Корневая папка ресурсов](roadmap_31_resource_location.md) |
 | **OWNER_QA** | [R32 — Ритм шагов, камера и пояс](roadmap_32_gait_crouch.md) |
 | **OWNER_QA** | [R33 — Бег и выносливость](roadmap_33_sprint_stamina.md) |
-| **PLANNED** | [R34 — Главное меню и сохранение/загрузка/новая игра](roadmap_34_main_menu_saves.md) |
+| **OWNER_QA** | [R34 — Главное меню и сохранение/загрузка/новая игра](roadmap_34_main_menu_saves.md) |
 | **DEFERRED** | [R25 GDScript Documentation](roadmap_25_gdscript_documentation.md) — **LAST**, русские `##` и смысловые регионы; выполнять после предыдущих задач и исправлений QA |
 
 Supporting artifacts are linked from their owner tasks and are not separate queue entries.

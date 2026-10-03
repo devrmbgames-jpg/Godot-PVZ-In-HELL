@@ -35,6 +35,8 @@ $executable = Join-Path $buildRoot "PVZInHell.exe"
 $exportLog = Join-Path $buildRoot "export.log"
 $startupLog = Join-Path $buildRoot "startup.log"
 $startupConsoleLog = Join-Path $buildRoot "startup-console.log"
+$menuStartupLog = Join-Path $buildRoot "menu-startup.log"
+$menuStartupConsoleLog = Join-Path $buildRoot "menu-startup-console.log"
 $preset = if ($TestLevel) { "Windows QA Test Level" } else { "Windows QA" }
 $launcherName = if ($TestLevel) { "TEST_LEVEL.cmd" } else { "LATEST.cmd" }
 $pointerName = if ($TestLevel) { "test_level.txt" } else { "latest.txt" }
@@ -52,7 +54,20 @@ $consoleWrapper = Join-Path $buildRoot "PVZInHell.console.exe"
 if (Test-Path -LiteralPath $consoleWrapper) {
     $startupProgram = $consoleWrapper
 }
-$startupCode = Invoke-NativeLogged $startupProgram @("--headless", "--quit-after", "120", "--log-file", $startupLog) $startupConsoleLog
+Write-Host "Checking exported main menu (headless, 120 frames)"
+$menuStartupCode = Invoke-NativeLogged $startupProgram @("--headless", "--quit-after", "120", "--log-file", $menuStartupLog) $menuStartupConsoleLog
+if (-not (Test-Path -LiteralPath $menuStartupLog)) {
+    throw "Exported main menu produced no engine log; see $menuStartupConsoleLog"
+}
+$menuStartupErrors = @(Get-Content -LiteralPath $menuStartupLog | Where-Object {
+    $_ -match 'SCRIPT ERROR:|ERROR:|ObjectDB instances leaked|resources still in use' -and
+    $_ -notmatch 'ERROR: Failed to read the root certificate store\.'
+})
+if ($menuStartupCode -ne 0 -or $menuStartupErrors -or -not (Select-String -LiteralPath $menuStartupLog -SimpleMatch "QA menu: res://content/ui/main_menu.tscn; target=$scenePath" -Quiet)) {
+    Get-Content -LiteralPath $menuStartupLog -Tail 25
+    throw "Exported main menu startup check failed ($menuStartupCode); see $menuStartupLog"
+}
+$startupCode = Invoke-NativeLogged $startupProgram @("--headless", "--quit-after", "120", "--log-file", $startupLog, "--", "--qa-startup-level") $startupConsoleLog
 if (-not (Test-Path -LiteralPath $startupLog)) {
     throw "Exported startup produced no engine log; see $startupConsoleLog"
 }
@@ -78,6 +93,9 @@ $info = [ordered]@{
     preset = $preset
     scene = $scenePath
     executable = "PVZInHell.exe"
+    startup_scene = "res://content/ui/main_menu.tscn"
+    menu_headless_startup_frames = 120
+    menu_headless_startup = "PASS"
     headless_startup_frames = 120
     headless_startup = "PASS"
     external_certificate_store_warning = [bool](Select-String -LiteralPath $startupLog -Pattern 'Failed to read the root certificate store' -Quiet)

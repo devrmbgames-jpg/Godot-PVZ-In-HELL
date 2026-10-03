@@ -157,6 +157,32 @@ static func valid(data: Dictionary, root: Node) -> bool:
 	return session_count == 1 and SnapshotGraphRules.valid(records, all_components)
 
 
+## Проверяет роли и prefab-контракты без регистрации Entities и без изменения живого World.
+static func can_restore(data: Dictionary, root: Node) -> bool:
+	if not valid(data, root):
+		return false
+	var entities: Dictionary[String, Entity] = {}
+	var temporary: Array[Entity] = []
+	for record: Dictionary in data.entities:
+		var entity: Entity = root.get_node_or_null(NodePath(String(record.authored_path))) as Entity if not String(record.authored_path).is_empty() else null
+		if entity == null:
+			var scene: String = String(record.scene)
+			var packed: PackedScene = load(scene) as PackedScene if not scene.is_empty() else null
+			var instance: Node = packed.instantiate() if packed != null else Entity.new()
+			entity = instance as Entity
+			if entity == null:
+				instance.free()
+				for candidate: Entity in temporary:
+					candidate.free()
+				return false
+			temporary.append(entity)
+		entities[String(record.key)] = entity
+	var compatible: bool = SnapshotGraphRules.valid_entities(data.entities as Array, entities)
+	for candidate: Entity in temporary:
+		candidate.free()
+	return compatible
+
+
 static func restore(data: Dictionary, root: Node) -> bool:
 	if not valid(data, root):
 		return false
