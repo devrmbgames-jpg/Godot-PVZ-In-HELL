@@ -1470,7 +1470,7 @@ func test_overweight_scriptless_body_stays_highlighted_and_shows_weight_message(
 	targeting_system.process([holder_entity], [[interactor]], 0.0)
 	highlight_system.process([holder_entity], [[interactor]], 0.0)
 	InteractionActionResolver.refresh_prompt(holder_entity)
-	assert_true(interactor.prompt_text.contains("[E]"))
+	assert_true(interactor.prompt_text.contains("[input=interact]"))
 	assert_true(interactor.prompt_text.contains("Взять"))
 
 	highlight_system.free()

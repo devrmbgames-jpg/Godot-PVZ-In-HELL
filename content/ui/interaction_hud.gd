@@ -19,7 +19,7 @@ const MINIMUM_HUNGER_SPAN: float = 1.0
 @onready var _status_hunger: Label = $Overlay/PlayerStatusPanel/Stats/Hunger
 @onready var _status_hunger_bar: ProgressBar = $Overlay/PlayerStatusPanel/Stats/HungerBar
 @onready var _status_money: Label = $Overlay/PlayerStatusPanel/Stats/Money
-@onready var _prompt: Label = $Overlay/Prompt
+@onready var _prompt: InputPromptLabel = $Overlay/Prompt
 @onready var _phase_label: Label = $Overlay/StatusPanel/DayPhase
 @onready var _announcement: Label = $Overlay/Announcement
 @onready var _crosshair: Label = $Overlay/Crosshair
@@ -44,7 +44,7 @@ const MINIMUM_HUNGER_SPAN: float = 1.0
 
 const PHASE_NAMES: Array[String] = ["Утро", "День", "Вечер", "Ночь"]
 const PHASE_HINTS: Array[String] = [
-	"Приёмка · Сканер на столе; ЛКМ — регистрация. Пульт — начало смены.",
+	"Приёмка · Сканер на столе; регистрация сканером. Пульт — начало смены.",
 	"Смена идёт · Завершите обслуживание и закройте смену на пульте",
 	"Смена завершена · Место отдыха доступно для сна",
 	"Завершение дня…",
@@ -61,10 +61,20 @@ const MINIMUM_HEALTH_BAR_MAXIMUM: float = 0.001
 var _announcement_remaining: float = 0.0
 var _last_day_index: int = -1
 var _last_phase: int = -1
+var _menu_hint: InputPromptLabel
 
 
 #region Lifecycle
 func _ready() -> void:
+	var settings: SettingsMenu = SettingsMenu.new()
+	settings.setup(player)
+	add_child(settings)
+	_menu_hint = InputPromptLabel.new()
+	_menu_hint.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_menu_hint.position = Vector2(-260, 20)
+	_menu_hint.size = Vector2(240, 90)
+	$Overlay.add_child(_menu_hint)
+	_menu_hint.set_prompt("%s Настройки\n%s Инвентарь" % [InputPromptService.token(&"menu"), InputPromptService.token(&"inventory")])
 	_damage_view.player = player
 	_damage_view.observer = damage_feedback
 	_damage_view.bind_observer()
@@ -87,6 +97,7 @@ func _process(delta: float) -> void:
 	if _challenge_debug_panel.visible:
 		_challenge_debug_text.text = CustomerDebugPresentation.summary()
 	var captured: bool = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+	_menu_hint.visible = not bool(Console.is_visible()) and InteractionControlFocus.current(player) < InteractionControlFocus.Priority.DRAWING
 	var progress: ProlongedInteractionProgress = ProlongedInteractionService.active_progress(player)
 	_interaction_progress.visible = captured and progress != null
 	_interaction_progress.value = progress.fraction if progress != null else 0.0
@@ -113,11 +124,11 @@ func _process(delta: float) -> void:
 		_phase_label.text = ""
 
 	if not GrabService.holder_available(player):
-		_prompt.text = ""
+		_prompt.set_prompt("")
 		_update_debug_presentation(null)
 		return
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	_prompt.text = interactor.prompt_text if interactor != null else ""
+	_prompt.set_prompt(interactor.prompt_text if interactor != null else "")
 	_update_debug_presentation(interactor.target if interactor != null else null)
 #endregion
 
@@ -185,7 +196,7 @@ func _update_gaze_warning() -> void:
 	material.set_shader_parameter("injury_strength", status.x)
 	material.set_shader_parameter("hunger_strength", status.y)
 	material.set_shader_parameter("status_opacity", status_vignette_opacity)
-	material.set_shader_parameter("reduced_motion", reduced_gaze_motion)
+	material.set_shader_parameter("reduced_motion", reduced_gaze_motion or bool(GameSettingsService.value("reduced_motion")))
 	_gaze_warning.text = GazeChallengePresentation.text(state)
 	_gaze_warning.visible = strength > 0.0
 	_gaze_progress.visible = strength > 0.0

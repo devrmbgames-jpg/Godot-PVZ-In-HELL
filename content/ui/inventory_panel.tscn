@@ -75,4 +75,4 @@ layout_mode = 2
 
 [node name="Close" type="Button" parent="Root/Center/Panel/Content"]
 layout_mode = 2
-text = "Закрыть [Tab / Esc]"
+text = "Закрыть"

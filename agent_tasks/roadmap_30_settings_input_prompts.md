@@ -1,6 +1,6 @@
 # R30 — AtlasTexture, настройки и переназначение управления
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -35,19 +35,23 @@ Status: **IN_PROGRESS**
 
 ### Milestones
 
-- [x] Изучить XML/atlas: сгенерированы все1416 ресурсов из10 XML; event→icon mapping продолжается.
-- [ ] Добавить меню настроек и сохранение рабочих параметров.
-- [ ] Добавить capture/rebind клавиатуры и gamepad, конфликты/сброс/сохранение; заменить button hints во всех проектных UI.
-- [ ] Целевые проверки XML/ресурсов/rebind/persistence, player device QA и Windows build.
+- [x] Изучить XML/atlas: сгенерированы все1416 ресурсов из10 XML; event→icon mapping реализован.
+- [x] Добавить меню настроек и сохранение рабочих параметров.
+- [x] Добавить capture/rebind клавиатуры и gamepad, конфликты/сброс/сохранение; заменить button hints во всех проектных UI.
+- [x] Целевые проверки XML/ресурсов/rebind/persistence и QA-сценарий. Windows main/test export после commit; player device QA ожидается.
 
 ### Current
 
-M0: PromptAtlasCatalog и utils/generate_input_prompt_atlases.gd. Готовые binary AtlasTexture в content/resources/input_prompts/<family>/<default|double>/*.res. На отсутствие .res — одноразовый XML fallback/cache по листу (уточнение владельца сохранено). Следующий шаг: mapping InputEvent→иконка, меню настроек и persistence/rebind; подключение к общему HUD обеих сцен.
+M0: PromptAtlasCatalog и utils/generate_input_prompt_atlases.gd. Готовые binary AtlasTexture в content/resources/input_prompts/<family>/<default|double>/*.res. На отсутствие .res — одноразовый XML fallback/cache по листу (уточнение владельца сохранено). M1–M3 реализованы: общий HUD обеих сцен создаёт SettingsMenu. Modal token сохраняет Carry/другие захваты; меню владеет паузой/курсорным режимом только на время открытия. Настройки громкости/fullscreen/vsync/reduced motion/sensitivity/deadzone действуют и сохраняются отдельно от игрового snapshot в user://settings.cfg. Keyboard/mouse и gamepad назначаются отдельно; modifiers и signs осей сохраняются, конфликты требуют подтверждения. Escape/Back сохраняют safety exit, клавиша консоли зарезервирована. Семантические [input=action] snapshots рендерятся InputPromptLabel через AtlasTexture; показаны все modifiers/альтернативы. HUD, terminal, inventory, commerce, dialogue и settings используют актуальные иконки; XML включён в export для fallback. Следующий шаг: Windows main/test export после commit, затем owner QA основного игрового среза и устройств. R25 остаётся LAST после предыдущих задач и QA-исправлений.
 
 ### Validation
 
-M0: генератор проверил границы, уникальность имён и roundtrip каждого из1416 binary .res (.export/r30-atlases.log). Повторная генерация:1416 проверено,0 записано (.export/r30-atlases-idempotent.log). Structure PASS. GUT/rendered gameplay для этой генерации не запускались.
+M0: генератор проверил границы, уникальность имён и roundtrip каждого из1416 binary .res (.export/r30-atlases.log). Повторная генерация:1416 проверено,0 записано (.export/r30-atlases-idempotent.log). Structure PASS. GUT/rendered gameplay для генерации не запускались. M1–M3: related111/111,811 (.export/r30-related-gut.log); после review settings8/8,53 (.export/r30-settings-review-gut.log). Финальный крупный milestone:471/471,3914,54 scripts (.export/r30-milestone-full-gut.log), без пропущенных скриптов/ошибок парсинга. Последний узкий check добавленного fallback:1/1,6 (.export/r30-prompt-fallback-gut.log). Actual-main raw input/settings/capture negative axis/cancel/exit smoke PASS: tests/artifacts/settings_input-20261003-173619701.log. Structure/diff PASS. Единственное окружение Windows предупреждение certificate store. Rendered/device acceptance не выполнялась.
+
+### Review findings
+
+- R1/P2 FIXED, reviewer confirmed: Ctrl+E и E пересекаются при runtime non-exact InputMap matching; InputBindingCodec.overlaps/confirmed removal теперь учитывают базовую клавишу без модификаторов, знак joy axis сохраняется. Регрессия проверяет actual InputMap.event_is_action до/после назначения.
 
 ### Owner QA / blockers
 
-Игровые сценарии добавить в qa_tasks при реализации; полный визуальный/устройственный проход выполняет владелец.
+[Сценарий настроек/управления](../qa_tasks/settings_and_controls.md); [полный день](../qa_tasks/full_day.md). Нужны настоящие keyboard/gamepad, fullscreen/vsync/audio/плотность UI и визуальная читаемость. Для редких кнопок без соответствующей картинки Kenney используется общая иконка клавиатуры/устройства, сохраняющая AtlasTexture contract. Полный срез выполняет владелец по его явному запросу.

@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://content/ui/damage_feedback_view.tscn" id="DamageFeedback"]
 [ext_resource type="Shader" uid="uid://d38s446njw1re" path="res://content/ui/shaders/gaze_warning.gdshader" id="GazeShader"]
 [ext_resource type="Script" uid="uid://deelgucfnux40" path="res://content/ui/marker_pointer.gd" id="MarkerPointer"]
+[ext_resource type="Script" path="res://content/ui/input_prompt_label.gd" id="InputPrompt"]
 
 [sub_resource type="ShaderMaterial" id="GazeMaterial"]
 resource_local_to_scene = true
@@ -70,7 +71,7 @@ max_value = 1.0
 step = 0.001
 show_percentage = false
 
-[node name="Prompt" type="Label" parent="Overlay" unique_id=1132074882]
+[node name="Prompt" type="RichTextLabel" parent="Overlay" unique_id=1132074882]
 layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
@@ -83,7 +84,7 @@ offset_bottom = 180.0
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
-horizontal_alignment = 1
+script = ExtResource("InputPrompt")
 
 [node name="ChallengeStatus" type="Label" parent="Overlay" unique_id=1207593263]
 visible = false

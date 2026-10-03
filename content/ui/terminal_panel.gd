@@ -54,6 +54,12 @@ var _last_data_signature: String = ""
 #region Lifecycle
 func _ready() -> void:
 	visible = false
+	var hint: InputPromptLabel = InputPromptLabel.new()
+	hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	hint.position = Vector2(-280, -65)
+	hint.size = Vector2(260, 50)
+	add_child(hint)
+	hint.set_prompt("%s Закрыть" % InputPromptService.token(&"menu"))
 	_package_line_scene = load(PACKAGE_LINE_SCENE_PATH) as PackedScene
 	assert(_package_line_scene != null)
 	_clear_designer_rows()

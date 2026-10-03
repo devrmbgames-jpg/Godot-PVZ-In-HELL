@@ -17,5 +17,5 @@ func _process(delta: float) -> void:
 	if not visible:
 		return
 	var name_text: String = shop.profile.display_name if shop.profile != null else "Торговец"
-	var state_text: String = "Открыто · [F]" if TraderCatalogService.is_open(shop, DayPhaseService.current()) else "Закрыто"
+	var state_text: String = "Открыто" if TraderCatalogService.is_open(shop, DayPhaseService.current()) else "Закрыто"
 	text = "%s · %s\n%s" % [name_text, state_text, TraderCatalogService.schedule_text(shop)]

@@ -119,7 +119,7 @@ shape = SubResource("Shape")
 [node name="Message" type="Label3D" parent="."]
 script = ExtResource("StoreStatus")
 position = Vector3(0, 2.0, 0)
-text = "Торговец · Evening · [F]"
+text = "Торговец"
 billboard = 1
 font_size = 28
 pixel_size = 0.003

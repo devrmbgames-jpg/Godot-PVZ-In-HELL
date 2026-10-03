@@ -20,6 +20,7 @@ var _title: Label = null
 var _status: Label = null
 var _offers: VBoxContainer = null
 var _quest: VBoxContainer = null
+var _close: Button = null
 
 
 func _ready() -> void:
@@ -52,11 +53,11 @@ func _ready() -> void:
 	scroll.add_child(_offers)
 	_quest = VBoxContainer.new()
 	content.add_child(_quest)
-	var close: Button = Button.new()
-	close.text = "Закрыть [Esc]"
-	close.pressed.connect(close_panel)
-	content.add_child(close)
-	close.grab_focus()
+	_close = Button.new()
+	_close.text = "Закрыть"
+	_close.pressed.connect(close_panel)
+	content.add_child(_close)
+	_close.grab_focus()
 
 
 func _exit_tree() -> void:
@@ -70,6 +71,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	var icons: Array[AtlasTexture] = InputPromptService.textures(&"menu")
+	_close.icon = icons[0] if not icons.is_empty() else null
 	if _capture == 0:
 		return
 	var trader: Entity = _shop()

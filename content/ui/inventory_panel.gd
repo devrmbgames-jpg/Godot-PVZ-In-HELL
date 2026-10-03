@@ -26,6 +26,7 @@ var _selected_id: String = ""
 
 
 func _ready() -> void:
+	_close.text = "Закрыть"
 	_root.hide()
 	_close.pressed.connect(close_inventory)
 	_use.pressed.connect(_use_selected)
@@ -49,6 +50,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	var icons: Array[AtlasTexture] = InputPromptService.textures(&"inventory")
+	_close.icon = icons[0] if not icons.is_empty() else null
 	if _capture == 0:
 		return
 	if not GrabService.holder_available(player) or player.has_component(C_Death):
@@ -101,7 +104,7 @@ func _package_target() -> Entity:
 func _refresh() -> void:
 	var owned: Array[Entity] = InventoryService.items(player)
 	var inventory: C_Inventory = player.get_component(C_Inventory) as C_Inventory
-	_condition.text = "Стеков %d / %d · [Tab / Esc] Закрыть\nВыберите предмет. Для плёнки наведитесь на посылку перед открытием." % [owned.size(), inventory.maximum_stacks]
+	_condition.text = "Стеков %d / %d\nВыберите предмет. Для плёнки наведитесь на посылку перед открытием." % [owned.size(), inventory.maximum_stacks]
 	_feedback.text = _status
 	var target: Entity = _package_target()
 	var selected: Entity = InventoryService.item_by_id(player, _selected_id)

@@ -74,7 +74,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		_step_travel = step_distance / 2.0
 	var target: Vector3 = Vector3.ZERO
-	if walking and bob_enabled and not reduced_motion:
+	if walking and bob_enabled and not reduced_motion and not (_actor.has_component(C_PlayerInputController) and bool(GameSettingsService.value("reduced_motion"))):
 		target = Vector3(sin(_bob_phase) * bob_amplitude.x, sin(_bob_phase * 2.0) * bob_amplitude.y, 0.0)
 	_camera_offset = _camera_offset.lerp(target, 1.0 - exp(-bob_response * delta))
 	if _camera != null:
