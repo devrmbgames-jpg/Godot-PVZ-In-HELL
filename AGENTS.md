@@ -7,6 +7,7 @@ Start from the user's task and the exact files, symbols, errors, scenes, or reso
 - Runtime: Godot 4.7, GDScript, Forward Plus, Jolt Physics.
 - GECS v8 is pinned under `addons/gecs/`; checked-out source is the API authority. `addons/` is read-only unless addon/dependency work is explicit.
 - Project-owned GDScript is statically typed. Declare concrete types when inference crosses Variant/untyped APIs, containers, dynamic lookup, or broad Object/Node boundaries. Avoid local/member/parameter names that shadow existing or inherited properties/methods.
+- Project-owned GDScript must be human-readable: give each script a short `##` description; document public variables, every `@export` field, signals, and public methods with concise `##` comments; group methods by responsibility inside named `#region ...` / `#endregion` blocks.
 - Components contain data/state. Relationships own authoritative live Entity-to-Entity bindings. Systems are scheduled behavior and do not call other Systems as services. Reusable imperative logic belongs in services/solvers/observers or thin Entity/engine glue.
 - Godot physics bodies own physical transform/velocity unless an explicit synchronization contract says otherwise.
 - Preserve scene/resource/data contracts unless migration is explicit: exported properties, node names/paths, signals, authored IDs, relationship/component ownership, and resource paths.
