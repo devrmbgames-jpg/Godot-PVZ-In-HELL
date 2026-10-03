@@ -14,7 +14,7 @@ const MAX_VALUE_DEPTH: int = 2
 func world_summary(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	var max_types: int = clampi(int(params.get("max_types", DEFAULT_MAX_TYPES)), 1, 100)
 	var source: Dictionary = _entity_source()
-	var entities: Array[Entity] = source.get("entities", [])
+	var entities: Array[Entity] = _entities_from_source(source)
 
 	var entity_classes: Dictionary = {}
 	var component_classes: Dictionary = {}
@@ -55,7 +55,7 @@ func find_entities(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	var source: Dictionary = _entity_source()
 	var matches: Array[Dictionary] = []
 
-	for entity: Entity in source.get("entities", []):
+	for entity: Entity in _entities_from_source(source):
 		if not is_instance_valid(entity):
 			continue
 		var summary: Dictionary = _entity_summary(entity)
@@ -83,7 +83,7 @@ func find_entities(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 ## Inspects one uniquely selected entity and its component state.
 func entity_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 	var source: Dictionary = _entity_source()
-	var resolution: Dictionary = _resolve_entity(params, source.get("entities", []))
+	var resolution: Dictionary = _resolve_entity(params, _entities_from_source(source))
 	if not resolution.get("ok", false):
 		return resolution
 
@@ -104,7 +104,7 @@ func entity_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 			outgoing_count += 1
 
 	var incoming_count: int = 0
-	for candidate: Entity in source.get("entities", []):
+	for candidate: Entity in _entities_from_source(source):
 		if not is_instance_valid(candidate):
 			continue
 		for relationship: Relationship in candidate.relationships:
@@ -214,6 +214,18 @@ func _entity_source() -> Dictionary:
 	}
 
 
+func _entities_from_source(source: Dictionary) -> Array[Entity]:
+	var result: Array[Entity] = []
+	var raw_entities: Variant = source.get("entities", [])
+	if not raw_entities is Array:
+		return result
+	for value: Variant in raw_entities:
+		var entity: Entity = value as Entity
+		if entity != null:
+			result.append(entity)
+	return result
+
+
 func _resolve_entity(params: Dictionary, entities: Array[Entity]) -> Dictionary:
 	var entity_id: String = String(params.get("entity_id", "")).strip_edges()
 	var node_path: String = String(params.get("node_path", "")).strip_edges()
@@ -243,8 +255,9 @@ func _resolve_entity(params: Dictionary, entities: Array[Entity]) -> Dictionary:
 		}
 	if matches.size() > 1:
 		var candidates: Array[Dictionary] = []
-		for entity: Entity in matches.slice(0, min(matches.size(), 20)):
-			candidates.append(_entity_summary(entity))
+		var candidate_limit: int = mini(matches.size(), 20)
+		for index: int in range(candidate_limit):
+			candidates.append(_entity_summary(matches[index]))
 		return {
 			"ok": false,
 			"error": "Entity selector is ambiguous; provide entity_id or node_path.",
@@ -446,7 +459,7 @@ func _json_value(value: Variant, depth: int, max_items: int) -> Variant:
 		TYPE_ARRAY:
 			var array_value: Array = value
 			var array_result: Array = []
-			for index: int in range(min(array_value.size(), max_items)):
+			for index: int in range(mini(array_value.size(), max_items)):
 				array_result.append(_json_value(array_value[index], depth + 1, max_items))
 			if array_value.size() > max_items:
 				array_result.append("<%d more>" % (array_value.size() - max_items))
@@ -455,7 +468,7 @@ func _json_value(value: Variant, depth: int, max_items: int) -> Variant:
 			var dictionary_value: Dictionary = value
 			var dictionary_result: Dictionary = {}
 			var keys: Array = dictionary_value.keys()
-			for index: int in range(min(keys.size(), max_items)):
+			for index: int in range(mini(keys.size(), max_items)):
 				var key: Variant = keys[index]
 				dictionary_result[str(key)] = _json_value(
 					dictionary_value[key],
@@ -509,6 +522,10 @@ func _rank_counts(counts: Dictionary, limit: int) -> Array[Dictionary]:
 				return String(left["name"]) < String(right["name"])
 			return left_count > right_count
 	)
-	return rows.slice(0, min(rows.size(), limit))
+	var ranked: Array[Dictionary] = []
+	var ranked_limit: int = mini(rows.size(), limit)
+	for index: int in range(ranked_limit):
+		ranked.append(rows[index])
+	return ranked
 
 #endregion
