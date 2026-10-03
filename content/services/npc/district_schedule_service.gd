@@ -23,10 +23,5 @@ static func tick(district: C_District, cycle: C_DayCycle) -> void:
 		DistrictPopulationService.plan_phase(person, cycle.day_index, cycle.phase)
 		if person.placement != NpcRecord.Placement.STREET:
 			continue
-		var intent: C_NpcIntent = body.get_component(C_NpcIntent) as C_NpcIntent
-		if not person.phase_complete:
-			if intent.arrived and intent.move_position.distance_to(DistrictPopulationService.position_for(person.goal_id)) < 0.1:
-				DistrictPopulationService.complete_phase(person, body)
-			else:
-				NpcIntentService.move_to(body, DistrictPopulationService.position_for(person.goal_id), intent.arrival_distance)
+		# LimboAI alone executes the assigned movement intent.
 #endregion

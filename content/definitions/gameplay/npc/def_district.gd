@@ -25,6 +25,17 @@ class_name DEF_District
 ## Maximum damage amount safe for normal route planning as an HP fraction.
 @export_range(0.0, 1.0) var ordinary_route_risk: float = 0.05
 
+## Sound attenuation through one or more physical blockers.
+@export_range(0.0, 1.0) var hearing_wall_attenuation: float = 0.25
+## Footstep stimulus emission interval.
+@export_range(0.1, 2.0) var footstep_interval: float = 0.6
+## Walking sound radius.
+@export_range(0.1, 30.0) var walking_noise_radius: float = 6.0
+## Running sound radius.
+@export_range(0.1, 40.0) var running_noise_radius: float = 12.0
+## Crouched movement sound multiplier.
+@export_range(0.0, 1.0) var crouching_noise_fraction: float = 0.3
+
 #region Place queries
 ## Looks up a stable authored place ID.
 func place_for(place_key: StringName) -> DEF_DistrictPlace:

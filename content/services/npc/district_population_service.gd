@@ -63,6 +63,7 @@ static func restore_participation() -> void:
 		if body == null:
 			continue
 		body.present_profile(person.profile)
+		NpcBrainService.install(body)
 		body.set_participating(person.placement == NpcRecord.Placement.STREET and person.death_day == 0)
 		if person.death_day != 0:
 			body.sync_death_presentation()
@@ -75,6 +76,8 @@ static func initialize() -> void:
 	var district: C_District = current()
 	if district == null or district.definition == null or not district.people.is_empty():
 		return
+	for light_node: Node in ECS.world.get_parent().find_children("*", "Light3D", true, false):
+		district.light_sources.append(light_node as Light3D)
 	var homes: Array[StringName] = []
 	var portals: Array[StringName] = []
 	for place: DEF_DistrictPlace in district.definition.places:
@@ -120,6 +123,7 @@ static func _spawn_body(person: NpcRecord) -> E_DistrictNpc:
 	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
 	motion.max_speed = person.profile.move_speed
 	body.present_profile(person.profile)
+	NpcBrainService.install(body)
 	body.place_at(position_for(person.home_id if person.profile.resident else person.portal_id))
 	return body
 #endregion

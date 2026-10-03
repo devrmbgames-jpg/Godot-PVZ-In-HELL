@@ -25,15 +25,15 @@ Complete all six accepted implementation stages and their focused validation.
 
 ### Current
 
-Stage 1 foundation implemented: authored eight residents/four visitors and seven rules, persistent records/bodies, native participation, phase scheduling, delayed resettlement, district blockout, snapshot schema 2 and nighttime preparation. Existing service behavior is not yet migrated. Baseline `dev`; pre-existing GECS submodule modification is untouched.
+Stages 1–2 implemented. Stage 1 commit: 274c57d5. Added native LimboAI priority tree with five reusable subtrees, single movement owner, staggered 5 Hz sight/hearing, actual-motion footsteps, light exposure, physical multi-point occlusion, last-seen search and escape. Existing service behavior is not yet migrated. Baseline `dev`; pre-existing GECS modification is untouched.
 
 ### Next
 
-Finish stage 1 navigation/parser verification and commit. Then implement LimboAI decision subtrees, sight/hearing/search and an intent arbiter; migrate transient customer service onto permanent bodies.
+Commit stage 2, then migrate customer creation/departure/night reset into persistent NPC service roles and queue. Preserve case policy and all parcel/accounting contracts. Add traits/social reactions/hazard routing and then home delivery.
 
 ### Validation
 
-Population GUT: 4/4 tests, 23 assertions PASS. Structure validation PASS. Editor parser imports report no project parse errors; in-use script reloads sometimes return error 43, so fresh headless parser validation remains required. Editor-only headless exit cannot save global editor settings within the sandbox; runtime/GUT does not require that write. Full service/persistence regression and connected smoke remain pending.
+Population/native-tree GUT: 5/5, 27 assertions PASS. Physical perception GUT: 4/4, 12 assertions PASS. Fresh-process parser: two batches of seven scripts, zero failures. Structure validation PASS. Navigation bake PASS (113 polygons). Fixed native BT null scene root in minimal fixtures with explicit scene-root hint. Live in-use scripts sometimes reject reload with error 43; fresh-process checks cover current disk code. Editor-only global settings writes are sandboxed; headless runtime checks require no such write. Full service/persistence regression and connected smoke remain pending.
 
 ### Owner QA / blockers
 

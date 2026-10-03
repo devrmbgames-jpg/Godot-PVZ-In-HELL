@@ -34,6 +34,10 @@ enum Personality { AGGRESSIVE, BRAZEN, CHEERFUL, TIMID }
 @export_range(0.0, 1.0) var timid_attack_probability: float = 0.05
 ## Ground locomotion speed in meters per second.
 @export_range(0.1, 8.0) var move_speed: float = 1.8
+## Close recognition still requires clear physical sight.
+@export_range(0.2, 4.0) var near_recognition_range: float = 1.5
+## Maximum audible radius for this person.
+@export_range(1.0, 50.0) var hearing_range: float = 20.0
 ## Perception range in ordinary light.
 @export_range(1.0, 50.0) var vision_range: float = 16.0
 ## Horizontal vision cone in degrees.

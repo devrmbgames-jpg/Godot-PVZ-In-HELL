@@ -77,6 +77,20 @@ func test_morning_retry_is_idempotent() -> void:
 	assert_eq(_district.prepared_morning, 2)
 #endregion
 
+#region Native decision tree
+## Real LimboAI tree executes the schedule branch through the intent arbiter.
+func test_native_tree_drives_schedule_without_another_movement_owner() -> void:
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
+	NpcBrainService.tick(_district, 0.2)
+	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+	var intent: C_NpcIntent = body.get_component(C_NpcIntent) as C_NpcIntent
+	assert_not_null(body.get_node_or_null("Brain") as BTPlayer)
+	assert_eq(decision.intent_owner, C_NpcDecision.Owner.SCHEDULE)
+	assert_true(intent.movement_active)
+	assert_eq(intent.move_position, DistrictPopulationService.position_for(person.goal_id))
+#endregion
+
 #region Terminal death and replacement
 ## A replacement gets a new ID and no social history, while old identity stays dead.
 func test_two_deaths_start_delayed_one_per_morning_resettlement() -> void:

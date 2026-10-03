@@ -299,6 +299,12 @@ static func assigned(parcel: Entity, customer: Entity, visit: CustomerVisit) -> 
 	return false
 
 
+## Executes the service role when the NPC decision tree grants ownership.
+static func step_service(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void:
+	if cycle != null:
+		_step(customer, cycle, delta)
+
+
 static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = find_visit(agent.visit_id)
