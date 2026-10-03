@@ -166,3 +166,17 @@ func test_menu_restores_pause_mouse_and_existing_carry_capture() -> void:
 	InteractionControlFocus.release(actor, token)
 	world.purge(false)
 	root.free()
+
+
+func test_sprint_mode_and_modifier_key_binding_round_trip() -> void:
+	GameSettingsService.set_value("sprint_toggle", true)
+	var shift: InputEventKey = _key(KEY_SHIFT)
+	shift.shift_pressed = true
+	assert_true(GameSettingsService.rebind(&"sprint", shift, true))
+	var icons: Array[AtlasTexture] = InputPromptService.textures(&"sprint", 0)
+	assert_eq(icons.size(), 1, "Сама Shift не рисует двойной модификатор")
+	assert_eq(GameSettingsService.save(TEST_PATH), OK)
+	GameSettingsService.set_value("sprint_toggle", false)
+	GameSettingsService.load_settings(TEST_PATH)
+	assert_true(bool(GameSettingsService.value("sprint_toggle")))
+	assert_true(InputMap.action_has_event(&"sprint", _key(KEY_SHIFT)))

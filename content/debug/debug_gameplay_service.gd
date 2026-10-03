@@ -38,9 +38,13 @@ static func subject(raw: String) -> Entity:
 static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 	var entity: Entity = subject(raw)
 	var lines: PackedStringArray = []
-	if kind in ["hunger", "inventory", "npc", "nav", "challenge", "hazard", "progress", "corpse"] and not EntityAvailability.contains(entity, ECS.world):
+	if kind in ["stamina", "hunger", "inventory", "npc", "nav", "challenge", "hazard", "progress", "corpse"] and not EntityAvailability.contains(entity, ECS.world):
 		return failure("Live target unavailable: %s" % raw)
 	match kind:
+		"stamina":
+			var state: C_Stamina = entity.get_component(C_Stamina) as C_Stamina
+			if state == null: return failure("Target has no stamina")
+			lines.append("entity=%s reserve=%.2f/%.2f running=%s mode=%s weight_drain=%.2f recovery_seconds=%.2f exhausted=%s" % [entity.id, state.current, state.maximum, state.running, "toggle" if state.toggle_mode else "hold", state.drain_multiplier, state.recovery_remaining, state.exhausted])
 		"hunger":
 			var state: C_Hunger = entity.get_component(C_Hunger) as C_Hunger
 			if state == null or state.policy == null: return failure("Target has no hunger policy")

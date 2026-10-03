@@ -12,6 +12,7 @@ var _secondary_pending: bool = false
 var _drop_start_pending: bool = false
 var _drop_end_pending: bool = false
 var _cancel_pending: bool = false
+var _sprint_pending: bool = false
 
 
 func _notification(what: int) -> void:
@@ -23,6 +24,9 @@ func _notification(what: int) -> void:
 	for actor: Entity in ECS.world.query.with_all([C_Controller, C_PlayerInputController]).execute():
 		var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 		_update_drop(controller, actor, false, 0.0)
+		controller.sprint_pressed = false
+		controller.sprint_held = false
+		controller.sprint_input_enabled = false
 
 
 func _input(event: InputEvent) -> void:
@@ -44,6 +48,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		var mouse_event: InputEventMouseMotion = event as InputEventMouseMotion
 		_look_mouse += mouse_event.screen_relative
+	if event.is_action_pressed(&"sprint") and not event.is_echo():
+		_sprint_pending = true
 	if event.is_action_pressed(&"interact") and not event.is_echo():
 		_interact_pending = true
 	if event.is_action_pressed(&"action_primary") and not event.is_echo():
@@ -80,6 +86,9 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		var entity: Entity = entities[entity_index]
 		var controller: C_Controller = controllers[entity_index]
 		controller.input_tick += 1
+		controller.sprint_input_enabled = captured
+		controller.sprint_pressed = captured and _sprint_pending
+		controller.sprint_held = captured and Input.is_action_pressed(&"sprint")
 		controller.cancel_pressed = _cancel_pending
 		controller.rotate_held = captured and Input.is_action_pressed(&"rotate_held")
 		_update_drop(controller, entity, captured, delta)
@@ -114,6 +123,7 @@ func _clear_pending() -> void:
 	_drop_start_pending = false
 	_drop_end_pending = false
 	_cancel_pending = false
+	_sprint_pending = false
 
 
 func _update_drop(controller: C_Controller, entity: Entity, captured: bool, delta: float) -> void:

@@ -17,6 +17,7 @@ static var _component_fields: Dictionary = {
 	C_NpcRemains: ["released"],
 	C_Health: ["base", "value", "current", "depleted"],
 	C_Hunger: ["value"],
+	C_Stamina: ["current", "initialized"],
 	C_ImpactProtection: ["tier"],
 	C_Receiving: ["last_started_day", "pending", "delivered_counts"],
 	C_Openable: ["locked", "requested_open", "actual_fraction"],

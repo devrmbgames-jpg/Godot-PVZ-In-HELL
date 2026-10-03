@@ -78,6 +78,8 @@
 
 [ext_resource type="Script" path="res://content/observers/gameplay/o_npc_remains.gd" id="Npc_remains"]
 
+[ext_resource type="Script" path="res://content/systems/motion/s_sprint.gd" id="Sprint"]
+
 [node name="World" type="Node" unique_id=1962298586]
 script = ExtResource("2_da1x8")
 entity_nodes_root = NodePath("../Entityes")
@@ -269,6 +271,9 @@ metadata/_custom_type_script = "uid://c1o1ef2y40vmv"
 
 [node name="S_PlayerIntent" type="Node" parent="Systems/Input" unique_id=1207384990]
 script = ExtResource("Player_intent")
+
+[node name="S_Sprint" type="Node" parent="Systems/Input"]
+script = ExtResource("Sprint")
 
 [node name="Interaction" type="Node" parent="Systems" unique_id=1721666486]
 script = ExtResource("3_ahxau")

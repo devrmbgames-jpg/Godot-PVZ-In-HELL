@@ -352,3 +352,24 @@ func test_omitted_package_identity_is_rejected_before_instantiation_commit() -> 
 	assert_eq(_world.entities.size(), count)
 	assert_eq(DayPhaseService.current().day_index, 1)
 	assert_eq(InventoryService.owner_for(_item), _actor)
+
+
+func test_pre_stamina_snapshot_clears_existing_sprint_session() -> void:
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	var stamina: C_Stamina = C_Stamina.new()
+	stamina.current = 45.0
+	stamina.initialized = true
+	stamina.toggled = true
+	stamina.running = true
+	stamina.exhausted = true
+	stamina.recovery_remaining = 2.0
+	_actor.add_component(stamina)
+	var motion: C_Motion = C_Motion.new()
+	motion.sprint_multiplier = 1.5
+	_actor.add_component(motion)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_false(stamina.toggled)
+	assert_false(stamina.running)
+	assert_false(stamina.exhausted)
+	assert_eq(stamina.recovery_remaining, 0.0)
+	assert_eq(motion.sprint_multiplier, 1.0)

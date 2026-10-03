@@ -55,6 +55,9 @@ var minimum_ground_traction: float = 0.05
 
 #region Runtime
 
+## S_Sprint владеет усилением; native solver читает его, не меняя max_speed.
+var sprint_multiplier: float = 1.0
+
 var is_on_floor: bool = false
 ## Derived physics support snapshot; RID is not an Entity ownership/binding.
 var floor_body_rid: RID = RID()

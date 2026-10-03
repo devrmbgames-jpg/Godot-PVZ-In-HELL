@@ -6,14 +6,14 @@ const FILE_PATH: String = "user://settings.cfg"
 const MAX_BINDINGS_PER_ACTION: int = 16
 const ACTIONS: Dictionary[StringName, String] = {
 	&"forward": "Вперёд", &"back": "Назад", &"left": "Влево", &"right": "Вправо",
-	&"jump": "Прыжок", &"crouch": "Присесть", &"interact": "Взаимодействие",
+	&"sprint": "Бег", &"jump": "Прыжок", &"crouch": "Присесть", &"interact": "Взаимодействие",
 	&"use": "Использовать", &"action_primary": "Основное действие", &"action_secondary": "Второе действие",
 	&"physical_override": "Бросок / силовое действие", &"rotate_held": "Вращать предмет",
 	&"drop": "Положить / удерживать для броска", &"inventory": "Инвентарь", &"menu": "Настройки / закрыть",
 	&"look_left": "Камера влево", &"look_right": "Камера вправо", &"look_up": "Камера вверх", &"look_down": "Камера вниз",
 }
 const DEFAULTS: Dictionary[String, Variant] = {
-	"volume": 1.0, "fullscreen": false, "vsync": true, "reduced_motion": false,
+	"volume": 1.0, "fullscreen": false, "vsync": true, "reduced_motion": false, "sprint_toggle": false,
 	"mouse_sensitivity": 1.0, "gamepad_sensitivity": 1.0, "deadzone": 0.2,
 }
 

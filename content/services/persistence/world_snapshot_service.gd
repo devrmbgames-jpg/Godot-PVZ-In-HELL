@@ -135,6 +135,8 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				return false
 			if probe is C_Hunger and (not is_finite((probe as C_Hunger).value) or (probe as C_Hunger).value < 0.0):
 				return false
+			if probe is C_Stamina and (not is_finite((probe as C_Stamina).current) or (probe as C_Stamina).current < 0.0):
+				return false
 		all_components[String(record.key)] = types
 		if record.has("ink"):
 			if not record.ink is Array:
@@ -249,6 +251,17 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			SaveDataCodec.apply_fields(target, component.fields as Dictionary)
 			if target is C_Package:
 				(target as C_Package).condition_initialized = true
+		# Включая старые snapshots без C_Stamina: режим бега не переживает restore.
+		var stamina: C_Stamina = entity.get_component(C_Stamina) as C_Stamina
+		if stamina != null:
+			stamina.toggled = false
+			stamina.running = false
+			stamina.exhausted = false
+			stamina.recovery_remaining = 0.0
+			stamina.drain_multiplier = 1.0
+		var restored_motion: C_Motion = entity.get_component(C_Motion) as C_Motion
+		if restored_motion != null:
+			restored_motion.sprint_multiplier = 1.0
 		PersistentInteractionState.restore(record.get("completed_actions", []) as Array, entity)
 		var node: Node3D = entity as Node as Node3D
 		if node != null and record.has("pose"):
@@ -260,6 +273,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			var motion: C_Motion = entity.get_component(C_Motion) as C_Motion
 			if motion != null:
 				motion.pending_impulse = Vector3.ZERO
+				motion.sprint_multiplier = 1.0
 			var kinematic: C_CharacterBody = entity.get_component(C_CharacterBody) as C_CharacterBody
 			if kinematic != null:
 				kinematic.impulse_velocity = Vector3.ZERO

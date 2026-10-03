@@ -77,7 +77,14 @@ static func decode(data: Dictionary) -> InputEvent:
 static func normalized(event: InputEvent) -> InputEvent:
 	var copy: InputEvent = decode(encode(event))
 	if copy is InputEventKey and (copy as InputEventKey).physical_keycode != 0:
-		(copy as InputEventKey).keycode = 0
+		var key: InputEventKey = copy as InputEventKey
+		key.keycode = 0
+		# Сам Shift/Ctrl не является комбинацией клавиши с собственным модификатором.
+		match key.physical_keycode:
+			KEY_SHIFT: key.shift_pressed = false
+			KEY_CTRL: key.ctrl_pressed = false
+			KEY_ALT: key.alt_pressed = false
+			KEY_META: key.meta_pressed = false
 	return copy
 
 

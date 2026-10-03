@@ -6,6 +6,9 @@ class_name C_Controller
 var interact_pressed: bool = false
 var interact_held: bool = false
 var use_held: bool = false
+var sprint_pressed: bool = false
+var sprint_held: bool = false
+var sprint_input_enabled: bool = false
 ## Cancel the active drawing capture without toggling the global cursor mode.
 var cancel_pressed: bool = false
 var use_pressed: bool = false

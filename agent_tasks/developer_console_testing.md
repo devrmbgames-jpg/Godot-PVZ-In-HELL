@@ -302,3 +302,8 @@ Integrated actual-main developer_console smoke PASS (`tests/artifacts/developer_
 ### Published owner QA build
 
 Windows9d06320c main/test exported; both actual-scene120-frame headless startup PASS. Launch `.export/LATEST.cmd` / `.export/TEST_LEVEL.cmd`. Main: `.export/windows/20261002-234243Z-9d06320c-gameplay-console-main/PVZInHell.exe`; test: `.export/windows/20261002-234409Z-9d06320c-gameplay-console-test/PVZInHell.exe`. Next: owner full-day main scene walkthrough and targeted QA checklists. No full rendered/gameplay/audio acceptance claimed. Master unchanged, user main/project/addons edits preserved.
+
+
+## R33: выносливость
+
+`stamina_info [target=self]` читает запас/максимум, running, hold/toggle, множитель расхода груза, таймер восстановления и exhaustion. `help stamina_info` и `help health` включают команду; обычный HUD показывает шкалу, `debug_hud on` добавляет условия/таймер. QA: пробежать, остановиться, сверить восстановление; повторить с грузом и режимом переключения. Чтение через открытую консоль прекращает переключённый бег по правилу input focus.

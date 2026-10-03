@@ -92,6 +92,8 @@
 
 [ext_resource type="PackedScene" path="res://content/entities/packages/test_bread.tscn" id="Unpack_bread"]
 
+[ext_resource type="Script" path="res://content/components/motion/c_stamina.gd" id="Player_stamina"]
+
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
 
@@ -311,6 +313,10 @@ size = Vector3(2.5, 2.8, 0.3)
 [sub_resource type="BoxShape3D" id="ClueWallShape"]
 size = Vector3(2.5, 2.8, 0.3)
 
+[sub_resource type="Resource" id="Player_stamina"]
+resource_local_to_scene = true
+script = ExtResource("Player_stamina")
+
 [node name="PrimitiveTestLevel" type="Node3D" node_paths=PackedStringArray("world")]
 script = ExtResource("1_ixiin")
 world = NodePath("World")
@@ -521,7 +527,7 @@ position = Vector3(-20, 0.02, 4)
 [node name="Player" parent="Entityes" instance=ExtResource("13_da1x8")]
 position = Vector3(0, 0.02, 2)
 collision_layer = 16
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_3xfrw"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_jjqtf")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_3xfrw"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_jjqtf"), SubResource("Player_stamina")])
 
 [node name="HeadX" parent="Entityes/Player/HeadY" index="0"]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.11703396, 0)

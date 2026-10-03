@@ -18,6 +18,9 @@ const MINIMUM_HUNGER_SPAN: float = 1.0
 @onready var _status_health_bar: ProgressBar = $Overlay/PlayerStatusPanel/Stats/HealthBar
 @onready var _status_hunger: Label = $Overlay/PlayerStatusPanel/Stats/Hunger
 @onready var _status_hunger_bar: ProgressBar = $Overlay/PlayerStatusPanel/Stats/HungerBar
+@onready var _status_stamina: Label = $Overlay/PlayerStatusPanel/Stats/Stamina
+@onready var _status_stamina_bar: ProgressBar = $Overlay/PlayerStatusPanel/Stats/StaminaBar
+@onready var _stamina_debug: Label = $Overlay/PlayerDebugPanel/Debug/StaminaDebug
 @onready var _status_money: Label = $Overlay/PlayerStatusPanel/Stats/Money
 @onready var _prompt: InputPromptLabel = $Overlay/Prompt
 @onready var _phase_label: Label = $Overlay/StatusPanel/DayPhase
@@ -74,7 +77,7 @@ func _ready() -> void:
 	_menu_hint.position = Vector2(-260, 20)
 	_menu_hint.size = Vector2(240, 90)
 	$Overlay.add_child(_menu_hint)
-	_menu_hint.set_prompt("%s Настройки\n%s Инвентарь" % [InputPromptService.token(&"menu"), InputPromptService.token(&"inventory")])
+	_menu_hint.set_prompt("%s Настройки\n%s Инвентарь\n%s Бег" % [InputPromptService.token(&"menu"), InputPromptService.token(&"inventory"), InputPromptService.token(&"sprint")])
 	_damage_view.player = player
 	_damage_view.observer = damage_feedback
 	_damage_view.bind_observer()
@@ -152,6 +155,15 @@ func _update_player_status() -> void:
 		_status_hunger.text = "Голод  %.0f / %.0f · %s" % [hunger.value, hunger.policy.maximum, HUNGER_NAMES[HungerService.tier(hunger)]]
 		_status_hunger_bar.max_value = hunger.policy.maximum
 		_status_hunger_bar.value = hunger.value
+	var stamina: C_Stamina = player.get_component(C_Stamina) as C_Stamina
+	_status_stamina.visible = stamina != null
+	_status_stamina_bar.visible = stamina != null
+	_stamina_debug.visible = stamina != null
+	if stamina != null:
+		_status_stamina.text = "Выносливость  %.0f / %.0f%s" % [stamina.current, stamina.maximum, " · Отдых" if stamina.exhausted else ""]
+		_status_stamina_bar.max_value = stamina.maximum
+		_status_stamina_bar.value = stamina.current
+		_stamina_debug.text = "Бег %s · %s · расход ×%.2f\nОтдых %.1f с · порог %.0f" % ["да" if stamina.running else "нет", "переключение" if stamina.toggle_mode else "удержание", stamina.drain_multiplier, stamina.recovery_remaining, stamina.maximum * stamina.restart_ratio]
 	var wallet: C_Wallet = WalletService.current()
 	_status_money.visible = wallet != null
 	if wallet != null:

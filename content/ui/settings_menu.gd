@@ -52,6 +52,7 @@ func _ready() -> void:
 	_slider(settings, "Чувствительность мыши", "mouse_sensitivity", 0.1, 4.0, 0.1)
 	_slider(settings, "Чувствительность геймпада", "gamepad_sensitivity", 0.1, 4.0, 0.1)
 	_slider(settings, "Мёртвая зона стиков", "deadzone", 0.05, 0.75, 0.05)
+	_toggle(settings, "Бег: переключение (выключено — удерживать)", "sprint_toggle")
 	_toggle(settings, "Полный экран", "fullscreen")
 	_toggle(settings, "Вертикальная синхронизация", "vsync")
 	_toggle(settings, "Уменьшить движение камеры и виньетки", "reduced_motion")
@@ -123,7 +124,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventJoypadMotion and absf((event as InputEventJoypadMotion).axis_value) < CAPTURE_THRESHOLD:
 		return
-	if event is InputEventKey and (event as InputEventKey).physical_keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]:
+	if event is InputEventKey and _await_action != &"sprint" and (event as InputEventKey).physical_keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]:
 		return
 	_pending = InputBindingCodec.normalized(event)
 	if _pending == null:

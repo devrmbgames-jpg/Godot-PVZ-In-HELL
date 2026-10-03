@@ -13,6 +13,7 @@ const EXAMPLES: Dictionary[String, String] = {
 	"money_add": "money_add 500 qa",
 	"money_remove": "money_remove 20 qa",
 	"debug_hud": "debug_hud off",
+	"stamina_info": "stamina_info self",
 	"hunger_info": "hunger_info self",
 	"hunger_set": "hunger_set 50",
 	"inventory_info": "inventory_info self",
@@ -177,7 +178,7 @@ func _group(command_name: String) -> String:
 	if command_name.begins_with("pkg_"): return "packages"
 	if command_name.begins_with("visit_") or command_name.begins_with("complaint_") or command_name == "customer_next": return "customers"
 	if command_name.begins_with("money_") or command_name.begins_with("penalty_") or command_name == "wallet_info": return "economy"
-	if command_name.begins_with("hunger_") or command_name in ["health_info", "apply_damage", "heal", "kill", "reset", "corpse_info", "meat_spawn"]: return "health"
+	if command_name.begins_with("hunger_") or command_name.begins_with("stamina_") or command_name in ["health_info", "apply_damage", "heal", "kill", "reset", "corpse_info", "meat_spawn"]: return "health"
 	if command_name.begins_with("inventory_"): return "inventory"
 	if command_name.begins_with("trader_") or command_name.begins_with("order_") or command_name == "quest_info": return "trader"
 	if command_name.begins_with("npc_") or command_name == "nav_info": return "npc"

@@ -2,6 +2,7 @@ extends Node
 ## Thin command frontend; all writes use domain services or explicit Entity glue.
 
 const COMMANDS: Dictionary[String, Array] = {
+	"stamina_info": [["target=self"], 0, "Read sprint reserve, capacity, weight drain, recovery timer and control mode."],
 	"hunger_info": [["target=self"], 0, "Read hunger, range, tier and multipliers."],
 	"hunger_set": [["value"], 1, "Debug override: self hunger in authored 0..maximum; finite values only."],
 	"inventory_info": [["target=self"], 0, "Read zero-based occupied slots, stable IDs and quantities."],
@@ -47,11 +48,12 @@ func _exit_tree() -> void:
 
 
 func _info(command: String, kind: String, raw: String) -> void:
-	if raw.is_empty() and kind in ["hunger", "inventory"]: raw = "self"
+	if raw.is_empty() and kind in ["stamina", "hunger", "inventory"]: raw = "self"
 	if raw.is_empty() and kind == "hazard": raw = "target"
 	_print(command, DebugGameplayService.info(kind, raw))
 
 
+func _stamina_info(raw: String = "self") -> void: _info("stamina_info", "stamina", raw)
 func _hunger_info(raw: String = "self") -> void: _info("hunger_info", "hunger", raw)
 func _inventory_info(raw: String = "self") -> void: _info("inventory_info", "inventory", raw)
 func _trader_info(raw: String = "") -> void: _info("trader_info", "trader", raw)

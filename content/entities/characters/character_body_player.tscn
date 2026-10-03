@@ -28,6 +28,12 @@
 
 [ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
 
+[ext_resource type="Script" path="res://content/components/motion/c_stamina.gd" id="Stamina"]
+
+[sub_resource type="Resource" id="Stamina"]
+resource_local_to_scene = true
+script = ExtResource("Stamina")
+
 [sub_resource type="PhysicsMaterial" id="CharacterMaterial"]
 friction = 0.0
 
@@ -127,7 +133,7 @@ crouch_mounts = Array[NodePath]([NodePath("BeltSlotLeft"), NodePath("BeltSlotRig
 head_axis_y = NodePath("HeadY")
 head_axis_x = NodePath("HeadY/HeadX")
 ground_ray = NodePath("Ground")
-component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Living"), SubResource("Resource_a6ap4"), SubResource("ImpactReceiver")])
+component_resources = Array[ExtResource("2_uo1oq")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_f5i5i"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Grab_grab_control"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Living"), SubResource("Resource_a6ap4"), SubResource("ImpactReceiver"), SubResource("Stamina")])
 
 [node name="RayCanStand" type="RayCast3D" parent="." unique_id=724995723]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7507784, 0.010172695)
