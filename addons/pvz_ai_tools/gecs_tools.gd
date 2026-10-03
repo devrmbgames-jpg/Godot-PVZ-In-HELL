@@ -12,6 +12,10 @@ const MAX_VALUE_DEPTH: int = 2
 
 ## Returns compact counts for entities, components and relationships.
 func world_summary(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
+	var runtime_result: Dictionary = _runtime_request("world_summary", params, _ctx)
+	if not runtime_result.is_empty():
+		return runtime_result
+
 	var max_types: int = clampi(int(params.get("max_types", DEFAULT_MAX_TYPES)), 1, 100)
 	var source: Dictionary = _entity_source()
 	var entities: Array[Entity] = _entities_from_source(source)
@@ -48,6 +52,10 @@ func world_summary(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 
 ## Finds entities using narrow textual/class/component filters.
 func find_entities(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
+	var runtime_result: Dictionary = _runtime_request("find_entities", params, _ctx)
+	if not runtime_result.is_empty():
+		return runtime_result
+
 	var query: String = String(params.get("query", "")).strip_edges().to_lower()
 	var class_filter: String = String(params.get("class_name", "")).strip_edges().to_lower()
 	var component_filter: String = String(params.get("component", "")).strip_edges().to_lower()
@@ -82,6 +90,10 @@ func find_entities(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 
 ## Inspects one uniquely selected entity and its component state.
 func entity_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
+	var runtime_result: Dictionary = _runtime_request("entity_inspect", params, _ctx)
+	if not runtime_result.is_empty():
+		return runtime_result
+
 	var source: Dictionary = _entity_source()
 	var resolution: Dictionary = _resolve_entity(params, _entities_from_source(source))
 	if not resolution.get("ok", false):
@@ -127,6 +139,10 @@ func entity_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
 
 ## Inspects outgoing/incoming relationships of one uniquely selected entity.
 func relationships_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictionary:
+	var runtime_result: Dictionary = _runtime_request("relationships_inspect", params, _ctx)
+	if not runtime_result.is_empty():
+		return runtime_result
+
 	var source: Dictionary = _entity_source()
 	var entities: Array[Entity] = _entities_from_source(source)
 	var resolution: Dictionary = _resolve_entity(params, entities)
@@ -174,6 +190,37 @@ func relationships_inspect(params: Dictionary, _ctx: McpCallContext) -> Dictiona
 		"limit": limit,
 		"runtime_note": _runtime_note(source),
 	}
+
+#endregion
+
+
+#region Runtime routing
+
+func _runtime_request(
+	operation: String,
+	params: Dictionary,
+	ctx: McpCallContext,
+) -> Dictionary:
+	var source_mode: String = String(params.get("source", "auto")).strip_edges().to_lower()
+	if source_mode not in ["auto", "runtime", "editor"]:
+		return {
+			"ok": false,
+			"error": "source must be auto, runtime, or editor",
+		}
+	if source_mode == "editor":
+		return {}
+
+	var bridge: PvzAiDebuggerBridge = PvzAiDebuggerBridge.get_instance()
+	if bridge != null and bridge.runtime_ready():
+		if bridge.request_runtime(operation, params, ctx):
+			return McpDispatcher.DEFERRED_RESPONSE
+
+	if source_mode == "runtime":
+		return {
+			"ok": false,
+			"error": "No running game is connected to the PVZ runtime inspection bridge.",
+		}
+	return {}
 
 #endregion
 
