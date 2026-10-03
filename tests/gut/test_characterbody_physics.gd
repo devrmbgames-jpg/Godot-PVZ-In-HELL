@@ -159,6 +159,43 @@ func test_crouch_switches_native_shapes_and_shared_camera_height() -> void:
 	assert_true(_player.shape_crouching.disabled)
 
 
+func test_walking_pushes_small_box_without_lifting_player() -> void:
+	var box: RigidBody3D = _walk_obstacle(5.0, false)
+	var control: C_Controller = _player.get_component(C_Controller) as C_Controller
+	control.direction_motion = Vector3.FORWARD
+	var highest_y: float = _body.global_position.y
+	for frame: int in 60:
+		await _tick()
+		highest_y = maxf(highest_y, _body.global_position.y)
+	assert_lt(box.global_position.z, -1.4, "A light physical box moves away from walking contact")
+	assert_lt(_body.global_position.z, -0.5, "Player follows instead of being blocked by the box")
+	assert_lt(highest_y, 0.2, "Side push must not lift the camera/player")
+	assert_eq(_health.current, 100.0)
+
+
+func test_walking_does_not_push_heavy_or_frozen_box(frozen: bool = use_parameters([false, true])) -> void:
+	var box: RigidBody3D = _walk_obstacle(5.0 if frozen else 80.0, frozen)
+	(_player.get_component(C_Controller) as C_Controller).direction_motion = Vector3.FORWARD
+	for frame: int in 45:
+		await _tick()
+	assert_almost_eq(box.global_position.z, -0.9, 0.1)
+	assert_gt(_body.global_position.z, -0.7, "Heavy/fixed furniture retains resistance")
+
+
+func _walk_obstacle(mass_kg: float, frozen: bool) -> RigidBody3D:
+	var box: RigidBody3D = RigidBody3D.new()
+	box.mass = mass_kg
+	box.freeze = frozen
+	box.collision_layer = 8
+	box.collision_mask = 25
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = Vector3(0.4, 0.4, 0.4)
+	box.add_child(_collider(shape))
+	box.position = Vector3(0, 0.2, -0.9)
+	_world.add_child(box)
+	return box
+
+
 func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
 	var packed: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
 	var cart: Entity = packed.instantiate() as Entity

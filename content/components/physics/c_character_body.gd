@@ -11,6 +11,10 @@ class_name C_CharacterBody
 @export var ground_maximum_velocity_change: float = 0.8
 @export var slot_look_down_degrees: float = 55.0
 @export var step_height: float = 0.2
+## Обычное движение сдвигает свободные лёгкие тела; тяжёлая мебель требует отдельного действия.
+@export_range(0.0, 100.0, 0.5, "or_greater") var walk_push_maximum_mass: float = 15.0
+@export_range(0.0, 1000.0, 1.0, "or_greater") var walk_push_force: float = 180.0
+@export_range(0.0, 10.0, 0.1, "or_greater") var walk_push_maximum_speed: float = 3.0
 
 ## Planar gameplay impulse contribution, separate from controlled locomotion.
 var impulse_velocity: Vector3 = Vector3.ZERO

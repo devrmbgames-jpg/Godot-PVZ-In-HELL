@@ -1,6 +1,6 @@
 # R29 — CharacterBody толкает мелкие предметы
 
-Status: **PLANNED**
+Status: **OWNER_QA**
 
 ## Task state
 
@@ -29,18 +29,24 @@ Status: **PLANNED**
 
 ### Milestones
 
-- [ ] Найти владельца CharacterBody movement и native collision contract.
-- [ ] Добавить ограниченное физическое воздействие на свободные мелкие тела.
-- [ ] Целевая проверка малого тела/тяжёлого/стены, player QA и Windows build.
+- [x] Найти владельца CharacterBody movement и native collision contract.
+- [x] Добавить ограниченное физическое воздействие на свободные мелкие тела.
+- [x] Целевая проверка малого тела/тяжёлого/стены, player QA и Windows build.
 
 ### Current
 
-Задача записана до реализации. Следующий шаг: исследовать прямого владельца первого milestone после текущего R26.
+Реализован отдельный KinematicPushSolver в native movement callback. Боковое движение применяет ограниченный central impulse к свободным малым RigidBody; transform/velocity не переписываются. Код и native physics checks завершены, следующий шаг Windows экспорт и R28.
+
+### Decisions
+
+- Defaults: до15кг,180Н, максимум3м/с; масса/сила масштабируются Strength. При нескольких контактах одно тело получает воздействие один раз за тик.
+- Floor/ceiling, freeze, living NPC, held/stored bodies исключены. Персонаж двигается обычным move_and_slide, камера и шаги не меняются.
 
 ### Validation
 
-Не выполнялась. На небольших этапах только оправданные целевые проверки; полный прогон на крупных milestone.
+- Только связанный test_characterbody_physics:8/8,41 asserts, .export/r29-physics-gut.log. Включены ходьба с лёгким/тяжёлым/замороженным телом, отсутствие подъёма/потери HP, прежние падение/удар/опора/приседание/тележка/save.
+- Новый код и diff независимо перечитаны. Полный GUT и rendered QA не запускались; отдельный дублирующий physics smoke не нужен для малого этапа.
 
 ### Owner QA / blockers
 
-Игровые сценарии добавить в qa_tasks при реализации; полный визуальный/устройственный проход выполняет владелец.
+[Очередь и физическое движение](../qa_tasks/customer_queue_and_push.md). Ощущения движения/камеры подтверждает владелец в свежем Windows build.

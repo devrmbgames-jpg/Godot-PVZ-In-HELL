@@ -48,6 +48,7 @@ static func step(
 		_lift_step(body, maxf(config.step_height, transport_step), delta)
 	var incoming: Vector3 = body.velocity
 	body.move_and_slide()
+	KinematicPushSolver.push_contacts(actor, body, config, desired * speed, delta)
 	KinematicImpactCapture.capture(actor, body, config, incoming)
 	motion.is_on_floor = body.is_on_floor()
 	motion.floor_normal = body.get_floor_normal() if motion.is_on_floor else Vector3.UP
