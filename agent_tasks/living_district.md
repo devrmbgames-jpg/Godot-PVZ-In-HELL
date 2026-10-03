@@ -1,6 +1,6 @@
 # Living district
 
-Status: **COMPLETE**
+Status: **DONE**
 
 ## Accepted contract
 
