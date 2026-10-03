@@ -36,21 +36,23 @@ static func execute_branch(actor: E_DistrictNpc, owner_kind: C_NpcDecision.Owner
 			_combat(actor, person, awareness, delta)
 			return true
 		C_NpcDecision.Owner.SERVICE:
+			var participant: Entity = NpcDialogueService.participant(actor)
 			var home_job: NpcHomeDelivery = NpcHomeDeliveryService.meeting_for(actor)
 			if home_job != null:
 				NpcHomeDeliveryService.step(actor, home_job, delta)
 				return true
-			var participant: Entity = NpcDialogueService.participant(actor)
+			var service_agent: C_CustomerAgent = actor.get_component(C_CustomerAgent) as C_CustomerAgent
+			if service_agent != null and (participant == null or service_agent.phase == C_CustomerAgent.Phase.DIALOGUE):
+				NpcIntentArbiter.acquire(actor, owner_kind, "Обслуживание")
+				CustomerFlowService.step_service(actor, DayPhaseService.current(), delta)
+				return true
 			if participant != null:
 				NpcIntentArbiter.acquire(actor, owner_kind, "Разговор")
 				NpcIntentArbiter.stop(actor, owner_kind)
-				NpcIntentService.watch(actor, participant, Vector3.UP * NpcPerceptionService.EYE_HEIGHT)
+				if NpcPerceptionService.can_see(actor, participant, person.profile):
+					NpcIntentService.watch(actor, participant, Vector3.UP * NpcPerceptionService.EYE_HEIGHT)
 				return true
-			if not actor.has_component(C_CustomerAgent):
-				return false
-			NpcIntentArbiter.acquire(actor, owner_kind, "Обслуживание")
-			CustomerFlowService.step_service(actor, DayPhaseService.current(), delta)
-			return true
+			return false
 		C_NpcDecision.Owner.SCHEDULE:
 			if person.phase_complete:
 				return false
@@ -71,6 +73,10 @@ static func execute_branch(actor: E_DistrictNpc, owner_kind: C_NpcDecision.Owner
 
 #region Combat and escape
 static func _flee(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwareness) -> void:
+	awareness.fleeing = true
+	if CombatService.target_for(actor) != null:
+		CombatService.end_combat(actor)
+
 	var district: C_District = DistrictPopulationService.current()
 	var actor_position: Vector3 = (actor as Node as Node3D).global_position
 	var portal: StringName = person.portal_id
@@ -152,17 +158,15 @@ static func _idle(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAware
 			actor.show_message(person.display_name + " · Эй, как дела? Подойди, поговорим.")
 			NpcPerceptionService.emit_noise(actor, actor.global_position, person.profile.hearing_range * 0.5)
 		NpcIntentService.watch(actor, player, Vector3.UP * NpcPerceptionService.EYE_HEIGHT)
+	NpcActivityService.observe(actor, person, awareness.player_visible)
 	awareness.idle_elapsed += delta
 	var district: C_District = DistrictPopulationService.current()
 	if person.profile.merchant or awareness.idle_elapsed < district.definition.activity_seconds:
 		return
 	awareness.idle_elapsed = 0.0
 	person.activity_sequence += 1
-	var activities: Array[DEF_DistrictPlace] = []
-	for place: DEF_DistrictPlace in district.definition.places:
-		if place.kind == DEF_DistrictPlace.Kind.ACTIVITY:
-			activities.append(place)
-	if not activities.is_empty():
-		person.goal_id = activities[abs(hash(person.npc_id) + person.activity_sequence) % activities.size()].key
-		NpcIntentArbiter.move_to(actor, DistrictPopulationService.position_for(person.goal_id), ARRIVAL_DISTANCE, C_NpcDecision.Owner.IDLE)
+	var destination: DEF_DistrictPlace = NpcActivityService.choose(actor, person)
+	if destination != null:
+		person.goal_id = destination.key
+		NpcIntentArbiter.move_to(actor, NpcActivityService.destination(destination), ARRIVAL_DISTANCE, C_NpcDecision.Owner.IDLE)
 #endregion

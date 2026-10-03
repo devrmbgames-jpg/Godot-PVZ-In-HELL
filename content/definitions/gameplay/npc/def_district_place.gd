@@ -3,6 +3,14 @@ extends GameDefinition
 class_name DEF_DistrictPlace
 
 enum Kind { HOME, PORTAL, ACTIVITY, SHOP, JUNCTION, COVER }
+enum Activity { WALK, WATCH_WINDOW, OBSERVE, VISIT_SHOP }
+
+## Free activity performed after arrival; unrelated to parcel service.
+@export var activity: Activity = Activity.WALK
+## Offset keeps a visitor clear of the merchant's own standing position.
+@export var activity_offset: Vector3 = Vector3.ZERO
+## Optional authored focus, such as the PVZ window; never a hidden live target.
+@export var focus_path: NodePath = NodePath("")
 ## Human-readable destination; stable key remains an internal binding.
 @export var display_name: String = "Место района"
 

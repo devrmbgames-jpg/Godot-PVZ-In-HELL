@@ -142,7 +142,7 @@ static func step(body: E_DistrictNpc, job: NpcHomeDelivery, delta: float) -> voi
 				agent.elapsed = 0.0
 				NpcIntentArbiter.stop(body, C_NpcDecision.Owner.SERVICE)
 				body.show_message(CustomerPresentation.request_text(visit))
-		C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
+		C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE, C_CustomerAgent.Phase.DIALOGUE:
 			CustomerFlowService.try_automatic_handoff(body, visit)
 		C_CustomerAgent.Phase.GOING_TO_BOOTH, C_CustomerAgent.Phase.INSPECTING, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH:
 			if CustomerInspectionService.tick(body, visit):

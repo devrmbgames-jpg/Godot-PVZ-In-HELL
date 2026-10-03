@@ -27,6 +27,12 @@ enum Personality { AGGRESSIVE, BRAZEN, CHEERFUL, TIMID }
 @export_file("*.tscn") var npc_scene_path: String = "res://content/entities/npc/district_npc.tscn"
 ## Readable personal interests for street conversations.
 @export var interests: PackedStringArray = []
+## Preferred free activities; eligible destinations are selected deterministically.
+@export var preferred_activities: PackedInt32Array = [0, 1, 2, 3]
+## Observed outward speed indicating retreat during an existing confrontation.
+@export_range(0.1, 8.0) var retreat_speed: float = 1.5
+## Sustained visible retreat required before recording submission.
+@export_range(0.2, 5.0) var retreat_seconds: float = 0.8
 ## Strong reaction to a validated offense.
 @export_range(0.0, 1.0) var high_attack_probability: float = 0.75
 ## Flight tendency for aggressive and brazen people.

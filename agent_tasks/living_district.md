@@ -1,6 +1,6 @@
 # Living district
 
-Status: **DONE**
+Status: **IN_PROGRESS**
 
 ## Accepted contract
 
@@ -25,13 +25,15 @@ Complete all six accepted implementation stages and their focused validation.
 
 ### Current
 
+2026-10-04 PLAN.md audit implementation completed: authored window/observation/shop activities and interests; observed retreat and current respect/submission; intrinsic service provocations/riddles; shared conversation bindings with live patience and cleanup; local moving-hazard routes and physical progress watchdog; release of blocked home meetings; retreat cancels pursuit; fresh transient AI/noise state each morning; actual crouched head and visible lower-body sight samples. Final parser/regression/week smoke and current Windows QA export are being closed out. The requirement/evidence matrix is in docs/living_district.md. Owner geometry/navmesh remains untouched.
+
 Stages 1–6 implemented. Commits: 274c57d5 (foundation), 6e37f466 (AI/perception), 9d0dd5fd (service roles), 21d78a56 (intrinsic traits/routing), 43a00509 (community), 1be478f8 (home delivery and acceptance). Stage 6 adds two optional real-box home deliveries, door-local inspection, idempotent base/bonus payment and failed promises; sleep safety gates, complete district snapshot validation and restoration of derived AI. Shared dialogue interface has separate street/service adapters. Pickup reservations release on interruption, absence, Night and restore. Nearby authored cover points support search. Main dev and the pre-existing dirty GECS checkout are preserved. Windows QA exported from 1be478f8.
 
 Owner corrected district placement and warehouse navmesh after finding the original layout/nav bake regression. The correction keeps the owner's current main_level and baked mesh intact. Bake utility now duplicates the authored mesh, collects its configured group once in region coordinates, checks native coverage/connectivity before writing and preserves settings/UID. Project map cell height matches the owner's 0.1 mesh. Lost authored hazard-route graph links are restored without changing positions. Navigation checks are shared with the week smoke; isolated native GUT cases reject missing coverage and partial paths.
 
 ### Next
 
-Owner rendered acceptance of the current dev main_level, full-day behavior and balance are tracked only in qa_tasks/living_district.md. No implementation work remains in the accepted living district goal.
+2026-10-04 PLAN.md audit reopened implementation. Complete distinct window/observation/shop activities and authored interests; observe physical player retreat; prevent legacy parcel events from imposing personality; add provocateur service dialogue; bind service participants through Relationships without freezing patience. Verify local hazard detours, participant interruption, full regression and week smoke. Preserve the owner's level/navmesh and unrelated edits. Rendered acceptance and long-day balance remain in qa_tasks/living_district.md.
 
 ### Validation
 

@@ -103,12 +103,18 @@ key = &"portal_south"
 
 [sub_resource type="Resource" id="activity_0"]
 script = ExtResource("PlaceScript")
+display_name = "Окно ПВЗ"
+activity = 1
+anchor_path = NodePath("DebugMarkers/MarkerNPCSpawnPoint")
+focus_path = NodePath("DebugMarkers/RoomClient")
 position = Vector3(28, 0, 4)
 neighbours = PackedStringArray("street_0")
 key = &"activity_0"
 
 [sub_resource type="Resource" id="activity_1"]
 script = ExtResource("PlaceScript")
+display_name = "Наблюдать за улицей"
+activity = 2
 position = Vector3(38, 0, 12)
 neighbours = PackedStringArray("street_1")
 key = &"activity_1"
@@ -127,6 +133,8 @@ key = &"activity_3"
 
 [sub_resource type="Resource" id="shop"]
 script = ExtResource("PlaceScript")
+activity = 3
+activity_offset = Vector3(-1.5, 0, 1)
 kind = 3
 position = Vector3(30, 0, 0)
 anchor_path = NodePath("DebugMarkers/TraderClientZone")
@@ -228,12 +236,14 @@ key = &"south_3"
 [sub_resource type="Resource" id="cover_pvz_east"]
 script = ExtResource("PlaceScript")
 kind = 5
+anchor_path = NodePath("DebugMarkers/MainDoor")
 position = Vector3(15, 0, 3.5)
 key = &"cover_pvz_east"
 
 [sub_resource type="Resource" id="cover_pvz_back"]
 script = ExtResource("PlaceScript")
 kind = 5
+anchor_path = NodePath("DebugMarkers/BackDoor")
 position = Vector3(15, 0, -4)
 key = &"cover_pvz_back"
 

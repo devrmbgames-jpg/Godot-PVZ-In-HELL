@@ -77,6 +77,47 @@ func _synchronize() -> void:
 #endregion
 
 #region Visibility
+## A real held box hides the upper body, while visible legs still identify its holder.
+func test_held_upper_body_cover_does_not_hide_visible_legs() -> void:
+	var box: RigidBody3D = RigidBody3D.new()
+	box.set_script(load("res://addons/gecs/ecs/entity.gd"))
+	var item: Entity = box as Node as Entity
+	box.freeze = true
+	box.collision_layer = 4
+	var collision: CollisionShape3D = CollisionShape3D.new()
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = Vector3(1.5, 1.2, 0.5)
+	collision.shape = shape
+	box.add_child(collision)
+	_world.add_entity(item)
+	box.global_position = Vector3(0, 1.25, -2.5)
+	item.add_relationship(Relationship.new(R_HeldBy.new(), _target))
+	await _synchronize()
+	assert_same(GrabService.held_relationship(item).target, _target)
+	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+	shape.size.y = 2.0
+	box.global_position.y = 0.85
+	await _synchronize()
+	assert_false(NpcPerceptionService.can_see(_observer, _target, _profile))
+
+## Crouching behind cover cannot leave a fictitious standing-height head visible.
+func test_crouched_head_uses_actual_character_height() -> void:
+	var head: Node3D = Node3D.new()
+	_target.add_child(head)
+	head.position.y = 0.8
+	_target.head_axis_x = head
+	var capsule_collision: CollisionShape3D = _target.get_child(0) as CollisionShape3D
+	(capsule_collision.shape as CapsuleShape3D).height = 0.9
+	capsule_collision.position.y = 0.45
+	var wall_shape: BoxShape3D = (_wall.get_child(0) as CollisionShape3D).shape as BoxShape3D
+	wall_shape.size.y = 1.3
+	_wall.position = Vector3(0, 0.65, -1.5)
+	await _synchronize()
+	assert_false(NpcPerceptionService.can_see(_observer, _target, _profile))
+	_wall.position.x = 20.0
+	await _synchronize()
+	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
+
 ## A real wall hides every point, while a small carried-size box leaves visible body points.
 func test_wall_occlusion_and_partial_cover() -> void:
 	await _synchronize()

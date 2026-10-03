@@ -16,6 +16,7 @@ evening = 2
 
 [resource]
 script = ExtResource("Profile")
+interests = PackedStringArray("смелые ответы", "разговоры по дороге")
 display_name = "Приставала"
 resident = false
 recipient_key = &"visitor_2"

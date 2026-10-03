@@ -14,6 +14,7 @@ evening = 1
 
 [resource]
 script = ExtResource("Profile")
+interests = PackedStringArray("тихие разговоры", "безопасная дорога домой")
 display_name = "Швея"
 recipient_key = &"customer_07"
 personality = 3

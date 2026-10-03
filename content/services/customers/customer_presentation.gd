@@ -9,6 +9,7 @@ static func customer_name(visit: CustomerVisit) -> String:
 	return person.display_name if person != null else visit.definition.display_name if visit != null and visit.definition != null else "Клиент"
 
 
+## Presents the permanent recipient and real registration number or intrinsic riddle.
 static func request_text(visit: CustomerVisit) -> String:
 	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
 	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null and not visit.riddle_solved:
@@ -22,9 +23,12 @@ static func request_text(visit: CustomerVisit) -> String:
 ## Intrinsic riddles keep their number behind the existing dialogue solution.
 static func uses_quick_visit(visit: CustomerVisit) -> bool:
 	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
-	return uses_quick_order(visit.definition) and (person == null or person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) == null)
+	if person != null:
+		return visit.definition != null and visit.definition.introduction == DEF_Customer.Introduction.ANNOUNCE_ORDER and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) == null and person.profile.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) == null
+	return uses_quick_order(visit.definition)
 
 
+## Preserves authored introduction rules in scenes without a district.
 static func uses_quick_order(definition: DEF_Customer) -> bool:
 	return (
 		definition != null and definition.introduction == DEF_Customer.Introduction.ANNOUNCE_ORDER
@@ -33,6 +37,7 @@ static func uses_quick_order(definition: DEF_Customer) -> bool:
 	)
 
 
+## Looks up the existing active registration without inventing another number.
 static func registered_number(visit: CustomerVisit) -> int:
 	if visit == null:
 		return -1
@@ -44,6 +49,7 @@ static func registered_number(visit: CustomerVisit) -> int:
 	return -1
 
 
+## Recognizes the legacy gaze challenge outside the district population.
 static func uses_wall_order(definition: DEF_Customer) -> bool:
 	if definition == null or definition.challenge == null:
 		return false
@@ -51,6 +57,7 @@ static func uses_wall_order(definition: DEF_Customer) -> bool:
 	return condition != null and not condition.required_attention and definition.challenge.trigger == DEF_Challenge.Trigger.ON_ARRIVAL
 
 
+## Explains the authoritative physical parcel check.
 static func check_text(result: PackageDeliveryCheck.Result) -> String:
 	match result:
 		PackageDeliveryCheck.Result.MISSING: return "Положите коробку на стойку."
@@ -63,6 +70,7 @@ static func check_text(result: PackageDeliveryCheck.Result) -> String:
 		_: return "Выдача уже закрыта."
 
 
+## Displays the case outcome and its existing financial journal.
 static func visit_text(visit: CustomerVisit) -> String:
 	var actual: Array[String] = ["Не выдана", "Выдана", "Клиент отказался", "Отказ игрока"]
 	var declared: Array[String] = ["Не отмечено", "Забрал", "Отказался", "Потеряна"]

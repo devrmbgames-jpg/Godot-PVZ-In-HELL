@@ -4,6 +4,8 @@ class_name NpcPerceptionService
 
 const EYE_HEIGHT: float = 1.5
 const TORSO_HEIGHT: float = 0.9
+const LOWER_BODY_HEIGHT: float = 0.25
+const TORSO_HEAD_FRACTION: float = 0.6
 const SHOULDER_OFFSET: float = 0.22
 const SIGHT_MASK: int = 31
 
@@ -17,8 +19,11 @@ static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile, a
 	var target_body: PhysicsBody3D = target as Node as PhysicsBody3D
 	if observer_body == null or target_body == null or not observer_body.is_inside_tree() or not target_body.is_inside_tree():
 		return false
-	var eye: Vector3 = observer_body.global_position + Vector3.UP * EYE_HEIGHT
-	var torso: Vector3 = target_body.global_position + Vector3.UP * TORSO_HEIGHT
+	var eye: Vector3 = _head_point(observer, observer_body)
+	var target_head: Vector3 = _head_point(target, target_body)
+	var head_height: float = maxf(LOWER_BODY_HEIGHT, target_head.y - target_body.global_position.y)
+	var torso_height: float = minf(TORSO_HEIGHT, head_height * TORSO_HEAD_FRACTION)
+	var torso: Vector3 = target_body.global_position + Vector3.UP * torso_height
 	var target_offset: Vector3 = torso - eye
 	var distance: float = target_offset.length()
 	var exposure: float = NpcLightingService.exposure_at(torso, [target_body.get_rid()])
@@ -31,7 +36,8 @@ static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile, a
 	if distance > profile.near_recognition_range and forward.dot(target_offset.normalized()) < cos(deg_to_rad(profile.vision_angle * 0.5)):
 		return false
 	var shoulder: Vector3 = target_body.global_basis.x.normalized() * SHOULDER_OFFSET
-	var points: Array[Vector3] = [target_body.global_position + Vector3.UP * EYE_HEIGHT, torso, torso + shoulder, torso - shoulder]
+	var lower_body: Vector3 = target_body.global_position + Vector3.UP * minf(LOWER_BODY_HEIGHT, torso_height * 0.5)
+	var points: Array[Vector3] = [target_head, torso, torso + shoulder, torso - shoulder, lower_body]
 	for point: Vector3 in points:
 		var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(eye, point, SIGHT_MASK)
 		query.exclude = [observer_body.get_rid()]
@@ -39,6 +45,35 @@ static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile, a
 		if hit.is_empty() or hit.get("collider") == target_body:
 			return true
 	return false
+
+static func _head_point(actor: Entity, physical: PhysicsBody3D) -> Vector3:
+	var character: E_PhysicalCharacter = actor as E_PhysicalCharacter
+	if character != null and is_instance_valid(character.head_axis_x):
+		return character.head_axis_x.global_position
+	return physical.global_position + Vector3.UP * EYE_HEIGHT
+
+## Tests an item or authored point using the same light, sector and occlusion rules.
+static func can_see_point(observer: E_DistrictNpc, point: Vector3, profile: DEF_NpcProfile, target: Entity = null) -> bool:
+	if not GrabService.holder_available(observer):
+		return false
+
+	var eye: Vector3 = observer.global_position + Vector3.UP * EYE_HEIGHT
+	var offset: Vector3 = point - eye
+	var exposure: float = NpcLightingService.exposure_at(point, [observer.get_rid()])
+	var dark_fraction: float = 1.0 if profile.rule_for(DEF_NpcTrait.Kind.DARK_PREDATOR) != null else profile.dark_vision_fraction
+	var sight_range: float = maxf(profile.near_recognition_range, profile.vision_range * lerpf(dark_fraction, 1.0, exposure))
+	if offset.length() > sight_range:
+		return false
+
+	var head: Node3D = observer.get_node_or_null("HeadY") as Node3D
+	var forward: Vector3 = -(head.global_basis.z if head != null else observer.global_basis.z).normalized()
+	if offset.length() > profile.near_recognition_range and forward.dot(offset.normalized()) < cos(deg_to_rad(profile.vision_angle * 0.5)):
+		return false
+
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(eye, point, SIGHT_MASK, [observer.get_rid()])
+	var hit: Dictionary = observer.get_world_3d().direct_space_state.intersect_ray(query)
+	return hit.is_empty() or (target != null and HazardTargets.entity_for(hit.get("collider") as Node) == target)
+
 
 ## Updates only confirmed positions; hidden positions are not copied from the live target.
 static func sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: float) -> void:

@@ -62,6 +62,8 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 	if district != null:
 		for place: DEF_DistrictPlace in district.definition.places:
 			points[str(place.key)] = DistrictPopulationService.position_for(place.key)
+			if not place.activity_offset.is_zero_approx():
+				points[str(place.key) + "/activity"] = NpcActivityService.destination(place)
 
 	var checked_routes: int = 0
 	var waiting: Vector3 = points.get("counter_waiting", Vector3.ZERO)
@@ -133,4 +135,3 @@ static func _graph_failures(definition: DEF_District, map_rid: RID, navigation_l
 	print("Navigation hazard graph: %d junctions, %d traversable directed edges" % [junctions.size(), connected_edges])
 	return errors
 #endregion
-

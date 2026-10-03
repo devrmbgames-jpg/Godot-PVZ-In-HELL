@@ -13,6 +13,7 @@ weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
 
 [resource]
 script = ExtResource("Profile")
+interests = PackedStringArray("горячая еда", "вечерние прогулки")
 display_name = "Зольник"
 recipient_key = &"customer_02"
 personality = 0

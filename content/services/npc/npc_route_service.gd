@@ -16,10 +16,15 @@ static func tick(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> void:
 		route.points.clear()
 		route.reachable = true
 		route.blocked_seconds = 0.0
+		route.progress_initialized = false
+		route.stalled_seconds = 0.0
 		return
 	route.elapsed += delta
 	var district: C_District = DistrictPopulationService.current()
-	if route.goal.distance_to(intent.move_position) > district.definition.waypoint_distance or route.elapsed >= district.definition.route_interval or route.points.is_empty():
+	var new_goal: bool = route.goal.distance_to(intent.move_position) > district.definition.waypoint_distance
+	if new_goal:
+		route.progress_initialized = false
+	if new_goal or route.elapsed >= district.definition.route_interval or route.points.is_empty():
 		route.elapsed = 0.0
 		route.goal = intent.move_position
 		var map: RID = actor.navigation_agent.get_navigation_map()
@@ -28,23 +33,46 @@ static func tick(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> void:
 		route.points = plan(actor, person, actor.global_position, route.goal, map)
 		route.point_index = 1 if route.points.size() > 1 else 0
 		route.reachable = not route.points.is_empty()
+
+	var physical_position: Vector3 = actor.global_position
+	physical_position.y = 0.0
+	var final_position: Vector3 = intent.move_position
+	final_position.y = 0.0
+	if not route.progress_initialized or physical_position.distance_to(route.progress_position) >= district.definition.route_progress_distance or physical_position.distance_to(final_position) <= intent.arrival_distance:
+		route.progress_initialized = true
+		route.progress_position = physical_position
+		route.stalled_seconds = 0.0
+	else:
+		route.stalled_seconds += delta
+
 	if route.reachable:
 		route.blocked_seconds = 0.0
 	else:
 		route.blocked_seconds += delta
-		if route.blocked_seconds >= district.definition.route_timeout:
-			route.blocked_seconds = 0.0
-			if CombatService.target_for(actor) != null:
-				CombatService.end_combat(actor)
-				(actor.get_component(C_NpcAwareness) as C_NpcAwareness).fleeing = true
-			var agent: C_CustomerAgent = actor.get_component(C_CustomerAgent) as C_CustomerAgent
-			if agent != null:
-				var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
-				if visit != null:
-					NpcServiceRole.finish_appearance(actor, visit)
-			else:
-				person.phase_complete = true
-			NpcIntentService.stop(actor)
+
+	if maxf(route.blocked_seconds, route.stalled_seconds) >= district.definition.route_timeout:
+		_abandon(actor, person, route)
+
+static func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute) -> void:
+	route.blocked_seconds = 0.0
+	route.stalled_seconds = 0.0
+	route.progress_initialized = false
+	NpcCommunityService.cancel_activity(actor)
+	NpcDialogueService.end(actor)
+	if CombatService.target_for(actor) != null:
+		CombatService.end_combat(actor)
+		(actor.get_component(C_NpcAwareness) as C_NpcAwareness).fleeing = true
+
+	var agent: C_CustomerAgent = actor.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent != null:
+		var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+		if NpcHomeDeliveryService.meeting_for(actor) != null:
+			NpcServiceRole.suspend(actor)
+		elif visit != null:
+			NpcServiceRole.finish_appearance(actor, visit)
+	else:
+		person.phase_complete = true
+	NpcIntentService.stop(actor)
 
 ## Calculates an actual navmesh route, preferring affordable alternatives.
 static func plan(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: Vector3, map: RID) -> PackedVector3Array:
@@ -59,6 +87,11 @@ static func plan(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: 
 		return direct
 	var best: PackedVector3Array = direct if acceptable(actor, person, direct_damage) else PackedVector3Array()
 	var best_cost: float = _cost(actor, person, best) if not best.is_empty() else INF
+	var local_path: PackedVector3Array = _local_detour(actor, person, start, goal, map)
+	if not local_path.is_empty() and _cost(actor, person, local_path) < best_cost:
+		best = local_path
+		best_cost = _cost(actor, person, best)
+
 	var starts: Array[DEF_DistrictPlace] = _nearest(start)
 	var ends: Array[DEF_DistrictPlace] = _nearest(goal)
 	for entry: DEF_DistrictPlace in starts:
@@ -105,6 +138,47 @@ static func plan(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: 
 					if not open.has(next_key):
 						open.append(next_key)
 	return best
+
+static func _local_detour(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: Vector3, map: RID) -> PackedVector3Array:
+	var forward: Vector3 = goal - start
+	forward.y = 0.0
+	if forward.is_zero_approx():
+		return PackedVector3Array()
+
+	forward = forward.normalized()
+	var side: Vector3 = forward.cross(Vector3.UP)
+	var best: PackedVector3Array = PackedVector3Array()
+	var best_cost: float = INF
+	for effect: Entity in ECS.world.query.with_all([C_Hazard, C_ToxicArea]).execute():
+		var profile: DEF_ToxicArea = (effect.get_component(C_Hazard) as C_Hazard).definition as DEF_ToxicArea
+		var spatial: Node3D = effect as Node as Node3D
+		if profile == null or spatial == null or effect.has_component(C_NoDamage) or DamageResistanceRules.effective(actor, profile.damage_per_tick, profile.damage_type) <= 0.0:
+			continue
+
+		var center: Vector3 = spatial.global_position
+		center.y = start.y
+		var extent: float = profile.radius + actor.navigation_agent.radius + DistrictPopulationService.current().definition.local_detour_margin
+		if _inside_length(start, goal, center, extent) <= 0.0:
+			continue
+
+		for sign_value: float in [-1.0, 1.0]:
+			var before: Vector3 = center - forward * extent + side * extent * sign_value
+			var after: Vector3 = center + forward * extent + side * extent * sign_value
+			var first: PackedVector3Array = _nav_path(map, start, before)
+			var middle: PackedVector3Array = _nav_path(map, before, after)
+			var last: PackedVector3Array = _nav_path(map, after, goal)
+			if first.is_empty() or middle.is_empty() or last.is_empty():
+				continue
+
+			first.append_array(middle)
+			first.append_array(last)
+			if not acceptable(actor, person, expected_damage(actor, first)):
+				continue
+			var cost: float = _cost(actor, person, first)
+			if cost < best_cost:
+				best = first
+				best_cost = cost
+	return best
 #endregion
 
 #region Shared risk calculation
@@ -141,7 +215,7 @@ static func expected_damage(actor: Entity, path: PackedVector3Array) -> float:
 		return INF
 	var damage: float = 0.0
 	var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
-	var speed: float = maxf(0.1, motion.max_speed if motion != null else 1.0)
+	var speed: float = maxf(0.1, CharacterMotionSolver.effective_speed(motion, actor.get_component(C_CarryLoad) as C_CarryLoad, actor.get_component(C_Strength) as C_Strength, actor.get_component(C_Hunger) as C_Hunger) if motion != null else 1.0)
 	for effect: Entity in ECS.world.query.with_all([C_Hazard, C_ToxicArea]).execute():
 		var hazard: C_Hazard = effect.get_component(C_Hazard) as C_Hazard
 		var profile: DEF_ToxicArea = hazard.definition as DEF_ToxicArea
@@ -191,7 +265,7 @@ static func _cost(actor: E_DistrictNpc, person: NpcRecord, path: PackedVector3Ar
 		distance += length
 		if rule != null:
 			var exposure: float = NpcLightingService.exposure_at((path[index - 1] + path[index]) * 0.5 + Vector3.UP, [actor.get_rid()])
-			light_cost += length * maxf(0.0, exposure - rule.light_threshold) * 10.0
+			light_cost += length * maxf(0.0, exposure - rule.light_threshold) * DistrictPopulationService.current().definition.light_route_penalty
 	return distance + expected_damage(actor, path) * DistrictPopulationService.current().definition.danger_penalty + light_cost
 
 static func _nav_path(map: RID, start: Vector3, goal: Vector3) -> PackedVector3Array:

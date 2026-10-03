@@ -129,6 +129,7 @@ static func finish_appearance(body: E_DistrictNpc, visit: CustomerVisit) -> void
 
 ## Releases the role and only its live parcel/reservation bindings.
 static func release(body: Entity, visit_id: StringName) -> void:
+	NpcDialogueService.end(body)
 	var parcel: Entity = CustomerFlowService.parcel_for(CustomerFlowService.find_visit(visit_id).package_id) if CustomerFlowService.find_visit(visit_id) != null else null
 	if parcel != null:
 		for link: Relationship in parcel.relationships.duplicate():

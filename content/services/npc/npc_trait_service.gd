@@ -19,6 +19,7 @@ static func tick(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.hazard_distress = NpcRouteService.danger_here(actor)
 	awareness.light_distress = false
+	_observe_retreat(actor, person, player, awareness, delta)
 	for rule: DEF_NpcTrait in person.profile.rules:
 		if rule.kind == DEF_NpcTrait.Kind.FIRE_AURA:
 			_ensure_aura(actor, person, rule)
@@ -79,10 +80,36 @@ static func _looks_vulnerable(player: Entity, person: NpcRecord) -> bool:
 	var held: Entity = GrabService.held_object(player)
 	if held != null and held.has_component(C_MeleeWeapon):
 		return false
-	for memory: NpcMemory in person.memories:
-		if memory.actor_id == &"player" and (memory.reaction == NpcMemory.Reaction.RESPECT or memory.kind == NpcMemory.Kind.KILLING):
+	for index: int in range(person.memories.size() - 1, -1, -1):
+		var memory: NpcMemory = person.memories[index]
+		if memory.actor_id != &"player":
+			continue
+		if memory.kind == NpcMemory.Kind.SUBMISSION:
+			return true
+		if memory.reaction == NpcMemory.Reaction.RESPECT or memory.kind == NpcMemory.Kind.KILLING:
 			return false
 	return true
+
+static func _observe_retreat(actor: E_DistrictNpc, person: NpcRecord, player: Entity, awareness: C_NpcAwareness, delta: float) -> void:
+	var player_body: RigidBody3D = player as Node as RigidBody3D
+	if person.profile.personality != DEF_NpcProfile.Personality.BRAZEN or player_body == null or not awareness.player_visible or CombatService.target_for(actor) != player:
+		awareness.retreat_elapsed = 0.0
+		return
+
+	var outward: Vector3 = player_body.global_position - actor.global_position
+	outward.y = 0.0
+	if player_body.linear_velocity.dot(outward.normalized()) < person.profile.retreat_speed:
+		awareness.retreat_elapsed = 0.0
+		return
+
+	awareness.retreat_elapsed += delta
+	if awareness.retreat_elapsed < person.profile.retreat_seconds:
+		return
+
+	var cycle: C_DayCycle = DayPhaseService.current()
+	var incident: StringName = StringName("retreat/%s/%d/%d" % [person.npc_id, cycle.day_index, cycle.phase])
+	NpcSocialService.react(actor, player, NpcMemory.Kind.SUBMISSION, incident)
+
 
 static func _ensure_aura(actor: E_DistrictNpc, person: NpcRecord, rule: DEF_NpcTrait) -> void:
 	if rule.aura == null:

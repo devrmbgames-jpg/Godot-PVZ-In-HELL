@@ -18,6 +18,8 @@ var heard_position: Vector3 = Vector3.ZERO
 var heard_remaining: float = 0.0
 ## Whether an immediate reaction requests fleeing.
 var fleeing: bool = false
+## Sustained visible player retreat in an active confrontation.
+var retreat_elapsed: float = 0.0
 ## Elapsed idle time before another activity.
 var idle_elapsed: float = 0.0
 ## Last consumed stimulus sequence; one noise cannot continually renew search.

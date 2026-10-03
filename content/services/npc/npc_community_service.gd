@@ -26,9 +26,7 @@ static func idle(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 		var spatial: Node3D = item as Node as Node3D
 		if spatial == null or not _available_loot(item, actor) or actor.global_position.distance_to(spatial.global_position) > person.profile.vision_range:
 			continue
-		var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(actor.global_position + Vector3.UP, spatial.global_position + Vector3.UP * 0.1, 31, [actor.get_rid()])
-		var hit: Dictionary = actor.get_world_3d().direct_space_state.intersect_ray(ray)
-		if not hit.is_empty() and HazardTargets.entity_for(hit.get("collider") as Node) != item:
+		if not NpcPerceptionService.can_see_point(actor, spatial.global_position + Vector3.UP * 0.1, person.profile, item):
 			continue
 		actor.add_relationship(Relationship.new(R_NpcLootTarget.new(), item))
 		return true

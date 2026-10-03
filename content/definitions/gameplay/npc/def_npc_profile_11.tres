@@ -16,6 +16,7 @@ evening = 2
 
 [resource]
 script = ExtResource("Profile")
+interests = PackedStringArray("загадки", "старые книги")
 display_name = "Собиратель загадок"
 resident = false
 recipient_key = &"visitor_3"

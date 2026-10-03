@@ -809,6 +809,7 @@ static func reactivate_due_followups(flow: C_CustomerFlow, day: int) -> int:
 
 
 static func _leave(customer: E_Customer, visit: CustomerVisit) -> void:
+	NpcDialogueService.end(customer)
 	CustomerInspectionService.end(customer)
 	CombatService.end_combat(customer)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent

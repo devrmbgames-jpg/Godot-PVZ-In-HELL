@@ -194,6 +194,7 @@ static func prepare_morning(morning_day: int) -> void:
 	if district == null or district.prepared_morning >= morning_day:
 		return
 	district.prepared_morning = morning_day
+	district.noises.clear()
 	_replace_vacancies(district, morning_day)
 	for person: NpcRecord in district.people:
 		if person.death_day != 0:
@@ -201,6 +202,8 @@ static func prepare_morning(morning_day: int) -> void:
 		var body: E_DistrictNpc = body_for(person.npc_id)
 		if body == null:
 			continue
+		_reset_brain(body)
+		NpcBrainService.install(body)
 		plan_phase(person, morning_day, C_DayCycle.Phase.MORNING, true)
 
 ## Assigns a phase destination; visible departures move to a door or portal first.

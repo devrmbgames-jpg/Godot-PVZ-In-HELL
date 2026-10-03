@@ -19,6 +19,12 @@ class_name DEF_District
 @export_range(0.1, 5.0) var route_interval: float = 0.6
 ## Bounded wait before abandoning an unreachable activity.
 @export_range(1.0, 120.0) var route_timeout: float = 20.0
+## Actual horizontal movement needed to renew the route progress watchdog.
+@export_range(0.05, 1.0) var route_progress_distance: float = 0.15
+## Extra clearance for local paths around moving damaging volumes.
+@export_range(0.1, 3.0) var local_detour_margin: float = 0.5
+## Length-equivalent cost of sustained illumination for light-sensitive travel.
+@export_range(0.1, 40.0) var light_route_penalty: float = 10.0
 ## Length-equivalent penalty for one expected lost HP.
 @export_range(0.1, 20.0) var danger_penalty: float = 4.0
 ## Waypoint arrival tolerance independent of final service arrival.
