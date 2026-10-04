@@ -1,5 +1,5 @@
 extends GameDefinition
-## Immutable shipment, physical handling and condition configuration.
+## Авторское определение посылки, её физических параметров, содержимого и последствий состояния.
 class_name DEF_Package
 
 const MAX_CONTENT_QUANTITY: int = 99
@@ -11,8 +11,8 @@ enum Tag {
 	LIQUID = 8,
 }
 
-## Stable diagnostic class encoded into the hidden package history ID.
-## This does not replace gameplay tags or hazard prefabs.
+## Диагностический класс, закодированный в скрытом ID истории.
+## Не заменяет игровые теги и сцены опасностей.
 enum HazardClass {
 	NORMAL,
 	FRAGILE,
@@ -22,48 +22,72 @@ enum HazardClass {
 	OTHER,
 }
 
-## Accounting value in whole monetary units; independent of trader resale price.
+#region Стоимость и содержимое
+## Учётная стоимость в целых денежных единицах, независимая от цены у торговца.
 @export_range(0, 1000000000) var accounting_value: int = 100
-## Market-comparable contents and optional physical extraction prefab.
+## Ключ содержимого в ассортименте, используемый для оценки стоимости.
 @export var content_item_key: StringName = &""
+## Количество единиц содержимого для оценки, 1–99.
 @export_range(1, MAX_CONTENT_QUANTITY) var content_quantity: int = 1
+## Необязательная сцена реального извлекаемого содержимого.
 @export var unpack_scene: PackedScene = null
-## Offset from the parcel before projecting contents onto real floor/support geometry.
+## Смещение содержимого от коробки до проекции на реальную опорную геометрию.
 @export var unpack_offset: Vector3 = Vector3(2.0, 0.0, 0.0)
 ## Мелкое содержимое выбрасывается над коробкой; мебель размещается на опоре.
 @export var spill_contents: bool = true
+## Скорость разлёта извлечённого содержимого в метрах в секунду.
 @export_range(0.0, 5.0, 0.1) var spill_speed: float = 1.2
+## Активировать опасность на реально созданном содержимом.
 @export var activate_contents_hazard: bool = false
+## Масса пустой коробки после извлечения, в килограммах.
 @export_range(0.1, 10.0, 0.1) var empty_mass_kg: float = 1.0
+#endregion
+
+#region Отправление и физические параметры
+## Авторский номер отправления в описании; не является складским номером выдачи.
 @export var shipment_number: String = ""
+## Описание посылки для представления игроку.
 @export_multiline var description: String = ""
+## Авторский комментарий к отправлению.
 @export_multiline var comment: String = ""
-## Stable recipient key; later resolved to an AssignedTo relationship with a Customer.
+## Постоянный ключ получателя; живая связь с клиентом создаётся через R_AssignedTo.
 @export var recipient_id: StringName = &""
+## Битовая маска игровых признаков Normal, Fragile, Heavy и Liquid.
 @export_flags("Normal:1", "Fragile:2", "Heavy:4", "Liquid:8") var tags: int = Tag.NORMAL
+## Диагностический класс для скрытого ID истории.
 @export var history_hazard_class: HazardClass = HazardClass.NORMAL
+## Исходная масса полной коробки в килограммах.
 @export_range(0.1, 100.0, 0.1, "or_greater") var mass_kg: float = 5.0
+## Авторская скорость броска коробки, в метрах в секунду.
 @export var throw_velocity: float = 10.0
+## Начальный и максимальный HP коробки при инициализации.
 @export var maximum_health: float = 100.0
-## Remaining fraction of maximum HP at which ordinary damage becomes visible.
+## Доля оставшегося максимального HP, при которой повреждение коробки становится заметным.
 @export_range(0.0, 1.0, 0.05) var damaged_health_ratio: float = 0.60
+## Пути физических вариантов сцены этой посылки.
 @export_file_path("*.tscn") var scene_variants: Array[String] = []
 
-## Generic impact profile, independent of descriptive tags and package lifecycle state.
+## Общий профиль удара, независимый от описательных тегов и состояния коробки.
 @export var impact_profile: DEF_ImpactProfile = preload(
 	"res://content/definitions/gameplay/def_impact_default.tres"
 )
 
-## Liquid-only continuous exposure; returning upright resets the timer completely.
+#endregion
+
+#region Утечка и самостоятельные опасности
+## Предельный наклон жидкой посылки в градусах; возврат в допустимое положение сбрасывает таймер.
 @export_range(0.0, 180.0) var liquid_maximum_angle_degrees: float = 60.0
+## Непрерывное время недопустимого наклона до утечки, в секундах.
 @export_range(0.0, 30.0) var liquid_tilt_seconds: float = 8.0
-## One-time ordinary Health damage when leaking starts; zero keeps only condition effects.
+## Однократный урон через Health при начале утечки; ноль оставляет только изменение состояния.
 @export_range(0.0, 10000.0) var liquid_tilt_damage: float = 10.0
 
-## Optional autonomous hazard prefabs. Package does not classify/configure their behavior.
-## Fires only on the first transition into C_PackageState.Damage.DAMAGED.
+## Необязательные самостоятельные сцены опасностей; коробка не определяет их поведение.
+## Создаётся только при первом переходе в C_PackageState.Damage.DAMAGED.
 @export var hazard_on_damaged: PackedScene = null
-## Fires on the terminal transition into C_PackageState.Damage.DESTROYED.
+## Создаётся при терминальном переходе в C_PackageState.Damage.DESTROYED.
 @export var hazard_on_destroyed: PackedScene = null
-## Optional opening effect, using the same autonomous emitter as ordinary damage.
+## Необязательный эффект вскрытия, создаваемый общим эмиттером опасностей.
 @export var hazard_on_opened: PackedScene = null
+
+#endregion

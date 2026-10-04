@@ -1,5 +1,6 @@
 extends Component
-## One-shot extraction state; spawned bodies own their physical/inventory state.
+## Признак однократного извлечения; созданные предметы владеют своим состоянием и физикой.
 class_name C_PackageContents
 
+## Содержимое уже извлечено; повторное открытие или разрушение не создаёт его снова.
 @export var released: bool = false

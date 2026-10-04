@@ -1,6 +1,6 @@
 extends Resource
-## Reversible hidden identity for package history/debugging.
-## Format: <day>-<day-local number>-<hazard><size><base36 mass in 0.1 kg>.
+## Обратимый скрытый ID истории и отладки посылки; не является номером выдачи.
+## Формат: <день>-<порядковый номер дня>-<опасность><размер><масса в 0,1 кг, base36>.
 class_name PackageHistoryId
 
 enum SizeClass {
@@ -18,13 +18,20 @@ const MASS_DIGITS: int = 3
 const MAX_MASS_TENTHS: int = 46655
 const HASH_LENGTH: int = 5
 
+## Номер дня поставки, начиная с 1.
 @export var day_index: int = 0
+## Порядковый номер истории внутри этого дня, начиная с 1.
 @export var number: int = 0
+## Диагностический класс из DEF_Package.HazardClass.
 @export var hazard_class: int = DEF_Package.HazardClass.NORMAL
+## Класс размера, используемый в коде истории.
 @export var size_class: int = SizeClass.MEDIUM
+## Округлённая масса в десятых долях килограмма, 0–46655.
 @export var mass_tenths_kg: int = 0
 
 
+#region Кодирование и чтение ID
+## Кодирует скрытый ID; возвращает пустую строку при недопустимых данных.
 func serialize() -> String:
 	if day_index < 1 or number < 1:
 		return ""
@@ -47,6 +54,7 @@ func serialize() -> String:
 	]
 
 
+## Возвращает пятисимвольную диагностическую часть ID, иначе пустую строку.
 func hash_code() -> String:
 	var serialized: String = serialize()
 	if serialized.is_empty():
@@ -54,10 +62,12 @@ func hash_code() -> String:
 	return serialized.get_slice("-", 2)
 
 
+## Переводит сохранённую массу из десятых долей в килограммы.
 func decoded_mass_kg() -> float:
 	return float(mass_tenths_kg) / float(MASS_SCALE)
 
 
+## Декодирует и проверяет ID; при неверном формате или значении возвращает null.
 static func parse(value: String) -> PackageHistoryId:
 	var parts: PackedStringArray = value.split("-", false)
 	if parts.size() != 3 or not parts[0].is_valid_int() or not parts[1].is_valid_int():
@@ -82,6 +92,9 @@ static func parse(value: String) -> PackageHistoryId:
 	return parsed if not parsed.serialize().is_empty() else null
 
 
+#endregion
+
+#region Кодирование массы base36
 static func _encode_base36(value: int, width: int) -> String:
 	if value < 0 or width < 1:
 		return ""
@@ -106,3 +119,5 @@ static func _decode_base36(value: String) -> int:
 
 		result = result * BASE36.length() + digit
 	return result
+
+#endregion

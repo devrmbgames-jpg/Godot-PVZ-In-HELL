@@ -1,10 +1,12 @@
 extends RefCounted
-## One continuous ink stroke on one package face, entirely in package-local space.
+## Непрерывный штрих на одной грани коробки, целиком в её локальных координатах.
 class_name PackageMarkStroke
 
-## Samples and outward face normal; no world-space position is persisted.
+## Точки штриха в локальных координатах; мировая позиция не сохраняется.
 var points: PackedVector3Array = PackedVector3Array()
+## Наружная нормаль грани в локальных координатах коробки.
 var normal: Vector3 = Vector3.UP
-## Ink style copied from the marker when this stroke starts.
+## Толщина линии в метрах, скопированная с маркера при начале штриха.
 var width: float = 0.012
+## Цвет чернил, скопированный при начале штриха.
 var color: Color = Color.BLACK

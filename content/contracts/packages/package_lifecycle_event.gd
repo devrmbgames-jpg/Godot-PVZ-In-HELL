@@ -1,8 +1,8 @@
 extends RefCounted
-## Typed R09/R11 hook for condition changes; no hazard/customer consequences are applied here.
+## Типизированное событие состояния коробки; последствия для опасностей и клиентов применяют подписчики.
 class_name PackageLifecycleEvent
 
-## Stable World event channel, carrying this record.
+## Постоянный канал World для передачи этой записи события.
 const EVENT: StringName = &"package_lifecycle"
 
 enum Kind {
@@ -12,9 +12,13 @@ enum Kind {
 	Leaking,
 }
 
-## Identity survives downstream removal; actor is the opener or attributed damage source.
+## Стабильный ID коробки сохраняется после удаления физической сущности.
 var package_id: String = ""
+## Живая коробка на момент события; подписчик проверяет её доступность.
 var package: Entity = null
+## Инициатор вскрытия либо известный источник урона.
 var actor: Entity = null
+## Зафиксированный переход состояния коробки.
 var kind: Kind = Kind.Damaged
+## Причина урона для повреждения и уничтожения, иначе null.
 var cause: DamageResult = null

@@ -1,9 +1,10 @@
 extends Component
-## Runtime ink owned by one package; R21 may serialize it under the stable package ID.
+## Чернила одной коробки; сохранение привязывает их к постоянному package_id.
 class_name C_PackageMarks
 
-## Ordered package-local strokes, independent of registration and shelf placement.
+## Упорядоченные локальные штрихи, независимые от регистрации и размещения на полке.
 var strokes: Array[PackageMarkStroke] = []
-## Total sample count and presentation revision, written only by PackageMarkService.
+## Общее число точек; записывается только PackageMarkService.
 var point_count: int = 0
+## Версия чернил для обновления представления; меняется через PackageMarkService.
 var revision: int = 0

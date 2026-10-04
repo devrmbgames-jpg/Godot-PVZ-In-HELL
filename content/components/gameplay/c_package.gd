@@ -1,15 +1,17 @@
 extends Component
-## Stable shipment identity and initialization state, independent of physical condition.
+## Постоянная идентичность поставки и признак инициализации, независимые от состояния коробки.
 class_name C_Package
 
-## Persistent identity, unrelated to Node paths or engine instance IDs.
+## Постоянный ID, независимый от путей Node и instance ID движка.
 @export var package_id: String = ""
-## Hidden, human-readable history/debug identity. Never use this as customer-facing registration.
+## Скрытый читаемый ID истории; для выдачи клиенту используется отдельный регистрационный номер.
 @export var history_id: String = ""
-## Shared immutable design data; runtime systems must not mutate this resource.
+## Общие авторские данные; игровые системы не изменяют этот ресурс.
 @export var definition: DEF_Package = null
+## День фактической поставки физической коробки.
 @export var delivery_day: int = 0
+## Ключ авторского ассортимента, из которого создана посылка.
 @export var supply_key: StringName = &""
 
-## Runtime initialization guard; save loaders set this before restoring Health.
+## Защита от повторной инициализации; загрузка ставит флаг перед восстановлением Health.
 var condition_initialized: bool = false
