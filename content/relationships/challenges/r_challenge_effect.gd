@@ -1,3 +1,3 @@
 extends Component
-## Live subject-to-autonomous-effect ownership. No parallel owning Entity cache.
+## Живая связь носителя испытания с автономным эффектом, без параллельного кеша владения.
 class_name R_ChallengeEffect

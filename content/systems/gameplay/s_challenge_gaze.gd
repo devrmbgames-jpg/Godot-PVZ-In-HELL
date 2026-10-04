@@ -1,15 +1,19 @@
 extends System
+## Записывает измерение взгляда и публикует предупреждение до общего разрешения испытания.
 class_name S_ChallengeGaze
 
 
+## Измеряет взгляд после обслуживания и до общего итога.
 func deps() -> Dictionary[int, Array]:
 	return {Runs.After: [S_CustomerFlow], Runs.Before: [S_ChallengeRuntime]}
 
 
+## Выбирает испытания с производным измерением взгляда.
 func query() -> QueryBuilder:
 	return q.with_all([C_Challenge, C_GazeChallenge]).iterate([C_Challenge, C_GazeChallenge])
 
 
+## Обновляет измерение и предупреждение, не принимая общий итог самостоятельно.
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var states: Array = components[0]
 	var observations: Array = components[1]

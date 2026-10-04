@@ -1,5 +1,6 @@
 extends GameDefinition
-## Typed public Food effect; R19 inventory decides when to consume a stack.
+## Авторский эффект еды; решение о расходовании единицы принадлежит инвентарю.
 class_name DEF_FoodEffect
 
+## Положительное уменьшение голода при принятом использовании еды.
 @export var hunger_relief: float = 35.0

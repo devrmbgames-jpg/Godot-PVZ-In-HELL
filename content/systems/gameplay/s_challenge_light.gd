@@ -1,16 +1,19 @@
 extends System
-## Light On and Off differ only in authored condition data.
+## Проверяет состояние световой цепи по авторскому условию включения/выключения.
 class_name S_ChallengeLight
 
 
+## Читает цепь после обслуживания и синхронизации света.
 func deps() -> Dictionary[int, Array]:
 	return {Runs.After: [S_CustomerFlow, S_LightCircuit]}
 
 
+## Выбирает общие состояния для проверки светового условия.
 func query() -> QueryBuilder:
 	return q.with_all([C_Challenge]).iterate([C_Challenge])
 
 
+## Записывает SUCCESS при совпадении enabled с требованием, иначе NONE.
 func process(_entities: Array[Entity], components: Array, _delta: float) -> void:
 	var states: Array = components[0]
 	for state: C_Challenge in states:

@@ -1,3 +1,3 @@
 extends Component
-## Live challenge subject -> participating player binding.
+## Живая связь носителя испытания с участвующим игроком.
 class_name R_ChallengeActor

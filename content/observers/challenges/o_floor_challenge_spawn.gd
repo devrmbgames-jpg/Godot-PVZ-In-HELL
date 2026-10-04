@@ -1,11 +1,14 @@
 extends Observer
+## Проверяет созданную плоскость и связывает её с ещё действующим испытанием.
 class_name O_FloorChallengeSpawn
 
 
+## Наблюдает созданные плоские эффекты.
 func query() -> QueryBuilder:
 	return q.with_all([C_Hazard, C_FloorHazard]).on_event(HazardSpawnResult.EVENT)
 
 
+## Ставит проверку и связь с ещё действующим испытанием в CommandBuffer.
 func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
 	cmd.add_custom(_bind.bind(entity))
 

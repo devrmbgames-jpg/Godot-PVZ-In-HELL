@@ -1,9 +1,10 @@
 extends RefCounted
-## Generic bounded lifecycle. Conditions and customer consequences are separate producers/consumers.
+## Общий жизненный цикл испытания; вычисление условий и последствия обслуживания отделены.
 class_name ChallengeService
 
 
-## Debug configuration is allowed only before the one-shot challenge has begun.
+#region Запуск и живые связи
+## Отладочный старт меняет определение только до начала одноразового испытания в дневной фазе.
 static func debug_start(subject: Entity, actor: Entity, definition: DEF_Challenge) -> bool:
 	if not _available(subject) or not _available(actor) or definition == null or definition.condition == null:
 		return false
@@ -19,6 +20,7 @@ static func debug_start(subject: Entity, actor: Entity, definition: DEF_Challeng
 	return arm(subject, actor) and activate(subject)
 
 
+## Однократно фиксирует запуск в дневной фазе и связь с участником.
 static func arm(subject: Entity, actor: Entity) -> bool:
 	if not _available(subject) or not _available(actor):
 		return false
@@ -40,6 +42,7 @@ static func arm(subject: Entity, actor: Entity) -> bool:
 	return true
 
 
+## Переводит действующий ARMED-сеанс в ACTIVE со сбросом часов.
 static func activate(subject: Entity) -> bool:
 	if not _available(subject):
 		return false
@@ -53,6 +56,7 @@ static func activate(subject: Entity) -> bool:
 	return true
 
 
+## Запускает только условие ON_ARRIVAL через обычные arm/activate.
 static func begin_on_arrival(subject: Entity, actor: Entity) -> bool:
 	if not _available(subject):
 		return false
@@ -65,6 +69,7 @@ static func begin_on_arrival(subject: Entity, actor: Entity) -> bool:
 	)
 
 
+## Запоминает уход для активного условия с завершением до ухода.
 static func request_departure(subject: Entity) -> void:
 	if not is_instance_valid(subject):
 		return
@@ -77,6 +82,7 @@ static func request_departure(subject: Entity) -> void:
 		state.departure_requested = true
 
 
+## Возвращает доступного живого участника из R_ChallengeActor.
 static func actor_for(subject: Entity) -> Entity:
 	if not is_instance_valid(subject):
 		return null
@@ -90,6 +96,10 @@ static func actor_for(subject: Entity) -> Entity:
 	return null
 
 
+#endregion
+
+#region Продвижение и отмена
+## Продвигает общий итог/показ и проверяет сеанс; delta в секундах.
 static func tick(subject: Entity, state: C_Challenge, delta: float) -> void:
 	if state == null or state.phase in [C_Challenge.Phase.INACTIVE, C_Challenge.Phase.CLEANUP]:
 		return
@@ -134,6 +144,7 @@ static func tick(subject: Entity, state: C_Challenge, delta: float) -> void:
 				_cleanup(subject, state)
 
 
+## Идемпотентно отменяет незавершённый итог и очищает эффекты/участие.
 static func cancel(subject: Entity) -> void:
 	if not is_instance_valid(subject):
 		return
@@ -146,6 +157,7 @@ static func cancel(subject: Entity) -> void:
 	_cleanup(subject, state)
 
 
+## Отменяет испытание недоступного носителя и связанные сеансы с потерянным участником/эффектом.
 static func entity_unavailable(entity: Entity) -> void:
 	if is_instance_valid(entity):
 		cancel(entity)
@@ -164,6 +176,7 @@ static func entity_unavailable(entity: Entity) -> void:
 				break
 
 
+## Читает сохранённый общий итог либо NONE.
 static func result_for(subject: Entity) -> ChallengeResult.Type:
 	if not is_instance_valid(subject):
 		return ChallengeResult.Type.NONE
@@ -172,6 +185,7 @@ static func result_for(subject: Entity) -> ChallengeResult.Type:
 	return state.result if state != null else ChallengeResult.Type.NONE
 
 
+## Проверяет живых участников и совпадение дня/фазы запуска.
 static func session_valid(subject: Entity) -> bool:
 	if not _available(subject):
 		return false
@@ -180,6 +194,9 @@ static func session_valid(subject: Entity) -> bool:
 	return state != null and _valid_session(subject, state)
 
 
+#endregion
+
+#region Проверки и однократный итог
 static func _valid_session(subject: Entity, state: C_Challenge) -> bool:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	return (
@@ -231,3 +248,5 @@ static func _cleanup(subject: Entity, state: C_Challenge) -> void:
 	for relation: Relationship in subject.relationships.duplicate():
 		if relation.relation is R_ChallengeActor:
 			subject.remove_relationship(relation)
+
+#endregion

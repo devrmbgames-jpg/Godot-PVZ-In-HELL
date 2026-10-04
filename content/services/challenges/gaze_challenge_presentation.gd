@@ -1,7 +1,9 @@
 extends RefCounted
+## Читает активное испытание взгляда и степень предупреждения для участника.
 class_name GazeChallengePresentation
 
 
+## Находит активное испытание взгляда с живой связью на участника.
 static func state_for(actor: Entity) -> C_Challenge:
 	if not EntityAvailability.contains(actor, ECS.world):
 		return null
@@ -13,6 +15,7 @@ static func state_for(actor: Entity) -> C_Challenge:
 	return null
 
 
+## Возвращает степень нарушения 0–1 после подготовки, без изменения счётчика.
 static func strength(state: C_Challenge) -> float:
 	if state == null or state.condition_result == ChallengeResult.Type.SUCCESS or state.elapsed < state.definition.preparation_seconds:
 		return 0.0
@@ -21,6 +24,7 @@ static func strength(state: C_Challenge) -> float:
 	return progress
 
 
+## Форматирует предупреждение и остаток допуска нарушения в секундах.
 static func text(state: C_Challenge) -> String:
 	if state == null or strength(state) <= 0.0:
 		return ""

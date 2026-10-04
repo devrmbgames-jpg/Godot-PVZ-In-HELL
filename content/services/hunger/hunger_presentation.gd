@@ -1,9 +1,11 @@
 extends RefCounted
+## Читает голод, пороги и паузу роста для отладочного представления.
 class_name HungerPresentation
 
 const TIER_NAMES: Array[String] = ["Normal", "Hungry", "Starving"]
 
 
+## Собирает уровень, активное время, пороги и множители без изменения голода.
 static func debug_text(actor: Entity) -> String:
 	if not is_instance_valid(actor):
 		return ""

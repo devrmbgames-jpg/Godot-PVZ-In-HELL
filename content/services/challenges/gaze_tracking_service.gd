@@ -1,11 +1,12 @@
 extends RefCounted
-## Measures the rendered camera/head pose and a first-hit physics LOS, never input intent.
+## Измеряет фактическую позу камеры/головы и первое физическое препятствие, отдельно от намерения ввода.
 class_name GazeTrackingService
 
 const DIRECTION_EPSILON: float = 0.0001
 const ANGLE_BOUNDARY_EPSILON: float = 0.0001
 
 
+## Измеряет фактическую камеру/голову и луч до головы носителя; неверная геометрия очищает измерение.
 static func sample(actor: Entity, subject: Entity, rule: DEF_GazeChallengeCondition, observation: C_GazeChallenge) -> void:
 	clear(observation)
 	if rule == null or not EntityAvailability.contains(actor, ECS.world) or not EntityAvailability.contains(subject, ECS.world):
@@ -42,6 +43,7 @@ static func sample(actor: Entity, subject: Entity, rule: DEF_GazeChallengeCondit
 	observation.attention = observation.line_of_sight
 
 
+## Измеряет расстояние в метрах и угол в градусах без физического луча.
 static func measure_geometry(origin: Vector3, forward: Vector3, destination: Vector3, rule: DEF_GazeChallengeCondition, observation: C_GazeChallenge) -> void:
 	clear(observation)
 	var direction: Vector3 = destination - origin
@@ -56,6 +58,7 @@ static func measure_geometry(origin: Vector3, forward: Vector3, destination: Vec
 	observation.within_angle = observation.angle_degrees <= rule.half_angle_degrees + ANGLE_BOUNDARY_EPSILON
 
 
+## Очищает только измерение; флаг предупреждения отдельно контролирует система.
 static func clear(observation: C_GazeChallenge) -> void:
 	observation.sample_valid = false
 	observation.distance = 0.0

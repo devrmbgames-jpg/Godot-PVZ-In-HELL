@@ -1,8 +1,9 @@
 extends RefCounted
-## Read-only rule/countdown/result presentation; never owns challenge state.
+## Читает правило, время и результат для интерфейса без владения испытанием.
 class_name ChallengePresentation
 
 
+## Читает правило, подготовку, срок и результат для связанного участника.
 static func text_for(actor: Entity) -> String:
 	if not EntityAvailability.contains(actor, ECS.world):
 		return ""
@@ -38,6 +39,7 @@ static func text_for(actor: Entity) -> String:
 	return ""
 
 
+## Собирает подробные факты испытаний без изменения состояния.
 static func debug_text_for(actor: Entity) -> String:
 	if not EntityAvailability.contains(actor, ECS.world):
 		return ""

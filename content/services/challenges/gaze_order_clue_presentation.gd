@@ -1,10 +1,11 @@
 extends RefCounted
-## Read-only wall presentation. Visit, challenge binding and registry remain authoritative.
+## Читает номер для настенной подсказки; визит, связи и регистрация остаются источником истины.
 class_name GazeOrderCluePresentation
 
 const CLUE_GROUP: StringName = &"gaze_order_clues"
 
 
+## Детерминированно показывает зарегистрированный номер на одной подсказке активного визита.
 static func text_for(clue: Node) -> String:
 	if not clue.is_inside_tree() or not is_instance_valid(ECS.world):
 		return ""

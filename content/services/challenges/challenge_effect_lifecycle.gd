@@ -1,7 +1,9 @@
 extends RefCounted
+## Читает и освобождает владение автономными эффектами через R_ChallengeEffect.
 class_name ChallengeEffectLifecycle
 
 
+## Снимает связи эффектов носителя и удаляет ещё доступные автономные опасности.
 static func retire(subject: Entity) -> void:
 	if not is_instance_valid(subject):
 		return
@@ -14,6 +16,7 @@ static func retire(subject: Entity) -> void:
 				HazardLifecycle.retire(effect, ECS.world)
 
 
+## Находит носителя через входящую R_ChallengeEffect без параллельного кеша.
 static func owner_for(effect: Entity) -> Entity:
 	if not EntityAvailability.contains(effect, ECS.world):
 		return null

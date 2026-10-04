@@ -1,18 +1,22 @@
 extends System
-## Customer-specific satisfaction receiver; no movement or condition evaluation.
+## Применяет результат к удовлетворённости клиента без управления движением и вычисления условий.
 class_name S_CustomerChallengeOutcome
 
+## Принятый клиентский результат просит боевой адаптер эскалировать конфликт.
 signal escalation_requested(customer: Entity, actor: Entity, event: ChallengeResolution)
 
 
+## Применяет последствия после общего разрешения испытания.
 func deps() -> Dictionary[int, Array]:
 	return {Runs.After: [S_ChallengeRuntime]}
 
 
+## Выбирает испытания текущих клиентов.
 func query() -> QueryBuilder:
 	return q.with_all([C_Challenge, C_CustomerAgent]).iterate([C_Challenge, C_CustomerAgent])
 
 
+## Однократно передаёт итог в результат обслуживания и публикует принятую эскалацию.
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var states: Array = components[0]
 	var agents: Array = components[1]

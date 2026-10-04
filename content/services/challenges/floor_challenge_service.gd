@@ -1,7 +1,9 @@
 extends RefCounted
+## Связывает испытание с автономной плоскостью и проверяет настоящий контакт опоры.
 class_name FloorChallengeService
 
 
+## Однократно создаёт эффект активного испытания или освобождает его при завершении.
 static func synchronize(subject: Entity, state: C_Challenge, floor: C_FloorChallenge) -> void:
 	if not EntityAvailability.contains(subject, ECS.world):
 		return
@@ -30,6 +32,7 @@ static func synchronize(subject: Entity, state: C_Challenge, floor: C_FloorChall
 		ChallengeService.cancel(subject)
 
 
+## Проверяет фактическую точку опоры в локальных границах плоскости и допуске по высоте.
 static func touches_surface(motion: C_Motion, pose: Transform3D, profile: DEF_FloorHazard) -> bool:
 	if motion == null or not motion.is_on_floor or not motion.floor_body_rid.is_valid():
 		return false
@@ -42,6 +45,7 @@ static func touches_surface(motion: C_Motion, pose: Transform3D, profile: DEF_Fl
 	)
 
 
+## Измеряет контакт и объединяет периодический урон до итогового нарушения; delta в секундах.
 static func step(effect: E_FloorHazard, hazard: C_Hazard, floor_effect: C_FloorHazard, delta: float) -> void:
 	var subject: Entity = ChallengeEffectLifecycle.owner_for(effect)
 	if subject == null:

@@ -1,9 +1,12 @@
 extends RefCounted
+## Владеет ростом голода и эффектом питания, возвращает множители без изменения авторских данных.
 class_name HungerService
 
 const NEUTRAL_MULTIPLIER: float = 1.0
 
 
+#region Ступени и множители
+## Определяет ступень по политике и значению; отсутствие/неверная политика даёт NORMAL.
 static func tier(state: C_Hunger) -> C_Hunger.Tier:
 	if state == null or not _valid_policy(state.policy):
 		return C_Hunger.Tier.NORMAL
@@ -12,6 +15,7 @@ static func tier(state: C_Hunger) -> C_Hunger.Tier:
 	return C_Hunger.Tier.HUNGRY if state.value >= state.policy.hungry_threshold else C_Hunger.Tier.NORMAL
 
 
+## Возвращает множитель текущей ступени без изменения голода.
 static func speed_multiplier(state: C_Hunger) -> float:
 	match tier(state):
 		C_Hunger.Tier.HUNGRY:
@@ -22,6 +26,7 @@ static func speed_multiplier(state: C_Hunger) -> float:
 	return NEUTRAL_MULTIPLIER
 
 
+## Возвращает множитель исходящего боевого урона текущей ступени.
 static func damage_multiplier(state: C_Hunger) -> float:
 	match tier(state):
 		C_Hunger.Tier.HUNGRY:
@@ -32,6 +37,10 @@ static func damage_multiplier(state: C_Hunger) -> float:
 	return NEUTRAL_MULTIPLIER
 
 
+#endregion
+
+#region Рост и питание
+## Увеличивает голод и активное время при живом участнике вне паузы/ночи; delta в секундах.
 static func advance(state: C_Hunger, delta: float, phase: C_DayCycle.Phase, paused: bool, alive: bool) -> void:
 	if state == null or not _valid_policy(state.policy) or not is_finite(delta) or delta <= 0.0 or paused or not alive or phase == C_DayCycle.Phase.NIGHT:
 		return
@@ -40,6 +49,7 @@ static func advance(state: C_Hunger, delta: float, phase: C_DayCycle.Phase, paus
 	state.active_seconds += delta
 
 
+## Проверяет текущую фазу и доступность участника, затем продвигает голод.
 static func tick(actor: Entity, delta: float, state: C_Hunger = null) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null or not is_instance_valid(actor) or not actor.is_inside_tree():
@@ -49,7 +59,7 @@ static func tick(actor: Entity, delta: float, state: C_Hunger = null) -> void:
 	advance(state, delta, cycle.phase, actor.get_tree().paused, GrabService.holder_available(actor) and not actor.has_component(C_Death))
 
 
-## Explicit debug adjustment through the same bounds/availability owner as food.
+## Явно задаёт допустимый уровень через ту же проверку доступности и границ, что у еды.
 static func set_value(actor: Entity, value: float) -> bool:
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death):
 		return false
@@ -62,6 +72,7 @@ static func set_value(actor: Entity, value: float) -> bool:
 	return true
 
 
+## Уменьшает положительный голод доступного живого участника; отказ не требует расходования еды.
 static func apply_food(actor: Entity, effect: DEF_FoodEffect) -> bool:
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or effect == null or not is_finite(effect.hunger_relief) or effect.hunger_relief <= 0.0:
 		return false
@@ -74,7 +85,10 @@ static func apply_food(actor: Entity, effect: DEF_FoodEffect) -> bool:
 	return true
 
 
-## Global local-player perception is derived presentation, not an NPC ownership link.
+#endregion
+
+#region Чтение игрока и проверка политики
+## Читает состояние местного игрока для производного представления, отдельно от живых связей NPC.
 static func player_state() -> C_Hunger:
 	if not is_instance_valid(ECS.world):
 		return null
@@ -95,3 +109,5 @@ static func _valid_policy(policy: DEF_HungerPolicy) -> bool:
 		if not is_finite(multiplier) or multiplier < NEUTRAL_MULTIPLIER:
 			return false
 	return policy.maximum >= policy.starving_threshold and policy.starving_threshold > policy.hungry_threshold and policy.hungry_threshold > 0.0
+
+#endregion
