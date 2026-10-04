@@ -1,5 +1,7 @@
 extends GutTest
+## Проверяет обратимое восприятие голодного игрока без изменения личности, заказа и смысла ответов.
 
+## Бюджет ожидания обновления UI, в кадрах.
 const UI_FRAMES: int = 32
 var _world: World = null
 var _actor: Entity = null
@@ -9,6 +11,8 @@ var _visit: CustomerVisit = null
 var _context: CustomerDialogueContext = null
 
 
+#region Окружение и ожидание UI
+## Создаёт игрока с голодом, клиента и настоящий контекст заказа.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -47,6 +51,7 @@ func before_each() -> void:
 	_context = CustomerDialogueContext.new(_actor, _customer)
 
 
+## Закрывает диалог и удаляет World до очистки сохранённых ссылок.
 func after_each() -> void:
 	for panel: Node in get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP):
 		(panel as CustomerDialoguePanel).close_dialogue()
@@ -102,6 +107,10 @@ func _press(text: String) -> bool:
 	return false
 
 
+#endregion
+
+#region Обратимое восприятие и смысл ответа
+## Голодная проекция обратима и сохраняет Entity, RID, заказ и исходную реплику.
 func test_food_visual_is_reversible_and_keeps_entity_body_order_and_message() -> void:
 	var entity_id: String = _customer.id
 	var rid: RID = (_customer as Node as RigidBody3D).get_rid()
@@ -126,6 +135,7 @@ func test_food_visual_is_reversible_and_keeps_entity_body_order_and_message() ->
 	assert_false(_visit.riddle_solved)
 
 
+## Еда возвращает текущую настоящую строку без перехода по ветке диалога.
 func test_open_dialogue_reverts_current_npc_line_after_food_without_advancing_branch() -> void:
 	_state.value = 75.0
 	assert_true(CustomerDialogueService.start(_actor, _customer))
@@ -157,6 +167,7 @@ func test_open_dialogue_reverts_current_npc_line_after_food_without_advancing_br
 	assert_eq(_visit.declaration, CustomerVisit.Declaration.NONE)
 
 
+## Искажённая реплика NPC сохраняет смысл честного ответа игрока и фактический отказ.
 func test_starving_honest_denial_keeps_actual_response_tags_and_domain_transition() -> void:
 	_state.value = 75.0
 	assert_true(CustomerDialogueService.start(_actor, _customer))
@@ -174,3 +185,5 @@ func test_starving_honest_denial_keeps_actual_response_tags_and_domain_transitio
 	assert_eq((_customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.LEAVING)
 	assert_eq(_visit.customer_id, &"real-customer")
 	assert_false(_visit.customer_dead)
+
+#endregion

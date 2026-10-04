@@ -1,12 +1,15 @@
 extends Node
+## Исторический сценарий HUD, сканера, обратной связи урона и подсказки замка в основной сцене.
 
 const MAX_FRAMES: int = 600
 
 
+#region Исторический сценарий обратной связи
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет производный HUD и предупреждения без изменения здоровья отключением UI.
 func _run() -> void:
 	var level: Node = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	level.set("autosave_path", "")
@@ -82,6 +85,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Урон и доступ к двери
 func _check_damage(player: Entity, hud: CanvasLayer, parcel: Entity) -> void:
 	var view: DamageFeedbackView = hud.get_node("DamageFeedback") as DamageFeedbackView
 	var warning: Label = view.get_node("Warning") as Label
@@ -119,13 +125,14 @@ func _check_damage(player: Entity, hud: CanvasLayer, parcel: Entity) -> void:
 	assert(view.find_children("WorldDamageLabel*", "Label3D", false, false).is_empty())
 
 
+## Явно синхронизирует тестовую дверь и проверяет подсказку доступа по ключу.
 func _check_locked_prompt(level: Node, player: Entity) -> void:
 	var door: Entity = level.get_node("Entityes/DoorTemplate") as Entity
 	var state: C_Openable = door.get_component(C_Openable) as C_Openable
 	state.locked = true
 	state.access = DEF_AccessRequirement.new()
 	state.access.required_item_id = &"feedback_key"
-	# Fixture relocation is an explicit synchronization of the native door leaf.
+	# Тестовое перемещение явно синхронизирует физическое полотно двери.
 	(door as Node as AnimatableBody3D).sync_to_physics = false
 	(door as Node as Node3D).global_transform = Transform3D(Basis.IDENTITY, Vector3(16, 0, 2))
 
@@ -169,3 +176,5 @@ func _aim(player: Entity, point: Vector3) -> void:
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingService.find_target(player, interactor)
 	interactor.physics_target = InteractionTargetingService.find_physics_target(player, interactor)
+
+#endregion

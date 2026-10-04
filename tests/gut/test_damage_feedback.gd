@@ -1,4 +1,5 @@
 extends GutTest
+## Проверяет обратную связь по фактически применённому урону и освобождение подписок UI.
 
 var _root: Node3D = null
 var _world: World = null
@@ -8,6 +9,8 @@ var _view: DamageFeedbackView = null
 var _received: Array[DamageFeedback] = []
 
 
+#region Подписанное представление
+## Создаёт observer применённого урона, игрока и подписанное представление.
 func before_each() -> void:
 	_received.clear()
 	_root = Node3D.new()
@@ -27,6 +30,7 @@ func before_each() -> void:
 	_root.add_child(_view)
 
 
+## Удаляет всё дерево UI и World; очищает ECS.world.
 func after_each() -> void:
 	_root.free()
 	ECS.world = null
@@ -54,6 +58,10 @@ func _submit(kind: DamageRequest.Type, amount: float = 5.0, target: Entity = nul
 	DamageRequestService.submit(request)
 
 
+#endregion
+
+#region Снимки урона и освобождение UI
+## Применённый урон передаёт снимок; токсичность и взрыв имеют разные предупреждения и звук.
 func test_applied_hit_snapshot_and_toxic_explosion_warnings_use_distinct_feedback() -> void:
 	_submit(DamageRequest.Type.TOXIC)
 	assert_eq(_received.size(), 1)
@@ -79,6 +87,7 @@ func test_applied_hit_snapshot_and_toxic_explosion_warnings_use_distinct_feedbac
 	assert_true(_view.debug_text().contains("Таймер предупреждения"))
 
 
+## Блокирование, отклонение и лечение не публикуют обратную связь повреждения.
 func test_blocked_rejected_or_heal_result_does_not_publish_damage_feedback() -> void:
 	var blocked: Entity = _entity([C_NoDamage.new()])
 	_submit(DamageRequest.Type.TOXIC, 5.0, _player, blocked)
@@ -90,6 +99,7 @@ func test_blocked_rejected_or_heal_result_does_not_publish_damage_feedback() -> 
 	assert_false((_view.get_node("Warning") as Label).visible)
 
 
+## Подпись разрушенной коробки живёт по снимку ID и исчезает по таймеру без ссылки на удалённую Entity.
 func test_package_label_survives_destructive_cleanup_without_entity_reference() -> void:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "feedback/parcel"
@@ -112,6 +122,7 @@ func test_package_label_survives_destructive_cleanup_without_entity_reference() 
 	assert_true(_view.find_children("WorldDamageLabel*", "Label3D", false, false).is_empty())
 
 
+## Отключённое представление не влияет на реальный урон и не накапливает подписи.
 func test_disabled_presentation_does_not_change_damage_or_accumulate_labels() -> void:
 	_view.enabled = false
 	_view._process(0.0)
@@ -125,6 +136,7 @@ func test_disabled_presentation_does_not_change_damage_or_accumulate_labels() ->
 	assert_true(_view.find_children("WorldDamageLabel*", "Label3D", false, false).is_empty())
 
 
+## Число мировых подписей ограничено; удаление UI освобождает подписку.
 func test_world_labels_are_bounded_and_freeing_ui_disconnects_observer() -> void:
 	_view.maximum_world_labels = 2
 	var package: Entity = _entity([C_Health.new(), C_Package.new()])
@@ -138,3 +150,5 @@ func test_world_labels_are_bounded_and_freeing_ui_disconnects_observer() -> void
 	assert_eq(_observer.get_signal_connection_list("received").size(), connections - 1)
 	_submit(DamageRequest.Type.PROJECTILE, 1.0)
 	assert_eq(_received.size(), 5)
+
+#endregion

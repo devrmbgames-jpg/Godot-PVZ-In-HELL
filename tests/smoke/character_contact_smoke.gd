@@ -1,10 +1,13 @@
 extends Node
+## Проверяет контакты RigidBody-персонажа со стеной и потолком без потери касательного движения.
 
 
+#region Контакты персонажа
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет физическую нормаль стены/потолка, разделяя блокируемую и касательную скорости.
 func _run() -> void:
 	var world: World = World.new()
 	add_child(world)
@@ -46,6 +49,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Тестовая геометрия
 func _obstacle(location: Vector3, dimensions: Vector3) -> StaticBody3D:
 	var obstacle: StaticBody3D = StaticBody3D.new()
 	var collision: CollisionShape3D = CollisionShape3D.new()
@@ -56,3 +62,5 @@ func _obstacle(location: Vector3, dimensions: Vector3) -> StaticBody3D:
 	obstacle.position = location
 	add_child(obstacle)
 	return obstacle
+
+#endregion

@@ -1,5 +1,5 @@
 extends GutTest
-## Manual addon audio under both native bodies; presentation cannot move gameplay head/rays.
+## Проверяет ручные шаги и движение камеры, сохраняющие физическое тело, игровую голову и лучи.
 
 var _root: Node3D
 var _world: World
@@ -9,6 +9,8 @@ var _head: Node3D
 var _camera: Camera3D
 
 
+#region Физическое окружение и представление
+## Создаёт физическое тело с отдельной камерой и представлением шагов.
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
@@ -39,6 +41,7 @@ func before_each() -> void:
 	_world.add_entity(_actor, null, false)
 
 
+## Удаляет дерево представления и World, освобождая аудио.
 func after_each() -> void:
 	_world.purge(false)
 	_root.free()
@@ -54,7 +57,10 @@ func _voices(footsteps: Footstepper) -> int:
 			count += 1
 	return count
 
-## Removing and reattaching manual footsteps releases old playback and keeps the pool usable.
+#endregion
+
+#region Аудио, камера и поза пояса
+## Удаление освобождает playback шагов; повторное добавление сохраняет работоспособность аудиопула.
 func test_removed_footsteps_release_audio_and_can_play_after_reattachment() -> void:
 	for spatial: bool in [false, true]:
 		var footsteps: CharacterFootstepper = CharacterFootstepper.new()
@@ -82,6 +88,7 @@ func test_removed_footsteps_release_audio_and_can_play_after_reattachment() -> v
 		footsteps.free()
 
 
+## Наземное движение запускает шаг и качание только камеры; reduced_motion возвращает нейтральную позу.
 func test_grounded_motion_plays_manual_audio_and_bobs_only_camera_then_returns_neutral() -> void:
 	var footsteps: Footstepper = _feedback.get_node("Footstepper") as Footstepper
 	assert_not_null(footsteps.current_sound_profile.sound_footstep)
@@ -105,6 +112,7 @@ func test_grounded_motion_plays_manual_audio_and_bobs_only_camera_then_returns_n
 	assert_true(_head.transform.is_equal_approx(head_pose))
 
 
+## Воздух, покой, модальный ввод и смерть не запускают лишние шаги.
 func test_air_idle_modal_and_death_do_not_trigger_footsteps() -> void:
 	var footsteps: Footstepper = _feedback.get_node("Footstepper") as Footstepper
 	var motion: C_Motion = _actor.get_component(C_Motion) as C_Motion
@@ -132,6 +140,7 @@ func test_air_idle_modal_and_death_do_not_trigger_footsteps() -> void:
 	assert_true(_camera.position.is_zero_approx())
 
 
+## Реальный prefab клиента содержит ручной пул пространственного аудио без качания камеры.
 func test_real_customer_prefab_uses_spatial_addon_players_under_rigid_body() -> void:
 	var npc: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
 	(npc as Node as RigidBody3D).freeze = true
@@ -146,6 +155,7 @@ func test_real_customer_prefab_uses_spatial_addon_players_under_rigid_body() -> 
 	assert_false((npc.get_node("CharacterFeedback") as CharacterFeedback).bob_enabled)
 
 
+## Звук и камера имеют общую фазу шага; отключение аудио её не сдвигает.
 func test_normal_cadence_and_camera_share_phase_even_when_audio_is_muted() -> void:
 	var footsteps: Footstepper = _feedback.get_node("Footstepper") as Footstepper
 	_feedback.bob_response = 10000.0
@@ -162,6 +172,7 @@ func test_normal_cadence_and_camera_share_phase_even_when_audio_is_muted() -> vo
 	assert_almost_eq(_camera.position.y, _feedback.bob_amplitude.y, 0.00001, "Отключение звука не меняет фазу")
 
 
+## Приседание опускает пояс независимо от pitch камеры и возвращает авторскую позу.
 func test_player_belt_lowers_without_camera_pitch_and_returns_to_authored_pose() -> void:
 	var actor: E_PhysicalCharacter = (load("res://content/entities/characters/character_body_player.tscn") as PackedScene).instantiate() as E_PhysicalCharacter
 	_root.add_child(actor as Node)
@@ -182,3 +193,5 @@ func test_player_belt_lowers_without_camera_pitch_and_returns_to_authored_pose()
 	system.process([actor], [[crouch]], 1.0)
 	assert_true(mount.position.is_equal_approx(standing))
 	system.free()
+
+#endregion
