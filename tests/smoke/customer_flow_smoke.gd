@@ -1,5 +1,5 @@
 extends Node
-## Real main-scene bodies/counter, lifecycle, terminal buttons and next-morning return.
+## Старый сквозной сценарий main_level: стойка, терминал, жалобы и утренние остатки поставки.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 300
@@ -8,10 +8,12 @@ var _counter: E_DeliveryCounter = null
 var _cycle: C_DayCycle = null
 
 
+#region Исторический сценарий обслуживания
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет прежний ассортимент из восьми коробок; требует согласования с текущей районной поставкой.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	_level = scene.instantiate()
@@ -107,7 +109,7 @@ func _run() -> void:
 	assert((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.AGGRESSIVE)
 	ECS.world.process(third.definition.aggressive_seconds, "GamePlay")
 	ECS.world.process(third.definition.leaving_seconds, "GamePlay")
-	# Departure challenges publish/consume their outcome before the next flow tick removes the NPC.
+	# Результат испытания ухода применяется до следующего удаления клиента из обслуживания.
 	ECS.world.process(FRAME_DELTA, "GamePlay")
 	assert(_cycle.remaining_customer_events == 0)
 	assert(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
@@ -134,6 +136,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Управление тестовой фазой и физическими участниками
 func _transition(kind: DayTransitionRequest.Kind) -> void:
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = kind
@@ -161,7 +166,7 @@ func _wait_for_customer() -> E_Customer:
 
 
 func _place(parcel: Entity) -> void:
-	# Fixture placement only; gameplay confirmation never relocates a stored parcel.
+	# Тест размещает коробку; игровое подтверждение само не перемещает её со склада.
 	(parcel as Node as Node3D).global_position = (_counter as Node as Node3D).global_position + Vector3.UP * 1.3
 	for frame: int in 12:
 		await get_tree().physics_frame
@@ -172,7 +177,7 @@ func _place(parcel: Entity) -> void:
 
 
 func _register(parcel: Entity) -> void:
-	# Seed R06's existing registration contract; scanner interaction has its own smoke.
+	# Создаётся запись регистрации; физическое взаимодействие со сканером проверяет отдельный сценарий.
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
@@ -189,6 +194,9 @@ func _register(parcel: Entity) -> void:
 	state.registration_day = _cycle.day_index
 
 
+#endregion
+
+#region Поиск записей учёта
 func _terminal_line_for(terminal: E_Terminal, package_id: String) -> UI_TerminalButtonPackage:
 	var package_list: VBoxContainer = terminal.get_node("TerminalPanel/%PackageList") as VBoxContainer
 	for child: Node in package_list.get_children():
@@ -207,3 +215,5 @@ func _registration_for_package(package_id: String) -> PackageRegistrationRecord:
 		if record.package_id == package_id:
 			return record
 	return null
+
+#endregion

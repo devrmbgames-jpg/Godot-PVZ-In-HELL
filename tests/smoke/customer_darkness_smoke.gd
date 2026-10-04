@@ -1,5 +1,5 @@
 extends Node
-## Actual main arrival, subscribed room lamps, switch success and timeout aggression.
+## Сценарий старого светового испытания в main_level: лампы, выключатель и агрессия по таймауту.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const SUPPLY_FRAMES: int = 900
@@ -19,6 +19,7 @@ func _on_flicker(event: LightFlickerEvent) -> void:
 		_flickers += 1
 
 
+## Запускает старую встречу светобоязненного клиента и проверяет выключатель и таймаут.
 func _run() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	_level.set("autosave_path", "")
@@ -85,7 +86,7 @@ func _run() -> void:
 	ECS.world.process(FRAME_DELTA, "GamePlay")
 	assert(visit.finished)
 	assert(LightCircuitService.set_by_id(&"warehouse", true))
-	# A bounded second visit to the same registered parcel exercises the timeout branch.
+	# Повторный визит за той же зарегистрированной коробкой проверяет ветку таймаута.
 	var retry: CustomerVisit = CustomerVisit.new()
 	retry.visit_id = &"smoke/dark-timeout"
 	retry.package_id = visit.package_id

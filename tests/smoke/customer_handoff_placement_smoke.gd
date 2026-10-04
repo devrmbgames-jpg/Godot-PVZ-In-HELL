@@ -9,6 +9,7 @@ func _ready() -> void:
 	_run.call_deferred()
 
 
+## На восьми авторских площадках проверяет доступность действия и последующий захват коробки.
 func _run() -> void:
 	var level: Node3D = MAIN_LEVEL.instantiate() as Node3D
 	level.set("autosave_path", "")

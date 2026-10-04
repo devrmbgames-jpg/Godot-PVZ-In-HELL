@@ -1,19 +1,21 @@
 extends Node
-## End-to-end receiving, registration, number reuse and modal terminal regression.
+## Старый сценарий приёмки проверяет сканер, терминал, повторное использование номера и свободные места.
 
 var _prepared_body: Node3D = null
 var _prepared_transform: Transform3D = Transform3D.IDENTITY
 
 
+#region Исторический сценарий приёмки
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет старую поставку восьми коробок; отдельно ведёт игрока через сканер и терминал.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
 	add_child(level)
-	# Isolate receiving/registration; customer scheduling has its own smoke.
+	# Приёмка отделена от расписания клиентов, для которого существует другой сценарий.
 	var session: Entity = level.get_node("Entityes/DaySession") as Entity
 	session.remove_component(C_CustomerFlow)
 	for tick_index: int in 30:
@@ -149,7 +151,7 @@ func _run() -> void:
 	var previous_location: Vector3 = (first as Node as Node3D).global_position
 	for parcel: Entity in parcels:
 		(parcel as Node as RigidBody3D).freeze = true
-	# Block every receiving marker: delivery may not skip to a free spawn point.
+	# Заняты все маркеры приёмки: поставка должна дождаться свободного места.
 	var zone: E_ReceivingZone = level.get_node("Entityes/ReceivingZone") as E_ReceivingZone
 	var blockers: Array[StaticBody3D] = []
 	var spawn_points: Node = zone.get_node("SpawnPoints")
@@ -184,7 +186,7 @@ func _run() -> void:
 	assert(receiving.blocked and ECS.world.query.with_all([C_Package]).execute().size() == 8)
 	for blocker: StaticBody3D in blockers:
 		blocker.queue_free()
-	# Simulate shelving yesterday's supply, leaving the first parcel untouched.
+	# Тест убирает вчерашнюю поставку на полки, оставляя первую коробку на месте.
 	for parcel_index: int in range(1, parcels.size()):
 		var stored: RigidBody3D = parcels[parcel_index] as Node as RigidBody3D
 		stored.global_position = Vector3(-10, 1, parcel_index * 2)
@@ -222,6 +224,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Тестовый ввод и наведение
 func _drive(actor: Entity, interact: bool, use: bool, primary: bool) -> void:
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	controller.input_tick += 1
@@ -255,3 +260,5 @@ func _has_active_number(registry: C_PackageLedger, number: int) -> bool:
 		if record.active and record.number == number:
 			return true
 	return false
+
+#endregion

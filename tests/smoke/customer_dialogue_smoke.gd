@@ -1,5 +1,5 @@
 extends Node
-## R12 lifecycle smoke: an active modal dialogue must release itself when service ends or NPC dies.
+## Сценарий закрытия модального диалога при завершении обслуживания или смерти NPC.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 300
@@ -8,10 +8,12 @@ var _level: Node = null
 var _cycle: C_DayCycle = null
 
 
+#region Сценарий закрытия диалога
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет освобождение модального диалога в историческом сценарии поставки восьми коробок.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	_level = scene.instantiate()
@@ -62,6 +64,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Переход фаз и ожидание клиента
 func _transition(kind: DayTransitionRequest.Kind) -> void:
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = kind
@@ -81,3 +86,5 @@ func _wait_for_customer() -> E_Customer:
 
 	assert(false, "Customer must reach WAITING_FOR_PACKAGE within frame budget")
 	return null
+
+#endregion

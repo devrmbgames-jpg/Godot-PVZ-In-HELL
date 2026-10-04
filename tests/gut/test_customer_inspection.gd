@@ -1,5 +1,5 @@
 extends GutTest
-## Physical borrow/return, one-shot unpack/hazards and cleanup; no full shift simulation.
+## Проверяет физическую передачу для осмотра, однократное вскрытие и освобождение занятого имущества.
 
 var _root: Node3D
 var _world: World
@@ -10,6 +10,8 @@ var _agent: C_CustomerAgent
 var _parcel: E_Package
 
 
+#region Физическое тестовое окружение
+## Создаёт World с физическими слотом, кабиной и observers вскрытия и опасностей.
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
@@ -67,6 +69,7 @@ func before_each() -> void:
 	CustomerFlowService.bind_parcel(_customer, _visit)
 
 
+## Удаляет всё тестовое дерево и сбрасывает ECS.world.
 func after_each() -> void:
 	_world.purge(false)
 	_root.free()
@@ -97,6 +100,10 @@ func _return() -> void:
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.RECEIVING)
 
 
+#endregion
+
+#region Осмотр и фактический исход
+## Окончательная выдача происходит после возврата из кабины и однократно освобождает её связи.
 func test_physical_borrow_finishes_only_after_return_and_kept_parcel_leaves_once() -> void:
 	_borrow()
 	assert_eq(_customer.get_relationships(Relationship.new(R_InspectingAt.new(), null)).size(), 1)
@@ -112,6 +119,7 @@ func test_physical_borrow_finishes_only_after_return_and_kept_parcel_leaves_once
 	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
 
 
+## Отказ возвращает физическую коробку, сохраняя регистрацию и освобождая слот/кабину.
 func test_refusal_releases_borrowed_parcel_and_booth_without_losing_registration() -> void:
 	_visit.definition.inspection_keep_probability = 0.0
 	_borrow()
@@ -126,6 +134,7 @@ func test_refusal_releases_borrowed_parcel_and_booth_without_losing_registration
 	assert_true(_customer.get_relationships(Relationship.new(R_InspectingAt.new(), null)).is_empty())
 
 
+## Реальное вскрытие создаёт содержимое и опасность один раз; при выдаче содержимое уходит с клиентом.
 func test_unpack_uses_real_opening_contents_and_hazard_then_keeps_results_once() -> void:
 	_visit.definition.inspection_unpack_probability = 1.0
 	(_parcel.get_component(C_Package) as C_Package).definition.hazard_on_opened = load("res://content/entities/hazards/explosion.tscn") as PackedScene
@@ -144,6 +153,10 @@ func test_unpack_uses_real_opening_contents_and_hazard_then_keeps_results_once()
 	assert_true(_world.query.with_all([C_InventoryItem]).execute().is_empty())
 
 
+#endregion
+
+#region Освобождение имущества и таймаут
+## Ночной сброс снимает резервирование; оставшееся содержимое можно забрать в инвентарь.
 func test_cleanup_night_releases_unpacked_items_for_player() -> void:
 	_visit.definition.inspection_unpack_probability = 1.0
 	_visit.definition.inspection_keep_probability = 0.0
@@ -165,6 +178,7 @@ func test_cleanup_night_releases_unpacked_items_for_player() -> void:
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 5)
 
 
+## После отказа вскрытое содержимое остаётся доступным предметом без владельца осмотра.
 func test_cleanup_refused_unpacked_results_stay_edible_after_return() -> void:
 	_visit.definition.inspection_unpack_probability = 1.0
 	_visit.definition.inspection_keep_probability = 0.0
@@ -184,6 +198,7 @@ func test_cleanup_refused_unpacked_results_stay_edible_after_return() -> void:
 	assert_true(InventoryService.transfer(item, actor))
 
 
+## Смерть и удаление участника освобождают слот коробки и резервирование осмотра.
 func test_cleanup_customer_death_or_external_removal_releases_physical_borrow() -> void:
 	_borrow()
 	_customer.add_component(C_Death.new())
@@ -193,7 +208,7 @@ func test_cleanup_customer_death_or_external_removal_releases_physical_borrow() 
 	assert_null(PhysicalSlotService.relationship(_parcel))
 	assert_false((_parcel as Node as RigidBody3D).freeze)
 	assert_null(CustomerInspectionService.owner_for(_parcel))
-	# A second independent borrower proves the native World REMOVE path too.
+	# Независимый второй участник проверяет освобождение при штатном удалении из World.
 	var second: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
 	(second as Node as RigidBody3D).freeze = true
 	_world.add_entity(second)
@@ -208,6 +223,7 @@ func test_cleanup_customer_death_or_external_removal_releases_physical_borrow() 
 	assert_null(CustomerInspectionService.owner_for(_parcel))
 
 
+## Недоступная кабина не забирает коробку; таймаут пути завершает осмотр безопасным отказом.
 func test_missing_booth_keeps_legacy_handoff_and_walk_timeout_refuses_safely() -> void:
 	var booth: Entity = _world.query.with_all([C_InspectionBooth]).execute_one()
 	(booth.get_component(C_InspectionBooth) as C_InspectionBooth).enabled = false
@@ -221,3 +237,5 @@ func test_missing_booth_keeps_legacy_handoff_and_walk_timeout_refuses_safely() -
 	CustomerFlowService._step(_customer, _cycle, _visit.definition.approach_timeout)
 	assert_eq(_visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
 	assert_null(PhysicalSlotService.relationship(_parcel))
+
+#endregion

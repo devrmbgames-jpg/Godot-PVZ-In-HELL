@@ -1,6 +1,7 @@
 extends GutTest
-## Actual spawn/flow, ledger bubble and modal dialogue with native LOS.
+## Проверяет появление клиента, объявление номера и первый диалог с физической проверкой видимости.
 
+## Бюджет ожидания асинхронной строки диалога, в кадрах.
 const UI_FRAMES: int = 32
 var _world: World
 var _actor: E_RigidBodyCharacter
@@ -11,6 +12,8 @@ var _visit: CustomerVisit
 var _customer: E_Customer
 
 
+#region Тестовое окружение и ожидание UI
+## Создаёт авторский визит, физического игрока и стойку с отдельным журналом.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -52,6 +55,7 @@ func before_each() -> void:
 	_flow.visits = [_visit]
 
 
+## Закрывает активные модальные диалоги перед удалением World.
 func after_each() -> void:
 	for node: Node in get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP):
 		(node as CustomerDialoguePanel).close_dialogue()
@@ -96,6 +100,10 @@ func _await_line() -> void:
 	assert_true(false, "Dialogue line must finish within the bounded fixture")
 
 
+#endregion
+
+#region Объявление заказа
+## Быстрое обслуживание однократно объявляет реальный номер и принимает коробку без диалога.
 func test_quick_spawn_announces_true_number_preserves_it_and_accepts_without_dialogue() -> void:
 	_visit.definition.introduction = DEF_Customer.Introduction.ANNOUNCE_ORDER
 	_register_order()
@@ -131,6 +139,7 @@ func test_quick_spawn_announces_true_number_preserves_it_and_accepts_without_dia
 	assert_false(_agent().dialogue_started)
 
 
+## Поздняя регистрация объявляет номер один раз; загадка и настенный номер сохраняют отдельные режимы.
 func test_quick_pending_registration_announces_once_and_riddle_wall_profiles_keep_contract() -> void:
 	_visit.requires_registered_package = false
 	_visit.definition.introduction = DEF_Customer.Introduction.ANNOUNCE_ORDER
@@ -152,6 +161,10 @@ func test_quick_pending_registration_announces_once_and_riddle_wall_profiles_kee
 	assert_false(CustomerPresentation.uses_quick_order(gaze))
 
 
+#endregion
+
+#region Первый разговор и приоритет ввода
+## Первый диалог требует близости, видимости и свободного ввода; закрытие не запускает его повторно.
 func test_first_approach_checks_range_wall_and_busy_capture_then_starts_only_once() -> void:
 	_visit.definition.introduction = DEF_Customer.Introduction.FIRST_APPROACH_DIALOGUE
 	_register_order()
@@ -201,6 +214,7 @@ func test_first_approach_checks_range_wall_and_busy_capture_then_starts_only_onc
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.HANDS)
 
 
+## Ручной разговор расходует защиту первого контакта; уходящий и погибший клиент не начинают разговор.
 func test_manual_start_consumes_auto_guard_and_leaving_or_dead_customer_never_starts() -> void:
 	_register_order()
 	_spawn()
@@ -219,6 +233,8 @@ func test_manual_start_consumes_auto_guard_and_leaving_or_dead_customer_never_st
 	_agent().phase = C_CustomerAgent.Phase.LEAVING
 	CustomerGreetingService.tick(_customer, _visit)
 	assert_null(_panel())
+
+#endregion
 	_agent().phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	_customer.add_component(C_Death.new())
 	CustomerGreetingService.tick(_customer, _visit)

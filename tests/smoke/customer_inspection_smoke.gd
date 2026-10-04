@@ -1,5 +1,5 @@
 extends Node
-## Actual authored main map: native NavigationAgent walking with a physical parcel.
+## Сценарий физического пути к авторской кабине осмотра и возврата коробки через NavigationAgent.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const MAX_FRAMES: int = 2400
@@ -12,6 +12,7 @@ func _ready() -> void:
 	_run.call_deferred()
 
 
+## Создаёт отдельный визит и проверяет реальный путь в кабину с временно занятой коробкой.
 func _run() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	_level.set("autosave_path", "")
@@ -39,7 +40,7 @@ func _run() -> void:
 
 	var counter: E_DeliveryCounter = CustomerFlowService.counter()
 	var customer: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
-	# Fixed-fps headless navigation runs faster than the audio mixer; sound has owner QA.
+	# Навигационный прогон с фиксированным FPS опережает аудиомикшер; звук проверяет владелец отдельно.
 	(customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
 	var body: RigidBody3D = customer as Node as RigidBody3D
 	body.position = counter.waiting_position()

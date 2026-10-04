@@ -10,6 +10,8 @@ var _visit: CustomerVisit
 var _parcel: E_Package
 
 
+#region Физическое тестовое окружение
+## Создаёт физического игрока, клиента и зарегистрированную коробку в его руках.
 func before_each() -> void:
 	if bool(Console.is_visible()): Console.toggle_console()
 	_world = World.new()
@@ -57,6 +59,7 @@ func before_each() -> void:
 	_parcel.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
 
 
+## Удаляет World и даёт отложенным удалениям завершиться перед следующим тестом.
 func after_each() -> void:
 	if bool(Console.is_visible()): Console.toggle_console()
 	_world.purge(false)
@@ -70,6 +73,10 @@ func _expect_held() -> void:
 	assert_eq(GrabService.held_object(_actor), _parcel)
 
 
+#endregion
+
+#region Автоприём и ограничения
+## Автоприём забирает правильную коробку один раз, не открывая диалог и не подменяя учёт.
 func test_waiting_customer_takes_correct_carry_once_without_button_or_greeting_delay() -> void:
 	_agent.phase = C_CustomerAgent.Phase.WAITING
 	await get_tree().physics_frame
@@ -83,6 +90,7 @@ func test_waiting_customer_takes_correct_carry_once_without_button_or_greeting_d
 	assert_eq(_visit.declaration, CustomerVisit.Declaration.NONE, "Actual delivery does not replace terminal accounting")
 
 
+## Неподходящая коробка остаётся в руках; повторные попытки не засоряют реплики отказами.
 func test_wrong_unregistered_destroyed_and_unassigned_orders_stay_held_silently() -> void:
 	await get_tree().physics_frame
 	var message: Label3D = _customer.get_node("Message") as Label3D
@@ -109,6 +117,7 @@ func test_wrong_unregistered_destroyed_and_unassigned_orders_stay_held_silently(
 	assert_eq(message.text, original_text, "Automatic retries must not spam rejection bubbles")
 
 
+## Авторская дистанция и физическая стена блокируют передачу до появления свободного пути.
 func test_profile_distance_and_wall_reject_then_clear_path_allows_receive() -> void:
 	await get_tree().physics_frame
 	_visit.definition.automatic_handoff_distance = 0.5
@@ -134,6 +143,7 @@ func test_profile_distance_and_wall_reject_then_clear_path_allows_receive() -> v
 	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
 
 
+## Занятый ввод, диалог, уход, агрессия и поражение участника блокируют автоприём.
 func test_busy_controls_dialogue_departure_and_defeated_participants_reject() -> void:
 	await get_tree().physics_frame
 	for priority: InteractionControlFocus.Priority in [InteractionControlFocus.Priority.PUSH, InteractionControlFocus.Priority.PROLONGED, InteractionControlFocus.Priority.MODAL]:
@@ -163,6 +173,10 @@ func test_busy_controls_dialogue_departure_and_defeated_participants_reject() ->
 	_expect_held()
 
 
+#endregion
+
+#region Ручной режим и осмотр
+## Отключённый автоприём сохраняет ручную выдачу и авторскую политику отказа.
 func test_disabled_automatic_mode_keeps_manual_handoff_and_refusal_policy() -> void:
 	_visit.definition.automatic_handoff = false
 	_visit.definition.voluntary_refusal = true
@@ -175,6 +189,7 @@ func test_disabled_automatic_mode_keeps_manual_handoff_and_refusal_policy() -> v
 	assert_true(EntityAvailability.contains(_parcel, _world))
 
 
+## Осмотр временно забирает коробку в физический слот, сохраняя незавершённый исход.
 func test_automatic_receive_borrows_to_booth_without_finishing_delivery() -> void:
 	_visit.definition.private_inspection = true
 	var booth: Entity = (load("res://content/entities/customers/inspection_booth.tscn") as PackedScene).instantiate() as Entity
@@ -188,3 +203,5 @@ func test_automatic_receive_borrows_to_booth_without_finishing_delivery() -> voi
 	assert_eq(CustomerInspectionService.owner_for(_parcel), _customer)
 	assert_true((_parcel as Node as RigidBody3D).freeze)
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
+
+#endregion

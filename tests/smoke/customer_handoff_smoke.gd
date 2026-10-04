@@ -1,5 +1,5 @@
 extends Node
-## Direct handoff keeps real grip ownership correct after the NPC physics migration.
+## Сценарий прямой выдачи и отказа проверяет живое владение предметом после передачи клиенту.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 600
@@ -9,10 +9,12 @@ var _level: Node = null
 var _actor: Entity = null
 
 
+#region Сценарий прямой передачи
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет прямую выдачу и физический отказ в историческом сценарии восьми коробок.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	_level = scene.instantiate()
@@ -84,6 +86,9 @@ func _run() -> void:
 	get_tree().quit.call_deferred()
 
 
+#endregion
+
+#region Ожидание и тестовое размещение
 func _waiting_customer() -> E_Customer:
 	for frame: int in WAIT_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
@@ -97,7 +102,7 @@ func _waiting_customer() -> E_Customer:
 
 
 func _pickup(parcel: Entity) -> void:
-	# Fixture placement before pickup; direct refusal has its explicit transfer boundary.
+	# Тест ставит предмет перед захватом; отказ клиента имеет собственную границу передачи.
 	var actor_body: Node3D = _actor as Node as Node3D
 	var parcel_body: RigidBody3D = parcel as Node as RigidBody3D
 	parcel_body.global_position = actor_body.global_position + PICKUP_OFFSET
@@ -107,3 +112,5 @@ func _pickup(parcel: Entity) -> void:
 	for frame: int in 2:
 		await get_tree().physics_frame
 	assert(GrabService.try_pickup(_actor, parcel))
+
+#endregion

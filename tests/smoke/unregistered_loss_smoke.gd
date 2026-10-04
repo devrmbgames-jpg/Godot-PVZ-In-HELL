@@ -1,5 +1,5 @@
 extends Node
-## Regression smoke: unregistered package-pickup customers do not spawn; next Morning closes them as Lost.
+## Старый сценарий ожидает потерю просроченных нерегистрированных коробок следующим утром.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 300
@@ -12,6 +12,7 @@ func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет исторические сроки потери в основной сцене; ожидания старого ассортимента сохранены.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	_level = scene.instantiate()

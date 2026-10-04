@@ -7,10 +7,11 @@ const MAX_WAIT_FRAMES: int = 9000
 var _failed: bool = false
 var _level: Node3D = null
 
-#region Connected scene check
+#region Связный сценарий основной сцены
 func _ready() -> void:
 	_run.call_deferred()
 
+## Проверяет пять реальных заказов и три последовательных получателя после ухода и смерти.
 func _run() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate() as Node3D
 	add_child(_level)

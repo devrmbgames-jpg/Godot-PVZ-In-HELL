@@ -1,5 +1,5 @@
 extends GutTest
-## Profile-selected scene/dialogue and thin stationary-animation extension.
+## Проверяет авторский выбор prefab/диалога и приоритет позы осмотра относительно движения и боя.
 
 var _world: World
 var _visit: CustomerVisit
@@ -7,6 +7,8 @@ var _customer: E_Customer
 var _actor: Entity
 
 
+#region Тестовое окружение
+## Создаёт визит из прототипного профиля, который сам выбирает сцену клиента.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -34,6 +36,7 @@ func before_each() -> void:
 	_world.add_entity(_actor)
 
 
+## Закрывает диалог, удаляет World и освобождает глобальную ссылку ECS.
 func after_each() -> void:
 	for node: Node in get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP):
 		(node as CustomerDialoguePanel).close_dialogue()
@@ -43,6 +46,10 @@ func after_each() -> void:
 	await get_tree().process_frame
 
 
+#endregion
+
+#region Авторские сцена, диалог и анимация
+## Профиль выбирает prefab и диалог интересов; закрытие возвращает ввод игроку.
 func test_profile_selects_copyable_scene_and_custom_dialogue_with_interests() -> void:
 	assert_eq(_customer.scene_file_path, _visit.definition.customer_scene_path)
 	assert_not_null(_customer.navigation_agent)
@@ -69,6 +76,7 @@ func test_profile_selects_copyable_scene_and_custom_dialogue_with_interests() ->
 	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
 
 
+## Поза осмотра уступает ходьбе и действующей боевой анимации; отсутствующий клип даёт Idle.
 func test_authored_stationary_pose_preserves_walk_and_combat_animation_priority() -> void:
 	var player: AnimationPlayer = AnimationPlayer.new()
 	var library: AnimationLibrary = AnimationLibrary.new()
@@ -98,3 +106,5 @@ func test_authored_stationary_pose_preserves_walk_and_combat_animation_priority(
 	agent.phase = C_CustomerAgent.Phase.WAITING
 	_customer._process(0.0)
 	assert_eq(player.current_animation, "Inspect", "Service pose must not override combat's active method-track animation")
+
+#endregion
