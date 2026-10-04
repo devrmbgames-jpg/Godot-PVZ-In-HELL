@@ -1,83 +1,83 @@
 extends GameDefinition
-## District population, replacement and perception tuning.
+## Настройки населения, заселения, маршрутов и восприятия района.
 class_name DEF_District
-## Exposure outside authored light zones; independent of visual ambient rendering.
+## Освещённость вне ручных зон; не зависит от визуального ambient.
 @export_range(0.0, 1.0) var ambient_light: float = 0.05
-## Radius around the resting player in which an immediate danger prevents sleep.
+## Радиус опасности возле места отдыха, блокирующей сон, в метрах.
 @export_range(0.1, 8.0) var sleep_danger_radius: float = 1.5
-## Conversation remains open only within this distance.
+## Разговор остаётся открытым только в пределах этой дистанции, в метрах.
 @export_range(1.0, 10.0) var conversation_range: float = 4.0
-## Physical pickup arrival tolerance.
+## Допуск прибытия к физической добыче, в метрах.
 @export_range(0.2, 2.0) var loot_distance: float = 0.8
-## Appetite permitting ordinary food consumption.
+## Уровень голода, при котором NPC может съесть доступную еду.
 @export_range(0.0, 100.0) var npc_food_threshold: float = 30.0
-## Hunger that can justify an otherwise affordable ambient attack.
+## Голод, который может обосновать допустимое по риску самостоятельное нападение.
 @export_range(0.0, 100.0) var npc_attack_hunger: float = 80.0
-## Initial appetite; growth follows the existing Hunger policy while on map.
+## Начальный голод; на карте растёт по существующим правилам Hunger.
 @export_range(0.0, 100.0) var npc_start_hunger: float = 20.0
-## Authored compatible replacement names; stable sequence disambiguates reuse.
+## Имена новых жителей из совместимого пула; последовательность различает повторы.
 @export var replacement_names: PackedStringArray = ["Счетовод", "Грач", "Моль", "Сажа", "Свечник", "Тихоня", "Нитка", "Дымник"]
-## Seconds between hazard route evaluations.
+## Интервал проверки риска и повторной попытки пути, а не полного перепланирования.
 @export_range(0.1, 5.0) var route_interval: float = 0.6
-## Maximum synchronous route plans allowed in one physics frame.
+## Лимит синхронных планов маршрута за один физический кадр.
 @export_range(1, 16) var route_plans_per_frame: int = 1
-## Bounded wait before abandoning an unreachable activity.
+## Максимальное ожидание перед отказом от недостижимого занятия, в секундах.
 @export_range(1.0, 120.0) var route_timeout: float = 20.0
-## Actual horizontal movement needed to renew the route progress watchdog.
+## Горизонтальное продвижение, сбрасывающее таймер застревания, в метрах.
 @export_range(0.05, 1.0) var route_progress_distance: float = 0.15
-## Extra clearance for local paths around moving damaging volumes.
+## Дополнительный зазор локального обхода движущейся опасности, в метрах.
 @export_range(0.1, 3.0) var local_detour_margin: float = 0.5
-## Ordered passage IDs followed by light-sensitive NPCs in either direction.
+## Упорядоченные ID теневого прохода для движения светобоязненных NPC в обе стороны.
 @export var shade_route: PackedStringArray = []
-## Authored retreat point for light aversion; no runtime search for darker places.
+## Заданная точка отступления от света; поиск тёмных мест не выполняется.
 @export var shade_refuge: StringName = &""
-## Waypoint arrival tolerance independent of final service arrival.
+## Допуск промежуточной точки пути, независимый от прибытия к получателю.
 @export_range(0.1, 1.0) var waypoint_distance: float = 0.5
 
-## Authored initial people and replacement pool.
+## Начальные личности и пул профилей для заселения.
 @export var profiles: Array[DEF_NpcProfile] = []
-## Stable homes, portals, activities and route junctions.
+## Постоянные дома, проходы, занятия и узлы маршрутов.
 @export var places: Array[DEF_DistrictPlace] = []
-## Target number of local people.
+## Целевое количество местных жителей.
 @export_range(1, 64) var resident_count: int = 8
-## Target number of recurring outside people.
+## Целевое количество постоянных приезжих.
 @export_range(0, 64) var visitor_count: int = 4
-## Vacancies required to begin local resettlement.
+## Количество вакансий для запуска местного заселения.
 @export_range(1, 64) var replacement_threshold: int = 2
-## Morning transitions before a replacement may arrive.
+## Количество переходов к утру перед прибытием замены.
 @export_range(1, 30) var replacement_delay_days: int = 2
-## AI and sensory update interval.
+## Интервал обновления решений и восприятия, в секундах.
 @export_range(0.05, 1.0) var decision_interval: float = 0.2
-## Self-initiated NPC conflicts permitted per phase.
+## Лимит самостоятельных конфликтов NPC за фазу.
 @export_range(0, 10) var ambient_conflicts_per_phase: int = 1
-## Limits the number of initiating local profiles during authored replacement.
+## Лимит инициаторов нападений при выборе новых местных профилей.
 @export_range(0, 8) var maximum_conflict_initiators: int = 2
-## Idle delay before choosing another simple activity.
+## Пауза до выбора следующего простого занятия, в секундах.
 @export_range(1.0, 300.0) var activity_seconds: float = 30.0
-## Maximum accepted home deliveries per evening.
+## Лимит добровольных домашних доставок за вечер.
 @export_range(0, 8) var maximum_home_deliveries: int = 2
-## Maximum damage amount safe for normal route planning as an HP fraction.
+## Допустимый урон обычного маршрута как доля полного здоровья.
 @export_range(0.0, 1.0) var ordinary_route_risk: float = 0.05
 
-## Sound attenuation through one or more physical blockers.
+## Множитель слышимости через физические препятствия.
 @export_range(0.0, 1.0) var hearing_wall_attenuation: float = 0.25
-## Footstep stimulus emission interval.
+## Интервал событий шагов, в секундах.
 @export_range(0.1, 2.0) var footstep_interval: float = 0.6
-## Walking sound radius.
+## Радиус звука ходьбы, в метрах.
 @export_range(0.1, 30.0) var walking_noise_radius: float = 6.0
-## Running sound radius.
+## Радиус звука бега, в метрах.
 @export_range(0.1, 40.0) var running_noise_radius: float = 12.0
-## Physical doors and pickup interactions emit a location within this radius.
+## Открытие двери и подбор предмета слышны в этом радиусе, в метрах.
 @export_range(0.1, 30.0) var interaction_noise_radius: float = 4.0
-## An attempted weapon strike remains audible even when it misses.
+## Попытка удара слышна в этом радиусе, даже если удар не попал.
 @export_range(0.1, 40.0) var strike_noise_radius: float = 10.0
-## Actual damage produces an impact or pain stimulus.
+## Реальный урон создаёт слышимый удар или крик боли.
 @export_range(0.1, 40.0) var damage_noise_radius: float = 14.0
-## Crouched movement sound multiplier.
+## Множитель громкости движения в приседе.
 @export_range(0.0, 1.0) var crouching_noise_fraction: float = 0.3
 
 #region Place queries
-## Looks up a stable authored place ID.
+## Находит авторское место по постоянному ID.
 func place_for(place_key: StringName) -> DEF_DistrictPlace:
 	for place: DEF_DistrictPlace in places:
 		if place != null and place.key == place_key:

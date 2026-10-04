@@ -1,22 +1,22 @@
 extends Resource
-## One voluntary real-box obligation; statuses and bonus commit survive save retries.
+## Обязательство доставки настоящей коробки; статус и доплата переживают повтор записи.
 class_name NpcHomeDelivery
 
 enum Status { ACCEPTED, DELIVERED, REFUSED, FAILED }
 
-## Stable identity also used for the bonus money operation.
+## Постоянный ID обязательства также служит ключом однократной доплаты.
 @export var job_id: StringName = &""
-## Permanent recipient, independent of replacement at the address.
+## Постоянный получатель; смена жителя по адресу его не заменяет.
 @export var npc_id: StringName = &""
-## The ordinary parcel case owns all receipt and accounting facts.
+## Выдача и финансовые результаты принадлежат обычному посылочному случаю.
 @export var visit_id: StringName = &""
-## Destination fixed when the player promises delivery.
+## Адрес, зафиксированный при обещании доставки.
 @export var address_id: StringName = &""
-## Registration number remembered for the job list after successful parcel departure.
+## Номер заказа для списка доставок после исчезновения успешно выданной коробки.
 @export var order_number: int = 0
-## Deadline is sleep on this day, without a seconds timer.
+## Срок обязательства — сон в этот день; таймера в секундах нет.
 @export var day_index: int = 1
-## Durable completion or failure.
+## Сохраняемый итог выполнения или нарушения обязательства.
 @export var status: Status = Status.ACCEPTED
-## Whether the one base-payment bonus was committed.
+## Доплата в размере базовой выдачи уже зафиксирована.
 @export var bonus_committed: bool = false

@@ -1,14 +1,14 @@
 extends Component
-## Transient single-owner decision state; no stored physics transform or target reference.
+## Временное состояние владельца намерения; не хранит физические transform и ссылки на цели.
 class_name C_NpcDecision
 
 enum Owner { EMERGENCY, COMBAT, SERVICE, SCHEDULE, IDLE, NONE }
 
-## Current branch permitted to issue movement and actions.
+## Ветка решения, имеющая право задавать движение и действия.
 var intent_owner: Owner = Owner.NONE
-## Debug-facing active behavior label.
+## Название текущего поведения для отладки.
 var active_behavior: String = ""
-## Elapsed time toward the next bounded AI update.
+## Накопленное время до следующего обновления AI.
 var update_elapsed: float = 0.0
-## Time spent on an unreachable destination.
+## Время ожидания недостижимой цели.
 var blocked_elapsed: float = 0.0

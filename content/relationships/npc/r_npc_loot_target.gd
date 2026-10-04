@@ -1,3 +1,3 @@
 extends Component
-## NPC to a currently pursued available pickup; cleared on interruption or ownership change.
+## Доступная добыча NPC; связь снимается при прерывании или смене владельца.
 class_name R_NpcLootTarget

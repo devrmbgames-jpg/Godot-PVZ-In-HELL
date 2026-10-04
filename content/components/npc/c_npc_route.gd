@@ -1,28 +1,28 @@
 extends Component
-## Derived hazard-aware waypoint route; final movement intent retains its original meaning.
+## Производный маршрут с оценкой опасностей; конечное намерение движения не меняется.
 class_name C_NpcRoute
 
-## Intermediate navigation waypoints.
+## Промежуточные точки движения по маршруту.
 var points: PackedVector3Array = PackedVector3Array()
-## Next waypoint index.
+## Индекс следующей точки маршрута.
 var point_index: int = 0
-## Final goal for which this route was evaluated.
+## Конечная цель, для которой был построен маршрут.
 var goal: Vector3 = Vector3.ZERO
-## Native navigation map used to build this derived route; not saved.
+## Нативная карта навигации построенного пути; не сохраняется.
 var navigation_map: RID = RID()
-## Map revision used to build the route; -1 requests an initial plan.
+## Ревизия navmesh при построении пути; -1 требует начального планирования.
 var map_iteration: int = -1
-## Whether the current intent has an acceptable route.
+## У текущего намерения есть допустимый маршрут.
 var reachable: bool = true
-## Time since hazard evaluation.
+## Время с последней оценки опасности.
 var elapsed: float = 0.0
-## Whether this goal is awaiting a slot in the fair planning queue.
+## Текущая цель ожидает своей очереди планирования.
 var pending: bool = false
-## Bounded waiting without a traversable safe route.
+## Время ожидания без доступного безопасного маршрута.
 var blocked_seconds: float = 0.0
-## Whether a physical progress sample has been established for this goal.
+## Признак начального измерения физического продвижения по текущей цели.
 var progress_initialized: bool = false
-## Last physical position at which meaningful movement was observed.
+## Последняя физическая позиция, в которой замечено достаточное продвижение.
 var progress_position: Vector3 = Vector3.ZERO
-## Time without meaningful movement despite a reachable route.
+## Время без физического продвижения по формально доступному пути.
 var stalled_seconds: float = 0.0

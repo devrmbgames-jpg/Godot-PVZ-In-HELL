@@ -1,19 +1,19 @@
 extends Resource
-## One remembered incident with recognized stable participants and a cached reaction.
+## Воспринятый инцидент с постоянными ID участников и сохранённой реакцией.
 class_name NpcMemory
 
 enum Kind { HELP, THREAT, LIE, BROKEN_PROMISE, ATTACK, KILLING, JOKE, SUBMISSION, OFFENSE }
 enum Reaction { TALK, ACCEPT, ATTACK, FLEE, RESPECT }
 
-## Stable incident identity; repeated presentation cannot reroll the reaction.
+## Постоянный ID инцидента; повторный показ не перебрасывает реакцию.
 @export var incident_id: StringName = &""
-## Recognized actor, not a live Node reference.
+## ID распознанного участника, без ссылки на живой Node.
 @export var actor_id: StringName = &""
-## Recognized victim where applicable.
+## ID распознанной жертвы, если событие имеет жертву.
 @export var victim_id: StringName = &""
-## Remembered type of action.
+## Вид запомненного действия.
 @export var kind: Kind = Kind.HELP
-## Day when it was observed.
+## День, когда участник воспринял событие.
 @export var day: int = 1
-## One-time authored social response.
+## Реакция на социальный инцидент, выбранная один раз.
 @export var reaction: Reaction = Reaction.TALK

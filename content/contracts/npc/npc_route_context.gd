@@ -1,17 +1,17 @@
 extends RefCounted
-## Effective hazard inputs captured once for a route's health-risk check.
+## Параметры опасностей, собранные один раз для проверки риска потери здоровья.
 class_name NpcRouteContext
 
-## Effective damaging sphere captured from a live hazard.
+## Действующая опасная сфера, зафиксированная для оценки маршрута.
 class Hazard extends RefCounted:
-	## World center at the start of this plan.
+	## Мировая позиция центра опасности в начале проверки маршрута.
 	var center: Vector3 = Vector3.ZERO
-	## Clearance including the traveler's physical radius.
+	## Радиус опасности с учётом физического размера NPC.
 	var radius: float = 0.0
-	## Effective damage per second after the traveler's resistance.
+	## Эффективный урон за секунду с учётом сопротивлений NPC.
 	var damage_rate: float = 0.0
 
-## Harmful volumes with resistance and clearance already applied.
+## Опасные объёмы с уже учтёнными сопротивлениями и физическим зазором.
 var hazards: Array[Hazard] = []
-## Actual movement speed used for exposure duration.
+## Фактическая скорость движения для расчёта времени воздействия опасности.
 var speed: float = 1.0

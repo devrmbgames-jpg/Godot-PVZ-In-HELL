@@ -1,3 +1,3 @@
 extends Component
-## NPC to live interlocutor; the relationship owns conversation participants.
+## Живой собеседник NPC; участники разговора принадлежат Relationship.
 class_name R_NpcConversation

@@ -1,6 +1,6 @@
 extends Component
-## Typed damage multipliers; zero is a real immunity shared by damage and route evaluation.
+## Множители типов урона; ноль даёт одинаковый иммунитет в уроне и оценке пути.
 class_name C_DamageResistance
 
-## Unspecified types use one; authored multipliers must be finite and nonnegative.
+## Неуказанные типы имеют множитель 1; авторские значения конечны и неотрицательны.
 @export var multipliers: Dictionary[int, float] = {}

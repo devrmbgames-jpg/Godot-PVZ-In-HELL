@@ -1,80 +1,80 @@
 extends GameDefinition
-## Immutable identity, personality and capabilities; parcel policy belongs to each case.
+## Личность, характер и способности; правила обслуживания принадлежат каждому заказу.
 class_name DEF_NpcProfile
 
-## Authored melee capabilities; assigned to the existing attack executor.
+## Способности ближнего боя для существующего исполнителя атак.
 @export var melee_attacks: Array[DEF_NpcAttack] = [preload("res://content/definitions/gameplay/combat/def_npc_punch.tres")]
-## Authored ranged capabilities; empty for ordinary residents.
+## Способности дальнего боя; у обычных жителей список пуст.
 @export var ranged_attacks: Array[DEF_NpcAttack] = []
 
 enum Personality { AGGRESSIVE, BRAZEN, CHEERFUL, TIMID }
 
-## Name used in dialogue and above the body.
+## Имя в диалоге и над физическим телом.
 @export var display_name: String = "Житель"
-## Whether the person occupies a district home.
+## Личность занимает дом в этом районе.
 @export var resident: bool = true
-## Whether this resident inherits the existing trading catalog.
+## Местный житель обслуживает существующий торговый ассортимент.
 @export var merchant: bool = false
-## Recipient key used only when selecting recipients for new shipments.
+## Ключ получателя используется только при создании новых поставок.
 @export var recipient_key: StringName = &""
-## Primary social disposition.
+## Основной характер для социальных реакций.
 @export var personality: Personality = Personality.CHEERFUL
-## Weekly phase anchors.
+## Цели фаз недельного расписания.
 @export var schedule: DEF_NpcSchedule = null
-## At most two compatible supernatural rules.
+## Не более двух совместимых сверхъестественных особенностей.
 @export var rules: Array[DEF_NpcTrait] = []
-## Stable external scene for this person's physical body.
+## Внешняя сцена физического тела этой личности.
 @export_file("*.tscn") var npc_scene_path: String = "res://content/entities/npc/district_npc.tscn"
-## Readable personal interests for street conversations.
+## Личные интересы для уличных разговоров.
 @export var interests: PackedStringArray = []
-## Preferred free activities; eligible destinations are selected deterministically.
+## Предпочитаемые занятия; допустимое место выбирается детерминированно.
 @export var preferred_activities: PackedInt32Array = [0, 1, 2, 3]
-## Observed outward speed indicating retreat during an existing confrontation.
+## Наблюдаемая скорость отступления из текущего столкновения.
 @export_range(0.1, 8.0) var retreat_speed: float = 1.5
-## Sustained visible retreat required before recording submission.
+## Время видимого отступления до фиксации подчинения, в секундах.
 @export_range(0.2, 5.0) var retreat_seconds: float = 0.8
-## Strong reaction to a validated offense.
+## Вероятность резкой реакции на подтверждённую провинность.
 @export_range(0.0, 1.0) var high_attack_probability: float = 0.75
-## Flight tendency for aggressive and brazen people.
+## Вероятность бегства для агрессивного и борзого характера.
 @export_range(0.0, 1.0) var low_flee_probability: float = 0.1
-## Cheerful acceptance of a joke.
+## Вероятность спокойно принять шутку для весёлого характера.
 @export_range(0.0, 1.0) var joke_acceptance_probability: float = 0.9
-## Timid flight probability under a serious threat.
+## Вероятность бегства трусливого NPC при серьёзной угрозе.
 @export_range(0.0, 1.0) var timid_flee_probability: float = 0.8
-## Timid attack probability under a serious threat.
+## Вероятность нападения трусливого NPC при серьёзной угрозе.
 @export_range(0.0, 1.0) var timid_attack_probability: float = 0.05
-## Ground locomotion speed in meters per second.
+## Скорость ходьбы по земле, в метрах в секунду.
 @export_range(0.1, 8.0) var move_speed: float = 1.8
-## Close recognition still requires clear physical sight.
+## Близкое распознавание также требует прямой физической видимости.
 @export_range(0.2, 4.0) var near_recognition_range: float = 1.5
-## Maximum audible radius for this person.
+## Максимальный радиус слуха этого NPC, в метрах.
 @export_range(1.0, 50.0) var hearing_range: float = 20.0
-## Perception range in ordinary light.
+## Дальность зрения при обычном освещении, в метрах.
 @export_range(1.0, 50.0) var vision_range: float = 16.0
-## Horizontal vision cone in degrees.
+## Горизонтальный сектор зрения, в градусах.
 @export_range(30.0, 180.0) var vision_angle: float = 110.0
-## Range multiplier in darkness for ordinary eyes.
+## Множитель дальности обычного зрения в темноте.
 @export_range(0.0, 1.0) var dark_vision_fraction: float = 0.15
-## Search duration after the last confirmed sighting.
+## Длительность поиска после последнего подтверждённого наблюдения, в секундах.
 @export_range(1.0, 120.0) var search_seconds: float = 12.0
-## Last sighting plus this bounded number of nearby authored hiding-place checks.
+## Последняя видимая позиция и ограниченное число проверок ближайших укрытий.
 @export_range(1, 8) var search_point_count: int = 3
-## Lowest remaining HP fraction accepted during a risky pursuit.
+## Минимальная доля здоровья, которую должно оставить опасное преследование.
 @export_range(0.0, 1.0) var pursuit_health_reserve: float = 0.35
-## Whether this profile may initiate a bounded ambient attack.
+## Профиль может начинать самостоятельные нападения в пределах лимита.
 @export var initiates_conflicts: bool = false
-## Base color differentiating people in the blockout.
+## Основной цвет, различающий жителей в блокинге.
 @export var body_color: Color = Color(0.65, 0.45, 0.35)
 
 #region Trait queries
-## Finds a supernatural rule without allocating a new collection.
+## Находит правило нечисти без создания новой коллекции.
 func rule_for(kind: DEF_NpcTrait.Kind) -> DEF_NpcTrait:
 	for rule: DEF_NpcTrait in rules:
 		if rule != null and rule.kind == kind:
 			return rule
 	return null
 
-## Checks the authored combination before spawning.
+## Проверяет совместимость авторских особенностей перед появлением NPC.
 func valid_rules() -> bool:
 	if rules.size() > 2:
 		return false

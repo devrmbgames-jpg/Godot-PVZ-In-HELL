@@ -1,36 +1,36 @@
 extends Resource
-## Permanent person and phase history; active health and items remain on the body.
+## Личность и история фаз; здоровье и предметы остаются на физическом теле.
 class_name NpcRecord
 
 enum Placement { STREET, HOME, OUTSIDE, DEAD }
 
-## Lifetime identity independent of visits and dates.
+## ID личности на всю жизнь, независимо от заказов и дат визита.
 @export var npc_id: StringName = &""
-## Immutable profile reference.
+## Ссылка на авторский профиль личности.
 @export var profile: DEF_NpcProfile = null
-## Lifetime name, including new names selected for replacement people.
+## Постоянное имя, включая имя новой личности при заселении.
 @export var display_name: String = ""
-## Address recipient alias used for future shipments, never for reassigning old cases.
+## Получатель новых поставок по адресу; старые заказы не переназначаются.
 @export var recipient_key: StringName = &""
-## Stable home address; empty for outsiders.
+## Постоянный домашний адрес; пуст у приезжих.
 @export var home_id: StringName = &""
-## Current logical placement.
+## Текущее размещение личности: улица, дом, вне района или смерть.
 @export var placement: Placement = Placement.HOME
-## Assigned entry and exit portal.
+## Закреплённая точка входа и выхода из района.
 @export var portal_id: StringName = &""
-## Different exit for recurring pass-through visitors.
+## Другая точка выхода для приезжего, проходящего район насквозь.
 @export var exit_id: StringName = &""
-## Phase goal place.
+## Авторское место обязательной цели фазы.
 @export var goal_id: StringName = &""
-## Last committed schedule day.
+## Последний зафиксированный день расписания.
 @export var planned_day: int = 0
-## Last committed phase.
+## Последняя зафиксированная фаза расписания.
 @export var planned_phase: int = -1
-## Whether the mandatory phase task has completed.
+## Обязательная задача текущей фазы завершена.
 @export var phase_complete: bool = false
-## Remembered recognized social incidents.
+## Воспринятые личностью социальные инциденты.
 @export var memories: Array[NpcMemory] = []
-## Day of terminal death; zero while alive.
+## День окончательной смерти; у живой личности равен нулю.
 @export var death_day: int = 0
-## Deterministic activity sequence prevents reroll on reload.
+## Последовательность занятий сохраняет выбор при перезагрузке.
 @export var activity_sequence: int = 0

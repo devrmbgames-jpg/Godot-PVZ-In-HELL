@@ -1,6 +1,6 @@
 extends Component
-## Live recipient to home door reservation for one evening parcel case.
+## Резерв двери живым получателем для одного вечернего заказа.
 class_name R_NpcHomeMeeting
 
-## Stable evening obligation owning the meeting.
+## Постоянное вечернее обязательство, владеющее встречей у двери.
 var job_id: StringName = &""

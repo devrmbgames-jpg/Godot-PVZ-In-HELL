@@ -1,14 +1,14 @@
 extends RefCounted
-## Short-lived audible event; position is audible but source identity must be recognized.
+## Короткоживущее звуковое событие; позиция слышна, личность требует распознавания.
 class_name NpcNoise
 
-## Monotonic batch sequence for once-only hearing.
+## Последовательный номер звука для однократной обработки.
 var sequence: int = 0
-## Lifetime covering the complete staggered perception interval.
+## Время жизни звука покрывает полный интервал распределённого восприятия.
 var remaining: float = 0.5
-## Actual stimulus position at emission.
+## Позиция звука в момент его появления.
 var position: Vector3 = Vector3.ZERO
-## Audible radius before obstacle attenuation.
+## Радиус слышимости до ослабления препятствиями.
 var radius: float = 8.0
-## Optional live source, used only for an immediate perception check.
+## Необязательный живой источник для непосредственной проверки распознавания.
 var source: Entity = null

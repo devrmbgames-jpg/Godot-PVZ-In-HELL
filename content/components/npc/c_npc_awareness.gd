@@ -1,44 +1,44 @@
 extends Component
-## Derived perception and search progress; live opponent identity belongs to Relationships.
+## Состояние восприятия и поиска; живого противника связывают Relationships.
 class_name C_NpcAwareness
 
-## Whether the bound opponent is currently confirmed by sight.
+## Связанный противник виден в текущем обновлении зрения.
 var target_visible: bool = false
-## Whether the player is currently confirmed by sight.
+## Игрок виден в текущем обновлении зрения.
 var player_visible: bool = false
-## Last confirmed opponent position; never updated through a hidden live target.
+## Последняя видимая позиция противника; скрытая текущая позиция не считывается.
 var last_seen_position: Vector3 = Vector3.ZERO
-## Whether any valid opponent position has been confirmed.
+## Признак подтверждённой позиции противника в прошлом.
 var has_last_seen: bool = false
-## Time since the opponent was last confirmed.
+## Время с последнего подтверждённого наблюдения противника.
 var search_elapsed: float = 0.0
-## Last audible stimulus position, without assumed source identity.
+## Последняя слышимая позиция без предположения о личности источника.
 var heard_position: Vector3 = Vector3.ZERO
-## Remaining investigation time for an unrecognized noise.
+## Оставшееся время проверки нераспознанного звука.
 var heard_remaining: float = 0.0
-## Whether an immediate reaction requests fleeing.
+## Текущая реакция требует бегства.
 var fleeing: bool = false
-## Sustained visible player retreat in an active confrontation.
+## Длительность видимого отступления игрока из текущего столкновения.
 var retreat_elapsed: float = 0.0
-## Elapsed idle time before another activity.
+## Время простоя до следующего свободного занятия.
 var idle_elapsed: float = 0.0
-## Last consumed stimulus sequence; one noise cannot continually renew search.
+## Последний обработанный номер звука; одно событие не продлевает поиск повторно.
 var last_noise_sequence: int = 0
-## Footstep emission accumulator.
+## Накопитель времени до следующего звука шагов.
 var footstep_elapsed: float = 0.0
-## Sustained exposure per supernatural rule.
+## Накопленное воздействие каждого правила нечисти.
 var rule_exposure: Dictionary[int, float] = {}
-## Warning guards scoped to the current encounter.
+## Предупреждения, уже показанные в текущей встрече.
 var warned_rules: Array[int] = []
-## Consequences already committed in the current encounter.
+## Последствия, уже применённые в текущей встрече.
 var reacted_rules: Array[int] = []
-## Search point currently being checked.
+## Индекс укрытия, проверяемого во время поиска.
 var search_index: int = 0
-## Lighting distress requests a dark refuge through the emergency branch.
+## Дискомфорт от света запрашивает укрытие через ветку аварийного отхода.
 var light_distress: bool = false
 
-## Immediate effective hazard exposure requires escaping the current volume.
+## Непосредственная опасность требует выхода из текущего объёма.
 var hazard_distress: bool = false
 
-## Once per phase the person may call out; opening the modal always requires interaction.
+## Оклик возможен один раз за фазу; окно диалога требует взаимодействия игрока.
 var called_out: bool = false

@@ -1,6 +1,6 @@
 extends RefCounted
-## Scene-local authored light zones; switch and volume state remain live.
+## Зоны света текущего уровня; выключатель и геометрия читаются актуальными.
 class_name NpcLightingContext
 
-## Zones belonging to the current world's level, excluding other loaded scenes.
+## Зоны текущего уровня; объёмы других загруженных сцен исключаются.
 var zones: Array[NpcLightZone] = []

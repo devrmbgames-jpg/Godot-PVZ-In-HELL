@@ -1,6 +1,6 @@
 extends Component
-## Exclusive live NPC-to-counter reservation; the parcel case remains a stable resource.
+## Исключительный резерв стойки для живого NPC; заказ остаётся отдельным ресурсом.
 class_name R_NpcServiceAt
 
-## Case that owns this reservation.
+## Посылочный случай, которому принадлежит резервирование.
 var visit_id: StringName = &""

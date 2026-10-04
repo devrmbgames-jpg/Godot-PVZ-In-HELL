@@ -1,6 +1,6 @@
 extends Component
-## Persistent body-to-person identity; no authority over parcel or combat targets.
+## Связь тела с постоянной личностью; не управляет целями боя и посылками.
 class_name C_NpcIdentity
 
-## Permanent district person ID.
+## Постоянный ID личности района.
 @export var npc_id: StringName = &""

@@ -1,24 +1,24 @@
 extends GameDefinition
-## Stable address, portal, activity or route junction authored in district space.
+## Постоянный адрес, проход, занятие или узел навигации в координатах района.
 class_name DEF_DistrictPlace
 
 enum Kind { HOME, PORTAL, ACTIVITY, SHOP, JUNCTION, COVER }
 enum Activity { WALK, WATCH_WINDOW, OBSERVE, VISIT_SHOP }
 
-## Free activity performed after arrival; unrelated to parcel service.
+## Свободное занятие после прибытия; не связано с выдачей посылки.
 @export var activity: Activity = Activity.WALK
-## Offset keeps a visitor clear of the merchant's own standing position.
+## Смещение посетителя от собственного места торговца.
 @export var activity_offset: Vector3 = Vector3.ZERO
-## Optional authored focus, such as the PVZ window; never a hidden live target.
+## Авторская точка внимания, например окно ПВЗ; не скрытая цель Entity.
 @export var focus_path: NodePath = NodePath("")
-## Human-readable destination; stable key remains an internal binding.
+## Название места для игрока; постоянный ключ служит внутренней связью.
 @export var display_name: String = "Место района"
 
-## Placement category.
+## Категория размещения авторской точки.
 @export var kind: Kind = Kind.ACTIVITY
-## Position relative to the district blockout root.
+## Позиция относительно корня блокинга района.
 @export var position: Vector3 = Vector3.ZERO
-## Optional main-level marker supplies X/Z; position.y remains the authored ground height.
+## Маркер уровня задаёт X/Z; position.y остаётся авторской высотой земли.
 @export var anchor_path: NodePath = NodePath("")
-## Connections in the district route graph.
+## Связи авторского графа проходов района.
 @export var neighbours: PackedStringArray = []
