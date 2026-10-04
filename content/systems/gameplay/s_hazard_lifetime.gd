@@ -1,12 +1,14 @@
 extends System
-## Expires or removes disabled effects after damage producers resolve their final tick.
+## Удаляет истёкшие/отключённые опасности после последнего такта производителей урона.
 class_name S_HazardLifetime
 
 
+## Выбирает все опасности с TTL, включая отключённые.
 func query() -> QueryBuilder:
 	return q.with_all([C_Hazard, C_HazardLifetime]).iterate([C_HazardLifetime])
 
 
+## Уменьшает TTL в секундах вне ожидания эффекта и планирует удаление истёкших/отключённых.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var lifetimes: Array = components[0]
 	for index: int in entities.size():

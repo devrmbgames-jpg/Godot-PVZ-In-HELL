@@ -1,12 +1,14 @@
 extends Observer
-## Consumes the generic reset event; future day/night systems need no package-specific cleanup.
+## Обрабатывает общий сброс опасностей без специализированной очистки посылок.
 class_name O_HazardReset
 
 
+## Подписывается на общий запрос сброса опасностей.
 func query() -> QueryBuilder:
 	return q.on_event(HazardResetRequest.EVENT)
 
 
+## Ставит удаление подходящих эффектов в CommandBuffer согласно include_persistent.
 func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 	var request: HazardResetRequest = payload as HazardResetRequest
 	if request == null:

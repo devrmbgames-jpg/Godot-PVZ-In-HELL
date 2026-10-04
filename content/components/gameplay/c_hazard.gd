@@ -1,15 +1,17 @@
 extends Component
-## Independent hazard identity, immutable configuration and durable origin attribution.
+## Данные автономной опасности с авторским определением и постоянной атрибуцией.
 class_name C_Hazard
 
-## Authored configuration is supplied by the generic factory.
+## Авторское определение, выбранное общей фабрикой.
 @export var definition: DEF_Hazard = null
-## Stable strings survive deletion of the initiating Entity and instigator.
+## Устойчивый ID запроса, сохраняемый после удаления источника.
 var request_id: String = ""
+## Постоянный ID происхождения эффекта.
 var origin_id: String = ""
+## Постоянный ID инициатора эффекта.
 var instigator_id: String = ""
-## Optional live attribution, never required for independent effect lifetime.
+## Необязательный живой инициатор; срок автономного эффекта от него не зависит.
 var instigator: Entity = null
 
-## Optional origin only for excluding its colliders from blast LOS; never a lifetime owner.
+## Необязательный источник для исключения его коллайдеров из луча взрыва, отдельно от владения.
 var origin: Entity = null

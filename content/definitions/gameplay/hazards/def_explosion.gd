@@ -1,18 +1,21 @@
 extends DEF_Hazard
-## Reusable radial blast tuning, including LOS and physical impulse independent of HP.
+## Авторские параметры радиального взрыва с препятствиями и физическим импульсом отдельно от HP.
 class_name DEF_Explosion
 
-## Radius, center damage and center impulse (N*s), with radial power falloff.
+## Радиус взрыва в метрах.
 @export_range(0.1, 100.0) var radius: float = 4.0
+## Урон в центре до радиального ослабления и сопротивления.
 @export_range(0.0, 10000.0) var damage: float = 60.0
+## Импульс в центре в Н·с независимо от изменения HP.
 @export_range(0.0, 10000.0) var impulse: float = 80.0
-## Adds an upward component before normalization so grounded bodies visibly leave the floor.
+## Добавка вертикального направления перед нормализацией импульса.
 @export_range(0.0, 2.0, 0.05) var upward_bias: float = 0.25
+## Степень радиального ослабления урона и импульса.
 @export_range(0.1, 8.0) var falloff_power: float = 1.0
-## Broad-phase targets. Keep physical props/actors here; Environment may be included for
-## destructible world bodies, but static environment is filtered before impulse/damage.
+## Слои физических кандидатов, включая разрушаемые тела окружения;
+## статическое окружение без Health не получает импульс/урон.
 @export_flags_3d_physics var target_mask: int = 31
-## One center-to-target ray; only authored blocking environment belongs here.
+## Слои препятствий одного луча от центра до представительной точки цели.
 @export_flags_3d_physics var obstacle_mask: int = 1
-## Bound spatial work; large scenes can raise this authored cap.
+## Лимит результатов пространственного запроса, ограничивающий работу взрыва.
 @export_range(1, 1024) var maximum_targets: int = 128

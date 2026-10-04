@@ -1,12 +1,14 @@
 extends RefCounted
-## Typed factory notification for independent consumers and fixtures.
+## Типизированный результат фабрики для независимых обработчиков и проверок.
 class_name HazardSpawnResult
 
 const EVENT: StringName = &"hazard_spawned"
 
-## Created effect and durable request/origin identifiers.
+## Созданная сущность опасного эффекта.
 var hazard: Entity = null
+## ID принятого фабрикой запроса.
 var request_id: String = ""
+## Постоянный ID происхождения созданного эффекта.
 var origin_id: String = ""
-## Restore rebuilds native geometry while preserving already-resolved gameplay state.
+## Восстановление пересоздаёт геометрию, сохраняя уже разрешённое игровое состояние.
 var restored: bool = false

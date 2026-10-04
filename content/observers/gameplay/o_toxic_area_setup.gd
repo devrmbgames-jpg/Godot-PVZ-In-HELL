@@ -1,12 +1,14 @@
 extends Observer
-## Initializes a toxic prefab's private shape and presentation from immutable tuning.
+## Проверяет авторские настройки объёмной опасности и создаёт её форму и представление.
 class_name O_ToxicAreaSetup
 
 
+## Наблюдает созданные/восстановленные токсичные опасности.
 func query() -> QueryBuilder:
 	return q.with_all([C_Hazard, C_ToxicArea]).on_event(HazardSpawnResult.EVENT)
 
 
+## Ставит проверку и настройку объёма в CommandBuffer.
 func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
 	cmd.add_custom(_configure.bind(entity))
 

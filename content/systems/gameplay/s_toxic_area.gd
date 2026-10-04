@@ -1,18 +1,21 @@
 extends System
-## Independent per-volume clocks; Area3D supplies candidates, O_Damage owns health changes.
+## Часы объёмной опасности; Area3D даёт кандидатов, здоровье меняет O_Damage.
 class_name S_ToxicArea
 
 
+## Применяет воздействие после следования и до удаления по TTL.
 func deps() -> Dictionary[int, Array]:
 	return { Runs.After: [S_HazardFollow], Runs.Before: [S_HazardLifetime] }
 
 
+## Выбирает включённые объёмные опасности с часами воздействия и срока.
 func query() -> QueryBuilder:
 	return q.enabled().with_all([C_Hazard, C_ToxicArea, C_HazardLifetime]).iterate(
 		[C_Hazard, C_ToxicArea, C_HazardLifetime]
 	)
 
 
+## Объединяет истёкшие интервалы в один запрос на цель через CommandBuffer.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var hazards: Array = components[0]
 	var toxins: Array = components[1]
@@ -31,7 +34,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		if ticks <= 0:
 			continue
 
-		# Aggregate catch-up into one request per receiver, avoiding unbounded tick loops.
+		# Пропущенные интервалы объединяются в один запрос на получателя без перебора тактов.
 		toxin.tick_elapsed -= float(ticks) * profile.tick_seconds
 		cmd.add_custom(_apply_tick.bind(effect, hazard, profile, ticks))
 

@@ -1,8 +1,9 @@
 extends RefCounted
-## Shared spawn/load tuning validation; definitions remain immutable.
+## Общая проверка настроек создания/загрузки без изменения авторского определения.
 class_name HazardProfileRules
 
 
+## Проверяет конечный TTL и поддерживаемые параметры токсичной зоны/взрыва без изменения данных.
 static func valid(definition: DEF_Hazard) -> bool:
 	if definition == null or not _positive(definition.lifetime_seconds):
 		return false

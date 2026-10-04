@@ -1,6 +1,6 @@
 extends Component
-## Single-shot resolution guard independent of the source object's lifecycle.
+## Защита однократного взрыва независимо от жизненного цикла создавшего объекта.
 class_name C_Explosion
 
-## Committed before querying targets or publishing damage, preventing recursive re-entry.
+## Фиксируется до поиска целей и публикации урона для защиты вложенных вызовов.
 var resolved: bool = false

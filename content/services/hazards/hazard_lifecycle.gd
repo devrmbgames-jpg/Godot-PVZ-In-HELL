@@ -1,9 +1,9 @@
 extends RefCounted
-## Shared retirement boundary; use through CommandBuffer while iterating GECS queries.
+## Общая граница удаления; при обходе GECS-запросов вызывается через CommandBuffer.
 class_name HazardLifecycle
 
 
-## Removes both registration and scene children, including disabled or already-unregistered effects.
+## Снимает регистрацию и удаляет узлы сцены, включая уже отключённый/незарегистрированный эффект.
 static func retire(entity: Entity, world: World) -> void:
 	if not is_instance_valid(entity) or entity.is_queued_for_deletion():
 		return

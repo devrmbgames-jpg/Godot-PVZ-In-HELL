@@ -1,9 +1,9 @@
 extends RefCounted
-## Snapshots generic scene spawn requests onto the World's Observer event channel.
+## Публикует отдельный снимок запроса создания через мировое событие observers.
 class_name HazardSpawnService
 
 
-## Submission is independent of origin lifetime; scene validity is finalized by the factory.
+## Принимает запрос независимо от дальнейшего срока источника; prefab окончательно проверяет фабрика.
 static func submit(request: HazardSpawnRequest) -> bool:
 	if request == null or not is_instance_valid(ECS.world):
 		return false

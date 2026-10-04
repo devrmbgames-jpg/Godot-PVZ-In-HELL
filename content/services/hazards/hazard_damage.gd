@@ -1,9 +1,9 @@
 extends RefCounted
-## Translates an effect hit into the shared damage channel without owning HP arithmetic.
+## Передаёт воздействие опасности в общий контур урона без собственной арифметики HP.
 class_name HazardDamage
 
 
-## Effect is always the damaging source; stable attribution survives removal of the initiator.
+## Отправляет эффект как источник; постоянная атрибуция сохраняется после удаления инициатора.
 static func submit(
 	effect: Entity,
 	hazard: C_Hazard,

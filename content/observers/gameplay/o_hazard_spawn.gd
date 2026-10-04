@@ -1,14 +1,17 @@
 extends Observer
-## Sole generic hazard factory; the scene owns its immutable hazard definition.
+## Общая фабрика опасностей; выбирает авторское определение запроса или сцены.
 class_name O_HazardSpawn
 
 var _accepted: Dictionary[String, bool] = { }
 
 
+#region Приём запросов
+## Подписывается на общие типизированные запросы создания опасности.
 func query() -> QueryBuilder:
 	return q.on_event(HazardSpawnRequest.EVENT)
 
 
+## Запоминает ID до результата создания и ставит единственную попытку в CommandBuffer.
 func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 	var request: HazardSpawnRequest = payload as HazardSpawnRequest
 	if request == null or _accepted.has(request.request_id):
@@ -18,6 +21,9 @@ func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 	cmd.add_custom(_spawn.bind(request))
 
 
+#endregion
+
+#region Создание автономного эффекта
 func _spawn(request: HazardSpawnRequest) -> void:
 	if not is_instance_valid(_world) or request.scene == null:
 		return
@@ -86,3 +92,5 @@ func _spawn(request: HazardSpawnRequest) -> void:
 	result.request_id = request.request_id
 	result.origin_id = request.origin_id
 	_world.emit_event(HazardSpawnResult.EVENT, entity, result)
+
+#endregion

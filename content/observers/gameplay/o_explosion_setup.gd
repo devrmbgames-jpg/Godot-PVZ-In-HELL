@@ -1,12 +1,14 @@
 extends Observer
-## Validates blast tuning and sizes the independent prefab's visible flash.
+## Проверяет параметры взрыва и размер вспышки без повторного эффекта при restore.
 class_name O_ExplosionSetup
 
 
+## Наблюдает созданные/восстановленные автономные взрывы.
 func query() -> QueryBuilder:
 	return q.with_all([C_Hazard, C_Explosion, C_HazardLifetime]).on_event(HazardSpawnResult.EVENT)
 
 
+## Ставит настройку в CommandBuffer, сохраняя признак восстановления.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: HazardSpawnResult = payload as HazardSpawnResult
 	cmd.add_custom(_configure.bind(entity, result != null and result.restored))

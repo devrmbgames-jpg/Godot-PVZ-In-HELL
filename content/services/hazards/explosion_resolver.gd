@@ -1,9 +1,10 @@
 extends RefCounted
-## Single radial blast calculation shared by generic explosion producers; no package knowledge.
+## Общий однократный радиальный расчёт взрыва без знания о посылках.
 class_name ExplosionResolver
 
 
-## Called once at the physics System command boundary, after the one-shot guard is committed.
+#region Однократный радиальный расчёт
+## Вызывается на границе CommandBuffer после фиксации защиты однократного эффекта.
 static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 	if not EntityAvailability.contains(entity, world):
 		return
@@ -29,7 +30,7 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 	var origin: Entity = hazard.origin if is_instance_valid(hazard.origin) else null
 	var origin_exclusions: Array[RID] = _origin_exclusions(origin)
 
-	# One representative point/ray per Entity (or standalone body), nearest shape center wins.
+	# Одна точка/луч на Entity или отдельное тело; выбирается ближайший центр формы.
 	for hit: BlastHit in hits.values():
 		if not is_instance_valid(hit.body) or hit.body.is_queued_for_deletion():
 			continue
@@ -42,8 +43,8 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 		var exclusions: Array[RID] = origin_exclusions.duplicate()
 		exclusions.append(hit.body.get_rid())
 		ray.exclude = exclusions
-		# A ground-contact explosion must not self-occlude merely because its center
-		# starts on/inside Environment. We only care about an obstacle between points.
+		# Взрыв у пола не скрывается самим началом луча внутри окружения;
+		# проверяется препятствие между центром и точкой цели.
 		ray.hit_from_inside = false
 		if not hit.point.is_equal_approx(effect.get_spatial().global_position):
 			if not space.intersect_ray(ray).is_empty():
@@ -69,6 +70,9 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 			)
 
 
+#endregion
+
+#region Кандидаты и физический импульс
 static func _origin_exclusions(origin: Entity) -> Array[RID]:
 	var exclusions: Array[RID] = []
 	if not is_instance_valid(origin):
@@ -78,7 +82,7 @@ static func _origin_exclusions(origin: Entity) -> Array[RID]:
 	if root_body != null:
 		exclusions.append(root_body.get_rid())
 
-	# Rare boundary traversal supports authored child bodies without retaining physics handles.
+	# Однократный обход поддерживает авторские дочерние тела без хранения физических handles.
 	for body: PhysicsBody3D in origin.find_children("*", "PhysicsBody3D", true, false):
 		exclusions.append(body.get_rid())
 
@@ -123,11 +127,15 @@ static func _collect_hit(
 	hits[key] = hit
 
 
-## Resolution-local immutable candidate snapshot; never persisted or attached as ECS state.
+## Временной снимок кандидата одного взрыва, отдельно от сохраняемого ECS-состояния.
 class BlastHit extends RefCounted:
+	## Физическое тело для импульса и исключения из луча.
 	var body: PhysicsBody3D = null
+	## Ближайший владелец Health, если collider связан с Entity.
 	var target: Entity = null
+	## Мировая представительная точка ближайшей формы.
 	var point: Vector3 = Vector3.ZERO
+	## Линейный вес расстояния до применения falloff_power, в диапазоне 0–1.
 	var weight: float = 0.0
 
 
@@ -138,7 +146,7 @@ static func _apply_impulse(hit: BlastHit, impulse: Vector3) -> void:
 	if is_instance_valid(hit.target):
 		var motion: C_Motion = hit.target.get_component(C_Motion) as C_Motion
 		if motion != null:
-			# Controlled RigidBody characters consume gameplay impulses in their physics callback.
+			# Управляемый персонаж применяет накопленный импульс в своём физическом callback.
 			motion.pending_impulse += impulse
 			return
 
@@ -148,3 +156,5 @@ static func _apply_impulse(hit: BlastHit, impulse: Vector3) -> void:
 
 	rigid.sleeping = false
 	rigid.apply_central_impulse(impulse)
+
+#endregion

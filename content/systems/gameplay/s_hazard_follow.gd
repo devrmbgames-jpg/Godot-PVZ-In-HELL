@@ -1,12 +1,14 @@
 extends System
-## Moves only nonphysical effect roots and applies explicit owner-loss policy.
+## Перемещает только нефизические эффекты и применяет явную политику потери владельца.
 class_name S_HazardFollow
 
 
+## Выбирает включённые эффекты с живой связью следования.
 func query() -> QueryBuilder:
 	return q.enabled().with_relationship([Relationship.new(R_HazardFollow.new(), null)])
 
 
+## Копирует позу только нефизического эффекта; потеря владельца снимает связь либо удаляет эффект.
 func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 	for entity: Entity in entities:
 		var relationship: Relationship = HazardFollowService.binding(entity)

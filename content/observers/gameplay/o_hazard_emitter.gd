@@ -1,12 +1,14 @@
 extends Observer
-## Generic Health-depletion adapter for barrels, traps or any emitter-bearing Entity.
+## Активирует опасность истощённой Entity с emitter, сохраняя инициатора урона.
 class_name O_HazardEmitter
 
 
+## Подписывается на истощение здоровья производителей опасности.
 func query() -> QueryBuilder:
 	return q.with_all([C_HazardEmitter]).on_event(DamageResult.EVENT)
 
 
+## Передаёт принятый источник/инициатора в активатор emitter без изменения здоровья.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
 	if result == null or result.request == null:

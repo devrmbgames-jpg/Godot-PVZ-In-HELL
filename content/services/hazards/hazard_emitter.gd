@@ -1,8 +1,9 @@
 extends RefCounted
-## Reusable activation seam for autonomous hazard scenes; no Package-specific effect logic.
+## Активирует автономные сцены опасностей без специализированной логики посылок.
 class_name HazardEmitter
 
 
+## Фиксирует мировую позу доступного источника и отправляет сцену с устойчивыми ID.
 static func emit_scene(
 	origin: Entity,
 	scene: PackedScene,
@@ -29,6 +30,7 @@ static func emit_scene(
 	return HazardSpawnService.submit(request)
 
 
+## Фиксирует fired/sequence до отправки; отказ submit возвращает прежние значения.
 static func activate(
 	origin: Entity,
 	instigator: Entity = null,
