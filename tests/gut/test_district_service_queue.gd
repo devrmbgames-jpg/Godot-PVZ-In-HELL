@@ -2,6 +2,46 @@ extends "res://tests/gut/test_district_plan_acceptance.gd"
 ## Регрессии подготовки соседних клиентов и светобоязненного последнего визита.
 
 #region Очередь района
+## Смерть огненного получателя снимает настоящую ауру и освобождает стойку без ложной выдачи.
+func test_fire_customer_death_releases_aura_and_counter() -> void:
+	var cycle: C_DayCycle = DayPhaseService.current()
+	cycle.phase = C_DayCycle.Phase.DAY
+	_district.definition.service_transfer_pause = 0.0
+	_world.add_observer(O_HazardSpawn.new())
+	_world.add_system(S_HazardFollow.new())
+	var fire_body: E_DistrictNpc = _stage(1)
+	var fire_person: NpcRecord = _district.people[1]
+	fire_person.profile.rules = [load("res://content/definitions/gameplay/npc/def_npc_trait_2.tres") as DEF_NpcTrait]
+	var next_body: E_DistrictNpc = _stage(3, Vector3(10, 0, 0))
+	var first: CustomerVisit = _case(fire_person, "fire_death")
+	var next: CustomerVisit = _case(_district.people[3], "after_fire_death")
+	NpcServiceRole.begin(fire_body, fire_person, first, cycle.day_index)
+	NpcServiceRole.begin(next_body, _district.people[3], next, cycle.day_index)
+	NpcServiceRole.claim_counter(fire_body)
+	NpcTraitService.tick(fire_body, fire_person, null, 0.2)
+	_world.process(0.0)
+	var effects: Array = _world.query.with_all([C_Hazard, C_ToxicArea]).execute()
+	assert_eq(effects.size(), 1, "A real fire aura exists before death")
+	if effects.is_empty():
+		return
+	var aura: Entity = effects[0] as Entity
+	assert_same(HazardFollowService.binding(aura).target, fire_body)
+	assert_false(NpcServiceRole.can_approach(next_body))
+
+	fire_body.add_component(C_Death.new())
+	DistrictPopulationService.mark_dead(fire_person, fire_body, cycle.day_index)
+	_world.process(0.0)
+	assert_true(_world.query.with_all([C_Hazard, C_ToxicArea]).execute().is_empty())
+	assert_true(aura.is_queued_for_deletion())
+	assert_false(fire_body.has_component(C_CustomerAgent))
+	assert_eq(fire_body.get_relationships(Relationship.new(R_NpcServiceAt.new(), CustomerFlowService.counter())).size(), 0)
+	assert_true(first.customer_dead)
+	assert_eq(first.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq(first.declaration, CustomerVisit.Declaration.NONE)
+	assert_true(NpcServiceRole.can_approach(next_body))
+	NpcServiceRole.claim_counter(next_body)
+	assert_eq((next_body.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.APPROACHING)
+
 ## Ожидание выключателя снаружи не резервирует стойку для всех остальных жителей.
 func test_light_wait_keeps_counter_available_for_next_recipient() -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
