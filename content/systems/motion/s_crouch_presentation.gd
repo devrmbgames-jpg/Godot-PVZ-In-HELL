@@ -9,7 +9,7 @@ func deps() -> Dictionary[int, Array]:
 	return { Runs.After: [S_Crouch] }
 
 
-## Выбирает физические персонажи с C_Crouch и C_Motion.
+## Выбирает персонажей обоих физических типов с C_Crouch.
 func query() -> QueryBuilder:
 	return q.with_all([C_Crouch]).with_any([C_RigidBody, C_CharacterBody]).iterate([C_Crouch])
 

@@ -36,14 +36,18 @@ static var _pad_family: String = "xbox_series"
 static var _revision: int = 0
 
 
+#region Устройство и ревизия
+## Ревизия устройства/назначений для обновления UI по изменению вместо повторной сборки каждый кадр.
 static func revision() -> int:
 	return _revision
 
 
+## Повышает ревизию после смены назначений или устройства; текстуры каталога сохраняются.
 static func invalidate() -> void:
 	_revision += 1
 
 
+## Определяет семейство последнего активного устройства; небольшой шум стика/мыши не переключает подсказки.
 static func observe(event: InputEvent) -> void:
 	var family: String = _family
 	if InputBindingCodec.is_gamepad(event):
@@ -60,10 +64,15 @@ static func observe(event: InputEvent) -> void:
 		invalidate()
 
 
+#endregion
+
+#region Иконки текущих назначений
+## Маркер действия для InputPromptLabel; сама строка не содержит текущую привязку.
 static func token(action: StringName) -> String:
 	return "[input=%s]" % action
 
 
+## Плоский список иконок альтернатив/модификаторов; gamepad: -1 активное устройство, 0 клавиатура, 1 геймпад.
 static func textures(action: StringName, gamepad: int = -1) -> Array[Texture2D]:
 	var result: Array[Texture2D] = []
 	for group: Array in groups(action, gamepad):
@@ -98,6 +107,7 @@ static func groups(action: StringName, gamepad: int = -1) -> Array[Array]:
 	return result
 
 
+## Иконка конкретной кнопки/оси с fallback на устройство или клавиатуру при отсутствии спрайта.
 static func texture_for(event: InputEvent, family: String = "keyboard_mouse") -> Texture2D:
 	var name: String = ""
 	if event is InputEventKey:
@@ -156,3 +166,5 @@ static func texture_for(event: InputEvent, family: String = "keyboard_mouse") ->
 		var fallback: String = {"xbox_series": "controller_xboxseries", "playstation_series": "controller_playstation5", "steam_deck": "controller_steamdeck", "steam_controller": "controller_steam"}.get(family, "controller_xboxseries")
 		result = InputPromptCatalog.texture(family, fallback)
 	return result if result != null else InputPromptCatalog.texture("keyboard_mouse", "keyboard_any")
+
+#endregion

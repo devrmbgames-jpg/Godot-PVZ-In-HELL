@@ -10,6 +10,7 @@ var _exit_dialog: ConfirmationDialog
 var _level: String = ""
 
 
+#region Стартовый интерфейс
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_level = GameSessionService.level_path()
@@ -84,6 +85,9 @@ func _button(parent: Control, caption: String, node_name: String, callback: Call
 	return button
 
 
+#endregion
+
+#region Действия сессии и возврат
 func _new_game() -> void:
 	var error: Error = GameSessionService.start_game(get_tree(), _level)
 	if error != OK:
@@ -120,3 +124,5 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			_confirm_exit()
 		get_viewport().set_input_as_handled()
+
+#endregion

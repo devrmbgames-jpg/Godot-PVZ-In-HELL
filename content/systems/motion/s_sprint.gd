@@ -13,7 +13,7 @@ func deps() -> Dictionary[int, Array]:
 	return {Runs.After: [S_PlayerIntent]}
 
 
-## Выбирает игрока с управлением, движением, выносливостью и Strength.
+## Выбирает персонажей с управлением, движением, выносливостью и Strength.
 func query() -> QueryBuilder:
 	return q.with_all([C_Stamina, C_Controller, C_Motion, C_Strength]).iterate([C_Stamina, C_Controller, C_Motion, C_Strength])
 

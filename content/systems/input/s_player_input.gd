@@ -1,5 +1,5 @@
 extends System
-## Captures raw device input into C_Controller without deciding gameplay control mode.
+## Собирает ввод устройств в снимок C_Controller; игровой режим управления выбирается отдельно.
 class_name S_PlayerInput
 
 const GAMEPAD_LOOK_PIXELS_PER_SECOND: float = 900.0
@@ -15,6 +15,7 @@ var _cancel_pending: bool = false
 var _sprint_pending: bool = false
 
 
+#region Сбор и сброс событий
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_PAUSED:
 		return
@@ -67,10 +68,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		_drop_end_pending = true
 
 
+#endregion
+
+#region Снимок игрового такта
+## Выбирает Controller, помеченные для ввода игрока.
 func query() -> QueryBuilder:
 	return q.with_all([C_Controller, C_PlayerInputController]).iterate([C_Controller])
 
 
+## Один снимок на игровой такт: удержания, фронты и дельта взгляда; затем очищает накопленные события.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var controllers: Array = components[0]
 	var captured: bool = _accepts_input()
@@ -117,6 +123,9 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	_clear_pending()
 
 
+#endregion
+
+#region Очистка и длительное нажатие
 ## Пауза не переносит старое движение мыши/нажатия в следующий игровой tick.
 func _clear_pending() -> void:
 	_look_mouse = Vector2.ZERO
@@ -160,3 +169,5 @@ func _update_drop(controller: C_Controller, entity: Entity, captured: bool, delt
 
 func _accepts_input() -> bool:
 	return Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+
+#endregion

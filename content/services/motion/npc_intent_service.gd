@@ -18,7 +18,7 @@ static func move_to(actor: Entity, position: Vector3, arrival_distance: float) -
 	intent.movement_active = true
 
 
-## Запрашивает следование с допуском в метрах; цель хранится в R_MoveTarget, а не в компоненте.
+## Запрашивает следование с допуском в метрах; цель хранится в R_NpcMoveTarget, а не в компоненте.
 static func follow(actor: Entity, target: Entity, arrival_distance: float) -> void:
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	if intent == null:
@@ -46,7 +46,7 @@ static func stop(actor: Entity) -> void:
 
 
 #region Намерения взгляда
-## Направляет взгляд на живую цель через R_LookTarget с мировым смещением в метрах.
+## Направляет взгляд на живую цель через R_NpcLookTarget с мировым смещением в метрах.
 static func watch(actor: Entity, target: Entity, offset: Vector3 = Vector3.ZERO) -> void:
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	if intent == null:

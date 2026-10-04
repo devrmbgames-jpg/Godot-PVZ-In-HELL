@@ -1,19 +1,23 @@
 extends System
-## Converts raw C_Controller input into gameplay-space look/motion for the active control mode.
+## Переводит снимок ввода в мировые направления с учётом фокуса, транспорта и вращения предмета.
 class_name S_PlayerIntent
 
 const LOOK_SENSITIVITY: float = 0.002
 const MAX_LOOK_PITCH: float = deg_to_rad(89.0)
 
 
+#region Порядок и преобразование
+## Использует снимок после S_PlayerInput.
 func deps() -> Dictionary[int, Array]:
 	return { Runs.After: [S_PlayerInput] }
 
 
+## Выбирает Controller игрока для преобразования в мировые намерения.
 func query() -> QueryBuilder:
 	return q.with_all([C_Controller, C_PlayerInputController]).iterate([C_Controller])
 
 
+## Применяет приоритет фокуса и режим управления, не записывая transform/velocity физического тела.
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var controllers: Array = components[0]
 	for index: int in entities.size():
@@ -60,6 +64,9 @@ func _apply(entity: Entity, controller: C_Controller) -> void:
 		_update_motion(controller)
 
 
+#endregion
+
+#region Мировые направления
 func _update_look(
 	controller: C_Controller,
 	character: Node3D,
@@ -107,3 +114,5 @@ func _update_motion(controller: C_Controller) -> void:
 	controller.direction_motion = (
 		right_direction * controller.move_axis.x - forward_direction * controller.move_axis.y
 	)
+
+#endregion

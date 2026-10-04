@@ -22,6 +22,8 @@ static var _defaults: Dictionary[StringName, Array] = {}
 static var _values: Dictionary[String, Variant] = DEFAULTS.duplicate()
 
 
+#region Настройки процесса
+## Однократно запоминает исходный InputMap, загружает профиль и применяет настройки текущего процесса.
 static func initialize(path: String = FILE_PATH) -> void:
 	if _initialized:
 		return
@@ -34,10 +36,12 @@ static func initialize(path: String = FILE_PATH) -> void:
 	apply()
 
 
+## Текущее значение или значение по умолчанию; неизвестный ключ возвращает null.
 static func value(key: String) -> Variant:
 	return _values.get(key, DEFAULTS.get(key))
 
 
+## Принимает только известный ключ и правильный тип; числовые значения ограничивает допустимым диапазоном.
 static func set_value(key: String, setting: Variant) -> void:
 	if not DEFAULTS.has(key):
 		return
@@ -55,6 +59,7 @@ static func set_value(key: String, setting: Variant) -> void:
 		_values[key] = clampf(number, 0.0, 1.0) if key == "volume" else clampf(number, 0.05, 0.75) if key == "deadzone" else clampf(number, 0.1, 4.0)
 
 
+## Применяет громкость, окно/vsync и deadzone InputMap; в headless пропускает настройки окна.
 static func apply() -> void:
 	AudioServer.set_bus_volume_linear(0, float(value("volume")))
 	if DisplayServer.get_name() != "headless":
@@ -65,6 +70,9 @@ static func apply() -> void:
 			InputMap.action_set_deadzone(action, float(value("deadzone")))
 
 
+#endregion
+
+#region Привязки и конфликты
 ## Возвращает конфликты, не меняя InputMap; игрок подтверждает их удаление явно.
 static func conflicts(action: StringName, event: InputEvent) -> Array[StringName]:
 	var result: Array[StringName] = []
@@ -120,6 +128,10 @@ static func is_safety_back(event: InputEvent) -> bool:
 	return event is InputEventJoypadButton and (event as InputEventJoypadButton).button_index == JOY_BUTTON_BACK
 
 
+#endregion
+
+#region Исходный профиль и запись
+## Восстанавливает настройки и сохранённый исходный InputMap, применяет их и обновляет ревизию подсказок.
 static func reset_defaults() -> void:
 	_values.assign(DEFAULTS)
 	for action: StringName in _defaults:
@@ -130,6 +142,7 @@ static func reset_defaults() -> void:
 	InputPromptService.invalidate()
 
 
+## Записывает пользовательский ConfigFile с переносимыми привязками; возвращает ошибку записи без изменения мира.
 static func save(path: String = FILE_PATH) -> Error:
 	var config: ConfigFile = ConfigFile.new()
 	for key: String in _values:
@@ -144,6 +157,7 @@ static func save(path: String = FILE_PATH) -> Error:
 	return config.save(path)
 
 
+## Читает профиль: значения проверяются, привязки заменяются только после успешного декодирования всей группы действия.
 static func load_settings(path: String = FILE_PATH) -> void:
 	var config: ConfigFile = ConfigFile.new()
 	if config.load(path) != OK:
@@ -173,3 +187,5 @@ static func load_settings(path: String = FILE_PATH) -> void:
 			for event: InputEvent in decoded:
 				InputMap.action_add_event(action, event)
 	InputPromptService.invalidate()
+
+#endregion

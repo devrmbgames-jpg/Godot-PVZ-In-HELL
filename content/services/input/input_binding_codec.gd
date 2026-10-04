@@ -3,10 +3,13 @@ extends RefCounted
 class_name InputBindingCodec
 
 
+#region Переносимое представление
+## Кнопка или ось геймпада; остальные поддерживаемые события относятся к клавиатуре/мыши.
 static func is_gamepad(event: InputEvent) -> bool:
 	return event is InputEventJoypadButton or event is InputEventJoypadMotion
 
 
+## Возвращает переносимый словарь без device и состояния нажатия; неподдерживаемое событие даёт пустой словарь.
 static func encode(event: InputEvent) -> Dictionary:
 	var data: Dictionary = {}
 	if event is InputEventKey:
@@ -27,6 +30,7 @@ static func encode(event: InputEvent) -> Dictionary:
 	return data
 
 
+## Проверяет типы и диапазоны данных; возвращает новое событие либо null для невалидного назначения.
 static func decode(data: Dictionary) -> InputEvent:
 	for field: String in ["physical", "logical", "button", "axis", "sign"]:
 		if data.has(field) and not data[field] is int:
@@ -81,6 +85,10 @@ static func decode(data: Dictionary) -> InputEvent:
 	return event
 
 
+#endregion
+
+#region Нормализация и пересечение
+## Создаёт переносимую копию, предпочитая физическую клавишу и убирая её собственный модификатор; может вернуть null.
 static func normalized(event: InputEvent) -> InputEvent:
 	var copy: InputEvent = decode(encode(event))
 	if copy is InputEventKey and (copy as InputEventKey).physical_keycode != 0:
@@ -109,3 +117,5 @@ static func overlaps(first: InputEvent, second: InputEvent) -> bool:
 	if left is InputEventMouseButton and right is InputEventMouseButton:
 		return (left as InputEventMouseButton).button_index == (right as InputEventMouseButton).button_index
 	return encode(left) == encode(right)
+
+#endregion
