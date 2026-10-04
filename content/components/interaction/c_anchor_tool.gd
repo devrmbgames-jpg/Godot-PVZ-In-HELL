@@ -1,3 +1,3 @@
 extends Component
-## Marks a held physical tool as authorized for player anchoring/unfix.
+## Признак удерживаемого инструмента, разрешающего игроку фиксацию и снятие фиксации предметов.
 class_name C_AnchorTool

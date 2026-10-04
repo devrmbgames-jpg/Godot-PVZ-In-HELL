@@ -1,5 +1,5 @@
 extends DEF_InteractionAction
-## Hammer PRIMARY action; the held tool remains the source and the ray target is anchored.
+## PRIMARY-действие молотка: удерживаемый инструмент — источник, фиксация применяется к цели луча.
 class_name DEF_AnchorAction
 
 
@@ -9,14 +9,17 @@ func _init() -> void:
 	caption = "Зафиксировать"
 
 
+## Проверяет молоток source и цель луча через AnchoringService.
 func is_available(actor: Entity, source: Entity, target: Entity) -> bool:
 	return AnchoringService.can_anchor(actor, source, target)
 
 
+## Передаёт команду фиксации в complete с повторной проверкой.
 func execute(actor: Entity, source: Entity, target: Entity) -> void:
 	complete(actor, source, target)
 
 
+## Фиксирует цель; только при успехе проигрывает действие инструмента и возвращает true.
 func complete(actor: Entity, source: Entity, target: Entity) -> bool:
 	var anchored: bool = AnchoringService.anchor(actor, source, target)
 	if anchored:

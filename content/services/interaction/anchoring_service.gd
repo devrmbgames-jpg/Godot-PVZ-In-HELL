@@ -1,11 +1,13 @@
 extends RefCounted
-## Atomic Hammer anchoring/unfix plus one-shot dependent-support discovery.
+## Выполняет фиксацию и восстановление снимка; при снятии однократно определяет зависимые закреплённые опоры.
 class_name AnchoringService
 
 const DIRECTION_EPSILON: float = 0.0001
 const SUPPORT_QUERY_LIMIT: int = 32
 
 
+#region Покой и фиксация
+## Читает признак фиксации игроком, если он присутствует на цели.
 static func state(target: Entity) -> C_PlayerAnchored:
 	return (
 		target.get_component(C_PlayerAnchored) as C_PlayerAnchored
@@ -14,6 +16,7 @@ static func state(target: Entity) -> C_PlayerAnchored:
 	)
 
 
+## Накапливает покой на delta секунд; движение, управление предметом и фиксация сбрасывают время.
 static func update_stability(target: Entity, config: C_Anchorable, delta: float) -> void:
 	if config == null:
 		return
@@ -35,6 +38,7 @@ static func update_stability(target: Entity, config: C_Anchorable, delta: float)
 	config.stable_seconds += delta
 
 
+## Проверяет инструмент основной руки, доступную неподконтрольную цель, дистанцию и достаточный покой.
 static func can_anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 	if (
 		not GrabService.holder_available(actor) or not GrabService.entity_available(tool)
@@ -60,6 +64,7 @@ static func can_anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 	return config.stable_seconds + DIRECTION_EPSILON >= config.minimum_rest_seconds
 
 
+## После повторной проверки сохраняет физический снимок, создаёт признак и приостанавливает тело.
 static func anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 	if not can_anchor(actor, tool, target):
 		return false
@@ -86,6 +91,10 @@ static func anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 	return state(target) == anchored and body.freeze
 
 
+#endregion
+
+#region Снятие фиксации
+## Проверяет инструмент в любой руке, собственный длительный сеанс и снимок закреплённой цели.
 static func can_unfix(actor: Entity, target: Entity) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.entity_available(target):
 		return false
@@ -110,6 +119,7 @@ static func can_unfix(actor: Entity, target: Entity) -> bool:
 	)
 
 
+## Определяет цель и зависимые закреплённые объекты, затем последовательно восстанавливает их снимки.
 static func unfix(actor: Entity, target: Entity) -> bool:
 	if not can_unfix(actor, target):
 		return false
@@ -124,10 +134,14 @@ static func unfix(actor: Entity, target: Entity) -> bool:
 	return true
 
 
+## Проверяет признак фиксации игроком; обычный freeze сам по себе не считается фиксацией.
 static func is_player_anchored(target: Entity) -> bool:
 	return state(target) != null
 
 
+#endregion
+
+#region Восстановление снимка и физические опоры
 static func _restore(target: Entity) -> bool:
 	var anchored: C_PlayerAnchored = state(target)
 	var body: RigidBody3D = GrabService.physical_body(target)
@@ -206,6 +220,9 @@ static func _supported_by(candidate: Entity, supporter: Entity) -> bool:
 	return false
 
 
+#endregion
+
+#region Участники и авторские пределы
 static func _controlled(target: Entity) -> bool:
 	for binding: Relationship in target.relationships:
 		if (
@@ -248,3 +265,5 @@ static func _within_motion_limits(body: RigidBody3D, config: C_Anchorable) -> bo
 		body.linear_velocity.length() <= config.maximum_linear_speed
 		and body.angular_velocity.length() <= config.maximum_angular_speed
 	)
+
+#endregion
