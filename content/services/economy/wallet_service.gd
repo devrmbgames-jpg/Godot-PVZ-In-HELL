@@ -1,5 +1,5 @@
 extends RefCounted
-## Synchronous atomic financial boundary; presentation receives detached snapshots.
+## Синхронный расчёт кошелька с устойчивыми ID; интерфейс может получать отдельные снимки.
 class_name WalletService
 
 enum Status { COMMITTED, DUPLICATE, INSUFFICIENT_FUNDS, INVALID, CONFLICT }
@@ -7,6 +7,8 @@ const PERCENT_BASE: int = 100
 const MAX_AMOUNT: int = 1000000000
 
 
+#region Состояние и снимок
+## Находит сессионный кошелёк текущего World.
 static func current() -> C_Wallet:
 	if not is_instance_valid(ECS.world):
 		return null
@@ -15,10 +17,15 @@ static func current() -> C_Wallet:
 	return owner.get_component(C_Wallet) as C_Wallet if owner != null else null
 
 
+## Возвращает глубокую копию данных для чтения представлением.
 static func snapshot(wallet: C_Wallet) -> C_Wallet:
 	return wallet.duplicate(true) as C_Wallet if wallet != null else null
 
 
+#endregion
+
+#region Синхронный расчёт операций
+## Применяет операцию к текущему кошельку и дню через общий контракт apply.
 static func submit(operation: MoneyOperation) -> Status:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var wallet: C_Wallet = current()
@@ -27,6 +34,7 @@ static func submit(operation: MoneyOperation) -> Status:
 	return apply(wallet, operation, cycle.day_index)
 
 
+## Проверяет ID, сумму, день и расчёт; повтор не меняет баланс, конфликт отклоняется.
 static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int) -> Status:
 	if wallet == null or operation == null or operation.operation_id == &"":
 		return Status.INVALID
@@ -81,6 +89,10 @@ static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int)
 	return Status.COMMITTED
 
 
+#endregion
+
+#region Расчёт посылок и итоги дня
+## Создаёт операцию расчёта посылки с округлением вверх; кошелёк не меняет.
 static func package_settlement(wallet: C_Wallet, outcome_id: StringName, reason: MoneyOperation.Reason, value: int, day_index: int) -> MoneyOperation:
 	if wallet == null or wallet.policy == null or value < 0 or value > MAX_AMOUNT or outcome_id == &"":
 		return null
@@ -101,13 +113,14 @@ static func package_settlement(wallet: C_Wallet, outcome_id: StringName, reason:
 	operation.operation_id = StringName("settlement/" + String(outcome_id))
 	operation.settlement_id = outcome_id
 	operation.reason = reason
-	# Round fractional units upward, using integer arithmetic only.
+	# Округление дробных денежных единиц вверх только целой арифметикой.
 	@warning_ignore("integer_division")
 	operation.amount = (value * percent + PERCENT_BASE - 1) / PERCENT_BASE
 	operation.day_index = day_index
 	return operation
 
 
+## Создаёт итог дня и однократно отмечает завершённую смену с наступлением вечера.
 static func sync_day(wallet: C_Wallet, cycle: C_DayCycle) -> void:
 	var daily: DailyMoneyResult = _day(wallet, cycle.day_index)
 	if cycle.phase >= C_DayCycle.Phase.EVENING and not daily.shift_completed:
@@ -115,6 +128,9 @@ static func sync_day(wallet: C_Wallet, cycle: C_DayCycle) -> void:
 		wallet.completed_days += 1
 
 
+#endregion
+
+#region Внутренний учёт
 static func _day(wallet: C_Wallet, day_index: int) -> DailyMoneyResult:
 	for daily: DailyMoneyResult in wallet.daily_results:
 		if daily.day_index == day_index:
@@ -164,3 +180,5 @@ static func _debug_penalty_outstanding(wallet: C_Wallet) -> int:
 		elif operation.reason == MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL:
 			outstanding -= operation.amount
 	return maxi(0, outstanding)
+
+#endregion

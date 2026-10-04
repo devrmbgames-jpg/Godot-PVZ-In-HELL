@@ -1,7 +1,9 @@
 extends RefCounted
+## Собирает отладочный текст из текущих стеков без изменения инвентаря.
 class_name InventoryPresentation
 
 
+## Возвращает сводку вместимости и эффекта для доступного владельца.
 static func debug_text(owner: Entity) -> String:
 	if not EntityAvailability.contains(owner, ECS.world):
 		return ""

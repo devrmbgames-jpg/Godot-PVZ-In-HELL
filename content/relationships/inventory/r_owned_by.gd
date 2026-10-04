@@ -1,3 +1,3 @@
 extends Component
-## Virtual small item -> sole InventoryOwner. Physical slots remain separate.
+## Связывает виртуальный стек с единственным владельцем инвентаря; физические слоты отдельны.
 class_name R_OwnedBy

@@ -1,5 +1,5 @@
 extends RefCounted
-## Whole-stack inventory-to-world boundary. Rejections retain ownership and quantity.
+## Выкладка целого стека на карту; отказ сохраняет владение и количество.
 class_name InventoryDropService
 
 const FORWARD_DISTANCE: float = 0.9
@@ -12,6 +12,8 @@ const MINIMUM_SUPPORT_NORMAL_Y: float = 0.75
 const COLLISION_MASK: int = 31
 
 
+#region Выкладка стека
+## Возвращает причину запрета выкладки или пустую строку; свободное место проверяет drop.
 static func drop_reason(actor: Entity, item: Entity) -> String:
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death):
 		return "Игрок недоступен"
@@ -30,6 +32,7 @@ static func drop_reason(actor: Entity, item: Entity) -> String:
 	return ""
 
 
+## Создаёт настоящий pickup всего стека только после проверки опоры и объёма; отказ сохраняет стек.
 static func drop(actor: Entity, item: Entity) -> bool:
 	if not drop_reason(actor, item).is_empty():
 		return false
@@ -67,7 +70,7 @@ static func drop(actor: Entity, item: Entity) -> bool:
 	inventory.transfer_in_progress = true
 	state.transfer_in_progress = true
 	var parent: Node = actor.get_parent()
-	# Scene creation is the explicit physical placement boundary, before entering simulation.
+	# Однократное размещение новой сцены перед физической симуляцией.
 	var pose: Transform3D = Transform3D(Basis.IDENTITY, position as Vector3)
 	body.transform = (parent as Node3D).global_transform.affine_inverse() * pose if parent is Node3D else pose
 	parent.add_child(body)
@@ -77,7 +80,10 @@ static func drop(actor: Entity, item: Entity) -> bool:
 	return true
 
 
-## Releases NPC possessions once at the death boundary using their ordinary pickup prefabs.
+#endregion
+
+#region Выпуск имущества при смерти
+## Выпускает имущество NPC при смерти обычными pickup-сценами; однократность задаёт lifecycle.
 static func release_on_death(owner: Entity) -> void:
 	var spatial: Node3D = owner as Node as Node3D
 	if spatial == null:
@@ -108,6 +114,9 @@ static func release_on_death(owner: Entity) -> void:
 		ECS.world.remove_entity(item)
 
 
+#endregion
+
+#region Проверка физического места
 static func _placement(actor: Entity, collider: CollisionShape3D) -> Variant:
 	var node: Node3D = actor as Node as Node3D
 	var basis: Basis = node.global_basis
@@ -144,3 +153,5 @@ static func _placement(actor: Entity, collider: CollisionShape3D) -> Variant:
 		if space.intersect_shape(query, 1).is_empty():
 			return position
 	return null
+
+#endregion

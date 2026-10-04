@@ -1,12 +1,14 @@
 extends RefCounted
-## Read-only authored store policy; no stock or money authority.
+## Читает авторский ассортимент и расписание без изменения покупок или кошелька.
 class_name TraderCatalogService
 
 
+## Возвращает ассортимент профиля или прежнего компонента; массив предназначен для чтения.
 static func catalog(shop: C_Trader) -> Array[DEF_InventoryItem]:
 	return shop.profile.catalog if shop.profile != null else shop.catalog
 
 
+## Проверяет период и маску фаз; ночь запрещена, прежний торговец открыт вечером.
 static func is_open(shop: C_Trader, cycle: C_DayCycle) -> bool:
 	if shop == null or cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:
 		return false
@@ -17,6 +19,7 @@ static func is_open(shop: C_Trader, cycle: C_DayCycle) -> bool:
 	return profile.first_day > 0 and profile.repeat_days > 0 and cycle.day_index >= profile.first_day and (cycle.day_index - profile.first_day) % profile.repeat_days == 0 and (profile.open_phases & (1 << cycle.phase)) != 0
 
 
+## Собирает текст авторского расписания для интерфейса.
 static func schedule_text(shop: C_Trader) -> String:
 	if shop.profile == null:
 		return "Каждый день · Evening"

@@ -1,4 +1,5 @@
 extends CanvasLayer
+## Торговый интерфейс: запрашивает покупки и задания через сервисы, освобождает модальный ввод.
 class_name CommercePanel
 
 const PANEL_SIZE: Vector2 = Vector2(720, 450)
@@ -23,6 +24,7 @@ var _quest: VBoxContainer = null
 var _close: Button = null
 
 
+#region Создание и жизненный цикл
 func _ready() -> void:
 	layer = 95
 	var root: MarginContainer = MarginContainer.new()
@@ -89,6 +91,10 @@ func _process(delta: float) -> void:
 		_refresh()
 
 
+#endregion
+
+#region Модальный сеанс
+## Захватывает ввод для торговли/заказа и запрашивает доступное задание торговца.
 func open_for(actor: Entity, trader: Entity = null, order_mode: bool = false) -> bool:
 	if _capture != 0 or not GrabService.holder_available(actor) or actor.has_component(C_Death) or CommerceService.current() == null:
 		return false
@@ -109,6 +115,7 @@ func open_for(actor: Entity, trader: Entity = null, order_mode: bool = false) ->
 	return true
 
 
+## Освобождает захват и режим мыши, затем удаляет панель.
 func close_panel() -> void:
 	_release()
 	queue_free()
@@ -123,6 +130,9 @@ func _release() -> void:
 	Input.mouse_mode = _previous_mouse if not is_instance_valid(_actor) or InteractionControlFocus.current(_actor) < InteractionControlFocus.Priority.MODAL else Input.MOUSE_MODE_VISIBLE
 
 
+#endregion
+
+#region Производное представление
 func _shop() -> Entity:
 	return _trader.get_ref() as Entity if _trader != null else null
 
@@ -209,6 +219,9 @@ func _show_quest(record: RefusalQuestRecord, cycle: C_DayCycle) -> void:
 		_quest.add_child(resolved)
 
 
+#endregion
+
+#region Сервисные запросы
 func _buy(item: DEF_InventoryItem, home_delivery: bool = false) -> void:
 	if not _can_click():
 		return
@@ -241,3 +254,5 @@ func _clear(container: VBoxContainer) -> void:
 	for child: Node in container.get_children():
 		container.remove_child(child)
 		child.queue_free()
+
+#endregion

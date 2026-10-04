@@ -1,4 +1,5 @@
 extends RefCounted
+## Синхронная граница оплаты и выдачи покупок; журнал чеков защищает от повторов.
 class_name CommerceService
 
 enum Status { COMMITTED, DUPLICATE, INVALID, CONFLICT, INSUFFICIENT_FUNDS, INVENTORY_FULL, WRONG_PHASE, SPAWN_BLOCKED }
@@ -8,6 +9,8 @@ const FURNITURE_ROWS: int = 2
 const FURNITURE_SPACING: Vector2 = Vector2(3.5, 2.5)
 
 
+#region Состояние и ID запросов
+## Возвращает торговое состояние сессионной сущности или null.
 static func current() -> C_Commerce:
 	if not is_instance_valid(ECS.world):
 		return null
@@ -16,6 +19,7 @@ static func current() -> C_Commerce:
 	return owner.get_component(C_Commerce) as C_Commerce if owner != null else null
 
 
+## Увеличивает сохраняемый счётчик запросов вне активной транзакции; отказ даёт пустой ID.
 static func next_id(prefix: String) -> StringName:
 	var state: C_Commerce = current()
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -26,6 +30,10 @@ static func next_id(prefix: String) -> StringName:
 	return StringName("%s:%d:%d" % [prefix, cycle.day_index, state.next_request])
 
 
+#endregion
+
+#region Покупка у торговца
+## Проверяет торговца и место/инвентарь, затем оплачивает и выдаёт товар однократно.
 static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, quantity: int, operation_id: StringName) -> Status:
 	var state: C_Commerce = current()
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -62,7 +70,7 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 		ECS.world.remove_entity(grant)
 		state.transaction_in_progress = false
 		return money_status
-	# Wallet commit has no yield, signals or inventory mutation; the validated transfer stays valid.
+	# Расчёт кошелька синхронен и не меняет инвентарь: проверенный перенос остаётся допустимым.
 	var transferred: bool = InventoryService.transfer(grant, actor)
 	assert(transferred, "Commerce grant must honor its validated synchronous Inventory contract")
 	_record(state, item, quantity, operation_id, cycle.day_index, PurchaseReceipt.Mode.PURCHASE)
@@ -103,6 +111,10 @@ static func _purchase_furniture(trader: Entity, shop: C_Trader, item: DEF_Invent
 	return Status.COMMITTED
 
 
+#endregion
+
+#region Отложенные оплаченные заказы
+## Оплачивает товар и доставку торговца, сохраняя отложенный заказ с датой исполнения.
 static func home_delivery(actor: Entity, trader: Entity, item: DEF_InventoryItem, quantity: int, operation_id: StringName) -> Status:
 	var state: C_Commerce = current()
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -142,6 +154,7 @@ static func home_delivery(actor: Entity, trader: Entity, item: DEF_InventoryItem
 	return Status.COMMITTED
 
 
+## Оплачивает заказ терминала утром/вечером для физической доставки следующим днём.
 static func order(actor: Entity, item: DEF_InventoryItem, quantity: int, operation_id: StringName) -> Status:
 	var state: C_Commerce = current()
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -171,6 +184,9 @@ static func order(actor: Entity, item: DEF_InventoryItem, quantity: int, operati
 	return Status.COMMITTED
 
 
+#endregion
+
+#region Проверка и денежный журнал
 static func _validate(state: C_Commerce, cycle: C_DayCycle, item: DEF_InventoryItem, quantity: int, operation_id: StringName, mode: PurchaseReceipt.Mode, terminal_catalog: bool = true) -> Status:
 	if state == null or cycle == null or state.transaction_in_progress or operation_id.is_empty() or item == null or item.key.is_empty() or quantity < 1 or quantity > item.maximum_stack or item.market_price < 0 or item.market_price > WalletService.MAX_AMOUNT or quantity * item.market_price > WalletService.MAX_AMOUNT:
 		return Status.INVALID
@@ -211,3 +227,5 @@ static func _record(state: C_Commerce, item: DEF_InventoryItem, quantity: int, o
 	receipt.delivery_fee = delivery_fee
 	receipt.day_index = day_index
 	state.receipts.append(receipt)
+
+#endregion

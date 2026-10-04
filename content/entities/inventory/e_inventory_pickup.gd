@@ -1,6 +1,6 @@
 @tool
 extends E_GrabbableBody
-## Engine-only presentation of a world pickup. OwnedBy determines whether it is visible/collidable.
+## Представление физического pickup: R_OwnedBy определяет видимость и столкновения.
 class_name E_InventoryPickup
 
 var _world_layer: int = 0

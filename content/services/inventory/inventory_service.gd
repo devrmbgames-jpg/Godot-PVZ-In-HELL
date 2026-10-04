@@ -1,11 +1,13 @@
 extends RefCounted
-## Whole-stack transfer contract for pickups, Trader, containers and loot.
-## OwnedBy is sole live authority. Rejected effects never consume quantity.
+## Синхронный перенос целых стеков между владельцами и подбором с карты.
+## R_OwnedBy задаёт владельца; отклонённый эффект не расходует количество.
 class_name InventoryService
 
 const USE_PREFIX: String = "inventory_use:"
 
 
+#region Чтение владения
+## Возвращает единственного зарегистрированного владельца R_OwnedBy; неоднозначность даёт null.
 static func owner_for(item: Entity) -> Entity:
 	if not _registered(item):
 		return null
@@ -19,6 +21,7 @@ static func owner_for(item: Entity) -> Entity:
 	return owner if count == 1 and _registered(owner) else null
 
 
+## Собирает текущие стеки с единственной связью на доступного владельца.
 static func items(owner: Entity) -> Array[Entity]:
 	var result: Array[Entity] = []
 	if not EntityAvailability.contains(owner, ECS.world) or not owner.has_component(C_Inventory):
@@ -30,6 +33,7 @@ static func items(owner: Entity) -> Array[Entity]:
 	return result
 
 
+## Находит принадлежащий владельцу стек по текущему Entity.id.
 static func item_by_id(owner: Entity, item_id: String) -> Entity:
 	for item: Entity in items(owner):
 		if item.id == item_id:
@@ -37,7 +41,10 @@ static func item_by_id(owner: Entity, item_id: String) -> Entity:
 	return null
 
 
-## Capacity and stacking still use the ordinary synchronous transfer contract.
+#endregion
+
+#region Создание и перенос стеков
+## Создаёт виртуальный стек через обычный контракт вместимости и переноса; отказ удаляет заготовку.
 static func grant(owner: Entity, definition: DEF_InventoryItem, quantity: int) -> bool:
 	if not _owner_available(owner) or definition == null or definition.kind == DEF_InventoryItem.Kind.FURNITURE or quantity < 1 or quantity > definition.maximum_stack:
 		return false
@@ -55,6 +62,7 @@ static func grant(owner: Entity, definition: DEF_InventoryItem, quantity: int) -
 	return false
 
 
+## Проверяет ожидаемого владельца, резервирование, блокировки и вместимость без переноса.
 static func can_transfer(item: Entity, destination: Entity, expected_owner: Entity = null) -> bool:
 	if CustomerInspectionService.owner_for(item) != null:
 		return false
@@ -85,6 +93,7 @@ static func can_transfer(item: Entity, destination: Entity, expected_owner: Enti
 	return room >= state.quantity or destination_items.size() < inventory.maximum_stacks
 
 
+## Синхронно объединяет совместимые стеки и меняет R_OwnedBy; отказ не расходует предметы.
 static func transfer(item: Entity, destination: Entity, expected_owner: Entity = null) -> bool:
 	if not can_transfer(item, destination, expected_owner):
 		return false
@@ -120,6 +129,10 @@ static func transfer(item: Entity, destination: Entity, expected_owner: Entity =
 	return true
 
 
+#endregion
+
+#region Эффекты использования
+## Возвращает причину запрета эффекта или пустую строку; здоровье не изменяет.
 static func use_reason(owner: Entity, item: Entity, target: Entity = null) -> String:
 	if not _owner_available(owner):
 		return "Владелец недоступен или действие ещё выполняется"
@@ -158,6 +171,7 @@ static func use_reason(owner: Entity, item: Entity, target: Entity = null) -> St
 	return ""
 
 
+## Применяет еду/защиту синхронно, лечение ожидает DamageResult; количество расходуется после успеха.
 static func use(owner: Entity, item: Entity, target: Entity = null) -> bool:
 	if not use_reason(owner, item, target).is_empty():
 		return false
@@ -186,7 +200,7 @@ static func use(owner: Entity, item: Entity, target: Entity = null) -> bool:
 	return applied
 
 
-## Called by the DamageResult observer only after actual Health arithmetic.
+## Завершает ожидаемое лечение после фактического результата O_Damage; расходует единицу при пользе.
 static func healing_result(result: DamageResult) -> void:
 	if result == null or result.request == null:
 		return
@@ -207,6 +221,10 @@ static func healing_result(result: DamageResult) -> void:
 	_finish_use(owner, item, result.applied_amount > 0.0)
 
 
+#endregion
+
+#region Очистка жизненного цикла
+## Удаляет зарегистрированные стеки, связанные с владельцем, включая ожидающие эффекты.
 static func clear_owner(owner: Entity) -> void:
 	if not is_instance_valid(ECS.world):
 		return
@@ -222,7 +240,7 @@ static func clear_owner(owner: Entity) -> void:
 				break
 
 
-## Direct Entity signal persists when GECS disconnects its own handlers on disable.
+## Обрабатывает снятие R_OwnedBy через прямой сигнал Entity, сохраняемый при отключении GECS.
 static func ownership_removed(item: Entity, link: Relationship) -> void:
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
 	if state == null or state.transfer_in_progress or not link.relation is R_OwnedBy:
@@ -236,7 +254,7 @@ static func ownership_removed(item: Entity, link: Relationship) -> void:
 		ECS.world.remove_entity(item)
 
 
-## World removal/disable retains outgoing links long enough to cancel a pending use.
+## Отменяет ожидаемое использование и удаляет стеки владельца при недоступности сущности.
 static func entity_unavailable(entity: Entity) -> void:
 	if not is_instance_valid(entity):
 		return
@@ -254,6 +272,9 @@ static func entity_unavailable(entity: Entity) -> void:
 		clear_owner(entity)
 
 
+#endregion
+
+#region Внутренние проверки и завершение
 static func _finish_use(owner: Entity, item: Entity, applied: bool) -> void:
 	if not _registered(item):
 		return
@@ -287,3 +308,5 @@ static func _compatible(a: C_InventoryItem, b: C_InventoryItem) -> bool:
 
 static func _registered(entity: Entity) -> bool:
 	return is_instance_valid(entity) and is_instance_valid(ECS.world) and not entity.is_queued_for_deletion() and ECS.world.entity_to_archetype.has(entity)
+
+#endregion

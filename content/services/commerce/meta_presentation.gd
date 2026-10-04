@@ -1,9 +1,11 @@
 extends RefCounted
+## Собирает отладочные сведения о заказах, заданиях, сохранении и опасностях.
 class_name MetaPresentation
 
 const MAX_HAZARD_DEBUG_ROWS: int = 4
 
 
+## Читает текущее состояние для отладочной сводки без расчётов и выдачи.
 static func debug_text() -> String:
 	var commerce: C_Commerce = CommerceService.current()
 	var quests: C_QuestSession = RefusalQuestService.current()

@@ -1,12 +1,15 @@
 extends Observer
+## Связывает очистку владения со смертью, удалением и отключением; живые отсутствующие NPC сохраняют вещи.
 class_name O_InventoryLifecycle
 
 
+## Подписывает текущий World на недоступность сущностей.
 func setup() -> void:
 	_world.entity_disabled.connect(_on_disabled)
 	_world.entity_removed.connect(InventoryService.entity_unavailable)
 
 
+## Привязывает снятие владения и однократную обработку смерти владельца.
 func sub_observers() -> Array[Array]:
 	return [[q.with_all([C_InventoryItem]).on_added(), _bind_item, true], [q.with_all([C_Inventory, C_Death]).on_added(), _on_death]]
 

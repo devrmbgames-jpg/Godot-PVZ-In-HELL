@@ -1,5 +1,5 @@
 extends Label3D
-## Presentation of the trader's authored store policy; commerce owns all transactions.
+## Показывает авторское расписание торговца; расчёты принадлежат сервисам торговли.
 
 const REFRESH_SECONDS: float = 0.25
 

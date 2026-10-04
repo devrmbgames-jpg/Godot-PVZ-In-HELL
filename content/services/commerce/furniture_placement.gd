@@ -1,5 +1,5 @@
 extends RefCounted
-## Validates support and free volume before commerce commits. Native bodies move thereafter.
+## Проверяет опору и свободный объём до оплаты; после создания движение принадлежит физике.
 class_name FurniturePlacement
 
 const GROUND_MASK: int = 31
@@ -11,6 +11,8 @@ const COLLISION_MARGIN: float = 0.01
 const MINIMUM_SUPPORT_NORMAL: float = 0.75
 
 
+#region Подготовка тела
+## Проверяет опору и объём в мировой позе; возвращённую заготовку нужно разместить или освободить.
 static func prepare(item: DEF_InventoryItem, parent: Node3D, pose: Transform3D) -> PreparedFurniture:
 	if not is_instance_valid(parent) or not parent.is_inside_tree():
 		return null
@@ -50,7 +52,7 @@ static func prepare(item: DEF_InventoryItem, parent: Node3D, pose: Transform3D) 
 	return proposal
 
 
-## Shared intrinsic prefab contract for pre-payment validation and physical placement.
+## Создаёт вне дерева проверенное тело мебели; вызывающий обязан освободить или разместить его.
 static func create_validated(item: DEF_InventoryItem) -> Entity:
 	if item == null or item.kind != DEF_InventoryItem.Kind.FURNITURE or item.maximum_stack != 1 or item.world_pickup_scene.is_empty() or not ResourceLoader.exists(item.world_pickup_scene):
 		return null
@@ -69,6 +71,9 @@ static func create_validated(item: DEF_InventoryItem) -> Entity:
 	return entity
 
 
+#endregion
+
+#region Габариты и однократное размещение
 static func _bounds_for(node: Node3D) -> AABB:
 	var bounds: AABB = AABB()
 	var has_shape: bool = false
@@ -89,12 +94,15 @@ static func _bounds_for(node: Node3D) -> AABB:
 	return bounds
 
 
+## Однократно размещает заготовку, добавляет устойчивый ключ и регистрирует тело в World.
 static func commit(proposal: PreparedFurniture, key: String) -> void:
 	var identity: C_PersistentIdentity = C_PersistentIdentity.new()
 	identity.key = key
 	proposal.entity.component_resources.append(identity)
 	var body: Node3D = proposal.entity as Node as Node3D
-	# Spawn/save is the explicit one-time transform boundary; subsequent motion is native.
+	# Создание/восстановление — однократная граница записи позы; дальше движением владеет физика.
 	body.transform = proposal.parent.global_transform.affine_inverse() * proposal.world_pose
 	proposal.parent.add_child(body)
 	ECS.world.add_entity(proposal.entity, null, false)
+
+#endregion

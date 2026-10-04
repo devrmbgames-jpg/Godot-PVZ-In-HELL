@@ -1,15 +1,16 @@
 extends RefCounted
-## One physical paid-order commit. Fulfilled records are retained after consumption.
+## Создаёт оплаченные товары на карте; исполненные записи сохраняются после расходования.
 class_name OrderDeliveryService
 
 const OCCUPANCY_MASK: int = 0xFFFFFFFF
 
 
+## Строит устойчивый ключ физического товара из ID оплаченной доставки.
 static func key_for(delivery: PendingDelivery) -> String:
 	return "order/%s" % delivery.delivery_id
 
 
-## Courier charges only for definitions with a supported physical fulfillment prefab.
+## Проверяет поддерживаемую физическую сцену до оплаты доставки; тестовый экземпляр освобождается.
 static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 	if item == null or item.world_pickup_scene.is_empty() or not ResourceLoader.exists(item.world_pickup_scene):
 		return false
@@ -39,6 +40,7 @@ static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 	return valid
 
 
+## Исполняет первый готовый заказ или признаёт уже созданный по ключу; занятость сохраняет заказ.
 static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Commerce, day: int) -> bool:
 	if not EntityAvailability.contains(zone, ECS.world) or state == null or commerce == null or day < 1:
 		return false
