@@ -107,7 +107,8 @@ static func observe_damage(result: DamageResult) -> void:
 	var victim: Entity = request.target
 	var district: C_District = DistrictPopulationService.current()
 	if district != null:
-		NpcPerceptionService.emit_noise(victim, result.world_pose.origin, district.definition.damage_noise_radius)
+		# Боль от окружения слышна, но не зовёт соседей (и владельца огненной ауры) внутрь опасности.
+		NpcPerceptionService.emit_noise(victim, result.world_pose.origin, district.definition.damage_noise_radius, request.combat_context != null)
 	if request.combat_context == null:
 		return
 

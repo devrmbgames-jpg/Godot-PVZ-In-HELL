@@ -33,6 +33,8 @@ class_name DEF_District
 @export var shade_refuge: StringName = &""
 ## Допуск промежуточной точки пути, независимый от прибытия к получателю.
 @export_range(0.1, 1.0) var waypoint_distance: float = 0.5
+## Горизонтальный радиус ухода через проход; учитывает край navmesh и зазор тела, в метрах.
+@export_range(0.3, 3.0) var portal_arrival_distance: float = 1.0
 
 ## Начальные личности и пул профилей для заселения.
 @export var profiles: Array[DEF_NpcProfile] = []

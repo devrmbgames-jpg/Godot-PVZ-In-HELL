@@ -315,3 +315,43 @@ func test_queued_route_uses_latest_goal() -> void:
 	assert_eq(route.goal, goal)
 	assert_lt(route.points[route.points.size() - 1].distance_to(goal), 0.1)
 #endregion
+
+#region Отключённые экземпляры
+## Ушедший NPC сохраняет тело, но система намерений не возвращает его в avoidance у прохода.
+func test_outside_npc_is_not_reactivated_by_movement_system() -> void:
+	await _flat_map()
+	var actor: E_DistrictNpc = _travel(0)
+	var person: NpcRecord = _district.people[0]
+	_world.add_system(S_NpcIntent.new())
+	assert_true(actor.navigation_agent.avoidance_enabled)
+	DistrictPopulationService.set_placement(person, actor, NpcRecord.Placement.OUTSIDE)
+	assert_false(actor.navigation_agent.avoidance_enabled)
+	_world.process(1.0 / 60.0)
+	assert_false(actor.navigation_agent.avoidance_enabled, "Disabled bodies must not become invisible obstacles at exits")
+	assert_false(_world.query.with_all([C_NpcIntent, C_Controller]).enabled().execute().has(actor))
+	DistrictPopulationService.set_placement(person, actor, NpcRecord.Placement.STREET)
+	_world.process(1.0 / 60.0)
+	assert_true(actor.navigation_agent.avoidance_enabled, "Returning the same living NPC restores its authored avoidance policy")
+#endregion
+
+#region Аварийный отход
+## Уже обжигаемый NPC выходит прямо из сферы, не продлевая воздействие обходом вокруг её центра.
+func test_hazard_escape_uses_short_direct_route() -> void:
+	await _flat_map()
+	var actor: E_DistrictNpc = _travel(0)
+	var person: NpcRecord = _district.people[0]
+	var fire: Entity = (load("res://content/entities/hazards/npc_fire_aura.tscn") as PackedScene).instantiate() as Entity
+	var hazard: C_Hazard = C_Hazard.new()
+	hazard.definition = load("res://content/definitions/gameplay/hazards/def_npc_fire_aura.tres") as DEF_ToxicArea
+	_world.add_entity(fire, [hazard])
+	(fire as Node as Node3D).global_position = actor.global_position + Vector3.UP
+	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	awareness.hazard_distress = NpcRouteService.danger_here(actor)
+	assert_true(awareness.hazard_distress)
+	var goal: Vector3 = actor.global_position + Vector3.RIGHT * 4.0
+	var direct: PackedVector3Array = NavigationServer3D.map_get_path(_native_map, actor.global_position, goal, true)
+	var escape: PackedVector3Array = NpcRouteService.plan(actor, person, actor.global_position, goal, _native_map)
+	assert_eq(escape, direct)
+	assert_gt(NpcRouteService.expected_damage(actor, escape), 0.0)
+	assert_true(NpcRouteService.acceptable(actor, person, NpcRouteService.expected_damage(actor, escape)))
+#endregion

@@ -131,7 +131,13 @@ static func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute)
 		elif visit != null:
 			NpcServiceRole.finish_appearance(actor, visit)
 	else:
-		person.phase_complete = true
+		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+		var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(person.planned_day, person.planned_phase as C_DayCycle.Phase)
+		# Недостижимое занятие можно пропустить; уход через проход или домой требует реального прибытия.
+		if decision != null and decision.intent_owner == C_NpcDecision.Owner.SCHEDULE and person.profile.resident and location == DEF_NpcSchedule.Location.STREET:
+			person.phase_complete = true
+		route.map_iteration = -1
+		route.points.clear()
 	NpcIntentService.stop(actor)
 
 ## Строит один путь по авторскому теневому проходу или обычной navmesh.
@@ -144,6 +150,9 @@ static func plan(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: 
 	var damage: float = _damage(path, context.hazards, context.speed)
 	if damage == 0.0:
 		return path
+	# Уже внутри опасности: прямой выход сокращает воздействие; обход вокруг сферы только задержит отход.
+	if escape:
+		return path if acceptable(actor, person, damage) else PackedVector3Array()
 
 	# Проверить один локальный обход; ждать, если он и исходный путь опасны.
 	var bypass: PackedVector3Array = _local_detour(context, path, map)

@@ -121,7 +121,7 @@ static func action_noise(source: Entity, radius: float) -> void:
 		emit_noise(source, spatial.global_position, radius)
 
 ## Создаёт звуковое событие без раскрытия личности источника слушателям.
-static func emit_noise(source: Entity, world_position: Vector3, radius: float) -> void:
+static func emit_noise(source: Entity, world_position: Vector3, radius: float, investigate: bool = true) -> void:
 	var district: C_District = DistrictPopulationService.current()
 	if district == null or not is_finite(radius) or radius <= 0.0:
 		return
@@ -133,6 +133,7 @@ static func emit_noise(source: Entity, world_position: Vector3, radius: float) -
 	noise.source = source
 	noise.position = world_position
 	noise.radius = radius
+	noise.investigate = investigate
 	district.noises.append(noise)
 
 ## Слышит место через ослабляющие препятствия без связи с невидимым источником.
@@ -159,9 +160,10 @@ static func hear(listener: Entity, profile: DEF_NpcProfile, noise: NpcNoise) -> 
 	var awareness: C_NpcAwareness = listener.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.heard_position = noise.position
 	awareness.heard_remaining = profile.search_seconds
+	awareness.investigate_noise = noise.investigate
 	return true
 
-## Создаёт шаги по реальному движению тела с частотой принятия решений.
+## Создаёт слышимые шаги; прохожие не отвлекают друг друга, шум игрока остаётся поводом проверки.
 static func footsteps(actor: Entity, delta: float) -> void:
 	var body: RigidBody3D = actor as Node as RigidBody3D
 	if body == null or not actor.enabled:
@@ -185,5 +187,5 @@ static func footsteps(actor: Entity, delta: float) -> void:
 	var radius: float = district.definition.running_noise_radius if speed > 3.0 else district.definition.walking_noise_radius
 	if crouch != null and crouch.active:
 		radius *= district.definition.crouching_noise_fraction
-	emit_noise(actor, body.global_position + Vector3.UP * TORSO_HEIGHT, radius)
+	emit_noise(actor, body.global_position + Vector3.UP * TORSO_HEIGHT, radius, actor.has_component(C_PlayerInputController))
 #endregion

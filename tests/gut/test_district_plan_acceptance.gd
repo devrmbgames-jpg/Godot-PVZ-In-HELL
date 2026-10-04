@@ -50,7 +50,108 @@ func _light_zone() -> NpcLightZone:
 	return zone
 #endregion
 
+#region Уход через проходы
+## Расписание завершает уход рядом с краем navmesh, учитывая горизонтальный радиус прохода.
+func test_schedule_exit_accepts_ground_radius_without_exact_marker_contact() -> void:
+	var body: E_DistrictNpc = _stage(0)
+	var person: NpcRecord = _district.people[0]
+	person.profile.schedule = person.profile.schedule.duplicate() as DEF_NpcSchedule
+	person.profile.schedule.day = DEF_NpcSchedule.Location.OUTSIDE
+	DistrictPopulationService.plan_phase(person, 1, C_DayCycle.Phase.DAY)
+	var destination: Vector3 = DistrictPopulationService.position_for(person.goal_id)
+	body.place_at(destination + Vector3(0.8, 2.0, 0.0))
+	assert_true(NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2))
+	assert_true(person.phase_complete)
+	assert_eq(person.placement, NpcRecord.Placement.OUTSIDE)
+	assert_false(body.enabled)
+	assert_eq(body.collision_layer, 0)
+	assert_null(CombatService.target_for(body))
+
+## Бегство использует тот же наземный радиус, а удалённая точка не завершает уход преждевременно.
+func test_flee_exit_stops_only_within_portal_radius() -> void:
+	var body: E_DistrictNpc = _stage(0)
+	var person: NpcRecord = _district.people[0]
+	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	var destination: Vector3 = DistrictPopulationService.position_for(person.portal_id)
+	body.place_at(destination + Vector3(2.0, 2.0, 0.0))
+	awareness.last_seen_position = body.global_position
+	awareness.fleeing = true
+	assert_true(NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.EMERGENCY, 0.2))
+	assert_eq(person.placement, NpcRecord.Placement.STREET)
+	var intent: C_NpcIntent = body.get_component(C_NpcIntent) as C_NpcIntent
+	assert_eq(intent.arrival_distance, _district.definition.portal_arrival_distance)
+	body.place_at(intent.move_position + Vector3(0.8, 2.0, 0.0))
+	assert_true(NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.EMERGENCY, 0.2))
+	assert_eq(person.placement, NpcRecord.Placement.OUTSIDE)
+	assert_false(awareness.fleeing)
+	assert_false(body.enabled)
+
+## Таймаут не подменяет настоящий выход завершённой фазой; расписание возобновляет запрос маршрута.
+func test_stalled_schedule_exit_keeps_unfinished_departure() -> void:
+	var body: E_DistrictNpc = _stage(0, Vector3(-8, 0, 0))
+	var person: NpcRecord = _district.people[0]
+	person.profile.schedule = person.profile.schedule.duplicate() as DEF_NpcSchedule
+	person.profile.schedule.day = DEF_NpcSchedule.Location.OUTSIDE
+	DistrictPopulationService.plan_phase(person, 1, C_DayCycle.Phase.DAY)
+	var native: Dictionary[StringName, RID] = await _flat_map()
+	body.navigation_agent.set_navigation_map(native[&"map"])
+	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)
+	NpcRouteService.tick(body, person, 0.2)
+	NpcRouteService.process_pending(_district)
+	NpcRouteService.tick(body, person, _district.definition.route_timeout + 0.1)
+	assert_false(person.phase_complete)
+	assert_eq(person.placement, NpcRecord.Placement.STREET)
+	assert_false((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
+	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)
+	NpcRouteService.tick(body, person, 0.2)
+	assert_true((body.get_component(C_NpcRoute) as C_NpcRoute).pending)
+	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
+	NavigationServer3D.free_rid(native[&"region"])
+	NavigationServer3D.free_rid(native[&"map"])
+#endregion
+
 #region Свободные занятия
+## Обычные шаги остаются слышимыми, но не заменяют свободное занятие движением к каждому прохожему.
+func test_footsteps_do_not_pull_idle_npc_into_a_crowd() -> void:
+	var body: E_DistrictNpc = _stage(0)
+	var source: E_DistrictNpc = _stage(3, Vector3(0, 0, -3))
+	var person: NpcRecord = _district.people[0]
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	source.linear_velocity = Vector3.RIGHT
+	NpcPerceptionService.footsteps(source, _district.definition.footstep_interval)
+	assert_false(_district.noises.is_empty())
+	var noise: NpcNoise = _district.noises.back()
+	assert_false(noise.investigate)
+	assert_true(NpcPerceptionService.hear(body, person.profile, noise))
+	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	assert_eq(awareness.heard_position, noise.position)
+	assert_gt(awareness.heard_remaining, 0.0)
+	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
+	assert_false((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
+	NpcPerceptionService.emit_noise(source, noise.position, noise.radius)
+	assert_true(NpcPerceptionService.hear(body, person.profile, _district.noises.back()))
+	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
+	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
+
+## Шаги игрока сохраняют интерес слушателя к месту звука без раскрытия личности и назначения противника.
+func test_player_footsteps_still_prompt_anonymous_investigation() -> void:
+	var body: E_DistrictNpc = _stage(0)
+	var player: E_DistrictNpc = _player()
+	var person: NpcRecord = _district.people[0]
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	player.linear_velocity = Vector3.RIGHT
+	NpcPerceptionService.footsteps(player, _district.definition.footstep_interval)
+	assert_false(_district.noises.is_empty())
+	var noise: NpcNoise = _district.noises.back()
+	assert_true(noise.investigate)
+	assert_true(NpcPerceptionService.hear(body, person.profile, noise))
+	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
+	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
+	assert_null(CombatService.target_for(body))
+	assert_true(person.memories.is_empty())
+
 ## Наблюдатель выбирает воспринимаемого соседа и теряет фокус за реальным укрытием.
 func test_observation_watches_visible_neighbour_and_loses_hidden_focus() -> void:
 	var body: E_DistrictNpc = _stage(0)
@@ -118,10 +219,10 @@ func test_shop_visit_uses_a_clear_standing_point_and_requires_a_merchant() -> vo
 	DistrictPopulationService.mark_dead(_district.people[7], shopkeeper, 1)
 	assert_null(NpcActivityService.choose(body, person))
 
-## Исходный авторский пул содержит интересы и требуемые виды прогулок/занятий на месте.
+## Авторский пул имеет совместимые правила и требуемые виды занятий; личные темы разговора необязательны.
 func test_authored_profiles_and_activity_types_are_complete() -> void:
 	for person: NpcRecord in _district.people:
-		assert_false(person.profile.interests.is_empty(), person.display_name)
+		assert_true(person.profile.valid_rules(), person.display_name)
 	var activities: Array[int] = []
 	for place: DEF_DistrictPlace in _district.definition.places:
 		if place.kind in [DEF_DistrictPlace.Kind.ACTIVITY, DEF_DistrictPlace.Kind.SHOP]:

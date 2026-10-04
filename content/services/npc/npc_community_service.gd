@@ -50,7 +50,7 @@ static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_Di
 	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
 	var motive: bool = hunger.value >= district.definition.npc_attack_hunger
 	for memory: NpcMemory in person.memories:
-		if memory.actor_id == NpcSocialService.identity_for(target) and memory.kind == NpcMemory.Kind.ATTACK:
+		if memory.actor_id == NpcSocialService.identity_for(target) and memory.victim_id == person.npc_id and memory.kind == NpcMemory.Kind.ATTACK:
 			motive = true
 	var own_health: C_Health = actor.get_component(C_Health) as C_Health
 	if not motive or own_health.current < own_health.value * person.profile.pursuit_health_reserve:

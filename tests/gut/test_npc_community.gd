@@ -134,6 +134,49 @@ func test_loot_claim_is_exclusive_until_interrupted() -> void:
 	assert_true(NpcCommunityService.idle(second, _district.people[3]))
 	assert_eq(second.get_relationships(Relationship.new(R_NpcLootTarget.new(), pickup)).size(), 1)
 
+## Свидетель чужого нападения сохраняет память, но не получает личный повод начать новый бой.
+func test_witness_memory_does_not_start_personal_revenge() -> void:
+	var witness: E_DistrictNpc = _stage_person(1, Vector3.ZERO)
+	var attacker: E_DistrictNpc = _stage_person(3, Vector3(0, 0, -2))
+	var victim: E_DistrictNpc = _stage_person(4, Vector3(1, 0, -2))
+	var person: NpcRecord = _district.people[1]
+	person.profile.initiates_conflicts = true
+	(witness.get_component(C_Hunger) as C_Hunger).value = 0.0
+	NpcSocialService.remember(person, attacker, victim, NpcMemory.Kind.ATTACK, &"test/foreign_attack")
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_false(NpcCommunityService.begin_conflict(witness, person, attacker))
+	assert_eq(_district.ambient_conflicts, 0)
+	assert_null(CombatService.target_for(witness))
+	NpcSocialService.remember(person, attacker, witness, NpcMemory.Kind.ATTACK, &"test/personal_attack")
+	assert_true(NpcCommunityService.begin_conflict(witness, person, attacker))
+	assert_same(CombatService.target_for(witness), attacker)
+
+## Боль от окружающего огня слышна, но не заманивает соседей в ауру; подтверждённый удар остаётся поводом проверить звук.
+func test_environmental_damage_noise_does_not_lure_neighbours() -> void:
+	var listener: E_DistrictNpc = _stage_person(1, Vector3.ZERO)
+	var victim: E_DistrictNpc = _stage_person(3, Vector3(0, 0, -2))
+	var result: DamageResult = DamageResult.new()
+	result.request = DamageRequest.new()
+	result.request.target = victim
+	result.request.instigator = listener
+	result.request.damage_type = DamageRequest.Type.FIRE
+	result.applied_amount = 4.0
+	result.world_pose = victim.global_transform
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	NpcSocialService.observe_damage(result)
+	var noise: NpcNoise = _district.noises.back()
+	assert_false(noise.investigate)
+	assert_true(NpcPerceptionService.hear(listener, _district.people[1].profile, noise))
+	var awareness: C_NpcAwareness = listener.get_component(C_NpcAwareness) as C_NpcAwareness
+	assert_gt(awareness.heard_remaining, 0.0)
+	assert_false(awareness.investigate_noise)
+	result.request.damage_type = DamageRequest.Type.MELEE
+	result.request.combat_context = CombatContext.new()
+	NpcSocialService.observe_damage(result)
+	assert_true((_district.noises.back() as NpcNoise).investigate)
+
 func _stage_person(index: int, point: Vector3) -> E_DistrictNpc:
 	var person: NpcRecord = _district.people[index]
 	person.profile = person.profile.duplicate() as DEF_NpcProfile

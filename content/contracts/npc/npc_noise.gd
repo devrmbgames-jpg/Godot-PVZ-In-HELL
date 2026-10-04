@@ -10,5 +10,7 @@ var remaining: float = 0.5
 var position: Vector3 = Vector3.ZERO
 ## Радиус слышимости до ослабления препятствиями.
 var radius: float = 8.0
+## Звук требует проверки свободным NPC; шаги прохожих слышны, но не собирают весь район в одной точке.
+var investigate: bool = true
 ## Необязательный живой источник для непосредственной проверки распознавания.
 var source: Entity = null

@@ -66,12 +66,13 @@ static func execute_branch(actor: E_DistrictNpc, owner_kind: C_NpcDecision.Owner
 				return false
 
 			NpcIntentArbiter.acquire(actor, owner_kind, "Расписание")
-			var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 			var destination: Vector3 = DistrictPopulationService.position_for(person.goal_id)
-			if intent.arrived and intent.move_position.distance_to(destination) < ARRIVAL_DISTANCE:
+			var place: DEF_DistrictPlace = DistrictPopulationService.current().definition.place_for(person.goal_id)
+			var arrival_distance: float = DistrictPopulationService.current().definition.portal_arrival_distance if place != null and place.kind == DEF_DistrictPlace.Kind.PORTAL else ARRIVAL_DISTANCE
+			if _at_destination(actor, destination, arrival_distance):
 				DistrictPopulationService.complete_phase(person, actor)
 			else:
-				NpcIntentArbiter.move_to(actor, destination, ARRIVAL_DISTANCE, owner_kind)
+				NpcIntentArbiter.move_to(actor, destination, arrival_distance, owner_kind)
 			return true
 
 		C_NpcDecision.Owner.IDLE:
@@ -82,6 +83,12 @@ static func execute_branch(actor: E_DistrictNpc, owner_kind: C_NpcDecision.Owner
 #endregion
 
 #region Бой и бегство
+## Прибытие проверяется по земле, как в S_NpcIntent; высота маркера не удерживает NPC на карте.
+static func _at_destination(actor: E_DistrictNpc, destination: Vector3, arrival_distance: float) -> bool:
+	var offset: Vector3 = destination - actor.global_position
+	offset.y = 0.0
+	return offset.length_squared() <= arrival_distance * arrival_distance
+
 static func _flee(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwareness) -> void:
 	awareness.fleeing = true
 	if CombatService.target_for(actor) != null:
@@ -89,19 +96,22 @@ static func _flee(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAware
 
 	var district: C_District = DistrictPopulationService.current()
 	var actor_position: Vector3 = (actor as Node as Node3D).global_position
-	var portal: StringName = person.portal_id
-	var best: float = -INF
-	for place: DEF_DistrictPlace in district.definition.places:
-		if place.kind != DEF_DistrictPlace.Kind.PORTAL:
-			continue
+	var portal: StringName = awareness.flee_portal_id
+	if portal.is_empty():
+		portal = person.portal_id
+		var best: float = -INF
+		for place: DEF_DistrictPlace in district.definition.places:
+			if place.kind != DEF_DistrictPlace.Kind.PORTAL:
+				continue
 
-		var candidate: Vector3 = DistrictPopulationService.position_for(place.key)
-		var safety: float = candidate.distance_to(awareness.last_seen_position) - actor_position.distance_to(candidate)
-		if safety > best:
-			best = safety
-			portal = place.key
+			var candidate: Vector3 = DistrictPopulationService.position_for(place.key)
+			var safety: float = candidate.distance_to(awareness.last_seen_position) - actor_position.distance_to(candidate)
+			if safety > best:
+				best = safety
+				portal = place.key
+		awareness.flee_portal_id = portal
 	var destination: Vector3 = DistrictPopulationService.position_for(portal)
-	if actor_position.distance_to(destination) <= ARRIVAL_DISTANCE:
+	if _at_destination(actor, destination, district.definition.portal_arrival_distance):
 		var agent: C_CustomerAgent = actor.get_component(C_CustomerAgent) as C_CustomerAgent
 		if agent != null:
 			var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
@@ -109,12 +119,13 @@ static func _flee(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAware
 				NpcServiceRole.finish_appearance(actor, visit)
 		CombatService.end_combat(actor)
 		awareness.fleeing = false
+		awareness.flee_portal_id = &""
 		awareness.has_last_seen = false
 		person.phase_complete = true
 		DistrictPopulationService.set_placement(person, actor, NpcRecord.Placement.OUTSIDE)
 		return
 
-	NpcIntentArbiter.move_to(actor, destination, ARRIVAL_DISTANCE, C_NpcDecision.Owner.EMERGENCY)
+	NpcIntentArbiter.move_to(actor, destination, district.definition.portal_arrival_distance, C_NpcDecision.Owner.EMERGENCY)
 
 static func _combat(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwareness, _delta: float) -> void:
 	var opponent: Entity = CombatService.target_for(actor)
@@ -160,7 +171,7 @@ static func _combat(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwa
 static func _idle(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwareness, delta: float) -> void:
 	if not person.profile.merchant and NpcCommunityService.idle(actor, person):
 		return
-	if awareness.heard_remaining > 0.0 and not person.profile.merchant:
+	if awareness.heard_remaining > 0.0 and awareness.investigate_noise and not person.profile.merchant:
 		NpcIntentArbiter.move_to(actor, awareness.heard_position, ARRIVAL_DISTANCE, C_NpcDecision.Owner.IDLE)
 		return
 

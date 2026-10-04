@@ -9,9 +9,9 @@ const MINIMUM_NAVIGATION_SPEED: float = 0.001
 const MAX_PASSING_NAV_DISTANCE: float = 0.2
 
 #region Выбор и подготовка намерений
-## Выбирает NPC с Controller, исключая управление вводом игрока.
+## Выбирает участвующих NPC с Controller, исключая управление вводом игрока.
 func query() -> QueryBuilder:
-	return q.with_all([C_NpcIntent, C_Controller]).with_none([C_PlayerInputController]).iterate([C_NpcIntent, C_Controller])
+	return q.with_all([C_NpcIntent, C_Controller]).with_none([C_PlayerInputController]).enabled().iterate([C_NpcIntent, C_Controller])
 
 
 ## Обновляет маршрут, локальное avoidance и взгляд без прямых записей физического состояния.
@@ -19,7 +19,7 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var intents: Array = components[0]
 	var controllers: Array = components[1]
 	# Соседи берутся из общего запроса: GECS обрабатывает торговцев и клиентов разными архетипами.
-	var neighbours: Array[Entity] = ECS.world.query.with_all([C_NpcIntent, C_Controller]).with_none([C_PlayerInputController, C_Death]).execute()
+	var neighbours: Array[Entity] = ECS.world.query.with_all([C_NpcIntent, C_Controller]).with_none([C_PlayerInputController, C_Death]).enabled().execute()
 	for index: int in entities.size():
 		_apply(entities[index], intents[index] as C_NpcIntent, controllers[index] as C_Controller, neighbours)
 
@@ -182,8 +182,10 @@ func _path_direction(
 		return Vector3.ZERO
 	if not agent.target_position.is_equal_approx(goal) or agent.get_current_navigation_path().is_empty():
 		agent.target_position = goal
-	if not is_equal_approx(agent.target_desired_distance, intent.arrival_distance):
-		agent.target_desired_distance = intent.arrival_distance
+	# Допуск конечной цели не должен останавливать агента до промежуточной точки маршрута.
+	var navigation_arrival_distance: float = minf(intent.arrival_distance, agent.path_desired_distance)
+	if not is_equal_approx(agent.target_desired_distance, navigation_arrival_distance):
+		agent.target_desired_distance = navigation_arrival_distance
 
 	var waypoint: Vector3 = agent.get_next_path_position()
 	if agent.is_navigation_finished():
