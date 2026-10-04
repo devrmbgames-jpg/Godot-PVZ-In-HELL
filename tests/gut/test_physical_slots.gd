@@ -1,12 +1,20 @@
 extends GutTest
+## Проверяет живое владение слотами и обратимое выключение физики хранимого предмета.
 
 
+## Минимальный участник предоставляет сервисам физические опоры и луч тестового окружения.
 class Actor extends Entity:
+	## Тестовый луч, используемый сервисом наведения.
 	var interaction_ray_cast: RayCast3D
+	## Тестовая опора переноса груза.
 	var hold_anchor: Node3D
+	## Тестовая опора правой руки.
 	var right_hand_slot: Node3D
+	## Тестовая опора левой руки.
 	var left_hand_slot: Node3D
+	## Опора опущенной правой руки при переносе.
 	var lowered_right_hand_slot: Node3D
+	## Опора опущенной левой руки при переносе.
 	var lowered_left_hand_slot: Node3D
 
 
@@ -17,6 +25,8 @@ var _item: Entity
 var _body: RigidBody3D
 
 
+#region Физическое окружение
+## Создаёт отдельный World, физический слот и удерживаемый предмет.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -50,6 +60,7 @@ func before_each() -> void:
 	await get_tree().process_frame
 
 
+## Освобождает слот и хват всех участников до удаления World.
 func after_each() -> void:
 	for entity: Entity in _world.entities.duplicate():
 		PhysicalSlotService.entity_unavailable(entity)
@@ -85,6 +96,10 @@ func _hold(item: Entity, hand: C_Grabbable.HoldSlot) -> void:
 	item.add_relationship(Relationship.new(grip, _actor))
 
 
+#endregion
+
+#region Хранение и извлечение
+## Хранение выключает физику через RemoteTransform; извлечение восстанавливает параметры и прежнего родителя.
 func test_store_freezes_attaches_and_restores_physics_on_take() -> void:
 	var original_parent: Node = _body.get_parent()
 	_body.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
@@ -117,6 +132,7 @@ func test_store_freezes_attaches_and_restores_physics_on_take() -> void:
 	assert_eq(_slot.driver.remote_path, NodePath())
 
 
+## Занятый слот или неподходящий предмет оставляет хват в руке.
 func test_occupied_slot_and_filter_failure_preserve_hand() -> void:
 	var config: C_PhysicalSlot = _slot.get_component(C_PhysicalSlot) as C_PhysicalSlot
 	config.filter = DEF_AccessRequirement.new()
@@ -132,6 +148,7 @@ func test_occupied_slot_and_filter_failure_preserve_hand() -> void:
 	assert_eq(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND), other)
 
 
+## Извлечение в занятую руку требует явного разрешения заменить прежний предмет.
 func test_full_hand_requires_explicit_common_replacement() -> void:
 	assert_true(PhysicalSlotService.store(_actor, _slot, C_Grabbable.HoldSlot.RIGHT_HAND))
 	var other: Entity = _make_item()
@@ -143,6 +160,10 @@ func test_full_hand_requires_explicit_common_replacement() -> void:
 	assert_true(GrabService.entity_available(other))
 
 
+#endregion
+
+#region Владение и очистка
+## Удаление слота восстанавливает физику предмета и освобождает связь хранения.
 func test_slot_removal_restores_item_and_releases_ownership() -> void:
 	assert_true(PhysicalSlotService.store(_actor, _slot, C_Grabbable.HoldSlot.RIGHT_HAND))
 	_world.remove_entity(_slot)
@@ -152,6 +173,7 @@ func test_slot_removal_restores_item_and_releases_ownership() -> void:
 	assert_true(GrabService.entity_available(_item))
 
 
+## Внешнее удаление Relationship восстанавливает физику и освобождает слот.
 func test_external_relation_removal_restores_physics() -> void:
 	assert_true(PhysicalSlotService.store(_actor, _slot, C_Grabbable.HoldSlot.RIGHT_HAND))
 	_item.remove_relationship(PhysicalSlotService.relationship(_item))
@@ -160,6 +182,7 @@ func test_external_relation_removal_restores_physics() -> void:
 	assert_eq(_body.collision_mask, 29)
 
 
+## Ключ в слоте даёт доступ только при живой связи слота с владельцем.
 func test_worn_access_requires_mount_relationship() -> void:
 	var identity: C_AccessItem = C_AccessItem.new()
 	identity.item_id = &"key"
@@ -172,6 +195,7 @@ func test_worn_access_requires_mount_relationship() -> void:
 	assert_true(ItemAccessService.evaluate(_actor, requirement).is_allowed())
 
 
+## Смена назначения рук сохраняет действие хранения в правильной руке.
 func test_resolver_uses_swapped_secondary_hand_without_leaking_to_carry() -> void:
 	var interactor: C_Interactor = _actor.get_component(C_Interactor) as C_Interactor
 	interactor.target = _slot
@@ -185,6 +209,7 @@ func test_resolver_uses_swapped_secondary_hand_without_leaking_to_carry() -> voi
 	assert_null(GrabService.held_object(_actor))
 
 
+## Удаление компонента слота освобождает предмет и возвращает столкновения.
 func test_removing_slot_configuration_restores_stored_body() -> void:
 	assert_true(PhysicalSlotService.store(_actor, _slot, C_Grabbable.HoldSlot.RIGHT_HAND))
 	_slot.remove_component(C_PhysicalSlot)
@@ -193,6 +218,7 @@ func test_removing_slot_configuration_restores_stored_body() -> void:
 	assert_eq(_body.collision_layer, 8)
 
 
+## Авторские поясные слоты принадлежат корневому телу игрока.
 func test_player_belt_slots_are_mounted_to_body_root() -> void:
 	var player_scene: PackedScene = load("res://content/entities/characters/e_rigid_body_character.tscn") as PackedScene
 	var player: E_RigidBodyCharacter = player_scene.instantiate() as E_RigidBodyCharacter
@@ -211,6 +237,7 @@ func test_player_belt_slots_are_mounted_to_body_root() -> void:
 	player.free()
 
 
+## Удаление владельца снимает дочерний слот из ECS и освобождает хранимый предмет.
 func test_mount_owner_removal_releases_stored_item() -> void:
 	_slot.reparent(_actor)
 	_slot.add_relationship(Relationship.new(R_SlotMountedOn.new(), _actor))
@@ -224,3 +251,5 @@ func test_mount_owner_removal_releases_stored_item() -> void:
 	assert_false(is_instance_valid(_slot))
 	for registered: Entity in _world.entities:
 		assert_true(is_instance_valid(registered), "No freed child slot remains in ECS")
+
+#endregion

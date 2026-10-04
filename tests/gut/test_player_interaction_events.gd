@@ -1,12 +1,16 @@
 extends GutTest
-## Real event subscribers and transition owners, not button-press proxies.
+## Проверяет события владельцев фактических переходов и их реальные GECS-подписки.
 
+## Записывает настоящие опубликованные переходы для проверки атрибуции и однократности.
 class Probe extends Observer:
+	## Полученные события текущего теста в порядке публикации.
 	var events: Array[PlayerInteractionEvent] = []
 
+	## Подписывается на общий канал фактических действий игрока.
 	func query() -> QueryBuilder:
 		return q.on_event(PlayerInteractionEvent.EVENT)
 
+	## Сохраняет только типизированный переход соответствующего объекта.
 	func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		var transition: PlayerInteractionEvent = payload as PlayerInteractionEvent
 		if transition != null and transition.object == entity:
@@ -19,6 +23,8 @@ var _actor: E_RigidBodyCharacter
 var _probe: Probe
 
 
+#region Окружение и подписчик
+## Создаёт игрока, реальный observer событий и объекты с сохраняемыми владельцами.
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
@@ -58,6 +64,7 @@ func before_each() -> void:
 	_world.add_entity(session, null, false)
 
 
+## Удаляет World и даёт завершиться отложенной очистке дерева.
 func after_each() -> void:
 	_world.purge(false)
 	_root.free()
@@ -92,6 +99,10 @@ func _parcel() -> Entity:
 	return parcel
 
 
+#endregion
+
+#region Фактические переходы и атрибуция
+## Открытие и закрытие панели дают по одному событию и корректно возвращают ввод.
 func test_terminal_reports_actual_visibility_and_releases_capture_once() -> void:
 	var terminal: E_Terminal = (load("res://content/entities/stations/terminal.tscn") as PackedScene).instantiate() as E_Terminal
 	_world.add_entity(terminal)
@@ -111,6 +122,7 @@ func test_terminal_reports_actual_visibility_and_releases_capture_once() -> void
 	assert_eq(_probe.events[1].kind, PlayerInteractionEvent.Kind.TERMINAL_CLOSED)
 
 
+## Событие соответствует принятому хвату и реальному отпусканию; удаление предмета не означает размещение игроком.
 func test_parcel_reports_accepted_grip_and_real_release_not_repeat_or_failure() -> void:
 	var parcel: Entity = _parcel()
 	await get_tree().physics_frame
@@ -132,6 +144,7 @@ func test_parcel_reports_accepted_grip_and_real_release_not_repeat_or_failure() 
 	assert_eq(_probe.events.size(), 3, "Removal is not a player placement")
 
 
+## Дверь публикует достижение физического края, а не просьбу открыть или промежуточную долю.
 func test_door_reports_native_endpoint_not_request_blocked_fraction_or_jitter() -> void:
 	var door: E_Door = _door()
 	var state: C_Openable = door.get_component(C_Openable) as C_Openable
@@ -159,6 +172,7 @@ func test_door_reports_native_endpoint_not_request_blocked_fraction_or_jitter() 
 	assert_eq(_probe.events[1].kind, PlayerInteractionEvent.Kind.DOOR_CLOSED)
 
 
+## Отменённое, загруженное или перенесённое через ночь намерение не воспроизводит старое событие.
 func test_superseded_or_restored_pending_door_intent_never_replays() -> void:
 	var door: E_Door = _door()
 	var state: C_Openable = door.get_component(C_Openable) as C_Openable
@@ -181,6 +195,7 @@ func test_superseded_or_restored_pending_door_intent_never_replays() -> void:
 	assert_eq(_probe.events.size(), 0, "Pending attribution does not cross Night reset")
 
 
+## Действие NPC и принудительная очистка хвата не публикуют событие действия игрока.
 func test_npc_and_forced_release_do_not_emit_player_action() -> void:
 	var parcel: Entity = _parcel()
 	await get_tree().physics_frame
@@ -203,3 +218,5 @@ func test_npc_and_forced_release_do_not_emit_player_action() -> void:
 	assert_true(OpenableService.request(_actor, door, OpenableService.Operation.OPEN))
 	OpenableService.report_fraction(state, 1.0, door)
 	assert_eq(_probe.events.size(), 2, "NPC actions are not player events")
+
+#endregion

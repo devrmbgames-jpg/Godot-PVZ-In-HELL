@@ -1,5 +1,5 @@
 extends Node3D
-## Real-body transport regressions: reverse, terrain, collision and explicit handle release.
+## Проверяет загруженную тележку: задний ход, рельеф, столкновения и явное отпускание рукояти.
 
 var _actor: Entity = null
 var _cart: Entity = null
@@ -8,6 +8,7 @@ var _cargo: Array[Entity] = []
 var _maximum_cargo_drift: float = 0.0
 
 
+#region Движение и наблюдение за грузом
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -29,6 +30,7 @@ func _physics_process(_delta: float) -> void:
 			_maximum_cargo_drift = maxf(_maximum_cargo_drift, drift)
 
 
+## Проводит тележку с физическим грузом через движение, паузу модального ввода и отпускание.
 func _run() -> void:
 	var world: World = World.new()
 	add_child(world)
@@ -126,7 +128,7 @@ func _run() -> void:
 	assert(CartTransportService.current(_actor) == null, "E explicitly releases the handle")
 	assert(InteractionControlFocus.current(_actor) == InteractionControlFocus.Priority.HANDS)
 	assert(CartTransportService.relationship(_cart) == null)
-	# Pick the exposed rear box; the front lower box is occluded by the stack.
+	# Доступна задняя коробка; передняя нижняя перекрыта стопкой.
 	var target: Entity = _cargo[1]
 	ray.look_at((target as Node as Node3D).global_position + Vector3.UP * 0.2)
 	assert(GrabService.try_pickup(_actor, target, C_Grabbable.HoldSlot.CARRY))
@@ -153,6 +155,10 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Проверки рельефа
+## Проверяет подъём, спуск, малые неровности и стену без потери груза или водителя.
 func _terrain_checks(
 	cart_body: CharacterBody3D,
 	actor_body: RigidBody3D,
@@ -206,6 +212,9 @@ func _terrain_checks(
 	return true
 
 
+#endregion
+
+#region Тестовая загрузка и размещение
 func _load_cargo(cart_body: CharacterBody3D) -> bool:
 	_cargo.clear()
 	_maximum_cargo_drift = 0.0
@@ -256,3 +265,5 @@ func _obstacle(location: Vector3, dimensions: Vector3) -> StaticBody3D:
 	obstacle.position = location
 	add_child(obstacle)
 	return obstacle
+
+#endregion

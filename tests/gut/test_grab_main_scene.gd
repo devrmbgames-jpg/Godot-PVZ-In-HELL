@@ -1,13 +1,15 @@
 extends GutTest
+## Исторический тест профилей массы и конвейера хвата в main_level с прежней поставкой восьми коробок.
 
 const MAIN_LEVEL: PackedScene = preload("res://content/scenes/main_level.tscn")
 
 
+## Проверяет исторический ассортимент, коэффициенты массы и настоящий путь ввода к хвату/повороту/отпусканию.
 func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var level: Node3D = MAIN_LEVEL.instantiate() as Node3D
 	level.set("autosave_path", "")
 	add_child(level)
-	# Stop automatic input sampling; drive the real ECS groups deterministically below.
+	# Автоматический сбор ввода отключён: тест сам выполняет реальные группы ECS.
 	level.set_physics_process(false)
 	for delivery_tick: int in 12:
 		await get_tree().physics_frame

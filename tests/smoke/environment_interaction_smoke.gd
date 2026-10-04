@@ -1,5 +1,5 @@
 extends Node
-## Real main scene: collider ancestry, contextual prompts and physical completion.
+## Проверяет поиск владельца collider, контекстные подсказки и физическое завершение в main_level.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const SETTLE_FRAMES: int = 360
@@ -9,10 +9,12 @@ var _level: Node = null
 var _actor: Entity = null
 
 
+#region Сценарий взаимодействия с окружением
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет авторские открываемые тела и выключатель через реальное наведение и действие.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	_level = scene.instantiate()
@@ -63,6 +65,9 @@ func _run() -> void:
 	get_tree().quit.call_deferred()
 
 
+#endregion
+
+#region Тестовое наведение
 func _aim(target: Entity, offset: Vector3, approach: Vector3 = Vector3.BACK) -> void:
 	var position: Vector3 = (target as Node as Node3D).global_position + offset
 	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
@@ -77,3 +82,5 @@ func _aim(target: Entity, offset: Vector3, approach: Vector3 = Vector3.BACK) -> 
 func _frames(count: int) -> void:
 	for frame: int in count:
 		await get_tree().physics_frame
+
+#endregion

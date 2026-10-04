@@ -1,12 +1,20 @@
 extends GutTest
+## Проверяет фиксацию молотком, накопление покоя и обратимое восстановление физического состояния.
 
 
+## Минимальный участник предоставляет сервисам физические опоры и луч тестового окружения.
 class Actor extends Entity:
+	## Тестовый луч, используемый сервисом наведения.
 	var interaction_ray_cast: RayCast3D
+	## Тестовая опора переноса груза.
 	var hold_anchor: Node3D
+	## Тестовая опора правой руки.
 	var right_hand_slot: Node3D
+	## Тестовая опора левой руки.
 	var left_hand_slot: Node3D
+	## Опора опущенной правой руки при переносе.
 	var lowered_right_hand_slot: Node3D
+	## Опора опущенной левой руки при переносе.
 	var lowered_left_hand_slot: Node3D
 
 
@@ -20,6 +28,8 @@ var _body: RigidBody3D
 var _config: C_Anchorable
 
 
+#region Физическое окружение
+## Создаёт физический предмет, молоток и игрока с observers хвата и длительных действий.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -62,6 +72,7 @@ func before_each() -> void:
 	_interactor.target = _target
 
 
+## Отменяет сессии и живое владение перед удалением тестового World.
 func after_each() -> void:
 	if is_instance_valid(_actor):
 		ProlongedInteractionService.cancel(_actor)
@@ -134,6 +145,10 @@ func _stabilize(seconds: float = 0.5) -> void:
 	AnchoringService.update_stability(_target, _config, seconds)
 
 
+#endregion
+
+#region Инструмент и обратимая фиксация
+## Авторский молоток проигрывает крепление без боевого урона; бросок сразу отменяет анимацию.
 func test_authored_hammer_fastens_instead_of_attacking_and_plays_swing_without_damage() -> void:
 	GrabService.release(_actor, _hammer)
 	_hammer = (load("res://content/entities/tools/hammer.tscn") as PackedScene).instantiate() as Entity
@@ -181,6 +196,7 @@ func _drive_input(primary_pressed: bool, use_pressed: bool, use_held: bool, delt
 	_controller.use_pressed = false
 
 
+## Покой накапливается непрерывно только при малой скорости и отсутствии владельца управления.
 func test_stability_requires_continuous_low_motion_and_no_control_owner() -> void:
 	_body.linear_velocity = Vector3(0.2, 0, 0)
 	AnchoringService.update_stability(_target, _config, 0.3)
@@ -197,6 +213,7 @@ func test_stability_requires_continuous_low_motion_and_no_control_owner() -> voi
 	assert_almost_eq(_config.stable_seconds, 0.5, 0.0001)
 
 
+## Авторский freeze сам по себе не означает фиксацию игроком.
 func test_authored_frozen_body_is_never_inferred_as_player_anchor() -> void:
 	_config.stable_seconds = 10.0
 	_body.freeze = true
@@ -205,6 +222,7 @@ func test_authored_frozen_body_is_never_inferred_as_player_anchor() -> void:
 	_body.freeze = false
 
 
+## Основное действие фиксирует предмет и блокирует его захват.
 func test_primary_hammer_action_anchors_and_blocks_grab() -> void:
 	_stabilize()
 	assert_true(AnchoringService.can_anchor(_actor, _hammer, _target))
@@ -215,6 +233,7 @@ func test_primary_hammer_action_anchors_and_blocks_grab() -> void:
 	assert_false(GrabService.can_pickup(_actor, _target, C_Grabbable.HoldSlot.CARRY))
 
 
+## Длительное открепление по F возвращает точные параметры тела из снимка перед фиксацией.
 func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> void:
 	_body.can_sleep = false
 	_body.sleeping = false
@@ -257,6 +276,7 @@ func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> voi
 	assert_null(ProlongedInteractionService.session(_actor))
 
 
+## Молоток в неподходящей руке не предлагает основное действие крепления.
 func test_wrong_hand_tool_does_not_offer_primary_fix() -> void:
 	GrabService.release(_actor, _hammer)
 	var grip: R_HeldBy = R_HeldBy.new()
@@ -269,3 +289,5 @@ func test_wrong_hand_tool_does_not_offer_primary_fix() -> void:
 		DEF_InteractionAction.Slot.PRIMARY,
 	)
 	assert_null(choice)
+
+#endregion

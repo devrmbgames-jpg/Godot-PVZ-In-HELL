@@ -1,26 +1,32 @@
 extends Node
-## Real-scene hand routing and Carry/Terminal capture regression.
+## Проверяет назначение кнопок рукам и приоритеты переноса груза и терминала в основной сцене.
 
 var _prepared_body: Node3D = null
 var _prepared_transform: Transform3D = Transform3D.IDENTITY
 
 
+## Простой инструмент считает только реально выполненные действия после выбора владельца ввода.
 class ProbeAction extends DEF_InteractionAction:
+	## Число полученных вызовов execute.
 	var calls: int = 0
 
 
+	## Всегда доступен: отказ проверяется приоритетом захвата, а не условиями инструмента.
 	func is_available(_actor: Entity, _source: Entity, _target: Entity) -> bool:
 		return true
 
 
+	## Фиксирует одно принятое действие без игрового эффекта.
 	func execute(_actor: Entity, _source: Entity, _target: Entity) -> void:
 		calls += 1
 
 
+#region Сценарий приоритетов ввода
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет маршрутизацию ввода между инструментом, грузом, модальным окном и броском.
 func _run() -> void:
 	var primary_event: InputEventMouseButton = InputEventMouseButton.new()
 	primary_event.button_index = MOUSE_BUTTON_LEFT
@@ -69,7 +75,7 @@ func _run() -> void:
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.CARRY)
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 1, "Carry capture must block hand tool use")
-	# Carry owns LMB: it throws Carry, without passing this tick into hand use.
+	# Перенос груза забирает ЛКМ для броска и не передаёт этот такт инструменту в руке.
 	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY) == null)
 	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.HANDS)
@@ -117,6 +123,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Тестовый ввод и размещение
 func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> void:
 	if is_instance_valid(_prepared_body):
 		var previous: Entity = _prepared_body as Node as Entity
@@ -156,3 +165,5 @@ func _drive(
 	controller.drop_pressed = drop
 	controller.physical_override = physical_override
 	ECS.world.process(1.0 / 60.0, "Interaction")
+
+#endregion

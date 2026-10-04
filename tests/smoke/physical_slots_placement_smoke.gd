@@ -1,15 +1,17 @@
 extends Node
-## Bounded real-physics placement transactions; no rendered inspection.
+## Проверяет размещение через реальные физические препятствия с сохранением хвата при отказе.
 
 var _world: World
 var _actor: Entity
 var _area: E_PlacementArea
 
 
+#region Размещение и препятствия
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Отклоняет занятый путь/поворот до отпускания и проверяет успешное размещение свободной коробки.
 func _run() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -79,7 +81,7 @@ func _run() -> void:
 	body.global_position = Vector3(5, 1, 0)
 	await _sync_physics()
 	assert(CarryPlacementService.can_place(_actor, _area), "Moving it out frees the area without a claim")
-	# Rotation safety: obstacle in the swept volume is rejected before release.
+	# Препятствие в объёме поворота отклоняет размещение до отпускания предмета.
 	_area.anchor.rotation.y = PI / 2.0
 	blocker.position = Vector3(0.5, 1, -1.5)
 	await _sync_physics()
@@ -92,6 +94,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Тестовые тела и синхронизация
 func _sync_physics() -> void:
 	await get_tree().physics_frame
 	await get_tree().process_frame
@@ -134,3 +139,5 @@ func _blocker(location: Vector3, size: Vector3) -> StaticBody3D:
 	body.add_child(collision)
 	add_child(body)
 	return body
+
+#endregion

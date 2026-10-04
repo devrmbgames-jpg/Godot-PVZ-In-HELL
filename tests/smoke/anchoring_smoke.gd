@@ -1,5 +1,5 @@
 extends Node
-## One-shot real-physics support-cluster validation for player anchoring.
+## Проверяет фиксацию физически опирающейся стопки предметов игроком.
 
 var _world: World
 var _actor: Entity
@@ -8,10 +8,12 @@ var _ray: RayCast3D
 var _interactor: C_Interactor
 
 
+#region Опорная стопка
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет фиксируемую опорную стопку и отделяет авторский freeze от крепления игроком.
 func _run() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -54,6 +56,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Тестовые участники и наведение
 func _make_actor() -> Entity:
 	var actor_body: RigidBody3D = RigidBody3D.new()
 	actor_body.set_script(E_RigidBodyCharacter)
@@ -158,3 +163,5 @@ func _aim(target: Entity) -> bool:
 func _sync_physics() -> void:
 	await get_tree().physics_frame
 	await get_tree().process_frame
+
+#endregion
