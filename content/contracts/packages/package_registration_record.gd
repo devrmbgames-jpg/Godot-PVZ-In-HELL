@@ -8,6 +8,8 @@ class_name PackageRegistrationRecord
 @export var history_id: String = ""
 ## Примечание игрока к этой истории; не переносится при переиспользовании номера выдачи.
 @export_multiline var note: String = ""
+## Прочитанные события этой истории; переиспользование номера выдачи их не переносит.
+@export var read_event_ids: PackedStringArray = []
 ## День фактического поступления, сохраняемый независимо от регистрации и физического тела.
 @export var received_day: int = 0
 ## Номер дня регистрации; 0 означает, что коробку ещё не сканировали.

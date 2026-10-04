@@ -5,6 +5,10 @@ class_name NpcDeliveryOfferService
 const PERSONAL_DELAY_MIN: int = 1
 const PERSONAL_DELAY_MAX: int = 3
 const PERCENT_SCALE: int = 100
+const STATUS_TEXT: PackedStringArray = [
+	"Принята — доставить до сна", "Доставлено", "Получатель отказался", "Не выполнено",
+	"Предложение доставки", "Предложение отклонено", "Срок предложения истёк",
+]
 
 #region Ежедневный выбор
 ## Готовит выбор для явного утра, включая ночную подготовку до изменения DayCycle.
@@ -98,9 +102,50 @@ static func terminal_offers() -> Array[NpcHomeDelivery]:
 			if job.source == NpcHomeDelivery.Source.TERMINAL and job.published and _available(job):
 				result.append(job)
 	return result
+
+## Готовит только опубликованные сведения одним проходом по записям; частные данные не попадают в UI.
+static func published_by_package(registry: C_PackageLedger, states: Dictionary[String, C_PackageState], visits: Dictionary[String, CustomerVisit]) -> Dictionary[String, TerminalDeliveryInfo]:
+	var result: Dictionary[String, TerminalDeliveryInfo] = {}
+	var district: C_District = DistrictPopulationService.current()
+	var cycle: C_DayCycle = DayPhaseService.current()
+	if district == null or cycle == null or registry == null:
+		return result
+	var people: Dictionary[StringName, NpcRecord] = {}
+	for person: NpcRecord in district.people:
+		people[person.npc_id] = person
+	var entries: Dictionary[String, PackageRegistrationRecord] = {}
+	for entry: PackageRegistrationRecord in registry.records:
+		entries[entry.package_id] = entry
+	for job: NpcHomeDelivery in district.home_deliveries:
+		if not job.published:
+			continue
+		var info: TerminalDeliveryInfo = TerminalDeliveryInfo.new()
+		info.job_id = job.job_id
+		info.published = true
+		info.address = DistrictPopulationService.place_name(job.address_id)
+		info.bonus = job.bonus
+		info.deadline_day = job.deadline_day
+		info.status = job.status
+		info.status_text = STATUS_TEXT[job.status]
+		var visit: CustomerVisit = visits.get(job.package_id) as CustomerVisit
+		if job.status == NpcHomeDelivery.Status.OFFERED and job.day_index == cycle.day_index and cycle.phase != C_DayCycle.Phase.NIGHT and visit != null:
+			info.can_respond = _eligible(
+				visit, people.get(job.npc_id) as NpcRecord,
+				entries.get(job.package_id) as PackageRegistrationRecord,
+				states.get(job.package_id) as C_PackageState, cycle.day_index,
+			)
+		result[job.package_id] = info
+	return result
 #endregion
 
 #region Решения игрока и сценария
+## Принимает запрос терминала только для явно опубликованной записи.
+static func respond_published(job_id: StringName, accept_delivery: bool) -> bool:
+	var job: NpcHomeDelivery = find(job_id)
+	if job == null or not job.published:
+		return false
+	return accept(job_id) if accept_delivery else decline(job_id)
+
 ## Явно назначает личное предложение реальному заказу; повтор сценария возвращает ту же запись.
 static func assign_personal(visit_id: StringName, scenario_id: StringName = &"", published: bool = false) -> NpcHomeDelivery:
 	var visit: CustomerVisit = CustomerFlowService.find_visit(visit_id)

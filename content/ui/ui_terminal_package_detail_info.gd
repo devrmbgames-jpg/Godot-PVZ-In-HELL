@@ -176,11 +176,16 @@ static func _delivery_lines(delivery: TerminalDeliveryInfo) -> PackedStringArray
 		return []
 	if delivery.address.is_empty() or delivery.bonus < 0 or delivery.deadline_day < 1:
 		return []
-	return PackedStringArray([
+	var lines: PackedStringArray = [
 		"Доставка: " + delivery.address,
 		"Доплата за доставку: %d" % delivery.bonus,
 		"Срок доставки: до утра дня %d" % delivery.deadline_day,
-	])
+	]
+	if not delivery.status_text.is_empty():
+		lines.append("Статус доставки: " + delivery.status_text)
+	if not delivery.job_id.is_empty() and delivery.status == NpcHomeDelivery.Status.OFFERED and not delivery.can_respond:
+		lines.append("Предложение сейчас недоступно. Получатель и зарегистрированная посылка должны быть доступны; срок — до сна.")
+	return lines
 
 
 static func _condition_text(state: C_PackageState) -> String:

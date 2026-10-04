@@ -129,6 +129,7 @@ func open_for(actor: Entity) -> void:
 	_refresh_remaining = 0.0
 	_last_data_signature = ""
 	_refresh(true)
+	_focus_selected_row()
 	PlayerInteractionEvents.publish(_reader, get_parent() as E_Terminal, PlayerInteractionEvent.Kind.TERMINAL_OPENED)
 
 
@@ -139,6 +140,7 @@ func close_panel() -> void:
 
 	visible = false
 	_package_detail.end_editing()
+	_release_ui_focus()
 	InteractionControlFocus.release(_reader, _capture_token)
 	_capture_token = 0
 	var reader: Entity = _reader
@@ -160,20 +162,24 @@ func _refresh(force: bool = false) -> void:
 
 	var states: Dictionary[String, C_PackageState] = _live_states()
 	var visits: Dictionary[String, CustomerVisit] = _visits_by_package()
-	var signature: String = _data_signature(ledger, states, visits)
+	var deliveries: Dictionary[String, TerminalDeliveryInfo] = NpcDeliveryOfferService.published_by_package(ledger, states, visits)
+	var signature: String = _data_signature(ledger, states, visits, deliveries)
 	if not force and signature == _last_data_signature:
 		return
 
-	_last_data_signature = signature
-	_rebuild_package_rows(ledger, states, visits)
-	_refresh_info(ledger, states, visits)
+	_rebuild_package_rows(ledger, states, visits, deliveries)
+	_refresh_info(ledger, states, visits, deliveries)
+	# Чтение подробностей могло снять непрочитанный статус во время пересборки.
+	_last_data_signature = _data_signature(ledger, states, visits, deliveries)
 
 
 func _rebuild_package_rows(
 	ledger: C_PackageLedger,
 	states: Dictionary[String, C_PackageState],
 	visits: Dictionary[String, CustomerVisit],
+	deliveries: Dictionary[String, TerminalDeliveryInfo],
 ) -> void:
+	var focused_package_id: String = _focused_package_id()
 	_clear_package_rows()
 	var records: Array[PackageRegistrationRecord] = _visible_records(ledger, states, visits)
 	var selected_visible: bool = false
@@ -187,12 +193,19 @@ func _rebuild_package_rows(
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var actions_enabled: bool = cycle != null and cycle.phase != C_DayCycle.Phase.NIGHT
 	for record: PackageRegistrationRecord in records:
+		var delivery: TerminalDeliveryInfo = deliveries.get(record.package_id) as TerminalDeliveryInfo
+		var notice: TerminalPackageNotice = TerminalPackageNoticeService.present(record, visits.get(record.package_id) as CustomerVisit, delivery)
+		if visible and _info_mode == InfoMode.DETAIL and record.package_id == _selected_package_id and notice.severity != TerminalPackageNotice.Severity.NONE:
+			TerminalPackageNoticeService.mark_read(record.history_id, notice.event_ids)
+			notice = TerminalPackageNoticeService.present(record, visits.get(record.package_id) as CustomerVisit, delivery)
 		var line: UI_TerminalButtonPackage = _package_line_scene.instantiate() as UI_TerminalButtonPackage
 		_package_list.add_child(line)
 		line.package_selected.connect(_on_package_selected)
 		line.taken_requested.connect(_on_taken_requested)
 		line.refused_requested.connect(_on_refused_requested)
 		line.lost_requested.connect(_on_lost_requested)
+		line.delivery_accepted.connect(_on_delivery_accepted)
+		line.delivery_declined.connect(_on_delivery_declined)
 		line.present(
 			record,
 			states.get(record.package_id) as C_PackageState,
@@ -200,7 +213,11 @@ func _rebuild_package_rows(
 			record.package_id == _selected_package_id,
 			actions_enabled,
 			debug_package_status_enabled,
+			delivery,
+			notice,
 		)
+		if record.package_id == focused_package_id:
+			line.focus_row()
 
 
 func _visible_records(
@@ -314,6 +331,7 @@ func _refresh_info(
 	ledger: C_PackageLedger,
 	states: Dictionary[String, C_PackageState],
 	visits: Dictionary[String, CustomerVisit],
+	deliveries: Dictionary[String, TerminalDeliveryInfo],
 ) -> void:
 	match _info_mode:
 		InfoMode.DETAIL:
@@ -326,6 +344,7 @@ func _refresh_info(
 					states.get(record.package_id) as C_PackageState,
 					visits.get(record.package_id) as CustomerVisit,
 					debug_package_status_enabled,
+					deliveries.get(record.package_id) as TerminalDeliveryInfo,
 				)
 		InfoMode.PACKAGE_HISTORY:
 			_package_history.present(
@@ -490,12 +509,19 @@ func _data_signature(
 	ledger: C_PackageLedger,
 	states: Dictionary[String, C_PackageState],
 	visits: Dictionary[String, CustomerVisit],
+	deliveries: Dictionary[String, TerminalDeliveryInfo] = {},
 ) -> String:
 	var parts: PackedStringArray = ["debug:%s" % debug_package_status_enabled]
+	var cycle: C_DayCycle = DayPhaseService.current()
+	parts.append("phase:%d" % (cycle.phase if cycle != null else -1))
 	for record: PackageRegistrationRecord in ledger.records:
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
 		var visit: CustomerVisit = visits.get(record.package_id) as CustomerVisit
 		parts.append("note:%d" % record.note.hash())
+		parts.append("read:" + "\n".join(record.read_event_ids))
+		var delivery: TerminalDeliveryInfo = deliveries.get(record.package_id) as TerminalDeliveryInfo
+		if delivery != null:
+			parts.append("delivery:%s:%d:%d:%d:%s:%s" % [delivery.job_id, delivery.status, delivery.bonus, delivery.deadline_day, delivery.can_respond, delivery.address])
 		var complaint: CustomerComplaint = visit.complaint if visit != null else null
 		if complaint != null:
 			parts.append("complaint:%s:%d:%d:%d:%d:%d:%d" % [
@@ -544,6 +570,29 @@ func _clear_designer_rows() -> void:
 	_clear_package_rows()
 
 
+func _focused_package_id() -> String:
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	for child: Node in _package_list.get_children():
+		if child is UI_TerminalButtonPackage and focus_owner != null and child.is_ancestor_of(focus_owner):
+			return (child as UI_TerminalButtonPackage).package_id()
+	return ""
+
+
+func _focus_selected_row() -> void:
+	for child: Node in _package_list.get_children():
+		if child is UI_TerminalButtonPackage and (child as UI_TerminalButtonPackage).package_id() == _selected_package_id:
+			(child as UI_TerminalButtonPackage).focus_row()
+			return
+
+
+func _release_ui_focus() -> void:
+	if not is_inside_tree():
+		return
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	if focus_owner != null and is_ancestor_of(focus_owner):
+		focus_owner.release_focus()
+
+
 func _clear_package_rows() -> void:
 	for child: Node in _package_list.get_children():
 		_package_list.remove_child(child)
@@ -584,6 +633,26 @@ func _on_refused_requested(package_id: String) -> void:
 
 func _on_lost_requested(package_id: String) -> void:
 	_declare_package(package_id, CustomerVisit.Declaration.LOST)
+
+
+func _on_delivery_accepted(job_id: StringName) -> void:
+	_respond_delivery(job_id, true)
+
+
+func _on_delivery_declined(job_id: StringName) -> void:
+	_respond_delivery(job_id, false)
+
+
+func _respond_delivery(job_id: StringName, accept_delivery: bool) -> void:
+	if not visible:
+		return
+	var job: NpcHomeDelivery = NpcDeliveryOfferService.find(job_id)
+	if job == null or not job.published:
+		return
+	_selected_package_id = job.package_id
+	_set_info_mode(InfoMode.DETAIL)
+	NpcDeliveryOfferService.respond_published(job_id, accept_delivery)
+	_refresh(true)
 
 
 ## Запрашивает заявление в журнале обслуживания; физическую выдачу коробки не выполняет.

@@ -10,6 +10,10 @@ signal taken_requested(package_id: String)
 signal refused_requested(package_id: String)
 ## Запрос заявления LOST в журнале.
 signal lost_requested(package_id: String)
+## Запрос принятия конкретного опубликованного предложения доставки.
+signal delivery_accepted(job_id: StringName)
+## Запрос отказа от допуслуги; обычное получение посылки сохраняется.
+signal delivery_declined(job_id: StringName)
 
 @onready var _button_body: Button = %Button
 @onready var _icon_preview_package: TextureRect = %TexturePreviewPackage
@@ -31,22 +35,24 @@ signal lost_requested(package_id: String)
 @onready var _label_price: Label = %LabelPrice
 @onready var _label_description_short: Label = %LabelDescriptionShort
 
-#иконка уведомлений об новой информации
+## Непрочитанное предложение или обновление доставки.
 @onready var _alert_info:     Control = %TextureAlertIconInfo
-#иконка уведомления об важной информации
+## Непрочитанная жалоба или обязательство.
 @onready var _alert_warrning: Control = %TextureAlertIconWar
-#иконка уведомления об критической информации
+## Непрочитанная подтверждённая санкция.
 @onready var _alert_critical: Control = %TextureAlertIconCrit
 
-#раздел который появляется, если клиент желает доставку на дом
+## Авторский раздел опубликованной доставки.
 @onready var _control_delivery: Control = %DeliveryControl
-#принять доставку
+## Запрос принятия допуслуги.
 @onready var _button_delivery_ok: Button = %ButtonDeliveryOK
-#отказаться от доставки
+## Запрос отказа от допуслуги.
 @onready var _button_delivery_cancel: Button = %ButtonDeloveryCancel
+@onready var _label_delivery_bonus: Label = get_node("%DeliveryControl/Label2") as Label
 
 
 var _package_id: String = ""
+var _delivery_job_id: StringName = &""
 
 
 #region Заполнение строки
@@ -55,6 +61,11 @@ func _ready() -> void:
 	_button_ok.pressed.connect(_on_taken_pressed)
 	_button_cancel.pressed.connect(_on_refused_pressed)
 	_button_lost.pressed.connect(_on_lost_pressed)
+	_button_delivery_ok.pressed.connect(_on_delivery_accepted)
+	_button_delivery_cancel.pressed.connect(_on_delivery_declined)
+	_control_delivery.visible = false
+	for icon: Control in [_alert_info, _alert_warrning, _alert_critical]:
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 ## Показывает запись; actions_enabled управляет заявлениями, debug_status раскрывает фактическое состояние.
@@ -65,6 +76,8 @@ func present(
 	selected: bool,
 	actions_enabled: bool = true,
 	debug_status: bool = false,
+	delivery: TerminalDeliveryInfo = null,
+	notice: TerminalPackageNotice = null,
 ) -> void:
 	_package_id = record.package_id
 	_button_body.set_pressed_no_signal(selected)
@@ -96,11 +109,45 @@ func present(
 	_button_lost.disabled = not (
 		actions_enabled and visit != null and visit.declaration == CustomerVisit.Declaration.NONE
 	)
+	_present_delivery(delivery, actions_enabled)
+	_present_notice(notice)
 
 
 ## Возвращает постоянный ID записи, показанной этой строкой.
 func package_id() -> String:
 	return _package_id
+
+
+## Возвращает клавиатурный фокус строке после пересборки или решения о доставке.
+func focus_row() -> void:
+	_button_body.grab_focus()
+
+
+func _present_delivery(delivery: TerminalDeliveryInfo, actions_enabled: bool) -> void:
+	_control_delivery.visible = delivery != null and delivery.published
+	_delivery_job_id = delivery.job_id if _control_delivery.visible else &""
+	_button_body.tooltip_text = ""
+	if not _control_delivery.visible:
+		return
+	_label_delivery_bonus.text = "+%d" % delivery.bonus
+	_control_delivery.tooltip_text = "%s\n%s · +%d$ · до утра дня %d" % [delivery.status_text, delivery.address, delivery.bonus, delivery.deadline_day]
+	_button_body.tooltip_text = _control_delivery.tooltip_text
+	var offered: bool = delivery.status == NpcHomeDelivery.Status.OFFERED
+	_button_delivery_ok.visible = offered
+	_button_delivery_cancel.visible = offered
+	_button_delivery_ok.disabled = not actions_enabled or not delivery.can_respond
+	_button_delivery_cancel.disabled = _button_delivery_ok.disabled
+	_button_delivery_ok.tooltip_text = "Принять доставку за +%d$ до утра дня %d" % [delivery.bonus, delivery.deadline_day]
+	_button_delivery_cancel.tooltip_text = "Отказаться от доставки. Покупатель получит посылку обычным способом."
+
+
+func _present_notice(notice: TerminalPackageNotice) -> void:
+	var severity: TerminalPackageNotice.Severity = notice.severity if notice != null else TerminalPackageNotice.Severity.NONE
+	_alert_info.visible = severity == TerminalPackageNotice.Severity.INFO
+	_alert_warrning.visible = severity == TerminalPackageNotice.Severity.WARNING
+	_alert_critical.visible = severity == TerminalPackageNotice.Severity.CRITICAL
+	if notice != null and not notice.text.is_empty():
+		_button_body.tooltip_text += ("\n" if not _button_body.tooltip_text.is_empty() else "") + notice.text
 
 
 ## Форматирует заявление игрока; фактическую выдачу и состояние раскрывает только debug_status.
@@ -233,5 +280,15 @@ func _on_refused_pressed() -> void:
 func _on_lost_pressed() -> void:
 	if not _package_id.is_empty():
 		lost_requested.emit(_package_id)
+
+
+func _on_delivery_accepted() -> void:
+	if _control_delivery.visible and not _button_delivery_ok.disabled and not _delivery_job_id.is_empty():
+		delivery_accepted.emit(_delivery_job_id)
+
+
+func _on_delivery_declined() -> void:
+	if _control_delivery.visible and not _button_delivery_cancel.disabled and not _delivery_job_id.is_empty():
+		delivery_declined.emit(_delivery_job_id)
 
 #endregion
