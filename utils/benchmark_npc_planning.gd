@@ -1,5 +1,5 @@
 extends Node
-## Reproducible headless CPU benchmark on the authored level, without changing its geometry.
+## Headless CPU-benchmark авторского уровня: отдельно маршрут, 809 оценок света и работа групп ECS по фазам.
 
 const SAMPLE_COUNT: int = 12
 const LIGHT_SAMPLES: int = 809
@@ -7,7 +7,7 @@ const FRAME_COUNT: int = 240
 
 var _level: Node3D = null
 
-#region Measurement
+#region Измерение времени CPU
 func _ready() -> void:
 	_run.call_deferred()
 

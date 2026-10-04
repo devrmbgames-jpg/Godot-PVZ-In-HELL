@@ -1,10 +1,10 @@
 extends SceneTree
-## Regenerates editable native LimboAI subtrees from the shared branch adapter.
+## Перезаписывает редактируемые LimboAI-поддеревья и приоритетный selector из общего адаптера ветви.
 
 const OUTPUT_DIRECTORY: String = "res://content/ai/trees"
 const BRANCHES: PackedStringArray = ["emergency", "combat", "service", "schedule", "idle"]
 
-#region Resource authoring
+#region Генерация ресурсов поведения
 func _init() -> void:
 	_build.call_deferred()
 

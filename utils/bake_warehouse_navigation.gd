@@ -1,11 +1,11 @@
 extends SceneTree
-## Rebakes the scene's authored NavigationMesh without replacing its generation settings.
+## Пересобирает авторский NavigationMesh, сохраняя параметры генерации и UID; флаги CLI могут отключать запись.
 
 const LEVEL_PATH: String = "res://content/scenes/main_level.tscn"
 const TEST_LEVEL_PATH: String = "res://content/scenes/primitive_test_level.tscn"
 const COVERAGE_CHECKS_PATH: String = "res://utils/warehouse_navigation_checks.gd"
 
-#region Bake workflow
+#region Пересборка и проверка
 func _init() -> void:
 	_bake.call_deferred()
 
@@ -36,8 +36,8 @@ func _bake() -> void:
 	if not validate_only:
 		mesh.clear()
 		var source: NavigationMeshSourceGeometryData3D = NavigationMeshSourceGeometryData3D.new()
-		# One parse collects the authored group in the navigation region's coordinate frame.
-		# The primitive fixture predates group sources and keeps its explicit PVZ root.
+		# Единственный parse собирает авторскую группу в системе координат NavigationRegion.
+		# Старый primitive-fixture сохраняет явный корень PVZ для режима ROOT_NODE_CHILDREN.
 		var parse_root: Node = level.get_node("PVZ") if primitive and mesh.geometry_source_geometry_mode == NavigationMesh.SOURCE_GEOMETRY_ROOT_NODE_CHILDREN else region
 		NavigationServer3D.parse_source_geometry_data(mesh, source, parse_root)
 		if not source.has_data():
@@ -49,7 +49,7 @@ func _bake() -> void:
 	if _settings(mesh) != settings:
 		errors.append("Navigation generation changed authored bake settings")
 	region.navigation_mesh = mesh
-	# CLI SceneTree scripts compile before project autoload names are registered.
+	# Проверка загружается после регистрации autoload: CLI SceneTree компилируется раньше них.
 	var coverage_checks: GDScript = load(COVERAGE_CHECKS_PATH) as GDScript
 	errors.append_array(await coverage_checks.failures(level, region))
 	if not errors.is_empty():
@@ -72,7 +72,7 @@ func _bake() -> void:
 	_finish(level, [])
 #endregion
 
-#region Settings and cleanup
+#region Параметры и освобождение
 func _settings(mesh: NavigationMesh) -> Dictionary[StringName, Variant]:
 	var settings: Dictionary[StringName, Variant] = {}
 	for property: Dictionary in mesh.get_property_list():

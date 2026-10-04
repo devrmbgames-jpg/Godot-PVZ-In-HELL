@@ -1,7 +1,7 @@
 extends SceneTree
-## Fresh-process parser validation with project autoloads available, without running gameplay.
+## Parser по фактическим путям после регистрации autoload; скрипты загружаются без запуска игровых сцен.
 
-#region Parser validation
+#region Проверка скриптов
 func _init() -> void:
 	_validate.call_deferred()
 

@@ -1,14 +1,20 @@
 @tool
 extends Node
+## Редакторский инструмент размещения дочерних ассетов сеткой и создания trimesh-коллизий.
 class_name ToolNodeGridSort
 
+## Количество позиций в ряду; существующее имя экспортного свойства сохраняется.
 @export_range(1, 100000) var collumn: int = 10
+## Шаг сетки по X/Z в метрах; высота дочерних узлов сохраняется.
 @export var interval := 5.0
 
+## Редакторская кнопка раскладки дочерних Node3D.
 @export_tool_button("SORT") var sort_apply := _sort
+## Редакторская кнопка создания trimesh-коллизий дочерних MeshInstance3D.
 @export_tool_button("CREATE SHAPES") var create_shape := _gen_mesh
 
 
+#region Редакторские действия
 func _sort() -> void :
 	
 	for i in get_child_count() :
@@ -32,3 +38,5 @@ func _gen_mesh() -> void :
 		if node is MeshInstance3D :
 			var mi := node as MeshInstance3D
 			mi.create_trimesh_collision()
+
+#endregion
