@@ -1,5 +1,5 @@
 extends RefCounted
-## Physical unowned drops use normal inventory lifecycle and survive the visitor's removal.
+## Создаёт физическую бесхозную добычу с обычным жизненным циклом инвентаря, независимо от удаления NPC.
 class_name NpcRemainsService
 
 const GROUND_PROBE_RISE: float = 0.25
@@ -8,6 +8,8 @@ const SUPPORT_CLEARANCE: float = 0.03
 const GROUND_MASK: int = 31
 
 
+#region Однократная партия добычи
+## При истощённых HP проверяет всю партию, фиксирует guard и регистрирует отдельные физические предметы; повтор безопасен.
 static func release(npc: Entity) -> void:
 	if not EntityAvailability.contains(npc, ECS.world):
 		return
@@ -42,7 +44,7 @@ static func release(npc: Entity) -> void:
 			return
 
 		drops.append(drop)
-	# Commit before registering any Entity. Reentrant observers cannot create another batch.
+	# Запрет повторной выдачи ставится до регистрации добычи: повторный Observer не создаст ещё одну партию.
 	state.released = true
 	for index: int in drops.size():
 		var drop: Entity = drops[index]
@@ -66,6 +68,9 @@ static func release(npc: Entity) -> void:
 		character.sync_death_presentation()
 
 
+#endregion
+
+#region Проверка предмета и размещения
 static func _individual_pickup(drop: Entity) -> bool:
 	var components: Array[Component] = drop.component_resources.duplicate()
 	for index: int in components.size():
@@ -101,3 +106,5 @@ static func _bottom_height(node: Node3D) -> float:
 		var bounds: AABB = relative * mesh.get_aabb()
 		lowest = minf(lowest, bounds.position.y)
 	return lowest
+
+#endregion

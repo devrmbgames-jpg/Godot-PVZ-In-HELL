@@ -1,11 +1,11 @@
 extends RefCounted
-## Neutral live-World membership checks; has no interaction or damage authority.
+## Проверка действующего участия Entity в World без полномочий взаимодействия или урона.
 class_name EntityAvailability
 
 
-## True only for enabled, registered Entities that are not leaving the scene tree.
+## true только для зарегистрированной, включённой Entity в дереве, не ожидающей удаления.
 static func contains(candidate: Variant, world: World) -> bool:
-	# A freed Object cannot cross an Entity-typed parameter boundary in GDScript.
+	# Variant позволяет проверить уже освобождённый Object до приведения к Entity.
 	if not is_instance_valid(candidate) or not candidate is Entity:
 		return false
 

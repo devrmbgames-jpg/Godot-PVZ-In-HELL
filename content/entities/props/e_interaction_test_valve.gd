@@ -1,6 +1,6 @@
 @tool
 extends Entity
-## Scene-authored R11.1 interaction demo trigger.
+## Авторская демонстрация немедленного/длительного взаимодействия; реальные эффекты идут через действие.
 class_name E_InteractionTestValve
 
 enum Mode {
@@ -11,13 +11,17 @@ enum Mode {
 	HOLD_NEVER,
 }
 
+## Немедленный эффект переключил состояние; начальная синхронизация сигнал не вызывает.
 signal activated(active: bool)
-## Normalized actual value. Initial value and reset/restore changes do not activate gameplay.
+## Фактический прогресс 0–1 изменился; начальная синхронизация не выполняет эффект длительного действия.
 signal progress_changed(progress: float)
 
+## Локальная ось вращения колеса; нулевой вектор оставляет исходную ориентацию.
 @export var rotation_axis: Vector3 = Vector3.UP
+## Полный угол поворота колеса при прогрессе 1, в градусах.
 @export var rotation_angle_degrees: float = 180.0
 
+## Авторская демонстрация немедленного или одного из длительных режимов; обновляет подпись.
 @export var mode: Mode = Mode.IMMEDIATE_E:
 	set(value):
 		mode = value
@@ -31,6 +35,7 @@ signal progress_changed(progress: float)
 var _rest_basis: Basis = Basis.IDENTITY
 var _last_progress: float = -1.0
 
+#region Подготовка демонстрации
 func _ready() -> void:
 	_rest_basis = _wheel.basis
 	_refresh_label()
@@ -42,10 +47,15 @@ func _process(_delta: float) -> void:
 		_sync_progress()
 
 
+#endregion
+
+#region Состояние и отладочное управление
+## Определяет начальное состояние переключателя для регистрации Entity.
 func define_components() -> Array[Component]:
 	return [C_InteractionToggle.new()]
 
 
+## Переключает C_InteractionToggle, синхронизирует прогресс и публикует activated.
 func activate() -> void:
 	var state: C_InteractionToggle = get_component(C_InteractionToggle) as C_InteractionToggle
 	state.active = not state.active
@@ -53,11 +63,13 @@ func activate() -> void:
 	activated.emit(state.active)
 
 
+## Текущее состояние переключателя; отсутствие компонента даёт false.
 func is_active() -> bool:
 	var state: C_InteractionToggle = get_component(C_InteractionToggle) as C_InteractionToggle
 	return state != null and state.active
 
 
+## Фактический прогресс 0–1: состояние переключателя либо сохранённая доля длительного действия.
 func get_progress() -> float:
 	if mode == Mode.IMMEDIATE_E:
 		return 1.0 if is_active() else 0.0
@@ -67,7 +79,7 @@ func get_progress() -> float:
 	return clampf(progress.fraction, 0.0, 1.0) if progress != null else 0.0
 
 
-## Debug-only preview of retained progress; does not execute a hold completion effect.
+## Отладочный прогресс 0–1 без эффекта завершения удержания; немедленный режим допускает лишь 0/1 и activate.
 func set_progress(value: float) -> bool:
 	if not is_finite(value) or value < 0.0 or value > 1.0 or not EntityAvailability.contains(self, ECS.world):
 		return false
@@ -85,6 +97,9 @@ func set_progress(value: float) -> bool:
 	return true
 
 
+#endregion
+
+#region Синхронизация авторского представления
 func _mode_action() -> DEF_InteractionTestValveAction:
 	var actions: C_InteractionActionSet = get_component(C_InteractionActionSet) as C_InteractionActionSet
 	if actions != null:
@@ -126,3 +141,5 @@ func _refresh_label() -> void:
 			_label.text = "F HOLD · ON_COMPLETE"
 		Mode.HOLD_NEVER:
 			_label.text = "F HOLD · NEVER"
+
+#endregion

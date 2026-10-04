@@ -1,14 +1,17 @@
 extends System
-## Tracks uninterrupted unsafe Liquid orientation and commits one leaking transition.
+## Измеряет непрерывный наклон непустой жидкой посылки и однократно запрашивает протечку.
 class_name S_LiquidTilt
 
 
+#region Измерение наклона
+## Выбирает включённые посылки с состоянием содержимого и данными наклона.
 func query() -> QueryBuilder:
 	return q.enabled().with_all([C_Package, C_PackageState, C_LiquidTilt]).iterate(
 		[C_PackageState, C_LiquidTilt]
 	)
 
 
+## Накапливает непрерывные секунды опасного наклона; безопасное положение или пустая коробка сбрасывает таймер.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var conditions: Array = components[0]
 	var tilts: Array = components[1]
@@ -39,6 +42,9 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			cmd.add_custom(_commit_leak.bind(entities[index], condition, tilt.damage_amount))
 
 
+#endregion
+
+#region Принятие протечки
 func _commit_leak(entity: Entity, condition: C_PackageState, amount: float) -> void:
 	if not EntityAvailability.contains(entity, _world) or condition.leaking:
 		return
@@ -60,3 +66,5 @@ func _commit_leak(entity: Entity, condition: C_PackageState, amount: float) -> v
 		request.amount = amount
 		request.damage_type = DamageRequest.Type.LIQUID
 		DamageRequestService.submit(request)
+
+#endregion

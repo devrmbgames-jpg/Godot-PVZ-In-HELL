@@ -1,13 +1,13 @@
 extends Node3D
-## Main level lifecycle, scene-local session restoration and scheduled ECS groups.
+## Жизненный цикл уровня: восстановление сессии, порядок групп ECS и освобождение World.
 
-## Authored world owning this level simulation.
+## Авторский World, владеющий симуляцией данного уровня.
 @export var world: World = null
-## Tests/embedded scenes may isolate their slot; empty disables automatic loading.
+## Путь слота автосохранения; пустой отключает автоматическую загрузку, тесты могут задавать отдельный слот.
 @export var autosave_path: String = AutosaveStore.DEFAULT_PATH
 
 
-#region Level lifecycle
+#region Жизненный цикл уровня
 func _ready() -> void:
 	ECS.world = world
 	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
@@ -26,9 +26,9 @@ func _ready() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and is_instance_valid(world):
-		# GECS archetypes have transition edges that retain each other and their
-		# component resources. Purge breaks those cycles before the scene is freed.
-		# Tree shutdown can free Entity children before this parent notification.
+		# Рёбра переходов архетипов GECS удерживают друг друга и ресурсы
+		# компонентов; purge разрывает циклы перед освобождением сцены.
+		# При закрытии дерева дочерние Entity могут освободиться раньше уведомления родителя.
 		while not world.entities.is_empty():
 			world.entities = world.entities.filter(func(entity: Variant) -> bool: return is_instance_valid(entity))
 			if world.entities.is_empty():
@@ -43,7 +43,7 @@ func _notification(what: int) -> void:
 
 #endregion
 
-#region Runtime callbacks
+#region Игровые callbacks
 func _physics_process(delta: float) -> void:
 	if world == null:
 		return
