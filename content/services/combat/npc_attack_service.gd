@@ -18,9 +18,11 @@ static func can_start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool
 static func can_start_against(actor: Entity, target: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 	if not GrabService.holder_available(actor) or kind not in [C_NpcCombat.Kind.MELEE, C_NpcCombat.Kind.RANGED]:
 		return false
+
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state == null or state.phase != C_NpcCombat.Phase.READY or state.cooldown_remaining > 0.0:
 		return false
+
 	var attack: DEF_NpcAttack = variant_for(state, kind, index)
 	return _valid_attack(attack, kind) and _valid_pair(actor, target) and in_range(actor, target, attack) and CombatGeometry.clear_line(actor, target, attack.collision_mask)
 
@@ -33,6 +35,7 @@ static func start_against(actor: Entity, target: Entity, kind: C_NpcCombat.Kind,
 static func start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 	if not can_start(actor, kind, index):
 		return false
+
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	state.attack = variant_for(state, kind, index)
 	state.kind = kind
@@ -52,21 +55,26 @@ static func start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 static func choose(actor: Entity) -> NpcAttackChoice:
 	if not GrabService.holder_available(actor):
 		return null
+
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state == null:
 		return null
+
 	var choice: NpcAttackChoice = null
 	for kind: C_NpcCombat.Kind in [C_NpcCombat.Kind.MELEE, C_NpcCombat.Kind.RANGED]:
 		for index: int in C_NpcCombat.MAX_VARIANTS:
 			if not can_start(actor, kind, index):
 				continue
+
 			var attack: DEF_NpcAttack = variant_for(state, kind, index)
 			if not is_finite(attack.selection_priority):
 				continue
+
 			var duration: float = maxf(MINIMUM_ESTIMATED_CYCLE_SECONDS, attack.windup_seconds + attack.active_seconds + attack.recovery_seconds + attack.cooldown_seconds)
 			var rate: float = attack.damage / duration
 			if choice != null and (attack.selection_priority < choice.priority or (attack.selection_priority == choice.priority and rate <= choice.damage_rate)):
 				continue
+
 			choice = NpcAttackChoice.new()
 			choice.kind = kind
 			choice.variant = index
@@ -85,6 +93,7 @@ static func tick(actor: Entity, delta: float) -> void:
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state == null:
 		return
+
 	state.cooldown_remaining = maxf(0.0, state.cooldown_remaining - maxf(0.0, delta))
 	var target: Entity = CombatService.target_for(actor)
 	if target == null and state.phase == C_NpcCombat.Phase.READY:
@@ -95,6 +104,7 @@ static func tick(actor: Entity, delta: float) -> void:
 	if state.phase == C_NpcCombat.Phase.READY:
 		_set_movement(actor, true)
 		return
+
 	state.elapsed += maxf(0.0, delta)
 	var attack: DEF_NpcAttack = state.attack
 	if state.animation_driven:
@@ -107,6 +117,7 @@ static func tick(actor: Entity, delta: float) -> void:
 		return
 	if state.elapsed >= attack.windup_seconds and not state.effect_committed:
 		commit_effect(actor)
+
 	var active_end: float = attack.windup_seconds + attack.active_seconds
 	if state.elapsed >= active_end + attack.recovery_seconds:
 		finish(actor)
@@ -121,10 +132,12 @@ static func commit_effect(actor: Entity) -> bool:
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state == null or state.attack == null or state.phase not in [C_NpcCombat.Phase.WINDUP, C_NpcCombat.Phase.ACTIVE] or state.effect_committed:
 		return false
+
 	var target: Entity = CombatService.target_for(actor)
 	if not _valid_pair(actor, target):
 		cancel(actor)
 		return false
+
 	state.effect_committed = true
 	state.phase = C_NpcCombat.Phase.ACTIVE
 	var district: C_District = DistrictPopulationService.current()
@@ -133,6 +146,7 @@ static func commit_effect(actor: Entity) -> bool:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	if awareness != null and not awareness.target_visible:
 		return false
+
 	var attack: DEF_NpcAttack = state.attack
 	if not in_range(actor, target, attack) or not CombatGeometry.clear_line(actor, target, attack.collision_mask):
 		return false
@@ -147,6 +161,7 @@ static func finish(actor: Entity) -> void:
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state == null or state.attack == null:
 		return
+
 	state.cooldown_remaining = maxf(state.cooldown_remaining, state.attack.cooldown_seconds)
 	_clear_execution(actor, state)
 
@@ -163,6 +178,7 @@ static func in_range(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bo
 	var target_node: Node3D = target as Node as Node3D
 	if actor_node == null or target_node == null:
 		return false
+
 	var distance: float = actor_node.global_position.distance_to(target_node.global_position)
 	return distance >= attack.minimum_range and distance <= attack.maximum_range
 
@@ -174,6 +190,7 @@ static func _valid_pair(actor: Entity, target: Entity) -> bool:
 static func _valid_attack(attack: DEF_NpcAttack, kind: C_NpcCombat.Kind) -> bool:
 	if attack == null:
 		return false
+
 	for value: float in [attack.damage, attack.minimum_range, attack.maximum_range, attack.windup_seconds, attack.active_seconds, attack.recovery_seconds, attack.cooldown_seconds]:
 		if not is_finite(value) or value < 0.0:
 			return false

@@ -10,6 +10,7 @@ static func debug_text() -> String:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if commerce == null or quests == null or cycle == null:
 		return ""
+
 	var lines: PackedStringArray = ["Задача Evening: торговец во дворе; заказ на завтра — в Terminal"]
 	for pending: PendingDelivery in commerce.pending_deliveries:
 		if not pending.fulfilled:
@@ -22,6 +23,7 @@ static func debug_text() -> String:
 			if PackageReturnService.can_return(parcel):
 				var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 				lines.append("Задача Morning: №%03d — держать и вернуть на F во дворе; прежний штраф сохраняется" % state.registration_number)
+
 	var session: Entity = ECS.world.query.with_all([C_Autosave]).execute_one() if is_instance_valid(ECS.world) else null
 	if session != null:
 		var save: C_Autosave = session.get_component(C_Autosave) as C_Autosave
@@ -39,6 +41,7 @@ static func _hazard_debug() -> PackedStringArray:
 	var lines: PackedStringArray = []
 	if not is_instance_valid(ECS.world):
 		return lines
+
 	var effects: Array[Entity] = ECS.world.query.with_all([C_Hazard, C_HazardLifetime]).execute()
 	for index: int in mini(effects.size(), MAX_HAZARD_DEBUG_ROWS):
 		var effect: Entity = effects[index]

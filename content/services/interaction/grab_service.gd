@@ -27,6 +27,7 @@ static func handle_input(holder: Entity, delta: float = 0.0) -> void:
 		var held: Entity = held_in_slot(holder, slot_index)
 		if held == null:
 			continue
+
 		var body: RigidBody3D = physical_body(held)
 		var interactable: C_Interactable = held.get_component(C_Interactable) as C_Interactable
 		if (
@@ -145,6 +146,7 @@ static func can_take_from_storage(holder: Entity, target: Entity, slot_index: in
 static func take_from_storage(holder: Entity, target: Entity, slot_index: int, replace: bool = false) -> bool:
 	if not can_take_from_storage(holder, target, slot_index, replace):
 		return false
+
 	PhysicalSlotService.release(target)
 	return _acquire_validated(holder, target, slot_index)
 
@@ -197,6 +199,7 @@ static func try_pickup_body(
 static func release(holder: Entity, held: Entity, notify_player: bool = true) -> void:
 	if not is_instance_valid(held):
 		return
+
 	var grip: Relationship = held_relationship(held)
 	if grip != null and grip.target == holder:
 		var grip_data: R_HeldBy = grip.relation as R_HeldBy
@@ -295,12 +298,15 @@ static func refresh_carry_mass(held: Entity) -> void:
 	var body: RigidBody3D = physical_body(held)
 	if grip == null or body == null:
 		return
+
 	var data: R_HeldBy = grip.relation as R_HeldBy
 	if not data.lifecycle_applied or data.slot != C_Grabbable.HoldSlot.CARRY:
 		return
+
 	var holder: Entity = grip.target as Entity
 	if not holder_available(holder):
 		return
+
 	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
 	if load_state != null:
 		load_state.mass_kg = body.mass
@@ -324,6 +330,7 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var load_state: C_CarryLoad = holder.get_component(C_CarryLoad) as C_CarryLoad
 	if control == null or load_state == null:
 		return false
+
 	var strength: C_Strength = holder.get_component(C_Strength) as C_Strength
 	if grip_data.slot == C_Grabbable.HoldSlot.CARRY and not can_carry_body(body, strength):
 		return false
@@ -517,9 +524,11 @@ static func held_object(holder: Entity) -> Entity:
 static func held_in_slot(holder: Entity, slot_index: int) -> Entity:
 	if not is_instance_valid(holder):
 		return null
+
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	if control == null:
 		return null
+
 	var held: Entity = _cached(control, slot_index)
 	if is_instance_valid(held):
 		var grip: Relationship = held_relationship(held)
@@ -535,8 +544,10 @@ static func _cached(control: C_GrabControl, slot_index: int) -> Entity:
 	match slot_index:
 		C_Grabbable.HoldSlot.CARRY:
 			return control.held_carry
+
 		C_Grabbable.HoldSlot.RIGHT_HAND:
 			return control.held_right
+
 		C_Grabbable.HoldSlot.LEFT_HAND:
 			return control.held_left
 	return null
@@ -603,11 +614,13 @@ static func mapped_hand(holder: Entity, secondary: bool = false) -> int:
 static func pickup_slot(holder: Entity, target: Entity, replacement_button: bool) -> int:
 	if not is_instance_valid(target) or not is_instance_valid(holder):
 		return -1
+
 	var config: C_Grabbable = target.get_component(C_Grabbable) as C_Grabbable
 	if config == null:
 		return -1
 	if config.allowed_hand_slots == 0:
 		return C_Grabbable.HoldSlot.CARRY if not replacement_button else -1
+
 	var primary: int = mapped_hand(holder)
 	var secondary: int = mapped_hand(holder, true)
 	var primary_busy: bool = held_in_slot(holder, primary) != null
@@ -616,6 +629,7 @@ static func pickup_slot(holder: Entity, target: Entity, replacement_button: bool
 	if replacement_button:
 		if not primary_busy and not secondary_busy:
 			return -1
+
 		selected = secondary if secondary_busy else primary
 	else:
 		selected = secondary if primary_busy and not secondary_busy else primary
@@ -658,6 +672,7 @@ static func hold_anchor(holder: Entity) -> Node3D:
 static func object_anchor(holder: Entity, target: Entity) -> Node3D:
 	if not is_instance_valid(holder) or not is_instance_valid(target):
 		return null
+
 	var grip: Relationship = held_relationship(target)
 	var slot_index: int = (
 		(grip.relation as R_HeldBy).slot
@@ -681,11 +696,14 @@ static func slot_anchor(holder: Entity, slot_index: int) -> Node3D:
 		) as Node3D
 		if is_instance_valid(lowered):
 			return lowered
+
 	match slot_index:
 		C_Grabbable.HoldSlot.CARRY:
 			return hold_anchor(holder)
+
 		C_Grabbable.HoldSlot.RIGHT_HAND:
 			return holder.get("right_hand_slot") as Node3D
+
 		C_Grabbable.HoldSlot.LEFT_HAND:
 			return holder.get("left_hand_slot") as Node3D
 	return null
@@ -803,16 +821,20 @@ static func _allowed_break_distance(
 static func integrate_generic_bodies(holder: Entity, delta: float) -> void:
 	if delta <= 0.0:
 		return
+
 	for slot_index: int in 3:
 		var held: Entity = held_in_slot(holder, slot_index)
 		if held == null:
 			continue
+
 		var body: RigidBody3D = physical_body(held)
 		if body == null or held is E_GrabbableBody:
 			continue
+
 		var grip: Relationship = held_relationship(held)
 		if grip == null or grip.target != holder:
 			continue
+
 		var grip_data: R_HeldBy = grip.relation as R_HeldBy
 		var profile: GrabControlProfile = _grip_profile(held, grip_data)
 		var anchor: Node3D = object_anchor(holder, held)
@@ -822,10 +844,12 @@ static func integrate_generic_bodies(holder: Entity, delta: float) -> void:
 		):
 			release(holder, held, false)
 			continue
+
 		var interactable: C_Interactable = held.get_component(C_Interactable) as C_Interactable
 		if interactable != null and not interactable.enabled:
 			release(holder, held, false)
 			continue
+
 		var allowed_break_distance: float = _allowed_break_distance(
 			holder,
 			anchor,

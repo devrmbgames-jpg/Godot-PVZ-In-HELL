@@ -12,10 +12,12 @@ static func write(data: Dictionary, path: String = DEFAULT_PATH) -> Error:
 	var payload: PackedByteArray = var_to_bytes(data)
 	if payload.is_empty() or payload.size() > MAX_BYTES:
 		return ERR_INVALID_DATA
+
 	var temporary: String = path + ".tmp"
 	var file: FileAccess = FileAccess.open(temporary, FileAccess.WRITE)
 	if file == null:
 		return FileAccess.get_open_error()
+
 	file.store_line(MAGIC)
 	file.store_line(_digest(payload))
 	file.store_buffer(payload)
@@ -30,16 +32,19 @@ static func write(data: Dictionary, path: String = DEFAULT_PATH) -> Error:
 static func read(path: String = DEFAULT_PATH) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return {}
+
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null or file.get_length() > MAX_BYTES:
 		return {}
 	if file.get_line() != MAGIC:
 		return {}
+
 	var digest: String = file.get_line()
 	var payload: PackedByteArray = file.get_buffer(file.get_length() - file.get_position())
 	file.close()
 	if _digest(payload) != digest:
 		return {}
+
 	var decoded: Variant = bytes_to_var(payload)
 	return decoded as Dictionary if decoded is Dictionary else {}
 

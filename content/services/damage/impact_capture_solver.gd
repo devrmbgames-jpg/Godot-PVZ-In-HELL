@@ -7,6 +7,7 @@ class_name ImpactCaptureSolver
 static func capture(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 	if not EntityAvailability.contains(entity, ECS.world):
 		return
+
 	var inbox: C_ImpactInbox = entity.get_component(C_ImpactInbox) as C_ImpactInbox
 	if inbox == null:
 		return
@@ -17,6 +18,7 @@ static func capture(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 		var other: PhysicsBody3D = state.get_contact_collider_object(index) as PhysicsBody3D
 		if not is_instance_valid(other):
 			continue
+
 		var other_id: int = other.get_instance_id()
 		var contact: PhysicsContact = manifolds.get(other_id) as PhysicsContact
 		if contact == null:

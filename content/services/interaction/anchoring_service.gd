@@ -23,6 +23,7 @@ static func update_stability(target: Entity, config: C_Anchorable, delta: float)
 	):
 		config.stable_seconds = 0.0
 		return
+
 	var body: RigidBody3D = GrabService.physical_body(target)
 	if body == null or body.freeze:
 		config.stable_seconds = 0.0
@@ -30,6 +31,7 @@ static func update_stability(target: Entity, config: C_Anchorable, delta: float)
 	if not _within_motion_limits(body, config):
 		config.stable_seconds = 0.0
 		return
+
 	config.stable_seconds += delta
 
 
@@ -42,9 +44,11 @@ static func can_anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 		return false
 	if not tool.has_component(C_AnchorTool):
 		return false
+
 	var primary_hand: int = GrabService.mapped_hand(actor, false)
 	if GrabService.held_in_slot(actor, primary_hand) != tool:
 		return false
+
 	var config: C_Anchorable = target.get_component(C_Anchorable) as C_Anchorable
 	var body: RigidBody3D = GrabService.physical_body(target)
 	if config == null or body == null or body.freeze or state(target) != null:
@@ -59,6 +63,7 @@ static func can_anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 static func anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 	if not can_anchor(actor, tool, target):
 		return false
+
 	var config: C_Anchorable = target.get_component(C_Anchorable) as C_Anchorable
 	var body: RigidBody3D = GrabService.physical_body(target)
 	var snapshot: AnchoredBodySnapshot = AnchoredBodySnapshot.new()
@@ -84,6 +89,7 @@ static func anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 static func can_unfix(actor: Entity, target: Entity) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.entity_available(target):
 		return false
+
 	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
 	if focus != InteractionControlFocus.Priority.HANDS:
 		var active: Relationship = ProlongedInteractionService.session(actor)
@@ -94,6 +100,7 @@ static func can_unfix(actor: Entity, target: Entity) -> bool:
 			return false
 	if _anchor_tool_in_hand(actor) == null:
 		return false
+
 	var anchored: C_PlayerAnchored = state(target)
 	var config: C_Anchorable = target.get_component(C_Anchorable) as C_Anchorable
 	var body: RigidBody3D = GrabService.physical_body(target)
@@ -106,9 +113,11 @@ static func can_unfix(actor: Entity, target: Entity) -> bool:
 static func unfix(actor: Entity, target: Entity) -> bool:
 	if not can_unfix(actor, target):
 		return false
+
 	var cluster: Array[Entity] = _support_cluster(target)
 	if cluster.is_empty():
 		return false
+
 	for member: Entity in cluster:
 		if not _restore(member):
 			return false
@@ -124,6 +133,7 @@ static func _restore(target: Entity) -> bool:
 	var body: RigidBody3D = GrabService.physical_body(target)
 	if anchored == null or anchored.snapshot == null or body == null:
 		return false
+
 	var snapshot: AnchoredBodySnapshot = anchored.snapshot
 	var config: C_Anchorable = target.get_component(C_Anchorable) as C_Anchorable
 	target.remove_component(anchored)
@@ -142,6 +152,7 @@ static func _support_cluster(root: Entity) -> Array[Entity]:
 	var result: Array[Entity] = [root]
 	if not is_instance_valid(ECS.world):
 		return result
+
 	var queue: Array[Entity] = [root]
 	while not queue.is_empty():
 		var supporter: Entity = queue.pop_front() as Entity
@@ -162,9 +173,11 @@ static func _supported_by(candidate: Entity, supporter: Entity) -> bool:
 		return false
 	if config.support_tolerance <= 0.0 or not config.support_direction_local.is_finite():
 		return false
+
 	var direction: Vector3 = candidate_body.global_basis * config.support_direction_local
 	if direction.length_squared() <= DIRECTION_EPSILON * DIRECTION_EPSILON:
 		return false
+
 	direction = direction.normalized()
 	var excluded: Array[RID] = [candidate_body.get_rid()]
 	var collision_nodes: Array[Node] = candidate_body.find_children("*", "CollisionShape3D", true, false)
@@ -172,6 +185,7 @@ static func _supported_by(candidate: Entity, supporter: Entity) -> bool:
 		var collision: CollisionShape3D = node as CollisionShape3D
 		if collision == null or collision.disabled or collision.shape == null:
 			continue
+
 		var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 		query.shape = collision.shape
 		var shifted: Transform3D = collision.global_transform
@@ -202,6 +216,7 @@ static func _controlled(target: Entity) -> bool:
 			return true
 	if not is_instance_valid(ECS.world):
 		return false
+
 	for actor: Entity in ECS.world.entities:
 		var prolonged: Relationship = ProlongedInteractionService.session(actor)
 		if prolonged != null and prolonged.target == target:

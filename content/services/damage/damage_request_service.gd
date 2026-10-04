@@ -9,6 +9,7 @@ static func submit(request: DamageRequest) -> bool:
 		return false
 	if not request.target.has_component(C_Health):
 		return false
+
 	var snapshot: DamageRequest = DamageRequest.new()
 	snapshot.target = request.target
 	snapshot.source = request.source

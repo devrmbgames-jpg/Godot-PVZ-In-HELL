@@ -18,6 +18,7 @@ static func collider_entity(collider: Object) -> Entity:
 	while candidate_node != null:
 		if candidate_node is Entity:
 			return candidate_node as Entity
+
 		candidate_node = candidate_node.get_parent()
 	return null
 
@@ -30,6 +31,7 @@ static func collider_rigid_body(collider: Object, holder: Entity = null) -> Rigi
 			if is_instance_valid(holder) and body == (holder as Node as RigidBody3D):
 				return null
 			return body
+
 		candidate_node = candidate_node.get_parent()
 	return null
 
@@ -41,9 +43,11 @@ static func visual_target(holder: Entity, interactor: C_Interactor) -> Node:
 		return interactor.target as Node
 	if not is_instance_valid(interactor.physics_target):
 		return null
+
 	var physics_entity: Entity = collider_entity(interactor.physics_target)
 	if physics_entity != null and not GrabService.entity_available(physics_entity):
 		return null
+
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	return (
 		interactor.physics_target
@@ -84,10 +88,12 @@ static func _raycast_collider(holder: Entity, interactor: C_Interactor) -> Objec
 	for _attempt: int in MAX_HELD_RECASTS + 1:
 		if not interaction_raycast.is_colliding():
 			return null
+
 		var collider: Object = interaction_raycast.get_collider()
 		var collider_body: RigidBody3D = collider_rigid_body(collider)
 		if collider_body == null or not _body_is_held_by(collider_body, holder):
 			return collider
+
 		interaction_raycast.add_exception_rid(collider_body.get_rid())
 		interaction_raycast.force_raycast_update()
 	return null
@@ -97,6 +103,7 @@ static func _interactable_entity(collider: Object, holder: Entity) -> Entity:
 	var candidate: Entity = collider_entity(collider)
 	if not is_instance_valid(candidate) or candidate == holder or not candidate.enabled:
 		return null
+
 	var interactable: C_Interactable = candidate.get_component(C_Interactable) as C_Interactable
 	return candidate if interactable != null and interactable.enabled else null
 
@@ -104,6 +111,7 @@ static func _interactable_entity(collider: Object, holder: Entity) -> Entity:
 static func _body_is_held_by(body: RigidBody3D, holder: Entity) -> bool:
 	if not is_instance_valid(body) or not is_instance_valid(holder):
 		return false
+
 	var handle: Entity = PhysicsGrabTarget.handle_for(body, false)
 	var grip: Relationship = GrabService.held_relationship(handle)
 	return grip != null and grip.target == holder

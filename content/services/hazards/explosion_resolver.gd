@@ -145,5 +145,6 @@ static func _apply_impulse(hit: BlastHit, impulse: Vector3) -> void:
 	var rigid: RigidBody3D = hit.body as RigidBody3D
 	if rigid == null or rigid.freeze:
 		return
+
 	rigid.sleeping = false
 	rigid.apply_central_impulse(impulse)

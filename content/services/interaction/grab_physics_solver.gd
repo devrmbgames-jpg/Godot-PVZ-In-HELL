@@ -151,6 +151,7 @@ static func _desired_rotation(anchor: Node3D, grip: R_HeldBy, profile: GrabContr
 	).normalized()
 	if not profile.keep_upright:
 		return desired
+
 	var basis: Basis = Basis(desired)
 	var forward: Vector3 = -basis.z
 	forward.y = 0.0

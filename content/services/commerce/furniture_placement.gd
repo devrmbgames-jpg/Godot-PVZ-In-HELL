@@ -14,9 +14,11 @@ const MINIMUM_SUPPORT_NORMAL: float = 0.75
 static func prepare(item: DEF_InventoryItem, parent: Node3D, pose: Transform3D) -> PreparedFurniture:
 	if not is_instance_valid(parent) or not parent.is_inside_tree():
 		return null
+
 	var entity: Entity = create_validated(item)
 	if entity == null:
 		return null
+
 	var node: Node3D = entity as Node as Node3D
 	var bounds: AABB = _bounds_for(node)
 	pose.basis = pose.basis.orthonormalized()
@@ -27,6 +29,7 @@ static func prepare(item: DEF_InventoryItem, parent: Node3D, pose: Transform3D) 
 	if hit.is_empty() or (hit.normal as Vector3).y < MINIMUM_SUPPORT_NORMAL:
 		node.free()
 		return null
+
 	var rotated: AABB = Transform3D(pose.basis, Vector3.ZERO) * bounds
 	pose.origin.y = (hit.position as Vector3).y - rotated.position.y + SUPPORT_CLEARANCE
 	var volume: BoxShape3D = BoxShape3D.new()
@@ -39,6 +42,7 @@ static func prepare(item: DEF_InventoryItem, parent: Node3D, pose: Transform3D) 
 	if not space.intersect_shape(query, 1).is_empty():
 		node.free()
 		return null
+
 	var proposal: PreparedFurniture = PreparedFurniture.new()
 	proposal.entity = entity
 	proposal.parent = parent
@@ -50,6 +54,7 @@ static func prepare(item: DEF_InventoryItem, parent: Node3D, pose: Transform3D) 
 static func create_validated(item: DEF_InventoryItem) -> Entity:
 	if item == null or item.kind != DEF_InventoryItem.Kind.FURNITURE or item.maximum_stack != 1 or item.world_pickup_scene.is_empty() or not ResourceLoader.exists(item.world_pickup_scene):
 		return null
+
 	var packed: PackedScene = load(item.world_pickup_scene) as PackedScene
 	var node: Node = packed.instantiate() if packed != null else null
 	var entity: Entity = node as Entity
@@ -71,6 +76,7 @@ static func _bounds_for(node: Node3D) -> AABB:
 		var collider: CollisionShape3D = child as CollisionShape3D
 		if collider.disabled or collider.shape == null:
 			continue
+
 		var local: Transform3D = collider.transform
 		var ancestor: Node = collider.get_parent()
 		while ancestor != node and ancestor != null:

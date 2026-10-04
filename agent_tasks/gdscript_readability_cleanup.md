@@ -57,11 +57,11 @@ Avoid GUT/runtime tests unless a change accidentally goes beyond formatting and 
 
 ### Current
 
-Started after optimization commit db5f6f5d and the validated Windows QA build. First batch completed: 28 NPC/customer/dialogue/AI scripts reviewed, with input guards and subsequent lookup/action phases separated. Consecutive related guards remain together. Next: other runtime services, engine glue and scheduled behavior, then significant test/tool scripts. Addons remain excluded. R25 documentation follows this formatting pass.
+Completed batches: NPC/customer/dialogue/AI (27 changed scripts), remaining runtime services (102 reviewed, 93 changed). Input guards, subsequent lookup/action phases and failure cleanup are separated; consecutive related guards remain together. Next: engine glue, UI/debug and scheduled behavior, then significant test/tool scripts. Addons remain excluded. R25 documentation follows this formatting pass.
 
 ### Validation
 
-First batch: exact nonblank-line comparison and comment/string-aware executable-source comparison PASS via utils/verify_gdscript_nonbehavior_changes.py --mode spacing. Godot fresh-process parser: 28 scripts, zero failures and no script warnings/errors (.bin/readability-npc-customer-parser.log). Diff review retains clustered guards; whitespace PASS. No gameplay/GUT/export reruns were performed for formatting-only edits.
+Exact nonblank-line comparison and comment/string-aware executable-source comparison PASS via utils/verify_gdscript_nonbehavior_changes.py --mode spacing. Godot fresh-process parser: 27/27 (.bin/readability-npc-customer-parser.log), 93/93 (.bin/readability-services-parser.log), zero failures and no script warnings/errors. The second runner's initial absolute-path manifest was corrected before acceptance. Diff review retains clustered guards; whitespace PASS. No gameplay/GUT/export reruns were performed for formatting-only edits.
 
 ### Owner QA / blockers
 

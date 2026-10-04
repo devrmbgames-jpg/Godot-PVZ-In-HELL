@@ -21,6 +21,7 @@ static func encode(event: InputEvent) -> Dictionary:
 		return {"type": "axis", "axis": int(axis.axis), "sign": -1 if axis.axis_value < 0.0 else 1}
 	else:
 		return data
+
 	var modified: InputEventWithModifiers = event as InputEventWithModifiers
 	data.merge({"shift": modified.shift_pressed, "ctrl": modified.ctrl_pressed, "alt": modified.alt_pressed, "meta": modified.meta_pressed})
 	return data
@@ -30,11 +31,13 @@ static func decode(data: Dictionary) -> InputEvent:
 	for field: String in ["physical", "logical", "button", "axis", "sign"]:
 		if data.has(field) and not data[field] is int:
 			return null
+
 	for field: String in ["shift", "ctrl", "alt", "meta"]:
 		if data.has(field) and not data[field] is bool:
 			return null
 	if data.has("type") and not data["type"] is String:
 		return null
+
 	var event: InputEvent = null
 	match String(data.get("type", "")):
 		"key":
@@ -43,18 +46,21 @@ static func decode(data: Dictionary) -> InputEvent:
 			key.keycode = int(data.get("logical", 0)) as Key
 			if (key.physical_keycode == 0 and key.keycode == 0) or key.physical_keycode < 0 or key.keycode < 0:
 				return null
+
 			event = key
 		"mouse":
 			var mouse: InputEventMouseButton = InputEventMouseButton.new()
 			mouse.button_index = int(data.get("button", 0)) as MouseButton
 			if mouse.button_index < MOUSE_BUTTON_LEFT or mouse.button_index > MOUSE_BUTTON_XBUTTON2:
 				return null
+
 			event = mouse
 		"button":
 			var button: InputEventJoypadButton = InputEventJoypadButton.new()
 			button.button_index = int(data.get("button", -1)) as JoyButton
 			if button.button_index < 0 or button.button_index >= JOY_BUTTON_MAX:
 				return null
+
 			button.device = -1
 			event = button
 		"axis":
@@ -62,6 +68,7 @@ static func decode(data: Dictionary) -> InputEvent:
 			axis.axis = int(data.get("axis", -1)) as JoyAxis
 			if axis.axis < 0 or axis.axis >= JOY_AXIS_MAX:
 				return null
+
 			axis.axis_value = -1.0 if int(data.get("sign", 1)) < 0 else 1.0
 			axis.device = -1
 			event = axis

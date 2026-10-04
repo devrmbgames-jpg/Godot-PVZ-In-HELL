@@ -10,6 +10,7 @@ const MAX_AMOUNT: int = 1000000000
 static func current() -> C_Wallet:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	var owner: Entity = ECS.world.query.with_all([C_DayCycle, C_Wallet]).execute_one()
 	return owner.get_component(C_Wallet) as C_Wallet if owner != null else null
 
@@ -43,6 +44,7 @@ static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int)
 		and operation.amount > _debug_penalty_outstanding(wallet)
 	):
 		return Status.INVALID
+
 	for previous: MoneyOperation in wallet.operations:
 		var same_id: bool = previous.operation_id == operation.operation_id
 		var same_settlement: bool = operation.settlement_id != &"" and previous.settlement_id == operation.settlement_id
@@ -52,12 +54,15 @@ static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int)
 			return Status.CONFLICT
 	if operation.day_index != current_day or current_day < 1:
 		return Status.INVALID
+
 	var credit: bool = _is_credit(operation.reason)
 	if operation.reason == MoneyOperation.Reason.PURCHASE and wallet.balance < operation.amount:
 		return Status.INSUFFICIENT_FUNDS
+
 	var change: int = operation.amount if credit else -operation.amount
 	if wallet.balance > MAX_AMOUNT - change or wallet.balance < -MAX_AMOUNT - change:
 		return Status.INVALID
+
 	var record: MoneyOperation = operation.duplicate(true) as MoneyOperation
 	var daily: DailyMoneyResult = _day(wallet, current_day)
 	wallet.balance += change
@@ -79,6 +84,7 @@ static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int)
 static func package_settlement(wallet: C_Wallet, outcome_id: StringName, reason: MoneyOperation.Reason, value: int, day_index: int) -> MoneyOperation:
 	if wallet == null or wallet.policy == null or value < 0 or value > MAX_AMOUNT or outcome_id == &"":
 		return null
+
 	var percent: int = 0
 	match reason:
 		MoneyOperation.Reason.VOLUNTARY_BUYOUT: percent = wallet.policy.buyout_percent
@@ -90,6 +96,7 @@ static func package_settlement(wallet: C_Wallet, outcome_id: StringName, reason:
 		_: return null
 	if percent < 0 or percent > 1000:
 		return null
+
 	var operation: MoneyOperation = MoneyOperation.new()
 	operation.operation_id = StringName("settlement/" + String(outcome_id))
 	operation.settlement_id = outcome_id
@@ -112,6 +119,7 @@ static func _day(wallet: C_Wallet, day_index: int) -> DailyMoneyResult:
 	for daily: DailyMoneyResult in wallet.daily_results:
 		if daily.day_index == day_index:
 			return daily
+
 	var daily: DailyMoneyResult = DailyMoneyResult.new()
 	daily.day_index = day_index
 	daily.closing_balance = wallet.balance

@@ -14,6 +14,7 @@ static func relationship(item: Entity) -> Relationship:
 static func occupant(slot: Entity) -> Entity:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	for item: Entity in ECS.world.query.with_relationship([Relationship.new(R_StoredIn.new(), slot)]).execute():
 		return item
 	return null
@@ -34,15 +35,18 @@ static func can_store(actor: Entity, slot: E_PhysicalSlot, hand: int) -> bool:
 		return false
 	if hand != C_Grabbable.HoldSlot.LEFT_HAND and hand != C_Grabbable.HoldSlot.RIGHT_HAND:
 		return false
+
 	var item: Entity = GrabService.held_in_slot(actor, hand)
 	if not GrabService.entity_available(item) or relationship(item) != null:
 		return false
+
 	var body: RigidBody3D = GrabService.physical_body(item)
 	# A physical slot stores the real world Entity, not a scriptless-body proxy.
 	if body == null or (body as Node) != (item as Node) or body.freeze:
 		return false
 	if item == slot or item.is_ancestor_of(slot) or CartCargoService.relationship(item) != null:
 		return false
+
 	var config: C_PhysicalSlot = slot.get_component(C_PhysicalSlot) as C_PhysicalSlot
 	if body.mass > config.maximum_mass:
 		return false
@@ -52,6 +56,7 @@ static func can_store(actor: Entity, slot: E_PhysicalSlot, hand: int) -> bool:
 static func store(actor: Entity, slot: E_PhysicalSlot, hand: int) -> bool:
 	if not can_store(actor, slot, hand):
 		return false
+
 	var item: Entity = GrabService.held_in_slot(actor, hand)
 	GrabService.release(actor, item)
 	ThrowContext.cancel(item)
@@ -68,6 +73,7 @@ static func attach(item: Entity, binding: Relationship) -> bool:
 	var data: R_StoredIn = binding.relation as R_StoredIn
 	if data.applied:
 		return true
+
 	var slot: E_PhysicalSlot = binding.target as E_PhysicalSlot
 	var body: RigidBody3D = GrabService.physical_body(item)
 	if (
@@ -79,14 +85,17 @@ static func attach(item: Entity, binding: Relationship) -> bool:
 		or (body as Node) != (item as Node) or item.is_ancestor_of(slot)
 	):
 		return false
+
 	var config: C_PhysicalSlot = slot.get_component(C_PhysicalSlot) as C_PhysicalSlot
 	if body.mass > config.maximum_mass or (
 		config.filter != null and not ItemAccessService.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter)
 	):
 		return false
+
 	for other: Entity in ECS.world.query.with_relationship([Relationship.new(R_StoredIn.new(), slot)]).execute():
 		if other != item:
 			return false
+
 	var snapshot: StoredBodySnapshot = StoredBodySnapshot.new()
 	snapshot.freeze = body.freeze
 	snapshot.freeze_mode = body.freeze_mode
@@ -111,6 +120,7 @@ static func attach(item: Entity, binding: Relationship) -> bool:
 	slot.driver.update_rotation = true
 	slot.driver.update_scale = true
 	slot.driver.force_update_cache()
+
 	var cleanup: Callable = release.bind(item)
 	slot.tree_exiting.connect(cleanup)
 	item.tree_exiting.connect(cleanup)
@@ -132,6 +142,7 @@ static func detach(item: Entity, binding: Relationship) -> void:
 	var data: R_StoredIn = binding.relation as R_StoredIn
 	if not data.applied:
 		return
+
 	data.applied = false
 	var slot: Entity = binding.target as Entity
 	var cleanup: Callable = release.bind(item)
@@ -141,6 +152,7 @@ static func detach(item: Entity, binding: Relationship) -> void:
 	var body: RigidBody3D = GrabService.physical_body(item)
 	if body == null:
 		return
+
 	var snapshot: StoredBodySnapshot = data.snapshot
 	var storage_slot: E_PhysicalSlot = slot as E_PhysicalSlot
 	if storage_slot != null and is_instance_valid(storage_slot.driver):
@@ -174,6 +186,7 @@ static func entity_removed(entity: Entity) -> void:
 	entity_unavailable(entity)
 	if not is_instance_valid(ECS.world):
 		return
+
 	for candidate: Entity in ECS.world.entities.duplicate():
 		if candidate is E_PhysicalSlot and entity.is_ancestor_of(candidate):
 			ECS.world.remove_entity(candidate)
@@ -183,6 +196,7 @@ static func worn_items(actor: Entity) -> Array[Entity]:
 	var result: Array[Entity] = []
 	if not GrabService.holder_available(actor):
 		return result
+
 	for slot: Entity in ECS.world.query.with_relationship([Relationship.new(R_SlotMountedOn.new(), actor)]).execute():
 		if GrabService.entity_available(slot):
 			var item: Entity = occupant(slot)

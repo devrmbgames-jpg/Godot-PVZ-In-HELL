@@ -11,9 +11,11 @@ static var _circuit_references: Dictionary[StringName, WeakRef] = {}
 static func set_enabled(circuit: Entity, enabled: bool) -> bool:
 	if not EntityAvailability.contains(circuit, ECS.world):
 		return false
+
 	var state: C_LightCircuit = circuit.get_component(C_LightCircuit) as C_LightCircuit
 	if state == null:
 		return false
+
 	state.enabled = enabled
 	sync(circuit, state)
 	return true
@@ -22,6 +24,7 @@ static func set_enabled(circuit: Entity, enabled: bool) -> bool:
 static func sync(circuit: Entity, state: C_LightCircuit) -> void:
 	if state == null:
 		return
+
 	for group_id: StringName in state.light_groups:
 		for node: Node in circuit.get_tree().get_nodes_in_group(group_id):
 			var light: Light3D = node as Light3D
@@ -36,6 +39,7 @@ static func flicker(circuit_id: StringName, duration: float, interval: float, re
 	var circuit: Entity = entity_for(circuit_id)
 	if circuit == null or not is_enabled(circuit_id) or not is_finite(duration) or duration <= 0.0 or not is_finite(interval) or interval <= 0.0:
 		return false
+
 	var event: LightFlickerEvent = LightFlickerEvent.new()
 	event.request_id = request_id
 	event.circuit_id = circuit_id
@@ -49,6 +53,7 @@ static func stop_flicker(circuit_id: StringName, request_id: StringName) -> void
 	var circuit: Entity = entity_for(circuit_id)
 	if circuit == null:
 		return
+
 	var event: LightFlickerEvent = LightFlickerEvent.new()
 	event.kind = LightFlickerEvent.Kind.STOP
 	event.request_id = request_id
@@ -63,6 +68,7 @@ static func set_by_id(circuit_id: StringName, enabled: bool) -> bool:
 static func toggle(circuit: Entity) -> bool:
 	if not EntityAvailability.contains(circuit, ECS.world):
 		return false
+
 	var state: C_LightCircuit = circuit.get_component(C_LightCircuit) as C_LightCircuit
 	return state != null and set_enabled(circuit, not state.enabled)
 

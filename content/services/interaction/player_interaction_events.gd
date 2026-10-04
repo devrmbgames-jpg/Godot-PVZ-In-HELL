@@ -8,6 +8,7 @@ static func publish(actor: Entity, target: Entity, kind: PlayerInteractionEvent.
 		return
 	if not EntityAvailability.contains(target, ECS.world):
 		return
+
 	var event: PlayerInteractionEvent = PlayerInteractionEvent.new()
 	event.kind = kind
 	event.actor = actor
@@ -17,6 +18,7 @@ static func publish(actor: Entity, target: Entity, kind: PlayerInteractionEvent.
 	var parcel: C_Package = target.get_component(C_Package) as C_Package
 	if parcel != null:
 		event.package_id = parcel.package_id
+
 	var district: C_District = DistrictPopulationService.current()
 	if district != null and kind in [PlayerInteractionEvent.Kind.PARCEL_PICKED, PlayerInteractionEvent.Kind.PARCEL_PLACED, PlayerInteractionEvent.Kind.DOOR_OPENED, PlayerInteractionEvent.Kind.DOOR_CLOSED]:
 		NpcPerceptionService.action_noise(target, district.definition.interaction_noise_radius)

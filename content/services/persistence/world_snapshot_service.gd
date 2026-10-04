@@ -11,6 +11,7 @@ static func key_for(entity: Entity, root: Node) -> String:
 	var package: C_Package = entity.get_component(C_Package) as C_Package
 	if package != null:
 		return "package/" + package.package_id
+
 	var identity: C_PersistentIdentity = entity.get_component(C_PersistentIdentity) as C_PersistentIdentity
 	if identity != null:
 		return identity.key
@@ -22,10 +23,12 @@ static func key_for(entity: Entity, root: Node) -> String:
 static func capture(root: Node, morning_day: int) -> Dictionary:
 	if not is_instance_valid(ECS.world) or root == null or morning_day < 1:
 		return {}
+
 	var records: Array[Dictionary] = []
 	for entity: Entity in ECS.world.entities:
 		if not is_instance_valid(entity) or not _persistent(entity):
 			continue
+
 		var components: Array[Dictionary] = []
 		for component: Component in entity.components.values():
 			var data: Dictionary = SaveDataCodec.component_data(component)
@@ -70,6 +73,7 @@ static func capture(root: Node, morning_day: int) -> Dictionary:
 static func valid(data: Dictionary, root: Node) -> bool:
 	if data.get("version") != AutosaveStore.SCHEMA_VERSION or not data.get("morning_day") is int or int(data.morning_day) < 1 or not data.get("entities") is Array:
 		return false
+
 	var keys: Dictionary = {}
 	var ids: Dictionary[String, bool] = {}
 	var paths: Dictionary[String, bool] = {}
@@ -80,14 +84,17 @@ static func valid(data: Dictionary, root: Node) -> bool:
 	for value: Variant in data.entities:
 		if not value is Dictionary:
 			return false
+
 		var record: Dictionary = value as Dictionary
 		if not record.get("authored_path") is String or not record.get("scene") is String:
 			return false
 		if not record.get("key") is String or not record.get("entity_id") is String or String(record.entity_id).is_empty() or String(record.key).is_empty() or keys.has(record.key) or not record.get("components") is Array or not record.get("links") is Array or not record.get("enabled") is bool or not record.get("death") is bool:
 			return false
+
 		keys[record.key] = true
 		if ids.has(String(record.entity_id)):
 			return false
+
 		ids[String(record.entity_id)] = true
 		records[String(record.key)] = record
 		var authored: String = String(record.get("authored_path", ""))
@@ -95,29 +102,35 @@ static func valid(data: Dictionary, root: Node) -> bool:
 		if not authored.is_empty():
 			if paths.has(authored):
 				return false
+
 			paths[authored] = true
 		if not authored.is_empty():
 			var target: Entity = root.get_node_or_null(NodePath(authored)) as Entity
 			if target == null or not root.is_ancestor_of(target) or target in authored_entities:
 				return false
+
 			authored_entities.append(target)
 		if authored.is_empty() and not scene.is_empty() and (not scene.begins_with("res://content/entities/") or not ResourceLoader.exists(scene, "PackedScene")):
 			return false
 		if record.has("pose") and (not record.pose is Transform3D or not (record.pose as Transform3D).is_finite()):
 			return false
+
 		var types: Dictionary = {}
 		for component_value: Variant in record.components:
 			if not component_value is Dictionary:
 				return false
+
 			var component: Dictionary = component_value as Dictionary
 			var script: Script = SaveDataCodec.component_script(String(component.get("type", "")))
 			if script == null or types.has(script) or not component.get("fields") is Dictionary:
 				return false
+
 			var probe: Component = script.new() as Component
 			if not SaveDataCodec.complete_component_data(script, component.fields as Dictionary):
 				return false
 			if not SaveDataCodec.apply_fields(probe, component.fields as Dictionary):
 				return false
+
 			types[script] = probe
 			if probe is C_DayCycle:
 				session_count += 1
@@ -137,18 +150,22 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				return false
 			if probe is C_Stamina and (not is_finite((probe as C_Stamina).current) or (probe as C_Stamina).current < 0.0):
 				return false
+
 		all_components[String(record.key)] = types
 		if record.has("ink"):
 			if not record.ink is Array:
 				return false
+
 			for stroke: Variant in record.ink:
 				if not stroke is Dictionary or not stroke.get("points") is PackedVector3Array or not stroke.get("normal") is Vector3 or not stroke.get("width") is float or not stroke.get("color") is Color:
 					return false
 		if record.has("anchor") and (not record.anchor is Dictionary or not (record.anchor as Dictionary).get("freeze") is bool or not (record.anchor as Dictionary).get("freeze_mode") is int or not (record.anchor as Dictionary).get("can_sleep") is bool):
 			return false
+
 	for record: Dictionary in data.entities:
 		if record.has("hazard_refs") and (not record.hazard_refs is Dictionary or not all_components[String(record.key)].has(C_Hazard) or not PersistentHazardState.valid(record.hazard_refs as Dictionary, records)):
 			return false
+
 		for link: Variant in record.links:
 			if not link is Dictionary or link.get("kind") not in [OWNED, STORED, CARGO] or not keys.has(link.get("target")):
 				return false
@@ -161,6 +178,7 @@ static func valid(data: Dictionary, root: Node) -> bool:
 static func can_restore(data: Dictionary, root: Node) -> bool:
 	if not valid(data, root):
 		return false
+
 	var entities: Dictionary[String, Entity] = {}
 	var temporary: Array[Entity] = []
 	for record: Dictionary in data.entities:
@@ -175,6 +193,7 @@ static func can_restore(data: Dictionary, root: Node) -> bool:
 				for candidate: Entity in temporary:
 					candidate.free()
 				return false
+
 			temporary.append(entity)
 		entities[String(record.key)] = entity
 	var compatible: bool = SnapshotGraphRules.valid_entities(data.entities as Array, entities)
@@ -186,6 +205,7 @@ static func can_restore(data: Dictionary, root: Node) -> bool:
 static func restore(data: Dictionary, root: Node) -> bool:
 	if not valid(data, root):
 		return false
+
 	var entities: Dictionary[String, Entity] = {}
 	var fresh: Array[Entity] = []
 	# Instantiate all missing prefabs before committing any change.
@@ -206,16 +226,19 @@ static func restore(data: Dictionary, root: Node) -> bool:
 				for candidate: Entity in fresh:
 					candidate.free()
 				return false
+
 			fresh.append(entity)
 		if entity in entities.values():
 			for candidate: Entity in fresh:
 				candidate.free()
 			return false
+
 		entities[String(record.key)] = entity
 	if not SnapshotGraphRules.valid_entities(data.entities as Array, entities) or not _valid_ids(data.entities as Array, entities):
 		for candidate: Entity in fresh:
 			candidate.free()
 		return false
+
 	for existing: Entity in ECS.world.entities.duplicate():
 		if not is_instance_valid(existing) or not _persistent(existing):
 			continue
@@ -350,6 +373,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 					already_bound = true
 			if already_bound:
 				continue
+
 			match String(link.kind):
 				OWNED:
 					entity.add_relationship(Relationship.new(R_OwnedBy.new(), target))

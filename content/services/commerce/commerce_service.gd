@@ -11,6 +11,7 @@ const FURNITURE_SPACING: Vector2 = Vector2(3.5, 2.5)
 static func current() -> C_Commerce:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	var owner: Entity = ECS.world.query.with_all([C_Commerce, C_DayCycle, C_Wallet]).execute_one()
 	return owner.get_component(C_Commerce) as C_Commerce if owner != null else null
 
@@ -20,6 +21,7 @@ static func next_id(prefix: String) -> StringName:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if state == null or cycle == null or state.transaction_in_progress:
 		return &""
+
 	state.next_request += 1
 	return StringName("%s:%d:%d" % [prefix, cycle.day_index, state.next_request])
 
@@ -32,6 +34,7 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 		return valid
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not EntityAvailability.contains(trader, ECS.world):
 		return Status.INVALID
+
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
 	if shop == null or trader.has_component(C_Death) or item not in TraderCatalogService.catalog(shop):
 		return Status.INVALID
@@ -41,6 +44,7 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 		return _purchase_furniture(trader, shop, item, quantity, operation_id, state, cycle)
 	if not actor.has_component(C_Inventory):
 		return Status.INVALID
+
 	state.transaction_in_progress = true
 	var grant: Entity = Entity.new()
 	var stack: C_InventoryItem = C_InventoryItem.new()
@@ -52,6 +56,7 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 		ECS.world.remove_entity(grant)
 		state.transaction_in_progress = false
 		return Status.INVENTORY_FULL
+
 	var money_status: Status = _pay(item, quantity, operation_id, cycle.day_index)
 	if money_status != Status.COMMITTED:
 		ECS.world.remove_entity(grant)
@@ -68,10 +73,12 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 static func _purchase_furniture(trader: Entity, shop: C_Trader, item: DEF_InventoryItem, quantity: int, operation_id: StringName, state: C_Commerce, cycle: C_DayCycle) -> Status:
 	if quantity != 1:
 		return Status.INVALID
+
 	var zone: Node3D = trader.get_node_or_null(shop.furniture_pickup_path) as Node3D
 	var parent: Node3D = trader.get_parent() as Node3D
 	if zone == null or parent == null:
 		return Status.SPAWN_BLOCKED
+
 	state.transaction_in_progress = true
 	var proposal: PreparedFurniture = null
 	for index: int in FURNITURE_COLUMNS * FURNITURE_ROWS:
@@ -83,11 +90,13 @@ static func _purchase_furniture(trader: Entity, shop: C_Trader, item: DEF_Invent
 	if proposal == null:
 		state.transaction_in_progress = false
 		return Status.SPAWN_BLOCKED
+
 	var paid: Status = _pay(item, quantity, operation_id, cycle.day_index)
 	if paid != Status.COMMITTED:
 		proposal.entity.free()
 		state.transaction_in_progress = false
 		return paid
+
 	_record(state, item, quantity, operation_id, cycle.day_index, PurchaseReceipt.Mode.PURCHASE)
 	FurniturePlacement.commit(proposal, "purchase/%s" % operation_id)
 	state.transaction_in_progress = false
@@ -102,21 +111,25 @@ static func home_delivery(actor: Entity, trader: Entity, item: DEF_InventoryItem
 		return valid
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not EntityAvailability.contains(trader, ECS.world) or trader.has_component(C_Death):
 		return Status.INVALID
+
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
 	if shop == null or shop.profile == null or not shop.profile.home_delivery_enabled or item not in TraderCatalogService.catalog(shop):
 		return Status.INVALID
 	if not TraderCatalogService.is_open(shop, cycle):
 		return Status.WRONG_PHASE
+
 	var profile: DEF_TraderProfile = shop.profile
 	if profile.delivery_fee < 0 or profile.delivery_delay_days < 1 or profile.delivery_fee > WalletService.MAX_AMOUNT - item.market_price * quantity or (item.kind == DEF_InventoryItem.Kind.FURNITURE and quantity != 1):
 		return Status.INVALID
 	if not OrderDeliveryService.can_fulfill_definition(item):
 		return Status.INVALID
+
 	state.transaction_in_progress = true
 	var paid: Status = _pay(item, quantity, operation_id, cycle.day_index, profile.delivery_fee)
 	if paid != Status.COMMITTED:
 		state.transaction_in_progress = false
 		return paid
+
 	var delivery: PendingDelivery = PendingDelivery.new()
 	delivery.delivery_id = operation_id
 	delivery.item = item
@@ -139,11 +152,13 @@ static func order(actor: Entity, item: DEF_InventoryItem, quantity: int, operati
 		return Status.WRONG_PHASE
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death):
 		return Status.INVALID
+
 	state.transaction_in_progress = true
 	var money_status: Status = _pay(item, quantity, operation_id, cycle.day_index)
 	if money_status != Status.COMMITTED:
 		state.transaction_in_progress = false
 		return money_status
+
 	var delivery: PendingDelivery = PendingDelivery.new()
 	delivery.delivery_id = operation_id
 	delivery.item = item
@@ -161,6 +176,7 @@ static func _validate(state: C_Commerce, cycle: C_DayCycle, item: DEF_InventoryI
 		return Status.INVALID
 	if terminal_catalog and item not in state.catalog:
 		return Status.INVALID
+
 	for receipt: PurchaseReceipt in state.receipts:
 		if receipt.operation_id == operation_id:
 			return Status.DUPLICATE if receipt.item_key == item.key and receipt.quantity == quantity and receipt.mode == mode else Status.CONFLICT
@@ -176,8 +192,10 @@ static func _pay(item: DEF_InventoryItem, quantity: int, operation_id: StringNam
 	match WalletService.submit(operation):
 		WalletService.Status.COMMITTED:
 			return Status.COMMITTED
+
 		WalletService.Status.INSUFFICIENT_FUNDS:
 			return Status.INSUFFICIENT_FUNDS
+
 		WalletService.Status.DUPLICATE, WalletService.Status.CONFLICT:
 			return Status.CONFLICT
 	return Status.INVALID

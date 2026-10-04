@@ -9,6 +9,7 @@ const MIN_SUPPORT_NORMAL: float = 0.7
 static func relationship(cargo: Entity) -> Relationship:
 	if not is_instance_valid(cargo):
 		return null
+
 	for candidate: Relationship in cargo.relationships:
 		if candidate.relation is R_CartCargo:
 			return candidate
@@ -31,6 +32,7 @@ static func update(cart: E_TransportCart, delta: float) -> void:
 		var candidate: Entity = node as Node as Entity
 		if not _loadable(candidate):
 			continue
+
 		var body: RigidBody3D = node as RigidBody3D
 		var instance_id: int = candidate.get_instance_id()
 		present[instance_id] = true
@@ -53,9 +55,11 @@ static func update(cart: E_TransportCart, delta: float) -> void:
 static func release(cargo: Entity) -> void:
 	if not is_instance_valid(cargo):
 		return
+
 	var binding: Relationship = relationship(cargo)
 	if binding == null:
 		return
+
 	cargo.remove_relationship(binding)
 	cargo_removed(cargo, binding)
 
@@ -63,9 +67,11 @@ static func release(cargo: Entity) -> void:
 static func release_all(cart: Entity) -> void:
 	if not is_instance_valid(cart):
 		return
+
 	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
 	if config == null:
 		return
+
 	for cargo: Entity in config.cargo.duplicate():
 		var binding: Relationship = relationship(cargo)
 		if binding != null and binding.target == cart:
@@ -109,6 +115,7 @@ static func cargo_removed(cargo: Entity, binding: Relationship) -> void:
 	var data: R_CartCargo = binding.relation as R_CartCargo
 	if data == null or not data.lifecycle_applied:
 		return
+
 	data.lifecycle_applied = false
 
 	var cart: Entity = binding.target as Entity if is_instance_valid(binding.target) else null
@@ -132,6 +139,7 @@ static func _loadable(cargo: Entity) -> bool:
 		return false
 	if relationship(cargo) != null or GrabService.held_relationship(cargo) != null:
 		return false
+
 	var body: RigidBody3D = cargo as Node as RigidBody3D
 	return body != null and not body.freeze and not _destroyed(cargo)
 
@@ -147,11 +155,13 @@ static func _supported(body: RigidBody3D, cart: Entity) -> bool:
 		return false
 	if contact.get_normal().y < MIN_SUPPORT_NORMAL:
 		return false
+
 	var support: Entity = contact.get_collider() as Node as Entity
 	if support == cart:
 		return true
 	if not is_instance_valid(support):
 		return false
+
 	var binding: Relationship = relationship(support)
 	return binding != null and binding.target == cart
 
@@ -159,9 +169,11 @@ static func _supported(body: RigidBody3D, cart: Entity) -> bool:
 static func _load(cart: Entity, cargo: Entity, body: RigidBody3D) -> void:
 	if relationship(cargo) != null:
 		return
+
 	var cart_body: PhysicsBody3D = cart as Node as PhysicsBody3D
 	if cart_body == null:
 		return
+
 	var data: R_CartCargo = R_CartCargo.new()
 	data.local_pose = cart_body.global_transform.affine_inverse() * body.global_transform
 	var binding: Relationship = Relationship.new(data, cart)

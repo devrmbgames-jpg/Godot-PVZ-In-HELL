@@ -18,6 +18,7 @@ static func clear_path_from(body: RigidBody3D, start: Transform3D, destination: 
 		return false
 	if not start.is_finite():
 		return false
+
 	var space: PhysicsDirectSpaceState3D = body.get_world_3d().direct_space_state
 	var moving_rotation: bool = not start.basis.is_equal_approx(destination.basis)
 	var count: int = 0
@@ -25,12 +26,14 @@ static func clear_path_from(body: RigidBody3D, start: Transform3D, destination: 
 	for owner_id: int in body.get_shape_owners():
 		if body.is_shape_owner_disabled(owner_id):
 			continue
+
 		var local: Transform3D = body.shape_owner_get_transform(owner_id)
 		for index: int in body.shape_owner_get_shape_count(owner_id):
 			var shape: Shape3D = body.shape_owner_get_shape(owner_id, index)
 			# Rigid moving bodies must provide bounded convex collision shapes.
 			if shape == null or shape is ConcavePolygonShape3D or shape is WorldBoundaryShape3D:
 				return false
+
 			count += 1
 			var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 			query.shape = shape
@@ -40,6 +43,7 @@ static func clear_path_from(body: RigidBody3D, start: Transform3D, destination: 
 			query.margin = margin
 			if not space.intersect_shape(query, 1).is_empty():
 				return false
+
 			query.transform = start * local
 			if not space.intersect_shape(query, 1).is_empty():
 				return false
@@ -67,10 +71,12 @@ static func clear_path_from(body: RigidBody3D, start: Transform3D, destination: 
 		sweep.margin = margin
 		if not space.intersect_shape(sweep, 1).is_empty():
 			return false
+
 		sweep.motion = destination.origin - start.origin
 		var fractions: PackedFloat32Array = space.cast_motion(sweep)
 		if fractions.size() != 2 or fractions[0] < 1.0:
 			return false
+
 		sweep.motion = Vector3.ZERO
 		sweep.transform.origin = destination.origin
 		if not space.intersect_shape(sweep, 1).is_empty():

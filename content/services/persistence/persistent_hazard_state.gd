@@ -7,6 +7,7 @@ static func capture(entity: Entity, root: Node) -> Dictionary:
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	if hazard == null:
 		return {}
+
 	var data: Dictionary = {"origin": _key(hazard.origin, root), "instigator": _key(hazard.instigator, root)}
 	var binding: Relationship = HazardFollowService.binding(entity)
 	if binding != null:
@@ -22,6 +23,7 @@ static func valid(data: Dictionary, records: Dictionary[String, Dictionary]) -> 
 	if data.has("follow"):
 		if not data.follow is Dictionary:
 			return false
+
 		var follow: Dictionary = data.follow as Dictionary
 		if not follow.get("target") is String or not records.has(String(follow.target)) or not follow.get("offset") is Transform3D or not (follow.offset as Transform3D).is_finite() or follow.get("on_loss") not in [DEF_Hazard.OwnerLoss.Detach, DEF_Hazard.OwnerLoss.Despawn]:
 			return false
@@ -32,6 +34,7 @@ static func restore(data: Dictionary, entity: Entity, entities: Dictionary[Strin
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	if hazard == null:
 		return
+
 	hazard.origin = entities.get(String(data.get("origin", ""))) as Entity
 	hazard.instigator = entities.get(String(data.get("instigator", ""))) as Entity
 	var owner: Entity = null
@@ -57,13 +60,16 @@ static func reset_missing_owners() -> void:
 	for entity: Entity in ECS.world.entities.duplicate():
 		if not is_instance_valid(entity):
 			continue
+
 		var lifetime: C_HazardLifetime = entity.get_component(C_HazardLifetime) as C_HazardLifetime
 		if lifetime != null and lifetime.owner_loss_pending:
 			HazardLifecycle.retire(entity, ECS.world)
 			continue
+
 		var binding: Relationship = HazardFollowService.binding(entity)
 		if binding == null or EntityAvailability.contains(binding.target, ECS.world):
 			continue
+
 		var follow: R_HazardFollow = binding.relation as R_HazardFollow
 		if follow.on_loss == DEF_Hazard.OwnerLoss.Despawn:
 			HazardLifecycle.retire(entity, ECS.world)
@@ -74,6 +80,7 @@ static func reset_missing_owners() -> void:
 static func _key(entity: Entity, root: Node) -> String:
 	if not EntityAvailability.contains(entity, ECS.world):
 		return ""
+
 	var key: String = WorldSnapshotService.key_for(entity, root)
 	# Customers/projectiles are reset before capture, so only persistent live refs remain.
 	return key

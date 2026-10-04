@@ -9,6 +9,7 @@ static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: 
 	var state: C_Openable = entity.get_component(C_Openable) as C_Openable
 	if state == null or state.motion == null or not EntityAvailability.contains(entity, ECS.world):
 		return
+
 	var root: Node3D = entity as Node as Node3D
 	var local: Transform3D = root.global_transform.affine_inverse() * body.global_transform
 	var motion: DEF_OpenableMotion = state.motion
@@ -20,6 +21,7 @@ static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: 
 		var angle: float = rotation.get_angle()
 		if angle <= MOTION_EPSILON:
 			return
+
 		var axis: Vector3 = rotation.get_axis()
 		var actual: Quaternion = (closed.inverse() * local.basis.get_rotation_quaternion()).normalized()
 		var actual_angle: float = actual.get_angle() * actual.get_axis().dot(axis)
@@ -38,6 +40,7 @@ static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: 
 		var distance: float = travel.length()
 		if distance <= MOTION_EPSILON:
 			return
+
 		var actual_distance: float = (local.origin - motion.closed_transform.origin).dot(travel / distance)
 		OpenableService.report_fraction(state, clampf(actual_distance / distance, 0.0, 1.0), entity)
 		var error: float = target_fraction * distance - actual_distance
@@ -57,5 +60,6 @@ static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: 
 static func _motor_velocity(error: float, extent: float, state: C_Openable) -> float:
 	if state.locked or state.motion.duration_seconds <= 0.0:
 		return 0.0
+
 	var maximum: float = extent / state.motion.duration_seconds
 	return clampf(error * state.motion.motor_response, -maximum, maximum)

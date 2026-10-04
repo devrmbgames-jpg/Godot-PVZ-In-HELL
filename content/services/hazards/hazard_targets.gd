@@ -9,6 +9,7 @@ static func entity_for(body: Node) -> Entity:
 	while is_instance_valid(ancestor):
 		if ancestor is Entity:
 			return ancestor as Entity
+
 		ancestor = ancestor.get_parent()
 
 	return null

@@ -8,6 +8,7 @@ class_name PackageRegistrationService
 static func find_live_package(package_id: String) -> Entity:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	for parcel: Entity in ECS.world.query.with_all([C_Package]).execute():
 		var identity: C_Package = parcel.get_component(C_Package) as C_Package
 		if identity != null and identity.package_id == package_id:
@@ -19,6 +20,7 @@ static func find_live_package(package_id: String) -> Entity:
 static func ledger() -> C_PackageLedger:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	var session: Entity = ECS.world.query.with_all([C_PackageLedger]).execute_one()
 	return session.get_component(C_PackageLedger) as C_PackageLedger if session != null else null
 
@@ -28,6 +30,7 @@ static func live_states() -> Dictionary[String, C_PackageState]:
 	var result: Dictionary[String, C_PackageState] = {}
 	if not is_instance_valid(ECS.world):
 		return result
+
 	for parcel: Entity in ECS.world.query.with_all([C_Package, C_PackageState]).execute():
 		var identity: C_Package = parcel.get_component(C_Package) as C_Package
 		var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
@@ -41,6 +44,7 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 		return false
 	if not GrabService.holder_available(actor) or not GrabService.entity_available(target):
 		return false
+
 	var grip: Relationship = GrabService.held_relationship(scanner)
 	if grip == null or grip.target != actor or not scanner.has_component(C_Scanner):
 		return false
@@ -49,17 +53,21 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 		or InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.HANDS
 	):
 		return false
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT or ledger() == null:
 		return false
 	if not target.has_component(C_Package) or not target.has_component(C_PackageState):
 		return false
+
 	var package_state: C_PackageState = target.get_component(C_PackageState)
 	if package_state.registration >= C_PackageState.Registration.DELIVERED:
 		return false
+
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	if interactor == null or InteractionTargetingService.find_target(actor, interactor) != target:
 		return false
+
 	var ray: RayCast3D = GrabService.interaction_raycast(actor)
 	var config: C_Scanner = scanner.get_component(C_Scanner) as C_Scanner
 	return ray.global_position.distance_to(ray.get_collision_point()) <= config.scan_range
@@ -80,6 +88,7 @@ static func register_package(target: Entity) -> PackageScanResult:
 		return result
 	if not target.has_component(C_Package) or not target.has_component(C_PackageState):
 		return result
+
 	var registry: C_PackageLedger = ledger()
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if registry == null or cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:
@@ -93,6 +102,7 @@ static func register_package(target: Entity) -> PackageScanResult:
 			continue
 		if not record.active:
 			return result
+
 		result.outcome = PackageScanResult.Outcome.ALREADY_REGISTERED
 		result.number = record.number
 		result.message = "Уже учтена · №%03d" % record.number

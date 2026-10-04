@@ -8,6 +8,7 @@ class_name NightResetService
 static func reset() -> void:
 	if not is_instance_valid(ECS.world):
 		return
+
 	for node: Node in ECS.world.get_parent().find_children("*", "", true, false):
 		if node is InventoryPanel:
 			(node as InventoryPanel).close_inventory()
@@ -20,6 +21,7 @@ static func reset() -> void:
 	for entity: Entity in ECS.world.entities.duplicate():
 		if not is_instance_valid(entity):
 			continue
+
 		ChallengeService.cancel(entity)
 		ProlongedInteractionService.cancel(entity)
 		PersistentInteractionState.reset_incomplete(entity)

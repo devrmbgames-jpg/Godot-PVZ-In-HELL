@@ -10,6 +10,7 @@ const MIN_RETRY_SECONDS: float = 0.1
 static func process(session: Entity, cycle: C_DayCycle, state: C_Autosave, delta: float) -> void:
 	if cycle.phase != C_DayCycle.Phase.NIGHT:
 		return
+
 	cycle.night_ready = false
 	if state.last_saved_morning == cycle.day_index + 1:
 		cycle.night_ready = true
@@ -22,6 +23,7 @@ static func process(session: Entity, cycle: C_DayCycle, state: C_Autosave, delta
 	state.retry_remaining = maxf(0.0, state.retry_remaining - delta)
 	if state.retry_remaining > 0.0:
 		return
+
 	var root: Node = ECS.world.get_parent()
 	var snapshot: Dictionary = WorldSnapshotService.capture(root, cycle.day_index + 1)
 	if not WorldSnapshotService.valid(snapshot, root):
@@ -49,6 +51,7 @@ static func restore_startup(root: Node, state: C_Autosave) -> bool:
 	if not WorldSnapshotService.restore(snapshot, root):
 		state.startup_status = "Сохранение несовместимо — новое прохождение"
 		return false
+
 	state.last_saved_morning = int(snapshot.morning_day)
 	state.startup_status = "Восстановлено утро %d" % state.last_saved_morning
 	return true

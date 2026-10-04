@@ -6,12 +6,15 @@ class_name ChallengePresentation
 static func text_for(actor: Entity) -> String:
 	if not EntityAvailability.contains(actor, ECS.world):
 		return ""
+
 	for subject: Entity in ECS.world.query.with_all([C_Challenge]).execute():
 		if ChallengeService.actor_for(subject) != actor:
 			continue
+
 		var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 		if state.definition == null:
 			continue
+
 		match state.phase:
 			C_Challenge.Phase.ACTIVE:
 				if state.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]:
@@ -26,8 +29,10 @@ static func text_for(actor: Entity) -> String:
 						return "%s\n%s • до завершения: %d с" % [state.definition.rule_text, "Подготовка: %d с" % preparation if preparation > 0 else "Опасный пол активен", remaining]
 					return "%s\nОсталось: %d с" % [state.definition.rule_text, remaining]
 				return state.definition.rule_text
+
 			C_Challenge.Phase.SUCCESS:
 				return "Условие выполнено. Клиент доволен."
+
 			C_Challenge.Phase.FAILURE:
 				return "Условие нарушено. Клиент недоволен."
 	return ""
@@ -36,6 +41,7 @@ static func text_for(actor: Entity) -> String:
 static func debug_text_for(actor: Entity) -> String:
 	if not EntityAvailability.contains(actor, ECS.world):
 		return ""
+
 	var lines: PackedStringArray = ["ЗАДАЧИ / УСЛОВИЯ (DEBUG)"]
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle != null:
@@ -45,6 +51,7 @@ static func debug_text_for(actor: Entity) -> String:
 		var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 		if state.definition == null:
 			continue
+
 		found = true
 		lines.append("%s: %s" % [state.definition.key, String(C_Challenge.Phase.keys()[state.phase])])
 		lines.append("Задача: " + state.definition.rule_text)

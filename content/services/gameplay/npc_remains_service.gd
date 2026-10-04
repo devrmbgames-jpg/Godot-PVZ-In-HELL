@@ -11,6 +11,7 @@ const GROUND_MASK: int = 31
 static func release(npc: Entity) -> void:
 	if not EntityAvailability.contains(npc, ECS.world):
 		return
+
 	var state: C_NpcRemains = npc.get_component(C_NpcRemains) as C_NpcRemains
 	var health: C_Health = npc.get_component(C_Health) as C_Health
 	var body: PhysicsBody3D = npc as Node as PhysicsBody3D
@@ -18,9 +19,11 @@ static func release(npc: Entity) -> void:
 		return
 	if health == null or not health.depleted:
 		return
+
 	var definition: DEF_NpcRemains = state.definition
 	if definition.meat_scene == null or definition.meat_piece_count < 1 or definition.meat_piece_count > DEF_NpcRemains.MAX_MEAT_PIECES:
 		return
+
 	var scenes: Array[PackedScene] = []
 	for index: int in definition.meat_piece_count:
 		scenes.append(definition.meat_scene)
@@ -37,6 +40,7 @@ static func release(npc: Entity) -> void:
 			for pending: Entity in drops:
 				pending.free()
 			return
+
 		drops.append(drop)
 	# Commit before registering any Entity. Reentrant observers cannot create another batch.
 	state.released = true
@@ -56,6 +60,7 @@ static func release(npc: Entity) -> void:
 		body.get_parent().add_child(node)
 		node.global_position = position
 		ECS.world.add_entity(drop, null, false)
+
 	var character: E_NpcCharacter = npc as E_NpcCharacter
 	if character != null:
 		character.sync_death_presentation()
@@ -69,6 +74,7 @@ static func _individual_pickup(drop: Entity) -> bool:
 			continue
 		if item.definition == null or item.definition.key == &"":
 			return false
+
 		var single: C_InventoryItem = C_InventoryItem.new()
 		single.definition = item.definition
 		single.quantity = 1
@@ -84,6 +90,7 @@ static func _bottom_height(node: Node3D) -> float:
 		var collision: CollisionShape3D = child as CollisionShape3D
 		if collision.shape == null or collision.disabled:
 			continue
+
 		var mesh: ArrayMesh = collision.shape.get_debug_mesh()
 		var relative: Transform3D = collision.transform
 		var ancestor: Node = collision.get_parent()

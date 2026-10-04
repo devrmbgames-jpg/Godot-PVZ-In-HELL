@@ -7,6 +7,7 @@ class_name ChallengeService
 static func debug_start(subject: Entity, actor: Entity, definition: DEF_Challenge) -> bool:
 	if not _available(subject) or not _available(actor) or definition == null or definition.condition == null:
 		return false
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	if cycle == null or cycle.phase != C_DayCycle.Phase.DAY or (state != null and (state.consumed or state.phase != C_Challenge.Phase.INACTIVE)):
@@ -21,6 +22,7 @@ static func debug_start(subject: Entity, actor: Entity, definition: DEF_Challeng
 static func arm(subject: Entity, actor: Entity) -> bool:
 	if not _available(subject) or not _available(actor):
 		return false
+
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if (
@@ -29,6 +31,7 @@ static func arm(subject: Entity, actor: Entity) -> bool:
 		or cycle == null or cycle.phase != C_DayCycle.Phase.DAY
 	):
 		return false
+
 	state.consumed = true
 	state.phase = C_Challenge.Phase.ARMED
 	state.started_day = cycle.day_index
@@ -40,9 +43,11 @@ static func arm(subject: Entity, actor: Entity) -> bool:
 static func activate(subject: Entity) -> bool:
 	if not _available(subject):
 		return false
+
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	if state == null or state.phase != C_Challenge.Phase.ARMED or not _valid_session(subject, state):
 		return false
+
 	state.phase = C_Challenge.Phase.ACTIVE
 	state.elapsed = 0.0
 	return true
@@ -51,6 +56,7 @@ static func activate(subject: Entity) -> bool:
 static func begin_on_arrival(subject: Entity, actor: Entity) -> bool:
 	if not _available(subject):
 		return false
+
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	return (
 		state != null and state.definition != null
@@ -62,6 +68,7 @@ static func begin_on_arrival(subject: Entity, actor: Entity) -> bool:
 static func request_departure(subject: Entity) -> void:
 	if not is_instance_valid(subject):
 		return
+
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	if (
 		state != null and state.definition != null and state.phase == C_Challenge.Phase.ACTIVE
@@ -73,6 +80,7 @@ static func request_departure(subject: Entity) -> void:
 static func actor_for(subject: Entity) -> Entity:
 	if not is_instance_valid(subject):
 		return null
+
 	for relation: Relationship in subject.relationships:
 		if relation.relation is R_ChallengeActor:
 			if EntityAvailability.contains(relation.target, ECS.world):
@@ -90,9 +98,11 @@ static func tick(subject: Entity, state: C_Challenge, delta: float) -> void:
 		return
 	if not is_finite(delta) or delta < 0.0:
 		return
+
 	match state.phase:
 		C_Challenge.Phase.ARMED:
 			return
+
 		C_Challenge.Phase.ACTIVE:
 			var previous_elapsed: float = state.elapsed
 			state.elapsed += delta
@@ -127,6 +137,7 @@ static func tick(subject: Entity, state: C_Challenge, delta: float) -> void:
 static func cancel(subject: Entity) -> void:
 	if not is_instance_valid(subject):
 		return
+
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	if state == null or state.phase in [C_Challenge.Phase.INACTIVE, C_Challenge.Phase.CLEANUP]:
 		return
@@ -140,6 +151,7 @@ static func entity_unavailable(entity: Entity) -> void:
 		cancel(entity)
 	if not is_instance_valid(ECS.world):
 		return
+
 	for subject: Entity in ECS.world.query.with_all([C_Challenge]).execute():
 		for relation: Relationship in subject.relationships:
 			if relation.relation is R_ChallengeActor and relation.target == entity:
@@ -155,6 +167,7 @@ static func entity_unavailable(entity: Entity) -> void:
 static func result_for(subject: Entity) -> ChallengeResult.Type:
 	if not is_instance_valid(subject):
 		return ChallengeResult.Type.NONE
+
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	return state.result if state != null else ChallengeResult.Type.NONE
 
@@ -162,6 +175,7 @@ static func result_for(subject: Entity) -> ChallengeResult.Type:
 static func session_valid(subject: Entity) -> bool:
 	if not _available(subject):
 		return false
+
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	return state != null and _valid_session(subject, state)
 
@@ -195,6 +209,7 @@ static func _track_visit_condition(state: C_Challenge, previous_elapsed: float) 
 		if state.definition.reset_violation_on_compliance:
 			state.violation_elapsed = 0.0
 		return
+
 	var checked_seconds: float = maxf(0.0, state.elapsed - maxf(previous_elapsed, state.definition.preparation_seconds))
 	state.violation_elapsed += checked_seconds
 	if checked_seconds > 0.0 and (state.violation_elapsed >= state.definition.violation_grace_seconds or is_equal_approx(state.violation_elapsed, state.definition.violation_grace_seconds)):

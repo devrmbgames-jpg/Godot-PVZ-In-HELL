@@ -12,22 +12,27 @@ static func valid(records: Dictionary[String, Dictionary], components: Dictionar
 		var links: Array = record.links as Array
 		if links.size() > 1:
 			return false
+
 		for link: Dictionary in links:
 			var target_key: String = String(link.target)
 			var target: Dictionary = components[target_key]
 			var absent_npc_inventory: bool = String(link.kind) == WorldSnapshotService.OWNED and target.has(C_NpcIdentity) and target.has(C_Inventory) and not target.has(C_Death)
 			if target_key == key or (not bool(records[target_key].enabled) and not absent_npc_inventory):
 				return false
+
 			match String(link.kind):
 				WorldSnapshotService.OWNED:
 					if not source.has(C_InventoryItem) or source.has(C_Package) or not target.has(C_Inventory):
 						return false
+
 					stack_counts[target_key] = stack_counts.get(target_key, 0) + 1
 					if stack_counts[target_key] > (target[C_Inventory] as C_Inventory).maximum_stacks:
 						return false
+
 				WorldSnapshotService.STORED:
 					if not bool(record.enabled) or not record.has("pose") or record.has("anchor") or slot_occupants.has(target_key):
 						return false
+
 					slot_occupants[target_key] = true
 				WorldSnapshotService.CARGO:
 					if not bool(record.enabled) or not record.has("pose") or record.has("anchor") or not (link.local_pose as Transform3D).is_finite():
@@ -61,20 +66,24 @@ static func valid_entities(records: Array, entities: Dictionary[String, Entity])
 			return false
 		if not record.get("completed_actions", []) is Array or not PersistentInteractionState.valid(record.get("completed_actions", []) as Array, entity):
 			return false
+
 		var body: RigidBody3D = entity as Node as RigidBody3D
 		if record.has("anchor") and (body == null or _component(entity, C_Anchorable) == null):
 			return false
+
 		for link: Dictionary in record.links:
 			var target: Entity = entities[String(link.target)]
 			match String(link.kind):
 				WorldSnapshotService.OWNED:
 					if _component(entity, C_Grabbable) != null:
 						return false
+
 				WorldSnapshotService.STORED:
 					var slot: E_PhysicalSlot = target as E_PhysicalSlot
 					var config: C_PhysicalSlot = _component(target, C_PhysicalSlot) as C_PhysicalSlot
 					if body == null or slot == null or config == null or not is_instance_valid(slot.anchor) or not is_instance_valid(slot.driver):
 						return false
+
 					var mass: float = body.mass
 					for saved: Dictionary in record.components:
 						if SaveDataCodec.component_script(String(saved.type)) == C_Package:
@@ -83,6 +92,7 @@ static func valid_entities(records: Array, entities: Dictionary[String, Entity])
 						return false
 					if config.filter != null and not ItemAccessService.matches(_component(entity, C_AccessItem) as C_AccessItem, config.filter):
 						return false
+
 				WorldSnapshotService.CARGO:
 					if body == null or not (target as Node) is PhysicsBody3D or _component(target, C_CartTransport) == null:
 						return false
@@ -93,6 +103,7 @@ static func _component(entity: Entity, script: Script) -> Component:
 	var current: Component = entity.get_component(script) as Component
 	if current != null:
 		return current
+
 	for component: Component in entity.component_resources:
 		if component.get_script() == script:
 			return component

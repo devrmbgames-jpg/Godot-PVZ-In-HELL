@@ -14,6 +14,7 @@ static func integrate(actor: Entity, state: PhysicsDirectBodyState3D) -> bool:
 		or InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.TRANSPORT
 	):
 		return false
+
 	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
 	var body: CharacterBody3D = cart as Node as CharacterBody3D
 	if not CartTransportService.driver_valid(body, config, actor):

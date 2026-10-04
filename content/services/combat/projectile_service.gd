@@ -8,6 +8,7 @@ const PROJECTILE_SCENE: PackedScene = preload("res://content/entities/combat/com
 static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.holder_available(target) or not is_instance_valid(ECS.world):
 		return false
+
 	var projectile: Entity = PROJECTILE_SCENE.instantiate() as Entity
 	ECS.world.add_entity(projectile)
 	if actor.has_component(C_NoDamage):
@@ -19,6 +20,7 @@ static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool
 	state.remaining_seconds = attack.projectile_lifetime
 	state.damage = attack.damage * HungerService.damage_multiplier(actor.get_component(C_Hunger) as C_Hunger)
 	state.collision_mask = attack.collision_mask
+
 	var request: DamageRequest = DamageRequest.new()
 	request.instigator = actor
 	request.source = actor
@@ -33,10 +35,12 @@ static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool
 static func tick(projectile: Entity, delta: float) -> void:
 	if not EntityAvailability.contains(projectile, ECS.world):
 		return
+
 	var state: C_CombatProjectile = projectile.get_component(C_CombatProjectile) as C_CombatProjectile
 	var node: Node3D = projectile as Node as Node3D
 	if state == null or node == null:
 		return
+
 	var travel_seconds: float = minf(maxf(0.0, delta), state.remaining_seconds)
 	var destination: Vector3 = node.global_position + state.velocity * travel_seconds
 	var actor: Entity = _source_for(projectile)
@@ -59,6 +63,7 @@ static func tick(projectile: Entity, delta: float) -> void:
 			DamageRequestService.submit(request)
 		ECS.world.remove_entity(projectile)
 		return
+
 	node.global_position = destination
 	state.remaining_seconds -= travel_seconds
 	if state.remaining_seconds <= 0.0:

@@ -6,6 +6,7 @@ class_name DayPhaseService
 static func current() -> C_DayCycle:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	var session: Entity = ECS.world.query.with_all([C_DayCycle]).execute_one()
 	return session.get_component(C_DayCycle) as C_DayCycle if session != null else null
 
@@ -13,11 +14,14 @@ static func current() -> C_DayCycle:
 static func permits(cycle: C_DayCycle, kind: DayTransitionRequest.Kind) -> bool:
 	if cycle == null or cycle.pending_transition != null:
 		return false
+
 	match kind:
 		DayTransitionRequest.Kind.START_SHIFT:
 			return cycle.phase == C_DayCycle.Phase.MORNING
+
 		DayTransitionRequest.Kind.FINISH_SHIFT:
 			return cycle.phase == C_DayCycle.Phase.DAY and finish_blockers(cycle).is_empty()
+
 		DayTransitionRequest.Kind.SLEEP:
 			return cycle.phase == C_DayCycle.Phase.EVENING and NpcSleepService.blockers().is_empty()
 	return false
@@ -28,6 +32,7 @@ static func finish_blockers(cycle: C_DayCycle) -> PackedStringArray:
 	var reasons: PackedStringArray = []
 	if cycle == null:
 		return ["Смена недоступна"]
+
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	var unfinished: int = CustomerFlowService.actionable_remaining(flow, cycle.day_index) if flow != null else cycle.remaining_customer_events
 	if cycle.require_finished_customers and unfinished > 0:
@@ -55,12 +60,14 @@ static func finish_blockers(cycle: C_DayCycle) -> PackedStringArray:
 static func customers_in_room(cycle: C_DayCycle) -> int:
 	if not is_instance_valid(ECS.world):
 		return 0 if cycle.customer_room_path.is_empty() else -1
+
 	var room: Area3D = null
 	if not cycle.customer_room_path.is_empty():
 		var owner: Entity = ECS.world.query.with_all([C_DayCycle]).execute_one()
 		room = owner.get_node_or_null(cycle.customer_room_path) as Area3D if owner != null else null
 		if room == null or not room.is_inside_tree() or not room.monitoring:
 			return -1
+
 	var count: int = 0
 	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		var body: Node3D = customer as Node as Node3D
@@ -81,6 +88,7 @@ static func shift_status(cycle: C_DayCycle) -> String:
 		return "Сон доступен" if sleep_reasons.is_empty() else "Сон: " + " · ".join(sleep_reasons)
 	if cycle.phase != C_DayCycle.Phase.DAY:
 		return ""
+
 	var reasons: PackedStringArray = finish_blockers(cycle)
 	return "Смена %.0f с · %s" % [floorf(cycle.shift_elapsed_seconds), "Завершение доступно" if reasons.is_empty() else " · ".join(reasons)]
 
@@ -91,5 +99,6 @@ static func submit(request: DayTransitionRequest) -> bool:
 		return false
 	if request.expected_day != cycle.day_index or request.expected_phase != cycle.phase:
 		return false
+
 	cycle.pending_transition = request
 	return true

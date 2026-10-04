@@ -14,6 +14,7 @@ static func session(actor: Entity) -> Relationship:
 static func progress_for(target: Entity, action_id: StringName) -> ProlongedInteractionProgress:
 	if not is_instance_valid(target):
 		return null
+
 	var state: C_ProlongedInteraction = target.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
 	if state != null:
 		for progress: ProlongedInteractionProgress in state.actions:
@@ -26,10 +27,12 @@ static func progress_for(target: Entity, action_id: StringName) -> ProlongedInte
 static func debug_set_progress(target: Entity, action: DEF_InteractionAction, value: float) -> bool:
 	if not EntityAvailability.contains(target, ECS.world) or action == null or action.timing == null or action.action_id == &"" or not is_finite(value) or value < 0.0 or value > 1.0:
 		return false
+
 	for actor: Entity in ECS.world.entities:
 		var binding: Relationship = session(actor)
 		if binding != null and binding.target == target:
 			return false
+
 	var progress: ProlongedInteractionProgress = progress_for(target, action.action_id)
 	if progress != null and (progress.phase == ProlongedInteractionProgress.Phase.COMPLETED or progress.timing != action.timing):
 		return false
@@ -51,6 +54,7 @@ static func active_progress(actor: Entity) -> ProlongedInteractionProgress:
 	var binding: Relationship = session(actor)
 	if binding == null:
 		return null
+
 	var data: R_ProlongedOn = binding.relation as R_ProlongedOn
 	return progress_for(binding.target as Entity, data.action.action_id)
 
@@ -58,6 +62,7 @@ static func active_progress(actor: Entity) -> ProlongedInteractionProgress:
 static func begin(actor: Entity, choice: InteractionActionChoice, slot: DEF_InteractionAction.Slot) -> bool:
 	if choice == null or choice.action == null or session(actor) != null:
 		return false
+
 	var action: DEF_InteractionAction = choice.action
 	var target: Entity = choice.target if choice.target != null else choice.source
 	if (
@@ -77,10 +82,12 @@ static func begin(actor: Entity, choice: InteractionActionChoice, slot: DEF_Inte
 		return false
 	if not is_instance_valid(ECS.world):
 		return false
+
 	for other: Entity in ECS.world.entities:
 		var occupied: Relationship = session(other)
 		if occupied != null and occupied.target == target:
 			return false
+
 	var state: C_ProlongedInteraction = target.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
 	if state == null:
 		state = C_ProlongedInteraction.new()
@@ -93,12 +100,14 @@ static func begin(actor: Entity, choice: InteractionActionChoice, slot: DEF_Inte
 		state.actions.append(progress)
 	if progress.timing != action.timing or progress.phase == ProlongedInteractionProgress.Phase.COMPLETED:
 		return false
+
 	var data: R_ProlongedOn = R_ProlongedOn.new()
 	data.action = action
 	data.input_slot = slot
 	data.capture_token = InteractionControlFocus.acquire(actor, target, InteractionControlFocus.Priority.PROLONGED)
 	if data.capture_token == 0:
 		return false
+
 	var binding: Relationship = Relationship.new(data, target)
 	actor.add_relationship(binding)
 	if choice.source != target:
@@ -115,6 +124,7 @@ static func tick(actor: Entity, delta: float) -> bool:
 	var binding: Relationship = session(actor)
 	if binding == null:
 		return false
+
 	var data: R_ProlongedOn = binding.relation as R_ProlongedOn
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	if (
@@ -124,6 +134,7 @@ static func tick(actor: Entity, delta: float) -> bool:
 	):
 		cancel(actor)
 		return true
+
 	var target: Entity = binding.target as Entity
 	var source: Entity = _source(actor, target)
 	var progress: ProlongedInteractionProgress = progress_for(target, data.action.action_id)
@@ -168,6 +179,7 @@ static func removed(actor: Entity, binding: Relationship) -> void:
 	var data: R_ProlongedOn = binding.relation as R_ProlongedOn
 	if data == null or data.cleaned:
 		return
+
 	data.cleaned = true
 	var target: Entity = binding.target as Entity
 	var source: Entity = _source(actor, target)
@@ -187,6 +199,7 @@ static func removed(actor: Entity, binding: Relationship) -> void:
 static func entity_unavailable(entity: Entity) -> void:
 	if not is_instance_valid(ECS.world):
 		return
+
 	cancel(entity)
 	for actor: Entity in ECS.world.entities.duplicate():
 		var binding: Relationship = session(actor)
@@ -200,6 +213,7 @@ static func source_removed(actor: Entity, source_binding: Relationship) -> void:
 	var binding: Relationship = session(actor)
 	if binding == null:
 		return
+
 	var source: Entity = source_binding.target as Entity
 	var cleanup: Callable = _cancel_session.bind(actor, binding)
 	if is_instance_valid(source) and source.tree_exiting.is_connected(cleanup):
@@ -207,6 +221,7 @@ static func source_removed(actor: Entity, source_binding: Relationship) -> void:
 	var data: R_ProlongedOn = binding.relation as R_ProlongedOn
 	if data.cleaned:
 		return
+
 	cancel(actor)
 
 
@@ -232,10 +247,13 @@ static func _held(controller: C_Controller, slot: DEF_InteractionAction.Slot) ->
 	match slot:
 		DEF_InteractionAction.Slot.INTERACT:
 			return controller.interact_held
+
 		DEF_InteractionAction.Slot.USE:
 			return controller.use_held
+
 		DEF_InteractionAction.Slot.PRIMARY:
 			return controller.action_main
+
 		DEF_InteractionAction.Slot.SECONDARY:
 			return controller.action_second_held
 	return false

@@ -8,6 +8,7 @@ static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectB
 	var grab_control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
 	if grab_control != null and grab_control.rotation_active:
 		return
+
 	var controller := entity.get_component(C_Controller) as C_Controller
 
 	var look := entity.get_component(C_Look) as C_Look

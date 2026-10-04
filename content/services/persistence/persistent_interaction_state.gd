@@ -18,6 +18,7 @@ static func valid(ids: Array, entity: Entity) -> bool:
 	for value: Variant in ids:
 		if not value is StringName or seen.has(value) or _timing(entity, value as StringName) == null:
 			return false
+
 		seen[value] = true
 	return true
 
@@ -29,6 +30,7 @@ static func restore(ids: Array, entity: Entity) -> void:
 		entity.add_component(state)
 	if state == null:
 		return
+
 	state.actions.clear()
 	for id: StringName in ids:
 		var progress: ProlongedInteractionProgress = ProlongedInteractionProgress.new()
@@ -43,6 +45,7 @@ static func reset_incomplete(entity: Entity) -> void:
 	var state: C_ProlongedInteraction = entity.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
 	if state == null:
 		return
+
 	for progress: ProlongedInteractionProgress in state.actions:
 		if progress != null and progress.phase != ProlongedInteractionProgress.Phase.COMPLETED:
 			progress.fraction = 0.0

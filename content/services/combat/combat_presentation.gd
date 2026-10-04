@@ -14,10 +14,12 @@ static func debug_text(actor: Entity) -> String:
 		lines.append("Игрок: %s · таймер %.2f c" % [PLAYER_PHASES[player.phase], player.elapsed])
 	if not is_instance_valid(ECS.world):
 		return "\n".join(lines)
+
 	for npc: Entity in ECS.world.query.with_all([C_NpcCombat]).execute():
 		var target: Entity = CombatService.target_for(npc)
 		if target != actor:
 			continue
+
 		var state: C_NpcCombat = npc.get_component(C_NpcCombat) as C_NpcCombat
 		var health: C_Health = npc.get_component(C_Health) as C_Health
 		var kind: String = "ближняя" if state.kind == C_NpcCombat.Kind.MELEE else "дальняя"

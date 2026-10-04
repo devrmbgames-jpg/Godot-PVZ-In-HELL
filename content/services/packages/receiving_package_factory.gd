@@ -54,6 +54,7 @@ static func create(
 static func try_place(zone: E_ReceivingZone, parcel: E_Package) -> bool:
 	if zone == null or parcel == null:
 		return false
+
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	var collision: CollisionShape3D = parcel.get_node("CollisionShape3D") as CollisionShape3D
 	if body == null or collision == null or collision.shape == null:
@@ -69,9 +70,11 @@ static func try_place(zone: E_ReceivingZone, parcel: E_Package) -> bool:
 		var marker: Node3D = child as Node3D
 		if marker == null:
 			continue
+
 		query.transform = marker.global_transform * collision.transform
 		if not space.intersect_shape(query, 1).is_empty():
 			continue
+
 		zone.package_parent.add_child(parcel)
 		body.global_transform = marker.global_transform
 		ECS.world.add_entity(parcel, null, false)
