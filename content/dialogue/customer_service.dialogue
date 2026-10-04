@@ -36,6 +36,16 @@ $> ctx.accept_home_delivery()
 Клиент: Договорились. Адрес указан у моей двери. Принеси до сна — доплачу одну обычную выдачу.
 => END
 
+~ home_request
+Клиент: Вы можете принести мне посылку домой сегодня вечером? Заказ №{{ctx.package_number_text()}}. За доставку доплачу.
+- Да, принесу до сна. => home_delivery
+- Нет, приходите за ней сами. => home_declined
+
+~ home_declined
+Клиент: Хорошо, тогда зайду сам через несколько дней.
+$> ctx.decline_home_delivery()
+=> END
+
 ~ deny_start
 Клиент: Почему?
 - Мы не можем найти вашу посылку. [#hon] => deny_honest
@@ -84,6 +94,8 @@ do ctx.commit_denial()
 ~ riddle_correct
 do ctx.answer_riddle_correct()
 Клиент: Верно. Мой заказ №{{ctx.package_number_text()}}.
+if ctx.can_offer_delivery()
+	=> home_request
 - Хорошо, сейчас принесу. => END
 - Я не могу выдать вам посылку. => deny_start
 

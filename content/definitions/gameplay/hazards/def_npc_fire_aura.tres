@@ -3,11 +3,10 @@
 [resource]
 script = ExtResource("Script")
 key = &"npc_fire_aura"
-radius = 3.0
+radius = 2.25
 tick_seconds = 0.5
 damage_per_tick = 4.0
 damage_type = 7
 lifetime_seconds = 60.0
 ownership = 1
 owner_loss = 1
-

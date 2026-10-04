@@ -1,5 +1,5 @@
 extends RefCounted
-## Voluntary home delivery reuses ordinary parcel acceptance and pays one distinct bonus.
+## Добровольная доставка использует обычную проверку коробки и однократную отдельную доплату.
 class_name NpcHomeDeliveryService
 
 #region Obligations
@@ -11,6 +11,7 @@ static func offer_for(body: E_DistrictNpc) -> CustomerVisit:
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	if district == null or cycle == null or flow == null or person == null or not person.profile.resident or person.death_day != 0 or cycle.phase not in [C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		return null
+	var active: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 
 	var accepted: int = 0
 	for job: NpcHomeDelivery in district.home_deliveries:
@@ -20,7 +21,13 @@ static func offer_for(body: E_DistrictNpc) -> CustomerVisit:
 		return null
 
 	for visit: CustomerVisit in flow.visits:
-		if visit.customer_id != person.npc_id or visit.customer_dead or visit.actual != CustomerVisit.Actual.NOT_RESOLVED or visit.declaration != CustomerVisit.Declaration.NONE or visit.settlement_committed or visit.complaint != null or not CustomerFlowService.arrival_allowed(visit) or CustomerFlowService.parcel_for(visit.package_id) == null:
+		if visit.customer_id != person.npc_id or visit.customer_dead or visit.home_delivery_declined:
+			continue
+		if (visit.finished and visit.next_followup_day > cycle.day_index) or (active != null and active.visit_id != visit.visit_id):
+			continue
+		if visit.actual != CustomerVisit.Actual.NOT_RESOLVED or visit.declaration != CustomerVisit.Declaration.NONE or visit.settlement_committed or visit.complaint != null:
+			continue
+		if not CustomerFlowService.arrival_allowed(visit) or CustomerFlowService.parcel_for(visit.package_id) == null:
 			continue
 
 		var already_promised: bool = false
@@ -33,6 +40,23 @@ static func offer_for(body: E_DistrictNpc) -> CustomerVisit:
 			if state != null and state.registration == C_PackageState.Registration.REGISTERED and CustomerPresentation.registered_number(visit) > 0:
 				return visit
 	return null
+
+## После отказа получатель сам приходит через 1–3 дня; срок фиксирован для заказа.
+static func decline(body: E_DistrictNpc) -> bool:
+	var visit: CustomerVisit = offer_for(body)
+	var cycle: C_DayCycle = DayPhaseService.current()
+	if visit == null or cycle == null:
+		return false
+
+	var random: RandomNumberGenerator = RandomNumberGenerator.new()
+	random.seed = String(visit.visit_id).hash()
+	visit.home_delivery_declined = true
+	visit.next_followup_day = cycle.day_index + random.randi_range(1, 3)
+	visit.followup_committed = true
+	visit.arrival_day = visit.next_followup_day
+	NpcServiceRole.finish_appearance(body, visit)
+	body.show_message("Тогда зайду сам через %d дн." % (visit.next_followup_day - cycle.day_index))
+	return true
 
 ## Accepts at most the authored limit and suspends the daytime counter appearance.
 static func accept(body: E_DistrictNpc) -> bool:
@@ -50,13 +74,9 @@ static func accept(body: E_DistrictNpc) -> bool:
 	job.order_number = CustomerPresentation.registered_number(visit)
 	job.day_index = cycle.day_index
 	DistrictPopulationService.current().home_deliveries.append(job)
-	CustomerInspectionService.end(body)
-	NpcServiceRole.release(body, visit.visit_id)
-	visit.finished = true
-	visit.finished_day = cycle.day_index
 	visit.next_followup_day = cycle.day_index + 1
 	visit.followup_committed = true
-	person.planned_phase = -1
+	NpcServiceRole.finish_appearance(body, visit)
 	body.show_message("Жду у дома до сна. Адрес: " + DistrictPopulationService.place_name(job.address_id) + " · доплата " + str(visit.payment))
 	return true
 

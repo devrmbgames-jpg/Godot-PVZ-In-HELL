@@ -1,10 +1,10 @@
 extends RefCounted
-## Read-only per-customer debug projection, never owns a visit or timer.
+## Читает состояние обслуживания для отладки; визиты и таймеры принадлежат игровым сервисам.
 class_name CustomerDebugPresentation
 
 const HEALTH_SEGMENTS: int = 10
 const MINIMUM_HEALTH_MAXIMUM: float = 0.001
-const PHASE_NAMES: Array[String] = ["Подходит", "Приветствие", "Диалог", "Ждёт посылку", "Получил заказ", "Осматривает", "Уходит", "Агрессивен", "Закончил", "Ждёт темноты", "Идёт в кабинку", "Осмотр в кабинке", "Возвращается к выдаче"]
+const PHASE_NAMES: Array[String] = ["Подходит", "Приветствие", "Диалог", "Ждёт посылку", "Получил заказ", "Осматривает", "Уходит", "Агрессивен", "Закончил", "Ждёт темноты", "Идёт в кабинку", "Осмотр в кабинке", "Возвращается к выдаче", "В очереди"]
 
 
 static func summary() -> String:

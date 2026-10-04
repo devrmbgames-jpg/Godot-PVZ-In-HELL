@@ -1,6 +1,6 @@
 extends NpcDialogueContext
-## Typed read/action adapter exposed to DialogueManager as the "ctx" game state.
-## Persistent authority remains in CustomerVisit, package state, and gameplay services.
+## Типизированный контекст ctx для DialogueManager: чтение состояния и запросы действий.
+## Постоянные данные принадлежат CustomerVisit, состоянию коробки и игровым сервисам.
 class_name CustomerDialogueContext
 
 const NO_COMPLAINT: int = -1
@@ -147,6 +147,8 @@ func dialogue_cue() -> String:
 		return "voluntary_refusal"
 	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null and not visit.riddle_solved:
 		return "riddle"
+	if can_offer_delivery():
+		return "home_request"
 	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) != null:
 		return "provocation"
 	if (
@@ -193,6 +195,10 @@ func can_offer_delivery() -> bool:
 ## Accepts the optional service through its authoritative owner.
 func accept_home_delivery() -> bool:
 	return _customer is E_DistrictNpc and NpcHomeDeliveryService.accept(_customer as E_DistrictNpc)
+
+## Отказывает в допуслуге; получатель заберёт эту же коробку через 1–3 дня.
+func decline_home_delivery() -> bool:
+	return _customer is E_DistrictNpc and NpcHomeDeliveryService.decline(_customer as E_DistrictNpc)
 
 
 ## Commits a player refusal through the parcel service.

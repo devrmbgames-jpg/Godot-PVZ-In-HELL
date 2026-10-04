@@ -1,5 +1,5 @@
 extends Resource
-## Persistent facts: no live Entity references. Live assignment uses R_AssignedTo.
+## Постоянный журнал заказа без ссылок на Entity; назначение живой коробки хранит R_AssignedTo.
 class_name CustomerVisit
 
 enum Actual { NOT_RESOLVED, DELIVERED, CUSTOMER_REFUSED, PLAYER_DENIED }
@@ -61,6 +61,8 @@ enum Feedback { NONE, APPROVED }
 @export var next_followup_day: int = 0
 ## Explicit "come back later" agreement. While true, finishing this appearance must not roll a complaint.
 @export var followup_committed: bool = false
+## Отказ от предложения домашней доставки; повторный разговор не предлагает её снова.
+@export var home_delivery_declined: bool = false
 @export var last_visit_day: int = 0
 @export var player_denial_count: int = 0
 @export var customer_dead: bool = false

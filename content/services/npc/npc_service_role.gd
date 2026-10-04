@@ -1,5 +1,5 @@
 extends RefCounted
-## Parcel service is a temporary role of a permanent person, with exclusive counter reservation.
+## Обслуживание — временная роль постоянной личности с исключительным резервированием стойки.
 class_name NpcServiceRole
 
 const QUEUE_SPACING: float = 1.3
@@ -9,6 +9,11 @@ const QUEUE_SPACING: float = 1.3
 static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 	if cycle.phase != C_DayCycle.Phase.DAY or flow.arrival_cooldown_seconds > 0.0:
 		return false
+	# Следующий получатель отправляется только после освобождения текущего визита.
+	# Прямой реестр видит изменения внутри текущего CommandBuffer раньше query-кеша.
+	for entity: Entity in ECS.world.entities:
+		if is_instance_valid(entity) and entity.has_component(C_CustomerAgent) and not entity.has_component(C_Death) and NpcHomeDeliveryService.meeting_for(entity) == null:
+			return false
 
 	for visit: CustomerVisit in flow.visits:
 		if visit.started or visit.finished or visit.customer_dead or visit.arrival_day > cycle.day_index or not CustomerFlowService.arrival_allowed(visit):
@@ -32,7 +37,6 @@ static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 			continue
 
 		begin(body, person, visit, cycle.day_index)
-		flow.arrival_cooldown_seconds = flow.schedule.arrival_interval_seconds
 		return true
 	return false
 

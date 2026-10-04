@@ -1,5 +1,5 @@
 extends "res://tests/gut/test_district_population.gd"
-## Persistent person service roles preserve existing cases and serialize queue ownership.
+## Проверяет временное обслуживание постоянных личностей и исключительное владение стойкой.
 
 #region Service fixture
 ## Adds the unchanged parcel journal and a real counter to the population fixture.
@@ -22,6 +22,11 @@ func _case(person: NpcRecord, suffix: String) -> CustomerVisit:
 #endregion
 
 #region Persistent service behavior
+## Отладочная подпись определена для всех фаз обслуживания, включая очередь.
+func test_debug_projection_covers_every_service_phase() -> void:
+	assert_eq(CustomerDebugPresentation.PHASE_NAMES.size(), C_CustomerAgent.Phase.size())
+	assert_eq(CustomerDebugPresentation.PHASE_NAMES[C_CustomerAgent.Phase.QUEUED], "В очереди")
+
 ## Ending a parcel appearance releases its role rather than deleting the person.
 func test_two_cases_use_the_same_living_body() -> void:
 	var person: NpcRecord = _district.people[0]
@@ -62,6 +67,13 @@ func test_counter_reservation_is_exclusive_and_released() -> void:
 func test_planned_shipments_share_lifetime_identity() -> void:
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	var definition: DEF_Package = flow.schedule.supply.packages[0]
+	for day_index: int in [1, 2]:
+		var identity: C_Package = C_Package.new()
+		identity.definition = definition
+		identity.supply_key = flow.schedule.supply.key
+		identity.delivery_day = day_index
+		CustomerFlowService.plan_delivered_package(identity)
 	CustomerFlowService.plan_day(flow, 2, 10)
 	var books: Array[CustomerVisit] = []
 	for visit: CustomerVisit in flow.visits:
@@ -71,4 +83,44 @@ func test_planned_shipments_share_lifetime_identity() -> void:
 	assert_eq(books[0].customer_id, books[1].customer_id)
 	assert_ne(books[0].visit_id, books[1].visit_id)
 	assert_same(DistrictPopulationService.body_for(books[0].customer_id), DistrictPopulationService.body_for(books[1].customer_id))
+
+## Получатель не начинает ждать до освобождения стойки; завершение позволяет следующий визит.
+func test_next_recipient_starts_after_current_is_released() -> void:
+	var flow: C_CustomerFlow = CustomerFlowService.current()
+	flow.schedule = DEF_CustomerSchedule.new()
+	flow.schedule.arrival_interval_seconds = 0.0
+	var cycle: C_DayCycle = DayPhaseService.current()
+	cycle.phase = C_DayCycle.Phase.DAY
+	var first: CustomerVisit = _case(_district.people[0], "sequential_first")
+	var second: CustomerVisit = _case(_district.people[3], "sequential_second")
+	assert_true(NpcServiceRole.enqueue_next(flow, cycle))
+	assert_true(first.started)
+	assert_false(NpcServiceRole.enqueue_next(flow, cycle))
+	assert_false(second.started)
+	NpcServiceRole.finish_appearance(DistrictPopulationService.body_for(first.customer_id), first)
+	assert_true(NpcServiceRole.enqueue_next(flow, cycle))
+	assert_true(second.started)
+	assert_ne(first.customer_id, second.customer_id)
+
+## Смерть текущего освобождает обслуживание для другой постоянной личности.
+func test_current_death_allows_another_recipient() -> void:
+	var flow: C_CustomerFlow = CustomerFlowService.current()
+	flow.schedule = DEF_CustomerSchedule.new()
+	flow.schedule.arrival_interval_seconds = 0.0
+	var cycle: C_DayCycle = DayPhaseService.current()
+	cycle.phase = C_DayCycle.Phase.DAY
+	var first: CustomerVisit = _case(_district.people[0], "dead_first")
+	var second: CustomerVisit = _case(_district.people[3], "live_second")
+	assert_true(NpcServiceRole.enqueue_next(flow, cycle))
+	DistrictPopulationService.mark_dead(_district.people[0], DistrictPopulationService.body_for(first.customer_id), 1)
+	assert_true(first.customer_dead)
+	assert_true(NpcServiceRole.enqueue_next(flow, cycle))
+	assert_true(second.started)
+
+## Бесконечное утро без поставки не создаёт ожидающих визитов и ложных потерь.
+func test_calendar_without_boxes_does_not_create_district_cases() -> void:
+	var flow: C_CustomerFlow = CustomerFlowService.current()
+	flow.schedule = DEF_CustomerSchedule.new()
+	CustomerFlowService.plan_day(flow, 20, 10)
+	assert_eq(flow.visits.size(), 0)
 #endregion

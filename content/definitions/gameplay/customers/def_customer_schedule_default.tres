@@ -135,8 +135,13 @@ script = ExtResource("Event")
 package_key = &"oil"
 customer = ExtResource("LightCustomer")
 
+[sub_resource type="Resource" id="CellsEvent"]
+script = ExtResource("Event")
+package_key = &"power_cells"
+customer = SubResource("Ordinary")
+
 [resource]
 script = ExtResource("Schedule")
-events = Array[ExtResource("Event")]([SubResource("Books"), SubResource("Glass"), SubResource("Clothes"), SubResource("Equipment"), SubResource("GazeEvent"), SubResource("FloorEvent"), SubResource("LightEvent")])
+events = Array[ExtResource("Event")]([SubResource("Books"), SubResource("Glass"), SubResource("Clothes"), SubResource("Equipment"), SubResource("GazeEvent"), SubResource("FloorEvent"), SubResource("LightEvent"), SubResource("CellsEvent")])
 customer_scene = ExtResource("Scene")
 key = &"warehouse_customers"

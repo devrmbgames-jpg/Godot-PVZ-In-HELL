@@ -1,5 +1,5 @@
 extends NpcDialogueContext
-## Street conversation adapter using the existing modal renderer and stable personal memory.
+## Контекст уличного разговора для существующего диалогового UI и постоянной личной памяти.
 class_name NpcStreetDialogueContext
 
 var _speaker: E_DistrictNpc = null
@@ -22,6 +22,10 @@ func can_offer_delivery() -> bool:
 ## Accepts a voluntary promise through its domain service.
 func accept_home_delivery() -> bool:
 	return _speaker != null and NpcHomeDeliveryService.accept(_speaker)
+
+## Переносит самостоятельное получение на 1–3 дня после отказа от доставки.
+func decline_home_delivery() -> bool:
+	return _speaker != null and NpcHomeDeliveryService.decline(_speaker)
 #endregion
 
 #region Conversation lifecycle
@@ -58,6 +62,8 @@ func can_continue() -> bool:
 ## Selects the intrinsic provocateur branch when appropriate.
 func dialogue_cue() -> String:
 	var person: NpcRecord = DistrictPopulationService.person_for(_person_id)
+	if can_offer_delivery():
+		return "delivery_request"
 	return "provocation" if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) != null else "street"
 
 ## Readable persistent person name.

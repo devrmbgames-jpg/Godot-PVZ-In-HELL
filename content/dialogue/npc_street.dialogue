@@ -35,3 +35,13 @@
 $> ctx.accept_home_delivery()
 {{ctx.speaker_name()}}: Договорились. Принеси настоящую коробку к моему адресу до сна. Доплачу за доставку.
 => END
+
+~ delivery_request
+{{ctx.speaker_name()}}: Вы можете принести мне посылку домой сегодня вечером? Доплачу за доставку.
+- Да, принесу до сна. => delivery_offer
+- Нет, приходите за ней сами. => delivery_declined
+
+~ delivery_declined
+{{ctx.speaker_name()}}: Хорошо, тогда зайду сам через несколько дней.
+$> ctx.decline_home_delivery()
+=> END

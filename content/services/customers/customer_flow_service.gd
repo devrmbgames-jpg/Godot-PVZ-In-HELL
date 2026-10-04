@@ -1,5 +1,5 @@
 extends RefCounted
-## Live scheduling/assignment boundary. Invoked outside query iteration via command buffer.
+## Владеет обслуживанием посылок и визитами; изменения выполняет вне обхода GECS через CommandBuffer.
 class_name CustomerFlowService
 
 
@@ -58,9 +58,14 @@ static func waiting_customer() -> E_Customer:
 	return null
 
 
+## В районе заказы добавляет реальная поставка; старые изолированные сцены используют календарь.
 static func plan_day(flow: C_CustomerFlow, day: int, payment: int) -> void:
 	var schedule: DEF_CustomerSchedule = flow.schedule
 	if schedule == null or schedule.supply == null:
+		return
+
+	if DistrictPopulationService.current() != null:
+		flow.planned_through_day = maxi(flow.planned_through_day, day)
 		return
 
 	while flow.planned_through_day < day:
@@ -74,34 +79,50 @@ static func plan_day(flow: C_CustomerFlow, day: int, payment: int) -> void:
 				if definition.key != event.package_key:
 					continue
 
-				var package_id: String = "%s:%d:%s" % [schedule.supply.key, supply_day, definition.key]
-				var visit_id: StringName = StringName("visit/" + package_id)
-				var already_planned: bool = false
-				for existing: CustomerVisit in flow.visits:
-					if existing.visit_id == visit_id:
-						already_planned = true
-				if already_planned:
-					continue
+				_plan_package(flow, definition, event, supply_day, payment)
 
-				var district: C_District = DistrictPopulationService.current()
-				var recipient: NpcRecord = DistrictPopulationService.recipient_for(definition.recipient_id) if district != null else null
-				if district != null and recipient == null:
-					continue
 
-				var visit: CustomerVisit = CustomerVisit.new()
-				visit.visit_id = visit_id
-				visit.package_id = package_id
-				visit.customer_id = recipient.npc_id if recipient != null else StringName("%s:%d" % [definition.recipient_id, supply_day])
-				visit.definition = event.customer
-				visit.requires_registered_package = event.requires_registered_package
-				visit.arrival_day = supply_day + event.arrival_delay_days
-				visit.accounting_value = definition.accounting_value
-				visit.payment = payment
-				var random: RandomNumberGenerator = RandomNumberGenerator.new()
-				random.seed = String(visit_id).hash()
-				visit.complaint_roll = random.randf()
-				visit.aggression_roll = random.randf()
-				flow.visits.append(visit)
+## Фиксирует визит для реально привезённой коробки, без повторного заказа при повторе команды.
+static func plan_delivered_package(identity: C_Package) -> CustomerVisit:
+	var flow: C_CustomerFlow = current()
+	if flow == null or flow.schedule == null or flow.schedule.supply == null or identity.definition == null or identity.supply_key != flow.schedule.supply.key:
+		return null
+
+	var wallet: C_Wallet = WalletService.current()
+	var payment: int = wallet.policy.delivery_payment if wallet != null and wallet.policy != null else 0
+	for event: DEF_CustomerEvent in flow.schedule.events:
+		if event.package_key == identity.definition.key and event.customer != null and event.arrival_delay_days >= 0:
+			return _plan_package(flow, identity.definition, event, identity.delivery_day, payment)
+	return null
+
+
+static func _plan_package(flow: C_CustomerFlow, definition: DEF_Package, event: DEF_CustomerEvent, supply_day: int, payment: int) -> CustomerVisit:
+	var package_id: String = "%s:%d:%s" % [flow.schedule.supply.key, supply_day, definition.key]
+	var visit_id: StringName = StringName("visit/" + package_id)
+	for existing: CustomerVisit in flow.visits:
+		if existing.visit_id == visit_id:
+			return existing
+
+	var district: C_District = DistrictPopulationService.current()
+	var recipient: NpcRecord = DistrictPopulationService.recipient_for(definition.recipient_id) if district != null else null
+	if district != null and recipient == null:
+		return null
+
+	var visit: CustomerVisit = CustomerVisit.new()
+	visit.visit_id = visit_id
+	visit.package_id = package_id
+	visit.customer_id = recipient.npc_id if recipient != null else StringName("%s:%d" % [definition.recipient_id, supply_day])
+	visit.definition = event.customer
+	visit.requires_registered_package = event.requires_registered_package
+	visit.arrival_day = supply_day + event.arrival_delay_days
+	visit.accounting_value = definition.accounting_value
+	visit.payment = payment
+	var random: RandomNumberGenerator = RandomNumberGenerator.new()
+	random.seed = String(visit_id).hash()
+	visit.complaint_roll = random.randf()
+	visit.aggression_roll = random.randf()
+	flow.visits.append(visit)
+	return visit
 
 
 static func remaining(flow: C_CustomerFlow, day: int) -> int:

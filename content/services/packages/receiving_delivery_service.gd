@@ -1,10 +1,85 @@
 extends RefCounted
-## Receiving batch lifecycle and one-package delivery transaction.
+## Фиксирует ограниченную утреннюю поставку и создаёт коробки с реальными заказами.
 class_name ReceivingDeliveryService
 
 const BLOCKED_RETRY_SECONDS: float = 0.25
 
+#region Daily supply
+## Фиксирует ограниченную партию дня; непривезённый остаток не копится между утрами.
+static func prepare_batch(supply: DEF_Delivery, receiving: C_Receiving, day_index: int) -> void:
+	if supply == null or receiving.last_started_day >= day_index:
+		return
 
+	receiving.pending.clear()
+	receiving.last_started_day = day_index
+	receiving.blocked = false
+	var available: int = maxi(0, supply.maximum_waiting_packages - waiting_count())
+	var limit: int = mini(supply.maximum_batch_packages, available)
+	if limit == 0 or supply.packages.is_empty():
+		return
+
+	var batch: ReceivingBatch = ReceivingBatch.new()
+	batch.day_index = day_index
+	var start_index: int = ((day_index - 1) * supply.maximum_batch_packages) % supply.packages.size()
+	for offset: int in supply.packages.size():
+		var definition: DEF_Package = supply.packages[(start_index + offset) % supply.packages.size()]
+		if definition == null or not _has_recipient(definition):
+			continue
+		batch.package_keys.append(String(definition.key))
+		if batch.package_keys.size() >= limit:
+			break
+	if not batch.package_keys.is_empty():
+		receiving.pending.append(batch)
+
+
+## Считает физические коробки с будущим получением; терминальные случаи и мёртвые исключены.
+static func waiting_count() -> int:
+	if not is_instance_valid(ECS.world):
+		return 0
+
+	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var cases: Dictionary[String, CustomerVisit] = {}
+	if flow != null:
+		for visit: CustomerVisit in flow.visits:
+			cases[visit.package_id] = visit
+	var count: int = 0
+	for parcel: Entity in ECS.world.query.with_all([C_Package, C_PackageState]).execute():
+		var identity: C_Package = parcel.get_component(C_Package) as C_Package
+		var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
+		if state.registration >= C_PackageState.Registration.DELIVERED or identity.definition == null:
+			continue
+		var visit: CustomerVisit = cases.get(identity.package_id) as CustomerVisit
+		if visit != null:
+			var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
+			if visit.customer_dead or (person != null and person.death_day != 0):
+				continue
+			if visit.actual != CustomerVisit.Actual.NOT_RESOLVED or visit.declaration != CustomerVisit.Declaration.NONE or visit.settlement_committed or visit.complaint != null:
+				continue
+			if (visit.definition != null and visit.definition.voluntary_refusal) or (visit.finished and visit.next_followup_day == 0):
+				continue
+		elif not _has_recipient(identity.definition):
+			continue
+		count += 1
+	return count
+
+
+static func _has_recipient(definition: DEF_Package) -> bool:
+	if DistrictPopulationService.current() == null:
+		return true
+	if DistrictPopulationService.recipient_for(definition.recipient_id) == null:
+		return false
+
+	var flow: C_CustomerFlow = CustomerFlowService.current()
+	if flow == null or flow.schedule == null:
+		return false
+	for event: DEF_CustomerEvent in flow.schedule.events:
+		if event.package_key == definition.key and event.customer != null and event.arrival_delay_days >= 0:
+			return true
+	return false
+#endregion
+
+#region Physical delivery
+## Создаёт одну коробку из зафиксированной партии, сохраняя возможность повтора при занятой зоне.
 static func deliver_one(
 	zone: E_ReceivingZone,
 	receiving: C_Receiving,
@@ -12,23 +87,26 @@ static func deliver_one(
 ) -> void:
 	if not is_instance_valid(zone) or zone.supply == null:
 		return
-	if receiving.last_started_day < day_index:
-		var batch: ReceivingBatch = ReceivingBatch.new()
-		batch.day_index = day_index
-		receiving.pending.append(batch)
-		receiving.last_started_day = day_index
+	prepare_batch(zone.supply, receiving, day_index)
 	if receiving.pending.is_empty():
 		return
 	if receiving.last_spawn_tick == Engine.get_physics_frames():
 		return
 
 	var batch: ReceivingBatch = receiving.pending[0]
-	if batch.next_package >= zone.supply.packages.size():
+	if batch.next_package >= batch.package_keys.size() or waiting_count() >= zone.supply.maximum_waiting_packages:
 		receiving.pending.pop_front()
 		receiving.blocked = false
 		return
 
-	var definition: DEF_Package = zone.supply.packages[batch.next_package]
+	var definition: DEF_Package = null
+	for candidate: DEF_Package in zone.supply.packages:
+		if String(candidate.key) == batch.package_keys[batch.next_package]:
+			definition = candidate
+			break
+	if definition == null:
+		_advance(receiving, batch)
+		return
 	var package_id: String = "%s:%d:%s" % [zone.supply.key, batch.day_index, definition.key]
 	if ReceivingPackageFactory.exists(package_id):
 		_advance(receiving, batch)
@@ -67,6 +145,7 @@ static func deliver_one(
 		return
 
 	receiving.last_spawn_tick = Engine.get_physics_frames()
+	CustomerFlowService.plan_delivered_package(identity)
 	_advance(receiving, batch)
 
 
@@ -74,3 +153,4 @@ static func _advance(receiving: C_Receiving, batch: ReceivingBatch) -> void:
 	batch.next_package += 1
 	receiving.delivered_counts[batch.day_index] = batch.next_package
 	receiving.blocked = false
+#endregion

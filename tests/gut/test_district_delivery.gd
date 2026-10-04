@@ -1,5 +1,5 @@
 extends "res://tests/gut/test_district_service.gd"
-## Home promises conserve boxes, return unfinished cases and settle payments once.
+## Проверяет сохранность коробок, возвращение отложенных заказов и однократную оплату доставки.
 
 var _player: Entity = null
 
@@ -51,6 +51,37 @@ func _door(address_id: StringName) -> Entity:
 #endregion
 
 #region Obligations and money
+## Отказ переносит тот же заказ на 1–3 дня, освобождая очередь без обещания и штрафа.
+func test_declined_home_delivery_returns_once_after_one_to_three_days() -> void:
+	DayPhaseService.current().phase = C_DayCycle.Phase.DAY
+	var person: NpcRecord = _district.people[0]
+	var visit: CustomerVisit = _delivery_case(person, "home_decline")
+	visit.definition = load("res://content/definitions/gameplay/customers/def_customer_prototype.tres") as DEF_Customer
+	visit.riddle_solved = true
+	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
+	NpcServiceRole.begin(body, person, visit, 1)
+	var context: CustomerDialogueContext = CustomerDialogueContext.new(_player, body)
+	assert_eq(context.dialogue_cue(), "home_request")
+	assert_true(NpcHomeDeliveryService.decline(body))
+	assert_between(visit.next_followup_day, 2, 4)
+	var expected_day: int = visit.next_followup_day
+	assert_true(visit.finished)
+	assert_true(visit.home_delivery_declined)
+	assert_false(body.has_component(C_CustomerAgent))
+	assert_eq(_district.home_deliveries.size(), 0)
+	assert_null(visit.complaint)
+	assert_eq(CustomerFlowService.reactivate_due_followups(CustomerFlowService.current(), expected_day - 1), 0)
+	assert_eq(CustomerFlowService.reactivate_due_followups(CustomerFlowService.current(), expected_day), 1)
+	assert_false(visit.finished)
+	assert_eq(visit.arrival_day, expected_day)
+	assert_false(NpcHomeDeliveryService.decline(body))
+	assert_null(NpcHomeDeliveryService.offer_for(body))
+	var copy: CustomerVisit = CustomerVisit.new()
+	var fields: Dictionary = (SaveDataCodec.encode(visit) as Dictionary).fields as Dictionary
+	assert_true(SaveDataCodec.apply_fields(copy, fields))
+	assert_true(copy.home_delivery_declined)
+	assert_eq(copy.arrival_day, expected_day)
+
 ## Acceptance quota applies to the entire day, independent of open panels or elapsed time.
 func test_two_optional_jobs_and_night_failure_keep_physical_boxes() -> void:
 	var first: CustomerVisit = _delivery_case(_district.people[0], "home_first")

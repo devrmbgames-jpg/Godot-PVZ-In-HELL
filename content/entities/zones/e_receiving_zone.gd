@@ -1,5 +1,6 @@
 @tool
 extends Entity
+## Авторская зона приёмки: точки размещения коробок и отображение состояния поставки.
 class_name E_ReceivingZone
 
 @export var supply: DEF_Delivery = null
@@ -24,6 +25,6 @@ func _process(_delta: float) -> void:
 	_sign_label.text = "ПРИЁМКА · цикл %d\nПоставка: %d / %d%s" % [
 		cycle.day_index,
 		receiving.delivered_counts.get(cycle.day_index, 0),
-		supply.packages.size(),
+		mini(supply.maximum_batch_packages, supply.packages.size()),
 		"\nОсвободите место для оставшихся коробок" if receiving.blocked else "",
 	]
