@@ -1,4 +1,5 @@
 extends GutTest
+## Проверяет авторские группы ламп, синхронизацию цепи и временное мерцание.
 
 var _world: World = null
 var _actor: Entity = null
@@ -6,6 +7,8 @@ var _switch: Entity = null
 var _state: C_LightCircuit = null
 
 
+#region Тестовое окружение
+## Создаёт цепь из prefab выключателя и систему синхронизации/observer мерцания.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -21,6 +24,7 @@ func before_each() -> void:
 	_state = _switch.get_component(C_LightCircuit) as C_LightCircuit
 
 
+## Удаляет World и очищает сохранённые ссылки на цепь и участников.
 func after_each() -> void:
 	_world.free()
 	ECS.world = null
@@ -37,6 +41,10 @@ func _light(group_id: StringName) -> OmniLight3D:
 	return light
 
 
+#endregion
+
+#region Авторская цепь
+## Переключение меняет состояние цепи и только её авторские группы ламп.
 func test_toggle_updates_circuit_and_only_its_authored_light_groups() -> void:
 	var light: OmniLight3D = _light(&"warehouse_lights")
 	var unrelated: OmniLight3D = _light(&"outside_lights")
@@ -49,6 +57,7 @@ func test_toggle_updates_circuit_and_only_its_authored_light_groups() -> void:
 	assert_true(LightCircuitService.is_enabled(&"warehouse"))
 
 
+## Восстановленная отключённая цепь синхронизирует и поздно добавленные лампы.
 func test_restored_disabled_state_and_late_lights_are_synchronized() -> void:
 	_state.enabled = false
 	_world.process(1.0 / 60.0)
@@ -58,6 +67,7 @@ func test_restored_disabled_state_and_late_lights_are_synchronized() -> void:
 	assert_false(_state.enabled)
 
 
+## Несколько групп отключаются совместно, а участники без Light3D безопасно пропускаются.
 func test_multiple_groups_and_non_light_members_are_safe() -> void:
 	_state.light_groups.append(&"counter_lights")
 	var first: OmniLight3D = _light(&"warehouse_lights")
@@ -70,6 +80,7 @@ func test_multiple_groups_and_non_light_members_are_safe() -> void:
 	assert_false(second.visible)
 
 
+## Отключённый или удалённый выключатель недоступен для действия.
 func test_disabled_or_removed_switch_cannot_be_activated() -> void:
 	var action: DEF_LightSwitchAction = DEF_LightSwitchAction.new()
 	assert_true(action.is_available(_actor, _switch, _switch))
@@ -83,6 +94,10 @@ func test_disabled_or_removed_switch_cannot_be_activated() -> void:
 	assert_false(LightCircuitService.toggle(null))
 
 
+#endregion
+
+#region Временное мерцание
+## Мерцание не меняет enabled цепи; явное выключение отменяет текущую просьбу мерцания.
 func test_flicker_subscriber_changes_visual_only_and_switch_off_wins() -> void:
 	var light: OmniLight3D = _light(&"warehouse_lights")
 	var view: CircuitLightView = CircuitLightView.new()
@@ -106,6 +121,7 @@ func test_flicker_subscriber_changes_visual_only_and_switch_off_wins() -> void:
 	assert_true(light.visible, "Switching on must not resume the stale request")
 
 
+## Мерцание истекает по времени и не затрагивает чужую цепь.
 func test_flicker_expires_and_does_not_affect_other_circuits() -> void:
 	var light: OmniLight3D = _light(&"warehouse_lights")
 	var view: CircuitLightView = CircuitLightView.new()
@@ -127,3 +143,5 @@ func test_flicker_expires_and_does_not_affect_other_circuits() -> void:
 	view._process(0.2)
 	assert_true(light.visible)
 	assert_true(_state.enabled)
+
+#endregion

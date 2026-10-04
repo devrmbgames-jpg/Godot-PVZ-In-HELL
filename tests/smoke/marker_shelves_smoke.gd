@@ -1,13 +1,15 @@
 extends Node
-## Real physics-ray regression for hand mapping, marker ink, occlusion and lifecycle.
+## Проверяет сопоставление рук, физические лучи рисования, локальные чернила и хранение коробки на полке.
 
 const STEP: float = 1.0 / 60.0
 
 
+#region Исторический сценарий рисования
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проводит исторический сценарий рисования, хранения и разрушения коробки в main_level.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
@@ -189,6 +191,10 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Тестовое рисование и полка
+## Рисует тестовую семёрку через обычный ввод маркера и экранные координаты.
 func _draw_seven(actor: Entity, marker: C_Marker, parcel_body: Node3D, camera: Camera3D) -> void:
 	_drive(actor, false, false)
 	var corners: Array[Vector3] = [
@@ -203,6 +209,7 @@ func _draw_seven(actor: Entity, marker: C_Marker, parcel_body: Node3D, camera: C
 			_drive(actor, true, false)
 
 
+## Проверяет реальную опору и сохранение чернил; --preview отдельно включает визуальный снимок.
 func _store_on_shelf(
 	level: Node,
 	actor: Entity,
@@ -269,3 +276,5 @@ func _drive(actor: Entity, primary: bool, secondary: bool) -> void:
 	controller.action_second_held = secondary
 	controller.action_second_pressed = secondary
 	ECS.world.process(STEP, "Interaction")
+
+#endregion

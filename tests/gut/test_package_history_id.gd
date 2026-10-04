@@ -1,6 +1,8 @@
 extends GutTest
+## Проверяет обратимость диагностического ID коробки и отклонение недопустимых полей.
 
 
+## Кодирование сохраняет день, номер, классы и массу в десятых килограмма.
 func test_history_id_round_trips_diagnostic_fields() -> void:
 	var identity: PackageHistoryId = PackageHistoryId.new()
 	identity.day_index = 12
@@ -23,6 +25,7 @@ func test_history_id_round_trips_diagnostic_fields() -> void:
 	assert_almost_eq(decoded.decoded_mass_kg(), 30.0, 0.001)
 
 
+## Неверные классы, код массы и выход за диапазон не дают допустимый ID.
 func test_history_id_rejects_non_reversible_values() -> void:
 	assert_null(PackageHistoryId.parse("12-07-ZL08C"))
 	assert_null(PackageHistoryId.parse("12-07-TQ08C"))

@@ -1,5 +1,5 @@
 extends Node
-## Narrow real primitive-map wiring check, separate from the owner's full-slice playtest.
+## Узкий сценарий связей primitive_test_level: разрушение дверей, вскрытие и опора выпавшей полки.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const SETTLE_FRAMES: int = 180
@@ -11,6 +11,7 @@ func _ready() -> void:
 	_run.call_deferred()
 
 
+## На primitive_test_level проверяет разрушение замка/полотна и реальные выпавшие тела.
 func _run() -> void:
 	_level = (load("res://content/scenes/primitive_test_level.tscn") as PackedScene).instantiate()
 	_level.set("autosave_path", "")

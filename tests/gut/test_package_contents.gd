@@ -1,5 +1,5 @@
 extends GutTest
-## Authored contents through real opening, physical support, inventory and snapshots.
+## Проверяет авторское содержимое коробок через реальное вскрытие, физику, инвентарь и snapshot.
 
 var _root: Node3D
 var _world: World
@@ -7,6 +7,8 @@ var _actor: E_RigidBodyCharacter
 var _ray: RayCast3D
 
 
+#region Физическое тестовое окружение
+## Создаёт физическую опору, игрока и observers вскрытия, содержимого и инвентаря.
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
@@ -61,6 +63,7 @@ func before_each() -> void:
 	_world.add_entity(_actor)
 
 
+## Удаляет World с физическими участниками и очищает ECS.world.
 func after_each() -> void:
 	_world.purge(false)
 	_root.free()
@@ -87,6 +90,10 @@ func _open(parcel: E_Package) -> void:
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
 
 
+#endregion
+
+#region Вскрытие, использование и snapshot
+## Вскрытие обновляет массу переносимого груза, сохраняя живой хват коробки.
 func test_opening_held_package_refreshes_empty_carry_mass_without_releasing() -> void:
 	var parcel: E_Package = _package("bread")
 	var body: RigidBody3D = parcel as Node as RigidBody3D
@@ -106,6 +113,7 @@ func test_opening_held_package_refreshes_empty_carry_mass_without_releasing() ->
 	GrabService.release(_actor, parcel)
 
 
+## Пять физических порций объединяются в инвентаре; расход и повторное событие не возрождают содержимое.
 func test_bread_box_produces_five_individual_usable_items_once() -> void:
 	var parcel: E_Package = _package("bread")
 	await _open(parcel)
@@ -134,6 +142,7 @@ func test_bread_box_produces_five_individual_usable_items_once() -> void:
 	assert_false(PackageOpening.request_open(_actor, parcel))
 
 
+## Коробка создаёт пять аптечек; успешное лечение расходует выбранный предмет.
 func test_med_box_produces_five_medkits_and_consumes_only_successful_healing() -> void:
 	await _open(_package("medkits"))
 	var items: Array[Entity] = _world.query.with_all([C_InventoryItem]).execute()
@@ -152,6 +161,7 @@ func test_med_box_produces_five_medkits_and_consumes_only_successful_healing() -
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 4)
 
 
+## Snapshot восстанавливает пустую оболочку и существующее содержимое без повторного выпадения.
 func test_released_contents_and_inventory_state_restore_without_duplication() -> void:
 	var parcel: E_Package = _package("bread")
 	await _open(parcel)
@@ -167,6 +177,9 @@ func test_released_contents_and_inventory_state_restore_without_duplication() ->
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
 
 
+#endregion
+
+#region Авторский ассортимент и опасности
 func _catalog_package(definition: DEF_Package) -> E_Package:
 	var scene: PackedScene = load(definition.scene_variants[0]) as PackedScene
 	var parcel: E_Package = scene.instantiate() as E_Package
@@ -185,6 +198,7 @@ func _supply_definition(key: StringName) -> DEF_Package:
 	return null
 
 
+## Каждый авторский тип выпускает реальные тела однократно и оставляет лёгкую оболочку без протечки.
 func test_every_supply_type_has_real_one_shot_contents_and_leaves_empty_light_shell() -> void:
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ToxicAreaSetup.new())
@@ -204,6 +218,7 @@ func test_every_supply_type_has_real_one_shot_contents_and_leaves_empty_light_sh
 		assert_true(PackageContentsService.release(parcel).is_empty())
 
 
+## Токсичная зона следует за вынутой бутылкой; пустая коробка не создаёт новые опасности.
 func test_toxic_effect_follows_extracted_bottle_and_empty_shell_has_no_hazards_or_leaks() -> void:
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ToxicAreaSetup.new())
@@ -230,6 +245,7 @@ func test_toxic_effect_follows_extracted_bottle_and_empty_shell_has_no_hazards_o
 	assert_eq(HazardFollowService.binding(effect).target, contents[0])
 
 
+## Вынутый источник питания взрывается по урону один раз, а пустая упаковка не взрывается.
 func test_extracted_power_cell_can_explode_but_its_empty_package_cannot() -> void:
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ExplosionSetup.new())
@@ -252,6 +268,10 @@ func test_extracted_power_cell_can_explode_but_its_empty_package_cannot() -> voi
 	assert_false(HazardEmitter.activate(contents[0], _actor))
 
 
+#endregion
+
+#region Физическое хранение и оборудование
+## Инвентарь выключает физику хранимого предмета; выброс создаёт активное физическое тело.
 func test_inventory_freezes_real_pickup_and_drop_spawns_live_rigid_body() -> void:
 	var parcel: E_Package = _package("bread")
 	await _open(parcel)
@@ -277,6 +297,7 @@ func test_inventory_freezes_real_pickup_and_drop_spawns_live_rigid_body() -> voi
 	assert_eq(dropped.collision_layer, 8)
 
 
+## Авторская опасность вскрытия использует штатный emitter и не повторяется от дублирующего события.
 func test_authored_opening_hazard_uses_existing_emitter_and_deduplicates_hook() -> void:
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ExplosionSetup.new())
@@ -295,6 +316,7 @@ func test_authored_opening_hazard_uses_existing_emitter_and_deduplicates_hook() 
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 5)
 
 
+## Выпавшая полка имеет реальную опору и крепится молотком; фиксация сохраняется в snapshot.
 func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hammer() -> void:
 	await _open(_package("small_shelf"))
 	var shelf: Entity = _world.query.with_all([C_Anchorable]).execute_one()
@@ -331,3 +353,5 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	assert_true(shelf.has_component(C_PlayerAnchored))
 	assert_true(body.freeze)
+
+#endregion

@@ -1,8 +1,10 @@
 extends GutTest
-## Minimal real ownership and pure motion proposals; no scene/physics simulation.
+## Проверяет доступ по живому владению ключом и предложения движения отдельно от физического исполнения.
 
 
+## Тестовый поставщик разрешает оценку доступа, но отказывает при фиксации расхода.
 class RefusingConsumption extends DEF_HeldItemAccess:
+	## Возвращает отказ без удаления ключа или изменения его владения.
 	func consume(_actor: Entity, _item: Entity) -> bool:
 		return false
 
@@ -13,6 +15,8 @@ var _state: C_Openable
 var _requirement: DEF_AccessRequirement
 
 
+#region Тестовое окружение и ключ
+## Создаёт закрытый замок и авторское требование ключа в отдельном World.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -27,6 +31,7 @@ func before_each() -> void:
 	_state = _target.get_component(C_Openable) as C_Openable
 
 
+## Удаляет World и освобождает глобальную ссылку ECS.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -57,6 +62,10 @@ func _key(slot: C_Grabbable.HoldSlot = C_Grabbable.HoldSlot.LEFT_HAND) -> Entity
 	return item
 
 
+#endregion
+
+#region Доступ и расходование
+## ID и все обязательные теги должны принадлежать одному подходящему предмету.
 func test_id_and_all_tags_must_match_one_item() -> void:
 	var identity: C_AccessItem = C_AccessItem.new()
 	identity.item_id = &"warehouse_key"
@@ -71,6 +80,7 @@ func test_id_and_all_tags_must_match_one_item() -> void:
 	assert_true(ItemAccessService.matches(identity, _requirement), "Tags alone are supported")
 
 
+## Ключ в любой руке даёт доступ по Relationship; устаревший кеш руки не даёт.
 func test_either_hand_grants_access_but_stale_cache_does_not() -> void:
 	for slot: C_Grabbable.HoldSlot in [C_Grabbable.HoldSlot.LEFT_HAND, C_Grabbable.HoldSlot.RIGHT_HAND]:
 		var item: Entity = _key(slot)
@@ -79,6 +89,7 @@ func test_either_hand_grants_access_but_stale_cache_does_not() -> void:
 		assert_false(ItemAccessService.evaluate(_actor, _requirement).is_allowed())
 
 
+## Отпирание требует ключ, не открывает дверь и не перемещает физическое тело.
 func test_unlock_does_not_open_and_no_key_is_not_available() -> void:
 	var action: DEF_OpenableAction = DEF_OpenableAction.new()
 	action.operation = OpenableService.Operation.UNLOCK
@@ -94,6 +105,7 @@ func test_unlock_does_not_open_and_no_key_is_not_available() -> void:
 	assert_eq(_state.actual_fraction, 0.0, "Requesting motion never teleports the body")
 
 
+## После удаления ключа действие повторно проверяет доступ и оставляет замок закрытым.
 func test_key_removed_after_prompt_cannot_unlock() -> void:
 	var item: Entity = _key()
 	assert_true(OpenableService.can_request(_actor, _target, OpenableService.Operation.UNLOCK))
@@ -102,6 +114,7 @@ func test_key_removed_after_prompt_cannot_unlock() -> void:
 	assert_true(_state.locked)
 
 
+## Расходование включается явно и удаляет только выбранный подходящий ключ.
 func test_consumption_is_opt_in_and_removes_only_matching_item() -> void:
 	var left: Entity = _key()
 	var right: Entity = _key(C_Grabbable.HoldSlot.RIGHT_HAND)
@@ -114,6 +127,7 @@ func test_consumption_is_opt_in_and_removes_only_matching_item() -> void:
 	assert_true(GrabService.entity_available(right))
 
 
+## Пустое требование с расходованием отклоняется, не забирая произвольный предмет.
 func test_empty_consuming_requirement_never_consumes_arbitrary_item() -> void:
 	_key()
 	_requirement.required_item_id = &""
@@ -122,6 +136,7 @@ func test_empty_consuming_requirement_never_consumes_arbitrary_item() -> void:
 	assert_false(OpenableService.request(_actor, _target, OpenableService.Operation.UNLOCK))
 
 
+## Отказ поставщика расходовать ключ оставляет замок и владение предметом неизменными.
 func test_provider_refusal_keeps_lock_and_item_unchanged() -> void:
 	var item: Entity = _key()
 	var config: C_ItemAccess = C_ItemAccess.new()
@@ -135,6 +150,10 @@ func test_provider_refusal_keeps_lock_and_item_unchanged() -> void:
 	assert_not_null(GrabService.held_relationship(item))
 
 
+#endregion
+
+#region Запрос и фактическое движение
+## Предложение движения ограничено диапазоном; реальная доля меняется только отчётом физического исполнителя.
 func test_motion_proposal_is_bounded_and_does_not_advance_blocked_state() -> void:
 	_state.locked = false
 	_state.motion = DEF_OpenableMotion.new()
@@ -153,6 +172,7 @@ func test_motion_proposal_is_bounded_and_does_not_advance_blocked_state() -> voi
 	assert_eq(OpenableService.proposed_fraction(_state, 1.0), 0.3)
 
 
+## Один контракт интерполяции поддерживает сдвиг ящика и поворот двери.
 func test_same_motion_contract_supports_translation_and_rotation() -> void:
 	var motion: DEF_OpenableMotion = DEF_OpenableMotion.new()
 	motion.open_transform.origin = Vector3(0.0, 0.0, 0.6)
@@ -160,3 +180,5 @@ func test_same_motion_contract_supports_translation_and_rotation() -> void:
 	motion.open_transform = Transform3D(Basis(Vector3.UP, PI / 2.0), Vector3.ZERO)
 	var halfway: Transform3D = OpenableService.local_transform(motion, 0.5)
 	assert_almost_eq(halfway.basis.get_euler().y, PI / 4.0, 0.0001)
+
+#endregion
