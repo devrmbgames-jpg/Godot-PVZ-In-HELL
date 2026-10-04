@@ -1,11 +1,11 @@
 extends "res://tests/gut/test_district_population.gd"
-## Real lighting, world replacement and fair route scheduling preserve behavior after optimization.
+## Регрессии оптимизации: авторский свет, смена World, жизненный цикл кешей и ограниченная очередь маршрутов.
 
 var _native_map: RID = RID()
 var _native_region: RID = RID()
 
-#region Fixtures
-## Releases the native test map before the inherited world fixture.
+#region Тестовое окружение
+## Освобождает RID тестовой карты/региона перед очисткой унаследованной World-fixture.
 func after_each() -> void:
 	if _native_region.is_valid():
 		NavigationServer3D.free_rid(_native_region)
@@ -71,8 +71,8 @@ func _circuit() -> Entity:
 	return circuit
 #endregion
 
-#region Lookup lifecycle
-## A replacement component and a removed body cannot leave stale singleton/cache results.
+#region Жизненный цикл lookup
+## Замена районного компонента и удаление тела обновляют lookup без старых результатов кеша.
 func test_replaced_session_and_removed_body_refresh_lookups() -> void:
 	assert_same(DistrictPopulationService.current(), _district)
 	var old_body: E_DistrictNpc = DistrictPopulationService.body_for(_district.people[0].npc_id)
@@ -84,7 +84,7 @@ func test_replaced_session_and_removed_body_refresh_lookups() -> void:
 	session.add_component(replacement)
 	assert_same(DistrictPopulationService.current(), replacement)
 
-## Caches are scene-local even when two worlds live at once during restoration.
+## При одновременном существовании двух World кеши возвращают только данные активного уровня.
 func test_world_switch_never_reuses_previous_session_or_circuit() -> void:
 	var old_circuit: Entity = _circuit()
 	assert_same(LightCircuitService.entity_for(&"performance_test"), old_circuit)
@@ -102,7 +102,7 @@ func test_world_switch_never_reuses_previous_session_or_circuit() -> void:
 	assert_same(DistrictPopulationService.current(), _district)
 	assert_same(LightCircuitService.entity_for(&"performance_test"), old_circuit)
 
-## Replacing a circuit under the same authored ID replaces the cached binding.
+## Новая цепь с прежним авторским ID заменяет кешированное состояние удалённой Entity.
 func test_removed_circuit_does_not_keep_old_state() -> void:
 	var old_circuit: Entity = _circuit()
 	assert_same(LightCircuitService.entity_for(&"performance_test"), old_circuit)
@@ -111,8 +111,8 @@ func test_removed_circuit_does_not_keep_old_state() -> void:
 	assert_same(LightCircuitService.entity_for(&"performance_test"), replacement)
 #endregion
 
-#region Lighting
-## Shared input data must observe toggles and flicker even within the same physics frame.
+#region Авторская освещённость
+## Общий контекст света сразу отражает выключатель и мерцание в пределах одного физического кадра.
 func test_switch_and_flicker_change_shared_lighting_immediately() -> void:
 	_world.add_observer(O_LightFlicker.new())
 	var circuit: Entity = _circuit()
@@ -133,7 +133,7 @@ func test_switch_and_flicker_change_shared_lighting_immediately() -> void:
 	LightCircuitService.set_enabled(replacement, true)
 	assert_gt(NpcLightingService.exposure_at(point), 0.5, "Structural replacement must refresh shared circuit bindings in the same frame")
 
-## Props cannot hide the exposure of an authored room; its boundaries define darkness.
+## Ручные границы зоны определяют свет; предмет не меняет авторскую освещённость лучевыми проверками.
 func test_manual_zone_boundaries_do_not_require_light_rays() -> void:
 	var zone: NpcLightZone = _zone()
 	var wall: StaticBody3D = StaticBody3D.new()
@@ -150,7 +150,7 @@ func test_manual_zone_boundaries_do_not_require_light_rays() -> void:
 	zone.enabled = false
 	assert_eq(NpcLightingService.exposure_at(Vector3(80, 1, 0)), 0.05)
 
-## A carried light follows transform changes and leaves no binding after removal/reattachment.
+## Подвижная зона следует трансформу и очищает связь после удаления/повторного добавления.
 func test_moving_zone_updates_without_rebuilding_inputs() -> void:
 	var zone: NpcLightZone = _zone()
 	var context: NpcLightingContext = NpcLightingService.context_for(_district)
@@ -178,7 +178,7 @@ func test_moving_zone_updates_without_rebuilding_inputs() -> void:
 	zone.free()
 	assert_eq(NpcLightingService.exposure_at(Vector3(90, 1, 0)), 0.05)
 
-## Other loaded levels do not contribute volumes to the active world's lighting.
+## Загруженный соседний уровень не добавляет зоны к освещению активного World.
 func test_zone_registration_is_scoped_to_the_world_level() -> void:
 	var other_root: Node3D = Node3D.new()
 	add_child(other_root)
@@ -190,8 +190,8 @@ func test_zone_registration_is_scoped_to_the_world_level() -> void:
 
 #endregion
 
-#region Planning queue
-## The authored passage is followed in both directions, independently of light changes.
+#region Очередь планирования
+## Светобоязненный NPC следует авторским точкам прохода в обоих направлениях независимо от переключений света.
 func test_light_sensitive_route_follows_authored_points_without_light_search() -> void:
 	await _flat_map()
 	var actor: E_DistrictNpc = _travel(0)
@@ -235,7 +235,7 @@ func test_light_sensitive_route_follows_authored_points_without_light_search() -
 	_district.definition.places[1].position = Vector3(300, 0, 300)
 	assert_true(NpcRouteService.plan(actor, person, points[3], points[0], _native_map).is_empty(), "An unreachable authored passage must not silently take another route")
 
-## A later request cannot jump the queue, and repeated processing cannot exceed the frame cap.
+## Поздний запрос не обходит очередь; повтор обработки в кадре не превышает её лимит.
 func test_route_queue_is_fair_and_limited_per_physics_frame() -> void:
 	await _flat_map()
 	var first: E_DistrictNpc = _travel(0)
@@ -259,7 +259,7 @@ func test_route_queue_is_fair_and_limited_per_physics_frame() -> void:
 	assert_true(second_route.reachable)
 	assert_true(first_route.pending)
 
-## An unchanged reachable route is retained across timer ticks and lighting changes.
+## Достижимый маршрут к прежней цели сохраняется при проверках риска и изменении света.
 func test_stable_goal_does_not_rebuild_route_on_each_risk_check() -> void:
 	await _flat_map()
 	var actor: E_DistrictNpc = _travel(0)
@@ -272,7 +272,7 @@ func test_stable_goal_does_not_rebuild_route_on_each_risk_check() -> void:
 		assert_true(_district.pending_routes.is_empty())
 		assert_eq(route.points, original)
 
-## A new harmful overlap stops a retained path before a queued bypass can replace it.
+## Новое опасное пересечение останавливает прежний путь до обработки запроса его замены.
 func test_moving_hazard_invalidates_retained_route_before_movement() -> void:
 	await _flat_map()
 	var actor: E_DistrictNpc = _travel(0)
@@ -293,7 +293,7 @@ func test_moving_hazard_invalidates_retained_route_before_movement() -> void:
 	assert_true(route.reachable)
 	assert_eq(NpcRouteService.expected_damage(actor, route.points), 0.0)
 
-## An interrupted action cannot commit its old route after a delayed queue slot.
+## Прерванная задача не принимает устаревший маршрут после ожидания очереди.
 func test_cancelled_queued_route_is_discarded() -> void:
 	await _flat_map()
 	var actor: E_DistrictNpc = _travel(0)
@@ -304,7 +304,7 @@ func test_cancelled_queued_route_is_discarded() -> void:
 	assert_true(route.points.is_empty())
 	assert_false((actor.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 
-## A changed destination uses the current intent when the queued work finally executes.
+## Отложенное планирование использует последнюю цель после изменения намерения в очереди.
 func test_queued_route_uses_latest_goal() -> void:
 	await _flat_map()
 	var actor: E_DistrictNpc = _travel(0)

@@ -1,8 +1,8 @@
 extends "res://tests/gut/test_district_population.gd"
-## Absent identity/body/inventory roundtrip and rejection of invalid district snapshots.
+## Snapshot отсутствующих NPC: сохранность личности/тела/инвентаря и отказ повреждённых районных данных.
 
-#region Coherent snapshots
-## Restores an absent injured person and possessions, while discarding derived sensory state.
+#region Согласованный snapshot
+## Восстановление сохраняет ранения и вещи отсутствующего NPC, очищая производное восприятие.
 func test_absent_person_roundtrip_preserves_body_state_and_resets_brain() -> void:
 	_world.add_observer(O_InventoryLifecycle.new())
 	DistrictPopulationService.prepare_morning(2)
@@ -39,7 +39,7 @@ func test_absent_person_roundtrip_preserves_body_state_and_resets_brain() -> voi
 			matches += 1
 	assert_eq(matches, 1)
 
-## A duplicate permanent record is rejected before any live state changes.
+## Дубликат постоянной личности отклоняется до изменения живого мира.
 func test_duplicate_person_snapshot_is_rejected() -> void:
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
 	assert_true(WorldSnapshotService.valid(snapshot, _root))
@@ -51,7 +51,7 @@ func test_duplicate_person_snapshot_is_rejected() -> void:
 	assert_false(WorldSnapshotService.valid(snapshot, _root))
 	assert_eq(_district.people.size(), 12)
 
-## Confirmed chase blocks sleep, but memory without a live search does not.
+## Подтверждённое преследование блокирует сон; личная вражда после завершения поиска его не блокирует.
 func test_sleep_returns_after_search_and_does_not_read_hostility() -> void:
 	DayPhaseService.current().phase = C_DayCycle.Phase.EVENING
 	var player_body: RigidBody3D = RigidBody3D.new()
@@ -73,7 +73,7 @@ func test_sleep_returns_after_search_and_does_not_read_hostility() -> void:
 	assert_true(NpcSleepService.blockers().is_empty())
 	assert_eq(DayPhaseService.shift_status(DayPhaseService.current()), "Сон доступен")
 
-## A real failed Night write cannot duplicate replacement IDs or failed-promise memories.
+## Повтор после ошибки ночной записи не дублирует заселение или память о нарушенном обещании.
 func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	var session: Entity = _world.query.with_all([C_District]).execute_one()
 	session.add_component(C_CustomerFlow.new())

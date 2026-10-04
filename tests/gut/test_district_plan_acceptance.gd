@@ -1,7 +1,7 @@
 extends "res://tests/gut/test_district_service.gd"
-## Integration regressions for gaps found by the PLAN.md completion audit.
+## Интеграционные сценарии занятий, социальных контрмер, обслуживания и опасных маршрутов района.
 
-#region Fixtures
+#region Тестовое окружение
 func _stage(index: int, point: Vector3 = Vector3.ZERO) -> E_DistrictNpc:
 	var person: NpcRecord = _district.people[index]
 	person.profile = person.profile.duplicate() as DEF_NpcProfile
@@ -50,8 +50,8 @@ func _light_zone() -> NpcLightZone:
 	return zone
 #endregion
 
-#region Free activities
-## An observer watches perceived street life and releases the focus behind real cover.
+#region Свободные занятия
+## Наблюдатель выбирает воспринимаемого соседа и теряет фокус за реальным укрытием.
 func test_observation_watches_visible_neighbour_and_loses_hidden_focus() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -75,7 +75,7 @@ func test_observation_watches_visible_neighbour_and_loses_hidden_focus() -> void
 	NpcActivityService.observe(body, person, false)
 	assert_true(body.get_relationships(Relationship.new(R_NpcLookTarget.new(), neighbour)).is_empty())
 
-## The idle branch chooses a real window destination once, without teleporting.
+## Свободная активность однократно выбирает точку окна и запрашивает движение, сохраняя физическое положение.
 func test_window_activity_moves_then_observes_an_authored_focus() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -104,7 +104,7 @@ func test_window_activity_moves_then_observes_an_authored_focus() -> void:
 	assert_false(intent.look_uses_entity)
 	assert_eq(intent.look_position, focus.global_position)
 
-## A dead or absent shopkeeper cannot be chosen as an ordinary shopping activity.
+## Прогулка к магазину требует присутствующего живого торговца и свободной точки остановки.
 func test_shop_visit_uses_a_clear_standing_point_and_requires_a_merchant() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -118,7 +118,7 @@ func test_shop_visit_uses_a_clear_standing_point_and_requires_a_merchant() -> vo
 	DistrictPopulationService.mark_dead(_district.people[7], shopkeeper, 1)
 	assert_null(NpcActivityService.choose(body, person))
 
-## Every initial personality has authored interests and all requested stationary/walk activities.
+## Исходный авторский пул содержит интересы и требуемые виды прогулок/занятий на месте.
 func test_authored_profiles_and_activity_types_are_complete() -> void:
 	for person: NpcRecord in _district.people:
 		assert_false(person.profile.interests.is_empty(), person.display_name)
@@ -130,8 +130,8 @@ func test_authored_profiles_and_activity_types_are_complete() -> void:
 		assert_true(activities.has(kind))
 #endregion
 
-#region Observable social behavior
-## A wounded NPC retreats instead of attacking; that retreat is not a continuing pursuit.
+#region Наблюдаемое социальное поведение
+## Раненый NPC отступает, освобождает бой и перестаёт блокировать сон преследованием.
 func test_wounded_pursuer_releases_combat_and_allows_sleep() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -151,7 +151,7 @@ func test_wounded_pursuer_releases_combat_and_allows_sleep() -> void:
 	assert_eq((body.get_component(C_NpcCombat) as C_NpcCombat).phase, C_NpcCombat.Phase.READY)
 	assert_true(NpcSleepService.blockers().is_empty())
 
-## Sleep resets abandoned perception and fear, while injury, identity and memory remain.
+## Новое утро очищает временное восприятие/страх, сохраняя ID, ранения и личную память.
 func test_new_morning_resets_transient_fear_without_resetting_person() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -178,7 +178,7 @@ func test_new_morning_resets_transient_fear_without_resetting_person() -> void:
 	DistrictPopulationService.prepare_morning(2)
 	assert_same(body.get_node("Brain"), brain)
 
-## Walking away is submission only during a visible confrontation, once per incident.
+## Уход означает подчинение лишь при видимом столкновении и учитывается один раз на инцидент.
 func test_retreat_requires_visible_confrontation_and_does_not_restart_attack() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -208,7 +208,7 @@ func test_retreat_requires_visible_confrontation_and_does_not_restart_attack() -
 	assert_eq(awareness.retreat_elapsed, 0.0)
 	assert_eq(person.memories.size(), 1)
 
-## Gaze tolerates a short glance and looking away stops escalation after its warning.
+## Короткий взгляд допустим; прекращение взгляда после предупреждения останавливает эскалацию.
 func test_gaze_warning_has_a_working_countermeasure() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -234,7 +234,7 @@ func test_gaze_warning_has_a_working_countermeasure() -> void:
 	assert_true(person.memories.is_empty())
 	assert_eq(awareness.rule_exposure[rule.kind], 0.0)
 
-## Switching light off relieves aversion; switching it on stops the dark predator.
+## Выключение света снимает светобоязнь, включение останавливает повод хищника темноты.
 func test_light_and_darkness_countermeasures_reset_exposure() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -268,8 +268,8 @@ func test_light_and_darkness_countermeasures_reset_exposure() -> void:
 	assert_true(person.memories.is_empty())
 #endregion
 
-#region Service integration
-## Strength testing uses observed respect and later submission instead of hidden player statistics.
+#region Интеграция обслуживания
+## Проверка силы использует последнее наблюдаемое уважение/подчинение без скрытых характеристик игрока.
 func test_strength_test_uses_latest_observed_response() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -293,7 +293,7 @@ func test_strength_test_uses_latest_observed_response() -> void:
 	assert_gt(awareness.rule_exposure[rule.kind], 0.0)
 	assert_true(awareness.warned_rules.has(rule.kind))
 
-## A queued recipient may talk on the street without walking to the counter mid-conversation.
+## Ожидающий получатель удерживает уличный разговор, сохраняя роль обслуживания без движения к стойке.
 func test_queued_street_conversation_holds_the_service_role() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var player: E_DistrictNpc = _player()
@@ -308,7 +308,7 @@ func test_queued_street_conversation_holds_the_service_role() -> void:
 	assert_true(context.can_continue())
 	context.end()
 
-## Parcel events cannot impose a riddle on a new recipient without that intrinsic trait.
+## Событие посылки не назначает загадку личности без её собственной особенности.
 func test_legacy_order_does_not_override_personality() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var player: E_DistrictNpc = _player()
@@ -327,7 +327,7 @@ func test_legacy_order_does_not_override_personality() -> void:
 	assert_true(context.answer_riddle_correct())
 	assert_eq(context.requested_package_id(), visit.package_id)
 
-## The actual service resource exposes provocations; submission is cached without a false outcome.
+## Ресурс обслуживания содержит провокации; подчинение кешируется без ложного исхода заказа.
 func test_provocateur_service_keeps_order_and_records_submission_once() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
@@ -358,7 +358,7 @@ func test_provocateur_service_keeps_order_and_records_submission_once() -> void:
 	assert_null(NpcDialogueService.participant(body))
 	DialogueResourceLifecycle.release_runtime_references(resource)
 
-## The participant relationship cannot freeze patience or survive leaving service.
+## Разговор не останавливает терпение; уход из обслуживания освобождает связь участника.
 func test_service_conversation_keeps_patience_and_releases_on_departure() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var player: E_DistrictNpc = _player()
@@ -373,7 +373,7 @@ func test_service_conversation_keeps_patience_and_releases_on_departure() -> voi
 	assert_false(context.can_continue())
 	assert_null(NpcDialogueService.participant(body))
 
-## Leaving, death and role interruption invalidate the same live participant.
+## Уход, смерть и прерывание роли закрывают разговор с тем же живым участником.
 func test_service_dialogue_closes_when_participant_leaves_or_dies() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var player: E_DistrictNpc = _player()
@@ -392,7 +392,7 @@ func test_service_dialogue_closes_when_participant_leaves_or_dies() -> void:
 	assert_null(NpcDialogueService.participant(body))
 #endregion
 
-#region Native hazard detours
+#region Физическое движение и опасности
 func _flat_map() -> Dictionary[StringName, RID]:
 	var mesh: NavigationMesh = NavigationMesh.new()
 	mesh.cell_height = 0.1
@@ -410,7 +410,7 @@ func _flat_map() -> Dictionary[StringName, RID]:
 			break
 	return {&"map": map, &"region": region}
 
-## Physical obstruction terminates even a reachable task and releases its pickup.
+## Физическое зависание прекращает формально достижимую задачу и освобождает зарезервированный предмет.
 func test_stalled_reachable_route_releases_pickup() -> void:
 	var body: E_DistrictNpc = _stage(0, Vector3(-8, 0, 0))
 	var person: NpcRecord = _district.people[0]
@@ -430,7 +430,7 @@ func test_stalled_reachable_route_releases_pickup() -> void:
 	NavigationServer3D.free_rid(native[&"region"])
 	NavigationServer3D.free_rid(native[&"map"])
 
-## A blocked home approach releases the door while preserving the unfulfilled promise.
+## Зависший подход к дому освобождает дверь, сохраняя невыполненное обещание доставки.
 func test_stalled_home_route_releases_meeting_without_false_delivery() -> void:
 	var body: E_DistrictNpc = _stage(0, Vector3(-8, 0, 0))
 	var person: NpcRecord = _district.people[0]
@@ -464,7 +464,7 @@ func test_stalled_home_route_releases_meeting_without_false_delivery() -> void:
 	NavigationServer3D.free_rid(native[&"region"])
 	NavigationServer3D.free_rid(native[&"map"])
 
-## Risk accounts for actual hunger acceleration and heavy-load slowdown.
+## Прогноз риска учитывает фактические множители голода и замедление тяжёлым грузом.
 func test_route_risk_matches_actual_speed_modifiers() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var fire: Entity = (load("res://content/entities/hazards/npc_fire_aura.tscn") as PackedScene).instantiate() as Entity
@@ -491,7 +491,7 @@ func test_route_risk_matches_actual_speed_modifiers() -> void:
 	load_state.mass_kg = (CarryLoadPolicy.minimum_mass_kg(strength) + CarryLoadPolicy.maximum_mass_kg(strength)) * 0.5
 	assert_gt(NpcRouteService.expected_damage(body, path), ordinary)
 
-## A moving damaging sphere is bypassed locally even without useful street graph nodes.
+## Движущаяся опасная сфера вызывает локальный обход без подходящих узлов уличного графа.
 func test_native_route_replans_around_moving_fire() -> void:
 	var body: E_DistrictNpc = _stage(0, Vector3(-8, 0, 0))
 	var person: NpcRecord = _district.people[0]

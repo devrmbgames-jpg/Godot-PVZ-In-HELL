@@ -3,8 +3,8 @@ extends "res://tests/gut/test_district_service.gd"
 
 var _player: Entity = null
 
-#region Home fixture
-## Adds the actual economic and registration journals and physical parcel holders.
+#region Домашняя fixture
+## Добавляет реальные журналы денег/регистрации и физические крепления посылок к районной fixture.
 func before_each() -> void:
 	super.before_each()
 	var session: Entity = _world.query.with_all([C_District]).execute_one()
@@ -50,7 +50,7 @@ func _door(address_id: StringName) -> Entity:
 	return null
 #endregion
 
-#region Obligations and money
+#region Обязательства и деньги
 ## Отказ переносит тот же заказ на 1–3 дня, освобождая очередь без обещания и штрафа.
 func test_declined_home_delivery_returns_once_after_one_to_three_days() -> void:
 	DayPhaseService.current().phase = C_DayCycle.Phase.DAY
@@ -82,7 +82,7 @@ func test_declined_home_delivery_returns_once_after_one_to_three_days() -> void:
 	assert_true(copy.home_delivery_declined)
 	assert_eq(copy.arrival_day, expected_day)
 
-## Acceptance quota applies to the entire day, independent of open panels or elapsed time.
+## Лимит принятых доставок относится ко всему дню; панели и прошедшее время его не обновляют.
 func test_two_optional_jobs_and_night_failure_keep_physical_boxes() -> void:
 	var first: CustomerVisit = _delivery_case(_district.people[0], "home_first")
 	var second: CustomerVisit = _delivery_case(_district.people[3], "home_second")
@@ -103,7 +103,7 @@ func test_two_optional_jobs_and_night_failure_keep_physical_boxes() -> void:
 	assert_eq(_district.people[0].memories.size(), 1)
 	assert_eq(WalletService.current().balance, 0)
 
-## Actual receipt uses the ordinary held-box path at the door and pays exactly two operations.
+## Выдача у двери использует настоящую удерживаемую коробку и ровно две денежные операции.
 func test_home_handoff_and_bonus_are_once() -> void:
 	var person: NpcRecord = _district.people[0]
 	var visit: CustomerVisit = _delivery_case(person, "home_receive")
@@ -130,7 +130,7 @@ func test_home_handoff_and_bonus_are_once() -> void:
 	assert_eq(WalletService.current().balance, balance)
 	assert_eq(WalletService.current().operations.size(), 2)
 
-## Refusal preserves the actual parcel and awards no delivery bonus.
+## Отказ сохраняет физическую коробку и не начисляет доплату доставки.
 func test_refusal_has_no_bonus() -> void:
 	var person: NpcRecord = _district.people[0]
 	var visit: CustomerVisit = _delivery_case(person, "home_refuse")
@@ -142,7 +142,7 @@ func test_refusal_has_no_bonus() -> void:
 	assert_false(_district.home_deliveries[0].bonus_committed)
 	assert_eq(WalletService.current().balance, 0)
 
-## A real home inspection reserves its own door and physical cargo, then interruption releases both.
+## Домашний осмотр резервирует дверь и физическую коробку; прерывание освобождает обе связи.
 func test_home_inspection_stays_at_door_and_releases_cargo() -> void:
 	var person: NpcRecord = _district.people[0]
 	var visit: CustomerVisit = _delivery_case(person, "home_inspect")

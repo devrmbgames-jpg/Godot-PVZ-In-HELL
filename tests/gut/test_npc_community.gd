@@ -1,8 +1,8 @@
 extends "res://tests/gut/test_district_population.gd"
-## Community participation, inventory conservation and street dialogue resource regression.
+## Регрессии участия сообщества, сохранности имущества, уличных диалогов и воспринимаемых конфликтов.
 
-#region Community acceptance
-## Off-map participation keeps owned items and returning does not grant another stack.
+#region Контракты сообщества
+## Отключение вне карты сохраняет предметы владельца; возвращение не выдаёт ещё одну стопку.
 func test_absence_preserves_owned_inventory() -> void:
 	_world.add_observer(O_InventoryLifecycle.new())
 	var person: NpcRecord = _district.people[0]
@@ -17,7 +17,7 @@ func test_absence_preserves_owned_inventory() -> void:
 	assert_eq(InventoryService.items(body).size(), 1)
 	assert_eq((item.get_component(C_InventoryItem) as C_InventoryItem).quantity, 2)
 
-## Merchants retain their catalog and replacements have distinct names and aliases for future cases.
+## Торговец сохраняет каталог; замена получает отдельное имя и адресный alias будущих заказов.
 func test_replacement_is_new_person_with_existing_address_alias() -> void:
 	var first: NpcRecord = _district.people[0]
 	var merchant: NpcRecord = _district.people[7]
@@ -36,7 +36,7 @@ func test_replacement_is_new_person_with_existing_address_alias() -> void:
 	assert_not_null((body.get_component(C_Trader) as C_Trader).profile)
 	assert_eq(replacement.memories.size(), 0)
 
-## The ordinary inventory use path consumes meat once rather than granting food from a corpse flag.
+## NPC однократно расходует реальный мясной предмет через обычное использование инвентаря.
 func test_npc_consumes_real_meat_once() -> void:
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(_district.people[0].npc_id)
 	var food: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_npc_meat.tres") as DEF_InventoryItem
@@ -49,7 +49,7 @@ func test_npc_consumes_real_meat_once() -> void:
 	assert_eq(InventoryService.items(body).size(), 0)
 	assert_false(InventoryService.use(body, item))
 
-## The authored street branches compile through pinned Dialogue Manager.
+## Авторские уличные ветви доступны через закреплённый Dialogue Manager и явные entry cues.
 func test_street_dialogue_resource_has_explicit_entry_cues() -> void:
 	var resource: DialogueResource = load("res://content/dialogue/npc_street.dialogue") as DialogueResource
 	assert_not_null(resource)
@@ -57,7 +57,7 @@ func test_street_dialogue_resource_has_explicit_entry_cues() -> void:
 		assert_true(resource.cues.has("street"))
 		assert_true(resource.cues.has("provocation"))
 
-## One initiated fight spends the budget; a victim may still defend itself.
+## Самостоятельный конфликт расходует бюджет фазы; защита жертвы остаётся доступной.
 func test_phase_budget_does_not_block_self_defense() -> void:
 	var attacker: E_DistrictNpc = _stage_person(1, Vector3.ZERO)
 	var victim: E_DistrictNpc = _stage_person(3, Vector3(0, 0, -2))
@@ -79,7 +79,7 @@ func test_phase_budget_does_not_block_self_defense() -> void:
 	assert_same(CombatService.target_for(victim), attacker)
 	assert_eq(_district.ambient_conflicts, 1)
 
-## A visible death is remembered after terminal participation; a wall prevents attribution.
+## Свидетель запоминает видимого виновника смерти; стена препятствует атрибуции.
 func test_killing_witness_requires_visible_actor_and_victim() -> void:
 	var witness: E_DistrictNpc = _stage_person(0, Vector3.ZERO)
 	var attacker: E_DistrictNpc = _stage_person(3, Vector3(-0.6, 0, -3))
@@ -118,7 +118,7 @@ func test_killing_witness_requires_visible_actor_and_victim() -> void:
 	NpcSocialService.observe_damage(result)
 	assert_eq(_district.people[0].memories.size(), 1)
 
-## Pickup claims are exclusive and a priority interruption releases them immediately.
+## Предмет резервируется одним участником; приоритетное прерывание сразу освобождает резервирование.
 func test_loot_claim_is_exclusive_until_interrupted() -> void:
 	var first: E_DistrictNpc = _stage_person(0, Vector3.ZERO)
 	var second: E_DistrictNpc = _stage_person(3, Vector3(2, 0, 0))

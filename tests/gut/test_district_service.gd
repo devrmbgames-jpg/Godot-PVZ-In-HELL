@@ -1,8 +1,8 @@
 extends "res://tests/gut/test_district_population.gd"
 ## Проверяет временное обслуживание постоянных личностей и исключительное владение стойкой.
 
-#region Service fixture
-## Adds the unchanged parcel journal and a real counter to the population fixture.
+#region Окружение обслуживания
+## Дополняет население обычным журналом заказов и реальной стойкой обслуживания.
 func before_each() -> void:
 	super.before_each()
 	var session: Entity = _world.query.with_all([C_District]).execute_one()
@@ -21,13 +21,13 @@ func _case(person: NpcRecord, suffix: String) -> CustomerVisit:
 	return visit
 #endregion
 
-#region Persistent service behavior
+#region Постоянство и очередь обслуживания
 ## Отладочная подпись определена для всех фаз обслуживания, включая очередь.
 func test_debug_projection_covers_every_service_phase() -> void:
 	assert_eq(CustomerDebugPresentation.PHASE_NAMES.size(), C_CustomerAgent.Phase.size())
 	assert_eq(CustomerDebugPresentation.PHASE_NAMES[C_CustomerAgent.Phase.QUEUED], "В очереди")
 
-## Ending a parcel appearance releases its role rather than deleting the person.
+## Завершение разных заказов освобождает роль, сохраняя одну живую физическую личность.
 func test_two_cases_use_the_same_living_body() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
@@ -45,7 +45,7 @@ func test_two_cases_use_the_same_living_body() -> void:
 	assert_ne(first.visit_id, second.visit_id)
 	assert_eq(first.customer_id, second.customer_id)
 
-## Two queued people cannot simultaneously reserve the serving position.
+## Два ожидающих получателя не могут одновременно владеть местом обслуживания.
 func test_counter_reservation_is_exclusive_and_released() -> void:
 	var first_person: NpcRecord = _district.people[0]
 	var second_person: NpcRecord = _district.people[3]
@@ -63,7 +63,7 @@ func test_counter_reservation_is_exclusive_and_released() -> void:
 	NpcServiceRole.step_queue(second_body, second)
 	assert_eq((second_body.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.APPROACHING)
 
-## Daily shipments have distinct case IDs but share permanent recipient identity.
+## Поставки разных дней имеют разные случаи обслуживания и общий постоянный ID получателя.
 func test_planned_shipments_share_lifetime_identity() -> void:
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule

@@ -1,5 +1,5 @@
 extends GutTest
-## Physics-based perception and anonymous hearing, independent of parcel visits.
+## Регрессии зрения по реальной геометрии и анонимного слуха независимо от обслуживания посылок.
 
 var _root: Node3D = null
 var _world: World = null
@@ -9,8 +9,8 @@ var _target: E_DistrictNpc = null
 var _profile: DEF_NpcProfile = null
 var _wall: StaticBody3D = null
 
-#region Fixtures
-## Creates frozen physical actors so engine rays query real collision geometry.
+#region Тестовое окружение
+## Создаёт замороженные физические тела и укрытие для лучей по реальной геометрии.
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
@@ -45,7 +45,7 @@ func before_each() -> void:
 	_root.add_child(_wall)
 	_wall.position = Vector3(20, 1.5, -1.5)
 
-## Releases all real actors and cache state.
+## Освобождает реальные тестовые тела, World и производные кеши восприятия.
 func after_each() -> void:
 	for entity: Entity in _world.entities.duplicate():
 		_world.remove_entity(entity)
@@ -79,8 +79,8 @@ func _synchronize() -> void:
 	await get_tree().physics_frame
 #endregion
 
-#region Visibility
-## A real held box hides the upper body, while visible legs still identify its holder.
+#region Физическая видимость
+## Настоящая удерживаемая коробка закрывает верх тела; видимые ноги сохраняют обнаружение владельца.
 func test_held_upper_body_cover_does_not_hide_visible_legs() -> void:
 	var box: RigidBody3D = RigidBody3D.new()
 	box.set_script(load("res://addons/gecs/ecs/entity.gd"))
@@ -103,7 +103,7 @@ func test_held_upper_body_cover_does_not_hide_visible_legs() -> void:
 	await _synchronize()
 	assert_false(NpcPerceptionService.can_see(_observer, _target, _profile))
 
-## Crouching behind cover cannot leave a fictitious standing-height head visible.
+## Приседание использует фактическую высоту головы, не оставляя видимой точку стоящего тела.
 func test_crouched_head_uses_actual_character_height() -> void:
 	var head: Node3D = Node3D.new()
 	_target.add_child(head)
@@ -122,7 +122,7 @@ func test_crouched_head_uses_actual_character_height() -> void:
 	await _synchronize()
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
 
-## A real wall hides every point, while a small carried-size box leaves visible body points.
+## Стена скрывает все точки тела; небольшая коробка оставляет доступные лучам точки.
 func test_wall_occlusion_and_partial_cover() -> void:
 	await _synchronize()
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
@@ -134,7 +134,7 @@ func test_wall_occlusion_and_partial_cover() -> void:
 	await _synchronize()
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
 
-## Ordinary eyes lose distant dark targets; night eyes keep physical sight.
+## Обычное зрение теряет далёкую цель в темноте; ночное сохраняет обнаружение через физический LOS.
 func test_darkness_and_night_vision() -> void:
 	_target.place_at(Vector3(0, 0, -8))
 	_profile.dark_vision_fraction = 0.1
@@ -145,7 +145,7 @@ func test_darkness_and_night_vision() -> void:
 	_profile.rules.append(night_rule)
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
 
-## Search retains the last sighting rather than copying the target through a wall.
+## Поиск хранит последнюю видимую позицию и не копирует скрытое положение цели за стеной.
 func test_hidden_target_position_never_updates_search_memory() -> void:
 	var person: NpcRecord = NpcRecord.new()
 	person.profile = _profile
@@ -163,8 +163,8 @@ func test_hidden_target_position_never_updates_search_memory() -> void:
 	assert_almost_eq(awareness.search_elapsed, 0.2, 0.001)
 #endregion
 
-#region Hearing
-## The gameplay circuit and visual light switch together and change actual detection.
+#region Свет и анонимный слух
+## Выключатель синхронно меняет игровую цепь и визуальный свет, влияя на обнаружение.
 func test_light_switch_changes_visibility() -> void:
 	_target.place_at(Vector3(0, 0, -8))
 	_profile.dark_vision_fraction = 0.1
@@ -198,7 +198,7 @@ func test_light_switch_changes_visibility() -> void:
 	assert_true(lamp.visible)
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
 
-## Opening a physical door emits a location but creates no social accusation.
+## Шум открытия физической двери сообщает место без автоматической социальной атрибуции.
 func test_interaction_noise_is_anonymous() -> void:
 	_observer.add_component(C_PlayerInputController.new())
 	PlayerInteractionEvents.publish(_observer, _target, PlayerInteractionEvent.Kind.DOOR_OPENED)
@@ -206,7 +206,7 @@ func test_interaction_noise_is_anonymous() -> void:
 	assert_eq(_district.noises[0].position, _target.global_position)
 	assert_null(CombatService.target_for(_target))
 
-## A noise behind cover supplies a position without inventing a combat opponent.
+## Шум за укрытием даёт место интереса без знания личности или создания противника.
 func test_hearing_does_not_reveal_source_identity() -> void:
 	_wall.position = Vector3(0, 1.5, -1.5)
 	await _synchronize()

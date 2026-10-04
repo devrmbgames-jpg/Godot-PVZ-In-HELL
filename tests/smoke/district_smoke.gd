@@ -1,14 +1,16 @@
 extends Node
-## Connected headless district week with real phase systems, native navigation and save restoration.
+## Связная headless-неделя района с реальными фазами, навигацией и восстановлением отдельного сохранения.
 
+## Отдельный тестовый слот; обычный autosave уровня отключён.
 const SAVE_PATH: String = "user://smoke_living_district.pvzh"
+## Количество физических кадров каждой фазы в недельном сценарии.
 const PHASE_FRAMES: int = 720
 const NAVIGATION_CHECKS: GDScript = preload("res://utils/warehouse_navigation_checks.gd")
 
 var _level: Node3D = null
 var _failed: bool = false
 
-#region Week runner
+#region Связная неделя
 func _ready() -> void:
 	call_deferred("_run")
 

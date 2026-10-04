@@ -1,12 +1,12 @@
 extends GutTest
-## Persistent population, calendar and corpse/replacement lifecycle regression.
+## Регрессии постоянства населения, календаря, окончательной смерти и отложенного заселения.
 
 var _root: Node3D = null
 var _world: World = null
 var _district: C_District = null
 
-#region Fixtures
-## Creates a minimal world using the real district profiles and NPC prefab.
+#region Тестовое окружение
+## Создаёт минимальный World с реальными районными профилями и prefab NPC.
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
@@ -27,7 +27,7 @@ func before_each() -> void:
 	_district = owner_entity.get_component(C_District) as C_District
 	DistrictPopulationService.initialize()
 
-## Releases the ECS world before the surrounding scene.
+## Освобождает World до окружающей сцены и сбрасывает глобальное участие ECS.
 func after_each() -> void:
 	for actor: Entity in _world.entities.duplicate():
 		if is_instance_valid(actor):
@@ -40,8 +40,8 @@ func after_each() -> void:
 	_district = null
 #endregion
 
-#region Identity and schedules
-## Absence preserves both lifetime identity and the same physical body.
+#region Личность и расписание
+## Уход и возвращение сохраняют постоянный ID, тот же экземпляр тела, здоровье и память.
 func test_departure_and_return_keep_body_health_and_memory() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
@@ -60,14 +60,14 @@ func test_departure_and_return_keep_body_health_and_memory() -> void:
 	assert_eq(health.current, health.value * 0.5)
 	assert_eq(person.memories.size(), 1)
 
-## Weekly visitors do not become eligible because the current phase runs longer.
+## Доступность приезжего задаётся игровым днём недели, а не длительностью фазы.
 func test_weekly_visitor_uses_day_index() -> void:
 	var visitor: NpcRecord = _district.people[8]
 	assert_eq(visitor.profile.schedule.location_for(1, C_DayCycle.Phase.DAY), DEF_NpcSchedule.Location.STREET)
 	assert_eq(visitor.profile.schedule.location_for(2, C_DayCycle.Phase.DAY), DEF_NpcSchedule.Location.OUTSIDE)
 	assert_eq(visitor.profile.schedule.location_for(8, C_DayCycle.Phase.DAY), DEF_NpcSchedule.Location.STREET)
 
-## Retrying the same morning cannot create an additional person or reset a phase.
+## Повтор подготовки того же утра не создаёт личность и не сбрасывает фазу повторно.
 func test_morning_retry_is_idempotent() -> void:
 	var count: int = _district.people.size()
 	DistrictPopulationService.prepare_morning(2)
@@ -78,8 +78,8 @@ func test_morning_retry_is_idempotent() -> void:
 	assert_eq(_district.prepared_morning, 2)
 #endregion
 
-#region Native decision tree
-## Real LimboAI tree executes the schedule branch through the intent arbiter.
+#region Исполнение дерева решений
+## Реальное дерево LimboAI исполняет расписание через арбитр намерений движения.
 func test_native_tree_drives_schedule_without_another_movement_owner() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
@@ -92,8 +92,8 @@ func test_native_tree_drives_schedule_without_another_movement_owner() -> void:
 	assert_eq(intent.move_position, DistrictPopulationService.position_for(person.goal_id))
 #endregion
 
-#region Terminal death and replacement
-## A replacement gets a new ID and no social history, while old identity stays dead.
+#region Окончательная смерть и заселение
+## Заселение после двух смертей создаёт новый ID без чужой памяти; погибший остаётся в истории.
 func test_two_deaths_start_delayed_one_per_morning_resettlement() -> void:
 	var first: NpcRecord = _district.people[0]
 	var second: NpcRecord = _district.people[1]

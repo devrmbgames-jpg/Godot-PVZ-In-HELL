@@ -1,8 +1,8 @@
 extends "res://tests/gut/test_district_population.gd"
-## Real immunity, cached personality reactions and route risk regression.
+## Регрессии реального иммунитета, одноразовых реакций характера и риска маршрута.
 
-#region Intrinsic behavior
-## Actual damage and route prediction agree for immune and ordinary receivers.
+#region Характер и врождённые особенности
+## Фактический огненный урон и прогноз риска совпадают для обычного/иммунного получателя.
 func test_fire_immunity_matches_real_damage_and_route_risk() -> void:
 	_world.add_observer(O_Damage.new())
 	var immune: E_DistrictNpc = DistrictPopulationService.body_for(_district.people[1].npc_id)
@@ -30,7 +30,7 @@ func test_fire_immunity_matches_real_damage_and_route_risk() -> void:
 	assert_eq(immune_health.current, immune_health.value)
 	assert_eq(normal_health.current, normal_health.value - 10.0)
 
-## The same incident is recorded once, even after a phase or a conversation restart.
+## Повтор того же инцидента сохраняет реакцию через фазу/диалог; новый инцидент учитывается отдельно.
 func test_reaction_is_cached_and_new_incident_is_distinct() -> void:
 	var person: NpcRecord = _district.people[2]
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
@@ -43,7 +43,7 @@ func test_reaction_is_cached_and_new_incident_is_distinct() -> void:
 	NpcSocialService.react(body, player, NpcMemory.Kind.JOKE, &"test/joke")
 	assert_eq(person.memories.size(), 2)
 
-## Low HP removes the permission to cross a dangerous pursuit path.
+## Недостаточный запас HP запрещает рискованный путь преследования.
 func test_pursuit_risk_requires_health_reserve() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
