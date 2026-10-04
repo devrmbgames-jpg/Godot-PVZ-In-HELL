@@ -1,4 +1,5 @@
 extends GutTest
+## Проверяет атомарные покупки, постоянные заказы и однократный денежный эффект.
 
 var _world: World = null
 var _actor: Entity = null
@@ -10,6 +11,8 @@ var _food: DEF_InventoryItem = null
 var _med: DEF_InventoryItem = null
 
 
+#region Тестовое окружение
+## Создаёт отдельные кошелёк, каталог, торговца и покупателя с инвентарём.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -37,12 +40,17 @@ func before_each() -> void:
 	_world.add_entity(_trader)
 
 
+## Удаляет World и освобождает глобальную ссылку ECS.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
 	ECS.world = null
 
 
+#endregion
+
+#region Атомарная покупка
+## Одна операция списывает деньги и выдаёт количество один раз; изменение её данных даёт конфликт.
 func test_purchase_debits_once_and_grants_owned_quantity_once() -> void:
 	assert_eq(CommerceService.purchase(_actor, _trader, _food, 2, &"buy:1"), CommerceService.Status.COMMITTED)
 	assert_eq(_wallet.balance, 450)
@@ -58,6 +66,7 @@ func test_purchase_debits_once_and_grants_owned_quantity_once() -> void:
 	assert_eq(CommerceService.purchase(_actor, _trader, _food, 1, &"buy:1"), CommerceService.Status.CONFLICT)
 
 
+## Недостаток денег не оставляет предмет или чек и позволяет повторить запрос после пополнения.
 func test_insufficient_money_retains_no_probe_item_or_receipt_and_can_retry() -> void:
 	_wallet.balance = 10
 	assert_eq(CommerceService.purchase(_actor, _trader, _food, 1, &"buy:retry"), CommerceService.Status.INSUFFICIENT_FUNDS)
@@ -70,6 +79,7 @@ func test_insufficient_money_retains_no_probe_item_or_receipt_and_can_retry() ->
 	assert_eq(_wallet.balance, 5)
 
 
+## Заполненный инвентарь или отсутствующая позиция каталога не списывают деньги.
 func test_full_inventory_and_bad_catalog_do_not_charge() -> void:
 	(_actor.get_component(C_Inventory) as C_Inventory).maximum_stacks = 1
 	assert_eq(CommerceService.purchase(_actor, _trader, _food, 10, &"fill"), CommerceService.Status.COMMITTED)
@@ -82,6 +92,10 @@ func test_full_inventory_and_bad_catalog_do_not_charge() -> void:
 	assert_eq(_wallet.balance, balance)
 
 
+#endregion
+
+#region Постоянные заказы и каталог
+## Утренний/вечерний заказ создаёт постоянную доставку на следующий день, без немедленного предмета.
 func test_orders_in_morning_and_evening_debit_once_and_create_next_day_record() -> void:
 	_cycle.phase = C_DayCycle.Phase.MORNING
 	assert_eq(CommerceService.order(_actor, _food, 3, &"order:1"), CommerceService.Status.COMMITTED)
@@ -102,6 +116,7 @@ func test_orders_in_morning_and_evening_debit_once_and_create_next_day_record() 
 	assert_eq(_wallet.balance, 365)
 
 
+## Неверная фаза, количество, ID и смерть отклоняют покупку без фиксации.
 func test_phase_quantity_invalid_ids_and_dead_actor_are_rejected_without_commit() -> void:
 	_cycle.phase = C_DayCycle.Phase.DAY
 	assert_eq(CommerceService.order(_actor, _food, 1, &"day"), CommerceService.Status.WRONG_PHASE)
@@ -119,6 +134,7 @@ func test_phase_quantity_invalid_ids_and_dead_actor_are_rejected_without_commit(
 	assert_true(_commerce.receipts.is_empty())
 
 
+## Глубокая копия сохраняет заказы независимо; последовательность предотвращает повтор ID.
 func test_persistent_records_copy_and_serial_prevent_request_id_collision() -> void:
 	var first_id: StringName = CommerceService.next_id("order")
 	assert_eq(CommerceService.order(_actor, _food, 1, first_id), CommerceService.Status.COMMITTED)
@@ -131,6 +147,7 @@ func test_persistent_records_copy_and_serial_prevent_request_id_collision() -> v
 	assert_false(_commerce.pending_deliveries[0].fulfilled)
 
 
+## Учётная стоимость коробки отличается от рыночной цены содержимого; upgrade-заготовки имеют свои ID.
 func test_authored_market_contents_and_upgrade_stubs_are_distinct_data() -> void:
 	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
 	var compared: bool = false
@@ -145,3 +162,5 @@ func test_authored_market_contents_and_upgrade_stubs_are_distinct_data() -> void
 		var upgrade: DEF_Upgrade = load("res://content/definitions/gameplay/commerce/def_upgrade_%s.tres" % key) as DEF_Upgrade
 		assert_not_null(upgrade)
 		assert_eq(upgrade.key, StringName(key))
+
+#endregion

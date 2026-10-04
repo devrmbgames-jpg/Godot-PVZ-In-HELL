@@ -1,5 +1,5 @@
 extends Node
-## Actual authored main scene: paid physical pickup and morning home delivery.
+## Проверяет оплаченную физическую мебель торговца и утреннюю доставку в основной сцене.
 
 var _level: Node
 
@@ -8,6 +8,7 @@ func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет физическую выдачу и утреннее исполнение оплаченной мебели без повторной оплаты.
 func _run() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	_level.set("autosave_path", "")

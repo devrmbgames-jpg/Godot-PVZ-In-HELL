@@ -1,6 +1,8 @@
 extends GutTest
+## Проверяет однократные денежные операции, авторские ставки и независимые дневные итоги.
 
 
+#region Операции, ставки и однократный расчёт
 func _operation(id: StringName, reason: MoneyOperation.Reason, amount: int, day: int = 1) -> MoneyOperation:
 	var operation: MoneyOperation = MoneyOperation.new()
 	operation.operation_id = id
@@ -10,6 +12,7 @@ func _operation(id: StringName, reason: MoneyOperation.Reason, amount: int, day:
 	return operation
 
 
+## Записанная операция независима от исходного Resource; повтор ID не удваивает выплату.
 func test_payment_is_committed_once_and_copied() -> void:
 	var wallet: C_Wallet = C_Wallet.new()
 	var operation: MoneyOperation = _operation(&"delivery/1", MoneyOperation.Reason.PAYMENT, 100)
@@ -21,6 +24,7 @@ func test_payment_is_committed_once_and_copied() -> void:
 	assert_eq(WalletService.apply(wallet, operation, 1), WalletService.Status.CONFLICT)
 
 
+## Проверка средств и списание атомарны; отказ допускает повтор после пополнения.
 func test_purchase_check_and_debit_are_atomic_and_failed_request_can_retry() -> void:
 	var wallet: C_Wallet = C_Wallet.new()
 	wallet.balance = 10
@@ -33,6 +37,7 @@ func test_purchase_check_and_debit_are_atomic_and_failed_request_can_retry() -> 
 	assert_eq(wallet.balance, 0)
 
 
+## Авторские ставки разных исходов создают долг с правильной классификацией штрафа.
 func test_package_rates_debt_and_penalty_classification() -> void:
 	var reasons: Array[MoneyOperation.Reason] = [
 		MoneyOperation.Reason.VOLUNTARY_BUYOUT,
@@ -52,6 +57,7 @@ func test_package_rates_debt_and_penalty_classification() -> void:
 		assert_eq(wallet.penalties, 0 if index == 0 else expected[index])
 
 
+## Утренний возврат не повторяет прежний расчёт коробки даже с новым operation_id.
 func test_return_next_morning_cannot_repeat_settlement() -> void:
 	var wallet: C_Wallet = C_Wallet.new()
 	var operation: MoneyOperation = WalletService.package_settlement(wallet, &"outcome/1", MoneyOperation.Reason.LOST, 100, 1)
@@ -63,6 +69,7 @@ func test_return_next_morning_cannot_repeat_settlement() -> void:
 	assert_eq(wallet.balance, -120)
 
 
+## Дневные итоги сохраняют общий баланс и однократное завершение дня.
 func test_daily_totals_and_completed_days_do_not_reset_wallet() -> void:
 	var wallet: C_Wallet = C_Wallet.new()
 	var cycle: C_DayCycle = C_DayCycle.new()
@@ -87,6 +94,7 @@ func test_daily_totals_and_completed_days_do_not_reset_wallet() -> void:
 	assert_eq(WalletService.apply(saved, _operation(&"day2", MoneyOperation.Reason.PURCHASE, 20, 2), 2), WalletService.Status.DUPLICATE)
 
 
+## Недопустимая сумма и устаревший день не меняют баланс или журнал.
 func test_invalid_and_stale_operations_do_not_mutate_state() -> void:
 	var wallet: C_Wallet = C_Wallet.new()
 	assert_eq(WalletService.apply(wallet, _operation(&"bad", MoneyOperation.Reason.PAYMENT, -1), 1), WalletService.Status.INVALID)
@@ -95,9 +103,12 @@ func test_invalid_and_stale_operations_do_not_mutate_state() -> void:
 	assert_true(wallet.operations.is_empty())
 
 
+## Настраиваемый процент расчёта округляет денежную сумму по общей политике.
 func test_authored_rate_and_rounding() -> void:
 	var wallet: C_Wallet = C_Wallet.new()
 	wallet.policy = DEF_Economy.new()
 	wallet.policy.lost_percent = 125
 	var operation: MoneyOperation = WalletService.package_settlement(wallet, &"rounding", MoneyOperation.Reason.LOST, 3, 1)
 	assert_eq(operation.amount, 4)
+
+#endregion

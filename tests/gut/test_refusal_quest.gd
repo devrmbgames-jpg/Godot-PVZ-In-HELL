@@ -1,4 +1,5 @@
 extends GutTest
+## Проверяет задание отказа по постоянной коробке и фактическому исходу обслуживания.
 
 var _world: World = null
 var _cycle: C_DayCycle = null
@@ -10,6 +11,8 @@ var _parcel: Entity = null
 var _visit: CustomerVisit = null
 
 
+#region Окружение задания
+## Создаёт торговца, постоянную коробку и заказ с реальной регистрацией.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -47,12 +50,17 @@ func before_each() -> void:
 	_flow.visits.append(_visit)
 
 
+## Удаляет World и сбрасывает глобальную ссылку ECS.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
 	ECS.world = null
 
 
+#endregion
+
+#region Постоянная цель и фактический исход
+## Предложение однократно связывает живую коробку с выдавшим задание торговцем.
 func test_offer_is_idempotent_and_live_bindings_target_real_package_and_issuer() -> void:
 	var record: RefusalQuestRecord = RefusalQuestService.offer(_trader)
 	assert_not_null(record)
@@ -76,6 +84,7 @@ func test_offer_is_idempotent_and_live_bindings_target_real_package_and_issuer()
 	assert_false(RefusalQuestService.accept(record.quest_id))
 
 
+## Фактический отказ игрока даёт одну награду и сохраняет обычный штраф обслуживания.
 func test_actual_player_denial_completes_reward_once_and_preserves_normal_penalty() -> void:
 	var record: RefusalQuestRecord = RefusalQuestService.offer(_trader)
 	assert_true(RefusalQuestService.accept(record.quest_id))
@@ -99,6 +108,7 @@ func test_actual_player_denial_completes_reward_once_and_preserves_normal_penalt
 	assert_true(_world.query.with_all([C_QuestBinding]).execute().is_empty())
 
 
+## Реальная выдача проваливает задание независимо от ложной записи отказа в терминале.
 func test_actual_delivery_fails_without_reward_even_if_terminal_says_refused() -> void:
 	var record: RefusalQuestRecord = RefusalQuestService.offer(_trader)
 	assert_true(RefusalQuestService.accept(record.quest_id))
@@ -112,6 +122,7 @@ func test_actual_delivery_fails_without_reward_even_if_terminal_says_refused() -
 	assert_false(record.reward_paid)
 
 
+## Игнорирование окончательно закрывает предложение той же личности.
 func test_ignored_offer_stays_terminal_and_is_not_issued_again_for_same_identity() -> void:
 	var record: RefusalQuestRecord = RefusalQuestService.offer(_trader)
 	assert_true(RefusalQuestService.ignore(record.quest_id))
@@ -122,6 +133,10 @@ func test_ignored_offer_stays_terminal_and_is_not_issued_again_for_same_identity
 	assert_true(_world.query.with_all([C_QuestBinding]).execute().is_empty())
 
 
+#endregion
+
+#region Срок и сохранение истории
+## Ночной срок завершает незакрытое задание; добровольный отказ клиента не заменяет отказ игрока.
 func test_night_deadline_expires_unresolved_or_voluntary_refusal_and_late_denial() -> void:
 	var record: RefusalQuestRecord = RefusalQuestService.offer(_trader)
 	assert_true(RefusalQuestService.accept(record.quest_id))
@@ -140,6 +155,7 @@ func test_night_deadline_expires_unresolved_or_voluntary_refusal_and_late_denial
 	assert_eq(_wallet.balance, 500)
 
 
+## Загруженное задание после срока не выдаёт награду за поздний отказ.
 func test_loaded_active_quest_cannot_complete_after_deadline_from_late_actual_denial() -> void:
 	var record: RefusalQuestRecord = RefusalQuestService.offer(_trader)
 	assert_true(RefusalQuestService.accept(record.quest_id))
@@ -150,6 +166,7 @@ func test_loaded_active_quest_cannot_complete_after_deadline_from_late_actual_de
 	assert_false(record.reward_paid)
 
 
+## Повтор номера и удаление торговца не подменяют постоянную цель задания.
 func test_reused_display_number_and_removed_issuer_do_not_replace_durable_target() -> void:
 	var record: RefusalQuestRecord = RefusalQuestService.offer(_trader)
 	assert_true(RefusalQuestService.accept(record.quest_id))
@@ -168,3 +185,5 @@ func test_reused_display_number_and_removed_issuer_do_not_replace_durable_target
 	assert_eq(copy.records[0].visit_id, _visit.visit_id)
 	copy.records[0].state = RefusalQuestRecord.State.FAILED
 	assert_eq(record.state, RefusalQuestRecord.State.ACTIVE)
+
+#endregion

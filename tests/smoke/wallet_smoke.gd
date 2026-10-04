@@ -1,16 +1,18 @@
 extends Node
+## Изолирует дневной расчёт кошелька в основной сцене от очереди клиентов.
 
 
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Удаляет клиентскую роль сессии и проверяет переход дня и защиту повторной денежной операции.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
 	add_child(level)
 	level.set_physics_process(false)
-	# This fixture isolates the day/wallet contract; R11 has its own full flow smoke.
+	# Сценарий отделяет день/кошелёк от обслуживания, проверяемого другими сценариями.
 	var session: Entity = level.get_node("Entityes/DaySession") as Entity
 	session.remove_component(C_CustomerFlow)
 

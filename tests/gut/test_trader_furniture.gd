@@ -1,5 +1,5 @@
 extends GutTest
-## Real physical placement, courier fulfillment and persistent commerce records.
+## Проверяет физическую выдачу мебели, оплаченную доставку торговца и постоянные записи покупки.
 
 var _root: Node3D
 var _world: World
@@ -13,6 +13,8 @@ var _shelf: DEF_InventoryItem
 var _floor: StaticBody3D
 
 
+#region Торговая площадка и тестовые участники
+## Создаёт торговую площадку с реальной опорой, кошельком и мебелью авторского каталога.
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
@@ -49,6 +51,7 @@ func before_each() -> void:
 	await get_tree().physics_frame
 
 
+## Закрывает торговые панели до удаления World и его физической геометрии.
 func after_each() -> void:
 	for child: Node in _actor.get_children():
 		if child is CommercePanel:
@@ -86,6 +89,10 @@ func _home() -> Entity:
 	return zone
 
 
+#endregion
+
+#region Физическая выдача и каталог
+## Покупка создаёт тяжёлую фиксируемую полку рядом с торговцем один раз, вне виртуального инвентаря.
 func test_purchase_spawns_massive_anchorable_shelf_beside_trader_without_inventory_or_repeat() -> void:
 	(_actor.get_component(C_Inventory) as C_Inventory).maximum_stacks = 0
 	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"shelf/one"), CommerceService.Status.COMMITTED)
@@ -107,6 +114,7 @@ func test_purchase_spawns_massive_anchorable_shelf_beside_trader_without_invento
 	assert_eq(_wallet.operations.size(), 1)
 
 
+## Занятое или неподдержанное место не списывает оплату; успешный повтор атомарен.
 func test_blocked_or_unsupported_zone_never_charges_and_paid_retry_is_atomic() -> void:
 	var blocker: StaticBody3D = _block(Vector3(5, 1.5, -3), Vector3(9, 3, 8))
 	await get_tree().physics_frame
@@ -132,6 +140,7 @@ func test_blocked_or_unsupported_zone_never_charges_and_paid_retry_is_atomic() -
 	assert_eq(_wallet.balance, 20)
 
 
+## Личный каталог и расписание торговца не подменяются каталогом терминала.
 func test_configured_catalog_and_schedule_are_independent_from_terminal_orders() -> void:
 	var profile: DEF_TraderProfile = (load("res://content/definitions/gameplay/commerce/def_trader_medical.tres") as DEF_TraderProfile).duplicate() as DEF_TraderProfile
 	profile.catalog = [_shelf]
@@ -148,6 +157,10 @@ func test_configured_catalog_and_schedule_are_independent_from_terminal_orders()
 	assert_eq(_wallet.balance, 820)
 
 
+#endregion
+
+#region Оплаченная доставка торговца
+## Расходные заказы создают реальные физические предметы и освобождают очередь получения.
 func test_consumable_deliveries_create_physical_pickups_and_do_not_stall_queue() -> void:
 	var zone: Entity = _home()
 	var receiving: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
@@ -172,6 +185,7 @@ func test_consumable_deliveries_create_physical_pickups_and_do_not_stall_queue()
 	assert_false(OrderDeliveryService.fulfill_one(zone, receiving, _commerce, 2))
 
 
+## Оплаченный заказ ждёт дня и места; сохранение и повтор не дублируют мебель.
 func test_paid_home_delivery_waits_for_day_and_space_then_fulfills_once_after_save() -> void:
 	assert_eq(CommerceService.home_delivery(_actor, _trader, _shelf, 1, &"home/one"), CommerceService.Status.COMMITTED)
 	assert_eq(_wallet.balance, 790)
@@ -209,6 +223,7 @@ func test_paid_home_delivery_waits_for_day_and_space_then_fulfills_once_after_sa
 	assert_eq(_wallet.operations.size(), 1)
 
 
+## Непригодная сцена отклоняется; панель различает самовывоз и оплаченную доставку торговца.
 func test_courier_rejects_unfulfillable_definition_and_trader_panel_offers_separate_delivery() -> void:
 	var invalid: DEF_InventoryItem = _shelf.duplicate() as DEF_InventoryItem
 	invalid.world_pickup_scene = ""
@@ -240,3 +255,5 @@ func test_courier_rejects_unfulfillable_definition_and_trader_panel_offers_separ
 	assert_eq(_wallet.balance, 790)
 	assert_eq(_commerce.pending_deliveries.size(), 1)
 	assert_true(_world.query.with_all([C_Anchorable]).execute().is_empty())
+
+#endregion

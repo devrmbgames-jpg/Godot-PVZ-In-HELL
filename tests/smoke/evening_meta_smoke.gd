@@ -1,14 +1,17 @@
 extends Node
+## Исторический вечерний сценарий торговли, заказа и задания на отказ.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 600
 var _actor: Entity = null
 
 
+#region Исторический вечерний сценарий
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет прежнюю вечернюю торговлю, постоянный заказ и награду задания без немедленной доставки.
 func _run() -> void:
 	var level: Node = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	add_child(level)
@@ -104,6 +107,9 @@ func _run() -> void:
 	get_tree().quit.call_deferred()
 
 
+#endregion
+
+#region Тестовые переходы и интерфейс
 func _transition(kind: DayTransitionRequest.Kind) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
@@ -118,7 +124,7 @@ func _transition(kind: DayTransitionRequest.Kind) -> void:
 func _aim(target: Entity, offset: Vector3) -> void:
 	var position: Vector3 = (target as Node as Node3D).global_position + offset
 	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
-	# Fixture position only; production interaction never moves either physical actor.
+	# Тест сам ставит участника перед целью; обычное взаимодействие не перемещает физические тела.
 	(_actor as Node as RigidBody3D).global_position = (target as Node as Node3D).global_position + Vector3.BACK * 1.5
 	ray.global_position = position + Vector3.BACK * 1.5
 	ray.look_at(position)
@@ -148,3 +154,5 @@ func _click(panel: CommercePanel, action: String, caption: String = "") -> void:
 			return
 
 	assert(false, "Expected an enabled commerce action button")
+
+#endregion
