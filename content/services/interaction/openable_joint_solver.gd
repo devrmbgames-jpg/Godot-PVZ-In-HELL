@@ -1,10 +1,12 @@
 extends RefCounted
-## Only joint motor requests are written. Physical progress is read from the body.
+## Задаёт только команды моторов joint; прогресс читает по физическому положению тела.
 class_name OpenableJointSolver
 
 const MOTION_EPSILON: float = 0.0001
 
 
+#region Мотор и измеренный прогресс
+## Измеряет фактическое положение, подтверждает прогресс и задаёт мотор шарнира либо линейного joint.
 static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: Generic6DOFJoint3D) -> void:
 	var state: C_Openable = entity.get_component(C_Openable) as C_Openable
 	if state == null or state.motion == null or not EntityAvailability.contains(entity, ECS.world):
@@ -31,8 +33,8 @@ static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: 
 		var world_axis: Vector3 = root.global_basis * motion.closed_transform.basis * axis
 		var axis_sign: float = world_axis.dot(hinge.global_basis.z)
 		hinge.set("motor/enable", true)
-		# These scenes bind the fixed frame as A and moving leaf as B:
-		# joint-relative velocity has the opposite sign to B's world rotation.
+		# Сцены связывают неподвижную раму как A, подвижную створку как B:
+		# относительная скорость joint противоположна мировому вращению B.
 		hinge.set("motor/target_velocity", -velocity * axis_sign)
 		hinge.set("motor/max_impulse", motion.hinge_motor_max_impulse)
 	elif slide != null:
@@ -57,9 +59,14 @@ static func step(entity: Entity, body: RigidBody3D, hinge: HingeJoint3D, slide: 
 		slide.set("linear_motor_z/force_limit", motion.slide_motor_force_limit)
 
 
+#endregion
+
+#region Ограничение скорости
 static func _motor_velocity(error: float, extent: float, state: C_Openable) -> float:
 	if state.locked or state.motion.duration_seconds <= 0.0:
 		return 0.0
 
 	var maximum: float = extent / state.motion.duration_seconds
 	return clampf(error * state.motion.motor_response, -maximum, maximum)
+
+#endregion

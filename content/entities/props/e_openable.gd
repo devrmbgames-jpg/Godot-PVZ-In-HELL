@@ -1,10 +1,13 @@
 @tool
 extends Entity
-## Scene glue for constrained physical leaves; joints/bodies own movement.
+## Связывает сцену физической створки с solver; движение исполняют joint и тело.
 class_name E_Openable
 
+## Подвижное физическое тело створки или ящика.
 @export var door_root: RigidBody3D = null
+## Необязательный шарнир; при наличии имеет приоритет над линейным joint.
 @export var hinge_joint: HingeJoint3D = null
+## Необязательный линейный joint для выдвижного тела без шарнира.
 @export var slide_joint: Generic6DOFJoint3D = null
 
 

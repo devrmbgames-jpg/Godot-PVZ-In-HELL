@@ -1,13 +1,15 @@
 extends RefCounted
-## Common logical transitions and bounded motion proposals; never moves a Godot body.
+## Владеет логическими переходами и предложением движения; физическое тело не перемещает.
 class_name OpenableService
 
 enum Operation { OPEN, CLOSE, UNLOCK }
 
-## Joint motors approach their endpoint asymptotically; use a bounded settled range.
+## Допуск доли открытия для подтверждения достижения: мотор подходит к границе асимптотически.
 const ENDPOINT_TOLERANCE: float = 0.02
 
 
+#region Логический запрос и физическое подтверждение
+## Проверяет доступность, замок, состояние повреждённой двери и требование предмета.
 static func can_request(actor: Entity, target: Entity, operation: Operation) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.entity_available(target):
 		return false
@@ -37,6 +39,7 @@ static func can_request(actor: Entity, target: Entity, operation: Operation) -> 
 	return false
 
 
+## Повторно проверяет запрос; разблокировка подтверждает доступ, открытие меняет только намерение.
 static func request(actor: Entity, target: Entity, operation: Operation) -> bool:
 	if not can_request(actor, target, operation):
 		return false
@@ -57,8 +60,8 @@ static func request(actor: Entity, target: Entity, operation: Operation) -> bool
 	return true
 
 
-## A blocked controller reports its unchanged actual fraction, so intent alone
-## cannot falsely mark an obstruction as passed or the object as fully open.
+## Фиксирует измеренную долю 0–1; заблокированный контроллер сообщает неизменное положение,
+## поэтому одно намерение не подтверждает проход препятствия или полное открытие.
 static func report_fraction(state: C_Openable, fraction: float, target: Entity = null) -> bool:
 	if state == null or not is_finite(fraction) or fraction < 0.0 or fraction > 1.0:
 		return false
@@ -69,6 +72,7 @@ static func report_fraction(state: C_Openable, fraction: float, target: Entity =
 	return true
 
 
+## Удаляет атрибуцию ожидающего запроса игрока, не меняя физическое положение.
 static func cancel_player_request(target: Entity) -> void:
 	if not is_instance_valid(target):
 		return
@@ -78,6 +82,9 @@ static func cancel_player_request(target: Entity) -> void:
 			target.remove_relationship(binding)
 
 
+#endregion
+
+#region Атрибуция запроса игрока
 static func _track_player_request(actor: Entity, target: Entity, goal_open: bool, needs_motion: bool) -> void:
 	cancel_player_request(target)
 	if not needs_motion or not actor.has_component(C_PlayerInputController):
@@ -101,11 +108,15 @@ static func _complete_player_request(target: Entity, state: C_Openable) -> void:
 
 		var reached: bool = state.actual_fraction >= 1.0 - ENDPOINT_TOLERANCE if pending.goal_open else state.actual_fraction <= ENDPOINT_TOLERANCE
 		if reached:
-			# Consume first: reentrant subscribers must never see the same pending transition.
+			# Связь удаляется первой: вложенный подписчик не увидит тот же ожидающий переход.
 			target.remove_relationship(binding)
 			PlayerInteractionEvents.publish(actor, target, PlayerInteractionEvent.Kind.DOOR_OPENED if pending.goal_open else PlayerInteractionEvent.Kind.DOOR_CLOSED)
 
 
+#endregion
+
+#region Предложение движения
+## Предлагает ограниченную долю движения за delta секунд, сохраняя положение при замке или ошибке.
 static func proposed_fraction(state: C_Openable, delta: float) -> float:
 	if state == null:
 		return 0.0
@@ -118,9 +129,12 @@ static func proposed_fraction(state: C_Openable, delta: float) -> float:
 	return move_toward(state.actual_fraction, 1.0 if state.requested_open else 0.0, delta / duration)
 
 
+## Интерполирует авторские локальные положения по ограниченной доле 0–1.
 static func local_transform(motion: DEF_OpenableMotion, fraction: float) -> Transform3D:
 	if motion == null:
 		return Transform3D.IDENTITY
 
 	var bounded: float = clampf(fraction, 0.0, 1.0) if is_finite(fraction) else 0.0
 	return motion.closed_transform.interpolate_with(motion.open_transform, bounded)
+
+#endregion

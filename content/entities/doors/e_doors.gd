@@ -3,7 +3,7 @@
 extends E_Openable
 class_name E_Door
 
-## Existing door scene node paths are retained; C_Openable is the sole lock/motion authority.
+## Физическая дверь; C_Openable владеет замком и запросом движения, прежние пути узлов сохраняются.
 
 var _leaf_broken: bool = false
 var _initial_root_layer: int = 0
@@ -12,6 +12,7 @@ var _initial_leaf_mask: int = 0
 var _initial_leaf_freeze: bool = false
 
 
+#region Исходные физические настройки
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
@@ -32,7 +33,10 @@ func _physics_process(delta: float) -> void:
 		super._physics_process(delta)
 
 
-## Engine presentation/collision glue. The depleted Health tombstone remains saveable.
+#endregion
+
+#region Представление разрушения и точка удара
+## Синхронизирует видимость и столкновения разрушенной двери; запись истощённого Health остаётся для сохранения.
 func sync_destruction_view() -> void:
 	var config: C_BreakableDoor = get_component(C_BreakableDoor) as C_BreakableDoor
 	var health: C_Health = get_component(C_Health) as C_Health
@@ -66,9 +70,12 @@ func sync_destruction_view() -> void:
 		hinge_joint.set("motor/enable", false)
 
 
+## Возвращает мировую точку удара по замку либо интерактивной части двери.
 func strike_point() -> Vector3:
 	var config: C_BreakableDoor = get_component(C_BreakableDoor) as C_BreakableDoor
 	var aim: Node3D = get_node_or_null("ColInteract") as Node3D
 	if config != null and config.mode == C_BreakableDoor.Mode.PADLOCK and is_instance_valid(door_root):
 		aim = door_root.get_node_or_null("Padlock") as Node3D
 	return aim.global_position if aim != null else (self as Node as Node3D).global_position
+
+#endregion
