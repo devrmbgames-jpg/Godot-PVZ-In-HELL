@@ -24,10 +24,12 @@ static func advance(
 		return false
 	if progress.phase == ProlongedInteractionProgress.Phase.WAITING_FOR_RELEASE:
 		return false
+
 	progress.fraction = clampf(progress.fraction + delta / definition.duration_seconds, 0.0, COMPLETE_FRACTION)
 	if progress.fraction >= COMPLETE_FRACTION:
 		progress.phase = ProlongedInteractionProgress.Phase.READY
 		return true
+
 	progress.phase = ProlongedInteractionProgress.Phase.ADVANCING
 	return false
 

@@ -67,6 +67,7 @@ func _update_look(
 ) -> void:
 	if character == null:
 		return
+
 	var look_direction: Vector3 = controller.direction_look
 	if look_direction.is_zero_approx():
 		look_direction = -character.global_basis.z
@@ -80,6 +81,7 @@ func _update_look(
 		Vector3.UP,
 		-scaled_look_delta.x * LOOK_SENSITIVITY,
 	)
+
 	var current_pitch: float = asin(clampf(look_direction.y, -1.0, 1.0))
 	var target_pitch: float = clampf(
 		current_pitch - scaled_look_delta.y * LOOK_SENSITIVITY,

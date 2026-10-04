@@ -127,6 +127,7 @@ static func resolve(
 			var cart: Entity = CartTransportService.current(actor)
 			if cart == null:
 				return null
+
 			var stop: DEF_CartTransportAction = DEF_CartTransportAction.new()
 			stop.release_handle = true
 			stop.caption = "Отпустить ручку"
@@ -140,6 +141,7 @@ static func resolve(
 			var cart: Entity = PushService.pushed_object(actor)
 			if cart == null:
 				return null
+
 			var stop: DEF_PushAction = DEF_PushAction.new()
 			stop.end_push = true
 			stop.caption = "Отпустить тележку"
@@ -399,6 +401,7 @@ static func _execute_slot(
 ) -> bool:
 	if not pressed and not held:
 		return false
+
 	var choice: InteractionActionChoice = resolve(actor, input_slot)
 	if choice != null and (pressed or choice.action.continuous):
 		if choice.action.timing != null:
@@ -417,6 +420,7 @@ static func _target_action(
 ) -> InteractionActionChoice:
 	if not GrabService.entity_available(target):
 		return _from_source(actor, actor, target, input_slot)
+
 	var action: InteractionActionChoice = _from_source(actor, target, target, input_slot)
 	if action == null and input_slot == DEF_InteractionAction.Slot.INTERACT:
 		action = _from_source(actor, target, target, DEF_InteractionAction.Slot.USE)
@@ -443,6 +447,7 @@ static func _physical(
 ) -> InteractionActionChoice:
 	if not GrabService.entity_available(source):
 		return null
+
 	var action: DEF_GrabAction = DEF_GrabAction.new()
 	action.kind = kind
 	action.continuous = kind == DEF_GrabAction.Kind.ROTATE
@@ -464,9 +469,11 @@ static func _from_source(
 ) -> InteractionActionChoice:
 	if not GrabService.entity_available(source):
 		return null
+
 	var actions: C_InteractionActionSet = source.get_component(C_InteractionActionSet)
 	if actions == null:
 		return null
+
 	var best: DEF_InteractionAction = null
 	for action: DEF_InteractionAction in actions.actions:
 		if (

@@ -172,10 +172,12 @@ func _path_direction(
 		agent.target_position = goal
 	if not is_equal_approx(agent.target_desired_distance, intent.arrival_distance):
 		agent.target_desired_distance = intent.arrival_distance
+
 	var waypoint: Vector3 = agent.get_next_path_position()
 	if agent.is_navigation_finished():
 		intent.navigation_blocked = not intent.arrived
 		return Vector3.ZERO
+
 	var direction: Vector3 = waypoint - origin
 	direction.y = 0.0
 	return direction

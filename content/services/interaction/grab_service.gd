@@ -53,6 +53,7 @@ static func can_pickup(
 ) -> bool:
 	if not entity_available(target):
 		return false
+
 	var body: RigidBody3D = physical_body(target)
 	return can_pickup_body(holder, body, slot_index, replace, target)
 
@@ -89,6 +90,7 @@ static func can_pickup_body(
 			return false
 		if PhysicalSlotService.relationship(resolved_handle) != storage_binding:
 			return false
+
 		var interactable: C_Interactable = (
 			resolved_handle.get_component(C_Interactable) as C_Interactable
 		)
@@ -98,6 +100,7 @@ static func can_pickup_body(
 	var profile: GrabControlProfile = profile_for(resolved_handle)
 	if not profile_slot_allowed(profile, slot_index):
 		return false
+
 	var strength: C_Strength = holder.get_component(C_Strength) as C_Strength
 	if slot_index == C_Grabbable.HoldSlot.CARRY and not can_carry_body(body, strength):
 		return false
@@ -125,6 +128,7 @@ static func try_pickup(
 ) -> bool:
 	if not entity_available(target):
 		return false
+
 	var body: RigidBody3D = physical_body(target)
 	if body == null:
 		return false
@@ -186,9 +190,11 @@ static func try_pickup_body(
 ) -> bool:
 	if slot_index < 0:
 		slot_index = pickup_slot_for_body(holder, body, false)
+
 	var existing: Entity = PhysicsGrabTarget.handle_for(body, false)
 	if not can_pickup_body(holder, body, slot_index, replace, existing):
 		return false
+
 	var handle: Entity = PhysicsGrabTarget.handle_for(body, true)
 	if handle == null:
 		return false
@@ -646,6 +652,7 @@ static func pickup_slot_for_body(
 ) -> int:
 	if not is_instance_valid(holder) or not is_instance_valid(body):
 		return -1
+
 	var handle: Entity = PhysicsGrabTarget.handle_for(body, false)
 	if handle != null and (handle.get_component(C_Grabbable) as C_Grabbable) != null:
 		return pickup_slot(holder, handle, replacement_button)
@@ -807,6 +814,7 @@ static func _allowed_break_distance(
 	)
 	if not hand_suspended:
 		return allowed
+
 	var hand_property: StringName = &"right_hand_slot"
 	if grip_data.slot == C_Grabbable.HoldSlot.LEFT_HAND:
 		hand_property = &"left_hand_slot"

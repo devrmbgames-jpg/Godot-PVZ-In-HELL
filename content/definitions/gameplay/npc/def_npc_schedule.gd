@@ -18,6 +18,7 @@ enum Location { STREET, HOME, OUTSIDE }
 func location_for(day_index: int, phase: C_DayCycle.Phase) -> Location:
 	if not weekdays.has((day_index - 1) % 7):
 		return Location.OUTSIDE
+
 	match phase:
 		C_DayCycle.Phase.MORNING: return morning
 		C_DayCycle.Phase.DAY: return day

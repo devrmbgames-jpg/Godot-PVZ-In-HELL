@@ -47,6 +47,7 @@ static func capture(root: Node, morning_day: int) -> Dictionary:
 				if binding.relation is R_CartCargo:
 					link.local_pose = (binding.relation as R_CartCargo).local_pose
 				links.append(link)
+
 		var node: Node3D = entity as Node as Node3D
 		var record: Dictionary = {"key": key_for(entity, root), "entity_id": entity.id, "scene": entity.scene_file_path, "authored_path": String(root.get_path_to(entity)) if entity.owner != null and root.is_ancestor_of(entity) else "", "enabled": entity.enabled, "components": components, "links": links, "death": entity.has_component(C_Death)}
 		if node != null:
@@ -152,6 +153,7 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				return false
 
 		all_components[String(record.key)] = types
+
 		if record.has("ink"):
 			if not record.ink is Array:
 				return false
@@ -181,6 +183,7 @@ static func can_restore(data: Dictionary, root: Node) -> bool:
 
 	var entities: Dictionary[String, Entity] = {}
 	var temporary: Array[Entity] = []
+
 	for record: Dictionary in data.entities:
 		var entity: Entity = root.get_node_or_null(NodePath(String(record.authored_path))) as Entity if not String(record.authored_path).is_empty() else null
 		if entity == null:
@@ -209,6 +212,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 	var entities: Dictionary[String, Entity] = {}
 	var fresh: Array[Entity] = []
 	# Instantiate all missing prefabs before committing any change.
+
 	for record: Dictionary in data.entities:
 		var entity: Entity = root.get_node_or_null(NodePath(String(record.authored_path))) as Entity if not String(record.authored_path).is_empty() else null
 		if entity == null:
@@ -248,6 +252,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 	for entity: Entity in entities.values():
 		if entity not in fresh:
 			ECS.world.entity_id_registry.erase(entity.id)
+
 	for record: Dictionary in data.entities:
 		var entity: Entity = entities[String(record.key)]
 		entity.id = String(record.entity_id)
@@ -281,6 +286,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			old_body.freeze_mode = old_anchor.snapshot.freeze_mode
 			old_body.can_sleep = old_anchor.snapshot.can_sleep
 			entity.remove_component(old_anchor)
+
 	for record: Dictionary in data.entities:
 		var entity: Entity = entities[String(record.key)]
 		if entity in fresh:
@@ -308,10 +314,13 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			stamina.exhausted = false
 			stamina.recovery_remaining = 0.0
 			stamina.drain_multiplier = 1.0
+
 		var restored_motion: C_Motion = entity.get_component(C_Motion) as C_Motion
 		if restored_motion != null:
 			restored_motion.sprint_multiplier = 1.0
+
 		PersistentInteractionState.restore(record.get("completed_actions", []) as Array, entity)
+
 		var node: Node3D = entity as Node as Node3D
 		if node != null and record.has("pose"):
 			node.global_transform = record.pose as Transform3D
@@ -334,10 +343,12 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			if entity is E_Package:
 				var definition: DEF_Package = (entity.get_component(C_Package) as C_Package).definition
 				body.mass = definition.empty_mass_kg if PackageContentsService.is_empty(entity) else definition.mass_kg
+
 		if record.death and not entity.has_component(C_Death):
 			entity.add_component(C_Death.new())
 		elif not record.death and entity.has_component(C_Death):
 			entity.remove_component(C_Death)
+
 		if record.has("ink"):
 			var marks: C_PackageMarks = entity.get_component(C_PackageMarks) as C_PackageMarks
 			if marks == null:
@@ -354,6 +365,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 				marks.strokes.append(stroke)
 				marks.point_count += stroke.points.size()
 			marks.revision += 1
+
 		if body != null and record.has("anchor"):
 			var anchored: C_PlayerAnchored = C_PlayerAnchored.new()
 			anchored.snapshot = AnchoredBodySnapshot.new()
@@ -363,6 +375,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			entity.add_component(anchored)
 			body.freeze_mode = RigidBody3D.FREEZE_MODE_STATIC
 			body.freeze = true
+
 	for record: Dictionary in data.entities:
 		var entity: Entity = entities[String(record.key)]
 		for link: Dictionary in record.links:
@@ -387,11 +400,13 @@ static func restore(data: Dictionary, root: Node) -> bool:
 					var binding: Relationship = Relationship.new(cargo, target)
 					entity.add_relationship(binding)
 					CartCargoService.cargo_added(entity, binding)
+
 	for record: Dictionary in data.entities:
 		var entity: Entity = entities[String(record.key)]
 		if entity.has_component(C_Hazard):
 			PersistentHazardState.restore(record.get("hazard_refs", {}) as Dictionary, entity, entities)
 	# Setup observers require live enabled prefabs. Apply saved disabled state last.
+
 	for record: Dictionary in data.entities:
 		if not bool(record.enabled):
 			ECS.world.disable_entity(entities[String(record.key)])

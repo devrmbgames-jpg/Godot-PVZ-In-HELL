@@ -78,13 +78,16 @@ func rule_for(kind: DEF_NpcTrait.Kind) -> DEF_NpcTrait:
 func valid_rules() -> bool:
 	if rules.size() > 2:
 		return false
+
 	var seen: Array[int] = []
 	for rule: DEF_NpcTrait in rules:
 		if rule == null or seen.has(rule.kind):
 			return false
+
 		for other: DEF_NpcTrait in rules:
 			if other != null and other != rule and rule.incompatible.has(other.kind):
 				return false
+
 		seen.append(rule.kind)
 	return schedule != null
 #endregion

@@ -53,6 +53,7 @@ static func _submit(
 	if amount <= 0 or amount > WalletService.MAX_AMOUNT:
 		result.message = "amount must be between 1 and %d" % WalletService.MAX_AMOUNT
 		return result
+
 	var wallet: C_Wallet = WalletService.current()
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if wallet == null or cycle == null:
@@ -67,6 +68,7 @@ static func _submit(
 	operation.amount = amount
 	operation.day_index = cycle.day_index
 	operation.note = note.strip_edges()
+
 	var status: WalletService.Status = WalletService.submit(operation)
 	if status != WalletService.Status.COMMITTED:
 		result.message = "WalletService rejected operation: %s" % _status_name(status)
@@ -98,6 +100,7 @@ static func _next_operation_id(
 				break
 		if not exists:
 			return candidate
+
 		sequence += 1
 	return &""
 

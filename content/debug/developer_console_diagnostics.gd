@@ -267,6 +267,7 @@ static func _package_list_line(
 		definition = identity.definition if identity != null else null
 	if definition == null and record != null:
 		definition = record.definition
+
 	var definition_key: String = String(definition.key) if definition != null else "unknown"
 	var condition: String = "NO_STATE"
 	if EntityAvailability.contains(entity, ECS.world):

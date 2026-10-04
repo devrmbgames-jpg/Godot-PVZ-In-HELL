@@ -124,6 +124,7 @@ static func texture_for(event: InputEvent, family: String = "keyboard_mouse") ->
 			JOY_AXIS_LEFT_Y: name = "stick_l_up" if axis.axis_value < 0 else "stick_l_down"
 			JOY_AXIS_RIGHT_X: name = "stick_r_left" if axis.axis_value < 0 else "stick_r_right"
 			JOY_AXIS_RIGHT_Y: name = "stick_r_up" if axis.axis_value < 0 else "stick_r_down"
+
 	if family != "keyboard_mouse":
 		var prefix: String = "playstation" if family == "playstation_series" else "steamdeck" if family == "steam_deck" else "steam" if family == "steam_controller" else "xbox"
 		if family == "playstation_series":
@@ -150,6 +151,7 @@ static func texture_for(event: InputEvent, family: String = "keyboard_mouse") ->
 	var result: Texture2D = InputPromptCatalog.texture(family, name)
 	if result != null:
 		return result
+
 	if family != "keyboard_mouse":
 		var fallback: String = {"xbox_series": "controller_xboxseries", "playstation_series": "controller_playstation5", "steam_deck": "controller_steamdeck", "steam_controller": "controller_steam"}.get(family, "controller_xboxseries")
 		result = InputPromptCatalog.texture(family, fallback)

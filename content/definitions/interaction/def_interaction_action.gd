@@ -32,5 +32,6 @@ func execute(_actor: Entity, _source: Entity, _target: Entity) -> void:
 func complete(actor: Entity, source: Entity, target: Entity) -> bool:
 	if not is_available(actor, source, target):
 		return false
+
 	execute(actor, source, target)
 	return true

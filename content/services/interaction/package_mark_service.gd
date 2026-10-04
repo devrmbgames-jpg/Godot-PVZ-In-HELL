@@ -16,6 +16,7 @@ static func append_sample(
 	if not drawable(parcel):
 		break_stroke(marker)
 		return
+
 	var marks: C_PackageMarks = parcel.get_component(C_PackageMarks) as C_PackageMarks
 	if marks == null or marks.point_count >= marker.max_package_points:
 		break_stroke(marker)
@@ -25,6 +26,7 @@ static func append_sample(
 	if body == null:
 		break_stroke(marker)
 		return
+
 	var local_normal: Vector3 = (body.global_basis.transposed() * world_normal).normalized()
 	var point: Vector3 = body.to_local(world_point + world_normal * SURFACE_OFFSET)
 	var package_entity: E_Package = parcel as E_Package

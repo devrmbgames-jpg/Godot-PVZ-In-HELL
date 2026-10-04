@@ -189,6 +189,7 @@ static func finalize_missed_unregistered(
 		or cycle.day_index <= 1
 	):
 		return 0
+
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	if ledger == null:
 		return 0
@@ -209,12 +210,14 @@ static func finalize_missed_unregistered(
 			var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 			if state == null or state.registration != C_PackageState.Registration.UNREGISTERED:
 				continue
+
 			var identity: C_Package = parcel.get_component(C_Package) as C_Package
 			if identity != null and visit.package_history_id.is_empty():
 				visit.package_history_id = identity.history_id
 
 		if not CustomerOutcomeService.mark_missed_registration_lost(visit, cycle.day_index):
 			continue
+
 		CustomerOutcomeService.settle(visit, wallet, cycle.day_index)
 		if parcel != null:
 			ECS.world.remove_entity(parcel)
@@ -543,6 +546,7 @@ static func confirm_direct_delivery(
 	var parcel: Entity = direct_handoff_package(actor, customer)
 	if parcel == null:
 		return PackageDeliveryCheck.Result.MISSING
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = find_visit(agent.visit_id)
 	var result: PackageDeliveryCheck.Result = _resolve_delivery(
@@ -564,6 +568,7 @@ static func _resolve_delivery(
 ) -> PackageDeliveryCheck.Result:
 	if customer == null or visit == null or parcel == null:
 		return PackageDeliveryCheck.Result.MISSING
+
 	var held: bool = GrabService.held_relationship(parcel) != null
 	var allow_held: bool = is_instance_valid(direct_holder)
 	var check_result: PackageDeliveryCheck = CustomerOutcomeService.check(

@@ -35,9 +35,11 @@ func _dispatch(
 ) -> void:
 	if not is_instance_valid(_world):
 		return
+
 	for entry: DEF_DepletionSpawn in entries:
 		if entry == null or entry.scene == null:
 			continue
+
 		var spawned: Node = entry.scene.instantiate()
 		_world.add_child(spawned)
 		var spatial: Node3D = spawned as Node3D

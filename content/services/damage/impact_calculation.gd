@@ -29,6 +29,7 @@ static func evaluate(
 	result.amount *= maxf(0.0, profile.damage_per_joule)
 	if not is_finite(result.amount):
 		return ImpactResult.new()
+
 	result.qualifies = true
 	result.severity = classify(result.amount, profile)
 	return result

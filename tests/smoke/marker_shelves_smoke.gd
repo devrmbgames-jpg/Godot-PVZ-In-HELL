@@ -225,6 +225,7 @@ func _store_on_shelf(
 	var ray: RayCast3D = GrabService.interaction_raycast(actor)
 	ray.look_at(parcel_body.global_position + Vector3(0, 0.2, 0))
 	await get_tree().physics_frame
+
 	var parcel: Entity = parcel_body as Node as Entity
 	assert(GrabService.try_pickup(actor, parcel, C_Grabbable.HoldSlot.CARRY))
 	var point_count: int = marks.point_count

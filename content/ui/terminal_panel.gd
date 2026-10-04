@@ -207,9 +207,11 @@ func _visible_records(
 		var visit: CustomerVisit = visits.get(record.package_id) as CustomerVisit
 		if not _show_archive and _is_archived(record, visit, debug_package_status_enabled):
 			continue
+
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
 		if not needle.is_empty() and not _matches_search(record, state, visit, needle):
 			continue
+
 		records.append(record)
 	records.sort_custom(_record_before)
 	return records
@@ -331,6 +333,7 @@ func _package_history_entries(
 	for record: PackageRegistrationRecord in ledger.records:
 		ordered.append(record)
 	ordered.sort_custom(_history_record_before)
+
 	var entries: PackedStringArray = []
 	for record: PackageRegistrationRecord in ordered:
 		var definition: DEF_Package = record.definition
@@ -487,6 +490,7 @@ func _data_signature(
 				visit.declaration if visit != null else -1,
 			]
 		)
+
 	var wallet: C_Wallet = WalletService.current()
 	if wallet != null:
 		parts.append("wallet:%d:%d:%d" % [wallet.balance, wallet.penalties, wallet.operations.size()])
@@ -552,6 +556,7 @@ func _declare_package(
 	if not CustomerFlowService.declare(visit.visit_id, declaration):
 		push_warning("Terminal declaration rejected for package %s" % package_id)
 		return
+
 	_last_data_signature = ""
 	call_deferred("_refresh", true)
 

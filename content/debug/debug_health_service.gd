@@ -110,6 +110,7 @@ static func _submit(
 	if not EntityAvailability.contains(target.entity, ECS.world):
 		result.message = "target has no live Entity"
 		return result
+
 	var entity: Entity = target.entity
 	var health: C_Health = entity.get_component(C_Health) as C_Health
 	if health == null:

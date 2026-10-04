@@ -76,6 +76,7 @@ static func _driver_lag(
 	var actor_node: Node3D = actor as Node as Node3D
 	if actor_node == null:
 		return 0.0
+
 	var offset: Vector3 = (
 		CartTransportService.handle_position(body, config) - actor_node.global_position
 	)

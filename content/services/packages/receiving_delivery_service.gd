@@ -57,6 +57,7 @@ static func deliver_one(
 		receiving.blocked = true
 		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
 		return
+
 	identity.delivery_day = batch.day_index
 	identity.supply_key = zone.supply.key
 	if PackageHistoryService.ensure_history_id(parcel, batch.day_index).is_empty():
@@ -64,6 +65,7 @@ static func deliver_one(
 		receiving.blocked = true
 		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
 		return
+
 	receiving.last_spawn_tick = Engine.get_physics_frames()
 	_advance(receiving, batch)
 

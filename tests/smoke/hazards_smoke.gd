@@ -352,6 +352,7 @@ func _body(
 		components.append(C_Health.new())
 	if living:
 		components.append(C_Living.new())
+
 	var entity: Entity = body as Node as Entity
 	_world.add_entity(entity, components, false)
 	return entity

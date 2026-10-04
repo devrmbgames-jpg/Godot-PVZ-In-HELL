@@ -161,6 +161,7 @@ func _terrain_checks(
 	var ramp: StaticBody3D = _obstacle(Vector3(8, 0.63, -1), Vector3(4, 0.2, 6))
 	ramp.rotation.x = 0.22
 	await _place(cart_body, actor_body, Vector3(8, 0.8, 4))
+
 	var load_ready: bool = await _load_cargo(cart_body)
 	assert(load_ready)
 	_controller.move_axis = Vector2(0, -1)
@@ -189,6 +190,7 @@ func _terrain_checks(
 	assert(cart_body.position.z < -1.5, "Cart and driver must traverse a small uneven patch")
 	assert(cart_body.position.z > -2.8, "A wall must block transport")
 	assert(highest < rest_height + 0.23, "Small bumps must not launch the cart")
+
 	var at_wall: float = cart_body.position.z
 	_controller.move_axis = Vector2(0, 1)
 	for tick: int in 100:

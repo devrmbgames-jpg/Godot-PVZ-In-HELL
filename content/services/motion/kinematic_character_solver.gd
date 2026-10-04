@@ -17,6 +17,7 @@ static func step(
 	motion.pending_impulse = Vector3.ZERO
 	config.impulse_velocity += Vector3(impulse.x, 0.0, impulse.z)
 	config.impulse_velocity = config.impulse_velocity.move_toward(Vector3.ZERO, config.impulse_decay_per_second * delta)
+
 	var controlled: Vector3 = body.velocity - old_impulse
 	controlled.y += impulse.y
 	var rebound: Vector3 = config.pending_rebound_velocity
@@ -27,6 +28,7 @@ static func step(
 		controlled.y = 0.0
 	else:
 		controlled += body.get_gravity() * config.gravity_scale * delta
+
 	var desired: Vector3 = control.direction_motion.limit_length(1.0) if motion.control_enabled else Vector3.ZERO
 	desired.y = 0.0
 	var speed: float = CharacterMotionSolver.effective_speed(
@@ -40,16 +42,19 @@ static func step(
 	planar = planar.move_toward(desired * speed, acceleration * delta)
 	controlled.x = planar.x
 	controlled.z = planar.z
+
 	body.velocity = controlled + config.impulse_velocity
 	var transport_step: float = _follow_transport(actor, body, delta)
 	body.floor_snap_length = motion.floor_snap_distance
 	body.floor_max_angle = deg_to_rad(motion.floor_max_angle_degrees)
 	if config.impulse_velocity.is_zero_approx():
 		_lift_step(body, maxf(config.step_height, transport_step), delta)
+
 	var incoming: Vector3 = body.velocity
 	body.move_and_slide()
 	KinematicPushSolver.push_contacts(actor, body, config, desired * speed, delta)
 	KinematicImpactCapture.capture(actor, body, config, incoming)
+
 	motion.is_on_floor = body.is_on_floor()
 	motion.floor_normal = body.get_floor_normal() if motion.is_on_floor else Vector3.UP
 	motion.floor_velocity = body.get_platform_velocity() if motion.is_on_floor else Vector3.ZERO

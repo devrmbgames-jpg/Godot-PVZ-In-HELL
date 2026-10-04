@@ -34,10 +34,12 @@ static func spawn(
 	if zone == null or zone.supply == null:
 		result.message = "receiving zone/supply is unavailable"
 		return result
+
 	var definition: DEF_Package = _definition(zone, definition_key)
 	if definition == null:
 		result.message = "package definition was not found: %s" % String(definition_key)
 		return result
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null:
 		result.message = "day cycle is unavailable"
@@ -80,6 +82,7 @@ static func spawn(
 			_rollback(spawned)
 			result.message = "spawned package has no identity"
 			return result
+
 		identity.delivery_day = cycle.day_index
 		identity.supply_key = zone.supply.key
 		if PackageHistoryService.ensure_history_id(parcel, cycle.day_index).is_empty():
@@ -97,6 +100,7 @@ static func spawn(
 				_rollback(spawned)
 				result.message = "package registration failed"
 				return result
+
 			number_text = "#%03d" % registration.number
 		result.details.append(
 			"package_id=%s definition=%s number=%s"
@@ -290,6 +294,7 @@ static func _next_package_id(
 		]
 		if not _identity_exists(candidate):
 			return candidate
+
 		sequence += 1
 	return ""
 

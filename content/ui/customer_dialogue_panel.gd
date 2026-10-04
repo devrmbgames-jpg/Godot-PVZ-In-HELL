@@ -74,6 +74,7 @@ func open_for(
 ) -> bool:
 	if _closed or _capture_token != 0:
 		return false
+
 	_actor = actor
 	_context = context
 	_resource = resource
@@ -84,6 +85,7 @@ func open_for(
 	)
 	if _capture_token == 0:
 		return false
+
 	_previous_mouse_mode = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_input_enabled = false

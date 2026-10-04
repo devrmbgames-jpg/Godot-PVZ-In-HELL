@@ -30,6 +30,7 @@ static func reset() -> void:
 		NpcDialogueService.end(entity)
 		NpcCommunityService.cancel_activity(entity)
 		NpcHomeDeliveryService.release_meeting(entity)
+
 		if entity.has_component(C_CartTransport):
 			CartTransportService.end(entity)
 		var pushed: Entity = PushService.pushed_object(entity)
@@ -45,6 +46,7 @@ static func reset() -> void:
 			var control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
 			control.captures.clear()
 			control.rotation_active = false
+
 		if entity is E_DistrictNpc and entity.has_component(C_CustomerAgent):
 			var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
 			var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
@@ -57,6 +59,7 @@ static func reset() -> void:
 			ECS.world.remove_entity(entity)
 		elif entity.has_component(C_HazardLifetime) and not (entity.get_component(C_HazardLifetime) as C_HazardLifetime).persistent:
 			HazardLifecycle.retire(entity, ECS.world)
+
 		var body: RigidBody3D = entity as Node as RigidBody3D if is_instance_valid(entity) else null
 		if body != null:
 			body.linear_velocity = Vector3.ZERO

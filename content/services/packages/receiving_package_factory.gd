@@ -18,13 +18,16 @@ static func create(
 ) -> E_Package:
 	if zone == null or definition == null or definition.scene_variants.is_empty():
 		return null
+
 	var package_scene_path: String = definition.scene_variants.pick_random()
 	var packed: PackedScene = load(package_scene_path) as PackedScene
 	if packed == null:
 		return null
+
 	var parcel: E_Package = packed.instantiate() as E_Package
 	if parcel == null:
 		return null
+
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	if body == null:
 		parcel.free()
@@ -46,6 +49,7 @@ static func create(
 	if carry == null:
 		parcel.free()
 		return null
+
 	carry.throw_velocity = definition.throw_velocity
 	parcel.component_resources = component_resources
 	return parcel

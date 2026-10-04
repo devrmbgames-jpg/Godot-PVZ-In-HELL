@@ -115,6 +115,7 @@ func _resolve_direction(
 	var source: Entity = source_body as Node as Entity
 	if not EntityAvailability.contains(target, _world) or not target.has_component(C_Health):
 		return
+
 	var health: C_Health = target.get_component(C_Health) as C_Health
 	if health.depleted or health.current <= 0.0:
 		return
@@ -123,9 +124,11 @@ func _resolve_direction(
 	# Holding is not a weapon mode; neither participant's holder receives contact damage.
 	if _held_pair(source, target) or _held_pair(target, source):
 		return
+
 	var receiver: C_ImpactReceiver = target.get_component(C_ImpactReceiver) as C_ImpactReceiver
 	if receiver == null:
 		return
+
 	var source_mass: float = KinematicImpactCapture.mass_of(source_body)
 	if source_mass <= 0.0:
 		# An immovable environment exchanges the receiver's own moving mass, not infinity.

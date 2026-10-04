@@ -89,6 +89,7 @@ static func apply_dialogue_intent(
 ) -> bool:
 	if visit == null or visit.definition == null or intent == CustomerDialogueIntent.Type.NONE:
 		return false
+
 	visit.last_dialogue_intent = intent
 	var intent_bit: int = CustomerDialogueIntent.bit(intent)
 	if intent_bit != 0 and bool(visit.applied_dialogue_intents & intent_bit):
@@ -97,6 +98,7 @@ static func apply_dialogue_intent(
 	for reaction: DEF_CustomerDialogueReaction in visit.definition.dialogue_reactions:
 		if reaction == null or reaction.intent != intent:
 			continue
+
 		visit.dialogue_satisfaction_delta += reaction.satisfaction_delta
 		visit.complaint_probability_delta += reaction.complaint_probability_delta
 		visit.aggression_probability_delta += reaction.aggression_probability_delta
@@ -282,6 +284,7 @@ static func resolve_complaint(
 	else:
 		if wallet == null:
 			return
+
 		var operation: MoneyOperation = WalletService.package_settlement(
 			wallet,
 			complaint.complaint_id,
@@ -292,6 +295,7 @@ static func resolve_complaint(
 		var result: WalletService.Status = WalletService.apply(wallet, operation, day)
 		if result != WalletService.Status.COMMITTED and result != WalletService.Status.DUPLICATE:
 			return
+
 		complaint.outcome = CustomerComplaint.Outcome.CONFIRMED
 		complaint.money_delta = -operation.amount
 		if visit.actual != CustomerVisit.Actual.CUSTOMER_REFUSED:

@@ -34,6 +34,7 @@ func serialize() -> String:
 		return ""
 	if mass_tenths_kg < 0 or mass_tenths_kg > MAX_MASS_TENTHS:
 		return ""
+
 	var mass_code: String = _encode_base36(mass_tenths_kg, MASS_DIGITS)
 	if mass_code.is_empty():
 		return ""
@@ -61,9 +62,11 @@ static func parse(value: String) -> PackageHistoryId:
 	var parts: PackedStringArray = value.split("-", false)
 	if parts.size() != 3 or not parts[0].is_valid_int() or not parts[1].is_valid_int():
 		return null
+
 	var encoded: String = parts[2].to_upper()
 	if encoded.length() != HASH_LENGTH:
 		return null
+
 	var hazard_index: int = HAZARD_CODES.find(encoded.substr(0, 1))
 	var size_index: int = SIZE_CODES.find(encoded.substr(1, 1))
 	var mass_value: int = _decode_base36(encoded.substr(2, MASS_DIGITS))
@@ -82,6 +85,7 @@ static func parse(value: String) -> PackageHistoryId:
 static func _encode_base36(value: int, width: int) -> String:
 	if value < 0 or width < 1:
 		return ""
+
 	var current: int = value
 	var result: String = ""
 	for _index: int in width:
@@ -99,5 +103,6 @@ static func _decode_base36(value: String) -> int:
 		var digit: int = BASE36.find(value.substr(index, 1).to_upper())
 		if digit < 0:
 			return -1
+
 		result = result * BASE36.length() + digit
 	return result

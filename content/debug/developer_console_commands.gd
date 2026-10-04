@@ -49,6 +49,7 @@ func _ready() -> void:
 		1,
 		"Resolve a developer-console target without mutating gameplay.",
 	)
+
 	_register_command(
 		PACKAGE_LIST_COMMAND,
 		_pkg_list,
@@ -56,6 +57,7 @@ func _ready() -> void:
 		0,
 		"List package identities, registration and live condition.",
 	)
+
 	_register_command(
 		PACKAGE_INFO_COMMAND,
 		_pkg_info,
@@ -63,6 +65,7 @@ func _ready() -> void:
 		1,
 		"Show package, visit and condition details.",
 	)
+
 	_register_command(
 		VISIT_INFO_COMMAND,
 		_visit_info,
@@ -70,6 +73,7 @@ func _ready() -> void:
 		1,
 		"Show persistent CustomerVisit/dispute details.",
 	)
+
 	_register_command(
 		WALLET_INFO_COMMAND,
 		_wallet_info,
@@ -77,6 +81,7 @@ func _ready() -> void:
 		0,
 		"Show wallet and current-day totals.",
 	)
+
 	_register_command(
 		HEALTH_INFO_COMMAND,
 		_health_info,
@@ -84,6 +89,7 @@ func _ready() -> void:
 		0,
 		"Show Health/death state. Defaults to self.",
 	)
+
 	_register_command(
 		PACKAGE_SPAWN_COMMAND,
 		_pkg_spawn,
@@ -91,6 +97,7 @@ func _ready() -> void:
 		1,
 		"Spawn debug Package instances from an existing definition.",
 	)
+
 	_register_command(
 		PACKAGE_REMOVE_COMMAND,
 		_pkg_remove,
@@ -98,6 +105,7 @@ func _ready() -> void:
 		1,
 		"Remove only the live physical Package.",
 	)
+
 	_register_command(
 		PACKAGE_PURGE_COMMAND,
 		_pkg_purge,
@@ -105,6 +113,7 @@ func _ready() -> void:
 		1,
 		"Purge safe debug-created Package state.",
 	)
+
 	_register_command(
 		PACKAGE_REGISTER_COMMAND,
 		_pkg_register,
@@ -112,33 +121,40 @@ func _ready() -> void:
 		1,
 		"Register a live Package without Scanner gesture.",
 	)
+
 	_register_command(VISIT_CREATE_COMMAND, _visit_create, ["package", "customer_key=default", "arrive=0|1"], 1, "Create an accounting visit (default) or queue a live visit (arrive=1) with authored customer behavior.")
 	_register_command(PACKAGE_ACTUAL_COMMAND, _pkg_actual, ["package", "actual"], 2, "Force factual CustomerVisit outcome only.")
 	_register_command(PACKAGE_DECLARE_COMMAND, _pkg_declare, ["package", "taken|refused|lost"], 2, "Submit Terminal declaration through CustomerFlowService.")
 	_register_command(PACKAGE_COMPLAINT_COMMAND, _pkg_complaint, ["package", "reason", "pending|resolve"], 2, "Create or resolve a typed Customer complaint.")
 	_register_command(COMPLAINT_RESOLVE_COMMAND, _complaint_resolve, ["package"], 1, "Resolve an existing complaint immediately.")
 	_register_command(PACKAGE_APPROVE_COMMAND, _pkg_approve, ["package", "satisfaction"], 1, "Record positive Customer feedback.")
+
 	_register_command("pkg_taken", _pkg_taken, ["package"], 1, "Alias for pkg_declare taken.")
 	_register_command("pkg_lost", _pkg_lost, ["package"], 1, "Alias for pkg_declare lost.")
 	_register_command("pkg_refused", _pkg_refused, ["package"], 1, "Alias for pkg_declare refused.")
 	_register_command("pkg_delivered", _pkg_delivered, ["package"], 1, "Alias for factual delivered.")
 	_register_command("pkg_customer_refused", _pkg_customer_refused, ["package"], 1, "Alias for factual customer refusal.")
 	_register_command("pkg_player_denied", _pkg_player_denied, ["package"], 1, "Alias for factual player denial.")
+
 	_register_command(MONEY_ADD_COMMAND, _money_add, ["amount", "note"], 1, "Journaled debug credit.")
 	_register_command(MONEY_REMOVE_COMMAND, _money_remove, ["amount", "note"], 1, "Journaled forced debug debit.")
 	_register_command(PENALTY_ADD_COMMAND, _penalty_add, ["amount", "note"], 1, "Journaled manual debug penalty.")
 	_register_command(PENALTY_REMOVE_COMMAND, _penalty_remove, ["amount", "note"], 1, "Compensating reversal of manual debug penalty.")
+
 	_register_command(APPLY_DAMAGE_COMMAND, _apply_damage, ["target", "amount", "damage_type"], 2, "Submit typed damage to a Health target.")
 	_register_command(HEAL_COMMAND, _heal, ["target", "amount"], 2, "Submit typed healing to a non-depleted Health target.")
 	_register_command(KILL_COMMAND, _kill, ["target"], 0, "Deplete a Health target through DamageRequest. Defaults to self.")
 	_register_command(RESET_COMMAND, _reset, ["target"], 0, "Reset a live C_Living entity. Defaults to self.")
 	_register_command(PACKAGE_RESET_COMMAND, _pkg_reset, ["package"], 1, "Reset a live damaged Package.")
+
 	_register_command(DAY_INFO_COMMAND, _day_info, [], 0, "Show current day-cycle state.")
 	_register_command(DAY_NEXT_COMMAND, _day_next, [], 0, "Queue the next normal day transition.")
 	_register_command(CUSTOMER_NEXT_COMMAND, _customer_next, [], 0, "Start the next due CustomerVisit when valid.")
+
 	_register_command(DEBUG_TARGETS_COMMAND, _debug_targets, [], 0, "List concise live debug target handles.")
 	_register_command(DEBUG_HELP_COMMAND, _debug_help, ["command|group"], 0, "Show project developer-console workflows and target syntax.")
 	_register_command(DEBUG_HUD_COMMAND, _debug_hud, ["on|off|toggle"], 0, "Toggle all debug HUD and customer status labels; ordinary gameplay UI stays active.")
+
 	_register_autocomplete()
 
 	var gameplay: Node = preload("res://content/debug/developer_console_gameplay.gd").new()
@@ -328,6 +344,7 @@ func _pkg_spawn(
 		if not count_text.is_valid_int():
 			DeveloperConsoleOutput.error(PACKAGE_SPAWN_COMMAND, "count must be an integer")
 			return
+
 		count = count_text.to_int()
 	var mode: String = mode_text.strip_edges().to_lower()
 	if mode.is_empty():
@@ -340,6 +357,7 @@ func _pkg_spawn(
 				"registered must be 0 or 1",
 			)
 			return
+
 		register_packages = registered_text == "1"
 
 	var result: DebugServiceResult = DebugPackageService.spawn(
@@ -437,6 +455,7 @@ func _pkg_complaint(
 	if mode != "pending" and mode != "resolve":
 		DeveloperConsoleOutput.error(PACKAGE_COMPLAINT_COMMAND, "mode must be pending or resolve")
 		return
+
 	var target: DebugTarget = DebugTargetResolver.resolve(raw_target)
 	match reason_text.strip_edges().to_lower():
 		"not_delivered":
@@ -529,6 +548,7 @@ func _run_money_command(
 	if not amount_text.is_valid_int():
 		DeveloperConsoleOutput.error(command, "amount must be a positive integer")
 		return
+
 	var amount: int = amount_text.to_int()
 	var result: DebugServiceResult = DebugServiceResult.new()
 	match reason:
@@ -552,6 +572,7 @@ func _apply_damage(
 	var amount: float = _positive_float(APPLY_DAMAGE_COMMAND, amount_text)
 	if amount <= 0.0:
 		return
+
 	var target: DebugTarget = DebugTargetResolver.resolve(raw_target)
 	var normalized: String = damage_type_text.strip_edges().to_lower()
 	if normalized.is_empty():

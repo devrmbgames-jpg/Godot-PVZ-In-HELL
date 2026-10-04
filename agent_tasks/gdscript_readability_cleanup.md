@@ -1,5 +1,5 @@
 # Task — GDScript readability cleanup
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 ## Task state
 
@@ -57,11 +57,13 @@ Avoid GUT/runtime tests unless a change accidentally goes beyond formatting and 
 
 ### Current
 
-Completed batches: NPC/customer/dialogue/AI (27 changed), other runtime services (102 reviewed, 93 changed), engine glue/UI/debug/systems/observers (146 reviewed, 77 changed), significant tests/tools (116 reviewed, 104 changed). Input guards, subsequent lookup/action phases and failure cleanup are separated; consecutive related guards remain together. Next: remaining dense switch branches and data-contract/definition methods, then final formatting audit. Addons remain excluded. R25 documentation follows this pass.
+Completed all formatting batches and the final audit across 638 owned GDScripts. NPC/customer/dialogue/AI (27 changed), other services (93 changed), glue/UI/debug/systems/observers (77 changed), tests/tools (104 changed), final data/multiline-signature/manual block pass (49 changed, including overlaps with previous batches). Input guards, lookup/action phases, physics output, snapshot restoration and distinct console groups are separated. Related guards, aliases and one-line mappings stay together. Addons are untouched. Next work belongs to R25 documentation; no readability work remains.
 
 ### Validation
 
 Exact nonblank-line comparison and comment/string-aware executable-source comparison PASS via utils/verify_gdscript_nonbehavior_changes.py --mode spacing. Godot fresh-process parser: 27/27 (.bin/readability-npc-customer-parser.log), 93/93 (.bin/readability-services-parser.log), 77/77 (.bin/readability-runtime-glue-parser.log), 104/104 (.bin/readability-tests-tools-parser.log), zero failures and no script warnings/errors. The second runner's initial absolute-path manifest was corrected before acceptance. Diff review retains clustered guards; whitespace PASS. No gameplay/GUT/export reruns were performed for formatting-only edits.
+
+Final batches: 12 data-method scripts, then 49/49 final changed scripts parsed successfully (.bin/readability-final-parser.log); the final console grouping refinement parsed separately. Full diff against de52b343 verified with --mode spacing, including exact string contents and indentation. Project structure and whitespace checks PASS. Dense remaining literal tables, multiline expressions and related assignments are intentional; no mechanical line-count target is imposed.
 
 ### Owner QA / blockers
 
