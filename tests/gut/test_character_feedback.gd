@@ -53,6 +53,33 @@ func _voices(footsteps: Footstepper) -> int:
 			count += 1
 	return count
 
+## Removing and reattaching manual footsteps releases old playback and keeps the pool usable.
+func test_removed_footsteps_release_audio_and_can_play_after_reattachment() -> void:
+	for spatial: bool in [false, true]:
+		var footsteps: CharacterFootstepper = CharacterFootstepper.new()
+		footsteps.manual_footstep = true
+		footsteps.manual_jump = true
+		footsteps.manual_land = true
+		footsteps.material_aware_enabled = false
+		footsteps.audio_is_3d = spatial
+		footsteps.default_sound_profile = FootstepperSoundProfile.new()
+		_root.add_child(footsteps)
+		footsteps.play_footstep()
+		assert_eq(_voices(footsteps), 1)
+
+		_root.remove_child(footsteps)
+		assert_eq(_voices(footsteps), 0, "Removed characters must release active playback")
+		for audio_node: Node in footsteps.get_children():
+			if audio_node is AudioStreamPlayer3D:
+				assert_null((audio_node as AudioStreamPlayer3D).stream)
+			elif audio_node is AudioStreamPlayer:
+				assert_null((audio_node as AudioStreamPlayer).stream)
+
+		_root.add_child(footsteps)
+		footsteps.play_footstep()
+		assert_eq(_voices(footsteps), 1, "All pooled voices remain available after reattachment")
+		footsteps.free()
+
 
 func test_grounded_motion_plays_manual_audio_and_bobs_only_camera_then_returns_neutral() -> void:
 	var footsteps: Footstepper = _feedback.get_node("Footstepper") as Footstepper

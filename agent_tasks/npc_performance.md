@@ -2,7 +2,7 @@
 
 ## Task state
 
-Status: **DONE**
+Status: **IN_PROGRESS**
 - Owner: Codex
 
 ### Goal
@@ -11,7 +11,7 @@ Remove the measured NPC planning stalls without sacrificing readable code, physi
 
 ### Current
 
-Implemented in commit 044fbc6c. Technical checks and the Windows QA build are complete; rendered owner QA remains separate.
+Implemented in commit 044fbc6c. Final exported stderr exposed active footstep OGG playback retained at shutdown. Verbose evidence identifies AudioStreamPlaybackOggVorbis and its packet data, not the NPC caches. Project-owned CharacterFootstepper now stops/releases native audio voices on tree exit and restores the pool for reattachment; addon source is unchanged. Validating this lifecycle fix and preparing the updated build. Rendered owner QA remains separate.
 
 The owner profiler identifies NpcRouteService.plan / _cost -> NpcLightingService.exposure_at -> DistrictPopulationService.position_for/current and LightCircuitService.state_for/entity_for. Reproduced on main_level: route median 795.412 ms (12 samples); 809 light queries median 768.781 ms (12 batches). The initial frame monitor is contaminated by synchronous benchmark work and is not a valid steady-frame claim.
 
