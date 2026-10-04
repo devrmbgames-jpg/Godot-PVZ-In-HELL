@@ -24,6 +24,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if CustomerFlowService.parcel_for("base_supply:1:oil") != null:
 			break
+
 	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:oil")
 	assert(parcel != null)
 	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
@@ -33,6 +34,7 @@ func _run() -> void:
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
 	assert(DayPhaseService.submit(request))
+
 	var npc: E_Customer = null
 	for frame: int in SUPPLY_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
@@ -40,6 +42,7 @@ func _run() -> void:
 		npc = ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_Customer
 		if npc != null:
 			break
+
 	assert(npc != null)
 	var visit: CustomerVisit = CustomerFlowService.find_visit((npc.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	assert(CombatService.hit(actor, actor, npc, 200.0))
@@ -49,6 +52,7 @@ func _run() -> void:
 	ECS.world.process(FRAME_DELTA, "GamePlay")
 	assert(CustomerFlowService.customer_for(visit.visit_id) == null)
 	assert(visit.customer_dead and visit.defeated_by_player)
+
 	var meat: Array[Entity] = []
 	for drop: Entity in ECS.world.query.with_all([C_InventoryItem]).execute():
 		var item: C_InventoryItem = drop.get_component(C_InventoryItem) as C_InventoryItem
@@ -58,6 +62,7 @@ func _run() -> void:
 	for drop: Entity in meat:
 		assert((drop as Node as Node3D).global_position.y > -0.5, "Actual authored floor supports the remains")
 		assert(InventoryService.transfer(drop, actor))
+
 	var food: Entity = null
 	for item: Entity in InventoryService.items(actor):
 		if (item.get_component(C_InventoryItem) as C_InventoryItem).definition.key == &"npc_meat":

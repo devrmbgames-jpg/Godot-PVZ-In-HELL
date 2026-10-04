@@ -21,6 +21,7 @@ func _run() -> void:
 	_controller = _actor.get_component(C_Controller) as C_Controller
 	await get_tree().physics_frame
 	await get_tree().physics_frame
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	assert(cycle != null and cycle.phase == C_DayCycle.Phase.MORNING)
 	assert(not DayPhaseService.permits(cycle, DayTransitionRequest.Kind.SLEEP))

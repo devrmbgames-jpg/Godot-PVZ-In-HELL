@@ -28,6 +28,7 @@ func before_each() -> void:
 	_world.add_observer(O_GrabLifecycle.new())
 	_probe = Probe.new()
 	_world.add_observer(_probe)
+
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.name = "Actor"
@@ -37,6 +38,7 @@ func before_each() -> void:
 	anchor.position.y = 1.0
 	body.add_child(anchor)
 	_actor.hold_anchor = anchor
+
 	var ray: RayCast3D = RayCast3D.new()
 	ray.position.y = 1.0
 	ray.target_position = Vector3(0, 0, -3)
@@ -47,6 +49,7 @@ func before_each() -> void:
 	_root.add_child(body)
 	_actor.owner = _root
 	_world.add_entity(_actor, null, false)
+
 	var session: Entity = Entity.new()
 	session.name = "Session"
 	session.component_resources = [C_DayCycle.new()]
@@ -81,6 +84,7 @@ func _parcel() -> Entity:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "events/parcel"
 	parcel.component_resources = [identity, C_Interactable.new(), C_Grabbable.new()]
+
 	var collider: CollisionShape3D = CollisionShape3D.new()
 	collider.shape = BoxShape3D.new()
 	body.add_child(collider)
@@ -163,6 +167,7 @@ func test_superseded_or_restored_pending_door_intent_never_replays() -> void:
 	OpenableService.report_fraction(state, 0.0, door)
 	assert_eq(_probe.events.size(), 0, "Canceled opening did not move the leaf")
 	assert_true(OpenableService.request(_actor, door, OpenableService.Operation.OPEN))
+
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
 	assert_true(WorldSnapshotService.valid(snapshot, _root))
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
@@ -192,6 +197,7 @@ func test_npc_and_forced_release_do_not_emit_player_action() -> void:
 	_actor.remove_component(C_PlayerInputController)
 	assert_true(GrabService.try_pickup(_actor, parcel))
 	GrabService.release(_actor, parcel)
+
 	var door: E_Door = _door()
 	var state: C_Openable = door.get_component(C_Openable) as C_Openable
 	assert_true(OpenableService.request(_actor, door, OpenableService.Operation.OPEN))

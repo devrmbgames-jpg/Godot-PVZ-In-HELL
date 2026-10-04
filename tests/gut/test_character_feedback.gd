@@ -19,6 +19,7 @@ func before_each() -> void:
 	body.freeze = true
 	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
+
 	var motion: C_Motion = C_Motion.new()
 	motion.is_on_floor = true
 	var controller: C_Controller = C_Controller.new()
@@ -118,6 +119,7 @@ func test_air_idle_modal_and_death_do_not_trigger_footsteps() -> void:
 	_feedback._physics_process(1.0 / 60.0)
 	assert_eq(_voices(footsteps), 0)
 	controller.direction_motion = Vector3.FORWARD
+
 	var token: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
 	(_actor as Node as Node3D).position.z -= 0.8
 	_feedback._physics_process(1.0 / 60.0)

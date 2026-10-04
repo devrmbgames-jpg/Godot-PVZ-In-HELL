@@ -13,6 +13,7 @@ func test_fire_immunity_matches_real_damage_and_route_risk() -> void:
 	hazard.definition = config
 	_world.add_entity(fire, [hazard])
 	(fire as Node as Node3D).global_position = Vector3(50, 1, 8)
+
 	var path: PackedVector3Array = PackedVector3Array([Vector3(45, 0, 8), Vector3(55, 0, 8)])
 	assert_eq(NpcRouteService.expected_damage(immune, path), 0.0)
 	assert_gt(NpcRouteService.expected_damage(normal, path), 0.0)
@@ -23,6 +24,7 @@ func test_fire_immunity_matches_real_damage_and_route_risk() -> void:
 		hit.amount = 10.0
 		hit.damage_type = DamageRequest.Type.FIRE
 		DamageRequestService.submit(hit)
+
 	var immune_health: C_Health = immune.get_component(C_Health) as C_Health
 	var normal_health: C_Health = normal.get_component(C_Health) as C_Health
 	assert_eq(immune_health.current, immune_health.value)

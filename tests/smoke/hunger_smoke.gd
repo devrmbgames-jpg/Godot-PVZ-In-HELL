@@ -21,6 +21,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
 	assert(hunger != null and hunger.policy != null)
 	hunger.value = 0.0
@@ -30,6 +31,7 @@ func _run() -> void:
 	assert(HungerService.apply_food(actor, food) and hunger.value == 5.0)
 	var heavy: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
 	actor_body.global_position = (heavy as Node as Node3D).global_position + Vector3(0, 0.1, 1.8)
+
 	var ray: RayCast3D = GrabService.interaction_raycast(actor)
 	ray.look_at((heavy as Node as Node3D).global_position + Vector3.UP * 0.2)
 	await get_tree().physics_frame
@@ -48,6 +50,7 @@ func _run() -> void:
 	assert(is_equal_approx(CharacterMotionSolver.effective_speed(motion, carry, strength, hunger), carried_speed) and motion.max_speed == baseline)
 	GrabService.release(actor, heavy)
 	assert(PackageRegistrationService.register_package(CustomerFlowService.parcel_for("base_supply:1:books")).outcome == PackageScanResult.Outcome.REGISTERED)
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.START_SHIFT
@@ -62,6 +65,7 @@ func _run() -> void:
 		customer = CustomerFlowService.waiting_customer()
 		if customer != null:
 			break
+
 	assert(customer != null)
 	var customer_body: RigidBody3D = customer as Node as RigidBody3D
 	var customer_rid: RID = customer_body.get_rid()
@@ -73,6 +77,7 @@ func _run() -> void:
 		await get_tree().process_frame
 		if (customer.get_node("HungerPerception/Food") as Node3D).visible:
 			break
+
 	assert((customer.get_node("HungerPerception/Food") as Node3D).visible)
 	assert(not (customer.get_node("Body") as Node3D).visible)
 	assert(customer_body.get_rid() == customer_rid and visit.package_id == order)
@@ -83,6 +88,7 @@ func _run() -> void:
 		await get_tree().process_frame
 		if debug.text.contains("Starving") and debug.text.contains("Пороги"):
 			break
+
 	assert(debug.text.contains("Starving") and debug.text.contains("до следующего") and debug.text.contains("Задача:"))
 	var weapon: Entity = level.get_node("Entityes/UtilityBlade") as Entity
 	assert(CombatService.hit(actor, weapon, customer, 40.0))
@@ -94,6 +100,7 @@ func _run() -> void:
 		await get_tree().process_frame
 		if (customer.get_node("Body") as Node3D).visible:
 			break
+
 	assert((customer.get_node("Body") as Node3D).visible)
 	assert(not (customer.get_node("HungerPerception/Food") as Node3D).visible)
 	assert(context.perceived_text("Заказ клиента") == "Заказ клиента" and visit.package_id == order)

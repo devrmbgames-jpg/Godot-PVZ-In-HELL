@@ -32,6 +32,7 @@ func test_two_cases_use_the_same_living_body() -> void:
 	assert_true(first.finished)
 	assert_false(body.has_component(C_CustomerAgent))
 	assert_same(DistrictPopulationService.body_for(person.npc_id), body)
+
 	var second: CustomerVisit = _case(person, "second")
 	NpcServiceRole.begin(body, person, second, 2)
 	assert_same(DistrictPopulationService.body_for(person.npc_id), body)

@@ -15,6 +15,7 @@ func before_each() -> void:
 	ECS.world = _world
 	_world.add_observer(O_Damage.new())
 	_world.add_observer(O_DoorBreakage.new())
+
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new()]
 	_root.add_child(session)
@@ -25,6 +26,7 @@ func before_each() -> void:
 	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 	_actor.component_resources = [C_Combat.new(), C_GrabControl.new(), C_Controller.new()]
+
 	var head: Marker3D = Marker3D.new()
 	head.position.y = 1.3
 	body.add_child(head)
@@ -85,6 +87,7 @@ func test_hammer_breaks_padlock_and_preserves_door_leaf_and_open_action() -> voi
 	assert_true(door.door_root.visible)
 	assert_gt(door.door_root.collision_layer, 0)
 	assert_true(OpenableService.request(_actor, door, OpenableService.Operation.OPEN))
+
 	var status: Label3D = door.get_node("BreakageStatus") as Label3D
 	assert_string_contains(status.text, "HP 0/45")
 	DebugHudService.set_enabled(false)
@@ -104,6 +107,7 @@ func test_knife_breaks_leaf_and_removes_all_physical_blockers() -> void:
 	(_actor as Node as Node3D).global_position = Vector3(point.x, 0, point.z + 1.0)
 	_actor.head_axis_x.look_at(point)
 	assert_true(CombatGeometry.clear_line(_actor, door, 31))
+
 	var health: C_Health = door.get_component(C_Health) as C_Health
 	_strike()
 	assert_eq(health.current, 50.0)
@@ -117,6 +121,7 @@ func test_knife_breaks_leaf_and_removes_all_physical_blockers() -> void:
 	assert_false(door.door_root.visible)
 	assert_false(OpenableService.can_request(_actor, door, OpenableService.Operation.OPEN))
 	await get_tree().physics_frame
+
 	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
 		Vector3(0, 1.3, 0), Vector3(0, 1.3, -3), 31, CombatGeometry.exclusions(_actor),
 	)

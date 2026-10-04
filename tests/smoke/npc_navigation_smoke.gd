@@ -28,6 +28,7 @@ func _run() -> void:
 	mesh.agent_height = 1.7
 	mesh.cell_size = 0.15
 	mesh.cell_height = 0.1
+
 	var source: NavigationMeshSourceGeometryData3D = NavigationMeshSourceGeometryData3D.new()
 	NavigationServer3D.parse_source_geometry_data(mesh, source, _world)
 	NavigationServer3D.bake_from_source_geometry_data(mesh, source)
@@ -39,6 +40,7 @@ func _run() -> void:
 	(customer as Node as Node3D).position = START
 	_world.add_entity(customer)
 	assert(customer.navigation_agent != null)
+
 	var body: RigidBody3D = customer as Node as RigidBody3D
 	(customer.get_component(C_Motion) as C_Motion).max_speed = 1.8
 	NpcIntentService.move_to(customer, TARGET, ARRIVAL_DISTANCE)
@@ -51,6 +53,7 @@ func _run() -> void:
 		if (customer.get_component(C_NpcIntent) as C_NpcIntent).arrived:
 			arrived = true
 			break
+
 	assert(arrived, "NPC must reach target using NavigationAgent waypoints")
 	assert(greatest_detour >= MIN_ROUTE_DETOUR, "Path must go around the wall instead of driving directly into it")
 	assert(customer.navigation_agent.get_current_navigation_path().size() > 2)

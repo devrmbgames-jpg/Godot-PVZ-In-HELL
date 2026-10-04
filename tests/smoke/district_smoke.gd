@@ -39,6 +39,7 @@ func _run() -> void:
 		if person.profile.resident:
 			initial.append(person.npc_id)
 	_check(district.people.size() == 12, "initial 8+4 population")
+
 	var returning: StringName = district.people[8].npc_id
 	var returning_body: E_DistrictNpc = DistrictPopulationService.body_for(returning)
 	for day_index: int in range(1, 8):
@@ -53,6 +54,7 @@ func _run() -> void:
 			await get_tree().physics_frame
 			if cycle.phase == C_DayCycle.Phase.MORNING:
 				break
+
 		_check(cycle.day_index == day_index + 1, "night advances exactly once on day %d" % day_index)
 		_check(autosave.last_error == OK, "night snapshot is valid on day %d" % day_index)
 		print("District smoke morning ", cycle.day_index, ": records=", district.people.size(), " bodies=", ECS.world.query.with_all([C_NpcIdentity]).execute().size())
@@ -62,6 +64,7 @@ func _run() -> void:
 			survivors += 1
 	_check(survivors >= 6, "passive original residents survive: %d" % survivors)
 	_check(DistrictPopulationService.body_for(returning) == returning_body, "weekly visitor uses the same body")
+
 	var snapshot: Dictionary = AutosaveStore.read(SAVE_PATH)
 	_check(WorldSnapshotService.can_restore(snapshot, _level), "saved week is restorable")
 	_check(WorldSnapshotService.restore(snapshot, _level), "week restoration succeeds")

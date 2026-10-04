@@ -48,6 +48,7 @@ func _key(slot: C_Grabbable.HoldSlot = C_Grabbable.HoldSlot.LEFT_HAND) -> Entity
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = slot
 	item.add_relationship(Relationship.new(grip, _actor))
+
 	var control: C_GrabControl = _actor.get_component(C_GrabControl) as C_GrabControl
 	if slot == C_Grabbable.HoldSlot.LEFT_HAND:
 		control.held_left = item

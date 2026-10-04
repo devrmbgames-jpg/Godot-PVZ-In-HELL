@@ -83,6 +83,7 @@ func test_damaged_opened_can_be_accepted_with_lower_satisfaction_payment() -> vo
 	assert_eq(visit.actual, CustomerVisit.Actual.DELIVERED)
 	assert_eq(visit.satisfaction, 50)
 	CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.TAKEN)
+
 	var wallet: C_Wallet = C_Wallet.new()
 	CustomerOutcomeService.settle(visit, wallet, 1)
 	assert_eq(wallet.balance, 50)
@@ -237,6 +238,7 @@ func test_schedule_is_idempotent_has_six_daily_challenge_profiles_and_ten_day_la
 				visit.finished = true
 	CustomerFlowService.plan_day(flow, 11, 100)
 	assert_eq(CustomerFlowService.remaining(flow, 11), 7)
+
 	var gaze_visits: int = 0
 	var floor_visits: int = 0
 	for visit: CustomerVisit in flow.visits:
@@ -296,6 +298,7 @@ func test_live_assignment_is_relationship_and_disappears_with_customer() -> void
 	CustomerFlowService.bind_parcel(customer, visit)
 	assert_eq(parcel.relationships.size(), 1)
 	assert_true(CustomerFlowService.assigned(parcel, customer, visit))
+
 	var impostor: Entity = Entity.new()
 	_world.add_entity(impostor)
 	assert_false(CustomerFlowService.assigned(parcel, impostor, visit))
@@ -343,6 +346,7 @@ func test_player_caused_death_finishes_live_event_and_records_attribution() -> v
 	_world.add_entity(actor)
 	var customer_body: RigidBody3D = RigidBody3D.new()
 	customer_body.set_script(load("res://content/entities/customers/e_customer.gd"))
+
 	var customer: E_Customer = customer_body as Node as E_Customer
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = visit.visit_id
@@ -392,6 +396,7 @@ func test_next_morning_auto_loses_due_unregistered_visit_without_npc_once() -> v
 	var state: C_PackageState = C_PackageState.new()
 	parcel.component_resources = [identity, state]
 	_world.add_entity(parcel)
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	cycle.day_index = 2
 	cycle.phase = C_DayCycle.Phase.MORNING
@@ -488,6 +493,7 @@ func test_unresolved_case_can_schedule_and_reactivate_followup() -> void:
 	visit.definition.followup_delay_days = 1
 	visit.definition.max_followup_visits = 2
 	visit.visit_count = 1
+
 	var parcel: Entity = _live_parcel(visit)
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = visit.package_id

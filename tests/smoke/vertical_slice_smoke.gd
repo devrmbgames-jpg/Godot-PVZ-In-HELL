@@ -40,6 +40,7 @@ func _run() -> void:
 	_player = _level.get_node("Entityes/Player") as E_RigidBodyCharacter
 	_controller = _player.get_component(C_Controller) as C_Controller
 	_camera = _player.get_node("HeadY/HeadX/HeadRoot/Camera3D") as Camera3D
+
 	var input: System = _level.get_node("World/Systems/Input/S_PlayerInput") as System
 	ECS.world.remove_system(input)
 	await get_tree().process_frame
@@ -54,11 +55,13 @@ func _run() -> void:
 	if not _check(ECS.world.query.with_all([C_Package]).execute().size() == 8, "eight packages arrive"):
 		_finish()
 		return
+
 	print("R23 route: native player start ", _player.global_position)
 	var scanner: Entity = _level.get_node("Entityes/Scanner") as Entity
 	if not await _aim(_point(scanner)):
 		_finish()
 		return
+
 	await _tap(&"interact")
 	if not _check(GrabService.held_relationship(scanner) != null, "scanner picked up using E"):
 		_finish()
@@ -66,6 +69,7 @@ func _run() -> void:
 	if not await _walk(Vector3(8.0, 0.0, 1.0)):
 		_finish()
 		return
+
 	for key: String in ["books", "glass", "clothes", "bottles", "tools", "equipment", "oil", "power_cells"]:
 		var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:" + key)
 		print("R23 route: scan ", key, " at ", _point(parcel))
@@ -74,6 +78,7 @@ func _run() -> void:
 		if not await _walk(Vector3(position.x, 0.0, 1.0)) or not await _walk(near) or not await _aim(_point(parcel), parcel):
 			_finish()
 			return
+
 		await _tap(&"action_primary")
 		var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 		if not _check(state.registration_number > 0, "scan " + key + " by held scanner"):
@@ -82,6 +87,7 @@ func _run() -> void:
 	if not await _morning_terminal() or not await _ordinary_customer():
 		_finish()
 		return
+
 	print("PASS: vertical slice M2 draft: ordinary inputs, eight scans, Terminal and normal customer delivery/declaration")
 	_finish()
 
@@ -90,18 +96,22 @@ func _morning_terminal() -> bool:
 	var terminal: Entity = _level.get_node("Entityes/Terminal") as Entity
 	if not await _walk(Vector3(2.0, 0.0, -2.8)) or not await _aim(_point(terminal), terminal):
 		return false
+
 	print("R23 Terminal aim ", (_player.get_component(C_Interactor) as C_Interactor).target, " · ", (_player.get_component(C_Interactor) as C_Interactor).prompt_text)
 	await _tap(&"interact")
 	var panel: TerminalPanel = terminal.get_node("TerminalPanel") as TerminalPanel
 	if not _check(panel.visible, "open Terminal using E"):
 		return false
+
 	var rows: Array[Node] = panel.find_children("*", "UI_TerminalButtonPackage", true, false)
 	if not _check(rows.size() == 8, "Terminal lists all eight scanned packages"):
 		return false
+
 	for row: Node in rows:
 		if (row as UI_TerminalButtonPackage).package_id() == "base_supply:1:equipment":
 			await _press_button(row.get_node("%Button") as Button)
 			break
+
 	await _tap(&"menu")
 	return _check(not panel.visible, "close Terminal using Escape")
 
@@ -110,9 +120,11 @@ func _ordinary_customer() -> bool:
 	var station: Entity = _level.get_node("Entityes/ShiftConsole") as Entity
 	if not await _walk(Vector3(2.0, 0.0, -5.7)) or not await _aim(_point(station), station):
 		return false
+
 	await _tap(&"interact")
 	if not _check(DayPhaseService.current().phase == C_DayCycle.Phase.DAY, "start shift using E"):
 		return false
+
 	var visit: CustomerVisit = CustomerFlowService.find_visit(&"visit/base_supply:1:books")
 	var customer: E_Customer = null
 	for frame: int in WAIT_FRAMES * 3:
@@ -126,36 +138,44 @@ func _ordinary_customer() -> bool:
 			break
 	if not _check(customer != null and not visit.finished and (customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.WAITING_FOR_PACKAGE, "ordinary NPC physically reaches waiting position"):
 		return false
+
 	print("R23 ordinary customer position ", customer.global_position)
 	if not await _walk(customer.global_position + Vector3(0.0, 0.0, -1.3)) or not await _aim(_point(customer), customer):
 		return false
+
 	await _tap(&"interact")
 	if not await _complete_dialogue("Хорошо"):
 		return false
+
 	var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
 	var point: Vector3 = _point(parcel)
 	if not await _walk(Vector3(7.0, 0.0, 4.6)) or not await _walk(Vector3(point.x, 0.0, 4.6)) or not await _walk(point + Vector3(0.0, 0.0, 1.3)) or not await _aim(_point(parcel), parcel):
 		return false
+
 	print("R23 pickup books target ", (_player.get_component(C_Interactor) as C_Interactor).target)
 	await _tap(&"interact")
 	if not _check(GrabService.held_object(_player) == parcel, "books picked up using E"):
 		return false
 	if not await _walk(customer.global_position + Vector3(0.0, 0.0, -1.3)) or not await _aim(_point(customer), customer):
 		return false
+
 	print("R23 handoff: held ", GrabService.held_object(_player), " target ", (_player.get_component(C_Interactor) as C_Interactor).target, " · ", (_player.get_component(C_Interactor) as C_Interactor).prompt_text)
 	await _tap(&"use")
 	print("R23 handoff result: actual ", CustomerVisit.Actual.keys()[visit.actual], " declaration ", CustomerVisit.Declaration.keys()[visit.declaration], " · ", (customer.get_node("Message") as Label3D).text)
 	if not _check(visit.actual == CustomerVisit.Actual.DELIVERED and visit.declaration == CustomerVisit.Declaration.NONE, "physical handoff preserves separate declaration"):
 		return false
+
 	var terminal: Entity = _level.get_node("Entityes/Terminal") as Entity
 	if not await _walk(Vector3(2.0, 0.0, -2.8)) or not await _aim(_point(terminal), terminal):
 		return false
+
 	await _tap(&"interact")
 	var panel: TerminalPanel = terminal.get_node("TerminalPanel") as TerminalPanel
 	for row: Node in panel.find_children("*", "UI_TerminalButtonPackage", true, false):
 		if (row as UI_TerminalButtonPackage).package_id() == visit.package_id:
 			await _press_button(row.get_node("%ButtonOK") as Button)
 			break
+
 	await _tap(&"menu")
 	return _check(visit.declaration == CustomerVisit.Declaration.TAKEN, "Terminal TAKEN through normal UI input")
 
@@ -163,11 +183,13 @@ func _ordinary_customer() -> bool:
 func _complete_dialogue(response_text: String) -> bool:
 	if not _check(not get_tree().get_nodes_in_group(CustomerDialoguePanel.ACTIVE_GROUP).is_empty(), "dialogue opened through interaction"):
 		return false
+
 	for frame: int in 120:
 		await _step()
 		var dialogs: Array[Node] = get_tree().get_nodes_in_group(CustomerDialoguePanel.ACTIVE_GROUP)
 		if dialogs.is_empty():
 			return true
+
 		var buttons: Array[Node] = dialogs[0].find_children("*", "Button", true, false)
 		var response: Button = null
 		for node: Node in buttons:
@@ -193,6 +215,7 @@ func _step(frames: int = 3) -> void:
 func _action(action: StringName, strength: float) -> void:
 	if is_equal_approx(_actions.get(action, 0.0), strength):
 		return
+
 	_actions[action] = strength
 	var event: InputEventAction = InputEventAction.new()
 	event.action = action
@@ -247,6 +270,7 @@ func _walk(position: Vector3) -> bool:
 	print("R23 input route to ", position, " · ", path.size(), " waypoints")
 	if not _check(not path.is_empty(), "navigation route toward " + str(position)):
 		return false
+
 	for waypoint: Vector3 in path:
 		if not await _walk_segment(waypoint):
 			return false
@@ -258,17 +282,20 @@ func _walk_segment(position: Vector3) -> bool:
 	if GrabService.held_in_slot(_player, C_Grabbable.HoldSlot.CARRY) != null:
 		if not await _aim(Vector3(position.x, _camera.global_position.y, position.z)):
 			return false
+
 	for frame: int in MOVE_FRAMES:
 		var death: C_Death = _player.get_component(C_Death) as C_Death
 		if death != null:
 			_stop_move()
 			return _check(false, "player died during movement; cause %s source %s amount %s" % [DamageRequest.Type.keys()[death.cause.request.damage_type], death.cause.request.source, death.cause.request.amount])
+
 		var offset: Vector3 = position - _player.global_position
 		offset.y = 0.0
 		if offset.length() <= MOVE_TOLERANCE:
 			_stop_move()
 			await _step(12)
 			return true
+
 		var direction: Vector3 = offset.normalized()
 		var forward: Vector3 = _controller.direction_look
 		forward.y = 0.0

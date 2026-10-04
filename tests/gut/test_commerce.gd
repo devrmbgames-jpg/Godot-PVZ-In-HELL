@@ -30,6 +30,7 @@ func before_each() -> void:
 	_actor.component_resources = [C_Inventory.new()]
 	_world.add_entity(_actor)
 	_trader = Entity.new()
+
 	var shop: C_Trader = C_Trader.new()
 	shop.catalog = [_food, _med]
 	_trader.component_resources = [shop]

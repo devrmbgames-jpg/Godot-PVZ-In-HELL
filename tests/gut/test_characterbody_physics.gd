@@ -24,6 +24,7 @@ func before_each() -> void:
 	_floor.add_child(_collider(shape))
 	_floor.position.y = -0.25
 	_world.add_child(_floor)
+
 	var host: Node3D = MAIN.instantiate() as Node3D
 	_player = host.get_node("Entityes/Player") as E_CharacterBodyPlayer
 	_player.get_parent().remove_child(_player)
@@ -70,6 +71,7 @@ func test_big_fall_damages_and_bounces_then_rearms_after_separation() -> void:
 			if _health.current < previous_hp and _body.velocity.y > 1.0:
 				bounced = true
 				break
+
 		assert_true(bounced, "Fall %d causes real damage and upward rebound" % fall)
 		assert_almost_eq(_health.current, previous_hp - 25.0, 0.01, "Living impact cap still applies")
 		for frame: int in 65:
@@ -85,6 +87,7 @@ func test_ground_ray_gently_pushes_real_rigid_support() -> void:
 	var material: PhysicsMaterial = PhysicsMaterial.new()
 	material.friction = 0.0
 	support.physics_material_override = material
+
 	var shape: BoxShape3D = BoxShape3D.new()
 	shape.size = Vector3(3.0, 0.4, 3.0)
 	support.add_child(_collider(shape))
@@ -94,6 +97,7 @@ func test_ground_ray_gently_pushes_real_rigid_support() -> void:
 	_body.velocity = Vector3.ZERO
 	for frame: int in 12:
 		await _tick()
+
 	var control: C_Controller = _player.get_component(C_Controller) as C_Controller
 	control.direction_motion = Vector3.RIGHT
 	for frame: int in 8:
@@ -112,6 +116,7 @@ func test_fast_rigid_hit_damages_and_knocks_back_native_player() -> void:
 	projectile.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
 	var entity: Entity = projectile as Node as Entity
 	entity.component_resources = [C_RigidBody.new()]
+
 	var shape: SphereShape3D = SphereShape3D.new()
 	shape.radius = 0.25
 	projectile.add_child(_collider(shape))
@@ -135,6 +140,7 @@ func test_fast_rigid_hit_damages_and_knocks_back_native_player() -> void:
 		if _health.current < 100.0 and _body.velocity.z > 1.0:
 			knocked = true
 			break
+
 	assert_true(knocked, "Real rigid hit: HP=%s speed=%s impulse=%s player_vz=%s rigid_z=%s" % [_health.current, highest_speed, highest_impulse, player_speed, projectile.global_position.z])
 	assert_gte(_health.current, 75.0, "One physical hit respects living damage cap")
 
@@ -205,6 +211,7 @@ func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
 	cart_body.global_position = Vector3(0.0, 0.85, -config.handle_distance)
 	for frame: int in 12:
 		await _tick()
+
 	var control: C_Controller = _player.get_component(C_Controller) as C_Controller
 	control.direction_look = (cart_body.global_position + Vector3.UP * 0.24 + Vector3.BACK * 0.79 - _player.interaction_ray_cast.global_position).normalized()
 	for frame: int in 2:
@@ -216,6 +223,7 @@ func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
 	for frame: int in 45:
 		await _tick()
 	assert_lt(_body.global_position.z, -0.5, "CharacterBody follows the real driven cart")
+
 	var handle: Vector3 = CartTransportService.handle_position(cart_body, config)
 	handle.y = _body.global_position.y
 	assert_lt(_body.global_position.distance_to(handle), config.follow_tolerance)
@@ -245,6 +253,7 @@ func test_saved_rigid_player_record_restores_to_authored_characterbody_and_clear
 	for record: Dictionary in snapshot.entities:
 		if record.entity_id == _player.id:
 			record.scene = "res://content/entities/characters/e_rigid_body_character.tscn"
+
 	var saved_pose: Transform3D = _body.global_transform
 	_body.global_position += Vector3(3.0, 2.0, 1.0)
 	_body.velocity = Vector3(5.0, 5.0, 5.0)

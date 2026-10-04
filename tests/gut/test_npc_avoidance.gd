@@ -24,6 +24,7 @@ func before_each() -> void:
 	_floor = StaticBody3D.new()
 	var shape: BoxShape3D = BoxShape3D.new()
 	shape.size = Vector3(30.0, 0.5, 30.0)
+
 	var collision: CollisionShape3D = CollisionShape3D.new()
 	collision.shape = shape
 	_floor.add_child(collision)
@@ -81,6 +82,7 @@ func test_head_on_clients_pass_without_physical_pushing() -> void:
 		barrier.position = Vector3(0.0, 1.0, side)
 		add_child(barrier)
 		_barriers.append(barrier)
+
 	var left: E_NpcCharacter = _npc(Vector3(-4.0, 0.02, 0.0))
 	var right: E_NpcCharacter = _npc(Vector3(4.0, 0.02, 0.0))
 	NpcIntentService.move_to(left, Vector3(4.0, 0.0, 0.0), 0.25)
@@ -93,6 +95,7 @@ func test_head_on_clients_pass_without_physical_pushing() -> void:
 		nearest = minf(nearest, separation.length())
 		if (left.get_component(C_NpcIntent) as C_NpcIntent).arrived and (right.get_component(C_NpcIntent) as C_NpcIntent).arrived:
 			break
+
 	assert_gt(nearest, CONTACT_DISTANCE, "Avoid before capsules contact")
 	assert_lt(left.global_position.distance_to(Vector3(4.0, 0.0, 0.0)), 0.4, "Left reaches destination: " + str(left.global_position))
 	assert_lt(right.global_position.distance_to(Vector3(-4.0, 0.0, 0.0)), 0.4, "Right reaches destination: " + str(right.global_position))
@@ -111,6 +114,7 @@ func test_client_goes_around_stationary_trader_without_displacing_it() -> void:
 		nearest = minf(nearest, Vector2(client.global_position.x - trader.global_position.x, client.global_position.z - trader.global_position.z).length())
 		if (client.get_component(C_NpcIntent) as C_NpcIntent).arrived:
 			break
+
 	assert_gt(nearest, CONTACT_DISTANCE)
 	assert_lt(client.global_position.distance_to(Vector3(4.0, 0.0, 0.0)), 0.4, "Client reaches destination: " + str(client.global_position))
 	assert_lt(trader.global_position.distance_to(initial), WAITING_POSITION_TOLERANCE)
@@ -127,6 +131,7 @@ func test_client_passes_three_waiting_customers_without_moving_queue() -> void:
 	for waiting: E_NpcCharacter in queue:
 		positions.append(waiting.global_position)
 	NpcIntentService.move_to(client, Vector3(5.0, 0.0, 0.0), 0.25)
+
 	var nearest: float = INF
 	for frame: int in ROUTE_FRAMES:
 		await get_tree().physics_frame
@@ -134,6 +139,7 @@ func test_client_passes_three_waiting_customers_without_moving_queue() -> void:
 			nearest = minf(nearest, Vector2(client.global_position.x - waiting.global_position.x, client.global_position.z - waiting.global_position.z).length())
 		if (client.get_component(C_NpcIntent) as C_NpcIntent).arrived:
 			break
+
 	assert_gt(nearest, CONTACT_DISTANCE)
 	assert_lt(client.global_position.distance_to(Vector3(5.0, 0.0, 0.0)), 0.4)
 	for index: int in queue.size():
@@ -148,6 +154,7 @@ func test_dead_client_stops_navigation_avoidance_and_releases_movement() -> void
 	await get_tree().process_frame
 	assert_false(client.navigation_agent.avoidance_enabled)
 	assert_eq((client.get_component(C_Controller) as C_Controller).direction_motion, Vector3.ZERO)
+
 	var target: DebugTarget = DebugTarget.new()
 	target.entity = client
 	var reset: DebugServiceResult = DebugHealthService.reset(target)

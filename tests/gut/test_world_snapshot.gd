@@ -34,6 +34,7 @@ func before_each() -> void:
 	_session = _authored("Session", [C_DayCycle.new(), C_Wallet.new(), C_PackageLedger.new(), C_CustomerFlow.new(), C_Commerce.new(), C_QuestSession.new(), C_Autosave.new()])
 	(_session.get_component(C_Autosave) as C_Autosave).path = SAVE_PATH
 	_actor = _authored("Actor", [C_Inventory.new(), C_Hunger.new(), C_Health.new()])
+
 	var stack: C_InventoryItem = C_InventoryItem.new()
 	stack.definition = (load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem)
 	stack.quantity = 4
@@ -75,6 +76,7 @@ func test_negative_wallet_and_owned_inventory_survive_snapshot_and_repeated_rest
 	assert_eq(wallet.balance, -123)
 	assert_eq(DayPhaseService.current().day_index, 2)
 	assert_eq(InventoryService.items(_actor).size(), 1)
+
 	var restored: Entity = InventoryService.items(_actor)[0]
 	assert_eq(restored.id, id)
 	assert_eq((restored.get_component(C_InventoryItem) as C_InventoryItem).quantity, 4)
@@ -186,6 +188,7 @@ func test_restore_disabled_entity_uses_world_lifecycle_and_reenables_existing_en
 	_world.add_entity(entity, null, false)
 	var enabled_snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	_world.disable_entity(entity)
+
 	var disabled_snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	_world.enable_entity(entity)
 	var disable_calls: int = entity.disable_calls()
@@ -194,6 +197,7 @@ func test_restore_disabled_entity_uses_world_lifecycle_and_reenables_existing_en
 	assert_false(entity.is_processing())
 	assert_false(entity.is_physics_processing())
 	assert_eq(entity.disable_calls(), disable_calls + 1)
+
 	var enable_calls: int = entity.enable_calls()
 	assert_true(WorldSnapshotService.restore(enabled_snapshot, _root))
 	assert_true(entity.enabled)
@@ -221,6 +225,7 @@ func test_restore_swapped_slots_clears_all_old_occupancy_before_attaching() -> v
 		var binding: Relationship = Relationship.new(R_StoredIn.new(), slot)
 		box.add_relationship(binding)
 		assert_true(PhysicalSlotService.attach(box, binding))
+
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	for box: Entity in boxes:
 		PhysicalSlotService.release(box)
@@ -290,6 +295,7 @@ func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -
 		box.owner = _root
 		_world.add_entity(box, null, false)
 		box.add_relationship(Relationship.new(R_StoredIn.new(), slot))
+
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(DayPhaseService.current().day_index, 1)
@@ -318,6 +324,7 @@ func test_authored_path_alias_or_outside_root_is_rejected_before_registry_change
 			alias.authored_path = "./Actor"
 			records.append(alias)
 			break
+
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(_world.get_entity_by_id(id), _actor)
 	assert_null(_world.get_entity_by_id("alias_actor"))
@@ -347,6 +354,7 @@ func test_omitted_package_identity_is_rejected_before_instantiation_commit() -> 
 			for index: int in range(components.size() - 1, -1, -1):
 				if SaveDataCodec.component_script(String(components[index].type)) == C_Package:
 					components.remove_at(index)
+
 	var count: int = _world.entities.size()
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(_world.entities.size(), count)
@@ -364,6 +372,7 @@ func test_pre_stamina_snapshot_clears_existing_sprint_session() -> void:
 	stamina.exhausted = true
 	stamina.recovery_remaining = 2.0
 	_actor.add_component(stamina)
+
 	var motion: C_Motion = C_Motion.new()
 	motion.sprint_multiplier = 1.5
 	_actor.add_component(motion)

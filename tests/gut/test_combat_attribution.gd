@@ -23,6 +23,7 @@ func before_each() -> void:
 	_player.component_resources = [C_PlayerInputController.new(), C_Living.new()]
 	_world.add_entity(_player)
 	_customer = Entity.new()
+
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = &"visit/current"
 	_customer.component_resources = [agent, C_Living.new(), C_NpcCombat.new(), C_Health.new()]
@@ -105,6 +106,7 @@ func test_held_impact_attribution_is_actor_and_snapshot_has_no_live_reference() 
 	request.source = prop
 	request.instigator = null
 	request.damage_type = DamageRequest.Type.IMPACT
+
 	var context: CombatContext = CombatAttribution.describe(request)
 	assert_eq(request.instigator, _player)
 	assert_true(context.actor_is_player)

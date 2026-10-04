@@ -12,6 +12,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	for delivery_tick: int in 12:
 		await get_tree().physics_frame
 		ECS.world.process(1.0 / 60.0, "GamePlay")
+
 	var world: World = level.get_node("World") as World
 	var player: Entity = level.get_node("Entityes/Player") as Entity
 	var light_box: Entity = level.get_node("Entityes/Parcel_001_01") as Entity
@@ -21,6 +22,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	for authored_entity: Node in level.get_node("Entityes").get_children():
 		if authored_entity is Entity:
 			assert_true(world.entities.has(authored_entity as Entity))
+
 	var cart: Entity = level.get_node("Entityes/PushCart") as Entity
 	assert_true(cart.has_component(C_CartTransport))
 	assert_false(cart.has_component(C_Pushable))
@@ -35,6 +37,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	assert_true(cart_body.get_world_3d().direct_space_state.intersect_shape(cart_query).is_empty())
 	assert_eq(ECS.world, world)
 	assert_true(world.entities.has(heavy_box))
+
 	var light_config: C_Grabbable = light_box.get_component(C_Grabbable) as C_Grabbable
 	var medium_config: C_Grabbable = medium_box.get_component(C_Grabbable) as C_Grabbable
 	var heavy_config: C_Grabbable = heavy_box.get_component(C_Grabbable) as C_Grabbable
@@ -52,6 +55,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	assert_eq(CarryLoadPolicy.mobility_multiplier(5.0, strength), 1.0)
 	assert_eq(CarryLoadPolicy.mobility_multiplier(30.0, strength), 1.0)
 	assert_almost_eq(CarryLoadPolicy.mobility_multiplier(80.0, strength), 4.0 / 9.0, 0.001)
+
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
 	var controller: C_Controller = player.get_component(C_Controller) as C_Controller
 	var interaction_ray: RayCast3D = GrabService.interaction_raycast(player)
@@ -65,6 +69,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	world.process(1.0 / 60.0, "Interaction")
 	assert_eq(GrabService.held_object(player), heavy_box)
 	assert_eq(interactor.target, heavy_box)
+
 	var carry_load: C_CarryLoad = player.get_component(C_CarryLoad) as C_CarryLoad
 	var motion: C_Motion = player.get_component(C_Motion) as C_Motion
 	assert_eq(carry_load.mass_kg, 80.0)
@@ -77,6 +82,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	controller.action_second_held = true
 	controller.look_delta = Vector2(25.0, 0.0)
 	world.process(1.0 / 60.0, "Interaction")
+
 	var control: C_GrabControl = player.get_component(C_GrabControl) as C_GrabControl
 	assert_true(control.rotation_active)
 	controller.interact_pressed = true

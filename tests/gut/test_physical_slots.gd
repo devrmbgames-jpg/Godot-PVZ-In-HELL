@@ -25,6 +25,7 @@ func before_each() -> void:
 	_world.add_observer(O_PhysicalSlotLifecycle.new())
 	_actor = Actor.new()
 	_actor.component_resources = [C_Controller.new(), C_Interactor.new(), C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
+
 	var ray: RayCast3D = RayCast3D.new()
 	ray.position = Vector3(0, 1, 0)
 	ray.target_position = Vector3(0, 0, -3)
@@ -69,6 +70,7 @@ func _make_item() -> Entity:
 	shape.size = Vector3.ONE * 0.1
 	collision.shape = shape
 	body.add_child(collision)
+
 	var item: Entity = body as Node as Entity
 	var config: C_Grabbable = C_Grabbable.new()
 	config.allowed_hand_slots = 6
@@ -123,6 +125,7 @@ func test_occupied_slot_and_filter_failure_preserve_hand() -> void:
 	assert_eq(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND), _item)
 	config.filter = null
 	assert_true(PhysicalSlotService.store(_actor, _slot, C_Grabbable.HoldSlot.RIGHT_HAND))
+
 	var other: Entity = _make_item()
 	_hold(other, C_Grabbable.HoldSlot.RIGHT_HAND)
 	assert_false(PhysicalSlotService.store(_actor, _slot, C_Grabbable.HoldSlot.RIGHT_HAND))
@@ -196,6 +199,7 @@ func test_player_belt_slots_are_mounted_to_body_root() -> void:
 	assert_not_null(player)
 	if player == null:
 		return
+
 	var left_slot: E_PhysicalSlot = player.get_node("BeltSlotLeft") as E_PhysicalSlot
 	var right_slot: E_PhysicalSlot = player.get_node("BeltSlotRight") as E_PhysicalSlot
 	assert_not_null(left_slot)

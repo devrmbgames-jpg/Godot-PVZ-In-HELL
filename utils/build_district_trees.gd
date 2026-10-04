@@ -24,6 +24,7 @@ func _build() -> void:
 		subtree.subtree = load(branch_path) as BehaviorTree
 		subtree.custom_name = BRANCHES[branch_index]
 		selector.add_child(subtree)
+
 	var tree: BehaviorTree = BehaviorTree.new()
 	tree.description = "District NPC: emergency, combat/search, parcel service, phase schedule, free activity."
 	tree.set_root_task(selector)

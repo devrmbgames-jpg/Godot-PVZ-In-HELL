@@ -33,6 +33,7 @@ func _run() -> void:
 		await _step(1)
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:equipment")
 	assert(parcel != null)
 	var registration: PackageScanResult = PackageRegistrationService.register_package(parcel)
@@ -43,6 +44,7 @@ func _run() -> void:
 	var package_state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	package_state.opening = C_PackageState.Opening.OPENED
 	package_state.damage = C_PackageState.Damage.DAMAGED
+
 	var marks: C_PackageMarks = parcel.get_component(C_PackageMarks) as C_PackageMarks
 	var stroke: PackageMarkStroke = PackageMarkStroke.new()
 	stroke.points = PackedVector3Array([Vector3.ZERO, Vector3(0.1, 0.0, 0.0)])
@@ -51,6 +53,7 @@ func _run() -> void:
 	marks.revision += 1
 	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
 	hunger.value = 55.0
+
 	var wallet: C_Wallet = WalletService.current()
 	wallet.balance = 500
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -60,6 +63,7 @@ func _run() -> void:
 	var trader: Entity = level.get_node("Entityes/Trader") as Entity
 	var quest: RefusalQuestRecord = RefusalQuestService.offer(trader)
 	assert(quest != null and RefusalQuestService.accept(quest.quest_id))
+
 	var refused: Entity = level.get_node("Entityes/Parcel_001_01") as Entity
 	assert(PackageRegistrationService.register_package(refused).outcome == PackageScanResult.Outcome.REGISTERED)
 	var refused_id: String = (refused.get_component(C_Package) as C_Package).package_id
@@ -74,6 +78,7 @@ func _run() -> void:
 	CustomerOutcomeService.settle(refused_visit, wallet, 1)
 	refused_visit.finished = true
 	refused_visit.finished_day = 1
+
 	var expected_balance: int = wallet.balance
 	var item: Entity = level.get_node("Entityes/MedPickup") as Entity
 	assert(InventoryService.transfer(item, actor))
@@ -83,6 +88,7 @@ func _run() -> void:
 	for action: DEF_InteractionAction in (valve.get_component(C_InteractionActionSet) as C_InteractionActionSet).actions:
 		if action.action_id == completed.action_id:
 			completed.timing = action.timing
+
 	var progress_state: C_ProlongedInteraction = C_ProlongedInteraction.new()
 	progress_state.actions.append(completed)
 	valve.add_component(progress_state)
@@ -91,6 +97,7 @@ func _run() -> void:
 	assert(ProlongedProgressService.commit_success(completed, completed.timing))
 	var carry_box: Entity = level.get_node("Entityes/AnchorableTestBox") as Entity
 	(carry_box as Node as RigidBody3D).global_position = Vector3(17.5, 1.4, 1.5)
+
 	var strength: C_Strength = actor.get_component(C_Strength) as C_Strength
 	(carry_box as Node as RigidBody3D).mass = (CarryLoadPolicy.minimum_mass_kg(strength) + CarryLoadPolicy.maximum_mass_kg(strength)) * 0.5
 	await _aim(actor, carry_box)
@@ -99,6 +106,7 @@ func _run() -> void:
 	assert(CarryLoadPolicy.active_multiplier(carry, strength) < 1.0)
 	var controls: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
 	controls.rotation_active = true
+
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.SLEEP
 	request.expected_day = 1
@@ -108,6 +116,7 @@ func _run() -> void:
 		await _step(1)
 		if cycle.day_index == 2 and CommerceService.current().pending_deliveries[0].fulfilled:
 			break
+
 	assert(cycle.day_index == 2 and cycle.phase == C_DayCycle.Phase.MORNING)
 	assert(FileAccess.file_exists(SAVE_PATH))
 	assert(CommerceService.current().pending_deliveries[0].fulfilled)
@@ -147,6 +156,7 @@ func _run() -> void:
 		await _step(1)
 		if CommerceService.current().pending_deliveries[0].fulfilled:
 			break
+
 	assert(_delivery_count(physical_id) == 1)
 	await _step(10)
 	assert(_delivery_count(physical_id) == 1)
@@ -159,6 +169,7 @@ func _run() -> void:
 	await _aim(actor, refused)
 	assert(GrabService.try_pickup(actor, refused), "pickup available=%s freeze=%s reach=%s selected=%d" % [GrabService.holder_available(actor), (refused as Node as RigidBody3D).freeze, GrabService.within_pickup_reach_body(actor, refused as Node as RigidBody3D), GrabService.pickup_slot(actor, refused, false)])
 	await _aim(actor, return_point)
+
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(actor, DEF_InteractionAction.Slot.USE)
 	assert(choice != null and choice.action is DEF_PackageReturnAction)
 	var balance_before_return: int = WalletService.current().balance
@@ -175,6 +186,7 @@ func _run() -> void:
 			assert(not record.active and record.departure == C_PackageState.Registration.RETURNED)
 	assert(WalletService.current().balance == balance_before_return and WalletService.current().penalties == penalties_before_return)
 	assert(not PackageReturnService.return_held(actor))
+
 	var delivered: Entity = null
 	for entity: Entity in ECS.world.query.with_all([C_PersistentIdentity]).execute():
 		if (entity.get_component(C_PersistentIdentity) as C_PersistentIdentity).key == physical_id:
@@ -198,6 +210,7 @@ func _run() -> void:
 		await _step(1)
 		if cycle.day_index == 3:
 			break
+
 	assert(cycle.day_index == 3)
 	level.free()
 	await get_tree().process_frame
@@ -222,6 +235,7 @@ func _run() -> void:
 			await _step(1)
 			if cycle.day_index == morning:
 				break
+
 		assert(cycle.day_index == morning)
 		parcel = CustomerFlowService.parcel_for("base_supply:1:equipment")
 		assert(parcel != null)
@@ -257,6 +271,7 @@ func _aim(actor: Entity, target: Entity) -> void:
 	ray.look_at(position)
 	for frame: int in 2:
 		await get_tree().physics_frame
+
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingService.find_target(actor, interactor)
 	assert(interactor.target == target, "aim target=%s resolved=%s collider=%s pose=%s ray=%s" % [target.name, interactor.target, ray.get_collider(), (target as Node as Node3D).global_position, ray.global_position])

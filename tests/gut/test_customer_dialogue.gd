@@ -119,6 +119,7 @@ func test_threat_reaction_can_escalate_dialogue_denial_to_aggressive() -> void:
 	assert_eq(_visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
 	assert_eq(_visit.player_denial_count, 1)
 	assert_true(_visit.aggressive)
+
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(agent.phase, C_CustomerAgent.Phase.AGGRESSIVE)
 
@@ -185,6 +186,7 @@ func test_false_taken_detection_routes_to_existing_aggressive_receiver() -> void
 	assert_true(_context.begin())
 	assert_true(_context.schedule_non_delivery_complaint())
 	assert_true(_context.enter_aggressive())
+
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(agent.phase, C_CustomerAgent.Phase.AGGRESSIVE)
 	assert_false((_customer.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
@@ -204,6 +206,7 @@ func test_voluntary_refusal_waits_for_handoff_then_dialogue_can_acknowledge() ->
 	assert_true(CustomerOutcomeService.receive(_visit, _ready_check()))
 	assert_eq(_context.dialogue_cue(), "voluntary_refusal")
 	assert_eq(_visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
+
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.RECEIVING
 	assert_true(_context.voluntary_refuse())
@@ -252,6 +255,7 @@ func test_dialogue_resource_exposes_direct_and_riddle_branches() -> void:
 	assert_true((deny_start.responses[1] as DialogueResponse).has_tag("lie"))
 	assert_true((deny_start.responses[4] as DialogueResponse).has_tag("thr"))
 	assert_true((deny_start.responses[5] as DialogueResponse).has_tag("jok"))
+
 	var persuade: DialogueLine = await resource.get_next_dialogue_line("deny_persuade", [{"ctx": _context}])
 	assert_not_null(persuade)
 	_visit.visit_count = 2

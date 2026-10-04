@@ -23,6 +23,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	for node_name: String in ["FoodPickup", "MedPickup", "WrapPickup"]:
 		var pickup: Entity = level.get_node("Entityes/" + node_name) as Entity
 		await _aim(pickup)
@@ -39,6 +40,7 @@ func _run() -> void:
 		assert(not (pickup.get_node("Visual") as Node3D).visible)
 		assert((pickup as Node as StaticBody3D).collision_layer == 0)
 	assert(InventoryService.items(_actor).size() == 3)
+
 	var hunger: C_Hunger = _actor.get_component(C_Hunger) as C_Hunger
 	hunger.value = 75.0
 	var request: DamageRequest = DamageRequest.new()
@@ -48,6 +50,7 @@ func _run() -> void:
 	assert((_actor.get_component(C_Health) as C_Health).current == 50.0)
 	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:books")
 	await _aim(parcel, Vector3.UP * 0.15)
+
 	var quantity_before: int = InventoryService.items(_actor).size()
 	assert(not InventoryService.transfer(parcel, _actor))
 	assert(InventoryService.items(_actor).size() == quantity_before)
@@ -62,6 +65,7 @@ func _run() -> void:
 	assert((parcel.get_component(C_ImpactProtection) as C_ImpactProtection).tier == ImpactResult.Severity.Medium)
 	assert((InventoryService.item_by_id(_actor, _item_id("bubble_wrap")).get_component(C_InventoryItem) as C_InventoryItem).quantity == 2)
 	assert(EntityAvailability.contains(parcel, ECS.world))
+
 	var wrap_button: Button = _button("Пузырчатая плёнка")
 	assert(wrap_button.disabled)
 	assert(wrap_button.text.contains("Наведитесь"))
@@ -74,6 +78,7 @@ func _run() -> void:
 	InteractionControlFocus.release(_actor, token)
 	nested_owner.free()
 	assert(_panel.open_inventory())
+
 	var event: InputEventAction = InputEventAction.new()
 	event.action = &"menu"
 	event.pressed = true
@@ -85,6 +90,7 @@ func _run() -> void:
 		await get_tree().process_frame
 		if debug.text.contains("Хлеб ×2"):
 			break
+
 	assert(debug.text.contains("[Tab]") and debug.text.contains("Хлеб ×2") and debug.text.contains("задача:"))
 	assert(_panel.open_inventory())
 	request = DamageRequest.new()
@@ -119,6 +125,7 @@ func _button(caption: String) -> Button:
 		var button: Button = child as Button
 		if button != null and button.text.begins_with(caption):
 			return button
+
 	assert(false, "Expected an authored item button")
 	return null
 

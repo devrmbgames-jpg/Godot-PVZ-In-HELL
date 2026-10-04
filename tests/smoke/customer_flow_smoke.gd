@@ -30,6 +30,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	assert(ECS.world.query.with_all([C_Package]).execute().size() == 8)
 	var actor: Entity = _level.get_node("Entityes/Player") as Entity
 	(actor as Node as RigidBody3D).freeze = true
@@ -41,6 +42,7 @@ func _run() -> void:
 	var late: Entity = CustomerFlowService.parcel_for("base_supply:1:equipment")
 	_register(books)
 	_register(late)
+
 	var late_number: int = (late.get_component(C_PackageState) as C_PackageState).registration_number
 	ECS.world.process(FRAME_DELTA, "GamePlay")
 	assert(_cycle.remaining_customer_events == 1)
@@ -51,6 +53,7 @@ func _run() -> void:
 	assert(first.package_id == "base_supply:1:books")
 	assert(CustomerFlowService.confirm_delivery(_counter) == PackageDeliveryCheck.Result.MISSING)
 	_register(glass)
+
 	var glass_origin: Vector3 = (glass as Node as Node3D).global_position
 	await _place(glass)
 	assert(CustomerFlowService.confirm_delivery(_counter) == PackageDeliveryCheck.Result.WRONG_PACKAGE)
@@ -63,6 +66,7 @@ func _run() -> void:
 	assert(first.actual == CustomerVisit.Actual.DELIVERED)
 	assert(first.declaration == CustomerVisit.Declaration.NONE)
 	assert(PackageRegistrationService.smallest_free_number(PackageRegistrationService.ledger()) == number)
+
 	var terminal: E_Terminal = _level.get_node("Entityes/Terminal") as E_Terminal
 	terminal.open_for(actor)
 	var first_line: UI_TerminalButtonPackage = _terminal_line_for(terminal, first.package_id)
@@ -74,6 +78,7 @@ func _run() -> void:
 	assert(WalletService.current().balance == first.payment)
 	terminal.close_panel()
 	customer = await _wait_for_customer()
+
 	var second: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	assert(second.package_id == "base_supply:1:glass")
 	second.complaint_roll = 0.0
@@ -87,6 +92,7 @@ func _run() -> void:
 	assert(CustomerFlowService.declare(second.visit_id, CustomerVisit.Declaration.REFUSED))
 	_register(clothes)
 	customer = await _wait_for_customer()
+
 	var third: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	third.complaint_roll = 0.0
 	third.aggression_roll = 0.0
@@ -113,6 +119,7 @@ func _run() -> void:
 	assert(_cycle.day_index == 2 and _cycle.phase == C_DayCycle.Phase.MORNING)
 	assert(third.complaint.outcome == CustomerComplaint.Outcome.CONFIRMED)
 	assert(second.complaint.outcome == CustomerComplaint.Outcome.CONFIRMED)
+
 	var glass_record: PackageRegistrationRecord = _registration_for_package(second.package_id)
 	assert(glass_record != null and glass_record.active)
 	assert(second.disposition == CustomerVisit.Disposition.WAREHOUSE)
@@ -143,6 +150,7 @@ func _wait_for_customer() -> E_Customer:
 		var customer: E_Customer = CustomerFlowService.waiting_customer()
 		if customer != null:
 			return customer
+
 	for entity: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
 		var body: RigidBody3D = entity as Node as RigidBody3D
@@ -159,6 +167,7 @@ func _place(parcel: Entity) -> void:
 		await get_tree().physics_frame
 		if _counter.parcels().size() == 1 and _counter.parcels()[0] == parcel:
 			return
+
 	assert(false, "Physical overlap must match the placed parcel")
 
 
@@ -193,6 +202,7 @@ func _registration_for_package(package_id: String) -> PackageRegistrationRecord:
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	if ledger == null:
 		return null
+
 	for record: PackageRegistrationRecord in ledger.records:
 		if record.package_id == package_id:
 			return record

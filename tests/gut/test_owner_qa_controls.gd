@@ -38,6 +38,7 @@ func before_each() -> void:
 	for child: Node in (_player as Node).find_children("*", "Entity", true, false):
 		_world.add_entity(child as Entity, null, false)
 	_player.global_position = Vector3(0.0, 0.01, 4.0)
+
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new()]
 	_world.add_entity(session)
@@ -103,6 +104,7 @@ func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() 
 	for frame: int in 2:
 		await get_tree().physics_frame
 	_cycle.phase = C_DayCycle.Phase.MORNING
+
 	var interactor: C_Interactor = _player.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingService.find_target(_player, interactor)
 	interactor.physics_target = InteractionTargetingService.find_physics_target(_player, interactor)
@@ -112,6 +114,7 @@ func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() 
 	if choice != null:
 		assert_eq(choice.source, trader)
 		assert_true(choice.action is DEF_TraderAction)
+
 	var controller: C_Controller = _player.get_component(C_Controller) as C_Controller
 	controller.interact_pressed = true
 	InteractionActionResolver.handle_input(_player)

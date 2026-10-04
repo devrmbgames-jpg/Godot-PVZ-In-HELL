@@ -12,6 +12,7 @@ func test_absent_person_roundtrip_preserves_body_state_and_resets_brain() -> voi
 	health.current = 41.0
 	var meat: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_npc_meat.tres") as DEF_InventoryItem
 	assert_true(InventoryService.grant(body, meat, 3))
+
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.heard_remaining = 100.0
 	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.OUTSIDE)
@@ -20,6 +21,7 @@ func test_absent_person_roundtrip_preserves_body_state_and_resets_brain() -> voi
 	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
 	health.current = 90.0
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
+
 	var restored: NpcRecord = DistrictPopulationService.person_for(person.npc_id)
 	var restored_body: E_DistrictNpc = DistrictPopulationService.body_for(restored.npc_id)
 	assert_eq(restored.placement, NpcRecord.Placement.OUTSIDE)
@@ -29,6 +31,7 @@ func test_absent_person_roundtrip_preserves_body_state_and_resets_brain() -> voi
 	assert_eq(InventoryService.items(restored_body).size(), 1)
 	assert_eq((InventoryService.items(restored_body)[0].get_component(C_InventoryItem) as C_InventoryItem).quantity, 3)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
+
 	var matches: int = 0
 	for entity: Entity in _world.entities:
 		var identity: C_NpcIdentity = entity.get_component(C_NpcIdentity) as C_NpcIdentity
@@ -59,6 +62,7 @@ func test_sleep_returns_after_search_and_does_not_read_hostility() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
 	CombatService.bind_target(body, player)
+
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.has_last_seen = true
 	assert_false(NpcSleepService.blockers().is_empty())
@@ -81,6 +85,7 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	visit.package_id = "test/night_promise_box"
 	visit.definition = (load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule).events[0].customer
 	CustomerFlowService.current().visits.append(visit)
+
 	var job: NpcHomeDelivery = NpcHomeDelivery.new()
 	job.job_id = &"test/night_job"
 	job.npc_id = person.npc_id
@@ -91,6 +96,7 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	_district.home_deliveries.append(job)
 	DistrictPopulationService.mark_dead(_district.people[0], DistrictPopulationService.body_for(_district.people[0].npc_id), 1)
 	DistrictPopulationService.mark_dead(_district.people[1], DistrictPopulationService.body_for(_district.people[1].npc_id), 1)
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	cycle.day_index = 2
 	cycle.phase = C_DayCycle.Phase.NIGHT
@@ -103,6 +109,7 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	assert_eq(_district.people.size(), 13)
 	assert_eq(job.status, NpcHomeDelivery.Status.FAILED)
 	assert_eq(person.memories.size(), 1)
+
 	var replacement_id: StringName = _district.people.back().npc_id
 	state.path = "user://gut_district_night_retry.pvzh"
 	state.retry_remaining = 0.0
@@ -112,6 +119,7 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	assert_eq(_district.people.size(), 13)
 	assert_eq(_district.people.back().npc_id, replacement_id)
 	assert_eq(person.memories.size(), 1)
+
 	var snapshot: Dictionary = AutosaveStore.read(state.path)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(DistrictPopulationService.person_for(_district.people[0].npc_id).death_day, 1)

@@ -14,6 +14,7 @@ func before_each() -> void:
 	var actor_node: RigidBody3D = RigidBody3D.new()
 	actor_node.set_script(E_RigidBodyCharacter)
 	_player = actor_node as Node as Entity
+
 	var anchor: Marker3D = Marker3D.new()
 	actor_node.add_child(anchor)
 	(_player as E_RigidBodyCharacter).head_axis_x = anchor
@@ -31,6 +32,7 @@ func _delivery_case(person: NpcRecord, suffix: String) -> CustomerVisit:
 	parcel.package_id = visit.package_id
 	_world.add_entity(parcel)
 	(parcel.get_component(C_Package) as C_Package).package_id = visit.package_id
+
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	state.registration = C_PackageState.Registration.REGISTERED
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
@@ -79,6 +81,7 @@ func test_home_handoff_and_bonus_are_once() -> void:
 	assert_true(NpcHomeDeliveryService.accept(body))
 	var job: NpcHomeDelivery = _district.home_deliveries[0]
 	assert_true(NpcHomeDeliveryService.knock(_player, _door(person.home_id)))
+
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
@@ -87,6 +90,7 @@ func test_home_handoff_and_bonus_are_once() -> void:
 	assert_eq(visit.actual, CustomerVisit.Actual.DELIVERED)
 	assert_null(CustomerFlowService.parcel_for(visit.package_id))
 	assert_true(NpcHomeDeliveryService.complete(job))
+
 	var balance: int = WalletService.current().balance
 	assert_eq(WalletService.current().operations.size(), 2)
 	assert_eq(balance, visit.payment * visit.satisfaction / CustomerOutcomeService.SATISFACTION_SCALE + visit.payment)
@@ -116,6 +120,7 @@ func test_home_inspection_stays_at_door_and_releases_cargo() -> void:
 	var door: Entity = _door(person.home_id)
 	assert_true(NpcHomeDeliveryService.accept(body))
 	assert_true(NpcHomeDeliveryService.knock(_player, door))
+
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)

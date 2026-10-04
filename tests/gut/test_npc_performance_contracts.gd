@@ -28,6 +28,7 @@ func _flat_map() -> void:
 		await get_tree().physics_frame
 		if NavigationServer3D.map_get_iteration_id(_native_map) > 0 and NavigationServer3D.map_get_closest_point_owner(_native_map, Vector3.ZERO) == _native_region:
 			break
+
 	assert_gt(NavigationServer3D.map_get_iteration_id(_native_map), 0)
 
 func _travel(index: int) -> E_DistrictNpc:
@@ -127,6 +128,7 @@ func test_switch_and_flicker_change_shared_lighting_immediately() -> void:
 	assert_eq(NpcLightingService.exposure_at(point), 0.05)
 	LightCircuitService.set_enabled(circuit, false)
 	_world.remove_entity(circuit)
+
 	var replacement: Entity = _circuit()
 	LightCircuitService.set_enabled(replacement, true)
 	assert_gt(NpcLightingService.exposure_at(point), 0.5, "Structural replacement must refresh shared circuit bindings in the same frame")
@@ -157,6 +159,7 @@ func test_moving_zone_updates_without_rebuilding_inputs() -> void:
 	assert_eq(NpcLightingService.exposure_at(Vector3(80, 1, 0)), 0.05)
 	assert_eq(NpcLightingService.exposure_at(Vector3(90, 1, 0)), 1.0)
 	assert_same(NpcLightingService.context_for(_district), context)
+
 	var volume: CollisionShape3D = zone.get_node("CollisionShape3D") as CollisionShape3D
 	var beam: BoxShape3D = BoxShape3D.new()
 	beam.size = Vector3(6, 3, 2)
@@ -200,6 +203,7 @@ func test_light_sensitive_route_follows_authored_points_without_light_search() -
 	person.profile.rules = [aversion]
 	_district.definition = DEF_District.new()
 	_district.lighting_context = null
+
 	var points: Array[Vector3] = [Vector3(-8, 0, 0), Vector3(-8, 0, 8), Vector3(8, 0, 8), Vector3(8, 0, 0)]
 	for index: int in points.size():
 		var place: DEF_DistrictPlace = DEF_DistrictPlace.new()
@@ -209,6 +213,7 @@ func test_light_sensitive_route_follows_authored_points_without_light_search() -
 		_district.definition.places.append(place)
 		_district.definition.shade_route.append(String(place.key))
 	_district.definition.shade_refuge = &"junction_1"
+
 	var zone: NpcLightZone = _zone()
 	zone.position = Vector3(0, 1, 0)
 	_district.lighting_context = null
@@ -219,6 +224,7 @@ func test_light_sensitive_route_follows_authored_points_without_light_search() -
 	assert_null(_district.lighting_context, "Planning must not request illumination samples")
 	assert_eq(NpcTraitService.dark_refuge(actor, person), points[1])
 	zone.enabled = false
+
 	var dark_route: PackedVector3Array = NpcRouteService.plan(actor, person, points[0], points[3], _native_map)
 	assert_eq(dark_route, lit_route, "Switching the light changes reactions, not authored routing")
 	points.reverse()
@@ -277,6 +283,7 @@ func test_moving_hazard_invalidates_retained_route_before_movement() -> void:
 	_world.add_entity(fire, [hazard])
 	(fire as Node as Node3D).global_position = Vector3(0, 1, 0)
 	NpcRouteService.tick(actor, _district.people[0], _district.definition.route_interval)
+
 	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
 	assert_true(route.pending)
 	assert_false(route.reachable)

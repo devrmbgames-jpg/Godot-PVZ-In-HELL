@@ -20,6 +20,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:equipment")
 	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
 	var budget: MoneyOperation = MoneyOperation.new()
@@ -31,6 +32,7 @@ func _run() -> void:
 	await _transition(DayTransitionRequest.Kind.START_SHIFT)
 	await _transition(DayTransitionRequest.Kind.FINISH_SHIFT)
 	assert(DayPhaseService.current().phase == C_DayCycle.Phase.EVENING)
+
 	var trader: E_NpcCharacter = level.get_node("Entityes/Trader") as E_NpcCharacter
 	assert(trader.navigation_agent != null)
 	assert(trader.has_component(C_NpcIntent) and trader.has_component(C_Trader))
@@ -43,6 +45,7 @@ func _run() -> void:
 	controller.use_pressed = true
 	InteractionActionResolver.handle_input(_actor)
 	controller.use_pressed = false
+
 	var shop: CommercePanel = _panel()
 	assert(shop != null)
 	await _click(shop, "Купить ×1", "Хлеб")
@@ -52,6 +55,7 @@ func _run() -> void:
 	assert(WalletService.current().balance == 415)
 	assert(InventoryService.items(_actor).size() == 2)
 	await _click(shop, "Принять задание")
+
 	var quest: RefusalQuestRecord = RefusalQuestService.current().records[0]
 	assert(quest.state == RefusalQuestRecord.State.ACTIVE)
 	assert(quest.package_id == "base_supply:1:equipment" and quest.deadline_day == 11)
@@ -60,6 +64,7 @@ func _run() -> void:
 	shop.close_panel()
 	for frame: int in 3:
 		await get_tree().process_frame
+
 	var terminal: E_Terminal = level.get_node("Entityes/Terminal") as E_Terminal
 	terminal.open_for(_actor)
 	var terminal_panel: TerminalPanel = terminal.get_node("TerminalPanel") as TerminalPanel
@@ -80,11 +85,13 @@ func _run() -> void:
 	for frame: int in 3:
 		await get_tree().process_frame
 	assert(InteractionControlFocus.current(_actor) == InteractionControlFocus.Priority.HANDS)
+
 	var debug: Label = level.get_node("InteractionHud/Overlay/PlayerDebugPanel/Debug/MetaDebug") as Label
 	for frame: int in 32:
 		await get_tree().process_frame
 		if debug.text.contains("Заказ Хлеб"):
 			break
+
 	assert(debug.text.contains("задача") or debug.text.contains("Задача"))
 	assert(debug.text.contains("Night дня 11") and debug.text.contains("Заказ Хлеб"))
 	var commerce_copy: C_Commerce = CommerceService.current().duplicate(true) as C_Commerce
@@ -117,6 +124,7 @@ func _aim(target: Entity, offset: Vector3) -> void:
 	ray.look_at(position)
 	for frame: int in 2:
 		await get_tree().physics_frame
+
 	var interactor: C_Interactor = _actor.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
 	assert(interactor.target == target)
@@ -138,4 +146,5 @@ func _click(panel: CommercePanel, action: String, caption: String = "") -> void:
 			assert(not button.disabled)
 			button.pressed.emit()
 			return
+
 	assert(false, "Expected an enabled commerce action button")

@@ -27,6 +27,7 @@ func _run() -> void:
 		if node is SettingsMenu:
 			menu = node as SettingsMenu
 	assert(menu != null)
+
 	var actor: Entity = DebugTargetResolver.player()
 	menu.setup(actor, TEST_PATH)
 	print("settings fixture: live=%s focus=%s console=%s input=%s" % [EntityAvailability.contains(actor, ECS.world), InteractionControlFocus.current(actor), Console.is_visible(), menu.is_processing_unhandled_input()])
@@ -39,6 +40,7 @@ func _run() -> void:
 	await _send(_key(KEY_K))
 	await _send(_key(KEY_K, false))
 	assert(InputMap.action_has_event(&"interact", _key(KEY_K)))
+
 	var look_button: Button = _binding_button(menu, "Камера влево", 1)
 	look_button.pressed.emit()
 	var axis: InputEventJoypadMotion = InputEventJoypadMotion.new()
@@ -72,6 +74,7 @@ func _binding_button(menu: SettingsMenu, caption: String, device: int) -> Button
 		var label: Label = node as Label
 		if label.text == caption and label.get_parent() is HBoxContainer:
 			return label.get_parent().get_child(device + 1) as Button
+
 	assert(false, "Binding row missing: " + caption)
 	return null
 

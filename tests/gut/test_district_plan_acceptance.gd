@@ -61,6 +61,7 @@ func test_observation_watches_visible_neighbour_and_loses_hidden_focus() -> void
 	await get_tree().physics_frame
 	NpcActivityService.observe(body, person, false)
 	assert_eq(body.get_relationships(Relationship.new(R_NpcLookTarget.new(), neighbour)).size(), 1)
+
 	var wall: StaticBody3D = StaticBody3D.new()
 	var collision: CollisionShape3D = CollisionShape3D.new()
 	var shape: BoxShape3D = BoxShape3D.new()
@@ -85,6 +86,7 @@ func test_window_activity_moves_then_observes_an_authored_focus() -> void:
 	assert_true(NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.IDLE, 0.2))
 	assert_eq(person.goal_id, &"activity_0")
 	assert_eq(body.global_position, old_position)
+
 	var intent: C_NpcIntent = body.get_component(C_NpcIntent) as C_NpcIntent
 	assert_eq(intent.move_position, NpcActivityService.destination(_district.definition.place_for(person.goal_id)))
 	var sequence: int = person.activity_sequence
@@ -159,6 +161,7 @@ func test_new_morning_resets_transient_fear_without_resetting_person() -> void:
 	awareness.fleeing = true
 	awareness.heard_remaining = 50.0
 	NpcPerceptionService.emit_noise(body, Vector3(5, 0, 0), 20.0)
+
 	var memory: NpcMemory = NpcMemory.new()
 	memory.incident_id = &"test/persistent_help"
 	person.memories.append(memory)
@@ -170,6 +173,7 @@ func test_new_morning_resets_transient_fear_without_resetting_person() -> void:
 	assert_false(refreshed.fleeing)
 	assert_eq(refreshed.heard_remaining, 0.0)
 	assert_true(_district.noises.is_empty())
+
 	var brain: Node = body.get_node("Brain")
 	DistrictPopulationService.prepare_morning(2)
 	assert_same(body.get_node("Brain"), brain)
@@ -185,6 +189,7 @@ func test_retreat_requires_visible_confrontation_and_does_not_restart_attack() -
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	NpcPerceptionService.sense(body, person, player, 0.2)
+
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	assert_true(awareness.player_visible)
 	NpcTraitService.tick(body, person, player, 1.0)
@@ -218,6 +223,7 @@ func test_gaze_warning_has_a_working_countermeasure() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	NpcPerceptionService.sense(body, person, player, 0.2)
+
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	NpcTraitService.tick(body, person, player, rule.warning_seconds * 0.5)
 	assert_true(awareness.warned_rules.is_empty())
@@ -240,6 +246,7 @@ func test_light_and_darkness_countermeasures_reset_exposure() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	NpcPerceptionService.sense(body, person, player, 0.2)
+
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	NpcTraitService.tick(body, person, player, rule.warning_seconds)
 	assert_true(awareness.light_distress)
@@ -271,6 +278,7 @@ func test_strength_test_uses_latest_observed_response() -> void:
 	var rule: DEF_NpcTrait = DEF_NpcTrait.new()
 	rule.kind = DEF_NpcTrait.Kind.STRENGTH_TEST
 	person.profile.rules = [rule]
+
 	var player: E_DistrictNpc = _player()
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -310,6 +318,7 @@ func test_legacy_order_does_not_override_personality() -> void:
 	var context: CustomerDialogueContext = CustomerDialogueContext.new(player, body)
 	assert_eq(context.dialogue_cue(), "direct")
 	assert_true(CustomerPresentation.uses_quick_visit(visit))
+
 	var rule: DEF_NpcTrait = DEF_NpcTrait.new()
 	rule.kind = DEF_NpcTrait.Kind.RIDDLE
 	_district.people[0].profile.rules = [rule]
@@ -327,6 +336,7 @@ func test_provocateur_service_keeps_order_and_records_submission_once() -> void:
 	var rule: DEF_NpcTrait = DEF_NpcTrait.new()
 	rule.kind = DEF_NpcTrait.Kind.PROVOCATEUR
 	person.profile.rules = [rule]
+
 	var player: E_DistrictNpc = _player()
 	var visit: CustomerVisit = _service(body, "provocateur")
 	var context: CustomerDialogueContext = CustomerDialogueContext.new(player, body)
@@ -434,6 +444,7 @@ func test_stalled_home_route_releases_meeting_without_false_delivery() -> void:
 	job.visit_id = visit.visit_id
 	job.address_id = person.home_id
 	_district.home_deliveries.append(job)
+
 	var door: Entity = null
 	for candidate: Entity in _world.query.with_all([C_NpcAddress]).execute():
 		if (candidate.get_component(C_NpcAddress) as C_NpcAddress).address_id == person.home_id:
@@ -464,6 +475,7 @@ func test_route_risk_matches_actual_speed_modifiers() -> void:
 	var path: PackedVector3Array = PackedVector3Array([Vector3(-8, 0, 0), Vector3(8, 0, 0)])
 	var hunger: C_Hunger = body.get_component(C_Hunger) as C_Hunger
 	hunger.value = 0.0
+
 	var ordinary: float = NpcRouteService.expected_damage(body, path)
 	hunger.value = 100.0
 	assert_lt(NpcRouteService.expected_damage(body, path), ordinary)
@@ -473,6 +485,7 @@ func test_route_risk_matches_actual_speed_modifiers() -> void:
 	var strength: C_Strength = body.get_component(C_Strength) as C_Strength
 	if not body.has_component(C_CarryLoad):
 		body.add_component(C_CarryLoad.new())
+
 	var load_state: C_CarryLoad = body.get_component(C_CarryLoad) as C_CarryLoad
 	load_state.active = true
 	load_state.mass_kg = (CarryLoadPolicy.minimum_mass_kg(strength) + CarryLoadPolicy.maximum_mass_kg(strength)) * 0.5
@@ -487,6 +500,7 @@ func test_native_route_replans_around_moving_fire() -> void:
 	hazard.definition = load("res://content/definitions/gameplay/hazards/def_npc_fire_aura.tres") as DEF_ToxicArea
 	_world.add_entity(fire, [hazard])
 	(fire as Node as Node3D).global_position = Vector3(0, 1, 0)
+
 	var mesh: NavigationMesh = NavigationMesh.new()
 	mesh.cell_height = 0.1
 	mesh.vertices = PackedVector3Array([Vector3(-20, 0, -20), Vector3(-20, 0, 20), Vector3(20, 0, 20), Vector3(20, 0, -20)])
@@ -501,6 +515,7 @@ func test_native_route_replans_around_moving_fire() -> void:
 		await get_tree().physics_frame
 		if NavigationServer3D.map_get_iteration_id(map) > 0 and NavigationServer3D.map_get_closest_point_owner(map, Vector3.ZERO) == region:
 			break
+
 	assert_eq(NavigationServer3D.map_get_closest_point_owner(map, Vector3.ZERO), region)
 	var goal: Vector3 = Vector3(8, 0, 0)
 	var path: PackedVector3Array = NpcRouteService.plan(body, person, body.global_position, goal, map)

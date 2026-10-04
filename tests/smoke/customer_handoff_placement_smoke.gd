@@ -18,6 +18,7 @@ func _run() -> void:
 	var actor: E_PhysicalCharacter = level.get_node("Entityes/Player") as E_PhysicalCharacter
 	var actor_body: Node3D = actor as Node as Node3D
 	actor_body.set_physics_process(false)
+
 	var parcel: Entity = PACKAGE.instantiate() as Entity
 	ECS.world.add_entity(parcel)
 	var body: RigidBody3D = GrabService.physical_body(parcel)

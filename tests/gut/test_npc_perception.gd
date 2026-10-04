@@ -20,6 +20,7 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+
 	var session_node: Node = Node.new()
 	session_node.set_script(load("res://addons/gecs/ecs/entity.gd"))
 	var session: Entity = session_node as Entity
@@ -35,6 +36,7 @@ func before_each() -> void:
 	_target = _actor(Vector3(0, 0, -3))
 	_wall = StaticBody3D.new()
 	_wall.collision_layer = 1
+
 	var collision: CollisionShape3D = CollisionShape3D.new()
 	var box: BoxShape3D = BoxShape3D.new()
 	box.size = Vector3(4, 3, 0.5)
@@ -60,6 +62,7 @@ func _actor(world_position: Vector3) -> E_DistrictNpc:
 	body.freeze = true
 	body.collision_layer = 2
 	body.collision_mask = 31
+
 	var collision: CollisionShape3D = CollisionShape3D.new()
 	var capsule: CapsuleShape3D = CapsuleShape3D.new()
 	capsule.radius = 0.3
@@ -109,6 +112,7 @@ func test_crouched_head_uses_actual_character_height() -> void:
 	var capsule_collision: CollisionShape3D = _target.get_child(0) as CollisionShape3D
 	(capsule_collision.shape as CapsuleShape3D).height = 0.9
 	capsule_collision.position.y = 0.45
+
 	var wall_shape: BoxShape3D = (_wall.get_child(0) as CollisionShape3D).shape as BoxShape3D
 	wall_shape.size.y = 1.3
 	_wall.position = Vector3(0, 0.65, -1.5)
@@ -169,6 +173,7 @@ func test_light_switch_changes_visibility() -> void:
 	state.circuit_id = &"test_sight"
 	state.light_groups = [&"test_sight_lamps"]
 	circuit.add_component(state)
+
 	var lamp: OmniLight3D = OmniLight3D.new()
 	lamp.omni_range = 12.0
 	lamp.light_energy = 4.0
@@ -179,6 +184,7 @@ func test_light_switch_changes_visibility() -> void:
 	lamp.add_child(view)
 	_root.add_child(lamp)
 	lamp.position = Vector3(0, 3, -8)
+
 	var zone: NpcLightZone = (load("res://content/scenes/npc_light_zone.tscn") as PackedScene).instantiate() as NpcLightZone
 	zone.circuit_id = &"test_sight"
 	zone.position = Vector3(0, 1, -8)
@@ -209,6 +215,7 @@ func test_hearing_does_not_reveal_source_identity() -> void:
 	noise.radius = 20.0
 	noise.source = _target
 	assert_true(NpcPerceptionService.hear(_observer, _profile, noise))
+
 	var awareness: C_NpcAwareness = _observer.get_component(C_NpcAwareness) as C_NpcAwareness
 	assert_eq(awareness.heard_position, noise.position)
 	assert_null(CombatService.target_for(_observer))

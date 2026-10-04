@@ -16,6 +16,7 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+
 	var owner_node: Node = Node.new()
 	owner_node.set_script(load("res://addons/gecs/ecs/entity.gd"))
 	var owner_entity: Entity = owner_node as Entity
@@ -106,6 +107,7 @@ func test_two_deaths_start_delayed_one_per_morning_resettlement() -> void:
 	assert_eq(_district.people.size(), 12)
 	DistrictPopulationService.prepare_morning(3)
 	assert_eq(_district.people.size(), 13)
+
 	var replacement: NpcRecord = _district.people.back()
 	assert_ne(replacement.npc_id, first_id)
 	assert_eq(replacement.home_id, first_home)

@@ -90,6 +90,7 @@ func test_carry_weight_scales_drain_and_respects_existing_slowdown() -> void:
 	assert_almost_eq(_stamina.current, 100.0 - 100.0 / 60.0 * 4.75, 0.00001)
 	assert_almost_eq(CharacterMotionSolver.effective_speed(_motion, _carry, _strength), 6.0, 0.00001)
 	_carry.mass_kg = 120.0
+
 	var reserve: float = _stamina.current
 	_tick(1.0)
 	assert_eq(_stamina.drain_multiplier, 8.0)
@@ -118,6 +119,7 @@ func test_idle_wall_air_crouch_modal_and_death_gate_running() -> void:
 	_tick(1.0)
 	assert_false(_stamina.running)
 	_control.action_crouch = false
+
 	var token: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
 	_tick(1.0)
 	assert_false(_stamina.running)
@@ -219,6 +221,7 @@ func test_snapshot_preserves_reserve_without_running_or_toggle_state() -> void:
 	var data: Dictionary = SaveDataCodec.component_data(_stamina)
 	assert_true(data.fields.has("current"))
 	assert_false(data.fields.has("toggled"))
+
 	var restored: C_Stamina = C_Stamina.new()
 	assert_true(SaveDataCodec.apply_fields(restored, data.fields as Dictionary))
 	assert_eq(restored.current, 37.0)

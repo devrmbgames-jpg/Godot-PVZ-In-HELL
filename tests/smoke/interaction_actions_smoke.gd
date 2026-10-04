@@ -30,6 +30,7 @@ func _run() -> void:
 	secondary_event.button_index = MOUSE_BUTTON_RIGHT
 	secondary_event.pressed = true
 	assert(secondary_event.is_action_pressed(&"action_secondary"))
+
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
 	add_child(level)
@@ -49,6 +50,7 @@ func _run() -> void:
 	_drive(actor, true, false, false, false, false)
 	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
 	assert(GrabService.held_object(actor) == scanner)
+
 	var actions: C_InteractionActionSet = C_InteractionActionSet.new()
 	var primary_probe: ProbeAction = ProbeAction.new()
 	primary_probe.slot = DEF_InteractionAction.Slot.PRIMARY
@@ -81,6 +83,7 @@ func _run() -> void:
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 2, "Terminal capture must block hand tool use")
 	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+
 	var extra_owner: RefCounted = RefCounted.new()
 	var extra_token: int = InteractionControlFocus.acquire(
 		actor,

@@ -41,6 +41,7 @@ func test_package_rates_debt_and_penalty_classification() -> void:
 		MoneyOperation.Reason.CONFIRMED_FRAUD,
 		MoneyOperation.Reason.MISSED_REGISTRATION,
 	]
+
 	var expected: Array[int] = [100, 120, 150, 200, 300]
 	for index: int in reasons.size():
 		var wallet: C_Wallet = C_Wallet.new()
@@ -79,6 +80,7 @@ func test_daily_totals_and_completed_days_do_not_reset_wallet() -> void:
 	assert_eq(wallet.daily_results[0].closing_balance, 100)
 	assert_eq(wallet.daily_results[1].spending, 20)
 	assert_eq(wallet.daily_results[1].income, 0)
+
 	var saved: C_Wallet = WalletService.snapshot(wallet)
 	saved.operations[0].amount = 999
 	assert_eq(wallet.operations[0].amount, 100)

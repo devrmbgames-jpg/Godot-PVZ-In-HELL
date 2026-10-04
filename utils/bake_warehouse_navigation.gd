@@ -43,6 +43,7 @@ func _bake() -> void:
 		if not source.has_data():
 			_finish(level, ["Authored navigation source contains no geometry"])
 			return
+
 		NavigationServer3D.bake_from_source_geometry_data(mesh, source)
 
 	if _settings(mesh) != settings:

@@ -44,6 +44,7 @@ func test_hidden_truth_does_not_change_normal_status_or_search_but_debug_can_sho
 	var visit: CustomerVisit = CustomerVisit.new()
 	assert_eq(UI_TerminalButtonPackage.status_text(record, state, visit), "БЕЗ ОТМЕТКИ")
 	assert_true("ПОВРЕЖДЕНА" in UI_TerminalButtonPackage.status_text(record, state, visit, true))
+
 	var panel: TerminalPanel = TerminalPanel.new()
 	assert_false(panel.debug_package_status_enabled)
 	assert_false(panel._matches_search(record, state, visit, "повреждена"))
@@ -65,6 +66,7 @@ func test_real_terminal_detail_only_reveals_condition_when_opted_into_debug() ->
 	var state: C_PackageState = C_PackageState.new()
 	state.damage = C_PackageState.Damage.DAMAGED
 	state.leaking = true
+
 	var description: RichTextLabel = detail.get_node("%RichTextLabelDescription") as RichTextLabel
 	detail.present(record, state, null)
 	assert_false("повреждена" in description.text)

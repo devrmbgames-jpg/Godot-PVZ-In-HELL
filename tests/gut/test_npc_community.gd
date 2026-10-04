@@ -26,6 +26,7 @@ func test_replacement_is_new_person_with_existing_address_alias() -> void:
 	DistrictPopulationService.mark_dead(first, DistrictPopulationService.body_for(first.npc_id), 1)
 	DistrictPopulationService.mark_dead(merchant, DistrictPopulationService.body_for(merchant.npc_id), 1)
 	DistrictPopulationService.prepare_morning(3)
+
 	var replacement: NpcRecord = _district.people.back()
 	assert_true(replacement.profile.merchant)
 	assert_ne(replacement.display_name, original_name)
@@ -65,6 +66,7 @@ func test_phase_budget_does_not_block_self_defense() -> void:
 	_district.people[2].profile.initiates_conflicts = true
 	(attacker.get_component(C_Hunger) as C_Hunger).value = 100.0
 	(second.get_component(C_Hunger) as C_Hunger).value = 100.0
+
 	var victim_profile: DEF_NpcProfile = _district.people[3].profile
 	victim_profile.personality = DEF_NpcProfile.Personality.AGGRESSIVE
 	victim_profile.high_attack_probability = 1.0
@@ -87,6 +89,7 @@ func test_killing_witness_requires_visible_actor_and_victim() -> void:
 	assert_true(NpcPerceptionService.can_see(witness, attacker, _district.people[0].profile))
 	victim.add_component(C_Death.new())
 	DistrictPopulationService.mark_dead(_district.people[4], victim, 1)
+
 	var result: DamageResult = DamageResult.new()
 	result.request = DamageRequest.new()
 	result.request.instigator = attacker
@@ -100,6 +103,7 @@ func test_killing_witness_requires_visible_actor_and_victim() -> void:
 	assert_eq(_district.people[0].memories.size(), 1)
 	assert_eq(_district.people[0].memories[0].kind, NpcMemory.Kind.KILLING)
 	assert_eq(_district.people[0].memories[0].actor_id, _district.people[3].npc_id)
+
 	var wall: StaticBody3D = StaticBody3D.new()
 	var collision: CollisionShape3D = CollisionShape3D.new()
 	var shape: BoxShape3D = BoxShape3D.new()

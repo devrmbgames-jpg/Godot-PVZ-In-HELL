@@ -22,6 +22,7 @@ func before_each() -> void:
 	_visit.definition = load("res://content/definitions/gameplay/customers/def_customer_prototype.tres") as DEF_Customer
 	_visit.requires_registered_package = false
 	flow.visits.append(_visit)
+
 	var counter: E_DeliveryCounter = (load("res://content/entities/stations/delivery_counter.tscn") as PackedScene).instantiate() as E_DeliveryCounter
 	_world.add_entity(counter)
 	CustomerFlowService._spawn(flow, _visit, 1)
@@ -51,12 +52,14 @@ func test_profile_selects_copyable_scene_and_custom_dialogue_with_interests() ->
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	assert_true(CustomerDialogueService.start(_actor, _customer))
+
 	var panel: CustomerDialoguePanel = get_tree().get_first_node_in_group(CustomerDialogueService.ACTIVE_GROUP) as CustomerDialoguePanel
 	assert_not_null(panel)
 	assert_eq(panel._resource.resource_path, _visit.definition.dialogue_resource_path)
 	for frame: int in 8:
 		if panel._line != null:
 			break
+
 		await get_tree().process_frame
 	assert_not_null(panel._line)
 	assert_true(panel._text.text.contains("Рабочая одежда"))
@@ -75,6 +78,7 @@ func test_authored_stationary_pose_preserves_walk_and_combat_animation_priority(
 	_customer.add_child(player)
 	_customer.animation_player = player
 	_customer.inspection_animation = &"Inspect"
+
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.INSPECTING
 	_customer._process(0.0)
@@ -86,6 +90,7 @@ func test_authored_stationary_pose_preserves_walk_and_combat_animation_priority(
 	_customer.inspection_animation = &"UnassignedClip"
 	_customer._process(0.0)
 	assert_eq(player.current_animation, "Idle", "Missing authored clip safely uses Idle")
+
 	var combat: C_NpcCombat = _customer.get_component(C_NpcCombat) as C_NpcCombat
 	combat.animation_driven = true
 	combat.phase = C_NpcCombat.Phase.WINDUP

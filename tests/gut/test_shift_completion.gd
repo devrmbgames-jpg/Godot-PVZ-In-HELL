@@ -108,6 +108,7 @@ func test_configured_room_counts_live_customer_bodies_only() -> void:
 	var room: Area3D = Area3D.new()
 	room.name = "Room"
 	room.collision_mask = 2
+
 	var collision: CollisionShape3D = CollisionShape3D.new()
 	var shape: BoxShape3D = BoxShape3D.new()
 	shape.size = Vector3(4, 4, 4)
@@ -119,6 +120,7 @@ func test_configured_room_counts_live_customer_bodies_only() -> void:
 	body.position = Vector3(8, 0, 0)
 	body.collision_layer = 2
 	body.set_script(load("res://content/entities/customers/e_customer.gd"))
+
 	var customer: E_Customer = body as Node as E_Customer
 	customer.component_resources = [C_CustomerAgent.new()]
 	var body_shape: CollisionShape3D = CollisionShape3D.new()

@@ -21,6 +21,7 @@ func _run() -> void:
 	_actor = _level.get_node("Entityes/Player") as Entity
 	(_actor as Node as RigidBody3D).freeze = true
 	(_actor as Node as Node3D).global_position = Vector3(7, 0, -2)
+
 	var offsets: Array[Vector3] = [Vector3(0.8, 1.4, 0), Vector3(1, 1, 0), Vector3.ZERO]
 	var names: Array[String] = ["DoorTemplate", "Window", "Drawer"]
 	for index: int in names.size():
@@ -41,6 +42,7 @@ func _run() -> void:
 		action.action.execute(_actor, action.source, action.target)
 		await _frames(SETTLE_FRAMES)
 		assert(state.actual_fraction <= ENDPOINT_TOLERANCE)
+
 	var light_switch: Entity = _level.get_node("Entityes/LightSwitch") as Entity
 	await _aim(light_switch, Vector3.ZERO, Vector3.RIGHT)
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)

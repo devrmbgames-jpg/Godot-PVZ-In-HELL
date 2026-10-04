@@ -30,6 +30,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:bottles")
 	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -44,6 +45,7 @@ func _run() -> void:
 		_customer = CustomerFlowService.waiting_customer()
 		if _customer != null:
 			break
+
 	assert(_customer != null)
 	(_customer as Node as RigidBody3D).freeze = true
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -55,6 +57,7 @@ func _run() -> void:
 	assert(state.phase == C_Challenge.Phase.ACTIVE)
 	assert(state.consumed and state.definition.preparation_seconds == 0.0)
 	assert(get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP).is_empty())
+
 	var wall_number: String = "ЗАКАЗ\n№%03d" % CustomerPresentation.registered_number(visit)
 	var clues: Array[Node] = get_tree().get_nodes_in_group(GazeOrderCluePresentation.CLUE_GROUP)
 	assert(clues.size() == 3)
@@ -74,11 +77,13 @@ func _run() -> void:
 	assert(InteractionControlFocus.current(_actor) != InteractionControlFocus.Priority.MODAL)
 	_camera.look_at(_customer.head_axis_x.global_position)
 	ECS.world.process(FRAME_DELTA, "GamePlay")
+
 	var hud: Node = _level.get_node("InteractionHud/Overlay")
 	for frame: int in UI_WAIT_FRAMES:
 		await get_tree().process_frame
 		if (hud.get_node("GazeDistortion") as ColorRect).visible:
 			break
+
 	assert((hud.get_node("GazeWarning") as Label).visible)
 	assert((hud.get_node("GazeDistortion") as ColorRect).visible)
 	assert((_customer.get_node("DebugStatus") as Label3D).text.contains("LOS:"))
@@ -89,6 +94,7 @@ func _run() -> void:
 		await get_tree().process_frame
 		if not (hud.get_node("GazeDistortion") as ColorRect).visible:
 			break
+
 	assert(state.violation_elapsed == 0.0)
 	assert(not (hud.get_node("GazeDistortion") as ColorRect).visible)
 	# The authored rule remains active while a real parcel enters the counter's physical area.
@@ -101,6 +107,7 @@ func _run() -> void:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
 		if counter.parcels().has(parcel):
 			break
+
 	assert(counter.parcels().has(parcel))
 	assert(state.phase == C_Challenge.Phase.ACTIVE)
 	assert(CustomerFlowService.confirm_delivery(counter) == PackageDeliveryCheck.Result.READY)

@@ -20,6 +20,7 @@ func _run() -> void:
 	actor_body.set_script(E_RigidBodyCharacter)
 	actor_body.freeze = true
 	_actor = actor_body as Node as Entity
+
 	var ray: RayCast3D = RayCast3D.new()
 	ray.position = Vector3(0, 1, 0)
 	ray.target_position = Vector3(0, 0, -3)
@@ -29,6 +30,7 @@ func _run() -> void:
 	anchor.position = Vector3(1, 1, -1)
 	actor_body.add_child(anchor)
 	_actor.set("hold_anchor", anchor)
+
 	var interactor: C_Interactor = C_Interactor.new()
 	interactor.collision_mask = 31
 	_actor.component_resources = [C_Controller.new(), interactor, C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
@@ -37,6 +39,7 @@ func _run() -> void:
 	(_area as Node as Node3D).position = Vector3(0, 1, -2)
 	_area.anchor.position = Vector3.ZERO
 	_world.add_entity(_area)
+
 	var item: Entity = _box(Vector3(1, 1, -1))
 	_hold(item)
 	await _sync_physics()
@@ -54,6 +57,7 @@ func _run() -> void:
 	interactor = _actor.get_component(C_Interactor) as C_Interactor
 	ray.target_position = Vector3(0, 0, -3)
 	anchor.position = Vector3(0, 1, -1)
+
 	var carried_body: RigidBody3D = GrabService.physical_body(item)
 	assert(carried_body != null)
 	carried_body.global_position = Vector3(0, 1, -1)
@@ -63,6 +67,7 @@ func _run() -> void:
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
 	assert(choice != null and choice.action is DEF_CarryPlacementAction)
 	assert(choice.action.complete(_actor, choice.source, choice.target))
+
 	var body: RigidBody3D = GrabService.physical_body(item)
 	assert(GrabService.held_object(_actor) == null)
 	assert(body.global_position.is_equal_approx(_area.anchor.global_position))
@@ -104,6 +109,7 @@ func _box(location: Vector3) -> Entity:
 	shape.size = Vector3.ONE * 0.2
 	collision.shape = shape
 	body.add_child(collision)
+
 	var item: Entity = body as Node as Entity
 	item.component_resources = [C_Grabbable.new(), C_Interactable.new()]
 	_world.add_entity(item)

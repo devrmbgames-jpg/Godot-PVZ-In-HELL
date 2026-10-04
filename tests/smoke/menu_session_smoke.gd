@@ -19,6 +19,7 @@ func _wait_scene(path: String) -> Node:
 		var scene: Node = get_tree().current_scene
 		if scene != null and scene.scene_file_path == path:
 			return scene
+
 	assert(false, "Scene transition timed out: " + path)
 	return null
 
@@ -27,6 +28,7 @@ func _settings(root: Node) -> SettingsMenu:
 	for node: Node in root.find_children("*", "CanvasLayer", true, false):
 		if node is SettingsMenu:
 			return node as SettingsMenu
+
 	assert(false, "Settings missing")
 	return null
 
@@ -43,6 +45,7 @@ func _run() -> void:
 	assert(get_tree().paused)
 	settings.close_menu()
 	assert(not get_tree().paused)
+
 	var new_button: Button = main.find_child("NewGame", true, false) as Button
 	assert(new_button != null)
 	await _click(new_button)
@@ -52,6 +55,7 @@ func _run() -> void:
 	menu.setup(DebugTargetResolver.player(), SETTINGS_PATH)
 	menu.setup_save_paths(SAVE_PATH, AUTO_PATH)
 	assert(menu.open_menu())
+
 	var reason: String = GameSessionService.save_reason(level, menu)
 	assert(reason.is_empty(), "Fresh main save allowed: " + reason)
 	var save_button: Button = menu.find_child("Session_save", true, false) as Button
@@ -60,6 +64,7 @@ func _run() -> void:
 	assert(FileAccess.file_exists(SAVE_PATH))
 	var saved: GameSaveResult = GameSessionService.saved_game(GameSessionService.MAIN_LEVEL, [SAVE_PATH, AUTO_PATH])
 	assert(saved.success, saved.message)
+
 	var wallet: C_Wallet = WalletService.current()
 	var balance: int = wallet.balance
 	wallet.balance += 123
@@ -69,6 +74,7 @@ func _run() -> void:
 	var load_button: Button = menu.find_child("Session_load", true, false) as Button
 	GameSettingsService.set_value("mouse_sensitivity", 1.7)
 	await _click(load_button)
+
 	var confirmation: ConfirmationDialog = menu.find_child("*", true, false) as ConfirmationDialog
 	# Locate session dialog by title; binding conflict dialog is a separate Window.
 	for child: Node in menu.get_children():
@@ -81,6 +87,7 @@ func _run() -> void:
 	assert(DayPhaseService.current().phase == C_DayCycle.Phase.MORNING)
 	assert(WalletService.current().balance == balance)
 	assert(not get_tree().paused)
+
 	var preferences: ConfigFile = ConfigFile.new()
 	assert(preferences.load(SETTINGS_PATH) == OK)
 	assert(is_equal_approx(float(preferences.get_value("settings", "mouse_sensitivity")), 1.7), "Load persists preferences without closing menu first")

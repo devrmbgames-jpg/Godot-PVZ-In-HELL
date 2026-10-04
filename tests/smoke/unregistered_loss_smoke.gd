@@ -24,6 +24,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	assert(ECS.world.query.with_all([C_Package]).execute().size() == 8)
 
 	var flow: C_CustomerFlow = CustomerFlowService.current()

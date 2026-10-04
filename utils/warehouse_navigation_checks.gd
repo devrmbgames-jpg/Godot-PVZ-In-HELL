@@ -54,6 +54,7 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 			if marker == null:
 				errors.append("Missing warehouse marker: " + marker_name)
 				continue
+
 			var floor_point: Vector3 = marker.global_position
 			floor_point.y = level.global_position.y
 			points[marker_name] = floor_point
@@ -75,6 +76,7 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 			continue
 		if station == null or point_key == "counter_waiting":
 			continue
+
 		var path: PackedVector3Array = NavigationServer3D.map_get_path(map_rid, waiting, target, true, region.navigation_layers)
 		if path.is_empty() or path[0].distance_to(waiting) > POINT_TOLERANCE or path[-1].distance_to(target) > POINT_TOLERANCE:
 			errors.append("No complete counter route to " + point_key)
@@ -108,6 +110,7 @@ static func _graph_failures(definition: DEF_District, map_rid: RID, navigation_l
 			var next_key: StringName = StringName(neighbour_key)
 			if not junctions.has(next_key):
 				continue
+
 			var target: Vector3 = DistrictPopulationService.position_for(next_key)
 			var path: PackedVector3Array = NavigationServer3D.map_get_path(map_rid, start, target, true, navigation_layers)
 			if path.is_empty() or path[0].distance_to(start) > POINT_TOLERANCE or path[-1].distance_to(target) > POINT_TOLERANCE:
@@ -123,6 +126,7 @@ static func _graph_failures(definition: DEF_District, map_rid: RID, navigation_l
 			var current_key: StringName = pending.pop_back()
 			if visited.has(current_key):
 				continue
+
 			visited.append(current_key)
 			for neighbour_key: String in junctions[current_key].neighbours:
 				var next_key: StringName = StringName(neighbour_key)

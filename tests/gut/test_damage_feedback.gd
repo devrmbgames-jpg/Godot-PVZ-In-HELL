@@ -62,6 +62,7 @@ func test_applied_hit_snapshot_and_toxic_explosion_warnings_use_distinct_feedbac
 	assert_eq(_received[0].amount, 5.0)
 	assert_eq((_player.get_component(C_Health) as C_Health).current, 95.0)
 	_view._process(0.0)
+
 	var warning: Label = _view.get_node("Warning") as Label
 	var sound: AudioStreamPlayer = _view.get_node("Sound") as AudioStreamPlayer
 	assert_true(warning.visible)
@@ -102,6 +103,7 @@ func test_package_label_survives_destructive_cleanup_without_entity_reference() 
 	assert_eq(_received[0].package_id, "feedback/parcel")
 	assert_true(_received[0].depleted)
 	assert_eq(_received[0].amount, 100.0)
+
 	var labels: Array[Node] = _view.find_children("WorldDamageLabel*", "Label3D", false, false)
 	assert_eq(labels.size(), 1)
 	assert_true((labels[0] as Label3D).text.contains("Посылка −100"))

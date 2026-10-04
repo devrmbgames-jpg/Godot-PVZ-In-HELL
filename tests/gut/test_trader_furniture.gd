@@ -94,6 +94,7 @@ func test_purchase_spawns_massive_anchorable_shelf_beside_trader_without_invento
 	assert_true(shelf.has_component(C_Anchorable))
 	assert_true(shelf.has_component(C_Grabbable))
 	assert_false(shelf.has_component(C_InventoryItem))
+
 	var body: RigidBody3D = shelf as Node as RigidBody3D
 	assert_eq(body.mass, 75.0)
 	assert_eq(body.global_position.x, 3.0)
@@ -182,6 +183,7 @@ func test_paid_home_delivery_waits_for_day_and_space_then_fulfills_once_after_sa
 	assert_true(SaveDataCodec.apply_fields(copy, SaveDataCodec.component_data(_commerce).fields as Dictionary))
 	assert_eq(copy.receipts[0].delivery_fee, 30)
 	assert_eq(copy.pending_deliveries[0].delivery_day, 2)
+
 	var zone: Entity = _home()
 	var receiving: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
 	assert_false(OrderDeliveryService.fulfill_one(zone, receiving, copy, 1))
@@ -195,6 +197,7 @@ func test_paid_home_delivery_waits_for_day_and_space_then_fulfills_once_after_sa
 	await get_tree().process_frame
 	await get_tree().physics_frame
 	assert_true(OrderDeliveryService.fulfill_one(zone, receiving, copy, 2))
+
 	var shelf: Entity = _goods("order/home/one")
 	assert_not_null(shelf)
 	assert_eq((shelf as Node as RigidBody3D).mass, 75.0)
@@ -224,6 +227,7 @@ func test_courier_rejects_unfulfillable_definition_and_trader_panel_offers_separ
 	assert_true(_commerce.receipts.is_empty())
 	assert_true(_commerce.pending_deliveries.is_empty())
 	profile.catalog = [_shelf]
+
 	var panel: CommercePanel = CommercePanelService.open(_actor, _trader)
 	assert_not_null(panel)
 	assert_eq(panel._offers.get_child_count(), 1)

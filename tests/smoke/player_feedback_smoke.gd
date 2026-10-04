@@ -22,6 +22,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	assert(CustomerFlowService.parcel_for("base_supply:1:glass") != null)
 	var health: C_Health = player.get_component(C_Health) as C_Health
 	var hunger: C_Hunger = player.get_component(C_Hunger) as C_Hunger
@@ -35,6 +36,7 @@ func _run() -> void:
 	condition.opening = C_PackageState.Opening.OPENED
 	await get_tree().process_frame
 	await get_tree().process_frame
+
 	var stats: Control = hud.get_node("Overlay/PlayerStatusPanel") as Control
 	assert(stats.visible)
 	assert(not (hud.get_node("Overlay/PlayerDebugPanel") as Control).visible)
@@ -43,6 +45,7 @@ func _run() -> void:
 	assert(is_equal_approx((stats.get_node("Stats/HungerBar") as ProgressBar).value, hunger.value))
 	assert((stats.get_node("Stats/Hunger") as Label).text.contains("Сильный голод"))
 	assert((stats.get_node("Stats/Money") as Label).text.contains("-321"))
+
 	var surface: MeshInstance3D = (parcel as E_Package).get_marking_surface()
 	for index: int in 4:
 		var label: Label3D = surface.get_node("PackageLabel%d" % index) as Label3D
@@ -54,6 +57,7 @@ func _run() -> void:
 		assert(label.text.contains("ТЯЖЁЛОЕ" if shipment == "equipment" else "ЖИДКОСТЬ"))
 	await _check_damage(player, hud, parcel)
 	await _check_locked_prompt(level, player)
+
 	var scanner: E_Scanner = level.get_node("Entityes/Scanner") as E_Scanner
 	var result: PackageScanResult = PackageRegistrationService.register_package(parcel)
 	assert(result.outcome == PackageScanResult.Outcome.REGISTERED)
@@ -65,6 +69,7 @@ func _run() -> void:
 	scanner.scan_feedback.emit(result)
 	assert(scan_text.text == result.message and not scan_text.text.contains("№000"))
 	assert(not (scanner.get_node("Feedback/Beep") as AudioStreamPlayer3D).playing)
+
 	var hp: float = health.current
 	var hunger_value: float = hunger.value
 	hud.set("player_status_enabled", false)
@@ -95,6 +100,7 @@ func _check_damage(player: Entity, hud: CanvasLayer, parcel: Entity) -> void:
 		assert(warning.text.contains("Ближняя атака" if kind == DamageRequest.Type.MELEE else "Токсичная зона" if kind == DamageRequest.Type.TOXIC else "Взрыв"))
 		assert(not (view.get_node("Tint") as ColorRect).visible)
 		assert((view.get_node("Sound") as AudioStreamPlayer).stream != null)
+
 	var request: DamageRequest = DamageRequest.new()
 	request.target = parcel
 	request.amount = 1.0
@@ -104,6 +110,7 @@ func _check_damage(player: Entity, hud: CanvasLayer, parcel: Entity) -> void:
 	view.enabled = false
 	await get_tree().process_frame
 	await get_tree().process_frame
+
 	var before: float = player_hp.current
 	request.target = player
 	assert(DamageRequestService.submit(request))
@@ -121,6 +128,7 @@ func _check_locked_prompt(level: Node, player: Entity) -> void:
 	# Fixture relocation is an explicit synchronization of the native door leaf.
 	(door as Node as AnimatableBody3D).sync_to_physics = false
 	(door as Node as Node3D).global_transform = Transform3D(Basis.IDENTITY, Vector3(16, 0, 2))
+
 	var leaf: RigidBody3D = door.get_node("RigidBody3D") as RigidBody3D
 	leaf.freeze = true
 	leaf.global_transform = (door as Node as Node3D).global_transform
@@ -131,6 +139,7 @@ func _check_locked_prompt(level: Node, player: Entity) -> void:
 	InteractionActionResolver.refresh_prompt(player)
 	assert(interactor.prompt_text.contains("Заперто") and not interactor.prompt_text.contains("Отпереть"))
 	assert(state.locked)
+
 	var hammer: Entity = level.get_node("Entityes/Hammer") as Entity
 	var key: C_AccessItem = C_AccessItem.new()
 	key.item_id = &"feedback_key"
@@ -156,6 +165,7 @@ func _aim(player: Entity, point: Vector3) -> void:
 	for frame: int in 2:
 		await get_tree().physics_frame
 	ray.force_raycast_update()
+
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingService.find_target(player, interactor)
 	interactor.physics_target = InteractionTargetingService.find_physics_target(player, interactor)

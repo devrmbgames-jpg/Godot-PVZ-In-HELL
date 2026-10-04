@@ -29,6 +29,7 @@ func before_each() -> void:
 	_flow = owner.get_component(C_CustomerFlow) as C_CustomerFlow
 	_cycle = owner.get_component(C_DayCycle) as C_DayCycle
 	_ledger = owner.get_component(C_PackageLedger) as C_PackageLedger
+
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.set_script(E_RigidBodyCharacter)
@@ -40,6 +41,7 @@ func before_each() -> void:
 	_actor.head_axis_x = anchor
 	_actor.component_resources = [C_PlayerInputController.new(), C_Controller.new(), C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
 	_world.add_entity(_actor)
+
 	var counter: E_DeliveryCounter = (load("res://content/entities/stations/delivery_counter.tscn") as PackedScene).instantiate() as E_DeliveryCounter
 	(counter as Node as Node3D).position.x = 10.0
 	_world.add_entity(counter)
@@ -90,6 +92,7 @@ func _await_line() -> void:
 		var panel: CustomerDialoguePanel = _panel()
 		if panel != null and panel._line != null:
 			return
+
 	assert_true(false, "Dialogue line must finish within the bounded fixture")
 
 
@@ -101,6 +104,7 @@ func test_quick_spawn_announces_true_number_preserves_it_and_accepts_without_dia
 	assert_true(message.text.contains("073"))
 	assert_true(_agent().order_announced)
 	assert_null(_panel())
+
 	var text: String = message.text
 	(_customer.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
 	CustomerFlowService.tick(_flow, _cycle, 0.0)
@@ -110,6 +114,7 @@ func test_quick_spawn_announces_true_number_preserves_it_and_accepts_without_dia
 	assert_false((DEF_CustomerAction.new()).is_available(_actor, _customer, _customer))
 	var body: RigidBody3D = RigidBody3D.new()
 	body.set_script(E_GrabbableBody)
+
 	var parcel: Entity = body as Node as Entity
 	var identity: C_Package = C_Package.new()
 	identity.package_id = _visit.package_id
@@ -134,6 +139,7 @@ func test_quick_pending_registration_announces_once_and_riddle_wall_profiles_kee
 	_register_order()
 	CustomerFlowService.tick(_flow, _cycle, 0.0)
 	assert_true(_agent().order_announced)
+
 	var message: Label3D = _customer.get_node("Message") as Label3D
 	message.text = "Другой результат"
 	CustomerFlowService.tick(_flow, _cycle, 0.0)
@@ -155,6 +161,7 @@ func test_first_approach_checks_range_wall_and_busy_capture_then_starts_only_onc
 	CustomerGreetingService.tick(_customer, _visit)
 	assert_null(_panel())
 	(_customer as Node as Node3D).position = Vector3(0, 0, -1.5)
+
 	var wall: StaticBody3D = StaticBody3D.new()
 	wall.position = Vector3(0, 1.5, -0.75)
 	var shape: CollisionShape3D = CollisionShape3D.new()
@@ -174,6 +181,7 @@ func test_first_approach_checks_range_wall_and_busy_capture_then_starts_only_onc
 	CustomerGreetingService.tick(_customer, _visit)
 	assert_null(_panel(), "The developer console keeps input focus")
 	Console.toggle_console()
+
 	var capture: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
 	CustomerGreetingService.tick(_customer, _visit)
 	assert_false(_agent().dialogue_started)

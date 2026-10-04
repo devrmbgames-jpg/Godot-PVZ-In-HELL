@@ -53,6 +53,7 @@ func test_held_liquid_rights_itself_and_stays_upright_when_camera_tilts() -> voi
 	for frame: int in 50:
 		await get_tree().physics_frame
 	assert_gt(box_body.global_basis.y.normalized().dot(Vector3.UP), 0.99, "Liquid stands upright despite the tilted carry anchor")
+
 	var profile: GrabControlProfile = GrabService.profile_for(box_entity)
 	assert_eq(profile.rotation_axis, C_Grabbable.RotationAxis.Y_ONLY, "Manual yaw remains available")
 	assert_eq(profile.max_rotation_speed, 3.0)
@@ -70,6 +71,7 @@ func test_regular_prop_keeps_free_rotation_when_held_and_liquid_policy_can_opt_o
 		await get_tree().physics_frame
 	assert_lt(box_body.global_basis.y.normalized().dot(Vector3.UP), 0.9, "Ordinary prop follows manual/camera pitch")
 	assert_false(GrabService.profile_for(box_entity).keep_upright)
+
 	var liquid: C_LiquidTilt = C_LiquidTilt.new()
 	liquid.keep_upright_while_held = false
 	box_entity.add_component(liquid)
@@ -90,6 +92,7 @@ func before_each() -> void:
 	input_state = holder_entity.get_component(C_Controller) as C_Controller
 	grab_control = holder_entity.get_component(C_GrabControl) as C_GrabControl
 	carry_load = holder_entity.get_component(C_CarryLoad) as C_CarryLoad
+
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
 	interactor.target = box_entity
 	interactor.physics_target = box_body
@@ -122,6 +125,7 @@ func make_holder(location: Vector3) -> Entity:
 	var origin: Marker3D = Marker3D.new()
 	origin.position.y = 1.0
 	rigid.add_child(origin)
+
 	var right_hand: Marker3D = Marker3D.new()
 	right_hand.position = Vector3(0.35, 1.0, -0.5)
 	rigid.add_child(right_hand)
@@ -131,6 +135,7 @@ func make_holder(location: Vector3) -> Entity:
 	var lowered_right_hand: Marker3D = Marker3D.new()
 	lowered_right_hand.position = Vector3(0.35, -0.5, 0.25)
 	rigid.add_child(lowered_right_hand)
+
 	var lowered_left_hand: Marker3D = Marker3D.new()
 	lowered_left_hand.position = Vector3(-0.35, -0.5, 0.25)
 	rigid.add_child(lowered_left_hand)
@@ -169,6 +174,7 @@ func make_box(location: Vector3) -> Entity:
 	shape_resource.size = Vector3.ONE * 0.6
 	shape_node.shape = shape_resource
 	rigid.add_child(shape_node)
+
 	var mesh_instance: MeshInstance3D = MeshInstance3D.new()
 	mesh_instance.name = "BoxMesh"
 	var box_mesh: BoxMesh = BoxMesh.new()
@@ -211,6 +217,7 @@ func test_marker_samples_follow_package_transform_and_split_faces() -> void:
 	var local_point: Vector3 = Vector3(0.1, 0.3, 0.0)
 	var normal: Vector3 = box_body.global_basis * Vector3.UP
 	PackageMarkService.append_sample(marker, box_entity, box_body.to_global(local_point), normal)
+
 	var marks: C_PackageMarks = box_entity.get_component(C_PackageMarks) as C_PackageMarks
 	assert_eq(marks.point_count, 1)
 	assert_almost_eq(
@@ -253,6 +260,7 @@ func test_marker_marks_are_bounded_and_destroyed_packages_reject_ink() -> void:
 			box_body.to_global(Vector3(index * 0.02, 0.3, 0.0)),
 			Vector3.UP,
 		)
+
 	var marks: C_PackageMarks = box_entity.get_component(C_PackageMarks) as C_PackageMarks
 	assert_eq(marks.point_count, 2)
 	var state: C_PackageState = box_entity.get_component(C_PackageState) as C_PackageState
@@ -275,6 +283,7 @@ func test_marker_cancel_releases_only_its_token_and_preserves_hand() -> void:
 		box_entity,
 		InteractionControlFocus.Priority.DRAWING,
 	)
+
 	var other_owner: RefCounted = RefCounted.new()
 	var other_token: int = InteractionControlFocus.acquire(
 		holder_entity,
@@ -302,6 +311,7 @@ func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> vo
 		box_entity,
 		InteractionControlFocus.Priority.DRAWING,
 	)
+
 	var original_look: Vector3 = input_state.direction_look
 	producer.feed_event(_mouse_motion(Vector2(25.0, 15.0)))
 	producer.process([holder_entity], [[input_state]], 1.0 / 60.0)
@@ -473,6 +483,7 @@ func test_raycast_selects_and_highlights_only_the_current_target() -> void:
 	assert_eq(interactor.target, box_entity)
 	assert_not_null(mesh_instance.material_overlay)
 	assert_ne(mesh_instance.material_overlay, previous_overlay)
+
 	var interaction_ray: RayCast3D = GrabService.interaction_raycast(holder_entity)
 	interaction_ray.rotation.y = PI
 	targeting.process([holder_entity], [[interactor]], 0.0)
@@ -509,6 +520,7 @@ func test_shared_highlight_survives_one_holder_removal_and_restores_on_last() ->
 	var original: StandardMaterial3D = StandardMaterial3D.new()
 	mesh_instance.material_overlay = original
 	highlight.process([holder_entity, second], [[first_interactor, second_interactor]], 0.0)
+
 	var selected: Material = mesh_instance.material_overlay
 	grab_world.remove_entity(second)
 	assert_eq(mesh_instance.material_overlay, selected)
@@ -554,6 +566,7 @@ func test_highlight_authored_material_changes_with_weight_on_same_target() -> vo
 	box_body.mass = 200.0
 	highlight.process([holder_entity], [[interactor]], 0.0)
 	assert_eq(mesh.material_overlay, highlight.unavailable_material)
+
 	var custom: StandardMaterial3D = StandardMaterial3D.new()
 	highlight.unavailable_material = custom
 	highlight.process([holder_entity], [[interactor]], 0.0)
@@ -576,6 +589,7 @@ func test_highlight_multi_holder_material_priority_and_removal_are_deterministic
 	var token: int = InteractionControlFocus.acquire(second, self, InteractionControlFocus.Priority.PROLONGED)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
+
 	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
 	grab_world.add_system(highlight)
 	var mesh: MeshInstance3D = box_body.get_node("BoxMesh") as MeshInstance3D
@@ -599,6 +613,7 @@ func test_highlight_modal_clears_and_restores_without_target_change() -> void:
 	mesh.material_overlay = original
 	highlight.process([holder_entity], [[interactor]], 0.0)
 	assert_ne(mesh.material_overlay, original)
+
 	var token: int = InteractionControlFocus.acquire(holder_entity, self, InteractionControlFocus.Priority.MODAL)
 	highlight.process([holder_entity], [[interactor]], 0.0)
 	assert_eq(mesh.material_overlay, original)
@@ -816,6 +831,7 @@ func test_hand_pickup_rotation_reset_and_relative_offset() -> void:
 	box_body.global_basis = Basis(Vector3.UP, PI * 0.75)
 	config.reset_rotation_on_pickup = true
 	assert_true(GrabService.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
+
 	var reset_grip: R_HeldBy = GrabService.held_relationship(box_entity).relation as R_HeldBy
 	assert_eq(reset_grip.rotation_offset, Quaternion.IDENTITY)
 	GrabService.release(holder_entity, box_entity)
@@ -825,6 +841,7 @@ func test_hand_pickup_rotation_reset_and_relative_offset() -> void:
 		* box_body.global_basis.orthonormalized().get_rotation_quaternion()
 	).normalized()
 	assert_true(GrabService.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
+
 	var relative_grip: R_HeldBy = GrabService.held_relationship(box_entity).relation as R_HeldBy
 	assert_true(relative_grip.rotation_offset.is_equal_approx(expected_offset))
 #endregion
@@ -843,6 +860,7 @@ func test_pickup_slot_selection_accounts_for_hands_and_swap_mapping() -> void:
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
 	assert_eq(GrabService.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.LEFT_HAND)
 	assert_eq(GrabService.pickup_slot(holder_entity, hand_item, true), C_Grabbable.HoldSlot.RIGHT_HAND)
+
 	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
 	_grabbable(left_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.LEFT_HAND
 	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
@@ -867,6 +885,7 @@ func test_nested_capture_lowers_hands_until_last_owner_releases() -> void:
 		push_owner,
 		InteractionControlFocus.Priority.PUSH,
 	)
+
 	var modal_token: int = InteractionControlFocus.acquire(
 		holder_entity,
 		modal_owner,
@@ -904,6 +923,7 @@ func test_primary_action_routes_to_mapped_hand_and_swap() -> void:
 	right_action.slot = DEF_InteractionAction.Slot.PRIMARY
 	var left_action: ProbeAction = ProbeAction.new()
 	left_action.slot = DEF_InteractionAction.Slot.PRIMARY
+
 	var right_actions: C_InteractionActionSet = C_InteractionActionSet.new()
 	right_actions.actions = [right_action]
 	var left_actions: C_InteractionActionSet = C_InteractionActionSet.new()
@@ -933,6 +953,7 @@ func test_capture_blocks_hand_use_throw_and_rotation() -> void:
 	actions.actions = [action]
 	right_item.add_component(actions)
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
+
 	var modal_owner: RefCounted = RefCounted.new()
 	var modal_token: int = InteractionControlFocus.acquire(
 		holder_entity,
@@ -1020,6 +1041,7 @@ func test_drop_long_press_input_does_not_emit_short_drop_on_release() -> void:
 	input_system.process(holders, [[input_state]], grab_control.drop_long_press_seconds)
 	assert_true(input_state.drop_long_pressed)
 	assert_false(input_state.drop_pressed)
+
 	var release_event: InputEventAction = InputEventAction.new()
 	release_event.action = &"drop"
 	release_event.pressed = false
@@ -1039,6 +1061,7 @@ func test_generic_hand_rotation_uses_rotate_modifier_without_hand_action() -> vo
 	input_state.rotate_held = true
 	input_state.look_delta = Vector2(30.0, 20.0)
 	GrabService.handle_input(holder_entity)
+
 	var grip: R_HeldBy = GrabService.held_relationship(right_item).relation as R_HeldBy
 	assert_true(grab_control.rotation_active)
 	assert_false(grip.rotation_offset.is_equal_approx(Quaternion.IDENTITY))
@@ -1148,6 +1171,7 @@ func test_y_only_rotation_and_disabled_rotation_policy() -> void:
 	assert_almost_eq(y_only_euler.x, 0.0, 0.00001)
 	assert_almost_eq(y_only_euler.z, 0.0, 0.00001)
 	assert_ne(y_only_euler.y, 0.0)
+
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	var config: C_Grabbable = _grabbable(right_item)
 	config.allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
@@ -1172,6 +1196,7 @@ func test_interact_replaces_primary_hand_after_los_validation() -> void:
 	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
+
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingService.find_target(holder_entity, interactor)
 	interactor.physics_target = InteractionTargetingService.find_physics_target(holder_entity, interactor)
@@ -1197,6 +1222,7 @@ func test_use_replaces_secondary_hand_after_los_validation() -> void:
 	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
+
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingService.find_target(holder_entity, interactor)
 	interactor.physics_target = InteractionTargetingService.find_physics_target(holder_entity, interactor)
@@ -1242,6 +1268,7 @@ func test_rotation_shortest_arc_and_no_residual_velocity() -> void:
 		config,
 	)
 	assert_eq(angular_velocity, Vector3.ZERO)
+
 	var offset: Quaternion = Quaternion.IDENTITY
 	for step_index: int in 1000:
 		offset = GrabService.rotated_offset(offset, Vector2(4.0, 3.0))

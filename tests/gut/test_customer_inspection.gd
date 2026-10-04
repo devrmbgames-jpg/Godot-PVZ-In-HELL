@@ -22,6 +22,7 @@ func before_each() -> void:
 	_world.add_observer(O_PackageHazard.new())
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ExplosionSetup.new())
+
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_CustomerFlow.new(), C_PackageLedger.new()]
 	_world.add_entity(session)
@@ -36,6 +37,7 @@ func before_each() -> void:
 	_visit.visit_count = 1
 	_visit.started = true
 	(session.get_component(C_CustomerFlow) as C_CustomerFlow).visits.append(_visit)
+
 	var floor: StaticBody3D = StaticBody3D.new()
 	var collision: CollisionShape3D = CollisionShape3D.new()
 	var shape: BoxShape3D = BoxShape3D.new()
@@ -44,6 +46,7 @@ func before_each() -> void:
 	collision.position.y = -0.1
 	floor.add_child(collision)
 	_root.add_child(floor)
+
 	var counter: E_DeliveryCounter = (load("res://content/entities/stations/delivery_counter.tscn") as PackedScene).instantiate() as E_DeliveryCounter
 	_world.add_entity(counter)
 	var booth: Entity = (load("res://content/entities/customers/inspection_booth.tscn") as PackedScene).instantiate() as Entity
@@ -149,6 +152,7 @@ func test_cleanup_night_releases_unpacked_items_for_player() -> void:
 	var actor: Entity = Entity.new()
 	actor.component_resources = [C_Inventory.new()]
 	_world.add_entity(actor)
+
 	var contents: Array[Entity] = _world.query.with_all([C_InventoryItem]).execute().duplicate()
 	assert_eq(contents.size(), 5)
 	assert_false(InventoryService.transfer(contents[0], actor), "Reserved contents cannot be stolen into inventory")
@@ -169,6 +173,7 @@ func test_cleanup_refused_unpacked_results_stay_edible_after_return() -> void:
 	_return()
 	assert_eq(_visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
 	assert_true(_visit.package_opened)
+
 	var item: Entity = _world.query.with_all([C_InventoryItem]).execute_one()
 	assert_not_null(item)
 	assert_null(CustomerInspectionService.owner_for(item))
@@ -192,6 +197,7 @@ func test_cleanup_customer_death_or_external_removal_releases_physical_borrow() 
 	var second: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
 	(second as Node as RigidBody3D).freeze = true
 	_world.add_entity(second)
+
 	var next_visit: CustomerVisit = CustomerVisit.new()
 	next_visit.definition = _visit.definition
 	assert_false(CustomerInspectionService.begin(second, _visit, _parcel), "Closed/dead visit cannot start a new inspection")

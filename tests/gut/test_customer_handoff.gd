@@ -28,6 +28,7 @@ func before_each() -> void:
 	_visit.definition = DEF_Customer.new()
 	_visit.started = true
 	(session.get_component(C_CustomerFlow) as C_CustomerFlow).visits.append(_visit)
+
 	var body: RigidBody3D = RigidBody3D.new()
 	body.set_script(E_RigidBodyCharacter)
 	body.freeze = true
@@ -91,6 +92,7 @@ func test_wrong_unregistered_destroyed_and_unassigned_orders_stay_held_silently(
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	_expect_held()
 	identity.package_id = _visit.package_id
+
 	var state: C_PackageState = _parcel.get_component(C_PackageState) as C_PackageState
 	state.registration = C_PackageState.Registration.UNREGISTERED
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))

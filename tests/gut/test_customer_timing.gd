@@ -19,6 +19,7 @@ func before_each() -> void:
 	_flow.schedule = DEF_CustomerSchedule.new()
 	_flow.schedule.supply = null
 	_flow.schedule.customer_scene = load("res://content/entities/customers/customer.tscn") as PackedScene
+
 	var counter_scene: PackedScene = load("res://content/entities/stations/delivery_counter.tscn") as PackedScene
 	var counter: E_DeliveryCounter = counter_scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(counter)
@@ -146,6 +147,7 @@ func test_authored_gaze_has_twelve_seconds_and_light_entrance_is_not_scaled_twic
 	subject.component_resources = [state]
 	_world.add_entity(subject)
 	state = subject.get_component(C_Challenge) as C_Challenge
+
 	var actor: Entity = Entity.new()
 	_world.add_entity(actor)
 	assert_true(ChallengeService.arm(subject, actor))
@@ -156,6 +158,7 @@ func test_authored_gaze_has_twelve_seconds_and_light_entrance_is_not_scaled_twic
 	ChallengeService.tick(subject, state, 0.1)
 	assert_not_null(state.pending_result)
 	assert_eq(state.pending_result.result, ChallengeResult.Type.FAILURE)
+
 	var entrance: DEF_Challenge = load("res://content/definitions/gameplay/challenges/def_challenge_light_entrance.tres") as DEF_Challenge
 	assert_eq(entrance.timeout_seconds, 80.0)
 

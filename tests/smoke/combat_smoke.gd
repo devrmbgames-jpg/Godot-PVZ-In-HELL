@@ -68,6 +68,7 @@ func _physical_impacts() -> void:
 			world.process(FRAME_DELTA)
 			if health.current < 100.0:
 				break
+
 		assert(health.current < 100.0, "Real heavy impact must use R08 for Player and Customer")
 		assert(health.current >= 75.0, "R08 living per-hit cap must remain authoritative")
 		world.remove_entity(prop)
@@ -90,6 +91,7 @@ func _customer_combat() -> void:
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	assert(PackageRegistrationService.register_package(CustomerFlowService.parcel_for("base_supply:1:books")).outcome == PackageScanResult.Outcome.REGISTERED)
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
@@ -105,6 +107,7 @@ func _customer_combat() -> void:
 		customer = CustomerFlowService.waiting_customer()
 		if customer != null:
 			break
+
 	assert(customer != null)
 	var customer_body: RigidBody3D = customer as Node as RigidBody3D
 	var original_rid: RID = customer_body.get_rid()
@@ -113,6 +116,7 @@ func _customer_combat() -> void:
 	var npc_state: C_NpcCombat = customer.get_component(C_NpcCombat) as C_NpcCombat
 	var authored_melee: Array[DEF_NpcAttack] = npc_state.melee_attacks
 	npc_state.melee_attacks = []
+
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 	ECS.world.process(challenge.definition.timeout_seconds, "GamePlay")
 	assert(challenge.result == ChallengeResult.Type.FAILURE)
@@ -125,6 +129,7 @@ func _customer_combat() -> void:
 	npc_state.melee_attacks = authored_melee
 	CombatService.end_combat(customer)
 	ECS.world.process(FRAME_DELTA, "GamePlay")
+
 	var player_health: C_Health = _actor.get_component(C_Health) as C_Health
 	actor_body.global_position = customer_body.global_position + Vector3(0, 0, 1.3)
 	for frame: int in 240:
@@ -133,12 +138,14 @@ func _customer_combat() -> void:
 		await get_tree().physics_frame
 		if player_health.current < 100.0:
 			break
+
 	assert(player_health.current < 100.0, "Escalated Customer must actually hit Player")
 	for frame: int in UI_WAIT_FRAMES:
 		await get_tree().process_frame
 		var debug: Label = _level.get_node("InteractionHud/Overlay/PlayerDebugPanel/Debug/CombatDebug") as Label
 		if debug.text.contains("Задача:") and debug.text.contains("cooldown"):
 			break
+
 	var debug: Label = _level.get_node("InteractionHud/Overlay/PlayerDebugPanel/Debug/CombatDebug") as Label
 	assert(debug.text.contains("Задача:") and debug.text.contains("cooldown") and debug.text.contains("Дистанция"))
 	var weapon: Entity = _level.get_node("Entityes/UtilityBlade") as Entity
@@ -148,6 +155,7 @@ func _customer_combat() -> void:
 	grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
 	weapon.add_relationship(Relationship.new(grip, _actor))
 	assert(GrabService.held_relationship(weapon) != null)
+
 	var head: Node3D = (_actor as E_RigidBodyCharacter).head_axis_x
 	head.look_at(CombatGeometry.aim_point(customer))
 	var controller: C_Controller = _actor.get_component(C_Controller) as C_Controller
@@ -177,12 +185,14 @@ func _acknowledge_challenge(customer: E_Customer) -> void:
 		var panels: Array[Node] = get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP)
 		if panels.is_empty():
 			continue
+
 		panel = panels[0] as CustomerDialoguePanel
 		for node: Node in panel.find_children("*", "RichTextLabel", true, false):
 			if (node as RichTextLabel).text.contains("свет"):
 				shown = true
 		if shown:
 			break
+
 	assert(shown and panel != null)
 	var acknowledged: bool = false
 	for node: Node in panel.find_children("*", "Button", true, false):
@@ -191,9 +201,11 @@ func _acknowledge_challenge(customer: E_Customer) -> void:
 			button.pressed.emit()
 			acknowledged = true
 			break
+
 	assert(acknowledged)
 	for frame: int in UI_WAIT_FRAMES:
 		await get_tree().process_frame
 		if get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP).is_empty():
 			return
+
 	assert(false, "Acknowledgement must close the demand before combat starts")

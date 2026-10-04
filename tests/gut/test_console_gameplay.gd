@@ -20,6 +20,7 @@ func before_each() -> void:
 	_session.component_resources = [_cycle, C_Commerce.new(), C_Wallet.new(), flow]
 	_world.add_entity(_session)
 	_cycle = _session.get_component(C_DayCycle) as C_DayCycle
+
 	var hunger: C_Hunger = C_Hunger.new()
 	hunger.policy = DEF_HungerPolicy.new()
 	_actor = Entity.new()
@@ -60,6 +61,7 @@ func test_food_commands_obey_bounds_capacity_and_normal_consumption() -> void:
 	assert_true(_run("inventory_info").contains("slot=0"))
 	assert_true(_run("inventory_use", ["0"]).contains("OK inventory_use"))
 	assert_eq((owned[0].get_component(C_InventoryItem) as C_InventoryItem).quantity, 1)
+
 	var hunger: C_Hunger = _actor.get_component(C_Hunger) as C_Hunger
 	assert_lt(hunger.value, 50.0)
 	var previous: float = hunger.value
@@ -133,6 +135,7 @@ func test_live_visit_option_preserves_accounting_default_and_authored_introducti
 	parcel.component_resources = [identity, C_PackageState.new()]
 	_world.add_entity(parcel)
 	assert_true(_run("visit_create", ["pkg:console_live", "ordinary", "1"]).contains("OK visit_create"))
+
 	var visit: CustomerVisit = CustomerFlowService.find_visit(&"visit/console_live")
 	assert_false(visit.started)
 	assert_false(visit.finished)
@@ -159,6 +162,7 @@ func test_persistence_rejects_push_and_cart_without_changing_session_slot_or_wor
 		assert_eq(FileAccess.get_file_as_bytes(path), saved)
 		assert_true(prop.relationships.has(binding))
 		prop.remove_relationship(binding)
+
 	var token: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.PUSH)
 	assert_true(_run("save_load", [_slot]).contains("ERROR save_load"))
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.PUSH)
@@ -175,6 +179,7 @@ func test_invalid_npc_request_does_not_reset_cooldown_or_opponent() -> void:
 	state = npc.get_component(C_NpcCombat) as C_NpcCombat
 	assert_true(CombatService.bind_target(npc, _actor))
 	state.cooldown_remaining = 5.0
+
 	var opponent: Entity = Entity.new()
 	_world.add_entity(opponent)
 	assert_true(_run("npc_attack", ["entity:" + npc.id, "melee", "0", "entity:" + opponent.id]).contains("ERROR npc_attack"))

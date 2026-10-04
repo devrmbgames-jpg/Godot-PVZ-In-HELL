@@ -24,6 +24,7 @@ func before_each() -> void:
 	receiver.escalation_requested.connect(_on_escalation)
 	_world.add_system(receiver)
 	_world.add_observer(O_ChallengeLifecycle.new())
+
 	var session: Entity = _entity([C_DayCycle.new(), C_CustomerFlow.new(), C_Wallet.new()])
 	_cycle = session.get_component(C_DayCycle) as C_DayCycle
 	_cycle.phase = C_DayCycle.Phase.DAY
@@ -110,6 +111,7 @@ func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
 	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
 	_world.process(FRAME_DELTA)
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
+
 	var scene: PackedScene = load("res://content/entities/stations/delivery_counter.tscn") as PackedScene
 	var station: E_DeliveryCounter = scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(station)
@@ -118,6 +120,7 @@ func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
 	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
 	assert_false(CustomerArrivalService.tick(customer, agent, _visit, _cycle))
 	assert_eq(agent.phase, C_CustomerAgent.Phase.APPROACHING)
+
 	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
 	assert_eq(intent.move_position, station.waiting_position())
 	assert_eq(_escalations, 0)

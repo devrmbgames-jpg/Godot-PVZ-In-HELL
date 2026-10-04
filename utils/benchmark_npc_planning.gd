@@ -28,11 +28,13 @@ func _run() -> void:
 		push_error("NPC benchmark requires the authored light volumes")
 		get_tree().quit(1)
 		return
+
 	var person: NpcRecord = null
 	for candidate: NpcRecord in district.people:
 		if candidate.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION) != null:
 			person = candidate
 			break
+
 	var actor: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
 	var map: RID = actor.navigation_agent.get_navigation_map()
 	var start: Vector3 = DistrictPopulationService.position_for(person.portal_id)
@@ -46,6 +48,7 @@ func _run() -> void:
 			push_error("NPC benchmark route is empty")
 			get_tree().quit(1)
 			return
+
 	_report("route_ms", measurements)
 
 	measurements.clear()
