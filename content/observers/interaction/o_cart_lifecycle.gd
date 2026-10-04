@@ -1,13 +1,15 @@
 extends Observer
-## Applies/reverses Cart cargo and driver Relationship lifecycle side effects.
+## Применяет и освобождает физические эффекты связей груза и водителя тележки.
 class_name O_CartLifecycle
 
 
+## Подписывается на недоступность тележки, водителя и груза.
 func setup() -> void:
 	_world.entity_removed.connect(_entity_unavailable)
 	_world.entity_disabled.connect(_entity_unavailable)
 
 
+## Подписывается на добавление и удаление R_CartCargo/R_CartDrivenBy.
 func query() -> QueryBuilder:
 	return (
 		q.on_relationship_added([R_CartCargo, R_CartDrivenBy])
@@ -15,6 +17,7 @@ func query() -> QueryBuilder:
 	)
 
 
+## Выбирает lifecycle-сервис связи; недопустимую новую связь откладывает к удалению.
 func each(event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var binding: Relationship = payload as Relationship
 	if binding == null:

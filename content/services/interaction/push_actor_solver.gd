@@ -1,8 +1,9 @@
 extends RefCounted
-## Push actor-follow RigidBody solver. Runs only from the actor physics callback.
+## Исполняет следование толкающего актора только из его физического callback.
 class_name PushActorSolver
 
 
+## Корректирует горизонтальную скорость к ручке; true означает, что движение занято толканием.
 static func integrate(actor: Entity, state: PhysicsDirectBodyState3D) -> bool:
 	var cart: Entity = PushService.pushed_object(actor)
 	if cart == null or InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.PUSH:

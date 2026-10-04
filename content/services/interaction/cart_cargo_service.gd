@@ -1,11 +1,13 @@
 extends RefCounted
-## Owns cargo binding lifecycle and cart-local discovery. R_CartCargo is sole authority.
+## Находит груз в кузове и сопровождает его связи; авторитетное владение — R_CartCargo.
 class_name CartCargoService
 
 const SUPPORT_DISTANCE: float = 0.06
 const MIN_SUPPORT_NORMAL: float = 0.7
 
 
+#region Обнаружение и освобождение груза
+## Читает авторитетную связь R_CartCargo предмета.
 static func relationship(cargo: Entity) -> Relationship:
 	if not is_instance_valid(cargo):
 		return null
@@ -16,6 +18,7 @@ static func relationship(cargo: Entity) -> Relationship:
 	return null
 
 
+## Проверяет текущий груз и устойчивых кандидатов в кузове по опоре и скорости; delta в секундах.
 static func update(cart: E_TransportCart, delta: float) -> void:
 	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
 	if config == null:
@@ -52,6 +55,7 @@ static func update(cart: E_TransportCart, delta: float) -> void:
 			config.settling.erase(instance_id)
 
 
+## Освобождает связь конкретного груза и её физические эффекты.
 static func release(cargo: Entity) -> void:
 	if not is_instance_valid(cargo):
 		return
@@ -64,6 +68,7 @@ static func release(cargo: Entity) -> void:
 	cargo_removed(cargo, binding)
 
 
+## Освобождает принадлежащий тележке груз и сбрасывает таймеры кандидатов.
 static func release_all(cart: Entity) -> void:
 	if not is_instance_valid(cart):
 		return
@@ -80,6 +85,10 @@ static func release_all(cart: Entity) -> void:
 	config.settling.clear()
 
 
+#endregion
+
+#region Эффекты связи груза
+## Однократно включает custom_integrator, исключение столкновений и производный кеш груза.
 static func cargo_added(cargo: Entity, binding: Relationship) -> bool:
 	var data: R_CartCargo = binding.relation as R_CartCargo
 	var cart: Entity = binding.target as Entity
@@ -111,6 +120,7 @@ static func cargo_added(cargo: Entity, binding: Relationship) -> bool:
 	return true
 
 
+## Однократно возвращает исходный integrator/сон/столкновения и очищает кеш тележки.
 static func cargo_removed(cargo: Entity, binding: Relationship) -> void:
 	var data: R_CartCargo = binding.relation as R_CartCargo
 	if data == null or not data.lifecycle_applied:
@@ -134,6 +144,9 @@ static func cargo_removed(cargo: Entity, binding: Relationship) -> void:
 			config.cargo.erase(cargo)
 
 
+#endregion
+
+#region Физическая допустимость и загрузка
 static func _loadable(cargo: Entity) -> bool:
 	if not GrabService.entity_available(cargo) or not cargo.has_component(C_Grabbable):
 		return false
@@ -180,3 +193,5 @@ static func _load(cart: Entity, cargo: Entity, body: RigidBody3D) -> void:
 	cargo.add_relationship(binding)
 	if not data.lifecycle_applied and not cargo_added(cargo, binding):
 		cargo.remove_relationship(binding)
+
+#endregion

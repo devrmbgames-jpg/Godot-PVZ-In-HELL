@@ -1,11 +1,12 @@
 extends DEF_InteractionAction
-## Contextual start/stop command for cart Push; never acquires a Grab slot.
+## Контекстная команда начала/окончания толкания тележки, без занятия слота Grab.
 class_name DEF_PushAction
 
-## Stop actions address the actor's current cart without requiring an aimed target.
+## true завершает участие в текущей тележке без требования наведения на неё.
 @export var end_push: bool = false
 
 
+## Для завершения проверяет текущую тележку, для начала — полную допустимость участия.
 func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	if end_push:
 		return PushService.pushed_object(actor) == source
@@ -13,6 +14,7 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	return PushService.can_begin(actor, source)
 
 
+## Повторно проверяет и начинает либо завершает Push через сервис.
 func execute(actor: Entity, source: Entity, target: Entity) -> void:
 	if not is_available(actor, source, target):
 		return

@@ -1,11 +1,12 @@
 extends RefCounted
-## Velocity-only restraint for cargo. Runs only from the cargo RigidBody physics callback.
+## Ограничивает груз через скорости только в его физическом callback, без прямой записи transform.
 class_name CartCargoSolver
 
 const MAX_ANGULAR_SPEED: float = 6.0
 const ROTATION_EPSILON: float = 0.0001
 
 
+## В callback задаёт ограниченные скорости к локальному положению; false возвращает обычную физику.
 static func integrate(cargo: Entity, state: PhysicsDirectBodyState3D) -> bool:
 	var binding: Relationship = CartCargoService.relationship(cargo)
 	if binding == null:

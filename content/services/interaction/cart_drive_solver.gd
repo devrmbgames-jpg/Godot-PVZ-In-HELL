@@ -1,5 +1,5 @@
 extends RefCounted
-## CharacterBody cart drive/terrain solver. Runs only from E_TransportCart._physics_process.
+## Исполняет движение CharacterBody3D и проход рельефа только из E_TransportCart._physics_process.
 class_name CartDriveSolver
 
 const MOTION_EPSILON: float = 0.0001
@@ -8,6 +8,8 @@ const MAX_TURN_CONTACTS: int = 8
 const TERRAIN_MASK: int = 1
 
 
+#region Физический шаг тележки
+## Продвигает физическую тележку, ограничивает отставание водителя и обновляет груз; delta в секундах.
 static func step(cart: E_TransportCart, delta: float) -> void:
 	if not GrabService.entity_available(cart) or delta <= 0.0:
 		CartCargoService.release_all(cart)
@@ -68,6 +70,9 @@ static func step(cart: E_TransportCart, delta: float) -> void:
 	CartCargoService.update(cart, delta)
 
 
+#endregion
+
+#region Отставание, поворот и ступенька
 static func _driver_lag(
 	body: CharacterBody3D,
 	config: C_CartTransport,
@@ -149,3 +154,5 @@ static func _try_step(body: CharacterBody3D, motion: Vector3, height: float) -> 
 	body.velocity.y = 0.0
 	body.apply_floor_snap()
 	return true
+
+#endregion

@@ -1,5 +1,5 @@
 extends RefCounted
-## RigidBody actor follow solver for an active transport session.
+## Исполняет физическое следование RigidBody3D-водителя при активном транспортном сеансе.
 class_name CartDriverSolver
 
 const MOTION_EPSILON: float = 0.0001
@@ -7,6 +7,8 @@ const COLLISION_MARGIN: float = 0.002
 const TERRAIN_MASK: int = 1
 
 
+#region Следование водителя
+## В callback корректирует скорость водителя к ручке; true резервирует его движение транспортным сеансом.
 static func integrate(actor: Entity, state: PhysicsDirectBodyState3D) -> bool:
 	var cart: Entity = CartTransportService.current(actor)
 	if (
@@ -33,6 +35,9 @@ static func integrate(actor: Entity, state: PhysicsDirectBodyState3D) -> bool:
 	return true
 
 
+#endregion
+
+#region Проход водителя по ступеньке
 static func _lift_driver(
 	actor: Entity,
 	body: CharacterBody3D,
@@ -68,3 +73,5 @@ static func _lift_driver(
 		state.linear_velocity.y,
 		minf(rise / state.step, config.follow_speed),
 	)
+
+#endregion

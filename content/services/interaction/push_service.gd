@@ -1,10 +1,12 @@
 extends RefCounted
-## Owns Push session validation, R_PushedBy lifecycle and derived reverse cache.
+## Владеет проверками толкания, эффектами R_PushedBy и производным обратным кешем актора.
 class_name PushService
 
 const DIRECTION_EPSILON: float = 0.0001
 
 
+#region Начало и завершение толкания
+## Проверяет свободную тележку, актора, приоритет управления и дистанцию подбора.
 static func can_begin(actor: Entity, cart: Entity) -> bool:
 	if not valid_pair(actor, cart):
 		return false
@@ -17,6 +19,7 @@ static func can_begin(actor: Entity, cart: Entity) -> bool:
 	return GrabService.within_pickup_reach(actor, cart)
 
 
+## После проверки создаёт R_PushedBy и применяет участие; возвращает подтверждённое владение.
 static func try_begin(actor: Entity, cart: Entity) -> bool:
 	if not can_begin(actor, cart):
 		return false
@@ -29,6 +32,7 @@ static func try_begin(actor: Entity, cart: Entity) -> bool:
 	return pushed_object(actor) == cart
 
 
+## Удаляет только связь указанной пары актор/тележка и освобождает её эффекты.
 static func end(actor: Entity, cart: Entity) -> void:
 	var binding: Relationship = relationship(cart)
 	if binding == null or binding.target != actor:
@@ -38,6 +42,10 @@ static func end(actor: Entity, cart: Entity) -> void:
 	push_removed(cart, binding)
 
 
+#endregion
+
+#region Эффекты живой связи
+## Проверяет новую связь, захватывает PUSH и обновляет производный кеш и настройки сна.
 static func push_added(cart: Entity, binding: Relationship) -> bool:
 	var actor: Entity = binding.target as Entity
 	if not valid_pair(actor, cart) or relationship(cart) != binding:
@@ -73,6 +81,7 @@ static func push_added(cart: Entity, binding: Relationship) -> bool:
 	return true
 
 
+## Однократно освобождает токен, кеш и обработчики, восстанавливая разрешение сна тележки.
 static func push_removed(cart: Entity, binding: Relationship) -> void:
 	var data: R_PushedBy = binding.relation as R_PushedBy
 	if data == null or not data.lifecycle_applied:
@@ -97,6 +106,7 @@ static func push_removed(cart: Entity, binding: Relationship) -> void:
 			cart.tree_exiting.disconnect(cleanup)
 
 
+## Освобождает участие недоступного актора либо тележки.
 static func entity_unavailable(entity: Entity) -> void:
 	var binding: Relationship = relationship(entity)
 	if binding != null:
@@ -106,6 +116,10 @@ static func entity_unavailable(entity: Entity) -> void:
 		end(entity, cart)
 
 
+#endregion
+
+#region Кеш и допустимость пары
+## Читает авторитетную R_PushedBy непосредственно у тележки.
 static func relationship(cart: Entity) -> Relationship:
 	if not is_instance_valid(cart):
 		return null
@@ -116,6 +130,7 @@ static func relationship(cart: Entity) -> Relationship:
 	return null
 
 
+## Читает кеш актора после проверки живой связи; устаревшее значение очищается.
 static func pushed_object(actor: Entity) -> Entity:
 	if not is_instance_valid(actor):
 		return null
@@ -132,12 +147,14 @@ static func pushed_object(actor: Entity) -> Entity:
 	return null
 
 
+## Завершает сеанс, если текущая пара больше не допускает толкание.
 static func validate_actor(actor: Entity) -> void:
 	var cart: Entity = pushed_object(actor)
 	if cart != null and not valid_pair(actor, cart):
 		end(actor, cart)
 
 
+## Проверяет доступность, дистанцию, направление взгляда и свободный луч к тележке.
 static func valid_pair(actor: Entity, cart: Entity) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.entity_available(cart):
 		return false
@@ -168,6 +185,7 @@ static func valid_pair(actor: Entity, cart: Entity) -> bool:
 	return _clear_path(actor, body)
 
 
+## Возвращает нормализованное горизонтальное направление передней стороны тележки.
 static func forward(cart: Entity) -> Vector3:
 	var node: Node3D = cart as Node as Node3D
 	if node == null:
@@ -178,6 +196,9 @@ static func forward(cart: Entity) -> Vector3:
 	return direction.normalized()
 
 
+#endregion
+
+#region Физическая видимость
 static func _clear_path(actor: Entity, body: RigidBody3D) -> bool:
 	var anchor: Node3D = GrabService.hold_anchor(actor)
 	if not is_instance_valid(anchor):
@@ -201,3 +222,5 @@ static func _clear_path(actor: Entity, body: RigidBody3D) -> bool:
 	)
 	var hit: Dictionary = body.get_world_3d().direct_space_state.intersect_ray(ray)
 	return hit.is_empty() or hit.get("collider") == body
+
+#endregion

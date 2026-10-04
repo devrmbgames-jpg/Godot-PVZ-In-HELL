@@ -1,8 +1,9 @@
 extends RefCounted
-## Push cart RigidBody solver. Runs only from the pushed body's physics callback.
+## Исполняет толкание RigidBody3D только из физического callback тележки.
 class_name PushCartSolver
 
 
+## В callback задаёт горизонтальную скорость и поворот тележки; недопустимая пара завершает участие.
 static func integrate(cart: Entity, state: PhysicsDirectBodyState3D) -> void:
 	var binding: Relationship = PushService.relationship(cart)
 	if binding == null:

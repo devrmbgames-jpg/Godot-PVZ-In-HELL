@@ -1,8 +1,10 @@
 extends RefCounted
-## Owns the exclusive cart-driver session. R_CartDrivenBy is sole authority.
+## Владеет исключительным сеансом водителя; авторитетная связь — R_CartDrivenBy.
 class_name CartTransportService
 
 
+#region Управление ручкой
+## Читает авторитетную связь текущего водителя у тележки.
 static func relationship(cart: Entity) -> Relationship:
 	if not is_instance_valid(cart):
 		return null
@@ -13,6 +15,7 @@ static func relationship(cart: Entity) -> Relationship:
 	return null
 
 
+## Проверяет свободные тележку/актора, доступный ввод и дистанцию взаимодействия с тележкой.
 static func can_begin(actor: Entity, cart: Entity) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.entity_available(cart):
 		return false
@@ -27,6 +30,7 @@ static func can_begin(actor: Entity, cart: Entity) -> bool:
 	return GrabService.within_pickup_reach(actor, cart)
 
 
+## Повторно проверяет и создаёт связь водителя; неуспешное участие освобождается.
 static func begin(actor: Entity, cart: Entity) -> void:
 	if not can_begin(actor, cart):
 		return
@@ -38,6 +42,7 @@ static func begin(actor: Entity, cart: Entity) -> void:
 		cart.remove_relationship(binding)
 
 
+## Удаляет водительскую связь и освобождает её эффекты; повтор безопасен.
 static func end(cart: Entity) -> void:
 	if not is_instance_valid(cart):
 		return
@@ -50,6 +55,7 @@ static func end(cart: Entity) -> void:
 	driver_removed(cart, binding)
 
 
+## Возвращает тележку из кеша актора только после проверки живой связи.
 static func current(actor: Entity) -> Entity:
 	if not is_instance_valid(actor):
 		return null
@@ -66,6 +72,10 @@ static func current(actor: Entity) -> Entity:
 	return null
 
 
+#endregion
+
+#region Эффекты водительской связи
+## Применяет новую связь водителя, производный кеш и захват приоритета TRANSPORT.
 static func driver_added(cart: Entity, binding: Relationship) -> bool:
 	var data: R_CartDrivenBy = binding.relation as R_CartDrivenBy
 	var actor: Entity = binding.target as Entity
@@ -98,6 +108,7 @@ static func driver_added(cart: Entity, binding: Relationship) -> bool:
 	return true
 
 
+## Однократно освобождает токен/кеш/обработчики и обнуляет моторную скорость тележки.
 static func driver_removed(cart: Entity, binding: Relationship) -> void:
 	var data: R_CartDrivenBy = binding.relation as R_CartDrivenBy
 	if data == null or not data.lifecycle_applied:
@@ -119,6 +130,7 @@ static func driver_removed(cart: Entity, binding: Relationship) -> void:
 			config.drive_speed = 0.0
 
 
+## Завершает управление недоступной тележкой либо актора с её кешем.
 static func entity_unavailable(entity: Entity) -> void:
 	if not is_instance_valid(entity):
 		return
@@ -129,6 +141,10 @@ static func entity_unavailable(entity: Entity) -> void:
 		end(cache.cart)
 
 
+#endregion
+
+#region Дистанция и точка ручки
+## Проверяет доступного водителя и предельную дистанцию от физической тележки.
 static func driver_valid(body: CharacterBody3D, config: C_CartTransport, actor: Entity) -> bool:
 	if body == null or config == null or not GrabService.holder_available(actor):
 		return false
@@ -139,9 +155,12 @@ static func driver_valid(body: CharacterBody3D, config: C_CartTransport, actor: 
 	return body.global_position.distance_to(actor_node.global_position) <= config.focus_distance
 
 
+## Возвращает мировую точку ручки позади центра тележки.
 static func handle_position(body: CharacterBody3D, config: C_CartTransport) -> Vector3:
 	return body.global_position + body.global_basis.z * config.handle_distance
 
 
 static func _on_driver_exiting(cart: Entity) -> void:
 	end(cart)
+
+#endregion
