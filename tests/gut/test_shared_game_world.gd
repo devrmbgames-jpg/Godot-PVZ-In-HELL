@@ -1,14 +1,17 @@
 extends GutTest
-## Real host startup/cleanup and primitive-level placement/navigation contracts.
+## Проверки двух реальных хостов World: однократная регистрация, очистка и маршруты примитивного уровня.
 
 const LEVEL_PATHS: Array[String] = [
 	"res://content/scenes/main_level.tscn",
 	"res://content/scenes/primitive_test_level.tscn",
 ]
 const WORLD_SCENE: String = "res://content/scenes/game_world.tscn"
+## Число физических кадров ожидания регистрации и синхронизации карты навигации.
 const STARTUP_FRAMES: int = 12
 
 
+#region Общие контракты игровых хостов
+## Оба уровня регистрируют одинаковые системы без дублирования Entity и освобождают singleton World при выходе.
 func test_both_hosts_register_once_and_release_world_on_exit() -> void:
 	var configurations: Array[String] = []
 	for path: String in LEVEL_PATHS:
@@ -45,6 +48,7 @@ func test_both_hosts_register_once_and_release_world_on_exit() -> void:
 	assert_eq(configurations.slice(0, midpoint), configurations.slice(midpoint), "Both hosts run the same authored systems")
 
 
+## Примитивный уровень имеет отдельный слот, физическую опору и полный запечённый маршрут к стойке.
 func test_primitive_floor_routes_and_separate_save_slot() -> void:
 	var packed: PackedScene = load(LEVEL_PATHS[1]) as PackedScene
 	var level: Node3D = packed.instantiate() as Node3D
@@ -79,3 +83,5 @@ func test_primitive_floor_routes_and_separate_save_slot() -> void:
 	assert_lt(route[route.size() - 1].distance_to(waiting.global_position), 0.3)
 	level.free()
 	await get_tree().process_frame
+
+#endregion

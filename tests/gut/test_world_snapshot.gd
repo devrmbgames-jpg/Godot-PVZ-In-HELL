@@ -1,4 +1,5 @@
 extends GutTest
+## Проверки снимка World: стабильные ID, владение, физические слоты, lifecycle и отказ до изменения живого состояния.
 
 const SAVE_PATH: String = "user://gut_r21_world_snapshot.pvzh"
 var _root: Node = null
@@ -7,23 +8,30 @@ var _session: Entity = null
 var _actor: Entity = null
 var _item: Entity = null
 
+## Тестовая Entity считает реальные вызовы lifecycle World при восстановлении снимка.
 class LifecycleEntity extends Entity:
 	var _enable_calls: int = 0
 	var _disable_calls: int = 0
 
+	## Регистрирует фактическое включение, не подменяя переход World.
 	func on_enable() -> void:
 		_enable_calls += 1
 
+	## Регистрирует фактическое отключение, включая отключение при загрузке.
 	func on_disable() -> void:
 		_disable_calls += 1
 
+	## Возвращает число наблюдавшихся включений для проверки однократности перехода.
 	func enable_calls() -> int:
 		return _enable_calls
 
+	## Возвращает число наблюдавшихся отключений для проверки lifecycle.
 	func disable_calls() -> int:
 		return _disable_calls
 
 
+#region Подготовка и очистка
+## Создаёт авторскую сессию и игрока; предмет принадлежит игроку через R_OwnedBy.
 func before_each() -> void:
 	_root = Node.new()
 	add_child(_root)
@@ -54,6 +62,7 @@ func _authored(label: String, components: Array[Component]) -> Entity:
 	return entity
 
 
+## Освобождает World и удаляет только файлы тестового снимка.
 func after_each() -> void:
 	_world.purge(false)
 	_root.free()
@@ -63,6 +72,10 @@ func after_each() -> void:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 
+#endregion
+
+#region Восстановление мира и проверка снимка
+## Долг, ID и владение предметом переживают запись и повторную загрузку без дубликатов.
 func test_negative_wallet_and_owned_inventory_survive_snapshot_and_repeated_restore() -> void:
 	var wallet: C_Wallet = _session.get_component(C_Wallet) as C_Wallet
 	wallet.balance = -123
@@ -86,6 +99,7 @@ func test_negative_wallet_and_owned_inventory_survive_snapshot_and_repeated_rest
 	assert_eq(restored.relationships.size(), 1)
 
 
+## Ошибка записи удерживает ночь; повтор фиксирует то же утро и не изменяет долг или номер дня дважды.
 func test_failed_write_holds_night_and_retry_commits_the_same_morning_in_debt() -> void:
 	var cycle: C_DayCycle = _session.get_component(C_DayCycle) as C_DayCycle
 	var state: C_Autosave = _session.get_component(C_Autosave) as C_Autosave
@@ -116,6 +130,7 @@ func test_failed_write_holds_night_and_retry_commits_the_same_morning_in_debt() 
 	assert_eq(cycle.day_index, 2)
 
 
+## Дублированная запись отклоняется до изменения денег, владения и фазы.
 func test_invalid_snapshot_is_rejected_before_mutating_wallet_or_ownership() -> void:
 	var wallet: C_Wallet = _session.get_component(C_Wallet) as C_Wallet
 	wallet.balance = 70
@@ -130,6 +145,7 @@ func test_invalid_snapshot_is_rejected_before_mutating_wallet_or_ownership() -> 
 	assert_eq(InventoryService.items(_actor).size(), 1)
 
 
+## Отсутствующий владелец в сохранённой связи запрещает загрузку до изменения живого инвентаря.
 func test_inventory_with_unknown_relationship_target_is_rejected_before_mutation() -> void:
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	for record: Dictionary in snapshot.entities:
@@ -140,6 +156,7 @@ func test_inventory_with_unknown_relationship_target_is_rejected_before_mutation
 	assert_eq(DayPhaseService.current().day_index, 1)
 
 
+## Пропущенная сцена или авторский путь не допускают частичного восстановления.
 func test_missing_scene_or_authored_path_is_rejected_before_mutation() -> void:
 	for field: String in ["scene", "authored_path"]:
 		var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
@@ -150,6 +167,7 @@ func test_missing_scene_or_authored_path_is_rejected_before_mutation() -> void:
 		assert_eq(DayPhaseService.current().day_index, 1)
 
 
+## Загрузка заменяет прежнего владельца без удаления предмета или сохранения блокировки передачи.
 func test_restore_replaces_previous_inventory_owner_without_retiring_item() -> void:
 	var other: Entity = _authored("Other", [C_Inventory.new()])
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
@@ -163,6 +181,7 @@ func test_restore_replaces_previous_inventory_owner_without_retiring_item() -> v
 	assert_false((_item.get_component(C_InventoryItem) as C_InventoryItem).transfer_in_progress)
 
 
+## Посылка без обязательного авторского определения отклоняется до изменения фазы и владения.
 func test_null_package_definition_is_rejected_before_mutation() -> void:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "late:equipment"
@@ -179,6 +198,7 @@ func test_null_package_definition_is_rejected_before_mutation() -> void:
 	assert_eq(InventoryService.owner_for(_item), _actor)
 
 
+## Восстановление enabled/disabled проходит через lifecycle World и переиспользует существующую Entity.
 func test_restore_disabled_entity_uses_world_lifecycle_and_reenables_existing_entity() -> void:
 	var entity: LifecycleEntity = LifecycleEntity.new()
 	entity.name = "Lifecycle"
@@ -206,6 +226,7 @@ func test_restore_disabled_entity_uses_world_lifecycle_and_reenables_existing_en
 	assert_eq(entity.enable_calls(), enable_calls + 1)
 
 
+## Перед восстановлением обменённых слотов очищается вся прежняя занятость и затем возвращаются физические связи.
 func test_restore_swapped_slots_clears_all_old_occupancy_before_attaching() -> void:
 	var slots: Array[E_PhysicalSlot] = []
 	var boxes: Array[Entity] = []
@@ -242,6 +263,7 @@ func test_restore_swapped_slots_clears_all_old_occupancy_before_attaching() -> v
 		assert_eq(slots[index].driver.get_node(slots[index].driver.remote_path), boxes[index])
 
 
+## Дубликаты владельцев/ID/путей, неверная роль и превышенная вместимость отклоняются до мутации.
 func test_duplicate_owners_wrong_role_or_capacity_fail_before_any_mutation() -> void:
 	for invalid: String in ["owners", "role", "capacity", "ids", "paths"]:
 		var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
@@ -265,6 +287,7 @@ func test_duplicate_owners_wrong_role_or_capacity_fail_before_any_mutation() -> 
 		assert_eq(InventoryService.owner_for(_item), _actor)
 
 
+## Групповое восстановление авторских ID перестраивает реестр World без конфликтов при обмене значений.
 func test_authored_ids_restore_as_a_group_and_reindex_world_lookup() -> void:
 	var session_id: String = _session.id
 	var actor_id: String = _actor.id
@@ -282,6 +305,7 @@ func test_authored_ids_restore_as_a_group_and_reindex_world_lookup() -> void:
 	assert_eq(_world.get_entity_by_id(actor_id), _actor)
 
 
+## Двойная занятость слота и цель без нужной роли отклоняются до изменения дня.
 func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -> void:
 	var slot: E_PhysicalSlot = (load("res://content/entities/props/physical_slot.tscn") as PackedScene).instantiate() as E_PhysicalSlot
 	slot.name = "ValidationSlot"
@@ -299,7 +323,7 @@ func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(DayPhaseService.current().day_index, 1)
-	# Keep one occupant but target an Entity that is not a physical slot.
+	## Для одного оставшегося предмета проверяем отказ связи с целью без роли физического слота.
 	var first: bool = true
 	for record: Dictionary in snapshot.entities:
 		if not (record.links as Array).is_empty() and String(record.links[0].kind) == WorldSnapshotService.STORED:
@@ -312,6 +336,7 @@ func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -
 	assert_eq(DayPhaseService.current().day_index, 1)
 
 
+## Алиас авторского пути и выход за корень запрещены до изменения реестра или владения.
 func test_authored_path_alias_or_outside_root_is_rejected_before_registry_changes() -> void:
 	var id: String = _actor.id
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
@@ -341,6 +366,7 @@ func test_authored_path_alias_or_outside_root_is_rejected_before_registry_change
 	outside.free()
 
 
+## Отсутствующий C_Package запрещает загрузку до создания физических экземпляров.
 func test_omitted_package_identity_is_rejected_before_instantiation_commit() -> void:
 	var package: E_Package = (load("res://content/entities/packages/package.tscn") as PackedScene).instantiate() as E_Package
 	package.package_id = "test/required_identity"
@@ -362,6 +388,7 @@ func test_omitted_package_identity_is_rejected_before_instantiation_commit() -> 
 	assert_eq(InventoryService.owner_for(_item), _actor)
 
 
+## Снимок без выносливости сбрасывает живое состояние спринта и его множитель движения.
 func test_pre_stamina_snapshot_clears_existing_sprint_session() -> void:
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	var stamina: C_Stamina = C_Stamina.new()
@@ -382,3 +409,5 @@ func test_pre_stamina_snapshot_clears_existing_sprint_session() -> void:
 	assert_false(stamina.exhausted)
 	assert_eq(stamina.recovery_remaining, 0.0)
 	assert_eq(motion.sprint_multiplier, 1.0)
+
+#endregion

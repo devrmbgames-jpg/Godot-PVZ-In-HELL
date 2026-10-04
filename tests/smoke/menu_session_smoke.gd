@@ -6,6 +6,8 @@ const AUTO_PATH: String = "user://r34_smoke_auto.pvzh"
 const SETTINGS_PATH: String = "user://r34_smoke_settings.cfg"
 
 
+#region Переходы сцены и сессии через меню
+## Настраивает изолированный файл предпочтений и сохраняет работу runner при паузе меню.
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	GameSettingsService.initialize(SETTINGS_PATH)
@@ -13,6 +15,7 @@ func _ready() -> void:
 	_run.call_deferred()
 
 
+## Ожидает нужную current_scene до 30 кадров и сообщает таймаут без подмены World.
 func _wait_scene(path: String) -> Node:
 	for frame: int in 30:
 		await get_tree().process_frame
@@ -33,6 +36,7 @@ func _settings(root: Node) -> SettingsMenu:
 	return null
 
 
+## Проверяет new/save/load/return через настоящие кнопки; повреждённая загрузка оставляет текущую сцену.
 func _run() -> void:
 	# Runner остаётся под root при смене current_scene.
 	get_tree().current_scene = null
@@ -70,13 +74,13 @@ func _run() -> void:
 	wallet.balance += 123
 	var cycle: C_DayCycle = DayPhaseService.current()
 	cycle.phase = C_DayCycle.Phase.DAY
-	# Confirm actual menu load while current shift is active; restore into a fresh world.
+	## Загрузка из меню во время смены должна восстановить сохранение в новом World.
 	var load_button: Button = menu.find_child("Session_load", true, false) as Button
 	GameSettingsService.set_value("mouse_sensitivity", 1.7)
 	await _click(load_button)
 
 	var confirmation: ConfirmationDialog = menu.find_child("*", true, false) as ConfirmationDialog
-	# Locate session dialog by title; binding conflict dialog is a separate Window.
+	## Ищем подтверждение сессии по заголовку: окно конфликта привязок существует отдельно.
 	for child: Node in menu.get_children():
 		if child is ConfirmationDialog and (child as ConfirmationDialog).title == "Несохранённый прогресс":
 			confirmation = child as ConfirmationDialog
@@ -108,6 +112,7 @@ func _run() -> void:
 	get_tree().quit()
 
 
+## Посылает в viewport обычное движение мыши и пару нажатие/отпускание по центру кнопки.
 func _click(button: Button) -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -125,3 +130,5 @@ func _click(button: Button) -> void:
 		event.pressed = pressed
 		get_viewport().push_input(event, true)
 	await get_tree().process_frame
+
+#endregion

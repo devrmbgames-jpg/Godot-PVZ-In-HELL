@@ -1,14 +1,19 @@
 extends Node
+## Исторический smoke ночной записи main_level: физические предметы, заказы и завершённые действия переживают перезапуск.
 
 const SAVE_PATH: String = "user://night_persistence_smoke.pvzh"
+## Фиксированный шаг GamePlay в секундах.
 const DELTA: float = 1.0 / 60.0
+## Верхний предел ожидания поставки и завершения ночи в физических кадрах.
 const MAX_FRAMES: int = 600
 
 
+#region Подготовка и продвижение мира
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Загружает main_level с тестовым слотом; GamePlay продвигается явно через runner.
 func _load_level() -> Node:
 	var level: Node = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	level.set("autosave_path", SAVE_PATH)
@@ -17,12 +22,17 @@ func _load_level() -> Node:
 	return level
 
 
+## Продвигает GamePlay с шагом DELTA и ждёт native физический кадр.
 func _step(frames: int) -> void:
 	for frame: int in frames:
 		ECS.world.process(DELTA, "GamePlay")
 		await get_tree().physics_frame
 
 
+#endregion
+
+#region Ночная запись и перезапуск
+## Проверяет старый сценарий поставки восьми коробок, ночи и перезапуска без повторной выдачи оплаченного заказа.
 func _run() -> void:
 	if FileAccess.file_exists(SAVE_PATH):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
@@ -221,8 +231,8 @@ func _run() -> void:
 	assert(CustomerFlowService.parcel_for("base_supply:1:equipment") != null)
 	await _step(10)
 	assert(_delivery_count(physical_id) == 0, "Consumed order cannot respawn after another Night/restart")
-	# No customer Day is played here: prove an unissued registered target is not
-	# swept away merely because ten more Nights pass, including its due day.
+	## Дневное обслуживание пропускается: невыданная зарегистрированная коробка должна пережить
+	## десять ночей и дату назначенного визита без автоматического удаления.
 	for morning: int in range(4, 14):
 		cycle = DayPhaseService.current()
 		cycle.phase = C_DayCycle.Phase.EVENING
@@ -254,6 +264,10 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Физические предметы и наведение
+## Считает реальные предметы по постоянному ключу, чтобы обнаружить дубликат или повторное создание.
 func _delivery_count(key: String) -> int:
 	var count: int = 0
 	for entity: Entity in ECS.world.query.with_all([C_PersistentIdentity]).execute():
@@ -262,10 +276,11 @@ func _delivery_count(key: String) -> int:
 	return count
 
 
+## Переставляет тестового игрока и проверяет штатное разрешение цели лучом.
 func _aim(actor: Entity, target: Entity) -> void:
 	var position: Vector3 = (target as Node as Node3D).global_position
 	var ray: RayCast3D = GrabService.interaction_raycast(actor)
-	# Fixture positioning; production return uses the existing ray/reach/hand pipeline.
+	## Тест переставляет игрока; сам возврат всё равно проходит через луч, дистанцию и удержание предмета.
 	(actor as Node as RigidBody3D).global_position = position + Vector3.BACK * 1.5
 	ray.global_position = position + Vector3.BACK * 1.5
 	ray.look_at(position)
@@ -275,3 +290,5 @@ func _aim(actor: Entity, target: Entity) -> void:
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingService.find_target(actor, interactor)
 	assert(interactor.target == target, "aim target=%s resolved=%s collider=%s pose=%s ray=%s" % [target.name, interactor.target, ray.get_collider(), (target as Node as Node3D).global_position, ray.global_position])
+
+#endregion

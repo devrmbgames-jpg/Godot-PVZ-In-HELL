@@ -1,9 +1,12 @@
 extends GutTest
+## Проверки сохранения завершённых действий и постоянных опасностей без повторных эффектов и восстановления устаревших связей.
 
 var _root: Node = null
 var _world: World = null
 
 
+#region Подготовка и очистка
+## Создаёт сессию и наблюдателей геометрии/связей опасностей в изолированном World.
 func before_each() -> void:
 	_root = Node.new()
 	add_child(_root)
@@ -21,6 +24,7 @@ func before_each() -> void:
 	_world.add_observer(O_HazardFollowLifecycle.new())
 
 
+## Очищает World и освобождает тестовый хост, сбрасывая ECS.world.
 func after_each() -> void:
 	_world.purge(false)
 	_root.free()
@@ -50,6 +54,10 @@ func _progress(valve: E_InteractionTestValve, id: StringName) -> ProlongedIntera
 	return progress
 
 
+#endregion
+
+#region Завершённые действия и отображение прогресса
+## Завершённое NEVER-действие и эффект восстанавливаются без повторного сигнала активации.
 func test_never_completion_and_effect_restore_without_executing_again() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	var progress: ProlongedInteractionProgress = _progress(valve, &"test_valve_never")
@@ -71,6 +79,7 @@ func test_never_completion_and_effect_restore_without_executing_again() -> void:
 	assert_eq((valve.get_component(C_ProlongedInteraction) as C_ProlongedInteraction).actions.size(), 1)
 
 
+## Ночь сбрасывает незавершённый прогресс, сохраняя зафиксированное NEVER-действие.
 func test_night_discards_incomplete_decay_and_never_but_retains_committed_action() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	var decay: ProlongedInteractionProgress = _progress(valve, &"test_valve_decay")
@@ -89,6 +98,7 @@ func test_night_discards_incomplete_decay_and_never_but_retains_committed_action
 	assert_eq(never.fraction, 1.0)
 
 
+## Неизвестное или повторяемое действие в списке завершённых отклоняется до мутации мира.
 func test_unknown_or_repeatable_completed_action_fails_before_day_or_effect_changes() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	for id: StringName in [&"missing", &"test_valve_decay"]:
@@ -101,6 +111,7 @@ func test_unknown_or_repeatable_completed_action_fails_before_day_or_effect_chan
 		assert_false(valve.is_active())
 
 
+## Начальное значение и непосредственные переключения публикуют только фактические изменения прогресса.
 func test_valve_progress_initial_and_immediate_toggle_emit_only_changed_values() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	watch_signals(valve)
@@ -116,6 +127,7 @@ func test_valve_progress_initial_and_immediate_toggle_emit_only_changed_values()
 	assert_eq(valve.get_progress(), 0.0)
 
 
+## Видимый прогресс и колесо следуют затуханию/сбросу без повторного применения завершённого эффекта.
 func test_valve_progress_follows_rotation_decay_and_oncomplete_reset_without_reactivation() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	valve.mode = E_InteractionTestValve.Mode.HOLD_DECAY
@@ -147,6 +159,7 @@ func test_valve_progress_follows_rotation_decay_and_oncomplete_reset_without_rea
 	assert_true(wheel.basis.is_equal_approx(rest))
 
 
+## Загрузка NEVER обновляет сигнал прогресса и положение колеса, не вызывая активацию.
 func test_valve_progress_saved_never_restores_signal_and_wheel_without_executing_effect() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	valve.mode = E_InteractionTestValve.Mode.HOLD_NEVER
@@ -174,6 +187,9 @@ func test_valve_progress_saved_never_restores_signal_and_wheel_without_executing
 	assert_signal_emit_count(valve, "progress_changed", 1)
 
 
+#endregion
+
+#region Постоянные опасности и настройки тела
 func _hazard(path: String, persistent: bool) -> Entity:
 	var entity: Entity = (load(path) as PackedScene).instantiate() as Entity
 	var hazard: C_Hazard = C_Hazard.new()
@@ -186,6 +202,7 @@ func _hazard(path: String, persistent: bool) -> Entity:
 	return entity
 
 
+## Постоянный токсин сохраняет таймер, виновника, связь следования, иммунитет и геометрию.
 func test_persistent_toxic_clock_follow_attribution_and_geometry_survive_recreation() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	var id: String = valve.id
@@ -224,6 +241,7 @@ func test_persistent_toxic_clock_follow_attribution_and_geometry_survive_recreat
 	assert_eq(((toxin as E_ToxicArea).get_shape().shape as SphereShape3D).radius, (hazard.definition as DEF_ToxicArea).radius)
 
 
+## Восстановленная связь остаётся Relationship и удаляет эффект только после потери владельца.
 func test_follow_restore_preserves_despawn_effect_until_owner_relationship_is_lost() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
@@ -243,6 +261,7 @@ func test_follow_restore_preserves_despawn_effect_until_owner_relationship_is_lo
 	assert_false(EntityAvailability.contains(toxin, _world))
 
 
+## Отключённая опасность соблюдает detach/despawn при потере владельца до повторного включения.
 func test_disabled_follow_effect_honours_owner_loss_and_cannot_resume_damage() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	var detached: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
@@ -263,6 +282,7 @@ func test_disabled_follow_effect_honours_owner_loss_and_cannot_resume_damage() -
 	assert_true(EntityAvailability.contains(detached, _world))
 
 
+## Восстановление независимого эффекта отменяет ранее отложенное удаление по потере владельца.
 func test_independent_restore_cancels_deferred_owner_loss_retirement() -> void:
 	var owner: E_InteractionTestValve = _valve()
 	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
@@ -284,6 +304,7 @@ func test_independent_restore_cancels_deferred_owner_loss_retirement() -> void:
 	assert_true(EntityAvailability.contains(toxin, _world))
 
 
+## Ночная очистка завершает отложенное удаление отключённой опасности до захвата снимка.
 func test_night_drains_disabled_owner_loss_before_persistent_snapshot_capture() -> void:
 	var customer: E_InteractionTestValve = _valve()
 	customer.add_component(C_CustomerAgent.new())
@@ -303,6 +324,7 @@ func test_night_drains_disabled_owner_loss_before_persistent_snapshot_capture() 
 	assert_true(_world.query.with_all([C_Hazard]).execute().is_empty())
 
 
+## Уже разрешённый взрыв не получает новый запрос разрешения после загрузки.
 func test_resolved_persistent_explosion_does_not_rearm_resolution_gate_on_load() -> void:
 	var blast: Entity = _hazard("res://content/entities/hazards/explosion.tscn", true)
 	(blast.get_component(C_Explosion) as C_Explosion).resolved = true
@@ -312,6 +334,7 @@ func test_resolved_persistent_explosion_does_not_rearm_resolution_gate_on_load()
 	assert_false((blast.get_component(C_HazardLifetime) as C_HazardLifetime).awaiting_resolution)
 
 
+## Отключённый токсин восстанавливает форму и маску до применения конечного disabled-состояния.
 func test_disabled_persistent_toxin_rebuilds_geometry_before_final_disable() -> void:
 	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
 	var id: String = toxin.id
@@ -329,6 +352,7 @@ func test_disabled_persistent_toxin_rebuilds_geometry_before_final_disable() -> 
 	assert_eq((toxin as E_ToxicArea).get_area().collision_mask, definition.collision_mask)
 
 
+## Пропущенный компонент или несовместимый профиль опасности отклоняется без изменения World.
 func test_null_wrong_profile_or_omitted_hazard_component_fails_without_mutation() -> void:
 	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
 	for invalid: String in ["null", "wrong", "omitted"]:
@@ -356,6 +380,7 @@ func test_null_wrong_profile_or_omitted_hazard_component_fails_without_mutation(
 		assert_true(_world.entities.has(toxin))
 
 
+## Ночь удаляет временные опасности и применяет правила потери владельца к постоянным.
 func test_night_removes_temporary_hazards_and_applies_persistent_owner_loss() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	var temporary: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", false)
@@ -373,6 +398,7 @@ func test_night_removes_temporary_hazards_and_applies_persistent_owner_loss() ->
 	assert_null(HazardFollowService.binding(detached))
 
 
+## Загрузка незафиксированного предмета снимает старый anchor и возвращает сохранённые настройки тела.
 func test_loading_unfixed_snapshot_clears_old_anchor_and_restores_body_policy() -> void:
 	var box: Entity = (load("res://content/entities/props/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
 	_world.add_entity(box)
@@ -389,3 +415,5 @@ func test_loading_unfixed_snapshot_clears_old_anchor_and_restores_body_policy() 
 	assert_false(body.freeze)
 	assert_eq(body.freeze_mode, RigidBody3D.FREEZE_MODE_KINEMATIC)
 	assert_false(body.can_sleep)
+
+#endregion

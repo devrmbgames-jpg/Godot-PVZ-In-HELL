@@ -1,19 +1,26 @@
 extends Node
-## Ordinary input driver. Only the headless mouse-capture OS boundary is substituted.
+## Исторический проход main_level обычным вводом; подменяет только границу захвата мыши в headless.
 
 const SAVE_PATH: String = "user://vertical_slice_smoke.pvzh"
+## Максимум физических кадров ожидания игровых событий.
 const WAIT_FRAMES: int = 900
+## Максимум физических кадров одной попытки наведения.
 const AIM_FRAMES: int = 180
+## Максимум физических кадров движения по одному отрезку.
 const MOVE_FRAMES: int = 1200
+## Допустимая ошибка направления камеры в радианах.
 const AIM_TOLERANCE: float = 0.012
+## Допустимое горизонтальное расстояние до точки маршрута в метрах.
 const MOVE_TOLERANCE: float = 0.2
 const MAIN: PackedScene = preload("res://content/scenes/main_level.tscn")
 const SUPPLY_SEED: int = 2302
 
+## Обходит только OS-захват мыши; ввод и формирование намерений остаются штатными.
 class CapturedInput extends S_PlayerInput:
 	func _accepts_input() -> bool:
 		return true
 
+	## Сохраняет порядок производителя ввода перед S_PlayerIntent.
 	func deps() -> Dictionary[int, Array]:
 		return {Runs.Before: [S_PlayerIntent]}
 
@@ -25,10 +32,12 @@ var _failed: bool = false
 var _actions: Dictionary[StringName, float] = {}
 
 
+#region Сквозной сценарий
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Запускает исторический сквозной сценарий с фиксированным seed и обычными событиями ввода.
 func _run() -> void:
 	seed(SUPPLY_SEED)
 	get_window().size = Vector2i(1920, 1080)
@@ -92,6 +101,7 @@ func _run() -> void:
 	_finish()
 
 
+## Проверяет исторический список восьми зарегистрированных коробок и закрывает терминал обычным Escape.
 func _morning_terminal() -> bool:
 	var terminal: Entity = _level.get_node("Entityes/Terminal") as Entity
 	if not await _walk(Vector3(2.0, 0.0, -2.8)) or not await _aim(_point(terminal), terminal):
@@ -116,6 +126,7 @@ func _morning_terminal() -> bool:
 	return _check(not panel.visible, "close Terminal using Escape")
 
 
+## Проходит прежний сценарий обычного клиента через станцию, диалог и физическую выдачу.
 func _ordinary_customer() -> bool:
 	var station: Entity = _level.get_node("Entityes/ShiftConsole") as Entity
 	if not await _walk(Vector3(2.0, 0.0, -5.7)) or not await _aim(_point(station), station):
@@ -180,6 +191,10 @@ func _ordinary_customer() -> bool:
 	return _check(visit.declaration == CustomerVisit.Declaration.TAKEN, "Terminal TAKEN through normal UI input")
 
 
+#endregion
+
+#region Диалоги и обычный ввод
+## Выбирает видимые ответы через ui_accept и ждёт завершения модального разговора.
 func _complete_dialogue(response_text: String) -> bool:
 	if not _check(not get_tree().get_nodes_in_group(CustomerDialoguePanel.ACTIVE_GROUP).is_empty(), "dialogue opened through interaction"):
 		return false
@@ -212,6 +227,7 @@ func _step(frames: int = 3) -> void:
 		await get_tree().physics_frame
 
 
+## Посылает только изменившееся состояние действия, сохраняя обычный Input-конвейер.
 func _action(action: StringName, strength: float) -> void:
 	if is_equal_approx(_actions.get(action, 0.0), strength):
 		return
@@ -231,6 +247,9 @@ func _tap(action: StringName) -> void:
 	await _step()
 
 
+#endregion
+
+#region Наведение и движение
 func _point(entity: Entity) -> Vector3:
 	var shapes: Array[Node] = entity.find_children("*", "CollisionShape3D", true, false)
 	if not shapes.is_empty():
@@ -238,6 +257,7 @@ func _point(entity: Entity) -> Vector3:
 	return (entity as Node as Node3D).global_position
 
 
+## Преобразует требуемый поворот в относительное движение мыши с учётом переносимого груза.
 func _look(position: Vector3) -> void:
 	var desired: Vector3 = (position - _camera.global_position).normalized()
 	var current: Vector3 = _controller.direction_look.normalized()
@@ -251,6 +271,7 @@ func _look(position: Vector3) -> void:
 	Input.parse_input_event(event)
 
 
+## Ожидает совпадения направления камеры с целью в пределах AIM_TOLERANCE радиан.
 func _aim(position: Vector3, target: Entity = null) -> bool:
 	for frame: int in AIM_FRAMES:
 		if target != null:
@@ -265,6 +286,7 @@ func _aim(position: Vector3, target: Entity = null) -> bool:
 	return _check(false, "aim timeout at %s; look %s camera %s" % [position, _controller.direction_look, -_camera.global_basis.z])
 
 
+## Использует native navmesh только для точек маршрута; движение выполняет событиями ввода.
 func _walk(position: Vector3) -> bool:
 	var path: PackedVector3Array = NavigationServer3D.map_get_path(_player.get_world_3d().navigation_map, _player.global_position, position, true)
 	print("R23 input route to ", position, " · ", path.size(), " waypoints")
@@ -277,6 +299,7 @@ func _walk(position: Vector3) -> bool:
 	return await _walk_segment(position)
 
 
+## Идёт к точке с ограничением кадров, прекращая движение при смерти, таймауте или отсутствии прогресса.
 func _walk_segment(position: Vector3) -> bool:
 	var progress: Vector3 = _player.global_position
 	if GrabService.held_in_slot(_player, C_Grabbable.HoldSlot.CARRY) != null:
@@ -322,6 +345,9 @@ func _stop_move() -> void:
 		_action(action, 0.0)
 
 
+#endregion
+
+#region Итог и очистка
 func _check(condition: bool, description: String) -> bool:
 	if not condition:
 		_failed = true
@@ -329,9 +355,12 @@ func _check(condition: bool, description: String) -> bool:
 	return condition
 
 
+## Отпускает все действия, освобождает уровень и завершает runner с итоговым кодом ошибки.
 func _finish() -> void:
 	for action: StringName in _actions.keys():
 		_action(action, 0.0)
 	_level.free()
 	await _step(30)
 	get_tree().quit(1 if _failed else 0)
+
+#endregion

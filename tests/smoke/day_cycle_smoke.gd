@@ -1,20 +1,23 @@
 extends Node
+## Исторический smoke фаз main_level через реальные станции; отдельно проверяет устаревшие запросы перехода.
 
 var _level: Node = null
 var _actor: Entity = null
 var _controller: C_Controller = null
 
 
+#region Переходы фаз через станции
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет переходы утро/смена/вечер/сон и отказ устаревшего запроса через авторские станции.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	_level = scene.instantiate()
 	add_child(_level)
 	_level.set_physics_process(false)
-	# This fixture isolates the day/wallet contract; R11 has its own full flow smoke.
+	## Убираем очередь клиентов, чтобы изолировать фазы и деньги; полный поток обслуживания проверяется отдельно.
 	var session: Entity = _level.get_node("Entityes/DaySession") as Entity
 	session.remove_component(C_CustomerFlow)
 	_actor = _level.get_node("Entityes/Player") as Entity
@@ -57,6 +60,7 @@ func _run() -> void:
 	get_tree().quit()
 
 
+## Наводит тестовый луч на станцию и проводит взаимодействие через штатные группы World.
 func _use_station(station_name: String) -> void:
 	var station: Node3D = _level.get_node("Entityes/" + station_name) as Node3D
 	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
@@ -65,3 +69,5 @@ func _use_station(station_name: String) -> void:
 	_controller.input_tick += 1
 	ECS.world.process(1.0 / 60.0, "Interaction")
 	ECS.world.process(1.0 / 60.0, "GamePlay")
+
+#endregion
