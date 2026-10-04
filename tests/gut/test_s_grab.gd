@@ -1,13 +1,14 @@
 extends GutTest
-## Regression coverage for physical holding, input capture and hand tools.
+## Проверяет весь конвейер хвата: живое владение, физический solver, ввод, инструменты и толкание.
 
 
-## Headless DisplayServer cannot capture the cursor. Replace only this OS boundary.
+## Подменяет только границу захвата курсора, недоступную у headless DisplayServer.
 class CapturedInput extends S_PlayerInput:
 	func _accepts_input() -> bool:
 		return true
 
 
+	## Подаёт реальное событие штатному обработчику, минуя только захват курсора ОС.
 	func feed_event(event: InputEvent) -> void:
 		_unhandled_input(event)
 
@@ -19,29 +20,42 @@ func _mouse_motion(relative: Vector2) -> InputEventMouseMotion:
 	return event
 
 
+## Всегда доступный инструмент считает реально выбранные действия руки.
 class ProbeAction extends DEF_InteractionAction:
+	## Число вызовов execute после разрешения приоритетов ввода.
 	var calls: int = 0
 
 
+	## Разрешает действие; ограничения накладывает общий resolver ввода.
 	func is_available(_actor: Entity, _source: Entity, _target: Entity) -> bool:
 		return true
 
 
+	## Учитывает одно исполнение без побочного игрового эффекта.
 	func execute(_actor: Entity, _source: Entity, _target: Entity) -> void:
 		calls += 1
 
 
+## Изолированный World текущего физического теста.
 var grab_world: World
+## Живой владелец тестовых слотов и ввода.
 var holder_entity: Entity
+## Игровая сущность удерживаемой коробки.
 var box_entity: Entity
+## Физическое тело владельца; его параметры задаёт тест.
 var holder_body: RigidBody3D
+## Физическое тело коробки, исполняющее силы solver.
 var box_body: RigidBody3D
+## Снимок ввода текущего тестового участника.
 var input_state: C_Controller
+## Производные кеши хвата и токены управления.
 var grab_control: C_GrabControl
+## Производное состояние массы переносимого груза.
 var carry_load: C_CarryLoad
 
 
-#region Fixture
+#region Тестовое окружение и устойчивость жидкостей
+## Жидкость выпрямляется независимо от наклона камеры, сохраняя ручной поворот по Y.
 func test_held_liquid_rights_itself_and_stays_upright_when_camera_tilts() -> void:
 	box_entity.add_component(C_LiquidTilt.new())
 	box_body.rotation = Vector3(1.2, 0.4, 0.2)
@@ -61,6 +75,7 @@ func test_held_liquid_rights_itself_and_stays_upright_when_camera_tilts() -> voi
 	assert_null(GrabService.held_relationship(box_entity))
 
 
+## Обычный предмет следует наклону опоры; политика жидкости может явно отключить выпрямление.
 func test_regular_prop_keeps_free_rotation_when_held_and_liquid_policy_can_opt_out() -> void:
 	for frame: int in 2:
 		await get_tree().physics_frame
@@ -78,6 +93,7 @@ func test_regular_prop_keeps_free_rotation_when_held_and_liquid_policy_can_opt_o
 	assert_false(GrabService.profile_for(box_entity).keep_upright)
 
 
+## Создаёт физического владельца и коробку в отдельном World с observers хвата и толкания.
 func before_each() -> void:
 	grab_world = World.new()
 	add_child(grab_world)
@@ -98,6 +114,7 @@ func before_each() -> void:
 	interactor.physics_target = box_body
 
 
+## Освобождает живые связи и удаляет тестовый World, исключая оставшиеся ссылки ECS.
 func after_each() -> void:
 	var remaining: Array[Entity] = grab_world.entities.duplicate()
 	for actor: Entity in remaining:
@@ -116,6 +133,7 @@ func _apply_player_intent() -> void:
 	intent_system.free()
 
 
+## Создаёт физического участника с тестовыми опорами рук, лучом и компонентами ввода.
 func make_holder(location: Vector3) -> Entity:
 	var rigid: RigidBody3D = RigidBody3D.new()
 	rigid.set_script(E_RigidBodyCharacter)
@@ -162,6 +180,7 @@ func make_holder(location: Vector3) -> Entity:
 	return actor
 
 
+## Создаёт динамическую коробку массой 5 кг с игровым компонентом хвата.
 func make_box(location: Vector3) -> Entity:
 	var rigid: RigidBody3D = RigidBody3D.new()
 	rigid.set_script(E_GrabbableBody)
@@ -188,6 +207,7 @@ func make_box(location: Vector3) -> Entity:
 	return actor
 
 
+## Создаёт физическое тело без игрового скрипта; масса задаётся в килограммах.
 func make_raw_rigid_body(location: Vector3, mass: float = 5.0) -> RigidBody3D:
 	var scene: PackedScene = load("res://tests/fixtures/raw_rigid_body.tscn") as PackedScene
 	var body: RigidBody3D = scene.instantiate() as RigidBody3D
@@ -208,7 +228,8 @@ func _add_external_grip(held: Entity, slot_index: C_Grabbable.HoldSlot) -> void:
 #endregion
 
 
-#region Gameplay transitions
+#region Чернила, переходы хвата и подсветка
+## Чернила хранятся локально и разрывают штрих при смене грани или пропуске поверхности.
 func test_marker_samples_follow_package_transform_and_split_faces() -> void:
 	box_entity.add_component(C_PackageState.new())
 	box_entity.add_component(C_PackageMarks.new())
@@ -248,6 +269,7 @@ func test_marker_samples_follow_package_transform_and_split_faces() -> void:
 	assert_eq(marks.strokes.size(), 3, "A miss or button release must split continuity")
 
 
+## Лимит точек ограничивает чернила; разрушенная коробка очищает и не принимает новые штрихи.
 func test_marker_marks_are_bounded_and_destroyed_packages_reject_ink() -> void:
 	box_entity.add_component(C_PackageState.new())
 	box_entity.add_component(C_PackageMarks.new())
@@ -273,6 +295,7 @@ func test_marker_marks_are_bounded_and_destroyed_packages_reject_ink() -> void:
 	assert_null(marker.stroke)
 
 
+## Отмена рисования освобождает только его токен, сохраняя чужой захват и предмет в руке.
 func test_marker_cancel_releases_only_its_token_and_preserves_hand() -> void:
 	_grabbable(box_entity).allowed_hand_slots = 6
 	assert_true(GrabService.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.LEFT_HAND))
@@ -302,6 +325,7 @@ func test_marker_cancel_releases_only_its_token_and_preserves_hand() -> void:
 	)
 
 
+## Рисование получает движение мыши без поворота камеры/предмета; выход возвращает обзор.
 func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> void:
 	var producer: CapturedInput = CapturedInput.new()
 	add_child(producer)
@@ -328,6 +352,7 @@ func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> vo
 	producer.free()
 
 
+## Ввод взаимодействия меняет живой хват и одновременно обновляет массу и исключения столкновений.
 func test_interact_picks_up_and_releases_with_load_and_collision_cleanup() -> void:
 	input_state.interact_pressed = true
 	GrabService.handle_input(holder_entity)
@@ -343,6 +368,7 @@ func test_interact_picks_up_and_releases_with_load_and_collision_cleanup() -> vo
 	assert_false(box_body.get_collision_exceptions().has(holder_body))
 
 
+## Отпускание сохраняет линейную и угловую скорости физического тела.
 func test_release_preserves_linear_and_angular_inertia() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	box_body.linear_velocity = Vector3(2.0, 3.0, 4.0)
@@ -352,6 +378,7 @@ func test_release_preserves_linear_and_angular_inertia() -> void:
 	assert_eq(box_body.angular_velocity, Vector3(0.0, 2.0, 1.0))
 
 
+## Бросок сначала освобождает владение и ограничения, затем придаёт скорость.
 func test_primary_throws_after_releasing_ownership() -> void:
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
@@ -368,6 +395,7 @@ func test_primary_throws_after_releasing_ownership() -> void:
 	assert_lt(box_body.linear_velocity.z, -9.5)
 
 
+## Основная и вторичная кнопки сами не создают хват при свободных руках.
 func test_free_primary_and_secondary_do_not_acquire_object() -> void:
 	input_state.action_main_pressed = true
 	input_state.action_second_held = true
@@ -377,6 +405,7 @@ func test_free_primary_and_secondary_do_not_acquire_object() -> void:
 	assert_eq(box_body.linear_velocity, Vector3.ZERO)
 
 
+## Ручной поворот меняет смещение хвата, оставляя тело физике и сохраняя снимок ввода.
 func test_rotation_uses_offset_and_preserves_input_and_look() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	input_state.action_second_held = true
@@ -395,6 +424,7 @@ func test_rotation_uses_offset_and_preserves_input_and_look() -> void:
 	assert_false(grab_control.rotation_active)
 
 
+## Один слот удерживает один предмет, а предмет имеет одного владельца хвата.
 func test_holder_capacity_and_exclusive_ownership() -> void:
 	var other_box: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	var other_holder: Entity = make_holder(Vector3(1.0, 0.0, 0.0))
@@ -404,6 +434,7 @@ func test_holder_capacity_and_exclusive_ownership() -> void:
 	assert_eq(box_entity.relationships.size(), 1)
 
 
+## Внешнее снятие хвата очищает массу, кеши, режим поворота и исключения столкновений.
 func test_external_relationship_removal_restores_runtime_state() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	grab_control.rotation_active = true
@@ -414,6 +445,7 @@ func test_external_relationship_removal_restores_runtime_state() -> void:
 	assert_false(box_body.get_collision_exceptions().has(holder_body))
 
 
+## Внешний Relationship выполняет тот же lifecycle хвата и освобождения.
 func test_external_relationship_addition_applies_lifecycle() -> void:
 	box_entity.add_relationship(Relationship.new(R_HeldBy.new(), holder_entity))
 	assert_eq(GrabService.held_object(holder_entity), box_entity)
@@ -422,6 +454,7 @@ func test_external_relationship_addition_applies_lifecycle() -> void:
 	assert_false(carry_load.active)
 
 
+## Удаление предмета из World очищает производное состояние владельца.
 func test_world_removal_of_held_entity_cleans_up() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	grab_control.rotation_active = true
@@ -431,6 +464,7 @@ func test_world_removal_of_held_entity_cleans_up() -> void:
 	assert_null(grab_control.held_carry)
 
 
+## Удаление физического предмета освобождает кеш хвата и переноса груза.
 func test_deleted_object_cleans_up_holder() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	grab_control.rotation_active = true
@@ -441,6 +475,7 @@ func test_deleted_object_cleans_up_holder() -> void:
 	assert_null(grab_control.held_carry)
 
 
+## Удаление владельца освобождает предмет и исключения столкновений.
 func test_deleted_holder_releases_object() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	holder_entity.queue_free()
@@ -449,6 +484,7 @@ func test_deleted_holder_releases_object() -> void:
 	assert_true(box_body.get_collision_exceptions().is_empty())
 
 
+## Отключение управления владельца снимает живой хват.
 func test_disabled_holder_releases_object() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	grab_world.disable_entity(holder_entity)
@@ -456,6 +492,7 @@ func test_disabled_holder_releases_object() -> void:
 	assert_false(carry_load.active)
 
 
+## Отключённый или слишком далёкий предмет недоступен для захвата.
 func test_disabled_or_distant_target_is_rejected() -> void:
 	var interactable: C_Interactable = box_entity.get_component(C_Interactable) as C_Interactable
 	interactable.enabled = false
@@ -467,6 +504,7 @@ func test_disabled_or_distant_target_is_rejected() -> void:
 	assert_false(GrabService.try_pickup(holder_entity, box_entity))
 
 
+## Луч выбирает одну текущую цель и восстанавливает прежний overlay после потери наведения.
 func test_raycast_selects_and_highlights_only_the_current_target() -> void:
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
@@ -494,6 +532,7 @@ func test_raycast_selects_and_highlights_only_the_current_target() -> void:
 	targeting.free()
 
 
+## Очистка подсветки восстанавливает material_overlay без подмены выбранной цели.
 func test_highlight_cleanup_restores_overlay_without_changing_target() -> void:
 	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
 	grab_world.add_system(highlight)
@@ -509,6 +548,7 @@ func test_highlight_cleanup_restores_overlay_without_changing_target() -> void:
 	assert_eq(interactor.target, box_entity)
 
 
+## Общая подсветка живёт до удаления последнего наблюдателя.
 func test_shared_highlight_survives_one_holder_removal_and_restores_on_last() -> void:
 	var second: Entity = make_holder(Vector3(5.0, 0.0, 0.0))
 	var first_interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
@@ -529,6 +569,7 @@ func test_shared_highlight_survives_one_holder_removal_and_restores_on_last() ->
 	assert_eq(first_interactor.target, box_entity)
 
 
+## Отключённое тело не возвращает подсветку следующим обновлением наведения.
 func test_disabled_physical_target_cannot_regain_highlight_on_next_targeting_tick() -> void:
 	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
 	grab_world.add_system(highlight)
@@ -549,6 +590,7 @@ func test_disabled_physical_target_cannot_regain_highlight_on_next_targeting_tic
 	targeting.free()
 
 
+## Подсветка той же цели обновляется по массе и авторскому материалу, сохраняя основной материал.
 func test_highlight_authored_material_changes_with_weight_on_same_target() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -580,6 +622,7 @@ func test_highlight_authored_material_changes_with_weight_on_same_target() -> vo
 	assert_null(mesh.material_overlay)
 
 
+## Несколько наблюдателей разрешают материал подсветки с устойчивым приоритетом.
 func test_highlight_multi_holder_material_priority_and_removal_are_deterministic() -> void:
 	var second: Entity = make_holder(Vector3.ZERO)
 	var first_interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
@@ -604,6 +647,7 @@ func test_highlight_multi_holder_material_priority_and_removal_are_deterministic
 	assert_null(mesh.material_overlay)
 
 
+## Модальный ввод убирает и возвращает подсветку без обязательной смены цели.
 func test_highlight_modal_clears_and_restores_without_target_change() -> void:
 	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
 	grab_world.add_system(highlight)
@@ -625,6 +669,7 @@ func test_highlight_modal_clears_and_restores_without_target_change() -> void:
 	assert_eq(mesh.material_overlay, original)
 
 
+## Подсветка не затирает overlay другой обратной связи взаимодействия.
 func test_highlight_yields_to_other_interaction_overlay_and_does_not_erase_it() -> void:
 	var highlight: S_InteractionHighlight = S_InteractionHighlight.new()
 	grab_world.add_system(highlight)
@@ -644,6 +689,7 @@ func test_highlight_yields_to_other_interaction_overlay_and_does_not_erase_it() 
 	assert_eq(mesh.material_overlay, feedback)
 
 
+## Скорость переноса линейно зависит от массы и текущей силы владельца.
 func test_carry_speed_is_linear_from_mass_and_current_strength() -> void:
 	var motion: C_Motion = C_Motion.new()
 	var strength: C_Strength = holder_entity.get_component(C_Strength) as C_Strength
@@ -675,6 +721,7 @@ func test_carry_speed_is_linear_from_mass_and_current_strength() -> void:
 	assert_eq(CharacterMotionSolver.effective_speed(motion, carry_load, strength), 6.0)
 
 
+## Коэффициент тяжёлого груза уменьшает обзор, ручной поворот и скорость броска.
 func test_carry_mobility_scales_camera_manual_rotation_and_throw_velocity() -> void:
 	var strength: C_Strength = holder_entity.get_component(C_Strength) as C_Strength
 	box_body.mass = 75.0
@@ -721,6 +768,7 @@ func test_carry_mobility_scales_camera_manual_rotation_and_throw_velocity() -> v
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
+## Предельная масса даёт нулевой коэффициент активного управления грузом.
 func test_maximum_carry_mass_has_zero_look_rotation_and_throw_control() -> void:
 	var strength: C_Strength = holder_entity.get_component(C_Strength) as C_Strength
 	carry_load.active = true
@@ -745,7 +793,8 @@ func test_maximum_carry_mass_has_zero_look_rotation_and_throw_control() -> void:
 #endregion
 
 
-#region Slot ownership
+#region Владение слотами
+## Перенос груза и обе руки имеют независимых живых владельцев слотов.
 func test_holder_can_hold_carry_and_both_hand_slots() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
@@ -760,6 +809,7 @@ func test_holder_can_hold_carry_and_both_hand_slots() -> void:
 	assert_true(carry_load.active)
 
 
+## Отпускание инструмента в руке сохраняет груз и его массу.
 func test_releasing_hand_item_preserves_carry_load_and_cache() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
@@ -772,6 +822,7 @@ func test_releasing_hand_item_preserves_carry_load_and_cache() -> void:
 	assert_eq(carry_load.mass_kg, 5.0)
 
 
+## Отключение владельца освобождает сразу все три слота и производные кеши.
 func test_disabled_holder_releases_all_slot_relationships() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
@@ -790,6 +841,7 @@ func test_disabled_holder_releases_all_slot_relationships() -> void:
 	assert_null(grab_control.held_left)
 
 
+## Недопустимое внешнее назначение слота не оставляет лишний хват.
 func test_external_invalid_or_duplicate_slot_relationship_is_rejected() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	var second_right_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
@@ -804,6 +856,7 @@ func test_external_invalid_or_duplicate_slot_relationship_is_rejected() -> void:
 	assert_null(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND))
 
 
+## Неуспешная замена предмета в руке сохраняет прежнего владельца слота.
 func test_failed_hand_replacement_keeps_existing_occupant() -> void:
 	var occupant: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	var frozen_target: Entity = make_box(Vector3(0.0, 1.0, -1.5))
@@ -823,6 +876,7 @@ func test_failed_hand_replacement_keeps_existing_occupant() -> void:
 	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), occupant)
 
 
+## Авторская политика выбирает сброс либо сохранение относительного поворота при захвате.
 func test_hand_pickup_rotation_reset_and_relative_offset() -> void:
 	var config: C_Grabbable = _grabbable(box_entity)
 	config.allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
@@ -847,7 +901,8 @@ func test_hand_pickup_rotation_reset_and_relative_offset() -> void:
 #endregion
 
 
-#region Slot input and capture
+#region Ввод слотов и захват управления
+## Выбор слота учитывает допустимые руки и настройку смены управления.
 func test_pickup_slot_selection_accounts_for_hands_and_swap_mapping() -> void:
 	var hand_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	_grabbable(hand_item).allowed_hand_slots = (
@@ -871,6 +926,7 @@ func test_pickup_slot_selection_accounts_for_hands_and_swap_mapping() -> void:
 	assert_eq(GrabService.pickup_slot(holder_entity, hand_item, true), C_Grabbable.HoldSlot.RIGHT_HAND)
 
 
+## Вложенные токены удерживают руки опущенными до отпускания последнего владельца.
 func test_nested_capture_lowers_hands_until_last_owner_releases() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
@@ -914,6 +970,7 @@ func test_nested_capture_lowers_hands_until_last_owner_releases() -> void:
 	)
 
 
+## Основное действие направляется в назначенную руку и учитывает смену кнопок.
 func test_primary_action_routes_to_mapped_hand_and_swap() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
@@ -944,6 +1001,7 @@ func test_primary_action_routes_to_mapped_hand_and_swap() -> void:
 	assert_eq(left_action.calls, 1)
 
 
+## Захват с более высоким приоритетом блокирует использование, бросок и поворот инструмента.
 func test_capture_blocks_hand_use_throw_and_rotation() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
@@ -975,6 +1033,7 @@ func test_capture_blocks_hand_use_throw_and_rotation() -> void:
 	InteractionControlFocus.release(holder_entity, modal_token)
 
 
+## Короткий бросок выбирает слот по приоритету; длинное удержание запрашивает контекстный выбор.
 func test_drop_priority_and_long_press_placeholder() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
@@ -1003,6 +1062,7 @@ func test_drop_priority_and_long_press_placeholder() -> void:
 	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
 
 
+## Пауза очищает отслеживание броска, накопленную мышь и ожидающие действия.
 func test_pause_cancels_drop_tracking_and_pending_mouse_and_interaction() -> void:
 	var input_system: CapturedInput = CapturedInput.new()
 	input_system.process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -1031,6 +1091,7 @@ func test_pause_cancels_drop_tracking_and_pending_mouse_and_interaction() -> voi
 	input_system.free()
 
 
+## После длинного удержания отпускание не создаёт дополнительный короткий бросок.
 func test_drop_long_press_input_does_not_emit_short_drop_on_release() -> void:
 	var input_system: CapturedInput = CapturedInput.new()
 	var holders: Array[Entity] = [holder_entity]
@@ -1053,6 +1114,7 @@ func test_drop_long_press_input_does_not_emit_short_drop_on_release() -> void:
 	input_system.free()
 
 
+## Модификатор поворота работает для обычного предмета без действия инструмента.
 func test_generic_hand_rotation_uses_rotate_modifier_without_hand_action() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
@@ -1067,6 +1129,7 @@ func test_generic_hand_rotation_uses_rotate_modifier_without_hand_action() -> vo
 	assert_false(grip.rotation_offset.is_equal_approx(Quaternion.IDENTITY))
 
 
+## Разные токены одного владельца освобождаются независимо.
 func test_same_owner_captures_release_independently() -> void:
 	var owner: RefCounted = RefCounted.new()
 	var push_token: int = InteractionControlFocus.acquire(
@@ -1093,6 +1156,7 @@ func test_same_owner_captures_release_independently() -> void:
 	)
 
 
+## Удалённый владелец токена не оставляет захват управления.
 func test_destroyed_capture_owner_is_pruned() -> void:
 	var owner: RefCounted = RefCounted.new()
 	var token: int = InteractionControlFocus.acquire(
@@ -1109,6 +1173,7 @@ func test_destroyed_capture_owner_is_pruned() -> void:
 	assert_true(grab_control.captures.is_empty())
 
 
+## Переход к опущенной опоре и обратно сохраняет хват с предусмотренным допуском восстановления.
 func test_hand_grip_survives_lowered_anchor_and_restore_grace() -> void:
 	var normal_anchor: Node3D = holder_entity.get("right_hand_slot") as Node3D
 	var right_item: Entity = make_box(normal_anchor.global_position)
@@ -1141,6 +1206,7 @@ func test_hand_grip_survives_lowered_anchor_and_restore_grace() -> void:
 	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
 
 
+## Такт броска груза не передаёт вторичную кнопку инструменту в руке.
 func test_carry_throw_does_not_route_secondary_input_to_hand_item() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
@@ -1161,6 +1227,7 @@ func test_carry_throw_does_not_route_secondary_input_to_hand_item() -> void:
 	assert_eq(action.calls, 0)
 
 
+## Политика поворота ограничивает движение осью Y либо полностью отключает его.
 func test_y_only_rotation_and_disabled_rotation_policy() -> void:
 	var y_only_offset: Quaternion = GrabService.rotated_offset(
 		Quaternion.IDENTITY,
@@ -1184,6 +1251,7 @@ func test_y_only_rotation_and_disabled_rotation_policy() -> void:
 	assert_false(grab_control.rotation_active)
 
 
+## Замена в основной руке происходит после проверки реальной видимости предмета.
 func test_interact_replaces_primary_hand_after_los_validation() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
@@ -1210,6 +1278,7 @@ func test_interact_replaces_primary_hand_after_los_validation() -> void:
 	assert_null(GrabService.held_relationship(right_item))
 
 
+## Замена во второй руке сохраняет предмет основной руки и требует видимости.
 func test_use_replaces_secondary_hand_after_los_validation() -> void:
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
@@ -1237,7 +1306,8 @@ func test_use_replaces_secondary_hand_after_los_validation() -> void:
 #endregion
 
 
-#region Solver math
+#region Математика solver
+## Сила удержания компенсирует тяжесть и ограничивается авторским максимумом.
 func test_position_force_compensates_gravity_and_is_bounded() -> void:
 	var config: C_Grabbable = C_Grabbable.new()
 	var gravity: Vector3 = Vector3(0.0, -10.0, 0.0)
@@ -1255,6 +1325,7 @@ func test_position_force_compensates_gravity_and_is_bounded() -> void:
 	assert_almost_eq(force.length(), config.max_hold_force, 0.001)
 
 
+## Поворот использует короткую дугу и не оставляет угловую скорость у достигнутой цели.
 func test_rotation_shortest_arc_and_no_residual_velocity() -> void:
 	var config: C_Grabbable = C_Grabbable.new()
 	assert_eq(
@@ -1275,6 +1346,7 @@ func test_rotation_shortest_arc_and_no_residual_velocity() -> void:
 	assert_almost_eq(offset.length(), 1.0, 0.00001)
 
 
+## Импульс броска переводит желаемое изменение скорости и массу в Н·с.
 func test_throw_impulse_converts_scaled_velocity_change_to_mass_impulse() -> void:
 	assert_eq(GrabService.throw_impulse(Vector3.FORWARD, 10.0, 5.0), Vector3(0.0, 0.0, -50.0))
 	assert_eq(GrabService.throw_impulse(Vector3.FORWARD, 5.0, 75.0), Vector3(0.0, 0.0, -375.0))
@@ -1282,7 +1354,8 @@ func test_throw_impulse_converts_scaled_velocity_change_to_mass_impulse() -> voi
 #endregion
 
 
-#region Actual physics
+#region Реальное физическое исполнение
+## Solver прикладывает силу; фактическое движение к опоре выполняет физический цикл.
 func test_solver_moves_dynamic_box_to_anchor_without_teleporting() -> void:
 	box_body.gravity_scale = 1.0
 	var initial_position: Vector3 = box_body.global_position
@@ -1295,6 +1368,7 @@ func test_solver_moves_dynamic_box_to_anchor_without_teleporting() -> void:
 	assert_not_null(GrabService.held_relationship(box_entity))
 
 
+## Большой разрыв между телом и опорой освобождает хват и массу груза.
 func test_teleport_breaks_grip_and_restores_carry_state() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	holder_body.position.x = 20.0
@@ -1304,6 +1378,7 @@ func test_teleport_breaks_grip_and_restores_carry_state() -> void:
 	assert_false(carry_load.active)
 
 
+## Физическая стена скрывает цель от наведения и блокирует захват.
 func test_wall_occludes_targeting_and_pickup() -> void:
 	var wall: StaticBody3D = make_wall(Vector3(0.0, 1.0, -0.75))
 	for physics_tick: int in 2:
@@ -1314,6 +1389,7 @@ func test_wall_occludes_targeting_and_pickup() -> void:
 	wall.free()
 
 
+## Удерживаемая коробка сталкивается со стеной, сохраняя хват без телепорта.
 func test_held_box_collides_with_wall_instead_of_snapping_through() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	var wall: StaticBody3D = make_wall(Vector3(0.0, 1.0, -2.5))
@@ -1326,6 +1402,7 @@ func test_held_box_collides_with_wall_instead_of_snapping_through() -> void:
 	wall.free()
 
 
+## Создаёт физическую стену для проверок перекрытия луча и движения.
 func make_wall(location: Vector3) -> StaticBody3D:
 	var wall: StaticBody3D = StaticBody3D.new()
 	wall.position = location
@@ -1339,7 +1416,8 @@ func make_wall(location: Vector3) -> StaticBody3D:
 #endregion
 
 
-#region Input priority and failure states
+#region Приоритет ввода и аварийное освобождение
+## Один фронт ввода исполняется один раз за физический такт.
 func test_player_input_edges_are_consumed_once_on_physics_tick() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	var input_system: CapturedInput = CapturedInput.new()
@@ -1362,6 +1440,7 @@ func test_player_input_edges_are_consumed_once_on_physics_tick() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
+## Захват поворота не накапливает движение мыши для позднего скачка камеры.
 func test_rotation_priority_does_not_accumulate_camera_input() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
@@ -1389,6 +1468,7 @@ func test_rotation_priority_does_not_accumulate_camera_input() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
+## Внешний freeze снимает хват ближайшей обработкой управления.
 func test_freezing_held_body_releases_on_next_control_tick() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	box_body.freeze = true
@@ -1398,6 +1478,7 @@ func test_freezing_held_body_releases_on_next_control_tick() -> void:
 	assert_false(grab_control.rotation_active)
 
 
+## Смерть участника освобождает предмет без нового ввода.
 func test_death_releases_hold_without_requiring_input() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	var health: C_Health = C_Health.new()
@@ -1408,6 +1489,7 @@ func test_death_releases_hold_without_requiring_input() -> void:
 	assert_false(carry_load.active)
 
 
+## Solver поворачивает тело через физическую угловую скорость и останавливается у цели.
 func test_solver_rotates_body_through_physics_velocity() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	var grip: R_HeldBy = GrabService.held_relationship(box_entity).relation as R_HeldBy
@@ -1421,7 +1503,8 @@ func test_solver_rotates_body_through_physics_velocity() -> void:
 #endregion
 
 
-#region External ownership invariants
+#region Внешние изменения владения
+## Второй внешний владелец отклоняется без повреждения первоначального хвата.
 func test_external_second_holder_is_rejected_without_changing_original_grip() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	var other_holder: Entity = make_holder(Vector3(1.0, 0.0, 0.0))
@@ -1433,17 +1516,19 @@ func test_external_second_holder_is_rejected_without_changing_original_grip() ->
 	assert_true(box_body.get_collision_exceptions().has(holder_body))
 
 
+## Удаление дублирующей пары связей не оставляет массу, исключения или запрет сна.
 func test_external_duplicate_relation_cannot_leave_lifecycle_effects() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	box_entity.add_relationship(Relationship.new(R_HeldBy.new(), holder_entity))
 	assert_lte(box_entity.relationships.size(), 1)
-	# GECS removes matching pairs, so rejecting an identical duplicate releases both.
+	# GECS удаляет совпадающие пары: отклонение точного дубликата освобождает обе связи.
 	if GrabService.held_relationship(box_entity) == null:
 		assert_false(carry_load.active)
 		assert_false(box_body.get_collision_exceptions().has(holder_body))
 		assert_true(box_body.can_sleep)
 
 
+## Удаление владельца из World очищает исходящую связь предмета.
 func test_world_removal_of_holder_releases_source_relationship() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	grab_world.remove_entity(holder_entity)
@@ -1452,7 +1537,8 @@ func test_world_removal_of_holder_releases_source_relationship() -> void:
 #endregion
 
 
-#region Generic scriptless RigidBody Carry
+#region Перенос RigidBody без игрового скрипта
+## Тело без скрипта доступно физическому наведению без преждевременного создания игровой Entity.
 func test_scriptless_rigid_body_is_a_physics_target_without_becoming_gameplay_target() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
 	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5))
@@ -1465,6 +1551,7 @@ func test_scriptless_rigid_body_is_a_physics_target_without_becoming_gameplay_ta
 	assert_null(PhysicsGrabTarget.handle_for(rock, false))
 
 
+## Захват тела без скрипта создаёт runtime proxy и общие эффекты переноса.
 func test_interact_picks_up_scriptless_rigid_body_through_runtime_proxy() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
 	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5), 12.0)
@@ -1487,6 +1574,7 @@ func test_interact_picks_up_scriptless_rigid_body_through_runtime_proxy() -> voi
 	assert_eq((GrabService.held_relationship(held).relation as R_HeldBy).profile.allowed_hand_slots, 0)
 
 
+## Слишком тяжёлое тело остаётся подсвеченным с объяснением отказа и без proxy.
 func test_overweight_scriptless_body_stays_highlighted_and_shows_weight_message() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
 	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5), 121.0)
@@ -1532,6 +1620,7 @@ func test_overweight_scriptless_body_stays_highlighted_and_shows_weight_message(
 	targeting_system.free()
 
 
+## Общий захват тела соблюдает предел массы и явно отключённую возможность переноса.
 func test_scriptless_rigid_body_respects_mass_and_no_carry_policy() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
 	var strength: C_Strength = holder_entity.get_component(C_Strength) as C_Strength
@@ -1560,6 +1649,7 @@ func test_scriptless_rigid_body_respects_mass_and_no_carry_policy() -> void:
 	assert_null(PhysicsGrabTarget.handle_for(heavy, false))
 
 
+## Отпускание proxy сохраняет инерцию исходного тела и восстанавливает столкновения.
 func test_scriptless_release_preserves_inertia_and_restores_collision() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
 	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5))
@@ -1578,6 +1668,7 @@ func test_scriptless_release_preserves_inertia_and_restores_collision() -> void:
 	assert_false(carry_load.active)
 
 
+## Общий solver двигает тело без игрового скрипта через силу, не присваивая transform.
 func test_scriptless_solver_moves_body_without_assigning_transform() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
 	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.8))
@@ -1617,6 +1708,7 @@ func test_scriptless_solver_moves_body_without_assigning_transform() -> void:
 	assert_gt(rock.global_position.z, initial_position.z)
 
 
+## Удаление исходного тела убирает proxy и производное состояние владельца.
 func test_scriptless_body_removal_cleans_runtime_proxy_and_holder() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
 	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5))
@@ -1636,7 +1728,8 @@ func test_scriptless_body_removal_cleans_runtime_proxy_and_holder() -> void:
 #endregion
 
 
-#region Transport interaction regression
+#region Совместимость взаимодействия с тележкой
+## CharacterBody тележки сохраняет своё действие после переноса обычного RigidBody.
 func test_character_body_transport_remains_interactable_after_generic_rigidbody_carry() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
 	var scene: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
@@ -1674,7 +1767,7 @@ func test_character_body_transport_remains_interactable_after_generic_rigidbody_
 #endregion
 
 
-#region Push lifecycle and actual physics
+#region Физическое толкание и lifecycle
 func _make_push_cart() -> Entity:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
 	var scene: PackedScene = load("res://tests/fixtures/push_test_body.tscn") as PackedScene
@@ -1686,6 +1779,7 @@ func _make_push_cart() -> Entity:
 	return cart
 
 
+## Толкание имеет отдельное владение и сохраняет инструменты в руках.
 func test_push_contextual_start_stop_preserves_hands_and_uses_no_grab_slot() -> void:
 	var cart: Entity = _make_push_cart()
 	await get_tree().physics_frame
@@ -1720,6 +1814,7 @@ func test_push_contextual_start_stop_preserves_hands_and_uses_no_grab_slot() -> 
 	)
 
 
+## Старый физический режим толкания имеет авторские скорости и не запускает мотор заднего хода.
 func test_push_fixed_forward_turn_speeds_and_no_reverse_motor() -> void:
 	var cart: Entity = _make_push_cart()
 	await get_tree().physics_frame
@@ -1749,6 +1844,7 @@ func test_push_fixed_forward_turn_speeds_and_no_reverse_motor() -> void:
 	assert_null(PushService.relationship(cart))
 
 
+## Стена блокирует толкаемое тело без разрыва живого управления и телепорта.
 func test_push_wall_collision_blocks_cart_without_teleport() -> void:
 	var cart: Entity = _make_push_cart()
 	await get_tree().physics_frame
@@ -1763,6 +1859,7 @@ func test_push_wall_collision_blocks_cart_without_teleport() -> void:
 	wall.free()
 
 
+## Владелец физически следует за движущейся и поворачивающейся рукоятью.
 func test_push_actor_physically_follows_turning_handle() -> void:
 	var cart: Entity = _make_push_cart()
 	await get_tree().physics_frame
@@ -1782,6 +1879,7 @@ func test_push_actor_physically_follows_turning_handle() -> void:
 	)
 
 
+## Потеря переднего наведения или отключение владельца очищает толкание и возвращает физические параметры.
 func test_push_lost_front_focus_and_disabled_actor_clean_up() -> void:
 	var cart: Entity = _make_push_cart()
 	await get_tree().physics_frame
@@ -1802,6 +1900,7 @@ func test_push_lost_front_focus_and_disabled_actor_clean_up() -> void:
 	assert_true((cart as Node as RigidBody3D).can_sleep)
 
 
+## Модальное окно приостанавливает мотор, сохраняя толкание до явного освобождения.
 func test_push_modal_overlap_pauses_motor_and_retains_capture_after_ui_release() -> void:
 	var cart: Entity = _make_push_cart()
 	await get_tree().physics_frame
@@ -1830,6 +1929,7 @@ func test_push_modal_overlap_pauses_motor_and_retains_capture_after_ui_release()
 	cart.free()
 
 
+## Занятое тело и перекрытая стеной рукоять не допускают второго владельца.
 func test_push_rejects_occupied_cart_and_wall_occluded_start() -> void:
 	var cart: Entity = _make_push_cart()
 	await get_tree().physics_frame
