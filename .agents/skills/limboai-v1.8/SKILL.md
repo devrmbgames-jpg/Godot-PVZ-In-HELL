@@ -34,6 +34,38 @@ LimboAI owns decision flow/orchestration, not authoritative gameplay state.
 
 Prefer built-in tasks and composition before writing custom GDScript tasks.
 
+### Primary pattern: Behavior Tree
+
+For behavior authored with `BehaviorTree`, `BTPlayer`, or LimboAI BT tasks, use the **Behavior Tree pattern** as the governing architecture. LimboAI is the framework implementation; the design itself should follow standard hierarchical Behavior Tree semantics.
+
+The intended pattern is:
+
+```text
+Behavior Tree
+├─ Composite nodes     -> choose/order child execution
+│  ├─ Sequence
+│  ├─ Selector / Fallback
+│  ├─ Dynamic / Reactive Selector
+│  └─ Parallel
+├─ Decorator nodes     -> modify execution/status policy of one child
+└─ Leaf nodes
+   ├─ Condition        -> observe state, SUCCESS / FAILURE
+   └─ Action           -> perform one behavior, SUCCESS / FAILURE / RUNNING
+
+Blackboard             -> shared transient context/data, not control flow
+Subtree                -> reusable semantic branch
+```
+
+Follow the classic BT composition rule: **control flow is formed by the tree hierarchy and status propagation, not by an imperative dispatcher hidden inside a leaf**.
+
+Do not substitute another pattern inside a BT:
+- no hidden FSM/state machine in a `BTAction`;
+- no behavior switchboard based on enums/modes inside a leaf;
+- no service that secretly performs selector/sequence logic for sibling behaviors;
+- no Blackboard boolean/mode network that recreates the tree outside the tree.
+
+If the problem is fundamentally a coarse mutually-exclusive lifecycle better modeled as an FSM/HSM, use `LimboHSM` explicitly at that architectural level and let a `BTState` own a real Behavior Tree internally where appropriate. Do not mix the patterns implicitly.
+
 ### General BT design principles
 
 Use these framework-independent Behavior Tree practices unless an existing project contract requires otherwise:
