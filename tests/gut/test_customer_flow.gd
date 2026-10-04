@@ -1,8 +1,11 @@
 extends GutTest
+## Проверяет фактическую выдачу, заявления, расчёты и жизненный цикл заказов в World.
 
 var _world: World = null
 
 
+#region Записи и тестовое окружение
+## Удаляет созданный живой World и сбрасывает глобальную ссылку ECS.
 func after_each() -> void:
 	if is_instance_valid(_world):
 		_world.free()
@@ -37,6 +40,10 @@ func _complaint_visit(actual: CustomerVisit.Actual) -> CustomerVisit:
 	return visit
 
 
+#endregion
+
+#region Выдача и заявления
+## Выдача требует регистрации, точного ID, живого назначения и освобождённой коробки.
 func test_delivery_requires_registration_identity_assignment_and_released_box() -> void:
 	var visit: CustomerVisit = _visit()
 	var package: C_Package = C_Package.new()
@@ -59,6 +66,7 @@ func test_delivery_requires_registration_identity_assignment_and_released_box() 
 	assert_eq(CustomerOutcomeService.check(visit, package, state, true, false).result, PackageDeliveryCheck.Result.DESTROYED)
 
 
+## Факт передачи отделён от заявления в журнале; повторный расчёт не удваивает оплату.
 func test_delivered_fact_and_declaration_are_separate_and_payment_is_once() -> void:
 	var visit: CustomerVisit = _visit()
 	var wallet: C_Wallet = C_Wallet.new()
@@ -74,6 +82,7 @@ func test_delivered_fact_and_declaration_are_separate_and_payment_is_once() -> v
 	assert_false(CustomerOutcomeService.receive(visit, _ready_check()))
 
 
+## Разрешённая выдача вскрытой повреждённой коробки уменьшает удовлетворённость и оплату.
 func test_damaged_opened_can_be_accepted_with_lower_satisfaction_payment() -> void:
 	var visit: CustomerVisit = _visit()
 	var check_result: PackageDeliveryCheck = _ready_check()
@@ -89,6 +98,7 @@ func test_damaged_opened_can_be_accepted_with_lower_satisfaction_payment() -> vo
 	assert_eq(wallet.balance, 50)
 
 
+## Отказ получателя по состоянию сохраняет коробку на складе и не считается отказом игрока.
 func test_customer_condition_policy_can_refuse_without_player_denial() -> void:
 	for opened: bool in [false, true]:
 		var visit: CustomerVisit = _visit()
@@ -107,6 +117,7 @@ func test_customer_condition_policy_can_refuse_without_player_denial() -> void:
 		assert_eq(visit.reputation, CustomerVisit.Reputation.NONE)
 
 
+## Авторский добровольный отказ действует и для неповреждённой коробки.
 func test_voluntary_refusal_is_authored_even_for_healthy_package() -> void:
 	var visit: CustomerVisit = _visit()
 	visit.definition.voluntary_refusal = true
@@ -114,6 +125,7 @@ func test_voluntary_refusal_is_authored_even_for_healthy_package() -> void:
 	assert_eq(visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
 
 
+## Запись отказа в терминале сама по себе не создаёт фактическую выдачу или выплату.
 func test_terminal_declaration_does_not_invent_actual_outcome() -> void:
 	var visit: CustomerVisit = _visit()
 	assert_true(CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.REFUSED))
@@ -124,6 +136,7 @@ func test_terminal_declaration_does_not_invent_actual_outcome() -> void:
 	assert_eq(wallet.balance, 0)
 
 
+## Потеря и отказ игрока имеют разные суммы и причины репутации; штраф не повторяется.
 func test_lost_and_actual_player_refusal_have_distinct_costs_and_reputation() -> void:
 	var lost: CustomerVisit = _visit()
 	var lost_wallet: C_Wallet = C_Wallet.new()
@@ -145,6 +158,7 @@ func test_lost_and_actual_player_refusal_have_distinct_costs_and_reputation() ->
 	assert_eq(refused_wallet.operations.size(), 1)
 
 
+## Ложную выдачу можно заявить, после чего клиент может разозлиться; заявление неизменно.
 func test_false_taken_is_legal_and_can_trigger_aggression() -> void:
 	var visit: CustomerVisit = _visit()
 	visit.aggression_roll = 0.0
@@ -155,6 +169,10 @@ func test_false_taken_is_legal_and_can_trigger_aggression() -> void:
 	assert_false(CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.LOST))
 
 
+#endregion
+
+#region Жалобы и расчёты
+## Отложенная жалоба рассматривается по постоянной записи и списывает штраф один раз.
 func test_delayed_complaint_charges_200_once_without_customer_node() -> void:
 	var visit: CustomerVisit = _complaint_visit(CustomerVisit.Actual.NOT_RESOLVED)
 	CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.TAKEN)
@@ -168,6 +186,7 @@ func test_delayed_complaint_charges_200_once_without_customer_node() -> void:
 	assert_eq(visit.reputation, CustomerVisit.Reputation.FRAUD)
 
 
+## Поздняя запись потери не добавляет второй штраф после уже рассмотренной жалобы.
 func test_concealed_refusal_then_late_declaration_does_not_add_second_penalty() -> void:
 	var visit: CustomerVisit = _complaint_visit(CustomerVisit.Actual.NOT_RESOLVED)
 	var wallet: C_Wallet = C_Wallet.new()
@@ -178,6 +197,7 @@ func test_concealed_refusal_then_late_declaration_does_not_add_second_penalty() 
 	assert_eq(wallet.operations.size(), 1)
 
 
+## Оплаченная потеря исключает повторное списание по жалобе.
 func test_honest_lost_settlement_does_not_get_duplicate_complaint_charge() -> void:
 	var visit: CustomerVisit = _complaint_visit(CustomerVisit.Actual.NOT_RESOLVED)
 	var wallet: C_Wallet = C_Wallet.new()
@@ -188,6 +208,7 @@ func test_honest_lost_settlement_does_not_get_duplicate_complaint_charge() -> vo
 	assert_eq(visit.complaint.outcome, CustomerComplaint.Outcome.ALREADY_SETTLED)
 
 
+## Гибель клиента от игрока снимает штраф жалобы, сохраняя причину мошенничества.
 func test_player_defeat_waives_false_taken_fine_but_preserves_reason() -> void:
 	var visit: CustomerVisit = _complaint_visit(CustomerVisit.Actual.NOT_RESOLVED)
 	CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.TAKEN)
@@ -200,6 +221,7 @@ func test_player_defeat_waives_false_taken_fine_but_preserves_reason() -> void:
 	assert_eq(visit.reputation, CustomerVisit.Reputation.FRAUD)
 
 
+## Ложная жалоба даёт семидневное окно мести конкретному клиенту, без переноса на другие заказы.
 func test_false_complaint_has_customer_specific_seven_day_window() -> void:
 	var visit: CustomerVisit = _complaint_visit(CustomerVisit.Actual.DELIVERED)
 	var wallet: C_Wallet = C_Wallet.new()
@@ -213,6 +235,7 @@ func test_false_complaint_has_customer_specific_seven_day_window() -> void:
 	assert_eq(wallet.balance, 0)
 
 
+## Возврат коробки не отменяет подтверждённую жалобу на скрытый отказ.
 func test_return_does_not_erase_valid_refusal_complaint() -> void:
 	var visit: CustomerVisit = _complaint_visit(CustomerVisit.Actual.CUSTOMER_REFUSED)
 	visit.disposition = CustomerVisit.Disposition.RETURNED
@@ -222,6 +245,10 @@ func test_return_does_not_erase_valid_refusal_complaint() -> void:
 	assert_eq(visit.complaint.outcome, CustomerComplaint.Outcome.CONFIRMED)
 
 
+#endregion
+
+#region Старое расписание и копии записей
+## Проверяет старое авторское расписание без районной сессии: повторное планирование и поздний визит.
 func test_schedule_is_idempotent_has_six_daily_challenge_profiles_and_ten_day_late_visit() -> void:
 	var flow: C_CustomerFlow = C_CustomerFlow.new()
 	flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
@@ -254,6 +281,7 @@ func test_schedule_is_idempotent_has_six_daily_challenge_profiles_and_ten_day_la
 	assert_eq(floor_visits, 11)
 
 
+## Копия записи сохраняет рассмотренную жалобу и флаг расчёта, предотвращая повторную оплату.
 func test_persistent_record_copy_retains_dispute_and_settlement_flags() -> void:
 	var visit: CustomerVisit = _complaint_visit(CustomerVisit.Actual.NOT_RESOLVED)
 	var wallet: C_Wallet = C_Wallet.new()
@@ -265,6 +293,9 @@ func test_persistent_record_copy_retains_dispute_and_settlement_flags() -> void:
 	assert_true(restored.settlement_committed)
 
 
+#endregion
+
+#region Живой World и назначения
 func _live_fixture() -> CustomerVisit:
 	_world = World.new()
 	add_child(_world)
@@ -289,6 +320,7 @@ func _live_parcel(visit: CustomerVisit) -> Entity:
 	return parcel
 
 
+## Назначение коробки принадлежит Relationship; удаление клиента убирает живую связь, сохраняя ID заказа.
 func test_live_assignment_is_relationship_and_disappears_with_customer() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	var parcel: Entity = _live_parcel(visit)
@@ -307,6 +339,7 @@ func test_live_assignment_is_relationship_and_disappears_with_customer() -> void
 	assert_eq(visit.package_id, "shipment1")
 
 
+## Отказ получателя сохраняет физическую коробку и занятый регистрационный номер.
 func test_customer_refusal_keeps_package_and_number_until_physical_departure() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	visit.actual = CustomerVisit.Actual.CUSTOMER_REFUSED
@@ -323,6 +356,7 @@ func test_customer_refusal_keeps_package_and_number_until_physical_departure() -
 	assert_eq(PackageRegistrationService.smallest_free_number(PackageRegistrationService.ledger()), 2)
 
 
+## Исчезновение тела завершает визит, сохраняя активную коробку и её номер.
 func test_disappeared_customer_finishes_event_without_releasing_package_number() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	_live_parcel(visit)
@@ -337,6 +371,7 @@ func test_disappeared_customer_finishes_event_without_releasing_package_number()
 	assert_eq(PackageRegistrationService.smallest_free_number(PackageRegistrationService.ledger()), 2)
 
 
+## Смерть завершает визит и берёт виновника из DamageRequest для последствий жалобы.
 func test_player_caused_death_finishes_live_event_and_records_attribution() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	visit.declaration = CustomerVisit.Declaration.TAKEN
@@ -367,6 +402,10 @@ func test_player_caused_death_finishes_live_event_and_records_attribution() -> v
 
 
 
+#endregion
+
+#region Регистрация и ночной переход
+## Получатель ждёт регистрации, кроме событий с явно отключённым требованием.
 func test_package_pickup_arrival_waits_for_registration_unless_event_opts_out() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	visit.started = false
@@ -386,6 +425,7 @@ func test_package_pickup_arrival_waits_for_registration_unless_event_opts_out() 
 	assert_eq(CustomerFlowService.actionable_remaining(CustomerFlowService.current(), 1), 1)
 
 
+## Утро однократно завершает просроченную нерегистрированную коробку потерей и удаляет её тело.
 func test_next_morning_auto_loses_due_unregistered_visit_without_npc_once() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	visit.started = false
@@ -418,6 +458,7 @@ func test_next_morning_auto_loses_due_unregistered_visit_without_npc_once() -> v
 	assert_eq(wallet.operations.size(), 1)
 
 
+## Утро сохраняет зарегистрированный заказ и визит без требования регистрации.
 func test_next_morning_keeps_registered_or_other_purpose_visit() -> void:
 	var registered: CustomerVisit = _live_fixture()
 	registered.started = false
@@ -453,6 +494,10 @@ func test_next_morning_keeps_registered_or_other_purpose_visit() -> void:
 	assert_false(other_purpose.finished)
 	assert_eq(WalletService.current().balance, 0)
 
+#endregion
+
+#region Повторные визиты и независимость сессий
+## Обещанный завтрашний визит возвращается точно на следующий день и не создаёт жалобу.
 func test_explicit_come_back_tomorrow_skips_complaint_and_reactivates_exactly_next_day() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	_live_parcel(visit)
@@ -485,6 +530,7 @@ func test_explicit_come_back_tomorrow_skips_complaint_and_reactivates_exactly_ne
 	assert_false(visit.followup_committed)
 
 
+## Повторный визит сохраняет коробку и историю отказа, сбрасывая текущий исход.
 func test_unresolved_case_can_schedule_and_reactivate_followup() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	visit.definition.complaint_probability = 0.0
@@ -517,6 +563,7 @@ func test_unresolved_case_can_schedule_and_reactivate_followup() -> void:
 	assert_eq(visit.player_denial_count, 1)
 
 
+## Окончательное заявление блокирует повторный визит без изменения фактического отказа.
 func test_terminal_declaration_blocks_pending_followup_without_changing_actual() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	visit.definition.complaint_probability = 0.0
@@ -537,6 +584,7 @@ func test_terminal_declaration_blocks_pending_followup_without_changing_actual()
 	assert_true(visit.finished)
 
 
+## Два экземпляра main_level имеют независимые изменяемые записи обслуживания.
 func test_main_scene_sessions_do_not_share_mutable_customer_records() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var first: Node = scene.instantiate()
@@ -553,3 +601,5 @@ func test_main_scene_sessions_do_not_share_mutable_customer_records() -> void:
 	assert_true(second_flow.visits.is_empty())
 	first.free()
 	second.free()
+
+#endregion

@@ -1,5 +1,5 @@
 extends GutTest
-## Real command/commit gates and native room occupancy, without a whole-day simulation.
+## Проверяет запрос и фиксацию конца смены, включая физическое присутствие клиентов в комнате.
 
 var _world: World
 var _owner: Entity
@@ -8,6 +8,8 @@ var _flow: C_CustomerFlow
 var _system: S_DayPhase
 
 
+#region Тестовое окружение
+## Создаёт дневной World и систему фаз для прямой проверки команды завершения смены.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -22,6 +24,7 @@ func before_each() -> void:
 	_world.add_child(_system)
 
 
+## Освобождает систему вместе с World и сбрасывает ECS.world.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -44,6 +47,10 @@ func _visit(day: int, registered: bool = true) -> CustomerVisit:
 	return visit
 
 
+#endregion
+
+#region Условия и фиксация перехода
+## Минимальная длительность и планы прихода проверяются независимо с учётом авторских исключений.
 func test_independent_gates_combine_and_unregistered_planned_arrivals_are_explicit() -> void:
 	var pending: CustomerVisit = _visit(1, false)
 	var future: CustomerVisit = _visit(2)
@@ -65,6 +72,7 @@ func test_independent_gates_combine_and_unregistered_planned_arrivals_are_explic
 	assert_true(CustomerDebugPresentation.summary().contains("Завершение доступно"))
 
 
+## Решение опирается на действующие визиты, а не устаревший производный счётчик.
 func test_live_actionable_visits_override_stale_derived_event_count() -> void:
 	var pending: CustomerVisit = _visit(1)
 	_cycle.remaining_customer_events = 0
@@ -77,6 +85,7 @@ func test_live_actionable_visits_override_stale_derived_event_count() -> void:
 	assert_eq(_cycle.phase, C_DayCycle.Phase.EVENING)
 
 
+## Отложенная команда повторно проверяет условия; часы идут только во время дневной смены.
 func test_queued_finish_revalidates_and_clock_advances_only_during_shift() -> void:
 	_cycle.minimum_shift_seconds = 60.0
 	_cycle.shift_elapsed_seconds = 60.0
@@ -100,6 +109,10 @@ func test_queued_finish_revalidates_and_clock_advances_only_during_shift() -> vo
 	assert_eq(_cycle.shift_elapsed_seconds, 0.0)
 
 
+#endregion
+
+#region Физическое присутствие в комнате
+## Настроенная Area учитывает живые тела внутри; отсутствующая зона блокирует завершение.
 func test_configured_room_counts_live_customer_bodies_only() -> void:
 	_cycle.require_finished_customers = false
 	_cycle.require_empty_customer_room = true
@@ -141,3 +154,5 @@ func test_configured_room_counts_live_customer_bodies_only() -> void:
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
 	customer.add_component(C_Death.new())
 	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Dead remains are not live visitors")
+
+#endregion

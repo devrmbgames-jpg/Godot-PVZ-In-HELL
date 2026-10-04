@@ -3,7 +3,7 @@ extends "res://tests/gut/test_district_service.gd"
 
 var _supply: DEF_Delivery = null
 
-#region Fixture
+#region Тестовое окружение
 ## Использует настоящий ассортимент и дешёвые компоненты физических коробок.
 func before_each() -> void:
 	super.before_each()
@@ -26,7 +26,7 @@ func _waiting_package(index: int) -> CustomerVisit:
 	return visit
 #endregion
 
-#region Supply policy
+#region Политика поставки
 ## Пять коробок за день; длинная фаза и повторная команда не создают новую партию.
 func test_daily_batch_is_limited_rotates_and_does_not_accumulate() -> void:
 	var receiving: C_Receiving = C_Receiving.new()

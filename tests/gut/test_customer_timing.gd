@@ -1,11 +1,13 @@
 extends GutTest
-## Native customer lifetime and schedule pacing; no navigation or rendered frames required.
+## Проверяет срок жизни клиента и интервалы очереди без навигации и отрисовки.
 
 var _world: World
 var _flow: C_CustomerFlow
 var _cycle: C_DayCycle
 
 
+#region Тестовое окружение
+## Создаёт минимальный World со стойкой и дневной очередью; поставка и prefab отключены.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -25,6 +27,7 @@ func before_each() -> void:
 	_world.add_entity(counter)
 
 
+## Удаляет World и очищает глобальную ссылку ECS.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -56,6 +59,10 @@ func _leaving_customer(visit: CustomerVisit) -> E_Customer:
 	return customer
 
 
+#endregion
+
+#region Уход и интервалы очереди
+## Старый короткий таймаут выхода ограничивается минимумом в три минуты.
 func test_legacy_short_departure_cannot_remove_customer_before_three_minutes() -> void:
 	var visit: CustomerVisit = _visit(&"blocked-exit")
 	visit.definition.leaving_seconds = 2.0
@@ -70,6 +77,7 @@ func test_legacy_short_departure_cannot_remove_customer_before_three_minutes() -
 	assert_eq(_flow.arrival_cooldown_seconds, 30.0)
 
 
+## Прибытие к выходу немедленно освобождает клиента; повторное завершение не перезапускает паузу.
 func test_arriving_at_exit_finishes_immediately_and_starts_gap_once() -> void:
 	var visit: CustomerVisit = _visit(&"exit-arrived")
 	var customer: E_Customer = _leaving_customer(visit)
@@ -82,6 +90,7 @@ func test_arriving_at_exit_finishes_immediately_and_starts_gap_once() -> void:
 	assert_eq(_flow.arrival_cooldown_seconds, 7.0, "Duplicate completion cannot restart the gap")
 
 
+## Следующий клиент ждёт физического ухода предыдущего и авторской паузы в секундах.
 func test_next_eligible_customer_waits_for_configured_gap_after_previous_departure() -> void:
 	_flow.schedule.arrival_interval_seconds = 45.0
 	var previous: CustomerVisit = _visit(&"previous")
@@ -100,6 +109,7 @@ func test_next_eligible_customer_waits_for_configured_gap_after_previous_departu
 	assert_eq(next.visit_count, 1)
 
 
+## Первый визит доступен сразу; утро очищает паузу предыдущего дня.
 func test_first_customer_and_morning_are_not_delayed_by_previous_day_gap() -> void:
 	var first: CustomerVisit = _visit(&"first")
 	assert_true(CustomerFlowService.spawn_next_due(_flow, _cycle))
@@ -110,6 +120,7 @@ func test_first_customer_and_morning_are_not_delayed_by_previous_day_gap() -> vo
 	assert_eq(_flow.arrival_cooldown_seconds, 0.0)
 
 
+## Живой обслуживаемый клиент блокирует обычный и отладочный приход даже после завершения учёта.
 func test_single_live_customer_blocks_queue_and_debug_even_after_accounting_finished() -> void:
 	var previous: CustomerVisit = _visit(&"still-physically-present")
 	var customer: E_Customer = _leaving_customer(previous)
@@ -128,6 +139,7 @@ func test_single_live_customer_blocks_queue_and_debug_even_after_accounting_fini
 	assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 1)
 
 
+## Завершение не начатого визита не создаёт паузу для первой встречи.
 func test_unspawned_visit_completion_does_not_add_artificial_delay() -> void:
 	var missed: CustomerVisit = _visit(&"unspawned")
 	CustomerFlowService.finish(missed, _cycle.day_index)
@@ -139,6 +151,10 @@ func test_unspawned_visit_completion_does_not_add_artificial_delay() -> void:
 	assert_eq(missed.visit_count, 0, "Already finished unspawned visits cannot spawn again")
 
 
+#endregion
+
+#region Авторские таймауты
+## Проверяет авторские таймауты старых испытаний взгляда и выключения света.
 func test_authored_gaze_has_twelve_seconds_and_light_entrance_is_not_scaled_twice() -> void:
 	var gaze: DEF_Challenge = load("res://content/definitions/gameplay/challenges/def_challenge_dont_look.tres") as DEF_Challenge
 	var state: C_Challenge = C_Challenge.new()
@@ -163,6 +179,10 @@ func test_authored_gaze_has_twelve_seconds_and_light_entrance_is_not_scaled_twic
 	assert_eq(entrance.timeout_seconds, 80.0)
 
 
+#endregion
+
+#region Приход в одном CommandBuffer
+## Два запроса в одном CommandBuffer создают одного клиента до обновления кеша запросов.
 func test_two_arrival_requests_in_one_command_batch_spawn_only_one_customer() -> void:
 	var first: CustomerVisit = _visit(&"batch-first")
 	var second: CustomerVisit = _visit(&"batch-second")
@@ -175,6 +195,7 @@ func test_two_arrival_requests_in_one_command_batch_spawn_only_one_customer() ->
 	assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 1)
 
 
+## Повторный tick в том же пакете видит созданного клиента и сохраняет следующий визит в очереди.
 func test_repeated_flow_ticks_in_one_batch_keep_first_visit_and_next_queued() -> void:
 	var first: CustomerVisit = _visit(&"tick-first")
 	var second: CustomerVisit = _visit(&"tick-second")
@@ -189,3 +210,5 @@ func test_repeated_flow_ticks_in_one_batch_keep_first_visit_and_next_queued() ->
 	assert_false(first.finished, "Cache delay must not finish a physically present visit")
 	assert_false(second.started)
 	assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 1)
+
+#endregion
