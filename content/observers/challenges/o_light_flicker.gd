@@ -1,14 +1,17 @@
 extends Observer
-## Typed world event relay. Room lamps subscribe to this signal.
+## Проверяет тип события и ретранслирует запрос мерцания подписанным лампам.
 class_name O_LightFlicker
 
+## Проверенный запрос для ламп совпадающей цепи; STOP разрешён при выключенной цепи.
 signal flickering_light(event: LightFlickerEvent)
 
 
+## Подписывается на запросы мерцания сущностей световой цепи.
 func query() -> QueryBuilder:
 	return q.with_all([C_LightCircuit]).on_event(LightFlickerEvent.EVENT)
 
 
+## Проверяет сущность, тип запроса и адрес цепи перед публикацией сигнала.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var request: LightFlickerEvent = payload as LightFlickerEvent
 	if request == null or not EntityAvailability.contains(entity, _world):

@@ -1,7 +1,8 @@
 extends Node
-## Light3D child: event-driven visual clock, never changes the gameplay switch state.
+## Дочерний узел Light3D: часы мерцания без изменения состояния выключателя.
 class_name CircuitLightView
 
+## ID цепи родительской лампы; запросы других цепей игнорируются.
 @export var circuit_id: StringName = &"warehouse"
 
 var _observer: O_LightFlicker = null
@@ -13,6 +14,7 @@ var _request_id: StringName = &""
 @onready var _light: Light3D = get_parent() as Light3D
 
 
+#region Жизненный цикл и часы мерцания
 func _ready() -> void:
 	_bind_observer()
 
@@ -38,15 +40,23 @@ func _exit_tree() -> void:
 	_disconnect()
 
 
+#endregion
+
+#region Публичное состояние представления
+## Возвращает фазу часов мерцания; состояние выключателя проверяется отдельно.
 func is_lit() -> bool:
 	return _remaining <= 0.0 or int(_elapsed / _interval) % 2 == 0
 
 
+## Идемпотентно прекращает мерцание и забывает ID активного запроса.
 func cancel_flicker() -> void:
 	_remaining = 0.0
 	_request_id = &""
 
 
+#endregion
+
+#region Подписка на события текущего мира
 func _bind_observer() -> void:
 	if is_instance_valid(_observer) and _world == ECS.world:
 		return
@@ -86,3 +96,5 @@ func _on_flicker(event: LightFlickerEvent) -> void:
 	_remaining = event.duration_seconds
 	_elapsed = 0.0
 	_interval = event.interval_seconds
+
+#endregion

@@ -1,13 +1,13 @@
 extends DEF_InteractionAction
-## Street conversation entry action; gameplay consequences belong to the context services.
+## Открывает уличный разговор; игровые последствия применяют сервисы контекста.
 class_name DEF_NpcDialogueAction
 
-#region Interaction
-## Street and waiting-in-queue people can talk when the player explicitly interacts.
+#region Взаимодействие
+## Проверяет возможность явного разговора с жителем, включая ожидающего в очереди.
 func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	return NpcDialogueService.can_start(actor, source as E_DistrictNpc)
 
-## Opens one street conversation through its service.
+## Запрашивает один разговор через сервис диалогов NPC.
 func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 	NpcDialogueService.start(actor, source as E_DistrictNpc)
 #endregion

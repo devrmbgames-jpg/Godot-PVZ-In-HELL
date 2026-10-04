@@ -1,10 +1,12 @@
 extends DEF_InteractionAction
-## Demo action that exposes prolonged interaction/reset policies through one authored valve scene.
+## Демонстрирует длительное действие и политики сброса в сцене тестового вентиля.
 class_name DEF_InteractionTestValveAction
 
+## Режим вентиля, которому соответствует действие; несовпадение скрывает команду.
 @export var mode: E_InteractionTestValve.Mode = E_InteractionTestValve.Mode.IMMEDIATE_E
 
 
+## Проверяет режим и исключает повтор завершённого действия при политике NEVER.
 func is_available(_actor: Entity, source: Entity, _target: Entity) -> bool:
 	var valve: E_InteractionTestValve = source as E_InteractionTestValve
 	if valve == null or valve.mode != mode:
@@ -19,6 +21,7 @@ func is_available(_actor: Entity, source: Entity, _target: Entity) -> bool:
 	return true
 
 
+## Активирует вентиль; длительность и завершение контролирует общий контур.
 func execute(_actor: Entity, source: Entity, _target: Entity) -> void:
 	var valve: E_InteractionTestValve = source as E_InteractionTestValve
 	if valve != null:
