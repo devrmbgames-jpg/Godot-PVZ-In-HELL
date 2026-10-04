@@ -1,10 +1,12 @@
 extends RefCounted
-## Bridges arbitrary RigidBody3D nodes into the existing R_HeldBy relationship model.
+## Связывает произвольные RigidBody3D с авторитетной моделью удержания R_HeldBy.
 class_name PhysicsGrabTarget
 
 const META_PROXY: StringName = &"_gecs_grab_proxy"
 
 
+#region Физическое тело и прокси
+## Читает реальное физическое тело сущности либо временного прокси.
 static func body_for(handle: Entity) -> RigidBody3D:
 	if not is_instance_valid(handle):
 		return null
@@ -19,6 +21,7 @@ static func body_for(handle: Entity) -> RigidBody3D:
 	return reference.body
 
 
+## Находит зарегистрированную сущность тела; create_proxy разрешает создать временный прокси.
 static func handle_for(body: RigidBody3D, create_proxy: bool = false) -> Entity:
 	if not is_instance_valid(body):
 		return null
@@ -45,6 +48,7 @@ static func handle_for(body: RigidBody3D, create_proxy: bool = false) -> Entity:
 	return proxy
 
 
+## Проверяет, является ли handle мостом с C_PhysicsBodyRef.
 static func is_proxy(handle: Entity) -> bool:
 	return (
 		is_instance_valid(handle)
@@ -52,6 +56,9 @@ static func is_proxy(handle: Entity) -> bool:
 	)
 
 
+#endregion
+
+#region Кеш и освобождение прокси
 static func _cached_proxy(body: RigidBody3D) -> Entity:
 	if not body.has_meta(META_PROXY):
 		return null
@@ -77,3 +84,5 @@ static func _on_body_tree_exiting(proxy_reference: WeakRef) -> void:
 	var proxy: Entity = proxy_reference.get_ref() as Entity if proxy_reference != null else null
 	if _registered(proxy):
 		ECS.world.remove_entity(proxy)
+
+#endregion

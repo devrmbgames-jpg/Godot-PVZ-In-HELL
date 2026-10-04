@@ -1,5 +1,5 @@
 extends DEF_InteractionAction
-## Executes validated pickup, release, throw and rotation commands.
+## Проверяет и исполняет команды подбора, освобождения, броска и вращения.
 class_name DEF_GrabAction
 
 enum Kind {
@@ -9,13 +9,18 @@ enum Kind {
 	ROTATE,
 }
 
+## Конкретная команда текущего временного действия.
 var kind: Kind = Kind.PICKUP
+## Физический слот подбора; отрицательное значение не выбирает допустимый слот.
 var hold_slot: int = -1
+## Разрешает заменить предмет в выбранной руке после проверки всей транзакции.
 var replace_occupant: bool = false
-## Raw physics target for generic Carry. A GECS handle is created only on execute.
+## Обычное физическое тело для Carry; прокси GECS создаётся только при исполнении.
 var physical_body: RigidBody3D = null
 
 
+#region Доступность и исполнение команды
+## Проверяет актора, приоритет и выбранную команду по живому хвату или кандидату подбора.
 func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	if not GrabService.holder_available(actor):
 		return false
@@ -58,6 +63,7 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	return kind != Kind.ROTATE or profile.manual_rotation_enabled
 
 
+## Повторно проверяет команду и исполняет через GrabService; вращение учитывает массу Carry.
 func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 	if not is_available(actor, source, _target):
 		return
@@ -95,3 +101,5 @@ func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 				controller.look_delta * mobility_multiplier,
 				profile.rotation_axis,
 			)
+
+#endregion

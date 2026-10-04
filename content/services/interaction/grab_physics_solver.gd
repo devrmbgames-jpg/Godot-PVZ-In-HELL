@@ -1,5 +1,5 @@
 extends RefCounted
-## Shared spring/rotation math for callback-driven and scriptless rigid-body Carry.
+## Общая физика пружины и вращения для callback-тел и обычного Carry без скрипта.
 class_name GrabPhysicsSolver
 
 const MIN_MASS: float = 0.001
@@ -7,6 +7,8 @@ const ROTATION_EPSILON: float = 0.00001
 const ANCHOR_TRANSITION_SECONDS: float = 0.5
 
 
+#region Физические адаптеры
+## Применяет силу и угловую скорость через PhysicsDirectBodyState3D; false требует освобождения хвата.
 static func integrate_state(
 	state: PhysicsDirectBodyState3D,
 	anchor: Node3D,
@@ -54,6 +56,7 @@ static func integrate_state(
 	return true
 
 
+## Применяет ту же пружину обычному RigidBody3D перед шагом; step в секундах, transform не меняет.
 static func integrate_body(
 	body: RigidBody3D,
 	step: float,
@@ -104,6 +107,10 @@ static func integrate_body(
 	return true
 
 
+#endregion
+
+#region Расчёт силы и скорости
+## Рассчитывает ограниченную силу в ньютонах с массой, гравитацией и демпфированием.
 static func position_force(
 	position_error: Vector3,
 	velocity_error: Vector3,
@@ -124,6 +131,7 @@ static func position_force(
 	)
 
 
+## Рассчитывает кратчайший поворот как ограниченную угловую скорость в рад/с; step в секундах.
 static func rotation_velocity(
 	current: Quaternion,
 	desired: Quaternion,
@@ -144,6 +152,9 @@ static func rotation_velocity(
 	return (rotation_error / step).limit_length(maxf(profile.max_rotation_speed, 0.0))
 
 
+#endregion
+
+#region Точка удержания и её движение
 static func _desired_position(anchor: Node3D, grip: R_HeldBy) -> Vector3:
 	return anchor.global_position - anchor.global_basis.z * grip.hold_distance
 
@@ -205,3 +216,5 @@ static func _commit_anchor_sample(
 	grip.previous_anchor_id = anchor.get_instance_id()
 	grip.previous_anchor_position = desired_position
 	grip.anchor_sample_valid = true
+
+#endregion

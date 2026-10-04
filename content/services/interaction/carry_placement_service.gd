@@ -1,8 +1,10 @@
 extends RefCounted
-## Placement validates occupancy and the full path before releasing Carry.
+## Проверяет занятость и полный путь размещения перед освобождением Carry.
 class_name CarryPlacementService
 
 
+#region Проверка и размещение Carry
+## Проверяет фильтр, дистанцию, занятость и путь к площадке до изменения хвата.
 static func can_place(actor: Entity, area: E_PlacementArea) -> bool:
 	if (
 		not GrabService.holder_available(actor) or not GrabService.entity_available(area)
@@ -62,6 +64,7 @@ static func _clear_path(body: RigidBody3D, destination: Transform3D, excluded: A
 	)
 
 
+## Повторно проверяет размещение, освобождает хват и однократно ставит тело в точку площадки.
 static func place(actor: Entity, area: E_PlacementArea) -> bool:
 	if not can_place(actor, area):
 		return false
@@ -76,3 +79,5 @@ static func place(actor: Entity, area: E_PlacementArea) -> bool:
 	body.angular_velocity = Vector3.ZERO
 	body.sleeping = false
 	return true
+
+#endregion

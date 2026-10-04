@@ -1,6 +1,6 @@
 @tool
 extends Entity
-## Routes the body's physics callback to transport restraint or physical holding.
+## В физическом callback фиксирует удар и передаёт исполнение грузу тележки либо удержанию.
 class_name E_GrabbableBody
 
 

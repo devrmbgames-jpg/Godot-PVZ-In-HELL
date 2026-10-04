@@ -1,11 +1,13 @@
 extends RefCounted
-## Exact endpoint overlaps + swept shape checks. Rotation uses a conservative
-## enclosing sphere so unsampled intermediate orientations cannot tunnel.
+## Проверяет пересечения на концах и swept-путь; вращение ограничивает консервативной
+## охватывающей сферой, чтобы промежуточный поворот не прошёл сквозь препятствие.
 class_name BodyPlacementQuery
 
 const ROTATION_EPSILON: float = 0.001
 
 
+#region Физическая проверка пути
+## Проверяет путь от текущего transform без перемещения тела; mask задаёт слои, margin — зазор в метрах.
 static func clear_path(body: RigidBody3D, destination: Transform3D, excluded: Array[RID], mask: int, margin: float) -> bool:
 	if not is_instance_valid(body):
 		return false
@@ -30,7 +32,7 @@ static func clear_path_from(body: RigidBody3D, start: Transform3D, destination: 
 		var local: Transform3D = body.shape_owner_get_transform(owner_id)
 		for index: int in body.shape_owner_get_shape_count(owner_id):
 			var shape: Shape3D = body.shape_owner_get_shape(owner_id, index)
-			# Rigid moving bodies must provide bounded convex collision shapes.
+			# Подвижное жёсткое тело должно иметь ограниченные выпуклые collision shapes.
 			if shape == null or shape is ConcavePolygonShape3D or shape is WorldBoundaryShape3D:
 				return false
 
@@ -82,3 +84,5 @@ static func clear_path_from(body: RigidBody3D, start: Transform3D, destination: 
 		if not space.intersect_shape(sweep, 1).is_empty():
 			return false
 	return true
+
+#endregion

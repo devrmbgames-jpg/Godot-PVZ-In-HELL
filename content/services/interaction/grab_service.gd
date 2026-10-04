@@ -1,8 +1,8 @@
 extends RefCounted
-## Grab transactions, ownership lifecycle, slot queries and physics helpers.
+## Владеет транзакциями хвата, жизненным циклом связей, поиском слотов и физическими адаптерами.
 class_name GrabService
 
-#region Constants
+#region Общие ограничения
 const ROTATION_SENSITIVITY: float = 0.006
 const NO_CARRY_GROUP: StringName = &"no_carry"
 #endregion
@@ -10,8 +10,8 @@ const NO_CARRY_GROUP: StringName = &"no_carry"
 
 
 
-#region Public API
-## Releases invalid grips before routing the actor input tick.
+#region Команды хвата и физическое исполнение
+## Освобождает недопустимые хваты перед обработкой снимка ввода актора; delta в секундах.
 static func handle_input(holder: Entity, delta: float = 0.0) -> void:
 	if not is_instance_valid(holder):
 		return
@@ -44,7 +44,7 @@ static func handle_input(holder: Entity, delta: float = 0.0) -> void:
 	InteractionActionResolver.handle_input(holder, delta)
 
 
-## Prevalidate the complete transaction before releasing an occupied hand.
+## Проверяет всю транзакцию до освобождения предмета из занятой руки.
 static func can_pickup(
 	holder: Entity,
 	target: Entity,
@@ -58,7 +58,7 @@ static func can_pickup(
 	return can_pickup_body(holder, body, slot_index, replace, target)
 
 
-## Validates arbitrary rigid bodies without requiring GECS membership on the body itself.
+## Проверяет произвольное физическое тело; регистрация самого RigidBody3D в GECS необязательна.
 static func can_pickup_body(
 	holder: Entity,
 	body: RigidBody3D,
@@ -85,7 +85,7 @@ static func can_pickup_body(
 			return false
 		if CustomerInspectionService.owner_for(resolved_handle) != null:
 			return false
-		# A physical body is not automatically a prop: living characters cannot be carried.
+		# Физическое тело не обязательно является предметом; живого персонажа нельзя переносить.
 		if resolved_handle.has_component(C_Living) and not resolved_handle.has_component(C_Death):
 			return false
 		if PhysicalSlotService.relationship(resolved_handle) != storage_binding:
@@ -119,7 +119,7 @@ static func can_pickup_body(
 	return within_pickup_reach_body(holder, body)
 
 
-## Atomically validates and acquires the selected slot, optionally replacing its occupant.
+## Проверяет и занимает выбранный слот одной транзакцией; replace разрешает заменить его предмет.
 static func try_pickup(
 	holder: Entity,
 	target: Entity,
@@ -139,7 +139,7 @@ static func try_pickup(
 	return _acquire_validated(holder, target, slot_index)
 
 
-## Storage uses its target's raycast, since the frozen item has no collider.
+## Проверяет луч по слоту хранения: у закреплённого предмета столкновения отключены.
 static func can_take_from_storage(holder: Entity, target: Entity, slot_index: int, replace: bool = false) -> bool:
 	var binding: Relationship = PhysicalSlotService.relationship(target)
 	if binding == null:
@@ -147,6 +147,7 @@ static func can_take_from_storage(holder: Entity, target: Entity, slot_index: in
 	return can_pickup_body(holder, physical_body(target), slot_index, replace, target, binding)
 
 
+## Повторно проверяет перенос из слота, освобождает прежний предмет руки и приобретает хват.
 static func take_from_storage(holder: Entity, target: Entity, slot_index: int, replace: bool = false) -> bool:
 	if not can_take_from_storage(holder, target, slot_index, replace):
 		return false
@@ -181,7 +182,7 @@ static func _acquire_validated(holder: Entity, target: Entity, slot_index: int) 
 	return held_in_slot(holder, slot_index) == target
 
 
-## Creates a lightweight GECS handle only when a raw body is actually picked up.
+## Создаёт лёгкий прокси GECS только при фактическом подборе обычного физического тела.
 static func try_pickup_body(
 	holder: Entity,
 	body: RigidBody3D,
@@ -201,7 +202,7 @@ static func try_pickup_body(
 	return try_pickup(holder, handle, slot_index, replace)
 
 
-## Removes matching ownership and side effects while preserving physical inertia.
+## Удаляет соответствующую связь и её эффекты, сохраняя физическую инерцию тела.
 static func release(holder: Entity, held: Entity, notify_player: bool = true) -> void:
 	if not is_instance_valid(held):
 		return
@@ -211,14 +212,14 @@ static func release(holder: Entity, held: Entity, notify_player: bool = true) ->
 		var grip_data: R_HeldBy = grip.relation as R_HeldBy
 		var notify: bool = notify_player and grip_data.lifecycle_applied and holder_available(holder) and entity_available(held)
 		held.remove_relationship(grip)
-		# World removal disconnects entity signals before notifying lifecycle listeners.
-		# Cleanup is idempotent, so it also covers this teardown path.
+		# World отключает сигналы сущности до уведомления наблюдателей жизненного цикла.
+		# Идемпотентная очистка покрывает и этот путь удаления.
 		grip_removed(held, grip)
 		if notify and held.has_component(C_Package):
 			PlayerInteractionEvents.publish(holder, held, PlayerInteractionEvent.Kind.PARCEL_PLACED)
 
 
-## Releases matching ownership before applying the configured velocity-change impulse.
+## Освобождает соответствующее владение перед импульсом авторского изменения скорости броска.
 static func throw(holder: Entity, held: Entity) -> void:
 	if not is_instance_valid(holder) or not is_instance_valid(held):
 		return
@@ -256,7 +257,7 @@ static func throw(holder: Entity, held: Entity) -> void:
 		ThrowContext.arm(held, holder)
 
 
-## Drives a held body toward its relation-selected anchor on the physics step.
+## В физическом callback применяет удержание по точке живой связи; не перемещает transform напрямую.
 static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 	var grip: Relationship = held_relationship(entity)
 	if grip == null:
@@ -297,7 +298,7 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 #endregion
 
 
-#region Lifecycle transitions
+#region Жизненный цикл связей
 ## Обновляет производный вес переноски по действующему владению, не меняя захват.
 static func refresh_carry_mass(held: Entity) -> void:
 	var grip: Relationship = held_relationship(held)
@@ -318,7 +319,7 @@ static func refresh_carry_mass(held: Entity) -> void:
 		load_state.mass_kg = body.mass
 
 
-## Called by O_GrabLifecycle for any relationship producer, not just try_pickup.
+## Применяет эффекты новой связи через O_GrabLifecycle независимо от создателя R_HeldBy.
 static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var holder: Entity = grip.target as Entity
 	var body: RigidBody3D = physical_body(held)
@@ -380,7 +381,7 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 	return true
 
 
-## Idempotently restores collision, sleep, capture and slot-cache state.
+## Однократно восстанавливает столкновения и сон, освобождает захват и кеш слота.
 static func grip_removed(held: Entity, grip: Relationship) -> void:
 	var marker: C_Marker = held.get_component(C_Marker) as C_Marker
 	if marker != null:
@@ -416,7 +417,7 @@ static func grip_removed(held: Entity, grip: Relationship) -> void:
 		body.can_sleep = grip_data.previous_can_sleep
 
 
-## Releases all incoming and outgoing held relationships for an unavailable entity.
+## Освобождает все входящие и исходящие связи удержания недоступной сущности.
 static func entity_unavailable(entity: Entity) -> void:
 	if not is_instance_valid(entity):
 		return
@@ -432,7 +433,7 @@ static func entity_unavailable(entity: Entity) -> void:
 			release(entity, held, false)
 
 
-## Clears one derived cache and its Carry modifiers without creating ownership.
+## Очищает производный кеш слота и модификаторы Carry, не создавая владение.
 static func reset_holder(holder: Entity, slot_index: int = C_Grabbable.HoldSlot.CARRY) -> void:
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	if control != null:
@@ -450,8 +451,8 @@ static func reset_holder(holder: Entity, slot_index: int = C_Grabbable.HoldSlot.
 #endregion
 
 
-#region Position and rotation math
-## Returns a mass-aware bounded spring force with gravity compensation.
+#region Сила, поворот и импульс
+## Возвращает ограниченную силу пружины в ньютонах с учётом массы и компенсацией гравитации.
 static func position_force(
 	position_error: Vector3,
 	velocity_error: Vector3,
@@ -468,7 +469,7 @@ static func position_force(
 	)
 
 
-## Returns a bounded shortest-arc angular velocity without residual spring momentum.
+## Возвращает ограниченную угловую скорость кратчайшего поворота в рад/с без остаточного импульса пружины.
 static func rotation_velocity(
 	current: Quaternion,
 	desired: Quaternion,
@@ -483,7 +484,7 @@ static func rotation_velocity(
 	)
 
 
-## Applies manual input within the configured rotation-axis policy.
+## Применяет ручной поворот с ограничением авторских осей вращения.
 static func rotated_offset(
 	offset: Quaternion,
 	look_delta: Vector2,
@@ -497,19 +498,19 @@ static func rotated_offset(
 	).normalized()
 
 
-## Converts a configured velocity change into a mass-scaled impulse.
+## Преобразует изменение скорости в м/с и массу в кг в импульс тела.
 static func throw_impulse(direction: Vector3, velocity_change: float, body_mass: float) -> Vector3:
 	return direction.normalized() * maxf(velocity_change, 0.0) * body_mass
 #endregion
 
 
-#region Queries and validation
-## Finds the authoritative held relationship directly on an entity.
+#region Поиск и проверки
+## Читает авторитетную связь удержания непосредственно у предмета.
 static func held_relationship(entity: Entity) -> Relationship:
 	if not is_instance_valid(entity):
 		return null
 
-	# Read the authoritative local relationships without allocating query patterns.
+	# Читаем авторитетные локальные связи без выделения шаблонов запроса.
 	for grip: Relationship in entity.relationships:
 		if grip.relation is R_HeldBy:
 			return grip
@@ -517,7 +518,7 @@ static func held_relationship(entity: Entity) -> Relationship:
 	return null
 
 
-## Compatibility query for single-object callers; never use for capacity/ownership.
+## Совместимый поиск одного предмета; вместимость и владение проверяются по отдельным слотам.
 static func held_object(holder: Entity) -> Entity:
 	for slot_index: int in 3:
 		var held: Entity = held_in_slot(holder, slot_index)
@@ -526,7 +527,7 @@ static func held_object(holder: Entity) -> Entity:
 	return null
 
 
-## Returns a cached occupant only when its authoritative relation matches the slot.
+## Возвращает кешированный предмет только при совпадении живой авторитетной связи со слотом.
 static func held_in_slot(holder: Entity, slot_index: int) -> Entity:
 	if not is_instance_valid(holder):
 		return null
@@ -569,7 +570,7 @@ static func _set_cached(control: C_GrabControl, slot_index: int, held: Entity) -
 			control.held_left = held
 
 
-## Generic physical Carry candidate independent of the holder's current Strength.
+## Проверяет физический кандидат Carry без учёта текущего Strength держателя.
 static func is_carry_candidate(body: RigidBody3D) -> bool:
 	if not is_instance_valid(body) or body.is_queued_for_deletion():
 		return false
@@ -578,7 +579,7 @@ static func is_carry_candidate(body: RigidBody3D) -> bool:
 	return is_finite(body.mass) and body.mass > 0.0
 
 
-## True only when mass is the reason a valid Carry candidate cannot be lifted.
+## Возвращает true, только если подходящее тело невозможно поднять именно из-за массы.
 static func is_too_heavy(body: RigidBody3D, strength: C_Strength) -> bool:
 	return (
 		is_carry_candidate(body)
@@ -587,16 +588,17 @@ static func is_too_heavy(body: RigidBody3D, strength: C_Strength) -> bool:
 	)
 
 
-## Generic Carry eligibility for authored or completely scriptless rigid bodies.
+## Проверяет Carry для авторских и обычных физических тел по массе и Strength.
 static func can_carry_body(body: RigidBody3D, strength: C_Strength) -> bool:
 	return is_carry_candidate(body) and CarryLoadPolicy.can_carry(body.mass, strength)
 
 
-## Checks whether an authored prop supports the requested Carry or hand slot.
+## Проверяет поддержку запрошенного Carry либо физического ручного слота авторским предметом.
 static func slot_allowed(config: C_Grabbable, slot_index: int) -> bool:
 	return profile_slot_allowed(GrabControlProfile.from_grabbable(config), slot_index)
 
 
+## Проверяет физический слот по фактическому профилю хвата.
 static func profile_slot_allowed(profile: GrabControlProfile, slot_index: int) -> bool:
 	if profile == null:
 		return false
@@ -608,7 +610,7 @@ static func profile_slot_allowed(profile: GrabControlProfile, slot_index: int) -
 	)
 
 
-## Maps primary or secondary controls to a physical hand, respecting the swap option.
+## Сопоставляет основной либо дополнительный ввод физической руке с учётом swap_hand_controls.
 static func mapped_hand(holder: Entity, secondary: bool = false) -> int:
 	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
 	if secondary != (control != null and control.swap_hand_controls):
@@ -616,7 +618,7 @@ static func mapped_hand(holder: Entity, secondary: bool = false) -> int:
 	return C_Grabbable.HoldSlot.RIGHT_HAND
 
 
-## Selects the E/F hand according to free slots, replacement role and allowed hands.
+## Выбирает руку E/F по свободным слотам, режиму замены и авторским ограничениям рук.
 static func pickup_slot(holder: Entity, target: Entity, replacement_button: bool) -> int:
 	if not is_instance_valid(target) or not is_instance_valid(holder):
 		return -1
@@ -644,7 +646,7 @@ static func pickup_slot(holder: Entity, target: Entity, replacement_button: bool
 	return selected if slot_allowed(config, selected) else -1
 
 
-## Raw bodies are Carry-only; authored C_Grabbable keeps its hand-slot policy.
+## Обычные тела допускают только Carry; авторский C_Grabbable сохраняет правила ручных слотов.
 static func pickup_slot_for_body(
 	holder: Entity,
 	body: RigidBody3D,
@@ -659,7 +661,7 @@ static func pickup_slot_for_body(
 	return C_Grabbable.HoldSlot.CARRY if not replacement_button else -1
 
 
-## Returns the holder-owned LOS ray used by targeting and pickup validation.
+## Возвращает луч держателя для наведения и повторной проверки подбора.
 static func interaction_raycast(holder: Entity) -> RayCast3D:
 	if not is_instance_valid(holder):
 		return null
@@ -667,7 +669,7 @@ static func interaction_raycast(holder: Entity) -> RayCast3D:
 	return holder.get("interaction_ray_cast") as RayCast3D
 
 
-## Returns the authored Carry anchor owned by the holder entity.
+## Возвращает авторскую точку Carry, принадлежащую сущности держателя.
 static func hold_anchor(holder: Entity) -> Node3D:
 	if not is_instance_valid(holder):
 		return null
@@ -675,7 +677,7 @@ static func hold_anchor(holder: Entity) -> Node3D:
 	return holder.get("hold_anchor") as Node3D
 
 
-## Resolves an item anchor from its runtime relationship or proposed pickup slot.
+## Выбирает точку предмета по живой связи либо предполагаемому слоту подбора.
 static func object_anchor(holder: Entity, target: Entity) -> Node3D:
 	if not is_instance_valid(holder) or not is_instance_valid(target):
 		return null
@@ -689,7 +691,7 @@ static func object_anchor(holder: Entity, target: Entity) -> Node3D:
 	return slot_anchor(holder, slot_index)
 
 
-## Selects the normal or suspended authored anchor for a physical slot.
+## Выбирает обычную либо подвешенную авторскую точку физического слота.
 static func slot_anchor(holder: Entity, slot_index: int) -> Node3D:
 	if not is_instance_valid(holder):
 		return null
@@ -716,9 +718,9 @@ static func slot_anchor(holder: Entity, slot_index: int) -> Node3D:
 	return null
 
 
-## Revalidates first-hit LOS and the shared physical-interaction reach limit.
-## Gameplay Entity targets may be CharacterBody3D/AnimatableBody3D; only generic Carry
-## requires RigidBody3D and therefore uses within_pickup_reach_body().
+## Повторно проверяет первое попадание луча и общий предел дистанции взаимодействия.
+## Игровая цель может быть CharacterBody3D или AnimatableBody3D; только обычный Carry
+## требует RigidBody3D и проверяется через within_pickup_reach_body().
 static func within_pickup_reach(holder: Entity, target: Entity) -> bool:
 	if not entity_available(target):
 		return false
@@ -737,6 +739,7 @@ static func within_pickup_reach(holder: Entity, target: Entity) -> bool:
 	return hit_distance <= maxf(control.pickup_distance, 0.0)
 
 
+## Повторно проверяет первое физическое тело под лучом и дистанцию подбора.
 static func within_pickup_reach_body(holder: Entity, body: RigidBody3D) -> bool:
 	if not is_instance_valid(holder) or not is_instance_valid(body):
 		return false
@@ -755,11 +758,12 @@ static func within_pickup_reach_body(holder: Entity, body: RigidBody3D) -> bool:
 	return hit_distance <= maxf(control.pickup_distance, 0.0)
 
 
-## Returns an item distance override or the holder default; hands have no extra offset.
+## Возвращает дистанцию Carry в метрах: настройку предмета либо держателя; руки без добавочного отступа.
 static func carry_distance(control: C_GrabControl, config: C_Grabbable) -> float:
 	return carry_distance_profile(control, GrabControlProfile.from_grabbable(config))
 
 
+## Выбирает дистанцию Carry в метрах из фактического профиля либо настроек держателя.
 static func carry_distance_profile(
 	control: C_GrabControl,
 	profile: GrabControlProfile,
@@ -773,12 +777,12 @@ static func carry_distance_profile(
 	return control.hold_distance
 
 
-## Resolves the physical body behind either a normal Entity or a runtime proxy.
+## Возвращает физическое тело обычной Entity либо временного прокси.
 static func physical_body(handle: Entity) -> RigidBody3D:
 	return PhysicsGrabTarget.body_for(handle)
 
 
-## Creates an effective default/override profile without making C_Grabbable mandatory.
+## Создаёт фактический профиль, включая удержание жидкости вертикально; C_Grabbable необязателен.
 static func profile_for(handle: Entity) -> GrabControlProfile:
 	var config: C_Grabbable = null
 	var liquid: C_LiquidTilt = null
@@ -824,8 +828,8 @@ static func _allowed_break_distance(
 	return allowed
 
 
-## Bodies that already call integrate_forces keep the exact callback solver.
-## Other rigid bodies use the same spring profile from the holder System before physics.
+## Тела с _integrate_forces продолжают использовать собственный физический callback;
+## остальные используют ту же пружину через систему держателя перед физическим шагом.
 static func integrate_generic_bodies(holder: Entity, delta: float) -> void:
 	if delta <= 0.0:
 		return
@@ -875,7 +879,7 @@ static func integrate_generic_bodies(holder: Entity, delta: float) -> void:
 			release(holder, held, false)
 
 
-## Checks live tree and World membership before gameplay mutation.
+## Проверяет живое дерево, enabled и регистрацию в текущем World перед изменением игры.
 static func entity_available(entity: Entity) -> bool:
 	return (
 		is_instance_valid(entity) and not entity.is_queued_for_deletion()
@@ -884,7 +888,7 @@ static func entity_available(entity: Entity) -> bool:
 	)
 
 
-## Also rejects disabled motion control and defeated holders.
+## Проверяет доступность держателя, управление движением и положительное здоровье.
 static func holder_available(holder: Entity) -> bool:
 	if not entity_available(holder):
 		return false
