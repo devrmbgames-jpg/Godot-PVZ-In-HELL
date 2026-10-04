@@ -425,17 +425,19 @@ func test_package_pickup_arrival_waits_for_registration_unless_event_opts_out() 
 	assert_eq(CustomerFlowService.actionable_remaining(CustomerFlowService.current(), 1), 1)
 
 
-## Утро однократно завершает просроченную нерегистрированную коробку потерей и удаляет её тело.
-func test_next_morning_auto_loses_due_unregistered_visit_without_npc_once() -> void:
+## Утро отдельно штрафует просрочку, сохраняя физическую коробку и право ручного заявления.
+func test_next_morning_records_overdue_without_automatic_loss_or_removal_once() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	visit.started = false
 	var parcel: Entity = Entity.new()
 	var identity: C_Package = C_Package.new()
 	identity.package_id = visit.package_id
 	identity.history_id = "1-01-NM01E"
+	identity.definition = DEF_Package.new()
 	var state: C_PackageState = C_PackageState.new()
 	parcel.component_resources = [identity, state]
 	_world.add_entity(parcel)
+	assert_not_null(PackageHistoryService.record_arrival(parcel, 1))
 
 	var cycle: C_DayCycle = DayPhaseService.current()
 	cycle.day_index = 2
@@ -444,16 +446,18 @@ func test_next_morning_auto_loses_due_unregistered_visit_without_npc_once() -> v
 
 	assert_eq(CustomerFlowService.finalize_missed_unregistered(CustomerFlowService.current(), cycle, wallet), 1)
 	assert_false(visit.started)
-	assert_true(visit.finished)
-	assert_eq(visit.declaration, CustomerVisit.Declaration.LOST)
-	assert_eq(visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
-	assert_eq(visit.disposition, CustomerVisit.Disposition.LOST)
-	assert_eq(visit.loss_cause, CustomerVisit.LossCause.MISSED_REGISTRATION)
+	assert_false(visit.finished)
+	assert_eq(visit.declaration, CustomerVisit.Declaration.NONE)
+	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
+	assert_eq(visit.disposition, CustomerVisit.Disposition.WAREHOUSE)
+	assert_eq(visit.loss_cause, CustomerVisit.LossCause.NONE)
+	assert_eq(visit.registration_overdue_day, 2)
 	assert_eq(visit.package_history_id, identity.history_id)
-	assert_true(visit.settlement_committed)
+	assert_false(visit.settlement_committed)
+	assert_true(visit.registration_penalty_committed)
 	assert_eq(wallet.balance, -300)
 	assert_eq(wallet.operations[0].reason, MoneyOperation.Reason.MISSED_REGISTRATION)
-	assert_null(CustomerFlowService.parcel_for(visit.package_id))
+	assert_eq(CustomerFlowService.parcel_for(visit.package_id), parcel)
 	assert_eq(CustomerFlowService.finalize_missed_unregistered(CustomerFlowService.current(), cycle, wallet), 0)
 	assert_eq(wallet.operations.size(), 1)
 

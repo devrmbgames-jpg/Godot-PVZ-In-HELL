@@ -46,7 +46,7 @@ static func registered_number(visit: CustomerVisit) -> int:
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	if ledger != null:
 		for record: PackageRegistrationRecord in ledger.records:
-			if record.package_id == visit.package_id and record.active:
+			if record.package_id == visit.package_id and record.active and record.number > 0:
 				return record.number
 	return -1
 

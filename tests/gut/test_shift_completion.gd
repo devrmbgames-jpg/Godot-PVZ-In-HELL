@@ -50,16 +50,24 @@ func _visit(day: int, registered: bool = true) -> CustomerVisit:
 #endregion
 
 #region Условия и фиксация перехода
-## Минимальная длительность и планы прихода проверяются независимо с учётом авторских исключений.
+## Поступление без номера не блокирует смену; после сканирования возможный приход учитывается отдельно.
 func test_independent_gates_combine_and_unregistered_planned_arrivals_are_explicit() -> void:
 	var pending: CustomerVisit = _visit(1, false)
+	pending.package_id = "pending"
+	_owner.add_component(C_PackageLedger.new())
+	var receipt: PackageRegistrationRecord = PackageRegistrationRecord.new()
+	receipt.package_id = pending.package_id
+	receipt.received_day = 1
+	PackageRegistrationService.ledger().records.append(receipt)
 	var future: CustomerVisit = _visit(2)
 	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Legacy actionable filter does not trap unregistered visits")
 	_cycle.require_all_planned_arrivals = true
 	_cycle.minimum_shift_seconds = 240.0
-	assert_eq(DayPhaseService.finish_blockers(_cycle).size(), 2)
+	assert_eq(DayPhaseService.finish_blockers(_cycle).size(), 1)
 	assert_false(DayPhaseService.submit(_request(DayTransitionRequest.Kind.FINISH_SHIFT)))
 	_cycle.shift_elapsed_seconds = 240.0
+	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Receipt without registration cannot enable an unreachable arrival")
+	receipt.number = 1
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
 	pending.started = true
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Arrived still requires service when legacy gate enabled")

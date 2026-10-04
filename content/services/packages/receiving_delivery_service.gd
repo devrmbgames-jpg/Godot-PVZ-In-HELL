@@ -108,7 +108,7 @@ static func deliver_one(
 		_advance(receiving, batch)
 		return
 	var package_id: String = "%s:%d:%s" % [zone.supply.key, batch.day_index, definition.key]
-	if ReceivingPackageFactory.exists(package_id):
+	if ReceivingPackageFactory.exists(package_id) or PackageHistoryService.record_for(package_id) != null:
 		_advance(receiving, batch)
 		return
 
@@ -138,14 +138,16 @@ static func deliver_one(
 
 	identity.delivery_day = batch.day_index
 	identity.supply_key = zone.supply.key
-	if PackageHistoryService.ensure_history_id(parcel, batch.day_index).is_empty():
+	if PackageHistoryService.record_arrival(parcel, batch.day_index) == null:
 		ECS.world.remove_entity(parcel)
 		receiving.blocked = true
 		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
 		return
 
 	receiving.last_spawn_tick = Engine.get_physics_frames()
-	CustomerFlowService.plan_delivered_package(identity)
+	var visit: CustomerVisit = CustomerFlowService.plan_delivered_package(identity)
+	if visit != null:
+		visit.package_history_id = identity.history_id
 	_advance(receiving, batch)
 
 

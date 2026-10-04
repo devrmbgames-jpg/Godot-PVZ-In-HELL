@@ -68,7 +68,7 @@ func present(
 ) -> void:
 	_package_id = record.package_id
 	_button_body.set_pressed_no_signal(selected)
-	_label_number_info.text = "№%03d" % record.number
+	_label_number_info.text = number_text(record)
 	_label_status_info.text = status_text(record, state, visit, debug_status)
 
 	var definition: DEF_Package = record.definition
@@ -93,7 +93,9 @@ func present(
 	)
 	_button_ok.disabled = not can_declare
 	_button_cancel.disabled = not can_declare
-	_button_lost.disabled = not can_declare
+	_button_lost.disabled = not (
+		actions_enabled and visit != null and visit.declaration == CustomerVisit.Declaration.NONE
+	)
 
 
 ## Возвращает постоянный ID записи, показанной этой строкой.
@@ -118,6 +120,11 @@ static func status_text(
 
 			CustomerVisit.Declaration.LOST:
 				return "ПОТЕРЯНА"
+	if record.number == 0:
+		if visit != null and visit.registration_overdue_day > 0:
+			return "ПРОСРОЧЕНА РЕГИСТРАЦИЯ"
+		if not debug_status:
+			return "НЕ ЗАРЕГИСТРИРОВАНА"
 	if not debug_status:
 		return "БЕЗ ОТМЕТКИ"
 	if visit != null:
@@ -148,6 +155,11 @@ static func status_text(
 	if state.opening == C_PackageState.Opening.OPENED:
 		parts.append("ВСКРЫТА")
 	return " · ".join(parts)
+
+
+## Не выдаёт внутренний нулевой номер за номер заказа получателя.
+static func number_text(record: PackageRegistrationRecord) -> String:
+	return "№%03d" % record.number if record.number > 0 else "Без номера"
 
 
 #endregion

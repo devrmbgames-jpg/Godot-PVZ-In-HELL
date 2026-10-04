@@ -237,8 +237,7 @@ static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
 	spawn_next_due(flow, cycle)
 
 
-## Утренняя сверка закрывает как Lost просроченный визит за коробкой,
-## которая так и не получила регистрацию; физический клиент не создаётся.
+## Утренняя сверка фиксирует просрочку без LOST, удаления коробки или закрытия заказа.
 static func finalize_missed_unregistered(
 	flow: C_CustomerFlow,
 	cycle: C_DayCycle,
@@ -256,15 +255,18 @@ static func finalize_missed_unregistered(
 	if ledger == null:
 		return 0
 
-	var lost_count: int = 0
+	var overdue_count: int = 0
 	for visit: CustomerVisit in flow.visits:
 		if (
 			not visit.requires_registered_package
 			or visit.arrival_day >= cycle.day_index
 			or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
 			or visit.declaration != CustomerVisit.Declaration.NONE
-			or _has_active_registration_record(ledger, visit.package_id)
+			or (visit.registration_overdue_day > 0 and visit.registration_penalty_committed)
 		):
+			continue
+		var record: PackageRegistrationRecord = PackageHistoryService.record_for(visit.package_id, ledger)
+		if record == null or (record.active and record.number > 0):
 			continue
 
 		var parcel: Entity = parcel_for(visit.package_id)
@@ -277,14 +279,10 @@ static func finalize_missed_unregistered(
 			if identity != null and visit.package_history_id.is_empty():
 				visit.package_history_id = identity.history_id
 
-		if not CustomerOutcomeService.mark_missed_registration_lost(visit, cycle.day_index):
-			continue
-
-		CustomerOutcomeService.settle(visit, wallet, cycle.day_index)
-		if parcel != null:
-			ECS.world.remove_entity(parcel)
-		lost_count += 1
-	return lost_count
+		if CustomerOutcomeService.mark_registration_overdue(visit, cycle.day_index):
+			overdue_count += 1
+		CustomerOutcomeService.settle_registration_overdue(visit, wallet, cycle.day_index)
+	return overdue_count
 
 
 static func _has_active_registration_record(
@@ -292,7 +290,7 @@ static func _has_active_registration_record(
 	package_id: String,
 ) -> bool:
 	for record: PackageRegistrationRecord in ledger.records:
-		if record.package_id == package_id and record.active:
+		if record.package_id == package_id and record.active and record.number > 0:
 			return true
 	return false
 
@@ -723,6 +721,16 @@ static func _place_refused_parcel(customer: E_Customer, visit: CustomerVisit, pa
 #endregion
 
 #region Заявления и реакции
+## Явное заявление игрока для разгрузки: отсутствие тела или просрочка сами не означают LOST.
+static func package_declared_lost(package_id: String) -> bool:
+	var flow: C_CustomerFlow = current()
+	if flow != null:
+		for visit: CustomerVisit in flow.visits:
+			if visit.package_id == package_id and visit.declaration == CustomerVisit.Declaration.LOST:
+				return true
+	return false
+
+
 ## Фиксирует заявление в журнале и инициирует расчёт; физическую выдачу не подменяет.
 static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration) -> bool:
 	var visit: CustomerVisit = find_visit(visit_id)
@@ -730,12 +738,19 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 	if visit == null or cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:
 		return false
 	if visit.declaration == declaration and declaration != CustomerVisit.Declaration.NONE:
+		_settle_visit(visit, WalletService.current(), cycle.day_index)
 		return true
+	if not visit.started and declaration == CustomerVisit.Declaration.LOST:
+		if PackageHistoryService.record_for(visit.package_id) == null:
+			return false
 	if not CustomerOutcomeService.declare(visit, declaration):
 		return false
 	if declaration != CustomerVisit.Declaration.NONE:
 		visit.next_followup_day = 0
 		visit.followup_committed = false
+	if declaration == CustomerVisit.Declaration.LOST and not visit.started:
+		visit.finished = true
+		visit.finished_day = cycle.day_index
 	_settle_visit(visit, WalletService.current(), cycle.day_index)
 
 	var customer: E_Customer = customer_for(visit_id)

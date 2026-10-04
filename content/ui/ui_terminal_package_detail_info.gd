@@ -19,7 +19,7 @@ func present(
 	debug_status: bool = false,
 ) -> void:
 	visible = true
-	_label_package_id.text = "№%03d" % record.number
+	_label_package_id.text = UI_TerminalButtonPackage.number_text(record)
 	_label_package_uid.text = record.history_id if not record.history_id.is_empty() else "—"
 
 	var definition: DEF_Package = record.definition
@@ -39,8 +39,18 @@ func present(
 		lines.append(definition.comment)
 	lines.append("Вес: %.1f кг" % definition.mass_kg)
 	lines.append("Учётная стоимость: %d" % definition.accounting_value)
-	lines.append("Дата регистрации: день %d" % record.day_index)
+	if record.received_day > 0:
+		lines.append("Дата поступления: день %d" % record.received_day)
+	lines.append(
+		"Дата регистрации: день %d" % record.day_index
+		if record.number > 0
+		else "Ещё не зарегистрирована. Номер выдачи не назначен."
+	)
 	lines.append("Отметка: %s" % UI_TerminalButtonPackage.status_text(record, state, visit, debug_status))
+	if visit != null and visit.registration_overdue_day > 0:
+		lines.append("Пропущен срок регистрации: день %d" % visit.registration_overdue_day)
+		if visit.registration_penalty_committed:
+			lines.append("Штраф за просрочку регистрации: %d" % -visit.registration_money_delta)
 	if debug_status and state != null:
 		lines.append("Состояние: %s" % _condition_text(state))
 	if visit != null and visit.complaint != null:

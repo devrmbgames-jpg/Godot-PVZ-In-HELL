@@ -142,7 +142,9 @@ static func commit_player_denial(visit: CustomerVisit) -> bool:
 
 ## Однократно фиксирует заявление игрока; повтор того же значения допускается, смена — нет.
 static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> bool:
-	if not visit.started or value == CustomerVisit.Declaration.NONE:
+	if visit == null or value == CustomerVisit.Declaration.NONE:
+		return false
+	if not visit.started and value != CustomerVisit.Declaration.LOST:
 		return false
 	if value < CustomerVisit.Declaration.TAKEN or value > CustomerVisit.Declaration.LOST:
 		return false
@@ -165,49 +167,60 @@ static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> b
 	return true
 
 
-## Закрывает не начавшийся визит за коробкой, если её не зарегистрировали
-## до следующего утра.
-static func mark_missed_registration_lost(visit: CustomerVisit, day: int) -> bool:
+## Фиксирует пропущенный срок регистрации без заявления, закрытия заказа или выдуманной выдачи.
+static func mark_registration_overdue(visit: CustomerVisit, day: int) -> bool:
 	if (
 		visit == null
 		or day <= visit.arrival_day
 		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
 		or visit.declaration != CustomerVisit.Declaration.NONE
+		or visit.registration_overdue_day != 0
 	):
 		return false
 
-	visit.declaration = CustomerVisit.Declaration.LOST
-	visit.loss_cause = CustomerVisit.LossCause.MISSED_REGISTRATION
-	visit.actual = CustomerVisit.Actual.PLAYER_DENIED
-	visit.disposition = CustomerVisit.Disposition.LOST
-	visit.reputation = CustomerVisit.Reputation.LOST
-	visit.finished = true
-	visit.finished_day = day
+	visit.registration_overdue_day = day
 	return true
 
 
 #endregion
 
 #region Деньги и жалобы
+## Однократно применяет отдельный штраф просрочки; не блокирует последующее обслуживание.
+static func settle_registration_overdue(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
+	if visit.registration_overdue_day == 0 or visit.registration_penalty_committed or wallet == null:
+		return
+	var operation: MoneyOperation = WalletService.package_settlement(
+		wallet,
+		StringName("registration/" + String(visit.visit_id)),
+		MoneyOperation.Reason.MISSED_REGISTRATION,
+		visit.accounting_value,
+		day,
+	)
+	var result: WalletService.Status = WalletService.apply(wallet, operation, day)
+	if result == WalletService.Status.COMMITTED or result == WalletService.Status.DUPLICATE:
+		visit.registration_penalty_committed = true
+		visit.registration_penalty_day = operation.day_index
+		visit.registration_money_delta = -operation.amount
+
+
 ## Применяет выплату или штраф через идемпотентную операцию WalletService и записывает итог.
 static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
+	settle_registration_overdue(visit, wallet, day)
 	if visit.settlement_committed or wallet == null:
 		return
 
 	var operation: MoneyOperation = null
 	if visit.declaration == CustomerVisit.Declaration.LOST:
-		var reason: MoneyOperation.Reason = (
-			MoneyOperation.Reason.MISSED_REGISTRATION
-			if visit.loss_cause == CustomerVisit.LossCause.MISSED_REGISTRATION
-			else MoneyOperation.Reason.LOST
-		)
 		operation = WalletService.package_settlement(
 			wallet,
 			visit.visit_id,
-			reason,
+			MoneyOperation.Reason.LOST,
 			visit.accounting_value,
 			day,
 		)
+		if operation != null and visit.registration_penalty_committed:
+			# Уже взысканная просрочка покрывает стоимость потери этой же коробки.
+			operation.amount = maxi(0, operation.amount + visit.registration_money_delta)
 	elif visit.actual == CustomerVisit.Actual.PLAYER_DENIED and visit.declaration == CustomerVisit.Declaration.REFUSED:
 		operation = WalletService.package_settlement(wallet, visit.visit_id, MoneyOperation.Reason.PLAYER_REFUSAL, visit.accounting_value, day)
 	elif visit.actual == CustomerVisit.Actual.DELIVERED and visit.declaration == CustomerVisit.Declaration.TAKEN:

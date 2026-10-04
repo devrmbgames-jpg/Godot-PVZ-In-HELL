@@ -97,16 +97,15 @@ static func register_package(target: Entity) -> PackageScanResult:
 	var identity: C_Package = target.get_component(C_Package) as C_Package
 	var state: C_PackageState = target.get_component(C_PackageState) as C_PackageState
 	result.package_id = identity.package_id
-	for record: PackageRegistrationRecord in registry.records:
-		if record.package_id != identity.package_id:
-			continue
-		if not record.active:
+	var registration: PackageRegistrationRecord = PackageHistoryService.record_for(identity.package_id, registry)
+	if registration != null:
+		if not registration.active:
 			return result
-
-		result.outcome = PackageScanResult.Outcome.ALREADY_REGISTERED
-		result.number = record.number
-		result.message = "Уже учтена · №%03d" % record.number
-		return result
+		if registration.number > 0:
+			result.outcome = PackageScanResult.Outcome.ALREADY_REGISTERED
+			result.number = registration.number
+			result.message = "Уже учтена · №%03d" % registration.number
+			return result
 
 	if identity.package_id.is_empty() or identity.definition == null:
 		return result
@@ -115,15 +114,18 @@ static func register_package(target: Entity) -> PackageScanResult:
 	if state.scan == C_PackageState.Scan.SCANNED or state.registration_number != 0:
 		result.message = "Ошибка реестра: запись отсутствует"
 		return result
+	if CustomerFlowService.package_declared_lost(identity.package_id):
+		result.message = "Посылка уже заявлена потерянной"
+		return result
 
 	var sequence: int = smallest_free_number(registry)
-	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
-	registration.package_id = identity.package_id
-	registration.history_id = identity.history_id
+	if registration == null:
+		var received_day: int = identity.delivery_day if identity.delivery_day > 0 else cycle.day_index
+		registration = PackageHistoryService.record_arrival(target, received_day)
+		if registration == null:
+			return result
 	registration.day_index = cycle.day_index
 	registration.number = sequence
-	registration.definition = identity.definition
-	registry.records.append(registration)
 	state.registration_number = registration.number
 	state.registration_day = cycle.day_index
 	state.scan = C_PackageState.Scan.SCANNED
@@ -138,7 +140,7 @@ static func register_package(target: Entity) -> PackageScanResult:
 static func smallest_free_number(registry: C_PackageLedger) -> int:
 	var occupied: Dictionary[int, bool] = { }
 	for record: PackageRegistrationRecord in registry.records:
-		if record.active:
+		if record.active and record.number > 0:
 			occupied[record.number] = true
 
 	var candidate: int = 1

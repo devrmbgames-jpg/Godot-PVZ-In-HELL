@@ -1,5 +1,5 @@
 extends RefCounted
-## Единственный владелец выделения скрытых ID истории и отладки посылок.
+## Выделяет скрытые ID и хранит поступления независимо от физической коробки.
 class_name PackageHistoryService
 
 const SMALL_MAX_METERS: float = 0.50
@@ -8,6 +8,41 @@ const LARGE_MAX_METERS: float = 1.50
 
 
 #region Постоянный ID истории
+## Читает постоянную запись по package_id, включая поступление без номера выдачи.
+static func record_for(package_id: String, registry: C_PackageLedger = null) -> PackageRegistrationRecord:
+	var source: C_PackageLedger = registry if registry != null else _ledger()
+	if source == null:
+		return null
+	for record: PackageRegistrationRecord in source.records:
+		if record.package_id == package_id:
+			return record
+	return null
+
+
+## Однократно записывает реальное поступление; сканирование и номер выдачи не назначает.
+static func record_arrival(parcel: Entity, day_index: int) -> PackageRegistrationRecord:
+	if not EntityAvailability.contains(parcel, ECS.world) or day_index < 1:
+		return null
+	var identity: C_Package = parcel.get_component(C_Package) as C_Package
+	var registry: C_PackageLedger = _ledger()
+	if identity == null or identity.package_id.is_empty() or identity.definition == null or registry == null:
+		return null
+	var existing: PackageRegistrationRecord = record_for(identity.package_id, registry)
+	if existing != null:
+		return existing
+	var history_id: String = ensure_history_id(parcel, day_index)
+	if history_id.is_empty():
+		return null
+
+	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
+	record.package_id = identity.package_id
+	record.history_id = history_id
+	record.received_day = day_index
+	record.definition = identity.definition
+	registry.records.append(record)
+	return record
+
+
 ## Сохраняет допустимый существующий ID либо выделяет новый для дня; ошибка возвращает пустую строку.
 static func ensure_history_id(parcel: Entity, day_index: int) -> String:
 	if not is_instance_valid(parcel) or day_index < 1:

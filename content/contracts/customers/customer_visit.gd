@@ -4,7 +4,7 @@ class_name CustomerVisit
 
 enum Actual { NOT_RESOLVED, DELIVERED, CUSTOMER_REFUSED, PLAYER_DENIED }
 enum Declaration { NONE, TAKEN, REFUSED, LOST }
-enum LossCause { NONE, DECLARED_LOST, MISSED_REGISTRATION }
+enum LossCause { NONE, DECLARED_LOST }
 enum Disposition { WAREHOUSE, DELIVERED, RETURNED, BOUGHT_OUT, LOST }
 enum Reputation {
 	NONE,
@@ -43,8 +43,16 @@ enum Feedback { NONE, APPROVED }
 @export var actual: Actual = Actual.NOT_RESOLVED
 ## Заявленный игроком результат учёта: забрано, отказ или потеря.
 @export var declaration: Declaration = Declaration.NONE
-## Причина LOST: заявление игрока либо пропущенная регистрация следующего утра.
+## Причина LOST; задаётся только явным заявлением игрока.
 @export var loss_cause: LossCause = LossCause.NONE
+## Первый день просроченной регистрации; 0 до утренней сверки, не является заявлением LOST.
+@export var registration_overdue_day: int = 0
+## Штраф за просрочку уже применён; не закрывает обычную выдачу и расчёт заказа.
+@export var registration_penalty_committed: bool = false
+## День применения отдельного штрафа за просрочку регистрации.
+@export var registration_penalty_day: int = 0
+## Денежное последствие просрочки со знаком, отдельно от money_delta выдачи.
+@export var registration_money_delta: int = 0
 ## Текущий складской итог: хранится, выдано, возвращено, выкуплено или потеряно.
 @export var disposition: Disposition = Disposition.WAREHOUSE
 ## Репутационный результат этого случая для отчёта и последствий.

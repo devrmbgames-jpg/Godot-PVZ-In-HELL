@@ -229,8 +229,8 @@ func _matches_search(
 	needle: String,
 ) -> bool:
 	var definition: DEF_Package = record.definition
-	var haystack: String = "%03d %s %s %s %s %s" % [
-		record.number,
+	var haystack: String = "%s %s %s %s %s %s" % [
+		UI_TerminalButtonPackage.number_text(record),
 		record.package_id,
 		record.history_id,
 		definition.description if definition != null else "",
@@ -260,7 +260,7 @@ func _compare_records(first: PackageRegistrationRecord, second: PackageRegistrat
 			return _compare_int(first.number, second.number)
 
 		SortMode.DATE:
-			return _compare_int(first.day_index, second.day_index)
+			return _compare_int(_record_day(first), _record_day(second))
 
 		SortMode.TYPE:
 			var first_type: String = String(first_definition.key) if first_definition != null else ""
@@ -273,6 +273,10 @@ func _compare_records(first: PackageRegistrationRecord, second: PackageRegistrat
 				second_definition.accounting_value if second_definition != null else 0,
 			)
 	return 0
+
+
+static func _record_day(record: PackageRegistrationRecord) -> int:
+	return record.day_index if record.number > 0 else record.received_day
 
 
 static func _compare_int(first: int, second: int) -> int:
@@ -354,11 +358,11 @@ func _package_history_entries(
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
 		var visit: CustomerVisit = visits.get(record.package_id) as CustomerVisit
 		entries.append(
-			"День %d · UID %s · №%03d\n%s · %s"
+			"День %d · UID %s · %s\n%s · %s"
 			% [
-				record.day_index,
+				_record_day(record),
 				uid,
-				record.number,
+				UI_TerminalButtonPackage.number_text(record),
 				title,
 				UI_TerminalButtonPackage.status_text(record, state, visit, debug_package_status_enabled),
 			]
@@ -370,8 +374,8 @@ static func _history_record_before(
 	first: PackageRegistrationRecord,
 	second: PackageRegistrationRecord,
 ) -> bool:
-	if first.day_index != second.day_index:
-		return first.day_index > second.day_index
+	if _record_day(first) != _record_day(second):
+		return _record_day(first) > _record_day(second)
 	return first.number > second.number
 
 
@@ -451,12 +455,13 @@ static func _is_credit(reason: MoneyOperation.Reason) -> bool:
 
 static func _help_entries() -> PackedStringArray:
 	return PackedStringArray([
-		"Выберите зарегистрированную посылку слева, чтобы увидеть подробности.",
+		"Выберите поступившую посылку слева, чтобы увидеть подробности. До сканирования она показывается без номера выдачи.",
 		"Три кнопки в строке — единственные Terminal outcome-действия: Забрали, Отказались, Потеряли.",
 		"Поиск фильтрует список. Сортировку можно менять по весу, номеру, дате, типу и цене.",
 		"Архив показывает записи, для которых outcome уже отмечен.",
 		"Отказная посылка не выкупается и не возвращается кнопкой Terminal. Её будущий исход определяется физической утренней выгрузкой/машиной/трешером.",
-		"Если due-посылку не зарегистрировать до следующего Morning, она автоматически считается потерянной с отдельным штрафом MISSED_REGISTRATION.",
+		"Пропущенный срок регистрации вызывает отдельный штраф. Посылку он не удаляет и потерю за игрока не объявляет.",
+		"Потерю поступившей посылки можно заявить до регистрации и прихода клиента. Выдача и отказ доступны после начала визита.",
 	])
 
 
@@ -488,6 +493,12 @@ func _data_signature(
 	for record: PackageRegistrationRecord in ledger.records:
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
 		var visit: CustomerVisit = visits.get(record.package_id) as CustomerVisit
+		parts.append("receipt:%d:%d:%d:%s" % [
+			record.received_day,
+			record.day_index,
+			visit.registration_overdue_day if visit != null else 0,
+			visit.registration_money_delta if visit != null else 0,
+		])
 		parts.append(
 			"%s:%s:%d:%d:%d:%d:%d:%d:%d"
 			% [
