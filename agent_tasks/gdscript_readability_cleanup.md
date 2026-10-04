@@ -1,7 +1,9 @@
 # Task — GDScript readability cleanup
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
-## Goal
+## Task state
+
+### Goal
 
 Improve readability of existing project-owned GDScript by separating distinct logical phases inside functions and removing dense uninterrupted code blocks.
 
@@ -53,14 +55,14 @@ Avoid GUT/runtime tests unless a change accidentally goes beyond formatting and 
 - Changed project-owned GDScript parses without new/relevant warnings or errors.
 - Diff review confirms no intended behavior change.
 
-## Current
+### Current
 
-Not started.
+Started after optimization commit db5f6f5d and the validated Windows QA build. First batch: dense NPC and customer services, with guard/setup/mutation phases separated by blank lines. Continue through runtime services, engine glue and scheduled behavior, then the significant test/tool scripts. Exclude addons. R25 documentation follows this formatting pass.
 
-## Validation
+### Validation
 
-Not run.
+Pending first batch. Each batch must retain the exact nonblank source lines, pass whitespace/diff review and load through Godot's parser. No gameplay/GUT/export reruns are required for formatting-only edits.
 
-## Owner QA / blockers
+### Owner QA / blockers
 
 None expected; this task should not require gameplay QA if it remains formatting-only.
