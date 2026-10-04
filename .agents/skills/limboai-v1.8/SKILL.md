@@ -34,6 +34,27 @@ LimboAI owns decision flow/orchestration, not authoritative gameplay state.
 
 Prefer built-in tasks and composition before writing custom GDScript tasks.
 
+### General BT design principles
+
+Use these framework-independent Behavior Tree practices unless an existing project contract requires otherwise:
+
+- **Tree structure owns control flow.** Important decisions, ordering, fallback, priority, interruption, and repetition should be visible in the tree rather than hidden in leaf code.
+- **Conditions observe; actions act.** Conditions should normally be side-effect-free and cheap. Actions should perform/request one concrete behavior.
+- **Failure is normal control flow.** A leaf returning `FAILURE` often means “this option is not currently applicable”; selectors should be able to try the next strategy without treating that as an engine/gameplay error.
+- **Keep leaves narrow and composable.** Prefer several named conditions/actions composed by the tree over one configurable “do everything” task.
+- **Use subtrees for semantic behaviors.** Extract meaningful reusable branches such as combat, flee, service, patrol, or idle rather than copying them or hiding them in services.
+- **Blackboard is context, not behavior.** Store parameters, targets, transient results, and cached references; do not encode a hidden FSM/BT through piles of mode flags and booleans.
+- **Long-running actions need a lifecycle.** They must have explicit completion/failure conditions and release/cancel transient work when interrupted or exited.
+- **Reactivity should be deliberate.** Use dynamic/reactive selectors or interruption mechanisms where higher-priority conditions truly need to preempt current work; do not re-evaluate expensive world queries every tick without need.
+- **Prefer framework control nodes over hand-written control logic.** Sequence/selector/parallel/decorator semantics should come from LimboAI whenever possible.
+- **Optimize only after the behavior is structurally correct.** Do not collapse a readable tree into a dispatcher action merely to reduce node count or script files.
+
+Architecture self-check for every non-trivial tree:
+
+> If all leaf implementation bodies were hidden and only task names/tree hierarchy remained, could a reviewer still understand the NPC's high-level decision logic?
+
+If the answer is no, too much control flow is hidden in code and the behavior should be decomposed further.
+
 ### Tree structure is the decision model
 
 The behavior tree resource must expose the important decision flow. Do not hide a second behavior tree, state machine, or branch selector inside one task or domain service.
@@ -61,9 +82,9 @@ Domain services may still own substantial algorithms, but the BT should decide *
 
 ### Task responsibilities
 
-- `BTCondition`: observational, cheap, and side-effect-free in normal use; return success/failure from project state.
-- `BTAction`: perform/request one leaf behavior; return `RUNNING` only while that behavior is genuinely in progress, then `SUCCESS` or `FAILURE`.
-- `BTDecorator`: modify execution/status policy of exactly one child; do not use it as a container for unrelated gameplay decisions.
+- `BTCondition`: observational, cheap, and side-effect-free in normal use; return success/failure from project state. A failed condition is normally a decision result, not an exceptional error.
+- `BTAction`: perform/request one leaf behavior; return `RUNNING` only while that behavior is genuinely in progress, then `SUCCESS` or `FAILURE`. If interruption can leave movement, targeting, animation, reservations, or other transient work active, clean it up through the task lifecycle/project owner.
+- `BTDecorator`: modify execution/status policy of exactly one child; use it for control concerns such as inversion, cooldown, repeat, limits, timeout, probability, or scope rather than unrelated gameplay decisions.
 - `BTComposite`: define child execution policy. Custom composites are exceptional; use built-in LimboAI composites unless the required control policy cannot be expressed cleanly with them.
 
 ### Authoring check
@@ -84,7 +105,16 @@ DynamicSelector
 └─ IdleSubtree
 ```
 
-Then implement that structure as native LimboAI tasks/resources rather than collapsing the branches back into one dispatcher action.
+Then implement that structure as native LimboAI tasks/resources rather than collapsing the branches back into one dispatcher action. Name tasks/subtrees by intent so the hierarchy reads like behavior, not implementation details.
+
+Before accepting the authored tree, verify:
+
+- priority/fallback order is visible from composites;
+- branch eligibility is represented by explicit conditions or idiomatic LimboAI guards;
+- long-running actions have clear success/failure/interruption behavior;
+- repeated behaviors are subtrees/tasks rather than duplicated logic;
+- Blackboard contains context, not a hidden mode machine;
+- no leaf/service secretly selects among sibling behaviors that should exist in the tree.
 
 - Execute reusable `BehaviorTree` resources through `BTPlayer`.
 - Keep conditions observational; actions perform/request effects.
