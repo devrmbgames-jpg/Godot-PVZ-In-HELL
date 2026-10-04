@@ -1,3 +1,3 @@
 extends Entity
-## Non-physics visual; ProjectileService exclusively advances its swept-ray trajectory.
+## Нефизическое представление снаряда; траекторией и лучом владеет ProjectileService.
 class_name E_CombatProjectile

@@ -1,4 +1,5 @@
 extends RefCounted
+## Читает состояние боя для отладочной сводки без выбора и запуска атак.
 class_name CombatPresentation
 
 const NPC_PHASES: Array[String] = ["готов", "замах", "удар / выстрел", "восстановление"]
@@ -6,6 +7,7 @@ const PLAYER_PHASES: Array[String] = ["готов", "замах", "удар", "�
 const DEFAULT_COLLISION_MASK: int = 31
 
 
+## Собирает фазы, таймеры и дистанцию текущих противников участника.
 static func debug_text(actor: Entity) -> String:
 	var lines: PackedStringArray = []
 	var player: C_Combat = actor.get_component(C_Combat) as C_Combat if is_instance_valid(actor) else null

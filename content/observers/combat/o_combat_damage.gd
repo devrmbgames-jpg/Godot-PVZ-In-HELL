@@ -1,12 +1,14 @@
 extends Observer
-## Records persistent attribution and reacts to a committed hit, never computes reputation.
+## Сохраняет атрибуцию и реагирует на принятый удар; общую репутацию не рассчитывает.
 class_name O_CombatDamage
 
 
+## Наблюдает фактический результат урона обслуживаемых клиентов.
 func query() -> QueryBuilder:
 	return q.with_all([C_CustomerAgent]).on_event(DamageResult.EVENT)
 
 
+## Сохраняет боевой контекст визита и планирует ответ прежнего клиента на нелетальный удар.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
 	if result == null or result.applied_amount <= 0.0 or result.request == null or result.request.operation != DamageRequest.Operation.DAMAGE:

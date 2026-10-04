@@ -1,10 +1,11 @@
 extends RefCounted
-## Actual actor pose and first physical obstruction; never reads input look intention.
+## Геометрия фактической позы и первого физического препятствия, отдельно от намерения ввода.
 class_name CombatGeometry
 
 const GENERIC_TARGET_HEIGHT: float = 0.2
 
 
+## Возвращает мировую позицию головы персонажа либо тела для начала луча.
 static func origin(actor: Entity) -> Vector3:
 	var character: E_PhysicalCharacter = actor as E_PhysicalCharacter
 	if character != null and character.head_axis_x != null:
@@ -14,6 +15,7 @@ static func origin(actor: Entity) -> Vector3:
 	return node.global_position if node != null else Vector3.ZERO
 
 
+## Читает фактическое направление головы/тела, без намерения ввода.
 static func forward(actor: Entity) -> Vector3:
 	var character: E_PhysicalCharacter = actor as E_PhysicalCharacter
 	if character != null and character.head_axis_x != null:
@@ -23,6 +25,7 @@ static func forward(actor: Entity) -> Vector3:
 	return -node.global_basis.z.normalized() if node != null else Vector3.FORWARD
 
 
+## Возвращает мировую боевую точку персонажа, двери или предмета.
 static func aim_point(target: Entity) -> Vector3:
 	var node: Node3D = target as Node as Node3D
 	var character: E_PhysicalCharacter = target as E_PhysicalCharacter
@@ -35,6 +38,7 @@ static func aim_point(target: Entity) -> Vector3:
 	return node.global_position + Vector3.UP * GENERIC_TARGET_HEIGHT
 
 
+## Исключает тело атакующего и удерживаемые им физические предметы из его луча.
 static func exclusions(actor: Entity) -> Array[RID]:
 	var result: Array[RID] = []
 	var body: PhysicsBody3D = actor as Node as PhysicsBody3D
@@ -48,6 +52,7 @@ static func exclusions(actor: Entity) -> Array[RID]:
 	return result
 
 
+## Проверяет первое физическое препятствие; пустой луч либо попадание в цель разрешают атаку.
 static func clear_line(actor: Entity, target: Entity, mask: int) -> bool:
 	var node: Node3D = actor as Node as Node3D
 	if node == null or not node.is_inside_tree() or not is_instance_valid(target):
@@ -58,6 +63,7 @@ static func clear_line(actor: Entity, target: Entity, mask: int) -> bool:
 	return hit.is_empty() or InteractionTargetingService.collider_entity(hit.get("collider") as Object) == target
 
 
+## Проверяет дальность в метрах и половину угла сектора в градусах.
 static func in_cone(actor: Entity, target: Entity, reach: float, half_angle_degrees: float) -> bool:
 	if not is_instance_valid(target) or not (target as Node) is Node3D:
 		return false

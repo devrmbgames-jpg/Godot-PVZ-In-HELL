@@ -1,20 +1,24 @@
 extends RefCounted
-## Separate NPC attack runner; explicit kind/index API is the future AI boundary.
+## Исполнение атак NPC; AI выбирает вид/индекс, а сервис повторно проверяет возможность.
 class_name NpcAttackService
 
 const MELEE_HALF_ANGLE_DEGREES: float = 70.0
 const MINIMUM_ESTIMATED_CYCLE_SECONDS: float = 0.001
 
 
+#region Доступность и начало атаки
+## Читает атаку по виду/индексу в пределах MAX_VARIANTS.
 static func variant_for(state: C_NpcCombat, kind: C_NpcCombat.Kind, index: int) -> DEF_NpcAttack:
 	var variants: Array[DEF_NpcAttack] = state.melee_attacks if kind == C_NpcCombat.Kind.MELEE else state.ranged_attacks
 	return variants[index] if index >= 0 and index < mini(variants.size(), C_NpcCombat.MAX_VARIANTS) else null
 
 
+## Проверяет возможность атаки против текущего R_CombatTarget без изменения состояния.
 static func can_start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 	return can_start_against(actor, CombatService.target_for(actor), kind, index)
 
 
+## Проверяет готовность, cooldown, геометрию и луч конкретного противника.
 static func can_start_against(actor: Entity, target: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 	if not GrabService.holder_available(actor) or kind not in [C_NpcCombat.Kind.MELEE, C_NpcCombat.Kind.RANGED]:
 		return false
@@ -27,11 +31,12 @@ static func can_start_against(actor: Entity, target: Entity, kind: C_NpcCombat.K
 	return _valid_attack(attack, kind) and _valid_pair(actor, target) and in_range(actor, target, attack) and CombatGeometry.clear_line(actor, target, attack.collision_mask)
 
 
-## Failed explicit requests leave the current opponent/intent/cooldown untouched.
+## Отклонённый запрос не меняет текущего противника, намерение и cooldown.
 static func start_against(actor: Entity, target: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 	return can_start_against(actor, target, kind, index) and CombatService.bind_target(actor, target) and start(actor, kind, index)
 
 
+## Фиксирует доступную атаку и блокирует движение на исполнение без повторного старта.
 static func start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 	if not can_start(actor, kind, index):
 		return false
@@ -51,7 +56,10 @@ static func start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 	return true
 
 
-## Read-only decision seam for generic behavior adapters. No live target cache is returned.
+#endregion
+
+#region Выбор доступного варианта
+## Выбирает доступную атаку без изменения состояния и без выдачи кеша живой цели.
 static func choose(actor: Entity) -> NpcAttackChoice:
 	if not GrabService.holder_available(actor):
 		return null
@@ -83,12 +91,17 @@ static func choose(actor: Entity) -> NpcAttackChoice:
 	return choice
 
 
+## Выбирает доступную атаку и повторно проверяет её перед стартом.
 static func choose_and_start(actor: Entity) -> bool:
 	var choice: NpcAttackChoice = choose(actor)
-	# Availability may change between decision and execution; the runner revalidates it.
+	# Доступность могла измениться после выбора; исполнение проверяет её снова.
 	return choice != null and start(actor, choice.kind, choice.variant)
 
 
+#endregion
+
+#region Исполнение и завершение
+## Продвигает cooldown и исполнение; исчезновение цели завершает бой, неверный клип не зависает.
 static func tick(actor: Entity, delta: float) -> void:
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state == null:
@@ -112,7 +125,7 @@ static func tick(actor: Entity, delta: float) -> void:
 		if npc == null or npc.animation_player == null or npc.animation_player.current_animation != attack.animation or not npc.animation_player.is_playing():
 			finish(actor)
 		elif state.elapsed >= npc.animation_player.get_animation(attack.animation).length + attack.recovery_seconds:
-			# A looping/misconfigured clip must not lock the actor in one attack forever.
+			# Зацикленный или неверный клип не должен удерживать участника в одной атаке бесконечно.
 			finish(actor)
 		return
 	if state.elapsed >= attack.windup_seconds and not state.effect_committed:
@@ -127,7 +140,7 @@ static func tick(actor: Entity, delta: float) -> void:
 		state.phase = C_NpcCombat.Phase.ACTIVE
 
 
-## Animation method-track hook or timed fallback. One attempt per strike, even on a miss.
+## Hook анимации или таймера: одна попытка эффекта на атаку, включая промах и невидимую цель.
 static func commit_effect(actor: Entity) -> bool:
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state == null or state.attack == null or state.phase not in [C_NpcCombat.Phase.WINDUP, C_NpcCombat.Phase.ACTIVE] or state.effect_committed:
@@ -157,6 +170,7 @@ static func commit_effect(actor: Entity) -> bool:
 	return CombatService.hit(actor, actor, target, attack.damage)
 
 
+## Завершает текущую атаку с авторским cooldown и возвращает движение.
 static func finish(actor: Entity) -> void:
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state == null or state.attack == null:
@@ -166,6 +180,7 @@ static func finish(actor: Entity) -> void:
 	_clear_execution(actor, state)
 
 
+## Отменяет исполнение и обнуляет cooldown без эффекта атаки.
 static func cancel(actor: Entity) -> void:
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state != null:
@@ -173,6 +188,10 @@ static func cancel(actor: Entity) -> void:
 		state.cooldown_remaining = 0.0
 
 
+#endregion
+
+#region Геометрия и внутренние проверки
+## Проверяет диапазон расстояния между мировыми позициями тел в метрах.
 static func in_range(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool:
 	var actor_node: Node3D = actor as Node as Node3D
 	var target_node: Node3D = target as Node as Node3D
@@ -216,3 +235,5 @@ static func _clear_execution(actor: Entity, state: C_NpcCombat) -> void:
 	state.effect_committed = false
 	state.animation_driven = false
 	_set_movement(actor, true)
+
+#endregion

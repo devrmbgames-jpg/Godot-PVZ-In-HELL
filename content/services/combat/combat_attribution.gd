@@ -1,7 +1,9 @@
 extends RefCounted
+## Собирает постоянный контекст конкретного запроса боя из текущих фактов участников.
 class_name CombatAttribution
 
 
+## Создаёт контекст melee/impact/projectile; при распознавании дополняет instigator запроса.
 static func describe(request: DamageRequest) -> CombatContext:
 	if request.damage_type not in [DamageRequest.Type.MELEE, DamageRequest.Type.IMPACT, DamageRequest.Type.PROJECTILE]:
 		return null
@@ -40,7 +42,7 @@ static func describe(request: DamageRequest) -> CombatContext:
 	return context
 
 
-## Check every persisted visit for this identity, including an unloaded past claimant.
+## Проверяет сохранённые визиты личности, включая отсутствующего сейчас участника.
 static func retaliation_allowed(customer_id: StringName, day: int) -> bool:
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	if flow == null or customer_id == &"":

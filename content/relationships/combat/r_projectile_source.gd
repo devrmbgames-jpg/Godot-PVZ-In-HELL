@@ -1,3 +1,3 @@
 extends Component
-## Projectile -> shooter. Optional after shooter removal; persistent attribution survives.
+## Связывает снаряд со стрелком; после его удаления сохраняется отдельный снимок атрибуции.
 class_name R_ProjectileSource

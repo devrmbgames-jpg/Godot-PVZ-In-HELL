@@ -1,8 +1,10 @@
 extends RefCounted
-## Live opponent binding and Player weapon strikes. NPC execution is NpcAttackService.
+## Живые связи противников и удары оружием игрока; исполнение атак NPC принадлежит NpcAttackService.
 class_name CombatService
 
 
+#region Противник и завершение боя
+## Читает живого противника из R_CombatTarget.
 static func target_for(actor: Entity) -> Entity:
 	if not is_instance_valid(actor):
 		return null
@@ -13,6 +15,7 @@ static func target_for(actor: Entity) -> Entity:
 	return null
 
 
+## Повторная та же цель идемпотентна; смена завершает прежнее действие перед новой связью.
 static func bind_target(actor: Entity, target: Entity) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.holder_available(target) or actor == target:
 		return false
@@ -24,6 +27,7 @@ static func bind_target(actor: Entity, target: Entity) -> bool:
 	return true
 
 
+## Отменяет удар и атаку NPC, снимает цель и останавливает боевое намерение.
 static func end_combat(actor: Entity) -> void:
 	if not is_instance_valid(actor):
 		return
@@ -38,6 +42,10 @@ static func end_combat(actor: Entity) -> void:
 		NpcIntentService.look_along_movement(actor)
 
 
+#endregion
+
+#region Удар игрока
+## Проверяет готовность игрока и настоящее оружие в его руках.
 static func can_strike(actor: Entity, weapon: Entity) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.entity_available(weapon):
 		return false
@@ -48,6 +56,7 @@ static func can_strike(actor: Entity, weapon: Entity) -> bool:
 	return state != null and state.phase == C_Combat.Phase.READY and config != null and config.attack != null and grip != null and grip.target == actor
 
 
+## Фиксирует удар/оружие один раз, запускает визуальный замах и слышимый шум.
 static func start_strike(actor: Entity, weapon: Entity) -> bool:
 	if not can_strike(actor, weapon):
 		return false
@@ -65,6 +74,7 @@ static func start_strike(actor: Entity, weapon: Entity) -> bool:
 	return true
 
 
+## Продвигает часы удара, проверяет хват/управление и завершает/отменяет исполнение; delta в секундах.
 static func tick_strike(actor: Entity, delta: float) -> void:
 	var state: C_Combat = actor.get_component(C_Combat) as C_Combat
 	if state == null or state.phase == C_Combat.Phase.READY:
@@ -91,6 +101,7 @@ static func tick_strike(actor: Entity, delta: float) -> void:
 		state.phase = C_Combat.Phase.ACTIVE
 
 
+## Запрашивает ближний урон с множителем голода; здоровье меняет O_Damage.
 static func hit(actor: Entity, source: Entity, target: Entity, damage: float) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.holder_available(target) or actor == target:
 		return false
@@ -110,6 +121,7 @@ static func hit(actor: Entity, source: Entity, target: Entity, damage: float) ->
 	return DamageRequestService.submit(request)
 
 
+## Очищает бой недоступного участника и противников, связанных с ним.
 static func entity_unavailable(actor: Entity) -> void:
 	end_combat(actor)
 	if not is_instance_valid(ECS.world):
@@ -120,6 +132,9 @@ static func entity_unavailable(actor: Entity) -> void:
 			end_combat(opponent)
 
 
+#endregion
+
+#region Геометрия и очистка удара
 static func _scan_strike(actor: Entity, weapon: Entity, state: C_Combat) -> void:
 	var node: Node3D = actor as Node as Node3D
 	if node == null or not node.is_inside_tree():
@@ -128,8 +143,8 @@ static func _scan_strike(actor: Entity, weapon: Entity, state: C_Combat) -> void
 	var attack: DEF_MeleeAttack = state.strike
 	var closest: Entity = null
 	var distance: float = INF
-	# The warehouse has many adjacent static tiles. A capped overlap query can
-	# return only scenery and omit an opponent; health owners are the candidate set.
+	# Близкие статические плитки могут заполнить ограниченный overlap-запрос;
+	# поэтому кандидаты удара берутся среди владельцев Health и проверяются лучом.
 	for target: Entity in ECS.world.query.with_all([C_Health]).execute():
 		if target == actor or not (target as Node) is PhysicsBody3D or not GrabService.holder_available(target):
 			continue
@@ -162,3 +177,5 @@ static func _cancel_strike(actor: Entity) -> void:
 	for relation: Relationship in actor.relationships.duplicate():
 		if relation.relation is R_AttackWeapon:
 			actor.remove_relationship(relation)
+
+#endregion

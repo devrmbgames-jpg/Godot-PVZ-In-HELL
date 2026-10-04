@@ -1,10 +1,11 @@
 extends RefCounted
-## Straight projectile motion with a swept ray per tick; no second impact damage path.
+## Прямой полёт с лучом по пройденному отрезку каждого такта и одним запросом урона.
 class_name ProjectileService
 
 const PROJECTILE_SCENE: PackedScene = preload("res://content/entities/combat/combat_projectile.tscn")
 
 
+## Создаёт нефизический снаряд, фиксируя скорость, урон, источник и контекст запуска.
 static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.holder_available(target) or not is_instance_valid(ECS.world):
 		return false
@@ -32,6 +33,7 @@ static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool
 	return true
 
 
+## Проверяет луч всего шага до записи позиции; первый контакт или истечение удаляют снаряд.
 static func tick(projectile: Entity, delta: float) -> void:
 	if not EntityAvailability.contains(projectile, ECS.world):
 		return

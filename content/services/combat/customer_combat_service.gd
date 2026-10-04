@@ -1,11 +1,12 @@
 extends RefCounted
-## Customer escalation -> generic opponent/navigation/attack contracts.
+## Адаптер эскалации прежних клиентов к общему бою; постоянными NPC управляет районный AI.
 class_name CustomerCombatService
 
 const RANGE_MIDPOINT_FRACTION: float = 0.5
 const DEFAULT_STOP_DISTANCE: float = 1.0
 
 
+## Эскалирует только прежнего клиента, постоянного жителя пропускает.
 static func tick(customer: E_Customer) -> void:
 	if customer.has_component(C_NpcIdentity):
 		return
@@ -45,6 +46,7 @@ static func tick(customer: E_Customer) -> void:
 		customer.show_message("Я нападаю! Отойдите или защищайтесь.")
 
 
+## Запоминает принятый удар и запрашивает самозащиту прежнего живого клиента.
 static func retaliate(customer: Entity, context: CombatContext) -> void:
 	if customer.has_component(C_NpcIdentity):
 		return
