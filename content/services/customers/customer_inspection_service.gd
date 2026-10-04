@@ -1,8 +1,10 @@
 extends RefCounted
-## Bounded optional visit behavior. Relationships own booth/cargo; existing slots carry bodies.
+## Управляет осмотром: Relationships резервируют место и груз, PhysicalSlotService крепит тела.
 class_name CustomerInspectionService
 
 
+#region Резервы осмотра
+## Возвращает живого владельца резерва R_InspectionCargo для предмета.
 static func owner_for(item: Entity) -> E_Customer:
 	if not EntityAvailability.contains(item, ECS.world):
 		return null
@@ -15,12 +17,14 @@ static func owner_for(item: Entity) -> E_Customer:
 	return null
 
 
+## Возвращает снимок предметов, связанных с клиентом через R_InspectionCargo.
 static func cargo(customer: Entity) -> Array[Entity]:
 	if not is_instance_valid(ECS.world):
 		return []
 	return ECS.world.query.with_relationship([Relationship.new(R_InspectionCargo.new(), customer)]).execute().duplicate()
 
 
+## Находит исходную коробку среди зарезервированного груза клиента.
 static func parcel_for(customer: Entity) -> Entity:
 	for item: Entity in cargo(customer):
 		for binding: Relationship in item.relationships:
@@ -29,6 +33,7 @@ static func parcel_for(customer: Entity) -> Entity:
 	return null
 
 
+## Крепит коробку к слоту клиента и резервирует кабинку либо дверь домашней встречи.
 static func begin(customer: E_Customer, visit: CustomerVisit, parcel: Entity) -> bool:
 	if visit == null or visit.definition == null or visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED or not visit.definition.private_inspection or not EntityAvailability.contains(customer, ECS.world) or customer.has_component(C_Death) or not EntityAvailability.contains(parcel, ECS.world):
 		return false
@@ -81,7 +86,7 @@ static func begin(customer: E_Customer, visit: CustomerVisit, parcel: Entity) ->
 	return true
 
 
-## Called by the existing contents observer after real physical extraction.
+## Резервирует содержимое по уведомлению наблюдателя после реального извлечения из коробки.
 static func bind_contents(package: Entity, contents: Array[Entity]) -> void:
 	var customer: E_Customer = owner_for(package)
 	if customer == null:
@@ -92,7 +97,10 @@ static func bind_contents(package: Entity, contents: Array[Entity]) -> void:
 			item.add_relationship(Relationship.new(R_InspectionCargo.new(), customer))
 
 
-## True means the customer is back (or the return timed out) and can decide once.
+#endregion
+
+#region Исполнение и завершение осмотра
+## Возвращает true после возвращения клиента или таймаута; решение об осмотре принимается один раз.
 static func tick(customer: E_Customer, visit: CustomerVisit) -> bool:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
@@ -125,13 +133,14 @@ static func tick(customer: E_Customer, visit: CustomerVisit) -> bool:
 	return false
 
 
+## Возвращает стабильный бросок 0–1 для выбора и номера прихода; повтор не меняет исход.
 static func roll(visit: CustomerVisit, choice: String) -> float:
 	var random: RandomNumberGenerator = RandomNumberGenerator.new()
 	random.seed = String("%s/inspection/%d/%s" % [visit.visit_id, visit.visit_count, choice]).hash()
 	return random.randf()
 
 
-## Releases native mounts and all temporary ownership; only accepted contents leave the world.
+## Освобождает крепления и временные связи; принятое содержимое удаляется из мира.
 static func end(customer: Entity, keep_contents: bool = false) -> void:
 	for item: Entity in cargo(customer):
 		var original: bool = item == parcel_for(customer)
@@ -166,3 +175,5 @@ static func _return(customer: E_Customer, agent: C_CustomerAgent, visit: Custome
 static func _transition(agent: C_CustomerAgent, phase: C_CustomerAgent.Phase) -> void:
 	agent.phase = phase
 	agent.elapsed = 0.0
+
+#endregion

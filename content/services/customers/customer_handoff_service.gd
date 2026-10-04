@@ -6,6 +6,7 @@ const FALLBACK_EYE_HEIGHT: float = 1.3
 const OCCLUSION_MASK: int = 31
 
 
+#region Условия автоприёма
 ## CustomerFlow передаёт назначение из Relationship и сам выполняет обычную выдачу.
 static func can_receive(actor: Entity, customer: E_Customer, visit: CustomerVisit, parcel: Entity, assigned: bool) -> bool:
 	if visit == null or visit.definition == null or visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED or not visit.definition.automatic_handoff:
@@ -39,6 +40,9 @@ static func can_receive(actor: Entity, customer: E_Customer, visit: CustomerVisi
 	return true
 
 
+#endregion
+
+#region Физическая видимость
 static func _has_line_of_sight(actor: Entity, customer: E_Customer) -> bool:
 	var player: E_PhysicalCharacter = actor as E_PhysicalCharacter
 	var actor_body: Node3D = actor as Node as Node3D
@@ -58,3 +62,5 @@ static func _has_line_of_sight(actor: Entity, customer: E_Customer) -> bool:
 	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(start, end, OCCLUSION_MASK, excluded)
 	ray.hit_from_inside = true
 	return customer_body.get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
+
+#endregion

@@ -1,10 +1,12 @@
 extends RefCounted
-## Deterministic outcome/finance rules, independent of live Nodes and presentation.
+## Рассчитывает результаты и деньги по данным визита, без живых Node и представления.
 class_name CustomerOutcomeService
 
 const SATISFACTION_SCALE: int = 100
 
 
+#region Проверка и фактическая выдача
+## Проверяет регистрацию, принадлежность и состояние; held допускается только при allow_held.
 static func check(
 	visit: CustomerVisit,
 	package: C_Package,
@@ -35,6 +37,7 @@ static func check(
 	return check_result
 
 
+## Однократно записывает реальное принятие или отказ и состояние предложенной коробки.
 static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, declined: bool = false) -> bool:
 	if visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED:
 		return false
@@ -64,6 +67,10 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, de
 	return true
 
 
+#endregion
+
+#region Реакции и заявления
+## Применяет результат испытания один раз для пары ключа и номера прихода.
 static func apply_challenge_result(visit: CustomerVisit, event: ChallengeResolution) -> bool:
 	if (
 		visit == null or visit.definition == null or event == null
@@ -83,6 +90,7 @@ static func apply_challenge_result(visit: CustomerVisit, event: ChallengeResolut
 	return true
 
 
+## Учитывает реакцию на смысл ответа; маска визита исключает повтор одного намерения.
 static func apply_dialogue_intent(
 	visit: CustomerVisit,
 	intent: CustomerDialogueIntent.Type,
@@ -110,6 +118,7 @@ static func apply_dialogue_intent(
 	return true
 
 
+## Фиксирует фактический отказ игрока и агрессию по сохранённому броску визита.
 static func commit_player_denial(visit: CustomerVisit) -> bool:
 	if (
 		visit == null
@@ -131,6 +140,7 @@ static func commit_player_denial(visit: CustomerVisit) -> bool:
 	return true
 
 
+## Однократно фиксирует заявление игрока; повтор того же значения допускается, смена — нет.
 static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> bool:
 	if not visit.started or value == CustomerVisit.Declaration.NONE:
 		return false
@@ -155,8 +165,8 @@ static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> b
 	return true
 
 
-## System-owned closeout for a package-pickup visit that never spawned because the
-## parcel was not registered before the next Morning.
+## Закрывает не начавшийся визит за коробкой, если её не зарегистрировали
+## до следующего утра.
 static func mark_missed_registration_lost(visit: CustomerVisit, day: int) -> bool:
 	if (
 		visit == null
@@ -176,6 +186,10 @@ static func mark_missed_registration_lost(visit: CustomerVisit, day: int) -> boo
 	return true
 
 
+#endregion
+
+#region Деньги и жалобы
+## Применяет выплату или штраф через идемпотентную операцию WalletService и записывает итог.
 static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 	if visit.settlement_committed or wallet == null:
 		return
@@ -213,6 +227,7 @@ static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 		visit.money_delta = operation.amount if operation.reason == MoneyOperation.Reason.PAYMENT else -operation.amount
 
 
+## Создаёт единственную жалобу; force обходит ожидание завершения и проверку вероятности.
 static func create_complaint(
 	visit: CustomerVisit,
 	day: int,
@@ -251,6 +266,7 @@ static func create_complaint(
 	return true
 
 
+## Разрешает созревшую жалобу по фактам; ignore_delay допускает досрочный разбор.
 static func resolve_complaint(
 	visit: CustomerVisit,
 	wallet: C_Wallet,
@@ -309,6 +325,7 @@ static func resolve_complaint(
 	complaint.resolved_day = day
 
 
+## Записывает одобрение и довольство, ограниченное диапазоном 0–100.
 static func approve(visit: CustomerVisit, satisfaction: int) -> bool:
 	if visit == null:
 		return false
@@ -329,6 +346,9 @@ static func _mark_false_claim(
 	visit.reputation = CustomerVisit.Reputation.FALSE_COMPLAINT
 
 
+## Разрешает ответ игрока на ложную жалобу в интервале [начало, конец) по дням.
 static func retaliation_allowed(visit: CustomerVisit, day: int) -> bool:
 	var complaint: CustomerComplaint = visit.complaint
 	return complaint != null and complaint.outcome == CustomerComplaint.Outcome.FALSE_CLAIM and day >= complaint.retaliation_start_day and day < complaint.retaliation_end_day
+
+#endregion

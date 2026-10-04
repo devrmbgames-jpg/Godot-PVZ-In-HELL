@@ -7,6 +7,8 @@ const MINIMUM_HEALTH_MAXIMUM: float = 0.001
 const PHASE_NAMES: Array[String] = ["Подходит", "Приветствие", "Диалог", "Ждёт посылку", "Получил заказ", "Осматривает", "Уходит", "Агрессивен", "Закончил", "Ждёт темноты", "Идёт в кабинку", "Осмотр в кабинке", "Возвращается к выдаче", "В очереди"]
 
 
+#region Отладочное представление
+## Форматирует число обслуживаемых клиентов, паузу в секундах и состояние смены.
 static func summary() -> String:
 	if not is_instance_valid(ECS.world):
 		return ""
@@ -19,6 +21,7 @@ static func summary() -> String:
 	return result + ("\n" + shift if not shift.is_empty() else "")
 
 
+## Читает фазы и таймеры клиента для DebugHUD; при отключении отладки возвращает пустую строку.
 static func text_for(customer: E_Customer) -> String:
 	if not DebugHudService.is_enabled() or not EntityAvailability.contains(customer, ECS.world):
 		return ""
@@ -69,6 +72,9 @@ static func text_for(customer: E_Customer) -> String:
 	return "\n".join(lines)
 
 
+#endregion
+
+#region Длительность фаз
 static func _phase_duration(agent: C_CustomerAgent, definition: DEF_Customer) -> float:
 	match agent.phase:
 		C_CustomerAgent.Phase.APPROACHING: return definition.approach_timeout
@@ -81,3 +87,5 @@ static func _phase_duration(agent: C_CustomerAgent, definition: DEF_Customer) ->
 		C_CustomerAgent.Phase.AGGRESSIVE: return definition.aggressive_seconds
 		C_CustomerAgent.Phase.WAITING_FOR_DARKNESS: return definition.challenge.timeout_seconds if definition.challenge != null else 0.0
 	return 0.0
+
+#endregion

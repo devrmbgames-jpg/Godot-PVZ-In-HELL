@@ -1,11 +1,13 @@
 extends RefCounted
-## Bounded R12 entry point. DialogueManager resolves text/branches; gameplay services own state.
+## Открывает разговор: DialogueManager выбирает текст и ветки, сервисы изменяют игровые данные.
 class_name CustomerDialogueService
 
 const DIALOGUE_PATH: String = "res://content/dialogue/customer_service.dialogue"
 const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
 
 
+#region Запуск разговора
+## Проверяет живого получателя, готовую фазу визита и отсутствие конкурирующего модального ввода.
 static func can_start(actor: Entity, customer: E_Customer) -> bool:
 	if not GrabService.holder_available(actor) or not EntityAvailability.contains(customer, ECS.world) or customer.has_component(C_Death):
 		return false
@@ -21,6 +23,7 @@ static func can_start(actor: Entity, customer: E_Customer) -> bool:
 	return agent.phase in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE] and customer.get_tree().get_nodes_in_group(ACTIVE_GROUP).is_empty()
 
 
+## Открывает ресурс и клиентский контекст; при неудаче освобождает начатый разговор.
 static func start(actor: Entity, customer: E_Customer) -> bool:
 	if not can_start(actor, customer):
 		return false
@@ -65,3 +68,5 @@ static func start(actor: Entity, customer: E_Customer) -> bool:
 
 	agent.dialogue_started = true
 	return true
+
+#endregion

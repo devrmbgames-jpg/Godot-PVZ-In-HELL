@@ -3,6 +3,8 @@ extends RefCounted
 class_name CustomerFlowService
 
 
+#region Поиск данных обслуживания
+## Читает данные потока обслуживания из текущего мира; при отсутствии возвращает null.
 static func current() -> C_CustomerFlow:
 	if not is_instance_valid(ECS.world):
 		return null
@@ -11,6 +13,7 @@ static func current() -> C_CustomerFlow:
 	return owner.get_component(C_CustomerFlow) as C_CustomerFlow if owner != null else null
 
 
+## Находит заказ по стабильному ID визита, включая завершённые записи.
 static func find_visit(id: StringName) -> CustomerVisit:
 	var flow: C_CustomerFlow = current()
 	if flow != null:
@@ -20,10 +23,12 @@ static func find_visit(id: StringName) -> CustomerVisit:
 	return null
 
 
+## Возвращает стойку выдачи текущего мира, если она присутствует.
 static func counter() -> E_DeliveryCounter:
 	return ECS.world.query.with_all([C_DeliveryCounter]).execute_one() as E_DeliveryCounter
 
 
+## Находит живую физическую коробку по точному package_id.
 static func parcel_for(package_id: String) -> Entity:
 	for parcel: Entity in ECS.world.query.with_all([C_Package]).execute():
 		var identity: C_Package = parcel.get_component(C_Package) as C_Package
@@ -47,6 +52,7 @@ static func customer_for(visit_id: StringName) -> E_Customer:
 	return null
 
 
+## Выбирает ожидающего коробку клиента стойки; домашняя встреча не участвует.
 static func waiting_customer() -> E_Customer:
 	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		if NpcHomeDeliveryService.meeting_for(customer) != null:
@@ -58,6 +64,9 @@ static func waiting_customer() -> E_Customer:
 	return null
 
 
+#endregion
+
+#region Планирование и сверка заказов
 ## В районе заказы добавляет реальная поставка; старые изолированные сцены используют календарь.
 static func plan_day(flow: C_CustomerFlow, day: int, payment: int) -> void:
 	var schedule: DEF_CustomerSchedule = flow.schedule
@@ -125,6 +134,7 @@ static func _plan_package(flow: C_CustomerFlow, definition: DEF_Package, event: 
 	return visit
 
 
+## Считает незавершённые визиты, назначенные не позднее указанного дня.
 static func remaining(flow: C_CustomerFlow, day: int) -> int:
 	var count: int = 0
 	for visit: CustomerVisit in flow.visits:
@@ -133,8 +143,8 @@ static func remaining(flow: C_CustomerFlow, day: int) -> int:
 	return count
 
 
-## Only visits that can actually arrive block shift completion. A package-pickup visit
-## becomes actionable as soon as its package gets a registration record.
+## Завершение смены блокируют только возможные приходы: визит за коробкой
+## становится доступен после появления регистрационной записи коробки.
 static func actionable_remaining(flow: C_CustomerFlow, day: int) -> int:
 	var count: int = 0
 	for visit: CustomerVisit in flow.visits:
@@ -145,6 +155,7 @@ static func actionable_remaining(flow: C_CustomerFlow, day: int) -> int:
 	return count
 
 
+## Допускает визит за коробкой только после действующей записи регистрации.
 static func arrival_allowed(visit: CustomerVisit) -> bool:
 	if visit == null:
 		return false
@@ -155,6 +166,7 @@ static func arrival_allowed(visit: CustomerVisit) -> bool:
 	return ledger != null and _has_active_registration_record(ledger, visit.package_id)
 
 
+## Записывает реальные предшествующие повреждение и вскрытие в историю заказа однократно.
 static func sync_package_history(flow: C_CustomerFlow) -> void:
 	if flow == null:
 		return
@@ -172,6 +184,7 @@ static func sync_package_history(flow: C_CustomerFlow) -> void:
 			visit.package_history_id = identity.history_id
 
 
+## Продвигает поток и расчёты; delta и пауза прихода измеряются в секундах.
 static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
 	if cycle.phase == C_DayCycle.Phase.MORNING:
 		flow.arrival_cooldown_seconds = 0.0
@@ -196,8 +209,8 @@ static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
 	spawn_next_due(flow, cycle)
 
 
-## Morning audit: a package-pickup visit that was due before today but never became
-## eligible because its parcel still lacks registration is closed as Lost without spawning NPC.
+## Утренняя сверка закрывает как Lost просроченный визит за коробкой,
+## которая так и не получила регистрацию; физический клиент не создаётся.
 static func finalize_missed_unregistered(
 	flow: C_CustomerFlow,
 	cycle: C_DayCycle,
@@ -256,6 +269,10 @@ static func _has_active_registration_record(
 	return false
 
 
+#endregion
+
+#region Приход и исполнение роли
+## Назначает очередного получателя района либо создаёт клиента изолированной сцены.
 static func spawn_next_due(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 	if flow == null or cycle == null or cycle.phase != C_DayCycle.Phase.DAY or not is_instance_valid(ECS.world):
 		return false
@@ -325,6 +342,7 @@ static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void
 	CustomerGreetingService.announce_order(customer, visit)
 
 
+## Резервирует нужную коробку через R_AssignedTo, не меняя её физического положения.
 static func bind_parcel(customer: Entity, visit: CustomerVisit) -> void:
 	var parcel: Entity = parcel_for(visit.package_id)
 	if parcel == null:
@@ -346,6 +364,7 @@ static func bind_parcel(customer: Entity, visit: CustomerVisit) -> void:
 	parcel.add_relationship(Relationship.new(assignment, customer))
 
 
+## Проверяет живую связь R_AssignedTo и совпадение заказа с предлагаемой коробкой.
 static func assigned(parcel: Entity, customer: Entity, visit: CustomerVisit) -> bool:
 	for relation: Relationship in parcel.relationships:
 		if relation.relation is R_AssignedTo and relation.target == customer:
@@ -353,7 +372,7 @@ static func assigned(parcel: Entity, customer: Entity, visit: CustomerVisit) -> 
 	return false
 
 
-## Executes the service role when the NPC decision tree grants ownership.
+## Исполняет роль обслуживания, когда дерево решений NPC предоставляет ей управление.
 static func step_service(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void:
 	if cycle != null:
 		_step(customer, cycle, delta)
@@ -429,8 +448,8 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 				ChallengeService.request_departure(customer)
 				var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 				if challenge != null and challenge.definition != null:
-					# The light evaluator/runtime/receiver run after CustomerFlow.
-					# Keep the departing subject alive until they consume the last condition.
+					# Оценка света и применение результата идут после CustomerFlow.
+					# Уходящий экземпляр живёт до обработки последнего условия этими владельцами.
 					if challenge.phase == C_Challenge.Phase.ACTIVE and challenge.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]:
 						return
 					if challenge.pending_result != null and not challenge.consequences_applied:
@@ -453,6 +472,10 @@ static func _remove_appearance(customer: E_Customer, visit: CustomerVisit) -> vo
 		ECS.world.remove_entity(customer)
 
 
+#endregion
+
+#region Приветствие и физическая выдача
+## Сообщает заказ и переводит прибывшего клиента к ожиданию посылки.
 static func greet(customer: E_Customer) -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or find_visit(agent.visit_id) == null:
@@ -472,6 +495,7 @@ static func greet(customer: E_Customer) -> void:
 		customer.show_message("Здравствуйте. Поговорите со мной, чтобы узнать номер заказа.")
 
 
+## Проверяет коробку на стойке и применяет общую выдачу или начало осмотра.
 static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck.Result:
 	var customer: E_Customer = waiting_customer()
 	if customer == null:
@@ -503,8 +527,8 @@ static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck
 	return result
 
 
-## Returns the held Package offered to this Customer. Prefer the requested shipment when
-## the Player carries more than one Package across Carry/right/left slots.
+## Выбирает предлагаемую коробку из удерживаемых игроком; нужный заказ имеет приоритет,
+## даже если у игрока несколько коробок в Carry и ручных слотах.
 ## allow_greeting разрешает только предварительный поиск для ближнего автоприёма.
 static func direct_handoff_package(actor: Entity, customer: E_Customer, allow_greeting: bool = false) -> Entity:
 	if not is_instance_valid(actor) or not is_instance_valid(customer):
@@ -560,6 +584,7 @@ static func try_automatic_handoff(customer: E_Customer, visit: CustomerVisit) ->
 	return confirm_direct_delivery(actor, customer) == PackageDeliveryCheck.Result.READY
 
 
+## Проверяет передачу из рук с теми же правилами назначения и принятия.
 static func confirm_direct_delivery(
 	actor: Entity,
 	customer: E_Customer,
@@ -602,7 +627,7 @@ static func _resolve_delivery(
 	)
 	if check_result.result != PackageDeliveryCheck.Result.READY:
 		return check_result.result
-	# Valid handoff releases the player's grip before the customer accepts or refuses.
+	# Допустимая передача освобождает хват игрока до принятия или отказа получателя.
 	if allow_held:
 		GrabService.release(direct_holder, parcel)
 	if CustomerInspectionService.begin(customer, visit, parcel):
@@ -610,7 +635,7 @@ static func _resolve_delivery(
 	return _complete_delivery(customer, visit, parcel, check_result, allow_held)
 
 
-## Finishes shared inspection for counter and home meetings.
+## Завершает общий осмотр на стойке или у домашней двери.
 static func complete_inspection(customer: E_Customer, visit: CustomerVisit) -> void:
 	var parcel: Entity = CustomerInspectionService.parcel_for(customer)
 	if parcel == null:
@@ -644,7 +669,7 @@ static func _complete_delivery(customer: E_Customer, visit: CustomerVisit, parce
 	else:
 		if place_refused:
 			_place_refused_parcel(customer, visit, parcel)
-		# Counter handoff already leaves the released parcel on the counter.
+		# При выдаче со стойки освобождённая коробка уже остаётся на стойке.
 		customer.show_message("Я отказываюсь от заказа. Коробка остаётся у вас.")
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -653,8 +678,8 @@ static func _complete_delivery(customer: E_Customer, visit: CustomerVisit, parce
 	return check_result.result
 
 
-## One-time physical synchronization at handoff, like slot attach/save restoration.
-## The native rigid body resumes authority immediately after this transfer boundary.
+## Однократно синхронизирует физическое тело при передаче, как крепление к слоту и восстановление.
+## После передачи native rigid body немедленно возобновляет владение физическим состоянием.
 static func _place_refused_parcel(customer: E_Customer, visit: CustomerVisit, parcel: Entity) -> void:
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	if body == null or visit.definition == null:
@@ -667,6 +692,10 @@ static func _place_refused_parcel(customer: E_Customer, visit: CustomerVisit, pa
 	body.sleeping = false
 
 
+#endregion
+
+#region Заявления и реакции
+## Фиксирует заявление в журнале и инициирует расчёт; физическую выдачу не подменяет.
 static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration) -> bool:
 	var visit: CustomerVisit = find_visit(visit_id)
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -685,13 +714,13 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 	if customer != null and visit.aggressive:
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 		if agent.phase != C_CustomerAgent.Phase.LEAVING:
-			# Declaration is accounting only. A false TAKEN may be noticed, but
-			# Dialogue still owns the reaction before the bounded Aggressive transition.
+			# Заявление относится к учёту. Ложное TAKEN может быть обнаружено,
+			# но диалог выбирает реакцию до ограниченной фазы Aggressive.
 			customer.show_message("Вы ничего мне не выдали! Поговорите со мной.")
 	return true
 
 
-## Explicit dialogue postponement. This is not a denial and must guarantee the next visit.
+## Явно переносит визит из диалога, гарантируя повторный приход без отказа в выдаче.
 static func defer_until_next_day(visit_id: StringName) -> bool:
 	var visit: CustomerVisit = find_visit(visit_id)
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -718,6 +747,7 @@ static func defer_until_next_day(visit_id: StringName) -> bool:
 	return true
 
 
+## Фиксирует отказ игрока; выбирает уже рассчитанную агрессию или уход клиента.
 static func deny(visit_id: StringName) -> bool:
 	var visit: CustomerVisit = find_visit(visit_id)
 	if visit == null or not visit.started:
@@ -737,7 +767,7 @@ static func deny(visit_id: StringName) -> bool:
 	return true
 
 
-## Legacy dialogue acknowledgement can finish a refusal only after an actual handoff.
+## Подтверждает отказ получателя из старого диалога только после фактической передачи.
 static func voluntary_refuse(customer: E_Customer) -> bool:
 	if not is_instance_valid(customer):
 		return false
@@ -762,7 +792,7 @@ static func voluntary_refuse(customer: E_Customer) -> bool:
 	return true
 
 
-## R12 receiver for a previously decided aggression fact; it does not decide aggression.
+## Принимает уже определённую агрессию, не выполняя нового броска реакции.
 static func enter_aggressive(customer: E_Customer) -> bool:
 	if not is_instance_valid(customer):
 		return false
@@ -792,6 +822,9 @@ static func enter_aggressive(customer: E_Customer) -> bool:
 	return true
 
 
+#endregion
+
+#region Завершение и повторные визиты
 static func _depart_parcel(parcel: Entity, departure: C_PackageState.Registration = C_PackageState.Registration.DELIVERED) -> void:
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	state.registration = departure
@@ -801,6 +834,7 @@ static func _depart_parcel(parcel: Entity, departure: C_PackageState.Registratio
 			parcel.remove_relationship(relation)
 
 
+## Закрывает приход однократно и планирует допустимый повтор, сохраняя заказ и личность.
 static func finish(visit: CustomerVisit, day: int) -> void:
 	if visit.finished:
 		return
@@ -824,6 +858,7 @@ static func finish(visit: CustomerVisit, day: int) -> void:
 	schedule_followup(visit, day)
 
 
+## Планирует допустимый повтор по детерминированному броску для номера повторного визита.
 static func schedule_followup(visit: CustomerVisit, day: int) -> bool:
 	if (
 		visit == null
@@ -856,6 +891,7 @@ static func schedule_followup(visit: CustomerVisit, day: int) -> bool:
 	return true
 
 
+## Возобновляет созревшие повторы того же заказа; возвращает число возобновлённых визитов.
 static func reactivate_due_followups(flow: C_CustomerFlow, day: int) -> int:
 	if flow == null:
 		return 0
@@ -939,7 +975,7 @@ static func _transition(agent: C_CustomerAgent, phase: C_CustomerAgent.Phase) ->
 	agent.elapsed = 0.0
 
 
-## Bounded entry point for R12 dialogue and optional fitting; timeout remains active.
+## Вводит фазу диалога или примерки, сохраняя ограничение по терпению.
 static func enter_service_phase(customer: E_Customer, phase: C_CustomerAgent.Phase) -> bool:
 	if phase != C_CustomerAgent.Phase.DIALOGUE and phase != C_CustomerAgent.Phase.OPTIONAL_FITTING and phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
 		return false
@@ -950,3 +986,5 @@ static func enter_service_phase(customer: E_Customer, phase: C_CustomerAgent.Pha
 
 	_transition(agent, phase)
 	return true
+
+#endregion

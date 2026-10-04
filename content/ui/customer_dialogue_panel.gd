@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Project-owned DialogueManager presentation. It owns modal input only, never gameplay facts.
+## Показывает DialogueManager и владеет модальным вводом; игровые факты принадлежат контексту и сервисам.
 class_name CustomerDialoguePanel
 
 const PANEL_MIN_WIDTH: float = 720.0
@@ -23,6 +23,7 @@ var _continue_button: Button = null
 var _close_button: Button = null
 
 
+#region Жизненный цикл и модальный ввод
 func _ready() -> void:
 	add_to_group(ACTIVE_GROUP)
 	layer = 90
@@ -66,6 +67,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_advance(_line.next_id)
 
 
+## Захватывает модальный ввод, показывает курсор и начинает cue; false означает отказ захвата.
 func open_for(
 	actor: Entity,
 	context: NpcDialogueContext,
@@ -94,6 +96,7 @@ func open_for(
 	return true
 
 
+## Освобождает ввод и ресурс, завершает контекст и удаляет панель; повтор безопасен.
 func close_dialogue() -> void:
 	_close_internal(true)
 	if not is_queued_for_deletion():
@@ -104,6 +107,9 @@ func _enable_input() -> void:
 	_input_enabled = true
 
 
+#endregion
+
+#region Реплики и ответы
 func _advance(next_id: String) -> void:
 	if _closed or _resource == null or _context == null:
 		return
@@ -145,7 +151,7 @@ func _render_line() -> void:
 		_continue_button.grab_focus()
 
 
-## Presentation only: keep the authored response and its routing tags untouched.
+## Добавляет подсказку к ответу, не меняя его авторский текст и теги перехода.
 static func format_response_text(text: String, tags: PackedStringArray) -> String:
 	var prefix: String = ""
 	match CustomerDialogueIntent.from_tags(tags):
@@ -186,6 +192,9 @@ func _clear_responses() -> void:
 		child.queue_free()
 
 
+#endregion
+
+#region Освобождение и построение интерфейса
 func _close_internal(return_to_service: bool) -> void:
 	if _closed:
 		return
@@ -262,3 +271,5 @@ func _build_ui() -> void:
 	_close_button.text = "Закрыть"
 	_close_button.pressed.connect(close_dialogue)
 	buttons.add_child(_close_button)
+
+#endregion

@@ -1,15 +1,15 @@
 extends RefCounted
-## Parcel presentation with permanent district names and unchanged order numbering.
+## Форматирует посылку, сохраняя постоянные имена жителей и регистрационные номера.
 class_name CustomerPresentation
 
-#region Customer presentation
-## Resolves a permanent person name, falling back to legacy case policy.
+#region Представление получателя и заказа
+## Читает имя постоянной личности, иначе использует правила старого визита.
 static func customer_name(visit: CustomerVisit) -> String:
 	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id) if visit != null else null
 	return person.display_name if person != null else visit.definition.display_name if visit != null and visit.definition != null else "Клиент"
 
 
-## Presents the permanent recipient and real registration number or intrinsic riddle.
+## Показывает постоянного получателя и настоящий номер или его собственную загадку.
 static func request_text(visit: CustomerVisit) -> String:
 	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
 	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null and not visit.riddle_solved:
@@ -21,7 +21,7 @@ static func request_text(visit: CustomerVisit) -> String:
 	return "%s\nМой заказ ещё не зарегистрирован. Просканируйте поступившие коробки." % customer_name(visit)
 
 
-## Intrinsic riddles keep their number behind the existing dialogue solution.
+## Загадочник раскрывает номер только после решения загадки в диалоге.
 static func uses_quick_visit(visit: CustomerVisit) -> bool:
 	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
 	if person != null:
@@ -29,7 +29,7 @@ static func uses_quick_visit(visit: CustomerVisit) -> bool:
 	return uses_quick_order(visit.definition)
 
 
-## Preserves authored introduction rules in scenes without a district.
+## Сохраняет авторское знакомство в сценах без районной сессии.
 static func uses_quick_order(definition: DEF_Customer) -> bool:
 	return (
 		definition != null and definition.introduction == DEF_Customer.Introduction.ANNOUNCE_ORDER
@@ -38,7 +38,7 @@ static func uses_quick_order(definition: DEF_Customer) -> bool:
 	)
 
 
-## Looks up the existing active registration without inventing another number.
+## Читает действующую регистрацию, не создавая новый номер.
 static func registered_number(visit: CustomerVisit) -> int:
 	if visit == null:
 		return -1
@@ -51,7 +51,7 @@ static func registered_number(visit: CustomerVisit) -> int:
 	return -1
 
 
-## Recognizes the legacy gaze challenge outside the district population.
+## Распознаёт старое испытание взглядом вне районного населения.
 static func uses_wall_order(definition: DEF_Customer) -> bool:
 	if definition == null or definition.challenge == null:
 		return false
@@ -60,7 +60,7 @@ static func uses_wall_order(definition: DEF_Customer) -> bool:
 	return condition != null and not condition.required_attention and definition.challenge.trigger == DEF_Challenge.Trigger.ON_ARRIVAL
 
 
-## Explains the authoritative physical parcel check.
+## Объясняет результат авторитетной проверки физической коробки.
 static func check_text(result: PackageDeliveryCheck.Result) -> String:
 	match result:
 		PackageDeliveryCheck.Result.MISSING: return "Положите коробку на стойку."
@@ -73,7 +73,7 @@ static func check_text(result: PackageDeliveryCheck.Result) -> String:
 		_: return "Выдача уже закрыта."
 
 
-## Displays the case outcome and its existing financial journal.
+## Форматирует результат визита и его финансовый журнал.
 static func visit_text(visit: CustomerVisit) -> String:
 	var actual: Array[String] = ["Не выдана", "Выдана", "Клиент отказался", "Отказ игрока"]
 	var declared: Array[String] = ["Не отмечено", "Забрал", "Отказался", "Потеряна"]

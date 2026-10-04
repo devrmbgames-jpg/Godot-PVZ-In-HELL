@@ -1,4 +1,5 @@
 extends Label3D
+## Обновляет отладочную подпись клиента с частотой 10 Гц, читая CustomerDebugPresentation.
 
 const REFRESH_SECONDS: float = 0.1
 

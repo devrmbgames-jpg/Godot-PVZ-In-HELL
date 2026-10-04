@@ -12,7 +12,7 @@ var _customer: E_Customer = null
 var _visit_id: StringName = &""
 
 
-#region Conversation lifecycle
+#region Жизненный цикл разговора
 func _init(actor: Entity, customer: E_Customer) -> void:
 	super(actor, customer)
 	_actor = actor
@@ -22,7 +22,7 @@ func _init(actor: Entity, customer: E_Customer) -> void:
 		_visit_id = agent.visit_id
 
 
-## Enters the bounded R11 dialogue phase. The patience timeout remains authoritative.
+## Начинает фазу диалога; таймер терпения продолжает ограничивать обслуживание.
 func begin() -> bool:
 	if not is_valid() or NpcDialogueService.participant(_customer) != null:
 		return false
@@ -33,7 +33,7 @@ func begin() -> bool:
 	return true
 
 
-## Returns a manually closed conversation to package service without reviving a leaving/dead NPC.
+## После ручного закрытия возвращает к выдаче; уходящий или погибший NPC не возобновляет обслуживание.
 func end() -> void:
 	if NpcDialogueService.participant(_customer) == _actor or not EntityAvailability.contains(_actor, ECS.world):
 		NpcDialogueService.end(_customer)
@@ -49,12 +49,12 @@ func end() -> void:
 			_customer,
 			C_CustomerAgent.Phase.WAITING_FOR_PACKAGE,
 		)
-		# Panel releases modal capture before calling end(). The timer therefore
-		# starts with movement/interaction already returned to the player.
+		# Панель освобождает модальный ввод до end(), поэтому таймер запускается
+		# после возврата игроку управления движением и взаимодействиями.
 		ChallengeService.activate(_customer)
 
 
-## True only while the same live CustomerVisit is still eligible for this conversation.
+## Проверяет, что тот же живой CustomerVisit всё ещё допускает этот разговор.
 func is_valid() -> bool:
 	var visit: CustomerVisit = _visit()
 	var agent: C_CustomerAgent = _agent()
@@ -79,7 +79,7 @@ func is_valid() -> bool:
 	)
 
 
-## Requires the same live interlocutor and an uninterrupted service phase.
+## Требует того же живого собеседника и непрерванной фазы обслуживания.
 func can_continue() -> bool:
 	var agent: C_CustomerAgent = _agent()
 	var awareness: C_NpcAwareness = _customer.get_component(C_NpcAwareness) as C_NpcAwareness if is_instance_valid(_customer) else null
@@ -88,14 +88,14 @@ func can_continue() -> bool:
 
 #endregion
 
-#region Dialogue and parcel adapter
-## Returns the current player-controlled phase.
+#region Диалог и адаптер заказа
+## Возвращает фазу дня, которой управляет игрок.
 func day_phase() -> int:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	return cycle.phase if cycle != null else C_DayCycle.Phase.NIGHT
 
 
-## Reads the permanent person's interests or the legacy recipient policy.
+## Читает интересы постоянной личности или правила старого клиента.
 func interests_text() -> String:
 	var visit: CustomerVisit = _visit()
 	var identity: C_NpcIdentity = _customer.get_component(C_NpcIdentity) as C_NpcIdentity if is_instance_valid(_customer) else null
@@ -103,13 +103,13 @@ func interests_text() -> String:
 	return ", ".join(person.profile.interests) if person != null else ", ".join(visit.definition.interests) if visit != null and visit.definition != null else ""
 
 
-## Returns the active service phase.
+## Возвращает текущую фазу обслуживания.
 func customer_phase() -> int:
 	var agent: C_CustomerAgent = _agent()
 	return agent.phase if agent != null else C_CustomerAgent.Phase.FINISHED
 
 
-## Reports case satisfaction using existing settlement rules.
+## Читает довольство визитом по существующим правилам расчёта.
 func satisfaction() -> int:
 	var visit: CustomerVisit = _visit()
 	if visit == null:
@@ -129,7 +129,7 @@ func satisfaction() -> int:
 	)
 
 
-## Selects intrinsic personality rules while preserving parcel outcome branches.
+## Выбирает ветку по личности NPC, сохраняя ветки результатов обслуживания.
 func dialogue_cue() -> String:
 	var visit: CustomerVisit = _visit()
 	var identity: C_NpcIdentity = _customer.get_component(C_NpcIdentity) as C_NpcIdentity if is_instance_valid(_customer) else null
@@ -168,7 +168,7 @@ func dialogue_cue() -> String:
 	return "direct"
 
 
-## Applies parcel policy and stable social meaning, including explicit submission.
+## Применяет правила обслуживания и социальные теги, включая явное подчинение.
 func apply_response_tags(tags: PackedStringArray) -> bool:
 	if not is_valid():
 		return false
@@ -187,12 +187,12 @@ func apply_response_tags(tags: PackedStringArray) -> bool:
 	return applied
 
 
-## Whether this recipient can offer a real registered parcel for tonight.
+## Проверяет, может ли получатель предложить реальную зарегистрированную коробку на вечер.
 func can_offer_delivery() -> bool:
 	return _customer is E_DistrictNpc and NpcHomeDeliveryService.offer_for(_customer as E_DistrictNpc) != null
 
 
-## Accepts the optional service through its authoritative owner.
+## Принимает допуслугу через сервис домашних доставок.
 func accept_home_delivery() -> bool:
 	return _customer is E_DistrictNpc and NpcHomeDeliveryService.accept(_customer as E_DistrictNpc)
 
@@ -201,23 +201,23 @@ func decline_home_delivery() -> bool:
 	return _customer is E_DistrictNpc and NpcHomeDeliveryService.decline(_customer as E_DistrictNpc)
 
 
-## Commits a player refusal through the parcel service.
+## Фиксирует отказ игрока через сервис обслуживания.
 func commit_denial() -> bool:
 	return is_valid() and CustomerFlowService.deny(_visit_id)
 
 
-## Defers the case without changing permanent identity.
+## Переносит визит, сохраняя постоянную личность получателя.
 func defer_until_tomorrow() -> bool:
 	return is_valid() and CustomerFlowService.defer_until_next_day(_visit_id)
 
 
-## Reports whether this case has already appeared.
+## Проверяет, состоялся ли предыдущий приход по этому заказу.
 func is_followup() -> bool:
 	var visit: CustomerVisit = _visit()
 	return visit != null and visit.visit_count > 1
 
 
-## Applies the wrong-answer consequence once.
+## Применяет последствие неверного ответа однократно.
 func answer_riddle_wrong() -> bool:
 	var visit: CustomerVisit = _visit()
 	if visit == null or visit.definition == null:
@@ -233,7 +233,7 @@ func answer_riddle_wrong() -> bool:
 	return true
 
 
-## Unlocks the real order number without replacing the order.
+## Раскрывает настоящий номер, не заменяя заказ.
 func answer_riddle_correct() -> bool:
 	var visit: CustomerVisit = _visit()
 	if visit == null:
@@ -243,12 +243,12 @@ func answer_riddle_correct() -> bool:
 	return true
 
 
-## Requests the existing physical recipient refusal.
+## Запрашивает физический отказ получателя от предлагаемой коробки.
 func voluntary_refuse() -> bool:
 	return is_valid() and CustomerFlowService.voluntary_refuse(_customer)
 
 
-## Creates the existing non-delivery complaint once.
+## Создаёт жалобу о невыдаче однократно.
 func schedule_non_delivery_complaint() -> bool:
 	var visit: CustomerVisit = _visit()
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -262,7 +262,7 @@ func schedule_non_delivery_complaint() -> bool:
 	)
 
 
-## Detects a false terminal declaration.
+## Проверяет, обнаружено ли ложное заявление о выдаче.
 func false_taken_detected() -> bool:
 	var visit: CustomerVisit = _visit()
 	return (
@@ -273,30 +273,30 @@ func false_taken_detected() -> bool:
 	)
 
 
-## Delegates a false declaration to the escalation owner.
+## Передаёт обнаруженное ложное заявление сервису эскалации.
 func enter_aggressive() -> bool:
 	return false_taken_detected() and CustomerFlowService.enter_aggressive(_customer)
 
 
-## Returns the exact parcel identity for the case.
+## Возвращает ID конкретной коробки этого заказа.
 func requested_package_id() -> String:
 	var visit: CustomerVisit = _visit()
 	return visit.package_id if visit != null else ""
 
 
-## Reads the physical service outcome.
+## Читает фактический результат обслуживания.
 func package_actual_outcome() -> int:
 	var visit: CustomerVisit = _visit()
 	return visit.actual if visit != null else CustomerVisit.Actual.NOT_RESOLVED
 
 
-## Reads the player's journal declaration.
+## Читает заявление игрока в журнале.
 func terminal_declaration() -> int:
 	var visit: CustomerVisit = _visit()
 	return visit.declaration if visit != null else CustomerVisit.Declaration.NONE
 
 
-## Reads the complaint resolution.
+## Читает решение по жалобе.
 func complaint_outcome() -> int:
 	var visit: CustomerVisit = _visit()
 	if visit == null or visit.complaint == null:
@@ -304,13 +304,13 @@ func complaint_outcome() -> int:
 	return visit.complaint.outcome
 
 
-## Reports whether the case has a complaint.
+## Проверяет наличие жалобы по этому заказу.
 func has_complaint() -> bool:
 	var visit: CustomerVisit = _visit()
 	return visit != null and visit.complaint != null
 
 
-## Reads the complaint reason.
+## Читает причину жалобы.
 func complaint_reason() -> int:
 	var visit: CustomerVisit = _visit()
 	if visit == null or visit.complaint == null:
@@ -318,7 +318,7 @@ func complaint_reason() -> int:
 	return visit.complaint.reason
 
 
-## Reports an unresolved complaint.
+## Проверяет наличие неразрешённой жалобы.
 func complaint_pending() -> bool:
 	var visit: CustomerVisit = _visit()
 	return (
@@ -328,7 +328,7 @@ func complaint_pending() -> bool:
 	)
 
 
-## Reads recorded or current physical opening state.
+## Читает сохранённое при выдаче или текущее физическое вскрытие коробки.
 func package_opened() -> bool:
 	var visit: CustomerVisit = _visit()
 	if visit == null:
@@ -340,7 +340,7 @@ func package_opened() -> bool:
 	return state != null and state.opening == C_PackageState.Opening.OPENED
 
 
-## Reads recorded or current physical damage state.
+## Читает сохранённое при выдаче или текущее физическое повреждение коробки.
 func package_damaged() -> bool:
 	var visit: CustomerVisit = _visit()
 	if visit == null:
@@ -352,12 +352,12 @@ func package_damaged() -> bool:
 	return state != null and state.damage != C_PackageState.Damage.UNDAMAGED
 
 
-## Reports whether registration assigned a real number.
+## Проверяет, присвоен ли настоящий регистрационный номер.
 func has_registered_number() -> bool:
 	return package_number() > 0
 
 
-## Looks up the registration of the exact parcel.
+## Читает регистрацию именно этой коробки.
 func package_number() -> int:
 	var visit: CustomerVisit = _visit()
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
@@ -370,18 +370,18 @@ func package_number() -> int:
 	return 0
 
 
-## Formats the existing registration number.
+## Форматирует существующий регистрационный номер.
 func package_number_text() -> String:
 	var number: int = package_number()
 	return "%03d" % number if number > 0 else "---"
 
 
-## Reads the legacy challenge outcome.
+## Читает результат старого испытания.
 func challenge_result() -> StringName:
 	return ChallengeResult.key(ChallengeService.result_for(_customer))
 
 
-## Reports a legacy challenge; district NPCs use intrinsic rules.
+## Проверяет старое испытание; районные NPC используют собственные особенности.
 func has_pending_challenge() -> bool:
 	if not is_valid():
 		return false
@@ -394,7 +394,7 @@ func has_pending_challenge() -> bool:
 	)
 
 
-## Presents the legacy challenge warning.
+## Возвращает предупреждение старого испытания.
 func challenge_rule() -> String:
 	if not is_instance_valid(_customer):
 		return ""
@@ -409,24 +409,24 @@ func challenge_rule() -> String:
 	return text
 
 
-## Arms the legacy challenge through its gameplay owner.
+## Запускает старое испытание через его игровой сервис.
 func arm_challenge() -> bool:
 	return has_pending_challenge() and ChallengeService.arm(_customer, _actor)
 
 
-## Derived tier only; the context never changes Hunger or customer identity.
+## Читает уровень голода без изменения Hunger и личности получателя.
 func hunger_tier() -> int:
 	return HungerService.tier(_actor.get_component(C_Hunger) as C_Hunger) if is_instance_valid(_actor) else DEFAULT_HUNGER_TIER
 
 
-## Dialogue resolves the real line/branch first; only perceived NPC speech changes.
+## Меняет только восприятие реплики; настоящую ветку и текст выбирает DialogueManager.
 func perceived_text(actual_text: String) -> String:
 	return "Съешь меня" if hunger_tier() == C_Hunger.Tier.STARVING and not actual_text.is_empty() else actual_text
 
 
 #endregion
 
-#region Case lookups
+#region Чтение заказа
 func _visit() -> CustomerVisit:
 	return CustomerFlowService.find_visit(_visit_id) if _visit_id != &"" else null
 

@@ -1,11 +1,13 @@
 extends RefCounted
-## Authored introductions over the existing visit, dialogue and interaction owners.
+## Выполняет авторское знакомство, используя существующие визит, диалог и взаимодействия.
 class_name CustomerGreetingService
 
 const FALLBACK_EYE_HEIGHT: float = 1.3
 const DEFAULT_OCCLUSION_MASK: int = 31
 
 
+#region Знакомство
+## Сообщает зарегистрированный номер однократно для быстрого знакомства.
 static func announce_order(customer: E_Customer, visit: CustomerVisit) -> void:
 	if visit == null or visit.finished or not CustomerPresentation.uses_quick_visit(visit):
 		return
@@ -24,6 +26,7 @@ static func announce_order(customer: E_Customer, visit: CustomerVisit) -> void:
 	customer.show_message(message)
 
 
+## Проверяет авторский автодиалог: дистанцию, видимость, готовность визита и свободный ввод.
 static func tick(customer: E_Customer, visit: CustomerVisit) -> void:
 	announce_order(customer, visit)
 	if visit == null or visit.finished or visit.definition == null or visit.definition.introduction != DEF_Customer.Introduction.FIRST_APPROACH_DIALOGUE:
@@ -45,6 +48,9 @@ static func tick(customer: E_Customer, visit: CustomerVisit) -> void:
 		CustomerDialogueService.start(actor, customer)
 
 
+#endregion
+
+#region Физическая видимость
 static func _has_line_of_sight(actor: Entity, customer: E_Customer) -> bool:
 	var player: E_PhysicalCharacter = actor as E_PhysicalCharacter
 	var player_body: Node3D = actor as Node as Node3D
@@ -63,3 +69,5 @@ static func _has_line_of_sight(actor: Entity, customer: E_Customer) -> bool:
 		ray.collision_mask = interactor.collision_mask
 	ray.hit_from_inside = true
 	return customer_body.get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
+
+#endregion
