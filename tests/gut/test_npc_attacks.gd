@@ -50,6 +50,7 @@ func _body(npc: bool) -> E_RigidBodyCharacter:
 		combat.melee_attacks = [load("res://content/definitions/gameplay/combat/def_npc_punch.tres") as DEF_NpcAttack]
 		combat.ranged_attacks = [load("res://content/definitions/gameplay/combat/def_npc_shot.tres") as DEF_NpcAttack]
 		entity.component_resources.append(combat)
+
 	var head: Marker3D = Marker3D.new()
 	head.position.y = 1.5
 	body.add_child(head)
@@ -104,6 +105,7 @@ func test_selector_reads_priority_then_damage_rate_without_starting_attack() -> 
 	ranged.minimum_range = 0.0
 	ranged.selection_priority = 10.0
 	_state.ranged_attacks = [ranged]
+
 	var choice: NpcAttackChoice = NpcAttackService.choose(_npc)
 	assert_not_null(choice)
 	assert_eq(choice.kind, C_NpcCombat.Kind.RANGED)
@@ -130,6 +132,7 @@ func test_selector_rejects_unavailable_or_stale_decision_without_side_effect() -
 	assert_false(NpcAttackService.start(_npc, choice.kind, choice.variant), "Decision is revalidated after the target moved")
 	choice = NpcAttackService.choose(_npc)
 	assert_eq(choice.kind, C_NpcCombat.Kind.RANGED)
+
 	var wall: StaticBody3D = StaticBody3D.new()
 	wall.position = Vector3(0, 1.5, -2)
 	var collision: CollisionShape3D = CollisionShape3D.new()
@@ -175,6 +178,7 @@ func test_actual_animation_method_tracks_commit_once_and_finish_with_cooldown() 
 	var library: AnimationLibrary = AnimationLibrary.new()
 	var animation: Animation = Animation.new()
 	animation.length = 0.8
+
 	var track: int = animation.add_track(Animation.TYPE_METHOD)
 	animation.track_set_path(track, NodePath("."))
 	animation.track_insert_key(track, 0.3, {"method": &"npc_attack_hit", "args": []})
@@ -256,6 +260,7 @@ func test_projectile_snapshots_hunger_damage_before_food_restores_shooter() -> v
 	await get_tree().physics_frame
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.RANGED, 0))
 	assert_true(NpcAttackService.commit_effect(_npc))
+
 	var projectile: Entity = _world.query.with_all([C_CombatProjectile]).execute_one()
 	assert_eq((projectile.get_component(C_CombatProjectile) as C_CombatProjectile).damage, 12.0)
 	var food: DEF_FoodEffect = DEF_FoodEffect.new()
@@ -281,6 +286,7 @@ func test_wall_blocks_projectile_even_for_long_frame() -> void:
 	_world.add_child(wall)
 	wall.position = Vector3(0, 1, -2)
 	await get_tree().physics_frame
+
 	var projectile: Entity = _world.query.with_all([C_CombatProjectile]).execute_one()
 	ProjectileService.tick(projectile, 1.0)
 	assert_eq(_health.current, 100.0)

@@ -23,6 +23,7 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 func _apply(entity: Entity, controller: C_Controller) -> void:
 	if controller == null or not is_instance_valid(entity):
 		return
+
 	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(entity)
 	var transport: Entity = CartTransportService.current(entity)
 	var cart: Entity = PushService.pushed_object(entity)
@@ -66,6 +67,7 @@ func _update_look(
 ) -> void:
 	if character == null:
 		return
+
 	var look_direction: Vector3 = controller.direction_look
 	if look_direction.is_zero_approx():
 		look_direction = -character.global_basis.z
@@ -79,6 +81,7 @@ func _update_look(
 		Vector3.UP,
 		-scaled_look_delta.x * LOOK_SENSITIVITY,
 	)
+
 	var current_pitch: float = asin(clampf(look_direction.y, -1.0, 1.0))
 	var target_pitch: float = clampf(
 		current_pitch - scaled_look_delta.y * LOOK_SENSITIVITY,
@@ -98,6 +101,7 @@ func _update_motion(controller: C_Controller) -> void:
 	if controller.move_axis.is_zero_approx() or forward_direction.is_zero_approx():
 		controller.direction_motion = Vector3.ZERO
 		return
+
 	forward_direction = forward_direction.normalized()
 	var right_direction: Vector3 = forward_direction.cross(Vector3.UP).normalized()
 	controller.direction_motion = (

@@ -1,0 +1,37 @@
+~ street
+{{ctx.speaker_name()}}: Добрый вечер. Живой пока? Меня интересует: {{ctx.interests_text()}}.
+- Как дела? [#hon] => friendly
+- Могу принести зарегистрированную посылку домой. [if ctx.can_offer_delivery() /] => delivery_offer
+- Страшный район. Можно я тихо пройду? [#sub] => surrender
+- Мне здесь никто не указ. [#thr] => threat
+- Хорошо хоть почта до ада доходит! [#jok] => joke
+- До встречи. => END
+
+~ provocation
+{{ctx.speaker_name()}}: Ты ведь никого здесь не боишься? А если я заберу твою коробку?
+- Попробуй. Я буду защищаться. [#thr] => threat
+- Забирай, только не бей меня. [#sub] => surrender
+- Лучше расскажи, как дела. [#prs] => friendly
+- Могу принести посылку домой. [if ctx.can_offer_delivery() /] => delivery_offer
+- Коробка тебя переживёт. [#jok] => joke
+
+~ friendly
+{{ctx.speaker_name()}}: Пока жив, есть о чём поговорить. Запомню тебя.
+=> END
+
+~ surrender
+{{ctx.speaker_name()}}: Понятно. Значит, сопротивляться не собираешься.
+=> END
+
+~ threat
+{{ctx.speaker_name()}}: Я услышал тебя.
+=> END
+
+~ joke
+{{ctx.speaker_name()}}: Ну и шутки у тебя.
+=> END
+
+~ delivery_offer
+$> ctx.accept_home_delivery()
+{{ctx.speaker_name()}}: Договорились. Принеси настоящую коробку к моему адресу до сна. Доплачу за доставку.
+=> END

@@ -29,6 +29,7 @@ static func handle_input(actor: Entity, delta: float = 0.0) -> void:
 	if ProlongedInteractionService.tick(actor, delta):
 		refresh_prompt(actor)
 		return
+
 	var active_focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
 	if active_focus >= InteractionControlFocus.Priority.DRAWING:
 		refresh_prompt(actor)
@@ -126,6 +127,7 @@ static func resolve(
 			var cart: Entity = CartTransportService.current(actor)
 			if cart == null:
 				return null
+
 			var stop: DEF_CartTransportAction = DEF_CartTransportAction.new()
 			stop.release_handle = true
 			stop.caption = "Отпустить ручку"
@@ -139,6 +141,7 @@ static func resolve(
 			var cart: Entity = PushService.pushed_object(actor)
 			if cart == null:
 				return null
+
 			var stop: DEF_PushAction = DEF_PushAction.new()
 			stop.end_push = true
 			stop.caption = "Отпустить тележку"
@@ -255,6 +258,7 @@ static func wants_rotation(actor: Entity, controller: C_Controller) -> bool:
 		or controller.drop_pressed or controller.drop_long_pressed
 	):
 		return false
+
 	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
 	if focus == InteractionControlFocus.Priority.CARRY:
 		return (
@@ -325,6 +329,7 @@ static func refresh_prompt(actor: Entity) -> void:
 		and GrabService.held_object(actor) != null
 	):
 		lines.append("%s Положить" % InputPromptService.token(&"drop"))
+
 	var denial: String = _access_denial(actor, interactor)
 	if not denial.is_empty():
 		lines.append(denial)
@@ -334,18 +339,23 @@ static func refresh_prompt(actor: Entity) -> void:
 static func _access_denial(actor: Entity, interactor: C_Interactor) -> String:
 	if InteractionControlFocus.current(actor) > InteractionControlFocus.Priority.CARRY:
 		return ""
+
 	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
 	if target == null or InteractionTargetingService.find_target(actor, interactor) != target:
 		return ""
+
 	var lock: C_Openable = target.get_component(C_Openable) as C_Openable
 	if lock == null or not lock.locked:
 		return ""
+
 	var result: AccessResult = ItemAccessService.evaluate(actor, lock.access)
 	match result.outcome:
 		AccessResult.Outcome.ITEM_REQUIRED:
 			return "Заперто · нужен подходящий ключ или предмет"
+
 		AccessResult.Outcome.CONSUMPTION_UNAVAILABLE:
 			return "Заперто · нужен расходуемый предмет"
+
 		AccessResult.Outcome.INVALID_REQUIREMENT:
 			return "Замок недоступен"
 	return ""
@@ -391,6 +401,7 @@ static func _execute_slot(
 ) -> bool:
 	if not pressed and not held:
 		return false
+
 	var choice: InteractionActionChoice = resolve(actor, input_slot)
 	if choice != null and (pressed or choice.action.continuous):
 		if choice.action.timing != null:
@@ -409,6 +420,7 @@ static func _target_action(
 ) -> InteractionActionChoice:
 	if not GrabService.entity_available(target):
 		return _from_source(actor, actor, target, input_slot)
+
 	var action: InteractionActionChoice = _from_source(actor, target, target, input_slot)
 	if action == null and input_slot == DEF_InteractionAction.Slot.INTERACT:
 		action = _from_source(actor, target, target, DEF_InteractionAction.Slot.USE)
@@ -435,6 +447,7 @@ static func _physical(
 ) -> InteractionActionChoice:
 	if not GrabService.entity_available(source):
 		return null
+
 	var action: DEF_GrabAction = DEF_GrabAction.new()
 	action.kind = kind
 	action.continuous = kind == DEF_GrabAction.Kind.ROTATE
@@ -456,9 +469,11 @@ static func _from_source(
 ) -> InteractionActionChoice:
 	if not GrabService.entity_available(source):
 		return null
+
 	var actions: C_InteractionActionSet = source.get_component(C_InteractionActionSet)
 	if actions == null:
 		return null
+
 	var best: DEF_InteractionAction = null
 	for action: DEF_InteractionAction in actions.actions:
 		if (

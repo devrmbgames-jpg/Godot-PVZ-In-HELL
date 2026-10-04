@@ -12,9 +12,11 @@ static func synchronize(subject: Entity, state: C_Challenge, floor: C_FloorChall
 	if not ChallengeService.session_valid(subject):
 		ChallengeService.cancel(subject)
 		return
+
 	var rule: DEF_FloorChallengeCondition = state.definition.condition as DEF_FloorChallengeCondition if state.definition != null else null
 	if rule == null or floor.spawn_requested:
 		return
+
 	floor.spawn_requested = true
 	var request: HazardSpawnRequest = HazardSpawnRequest.new()
 	request.origin = subject
@@ -31,6 +33,7 @@ static func synchronize(subject: Entity, state: C_Challenge, floor: C_FloorChall
 static func touches_surface(motion: C_Motion, pose: Transform3D, profile: DEF_FloorHazard) -> bool:
 	if motion == null or not motion.is_on_floor or not motion.floor_body_rid.is_valid():
 		return false
+
 	var point: Vector3 = pose.affine_inverse() * motion.floor_contact_position
 	return (
 		absf(point.x) <= profile.size.x * 0.5
@@ -44,6 +47,7 @@ static func step(effect: E_FloorHazard, hazard: C_Hazard, floor_effect: C_FloorH
 	if subject == null:
 		HazardLifecycle.retire(effect, ECS.world)
 		return
+
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	if not ChallengeService.session_valid(subject):
 		ChallengeService.cancel(subject)
@@ -51,12 +55,14 @@ static func step(effect: E_FloorHazard, hazard: C_Hazard, floor_effect: C_FloorH
 	if state.phase != C_Challenge.Phase.ACTIVE:
 		ChallengeEffectLifecycle.retire(subject)
 		return
+
 	var actor: Entity = ChallengeService.actor_for(subject)
 	var profile: DEF_FloorHazard = hazard.definition as DEF_FloorHazard
 	var floor: C_FloorChallenge = subject.get_component(C_FloorChallenge) as C_FloorChallenge
 	if actor == null or profile == null or floor == null or not is_finite(delta) or delta < 0.0:
 		ChallengeService.cancel(subject)
 		return
+
 	var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
 	floor.touching_danger = touches_surface(motion, (effect as Node as Node3D).global_transform, profile)
 	state.condition_result = ChallengeResult.Type.NONE if floor.touching_danger else ChallengeResult.Type.SUCCESS
@@ -66,6 +72,7 @@ static func step(effect: E_FloorHazard, hazard: C_Hazard, floor_effect: C_FloorH
 	if not floor.touching_danger:
 		floor_effect.damage_elapsed = 0.0
 		return
+
 	dangerous_delta = minf(dangerous_delta, maxf(0.0, state.definition.violation_grace_seconds - state.violation_elapsed))
 	floor_effect.damage_elapsed += dangerous_delta
 	var ticks: int = int(floor_effect.damage_elapsed / profile.tick_seconds)

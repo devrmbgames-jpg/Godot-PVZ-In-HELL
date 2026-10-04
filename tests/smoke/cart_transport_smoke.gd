@@ -15,6 +15,7 @@ func _ready() -> void:
 func _physics_process(_delta: float) -> void:
 	if not is_instance_valid(_actor) or _controller == null:
 		return
+
 	_controller.input_tick += 1
 	_controller.direction_look = -(_cart as Node as Node3D).global_basis.z
 	GrabService.handle_input(_actor)
@@ -40,6 +41,7 @@ func _run() -> void:
 	cart_body.position = Vector3(0, 0.8, 0)
 	_cart = cart_body as Node as Entity
 	world.add_entity(_cart)
+
 	var actor_scene: PackedScene = load(
 		"res://content/entities/characters/e_rigid_body_character.tscn"
 	) as PackedScene
@@ -48,6 +50,7 @@ func _run() -> void:
 	_actor = actor_body as Node as Entity
 	world.add_entity(_actor)
 	_controller = _actor.get_component(C_Controller) as C_Controller
+
 	var config: C_CartTransport = _cart.get_component(C_CartTransport) as C_CartTransport
 	for tick: int in 40:
 		await get_tree().physics_frame
@@ -76,6 +79,7 @@ func _run() -> void:
 		modal_owner,
 		InteractionControlFocus.Priority.MODAL,
 	)
+
 	var paused_position: Vector3 = cart_body.position
 	for tick: int in 15:
 		await get_tree().physics_frame
@@ -97,6 +101,7 @@ func _run() -> void:
 	for tick: int in 35:
 		await get_tree().physics_frame
 	assert(absf(cart_body.rotation.y - start_yaw) > 0.3, "A/D must steer while coupled")
+
 	var actor_character: E_RigidBodyCharacter = _actor as E_RigidBodyCharacter
 	var cart_forward: Vector3 = -cart_body.global_basis.z
 	cart_forward.y = 0.0
@@ -156,6 +161,7 @@ func _terrain_checks(
 	var ramp: StaticBody3D = _obstacle(Vector3(8, 0.63, -1), Vector3(4, 0.2, 6))
 	ramp.rotation.x = 0.22
 	await _place(cart_body, actor_body, Vector3(8, 0.8, 4))
+
 	var load_ready: bool = await _load_cargo(cart_body)
 	assert(load_ready)
 	_controller.move_axis = Vector2(0, -1)
@@ -184,6 +190,7 @@ func _terrain_checks(
 	assert(cart_body.position.z < -1.5, "Cart and driver must traverse a small uneven patch")
 	assert(cart_body.position.z > -2.8, "A wall must block transport")
 	assert(highest < rest_height + 0.23, "Small bumps must not launch the cart")
+
 	var at_wall: float = cart_body.position.z
 	_controller.move_axis = Vector2(0, 1)
 	for tick: int in 100:
@@ -216,6 +223,7 @@ func _load_cargo(cart_body: CharacterBody3D) -> bool:
 		_cargo.append(cargo)
 	for tick: int in 100:
 		await get_tree().physics_frame
+
 	var config: C_CartTransport = _cart.get_component(C_CartTransport) as C_CartTransport
 	assert(config.cargo.size() == 3, "Only physically settled boxes should become transport cargo")
 	return true
@@ -231,6 +239,7 @@ func _place(cart_body: CharacterBody3D, actor_body: RigidBody3D, location: Vecto
 	actor_body.linear_velocity = Vector3.ZERO
 	for tick: int in 30:
 		await get_tree().physics_frame
+
 	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
 	ray.look_at(cart_body.global_position)
 	CartTransportService.begin(_actor, _cart)

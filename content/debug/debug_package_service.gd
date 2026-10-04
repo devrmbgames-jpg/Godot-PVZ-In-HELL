@@ -34,10 +34,12 @@ static func spawn(
 	if zone == null or zone.supply == null:
 		result.message = "receiving zone/supply is unavailable"
 		return result
+
 	var definition: DEF_Package = _definition(zone, definition_key)
 	if definition == null:
 		result.message = "package definition was not found: %s" % String(definition_key)
 		return result
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null:
 		result.message = "day cycle is unavailable"
@@ -80,6 +82,7 @@ static func spawn(
 			_rollback(spawned)
 			result.message = "spawned package has no identity"
 			return result
+
 		identity.delivery_day = cycle.day_index
 		identity.supply_key = zone.supply.key
 		if PackageHistoryService.ensure_history_id(parcel, cycle.day_index).is_empty():
@@ -97,6 +100,7 @@ static func spawn(
 				_rollback(spawned)
 				result.message = "package registration failed"
 				return result
+
 			number_text = "#%03d" % registration.number
 		result.details.append(
 			"package_id=%s definition=%s number=%s"
@@ -116,6 +120,7 @@ static func remove(target: DebugTarget) -> DebugServiceResult:
 	if not EntityAvailability.contains(target.entity, ECS.world):
 		result.message = "package is not live"
 		return result
+
 	var package_id: String = target.package_id
 	_remove_live_package(target.entity)
 	result.success = true
@@ -166,10 +171,12 @@ static func register(target: DebugTarget) -> DebugServiceResult:
 	if not EntityAvailability.contains(target.entity, ECS.world):
 		result.message = "package is not live"
 		return result
+
 	var registration: PackageScanResult = PackageRegistrationService.register_package(target.entity)
 	if registration.outcome == PackageScanResult.Outcome.REJECTED:
 		result.message = registration.message
 		return result
+
 	result.success = true
 	result.message = registration.message
 	result.details.append("package_id=%s" % registration.package_id)
@@ -223,6 +230,7 @@ static func definition_keys() -> PackedStringArray:
 	var zone: E_ReceivingZone = _receiving_zone()
 	if zone == null or zone.supply == null:
 		return keys
+
 	for definition: DEF_Package in zone.supply.packages:
 		keys.append(String(definition.key))
 	return keys
@@ -286,6 +294,7 @@ static func _next_package_id(
 		]
 		if not _identity_exists(candidate):
 			return candidate
+
 		sequence += 1
 	return ""
 
@@ -293,11 +302,13 @@ static func _next_package_id(
 static func _identity_exists(package_id: String) -> bool:
 	if ReceivingPackageFactory.exists(package_id):
 		return true
+
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	if ledger != null:
 		for record: PackageRegistrationRecord in ledger.records:
 			if record.package_id == package_id:
 				return true
+
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	if flow != null:
 		for visit: CustomerVisit in flow.visits:
@@ -310,6 +321,7 @@ static func _rollback(spawned: Array[Entity]) -> void:
 	for entity: Entity in spawned:
 		if not is_instance_valid(entity):
 			continue
+
 		var identity: C_Package = entity.get_component(C_Package) as C_Package
 		if identity != null:
 			_remove_debug_registration(identity.package_id)
@@ -321,6 +333,7 @@ static func _remove_debug_registration(package_id: String) -> void:
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	if ledger == null:
 		return
+
 	for record: PackageRegistrationRecord in ledger.records.duplicate():
 		if record.package_id == package_id:
 			ledger.records.erase(record)
@@ -330,6 +343,7 @@ static func _remove_debug_visit(package_id: String) -> void:
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	if flow == null:
 		return
+
 	for visit: CustomerVisit in flow.visits.duplicate():
 		if visit.package_id == package_id:
 			flow.visits.erase(visit)
@@ -338,6 +352,7 @@ static func _remove_debug_visit(package_id: String) -> void:
 static func _remove_live_package(entity: Entity) -> void:
 	if not EntityAvailability.contains(entity, ECS.world):
 		return
+
 	CartCargoService.release(entity)
 	GrabService.entity_unavailable(entity)
 	PackageMarkService.clear_marks(entity)

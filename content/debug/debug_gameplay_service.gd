@@ -40,15 +40,18 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 	var lines: PackedStringArray = []
 	if kind in ["stamina", "hunger", "inventory", "npc", "nav", "challenge", "hazard", "progress", "corpse"] and not EntityAvailability.contains(entity, ECS.world):
 		return failure("Live target unavailable: %s" % raw)
+
 	match kind:
 		"stamina":
 			var state: C_Stamina = entity.get_component(C_Stamina) as C_Stamina
 			if state == null: return failure("Target has no stamina")
 			lines.append("entity=%s reserve=%.2f/%.2f running=%s mode=%s weight_drain=%.2f recovery_seconds=%.2f exhausted=%s" % [entity.id, state.current, state.maximum, state.running, "toggle" if state.toggle_mode else "hold", state.drain_multiplier, state.recovery_remaining, state.exhausted])
+
 		"hunger":
 			var state: C_Hunger = entity.get_component(C_Hunger) as C_Hunger
 			if state == null or state.policy == null: return failure("Target has no hunger policy")
 			lines.append("entity=%s value=%.1f range=0..%.1f tier=%s speed_multiplier=%.2f damage_multiplier=%.2f" % [entity.id, state.value, state.policy.maximum, C_Hunger.Tier.keys()[HungerService.tier(state)], HungerService.speed_multiplier(state), HungerService.damage_multiplier(state)])
+
 		"inventory":
 			var state: C_Inventory = entity.get_component(C_Inventory) as C_Inventory
 			if state == null: return failure("Target has no inventory")
@@ -57,6 +60,7 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 			for index: int in owned.size():
 				var stack: C_InventoryItem = owned[index].get_component(C_InventoryItem) as C_InventoryItem
 				lines.append("slot=%d id=%s key=%s quantity=%d" % [index, owned[index].id, stack.definition.key, stack.quantity])
+
 		"trader":
 			var trader: Entity = trader_for(raw)
 			if trader == null: return failure("Live trader unavailable")
@@ -65,18 +69,21 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 			if shop.profile != null: lines.append("profile=%s courier=%s fee=%d delay_days=%d" % [shop.profile.key, shop.profile.home_delivery_enabled, shop.profile.delivery_fee, shop.profile.delivery_delay_days])
 			for offer: DEF_InventoryItem in TraderCatalogService.catalog(shop):
 				if offer != null: lines.append("key=%s price=%d max_stack=%d kind=%s" % [offer.key, offer.market_price, offer.maximum_stack, DEF_InventoryItem.Kind.keys()[offer.kind]])
+
 		"order":
 			var state: C_Commerce = CommerceService.current()
 			if state == null: return failure("Commerce unavailable")
 			lines.append("receipts=%d pending=%d" % [state.receipts.size(), state.pending_deliveries.size()])
 			for delivery: PendingDelivery in state.pending_deliveries:
 				lines.append("id=%s item=%s quantity=%d due_day=%d fulfilled=%s" % [delivery.delivery_id, delivery.item.key, delivery.quantity, delivery.delivery_day, delivery.fulfilled])
+
 		"quest":
 			if not is_instance_valid(ECS.world): return failure("World unavailable")
 			for owner: Entity in ECS.world.query.with_all([C_QuestSession]).execute():
 				var state: C_QuestSession = owner.get_component(C_QuestSession) as C_QuestSession
 				for record: RefusalQuestRecord in state.records:
 					lines.append("quest=%s state=%s package=%s deadline_day=%d reward=%d paid=%s" % [record.quest_id, RefusalQuestRecord.State.keys()[record.state], record.package_id, record.deadline_day, record.reward, record.reward_paid])
+
 		"npc":
 			var state: C_NpcCombat = entity.get_component(C_NpcCombat) as C_NpcCombat
 			if state == null: return failure("Target has no NPC attacks")
@@ -90,31 +97,37 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 				for index: int in C_NpcCombat.MAX_VARIANTS:
 					var ability: DEF_NpcAttack = NpcAttackService.variant_for(state, kind_value, index)
 					if ability != null: lines.append("kind=%s slot=%d damage=%.1f range=%.1f..%.1fm animation=%s eligible=%s" % [C_NpcCombat.Kind.keys()[kind_value], index, ability.damage, ability.minimum_range, ability.maximum_range, ability.animation, NpcAttackService.can_start(entity, kind_value, index)])
+
 		"nav":
 			var npc: E_NpcCharacter = entity as E_NpcCharacter
 			var state: C_NpcIntent = entity.get_component(C_NpcIntent) as C_NpcIntent
 			if npc == null or npc.navigation_agent == null or state == null: return failure("Target has no NavigationAgent/intent")
 			var navigation: NavigationAgent3D = npc.navigation_agent
 			lines.append("entity=%s enabled=%s arrived=%s pending=%s blocked=%s distance=%.2fm avoidance=%s path_points=%d reachable=%s" % [entity.id, state.navigation_enabled, state.arrived, state.navigation_pending, state.navigation_blocked, state.distance_to_target, navigation.avoidance_enabled, navigation.get_current_navigation_path().size(), navigation.is_target_reachable()])
+
 		"challenge":
 			var state: C_Challenge = entity.get_component(C_Challenge) as C_Challenge
 			if state == null or state.definition == null: return failure("Target has no challenge")
 			lines.append("entity=%s definition=%s phase=%s result=%s elapsed=%.1fs timeout=%.1fs trigger=%s completion=%s departure=%s" % [entity.id, state.definition.key, C_Challenge.Phase.keys()[state.phase], ChallengeResult.Type.keys()[state.result], state.elapsed, state.definition.timeout_seconds, DEF_Challenge.Trigger.keys()[state.definition.trigger], DEF_Challenge.Completion.keys()[state.definition.completion], state.departure_requested])
 			lines.append(state.definition.rule_text)
 			lines.append("consumed=%s condition_violated=%s violation=%.2fs preparation=%.1fs" % [state.consumed, state.condition_violated, state.violation_elapsed, state.definition.preparation_seconds])
+
 		"hazard":
 			var state: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 			var lifetime: C_HazardLifetime = entity.get_component(C_HazardLifetime) as C_HazardLifetime
 			if state == null or state.definition == null or lifetime == null: return failure("Target has no autonomous hazard")
 			lines.append("entity=%s key=%s remaining=%.2fs persistent=%s awaiting=%s owner_loss_pending=%s ownership=%s owner_loss=%s origin=%s" % [entity.id, state.definition.key, lifetime.remaining_seconds, lifetime.persistent, lifetime.awaiting_resolution, lifetime.owner_loss_pending, DEF_Hazard.Ownership.keys()[state.definition.ownership], DEF_Hazard.OwnerLoss.keys()[state.definition.owner_loss], state.origin_id])
+
 		"progress":
 			var valve: E_InteractionTestValve = entity as E_InteractionTestValve
 			if valve == null: return failure("Target does not expose valve progress")
 			lines.append("entity=%s progress=%.3f active=%s mode=%s" % [entity.id, valve.get_progress(), valve.is_active(), E_InteractionTestValve.Mode.keys()[valve.mode]])
+
 		"corpse":
 			var state: C_NpcRemains = entity.get_component(C_NpcRemains) as C_NpcRemains
 			if state == null: return failure("Target has no NPC remains contract; current prototype drops edible meat immediately on death")
 			lines.append("entity=%s dead=%s released=%s; prototype drops edible pickups at death, no corpse hit counter" % [entity.id, entity.has_component(C_Death), state.released])
+
 		_:
 			return failure("Unknown information group")
 	return success(lines if not lines.is_empty() else PackedStringArray(["none"]))
@@ -160,6 +173,7 @@ static func save_slot(slot: String, writing: bool) -> DebugServiceResult:
 		if directory_error != OK: return failure("Cannot create isolated slot directory")
 		var error: Error = AutosaveStore.write(data, path)
 		return success(PackedStringArray(["path=%s morning_day=%d" % [path, cycle.day_index]])) if error == OK else failure("Write failed: %s" % error_string(error))
+
 	var saved: Dictionary = AutosaveStore.read(path)
 	if saved.is_empty() or not WorldSnapshotService.valid(saved, root): return failure("Isolated save missing/corrupt/incompatible; world unchanged")
 	return success(PackedStringArray(["path=%s restored Morning; world state replaced" % path])) if WorldSnapshotService.restore(saved, root) else failure("Restore rejected")

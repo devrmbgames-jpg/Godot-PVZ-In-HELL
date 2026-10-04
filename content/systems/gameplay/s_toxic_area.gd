@@ -60,5 +60,5 @@ func _apply_tick(effect: E_ToxicArea, hazard: C_Hazard, profile: DEF_ToxicArea, 
 			hazard,
 			target,
 			profile.damage_per_tick * float(ticks),
-			DamageRequest.Type.TOXIC,
+			profile.damage_type,
 		)

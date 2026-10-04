@@ -1,3 +1,3 @@
 extends Component
-## NPC -> live actor to follow. The relationship target is the only live binding authority.
+## Живой объект следования NPC; цель Relationship является единственной действующей связью.
 class_name R_NpcMoveTarget

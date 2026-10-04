@@ -7,10 +7,7 @@
   "godotFormatter.verifyStructure": true,
   "godotFormatter.reorderCode": false,
 
-  // Enable the experimental Codex harness used by the VS Code Agents window.
+  // Enable Codex in the VS Code Agent Host / Agents window.
   "chat.agentHost.codexAgent.enabled": true,
-
-  // Start the project-local Godot editor task automatically in a normal trusted workspace.
-  // Agent Host sessions can also start it on demand through .vscode/start-godot.ps1.
-  "task.allowAutomaticTasks": "on"
+  "godotTools.editorPath.godot4": "d:\\DEV\\pvz-in-hell-simulator\\.bin\\Godot_v4.7.1-stable_win64.exe"
 }

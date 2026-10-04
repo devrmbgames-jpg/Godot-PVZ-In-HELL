@@ -5,12 +5,14 @@ class_name CombatAttribution
 static func describe(request: DamageRequest) -> CombatContext:
 	if request.damage_type not in [DamageRequest.Type.MELEE, DamageRequest.Type.IMPACT, DamageRequest.Type.PROJECTILE]:
 		return null
+
 	var actor: Entity = request.instigator
 	if not is_instance_valid(actor):
 		var grip: Relationship = GrabService.held_relationship(request.source)
 		actor = grip.target as Entity if grip != null else request.source
 	if not is_instance_valid(actor) or not actor.has_component(C_Living):
 		return null
+
 	request.instigator = actor
 	var context: CombatContext = CombatContext.new()
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -22,6 +24,7 @@ static func describe(request: DamageRequest) -> CombatContext:
 	if visit != null:
 		context.customer_id = visit.customer_id
 		context.visit_id = visit.visit_id
+
 	var combat: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if not context.actor_is_player and combat != null:
 		context.reason = combat.aggression_reason
@@ -30,6 +33,7 @@ static func describe(request: DamageRequest) -> CombatContext:
 			context.reason = CombatContext.Reason.JUSTIFIED_RETALIATION
 		elif CombatService.target_for(customer) == actor:
 			context.reason = CombatContext.Reason.SELF_DEFENSE
+
 	var weapon: C_MeleeWeapon = request.source.get_component(C_MeleeWeapon) as C_MeleeWeapon if is_instance_valid(request.source) else null
 	if weapon != null and weapon.attack != null:
 		context.weapon_key = weapon.attack.key
@@ -41,6 +45,7 @@ static func retaliation_allowed(customer_id: StringName, day: int) -> bool:
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	if flow == null or customer_id == &"":
 		return false
+
 	for visit: CustomerVisit in flow.visits:
 		if visit.customer_id == customer_id and CustomerOutcomeService.retaliation_allowed(visit, day):
 			return true

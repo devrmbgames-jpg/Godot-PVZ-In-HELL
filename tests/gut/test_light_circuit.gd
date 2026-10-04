@@ -14,6 +14,7 @@ func before_each() -> void:
 	_world.add_observer(O_LightFlicker.new())
 	_actor = Entity.new()
 	_world.add_entity(_actor)
+
 	var scene: PackedScene = load("res://content/entities/props/light_switch.tscn") as PackedScene
 	_switch = scene.instantiate() as Entity
 	_world.add_entity(_switch)

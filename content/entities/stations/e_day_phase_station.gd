@@ -18,9 +18,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint() or sleep_station or _sign == null:
 		return
+
 	_remaining -= delta
 	if _remaining > 0.0:
 		return
+
 	_remaining = REFRESH_SECONDS
 	var status: String = DayPhaseService.shift_status(DayPhaseService.current())
 	_sign.text = "СМЕНА\nНачать / завершить" + ("\n" + status if not status.is_empty() else "")

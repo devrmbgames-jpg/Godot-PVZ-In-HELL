@@ -26,6 +26,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	var books: Entity = CustomerFlowService.parcel_for("base_supply:1:books")
 	var glass: Entity = CustomerFlowService.parcel_for("base_supply:1:glass")
 	assert(books != null and glass != null)
@@ -37,6 +38,7 @@ func _run() -> void:
 		event.customer.greeting_seconds = 0.05
 		event.customer.receiving_seconds = 0.05
 		event.customer.leaving_seconds = 0.05
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.START_SHIFT
@@ -50,6 +52,7 @@ func _run() -> void:
 	assert(GrabService.held_object(_actor) == glass, "Wrong package must stay held")
 	GrabService.release(_actor, glass)
 	await _pickup(books)
+
 	var first: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	var action: DEF_CustomerHandoffAction = DEF_CustomerHandoffAction.new()
 	assert(action.is_available(_actor, customer, customer))
@@ -58,6 +61,7 @@ func _run() -> void:
 	assert(first.declaration == CustomerVisit.Declaration.NONE)
 	assert(GrabService.held_object(_actor) == null, "Delivered package must release the grip")
 	customer = await _waiting_customer()
+
 	var second: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	assert(second.package_id == "base_supply:1:glass")
 	second.definition.voluntary_refusal = true
@@ -70,6 +74,7 @@ func _run() -> void:
 	assert(GrabService.held_object(_actor) == null, "Refused parcel has actually left the player's hands")
 	assert(GrabService.held_relationship(glass) == null)
 	assert(ECS.world.entities.has(glass), "Refused parcel remains physical in the warehouse")
+
 	var drop: Vector3 = (customer as Node as Node3D).global_transform * second.definition.refused_parcel_offset
 	assert((glass as Node as Node3D).global_position.is_equal_approx(drop), "Customer leaves it next to self")
 	assert(CustomerFlowService.confirm_direct_delivery(_actor, customer) == PackageDeliveryCheck.Result.MISSING)
@@ -86,6 +91,7 @@ func _waiting_customer() -> E_Customer:
 		var customer: E_Customer = CustomerFlowService.waiting_customer()
 		if customer != null:
 			return customer
+
 	assert(false, "Customer must reach service phase within frame budget")
 	return null
 

@@ -10,10 +10,12 @@ static func sample(actor: Entity, subject: Entity, rule: DEF_GazeChallengeCondit
 	clear(observation)
 	if rule == null or not EntityAvailability.contains(actor, ECS.world) or not EntityAvailability.contains(subject, ECS.world):
 		return
+
 	var character: E_PhysicalCharacter = actor as E_PhysicalCharacter
 	var target: E_PhysicalCharacter = subject as E_PhysicalCharacter
 	if character == null or target == null or character.head_axis_x == null or target.head_axis_x == null:
 		return
+
 	var eyes: Node3D = character.head_axis_x
 	var actor_node: Node = actor as Node
 	var camera: Camera3D = actor_node.get_viewport().get_camera_3d()
@@ -21,11 +23,13 @@ static func sample(actor: Entity, subject: Entity, rule: DEF_GazeChallengeCondit
 		eyes = camera
 	if not eyes.is_inside_tree() or not target.head_axis_x.is_inside_tree():
 		return
+
 	var origin: Vector3 = eyes.global_position
 	var destination: Vector3 = target.head_axis_x.global_position
 	measure_geometry(origin, -eyes.global_basis.z, destination, rule, observation)
 	if not observation.within_range or not observation.within_angle:
 		return
+
 	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, destination, rule.collision_mask)
 	var actor_body: CollisionObject3D = actor as Node as CollisionObject3D
 	if actor_body != null:
@@ -44,6 +48,7 @@ static func measure_geometry(origin: Vector3, forward: Vector3, destination: Vec
 	observation.distance = direction.length()
 	if not origin.is_finite() or not destination.is_finite() or not forward.is_finite() or forward.length_squared() <= DIRECTION_EPSILON or observation.distance <= DIRECTION_EPSILON:
 		return
+
 	observation.sample_valid = true
 	var cosine: float = clampf(forward.normalized().dot(direction.normalized()), -1.0, 1.0)
 	observation.angle_degrees = rad_to_deg(acos(cosine))

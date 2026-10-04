@@ -40,6 +40,7 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, de
 		return false
 	if check_result.result != PackageDeliveryCheck.Result.READY:
 		return false
+
 	var policy: DEF_Customer = visit.definition
 	visit.package_damaged = check_result.damaged
 	visit.package_opened = check_result.opened
@@ -47,6 +48,7 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, de
 		visit.actual = CustomerVisit.Actual.CUSTOMER_REFUSED
 		visit.satisfaction = 0
 		return true
+
 	visit.actual = CustomerVisit.Actual.DELIVERED
 	visit.disposition = CustomerVisit.Disposition.DELIVERED
 	visit.satisfaction = policy.healthy_satisfaction
@@ -69,6 +71,7 @@ static func apply_challenge_result(visit: CustomerVisit, event: ChallengeResolut
 		or (visit.challenge_visit_count == visit.visit_count and visit.challenge_key == event.challenge_key)
 	):
 		return false
+
 	visit.challenge_visit_count = visit.visit_count
 	visit.challenge_key = event.challenge_key
 	visit.challenge_result = ChallengeResult.key(event.result)
@@ -86,6 +89,7 @@ static func apply_dialogue_intent(
 ) -> bool:
 	if visit == null or visit.definition == null or intent == CustomerDialogueIntent.Type.NONE:
 		return false
+
 	visit.last_dialogue_intent = intent
 	var intent_bit: int = CustomerDialogueIntent.bit(intent)
 	if intent_bit != 0 and bool(visit.applied_dialogue_intents & intent_bit):
@@ -94,6 +98,7 @@ static func apply_dialogue_intent(
 	for reaction: DEF_CustomerDialogueReaction in visit.definition.dialogue_reactions:
 		if reaction == null or reaction.intent != intent:
 			continue
+
 		visit.dialogue_satisfaction_delta += reaction.satisfaction_delta
 		visit.complaint_probability_delta += reaction.complaint_probability_delta
 		visit.aggression_probability_delta += reaction.aggression_probability_delta
@@ -113,6 +118,7 @@ static func commit_player_denial(visit: CustomerVisit) -> bool:
 		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
 	):
 		return false
+
 	visit.actual = CustomerVisit.Actual.PLAYER_DENIED
 	visit.reputation = CustomerVisit.Reputation.PLAYER_DENIAL
 	visit.player_denial_count += 1
@@ -132,6 +138,7 @@ static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> b
 		return false
 	if visit.declaration != CustomerVisit.Declaration.NONE:
 		return visit.declaration == value
+
 	visit.declaration = value
 	if value == CustomerVisit.Declaration.LOST:
 		visit.loss_cause = CustomerVisit.LossCause.DECLARED_LOST
@@ -158,6 +165,7 @@ static func mark_missed_registration_lost(visit: CustomerVisit, day: int) -> boo
 		or visit.declaration != CustomerVisit.Declaration.NONE
 	):
 		return false
+
 	visit.declaration = CustomerVisit.Declaration.LOST
 	visit.loss_cause = CustomerVisit.LossCause.MISSED_REGISTRATION
 	visit.actual = CustomerVisit.Actual.PLAYER_DENIED
@@ -171,6 +179,7 @@ static func mark_missed_registration_lost(visit: CustomerVisit, day: int) -> boo
 static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 	if visit.settlement_committed or wallet == null:
 		return
+
 	var operation: MoneyOperation = null
 	if visit.declaration == CustomerVisit.Declaration.LOST:
 		var reason: MoneyOperation.Reason = (
@@ -196,6 +205,7 @@ static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 		operation.amount = visit.payment * clampi(visit.satisfaction, 0, SATISFACTION_SCALE) / SATISFACTION_SCALE
 	if operation == null:
 		return
+
 	var result: WalletService.Status = WalletService.apply(wallet, operation, day)
 	if result == WalletService.Status.COMMITTED or result == WalletService.Status.DUPLICATE:
 		visit.settlement_committed = true
@@ -274,6 +284,7 @@ static func resolve_complaint(
 	else:
 		if wallet == null:
 			return
+
 		var operation: MoneyOperation = WalletService.package_settlement(
 			wallet,
 			complaint.complaint_id,
@@ -284,6 +295,7 @@ static func resolve_complaint(
 		var result: WalletService.Status = WalletService.apply(wallet, operation, day)
 		if result != WalletService.Status.COMMITTED and result != WalletService.Status.DUPLICATE:
 			return
+
 		complaint.outcome = CustomerComplaint.Outcome.CONFIRMED
 		complaint.money_delta = -operation.amount
 		if visit.actual != CustomerVisit.Actual.CUSTOMER_REFUSED:
@@ -300,6 +312,7 @@ static func resolve_complaint(
 static func approve(visit: CustomerVisit, satisfaction: int) -> bool:
 	if visit == null:
 		return false
+
 	visit.feedback = CustomerVisit.Feedback.APPROVED
 	visit.satisfaction = clampi(satisfaction, 0, SATISFACTION_SCALE)
 	return true

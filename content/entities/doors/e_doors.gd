@@ -15,6 +15,7 @@ var _initial_leaf_freeze: bool = false
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
+
 	_initial_root_layer = (self as Node as CollisionObject3D).collision_layer
 	if is_instance_valid(door_root):
 		_initial_leaf_layer = door_root.collision_layer
@@ -25,6 +26,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
+
 	sync_destruction_view()
 	if not _leaf_broken:
 		super._physics_process(delta)
@@ -36,6 +38,7 @@ func sync_destruction_view() -> void:
 	var health: C_Health = get_component(C_Health) as C_Health
 	if config == null or health == null or not is_instance_valid(door_root):
 		return
+
 	var broken: bool = health.depleted
 	var status: Label3D = get_node_or_null("BreakageStatus") as Label3D
 	if status != null:
@@ -52,6 +55,7 @@ func sync_destruction_view() -> void:
 		return
 	if _leaf_broken == broken:
 		return
+
 	_leaf_broken = broken
 	(self as Node as CollisionObject3D).collision_layer = 0 if broken else _initial_root_layer
 	door_root.collision_layer = 0 if broken else _initial_leaf_layer

@@ -22,6 +22,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			continue
 		if condition.damage == C_PackageState.Damage.DESTROYED:
 			continue
+
 		var body: Node3D = entities[index] as Node as Node3D
 		if body == null:
 			continue
@@ -31,6 +32,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		if up_alignment >= safe_alignment:
 			tilt.unsafe_seconds = 0.0
 			continue
+
 		tilt.unsafe_seconds += delta
 		if tilt.unsafe_seconds >= tilt.duration_seconds:
 			tilt.triggered = true
@@ -44,6 +46,7 @@ func _commit_leak(entity: Entity, condition: C_PackageState, amount: float) -> v
 		return
 	if condition.damage == C_PackageState.Damage.DESTROYED:
 		return
+
 	condition.leaking = true
 	var newly_damaged: bool = condition.damage == C_PackageState.Damage.UNDAMAGED
 	condition.damage = C_PackageState.Damage.DAMAGED

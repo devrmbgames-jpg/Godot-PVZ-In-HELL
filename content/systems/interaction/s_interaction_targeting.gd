@@ -16,5 +16,6 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 			interactor.target = null
 			interactor.physics_target = null
 			continue
+
 		interactor.target = InteractionTargetingService.find_target(holder, interactor)
 		interactor.physics_target = InteractionTargetingService.find_physics_target(holder, interactor)

@@ -112,6 +112,7 @@ func _trade(command: String, key: String, count: String, raw: String, courier: b
 	if definition == null or not count.is_valid_int():
 		_report(command, false, "Authored trader catalog key and integer count required")
 		return
+
 	var operation: StringName = CommerceService.next_id("debug-trader")
 	var status: CommerceService.Status = CommerceService.home_delivery(DebugTargetResolver.player(), trader, definition, count.to_int(), operation) if courier else CommerceService.purchase(DebugTargetResolver.player(), trader, definition, count.to_int(), operation)
 	_report(command, status == CommerceService.Status.COMMITTED, CommerceService.Status.keys()[status], "trader=%s item=%s quantity=%d operation=%s courier=%s" % [trader.id, definition.key, count.to_int(), operation, courier])
@@ -122,6 +123,7 @@ func _order_place(key: String, count: String = "1") -> void:
 	if not count.is_valid_int():
 		_report("order_place", false, "Integer count required")
 		return
+
 	var operation: StringName = CommerceService.next_id("debug-order")
 	var status: CommerceService.Status = CommerceService.order(DebugTargetResolver.player(), DebugGameplayService.item(key), count.to_int(), operation)
 	_report("order_place", status == CommerceService.Status.COMMITTED, CommerceService.Status.keys()[status], "item=%s quantity=%d operation=%s" % [key, count.to_int(), operation])
@@ -131,6 +133,7 @@ func _npc_attack(raw: String, kind_text: String, index_text: String, victim_text
 	if kind_text not in ["melee", "ranged"] or not index_text.is_valid_int() or index_text.to_int() < 0 or index_text.to_int() >= C_NpcCombat.MAX_VARIANTS:
 		_report("npc_attack", false, "kind melee/ranged; zero-based slot0..2")
 		return
+
 	var kind: C_NpcCombat.Kind = C_NpcCombat.Kind.MELEE if kind_text == "melee" else C_NpcCombat.Kind.RANGED
 	_report("npc_attack", NpcAttackService.start_against(DebugGameplayService.subject(raw), DebugGameplayService.subject(victim_text), kind, index_text.to_int()), "Live authored ability, target, range/LOS and ready cooldown required")
 
@@ -148,6 +151,7 @@ func _challenge_stop(raw: String) -> void:
 	if state == null or state.phase in [C_Challenge.Phase.INACTIVE, C_Challenge.Phase.CLEANUP]:
 		_report("challenge_stop", false, "No challenge session to cancel")
 		return
+
 	ChallengeService.cancel(subject)
 	_report("challenge_stop", true, "")
 
@@ -165,6 +169,7 @@ func _debug_ui(mode: String) -> void:
 	if mode not in ["on", "off"]:
 		_report("debug_ui", false, "on or off required")
 		return
+
 	DebugHudService.set_enabled(mode == "on")
 	_report("debug_ui", true, "")
 
@@ -175,6 +180,7 @@ func _debug_markers(mode: String) -> void:
 	if mode not in ["on", "off"] or markers == null:
 		_report("debug_markers", false, "on/off and authored DebugMarkers node required")
 		return
+
 	markers.visible = mode == "on"
 	_report("debug_markers", true, "")
 

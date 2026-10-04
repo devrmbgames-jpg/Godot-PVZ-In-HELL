@@ -32,6 +32,7 @@ func before_each() -> void:
 	_visit.money_delta = -150
 	(session.get_component(C_CustomerFlow) as C_CustomerFlow).visits.append(_visit)
 	_parcel = Entity.new()
+
 	var identity: C_Package = C_Package.new()
 	identity.package_id = _record.package_id
 	var state: C_PackageState = C_PackageState.new()

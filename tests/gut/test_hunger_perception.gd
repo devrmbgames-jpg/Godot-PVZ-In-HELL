@@ -18,6 +18,7 @@ func before_each() -> void:
 	_world.add_entity(session)
 	(session.get_component(C_DayCycle) as C_DayCycle).phase = C_DayCycle.Phase.DAY
 	_actor = Entity.new()
+
 	var hunger: C_Hunger = C_Hunger.new()
 	hunger.policy = DEF_HungerPolicy.new()
 	_actor.component_resources = [C_PlayerInputController.new(), C_GrabControl.new(), hunger]
@@ -26,6 +27,7 @@ func before_each() -> void:
 	_customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
 	(_customer as Node as RigidBody3D).freeze = true
 	_world.add_entity(_customer)
+
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = &"hunger-visit"
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
@@ -36,6 +38,7 @@ func before_each() -> void:
 	_visit.definition = DEF_Customer.new()
 	_visit.started = true
 	(session.get_component(C_CustomerFlow) as C_CustomerFlow).visits = [_visit]
+
 	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	registration.package_id = _visit.package_id
 	registration.number = 3
@@ -65,6 +68,7 @@ func _food(visible: bool) -> void:
 		await get_tree().process_frame
 		if (_customer.get_node("HungerPerception/Food") as Node3D).visible == visible:
 			return
+
 	assert_true(false, "Food presentation must follow the current local-player tier")
 
 
@@ -77,6 +81,7 @@ func _line_text() -> String:
 	var panel: CustomerDialoguePanel = _panel()
 	if panel == null:
 		return ""
+
 	for node: Node in panel.find_children("*", "RichTextLabel", true, false):
 		return (node as RichTextLabel).text
 	return ""
@@ -88,6 +93,7 @@ func _press(text: String) -> bool:
 		var panel: CustomerDialoguePanel = _panel()
 		if panel == null:
 			continue
+
 		for node: Node in panel.find_children("*", "Button", true, false):
 			var button: Button = node as Button
 			if button.text == text and button.visible and not button.disabled:
@@ -128,6 +134,7 @@ func test_open_dialogue_reverts_current_npc_line_after_food_without_advancing_br
 		await get_tree().process_frame
 		if _line_text() == "Съешь меня":
 			break
+
 	assert_eq(_line_text(), "Съешь меня")
 	var food: DEF_FoodEffect = DEF_FoodEffect.new()
 	food.hunger_relief = 100.0
@@ -136,12 +143,14 @@ func test_open_dialogue_reverts_current_npc_line_after_food_without_advancing_br
 		await get_tree().process_frame
 		if _line_text().contains("003"):
 			break
+
 	assert_true(_line_text().contains("003"), "Current real line must return without a dialogue transition")
 	assert_true(await _press("Хорошо."), "Player choice retains its authored meaning")
 	for frame: int in UI_FRAMES:
 		await get_tree().process_frame
 		if _panel() == null:
 			break
+
 	assert_null(_panel())
 	assert_eq((_customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
@@ -159,6 +168,7 @@ func test_starving_honest_denial_keeps_actual_response_tags_and_domain_transitio
 		await get_tree().process_frame
 		if _panel() == null:
 			break
+
 	assert_eq(_visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
 	assert_eq(_visit.last_dialogue_intent, CustomerDialogueIntent.Type.HONEST)
 	assert_eq((_customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.LEAVING)

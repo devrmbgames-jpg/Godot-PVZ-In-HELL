@@ -72,14 +72,19 @@ static func _complaint_text(complaint: CustomerComplaint) -> String:
 	match complaint.outcome:
 		CustomerComplaint.Outcome.PENDING:
 			return "на рассмотрении"
+
 		CustomerComplaint.Outcome.CONFIRMED:
 			return "подтверждена"
+
 		CustomerComplaint.Outcome.FALSE_CLAIM:
 			return "ложная"
+
 		CustomerComplaint.Outcome.WAIVED_PLAYER_DEFEAT:
 			return "штраф отменён"
+
 		CustomerComplaint.Outcome.ALREADY_SETTLED:
 			return "расчёт уже выполнен"
+
 		CustomerComplaint.Outcome.NO_LIVING_CLAIMANT:
 			return "заявитель отсутствует"
 	return "—"

@@ -23,6 +23,7 @@ func before_each() -> void:
 	_customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
 	(_customer as Node as RigidBody3D).freeze = true
 	_world.add_entity(_customer)
+
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = &"hud-test"
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
@@ -34,6 +35,7 @@ func before_each() -> void:
 	_visit.definition.patience_seconds = 47.0
 	_visit.satisfaction = 74
 	CustomerFlowService.current().visits.append(_visit)
+
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = _visit.package_id
 	record.number = 19
@@ -106,6 +108,7 @@ func test_floor_label_reads_only_its_live_relationship_effect_damage_clock() -> 
 	_world.add_entity(hazard)
 	(hazard.get_component(C_FloorHazard) as C_FloorHazard).damage_elapsed = 0.35
 	_customer.add_relationship(Relationship.new(R_ChallengeEffect.new(), hazard))
+
 	var text: String = CustomerDebugPresentation.text_for(_customer)
 	assert_string_contains(text, "Пол: опасный контакт")
 	assert_string_contains(text, "Таймер урона 0.35 с")

@@ -20,6 +20,7 @@ func _run() -> void:
 	(_level.get_node("Entityes/Player") as Node).set_physics_process(false)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	cycle.phase = C_DayCycle.Phase.DAY
 	var flow: C_CustomerFlow = CustomerFlowService.current()
@@ -35,6 +36,7 @@ func _run() -> void:
 	visit.started = true
 	visit.visit_count = 1
 	flow.visits = [visit]
+
 	var counter: E_DeliveryCounter = CustomerFlowService.counter()
 	var customer: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
 	# Fixed-fps headless navigation runs faster than the audio mixer; sound has owner QA.
@@ -43,6 +45,7 @@ func _run() -> void:
 	body.position = counter.waiting_position()
 	_level.add_child(body)
 	ECS.world.add_entity(customer, null, false)
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
@@ -55,6 +58,7 @@ func _run() -> void:
 	CustomerFlowService.bind_parcel(customer, visit)
 	assert(CustomerFlowService._resolve_delivery(customer, visit, parcel, null) == PackageDeliveryCheck.Result.READY)
 	assert(agent.phase == C_CustomerAgent.Phase.GOING_TO_BOOTH)
+
 	var visited: bool = false
 	for frame: int in MAX_FRAMES:
 		ECS.world.process(FRAME_DELTA, "Physics")

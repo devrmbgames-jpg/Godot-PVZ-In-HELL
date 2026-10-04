@@ -1,75 +1,48 @@
-# Agent tasks
+# Durable agent tasks
 
-This directory contains durable state only for work that is long-running, interruptible, explicitly tracked, or Feature-sized.
+This directory is only for implementation state that must survive the current Codex/VS Code session.
 
-Implementation IDs use `Rxx` / `Rxx.x`. Design specifications under `docs/roadmap/` use `ТЗ xx`; their numbers do not imply implementation order.
+## When to create a file
 
-Canonical queue/status index: [CONTEXT.md](CONTEXT.md).  
-Canonical design-to-implementation mapping: [docs/roadmap/README.md](../docs/roadmap/README.md).
+Create or reuse `agent_tasks/<task>.md` when at least one is true:
+- the work is genuinely long/interruptible and is expected to continue in another session/thread;
+- several future sessions need durable decisions/milestones;
+- the user explicitly asks for repository-tracked task state.
 
-## Right-sized task policy
+Do **not** create a task file for a local Fix, a normal single-session Task, or merely because Plan Mode was used. Session Plan + Goal are the normal execution state.
 
-- **Fix** — no task file.
-- **Task** — reuse an existing task artifact when useful; create one only for genuinely interruptible/long-running work.
-- **Feature** — durable task/router is required.
-- Do not create a second plan when a roadmap/task already owns the work.
-- For a large task, the root file remains the authoritative router/state; detailed milestones may live in `agent_tasks/<task_slug>/`.
-- Supporting specs/inventories use `SUPPORT` and never compete with the owner task for status/current/next-step authority.
+## Ownership
 
-## Status vocabulary
+A durable task file is the single repository source for its own:
+- goal and constraints;
+- optional milestones;
+- durable decisions;
+- exact checkpoint / next action;
+- validation actually performed;
+- remaining blockers or owner QA.
 
-- `PLANNED`
-- `IN_PROGRESS`
-- `DEFERRED`
-- `BLOCKED`
-- `OWNER_QA`
-- `DONE`
-- `SUPPORT`
+Do not maintain a separate queue index, current-work file, or completed-task history. If supporting milestone files exist, the root task remains the only owner of overall status/current/next.
 
-## Authoritative task state
-
-Each executable task/router should expose a compact control block near the top:
+Suggested compact header:
 
 ```md
-Status: **PLANNED | IN_PROGRESS | DEFERRED | BLOCKED | OWNER_QA | DONE**
+# Rxx — Task name
+Status: **PLANNED | IN_PROGRESS | DEFERRED | BLOCKED | OWNER_QA**
 
-## Task state
+## Goal
+...
 
-### Goal
-One short outcome.
+## Constraints / acceptance
+...
 
-### Constraints / acceptance
-Only constraints that materially affect implementation.
+## Current
+...
 
-### Milestones
-- [ ] Small coherent stage.
+## Validation
+...
 
-### Decisions
-Durable decisions/invariants only.
-
-### Current
-Exact checkpoint and one next step.
-
-### Validation
-Checks actually run and their result.
-
-### Owner QA / blockers
-Only remaining manual/external verification.
-
-### Review
-Optional material findings:
-| ID | Severity | Finding | State | Evidence / decision |
-| R1 | BUG | ... | OPEN / FIXED / ACCEPTED / FALSE_POSITIVE | ... |
+## Owner QA / blockers
+...
 ```
 
-Historical details may remain below the control block as evidence/reference, but the control block is authoritative for status/current/next action.
-
-## Runtime budget
-
-Do not run GUT/smoke after every milestone. For a complete large `Rxx` / `Rxx.x`, normally reserve one relevant GUT invocation and one relevant headless smoke/runtime invocation near completion unless the task explicitly requires otherwise.
-
-Completed work is summarized in [task_history.md](../task_history.md). Do not recreate removed completed task files merely to satisfy the new format.
-
-## Завершённые задачи
-
-По требованию владельца (2026-10-03) готовые implementation-задачи удаляются из этой папки после фиксации этапа. Здесь остаётся только открытая работа. Ожидающая игроков ручная приёмка находится в `qa_tasks/`; краткие доказательства и IDs завершённых реализаций — в `task_history.md`, подробные удалённые документы доступны в Git. Новый обнаруженный баг оформляется новой задачей, завершённый файл не возвращается в очередь.
+When implementation no longer needs durable state, remove the task file after preserving any lasting product contract in `docs/` and any remaining manual checks in `qa_tasks/`. Git keeps the historical implementation record.

@@ -47,6 +47,7 @@ static func create_visit(
 		if wallet != null and wallet.policy != null
 		else 0
 	)
+
 	var random: RandomNumberGenerator = RandomNumberGenerator.new()
 	random.seed = String(visit.visit_id).hash()
 	visit.complaint_roll = random.randf()
@@ -126,6 +127,7 @@ static func declare(
 	if not CustomerFlowService.declare(target.visit.visit_id, declaration):
 		result.message = "declaration was rejected by CustomerFlowService"
 		return result
+
 	result.success = true
 	result.message = "declaration committed"
 	result.details.append(
@@ -192,6 +194,7 @@ static func resolve_complaint(target: DebugTarget) -> DebugServiceResult:
 	if cycle == null:
 		result.message = "day cycle is unavailable"
 		return result
+
 	CustomerOutcomeService.resolve_complaint(
 		visit,
 		WalletService.current(),
@@ -220,6 +223,7 @@ static func approve(
 	if not CustomerOutcomeService.approve(target.visit, satisfaction):
 		result.message = "approval was rejected"
 		return result
+
 	result.success = true
 	result.message = "customer approval recorded"
 	result.details.append("satisfaction=%d" % target.visit.satisfaction)
@@ -249,9 +253,11 @@ static func _customer_policy(
 			if event.customer != null and String(event.customer.key) == normalized:
 				return event.customer
 		return null
+
 	for event: DEF_CustomerEvent in schedule.events:
 		if event.package_key == package_definition.key and event.customer != null:
 			return event.customer
+
 	for event: DEF_CustomerEvent in schedule.events:
 		if event.customer != null:
 			return event.customer

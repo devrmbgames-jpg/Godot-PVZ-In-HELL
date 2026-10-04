@@ -21,6 +21,7 @@ func _process(delta: float) -> void:
 	_bind_observer()
 	if not is_instance_valid(ECS.world) or _light == null:
 		return
+
 	var state: C_LightCircuit = LightCircuitService.state_for(circuit_id)
 	if state == null:
 		_remaining = 0.0
@@ -49,10 +50,12 @@ func cancel_flicker() -> void:
 func _bind_observer() -> void:
 	if is_instance_valid(_observer) and _world == ECS.world:
 		return
+
 	_disconnect()
 	_world = ECS.world
 	if not is_instance_valid(_world):
 		return
+
 	for observer: Observer in _world.observers:
 		var relay: O_LightFlicker = observer as O_LightFlicker
 		if relay != null:
@@ -78,6 +81,7 @@ func _on_flicker(event: LightFlickerEvent) -> void:
 		return
 	if not is_finite(event.duration_seconds) or event.duration_seconds <= 0.0 or not is_finite(event.interval_seconds) or event.interval_seconds <= 0.0:
 		return
+
 	_request_id = event.request_id
 	_remaining = event.duration_seconds
 	_elapsed = 0.0

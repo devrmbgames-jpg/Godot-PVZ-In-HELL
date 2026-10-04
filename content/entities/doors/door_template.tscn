@@ -4,9 +4,13 @@
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_h1wor"]
 [ext_resource type="PackedScene" uid="uid://xwq2rkdlfcja" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Door_A/Door_A.tscn" id="2_vvspe"]
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="3_g7h2j"]
-[ext_resource type="Script" path="res://content/components/interaction/c_openable.gd" id="Openable"]
-[ext_resource type="Script" path="res://content/definitions/interaction/def_openable_motion.gd" id="Motion"]
-[ext_resource type="Resource" path="res://content/definitions/interaction/def_openable_actions.tres" id="Actions"]
+[ext_resource type="Resource" uid="uid://bk6mvcakrsb27" path="res://content/definitions/interaction/def_openable_actions.tres" id="Actions"]
+[ext_resource type="Script" uid="uid://dcv0bk66hyyby" path="res://content/definitions/interaction/def_openable_motion.gd" id="Motion"]
+[ext_resource type="Script" uid="uid://c4tjx7koopu4" path="res://content/components/interaction/c_openable.gd" id="Openable"]
+
+[sub_resource type="Resource" id="Resource_kyu5v"]
+script = ExtResource("3_g7h2j")
+metadata/_custom_type_script = "uid://6oap3bonxec0"
 
 [sub_resource type="Resource" id="Motion"]
 script = ExtResource("Motion")
@@ -17,25 +21,22 @@ duration_seconds = 1.0
 script = ExtResource("Openable")
 motion = SubResource("Motion")
 
-[sub_resource type="Resource" id="Resource_kyu5v"]
-script = ExtResource("3_g7h2j")
-metadata/_custom_type_script = "uid://6oap3bonxec0"
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
 size = Vector3(1.531498, 2.7119966, 0.1953125)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_mn5t4"]
 size = Vector3(1.5908661, 2.737605, 0.2578125)
 
-[node name="DoorTemplate" type="AnimatableBody3D" unique_id=18274721 node_paths=PackedStringArray("hinge_joint", "door_root")]
+[node name="DoorTemplate" type="AnimatableBody3D" unique_id=18274721 node_paths=PackedStringArray("door_root", "hinge_joint")]
 collision_layer = 2
 collision_mask = 0
 script = ExtResource("1_44h7p")
-hinge_joint = NodePath("HingeJoint3D")
 door_root = NodePath("RigidBody3D")
+hinge_joint = NodePath("HingeJoint3D")
 component_resources = Array[ExtResource("2_h1wor")]([SubResource("Resource_kyu5v"), ExtResource("Actions"), SubResource("Openable")])
 
 [node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=1842995147]
+collision_layer = 8
 collision_mask = 29
 mass = 20.0
 gravity_scale = 0.0
@@ -56,9 +57,8 @@ transform = Transform3D(-4.371139e-08, 1, 4.371139e-08, 0, -4.371139e-08, 1, 1, 
 node_a = NodePath("..")
 node_b = NodePath("../RigidBody3D")
 angular_limit/enable = true
-angular_limit/lower = -1.5707964
 angular_limit/upper = 0.0
 
 [node name="ColInteract" type="CollisionShape3D" parent="." unique_id=1810402224]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7916031, 1.4023461, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8029785, 1.3941956, 0)
 shape = SubResource("BoxShape3D_mn5t4")

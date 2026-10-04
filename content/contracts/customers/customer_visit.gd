@@ -55,6 +55,8 @@ enum Feedback { NONE, APPROVED }
 @export var finished: bool = false
 @export var finished_day: int = 0
 @export var visit_count: int = 0
+## Monotonic appearance order for the persistent district counter queue.
+@export var queue_order: int = 0
 @export var followup_count: int = 0
 @export var next_followup_day: int = 0
 ## Explicit "come back later" agreement. While true, finishing this appearance must not roll a complaint.

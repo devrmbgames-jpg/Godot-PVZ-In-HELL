@@ -29,6 +29,7 @@ static func evaluate(
 	result.amount *= maxf(0.0, profile.damage_per_joule)
 	if not is_finite(result.amount):
 		return ImpactResult.new()
+
 	result.qualifies = true
 	result.severity = classify(result.amount, profile)
 	return result
@@ -51,5 +52,6 @@ static func cap_damage(amount: float, max_health: float, profile: DEF_ImpactProf
 		return 0.0
 	if amount <= 0.0 or max_health <= 0.0:
 		return 0.0
+
 	var maximum: float = max_health * clampf(profile.max_hp_fraction_per_hit, 0.0, 1.0)
 	return minf(amount, maximum)

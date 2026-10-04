@@ -1,6 +1,6 @@
 # Повторная проверка замечаний владельца
 
-Источник: [R23 QA-01–QA-13](../agent_tasks/roadmap_23_vertical_slice_validation/owner_qa.md).
+Источник: R23 QA-01–QA-13; implementation evidence сохранены в Git history.
 
 Готовность: **ГОТОВО К ПРОВЕРКЕ QA-01–20 и R24** в последней Windows сборке. Реализация завершена; результат: **ОЖИДАЕТ ИГРОКА**.
 
@@ -55,7 +55,7 @@
 - Проверенные пункты и результат:
 - Ошибки, ожидаемое/фактическое поведение, шаги повторения:
 
-QA03 check: четыре колонки, пустые слоты, иконки еды/аптечки/плёнки/мяса; клик выбирает, отдельная кнопка использует, запрет показан в описании. Выложить весь стек создаёт подбираемый предмет рядом на полу, сохраняет количество; стена/отсутствие пола не расходуют предмет. Windows availability is recorded in CURRENT_WORK.md; grid export follows next combined milestone.
+QA03 check: четыре колонки, пустые слоты, иконки еды/аптечки/плёнки/мяса; клик выбирает, отдельная кнопка использует, запрет показан в описании. Выложить весь стек создаёт подбираемый предмет рядом на полу, сохраняет количество; стена/отсутствие пола не расходуют предмет. Windows availability is recorded in active session Goal; grid export follows next combined milestone.
 
 QA13 check: amber available, red unavailable/heavy, blue busy; open modal inventory/Terminal clears aim outline, close restores aiming feedback. Edit .res resources under content/materials/interaction in inspector; base material stays unchanged. Grid + overlays export follows combined milestone.
 

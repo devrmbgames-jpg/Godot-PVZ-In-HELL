@@ -26,14 +26,19 @@ static func from_tags(tags: PackedStringArray) -> Type:
 		match tag:
 			TAG_HONEST:
 				return Type.HONEST
+
 			TAG_LIE:
 				return Type.LIE
+
 			TAG_PERSUADE:
 				return Type.PERSUADE
+
 			TAG_THREAT:
 				return Type.THREAT
+
 			TAG_FLIRT:
 				return Type.FLIRT
+
 			TAG_JOKE:
 				return Type.JOKE
 	return Type.NONE

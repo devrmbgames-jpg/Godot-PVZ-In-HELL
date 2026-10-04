@@ -24,6 +24,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	assert(ECS.world.query.with_all([C_Package]).execute().size() == 8)
 
 	var actor: Entity = _level.get_node("Entityes/Player") as Entity
@@ -77,5 +78,6 @@ func _wait_for_customer() -> E_Customer:
 		var customer: E_Customer = CustomerFlowService.waiting_customer()
 		if customer != null:
 			return customer
+
 	assert(false, "Customer must reach WAITING_FOR_PACKAGE within frame budget")
 	return null

@@ -63,6 +63,7 @@ func _make_actor() -> Entity:
 	_ray.target_position = Vector3(0, 0, -3)
 	actor_body.add_child(_ray)
 	actor.set("interaction_ray_cast", _ray)
+
 	var hand: Marker3D = Marker3D.new()
 	hand.position = Vector3(0.8, 0.8, -0.5)
 	actor_body.add_child(hand)
@@ -97,6 +98,7 @@ func _make_hammer() -> Entity:
 	shape.size = Vector3.ONE * 0.1
 	collision.shape = shape
 	body.add_child(collision)
+
 	var hammer: Entity = body as Node as Entity
 	var grabbable: C_Grabbable = C_Grabbable.new()
 	grabbable.allowed_hand_slots = 6
@@ -113,6 +115,7 @@ func _box(location: Vector3) -> Entity:
 	body.collision_layer = 8
 	body.collision_mask = 29
 	body.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+
 	var collision: CollisionShape3D = CollisionShape3D.new()
 	var shape: BoxShape3D = BoxShape3D.new()
 	shape.size = Vector3.ONE * 0.5
@@ -137,6 +140,7 @@ func _hold_hammer() -> void:
 func _anchor_visible(target: Entity) -> bool:
 	if not _aim(target):
 		return false
+
 	var config: C_Anchorable = target.get_component(C_Anchorable) as C_Anchorable
 	AnchoringService.update_stability(target, config, 0.01)
 	return AnchoringService.anchor(_actor, _hammer, target)

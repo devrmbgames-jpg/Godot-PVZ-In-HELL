@@ -132,6 +132,7 @@ func test_valve_progress_follows_rotation_decay_and_oncomplete_reset_without_rea
 	valve._process(0.0)
 	assert_almost_eq(valve.get_progress(), 0.4125, 0.00001)
 	valve.mode = E_InteractionTestValve.Mode.HOLD_ON_COMPLETE
+
 	var reset_progress: ProlongedInteractionProgress = _progress(valve, &"test_valve_on_complete")
 	watch_signals(valve)
 	assert_true(ProlongedProgressService.advance(reset_progress, reset_progress.timing, reset_progress.timing.duration_seconds, true))
@@ -195,6 +196,7 @@ func test_persistent_toxic_clock_follow_attribution_and_geometry_survive_recreat
 	hazard.origin_id = id
 	hazard.instigator_id = id
 	toxin.add_component(C_NoDamage.new())
+
 	var follow: R_HazardFollow = R_HazardFollow.new()
 	follow.local_offset.origin = Vector3(2, 0, 0)
 	HazardFollowService.replace(toxin, valve, follow)
@@ -214,6 +216,7 @@ func test_persistent_toxic_clock_follow_attribution_and_geometry_survive_recreat
 	assert_true(toxin.has_component(C_NoDamage))
 	assert_eq((toxin.get_component(C_HazardLifetime) as C_HazardLifetime).remaining_seconds, 42.5)
 	assert_eq((toxin.get_component(C_ToxicArea) as C_ToxicArea).tick_elapsed, 0.35)
+
 	var restored_binding: Relationship = HazardFollowService.binding(toxin)
 	assert_not_null(restored_binding)
 	assert_eq(restored_binding.target, valve)
@@ -268,6 +271,7 @@ func test_independent_restore_cancels_deferred_owner_loss_retirement() -> void:
 	HazardFollowService.replace(toxin, owner, follow)
 	_world.disable_entity(toxin)
 	_world.remove_entity(owner)
+
 	var lifetime: C_HazardLifetime = toxin.get_component(C_HazardLifetime) as C_HazardLifetime
 	assert_true(lifetime.owner_loss_pending)
 	var entities: Dictionary[String, Entity] = {}
@@ -291,6 +295,7 @@ func test_night_drains_disabled_owner_loss_before_persistent_snapshot_capture() 
 	_world.disable_entity(toxin)
 	NightResetService.reset()
 	assert_false(_world.entities.has(toxin))
+
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	for record: Dictionary in snapshot.entities:
 		assert_ne(String(record.key), key)
@@ -318,6 +323,7 @@ func test_disabled_persistent_toxin_rebuilds_geometry_before_final_disable() -> 
 	assert_not_null(toxin)
 	assert_false(toxin.enabled)
 	_world.enable_entity(toxin)
+
 	var definition: DEF_ToxicArea = (toxin.get_component(C_Hazard) as C_Hazard).definition as DEF_ToxicArea
 	assert_eq(((toxin as E_ToxicArea).get_shape().shape as SphereShape3D).radius, definition.radius)
 	assert_eq((toxin as E_ToxicArea).get_area().collision_mask, definition.collision_mask)
@@ -330,6 +336,7 @@ func test_null_wrong_profile_or_omitted_hazard_component_fails_without_mutation(
 		for record: Dictionary in snapshot.entities:
 			if String(record.entity_id) != toxin.id:
 				continue
+
 			var components: Array = record.components as Array
 			for index: int in components.size():
 				if SaveDataCodec.component_script(String(components[index].type)) != C_Hazard:
@@ -341,6 +348,7 @@ func test_null_wrong_profile_or_omitted_hazard_component_fails_without_mutation(
 				else:
 					(components[index].fields as Dictionary).definition = SaveDataCodec.encode(load("res://content/definitions/gameplay/hazards/def_parcel_blast.tres") as DEF_Explosion)
 				break
+
 		var count: int = _world.entities.size()
 		assert_false(WorldSnapshotService.restore(snapshot, _root), invalid)
 		assert_eq(DayPhaseService.current().day_index, 1)

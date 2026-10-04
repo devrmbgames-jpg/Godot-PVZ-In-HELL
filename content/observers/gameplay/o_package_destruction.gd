@@ -26,6 +26,7 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 	var spatial: Node3D = package as Node as Node3D
 	if spatial == null:
 		return
+
 	var world_pose: Transform3D = (
 		event.cause.world_pose
 		if event.cause != null and event.cause.world_pose.is_finite()

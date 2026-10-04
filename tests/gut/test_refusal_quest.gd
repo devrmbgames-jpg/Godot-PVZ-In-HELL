@@ -28,6 +28,7 @@ func before_each() -> void:
 	_trader.component_resources = [C_Trader.new()]
 	_world.add_entity(_trader)
 	_parcel = Entity.new()
+
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "durable:first"
 	_parcel.component_resources = [identity]
@@ -60,6 +61,7 @@ func test_offer_is_idempotent_and_live_bindings_target_real_package_and_issuer()
 	assert_eq(record.deadline_day, 2)
 	assert_eq(RefusalQuestService.offer(_trader), record)
 	assert_eq(_state.records.size(), 1)
+
 	var binding: Entity = _world.query.with_all([C_QuestBinding]).execute_one()
 	var parcel_link: bool = false
 	var issuer_link: bool = false
@@ -161,6 +163,7 @@ func test_reused_display_number_and_removed_issuer_do_not_replace_durable_target
 	assert_eq(record.state, RefusalQuestRecord.State.ACTIVE)
 	assert_eq(record.package_id, "durable:first")
 	assert_eq(record.issuer_key, &"evening_trader")
+
 	var copy: C_QuestSession = _state.duplicate(true) as C_QuestSession
 	assert_eq(copy.records[0].visit_id, _visit.visit_id)
 	copy.records[0].state = RefusalQuestRecord.State.FAILED

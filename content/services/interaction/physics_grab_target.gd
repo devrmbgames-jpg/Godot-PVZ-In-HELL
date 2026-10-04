@@ -8,9 +8,11 @@ const META_PROXY: StringName = &"_gecs_grab_proxy"
 static func body_for(handle: Entity) -> RigidBody3D:
 	if not is_instance_valid(handle):
 		return null
+
 	var direct: RigidBody3D = handle as Node as RigidBody3D
 	if direct != null:
 		return direct
+
 	var reference: C_PhysicsBodyRef = handle.get_component(C_PhysicsBodyRef) as C_PhysicsBodyRef
 	if reference == null or not is_instance_valid(reference.body):
 		return null
@@ -53,10 +55,12 @@ static func is_proxy(handle: Entity) -> bool:
 static func _cached_proxy(body: RigidBody3D) -> Entity:
 	if not body.has_meta(META_PROXY):
 		return null
+
 	var reference: WeakRef = body.get_meta(META_PROXY) as WeakRef
 	var proxy: Entity = reference.get_ref() as Entity if reference != null else null
 	if _registered(proxy):
 		return proxy
+
 	body.remove_meta(META_PROXY)
 	return null
 

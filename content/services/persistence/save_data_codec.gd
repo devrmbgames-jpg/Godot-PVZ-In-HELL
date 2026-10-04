@@ -7,6 +7,9 @@ static var _component_fields: Dictionary = {
 	C_Wallet: ["balance", "penalties", "completed_days", "operations", "daily_results"],
 	C_PackageLedger: ["records", "history_sequence_day", "next_history_number", "last_departed_package_id"],
 	C_CustomerFlow: ["planned_through_day", "visits"],
+	C_District: ["definition", "people", "home_deliveries", "next_incident", "next_person", "prepared_morning", "replacement_morning", "conflict_phase", "ambient_conflicts", "next_service_order"],
+	C_NpcIdentity: ["npc_id"],
+	C_DamageResistance: ["multipliers"],
 	C_Commerce: ["receipts", "pending_deliveries", "next_request"],
 	C_QuestSession: ["records"],
 	C_Inventory: ["maximum_stacks"],
@@ -31,7 +34,7 @@ static var _component_fields: Dictionary = {
 	C_Explosion: ["resolved"],
 	C_NoDamage: [],
 }
-static var _record_types: Array[Script] = [CustomerVisit, CustomerComplaint, CombatContext, MoneyOperation, DailyMoneyResult, PackageRegistrationRecord, PurchaseReceipt, PendingDelivery, RefusalQuestRecord, ReceivingBatch]
+static var _record_types: Array[Script] = [NpcRecord, NpcMemory, NpcHomeDelivery, CustomerVisit, CustomerComplaint, CombatContext, MoneyOperation, DailyMoneyResult, PackageRegistrationRecord, PurchaseReceipt, PendingDelivery, RefusalQuestRecord, ReceivingBatch]
 const MAX_DEPTH: int = 16
 
 
@@ -39,6 +42,7 @@ static func component_data(component: Component) -> Dictionary:
 	var script: Script = component.get_script() as Script
 	if not _component_fields.has(script):
 		return {}
+
 	var fields: Dictionary = {}
 	for field: String in _component_fields[script]:
 		fields[field] = encode(component.get(field))
@@ -56,6 +60,7 @@ static func encode(value: Variant, depth: int = 0) -> Variant:
 		var script: Script = resource.get_script() as Script
 		if script not in _record_types:
 			return {"invalid": true}
+
 		var fields: Dictionary = {}
 		for property: Dictionary in resource.get_property_list():
 			var name: String = String(property.name)
@@ -96,10 +101,12 @@ static func decode(value: Variant, depth: int = 0) -> Variant:
 			var script: Script = record_script(String(data.type))
 			if script == null or not data.get("fields") is Dictionary:
 				return null
+
 			var resource: Resource = script.new() as Resource
 			if not apply_fields(resource, data.fields as Dictionary, depth + 1):
 				return null
 			return resource
+
 		var result: Dictionary = {}
 		for key: Variant in data:
 			result[key] = decode(data[key], depth + 1)
@@ -124,9 +131,11 @@ static func component_script(path: String) -> Script:
 static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 	if not _component_fields.has(script):
 		return false
+
 	var expected: Array = _component_fields[script] as Array
 	if fields.size() != expected.size():
 		return false
+
 	for field: String in expected:
 		if not fields.has(field):
 			return false
@@ -146,10 +155,12 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 	for field: Variant in fields:
 		if not field is String or field not in allowed or depth > MAX_DEPTH:
 			return false
+
 		var decoded: Variant = decode(fields[field], depth + 1)
 		var current: Variant = resource.get(field)
 		if fields[field] != null and decoded == null:
 			return false
+
 		var property: Dictionary = schema.get(field, {}) as Dictionary
 		if property.is_empty() or (decoded != null and typeof(decoded) != int(property.type)):
 			return false
@@ -160,26 +171,31 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		if current is Array:
 			if not decoded is Array:
 				return false
+
 			var target: Array = current as Array
 			var values: Array = decoded as Array
 			if target.is_typed():
 				for entry: Variant in values:
 					if typeof(entry) != target.get_typed_builtin():
 						return false
+
 					var required: Script = target.get_typed_script() as Script
 					if required != null and (not entry is Resource or (entry as Resource).get_script() != required):
 						return false
+
 			target.assign(values)
 			resource.set(field, target)
 		elif current is Dictionary:
 			if not decoded is Dictionary:
 				return false
+
 			var target: Dictionary = current as Dictionary
 			var values: Dictionary = decoded as Dictionary
 			if target.is_typed():
 				for key: Variant in values:
 					if typeof(key) != target.get_typed_key_builtin() or typeof(values[key]) != target.get_typed_value_builtin():
 						return false
+
 			target.assign(values)
 			resource.set(field, target)
 		else:
@@ -187,6 +203,7 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 				return false
 			if decoded is Resource and current is Resource and (decoded as Resource).get_script() != (current as Resource).get_script():
 				return false
+
 			resource.set(field, decoded)
 	return true
 
@@ -195,5 +212,6 @@ static func _script_matches(actual: Script, expected: StringName) -> bool:
 	while actual != null:
 		if actual.get_global_name() == expected:
 			return true
+
 		actual = actual.get_base_script()
 	return false

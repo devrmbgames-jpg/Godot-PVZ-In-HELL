@@ -7,13 +7,15 @@ const DEFAULT_OCCLUSION_MASK: int = 31
 
 
 static func announce_order(customer: E_Customer, visit: CustomerVisit) -> void:
-	if visit == null or visit.finished or not CustomerPresentation.uses_quick_order(visit.definition):
+	if visit == null or visit.finished or not CustomerPresentation.uses_quick_visit(visit):
 		return
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or agent.order_announced or agent.phase not in [C_CustomerAgent.Phase.APPROACHING, C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]:
 		return
 	if CustomerPresentation.registered_number(visit) < 0:
 		return
+
 	agent.order_announced = true
 	var message: String = CustomerPresentation.request_text(visit)
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
@@ -26,12 +28,15 @@ static func tick(customer: E_Customer, visit: CustomerVisit) -> void:
 	announce_order(customer, visit)
 	if visit == null or visit.finished or visit.definition == null or visit.definition.introduction != DEF_Customer.Introduction.FIRST_APPROACH_DIALOGUE:
 		return
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or agent.dialogue_started or agent.phase not in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]:
 		return
+
 	var actor: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	if not CustomerDialogueService.can_start(actor, customer):
 		return
+
 	var player_body: Node3D = actor as Node as Node3D
 	var customer_body: Node3D = customer as Node as Node3D
 	if player_body == null or player_body.global_position.distance_squared_to(customer_body.global_position) > pow(visit.definition.auto_dialogue_distance, 2.0):
@@ -51,6 +56,7 @@ static func _has_line_of_sight(actor: Entity, customer: E_Customer) -> bool:
 		var collider: CollisionObject3D = entity as Node as CollisionObject3D
 		if collider != null:
 			excluded.append(collider.get_rid())
+
 	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(start, end, DEFAULT_OCCLUSION_MASK, excluded)
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	if interactor != null:

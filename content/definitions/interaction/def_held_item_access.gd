@@ -19,6 +19,7 @@ func can_consume(actor: Entity, item: Entity) -> bool:
 func consume(actor: Entity, item: Entity) -> bool:
 	if not can_consume(actor, item):
 		return false
+
 	GrabService.release(actor, item)
 	ECS.world.remove_entity(item)
 	return true

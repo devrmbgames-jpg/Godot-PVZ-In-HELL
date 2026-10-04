@@ -13,6 +13,7 @@ func execute(_actor: Entity, _source: Entity, _target: Entity) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null:
 		return
+
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = transition
 	request.expected_day = cycle.day_index

@@ -1,0 +1,11 @@
+[gd_resource type="BehaviorTree" format=3]
+
+[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_branch.gd" id="1_tnw7x"]
+
+[sub_resource type="BTAction" id="BTAction_aysl2"]
+custom_name = "emergency"
+script = ExtResource("1_tnw7x")
+owner_kind = 0
+
+[resource]
+root_task = SubResource("BTAction_aysl2")

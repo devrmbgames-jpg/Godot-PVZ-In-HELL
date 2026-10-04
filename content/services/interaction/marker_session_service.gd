@@ -10,6 +10,7 @@ static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
 		return false
 	if InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.HANDS:
 		return false
+
 	var grip: Relationship = GrabService.held_relationship(tool)
 	if grip == null or grip.target != actor:
 		return false
@@ -19,6 +20,7 @@ static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	if interactor == null or InteractionTargetingService.find_target(actor, interactor) != target:
 		return false
+
 	var ray: RayCast3D = GrabService.interaction_raycast(actor)
 	var marker: C_Marker = tool.get_component(C_Marker) as C_Marker
 	return (
@@ -30,6 +32,7 @@ static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
 static func begin(actor: Entity, tool: Entity, target: Entity) -> void:
 	if not can_begin(actor, tool, target):
 		return
+
 	var marker: C_Marker = tool.get_component(C_Marker) as C_Marker
 	marker.pointer = (actor as Node).get_viewport().get_visible_rect().size * 0.5
 	marker.capture_token = InteractionControlFocus.acquire(
@@ -92,4 +95,5 @@ static func update(tool: Entity, marker: C_Marker) -> void:
 	if hit == null:
 		PackageMarkService.break_stroke(marker)
 		return
+
 	PackageMarkService.append_sample(marker, hit.parcel, hit.world_point, hit.world_normal)

@@ -20,6 +20,7 @@ func _run() -> void:
 	(actor as Node).set_physics_process(false)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
+
 	var padlock: E_Door = _level.get_node("Entityes/Doors/PadlockedDoor") as E_Door
 	var leaf: E_Door = _level.get_node("Entityes/Doors/BreakableDoor") as E_Door
 	assert(not OpenableService.can_request(actor, padlock, OpenableService.Operation.OPEN))
@@ -31,6 +32,7 @@ func _run() -> void:
 	assert(CombatService.hit(actor, actor, leaf, 100.0))
 	assert(leaf.door_root.collision_layer == 0)
 	assert((leaf as Node as CollisionObject3D).collision_layer == 0)
+
 	var before_count: int = ECS.world.query.with_all([C_InventoryItem]).execute().size()
 	for parcel_name: String in ["UnpackSmallShelf", "UnpackMedkits", "UnpackBread"]:
 		var parcel: E_Package = _level.get_node("Entityes/Props/" + parcel_name) as E_Package
@@ -43,6 +45,7 @@ func _run() -> void:
 		assert((parcel.get_component(C_PackageContents) as C_PackageContents).released)
 		assert(not PackageOpening.request_open(actor, parcel))
 	assert(ECS.world.query.with_all([C_InventoryItem]).execute().size() == before_count + 10)
+
 	var shelf: Entity = null
 	for candidate: Entity in ECS.world.query.with_all([C_Anchorable]).execute():
 		if candidate.scene_file_path == "res://content/entities/props/small_shelf.tscn":

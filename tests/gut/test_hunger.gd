@@ -17,6 +17,7 @@ func before_each() -> void:
 	_cycle = session.get_component(C_DayCycle) as C_DayCycle
 	_cycle.phase = C_DayCycle.Phase.DAY
 	_actor = Entity.new()
+
 	var hunger: C_Hunger = C_Hunger.new()
 	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
 	_actor.component_resources = [hunger, C_PlayerInputController.new(), C_Living.new()]
@@ -122,6 +123,7 @@ func test_food_reverses_attack_multiplier_and_authored_attack_is_unchanged() -> 
 	target.component_resources = [health]
 	_world.add_entity(target)
 	health = target.get_component(C_Health) as C_Health
+
 	var attack: DEF_MeleeAttack = load("res://content/definitions/gameplay/combat/def_blade_attack.tres") as DEF_MeleeAttack
 	_state.value = 75.0
 	assert_eq(attack.damage * HungerService.damage_multiplier(_state), 60.0)

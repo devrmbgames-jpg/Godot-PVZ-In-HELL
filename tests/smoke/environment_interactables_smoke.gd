@@ -24,6 +24,7 @@ func _run() -> void:
 	for actor: E_Openable in [door, window, drawer]:
 		var state: C_Openable = actor.get_component(C_Openable) as C_Openable
 		assert(state.actual_fraction >= 1.0 - ENDPOINT_TOLERANCE, "Openable must reach its authored open endpoint")
+
 	var door_blocker: StaticBody3D = _box(Vector3(0.6, 1.3, -0.6), Vector3(0.4, 0.5, 0.4))
 	var drawer_blocker: StaticBody3D = _box(Vector3(7, 1.5, 0), Vector3(0.6, 0.25, 0.2))
 	for actor: E_Openable in [door, window, drawer]:
@@ -37,6 +38,7 @@ func _run() -> void:
 	await _frames(SETTLE_FRAMES)
 	assert((door.get_component(C_Openable) as C_Openable).actual_fraction <= ENDPOINT_TOLERANCE)
 	assert((drawer.get_component(C_Openable) as C_Openable).actual_fraction <= ENDPOINT_TOLERANCE)
+
 	var before: Vector3 = drawer.door_root.global_position
 	drawer.door_root.apply_central_impulse(Vector3(100, 100, -100))
 	await _frames(SETTLE_FRAMES)

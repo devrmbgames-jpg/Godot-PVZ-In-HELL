@@ -19,6 +19,7 @@ func before_each() -> void:
 	_flow.schedule = DEF_CustomerSchedule.new()
 	_flow.schedule.supply = null
 	_flow.schedule.customer_scene = load("res://content/entities/customers/customer.tscn") as PackedScene
+
 	var counter_scene: PackedScene = load("res://content/entities/stations/delivery_counter.tscn") as PackedScene
 	var counter: E_DeliveryCounter = counter_scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(counter)
@@ -146,6 +147,7 @@ func test_authored_gaze_has_twelve_seconds_and_light_entrance_is_not_scaled_twic
 	subject.component_resources = [state]
 	_world.add_entity(subject)
 	state = subject.get_component(C_Challenge) as C_Challenge
+
 	var actor: Entity = Entity.new()
 	_world.add_entity(actor)
 	assert_true(ChallengeService.arm(subject, actor))
@@ -156,5 +158,34 @@ func test_authored_gaze_has_twelve_seconds_and_light_entrance_is_not_scaled_twic
 	ChallengeService.tick(subject, state, 0.1)
 	assert_not_null(state.pending_result)
 	assert_eq(state.pending_result.result, ChallengeResult.Type.FAILURE)
+
 	var entrance: DEF_Challenge = load("res://content/definitions/gameplay/challenges/def_challenge_light_entrance.tres") as DEF_Challenge
 	assert_eq(entrance.timeout_seconds, 80.0)
+
+
+func test_two_arrival_requests_in_one_command_batch_spawn_only_one_customer() -> void:
+	var first: CustomerVisit = _visit(&"batch-first")
+	var second: CustomerVisit = _visit(&"batch-second")
+	var commands: CommandBuffer = CommandBuffer.new(_world)
+	commands.add_custom(func() -> void: CustomerFlowService.spawn_next_due(_flow, _cycle))
+	commands.add_custom(func() -> void: CustomerFlowService.spawn_next_due(_flow, _cycle))
+	commands.execute()
+	assert_true(first.started)
+	assert_false(second.started, "A newly created customer blocks the next request before query-cache invalidation")
+	assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 1)
+
+
+func test_repeated_flow_ticks_in_one_batch_keep_first_visit_and_next_queued() -> void:
+	var first: CustomerVisit = _visit(&"tick-first")
+	var second: CustomerVisit = _visit(&"tick-second")
+	var commands: CommandBuffer = CommandBuffer.new(_world)
+	commands.add_custom(CustomerFlowService.tick.bind(_flow, _cycle, 0.0))
+	commands.add_custom(func() -> void:
+		assert_not_null(CustomerFlowService.customer_for(first.visit_id), "Registered customer is visible before cache invalidation")
+	)
+	commands.add_custom(CustomerFlowService.tick.bind(_flow, _cycle, 0.0))
+	commands.execute()
+	assert_true(first.started)
+	assert_false(first.finished, "Cache delay must not finish a physically present visit")
+	assert_false(second.started)
+	assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 1)

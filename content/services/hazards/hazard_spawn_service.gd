@@ -17,6 +17,7 @@ static func submit(request: HazardSpawnRequest) -> bool:
 	snapshot.origin_id = request.origin_id
 	snapshot.instigator_id = request.instigator_id
 	snapshot.scene = request.scene
+	snapshot.definition = request.definition
 	snapshot.world_pose = request.world_pose
 	snapshot.origin = request.origin if is_instance_valid(request.origin) else null
 	snapshot.instigator = request.instigator if is_instance_valid(request.instigator) else null

@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://b357k3h2k7kuh"]
 
-[ext_resource type="PackedScene" path="res://content/entities/customers/inspection_booth.tscn" id="InspectionBooth"]
 [ext_resource type="Script" uid="uid://c2jikq1w8bhv2" path="res://content/scenes/main_level.gd" id="1_ixiin"]
 [ext_resource type="PackedScene" uid="uid://dl0sa03fbgiro" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall/Primitive_Wall_static.tscn" id="1_ojrfc"]
 [ext_resource type="PackedScene" uid="uid://lmmf6kia0frw" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor_Prototype/Floor_Prototype_static.tscn" id="1_wp74p"]
@@ -10,7 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://boxna5m5n5ofv" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor/Floor_static.tscn" id="7_eim2b"]
 [ext_resource type="PackedScene" uid="uid://fjtvcn3mifma" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam/Primitive_Beam_static.tscn" id="9_ofyry"]
 [ext_resource type="PackedScene" path="res://content/entities/characters/character_body_player.tscn" id="13_da1x8"]
-[ext_resource type="Script" path="res://content/components/physics/c_character_body.gd" id="23_d7jx2"]
+[ext_resource type="Script" uid="uid://b3333vbu42x5j" path="res://content/components/physics/c_character_body.gd" id="23_d7jx2"]
 [ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/components/input/c_player_input_controller.gd" id="24_x60uf"]
 [ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/components/motion/c_motion.gd" id="25_t1fd8"]
 [ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/components/motion/c_look.gd" id="26_t86in"]
@@ -35,6 +34,15 @@
 [ext_resource type="PackedScene" uid="uid://cubcn0opxbk6v" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_A/Barrel_A_rigid.tscn" id="77_iit40"]
 [ext_resource type="PackedScene" uid="uid://cbskdoyjbjixx" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_B/Barrel_B_rigid.tscn" id="78_at2gx"]
 [ext_resource type="PackedScene" uid="uid://bf2ntstxhdr1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_C/Barrel_C_rigid.tscn" id="79_ypydk"]
+[ext_resource type="Script" uid="uid://bbpvm5g08vknq" path="res://content/contracts/npc/npc_home_delivery.gd" id="80_p0mrl"]
+[ext_resource type="Script" uid="uid://b227fscex8vpu" path="res://content/contracts/npc/npc_record.gd" id="81_jxwan"]
+[ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="87_g8cxy"]
+[ext_resource type="Script" uid="uid://cgf0j12tlcr1q" path="res://content/components/motion/c_npc_intent.gd" id="88_4djqo"]
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/definitions/gameplay/combat/def_npc_attack.gd" id="89_21qce"]
+[ext_resource type="Script" uid="uid://cvgkpkfqjch0p" path="res://content/components/gameplay/c_npc_combat.gd" id="90_dtq54"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/commerce/def_trader_default.tres" id="91_say4p"]
+[ext_resource type="Script" uid="uid://bw4ora21yecmg" path="res://content/components/commerce/c_trader.gd" id="92_1brdc"]
+[ext_resource type="Script" uid="uid://b4miil035qw62" path="res://content/definitions/interaction/def_trader_action.gd" id="93_p0mrl"]
 [ext_resource type="Script" uid="uid://beak7vlgbw1xn" path="res://content/contracts/economy/daily_money_result.gd" id="94_dtq54"]
 [ext_resource type="Script" uid="uid://cel5d7cs0026u" path="res://content/contracts/economy/money_operation.gd" id="95_say4p"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/economy/def_economy_default.tres" id="96_1brdc"]
@@ -50,6 +58,7 @@
 [ext_resource type="PackedScene" uid="uid://j6xcte7ugbf2" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Stairs_Half/Primitive_Stairs_Half_static.tscn" id="165_3xfrw"]
 [ext_resource type="PackedScene" path="res://content/entities/props/anchorable_test_box.tscn" id="AnchorTest_scene"]
 [ext_resource type="Script" uid="uid://00y5l3hnucd5" path="res://content/components/persistence/c_autosave.gd" id="Autosave_state"]
+[ext_resource type="Script" uid="uid://7ah3t80yjit4" path="res://content/ui/circuit_light_view.gd" id="Circuit_light_view"]
 [ext_resource type="Script" uid="uid://cf2u01epo1k4k" path="res://content/components/commerce/c_commerce.gd" id="Commerce_state"]
 [ext_resource type="Script" uid="uid://d18j5e5xkjfsg" path="res://content/components/gameplay/c_customer_flow.gd" id="Customer_flow"]
 [ext_resource type="Resource" uid="uid://ct5hbf2hdp6tl" path="res://content/definitions/gameplay/customers/def_customer_schedule_default.tres" id="Customer_schedule"]
@@ -58,13 +67,20 @@
 [ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
 [ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/entities/stations/day_phase_station.tscn" id="Day_station"]
 [ext_resource type="PackedScene" path="res://content/entities/stations/delivery_counter.tscn" id="Delivery_counter"]
+[ext_resource type="PackedScene" path="res://content/scenes/district_blockout.tscn" id="District_blockout"]
+[ext_resource type="Resource" uid="uid://0japh62q4h57" path="res://content/definitions/gameplay/npc/def_district_default.tres" id="District_definition"]
+[ext_resource type="Script" uid="uid://cwknel8uiy5sw" path="res://content/entities/npc/e_district_npc.gd" id="District_npc"]
+[ext_resource type="Script" uid="uid://dcq6eusakildd" path="res://content/components/npc/c_district.gd" id="District_state"]
 [ext_resource type="PackedScene" path="res://content/entities/props/drawer.tscn" id="Drawer_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/inventory/food_pickup.tscn" id="Food_pickup"]
+[ext_resource type="PackedScene" uid="uid://d3vj5iyw4p75d" path="res://content/scenes/game_world.tscn" id="Game_world"]
+[ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="Gaze_order_clue"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
 [ext_resource type="PackedScene" path="res://content/entities/tools/hammer.tscn" id="Hammer_scene"]
 [ext_resource type="Resource" uid="uid://dnhtf6evpqsc8" path="res://content/definitions/gameplay/hunger/def_hunger_default.tres" id="Hunger_policy"]
 [ext_resource type="Script" uid="uid://ok26p4khdh4e" path="res://content/components/gameplay/c_hunger.gd" id="Hunger_state"]
 [ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
+[ext_resource type="PackedScene" path="res://content/entities/customers/inspection_booth.tscn" id="InspectionBooth"]
 [ext_resource type="PackedScene" uid="uid://dx3ysmmpho68c" path="res://content/ui/interaction_hud.tscn" id="Interaction_hud"]
 [ext_resource type="PackedScene" path="res://content/ui/inventory_panel.tscn" id="Inventory_panel"]
 [ext_resource type="Script" uid="uid://t8kbpaposqpt" path="res://content/components/inventory/c_inventory.gd" id="Inventory_state"]
@@ -77,6 +93,7 @@
 [ext_resource type="PackedScene" path="res://content/entities/stations/package_return_point.tscn" id="Package_return_point"]
 [ext_resource type="PackedScene" path="res://content/entities/props/placement_area.tscn" id="PlacementArea"]
 [ext_resource type="Script" uid="uid://bex7ad2uqbdgp" path="res://content/components/gameplay/c_combat.gd" id="Player_combat"]
+[ext_resource type="Script" uid="uid://bjrdbffkpomf6" path="res://content/components/motion/c_stamina.gd" id="Player_stamina"]
 [ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
 [ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
 [ext_resource type="Script" uid="uid://dmxtpoip5hrcv" path="res://content/components/quests/c_quest_session.gd" id="Quest_state"]
@@ -98,13 +115,7 @@
 [ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/entities/props/window.tscn" id="Window_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/inventory/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
 
-[ext_resource type="PackedScene" path="res://content/scenes/game_world.tscn" id="Game_world"]
-
-[ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="Gaze_order_clue"]
-
-[ext_resource type="Script" path="res://content/ui/circuit_light_view.gd" id="Circuit_light_view"]
-
-[ext_resource type="Script" path="res://content/components/motion/c_stamina.gd" id="Player_stamina"]
+[ext_resource type="Script" path="res://content/scenes/npc_light_zone.gd" id="Npc_light_zone"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
@@ -119,6 +130,7 @@ ambient_light_color = Color(0.296875, 0.12756348, 0.12756348, 1)
 
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
+metadata/_custom_type_script = "uid://dwgcmbar0qthw"
 
 [sub_resource type="Resource" id="Resource_lqn1g"]
 script = ExtResource("24_x60uf")
@@ -126,12 +138,12 @@ metadata/_custom_type_script = "uid://iq4pnvam7fq5"
 
 [sub_resource type="Resource" id="Resource_mn5t4"]
 script = ExtResource("25_t1fd8")
-floor_snap_distance = 0.12
 max_speed = 5.0
 ground_acceleration = 70.0
 ground_deceleration = 80.0
 ground_lateral_friction = 90.0
 air_acceleration = 5.0
+floor_snap_distance = 0.12
 metadata/_custom_type_script = "uid://cdblg8bcbkrs8"
 
 [sub_resource type="Resource" id="Resource_lf6x7"]
@@ -165,7 +177,7 @@ metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 script = ExtResource("32_mc3p1")
 collision_mask = 31
 
-[sub_resource type="Resource" id="Resource_3xfrw"]
+[sub_resource type="Resource" id="Resource_p0mrl"]
 resource_local_to_scene = true
 script = ExtResource("33_k7ct6")
 
@@ -194,12 +206,16 @@ script = ExtResource("Inventory_state")
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
 
-[sub_resource type="Resource" id="Resource_jjqtf"]
+[sub_resource type="Resource" id="Resource_jxwan"]
 resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
 profile = ExtResource("LivingImpact")
 
-[sub_resource type="Resource" id="Resource_2peb6"]
+[sub_resource type="Resource" id="Resource_3auy4"]
+resource_local_to_scene = true
+script = ExtResource("Player_stamina")
+
+[sub_resource type="Resource" id="Resource_sseuf"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 
@@ -223,17 +239,17 @@ script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Action")])
 reserved_slots = 4
 
-[sub_resource type="Resource" id="Resource_5und5"]
+[sub_resource type="Resource" id="Resource_v2668"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(1, 0.13787842, 0.0234375, 1)
 
-[sub_resource type="Resource" id="Resource_jpldi"]
+[sub_resource type="Resource" id="Resource_8wt2x"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(0.96875, 0, 1, 1)
 
-[sub_resource type="Resource" id="Resource_vmj2w"]
+[sub_resource type="Resource" id="Resource_vfheu"]
 resource_local_to_scene = true
 script = ExtResource("41_1hfqo")
 
@@ -263,6 +279,11 @@ script = ExtResource("Quest_state")
 [sub_resource type="Resource" id="Autosave_state"]
 script = ExtResource("Autosave_state")
 
+[sub_resource type="Resource" id="District_state"]
+resource_local_to_scene = true
+script = ExtResource("District_state")
+definition = ExtResource("District_definition")
+
 [sub_resource type="Resource" id="Sleep_interactable"]
 script = ExtResource("Sleep_interactable")
 
@@ -276,7 +297,53 @@ caption = "Лечь спать"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Sleep_transition")])
 
-[sub_resource type="Resource" id="Resource_w4uhm"]
+[sub_resource type="Resource" id="RigidBody"]
+script = ExtResource("87_g8cxy")
+
+[sub_resource type="Resource" id="Controller"]
+script = ExtResource("29_uosx1")
+
+[sub_resource type="Resource" id="Motion"]
+script = ExtResource("25_t1fd8")
+
+[sub_resource type="Resource" id="Look"]
+script = ExtResource("26_t86in")
+
+[sub_resource type="Resource" id="Health"]
+script = ExtResource("31_8uaqh")
+definition = ExtResource("30_4agnb")
+
+[sub_resource type="Resource" id="Resource_7qcpm"]
+script = ExtResource("Living")
+
+[sub_resource type="Resource" id="Impact"]
+script = ExtResource("ImpactReceiver")
+profile = ExtResource("LivingImpact")
+
+[sub_resource type="Resource" id="NpcIntent"]
+script = ExtResource("88_4djqo")
+
+[sub_resource type="Resource" id="NpcCombat"]
+script = ExtResource("90_dtq54")
+
+[sub_resource type="Resource" id="Trader"]
+script = ExtResource("92_1brdc")
+catalog = Array[ExtResource("135_jjqtf")]([ExtResource("136_2peb6"), ExtResource("137_5und5"), ExtResource("138_jpldi")])
+profile = ExtResource("91_say4p")
+
+[sub_resource type="Resource" id="Resource_w2mh7"]
+script = ExtResource("Sleep_interactable")
+
+[sub_resource type="Resource" id="Resource_hw10a"]
+script = ExtResource("93_p0mrl")
+action_id = &"trade"
+caption = "Торговля и задание"
+
+[sub_resource type="Resource" id="Resource_qc58h"]
+script = ExtResource("Sleep_actions")
+actions = Array[ExtResource("48_eajlk")]([SubResource("Resource_hw10a")])
+
+[sub_resource type="Resource" id="Resource_t4pbu"]
 resource_local_to_scene = true
 script = ExtResource("63_3w6s4")
 
@@ -352,13 +419,30 @@ size = Vector3(1.6518555, 3.7236938, 1)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jpldi"]
 albedo_color = Color(0.058823526, 0.17653187, 0.94509804, 1)
 
-[sub_resource type="Resource" id="Player_stamina"]
-resource_local_to_scene = true
-script = ExtResource("Player_stamina")
+[sub_resource type="BoxShape3D" id="LightZone_RoomClient"]
+size = Vector3(7.9189453, 3.7236938, 8.709595)
+
+[sub_resource type="BoxShape3D" id="LightZone_RoomClientBathroom"]
+size = Vector3(4.760742, 3.7236938, 4.1996155)
+
+[sub_resource type="BoxShape3D" id="LightZone_RoomPrivate"]
+size = Vector3(16.259277, 3.7236938, 15.9678955)
+
+[sub_resource type="BoxShape3D" id="LightZone_RoomTraderPrivate"]
+size = Vector3(12.360474, 3.7236938, 12.4609375)
+
+[sub_resource type="BoxShape3D" id="LightZone_TraderClientZone"]
+size = Vector3(1.6518555, 3.7236938, 1)
+
+[sub_resource type="BoxShape3D" id="LightZone_ReceivingZone"]
+size = Vector3(4.223633, 3.7236938, 7.4051514)
 
 [node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world") groups=["navigation_mesh_source_group"]]
 script = ExtResource("1_ixiin")
 world = NodePath("World")
+
+[node name="District" parent="." unique_id=161100477 groups=["navigation_geometry"] instance=ExtResource("District_blockout")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.688103, 0, -2.6446795)
 
 [node name="WarehouseNavigation" type="NavigationRegion3D" parent="." unique_id=1799420389]
 navigation_mesh = ExtResource("Warehouse_navigation")
@@ -368,12 +452,13 @@ environment = SubResource("Environment_bghjr")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment" unique_id=455501533]
 transform = Transform3D(0.20121032, -0.8408837, 0.50242317, 0.6093862, 0.50903034, 0.6078952, -0.7669177, 0.18385474, 0.6148452, 0, 6.916837, 0)
+light_energy = 0.05
 light_bake_mode = 1
 shadow_enabled = true
 
 [node name="World" parent="." unique_id=1962298586 instance=ExtResource("Game_world")]
 
-[node name="PVZ" type="Node3D" parent="." unique_id=627123053]
+[node name="PVZ" type="Node3D" parent="." unique_id=627123053 groups=["navigation_geometry"]]
 
 [node name="Primitive_Stairs_Half_static" parent="PVZ" unique_id=889352795 instance=ExtResource("165_3xfrw")]
 transform = Transform3D(-3.6146318e-07, 0, 0.7, 0, 0.31533858, 0, -0.565, 0, -4.4783047e-07, -4, -0.109, 20)
@@ -1349,42 +1434,6 @@ metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 4, -10)
 metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
 
-[node name="Floor_static (81)" parent="PVZ/Floor" unique_id=404775550 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 4.000002, -10)
-metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
-
-[node name="Floor_static (82)" parent="PVZ/Floor" unique_id=1914538597 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 4, -10)
-metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
-
-[node name="Floor_static (83)" parent="PVZ/Floor" unique_id=1900301098 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 4, -10)
-metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
-
-[node name="Floor_static (84)" parent="PVZ/Floor" unique_id=23779816 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 4, -6)
-metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
-
-[node name="Floor_static (85)" parent="PVZ/Floor" unique_id=1074541884 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 4, -6)
-metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
-
-[node name="Floor_static (86)" parent="PVZ/Floor" unique_id=536096091 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 4, -6)
-metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
-
-[node name="Floor_static (87)" parent="PVZ/Floor" unique_id=140118082 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 4, -2)
-metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
-
-[node name="Floor_static (88)" parent="PVZ/Floor" unique_id=2038269899 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 4, -2)
-metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
-
-[node name="Floor_static (89)" parent="PVZ/Floor" unique_id=224805568 instance=ExtResource("7_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 4, -2)
-metadata/asset_placer_res_id = "uid://boxna5m5n5ofv"
-
 [node name="Wall" type="Node3D" parent="PVZ" unique_id=114765866]
 
 [node name="Primitive_Wall_static" parent="PVZ/Wall" unique_id=2139216191 instance=ExtResource("1_ojrfc")]
@@ -1495,90 +1544,6 @@ metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.004760742, -16)
 metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
 
-[node name="Primitive_Wall_static (6)2" parent="PVZ/Wall" unique_id=53545694 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -12)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
-[node name="Primitive_Wall_static (7)2" parent="PVZ/Wall" unique_id=802158606 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.0036010742, -12)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
-[node name="Primitive_Doorway_static" parent="PVZ/Wall" unique_id=674441714 instance=ExtResource("3_eim2b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 0, -12)
-metadata/asset_placer_res_id = "uid://h6ovxls42pn1"
-
-[node name="Primitive_Wall_static (8)2" parent="PVZ/Wall" unique_id=240220055 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 28, -0.0036010742, -10)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
-[node name="Primitive_Wall_static (9)" parent="PVZ/Wall" unique_id=2062015837 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 28, 0, -6)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
-[node name="Primitive_Wall_static (10)2" parent="PVZ/Wall" unique_id=560432148 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 28, -9.536743e-07, -2)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
-[node name="Primitive_Wall_static (11)2" parent="PVZ/Wall" unique_id=1170471643 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 40, -0.0036001205, -10)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
-[node name="Primitive_Wall_static (12)2" parent="PVZ/Wall" unique_id=2049365310 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 40, 0, -6)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
-[node name="Primitive_Wall_static (13)2" parent="PVZ/Wall" unique_id=846189286 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(1.0000007, 0, 1.4156103e-07, 0, 1, 0, -1.4156103e-07, 0, 1.0000007, 38, 9.536743e-07, 0)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
-[node name="Primitive_Wall_static (14)" parent="PVZ/Wall" unique_id=996958923 instance=ExtResource("1_ojrfc")]
-transform = Transform3D(1.0000007, 0, 1.4156103e-07, 0, 1, 0, -1.4156103e-07, 0, 1.0000007, 34, -0.0036010742, 0)
-metadata/asset_placer_res_id = "uid://dl0sa03fbgiro"
-
-[node name="Primitive_Window_static (2)2" parent="PVZ/Wall" unique_id=1949980333 instance=ExtResource("2_wp74p")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 4.7683716e-07, 0)
-metadata/asset_placer_res_id = "uid://wk6sf3v5qnfc"
-
-[node name="Primitive_Doorway_static (1)2" parent="PVZ/Wall" unique_id=1744466140 instance=ExtResource("3_eim2b")]
-transform = Transform3D(1.937151e-07, 0, 1.0000004, 0, 1, 0, -1.0000004, 0, 1.937151e-07, 40, -0.0036010742, -2)
-metadata/asset_placer_res_id = "uid://h6ovxls42pn1"
-
-[node name="Primitive_Beam_static2" parent="PVZ/Wall" unique_id=1702320795 instance=ExtResource("9_ofyry")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, -0.0036010742, 4)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
-[node name="Primitive_Beam_static (1)2" parent="PVZ/Wall" unique_id=472908460 instance=ExtResource("9_ofyry")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, -0.0036005974, 4)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
-[node name="Primitive_Beam_static (2)2" parent="PVZ/Wall" unique_id=1315241991 instance=ExtResource("9_ofyry")]
-transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 40, -0.0036010742, 6)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
-[node name="Primitive_Beam_static (3)" parent="PVZ/Wall" unique_id=1505535922 instance=ExtResource("9_ofyry")]
-transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 40, -0.0036010742, 10)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
-[node name="Primitive_Beam_static (4)" parent="PVZ/Wall" unique_id=3082414 instance=ExtResource("9_ofyry")]
-transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, 40, -0.0036010742, 14)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
-[node name="Primitive_Beam_static (5)" parent="PVZ/Wall" unique_id=1454918843 instance=ExtResource("9_ofyry")]
-transform = Transform3D(1.0000008, 0, 1.4156103e-07, 0, 1, 0, -1.4156103e-07, 0, 1.0000008, 38, -0.03843689, 16)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
-[node name="Primitive_Beam_static (6)" parent="PVZ/Wall" unique_id=335685659 instance=ExtResource("9_ofyry")]
-transform = Transform3D(1.0000008, 0, 1.4156103e-07, 0, 1, 0, -1.4156103e-07, 0, 1.0000008, 34, -0.0036005974, 16)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
-[node name="Primitive_Beam_static (7)" parent="PVZ/Wall" unique_id=1983988361 instance=ExtResource("9_ofyry")]
-transform = Transform3D(1.0000008, 0, 1.4156103e-07, 0, 1, 0, -1.4156103e-07, 0, 1.0000008, 30, -0.0036010742, 16)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
-[node name="Primitive_Beam_static (8)" parent="PVZ/Wall" unique_id=1802078430 instance=ExtResource("9_ofyry")]
-transform = Transform3D(3.2782555e-07, 0, -1.0000011, 0, 1, 0, 1.0000011, 0, 3.2782555e-07, 32, -0.0036010742, 2)
-metadata/asset_placer_res_id = "uid://fjtvcn3mifma"
-
 [node name="Primitive_Doorway_static (2)2" parent="PVZ/Wall" unique_id=72321029 instance=ExtResource("3_eim2b")]
 transform = Transform3D(2.1606684e-07, 0, -1.0000004, 0, 1, 0, 1.0000004, 0, 2.1606684e-07, -12, 9.536743e-07, -10)
 metadata/asset_placer_res_id = "uid://h6ovxls42pn1"
@@ -1590,71 +1555,69 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.696652, 3.362012, -5.191838
 shadow_enabled = true
 omni_range = 7.915
 
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D" unique_id=958921045]
+script = ExtResource("Circuit_light_view")
+
 [node name="OmniLight3D6" type="OmniLight3D" parent="PVZ/Light" unique_id=25084848 groups=["warehouse_lights"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.630451, 3.362012, -1.8652256)
 shadow_enabled = true
 omni_range = 7.915
+
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D6" unique_id=725528484]
+script = ExtResource("Circuit_light_view")
 
 [node name="OmniLight3D7" type="OmniLight3D" parent="PVZ/Light" unique_id=1373126384 groups=["warehouse_lights"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.630451, 3.362012, 1.4662755)
 shadow_enabled = true
 omni_range = 7.915
 
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D7" unique_id=1843590244]
+script = ExtResource("Circuit_light_view")
+
 [node name="OmniLight3D3" type="OmniLight3D" parent="PVZ/Light" unique_id=1554456456 groups=["warehouse_lights"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.13916802, 2.8907986, -9.669686)
 shadow_enabled = true
 omni_range = 7.915
+
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D3" unique_id=2105968121]
+script = ExtResource("Circuit_light_view")
 
 [node name="OmniLight3D4" type="OmniLight3D" parent="PVZ/Light" unique_id=579227206 groups=["warehouse_lights"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.373597, 2.8907986, -9.669686)
 shadow_enabled = true
 omni_range = 7.915
 
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D4" unique_id=1303906999]
+script = ExtResource("Circuit_light_view")
+
 [node name="OmniLight3D5" type="OmniLight3D" parent="PVZ/Light" unique_id=1030884749 groups=["warehouse_lights"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.4642487, 2.8907986, -4.1413074)
 shadow_enabled = true
 omni_range = 7.915
+
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D5" unique_id=1529427614]
+script = ExtResource("Circuit_light_view")
 
 [node name="OmniLight3D2" type="OmniLight3D" parent="PVZ/Light" unique_id=1184650244 groups=["warehouse_lights"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.140583, 3.2822776, -3.644451)
 shadow_enabled = true
 omni_range = 7.915
 
+[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D2" unique_id=357213490]
+script = ExtResource("Circuit_light_view")
+
 [node name="Props" type="Node3D" parent="PVZ" unique_id=1153816839]
 
-[node name="GazeOrderClues" type="Node3D" parent="."]
+[node name="GazeOrderClues" type="Node3D" parent="." unique_id=911500201]
 
-[node name="NorthWall" parent="GazeOrderClues" instance=ExtResource("Gaze_order_clue")]
-position = Vector3(6, 1.9, -7.44)
+[node name="NorthWall" parent="GazeOrderClues" unique_id=1698904121 instance=ExtResource("Gaze_order_clue")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1.9, -7.44)
 
-[node name="EastWall" parent="GazeOrderClues" instance=ExtResource("Gaze_order_clue")]
-position = Vector3(11.44, 1.9, -2)
-rotation_degrees = Vector3(0, -90, 0)
+[node name="EastWall" parent="GazeOrderClues" unique_id=106022138 instance=ExtResource("Gaze_order_clue")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 11.44, 1.9, -2)
 
-[node name="FrontWall" parent="GazeOrderClues" instance=ExtResource("Gaze_order_clue")]
-position = Vector3(6, 1.9, -0.56)
-rotation_degrees = Vector3(0, 180, 0)
-
-[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D"]
-script = ExtResource("Circuit_light_view")
-
-[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D6"]
-script = ExtResource("Circuit_light_view")
-
-[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D7"]
-script = ExtResource("Circuit_light_view")
-
-[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D3"]
-script = ExtResource("Circuit_light_view")
-
-[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D4"]
-script = ExtResource("Circuit_light_view")
-
-[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D5"]
-script = ExtResource("Circuit_light_view")
-
-[node name="CircuitLightView" type="Node" parent="PVZ/Light/OmniLight3D2"]
-script = ExtResource("Circuit_light_view")
+[node name="FrontWall" parent="GazeOrderClues" unique_id=113162685 instance=ExtResource("Gaze_order_clue")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 6, 1.9, -0.56)
 
 [node name="Entityes" type="Node3D" parent="." unique_id=118950221]
 
@@ -1684,8 +1647,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -1.701
 
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
-collision_layer = 16
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_3xfrw"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_jjqtf"), SubResource("Player_stamina")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_p0mrl"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_jxwan"), SubResource("Resource_3auy4")])
 
 [node name="HeadX" parent="Entityes/Player/HeadY" index="0"]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.11703396, 0)
@@ -1701,6 +1663,9 @@ transform = Transform3D(0.41083163, -0.9117112, 0, 0, -4.371139e-08, 1, -0.91171
 
 [node name="BeltSlotRight" parent="Entityes/Player" index="6"]
 transform = Transform3D(0.21199018, 0.9772718, 2.9802322e-08, 1.3716061e-08, -5.0772293e-08, 1, 0.9772718, -0.21199018, 0, 0.25, 0.7946805, -0.1371026)
+
+[node name="Ground" parent="Entityes/Player" index="7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
 
 [node name="DeliveryCounter" parent="Entityes" unique_id=1492129627 instance=ExtResource("Delivery_counter")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4.0657115, 0, -4.821111)
@@ -1734,15 +1699,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2402446, 1.45, -2)
 
 [node name="Marker" parent="Entityes" unique_id=1749342287 instance=ExtResource("Marker_scene")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.2880824)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_2peb6"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_sseuf"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Marker2" parent="Entityes" unique_id=1086911559 instance=ExtResource("Marker_scene")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.1790984)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_5und5"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_v2668"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Marker3" parent="Entityes" unique_id=529574383 instance=ExtResource("Marker_scene")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.0586202)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_jpldi"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_8wt2x"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Hammer" parent="Entityes" unique_id=1856779010 instance=ExtResource("Hammer_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7814434, 1.5211676, -2.8830624)
@@ -1777,7 +1742,7 @@ mode = 4
 [node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -18.18865, 0.51578665, -6.508998)
 package_parent = NodePath("..")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_vmj2w")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_vfheu")])
 
 [node name="PackageReturnPoint" parent="Entityes" unique_id=622721691 instance=ExtResource("Package_return_point")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.839949, 0.4, -7.3298917)
@@ -1787,7 +1752,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.22, 0.5)
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state"), SubResource("District_state")])
 
 [node name="ShiftConsole" parent="Entityes" unique_id=1907900219 instance=ExtResource("Day_station")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.175833, 0, -0.95899534)
@@ -1817,15 +1782,41 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.25, 1.22, -1.2911086)
 
 [node name="Trader" parent="Entityes" unique_id=50836948 instance=ExtResource("Trader_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.031166, 0.30710316, -0.9131813)
+script = ExtResource("District_npc")
+inspection_animation = &""
+receiving_animation = &""
+dialogue_animation = &""
 idle_animation = &"Idle"
 walk_animation = &"Walk"
+component_resources = Array[ExtResource("Grab_component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("Health"), SubResource("Resource_7qcpm"), SubResource("Impact"), SubResource("NpcIntent"), SubResource("NpcCombat"), SubResource("Trader"), SubResource("Resource_w2mh7"), SubResource("Resource_qc58h")])
+
+[node name="HeadY" parent="Entityes/Trader" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)
+
+[node name="HeadX" parent="Entityes/Trader/HeadY" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11703396, 0)
+
+[node name="Body" parent="Entityes/Trader" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+
+[node name="Collision" parent="Entityes/Trader" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+
+[node name="Message" parent="Entityes/Trader" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+
+[node name="FurniturePickup" parent="Entityes/Trader" index="7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.11661625, 10.667902)
+
+[node name="Caption" parent="Entityes/Trader/FurniturePickup" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="UtilityBlade" parent="Entityes" unique_id=1068136048 instance=ExtResource("Utility_blade")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 1.328057, -0.8)
 
 [node name="PushCart" parent="Entityes" unique_id=1664321513 instance=ExtResource("Push_cart")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -13.95594, 0.8329964, 2.4201646)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_w4uhm"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_t4pbu"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 
 [node name="Props" type="Node3D" parent="Entityes" unique_id=1751720738]
 
@@ -1899,9 +1890,6 @@ shape = SubResource("BoxShape3D_patme")
 [node name="DoorTemplate" parent="Entityes/Doors" unique_id=964464054 instance=ExtResource("63_uqafv")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.583366, 0.09600389, -9.215219)
 
-[node name="DoorTemplate2" parent="Entityes/Doors" unique_id=18274721 instance=ExtResource("63_uqafv")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 34.839096, 0.030319393, -12.266246)
-
 [node name="Windows" type="Node3D" parent="Entityes" unique_id=1063944992]
 
 [node name="Window" parent="Entityes/Windows" unique_id=1384280089 instance=ExtResource("Window_scene")]
@@ -1918,6 +1906,12 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12.6
 
 [node name="Window5" parent="Entityes/Windows" unique_id=84975236 instance=ExtResource("Window_scene")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12.608209, 1.05, -8.969203)
+
+[node name="InspectionBooth1" parent="Entityes" unique_id=1872546858 instance=ExtResource("InspectionBooth")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.9651318, 0, -1.4054787)
+
+[node name="InspectionBooth2" parent="Entityes" unique_id=565667034 instance=ExtResource("InspectionBooth")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.093425, 0, -10.093695)
 
 [node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player", "damage_feedback") instance=ExtResource("Interaction_hud")]
 player = NodePath("../Entityes/Player")
@@ -1973,12 +1967,88 @@ surface_material_override/0 = SubResource("StandardMaterial3D_jpldi")
 editor_description = "Маркер где примерно появляются новые клиенты"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.530093, 0, 3.423316)
 
+
+[node name="LightZones" type="Node3D" parent="."]
+
+[node name="RoomClient" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.485403, 1.8705113, -4.2108765)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D2/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/RoomClient"]
+shape = SubResource("LightZone_RoomClient")
+
+[node name="RoomClientBathroom" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.064505, 1.8705113, -10.139877)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D2/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/RoomClientBathroom"]
+shape = SubResource("LightZone_RoomClientBathroom")
+
+[node name="RoomPrivate" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.110375, 1.6805131, -7.9696674)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/RoomPrivate"]
+shape = SubResource("LightZone_RoomPrivate")
+
+[node name="RoomTraderPrivate" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.086002, 2.1978455, -6.1258674)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/RoomTraderPrivate"]
+shape = SubResource("LightZone_RoomTraderPrivate")
+
+[node name="TraderClientZone" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29.747765, 1.6612353, 1.6596766)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/TraderClientZone"]
+shape = SubResource("LightZone_TraderClientZone")
+
+[node name="ReceivingZone" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.16763, 2.1978455, -6.673581)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/ReceivingZone"]
+shape = SubResource("LightZone_ReceivingZone")
+
 [editable path="Entityes/Player"]
 [editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]
 [editable path="Entityes/DeliveryCounter"]
-
-[node name="InspectionBooth1" parent="Entityes" instance=ExtResource("InspectionBooth")]
-position = Vector3(8.5, 0, -4.3)
-
-[node name="InspectionBooth2" parent="Entityes" instance=ExtResource("InspectionBooth")]
-position = Vector3(10.5, 0, -4.3)
+[editable path="Entityes/Trader"]

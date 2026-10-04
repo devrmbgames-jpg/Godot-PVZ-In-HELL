@@ -18,6 +18,7 @@ func query() -> QueryBuilder:
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_PAUSED or not is_instance_valid(ECS.world):
 		return
+
 	for actor: Entity in ECS.world.query.with_all([C_Stamina, C_Motion]).execute():
 		var stamina: C_Stamina = actor.get_component(C_Stamina) as C_Stamina
 		stamina.toggled = false
@@ -28,6 +29,7 @@ func _notification(what: int) -> void:
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if delta <= 0.0:
 		return
+
 	var reserves: Array = components[0]
 	var controllers: Array = components[1]
 	var motions: Array = components[2]
@@ -44,6 +46,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			stamina.current = stamina.maximum
 			stamina.initialized = true
 		stamina.current = clampf(stamina.current, 0.0, stamina.maximum)
+
 		var toggle_mode: bool = bool(GameSettingsService.value("sprint_toggle"))
 		if stamina.toggle_mode != toggle_mode:
 			stamina.toggled = false
@@ -58,11 +61,13 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			stamina.toggled = not stamina.toggled
 		if stamina.exhausted and stamina.current >= stamina.maximum * stamina.restart_ratio:
 			stamina.exhausted = false
+
 		var carry: C_CarryLoad = actor.get_component(C_CarryLoad) as C_CarryLoad
 		stamina.drain_multiplier = 1.0
 		if carry != null and carry.active:
 			var weight_fraction: float = clampf(carry.mass_kg / CarryLoadPolicy.maximum_mass_kg(strength), 0.0, 1.0)
 			stamina.drain_multiplier = lerpf(stamina.minimum_carry_drain, stamina.maximum_carry_drain, weight_fraction)
+
 		var requested: bool = stamina.toggled if toggle_mode else controller.sprint_held
 		var can_run: bool = allowed and requested and not stamina.exhausted and stamina.current > 0.0
 		can_run = can_run and motion.is_on_floor and not controller.direction_motion.is_zero_approx()
@@ -76,6 +81,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			velocity = character_body.velocity - motion.floor_velocity
 		elif rigid_body != null:
 			velocity = rigid_body.linear_velocity - motion.floor_velocity
+
 		stamina.running = can_run and Vector2(velocity.x, velocity.z).length() >= MINIMUM_RUN_SPEED
 		if stamina.running:
 			stamina.current = maxf(stamina.current - stamina.drain_per_second * stamina.drain_multiplier * delta, 0.0)

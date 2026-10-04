@@ -11,17 +11,20 @@ static func can_place(actor: Entity, area: E_PlacementArea) -> bool:
 		or not GrabService.within_pickup_reach(actor, area)
 	):
 		return false
+
 	var config: C_PlacementArea = area.get_component(C_PlacementArea) as C_PlacementArea
 	var item: Entity = GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY)
 	if config == null or not GrabService.entity_available(item):
 		return false
 	if config.filter != null and not ItemAccessService.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter):
 		return false
+
 	var body: RigidBody3D = GrabService.physical_body(item)
 	if body == null or body.freeze or not config.volume_size.is_finite():
 		return false
 	if config.volume_size.x <= 0.0 or config.volume_size.y <= 0.0 or config.volume_size.z <= 0.0:
 		return false
+
 	var excluded: Array[RID] = [body.get_rid()]
 	var actor_body: CollisionObject3D = actor as Node as CollisionObject3D
 	var area_body: CollisionObject3D = area as Node as CollisionObject3D
@@ -31,6 +34,7 @@ static func can_place(actor: Entity, area: E_PlacementArea) -> bool:
 		excluded.append(area_body.get_rid())
 	var volume: BoxShape3D = BoxShape3D.new()
 	volume.size = config.volume_size
+
 	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 	query.shape = volume
 	query.transform = area.anchor.global_transform
@@ -46,6 +50,7 @@ static func can_place(actor: Entity, area: E_PlacementArea) -> bool:
 static func _clear_path(body: RigidBody3D, destination: Transform3D, excluded: Array[RID], mask: int, margin: float) -> bool:
 	if BodyPlacementQuery.clear_path(body, destination, excluded, mask, margin):
 		return true
+
 	var start: Transform3D = body.global_transform
 	var oriented: Transform3D = Transform3D(destination.basis, start.origin)
 	var aligned: Transform3D = oriented
@@ -60,6 +65,7 @@ static func _clear_path(body: RigidBody3D, destination: Transform3D, excluded: A
 static func place(actor: Entity, area: E_PlacementArea) -> bool:
 	if not can_place(actor, area):
 		return false
+
 	var item: Entity = GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY)
 	var body: RigidBody3D = GrabService.physical_body(item)
 	var destination: Transform3D = area.anchor.global_transform

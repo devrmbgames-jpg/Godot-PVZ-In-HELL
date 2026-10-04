@@ -1,3 +1,3 @@
 extends Component
-## NPC -> live actor to watch, independent of its movement target.
+## Живой объект наблюдения NPC, независимый от цели движения.
 class_name R_NpcLookTarget

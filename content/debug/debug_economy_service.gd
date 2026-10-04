@@ -23,6 +23,7 @@ static func reverse_penalty(amount: int, note: String) -> DebugServiceResult:
 	if wallet == null:
 		result.message = "wallet is unavailable"
 		return result
+
 	var outstanding: int = manual_penalty_outstanding(wallet)
 	if amount > outstanding:
 		result.message = "amount exceeds outstanding debug penalty: %d" % outstanding
@@ -33,6 +34,7 @@ static func reverse_penalty(amount: int, note: String) -> DebugServiceResult:
 static func manual_penalty_outstanding(wallet: C_Wallet) -> int:
 	if wallet == null:
 		return 0
+
 	var outstanding: int = 0
 	for operation: MoneyOperation in wallet.operations:
 		if operation.reason == MoneyOperation.Reason.DEBUG_PENALTY:
@@ -51,6 +53,7 @@ static func _submit(
 	if amount <= 0 or amount > WalletService.MAX_AMOUNT:
 		result.message = "amount must be between 1 and %d" % WalletService.MAX_AMOUNT
 		return result
+
 	var wallet: C_Wallet = WalletService.current()
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if wallet == null or cycle == null:
@@ -65,6 +68,7 @@ static func _submit(
 	operation.amount = amount
 	operation.day_index = cycle.day_index
 	operation.note = note.strip_edges()
+
 	var status: WalletService.Status = WalletService.submit(operation)
 	if status != WalletService.Status.COMMITTED:
 		result.message = "WalletService rejected operation: %s" % _status_name(status)
@@ -96,6 +100,7 @@ static func _next_operation_id(
 				break
 		if not exists:
 			return candidate
+
 		sequence += 1
 	return &""
 

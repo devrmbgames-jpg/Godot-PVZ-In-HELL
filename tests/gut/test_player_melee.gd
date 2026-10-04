@@ -19,6 +19,7 @@ func before_each() -> void:
 	_player.add_component(C_Interactor.new())
 	_player.add_component(C_Controller.new())
 	_player.add_component(C_CarryLoad.new())
+
 	var anchor: Marker3D = Marker3D.new()
 	anchor.position = Vector3(0.5, 1.0, 0.0)
 	(_player as Node).add_child(anchor)
@@ -28,6 +29,7 @@ func before_each() -> void:
 	_world.add_entity(_weapon)
 	(_weapon as Node as RigidBody3D).gravity_scale = 0.0
 	(_weapon as Node as Node3D).global_position = anchor.global_position
+
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
 	_weapon.add_relationship(Relationship.new(grip, _player))
@@ -58,6 +60,7 @@ func _character(position: Vector3) -> Entity:
 	health.current = 100.0
 	health.value = 100.0
 	entity.component_resources = [health, C_Living.new()]
+
 	var head: Marker3D = Marker3D.new()
 	head.position.y = 1.5
 	body.add_child(head)
@@ -102,6 +105,7 @@ func test_one_primary_click_throws_or_attacks_and_keeps_raw_input() -> void:
 	assert_eq((_player.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.READY)
 	assert_true(controller.action_main_pressed)
 	assert_true(controller.physical_override)
+
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
 	_weapon.add_relationship(Relationship.new(grip, _player))
@@ -150,6 +154,7 @@ func test_hammer_can_attack_with_overhead_swing_and_preserves_anchoring_action()
 	grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
 	_weapon.add_relationship(Relationship.new(grip, _player))
 	assert_true(_weapon.has_component(C_AnchorTool))
+
 	var actions: C_InteractionActionSet = _weapon.get_component(C_InteractionActionSet) as C_InteractionActionSet
 	assert_true(actions.actions[0] is DEF_AnchorAction)
 	assert_gt(actions.actions[0].priority, actions.actions[1].priority, "Valid fastening takes precedence")
@@ -158,6 +163,7 @@ func test_hammer_can_attack_with_overhead_swing_and_preserves_anchoring_action()
 	assert_not_null(choice)
 	if choice != null:
 		assert_true(choice.action is DEF_MeleeAction, "NPC target uses the strike action")
+
 	var head: Node3D = _weapon.get_node("Head") as Node3D
 	var baseline: Vector3 = head.position
 	assert_true(CombatService.start_strike(_player, _weapon))

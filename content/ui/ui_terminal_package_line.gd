@@ -89,8 +89,10 @@ static func status_text(
 		match visit.declaration:
 			CustomerVisit.Declaration.TAKEN:
 				return "ЗАБРАЛИ"
+
 			CustomerVisit.Declaration.REFUSED:
 				return "ОТКАЗАЛИСЬ"
+
 			CustomerVisit.Declaration.LOST:
 				return "ПОТЕРЯНА"
 	if not debug_status:
@@ -105,8 +107,10 @@ static func status_text(
 		match record.departure:
 			C_PackageState.Registration.DELIVERED:
 				return "ВЫДАНА"
+
 			C_PackageState.Registration.RETURNED:
 				return "ВОЗВРАЩЕНА"
+
 			C_PackageState.Registration.BOUGHT_OUT:
 				return "ПРИСВОЕНА"
 
@@ -135,6 +139,7 @@ func _set_status_icons(definition: DEF_Package) -> void:
 	_icon_status_toxic.visible = has_definition and hazard_class == DEF_Package.HazardClass.TOXIC
 	_icon_status_psico.visible = false
 	_icon_status_fire.visible = false
+
 	_icon_status_weight.visible = has_definition and bool(tags & DEF_Package.Tag.HEAVY)
 	_icon_status_anomaly.visible = (
 		has_definition
@@ -144,6 +149,7 @@ func _set_status_icons(definition: DEF_Package) -> void:
 			or definition.hazard_on_destroyed != null
 		)
 	)
+
 	_icon_status_light.visible = false
 	_icon_status_fragile.visible = (
 		has_definition
@@ -152,6 +158,7 @@ func _set_status_icons(definition: DEF_Package) -> void:
 			or hazard_class == DEF_Package.HazardClass.FRAGILE
 		)
 	)
+
 	_icon_status_fluid.visible = (
 		has_definition
 		and (
@@ -159,6 +166,7 @@ func _set_status_icons(definition: DEF_Package) -> void:
 			or hazard_class == DEF_Package.HazardClass.LIQUID
 		)
 	)
+
 	_icons_statuses_container.visible = (
 		_icon_status_explotion.visible
 		or _icon_status_toxic.visible

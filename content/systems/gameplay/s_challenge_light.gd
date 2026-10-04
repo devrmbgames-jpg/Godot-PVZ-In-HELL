@@ -16,8 +16,10 @@ func process(_entities: Array[Entity], components: Array, _delta: float) -> void
 	for state: C_Challenge in states:
 		if state.phase != C_Challenge.Phase.ACTIVE or state.definition == null:
 			continue
+
 		var condition: DEF_LightChallengeCondition = state.definition.condition as DEF_LightChallengeCondition
 		if condition == null:
 			continue
+
 		var circuit: C_LightCircuit = LightCircuitService.state_for(condition.circuit_id)
 		state.condition_result = ChallengeResult.Type.SUCCESS if circuit != null and circuit.enabled == condition.required_enabled else ChallengeResult.Type.NONE

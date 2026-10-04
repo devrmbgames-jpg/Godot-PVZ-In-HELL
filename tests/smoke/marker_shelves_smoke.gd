@@ -50,6 +50,7 @@ func _run() -> void:
 	assert(GrabService.try_pickup(actor, marker_tool, C_Grabbable.HoldSlot.LEFT_HAND))
 	ray.look_at(camera.global_position + Vector3(0, 0, -2))
 	_drive(actor, true, false)
+
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	assert(state.registration_number == 1, "Scan before drawing must register the package")
 	(scanner.get_node("Feedback/Beep") as AudioStreamPlayer3D).stop()
@@ -60,6 +61,7 @@ func _run() -> void:
 	var marker: C_Marker = marker_tool.get_component(C_Marker) as C_Marker
 	_drive(actor, false, true)
 	assert(marker.capture_token != 0, "Left hand starts on RMB")
+
 	var marks: C_PackageMarks = parcel.get_component(C_PackageMarks) as C_PackageMarks
 	assert(marks.point_count == 1, "Mapped held input must paint a first-hit package")
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
@@ -82,6 +84,7 @@ func _run() -> void:
 	add_child(wall)
 	wall.global_position = camera.global_position + Vector3(0, 0, -1.0)
 	await get_tree().physics_frame
+
 	var before_wall: int = marks.point_count
 	_drive(actor, false, true)
 	assert(marks.point_count == before_wall, "Drawing must not pass through a wall")
@@ -125,6 +128,7 @@ func _run() -> void:
 	_drive(actor, true, false)
 	assert(marker.capture_token != 0, "Right hand starts on LMB")
 	_draw_seven(actor, marker, parcel_body, camera)
+
 	var escape: InputEventKey = InputEventKey.new()
 	escape.physical_keycode = KEY_ESCAPE
 	escape.pressed = true
@@ -154,6 +158,7 @@ func _run() -> void:
 	var view: MeshInstance3D = parcel_body.get_node("Marks") as MeshInstance3D
 	assert(view.mesh != null, "Local ink must generate visible geometry")
 	assert(view.get_parent() == parcel_body)
+
 	var visual: MeshInstance3D = parcel_body.get_node("Box_C") as MeshInstance3D
 	assert(
 		marks.strokes[0].points[0].z > visual.mesh.get_aabb().end.z,
@@ -220,6 +225,7 @@ func _store_on_shelf(
 	var ray: RayCast3D = GrabService.interaction_raycast(actor)
 	ray.look_at(parcel_body.global_position + Vector3(0, 0.2, 0))
 	await get_tree().physics_frame
+
 	var parcel: Entity = parcel_body as Node as Entity
 	assert(GrabService.try_pickup(actor, parcel, C_Grabbable.HoldSlot.CARRY))
 	var point_count: int = marks.point_count

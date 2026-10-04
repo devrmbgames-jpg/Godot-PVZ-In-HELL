@@ -13,6 +13,7 @@ func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 	var request: HazardSpawnRequest = payload as HazardSpawnRequest
 	if request == null or _accepted.has(request.request_id):
 		return
+
 	_accepted[request.request_id] = true
 	cmd.add_custom(_spawn.bind(request))
 
@@ -30,7 +31,8 @@ func _spawn(request: HazardSpawnRequest) -> void:
 		push_error("Hazard prefab requires a non-rigid E_Hazard Node3D root")
 		return
 
-	var definition: DEF_Hazard = prefab.definition
+	var definition: DEF_Hazard = request.definition if request.definition != null else prefab.definition
+	prefab.definition = definition
 	if (
 		definition == null
 		or not is_finite(definition.lifetime_seconds)

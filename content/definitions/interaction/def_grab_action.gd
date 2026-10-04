@@ -19,6 +19,7 @@ var physical_body: RigidBody3D = null
 func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 	if not GrabService.holder_available(actor):
 		return false
+
 	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
 	if focus >= InteractionControlFocus.Priority.PUSH:
 		return false
@@ -39,15 +40,18 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 
 	if not GrabService.entity_available(source):
 		return false
+
 	var grip: Relationship = GrabService.held_relationship(source)
 	if grip == null or grip.target != actor:
 		return false
+
 	var grip_data: R_HeldBy = grip.relation as R_HeldBy
 	if (
 		grip_data.slot != C_Grabbable.HoldSlot.CARRY
 		and focus != InteractionControlFocus.Priority.HANDS
 	):
 		return false
+
 	var profile: GrabControlProfile = (
 		grip_data.profile if grip_data.profile != null else GrabService.profile_for(source)
 	)
@@ -57,6 +61,7 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 	if not is_available(actor, source, _target):
 		return
+
 	match kind:
 		Kind.PICKUP:
 			if is_instance_valid(physical_body):
@@ -73,6 +78,7 @@ func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 			var grip: Relationship = GrabService.held_relationship(source)
 			if control == null or controller == null or grip == null:
 				return
+
 			control.rotation_active = true
 			var grip_data: R_HeldBy = grip.relation as R_HeldBy
 			var profile: GrabControlProfile = (

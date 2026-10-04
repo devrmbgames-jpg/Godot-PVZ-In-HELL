@@ -31,6 +31,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if CustomerFlowService.parcel_for("base_supply:1:oil") != null:
 			break
+
 	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:oil")
 	assert(parcel != null)
 	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
@@ -42,6 +43,7 @@ func _run() -> void:
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
 	assert(DayPhaseService.submit(request))
+
 	var first: E_Customer = null
 	for frame: int in SUPPLY_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
@@ -49,6 +51,7 @@ func _run() -> void:
 		first = ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_Customer
 		if first != null:
 			break
+
 	assert(first != null)
 	(first as Node as RigidBody3D).freeze = true
 	var agent: C_CustomerAgent = first.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -57,6 +60,7 @@ func _run() -> void:
 	assert(agent.phase == C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
 	assert(not (first.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	assert(_flickers == 1)
+
 	var station: E_DeliveryCounter = CustomerFlowService.counter()
 	var offset: Vector3 = (first as Node as Node3D).global_position - station.entry_position()
 	offset.y = 0.0
@@ -70,6 +74,7 @@ func _run() -> void:
 	assert(LightCircuitService.set_by_id(&"warehouse", false))
 	ECS.world.process(FRAME_DELTA, "GamePlay")
 	ECS.world.process(FRAME_DELTA, "GamePlay")
+
 	var state: C_Challenge = first.get_component(C_Challenge) as C_Challenge
 	assert(state.result == ChallengeResult.Type.SUCCESS)
 	assert(agent.phase == C_CustomerAgent.Phase.APPROACHING)
@@ -89,6 +94,7 @@ func _run() -> void:
 	CustomerFlowService.current().visits.append(retry)
 	assert(not CustomerFlowService.spawn_next_due(CustomerFlowService.current(), cycle), "New visit must respect the authored gap")
 	ECS.world.process(CustomerFlowService.current().arrival_cooldown_seconds + FRAME_DELTA, "GamePlay")
+
 	var second: E_Customer = CustomerFlowService.customer_for(retry.visit_id)
 	assert(second != null)
 	(second as Node as RigidBody3D).freeze = true

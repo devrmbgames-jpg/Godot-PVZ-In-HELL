@@ -31,23 +31,28 @@ static func save_reason(root: Node, menu_owner: Object = null) -> String:
 		return "Игровой уровень недоступен."
 	if root.scene_file_path not in [MAIN_LEVEL, TEST_LEVEL]:
 		return "Для этой сцены нет игрового слота."
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING:
 		return "Сохранение доступно утром, перед началом смены."
 	if not ECS.world.query.with_all([C_CustomerAgent]).with_none([C_Death]).execute().is_empty():
 		return "Дождитесь ухода посетителей."
+
 	for actor: Entity in ECS.world.entities:
 		if not is_instance_valid(actor):
 			continue
+
 		var challenge: C_Challenge = actor.get_component(C_Challenge) as C_Challenge
 		if challenge != null and challenge.phase in [C_Challenge.Phase.ARMED, C_Challenge.Phase.ACTIVE]:
 			return "Завершите активное испытание."
+
 		var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
 		if control != null:
 			for capture: InteractionControlCapture in control.captures.values():
 				var owner: Object = capture.owner.get_ref() if capture.owner != null else null
 				if owner != null and owner != menu_owner and capture.priority > InteractionControlFocus.Priority.HANDS:
 					return "Завершите взаимодействие и положите предметы из рук."
+
 		for binding: Relationship in actor.relationships:
 			if binding.relation is R_HeldBy or binding.relation is R_ProlongedOn or binding.relation is R_PushedBy or binding.relation is R_CartDrivenBy:
 				return "Положите предметы из рук и завершите взаимодействие."
@@ -59,12 +64,14 @@ static func save_game(root: Node, menu_owner: Object = null, path_override: Stri
 	result.message = save_reason(root, menu_owner)
 	if not result.message.is_empty():
 		return result
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var snapshot: Dictionary = WorldSnapshotService.capture(root, cycle.day_index)
 	snapshot["level_scene"] = root.scene_file_path
 	if not WorldSnapshotService.can_restore(snapshot, root):
 		result.message = "Состояние уровня нельзя сохранить. Предыдущее сохранение осталось на месте."
 		return result
+
 	result.path = manual_path(root.scene_file_path) if path_override.is_empty() else path_override
 	var error: Error = AutosaveStore.write(snapshot, result.path)
 	result.success = error == OK
@@ -78,10 +85,12 @@ static func saved_game(level: String, path_overrides: Array[String] = []) -> Gam
 	if level not in [MAIN_LEVEL, TEST_LEVEL]:
 		result.message = "Неизвестный уровень."
 		return result
+
 	var packed: PackedScene = load(level) as PackedScene
 	if packed == null:
 		result.message = "Не удалось открыть уровень."
 		return result
+
 	var probe: Node = packed.instantiate()
 	var paths: Array[String] = []
 	if path_overrides.is_empty():
@@ -90,22 +99,31 @@ static func saved_game(level: String, path_overrides: Array[String] = []) -> Gam
 		paths.assign(path_overrides)
 	var manual_slot: String = manual_path(level) if path_overrides.is_empty() else path_overrides[0]
 	paths.sort_custom(func(left: String, right: String) -> bool: return FileAccess.get_modified_time(left) > FileAccess.get_modified_time(right))
+
 	var found_file: bool = false
+	var incompatible_version: bool = false
 	for path: String in paths:
 		if not FileAccess.file_exists(path):
 			continue
+
 		found_file = true
 		var data: Dictionary = AutosaveStore.read(path)
+		if not data.is_empty() and data.get("version") != AutosaveStore.SCHEMA_VERSION:
+			incompatible_version = true
 		if data.is_empty() or data.get("level_scene", level) != level or not WorldSnapshotService.can_restore(data, probe):
 			continue
+
 		result.success = true
 		result.path = path
 		result.snapshot = data
 		result.message = "%s · утро %d" % ["Ручное сохранение" if path == manual_slot else "Автосохранение", int(data.morning_day)]
 		break
+
 	probe.free()
 	if not result.success:
 		result.message = "Сохранение повреждено или несовместимо." if found_file else "Сохранений пока нет."
+		if incompatible_version:
+			result.message = "Старый формат несовместим с живым районом. Файл сохранён; начните новое прохождение."
 	return result
 
 
@@ -113,17 +131,20 @@ static func saved_game(level: String, path_overrides: Array[String] = []) -> Gam
 static func start_game(tree: SceneTree, level: String, saved: GameSaveResult = null) -> Error:
 	if level not in [MAIN_LEVEL, TEST_LEVEL]:
 		return ERR_INVALID_PARAMETER
+
 	var packed: PackedScene = load(level) as PackedScene
 	if packed == null:
 		return ERR_CANT_OPEN
 	if saved != null:
 		if not saved.success or saved.snapshot.is_empty() or saved.snapshot.get("level_scene", level) != level:
 			return ERR_INVALID_DATA
+
 		var probe: Node = packed.instantiate()
 		var compatible: bool = WorldSnapshotService.can_restore(saved.snapshot, probe)
 		probe.free()
 		if not compatible:
 			return ERR_INVALID_DATA
+
 	var was_paused: bool = tree.paused
 	_pending_level = level
 	_pending_snapshot = saved.snapshot.duplicate(true) if saved != null else {}
@@ -141,6 +162,7 @@ static func restore_startup(root: Node, state: C_Autosave) -> void:
 	if _pending_level != root.scene_file_path:
 		NightSaveService.restore_startup(root, state)
 		return
+
 	var snapshot: Dictionary = _pending_snapshot
 	_pending_level = ""
 	_pending_snapshot = {}

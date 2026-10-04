@@ -67,6 +67,7 @@ func _flush_contacts() -> void:
 func _enqueue(contact: PhysicsContact) -> void:
 	if not _valid(contact):
 		return
+
 	var key: String = _pair_key(contact)
 	var existing: PhysicsContact = _pending.get(key) as PhysicsContact
 	if existing == null:
@@ -83,6 +84,7 @@ func _enqueue(contact: PhysicsContact) -> void:
 func _resolve(contact: PhysicsContact) -> void:
 	if not _valid(contact):
 		return
+
 	var key: String = _pair_key(contact)
 	var pair: ImpactContactPair = _pairs.get(key) as ImpactContactPair
 	if pair == null:
@@ -95,6 +97,7 @@ func _resolve(contact: PhysicsContact) -> void:
 		pair.separated_tick = -1
 	if pair.resolved:
 		return
+
 	pair.resolved = true
 	KinematicImpactCapture.queue_rebound(contact)
 
@@ -112,6 +115,7 @@ func _resolve_direction(
 	var source: Entity = source_body as Node as Entity
 	if not EntityAvailability.contains(target, _world) or not target.has_component(C_Health):
 		return
+
 	var health: C_Health = target.get_component(C_Health) as C_Health
 	if health.depleted or health.current <= 0.0:
 		return
@@ -120,9 +124,11 @@ func _resolve_direction(
 	# Holding is not a weapon mode; neither participant's holder receives contact damage.
 	if _held_pair(source, target) or _held_pair(target, source):
 		return
+
 	var receiver: C_ImpactReceiver = target.get_component(C_ImpactReceiver) as C_ImpactReceiver
 	if receiver == null:
 		return
+
 	var source_mass: float = KinematicImpactCapture.mass_of(source_body)
 	if source_mass <= 0.0:
 		# An immovable environment exchanges the receiver's own moving mass, not infinity.
@@ -200,6 +206,7 @@ func _on_entity_added(entity: Entity) -> void:
 func _on_body_exited(other: Node, body: PhysicsBody3D) -> void:
 	if not is_instance_valid(other) or not is_instance_valid(body):
 		return
+
 	var first_id: int = body.get_instance_id()
 	var second_id: int = other.get_instance_id()
 	var key: String = "%d:%d" % [mini(first_id, second_id), maxi(first_id, second_id)]
@@ -245,6 +252,7 @@ func _pair_key(contact: PhysicsContact) -> String:
 func _held_pair(candidate: Entity, other: Entity) -> bool:
 	if not is_instance_valid(candidate):
 		return false
+
 	var grip: Relationship = _held_relationship(candidate)
 	return grip != null and grip.target == other
 #endregion
@@ -253,6 +261,7 @@ func _held_pair(candidate: Entity, other: Entity) -> bool:
 func _held_relationship(entity: Entity) -> Relationship:
 	if not is_instance_valid(entity):
 		return null
+
 	for grip: Relationship in entity.relationships:
 		if grip.relation is R_HeldBy:
 			return grip

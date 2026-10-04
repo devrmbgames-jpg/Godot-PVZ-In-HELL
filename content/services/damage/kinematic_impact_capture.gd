@@ -9,6 +9,7 @@ static func mass_of(body: PhysicsBody3D) -> float:
 	var rigid: RigidBody3D = body as RigidBody3D
 	if rigid != null:
 		return rigid.mass
+
 	var entity: Entity = body as Node as Entity
 	var config: C_CharacterBody = entity.get_component(C_CharacterBody) as C_CharacterBody if entity != null else null
 	return config.mass_kg if config != null else 0.0
@@ -18,6 +19,7 @@ static func capture(actor: Entity, body: CharacterBody3D, config: C_CharacterBod
 	var inbox: C_ImpactInbox = actor.get_component(C_ImpactInbox) as C_ImpactInbox
 	if inbox == null:
 		return
+
 	var contacts: Dictionary[int, PhysicsContact] = {}
 	var current_bodies: Dictionary[int, WeakRef] = {}
 	for index: int in body.get_slide_collision_count():
@@ -25,6 +27,7 @@ static func capture(actor: Entity, body: CharacterBody3D, config: C_CharacterBod
 		var other: PhysicsBody3D = collision.get_collider() as PhysicsBody3D
 		if other == null:
 			continue
+
 		var id: int = other.get_instance_id()
 		current_bodies[id] = weakref(other)
 		var normal: Vector3 = collision.get_normal().normalized()
@@ -34,6 +37,7 @@ static func capture(actor: Entity, body: CharacterBody3D, config: C_CharacterBod
 		var grip: Relationship = GrabService.held_relationship(other_entity)
 		if grip != null and grip.target == actor:
 			continue
+
 		var contact: PhysicsContact = contacts.get(id) as PhysicsContact
 		if contact == null:
 			contact = PhysicsContact.new()
@@ -55,6 +59,7 @@ static func capture(actor: Entity, body: CharacterBody3D, config: C_CharacterBod
 	for id: int in config.contact_bodies:
 		if current_bodies.has(id):
 			continue
+
 		var previous: PhysicsBody3D = config.contact_bodies[id].get_ref() as PhysicsBody3D
 		if previous != null:
 			var separation: PhysicsContact = PhysicsContact.new()
@@ -76,14 +81,17 @@ static func _queue_for(body: PhysicsBody3D, other: PhysicsBody3D, normal: Vector
 	var actor: Entity = body as Node as Entity
 	if not EntityAvailability.contains(actor, ECS.world) or not actor.has_component(C_CharacterBody) or normal.is_zero_approx():
 		return
+
 	var other_entity: Entity = other as Node as Entity
 	var grip: Relationship = GrabService.held_relationship(other_entity)
 	if grip != null and grip.target == actor:
 		return
+
 	var receiver: C_ImpactReceiver = actor.get_component(C_ImpactReceiver) as C_ImpactReceiver
 	if receiver == null or receiver.profile == null:
 		return
 	if contact.normal_speed < receiver.profile.minimum_speed or contact.normal_impulse < receiver.profile.minimum_impulse:
 		return
+
 	var config: C_CharacterBody = actor.get_component(C_CharacterBody) as C_CharacterBody
 	config.pending_rebound_velocity += normal * minf(config.maximum_rebound_speed, contact.normal_speed * config.impact_rebound_fraction)

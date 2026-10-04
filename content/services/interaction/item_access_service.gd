@@ -8,6 +8,7 @@ static func matches(identity: C_AccessItem, requirement: DEF_AccessRequirement) 
 		return false
 	if requirement.required_item_id != &"" and identity.item_id != requirement.required_item_id:
 		return false
+
 	for tag: StringName in requirement.required_tags:
 		if tag == &"" or not identity.tags.has(tag):
 			return false
@@ -28,6 +29,7 @@ static func evaluate(actor: Entity, requirement: DEF_AccessRequirement) -> Acces
 			else AccessResult.Outcome.ALLOWED
 		)
 		return result
+
 	var config: C_ItemAccess = actor.get_component(C_ItemAccess) as C_ItemAccess
 	var providers: Array[DEF_ItemAccessProvider] = [DEF_HeldItemAccess.new(), DEF_WornItemAccess.new()]
 	if config != null and not config.providers.is_empty():
@@ -35,15 +37,18 @@ static func evaluate(actor: Entity, requirement: DEF_AccessRequirement) -> Acces
 	for provider: DEF_ItemAccessProvider in providers:
 		if provider == null:
 			continue
+
 		for item: Entity in provider.items(actor):
 			if not GrabService.entity_available(item):
 				continue
+
 			var identity: C_AccessItem = item.get_component(C_AccessItem) as C_AccessItem
 			if not matches(identity, requirement):
 				continue
 			if requirement.consume_item and not provider.can_consume(actor, item):
 				result.outcome = AccessResult.Outcome.CONSUMPTION_UNAVAILABLE
 				continue
+
 			result.outcome = AccessResult.Outcome.ALLOWED
 			result.item = item
 			result.provider = provider

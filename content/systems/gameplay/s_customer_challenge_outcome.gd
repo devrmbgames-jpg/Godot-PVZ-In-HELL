@@ -20,10 +20,12 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 		var state: C_Challenge = states[index] as C_Challenge
 		if state.pending_result == null or state.consequences_applied:
 			continue
+
 		var agent: C_CustomerAgent = agents[index] as C_CustomerAgent
 		var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
 		if visit == null or visit.finished:
 			continue
+
 		var applied: bool = CustomerOutcomeService.apply_challenge_result(visit, state.pending_result)
 		state.consequences_applied = true
 		if applied:

@@ -23,6 +23,7 @@ func _run() -> void:
 	_level.set_physics_process(false)
 	_actor = _level.get_node("Entityes/Player") as Entity
 	(_actor as Node as RigidBody3D).freeze = true
+
 	var receiver: S_CustomerChallengeOutcome = _level.get_node("World/Systems/GamePlay/S_CustomerChallengeOutcome") as S_CustomerChallengeOutcome
 	receiver.escalation_requested.connect(_on_escalation)
 	for frame: int in WAIT_FRAMES:
@@ -30,6 +31,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
+
 	var books: Entity = CustomerFlowService.parcel_for("base_supply:1:books")
 	# The default Ordinary now has no challenge. This bounded fixture still covers Light Off.
 	var flow: C_CustomerFlow = CustomerFlowService.current()
@@ -38,6 +40,7 @@ func _run() -> void:
 			visit.definition = visit.definition.duplicate(true) as DEF_Customer
 			visit.definition.challenge = LIGHT_OFF_FIXTURE
 	assert(PackageRegistrationService.register_package(books).outcome == PackageScanResult.Outcome.REGISTERED)
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.START_SHIFT
@@ -60,6 +63,7 @@ func _run() -> void:
 	await _use_switch()
 	ECS.world.process(FRAME_DELTA, "GamePlay")
 	assert(first_state.result == ChallengeResult.Type.SUCCESS)
+
 	var first_visit: CustomerVisit = _visit(first)
 	assert(first_visit.challenge_satisfaction_delta == 10)
 	assert(_escalations == 0)
@@ -69,6 +73,7 @@ func _run() -> void:
 	assert(PackageRegistrationService.register_package(glass).outcome == PackageScanResult.Outcome.REGISTERED)
 	var second: E_Customer = await _wait_for_customer()
 	await _start_after_demand(second)
+
 	var second_state: C_Challenge = second.get_component(C_Challenge) as C_Challenge
 	assert((second_state.definition.condition as DEF_LightChallengeCondition).required_enabled)
 	ECS.world.process(second_state.definition.timeout_seconds, "GamePlay")
@@ -77,6 +82,7 @@ func _run() -> void:
 	assert(_escalations == 1)
 	ECS.world.process(FRAME_DELTA, "GamePlay")
 	assert(_escalations == 1)
+
 	var second_visit: CustomerVisit = _visit(second)
 	assert(CustomerFlowService.deny(second_visit.visit_id))
 	# R17 now executes aggression. Let its authored bounded conflict end before exit.
@@ -93,6 +99,7 @@ func _run() -> void:
 	ECS.world.process(FRAME_DELTA, "GamePlay")
 	assert(third_state.phase == C_Challenge.Phase.ACTIVE, "Correct light must not end the visit challenge early")
 	await get_tree().process_frame
+
 	var debug: Label3D = third.get_node("DebugStatus") as Label3D
 	assert(debug.text.contains("Задача:"))
 	assert(debug.text.contains("Свет:"))
@@ -117,6 +124,7 @@ func _wait_for_customer() -> E_Customer:
 		var customer: E_Customer = CustomerFlowService.waiting_customer()
 		if customer != null:
 			return customer
+
 	for entity: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
 		var intent: C_NpcIntent = entity.get_component(C_NpcIntent) as C_NpcIntent
@@ -132,10 +140,12 @@ func _show_demand(customer: E_Customer) -> void:
 		var panels: Array[Node] = get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP)
 		if panels.is_empty():
 			continue
+
 		for node: Node in panels[0].find_children("*", "RichTextLabel", true, false):
 			if (node as RichTextLabel).text.contains("свет"):
 				assert(InteractionControlFocus.current(_actor) == InteractionControlFocus.Priority.MODAL)
 				return
+
 	assert(false, "Compiled dialogue must show the actual challenge demand")
 
 
@@ -149,11 +159,13 @@ func _start_after_demand(customer: E_Customer) -> void:
 			button.pressed.emit()
 			continued = true
 			break
+
 	assert(continued)
 	for frame: int in UI_WAIT_FRAMES:
 		await get_tree().process_frame
 		if get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP).is_empty():
 			return
+
 	assert(false, "Demand acknowledgement must close modal dialogue and restore control")
 
 
@@ -165,6 +177,7 @@ func _use_switch() -> void:
 	ray.look_at(position)
 	for frame: int in 2:
 		await get_tree().physics_frame
+
 	var interactor: C_Interactor = _actor.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
 	assert(interactor.target == light_switch)

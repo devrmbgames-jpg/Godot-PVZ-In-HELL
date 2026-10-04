@@ -1,6 +1,6 @@
 # Справка и прокрутка консоли
 
-Источник: [Developer Console Testing](../agent_tasks/developer_console_testing.md).
+Источник: Developer Console Testing.
 
 Готовность: **ГОТОВО К РУЧНОМУ QA**, низкий приоритет. Результат: **НЕ ПРОВЕРЕНО**.
 

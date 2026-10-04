@@ -31,6 +31,7 @@ static func kill(target: DebugTarget) -> DebugServiceResult:
 	if not EntityAvailability.contains(target.entity, ECS.world):
 		result.message = "target has no live Entity"
 		return result
+
 	var health: C_Health = target.entity.get_component(C_Health) as C_Health
 	if health == null:
 		result.message = "target has no C_Health"
@@ -51,10 +52,12 @@ static func reset(target: DebugTarget) -> DebugServiceResult:
 	if not EntityAvailability.contains(target.entity, ECS.world):
 		result.message = "target has no live Entity"
 		return result
+
 	var entity: Entity = target.entity
 	if not entity.has_component(C_Living):
 		result.message = "reset requires a live C_Living entity"
 		return result
+
 	var health: C_Health = entity.get_component(C_Health) as C_Health
 	if health == null or not is_finite(health.value) or health.value <= 0.0:
 		result.message = "target has invalid Health"
@@ -107,6 +110,7 @@ static func _submit(
 	if not EntityAvailability.contains(target.entity, ECS.world):
 		result.message = "target has no live Entity"
 		return result
+
 	var entity: Entity = target.entity
 	var health: C_Health = entity.get_component(C_Health) as C_Health
 	if health == null:

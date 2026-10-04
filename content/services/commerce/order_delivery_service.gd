@@ -17,12 +17,15 @@ static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 		var furniture: Entity = FurniturePlacement.create_validated(item)
 		if furniture == null:
 			return false
+
 		furniture.free()
 		return true
+
 	var packed: PackedScene = load(item.world_pickup_scene) as PackedScene
 	var node: Node = packed.instantiate() if packed != null else null
 	if node == null:
 		return false
+
 	var valid: bool = false
 	if node is E_InventoryPickup and node is RigidBody3D:
 		var collision: CollisionShape3D = node.get_node_or_null("Collision") as CollisionShape3D
@@ -31,6 +34,7 @@ static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 				if component is C_InventoryItem:
 					valid = true
 					break
+
 	node.free()
 	return valid
 
@@ -38,15 +42,18 @@ static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Commerce, day: int) -> bool:
 	if not EntityAvailability.contains(zone, ECS.world) or state == null or commerce == null or day < 1:
 		return false
+
 	var anchor: Node3D = zone as Node as Node3D
 	if anchor == null or not anchor.is_inside_tree() or state.columns < 1 or state.rows < 1 or state.spacing.x <= 0.0 or state.spacing.y <= 0.0:
 		return false
+
 	for delivery: PendingDelivery in commerce.pending_deliveries:
 		if delivery.fulfilled or delivery.delivery_day > day:
 			continue
 		if delivery.delivery_id.is_empty() or delivery.item == null or delivery.quantity < 1 or delivery.quantity > delivery.item.maximum_stack:
 			state.blocked = true
 			return false
+
 		for existing: Entity in ECS.world.query.with_all([C_PersistentIdentity]).execute():
 			var identity: C_PersistentIdentity = existing.get_component(C_PersistentIdentity) as C_PersistentIdentity
 			if identity.key == key_for(delivery):
@@ -57,29 +64,35 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 			if delivery.quantity != 1:
 				state.blocked = true
 				return false
+
 			for index: int in state.columns * state.rows:
 				var pose: Transform3D = anchor.global_transform
 				pose.origin += pose.basis * Vector3((index % state.columns) * state.spacing.x, 0, (index / state.columns) * state.spacing.y)
 				var proposal: PreparedFurniture = FurniturePlacement.prepare(delivery.item, anchor, pose)
 				if proposal == null:
 					continue
+
 				delivery.fulfilled = true
 				FurniturePlacement.commit(proposal, key_for(delivery))
 				state.blocked = false
 				return true
+
 			state.blocked = true
 			return false
+
 		var packed: PackedScene = load(delivery.item.world_pickup_scene) as PackedScene if not delivery.item.world_pickup_scene.is_empty() else null
 		var pickup: E_InventoryPickup = packed.instantiate() as E_InventoryPickup if packed != null else null
 		if pickup == null:
 			state.blocked = true
 			return false
+
 		var collision: CollisionShape3D = pickup.get_node_or_null("Collision") as CollisionShape3D
 		var body: RigidBody3D = pickup as Node as RigidBody3D
 		if collision == null or collision.shape == null or body == null:
 			pickup.free()
 			state.blocked = true
 			return false
+
 		var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 		query.shape = collision.shape
 		query.margin = maxf(0.0, state.collision_margin)
@@ -91,6 +104,7 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 			query.transform = pose * collision.transform
 			if not space.intersect_shape(query, 1).is_empty():
 				continue
+
 			var components: Array[Component] = pickup.component_resources.duplicate()
 			for component_index: int in components.size():
 				if components[component_index] is C_InventoryItem:
@@ -108,8 +122,10 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 			delivery.fulfilled = true
 			state.blocked = false
 			return true
+
 		pickup.free()
 		state.blocked = true
 		return false
+
 	state.blocked = false
 	return false

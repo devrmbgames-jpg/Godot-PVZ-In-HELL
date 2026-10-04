@@ -16,6 +16,7 @@ const SPILL_ITEMS_PER_RING: int = 6
 static func is_empty(package: Entity) -> bool:
 	if not is_instance_valid(package):
 		return false
+
 	var contents: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
 	return contents != null and contents.released
 
@@ -24,6 +25,7 @@ static func release(package: Entity, actor: Entity = null) -> Array[Entity]:
 	var spawned: Array[Entity] = []
 	if not EntityAvailability.contains(package, ECS.world):
 		return spawned
+
 	var state: C_PackageContents = package.get_component(C_PackageContents) as C_PackageContents
 	var identity: C_Package = package.get_component(C_Package) as C_Package
 	var condition: C_PackageState = package.get_component(C_PackageState) as C_PackageState
@@ -32,9 +34,11 @@ static func release(package: Entity, actor: Entity = null) -> Array[Entity]:
 		return spawned
 	if condition == null or condition.opening != C_PackageState.Opening.OPENED or condition.damage == C_PackageState.Damage.DESTROYED:
 		return spawned
+
 	var definition: DEF_Package = identity.definition
 	if definition.unpack_scene == null or definition.content_quantity < 1 or definition.content_quantity > DEF_Package.MAX_CONTENT_QUANTITY:
 		return spawned
+
 	for index: int in definition.content_quantity:
 		var node: Node = definition.unpack_scene.instantiate()
 		var content: Entity = node as Entity
@@ -57,6 +61,7 @@ static func release(package: Entity, actor: Entity = null) -> Array[Entity]:
 	# Commit before registering any body: reentrant lifecycle events cannot duplicate contents.
 	state.released = true
 	condition.leaking = false
+
 	var parcel_body: RigidBody3D = package as Node as RigidBody3D
 	if parcel_body != null:
 		parcel_body.mass = definition.empty_mass_kg
@@ -106,6 +111,7 @@ static func _top_height(node: Node3D) -> float:
 		var collision: CollisionShape3D = child as CollisionShape3D
 		if collision.shape == null or collision.disabled:
 			continue
+
 		var bounds: AABB = collision.global_transform * collision.shape.get_debug_mesh().get_aabb()
 		highest = maxf(highest, bounds.end.y - node.global_position.y)
 	return highest
@@ -117,6 +123,7 @@ static func _bottom_height(node: Node3D) -> float:
 		var collision: CollisionShape3D = child as CollisionShape3D
 		if collision.shape == null or collision.disabled:
 			continue
+
 		var mesh: ArrayMesh = collision.shape.get_debug_mesh()
 		var relative: Transform3D = collision.transform
 		var ancestor: Node = collision.get_parent()

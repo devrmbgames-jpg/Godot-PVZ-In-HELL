@@ -72,6 +72,7 @@ func test_long_output_scrolls_with_mouse_and_preserves_command_input() -> void:
 		Console.print_line("Long output line %d" % index)
 	await get_tree().process_frame
 	await get_tree().process_frame
+
 	var scroll: VScrollBar = Console.rich_label.get_v_scroll_bar()
 	assert_gt(scroll.max_value, scroll.page, "Actual output exceeds viewport")
 	scroll.value = scroll.max_value - scroll.page

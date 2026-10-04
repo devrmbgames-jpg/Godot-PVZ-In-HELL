@@ -19,6 +19,7 @@ func before_each() -> void:
 	_world.add_observer(O_InventoryEffect.new())
 	_world.add_observer(O_InventoryLifecycle.new())
 	_world.add_observer(O_GrabLifecycle.new())
+
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new()]
 	_root.add_child(session)
@@ -32,6 +33,7 @@ func before_each() -> void:
 	collision.position.y = -0.1
 	floor.add_child(collision)
 	_root.add_child(floor)
+
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
@@ -49,6 +51,7 @@ func before_each() -> void:
 	_ray.add_exception(body)
 	body.add_child(_ray)
 	_actor.interaction_ray_cast = _ray
+
 	var hand: Marker3D = Marker3D.new()
 	hand.position = Vector3(0.5, 1, 0)
 	body.add_child(hand)
@@ -92,6 +95,7 @@ func test_opening_held_package_refreshes_empty_carry_mass_without_releasing() ->
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = C_Grabbable.HoldSlot.CARRY
 	parcel.add_relationship(Relationship.new(grip, _actor))
+
 	var load_state: C_CarryLoad = _actor.get_component(C_CarryLoad) as C_CarryLoad
 	assert_true(load_state.active)
 	assert_eq(load_state.mass_kg, 10.0)
@@ -117,6 +121,7 @@ func test_bread_box_produces_five_individual_usable_items_once() -> void:
 		assert_gt(rigid.global_position.y, (parcel as Node as Node3D).global_position.y, "Contents spill above the parcel")
 		assert_gt(rigid.linear_velocity.length(), 0.0, "Real contents have an ejection velocity")
 		assert_true(InventoryService.transfer(item, _actor))
+
 	var owned: Array[Entity] = InventoryService.items(_actor)
 	assert_eq(owned.size(), 1)
 	assert_eq((owned[0].get_component(C_InventoryItem) as C_InventoryItem).quantity, 5)
@@ -137,6 +142,7 @@ func test_med_box_produces_five_medkits_and_consumes_only_successful_healing() -
 		var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
 		assert_eq(state.quantity, 1)
 		assert_eq(state.definition.key, &"med")
+
 	var health: C_Health = _actor.get_component(C_Health) as C_Health
 	health.current = 50.0
 	var selected: Entity = items[0]
@@ -209,6 +215,7 @@ func test_toxic_effect_follows_extracted_bottle_and_empty_shell_has_no_hazards_o
 	var tilt: C_LiquidTilt = C_LiquidTilt.new()
 	tilt.duration_seconds = 0.0
 	parcel.add_component(tilt)
+
 	var contents: Array[Entity] = PackageContentsService.release(parcel, _actor)
 	var effect: Entity = _world.query.with_all([C_ToxicArea]).execute_one()
 	assert_not_null(effect)
@@ -233,6 +240,7 @@ func test_extracted_power_cell_can_explode_but_its_empty_package_cannot() -> voi
 	var contents: Array[Entity] = PackageContentsService.release(parcel, _actor)
 	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Destroyed, _actor)
 	assert_eq(_world.query.with_all([C_Explosion]).execute().size(), 0)
+
 	var request: DamageRequest = DamageRequest.new()
 	request.target = contents[0]
 	request.source = _actor
@@ -254,6 +262,7 @@ func test_inventory_freezes_real_pickup_and_drop_spawns_live_rigid_body() -> voi
 	await get_tree().process_frame
 	assert_true(body.freeze)
 	assert_eq(body.collision_layer, 0)
+
 	var before: Array[Entity] = _world.query.with_all([C_InventoryItem]).execute().duplicate()
 	assert_true(InventoryDropService.drop(_actor, item))
 	var dropped: RigidBody3D = null
@@ -296,6 +305,7 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 	var bottom: CollisionShape3D = shelf.get_node("BottomCollision") as CollisionShape3D
 	assert_eq((bottom.shape as BoxShape3D).size, Vector3(1.5, 0.08, 1.5))
 	assert_almost_eq(body.global_position.y, 1.53, 0.01, "Shelf is placed with its real bottom on the floor")
+
 	var hammer: Entity = (load("res://content/entities/tools/hammer.tscn") as PackedScene).instantiate() as Entity
 	_world.add_entity(hammer)
 	(hammer as Node as RigidBody3D).gravity_scale = 0.0
@@ -309,6 +319,7 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 		AnchoringService.update_stability(shelf, config, 1.0 / 60.0)
 		if config.stable_seconds >= config.minimum_rest_seconds:
 			break
+
 	_ray.look_at(body.global_position)
 	(_actor.get_component(C_Interactor) as C_Interactor).target = shelf
 	assert_not_null(GrabService.held_relationship(hammer))

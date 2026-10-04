@@ -12,10 +12,12 @@ static var _textures: Dictionary[String, Texture2D] = {}
 static func sprite_path(family: String, name: String) -> String:
 	if not family in FAMILIES or name.is_empty() or name.get_file() != name:
 		return ""
+
 	var base: String = SOURCE + family + "/Default/" + name
 	var outline: String = base + "_outline.png"
 	if ResourceLoader.exists(outline, "Texture2D"):
 		return outline
+
 	var plain: String = base + ".png"
 	return plain if ResourceLoader.exists(plain, "Texture2D") else ""
 

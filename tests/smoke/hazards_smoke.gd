@@ -45,6 +45,7 @@ func _setup_world() -> void:
 	for processor: System in processors:
 		processor.group = GROUP
 	_world.add_systems(processors, true)
+
 	var observers: Array[Observer] = [
 		O_Damage.new(),
 		O_HazardSpawn.new(),
@@ -80,6 +81,7 @@ func _toxic_contract() -> void:
 	assert(_effects().size() == 1, "Factory deduplicates request ID")
 	assert(HazardSpawnService.submit(_request(scene, Vector3.ZERO, "toxic-b")))
 	assert(_effects().size() == 2, "Independent volumes have no global cooldown")
+
 	var actor_id: String = origin.id
 	_world.remove_entity(origin)
 	await _settle()
@@ -127,6 +129,7 @@ func _follow_and_reset_contract() -> void:
 	assert(not customer.has_component(C_Package))
 	assert(HazardEmitter.activate(customer))
 	assert(not HazardEmitter.activate(customer), "Producer one-shot guard")
+
 	var effect: Entity = _spawned.back()
 	var customer_node: Node3D = customer as Node as Node3D
 	customer_node.position.x += 2.0
@@ -146,6 +149,7 @@ func _follow_and_reset_contract() -> void:
 	assert(
 		HazardSpawnService.submit(_request(scene, Vector3(24, 0, 0), "follow-despawn", owner))
 	)
+
 	var attached: Entity = _spawned.back()
 	_world.remove_entity(owner)
 	await _tick(0.01)
@@ -175,6 +179,7 @@ func _package_adapter_contract() -> void:
 		DEF_Hazard.Ownership.FollowOrigin,
 		DEF_Hazard.OwnerLoss.Despawn,
 	)
+
 	var destruction: C_PackageDestruction = C_PackageDestruction.new()
 	destruction.debris_scene = preload(
 		"res://content/entities/packages/package_debris_stub.tscn"
@@ -187,6 +192,7 @@ func _package_adapter_contract() -> void:
 		true,
 		[identity, package_state, destruction],
 	)
+
 	var condition: C_PackageState = package.get_component(C_PackageState) as C_PackageState
 	condition.damage = C_PackageState.Damage.DAMAGED
 	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Damaged)
@@ -255,6 +261,7 @@ func _explosion_contract() -> void:
 	_wall(Vector3(40, 0, -1))
 	await _settle()
 	assert(not barrel_a.has_component(C_Package) and not barrel_b.has_component(C_Package))
+
 	var trigger: DamageRequest = DamageRequest.new()
 	trigger.target = barrel_a
 	trigger.instigator = receiver
@@ -266,6 +273,7 @@ func _explosion_contract() -> void:
 	assert(_effects().size() == 2, "Damage can activate another guarded emitter")
 	assert(is_equal_approx(_hp(receiver), 50.0), "Center-distance linear falloff")
 	await _tick(0.01)
+
 	var after_blasts: float = _hp(receiver)
 	assert(after_blasts < 50.0 and after_blasts > 0.0)
 	assert(_hp(blocked) == 100.0 and _hp(outside) == 100.0, "Wall LOS and radius")
@@ -303,6 +311,7 @@ func _short_chain_contract() -> void:
 	# An ordinary layer-1 physical emitter must not block its own ray from inside the body.
 	var origin_body: PhysicsBody3D = origin as Node as PhysicsBody3D
 	origin_body.collision_layer = 1
+
 	var successor: Entity = _body(Vector3(101, 0, 0), true, false, false, [emitter])
 	(successor.get_component(C_Health) as C_Health).current = 10.0
 	await _settle()
@@ -343,6 +352,7 @@ func _body(
 		components.append(C_Health.new())
 	if living:
 		components.append(C_Living.new())
+
 	var entity: Entity = body as Node as Entity
 	_world.add_entity(entity, components, false)
 	return entity

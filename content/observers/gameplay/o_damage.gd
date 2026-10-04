@@ -11,6 +11,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var request: DamageRequest = payload as DamageRequest
 	if request == null or request.target != entity:
 		return
+
 	cmd.add_custom(_resolve.bind(request))
 
 
@@ -53,7 +54,8 @@ func _apply(request: DamageRequest, health: C_Health, result: DamageResult) -> v
 		result.outcome = DamageResult.Outcome.BLOCKED
 		return
 
-	var signed_amount: float = request.amount if is_heal else -request.amount
+	var effective_amount: float = request.amount if is_heal else DamageResistanceRules.effective(request.target, request.amount, request.damage_type)
+	var signed_amount: float = effective_amount if is_heal else -effective_amount
 	result.current_value = clampf(result.previous_value + signed_amount, 0.0, health.value)
 	result.applied_amount = absf(result.current_value - result.previous_value)
 	var depleted: bool = result.previous_value > 0.0 and result.current_value <= 0.0

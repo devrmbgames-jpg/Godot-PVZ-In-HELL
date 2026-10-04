@@ -27,6 +27,7 @@ static func can_carry(mass_kg: float, strength: C_Strength) -> bool:
 static func mobility_multiplier(mass_kg: float, strength: C_Strength) -> float:
 	if strength == null or not is_finite(mass_kg) or mass_kg <= 0.0:
 		return 0.0
+
 	var minimum: float = minimum_mass_kg(strength)
 	var maximum: float = maximum_mass_kg(strength)
 	if mass_kg <= minimum:

@@ -33,6 +33,7 @@ func _run() -> void:
 	_world.add_entity(_customer)
 	# This fixture isolates collision/impulse behavior; routing has its own real-map smoke.
 	(_customer.get_component(C_NpcIntent) as C_NpcIntent).navigation_enabled = false
+
 	var motion: C_Motion = _customer.get_component(C_Motion) as C_Motion
 	motion.max_speed = 1.8
 	assert(not _customer.has_component(C_PlayerInputController))
@@ -49,6 +50,7 @@ func _run() -> void:
 	await _arrive()
 	NpcIntentService.stop(_customer)
 	await _frames(SETTLE_FRAMES)
+
 	var before_impulse: Vector3 = _body.position
 	_body.apply_central_impulse(IMPULSE)
 	await _frames(2)
@@ -57,6 +59,7 @@ func _run() -> void:
 	NpcIntentService.move_to(_customer, TARGET, ARRIVAL_DISTANCE)
 	await _arrive()
 	NpcIntentService.stop(_customer)
+
 	var watched_body: Node3D = Node3D.new()
 	watched_body.set_script(load("res://addons/gecs/ecs/entity.gd"))
 	var watched: Entity = watched_body as Node as Entity
@@ -85,6 +88,7 @@ func _arrive() -> void:
 		var intent: C_NpcIntent = _customer.get_component(C_NpcIntent) as C_NpcIntent
 		if intent.arrived:
 			return
+
 	assert(false, "NPC must recover and reach the target within frame budget")
 
 

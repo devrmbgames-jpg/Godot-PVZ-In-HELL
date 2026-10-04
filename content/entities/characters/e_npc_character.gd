@@ -49,6 +49,7 @@ func sync_navigation_lifecycle(living: bool) -> void:
 		_avoidance_before_death = navigation_agent.avoidance_enabled
 		navigation_agent.avoidance_enabled = false
 	_navigation_dead = not living
+
 	var intent: C_NpcIntent = get_component(C_NpcIntent) as C_NpcIntent
 	if intent != null:
 		intent.avoidance_velocity = Vector3.ZERO
@@ -58,12 +59,15 @@ func sync_navigation_lifecycle(living: bool) -> void:
 func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
+
 	sync_death_presentation()
 	if _death_presented or animation_player == null:
 		return
+
 	var combat: C_NpcCombat = get_component(C_NpcCombat) as C_NpcCombat
 	if combat != null and combat.animation_driven and combat.phase != C_NpcCombat.Phase.READY:
 		return
+
 	var body: RigidBody3D = self as Node as RigidBody3D
 	var speed: float = Vector2(body.linear_velocity.x, body.linear_velocity.z).length()
 	_walking = speed > WALK_STOP_SPEED if _walking else speed >= WALK_START_SPEED
@@ -83,6 +87,7 @@ func sync_death_presentation() -> void:
 	var dead: bool = has_component(C_Death) or (health != null and health.depleted)
 	if dead == _death_presented:
 		return
+
 	_death_presented = dead
 	var body: RigidBody3D = self as Node as RigidBody3D
 	body.visible = false if dead else _living_visible

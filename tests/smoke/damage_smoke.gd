@@ -18,6 +18,7 @@ func _run() -> void:
 	for delivery_tick: int in 12:
 		await get_tree().physics_frame
 		ECS.world.process(1.0 / 60.0, "GamePlay")
+
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var package: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
 	var other_package: Entity = level.get_node("Entityes/Parcel_001_02") as Entity
@@ -32,6 +33,7 @@ func _run() -> void:
 	_send(actor, NAN)
 	assert(health.current == 100.0 and _last_result.outcome == DamageResult.Outcome.REJECTED)
 	_send(package, 20.0)
+
 	var package_state: C_PackageState = package.get_component(C_PackageState) as C_PackageState
 	assert(package_state.damage == C_PackageState.Damage.DAMAGED)
 	_send(package, 50.0, DamageRequest.Operation.HEAL)
@@ -48,6 +50,7 @@ func _run() -> void:
 	_send(actor, 10.0)
 	_send(actor, 100.0, DamageRequest.Operation.HEAL)
 	assert(health.current == 0.0 and _defeat_count == 2)
+
 	var request: DamageRequest = DamageRequest.new()
 	request.target = other_package
 	request.amount = 10.0

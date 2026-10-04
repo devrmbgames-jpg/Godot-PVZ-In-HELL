@@ -67,6 +67,8 @@ func _ready() -> void:
 	get_viewport().gui_focus_changed.connect(_focus_changed)
 	if bool(Console.is_visible()):
 		_opened()
+	
+	Console.font_size = 12
 
 
 func _exit_tree() -> void:
@@ -83,6 +85,7 @@ func _exit_tree() -> void:
 func _opened() -> void:
 	if _mouse_acquired:
 		return
+
 	_mouse_acquired = true
 	_previous_mouse_mode = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -98,6 +101,7 @@ func _process(_delta: float) -> void:
 func _closed() -> void:
 	if not _mouse_acquired:
 		return
+
 	_mouse_acquired = false
 	var actor: Entity = DebugTargetResolver.player()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.MODAL else _previous_mouse_mode
@@ -116,6 +120,7 @@ func _output_input(event: InputEvent) -> void:
 	var button: InputEventMouseButton = event as InputEventMouseButton
 	if button == null or not button.pressed or button.is_command_or_control_pressed():
 		return
+
 	var direction: float = 0.0
 	if button.button_index == MOUSE_BUTTON_WHEEL_UP:
 		direction = -1.0
@@ -123,6 +128,7 @@ func _output_input(event: InputEvent) -> void:
 		direction = 1.0
 	else:
 		return
+
 	var scroll: VScrollBar = Console.rich_label.get_v_scroll_bar()
 	var line_height: float = float(Console.rich_label.get_theme_font_size("normal_font_size"))
 	scroll.value += direction * WHEEL_LINES * line_height * button.factor
@@ -147,10 +153,12 @@ func _help(subject: String = "") -> void:
 				_print_command(command_name, entry)
 		_print_workflow(name_text)
 		return
+
 	var command: Console.ConsoleCommand = Console.console_commands.get(name_text) as Console.ConsoleCommand
 	if command == null or command.hidden:
 		DeveloperConsoleOutput.error("help", "Unknown subject: %s" % name_text, "Groups: %s; registered names: commands_list." % ", ".join(GROUPS))
 		return
+
 	_print_command(name_text, command)
 
 

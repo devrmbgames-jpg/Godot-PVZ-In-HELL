@@ -20,6 +20,7 @@ static func from_grabbable(config: C_Grabbable) -> GrabControlProfile:
 	var profile: GrabControlProfile = GrabControlProfile.new()
 	if config == null:
 		return profile
+
 	profile.allowed_hand_slots = config.allowed_hand_slots
 	profile.manual_rotation_enabled = config.manual_rotation_enabled
 	profile.rotation_axis = config.rotation_axis

@@ -99,6 +99,7 @@ func _process(delta: float) -> void:
 	_challenge_debug_panel.visible = challenge_debug_enabled and DebugHudService.is_enabled()
 	if _challenge_debug_panel.visible:
 		_challenge_debug_text.text = CustomerDebugPresentation.summary()
+
 	var captured: bool = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	_menu_hint.visible = not bool(Console.is_visible()) and InteractionControlFocus.current(player) < InteractionControlFocus.Priority.DRAWING
 	var progress: ProlongedInteractionProgress = ProlongedInteractionService.active_progress(player)
@@ -130,6 +131,7 @@ func _process(delta: float) -> void:
 		_prompt.set_prompt("")
 		_update_debug_presentation(null)
 		return
+
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
 	_prompt.set_prompt(interactor.prompt_text if interactor != null else "")
 	_update_debug_presentation(interactor.target if interactor != null else null)
@@ -140,6 +142,7 @@ func _update_player_status() -> void:
 	_player_status.visible = player_status_enabled and is_instance_valid(player)
 	if not _player_status.visible:
 		return
+
 	var health: C_Health = player.get_component(C_Health) as C_Health
 	_status_health.visible = health != null
 	_status_health_bar.visible = health != null
@@ -155,6 +158,7 @@ func _update_player_status() -> void:
 		_status_hunger.text = "Голод  %.0f / %.0f · %s" % [hunger.value, hunger.policy.maximum, HUNGER_NAMES[HungerService.tier(hunger)]]
 		_status_hunger_bar.max_value = hunger.policy.maximum
 		_status_hunger_bar.value = hunger.value
+
 	var stamina: C_Stamina = player.get_component(C_Stamina) as C_Stamina
 	_status_stamina.visible = stamina != null
 	_status_stamina_bar.visible = stamina != null
@@ -164,6 +168,7 @@ func _update_player_status() -> void:
 		_status_stamina_bar.max_value = stamina.maximum
 		_status_stamina_bar.value = stamina.current
 		_stamina_debug.text = "Бег %s · %s · расход ×%.2f\nОтдых %.1f с · порог %.0f" % ["да" if stamina.running else "нет", "переключение" if stamina.toggle_mode else "удержание", stamina.drain_multiplier, stamina.recovery_remaining, stamina.maximum * stamina.restart_ratio]
+
 	var wallet: C_Wallet = WalletService.current()
 	_status_money.visible = wallet != null
 	if wallet != null:
@@ -181,6 +186,7 @@ func _update_debug_presentation(target: Variant) -> void:
 		_player_debug_panel.visible = false
 		_package_debug_panel.visible = false
 		return
+
 	_update_player_health_debug()
 	_update_package_debug(target)
 
@@ -189,10 +195,12 @@ func _update_player_health_debug() -> void:
 	if not is_instance_valid(player):
 		_player_debug_panel.visible = false
 		return
+
 	var health: C_Health = player.get_component(C_Health) as C_Health
 	if health == null:
 		_player_debug_panel.visible = false
 		return
+
 	_player_debug_panel.visible = true
 	var values: Vector2 = _update_health_bar(_player_health_bar, health)
 	_player_health_label.text = "PLAYER HP  %.1f / %.1f" % [values.x, values.y]
@@ -218,6 +226,7 @@ func _update_gaze_warning() -> void:
 func _status_vignette_strengths() -> Vector2:
 	if not status_vignette_enabled or not EntityAvailability.contains(player, ECS.world):
 		return Vector2.ZERO
+
 	var health: C_Health = player.get_component(C_Health) as C_Health
 	var hunger: C_Hunger = player.get_component(C_Hunger) as C_Hunger
 	var injury: float = 0.0
@@ -235,10 +244,12 @@ func _update_package_debug(target: Variant) -> void:
 	if not is_instance_valid(target):
 		_package_debug_panel.visible = false
 		return
+
 	var entity: Entity = target as Entity
 	if entity == null:
 		_package_debug_panel.visible = false
 		return
+
 	var package: C_Package = entity.get_component(C_Package) as C_Package
 	if package == null:
 		_package_debug_panel.visible = false
@@ -253,6 +264,7 @@ func _update_package_debug(target: Variant) -> void:
 	_package_health_bar.visible = has_health
 	if not has_health:
 		return
+
 	var values: Vector2 = _update_health_bar(_package_health_bar, health)
 	_package_health_label.text = "HP  %.1f / %.1f" % [values.x, values.y]
 
@@ -294,6 +306,7 @@ func _package_debug_text(definition: DEF_Package) -> String:
 func _hazard_scene_name(scene: PackedScene) -> String:
 	if scene == null:
 		return "Нет"
+
 	var path: String = scene.resource_path
 	if not path.is_empty():
 		return path.get_file().get_basename()

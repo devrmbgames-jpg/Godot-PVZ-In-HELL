@@ -57,6 +57,7 @@ func _process(delta: float) -> void:
 	if not GrabService.holder_available(player) or player.has_component(C_Death):
 		close_inventory()
 		return
+
 	_refresh_remaining -= delta
 	if _refresh_remaining <= 0.0:
 		_refresh_remaining = REFRESH_INTERVAL
@@ -66,12 +67,14 @@ func _process(delta: float) -> void:
 func open_inventory() -> bool:
 	if _capture != 0 or not GrabService.holder_available(player) or player.has_component(C_Death) or not player.has_component(C_Inventory) or InteractionControlFocus.current(player) >= InteractionControlFocus.Priority.PUSH:
 		return false
+
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
 	var target: Entity = InteractionTargetingService.find_target(player, interactor) if interactor != null else null
 	_target = weakref(target) if target != null and target.has_component(C_Package) else null
 	_capture = InteractionControlFocus.acquire(player, self, InteractionControlFocus.Priority.MODAL)
 	if _capture == 0:
 		return false
+
 	_previous_mouse = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_root.show()
@@ -85,6 +88,7 @@ func open_inventory() -> bool:
 func close_inventory() -> void:
 	if _capture == 0:
 		return
+
 	InteractionControlFocus.release(player, _capture)
 	_capture = 0
 	Input.mouse_mode = _previous_mouse if not is_instance_valid(player) or InteractionControlFocus.current(player) < InteractionControlFocus.Priority.MODAL else Input.MOUSE_MODE_VISIBLE
@@ -97,6 +101,7 @@ func _package_target() -> Entity:
 	var target: Entity = _target.get_ref() as Entity if _target != null else null
 	if not EntityAvailability.contains(target, ECS.world):
 		return null
+
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
 	return target if interactor != null and InteractionTargetingService.find_target(player, interactor) == target else null
 
@@ -111,6 +116,7 @@ func _refresh() -> void:
 	if selected == null and not owned.is_empty():
 		selected = owned[0]
 	_selected_id = selected.id if selected != null else ""
+
 	var reason: String = InventoryService.use_reason(player, selected, target) if selected != null else "Выберите предмет"
 	_use.disabled = not reason.is_empty()
 	_drop.disabled = selected == null or not InventoryDropService.drop_reason(player, selected).is_empty()
@@ -123,6 +129,7 @@ func _refresh() -> void:
 		signature += "%s:%d;" % [item.id, state.quantity]
 	if signature == _rows_signature and _rows.get_child_count() > 0:
 		return
+
 	_rows_signature = signature
 	for row: Node in _rows.get_children():
 		_rows.remove_child(row)
@@ -139,6 +146,7 @@ func _add_slot(item: Entity, index: int) -> void:
 	button.disabled = item == null
 	button.button_pressed = item != null and item.id == _selected_id
 	_rows.add_child(button)
+
 	var margin: MarginContainer = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for edge: String in ["left", "top", "right", "bottom"]:
@@ -148,6 +156,7 @@ func _add_slot(item: Entity, index: int) -> void:
 	var content: VBoxContainer = VBoxContainer.new()
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(content)
+
 	var icon: TextureRect = TextureRect.new()
 	icon.custom_minimum_size = ICON_SIZE
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -163,6 +172,7 @@ func _add_slot(item: Entity, index: int) -> void:
 	if item == null:
 		caption.text = "Пусто"
 		return
+
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
 	icon.texture = state.definition.icon
 	caption.text = "%s\n×%d" % [state.definition.display_name, state.quantity]
@@ -187,6 +197,7 @@ func _use_selected() -> void:
 func _drop_selected() -> void:
 	if not _can_submit():
 		return
+
 	var item: Entity = InventoryService.item_by_id(player, _selected_id)
 	_status = "Весь стек выложен на землю" if InventoryDropService.drop(player, item) else "Не удалось выложить стек. Нужно свободное место на полу рядом."
 	_refresh()
@@ -199,6 +210,7 @@ func _can_submit() -> bool:
 func _use_item(item_id: String) -> void:
 	if not _can_submit():
 		return
+
 	var item: Entity = InventoryService.item_by_id(player, item_id)
 	var reason: String = InventoryService.use_reason(player, item, _package_target())
 	if reason.is_empty():

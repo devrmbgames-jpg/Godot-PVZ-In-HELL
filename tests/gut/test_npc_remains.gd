@@ -17,6 +17,7 @@ func before_each() -> void:
 	_world.add_observer(O_NpcRemains.new())
 	_world.add_observer(O_InventoryEffect.new())
 	_world.add_observer(O_InventoryLifecycle.new())
+
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new(), C_CustomerFlow.new()]
 	_root.add_child(session)
@@ -25,6 +26,7 @@ func before_each() -> void:
 	(session.get_component(C_DayCycle) as C_DayCycle).phase = C_DayCycle.Phase.EVENING
 	(session.get_component(C_Wallet) as C_Wallet).balance = 500
 	_actor = Entity.new()
+
 	var hunger: C_Hunger = C_Hunger.new()
 	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
 	hunger.value = 80.0
@@ -57,6 +59,7 @@ func _npc(customer: bool = false, loot_chance: float = 0.0) -> E_NpcCharacter:
 	for index: int in components.size():
 		if not components[index] is C_NpcRemains:
 			continue
+
 		var remains: C_NpcRemains = C_NpcRemains.new()
 		remains.definition = (load("res://content/definitions/gameplay/def_npc_remains_default.tres") as DEF_NpcRemains).duplicate() as DEF_NpcRemains
 		remains.definition.loot_chance = loot_chance
@@ -90,6 +93,7 @@ func test_actual_death_creates_three_edible_pieces_and_guaranteed_medkit_once() 
 	assert_true(npc.has_component(C_Death))
 	assert_true((npc.get_component(C_NpcRemains) as C_NpcRemains).released)
 	assert_eq(_drops().size(), 4)
+
 	var meat_count: int = 0
 	var med_count: int = 0
 	for drop: Entity in _drops():
@@ -139,6 +143,7 @@ func test_dead_trader_stops_native_body_avoidance_and_cannot_sell() -> void:
 	assert_true(body.freeze)
 	assert_false(npc.navigation_agent.avoidance_enabled)
 	assert_false((npc.get_component(C_Motion) as C_Motion).control_enabled)
+
 	var food: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem
 	assert_eq(CommerceService.purchase(_actor, npc, food, 1, &"dead-trader"), CommerceService.Status.INVALID)
 	assert_null(CommercePanelService.open(_actor, npc))

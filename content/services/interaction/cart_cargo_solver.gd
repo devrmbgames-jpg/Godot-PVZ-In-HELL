@@ -10,6 +10,7 @@ static func integrate(cargo: Entity, state: PhysicsDirectBodyState3D) -> bool:
 	var binding: Relationship = CartCargoService.relationship(cargo)
 	if binding == null:
 		return false
+
 	var cart: Entity = binding.target as Entity
 	var data: R_CartCargo = binding.relation as R_CartCargo
 	if not GrabService.entity_available(cart) or not GrabService.entity_available(cargo):

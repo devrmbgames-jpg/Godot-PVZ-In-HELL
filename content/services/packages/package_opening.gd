@@ -9,6 +9,7 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 		return false
 	if not EntityAvailability.contains(package, ECS.world) or not package.has_component(C_Package):
 		return false
+
 	var condition: C_PackageState = package.get_component(C_PackageState) as C_PackageState
 	var interactable: C_Interactable = package.get_component(C_Interactable) as C_Interactable
 	if condition == null or condition.opening == C_PackageState.Opening.OPENED:
@@ -17,6 +18,7 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 		return false
 	if interactable == null or not interactable.enabled:
 		return false
+
 	var health: C_Health = actor.get_component(C_Health) as C_Health
 	var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
 	if health != null and (health.depleted or health.current <= 0.0):
@@ -36,9 +38,11 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 	var ray: RayCast3D = actor.get("interaction_ray_cast") as RayCast3D
 	if interactor == null or not is_instance_valid(ray):
 		return false
+
 	var body: Node3D = package as Node as Node3D
 	if body == null:
 		return false
+
 	for grip: Relationship in package.relationships:
 		if grip.relation is R_HeldBy and grip.target == actor:
 			var held_distance: float = ray.global_position.distance_to(body.global_position)
@@ -46,14 +50,17 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 
 	if interactor.target != package:
 		return false
+
 	ray.force_raycast_update()
 	if not ray.is_colliding():
 		return false
+
 	var collider: Node = ray.get_collider() as Node
 	while collider != null and not collider is Entity:
 		collider = collider.get_parent()
 	if collider != package:
 		return false
+
 	var hit_distance: float = ray.global_position.distance_to(ray.get_collision_point())
 	return hit_distance <= interactor.interaction_distance
 
@@ -62,6 +69,7 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 static func request_open(actor: Entity, package: Entity) -> bool:
 	if not can_open(actor, package):
 		return false
+
 	var request: PackageOpenRequest = PackageOpenRequest.new()
 	request.actor = actor
 	request.package = package

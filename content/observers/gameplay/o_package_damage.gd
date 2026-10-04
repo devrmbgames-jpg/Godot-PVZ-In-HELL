@@ -13,12 +13,14 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 	if result.applied_amount <= 0.0:
 		return
+
 	cmd.add_custom(_commit_condition.bind(entity, result))
 
 
 func _commit_condition(target: Entity, result: DamageResult) -> void:
 	if not GrabService.entity_available(target):
 		return
+
 	var condition: C_PackageState = target.get_component(C_PackageState) as C_PackageState
 	if condition.damage == C_PackageState.Damage.DESTROYED:
 		return
@@ -38,11 +40,13 @@ func _commit_condition(target: Entity, result: DamageResult) -> void:
 		var health: C_Health = target.get_component(C_Health) as C_Health
 		if identity == null or identity.definition == null or health == null:
 			return
+
 		var damaged_threshold: float = (
 			health.value * identity.definition.damaged_health_ratio
 		)
 		if result.current_value > damaged_threshold:
 			return
+
 		condition.damage = C_PackageState.Damage.DAMAGED
 		PackageLifecycle.publish(
 			target,

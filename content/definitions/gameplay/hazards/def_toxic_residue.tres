@@ -1,13 +1,11 @@
-[gd_resource type="Resource" script_class="DEF_ToxicArea" format=3]
+[gd_resource type="Resource" script_class="DEF_ToxicArea" format=3 uid="uid://c0ysa460t1tf0"]
 
-[ext_resource type="Script" path="res://content/definitions/gameplay/hazards/def_toxic_area.gd" id="Definition"]
+[ext_resource type="Script" uid="uid://3pmdek12dmb" path="res://content/definitions/gameplay/hazards/def_toxic_area.gd" id="Definition"]
 
 [resource]
 script = ExtResource("Definition")
-key = &"toxic_residue"
+radius = 2.5
 lifetime_seconds = 3600.0
 ownership = 1
 owner_loss = 1
-radius = 2.5
-tick_seconds = 4.0
-damage_per_tick = 5.0
+key = &"toxic_residue"

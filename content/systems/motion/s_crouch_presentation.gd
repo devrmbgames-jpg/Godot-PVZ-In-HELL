@@ -19,6 +19,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		var entity: E_PhysicalCharacter = entities[index] as E_PhysicalCharacter
 		if entity == null or entity.camera_root == null:
 			continue
+
 		var crouch: C_Crouch = crouches[index]
 		var target_height: float = (
 			crouch.camera_height_crouching

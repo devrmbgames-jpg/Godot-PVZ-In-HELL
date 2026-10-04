@@ -17,6 +17,7 @@ func _run() -> void:
 	(actor as Node).set_physics_process(false)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	cycle.phase = C_DayCycle.Phase.EVENING
 	var wallet: C_Wallet = WalletService.current()
@@ -25,6 +26,7 @@ func _run() -> void:
 	assert(trader != null)
 	var item: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_large_shelf.tres") as DEF_InventoryItem
 	assert(CommerceService.purchase(actor, trader, item, 1, &"smoke/pickup") == CommerceService.Status.COMMITTED, "Actual trader pickup zone must fit a supported large shelf")
+
 	var shelf: RigidBody3D = _goods("purchase/smoke/pickup") as Node as RigidBody3D
 	assert(shelf != null and shelf.mass == 75.0)
 	assert(shelf.global_position.y > 0.0 and shelf.global_position.y < 5.0)
@@ -33,6 +35,7 @@ func _run() -> void:
 	assert(wallet.balance == 610)
 	cycle.day_index += 1
 	cycle.phase = C_DayCycle.Phase.MORNING
+
 	var zone: Entity = ECS.world.query.with_all([C_OrderReceiving]).execute_one() as Entity
 	assert(zone != null)
 	assert(OrderDeliveryService.fulfill_one(zone, zone.get_component(C_OrderReceiving) as C_OrderReceiving, CommerceService.current(), cycle.day_index), "Actual home receiving area must fit the ordered shelf")

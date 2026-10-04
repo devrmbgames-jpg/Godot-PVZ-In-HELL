@@ -39,6 +39,7 @@ func test_both_hosts_register_once_and_release_world_on_exit() -> void:
 		level.free()
 		assert_null(ECS.world, "Host cleanup releases singleton before next level")
 		await get_tree().process_frame
+
 	var midpoint: int = int(configurations.size() / 2)
 	assert_gt(midpoint, 0, "Runtime systems were registered")
 	assert_eq(configurations.slice(0, midpoint), configurations.slice(midpoint), "Both hosts run the same authored systems")
@@ -52,6 +53,7 @@ func test_primitive_floor_routes_and_separate_save_slot() -> void:
 	add_child(level)
 	for frame: int in STARTUP_FRAMES:
 		await get_tree().physics_frame
+
 	var floor_collision: CollisionShape3D = level.get_node("PVZ/Floor/Collision") as CollisionShape3D
 	var box: BoxShape3D = floor_collision.shape as BoxShape3D
 	assert_eq(box.size, Vector3(80.0, 0.5, 64.0))
@@ -61,6 +63,7 @@ func test_primitive_floor_routes_and_separate_save_slot() -> void:
 		var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(prop.global_position + Vector3.UP, prop.global_position + Vector3.DOWN * 3.0, 1)
 		var hit: Dictionary = prop.get_world_3d().direct_space_state.intersect_ray(ray)
 		assert_false(hit.is_empty(), "Solid support for " + name)
+
 	var previous: Node3D = null
 	for name: String in ["Valve_E_Press", "Valve_F_Decay", "Valve_F_Instant", "Valve_F_OnComplete", "Valve_F_Never"]:
 		var valve: Node3D = level.get_node("Entityes/" + name) as Node3D

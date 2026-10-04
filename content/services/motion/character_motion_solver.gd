@@ -38,6 +38,7 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 
 	if not motion.control_enabled:
 		return
+
 	_integrate_regular_motion(
 		state,
 		controller,
@@ -62,9 +63,11 @@ static func _snap_to_support(
 	if motion.floor_snap_blocked:
 		if state.linear_velocity.y > 0.0:
 			return
+
 		motion.floor_snap_blocked = false
 	if motion.floor_snap_distance <= 0.0 or state.linear_velocity.y > motion.floor_snap_max_upward_speed:
 		return
+
 	var foot: Vector3 = state.transform.origin + Vector3.UP * motion.floor_snap_foot_offset
 	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
 		foot + Vector3.UP * FLOOR_QUERY_MARGIN,
@@ -75,13 +78,16 @@ static func _snap_to_support(
 	var hit: Dictionary = body.get_world_3d().direct_space_state.intersect_ray(query)
 	if hit.is_empty():
 		return
+
 	var normal: Vector3 = hit["normal"]
 	if normal.dot(Vector3.UP) < cos(deg_to_rad(motion.floor_max_angle_degrees)):
 		return
+
 	var point: Vector3 = hit["position"]
 	var gap: float = foot.y - point.y
 	if gap < 0.0 or gap > motion.floor_snap_distance:
 		return
+
 	var collider: Object = hit["collider"]
 	var support: RigidBody3D = collider as RigidBody3D
 	var support_velocity: Vector3 = support.linear_velocity if support != null else Vector3.ZERO
@@ -166,6 +172,7 @@ static func _integrate_limited_velocity(
 		else:
 			_integrate_ground_motion(state, motion, input_motion.normalized(), input_motion.length(), carry_load, strength, hunger)
 		return
+
 	var desired: Vector3 = input_motion.slide(motion.floor_normal).limit_length(1.0) * max_speed
 	var acceleration: float = motion.ground_acceleration if desired.length_squared() > planar.length_squared() else motion.ground_deceleration
 	if motion.surface_friction_affects_control:

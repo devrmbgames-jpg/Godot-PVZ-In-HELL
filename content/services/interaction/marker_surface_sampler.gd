@@ -6,6 +6,7 @@ class_name MarkerSurfaceSampler
 static func sample(tool: Entity, actor: Entity, marker: C_Marker) -> MarkerSurfaceSample:
 	if not is_instance_valid(tool) or not is_instance_valid(actor) or marker == null:
 		return null
+
 	var viewport: Viewport = (actor as Node).get_viewport()
 	var camera: Camera3D = viewport.get_camera_3d()
 	if camera == null:
@@ -17,6 +18,7 @@ static func sample(tool: Entity, actor: Entity, marker: C_Marker) -> MarkerSurfa
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	if interactor == null:
 		return null
+
 	var ray_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
 		origin,
 		destination,
@@ -26,6 +28,7 @@ static func sample(tool: Entity, actor: Entity, marker: C_Marker) -> MarkerSurfa
 	var actor_body: CollisionObject3D = actor as Node as CollisionObject3D
 	if actor_body != null:
 		excluded.append(actor_body.get_rid())
+
 	var tool_body: CollisionObject3D = tool as Node as CollisionObject3D
 	if tool_body != null:
 		excluded.append(tool_body.get_rid())
@@ -34,6 +37,7 @@ static func sample(tool: Entity, actor: Entity, marker: C_Marker) -> MarkerSurfa
 	var hit: Dictionary = camera.get_world_3d().direct_space_state.intersect_ray(ray_query)
 	if hit.is_empty():
 		return null
+
 	var parcel: Entity = InteractionTargetingService.collider_entity(hit["collider"] as Object)
 	if not PackageMarkService.drawable(parcel):
 		return null

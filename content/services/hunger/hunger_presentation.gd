@@ -7,9 +7,11 @@ const TIER_NAMES: Array[String] = ["Normal", "Hungry", "Starving"]
 static func debug_text(actor: Entity) -> String:
 	if not is_instance_valid(actor):
 		return ""
+
 	var state: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
 	if state == null or state.policy == null:
 		return ""
+
 	var tier: C_Hunger.Tier = HungerService.tier(state)
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var active: bool = cycle != null and cycle.phase != C_DayCycle.Phase.NIGHT and GrabService.holder_available(actor) and not actor.has_component(C_Death) and not actor.get_tree().paused

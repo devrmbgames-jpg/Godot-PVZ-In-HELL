@@ -34,6 +34,7 @@ func before_each() -> void:
 		C_CarryLoad.new(),
 		C_Strength.new(),
 	]
+
 	var ray: RayCast3D = RayCast3D.new()
 	ray.position = Vector3(0, 1, 0)
 	ray.target_position = Vector3(0, 0, -3)
@@ -84,6 +85,7 @@ func _make_hammer() -> Entity:
 	shape.size = Vector3.ONE * 0.1
 	collision.shape = shape
 	body.add_child(collision)
+
 	var hammer: Entity = body as Node as Entity
 	var grabbable: C_Grabbable = C_Grabbable.new()
 	grabbable.allowed_hand_slots = 6
@@ -102,6 +104,7 @@ func _make_target(location: Vector3) -> Entity:
 	body.collision_layer = 2
 	body.collision_mask = 29
 	body.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+
 	var collision: CollisionShape3D = CollisionShape3D.new()
 	var shape: BoxShape3D = BoxShape3D.new()
 	shape.size = Vector3.ONE * 0.5
@@ -112,6 +115,7 @@ func _make_target(location: Vector3) -> Entity:
 	anchorable.minimum_rest_seconds = 0.5
 	anchorable.maximum_linear_speed = 0.1
 	anchorable.maximum_angular_speed = 0.1
+
 	var actions: C_InteractionActionSet = C_InteractionActionSet.new()
 	actions.actions = [DEF_UnfixAnchorAction.new()]
 	target.component_resources = [anchorable, C_Interactable.new(), actions]
@@ -143,6 +147,7 @@ func test_authored_hammer_fastens_instead_of_attacking_and_plays_swing_without_d
 	_target.add_component(health)
 	_hold_hammer()
 	_stabilize()
+
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.PRIMARY)
 	assert_not_null(choice)
 	if choice != null:
@@ -152,6 +157,7 @@ func test_authored_hammer_fastens_instead_of_attacking_and_plays_swing_without_d
 	InteractionActionResolver.handle_input(_actor)
 	assert_true(_body.freeze)
 	assert_eq((_actor.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.READY)
+
 	var animation: AnimationPlayer = _hammer.get_node("AttackAnimation") as AnimationPlayer
 	assert_eq(animation.current_animation, &"strike")
 	for frame: int in 8:
@@ -232,6 +238,7 @@ func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> voi
 	)
 	_drive_input(false, true, true)
 	assert_not_null(ProlongedInteractionService.session(_actor))
+
 	var half_duration: float = ProlongedInteractionService.active_progress(_actor).timing.duration_seconds * 0.5
 	_drive_input(false, false, true, half_duration)
 	assert_true(AnchoringService.is_player_anchored(_target))

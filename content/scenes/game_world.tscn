@@ -1,6 +1,9 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://d3vj5iyw4p75d"]
 
 [ext_resource type="Script" uid="uid://cdu5tlyk72uu4" path="res://addons/gecs/ecs/world.gd" id="2_da1x8"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_district.gd" id="District_system"]
+[ext_resource type="Script" path="res://content/observers/gameplay/o_npc_incident.gd" id="Npc_incident"]
+[ext_resource type="Script" path="res://content/systems/gameplay/s_npc_decision.gd" id="Npc_decision"]
 [ext_resource type="Script" uid="uid://b3vi2ingux88g" path="res://addons/gecs/lib/system_group.gd" id="3_ahxau"]
 [ext_resource type="Script" uid="uid://nsdmrnqs0no0" path="res://content/observers/gameplay/o_damage.gd" id="5_ad8bv"]
 [ext_resource type="Script" uid="uid://c1benmwwnwobr" path="res://content/systems/motion/s_jump.gd" id="6_gg2sc"]
@@ -23,6 +26,7 @@
 [ext_resource type="Script" uid="uid://bl40hlhadexg3" path="res://content/systems/gameplay/s_day_phase.gd" id="Day_system"]
 [ext_resource type="Script" uid="uid://y2myaxe0cbnd" path="res://content/observers/gameplay/o_depletion_effects.gd" id="DepletionEffects"]
 [ext_resource type="Script" uid="uid://cdl4djdlh8phk" path="res://content/debug/developer_console_commands.gd" id="DeveloperConsole"]
+[ext_resource type="Script" uid="uid://b2x3v4ptjatty" path="res://content/observers/gameplay/o_door_breakage.gd" id="Door_breakage"]
 [ext_resource type="Script" uid="uid://c53it1qvcnb8m" path="res://content/systems/gameplay/s_floor_hazard.gd" id="Floor_hazard"]
 [ext_resource type="Script" uid="uid://bixywcktalc1s" path="res://content/observers/challenges/o_floor_challenge_spawn.gd" id="Floor_spawn"]
 [ext_resource type="Script" uid="uid://ciiu0kakcy3wm" path="res://content/observers/interaction/o_grab_lifecycle.gd" id="Grab_lifecycle"]
@@ -38,11 +42,13 @@
 [ext_resource type="Script" uid="uid://bjybow0ofbf30" path="res://content/observers/inventory/o_inventory_effect.gd" id="Inventory_effect"]
 [ext_resource type="Script" uid="uid://cl8wk6dmtityy" path="res://content/observers/inventory/o_inventory_lifecycle.gd" id="Inventory_lifecycle"]
 [ext_resource type="Script" uid="uid://bksdk5n1luin1" path="res://content/systems/gameplay/s_light_circuit.gd" id="Light_circuit"]
+[ext_resource type="Script" uid="uid://d1i778tayoyj8" path="res://content/observers/challenges/o_light_flicker.gd" id="Light_flicker"]
 [ext_resource type="Script" uid="uid://3rvc41qs05l" path="res://content/systems/gameplay/s_liquid_tilt.gd" id="LiquidTilt"]
 [ext_resource type="Script" uid="uid://bupm4th6s12s4" path="res://content/systems/interaction/s_marker.gd" id="Marker_system"]
 [ext_resource type="Script" uid="uid://vvee5q27rhon" path="res://content/systems/gameplay/s_night_save.gd" id="Night_save_system"]
 [ext_resource type="Script" uid="uid://bknxe15k0dr0u" path="res://content/systems/gameplay/s_npc_combat.gd" id="Npc_combat"]
 [ext_resource type="Script" uid="uid://dxqnrpxm2pr5l" path="res://content/systems/motion/s_npc_intent.gd" id="Npc_intent"]
+[ext_resource type="Script" uid="uid://dl88dabj3ptfa" path="res://content/observers/gameplay/o_npc_remains.gd" id="Npc_remains"]
 [ext_resource type="Script" uid="uid://b501bsvk8m4xf" path="res://content/systems/gameplay/s_order_delivery.gd" id="Order_delivery_system"]
 [ext_resource type="Script" uid="uid://6aul5eahny" path="res://content/observers/gameplay/o_package_condition_setup.gd" id="PackageConditionSetup"]
 [ext_resource type="Script" uid="uid://23bxju80ro1e" path="res://content/observers/gameplay/o_package_damage.gd" id="PackageDamage"]
@@ -50,6 +56,7 @@
 [ext_resource type="Script" uid="uid://oskus8laisoe" path="res://content/observers/gameplay/o_package_destruction.gd" id="PackageDestruction"]
 [ext_resource type="Script" uid="uid://b6kqjvf7okt" path="res://content/observers/gameplay/o_package_hazard.gd" id="PackageHazard"]
 [ext_resource type="Script" uid="uid://87f03fqiuik" path="res://content/observers/gameplay/o_package_opening.gd" id="PackageOpening"]
+[ext_resource type="Script" uid="uid://ge1x4ydyxqps" path="res://content/observers/gameplay/o_package_contents.gd" id="Package_contents"]
 [ext_resource type="Script" uid="uid://b6qu7a8c8gr3g" path="res://content/observers/interaction/o_physical_slot_lifecycle.gd" id="PhysicalSlot_lifecycle"]
 [ext_resource type="Script" uid="uid://t4dhuaxsabxv" path="res://content/systems/input/s_player_intent.gd" id="Player_intent"]
 [ext_resource type="Script" uid="uid://b0fgwkeudhkho" path="res://content/systems/gameplay/s_player_melee.gd" id="Player_melee"]
@@ -67,18 +74,9 @@
 [ext_resource type="Script" uid="uid://bbu8jbx3xpd" path="res://content/systems/gameplay/s_toxic_area.gd" id="R09_s_toxic_area"]
 [ext_resource type="Script" uid="uid://28wsslbgucs3" path="res://content/systems/gameplay/s_receiving.gd" id="Receiving_system"]
 [ext_resource type="Script" uid="uid://bd3ei7nk8pjsv" path="res://content/observers/gameplay/o_remove_on_health_depleted.gd" id="RemoveOnHealthDepleted"]
+[ext_resource type="Script" uid="uid://bgattpu1srnc3" path="res://content/systems/motion/s_sprint.gd" id="Sprint"]
 [ext_resource type="Script" uid="uid://d374l476phm" path="res://content/systems/gameplay/s_throw_lifetime.gd" id="ThrowLifetime"]
 [ext_resource type="Script" uid="uid://dx38hpfqbykum" path="res://content/systems/gameplay/s_wallet_day.gd" id="Wallet_system"]
-
-[ext_resource type="Script" path="res://content/observers/challenges/o_light_flicker.gd" id="Light_flicker"]
-
-[ext_resource type="Script" path="res://content/observers/gameplay/o_door_breakage.gd" id="Door_breakage"]
-
-[ext_resource type="Script" path="res://content/observers/gameplay/o_package_contents.gd" id="Package_contents"]
-
-[ext_resource type="Script" path="res://content/observers/gameplay/o_npc_remains.gd" id="Npc_remains"]
-
-[ext_resource type="Script" path="res://content/systems/motion/s_sprint.gd" id="Sprint"]
 
 [node name="World" type="Node" unique_id=1962298586]
 script = ExtResource("2_da1x8")
@@ -97,6 +95,7 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_Receiving" type="Node" parent="Systems/GamePlay" unique_id=160792962]
 script = ExtResource("Receiving_system")
+group = &"GamePlay"
 
 [node name="O_PackageConditionSetup" type="Node" parent="Systems/GamePlay" unique_id=902458022]
 script = ExtResource("PackageConditionSetup")
@@ -124,15 +123,19 @@ script = ExtResource("R09_o_toxic_area_setup")
 
 [node name="S_ToxicArea" type="Node" parent="Systems/GamePlay" unique_id=102074688]
 script = ExtResource("R09_s_toxic_area")
+group = &"GamePlay"
 
 [node name="S_HazardFollow" type="Node" parent="Systems/GamePlay" unique_id=1158140279]
 script = ExtResource("R09_s_hazard_follow")
+group = &"GamePlay"
 
 [node name="S_HazardLifetime" type="Node" parent="Systems/GamePlay" unique_id=1315152219]
 script = ExtResource("R09_s_hazard_lifetime")
+group = &"GamePlay"
 
 [node name="S_Explosion" type="Node" parent="Systems/GamePlay" unique_id=1112609335]
 script = ExtResource("R09_s_explosion")
+group = &"GamePlay"
 
 [node name="O_ExplosionSetup" type="Node" parent="Systems/GamePlay" unique_id=1007185748]
 script = ExtResource("R09_o_explosion_setup")
@@ -164,63 +167,81 @@ script = ExtResource("DepletionEffects")
 
 [node name="S_ThrowLifetime" type="Node" parent="Systems/GamePlay" unique_id=1650643555]
 script = ExtResource("ThrowLifetime")
+group = &"GamePlay"
 
 [node name="S_LiquidTilt" type="Node" parent="Systems/GamePlay" unique_id=1536960542]
 script = ExtResource("LiquidTilt")
+group = &"GamePlay"
 
 [node name="S_Impact" type="Node" parent="Systems/GamePlay" unique_id=1737982216]
 script = ExtResource("ImpactSystem")
+group = &"GamePlay"
 
 [node name="S_CustomerFlow" type="Node" parent="Systems/GamePlay" unique_id=697136852]
 script = ExtResource("Customer_system")
+group = &"GamePlay"
 
 [node name="S_NpcIntent" type="Node" parent="Systems/GamePlay" unique_id=617759106]
 script = ExtResource("Npc_intent")
+group = &"GamePlay"
 
 [node name="S_LightCircuit" type="Node" parent="Systems/GamePlay" unique_id=880915263]
 script = ExtResource("Light_circuit")
+group = &"GamePlay"
 
 [node name="S_ChallengeLight" type="Node" parent="Systems/GamePlay" unique_id=139315923]
 script = ExtResource("Challenge_light")
+group = &"GamePlay"
 
 [node name="S_ChallengeGaze" type="Node" parent="Systems/GamePlay" unique_id=391903066]
 script = ExtResource("Challenge_gaze")
+group = &"GamePlay"
 
 [node name="S_ChallengeFloorSetup" type="Node" parent="Systems/GamePlay" unique_id=2028100959]
 script = ExtResource("Challenge_floor")
+group = &"GamePlay"
 
 [node name="S_FloorHazard" type="Node" parent="Systems/GamePlay" unique_id=486139]
 script = ExtResource("Floor_hazard")
+group = &"GamePlay"
 
 [node name="O_FloorChallengeSpawn" type="Node" parent="Systems/GamePlay" unique_id=247153534]
 script = ExtResource("Floor_spawn")
 
 [node name="S_ChallengeRuntime" type="Node" parent="Systems/GamePlay" unique_id=900684797]
 script = ExtResource("Challenge_runtime")
+group = &"GamePlay"
 
 [node name="S_CustomerChallengeOutcome" type="Node" parent="Systems/GamePlay" unique_id=1231108932]
 script = ExtResource("Challenge_outcome")
+group = &"GamePlay"
 
 [node name="O_ChallengeLifecycle" type="Node" parent="Systems/GamePlay" unique_id=2123583786]
 script = ExtResource("Challenge_lifecycle")
 
 [node name="S_WalletDay" type="Node" parent="Systems/GamePlay" unique_id=729224599]
 script = ExtResource("Wallet_system")
+group = &"GamePlay"
 
 [node name="S_DayPhase" type="Node" parent="Systems/GamePlay" unique_id=525864446]
 script = ExtResource("Day_system")
+group = &"GamePlay"
 
 [node name="S_CustomerCombat" type="Node" parent="Systems/GamePlay" unique_id=939921077]
 script = ExtResource("Customer_combat")
+group = &"GamePlay"
 
 [node name="S_NpcCombat" type="Node" parent="Systems/GamePlay" unique_id=1036596502]
 script = ExtResource("Npc_combat")
+group = &"GamePlay"
 
 [node name="S_CombatProjectile" type="Node" parent="Systems/GamePlay" unique_id=1827029901]
 script = ExtResource("Combat_projectile")
+group = &"GamePlay"
 
 [node name="S_PlayerMelee" type="Node" parent="Systems/GamePlay" unique_id=495617184]
 script = ExtResource("Player_melee")
+group = &"GamePlay"
 
 [node name="O_CombatLifecycle" type="Node" parent="Systems/GamePlay" unique_id=1503832486]
 script = ExtResource("Combat_lifecycle")
@@ -230,6 +251,7 @@ script = ExtResource("Combat_damage")
 
 [node name="S_Hunger" type="Node" parent="Systems/GamePlay" unique_id=1002406967]
 script = ExtResource("Hunger_system")
+group = &"GamePlay"
 
 [node name="O_InventoryEffect" type="Node" parent="Systems/GamePlay" unique_id=279958387]
 script = ExtResource("Inventory_effect")
@@ -239,12 +261,27 @@ script = ExtResource("Inventory_lifecycle")
 
 [node name="S_NightSave" type="Node" parent="Systems/GamePlay" unique_id=994431759]
 script = ExtResource("Night_save_system")
+group = &"GamePlay"
 
 [node name="S_OrderDelivery" type="Node" parent="Systems/GamePlay" unique_id=2137672552]
 script = ExtResource("Order_delivery_system")
+group = &"GamePlay"
 
 [node name="S_RefusalQuest" type="Node" parent="Systems/GamePlay" unique_id=1355928431]
 script = ExtResource("Quest_system")
+group = &"GamePlay"
+
+[node name="O_LightFlicker" type="Node" parent="Systems/GamePlay" unique_id=1779106015]
+script = ExtResource("Light_flicker")
+
+[node name="O_DoorBreakage" type="Node" parent="Systems/GamePlay" unique_id=404794788]
+script = ExtResource("Door_breakage")
+
+[node name="O_PackageContents" type="Node" parent="Systems/GamePlay" unique_id=1916089324]
+script = ExtResource("Package_contents")
+
+[node name="O_NpcRemains" type="Node" parent="Systems/GamePlay" unique_id=1097428635]
+script = ExtResource("Npc_remains")
 
 [node name="Physics" type="Node" parent="Systems" unique_id=52509126]
 script = ExtResource("3_ahxau")
@@ -252,14 +289,17 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_Jump" type="Node" parent="Systems/Physics" unique_id=831820991]
 script = ExtResource("6_gg2sc")
+group = &"Physics"
 metadata/_custom_type_script = "uid://c1benmwwnwobr"
 
 [node name="S_Crouch" type="Node" parent="Systems/Physics" unique_id=88081910]
 script = ExtResource("7_6b1dm")
+group = &"Physics"
 metadata/_custom_type_script = "uid://cv8oyv1lnwa6u"
 
 [node name="S_CrouchPresentation" type="Node" parent="Systems/Physics" unique_id=1906974582]
 script = ExtResource("Crouch_presentation")
+group = &"Physics"
 
 [node name="Input" type="Node" parent="Systems" unique_id=2007238412]
 script = ExtResource("3_ahxau")
@@ -267,13 +307,16 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_PlayerInput" type="Node" parent="Systems/Input" unique_id=122299141]
 script = ExtResource("8_qm6qd")
+group = &"Input"
 metadata/_custom_type_script = "uid://c1o1ef2y40vmv"
 
 [node name="S_PlayerIntent" type="Node" parent="Systems/Input" unique_id=1207384990]
 script = ExtResource("Player_intent")
+group = &"Input"
 
-[node name="S_Sprint" type="Node" parent="Systems/Input"]
+[node name="S_Sprint" type="Node" parent="Systems/Input" unique_id=2047869323]
 script = ExtResource("Sprint")
+group = &"Input"
 
 [node name="Interaction" type="Node" parent="Systems" unique_id=1721666486]
 script = ExtResource("3_ahxau")
@@ -281,15 +324,19 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 
 [node name="S_InteractionTargeting" type="Node" parent="Systems/Interaction" unique_id=350725269]
 script = ExtResource("Grab_targeting")
+group = &"Interaction"
 
 [node name="S_InteractionHighlight" type="Node" parent="Systems/Interaction" unique_id=1519690915]
 script = ExtResource("Interaction_highlight")
+group = &"Interaction"
 
 [node name="S_ProlongedDecay" type="Node" parent="Systems/Interaction" unique_id=964352449]
 script = ExtResource("Prolonged_decay")
+group = &"Interaction"
 
 [node name="S_AnchorStability" type="Node" parent="Systems/Interaction" unique_id=267872292]
 script = ExtResource("Anchor_stability")
+group = &"Interaction"
 
 [node name="O_ProlongedLifecycle" type="Node" parent="Systems/Interaction" unique_id=1954151916]
 script = ExtResource("Prolonged_lifecycle")
@@ -299,28 +346,29 @@ script = ExtResource("PhysicalSlot_lifecycle")
 
 [node name="S_Grab" type="Node" parent="Systems/Interaction" unique_id=767923781]
 script = ExtResource("Grab_system")
+group = &"Interaction"
 
 [node name="S_Push" type="Node" parent="Systems/Interaction" unique_id=285721213]
 script = ExtResource("Push_system")
+group = &"Interaction"
 
 [node name="O_PushLifecycle" type="Node" parent="Systems/Interaction" unique_id=1548305461]
 script = ExtResource("Push_lifecycle")
 
 [node name="S_Marker" type="Node" parent="Systems/Interaction" unique_id=1232131295]
 script = ExtResource("Marker_system")
+group = &"Interaction"
 
 [node name="O_GrabLifecycle" type="Node" parent="Systems/Interaction" unique_id=1786878994]
 script = ExtResource("Grab_lifecycle")
 
+[node name="O_NpcIncident" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("Npc_incident")
 
-[node name="O_LightFlicker" type="Node" parent="Systems/GamePlay"]
-script = ExtResource("Light_flicker")
+[node name="S_District" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("District_system")
+group = &"GamePlay"
 
-[node name="O_DoorBreakage" type="Node" parent="Systems/GamePlay"]
-script = ExtResource("Door_breakage")
-
-[node name="O_PackageContents" type="Node" parent="Systems/GamePlay"]
-script = ExtResource("Package_contents")
-
-[node name="O_NpcRemains" type="Node" parent="Systems/GamePlay"]
-script = ExtResource("Npc_remains")
+[node name="S_NpcDecision" type="Node" parent="Systems/GamePlay"]
+script = ExtResource("Npc_decision")
+group = &"GamePlay"

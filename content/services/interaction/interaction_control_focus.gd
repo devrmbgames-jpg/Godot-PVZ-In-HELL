@@ -45,6 +45,7 @@ static func current(actor: Entity, excluded_token: int = 0) -> Priority:
 		for token: int in control.captures.keys():
 			if token == excluded_token:
 				continue
+
 			var capture: InteractionControlCapture = control.captures[token]
 			if capture.owner.get_ref() == null:
 				control.captures.erase(token)

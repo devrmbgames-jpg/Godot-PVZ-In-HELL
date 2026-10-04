@@ -6,6 +6,7 @@ class_name CartTransportService
 static func relationship(cart: Entity) -> Relationship:
 	if not is_instance_valid(cart):
 		return null
+
 	for candidate: Relationship in cart.relationships:
 		if candidate.relation is R_CartDrivenBy:
 			return candidate
@@ -15,6 +16,7 @@ static func relationship(cart: Entity) -> Relationship:
 static func can_begin(actor: Entity, cart: Entity) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.entity_available(cart):
 		return false
+
 	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
 	if config == null or relationship(cart) != null or current(actor) != null:
 		return false
@@ -28,6 +30,7 @@ static func can_begin(actor: Entity, cart: Entity) -> bool:
 static func begin(actor: Entity, cart: Entity) -> void:
 	if not can_begin(actor, cart):
 		return
+
 	var data: R_CartDrivenBy = R_CartDrivenBy.new()
 	var binding: Relationship = Relationship.new(data, actor)
 	cart.add_relationship(binding)
@@ -38,9 +41,11 @@ static func begin(actor: Entity, cart: Entity) -> void:
 static func end(cart: Entity) -> void:
 	if not is_instance_valid(cart):
 		return
+
 	var binding: Relationship = relationship(cart)
 	if binding == null:
 		return
+
 	cart.remove_relationship(binding)
 	driver_removed(cart, binding)
 
@@ -48,12 +53,15 @@ static func end(cart: Entity) -> void:
 static func current(actor: Entity) -> Entity:
 	if not is_instance_valid(actor):
 		return null
+
 	var cache: C_CartDriver = actor.get_component(C_CartDriver) as C_CartDriver
 	if cache == null or not GrabService.entity_available(cache.cart):
 		return null
+
 	var binding: Relationship = relationship(cache.cart)
 	if binding != null and binding.target == actor:
 		return cache.cart
+
 	cache.cart = null
 	return null
 
@@ -67,6 +75,7 @@ static func driver_added(cart: Entity, binding: Relationship) -> bool:
 		return false
 	if relationship(cart) != binding:
 		return false
+
 	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
 	if config == null or current(actor) != null:
 		return false
@@ -82,6 +91,7 @@ static func driver_added(cart: Entity, binding: Relationship) -> bool:
 		InteractionControlFocus.Priority.TRANSPORT,
 	)
 	data.lifecycle_applied = true
+
 	var cleanup: Callable = _on_driver_exiting.bind(cart)
 	if not actor.tree_exiting.is_connected(cleanup):
 		actor.tree_exiting.connect(cleanup)
@@ -92,6 +102,7 @@ static func driver_removed(cart: Entity, binding: Relationship) -> void:
 	var data: R_CartDrivenBy = binding.relation as R_CartDrivenBy
 	if data == null or not data.lifecycle_applied:
 		return
+
 	data.lifecycle_applied = false
 	var actor: Entity = binding.target as Entity if is_instance_valid(binding.target) else null
 	if is_instance_valid(actor):
@@ -121,6 +132,7 @@ static func entity_unavailable(entity: Entity) -> void:
 static func driver_valid(body: CharacterBody3D, config: C_CartTransport, actor: Entity) -> bool:
 	if body == null or config == null or not GrabService.holder_available(actor):
 		return false
+
 	var actor_node: Node3D = actor as Node as Node3D
 	if actor_node == null:
 		return false

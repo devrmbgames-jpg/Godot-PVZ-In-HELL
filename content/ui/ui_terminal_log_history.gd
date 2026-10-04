@@ -34,6 +34,7 @@ func _apply_filter(value: String) -> void:
 	if needle.is_empty():
 		_rich_text_label.text = "\n\n".join(_entries)
 		return
+
 	var filtered: PackedStringArray = []
 	for entry: String in _entries:
 		if needle in entry.to_lower():

@@ -32,6 +32,7 @@ func _run() -> void:
 	_expect_console("quest_info", "OK quest_info")
 	_expect_console("debug_markers on", "OK debug_markers")
 	_expect_console("debug_markers off", "OK debug_markers")
+
 	var slot: String = "smoke_console_%d" % Time.get_ticks_usec()
 	_expect_console("save_write " + slot, "OK save_write")
 	_expect_console("save_load " + slot, "OK save_load")
@@ -55,6 +56,7 @@ func _run() -> void:
 	var package_hp: float = package_health.current
 	var registration: PackageRegistrationRecord = DebugTargetResolver.resolve(package_id).registration
 	assert(registration != null and registration.active)
+
 	var number: int = registration.number
 
 	_expect_console("debug_resolve #%03d" % number, "OK debug_resolve")
@@ -111,6 +113,7 @@ func _run() -> void:
 	_expect_console("penalty_remove 10 stage9_reversal", "OK penalty_remove")
 	assert(wallet.balance == balance_before_debug_money + 40)
 	assert(wallet.penalties == penalties_before_debug_money + 20)
+
 	var balance_before_error: int = wallet.balance
 	var penalties_before_error: int = wallet.penalties
 	_expect_console("penalty_remove 999 stage9_invalid", "ERROR penalty_remove")

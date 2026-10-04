@@ -7,9 +7,11 @@ static func open(actor: Entity, trader: Entity = null, order_mode: bool = false)
 		return null
 	if trader != null and (not EntityAvailability.contains(trader, ECS.world) or trader.has_component(C_Death)):
 		return null
+
 	for child: Node in actor.get_children():
 		if child is CommercePanel and not child.is_queued_for_deletion():
 			return null
+
 	var panel: CommercePanel = CommercePanel.new()
 	actor.add_child(panel)
 	if not panel.open_for(actor, trader, order_mode):

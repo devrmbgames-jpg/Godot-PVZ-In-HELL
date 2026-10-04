@@ -13,9 +13,11 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 	if not is_instance_valid(entity):
 		return
+
 	var effects: C_HealthDepletionEffects = entity.get_component(C_HealthDepletionEffects)
 	if effects == null or effects.committed:
 		return
+
 	effects.committed = true
 
 	var health_depletion_effects: HealthDepletionEvent = HealthDepletionEvent.new()
@@ -33,9 +35,11 @@ func _dispatch(
 ) -> void:
 	if not is_instance_valid(_world):
 		return
+
 	for entry: DEF_DepletionSpawn in entries:
 		if entry == null or entry.scene == null:
 			continue
+
 		var spawned: Node = entry.scene.instantiate()
 		_world.add_child(spawned)
 		var spatial: Node3D = spawned as Node3D

@@ -27,9 +27,11 @@ func _create_stickers() -> void:
 	var package_entity: E_Package = _package as E_Package
 	if package_entity == null:
 		return
+
 	var surface: MeshInstance3D = package_entity.get_marking_surface()
 	if surface == null:
 		return
+
 	var bounds: AABB = surface.get_aabb()
 	var center: Vector3 = bounds.get_center()
 	var half: Vector3 = bounds.size * 0.5
@@ -53,11 +55,13 @@ func _process(_delta: float) -> void:
 	if not is_instance_valid(_package):
 		visible = false
 		return
+
 	var condition: C_PackageState = _package.get_component(C_PackageState) as C_PackageState
 	var package_data: C_Package = _package.get_component(C_Package) as C_Package
 	if condition == null or package_data == null:
 		visible = false
 		return
+
 	var unchanged: bool = (
 		_damage == condition.damage and _opening == condition.opening
 		and _leaking == condition.leaking
@@ -66,6 +70,7 @@ func _process(_delta: float) -> void:
 	)
 	if unchanged:
 		return
+
 	_damage = condition.damage
 	_opening = condition.opening
 	_leaking = condition.leaking
@@ -87,6 +92,7 @@ func _process(_delta: float) -> void:
 		modulate = destroyed_color
 	text = " · ".join(lines)
 	visible = not lines.is_empty()
+
 	var marking: PackedStringArray = []
 	if _definition != null and not _empty:
 		if _definition.tags & DEF_Package.Tag.FRAGILE:

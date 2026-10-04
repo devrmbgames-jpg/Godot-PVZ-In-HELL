@@ -16,6 +16,7 @@ static func append_sample(
 	if not drawable(parcel):
 		break_stroke(marker)
 		return
+
 	var marks: C_PackageMarks = parcel.get_component(C_PackageMarks) as C_PackageMarks
 	if marks == null or marks.point_count >= marker.max_package_points:
 		break_stroke(marker)
@@ -25,6 +26,7 @@ static func append_sample(
 	if body == null:
 		break_stroke(marker)
 		return
+
 	var local_normal: Vector3 = (body.global_basis.transposed() * world_normal).normalized()
 	var point: Vector3 = body.to_local(world_point + world_normal * SURFACE_OFFSET)
 	var package_entity: E_Package = parcel as E_Package
@@ -60,6 +62,7 @@ static func append_sample(
 static func break_stroke(marker: C_Marker) -> void:
 	if marker == null:
 		return
+
 	marker.parcel = null
 	marker.stroke = null
 
@@ -67,6 +70,7 @@ static func break_stroke(marker: C_Marker) -> void:
 static func clear_marks(parcel: Entity) -> void:
 	if not is_instance_valid(parcel):
 		return
+
 	var marks: C_PackageMarks = parcel.get_component(C_PackageMarks) as C_PackageMarks
 	if marks != null and marks.point_count > 0:
 		marks.strokes.clear()
@@ -77,6 +81,7 @@ static func clear_marks(parcel: Entity) -> void:
 static func drawable(parcel: Entity) -> bool:
 	if not GrabService.entity_available(parcel) or not parcel.has_component(C_PackageMarks):
 		return false
+
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	return (
 		state != null and state.damage != C_PackageState.Damage.DESTROYED

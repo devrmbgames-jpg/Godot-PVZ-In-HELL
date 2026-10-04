@@ -49,6 +49,7 @@ static func observe(event: InputEvent) -> void:
 	if InputBindingCodec.is_gamepad(event):
 		if event is InputEventJoypadMotion and absf((event as InputEventJoypadMotion).axis_value) < 0.3:
 			return
+
 		var device_name: String = Input.get_joy_name(event.device).to_lower()
 		_pad_family = "playstation_series" if "playstation" in device_name or "dualshock" in device_name or "dualsense" in device_name or "sony" in device_name or "ps4" in device_name or "ps5" in device_name else "steam_deck" if "steam deck" in device_name else "steam_controller" if "steam controller" in device_name else "xbox_series"
 		family = _pad_family
@@ -76,11 +77,13 @@ static func groups(action: StringName, gamepad: int = -1) -> Array[Array]:
 	var result: Array[Array] = []
 	if not InputMap.has_action(action):
 		return result
+
 	var pad: bool = _family != "keyboard_mouse" if gamepad < 0 else gamepad == 1
 	var family: String = _pad_family if pad else "keyboard_mouse"
 	for event: InputEvent in InputMap.action_get_events(action):
 		if InputBindingCodec.is_gamepad(event) != pad:
 			continue
+
 		var icons: Array[Texture2D] = []
 		if event is InputEventWithModifiers:
 			var modified: InputEventWithModifiers = event as InputEventWithModifiers
@@ -121,6 +124,7 @@ static func texture_for(event: InputEvent, family: String = "keyboard_mouse") ->
 			JOY_AXIS_LEFT_Y: name = "stick_l_up" if axis.axis_value < 0 else "stick_l_down"
 			JOY_AXIS_RIGHT_X: name = "stick_r_left" if axis.axis_value < 0 else "stick_r_right"
 			JOY_AXIS_RIGHT_Y: name = "stick_r_up" if axis.axis_value < 0 else "stick_r_down"
+
 	if family != "keyboard_mouse":
 		var prefix: String = "playstation" if family == "playstation_series" else "steamdeck" if family == "steam_deck" else "steam" if family == "steam_controller" else "xbox"
 		if family == "playstation_series":
@@ -143,9 +147,11 @@ static func texture_for(event: InputEvent, family: String = "keyboard_mouse") ->
 			elif name.begins_with("stick_r_"):
 				name = name.replace("stick_r_", "pad_")
 		name = prefix + "_" + name if not prefix.is_empty() else name
+
 	var result: Texture2D = InputPromptCatalog.texture(family, name)
 	if result != null:
 		return result
+
 	if family != "keyboard_mouse":
 		var fallback: String = {"xbox_series": "controller_xboxseries", "playstation_series": "controller_playstation5", "steam_deck": "controller_steamdeck", "steam_controller": "controller_steam"}.get(family, "controller_xboxseries")
 		result = InputPromptCatalog.texture(family, fallback)

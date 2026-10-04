@@ -25,6 +25,7 @@ static var _values: Dictionary[String, Variant] = DEFAULTS.duplicate()
 static func initialize(path: String = FILE_PATH) -> void:
 	if _initialized:
 		return
+
 	_initialized = true
 	for action: StringName in ACTIONS:
 		if InputMap.has_action(action):
@@ -46,9 +47,11 @@ static func set_value(key: String, setting: Variant) -> void:
 	else:
 		if not setting is int and not setting is float:
 			return
+
 		var number: float = float(setting)
 		if not is_finite(number):
 			return
+
 		_values[key] = clampf(number, 0.0, 1.0) if key == "volume" else clampf(number, 0.05, 0.75) if key == "deadzone" else clampf(number, 0.1, 4.0)
 
 
@@ -68,9 +71,11 @@ static func conflicts(action: StringName, event: InputEvent) -> Array[StringName
 	var candidate: InputEvent = InputBindingCodec.normalized(event)
 	if candidate == null:
 		return result
+
 	for other: StringName in ACTIONS:
 		if other == action or not InputMap.has_action(other):
 			continue
+
 		for existing: InputEvent in InputMap.action_get_events(other):
 			if InputBindingCodec.overlaps(existing, candidate):
 				result.append(other)
@@ -82,6 +87,7 @@ static func conflicts(action: StringName, event: InputEvent) -> Array[StringName
 static func rebind(action: StringName, event: InputEvent, resolve_conflicts: bool = false) -> bool:
 	if not ACTIONS.has(action) or not InputMap.has_action(action):
 		return false
+
 	var candidate: InputEvent = InputBindingCodec.normalized(event)
 	if candidate == null or is_safety_back(candidate):
 		return false
@@ -89,9 +95,11 @@ static func rebind(action: StringName, event: InputEvent, resolve_conflicts: boo
 		var key: InputEventKey = candidate as InputEventKey
 		if key.physical_keycode == KEY_QUOTELEFT or key.keycode == KEY_QUOTELEFT:
 			return false
+
 	var blocked: Array[StringName] = conflicts(action, candidate)
 	if not blocked.is_empty() and not resolve_conflicts:
 		return false
+
 	for other: StringName in blocked:
 		for existing: InputEvent in InputMap.action_get_events(other):
 			if InputBindingCodec.overlaps(existing, candidate):
@@ -140,14 +148,17 @@ static func load_settings(path: String = FILE_PATH) -> void:
 	var config: ConfigFile = ConfigFile.new()
 	if config.load(path) != OK:
 		return
+
 	for key: String in DEFAULTS:
 		set_value(key, config.get_value("settings", key, DEFAULTS[key]))
 	for action: StringName in ACTIONS:
 		if not config.has_section_key("input", String(action)):
 			continue
+
 		var stored: Variant = config.get_value("input", String(action))
 		if not stored is Array or not InputMap.has_action(action) or (stored as Array).size() > MAX_BINDINGS_PER_ACTION:
 			continue
+
 		var decoded: Array[InputEvent] = []
 		var valid: bool = true
 		for data: Variant in stored as Array:
@@ -155,6 +166,7 @@ static func load_settings(path: String = FILE_PATH) -> void:
 			if event == null:
 				valid = false
 				break
+
 			decoded.append(event)
 		if valid:
 			InputMap.action_erase_events(action)

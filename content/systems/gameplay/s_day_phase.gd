@@ -37,6 +37,7 @@ func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 			or not DayPhaseService.permits(cycle, request.kind)
 		):
 			continue
+
 		match request.kind:
 			DayTransitionRequest.Kind.START_SHIFT:
 				cycle.shift_elapsed_seconds = 0.0

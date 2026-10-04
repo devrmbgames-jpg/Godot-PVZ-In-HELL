@@ -66,6 +66,7 @@ func test_never_is_persistent_one_shot_even_after_release_and_copy() -> void:
 	assert_eq(progress.fraction, 0.5)
 	ProlongedProgressService.advance(progress, definition, 0.75, true)
 	ProlongedProgressService.commit_success(progress, definition)
+
 	var restored: ProlongedInteractionProgress = progress.duplicate(true) as ProlongedInteractionProgress
 	ProlongedProgressService.advance(restored, definition, 100.0, false)
 	assert_false(ProlongedProgressService.advance(restored, definition, 100.0, true))

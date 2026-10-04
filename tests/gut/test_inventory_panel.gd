@@ -16,6 +16,7 @@ func before_each() -> void:
 	_world.add_observer(O_InventoryLifecycle.new())
 	_world.add_observer(O_InventoryEffect.new())
 	_world.add_observer(O_Damage.new())
+
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))

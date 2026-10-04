@@ -23,10 +23,12 @@ func test_customer_dispute_round_trip_keeps_actual_declaration_and_retaliation_i
 	visit.last_combat_context = CombatContext.new()
 	visit.last_combat_context.visit_id = visit.visit_id
 	visit.last_combat_context.day = 12
+
 	var decoded: CustomerVisit = SaveDataCodec.decode(SaveDataCodec.encode(visit)) as CustomerVisit
 	assert_not_null(decoded)
 	if decoded == null:
 		return
+
 	assert_eq(decoded.visit_id, visit.visit_id)
 	assert_eq(decoded.package_id, visit.package_id)
 	assert_eq(decoded.actual, visit.actual)
@@ -64,11 +66,13 @@ func test_typed_resource_arrays_and_receiving_dictionary_round_trip() -> void:
 	delivery.fulfilled = true
 	commerce.pending_deliveries.append(delivery)
 	commerce.next_request = 7
+
 	var copied: C_Commerce = C_Commerce.new()
 	assert_true(SaveDataCodec.apply_fields(copied, SaveDataCodec.component_data(commerce).fields as Dictionary))
 	assert_eq(copied.pending_deliveries.size(), 1)
 	if copied.pending_deliveries.is_empty():
 		return
+
 	assert_true(copied.pending_deliveries[0].fulfilled)
 	assert_eq(copied.pending_deliveries[0].item, commerce.catalog[0])
 	assert_eq(copied.next_request, 7)
@@ -79,6 +83,7 @@ func test_typed_resource_arrays_and_receiving_dictionary_round_trip() -> void:
 	batch.day_index = 10
 	batch.next_package = 4
 	receiving.pending.append(batch)
+
 	var other: C_Receiving = C_Receiving.new()
 	assert_true(SaveDataCodec.apply_fields(other, SaveDataCodec.component_data(receiving).fields as Dictionary))
 	assert_eq(other.delivered_counts.get(9), 8)

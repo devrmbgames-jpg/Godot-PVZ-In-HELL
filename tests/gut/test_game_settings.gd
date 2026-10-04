@@ -122,6 +122,7 @@ func test_actual_keys_pad_and_axes_use_individual_outline_sprites() -> void:
 	button.button_index = JOY_BUTTON_A
 	var pad: Texture2D = InputPromptService.texture_for(button, "playstation_series")
 	assert_eq(pad.resource_path, "res://resources/kenney/kenney_input_prompts/playstation_series/Default/playstation_button_cross_outline.png")
+
 	var left: Texture2D = InputPromptService.texture_for(_axis(JOY_AXIS_RIGHT_X, -1), "xbox_series")
 	var right: Texture2D = InputPromptService.texture_for(_axis(JOY_AXIS_RIGHT_X, 1), "xbox_series")
 	assert_true(left.resource_path.ends_with("/xbox_stick_r_left.png"))
@@ -169,6 +170,7 @@ func test_menu_restores_pause_mouse_and_existing_carry_capture() -> void:
 	actor.component_resources = [C_GrabControl.new()]
 	root.add_child(actor)
 	world.add_entity(actor, null, false)
+
 	var token: int = InteractionControlFocus.acquire(actor, root, InteractionControlFocus.Priority.CARRY)
 	var menu: SettingsMenu = SettingsMenu.new()
 	menu.setup(actor, TEST_PATH)

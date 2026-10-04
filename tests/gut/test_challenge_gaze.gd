@@ -22,6 +22,7 @@ func before_each() -> void:
 	receiver.escalation_requested.connect(_on_escalation)
 	_world.add_system(receiver)
 	_world.add_observer(O_ChallengeLifecycle.new())
+
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_CustomerFlow.new(), C_Wallet.new()]
 	_world.add_entity(session)
@@ -34,6 +35,7 @@ func before_each() -> void:
 	# Mechanics fixture remains short; authored deadlines are verified separately.
 	_state.definition.violation_grace_seconds = 3.0
 	_observation = C_GazeChallenge.new()
+
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = &"gaze-test"
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
@@ -73,6 +75,7 @@ func _character(customer: bool) -> E_RigidBodyCharacter:
 	eyes.position.y = 1.5
 	body.add_child(eyes)
 	entity.head_axis_x = eyes
+
 	var shape_node: CollisionShape3D = CollisionShape3D.new()
 	var shape: CapsuleShape3D = CapsuleShape3D.new()
 	shape.radius = 0.3
@@ -144,6 +147,7 @@ func test_actor_camera_pose_overrides_head_and_unrelated_camera_does_not() -> vo
 	camera.rotation.y = 0.0
 	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
 	assert_true(_observation.attention)
+
 	var unrelated: Camera3D = Camera3D.new()
 	add_child(unrelated)
 	unrelated.rotation.y = PI
@@ -233,6 +237,7 @@ func test_wall_clue_uses_one_registered_number_and_clears_with_session() -> void
 	record.package_id = _visit.package_id
 	record.number = 37
 	ledger.records.append(record)
+
 	var clues: Array[Label3D] = []
 	var scene: PackedScene = load("res://content/ui/gaze_order_clue.tscn") as PackedScene
 	for index: int in 3:
@@ -243,6 +248,7 @@ func test_wall_clue_uses_one_registered_number_and_clears_with_session() -> void
 		clues.append(clue)
 		assert_eq(GazeOrderCluePresentation.text_for(clue), "")
 	assert_true(ChallengeService.begin_on_arrival(_subject, _actor))
+
 	var shown: int = 0
 	for clue: Label3D in clues:
 		var message: String = GazeOrderCluePresentation.text_for(clue)
@@ -268,6 +274,7 @@ func test_customer_spawn_activates_arrival_challenge_before_approach_and_dialogu
 	flow.visits.clear()
 	flow.schedule = DEF_CustomerSchedule.new()
 	flow.schedule.customer_scene = load("res://content/entities/customers/customer.tscn") as PackedScene
+
 	var visit: CustomerVisit = CustomerVisit.new()
 	visit.visit_id = &"arrival-gaze"
 	visit.requires_registered_package = false
@@ -278,10 +285,12 @@ func test_customer_spawn_activates_arrival_challenge_before_approach_and_dialogu
 	var station: E_DeliveryCounter = scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(station)
 	assert_true(CustomerFlowService.spawn_next_due(flow, cycle))
+
 	var customer: E_Customer = CustomerFlowService.customer_for(visit.visit_id)
 	assert_not_null(customer)
 	if customer == null:
 		return
+
 	(customer as Node as RigidBody3D).freeze = true
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge

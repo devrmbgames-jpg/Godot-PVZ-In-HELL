@@ -10,6 +10,7 @@ const LARGE_MAX_METERS: float = 1.50
 static func ensure_history_id(parcel: Entity, day_index: int) -> String:
 	if not is_instance_valid(parcel) or day_index < 1:
 		return ""
+
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
 	if identity == null or identity.definition == null:
 		return ""
@@ -26,6 +27,7 @@ static func ensure_history_id(parcel: Entity, day_index: int) -> String:
 	history.number = _allocate_number(day_index)
 	if history.number < 1:
 		return ""
+
 	history.hazard_class = identity.definition.history_hazard_class
 	history.size_class = _size_class(parcel)
 	history.mass_tenths_kg = mass_tenths
@@ -52,6 +54,7 @@ static func _allocate_number(day_index: int) -> int:
 static func _ledger() -> C_PackageLedger:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	var session: Entity = ECS.world.query.with_all([C_PackageLedger]).execute_one()
 	return session.get_component(C_PackageLedger) as C_PackageLedger if session != null else null
 
@@ -60,6 +63,7 @@ static func _size_class(parcel: Entity) -> PackageHistoryId.SizeClass:
 	var node: Node = parcel as Node
 	if node == null:
 		return PackageHistoryId.SizeClass.MEDIUM
+
 	var collision: CollisionShape3D = node.get_node_or_null("CollisionShape3D") as CollisionShape3D
 	if collision == null or collision.shape == null:
 		return PackageHistoryId.SizeClass.MEDIUM

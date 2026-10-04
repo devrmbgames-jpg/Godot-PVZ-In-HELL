@@ -21,9 +21,11 @@ static func update(weapon: Entity, elapsed: float, attack: DEF_MeleeAttack) -> v
 	var player: AnimationPlayer = _player(weapon, config)
 	if player == null or attack == null or not player.has_animation(config.strike_animation):
 		return
+
 	var duration: float = attack.windup_seconds + attack.active_seconds + attack.recovery_seconds
 	if duration <= 0.0:
 		return
+
 	var animation: Animation = player.get_animation(config.strike_animation)
 	player.seek(clampf(elapsed / duration, 0.0, 1.0) * animation.length, true)
 
@@ -31,6 +33,7 @@ static func update(weapon: Entity, elapsed: float, attack: DEF_MeleeAttack) -> v
 static func reset(weapon: Entity) -> void:
 	if not is_instance_valid(weapon):
 		return
+
 	var config: C_MeleeWeapon = weapon.get_component(C_MeleeWeapon) as C_MeleeWeapon
 	var player: AnimationPlayer = _player(weapon, config)
 	if player == null:
@@ -47,6 +50,7 @@ static func play_tool_action(weapon: Entity) -> void:
 	var player: AnimationPlayer = _player(weapon, config)
 	if player == null or not player.has_animation(config.strike_animation):
 		return
+
 	player.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_PHYSICS
 	player.play(config.strike_animation)
 

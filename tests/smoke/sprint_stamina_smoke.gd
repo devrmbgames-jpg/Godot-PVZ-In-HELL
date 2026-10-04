@@ -36,6 +36,7 @@ func _run() -> void:
 	add_child(_level)
 	var actor: Entity = DebugTargetResolver.player()
 	assert(actor != null)
+
 	var body: CharacterBody3D = actor as Node as CharacterBody3D
 	var stamina: C_Stamina = actor.get_component(C_Stamina) as C_Stamina
 	assert(body != null and stamina != null)
@@ -45,6 +46,7 @@ func _run() -> void:
 			menu = node as SettingsMenu
 	assert(menu != null)
 	menu.setup(actor, TEST_PATH)
+
 	var producer: S_PlayerInput = _level.get_node("World/Systems/Input/S_PlayerInput") as S_PlayerInput
 	assert(producer != null)
 	producer.set_script(CapturedInput)
@@ -53,6 +55,7 @@ func _run() -> void:
 	var floor_body: StaticBody3D = StaticBody3D.new()
 	floor_body.collision_layer = 1
 	floor_body.collision_mask = 0
+
 	var shape: BoxShape3D = BoxShape3D.new()
 	shape.size = Vector3(60, 1, 60)
 	var collider: CollisionShape3D = CollisionShape3D.new()
@@ -65,6 +68,7 @@ func _run() -> void:
 	await _frames(20)
 	await _key(KEY_W)
 	await _frames(25)
+
 	var walk_speed: float = Vector2(body.velocity.x, body.velocity.z).length()
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
@@ -94,6 +98,7 @@ func _run() -> void:
 	assert(not stamina.toggled)
 	await _key(KEY_W, false)
 	assert(Console.console_commands.has("stamina_info"))
+
 	var result: DebugServiceResult = DebugGameplayService.info("stamina", "self")
 	assert(result.success)
 	Console._on_text_entered("stamina_info")

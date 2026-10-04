@@ -13,6 +13,7 @@ static func step(cart: E_TransportCart, delta: float) -> void:
 		CartCargoService.release_all(cart)
 		CartTransportService.end(cart)
 		return
+
 	var body: CharacterBody3D = cart as Node as CharacterBody3D
 	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
 	if body == null or config == null:
@@ -75,6 +76,7 @@ static func _driver_lag(
 	var actor_node: Node3D = actor as Node as Node3D
 	if actor_node == null:
 		return 0.0
+
 	var offset: Vector3 = (
 		CartTransportService.handle_position(body, config) - actor_node.global_position
 	)
@@ -85,6 +87,7 @@ static func _driver_lag(
 static func _turn(body: CharacterBody3D, angle: float) -> void:
 	if absf(angle) < MOTION_EPSILON:
 		return
+
 	var proposed: Transform3D = body.global_transform
 	proposed.basis = Basis(Vector3.UP, angle) * proposed.basis
 	var collision: KinematicCollision3D = KinematicCollision3D.new()
@@ -92,17 +95,20 @@ static func _turn(body: CharacterBody3D, angle: float) -> void:
 		for index: int in collision.get_collision_count():
 			if collision.get_normal(index).dot(Vector3.UP) < cos(body.floor_max_angle):
 				return
+
 	body.global_transform = proposed
 
 
 static func _try_step(body: CharacterBody3D, motion: Vector3, height: float) -> bool:
 	if not body.is_on_floor() or motion.length_squared() < MOTION_EPSILON or height <= 0.0:
 		return false
+
 	var obstruction: KinematicCollision3D = KinematicCollision3D.new()
 	if not body.test_move(body.global_transform, motion, obstruction):
 		return false
 	if obstruction.get_normal().dot(Vector3.UP) >= cos(body.floor_max_angle):
 		return false
+
 	var probe: Vector3 = obstruction.get_position() + motion.normalized() * height
 	probe.y += height
 	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
@@ -111,9 +117,11 @@ static func _try_step(body: CharacterBody3D, motion: Vector3, height: float) -> 
 		TERRAIN_MASK,
 	)
 	ray.exclude = [body.get_rid()]
+
 	var support: Dictionary = body.get_world_3d().direct_space_state.intersect_ray(ray)
 	if support.is_empty():
 		return false
+
 	var support_normal: Vector3 = support["normal"] as Vector3
 	if support_normal.y < cos(body.floor_max_angle):
 		return false
@@ -122,9 +130,11 @@ static func _try_step(body: CharacterBody3D, motion: Vector3, height: float) -> 
 	var up: Vector3 = Vector3.UP * height
 	if body.test_move(raised, up):
 		return false
+
 	raised.origin += up
 	if body.test_move(raised, motion):
 		return false
+
 	raised.origin += motion
 	var landing: KinematicCollision3D = KinematicCollision3D.new()
 	var down: Vector3 = Vector3.DOWN * (height + body.floor_snap_length)

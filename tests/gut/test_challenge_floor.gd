@@ -21,6 +21,7 @@ func before_each() -> void:
 	_world.add_system(S_FloorHazard.new())
 	_world.add_system(S_ChallengeRuntime.new())
 	_world.add_system(S_CustomerChallengeOutcome.new())
+
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_CustomerFlow.new()]
 	_world.add_entity(session)
@@ -49,6 +50,7 @@ func before_each() -> void:
 	_state.definition.preparation_seconds = 3.0
 	_state.definition.violation_grace_seconds = 2.0
 	(_state.definition.condition as DEF_FloorChallengeCondition).world_position = Vector3.ZERO
+
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = &"floor-test"
 	_subject.component_resources = [_state, C_FloorChallenge.new(), agent]

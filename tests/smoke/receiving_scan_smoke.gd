@@ -18,6 +18,7 @@ func _run() -> void:
 	session.remove_component(C_CustomerFlow)
 	for tick_index: int in 30:
 		await get_tree().physics_frame
+
 	var parcels: Array = ECS.world.query.with_all([C_Package]).execute()
 	print("Receiving count: ", parcels.size())
 	assert(parcels.size() == 8)
@@ -46,6 +47,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 	assert(ECS.world.query.with_all([C_Package]).execute().size() == 8)
 	level.set_physics_process(false)
+
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	(actor as Node as RigidBody3D).freeze = true
@@ -61,6 +63,7 @@ func _run() -> void:
 	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
 	assert(InteractionTargetingService.find_target(actor, interactor) == first)
 	_drive(actor, false, false, true)
+
 	var first_state: C_PackageState = first.get_component(C_PackageState) as C_PackageState
 	var registry: C_PackageLedger = PackageRegistrationService.ledger()
 	assert(first_state.registration_number == 1 and registry.records.size() == 1)
@@ -75,6 +78,7 @@ func _run() -> void:
 	await _prepare_target(actor, second, Vector3(0.0, -0.2, -2.2))
 	assert(InteractionTargetingService.find_target(actor, interactor) == second)
 	_drive(actor, false, false, true)
+
 	var second_state: C_PackageState = second.get_component(C_PackageState) as C_PackageState
 	assert(second_state.registration_number == 2 and registry.records.size() == 2)
 	var scanner_config: C_Scanner = scanner.get_component(C_Scanner) as C_Scanner
@@ -84,6 +88,7 @@ func _run() -> void:
 		== PackageScanResult.Outcome.REJECTED
 	)
 	scanner_config.scan_range = 3.0
+
 	var ray: RayCast3D = GrabService.interaction_raycast(actor)
 	ray.look_at(ray.global_position + Vector3(0, 1, -1))
 	ray.force_raycast_update()
@@ -92,6 +97,7 @@ func _run() -> void:
 		== PackageScanResult.Outcome.REJECTED
 	)
 	assert(registry.records.size() == 2)
+
 	var terminal: E_Terminal = level.get_node("Entityes/Terminal") as E_Terminal
 	var terminal_body: StaticBody3D = terminal as Node as StaticBody3D
 	var desk_query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
@@ -106,6 +112,7 @@ func _run() -> void:
 	assert(InteractionTargetingService.find_target(actor, interactor) == terminal)
 	_drive(actor, true, false, false)
 	assert(terminal.is_panel_open())
+
 	var terminal_panel: TerminalPanel = terminal.get_node("TerminalPanel") as TerminalPanel
 	var package_list: VBoxContainer = terminal_panel.get_node("%PackageList") as VBoxContainer
 	assert(package_list.get_child_count() == 2)
@@ -128,6 +135,7 @@ func _run() -> void:
 		var screenshot: Image = get_viewport().get_texture().get_image()
 		assert(screenshot.save_png("res://tests/artifacts/terminal_preview.png") == OK)
 	terminal.close_panel()
+
 	var first_body: RigidBody3D = first as Node as RigidBody3D
 	var second_body: RigidBody3D = second as Node as RigidBody3D
 	first_body.global_position = first_supply_position
@@ -137,6 +145,7 @@ func _run() -> void:
 	first_body.angular_velocity = Vector3.ZERO
 	second_body.angular_velocity = Vector3.ZERO
 	await get_tree().physics_frame
+
 	var previous_location: Vector3 = (first as Node as Node3D).global_position
 	for parcel: Entity in parcels:
 		(parcel as Node as RigidBody3D).freeze = true
@@ -170,6 +179,7 @@ func _run() -> void:
 		ECS.world.process(1.0 / 60.0, "GamePlay")
 	ECS.world.process(1.0 / 60.0, "GamePlay")
 	assert(DayPhaseService.current().day_index == 2)
+
 	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
 	assert(receiving.blocked and ECS.world.query.with_all([C_Package]).execute().size() == 8)
 	for blocker: StaticBody3D in blockers:
@@ -184,6 +194,7 @@ func _run() -> void:
 	assert(ECS.world.query.with_all([C_Package]).execute().size() == 16)
 	assert((first as Node as Node3D).global_position.is_equal_approx(previous_location))
 	assert(_has_active_number(registry, 1))
+
 	var next_day_parcel: Entity = level.get_node("Entityes/Parcel_002_01") as Entity
 	await _prepare_target(actor, next_day_parcel, Vector3(0.0, -0.2, -2.2))
 	assert(InteractionTargetingService.find_target(actor, interactor) == next_day_parcel)
@@ -200,6 +211,7 @@ func _run() -> void:
 	assert(PackageRegistrationService.smallest_free_number(registry) == 1)
 	assert(registry.records[1].active and registry.records[1].number == 2)
 	assert(registry.last_departed_package_id == (first.get_component(C_Package) as C_Package).package_id)
+
 	var replacement: Entity = level.get_node("Entityes/Parcel_002_02") as Entity
 	await _prepare_target(actor, replacement, Vector3(0.0, -0.2, -2.2))
 	assert(PackageRegistrationService.scan(actor, scanner, replacement).number == 1)
@@ -233,6 +245,7 @@ func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> v
 	await get_tree().physics_frame
 	ray.look_at(target_body.global_position)
 	ray.force_raycast_update()
+
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	interactor.target = InteractionTargetingService.find_target(actor, interactor)
 

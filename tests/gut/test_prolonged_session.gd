@@ -39,6 +39,7 @@ func before_each() -> void:
 	_action.timing.decay_per_second = 0.5
 	_actor = _make_actor()
 	_controller = _actor.get_component(C_Controller) as C_Controller
+
 	var actions: C_InteractionActionSet = C_InteractionActionSet.new()
 	actions.actions = [_action]
 	_actor.add_component(actions)

@@ -18,6 +18,7 @@ func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 func _step(actor: Entity, delta: float) -> void:
 	if CombatService.target_for(actor) == null:
 		return
+
 	NpcAttackService.tick(actor, delta)
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if state != null and state.automatic_attack_selection:

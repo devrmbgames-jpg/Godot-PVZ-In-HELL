@@ -25,6 +25,7 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighb
 	var body: Node3D = actor as Node as Node3D
 	if body == null:
 		return
+
 	controller.direction_motion = Vector3.ZERO
 	controller.limit_motion_velocity = false
 	intent.navigation_pending = false
@@ -53,9 +54,20 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighb
 			intent.distance_to_target = direction.length()
 			intent.arrived = intent.distance_to_target <= intent.arrival_distance
 			if not intent.arrived:
+				var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+				if route != null and not route.reachable:
+					intent.navigation_blocked = true
+					_apply_avoidance(actor, intent, controller, neighbours)
+					return
+				if route != null and not route.points.is_empty() and not intent.move_uses_entity:
+					var tolerance: float = DistrictPopulationService.current().definition.waypoint_distance
+					while route.point_index < route.points.size() - 1 and body.global_position.distance_to(route.points[route.point_index]) <= tolerance:
+						route.point_index += 1
+					position = route.points[route.point_index]
 				if intent.navigation_enabled and npc != null and npc.navigation_agent != null:
 					direction = _path_direction(npc.navigation_agent, intent, body.global_position, position)
 				controller.direction_motion = direction.normalized() * clampf(intent.speed_fraction, 0.0, 1.0)
+
 	var look_direction: Vector3 = controller.direction_motion
 	_apply_avoidance(actor, intent, controller, neighbours)
 	if intent.look_mode == C_NpcIntent.LookMode.HOLD:
@@ -82,12 +94,15 @@ func _apply_avoidance(actor: Entity, intent: C_NpcIntent, controller: C_Controll
 	var npc: E_NpcCharacter = actor as E_NpcCharacter
 	if npc == null or npc.navigation_agent == null:
 		return
+
 	var agent: NavigationAgent3D = npc.navigation_agent
 	if not intent.navigation_enabled or not agent.avoidance_enabled:
 		return
+
 	var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
 	if motion == null:
 		return
+
 	var speed: float = CharacterMotionSolver.effective_speed(
 		motion, actor.get_component(C_CarryLoad) as C_CarryLoad,
 		actor.get_component(C_Strength) as C_Strength, actor.get_component(C_Hunger) as C_Hunger,
@@ -107,6 +122,7 @@ func _apply_avoidance(actor: Entity, intent: C_NpcIntent, controller: C_Controll
 func _passing_direction(npc: E_NpcCharacter, intent: C_NpcIntent, desired: Vector3, neighbours: Array[Entity]) -> Vector3:
 	if intent.passing_distance <= 0.0 or intent.passing_bias <= 0.0:
 		return desired
+
 	var forward: Vector3 = desired.normalized()
 	var right: Vector3 = forward.cross(Vector3.UP)
 	var nearest: float = intent.passing_distance
@@ -115,9 +131,11 @@ func _passing_direction(npc: E_NpcCharacter, intent: C_NpcIntent, desired: Vecto
 		var other: E_NpcCharacter = actor as E_NpcCharacter
 		if other == null or other == npc or other.navigation_agent == null or actor.has_component(C_Death):
 			continue
+
 		var offset: Vector3 = other.global_position - npc.global_position
 		if absf(offset.y) > npc.navigation_agent.height:
 			continue
+
 		offset.y = 0.0
 		var distance: float = offset.length()
 		var clearance: float = npc.navigation_agent.radius + other.navigation_agent.radius
@@ -126,6 +144,7 @@ func _passing_direction(npc: E_NpcCharacter, intent: C_NpcIntent, desired: Vecto
 			obstacle = other
 	if obstacle == null:
 		return desired
+
 	var offset: Vector3 = obstacle.global_position - npc.global_position
 	var side: Vector3 = -right if offset.dot(right) > 0.0 else right
 	var clearance: float = npc.navigation_agent.radius + obstacle.navigation_agent.radius
@@ -153,10 +172,12 @@ func _path_direction(
 		agent.target_position = goal
 	if not is_equal_approx(agent.target_desired_distance, intent.arrival_distance):
 		agent.target_desired_distance = intent.arrival_distance
+
 	var waypoint: Vector3 = agent.get_next_path_position()
 	if agent.is_navigation_finished():
 		intent.navigation_blocked = not intent.arrived
 		return Vector3.ZERO
+
 	var direction: Vector3 = waypoint - origin
 	direction.y = 0.0
 	return direction
@@ -170,5 +191,6 @@ func _target(actor: Entity, relation_type: Script) -> Node3D:
 				var node: Node3D = target as Node as Node3D
 				if not target.has_component(C_Death) and node != null:
 					return node
+
 			cmd.remove_relationship(actor, relation)
 	return null

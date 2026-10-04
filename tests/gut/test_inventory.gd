@@ -68,6 +68,7 @@ func test_stacking_uses_capacity_and_rejected_transfer_is_atomic() -> void:
 	assert_true(InventoryService.transfer(second, _owner))
 	assert_eq((first.get_component(C_InventoryItem) as C_InventoryItem).quantity, 10)
 	assert_eq(InventoryService.items(_owner).size(), 1)
+
 	var remainder: Entity = _item("food", 2)
 	assert_false(InventoryService.transfer(remainder, _owner))
 	assert_null(InventoryService.owner_for(remainder))
@@ -100,6 +101,7 @@ func test_food_consumes_once_per_success_and_removes_empty_stack() -> void:
 	assert_eq((_owner.get_component(C_Hunger) as C_Hunger).value, 0.0)
 	assert_true(InventoryService.items(_owner).is_empty())
 	assert_false(InventoryService.use(_owner, item))
+
 	var extra: Entity = _item("food")
 	assert_true(InventoryService.transfer(extra, _owner))
 	assert_false(InventoryService.use(_owner, extra))
@@ -204,6 +206,7 @@ func test_package_physical_grabbable_invalid_quantity_and_ambiguous_owner_are_re
 	assert_false(InventoryService.transfer(tool, _owner))
 	for quantity: int in [0, -1, 11]:
 		assert_false(InventoryService.transfer(_item("food", quantity), _owner))
+
 	var ambiguous: Entity = _item("food")
 	ambiguous.add_relationship(Relationship.new(R_OwnedBy.new(), _owner))
 	ambiguous.add_relationship(Relationship.new(R_OwnedBy.new(), _other))

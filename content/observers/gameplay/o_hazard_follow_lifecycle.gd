@@ -11,6 +11,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var relationship: Relationship = payload as Relationship
 	if relationship == null or HazardFollowService.is_replacing(entity):
 		return
+
 	var data: R_HazardFollow = relationship.relation as R_HazardFollow
 	if data != null and data.on_loss == DEF_Hazard.OwnerLoss.Despawn:
 		cmd.add_custom(_retire_if_unbound.bind(entity))

@@ -13,6 +13,8 @@ class_name DamageFeedbackView
 @export var damage_color: Color = Color(1.0, 0.3, 0.25)
 @export var toxic_color: Color = Color(0.3, 1.0, 0.55)
 @export var explosion_color: Color = Color(1.0, 0.7, 0.2)
+## Fire exposure warning tint; remains legible with reduced motion.
+@export var fire_color: Color = Color(1.0, 0.4, 0.05)
 
 const SAMPLE_RATE: int = 22050
 const PEAK_SAMPLE: float = 32767.0
@@ -20,7 +22,7 @@ const SOUND_GAIN: float = 0.2
 const WARNING_TINT_ALPHA: float = 0.08
 const LABEL_HEIGHT: float = 0.35
 const LABEL_RISE_SPEED: float = 0.18
-const WARNING_NAMES: Array[String] = ["Ранение", "Ближняя атака", "Удар", "Взрыв", "Токсичная зона", "Протечка", "Попадание"]
+const WARNING_NAMES: Array[String] = ["Ранение", "Ближняя атака", "Удар", "Взрыв", "Токсичная зона", "Протечка", "Попадание", "Огненная аура"]
 
 var _remaining: float = 0.0
 var _labels: Array[Label3D] = []
@@ -67,6 +69,7 @@ func _process(delta: float) -> void:
 			_labels.remove_at(index)
 			_label_times.remove_at(index)
 			continue
+
 		_labels[index].modulate.a = clampf(_label_times[index] / world_label_seconds, 0.0, 1.0)
 		if not reduced_motion:
 			_labels[index].position.y += delta * LABEL_RISE_SPEED
@@ -75,10 +78,12 @@ func _process(delta: float) -> void:
 func _on_feedback(feedback: DamageFeedback) -> void:
 	if not enabled or feedback == null:
 		return
+
 	var tint: Color = _color(feedback.damage_type)
 	if feedback.audience == DamageFeedback.Audience.PLAYER:
 		if not is_instance_valid(player) or feedback.target_id != player.id:
 			return
+
 		_remaining = player_warning_seconds
 		_warning.text = "%s · −%.0f HP" % [WARNING_NAMES[feedback.damage_type], feedback.amount]
 		_warning.modulate = tint
@@ -95,6 +100,7 @@ func _on_feedback(feedback: DamageFeedback) -> void:
 		if is_instance_valid(oldest):
 			oldest.queue_free()
 		_label_times.pop_front()
+
 	var label: Label3D = Label3D.new()
 	label.name = "WorldDamageLabel"
 	label.text = "%s −%.0f" % ["Посылка" if feedback.audience == DamageFeedback.Audience.PACKAGE else "", feedback.amount]
@@ -114,7 +120,7 @@ func debug_text() -> String:
 
 
 func _color(kind: DamageRequest.Type) -> Color:
-	return toxic_color if kind == DamageRequest.Type.TOXIC else explosion_color if kind == DamageRequest.Type.EXPLOSION else damage_color
+	return toxic_color if kind == DamageRequest.Type.TOXIC else explosion_color if kind == DamageRequest.Type.EXPLOSION else fire_color if kind == DamageRequest.Type.FIRE else damage_color
 
 
 func _clear_warning() -> void:
@@ -140,6 +146,7 @@ func _tone(frequency: float, seconds: float) -> AudioStreamWAV:
 		var envelope: float = sin(PI * float(index) / count)
 		var wave: float = sin(TAU * frequency * index / SAMPLE_RATE)
 		samples.encode_s16(index * 2, int(PEAK_SAMPLE * SOUND_GAIN * envelope * wave))
+
 	var stream: AudioStreamWAV = AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
 	stream.mix_rate = SAMPLE_RATE

@@ -7,11 +7,15 @@ const DEFAULT_STOP_DISTANCE: float = 1.0
 
 
 static func tick(customer: E_Customer) -> void:
+	if customer.has_component(C_NpcIdentity):
+		return
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
 	if visit == null or visit.finished or customer.has_component(C_Death):
 		CombatService.end_combat(customer)
 		return
+
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 	var state: C_NpcCombat = customer.get_component(C_NpcCombat) as C_NpcCombat
 	if challenge != null and challenge.escalation_request != null:
@@ -24,6 +28,7 @@ static func tick(customer: E_Customer) -> void:
 		if CombatService.target_for(customer) != null:
 			CombatService.end_combat(customer)
 		return
+
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	if not GrabService.holder_available(player):
 		CombatService.end_combat(customer)
@@ -41,12 +46,17 @@ static func tick(customer: E_Customer) -> void:
 
 
 static func retaliate(customer: Entity, context: CombatContext) -> void:
+	if customer.has_component(C_NpcIdentity):
+		return
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or customer.has_component(C_Death):
 		return
+
 	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
 	if visit == null or visit.finished:
 		return
+
 	visit.last_combat_context = context
 	visit.aggressive = true
 	var state: C_NpcCombat = customer.get_component(C_NpcCombat) as C_NpcCombat

@@ -16,6 +16,7 @@ static func integrate_state(
 ) -> bool:
 	if state == null or not is_instance_valid(anchor) or grip == null or profile == null:
 		return false
+
 	var desired_position: Vector3 = _desired_position(anchor, grip)
 	var position_error: Vector3 = desired_position - state.transform.origin
 	if not _sample_anchor(
@@ -66,6 +67,7 @@ static func integrate_body(
 		or not is_instance_valid(anchor) or grip == null or profile == null
 	):
 		return false
+
 	var desired_position: Vector3 = _desired_position(anchor, grip)
 	var position_error: Vector3 = desired_position - body.global_position
 	if not _sample_anchor(
@@ -111,6 +113,7 @@ static func position_force(
 ) -> Vector3:
 	if profile == null:
 		return Vector3.ZERO
+
 	var acceleration: Vector3 = (
 		position_error * profile.position_stiffness
 		+ velocity_error * profile.position_damping
@@ -129,6 +132,7 @@ static func rotation_velocity(
 ) -> Vector3:
 	if profile == null or step <= 0.0:
 		return Vector3.ZERO
+
 	var error: Quaternion = (desired * current.inverse()).normalized()
 	if error.w < 0.0:
 		error = -error
@@ -151,6 +155,7 @@ static func _desired_rotation(anchor: Node3D, grip: R_HeldBy, profile: GrabContr
 	).normalized()
 	if not profile.keep_upright:
 		return desired
+
 	var basis: Basis = Basis(desired)
 	var forward: Vector3 = -basis.z
 	forward.y = 0.0

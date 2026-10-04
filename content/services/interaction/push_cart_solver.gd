@@ -7,6 +7,7 @@ static func integrate(cart: Entity, state: PhysicsDirectBodyState3D) -> void:
 	var binding: Relationship = PushService.relationship(cart)
 	if binding == null:
 		return
+
 	var actor: Entity = binding.target as Entity
 	if not PushService.valid_pair(actor, cart):
 		PushService.end(actor, cart)

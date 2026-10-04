@@ -13,6 +13,7 @@ static func emit_scene(
 ) -> bool:
 	if not EntityAvailability.contains(origin, ECS.world) or scene == null:
 		return false
+
 	var spatial: Node3D = origin as Node as Node3D
 	if spatial == null:
 		return false

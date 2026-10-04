@@ -317,9 +317,14 @@ def _check_res_paths(errors: list[str]) -> None:
 
 
 def _iter_markdown_files() -> list[Path]:
-    files: list[Path] = [ROOT / "PROJECT_INDEX.md", ROOT / "task_history.md"]
+    files: list[Path] = [
+        ROOT / "README.md",
+        ROOT / "AGENTS.md",
+        ROOT / "PROJECT_INDEX.md",
+        ROOT / "content" / "ARCHITECTURE.md",
+    ]
 
-    for root_name in ("agent_tasks", "qa_tasks", "docs/roadmap", "task_history_archive"):
+    for root_name in ("agent_tasks", "qa_tasks", "docs"):
         root_path: Path = ROOT / root_name
         if root_path.exists():
             files.extend(sorted(root_path.rglob("*.md")))
@@ -367,12 +372,8 @@ def _check_task_state_contract(errors: list[str]) -> None:
     if not task_root.exists():
         return
 
-    index_path: Path = task_root / "CONTEXT.md"
-    if not index_path.exists():
-        errors.append("agent_tasks/CONTEXT.md is missing; task queue/status index is required.")
-
     for task_path in sorted(task_root.glob("*.md")):
-        if task_path.name in {"README.md", "CONTEXT.md"}:
+        if task_path.name == "README.md":
             continue
 
         text: str = _read_text(task_path)
@@ -417,13 +418,12 @@ def _check_task_dependencies(errors: list[str]) -> None:
                 f"{_relative(task_path)}: RM-prefixed task IDs are not canonical; use Rxx/Rxx.x."
             )
 
-    history_path: Path = ROOT / "task_history.md"
-    if history_path.exists():
-        known_ids.update(IMPLEMENTATION_ID_RE.findall(_read_text(history_path)))
-    archive_root: Path = ROOT / "task_history_archive"
-    if archive_root.exists():
-        for archive_path in sorted(archive_root.glob("*.md")):
-            known_ids.update(IMPLEMENTATION_ID_RE.findall(_read_text(archive_path)))
+    for design_index in (
+        ROOT / "docs" / "roadmap" / "README.md",
+        ROOT / "docs" / "roadmap" / "18_implementation_order.md",
+    ):
+        if design_index.exists():
+            known_ids.update(IMPLEMENTATION_ID_RE.findall(_read_text(design_index)))
 
     for task_id, task_path in task_ids.items():
         text: str = _read_text(task_path)
@@ -435,8 +435,8 @@ def _check_task_dependencies(errors: list[str]) -> None:
         for dependency in dependencies:
             if dependency not in known_ids:
                 errors.append(
-                    f"{_relative(task_path)}: dependency {dependency} has no planned task "
-                    "and is not recorded as completed in task_history.md or its archives."
+                    f"{_relative(task_path)}: dependency {dependency} is absent from "
+                    "active durable tasks and the design implementation map."
                 )
 
 

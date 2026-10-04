@@ -16,6 +16,7 @@ static func speed_multiplier(state: C_Hunger) -> float:
 	match tier(state):
 		C_Hunger.Tier.HUNGRY:
 			return state.policy.hungry_speed_multiplier
+
 		C_Hunger.Tier.STARVING:
 			return state.policy.starving_speed_multiplier
 	return NEUTRAL_MULTIPLIER
@@ -25,6 +26,7 @@ static func damage_multiplier(state: C_Hunger) -> float:
 	match tier(state):
 		C_Hunger.Tier.HUNGRY:
 			return state.policy.hungry_damage_multiplier
+
 		C_Hunger.Tier.STARVING:
 			return state.policy.starving_damage_multiplier
 	return NEUTRAL_MULTIPLIER
@@ -33,6 +35,7 @@ static func damage_multiplier(state: C_Hunger) -> float:
 static func advance(state: C_Hunger, delta: float, phase: C_DayCycle.Phase, paused: bool, alive: bool) -> void:
 	if state == null or not _valid_policy(state.policy) or not is_finite(delta) or delta <= 0.0 or paused or not alive or phase == C_DayCycle.Phase.NIGHT:
 		return
+
 	state.value = clampf(state.value + delta * state.policy.growth_per_second, 0.0, state.policy.maximum)
 	state.active_seconds += delta
 
@@ -50,9 +53,11 @@ static func tick(actor: Entity, delta: float, state: C_Hunger = null) -> void:
 static func set_value(actor: Entity, value: float) -> bool:
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death):
 		return false
+
 	var state: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
 	if state == null or not _valid_policy(state.policy) or not is_finite(value) or value < 0.0 or value > state.policy.maximum:
 		return false
+
 	state.value = value
 	return true
 
@@ -60,9 +65,11 @@ static func set_value(actor: Entity, value: float) -> bool:
 static func apply_food(actor: Entity, effect: DEF_FoodEffect) -> bool:
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or effect == null or not is_finite(effect.hunger_relief) or effect.hunger_relief <= 0.0:
 		return false
+
 	var state: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
 	if state == null or not _valid_policy(state.policy) or state.value <= 0.0:
 		return false
+
 	state.value = clampf(state.value - effect.hunger_relief, 0.0, state.policy.maximum)
 	return true
 
@@ -71,6 +78,7 @@ static func apply_food(actor: Entity, effect: DEF_FoodEffect) -> bool:
 static func player_state() -> C_Hunger:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController, C_Hunger]).with_none([C_Death]).execute_one()
 	return player.get_component(C_Hunger) as C_Hunger if player != null else null
 
@@ -78,9 +86,11 @@ static func player_state() -> C_Hunger:
 static func _valid_policy(policy: DEF_HungerPolicy) -> bool:
 	if policy == null:
 		return false
+
 	for value: float in [policy.maximum, policy.hungry_threshold, policy.starving_threshold, policy.growth_per_second]:
 		if not is_finite(value) or value < 0.0:
 			return false
+
 	for multiplier: float in [policy.hungry_speed_multiplier, policy.starving_speed_multiplier, policy.hungry_damage_multiplier, policy.starving_damage_multiplier]:
 		if not is_finite(multiplier) or multiplier < NEUTRAL_MULTIPLIER:
 			return false

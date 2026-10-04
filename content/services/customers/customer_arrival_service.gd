@@ -7,6 +7,7 @@ static func begin(customer: E_Customer, challenge: C_Challenge) -> void:
 	var rule: DEF_LightChallengeCondition = _darkness_rule(challenge)
 	if rule == null or not LightCircuitService.is_enabled(rule.circuit_id):
 		return
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_DARKNESS
 	agent.elapsed = 0.0
@@ -26,6 +27,7 @@ static func tick(customer: E_Customer, agent: C_CustomerAgent, visit: CustomerVi
 		var station: E_DeliveryCounter = CustomerFlowService.counter()
 		if station == null:
 			return true
+
 		NpcIntentService.move_to(customer, station.waiting_position(), visit.definition.arrival_distance)
 		NpcIntentService.look_along_movement(customer)
 		customer.show_message("Теперь я могу войти. Спасибо.")
@@ -42,5 +44,6 @@ static func apply_result(customer: Entity, event: ChallengeResolution) -> void:
 static func _darkness_rule(challenge: C_Challenge) -> DEF_LightChallengeCondition:
 	if challenge == null or challenge.definition == null or challenge.definition.trigger != DEF_Challenge.Trigger.ON_ARRIVAL:
 		return null
+
 	var rule: DEF_LightChallengeCondition = challenge.definition.condition as DEF_LightChallengeCondition
 	return rule if rule != null and not rule.required_enabled and rule.wait_outside_until_dark else null

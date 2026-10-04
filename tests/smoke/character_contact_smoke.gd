@@ -15,6 +15,7 @@ func _run() -> void:
 	var bounds: AABB = standing.shape.get_debug_mesh().get_aabb()
 	character.position = Vector3(-bounds.end.x - standing.position.x - 0.02, 3.0, 0.0)
 	world.add_entity(character as Node as Entity)
+
 	var wall: StaticBody3D = _obstacle(Vector3(0.5, 5, 0), Vector3(1, 20, 20))
 	_obstacle(Vector3(10, 5, 0), Vector3(10, 1, 20))
 	await get_tree().physics_frame
@@ -35,6 +36,7 @@ func _run() -> void:
 		character.linear_velocity.x > 1.8 and character.linear_velocity.z > 1.8,
 		"Ceiling must preserve horizontal motion",
 	)
+
 	var actor: Entity = character as Node as Entity
 	var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
 	assert(not motion.is_on_floor, "Ceiling is not a floor")

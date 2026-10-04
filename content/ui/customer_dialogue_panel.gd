@@ -8,7 +8,7 @@ const ROOT_MARGIN: float = 32.0
 const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
 
 var _actor: Entity = null
-var _context: CustomerDialogueContext = null
+var _context: NpcDialogueContext = null
 var _resource: DialogueResource = null
 var _line: DialogueLine = null
 var _capture_token: int = 0
@@ -54,6 +54,7 @@ func _process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _closed or not _input_enabled:
 		return
+
 	get_viewport().set_input_as_handled()
 	if event.is_action_pressed(&"menu"):
 		close_dialogue()
@@ -67,12 +68,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func open_for(
 	actor: Entity,
-	context: CustomerDialogueContext,
+	context: NpcDialogueContext,
 	resource: DialogueResource,
 	cue: String,
 ) -> bool:
 	if _closed or _capture_token != 0:
 		return false
+
 	_actor = actor
 	_context = context
 	_resource = resource
@@ -83,6 +85,7 @@ func open_for(
 	)
 	if _capture_token == 0:
 		return false
+
 	_previous_mouse_mode = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_input_enabled = false
@@ -104,6 +107,7 @@ func _enable_input() -> void:
 func _advance(next_id: String) -> void:
 	if _closed or _resource == null or _context == null:
 		return
+
 	var resource: DialogueResource = _resource
 	_line = await resource.get_next_dialogue_line(next_id, [{ "ctx": _context }])
 	if _closed:
@@ -113,6 +117,7 @@ func _advance(next_id: String) -> void:
 	if _line == null:
 		close_dialogue()
 		return
+
 	_render_line()
 
 
@@ -127,6 +132,7 @@ func _render_line() -> void:
 		var response: DialogueResponse = response_value as DialogueResponse
 		if response == null or not response.is_allowed:
 			continue
+
 		var button: Button = Button.new()
 		button.text = format_response_text(response.text, response.tags)
 		button.pressed.connect(_on_response_pressed.bind(response))
@@ -163,6 +169,7 @@ static func format_response_text(text: String, tags: PackedStringArray) -> Strin
 func _on_response_pressed(response: DialogueResponse) -> void:
 	if response == null:
 		return
+
 	_context.apply_response_tags(response.tags)
 	_advance(response.next_id)
 
@@ -182,6 +189,7 @@ func _clear_responses() -> void:
 func _close_internal(return_to_service: bool) -> void:
 	if _closed:
 		return
+
 	_closed = true
 	_input_enabled = false
 	if _capture_token != 0 and is_instance_valid(_actor):
