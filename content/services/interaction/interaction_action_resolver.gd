@@ -1,5 +1,5 @@
 extends RefCounted
-## Routes interaction input and prompts through control focus and physical hand mapping.
+## Направляет ввод и подсказки через арбитраж управления и сопоставление физических рук.
 class_name InteractionActionResolver
 
 const INPUT_ACTIONS: Array[StringName] = [
@@ -15,8 +15,8 @@ const DROP_ORDER: Array[int] = [
 ]
 
 
-#region Public API
-## Routes one deduplicated input tick without leaking captured buttons to lower priorities.
+#region Действия и подсказки
+## Обрабатывает снимок ввода однократно; захваченные кнопки не передаются меньшим приоритетам.
 static func handle_input(actor: Entity, delta: float = 0.0) -> void:
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
@@ -68,7 +68,7 @@ static func handle_input(actor: Entity, delta: float = 0.0) -> void:
 		_execute_slot(actor, DEF_InteractionAction.Slot.USE, true)
 
 	else:
-		# Snapshot focus: releasing Carry cannot route this same tick into hands.
+		# Приоритет фиксируется: освобождение Carry не передаёт тот же снимок ввода рукам.
 		var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
 		var primary_consumed: bool = _execute_slot(
 			actor,
@@ -93,7 +93,7 @@ static func handle_input(actor: Entity, delta: float = 0.0) -> void:
 	refresh_prompt(actor)
 
 
-## Returns the highest-priority available action for this input slot without executing it.
+## Выбирает доступное действие канала без исполнения; excluded_capture исключает собственный токен сеанса.
 static func resolve(
 	actor: Entity,
 	input_slot: DEF_InteractionAction.Slot,
@@ -179,7 +179,7 @@ static func resolve(
 			and (target.get_component(C_Grabbable) as C_Grabbable) != null
 			and GrabService.physical_body(target) == physics_target
 		)
-		# Explicit gameplay actions keep priority unless this Entity authored Grab behavior.
+		# Авторское действие имеет приоритет, если сущность не определила собственное поведение Grab.
 		if target_action != null and not authored_grab:
 			return target_action
 
@@ -213,12 +213,12 @@ static func resolve(
 	if held != null:
 		if controller.physical_override:
 			return _physical(actor, held, DEF_GrabAction.Kind.THROW)
-		# PRIMARY means tool use, independent of physical hand/button mapping.
+		# PRIMARY означает применение инструмента независимо от сопоставления физической руки кнопке.
 		return _from_source(actor, held, target, DEF_InteractionAction.Slot.PRIMARY)
 	return _from_source(actor, actor, target, input_slot)
 
 
-## Selects the first rotation-enabled active hand in mapped primary/secondary order.
+## Выбирает первую руку с доступным вращением в порядке основного и дополнительного ввода.
 static func rotation_choice(actor: Entity) -> InteractionActionChoice:
 	if InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.HANDS:
 		return null
@@ -232,7 +232,7 @@ static func rotation_choice(actor: Entity) -> InteractionActionChoice:
 	return null
 
 
-## Checks explicit authored reservations for an item input slot.
+## Проверяет авторский резерв предмета для канала ввода.
 static func reserves(source: Entity, input_slot: DEF_InteractionAction.Slot) -> bool:
 	if not GrabService.entity_available(source):
 		return false
@@ -251,7 +251,7 @@ static func reserves(source: Entity, input_slot: DEF_InteractionAction.Slot) -> 
 	return false
 
 
-## Reports whether this tick consumes camera delta for item rotation.
+## Проверяет, используется ли поворот камеры этого снимка для вращения предмета.
 static func wants_rotation(actor: Entity, controller: C_Controller) -> bool:
 	if (
 		controller.interact_pressed or controller.use_pressed
@@ -275,7 +275,7 @@ static func wants_rotation(actor: Entity, controller: C_Controller) -> bool:
 	return controller.rotate_held and rotation_choice(actor) != null
 
 
-## Publishes currently available controls for the read-only interaction HUD.
+## Обновляет доступные команды для чтения HUD взаимодействий.
 static func refresh_prompt(actor: Entity) -> void:
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
@@ -361,7 +361,7 @@ static func _access_denial(actor: Entity, interactor: C_Interactor) -> String:
 	return ""
 
 
-## Reports weight-only Carry rejection for a currently raycast physical body.
+## Проверяет отказ Carry именно по массе текущего физического тела под лучом.
 static func _is_overweight_carry_target(actor: Entity, interactor: C_Interactor) -> bool:
 	if interactor == null or not is_instance_valid(interactor.physics_target):
 		return false
@@ -392,7 +392,7 @@ static func button_label(slot_index: int) -> String:
 #endregion
 
 
-#region Private helpers
+#region Исполнение и выбор источника
 static func _execute_slot(
 	actor: Entity,
 	input_slot: DEF_InteractionAction.Slot,
@@ -409,7 +409,7 @@ static func _execute_slot(
 				ProlongedInteractionService.begin(actor, choice, input_slot)
 		else:
 			choice.action.execute(actor, choice.source, choice.target)
-	# Hand input owns its tick even when use has no valid target.
+	# Ввод руки занимает свой снимок даже без допустимой цели применения.
 	return pressed or held
 
 
@@ -424,7 +424,7 @@ static func _target_action(
 	var action: InteractionActionChoice = _from_source(actor, target, target, input_slot)
 	if action == null and input_slot == DEF_InteractionAction.Slot.INTERACT:
 		action = _from_source(actor, target, target, DEF_InteractionAction.Slot.USE)
-		# Some USE actions are intentionally F-only and must not fill an empty E slot.
+		# Некоторые USE-действия доступны только по F и не подставляются в свободный канал E.
 		if (
 			action != null
 			and (

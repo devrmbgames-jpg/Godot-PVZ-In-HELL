@@ -1,12 +1,13 @@
 extends RefCounted
-## Deterministic progress math only. Does not execute effects or acquire control focus.
+## Вычисляет прогресс детерминированно; эффекты и захват управления принадлежат исполнителю.
 class_name ProlongedProgressService
 
 const COMPLETE_FRACTION: float = 1.0
 
 
-## True means ready for the executor's final actor/source/target validation.
-## It does NOT mean an effect has executed. Only commit_success consumes completion.
+#region Изменение прогресса
+## Продвигает прогресс на delta секунд; true означает готовность к последней проверке исполнителя.
+## Готовность не подтверждает эффект: завершение фиксирует только commit_success.
 static func advance(
 	progress: ProlongedInteractionProgress,
 	definition: DEF_ProlongedInteraction,
@@ -34,8 +35,8 @@ static func advance(
 	return false
 
 
-## Call only after the gameplay executor successfully commits its effect in the same
-## synchronous transaction. Failed validation/effects use interrupt instead.
+## Вызывается после успешной фиксации эффекта в той же синхронной транзакции;
+## при отказе проверки или эффекта исполнитель вызывает interrupt.
 static func commit_success(
 	progress: ProlongedInteractionProgress,
 	definition: DEF_ProlongedInteraction,
@@ -47,15 +48,15 @@ static func commit_success(
 	if definition.reset_policy == DEF_ProlongedInteraction.ResetPolicy.NEVER:
 		progress.phase = ProlongedInteractionProgress.Phase.COMPLETED
 	else:
-		# One completion per uninterrupted hold, including ON_COMPLETE repeatable actions.
+		# Одно завершение за непрерывное удержание, включая повторяемые ON_COMPLETE-действия.
 		progress.phase = ProlongedInteractionProgress.Phase.WAITING_FOR_RELEASE
 		if definition.reset_policy == DEF_ProlongedInteraction.ResetPolicy.ON_COMPLETE:
 			progress.fraction = 0.0
 	return true
 
 
-## Release, focus loss, changed target or unavailable object all share this policy.
-## This resets numerical participation only; the session owner must release its relation/token.
+## Применяет авторское прерывание при отпускании, потере управления, смене или исчезновении цели.
+## Меняет только прогресс; связь участия и токен освобождает владелец сеанса.
 static func interrupt(
 	progress: ProlongedInteractionProgress,
 	definition: DEF_ProlongedInteraction,
@@ -69,6 +70,9 @@ static func interrupt(
 	progress.phase = ProlongedInteractionProgress.Phase.IDLE
 
 
+#endregion
+
+#region Допустимость авторских данных
 static func _valid(
 	progress: ProlongedInteractionProgress,
 	definition: DEF_ProlongedInteraction,
@@ -84,3 +88,5 @@ static func _valid(
 		and definition.reset_policy >= DEF_ProlongedInteraction.ResetPolicy.DECAY
 		and definition.reset_policy <= DEF_ProlongedInteraction.ResetPolicy.NEVER
 	)
+
+#endregion

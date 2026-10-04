@@ -1,8 +1,9 @@
 extends RefCounted
-## Samples the first drawable package under the marker's virtual viewport pointer.
+## Проверяет первую допустимую коробку под виртуальным экранным указателем маркера.
 class_name MarkerSurfaceSampler
 
 
+## Возвращает мировую точку и нормаль допустимой коробки под указателем, иначе null.
 static func sample(tool: Entity, actor: Entity, marker: C_Marker) -> MarkerSurfaceSample:
 	if not is_instance_valid(tool) or not is_instance_valid(actor) or marker == null:
 		return null

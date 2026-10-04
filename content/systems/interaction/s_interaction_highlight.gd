@@ -1,9 +1,12 @@
 extends System
-## material_overlay is reserved for interaction feedback. Base materials remain untouched.
+## Использует material_overlay только для обратной связи взаимодействий; базовый материал не меняет.
 class_name S_InteractionHighlight
 
+## Авторский материал overlay для доступного взаимодействия.
 @export var available_material: Material = preload("res://content/materials/interaction/highlight_available.res")
+## Авторский материал overlay для недоступного действия.
 @export var unavailable_material: Material = preload("res://content/materials/interaction/highlight_unavailable.res")
+## Авторский материал overlay для занятой цели.
 @export var busy_material: Material = preload("res://content/materials/interaction/highlight_busy.res")
 
 var _previous_overlays: Dictionary[int, Material] = {}
@@ -13,20 +16,25 @@ var _previous_meshes: Dictionary[int, WeakRef] = {}
 var _holder_states: Dictionary[int, int] = {}
 
 
+#region Расписание и цели подсветки
+## Подписывается на исчезновение акторов и компонентов для восстановления чужих overlays.
 func setup() -> void:
 	_world.entity_removed.connect(_entity_unavailable)
 	_world.entity_disabled.connect(_entity_unavailable)
 	_world.component_removed.connect(_component_removed)
 
 
+## Выполняется после обновления целей S_InteractionTargeting.
 func deps() -> Dictionary[int, Array]:
 	return {Runs.After: [S_InteractionTargeting]}
 
 
+## Выбирает акторов с C_Interactor для представления доступности.
 func query() -> QueryBuilder:
 	return q.with_all([C_Interactor]).iterate([C_Interactor])
 
 
+## Вычисляет текущую подсветку и обновляет сетки; MODAL и смерть отключают выбор цели.
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var interactors: Array = components[0]
 	for index: int in entities.size():
@@ -45,6 +53,9 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	_refresh_meshes()
 
 
+#endregion
+
+#region Освобождение и восстановление overlays
 func _exit_tree() -> void:
 	for key: int in _previous_meshes.keys():
 		_clear_mesh(key)
@@ -104,7 +115,7 @@ func _refresh_meshes() -> void:
 			_clear_mesh(mesh_key)
 			continue
 		if _applied_materials.has(mesh_key) and mesh.material_overlay != _applied_materials[mesh_key]:
-			# Another interaction writer replaced our feedback: yield until target is released.
+			# Другой владелец заменил нашу подсветку; уступаем ему до освобождения цели.
 			continue
 		if not _previous_overlays.has(mesh_key):
 			_previous_overlays[mesh_key] = mesh.material_overlay
@@ -131,3 +142,5 @@ func _material_for(state: int) -> Material:
 		InteractionHighlightService.State.BUSY:
 			return busy_material
 	return unavailable_material
+
+#endregion

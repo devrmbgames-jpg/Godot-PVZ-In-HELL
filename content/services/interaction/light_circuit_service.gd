@@ -1,13 +1,13 @@
 extends RefCounted
-## Circuit component owns gameplay state; grouped Light3D nodes consume it.
+## C_LightCircuit владеет состоянием цепи, авторские группы Light3D показывают его.
 class_name LightCircuitService
 
 static var _lookup_world: World = null
 static var _circuit_query: QueryBuilder = null
 static var _circuit_references: Dictionary[StringName, WeakRef] = {}
 
-#region Circuit actions
-## Sets and presents an enabled registered circuit.
+#region Действия световой цепи
+## Задаёт enabled доступной световой цепи и синхронизирует её представление.
 static func set_enabled(circuit: Entity, enabled: bool) -> bool:
 	if not EntityAvailability.contains(circuit, ECS.world):
 		return false
@@ -20,7 +20,7 @@ static func set_enabled(circuit: Entity, enabled: bool) -> bool:
 	sync(circuit, state)
 	return true
 
-## Applies authoritative circuit state to its authored light groups.
+## Применяет состояние цепи к авторским группам света; выключение прекращает мерцание.
 static func sync(circuit: Entity, state: C_LightCircuit) -> void:
 	if state == null:
 		return
@@ -34,7 +34,7 @@ static func sync(circuit: Entity, state: C_LightCircuit) -> void:
 					view.cancel_flicker()
 				light.visible = state.enabled and (view == null or view.is_lit())
 
-## Publishes a temporary visual flicker without toggling gameplay state.
+## Публикует временное мерцание: duration и interval в секундах, enabled цепи не меняется.
 static func flicker(circuit_id: StringName, duration: float, interval: float, request_id: StringName = &"") -> bool:
 	var circuit: Entity = entity_for(circuit_id)
 	if circuit == null or not is_enabled(circuit_id) or not is_finite(duration) or duration <= 0.0 or not is_finite(interval) or interval <= 0.0:
@@ -48,7 +48,7 @@ static func flicker(circuit_id: StringName, duration: float, interval: float, re
 	ECS.world.emit_event(LightFlickerEvent.EVENT, circuit, event)
 	return true
 
-## Stops the matching visual request for a circuit.
+## Останавливает визуальный запрос мерцания по circuit_id и request_id.
 static func stop_flicker(circuit_id: StringName, request_id: StringName) -> void:
 	var circuit: Entity = entity_for(circuit_id)
 	if circuit == null:
@@ -60,11 +60,11 @@ static func stop_flicker(circuit_id: StringName, request_id: StringName) -> void
 	event.circuit_id = circuit_id
 	ECS.world.emit_event(LightFlickerEvent.EVENT, circuit, event)
 
-## Changes a circuit through its stable authored ID.
+## Меняет цепь по постоянному авторскому ID.
 static func set_by_id(circuit_id: StringName, enabled: bool) -> bool:
 	return set_enabled(entity_for(circuit_id), enabled)
 
-## Toggles an available circuit entity.
+## Переключает enabled доступной сущности световой цепи.
 static func toggle(circuit: Entity) -> bool:
 	if not EntityAvailability.contains(circuit, ECS.world):
 		return false
@@ -74,18 +74,18 @@ static func toggle(circuit: Entity) -> bool:
 
 #endregion
 
-#region Circuit lookups
-## Returns the authoritative switch state for a stable ID.
+#region Поиск цепи и кеш текущего мира
+## Читает авторитетное состояние переключателя по постоянному ID.
 static func is_enabled(circuit_id: StringName) -> bool:
 	var state: C_LightCircuit = state_for(circuit_id)
 	return state != null and state.enabled
 
-## Resolves current circuit data through a validated weak entity cache.
+## Читает текущие данные цепи через проверяемый кеш слабых ссылок сущностей.
 static func state_for(circuit_id: StringName) -> C_LightCircuit:
 	var circuit: Entity = entity_for(circuit_id)
 	return circuit.get_component(C_LightCircuit) as C_LightCircuit if circuit != null else null
 
-## Finds a circuit without rebuilding an ECS query for each lamp/sample.
+## Находит цепь через запрос текущего World; при смене мира кеш и QueryBuilder пересоздаются.
 static func entity_for(circuit_id: StringName) -> Entity:
 	if not is_instance_valid(ECS.world):
 		return null

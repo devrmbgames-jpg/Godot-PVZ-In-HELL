@@ -1,8 +1,10 @@
 extends RefCounted
-## Shared predicate and provider boundary for locks and other contextual actions.
+## Проверяет требования предметов и адаптеры доступа для замков и контекстных действий.
 class_name ItemAccessService
 
 
+#region Требование и доступный предмет
+## Проверяет точный ID и все заданные теги на одном предмете.
 static func matches(identity: C_AccessItem, requirement: DEF_AccessRequirement) -> bool:
 	if identity == null or requirement == null:
 		return false
@@ -15,6 +17,7 @@ static func matches(identity: C_AccessItem, requirement: DEF_AccessRequirement) 
 	return true
 
 
+## Выбирает доступный предмет и адаптер; null-требование допускается без расходования.
 static func evaluate(actor: Entity, requirement: DEF_AccessRequirement) -> AccessResult:
 	var result: AccessResult = AccessResult.new()
 	if not GrabService.holder_available(actor):
@@ -56,7 +59,7 @@ static func evaluate(actor: Entity, requirement: DEF_AccessRequirement) -> Acces
 	return result
 
 
-## Re-evaluates at the command boundary; callers must not reuse a prior query grant.
+## Повторно проверяет доступ на границе команды; прежний результат проверки не даёт разрешения.
 static func fulfill(actor: Entity, requirement: DEF_AccessRequirement) -> bool:
 	var result: AccessResult = evaluate(actor, requirement)
 	if not result.is_allowed():
@@ -64,3 +67,5 @@ static func fulfill(actor: Entity, requirement: DEF_AccessRequirement) -> bool:
 	if requirement == null or not requirement.consume_item:
 		return true
 	return result.provider != null and result.provider.consume(actor, result.item)
+
+#endregion

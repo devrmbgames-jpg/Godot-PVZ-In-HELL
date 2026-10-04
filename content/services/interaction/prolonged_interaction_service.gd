@@ -1,8 +1,10 @@
 extends RefCounted
-## Owns prolonged sessions and synchronous effect completion at the input command boundary.
+## Владеет длительными сеансами и синхронным завершением эффекта на границе команды ввода.
 class_name ProlongedInteractionService
 
 
+#region Чтение и начало сеанса
+## Возвращает живую связь R_ProlongedOn актора, если сеанс существует.
 static func session(actor: Entity) -> Relationship:
 	if is_instance_valid(actor):
 		for binding: Relationship in actor.relationships:
@@ -11,6 +13,7 @@ static func session(actor: Entity) -> Relationship:
 	return null
 
 
+## Читает сохраняемый прогресс конкретного action_id на цели.
 static func progress_for(target: Entity, action_id: StringName) -> ProlongedInteractionProgress:
 	if not is_instance_valid(target):
 		return null
@@ -23,7 +26,7 @@ static func progress_for(target: Entity, action_id: StringName) -> ProlongedInte
 	return null
 
 
-## Preview adjustment cannot steal an active session or revive completed actions.
+## Задаёт отладочный прогресс 0–1, не перехватывая активный сеанс и не возобновляя завершённое действие.
 static func debug_set_progress(target: Entity, action: DEF_InteractionAction, value: float) -> bool:
 	if not EntityAvailability.contains(target, ECS.world) or action == null or action.timing == null or action.action_id == &"" or not is_finite(value) or value < 0.0 or value > 1.0:
 		return false
@@ -50,6 +53,7 @@ static func debug_set_progress(target: Entity, action: DEF_InteractionAction, va
 	return true
 
 
+## Читает прогресс действия текущего живого сеанса актора.
 static func active_progress(actor: Entity) -> ProlongedInteractionProgress:
 	var binding: Relationship = session(actor)
 	if binding == null:
@@ -59,6 +63,7 @@ static func active_progress(actor: Entity) -> ProlongedInteractionProgress:
 	return progress_for(binding.target as Entity, data.action.action_id)
 
 
+## Проверяет участников и свободную цель, создаёт связи и захватывает приоритет PROLONGED.
 static func begin(actor: Entity, choice: InteractionActionChoice, slot: DEF_InteractionAction.Slot) -> bool:
 	if choice == null or choice.action == null or session(actor) != null:
 		return false
@@ -119,7 +124,10 @@ static func begin(actor: Entity, choice: InteractionActionChoice, slot: DEF_Inte
 	return true
 
 
-## True reserves this entire input tick, including release and interruption.
+#endregion
+
+#region Исполнение и освобождение участия
+## Продвигает сеанс на delta секунд; true резервирует весь снимок ввода, включая прерывание.
 static func tick(actor: Entity, delta: float) -> bool:
 	var binding: Relationship = session(actor)
 	if binding == null:
@@ -144,8 +152,8 @@ static func tick(actor: Entity, delta: float) -> bool:
 	):
 		cancel(actor)
 		return true
-	# Re-resolve with only our token excluded: raycast, tool mapping and other captures
-	# retain their ordinary authority. No temporary release/reacquire window.
+	# Повторный выбор исключает только свой токен; луч, сопоставление инструмента и другие захваты
+	# сохраняют авторитетность без временного освобождения и повторного захвата управления.
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(actor, data.input_slot, data.capture_token)
 	if (
 		choice == null or choice.action != data.action or choice.source != source
@@ -154,8 +162,8 @@ static func tick(actor: Entity, delta: float) -> bool:
 		cancel(actor)
 		return true
 	if ProlongedProgressService.advance(progress, data.action.timing, delta, true):
-		# Reentrant removal by the effect releases participation but must not reset
-		# READY before the synchronous success result has been committed.
+		# Вложенное удаление эффектом освобождает участие, но не сбрасывает READY
+		# до синхронной фиксации результата успешного завершения.
 		data.finishing = true
 		var success: bool = data.action.complete(actor, source, choice.target)
 		data.finishing = false
@@ -167,14 +175,16 @@ static func tick(actor: Entity, delta: float) -> bool:
 	return true
 
 
+## Очищает ресурсы сеанса и удаляет его связь; повтор безопасен.
 static func cancel(actor: Entity) -> void:
 	var binding: Relationship = session(actor)
 	if binding != null:
-		# Cleanup first so relationship observers are safely idempotent.
+		# Очистка предшествует удалению: наблюдатель связи может безопасно повторить её.
 		removed(actor, binding)
 		actor.remove_relationship(binding)
 
 
+## Освобождает токен и обработчики удалённой связи однократно, учитывая завершение эффекта.
 static func removed(actor: Entity, binding: Relationship) -> void:
 	var data: R_ProlongedOn = binding.relation as R_ProlongedOn
 	if data == null or data.cleaned:
@@ -196,6 +206,7 @@ static func removed(actor: Entity, binding: Relationship) -> void:
 			actor.remove_relationship(relation)
 
 
+## Отменяет сеансы, в которых сущность является актором, целью или инструментом.
 static func entity_unavailable(entity: Entity) -> void:
 	if not is_instance_valid(ECS.world):
 		return
@@ -207,8 +218,8 @@ static func entity_unavailable(entity: Entity) -> void:
 			cancel(actor)
 
 
-## GECS has already erased Using when this callback runs; its payload still owns
-## the source needed to disconnect the old tree-exit callback.
+## Вызывается после удаления R_ProlongedUsing из GECS; payload сохраняет источник,
+## чтобы отключить старый обработчик tree_exiting и завершить сеанс.
 static func source_removed(actor: Entity, source_binding: Relationship) -> void:
 	var binding: Relationship = session(actor)
 	if binding == null:
@@ -225,12 +236,16 @@ static func source_removed(actor: Entity, source_binding: Relationship) -> void:
 	cancel(actor)
 
 
+## Применяет авторское затухание только простаивающему прогрессу; delta в секундах.
 static func decay(state: C_ProlongedInteraction, delta: float) -> void:
 	for progress: ProlongedInteractionProgress in state.actions:
 		if progress.phase == ProlongedInteractionProgress.Phase.IDLE:
 			ProlongedProgressService.advance(progress, progress.timing, delta, false)
 
 
+#endregion
+
+#region Живые связи и канал ввода
 static func _source(actor: Entity, target: Entity) -> Entity:
 	for binding: Relationship in actor.relationships:
 		if binding.relation is R_ProlongedUsing:
@@ -257,3 +272,5 @@ static func _held(controller: C_Controller, slot: DEF_InteractionAction.Slot) ->
 		DEF_InteractionAction.Slot.SECONDARY:
 			return controller.action_second_held
 	return false
+
+#endregion

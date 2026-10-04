@@ -1,8 +1,10 @@
 extends RefCounted
-## Marker drawing session/capture lifecycle; ink mutation is delegated to PackageMarkService.
+## Владеет сеансом и захватом ввода рисования; чернила изменяет PackageMarkService.
 class_name MarkerSessionService
 
 
+#region Жизненный цикл рисования
+## Проверяет удерживаемый маркер, доступную коробку, управление и дистанцию рисования.
 static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.entity_available(tool):
 		return false
@@ -29,6 +31,7 @@ static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
 	)
 
 
+## После проверки захватывает DRAWING, задаёт указатель и снимает вращение предмета.
 static func begin(actor: Entity, tool: Entity, target: Entity) -> void:
 	if not can_begin(actor, tool, target):
 		return
@@ -45,6 +48,7 @@ static func begin(actor: Entity, tool: Entity, target: Entity) -> void:
 		tool.tree_exiting.connect(cleanup, CONNECT_ONE_SHOT)
 
 
+## Сбрасывает штрих и освобождает токен маркера; actor_hint сохраняет держателя после удаления хвата.
 static func end(tool_or_marker: Variant, actor_hint: Entity = null) -> void:
 	var tool: Entity = tool_or_marker as Entity
 	var marker: C_Marker = tool_or_marker as C_Marker
@@ -63,6 +67,10 @@ static func end(tool_or_marker: Variant, actor_hint: Entity = null) -> void:
 	PackageMarkService.break_stroke(marker)
 
 
+#endregion
+
+#region Продолжение и выбор поверхности
+## Проверяет продолжение сеанса и передаёт допустимое попадание сервису чернил.
 static func update(tool: Entity, marker: C_Marker) -> void:
 	var grip: Relationship = GrabService.held_relationship(tool)
 	var actor: Entity = grip.target as Entity if grip != null else null
@@ -97,3 +105,5 @@ static func update(tool: Entity, marker: C_Marker) -> void:
 		return
 
 	PackageMarkService.append_sample(marker, hit.parcel, hit.world_point, hit.world_normal)
+
+#endregion

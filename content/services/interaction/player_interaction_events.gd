@@ -1,8 +1,9 @@
 extends RefCounted
-## Uses the existing World channel; does not own gameplay state or live bindings.
+## Публикует события через канал World, не владея игровыми данными и живыми связями.
 class_name PlayerInteractionEvents
 
 
+## Публикует подтверждённый переход с живыми ссылками и стабильными ID участников.
 static func publish(actor: Entity, target: Entity, kind: PlayerInteractionEvent.Kind) -> void:
 	if not EntityAvailability.contains(actor, ECS.world) or not actor.has_component(C_PlayerInputController):
 		return

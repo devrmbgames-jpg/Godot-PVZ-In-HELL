@@ -1,18 +1,22 @@
 extends RefCounted
-## First-hit gameplay target resolution with no presentation side effects.
+## Определяет цель первого попадания луча без побочных эффектов представления.
 class_name InteractionTargetingService
 
 const MAX_HELD_RECASTS: int = 3
 
 
+#region Цели и физические родители
+## Возвращает доступную сущность первого взаимодействия под лучом, иначе null.
 static func find_target(holder: Entity, interactor: C_Interactor) -> Entity:
 	return _interactable_entity(_raycast_collider(holder, interactor), holder)
 
 
+## Возвращает первое физическое тело под лучом, в том числе без GECS-сущности.
 static func find_physics_target(holder: Entity, interactor: C_Interactor) -> RigidBody3D:
 	return collider_rigid_body(_raycast_collider(holder, interactor), holder)
 
 
+## Поднимается по родителям коллайдера до ближайшей Entity.
 static func collider_entity(collider: Object) -> Entity:
 	var candidate_node: Node = collider as Node
 	while candidate_node != null:
@@ -23,6 +27,7 @@ static func collider_entity(collider: Object) -> Entity:
 	return null
 
 
+## Находит родительское RigidBody3D, исключая физическое тело holder, если задано.
 static func collider_rigid_body(collider: Object, holder: Entity = null) -> RigidBody3D:
 	var candidate_node: Node = collider as Node
 	while candidate_node != null:
@@ -36,6 +41,7 @@ static func collider_rigid_body(collider: Object, holder: Entity = null) -> Rigi
 	return null
 
 
+## Выбирает доступную игровую цель либо физический кандидат Carry для подсветки.
 static func visual_target(holder: Entity, interactor: C_Interactor) -> Node:
 	if interactor == null:
 		return null
@@ -56,6 +62,9 @@ static func visual_target(holder: Entity, interactor: C_Interactor) -> Node:
 	)
 
 
+#endregion
+
+#region Авторитетный луч
 static func _raycast_collider(holder: Entity, interactor: C_Interactor) -> Object:
 	var interaction_raycast: RayCast3D = GrabService.interaction_raycast(holder)
 	if (
@@ -115,3 +124,5 @@ static func _body_is_held_by(body: RigidBody3D, holder: Entity) -> bool:
 	var handle: Entity = PhysicsGrabTarget.handle_for(body, false)
 	var grip: Relationship = GrabService.held_relationship(handle)
 	return grip != null and grip.target == holder
+
+#endregion

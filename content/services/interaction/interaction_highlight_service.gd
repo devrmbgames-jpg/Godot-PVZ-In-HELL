@@ -1,10 +1,11 @@
 extends RefCounted
-## Read-only availability for the actual contextual actions, including physical weight limits.
+## Вычисляет состояние подсветки по реальным действиям, включая ограничения массы; мир не изменяет.
 class_name InteractionHighlightService
 
 enum State { UNAVAILABLE, BUSY, AVAILABLE }
 
 
+## Читает доступность, занятость или отказ текущей цели по существующим правилам действий.
 static func state_for(actor: Entity, target: Node) -> State:
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death):
 		return State.UNAVAILABLE

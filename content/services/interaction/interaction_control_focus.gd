@@ -1,5 +1,5 @@
 extends RefCounted
-## Arbitrates independent nested capture tokens without changing item ownership.
+## Разрешает приоритет независимых вложенных захватов ввода, не меняя владение предметами.
 class_name InteractionControlFocus
 
 enum Priority {
@@ -13,7 +13,8 @@ enum Priority {
 }
 
 
-## Returns a distinct token, including for repeated captures by the same owner.
+#region Независимые токены управления
+## Выдаёт отдельный токен даже для повторного захвата тем же владельцем; ноль означает отказ.
 static func acquire(actor: Entity, owner: Object, priority: Priority) -> int:
 	var control: C_GrabControl = _control(actor)
 	if control != null and is_instance_valid(owner):
@@ -29,14 +30,14 @@ static func acquire(actor: Entity, owner: Object, priority: Priority) -> int:
 	return 0
 
 
-## Releases only the requested token; other capture owners retain their priority.
+## Освобождает только указанный токен, сохраняя приоритеты остальных владельцев.
 static func release(actor: Entity, token: int) -> void:
 	var control: C_GrabControl = _control(actor)
 	if control != null:
 		control.captures.erase(token)
 
 
-## Returns the highest live capture priority and prunes destroyed owners.
+## Возвращает высший живой приоритет, исключая excluded_token и очищая исчезнувших владельцев.
 static func current(actor: Entity, excluded_token: int = 0) -> Priority:
 	var control: C_GrabControl = _control(actor)
 	var priority: int = Priority.HANDS
@@ -55,5 +56,10 @@ static func current(actor: Entity, excluded_token: int = 0) -> Priority:
 	return priority as Priority
 
 
+#endregion
+
+#region Данные актора
 static func _control(actor: Entity) -> C_GrabControl:
 	return actor.get_component(C_GrabControl) as C_GrabControl if is_instance_valid(actor) else null
+
+#endregion
