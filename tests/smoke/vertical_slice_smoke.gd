@@ -299,7 +299,7 @@ func _walk(position: Vector3) -> bool:
 	return await _walk_segment(position)
 
 
-## Идёт к точке с ограничением кадров, прекращая движение при смерти, таймауте или отсутствии прогресса.
+## Идёт к точке до смерти/таймаута; при отсутствии прогресса пробует обычный прыжок.
 func _walk_segment(position: Vector3) -> bool:
 	var progress: Vector3 = _player.global_position
 	if GrabService.held_in_slot(_player, C_Grabbable.HoldSlot.CARRY) != null:

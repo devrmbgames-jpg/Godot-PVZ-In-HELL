@@ -5,6 +5,8 @@ const TEST_PATH: String = "user://r30_settings_smoke.cfg"
 var _level: Node3D
 
 
+#region Сценарий ввода в настройках
+## Оставляет runner активным при паузе для отправки ввода в modal-меню.
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_run.call_deferred()
@@ -17,6 +19,7 @@ func _key(code: Key, pressed: bool = true) -> InputEventKey:
 	return event
 
 
+## Проверяет открытие, capture клавиши/отрицательной оси, отмену и выход через реальный ввод.
 func _run() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate() as Node3D
 	_level.set("autosave_path", "")
@@ -69,6 +72,10 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Поиск UI и отправка ввода
+## Ищет кнопку нужного устройства в авторской строке привязки по подписи действия.
 func _binding_button(menu: SettingsMenu, caption: String, device: int) -> Button:
 	for node: Node in menu.find_children("*", "Label", true, false):
 		var label: Label = node as Label
@@ -79,6 +86,9 @@ func _binding_button(menu: SettingsMenu, caption: String, device: int) -> Button
 	return null
 
 
+## Отправляет native событие в Input и ждёт кадр обработки.
 func _send(event: InputEvent) -> void:
 	Input.parse_input_event(event)
 	await get_tree().process_frame
+
+#endregion

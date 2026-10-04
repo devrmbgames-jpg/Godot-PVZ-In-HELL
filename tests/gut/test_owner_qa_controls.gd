@@ -1,11 +1,15 @@
 extends GutTest
-## Regression surface for owner QA: sharp look, flat-floor motion and Trader actions.
+## Регрессии по QA владельца: резкий поворот камеры, ровные стыки пола, поясные слоты и торговля.
 
 const MAIN_SCENE: PackedScene = preload("res://content/scenes/main_level.tscn")
 const TRADER_SCENE: PackedScene = preload("res://content/entities/commerce/trader.tscn")
+## Размер одной физической плиты в метрах; стык двух плит проходит под траекторией игрока.
 const FLOOR_TILE_SIZE: Vector3 = Vector3(8.0, 0.5, 8.0)
+## Число физических кадров ожидания устойчивого контакта с опорой.
 const FLOOR_SETTLE_FRAMES: int = 12
+## Число физических кадров прохода стыка пола.
 const TRAVEL_FRAMES: int = 100
+## Максимальное отклонение высоты на ровном полу в метрах.
 const FLOOR_HEIGHT_TOLERANCE: float = 0.04
 
 var _world: World = null
@@ -14,6 +18,8 @@ var _floors: Array[StaticBody3D] = []
 var _cycle: C_DayCycle = null
 
 
+#region Изолированный авторский игрок
+## Создаёт изолированный World с плитами и реальным авторским игроком main_level.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -28,8 +34,8 @@ func before_each() -> void:
 		floor_body.position = Vector3(0.0, -FLOOR_TILE_SIZE.y / 2.0, z)
 		add_child(floor_body)
 		_floors.append(floor_body)
-	# Use the actual level-authored player, including component overrides.
-	# Do not start its World or autosave; this fixture owns isolated physics/support.
+	## Берём реального авторского игрока со всеми переопределениями компонентов.
+	## World и autosave уровня не запускаются: тест сам владеет физикой и опорными плитами.
 	var authored_level: Node3D = MAIN_SCENE.instantiate() as Node3D
 	_player = authored_level.get_node("Entityes/Player") as E_CharacterBodyPlayer
 	_player.get_parent().remove_child(_player)
@@ -48,6 +54,7 @@ func before_each() -> void:
 	await get_tree().process_frame
 
 
+## Освобождает World и опорные плиты, ожидая завершения отложенной очистки.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -58,6 +65,10 @@ func after_each() -> void:
 	await get_tree().process_frame
 
 
+#endregion
+
+#region Камера, опора и доступные действия
+## Резкий yaw/pitch доходит до требуемого взгляда за один физический шаг независимо от скорости поворота тела.
 func test_sharp_turn_reaches_requested_view_in_one_physics_step() -> void:
 	var controller: C_Controller = _player.get_component(C_Controller) as C_Controller
 	var requested: Vector3 = Vector3(1.0, 0.65, 0.5).normalized()
@@ -70,6 +81,7 @@ func test_sharp_turn_reaches_requested_view_in_one_physics_step() -> void:
 	assert_gt(absf(_player.head_axis_y.rotation.y), 0.01, "Immediate view stays independent of torso turn rate")
 
 
+## Проход стыка ровных плит сохраняет продвижение и высоту в пределах FLOOR_HEIGHT_TOLERANCE.
 func test_flat_tile_seam_does_not_launch_or_stop_player() -> void:
 	var controller: C_Controller = _player.get_component(C_Controller) as C_Controller
 	controller.direction_motion = Vector3.FORWARD
@@ -90,6 +102,7 @@ func test_flat_tile_seam_does_not_launch_or_stop_player() -> void:
 	assert_lt(initial_height - lowest, FLOOR_HEIGHT_TOLERANCE, "No falling through the seam")
 
 
+## Реальное взаимодействие открывает торговлю через E/F, а живой NPC недоступен физическому хвату.
 func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() -> void:
 	var trader: Entity = TRADER_SCENE.instantiate() as Entity
 	_world.add_entity(trader)
@@ -128,6 +141,7 @@ func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() 
 	assert_false(action.is_available(_player, trader, trader))
 
 
+## Прилипание к опоре не отменяет штатный импульс прыжка.
 func test_ground_adhesion_preserves_authored_jump_impulse() -> void:
 	_world.add_system(S_Jump.new())
 	var controller: C_Controller = _player.get_component(C_Controller) as C_Controller
@@ -139,6 +153,7 @@ func test_ground_adhesion_preserves_authored_jump_impulse() -> void:
 	assert_gt(_player.global_position.y, FLOOR_HEIGHT_TOLERANCE)
 
 
+## Взгляд вниз достигает обоих собственных поясных слотов, не поворачивая тело и слоты вслед за лучом.
 func test_looking_down_reaches_both_own_belt_slots_without_turning_them_away() -> void:
 	var controller: C_Controller = _player.get_component(C_Controller) as C_Controller
 	var interactor: C_Interactor = _player.get_component(C_Interactor) as C_Interactor
@@ -152,3 +167,5 @@ func test_looking_down_reaches_both_own_belt_slots_without_turning_them_away() -
 		_player.interaction_ray_cast.force_raycast_update()
 		assert_eq(InteractionTargetingService.find_target(_player, interactor), slot, "Head ray reaches %s" % path)
 		assert_almost_eq((_player as Node as CharacterBody3D).rotation.y, initial_yaw, 0.001, "Belt remains still while aiming down")
+
+#endregion

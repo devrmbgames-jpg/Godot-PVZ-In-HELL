@@ -1,16 +1,19 @@
 extends Node
-## End-to-end developer-console regression through the real console parser.
+## Сквозной smoke команд разработчика через реальный parser консоли и игровые сервисы.
 
 const MAIN_LEVEL: PackedScene = preload("res://content/scenes/main_level.tscn")
+## Количество единиц здоровья для пары урон/лечение.
 const HEALTH_DELTA: float = 5.0
 
 var _level: Node3D = null
 
 
+#region Сквозной сценарий консоли
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет создание/регистрацию коробки, урон, расчёты и QA-сброс через строки команд реальной консоли.
 func _run() -> void:
 	_level = MAIN_LEVEL.instantiate() as Node3D
 	_level.set("autosave_path", "")
@@ -158,6 +161,10 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Команды и наблюдение результата
+## Подаёт строку настоящему parser консоли и проверяет маркер результата в выводе.
 func _expect_console(command: String, expected_marker: String) -> void:
 	Console.clear()
 	Console.call(&"_on_text_entered", command)
@@ -170,6 +177,7 @@ func _expect_console(command: String, expected_marker: String) -> void:
 	print("%s -> %s" % [command, expected_marker])
 
 
+## Находит единственный физический экземпляр с отладочным префиксом ID.
 func _single_debug_package() -> Entity:
 	var found: Array[Entity] = []
 	for entity: Entity in ECS.world.query.with_all([C_Package]).execute():
@@ -180,6 +188,9 @@ func _single_debug_package() -> Entity:
 	return found[0] if found.size() == 1 else null
 
 
+## Продвигает только GamePlay заданное число тактов по 1/60 секунды.
 func _process_gameplay(ticks: int) -> void:
 	for tick: int in ticks:
 		ECS.world.process(1.0 / 60.0, "GamePlay")
+
+#endregion

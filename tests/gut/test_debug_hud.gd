@@ -1,4 +1,5 @@
 extends GutTest
+## Проверки диагностического HUD: скрытие отладки сохраняет игровые предупреждения, данные читаются из живых связей.
 
 var _world: World = null
 var _actor: Entity = null
@@ -8,6 +9,8 @@ var _commands: DeveloperConsoleCommands = null
 var _visit: CustomerVisit = null
 
 
+#region Подготовка и очистка
+## Создаёт клиента, визит, HUD и команды в изолированном World дневной фазы.
 func before_each() -> void:
 	DebugHudService.set_enabled(true)
 	_world = World.new()
@@ -46,6 +49,7 @@ func before_each() -> void:
 	_commands = DeveloperConsoleCommands.new()
 
 
+## Освобождает команды/World и возвращает включённое состояние диагностики.
 func after_each() -> void:
 	_commands.free()
 	_world.free()
@@ -53,6 +57,10 @@ func after_each() -> void:
 	DebugHudService.set_enabled(true)
 
 
+#endregion
+
+#region Диагностика и игровая обратная связь
+## Выключение debug скрывает диагностические панели, сохраняя состояние игрока и предупреждение взгляда.
 func test_console_toggle_hides_screen_and_customer_debug_but_preserves_gameplay_feedback() -> void:
 	var challenge: C_Challenge = _customer.get_component(C_Challenge) as C_Challenge
 	challenge.definition = load("res://content/definitions/gameplay/challenges/def_challenge_dont_look.tres") as DEF_Challenge
@@ -79,6 +87,7 @@ func test_console_toggle_hides_screen_and_customer_debug_but_preserves_gameplay_
 	assert_true((_hud.get_node("Overlay/PlayerDebugPanel") as Control).visible)
 
 
+## Метка клиента отражает номер, здоровье и авторский таймер; удалённая Entity не даёт текста.
 func test_customer_label_reads_registration_health_state_and_real_authored_timer() -> void:
 	var text: String = CustomerDebugPresentation.text_for(_customer)
 	assert_string_contains(text, "№019")
@@ -96,6 +105,7 @@ func test_customer_label_reads_registration_health_state_and_real_authored_timer
 	assert_eq(CustomerDebugPresentation.text_for(_customer), "")
 
 
+## Таймер пола читается только из собственного живого эффекта R_ChallengeEffect и исчезает после его удаления.
 func test_floor_label_reads_only_its_live_relationship_effect_damage_clock() -> void:
 	var challenge: C_Challenge = _customer.get_component(C_Challenge) as C_Challenge
 	challenge.definition = DEF_Challenge.new()
@@ -114,3 +124,5 @@ func test_floor_label_reads_only_its_live_relationship_effect_damage_clock() -> 
 	assert_string_contains(text, "Таймер урона 0.35 с")
 	_world.remove_entity(hazard)
 	assert_false(CustomerDebugPresentation.text_for(_customer).contains("Таймер урона"))
+
+#endregion

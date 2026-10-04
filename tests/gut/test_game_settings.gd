@@ -6,6 +6,8 @@ var _events: Dictionary[StringName, Array] = {}
 var _mouse: Input.MouseMode
 
 
+#region Подготовка и очистка
+## Сохраняет реальные привязки и mouse mode перед изолированной конфигурацией настроек.
 func before_each() -> void:
 	_mouse = Input.mouse_mode
 	for action: StringName in GameSettingsService.ACTIONS:
@@ -14,6 +16,7 @@ func before_each() -> void:
 	GameSettingsService.reset_defaults()
 
 
+## Возвращает InputMap, mouse mode и паузу, удаляет тестовый файл и инвалидирует кеш иконок.
 func after_each() -> void:
 	GameSettingsService.reset_defaults()
 	for action: StringName in _events:
@@ -42,6 +45,10 @@ func _axis(axis: JoyAxis, direction: float) -> InputEventJoypadMotion:
 	return event
 
 
+#endregion
+
+#region Привязки, предпочтения и modal-меню
+## Конфликт привязок требует подтверждения, не затрагивает другое устройство и не переназначает безопасный выход.
 func test_conflict_requires_confirmation_and_preserves_other_device_and_safety_exit() -> void:
 	var original: Array[InputEvent] = InputMap.action_get_events(&"interact")
 	assert_false(GameSettingsService.rebind(&"interact", _key(KEY_SPACE)))
@@ -58,6 +65,7 @@ func test_conflict_requires_confirmation_and_preserves_other_device_and_safety_e
 	assert_true(GameSettingsService.is_safety_back(joy))
 
 
+## Конфликт с дополнительным Ctrl совпадает с runtime; подтверждение устраняет двойное срабатывание.
 func test_modifier_overlap_matches_runtime_and_confirm_removes_unmodified_action() -> void:
 	var chord: InputEventKey = _key(KEY_E, true)
 	assert_true(InputMap.event_is_action(chord, &"interact"), "Runtime permits extra Ctrl on the unmodified E binding")
@@ -68,6 +76,7 @@ func test_modifier_overlap_matches_runtime_and_confirm_removes_unmodified_action
 	assert_false(InputMap.event_is_action(chord, &"interact"), "Confirmed removal prevents both runtime actions firing")
 
 
+## Направления оси и сочетания модификаторов различаются; сочетание отображается отдельными иконками.
 func test_axis_direction_and_modifier_are_separate_bindings() -> void:
 	assert_true(GameSettingsService.rebind(&"look_left", _axis(JOY_AXIS_RIGHT_X, -1.0)))
 	assert_false(&"look_right" in GameSettingsService.conflicts(&"look_left", _axis(JOY_AXIS_RIGHT_X, -1.0)))
@@ -78,6 +87,7 @@ func test_axis_direction_and_modifier_are_separate_bindings() -> void:
 	assert_eq(textures.size(), 2, "Modifier and main key use individual icons")
 
 
+## ConfigFile возвращает настройки и привязки после сброса к значениям по умолчанию.
 func test_settings_and_input_survive_config_roundtrip_and_reset() -> void:
 	assert_true(GameSettingsService.rebind(&"interact", _key(KEY_K, true)))
 	assert_true(GameSettingsService.rebind(&"look_up", _axis(JOY_AXIS_LEFT_Y, -1.0), true))
@@ -97,6 +107,7 @@ func test_settings_and_input_survive_config_roundtrip_and_reset() -> void:
 	assert_eq(GameSettingsService.value("reduced_motion"), true)
 
 
+## Повреждённые привязки сохраняют defaults, значения ограничиваются диапазоном, NaN и неверные типы отклоняются.
 func test_invalid_bindings_keep_defaults_and_settings_are_bounded() -> void:
 	var config: ConfigFile = ConfigFile.new()
 	config.set_value("input", "interact", [{"type": "axis", "axis": -1}])
@@ -114,6 +125,7 @@ func test_invalid_bindings_keep_defaults_and_settings_are_bounded() -> void:
 	assert_eq(GameSettingsService.value("mouse_sensitivity"), 1.0)
 
 
+## Клавиши, кнопки и направления осей получают целые авторские спрайты; неизвестное значение использует fallback.
 func test_actual_keys_pad_and_axes_use_individual_outline_sprites() -> void:
 	var key: Texture2D = InputPromptService.texture_for(_key(KEY_E))
 	assert_eq(key.resource_path, "res://resources/kenney/kenney_input_prompts/keyboard_mouse/Default/keyboard_e_outline.png")
@@ -134,6 +146,7 @@ func test_actual_keys_pad_and_axes_use_individual_outline_sprites() -> void:
 	assert_null(InputPromptCatalog.texture("keyboard_mouse", "missing_button"))
 
 
+## Каждое поддерживаемое семейство контроллеров получает свои кнопки и направленные спрайты стиков.
 func test_supported_device_families_use_face_and_direction_sprites() -> void:
 	var prefixes: Dictionary[String, String] = {"xbox_series": "xbox", "playstation_series": "playstation", "steam_deck": "steamdeck", "steam_controller": "steam"}
 	var button: InputEventJoypadButton = InputEventJoypadButton.new()
@@ -151,6 +164,7 @@ func test_supported_device_families_use_face_and_direction_sprites() -> void:
 		assert_true(stick.resource_path.ends_with("/" + prefix + "_" + stick_name + ".png"), family + " negative vertical axis")
 
 
+## Prompt-токен отображается иконкой и подписью без технической разметки в видимом тексте.
 func test_prompt_tokens_render_icons_and_plain_caption() -> void:
 	var label: InputPromptLabel = InputPromptLabel.new()
 	add_child_autofree(label)
@@ -160,6 +174,7 @@ func test_prompt_tokens_render_icons_and_plain_caption() -> void:
 	assert_false(label.get_parsed_text().contains("[E]"))
 
 
+## Закрытие modal-настроек возвращает прежние паузу, мышь и захват переноски.
 func test_menu_restores_pause_mouse_and_existing_carry_capture() -> void:
 	var root: Node3D = Node3D.new()
 	add_child(root)
@@ -190,6 +205,7 @@ func test_menu_restores_pause_mouse_and_existing_carry_capture() -> void:
 	root.free()
 
 
+## Режим переключаемого спринта и Shift-привязка переживают запись без удвоенной иконки модификатора.
 func test_sprint_mode_and_modifier_key_binding_round_trip() -> void:
 	GameSettingsService.set_value("sprint_toggle", true)
 	var shift: InputEventKey = _key(KEY_SHIFT)
@@ -202,3 +218,5 @@ func test_sprint_mode_and_modifier_key_binding_round_trip() -> void:
 	GameSettingsService.load_settings(TEST_PATH)
 	assert_true(bool(GameSettingsService.value("sprint_toggle")))
 	assert_true(InputMap.action_has_event(&"sprint", _key(KEY_SHIFT)))
+
+#endregion
