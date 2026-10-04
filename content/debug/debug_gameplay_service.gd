@@ -1,5 +1,5 @@
 extends RefCounted
-## Domain-safe debug adapters and read-only projections for the expanded gameplay slice.
+## Диагностика и явные QA-запросы игровых сервисов; запись/загрузка используют отдельные debug_slots.
 class_name DebugGameplayService
 
 const SLOT_DIRECTORY: String = "user://debug_slots"
@@ -10,6 +10,8 @@ const MEAT_SCENE: PackedScene = preload("res://content/entities/inventory/npc_me
 const MEAT_OFFSET: Vector3 = Vector3(0.0, 0.6, -1.0)
 
 
+#region Авторские определения и цель
+## Читает авторские .tres каталога с учётом export .remap; не создаёт новые определения.
 static func definitions(directory: String) -> Array[GameDefinition]:
 	var result: Array[GameDefinition] = []
 	for filename: String in DirAccess.get_files_at(directory):
@@ -20,6 +22,7 @@ static func definitions(directory: String) -> Array[GameDefinition]:
 	return result
 
 
+## Ищет авторский предмет по ключу в каталоге ресурсов, затем в Commerce; отсутствие даёт null.
 static func item(key: String) -> DEF_InventoryItem:
 	for definition: GameDefinition in definitions(ITEM_DIRECTORY):
 		if String(definition.key) == key: return definition as DEF_InventoryItem
@@ -30,11 +33,16 @@ static func item(key: String) -> DEF_InventoryItem:
 	return null
 
 
+## Разрешает QA-цель; для визита возвращает его действующего получателя, иначе Entity цели.
 static func subject(raw: String) -> Entity:
 	var target: DebugTarget = DebugTargetResolver.resolve(raw)
 	return CustomerFlowService.customer_for(target.visit.visit_id) if target.visit != null else target.entity
 
 
+#endregion
+
+#region Диагностика состояния
+## Возвращает строки указанной группы состояния; живые цели проверяются, новые игровые факты не создаются.
 static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 	var entity: Entity = subject(raw)
 	var lines: PackedStringArray = []
@@ -133,6 +141,10 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 	return success(lines if not lines.is_empty() else PackedStringArray(["none"]))
 
 
+#endregion
+
+#region Торговец и физический QA-дроп
+## Явный живой торговец либо первый доступный при пустом выборе; погибший исключается.
 static func trader_for(raw: String = "") -> Entity:
 	if not is_instance_valid(ECS.world): return null
 	if not raw.is_empty():
@@ -141,12 +153,13 @@ static func trader_for(raw: String = "") -> Entity:
 	return ECS.world.query.with_all([C_Trader]).with_none([C_Death]).execute_one()
 
 
+## Явно создаёт один физический мясной pickup рядом с доступным игроком; дальнейшее использование штатное.
 static func meat_spawn() -> DebugServiceResult:
 	var actor: Entity = DebugTargetResolver.player()
 	var node: Node3D = actor as Node as Node3D
 	if not GrabService.holder_available(actor) or node == null: return failure("Live physical player unavailable")
 	var meat: Entity = MEAT_SCENE.instantiate() as Entity
-	# Explicit one-time spawn boundary; subsequent motion belongs to the native body.
+	# Позиция задаётся однократно при создании; дальнейшее движение принадлежит физическому телу.
 	var position: Vector3 = node.global_transform * MEAT_OFFSET
 	node.get_parent().add_child(meat)
 	(meat as Node as Node3D).global_position = position
@@ -154,6 +167,10 @@ static func meat_spawn() -> DebugServiceResult:
 	return success(PackedStringArray(["entity=%s; edible physical meat spawned" % meat.id]))
 
 
+#endregion
+
+#region Отдельные слоты сохранения
+## Записывает/восстанавливает проверенный утренний snapshot в debug_slots при свободных действиях; обычный autosave не используется.
 static func save_slot(slot: String, writing: bool) -> DebugServiceResult:
 	var path: String = slot_path(slot)
 	if path.is_empty(): return failure("Slot requires 1..32 ASCII letters/digits/_/-. No paths; gameplay autosave is never used")
@@ -179,6 +196,7 @@ static func save_slot(slot: String, writing: bool) -> DebugServiceResult:
 	return success(PackedStringArray(["path=%s restored Morning; world state replaced" % path])) if WorldSnapshotService.restore(saved, root) else failure("Restore rejected")
 
 
+## Путь отдельного слота для 1–32 ASCII букв/цифр/_/-; любые пути/прочие символы отклоняются пустой строкой.
 static func slot_path(slot: String) -> String:
 	if slot.is_empty() or slot.length() > MAX_SLOT_LENGTH: return ""
 	for character: String in slot:
@@ -186,6 +204,10 @@ static func slot_path(slot: String) -> String:
 	return SLOT_DIRECTORY.path_join(slot + ".pvzh")
 
 
+#endregion
+
+#region Результат команды
+## Создаёт принятый результат со строками контекста.
 static func success(lines: PackedStringArray = []) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	result.success = true
@@ -193,7 +215,10 @@ static func success(lines: PackedStringArray = []) -> DebugServiceResult:
 	return result
 
 
+## Создаёт отказ с пояснением без изменения мира.
 static func failure(message: String) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	result.message = message
 	return result
+
+#endregion

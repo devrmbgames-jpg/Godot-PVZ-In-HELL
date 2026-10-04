@@ -1,5 +1,5 @@
 extends Node
-## Project integration over the read-only generic console; no gameplay state authority.
+## Проектная справка и управление мышью/фокусом консоли; игровые запросы исполняют другие адаптеры.
 
 const GROUPS: PackedStringArray = ["packages", "customers", "economy", "health", "inventory", "trader", "npc", "challenges", "world"]
 const WHEEL_LINES: float = 3.0
@@ -51,6 +51,7 @@ var _previous_focus: WeakRef
 var _mouse_acquired: bool = false
 
 
+#region Справка и подключения
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_previous_help = Console.console_commands.get("help") as Console.ConsoleCommand
@@ -82,6 +83,9 @@ func _exit_tree() -> void:
 		Console.add_command_autocomplete_list("help", _previous_help_subjects)
 
 
+#endregion
+
+#region Мышь и возврат фокуса
 func _opened() -> void:
 	if _mouse_acquired:
 		return
@@ -93,7 +97,7 @@ func _opened() -> void:
 
 
 func _process(_delta: float) -> void:
-	# An underlying timed dialogue may close while the console remains open.
+	# Диалог под консолью может завершиться по таймеру; открытая консоль сохраняет видимую мышь.
 	if _mouse_acquired and bool(Console.is_visible()) and Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
@@ -116,6 +120,9 @@ func _focus_changed(control: Control) -> void:
 		_previous_focus = weakref(control)
 
 
+#endregion
+
+#region Прокрутка и справка
 func _output_input(event: InputEvent) -> void:
 	var button: InputEventMouseButton = event as InputEventMouseButton
 	if button == null or not button.pressed or button.is_command_or_control_pressed():
@@ -167,7 +174,7 @@ func _print_command(command_name: String, command: Console.ConsoleCommand) -> vo
 	for index: int in command.arguments.size():
 		var argument: String = command.arguments[index]
 		syntax += " <%s>" % argument if index < command.required else " [%s]" % argument
-	# The console supports BBCode, so emit literal square brackets safely.
+	# Console поддерживает BBCode: квадратные скобки синтаксиса выводятся буквально.
 	Console.print_line(syntax.replace("[", "[lb]"))
 	Console.print_line(command.description)
 	if EXAMPLES.has(command_name):
@@ -195,3 +202,5 @@ func _group(command_name: String) -> String:
 	if command_name.begins_with("challenge_") or command_name == "hazard_info": return "challenges"
 	if command_name.begins_with("day_") or command_name.begins_with("debug_") or command_name.begins_with("save_") or command_name.begins_with("progress_"): return "world"
 	return ""
+
+#endregion

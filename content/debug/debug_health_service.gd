@@ -1,8 +1,10 @@
 extends RefCounted
-## Developer-only Health/living lifecycle entry points.
+## QA-запросы урона/лечения через DamageRequest и явный отладочный сброс живого существа.
 class_name DebugHealthService
 
 
+#region Обычные запросы урона и лечения
+## Подаёт положительный конечный урон в DamageRequestService с игроком как instigator.
 static func apply_damage(
 	target: DebugTarget,
 	amount: float,
@@ -11,6 +13,7 @@ static func apply_damage(
 	return _submit(target, amount, DamageRequest.Operation.DAMAGE, damage_type)
 
 
+## Подаёт запрос лечения; истощённое/погибшее существо требует отдельного QA-reset.
 static func heal(target: DebugTarget, amount: float) -> DebugServiceResult:
 	if EntityAvailability.contains(target.entity, ECS.world):
 		var health: C_Health = target.entity.get_component(C_Health) as C_Health
@@ -26,6 +29,7 @@ static func heal(target: DebugTarget, amount: float) -> DebugServiceResult:
 	)
 
 
+## Запрашивает GENERIC-урон по текущим HP; реальный эффект и смерть исполняются обычным damage pipeline.
 static func kill(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if not EntityAvailability.contains(target.entity, ECS.world):
@@ -47,6 +51,10 @@ static func kill(target: DebugTarget) -> DebugServiceResult:
 	)
 
 
+#endregion
+
+#region Явный QA-сброс
+## Явно снимает смерть, восстанавливает HP и освобождает хват/транспорт/управление C_Living; историю личности не пересоздаёт.
 static func reset(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if not EntityAvailability.contains(target.entity, ECS.world):
@@ -97,6 +105,9 @@ static func reset(target: DebugTarget) -> DebugServiceResult:
 	return result
 
 
+#endregion
+
+#region Проверка и подача DamageRequest
 static func _submit(
 	target: DebugTarget,
 	amount: float,
@@ -139,3 +150,5 @@ static func _submit(
 		"type=%s" % String(DamageRequest.Type.keys()[damage_type])
 	)
 	return result
+
+#endregion

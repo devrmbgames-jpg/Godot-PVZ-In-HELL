@@ -1,22 +1,27 @@
 extends RefCounted
-## Journaled manual wallet operations for developer-console testing.
+## Ручные QA-операции кошелька через обычный журнал с уникальными ID.
 class_name DebugEconomyService
 
 const OPERATION_PREFIX: String = "debug"
 
 
+#region Ручные денежные запросы
+## Запрашивает ручное начисление положительной суммы с новой записью журнала.
 static func credit(amount: int, note: String) -> DebugServiceResult:
 	return _submit(MoneyOperation.Reason.DEBUG_CREDIT, amount, note)
 
 
+## Запрашивает ручное списание через ограничения WalletService.
 static func debit(amount: int, note: String) -> DebugServiceResult:
 	return _submit(MoneyOperation.Reason.DEBUG_DEBIT, amount, note)
 
 
+## Запрашивает ручной штраф с отдельной причиной DEBUG_PENALTY.
 static func penalty(amount: int, note: String) -> DebugServiceResult:
 	return _submit(MoneyOperation.Reason.DEBUG_PENALTY, amount, note)
 
 
+## Отменяет только непогашенную сумму ручных QA-штрафов через обычную денежную операцию.
 static func reverse_penalty(amount: int, note: String) -> DebugServiceResult:
 	var wallet: C_Wallet = WalletService.current()
 	var result: DebugServiceResult = DebugServiceResult.new()
@@ -31,6 +36,7 @@ static func reverse_penalty(amount: int, note: String) -> DebugServiceResult:
 	return _submit(MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL, amount, note)
 
 
+## Непогашенная сумма ручных штрафов из журнала; обычные игровые штрафы не учитываются.
 static func manual_penalty_outstanding(wallet: C_Wallet) -> int:
 	if wallet == null:
 		return 0
@@ -44,6 +50,9 @@ static func manual_penalty_outstanding(wallet: C_Wallet) -> int:
 	return maxi(0, outstanding)
 
 
+#endregion
+
+#region Проверка и запись операции
 static func _submit(
 	reason: MoneyOperation.Reason,
 	amount: int,
@@ -108,3 +117,5 @@ static func _next_operation_id(
 static func _status_name(status: WalletService.Status) -> String:
 	var keys: Array = WalletService.Status.keys()
 	return String(keys[status]) if status >= 0 and status < keys.size() else "UNKNOWN"
+
+#endregion

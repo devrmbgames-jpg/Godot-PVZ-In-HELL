@@ -1,10 +1,12 @@
 extends RefCounted
-## Read-only developer-console projections over authoritative runtime state.
+## Формирует диагностические строки из авторитетного состояния без его изменения.
 class_name DeveloperConsoleDiagnostics
 
 const RECENT_MONEY_OPERATIONS: int = 5
 
 
+#region Коробки и учёт
+## Объединяет регистрационный журнал и физические коробки без повторных строк стабильного ID.
 static func package_list(include_inactive: bool) -> PackedStringArray:
 	var lines: PackedStringArray = []
 	var seen: Dictionary[String, bool] = { }
@@ -31,6 +33,7 @@ static func package_list(include_inactive: bool) -> PackedStringArray:
 	return lines
 
 
+## Показывает авторское определение, регистрацию, физическое состояние и визит выбранной коробки.
 static func package_info(target: DebugTarget) -> PackedStringArray:
 	var lines: PackedStringArray = [
 		"package_id=%s" % target.package_id,
@@ -68,6 +71,7 @@ static func package_info(target: DebugTarget) -> PackedStringArray:
 	return lines
 
 
+## Показывает фактический исход, заявление, деньги/жалобу и доступный runtime-контекст визита.
 static func visit_info(visit: CustomerVisit) -> PackedStringArray:
 	var lines: PackedStringArray = [
 		"visit=%s" % String(visit.visit_id),
@@ -109,6 +113,10 @@ static func visit_info(visit: CustomerVisit) -> PackedStringArray:
 	return lines
 
 
+#endregion
+
+#region Деньги и фазы
+## Показывает кошелёк, итог текущего дня и последние пять денежных операций.
 static func wallet_info() -> PackedStringArray:
 	var wallet: C_Wallet = WalletService.current()
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -147,6 +155,7 @@ static func wallet_info() -> PackedStringArray:
 	return lines
 
 
+## Показывает текущую фазу, очередь и ожидающий запрос перехода.
 static func day_info() -> PackedStringArray:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null:
@@ -168,6 +177,10 @@ static func day_info() -> PackedStringArray:
 	return lines
 
 
+#endregion
+
+#region Доступные цели
+## Показывает доступные цели разных контрактов с ограничением в 64 строки.
 static func debug_targets() -> PackedStringArray:
 	const MAX_LINES: int = 64
 	var lines: PackedStringArray = []
@@ -227,6 +240,10 @@ static func _package_number_text(
 	return "---"
 
 
+#endregion
+
+#region HP и формат строк
+## Фактические HP, жизнь/смерть и повреждение коробки; недоступная цель отмечается отдельно.
 static func health_info(target: DebugTarget) -> PackedStringArray:
 	if not EntityAvailability.contains(target.entity, ECS.world):
 		return PackedStringArray(["live=false"])
@@ -317,3 +334,5 @@ static func _enum_name(values: Dictionary, value: int) -> String:
 	if value < 0 or value >= keys.size():
 		return "UNKNOWN(%d)" % value
 	return String(keys[value])
+
+#endregion

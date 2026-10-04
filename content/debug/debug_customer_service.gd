@@ -1,10 +1,12 @@
 extends RefCounted
-## Test-only adapters for persistent CustomerVisit facts; no presentation authority.
+## QA-адаптеры фактов CustomerVisit; изменения результата не имитируют физическую выдачу.
 class_name DebugCustomerService
 
 const DEFAULT_CUSTOMER_KEY: String = "default"
 
 
+#region Создание и исход визита
+## Для коробки создаёт один QA-визит либо возвращает существующий; arrive выбирает очередь вместо закрытого учётного случая.
 static func create_visit(
 	target: DebugTarget,
 	customer_key: String,
@@ -64,6 +66,7 @@ static func create_visit(
 	return result
 
 
+## Явно меняет QA-факт до расчёта/жалобы; запрещает сброс при уже принятом заявлении.
 static func set_actual(
 	target: DebugTarget,
 	actual: CustomerVisit.Actual,
@@ -116,6 +119,7 @@ static func set_actual(
 	return result
 
 
+## Передаёт заявление в обычный CustomerFlowService, сохраняя его проверки и расчёт.
 static func declare(
 	target: DebugTarget,
 	declaration: CustomerVisit.Declaration,
@@ -137,6 +141,10 @@ static func declare(
 	return result
 
 
+#endregion
+
+#region Жалоба и одобрение
+## Создаёт QA-жалобу через сервис исхода; resolve_now сразу запускает её проверку/расчёт.
 static func complaint(
 	target: DebugTarget,
 	reason: CustomerComplaint.Reason,
@@ -184,6 +192,7 @@ static func complaint(
 	return result
 
 
+## Разрешает существующую жалобу через сервис; success означает уже определённый исход.
 static func resolve_complaint(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	var visit: CustomerVisit = target.visit
@@ -209,6 +218,7 @@ static func resolve_complaint(target: DebugTarget) -> DebugServiceResult:
 	return result
 
 
+## Запрашивает одобрение с удовлетворённостью 0–100 через CustomerOutcomeService.
 static func approve(
 	target: DebugTarget,
 	satisfaction: int,
@@ -230,6 +240,9 @@ static func approve(
 	return result
 
 
+#endregion
+
+#region Авторские профили и формат
 static func _package_definition(target: DebugTarget) -> DEF_Package:
 	if EntityAvailability.contains(target.entity, ECS.world):
 		var identity: C_Package = target.entity.get_component(C_Package) as C_Package
@@ -269,3 +282,5 @@ static func _enum_name(values: Dictionary, value: int) -> String:
 	if value < 0 or value >= keys.size():
 		return "UNKNOWN(%d)" % value
 	return String(keys[value])
+
+#endregion

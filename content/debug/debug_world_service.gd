@@ -1,8 +1,9 @@
 extends RefCounted
-## Developer-only convenience adapters over Day and Customer domain services.
+## QA-входы в обычные сервисы фаз дня и очереди обслуживания.
 class_name DebugWorldService
 
 
+## Запрашивает следующий допустимый переход фазы через DayPhaseService; ночь не переключает вручную.
 static func day_next() -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -48,6 +49,7 @@ static func day_next() -> DebugServiceResult:
 	return result
 
 
+## В дневную фазу запрашивает следующую доступную задачу обслуживания при свободной активной роли.
 static func customer_next() -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	var flow: C_CustomerFlow = CustomerFlowService.current()
