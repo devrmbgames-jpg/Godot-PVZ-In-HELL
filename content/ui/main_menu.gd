@@ -19,6 +19,7 @@ func _ready() -> void:
 	background.color = Color(0.035, 0.045, 0.06, 1)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
+
 	var center: CenterContainer = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
@@ -28,6 +29,7 @@ func _ready() -> void:
 	var column: VBoxContainer = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	panel.add_child(column)
+
 	var title: Label = Label.new()
 	title.text = "PVZ In Hell"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -60,6 +62,7 @@ func _ready() -> void:
 	_exit_dialog.cancel_button_text = "Остаться"
 	_exit_dialog.confirmed.connect(func() -> void: get_tree().quit())
 	add_child(_exit_dialog)
+
 	var saved: GameSaveResult = GameSessionService.saved_game(_level)
 	_load_button.disabled = not saved.success
 	_status.text = saved.message
@@ -93,6 +96,7 @@ func _load_game() -> void:
 		_status.text = saved.message
 		_load_button.disabled = true
 		return
+
 	var error: Error = GameSessionService.start_game(get_tree(), _level, saved)
 	if error != OK:
 		_status.text = "Не удалось загрузить: %s." % error_string(error)

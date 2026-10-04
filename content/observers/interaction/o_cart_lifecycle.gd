@@ -36,6 +36,7 @@ func each(event: Variant, entity: Entity, payload: Variant = null) -> void:
 func _entity_unavailable(entity: Entity) -> void:
 	if not is_instance_valid(entity):
 		return
+
 	CartCargoService.release(entity)
 	CartCargoService.release_all(entity)
 	CartTransportService.entity_unavailable(entity)

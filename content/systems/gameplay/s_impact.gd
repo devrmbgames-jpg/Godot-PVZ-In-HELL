@@ -67,6 +67,7 @@ func _flush_contacts() -> void:
 func _enqueue(contact: PhysicsContact) -> void:
 	if not _valid(contact):
 		return
+
 	var key: String = _pair_key(contact)
 	var existing: PhysicsContact = _pending.get(key) as PhysicsContact
 	if existing == null:
@@ -83,6 +84,7 @@ func _enqueue(contact: PhysicsContact) -> void:
 func _resolve(contact: PhysicsContact) -> void:
 	if not _valid(contact):
 		return
+
 	var key: String = _pair_key(contact)
 	var pair: ImpactContactPair = _pairs.get(key) as ImpactContactPair
 	if pair == null:
@@ -95,6 +97,7 @@ func _resolve(contact: PhysicsContact) -> void:
 		pair.separated_tick = -1
 	if pair.resolved:
 		return
+
 	pair.resolved = true
 	KinematicImpactCapture.queue_rebound(contact)
 
@@ -200,6 +203,7 @@ func _on_entity_added(entity: Entity) -> void:
 func _on_body_exited(other: Node, body: PhysicsBody3D) -> void:
 	if not is_instance_valid(other) or not is_instance_valid(body):
 		return
+
 	var first_id: int = body.get_instance_id()
 	var second_id: int = other.get_instance_id()
 	var key: String = "%d:%d" % [mini(first_id, second_id), maxi(first_id, second_id)]
@@ -245,6 +249,7 @@ func _pair_key(contact: PhysicsContact) -> String:
 func _held_pair(candidate: Entity, other: Entity) -> bool:
 	if not is_instance_valid(candidate):
 		return false
+
 	var grip: Relationship = _held_relationship(candidate)
 	return grip != null and grip.target == other
 #endregion
@@ -253,6 +258,7 @@ func _held_pair(candidate: Entity, other: Entity) -> bool:
 func _held_relationship(entity: Entity) -> Relationship:
 	if not is_instance_valid(entity):
 		return null
+
 	for grip: Relationship in entity.relationships:
 		if grip.relation is R_HeldBy:
 			return grip

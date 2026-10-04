@@ -11,6 +11,7 @@ func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
 	var identity: C_Package = entity.get_component(C_Package) as C_Package
 	if identity.condition_initialized or identity.definition == null:
 		return
+
 	identity.condition_initialized = true
 	var definition: DEF_Package = identity.definition
 	var health: C_Health = entity.get_component(C_Health) as C_Health

@@ -13,6 +13,7 @@ func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 	var request: HazardSpawnRequest = payload as HazardSpawnRequest
 	if request == null or _accepted.has(request.request_id):
 		return
+
 	_accepted[request.request_id] = true
 	cmd.add_custom(_spawn.bind(request))
 

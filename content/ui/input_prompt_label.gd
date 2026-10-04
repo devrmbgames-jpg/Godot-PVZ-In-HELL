@@ -26,6 +26,7 @@ func _process(_delta: float) -> void:
 func set_prompt(message: String) -> void:
 	if message == _prompt and _revision == InputPromptService.revision():
 		return
+
 	_prompt = message
 	_render()
 
@@ -33,6 +34,7 @@ func set_prompt(message: String) -> void:
 func _render() -> void:
 	if not is_node_ready():
 		return
+
 	_revision = InputPromptService.revision()
 	clear()
 	push_paragraph(HORIZONTAL_ALIGNMENT_CENTER)

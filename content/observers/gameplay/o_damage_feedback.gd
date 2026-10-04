@@ -15,6 +15,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 	if result.outcome not in [DamageResult.Outcome.APPLIED, DamageResult.Outcome.HEALTH_DEPLETED] or not is_finite(result.applied_amount) or result.applied_amount <= 0.0:
 		return
+
 	var feedback: DamageFeedback = DamageFeedback.new()
 	feedback.target_id = entity.id
 	feedback.damage_type = result.request.damage_type

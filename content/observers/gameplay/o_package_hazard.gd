@@ -21,6 +21,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	# При распаковке эффект переносит сервис извлечения на реальное содержимое.
 	if event.kind == PackageLifecycleEvent.Kind.Opened and definition.unpack_scene != null:
 		return
+
 	var scene: PackedScene = definition.hazard_on_opened if event.kind == PackageLifecycleEvent.Kind.Opened else definition.hazard_on_damaged
 	if scene == null:
 		return

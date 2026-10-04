@@ -192,6 +192,7 @@ static func resolve_complaint(target: DebugTarget) -> DebugServiceResult:
 	if cycle == null:
 		result.message = "day cycle is unavailable"
 		return result
+
 	CustomerOutcomeService.resolve_complaint(
 		visit,
 		WalletService.current(),

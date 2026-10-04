@@ -16,6 +16,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 func _commit(actor: Entity, package: Entity) -> void:
 	if not PackageOpening.can_open(actor, package):
 		return
+
 	var condition: C_PackageState = package.get_component(C_PackageState) as C_PackageState
 	condition.opening = C_PackageState.Opening.OPENED
 	PackageLifecycle.publish(package, PackageLifecycleEvent.Kind.Opened, actor)

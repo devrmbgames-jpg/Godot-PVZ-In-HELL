@@ -23,6 +23,7 @@ static func reverse_penalty(amount: int, note: String) -> DebugServiceResult:
 	if wallet == null:
 		result.message = "wallet is unavailable"
 		return result
+
 	var outstanding: int = manual_penalty_outstanding(wallet)
 	if amount > outstanding:
 		result.message = "amount exceeds outstanding debug penalty: %d" % outstanding
@@ -33,6 +34,7 @@ static func reverse_penalty(amount: int, note: String) -> DebugServiceResult:
 static func manual_penalty_outstanding(wallet: C_Wallet) -> int:
 	if wallet == null:
 		return 0
+
 	var outstanding: int = 0
 	for operation: MoneyOperation in wallet.operations:
 		if operation.reason == MoneyOperation.Reason.DEBUG_PENALTY:

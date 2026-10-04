@@ -13,6 +13,7 @@ static func package_list(include_inactive: bool) -> PackedStringArray:
 		for record: PackageRegistrationRecord in ledger.records:
 			if not include_inactive and not record.active:
 				continue
+
 			var live: Entity = _package_entity(record.package_id)
 			lines.append(_package_list_line(record.package_id, record, live))
 			seen[record.package_id] = true
@@ -22,6 +23,7 @@ static func package_list(include_inactive: bool) -> PackedStringArray:
 			var identity: C_Package = entity.get_component(C_Package) as C_Package
 			if identity == null or seen.has(identity.package_id):
 				continue
+
 			lines.append(_package_list_line(identity.package_id, null, entity))
 
 	if lines.is_empty():
@@ -86,6 +88,7 @@ static func visit_info(visit: CustomerVisit) -> PackedStringArray:
 	]
 	if visit.definition != null:
 		lines.append("profile=%s introduction=%s inspection=%s interests=%s" % [visit.definition.key, DEF_Customer.Introduction.keys()[visit.definition.introduction], visit.definition.private_inspection, ", ".join(visit.definition.interests)])
+
 	var customer: E_Customer = CustomerFlowService.customer_for(visit.visit_id)
 	if customer != null:
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -148,6 +151,7 @@ static func day_info() -> PackedStringArray:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null:
 		return PackedStringArray(["day_cycle=unavailable"])
+
 	var lines: PackedStringArray = [
 		"day=%d" % cycle.day_index,
 		"phase=%s" % String(C_DayCycle.Phase.keys()[cycle.phase]),
@@ -226,6 +230,7 @@ static func _package_number_text(
 static func health_info(target: DebugTarget) -> PackedStringArray:
 	if not EntityAvailability.contains(target.entity, ECS.world):
 		return PackedStringArray(["live=false"])
+
 	var entity: Entity = target.entity
 	var health: C_Health = entity.get_component(C_Health) as C_Health
 	if health == null:
@@ -291,6 +296,7 @@ static func _package_definition(target: DebugTarget) -> DEF_Package:
 static func _package_entity(package_id: String) -> Entity:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	for entity: Entity in ECS.world.query.with_all([C_Package]).execute():
 		var identity: C_Package = entity.get_component(C_Package) as C_Package
 		if identity != null and identity.package_id == package_id:

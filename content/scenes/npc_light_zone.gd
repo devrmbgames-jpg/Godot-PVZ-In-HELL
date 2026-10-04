@@ -41,6 +41,7 @@ func contains_point(world_position: Vector3) -> bool:
 		_capture_volume()
 	if not _valid_volume:
 		return false
+
 	var point: Vector3 = _inverse_transform * world_position
 	return point.length_squared() <= _sphere_radius_squared if _sphere_radius_squared > 0.0 else _box_bounds.has_point(point)
 

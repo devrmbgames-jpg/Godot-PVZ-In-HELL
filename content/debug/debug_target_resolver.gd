@@ -41,6 +41,7 @@ static func _resolve_self(result: DebugTarget) -> DebugTarget:
 	if not EntityAvailability.contains(actor, ECS.world):
 		result.error = "player is unavailable"
 		return result
+
 	result.kind = DebugTarget.Kind.ENTITY
 	result.entity = actor
 	return result
@@ -51,14 +52,17 @@ static func _resolve_interaction_target(result: DebugTarget) -> DebugTarget:
 	if not EntityAvailability.contains(actor, ECS.world):
 		result.error = "player is unavailable"
 		return result
+
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	if interactor == null or not is_instance_valid(interactor.target):
 		result.error = "interaction target is unavailable"
 		return result
+
 	var target: Entity = interactor.target as Entity
 	if not EntityAvailability.contains(target, ECS.world):
 		result.error = "interaction target is unavailable"
 		return result
+
 	result.kind = DebugTarget.Kind.ENTITY
 	result.entity = target
 	if target.has_component(C_Package):
@@ -75,19 +79,23 @@ static func _resolve_registration_number(result: DebugTarget) -> DebugTarget:
 	if not number_text.is_valid_int():
 		result.error = "invalid registration number: %s" % result.query
 		return result
+
 	var number: int = number_text.to_int()
 	if number < 1:
 		result.error = "registration number must be positive"
 		return result
+
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	if ledger == null:
 		result.error = "package ledger is unavailable"
 		return result
+
 	for record: PackageRegistrationRecord in ledger.records:
 		if record.active and record.number == number:
 			var resolved: DebugTarget = _resolve_package_id(result, record.package_id)
 			resolved.registration = record
 			return resolved
+
 	result.error = "active package #%03d was not found" % number
 	return result
 
@@ -118,10 +126,12 @@ static func _resolve_visit(result: DebugTarget, visit_id: String) -> DebugTarget
 	if normalized.is_empty():
 		result.error = "visit id is empty"
 		return result
+
 	var visit: CustomerVisit = CustomerFlowService.find_visit(StringName(normalized))
 	if visit == null:
 		result.error = "visit was not found: %s" % normalized
 		return result
+
 	result.kind = DebugTarget.Kind.VISIT
 	result.visit = visit
 	result.package_id = visit.package_id
@@ -135,6 +145,7 @@ static func _resolve_entity_id(result: DebugTarget, entity_id: String) -> DebugT
 	if normalized.is_empty():
 		result.error = "entity id is empty"
 		return result
+
 	for entity: Entity in ECS.world.entities:
 		if EntityAvailability.contains(entity, ECS.world) and entity.id == normalized:
 			result.kind = DebugTarget.Kind.ENTITY
@@ -146,6 +157,7 @@ static func _resolve_entity_id(result: DebugTarget, entity_id: String) -> DebugT
 				result.registration = _registration_for_package(identity.package_id)
 				result.visit = _visit_for_package(identity.package_id)
 			return result
+
 	result.error = "live entity was not found: %s" % normalized
 	return result
 
@@ -162,6 +174,7 @@ static func _registration_for_package(package_id: String) -> PackageRegistration
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	if ledger == null:
 		return null
+
 	for record: PackageRegistrationRecord in ledger.records:
 		if record.package_id == package_id and record.active:
 			return record
@@ -172,6 +185,7 @@ static func _visit_for_package(package_id: String) -> CustomerVisit:
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	if flow == null:
 		return null
+
 	for visit: CustomerVisit in flow.visits:
 		if visit.package_id == package_id:
 			return visit

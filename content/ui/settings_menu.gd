@@ -66,6 +66,7 @@ func _ready() -> void:
 	var panel: PanelContainer = PanelContainer.new()
 	panel.custom_minimum_size = PANEL_SIZE
 	_root.add_child(panel)
+
 	var content: VBoxContainer = VBoxContainer.new()
 	panel.add_child(content)
 	var title: Label = Label.new()
@@ -76,6 +77,7 @@ func _ready() -> void:
 	content.add_child(tabs)
 	if not _standalone:
 		_build_session_menu(tabs)
+
 	var settings: VBoxContainer = VBoxContainer.new()
 	settings.name = "Настройки"
 	tabs.add_child(settings)
@@ -87,6 +89,7 @@ func _ready() -> void:
 	_toggle(settings, "Полный экран", "fullscreen")
 	_toggle(settings, "Вертикальная синхронизация", "vsync")
 	_toggle(settings, "Уменьшить движение камеры и виньетки", "reduced_motion")
+
 	var controls: ScrollContainer = ScrollContainer.new()
 	controls.name = "Управление"
 	controls.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -98,6 +101,7 @@ func _ready() -> void:
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(_status)
+
 	var reset: Button = Button.new()
 	reset.text = "Восстановить настройки и управление"
 	reset.pressed.connect(_reset)
@@ -163,9 +167,11 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventKey and _await_action != &"sprint" and (event as InputEventKey).physical_keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]:
 		return
+
 	_pending = InputBindingCodec.normalized(event)
 	if _pending == null:
 		return
+
 	var conflicts: Array[StringName] = GameSettingsService.conflicts(_await_action, _pending)
 	if conflicts.is_empty():
 		_confirm_binding()
@@ -182,6 +188,7 @@ func _process(_delta: float) -> void:
 		close_menu()
 	if _revision == InputPromptService.revision():
 		return
+
 	_revision = InputPromptService.revision()
 	for button: Button in _binding_buttons:
 		var binding: Array = _binding_buttons[button]
@@ -190,6 +197,7 @@ func _process(_delta: float) -> void:
 		hint.visible = not icons.is_empty()
 		button.text = "" if not icons.is_empty() else "Не назначено"
 		button.tooltip_text = "Заменить назначения для этого устройства"
+
 	var close_icons: Array[Texture2D] = InputPromptService.textures(&"menu")
 	_close.icon = close_icons[0] if not close_icons.is_empty() else null
 
@@ -202,9 +210,11 @@ func open_menu() -> bool:
 	else:
 		if not EntityAvailability.contains(_actor, ECS.world) or InteractionControlFocus.current(_actor) >= InteractionControlFocus.Priority.DRAWING:
 			return false
+
 		_capture = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
 		if _capture == 0:
 			return false
+
 	_previous_pause = get_tree().paused
 	_previous_mouse = Input.mouse_mode
 	get_tree().paused = true
@@ -219,6 +229,7 @@ func open_menu() -> bool:
 func close_menu() -> void:
 	if not is_open():
 		return
+
 	_save_preferences()
 	_cancel_binding()
 	_conflict.hide()
@@ -286,6 +297,7 @@ func _saved_game(level: String) -> GameSaveResult:
 func _refresh_session_menu() -> void:
 	if _standalone or _slot_status == null:
 		return
+
 	var root: Node = _game_root()
 	var reason: String = GameSessionService.save_reason(root, self)
 	_session_buttons["save"].disabled = not reason.is_empty()
@@ -303,6 +315,7 @@ func _request_session_action(action: String) -> void:
 		_status.text = result.message
 		_refresh_session_menu()
 		return
+
 	_session_action = action
 	_session_dialog.popup_centered()
 	_session_dialog.get_cancel_button().grab_focus()
@@ -315,6 +328,7 @@ func _confirm_session_action() -> void:
 	if root == null:
 		_status.text = "Уровень недоступен."
 		return
+
 	var error: Error = OK
 	match action:
 		"new": error = GameSessionService.start_game(get_tree(), root.scene_file_path)
@@ -323,6 +337,7 @@ func _confirm_session_action() -> void:
 			if not saved.success:
 				_status.text = saved.message
 				return
+
 			error = GameSessionService.start_game(get_tree(), root.scene_file_path, saved)
 		"main": error = GameSessionService.return_to_menu(get_tree())
 		"exit": get_tree().quit()
@@ -339,6 +354,7 @@ func _build_controls() -> void:
 	for action: StringName in GameSettingsService.ACTIONS:
 		if not InputMap.has_action(action):
 			continue
+
 		var row: HBoxContainer = HBoxContainer.new()
 		_rows.add_child(row)
 		var label: Label = Label.new()

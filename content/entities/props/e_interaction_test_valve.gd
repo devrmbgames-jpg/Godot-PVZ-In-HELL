@@ -61,6 +61,7 @@ func is_active() -> bool:
 func get_progress() -> float:
 	if mode == Mode.IMMEDIATE_E:
 		return 1.0 if is_active() else 0.0
+
 	var action: DEF_InteractionTestValveAction = _mode_action()
 	var progress: ProlongedInteractionProgress = ProlongedInteractionService.progress_for(self, action.action_id) if action != null else null
 	return clampf(progress.fraction, 0.0, 1.0) if progress != null else 0.0
@@ -79,6 +80,7 @@ func set_progress(value: float) -> bool:
 		var action: DEF_InteractionTestValveAction = _mode_action()
 		if action == null or not ProlongedInteractionService.debug_set_progress(self, action, value):
 			return false
+
 	_sync_progress()
 	return true
 
@@ -96,6 +98,7 @@ func _mode_action() -> DEF_InteractionTestValveAction:
 func _sync_progress() -> void:
 	if Engine.is_editor_hint() or not is_node_ready():
 		return
+
 	var fraction: float = get_progress()
 	var angle: float = deg_to_rad(rotation_angle_degrees) * fraction
 	_wheel.basis = _rest_basis * Basis(rotation_axis.normalized(), angle) if not rotation_axis.is_zero_approx() else _rest_basis
@@ -111,6 +114,7 @@ func _sync_progress() -> void:
 func _refresh_label() -> void:
 	if not is_instance_valid(_label):
 		return
+
 	match mode:
 		Mode.IMMEDIATE_E:
 			_label.text = "E · PRESS"

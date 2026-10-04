@@ -13,6 +13,7 @@ func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
 func _bind(entity: Entity) -> void:
 	if not EntityAvailability.contains(entity, _world):
 		return
+
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	var profile: DEF_FloorHazard = hazard.definition as DEF_FloorHazard
 	var effect: E_FloorHazard = entity as E_FloorHazard
@@ -25,5 +26,6 @@ func _bind(entity: Entity) -> void:
 		ChallengeService.cancel(subject)
 		HazardLifecycle.retire(entity, _world)
 		return
+
 	effect.configure(profile)
 	subject.add_relationship(Relationship.new(R_ChallengeEffect.new(), entity))

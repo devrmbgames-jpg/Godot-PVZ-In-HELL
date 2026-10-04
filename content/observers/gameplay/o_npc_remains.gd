@@ -13,4 +13,5 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 	if result.request == null or result.request.target != entity:
 		return
+
 	cmd.add_custom(NpcRemainsService.release.bind(entity))

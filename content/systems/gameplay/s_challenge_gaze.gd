@@ -21,6 +21,7 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 			GazeTrackingService.clear(observation)
 			observation.warning_active = false
 			continue
+
 		GazeTrackingService.sample(ChallengeService.actor_for(entities[index]), entities[index], rule, observation)
 		state.condition_result = ChallengeResult.Type.SUCCESS if observation.sample_valid and observation.attention == rule.required_attention else ChallengeResult.Type.NONE
 		var warning: bool = (

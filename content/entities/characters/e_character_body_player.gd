@@ -9,6 +9,7 @@ class_name E_CharacterBodyPlayer
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
+
 	var body: CharacterBody3D = self as Node as CharacterBody3D
 	assert(body != null)
 	# Own belt handles remain ray targets but cannot collide with their host body/ground ray.
@@ -22,6 +23,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint() or not EntityAvailability.contains(self, ECS.world):
 		return
+
 	var body: CharacterBody3D = self as Node as CharacterBody3D
 	var motion: C_Motion = get_component(C_Motion) as C_Motion
 	var control: C_Controller = get_component(C_Controller) as C_Controller

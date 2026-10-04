@@ -37,6 +37,7 @@ func _ready() -> void:
 	_actor = get_parent() as E_PhysicalCharacter
 	if _actor == null:
 		return
+
 	_previous_position = (_actor as Node as Node3D).global_position
 	_bob_phase = PI / 2.0
 	_camera = _actor.get_node_or_null(camera_path) as Camera3D
@@ -52,6 +53,7 @@ func _exit_tree() -> void:
 func _physics_process(delta: float) -> void:
 	if _actor == null or not EntityAvailability.contains(_actor, ECS.world) or delta <= 0.0:
 		return
+
 	var position: Vector3 = (_actor as Node as Node3D).global_position
 	var difference: Vector3 = position - _previous_position
 	_previous_position = position
@@ -62,6 +64,7 @@ func _physics_process(delta: float) -> void:
 	allowed = allowed and controller != null and not controller.direction_motion.is_zero_approx()
 	allowed = allowed and InteractionControlFocus.current(_actor) < InteractionControlFocus.Priority.MODAL
 	allowed = allowed and CartTransportService.current(_actor) == null
+
 	var walking: bool = allowed and distance < MAXIMUM_FRAME_TRAVEL and distance / delta >= MINIMUM_WALK_SPEED
 	if walking:
 		# Одна фаза: PI на шаг; звук и нижняя точка камеры совпадают.
@@ -73,6 +76,7 @@ func _physics_process(delta: float) -> void:
 				_footsteps.play_footstep()
 	else:
 		_bob_phase = PI / 2.0
+
 	var target: Vector3 = Vector3.ZERO
 	if walking and bob_enabled and not reduced_motion and not (_actor.has_component(C_PlayerInputController) and bool(GameSettingsService.value("reduced_motion"))):
 		target = Vector3(sin(_bob_phase) * bob_amplitude.x, -cos(_bob_phase * 2.0) * bob_amplitude.y, 0.0)

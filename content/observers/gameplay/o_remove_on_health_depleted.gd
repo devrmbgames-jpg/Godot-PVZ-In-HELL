@@ -14,6 +14,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		or result.request.target != entity
 	):
 		return
+
 	cmd.add_custom(_remove.bind(entity))
 
 func _remove(entity: Entity) -> void:

@@ -54,6 +54,7 @@ func _process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _closed or not _input_enabled:
 		return
+
 	get_viewport().set_input_as_handled()
 	if event.is_action_pressed(&"menu"):
 		close_dialogue()
@@ -104,6 +105,7 @@ func _enable_input() -> void:
 func _advance(next_id: String) -> void:
 	if _closed or _resource == null or _context == null:
 		return
+
 	var resource: DialogueResource = _resource
 	_line = await resource.get_next_dialogue_line(next_id, [{ "ctx": _context }])
 	if _closed:
@@ -113,6 +115,7 @@ func _advance(next_id: String) -> void:
 	if _line == null:
 		close_dialogue()
 		return
+
 	_render_line()
 
 
@@ -127,6 +130,7 @@ func _render_line() -> void:
 		var response: DialogueResponse = response_value as DialogueResponse
 		if response == null or not response.is_allowed:
 			continue
+
 		var button: Button = Button.new()
 		button.text = format_response_text(response.text, response.tags)
 		button.pressed.connect(_on_response_pressed.bind(response))
@@ -163,6 +167,7 @@ static func format_response_text(text: String, tags: PackedStringArray) -> Strin
 func _on_response_pressed(response: DialogueResponse) -> void:
 	if response == null:
 		return
+
 	_context.apply_response_tags(response.tags)
 	_advance(response.next_id)
 
@@ -182,6 +187,7 @@ func _clear_responses() -> void:
 func _close_internal(return_to_service: bool) -> void:
 	if _closed:
 		return
+
 	_closed = true
 	_input_enabled = false
 	if _capture_token != 0 and is_instance_valid(_actor):

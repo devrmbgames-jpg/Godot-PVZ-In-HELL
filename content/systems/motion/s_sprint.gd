@@ -18,6 +18,7 @@ func query() -> QueryBuilder:
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_PAUSED or not is_instance_valid(ECS.world):
 		return
+
 	for actor: Entity in ECS.world.query.with_all([C_Stamina, C_Motion]).execute():
 		var stamina: C_Stamina = actor.get_component(C_Stamina) as C_Stamina
 		stamina.toggled = false
@@ -28,6 +29,7 @@ func _notification(what: int) -> void:
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if delta <= 0.0:
 		return
+
 	var reserves: Array = components[0]
 	var controllers: Array = components[1]
 	var motions: Array = components[2]

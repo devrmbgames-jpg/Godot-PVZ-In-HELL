@@ -31,6 +31,7 @@ func _ready() -> void:
 	for side: StringName in [&"margin_left", &"margin_top", &"margin_right", &"margin_bottom"]:
 		root.add_theme_constant_override(side, int(MARGIN))
 	add_child(root)
+
 	var center: CenterContainer = CenterContainer.new()
 	root.add_child(center)
 	var panel: PanelContainer = PanelContainer.new()
@@ -44,6 +45,7 @@ func _ready() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(_status)
 	_offers = VBoxContainer.new()
+
 	var scroll: ScrollContainer = ScrollContainer.new()
 	scroll.custom_minimum_size.y = 200.0
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -75,10 +77,12 @@ func _process(delta: float) -> void:
 	_close.icon = icons[0] if not icons.is_empty() else null
 	if _capture == 0:
 		return
+
 	var trader: Entity = _shop()
 	if not GrabService.holder_available(_actor) or _actor.has_component(C_Death) or (not _order_mode and (not EntityAvailability.contains(trader, ECS.world) or trader.has_component(C_Death))):
 		close_panel()
 		return
+
 	_refresh_remaining -= delta
 	if _refresh_remaining <= 0.0:
 		_refresh_remaining = REFRESH_SECONDS
@@ -88,12 +92,14 @@ func _process(delta: float) -> void:
 func open_for(actor: Entity, trader: Entity = null, order_mode: bool = false) -> bool:
 	if _capture != 0 or not GrabService.holder_available(actor) or actor.has_component(C_Death) or CommerceService.current() == null:
 		return false
+
 	_actor = actor
 	_trader = weakref(trader) if trader != null else null
 	_order_mode = order_mode
 	_capture = InteractionControlFocus.acquire(actor, self, InteractionControlFocus.Priority.MODAL)
 	if _capture == 0:
 		return false
+
 	_previous_mouse = Input.mouse_mode
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	if not _order_mode and trader != null:
@@ -111,6 +117,7 @@ func close_panel() -> void:
 func _release() -> void:
 	if _capture == 0:
 		return
+
 	InteractionControlFocus.release(_actor, _capture)
 	_capture = 0
 	Input.mouse_mode = _previous_mouse if not is_instance_valid(_actor) or InteractionControlFocus.current(_actor) < InteractionControlFocus.Priority.MODAL else Input.MOUSE_MODE_VISIBLE
@@ -126,6 +133,7 @@ func _refresh() -> void:
 	var commerce: C_Commerce = CommerceService.current()
 	if cycle == null or wallet == null or commerce == null:
 		return
+
 	var shop: Entity = _shop()
 	var shop_state: C_Trader = shop.get_component(C_Trader) as C_Trader if shop != null else null
 	var profile: DEF_TraderProfile = shop_state.profile if shop_state != null else null
@@ -136,6 +144,7 @@ func _refresh() -> void:
 	_status.text = "День %d · деньги %d · инвентарь %s\nУсловие: %s · доставка в Morning дня %d\nЗадача: подготовьтесь к следующей смене. %s" % [cycle.day_index, wallet.balance, capacity, "заказы доступны" if allowed else "дождитесь Morning / Evening" if _order_mode else "дождитесь Evening", cycle.day_index + 1, _message]
 	if not _order_mode and shop_state != null:
 		_status.text = "День %d · деньги %d · инвентарь %s\n%s · %s\nМебель: забрать в зоне возле торговца, перенести и закрепить молотком. %s" % [cycle.day_index, wallet.balance, capacity, TraderCatalogService.schedule_text(shop_state), "открыто" if allowed else "закрыто", _message]
+
 	var catalog: Array[DEF_InventoryItem] = commerce.catalog
 	if not _order_mode and shop != null:
 		catalog = TraderCatalogService.catalog(shop_state)
@@ -149,6 +158,7 @@ func _refresh() -> void:
 		signature += "%s:%d:%s;" % [delivery.delivery_id, delivery.delivery_day, delivery.fulfilled]
 	if signature == _last_signature:
 		return
+
 	_last_signature = signature
 	_clear(_offers)
 	_clear(_quest)
@@ -202,6 +212,7 @@ func _show_quest(record: RefusalQuestRecord, cycle: C_DayCycle) -> void:
 func _buy(item: DEF_InventoryItem, home_delivery: bool = false) -> void:
 	if not _can_click():
 		return
+
 	var operation_id: StringName = CommerceService.next_id("order" if _order_mode else "courier" if home_delivery else "buy")
 	var result: CommerceService.Status = CommerceService.order(_actor, item, 1, operation_id) if _order_mode else CommerceService.home_delivery(_actor, _shop(), item, 1, operation_id) if home_delivery else CommerceService.purchase(_actor, _shop(), item, 1, operation_id)
 	_message = RESULT_TEXT[result]
@@ -211,6 +222,7 @@ func _buy(item: DEF_InventoryItem, home_delivery: bool = false) -> void:
 func _quest_choice(quest_id: StringName, accept: bool) -> void:
 	if not _can_click():
 		return
+
 	var applied: bool = RefusalQuestService.accept(quest_id) if accept else RefusalQuestService.ignore(quest_id)
 	_message = "Решение сохранено" if applied else "Задание недоступно"
 	_refresh()
@@ -220,6 +232,7 @@ func _can_click() -> bool:
 	var frame: int = Engine.get_process_frames()
 	if _capture == 0 or frame == _last_click_frame or not GrabService.holder_available(_actor) or InteractionControlFocus.current(_actor, _capture) >= InteractionControlFocus.Priority.MODAL:
 		return false
+
 	_last_click_frame = frame
 	return true
 

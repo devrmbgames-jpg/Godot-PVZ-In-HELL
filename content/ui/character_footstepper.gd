@@ -8,6 +8,7 @@ func _check_parent() -> void:
 	if is_manual:
 		parent = get_parent() as CharacterBody3D
 		return
+
 	super._check_parent()
 #endregion
 

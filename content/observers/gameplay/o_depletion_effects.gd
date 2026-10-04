@@ -13,9 +13,11 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 	if not is_instance_valid(entity):
 		return
+
 	var effects: C_HealthDepletionEffects = entity.get_component(C_HealthDepletionEffects)
 	if effects == null or effects.committed:
 		return
+
 	effects.committed = true
 
 	var health_depletion_effects: HealthDepletionEvent = HealthDepletionEvent.new()

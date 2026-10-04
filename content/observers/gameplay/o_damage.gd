@@ -11,6 +11,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var request: DamageRequest = payload as DamageRequest
 	if request == null or request.target != entity:
 		return
+
 	cmd.add_custom(_resolve.bind(request))
 
 

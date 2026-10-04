@@ -40,6 +40,7 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 	var lines: PackedStringArray = []
 	if kind in ["stamina", "hunger", "inventory", "npc", "nav", "challenge", "hazard", "progress", "corpse"] and not EntityAvailability.contains(entity, ECS.world):
 		return failure("Live target unavailable: %s" % raw)
+
 	match kind:
 		"stamina":
 			var state: C_Stamina = entity.get_component(C_Stamina) as C_Stamina
@@ -160,6 +161,7 @@ static func save_slot(slot: String, writing: bool) -> DebugServiceResult:
 		if directory_error != OK: return failure("Cannot create isolated slot directory")
 		var error: Error = AutosaveStore.write(data, path)
 		return success(PackedStringArray(["path=%s morning_day=%d" % [path, cycle.day_index]])) if error == OK else failure("Write failed: %s" % error_string(error))
+
 	var saved: Dictionary = AutosaveStore.read(path)
 	if saved.is_empty() or not WorldSnapshotService.valid(saved, root): return failure("Isolated save missing/corrupt/incompatible; world unchanged")
 	return success(PackedStringArray(["path=%s restored Morning; world state replaced" % path])) if WorldSnapshotService.restore(saved, root) else failure("Restore rejected")

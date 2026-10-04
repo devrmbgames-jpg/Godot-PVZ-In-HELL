@@ -84,11 +84,13 @@ func _refresh_meshes() -> void:
 			_previous_targets.erase(holder_key)
 			_holder_states.erase(holder_key)
 			continue
+
 		var state: int = _holder_states[holder_key]
 		for descendant: Node in target.find_children("*", "MeshInstance3D", true, false):
 			var mesh: MeshInstance3D = descendant as MeshInstance3D
 			if mesh is PackageMarksView:
 				continue
+
 			var mesh_key: int = mesh.get_instance_id()
 			meshes[mesh_key] = mesh
 			states[mesh_key] = maxi(states.get(mesh_key, InteractionHighlightService.State.UNAVAILABLE), state)
@@ -125,6 +127,7 @@ func _material_for(state: int) -> Material:
 	match state:
 		InteractionHighlightService.State.AVAILABLE:
 			return available_material
+
 		InteractionHighlightService.State.BUSY:
 			return busy_material
 	return unavailable_material

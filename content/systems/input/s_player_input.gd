@@ -18,9 +18,11 @@ var _sprint_pending: bool = false
 func _notification(what: int) -> void:
 	if what != NOTIFICATION_PAUSED:
 		return
+
 	_clear_pending()
 	if not is_instance_valid(ECS.world):
 		return
+
 	for actor: Entity in ECS.world.query.with_all([C_Controller, C_PlayerInputController]).execute():
 		var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 		_update_drop(controller, actor, false, 0.0)
@@ -34,6 +36,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if not is_instance_valid(ECS.world):
 		return
+
 	var players: QueryBuilder = ECS.world.query.with_all([C_PlayerInputController, C_GrabControl])
 	for actor: Entity in players.execute():
 		if InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.DRAWING:
@@ -78,6 +81,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		&"look_down",
 		float(GameSettingsService.value("deadzone")),
 	)
+
 	var move_axis: Vector2 = (
 		Input.get_vector(&"left", &"right", &"forward", &"back", float(GameSettingsService.value("deadzone")))
 		if captured else Vector2.ZERO
@@ -140,6 +144,7 @@ func _update_drop(controller: C_Controller, entity: Entity, captured: bool, delt
 		controller.drop_long_fired = false
 	if not controller.drop_tracking:
 		return
+
 	controller.drop_elapsed += delta
 	var control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
 	if (

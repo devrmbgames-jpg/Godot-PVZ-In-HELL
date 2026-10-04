@@ -57,11 +57,11 @@ Avoid GUT/runtime tests unless a change accidentally goes beyond formatting and 
 
 ### Current
 
-Completed batches: NPC/customer/dialogue/AI (27 changed scripts), remaining runtime services (102 reviewed, 93 changed). Input guards, subsequent lookup/action phases and failure cleanup are separated; consecutive related guards remain together. Next: engine glue, UI/debug and scheduled behavior, then significant test/tool scripts. Addons remain excluded. R25 documentation follows this formatting pass.
+Completed batches: NPC/customer/dialogue/AI (27 changed), other runtime services (102 reviewed, 93 changed), engine glue/UI/debug/systems/observers (146 reviewed, 77 changed). Input guards, subsequent lookup/action phases and failure cleanup are separated; consecutive related guards remain together. Next: significant test/tool scripts and remaining dense blocks in data contracts/definitions. Addons remain excluded. R25 documentation follows this formatting pass.
 
 ### Validation
 
-Exact nonblank-line comparison and comment/string-aware executable-source comparison PASS via utils/verify_gdscript_nonbehavior_changes.py --mode spacing. Godot fresh-process parser: 27/27 (.bin/readability-npc-customer-parser.log), 93/93 (.bin/readability-services-parser.log), zero failures and no script warnings/errors. The second runner's initial absolute-path manifest was corrected before acceptance. Diff review retains clustered guards; whitespace PASS. No gameplay/GUT/export reruns were performed for formatting-only edits.
+Exact nonblank-line comparison and comment/string-aware executable-source comparison PASS via utils/verify_gdscript_nonbehavior_changes.py --mode spacing. Godot fresh-process parser: 27/27 (.bin/readability-npc-customer-parser.log), 93/93 (.bin/readability-services-parser.log), 77/77 (.bin/readability-runtime-glue-parser.log), zero failures and no script warnings/errors. The second runner's initial absolute-path manifest was corrected before acceptance. Diff review retains clustered guards; whitespace PASS. No gameplay/GUT/export reruns were performed for formatting-only edits.
 
 ### Owner QA / blockers
 

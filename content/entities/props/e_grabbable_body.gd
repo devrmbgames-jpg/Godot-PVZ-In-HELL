@@ -8,4 +8,5 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	ImpactCaptureSolver.capture(self, state)
 	if CartCargoSolver.integrate(self, state):
 		return
+
 	GrabService.integrate_forces(self, state)

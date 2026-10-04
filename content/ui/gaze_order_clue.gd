@@ -16,6 +16,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
+
 	_refresh_remaining -= delta
 	if _refresh_remaining <= 0.0:
 		_refresh_remaining = REFRESH_SECONDS

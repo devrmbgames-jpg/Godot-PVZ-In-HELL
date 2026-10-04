@@ -33,6 +33,7 @@ func _notification(what: int) -> void:
 			world.entities = world.entities.filter(func(entity: Variant) -> bool: return is_instance_valid(entity))
 			if world.entities.is_empty():
 				break
+
 			var entity: Entity = world.entities.back() as Entity
 			world.remove_entity(entity)
 		world.purge(false)
@@ -46,6 +47,7 @@ func _notification(what: int) -> void:
 func _physics_process(delta: float) -> void:
 	if world == null:
 		return
+
 	world.process(delta, "Input")
 	world.process(delta, "Interaction")
 	world.process(delta, "Physics")

@@ -41,6 +41,7 @@ var _registered_commands: PackedStringArray = []
 func _ready() -> void:
 	if not _commands_enabled():
 		return
+
 	_register_command(
 		RESOLVE_COMMAND,
 		_debug_resolve,
@@ -139,6 +140,7 @@ func _ready() -> void:
 	_register_command(DEBUG_HELP_COMMAND, _debug_help, ["command|group"], 0, "Show project developer-console workflows and target syntax.")
 	_register_command(DEBUG_HUD_COMMAND, _debug_hud, ["on|off|toggle"], 0, "Toggle all debug HUD and customer status labels; ordinary gameplay UI stays active.")
 	_register_autocomplete()
+
 	var gameplay: Node = preload("res://content/debug/developer_console_gameplay.gd").new()
 	add_child(gameplay)
 	var presentation: Node = preload("res://content/debug/developer_console_presentation.gd").new()
@@ -248,6 +250,7 @@ func _pkg_list(scope: String = "") -> void:
 			"scope must be active or all",
 		)
 		return
+
 	DeveloperConsoleOutput.ok(
 		PACKAGE_LIST_COMMAND,
 		DeveloperConsoleDiagnostics.package_list(normalized == "all"),
@@ -262,6 +265,7 @@ func _pkg_info(raw_target: String) -> void:
 			target.error if not target.error.is_empty() else "target is not a package",
 		)
 		return
+
 	DeveloperConsoleOutput.ok(
 		PACKAGE_INFO_COMMAND,
 		DeveloperConsoleDiagnostics.package_info(target),
@@ -277,6 +281,7 @@ func _visit_info(raw_target: String) -> void:
 			"visit_create <package>",
 		)
 		return
+
 	DeveloperConsoleOutput.ok(
 		VISIT_INFO_COMMAND,
 		DeveloperConsoleDiagnostics.visit_info(target.visit),
@@ -304,6 +309,7 @@ func _health_info(raw_target: String = "") -> void:
 			"target has no live Entity",
 		)
 		return
+
 	DeveloperConsoleOutput.ok(
 		HEALTH_INFO_COMMAND,
 		DeveloperConsoleDiagnostics.health_info(target),
@@ -372,6 +378,7 @@ func _print_service_result(command: String, result: DebugServiceResult) -> void:
 		details.append_array(result.details)
 		DeveloperConsoleOutput.ok(command, details)
 		return
+
 	DeveloperConsoleOutput.error(command, result.message)
 
 
@@ -381,6 +388,7 @@ func _visit_create(raw_target: String, customer_key: String = "", arrive_text: S
 	if arrive_text not in ["0", "1"]:
 		DeveloperConsoleOutput.error(VISIT_CREATE_COMMAND, "arrive must be 0 or 1")
 		return
+
 	_print_service_result(
 		VISIT_CREATE_COMMAND,
 		DebugCustomerService.create_visit(DebugTargetResolver.resolve(raw_target), customer_key, arrive_text == "1"),
@@ -458,6 +466,7 @@ func _pkg_approve(raw_target: String, satisfaction_text: String = "") -> void:
 		if not satisfaction_text.is_valid_int():
 			DeveloperConsoleOutput.error(PACKAGE_APPROVE_COMMAND, "satisfaction must be an integer from 0 to 100")
 			return
+
 		satisfaction = satisfaction_text.to_int()
 	_print_service_result(
 		PACKAGE_APPROVE_COMMAND,
@@ -571,6 +580,7 @@ func _heal(raw_target: String, amount_text: String) -> void:
 	var amount: float = _positive_float(HEAL_COMMAND, amount_text)
 	if amount <= 0.0:
 		return
+
 	_print_service_result(
 		HEAL_COMMAND,
 		DebugHealthService.heal(DebugTargetResolver.resolve(raw_target), amount),
@@ -601,6 +611,7 @@ func _positive_float(command: String, value: String) -> float:
 	if not value.is_valid_float():
 		DeveloperConsoleOutput.error(command, "amount must be a finite positive number")
 		return -1.0
+
 	var parsed: float = value.to_float()
 	if not is_finite(parsed) or parsed <= 0.0:
 		DeveloperConsoleOutput.error(command, "amount must be a finite positive number")
@@ -651,4 +662,5 @@ func _debug_hud(mode: String = "toggle") -> void:
 		_:
 			DeveloperConsoleOutput.error(DEBUG_HUD_COMMAND, "mode must be on, off or toggle")
 			return
+
 	DeveloperConsoleOutput.ok(DEBUG_HUD_COMMAND, PackedStringArray(["enabled=%s" % DebugHudService.is_enabled()]))

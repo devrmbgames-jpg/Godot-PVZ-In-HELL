@@ -12,6 +12,7 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 		var relationship: Relationship = HazardFollowService.binding(entity)
 		if relationship == null:
 			continue
+
 		var follow: R_HazardFollow = relationship.relation as R_HazardFollow
 		var effect: Node3D = entity as Node as Node3D
 		if not EntityAvailability.contains(relationship.target, _world):

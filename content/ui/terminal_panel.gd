@@ -82,6 +82,7 @@ func _exit_tree() -> void:
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
+
 	var close_requested: bool = event.is_action_pressed(&"menu")
 	if not _package_find.has_focus():
 		close_requested = close_requested or event.is_action_pressed(&"interact")
@@ -96,6 +97,7 @@ func _process(delta: float) -> void:
 	if not is_instance_valid(_reader) or not GrabService.holder_available(_reader):
 		close_panel()
 		return
+
 	_refresh_remaining -= delta
 	if _refresh_remaining <= 0.0:
 		_refresh()
@@ -110,6 +112,7 @@ func open_for(actor: Entity) -> void:
 		return
 	if not GrabService.holder_available(actor):
 		return
+
 	_reader = actor
 	_capture_token = InteractionControlFocus.acquire(
 		actor,
@@ -128,6 +131,7 @@ func open_for(actor: Entity) -> void:
 func close_panel() -> void:
 	if not visible:
 		return
+
 	visible = false
 	InteractionControlFocus.release(_reader, _capture_token)
 	_capture_token = 0
@@ -152,6 +156,7 @@ func _refresh(force: bool = false) -> void:
 	var signature: String = _data_signature(ledger, states, visits)
 	if not force and signature == _last_data_signature:
 		return
+
 	_last_data_signature = signature
 	_rebuild_package_rows(ledger, states, visits)
 	_refresh_info(ledger, states, visits)
@@ -246,12 +251,15 @@ func _compare_records(first: PackageRegistrationRecord, second: PackageRegistrat
 			)
 		SortMode.NUMBER:
 			return _compare_int(first.number, second.number)
+
 		SortMode.DATE:
 			return _compare_int(first.day_index, second.day_index)
+
 		SortMode.TYPE:
 			var first_type: String = String(first_definition.key) if first_definition != null else ""
 			var second_type: String = String(second_definition.key) if second_definition != null else ""
 			return first_type.nocasecmp_to(second_type)
+
 		SortMode.PRICE:
 			return _compare_int(
 				first_definition.accounting_value if first_definition != null else 0,
@@ -360,6 +368,7 @@ func _transaction_entries() -> PackedStringArray:
 	var wallet: C_Wallet = WalletService.current()
 	if wallet == null:
 		return PackedStringArray(["Кошелёк недоступен."])
+
 	var entries: PackedStringArray = [
 		"Баланс: %d · Штрафы: %d · Завершено смен: %d"
 		% [wallet.balance, wallet.penalties, wallet.completed_days]
@@ -388,24 +397,34 @@ static func _reason_text(reason: MoneyOperation.Reason) -> String:
 	match reason:
 		MoneyOperation.Reason.PAYMENT:
 			return "Оплата за выдачу"
+
 		MoneyOperation.Reason.PURCHASE:
 			return "Покупка"
+
 		MoneyOperation.Reason.VOLUNTARY_BUYOUT:
 			return "Присвоение отказной посылки"
+
 		MoneyOperation.Reason.LOST:
 			return "Потеря"
+
 		MoneyOperation.Reason.PLAYER_REFUSAL:
 			return "Отказ игрока"
+
 		MoneyOperation.Reason.CONFIRMED_FRAUD:
 			return "Подтверждённая жалоба"
+
 		MoneyOperation.Reason.MISSED_REGISTRATION:
 			return "Не зарегистрирована вовремя"
+
 		MoneyOperation.Reason.DEBUG_CREDIT:
 			return "Debug начисление"
+
 		MoneyOperation.Reason.DEBUG_DEBIT:
 			return "Debug списание"
+
 		MoneyOperation.Reason.DEBUG_PENALTY:
 			return "Debug штраф"
+
 		MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL:
 			return "Debug отмена штрафа"
 	return "Операция"
@@ -439,6 +458,7 @@ func _visits_by_package() -> Dictionary[String, CustomerVisit]:
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	if flow == null:
 		return result
+
 	for visit: CustomerVisit in flow.visits:
 		result[visit.package_id] = visit
 	return result
@@ -539,6 +559,7 @@ func _declare_package(
 func _on_sort_mode_selected(id: int) -> void:
 	if id < SortMode.WEIGHT or id > SortMode.PRICE:
 		return
+
 	match id:
 		SortMode.WEIGHT:
 			_sort_mode = SortMode.WEIGHT
@@ -603,6 +624,7 @@ func _on_help_pressed() -> void:
 func _on_orders_pressed() -> void:
 	if not is_instance_valid(_reader) or CommerceService.current() == null:
 		return
+
 	var actor: Entity = _reader
 	close_panel()
 	CommercePanelService.open(actor, null, true)

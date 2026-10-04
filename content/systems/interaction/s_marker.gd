@@ -22,5 +22,6 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 func _exit_tree() -> void:
 	if not is_instance_valid(ECS.world):
 		return
+
 	for tool: Entity in ECS.world.query.with_all([C_Marker]).execute():
 		MarkerSessionService.end(tool)

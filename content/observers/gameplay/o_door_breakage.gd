@@ -13,12 +13,14 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 	if result.request == null or result.request.target != entity:
 		return
+
 	cmd.add_custom(_break.bind(entity))
 
 
 func _break(entity: Entity) -> void:
 	if not EntityAvailability.contains(entity, _world):
 		return
+
 	var config: C_BreakableDoor = entity.get_component(C_BreakableDoor) as C_BreakableDoor
 	if config.mode == C_BreakableDoor.Mode.PADLOCK:
 		(entity.get_component(C_Openable) as C_Openable).locked = false
