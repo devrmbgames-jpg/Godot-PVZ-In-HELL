@@ -12,6 +12,8 @@ var goal: Vector3 = Vector3.ZERO
 var reachable: bool = true
 ## Time since hazard evaluation.
 var elapsed: float = 0.0
+## Whether this goal is awaiting a slot in the fair planning queue.
+var pending: bool = false
 ## Bounded waiting without a traversable safe route.
 var blocked_seconds: float = 0.0
 ## Whether a physical progress sample has been established for this goal.

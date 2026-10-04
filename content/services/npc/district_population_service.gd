@@ -2,12 +2,26 @@ extends RefCounted
 ## Permanent population lifecycle; temporary departures never instantiate another person.
 class_name DistrictPopulationService
 
+static var _lookup_world: World = null
+static var _session_reference: WeakRef = null
+static var _session_query: QueryBuilder = null
+
 #region Lookups
 ## Returns the scene-local district session, if installed.
 static func current() -> C_District:
 	if not is_instance_valid(ECS.world):
 		return null
-	var session: Entity = ECS.world.query.with_all([C_District]).execute_one()
+	if _lookup_world != ECS.world or not is_instance_valid(_lookup_world):
+		_lookup_world = ECS.world
+		_session_reference = null
+		_session_query = QueryBuilder.new(_lookup_world).with_all([C_District])
+
+	var session: Entity = _session_reference.get_ref() as Entity if _session_reference != null else null
+	if session != null and _lookup_world.entity_to_archetype.has(session) and session.has_component(C_District):
+		return session.get_component(C_District) as C_District
+
+	session = _session_query.execute_one()
+	_session_reference = weakref(session) if session != null else null
 	return session.get_component(C_District) as C_District if session != null else null
 
 ## Looks up permanent identity, including historical dead people.
@@ -23,11 +37,21 @@ static func person_for(npc_id: StringName) -> NpcRecord:
 static func body_for(npc_id: StringName) -> E_DistrictNpc:
 	if not is_instance_valid(ECS.world):
 		return null
+	var district: C_District = current()
+	var reference: WeakRef = district.body_references.get(npc_id) if district != null else null
+	var cached: E_DistrictNpc = reference.get_ref() as E_DistrictNpc if reference != null else null
+	if cached != null and ECS.world.entities.has(cached):
+		var identity: C_NpcIdentity = cached.get_component(C_NpcIdentity) as C_NpcIdentity
+		if identity != null and identity.npc_id == npc_id:
+			return cached
+
 	for entity: Entity in ECS.world.entities:
 		if not is_instance_valid(entity):
 			continue
 		var identity: C_NpcIdentity = entity.get_component(C_NpcIdentity) as C_NpcIdentity
 		if identity != null and identity.npc_id == npc_id:
+			if district != null:
+				district.body_references[npc_id] = weakref(entity)
 			return entity as E_DistrictNpc
 	return null
 
@@ -90,6 +114,8 @@ static func restore_participation() -> void:
 	district.noises.clear()
 	district.route_edges.clear()
 	district.route_map_iteration = -1
+	district.pending_routes.clear()
+	district.lighting_context = null
 	district.light_sources.clear()
 	for lamp: Node in ECS.world.get_parent().find_children("*", "Light3D", true, false):
 		district.light_sources.append(lamp as Light3D)
@@ -195,6 +221,8 @@ static func prepare_morning(morning_day: int) -> void:
 		return
 	district.prepared_morning = morning_day
 	district.noises.clear()
+	district.pending_routes.clear()
+	district.lighting_context = null
 	_replace_vacancies(district, morning_day)
 	for person: NpcRecord in district.people:
 		if person.death_day != 0:

@@ -17,6 +17,8 @@ class_name DEF_District
 @export var replacement_names: PackedStringArray = ["Счетовод", "Грач", "Моль", "Сажа", "Свечник", "Тихоня", "Нитка", "Дымник"]
 ## Seconds between hazard route evaluations.
 @export_range(0.1, 5.0) var route_interval: float = 0.6
+## Maximum synchronous route plans allowed in one physics frame.
+@export_range(1, 16) var route_plans_per_frame: int = 1
 ## Bounded wait before abandoning an unreachable activity.
 @export_range(1.0, 120.0) var route_timeout: float = 20.0
 ## Actual horizontal movement needed to renew the route progress watchdog.

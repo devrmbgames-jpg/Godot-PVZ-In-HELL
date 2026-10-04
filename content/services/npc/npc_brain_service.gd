@@ -49,7 +49,8 @@ static func tick(district: C_District, delta: float) -> void:
 		var actor: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
 		if actor == null:
 			continue
-		install(actor)
+		if not actor.has_component(C_NpcDecision) or not actor.has_component(C_NpcAwareness) or actor.get_node_or_null("Brain") == null:
+			install(actor)
 		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
 		decision.update_elapsed += maxf(0.0, delta)
 		if decision.update_elapsed < district.definition.decision_interval:
@@ -72,6 +73,7 @@ static func tick(district: C_District, delta: float) -> void:
 		var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
 		NpcRouteService.tick(actor, DistrictPopulationService.person_for(identity.npc_id), decision.update_elapsed)
 		decision.update_elapsed = 0.0
+	NpcRouteService.process_pending(district)
 	for noise: NpcNoise in district.noises.duplicate():
 		noise.remaining -= maxf(0.0, delta)
 		if noise.remaining <= 0.0:

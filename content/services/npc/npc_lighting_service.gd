@@ -6,29 +6,59 @@ const LIGHT_NORMALIZATION: float = 2.0
 const BLOCKER_MASK: int = 31
 
 #region Illumination query
+## Resolves stable authoring inputs once per physics frame, independently of sample count.
+static func context_for(district: C_District) -> NpcLightingContext:
+	var frame: int = Engine.get_physics_frames()
+	if (
+		district.lighting_context != null
+		and district.lighting_frame == frame
+		and district.lighting_world_version == ECS.world.cache_version
+		and district.lighting_context.sources.size() == district.light_sources.size()
+	):
+		return district.lighting_context
+
+	var context: NpcLightingContext = NpcLightingContext.new()
+	for place: DEF_DistrictPlace in district.definition.places:
+		if place == null:
+			continue
+		context.places.append(place)
+		context.positions.append(DistrictPopulationService.position_for(place.key))
+	for lamp: Light3D in district.light_sources:
+		context.sources.append(lamp)
+		var circuit: C_LightCircuit = null
+		if is_instance_valid(lamp):
+			for child: Node in lamp.get_children():
+				var circuit_view: CircuitLightView = child as CircuitLightView
+				if circuit_view != null:
+					circuit = LightCircuitService.state_for(circuit_view.circuit_id)
+					break
+		context.circuits.append(circuit)
+	district.lighting_context = context
+	district.lighting_frame = frame
+	district.lighting_world_version = ECS.world.cache_version
+	return context
+
 ## Returns gameplay light exposure, with physical blockers and circuit state.
-static func exposure_at(world_position: Vector3, ignored_bodies: Array[RID] = []) -> float:
+static func exposure_at(world_position: Vector3, ignored_bodies: Array[RID] = [], context: NpcLightingContext = null) -> float:
 	var district: C_District = DistrictPopulationService.current()
 	if district == null or district.definition == null:
 		return 1.0
+	if context == null:
+		context = context_for(district)
+
 	var nearest: float = INF
 	var exposure: float = 0.05
-	for place: DEF_DistrictPlace in district.definition.places:
-		var distance: float = world_position.distance_squared_to(DistrictPopulationService.position_for(place.key))
+	for index: int in context.places.size():
+		var distance: float = world_position.distance_squared_to(context.positions[index])
 		if distance < nearest:
 			nearest = distance
-			exposure = place.ambient_light
-	for lamp: Light3D in district.light_sources:
+			exposure = context.places[index].ambient_light
+	for index: int in context.sources.size():
+		var lamp: Light3D = context.sources[index]
 		if not is_instance_valid(lamp) or not lamp.is_visible_in_tree() or lamp.light_energy <= 0.0:
 			continue
-		var circuit_enabled: bool = true
-		for child: Node in lamp.get_children():
-			var circuit_view: CircuitLightView = child as CircuitLightView
-			if circuit_view != null:
-				var circuit: C_LightCircuit = LightCircuitService.state_for(circuit_view.circuit_id)
-				circuit_enabled = circuit == null or circuit.enabled
-				break
-		if not circuit_enabled:
+		var circuit: C_LightCircuit = context.circuits[index]
+		if circuit != null and not circuit.enabled:
 			continue
 		var radius: float = (lamp as OmniLight3D).omni_range if lamp is OmniLight3D else (lamp as SpotLight3D).spot_range if lamp is SpotLight3D else 0.0
 		if radius <= 0.0:
