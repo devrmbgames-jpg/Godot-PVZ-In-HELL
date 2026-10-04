@@ -1,8 +1,8 @@
 extends CanvasLayer
-## Package-centric warehouse terminal. Gameplay authority remains in package/customer/economy services.
+## Журнал коробок и финансов: отображает записи и передаёт заявления в сервисы обслуживания.
 class_name TerminalPanel
 
-## Explicit author/debug opt-in; a debug executable alone does not reveal parcel truth.
+## Авторское разрешение отладочного состояния коробок; debug-сборка сама по себе его не включает.
 @export var debug_package_status_enabled: bool = false
 
 enum SortMode {
@@ -51,7 +51,7 @@ var _info_mode: InfoMode = InfoMode.DETAIL
 var _last_data_signature: String = ""
 
 
-#region Lifecycle
+#region Жизненный цикл и обновление
 func _ready() -> void:
 	visible = false
 	var hint: InputPromptLabel = InputPromptLabel.new()
@@ -105,7 +105,8 @@ func _process(delta: float) -> void:
 #endregion
 
 
-#region Public UI API
+#region Открытие и закрытие
+## Открывает журнал для доступного актора, захватывает модальный фокус и публикует событие открытия.
 func open_for(actor: Entity) -> void:
 	if visible:
 		_refresh(true)
@@ -128,6 +129,7 @@ func open_for(actor: Entity) -> void:
 	PlayerInteractionEvents.publish(_reader, get_parent() as E_Terminal, PlayerInteractionEvent.Kind.TERMINAL_OPENED)
 
 
+## Освобождает токен фокуса, возвращает мышь и публикует закрытие один раз.
 func close_panel() -> void:
 	if not visible:
 		return
@@ -142,6 +144,7 @@ func close_panel() -> void:
 #endregion
 
 
+#region Список посылок и сортировка
 func _refresh(force: bool = false) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	_orders_button.disabled = CommerceService.current() == null or cycle == null or cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING]
@@ -296,6 +299,9 @@ static func _is_archived(
 	return debug_status and not record.active
 
 
+#endregion
+
+#region Подробности и истории
 func _refresh_info(
 	ledger: C_PackageLedger,
 	states: Dictionary[String, C_PackageState],
@@ -452,6 +458,9 @@ static func _help_entries() -> PackedStringArray:
 	])
 
 
+#endregion
+
+#region Снимок данных и видимость панелей
 func _live_states() -> Dictionary[String, C_PackageState]:
 	return PackageRegistrationService.live_states()
 
@@ -467,6 +476,7 @@ func _visits_by_package() -> Dictionary[String, CustomerVisit]:
 	return result
 
 
+## Производная подпись UI ограничивает пересборку строк; не служит игровым журналом или сохранением.
 func _data_signature(
 	ledger: C_PackageLedger,
 	states: Dictionary[String, C_PackageState],
@@ -527,6 +537,9 @@ func _set_info_mode(mode: InfoMode) -> void:
 	_transaction_history.visible = mode == InfoMode.TRANSACTIONS
 
 
+#endregion
+
+#region Запросы пользователя
 func _on_package_selected(package_id: String) -> void:
 	_selected_package_id = package_id
 	_set_info_mode(InfoMode.DETAIL)
@@ -545,6 +558,7 @@ func _on_lost_requested(package_id: String) -> void:
 	_declare_package(package_id, CustomerVisit.Declaration.LOST)
 
 
+## Запрашивает заявление в журнале обслуживания; физическую выдачу коробки не выполняет.
 func _declare_package(
 	package_id: String,
 	declaration: CustomerVisit.Declaration,
@@ -633,3 +647,5 @@ func _on_orders_pressed() -> void:
 	var actor: Entity = _reader
 	close_panel()
 	CommercePanelService.open(actor, null, true)
+
+#endregion

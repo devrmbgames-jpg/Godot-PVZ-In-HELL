@@ -1,19 +1,30 @@
 extends Node
-## Presentation-only hit sounds, restrained screen warning and physical damage labels.
+## Представление принятого урона: звук, экранное предупреждение и мировые метки; Health не изменяет.
 class_name DamageFeedbackView
 
+## Получатель локальных экранных предупреждений по совпадению стабильного ID.
 @export var player: Entity = null
+## Источник уже принятых DamageFeedback; подключается через bind_observer.
 @export var observer: O_DamageFeedback = null
+## Разрешает представление; отключение очищает предупреждения и метки.
 @export var enabled: bool = true
+## Разрешает синтезированные звуки попадания.
 @export var sound_enabled: bool = true
+## Отключает цветовую заливку и подъём меток, сохраняя текст.
 @export var reduced_motion: bool = true
+## Длительность локального предупреждения в секундах.
 @export_range(0.1, 5.0) var player_warning_seconds: float = 0.8
+## Время жизни мировой метки в секундах.
 @export_range(0.1, 5.0) var world_label_seconds: float = 1.2
+## Предел мировых меток; при переполнении удаляется самая старая.
 @export_range(1, 32) var maximum_world_labels: int = 12
+## Цвет обычного физического урона.
 @export var damage_color: Color = Color(1.0, 0.3, 0.25)
+## Цвет токсичного урона.
 @export var toxic_color: Color = Color(0.3, 1.0, 0.55)
+## Цвет взрывного урона.
 @export var explosion_color: Color = Color(1.0, 0.7, 0.2)
-## Fire exposure warning tint; remains legible with reduced motion.
+## Цвет предупреждения об огне; текст остаётся видимым при уменьшенном движении.
 @export var fire_color: Color = Color(1.0, 0.4, 0.05)
 
 const SAMPLE_RATE: int = 22050
@@ -33,12 +44,14 @@ var _tones: Array[AudioStreamWAV] = []
 @onready var _sound: AudioStreamPlayer = $Sound
 
 
+#region Источник и жизненный цикл
 func _ready() -> void:
 	_tones = [_tone(520.0, 0.09), _tone(240.0, 0.15), _tone(140.0, 0.22)]
 	bind_observer()
 	_clear_warning()
 
 
+## Подключает текущий источник один раз; вызывается при готовности или после назначения observer.
 func bind_observer() -> void:
 	if observer != null and not observer.received.is_connected(_on_feedback):
 		observer.received.connect(_on_feedback)
@@ -75,6 +88,9 @@ func _process(delta: float) -> void:
 			_labels[index].position.y += delta * LABEL_RISE_SPEED
 
 
+#endregion
+
+#region Представление результата
 func _on_feedback(feedback: DamageFeedback) -> void:
 	if not enabled or feedback == null:
 		return
@@ -115,6 +131,10 @@ func _on_feedback(feedback: DamageFeedback) -> void:
 	_label_times.append(world_label_seconds)
 
 
+#endregion
+
+#region Диагностика и визуальные ресурсы
+## Текст фактических настроек и таймеров представления для отладочного HUD.
 func debug_text() -> String:
 	return "FEEDBACK · %s · звук %s\nТаймер предупреждения %.2f / %.2f с\nМетки урона %d / %d · время %.2f с\nДвижение: %s · задача: выйдите из опасной зоны" % ["вкл" if enabled else "выкл", "вкл" if sound_enabled else "выкл", _remaining, player_warning_seconds, _labels.size(), maximum_world_labels, world_label_seconds, "снижено" if reduced_motion else "обычное"]
 
@@ -152,3 +172,5 @@ func _tone(frequency: float, seconds: float) -> AudioStreamWAV:
 	stream.mix_rate = SAMPLE_RATE
 	stream.data = samples
 	return stream
+
+#endregion

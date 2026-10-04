@@ -1,9 +1,9 @@
 extends Footstepper
-## Addon manual mode assigns an arbitrary parent to a CharacterBody3D field.
-## Keep the addon read-only and allow its manual audio API under rigid NPC presentation.
+## Адаптер ручного Footstepper для RigidBody-NPC; безопасно приводит родителя к CharacterBody3D.
+## Ручные звуки вызываются CharacterFeedback; сторонний аддон сохраняет свой контракт.
 class_name CharacterFootstepper
 
-#region Addon compatibility
+#region Совместимость ручного режима
 func _check_parent() -> void:
 	if is_manual:
 		parent = get_parent() as CharacterBody3D
@@ -12,9 +12,9 @@ func _check_parent() -> void:
 	super._check_parent()
 #endregion
 
-#region Audio lifetime
+#region Освобождение аудио
 func _exit_tree() -> void:
-	# Release active native playbacks before shutdown or removal of a moving character.
+	# Активный native playback останавливается до удаления движущегося персонажа или закрытия дерева.
 	available_players.clear()
 	for audio_node: Node in get_children():
 		var spatial_player: AudioStreamPlayer3D = audio_node as AudioStreamPlayer3D

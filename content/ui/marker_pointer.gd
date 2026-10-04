@@ -1,5 +1,5 @@
 extends Control
-## Displays the active marker's virtual pointer without consuming input.
+## Рисует виртуальный указатель активного маркера без потребления ввода.
 class_name MarkerPointer
 
 const POINTER_RADIUS: float = 4.0

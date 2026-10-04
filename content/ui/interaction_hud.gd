@@ -1,13 +1,23 @@
 extends CanvasLayer
+## Представляет состояние игрока, дня и взаимодействий; запросы меню идут через отдельный SettingsMenu.
 
+## Игрок, чьи доступность, фокус и показатели отображает HUD.
 @export var player: Entity = null
+## Разрешает отладочные показатели при включённом DebugHudService.
 @export var debug_status_enabled: bool = true
+## Разрешает расширенное состояние испытаний при включённой отладке.
 @export var challenge_debug_enabled: bool = true
+## Уменьшает движение эффекта взгляда; общая настройка пользователя также учитывается.
 @export var reduced_gaze_motion: bool = true
+## Разрешает производное предупреждение о ранениях и голоде.
 @export var status_vignette_enabled: bool = true
+## Доля оставшихся HP, ниже которой усиливается виньетка ранения.
 @export_range(0.1, 1.0, 0.05) var injury_vignette_onset_ratio: float = 0.75
+## Непрозрачность статусной виньетки 0–0.8.
 @export_range(0.0, 0.8, 0.05) var status_vignette_opacity: float = 0.35
+## Разрешает обычную панель HP, голода, выносливости и денег.
 @export var player_status_enabled: bool = true
+## Источник принятых событий урона для дочернего DamageFeedbackView.
 @export var damage_feedback: O_DamageFeedback = null
 const MINIMUM_VIGNETTE_RATIO: float = 0.1
 const MINIMUM_HUNGER_SPAN: float = 1.0
@@ -67,7 +77,7 @@ var _last_phase: int = -1
 var _menu_hint: InputPromptLabel
 
 
-#region Lifecycle
+#region Жизненный цикл и обновление
 func _ready() -> void:
 	var settings: SettingsMenu = SettingsMenu.new()
 	settings.setup(player)
@@ -138,6 +148,7 @@ func _process(delta: float) -> void:
 #endregion
 
 
+#region Статус игрока
 func _update_player_status() -> void:
 	_player_status.visible = player_status_enabled and is_instance_valid(player)
 	if not _player_status.visible:
@@ -175,7 +186,9 @@ func _update_player_status() -> void:
 		_status_money.text = "Баланс  %d ₽ · Штрафы  %d ₽" % [wallet.balance, wallet.penalties]
 
 
-#region Debug acceptance presentation
+#endregion
+
+#region Отладочное представление и предупреждения
 func _compact_debug(message: String) -> String:
 	var lines: PackedStringArray = message.split("\n")
 	return lines[0] if not lines.is_empty() else ""
@@ -314,7 +327,7 @@ func _hazard_scene_name(scene: PackedScene) -> String:
 #endregion
 
 
-#region Presentation callbacks
+#region Представление смены фазы
 func _refresh_phase_presentation() -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle != null:
