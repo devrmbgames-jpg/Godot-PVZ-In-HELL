@@ -1,14 +1,17 @@
 extends RefCounted
-## Package identity lookup, construction and spawn-space placement for Receiving.
+## Создаёт физическую коробку для приёмки и проверяет авторские точки размещения.
 class_name ReceivingPackageFactory
 
 const SPAWN_MARGIN: float = 0.03
 
 
+#region Создание экземпляра
+## Проверяет наличие живой физической коробки с этим package_id.
 static func exists(package_id: String) -> bool:
 	return PackageRegistrationService.find_live_package(package_id) != null
 
 
+## Создаёт незарегистрированный экземпляр с собственными ID и параметрами переноски; размещение выполняется отдельно.
 static func create(
 	zone: E_ReceivingZone,
 	definition: DEF_Package,
@@ -55,6 +58,10 @@ static func create(
 	return parcel
 
 
+#endregion
+
+#region Проверка и размещение
+## Проверяет свободную авторскую точку, добавляет коробку в сцену и World; false оставляет её неразмещённой.
 static func try_place(zone: E_ReceivingZone, parcel: E_Package) -> bool:
 	if zone == null or parcel == null:
 		return false
@@ -84,3 +91,5 @@ static func try_place(zone: E_ReceivingZone, parcel: E_Package) -> bool:
 		ECS.world.add_entity(parcel, null, false)
 		return true
 	return false
+
+#endregion

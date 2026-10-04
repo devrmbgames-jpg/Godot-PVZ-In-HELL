@@ -1,8 +1,10 @@
 extends RefCounted
-## Explicit physical Morning exit. Terminal declarations alone never release a number.
+## Возвращает физическую коробку утром; одно заявление в терминале не освобождает её номер.
 class_name PackageReturnService
 
 
+#region Утренний физический возврат
+## Утром находит удерживаемую игроком коробку, допустимую к физическому возврату.
 static func held_refused(actor: Entity) -> Entity:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING or not GrabService.holder_available(actor):
@@ -15,6 +17,7 @@ static func held_refused(actor: Entity) -> Entity:
 	return null
 
 
+## Проверяет активную регистрацию и прошлый отказ с оставшейся на складе коробкой.
 static func can_return(parcel: Entity) -> bool:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var flow: C_CustomerFlow = CustomerFlowService.current()
@@ -40,6 +43,7 @@ static func can_return(parcel: Entity) -> bool:
 	return false
 
 
+## Возвращает удерживаемую коробку: освобождает номер, отменяет повтор и удаляет физический предмет.
 static func return_held(actor: Entity) -> bool:
 	var parcel: Entity = held_refused(actor)
 	if parcel == null:
@@ -56,7 +60,9 @@ static func return_held(actor: Entity) -> bool:
 		if visit.package_id == identity.package_id and visit.disposition == CustomerVisit.Disposition.WAREHOUSE:
 			visit.disposition = CustomerVisit.Disposition.RETURNED
 			visit.next_followup_day = 0
-	# Keep actual/declaration, dispute and settlement records unchanged.
+	# Фактический исход, заявление, спор и записи расчёта сохраняются при возврате.
 	GrabService.release(actor, parcel)
 	ECS.world.remove_entity(parcel)
 	return true
+
+#endregion

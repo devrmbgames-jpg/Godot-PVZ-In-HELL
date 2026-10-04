@@ -1,12 +1,14 @@
 extends Observer
-## Commits opening exactly once and publishes a typed consequence hook without applying damage.
+## Фиксирует вскрытие однократно и публикует событие для последствий, не применяя урон.
 class_name O_PackageOpening
 
 
+## Подписывается на запросы вскрытия коробок с постоянным ID и состоянием.
 func query() -> QueryBuilder:
 	return q.with_all([C_Package, C_PackageState]).on_event(PackageOpenRequest.EVENT)
 
 
+## Откладывает повторную проверку доступа и фиксацию Opened через CommandBuffer.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var request: PackageOpenRequest = payload as PackageOpenRequest
 	if request != null and request.package == entity:

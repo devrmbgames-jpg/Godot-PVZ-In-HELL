@@ -1,8 +1,9 @@
 extends RefCounted
-## R08 protection application boundary; impact calculation still owns severity suppression.
+## Применяет защиту коробки; снижение тяжести удара остаётся в общем расчёте impact.
 class_name PackageProtectionService
 
 
+## Проверяет живую коробку и возможность повысить её уровень защиты до tier.
 static func can_apply(target: Entity, tier: ImpactResult.Severity) -> bool:
 	if not EntityAvailability.contains(target, ECS.world) or not target.has_component(C_Package) or tier <= ImpactResult.Severity.None or tier > ImpactResult.Severity.Strong:
 		return false
@@ -15,6 +16,7 @@ static func can_apply(target: Entity, tier: ImpactResult.Severity) -> bool:
 	return protection == null or protection.tier < tier
 
 
+## Создаёт или повышает C_ImpactProtection; не меняет Health и состояние коробки.
 static func apply(target: Entity, tier: ImpactResult.Severity) -> bool:
 	if not can_apply(target, tier):
 		return false

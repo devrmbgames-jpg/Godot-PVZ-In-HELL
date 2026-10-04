@@ -1,9 +1,9 @@
 extends RefCounted
-## Publishes package-specific transitions for future hazard/customer subscribers.
+## Публикует переходы состояния коробки для подписчиков опасностей и обслуживания.
 class_name PackageLifecycle
 
 
-## Called only after the domain state transition has committed.
+## Публикует событие только после фиксации перехода состояния коробки.
 static func publish(
 	package: Entity,
 	kind: PackageLifecycleEvent.Kind,

@@ -1,5 +1,5 @@
 extends RefCounted
-## Atomic one-shot physical extraction. No inventory transfer or customer decision authority.
+## Однократно извлекает физическое содержимое; не решает судьбу инвентаря и принятие клиентом.
 class_name PackageContentsService
 
 const CONTENTS_COLUMNS: int = 3
@@ -12,6 +12,7 @@ const SPILL_CLEARANCE: float = 0.15
 const SPILL_ITEMS_PER_RING: int = 6
 
 
+#region Состояние и извлечение
 ## released — единственный признак пустой оболочки, в том числе после загрузки.
 static func is_empty(package: Entity) -> bool:
 	if not is_instance_valid(package):
@@ -21,6 +22,7 @@ static func is_empty(package: Entity) -> bool:
 	return contents != null and contents.released
 
 
+## Извлекает содержимое открытой целой коробки однократно; возвращает созданные предметы либо пустой массив.
 static func release(package: Entity, actor: Entity = null) -> Array[Entity]:
 	var spawned: Array[Entity] = []
 	if not EntityAvailability.contains(package, ECS.world):
@@ -47,7 +49,7 @@ static func release(package: Entity, actor: Entity = null) -> Array[Entity]:
 			for pending: Entity in spawned:
 				pending.free()
 			return []
-		# World pickups authored as starter stacks become individual unpacked objects.
+		# Авторский стартовый стек превращается в отдельные извлечённые предметы.
 		var components: Array[Component] = content.component_resources.duplicate()
 		for component_index: int in components.size():
 			var item: C_InventoryItem = components[component_index] as C_InventoryItem
@@ -58,7 +60,7 @@ static func release(package: Entity, actor: Entity = null) -> Array[Entity]:
 				components[component_index] = single
 		content.component_resources = components
 		spawned.append(content)
-	# Commit before registering any body: reentrant lifecycle events cannot duplicate contents.
+	# Фиксируем до регистрации тел: вложенное событие не сможет повторно создать содержимое.
 	state.released = true
 	condition.leaking = false
 
@@ -96,7 +98,7 @@ static func release(package: Entity, actor: Entity = null) -> Array[Entity]:
 			node.linear_velocity = (direction + Vector3.UP) * definition.spill_speed
 		if definition.activate_contents_hazard:
 			HazardEmitter.activate(content, actor)
-	# Opening effects belong to the first real content object, not to the empty box.
+	# Эффект вскрытия принадлежит первому реальному предмету содержимого, а не пустой коробке.
 	if definition.hazard_on_opened != null:
 		HazardEmitter.emit_scene(spawned[0], definition.hazard_on_opened, "%s:opened:%s" % [identity.package_id, definition.hazard_on_opened.resource_path], actor, identity.package_id)
 	for effect: Entity in ECS.world.query.with_relationship([Relationship.new(R_HazardFollow.new(), package)]).execute().duplicate():
@@ -105,6 +107,9 @@ static func release(package: Entity, actor: Entity = null) -> Array[Entity]:
 	return spawned
 
 
+#endregion
+
+#region Физические границы содержимого
 static func _top_height(node: Node3D) -> float:
 	var highest: float = 0.0
 	for child: Node in node.find_children("*", "CollisionShape3D", true, false):
@@ -134,3 +139,5 @@ static func _bottom_height(node: Node3D) -> float:
 		var bounds: AABB = relative * mesh.get_aabb()
 		lowest = minf(lowest, bounds.position.y)
 	return lowest
+
+#endregion

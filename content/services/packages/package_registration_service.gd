@@ -1,10 +1,10 @@
 extends RefCounted
-## Sole writer of registration numbers and their explicit warehouse-lifecycle reservations.
+## Единственный владелец записи регистрационных номеров и их складских резервов.
 class_name PackageRegistrationService
 
 
-#region Registration API
-## Resolves a live physical package by domain identity; registration numbers are separate.
+#region Регистрация и складской резерв
+## Находит живую коробку по постоянному package_id, отдельно от номера регистрации.
 static func find_live_package(package_id: String) -> Entity:
 	if not is_instance_valid(ECS.world):
 		return null
@@ -16,7 +16,7 @@ static func find_live_package(package_id: String) -> Entity:
 	return null
 
 
-## Returns the current warehouse ledger, independent of the day index.
+## Читает журнал текущего склада, независимо от номера дня.
 static func ledger() -> C_PackageLedger:
 	if not is_instance_valid(ECS.world):
 		return null
@@ -25,7 +25,7 @@ static func ledger() -> C_PackageLedger:
 	return session.get_component(C_PackageLedger) as C_PackageLedger if session != null else null
 
 
-## Read-only live state snapshot for package-facing UI. Registry remains the durable authority.
+## Возвращает соответствие ID живым C_PackageState для чтения интерфейсом; ссылки компонентов не являются копиями.
 static func live_states() -> Dictionary[String, C_PackageState]:
 	var result: Dictionary[String, C_PackageState] = {}
 	if not is_instance_valid(ECS.world):
@@ -38,7 +38,7 @@ static func live_states() -> Dictionary[String, C_PackageState]:
 	return result
 
 
-## Requires an active hand scanner, valid parcel and unobstructed scan range.
+## Требует сканер в руке, доступную коробку под лучом и дистанцию scan_range.
 static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	if not is_instance_valid(target) or not is_instance_valid(scanner):
 		return false
@@ -73,15 +73,15 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	return ray.global_position.distance_to(ray.get_collision_point()) <= config.scan_range
 
 
-## Scanner-specific validation delegates the actual transaction to register_package().
+## Проверяет применение сканера, затем передаёт регистрацию в register_package().
 static func scan(actor: Entity, scanner: Entity, target: Entity) -> PackageScanResult:
 	if not can_scan(actor, scanner, target):
 		return PackageScanResult.new()
 	return register_package(target)
 
 
-## Shared synchronous registration transaction for trusted domain/debug callers.
-## Scanner reach/held checks intentionally stay in scan().
+## Синхронно регистрирует коробку для доверенных игровых и отладочных вызовов.
+## Проверки удержания сканера и дистанции выполняются в scan().
 static func register_package(target: Entity) -> PackageScanResult:
 	var result: PackageScanResult = PackageScanResult.new()
 	if not EntityAvailability.contains(target, ECS.world):
@@ -134,7 +134,7 @@ static func register_package(target: Entity) -> PackageScanResult:
 	return result
 
 
-## Finds the smallest unreserved positive base number; suffixes and days are irrelevant.
+## Находит наименьший свободный положительный номер среди активных записей, независимо от дня.
 static func smallest_free_number(registry: C_PackageLedger) -> int:
 	var occupied: Dictionary[int, bool] = { }
 	for record: PackageRegistrationRecord in registry.records:
@@ -148,8 +148,8 @@ static func smallest_free_number(registry: C_PackageLedger) -> int:
 	return candidate
 
 
-## Called after explicit DELIVERED/RETURNED/BOUGHT_OUT departure; declarations cannot free numbers.
-## Node removal, damage, missing parcels and day changes do not imply warehouse departure.
+## Освобождает номер после явного DELIVERED, RETURNED или BOUGHT_OUT; заявление игрока его не освобождает.
+## Удаление Node, повреждение, пропажа коробки и смена дня не подтверждают уход со склада.
 static func release_number(parcel: Entity) -> bool:
 	if not is_instance_valid(parcel):
 		return false

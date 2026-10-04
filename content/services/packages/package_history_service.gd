@@ -1,5 +1,5 @@
 extends RefCounted
-## Sole allocator of hidden package history/debug IDs.
+## Единственный владелец выделения скрытых ID истории и отладки посылок.
 class_name PackageHistoryService
 
 const SMALL_MAX_METERS: float = 0.50
@@ -7,6 +7,8 @@ const MEDIUM_MAX_METERS: float = 0.80
 const LARGE_MAX_METERS: float = 1.50
 
 
+#region Постоянный ID истории
+## Сохраняет допустимый существующий ID либо выделяет новый для дня; ошибка возвращает пустую строку.
 static func ensure_history_id(parcel: Entity, day_index: int) -> String:
 	if not is_instance_valid(parcel) or day_index < 1:
 		return ""
@@ -35,10 +37,14 @@ static func ensure_history_id(parcel: Entity, day_index: int) -> String:
 	return identity.history_id
 
 
+## Декодирует и проверяет скрытый ID; возвращает null при неверном формате.
 static func decode(value: String) -> PackageHistoryId:
 	return PackageHistoryId.parse(value)
 
 
+#endregion
+
+#region Счётчик и диагностический размер
 static func _allocate_number(day_index: int) -> int:
 	var registry: C_PackageLedger = _ledger()
 	if registry == null:
@@ -89,3 +95,5 @@ static func _size_class(parcel: Entity) -> PackageHistoryId.SizeClass:
 	if longest <= LARGE_MAX_METERS:
 		return PackageHistoryId.SizeClass.LARGE
 	return PackageHistoryId.SizeClass.OVERSIZED
+
+#endregion

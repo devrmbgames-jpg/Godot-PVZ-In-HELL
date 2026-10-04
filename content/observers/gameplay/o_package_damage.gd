@@ -1,12 +1,15 @@
 extends Observer
-## Maps generic Health damage to Package condition; destruction replacement is handled separately.
+## Переводит результат урона Health в состояние коробки; обломки создаёт другой наблюдатель.
 class_name O_PackageDamage
 
 
+#region Подписка на урон
+## Подписывается на результат урона для сущностей с состоянием коробки.
 func query() -> QueryBuilder:
 	return q.with_all([C_PackageState]).on_event(DamageResult.EVENT)
 
 
+## При реальном положительном уроне откладывает переход состояния, не пересчитывая Health.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
 	if result == null or result.request.operation != DamageRequest.Operation.DAMAGE:
@@ -17,6 +20,9 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	cmd.add_custom(_commit_condition.bind(entity, result))
 
 
+#endregion
+
+#region Переход состояния коробки
 func _commit_condition(target: Entity, result: DamageResult) -> void:
 	if not GrabService.entity_available(target):
 		return
@@ -35,6 +41,8 @@ func _commit_condition(target: Entity, result: DamageResult) -> void:
 			result.request.source,
 			result,
 		)
+
+#endregion
 	elif condition.damage == C_PackageState.Damage.UNDAMAGED:
 		var identity: C_Package = target.get_component(C_Package) as C_Package
 		var health: C_Health = target.get_component(C_Health) as C_Health

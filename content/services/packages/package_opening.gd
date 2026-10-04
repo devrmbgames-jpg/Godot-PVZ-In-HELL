@@ -1,9 +1,10 @@
 extends RefCounted
-## Validates physical access and publishes opening intent; the Observer commits package state.
+## Проверяет физический доступ и публикует запрос вскрытия; состояние фиксирует наблюдатель.
 class_name PackageOpening
 
 
-## Uses the shared interaction ray and held relationship, never recipient/registration checks.
+#region Доступ и запрос вскрытия
+## Проверяет луч взаимодействия либо удержание; клиент осмотра использует свой резерв и слот.
 static func can_open(actor: Entity, package: Entity) -> bool:
 	if not EntityAvailability.contains(actor, ECS.world):
 		return false
@@ -65,7 +66,7 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 	return hit_distance <= interactor.interaction_distance
 
 
-## Revalidates at submission; the observer revalidates again before committing.
+## Повторно проверяет доступ перед отправкой; наблюдатель проверяет ещё раз перед фиксацией.
 static func request_open(actor: Entity, package: Entity) -> bool:
 	if not can_open(actor, package):
 		return false
@@ -75,3 +76,5 @@ static func request_open(actor: Entity, package: Entity) -> bool:
 	request.package = package
 	ECS.world.emit_event(PackageOpenRequest.EVENT, package, request)
 	return true
+
+#endregion

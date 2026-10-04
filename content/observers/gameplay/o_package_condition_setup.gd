@@ -1,12 +1,14 @@
 extends Observer
-## Initializes package Health/profile once, equally for authored and received packages.
+## Однократно инициализирует Health и профиль удара для авторских и привезённых коробок.
 class_name O_PackageConditionSetup
 
 
+## Подписывается на появление коробок с Health и получателем ударов.
 func query() -> QueryBuilder:
 	return q.with_all([C_Package, C_Health, C_ImpactReceiver]).on_match()
 
 
+## По флагу инициализации однократно задаёт HP и профиль; для жидкости откладывает добавление контроля наклона.
 func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
 	var identity: C_Package = entity.get_component(C_Package) as C_Package
 	if identity.condition_initialized or identity.definition == null:

@@ -1,10 +1,12 @@
 extends Observer
-## Starts the Package's destruction hazard from the actual authored debris Entity.
+## Создаёт опасность разрушения на реально созданных авторских обломках коробки.
 class_name O_PackageDestroyedHazard
 
+## Подписывается на завершённое создание обломков.
 func query() -> QueryBuilder:
 	return q.on_event(PackageDebrisSpawnedEvent.EVENT)
 
+## Создаёт опасность на живых обломках; уже извлечённое содержимое исключает повтор эффекта оболочки.
 func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 	var event: PackageDebrisSpawnedEvent = payload as PackageDebrisSpawnedEvent
 	if event == null or event.definition == null:

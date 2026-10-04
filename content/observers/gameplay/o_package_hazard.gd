@@ -1,10 +1,13 @@
 extends Observer
-## Maps first damage/opening transitions to their authored autonomous hazard scenes.
+## Создаёт авторские самостоятельные опасности по первым переходам повреждения и вскрытия.
 class_name O_PackageHazard
 
+#region Авторские последствия состояния
+## Подписывается на типизированные переходы состояния физических посылок.
 func query() -> QueryBuilder:
 	return q.with_all([C_Package]).on_event(PackageLifecycleEvent.EVENT)
 
+## На Damaged или Opened создаёт подходящую опасность; пустая оболочка не порождает эффект.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var event: PackageLifecycleEvent = payload as PackageLifecycleEvent
 	if event == null or event.kind not in [PackageLifecycleEvent.Kind.Damaged, PackageLifecycleEvent.Kind.Opened]:
@@ -47,3 +50,5 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 
 func _scene_key(scene: PackedScene) -> String:
 	return scene.resource_path if not scene.resource_path.is_empty() else str(scene.get_instance_id())
+
+#endregion

@@ -1,10 +1,13 @@
 extends Observer
-## Replaces a destroyed Package with its scene-variant debris and removes the Package node.
+## Заменяет уничтоженную коробку обломками её варианта сцены и удаляет исходную Node.
 class_name O_PackageDestruction
 
+#region Подписка на уничтожение
+## Подписывается на жизненный цикл коробок с авторским представлением уничтожения.
 func query() -> QueryBuilder:
 	return q.with_all([C_Package, C_PackageDestruction]).on_event(PackageLifecycleEvent.EVENT)
 
+## На Destroyed сохраняет положение и скорости, затем откладывает замену коробки обломками.
 func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 	var event: PackageLifecycleEvent = payload as PackageLifecycleEvent
 	if event == null or event.kind != PackageLifecycleEvent.Kind.Destroyed:
@@ -46,6 +49,9 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 		)
 	)
 
+#endregion
+
+#region Замена физического экземпляра
 func _replace_with_debris(
 	package: Entity,
 	package_id: String,
@@ -91,3 +97,5 @@ func _replace_with_debris(
 
 	_world.remove_entity(package)
 	package.queue_free()
+
+#endregion
