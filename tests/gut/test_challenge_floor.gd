@@ -1,4 +1,5 @@
 extends GutTest
+## Проверяет старую напольную опасность по реальному контакту опоры и освобождение её эффекта.
 
 var _world: World = null
 var _actor: E_RigidBodyCharacter = null
@@ -9,6 +10,8 @@ var _health: C_Health = null
 var _visit: CustomerVisit = null
 
 
+#region Окружение старого напольного испытания
+## Создаёт системы старого напольного испытания и короткие изолированные часы.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -45,7 +48,7 @@ func before_each() -> void:
 	_subject = Entity.new()
 	_state = C_Challenge.new()
 	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_floor.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
-	# Short isolated clocks keep mechanics tests independent of the authored QA pacing.
+	# Короткие изолированные часы отделяют механику теста от авторского темпа приёмки.
 	_state.definition.timeout_seconds = 15.0
 	_state.definition.preparation_seconds = 3.0
 	_state.definition.violation_grace_seconds = 2.0
@@ -64,6 +67,7 @@ func before_each() -> void:
 	(session.get_component(C_CustomerFlow) as C_CustomerFlow).visits.append(_visit)
 
 
+## Удаляет эффект вместе с World и очищает сохранённые ссылки.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -88,6 +92,10 @@ func _start() -> void:
 	(hazard.definition as DEF_FloorHazard).tick_seconds = 0.5
 
 
+#endregion
+
+#region Контакт опоры и урон
+## Условие требует реальный RID опоры, подходящую высоту контакта и авторские границы.
 func test_support_contact_needs_real_support_height_and_authored_bounds() -> void:
 	var profile: DEF_FloorHazard = DEF_FloorHazard.new()
 	assert_true(FloorChallengeService.touches_surface(_motion, Transform3D.IDENTITY, profile))
@@ -103,6 +111,7 @@ func test_support_contact_needs_real_support_height_and_authored_bounds() -> voi
 	assert_false(FloorChallengeService.touches_surface(_motion, Transform3D.IDENTITY, profile))
 
 
+## После подготовки урон проходит общей цепочкой; неудача и последствия применяются один раз.
 func test_preparation_then_damage_uses_shared_pipeline_and_failure_is_once() -> void:
 	_start()
 	assert_eq(_health.current, 100.0)
@@ -120,6 +129,7 @@ func test_preparation_then_damage_uses_shared_pipeline_and_failure_is_once() -> 
 	assert_eq(_visit.challenge_satisfaction_delta, -30)
 
 
+## Высокая опора безопасна до конца срока; успех удаляет эффект и живую связь.
 func test_elevated_box_support_survives_duration_and_retires_effect() -> void:
 	_motion.floor_contact_position.y = 0.4
 	_start()
@@ -132,6 +142,7 @@ func test_elevated_box_support_survives_duration_and_retires_effect() -> void:
 	assert_eq(_subject.get_relationships(Relationship.new(R_ChallengeEffect.new())).size(), 0)
 
 
+## Возврат на безопасную опору сбрасывает нарушение и интервал повреждения.
 func test_returning_to_safe_support_resets_contact_and_damage_interval() -> void:
 	_start()
 	_world.process(0.4)
@@ -144,6 +155,10 @@ func test_returning_to_safe_support_resets_contact_and_damage_interval() -> void
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
 
 
+#endregion
+
+#region Освобождение эффекта и границы срока
+## Смерть участника отменяет испытание и удаляет принадлежащую ему опасность.
 func test_player_death_cleans_owned_effects() -> void:
 	_start()
 	_actor.add_component(C_Death.new())
@@ -153,6 +168,7 @@ func test_player_death_cleans_owned_effects() -> void:
 	assert_eq(_visit.challenge_satisfaction_delta, 0)
 
 
+## Смена фазы убирает опасность до следующего повреждения.
 func test_phase_change_retires_effect_before_another_damage_tick() -> void:
 	_start()
 	_world.process(0.4)
@@ -163,6 +179,7 @@ func test_phase_change_retires_effect_before_another_damage_tick() -> void:
 	assert_eq(_world.query.with_all([C_FloorHazard]).execute().size(), 0)
 
 
+## Смена дня отменяет опасность до следующего повреждения.
 func test_next_day_retires_effect_before_another_damage_tick() -> void:
 	_start()
 	_world.process(0.4)
@@ -173,6 +190,7 @@ func test_next_day_retires_effect_before_another_damage_tick() -> void:
 	assert_eq(_world.query.with_all([C_FloorHazard]).execute().size(), 0)
 
 
+## Удалённый эффект отменяет испытание и не создаётся повторно.
 func test_removed_effect_cancels_active_challenge_without_respawning() -> void:
 	_start()
 	var effect: Entity = _world.query.with_all([C_FloorHazard]).execute_one()
@@ -182,6 +200,7 @@ func test_removed_effect_cancels_active_challenge_without_respawning() -> void:
 	assert_eq(_world.query.with_all([C_FloorHazard]).execute().size(), 0)
 
 
+## Удаление источника сразу убирает связанный эффект.
 func test_subject_removal_immediately_retires_its_effect() -> void:
 	_start()
 	_world.remove_entity(_subject)
@@ -189,6 +208,7 @@ func test_subject_removal_immediately_retires_its_effect() -> void:
 	assert_eq(_world.query.with_all([C_FloorHazard]).execute().size(), 0)
 
 
+## Защита источника C_NoDamage блокирует реальный урон, сохраняя нарушение правила.
 func test_no_damage_source_contract_is_preserved_by_floor_spawn() -> void:
 	_subject.add_component(C_NoDamage.new())
 	_start()
@@ -197,6 +217,7 @@ func test_no_damage_source_contract_is_preserved_by_floor_spawn() -> void:
 	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
 
 
+## Пересечение конца срока ограничивает допустимое время нарушения текущего кадра.
 func test_duration_end_caps_contact_budget_when_frame_crosses_timeout() -> void:
 	_motion.floor_contact_position.y = 0.4
 	_start()
@@ -205,3 +226,5 @@ func test_duration_end_caps_contact_budget_when_frame_crosses_timeout() -> void:
 	_world.process(3.0)
 	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
 	assert_eq(_health.current, 100.0)
+
+#endregion

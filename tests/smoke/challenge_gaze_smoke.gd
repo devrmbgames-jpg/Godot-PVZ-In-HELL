@@ -1,5 +1,5 @@
 extends Node
-## Arrival gaze: wall number, real camera/LOS, vignette, physical service without dialogue.
+## Исторический сценарий взгляда при приходе: настенный номер, камера/LOS и выдача без диалога.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 3600
@@ -15,6 +15,7 @@ func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет прежнего клиента взгляда, настенный номер и результат физической выдачи.
 func _run() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	_level.set("autosave_path", "")
@@ -97,7 +98,7 @@ func _run() -> void:
 
 	assert(state.violation_elapsed == 0.0)
 	assert(not (hud.get_node("GazeDistortion") as ColorRect).visible)
-	# The authored rule remains active while a real parcel enters the counter's physical area.
+	# Авторское правило действует и при входе реальной коробки в физическую зону стойки.
 	var counter: E_DeliveryCounter = CustomerFlowService.counter()
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	body.freeze = true

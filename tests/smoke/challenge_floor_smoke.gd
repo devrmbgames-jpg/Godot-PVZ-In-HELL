@@ -1,5 +1,5 @@
 extends Node
-## Real Jolt support: floor -> movable box -> airborne, then the default floor customer/HUD.
+## Исторический сценарий напольного испытания: реальная опора, ящик, воздух и прежний клиент/HUD.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const SETTLE_FRAMES: int = 180
@@ -8,6 +8,7 @@ const CUSTOMER_WAIT_FRAMES: int = 900
 var _world: World = null
 
 
+#region Порядок сценария
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -19,6 +20,10 @@ func _run() -> void:
 	get_tree().quit.call_deferred()
 
 
+#endregion
+
+#region Изолированная физическая опора
+## В изолированном World проверяет контакт пола, высокой коробки и состояние без опоры.
 func _physical_support() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -88,7 +93,7 @@ func _physical_support() -> void:
 		_world.process(FRAME_DELTA)
 		await get_tree().physics_frame
 	assert(health.current < 100.0, "Actual floor support must feed O_Damage")
-	# Fixture relocation only: the ensuing support is established by real gravity/contact.
+	# Тест только перемещает тело; опору затем устанавливают реальная тяжесть и контакт.
 	body.global_position = Vector3(1.5, 0.55, 0.0)
 	body.linear_velocity = Vector3.ZERO
 	await _wait_support(motion, box.get_rid())
@@ -124,6 +129,10 @@ func _wait_support(motion: C_Motion, expected: RID) -> void:
 	assert(false, "Real physics support must match the floor/box collider")
 
 
+#endregion
+
+#region Историческая встреча в основной сцене
+## Проверяет историческую встречу напольного клиента; требует прежний ассортимент и безопасные ящики.
 func _main_customer() -> void:
 	var level: Node = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	add_child(level)
@@ -180,3 +189,5 @@ func _main_customer() -> void:
 	assert(visit.challenge_result == &"success")
 	level.free()
 	ECS.world = null
+
+#endregion

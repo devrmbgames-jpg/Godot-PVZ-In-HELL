@@ -1,4 +1,5 @@
 extends GutTest
+## Проверяет световые условия, подтверждение, таймауты и применение результата испытания к визиту.
 
 const FRAME_DELTA: float = 0.1
 const TIMEOUT: float = 2.0
@@ -14,6 +15,8 @@ var _visit: CustomerVisit = null
 var _escalations: int = 0
 
 
+#region Окружение световой цепи
+## Создаёт световую цепь, участника и сервисный визит с коротким таймаутом.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -50,6 +53,7 @@ func before_each() -> void:
 	_escalations = 0
 
 
+## Удаляет World и очищает ссылки участников и состояния испытания.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -82,6 +86,10 @@ func _on_escalation(subject: Entity, actor: Entity, event: ChallengeResolution) 
 	_escalations += 1
 
 
+#endregion
+
+#region Начало и вход клиента
+## Подготовленное требование ждёт закрытия подтверждённого диалога перед отсчётом.
 func test_armed_waits_for_dialogue_close_before_countdown() -> void:
 	assert_true(ChallengeService.arm(_subject, _actor))
 	_world.process(TIMEOUT * 2.0)
@@ -103,6 +111,7 @@ func _arrival_customer() -> E_Customer:
 	return customer
 
 
+## Светобоязненный клиент ждёт у входа, затем получает намерение подхода после выключения.
 func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
 	var customer: E_Customer = _arrival_customer()
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -126,6 +135,7 @@ func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
 	assert_eq(_escalations, 0)
 
 
+## Таймаут гасит свет и направляет одну эскалацию в существующую боевую роль.
 func test_dark_room_timeout_turns_lights_off_and_reuses_combat_escalation_once() -> void:
 	var customer: E_Customer = _arrival_customer()
 	_actor.add_components([C_PlayerInputController.new(), C_Health.new()])
@@ -143,6 +153,7 @@ func test_dark_room_timeout_turns_lights_off_and_reuses_combat_escalation_once()
 	assert_eq(_escalations, 1)
 
 
+## Уже тёмный вход не задерживает клиента и не мерцает; смена фазы не оставляет его у входа.
 func test_already_dark_arrival_does_not_gate_or_flicker_and_phase_cancel_departs() -> void:
 	assert_true(LightCircuitService.set_enabled(_circuit, false))
 	var customer: E_Customer = _arrival_customer()
@@ -168,6 +179,10 @@ func _flickering_view() -> CircuitLightView:
 	return view
 
 
+#endregion
+
+#region Мерцание и команды
+## Смена фазы снимает временное мерцание, сохраняя enabled световой цепи.
 func test_phase_change_cancels_arrival_flicker_without_switching_room_off() -> void:
 	var view: CircuitLightView = _flickering_view()
 	_arrival_customer()
@@ -182,6 +197,7 @@ func test_phase_change_cancels_arrival_flicker_without_switching_room_off() -> v
 	assert_eq(_escalations, 0)
 
 
+## Удаление источника снимает его мерцание; устаревший ID не отменяет новый запрос.
 func test_subject_removal_cancels_owned_flicker_and_stale_stop_cannot_clear_new_request() -> void:
 	var view: CircuitLightView = _flickering_view()
 	_arrival_customer()
@@ -201,6 +217,7 @@ func test_subject_removal_cancels_owned_flicker_and_stale_stop_cannot_clear_new_
 	assert_true((view.get_parent() as Light3D).visible)
 
 
+## Команда реальной цепи даёт успех и освобождает связь участника после показа результата.
 func test_physical_circuit_command_succeeds_and_cleans_binding() -> void:
 	_start()
 	assert_true(LightCircuitService.toggle(_circuit))
@@ -217,6 +234,7 @@ func test_physical_circuit_command_succeeds_and_cleans_binding() -> void:
 	assert_false(ChallengeService.arm(_subject, _actor))
 
 
+## Требование включить свет использует тот же код условия с обратной настройкой.
 func test_light_on_uses_the_same_condition_code() -> void:
 	(_state.definition.condition as DEF_LightChallengeCondition).required_enabled = true
 	(_circuit.get_component(C_LightCircuit) as C_LightCircuit).enabled = false
@@ -228,6 +246,10 @@ func test_light_on_uses_the_same_condition_code() -> void:
 	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
 
 
+#endregion
+
+#region Однократный исход и отмена
+## Таймаут однократно меняет удовлетворённость и запрашивает эскалацию.
 func test_timeout_applies_failure_and_escalation_once() -> void:
 	_start()
 	_world.process(TIMEOUT)
@@ -241,6 +263,7 @@ func test_timeout_applies_failure_and_escalation_once() -> void:
 	assert_eq(_escalations, 1)
 
 
+## Повторные arm/activate не сбрасывают время и не дублируют связь.
 func test_duplicate_trigger_does_not_restart_or_rebind() -> void:
 	_start()
 	_world.process(FRAME_DELTA)
@@ -250,6 +273,7 @@ func test_duplicate_trigger_does_not_restart_or_rebind() -> void:
 	assert_eq(_subject.get_relationships(Relationship.new(R_ChallengeActor.new())).size(), 1)
 
 
+## Отсутствующая цепь не считается успешно выключенной.
 func test_missing_circuit_cannot_falsely_satisfy_light_off() -> void:
 	_world.remove_entity(_circuit)
 	_start()
@@ -259,6 +283,7 @@ func test_missing_circuit_cannot_falsely_satisfy_light_off() -> void:
 	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
 
 
+## Удаление участника отменяет испытание без штрафа удовлетворённости.
 func test_actor_removal_cleans_without_satisfaction_penalty() -> void:
 	_start()
 	_world.remove_entity(_actor)
@@ -268,6 +293,7 @@ func test_actor_removal_cleans_without_satisfaction_penalty() -> void:
 	assert_null(ChallengeService.actor_for(_subject))
 
 
+## Удаление источника очищает сохранённое состояние и часы.
 func test_subject_removal_cleans_retained_state() -> void:
 	_start()
 	_world.remove_entity(_subject)
@@ -276,6 +302,7 @@ func test_subject_removal_cleans_retained_state() -> void:
 	assert_eq(_state.elapsed, 0.0)
 
 
+## Смерть игрока отменяет действующее испытание и освобождает связь.
 func test_player_death_cancels_active_challenge() -> void:
 	_start()
 	_actor.add_component(C_Death.new())
@@ -285,6 +312,7 @@ func test_player_death_cancels_active_challenge() -> void:
 	assert_null(ChallengeService.actor_for(_subject))
 
 
+## Смена фазы отменяет ещё подготовленное требование без последствий.
 func test_phase_and_day_change_cancel_armed_or_active_challenge() -> void:
 	assert_true(ChallengeService.arm(_subject, _actor))
 	_cycle.phase = C_DayCycle.Phase.EVENING
@@ -293,6 +321,7 @@ func test_phase_and_day_change_cancel_armed_or_active_challenge() -> void:
 	assert_eq(_visit.challenge_satisfaction_delta, 0)
 
 
+## Следующий день снимает активный и ожидающий результат.
 func test_next_day_cancels_active_challenge() -> void:
 	_start()
 	_cycle.day_index += 1
@@ -301,6 +330,7 @@ func test_next_day_cancels_active_challenge() -> void:
 	assert_null(_state.pending_result)
 
 
+## Постоянная запись исхода предотвращает повторные последствия и эскалацию.
 func test_persistent_result_prevents_duplicate_consequence_and_escalation() -> void:
 	_start()
 	_world.process(TIMEOUT)
@@ -310,6 +340,9 @@ func test_persistent_result_prevents_duplicate_consequence_and_escalation() -> v
 	assert_eq(_escalations, 1)
 
 
+#endregion
+
+#region Условие до ухода
 func _visit_challenge() -> void:
 	_state.definition.trigger = DEF_Challenge.Trigger.ON_ARRIVAL
 	_state.definition.completion = DEF_Challenge.Completion.UNTIL_DEPARTURE
@@ -318,6 +351,7 @@ func _visit_challenge() -> void:
 	_state.definition.timeout_seconds = 0.0
 
 
+## Режим UNTIL_DEPARTURE начинается при приходе и ждёт ухода даже при выполненном условии.
 func test_arrival_starts_and_satisfied_condition_waits_until_departure() -> void:
 	_visit_challenge()
 	assert_true(LightCircuitService.set_enabled(_circuit, false))
@@ -334,6 +368,7 @@ func test_arrival_starts_and_satisfied_condition_waits_until_departure() -> void
 	assert_eq(_visit.challenge_satisfaction_delta, 10)
 
 
+## Подготовка даёт время переключить свет до учёта нарушения.
 func test_visit_preparation_allows_switching_before_condition_is_enforced() -> void:
 	_visit_challenge()
 	assert_true(ChallengeService.begin_on_arrival(_subject, _actor))
@@ -345,6 +380,7 @@ func test_visit_preparation_allows_switching_before_condition_is_enforced() -> v
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
 
 
+## Нарушение запоминается во время визита; последствия фиксируются при уходе.
 func test_visit_violation_is_recorded_but_result_is_applied_only_at_departure() -> void:
 	_visit_challenge()
 	assert_true(ChallengeService.begin_on_arrival(_subject, _actor))
@@ -362,6 +398,7 @@ func test_visit_violation_is_recorded_but_result_is_applied_only_at_departure() 
 	assert_eq(_escalations, 1)
 
 
+## Отладочный UI сообщает правило, состояние цепи, часы и окно до ухода.
 func test_debug_ui_reports_task_condition_timer_and_visit_window() -> void:
 	_state.definition.rule_text = "Выключить свет"
 	_start()
@@ -375,6 +412,9 @@ func test_debug_ui_reports_task_condition_timer_and_visit_window() -> void:
 	assert_string_contains(ChallengePresentation.debug_text_for(_actor), "До ухода")
 
 
+#endregion
+
+#region Выдача и окончательный расчёт
 func _deliver_and_declare() -> C_Wallet:
 	_visit.payment = 100
 	var check_result: PackageDeliveryCheck = PackageDeliveryCheck.new()
@@ -384,6 +424,7 @@ func _deliver_and_declare() -> C_Wallet:
 	return WalletService.current()
 
 
+## Оплата реальной выдачи ждёт итоговой удовлетворённости и не повторяется.
 func test_delivery_payment_waits_for_timed_challenge_result() -> void:
 	_start()
 	var wallet: C_Wallet = _deliver_and_declare()
@@ -397,6 +438,7 @@ func test_delivery_payment_waits_for_timed_challenge_result() -> void:
 	assert_eq(wallet.operations.size(), 1)
 
 
+## Итог испытания ухода применяется до удаления клиента и окончательного расчёта.
 func test_departure_result_precedes_removal_and_payment() -> void:
 	_visit_challenge()
 	assert_true(ChallengeService.begin_on_arrival(_subject, _actor))
@@ -418,3 +460,5 @@ func test_departure_result_precedes_removal_and_payment() -> void:
 	assert_true(_visit.finished)
 	assert_eq(wallet.balance, 70)
 	assert_eq(wallet.operations.size(), 1)
+
+#endregion

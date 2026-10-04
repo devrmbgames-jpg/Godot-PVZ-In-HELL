@@ -1,4 +1,5 @@
 extends GutTest
+## Проверяет геометрию взгляда, реальные укрытия, предупреждение и однократный исход авторского испытания.
 
 const FRAME_DELTA: float = 0.1
 
@@ -12,6 +13,8 @@ var _visit: CustomerVisit = null
 var _escalations: int = 0
 
 
+#region Окружение взгляда
+## Создаёт физического наблюдателя, цель и короткий авторский профиль взгляда.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -32,7 +35,7 @@ func before_each() -> void:
 	(_subject as Node as Node3D).position = Vector3(0.0, 0.0, -3.0)
 	_state = C_Challenge.new()
 	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_dont_look.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
-	# Mechanics fixture remains short; authored deadlines are verified separately.
+	# Тест механики использует короткие интервалы; авторские сроки проверяются отдельно.
 	_state.definition.violation_grace_seconds = 3.0
 	_observation = C_GazeChallenge.new()
 
@@ -52,6 +55,7 @@ func before_each() -> void:
 	await get_tree().physics_frame
 
 
+## Удаляет World и очищает ссылки состояния взгляда.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -97,6 +101,10 @@ func _on_escalation(_customer: Entity, _player: Entity, _event: ChallengeResolut
 	_escalations += 1
 
 
+#endregion
+
+#region Геометрия и реальное восприятие
+## Проверяет включительные границы угла/расстояния и недопустимое нулевое направление.
 func test_geometry_angle_distance_boundaries_and_invalid_direction() -> void:
 	var direction: Vector3 = Vector3.FORWARD.rotated(Vector3.UP, deg_to_rad(_rule.half_angle_degrees))
 	GazeTrackingService.measure_geometry(Vector3.ZERO, Vector3.FORWARD, direction * 3.0, _rule, _observation)
@@ -112,6 +120,7 @@ func test_geometry_angle_distance_boundaries_and_invalid_direction() -> void:
 	assert_false(_observation.sample_valid)
 
 
+## Поза головы и реальная стена определяют внимание, исключая собственный collider.
 func test_actual_head_pose_and_physics_wall_determine_attention() -> void:
 	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
 	assert_true(_observation.attention, "Actor collider must be excluded and target collider must count as visible")
@@ -137,6 +146,7 @@ func test_actual_head_pose_and_physics_wall_determine_attention() -> void:
 	assert_false(_observation.attention)
 
 
+## Камера участника уточняет взгляд; чужая активная камера не подменяет его.
 func test_actor_camera_pose_overrides_head_and_unrelated_camera_does_not() -> void:
 	var camera: Camera3D = Camera3D.new()
 	_actor.head_axis_x.add_child(camera)
@@ -157,6 +167,10 @@ func test_actor_camera_pose_overrides_head_and_unrelated_camera_does_not() -> vo
 	unrelated.free()
 
 
+#endregion
+
+#region Авторские предупреждения и исход
+## Непрерывный взгляд даёт предупреждение и одну неудачу; отведение взгляда сбрасывает накопление.
 func test_dont_look_warns_resets_and_fails_at_continuous_threshold_once() -> void:
 	_start()
 	_world.process(1.6)
@@ -179,6 +193,7 @@ func test_dont_look_warns_resets_and_fails_at_continuous_threshold_once() -> voi
 	assert_eq(GazeChallengePresentation.strength(GazeChallengePresentation.state_for(_actor)), 0.0)
 
 
+## Обратное правило требует сохранять взгляд до окончания, без досрочного успеха.
 func test_keep_looking_is_inverse_configuration_and_compliance_is_not_early_success() -> void:
 	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_keep_looking.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
 	_state.definition.violation_grace_seconds = 3.0
@@ -198,6 +213,7 @@ func test_keep_looking_is_inverse_configuration_and_compliance_is_not_early_succ
 	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
 
 
+## Подготовка и короткое нарушение перед уходом не создают преждевременную неудачу.
 func test_preparation_and_short_final_violation_can_finish_successfully() -> void:
 	_state.definition.preparation_seconds = 3.0
 	assert_true(ChallengeService.arm(_subject, _actor))
@@ -212,6 +228,7 @@ func test_preparation_and_short_final_violation_can_finish_successfully() -> voi
 	assert_eq(_escalations, 0)
 
 
+## Приход запускает искажение сразу; повторный trigger не перезапускает часы.
 func test_arrival_definition_and_vignette_start_before_warning_threshold() -> void:
 	assert_eq(_state.definition.trigger, DEF_Challenge.Trigger.ON_ARRIVAL)
 	assert_eq(_state.definition.preparation_seconds, 0.0)
@@ -228,6 +245,10 @@ func test_arrival_definition_and_vignette_start_before_warning_threshold() -> vo
 	assert_eq(GazeChallengePresentation.strength(_state), 0.0)
 
 
+#endregion
+
+#region Связь обслуживания и lifecycle
+## Только одна настенная подсказка показывает регистрационный номер и очищается вместе с сессией.
 func test_wall_clue_uses_one_registered_number_and_clears_with_session() -> void:
 	_visit.definition.challenge = _state.definition
 	var ledger: C_PackageLedger = C_PackageLedger.new()
@@ -264,6 +285,7 @@ func test_wall_clue_uses_one_registered_number_and_clears_with_session() -> void
 		clue.free()
 
 
+## Старое событие прихода активирует авторское испытание до движения к стойке и диалога.
 func test_customer_spawn_activates_arrival_challenge_before_approach_and_dialogue() -> void:
 	_world.remove_entity(_subject)
 	_subject = null
@@ -305,6 +327,7 @@ func test_customer_spawn_activates_arrival_challenge_before_approach_and_dialogu
 	assert_eq(challenge.phase, C_Challenge.Phase.ACTIVE)
 
 
+## Авторская накопительная политика сохраняет прежние нарушения после безопасного промежутка.
 func test_authored_accumulating_reset_policy_preserves_prior_violations() -> void:
 	_state.definition.reset_violation_on_compliance = false
 	_start()
@@ -317,6 +340,7 @@ func test_authored_accumulating_reset_policy_preserves_prior_violations() -> voi
 	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
 
 
+## Снятие живой связи цели отменяет испытание и предупреждение.
 func test_target_binding_removal_cancels_and_clears_warning() -> void:
 	_start()
 	_world.process(2.0)
@@ -329,3 +353,5 @@ func test_target_binding_removal_cancels_and_clears_warning() -> void:
 	assert_false(_observation.warning_active)
 	assert_null(GazeChallengePresentation.state_for(_actor))
 	assert_eq(_visit.challenge_satisfaction_delta, 0)
+
+#endregion

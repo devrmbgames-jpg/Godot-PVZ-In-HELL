@@ -1,5 +1,5 @@
 extends Node
-## Actual dialogue acknowledgement, switch input, timeout, arrival/departure and debug HUD.
+## Исторический сценарий светового испытания: подтверждение диалога, выключатель, таймаут и HUD.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 900
@@ -11,10 +11,12 @@ var _actor: Entity = null
 var _escalations: int = 0
 
 
+#region Исторический световой сценарий
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Явно назначает старые световые испытания для подтверждения, таймаута и окна до ухода.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	_level = scene.instantiate()
@@ -33,7 +35,7 @@ func _run() -> void:
 			break
 
 	var books: Entity = CustomerFlowService.parcel_for("base_supply:1:books")
-	# The default Ordinary now has no challenge. This bounded fixture still covers Light Off.
+	# Обычный клиент не получает испытание; изолированный тест явно назначает требование выключить свет.
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	for visit: CustomerVisit in flow.visits:
 		if visit.definition.key == &"ordinary":
@@ -53,7 +55,7 @@ func _run() -> void:
 	await _show_demand(first)
 	ECS.world.process(first_state.definition.timeout_seconds + FRAME_DELTA, "GamePlay")
 	assert(first_state.phase == C_Challenge.Phase.INACTIVE, "Reading the demand must not consume the timer")
-	# Closing before acknowledging keeps the demand available for the next conversation.
+	# Закрытие до подтверждения оставляет требование доступным следующему разговору.
 	(get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP)[0] as CustomerDialoguePanel).close_dialogue()
 	await get_tree().process_frame
 	assert(not first_state.consumed)
@@ -85,7 +87,7 @@ func _run() -> void:
 
 	var second_visit: CustomerVisit = _visit(second)
 	assert(CustomerFlowService.deny(second_visit.visit_id))
-	# R17 now executes aggression. Let its authored bounded conflict end before exit.
+	# Выполняющееся столкновение завершается по авторскому сроку перед проверкой ухода.
 	ECS.world.process(second_visit.definition.aggressive_seconds, "GamePlay")
 	ECS.world.process(second_visit.definition.leaving_seconds, "GamePlay")
 	var clothes: Entity = CustomerFlowService.parcel_for("base_supply:1:clothes")
@@ -117,6 +119,9 @@ func _run() -> void:
 	get_tree().quit.call_deferred()
 
 
+#endregion
+
+#region Ожидание встречи и тестовый ввод
 func _wait_for_customer() -> E_Customer:
 	for frame: int in WAIT_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
@@ -196,3 +201,5 @@ func _on_escalation(_customer: Entity, actor: Entity, event: ChallengeResolution
 	assert(actor == _actor)
 	assert(event.result == ChallengeResult.Type.FAILURE)
 	_escalations += 1
+
+#endregion

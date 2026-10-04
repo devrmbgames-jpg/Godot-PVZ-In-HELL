@@ -1,4 +1,5 @@
 extends GutTest
+## Проверяет время роста голода, пороги, еду и обратимые эффективные модификаторы.
 
 var _world: World = null
 var _actor: Entity = null
@@ -6,6 +7,8 @@ var _state: C_Hunger = null
 var _cycle: C_DayCycle = null
 
 
+#region Окружение живого игрока
+## Создаёт живого игрока с авторской политикой голода в дневном World.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -25,6 +28,7 @@ func before_each() -> void:
 	_state = _actor.get_component(C_Hunger) as C_Hunger
 
 
+## Возвращает неприостановленное дерево и удаляет World.
 func after_each() -> void:
 	get_tree().paused = false
 	_world.purge(false)
@@ -36,6 +40,10 @@ func after_each() -> void:
 	_cycle = null
 
 
+#endregion
+
+#region Время, еда и эффективные параметры
+## Пороги включают граничные значения; рост ограничивает голод максимумом.
 func test_thresholds_are_inclusive_and_value_is_bounded() -> void:
 	_state.value = 39.999
 	assert_eq(HungerService.tier(_state), C_Hunger.Tier.NORMAL)
@@ -50,6 +58,7 @@ func test_thresholds_are_inclusive_and_value_is_bounded() -> void:
 	assert_eq(_state.active_seconds, 1000.0)
 
 
+## Голод растёт только в активное неночное время живого участника без паузы.
 func test_growth_uses_active_non_night_unpaused_living_time() -> void:
 	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		_cycle.phase = phase
@@ -70,6 +79,7 @@ func test_growth_uses_active_non_night_unpaused_living_time() -> void:
 	assert_eq(_state.active_seconds, 30.0)
 
 
+## Недопустимые интервалы не меняют значение и активные часы.
 func test_invalid_or_negative_elapsed_time_does_not_change_state() -> void:
 	for delta: float in [-1.0, NAN, INF, 0.0]:
 		HungerService.advance(_state, delta, C_DayCycle.Phase.DAY, false, true)
@@ -77,6 +87,7 @@ func test_invalid_or_negative_elapsed_time_does_not_change_state() -> void:
 	assert_eq(_state.active_seconds, 0.0)
 
 
+## Еда действует через типизированный эффект; нулевой голод и смерть отклоняют применение.
 func test_food_is_public_typed_effect_and_never_consumes_at_zero_or_on_dead_actor() -> void:
 	var food: DEF_FoodEffect = load("res://content/definitions/gameplay/hunger/def_food_bread.tres") as DEF_FoodEffect
 	assert_false(HungerService.apply_food(_actor, food))
@@ -94,6 +105,7 @@ func test_food_is_public_typed_effect_and_never_consumes_at_zero_or_on_dead_acto
 	assert_eq(_state.value, 80.0)
 
 
+## Эффективная скорость сочетает груз и голод без накопленного изменения авторской базы.
 func test_effective_speed_combines_carry_and_hunger_without_baseline_drift() -> void:
 	var motion: C_Motion = C_Motion.new()
 	var carry: C_CarryLoad = C_CarryLoad.new()
@@ -114,6 +126,7 @@ func test_effective_speed_combines_carry_and_hunger_without_baseline_drift() -> 
 	assert_almost_eq(CharacterMotionSolver.effective_speed(motion, carry, strength, _state), baseline * 1.15, 0.00001)
 
 
+## Еда снимает боевой модификатор голода, сохраняя авторский урон атаки.
 func test_food_reverses_attack_multiplier_and_authored_attack_is_unchanged() -> void:
 	_world.add_observer(O_Damage.new())
 	var target: Entity = Entity.new()
@@ -138,6 +151,7 @@ func test_food_reverses_attack_multiplier_and_authored_attack_is_unchanged() -> 
 	assert_eq(attack.damage, 40.0)
 
 
+## Диагностика сообщает условия роста, пороги, часы и эффективные модификаторы.
 func test_debug_exposes_growth_condition_threshold_clock_and_effective_modifiers() -> void:
 	var text: String = HungerPresentation.debug_text(_actor)
 	assert_true(text.contains("Normal") and text.contains("Рост активен"))
@@ -145,3 +159,5 @@ func test_debug_exposes_growth_condition_threshold_clock_and_effective_modifiers
 	assert_true(text.contains("Задача:") and text.contains("Скорость") and text.contains("атака"))
 	_cycle.phase = C_DayCycle.Phase.NIGHT
 	assert_true(HungerPresentation.debug_text(_actor).contains("Рост пауза"))
+
+#endregion
