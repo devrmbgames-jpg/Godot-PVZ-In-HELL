@@ -1,11 +1,12 @@
 extends Component
+## Импульс принятого прыжка и история кнопки для защиты повторного удержания.
 class_name C_Jump
 
-## Upward impulse in N*s, applied once per accepted jump.
+## Импульс вверх в Н·с, применяемый один раз на принятый прыжок.
 @export var jump_force: float = 8.0
 
-## True during the physics tick in which a jump is accepted.
+## true только в физическом такте принятого прыжка.
 @export var active: bool = false
 
-## Input history: holding the button must not cause repeated jumps.
+## История кнопки; удержание не запускает прыжок повторно.
 var was_pressed: bool = false

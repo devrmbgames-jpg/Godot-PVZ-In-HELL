@@ -1,10 +1,10 @@
 extends RefCounted
-## Discrete generic commands; no physics velocity/transform writes or customer dependency.
+## Общие команды движения/взгляда; живые цели принадлежат Relationships, физику исполняет тело.
 class_name NpcIntentService
 
 
-#region Movement intents
-## Requests a fixed world destination without changing the body's physical pose.
+#region Намерения движения
+## Запрашивает мировую точку и допуск прибытия в метрах; освобождает прежнюю живую цель.
 static func move_to(actor: Entity, position: Vector3, arrival_distance: float) -> void:
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	if intent == null:
@@ -18,7 +18,7 @@ static func move_to(actor: Entity, position: Vector3, arrival_distance: float) -
 	intent.movement_active = true
 
 
-## Follows a live entity bound through Relationships.
+## Запрашивает следование с допуском в метрах; цель хранится в R_MoveTarget, а не в компоненте.
 static func follow(actor: Entity, target: Entity, arrival_distance: float) -> void:
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	if intent == null:
@@ -33,7 +33,7 @@ static func follow(actor: Entity, target: Entity, arrival_distance: float) -> vo
 		actor.add_relationship(Relationship.new(R_NpcMoveTarget.new(), target))
 
 
-## Cancels movement and releases its live target.
+## Отменяет движение и освобождает живую цель; физическая остановка остаётся у solver.
 static func stop(actor: Entity) -> void:
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	if intent == null:
@@ -45,8 +45,8 @@ static func stop(actor: Entity) -> void:
 #endregion
 
 
-#region Observation intents
-## Watches a recognized entity through an authoritative live binding.
+#region Намерения взгляда
+## Направляет взгляд на живую цель через R_LookTarget с мировым смещением в метрах.
 static func watch(actor: Entity, target: Entity, offset: Vector3 = Vector3.ZERO) -> void:
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	if intent == null:
@@ -60,7 +60,7 @@ static func watch(actor: Entity, target: Entity, offset: Vector3 = Vector3.ZERO)
 		actor.add_relationship(Relationship.new(R_NpcLookTarget.new(), target))
 
 
-## Watches an authored location without retaining a live hidden target.
+## Запрашивает взгляд на фиксированную мировую точку и освобождает прежнюю живую цель.
 static func look_at(actor: Entity, position: Vector3) -> void:
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	if intent == null:
@@ -73,7 +73,7 @@ static func look_at(actor: Entity, position: Vector3) -> void:
 	intent.look_mode = C_NpcIntent.LookMode.TARGET
 
 
-## Releases the observation target and follows the movement direction.
+## Освобождает цель взгляда и ориентирует NPC по направлению движения.
 static func look_along_movement(actor: Entity) -> void:
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	if intent == null:
@@ -85,7 +85,7 @@ static func look_along_movement(actor: Entity) -> void:
 #endregion
 
 
-#region Binding cleanup
+#region Очистка живых целей
 static func _clear_target(actor: Entity, relation_type: Script) -> void:
 	for relation: Relationship in actor.relationships.duplicate():
 		if relation.relation.get_script() == relation_type:

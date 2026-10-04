@@ -1,8 +1,10 @@
 extends System
-## Owns authoritative crouch state and collision-shape transitions.
+## Владеет состоянием приседания и переключением коллайдеров с проверкой места для подъёма.
 class_name S_Crouch
 
 
+#region Проверка позы
+## Выбирает физические персонажи обоих типов с Controller и C_Crouch.
 func query() -> QueryBuilder:
 	return q.with_all(
 		[C_Controller, C_Crouch]
@@ -11,6 +13,7 @@ func query() -> QueryBuilder:
 	)
 
 
+## Применяет ввод приседания; препятствие над головой запрещает переход в стойку.
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var controllers: Array = components[0]
 	var crouches: Array = components[1]
@@ -35,6 +38,9 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 				_exit_crouch(entity, crouch)
 
 
+#endregion
+
+#region Переключение коллайдеров
 func _enter_crouch(entity: E_PhysicalCharacter, crouch: C_Crouch) -> void:
 	crouch.active = true
 	if entity.shape_standing != null:
@@ -49,3 +55,5 @@ func _exit_crouch(entity: E_PhysicalCharacter, crouch: C_Crouch) -> void:
 		entity.shape_crouching.disabled = true
 	if entity.shape_standing != null:
 		entity.shape_standing.disabled = false
+
+#endregion

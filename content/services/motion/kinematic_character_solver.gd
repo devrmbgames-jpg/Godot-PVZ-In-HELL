@@ -1,5 +1,5 @@
 extends RefCounted
-## Native CharacterBody movement, immediate view and independent body-facing for belt access.
+## Исполняет CharacterBody-движение и прямой взгляд; ориентация корпуса учитывает доступ к поясу.
 class_name KinematicCharacterSolver
 
 const MINIMUM_MASS: float = 0.01
@@ -7,6 +7,8 @@ const MINIMUM_STEP: float = 0.0001
 const TERRAIN_MASK: int = 1
 
 
+#region Физический шаг
+## Один физический шаг в секундах: взгляд, импульсы, транспорт, move_and_slide, толкание и снимок опоры.
 static func step(
 	actor: E_CharacterBodyPlayer, body: CharacterBody3D, control: C_Controller,
 	motion: C_Motion, config: C_CharacterBody, delta: float,
@@ -62,6 +64,9 @@ static func step(
 	_push_support(actor, body, motion, config, delta)
 
 
+#endregion
+
+#region Взгляд и движение с транспортом
 static func _update_view(actor: E_PhysicalCharacter, body: CharacterBody3D, control: C_Controller, config: C_CharacterBody, delta: float) -> void:
 	if actor.head_axis_y == null or actor.head_axis_x == null or control.direction_look.is_zero_approx():
 		return
@@ -79,7 +84,7 @@ static func _update_view(actor: E_PhysicalCharacter, body: CharacterBody3D, cont
 	var pitch: float = asin(clampf(direction.y, -1.0, 1.0))
 	var relative: float = wrapf(yaw - body.rotation.y, -PI, PI)
 	var limit: float = deg_to_rad(look.head_yaw_limit)
-	# Looking down freezes the torso while the camera can reach both belt slots.
+	# Взгляд вниз удерживает корпус, чтобы камерой можно было выбрать оба поясных слота.
 	if pitch > -deg_to_rad(config.slot_look_down_degrees):
 		var target: float = body.rotation.y
 		if not control.direction_motion.is_zero_approx():
@@ -123,8 +128,11 @@ static func _follow_transport(actor: Entity, body: CharacterBody3D, delta: float
 	return 0.0
 
 
-## Native body checks the entire up/across/down route before lifting onto a small step.
-## Normal move_and_slide still owns forward motion, floor contacts and impact reporting.
+#endregion
+
+#region Ступени и контакт с опорой
+## Перед подъёмом на ступень тело проверяет весь путь вверх, вперёд и вниз.
+## Движение вперёд, контакты опоры и удары остаются у move_and_slide.
 static func _lift_step(body: CharacterBody3D, height: float, delta: float) -> void:
 	if height <= 0.0 or not body.is_on_floor() or body.velocity.y > 0.0:
 		return
@@ -193,3 +201,5 @@ static func _push_support(actor: E_CharacterBodyPlayer, body: CharacterBody3D, m
 	var impulse: Vector3 = (Vector3.DOWN + planar) * config.ground_impulse_per_second * delta
 	impulse = impulse.limit_length(config.ground_maximum_velocity_change * rigid.mass)
 	rigid.apply_impulse(impulse, motion.floor_contact_position - rigid.global_position)
+
+#endregion

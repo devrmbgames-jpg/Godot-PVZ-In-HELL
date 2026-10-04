@@ -1,18 +1,20 @@
 @tool
 extends E_PhysicalCharacter
-## Thin engine glue; input remains in Systems and movement in the native body callback.
+## Связь Entity с CharacterBody: ввод готовят Systems, движение исполняет физический callback.
 class_name E_CharacterBodyPlayer
 
+## Луч фактической опоры для передачи импульса её RigidBody.
 @export var ground_ray: RayCast3D = null
 
 
+#region Подготовка физических исключений
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 
 	var body: CharacterBody3D = self as Node as CharacterBody3D
 	assert(body != null)
-	# Own belt handles remain ray targets but cannot collide with their host body/ground ray.
+	# Свои поясные узлы доступны взаимодействию, но исключены из столкновений тела и луча опоры.
 	for node: Node in find_children("*", "PhysicsBody3D", true, false):
 		var child: PhysicsBody3D = node as PhysicsBody3D
 		body.add_collision_exception_with(child)
@@ -20,6 +22,9 @@ func _ready() -> void:
 			ground_ray.add_exception(child)
 
 
+#endregion
+
+#region Исполнение физического шага
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint() or not EntityAvailability.contains(self, ECS.world):
 		return
@@ -30,3 +35,5 @@ func _physics_process(delta: float) -> void:
 	var config: C_CharacterBody = get_component(C_CharacterBody) as C_CharacterBody
 	if body != null and motion != null and control != null and config != null:
 		KinematicCharacterSolver.step(self, body, control, motion, config, delta)
+
+#endregion

@@ -1,10 +1,11 @@
 @tool
 extends C_Attribute
+## Добавляет изменяемое current к базовому и вычисленному значению атрибута.
 class_name C_AttributeChanged
 
 const DEFAULT_CURRENT: float = -1
 
-## Текущее значение
+## Изменяемое текущее значение отдельно от базового и вычисленного максимума.
 @export var current := 100.0 :
 	set = _set_current
 

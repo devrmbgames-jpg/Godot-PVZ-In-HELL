@@ -1,9 +1,11 @@
 @tool
 extends E_PhysicalCharacter
+## Физический callback персонажа: захват контактов, транспорт или толкание, затем движение и взгляд.
 class_name E_RigidBodyCharacter
 
 
 
+#region Настройка физического типа
 func _init() -> void:
 	if Engine.is_editor_hint():
 		set_physics_process(false)
@@ -11,11 +13,14 @@ func _init() -> void:
 	assert(self as Node as RigidBody3D, "is not rigid!")
 
 
+#endregion
+
+#region Физический callback
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	ImpactCaptureSolver.capture(self, state)
 	if CartDriverSolver.integrate(self, state):
-		# Transport replaces locomotion, not look: S_PlayerIntent keeps
-		# direction_look aligned with the cart while steering.
+		# Управление транспортом заменяет движение; взгляд сохраняется благодаря
+		# согласованному с транспортом direction_look из S_PlayerIntent.
 		CharacterLookSolver.integrate_forces(self, state)
 		return
 	if PushActorSolver.integrate(self, state):
@@ -23,3 +28,5 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 
 	CharacterMotionSolver.integrate_forces(self, state)
 	CharacterLookSolver.integrate_forces(self, state)
+
+#endregion

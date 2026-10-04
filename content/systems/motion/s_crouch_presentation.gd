@@ -1,17 +1,20 @@
 extends System
-## Shared head-root geometry driven by C_Crouch; legacy class/scene name is preserved.
-## HeadRoot also carries the interaction ray and hold anchors, so this is gameplay glue.
+## Смещает общий корень головы по C_Crouch после авторитетного переключения состояния.
+## Корень содержит камеру, луч взаимодействия и крепления хвата; смещение влияет на игровой доступ.
 class_name S_CrouchPresentation
 
 
+## Смещает геометрию после авторитетного S_Crouch.
 func deps() -> Dictionary[int, Array]:
 	return { Runs.After: [S_Crouch] }
 
 
+## Выбирает физические персонажи с C_Crouch и C_Motion.
 func query() -> QueryBuilder:
 	return q.with_all([C_Crouch]).with_any([C_RigidBody, C_CharacterBody]).iterate([C_Crouch])
 
 
+## За шаг в секундах приближает высоту головы и поясных креплений к высоте текущей позы.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var crouches: Array = components[0]
 

@@ -1,9 +1,11 @@
 extends Component
+## Авторские пределы и скорости ориентации головы/корпуса физического персонажа.
 class_name C_Look
 
+## Авторское стартовое направление взгляда; runtime-намерение приходит из Controller.
 @export var look_direction: Vector3 = Vector3.FORWARD
-## First-person input follows the requested view immediately in the physics callback.
-## NPCs keep the authored body/head turn speeds below.
+## Ввод первого лица применяется сразу в физическом callback.
+## NPC используют указанные ниже авторские скорости поворота головы и тела.
 @export var direct_input: bool = false
 ## Скорость поворота, градусов в секунду.
 ## Для игрока можно поставить 9999.
@@ -18,6 +20,6 @@ var head_yaw_limit: float = 60.0
 ## Скорость разворота тела в сторону движения, градусов в секунду.
 @export var motion_alignment_acceleration: float = 180.0
 
-## наклон стрейфа
+## Предельное отклонение корпуса при движении вбок, в градусах.
 @export_range(0.0, 90.0, 1.0)
 var strafe_body_yaw_limit: float = 25.0

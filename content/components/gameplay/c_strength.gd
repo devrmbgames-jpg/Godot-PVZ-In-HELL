@@ -1,6 +1,6 @@
 @tool
 extends C_Attribute
-## Physical carrying strength used by generic Carry load limits and slowdown.
+## Сила для предела массы и замедления Carry; перевод в килограммы задаёт CarryLoadPolicy.
 class_name C_Strength
 
 

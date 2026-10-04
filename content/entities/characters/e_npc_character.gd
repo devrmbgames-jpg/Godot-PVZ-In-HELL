@@ -1,15 +1,19 @@
 @tool
 extends E_RigidBodyCharacter
-## Thin presentation hook driven by actual body velocity; animation never supplies root motion.
+## Анимация по реальной скорости тела и участие в движке по жизни NPC; root motion не применяется.
 class_name E_NpcCharacter
 
 const WALK_START_SPEED: float = 0.2
 const WALK_STOP_SPEED: float = 0.1
 const ANIMATION_BLEND_SECONDS: float = 0.15
 
+## Авторский проигрыватель поз и method-track атак, без управления трансформом тела.
 @export var animation_player: AnimationPlayer = null
+## Авторский агент пути/avoidance; его callback поставляет кеш безопасной скорости.
 @export var navigation_agent: NavigationAgent3D = null
+## Имя авторской анимации покоя; обслуживание может выбрать другую позу.
 @export var idle_animation: StringName = &"Idle"
+## Имя анимации, выбираемой по фактической горизонтальной скорости.
 @export var walk_animation: StringName = &"Walk"
 
 var _walking: bool = false
@@ -22,6 +26,7 @@ var _living_freeze: bool = false
 var _living_visible: bool = true
 
 
+#region Подготовка и навигационное участие
 func _ready() -> void:
 	var body: RigidBody3D = self as Node as RigidBody3D
 	_living_layer = body.collision_layer
@@ -39,7 +44,7 @@ func _on_navigation_velocity_computed(safe_velocity: Vector3) -> void:
 		intent.avoidance_frame = Engine.get_physics_frames()
 
 
-## Engine participation only; reset restores the native agent's authored policy.
+## Отключает avoidance после смерти; явный сброс восстанавливает прежнюю политику агента и очищает кеш скорости.
 func sync_navigation_lifecycle(living: bool) -> void:
 	if navigation_agent == null or living == (not _navigation_dead):
 		return
@@ -56,6 +61,9 @@ func sync_navigation_lifecycle(living: bool) -> void:
 		intent.avoidance_frame = -1
 
 
+#endregion
+
+#region Анимация и терминальное состояние
 func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
@@ -76,12 +84,12 @@ func _process(_delta: float) -> void:
 		animation_player.play(animation, ANIMATION_BLEND_SECONDS)
 
 
-## Scene-authored service poses may replace stationary Idle; native motion still chooses Walk.
+## Позволяет сцене выбрать позу обслуживания на месте; реальное движение по-прежнему выбирает Walk.
 func _stationary_animation() -> StringName:
 	return idle_animation
 
 
-## Saved NPCs retain a tombstone Entity. Native body participation follows terminal state.
+## Скрывает и отключает тело/навигацию по терминальному состоянию, сохраняя Entity погибшего.
 func sync_death_presentation() -> void:
 	var health: C_Health = get_component(C_Health) as C_Health
 	var dead: bool = has_component(C_Death) or (health != null and health.depleted)
@@ -99,12 +107,18 @@ func sync_death_presentation() -> void:
 		animation_player.stop()
 
 
-## Method-track callbacks target this Entity, not the presentation AnimationPlayer.
+#endregion
+
+#region Callbacks атакующей анимации
+## Callback method-track на Entity запрашивает однократную попытку эффекта атаки через NpcAttackService.
 func npc_attack_hit() -> void:
 	if not Engine.is_editor_hint():
 		NpcAttackService.commit_effect(self)
 
 
+## Callback завершения атакующей анимации переводит текущую атаку в восстановление через сервис.
 func npc_attack_finished() -> void:
 	if not Engine.is_editor_hint():
 		NpcAttackService.finish(self)
+
+#endregion

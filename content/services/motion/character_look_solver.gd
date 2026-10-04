@@ -1,9 +1,12 @@
 extends RefCounted
+## Ориентация RigidBody-персонажа внутри физического callback; захват вращения имеет приоритет.
 class_name CharacterLookSolver
 
 const ANGLE_EPSILON: float = 0.001
 
 
+#region Физический вход
+## Применяет прямой ввод или ограниченный поворот головы/корпуса; вызывается только из физического callback.
 static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectBodyState3D) -> void:
 	var grab_control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
 	if grab_control != null and grab_control.rotation_active:
@@ -51,12 +54,15 @@ static func integrate_forces(entity: E_RigidBodyCharacter, state: PhysicsDirectB
 	_integrate_pitch(entity, look_direction, max_rotation_step)
 
 
+#endregion
+
+#region Прямой ввод и ориентация
 static func _integrate_direct_look(
 	entity: E_RigidBodyCharacter,
 	state: PhysicsDirectBodyState3D,
 	look_direction: Vector3,
 ) -> void:
-	# The rigid body remains the yaw authority. The camera has no extra turn-rate cap.
+	# Поворот корпуса остаётся у физического тела; камера применяет прямой ввод без дополнительного лимита.
 	var yaw: float = atan2(-look_direction.x, -look_direction.z)
 	var pose: Transform3D = state.transform
 	pose.basis = Basis(Vector3.UP, yaw)
@@ -272,3 +278,5 @@ static func _move_toward_angle(current: float, target: float, max_delta: float) 
 		return target
 
 	return current + signf(difference) * max_delta
+
+#endregion

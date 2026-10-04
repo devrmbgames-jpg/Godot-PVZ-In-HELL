@@ -1,11 +1,14 @@
 extends System
+## Преобразует фронт прыжка на опоре в одноразовый импульс; тело исполняет его отдельно.
 class_name S_Jump
 
 
+## Выбирает персонажей с данными прыжка, управления и движения.
 func query() -> QueryBuilder:
 	return q.with_all([C_Jump, C_Controller, C_Motion]).iterate([C_Jump, C_Controller, C_Motion])
 
 
+## После фронта ввода на опоре ставит импульс в Н·с; удержание кнопки не повторяет прыжок.
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var jumps: Array = components[0]
 	var controllers: Array = components[1]
@@ -23,7 +26,7 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 		if jump.jump_force <= 0.0:
 			continue
 
-		# The body integration consumes this impulse alongside other gameplay impulses.
+		# Физический callback тела потребляет импульс вместе с другими игровыми импульсами.
 		motion.pending_impulse += Vector3.UP * jump.jump_force
 		motion.is_on_floor = false
 		jump.active = true

@@ -7,10 +7,13 @@ const MINIMUM_CAPACITY: float = 1.0
 const EMPTY_EPSILON: float = 0.000001
 
 
+#region Выбор и сброс при паузе
+## Читает запрос бега после подготовки S_PlayerIntent.
 func deps() -> Dictionary[int, Array]:
 	return {Runs.After: [S_PlayerIntent]}
 
 
+## Выбирает игрока с управлением, движением, выносливостью и Strength.
 func query() -> QueryBuilder:
 	return q.with_all([C_Stamina, C_Controller, C_Motion, C_Strength]).iterate([C_Stamina, C_Controller, C_Motion, C_Strength])
 
@@ -26,6 +29,10 @@ func _notification(what: int) -> void:
 		(actor.get_component(C_Motion) as C_Motion).sprint_multiplier = 1.0
 
 
+#endregion
+
+#region Бег и выносливость
+## Рассчитывает ёмкость, запрос/истощение и множитель; расходует выносливость только при реальном беге.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if delta <= 0.0:
 		return
@@ -96,3 +103,5 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			var recovery_delta: float = maxf(delta - stamina.recovery_remaining, 0.0)
 			stamina.recovery_remaining = maxf(stamina.recovery_remaining - delta, 0.0)
 			stamina.current = minf(stamina.current + stamina.recovery_per_second * recovery_delta, stamina.maximum)
+
+#endregion

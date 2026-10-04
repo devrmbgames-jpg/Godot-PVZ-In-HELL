@@ -1,5 +1,5 @@
 extends RefCounted
-## RigidBody callback solver for grounded/airborne character locomotion.
+## Движение RigidBody-персонажа на опоре и в воздухе; скорость изменяется внутри физического callback.
 class_name CharacterMotionSolver
 
 const INPUT_EPSILON: float = 0.0001
@@ -7,11 +7,12 @@ const DEFAULT_FRICTION: float = 1.0
 const FLOOR_QUERY_MARGIN: float = 0.05
 
 
-## Главная точка входа locomotion.
+#region Физический вход
+## Исполняет импульсы, снимок опоры, прилипание и управление внутри callback тела.
 ##
 ## Вызывается непосредственно из:
 ##
-##     E_RigidBodyCharacter._integrate_forces()
+##     из E_RigidBodyCharacter._integrate_forces().
 ##
 static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 	var body := entity as Node as RigidBody3D
@@ -49,10 +50,13 @@ static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) ->
 	)
 
 # =========================================================================
-# Locomotion
+# Движение на опоре и в воздухе
 # =========================================================================
 
 
+#endregion
+
+#region Движение и прилипание
 static func _snap_to_support(
 	body: RigidBody3D,
 	state: PhysicsDirectBodyState3D,
@@ -165,7 +169,7 @@ static func _integrate_limited_velocity(
 	var max_speed: float = effective_speed(motion, carry_load, strength, hunger)
 	var relative: Vector3 = state.linear_velocity - motion.floor_velocity
 	var planar: Vector3 = relative.slide(motion.floor_normal)
-	# Fast external knockback remains a physics impulse, outside locomotion's budget.
+	# Быстрый внешний толчок сохраняется вне ограничения скорости управления.
 	if planar.length() > max_speed + INPUT_EPSILON:
 		if input_motion.is_zero_approx():
 			_apply_ground_deceleration(state, motion)
@@ -233,10 +237,13 @@ static func _integrate_air_motion(
 	)
 
 # =========================================================================
-# Acceleration
+# Управляемое ускорение и торможение
 # =========================================================================
 
 
+#endregion
+
+#region Ускорение и торможение
 ## Добавляет скорость только вдоль направления управления.
 ##
 ## ВАЖНО:
@@ -318,10 +325,13 @@ static func _apply_ground_lateral_friction(
 	state.linear_velocity += (new_lateral_velocity - lateral_velocity)
 
 # =========================================================================
-# Floor detection
+# Физический снимок опоры
 # =========================================================================
 
 
+#endregion
+
+#region Снимок и материал опоры
 static func _find_floor_contact(state: PhysicsDirectBodyState3D, motion: C_Motion) -> int:
 	var minimum_floor_dot := cos(deg_to_rad(motion.floor_max_angle_degrees))
 
@@ -375,12 +385,12 @@ static func _update_floor_state(
 	motion.floor_friction = _get_surface_traction(collider)
 
 # =========================================================================
-# Physics Material
+# Материал опоры
 # =========================================================================
 
 
-## Character contact friction is zero to avoid sticking to walls/ceilings.
-## Locomotion traction comes only from the floor, independently of that material.
+## Контактное трение персонажа обнулено для защиты от прилипания к стенам/потолку.
+## Управляемость рассчитывается отдельно по материалу опоры.
 static func _get_surface_traction(collider: Object) -> float:
 	var surface_material: PhysicsMaterial = _get_physics_material(collider)
 	return surface_material.friction if surface_material != null else DEFAULT_FRICTION
@@ -402,10 +412,13 @@ static func _get_physics_material(collider: Object) -> PhysicsMaterial:
 	return null
 
 # =========================================================================
-# Gameplay impulses
+# Игровые импульсы
 # =========================================================================
 
 
+#endregion
+
+#region Импульсы и игровые множители
 static func _apply_pending_impulse(state: PhysicsDirectBodyState3D, motion: C_Motion) -> void:
 	if motion.pending_impulse.is_zero_approx():
 		return
@@ -417,7 +430,7 @@ static func _apply_pending_impulse(state: PhysicsDirectBodyState3D, motion: C_Mo
 	motion.pending_impulse = Vector3.ZERO
 
 
-## Carry slowdown is derived from actual body mass and current Strength every physics tick.
+## Скорость в м/с с текущими множителями бега, реальной массы груза, Strength и голода.
 static func effective_speed(
 	motion: C_Motion,
 	carry_load: C_CarryLoad,
@@ -426,3 +439,5 @@ static func effective_speed(
 ) -> float:
 	var carry_multiplier: float = CarryLoadPolicy.active_multiplier(carry_load, strength) if carry_load != null and carry_load.active else 1.0
 	return motion.max_speed * motion.sprint_multiplier * carry_multiplier * HungerService.speed_multiplier(hunger)
+
+#endregion

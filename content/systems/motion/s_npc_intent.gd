@@ -1,5 +1,5 @@
 extends System
-## Produces semantic intent only. Character solvers retain physics authority.
+## Преобразует цели NPC в Controller через навигацию; трансформ и скорость исполняет тело.
 class_name S_NpcIntent
 
 const MAX_AVOIDANCE_AGE_FRAMES: int = 2
@@ -8,19 +8,25 @@ const WAITING_AVOIDANCE_PRIORITY: float = 1.0
 const MINIMUM_NAVIGATION_SPEED: float = 0.001
 const MAX_PASSING_NAV_DISTANCE: float = 0.2
 
+#region Выбор и подготовка намерений
+## Выбирает NPC с Controller, исключая управление вводом игрока.
 func query() -> QueryBuilder:
 	return q.with_all([C_NpcIntent, C_Controller]).with_none([C_PlayerInputController]).iterate([C_NpcIntent, C_Controller])
 
 
+## Обновляет маршрут, локальное avoidance и взгляд без прямых записей физического состояния.
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var intents: Array = components[0]
 	var controllers: Array = components[1]
-	# GECS batches by archetype: a Trader is outside the current Customer batch.
+	# Соседи берутся из общего запроса: GECS обрабатывает торговцев и клиентов разными архетипами.
 	var neighbours: Array[Entity] = ECS.world.query.with_all([C_NpcIntent, C_Controller]).with_none([C_PlayerInputController, C_Death]).execute()
 	for index: int in entities.size():
 		_apply(entities[index], intents[index] as C_NpcIntent, controllers[index] as C_Controller, neighbours)
 
 
+#endregion
+
+#region Исполнение цели
 func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighbours: Array[Entity]) -> void:
 	var body: Node3D = actor as Node as Node3D
 	if body == null:
@@ -90,6 +96,9 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighb
 		controller.direction_look = look_direction.normalized()
 
 
+#endregion
+
+#region Локальное уклонение
 func _apply_avoidance(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighbours: Array[Entity]) -> void:
 	var npc: E_NpcCharacter = actor as E_NpcCharacter
 	if npc == null or npc.navigation_agent == null:
@@ -114,7 +123,7 @@ func _apply_avoidance(actor: Entity, intent: C_NpcIntent, controller: C_Controll
 	agent.velocity = preferred * speed
 	controller.limit_motion_velocity = true
 	controller.direction_motion = Vector3.ZERO
-	# A waiting NPC is a stationary obstacle; neighbours go around it.
+	# Ожидающий NPC становится неподвижным препятствием для обходящих соседей.
 	if moving and intent.avoidance_frame >= 0 and Engine.get_physics_frames() - intent.avoidance_frame <= MAX_AVOIDANCE_AGE_FRAMES:
 		controller.direction_motion = intent.avoidance_velocity.limit_length(speed) / maxf(speed, MINIMUM_NAVIGATION_SPEED)
 
@@ -158,6 +167,9 @@ func _passing_direction(npc: E_NpcCharacter, intent: C_NpcIntent, desired: Vecto
 	return (forward + side * intent.passing_bias).normalized() * desired.length()
 
 
+#endregion
+
+#region Путь и живые цели
 func _path_direction(
 	agent: NavigationAgent3D,
 	intent: C_NpcIntent,
@@ -194,3 +206,5 @@ func _target(actor: Entity, relation_type: Script) -> Node3D:
 
 			cmd.remove_relationship(actor, relation)
 	return null
+
+#endregion
