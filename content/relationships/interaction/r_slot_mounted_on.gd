@@ -1,3 +1,3 @@
 extends Component
-## Physical slot -> wearer/rack. Used to authorize access to worn stored items.
+## Физический слот → носитель/стойка; разрешает доступ к предметам надетых слотов.
 class_name R_SlotMountedOn

@@ -1,5 +1,5 @@
 extends Component
-## Optional authored hold, throw and manual rotation overrides for a physical prop.
+## Необязательные авторские настройки удержания, броска и ручного вращения физического предмета.
 class_name C_Grabbable
 
 enum HoldSlot {
@@ -12,25 +12,25 @@ enum RotationAxis {
 	Y_ONLY,
 }
 
-## Zero means Carry-only. Hand items declare allowed physical hands.
+## Ноль разрешает только Carry; предметы рук задают допустимые физические руки битовой маской.
 @export_flags("Right:2", "Left:4") var allowed_hand_slots: int = 0
-## Disables both manual rotation input and its contextual prompt when false.
+## Разрешает ручное вращение и соответствующую контекстную подсказку.
 @export var manual_rotation_enabled: bool = true
-## Constrains manual rotation offset relative to the selected anchor.
+## Ограничивает смещение ручного вращения относительно выбранной точки удержания.
 @export var rotation_axis: RotationAxis = RotationAxis.FREE
-## Uses the authored anchor orientation instead of preserving relative world rotation.
+## При подборе использует авторский поворот точки удержания вместо сохранения относительного поворота.
 @export var reset_rotation_on_pickup: bool = false
-## Negative means use the holder's C_GrabControl.hold_distance. Ignored for hand slots.
+## Дистанция Carry в метрах; отрицательная берёт C_GrabControl.hold_distance, для рук не применяется.
 @export var hold_distance: float = -1.0
-## Spring coefficients are acceleration gains; the solver accounts for body mass.
+## Коэффициент ускорения позиционной пружины; solver отдельно учитывает массу тела.
 @export var position_stiffness: float = 110.0
-## Damps relative anchor/body motion to prevent oscillation.
+## Коэффициент демпфирования относительного движения тела и точки удержания.
 @export var position_damping: float = 22.0
-## Angular velocity servo: no spring momentum while held; collisions remain physical.
+## Предельная угловая скорость удержания в рад/с; столкновения остаются физическими.
 @export var max_rotation_speed: float = 30.0
-## Maximum translation force applied by the hold spring, in newtons.
+## Предельная сила позиционной пружины, в ньютонах.
 @export var max_hold_force: float = 12000.0
-## Excessive distance from the desired hold position releases the grip.
+## Отклонение от желаемой точки в метрах, при превышении которого хват освобождается.
 @export var break_distance: float = 4.0
-## Desired velocity change. Heavy-object profiles use a smaller value.
+## Желаемое изменение скорости при броске, в метрах в секунду; тяжёлые профили задают меньше.
 @export var throw_velocity: float = 10.0

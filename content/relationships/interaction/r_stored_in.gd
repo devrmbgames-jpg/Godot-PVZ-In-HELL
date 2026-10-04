@@ -1,6 +1,8 @@
 extends Component
-## Item -> physical slot is the only occupancy/ownership authority.
+## Предмет → физический слот: единственная авторитетная связь занятости и владения слота.
 class_name R_StoredIn
 
+## Исходные физические настройки до крепления предмета к слоту.
 var snapshot: StoredBodySnapshot = null
+## Крепление уже применено; повторное применение и очистка проверяют этот флаг.
 var applied: bool = false
