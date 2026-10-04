@@ -1,10 +1,10 @@
 extends RefCounted
-## Cancels transient actions and reservations while preserving durable district bodies and items.
+## Завершает временные действия и резервы перед ночью, сохраняя постоянные тела и вещи района.
 class_name NightResetService
 
 
-#region Night lifecycle
-## Clears live participation before the next morning is captured.
+#region Ночное завершение действий
+## Освобождает ввод, живые действия, роли обслуживания и временные эффекты перед снимком утра.
 static func reset() -> void:
 	if not is_instance_valid(ECS.world):
 		return

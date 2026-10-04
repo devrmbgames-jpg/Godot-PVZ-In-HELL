@@ -1,12 +1,12 @@
 extends RefCounted
-## Prepares one coherent district morning and retries its atomic save without replaying closeout.
+## Однократно готовит утро района и повторяет запись без повторного завершения вечера и заселения.
 class_name NightSaveService
 
 const MIN_RETRY_SECONDS: float = 0.1
 
 
-#region Night commit
-## Resolves evening promises and placement once, then retries the same morning until written.
+#region Ночная подготовка и запись
+## Завершает обещания и размещение один раз на ночь; повторно снимает и записывает подготовленное утро.
 static func process(session: Entity, cycle: C_DayCycle, state: C_Autosave, delta: float) -> void:
 	if cycle.phase != C_DayCycle.Phase.NIGHT:
 		return
@@ -38,8 +38,8 @@ static func process(session: Entity, cycle: C_DayCycle, state: C_Autosave, delta
 #endregion
 
 
-#region Startup restore
-## Restores a compatible slot or explains incompatibility without deleting its file.
+#region Восстановление при запуске
+## Восстанавливает совместимый слот или сообщает причину отказа без удаления файла.
 static func restore_startup(root: Node, state: C_Autosave) -> bool:
 	var snapshot: Dictionary = AutosaveStore.read(state.path)
 	if snapshot.is_empty():

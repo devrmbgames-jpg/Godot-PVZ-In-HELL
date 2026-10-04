@@ -1,8 +1,9 @@
 extends RefCounted
-## Only committed NEVER actions survive; timing remains authored, never serialized.
+## Сохраняет только завершённые действия NEVER; длительность восстанавливается из авторского ресурса.
 class_name PersistentInteractionState
 
 
+## Возвращает ID только завершённых действий с политикой NEVER.
 static func completed(entity: Entity) -> Array[StringName]:
 	var ids: Array[StringName] = []
 	var state: C_ProlongedInteraction = entity.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
@@ -13,6 +14,7 @@ static func completed(entity: Entity) -> Array[StringName]:
 	return ids
 
 
+## Проверяет уникальные ID и соответствие авторским действиям NEVER.
 static func valid(ids: Array, entity: Entity) -> bool:
 	var seen: Dictionary[StringName, bool] = {}
 	for value: Variant in ids:
@@ -23,6 +25,7 @@ static func valid(ids: Array, entity: Entity) -> bool:
 	return true
 
 
+## Заменяет прогресс только сохранёнными завершёнными действиями без повторного эффекта.
 static func restore(ids: Array, entity: Entity) -> void:
 	var state: C_ProlongedInteraction = entity.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
 	if state == null and not ids.is_empty():
@@ -41,6 +44,7 @@ static func restore(ids: Array, entity: Entity) -> void:
 		state.actions.append(progress)
 
 
+## Сбрасывает незавершённый прогресс перед ночью, сохраняя завершённые действия.
 static func reset_incomplete(entity: Entity) -> void:
 	var state: C_ProlongedInteraction = entity.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
 	if state == null:

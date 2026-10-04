@@ -1,5 +1,5 @@
 extends RefCounted
-## Save/load is an explicit one-time physical synchronization boundary before simulation.
+## Снимок постоянного мира; restore — явная однократная граница синхронизации тел и связей.
 class_name WorldSnapshotService
 
 const OWNED: String = "owned"
@@ -7,6 +7,8 @@ const STORED: String = "stored"
 const CARGO: String = "cargo"
 
 
+#region Ключи и снимок
+## Возвращает ключ посылки, постоянной личности, авторского пути или runtime-ID.
 static func key_for(entity: Entity, root: Node) -> String:
 	var package: C_Package = entity.get_component(C_Package) as C_Package
 	if package != null:
@@ -20,6 +22,7 @@ static func key_for(entity: Entity, root: Node) -> String:
 	return "runtime/" + entity.id
 
 
+## Снимает постоянные сущности, включая отключённых NPC; копия цикла всегда задаёт указанное утро.
 static func capture(root: Node, morning_day: int) -> Dictionary:
 	if not is_instance_valid(ECS.world) or root == null or morning_day < 1:
 		return {}
@@ -70,7 +73,10 @@ static func capture(root: Node, morning_day: int) -> Dictionary:
 	return {"version": AutosaveStore.SCHEMA_VERSION, "morning_day": morning_day, "entities": records}
 
 
-## Validate the entire payload against the current scene before any world mutation.
+#endregion
+
+#region Предварительная проверка
+## Проверяет весь снимок и закрытые контракты до изменения живого мира.
 static func valid(data: Dictionary, root: Node) -> bool:
 	if data.get("version") != AutosaveStore.SCHEMA_VERSION or not data.get("morning_day") is int or int(data.morning_day) < 1 or not data.get("entities") is Array:
 		return false
@@ -205,13 +211,17 @@ static func can_restore(data: Dictionary, root: Node) -> bool:
 	return compatible
 
 
+#endregion
+
+#region Восстановление мира
+## После полной проверки восстанавливает данные, позы и связи, затем отключение и участие района.
 static func restore(data: Dictionary, root: Node) -> bool:
 	if not valid(data, root):
 		return false
 
 	var entities: Dictionary[String, Entity] = {}
 	var fresh: Array[Entity] = []
-	# Instantiate all missing prefabs before committing any change.
+	# Подготовить все отсутствующие prefab до изменения живых сущностей.
 
 	for record: Dictionary in data.entities:
 		var entity: Entity = root.get_node_or_null(NodePath(String(record.authored_path))) as Entity if not String(record.authored_path).is_empty() else null
@@ -248,7 +258,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			continue
 		if existing not in entities.values() and not entities.has(key_for(existing, root)) and (existing.owner == null or (existing as Node) is RigidBody3D):
 			ECS.world.remove_entity(existing)
-	# Entity.id is authority; reindex GECS's derived registry once at this boundary.
+	# Entity.id — источник истины; производный реестр GECS обновляется на этой границе.
 	for entity: Entity in entities.values():
 		if entity not in fresh:
 			ECS.world.entity_id_registry.erase(entity.id)
@@ -258,13 +268,13 @@ static func restore(data: Dictionary, root: Node) -> bool:
 		entity.id = String(record.entity_id)
 		if entity not in fresh:
 			ECS.world.entity_id_registry[entity.id] = entity
-	# Clear every old binding before any physical pose or saved binding is restored.
+	# Удалить старое владение до восстановления поз и сохранённых связей.
 	for entity: Entity in entities.values():
 		OpenableService.cancel_player_request(entity)
 		if entity not in fresh and not entity.enabled:
 			ECS.world.enable_entity(entity)
-		# Replace runtime ownership under the same guard used by Inventory transfer.
-		# Slot/cart removal runs its existing detach boundary before rebinding.
+		# Заменить владение с той же защитой, которую использует перенос инвентаря.
+		# Слот и тележка выполняют обычное отсоединение перед новой привязкой.
 		var item_state: C_InventoryItem = entity.get_component(C_InventoryItem) as C_InventoryItem
 		if item_state != null:
 			item_state.transfer_in_progress = true
@@ -405,7 +415,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 		var entity: Entity = entities[String(record.key)]
 		if entity.has_component(C_Hazard):
 			PersistentHazardState.restore(record.get("hazard_refs", {}) as Dictionary, entity, entities)
-	# Setup observers require live enabled prefabs. Apply saved disabled state last.
+	# Setup-observers требуют включённых prefab; сохранённое отключение применяется последним.
 
 	for record: Dictionary in data.entities:
 		if not bool(record.enabled):
@@ -415,6 +425,9 @@ static func restore(data: Dictionary, root: Node) -> bool:
 	return true
 
 
+#endregion
+
+#region Внутренние ограничения
 static func _valid_ids(records: Array, entities: Dictionary[String, Entity]) -> bool:
 	for record: Dictionary in records:
 		var existing: Entity = ECS.world.entity_id_registry.get(String(record.entity_id)) as Entity
@@ -430,3 +443,5 @@ static func _persistent(entity: Entity) -> bool:
 		var lifetime: C_HazardLifetime = entity.get_component(C_HazardLifetime) as C_HazardLifetime
 		return lifetime.persistent and not lifetime.owner_loss_pending
 	return (entity as Node) is RigidBody3D or entity is E_PhysicalSlot or not PersistentInteractionState.completed(entity).is_empty() or entity.components.values().any(func(value: Variant) -> bool: return value is Component and not SaveDataCodec.component_data(value as Component).is_empty())
+
+#endregion

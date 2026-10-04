@@ -13,18 +13,25 @@ static var _pending_level: String = ""
 static var _pending_snapshot: Dictionary = {}
 
 
+#region Пути игровых слотов
+## Выбирает основной или тестовый уровень по признаку QA-сборки.
 static func level_path() -> String:
 	return TEST_LEVEL if OS.has_feature("qa_test_level") else MAIN_LEVEL
 
 
+## Возвращает отдельный ручной слот для основного/тестового уровня.
 static func manual_path(level: String) -> String:
 	return TEST_MANUAL_SAVE if level == TEST_LEVEL else MANUAL_SAVE
 
 
+## Возвращает отдельный автоматический слот для основного/тестового уровня.
 static func autosave_path(level: String) -> String:
 	return TEST_AUTOSAVE if level == TEST_LEVEL else AutosaveStore.DEFAULT_PATH
 
 
+#endregion
+
+#region Ручное сохранение и выбор слота
 ## Собственный modal token меню можно исключить; другие захваты и живые связи остаются запретом.
 static func save_reason(root: Node, menu_owner: Object = null) -> String:
 	if root == null or not is_instance_valid(ECS.world) or ECS.world.get_parent() != root:
@@ -59,6 +66,7 @@ static func save_reason(root: Node, menu_owner: Object = null) -> String:
 	return ""
 
 
+## Сохраняет допустимое утро после проверки восстановления; отказ сохраняет прежний слот.
 static func save_game(root: Node, menu_owner: Object = null, path_override: String = "") -> GameSaveResult:
 	var result: GameSaveResult = GameSaveResult.new()
 	result.message = save_reason(root, menu_owner)
@@ -127,6 +135,9 @@ static func saved_game(level: String, path_overrides: Array[String] = []) -> Gam
 	return result
 
 
+#endregion
+
+#region Передача снимка и смена сцены
 ## Предварительная проверка происходит до закрытия текущей сцены. Новый старт не удаляет слоты.
 static func start_game(tree: SceneTree, level: String, saved: GameSaveResult = null) -> Error:
 	if level not in [MAIN_LEVEL, TEST_LEVEL]:
@@ -176,6 +187,7 @@ static func restore_startup(root: Node, state: C_Autosave) -> void:
 		push_error(state.startup_status)
 
 
+## Снимает паузу и меняет сцену; ошибка восстанавливает прежнее состояние паузы.
 static func return_to_menu(tree: SceneTree) -> Error:
 	var was_paused: bool = tree.paused
 	tree.paused = false
@@ -183,3 +195,5 @@ static func return_to_menu(tree: SceneTree) -> Error:
 	if error != OK:
 		tree.paused = was_paused
 	return error
+
+#endregion

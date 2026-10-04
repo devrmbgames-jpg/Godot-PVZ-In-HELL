@@ -1,9 +1,9 @@
 extends RefCounted
-## Closed district snapshot validation before mutating bodies, ownership or calendar state.
+## Проверяет закрытый снимок района до изменения тел, владения и календаря.
 class_name DistrictSnapshotRules
 
-#region Persistent district validation
-## Checks stable identities, placements, addresses, profiles, memory and evening promises.
+#region Проверка постоянного района
+## Проверяет личности, размещение, адреса, профили, память и вечерние обязательства.
 static func valid(records: Dictionary[String, Dictionary], components: Dictionary[String, Dictionary], morning_day: int) -> bool:
 	var district: C_District = null
 	var flow: C_CustomerFlow = null

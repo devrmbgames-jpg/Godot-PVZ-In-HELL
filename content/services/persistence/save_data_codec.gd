@@ -1,5 +1,5 @@
 extends RefCounted
-## Closed data schema: no Object IDs, Nodes, arbitrary scripts or runtime Relationships.
+## Закрытая схема постоянных данных без Node, Object ID, произвольных Script и живых Relationships.
 class_name SaveDataCodec
 
 static var _component_fields: Dictionary = {
@@ -35,9 +35,12 @@ static var _component_fields: Dictionary = {
 	C_NoDamage: [],
 }
 static var _record_types: Array[Script] = [NpcRecord, NpcMemory, NpcHomeDelivery, CustomerVisit, CustomerComplaint, CombatContext, MoneyOperation, DailyMoneyResult, PackageRegistrationRecord, PurchaseReceipt, PendingDelivery, RefusalQuestRecord, ReceivingBatch]
+## Максимальная глубина вложенных сериализуемых данных.
 const MAX_DEPTH: int = 16
 
 
+#region Кодирование и декодирование
+## Кодирует только разрешённые поля известного компонента; неизвестный тип даёт пустой словарь.
 static func component_data(component: Component) -> Dictionary:
 	var script: Script = component.get_script() as Script
 	if not _component_fields.has(script):
@@ -49,6 +52,7 @@ static func component_data(component: Component) -> Dictionary:
 	return {"type": script.resource_path, "fields": fields}
 
 
+## Кодирует ресурсы по закрытому списку и определения по пути; неподдерживаемое значение помечает invalid.
 static func encode(value: Variant, depth: int = 0) -> Variant:
 	if depth > MAX_DEPTH:
 		return {"invalid": true}
@@ -82,6 +86,7 @@ static func encode(value: Variant, depth: int = 0) -> Variant:
 	return value
 
 
+## Восстанавливает разрешённые определения/записи и вложенные данные; неверный тип/глубина даёт null.
 static func decode(value: Variant, depth: int = 0) -> Variant:
 	if depth > MAX_DEPTH:
 		return null
@@ -114,6 +119,10 @@ static func decode(value: Variant, depth: int = 0) -> Variant:
 	return value
 
 
+#endregion
+
+#region Закрытая схема и применение полей
+## Возвращает только разрешённый Script постоянной записи по точному пути.
 static func record_script(path: String) -> Script:
 	for script: Script in _record_types:
 		if script.resource_path == path:
@@ -121,6 +130,7 @@ static func record_script(path: String) -> Script:
 	return null
 
 
+## Возвращает только разрешённый Script компонента по точному пути.
 static func component_script(path: String) -> Script:
 	for script: Script in _component_fields:
 		if script.resource_path == path:
@@ -128,6 +138,7 @@ static func component_script(path: String) -> Script:
 	return null
 
 
+## Проверяет точный набор полей компонента без применения значений.
 static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 	if not _component_fields.has(script):
 		return false
@@ -142,6 +153,7 @@ static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 	return true
 
 
+## Последовательно проверяет и записывает разрешённые поля; полная валидация использует отдельную заготовку.
 static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0) -> bool:
 	var script: Script = resource.get_script() as Script
 	var allowed: Array = _component_fields.get(script, []) as Array
@@ -208,6 +220,9 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 	return true
 
 
+#endregion
+
+#region Проверка типа ресурса
 static func _script_matches(actual: Script, expected: StringName) -> bool:
 	while actual != null:
 		if actual.get_global_name() == expected:
@@ -215,3 +230,5 @@ static func _script_matches(actual: Script, expected: StringName) -> bool:
 
 		actual = actual.get_base_script()
 	return false
+
+#endregion

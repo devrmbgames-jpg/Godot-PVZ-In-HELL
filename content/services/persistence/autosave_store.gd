@@ -1,13 +1,16 @@
 extends RefCounted
-## Checksummed primitive payload, replaced atomically in one local slot.
+## Сериализуемые данные с SHA-256; временный файл заменяет локальный слот после записи.
 class_name AutosaveStore
 
 const DEFAULT_PATH: String = "user://autosave.pvzh"
 const MAGIC: String = "PVZH1"
+## Версия закрытой схемы; прежний формат отклоняется без миграции и удаления.
 const SCHEMA_VERSION: int = 2
+## Максимальный размер сериализованной нагрузки в байтах.
 const MAX_BYTES: int = 64 * 1024 * 1024
 
 
+## Записывает payload и SHA-256 во временный файл, затем заменяет слот; возвращает Error.
 static func write(data: Dictionary, path: String = DEFAULT_PATH) -> Error:
 	var payload: PackedByteArray = var_to_bytes(data)
 	if payload.is_empty() or payload.size() > MAX_BYTES:
@@ -29,6 +32,7 @@ static func write(data: Dictionary, path: String = DEFAULT_PATH) -> Error:
 	return DirAccess.rename_absolute(ProjectSettings.globalize_path(temporary), ProjectSettings.globalize_path(path))
 
 
+## Проверяет заголовок, размер и хеш; пустой словарь означает отсутствие/повреждение файла.
 static func read(path: String = DEFAULT_PATH) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return {}

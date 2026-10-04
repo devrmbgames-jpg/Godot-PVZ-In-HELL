@@ -1,8 +1,9 @@
 extends RefCounted
-## Validates durable relationship roles/capacity before live ownership changes.
+## Проверяет роли и вместимость сохранённых связей до изменения живого владения.
 class_name SnapshotGraphRules
 
 
+## Проверяет типы и вместимость сохранённых ролей, включая инвентарь отсутствующего живого NPC.
 static func valid(records: Dictionary[String, Dictionary], components: Dictionary[String, Dictionary]) -> bool:
 	var stack_counts: Dictionary[String, int] = {}
 	var slot_occupants: Dictionary[String, bool] = {}
@@ -40,7 +41,7 @@ static func valid(records: Dictionary[String, Dictionary], components: Dictionar
 	return true
 
 
-## Prefab engine types and authored slot policies are checked on detached/reused entities.
+## Проверяет типы prefab и авторские политики слотов на заготовках/переиспользуемых сущностях.
 static func valid_entities(records: Array, entities: Dictionary[String, Entity]) -> bool:
 	for record: Dictionary in records:
 		var entity: Entity = entities[String(record.key)]

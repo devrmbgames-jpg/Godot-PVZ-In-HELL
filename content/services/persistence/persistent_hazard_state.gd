@@ -1,8 +1,9 @@
 extends RefCounted
-## Primitive reference keys; live attribution/follow is rebuilt after all entities exist.
+## Кодирует участников опасности ключами; живые связи восстанавливаются после создания всех сущностей.
 class_name PersistentHazardState
 
 
+## Снимает ключи источника, инициатора и следования вместо живых ссылок.
 static func capture(entity: Entity, root: Node) -> Dictionary:
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	if hazard == null:
@@ -16,6 +17,7 @@ static func capture(entity: Entity, root: Node) -> Dictionary:
 	return data
 
 
+## Проверяет существование ключей и параметры сохранённого следования.
 static func valid(data: Dictionary, records: Dictionary[String, Dictionary]) -> bool:
 	for field: String in ["origin", "instigator"]:
 		if not data.get(field) is String or (not String(data[field]).is_empty() and not records.has(String(data[field]))):
@@ -30,6 +32,7 @@ static func valid(data: Dictionary, records: Dictionary[String, Dictionary]) -> 
 	return true
 
 
+## Восстанавливает атрибуцию и R_HazardFollow, затем запрашивает геометрию без повторного взрыва.
 static func restore(data: Dictionary, entity: Entity, entities: Dictionary[String, Entity]) -> void:
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	if hazard == null:
@@ -46,7 +49,7 @@ static func restore(data: Dictionary, entity: Entity, entities: Dictionary[Strin
 		follow.local_offset = saved.offset as Transform3D
 		follow.on_loss = int(saved.on_loss) as DEF_Hazard.OwnerLoss
 	HazardFollowService.replace(entity, owner, follow)
-	# Rebuild native collision/visual geometry without replaying a resolved explosion.
+	# Восстановить столкновения и геометрию без повторного разрешения завершённого взрыва.
 	if entity.has_component(C_ToxicArea) or entity.has_component(C_Explosion):
 		var result: HazardSpawnResult = HazardSpawnResult.new()
 		result.hazard = entity
@@ -56,6 +59,7 @@ static func restore(data: Dictionary, entity: Entity, entities: Dictionary[Strin
 		ECS.world.emit_event(HazardSpawnResult.EVENT, entity, result)
 
 
+## Снимает потерянное следование либо удаляет опасность согласно её политике.
 static func reset_missing_owners() -> void:
 	for entity: Entity in ECS.world.entities.duplicate():
 		if not is_instance_valid(entity):
@@ -82,5 +86,5 @@ static func _key(entity: Entity, root: Node) -> String:
 		return ""
 
 	var key: String = WorldSnapshotService.key_for(entity, root)
-	# Customers/projectiles are reset before capture, so only persistent live refs remain.
+	# Временные клиенты/снаряды удаляются до снимка; сохраняются постоянные живые участники.
 	return key
