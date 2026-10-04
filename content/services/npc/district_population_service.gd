@@ -243,6 +243,7 @@ static func prepare_morning(morning_day: int) -> void:
 		_reset_brain(body)
 		NpcBrainService.install(body)
 		plan_phase(person, morning_day, C_DayCycle.Phase.MORNING, true)
+	NpcDeliveryOfferService.prepare_day(morning_day)
 
 ## Назначает цель фазы; видимый NPC сначала доходит до двери или прохода.
 static func plan_phase(person: NpcRecord, day_index: int, phase: C_DayCycle.Phase, synchronize: bool = false) -> void:

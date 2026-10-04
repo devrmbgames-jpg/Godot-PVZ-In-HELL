@@ -8,6 +8,12 @@ class_name C_District
 @export var people: Array[NpcRecord] = []
 ## Добровольные доставки, включая сохраняемые завершённые результаты.
 @export var home_deliveries: Array[NpcHomeDelivery] = []
+## День последнего выбора предложений; переход фазы не сбрасывает его.
+@export var delivery_offer_day: int = 0
+## Зафиксированное число терминальных предложений на день, от 1 до 3.
+@export var terminal_offer_target: int = 0
+## Уже рассмотренные в этот день визиты, включая не получившие предложения.
+@export var delivery_considered: PackedStringArray = []
 ## Производный слабый кеш тела с проверкой участия в мире; не заменяет отношения.
 var body_references: Dictionary[StringName, WeakRef] = {}
 ## Производный кеш узла авторских маршрутов; не заменяет живые резервирования.

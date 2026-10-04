@@ -3,43 +3,14 @@ extends RefCounted
 class_name NpcHomeDeliveryService
 
 #region Обязательства
-## Находит подходящий зарегистрированный нерешённый заказ постоянного местного жителя.
+## Адаптирует постоянное личное предложение к существующему клиентскому диалогу.
 static func offer_for(body: E_DistrictNpc) -> CustomerVisit:
-	var district: C_District = DistrictPopulationService.current()
 	var cycle: C_DayCycle = DayPhaseService.current()
-	var person: NpcRecord = DistrictPopulationService.person_for(NpcSocialService.identity_for(body))
-	var flow: C_CustomerFlow = CustomerFlowService.current()
-	if district == null or cycle == null or flow == null or person == null or not person.profile.resident or person.death_day != 0 or cycle.phase not in [C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
+	if cycle == null or cycle.phase not in [C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		return null
 	var active: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
-
-	var accepted: int = 0
-	for job: NpcHomeDelivery in district.home_deliveries:
-		if job.day_index == cycle.day_index:
-			accepted += 1
-	if accepted >= district.definition.maximum_home_deliveries:
-		return null
-
-	for visit: CustomerVisit in flow.visits:
-		if visit.customer_id != person.npc_id or visit.customer_dead or visit.home_delivery_declined:
-			continue
-		if (visit.finished and visit.next_followup_day > cycle.day_index) or (active != null and active.visit_id != visit.visit_id):
-			continue
-		if visit.actual != CustomerVisit.Actual.NOT_RESOLVED or visit.declaration != CustomerVisit.Declaration.NONE or visit.settlement_committed or visit.complaint != null:
-			continue
-		if not CustomerFlowService.arrival_allowed(visit) or CustomerFlowService.parcel_for(visit.package_id) == null:
-			continue
-
-		var already_promised: bool = false
-		for job: NpcHomeDelivery in district.home_deliveries:
-			if job.visit_id == visit.visit_id and job.day_index == cycle.day_index:
-				already_promised = true
-		if not already_promised:
-			var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
-			var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
-			if state != null and state.registration == C_PackageState.Registration.REGISTERED and CustomerPresentation.registered_number(visit) > 0:
-				return visit
-	return null
+	var job: NpcHomeDelivery = NpcDeliveryOfferService.personal_for(NpcSocialService.identity_for(body), active.visit_id if active != null else &"")
+	return CustomerFlowService.find_visit(job.visit_id) if job != null else null
 
 ## После отказа получатель сам приходит через 1–3 дня; срок фиксирован для заказа.
 static func decline(body: E_DistrictNpc) -> bool:
@@ -48,36 +19,22 @@ static func decline(body: E_DistrictNpc) -> bool:
 	if visit == null or cycle == null:
 		return false
 
-	var random: RandomNumberGenerator = RandomNumberGenerator.new()
-	random.seed = String(visit.visit_id).hash()
-	visit.home_delivery_declined = true
-	visit.next_followup_day = cycle.day_index + random.randi_range(1, 3)
-	visit.followup_committed = true
-	visit.arrival_day = visit.next_followup_day
-	NpcServiceRole.finish_appearance(body, visit)
+	var job: NpcHomeDelivery = NpcDeliveryOfferService.personal_for(visit.customer_id, visit.visit_id)
+	if job == null or not NpcDeliveryOfferService.decline(job.job_id):
+		return false
 	body.show_message("Тогда зайду сам через %d дн." % (visit.next_followup_day - cycle.day_index))
 	return true
 
-## Принимает допуслугу в пределах дневного лимита и завершает визит к стойке.
+## Принимает уже выбранное личное предложение и завершает визит к стойке.
 static func accept(body: E_DistrictNpc) -> bool:
 	var visit: CustomerVisit = offer_for(body)
 	if visit == null:
 		return false
 
-	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
-	var cycle: C_DayCycle = DayPhaseService.current()
-	var job: NpcHomeDelivery = NpcHomeDelivery.new()
-	job.job_id = StringName("home/%d/%s" % [cycle.day_index, visit.visit_id])
-	job.npc_id = person.npc_id
-	job.visit_id = visit.visit_id
-	job.address_id = person.home_id
-	job.order_number = CustomerPresentation.registered_number(visit)
-	job.day_index = cycle.day_index
-	DistrictPopulationService.current().home_deliveries.append(job)
-	visit.next_followup_day = cycle.day_index + 1
-	visit.followup_committed = true
-	NpcServiceRole.finish_appearance(body, visit)
-	body.show_message("Жду у дома до сна. Адрес: " + DistrictPopulationService.place_name(job.address_id) + " · доплата " + str(visit.payment))
+	var job: NpcHomeDelivery = NpcDeliveryOfferService.personal_for(visit.customer_id, visit.visit_id)
+	if job == null or not NpcDeliveryOfferService.accept(job.job_id):
+		return false
+	body.show_message("Жду у дома до сна. Адрес: " + DistrictPopulationService.place_name(job.address_id) + " · доплата " + str(job.bonus))
 	return true
 
 ## Доставка доступна у адреса только своим вечером и не переходит новому жителю.
@@ -166,7 +123,7 @@ static func complete(job: NpcHomeDelivery) -> bool:
 		var operation: MoneyOperation = MoneyOperation.new()
 		operation.operation_id = StringName("bonus/" + String(job.job_id))
 		operation.settlement_id = job.job_id
-		operation.amount = visit.payment
+		operation.amount = job.bonus
 		operation.day_index = cycle.day_index
 		operation.note = "Вечерняя доставка " + String(job.address_id)
 		var result: WalletService.Status = WalletService.submit(operation)
@@ -198,7 +155,12 @@ static func finish_evening(day_index: int) -> void:
 		return
 
 	for job: NpcHomeDelivery in district.home_deliveries:
-		if job.day_index != day_index or job.status != NpcHomeDelivery.Status.ACCEPTED:
+		if job.day_index != day_index:
+			continue
+		if job.status == NpcHomeDelivery.Status.OFFERED:
+			job.status = NpcHomeDelivery.Status.EXPIRED
+			continue
+		if job.status != NpcHomeDelivery.Status.ACCEPTED:
 			continue
 
 		var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
@@ -234,10 +196,9 @@ static func status_text() -> String:
 
 	var lines: PackedStringArray = []
 	for job: NpcHomeDelivery in district.home_deliveries:
-		if job.day_index == cycle.day_index:
-			var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
+		if job.day_index == cycle.day_index and job.status <= NpcHomeDelivery.Status.FAILED:
 			var person: NpcRecord = DistrictPopulationService.person_for(job.npc_id)
 			var states: PackedStringArray = ["до сна", "доставлено", "получатель отказался", "не выполнено"]
-			lines.append("%s · %s · №%03d · +%d · %s" % [person.display_name if person != null else "Получатель", DistrictPopulationService.place_name(job.address_id), job.order_number, visit.payment if visit != null else 0, states[job.status]])
+			lines.append("%s · %s · №%03d · +%d · %s" % [person.display_name if person != null else "Получатель", DistrictPopulationService.place_name(job.address_id), job.order_number, job.bonus, states[job.status]])
 	return "" if lines.is_empty() else "Доставка домой\n" + "\n".join(lines)
 #endregion

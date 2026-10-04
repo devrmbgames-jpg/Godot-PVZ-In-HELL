@@ -88,26 +88,51 @@ static func valid(records: Dictionary[String, Dictionary], components: Dictionar
 		if not people.has(identity):
 			return false
 
-	var jobs: Dictionary[StringName, bool] = {}
-	var counts: Dictionary[int, int] = {}
-	for job: NpcHomeDelivery in district.home_deliveries:
-		if job == null or job.job_id.is_empty() or jobs.has(job.job_id) or not people.has(job.npc_id) or job.order_number < 1 or job.day_index < 1 or job.day_index > morning_day or job.status < NpcHomeDelivery.Status.ACCEPTED or job.status > NpcHomeDelivery.Status.FAILED:
-			return false
+	return _deliveries_valid(district, flow, people, morning_day)
+#endregion
 
-		jobs[job.job_id] = true
-		counts[job.day_index] = counts.get(job.day_index, 0) + 1
-		if counts[job.day_index] > district.definition.maximum_home_deliveries or (job.bonus_committed and job.status != NpcHomeDelivery.Status.DELIVERED):
-			return false
-
-		var address: DEF_DistrictPlace = district.definition.place_for(job.address_id)
-		if address == null or address.kind != DEF_DistrictPlace.Kind.HOME or flow == null:
-			return false
-
-		var matching: bool = false
+#region Предложения и обязательства
+static func _deliveries_valid(district: C_District, flow: C_CustomerFlow, people: Dictionary[StringName, NpcRecord], morning_day: int) -> bool:
+	if district.delivery_offer_day < 0 or district.delivery_offer_day > morning_day or district.terminal_offer_target < 0 or district.terminal_offer_target > 3:
+		return false
+	if district.delivery_offer_day == 0 and (district.terminal_offer_target != 0 or not district.delivery_considered.is_empty()):
+		return false
+	var visits: Dictionary[StringName, CustomerVisit] = {}
+	if flow != null:
 		for visit: CustomerVisit in flow.visits:
-			if visit.visit_id == job.visit_id and visit.customer_id == job.npc_id:
-				matching = true
-		if not matching:
+			visits[visit.visit_id] = visit
+	var considered: Dictionary[String, bool] = {}
+	for visit_id: String in district.delivery_considered:
+		if considered.has(visit_id) or not visits.has(StringName(visit_id)):
+			return false
+		considered[visit_id] = true
+	var jobs: Dictionary[StringName, bool] = {}
+	var parcels: Dictionary[String, bool] = {}
+	for job: NpcHomeDelivery in district.home_deliveries:
+		if job == null or job.job_id.is_empty() or jobs.has(job.job_id) or job.package_id.is_empty() or parcels.has(job.package_id) or not people.has(job.npc_id):
+			return false
+		jobs[job.job_id] = true
+		parcels[job.package_id] = true
+		if job.order_number < 1 or job.day_index < 1 or job.day_index > morning_day or job.deadline_day != job.day_index + 1:
+			return false
+		if job.status < NpcHomeDelivery.Status.ACCEPTED or job.status > NpcHomeDelivery.Status.EXPIRED or job.source < NpcHomeDelivery.Source.TERMINAL or job.source > NpcHomeDelivery.Source.PERSONAL:
+			return false
+		if job.base_bonus < 0 or job.bonus < 0 or job.bonus > WalletService.MAX_AMOUNT or not is_finite(job.bargain_roll) or job.bargain_roll < 0.0 or job.bargain_roll >= 1.0:
+			return false
+		if job.bargain < NpcHomeDelivery.Bargain.NONE or job.bargain > NpcHomeDelivery.Bargain.DECLINED or (job.bonus_committed and job.status != NpcHomeDelivery.Status.DELIVERED):
+			return false
+		if job.source == NpcHomeDelivery.Source.TERMINAL and (not job.published or job.bargain != NpcHomeDelivery.Bargain.NONE):
+			return false
+		if (job.bargain != NpcHomeDelivery.Bargain.ACCEPTED and job.bonus != job.base_bonus) or job.bonus < job.base_bonus:
+			return false
+		if not job.package_history_id.is_empty() and PackageHistoryId.parse(job.package_history_id) == null:
+			return false
+		var address: DEF_DistrictPlace = district.definition.place_for(job.address_id)
+		var person: NpcRecord = people[job.npc_id]
+		if address == null or address.kind != DEF_DistrictPlace.Kind.HOME or not person.profile.resident or person.home_id != job.address_id:
+			return false
+		var visit: CustomerVisit = visits.get(job.visit_id) as CustomerVisit
+		if visit == null or visit.customer_id != job.npc_id or visit.package_id != job.package_id:
 			return false
 	return true
 #endregion

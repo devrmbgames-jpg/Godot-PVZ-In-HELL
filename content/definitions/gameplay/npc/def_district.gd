@@ -70,8 +70,20 @@ class_name DEF_District
 @export var service_light_circuit: StringName = &"warehouse"
 ## Длительность единственного мерцания при подходе, в секундах.
 @export_range(0.1, 10.0) var service_flicker_seconds: float = 3.0
-## Лимит добровольных домашних доставок за вечер.
-@export_range(0, 8) var maximum_home_deliveries: int = 2
+## Нижняя граница ежедневного числа предложений терминала; 0 отключает минимум.
+@export_range(0, 3) var terminal_delivery_minimum: int = 1
+## Верхняя граница ежедневного числа предложений терминала.
+@export_range(0, 3) var terminal_delivery_maximum: int = 3
+## Фиксированная доплата терминала; -1 означает базовую оплату выдачи.
+@export_range(-1, 10000) var terminal_delivery_bonus: int = -1
+## Вероятность личного предложения для подходящего местного получателя.
+@export_range(0.0, 1.0) var personal_delivery_probability: float = 0.10
+## Тестовый минимум личных предложений в день; 0 оставляет только вероятность.
+@export_range(0, 1) var personal_delivery_daily_minimum: int = 1
+## Шанс согласия на однократную просьбу повысить доплату.
+@export_range(0.0, 1.0) var delivery_bargain_probability: float = 0.50
+## Согласованная доплата в процентах от исходной; 150 означает +50%.
+@export_range(100, 300) var delivery_bargain_percent: int = 150
 ## Допустимый урон обычного маршрута как доля полного здоровья.
 @export_range(0.0, 1.0) var ordinary_route_risk: float = 0.05
 

@@ -90,9 +90,11 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	job.job_id = &"test/night_job"
 	job.npc_id = person.npc_id
 	job.visit_id = visit.visit_id
+	job.package_id = visit.package_id
 	job.address_id = person.home_id
 	job.order_number = 1
 	job.day_index = 2
+	job.deadline_day = 3
 	_district.home_deliveries.append(job)
 	DistrictPopulationService.mark_dead(_district.people[0], DistrictPopulationService.body_for(_district.people[0].npc_id), 1)
 	DistrictPopulationService.mark_dead(_district.people[1], DistrictPopulationService.body_for(_district.people[1].npc_id), 1)

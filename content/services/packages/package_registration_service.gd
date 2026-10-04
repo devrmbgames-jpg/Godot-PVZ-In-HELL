@@ -133,6 +133,7 @@ static func register_package(target: Entity) -> PackageScanResult:
 	result.outcome = PackageScanResult.Outcome.REGISTERED
 	result.number = registration.number
 	result.message = "Зарегистрирована · №%03d" % registration.number
+	NpcDeliveryOfferService.refresh()
 	return result
 
 

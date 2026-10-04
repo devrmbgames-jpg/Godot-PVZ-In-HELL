@@ -10,6 +10,12 @@ func before_each() -> void:
 	var session: Entity = _world.query.with_all([C_District]).execute_one()
 	session.add_component(C_Wallet.new())
 	session.add_component(C_PackageLedger.new())
+	_district.definition = _district.definition.duplicate() as DEF_District
+	_district.definition.personal_delivery_probability = 0.0
+	# Население готовит утро до добавления журналов этой fixture; выбор начинается с её настройками.
+	_district.delivery_offer_day = 0
+	_district.terminal_offer_target = 0
+	_district.delivery_considered.clear()
 	DayPhaseService.current().phase = C_DayCycle.Phase.EVENING
 	var actor_node: RigidBody3D = RigidBody3D.new()
 	actor_node.set_script(E_RigidBodyCharacter)
@@ -30,17 +36,9 @@ func _delivery_case(person: NpcRecord, suffix: String) -> CustomerVisit:
 	visit.definition = DEF_Customer.new()
 	var parcel: E_Package = (load("res://content/entities/packages/package_a.tscn") as PackedScene).instantiate() as E_Package
 	parcel.package_id = visit.package_id
+	parcel.package_definition = (load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule).supply.packages[0]
 	_world.add_entity(parcel)
-	(parcel.get_component(C_Package) as C_Package).package_id = visit.package_id
-
-	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
-	state.registration = C_PackageState.Registration.REGISTERED
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
-	var entry: PackageRegistrationRecord = PackageRegistrationRecord.new()
-	entry.package_id = visit.package_id
-	entry.number = ledger.records.size() + 1
-	entry.active = true
-	ledger.records.append(entry)
+	assert_eq(PackageRegistrationService.register_package(parcel).outcome, PackageScanResult.Outcome.REGISTERED)
 	return visit
 
 func _door(address_id: StringName) -> Entity:
@@ -68,7 +66,8 @@ func test_declined_home_delivery_returns_once_after_one_to_three_days() -> void:
 	assert_true(visit.finished)
 	assert_true(visit.home_delivery_declined)
 	assert_false(body.has_component(C_CustomerAgent))
-	assert_eq(_district.home_deliveries.size(), 0)
+	assert_eq(_district.home_deliveries.size(), 1)
+	assert_eq(_district.home_deliveries[0].status, NpcHomeDelivery.Status.DECLINED)
 	assert_null(visit.complaint)
 	assert_eq(CustomerFlowService.reactivate_due_followups(CustomerFlowService.current(), expected_day - 1), 0)
 	assert_eq(CustomerFlowService.reactivate_due_followups(CustomerFlowService.current(), expected_day), 1)
@@ -82,17 +81,19 @@ func test_declined_home_delivery_returns_once_after_one_to_three_days() -> void:
 	assert_true(copy.home_delivery_declined)
 	assert_eq(copy.arrival_day, expected_day)
 
-## Лимит принятых доставок относится ко всему дню; панели и прошедшее время его не обновляют.
-func test_two_optional_jobs_and_night_failure_keep_physical_boxes() -> void:
+## Три принятых обязательства не ограничиваются двумя и не перемещают коробки при сне.
+func test_three_optional_jobs_and_night_failure_keep_physical_boxes() -> void:
+	_district.definition.terminal_delivery_minimum = 2
+	_district.definition.terminal_delivery_maximum = 2
 	var first: CustomerVisit = _delivery_case(_district.people[0], "home_first")
-	var second: CustomerVisit = _delivery_case(_district.people[3], "home_second")
+	_delivery_case(_district.people[3], "home_second")
 	_delivery_case(_district.people[6], "home_third")
 	var parcel: Entity = CustomerFlowService.parcel_for(first.package_id)
 	var pose: Transform3D = (parcel as Node as Node3D).global_transform
-	assert_true(NpcHomeDeliveryService.accept(DistrictPopulationService.body_for(first.customer_id)))
-	assert_true(NpcHomeDeliveryService.accept(DistrictPopulationService.body_for(second.customer_id)))
-	assert_false(NpcHomeDeliveryService.accept(DistrictPopulationService.body_for(_district.people[6].npc_id)))
-	assert_eq(_district.home_deliveries.size(), 2)
+	for job: NpcHomeDelivery in _district.home_deliveries:
+		assert_true(NpcDeliveryOfferService.accept(job.job_id))
+		assert_true(NpcDeliveryOfferService.accept(job.job_id))
+	assert_eq(_district.home_deliveries.size(), 3)
 	NpcHomeDeliveryService.finish_evening(1)
 	NpcHomeDeliveryService.finish_evening(1)
 	assert_same(CustomerFlowService.parcel_for(first.package_id), parcel)
