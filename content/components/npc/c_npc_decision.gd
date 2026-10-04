@@ -6,6 +6,8 @@ enum Owner { EMERGENCY, COMBAT, SERVICE, SCHEDULE, IDLE, NONE }
 
 ## Ветка решения, имеющая право задавать движение и действия.
 var intent_owner: Owner = Owner.NONE
+## Токен текущего листа; прерывание старого действия не отменяет движение его замены.
+var active_task_id: int = 0
 ## Название текущего поведения для отладки.
 var active_behavior: String = ""
 ## Накопленное время до следующего обновления AI.

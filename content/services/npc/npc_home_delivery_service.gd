@@ -151,33 +151,6 @@ static func knock(player: Entity, door: Entity) -> bool:
 	body.show_message(person.display_name + " · иду к двери")
 	return GrabService.holder_available(player)
 
-## Выполняет домашнее обслуживание без таймера терпения и переноса к стойке.
-static func step(body: E_DistrictNpc, job: NpcHomeDelivery, delta: float) -> void:
-	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
-	var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
-	if agent == null or visit == null:
-		return
-
-	NpcIntentArbiter.acquire(body, C_NpcDecision.Owner.SERVICE, "Доставка у двери")
-	agent.elapsed += delta
-	if visit.actual in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
-		complete(job)
-		return
-
-	match agent.phase:
-		C_CustomerAgent.Phase.APPROACHING:
-			var intent: C_NpcIntent = body.get_component(C_NpcIntent) as C_NpcIntent
-			if intent.arrived:
-				agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-				agent.elapsed = 0.0
-				NpcIntentArbiter.stop(body, C_NpcDecision.Owner.SERVICE)
-				body.show_message(CustomerPresentation.request_text(visit))
-		C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE, C_CustomerAgent.Phase.DIALOGUE:
-			CustomerFlowService.try_automatic_handoff(body, visit)
-		C_CustomerAgent.Phase.GOING_TO_BOOTH, C_CustomerAgent.Phase.INSPECTING, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH:
-			if CustomerInspectionService.tick(body, visit):
-				CustomerFlowService.complete_inspection(body, visit)
-
 ## Фиксирует обычную оплату и доплату с раздельными ключами однократного начисления.
 static func complete(job: NpcHomeDelivery) -> bool:
 	if job.status != NpcHomeDelivery.Status.ACCEPTED:

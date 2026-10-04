@@ -35,9 +35,13 @@ static func react(body: E_DistrictNpc, actor: Entity, kind: NpcMemory.Kind, inci
 		if memory.incident_id == incident:
 			return memory.reaction
 
-	var reaction: NpcMemory.Reaction = _choose(person.profile, kind, hash(str(person.npc_id) + ":" + str(incident)))
-	remember(person, actor, body, kind, incident, reaction)
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	var health: C_Health = body.get_component(C_Health) as C_Health
+	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger if is_instance_valid(actor) else null
+	var predatory_player: bool = awareness.player_visible and is_instance_valid(actor) and actor.has_component(C_PlayerInputController) and HungerService.sees_npcs_as_food(hunger)
+	var can_retreat: bool = predatory_player or health.current < health.value * person.profile.pursuit_health_reserve
+	var reaction: NpcMemory.Reaction = _choose(person.profile, kind, hash(str(person.npc_id) + ":" + str(incident)), can_retreat)
+	remember(person, actor, body, kind, incident, reaction)
 	match reaction:
 		NpcMemory.Reaction.ATTACK:
 			if GrabService.holder_available(actor):
@@ -48,6 +52,7 @@ static func react(body: E_DistrictNpc, actor: Entity, kind: NpcMemory.Kind, inci
 				ChallengeService.cancel(body)
 				body.show_message("Я нападаю! Защищайся или уходи.")
 		NpcMemory.Reaction.FLEE:
+			CombatService.end_combat(body)
 			awareness.fleeing = true
 			if actor as Node as Node3D != null:
 				awareness.last_seen_position = (actor as Node as Node3D).global_position
@@ -58,6 +63,11 @@ static func react(body: E_DistrictNpc, actor: Entity, kind: NpcMemory.Kind, inci
 			body.show_message("Ха! Договорились.")
 		_:
 			body.show_message("Поговорим спокойно. Без новых провокаций.")
+	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent != null:
+		var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+		if visit != null:
+			visit.aggressive = reaction == NpcMemory.Reaction.ATTACK and CombatService.target_for(body) != null
 	return reaction
 
 ## Запоминает распознанные сведения, не заставляя свидетеля вступать в бой.
@@ -76,15 +86,19 @@ static func remember(person: NpcRecord, actor: Entity, victim: Entity, kind: Npc
 	memory.reaction = reaction
 	person.memories.append(memory)
 
-static func _choose(profile: DEF_NpcProfile, kind: NpcMemory.Kind, seed_value: int) -> NpcMemory.Reaction:
+static func _choose(profile: DEF_NpcProfile, kind: NpcMemory.Kind, seed_value: int, can_retreat: bool = false) -> NpcMemory.Reaction:
 	var random: RandomNumberGenerator = RandomNumberGenerator.new()
 	random.seed = seed_value
 	var roll: float = random.randf()
 	if kind in [NpcMemory.Kind.HELP, NpcMemory.Kind.BROKEN_PROMISE]:
 		return NpcMemory.Reaction.ACCEPT if kind == NpcMemory.Kind.HELP else NpcMemory.Reaction.TALK
+	if kind == NpcMemory.Kind.SUBMISSION:
+		if profile.personality == DEF_NpcProfile.Personality.BRAZEN and roll < profile.high_attack_probability:
+			return NpcMemory.Reaction.ATTACK
+		return NpcMemory.Reaction.TALK
 	if kind == NpcMemory.Kind.JOKE and profile.personality == DEF_NpcProfile.Personality.CHEERFUL:
 		return NpcMemory.Reaction.ACCEPT if roll < profile.joke_acceptance_probability else NpcMemory.Reaction.TALK
-	if profile.personality == DEF_NpcProfile.Personality.TIMID:
+	if profile.personality == DEF_NpcProfile.Personality.TIMID and kind != NpcMemory.Kind.JOKE:
 		if roll < profile.timid_flee_probability:
 			return NpcMemory.Reaction.FLEE
 		return NpcMemory.Reaction.ATTACK if roll < profile.timid_flee_probability + profile.timid_attack_probability else NpcMemory.Reaction.TALK
@@ -94,7 +108,8 @@ static func _choose(profile: DEF_NpcProfile, kind: NpcMemory.Kind, seed_value: i
 		return NpcMemory.Reaction.TALK
 	if roll < profile.high_attack_probability:
 		return NpcMemory.Reaction.ATTACK
-	return NpcMemory.Reaction.FLEE if roll < profile.high_attack_probability + profile.low_flee_probability else NpcMemory.Reaction.TALK
+	var fleeing_allowed: bool = profile.personality != DEF_NpcProfile.Personality.AGGRESSIVE or can_retreat
+	return NpcMemory.Reaction.FLEE if fleeing_allowed and roll < profile.high_attack_probability + profile.low_flee_probability else NpcMemory.Reaction.TALK
 #endregion
 
 #region Подтверждённое насилие

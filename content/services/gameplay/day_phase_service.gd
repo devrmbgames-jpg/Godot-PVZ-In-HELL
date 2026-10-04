@@ -56,7 +56,7 @@ static func finish_blockers(cycle: C_DayCycle) -> PackedStringArray:
 	elif cycle.require_all_planned_arrivals:
 		var unarrived: int = 0
 		for visit: CustomerVisit in flow.visits:
-			if visit.arrival_day <= cycle.day_index and not visit.started and not visit.finished:
+			if CustomerFlowService.visit_due(visit, cycle.day_index) and not visit.started and CustomerFlowService.arrival_allowed(visit):
 				unarrived += 1
 		if unarrived > 0:
 			reasons.append("Ожидаются запланированные клиенты: %d" % unarrived)

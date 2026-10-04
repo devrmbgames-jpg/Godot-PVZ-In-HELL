@@ -8,6 +8,8 @@ class_name DEF_HungerPolicy
 @export var hungry_threshold: float = 40.0
 ## Второй порог выше hungry_threshold и не выше maximum.
 @export var starving_threshold: float = 75.0
+## Доля максимума, выше которой NPC воспринимаются едой; граница исключительная.
+@export_range(0.0, 1.0) var predatory_threshold: float = 0.8
 ## Рост единиц голода за секунду активной симуляции.
 @export var growth_per_second: float = 0.05
 ## Множитель скорости при первом пороге, не меньше 1.

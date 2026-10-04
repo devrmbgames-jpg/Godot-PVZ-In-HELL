@@ -127,11 +127,11 @@ func test_loot_claim_is_exclusive_until_interrupted() -> void:
 	(pickup as Node as Node3D).global_position = Vector3(0, 0, -2)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	assert_true(NpcCommunityService.idle(first, _district.people[0]))
+	assert_true(NpcCommunityService.choose_loot(first, _district.people[0]))
 	assert_eq(first.get_relationships(Relationship.new(R_NpcLootTarget.new(), pickup)).size(), 1)
-	assert_false(NpcCommunityService.idle(second, _district.people[3]))
+	assert_false(NpcCommunityService.choose_loot(second, _district.people[3]))
 	NpcCommunityService.cancel_activity(first)
-	assert_true(NpcCommunityService.idle(second, _district.people[3]))
+	assert_true(NpcCommunityService.choose_loot(second, _district.people[3]))
 	assert_eq(second.get_relationships(Relationship.new(R_NpcLootTarget.new(), pickup)).size(), 1)
 
 ## Свидетель чужого нападения сохраняет память, но не получает личный повод начать новый бой.

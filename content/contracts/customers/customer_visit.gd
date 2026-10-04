@@ -133,3 +133,11 @@ enum Feedback { NONE, APPROVED }
 ## Последний зафиксированный боевой контекст для рассмотрения последствий и UI.
 @export var last_combat_context: CombatContext = null
 #endregion
+
+
+#region Доступность прихода
+## День вынужденного переноса; один и тот же отказ доступа не повторяется за фазу.
+@export var deferred_day: int = 0
+## Последняя сообщённая причина вынужденного переноса без выдуманного исхода выдачи.
+@export var defer_reason: String = ""
+#endregion

@@ -15,6 +15,11 @@ static func tier(state: C_Hunger) -> C_Hunger.Tier:
 	return C_Hunger.Tier.HUNGRY if state.value >= state.policy.hungry_threshold else C_Hunger.Tier.NORMAL
 
 
+## Проверяет хищное восприятие отдельно от ступеней скорости и боевого урона.
+static func sees_npcs_as_food(state: C_Hunger) -> bool:
+	return state != null and _valid_policy(state.policy) and state.value / state.policy.maximum > state.policy.predatory_threshold
+
+
 ## Возвращает множитель текущей ступени без изменения голода.
 static func speed_multiplier(state: C_Hunger) -> float:
 	match tier(state):

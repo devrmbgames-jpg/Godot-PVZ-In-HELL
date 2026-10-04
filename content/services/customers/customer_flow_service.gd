@@ -3,13 +3,22 @@ extends RefCounted
 class_name CustomerFlowService
 
 
+static var _lookup_world: World = null
+static var _flow_reference: WeakRef = null
+static var _counter_reference: WeakRef = null
+
 #region Поиск данных обслуживания
 ## Читает данные потока обслуживания из текущего мира; при отсутствии возвращает null.
 static func current() -> C_CustomerFlow:
 	if not is_instance_valid(ECS.world):
 		return null
 
-	var owner: Entity = ECS.world.query.with_all([C_CustomerFlow]).execute_one()
+
+	_prepare_lookup()
+	var owner: Entity = _flow_reference.get_ref() as Entity if _flow_reference != null else null
+	if owner == null or not ECS.world.entity_to_archetype.has(owner) or not owner.has_component(C_CustomerFlow):
+		owner = ECS.world.query.with_all([C_CustomerFlow]).execute_one()
+		_flow_reference = weakref(owner) if owner != null else null
 	return owner.get_component(C_CustomerFlow) as C_CustomerFlow if owner != null else null
 
 
@@ -25,7 +34,21 @@ static func find_visit(id: StringName) -> CustomerVisit:
 
 ## Возвращает стойку выдачи текущего мира, если она присутствует.
 static func counter() -> E_DeliveryCounter:
-	return ECS.world.query.with_all([C_DeliveryCounter]).execute_one() as E_DeliveryCounter
+
+	if not is_instance_valid(ECS.world):
+		return null
+	_prepare_lookup()
+	var station: E_DeliveryCounter = _counter_reference.get_ref() as E_DeliveryCounter if _counter_reference != null else null
+	if station == null or not ECS.world.entity_to_archetype.has(station):
+		station = ECS.world.query.with_all([C_DeliveryCounter]).execute_one() as E_DeliveryCounter
+		_counter_reference = weakref(station) if station != null else null
+	return station
+
+static func _prepare_lookup() -> void:
+	if _lookup_world != ECS.world:
+		_lookup_world = ECS.world
+		_flow_reference = null
+		_counter_reference = null
 
 
 ## Находит живую физическую коробку по точному package_id.
@@ -148,11 +171,16 @@ static func remaining(flow: C_CustomerFlow, day: int) -> int:
 static func actionable_remaining(flow: C_CustomerFlow, day: int) -> int:
 	var count: int = 0
 	for visit: CustomerVisit in flow.visits:
-		if visit.arrival_day > day or visit.finished:
+		if not visit_due(visit, day):
 			continue
 		if visit.started or arrival_allowed(visit):
 			count += 1
 	return count
+
+
+## Проверяет календарную доступность одинаково для очереди и окончания смены.
+static func visit_due(visit: CustomerVisit, day: int) -> bool:
+	return visit != null and not visit.finished and not visit.customer_dead and visit.arrival_day <= day and visit.deferred_day != day
 
 
 ## Допускает визит за коробкой только после действующей записи регистрации.
@@ -274,12 +302,12 @@ static func _has_active_registration_record(
 #region Приход и исполнение роли
 ## Назначает очередного получателя района либо создаёт клиента изолированной сцены.
 static func spawn_next_due(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
-	if flow == null or cycle == null or cycle.phase != C_DayCycle.Phase.DAY or not is_instance_valid(ECS.world):
-		return false
-	if flow.arrival_cooldown_seconds > 0.0:
+	if flow == null or cycle == null or not is_instance_valid(ECS.world):
 		return false
 	if DistrictPopulationService.current() != null:
 		return NpcServiceRole.enqueue_next(flow, cycle)
+	if cycle.phase != C_DayCycle.Phase.DAY or flow.arrival_cooldown_seconds > 0.0:
+		return false
 	# Внутри CommandBuffer query ещё может быть пустым после появления первого клиента.
 	for customer: Entity in ECS.world.entities:
 		if is_instance_valid(customer) and customer.has_component(C_CustomerAgent):
@@ -405,7 +433,7 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
 	match agent.phase:
 		C_CustomerAgent.Phase.QUEUED:
-			NpcServiceRole.step_queue(customer as E_DistrictNpc, visit)
+			pass # Постоянных NPC исполняет нативное дерево, не legacy-клиент.
 		C_CustomerAgent.Phase.WAITING_FOR_DARKNESS:
 			if CustomerArrivalService.tick(customer, agent, visit, cycle):
 				_leave(customer, visit)
@@ -845,7 +873,11 @@ static func finish(visit: CustomerVisit, day: int) -> void:
 		visit.visit_count > 0 and flow != null and flow.schedule != null
 		and cycle != null and cycle.phase == C_DayCycle.Phase.DAY
 	):
-		flow.arrival_cooldown_seconds = maxf(flow.arrival_cooldown_seconds, flow.schedule.arrival_interval_seconds)
+		var interval: float = flow.schedule.arrival_interval_seconds
+		var district: C_District = DistrictPopulationService.current()
+		if district != null and DistrictPopulationService.person_for(visit.customer_id) != null:
+			interval = district.definition.service_transfer_pause
+		flow.arrival_cooldown_seconds = maxf(flow.arrival_cooldown_seconds, interval)
 	visit.finished = true
 	visit.finished_day = day
 	if visit.followup_committed and visit.next_followup_day > day:
@@ -919,6 +951,11 @@ static func reactivate_due_followups(flow: C_CustomerFlow, day: int) -> int:
 		visit.aggressive = false
 		reactivated += 1
 	return reactivated
+
+
+## Запрашивает обычный уход; дерево NPC выбирает момент этого действия.
+static func leave_service(customer: E_Customer, visit: CustomerVisit) -> void:
+	_leave(customer, visit)
 
 
 static func _leave(customer: E_Customer, visit: CustomerVisit) -> void:

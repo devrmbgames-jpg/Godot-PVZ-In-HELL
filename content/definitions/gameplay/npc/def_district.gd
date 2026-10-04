@@ -56,6 +56,20 @@ class_name DEF_District
 @export_range(0, 8) var maximum_conflict_initiators: int = 2
 ## Пауза до выбора следующего простого занятия, в секундах.
 @export_range(1.0, 300.0) var activity_seconds: float = 30.0
+## Явные маршруты ожидания, относительно корня уровня.
+@export var service_routes_path: NodePath = NodePath("Entityes/DeliveryCounter/Entry/NpcServiceRoutes")
+## Число подготовленных следующих клиентов, помимо обслуживаемого.
+@export_range(0, 2) var prepared_customer_count: int = 2
+## Предел безрезультатного прибытия/ожидания света после подхода, в секундах.
+@export_range(5.0, 180.0) var service_wait_timeout: float = 60.0
+## Максимальная пауза передачи стойки уже подготовленному клиенту, в секундах.
+@export_range(0.0, 10.0) var service_transfer_pause: float = 1.0
+## Скорость подготовленного получателя по свободному проходу; голод и груз по-прежнему влияют.
+@export_range(1.0, 6.0) var service_approach_speed: float = 3.2
+## Цепь ПВЗ, мерцающая при предупреждении светобоязненного получателя.
+@export var service_light_circuit: StringName = &"warehouse"
+## Длительность единственного мерцания при подходе, в секундах.
+@export_range(0.1, 10.0) var service_flicker_seconds: float = 3.0
 ## Лимит добровольных домашних доставок за вечер.
 @export_range(0, 8) var maximum_home_deliveries: int = 2
 ## Допустимый урон обычного маршрута как доля полного здоровья.

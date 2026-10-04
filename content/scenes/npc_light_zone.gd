@@ -56,5 +56,9 @@ func _capture_volume() -> void:
 
 ## Читает авторитетный выключатель и уже работающие часы визуального мерцания.
 func is_lit() -> bool:
-	return enabled and (circuit_id.is_empty() or LightCircuitService.is_enabled(circuit_id)) and (not is_instance_valid(_flicker_view) or _flicker_view.is_lit())
+	return is_logically_lit() and (not is_instance_valid(_flicker_view) or _flicker_view.is_lit())
+
+## Читает устойчивое состояние выключателя, независимо от визуальных кадров мерцания.
+func is_logically_lit() -> bool:
+	return enabled and (circuit_id.is_empty() or LightCircuitService.is_enabled(circuit_id))
 #endregion

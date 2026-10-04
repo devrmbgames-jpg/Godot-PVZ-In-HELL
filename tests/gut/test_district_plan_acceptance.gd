@@ -48,6 +48,16 @@ func _light_zone() -> NpcLightZone:
 	zone.position = Vector3(0, 2, -1)
 	_root.add_child(zone)
 	return zone
+
+func _run_branch(body: E_DistrictNpc, owner_kind: C_NpcDecision.Owner, delta: float) -> bool:
+	var paths: Dictionary[C_NpcDecision.Owner, String] = {
+		C_NpcDecision.Owner.EMERGENCY: "res://content/ai/trees/bt_npc_emergency.tres",
+		C_NpcDecision.Owner.COMBAT: "res://content/ai/trees/bt_npc_combat.tres",
+		C_NpcDecision.Owner.SERVICE: "res://content/ai/trees/bt_npc_service.tres",
+		C_NpcDecision.Owner.SCHEDULE: "res://content/ai/trees/bt_npc_schedule.tres",
+		C_NpcDecision.Owner.IDLE: "res://content/ai/trees/bt_npc_idle.tres",
+	}
+	return _run_tree(body, paths[owner_kind], delta)
 #endregion
 
 #region Уход через проходы
@@ -60,7 +70,7 @@ func test_schedule_exit_accepts_ground_radius_without_exact_marker_contact() -> 
 	DistrictPopulationService.plan_phase(person, 1, C_DayCycle.Phase.DAY)
 	var destination: Vector3 = DistrictPopulationService.position_for(person.goal_id)
 	body.place_at(destination + Vector3(0.8, 2.0, 0.0))
-	assert_true(NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2))
+	assert_true(_run_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2))
 	assert_true(person.phase_complete)
 	assert_eq(person.placement, NpcRecord.Placement.OUTSIDE)
 	assert_false(body.enabled)
@@ -76,12 +86,12 @@ func test_flee_exit_stops_only_within_portal_radius() -> void:
 	body.place_at(destination + Vector3(2.0, 2.0, 0.0))
 	awareness.last_seen_position = body.global_position
 	awareness.fleeing = true
-	assert_true(NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.EMERGENCY, 0.2))
+	assert_true(_run_branch(body, C_NpcDecision.Owner.EMERGENCY, 0.2))
 	assert_eq(person.placement, NpcRecord.Placement.STREET)
 	var intent: C_NpcIntent = body.get_component(C_NpcIntent) as C_NpcIntent
 	assert_eq(intent.arrival_distance, _district.definition.portal_arrival_distance)
 	body.place_at(intent.move_position + Vector3(0.8, 2.0, 0.0))
-	assert_true(NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.EMERGENCY, 0.2))
+	assert_true(_run_branch(body, C_NpcDecision.Owner.EMERGENCY, 0.2))
 	assert_eq(person.placement, NpcRecord.Placement.OUTSIDE)
 	assert_false(awareness.fleeing)
 	assert_false(body.enabled)
@@ -95,14 +105,14 @@ func test_stalled_schedule_exit_keeps_unfinished_departure() -> void:
 	DistrictPopulationService.plan_phase(person, 1, C_DayCycle.Phase.DAY)
 	var native: Dictionary[StringName, RID] = await _flat_map()
 	body.navigation_agent.set_navigation_map(native[&"map"])
-	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)
+	_run_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)
 	NpcRouteService.tick(body, person, 0.2)
 	NpcRouteService.process_pending(_district)
 	NpcRouteService.tick(body, person, _district.definition.route_timeout + 0.1)
 	assert_false(person.phase_complete)
 	assert_eq(person.placement, NpcRecord.Placement.STREET)
 	assert_false((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
-	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)
+	_run_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)
 	NpcRouteService.tick(body, person, 0.2)
 	assert_true((body.get_component(C_NpcRoute) as C_NpcRoute).pending)
 	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
@@ -127,11 +137,11 @@ func test_footsteps_do_not_pull_idle_npc_into_a_crowd() -> void:
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	assert_eq(awareness.heard_position, noise.position)
 	assert_gt(awareness.heard_remaining, 0.0)
-	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
+	_run_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
 	assert_false((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	NpcPerceptionService.emit_noise(source, noise.position, noise.radius)
 	assert_true(NpcPerceptionService.hear(body, person.profile, _district.noises.back()))
-	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
+	_run_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
 	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 
 ## Шаги игрока сохраняют интерес слушателя к месту звука без раскрытия личности и назначения противника.
@@ -147,7 +157,7 @@ func test_player_footsteps_still_prompt_anonymous_investigation() -> void:
 	var noise: NpcNoise = _district.noises.back()
 	assert_true(noise.investigate)
 	assert_true(NpcPerceptionService.hear(body, person.profile, noise))
-	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
+	_run_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
 	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	assert_null(CombatService.target_for(body))
 	assert_true(person.memories.is_empty())
@@ -184,14 +194,14 @@ func test_window_activity_moves_then_observes_an_authored_focus() -> void:
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.idle_elapsed = _district.definition.activity_seconds
 	var old_position: Vector3 = body.global_position
-	assert_true(NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.IDLE, 0.2))
+	assert_true(_run_branch(body, C_NpcDecision.Owner.IDLE, 0.2))
 	assert_eq(person.goal_id, &"activity_0")
 	assert_eq(body.global_position, old_position)
 
 	var intent: C_NpcIntent = body.get_component(C_NpcIntent) as C_NpcIntent
 	assert_eq(intent.move_position, NpcActivityService.destination(_district.definition.place_for(person.goal_id)))
 	var sequence: int = person.activity_sequence
-	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
+	_run_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
 	assert_eq(person.activity_sequence, sequence)
 
 	var markers: Node3D = Node3D.new()
@@ -246,7 +256,7 @@ func test_wounded_pursuer_releases_combat_and_allows_sleep() -> void:
 	awareness.last_seen_position = player.global_position
 	(body.get_component(C_NpcCombat) as C_NpcCombat).phase = C_NpcCombat.Phase.WINDUP
 	assert_false(NpcSleepService.blockers().is_empty())
-	assert_true(NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.EMERGENCY, 0.2))
+	assert_true(_run_branch(body, C_NpcDecision.Owner.EMERGENCY, 0.2))
 	assert_true(awareness.fleeing)
 	assert_null(CombatService.target_for(body))
 	assert_eq((body.get_component(C_NpcCombat) as C_NpcCombat).phase, C_NpcCombat.Phase.READY)
@@ -403,7 +413,7 @@ func test_queued_street_conversation_holds_the_service_role() -> void:
 	agent.phase = C_CustomerAgent.Phase.QUEUED
 	var context: NpcStreetDialogueContext = NpcStreetDialogueContext.new(player, body)
 	assert_true(context.begin())
-	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.SERVICE, 0.2)
+	_run_branch(body, C_NpcDecision.Owner.SERVICE, 0.2)
 	assert_eq(agent.phase, C_CustomerAgent.Phase.QUEUED)
 	assert_false((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	assert_true(context.can_continue())
@@ -468,9 +478,9 @@ func test_service_conversation_keeps_patience_and_releases_on_departure() -> voi
 	var context: CustomerDialogueContext = CustomerDialogueContext.new(player, body)
 	assert_true(context.begin())
 	assert_true(context.can_continue())
-	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.SERVICE, 0.2)
+	_run_branch(body, C_NpcDecision.Owner.SERVICE, 0.2)
 	assert_almost_eq((body.get_component(C_CustomerAgent) as C_CustomerAgent).elapsed, 0.2, 0.001)
-	NpcDecisionService.execute_branch(body, C_NpcDecision.Owner.SERVICE, 0.4)
+	_run_branch(body, C_NpcDecision.Owner.SERVICE, 0.4)
 	assert_false(context.can_continue())
 	assert_null(NpcDialogueService.participant(body))
 

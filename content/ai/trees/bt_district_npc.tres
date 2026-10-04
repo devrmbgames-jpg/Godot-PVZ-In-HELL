@@ -5,44 +5,59 @@
 [ext_resource type="BehaviorTree" uid="uid://cxukae1fn0ugy" path="res://content/ai/trees/bt_npc_service.tres" id="3_2rk8g"]
 [ext_resource type="BehaviorTree" uid="uid://bmned3gbmt26r" path="res://content/ai/trees/bt_npc_schedule.tres" id="4_a4eqj"]
 [ext_resource type="BehaviorTree" uid="uid://bmc5t70coej8t" path="res://content/ai/trees/bt_npc_idle.tres" id="5_boyj1"]
+[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_inactive.gd" id="6_inactive"]
+[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_stop.gd" id="7_stop"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_2iafh"]
 
 [sub_resource type="BTSubtree" id="BTSubtree_kp4im"]
 subtree = ExtResource("1_7dna0")
 blackboard_plan = SubResource("BlackboardPlan_2iafh")
-custom_name = "emergency"
+custom_name = "Опасность"
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_aw38s"]
 
 [sub_resource type="BTSubtree" id="BTSubtree_v82mo"]
 subtree = ExtResource("2_vi3ip")
 blackboard_plan = SubResource("BlackboardPlan_aw38s")
-custom_name = "combat"
+custom_name = "Бой / поиск"
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_ims4f"]
 
 [sub_resource type="BTSubtree" id="BTSubtree_bsrq1"]
 subtree = ExtResource("3_2rk8g")
 blackboard_plan = SubResource("BlackboardPlan_ims4f")
-custom_name = "service"
+custom_name = "Обслуживание / разговор"
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_5nmkp"]
 
 [sub_resource type="BTSubtree" id="BTSubtree_neng6"]
 subtree = ExtResource("4_a4eqj")
 blackboard_plan = SubResource("BlackboardPlan_5nmkp")
-custom_name = "schedule"
+custom_name = "Задача расписания"
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_okqqo"]
 
 [sub_resource type="BTSubtree" id="BTSubtree_4i138"]
 subtree = ExtResource("5_boyj1")
 blackboard_plan = SubResource("BlackboardPlan_okqqo")
-custom_name = "idle"
+custom_name = "Свободное занятие"
+
+[sub_resource type="BTCondition" id="Inactive"]
+custom_name = "Не участвует / погиб"
+script = ExtResource("6_inactive")
+
+[sub_resource type="BTAction" id="Stop"]
+custom_name = "Остановить участие"
+script = ExtResource("7_stop")
+intent_owner = 0
+
+[sub_resource type="BTDynamicSequence" id="Terminal"]
+custom_name = "Неучастие / терминальное состояние"
+children = [SubResource("Inactive"), SubResource("Stop")]
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_nseog"]
-children = [SubResource("BTSubtree_kp4im"), SubResource("BTSubtree_v82mo"), SubResource("BTSubtree_bsrq1"), SubResource("BTSubtree_neng6"), SubResource("BTSubtree_4i138")]
+children = [SubResource("Terminal"), SubResource("BTSubtree_kp4im"), SubResource("BTSubtree_v82mo"), SubResource("BTSubtree_bsrq1"), SubResource("BTSubtree_neng6"), SubResource("BTSubtree_4i138")]
 
 [resource]
 description = "District NPC: emergency, combat/search, parcel service, phase schedule, free activity."

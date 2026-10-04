@@ -10,6 +10,8 @@ class_name C_District
 @export var home_deliveries: Array[NpcHomeDelivery] = []
 ## Производный слабый кеш тела с проверкой участия в мире; не заменяет отношения.
 var body_references: Dictionary[StringName, WeakRef] = {}
+## Производный кеш узла авторских маршрутов; не заменяет живые резервирования.
+var service_routes: NpcServiceRoutes = null
 ## Ручные зоны света текущего уровня; не сохраняются.
 var lighting_context: NpcLightingContext = null
 ## Ревизия регистрации для обновления списка зон света.

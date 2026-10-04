@@ -129,7 +129,7 @@ static func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute)
 		if NpcHomeDeliveryService.meeting_for(actor) != null:
 			NpcServiceRole.suspend(actor)
 		elif visit != null:
-			NpcServiceRole.finish_appearance(actor, visit)
+			NpcServiceRole.defer_visit(actor, visit, "Путь к ПВЗ недоступен")
 	else:
 		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
 		var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(person.planned_day, person.planned_phase as C_DayCycle.Phase)

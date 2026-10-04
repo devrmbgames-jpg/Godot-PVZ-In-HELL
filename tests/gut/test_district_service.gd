@@ -19,6 +19,17 @@ func _case(person: NpcRecord, suffix: String) -> CustomerVisit:
 	visit.requires_registered_package = false
 	CustomerFlowService.current().visits.append(visit)
 	return visit
+
+## Исполняет настоящий ресурс дерева; тестовые тела сохраняют BTPlayer между тактами.
+func _run_tree(body: E_DistrictNpc, tree_path: String, delta: float) -> bool:
+	var runner: BTPlayer = body.get_node("Brain") as BTPlayer
+	if runner.behavior_tree.resource_path != tree_path:
+		runner.behavior_tree = load(tree_path) as BehaviorTree
+	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+	decision.intent_owner = C_NpcDecision.Owner.NONE
+	NpcServiceRole.advance(body, delta)
+	runner.update(delta)
+	return decision.intent_owner != C_NpcDecision.Owner.NONE
 #endregion
 
 #region Постоянство и очередь обслуживания
@@ -47,6 +58,8 @@ func test_two_cases_use_the_same_living_body() -> void:
 
 ## Два ожидающих получателя не могут одновременно владеть местом обслуживания.
 func test_counter_reservation_is_exclusive_and_released() -> void:
+	DayPhaseService.current().phase = C_DayCycle.Phase.DAY
+	_district.definition.service_transfer_pause = 0.0
 	var first_person: NpcRecord = _district.people[0]
 	var second_person: NpcRecord = _district.people[3]
 	var first_body: E_DistrictNpc = DistrictPopulationService.body_for(first_person.npc_id)
@@ -55,12 +68,12 @@ func test_counter_reservation_is_exclusive_and_released() -> void:
 	var second: CustomerVisit = _case(second_person, "queue_second")
 	NpcServiceRole.begin(first_body, first_person, first, 1)
 	NpcServiceRole.begin(second_body, second_person, second, 1)
-	NpcServiceRole.step_queue(first_body, first)
-	NpcServiceRole.step_queue(second_body, second)
+	NpcServiceRole.claim_counter(first_body)
+	NpcServiceRole.claim_counter(second_body)
 	assert_eq((first_body.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.APPROACHING)
 	assert_eq((second_body.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.QUEUED)
 	NpcServiceRole.finish_appearance(first_body, first)
-	NpcServiceRole.step_queue(second_body, second)
+	NpcServiceRole.claim_counter(second_body)
 	assert_eq((second_body.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.APPROACHING)
 
 ## Поставки разных дней имеют разные случаи обслуживания и общий постоянный ID получателя.
@@ -84,8 +97,9 @@ func test_planned_shipments_share_lifetime_identity() -> void:
 	assert_ne(books[0].visit_id, books[1].visit_id)
 	assert_same(DistrictPopulationService.body_for(books[0].customer_id), DistrictPopulationService.body_for(books[1].customer_id))
 
-## Получатель не начинает ждать до освобождения стойки; завершение позволяет следующий визит.
+## Следующий получатель готовится заранее, но стойку получает только после ухода текущего.
 func test_next_recipient_starts_after_current_is_released() -> void:
+	_district.definition.service_transfer_pause = 0.0
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	flow.schedule = DEF_CustomerSchedule.new()
 	flow.schedule.arrival_interval_seconds = 0.0
@@ -95,11 +109,14 @@ func test_next_recipient_starts_after_current_is_released() -> void:
 	var second: CustomerVisit = _case(_district.people[3], "sequential_second")
 	assert_true(NpcServiceRole.enqueue_next(flow, cycle))
 	assert_true(first.started)
-	assert_false(NpcServiceRole.enqueue_next(flow, cycle))
-	assert_false(second.started)
-	NpcServiceRole.finish_appearance(DistrictPopulationService.body_for(first.customer_id), first)
 	assert_true(NpcServiceRole.enqueue_next(flow, cycle))
 	assert_true(second.started)
+	var first_body: E_DistrictNpc = DistrictPopulationService.body_for(first.customer_id)
+	var second_body: E_DistrictNpc = DistrictPopulationService.body_for(second.customer_id)
+	NpcServiceRole.claim_counter(first_body)
+	assert_false(NpcServiceRole.can_approach(second_body))
+	NpcServiceRole.finish_appearance(first_body, first)
+	assert_true(NpcServiceRole.can_approach(second_body))
 	assert_ne(first.customer_id, second.customer_id)
 
 ## Смерть текущего освобождает обслуживание для другой постоянной личности.

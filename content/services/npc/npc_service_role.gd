@@ -5,37 +5,28 @@ class_name NpcServiceRole
 const QUEUE_SPACING: float = 1.3
 
 #region Планирование обслуживания
-## Назначает один зарегистрированный заказ без создания или сброса получателя.
+## Подготавливает до двух следующих получателей рядом с текущим; утро допускает прогулку.
 static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
-	if cycle.phase != C_DayCycle.Phase.DAY or flow.arrival_cooldown_seconds > 0.0:
+	if cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY]:
 		return false
-	# Следующий получатель отправляется только после освобождения текущего визита.
-	# Прямой реестр видит изменения внутри текущего CommandBuffer раньше query-кеша.
-	for entity: Entity in ECS.world.entities:
-		if is_instance_valid(entity) and entity.has_component(C_CustomerAgent) and not entity.has_component(C_Death) and NpcHomeDeliveryService.meeting_for(entity) == null:
-			return false
+	var district: C_District = DistrictPopulationService.current()
+	if _ready_queue().size() >= district.definition.prepared_customer_count + 1:
+		return false
 
 	for visit: CustomerVisit in flow.visits:
-		if visit.started or visit.finished or visit.customer_dead or visit.arrival_day > cycle.day_index or not CustomerFlowService.arrival_allowed(visit):
+		if visit.started or not CustomerFlowService.visit_due(visit, cycle.day_index) or not CustomerFlowService.arrival_allowed(visit):
 			continue
-
 		var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
 		var body: E_DistrictNpc = DistrictPopulationService.body_for(visit.customer_id)
-		if person == null or person.death_day != 0 or body == null or body.has_component(C_CustomerAgent) or CombatService.target_for(body) != null:
+		if person == null or person.death_day != 0 or body == null:
+			defer_visit(body, visit, "Получатель недоступен")
 			continue
-
+		if body.has_component(C_CustomerAgent):
+			continue
 		var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
-		if awareness != null and (awareness.fleeing or awareness.hazard_distress or awareness.light_distress):
+		if CombatService.target_for(body) != null or (awareness != null and (awareness.fleeing or awareness.hazard_distress)):
+			defer_visit(body, visit, "Получатель покинул очередь из-за опасности")
 			continue
-
-		var light_rule: DEF_NpcTrait = person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
-		var station: E_DeliveryCounter = CustomerFlowService.counter()
-		if light_rule != null and station != null and NpcLightingService.exposure_at(station.waiting_position() + Vector3.UP) > light_rule.light_threshold:
-			if awareness != null and not awareness.warned_rules.has(light_rule.kind):
-				awareness.warned_rules.append(light_rule.kind)
-				body.show_message(light_rule.warning_text + " " + light_rule.countermeasure)
-			continue
-
 		begin(body, person, visit, cycle.day_index)
 		return true
 	return false
@@ -49,6 +40,15 @@ static func begin(body: E_DistrictNpc, person: NpcRecord, visit: CustomerVisit, 
 	service.visit_id = visit.visit_id
 	service.phase = C_CustomerAgent.Phase.QUEUED
 	body.add_component(service)
+	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
+	if motion != null:
+		service.original_walk_speed = motion.max_speed
+		motion.max_speed = maxf(motion.max_speed, DistrictPopulationService.current().definition.service_approach_speed)
+	var station: E_DeliveryCounter = CustomerFlowService.counter()
+	if station != null:
+		var waiting: R_NpcWaitingAt = R_NpcWaitingAt.new()
+		waiting.visit_id = visit.visit_id
+		body.add_relationship(Relationship.new(waiting, station))
 
 	var challenge: C_Challenge = body.get_component(C_Challenge) as C_Challenge
 	if challenge != null:
@@ -62,44 +62,173 @@ static func begin(body: E_DistrictNpc, person: NpcRecord, visit: CustomerVisit, 
 	CustomerFlowService.bind_parcel(body, visit)
 	body.show_message(person.display_name + " · за посылкой")
 
-## Продвигает очередь или резервирует стойку; вызывается только веткой обслуживания.
-static func step_queue(body: E_DistrictNpc, visit: CustomerVisit) -> void:
-	var counter: E_DeliveryCounter = CustomerFlowService.counter()
-	if counter == null:
-		finish_appearance(body, visit)
-		return
-
-	var queue: Array[E_DistrictNpc] = []
-	var occupied: bool = false
-	for entity: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
-		for link: Relationship in entity.relationships:
-			if link.relation is R_NpcServiceAt and link.target == counter:
-				occupied = true
-		var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
-		if entity is E_DistrictNpc and agent.phase == C_CustomerAgent.Phase.QUEUED:
-			queue.append(entity as E_DistrictNpc)
-	queue.sort_custom(func(first: E_DistrictNpc, second: E_DistrictNpc) -> bool:
-		var first_agent: C_CustomerAgent = first.get_component(C_CustomerAgent) as C_CustomerAgent
-		var second_agent: C_CustomerAgent = second.get_component(C_CustomerAgent) as C_CustomerAgent
-		return CustomerFlowService.find_visit(first_agent.visit_id).queue_order < CustomerFlowService.find_visit(second_agent.visit_id).queue_order
-
+## Возвращает живых получателей стойки из малого постоянного населения, включая свежие роли.
+static func _prepared() -> Array[E_DistrictNpc]:
+	var prepared: Array[E_DistrictNpc] = []
+	var district: C_District = DistrictPopulationService.current()
+	for person: NpcRecord in district.people:
+		var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
+		if body != null and body.enabled and not body.has_component(C_Death) and body.has_component(C_CustomerAgent) and NpcHomeDeliveryService.meeting_for(body) == null:
+			prepared.append(body)
+	prepared.sort_custom(func(first: E_DistrictNpc, second: E_DistrictNpc) -> bool:
+		var first_visit: CustomerVisit = visit_for(first)
+		var second_visit: CustomerVisit = visit_for(second)
+		return first_visit != null and (second_visit == null or first_visit.queue_order < second_visit.queue_order)
 	)
-	var index: int = queue.find(body)
+	return prepared
+
+static func _ready_queue() -> Array[E_DistrictNpc]:
+	var ready: Array[E_DistrictNpc] = []
+	for body: E_DistrictNpc in _prepared():
+		var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+		if agent.phase != C_CustomerAgent.Phase.WAITING_FOR_DARKNESS:
+			ready.append(body)
+	return ready
+
+## Читает конкретный заказ текущей роли; живого назначения не создаёт.
+static func visit_for(body: Entity) -> CustomerVisit:
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
-	if index == 0 and not occupied:
+	return CustomerFlowService.find_visit(agent.visit_id) if agent != null else null
+
+## Проверяет, первый ли это ожидающий и свободна ли стойка в дневную фазу.
+static func can_approach(body: E_DistrictNpc) -> bool:
+	var cycle: C_DayCycle = DayPhaseService.current()
+	if cycle == null or cycle.phase != C_DayCycle.Phase.DAY:
+		return false
+	var station: E_DeliveryCounter = CustomerFlowService.counter()
+	if station == null:
+		return false
+	var prepared: Array[E_DistrictNpc] = _prepared()
+	var first_ready: E_DistrictNpc = null
+	for candidate: E_DistrictNpc in prepared:
+		var service: C_CustomerAgent = candidate.get_component(C_CustomerAgent) as C_CustomerAgent
+		if service.phase == C_CustomerAgent.Phase.WAITING_FOR_DARKNESS and needs_darkness(candidate):
+			continue
+		first_ready = candidate
+		break
+	if first_ready != body:
+		return false
+	for participant: E_DistrictNpc in prepared:
+		for link: Relationship in participant.relationships:
+			if link.relation is R_NpcServiceAt:
+				return false
+	var flow: C_CustomerFlow = CustomerFlowService.current()
+	return flow == null or flow.arrival_cooldown_seconds <= 0.0
+
+## Резервирует стойку и начинает подход либо явное ожидание темноты у входа.
+static func claim_counter(body: E_DistrictNpc) -> void:
+	var visit: CustomerVisit = visit_for(body)
+	var station: E_DeliveryCounter = CustomerFlowService.counter()
+	if visit == null or station == null or not can_approach(body):
+		return
+	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_DARKNESS if needs_darkness(body) else C_CustomerAgent.Phase.APPROACHING
+	if agent.phase == C_CustomerAgent.Phase.APPROACHING:
 		var reservation: R_NpcServiceAt = R_NpcServiceAt.new()
 		reservation.visit_id = visit.visit_id
-		body.add_relationship(Relationship.new(reservation, counter))
-		agent.phase = C_CustomerAgent.Phase.APPROACHING
-		agent.elapsed = 0.0
-		NpcIntentService.move_to(body, counter.waiting_position(), visit.definition.arrival_distance)
-		return
-
-	var direction: Vector3 = (counter.entry_position() - counter.waiting_position()).normalized()
-	var destination: Vector3 = counter.waiting_position() + direction * QUEUE_SPACING * float(maxi(1, index + 1))
+		body.add_relationship(Relationship.new(reservation, station))
+	agent.elapsed = 0.0
+	var destination: Vector3 = station.entry_position() if agent.phase == C_CustomerAgent.Phase.WAITING_FOR_DARKNESS else station.waiting_position()
 	NpcIntentArbiter.move_to(body, destination, visit.definition.arrival_distance, C_NpcDecision.Owner.SERVICE)
-	if agent.elapsed >= visit.definition.patience_seconds:
-		finish_appearance(body, visit)
+
+## Выбирает следующую явную точку прогулки, а не строит маршрут перебором.
+static func waiting_destination(body: E_DistrictNpc) -> Vector3:
+	var station: E_DeliveryCounter = CustomerFlowService.counter()
+	if station == null:
+		return body.global_position
+	var prepared: Array[E_DistrictNpc] = _ready_queue()
+	var index: int = prepared.find(body)
+	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+	var route_index: int = index - 1
+	for link: Relationship in body.relationships:
+		if link.relation is R_NpcWaitingAt:
+			(link.relation as R_NpcWaitingAt).route_index = route_index
+	if route_index < 0:
+		return station.entry_position()
+	var district: C_District = DistrictPopulationService.current()
+	if not is_instance_valid(district.service_routes):
+		district.service_routes = ECS.world.get_parent().get_node_or_null(district.definition.service_routes_path) as NpcServiceRoutes
+	if district.service_routes == null:
+		return station.entry_position()
+	var marker: Node3D = district.service_routes.point_for(route_index, agent.waiting_point)
+	if marker == null:
+		return station.entry_position()
+	var offset: Vector3 = marker.global_position - body.global_position
+	offset.y = 0.0
+	if offset.length_squared() <= QUEUE_SPACING * QUEUE_SPACING:
+		agent.waiting_point += 1
+		marker = district.service_routes.point_for(route_index, agent.waiting_point)
+	return marker.global_position if marker != null else station.entry_position()
+
+## Читает логическое освещение стойки без кратких тёмных кадров собственного мерцания.
+static func needs_darkness(body: E_DistrictNpc) -> bool:
+	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+	var person: NpcRecord = DistrictPopulationService.person_for(identity.npc_id)
+	var rule: DEF_NpcTrait = person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
+	var station: E_DeliveryCounter = CustomerFlowService.counter()
+	return rule != null and station != null and NpcLightingService.exposure_at(station.waiting_position() + Vector3.UP, [], null, true) > rule.light_threshold
+
+## Предупреждает и запускает конечное мерцание только один раз за этот физический приход.
+static func warn_light(body: E_DistrictNpc) -> void:
+	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent.light_warning_started:
+		return
+	agent.light_warning_started = true
+	var config: DEF_District = DistrictPopulationService.current().definition
+	body.show_message("Я боюсь света. Выключите освещение ПВЗ, я подожду снаружи.")
+	LightCircuitService.flicker(config.service_light_circuit, config.service_flicker_seconds, LightFlickerEvent.DEFAULT_INTERVAL_SECONDS, StringName("npc-light/" + String(agent.visit_id)))
+
+## Учитывает часы роли один раз на обновление восприятия, без выбора поведения.
+static func advance(body: E_DistrictNpc, delta: float) -> void:
+	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent == null:
+		return
+	agent.elapsed += delta
+	var station: E_DeliveryCounter = CustomerFlowService.counter()
+	if station != null and agent.phase in [C_CustomerAgent.Phase.QUEUED, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS, C_CustomerAgent.Phase.APPROACHING]:
+		var offset: Vector3 = body.global_position - station.entry_position()
+		offset.y = 0.0
+		if offset.length_squared() <= QUEUE_SPACING * QUEUE_SPACING:
+			agent.entrance_wait_elapsed += delta
+
+## Переносит недоступный приход на следующее утро без автоматической потери или оплаты.
+static func defer_visit(body: E_DistrictNpc, visit: CustomerVisit, reason: String) -> void:
+	var cycle: C_DayCycle = DayPhaseService.current()
+	if cycle == null or visit.deferred_day == cycle.day_index:
+		return
+	visit.deferred_day = cycle.day_index
+	visit.defer_reason = reason
+	visit.next_followup_day = cycle.day_index + 1
+	visit.followup_committed = true
+	visit.finished = true
+	visit.finished_day = cycle.day_index
+	visit.started = false
+	if is_instance_valid(body):
+		CustomerInspectionService.end(body)
+		NpcHomeDeliveryService.release_meeting(body)
+		release(body, visit.visit_id)
+		var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+		var person: NpcRecord = DistrictPopulationService.person_for(identity.npc_id)
+		if person != null:
+			person.planned_phase = -1
+		body.show_message(reason + ". Приду в другой день.")
+
+## Разрешает вход после выключения света; движение выполняет отдельный лист дерева.
+static func enter_counter(body: E_DistrictNpc) -> void:
+	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+	claim_counter(body)
+	var config: DEF_District = DistrictPopulationService.current().definition
+	LightCircuitService.stop_flicker(config.service_light_circuit, StringName("npc-light/" + String(agent.visit_id)))
+
+## Фиксирует прибытие к стойке либо к двери без смены экономического исхода.
+static func arrive(body: E_DistrictNpc) -> void:
+	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
+	_restore_walk_speed(body, agent)
+	agent.phase = C_CustomerAgent.Phase.WAITING if NpcHomeDeliveryService.meeting_for(body) == null else C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	agent.elapsed = 0.0
+	NpcIntentService.stop(body)
+	body.show_message("Здравствуйте!" if agent.phase == C_CustomerAgent.Phase.WAITING else CustomerPresentation.request_text(visit_for(body)))
+
 #endregion
 
 #region Завершение роли
@@ -124,8 +253,13 @@ static func suspend(body: E_DistrictNpc) -> void:
 	CustomerInspectionService.end(body)
 	NpcHomeDeliveryService.release_meeting(body)
 	release(body, visit.visit_id)
-	visit.started = false
-	visit.finished = home != null
+	if home == null:
+		var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+		var reason: String = decision.active_behavior if decision != null else "опасность"
+		defer_visit(body, visit, "Приход прерван: " + reason)
+	else:
+		visit.started = false
+		visit.finished = true
 
 ## Завершает только визит, сохраняя личность и правила нерешённого заказа.
 static func finish_appearance(body: E_DistrictNpc, visit: CustomerVisit) -> void:
@@ -145,6 +279,10 @@ static func finish_appearance(body: E_DistrictNpc, visit: CustomerVisit) -> void
 
 ## Снимает роль и только её живые связи с коробкой и стойкой.
 static func release(body: Entity, visit_id: StringName) -> void:
+	_restore_walk_speed(body, body.get_component(C_CustomerAgent) as C_CustomerAgent)
+	var district: C_District = DistrictPopulationService.current()
+	if district != null:
+		LightCircuitService.stop_flicker(district.definition.service_light_circuit, StringName("npc-light/" + String(visit_id)))
 	NpcDialogueService.end(body)
 	var parcel: Entity = CustomerFlowService.parcel_for(CustomerFlowService.find_visit(visit_id).package_id) if CustomerFlowService.find_visit(visit_id) != null else null
 	if parcel != null:
@@ -152,10 +290,16 @@ static func release(body: Entity, visit_id: StringName) -> void:
 			if link.relation is R_AssignedTo and (link.relation as R_AssignedTo).visit_id == visit_id:
 				parcel.remove_relationship(link)
 	for link: Relationship in body.relationships.duplicate():
-		if link.relation is R_NpcServiceAt:
+		if link.relation is R_NpcServiceAt or link.relation is R_NpcWaitingAt:
 			body.remove_relationship(link)
 	if body.has_component(C_CustomerAgent):
 		body.remove_component(C_CustomerAgent)
+
+static func _restore_walk_speed(body: Entity, agent: C_CustomerAgent) -> void:
+	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
+	if agent != null and motion != null and agent.original_walk_speed >= 0.0:
+		motion.max_speed = agent.original_walk_speed
+		agent.original_walk_speed = -1.0
 
 ## Применяет окончательную смерть ко всем заказам без переназначения владельца.
 static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) -> void:

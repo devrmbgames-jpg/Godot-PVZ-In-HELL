@@ -18,3 +18,14 @@ var dialogue_started: bool = false
 var inspection_open_attempted: bool = false
 ## Осмотр выявил причину отказа независимо от вероятности принятия заказа.
 var inspection_force_refusal: bool = false
+
+
+## Индекс следующего авторского маркера прогулки ожидающего получателя.
+var waiting_point: int = 0
+## Накопленное ожидание у входа после достижения близкой точки, в секундах.
+var entrance_wait_elapsed: float = 0.0
+## Предупреждение и мерцание уже запущены в этом физическом визите.
+var light_warning_started: bool = false
+
+## Скорость личности до ускоренного подхода; отрицательное значение означает отсутствие C_Motion.
+var original_walk_speed: float = -1.0

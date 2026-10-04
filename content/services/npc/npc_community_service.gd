@@ -3,26 +3,25 @@ extends RefCounted
 class_name NpcCommunityService
 
 #region Занятия сообщества
-## Выполняет свободное занятие и сообщает, заняло ли оно управление движением.
-static func idle(actor: E_DistrictNpc, person: NpcRecord) -> bool:
-	var district: C_District = DistrictPopulationService.current()
+## Расходует одну единицу принадлежащей NPC еды при подходящем голоде.
+static func eat_inventory(actor: E_DistrictNpc) -> bool:
 	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
+	if hunger == null or hunger.value < DistrictPopulationService.current().definition.npc_food_threshold:
+		return false
 	for item: Entity in InventoryService.items(actor):
 		var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
-		if state.definition.kind == DEF_InventoryItem.Kind.FOOD and hunger.value >= district.definition.npc_food_threshold:
+		if state.definition.kind == DEF_InventoryItem.Kind.FOOD:
 			InventoryService.use(actor, item)
 			return true
+	return false
 
-	var loot: Entity = _loot_target(actor)
-	if loot != null and _available_loot(loot, actor):
-		var point: Vector3 = (loot as Node as Node3D).global_position
-		if actor.global_position.distance_to(point) <= district.definition.loot_distance:
-			InventoryService.transfer(loot, actor)
-			_clear_loot(actor)
-		else:
-			NpcIntentArbiter.move_to(actor, point, district.definition.loot_distance, C_NpcDecision.Owner.IDLE)
-		return true
+## Возвращает только доступную добычу действующего Relationship.
+static func loot_for(actor: Entity) -> Entity:
+	var item: Entity = _loot_target(actor)
+	return item if item != null and _available_loot(item, actor) else null
 
+## Резервирует один воспринимаемый свободный предмет; частоту выбора задаёт BT.
+static func choose_loot(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 	_clear_loot(actor)
 	for item: Entity in ECS.world.query.with_all([C_InventoryItem]).execute():
 		var spatial: Node3D = item as Node as Node3D
@@ -30,10 +29,18 @@ static func idle(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 			continue
 		if not NpcPerceptionService.can_see_point(actor, spatial.global_position + Vector3.UP * 0.1, person.profile, item):
 			continue
-
 		actor.add_relationship(Relationship.new(R_NpcLootTarget.new(), item))
 		return true
-	return _conflict(actor, person)
+	return false
+
+## Передаёт добычу только после физического приближения; не отменяет чужой резерв.
+static func collect_loot(actor: E_DistrictNpc) -> bool:
+	var loot: Entity = loot_for(actor)
+	if loot == null or actor.global_position.distance_to((loot as Node as Node3D).global_position) > DistrictPopulationService.current().definition.loot_distance:
+		return false
+	var result: bool = InventoryService.transfer(loot, actor)
+	_clear_loot(actor)
+	return result
 
 ## Снимает живое резервирование добычи при прерывании более важным действием.
 static func cancel_activity(actor: Entity) -> void:
@@ -70,7 +77,8 @@ static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_Di
 	actor.show_message("Мне нужна добыча. Защищайся!")
 	return true
 
-static func _conflict(actor: E_DistrictNpc, person: NpcRecord) -> bool:
+## Проверяет мотивированные цели малого населения; выбор нападения разрешает BT.
+static func try_conflict(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 	if not person.profile.initiates_conflicts:
 		return false
 

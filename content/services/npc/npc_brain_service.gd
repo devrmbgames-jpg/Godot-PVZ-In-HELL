@@ -67,6 +67,11 @@ static func tick(district: C_District, delta: float) -> void:
 	for actor: E_DistrictNpc in due:
 		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
 		var runner: BTPlayer = actor.get_node_or_null("Brain") as BTPlayer
+		var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+		var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
+		if decision.intent_owner == C_NpcDecision.Owner.IDLE and not (intent.movement_active and not intent.arrived):
+			awareness.idle_elapsed += decision.update_elapsed
+		NpcServiceRole.advance(actor, decision.update_elapsed)
 		decision.intent_owner = C_NpcDecision.Owner.NONE
 		if runner != null:
 			runner.update(decision.update_elapsed)

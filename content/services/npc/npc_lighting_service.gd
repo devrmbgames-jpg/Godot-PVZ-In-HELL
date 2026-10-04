@@ -35,7 +35,7 @@ static func context_for(district: C_District) -> NpcLightingContext:
 #region Оценка освещённости
 ## Возвращает максимальную авторскую освещённость; перекрытие задаётся зонами и зрением.
 ## Аргумент исключений сохраняет совместимость; предметы в руках не перекрывают зоны света.
-static func exposure_at(world_position: Vector3, _ignored_bodies: Array[RID] = [], context: NpcLightingContext = null) -> float:
+static func exposure_at(world_position: Vector3, _ignored_bodies: Array[RID] = [], context: NpcLightingContext = null, ignore_flicker: bool = false) -> float:
 	var district: C_District = DistrictPopulationService.current()
 	if district == null or district.definition == null:
 		return 1.0
@@ -43,7 +43,7 @@ static func exposure_at(world_position: Vector3, _ignored_bodies: Array[RID] = [
 		context = context_for(district)
 	var exposure: float = district.definition.ambient_light
 	for zone: NpcLightZone in context.zones:
-		if is_instance_valid(zone) and zone.contains_point(world_position) and zone.is_lit():
+		if is_instance_valid(zone) and zone.contains_point(world_position) and (zone.is_logically_lit() if ignore_flicker else zone.is_lit()):
 			exposure = maxf(exposure, zone.exposure)
 	return clampf(exposure, 0.0, 1.0)
 #endregion

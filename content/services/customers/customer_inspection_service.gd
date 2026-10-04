@@ -156,6 +156,38 @@ static func end(customer: Entity, keep_contents: bool = false) -> void:
 			customer.remove_relationship(binding)
 
 
+## Фиксирует прибытие в кабинку, не выбирая следующее действие.
+static func arrive(customer: E_Customer) -> void:
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	_transition(agent, C_CustomerAgent.Phase.INSPECTING)
+	NpcIntentService.stop(customer)
+	customer.show_message("Осматриваю заказ…")
+
+## Один раз запрашивает вскрытие; состав предметов по-прежнему создаёт PackageOpening.
+static func inspect_contents(customer: E_Customer, visit: CustomerVisit) -> void:
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent.inspection_open_attempted:
+		return
+	agent.inspection_open_attempted = true
+	if roll(visit, "unpack") < visit.definition.inspection_unpack_probability:
+		PackageOpening.request_open(customer, parcel_for(customer))
+
+## Запрашивает возвращение с осмотра; момент перехода определяет дерево.
+static func return_to_service(customer: E_Customer, visit: CustomerVisit, force_refusal: bool = false) -> void:
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.inspection_force_refusal = agent.inspection_force_refusal or force_refusal
+	_return(customer, agent, visit)
+
+## Возвращает положение текущего резерва осмотра либо точки обслуживания.
+static func destination(customer: E_Customer) -> Vector3:
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	if agent.phase == C_CustomerAgent.Phase.GOING_TO_BOOTH:
+		for link: Relationship in customer.relationships:
+			if link.relation is R_InspectingAt:
+				return (link.target as Node3D).global_position
+	var door: Entity = NpcHomeDeliveryService.door_for(customer)
+	return (door as Node as Node3D).global_position if door != null else CustomerFlowService.counter().waiting_position()
+
 static func _return(customer: E_Customer, agent: C_CustomerAgent, visit: CustomerVisit) -> void:
 	_transition(agent, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH)
 	var home_door: Entity = NpcHomeDeliveryService.door_for(customer)
