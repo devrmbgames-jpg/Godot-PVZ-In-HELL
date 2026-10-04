@@ -74,6 +74,15 @@ Prefer ordinary file/search/edit tools when cheaper. Use MCP when live scene tre
 
 If live MCP access matters and the editor is not running, the agent may start it with `.vscode/start-godot.ps1`. Do not launch gameplay/rendered playtests, capture visual evidence, or perform subjective visual validation unless the user explicitly approved it for the task.
 
+
+### Scene ownership
+
+- Treat opened `.tscn` scenes in Godot Editor as editor-owned.
+- Do not modify an editor-owned `.tscn` through raw filesystem/text patches.
+- When a scene is open or loaded in the editor, prefer Godot AI MCP scene operations.
+- Raw `.tscn` edits are allowed only when the scene is not open in Godot.
+- Never choose or rely on "Ignore External Changes" as part of automated workflow.
+
 ## Subagents
 
 Routine work stays in the main GPT-6.1 Sol session. Optional native Codex subagents:
