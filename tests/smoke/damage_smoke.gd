@@ -1,15 +1,17 @@
 extends Node
-## Existing damage regression, adapted to typed Observer results; run manually when requested.
+## Сценарий урона, лечения и поражения проверяет типизированные результаты observer.
 
 var _defeat_count: int = 0
 var _last_result: DamageResult = null
 var _resolved_count: int = 0
 
 
+#region Сценарий урона и поражения
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет применённый урон/лечение, разрушение коробки и однократное поражение игрока.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
@@ -63,6 +65,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Типизированные запросы и результаты
 func _send(
 	target: Entity,
 	amount: float,
@@ -85,13 +90,19 @@ func _on_resolved(result: DamageResult) -> void:
 		_defeat_count += 1
 
 
+## Тестовый подписчик передаёт типизированный DamageResult обработчику сценария.
 class ResultProbe extends Observer:
+	## Обработчик, назначенный перед регистрацией observer в World.
 	var received: Callable
 
 
+	## Подписывается на фактический DamageResult, отдельно от исходной команды.
 	func query() -> QueryBuilder:
 		return q.on_event(DamageResult.EVENT)
 
 
+	## Передаёт штатный payload обработчику тестового сценария.
 	func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 		received.call(payload as DamageResult)
+
+#endregion

@@ -1,4 +1,5 @@
 extends GutTest
+## Проверяет окно удара игрока, владение оружием и приоритет инструмента без подмены физики анимацией.
 
 var _world: World = null
 var _player: Entity = null
@@ -6,6 +7,8 @@ var _target: Entity = null
 var _weapon: Entity = null
 
 
+#region Окружение и настоящее оружие
+## Создаёт игрока, цель и реально удерживаемый нож с observers урона/хвата.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -41,6 +44,7 @@ func before_each() -> void:
 	assert_not_null(GrabService.held_relationship(_weapon))
 
 
+## Удаляет World и очищает ссылки оружия и участников.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -77,6 +81,10 @@ func _character(position: Vector3) -> Entity:
 	return entity
 
 
+#endregion
+
+#region Окно, ввод и анимация удара
+## Окно атаки наносит один удар и требует восстановления до новой атаки.
 func test_player_window_has_one_hit_and_recovery_then_can_defeat_target() -> void:
 	var health: C_Health = _target.get_component(C_Health) as C_Health
 	assert_true(CombatService.start_strike(_player, _weapon))
@@ -95,6 +103,7 @@ func test_player_window_has_one_hit_and_recovery_then_can_defeat_target() -> voi
 	assert_true(_target.has_component(C_Death))
 
 
+## Один фронт выбирает бросок либо удар, сохраняя исходный снимок ввода.
 func test_one_primary_click_throws_or_attacks_and_keeps_raw_input() -> void:
 	var controller: C_Controller = _player.get_component(C_Controller) as C_Controller
 	controller.input_tick = 1
@@ -117,6 +126,7 @@ func test_one_primary_click_throws_or_attacks_and_keeps_raw_input() -> void:
 	assert_true(controller.action_main_pressed)
 
 
+## Отпускание оружия отменяет ожидающий удар.
 func test_dropped_weapon_cancels_pending_hit() -> void:
 	assert_true(CombatService.start_strike(_player, _weapon))
 	GrabService.release(_player, _weapon)
@@ -125,6 +135,7 @@ func test_dropped_weapon_cancels_pending_hit() -> void:
 	assert_eq((_player.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.READY)
 
 
+## Анимация ножа следует часам удара, не двигает физическое тело и сбрасывается при отпускании.
 func test_knife_animation_stabs_forward_on_strike_clock_and_resets_on_drop() -> void:
 	var blade: Node3D = _weapon.get_node("Blade") as Node3D
 	var baseline: Vector3 = blade.position
@@ -144,6 +155,7 @@ func test_knife_animation_stabs_forward_on_strike_clock_and_resets_on_drop() -> 
 	assert_eq(blade.position, baseline, "Cancellation restores authored mesh pose")
 
 
+## Молоток атакует NPC, сохраняя более высокий приоритет доступного крепления.
 func test_hammer_can_attack_with_overhead_swing_and_preserves_anchoring_action() -> void:
 	GrabService.release(_player, _weapon)
 	_weapon = (load("res://content/entities/tools/hammer.tscn") as PackedScene).instantiate() as Entity
@@ -176,6 +188,10 @@ func test_hammer_can_attack_with_overhead_swing_and_preserves_anchoring_action()
 	assert_eq(head.position, baseline)
 
 
+#endregion
+
+#region Геометрия и защита урона
+## C_NoDamage владельца блокирует урон удерживаемого оружия.
 func test_actor_no_damage_guard_applies_to_held_weapon() -> void:
 	_player.add_component(C_NoDamage.new())
 	assert_true(CombatService.start_strike(_player, _weapon))
@@ -183,6 +199,7 @@ func test_actor_no_damage_guard_applies_to_held_weapon() -> void:
 	assert_eq((_target.get_component(C_Health) as C_Health).current, 100.0)
 
 
+## Большое число посторонних collider не вытесняет подходящую боевую цель.
 func test_scenery_count_does_not_hide_melee_target() -> void:
 	for index: int in 40:
 		var obstacle: StaticBody3D = StaticBody3D.new()
@@ -199,6 +216,7 @@ func test_scenery_count_does_not_hide_melee_target() -> void:
 	assert_eq((_target.get_component(C_Health) as C_Health).current, 60.0)
 
 
+## Общая защита контакта не наносит владельцу урон его собственным удерживаемым предметом.
 func test_existing_r08_impact_guard_prevents_own_held_object_damage() -> void:
 	var receiver: C_ImpactReceiver = C_ImpactReceiver.new()
 	receiver.profile = load("res://content/definitions/gameplay/def_impact_living.tres") as DEF_ImpactProfile
@@ -214,3 +232,5 @@ func test_existing_r08_impact_guard_prevents_own_held_object_damage() -> void:
 	_world.process(1.0 / 60.0)
 	assert_eq((_player.get_component(C_Health) as C_Health).current, 100.0)
 	assert_not_null(GrabService.held_relationship(_weapon))
+
+#endregion

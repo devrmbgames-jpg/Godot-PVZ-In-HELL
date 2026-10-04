@@ -1,5 +1,5 @@
 extends Node
-## Actual Jolt impacts plus main-scene light escalation, navigation and weapon input.
+## Проверяет реальные удары Jolt и историческую эскалацию клиента в боевой сценарий main_level.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 900
@@ -9,6 +9,7 @@ var _level: Node = null
 var _actor: Entity = null
 
 
+#region Порядок сценария
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -20,6 +21,10 @@ func _run() -> void:
 	get_tree().quit.call_deferred()
 
 
+#endregion
+
+#region Изолированные удары Jolt
+## Проверяет реальные слабый и тяжёлый контакты игрока и клиента через общую цепочку урона.
 func _physical_impacts() -> void:
 	var world: World = World.new()
 	add_child(world)
@@ -79,6 +84,10 @@ func _physical_impacts() -> void:
 	ECS.world = null
 
 
+#endregion
+
+#region Исторический бой в основной сцене
+## Историческая световая эскалация проверяет преследование, дальнюю атаку и самооборону игрока.
 func _customer_combat() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	add_child(_level)
@@ -209,3 +218,5 @@ func _acknowledge_challenge(customer: E_Customer) -> void:
 			return
 
 	assert(false, "Acknowledgement must close the demand before combat starts")
+
+#endregion

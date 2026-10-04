@@ -1,5 +1,5 @@
 extends Node3D
-## User-run deterministic hazard contract fixture; no main level, delivery or package dependency.
+## Изолированный сценарий опасностей проверяет фабрику, следование, атрибуцию и цепные взрывы.
 
 const FIXTURE_LAYER: int = 4
 const SHAPE_RADIUS: float = 0.2
@@ -10,10 +10,12 @@ var _spawned: Array[Entity] = []
 var _last_damage: DamageResult = null
 
 
+#region Окружение и порядок сценария
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Выполняет изолированные контракты опасностей и проверяет окончательную очистку World.
 func _run() -> void:
 	_setup_world()
 	await _toxic_contract()
@@ -68,6 +70,10 @@ func _setup_world() -> void:
 	_world.add_observer(damage_probe)
 
 
+#endregion
+
+#region Опасности, владение и фабрика
+## Проверяет однократную фабрику, интервалы зон и атрибуцию после удаления источника.
 func _toxic_contract() -> void:
 	var scene: PackedScene = _toxic_scene(0.75)
 	var origin: Entity = _body(Vector3.ZERO, false)
@@ -118,6 +124,7 @@ func _toxic_contract() -> void:
 	_reset(true)
 
 
+## Проверяет живое следование, политику потери владельца и сохранение постоянных опасностей.
 func _follow_and_reset_contract() -> void:
 	var scene: PackedScene = _toxic_scene(
 		10.0,
@@ -168,6 +175,7 @@ func _follow_and_reset_contract() -> void:
 	assert(_effects().is_empty())
 
 
+## Повреждение/разрушение коробки создаёт отдельные эффекты и связывает остаток с обломками.
 func _package_adapter_contract() -> void:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "hazard-fixture-package"
@@ -237,6 +245,10 @@ func _package_adapter_contract() -> void:
 	_reset(true)
 
 
+#endregion
+
+#region Взрывы и атрибуция
+## Проверяет спад урона по расстоянию, стену, физический импульс и однократную цепную активацию.
 func _explosion_contract() -> void:
 	var scene: PackedScene = _blast_scene()
 	var emitter_a: C_HazardEmitter = C_HazardEmitter.new()
@@ -256,7 +268,7 @@ func _explosion_contract() -> void:
 		true,
 		[C_Motion.new()],
 	)
-	# Low-HP barrel fixture uses the same health and emitter composition as any destructible.
+	# Тестовая бочка с малым HP использует общие здоровье и emitter разрушаемого объекта.
 	(barrel_b.get_component(C_Health) as C_Health).current = 10.0
 	_wall(Vector3(40, 0, -1))
 	await _settle()
@@ -290,6 +302,7 @@ func _explosion_contract() -> void:
 	_reset(true)
 
 
+## Защита удалённого источника остаётся частью запроса и блокирует урон взрыва.
 func _blocked_explosion_contract() -> void:
 	var origin: Entity = _body(Vector3(80, 0, 0), false, false, false, [C_NoDamage.new()])
 	var receiver: Entity = _body(Vector3(81, 0, 0))
@@ -302,13 +315,14 @@ func _blocked_explosion_contract() -> void:
 	assert(_hp(receiver) == 100.0 and _last_damage.outcome == DamageResult.Outcome.BLOCKED)
 
 
+## Даже краткий цепной взрыв доживает до первого разрешения, исключая collider своего источника.
 func _short_chain_contract() -> void:
 	_reset(true)
 	var scene: PackedScene = _blast_scene(0.005)
 	var emitter: C_HazardEmitter = C_HazardEmitter.new()
 	emitter.hazard_scene = scene
 	var origin: Entity = _body(Vector3(100, 0, 0), false)
-	# An ordinary layer-1 physical emitter must not block its own ray from inside the body.
+	# Collider физического emitter на слое 1 не должен перекрывать свой луч изнутри тела.
 	var origin_body: PhysicsBody3D = origin as Node as PhysicsBody3D
 	origin_body.collision_layer = 1
 
@@ -325,6 +339,9 @@ func _short_chain_contract() -> void:
 	assert(chained.resolved and _effects().is_empty())
 
 
+#endregion
+
+#region Тестовые тела, профили и запросы
 func _body(
 	location: Vector3,
 	health: bool = true,
@@ -459,25 +476,35 @@ func _on_damage(result: DamageResult) -> void:
 	_last_damage = result
 
 
+## Тестовый подписчик передаёт типизированный HazardSpawnResult обработчику сценария.
 class SpawnProbe extends Observer:
+	## Обработчик, назначенный перед регистрацией observer в World.
 	var received: Callable
 
 
+	## Подписывается на фактический HazardSpawnResult, отдельно от исходной команды.
 	func query() -> QueryBuilder:
 		return q.on_event(HazardSpawnResult.EVENT)
 
 
+	## Передаёт штатный payload обработчику тестового сценария.
 	func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 		received.call(payload as HazardSpawnResult)
 
 
+## Тестовый подписчик передаёт типизированный DamageResult обработчику сценария.
 class DamageProbe extends Observer:
+	## Обработчик, назначенный перед регистрацией observer в World.
 	var received: Callable
 
 
+	## Подписывается на фактический DamageResult, отдельно от исходной команды.
 	func query() -> QueryBuilder:
 		return q.on_event(DamageResult.EVENT)
 
 
+	## Передаёт штатный payload обработчику тестового сценария.
 	func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 		received.call(payload as DamageResult)
+
+#endregion

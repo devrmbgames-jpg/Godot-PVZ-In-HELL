@@ -1,4 +1,5 @@
 extends GutTest
+## Проверяет причину боя по живым связям и постоянным ID истории жалоб.
 
 var _world: World = null
 var _player: Entity = null
@@ -8,6 +9,8 @@ var _flow: C_CustomerFlow = null
 var _cycle: C_DayCycle = null
 
 
+#region Окружение живых участников
+## Создаёт игрока и клиента с постоянным заказом и боевыми компонентами.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -35,6 +38,7 @@ func before_each() -> void:
 	_flow.visits = [_visit]
 
 
+## Удаляет World и очищает ссылки участников и визита.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -56,6 +60,10 @@ func _request(actor: Entity, target: Entity) -> DamageRequest:
 	return request
 
 
+#endregion
+
+#region Причина боя и постоянная история
+## Самооборона определяется текущей живой целью NPC, а не сохраняется после завершения боя.
 func test_unprovoked_attack_and_self_defense_use_live_opponent_binding() -> void:
 	var context: CombatContext = CombatAttribution.describe(_request(_player, _customer))
 	assert_eq(context.reason, CombatContext.Reason.ORDINARY_ATTACK)
@@ -68,6 +76,7 @@ func test_unprovoked_attack_and_self_defense_use_live_opponent_binding() -> void
 	assert_eq(context.reason, CombatContext.Reason.ORDINARY_ATTACK)
 
 
+## Мошенничество и нарушение испытания передают разные типизированные причины урона NPC.
 func test_fraud_and_challenge_escalation_are_typed_npc_damage_reasons() -> void:
 	var state: C_NpcCombat = _customer.get_component(C_NpcCombat) as C_NpcCombat
 	state.aggression_reason = CombatContext.Reason.FRAUD_ESCALATION
@@ -76,6 +85,7 @@ func test_fraud_and_challenge_escalation_are_typed_npc_damage_reasons() -> void:
 	assert_eq(CombatAttribution.describe(_request(_customer, _player)).reason, CombatContext.Reason.CHALLENGE_ESCALATION)
 
 
+## История ложной жалобы даёт окно мести тому же постоянному клиенту ровно на семь дней.
 func test_persisted_false_complaint_allows_same_customer_for_exactly_seven_days() -> void:
 	var previous: CustomerVisit = CustomerVisit.new()
 	previous.customer_id = _visit.customer_id
@@ -98,6 +108,7 @@ func test_persisted_false_complaint_allows_same_customer_for_exactly_seven_days(
 	assert_eq(CombatAttribution.describe(_request(_player, _customer)).reason, CombatContext.Reason.ORDINARY_ATTACK)
 
 
+## Удар удерживаемым предметом получает владельца хвата; снимок контекста переживает удаление участника.
 func test_held_impact_attribution_is_actor_and_snapshot_has_no_live_reference() -> void:
 	var prop: Entity = Entity.new()
 	_world.add_entity(prop)
@@ -116,3 +127,5 @@ func test_held_impact_attribution_is_actor_and_snapshot_has_no_live_reference() 
 	_player = null
 	assert_true(saved.actor_is_player)
 	assert_eq(saved.visit_id, _visit.visit_id)
+
+#endregion
