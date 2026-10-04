@@ -2,6 +2,8 @@
 
 The implementation has measured headless CPU improvements. Rendered FPS, GPU cost and subjective stutter remain unmeasured. Level geometry and navigation settings are preserved.
 
+Current build: [Windows QA executable](../.export/windows/20261004-015623Z-e9e7dbec-npc-performance/PVZInHell.exe). Menu and main level each passed 120 headless startup frames. Relevant regression: 234 tests / 1491 assertions; connected seven-day district smoke PASS.
+
 ## Reproduction
 
 Launch the latest Windows QA build through [.export/LATEST.cmd](../.export/LATEST.cmd), or run the project in Godot. Start a fresh QA session so an old save does not change the comparison. Use the same graphics settings, viewport resolution and debug/profiler mode as the supplied capture.

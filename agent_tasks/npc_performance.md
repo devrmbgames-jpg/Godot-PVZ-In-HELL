@@ -2,7 +2,7 @@
 
 ## Task state
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 - Owner: Codex
 
 ### Goal
@@ -11,7 +11,7 @@ Remove the measured NPC planning stalls without sacrificing readable code, physi
 
 ### Current
 
-Implementation and technical checks are complete. Preparing the Windows QA build; rendered owner QA remains separate.
+Implemented in commit 044fbc6c. Technical checks and the Windows QA build are complete; rendered owner QA remains separate.
 
 The owner profiler identifies NpcRouteService.plan / _cost -> NpcLightingService.exposure_at -> DistrictPopulationService.position_for/current and LightCircuitService.state_for/entity_for. Reproduced on main_level: route median 795.412 ms (12 samples); 809 light queries median 768.781 ms (12 batches). The initial frame monitor is contaminated by synchronous benchmark work and is not a valid steady-frame claim.
 
@@ -21,7 +21,7 @@ Cogito source reviewed on 2026-10-04:
 
 Options: keep a CPU gameplay estimate with batched inputs (chosen); author explicit light volumes (requires level markup and dynamic-shadow policy); viewport sensor (GPU readback per sensor, unsuitable for many route samples). Borrow the principle of bounded work/reusing light context, without copying addon code.
 
-Implementation batches:
+Completed implementation batches:
 1. Reuse scene/world lookups with lifecycle validation; capture authored place positions and light circuit bindings once per perception/planning context. Reject sight candidates by distance/sector before evaluating light.
 2. Evaluate graph edges and light samples once per plan; capture damage inputs once. Limit route work per physics frame through a fair queue; preserve interrupted and pending intent behavior.
 3. Run the same CPU benchmark, focused GUT regressions, parser, structure checker and connected headless district smoke; record evidence and remaining rendered QA.
@@ -36,7 +36,7 @@ Implementation batches:
 - Structure checker: only the pre-existing unrelated agent_tasks/gdscript_readability_cleanup.md missing task-state headings. No new structure findings. git diff --check passes.
 - New regression cases cover cache/world replacement, immediate switch/flicker/circuit replacement, physical blockers and query-specific exclusions, origin movement, dark route alternatives, queued goal cancellation/latest destination/fairness. Existing native moving-fire, health reserve, real damage, perception, service, delivery and snapshot tests pass.
 - Connected seven-day district smoke: PASS, tests/artifacts/district-20261004-115250423.log. Navigation coverage and retained/reloaded population pass.
-- Windows QA build: pending export.
+- Windows QA build: PASS, [.export/windows/20261004-015623Z-e9e7dbec-npc-performance/PVZInHell.exe](../.export/windows/20261004-015623Z-e9e7dbec-npc-performance/PVZInHell.exe). Menu and main level each passed 120 headless startup frames. [.export/LATEST.cmd](../.export/LATEST.cmd) points to this build. Export began from the updated working tree before commit 044fbc6c; its original e9e7dbec + dirty metadata is preserved.
 
 ### Owner QA / blockers
 
