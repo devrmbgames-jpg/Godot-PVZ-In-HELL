@@ -897,12 +897,24 @@ static func finish(visit: CustomerVisit, day: int) -> void:
 	visit.finished_day = day
 	if visit.followup_committed and visit.next_followup_day > day:
 		return
-	if CustomerOutcomeService.create_complaint(visit, day):
+	if create_complaint(visit, day):
 		visit.next_followup_day = 0
 		visit.followup_committed = false
 		return
 
 	schedule_followup(visit, day)
+
+
+## Подаёт жалобу с известным именем постоянного жителя; расчёт остаётся у CustomerOutcomeService.
+static func create_complaint(
+	visit: CustomerVisit,
+	day: int,
+	reason: CustomerComplaint.Reason = CustomerComplaint.Reason.NOT_DELIVERED,
+	force: bool = false,
+) -> bool:
+	return CustomerOutcomeService.create_complaint(
+		visit, day, reason, force, CustomerPresentation.customer_name(visit),
+	)
 
 
 ## Планирует допустимый повтор по детерминированному броску для номера повторного визита.

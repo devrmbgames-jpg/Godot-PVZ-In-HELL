@@ -82,6 +82,8 @@ const MINIMUM_LEAVING_SECONDS: float = 181.0
 @export var damaged_satisfaction: int = 70
 ## Верхняя граница удовлетворённости вскрытой коробкой, на шкале 0–100.
 @export var opened_satisfaction: int = 50
+## Текст жалобы; пустое значение использует обычную формулировку по причине обвинения.
+@export_multiline var complaint_text: String = ""
 ## Вероятность жалобы после отказа игрока в выдаче, от 0 до 1.
 @export_range(0.0, 1.0) var complaint_probability: float = 0.85
 ## Вероятность жалобы при подтверждённом отказе самого получателя, от 0 до 1.

@@ -19,6 +19,18 @@ static func record_for(package_id: String, registry: C_PackageLedger = null) -> 
 	return null
 
 
+## Обновляет примечание по постоянному ID истории; номер выдачи ключом не является.
+static func update_note(history_id: String, text: String) -> bool:
+	var registry: C_PackageLedger = _ledger()
+	if registry == null or history_id.is_empty():
+		return false
+	for record: PackageRegistrationRecord in registry.records:
+		if record.history_id == history_id:
+			record.note = text
+			return true
+	return false
+
+
 ## Однократно записывает реальное поступление; сканирование и номер выдачи не назначает.
 static func record_arrival(parcel: Entity, day_index: int) -> PackageRegistrationRecord:
 	if not EntityAvailability.contains(parcel, ECS.world) or day_index < 1:

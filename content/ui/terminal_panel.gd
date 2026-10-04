@@ -73,6 +73,7 @@ func _ready() -> void:
 	_show_transactions_button.pressed.connect(_on_show_transactions_pressed)
 	_orders_button.pressed.connect(_on_orders_pressed)
 	_help_button.pressed.connect(_on_help_pressed)
+	_package_detail.note_changed.connect(_on_note_changed)
 	_apply_sort_presentation()
 	_set_info_mode(InfoMode.DETAIL)
 
@@ -86,7 +87,7 @@ func _input(event: InputEvent) -> void:
 		return
 
 	var close_requested: bool = event.is_action_pressed(&"menu")
-	if not _package_find.has_focus():
+	if not _package_find.has_focus() and not _package_detail.is_editing_note():
 		close_requested = close_requested or event.is_action_pressed(&"interact")
 	if close_requested:
 		close_panel()
@@ -137,6 +138,7 @@ func close_panel() -> void:
 		return
 
 	visible = false
+	_package_detail.end_editing()
 	InteractionControlFocus.release(_reader, _capture_token)
 	_capture_token = 0
 	var reader: Entity = _reader
@@ -493,6 +495,14 @@ func _data_signature(
 	for record: PackageRegistrationRecord in ledger.records:
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
 		var visit: CustomerVisit = visits.get(record.package_id) as CustomerVisit
+		parts.append("note:%d" % record.note.hash())
+		var complaint: CustomerComplaint = visit.complaint if visit != null else null
+		if complaint != null:
+			parts.append("complaint:%s:%d:%d:%d:%d:%d:%d" % [
+				complaint.complaint_id, complaint.reason, complaint.outcome,
+				complaint.created_day, complaint.money_delta,
+				complaint.customer_name.hash(), complaint.message.hash(),
+			])
 		parts.append("receipt:%d:%d:%d:%s" % [
 			record.received_day,
 			record.day_index,
@@ -553,6 +563,11 @@ func _set_info_mode(mode: InfoMode) -> void:
 #endregion
 
 #region Запросы пользователя
+func _on_note_changed(history_id: String, text: String) -> void:
+	if not PackageHistoryService.update_note(history_id, text):
+		push_warning("Terminal note rejected for history %s" % history_id)
+
+
 func _on_package_selected(package_id: String) -> void:
 	_selected_package_id = package_id
 	_set_info_mode(InfoMode.DETAIL)

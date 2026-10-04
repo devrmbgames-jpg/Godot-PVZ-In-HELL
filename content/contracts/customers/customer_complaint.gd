@@ -7,6 +7,12 @@ enum Outcome { PENDING, CONFIRMED, FALSE_CLAIM, WAIVED_PLAYER_DEFEAT, ALREADY_SE
 
 ## ID жалобы, используемый как ключ однократного денежного последствия.
 @export var complaint_id: StringName = &""
+## Постоянный ID заявителя, без ссылки на живой экземпляр NPC.
+@export var customer_id: StringName = &""
+## Известное имя заявителя на момент подачи; не меняется после исчезновения NPC.
+@export var customer_name: String = ""
+## Авторский текст обращения как обычный текст, включая допустимые резкие реплики.
+@export_multiline var message: String = ""
 ## Предмет обвинения: отсутствие выдачи либо повреждение коробки.
 @export var reason: Reason = Reason.NOT_DELIVERED
 ## День создания жалобы.

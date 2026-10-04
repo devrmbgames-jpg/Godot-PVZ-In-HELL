@@ -169,7 +169,7 @@ static func complaint(
 		if state != null and state.damage != C_PackageState.Damage.UNDAMAGED:
 			visit.package_damaged = true
 
-	if not CustomerOutcomeService.create_complaint(visit, cycle.day_index, reason, true):
+	if not CustomerFlowService.create_complaint(visit, cycle.day_index, reason, true):
 		result.message = "complaint conflicts with existing complaint"
 		return result
 	if resolve_now:

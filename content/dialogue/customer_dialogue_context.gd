@@ -254,7 +254,7 @@ func schedule_non_delivery_complaint() -> bool:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if visit == null or cycle == null:
 		return false
-	return CustomerOutcomeService.create_complaint(
+	return CustomerFlowService.create_complaint(
 		visit,
 		cycle.day_index,
 		CustomerComplaint.Reason.NOT_DELIVERED,

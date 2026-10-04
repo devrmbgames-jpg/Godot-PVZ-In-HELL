@@ -241,11 +241,13 @@ static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 
 
 ## Создаёт единственную жалобу; force обходит ожидание завершения и проверку вероятности.
+## claimant_name сохраняет известное имя, иначе используется авторское имя обычного клиента.
 static func create_complaint(
 	visit: CustomerVisit,
 	day: int,
 	reason: CustomerComplaint.Reason = CustomerComplaint.Reason.NOT_DELIVERED,
 	force: bool = false,
+	claimant_name: String = "",
 ) -> bool:
 	if visit == null or visit.definition == null:
 		return false
@@ -272,6 +274,15 @@ static func create_complaint(
 
 	var complaint: CustomerComplaint = CustomerComplaint.new()
 	complaint.complaint_id = StringName("complaint/" + String(visit.visit_id))
+	complaint.customer_id = visit.customer_id
+	complaint.customer_name = claimant_name if not claimant_name.is_empty() else visit.definition.display_name
+	complaint.message = visit.definition.complaint_text
+	if complaint.message.is_empty():
+		complaint.message = (
+			"Мне не выдали посылку. Прошу разобраться."
+			if reason == CustomerComplaint.Reason.NOT_DELIVERED
+			else "Мне выдали повреждённую посылку. Прошу разобраться."
+		)
 	complaint.reason = reason
 	complaint.created_day = day
 	complaint.resolve_day = day + maxi(1, visit.definition.complaint_delay_days)
