@@ -1,5 +1,5 @@
 extends Node
-## Actual main-scene death wiring and consumable remains, separate from full-slice owner QA.
+## Smoke смерти клиента в основной сцене, сохранности физического мяса и обычного употребления.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const SUPPLY_FRAMES: int = 900
@@ -8,6 +8,7 @@ const TEST_HUNGER: float = 80.0
 var _level: Node
 
 
+#region Сценарий настоящей смерти и употребления
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -79,3 +80,5 @@ func _run() -> void:
 	await get_tree().process_frame
 	print("NPC remains actual main death cleanup physical meat inventory eating smoke PASS")
 	get_tree().quit.call_deferred()
+
+#endregion

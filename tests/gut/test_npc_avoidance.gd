@@ -1,5 +1,5 @@
 extends GutTest
-## Native RVO + real rigid bodies: passing must happen before a collision pushes a neighbour.
+## Native RVO и реальные RigidBody: обход происходит до физического толкания соседей/очереди.
 
 const NPC_SCENE: PackedScene = preload("res://content/entities/customers/customer.tscn")
 const TRADER_SCENE: PackedScene = preload("res://content/entities/commerce/trader.tscn")
@@ -16,6 +16,8 @@ var _region: NavigationRegion3D = null
 var _barriers: Array[StaticBody3D] = []
 
 
+#region Native-окружение и освобождение
+## Создаёт реальные пол/регион и S_NpcIntent, ожидая синхронизации physics/navmesh.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -46,6 +48,7 @@ func _physics_process(delta: float) -> void:
 		_world.process(delta)
 
 
+## Останавливает шаг World, освобождает его и авторские препятствия теста.
 func after_each() -> void:
 	set_physics_process(false)
 	_world.purge(false)
@@ -67,6 +70,10 @@ func _npc(at: Vector3, trader: bool = false) -> E_NpcCharacter:
 	return npc
 
 
+#endregion
+
+#region Проход и участие тела
+## Встречные капсулы обходят друг друга в узком коридоре и достигают обеих целей без контакта.
 func test_head_on_clients_pass_without_physical_pushing() -> void:
 	var narrow: NavigationMesh = NavigationMesh.new()
 	narrow.vertices = PackedVector3Array([Vector3(-6, 0, -NAV_CORRIDOR_HALF_WIDTH), Vector3(-6, 0, NAV_CORRIDOR_HALF_WIDTH), Vector3(6, 0, NAV_CORRIDOR_HALF_WIDTH), Vector3(6, 0, -NAV_CORRIDOR_HALF_WIDTH)])
@@ -101,6 +108,7 @@ func test_head_on_clients_pass_without_physical_pushing() -> void:
 	assert_lt(right.global_position.distance_to(Vector3(-4.0, 0.0, 0.0)), 0.4, "Right reaches destination: " + str(right.global_position))
 
 
+## Клиент обходит торговца, сохраняя исходное положение неподвижного тела в пределах допуска.
 func test_client_goes_around_stationary_trader_without_displacing_it() -> void:
 	var client: E_NpcCharacter = _npc(Vector3(-4.0, 0.02, 0.0))
 	var trader: E_NpcCharacter = _npc(Vector3(0.0, 0.02, 0.0), true)
@@ -120,6 +128,7 @@ func test_client_goes_around_stationary_trader_without_displacing_it() -> void:
 	assert_lt(trader.global_position.distance_to(initial), WAITING_POSITION_TOLERANCE)
 
 
+## Проходящий NPC достигает цели, не сдвигая три физические тела очереди.
 func test_client_passes_three_waiting_customers_without_moving_queue() -> void:
 	var client: E_NpcCharacter = _npc(Vector3(-4.0, 0.02, 0.0))
 	var queue: Array[E_NpcCharacter] = []
@@ -146,6 +155,7 @@ func test_client_passes_three_waiting_customers_without_moving_queue() -> void:
 		assert_lt(queue[index].global_position.distance_to(positions[index]), WAITING_POSITION_TOLERANCE)
 
 
+## Смерть отключает движение/avoidance; QA-reset возвращает прежнюю авторскую политику, включая opt-out.
 func test_dead_client_stops_navigation_avoidance_and_releases_movement() -> void:
 	var client: E_NpcCharacter = _npc(Vector3.ZERO)
 	NpcIntentService.move_to(client, Vector3.RIGHT * 4.0, 0.25)
@@ -162,7 +172,7 @@ func test_dead_client_stops_navigation_avoidance_and_releases_movement() -> void
 	await get_tree().physics_frame
 	await get_tree().process_frame
 	assert_true(client.navigation_agent.avoidance_enabled, "Reset restores the native authored policy")
-	# Explicitly authored opt-out is also preserved through death/reset.
+	# Явное авторское отключение avoidance сохраняется через смерть и QA-reset.
 	client.navigation_agent.avoidance_enabled = false
 	client.add_component(C_Death.new())
 	await get_tree().physics_frame
@@ -171,3 +181,5 @@ func test_dead_client_stops_navigation_avoidance_and_releases_movement() -> void
 	await get_tree().physics_frame
 	await get_tree().process_frame
 	assert_false(client.navigation_agent.avoidance_enabled)
+
+#endregion

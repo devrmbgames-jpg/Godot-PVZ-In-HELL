@@ -1,5 +1,5 @@
 extends Node
-## Real shared character physics: obstacle, external impulse, recovery and head look.
+## Smoke общего физического персонажа: препятствие, внешний импульс, восстановление и взгляд головы.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const SETTLE_FRAMES: int = 30
@@ -16,6 +16,7 @@ var _customer: E_Customer = null
 var _body: RigidBody3D = null
 
 
+#region Сценарий физического персонажа
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -31,7 +32,7 @@ func _run() -> void:
 	_customer = scene.instantiate() as E_Customer
 	_body = _customer as Node as RigidBody3D
 	_world.add_entity(_customer)
-	# This fixture isolates collision/impulse behavior; routing has its own real-map smoke.
+	# Окружение изолирует столкновения/импульс; маршруты проверяет отдельный smoke с настоящей картой.
 	(_customer.get_component(C_NpcIntent) as C_NpcIntent).navigation_enabled = false
 
 	var motion: C_Motion = _customer.get_component(C_Motion) as C_Motion
@@ -76,6 +77,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Ограниченные шаги и препятствия
 func _frames(count: int) -> void:
 	for frame: int in count:
 		_world.process(FRAME_DELTA)
@@ -102,3 +106,5 @@ func _obstacle(location: Vector3, dimensions: Vector3) -> StaticBody3D:
 	obstacle.position = location
 	_world.add_child(obstacle)
 	return obstacle
+
+#endregion

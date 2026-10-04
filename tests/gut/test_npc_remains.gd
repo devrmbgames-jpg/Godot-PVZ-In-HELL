@@ -1,11 +1,13 @@
 extends GutTest
-## Actual damage, native NPC body, edible inventory loot and terminal save/load.
+## Реальный урон, физическое тело NPC, съедобные предметы и сохранение окончательной смерти.
 
 var _root: Node3D
 var _world: World
 var _actor: Entity
 
 
+#region Физические предметы и сессия
+## Создаёт реальный pipeline урона/инвентаря, физический пол, вечернюю сессию и голодного игрока.
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
@@ -46,6 +48,7 @@ func before_each() -> void:
 	await get_tree().physics_frame
 
 
+## Очищает World до удаления сценового корня и сбрасывает глобальный ECS.world.
 func after_each() -> void:
 	_world.purge(false)
 	_root.free()
@@ -85,6 +88,10 @@ func _drops() -> Array[Entity]:
 	return _world.query.with_all([C_InventoryItem]).execute().duplicate()
 
 
+#endregion
+
+#region Дроп и употребление
+## Ранение не создаёт дроп; смерть даёт три отдельные единицы мяса и гарантированную QA-аптечку ровно один раз.
 func test_actual_death_creates_three_edible_pieces_and_guaranteed_medkit_once() -> void:
 	var npc: E_NpcCharacter = _npc(false, 1.0)
 	_damage(npc, 10.0)
@@ -115,6 +122,7 @@ func test_actual_death_creates_three_edible_pieces_and_guaranteed_medkit_once() 
 	assert_eq(_drops().size(), 4, "Repeated lethal requests cannot duplicate a batch")
 
 
+## Реальное мясо собирается в стопку и расходуется по единице, уменьшая голод без остаточных предметов.
 func test_meat_is_pickable_consumable_food_and_reduces_actual_hunger() -> void:
 	_damage(_npc(), 200.0)
 	for drop: Entity in _drops():
@@ -133,6 +141,10 @@ func test_meat_is_pickable_consumable_food_and_reduces_actual_hunger() -> void:
 	assert_true(_drops().is_empty())
 
 
+#endregion
+
+#region Смерть и восстановление
+## Погибший торговец отключает тело/avoidance; покупка и открытие магазина отклоняются без списания денег.
 func test_dead_trader_stops_native_body_avoidance_and_cannot_sell() -> void:
 	var npc: E_NpcCharacter = _npc()
 	_damage(npc, 200.0)
@@ -150,6 +162,7 @@ func test_dead_trader_stops_native_body_avoidance_and_cannot_sell() -> void:
 	assert_eq(WalletService.current().balance, 500)
 
 
+## Snapshot и NightReset сохраняют смерть/released и уже созданную добычу без воскрешения или нового дропа.
 func test_remains_and_dead_trader_restore_without_new_loot_or_night_resurrection() -> void:
 	var npc: E_NpcCharacter = _npc(false, 1.0)
 	_damage(npc, 200.0)
@@ -170,6 +183,7 @@ func test_remains_and_dead_trader_restore_without_new_loot_or_night_resurrection
 	assert_eq(_drops().size(), 4)
 
 
+## Смерть участника закрывает открытую торговую панель и возвращает игровой фокус.
 func test_open_trading_panel_closes_and_releases_input_when_trader_dies() -> void:
 	var npc: E_NpcCharacter = _npc()
 	var panel: CommercePanel = CommercePanelService.open(_actor, npc)
@@ -182,6 +196,7 @@ func test_open_trading_panel_closes_and_releases_input_when_trader_dies() -> voi
 	await get_tree().process_frame
 
 
+## Завершение погибшего визита сохраняет физическое мясо и факты смерти/победы игрока.
 func test_customer_remains_survive_visit_and_challenge_cleanup() -> void:
 	var npc: E_NpcCharacter = _npc(true)
 	var session: Entity = _world.query.with_all([C_CustomerFlow]).execute_one()
@@ -208,6 +223,7 @@ func test_customer_remains_survive_visit_and_challenge_cleanup() -> void:
 		assert_true(InventoryService.transfer(drop, _actor), "Visitor cleanup cannot own/remove its remains")
 
 
+## Восстановленная отметка смерти отключает тело без повторного события урона и выдачи добычи.
 func test_restored_terminal_marker_without_damage_does_not_spawn_loot() -> void:
 	var npc: E_NpcCharacter = _npc(false, 1.0)
 	(npc.get_component(C_Health) as C_Health).depleted = true
@@ -215,3 +231,5 @@ func test_restored_terminal_marker_without_damage_does_not_spawn_loot() -> void:
 	npc.sync_death_presentation()
 	assert_true(_drops().is_empty(), "Death restoration is not a new lethal hit")
 	assert_false((npc as Node as Node3D).visible)
+
+#endregion

@@ -1,4 +1,5 @@
 extends GutTest
+## Регрессии выбора и исполнения атак NPC: реальный DamageRequest, method-track, снаряды и очистка целей.
 
 var _world: World = null
 var _npc: E_NpcCharacter = null
@@ -7,6 +8,8 @@ var _state: C_NpcCombat = null
 var _health: C_Health = null
 
 
+#region Физическое тестовое окружение
+## Создаёт World с реальными observers урона/боя и замороженными физическими участниками; синхронизирует лучи.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -24,6 +27,7 @@ func before_each() -> void:
 	await get_tree().physics_frame
 
 
+## Очищает World и ссылки участников после проверки, чтобы следующий случай не наследовал бой.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -66,6 +70,10 @@ func _body(npc: bool) -> E_RigidBodyCharacter:
 	return entity
 
 
+#endregion
+
+#region Выбор и таймеры
+## Замах, однократный удар и cooldown проходят общий DamageRequest; повтор эффекта не наносит урон.
 func test_melee_windup_one_effect_and_shared_damage_pipeline() -> void:
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
 	NpcAttackService.tick(_npc, 0.3)
@@ -84,6 +92,7 @@ func test_melee_windup_one_effect_and_shared_damage_pipeline() -> void:
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
 
 
+## Явный выбор допускает индексы 0–2 обоих типов атак даже при ошибочно более длинном массиве.
 func test_explicit_variant_request_supports_three_of_each_and_rejects_fourth() -> void:
 	var attack: DEF_NpcAttack = _state.melee_attacks[0]
 	_state.melee_attacks = [attack, attack, attack, attack]
@@ -96,6 +105,7 @@ func test_explicit_variant_request_supports_three_of_each_and_rejects_fourth() -
 	assert_eq(_state.variant, 2)
 
 
+## Выбор читает приоритет/скорость урона без запуска атаки; равный результат сохраняет первый вариант.
 func test_selector_reads_priority_then_damage_rate_without_starting_attack() -> void:
 	var slow: DEF_NpcAttack = _state.melee_attacks[0].duplicate(true) as DEF_NpcAttack
 	var fast: DEF_NpcAttack = slow.duplicate(true) as DEF_NpcAttack
@@ -122,6 +132,7 @@ func test_selector_reads_priority_then_damage_rate_without_starting_attack() -> 
 	assert_eq(_state.kind, C_NpcCombat.Kind.MELEE)
 
 
+## Перемещение цели и препятствие требуют повторной проверки решения; отклонённый запрос не меняет HP/фазу.
 func test_selector_rejects_unavailable_or_stale_decision_without_side_effect() -> void:
 	_state.cooldown_remaining = 0.5
 	assert_null(NpcAttackService.choose(_npc))
@@ -149,6 +160,7 @@ func test_selector_rejects_unavailable_or_stale_decision_without_side_effect() -
 	assert_eq(_health.current, 100.0)
 
 
+## Отключённый автоматический выбор сохраняет исполнение явной атаки/cooldown; включение возвращает выбор.
 func test_selector_external_control_keeps_execution_and_cooldown_then_restores_default() -> void:
 	_state.automatic_attack_selection = false
 	_world.add_system(S_NpcCombat.new())
@@ -169,6 +181,10 @@ func test_selector_external_control_keeps_execution_and_cooldown_then_restores_d
 	assert_eq(_state.phase, C_NpcCombat.Phase.WINDUP)
 
 
+#endregion
+
+#region Анимация и прерывание
+## Реальные method-track управляют ударом вместо таймера; повторный ключ не дублирует урон.
 func test_actual_animation_method_tracks_commit_once_and_finish_with_cooldown() -> void:
 	var player: AnimationPlayer = AnimationPlayer.new()
 	(_npc as Node).add_child(player)
@@ -201,6 +217,7 @@ func test_actual_animation_method_tracks_commit_once_and_finish_with_cooldown() 
 	assert_gt(_state.cooldown_remaining, 0.0)
 
 
+## Отсутствующая авторская анимация оставляет доступным исполнение удара по таймеру.
 func test_unassigned_or_missing_animation_keeps_timed_prototype_playable() -> void:
 	_state.melee_attacks[0] = _state.melee_attacks[0].duplicate(true) as DEF_NpcAttack
 	_state.melee_attacks[0].animation = &"NotAuthoredYet"
@@ -210,6 +227,7 @@ func test_unassigned_or_missing_animation_keeps_timed_prototype_playable() -> vo
 	assert_eq(_health.current, 88.0)
 
 
+## Удаление живой цели отменяет атаку и намерения; поздний callback уже не применяет эффект.
 func test_removed_target_cancels_pending_animation_hook_and_navigation() -> void:
 	NpcIntentService.follow(_npc, _target, 1.0)
 	NpcIntentService.watch(_npc, _target)
@@ -222,6 +240,7 @@ func test_removed_target_cancels_pending_animation_hook_and_navigation() -> void
 	assert_false((_npc.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 
 
+## Смертельный DamageRequest атакующему освобождает противника и предотвращает ещё не исполненный удар.
 func test_death_cancels_strike_before_effect_and_clears_opponent() -> void:
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
 	var request: DamageRequest = DamageRequest.new()
@@ -236,6 +255,10 @@ func test_death_cancels_strike_before_effect_and_clears_opponent() -> void:
 	assert_eq(_health.current, 100.0)
 
 
+#endregion
+
+#region Снаряды и атрибуция
+## Однократный дальний эффект создаёт один снаряд, поражающий реальный коллайдер и затем удаляемый.
 func test_ranged_effect_launches_once_and_projectile_hits_real_collider() -> void:
 	(_target as Node as Node3D).global_position.z = -4.0
 	await get_tree().physics_frame
@@ -250,6 +273,7 @@ func test_ranged_effect_launches_once_and_projectile_hits_real_collider() -> voi
 	assert_true(_world.query.with_all([C_CombatProjectile]).execute().is_empty())
 
 
+## Снаряд сохраняет эффективный урон при запуске; последующая еда не меняет его или авторскую атаку.
 func test_projectile_snapshots_hunger_damage_before_food_restores_shooter() -> void:
 	var hunger: C_Hunger = C_Hunger.new()
 	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
@@ -272,6 +296,7 @@ func test_projectile_snapshots_hunger_damage_before_food_restores_shooter() -> v
 	assert_eq(_state.ranged_attacks[0].damage, 8.0)
 
 
+## Луч пройденного отрезка не пропускает стену при большом шаге; выбор новой атаки также учитывает LOS.
 func test_wall_blocks_projectile_even_for_long_frame() -> void:
 	(_target as Node as Node3D).global_position.z = -4.0
 	await get_tree().physics_frame
@@ -296,6 +321,7 @@ func test_wall_blocks_projectile_even_for_long_frame() -> void:
 	assert_false(NpcAttackService.can_start(_npc, C_NpcCombat.Kind.RANGED, 0), "AI must not shoot through the wall")
 
 
+## Снаряд наследует C_NoDamage стрелка и не обходит запрет урона.
 func test_no_damage_shooter_cannot_bypass_guard_with_projectile() -> void:
 	(_target as Node as Node3D).global_position.z = -4.0
 	await get_tree().physics_frame
@@ -308,6 +334,7 @@ func test_no_damage_shooter_cannot_bypass_guard_with_projectile() -> void:
 	assert_eq(_health.current, 100.0)
 
 
+## После удаления стрелка снаряд сохраняет стабильную атрибуцию и исполняет ранее запущенный урон.
 func test_projectile_retains_generic_shooter_id_after_source_removal() -> void:
 	(_target as Node as Node3D).global_position.z = -4.0
 	await get_tree().physics_frame
@@ -323,6 +350,10 @@ func test_projectile_retains_generic_shooter_id_after_source_removal() -> void:
 	assert_eq(_health.current, 92.0)
 
 
+#endregion
+
+#region Промах и диагностика
+## Промах вне дальности расходует единственную попытку эффекта; возвращение цели не разрешает поздний удар.
 func test_out_of_range_at_hit_time_misses_without_late_duplicate() -> void:
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
 	(_target as Node as Node3D).global_position.z = -4.0
@@ -332,9 +363,12 @@ func test_out_of_range_at_hit_time_misses_without_late_duplicate() -> void:
 	assert_eq(_health.current, 100.0)
 
 
+## Диагностика отражает текущий замах, дальность, условия и таймеры реального боя.
 func test_debug_reports_task_range_phase_and_timers() -> void:
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
 	var text: String = CombatPresentation.debug_text(_target)
 	assert_true(text.contains("Задача:") and text.contains("замах"))
 	assert_true(text.contains("cooldown") and text.contains("Таймер"))
 	assert_true(text.contains("Дистанция") and text.contains("Условие"))
+
+#endregion
