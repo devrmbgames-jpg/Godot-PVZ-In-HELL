@@ -24,6 +24,7 @@ static func tick(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta:
 		if rule.kind == DEF_NpcTrait.Kind.FIRE_AURA:
 			_ensure_aura(actor, person, rule)
 			continue
+
 		var triggered: bool = false
 		match rule.kind:
 			DEF_NpcTrait.Kind.GAZE_AVERSION:
@@ -38,6 +39,7 @@ static func tick(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta:
 		if not triggered:
 			awareness.rule_exposure[rule.kind] = 0.0
 			continue
+
 		var exposure: float = awareness.rule_exposure.get(rule.kind, 0.0) + delta
 		awareness.rule_exposure[rule.kind] = exposure
 		if exposure >= rule.warning_seconds and not awareness.warned_rules.has(rule.kind):
@@ -62,6 +64,7 @@ static func _gazing(player: Entity, actor: E_DistrictNpc, rule: DEF_NpcTrait) ->
 	var spatial: Node3D = player as Node as Node3D
 	if spatial == null or spatial.global_position.distance_to(actor.global_position) > rule.radius * 3.0:
 		return false
+
 	var camera: Camera3D = spatial.get_viewport().get_camera_3d()
 	if camera == null:
 		return false
@@ -71,6 +74,7 @@ static func _looks_vulnerable(player: Entity, person: NpcRecord) -> bool:
 	var held: Entity = GrabService.held_object(player)
 	if held != null and held.has_component(C_MeleeWeapon):
 		return false
+
 	for index: int in range(person.memories.size() - 1, -1, -1):
 		var memory: NpcMemory = person.memories[index]
 		if memory.actor_id != &"player":
@@ -105,11 +109,13 @@ static func _observe_retreat(actor: E_DistrictNpc, person: NpcRecord, player: En
 static func _ensure_aura(actor: E_DistrictNpc, person: NpcRecord, rule: DEF_NpcTrait) -> void:
 	if rule.aura == null:
 		return
+
 	for entity: Entity in ECS.world.query.with_all([C_Hazard, C_HazardLifetime]).execute():
 		var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 		var life: C_HazardLifetime = entity.get_component(C_HazardLifetime) as C_HazardLifetime
 		if hazard.origin_id == String(person.npc_id) and life.remaining_seconds > 0.0:
 			return
+
 	var district: C_District = DistrictPopulationService.current()
 	var request: HazardSpawnRequest = HazardSpawnRequest.new()
 	request.request_id = "aura/%s/%d" % [person.npc_id, district.next_aura]

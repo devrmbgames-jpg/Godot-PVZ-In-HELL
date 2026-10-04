@@ -12,6 +12,7 @@ static func idle(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 		if state.definition.kind == DEF_InventoryItem.Kind.FOOD and hunger.value >= district.definition.npc_food_threshold:
 			InventoryService.use(actor, item)
 			return true
+
 	var loot: Entity = _loot_target(actor)
 	if loot != null and _available_loot(loot, actor):
 		var point: Vector3 = (loot as Node as Node3D).global_position
@@ -21,6 +22,7 @@ static func idle(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 		else:
 			NpcIntentArbiter.move_to(actor, point, district.definition.loot_distance, C_NpcDecision.Owner.IDLE)
 		return true
+
 	_clear_loot(actor)
 	for item: Entity in ECS.world.query.with_all([C_InventoryItem]).execute():
 		var spatial: Node3D = item as Node as Node3D
@@ -28,6 +30,7 @@ static func idle(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 			continue
 		if not NpcPerceptionService.can_see_point(actor, spatial.global_position + Vector3.UP * 0.1, person.profile, item):
 			continue
+
 		actor.add_relationship(Relationship.new(R_NpcLootTarget.new(), item))
 		return true
 	return _conflict(actor, person)
@@ -43,6 +46,7 @@ static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_Di
 		return false
 	if target == null or target == actor or target.has_component(C_Death) or target.has_component(C_CustomerAgent) or not NpcPerceptionService.can_see(actor, target, person.profile):
 		return false
+
 	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
 	var motive: bool = hunger.value >= district.definition.npc_attack_hunger
 	for memory: NpcMemory in person.memories:
@@ -51,12 +55,14 @@ static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_Di
 	var own_health: C_Health = actor.get_component(C_Health) as C_Health
 	if not motive or own_health.current < own_health.value * person.profile.pursuit_health_reserve:
 		return false
+
 	var identity: C_NpcIdentity = target.get_component(C_NpcIdentity) as C_NpcIdentity
 	var target_person: NpcRecord = DistrictPopulationService.person_for(identity.npc_id)
 	if target_person.profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null and DamageResistanceRules.effective(actor, 1.0, DamageRequest.Type.FIRE) > 0.0:
 		return false
 	if not CombatService.bind_target(actor, target):
 		return false
+
 	district.ambient_conflicts += 1
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.last_seen_position = target.global_position
@@ -67,6 +73,7 @@ static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_Di
 static func _conflict(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 	if not person.profile.initiates_conflicts:
 		return false
+
 	for record: NpcRecord in DistrictPopulationService.current().people:
 		if record.death_day == 0 and record.placement == NpcRecord.Placement.STREET:
 			if begin_conflict(actor, person, DistrictPopulationService.body_for(record.npc_id)):
@@ -76,12 +83,15 @@ static func _conflict(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 static func _available_loot(item: Entity, claimant: Entity) -> bool:
 	if not EntityAvailability.contains(item, ECS.world) or item.has_component(C_Package) or InventoryService.owner_for(item) != null or GrabService.held_relationship(item) != null:
 		return false
+
 	for link: Relationship in item.relationships:
 		if link.relation is R_AssignedTo or link.relation is R_StoredIn:
 			return false
+
 	for participant: Entity in ECS.world.query.with_relationship([Relationship.new(R_NpcLootTarget.new(), item)]).execute():
 		if participant != claimant:
 			return false
+
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
 	return state != null and state.definition != null and not state.transfer_in_progress and state.pending_use_id.is_empty()
 

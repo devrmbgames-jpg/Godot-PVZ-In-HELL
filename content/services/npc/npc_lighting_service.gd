@@ -21,6 +21,7 @@ static func unregister_zone(zone: NpcLightZone) -> void:
 static func context_for(district: C_District) -> NpcLightingContext:
 	if district.lighting_context != null and district.lighting_revision == _zone_revision:
 		return district.lighting_context
+
 	var context: NpcLightingContext = NpcLightingContext.new()
 	var level: Node = ECS.world.get_parent()
 	for zone: NpcLightZone in _registered_zones:

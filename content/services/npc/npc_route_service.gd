@@ -23,6 +23,7 @@ static func tick(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> void:
 		route.progress_initialized = false
 		route.stalled_seconds = 0.0
 		return
+
 	route.elapsed += delta
 	var district: C_District = DistrictPopulationService.current()
 	var new_goal: bool = route.goal.distance_to(intent.move_position) > district.definition.waypoint_distance
@@ -84,9 +85,11 @@ static func process_pending(district: C_District) -> void:
 		var actor: E_DistrictNpc = DistrictPopulationService.body_for(npc_id)
 		if person == null or person.death_day != 0 or person.placement != NpcRecord.Placement.STREET or not EntityAvailability.contains(actor, ECS.world):
 			continue
+
 		var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
 		if route == null or not route.pending:
 			continue
+
 		var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 		if not intent.movement_active or intent.move_uses_entity or not intent.navigation_enabled:
 			route.pending = false
@@ -157,6 +160,7 @@ static func _shade_path(start: Vector3, goal: Vector3, map: RID) -> PackedVector
 	for key: String in definition.shade_route:
 		if definition.place_for(StringName(key)) == null:
 			return PackedVector3Array()
+
 		passage.append(DistrictPopulationService.position_for(StringName(key)))
 
 	# Pick one entry and exit among the authored points, without searching alternative routes.
@@ -164,9 +168,11 @@ static func _shade_path(start: Vector3, goal: Vector3, map: RID) -> PackedVector
 	var exit_index: int = _closest_index(passage, goal)
 	if entry == exit_index:
 		return _nav_path(map, start, goal)
+
 	var connector: PackedVector3Array = _nav_path(map, start, passage[entry])
 	if connector.is_empty():
 		return connector
+
 	var result: PackedVector3Array = PackedVector3Array()
 	_append_path(result, connector)
 	var step: int = 1 if exit_index > entry else -1
@@ -175,11 +181,13 @@ static func _shade_path(start: Vector3, goal: Vector3, map: RID) -> PackedVector
 		var segment: PackedVector3Array = _nav_path(map, passage[index], passage[index + step])
 		if segment.is_empty():
 			return PackedVector3Array()
+
 		_append_path(result, segment)
 		index += step
 	var tail: PackedVector3Array = _nav_path(map, passage[exit_index], goal)
 	if tail.is_empty():
 		return PackedVector3Array()
+
 	_append_path(result, tail)
 	return result
 
@@ -204,6 +212,7 @@ static func _local_detour(context: NpcRouteContext, path: PackedVector3Array, ma
 		forward.y = 0.0
 		if forward.is_zero_approx():
 			continue
+
 		forward = forward.normalized()
 		var side: Vector3 = forward.cross(Vector3.UP)
 		for hazard: NpcRouteContext.Hazard in context.hazards:
@@ -221,6 +230,7 @@ static func _local_detour(context: NpcRouteContext, path: PackedVector3Array, ma
 			var last: PackedVector3Array = _nav_path(map, after, goal)
 			if first.is_empty() or middle.is_empty() or last.is_empty():
 				return PackedVector3Array()
+
 			var result: PackedVector3Array = path.slice(0, index)
 			_append_path(result, first)
 			_append_path(result, middle)
@@ -273,6 +283,7 @@ static func _risk_budget(actor: Entity, person: NpcRecord) -> float:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	if awareness != null and awareness.hazard_distress:
 		return health.current
+
 	var budget: float = health.current - health.value * person.profile.pursuit_health_reserve if CombatService.target_for(actor) != null else health.value * district.definition.ordinary_route_risk
 	return maxf(0.0, budget)
 
@@ -295,6 +306,7 @@ static func _hazards(actor: Entity) -> Array[NpcRouteContext.Hazard]:
 		var spatial: Node3D = effect as Node as Node3D
 		if profile == null or spatial == null or effect.has_component(C_NoDamage):
 			continue
+
 		var rate: float = DamageResistanceRules.effective(actor, profile.damage_per_tick / profile.tick_seconds, profile.damage_type)
 		if rate <= 0.0:
 			continue
@@ -309,6 +321,7 @@ static func _hazards(actor: Entity) -> Array[NpcRouteContext.Hazard]:
 static func _damage(path: PackedVector3Array, hazards: Array[NpcRouteContext.Hazard], speed: float) -> float:
 	if path.is_empty():
 		return INF
+
 	var damage: float = 0.0
 	for hazard: NpcRouteContext.Hazard in hazards:
 		for index: int in range(1, path.size()):
@@ -323,10 +336,12 @@ static func _inside_length(start: Vector3, end: Vector3, center: Vector3, radius
 	var length: float = direction.length()
 	if length < 0.001:
 		return 0.0
+
 	var projection: float = -offset.dot(direction / length)
 	var perpendicular: float = offset.length_squared() - projection * projection
 	if perpendicular >= radius * radius:
 		return 0.0
+
 	var half: float = sqrt(maxf(0.0, radius * radius - perpendicular))
 	return maxf(0.0, minf(length, projection + half) - maxf(0.0, projection - half))
 

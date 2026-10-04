@@ -19,6 +19,7 @@ static func choose(actor: E_DistrictNpc, person: NpcRecord) -> DEF_DistrictPlace
 		var light_rule: DEF_NpcTrait = person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
 		if light_rule != null and NpcLightingService.exposure_at(destination(place) + Vector3.UP, [actor.get_rid()]) > light_rule.light_threshold:
 			continue
+
 		candidates.append(place)
 
 	return candidates[abs(hash(person.npc_id) + person.activity_sequence) % candidates.size()] if not candidates.is_empty() else null
@@ -45,9 +46,11 @@ static func observe(actor: E_DistrictNpc, person: NpcRecord, player_visible: boo
 		for record: NpcRecord in DistrictPopulationService.current().people:
 			if record.death_day != 0 or record.placement != NpcRecord.Placement.STREET:
 				continue
+
 			var candidate: E_DistrictNpc = DistrictPopulationService.body_for(record.npc_id)
 			if candidate == null or not NpcPerceptionService.can_see(actor, candidate, person.profile):
 				continue
+
 			var distance: float = actor.global_position.distance_squared_to(candidate.global_position)
 			if distance < nearest:
 				nearest = distance

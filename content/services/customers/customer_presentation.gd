@@ -14,6 +14,7 @@ static func request_text(visit: CustomerVisit) -> String:
 	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
 	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null and not visit.riddle_solved:
 		return "%s · Номер узнаешь, когда ответишь на мою загадку." % customer_name(visit)
+
 	var number: int = registered_number(visit)
 	if number >= 0:
 		return "%s\nМой заказ №%03d. Передайте коробку мне или положите её на стойку выдачи." % [customer_name(visit), number]
@@ -41,6 +42,7 @@ static func uses_quick_order(definition: DEF_Customer) -> bool:
 static func registered_number(visit: CustomerVisit) -> int:
 	if visit == null:
 		return -1
+
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	if ledger != null:
 		for record: PackageRegistrationRecord in ledger.records:
@@ -53,6 +55,7 @@ static func registered_number(visit: CustomerVisit) -> int:
 static func uses_wall_order(definition: DEF_Customer) -> bool:
 	if definition == null or definition.challenge == null:
 		return false
+
 	var condition: DEF_GazeChallengeCondition = definition.challenge.condition as DEF_GazeChallengeCondition
 	return condition != null and not condition.required_attention and definition.challenge.trigger == DEF_Challenge.Trigger.ON_ARRIVAL
 

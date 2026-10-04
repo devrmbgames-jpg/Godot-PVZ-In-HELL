@@ -57,11 +57,11 @@ Avoid GUT/runtime tests unless a change accidentally goes beyond formatting and 
 
 ### Current
 
-Started after optimization commit db5f6f5d and the validated Windows QA build. First batch: dense NPC and customer services, with guard/setup/mutation phases separated by blank lines. Continue through runtime services, engine glue and scheduled behavior, then the significant test/tool scripts. Exclude addons. R25 documentation follows this formatting pass.
+Started after optimization commit db5f6f5d and the validated Windows QA build. First batch completed: 28 NPC/customer/dialogue/AI scripts reviewed, with input guards and subsequent lookup/action phases separated. Consecutive related guards remain together. Next: other runtime services, engine glue and scheduled behavior, then significant test/tool scripts. Addons remain excluded. R25 documentation follows this formatting pass.
 
 ### Validation
 
-Pending first batch. Each batch must retain the exact nonblank source lines, pass whitespace/diff review and load through Godot's parser. No gameplay/GUT/export reruns are required for formatting-only edits.
+First batch: exact nonblank-line comparison and comment/string-aware executable-source comparison PASS via utils/verify_gdscript_nonbehavior_changes.py --mode spacing. Godot fresh-process parser: 28 scripts, zero failures and no script warnings/errors (.bin/readability-npc-customer-parser.log). Diff review retains clustered guards; whitespace PASS. No gameplay/GUT/export reruns were performed for formatting-only edits.
 
 ### Owner QA / blockers
 

@@ -10,6 +10,7 @@ const PHASE_NAMES: Array[String] = ["Подходит", "Приветствие"
 static func summary() -> String:
 	if not is_instance_valid(ECS.world):
 		return ""
+
 	var count: int = ECS.world.query.with_all([C_CustomerAgent]).execute().size()
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	var interval: float = flow.arrival_cooldown_seconds if flow != null else 0.0
@@ -21,10 +22,12 @@ static func summary() -> String:
 static func text_for(customer: E_Customer) -> String:
 	if not DebugHudService.is_enabled() or not EntityAvailability.contains(customer, ECS.world):
 		return ""
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id) if agent != null else null
 	if visit == null or visit.definition == null:
 		return ""
+
 	var number: int = CustomerPresentation.registered_number(visit)
 	var lines: Array[String] = ["%s · %s" % [CustomerPresentation.customer_name(visit), "№%03d" % number if number >= 0 else "без номера"]]
 	var duration: float = _phase_duration(agent, visit.definition)
@@ -35,6 +38,7 @@ static func text_for(customer: E_Customer) -> String:
 		lines.append("Без диалога · номер %s" % ["сообщён" if agent.order_announced else "ждёт регистрации"])
 	elif visit.definition.introduction == DEF_Customer.Introduction.FIRST_APPROACH_DIALOGUE and not agent.dialogue_started and agent.phase in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]:
 		lines.append("Автодиалог: ≤%.1f м · видимость · свободный ввод" % visit.definition.auto_dialogue_distance)
+
 	var health: C_Health = customer.get_component(C_Health) as C_Health
 	if health != null:
 		var fraction: float = clampf(health.get_hp_current() / maxf(health.get_hp_max(), MINIMUM_HEALTH_MAXIMUM), 0.0, 1.0)

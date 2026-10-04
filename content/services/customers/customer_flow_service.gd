@@ -6,6 +6,7 @@ class_name CustomerFlowService
 static func current() -> C_CustomerFlow:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	var owner: Entity = ECS.world.query.with_all([C_CustomerFlow]).execute_one()
 	return owner.get_component(C_CustomerFlow) as C_CustomerFlow if owner != null else null
 
@@ -35,9 +36,11 @@ static func parcel_for(package_id: String) -> Entity:
 static func customer_for(visit_id: StringName) -> E_Customer:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	for customer: Entity in ECS.world.entities:
 		if not is_instance_valid(customer):
 			continue
+
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 		if agent != null and agent.visit_id == visit_id:
 			return customer as E_Customer
@@ -48,6 +51,7 @@ static func waiting_customer() -> E_Customer:
 	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		if NpcHomeDeliveryService.meeting_for(customer) != null:
 			continue
+
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 		if agent.phase == C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
 			return customer as E_Customer
@@ -58,15 +62,18 @@ static func plan_day(flow: C_CustomerFlow, day: int, payment: int) -> void:
 	var schedule: DEF_CustomerSchedule = flow.schedule
 	if schedule == null or schedule.supply == null:
 		return
+
 	while flow.planned_through_day < day:
 		flow.planned_through_day += 1
 		var supply_day: int = flow.planned_through_day
 		for event: DEF_CustomerEvent in schedule.events:
 			if event.arrival_delay_days < 0 or event.customer == null:
 				continue
+
 			for definition: DEF_Package in schedule.supply.packages:
 				if definition.key != event.package_key:
 					continue
+
 				var package_id: String = "%s:%d:%s" % [schedule.supply.key, supply_day, definition.key]
 				var visit_id: StringName = StringName("visit/" + package_id)
 				var already_planned: bool = false
@@ -75,10 +82,12 @@ static func plan_day(flow: C_CustomerFlow, day: int, payment: int) -> void:
 						already_planned = true
 				if already_planned:
 					continue
+
 				var district: C_District = DistrictPopulationService.current()
 				var recipient: NpcRecord = DistrictPopulationService.recipient_for(definition.recipient_id) if district != null else null
 				if district != null and recipient == null:
 					continue
+
 				var visit: CustomerVisit = CustomerVisit.new()
 				visit.visit_id = visit_id
 				visit.package_id = package_id
@@ -120,6 +129,7 @@ static func arrival_allowed(visit: CustomerVisit) -> bool:
 		return false
 	if not visit.requires_registered_package:
 		return true
+
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	return ledger != null and _has_active_registration_record(ledger, visit.package_id)
 
@@ -127,12 +137,15 @@ static func arrival_allowed(visit: CustomerVisit) -> bool:
 static func sync_package_history(flow: C_CustomerFlow) -> void:
 	if flow == null:
 		return
+
 	for visit: CustomerVisit in flow.visits:
 		if not visit.package_history_id.is_empty():
 			continue
+
 		var parcel: Entity = parcel_for(visit.package_id)
 		if parcel == null:
 			continue
+
 		var identity: C_Package = parcel.get_component(C_Package) as C_Package
 		if identity != null:
 			visit.package_history_id = identity.history_id
@@ -230,6 +243,7 @@ static func spawn_next_due(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 	for customer: Entity in ECS.world.entities:
 		if is_instance_valid(customer) and customer.has_component(C_CustomerAgent):
 			return false
+
 	for visit: CustomerVisit in flow.visits:
 		if (
 			not visit.started
@@ -251,6 +265,7 @@ static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void
 		visit.started = true
 		finish(visit, day)
 		return
+
 	var node: Node = scene.instantiate()
 	var customer: E_Customer = node as E_Customer
 	if customer == null:
@@ -258,6 +273,7 @@ static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void
 		visit.started = true
 		finish(visit, day)
 		return
+
 	station.get_parent().add_child(customer)
 	(customer as Node as Node3D).global_position = station.entry_position()
 	ECS.world.add_entity(customer, null, false)
@@ -266,6 +282,7 @@ static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 	if challenge != null:
 		challenge.definition = visit.definition.challenge
+
 	var motion: C_Motion = customer.get_component(C_Motion) as C_Motion
 	if motion != null:
 		motion.max_speed = maxf(0.0, visit.definition.move_speed)
@@ -276,6 +293,7 @@ static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void
 	visit.last_visit_day = day
 	bind_parcel(customer, visit)
 	customer.show_message(visit.definition.display_name)
+
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	if ChallengeService.begin_on_arrival(customer, player):
 		customer.show_message(challenge.definition.rule_text)
@@ -287,15 +305,18 @@ static func bind_parcel(customer: Entity, visit: CustomerVisit) -> void:
 	var parcel: Entity = parcel_for(visit.package_id)
 	if parcel == null:
 		return
+
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
 	if identity != null and visit.package_history_id.is_empty():
 		visit.package_history_id = identity.history_id
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	if state == null or state.registration >= C_PackageState.Registration.DELIVERED:
 		return
+
 	for relation: Relationship in parcel.relationships:
 		if relation.relation is R_AssignedTo:
 			return
+
 	var assignment: R_AssignedTo = R_AssignedTo.new()
 	assignment.visit_id = visit.visit_id
 	parcel.add_relationship(Relationship.new(assignment, customer))
@@ -321,6 +342,7 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 		CustomerInspectionService.end(customer)
 		_remove_appearance(customer, visit)
 		return
+
 	var death: C_Death = customer.get_component(C_Death) as C_Death
 	if death != null:
 		CustomerInspectionService.end(customer)
@@ -333,6 +355,7 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 		finish(visit, cycle.day_index)
 		_remove_appearance(customer, visit)
 		return
+
 	bind_parcel(customer, visit)
 	agent.elapsed += delta
 	CustomerGreetingService.tick(customer, visit)
@@ -388,6 +411,7 @@ static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void
 						return
 					if challenge.pending_result != null and not challenge.consequences_applied:
 						return
+
 				_transition(agent, C_CustomerAgent.Phase.FINISHED)
 				finish(visit, cycle.day_index)
 				_remove_appearance(customer, visit)
@@ -411,6 +435,7 @@ static func greet(customer: E_Customer) -> void:
 		return
 	if agent.phase != C_CustomerAgent.Phase.WAITING and agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
 		return
+
 	_transition(agent, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
 	var visit: CustomerVisit = find_visit(agent.visit_id)
 	if CustomerPresentation.uses_wall_order(visit.definition):
@@ -427,6 +452,7 @@ static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck
 	var customer: E_Customer = waiting_customer()
 	if customer == null:
 		return PackageDeliveryCheck.Result.MISSING
+
 	var parcels: Array[Entity] = station.parcels()
 	if parcels.size() != 1:
 		var result: PackageDeliveryCheck.Result = (
@@ -436,6 +462,7 @@ static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck
 		)
 		station.show_message(CustomerPresentation.check_text(result))
 		return result
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = find_visit(agent.visit_id)
 	var result: PackageDeliveryCheck.Result = _resolve_delivery(
@@ -447,6 +474,7 @@ static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck
 	if result != PackageDeliveryCheck.Result.READY:
 		station.show_message(CustomerPresentation.check_text(result))
 		return result
+
 	station.show_message("Выдача обработана. Отметьте исход в терминале.")
 	return result
 
@@ -457,9 +485,11 @@ static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck
 static func direct_handoff_package(actor: Entity, customer: E_Customer, allow_greeting: bool = false) -> Entity:
 	if not is_instance_valid(actor) or not is_instance_valid(customer):
 		return null
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or (agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE and not (allow_greeting and agent.phase == C_CustomerAgent.Phase.WAITING)):
 		return null
+
 	var visit: CustomerVisit = find_visit(agent.visit_id)
 	if (
 		visit == null
@@ -477,6 +507,7 @@ static func direct_handoff_package(actor: Entity, customer: E_Customer, allow_gr
 		var held: Entity = GrabService.held_in_slot(actor, slot_index)
 		if held == null:
 			continue
+
 		var identity: C_Package = held.get_component(C_Package) as C_Package
 		if identity == null:
 			continue
@@ -491,12 +522,14 @@ static func direct_handoff_package(actor: Entity, customer: E_Customer, allow_gr
 static func try_automatic_handoff(customer: E_Customer, visit: CustomerVisit) -> bool:
 	if visit == null or not is_instance_valid(ECS.world):
 		return false
+
 	var actor: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	var parcel: Entity = direct_handoff_package(actor, customer, true)
 	if not GrabService.entity_available(parcel):
 		return false
 	if not CustomerHandoffService.can_receive(actor, customer, visit, parcel, assigned(parcel, customer, visit)):
 		return false
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent.phase == C_CustomerAgent.Phase.WAITING:
 		greet(customer)
@@ -557,10 +590,12 @@ static func complete_inspection(customer: E_Customer, visit: CustomerVisit) -> v
 	if parcel == null:
 		_leave(customer, visit)
 		return
+
 	var check_result: PackageDeliveryCheck = CustomerOutcomeService.check(visit, parcel.get_component(C_Package) as C_Package, parcel.get_component(C_PackageState) as C_PackageState, assigned(parcel, customer, visit), false)
 	if check_result.result != PackageDeliveryCheck.Result.READY:
 		_leave(customer, visit)
 		return
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var declined: bool = agent.inspection_force_refusal or CustomerInspectionService.roll(visit, "keep") >= visit.definition.inspection_keep_probability
 	_complete_delivery(customer, visit, parcel, check_result, true, declined, true)
@@ -598,6 +633,7 @@ static func _place_refused_parcel(customer: E_Customer, visit: CustomerVisit, pa
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	if body == null or visit.definition == null:
 		return
+
 	var npc: Node3D = customer as Node as Node3D
 	body.global_position = npc.global_transform * visit.definition.refused_parcel_offset
 	body.linear_velocity = Vector3.ZERO
@@ -618,6 +654,7 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 		visit.next_followup_day = 0
 		visit.followup_committed = false
 	_settle_visit(visit, WalletService.current(), cycle.day_index)
+
 	var customer: E_Customer = customer_for(visit_id)
 	if customer != null and visit.aggressive:
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -643,6 +680,7 @@ static func defer_until_next_day(visit_id: StringName) -> bool:
 		or visit.followup_count >= visit.definition.max_followup_visits
 	):
 		return false
+
 	var customer: E_Customer = customer_for(visit_id)
 	if customer == null:
 		return false
@@ -660,6 +698,7 @@ static func deny(visit_id: StringName) -> bool:
 		return false
 	if not CustomerOutcomeService.commit_player_denial(visit):
 		return false
+
 	var customer: E_Customer = customer_for(visit_id)
 	if customer != null:
 		if customer is E_DistrictNpc:
@@ -676,9 +715,11 @@ static func deny(visit_id: StringName) -> bool:
 static func voluntary_refuse(customer: E_Customer) -> bool:
 	if not is_instance_valid(customer):
 		return false
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null:
 		return false
+
 	var visit: CustomerVisit = find_visit(agent.visit_id)
 	if (
 		visit == null
@@ -690,6 +731,7 @@ static func voluntary_refuse(customer: E_Customer) -> bool:
 		return false
 	if agent.phase != C_CustomerAgent.Phase.DIALOGUE and agent.phase != C_CustomerAgent.Phase.RECEIVING:
 		return false
+
 	_leave(customer, visit)
 	return true
 
@@ -698,9 +740,11 @@ static func voluntary_refuse(customer: E_Customer) -> bool:
 static func enter_aggressive(customer: E_Customer) -> bool:
 	if not is_instance_valid(customer):
 		return false
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null:
 		return false
+
 	var visit: CustomerVisit = find_visit(agent.visit_id)
 	if (
 		visit == null
@@ -712,6 +756,7 @@ static func enter_aggressive(customer: E_Customer) -> bool:
 		return false
 	if agent.phase == C_CustomerAgent.Phase.AGGRESSIVE:
 		return true
+
 	_transition(agent, C_CustomerAgent.Phase.AGGRESSIVE)
 	if customer is E_DistrictNpc:
 		NpcServiceRole.escalate(customer as E_DistrictNpc)
@@ -733,6 +778,7 @@ static func _depart_parcel(parcel: Entity, departure: C_PackageState.Registratio
 static func finish(visit: CustomerVisit, day: int) -> void:
 	if visit.finished:
 		return
+
 	var flow: C_CustomerFlow = current()
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if (
@@ -748,6 +794,7 @@ static func finish(visit: CustomerVisit, day: int) -> void:
 		visit.next_followup_day = 0
 		visit.followup_committed = false
 		return
+
 	schedule_followup(visit, day)
 
 
@@ -764,6 +811,7 @@ static func schedule_followup(visit: CustomerVisit, day: int) -> bool:
 		or visit.followup_count >= visit.definition.max_followup_visits
 	):
 		return false
+
 	var probability: float = clampf(
 		visit.definition.followup_probability + visit.followup_probability_delta,
 		0.0,
@@ -775,6 +823,7 @@ static func schedule_followup(visit: CustomerVisit, day: int) -> bool:
 	).hash()
 	if random.randf() >= probability:
 		return false
+
 	visit.followup_count += 1
 	visit.next_followup_day = day + maxi(1, visit.definition.followup_delay_days)
 	visit.followup_committed = true
@@ -784,6 +833,7 @@ static func schedule_followup(visit: CustomerVisit, day: int) -> bool:
 static func reactivate_due_followups(flow: C_CustomerFlow, day: int) -> int:
 	if flow == null:
 		return 0
+
 	var reactivated: int = 0
 	for visit: CustomerVisit in flow.visits:
 		if (
@@ -797,6 +847,7 @@ static func reactivate_due_followups(flow: C_CustomerFlow, day: int) -> int:
 			continue
 		if visit.requires_registered_package and not arrival_allowed(visit):
 			continue
+
 		visit.started = false
 		visit.finished = false
 		visit.finished_day = 0
@@ -835,6 +886,7 @@ static func _settle_visit(visit: CustomerVisit, wallet: C_Wallet, day: int) -> v
 				return
 			if challenge.pending_result != null and not challenge.consequences_applied:
 				return
+
 	CustomerOutcomeService.settle(visit, wallet, day)
 
 
@@ -843,6 +895,7 @@ static func _watch_player(customer: E_Customer) -> void:
 	if awareness != null and not awareness.player_visible:
 		NpcIntentService.look_along_movement(customer)
 		return
+
 	for player: Entity in ECS.world.query.with_all([C_PlayerInputController]).execute():
 		var character: E_PhysicalCharacter = player as E_PhysicalCharacter
 		var offset: Vector3 = Vector3.ZERO
@@ -851,6 +904,7 @@ static func _watch_player(customer: E_Customer) -> void:
 			offset = character.head_axis_x.global_position - player_body.global_position
 		NpcIntentService.watch(customer, player, offset)
 		return
+
 	NpcIntentService.look_along_movement(customer)
 
 
@@ -863,8 +917,10 @@ static func _transition(agent: C_CustomerAgent, phase: C_CustomerAgent.Phase) ->
 static func enter_service_phase(customer: E_Customer, phase: C_CustomerAgent.Phase) -> bool:
 	if phase != C_CustomerAgent.Phase.DIALOGUE and phase != C_CustomerAgent.Phase.OPTIONAL_FITTING and phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
 		return false
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE and agent.phase != C_CustomerAgent.Phase.DIALOGUE and agent.phase != C_CustomerAgent.Phase.OPTIONAL_FITTING:
 		return false
+
 	_transition(agent, phase)
 	return true

@@ -37,6 +37,7 @@ static func person_for(npc_id: StringName) -> NpcRecord:
 static func body_for(npc_id: StringName) -> E_DistrictNpc:
 	if not is_instance_valid(ECS.world):
 		return null
+
 	var district: C_District = current()
 	var reference: WeakRef = district.body_references.get(npc_id) if district != null else null
 	var cached: E_DistrictNpc = reference.get_ref() as E_DistrictNpc if reference != null else null
@@ -48,6 +49,7 @@ static func body_for(npc_id: StringName) -> E_DistrictNpc:
 	for entity: Entity in ECS.world.entities:
 		if not is_instance_valid(entity):
 			continue
+
 		var identity: C_NpcIdentity = entity.get_component(C_NpcIdentity) as C_NpcIdentity
 		if identity != null and identity.npc_id == npc_id:
 			if district != null:
@@ -102,6 +104,7 @@ static func _reset_brain(body: E_DistrictNpc) -> void:
 	for script: Script in [C_NpcAwareness, C_NpcDecision, C_NpcRoute]:
 		if body.has_component(script):
 			body.remove_component(script)
+
 	var runner: BTPlayer = body.get_node_or_null("Brain") as BTPlayer
 	if runner != null:
 		runner.free()
@@ -111,6 +114,7 @@ static func restore_participation() -> void:
 	var district: C_District = current()
 	if district == null:
 		return
+
 	district.noises.clear()
 	district.pending_routes.clear()
 	district.lighting_context = null
@@ -118,6 +122,7 @@ static func restore_participation() -> void:
 		var body: E_DistrictNpc = body_for(person.npc_id)
 		if body == null:
 			continue
+
 		_reset_brain(body)
 		_install_roles(body, person)
 		body.present_profile(person.profile)
@@ -135,6 +140,7 @@ static func initialize() -> void:
 	var district: C_District = current()
 	if district == null or district.definition == null or not district.people.is_empty():
 		return
+
 	_spawn_addresses()
 	var homes: Array[StringName] = []
 	var portals: Array[StringName] = []
@@ -143,10 +149,12 @@ static func initialize() -> void:
 			homes.append(place.key)
 		elif place.kind == DEF_DistrictPlace.Kind.PORTAL:
 			portals.append(place.key)
+
 	var home_index: int = 0
 	for profile: DEF_NpcProfile in district.definition.profiles:
 		if profile == null or not profile.valid_rules() or portals.is_empty():
 			continue
+
 		var person: NpcRecord = NpcRecord.new()
 		person.npc_id = StringName("npc/%d" % district.next_person)
 		district.next_person += 1
@@ -168,6 +176,7 @@ static func _spawn_addresses() -> void:
 	for place: DEF_DistrictPlace in district.definition.places:
 		if place.kind != DEF_DistrictPlace.Kind.HOME:
 			continue
+
 		var address: Entity = prefab.instantiate() as Entity
 		ECS.world.get_parent().add_child(address)
 		(address as Node as Node3D).global_position = position_for(place.key)
@@ -181,11 +190,13 @@ static func _spawn_body(person: NpcRecord) -> E_DistrictNpc:
 	var scene: PackedScene = load(person.profile.npc_scene_path) as PackedScene
 	if scene == null:
 		return null
+
 	var body: E_DistrictNpc = ECS.world.get_parent().get_node_or_null("Entityes/Trader") as E_DistrictNpc if person.profile.merchant else null
 	if body == null or body.has_component(C_NpcIdentity):
 		body = scene.instantiate() as E_DistrictNpc
 		if body == null:
 			return null
+
 		ECS.world.get_parent().add_child(body)
 		ECS.world.add_entity(body, null, false)
 	var identity: C_NpcIdentity = C_NpcIdentity.new()
@@ -196,6 +207,7 @@ static func _spawn_body(person: NpcRecord) -> E_DistrictNpc:
 	body.add_component(persistent)
 	if body.has_component(C_CustomerAgent):
 		body.remove_component(C_CustomerAgent)
+
 	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
 	motion.max_speed = person.profile.move_speed
 	body.present_profile(person.profile)
@@ -212,6 +224,7 @@ static func prepare_morning(morning_day: int) -> void:
 	var district: C_District = current()
 	if district == null or district.prepared_morning >= morning_day:
 		return
+
 	district.prepared_morning = morning_day
 	district.noises.clear()
 	district.pending_routes.clear()
@@ -220,9 +233,11 @@ static func prepare_morning(morning_day: int) -> void:
 	for person: NpcRecord in district.people:
 		if person.death_day != 0:
 			continue
+
 		var body: E_DistrictNpc = body_for(person.npc_id)
 		if body == null:
 			continue
+
 		_reset_brain(body)
 		NpcBrainService.install(body)
 		plan_phase(person, morning_day, C_DayCycle.Phase.MORNING, true)
@@ -231,9 +246,11 @@ static func prepare_morning(morning_day: int) -> void:
 static func plan_phase(person: NpcRecord, day_index: int, phase: C_DayCycle.Phase, synchronize: bool = false) -> void:
 	if person.death_day != 0 or (person.planned_day == day_index and person.planned_phase == phase and not synchronize):
 		return
+
 	var body: E_DistrictNpc = body_for(person.npc_id)
 	if body == null:
 		return
+
 	person.planned_day = day_index
 	person.planned_phase = phase
 	person.phase_complete = false
@@ -243,6 +260,7 @@ static func plan_phase(person: NpcRecord, day_index: int, phase: C_DayCycle.Phas
 		awareness.warned_rules.clear()
 		awareness.reacted_rules.clear()
 		awareness.rule_exposure.clear()
+
 	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(day_index, phase)
 	person.goal_id = person.home_id if location == DEF_NpcSchedule.Location.HOME else person.portal_id if location == DEF_NpcSchedule.Location.OUTSIDE else _activity_for(person) if person.profile.resident else person.exit_id
 	if synchronize:
@@ -281,6 +299,7 @@ static func complete_phase(person: NpcRecord, body: E_DistrictNpc) -> void:
 static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) -> void:
 	if person.death_day != 0:
 		return
+
 	NpcRemainsService.release(body)
 	NpcServiceRole.mark_dead(person, body, day_index)
 	person.death_day = day_index
@@ -300,6 +319,7 @@ static func _activity_for(person: NpcRecord) -> StringName:
 		for place: DEF_DistrictPlace in district.definition.places:
 			if place.kind == DEF_DistrictPlace.Kind.SHOP:
 				return place.key
+
 	var activities: Array[StringName] = []
 	for place: DEF_DistrictPlace in district.definition.places:
 		if place.kind == DEF_DistrictPlace.Kind.ACTIVITY:
@@ -340,6 +360,7 @@ static func _replace_person(district: C_District, deceased: NpcRecord) -> void:
 		if candidate.resident == deceased.profile.resident and candidate.merchant == deceased.profile.merchant and candidate.valid_rules() and (not candidate.initiates_conflicts or initiators < district.definition.maximum_conflict_initiators):
 			pool.append(candidate)
 	replacement.profile = pool[abs(hash(replacement.npc_id)) % pool.size()] if not pool.is_empty() else deceased.profile
+
 	var names: PackedStringArray = district.definition.replacement_names
 	replacement.display_name = "%s %d" % [names[(district.next_person - 2) % names.size()] if not names.is_empty() else replacement.profile.display_name, district.next_person - 1]
 	replacement.recipient_key = deceased.recipient_key
@@ -359,6 +380,7 @@ static func _install_roles(body: E_DistrictNpc, person: NpcRecord) -> void:
 		hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
 		hunger.value = current().definition.npc_start_hunger
 		body.add_component(hunger)
+
 	var actions: C_InteractionActionSet = body.get_component(C_InteractionActionSet) as C_InteractionActionSet
 	if actions == null:
 		actions = C_InteractionActionSet.new()

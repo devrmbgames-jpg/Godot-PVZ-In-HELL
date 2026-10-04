@@ -21,6 +21,7 @@ static func identity_for(actor: Entity) -> StringName:
 		return &""
 	if actor.has_component(C_PlayerInputController):
 		return &"player"
+
 	var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
 	return identity.npc_id if identity != null else &""
 
@@ -29,9 +30,11 @@ static func react(body: E_DistrictNpc, actor: Entity, kind: NpcMemory.Kind, inci
 	var person: NpcRecord = DistrictPopulationService.person_for(identity_for(body))
 	if person == null or person.death_day != 0:
 		return NpcMemory.Reaction.TALK
+
 	for memory: NpcMemory in person.memories:
 		if memory.incident_id == incident:
 			return memory.reaction
+
 	var reaction: NpcMemory.Reaction = _choose(person.profile, kind, hash(str(person.npc_id) + ":" + str(incident)))
 	remember(person, actor, body, kind, incident, reaction)
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
@@ -62,6 +65,7 @@ static func remember(person: NpcRecord, actor: Entity, victim: Entity, kind: Npc
 	for previous: NpcMemory in person.memories:
 		if previous.incident_id == incident:
 			return
+
 	var memory: NpcMemory = NpcMemory.new()
 	memory.incident_id = incident
 	memory.actor_id = identity_for(actor)
@@ -98,6 +102,7 @@ static func _choose(profile: DEF_NpcProfile, kind: NpcMemory.Kind, seed_value: i
 static func observe_damage(result: DamageResult) -> void:
 	if result == null or result.request == null or result.applied_amount <= 0.0 or result.request.operation != DamageRequest.Operation.DAMAGE:
 		return
+
 	var request: DamageRequest = result.request
 	var victim: Entity = request.target
 	var district: C_District = DistrictPopulationService.current()
@@ -105,6 +110,7 @@ static func observe_damage(result: DamageResult) -> void:
 		NpcPerceptionService.emit_noise(victim, result.world_pose.origin, district.definition.damage_noise_radius)
 	if request.combat_context == null:
 		return
+
 	var actor: Entity = request.instigator if is_instance_valid(request.instigator) else request.source
 	if district == null or not is_instance_valid(victim):
 		return
@@ -115,9 +121,11 @@ static func observe_damage(result: DamageResult) -> void:
 	for person: NpcRecord in district.people:
 		if person.death_day != 0 or person.placement != NpcRecord.Placement.STREET:
 			continue
+
 		var observer: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
 		if observer == null or observer.has_component(C_Death):
 			continue
+
 		var sees_actor: bool = NpcPerceptionService.can_see(observer, actor, person.profile)
 		if observer == victim:
 			if sees_actor:

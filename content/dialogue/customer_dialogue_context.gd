@@ -116,6 +116,7 @@ func satisfaction() -> int:
 		return 0
 	if visit.actual != CustomerVisit.Actual.NOT_RESOLVED:
 		return visit.satisfaction
+
 	var base: int = (
 		visit.definition.healthy_satisfaction
 		if visit.definition != null
@@ -176,6 +177,7 @@ func apply_response_tags(tags: PackedStringArray) -> bool:
 	var intent: CustomerDialogueIntent.Type = CustomerDialogueIntent.from_tags(tags)
 	if intent == CustomerDialogueIntent.Type.NONE:
 		return true
+
 	var visit: CustomerVisit = _visit()
 	var applied: bool = CustomerOutcomeService.apply_dialogue_intent(visit, intent)
 	if applied and _customer is E_DistrictNpc:
@@ -216,6 +218,7 @@ func answer_riddle_wrong() -> bool:
 		return false
 	if visit.riddle_wrong_answer_applied:
 		return true
+
 	visit.dialogue_satisfaction_delta -= maxi(
 		0,
 		visit.definition.riddle_wrong_satisfaction_penalty,
@@ -229,6 +232,7 @@ func answer_riddle_correct() -> bool:
 	var visit: CustomerVisit = _visit()
 	if visit == null:
 		return false
+
 	visit.riddle_solved = true
 	return true
 
@@ -325,6 +329,7 @@ func package_opened() -> bool:
 		return false
 	if visit.package_opened:
 		return true
+
 	var state: C_PackageState = _requested_package_state()
 	return state != null and state.opening == C_PackageState.Opening.OPENED
 
@@ -336,6 +341,7 @@ func package_damaged() -> bool:
 		return false
 	if visit.package_damaged:
 		return true
+
 	var state: C_PackageState = _requested_package_state()
 	return state != null and state.damage != C_PackageState.Damage.UNDAMAGED
 
@@ -351,6 +357,7 @@ func package_number() -> int:
 	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
 	if visit == null or ledger == null:
 		return 0
+
 	for record: PackageRegistrationRecord in ledger.records:
 		if record.package_id == visit.package_id and record.active:
 			return record.number
@@ -372,6 +379,7 @@ func challenge_result() -> StringName:
 func has_pending_challenge() -> bool:
 	if not is_valid():
 		return false
+
 	var state: C_Challenge = _customer.get_component(C_Challenge) as C_Challenge
 	return (
 		state != null and state.definition != null and state.definition.condition != null
@@ -384,9 +392,11 @@ func has_pending_challenge() -> bool:
 func challenge_rule() -> String:
 	if not is_instance_valid(_customer):
 		return ""
+
 	var state: C_Challenge = _customer.get_component(C_Challenge) as C_Challenge
 	if state == null or state.definition == null:
 		return ""
+
 	var text: String = state.definition.rule_text
 	if state.definition.timeout_seconds > 0.0:
 		text += " У вас %d секунд после разговора." % ceili(state.definition.timeout_seconds)
@@ -430,6 +440,7 @@ func _requested_package_state() -> C_PackageState:
 	var visit: CustomerVisit = _visit()
 	if visit == null:
 		return null
+
 	var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
 	return parcel.get_component(C_PackageState) as C_PackageState if parcel != null else null
 #endregion

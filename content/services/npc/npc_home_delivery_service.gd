@@ -11,15 +11,18 @@ static func offer_for(body: E_DistrictNpc) -> CustomerVisit:
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	if district == null or cycle == null or flow == null or person == null or not person.profile.resident or person.death_day != 0 or cycle.phase not in [C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		return null
+
 	var accepted: int = 0
 	for job: NpcHomeDelivery in district.home_deliveries:
 		if job.day_index == cycle.day_index:
 			accepted += 1
 	if accepted >= district.definition.maximum_home_deliveries:
 		return null
+
 	for visit: CustomerVisit in flow.visits:
 		if visit.customer_id != person.npc_id or visit.customer_dead or visit.actual != CustomerVisit.Actual.NOT_RESOLVED or visit.declaration != CustomerVisit.Declaration.NONE or visit.settlement_committed or visit.complaint != null or not CustomerFlowService.arrival_allowed(visit) or CustomerFlowService.parcel_for(visit.package_id) == null:
 			continue
+
 		var already_promised: bool = false
 		for job: NpcHomeDelivery in district.home_deliveries:
 			if job.visit_id == visit.visit_id and job.day_index == cycle.day_index:
@@ -36,6 +39,7 @@ static func accept(body: E_DistrictNpc) -> bool:
 	var visit: CustomerVisit = offer_for(body)
 	if visit == null:
 		return false
+
 	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var job: NpcHomeDelivery = NpcHomeDelivery.new()
@@ -62,6 +66,7 @@ static func job_for_address(address_id: StringName) -> NpcHomeDelivery:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if district == null or cycle == null or cycle.phase != C_DayCycle.Phase.EVENING:
 		return null
+
 	for job: NpcHomeDelivery in district.home_deliveries:
 		if job.address_id == address_id and job.day_index == cycle.day_index and job.status == NpcHomeDelivery.Status.ACCEPTED:
 			return job
@@ -71,6 +76,7 @@ static func job_for_address(address_id: StringName) -> NpcHomeDelivery:
 static func meeting_for(body: Entity) -> NpcHomeDelivery:
 	if not is_instance_valid(body):
 		return null
+
 	for link: Relationship in body.relationships:
 		if link.relation is R_NpcHomeMeeting and EntityAvailability.contains(link.target, ECS.world):
 			for job: NpcHomeDelivery in DistrictPopulationService.current().home_deliveries:
@@ -93,6 +99,7 @@ static func knock(player: Entity, door: Entity) -> bool:
 	var job: NpcHomeDelivery = job_for_address(address.address_id) if address != null else null
 	if job == null:
 		return false
+
 	NpcPerceptionService.action_noise(door, DistrictPopulationService.current().definition.interaction_noise_radius)
 	var person: NpcRecord = DistrictPopulationService.person_for(job.npc_id)
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(job.npc_id)
@@ -107,6 +114,7 @@ static func knock(player: Entity, door: Entity) -> bool:
 	if person.placement != NpcRecord.Placement.STREET:
 		body.place_at(DistrictPopulationService.position_for(person.home_id))
 		DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
+
 	var service: C_CustomerAgent = C_CustomerAgent.new()
 	service.visit_id = visit.visit_id
 	service.phase = C_CustomerAgent.Phase.APPROACHING
@@ -129,11 +137,13 @@ static func step(body: E_DistrictNpc, job: NpcHomeDelivery, delta: float) -> voi
 	var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
 	if agent == null or visit == null:
 		return
+
 	NpcIntentArbiter.acquire(body, C_NpcDecision.Owner.SERVICE, "Доставка у двери")
 	agent.elapsed += delta
 	if visit.actual in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
 		complete(job)
 		return
+
 	match agent.phase:
 		C_CustomerAgent.Phase.APPROACHING:
 			var intent: C_NpcIntent = body.get_component(C_NpcIntent) as C_NpcIntent
@@ -152,6 +162,7 @@ static func step(body: E_DistrictNpc, job: NpcHomeDelivery, delta: float) -> voi
 static func complete(job: NpcHomeDelivery) -> bool:
 	if job.status != NpcHomeDelivery.Status.ACCEPTED:
 		return job.status == NpcHomeDelivery.Status.DELIVERED
+
 	var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if visit == null or cycle == null or visit.actual not in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
@@ -168,6 +179,7 @@ static func complete(job: NpcHomeDelivery) -> bool:
 		var result: WalletService.Status = WalletService.submit(operation)
 		if result not in [WalletService.Status.COMMITTED, WalletService.Status.DUPLICATE]:
 			return false
+
 		job.bonus_committed = true
 		job.status = NpcHomeDelivery.Status.DELIVERED
 	else:
@@ -191,13 +203,16 @@ static func finish_evening(day_index: int) -> void:
 	var district: C_District = DistrictPopulationService.current()
 	if district == null:
 		return
+
 	for job: NpcHomeDelivery in district.home_deliveries:
 		if job.day_index != day_index or job.status != NpcHomeDelivery.Status.ACCEPTED:
 			continue
+
 		var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
 		if visit != null and visit.actual in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
 			complete(job)
 			continue
+
 		job.status = NpcHomeDelivery.Status.FAILED
 		var person: NpcRecord = DistrictPopulationService.person_for(job.npc_id)
 		var body: E_DistrictNpc = DistrictPopulationService.body_for(job.npc_id)
@@ -223,6 +238,7 @@ static func status_text() -> String:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if district == null or cycle == null:
 		return ""
+
 	var lines: PackedStringArray = []
 	for job: NpcHomeDelivery in district.home_deliveries:
 		if job.day_index == cycle.day_index:

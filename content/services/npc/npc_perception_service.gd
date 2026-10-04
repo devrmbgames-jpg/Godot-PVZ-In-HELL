@@ -15,10 +15,12 @@ static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile, a
 	var target_available: bool = is_instance_valid(target) and is_instance_valid(ECS.world) and ECS.world.entities.has(target) if allow_dead_target else GrabService.holder_available(target)
 	if observer == target or not target_available or not GrabService.holder_available(observer):
 		return false
+
 	var observer_body: PhysicsBody3D = observer as Node as PhysicsBody3D
 	var target_body: PhysicsBody3D = target as Node as PhysicsBody3D
 	if observer_body == null or target_body == null or not observer_body.is_inside_tree() or not target_body.is_inside_tree():
 		return false
+
 	var eye: Vector3 = _head_point(observer, observer_body)
 	var target_head: Vector3 = _head_point(target, target_body)
 	var head_height: float = maxf(LOWER_BODY_HEIGHT, target_head.y - target_body.global_position.y)
@@ -29,6 +31,7 @@ static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile, a
 	# Reject distant and rear-facing candidates before checking light zones or casting sight rays.
 	if distance > maxf(profile.near_recognition_range, profile.vision_range):
 		return false
+
 	var head: Node3D = observer_body.get_node_or_null("HeadY") as Node3D
 	var forward: Vector3 = -(head.global_basis.z if head != null else observer_body.global_basis.z).normalized()
 	if distance > profile.near_recognition_range and forward.dot(target_offset.normalized()) < cos(deg_to_rad(profile.vision_angle * 0.5)):
@@ -68,6 +71,7 @@ static func can_see_point(observer: E_DistrictNpc, point: Vector3, profile: DEF_
 	var distance: float = offset.length()
 	if distance > maxf(profile.near_recognition_range, profile.vision_range):
 		return false
+
 	var head: Node3D = observer.get_node_or_null("HeadY") as Node3D
 	var forward: Vector3 = -(head.global_basis.z if head != null else observer.global_basis.z).normalized()
 	if distance > profile.near_recognition_range and forward.dot(offset.normalized()) < cos(deg_to_rad(profile.vision_angle * 0.5)):
@@ -101,6 +105,7 @@ static func sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta
 	elif opponent != null:
 		awareness.search_elapsed += delta
 	awareness.heard_remaining = maxf(0.0, awareness.heard_remaining - delta)
+
 	var district: C_District = DistrictPopulationService.current()
 	for noise: NpcNoise in district.noises:
 		if noise.sequence > awareness.last_noise_sequence:
@@ -120,6 +125,7 @@ static func emit_noise(source: Entity, world_position: Vector3, radius: float) -
 	var district: C_District = DistrictPopulationService.current()
 	if district == null or not is_finite(radius) or radius <= 0.0:
 		return
+
 	var noise: NpcNoise = NpcNoise.new()
 	noise.sequence = district.next_noise_sequence
 	district.next_noise_sequence += 1
@@ -133,9 +139,11 @@ static func emit_noise(source: Entity, world_position: Vector3, radius: float) -
 static func hear(listener: Entity, profile: DEF_NpcProfile, noise: NpcNoise) -> bool:
 	if noise.source == listener:
 		return false
+
 	var body: PhysicsBody3D = listener as Node as PhysicsBody3D
 	if body == null or not body.is_inside_tree():
 		return false
+
 	var listener_position: Vector3 = body.global_position + Vector3.UP * EYE_HEIGHT
 	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(noise.position, listener_position, SIGHT_MASK)
 	query.exclude = [body.get_rid()]
@@ -147,6 +155,7 @@ static func hear(listener: Entity, profile: DEF_NpcProfile, noise: NpcNoise) -> 
 	var radius: float = minf(profile.hearing_range, noise.radius) * (district.definition.hearing_wall_attenuation if blocked else 1.0)
 	if listener_position.distance_to(noise.position) > radius:
 		return false
+
 	var awareness: C_NpcAwareness = listener.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.heard_position = noise.position
 	awareness.heard_remaining = profile.search_seconds
@@ -157,9 +166,11 @@ static func footsteps(actor: Entity, delta: float) -> void:
 	var body: RigidBody3D = actor as Node as RigidBody3D
 	if body == null or not actor.enabled:
 		return
+
 	var speed: float = Vector2(body.linear_velocity.x, body.linear_velocity.z).length()
 	if speed < 0.2:
 		return
+
 	var district: C_District = DistrictPopulationService.current()
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	var elapsed: float = awareness.footstep_elapsed + delta if awareness != null else district.player_step_elapsed + delta
@@ -169,6 +180,7 @@ static func footsteps(actor: Entity, delta: float) -> void:
 		return
 	if awareness != null: awareness.footstep_elapsed = 0.0
 	else: district.player_step_elapsed = 0.0
+
 	var crouch: C_Crouch = actor.get_component(C_Crouch) as C_Crouch
 	var radius: float = district.definition.running_noise_radius if speed > 3.0 else district.definition.walking_noise_radius
 	if crouch != null and crouch.active:

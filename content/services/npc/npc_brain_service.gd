@@ -19,6 +19,7 @@ static func install(actor: E_DistrictNpc) -> void:
 		var district: C_District = DistrictPopulationService.current()
 		decision.update_elapsed = float(abs(hash(identity.npc_id)) % 10) / 10.0 * district.definition.decision_interval
 		actor.add_component(decision)
+
 	var combat: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if combat != null:
 		if person != null:
@@ -27,6 +28,7 @@ static func install(actor: E_DistrictNpc) -> void:
 		combat.automatic_attack_selection = false
 	if actor.get_node_or_null("Brain") != null:
 		return
+
 	var runner: BTPlayer = BTPlayer.new()
 	runner.name = "Brain"
 	runner.update_mode = BTPlayer.MANUAL
@@ -39,6 +41,7 @@ static func tick(district: C_District, delta: float) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:
 		return
+
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	if player != null:
 		NpcPerceptionService.footsteps(player, delta)
@@ -46,6 +49,7 @@ static func tick(district: C_District, delta: float) -> void:
 	for person: NpcRecord in district.people:
 		if person.death_day != 0 or person.placement != NpcRecord.Placement.STREET:
 			continue
+
 		var actor: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
 		if actor == null:
 			continue
@@ -55,6 +59,7 @@ static func tick(district: C_District, delta: float) -> void:
 		decision.update_elapsed += maxf(0.0, delta)
 		if decision.update_elapsed < district.definition.decision_interval:
 			continue
+
 		NpcPerceptionService.footsteps(actor, decision.update_elapsed)
 		NpcPerceptionService.sense(actor, person, player, decision.update_elapsed)
 		NpcTraitService.tick(actor, person, player, decision.update_elapsed)

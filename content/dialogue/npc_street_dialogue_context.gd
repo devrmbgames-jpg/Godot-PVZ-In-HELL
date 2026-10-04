@@ -34,6 +34,7 @@ func _init(actor: Entity, npc: Entity) -> void:
 func begin() -> bool:
 	if not is_valid() or NpcDialogueService.participant(_speaker) != null:
 		return false
+
 	_speaker.add_relationship(Relationship.new(R_NpcConversation.new(), _player))
 	NpcIntentService.stop(_speaker)
 	return true
@@ -73,6 +74,7 @@ func interests_text() -> String:
 func apply_response_tags(tags: PackedStringArray) -> bool:
 	if not is_valid():
 		return false
+
 	var kind: CustomerDialogueIntent.Type = CustomerDialogueIntent.from_tags(tags)
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var incident: StringName = StringName("street/%s/%d/%d/%d" % [_person_id, cycle.day_index, cycle.phase, kind])

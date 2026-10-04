@@ -7,6 +7,7 @@ class_name DistrictScheduleService
 static func tick(district: C_District, cycle: C_DayCycle) -> void:
 	if district.definition == null or cycle.phase == C_DayCycle.Phase.NIGHT:
 		return
+
 	var phase_key: StringName = StringName("%d/%d" % [cycle.day_index, cycle.phase])
 	if district.conflict_phase != phase_key:
 		district.conflict_phase = phase_key
@@ -20,6 +21,7 @@ static func tick(district: C_District, cycle: C_DayCycle) -> void:
 			continue
 		if body.has_component(C_CustomerAgent):
 			continue
+
 		DistrictPopulationService.plan_phase(person, cycle.day_index, cycle.phase)
 		if person.placement != NpcRecord.Placement.STREET:
 			continue

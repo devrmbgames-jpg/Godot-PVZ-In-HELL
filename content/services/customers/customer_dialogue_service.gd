@@ -11,6 +11,7 @@ static func can_start(actor: Entity, customer: E_Customer) -> bool:
 		return false
 	if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.PUSH or bool(Console.is_visible()):
 		return false
+
 	var visit: CustomerVisit = null
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent != null:
@@ -23,6 +24,7 @@ static func can_start(actor: Entity, customer: E_Customer) -> bool:
 static func start(actor: Entity, customer: E_Customer) -> bool:
 	if not can_start(actor, customer):
 		return false
+
 	var tree: SceneTree = customer.get_tree()
 	if tree == null or not tree.get_nodes_in_group(ACTIVE_GROUP).is_empty():
 		return false
@@ -60,5 +62,6 @@ static func start(actor: Entity, customer: E_Customer) -> bool:
 		context.end()
 		panel.queue_free()
 		return false
+
 	agent.dialogue_started = true
 	return true

@@ -12,6 +12,7 @@ static func can_receive(actor: Entity, customer: E_Customer, visit: CustomerVisi
 		return false
 	if not GrabService.holder_available(customer) or customer.has_component(C_Death):
 		return false
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or agent.visit_id != visit.visit_id or agent.phase not in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]:
 		return false
@@ -19,6 +20,7 @@ static func can_receive(actor: Entity, customer: E_Customer, visit: CustomerVisi
 		return false
 	if InteractionControlFocus.current(actor) > InteractionControlFocus.Priority.CARRY:
 		return false
+
 	var actor_body: Node3D = actor as Node as Node3D
 	var customer_body: Node3D = customer as Node as Node3D
 	var distance: float = visit.definition.automatic_handoff_distance
@@ -26,6 +28,7 @@ static func can_receive(actor: Entity, customer: E_Customer, visit: CustomerVisi
 		return false
 	if not GrabService.entity_available(parcel) or CustomerInspectionService.owner_for(parcel) != null:
 		return false
+
 	var check: PackageDeliveryCheck = CustomerOutcomeService.check(
 		visit, parcel.get_component(C_Package) as C_Package,
 		parcel.get_component(C_PackageState) as C_PackageState,
@@ -51,6 +54,7 @@ static func _has_line_of_sight(actor: Entity, customer: E_Customer) -> bool:
 		var held_body: RigidBody3D = GrabService.physical_body(GrabService.held_in_slot(actor, slot))
 		if held_body != null:
 			excluded.append(held_body.get_rid())
+
 	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(start, end, OCCLUSION_MASK, excluded)
 	ray.hit_from_inside = true
 	return customer_body.get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
