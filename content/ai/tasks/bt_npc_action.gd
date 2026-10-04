@@ -27,19 +27,23 @@ func _exit() -> void:
 		return
 	var decision: C_NpcDecision = _actor.get_component(C_NpcDecision) as C_NpcDecision
 	if decision != null and decision.active_task_id == get_instance_id():
-		NpcIntentArbiter.stop(_actor, intent_owner)
+		# Приоритет сброшен до текущего такта; только токен движения определяет его владельца.
+		NpcIntentService.stop(_actor)
 		decision.active_task_id = 0
 
 func _claim(behavior: String) -> bool:
 	if not is_instance_valid(_actor) or not NpcIntentArbiter.acquire(_actor, intent_owner, behavior):
 		return false
+	return true
+
+func _own_movement() -> void:
 	var decision: C_NpcDecision = _actor.get_component(C_NpcDecision) as C_NpcDecision
 	if decision != null:
 		decision.active_task_id = get_instance_id()
-	return true
+	_owns_movement = true
 
 func _move(destination: Vector3, distance: float) -> void:
-	_owns_movement = true
+	_own_movement()
 	NpcIntentArbiter.move_to(_actor, destination, distance, intent_owner)
 
 func _visit() -> CustomerVisit:

@@ -6,7 +6,7 @@ extends "res://content/ai/tasks/bt_npc_action.gd"
 func _tick(_delta: float) -> Status:
 	if not _claim("Бегство"):
 		return FAILURE
-	_owns_movement = true
+	_own_movement()
 	return SUCCESS if NpcDecisionService.flee(_actor, _person, _awareness) else RUNNING
 
 #endregion

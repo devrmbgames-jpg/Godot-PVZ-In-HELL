@@ -36,6 +36,40 @@ static func install(actor: E_DistrictNpc) -> void:
 	runner.behavior_tree = load(TREE_PATH) as BehaviorTree
 	actor.add_child(runner)
 
+## Включает дерево либо прерывает его листья; из выполняющегося такта abort завершается после update.
+static func set_participating(actor: E_DistrictNpc, participating: bool) -> void:
+	var runner: BTPlayer = actor.get_node_or_null("Brain") as BTPlayer
+	if runner == null:
+		return
+	runner.active = participating
+	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	if not participating and (decision == null or not decision.tree_updating):
+		_abort_tree(actor, runner)
+
+## Исполняет один такт BT и безопасно завершает отключение; возвращает факт выбранного действия.
+static func update_tree(actor: E_DistrictNpc, delta: float) -> bool:
+	var runner: BTPlayer = actor.get_node_or_null("Brain") as BTPlayer
+	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	if runner == null or decision == null or not runner.active:
+		return false
+	decision.tree_updating = true
+	runner.update(delta)
+	decision.tree_updating = false
+	var claimed: bool = decision.intent_owner != C_NpcDecision.Owner.NONE
+	if not runner.active:
+		_abort_tree(actor, runner)
+	return claimed
+
+static func _abort_tree(actor: E_DistrictNpc, runner: BTPlayer) -> void:
+	var instance: BTInstance = runner.get_bt_instance()
+	if instance != null:
+		instance.get_root_task().abort()
+	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	if decision != null:
+		decision.active_task_id = 0
+		decision.intent_owner = C_NpcDecision.Owner.NONE
+		decision.active_behavior = ""
+
 ## Обновляет согласованное восприятие, затем каждое нативное дерево решений.
 static func tick(district: C_District, delta: float) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -66,15 +100,16 @@ static func tick(district: C_District, delta: float) -> void:
 		due.append(actor)
 	for actor: E_DistrictNpc in due:
 		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-		var runner: BTPlayer = actor.get_node_or_null("Brain") as BTPlayer
 		var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 		var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 		if decision.intent_owner == C_NpcDecision.Owner.IDLE and not (intent.movement_active and not intent.arrived):
 			awareness.idle_elapsed += decision.update_elapsed
 		NpcServiceRole.advance(actor, decision.update_elapsed)
 		decision.intent_owner = C_NpcDecision.Owner.NONE
-		if runner != null:
-			runner.update(decision.update_elapsed)
+		update_tree(actor, decision.update_elapsed)
+		if not actor.enabled:
+			decision.update_elapsed = 0.0
+			continue
 		if decision.intent_owner != C_NpcDecision.Owner.IDLE:
 			NpcCommunityService.cancel_activity(actor)
 		if decision.intent_owner in [C_NpcDecision.Owner.EMERGENCY, C_NpcDecision.Owner.COMBAT]:

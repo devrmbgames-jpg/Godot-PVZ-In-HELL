@@ -6,7 +6,7 @@ extends "res://content/ai/tasks/bt_npc_action.gd"
 func _tick(_delta: float) -> Status:
 	if not _claim("Прогулка"):
 		return FAILURE
-	_owns_movement = true
+	_own_movement()
 	return RUNNING
 
 #endregion

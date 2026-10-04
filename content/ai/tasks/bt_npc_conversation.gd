@@ -12,4 +12,8 @@ func _tick(_delta: float) -> Status:
 		NpcIntentService.watch(_actor, participant, Vector3.UP * NpcPerceptionService.EYE_HEIGHT)
 	return RUNNING
 
+func _exit() -> void:
+	NpcDialogueService.end(_actor)
+	super._exit()
+
 #endregion

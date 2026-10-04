@@ -13,7 +13,8 @@ static func participant(body: Entity) -> Entity:
 
 	for link: Relationship in body.relationships:
 		if link.relation is R_NpcConversation:
-			return link.target as Entity if EntityAvailability.contains(link.target, ECS.world) else null
+			var listener: Entity = link.target as Entity
+			return listener if EntityAvailability.contains(listener, ECS.world) and not listener.has_component(C_Death) else null
 	return null
 
 ## Закрывает разговор после прерывания или обычного закрытия панели.

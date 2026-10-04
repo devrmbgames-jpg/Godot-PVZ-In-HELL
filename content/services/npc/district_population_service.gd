@@ -92,8 +92,10 @@ static func recipient_for(recipient_key: StringName) -> NpcRecord:
 
 #region Восстановление состояния движка
 static func _reset_brain(body: E_DistrictNpc) -> void:
+	NpcBrainService.set_participating(body, false)
 	NpcCommunityService.cancel_activity(body)
 	NpcDialogueService.end(body)
+	CustomerInspectionService.end(body)
 	NpcHomeDeliveryService.release_meeting(body)
 	CombatService.end_combat(body)
 	NpcAttackService.cancel(body)
@@ -277,11 +279,15 @@ static func set_placement(person: NpcRecord, body: E_DistrictNpc, placement: Npc
 	if active and not body.enabled:
 		ECS.world.enable_entity(body)
 	elif not active and body.enabled:
+		NpcServiceRole.suspend(body)
+		CustomerInspectionService.end(body)
+		NpcHomeDeliveryService.release_meeting(body)
 		NpcCommunityService.cancel_activity(body)
 		NpcDialogueService.end(body)
 		NpcIntentService.stop(body)
 		CombatService.end_combat(body)
 		ECS.world.disable_entity(body)
+	NpcBrainService.set_participating(body, active)
 	body.set_participating(active)
 	if placement == NpcRecord.Placement.DEAD:
 		body.sync_death_presentation()
