@@ -17,6 +17,8 @@ var _request_id: StringName = &""
 #region Жизненный цикл и часы мерцания
 func _ready() -> void:
 	_bind_observer()
+	# Родитель уровня назначает ECS.world после ready дочерних ламп.
+	_bind_observer.call_deferred()
 
 
 func _process(delta: float) -> void:

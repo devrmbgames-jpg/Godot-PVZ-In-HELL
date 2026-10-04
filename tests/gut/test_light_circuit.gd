@@ -97,6 +97,22 @@ func test_disabled_or_removed_switch_cannot_be_activated() -> void:
 #endregion
 
 #region Временное мерцание
+## Лампа, готовая раньше глобального World, получает первый запрос после завершения ready сцены.
+func test_view_ready_before_world_receives_first_flicker() -> void:
+	ECS.world = null
+	var light: OmniLight3D = _light(&"warehouse_lights")
+	var view: CircuitLightView = CircuitLightView.new()
+	view.name = "CircuitLightView"
+	light.add_child(view)
+	view.set_process(false)
+	ECS.world = _world
+	await get_tree().process_frame
+	assert_true(LightCircuitService.flicker(&"warehouse", 2.0, 0.1))
+	view._process(0.15)
+	assert_false(light.visible, "First request must arrive even before the view's first process tick")
+	assert_true(_state.enabled)
+
+
 ## Мерцание не меняет enabled цепи; явное выключение отменяет текущую просьбу мерцания.
 func test_flicker_subscriber_changes_visual_only_and_switch_off_wins() -> void:
 	var light: OmniLight3D = _light(&"warehouse_lights")
