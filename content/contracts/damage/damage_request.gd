@@ -1,5 +1,5 @@
 extends RefCounted
-## Typed queued damage/heal intent with separate damaging source and actor attribution.
+## Запрос урона/лечения; повреждающий источник отделён от вызвавшего действие участника.
 class_name DamageRequest
 
 const EVENT := &"damage_requested"
@@ -19,17 +19,24 @@ enum Type {
 	FIRE,
 }
 
-## Actual damaging body and optional actor who caused its action.
+## Участник, вызвавший действие; не обязательно совпадает с повреждающим телом.
 var instigator: Entity = null
+## Настоящий повреждающий источник; null допустим для окружения.
 var source: Entity = null
+## Конкретный получатель с Health; null не становится широковещательным запросом.
 var target: Entity = null
+## Положительная конечная сумма в единицах здоровья до сопротивления.
 var amount: float = 0.0
+## Урон или лечение; лечение не использует сопротивление урону.
 var operation: Operation = Operation.DAMAGE
+## Тип урона для сопротивления и представления.
 var damage_type: Type = Type.GENERIC
 
-## Durable effect attribution, independent of live origin/instigator Node references.
+## Постоянный ID происхождения эффекта независимо от живой ссылки источника.
 var origin_id: String = ""
+## Постоянный ID инициатора независимо от живой ссылки.
 var instigator_id: String = ""
+## Снимок боевого контекста и атрибуции для реакций после расчёта.
 var combat_context: CombatContext = null
-## Stable personal incident assigned when committed violence is first observed.
+## Устойчивый личный инцидент, назначаемый при восприятии фактического насилия.
 var incident_id: StringName = &""

@@ -1,18 +1,24 @@
 extends Observer
-## Applies living-only death state and minimal character control/grip cleanup.
+## Создаёт смерть только живого участника и освобождает управление, бой и хват.
 class_name O_HealthLifecycle
 
 
+#region Подписка на истощение
+## Подписывается на результаты только живых участников.
 func query() -> QueryBuilder:
 	return q.with_all([C_Living]).on_event(DamageResult.EVENT)
 
 
+## Ставит однократную смерть в CommandBuffer после результата истощения.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
 	if result != null and result.outcome == DamageResult.Outcome.HEALTH_DEPLETED:
 		cmd.add_custom(_commit_death.bind(entity, result))
 
 
+#endregion
+
+#region Смерть и освобождение управления
 func _commit_death(target: Entity, result: DamageResult) -> void:
 	if not GrabService.entity_available(target) or target.has_component(C_Death):
 		return
@@ -33,5 +39,7 @@ func _commit_death(target: Entity, result: DamageResult) -> void:
 
 	var interactor: C_Interactor = target.get_component(C_Interactor) as C_Interactor
 	if interactor != null:
-		# The targeting processor clears its own target/highlight on the next disabled-actor tick.
+		# Контур наведения сам очистит цель и подсветку на следующем такте недоступного участника.
 		interactor.prompt_text = ""
+
+#endregion

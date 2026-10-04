@@ -1,6 +1,6 @@
 extends Component
-## Terminal living state committed once; future corpse/combat reactions consume its cause.
+## Однократно зафиксированная смерть живого участника с причиной для дальнейших реакций.
 class_name C_Death
 
-## Original committed depletion, including source and damage type.
+## Исходный результат истощения, включая источник и тип урона.
 var cause: DamageResult = null

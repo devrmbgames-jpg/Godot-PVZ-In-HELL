@@ -1,11 +1,12 @@
 extends Component
-## Optional generic one-shot spawn plan and presentation hooks after Health depletion.
+## Авторский план однократных игровых и визуальных эффектов истощения здоровья.
 class_name C_HealthDepletionEffects
 
-## Gameplay entries; instantiated independently without copying source components.
+## Игровые сцены создаются отдельно, без копирования компонентов источника.
 @export var spawns: Array[DEF_DepletionSpawn] = []
-## Optional presentation data delivered by HealthDepletionEvent, separate from gameplay entries.
+## Необязательная сцена представления, передаваемая через HealthDepletionEvent.
 @export var vfx: PackedScene = null
+## Необязательный звук представления, отдельно от игровых сцен.
 @export var sfx: AudioStream = null
-## Runtime dispatch guard; committed before callbacks or scene instantiation.
+## Защита повтора, фиксируемая до callback и создания сцен.
 var committed: bool = false

@@ -1,10 +1,12 @@
 extends Observer
-## Generic cleanup policy for destructible non-living entities that opt in explicitly.
+## Удаляет разрушенную неживую сущность только при явном маркере политики.
 class_name O_RemoveOnHealthDepleted
 
+## Подписывается на результат здоровья сущностей с явной политикой удаления.
 func query() -> QueryBuilder:
 	return q.with_all([C_RemoveOnHealthDepleted]).on_event(DamageResult.EVENT)
 
+## Проверяет истощение конкретной цели и планирует её удаление.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
 	if (

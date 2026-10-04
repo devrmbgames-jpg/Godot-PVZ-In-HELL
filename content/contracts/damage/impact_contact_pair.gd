@@ -1,10 +1,12 @@
 extends RefCounted
-## Per-World pair lifetime; one resolution per contact episode, rearmed by physical separation.
+## Жизненный цикл пары в World: одно разрешение контакта до физического разделения.
 class_name ImpactContactPair
 
-## Nodes are not owned by this record and may disappear at any time.
+## Первое тело пары; запись не владеет Node, его доступность проверяется при обработке.
 var first: PhysicsBody3D = null
+## Второе тело пары; запись не владеет Node.
 var second: PhysicsBody3D = null
+## Эпизод контакта уже разрешён; повтор блокируется до разделения.
 var resolved: bool = false
-## Separation tick prevents a delayed snapshot from starting a fresh episode.
+## Такт разделения не позволяет запоздавшему снимку открыть новый эпизод.
 var separated_tick: int = -1

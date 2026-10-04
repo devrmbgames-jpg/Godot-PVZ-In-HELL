@@ -1,12 +1,15 @@
 extends Observer
-## Sole Health arithmetic authority; emits typed results without domain lifecycle behavior.
+## Единственный обычный расчёт здоровья; публикует результат без доменных реакций смерти.
 class_name O_Damage
 
 
+#region Подписка на запросы
+## Подписывается на запросы конкретных целей с Health.
 func query() -> QueryBuilder:
 	return q.with_all([C_Health]).on_event(DamageRequest.EVENT)
 
 
+## Проверяет тип и адрес запроса, затем ставит расчёт в CommandBuffer.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var request: DamageRequest = payload as DamageRequest
 	if request == null or request.target != entity:
@@ -15,6 +18,9 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	cmd.add_custom(_resolve.bind(request))
 
 
+#endregion
+
+#region Единственный расчёт здоровья
 func _resolve(request: DamageRequest) -> void:
 	var result: DamageResult = DamageResult.new()
 	result.request = request
@@ -26,7 +32,7 @@ func _resolve(request: DamageRequest) -> void:
 		if health != null:
 			_apply(request, health, result)
 
-	# Broadcast rejection if the target disappeared after the request was captured.
+	# Уведомить об отклонении даже при исчезновении цели после снимка запроса.
 	var target: Entity = request.target if is_instance_valid(request.target) else null
 	_world.emit_event(DamageResult.EVENT, target, result)
 
@@ -59,10 +65,12 @@ func _apply(request: DamageRequest, health: C_Health, result: DamageResult) -> v
 	result.current_value = clampf(result.previous_value + signed_amount, 0.0, health.value)
 	result.applied_amount = absf(result.current_value - result.previous_value)
 	var depleted: bool = result.previous_value > 0.0 and result.current_value <= 0.0
-	# Commit the guard before the current-value setter can notify reentrant observers.
+	# Зафиксировать истощение до setter current и возможных вложенных уведомлений.
 	if depleted:
 		health.depleted = true
 	health.current = result.current_value
 	result.outcome = (
 		DamageResult.Outcome.HEALTH_DEPLETED if depleted else DamageResult.Outcome.APPLIED
 	)
+
+#endregion

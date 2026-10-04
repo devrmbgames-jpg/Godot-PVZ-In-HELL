@@ -1,13 +1,15 @@
 extends RefCounted
-## One committed depletion effect notification; presentation may consume optional VFX/SFX.
+## Уведомление однократного эффекта истощения здоровья с необязательными VFX/SFX.
 class_name HealthDepletionEvent
 
-## World event emitted after gameplay spawn entries have been dispatched.
+## Мировое событие после создания авторских игровых эффектов.
 const EVENT: StringName = &"health_depletion_effects"
 
-## Original cause and stable world pose, valid even if the original target leaves the World.
+## Исходный результат урона; мировая поза отдельно сохраняется до удаления цели.
 var cause: DamageResult = null
+## Сохранённая мировая поза цели для эффектов после её удаления.
 var world_pose: Transform3D = Transform3D.IDENTITY
-## Optional presentation hooks; presentation never owns gameplay spawn or damage.
+## Необязательная сцена VFX; представление не владеет игровым созданием и уроном.
 var vfx: PackedScene = null
+## Необязательный звук представления эффекта.
 var sfx: AudioStream = null

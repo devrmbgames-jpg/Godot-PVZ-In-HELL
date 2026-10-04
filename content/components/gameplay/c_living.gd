@@ -1,3 +1,3 @@
 extends Component
-## Opt-in living lifecycle; Health alone never implies character death behavior.
+## Подключает жизненный цикл живого участника; один Health не задаёт смерть персонажа.
 class_name C_Living

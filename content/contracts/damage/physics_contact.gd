@@ -1,13 +1,16 @@
 extends RefCounted
-## Snapshot of one body's contact manifold; normal speed and impulse are scalar SI values.
+## Снимок контакта физических тел; скорость и импульс вдоль нормали заданы в СИ.
 class_name PhysicsContact
 
-## Physical participants (environment bodies need not be Entities).
+## Первое физическое тело; окружение может не быть Entity.
 var body_a: PhysicsBody3D = null
+## Второе физическое тело контакта; не обязательно Entity.
 var body_b: PhysicsBody3D = null
-## Physics tick captured by the bridge, never render-frame time.
+## Физический такт снимка, отдельно от кадров рендера.
 var tick: int = 0
+## Неотрицательная скорость сближения вдоль нормали в м/с.
 var normal_speed: float = 0.0
+## Нормальная величина импульса контакта в Н·с.
 var normal_impulse: float = 0.0
-## World-space normal pointing toward body_a; used for explicit kinematic rebound.
+## Мировая нормаль к body_a для отложенного кинематического отскока.
 var normal_on_a: Vector3 = Vector3.ZERO

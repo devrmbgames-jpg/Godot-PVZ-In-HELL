@@ -1,8 +1,8 @@
 extends Component
-## Opts Health into collision damage with immutable, reusable receiver tuning.
+## Подключает физический урон к здоровью через переиспользуемые авторские настройки.
 class_name C_ImpactReceiver
 
-## Thresholds and energy conversion; only the profile reference is runtime state.
+## Пороги контакта и преобразование энергии; ресурс читается без runtime-правок.
 @export var profile: DEF_ImpactProfile = preload(
 	"res://content/definitions/gameplay/def_impact_default.tres"
 )

@@ -1,5 +1,5 @@
 extends RefCounted
-## Directional impact evaluation before submitting the ordinary HP request.
+## Оценка одного направления столкновения перед обычным запросом изменения здоровья.
 class_name ImpactResult
 
 const EVENT: StringName = &"physical_impact"
@@ -10,15 +10,19 @@ enum Severity {
 	Strong,
 }
 
-## Source is the actual damaging Entity; null means physical environment.
+## Настоящая повреждающая Entity; null означает физическое окружение.
 var source: Entity = null
+## Получатель оценённого столкновения.
 var target: Entity = null
+## Тяжесть потенциального удара до ограничения фактической потери HP.
 var severity: Severity = Severity.None
+## Расчётная сумма урона, после защиты и ограничения при дальнейшей обработке.
 var amount: float = 0.0
+## Переданная энергия в джоулях.
 var transferred_energy: float = 0.0
 
-## True when receiver protection suppressed the physical impact before HP submission.
+## Защита получателя подавила столкновение до отправки запроса здоровья.
 var protected: bool = false
 
-## Physical thresholds passed, even if receiver absorption reduces base HP damage to zero.
+## Пороги скорости/импульса пройдены, даже если поглощение обнуляет численный урон.
 var qualifies: bool = false

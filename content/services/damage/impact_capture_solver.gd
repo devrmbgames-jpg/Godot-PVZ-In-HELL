@@ -1,9 +1,9 @@
 extends RefCounted
-## Samples Godot contacts into owned data; never resolves damage or locates Systems.
+## Снимает контакты Godot в данные тела без расчёта урона и поиска Systems.
 class_name ImpactCaptureSolver
 
 
-## Called first in body integration, before holding/motion assistance changes velocities.
+## Вызывается первым при интеграции тела, до вспомогательных сил хвата/движения.
 static func capture(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 	if not EntityAvailability.contains(entity, ECS.world):
 		return
@@ -28,7 +28,7 @@ static func capture(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
 			contact.tick = Engine.get_physics_frames()
 			manifolds[other_id] = contact
 
-		# Jolt stores the body-side contact normal/point velocities in world axes.
+		# Jolt сообщает нормаль и скорости точек контакта в мировых осях.
 		var normal: Vector3 = state.get_contact_local_normal(index).normalized()
 		var relative: Vector3 = (
 			state.get_contact_collider_velocity_at_position(index)

@@ -1,8 +1,8 @@
 extends Component
-## Runtime body-owned contact snapshot inbox; capture writes and scheduled impact drains it.
+## Очередь снимков тела: физический capture пишет, S_Impact забирает контакты.
 class_name C_ImpactInbox
 
-## Latest physics callback's manifolds, bounded by the body's contact reporting limit.
+## Контакты последнего физического callback, ограниченные лимитом отчётности тела.
 var contacts: Array[PhysicsContact] = []
-## Native kinematic bodies have no body_exited signal; their contact bridge reports separations.
+## Разделения кинематических тел, сообщаемые мостом вместо отсутствующего body_exited.
 var separations: Array[PhysicsContact] = []

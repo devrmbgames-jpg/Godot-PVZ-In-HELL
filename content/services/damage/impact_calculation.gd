@@ -1,11 +1,11 @@
 extends RefCounted
-## Pure generic impact formula; independent of GECS scheduling and Package type.
+## Чистая формула физического удара, независимая от расписания GECS и типа посылки.
 class_name ImpactCalculation
 
 const ENERGY_FACTOR: float = 0.5
 
 
-## Generic directional formula; both speed and real impulse must cross receiver thresholds.
+## Оценивает направление: скорость в м/с и импульс в Н·с должны пройти пороги получателя.
 static func evaluate(
 	source_mass: float,
 	normal_speed: float,
@@ -35,7 +35,7 @@ static func evaluate(
 	return result
 
 
-## Classifies the total potential damage, including an optional valid throw bonus.
+## Классифицирует потенциальный урон с возможным бонусом действующего броска.
 static func classify(amount: float, profile: DEF_ImpactProfile) -> ImpactResult.Severity:
 	if amount <= 0.0:
 		return ImpactResult.Severity.None
@@ -46,7 +46,7 @@ static func classify(amount: float, profile: DEF_ImpactProfile) -> ImpactResult.
 	return ImpactResult.Severity.Weak
 
 
-## Caps only physical HP damage; severity must be classified before calling this.
+## Ограничивает только численную потерю HP; тяжесть определяется до этого вызова.
 static func cap_damage(amount: float, max_health: float, profile: DEF_ImpactProfile) -> float:
 	if profile == null or not is_finite(amount) or not is_finite(max_health):
 		return 0.0

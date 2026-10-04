@@ -1,8 +1,9 @@
 extends RefCounted
-## Deliberate throw attribution; active state is source --R_ThrownBy--> instigator.
+## Атрибуция намеренного броска принадлежит живой связи источник → R_ThrownBy → инициатор.
 class_name ThrowContext
 
 
+## Находит действующую связь атрибуции броска или null.
 static func relationship(source: Entity) -> Relationship:
 	if not is_instance_valid(source):
 		return null
@@ -13,6 +14,7 @@ static func relationship(source: Entity) -> Relationship:
 	return null
 
 
+## Заменяет атрибуцию инициатором, физическим тактом и авторским сроком.
 static func arm(source: Entity, instigator: Entity) -> void:
 	if not is_instance_valid(source) or not is_instance_valid(instigator):
 		return
@@ -29,6 +31,7 @@ static func arm(source: Entity, instigator: Entity) -> void:
 		source.add_relationship(Relationship.new(data, instigator))
 
 
+## Идемпотентно снимает действующую связь броска.
 static func cancel(source: Entity) -> void:
 	if not is_instance_valid(source):
 		return

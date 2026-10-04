@@ -1,7 +1,8 @@
 extends Resource
-## Authored post-depletion gameplay spawn; contains no runtime ownership.
+## Авторская сцена эффекта истощения без живого владения.
 class_name DEF_DepletionSpawn
 
-## Scene spawned under the World, with a target-local offset.
+## Создаваемая под World сцена с локальным смещением относительно цели.
 @export var scene: PackedScene = null
+## Локальная поза эффекта относительно сохранённой мировой позы цели.
 @export var offset: Transform3D = Transform3D.IDENTITY

@@ -1,9 +1,9 @@
 extends RefCounted
-## Pure effective-damage calculation used by Health authority and NPC risk assessment.
+## Единый чистый расчёт эффективного урона для здоровья и оценки риска NPC.
 class_name DamageResistanceRules
 
-#region Damage calculation
-## Resolves a receiver's resistance without applying damage.
+#region Расчёт урона
+## Учитывает сопротивление получателя без изменения здоровья; иммунитет возвращает нулевой риск.
 static func effective(target: Entity, amount: float, damage_type: DamageRequest.Type) -> float:
 	if not is_finite(amount) or amount <= 0.0:
 		return 0.0

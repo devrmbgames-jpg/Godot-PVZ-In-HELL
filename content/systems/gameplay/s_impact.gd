@@ -1,5 +1,5 @@
 extends System
-## Owns physical contact snapshots and evaluates both damage directions through typed damage events.
+## Объединяет снимки контактов и оценивает оба направления через типизированные запросы урона.
 class_name S_Impact
 
 const CONTACT_LIMIT: int = 16
@@ -12,8 +12,9 @@ var _flush_scheduled: bool = false
 var _pending: Dictionary[String, PhysicsContact] = { }
 
 
-#region GECS
+#region Жизненный цикл и расписание GECS
 
+## Привязывает физические inbox и сигналы разделения к текущим и новым телам World.
 func setup() -> void:
 	_world.entity_added.connect(_on_entity_added)
 	_world.entity_enabled.connect(_on_entity_added)
@@ -23,11 +24,13 @@ func setup() -> void:
 		_on_entity_added(entity)
 
 
+## Выбирает включённые inbox; пустой такт нужен для очистки жизни пар.
 func query() -> QueryBuilder:
 	process_empty = true
 	return q.enabled().with_all([C_ImpactInbox]).iterate([C_ImpactInbox])
 
 
+## Забирает контакты/разделения и планирует одно объединённое разрешение в CommandBuffer.
 func process(_entities: Array[Entity], components: Array, _delta: float) -> void:
 	if not components.is_empty():
 		var inboxes: Array = components[0]
@@ -62,8 +65,8 @@ func _flush_contacts() -> void:
 #endregion
 
 
-#region Inbox
-## Coalesces manifold points and duplicate A/B reports within one physics tick.
+#region Объединение снимков
+## Объединяет точки контакта и повторные отчёты A/B одного физического такта.
 func _enqueue(contact: PhysicsContact) -> void:
 	if not _valid(contact):
 		return
@@ -80,7 +83,7 @@ func _enqueue(contact: PhysicsContact) -> void:
 #endregion
 
 
-#region Resolution
+#region Разрешение эпизода контакта
 func _resolve(contact: PhysicsContact) -> void:
 	if not _valid(contact):
 		return
@@ -121,7 +124,7 @@ func _resolve_direction(
 		return
 	if source != null and not EntityAvailability.contains(source, _world):
 		return
-	# Holding is not a weapon mode; neither participant's holder receives contact damage.
+	# Контакт удерживаемого предмета с его держателем не является атакой.
 	if _held_pair(source, target) or _held_pair(target, source):
 		return
 
@@ -131,7 +134,7 @@ func _resolve_direction(
 
 	var source_mass: float = KinematicImpactCapture.mass_of(source_body)
 	if source_mass <= 0.0:
-		# An immovable environment exchanges the receiver's own moving mass, not infinity.
+		# Неподвижное окружение использует движущуюся массу получателя вместо бесконечной массы.
 		source_mass = KinematicImpactCapture.mass_of(target_body)
 	var result: ImpactResult = ImpactCalculation.evaluate(
 		source_mass,
@@ -171,7 +174,7 @@ func _resolve_direction(
 		_world.emit_event(ImpactResult.EVENT, target, result)
 		return
 
-	# Severity describes the uncapped impact; only HP loss is limited.
+	# Тяжесть описывает потенциальный удар; ограничивается только потеря HP.
 	result.amount = ImpactCalculation.cap_damage(
 		result.amount,
 		health.value,
@@ -188,7 +191,7 @@ func _resolve_direction(
 #endregion
 
 
-#region Helpers
+#region Подписки и проверки пары
 func _on_entity_added(entity: Entity) -> void:
 	if entity.has_component(C_CharacterBody) and not entity.has_component(C_ImpactInbox):
 		entity.add_component(C_ImpactInbox.new())
@@ -212,7 +215,7 @@ func _on_body_exited(other: Node, body: PhysicsBody3D) -> void:
 	var key: String = "%d:%d" % [mini(first_id, second_id), maxi(first_id, second_id)]
 	var pair: ImpactContactPair = _pairs.get(key) as ImpactContactPair
 	if pair == null:
-		# Preserve separation even when the first impact is still queued.
+		# Сохранить разделение даже при ещё ожидающем первом ударе.
 		pair = ImpactContactPair.new()
 		pair.first = body
 		pair.second = other as PhysicsBody3D
@@ -255,7 +258,6 @@ func _held_pair(candidate: Entity, other: Entity) -> bool:
 
 	var grip: Relationship = _held_relationship(candidate)
 	return grip != null and grip.target == other
-#endregion
 
 
 func _held_relationship(entity: Entity) -> Relationship:
@@ -266,3 +268,4 @@ func _held_relationship(entity: Entity) -> Relationship:
 		if grip.relation is R_HeldBy:
 			return grip
 	return null
+#endregion

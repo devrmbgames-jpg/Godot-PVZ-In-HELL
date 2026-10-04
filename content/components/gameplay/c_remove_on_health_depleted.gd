@@ -1,3 +1,3 @@
 extends Component
-## Marker: remove this non-living Entity from World/SceneTree when shared Health is depleted.
+## Маркер удаления неживой Entity из World/SceneTree при истощении общего здоровья.
 class_name C_RemoveOnHealthDepleted

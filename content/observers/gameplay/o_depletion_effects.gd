@@ -1,12 +1,15 @@
 extends Observer
-## Dispatches optional gameplay spawn plans once, outside Health arithmetic.
+## Однократно создаёт авторские эффекты истощения отдельно от арифметики здоровья.
 class_name O_DepletionEffects
 
 
+#region Принятие однократного эффекта
+## Подписывается на результат здоровья сущностей с авторским планом эффектов.
 func query() -> QueryBuilder:
 	return q.with_all([C_HealthDepletionEffects]).on_event(DamageResult.EVENT)
 
 
+## Фиксирует защиту повтора до callback и ставит создание эффектов в CommandBuffer.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
 	if result == null or result.outcome != DamageResult.Outcome.HEALTH_DEPLETED:
@@ -29,6 +32,9 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	cmd.add_custom(_dispatch.bind(entries, health_depletion_effects))
 
 
+#endregion
+
+#region Создание игровых сцен и уведомление
 func _dispatch(
 	entries: Array[DEF_DepletionSpawn],
 	health_depletion_effects: HealthDepletionEvent,
@@ -49,5 +55,7 @@ func _dispatch(
 		if entity != null:
 			_world.add_entity(entity, null, false)
 
-	# Broadcast remains valid if a domain reaction removed the original target.
+	# Уведомление остаётся пригодным после удаления исходной цели доменной реакцией.
 	_world.emit_event(HealthDepletionEvent.EVENT, null, health_depletion_effects)
+
+#endregion

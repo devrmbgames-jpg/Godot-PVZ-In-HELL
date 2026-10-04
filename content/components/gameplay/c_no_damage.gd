@@ -1,3 +1,3 @@
 extends Component
-## Source-side outgoing damage veto; does not block incoming damage or healing.
+## Запрещает исходящий урон источника; входящий урон и лечение не блокирует.
 class_name C_NoDamage

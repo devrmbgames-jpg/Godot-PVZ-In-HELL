@@ -1,6 +1,6 @@
 extends Component
-## Receiver-side impact protection; R19 may change the tier when applying Bubble Wrap.
+## Защита получателя от столкновения; использование плёнки может менять уровень.
 class_name C_ImpactProtection
 
-## Fully blocks physical severity up to this tier; stronger impacts pass without reduction.
+## Полностью блокирует физическую тяжесть до этого уровня; более сильный удар не ослабляется.
 @export var tier: ImpactResult.Severity = ImpactResult.Severity.None

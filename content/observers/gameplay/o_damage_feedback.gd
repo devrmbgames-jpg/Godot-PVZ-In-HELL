@@ -1,14 +1,17 @@
 extends Observer
-## Read-only committed-hit notification. Register before destructive lifecycle observers.
+## Читает принятый удар; регистрируется до observers, удаляющих повреждённую сущность.
 class_name O_DamageFeedback
 
+## Снимок фактически применённого урона без живых Entity-ссылок для представления.
 signal received(feedback: DamageFeedback)
 
 
+## Подписывается на результаты здоровья до разрушительных lifecycle-реакций.
 func query() -> QueryBuilder:
 	return q.with_all([C_Health]).on_event(DamageResult.EVENT)
 
 
+## Публикует снимок только положительного фактического урона с адресом и категорией цели.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
 	if result == null or result.request == null or not is_instance_valid(entity) or result.request.target != entity or result.request.operation != DamageRequest.Operation.DAMAGE:

@@ -1,10 +1,12 @@
 extends RefCounted
-## CharacterBody contact bridge. S_Impact still resolves health through the shared damage contract.
+## Мост контактов CharacterBody; S_Impact отправляет урон через общий контракт здоровья.
 class_name KinematicImpactCapture
 
 const MINIMUM_MASS: float = 0.01
 
 
+#region Масса и снимки движения
+## Возвращает массу RigidBody/настроенного персонажа в кг; неизвестное тело даёт 0.
 static func mass_of(body: PhysicsBody3D) -> float:
 	var rigid: RigidBody3D = body as RigidBody3D
 	if rigid != null:
@@ -15,6 +17,7 @@ static func mass_of(body: PhysicsBody3D) -> float:
 	return config.mass_kg if config != null else 0.0
 
 
+## После move_and_slide собирает контакты и разделения, исключая предмет держателя; incoming в м/с.
 static func capture(actor: Entity, body: CharacterBody3D, config: C_CharacterBody, incoming: Vector3) -> void:
 	var inbox: C_ImpactInbox = actor.get_component(C_ImpactInbox) as C_ImpactInbox
 	if inbox == null:
@@ -70,8 +73,11 @@ static func capture(actor: Entity, body: CharacterBody3D, config: C_CharacterBod
 	config.contact_bodies = current_bodies
 
 
-## Both rigid and kinematic bridges resolve through the same one-contact-per-pair guard.
-## Record response data here; only the character physics callback may change its velocity.
+#endregion
+
+#region Отложенный физический отскок
+## Оба физических моста используют общую защиту одного разрешения контакта пары.
+## Записывает отложенный отскок; скорость меняет только физический callback персонажа.
 static func queue_rebound(contact: PhysicsContact) -> void:
 	_queue_for(contact.body_a, contact.body_b, contact.normal_on_a, contact)
 	_queue_for(contact.body_b, contact.body_a, -contact.normal_on_a, contact)
@@ -95,3 +101,5 @@ static func _queue_for(body: PhysicsBody3D, other: PhysicsBody3D, normal: Vector
 
 	var config: C_CharacterBody = actor.get_component(C_CharacterBody) as C_CharacterBody
 	config.pending_rebound_velocity += normal * minf(config.maximum_rebound_speed, contact.normal_speed * config.impact_rebound_fraction)
+
+#endregion
