@@ -1,5 +1,5 @@
 extends RefCounted
-## Owns package ink data mutation and package-local surface conversion.
+## Владеет изменением чернил коробки и преобразованием точки поверхности в локальные координаты.
 class_name PackageMarkService
 
 const SURFACE_OFFSET: float = 0.004
@@ -7,6 +7,8 @@ const SAME_FACE_DOT: float = 0.995
 const MAX_SAMPLE_GAP: float = 0.12
 
 
+#region Изменение чернил
+## При допустимой коробке добавляет локальную точку штриха с ограничением частоты и числа точек.
 static func append_sample(
 	marker: C_Marker,
 	parcel: Entity,
@@ -59,6 +61,7 @@ static func append_sample(
 	marks.revision += 1
 
 
+## Сбрасывает временную непрерывность маркера, сохраняя уже нанесённые чернила.
 static func break_stroke(marker: C_Marker) -> void:
 	if marker == null:
 		return
@@ -67,6 +70,7 @@ static func break_stroke(marker: C_Marker) -> void:
 	marker.stroke = null
 
 
+## Удаляет чернила коробки и повышает revision для обновления представления.
 static func clear_marks(parcel: Entity) -> void:
 	if not is_instance_valid(parcel):
 		return
@@ -78,6 +82,7 @@ static func clear_marks(parcel: Entity) -> void:
 		marks.revision += 1
 
 
+## Проверяет доступную коробку с чернилами, которая не уничтожена и не покинула склад.
 static func drawable(parcel: Entity) -> bool:
 	if not GrabService.entity_available(parcel) or not parcel.has_component(C_PackageMarks):
 		return false
@@ -89,6 +94,9 @@ static func drawable(parcel: Entity) -> bool:
 	)
 
 
+#endregion
+
+#region Локальная поверхность модели
 static func _visual_surface_point(
 	surface: MeshInstance3D,
 	body: Node3D,
@@ -103,3 +111,5 @@ static func _visual_surface_point(
 	point[axis] = bounds.end[axis] if positive else bounds.position[axis]
 	point[axis] += SURFACE_OFFSET if positive else -SURFACE_OFFSET
 	return body.to_local(surface.to_global(point))
+
+#endregion

@@ -1,10 +1,14 @@
-# Кнопка посылки с краткой информацией и тремя terminal outcome-действиями.
+## Строка посылки в терминале: показывает запись и отправляет запросы заявления владельцу интерфейса.
 extends PanelContainer
 class_name UI_TerminalButtonPackage
 
+## Запрос выбора записи с этим package_id.
 signal package_selected(package_id: String)
+## Запрос заявления TAKEN в журнале; физическую выдачу не подтверждает.
 signal taken_requested(package_id: String)
+## Запрос заявления REFUSED в журнале.
 signal refused_requested(package_id: String)
+## Запрос заявления LOST в журнале.
 signal lost_requested(package_id: String)
 
 @onready var _button_body: Button = %Button
@@ -30,6 +34,7 @@ signal lost_requested(package_id: String)
 var _package_id: String = ""
 
 
+#region Заполнение строки
 func _ready() -> void:
 	_button_body.toggled.connect(_on_body_toggled)
 	_button_ok.pressed.connect(_on_taken_pressed)
@@ -37,6 +42,7 @@ func _ready() -> void:
 	_button_lost.pressed.connect(_on_lost_pressed)
 
 
+## Показывает запись; actions_enabled управляет заявлениями, debug_status раскрывает фактическое состояние.
 func present(
 	record: PackageRegistrationRecord,
 	state: C_PackageState,
@@ -75,10 +81,12 @@ func present(
 	_button_lost.disabled = not can_declare
 
 
+## Возвращает постоянный ID записи, показанной этой строкой.
 func package_id() -> String:
 	return _package_id
 
 
+## Форматирует заявление игрока; фактическую выдачу и состояние раскрывает только debug_status.
 static func status_text(
 	record: PackageRegistrationRecord,
 	state: C_PackageState,
@@ -127,6 +135,9 @@ static func status_text(
 	return " · ".join(parts)
 
 
+#endregion
+
+#region Иконки и запросы действий
 func _set_status_icons(definition: DEF_Package) -> void:
 	var has_definition: bool = definition != null
 	var hazard_class: DEF_Package.HazardClass = (
@@ -195,3 +206,5 @@ func _on_refused_pressed() -> void:
 func _on_lost_pressed() -> void:
 	if not _package_id.is_empty():
 		lost_requested.emit(_package_id)
+
+#endregion

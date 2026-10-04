@@ -1,5 +1,5 @@
 extends RefCounted
-## Domain-safe Package mutations used only by developer-console commands.
+## Изменяет коробки через игровые сервисы для команд консоли разработчика.
 class_name DebugPackageService
 
 const MAX_SPAWN_COUNT: int = 50
@@ -13,6 +13,8 @@ const SELF_COLUMNS: int = 3
 const DEBUG_ID_PREFIX: String = "debug:"
 
 
+#region Команды коробок
+## Создаёт 1–50 отладочных коробок в приёмке либо у игрока; register_packages включает обычную регистрацию.
 static func spawn(
 	definition_key: StringName,
 	count: int,
@@ -112,6 +114,7 @@ static func spawn(
 	return result
 
 
+## Удаляет только физическую коробку, сохраняя историю регистрации и обслуживания.
 static func remove(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if target.kind != DebugTarget.Kind.PACKAGE:
@@ -129,6 +132,7 @@ static func remove(target: DebugTarget) -> DebugServiceResult:
 	return result
 
 
+## Удаляет отладочную коробку и записи; оплаченный заказ или жалоба запрещают очистку.
 static func purge(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if target.kind != DebugTarget.Kind.PACKAGE:
@@ -163,6 +167,7 @@ static func purge(target: DebugTarget) -> DebugServiceResult:
 	return result
 
 
+## Регистрирует живую коробку обычной транзакцией и возвращает результат для консоли.
 static func register(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if target.kind != DebugTarget.Kind.PACKAGE:
@@ -184,6 +189,7 @@ static func register(target: DebugTarget) -> DebugServiceResult:
 	return result
 
 
+## Восстанавливает HP живой коробки и снимает повреждение/утечку; уничтоженную не воскрешает.
 static func reset(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	if target.kind != DebugTarget.Kind.PACKAGE:
@@ -225,6 +231,7 @@ static func reset(target: DebugTarget) -> DebugServiceResult:
 	return result
 
 
+## Возвращает ключи посылок авторского ассортимента приёмки для подсказок консоли.
 static func definition_keys() -> PackedStringArray:
 	var keys: PackedStringArray = []
 	var zone: E_ReceivingZone = _receiving_zone()
@@ -236,6 +243,9 @@ static func definition_keys() -> PackedStringArray:
 	return keys
 
 
+#endregion
+
+#region Размещение и постоянный ID
 static func _receiving_zone() -> E_ReceivingZone:
 	if not is_instance_valid(ECS.world):
 		return null
@@ -317,6 +327,9 @@ static func _identity_exists(package_id: String) -> bool:
 	return false
 
 
+#endregion
+
+#region Откат и удаление
 static func _rollback(spawned: Array[Entity]) -> void:
 	for entity: Entity in spawned:
 		if not is_instance_valid(entity):
@@ -358,3 +371,5 @@ static func _remove_live_package(entity: Entity) -> void:
 	PackageMarkService.clear_marks(entity)
 	ECS.world.remove_entity(entity)
 	entity.queue_free()
+
+#endregion

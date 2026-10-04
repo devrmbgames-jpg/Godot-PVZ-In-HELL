@@ -1,10 +1,11 @@
 extends MeshInstance3D
-## Renders package-owned local ink; never decides where drawing is allowed.
+## Перестраивает сетку локальных чернил по revision; допустимость рисования определяет сервис.
 class_name PackageMarksView
 
 var _revision: int = -1
 
 
+#region Сетка чернил
 func _process(_delta: float) -> void:
 	var parcel: Entity = get_parent() as Entity
 	var marks: C_PackageMarks = parcel.get_component(C_PackageMarks) as C_PackageMarks
@@ -58,3 +59,5 @@ func _quad(
 ) -> void:
 	for vertex: Vector3 in [first, second, third, first, third, fourth]:
 		ink.surface_add_vertex(vertex)
+
+#endregion

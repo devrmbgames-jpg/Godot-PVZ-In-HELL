@@ -1,4 +1,4 @@
-# Детальная информация о выбранной посылке.
+## Показывает выбранную запись регистрации, описание коробки и доступный результат жалобы.
 extends PanelContainer
 class_name UI_TerminalPackageDetailInfo
 
@@ -10,6 +10,8 @@ class_name UI_TerminalPackageDetailInfo
 @onready var _rich_label_description: RichTextLabel = %RichTextLabelDescription
 
 
+#region Выбранная запись
+## Показывает описание и регистрацию; debug_status добавляет фактическое состояние коробки.
 func present(
 	record: PackageRegistrationRecord,
 	state: C_PackageState,
@@ -46,6 +48,7 @@ func present(
 	_rich_label_description.text = "\n".join(lines)
 
 
+## Очищает поля выбора без изменения записи или состояния коробки.
 func clear_info() -> void:
 	_label_package_id.text = "—"
 	_label_package_uid.text = "—"
@@ -53,6 +56,9 @@ func clear_info() -> void:
 	_rich_label_description.text = ""
 
 
+#endregion
+
+#region Форматирование состояния и жалобы
 static func _condition_text(state: C_PackageState) -> String:
 	var parts: PackedStringArray = []
 	match state.damage:
@@ -88,3 +94,5 @@ static func _complaint_text(complaint: CustomerComplaint) -> String:
 		CustomerComplaint.Outcome.NO_LIVING_CLAIMANT:
 			return "заявитель отсутствует"
 	return "—"
+
+#endregion
