@@ -1,9 +1,9 @@
 extends RefCounted
-## Commits phase anchors and terminal population facts outside ECS iteration.
+## Фиксирует цели фаз и окончательную смерть вне обхода сущностей GECS.
 class_name DistrictScheduleService
 
-#region Schedule processing
-## Advances placement without progressing the player-controlled calendar.
+#region Исполнение расписания
+## Обновляет размещение без самостоятельного продвижения календаря игрока.
 static func tick(district: C_District, cycle: C_DayCycle) -> void:
 	if district.definition == null or cycle.phase == C_DayCycle.Phase.NIGHT:
 		return
@@ -25,5 +25,5 @@ static func tick(district: C_District, cycle: C_DayCycle) -> void:
 		DistrictPopulationService.plan_phase(person, cycle.day_index, cycle.phase)
 		if person.placement != NpcRecord.Placement.STREET:
 			continue
-		# LimboAI alone executes the assigned movement intent.
+		# Назначенное движение выполняет только LimboAI.
 #endregion

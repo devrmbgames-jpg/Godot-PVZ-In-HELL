@@ -1,12 +1,12 @@
 extends RefCounted
-## LimboAI branch adapters issue semantic intents through a single owner and existing services.
+## Ветки LimboAI запрашивают смысловые действия через единственного владельца намерений.
 class_name NpcDecisionService
 
 const ARRIVAL_DISTANCE: float = 0.3
 const COMBAT_STOP_DISTANCE: float = 1.2
 
-#region Decision branches
-## Executes only the applicable branch; the tree owns priority and interruption.
+#region Ветки решений
+## Выполняет подходящую ветку; дерево владеет приоритетом и прерыванием.
 static func execute_branch(actor: E_DistrictNpc, owner_kind: C_NpcDecision.Owner, delta: float) -> bool:
 	var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
 	var person: NpcRecord = DistrictPopulationService.person_for(identity.npc_id)
@@ -81,7 +81,7 @@ static func execute_branch(actor: E_DistrictNpc, owner_kind: C_NpcDecision.Owner
 	return false
 #endregion
 
-#region Combat and escape
+#region Бой и бегство
 static func _flee(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwareness) -> void:
 	awareness.fleeing = true
 	if CombatService.target_for(actor) != null:
@@ -156,7 +156,7 @@ static func _combat(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwa
 		NpcIntentArbiter.move_to(actor, awareness.last_seen_position, COMBAT_STOP_DISTANCE, C_NpcDecision.Owner.COMBAT)
 #endregion
 
-#region Free activity
+#region Свободные занятия
 static func _idle(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwareness, delta: float) -> void:
 	if not person.profile.merchant and NpcCommunityService.idle(actor, person):
 		return

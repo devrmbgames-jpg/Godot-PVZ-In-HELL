@@ -1,5 +1,5 @@
 extends RefCounted
-## Follows authored shade passages or native paths, with bounded hazard checks and planning work.
+## Следует авторскому теневому проходу или нативному пути с ограничением работы и проверкой опасностей.
 class_name NpcRouteService
 
 const ENDPOINT_TOLERANCE: float = 1.0
@@ -7,8 +7,8 @@ const ENDPOINT_TOLERANCE: float = 1.0
 static var _query_world: World = null
 static var _hazard_query: QueryBuilder = null
 
-#region Route execution
-## Refreshes a derived route without changing final arrival/service semantics.
+#region Выполнение маршрута
+## Обновляет производный маршрут, сохраняя правила прибытия и обслуживания.
 static func tick(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> void:
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	if not actor.has_component(C_NpcRoute):
@@ -70,7 +70,7 @@ static func tick(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> void:
 	if maxf(route.blocked_seconds, route.stalled_seconds) >= district.definition.route_timeout:
 		_abandon(actor, person, route)
 
-## Executes a bounded fair batch, revalidating live intent before committing each route.
+## Выполняет ограниченную справедливую очередь планирования, перепроверяя текущее намерение.
 static func process_pending(district: C_District) -> void:
 	var frame: int = Engine.get_physics_frames()
 	if district.route_planning_frame != frame:
@@ -134,7 +134,7 @@ static func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute)
 		person.phase_complete = true
 	NpcIntentService.stop(actor)
 
-## Builds one route: the authored shade passage or the native navmesh path.
+## Строит один путь по авторскому теневому проходу или обычной navmesh.
 static func plan(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: Vector3, map: RID) -> PackedVector3Array:
 	var context: NpcRouteContext = _context(actor)
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
@@ -145,7 +145,7 @@ static func plan(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: 
 	if damage == 0.0:
 		return path
 
-	# Try one local bypass, then wait if neither the bypass nor the original path is safe.
+	# Проверить один локальный обход; ждать, если он и исходный путь опасны.
 	var bypass: PackedVector3Array = _local_detour(context, path, map)
 	if not bypass.is_empty() and acceptable(actor, person, _damage(bypass, context.hazards, context.speed)):
 		return bypass
@@ -163,7 +163,7 @@ static func _shade_path(start: Vector3, goal: Vector3, map: RID) -> PackedVector
 
 		passage.append(DistrictPopulationService.position_for(StringName(key)))
 
-	# Pick one entry and exit among the authored points, without searching alternative routes.
+	# Выбрать вход и выход среди авторских точек без поиска альтернативных маршрутов.
 	var entry: int = _closest_index(passage, start)
 	var exit_index: int = _closest_index(passage, goal)
 	if entry == exit_index:
@@ -240,8 +240,8 @@ static func _local_detour(context: NpcRouteContext, path: PackedVector3Array, ma
 	return PackedVector3Array()
 #endregion
 
-#region Shared risk calculation
-## Detects real harmful overlap, including a body clearance around the authored sphere.
+#region Общая оценка риска
+## Обнаруживает реальную вредную область с учётом зазора вокруг тела и сферы опасности.
 static func danger_here(actor: E_DistrictNpc) -> bool:
 	for effect: Entity in _hazard_entities():
 		var profile: DEF_ToxicArea = (effect.get_component(C_Hazard) as C_Hazard).definition as DEF_ToxicArea
@@ -250,7 +250,7 @@ static func danger_here(actor: E_DistrictNpc) -> bool:
 			return true
 	return false
 
-## Steps away from the overlapping harmful sphere; normal navigation validates escape.
+## Отступает от текущей вредной сферы; обычная навигация проверяет путь выхода.
 static func refuge(actor: E_DistrictNpc) -> Vector3:
 	var margin: float = DistrictPopulationService.current().definition.local_detour_margin
 	for hazard: NpcRouteContext.Hazard in _hazards(actor):
@@ -266,11 +266,11 @@ static func refuge(actor: E_DistrictNpc) -> Vector3:
 		return center + outward.normalized() * (hazard.radius + margin)
 	return actor.global_position
 
-## Expected periodic exposure uses the same type multiplier as O_Damage.
+## Ожидаемый периодический урон использует тот же множитель типа, что и O_Damage.
 static func expected_damage(actor: Entity, path: PackedVector3Array) -> float:
 	return _damage(path, _hazards(actor), _speed(actor))
 
-## Ordinary travel has a small risk budget; pursuit must preserve the authored HP reserve.
+## Обычное движение допускает малый риск; преследование сохраняет авторский запас здоровья.
 static func acceptable(actor: Entity, person: NpcRecord, damage: float) -> bool:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	if awareness != null and awareness.hazard_distress:

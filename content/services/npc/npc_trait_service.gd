@@ -1,11 +1,11 @@
 extends RefCounted
-## Intrinsic supernatural conditions, warnings and authored fire emitters on any street appearance.
+## Постоянные особенности нечисти, предупреждения и огненные ауры в любом уличном появлении.
 class_name NpcTraitService
 
 const AURA_SCENE: String = "res://content/entities/hazards/npc_fire_aura.tscn"
 
-#region Trait lifecycle
-## Installs actual fire immunity before the aura can affect its owner.
+#region Жизненный цикл особенностей
+## Устанавливает настоящий иммунитет к огню до воздействия собственной ауры.
 static func install(actor: E_DistrictNpc, profile: DEF_NpcProfile) -> void:
 	var resistance: C_DamageResistance = actor.get_component(C_DamageResistance) as C_DamageResistance
 	if resistance == null:
@@ -14,7 +14,7 @@ static func install(actor: E_DistrictNpc, profile: DEF_NpcProfile) -> void:
 	if profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null:
 		resistance.multipliers[DamageRequest.Type.FIRE] = 0.0
 
-## Evaluates sustained observable conditions at the shared perception cadence.
+## Проверяет длительные воспринимаемые воздействия с общей частотой сенсоров.
 static func tick(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: float) -> void:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.hazard_distress = NpcRouteService.danger_here(actor)
@@ -52,7 +52,7 @@ static func tick(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta:
 			var incident: StringName = StringName("rule/%s/%d/%d/%d" % [person.npc_id, cycle.day_index, cycle.phase, rule.kind])
 			NpcSocialService.react(actor, player, NpcMemory.Kind.OFFENSE, incident)
 
-## Uses the authored light-aversion refuge, falling back to the person's exit.
+## Использует авторское укрытие от света или закреплённую точку выхода личности.
 static func dark_refuge(_actor: E_DistrictNpc, person: NpcRecord) -> Vector3:
 	var district: C_District = DistrictPopulationService.current()
 	var refuge_id: StringName = district.definition.shade_refuge

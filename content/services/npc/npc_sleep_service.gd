@@ -1,9 +1,9 @@
 extends RefCounted
-## Sleep gates immediate threats and active search, while historical hostility remains personal memory.
+## Сон блокируется непосредственной угрозой и поиском; прошлая неприязнь остаётся в памяти.
 class_name NpcSleepService
 
-#region Rest safety
-## Readable reasons derived from actual participants and effective local damage.
+#region Безопасность отдыха
+## Объясняет блокировку сна по текущим участникам и эффективному местному урону.
 static func blockers() -> PackedStringArray:
 	var reasons: PackedStringArray = []
 	var district: C_District = DistrictPopulationService.current()

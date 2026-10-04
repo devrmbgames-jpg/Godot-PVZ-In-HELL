@@ -1,9 +1,9 @@
 extends RefCounted
-## Single branch ownership for district movement; ordinary actors keep the existing intent API.
+## Единственный владелец движения района; обычные NPC сохраняют существующий API намерений.
 class_name NpcIntentArbiter
 
-#region Intent ownership
-## Acquires priority for one decision batch without cancelling an executing attack.
+#region Владение намерением
+## Получает приоритет на текущий такт решений, не отменяя выполняемую атаку.
 static func acquire(actor: Entity, owner_kind: C_NpcDecision.Owner, behavior: String) -> bool:
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
 	if decision == null:
@@ -15,7 +15,7 @@ static func acquire(actor: Entity, owner_kind: C_NpcDecision.Owner, behavior: St
 	decision.active_behavior = behavior
 	return true
 
-## Issues position movement without leaking a hidden live target into navigation.
+## Запрашивает движение к позиции без передачи скрытой актуальной цели навигации.
 static func move_to(actor: Entity, world_position: Vector3, arrival_distance: float, owner_kind: C_NpcDecision.Owner) -> void:
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
 	if decision != null and decision.intent_owner != owner_kind:
@@ -30,7 +30,7 @@ static func move_to(actor: Entity, world_position: Vector3, arrival_distance: fl
 	NpcIntentService.move_to(actor, world_position, arrival_distance)
 	NpcIntentService.look_along_movement(actor)
 
-## Stops only the branch that currently owns movement.
+## Останавливает движение только текущего владельца намерения.
 static func stop(actor: Entity, owner_kind: C_NpcDecision.Owner) -> void:
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
 	if decision == null or decision.intent_owner == owner_kind:

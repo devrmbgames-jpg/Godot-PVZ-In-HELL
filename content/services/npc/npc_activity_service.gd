@@ -1,13 +1,13 @@
 extends RefCounted
-## Data-driven free destinations and observation, separate from parcel service.
+## Выбор свободных целей и наблюдения по данным, независимо от обслуживания посылок.
 class_name NpcActivityService
 
-#region Destinations
-## Returns a visitor standing point clear of the merchant.
+#region Цели движения
+## Возвращает точку посетителя с зазором от торговца.
 static func destination(place: DEF_DistrictPlace) -> Vector3:
 	return DistrictPopulationService.position_for(place.key) + place.activity_offset
 
-## Selects a preferred eligible activity deterministically at its next interval.
+## Фиксированно выбирает доступное предпочитаемое занятие по истечении паузы.
 static func choose(actor: E_DistrictNpc, person: NpcRecord) -> DEF_DistrictPlace:
 	var candidates: Array[DEF_DistrictPlace] = []
 	for place: DEF_DistrictPlace in DistrictPopulationService.current().definition.places:
@@ -24,7 +24,7 @@ static func choose(actor: E_DistrictNpc, person: NpcRecord) -> DEF_DistrictPlace
 
 	return candidates[abs(hash(person.npc_id) + person.activity_sequence) % candidates.size()] if not candidates.is_empty() else null
 
-## Resolves a living participating shopkeeper; a vacant shop is not a destination.
+## Находит живого участвующего торговца; пустая торговая точка не является целью.
 static func merchant() -> E_DistrictNpc:
 	for person: NpcRecord in DistrictPopulationService.current().people:
 		if person.death_day == 0 and person.placement == NpcRecord.Placement.STREET and person.profile.merchant:
@@ -32,8 +32,8 @@ static func merchant() -> E_DistrictNpc:
 	return null
 #endregion
 
-#region Observation
-## Applies stationary focus without tracking an unseen player.
+#region Наблюдение
+## Направляет неподвижный взгляд, не отслеживая скрытого игрока.
 static func observe(actor: E_DistrictNpc, person: NpcRecord, player_visible: bool) -> void:
 	var place: DEF_DistrictPlace = DistrictPopulationService.current().definition.place_for(person.goal_id)
 	if place == null or player_visible:

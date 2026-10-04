@@ -1,23 +1,23 @@
 extends RefCounted
-## Cheap authored light-volume exposure, independent of rendering and physical sight rays.
+## Дешёвая оценка авторских зон света, независимая от рендера и лучей зрения.
 class_name NpcLightingService
 
 static var _registered_zones: Array[NpcLightZone] = []
 static var _zone_revision: int = 0
 
-#region Scene registration
-## Registers a static volume or a player-created moving light when it enters the scene.
+#region Регистрация в сцене
+## Регистрирует неподвижную зону или подвижный свет игрока при входе в сцену.
 static func register_zone(zone: NpcLightZone) -> void:
 	if not _registered_zones.has(zone):
 		_registered_zones.append(zone)
 		_zone_revision += 1
 
-## Removes transient bindings on exit, including scene replacement and carried lights.
+## Удаляет временные связи при выходе, включая замену сцены и переносной свет.
 static func unregister_zone(zone: NpcLightZone) -> void:
 	_registered_zones.erase(zone)
 	_zone_revision += 1
 
-## Filters volume membership only when zones enter or leave, not on every sample/frame.
+## Обновляет состав зон только при входе или выходе зоны, а не при каждом измерении.
 static func context_for(district: C_District) -> NpcLightingContext:
 	if district.lighting_context != null and district.lighting_revision == _zone_revision:
 		return district.lighting_context
@@ -32,9 +32,9 @@ static func context_for(district: C_District) -> NpcLightingContext:
 	return context
 #endregion
 
-#region Illumination query
-## Returns the strongest authored exposure; occlusion belongs to level markup and sight.
-## The exclusion argument remains compatible with callers; held props do not mask light zones.
+#region Оценка освещённости
+## Возвращает максимальную авторскую освещённость; перекрытие задаётся зонами и зрением.
+## Аргумент исключений сохраняет совместимость; предметы в руках не перекрывают зоны света.
 static func exposure_at(world_position: Vector3, _ignored_bodies: Array[RID] = [], context: NpcLightingContext = null) -> float:
 	var district: C_District = DistrictPopulationService.current()
 	if district == null or district.definition == null:

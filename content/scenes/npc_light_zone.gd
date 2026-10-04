@@ -1,16 +1,16 @@
 extends Area3D
-## Authored gameplay light volume; moving player lights can use the same Area3D.
+## Авторская зона игрового света; переносной свет игрока использует такой же Area3D.
 class_name NpcLightZone
 
-## Light exposure inside the volume, normalized to 0..1.
+## Освещённость внутри зоны, нормированная от 0 до 1.
 @export_range(0.0, 1.0) var exposure: float = 1.0
-## Independent source toggle, used by a future carried light.
+## Независимый переключатель источника для будущего переносного света.
 @export var enabled: bool = true
-## Enable for a carried light; static room volumes capture their geometry once.
+## Включить у переносного света; неподвижная зона сохраняет геометрию один раз.
 @export var moving_source: bool = false
-## Optional stable switch ID; an empty ID makes the zone independent.
+## Необязательный ID выключателя; пустое значение делает зону независимой.
 @export var circuit_id: StringName = &""
-## Optional existing visual clock, keeping circuit flicker synchronized.
+## Необязательные часы существующего визуального света для согласованного мерцания.
 @export var flicker_view_path: NodePath = NodePath("")
 
 @onready var _volume: CollisionShape3D = $CollisionShape3D
@@ -21,7 +21,7 @@ var _box_bounds: AABB = AABB()
 var _sphere_radius_squared: float = 0.0
 var _valid_volume: bool = false
 
-#region Registration
+#region Регистрация
 func _enter_tree() -> void:
 	NpcLightingService.register_zone(self)
 
@@ -32,8 +32,8 @@ func _exit_tree() -> void:
 	NpcLightingService.unregister_zone(self)
 #endregion
 
-#region Volume query
-## Tests a single authored box or sphere, without physics rays or light-source searches.
+#region Проверка зоны
+## Проверяет одну авторскую коробчатую или сферическую зону без лучей и поиска ламп.
 func contains_point(world_position: Vector3) -> bool:
 	if not enabled or not is_node_ready() or _volume.disabled:
 		return false
@@ -54,7 +54,7 @@ func _capture_volume() -> void:
 	if box != null:
 		_box_bounds = AABB(-box.size * 0.5, box.size)
 
-## Reads the authoritative switch and the already-running visual flicker clock.
+## Читает авторитетный выключатель и уже работающие часы визуального мерцания.
 func is_lit() -> bool:
 	return enabled and (circuit_id.is_empty() or LightCircuitService.is_enabled(circuit_id)) and (not is_instance_valid(_flicker_view) or _flicker_view.is_lit())
 #endregion

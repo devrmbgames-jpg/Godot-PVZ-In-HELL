@@ -2,8 +2,8 @@ extends RefCounted
 ## Добровольная доставка использует обычную проверку коробки и однократную отдельную доплату.
 class_name NpcHomeDeliveryService
 
-#region Obligations
-## Finds a suitable registered unresolved case for this permanent local person.
+#region Обязательства
+## Находит подходящий зарегистрированный нерешённый заказ постоянного местного жителя.
 static func offer_for(body: E_DistrictNpc) -> CustomerVisit:
 	var district: C_District = DistrictPopulationService.current()
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -58,7 +58,7 @@ static func decline(body: E_DistrictNpc) -> bool:
 	body.show_message("Тогда зайду сам через %d дн." % (visit.next_followup_day - cycle.day_index))
 	return true
 
-## Accepts at most the authored limit and suspends the daytime counter appearance.
+## Принимает допуслугу в пределах дневного лимита и завершает визит к стойке.
 static func accept(body: E_DistrictNpc) -> bool:
 	var visit: CustomerVisit = offer_for(body)
 	if visit == null:
@@ -80,7 +80,7 @@ static func accept(body: E_DistrictNpc) -> bool:
 	body.show_message("Жду у дома до сна. Адрес: " + DistrictPopulationService.place_name(job.address_id) + " · доплата " + str(visit.payment))
 	return true
 
-## Active address job exists only in its evening and never transfers to a replacement.
+## Доставка доступна у адреса только своим вечером и не переходит новому жителю.
 static func job_for_address(address_id: StringName) -> NpcHomeDelivery:
 	var district: C_District = DistrictPopulationService.current()
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -92,7 +92,7 @@ static func job_for_address(address_id: StringName) -> NpcHomeDelivery:
 			return job
 	return null
 
-## Returns the obligation only while a live relationship reserves its door.
+## Возвращает обязательство только пока живая связь резервирует его дверь.
 static func meeting_for(body: Entity) -> NpcHomeDelivery:
 	if not is_instance_valid(body):
 		return null
@@ -104,7 +104,7 @@ static func meeting_for(body: Entity) -> NpcHomeDelivery:
 					return job
 	return null
 
-## Returns a live home door when inspection needs to return to the meeting.
+## Возвращает живую дверь для возврата из осмотра к домашней встрече.
 static func door_for(body: Entity) -> Entity:
 	for link: Relationship in body.relationships:
 		if link.relation is R_NpcHomeMeeting and EntityAvailability.contains(link.target, ECS.world):
@@ -112,8 +112,8 @@ static func door_for(body: Entity) -> Entity:
 	return null
 #endregion
 
-#region Meeting and shared receipt
-## Wakes an absent recipient at their own door, or asks a visible recipient to walk home.
+#region Встреча и общая выдача
+## Вызывает отсутствующего получателя у своей двери или направляет видимого NPC домой.
 static func knock(player: Entity, door: Entity) -> bool:
 	var address: C_NpcAddress = door.get_component(C_NpcAddress) as C_NpcAddress
 	var job: NpcHomeDelivery = job_for_address(address.address_id) if address != null else null
@@ -151,7 +151,7 @@ static func knock(player: Entity, door: Entity) -> bool:
 	body.show_message(person.display_name + " · иду к двери")
 	return GrabService.holder_available(player)
 
-## Runs the home service branch with no patience timer or counter relocation.
+## Выполняет домашнее обслуживание без таймера терпения и переноса к стойке.
 static func step(body: E_DistrictNpc, job: NpcHomeDelivery, delta: float) -> void:
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
@@ -178,7 +178,7 @@ static func step(body: E_DistrictNpc, job: NpcHomeDelivery, delta: float) -> voi
 			if CustomerInspectionService.tick(body, visit):
 				CustomerFlowService.complete_inspection(body, visit)
 
-## Commits ordinary settlement and bonus with distinct idempotency identities.
+## Фиксирует обычную оплату и доплату с раздельными ключами однократного начисления.
 static func complete(job: NpcHomeDelivery) -> bool:
 	if job.status != NpcHomeDelivery.Status.ACCEPTED:
 		return job.status == NpcHomeDelivery.Status.DELIVERED
@@ -210,15 +210,15 @@ static func complete(job: NpcHomeDelivery) -> bool:
 		NpcServiceRole.finish_appearance(body, visit)
 	return true
 
-## Drops only the meeting reservation; it does not move the parcel.
+## Снимает только резервирование встречи, не перемещая коробку.
 static func release_meeting(body: Entity) -> void:
 	for link: Relationship in body.relationships.duplicate():
 		if link.relation is R_NpcHomeMeeting:
 			body.remove_relationship(link)
 #endregion
 
-#region Night closeout and presentation
-## Resolves unfulfilled promises once; registered physical boxes remain in place.
+#region Завершение вечера и отображение
+## Один раз завершает невыполненные обещания; зарегистрированные коробки остаются на месте.
 static func finish_evening(day_index: int) -> void:
 	var district: C_District = DistrictPopulationService.current()
 	if district == null:
@@ -252,7 +252,7 @@ static func finish_evening(day_index: int) -> void:
 			visit.next_followup_day = 0
 			visit.followup_committed = false
 
-## Concise authoritative job list for the HUD; no internal implementation details.
+## Краткий список авторитетных обязательств для HUD без внутренних деталей реализации.
 static func status_text() -> String:
 	var district: C_District = DistrictPopulationService.current()
 	var cycle: C_DayCycle = DayPhaseService.current()

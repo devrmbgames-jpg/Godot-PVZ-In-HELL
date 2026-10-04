@@ -1,9 +1,9 @@
 extends RefCounted
-## Personal incident memory, deterministic reactions and perception-limited witnesses.
+## Личная память, фиксированные реакции и свидетели с ограниченным восприятием.
 class_name NpcSocialService
 
-#region Incidents and personality
-## Applies semantic conversation choices without modifying parcel finance.
+#region Инциденты и характер
+## Применяет смысл диалогового выбора, не изменяя расчёты посылки.
 static func dialogue_response(body: E_DistrictNpc, actor: Entity, intent: CustomerDialogueIntent.Type, incident: StringName) -> NpcMemory.Reaction:
 	var kind: NpcMemory.Kind = NpcMemory.Kind.HELP
 	match intent:
@@ -15,7 +15,7 @@ static func dialogue_response(body: E_DistrictNpc, actor: Entity, intent: Custom
 			kind = NpcMemory.Kind.JOKE
 	return react(body, actor, kind, incident)
 
-## Returns a stable participant identity only at an already recognized interaction boundary.
+## Возвращает постоянный ID участника только на границе уже распознанного взаимодействия.
 static func identity_for(actor: Entity) -> StringName:
 	if not is_instance_valid(actor):
 		return &""
@@ -25,7 +25,7 @@ static func identity_for(actor: Entity) -> StringName:
 	var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
 	return identity.npc_id if identity != null else &""
 
-## Records a reaction once; returning to the same incident never rerolls it.
+## Фиксирует реакцию один раз; повтор инцидента не перебрасывает результат.
 static func react(body: E_DistrictNpc, actor: Entity, kind: NpcMemory.Kind, incident: StringName) -> NpcMemory.Reaction:
 	var person: NpcRecord = DistrictPopulationService.person_for(identity_for(body))
 	if person == null or person.death_day != 0:
@@ -60,7 +60,7 @@ static func react(body: E_DistrictNpc, actor: Entity, kind: NpcMemory.Kind, inci
 			body.show_message("Поговорим спокойно. Без новых провокаций.")
 	return reaction
 
-## Records understood information without forcing a witness into combat.
+## Запоминает распознанные сведения, не заставляя свидетеля вступать в бой.
 static func remember(person: NpcRecord, actor: Entity, victim: Entity, kind: NpcMemory.Kind, incident: StringName, reaction: NpcMemory.Reaction = NpcMemory.Reaction.TALK) -> void:
 	for previous: NpcMemory in person.memories:
 		if previous.incident_id == incident:
@@ -97,8 +97,8 @@ static func _choose(profile: DEF_NpcProfile, kind: NpcMemory.Kind, seed_value: i
 	return NpcMemory.Reaction.FLEE if roll < profile.high_attack_probability + profile.low_flee_probability else NpcMemory.Reaction.TALK
 #endregion
 
-#region Committed violence
-## Damage results are witnessed physically; unknown attackers produce noise, not omniscience.
+#region Подтверждённое насилие
+## Свидетели воспринимают урон; неизвестный атакующий создаёт шум без раскрытия личности.
 static func observe_damage(result: DamageResult) -> void:
 	if result == null or result.request == null or result.applied_amount <= 0.0 or result.request.operation != DamageRequest.Operation.DAMAGE:
 		return

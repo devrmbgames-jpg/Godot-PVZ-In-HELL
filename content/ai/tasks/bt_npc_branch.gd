@@ -1,11 +1,11 @@
 @tool
 extends BTAction
-## Small branch adapter; domain algorithms remain in NPC services.
+## Тонкая задача ветки; алгоритмы предметной области остаются в сервисах NPC.
 
-## Branch priority and intent ownership requested by this task.
+## Приоритет ветки и владелец намерения, запрашиваемые этой задачей.
 @export var owner_kind: C_NpcDecision.Owner = C_NpcDecision.Owner.IDLE
 
-#region LimboAI callbacks
+#region Вызовы LimboAI
 func _tick(delta: float) -> Status:
 	var actor: E_DistrictNpc = get_agent() as E_DistrictNpc
 	if not is_instance_valid(actor):

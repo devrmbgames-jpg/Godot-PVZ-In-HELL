@@ -1,11 +1,11 @@
 extends RefCounted
-## Bounded sensory/decision cadence using native LimboAI instances per persistent person.
+## Распределяет восприятие и решения между постоянными NPC с нативными деревьями LimboAI.
 class_name NpcBrainService
 
 const TREE_PATH: String = "res://content/ai/trees/bt_district_npc.tres"
 
-#region Brain lifecycle
-## Creates derived sensors and one manually scheduled BTPlayer.
+#region Жизненный цикл AI
+## Создаёт производные сенсоры и единственный BTPlayer с ручным обновлением.
 static func install(actor: E_DistrictNpc) -> void:
 	var profile_identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
 	var person: NpcRecord = DistrictPopulationService.person_for(profile_identity.npc_id)
@@ -36,7 +36,7 @@ static func install(actor: E_DistrictNpc) -> void:
 	runner.behavior_tree = load(TREE_PATH) as BehaviorTree
 	actor.add_child(runner)
 
-## Updates one coherent perception batch and then each native tree.
+## Обновляет согласованное восприятие, затем каждое нативное дерево решений.
 static func tick(district: C_District, delta: float) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:

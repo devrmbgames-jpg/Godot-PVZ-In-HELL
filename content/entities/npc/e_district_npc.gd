@@ -1,12 +1,12 @@
 @tool
 extends E_Customer
-## Persistent NPC presentation and explicit native participation/teleport boundaries.
+## Презентация постоянного NPC и явные границы физического участия и телепортации.
 class_name E_DistrictNpc
 
 var _body_layer: int = 2
 var _body_mask: int = 31
 
-#region Engine lifecycle
+#region Жизненный цикл движка
 func _ready() -> void:
 	super._ready()
 	var body: RigidBody3D = self as Node as RigidBody3D
@@ -14,8 +14,8 @@ func _ready() -> void:
 	_body_mask = body.collision_mask
 #endregion
 
-#region District presentation
-## Changes physics participation without deleting or resetting the person.
+#region Представление района
+## Изменяет физическое участие без удаления или сброса личности.
 func set_participating(participating: bool) -> void:
 	var body: RigidBody3D = self as Node as RigidBody3D
 	body.freeze = not participating
@@ -27,7 +27,7 @@ func set_participating(participating: bool) -> void:
 		body.angular_velocity = Vector3.ZERO
 	sync_navigation_lifecycle(participating)
 
-## One-time synchronization at spawn, sleep or load, never ordinary movement.
+## Разовая синхронизация при появлении, сне или загрузке; обычным движением владеет физика.
 func place_at(world_position: Vector3) -> void:
 	var body: RigidBody3D = self as Node as RigidBody3D
 	var was_frozen: bool = body.freeze
@@ -38,7 +38,7 @@ func place_at(world_position: Vector3) -> void:
 	body.reset_physics_interpolation()
 	body.freeze = was_frozen
 
-## Presents a stable person independently of the active parcel case.
+## Показывает постоянную личность независимо от активного заказа.
 func present_profile(profile: DEF_NpcProfile) -> void:
 	show_message(profile.display_name)
 	var skeleton_meshes: Array[Node] = find_children("*", "MeshInstance3D", true, false)

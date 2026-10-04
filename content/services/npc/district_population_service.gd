@@ -1,13 +1,13 @@
 extends RefCounted
-## Permanent population lifecycle; temporary departures never instantiate another person.
+## Постоянное население; временный уход не создаёт другое тело личности.
 class_name DistrictPopulationService
 
 static var _lookup_world: World = null
 static var _session_reference: WeakRef = null
 static var _session_query: QueryBuilder = null
 
-#region Lookups
-## Returns the scene-local district session, if installed.
+#region Поиск постоянных записей
+## Возвращает установленную сессию текущего района.
 static func current() -> C_District:
 	if not is_instance_valid(ECS.world):
 		return null
@@ -24,7 +24,7 @@ static func current() -> C_District:
 	_session_reference = weakref(session) if session != null else null
 	return session.get_component(C_District) as C_District if session != null else null
 
-## Looks up permanent identity, including historical dead people.
+## Находит постоянную личность, включая погибших в истории района.
 static func person_for(npc_id: StringName) -> NpcRecord:
 	var district: C_District = current()
 	if district != null:
@@ -33,7 +33,7 @@ static func person_for(npc_id: StringName) -> NpcRecord:
 				return person
 	return null
 
-## Finds a retained body, including temporarily disabled bodies.
+## Находит сохранённое тело, в том числе временно отключённое.
 static func body_for(npc_id: StringName) -> E_DistrictNpc:
 	if not is_instance_valid(ECS.world):
 		return null
@@ -57,11 +57,11 @@ static func body_for(npc_id: StringName) -> E_DistrictNpc:
 			return entity as E_DistrictNpc
 	return null
 
-## Gets the district origin independently of authored debug markers.
+## Возвращает начало координат района независимо от авторских DebugMarkers.
 static func origin() -> Node3D:
 	return ECS.world.get_parent().get_node_or_null("District") as Node3D if is_instance_valid(ECS.world) else null
 
-## Resolves a district place to its world position.
+## Преобразует авторское место района в мировую позицию.
 static func position_for(place_id: StringName) -> Vector3:
 	var district: C_District = current()
 	var place: DEF_DistrictPlace = district.definition.place_for(place_id) if district != null and district.definition != null else null
@@ -74,13 +74,13 @@ static func position_for(place_id: StringName) -> Vector3:
 			return anchored
 	return district_root.to_global(place.position) if place != null and district_root != null else place.position if place != null else Vector3.ZERO
 
-## Resolves a readable destination without exposing its authored stable key.
+## Возвращает отображаемый адрес, не показывая его внутренний ID.
 static func place_name(place_id: StringName) -> String:
 	var district: C_District = current()
 	var place: DEF_DistrictPlace = district.definition.place_for(place_id) if district != null else null
 	return place.display_name if place != null else str(place_id)
 
-## Selects the current living recipient for a newly created parcel case.
+## Выбирает текущего живого получателя для нового заказа поставки.
 static func recipient_for(recipient_key: StringName) -> NpcRecord:
 	var district: C_District = current()
 	if district != null:
@@ -90,7 +90,7 @@ static func recipient_for(recipient_key: StringName) -> NpcRecord:
 	return null
 #endregion
 
-#region Native restoration
+#region Восстановление состояния движка
 static func _reset_brain(body: E_DistrictNpc) -> void:
 	NpcCommunityService.cancel_activity(body)
 	NpcDialogueService.end(body)
@@ -109,7 +109,7 @@ static func _reset_brain(body: E_DistrictNpc) -> void:
 	if runner != null:
 		runner.free()
 
-## Restores native participation and readable identity after a snapshot.
+## Восстанавливает участие в движке и представление личности после снимка.
 static func restore_participation() -> void:
 	var district: C_District = current()
 	if district == null:
@@ -134,8 +134,8 @@ static func restore_participation() -> void:
 
 #endregion
 
-#region Population initialization
-## Seeds exactly one initial population before startup save restoration.
+#region Создание населения
+## Создаёт одно исходное население до восстановления сохранения при старте.
 static func initialize() -> void:
 	var district: C_District = current()
 	if district == null or district.definition == null or not district.people.is_empty():
@@ -218,8 +218,8 @@ static func _spawn_body(person: NpcRecord) -> E_DistrictNpc:
 	return body
 #endregion
 
-#region Calendar and participation
-## Prepares a future morning once, including replacement; safe for repeated save attempts.
+#region Календарь и участие в мире
+## Один раз готовит будущее утро с заселением; повтор записи безопасен.
 static func prepare_morning(morning_day: int) -> void:
 	var district: C_District = current()
 	if district == null or district.prepared_morning >= morning_day:
@@ -242,7 +242,7 @@ static func prepare_morning(morning_day: int) -> void:
 		NpcBrainService.install(body)
 		plan_phase(person, morning_day, C_DayCycle.Phase.MORNING, true)
 
-## Assigns a phase destination; visible departures move to a door or portal first.
+## Назначает цель фазы; видимый NPC сначала доходит до двери или прохода.
 static func plan_phase(person: NpcRecord, day_index: int, phase: C_DayCycle.Phase, synchronize: bool = false) -> void:
 	if person.death_day != 0 or (person.planned_day == day_index and person.planned_phase == phase and not synchronize):
 		return
@@ -270,7 +270,7 @@ static func plan_phase(person: NpcRecord, day_index: int, phase: C_DayCycle.Phas
 		body.place_at(position_for(person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id))
 		set_placement(person, body, NpcRecord.Placement.STREET)
 
-## Authoritative placement transition with native engine participation.
+## Изменяет авторитетное размещение и участие тела в движке.
 static func set_placement(person: NpcRecord, body: E_DistrictNpc, placement: NpcRecord.Placement) -> void:
 	person.placement = placement
 	var active: bool = placement == NpcRecord.Placement.STREET
@@ -286,7 +286,7 @@ static func set_placement(person: NpcRecord, body: E_DistrictNpc, placement: Npc
 	if placement == NpcRecord.Placement.DEAD:
 		body.sync_death_presentation()
 
-## Completes a phase anchor after reaching its destination.
+## Завершает обязательную цель фазы после прибытия.
 static func complete_phase(person: NpcRecord, body: E_DistrictNpc) -> void:
 	person.phase_complete = true
 	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(person.planned_day, person.planned_phase as C_DayCycle.Phase)
@@ -295,7 +295,7 @@ static func complete_phase(person: NpcRecord, body: E_DistrictNpc) -> void:
 	elif location != DEF_NpcSchedule.Location.STREET:
 		set_placement(person, body, NpcRecord.Placement.HOME if location == DEF_NpcSchedule.Location.HOME else NpcRecord.Placement.OUTSIDE)
 
-## Records terminal death once; future cases cannot reuse the deceased person.
+## Один раз фиксирует смерть; будущие заказы не используют погибшую личность.
 static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) -> void:
 	if person.death_day != 0:
 		return

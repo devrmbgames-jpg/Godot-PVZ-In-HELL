@@ -1,5 +1,5 @@
 extends RefCounted
-## Physical multi-point sight and bounded audible stimuli; no omniscient target tracking.
+## Зрение по нескольким точкам и ограниченные звуковые события без всеведения о цели.
 class_name NpcPerceptionService
 
 const EYE_HEIGHT: float = 1.5
@@ -9,8 +9,8 @@ const TORSO_HEAD_FRACTION: float = 0.6
 const SHOULDER_OFFSET: float = 0.22
 const SIGHT_MASK: int = 31
 
-#region Sight
-## Checks physical visibility against authored eyes, light and partial cover.
+#region Зрение
+## Проверяет физическую видимость с учётом зрения, света и частичного прикрытия.
 static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile, allow_dead_target: bool = false) -> bool:
 	var target_available: bool = is_instance_valid(target) and is_instance_valid(ECS.world) and ECS.world.entities.has(target) if allow_dead_target else GrabService.holder_available(target)
 	if observer == target or not target_available or not GrabService.holder_available(observer):
@@ -28,7 +28,7 @@ static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile, a
 	var torso: Vector3 = target_body.global_position + Vector3.UP * torso_height
 	var target_offset: Vector3 = torso - eye
 	var distance: float = target_offset.length()
-	# Reject distant and rear-facing candidates before checking light zones or casting sight rays.
+	# Отсечь дальние цели и цели позади до проверки зон света и лучей зрения.
 	if distance > maxf(profile.near_recognition_range, profile.vision_range):
 		return false
 
@@ -61,7 +61,7 @@ static func _head_point(actor: Entity, physical: PhysicsBody3D) -> Vector3:
 		return character.head_axis_x.global_position
 	return physical.global_position + Vector3.UP * EYE_HEIGHT
 
-## Tests an item or authored point using the same light, sector and occlusion rules.
+## Проверяет предмет или авторскую точку по тем же правилам света, сектора и препятствий.
 static func can_see_point(observer: E_DistrictNpc, point: Vector3, profile: DEF_NpcProfile, target: Entity = null) -> bool:
 	if not GrabService.holder_available(observer):
 		return false
@@ -89,7 +89,7 @@ static func can_see_point(observer: E_DistrictNpc, point: Vector3, profile: DEF_
 	return hit.is_empty() or (target != null and HazardTargets.entity_for(hit.get("collider") as Node) == target)
 
 
-## Updates only confirmed positions; hidden positions are not copied from the live target.
+## Обновляет только подтверждённые позиции; скрытые позиции не копируются из живой цели.
 static func sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: float) -> void:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.player_visible = player != null and can_see(actor, player, person.profile)
@@ -113,14 +113,14 @@ static func sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta
 			hear(actor, person.profile, noise)
 #endregion
 
-#region Hearing
-## Emits a spatial action using the body's actual position without identifying it to listeners.
+#region Слух
+## Создаёт шум в реальной позиции тела без раскрытия личности слушателям.
 static func action_noise(source: Entity, radius: float) -> void:
 	var spatial: Node3D = source as Node as Node3D if is_instance_valid(source) else null
 	if spatial != null and spatial.is_inside_tree():
 		emit_noise(source, spatial.global_position, radius)
 
-## Emits a stimulus without revealing actor identity to listeners.
+## Создаёт звуковое событие без раскрытия личности источника слушателям.
 static func emit_noise(source: Entity, world_position: Vector3, radius: float) -> void:
 	var district: C_District = DistrictPopulationService.current()
 	if district == null or not is_finite(radius) or radius <= 0.0:
@@ -135,7 +135,7 @@ static func emit_noise(source: Entity, world_position: Vector3, radius: float) -
 	noise.radius = radius
 	district.noises.append(noise)
 
-## Hears a location through attenuating obstacles without binding an unseen source.
+## Слышит место через ослабляющие препятствия без связи с невидимым источником.
 static func hear(listener: Entity, profile: DEF_NpcProfile, noise: NpcNoise) -> bool:
 	if noise.source == listener:
 		return false
@@ -161,7 +161,7 @@ static func hear(listener: Entity, profile: DEF_NpcProfile, noise: NpcNoise) -> 
 	awareness.heard_remaining = profile.search_seconds
 	return true
 
-## Produces footsteps from actual body motion at the decision cadence.
+## Создаёт шаги по реальному движению тела с частотой принятия решений.
 static func footsteps(actor: Entity, delta: float) -> void:
 	var body: RigidBody3D = actor as Node as RigidBody3D
 	if body == null or not actor.enabled:

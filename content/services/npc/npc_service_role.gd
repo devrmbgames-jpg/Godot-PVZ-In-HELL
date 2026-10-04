@@ -4,8 +4,8 @@ class_name NpcServiceRole
 
 const QUEUE_SPACING: float = 1.3
 
-#region Service scheduling
-## Enqueues one registered case without creating or resetting its recipient.
+#region Планирование обслуживания
+## Назначает один зарегистрированный заказ без создания или сброса получателя.
 static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 	if cycle.phase != C_DayCycle.Phase.DAY or flow.arrival_cooldown_seconds > 0.0:
 		return false
@@ -40,7 +40,7 @@ static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 		return true
 	return false
 
-## Attaches an appearance to a retained body and lets the decision tree move it.
+## Добавляет визит сохранённому телу; движением управляет дерево решений.
 static func begin(body: E_DistrictNpc, person: NpcRecord, visit: CustomerVisit, day_index: int) -> void:
 	if person.placement != NpcRecord.Placement.STREET:
 		body.place_at(DistrictPopulationService.position_for(person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id))
@@ -62,7 +62,7 @@ static func begin(body: E_DistrictNpc, person: NpcRecord, visit: CustomerVisit, 
 	CustomerFlowService.bind_parcel(body, visit)
 	body.show_message(person.display_name + " · за посылкой")
 
-## Advances the queue or owns the counter; only the service branch calls this.
+## Продвигает очередь или резервирует стойку; вызывается только веткой обслуживания.
 static func step_queue(body: E_DistrictNpc, visit: CustomerVisit) -> void:
 	var counter: E_DeliveryCounter = CustomerFlowService.counter()
 	if counter == null:
@@ -102,8 +102,8 @@ static func step_queue(body: E_DistrictNpc, visit: CustomerVisit) -> void:
 		finish_appearance(body, visit)
 #endregion
 
-#region Role termination
-## Interrupts an unresolved appearance, releasing its cargo and reservation without inventing an outcome.
+#region Завершение роли
+## Прерывает нерешённый визит, освобождая коробку и стойку без выдуманного результата.
 static func suspend(body: E_DistrictNpc) -> void:
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null:
@@ -127,7 +127,7 @@ static func suspend(body: E_DistrictNpc) -> void:
 	visit.started = false
 	visit.finished = home != null
 
-## Ends only this appearance, preserving the person and unresolved case rules.
+## Завершает только визит, сохраняя личность и правила нерешённого заказа.
 static func finish_appearance(body: E_DistrictNpc, visit: CustomerVisit) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var day_index: int = cycle.day_index if cycle != null else visit.last_visit_day
@@ -143,7 +143,7 @@ static func finish_appearance(body: E_DistrictNpc, visit: CustomerVisit) -> void
 		body.present_profile(person.profile)
 		body.show_message(person.display_name)
 
-## Releases the role and only its live parcel/reservation bindings.
+## Снимает роль и только её живые связи с коробкой и стойкой.
 static func release(body: Entity, visit_id: StringName) -> void:
 	NpcDialogueService.end(body)
 	var parcel: Entity = CustomerFlowService.parcel_for(CustomerFlowService.find_visit(visit_id).package_id) if CustomerFlowService.find_visit(visit_id) != null else null
@@ -157,7 +157,7 @@ static func release(body: Entity, visit_id: StringName) -> void:
 	if body.has_component(C_CustomerAgent):
 		body.remove_component(C_CustomerAgent)
 
-## Propagates a permanent death across every case without transferring ownership.
+## Применяет окончательную смерть ко всем заказам без переназначения владельца.
 static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) -> void:
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	if flow == null:
@@ -183,7 +183,7 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 		CustomerInspectionService.end(body)
 		release(body, agent.visit_id)
 
-## Adapts existing escalation requests to generic combat targeting.
+## Преобразует эскалацию обслуживания в обычный выбор боевой цели.
 static func escalate(body: E_DistrictNpc) -> void:
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	if player != null:

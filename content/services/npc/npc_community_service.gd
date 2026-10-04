@@ -1,9 +1,9 @@
 extends RefCounted
-## Bounded motivated NPC conflicts and opportunistic physical loot using ordinary inventory rules.
+## Ограниченные мотивированные конфликты NPC и подбор доступной физической добычи.
 class_name NpcCommunityService
 
-#region Community activity
-## Executes one free activity and reports whether it took the idle movement slot.
+#region Занятия сообщества
+## Выполняет свободное занятие и сообщает, заняло ли оно управление движением.
 static func idle(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 	var district: C_District = DistrictPopulationService.current()
 	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
@@ -35,11 +35,11 @@ static func idle(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 		return true
 	return _conflict(actor, person)
 
-## Releases the live pickup reservation when a higher priority interrupts free activity.
+## Снимает живое резервирование добычи при прерывании более важным действием.
 static func cancel_activity(actor: Entity) -> void:
 	_clear_loot(actor)
 
-## Spends the phase budget only for a motivated, perceived and affordable new attack.
+## Расходует лимит фазы только на новое мотивированное, воспринимаемое и допустимое по риску нападение.
 static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_DistrictNpc) -> bool:
 	var district: C_District = DistrictPopulationService.current()
 	if not person.profile.initiates_conflicts or district.ambient_conflicts >= district.definition.ambient_conflicts_per_phase or CombatService.target_for(actor) != null:
