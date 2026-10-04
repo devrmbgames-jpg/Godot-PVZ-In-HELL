@@ -1,5 +1,5 @@
 extends RefCounted
-## Short DialogueManager response tags mapped to typed player intent.
+## Преобразует смысловые теги ответа DialogueManager в тип намерения игрока.
 class_name CustomerDialogueIntent
 
 enum Type {
@@ -20,6 +20,8 @@ const TAG_FLIRT: String = "flr"
 const TAG_JOKE: String = "jok"
 
 
+#region Смысл ответа
+## Возвращает первый известный тег независимо от регистра; неизвестные дают NONE.
 static func from_tags(tags: PackedStringArray) -> Type:
 	for raw_tag: String in tags:
 		var tag: String = raw_tag.strip_edges().to_lower()
@@ -44,7 +46,9 @@ static func from_tags(tags: PackedStringArray) -> Type:
 	return Type.NONE
 
 
+## Возвращает бит намерения для защиты от повторных последствий; NONE даёт ноль.
 static func bit(intent: Type) -> int:
 	if intent <= Type.NONE:
 		return 0
 	return 1 << int(intent)
+#endregion

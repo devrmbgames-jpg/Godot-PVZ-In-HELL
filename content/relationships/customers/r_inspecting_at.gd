@@ -1,3 +1,3 @@
 extends Component
-## Customer -> reserved private booth for this appearance.
+## Получатель → место частного осмотра: зарезервированная кабинка или дверь домашней встречи.
 class_name R_InspectingAt

@@ -7,8 +7,11 @@ enum Source {
 	PENDING_ORDER,
 }
 
+## Вид источника партии; обычная утренняя поставка использует BASE_SUPPLY.
 @export var source: Source = Source.BASE_SUPPLY
+## Игровой день, входящий в постоянные ID создаваемых коробок.
 @export var day_index: int = 0
+## Индекс следующей позиции в зафиксированном списке package_keys, начиная с нуля.
 @export var next_package: int = 0
 ## Ключи выбранных коробок; сохраняются, чтобы загрузка не пересобирала партию.
 @export var package_keys: PackedStringArray = []

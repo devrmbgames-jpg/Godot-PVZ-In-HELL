@@ -1,10 +1,13 @@
 extends Resource
+## Авторское соответствие вида коробки политике получателя и задержке его визита.
 class_name DEF_CustomerEvent
 
+## Ключ DEF_Package из ассортимента поставки.
 @export var package_key: StringName = &"books"
-## Package-pickup NPCs do not enter the world before the requested shipment is registered.
-## Set false only for an event whose NPC has another authored reason to arrive.
+## Получение требует записи регистрации коробки; свободная жизнь NPC от неё не зависит.
+## Отключать только у встречи с другой авторской причиной визита.
 @export var requires_registered_package: bool = true
-## -1 means this shipment has no scheduled customer.
+## Задержка от дня поставки до визита, в днях; -1 отключает назначение получателя.
 @export var arrival_delay_days: int = 0
+## Правила обслуживания конкретного заказа, отдельно от постоянной личности NPC.
 @export var customer: DEF_Customer = null
