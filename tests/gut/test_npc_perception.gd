@@ -179,7 +179,10 @@ func test_light_switch_changes_visibility() -> void:
 	lamp.add_child(view)
 	_root.add_child(lamp)
 	lamp.position = Vector3(0, 3, -8)
-	_district.light_sources.append(lamp)
+	var zone: NpcLightZone = (load("res://content/scenes/npc_light_zone.tscn") as PackedScene).instantiate() as NpcLightZone
+	zone.circuit_id = &"test_sight"
+	zone.position = Vector3(0, 1, -8)
+	_root.add_child(zone)
 	await _synchronize()
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
 	assert_true(LightCircuitService.set_enabled(circuit, false))

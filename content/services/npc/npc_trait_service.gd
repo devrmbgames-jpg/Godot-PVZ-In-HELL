@@ -50,22 +50,13 @@ static func tick(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta:
 			var incident: StringName = StringName("rule/%s/%d/%d/%d" % [person.npc_id, cycle.day_index, cycle.phase, rule.kind])
 			NpcSocialService.react(actor, player, NpcMemory.Kind.OFFENSE, incident)
 
-## Finds a dark refuge without claiming another body's movement authority.
-static func dark_refuge(actor: E_DistrictNpc, person: NpcRecord) -> Vector3:
+## Uses the authored light-aversion refuge, falling back to the person's exit.
+static func dark_refuge(_actor: E_DistrictNpc, person: NpcRecord) -> Vector3:
 	var district: C_District = DistrictPopulationService.current()
-	var best: Vector3 = DistrictPopulationService.position_for(person.portal_id)
-	var score: float = INF
-	var rule: DEF_NpcTrait = person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
-	for place: DEF_DistrictPlace in district.definition.places:
-		var point: Vector3 = DistrictPopulationService.position_for(place.key)
-		var light: float = NpcLightingService.exposure_at(point + Vector3.UP, [actor.get_rid()])
-		if light > rule.light_threshold:
-			continue
-		var distance: float = actor.global_position.distance_squared_to(point)
-		if distance < score:
-			score = distance
-			best = point
-	return best
+	var refuge_id: StringName = district.definition.shade_refuge
+	if district.definition.place_for(refuge_id) == null:
+		refuge_id = person.portal_id
+	return DistrictPopulationService.position_for(refuge_id)
 
 static func _gazing(player: Entity, actor: E_DistrictNpc, rule: DEF_NpcTrait) -> bool:
 	var spatial: Node3D = player as Node as Node3D

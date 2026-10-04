@@ -22,6 +22,12 @@ func _run() -> void:
 	_level.set_physics_process(false)
 
 	var district: C_District = DistrictPopulationService.current()
+	var lighting: NpcLightingContext = NpcLightingService.context_for(district)
+	print("NPC benchmark authored_light_zones=", lighting.zones.size(), " shade_points=", district.definition.shade_route.size())
+	if lighting.zones.is_empty():
+		push_error("NPC benchmark requires the authored light volumes")
+		get_tree().quit(1)
+		return
 	var person: NpcRecord = null
 	for candidate: NpcRecord in district.people:
 		if candidate.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION) != null:

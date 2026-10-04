@@ -8,6 +8,10 @@ var points: PackedVector3Array = PackedVector3Array()
 var point_index: int = 0
 ## Final goal for which this route was evaluated.
 var goal: Vector3 = Vector3.ZERO
+## Native navigation map used to build this derived route; not saved.
+var navigation_map: RID = RID()
+## Map revision used to build the route; -1 requests an initial plan.
+var map_iteration: int = -1
 ## Whether the current intent has an acceptable route.
 var reachable: bool = true
 ## Time since hazard evaluation.

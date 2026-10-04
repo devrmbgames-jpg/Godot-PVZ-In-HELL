@@ -22,5 +22,3 @@ enum Activity { WALK, WATCH_WINDOW, OBSERVE, VISIT_SHOP }
 @export var anchor_path: NodePath = NodePath("")
 ## Connections in the district route graph.
 @export var neighbours: PackedStringArray = []
-## Base illumination independent of nearby lamps.
-@export_range(0.0, 1.0) var ambient_light: float = 0.05

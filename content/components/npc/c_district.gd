@@ -8,26 +8,18 @@ class_name C_District
 @export var people: Array[NpcRecord] = []
 ## Voluntary obligations including durable terminal results.
 @export var home_deliveries: Array[NpcHomeDelivery] = []
-## Derived lighting sources, rebuilt after scene creation; not saved.
-var light_sources: Array[Light3D] = []
 ## Derived weak body lookup, validated against world membership; not a relationship.
 var body_references: Dictionary[StringName, WeakRef] = {}
-## Shared authored light inputs for the current physics frame; not saved.
+## Scene-local authored light volumes; not saved.
 var lighting_context: NpcLightingContext = null
-## Physics frame in which authored light inputs were resolved.
-var lighting_frame: int = -1
-## World structural revision at which lamp/circuit bindings were captured.
-var lighting_world_version: int = -1
+## Registration revision used to refresh light-zone membership.
+var lighting_revision: int = -1
 ## Audible events awaiting the next perception batch; not saved.
 var noises: Array[NpcNoise] = []
 ## Transient stimulus sequence.
 var next_noise_sequence: int = 1
 ## Transient monotonic aura request keys; live effects are rebuilt after loading.
 var next_aura: int = 1
-## Cached static graph edge paths, invalidated when the navigation map changes.
-var route_edges: Dictionary[String, PackedVector3Array] = {}
-## Navigation iteration for the edge cache.
-var route_map_iteration: int = -1
 ## Fair route queue containing stable IDs only; cancelled entries are skipped.
 var pending_routes: Array[StringName] = []
 ## Physics frame in which the planning allowance was last reset.

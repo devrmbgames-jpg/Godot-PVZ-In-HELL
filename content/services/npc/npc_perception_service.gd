@@ -26,7 +26,7 @@ static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile, a
 	var torso: Vector3 = target_body.global_position + Vector3.UP * torso_height
 	var target_offset: Vector3 = torso - eye
 	var distance: float = target_offset.length()
-	# Reject distant and rear-facing candidates before evaluating lamps or casting rays.
+	# Reject distant and rear-facing candidates before checking light zones or casting sight rays.
 	if distance > maxf(profile.near_recognition_range, profile.vision_range):
 		return false
 	var head: Node3D = observer_body.get_node_or_null("HeadY") as Node3D

@@ -41,22 +41,24 @@ func _travel(index: int) -> E_DistrictNpc:
 	NpcRouteService.tick(body, person, 0.2)
 	return body
 
-func _lamp(circuit_id: StringName = &"") -> OmniLight3D:
-	_district.definition = DEF_District.new()
-	_district.lighting_context = null
-	var lamp: OmniLight3D = OmniLight3D.new()
-	lamp.omni_range = 10.0
-	lamp.light_energy = 4.0
-	_root.add_child(lamp)
-	lamp.position = Vector3(80, 3, 0)
+func _zone(circuit_id: StringName = &"") -> NpcLightZone:
+	var zone: NpcLightZone = (load("res://content/scenes/npc_light_zone.tscn") as PackedScene).instantiate() as NpcLightZone
+	zone.circuit_id = circuit_id
+	zone.moving_source = true
 	if not circuit_id.is_empty():
+		var lamp: OmniLight3D = OmniLight3D.new()
+		lamp.name = "Lamp"
+		lamp.add_to_group(&"performance_test_lamps")
+		zone.add_child(lamp)
 		var view: CircuitLightView = CircuitLightView.new()
 		view.name = "CircuitLightView"
 		view.circuit_id = circuit_id
 		lamp.add_child(view)
 		view.set_process(false)
-	_district.light_sources.append(lamp)
-	return lamp
+		zone.flicker_view_path = NodePath("Lamp/CircuitLightView")
+	_root.add_child(zone)
+	zone.position = Vector3(80, 1, 0)
+	return zone
 
 func _circuit() -> Entity:
 	var circuit: Entity = Entity.new()
@@ -113,8 +115,7 @@ func test_removed_circuit_does_not_keep_old_state() -> void:
 func test_switch_and_flicker_change_shared_lighting_immediately() -> void:
 	_world.add_observer(O_LightFlicker.new())
 	var circuit: Entity = _circuit()
-	var lamp: OmniLight3D = _lamp(&"performance_test")
-	lamp.add_to_group(&"performance_test_lamps")
+	var zone: NpcLightZone = _zone(&"performance_test")
 	var point: Vector3 = Vector3(80, 1, 0)
 	assert_gt(NpcLightingService.exposure_at(point), 0.5)
 	LightCircuitService.set_enabled(circuit, false)
@@ -122,7 +123,7 @@ func test_switch_and_flicker_change_shared_lighting_immediately() -> void:
 	LightCircuitService.set_enabled(circuit, true)
 	assert_gt(NpcLightingService.exposure_at(point), 0.5)
 	assert_true(LightCircuitService.flicker(&"performance_test", 2.0, 0.1))
-	(lamp.get_node("CircuitLightView") as CircuitLightView)._process(0.15)
+	(zone.get_node("Lamp/CircuitLightView") as CircuitLightView)._process(0.15)
 	assert_eq(NpcLightingService.exposure_at(point), 0.05)
 	LightCircuitService.set_enabled(circuit, false)
 	_world.remove_entity(circuit)
@@ -130,9 +131,9 @@ func test_switch_and_flicker_change_shared_lighting_immediately() -> void:
 	LightCircuitService.set_enabled(replacement, true)
 	assert_gt(NpcLightingService.exposure_at(point), 0.5, "Structural replacement must refresh shared circuit bindings in the same frame")
 
-## Physical occlusion and exclusion lists remain specific to each query.
-func test_shared_lighting_preserves_blockers_and_excluded_bodies() -> void:
-	_lamp()
+## Props cannot hide the exposure of an authored room; its boundaries define darkness.
+func test_manual_zone_boundaries_do_not_require_light_rays() -> void:
+	var zone: NpcLightZone = _zone()
 	var wall: StaticBody3D = StaticBody3D.new()
 	var collision: CollisionShape3D = CollisionShape3D.new()
 	var shape: BoxShape3D = BoxShape3D.new()
@@ -141,38 +142,54 @@ func test_shared_lighting_preserves_blockers_and_excluded_bodies() -> void:
 	wall.add_child(collision)
 	_root.add_child(wall)
 	wall.position = Vector3(80, 2, 0)
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	var point: Vector3 = Vector3(80, 1, 0)
-	assert_eq(NpcLightingService.exposure_at(point), 0.05)
-	assert_gt(NpcLightingService.exposure_at(point, [wall.get_rid()]), 0.5)
-	assert_eq(NpcLightingService.exposure_at(point), 0.05)
-	wall.position.x = 70
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	assert_gt(NpcLightingService.exposure_at(point), 0.5)
+	assert_eq(NpcLightingService.exposure_at(Vector3(80, 1, 0)), 1.0)
+	assert_eq(NpcLightingService.exposure_at(Vector3(80, 1, 0), [wall.get_rid()]), 1.0)
+	assert_eq(NpcLightingService.exposure_at(Vector3(85, 1, 0)), 0.05)
+	zone.enabled = false
+	assert_eq(NpcLightingService.exposure_at(Vector3(80, 1, 0)), 0.05)
 
-## Moving the level origin is reflected in the next authored-input snapshot.
-func test_authored_place_positions_follow_origin_between_frames() -> void:
-	_district.definition = DEF_District.new()
-	var dark: DEF_DistrictPlace = DEF_DistrictPlace.new()
-	dark.key = &"dark"
-	dark.ambient_light = 0.1
-	var bright: DEF_DistrictPlace = DEF_DistrictPlace.new()
-	bright.key = &"bright"
-	bright.position = Vector3(10, 0, 0)
-	bright.ambient_light = 0.9
-	_district.definition.places = [dark, bright]
-	assert_almost_eq(NpcLightingService.exposure_at(Vector3(10, 1, 0)), 0.9, 0.001)
-	(_root.get_node("District") as Node3D).position.x = 20
-	await get_tree().physics_frame
-	assert_almost_eq(NpcLightingService.exposure_at(Vector3(30, 1, 0)), 0.9, 0.001)
-	assert_almost_eq(NpcLightingService.exposure_at(Vector3(20, 1, 0)), 0.1, 0.001)
+## A carried light follows transform changes and leaves no binding after removal/reattachment.
+func test_moving_zone_updates_without_rebuilding_inputs() -> void:
+	var zone: NpcLightZone = _zone()
+	var context: NpcLightingContext = NpcLightingService.context_for(_district)
+	assert_eq(NpcLightingService.exposure_at(Vector3(80, 1, 0)), 1.0)
+	zone.position.x = 90.0
+	assert_eq(NpcLightingService.exposure_at(Vector3(80, 1, 0)), 0.05)
+	assert_eq(NpcLightingService.exposure_at(Vector3(90, 1, 0)), 1.0)
+	assert_same(NpcLightingService.context_for(_district), context)
+	var volume: CollisionShape3D = zone.get_node("CollisionShape3D") as CollisionShape3D
+	var beam: BoxShape3D = BoxShape3D.new()
+	beam.size = Vector3(6, 3, 2)
+	volume.shape = beam
+	zone.rotation.y = PI * 0.5
+	assert_eq(NpcLightingService.exposure_at(Vector3(90, 1, 2)), 1.0)
+	assert_eq(NpcLightingService.exposure_at(Vector3(92, 1, 0)), 0.05)
+	var sphere: SphereShape3D = SphereShape3D.new()
+	sphere.radius = 3.0
+	volume.shape = sphere
+	assert_eq(NpcLightingService.exposure_at(Vector3(92, 1, 0)), 1.0)
+	_root.remove_child(zone)
+	assert_eq(NpcLightingService.exposure_at(Vector3(90, 1, 0)), 0.05)
+	_root.add_child(zone)
+	assert_eq(NpcLightingService.exposure_at(Vector3(90, 1, 0)), 1.0)
+	zone.free()
+	assert_eq(NpcLightingService.exposure_at(Vector3(90, 1, 0)), 0.05)
+
+## Other loaded levels do not contribute volumes to the active world's lighting.
+func test_zone_registration_is_scoped_to_the_world_level() -> void:
+	var other_root: Node3D = Node3D.new()
+	add_child(other_root)
+	var zone: NpcLightZone = (load("res://content/scenes/npc_light_zone.tscn") as PackedScene).instantiate() as NpcLightZone
+	other_root.add_child(zone)
+	zone.position = Vector3(80, 1, 0)
+	assert_eq(NpcLightingService.exposure_at(Vector3(80, 1, 0)), 0.05)
+	other_root.free()
+
 #endregion
 
 #region Planning queue
-## Light-sensitive travel chooses the dark graph route, then observes a switched-off lamp.
-func test_light_sensitive_route_reacts_without_reusing_old_light_costs() -> void:
+## The authored passage is followed in both directions, independently of light changes.
+func test_light_sensitive_route_follows_authored_points_without_light_search() -> void:
 	await _flat_map()
 	var actor: E_DistrictNpc = _travel(0)
 	var person: NpcRecord = _district.people[0]
@@ -182,7 +199,6 @@ func test_light_sensitive_route_reacts_without_reusing_old_light_costs() -> void
 	aversion.light_threshold = 0.4
 	person.profile.rules = [aversion]
 	_district.definition = DEF_District.new()
-	_district.definition.light_route_penalty = 40.0
 	_district.lighting_context = null
 	var points: Array[Vector3] = [Vector3(-8, 0, 0), Vector3(-8, 0, 8), Vector3(8, 0, 8), Vector3(8, 0, 0)]
 	for index: int in points.size():
@@ -190,23 +206,28 @@ func test_light_sensitive_route_reacts_without_reusing_old_light_costs() -> void
 		place.kind = DEF_DistrictPlace.Kind.JUNCTION
 		place.key = StringName("junction_%d" % index)
 		place.position = points[index]
-		place.ambient_light = 0.05
-		if index > 0:
-			place.neighbours.append("junction_%d" % (index - 1))
-		if index < points.size() - 1:
-			place.neighbours.append("junction_%d" % (index + 1))
 		_district.definition.places.append(place)
-	var lamp: OmniLight3D = OmniLight3D.new()
-	lamp.omni_range = 6.0
-	lamp.light_energy = 8.0
-	_root.add_child(lamp)
-	lamp.position = Vector3(0, 2, 0)
-	_district.light_sources.append(lamp)
+		_district.definition.shade_route.append(String(place.key))
+	_district.definition.shade_refuge = &"junction_1"
+	var zone: NpcLightZone = _zone()
+	zone.position = Vector3(0, 1, 0)
+	_district.lighting_context = null
 	var lit_route: PackedVector3Array = NpcRouteService.plan(actor, person, points[0], points[3], _native_map)
-	assert_gt(lit_route.size(), 2, "A longer dark passage is preferable to the illuminated direct route")
-	lamp.visible = false
+	assert_eq(lit_route.size(), points.size())
+	for index: int in mini(lit_route.size(), points.size()):
+		assert_lt(lit_route[index].distance_to(points[index]), 0.001)
+	assert_null(_district.lighting_context, "Planning must not request illumination samples")
+	assert_eq(NpcTraitService.dark_refuge(actor, person), points[1])
+	zone.enabled = false
 	var dark_route: PackedVector3Array = NpcRouteService.plan(actor, person, points[0], points[3], _native_map)
-	assert_eq(dark_route.size(), 2, "Lighting costs are refreshed for each plan")
+	assert_eq(dark_route, lit_route, "Switching the light changes reactions, not authored routing")
+	points.reverse()
+	var reverse_route: PackedVector3Array = NpcRouteService.plan(actor, person, points[0], points[3], _native_map)
+	assert_eq(reverse_route.size(), points.size())
+	for index: int in mini(reverse_route.size(), points.size()):
+		assert_lt(reverse_route[index].distance_to(points[index]), 0.001)
+	_district.definition.places[1].position = Vector3(300, 0, 300)
+	assert_true(NpcRouteService.plan(actor, person, points[3], points[0], _native_map).is_empty(), "An unreachable authored passage must not silently take another route")
 
 ## A later request cannot jump the queue, and repeated processing cannot exceed the frame cap.
 func test_route_queue_is_fair_and_limited_per_physics_frame() -> void:
@@ -222,7 +243,8 @@ func test_route_queue_is_fair_and_limited_per_physics_frame() -> void:
 	assert_false(first_route.pending)
 	assert_true(first_route.reachable)
 	assert_true(second_route.pending)
-	NpcRouteService.tick(first, _district.people[0], _district.definition.route_interval)
+	NpcIntentService.move_to(first, Vector3(8, 0, 2), 0.3)
+	NpcRouteService.tick(first, _district.people[0], 0.2)
 	NpcRouteService.process_pending(_district)
 	assert_true(second_route.pending, "The same frame has already spent its allowance")
 	await get_tree().physics_frame
@@ -230,6 +252,39 @@ func test_route_queue_is_fair_and_limited_per_physics_frame() -> void:
 	assert_false(second_route.pending, "Earlier waiting traveler runs before the new refresh")
 	assert_true(second_route.reachable)
 	assert_true(first_route.pending)
+
+## An unchanged reachable route is retained across timer ticks and lighting changes.
+func test_stable_goal_does_not_rebuild_route_on_each_risk_check() -> void:
+	await _flat_map()
+	var actor: E_DistrictNpc = _travel(0)
+	NpcRouteService.process_pending(_district)
+	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+	var original: PackedVector3Array = route.points.duplicate()
+	for check: int in 3:
+		NpcRouteService.tick(actor, _district.people[0], _district.definition.route_interval)
+		assert_false(route.pending)
+		assert_true(_district.pending_routes.is_empty())
+		assert_eq(route.points, original)
+
+## A new harmful overlap stops a retained path before a queued bypass can replace it.
+func test_moving_hazard_invalidates_retained_route_before_movement() -> void:
+	await _flat_map()
+	var actor: E_DistrictNpc = _travel(0)
+	NpcRouteService.process_pending(_district)
+	var fire: Entity = (load("res://content/entities/hazards/npc_fire_aura.tscn") as PackedScene).instantiate() as Entity
+	var hazard: C_Hazard = C_Hazard.new()
+	hazard.definition = load("res://content/definitions/gameplay/hazards/def_npc_fire_aura.tres") as DEF_ToxicArea
+	_world.add_entity(fire, [hazard])
+	(fire as Node as Node3D).global_position = Vector3(0, 1, 0)
+	NpcRouteService.tick(actor, _district.people[0], _district.definition.route_interval)
+	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+	assert_true(route.pending)
+	assert_false(route.reachable)
+	assert_true(route.points.is_empty())
+	await get_tree().physics_frame
+	NpcRouteService.process_pending(_district)
+	assert_true(route.reachable)
+	assert_eq(NpcRouteService.expected_damage(actor, route.points), 0.0)
 
 ## An interrupted action cannot commit its old route after a delayed queue slot.
 func test_cancelled_queued_route_is_discarded() -> void:

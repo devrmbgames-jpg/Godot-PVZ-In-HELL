@@ -112,13 +112,8 @@ static func restore_participation() -> void:
 	if district == null:
 		return
 	district.noises.clear()
-	district.route_edges.clear()
-	district.route_map_iteration = -1
 	district.pending_routes.clear()
 	district.lighting_context = null
-	district.light_sources.clear()
-	for lamp: Node in ECS.world.get_parent().find_children("*", "Light3D", true, false):
-		district.light_sources.append(lamp as Light3D)
 	for person: NpcRecord in district.people:
 		var body: E_DistrictNpc = body_for(person.npc_id)
 		if body == null:
@@ -141,8 +136,6 @@ static func initialize() -> void:
 	if district == null or district.definition == null or not district.people.is_empty():
 		return
 	_spawn_addresses()
-	for light_node: Node in ECS.world.get_parent().find_children("*", "Light3D", true, false):
-		district.light_sources.append(light_node as Light3D)
 	var homes: Array[StringName] = []
 	var portals: Array[StringName] = []
 	for place: DEF_DistrictPlace in district.definition.places:

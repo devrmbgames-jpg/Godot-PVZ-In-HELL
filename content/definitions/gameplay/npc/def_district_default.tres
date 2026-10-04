@@ -267,6 +267,8 @@ key = &"cover_2"
 
 [resource]
 script = ExtResource("District")
+shade_route = PackedStringArray("south_0", "south_1", "south_2", "south_3")
+shade_refuge = &"south_1"
 profiles = Array[ExtResource("ProfileScript")]([ExtResource("Person1"), ExtResource("Person2"), ExtResource("Person3"), ExtResource("Person4"), ExtResource("Person5"), ExtResource("Person6"), ExtResource("Person7"), ExtResource("Person8"), ExtResource("Person9"), ExtResource("Person10"), ExtResource("Person11"), ExtResource("Person12")])
 places = Array[ExtResource("PlaceScript")]([SubResource("home_1"), SubResource("home_2"), SubResource("home_3"), SubResource("home_4"), SubResource("home_5"), SubResource("home_6"), SubResource("home_7"), SubResource("home_8"), SubResource("portal_east"), SubResource("portal_north"), SubResource("portal_south"), SubResource("activity_0"), SubResource("activity_1"), SubResource("activity_2"), SubResource("activity_3"), SubResource("shop"), SubResource("pvz_entry"), SubResource("street_0"), SubResource("street_1"), SubResource("street_2"), SubResource("street_3"), SubResource("north_0"), SubResource("north_1"), SubResource("north_2"), SubResource("north_3"), SubResource("south_0"), SubResource("south_1"), SubResource("south_2"), SubResource("south_3"), SubResource("cover_pvz_east"), SubResource("cover_pvz_back"), SubResource("cover_0"), SubResource("cover_1"), SubResource("cover_2")])
 key = &"hell_district"

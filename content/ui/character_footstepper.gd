@@ -19,10 +19,14 @@ func _exit_tree() -> void:
 		var spatial_player: AudioStreamPlayer3D = audio_node as AudioStreamPlayer3D
 		var flat_player: AudioStreamPlayer = audio_node as AudioStreamPlayer
 		if spatial_player != null:
+			if spatial_player.playing:
+				spatial_player.get_stream_playback().stop()
 			spatial_player.stop()
 			spatial_player.stream = null
 			available_players.append(spatial_player)
 		elif flat_player != null:
+			if flat_player.playing:
+				flat_player.get_stream_playback().stop()
 			flat_player.stop()
 			flat_player.stream = null
 			available_players.append(flat_player)

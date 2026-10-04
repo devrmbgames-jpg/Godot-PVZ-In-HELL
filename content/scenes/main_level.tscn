@@ -115,6 +115,8 @@
 [ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/entities/props/window.tscn" id="Window_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/inventory/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
 
+[ext_resource type="Script" path="res://content/scenes/npc_light_zone.gd" id="Npc_light_zone"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -416,6 +418,24 @@ size = Vector3(1.6518555, 3.7236938, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jpldi"]
 albedo_color = Color(0.058823526, 0.17653187, 0.94509804, 1)
+
+[sub_resource type="BoxShape3D" id="LightZone_RoomClient"]
+size = Vector3(7.9189453, 3.7236938, 8.709595)
+
+[sub_resource type="BoxShape3D" id="LightZone_RoomClientBathroom"]
+size = Vector3(4.760742, 3.7236938, 4.1996155)
+
+[sub_resource type="BoxShape3D" id="LightZone_RoomPrivate"]
+size = Vector3(16.259277, 3.7236938, 15.9678955)
+
+[sub_resource type="BoxShape3D" id="LightZone_RoomTraderPrivate"]
+size = Vector3(12.360474, 3.7236938, 12.4609375)
+
+[sub_resource type="BoxShape3D" id="LightZone_TraderClientZone"]
+size = Vector3(1.6518555, 3.7236938, 1)
+
+[sub_resource type="BoxShape3D" id="LightZone_ReceivingZone"]
+size = Vector3(4.223633, 3.7236938, 7.4051514)
 
 [node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world") groups=["navigation_mesh_source_group"]]
 script = ExtResource("1_ixiin")
@@ -1946,6 +1966,87 @@ surface_material_override/0 = SubResource("StandardMaterial3D_jpldi")
 [node name="MarkerNPCSpawnPoint" type="Marker3D" parent="DebugMarkers" unique_id=345863772]
 editor_description = "Маркер где примерно появляются новые клиенты"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.530093, 0, 3.423316)
+
+
+[node name="LightZones" type="Node3D" parent="."]
+
+[node name="RoomClient" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.485403, 1.8705113, -4.2108765)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D2/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/RoomClient"]
+shape = SubResource("LightZone_RoomClient")
+
+[node name="RoomClientBathroom" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.064505, 1.8705113, -10.139877)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D2/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/RoomClientBathroom"]
+shape = SubResource("LightZone_RoomClientBathroom")
+
+[node name="RoomPrivate" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.110375, 1.6805131, -7.9696674)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/RoomPrivate"]
+shape = SubResource("LightZone_RoomPrivate")
+
+[node name="RoomTraderPrivate" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.086002, 2.1978455, -6.1258674)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/RoomTraderPrivate"]
+shape = SubResource("LightZone_RoomTraderPrivate")
+
+[node name="TraderClientZone" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29.747765, 1.6612353, 1.6596766)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/TraderClientZone"]
+shape = SubResource("LightZone_TraderClientZone")
+
+[node name="ReceivingZone" type="Area3D" parent="LightZones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.16763, 2.1978455, -6.673581)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+script = ExtResource("Npc_light_zone")
+circuit_id = &"warehouse"
+flicker_view_path = NodePath("../../PVZ/Light/OmniLight3D/CircuitLightView")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LightZones/ReceivingZone"]
+shape = SubResource("LightZone_ReceivingZone")
 
 [editable path="Entityes/Player"]
 [editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]

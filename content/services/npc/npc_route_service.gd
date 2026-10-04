@@ -1,9 +1,8 @@
 extends RefCounted
-## Compares navmesh paths on the authored passage graph by length and effective exposure damage.
+## Follows authored shade passages or native paths, with bounded hazard checks and planning work.
 class_name NpcRouteService
 
 const ENDPOINT_TOLERANCE: float = 1.0
-const GRAPH_CONNECTORS: int = 3
 
 static var _query_world: World = null
 static var _hazard_query: QueryBuilder = null
@@ -17,6 +16,7 @@ static func tick(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> void:
 	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
 	if not intent.movement_active or intent.move_uses_entity or not intent.navigation_enabled:
 		route.pending = false
+		route.map_iteration = -1
 		route.points.clear()
 		route.reachable = true
 		route.blocked_seconds = 0.0
@@ -30,7 +30,19 @@ static func tick(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> void:
 		route.progress_initialized = false
 		route.points.clear()
 		route.reachable = false
-	if new_goal or route.elapsed >= district.definition.route_interval or route.points.is_empty():
+	var needs_plan: bool = new_goal or route.map_iteration < 0
+	if route.elapsed >= district.definition.route_interval:
+		route.elapsed = 0.0
+		var map: RID = actor.navigation_agent.get_navigation_map()
+		var iteration: int = NavigationServer3D.map_get_iteration_id(map) if map.is_valid() else 0
+		needs_plan = needs_plan or route.points.is_empty() or route.navigation_map != map or route.map_iteration != iteration
+		if not route.points.is_empty():
+			var remaining: PackedVector3Array = PackedVector3Array([actor.global_position])
+			remaining.append_array(route.points.slice(route.point_index))
+			if not acceptable(actor, person, expected_damage(actor, remaining)):
+				route.points.clear()
+				needs_plan = true
+	if needs_plan:
 		route.goal = intent.move_position
 		if route.points.is_empty():
 			route.reachable = false
@@ -89,6 +101,8 @@ static func process_pending(district: C_District) -> void:
 
 		route.goal = intent.move_position
 		route.points = plan(actor, person, actor.global_position, route.goal, map)
+		route.navigation_map = map
+		route.map_iteration = NavigationServer3D.map_get_iteration_id(map)
 		route.point_index = 1 if route.points.size() > 1 else 0
 		route.reachable = not route.points.is_empty()
 		route.elapsed = 0.0
@@ -117,120 +131,103 @@ static func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute)
 		person.phase_complete = true
 	NpcIntentService.stop(actor)
 
-## Calculates an actual navmesh route, reusing each segment evaluation within this plan.
+## Builds one route: the authored shade passage or the native navmesh path.
 static func plan(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: Vector3, map: RID) -> PackedVector3Array:
-	var context: NpcRouteContext = _context(actor, person)
-	var district: C_District = context.district
-	var iteration: int = NavigationServer3D.map_get_iteration_id(map)
-	if district.route_map_iteration != iteration:
-		district.route_edges.clear()
-		district.route_map_iteration = iteration
+	var context: NpcRouteContext = _context(actor)
+	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
+	var escape: bool = awareness != null and awareness.hazard_distress
+	var light_sensitive: bool = person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION) != null
+	var path: PackedVector3Array = _shade_path(start, goal, map) if light_sensitive and not escape else _nav_path(map, start, goal)
+	var damage: float = _damage(path, context.hazards, context.speed)
+	if damage == 0.0:
+		return path
 
-	var direct: PackedVector3Array = _nav_path(map, start, goal)
-	var direct_result: NpcRouteContext.Evaluation = _evaluate(context, direct)
-	if not direct.is_empty() and direct_result.damage == 0.0 and context.light_rule == null:
-		return direct
+	# Try one local bypass, then wait if neither the bypass nor the original path is safe.
+	var bypass: PackedVector3Array = _local_detour(context, path, map)
+	if not bypass.is_empty() and acceptable(actor, person, _damage(bypass, context.hazards, context.speed)):
+		return bypass
+	return path if acceptable(actor, person, damage) else PackedVector3Array()
 
-	var best: PackedVector3Array = direct if _affordable(context, direct_result.damage) else PackedVector3Array()
-	var best_cost: float = direct_result.cost if not best.is_empty() else INF
-	var local_path: PackedVector3Array = _local_detour(context, start, goal, map)
-	if not local_path.is_empty():
-		var local_result: NpcRouteContext.Evaluation = _evaluate(context, local_path)
-		if local_result.cost < best_cost:
-			best = local_path
-			best_cost = local_result.cost
+static func _shade_path(start: Vector3, goal: Vector3, map: RID) -> PackedVector3Array:
+	var definition: DEF_District = DistrictPopulationService.current().definition
+	if definition.shade_route.is_empty():
+		return _nav_path(map, start, goal)
 
-	var starts: Array[DEF_DistrictPlace] = _nearest(context, start)
-	var ends: Array[DEF_DistrictPlace] = _nearest(context, goal)
-	for entry: DEF_DistrictPlace in starts:
-		var connector: PackedVector3Array = _nav_path(map, start, context.positions[entry.key])
-		var connector_result: NpcRouteContext.Evaluation = _evaluate(context, connector)
-		if connector.is_empty() or not _affordable(context, connector_result.damage):
-			continue
+	var passage: PackedVector3Array = PackedVector3Array()
+	for key: String in definition.shade_route:
+		if definition.place_for(StringName(key)) == null:
+			return PackedVector3Array()
+		passage.append(DistrictPopulationService.position_for(StringName(key)))
 
-		var distances: Dictionary[StringName, float] = {entry.key: connector_result.cost}
-		var damages: Dictionary[StringName, float] = {entry.key: connector_result.damage}
-		var paths: Dictionary[StringName, PackedVector3Array] = {entry.key: connector}
-		var open: Array[StringName] = [entry.key]
-		while not open.is_empty():
-			open.sort_custom(func(first: StringName, second: StringName) -> bool: return distances[first] < distances[second])
-			var key: StringName = open.pop_front()
-			var place: DEF_DistrictPlace = district.definition.place_for(key)
-			if distances[key] >= best_cost:
-				continue
-
-			if ends.has(place):
-				var tail: PackedVector3Array = _nav_path(map, context.positions[key], goal)
-				var tail_result: NpcRouteContext.Evaluation = _evaluate(context, tail)
-				var total_damage: float = damages[key] + tail_result.damage
-				var total_cost: float = distances[key] + tail_result.cost
-				if not tail.is_empty() and _affordable(context, total_damage) and total_cost < best_cost:
-					best = paths[key].duplicate()
-					best.append_array(tail)
-					best_cost = total_cost
-
-			for neighbour: String in place.neighbours:
-				var next_key: StringName = StringName(neighbour)
-				var next_place: DEF_DistrictPlace = district.definition.place_for(next_key)
-				if next_place == null or next_place.kind != DEF_DistrictPlace.Kind.JUNCTION:
-					continue
-
-				var edge_key: String = "%s>%s" % [key, next_key]
-				if not district.route_edges.has(edge_key):
-					district.route_edges[edge_key] = _nav_path(map, context.positions[key], context.positions[next_key])
-				var edge: PackedVector3Array = district.route_edges[edge_key]
-				if edge.is_empty():
-					continue
-				if not context.edge_evaluations.has(edge_key):
-					context.edge_evaluations[edge_key] = _evaluate(context, edge)
-				var result: NpcRouteContext.Evaluation = context.edge_evaluations[edge_key]
-				var next_damage: float = damages[key] + result.damage
-				var next_cost: float = distances[key] + result.cost
-				if not _affordable(context, next_damage) or next_cost >= float(distances.get(next_key, INF)):
-					continue
-
-				var candidate: PackedVector3Array = paths[key].duplicate()
-				candidate.append_array(edge)
-				distances[next_key] = next_cost
-				damages[next_key] = next_damage
-				paths[next_key] = candidate
-				if not open.has(next_key):
-					open.append(next_key)
-	return best
-
-static func _local_detour(context: NpcRouteContext, start: Vector3, goal: Vector3, map: RID) -> PackedVector3Array:
-	var forward: Vector3 = goal - start
-	forward.y = 0.0
-	if forward.is_zero_approx():
+	# Pick one entry and exit among the authored points, without searching alternative routes.
+	var entry: int = _closest_index(passage, start)
+	var exit_index: int = _closest_index(passage, goal)
+	if entry == exit_index:
+		return _nav_path(map, start, goal)
+	var connector: PackedVector3Array = _nav_path(map, start, passage[entry])
+	if connector.is_empty():
+		return connector
+	var result: PackedVector3Array = PackedVector3Array()
+	_append_path(result, connector)
+	var step: int = 1 if exit_index > entry else -1
+	var index: int = entry
+	while index != exit_index:
+		var segment: PackedVector3Array = _nav_path(map, passage[index], passage[index + step])
+		if segment.is_empty():
+			return PackedVector3Array()
+		_append_path(result, segment)
+		index += step
+	var tail: PackedVector3Array = _nav_path(map, passage[exit_index], goal)
+	if tail.is_empty():
 		return PackedVector3Array()
+	_append_path(result, tail)
+	return result
 
-	forward = forward.normalized()
-	var side: Vector3 = forward.cross(Vector3.UP)
-	var best: PackedVector3Array = PackedVector3Array()
-	var best_cost: float = INF
-	for hazard: NpcRouteContext.Hazard in context.hazards:
-		var center: Vector3 = hazard.center
-		center.y = start.y
-		var extent: float = hazard.radius + context.district.definition.local_detour_margin
-		if _inside_length(start, goal, center, extent) <= 0.0:
+static func _closest_index(points: PackedVector3Array, position: Vector3) -> int:
+	var closest: int = 0
+	for index: int in range(1, points.size()):
+		if points[index].distance_squared_to(position) < points[closest].distance_squared_to(position):
+			closest = index
+	return closest
+
+static func _append_path(result: PackedVector3Array, segment: PackedVector3Array) -> void:
+	for point: Vector3 in segment:
+		if result.is_empty() or not result[result.size() - 1].is_equal_approx(point):
+			result.append(point)
+
+static func _local_detour(context: NpcRouteContext, path: PackedVector3Array, map: RID) -> PackedVector3Array:
+	var margin: float = DistrictPopulationService.current().definition.local_detour_margin
+	for index: int in range(1, path.size()):
+		var start: Vector3 = path[index - 1]
+		var goal: Vector3 = path[index]
+		var forward: Vector3 = goal - start
+		forward.y = 0.0
+		if forward.is_zero_approx():
 			continue
-
-		for sign_value: float in [-1.0, 1.0]:
-			var before: Vector3 = center - forward * extent + side * extent * sign_value
-			var after: Vector3 = center + forward * extent + side * extent * sign_value
+		forward = forward.normalized()
+		var side: Vector3 = forward.cross(Vector3.UP)
+		for hazard: NpcRouteContext.Hazard in context.hazards:
+			var center: Vector3 = hazard.center
+			center.y = start.y
+			var extent: float = hazard.radius + margin
+			if _inside_length(start, goal, center, extent) <= 0.0:
+				continue
+			if side.dot(start - center) < 0.0:
+				side = -side
+			var before: Vector3 = center - forward * extent + side * extent
+			var after: Vector3 = center + forward * extent + side * extent
 			var first: PackedVector3Array = _nav_path(map, start, before)
 			var middle: PackedVector3Array = _nav_path(map, before, after)
 			var last: PackedVector3Array = _nav_path(map, after, goal)
 			if first.is_empty() or middle.is_empty() or last.is_empty():
-				continue
-
-			first.append_array(middle)
-			first.append_array(last)
-			var result: NpcRouteContext.Evaluation = _evaluate(context, first)
-			if _affordable(context, result.damage) and result.cost < best_cost:
-				best = first
-				best_cost = result.cost
-	return best
+				return PackedVector3Array()
+			var result: PackedVector3Array = path.slice(0, index)
+			_append_path(result, first)
+			_append_path(result, middle)
+			_append_path(result, last)
+			_append_path(result, path.slice(index + 1))
+			return result
+	return PackedVector3Array()
 #endregion
 
 #region Shared risk calculation
@@ -243,23 +240,21 @@ static func danger_here(actor: E_DistrictNpc) -> bool:
 			return true
 	return false
 
-## Chooses the closest actual refuge outside damaging volumes; the route planner still validates travel.
+## Steps away from the overlapping harmful sphere; normal navigation validates escape.
 static func refuge(actor: E_DistrictNpc) -> Vector3:
-	var best: Vector3 = actor.global_position
-	var closest: float = INF
-	for place: DEF_DistrictPlace in DistrictPopulationService.current().definition.places:
-		var point: Vector3 = DistrictPopulationService.position_for(place.key)
-		var danger: bool = false
-		for effect: Entity in _hazard_entities():
-			var profile: DEF_ToxicArea = (effect.get_component(C_Hazard) as C_Hazard).definition as DEF_ToxicArea
-			var spatial: Node3D = effect as Node as Node3D
-			if profile != null and spatial != null and not effect.has_component(C_NoDamage) and DamageResistanceRules.effective(actor, profile.damage_per_tick, profile.damage_type) > 0.0 and point.distance_to(spatial.global_position) < profile.radius + actor.navigation_agent.radius:
-				danger = true
-		var distance: float = actor.global_position.distance_squared_to(point)
-		if not danger and distance < closest:
-			best = point
-			closest = distance
-	return best
+	var margin: float = DistrictPopulationService.current().definition.local_detour_margin
+	for hazard: NpcRouteContext.Hazard in _hazards(actor):
+		var outward: Vector3 = actor.global_position - hazard.center
+		outward.y = 0.0
+		if outward.length() >= hazard.radius:
+			continue
+		if outward.is_zero_approx():
+			outward = actor.global_basis.x
+			outward.y = 0.0
+		var center: Vector3 = hazard.center
+		center.y = actor.global_position.y
+		return center + outward.normalized() * (hazard.radius + margin)
+	return actor.global_position
 
 ## Expected periodic exposure uses the same type multiplier as O_Damage.
 static func expected_damage(actor: Entity, path: PackedVector3Array) -> float:
@@ -335,47 +330,11 @@ static func _inside_length(start: Vector3, end: Vector3, center: Vector3, radius
 	var half: float = sqrt(maxf(0.0, radius * radius - perpendicular))
 	return maxf(0.0, minf(length, projection + half) - maxf(0.0, projection - half))
 
-static func _context(actor: E_DistrictNpc, person: NpcRecord) -> NpcRouteContext:
+static func _context(actor: E_DistrictNpc) -> NpcRouteContext:
 	var context: NpcRouteContext = NpcRouteContext.new()
-	context.district = DistrictPopulationService.current()
-	context.lighting = NpcLightingService.context_for(context.district)
-	context.light_rule = person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
-	context.ignored_bodies = [actor.get_rid()]
 	context.hazards = _hazards(actor)
 	context.speed = _speed(actor)
-	context.risk_budget = _risk_budget(actor, person)
-	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
-	context.requires_health_after_escape = awareness != null and awareness.hazard_distress
-	for index: int in context.lighting.places.size():
-		var place: DEF_DistrictPlace = context.lighting.places[index]
-		context.positions[place.key] = context.lighting.positions[index]
-		if place.kind == DEF_DistrictPlace.Kind.JUNCTION:
-			context.junctions.append(place)
 	return context
-
-static func _affordable(context: NpcRouteContext, damage: float) -> bool:
-	return is_finite(damage) and (damage < context.risk_budget if context.requires_health_after_escape else damage <= context.risk_budget)
-
-static func _evaluate(context: NpcRouteContext, path: PackedVector3Array) -> NpcRouteContext.Evaluation:
-	var result: NpcRouteContext.Evaluation = NpcRouteContext.Evaluation.new()
-	if path.is_empty():
-		return result
-
-	var distance: float = 0.0
-	var light_cost: float = 0.0
-	for index: int in range(1, path.size()):
-		var length: float = path[index - 1].distance_to(path[index])
-		distance += length
-		if context.light_rule != null and length > 0.0:
-			var sample: Vector3 = (path[index - 1] + path[index]) * 0.5 + Vector3.UP
-			if not context.light_samples.has(sample):
-				context.light_samples[sample] = NpcLightingService.exposure_at(sample, context.ignored_bodies, context.lighting)
-			var exposure: float = context.light_samples[sample]
-			light_cost += length * maxf(0.0, exposure - context.light_rule.light_threshold) * context.district.definition.light_route_penalty
-
-	result.damage = _damage(path, context.hazards, context.speed)
-	result.cost = distance + result.damage * context.district.definition.danger_penalty + light_cost
-	return result
 
 static func _nav_path(map: RID, start: Vector3, goal: Vector3) -> PackedVector3Array:
 	var path: PackedVector3Array = NavigationServer3D.map_get_path(map, start, goal, true)
@@ -383,11 +342,4 @@ static func _nav_path(map: RID, start: Vector3, goal: Vector3) -> PackedVector3A
 		return PackedVector3Array()
 	return path
 
-static func _nearest(context: NpcRouteContext, point: Vector3) -> Array[DEF_DistrictPlace]:
-	var places: Array[DEF_DistrictPlace] = context.junctions.duplicate()
-	places.sort_custom(func(first: DEF_DistrictPlace, second: DEF_DistrictPlace) -> bool:
-		return context.positions[first.key].distance_squared_to(point) < context.positions[second.key].distance_squared_to(point)
-	)
-	places.resize(mini(GRAPH_CONNECTORS, places.size()))
-	return places
 #endregion

@@ -41,14 +41,13 @@ func _service(body: E_DistrictNpc, suffix: String) -> CustomerVisit:
 	(body.get_component(C_CustomerAgent) as C_CustomerAgent).phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	return visit
 
-func _lamp() -> OmniLight3D:
-	var lamp: OmniLight3D = OmniLight3D.new()
-	lamp.light_energy = 8.0
-	lamp.omni_range = 12.0
-	_root.add_child(lamp)
-	lamp.position = Vector3(0, 3, -1)
-	_district.light_sources.append(lamp)
-	return lamp
+func _light_zone() -> NpcLightZone:
+	var zone: NpcLightZone = (load("res://content/scenes/npc_light_zone.tscn") as PackedScene).instantiate() as NpcLightZone
+	(zone.get_node("CollisionShape3D") as CollisionShape3D).shape = BoxShape3D.new()
+	((zone.get_node("CollisionShape3D") as CollisionShape3D).shape as BoxShape3D).size = Vector3(20, 6, 20)
+	zone.position = Vector3(0, 2, -1)
+	_root.add_child(zone)
+	return zone
 #endregion
 
 #region Free activities
@@ -234,7 +233,7 @@ func test_light_and_darkness_countermeasures_reset_exposure() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
 	var player: E_DistrictNpc = _player()
-	var lamp: OmniLight3D = _lamp()
+	var zone: NpcLightZone = _light_zone()
 	var rule: DEF_NpcTrait = DEF_NpcTrait.new()
 	rule.kind = DEF_NpcTrait.Kind.LIGHT_AVERSION
 	person.profile.rules = [rule]
@@ -245,7 +244,7 @@ func test_light_and_darkness_countermeasures_reset_exposure() -> void:
 	NpcTraitService.tick(body, person, player, rule.warning_seconds)
 	assert_true(awareness.light_distress)
 	assert_true(awareness.warned_rules.has(rule.kind))
-	lamp.visible = false
+	zone.enabled = false
 	NpcTraitService.tick(body, person, player, rule.reaction_seconds + 1.0)
 	assert_false(awareness.light_distress)
 	assert_eq(awareness.rule_exposure[rule.kind], 0.0)
@@ -256,7 +255,7 @@ func test_light_and_darkness_countermeasures_reset_exposure() -> void:
 	person.profile.rules = [rule]
 	NpcTraitService.tick(body, person, player, rule.warning_seconds)
 	assert_true(awareness.warned_rules.has(rule.kind))
-	lamp.visible = true
+	zone.enabled = true
 	NpcTraitService.tick(body, person, player, rule.reaction_seconds + 1.0)
 	assert_eq(awareness.rule_exposure[rule.kind], 0.0)
 	assert_true(person.memories.is_empty())
