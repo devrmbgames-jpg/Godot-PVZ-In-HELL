@@ -13,7 +13,6 @@ day = 0
 
 [resource]
 script = ExtResource("Profile")
-interests = PackedStringArray("товары", "постоянные покупатели")
 display_name = "Торговец"
 merchant = true
 recipient_key = &"customer_08"

@@ -38,6 +38,8 @@ const SORT_ICON_DESCENDING_PATH: String = "res://addons/at-icons/control/file_ar
 @onready var _orders_button: Button = %ButtonOrders
 @onready var _help_button: Button = %ButtonHelp
 
+
+
 var _reader: Entity = null
 var _package_line_scene: PackedScene = null
 var _capture_token: int = 0
@@ -647,5 +649,8 @@ func _on_orders_pressed() -> void:
 	var actor: Entity = _reader
 	close_panel()
 	CommercePanelService.open(actor, null, true)
+
+
+
 
 #endregion

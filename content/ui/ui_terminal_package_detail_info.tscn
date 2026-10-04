@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://y28alrd1jtin" path="res://content/ui/ui_terminal_package_detail_info.gd" id="1_n1noy"]
 
 [node name="PackageDetailInfo" type="PanelContainer" unique_id=1787924404]
-offset_right = 688.0
+offset_right = 586.0
 offset_bottom = 639.0
 size_flags_vertical = 3
 script = ExtResource("1_n1noy")
@@ -31,29 +31,30 @@ stretch_mode = 5
 
 [node name="VBoxContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=683110753]
 layout_mode = 2
-theme_override_constants/h_separation = 0
+theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 0
 columns = 2
 
 [node name="_LabelID" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=871212810]
 layout_mode = 2
-text = "ID:"
-horizontal_alignment = 2
+theme_override_font_sizes/font_size = 24
+text = "ID :"
 
 [node name="LabelID" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1295997692]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "#100"
 
 [node name="_LabelUID" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=727373438]
 layout_mode = 2
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 16
 text = "UID :"
 
 [node name="LabelUID" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1699254883]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 16
 text = "123-123-374abcd"
 
 [node name="Control" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=505362305]
@@ -62,11 +63,17 @@ layout_mode = 2
 [node name="LabelName" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1749669670]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 24
 text = "Name Package"
 
 [node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=504935105]
 layout_mode = 2
+
+[node name="TextEdit" type="TextEdit" parent="MarginContainer/VBoxContainer" unique_id=1996432547]
+custom_minimum_size = Vector2(0, 93.47)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+placeholder_text = "Оставить примечание"
 
 [node name="HBoxContainerImages" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1630002483]
 unique_name_in_owner = true
@@ -90,3 +97,8 @@ theme_override_constants/margin_bottom = 5
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 24
+theme_override_font_sizes/bold_font_size = 24
+theme_override_font_sizes/bold_italics_font_size = 24
+theme_override_font_sizes/italics_font_size = 24
+theme_override_font_sizes/mono_font_size = 24

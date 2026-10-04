@@ -1,6 +1,6 @@
-[gd_resource type="BehaviorTree" format=3]
+[gd_resource type="BehaviorTree" format=3 uid="uid://bmc5t70coej8t"]
 
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_branch.gd" id="1_74q6a"]
+[ext_resource type="Script" uid="uid://2wsxejrxg667" path="res://content/ai/tasks/bt_npc_branch.gd" id="1_74q6a"]
 
 [sub_resource type="BTAction" id="BTAction_mqssd"]
 custom_name = "idle"

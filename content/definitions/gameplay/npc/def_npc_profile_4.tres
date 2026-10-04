@@ -14,7 +14,6 @@ day = 0
 
 [resource]
 script = ExtResource("Profile")
-interests = PackedStringArray("витрины", "шутки")
 display_name = "Стекольщица"
 recipient_key = &"customer_04"
 personality = 3

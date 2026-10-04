@@ -1,10 +1,10 @@
-[gd_resource type="BehaviorTree" format=3]
+[gd_resource type="BehaviorTree" format=3 uid="uid://cr2atstlyq1gn"]
 
-[ext_resource type="BehaviorTree" path="res://content/ai/trees/bt_npc_emergency.tres" id="1_7dna0"]
-[ext_resource type="BehaviorTree" path="res://content/ai/trees/bt_npc_combat.tres" id="2_vi3ip"]
-[ext_resource type="BehaviorTree" path="res://content/ai/trees/bt_npc_service.tres" id="3_2rk8g"]
-[ext_resource type="BehaviorTree" path="res://content/ai/trees/bt_npc_schedule.tres" id="4_a4eqj"]
-[ext_resource type="BehaviorTree" path="res://content/ai/trees/bt_npc_idle.tres" id="5_boyj1"]
+[ext_resource type="BehaviorTree" uid="uid://ins84eoxxqqw" path="res://content/ai/trees/bt_npc_emergency.tres" id="1_7dna0"]
+[ext_resource type="BehaviorTree" uid="uid://dxtsv5gf1nt3g" path="res://content/ai/trees/bt_npc_combat.tres" id="2_vi3ip"]
+[ext_resource type="BehaviorTree" uid="uid://cxukae1fn0ugy" path="res://content/ai/trees/bt_npc_service.tres" id="3_2rk8g"]
+[ext_resource type="BehaviorTree" uid="uid://bmned3gbmt26r" path="res://content/ai/trees/bt_npc_schedule.tres" id="4_a4eqj"]
+[ext_resource type="BehaviorTree" uid="uid://bmc5t70coej8t" path="res://content/ai/trees/bt_npc_idle.tres" id="5_boyj1"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_2iafh"]
 

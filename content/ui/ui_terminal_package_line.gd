@@ -31,6 +31,21 @@ signal lost_requested(package_id: String)
 @onready var _label_price: Label = %LabelPrice
 @onready var _label_description_short: Label = %LabelDescriptionShort
 
+#иконка уведомлений об новой информации
+@onready var _alert_info:     Control = %TextureAlertIconInfo
+#иконка уведомления об важной информации
+@onready var _alert_warrning: Control = %TextureAlertIconWar
+#иконка уведомления об критической информации
+@onready var _alert_critical: Control = %TextureAlertIconCrit
+
+#раздел который появляется, если клиент желает доставку на дом
+@onready var _control_delivery: Control = %DeliveryControl
+#принять доставку
+@onready var _button_delivery_ok: Button = %ButtonDeliveryOK
+#отказаться от доставки
+@onready var _button_delivery_cancel: Button = %ButtonDeloveryCancel
+
+
 var _package_id: String = ""
 
 

@@ -8,7 +8,7 @@ class_name UI_TerminalPackageDetailInfo
 @onready var _label_package_name: Label = %LabelName
 @onready var _contaner_images: Control = %HBoxContainerImages
 @onready var _rich_label_description: RichTextLabel = %RichTextLabelDescription
-
+@onready var _line_edit_ps: LineEdit = %LineEditPS #Оставить краткое примечание
 
 #region Выбранная запись
 ## Показывает описание и регистрацию; debug_status добавляет фактическое состояние коробки.

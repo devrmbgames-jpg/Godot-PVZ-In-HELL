@@ -1,6 +1,6 @@
-[gd_resource type="BehaviorTree" format=3]
+[gd_resource type="BehaviorTree" format=3 uid="uid://cxukae1fn0ugy"]
 
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_branch.gd" id="1_vhdr8"]
+[ext_resource type="Script" uid="uid://2wsxejrxg667" path="res://content/ai/tasks/bt_npc_branch.gd" id="1_vhdr8"]
 
 [sub_resource type="BTAction" id="BTAction_q55vj"]
 custom_name = "service"

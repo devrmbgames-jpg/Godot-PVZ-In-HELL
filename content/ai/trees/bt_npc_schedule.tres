@@ -1,6 +1,6 @@
-[gd_resource type="BehaviorTree" format=3]
+[gd_resource type="BehaviorTree" format=3 uid="uid://bmned3gbmt26r"]
 
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_branch.gd" id="1_qbv4n"]
+[ext_resource type="Script" uid="uid://2wsxejrxg667" path="res://content/ai/tasks/bt_npc_branch.gd" id="1_qbv4n"]
 
 [sub_resource type="BTAction" id="BTAction_24ky0"]
 custom_name = "schedule"

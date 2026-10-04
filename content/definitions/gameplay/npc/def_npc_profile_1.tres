@@ -14,7 +14,6 @@ evening = 1
 
 [resource]
 script = ExtResource("Profile")
-interests = PackedStringArray("архивы", "чужие взгляды")
 display_name = "Архивариус"
 recipient_key = &"customer_01"
 schedule = SubResource("Schedule")

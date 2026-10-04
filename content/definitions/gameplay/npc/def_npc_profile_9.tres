@@ -16,7 +16,6 @@ evening = 2
 
 [resource]
 script = ExtResource("Profile")
-interests = PackedStringArray("дальние дороги", "новости района")
 display_name = "Попутчик"
 resident = false
 recipient_key = &"visitor_1"

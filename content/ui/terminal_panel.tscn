@@ -15,6 +15,104 @@
 [ext_resource type="PackedScene" uid="uid://fojobg82g32x" path="res://content/ui/ui_terminal_log_history.tscn" id="12_7hkf1"]
 [ext_resource type="Texture2D" uid="uid://drt1o51p52s2p" path="res://addons/at-icons/node/help.svg" id="13_b6oml"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yq0lp"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 10.0
+bg_color = Color(0.03100586, 0.048327643, 0.0625, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 6
+border_color = Color(0.08157349, 0.15281741, 0.2109375, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m6rtl"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.84765625, 0.663887, 0.112579346, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+expand_margin_left = 6.0
+expand_margin_top = 6.0
+expand_margin_right = 6.0
+expand_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ewvt0"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 10.0
+bg_color = Color(0.14031982, 0.2264252, 0.296875, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 6
+border_color = Color(0.27770996, 0.516299, 0.7109375, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7hkf1"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 10.0
+bg_color = Color(0.070739746, 0.11390515, 0.1484375, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 6
+border_color = Color(0.1892395, 0.33530772, 0.45703125, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_swpra"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 7.0
+bg_color = Color(0.116363525, 0.18556674, 0.2421875, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color(0.1892395, 0.33530772, 0.45703125, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_4ijil"]
+color = Color(0.1882353, 0.33333334, 0.45882353, 1)
+thickness = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n8peh"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0.045822144, 0.09197996, 0.12890625, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5019608, 0.5921569, 0.87058824, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_krnwx"]
 bg_color = Color(0.035, 0.055, 0.07, 1)
 border_width_left = 2
@@ -39,9 +137,42 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_frpna"]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color(0.045822144, 0.09197996, 0.12890625, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5019608, 0.27077204, 0.19999999, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_7hkf1"]
+color = Color(0.1882353, 0.33333334, 0.45882353, 1)
+thickness = 2
+vertical = true
+
 [sub_resource type="Theme" id="Theme_bghjr"]
+Button/font_sizes/font_size = 24
+Button/styles/disabled = SubResource("StyleBoxFlat_yq0lp")
+Button/styles/focus = SubResource("StyleBoxFlat_m6rtl")
+Button/styles/hover = SubResource("StyleBoxFlat_ewvt0")
+Button/styles/normal = SubResource("StyleBoxFlat_7hkf1")
+Button/styles/pressed = SubResource("StyleBoxFlat_swpra")
+HSeparator/styles/separator = SubResource("StyleBoxLine_4ijil")
+LineEdit/styles/focus = SubResource("StyleBoxFlat_m6rtl")
+LineEdit/styles/normal = SubResource("StyleBoxFlat_n8peh")
+LineEdit/styles/read_only = null
 Panel/styles/panel = SubResource("StyleBoxFlat_krnwx")
 PanelContainer/styles/panel = SubResource("PanelStyle")
+TextEdit/styles/focus = SubResource("StyleBoxFlat_m6rtl")
+TextEdit/styles/normal = SubResource("StyleBoxFlat_frpna")
+TextEdit/styles/read_only = null
+VSeparator/styles/separator = SubResource("StyleBoxLine_7hkf1")
 
 [node name="TerminalPanel" type="CanvasLayer" unique_id=804565831]
 layer = 5
@@ -68,10 +199,16 @@ color = Color(0, 0, 0, 0.65)
 [node name="Panel" type="PanelContainer" parent="Root" unique_id=1986184575]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.1
-anchor_top = 0.08
-anchor_right = 0.9
-anchor_bottom = 0.92
+anchor_left = 0.063
+anchor_top = 0.064
+anchor_right = 0.93700004
+anchor_bottom = 0.93600005
+offset_left = 0.5400009
+offset_top = -0.12000275
+offset_right = -0.54003906
+offset_bottom = 0.11993408
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_styles/panel = SubResource("PanelStyle")
 
 [node name="NewUI" type="MarginContainer" parent="Root/Panel" unique_id=1240099320]
@@ -88,6 +225,7 @@ layout_mode = 2
 [node name="PanelContainer" type="PanelContainer" parent="Root/Panel/NewUI/HBoxContainer" unique_id=1074911540]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.0
 
 [node name="MarginContainer" type="MarginContainer" parent="Root/Panel/NewUI/HBoxContainer/PanelContainer" unique_id=1373648647]
 layout_mode = 2
@@ -107,6 +245,7 @@ theme_override_constants/separation = 18
 unique_name_in_owner = true
 editor_description = "Тип сортировки. По умолчанию по дате регистрации"
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Сортировать:"
 icon = ExtResource("2_adbcm")
 flat = false
@@ -142,6 +281,10 @@ layout_mode = 2
 toggle_mode = true
 icon = ExtResource("8_n8peh")
 
+[node name="Control" type="Control" parent="Root/Panel/NewUI/HBoxContainer/PanelContainer/MarginContainer/PackageViewer/HBoxContainer" unique_id=1223064482]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="PackageScrollContainer" type="ScrollContainer" parent="Root/Panel/NewUI/HBoxContainer/PanelContainer/MarginContainer/PackageViewer" unique_id=242964356]
 unique_name_in_owner = true
 layout_mode = 2
@@ -163,6 +306,7 @@ layout_mode = 2
 unique_name_in_owner = true
 editor_description = "Поисковый ФИЛЬТР."
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 placeholder_text = "Поиск"
 right_icon = ExtResource("10_rw63j")
 
@@ -215,6 +359,7 @@ alignment = 1
 unique_name_in_owner = true
 editor_description = "Показать лог историю посылок"
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "История"
 icon = ExtResource("12_0b3jl")
 
@@ -222,12 +367,14 @@ icon = ExtResource("12_0b3jl")
 unique_name_in_owner = true
 editor_description = "Показать лог истории транзакции"
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Транзакции"
 icon = ExtResource("6_m6rtl")
 
-[node name="ButtonOrders" type="Button" parent="Root/Panel/NewUI/HBoxContainer/VBoxContainer/Tools/MarginContainer/HBoxContainer"]
+[node name="ButtonOrders" type="Button" parent="Root/Panel/NewUI/HBoxContainer/VBoxContainer/Tools/MarginContainer/HBoxContainer" unique_id=1383716528]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Заказ расходников"
 
 [node name="ButtonHelp" type="Button" parent="Root/Panel/NewUI/HBoxContainer/VBoxContainer/Tools/MarginContainer/HBoxContainer" unique_id=1710965412]

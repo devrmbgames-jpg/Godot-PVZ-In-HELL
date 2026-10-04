@@ -14,7 +14,6 @@ morning = 1
 
 [resource]
 script = ExtResource("Profile")
-interests = PackedStringArray("тихие тёмные улицы", "ночные гости")
 display_name = "Ночной сосед"
 recipient_key = &"customer_05"
 personality = 1
