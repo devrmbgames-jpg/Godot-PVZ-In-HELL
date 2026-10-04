@@ -1,8 +1,10 @@
 extends DEF_ItemAccessProvider
-## Both physical hands and Carry share the same authoritative R_HeldBy checks.
+## Доступ к обеим рукам и Carry через единые авторитетные связи R_HeldBy.
 class_name DEF_HeldItemAccess
 
 
+#region Предметы физических рук
+## Возвращает доступные предметы обеих рук и Carry по живым связям удержания.
 func items(actor: Entity) -> Array[Entity]:
 	var result: Array[Entity] = []
 	for slot: int in [C_Grabbable.HoldSlot.LEFT_HAND, C_Grabbable.HoldSlot.RIGHT_HAND, C_Grabbable.HoldSlot.CARRY]:
@@ -12,10 +14,12 @@ func items(actor: Entity) -> Array[Entity]:
 	return result
 
 
+## Проверяет доступного держателя и наличие предмета в его физических слотах.
 func can_consume(actor: Entity, item: Entity) -> bool:
 	return GrabService.holder_available(actor) and items(actor).has(item)
 
 
+## Повторно проверяет удержание, освобождает хват и удаляет конкретный предмет из World.
 func consume(actor: Entity, item: Entity) -> bool:
 	if not can_consume(actor, item):
 		return false
@@ -23,3 +27,5 @@ func consume(actor: Entity, item: Entity) -> bool:
 	GrabService.release(actor, item)
 	ECS.world.remove_entity(item)
 	return true
+
+#endregion

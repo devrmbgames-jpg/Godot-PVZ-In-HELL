@@ -1,5 +1,6 @@
 extends Component
-## Durable result of the valve's authored toggle action.
+## Сохраняемый результат авторского переключения вентиля.
 class_name C_InteractionToggle
 
+## Текущее положение авторского переключателя.
 @export var active: bool = false

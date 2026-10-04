@@ -1,4 +1,4 @@
 extends Component
-## Actor -> source tool, only when a prolonged action's source differs from its target.
-## Kept/removed with R_ProlongedOn; no parallel source pointer in a Component.
+## Актор → инструмент, если источник длительного действия отличается от его цели.
+## Живёт вместе с R_ProlongedOn; параллельной ссылки на источник в Component нет.
 class_name R_ProlongedUsing

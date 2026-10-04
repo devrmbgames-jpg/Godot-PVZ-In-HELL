@@ -1,6 +1,7 @@
 extends Component
-## Optional actor-specific providers; empty/absent uses the physical hands provider.
-## Providers are stateless adapters, not a second list of owned Entities.
+## Необязательные источники доступа актора; стандартный набор включает руки и надетые слоты.
+## Источники — адаптеры без состояния; не дублируют список принадлежащих предметов.
 class_name C_ItemAccess
 
+## Упорядоченные адаптеры источников; пустой массив использует руки и надетые слоты.
 @export var providers: Array[DEF_ItemAccessProvider] = []
