@@ -1,3 +1,3 @@
 extends Component
-## Live Quest -> session owning its durable record.
+## Связывает живое задание с сессией, владеющей постоянной записью.
 class_name R_QuestSession

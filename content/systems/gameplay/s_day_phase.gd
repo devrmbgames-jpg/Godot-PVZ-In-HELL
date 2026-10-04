@@ -1,16 +1,21 @@
 extends System
-## Processes queued day transitions; query/command callers use DayPhaseService.
+## Исполняет ожидающий переход с повторной проверкой; запросы проходят через DayPhaseService.
 class_name S_DayPhase
 
+## Сон принят и началась ночная подготовка указанного дня.
 signal night_started(day_index: int)
+## Ночная подготовка разрешила переход к следующему игровому дню.
 signal morning_started(day_index: int)
+## Уведомляет о принятом изменении дня/фазы после записи состояния.
 signal phase_changed(day_index: int, phase: C_DayCycle.Phase)
 
 
+## Выбирает сессионные данные игрового цикла.
 func query() -> QueryBuilder:
 	return q.with_all([C_DayCycle]).iterate([C_DayCycle])
 
 
+## Считает время смены, повторно проверяет запрос и переводит готовую ночь в следующее утро.
 func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 	var cycles: Array = components[0]
 	for index: int in cycles.size():

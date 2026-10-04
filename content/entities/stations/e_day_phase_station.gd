@@ -1,7 +1,9 @@
 @tool
 extends Entity
+## Тонкое представление станции смены/сна; переходы задаются её действиями.
 class_name E_DayPhaseStation
 
+## Настраивает подпись станции сна вместо станции управления сменой.
 @export var sleep_station: bool = false
 
 const REFRESH_SECONDS: float = 0.25

@@ -1,15 +1,18 @@
 extends RefCounted
+## Предлагает и разрешает задания по реальному исходу обслуживания; награду проводит через кошелёк.
 class_name RefusalQuestService
 
 const DEFINITION: DEF_RefusalQuest = preload("res://content/definitions/gameplay/quests/def_refusal_default.tres")
 
 
+#region Записи и восстановление связей
+## Возвращает журнал заданий текущей сессии.
 static func current() -> C_QuestSession:
 	var session: Entity = _session()
 	return session.get_component(C_QuestSession) as C_QuestSession if session != null else null
 
 
-## Rebuild only live bindings from durable facts after save/load; never invent missing targets.
+## Восстанавливает только живые связи из постоянных фактов; отсутствующие посылки не создаёт.
 static func restore_bindings() -> void:
 	var state: C_QuestSession = current()
 	if state == null:
@@ -45,6 +48,7 @@ static func restore_bindings() -> void:
 			break
 
 
+## Находит постоянную запись по устойчивому ID.
 static func find(quest_id: StringName) -> RefusalQuestRecord:
 	var state: C_QuestSession = current()
 	if state != null:
@@ -54,6 +58,10 @@ static func find(quest_id: StringName) -> RefusalQuestRecord:
 	return null
 
 
+#endregion
+
+#region Предложение и выбор игрока
+## Вечером возвращает действующее предложение или создаёт задание для зарегистрированной будущей посылки.
 static func offer(trader: Entity) -> RefusalQuestRecord:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var state: C_QuestSession = current()
@@ -105,6 +113,7 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 	return null
 
 
+## Вечером принимает ещё открытое предложение до истечения срока.
 static func accept(quest_id: StringName) -> bool:
 	var record: RefusalQuestRecord = find(quest_id)
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -115,6 +124,7 @@ static func accept(quest_id: StringName) -> bool:
 	return true
 
 
+## Вечером разрешает открытое предложение отказом и снимает живые связи.
 static func ignore(quest_id: StringName) -> bool:
 	var record: RefusalQuestRecord = find(quest_id)
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -125,6 +135,10 @@ static func ignore(quest_id: StringName) -> bool:
 	return true
 
 
+#endregion
+
+#region Исходы, очистка и награда
+## Проверяет сроки и фактическую выдачу/отказ, снимает связи и однократно запрашивает награду.
 static func tick(state: C_QuestSession, cycle: C_DayCycle) -> void:
 	if state == null or cycle == null:
 		return
@@ -165,3 +179,5 @@ static func _pay_reward(record: RefusalQuestRecord, day_index: int) -> void:
 
 static func _session() -> Entity:
 	return ECS.world.query.with_all([C_QuestSession, C_DayCycle]).execute_one() if is_instance_valid(ECS.world) else null
+
+#endregion

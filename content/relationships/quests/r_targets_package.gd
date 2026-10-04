@@ -1,3 +1,3 @@
 extends Component
-## Live Quest -> real physical Package, independent of its display number.
+## Связывает живое задание с настоящей посылкой независимо от видимого номера.
 class_name R_TargetsPackage

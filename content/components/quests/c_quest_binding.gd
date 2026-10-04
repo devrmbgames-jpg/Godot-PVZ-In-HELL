@@ -1,5 +1,6 @@
 extends Component
-## Durable record lookup ID; the component is not a second outcome authority.
+## ID поиска постоянной записи задания; исход принадлежит RefusalQuestRecord.
 class_name C_QuestBinding
 
+## Устойчивый ID соответствующей записи сессионного журнала.
 @export var quest_id: StringName = &""

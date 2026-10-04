@@ -1,8 +1,10 @@
 extends RefCounted
-## Query/command boundary for day-cycle state. S_DayPhase only processes transitions.
+## Чтение и запросы игрового цикла; переходы исполняет S_DayPhase.
 class_name DayPhaseService
 
 
+#region Состояние и доступность переходов
+## Возвращает данные цикла текущей сессии или null.
 static func current() -> C_DayCycle:
 	if not is_instance_valid(ECS.world):
 		return null
@@ -11,6 +13,7 @@ static func current() -> C_DayCycle:
 	return session.get_component(C_DayCycle) as C_DayCycle if session != null else null
 
 
+## Проверяет фазу, отсутствие ожидающего запроса и актуальные запреты смены/сна.
 static func permits(cycle: C_DayCycle, kind: DayTransitionRequest.Kind) -> bool:
 	if cycle == null or cycle.pending_transition != null:
 		return false
@@ -27,7 +30,10 @@ static func permits(cycle: C_DayCycle, kind: DayTransitionRequest.Kind) -> bool:
 	return false
 
 
-## The same current facts gate commands, transition commits and readable UI.
+#endregion
+
+#region Условия и представление
+## Собирает одинаковые текущие запреты для запроса, фиксации перехода и интерфейса.
 static func finish_blockers(cycle: C_DayCycle) -> PackedStringArray:
 	var reasons: PackedStringArray = []
 	if cycle == null:
@@ -57,6 +63,7 @@ static func finish_blockers(cycle: C_DayCycle) -> PackedStringArray:
 	return reasons
 
 
+## Считает живых незавершённых клиентов; -1 означает неверную настройку зоны.
 static func customers_in_room(cycle: C_DayCycle) -> int:
 	if not is_instance_valid(ECS.world):
 		return 0 if cycle.customer_room_path.is_empty() else -1
@@ -80,6 +87,7 @@ static func customers_in_room(cycle: C_DayCycle) -> int:
 	return count
 
 
+## Форматирует актуальные запреты завершения смены или сна для интерфейса.
 static func shift_status(cycle: C_DayCycle) -> String:
 	if cycle == null:
 		return ""
@@ -93,6 +101,10 @@ static func shift_status(cycle: C_DayCycle) -> String:
 	return "Смена %.0f с · %s" % [floorf(cycle.shift_elapsed_seconds), "Завершение доступно" if reasons.is_empty() else " · ".join(reasons)]
 
 
+#endregion
+
+#region Отправка запроса
+## Сохраняет один допустимый запрос с совпадающими ожидаемыми днём и фазой.
 static func submit(request: DayTransitionRequest) -> bool:
 	var cycle: C_DayCycle = current()
 	if request == null or not permits(cycle, request.kind):
@@ -102,3 +114,5 @@ static func submit(request: DayTransitionRequest) -> bool:
 
 	cycle.pending_transition = request
 	return true
+
+#endregion
