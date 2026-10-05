@@ -8,7 +8,7 @@ do ctx.arm_challenge()
 if ctx.has_registered_number()
 	Клиент: Мой заказ №{{ctx.package_number_text()}}. Найдите коробку и передайте её мне или положите на стойку выдачи.
 	- Хорошо. => END
-	- Принесу вам посылку домой сегодня вечером. [if ctx.can_offer_delivery() /] => home_delivery
+	- Обсудим доставку домой. [if ctx.can_offer_delivery() /] => home_request
 	- Я не могу выдать вам посылку. => deny_start
 else
 	Клиент: Мой заказ ещё не зарегистрирован. Сначала просканируйте поступившие коробки.
@@ -28,22 +28,39 @@ else
 ~ followup
 Клиент: Я снова по поводу заказа №{{ctx.package_number_text()}}. Сегодня получится его забрать?
 - Да, сейчас посмотрю. => END
-- Принесу посылку домой сегодня вечером. [if ctx.can_offer_delivery() /] => home_delivery
+- Обсудим доставку домой. [if ctx.can_offer_delivery() /] => home_request
 - Я всё ещё не могу выдать вам посылку. => deny_start
 
 ~ home_delivery
 $> ctx.accept_home_delivery()
-Клиент: Договорились. Адрес указан у моей двери. Принеси до сна — доплачу одну обычную выдачу.
 => END
 
 ~ home_request
-Клиент: Вы можете принести мне посылку домой сегодня вечером? Заказ №{{ctx.package_number_text()}}. За доставку доплачу.
+Клиент: Принесите заказ №{{ctx.package_number_text()}} домой сегодня вечером. Адрес: {{ctx.delivery_address()}}. Доплата {{ctx.delivery_bonus()}}$, срок — до сна.
+if ctx.delivery_hint() != ""
+	Клиент: {{ctx.delivery_hint()}}
 - Да, принесу до сна. => home_delivery
+- За этот маршрут доплатите {{ctx.requested_delivery_bonus()}}$. [if ctx.can_bargain_delivery() /] => home_bargain
 - Нет, приходите за ней сами. => home_declined
 
+~ home_bargain
+$> ctx.negotiate_home_delivery()
+if ctx.delivery_bargain_accepted()
+	Клиент: Хорошо. Доплачу {{ctx.delivery_bonus()}}$. Только выполни обещание.
+else
+	Клиент: Нет. За доставку остаётся {{ctx.delivery_bonus()}}$.
+=> home_request
+
 ~ home_declined
-Клиент: Хорошо, тогда зайду сам через несколько дней.
 $> ctx.decline_home_delivery()
+=> END
+
+~ broken_promise
+Клиент: Ты обещал принести посылку и не пришёл. Я это запомнил. Больше личных доставок тебе не доверю.
+- Я услышал. => promise_reaction
+
+~ promise_reaction
+$> ctx.resolve_broken_promise()
 => END
 
 ~ deny_start

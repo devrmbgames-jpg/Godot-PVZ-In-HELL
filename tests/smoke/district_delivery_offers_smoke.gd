@@ -101,7 +101,7 @@ func _check_invalid_delivery(snapshot: Dictionary, level: Node3D) -> void:
 			if component.type == C_District.resource_path:
 				var deliveries: Array = component.fields.home_deliveries as Array
 				if not deliveries.is_empty():
-					deliveries[0].fields.status = NpcHomeDelivery.Status.EXPIRED + 1
+					deliveries[0].fields.status = NpcHomeDelivery.Status.AMBUSHED + 1
 	_check(not WorldSnapshotService.valid(malformed, level), "unknown delivery status rejected before restore")
 
 func _cleanup_slot() -> void:

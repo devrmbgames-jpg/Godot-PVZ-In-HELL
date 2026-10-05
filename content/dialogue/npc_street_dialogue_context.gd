@@ -27,6 +27,20 @@ func accept_home_delivery() -> bool:
 ## Переносит самостоятельное получение на 1–3 дня после отказа от доставки.
 func decline_home_delivery() -> bool:
 	return _speaker != null and NpcHomeDeliveryService.decline(_speaker)
+
+## Позволяет закрыть именно этот уличный разговор перед боем.
+func speaks_with(npc: Entity) -> bool:
+	return _speaker == npc
+
+func _delivery_offer() -> NpcHomeDelivery:
+	var visit: CustomerVisit = NpcHomeDeliveryService.offer_for(_speaker) if _speaker != null else null
+	return NpcDeliveryOfferService.personal_for(visit.customer_id, visit.visit_id) if visit != null else null
+
+func _delivery_npc() -> E_DistrictNpc:
+	return _speaker
+
+func _delivery_player() -> Entity:
+	return _player
 #endregion
 
 #region Жизненный цикл разговора
@@ -63,6 +77,8 @@ func can_continue() -> bool:
 ## Выбирает ветку провокатора по постоянной особенности личности.
 func dialogue_cue() -> String:
 	var person: NpcRecord = DistrictPopulationService.person_for(_person_id)
+	if has_broken_promise():
+		return "broken_promise"
 	if can_offer_delivery():
 		return "delivery_request"
 	return "provocation" if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) != null else "street"

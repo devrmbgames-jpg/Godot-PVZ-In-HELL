@@ -1,200 +1,38 @@
 [gd_resource type="BehaviorTree" format=3 uid="uid://cxukae1fn0ugy"]
 
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_service_phase.gd" id="s1"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_inspection_missing.gd" id="s2"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_inspection_complete.gd" id="s3"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_movement_arrived.gd" id="s4"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_inspection_begin.gd" id="s5"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_service_deadline.gd" id="s6"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_inspection_return.gd" id="s7"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_inspection_move.gd" id="s8"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_inspection_open.gd" id="s9"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_has_service.gd" id="s10"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_home_meeting.gd" id="s11"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_delivery_resolved.gd" id="s12"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_complete_home.gd" id="s13"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_can_approach.gd" id="s14"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_claim_counter.gd" id="s15"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_queue_walk.gd" id="s16"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_needs_darkness.gd" id="s17"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_begin_approach.gd" id="s18"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_entrance_deadline.gd" id="s19"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_defer_service.gd" id="s20"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_wait_light.gd" id="s21"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_arrive_service.gd" id="s22"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_approach_service.gd" id="s23"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_handoff.gd" id="s24"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_greet.gd" id="s25"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_wait_parcel.gd" id="s26"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_leave_service.gd" id="s27"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_finish_service.gd" id="s28"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_depart_service.gd" id="s29"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_has_conversation.gd" id="s30"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_conversation.gd" id="s31"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_conversation.gd" id="queue_talk"]
+[ext_resource type="BehaviorTree" path="res://content/ai/trees/bt_npc_delivery_ambush.tres" id="delivery_ambush"]
 
-[sub_resource type="BTCondition" id="QueueTalking"]
-custom_name = "Уличный разговор активен"
-script = ExtResource("s30")
-
-[sub_resource type="BTAction" id="QueueConversation"]
-custom_name = "Разговор во время прогулки"
-script = ExtResource("queue_talk")
-intent_owner = 2
-
-[sub_resource type="BTDynamicSequence" id="QueueDialogue"]
-custom_name = "Говорить, сохраняя очередь"
-children = [SubResource("QueueTalking"), SubResource("QueueConversation")]
-
-[sub_resource type="BTCondition" id="BTCondition_1"]
-custom_name = "Фаза: В кабинку / Осмотр / Возвращение"
-script = ExtResource("s1")
-phases = Array[int]([10, 11, 12])
-
-[sub_resource type="BTCondition" id="BTCondition_2"]
-custom_name = "Нет исходной коробки"
-script = ExtResource("s2")
-
-[sub_resource type="BTAction" id="BTAction_3"]
-custom_name = "Закончить с отказом"
-script = ExtResource("s3")
-force_refusal = true
-intent_owner = 2
-
-[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_4"]
-custom_name = "Коробка исчезла"
-children = [SubResource("BTCondition_1"), SubResource("BTCondition_2"), SubResource("BTAction_3")]
-
-[sub_resource type="BTCondition" id="BTCondition_5"]
-custom_name = "Фаза: В кабинку"
-script = ExtResource("s1")
-phases = Array[int]([10])
-
-[sub_resource type="BTCondition" id="BTCondition_6"]
-custom_name = "Движение завершено"
-script = ExtResource("s4")
-
-[sub_resource type="BTAction" id="BTAction_7"]
-custom_name = "Начать осмотр"
-script = ExtResource("s5")
-intent_owner = 2
-
-[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_8"]
-custom_name = "Кабинка достигнута"
-children = [SubResource("BTCondition_6"), SubResource("BTAction_7")]
-
-[sub_resource type="BTCondition" id="BTCondition_9"]
-custom_name = "Истёк approach_timeout"
-script = ExtResource("s6")
-seconds_property = &"approach_timeout"
-minimum_seconds = 0.0
-
-[sub_resource type="BTAction" id="BTAction_10"]
-custom_name = "Вернуться с отказом"
-script = ExtResource("s7")
-force_refusal = true
-intent_owner = 2
-
-[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_11"]
-custom_name = "Не удалось дойти"
-children = [SubResource("BTCondition_9"), SubResource("BTAction_10")]
-
-[sub_resource type="BTAction" id="BTAction_12"]
-custom_name = "Пройти к зарезервированной кабинке"
-script = ExtResource("s8")
-intent_owner = 2
-
-[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_13"]
-custom_name = "Прибытие или таймаут"
-children = [SubResource("BTDynamicSequence_8"), SubResource("BTDynamicSequence_11"), SubResource("BTAction_12")]
-
-[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_14"]
-custom_name = "Путь в кабинку"
-children = [SubResource("BTCondition_5"), SubResource("BTDynamicSelector_13")]
-
-[sub_resource type="BTCondition" id="BTCondition_15"]
-custom_name = "Фаза: Осмотр"
-script = ExtResource("s1")
-phases = Array[int]([11])
-
-[sub_resource type="BTCondition" id="BTCondition_16"]
-custom_name = "Истёк inspection_seconds"
-script = ExtResource("s6")
-seconds_property = &"inspection_seconds"
-minimum_seconds = 0.0
-
-[sub_resource type="BTAction" id="BTAction_17"]
-custom_name = "Вернуться к месту выдачи"
-script = ExtResource("s7")
-intent_owner = 2
-
-[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_18"]
-custom_name = "Время осмотра прошло"
-children = [SubResource("BTCondition_16"), SubResource("BTAction_17")]
-
-[sub_resource type="BTAction" id="BTAction_19"]
-custom_name = "Один раз запросить вскрытие"
-script = ExtResource("s9")
-intent_owner = 2
-
-[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_20"]
-custom_name = "Завершение или вскрытие"
-children = [SubResource("BTDynamicSequence_18"), SubResource("BTAction_19")]
-
-[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_21"]
-custom_name = "Проверка содержимого"
-children = [SubResource("BTCondition_15"), SubResource("BTDynamicSelector_20")]
-
-[sub_resource type="BTCondition" id="BTCondition_22"]
-custom_name = "Фаза: Возвращение"
-script = ExtResource("s1")
-phases = Array[int]([12])
-
-[sub_resource type="BTCondition" id="BTCondition_23"]
-custom_name = "Движение завершено"
-script = ExtResource("s4")
-
-[sub_resource type="BTAction" id="BTAction_24"]
-custom_name = "Применить результат осмотра"
-script = ExtResource("s3")
-intent_owner = 2
-
-[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_25"]
-custom_name = "Клиент вернулся"
-children = [SubResource("BTCondition_23"), SubResource("BTAction_24")]
-
-[sub_resource type="BTCondition" id="BTCondition_26"]
-custom_name = "Истёк approach_timeout"
-script = ExtResource("s6")
-seconds_property = &"approach_timeout"
-minimum_seconds = 0.0
-
-[sub_resource type="BTAction" id="BTAction_27"]
-custom_name = "Завершить с отказом"
-script = ExtResource("s3")
-force_refusal = true
-intent_owner = 2
-
-[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_28"]
-custom_name = "Возврат не удался"
-children = [SubResource("BTCondition_26"), SubResource("BTAction_27")]
-
-[sub_resource type="BTAction" id="BTAction_29"]
-custom_name = "Вернуться к месту выдачи"
-script = ExtResource("s8")
-intent_owner = 2
-
-[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_30"]
-custom_name = "Завершение возврата"
-children = [SubResource("BTDynamicSequence_25"), SubResource("BTDynamicSequence_28"), SubResource("BTAction_29")]
-
-[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_31"]
-custom_name = "Возвращение"
-children = [SubResource("BTCondition_22"), SubResource("BTDynamicSelector_30")]
-
-[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_32"]
-custom_name = "Осмотр"
-children = [SubResource("BTDynamicSequence_4"), SubResource("BTDynamicSequence_14"), SubResource("BTDynamicSequence_21"), SubResource("BTDynamicSequence_31")]
+[ext_resource type="Script" uid="uid://be5uu13bhrqtv" path="res://content/ai/tasks/bt_npc_conversation.gd" id="queue_talk"]
+[ext_resource type="Script" uid="uid://cusve7ao2sa6a" path="res://content/ai/tasks/bt_npc_service_phase.gd" id="s1"]
+[ext_resource type="Script" uid="uid://cryp040iyuik3" path="res://content/ai/tasks/bt_npc_inspection_missing.gd" id="s2"]
+[ext_resource type="Script" uid="uid://bqdt3cna37kbq" path="res://content/ai/tasks/bt_npc_inspection_complete.gd" id="s3"]
+[ext_resource type="Script" uid="uid://u6ijs6qgp17r" path="res://content/ai/tasks/bt_npc_movement_arrived.gd" id="s4"]
+[ext_resource type="Script" uid="uid://miw1wskaf162" path="res://content/ai/tasks/bt_npc_inspection_begin.gd" id="s5"]
+[ext_resource type="Script" uid="uid://c1llql820elcf" path="res://content/ai/tasks/bt_npc_service_deadline.gd" id="s6"]
+[ext_resource type="Script" uid="uid://dgsxi84a4ydnw" path="res://content/ai/tasks/bt_npc_inspection_return.gd" id="s7"]
+[ext_resource type="Script" uid="uid://bx4ruhyl0v4e3" path="res://content/ai/tasks/bt_npc_inspection_move.gd" id="s8"]
+[ext_resource type="Script" uid="uid://7xbp322p1h2x" path="res://content/ai/tasks/bt_npc_inspection_open.gd" id="s9"]
+[ext_resource type="Script" uid="uid://eu7uo6b2jivd" path="res://content/ai/tasks/bt_npc_has_service.gd" id="s10"]
+[ext_resource type="Script" uid="uid://dbc2c3tfcq3ow" path="res://content/ai/tasks/bt_npc_home_meeting.gd" id="s11"]
+[ext_resource type="Script" uid="uid://bbqoi4eivgxdj" path="res://content/ai/tasks/bt_npc_delivery_resolved.gd" id="s12"]
+[ext_resource type="Script" uid="uid://dhf1soax6oe3x" path="res://content/ai/tasks/bt_npc_complete_home.gd" id="s13"]
+[ext_resource type="Script" uid="uid://p562i71k2og2" path="res://content/ai/tasks/bt_npc_can_approach.gd" id="s14"]
+[ext_resource type="Script" uid="uid://15xoftqq4wc0" path="res://content/ai/tasks/bt_npc_claim_counter.gd" id="s15"]
+[ext_resource type="Script" uid="uid://mdkvdceeu0xb" path="res://content/ai/tasks/bt_npc_queue_walk.gd" id="s16"]
+[ext_resource type="Script" uid="uid://pvqo4d821mfi" path="res://content/ai/tasks/bt_npc_needs_darkness.gd" id="s17"]
+[ext_resource type="Script" uid="uid://dyt6731fmeaq3" path="res://content/ai/tasks/bt_npc_begin_approach.gd" id="s18"]
+[ext_resource type="Script" uid="uid://cdohqrkvl1yv6" path="res://content/ai/tasks/bt_npc_entrance_deadline.gd" id="s19"]
+[ext_resource type="Script" uid="uid://g6r0dfatu3uy" path="res://content/ai/tasks/bt_npc_defer_service.gd" id="s20"]
+[ext_resource type="Script" uid="uid://dci1rgk3ek3qf" path="res://content/ai/tasks/bt_npc_wait_light.gd" id="s21"]
+[ext_resource type="Script" uid="uid://cvkib8r2xleht" path="res://content/ai/tasks/bt_npc_arrive_service.gd" id="s22"]
+[ext_resource type="Script" uid="uid://b2l5h4kmxxd8p" path="res://content/ai/tasks/bt_npc_approach_service.gd" id="s23"]
+[ext_resource type="Script" uid="uid://dwtn8s3tyf2ks" path="res://content/ai/tasks/bt_npc_handoff.gd" id="s24"]
+[ext_resource type="Script" uid="uid://badww2yaqc4eb" path="res://content/ai/tasks/bt_npc_greet.gd" id="s25"]
+[ext_resource type="Script" uid="uid://brksiqiek2bmr" path="res://content/ai/tasks/bt_npc_wait_parcel.gd" id="s26"]
+[ext_resource type="Script" uid="uid://l1ci3mfcb4ht" path="res://content/ai/tasks/bt_npc_leave_service.gd" id="s27"]
+[ext_resource type="Script" uid="uid://cm7o4pvqdwgly" path="res://content/ai/tasks/bt_npc_finish_service.gd" id="s28"]
+[ext_resource type="Script" uid="uid://c4wrf544c3fyk" path="res://content/ai/tasks/bt_npc_depart_service.gd" id="s29"]
+[ext_resource type="Script" uid="uid://b7qw8a0yb17na" path="res://content/ai/tasks/bt_npc_has_conversation.gd" id="s30"]
 
 [sub_resource type="BTCondition" id="BTCondition_33"]
 custom_name = "Есть активный случай"
@@ -221,6 +59,19 @@ children = [SubResource("BTCondition_34"), SubResource("BTCondition_35"), SubRes
 custom_name = "Фаза: Очередь"
 script = ExtResource("s1")
 phases = Array[int]([13])
+
+[sub_resource type="BTCondition" id="QueueTalking"]
+custom_name = "Уличный разговор активен"
+script = ExtResource("s30")
+
+[sub_resource type="BTAction" id="QueueConversation"]
+custom_name = "Разговор во время прогулки"
+script = ExtResource("queue_talk")
+intent_owner = 2
+
+[sub_resource type="BTDynamicSequence" id="QueueDialogue"]
+custom_name = "Говорить, сохраняя очередь"
+children = [SubResource("QueueTalking"), SubResource("QueueConversation")]
 
 [sub_resource type="BTCondition" id="BTCondition_39"]
 custom_name = "Этот получатель первый"
@@ -253,6 +104,10 @@ custom_name = "Фаза: Жду темноты"
 script = ExtResource("s1")
 phases = Array[int]([9])
 
+[sub_resource type="BTCondition" id="DarkCounterFree"]
+custom_name = "Этот ожидающий может занять свободную стойку"
+script = ExtResource("s14")
+
 [sub_resource type="BTCondition" id="BTCondition_46"]
 custom_name = "Свет включён"
 script = ExtResource("s17")
@@ -265,10 +120,6 @@ children = [SubResource("BTCondition_46")]
 custom_name = "Разрешить вход"
 script = ExtResource("s18")
 intent_owner = 2
-
-[sub_resource type="BTCondition" id="DarkCounterFree"]
-custom_name = "Этот ожидающий может занять свободную стойку"
-script = ExtResource("s14")
 
 [sub_resource type="BTDynamicSequence" id="BTDynamicSequence_49"]
 custom_name = "ПВЗ тёмный"
@@ -323,7 +174,6 @@ children = [SubResource("BTCondition_57"), SubResource("BTAction_58")]
 custom_name = "Истёк approach_timeout"
 script = ExtResource("s6")
 seconds_property = &"approach_timeout"
-minimum_seconds = 0.0
 
 [sub_resource type="BTAction" id="BTAction_61"]
 custom_name = "Сохранить заказ до другого дня"
@@ -347,6 +197,153 @@ children = [SubResource("BTDynamicSequence_59"), SubResource("BTDynamicSequence_
 custom_name = "Прибытие"
 children = [SubResource("BTCondition_56"), SubResource("BTDynamicSelector_64")]
 
+[sub_resource type="BTCondition" id="BTCondition_1"]
+custom_name = "Фаза: В кабинку / Осмотр / Возвращение"
+script = ExtResource("s1")
+phases = Array[int]([10, 11, 12])
+
+[sub_resource type="BTCondition" id="BTCondition_2"]
+custom_name = "Нет исходной коробки"
+script = ExtResource("s2")
+
+[sub_resource type="BTAction" id="BTAction_3"]
+custom_name = "Закончить с отказом"
+script = ExtResource("s3")
+force_refusal = true
+intent_owner = 2
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_4"]
+custom_name = "Коробка исчезла"
+children = [SubResource("BTCondition_1"), SubResource("BTCondition_2"), SubResource("BTAction_3")]
+
+[sub_resource type="BTCondition" id="BTCondition_5"]
+custom_name = "Фаза: В кабинку"
+script = ExtResource("s1")
+phases = Array[int]([10])
+
+[sub_resource type="BTCondition" id="BTCondition_6"]
+custom_name = "Движение завершено"
+script = ExtResource("s4")
+
+[sub_resource type="BTAction" id="BTAction_7"]
+custom_name = "Начать осмотр"
+script = ExtResource("s5")
+intent_owner = 2
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_8"]
+custom_name = "Кабинка достигнута"
+children = [SubResource("BTCondition_6"), SubResource("BTAction_7")]
+
+[sub_resource type="BTCondition" id="BTCondition_9"]
+custom_name = "Истёк approach_timeout"
+script = ExtResource("s6")
+seconds_property = &"approach_timeout"
+
+[sub_resource type="BTAction" id="BTAction_10"]
+custom_name = "Вернуться с отказом"
+script = ExtResource("s7")
+force_refusal = true
+intent_owner = 2
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_11"]
+custom_name = "Не удалось дойти"
+children = [SubResource("BTCondition_9"), SubResource("BTAction_10")]
+
+[sub_resource type="BTAction" id="BTAction_12"]
+custom_name = "Пройти к зарезервированной кабинке"
+script = ExtResource("s8")
+intent_owner = 2
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_13"]
+custom_name = "Прибытие или таймаут"
+children = [SubResource("BTDynamicSequence_8"), SubResource("BTDynamicSequence_11"), SubResource("BTAction_12")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_14"]
+custom_name = "Путь в кабинку"
+children = [SubResource("BTCondition_5"), SubResource("BTDynamicSelector_13")]
+
+[sub_resource type="BTCondition" id="BTCondition_15"]
+custom_name = "Фаза: Осмотр"
+script = ExtResource("s1")
+phases = Array[int]([11])
+
+[sub_resource type="BTCondition" id="BTCondition_16"]
+custom_name = "Истёк inspection_seconds"
+script = ExtResource("s6")
+seconds_property = &"inspection_seconds"
+
+[sub_resource type="BTAction" id="BTAction_17"]
+custom_name = "Вернуться к месту выдачи"
+script = ExtResource("s7")
+intent_owner = 2
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_18"]
+custom_name = "Время осмотра прошло"
+children = [SubResource("BTCondition_16"), SubResource("BTAction_17")]
+
+[sub_resource type="BTAction" id="BTAction_19"]
+custom_name = "Один раз запросить вскрытие"
+script = ExtResource("s9")
+intent_owner = 2
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_20"]
+custom_name = "Завершение или вскрытие"
+children = [SubResource("BTDynamicSequence_18"), SubResource("BTAction_19")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_21"]
+custom_name = "Проверка содержимого"
+children = [SubResource("BTCondition_15"), SubResource("BTDynamicSelector_20")]
+
+[sub_resource type="BTCondition" id="BTCondition_22"]
+custom_name = "Фаза: Возвращение"
+script = ExtResource("s1")
+phases = Array[int]([12])
+
+[sub_resource type="BTCondition" id="BTCondition_23"]
+custom_name = "Движение завершено"
+script = ExtResource("s4")
+
+[sub_resource type="BTAction" id="BTAction_24"]
+custom_name = "Применить результат осмотра"
+script = ExtResource("s3")
+intent_owner = 2
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_25"]
+custom_name = "Клиент вернулся"
+children = [SubResource("BTCondition_23"), SubResource("BTAction_24")]
+
+[sub_resource type="BTCondition" id="BTCondition_26"]
+custom_name = "Истёк approach_timeout"
+script = ExtResource("s6")
+seconds_property = &"approach_timeout"
+
+[sub_resource type="BTAction" id="BTAction_27"]
+custom_name = "Завершить с отказом"
+script = ExtResource("s3")
+force_refusal = true
+intent_owner = 2
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_28"]
+custom_name = "Возврат не удался"
+children = [SubResource("BTCondition_26"), SubResource("BTAction_27")]
+
+[sub_resource type="BTAction" id="BTAction_29"]
+custom_name = "Вернуться к месту выдачи"
+script = ExtResource("s8")
+intent_owner = 2
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_30"]
+custom_name = "Завершение возврата"
+children = [SubResource("BTDynamicSequence_25"), SubResource("BTDynamicSequence_28"), SubResource("BTAction_29")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_31"]
+custom_name = "Возвращение"
+children = [SubResource("BTCondition_22"), SubResource("BTDynamicSelector_30")]
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_32"]
+custom_name = "Осмотр"
+children = [SubResource("BTDynamicSequence_4"), SubResource("BTDynamicSequence_14"), SubResource("BTDynamicSequence_21"), SubResource("BTDynamicSequence_31")]
+
 [sub_resource type="BTCondition" id="BTCondition_66"]
 custom_name = "Фаза: Знакомство"
 script = ExtResource("s1")
@@ -361,7 +358,6 @@ intent_owner = 2
 custom_name = "Истёк greeting_seconds"
 script = ExtResource("s6")
 seconds_property = &"greeting_seconds"
-minimum_seconds = 0.0
 
 [sub_resource type="BTAction" id="BTAction_69"]
 custom_name = "Приветствовать"
@@ -411,8 +407,6 @@ children = [SubResource("BTCondition_76"), SubResource("BTAction_77")]
 [sub_resource type="BTCondition" id="BTCondition_79"]
 custom_name = "Истёк patience_seconds"
 script = ExtResource("s6")
-seconds_property = &"patience_seconds"
-minimum_seconds = 0.0
 
 [sub_resource type="BTAction" id="BTAction_80"]
 custom_name = "Уйти без выдачи"
@@ -445,7 +439,6 @@ phases = Array[int]([4])
 custom_name = "Истёк receiving_seconds"
 script = ExtResource("s6")
 seconds_property = &"receiving_seconds"
-minimum_seconds = 0.0
 
 [sub_resource type="BTAction" id="BTAction_87"]
 custom_name = "Начать уход"
@@ -557,16 +550,23 @@ script = ExtResource("s30")
 
 [sub_resource type="BTAction" id="BTAction_111"]
 custom_name = "Следить за видимым собеседником"
-script = ExtResource("s31")
+script = ExtResource("queue_talk")
 intent_owner = 2
 
 [sub_resource type="BTDynamicSequence" id="BTDynamicSequence_112"]
 custom_name = "Уличный разговор"
 children = [SubResource("BTCondition_110"), SubResource("BTAction_111")]
 
+[sub_resource type="BlackboardPlan" id="DeliveryAmbushPlan"]
+
+[sub_resource type="BTSubtree" id="DeliveryAmbush"]
+custom_name = "????????? ???????? ???????"
+subtree = ExtResource("delivery_ambush")
+blackboard_plan = SubResource("DeliveryAmbushPlan")
+
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_113"]
 custom_name = "Обслуживание / разговор"
-children = [SubResource("BTDynamicSequence_109"), SubResource("BTDynamicSequence_112")]
+children = [SubResource("DeliveryAmbush"), SubResource("BTDynamicSequence_109"), SubResource("BTDynamicSequence_112")]
 
 [resource]
 description = "Очередь, свет, прибытие, выдача, осмотр, уход и домашняя встреча."

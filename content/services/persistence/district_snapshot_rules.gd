@@ -115,7 +115,7 @@ static func _deliveries_valid(district: C_District, flow: C_CustomerFlow, people
 		parcels[job.package_id] = true
 		if job.order_number < 1 or job.day_index < 1 or job.day_index > morning_day or job.deadline_day != job.day_index + 1:
 			return false
-		if job.status < NpcHomeDelivery.Status.ACCEPTED or job.status > NpcHomeDelivery.Status.EXPIRED or job.source < NpcHomeDelivery.Source.TERMINAL or job.source > NpcHomeDelivery.Source.PERSONAL:
+		if job.status < NpcHomeDelivery.Status.ACCEPTED or job.status > NpcHomeDelivery.Status.AMBUSHED or job.source < NpcHomeDelivery.Source.TERMINAL or job.source > NpcHomeDelivery.Source.PERSONAL:
 			return false
 		if job.base_bonus < 0 or job.bonus < 0 or job.bonus > WalletService.MAX_AMOUNT or not is_finite(job.bargain_roll) or job.bargain_roll < 0.0 or job.bargain_roll >= 1.0:
 			return false

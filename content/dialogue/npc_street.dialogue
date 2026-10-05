@@ -12,7 +12,7 @@
 - Попробуй. Я буду защищаться. [#thr] => threat
 - Забирай, только не бей меня. [#sub] => surrender
 - Лучше расскажи, как дела. [#prs] => friendly
-- Могу принести посылку домой. [if ctx.can_offer_delivery() /] => delivery_offer
+- Обсудим доставку посылки домой. [if ctx.can_offer_delivery() /] => delivery_request
 - Коробка тебя переживёт. [#jok] => joke
 
 ~ friendly
@@ -33,15 +33,32 @@
 
 ~ delivery_offer
 $> ctx.accept_home_delivery()
-{{ctx.speaker_name()}}: Договорились. Принеси настоящую коробку к моему адресу до сна. Доплачу за доставку.
 => END
 
 ~ delivery_request
-{{ctx.speaker_name()}}: Вы можете принести мне посылку домой сегодня вечером? Доплачу за доставку.
+{{ctx.speaker_name()}}: Принеси посылку сегодня вечером. Адрес: {{ctx.delivery_address()}}. Доплата {{ctx.delivery_bonus()}}$, срок — до сна.
+if ctx.delivery_hint() != ""
+	{{ctx.speaker_name()}}: {{ctx.delivery_hint()}}
 - Да, принесу до сна. => delivery_offer
+- За этот маршрут доплати {{ctx.requested_delivery_bonus()}}$. [if ctx.can_bargain_delivery() /] => delivery_bargain
 - Нет, приходите за ней сами. => delivery_declined
 
+~ delivery_bargain
+$> ctx.negotiate_home_delivery()
+if ctx.delivery_bargain_accepted()
+	{{ctx.speaker_name()}}: Хорошо. Доплачу {{ctx.delivery_bonus()}}$. Только выполни обещание.
+else
+	{{ctx.speaker_name()}}: Нет. За доставку остаётся {{ctx.delivery_bonus()}}$.
+=> delivery_request
+
 ~ delivery_declined
-{{ctx.speaker_name()}}: Хорошо, тогда зайду сам через несколько дней.
 $> ctx.decline_home_delivery()
+=> END
+
+~ broken_promise
+{{ctx.speaker_name()}}: Ты обещал принести посылку и не пришёл. Я это запомнил. Больше личных доставок тебе не доверю.
+- Я услышал. => promise_reaction
+
+~ promise_reaction
+$> ctx.resolve_broken_promise()
 => END

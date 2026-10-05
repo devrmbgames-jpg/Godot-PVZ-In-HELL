@@ -8,6 +8,7 @@ const TREE_PATHS: PackedStringArray = [
 	"res://content/ai/trees/bt_npc_service.tres",
 	"res://content/ai/trees/bt_npc_schedule.tres",
 	"res://content/ai/trees/bt_npc_idle.tres",
+	"res://content/ai/trees/bt_npc_delivery_ambush.tres",
 ]
 
 var _failed: bool = false

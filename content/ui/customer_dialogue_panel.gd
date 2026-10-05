@@ -96,6 +96,11 @@ func open_for(
 	return true
 
 
+## Проверяет представляемого собеседника; Relationships по-прежнему владеют разговором.
+func speaks_with(npc: Entity) -> bool:
+	return not _closed and _context != null and _context.speaks_with(npc)
+
+
 ## Освобождает ввод и ресурс, завершает контекст и удаляет панель; повтор безопасен.
 func close_dialogue() -> void:
 	_close_internal(true)

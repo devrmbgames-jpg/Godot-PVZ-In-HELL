@@ -3,7 +3,7 @@ extends Resource
 class_name NpcHomeDelivery
 
 ## REFUSED — отказ получателя у двери; DECLINED — отказ игрока от предложения.
-enum Status { ACCEPTED, DELIVERED, REFUSED, FAILED, OFFERED, DECLINED, EXPIRED }
+enum Status { ACCEPTED, DELIVERED, REFUSED, FAILED, OFFERED, DECLINED, EXPIRED, AMBUSHED }
 ## Канал предложения определяет доступность сведений терминалу.
 enum Source { TERMINAL, PERSONAL }
 ## Однократный ответ на просьбу увеличить доплату.
@@ -41,6 +41,8 @@ enum Bargain { NONE, ACCEPTED, DECLINED }
 @export var bargain: Bargain = Bargain.NONE
 ## Зафиксированный бросок торга от 0 включительно до 1 исключительно.
 @export var bargain_roll: float = 0.0
+## Сохранённая реакция на личное нарушенное обещание уже применена при повторной встрече.
+@export var promise_reaction_applied: bool = false
 ## Сохраняемый итог выполнения или нарушения обязательства.
 @export var status: Status = Status.ACCEPTED
 ## Согласованная доплата уже зафиксирована отдельной денежной операцией.

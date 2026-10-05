@@ -5,8 +5,21 @@
 [ext_resource type="BehaviorTree" uid="uid://cxukae1fn0ugy" path="res://content/ai/trees/bt_npc_service.tres" id="3_2rk8g"]
 [ext_resource type="BehaviorTree" uid="uid://bmned3gbmt26r" path="res://content/ai/trees/bt_npc_schedule.tres" id="4_a4eqj"]
 [ext_resource type="BehaviorTree" uid="uid://bmc5t70coej8t" path="res://content/ai/trees/bt_npc_idle.tres" id="5_boyj1"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_inactive.gd" id="6_inactive"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_stop.gd" id="7_stop"]
+[ext_resource type="Script" uid="uid://daqio4cpc6kq1" path="res://content/ai/tasks/bt_npc_inactive.gd" id="6_inactive"]
+[ext_resource type="Script" uid="uid://jdb3ggonys57" path="res://content/ai/tasks/bt_npc_stop.gd" id="7_stop"]
+
+[sub_resource type="BTCondition" id="Inactive"]
+custom_name = "Не участвует / погиб"
+script = ExtResource("6_inactive")
+
+[sub_resource type="BTAction" id="Stop"]
+custom_name = "Остановить участие"
+script = ExtResource("7_stop")
+intent_owner = 0
+
+[sub_resource type="BTDynamicSequence" id="Terminal"]
+custom_name = "Неучастие / терминальное состояние"
+children = [SubResource("Inactive"), SubResource("Stop")]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_2iafh"]
 
@@ -42,19 +55,6 @@ custom_name = "Задача расписания"
 subtree = ExtResource("5_boyj1")
 blackboard_plan = SubResource("BlackboardPlan_okqqo")
 custom_name = "Свободное занятие"
-
-[sub_resource type="BTCondition" id="Inactive"]
-custom_name = "Не участвует / погиб"
-script = ExtResource("6_inactive")
-
-[sub_resource type="BTAction" id="Stop"]
-custom_name = "Остановить участие"
-script = ExtResource("7_stop")
-intent_owner = 0
-
-[sub_resource type="BTDynamicSequence" id="Terminal"]
-custom_name = "Неучастие / терминальное состояние"
-children = [SubResource("Inactive"), SubResource("Stop")]
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_nseog"]
 children = [SubResource("Terminal"), SubResource("BTSubtree_kp4im"), SubResource("BTSubtree_v82mo"), SubResource("BTSubtree_bsrq1"), SubResource("BTSubtree_neng6"), SubResource("BTSubtree_4i138")]

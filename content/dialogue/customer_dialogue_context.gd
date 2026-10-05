@@ -149,6 +149,8 @@ func dialogue_cue() -> String:
 		return "riddle"
 	if can_offer_delivery():
 		return "home_request"
+	if has_broken_promise():
+		return "broken_promise"
 	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) != null:
 		return "provocation"
 	if (
@@ -199,6 +201,20 @@ func accept_home_delivery() -> bool:
 ## Отказывает в допуслуге; получатель заберёт эту же коробку через 1–3 дня.
 func decline_home_delivery() -> bool:
 	return _customer is E_DistrictNpc and NpcHomeDeliveryService.decline(_customer as E_DistrictNpc)
+
+## Позволяет синхронно закрыть именно разговор с этим NPC перед нападением.
+func speaks_with(npc: Entity) -> bool:
+	return _customer == npc
+
+func _delivery_offer() -> NpcHomeDelivery:
+	var visit: CustomerVisit = NpcHomeDeliveryService.offer_for(_customer as E_DistrictNpc) if _customer is E_DistrictNpc else null
+	return NpcDeliveryOfferService.personal_for(visit.customer_id, visit.visit_id) if visit != null else null
+
+func _delivery_npc() -> E_DistrictNpc:
+	return _customer as E_DistrictNpc
+
+func _delivery_player() -> Entity:
+	return _actor
 
 
 ## Фиксирует отказ игрока через сервис обслуживания.

@@ -84,7 +84,8 @@ static func knock(player: Entity, door: Entity) -> bool:
 	if body == null or person == null or person.death_day != 0 or visit == null or CombatService.target_for(body) != null:
 		return false
 	if meeting_for(body) != null:
-		CustomerFlowService.try_automatic_handoff(body, visit)
+		if NpcDeliveryScenarioService.armed_for(body) == null:
+			CustomerFlowService.try_automatic_handoff(body, visit)
 		return true
 	if body.has_component(C_CustomerAgent):
 		return false
@@ -173,7 +174,10 @@ static func finish_evening(day_index: int) -> void:
 		var body: E_DistrictNpc = DistrictPopulationService.body_for(job.npc_id)
 		var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 		if person != null and person.death_day == 0:
-			NpcSocialService.remember(person, player, body, NpcMemory.Kind.BROKEN_PROMISE, job.job_id)
+			if job.source == NpcHomeDelivery.Source.PERSONAL:
+				NpcSocialService.remember_promise(person, player, body, job.job_id)
+			else:
+				NpcSocialService.remember(person, player, body, NpcMemory.Kind.BROKEN_PROMISE, job.job_id)
 		if body != null:
 			CustomerInspectionService.end(body)
 			release_meeting(body)

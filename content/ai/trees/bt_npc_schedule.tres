@@ -1,9 +1,9 @@
 [gd_resource type="BehaviorTree" format=3 uid="uid://bmned3gbmt26r"]
 
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_has_schedule.gd" id="s1"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_schedule_arrived.gd" id="s2"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_finish_schedule.gd" id="s3"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_move_schedule.gd" id="s4"]
+[ext_resource type="Script" uid="uid://bu5op8w47bj11" path="res://content/ai/tasks/bt_npc_has_schedule.gd" id="s1"]
+[ext_resource type="Script" uid="uid://x3vrwcftrle" path="res://content/ai/tasks/bt_npc_schedule_arrived.gd" id="s2"]
+[ext_resource type="Script" uid="uid://dkx2bgx0dny7w" path="res://content/ai/tasks/bt_npc_finish_schedule.gd" id="s3"]
+[ext_resource type="Script" uid="uid://1cmhvfnyhy3p" path="res://content/ai/tasks/bt_npc_move_schedule.gd" id="s4"]
 
 [sub_resource type="BTCondition" id="BTCondition_1"]
 custom_name = "Фаза не завершена"

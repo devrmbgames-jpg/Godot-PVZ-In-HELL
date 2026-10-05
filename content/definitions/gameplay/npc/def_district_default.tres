@@ -1,5 +1,7 @@
 [gd_resource type="Resource" script_class="DEF_District" format=3 uid="uid://0japh62q4h57"]
 
+[ext_resource type="Resource" path="res://content/definitions/gameplay/npc/def_delivery_door_ambush.tres" id="DeliveryAmbush"]
+
 [ext_resource type="Script" uid="uid://hvheqqr7idk0" path="res://content/definitions/gameplay/npc/def_district.gd" id="District"]
 [ext_resource type="Resource" uid="uid://bek5jpjn2x3iw" path="res://content/definitions/gameplay/npc/def_npc_profile_1.tres" id="Person1"]
 [ext_resource type="Resource" uid="uid://b4uhj10iv4eg" path="res://content/definitions/gameplay/npc/def_npc_profile_2.tres" id="Person2"]
@@ -237,6 +239,7 @@ position = Vector3(56, 0, 17)
 key = &"cover_2"
 
 [resource]
+personal_delivery_scenario = ExtResource("DeliveryAmbush")
 script = ExtResource("District")
 shade_refuge = &"south_1"
 profiles = Array[ExtResource("ProfileScript")]([ExtResource("Person1"), ExtResource("Person2"), ExtResource("Person3"), ExtResource("Person4"), ExtResource("Person5"), ExtResource("Person6"), ExtResource("Person7"), ExtResource("Person8"), ExtResource("Person9"), ExtResource("Person10"), ExtResource("Person11"), ExtResource("Person12")])

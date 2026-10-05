@@ -1,0 +1,56 @@
+[gd_resource type="BehaviorTree" load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_delivery_ambush.gd" id="1_armed"]
+[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_home_reached.gd" id="2_home"]
+[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_player_visible.gd" id="3_visible"]
+[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_ambush_range.gd" id="4_range"]
+[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_close_conversation.gd" id="5_close"]
+[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_start_ambush.gd" id="6_start"]
+[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_stop.gd" id="7_wait"]
+
+[sub_resource type="BTCondition" id="Armed"]
+custom_name = "Домашняя встреча с активной ловушкой"
+script = ExtResource("1_armed")
+
+[sub_resource type="BTCondition" id="AtHome"]
+custom_name = "NPC дошёл до адреса"
+script = ExtResource("2_home")
+
+[sub_resource type="BTCondition" id="Visible"]
+custom_name = "Игрок виден"
+script = ExtResource("3_visible")
+
+[sub_resource type="BTCondition" id="Near"]
+custom_name = "Видимый игрок в радиусе ловушки"
+script = ExtResource("4_range")
+
+[sub_resource type="BTAction" id="Close"]
+custom_name = "Закрыть разговор и освободить ввод"
+script = ExtResource("5_close")
+intent_owner = 2
+
+[sub_resource type="BTAction" id="Start"]
+custom_name = "Запросить бой, закрыть обязательство без выдачи"
+script = ExtResource("6_start")
+intent_owner = 3
+
+[sub_resource type="BTDynamicSequence" id="Attack"]
+custom_name = "Обнаруженная жертва — начать засаду"
+children = [SubResource("Visible"), SubResource("Near"), SubResource("Close"), SubResource("Start")]
+
+[sub_resource type="BTAction" id="Wait"]
+custom_name = "Ждать у двери, не принимать коробку"
+script = ExtResource("7_wait")
+intent_owner = 2
+
+[sub_resource type="BTDynamicSelector" id="Encounter"]
+custom_name = "Напасть либо ждать видимую жертву"
+children = [SubResource("Attack"), SubResource("Wait")]
+
+[sub_resource type="BTDynamicSequence" id="Ambush"]
+custom_name = "Авторская домашняя ловушка"
+children = [SubResource("Armed"), SubResource("AtHome"), SubResource("Encounter")]
+
+[resource]
+description = "Встреча → прибытие → зрение и радиус → закрыть разговор → бой; иначе ждать у двери."
+root_task = SubResource("Ambush")

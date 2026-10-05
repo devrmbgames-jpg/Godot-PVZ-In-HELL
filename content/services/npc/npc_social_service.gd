@@ -42,6 +42,11 @@ static func react(body: E_DistrictNpc, actor: Entity, kind: NpcMemory.Kind, inci
 	var can_retreat: bool = predatory_player or health.current < health.value * person.profile.pursuit_health_reserve
 	var reaction: NpcMemory.Reaction = _choose(person.profile, kind, hash(str(person.npc_id) + ":" + str(incident)), can_retreat)
 	remember(person, actor, body, kind, incident, reaction)
+	_apply_reaction(body, actor, reaction)
+	return reaction
+
+static func _apply_reaction(body: E_DistrictNpc, actor: Entity, reaction: NpcMemory.Reaction) -> void:
+	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	match reaction:
 		NpcMemory.Reaction.ATTACK:
 			if GrabService.holder_available(actor):
@@ -68,7 +73,6 @@ static func react(body: E_DistrictNpc, actor: Entity, kind: NpcMemory.Kind, inci
 		var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
 		if visit != null:
 			visit.aggressive = reaction == NpcMemory.Reaction.ATTACK and CombatService.target_for(body) != null
-	return reaction
 
 ## Запоминает распознанные сведения, не заставляя свидетеля вступать в бой.
 static func remember(person: NpcRecord, actor: Entity, victim: Entity, kind: NpcMemory.Kind, incident: StringName, reaction: NpcMemory.Reaction = NpcMemory.Reaction.TALK) -> void:
@@ -85,6 +89,51 @@ static func remember(person: NpcRecord, actor: Entity, victim: Entity, kind: Npc
 	memory.day = cycle.day_index if cycle != null else 1
 	memory.reaction = reaction
 	person.memories.append(memory)
+
+## Запоминает срыв личного обещания и выбирает характерную реакцию без ночного физического боя.
+static func remember_promise(person: NpcRecord, actor: Entity, body: E_DistrictNpc, incident: StringName) -> void:
+	for previous: NpcMemory in person.memories:
+		if previous.incident_id == incident:
+			return
+	var reaction: NpcMemory.Reaction = _choose(person.profile, NpcMemory.Kind.BROKEN_PROMISE, hash(str(person.npc_id) + ":" + str(incident)))
+	remember(person, actor, body, NpcMemory.Kind.BROKEN_PROMISE, incident, reaction)
+	# Обещание принято игроком даже в тестовой сессии, где его физическое тело отсутствует.
+	person.memories.back().actor_id = &"player"
+
+## Житель после сорванного обещания больше не предлагает игроку случайную личную подработку.
+static func distrusts_player(person: NpcRecord) -> bool:
+	for memory: NpcMemory in person.memories:
+		if memory.actor_id == &"player" and memory.kind == NpcMemory.Kind.BROKEN_PROMISE:
+			return true
+	return false
+
+## Находит ещё не применённую личную реакцию, независимо от нового заказа NPC.
+static func pending_promise(body: E_DistrictNpc) -> NpcHomeDelivery:
+	var district: C_District = DistrictPopulationService.current()
+	if body == null or district == null:
+		return null
+	var npc_id: StringName = identity_for(body)
+	for job: NpcHomeDelivery in district.home_deliveries:
+		if job.npc_id == npc_id and job.source == NpcHomeDelivery.Source.PERSONAL and job.status == NpcHomeDelivery.Status.FAILED and not job.promise_reaction_applied:
+			return job
+	return null
+
+## Применяет сохранённую реакцию при распознанном разговоре; повтор и загрузка не перебрасывают её.
+static func resolve_promise(body: E_DistrictNpc, actor: Entity) -> bool:
+	var job: NpcHomeDelivery = pending_promise(body)
+	var person: NpcRecord = DistrictPopulationService.person_for(identity_for(body))
+	if job == null or person == null or person.death_day != 0 or NpcDialogueService.participant(body) != actor:
+		return false
+	for memory: NpcMemory in person.memories:
+		if memory.incident_id != job.job_id:
+			continue
+		job.promise_reaction_applied = true
+		NpcDialogueService.close_for(body)
+		_apply_reaction(body, actor, memory.reaction)
+		if memory.reaction == NpcMemory.Reaction.TALK:
+			body.show_message("Я запомнил твоё обещание. Больше личных доставок тебе не доверю.")
+		return true
+	return false
 
 static func _choose(profile: DEF_NpcProfile, kind: NpcMemory.Kind, seed_value: int, can_retreat: bool = false) -> NpcMemory.Reaction:
 	var random: RandomNumberGenerator = RandomNumberGenerator.new()

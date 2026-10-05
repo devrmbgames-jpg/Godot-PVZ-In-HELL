@@ -1,7 +1,5 @@
 [gd_scene format=3 uid="uid://b357k3h2k7kuh"]
 
-[ext_resource type="PackedScene" path="res://content/scenes/npc_service_routes.tscn" id="Npc_service_routes"]
-
 [ext_resource type="Script" uid="uid://c2jikq1w8bhv2" path="res://content/scenes/main_level.gd" id="1_ixiin"]
 [ext_resource type="PackedScene" uid="uid://dl0sa03fbgiro" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Wall/Primitive_Wall_static.tscn" id="1_ojrfc"]
 [ext_resource type="PackedScene" uid="uid://lmmf6kia0frw" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor_Prototype/Floor_Prototype_static.tscn" id="1_wp74p"]
@@ -91,6 +89,7 @@
 [ext_resource type="PackedScene" uid="uid://2kqhx881j4yk" path="res://content/entities/tools/marker.tscn" id="Marker_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/inventory/med_pickup.tscn" id="Med_pickup"]
 [ext_resource type="Script" uid="uid://bpgnbax0t8575" path="res://content/scenes/npc_light_zone.gd" id="Npc_light_zone"]
+[ext_resource type="PackedScene" path="res://content/scenes/npc_service_routes.tscn" id="Npc_service_routes"]
 [ext_resource type="PackedScene" path="res://content/entities/commerce/order_receiving.tscn" id="Order_receiving_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/stations/package_return_point.tscn" id="Package_return_point"]
 [ext_resource type="PackedScene" path="res://content/entities/props/placement_area.tscn" id="PlacementArea"]
@@ -184,7 +183,7 @@ metadata/_custom_type_script = "uid://ckrs5mll5pka1"
 script = ExtResource("32_mc3p1")
 collision_mask = 31
 
-[sub_resource type="Resource" id="Resource_p0mrl"]
+[sub_resource type="Resource" id="Resource_jxwan"]
 resource_local_to_scene = true
 script = ExtResource("33_k7ct6")
 
@@ -213,16 +212,16 @@ script = ExtResource("Inventory_state")
 [sub_resource type="Resource" id="Living"]
 script = ExtResource("Living")
 
-[sub_resource type="Resource" id="Resource_jxwan"]
+[sub_resource type="Resource" id="Resource_3auy4"]
 resource_local_to_scene = true
 script = ExtResource("ImpactReceiver")
 profile = ExtResource("LivingImpact")
 
-[sub_resource type="Resource" id="Resource_3auy4"]
+[sub_resource type="Resource" id="Resource_sseuf"]
 resource_local_to_scene = true
 script = ExtResource("Player_stamina")
 
-[sub_resource type="Resource" id="Resource_sseuf"]
+[sub_resource type="Resource" id="Resource_v2668"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 
@@ -246,17 +245,17 @@ script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Action")])
 reserved_slots = 4
 
-[sub_resource type="Resource" id="Resource_v2668"]
+[sub_resource type="Resource" id="Resource_8wt2x"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(1, 0.13787842, 0.0234375, 1)
 
-[sub_resource type="Resource" id="Resource_8wt2x"]
+[sub_resource type="Resource" id="Resource_vfheu"]
 resource_local_to_scene = true
 script = ExtResource("46_yaqq7")
 ink_color = Color(0.96875, 0, 1, 1)
 
-[sub_resource type="Resource" id="Resource_vfheu"]
+[sub_resource type="Resource" id="Resource_t4pbu"]
 resource_local_to_scene = true
 script = ExtResource("41_1hfqo")
 
@@ -350,7 +349,7 @@ caption = "Торговля и задание"
 script = ExtResource("Sleep_actions")
 actions = Array[ExtResource("48_eajlk")]([SubResource("Resource_hw10a")])
 
-[sub_resource type="Resource" id="Resource_t4pbu"]
+[sub_resource type="Resource" id="Resource_6e2xu"]
 resource_local_to_scene = true
 script = ExtResource("63_3w6s4")
 
@@ -1674,7 +1673,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -1.701
 
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_p0mrl"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_jxwan"), SubResource("Resource_3auy4")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_jxwan"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_3auy4"), SubResource("Resource_sseuf")])
 
 [node name="HeadX" parent="Entityes/Player/HeadY" index="0"]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.11703396, 0)
@@ -1712,6 +1711,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
 [node name="Entry" parent="Entityes/DeliveryCounter" index="4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.4079137, 2.3841858e-07, 10.923304)
 
+[node name="NpcServiceRoutes" parent="Entityes/DeliveryCounter/Entry" index="0" unique_id=774092902 instance=ExtResource("Npc_service_routes")]
+
+[node name="A" parent="Entityes/DeliveryCounter/Entry/NpcServiceRoutes/First" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
+
+[node name="B" parent="Entityes/DeliveryCounter/Entry/NpcServiceRoutes/First" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
+
+[node name="A" parent="Entityes/DeliveryCounter/Entry/NpcServiceRoutes/Second" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 1)
+
+[node name="B" parent="Entityes/DeliveryCounter/Entry/NpcServiceRoutes/Second" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 1)
+
 [node name="Waiting" parent="Entityes/DeliveryCounter" index="5"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2)
 
@@ -1726,15 +1739,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2402446, 1.45, -2)
 
 [node name="Marker" parent="Entityes" unique_id=1749342287 instance=ExtResource("Marker_scene")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.2880824)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_sseuf"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_v2668"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Marker2" parent="Entityes" unique_id=1086911559 instance=ExtResource("Marker_scene")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.1790984)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_v2668"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_8wt2x"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Marker3" parent="Entityes" unique_id=529574383 instance=ExtResource("Marker_scene")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.0586202)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_8wt2x"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_vfheu"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Hammer" parent="Entityes" unique_id=1856779010 instance=ExtResource("Hammer_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7814434, 1.5211676, -2.8830624)
@@ -1769,7 +1782,7 @@ mode = 4
 [node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -18.18865, 0.51578665, -6.508998)
 package_parent = NodePath("..")
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_vfheu")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_t4pbu")])
 
 [node name="PackageReturnPoint" parent="Entityes" unique_id=622721691 instance=ExtResource("Package_return_point")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.839949, 0.4, -7.3298917)
@@ -1843,7 +1856,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 1.328057, -0.8)
 
 [node name="PushCart" parent="Entityes" unique_id=1664321513 instance=ExtResource("Push_cart")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -13.95594, 0.8329964, 2.4201646)
-component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_t4pbu"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
+component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_6e2xu"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 
 [node name="Props" type="Node3D" parent="Entityes" unique_id=1751720738]
 
@@ -1951,7 +1964,12 @@ player = NodePath("../Entityes/Player")
 visible = false
 
 [node name="ReceivingZone" type="MeshInstance3D" parent="DebugMarkers" unique_id=185141184]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.16763, 2.1978455, -6.673581)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.30757, 2.1978455, -10.747112)
+mesh = SubResource("BoxMesh_bghjr")
+surface_material_override/0 = SubResource("StandardMaterial3D_patme")
+
+[node name="CarZone" type="MeshInstance3D" parent="DebugMarkers" unique_id=958601595]
+transform = Transform3D(-0.9658736, 0, 0.25901395, 0, 1, 0, -0.25901395, 0, -0.9658736, -19.884726, 2.1978455, 1.0257263)
 mesh = SubResource("BoxMesh_bghjr")
 surface_material_override/0 = SubResource("StandardMaterial3D_patme")
 
@@ -2076,9 +2094,6 @@ shape = SubResource("LightZone_ReceivingZone")
 
 [editable path="Entityes/Player"]
 [editable path="Entityes/Player/AnimationLibrary_Godot_Standard"]
-[node name="NpcServiceRoutes" parent="Entityes/DeliveryCounter/Entry" instance=ExtResource("Npc_service_routes")]
-
 [editable path="Entityes/DeliveryCounter"]
-
 [editable path="Entityes/DeliveryCounter/Entry/NpcServiceRoutes"]
 [editable path="Entityes/Trader"]

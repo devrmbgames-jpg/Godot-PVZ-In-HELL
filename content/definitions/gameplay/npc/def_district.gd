@@ -84,6 +84,10 @@ class_name DEF_District
 @export_range(0.0, 1.0) var delivery_bargain_probability: float = 0.50
 ## Согласованная доплата в процентах от исходной; 150 означает +50%.
 @export_range(100, 300) var delivery_bargain_percent: int = 150
+## Авторский сценарий домашней встречи; обычные предложения его не получают автоматически.
+@export var personal_delivery_scenario: DEF_NpcDeliveryScenario = null
+## Тестовый override: первый личный заказ дня получает указанный сценарий.
+@export var force_personal_delivery_scenario: bool = false
 ## Допустимый урон обычного маршрута как доля полного здоровья.
 @export_range(0.0, 1.0) var ordinary_route_risk: float = 0.05
 

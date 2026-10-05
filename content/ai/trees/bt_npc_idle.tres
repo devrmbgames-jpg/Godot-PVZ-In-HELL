@@ -1,20 +1,20 @@
 [gd_resource type="BehaviorTree" format=3 uid="uid://bmc5t70coej8t"]
 
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_merchant.gd" id="s1"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_eat_food.gd" id="s2"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_has_loot.gd" id="s3"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_loot_near.gd" id="s4"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_collect_loot.gd" id="s5"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_move_loot.gd" id="s6"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_select_loot.gd" id="s7"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_start_conflict.gd" id="s8"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_heard_noise.gd" id="s9"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_investigate_noise.gd" id="s10"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_activity_ready.gd" id="s11"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_choose_activity.gd" id="s12"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_moving.gd" id="s13"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_continue_walk.gd" id="s14"]
-[ext_resource type="Script" path="res://content/ai/tasks/bt_npc_observe.gd" id="s15"]
+[ext_resource type="Script" uid="uid://bt3g5ndvuexik" path="res://content/ai/tasks/bt_npc_merchant.gd" id="s1"]
+[ext_resource type="Script" uid="uid://bix1fbh8p2fhq" path="res://content/ai/tasks/bt_npc_eat_food.gd" id="s2"]
+[ext_resource type="Script" uid="uid://bwqd23vmxqyc6" path="res://content/ai/tasks/bt_npc_has_loot.gd" id="s3"]
+[ext_resource type="Script" uid="uid://q16bquk0bi3j" path="res://content/ai/tasks/bt_npc_loot_near.gd" id="s4"]
+[ext_resource type="Script" uid="uid://c2a425mvdsyrm" path="res://content/ai/tasks/bt_npc_collect_loot.gd" id="s5"]
+[ext_resource type="Script" uid="uid://b13pdj47vc3fd" path="res://content/ai/tasks/bt_npc_move_loot.gd" id="s6"]
+[ext_resource type="Script" uid="uid://t7v37yvua102" path="res://content/ai/tasks/bt_npc_select_loot.gd" id="s7"]
+[ext_resource type="Script" uid="uid://bren48h8awopw" path="res://content/ai/tasks/bt_npc_start_conflict.gd" id="s8"]
+[ext_resource type="Script" uid="uid://qjeq7ppgew25" path="res://content/ai/tasks/bt_npc_heard_noise.gd" id="s9"]
+[ext_resource type="Script" uid="uid://q1nnmgi40yox" path="res://content/ai/tasks/bt_npc_investigate_noise.gd" id="s10"]
+[ext_resource type="Script" uid="uid://c4ogpahykgmq1" path="res://content/ai/tasks/bt_npc_activity_ready.gd" id="s11"]
+[ext_resource type="Script" uid="uid://bq54g6p4157yu" path="res://content/ai/tasks/bt_npc_choose_activity.gd" id="s12"]
+[ext_resource type="Script" uid="uid://b4s2wrlq3pfdo" path="res://content/ai/tasks/bt_npc_moving.gd" id="s13"]
+[ext_resource type="Script" uid="uid://bn4s0ilymptr2" path="res://content/ai/tasks/bt_npc_continue_walk.gd" id="s14"]
+[ext_resource type="Script" uid="uid://cqosq55nipqxp" path="res://content/ai/tasks/bt_npc_observe.gd" id="s15"]
 
 [sub_resource type="BTCondition" id="BTCondition_1"]
 custom_name = "Торговец"
@@ -27,7 +27,6 @@ children = [SubResource("BTCondition_1")]
 [sub_resource type="BTAction" id="BTAction_3"]
 custom_name = "Использовать свою еду"
 script = ExtResource("s2")
-intent_owner = 4
 
 [sub_resource type="BTDynamicSequence" id="BTDynamicSequence_4"]
 custom_name = "Поесть"
@@ -52,7 +51,6 @@ script = ExtResource("s4")
 [sub_resource type="BTAction" id="BTAction_9"]
 custom_name = "Подобрать"
 script = ExtResource("s5")
-intent_owner = 4
 
 [sub_resource type="BTDynamicSequence" id="BTDynamicSequence_10"]
 custom_name = "В пределах руки"
@@ -61,7 +59,6 @@ children = [SubResource("BTCondition_8"), SubResource("BTAction_9")]
 [sub_resource type="BTAction" id="BTAction_11"]
 custom_name = "Подойти к добыче"
 script = ExtResource("s6")
-intent_owner = 4
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_12"]
 custom_name = "Подойти или подобрать"
@@ -82,12 +79,11 @@ children = [SubResource("BTCondition_14")]
 [sub_resource type="BTAction" id="BTAction_16"]
 custom_name = "Выбрать видимый свободный предмет"
 script = ExtResource("s7")
-intent_owner = 4
 
 [sub_resource type="BTCooldown" id="BTCooldown_17"]
-custom_name = "Не чаще раза за 3 секунды"
 duration = 3.0
 trigger_on_failure = true
+custom_name = "Не чаще раза за 3 секунды"
 children = [SubResource("BTAction_16")]
 
 [sub_resource type="BTDynamicSequence" id="BTDynamicSequence_18"]
@@ -105,12 +101,11 @@ children = [SubResource("BTCondition_19")]
 [sub_resource type="BTAction" id="BTAction_21"]
 custom_name = "Проверить повод, риск и лимит фазы"
 script = ExtResource("s8")
-intent_owner = 4
 
 [sub_resource type="BTCooldown" id="BTCooldown_22"]
-custom_name = "Не чаще раза за 3 секунды"
 duration = 3.0
 trigger_on_failure = true
+custom_name = "Не чаще раза за 3 секунды"
 children = [SubResource("BTAction_21")]
 
 [sub_resource type="BTDynamicSequence" id="BTDynamicSequence_23"]
@@ -132,7 +127,6 @@ script = ExtResource("s9")
 [sub_resource type="BTAction" id="BTAction_27"]
 custom_name = "Идти к услышанной позиции"
 script = ExtResource("s10")
-intent_owner = 4
 
 [sub_resource type="BTDynamicSequence" id="BTDynamicSequence_28"]
 custom_name = "Проверить звук"
@@ -153,7 +147,6 @@ script = ExtResource("s11")
 [sub_resource type="BTAction" id="BTAction_32"]
 custom_name = "Назначить авторскую точку"
 script = ExtResource("s12")
-intent_owner = 4
 
 [sub_resource type="BTDynamicSequence" id="BTDynamicSequence_33"]
 custom_name = "Новое занятие"
@@ -166,7 +159,6 @@ script = ExtResource("s13")
 [sub_resource type="BTAction" id="BTAction_35"]
 custom_name = "Пройти назначенный путь"
 script = ExtResource("s14")
-intent_owner = 4
 
 [sub_resource type="BTDynamicSequence" id="BTDynamicSequence_36"]
 custom_name = "Продолжить прогулку"
@@ -175,7 +167,6 @@ children = [SubResource("BTCondition_34"), SubResource("BTAction_35")]
 [sub_resource type="BTAction" id="BTAction_37"]
 custom_name = "Наблюдать окружение и окликать"
 script = ExtResource("s15")
-intent_owner = 4
 
 [sub_resource type="BTDynamicSelector" id="BTDynamicSelector_38"]
 custom_name = "Свободное занятие"

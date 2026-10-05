@@ -8,6 +8,7 @@ const PERCENT_SCALE: int = 100
 const STATUS_TEXT: PackedStringArray = [
 	"Принята — доставить до сна", "Доставлено", "Получатель отказался", "Не выполнено",
 	"Предложение доставки", "Предложение отклонено", "Срок предложения истёк",
+	"Встреча сорвана",
 ]
 
 #region Ежедневный выбор
@@ -55,9 +56,9 @@ static func prepare_day(day_index: int) -> void:
 			continue
 		district.delivery_considered.append(String(visit.visit_id))
 		var personal: bool = personal_count < district.definition.personal_delivery_daily_minimum
-		personal = personal or _random("personal/%d/%s" % [day_index, visit.visit_id]).randf() < district.definition.personal_delivery_probability
+		personal = (personal or _random("personal/%d/%s" % [day_index, visit.visit_id]).randf() < district.definition.personal_delivery_probability) and not NpcSocialService.distrusts_player(person)
 		if personal:
-			_create(district, visit, person, entry, day_index, NpcHomeDelivery.Source.PERSONAL)
+			_create(district, visit, person, entry, day_index, NpcHomeDelivery.Source.PERSONAL, personal_count == 0)
 			claimed[visit.package_id] = true
 			personal_count += 1
 		elif terminal_count < district.terminal_offer_target:
@@ -252,7 +253,7 @@ static func _eligible(visit: CustomerVisit, person: NpcRecord, entry: PackageReg
 		return false
 	return entry != null and entry.active and entry.number > 0 and state != null and state.registration == C_PackageState.Registration.REGISTERED and state.registration_number == entry.number
 
-static func _create(district: C_District, visit: CustomerVisit, person: NpcRecord, entry: PackageRegistrationRecord, day_index: int, source: NpcHomeDelivery.Source) -> NpcHomeDelivery:
+static func _create(district: C_District, visit: CustomerVisit, person: NpcRecord, entry: PackageRegistrationRecord, day_index: int, source: NpcHomeDelivery.Source, first_personal: bool = false) -> NpcHomeDelivery:
 	var job: NpcHomeDelivery = NpcHomeDelivery.new()
 	job.job_id = StringName("home/%d/%s" % [day_index, visit.visit_id])
 	job.npc_id = person.npc_id
@@ -264,6 +265,8 @@ static func _create(district: C_District, visit: CustomerVisit, person: NpcRecor
 	job.day_index = day_index
 	job.deadline_day = day_index + 1
 	job.source = source
+	if first_personal and district.definition.force_personal_delivery_scenario and district.definition.personal_delivery_scenario != null:
+		job.scenario_id = district.definition.personal_delivery_scenario.key
 	job.published = source == NpcHomeDelivery.Source.TERMINAL
 	job.status = NpcHomeDelivery.Status.OFFERED
 	job.base_bonus = maxi(0, district.definition.terminal_delivery_bonus if source == NpcHomeDelivery.Source.TERMINAL and district.definition.terminal_delivery_bonus >= 0 else visit.payment)
