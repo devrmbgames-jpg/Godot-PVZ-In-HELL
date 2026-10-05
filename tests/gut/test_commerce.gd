@@ -120,9 +120,9 @@ func test_orders_in_morning_and_evening_debit_once_and_create_next_day_record() 
 func test_phase_quantity_invalid_ids_and_dead_actor_are_rejected_without_commit() -> void:
 	_cycle.phase = C_DayCycle.Phase.DAY
 	assert_eq(CommerceService.order(_actor, _food, 1, &"day"), CommerceService.Status.WRONG_PHASE)
-	assert_eq(CommerceService.purchase(_actor, _trader, _food, 1, &"day"), CommerceService.Status.WRONG_PHASE)
 	_cycle.phase = C_DayCycle.Phase.NIGHT
 	assert_eq(CommerceService.order(_actor, _food, 1, &"night"), CommerceService.Status.WRONG_PHASE)
+	assert_eq(CommerceService.purchase(_actor, _trader, _food, 1, &"night"), CommerceService.Status.WRONG_PHASE)
 	_cycle.phase = C_DayCycle.Phase.EVENING
 	for quantity: int in [0, -1, 11]:
 		assert_eq(CommerceService.order(_actor, _food, quantity, &"bad"), CommerceService.Status.INVALID)

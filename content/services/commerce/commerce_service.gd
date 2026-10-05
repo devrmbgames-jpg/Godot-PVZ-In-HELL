@@ -40,7 +40,7 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.PURCHASE, false)
 	if valid != Status.COMMITTED:
 		return valid
-	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not EntityAvailability.contains(trader, ECS.world):
+	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not GrabService.holder_available(trader):
 		return Status.INVALID
 
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
@@ -121,11 +121,11 @@ static func home_delivery(actor: Entity, trader: Entity, item: DEF_InventoryItem
 	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.TRADER_DELIVERY, false)
 	if valid != Status.COMMITTED:
 		return valid
-	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not EntityAvailability.contains(trader, ECS.world) or trader.has_component(C_Death):
+	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not GrabService.holder_available(trader) or trader.has_component(C_Death):
 		return Status.INVALID
 
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
-	if shop == null or shop.profile == null or not shop.profile.home_delivery_enabled or item not in TraderCatalogService.catalog(shop):
+	if not TraderCatalogService.can_deliver(shop, item) or quantity != 1 or item not in TraderCatalogService.catalog(shop):
 		return Status.INVALID
 	if not TraderCatalogService.is_open(shop, cycle):
 		return Status.WRONG_PHASE

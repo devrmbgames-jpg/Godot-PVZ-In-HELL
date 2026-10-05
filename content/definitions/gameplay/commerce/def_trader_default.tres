@@ -10,5 +10,7 @@
 [resource]
 script = ExtResource("Profile")
 key = &"evening_trader"
-display_name = "Вечерний торговец"
+display_name = "Районный торговец"
 catalog = Array[ExtResource("Item")]([ExtResource("Food"), ExtResource("Med"), ExtResource("Wrap"), ExtResource("Shelf")])
+open_phases = 7
+delivery_fee = 100

@@ -11,5 +11,5 @@ display_name = "Большая полка 3×3×1,5 м · 75 кг"
 icon = ExtResource("Icon")
 world_pickup_scene = "res://content/entities/props/large_shelf.tscn"
 kind = 3
+bulky_furniture = true
 maximum_stack = 1
-

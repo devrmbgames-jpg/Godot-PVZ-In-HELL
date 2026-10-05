@@ -11,10 +11,10 @@ class_name DEF_TraderProfile
 ## Период появления в днях относительно first_day.
 @export_range(1, 365) var repeat_days: int = 1
 ## Битовая маска разрешённых фаз торговли.
-@export_flags("Morning:1", "Day:2", "Evening:4", "Night:8") var open_phases: int = 4
-## Разрешает отдельную платную доставку покупок торговцем.
+@export_flags("Morning:1", "Day:2", "Evening:4", "Night:8") var open_phases: int = 7
+## Разрешает отдельную платную доставку крупной мебели торговцем.
 @export var home_delivery_enabled: bool = true
 ## Доплата доставки заказа в целых денежных единицах.
-@export_range(0, 1000000000) var delivery_fee: int = 30
+@export_range(0, 1000000000) var delivery_fee: int = 100
 ## Задержка доставки после оплаты в игровых днях.
 @export_range(1, 30) var delivery_delay_days: int = 1

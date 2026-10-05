@@ -41,6 +41,26 @@ func after_each() -> void:
 #endregion
 
 #region Личность и расписание
+## Постоянный торговец достигает своей точки и остаётся доступен во всех игровых фазах.
+func test_merchant_schedule_keeps_same_live_trader_on_shop_goal_all_day() -> void:
+	var person: NpcRecord = _district.people[7]
+	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
+	var cycle: C_DayCycle = DayPhaseService.current()
+	var shop: C_Trader = body.get_component(C_Trader) as C_Trader
+	assert_true(person.profile.merchant)
+	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
+		cycle.phase = phase
+		DistrictPopulationService.plan_phase(person, 1, phase)
+		assert_eq(person.profile.schedule.location_for(1, phase), DEF_NpcSchedule.Location.STREET)
+		assert_eq(_district.definition.place_for(person.goal_id).kind, DEF_DistrictPlace.Kind.SHOP)
+		DistrictPopulationService.complete_phase(person, body)
+		assert_eq(person.placement, NpcRecord.Placement.STREET)
+		assert_same(DistrictPopulationService.body_for(person.npc_id), body)
+		assert_true(GrabService.holder_available(body))
+		assert_true(TraderCatalogService.is_open(shop, cycle))
+	cycle.phase = C_DayCycle.Phase.NIGHT
+	assert_false(TraderCatalogService.is_open(shop, cycle))
+
 ## Уход и возвращение сохраняют постоянный ID, тот же экземпляр тела, здоровье и память.
 func test_departure_and_return_keep_body_health_and_memory() -> void:
 	var person: NpcRecord = _district.people[0]

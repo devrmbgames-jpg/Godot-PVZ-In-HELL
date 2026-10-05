@@ -3,29 +3,37 @@ extends RefCounted
 class_name TraderCatalogService
 
 
+#region Ассортимент и доступность
 ## Возвращает ассортимент профиля или прежнего компонента; массив предназначен для чтения.
 static func catalog(shop: C_Trader) -> Array[DEF_InventoryItem]:
 	return shop.profile.catalog if shop.profile != null else shop.catalog
 
 
-## Проверяет период и маску фаз; ночь запрещена, прежний торговец открыт вечером.
+## Проверяет период и маску фаз; ночь запрещена, прежний торговец доступен весь день.
 static func is_open(shop: C_Trader, cycle: C_DayCycle) -> bool:
 	if shop == null or cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:
 		return false
 
 	var profile: DEF_TraderProfile = shop.profile
 	if profile == null:
-		return cycle.phase == C_DayCycle.Phase.EVENING
+		return cycle.phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]
 	return profile.first_day > 0 and profile.repeat_days > 0 and cycle.day_index >= profile.first_day and (cycle.day_index - profile.first_day) % profile.repeat_days == 0 and (profile.open_phases & (1 << cycle.phase)) != 0
+
+
+## Проверяет авторское разрешение доставки только явно отмеченной крупной мебели.
+static func can_deliver(shop: C_Trader, item: DEF_InventoryItem) -> bool:
+	return shop != null and shop.profile != null and shop.profile.home_delivery_enabled and item != null and item.kind == DEF_InventoryItem.Kind.FURNITURE and item.bulky_furniture
 
 
 ## Собирает текст авторского расписания для интерфейса.
 static func schedule_text(shop: C_Trader) -> String:
 	if shop.profile == null:
-		return "Каждый день · Evening"
+		return "Каждый день · утро / день / вечер"
 
 	var phases: Array[String] = []
 	for phase: int in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		if shop.profile.open_phases & (1 << phase):
 			phases.append(C_DayCycle.Phase.keys()[phase])
 	return "С дня%d, каждые%d дн. · %s" % [shop.profile.first_day, shop.profile.repeat_days, "/".join(phases)]
+
+#endregion

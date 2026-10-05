@@ -12,4 +12,4 @@ catalog = Array[ExtResource("Item")]([ExtResource("Med")])
 first_day = 2
 repeat_days = 2
 open_phases = 1
-delivery_fee = 15
+home_delivery_enabled = false

@@ -14,6 +14,8 @@ enum Kind { FOOD, MED_ITEM, BUBBLE_WRAP, FURNITURE }
 @export_file("*.tscn") var world_pickup_scene: String = ""
 ## Вид эффекта и способ хранения; мебель создаётся физически.
 @export var kind: Kind = Kind.FOOD
+## Авторский признак крупной мебели, для которой торговец предлагает доставку.
+@export var bulky_furniture: bool = false
 ## Максимальное число единиц одного стека.
 @export_range(1, 99) var maximum_stack: int = 10
 ## Эффект питания для FOOD.
