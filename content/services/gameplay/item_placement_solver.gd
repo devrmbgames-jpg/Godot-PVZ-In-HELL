@@ -91,7 +91,7 @@ func find(
 	for index: int in mini(definition.offsets.size(), DEF_ItemPlacement.MAX_CANDIDATES):
 		result.attempts += 1
 		var pose: Transform3D = origin
-		pose.origin += definition.offsets[index]
+		pose.origin += origin.basis * definition.offsets[index] if definition.local_offsets else definition.offsets[index]
 		var support: Vector2 = _support(space, ray, pose.origin, projected, definition)
 		if not is_finite(support.x):
 			continue
@@ -103,7 +103,7 @@ func find(
 		var path_height: float = maxf(source_position.y, bounds.get_center().y) + definition.clearance
 		path_ray.from = Vector3(source_position.x, path_height, source_position.z)
 		path_ray.to = Vector3(bounds.get_center().x, path_height, bounds.get_center().z)
-		if not path_ray.from.is_equal_approx(path_ray.to) and not space.intersect_ray(path_ray).is_empty():
+		if definition.require_clear_path and not path_ray.from.is_equal_approx(path_ray.to) and not space.intersect_ray(path_ray).is_empty():
 			continue
 
 		result.available = true

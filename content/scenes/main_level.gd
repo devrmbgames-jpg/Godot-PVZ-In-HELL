@@ -3,6 +3,8 @@ extends Node3D
 
 ## Авторский World, владеющий симуляцией данного уровня.
 @export var world: World = null
+## Авторский маркер утренней выдачи крупной мебели; перемещение/поворот меняет площадку.
+@export var furniture_delivery_anchor: Marker3D = null
 ## Путь слота автосохранения; пустой отключает автоматическую загрузку, тесты могут задавать отдельный слот.
 @export var autosave_path: String = AutosaveStore.DEFAULT_PATH
 
@@ -12,6 +14,7 @@ func _ready() -> void:
 	ECS.world = world
 	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
 	world.add_system(S_LootDrops.new(), true)
+	_bind_furniture_delivery()
 	DistrictPopulationService.initialize()
 	var session: Entity = world.query.with_all([C_Autosave]).execute_one()
 	if session != null:
@@ -23,6 +26,12 @@ func _ready() -> void:
 	if OS.has_feature("qa_build"):
 		print("QA level: ", scene_file_path, "; save slot=", autosave_path)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _bind_furniture_delivery() -> void:
+	for zone: Entity in world.query.with_all([C_OrderReceiving]).execute():
+		var state: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
+		state.furniture_anchor_path = zone.get_path_to(furniture_delivery_anchor) if furniture_delivery_anchor != null else NodePath("")
 
 
 func _notification(what: int) -> void:

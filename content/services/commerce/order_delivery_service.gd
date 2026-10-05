@@ -5,6 +5,7 @@ class_name OrderDeliveryService
 const OCCUPANCY_MASK: int = 0xFFFFFFFF
 
 
+#region Определение заказа
 ## Строит устойчивый ключ физического товара из ID оплаченной доставки.
 static func key_for(delivery: PendingDelivery) -> String:
 	return "order/%s" % delivery.delivery_id
@@ -19,8 +20,10 @@ static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 		if furniture == null:
 			return false
 
+		var solver: ItemPlacementSolver = ItemPlacementSolver.new()
+		var supported: bool = solver.prepare(furniture as Node as PhysicsBody3D)
 		furniture.free()
-		return true
+		return supported
 
 	var packed: PackedScene = load(item.world_pickup_scene) as PackedScene
 	var node: Node = packed.instantiate() if packed != null else null
@@ -40,6 +43,9 @@ static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 	return valid
 
 
+#endregion
+
+#region Однократная утренняя выдача
 ## Исполняет первый готовый заказ или признаёт уже созданный по ключу; занятость сохраняет заказ.
 static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Commerce, day: int) -> bool:
 	if not EntityAvailability.contains(zone, ECS.world) or state == null or commerce == null or day < 1:
@@ -56,31 +62,13 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 			state.blocked = true
 			return false
 
-		for existing: Entity in ECS.world.query.with_all([C_PersistentIdentity]).execute():
-			var identity: C_PersistentIdentity = existing.get_component(C_PersistentIdentity) as C_PersistentIdentity
-			if identity.key == key_for(delivery):
-				delivery.fulfilled = true
-				state.blocked = false
-				return true
+		var key: String = key_for(delivery)
+		if _existing(state, key) != null:
+			delivery.fulfilled = true
+			state.blocked = false
+			return true
 		if delivery.item.kind == DEF_InventoryItem.Kind.FURNITURE:
-			if delivery.quantity != 1:
-				state.blocked = true
-				return false
-
-			for index: int in state.columns * state.rows:
-				var pose: Transform3D = anchor.global_transform
-				pose.origin += pose.basis * Vector3((index % state.columns) * state.spacing.x, 0, (index / state.columns) * state.spacing.y)
-				var proposal: PreparedFurniture = FurniturePlacement.prepare(delivery.item, anchor, pose)
-				if proposal == null:
-					continue
-
-				delivery.fulfilled = true
-				FurniturePlacement.commit(proposal, key_for(delivery))
-				state.blocked = false
-				return true
-
-			state.blocked = true
-			return false
+			return _furniture(zone, state, delivery)
 
 		var packed: PackedScene = load(delivery.item.world_pickup_scene) as PackedScene if not delivery.item.world_pickup_scene.is_empty() else null
 		var pickup: E_InventoryPickup = packed.instantiate() as E_InventoryPickup if packed != null else null
@@ -118,9 +106,11 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 			identity.key = key_for(delivery)
 			components.append(identity)
 			pickup.component_resources = components
+			pickup.id = key
+			body.transform = anchor.global_transform.affine_inverse() * pose
 			anchor.add_child(pickup)
-			body.global_transform = pose
 			ECS.world.add_entity(pickup, null, false)
+			state.goods[key] = weakref(pickup)
 			delivery.fulfilled = true
 			state.blocked = false
 			return true
@@ -130,4 +120,77 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 		return false
 
 	state.blocked = false
+	state.exhausted = true
 	return false
+
+#endregion
+
+#region Полная форма мебели и резервы
+static func _furniture(zone: Entity, state: C_OrderReceiving, delivery: PendingDelivery) -> bool:
+	var marker: Node3D = zone.get_node_or_null(state.furniture_anchor_path) as Node3D if not state.furniture_anchor_path.is_empty() else null
+	if marker == null or delivery.quantity != 1 or state.furniture_placement == null:
+		state.blocked = true
+		return false
+	var parent: Node3D = marker.get_parent() as Node3D if marker != zone else marker
+	var entity: Entity = FurniturePlacement.create_validated(delivery.item)
+	if parent == null or entity == null:
+		if entity != null:
+			entity.free()
+		state.blocked = true
+		return false
+
+	var solver: ItemPlacementSolver = ItemPlacementSolver.new()
+	if not solver.prepare(entity as Node as PhysicsBody3D):
+		entity.free()
+		state.blocked = true
+		return false
+	var frame: int = Engine.get_physics_frames()
+	if state.reservation_frame != frame:
+		state.reservations.clear()
+		state.reservation_frame = frame
+	var origin: Transform3D = marker.global_transform
+	origin.basis = origin.basis.orthonormalized()
+	var result: ItemPlacementSolver.Result = solver.find(marker.get_world_3d().direct_space_state, origin, state.furniture_placement, state.reservations, [])
+	if not result.available:
+		entity.free()
+		state.blocked = true
+		return false
+
+	var proposal: PreparedFurniture = PreparedFurniture.new()
+	proposal.entity = entity
+	proposal.parent = parent
+	proposal.world_pose = result.pose
+	entity.id = key_for(delivery)
+	FurniturePlacement.commit(proposal, key_for(delivery))
+	state.goods[key_for(delivery)] = weakref(entity)
+	state.reservations.append(result.bounds)
+	delivery.fulfilled = true
+	state.blocked = false
+	return true
+#endregion
+
+#region Производный контекст выдачи
+## Сбрасывает таймеры, резервы и слабые ссылки после восстановления World; заказы не меняет.
+static func reset_context(state: C_OrderReceiving) -> void:
+	state.retry_remaining = 0.0
+	state.attempt_day = 0
+	state.exhausted = false
+	state.blocked = false
+	state.identity_index_ready = false
+	state.goods.clear()
+	state.reservations.clear()
+	state.reservation_frame = -1
+
+static func _existing(state: C_OrderReceiving, key: String) -> Entity:
+	if not state.identity_index_ready:
+		# Один индекс при старте/restore, включая прежние товары с произвольным Entity.id.
+		for entity: Entity in ECS.world.query.with_all([C_PersistentIdentity]).execute():
+			var identity: C_PersistentIdentity = entity.get_component(C_PersistentIdentity) as C_PersistentIdentity
+			if identity.key.begins_with("order/"):
+				state.goods[identity.key] = weakref(entity)
+		state.identity_index_ready = true
+
+	var reference: WeakRef = state.goods.get(key)
+	var existing: Entity = reference.get_ref() as Entity if reference != null else null
+	return existing if EntityAvailability.contains(existing, ECS.world) else null
+#endregion

@@ -443,9 +443,10 @@ size = Vector3(1.6518555, 3.7236938, 1)
 [sub_resource type="BoxShape3D" id="LightZone_ReceivingZone"]
 size = Vector3(4.223633, 3.7236938, 7.4051514)
 
-[node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world") groups=["navigation_mesh_source_group"]]
+[node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world", "furniture_delivery_anchor") groups=["navigation_mesh_source_group"]]
 script = ExtResource("1_ixiin")
 world = NodePath("World")
+furniture_delivery_anchor = NodePath("Entityes/OrderReceiving/FurnitureDelivery")
 
 [node name="District" parent="." unique_id=161100477 groups=["navigation_geometry"] instance=ExtResource("District_blockout")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.688103, 0, -2.6446795)
@@ -1789,6 +1790,8 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.
 
 [node name="OrderReceiving" parent="Entityes" unique_id=1034245790 instance=ExtResource("Order_receiving_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.22, 0.5)
+
+[node name="FurnitureDelivery" type="Marker3D" parent="Entityes/OrderReceiving"]
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 script = ExtResource("Day_entity")

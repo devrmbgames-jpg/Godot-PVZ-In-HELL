@@ -7,6 +7,10 @@ const MAX_CANDIDATES: int = 16
 #region Размещение и бюджет
 ## Смещения в мировых координатах от точки выпадения; проверяются первые 16.
 @export var offsets: PackedVector3Array = PackedVector3Array()
+## Смещения следуют повороту маркера; выключено для прежнего дропа в мировых осях.
+@export var local_offsets: bool = false
+## Проверять прямой путь от источника дропа; для доставленных на площадку товаров не требуется.
+@export var require_clear_path: bool = true
 ## Слои твёрдых препятствий, включая предметы и персонажей.
 @export_flags_3d_physics var obstacle_mask: int = 63
 ## Слои допустимой опоры; по умолчанию геометрия уровня.

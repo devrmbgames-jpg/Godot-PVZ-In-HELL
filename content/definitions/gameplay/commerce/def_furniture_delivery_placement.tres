@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DEF_ItemPlacement" format=3]
+
+[ext_resource type="Script" path="res://content/definitions/gameplay/def_item_placement.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+key = &"furniture_delivery_placement"
+offsets = PackedVector3Array(0, 0, 0, 3.5, 0, 0, -3.5, 0, 0, 0, 0, 2.5, 3.5, 0, 2.5, -3.5, 0, 2.5, 0, 0, -2.5, 3.5, 0, -2.5, -3.5, 0, -2.5)
+local_offsets = true
+require_clear_path = false
+clearance = 0.05
