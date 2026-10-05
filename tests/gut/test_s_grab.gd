@@ -1725,6 +1725,67 @@ func test_scriptless_body_removal_cleans_runtime_proxy_and_holder() -> void:
 	assert_null(grab_control.held_carry)
 	assert_false(carry_load.active)
 	assert_false(is_instance_valid(proxy))
+
+
+## Выход общего родителя не удаляет proxy, пока SceneTree обходит его детей.
+func test_scriptless_proxy_cleanup_waits_until_parent_finishes_exiting() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var branch: Node3D = Node3D.new()
+	grab_world.add_child(branch)
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5))
+	var proxy: Entity = PhysicsGrabTarget.handle_for(rock, true)
+	rock.reparent(branch)
+	proxy.reparent(branch)
+	assert_true(GrabService.try_pickup_body(holder_entity, rock))
+	var proxy_id: String = proxy.id
+
+	grab_world.remove_child(branch)
+	assert_true(is_instance_valid(proxy), "Proxy cleanup waits until tree exit has completed")
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	assert_false(is_instance_valid(proxy))
+	assert_false(grab_world.entity_id_registry.has(proxy_id))
+	assert_null(grab_control.held_carry)
+	assert_false(carry_load.active)
+	branch.free()
+
+
+## Отложенная очистка принадлежит исходному World, даже после смены ECS.world.
+func test_scriptless_proxy_cleanup_keeps_its_original_world() -> void:
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3.ZERO)
+	var proxy: Entity = PhysicsGrabTarget.handle_for(rock, true)
+	var proxy_id: String = proxy.id
+	var next_world: World = World.new()
+	add_child(next_world)
+
+	grab_world.remove_child(rock)
+	ECS.world = next_world
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	assert_false(is_instance_valid(proxy))
+	assert_false(grab_world.entity_id_registry.has(proxy_id))
+	assert_true(next_world.entities.is_empty())
+	ECS.world = grab_world
+	next_world.free()
+	rock.free()
+
+
+## Уже удалённый через World proxy не удаляется повторно при исчезновении тела.
+func test_scriptless_body_exit_accepts_an_already_removed_proxy() -> void:
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3.ZERO)
+	var proxy: Entity = PhysicsGrabTarget.handle_for(rock, true)
+	grab_world.remove_entity(proxy)
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	rock.queue_free()
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	assert_false(is_instance_valid(proxy))
+	assert_false(is_instance_valid(rock))
 #endregion
 
 

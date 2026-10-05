@@ -44,7 +44,12 @@ static func handle_for(body: RigidBody3D, create_proxy: bool = false) -> Entity:
 	ECS.world.add_entity(proxy)
 
 	body.set_meta(META_PROXY, weakref(proxy))
-	body.tree_exiting.connect(_on_body_tree_exiting.bind(weakref(proxy)), CONNECT_ONE_SHOT)
+	# Выход родителя может застать proxy вне дерева: World тогда вызывает free().
+	# Отложенная связь дожидается конца обхода детей и не удерживает их в памяти.
+	body.tree_exiting.connect(
+		_on_body_tree_exiting.bind(weakref(proxy), weakref(ECS.world)),
+		CONNECT_DEFERRED | CONNECT_ONE_SHOT,
+	)
 	return proxy
 
 
@@ -80,9 +85,15 @@ static func _registered(entity: Entity) -> bool:
 	)
 
 
-static func _on_body_tree_exiting(proxy_reference: WeakRef) -> void:
+static func _on_body_tree_exiting(proxy_reference: WeakRef, world_reference: WeakRef) -> void:
 	var proxy: Entity = proxy_reference.get_ref() as Entity if proxy_reference != null else null
-	if _registered(proxy):
-		ECS.world.remove_entity(proxy)
+	var owner_world: World = world_reference.get_ref() as World if world_reference != null else null
+	if not is_instance_valid(proxy) or not is_instance_valid(owner_world):
+		return
+	if owner_world.is_queued_for_deletion() or not owner_world.entity_to_archetype.has(proxy):
+		return
+
+	# queue_free() тела не снимает регистрацию отдельного proxy в GECS.
+	owner_world.remove_entity(proxy)
 
 #endregion
