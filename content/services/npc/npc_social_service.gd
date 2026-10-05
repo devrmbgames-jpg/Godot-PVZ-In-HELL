@@ -95,6 +95,7 @@ static func remember_promise(person: NpcRecord, actor: Entity, body: E_DistrictN
 	for previous: NpcMemory in person.memories:
 		if previous.incident_id == incident:
 			return
+
 	var reaction: NpcMemory.Reaction = _choose(person.profile, NpcMemory.Kind.BROKEN_PROMISE, hash(str(person.npc_id) + ":" + str(incident)))
 	remember(person, actor, body, NpcMemory.Kind.BROKEN_PROMISE, incident, reaction)
 	# Обещание принято игроком даже в тестовой сессии, где его физическое тело отсутствует.
@@ -104,7 +105,9 @@ static func remember_promise(person: NpcRecord, actor: Entity, body: E_DistrictN
 static func distrusts_player(person: NpcRecord) -> bool:
 	for memory: NpcMemory in person.memories:
 		if memory.actor_id == &"player" and memory.kind == NpcMemory.Kind.BROKEN_PROMISE:
-			return true
+			var job: NpcHomeDelivery = NpcDeliveryOfferService.find(memory.incident_id)
+			if job != null and job.source == NpcHomeDelivery.Source.PERSONAL:
+				return true
 	return false
 
 ## Находит ещё не применённую личную реакцию, независимо от нового заказа NPC.
@@ -124,9 +127,11 @@ static func resolve_promise(body: E_DistrictNpc, actor: Entity) -> bool:
 	var person: NpcRecord = DistrictPopulationService.person_for(identity_for(body))
 	if job == null or person == null or person.death_day != 0 or NpcDialogueService.participant(body) != actor:
 		return false
+
 	for memory: NpcMemory in person.memories:
 		if memory.incident_id != job.job_id:
 			continue
+
 		job.promise_reaction_applied = true
 		NpcDialogueService.close_for(body)
 		_apply_reaction(body, actor, memory.reaction)
@@ -139,8 +144,8 @@ static func _choose(profile: DEF_NpcProfile, kind: NpcMemory.Kind, seed_value: i
 	var random: RandomNumberGenerator = RandomNumberGenerator.new()
 	random.seed = seed_value
 	var roll: float = random.randf()
-	if kind in [NpcMemory.Kind.HELP, NpcMemory.Kind.BROKEN_PROMISE]:
-		return NpcMemory.Reaction.ACCEPT if kind == NpcMemory.Kind.HELP else NpcMemory.Reaction.TALK
+	if kind == NpcMemory.Kind.HELP:
+		return NpcMemory.Reaction.ACCEPT
 	if kind == NpcMemory.Kind.SUBMISSION:
 		if profile.personality == DEF_NpcProfile.Personality.BRAZEN and roll < profile.high_attack_probability:
 			return NpcMemory.Reaction.ATTACK

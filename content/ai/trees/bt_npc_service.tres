@@ -560,7 +560,7 @@ children = [SubResource("BTCondition_110"), SubResource("BTAction_111")]
 [sub_resource type="BlackboardPlan" id="DeliveryAmbushPlan"]
 
 [sub_resource type="BTSubtree" id="DeliveryAmbush"]
-custom_name = "????????? ???????? ???????"
+custom_name = "Авторская домашняя ловушка"
 subtree = ExtResource("delivery_ambush")
 blackboard_plan = SubResource("DeliveryAmbushPlan")
 

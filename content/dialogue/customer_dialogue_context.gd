@@ -145,12 +145,12 @@ func dialogue_cue() -> String:
 		and visit.actual == CustomerVisit.Actual.CUSTOMER_REFUSED
 	):
 		return "voluntary_refusal"
+	if has_broken_promise():
+		return "broken_promise"
 	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.RIDDLE) != null and not visit.riddle_solved:
 		return "riddle"
 	if can_offer_delivery():
 		return "home_request"
-	if has_broken_promise():
-		return "broken_promise"
 	if person != null and person.profile.rule_for(DEF_NpcTrait.Kind.PROVOCATEUR) != null:
 		return "provocation"
 	if (

@@ -3,6 +3,7 @@ extends RefCounted
 class_name NpcDialogueContext
 
 var _delivery_job_id: StringName = &""
+
 #region Интерфейс контекста
 func _init(_actor: Entity = null, _interlocutor: Entity = null) -> void:
 	pass
@@ -55,7 +56,11 @@ func delivery_bonus() -> int:
 func requested_delivery_bonus() -> int:
 	var job: NpcHomeDelivery = _delivery_record()
 	var district: C_District = DistrictPopulationService.current()
-	return floori(float(job.base_bonus) * district.definition.delivery_bargain_percent / NpcDeliveryOfferService.PERCENT_SCALE) if job != null and district != null else 0
+	if job == null or district == null:
+		return 0
+
+	var requested_bonus: float = float(job.base_bonus) * district.definition.delivery_bargain_percent
+	return floori(requested_bonus / NpcDeliveryOfferService.PERCENT_SCALE)
 
 ## Вариант торга исчезает после сохранённого ответа NPC.
 func can_bargain_delivery() -> bool:
@@ -88,6 +93,7 @@ func resolve_broken_promise() -> bool:
 func _delivery_record() -> NpcHomeDelivery:
 	if not _delivery_job_id.is_empty():
 		return NpcDeliveryOfferService.find(_delivery_job_id)
+
 	var job: NpcHomeDelivery = _delivery_offer()
 	if job != null:
 		_delivery_job_id = job.job_id

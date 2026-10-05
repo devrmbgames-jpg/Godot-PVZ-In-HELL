@@ -32,7 +32,7 @@ intent_owner = 2
 [sub_resource type="BTAction" id="Start"]
 custom_name = "Запросить бой, закрыть обязательство без выдачи"
 script = ExtResource("6_start")
-intent_owner = 3
+intent_owner = 1
 
 [sub_resource type="BTDynamicSequence" id="Attack"]
 custom_name = "Обнаруженная жертва — начать засаду"

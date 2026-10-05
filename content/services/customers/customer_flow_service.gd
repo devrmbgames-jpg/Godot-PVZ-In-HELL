@@ -596,6 +596,8 @@ static func direct_handoff_package(actor: Entity, customer: E_Customer, allow_gr
 static func try_automatic_handoff(customer: E_Customer, visit: CustomerVisit) -> bool:
 	if visit == null or not is_instance_valid(ECS.world):
 		return false
+	if NpcDeliveryScenarioService.armed_for(customer as E_DistrictNpc) != null:
+		return false
 
 	var actor: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	var parcel: Entity = direct_handoff_package(actor, customer, true)
@@ -615,6 +617,9 @@ static func confirm_direct_delivery(
 	actor: Entity,
 	customer: E_Customer,
 ) -> PackageDeliveryCheck.Result:
+	if NpcDeliveryScenarioService.armed_for(customer as E_DistrictNpc) != null:
+		return PackageDeliveryCheck.Result.UNASSIGNED
+
 	var parcel: Entity = direct_handoff_package(actor, customer)
 	if parcel == null:
 		return PackageDeliveryCheck.Result.MISSING

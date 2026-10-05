@@ -22,17 +22,22 @@ static func armed_for(body: E_DistrictNpc) -> NpcHomeDelivery:
 static func start_ambush(body: E_DistrictNpc) -> bool:
 	var job: NpcHomeDelivery = armed_for(body)
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness if body != null else null
+	if job == null or awareness == null or not awareness.player_visible or NpcDialogueService.participant(body) != null:
+		return false
+
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
-	if job == null or awareness == null or not awareness.player_visible or not GrabService.holder_available(player):
+	if not GrabService.holder_available(player):
 		return false
 	if not CombatService.bind_target(body, player):
 		return false
+
 	var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
 	var scenario: DEF_NpcDeliveryScenario = definition_for(job)
 	job.status = NpcHomeDelivery.Status.AMBUSHED
 	awareness.last_seen_position = (player as Node as Node3D).global_position
 	awareness.has_last_seen = true
 	awareness.search_elapsed = 0.0
+
 	ChallengeService.cancel(body)
 	NpcHomeDeliveryService.release_meeting(body)
 	NpcServiceRole.release(body, job.visit_id)
@@ -43,6 +48,7 @@ static func start_ambush(body: E_DistrictNpc) -> bool:
 		visit.arrival_day = job.deadline_day
 		visit.next_followup_day = 0
 		visit.followup_committed = false
+
 	body.show_message(scenario.ambush_message)
 	return true
 #endregion
