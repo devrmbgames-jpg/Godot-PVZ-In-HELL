@@ -156,6 +156,52 @@ func test_unpack_uses_real_opening_contents_and_hazard_then_keeps_results_once()
 #endregion
 
 #region Освобождение имущества и таймаут
+## Принятое во время осмотра содержимое включает ожидающий остаток и не появляется после ухода клиента.
+func test_kept_inspection_consumes_pending_contents_before_retry() -> void:
+	var queue: C_LootDrops = LootDropService.current()
+	queue.placement = queue.placement.duplicate(true) as DEF_ItemPlacement
+	queue.placement.initial_budget = 1
+	_visit.definition.inspection_unpack_probability = 1.0
+	_visit.definition.inspection_keep_probability = 1.0
+	_borrow()
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_arrive_and_inspect()
+	assert_eq(queue.pending.size(), 4)
+	assert_eq(CustomerInspectionService.cargo(_customer).size(), 2)
+
+	_return()
+	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
+	assert_true(queue.pending.is_empty())
+	LootDropService.retry(_world.query.with_all([C_DayCycle]).execute_one(), queue)
+	assert_true(_world.query.with_all([C_InventoryItem]).execute().is_empty())
+
+## Позднее размещённое содержимое получает живой резерв осмотра; отказ освобождает все реальные предметы.
+func test_late_contents_join_inspection_and_refusal_preserves_them() -> void:
+	var queue: C_LootDrops = LootDropService.current()
+	queue.placement = queue.placement.duplicate(true) as DEF_ItemPlacement
+	queue.placement.initial_budget = 1
+	_visit.definition.inspection_unpack_probability = 1.0
+	_visit.definition.inspection_keep_probability = 0.0
+	_borrow()
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_arrive_and_inspect()
+	assert_eq(queue.pending.size(), 4)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	LootDropService.retry(_world.query.with_all([C_DayCycle]).execute_one(), queue)
+	assert_true(queue.pending.is_empty())
+	assert_eq(CustomerInspectionService.cargo(_customer).size(), 6)
+	for item: Entity in _world.query.with_all([C_InventoryItem]).execute():
+		assert_same(CustomerInspectionService.owner_for(item), _customer)
+
+	_return()
+	assert_eq(_visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
+	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 5)
+	for item: Entity in _world.query.with_all([C_InventoryItem]).execute():
+		assert_null(CustomerInspectionService.owner_for(item))
+
 ## Ночной сброс снимает резервирование; оставшееся содержимое можно забрать в инвентарь.
 func test_cleanup_night_releases_unpacked_items_for_player() -> void:
 	_visit.definition.inspection_unpack_probability = 1.0

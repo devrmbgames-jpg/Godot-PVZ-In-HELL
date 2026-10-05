@@ -61,6 +61,8 @@ func before_each() -> void:
 	_actor.left_hand_slot = hand
 	_actor.hold_anchor = hand
 	_world.add_entity(_actor)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
 
 
 ## Удаляет World с физическими участниками и очищает ECS.world.
@@ -216,6 +218,12 @@ func test_every_supply_type_has_real_one_shot_contents_and_leaves_empty_light_sh
 		assert_false((parcel.get_component(C_PackageState) as C_PackageState).leaking)
 		assert_eq((parcel as Node as RigidBody3D).mass, definition.empty_mass_kg)
 		assert_true(PackageContentsService.release(parcel).is_empty())
+		# Каждый prefab проверяется в свободном месте; занятая партия проверяется отдельно.
+		for item: Entity in contents:
+			_world.remove_entity(item)
+		_world.remove_entity(parcel)
+		await get_tree().physics_frame
+		await get_tree().physics_frame
 
 
 ## Токсичная зона следует за вынутой бутылкой; пустая коробка не создаёт новые опасности.

@@ -142,6 +142,10 @@ static func roll(visit: CustomerVisit, choice: String) -> float:
 
 ## Освобождает крепления и временные связи; принятое содержимое удаляется из мира.
 static func end(customer: Entity, keep_contents: bool = false) -> void:
+	var parcel: Entity = parcel_for(customer)
+	if keep_contents and parcel != null:
+		LootDropService.accept_contents(parcel)
+
 	for item: Entity in cargo(customer):
 		var original: bool = item == parcel_for(customer)
 		if original:

@@ -11,6 +11,7 @@ extends Node3D
 func _ready() -> void:
 	ECS.world = world
 	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
+	world.add_system(S_LootDrops.new(), true)
 	DistrictPopulationService.initialize()
 	var session: Entity = world.query.with_all([C_Autosave]).execute_one()
 	if session != null:

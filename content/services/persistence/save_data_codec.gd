@@ -18,6 +18,7 @@ static var _component_fields: Dictionary = {
 	C_PackageState: ["registration", "scan", "opening", "damage", "registration_number", "registration_day", "leaking"],
 	C_PackageContents: ["released"],
 	C_NpcRemains: ["released"],
+	C_LootDrops: ["placement", "pending", "committed_batches"],
 	C_Health: ["base", "value", "current", "depleted"],
 	C_Hunger: ["value"],
 	C_Stamina: ["current", "initialized"],
@@ -34,7 +35,7 @@ static var _component_fields: Dictionary = {
 	C_Explosion: ["resolved"],
 	C_NoDamage: [],
 }
-static var _record_types: Array[Script] = [NpcRecord, NpcMemory, NpcHomeDelivery, CustomerVisit, CustomerComplaint, CombatContext, MoneyOperation, DailyMoneyResult, PackageRegistrationRecord, PurchaseReceipt, PendingDelivery, RefusalQuestRecord, ReceivingBatch]
+static var _record_types: Array[Script] = [NpcRecord, NpcMemory, NpcHomeDelivery, CustomerVisit, CustomerComplaint, CombatContext, MoneyOperation, DailyMoneyResult, PackageRegistrationRecord, PurchaseReceipt, PendingDelivery, RefusalQuestRecord, ReceivingBatch, PendingLootDrop]
 ## Максимальная глубина вложенных сериализуемых данных.
 const MAX_DEPTH: int = 16
 

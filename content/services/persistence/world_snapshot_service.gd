@@ -179,7 +179,7 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				return false
 			if link.kind == CARGO and not link.get("local_pose") is Transform3D:
 				return false
-	return session_count == 1 and SnapshotGraphRules.valid(records, all_components) and DistrictSnapshotRules.valid(records, all_components, int(data.morning_day))
+	return session_count == 1 and SnapshotGraphRules.valid(records, all_components) and DistrictSnapshotRules.valid(records, all_components, int(data.morning_day)) and LootSnapshotRules.valid(records, all_components)
 
 
 ## Проверяет роли и prefab-контракты без регистрации Entities и без изменения живого World.
@@ -316,6 +316,11 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			SaveDataCodec.apply_fields(target, component.fields as Dictionary)
 			if target is C_Package:
 				(target as C_Package).condition_initialized = true
+			if target is C_LootDrops:
+				var queue: C_LootDrops = target as C_LootDrops
+				queue.retry_remaining = 0.0
+				queue.reservations.clear()
+				queue.reservation_frame = -1
 		# Включая старые snapshots без C_Stamina: режим бега не переживает restore.
 		var stamina: C_Stamina = entity.get_component(C_Stamina) as C_Stamina
 		if stamina != null:

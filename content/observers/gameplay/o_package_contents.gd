@@ -12,9 +12,4 @@ func query() -> QueryBuilder:
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var event: PackageLifecycleEvent = payload as PackageLifecycleEvent
 	if event != null and event.package == entity and event.kind == PackageLifecycleEvent.Kind.Opened:
-		cmd.add_custom(_release.bind(entity, event.actor))
-
-
-func _release(package: Entity, actor: Entity) -> void:
-	var contents: Array[Entity] = PackageContentsService.release(package, actor)
-	CustomerInspectionService.bind_contents(package, contents)
+		cmd.add_custom(PackageContentsService.release.bind(entity, event.actor))
