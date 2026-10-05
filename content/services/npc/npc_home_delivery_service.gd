@@ -72,6 +72,9 @@ static func door_for(body: Entity) -> Entity:
 #region Встреча и общая выдача
 ## Вызывает отсутствующего получателя у своей двери или направляет видимого NPC домой.
 static func knock(player: Entity, door: Entity) -> bool:
+	if not GrabService.holder_available(player) or player.has_component(C_Death) or not EntityAvailability.contains(door, ECS.world):
+		return false
+
 	var address: C_NpcAddress = door.get_component(C_NpcAddress) as C_NpcAddress
 	var job: NpcHomeDelivery = job_for_address(address.address_id) if address != null else null
 	if job == null:
@@ -83,15 +86,18 @@ static func knock(player: Entity, door: Entity) -> bool:
 	var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
 	if body == null or person == null or person.death_day != 0 or visit == null or CombatService.target_for(body) != null:
 		return false
+
 	if meeting_for(body) != null:
 		if NpcDeliveryScenarioService.armed_for(body) == null:
 			CustomerFlowService.try_automatic_handoff(body, visit)
 		return true
 	if body.has_component(C_CustomerAgent):
 		return false
+
 	if person.placement != NpcRecord.Placement.STREET:
 		body.place_at(DistrictPopulationService.position_for(person.home_id))
 		DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
+
 
 	var service: C_CustomerAgent = C_CustomerAgent.new()
 	service.visit_id = visit.visit_id
@@ -107,20 +113,26 @@ static func knock(player: Entity, door: Entity) -> bool:
 	CustomerFlowService.bind_parcel(body, visit)
 	NpcIntentService.move_to(body, DistrictPopulationService.position_for(job.address_id), visit.definition.arrival_distance)
 	body.show_message(person.display_name + " · иду к двери")
-	return GrabService.holder_available(player)
+	return true
 
 ## Фиксирует обычную оплату и доплату с раздельными ключами однократного начисления.
 static func complete(job: NpcHomeDelivery) -> bool:
+	if job == null:
+		return false
 	if job.status != NpcHomeDelivery.Status.ACCEPTED:
-		return job.status == NpcHomeDelivery.Status.DELIVERED
+		return job.status in [NpcHomeDelivery.Status.DELIVERED, NpcHomeDelivery.Status.REFUSED]
 
 	var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if visit == null or cycle == null or visit.actual not in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
 		return false
+
 	if visit.actual == CustomerVisit.Actual.DELIVERED:
 		CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.TAKEN)
 		CustomerOutcomeService.settle(visit, WalletService.current(), cycle.day_index)
+		if not visit.settlement_committed:
+			return false
+
 		var operation: MoneyOperation = MoneyOperation.new()
 		operation.operation_id = StringName("bonus/" + String(job.job_id))
 		operation.settlement_id = job.job_id
@@ -135,6 +147,7 @@ static func complete(job: NpcHomeDelivery) -> bool:
 		job.status = NpcHomeDelivery.Status.DELIVERED
 	else:
 		job.status = NpcHomeDelivery.Status.REFUSED
+
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(job.npc_id)
 	if body != null:
 		release_meeting(body)
@@ -149,11 +162,13 @@ static func release_meeting(body: Entity) -> void:
 #endregion
 
 #region Завершение вечера и отображение
-## Один раз завершает невыполненные обещания; зарегистрированные коробки остаются на месте.
-static func finish_evening(day_index: int) -> void:
+## Завершает обещания один раз; false требует повторить незавершённую оплату до подготовки утра.
+static func finish_evening(day_index: int) -> bool:
 	var district: C_District = DistrictPopulationService.current()
 	if district == null:
-		return
+		return true
+
+	var settled: bool = true
 
 	for job: NpcHomeDelivery in district.home_deliveries:
 		if job.day_index != day_index:
@@ -166,7 +181,8 @@ static func finish_evening(day_index: int) -> void:
 
 		var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
 		if visit != null and visit.actual in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
-			complete(job)
+			if not complete(job):
+				settled = false
 			continue
 
 		job.status = NpcHomeDelivery.Status.FAILED
@@ -183,13 +199,16 @@ static func finish_evening(day_index: int) -> void:
 			release_meeting(body)
 			if visit != null:
 				NpcServiceRole.release(body, visit.visit_id)
-		if visit != null and not visit.customer_dead:
+		# Явный LOST/REFUSED/TAKEN и уже известный спор остаются под властью журнала обслуживания.
+		if visit != null and not visit.customer_dead and visit.actual == CustomerVisit.Actual.NOT_RESOLVED and visit.declaration == CustomerVisit.Declaration.NONE and visit.complaint == null:
 			visit.started = false
 			visit.finished = false
 			visit.finished_day = 0
 			visit.arrival_day = day_index + 1
 			visit.next_followup_day = 0
 			visit.followup_committed = false
+
+	return settled
 
 ## Краткий список авторитетных обязательств для HUD без внутренних деталей реализации.
 static func status_text() -> String:
