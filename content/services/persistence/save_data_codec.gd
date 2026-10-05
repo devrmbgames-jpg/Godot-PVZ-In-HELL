@@ -23,7 +23,7 @@ static var _component_fields: Dictionary = {
 	C_Hunger: ["value"],
 	C_Stamina: ["current", "initialized"],
 	C_ImpactProtection: ["tier"],
-	C_Receiving: ["last_started_day", "pending", "delivered_counts"],
+	C_Receiving: ["last_started_day", "batch_id", "incoming_package_ids", "pending", "delivered_counts"],
 	C_Openable: ["locked", "requested_open", "actual_fraction"],
 	C_LightCircuit: ["enabled"],
 	C_HazardEmitter: ["fired", "sequence"],
@@ -84,6 +84,8 @@ static func encode(value: Variant, depth: int = 0) -> Variant:
 		return result
 	if value is Object:
 		return {"invalid": true}
+	if value is PackedStringArray:
+		return (value as PackedStringArray).duplicate()
 	return value
 
 
@@ -117,6 +119,8 @@ static func decode(value: Variant, depth: int = 0) -> Variant:
 		for key: Variant in data:
 			result[key] = decode(data[key], depth + 1)
 		return result
+	if value is PackedStringArray:
+		return (value as PackedStringArray).duplicate()
 	return value
 
 

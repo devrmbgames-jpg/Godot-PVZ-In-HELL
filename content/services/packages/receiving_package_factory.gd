@@ -2,7 +2,7 @@ extends RefCounted
 ## Создаёт физическую коробку для приёмки и проверяет авторские точки размещения.
 class_name ReceivingPackageFactory
 
-const SPAWN_MARGIN: float = 0.03
+const DEFAULT_PLACEMENT: DEF_ItemPlacement = preload("res://content/definitions/gameplay/deliveries/def_truck_cargo_placement.tres")
 
 
 #region Создание экземпляра
@@ -18,17 +18,22 @@ static func create(
 	package_id: String,
 	day_index: int,
 	package_index: int,
+	physical_scene: String = "",
 ) -> E_Package:
 	if zone == null or definition == null or definition.scene_variants.is_empty():
 		return null
 
-	var package_scene_path: String = definition.scene_variants.pick_random()
+	if not physical_scene.is_empty() and physical_scene not in definition.scene_variants:
+		return null
+	var package_scene_path: String = physical_scene if not physical_scene.is_empty() else String(definition.scene_variants.pick_random())
 	var packed: PackedScene = load(package_scene_path) as PackedScene
 	if packed == null:
 		return null
 
-	var parcel: E_Package = packed.instantiate() as E_Package
+	var instance: Node = packed.instantiate()
+	var parcel: E_Package = instance as E_Package
 	if parcel == null:
+		instance.free()
 		return null
 
 	var body: RigidBody3D = parcel as Node as RigidBody3D
@@ -63,33 +68,41 @@ static func create(
 #region Проверка и размещение
 ## Проверяет свободную авторскую точку, добавляет коробку в сцену и World; false оставляет её неразмещённой.
 static func try_place(zone: E_ReceivingZone, parcel: E_Package) -> bool:
-	if zone == null or parcel == null:
+	if not is_instance_valid(zone) or not is_instance_valid(parcel) or not is_instance_valid(ECS.world):
 		return false
 
 	var body: RigidBody3D = parcel as Node as RigidBody3D
-	var collision: CollisionShape3D = parcel.get_node("CollisionShape3D") as CollisionShape3D
-	if body == null or collision == null or collision.shape == null:
+	var zone_node: Node3D = zone as Node as Node3D
+	if body == null or zone_node == null or not is_instance_valid(zone.package_parent):
+		return false
+	var solver: ItemPlacementSolver = ItemPlacementSolver.new()
+	if not solver.prepare(body):
 		return false
 
-	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
-	query.shape = collision.shape
-	query.margin = SPAWN_MARGIN
-	query.collision_mask = body.collision_mask | body.collision_layer
-	var zone_node: Node3D = zone as Node as Node3D
+	var truck: E_MorningTruck = zone.get_truck()
+	var policy: DEF_ItemPlacement = truck.placement if truck != null else DEFAULT_PLACEMENT
+	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
+	if receiving == null or policy == null:
+		return false
+	var frame: int = Engine.get_physics_frames()
+	if receiving.reservation_frame != frame:
+		receiving.reservation_frame = frame
+		receiving.reservations.clear()
+
 	var space: PhysicsDirectSpaceState3D = zone_node.get_world_3d().direct_space_state
-	for child: Node in zone.get_spawn_points().get_children():
-		var marker: Node3D = child as Node3D
-		if marker == null:
+	for marker: Marker3D in zone.get_cargo_markers():
+		if not is_instance_valid(marker):
+			continue
+		var origin: Transform3D = marker.global_transform * Transform3D(body.transform.basis, Vector3.ZERO)
+		var result: ItemPlacementSolver.Result = solver.find(space, origin, policy, receiving.reservations, [])
+		if not result.available:
 			continue
 
-		query.transform = marker.global_transform * collision.transform
-		if not space.intersect_shape(query, 1).is_empty():
-			continue
-
+		# Единственная начальная поза устанавливается до передачи тела физическому движку.
+		body.transform = zone.package_parent.global_transform.affine_inverse() * result.pose
 		zone.package_parent.add_child(parcel)
-		body.global_transform = marker.global_transform
 		ECS.world.add_entity(parcel, null, false)
+		receiving.reservations.append(result.bounds)
 		return true
 	return false
-
 #endregion

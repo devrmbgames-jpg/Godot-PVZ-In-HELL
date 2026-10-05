@@ -427,6 +427,8 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			ECS.world.disable_entity(entities[String(record.key)])
 	for zone: Entity in ECS.world.query.with_all([C_OrderReceiving]).execute():
 		OrderDeliveryService.reset_context(zone.get_component(C_OrderReceiving) as C_OrderReceiving)
+	for zone: Entity in ECS.world.query.with_all([C_Receiving]).execute():
+		ReceivingDeliveryService.reset_context(zone.get_component(C_Receiving) as C_Receiving)
 	RefusalQuestService.restore_bindings()
 	DistrictPopulationService.restore_participation()
 	return true

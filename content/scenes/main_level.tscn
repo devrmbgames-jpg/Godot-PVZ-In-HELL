@@ -1780,9 +1780,10 @@ editor_description = "Hold F. Successful completion is permanent/one-shot; actio
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.55, 0.36, 7.75)
 mode = 4
 
-[node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
+[node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent", "truck_parking") instance=ExtResource("Receiving_zone")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -18.18865, 0.51578665, -6.508998)
 package_parent = NodePath("..")
+truck_parking = NodePath("../../TruckParking")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_t4pbu")])
 
 [node name="PackageReturnPoint" parent="Entityes" unique_id=622721691 instance=ExtResource("Package_return_point")]
@@ -1965,6 +1966,9 @@ player = NodePath("../Entityes/Player")
 
 [node name="DebugMarkers" type="Node3D" parent="." unique_id=313082165]
 visible = false
+
+[node name="TruckParking" type="Marker3D" parent="."]
+transform = Transform3D(-0.9658736, 0, 0.25901395, 0, 1, 0, -0.25901395, 0, -0.9658736, -19.884726, 0.35, 1.0257263)
 
 [node name="ReceivingZone" type="MeshInstance3D" parent="DebugMarkers" unique_id=185141184]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.30757, 2.1978455, -10.747112)

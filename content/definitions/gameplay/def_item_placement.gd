@@ -23,6 +23,8 @@ const MAX_CANDIDATES: int = 16
 @export_range(0.0, 1.0) var support_normal: float = 0.8
 ## Допустимый перепад пяти точек опоры, в метрах.
 @export_range(0.0, 0.5) var support_variation: float = 0.12
+## Небольшой отступ угловых лучей опоры от края формы для устойчивой укладки; 0 сохраняет полную проверку края.
+@export_range(0.0, 0.05) var support_inset: float = 0.0
 ## Зазор между нижней границей предмета и опорой, в метрах.
 @export_range(0.01, 0.1) var clearance: float = 0.03
 ## Дополнительный зазор проверки формы и резервов, в метрах.

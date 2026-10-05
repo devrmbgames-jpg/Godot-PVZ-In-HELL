@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://batwwewo5lwrm"]
 
 [ext_resource type="ArrayMesh" uid="uid://c6jyfilxd73wu" path="res://meshes/MeshInstance3D_20261004_214514.res" id="1_f3hyx"]
+[ext_resource type="Script" path="res://content/entities/car/e_morning_truck.gd" id="Truck_script"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bghjr"]
 size = Vector3(1.8476563, 0.123291016, 2.0897827)
@@ -111,7 +112,11 @@ _data = {
 [sub_resource type="BoxShape3D" id="BoxShape3D_lqn1g"]
 size = Vector3(1.5263672, 1.6308594, 1.8549805)
 
-[node name="Car" type="CharacterBody3D" unique_id=760797573]
+[node name="Car" type="CharacterBody3D" unique_id=760797573 node_paths=PackedStringArray("cargo_slots", "cargo_area", "door_animation")]
+script = ExtResource("Truck_script")
+cargo_slots = Array[NodePath]([NodePath("CargoSlots/FloorCenterBack"), NodePath("CargoSlots/FloorCenterFront"), NodePath("CargoSlots/FloorLeftBack"), NodePath("CargoSlots/FloorRightBack"), NodePath("CargoSlots/FloorLeftFront"), NodePath("CargoSlots/FloorRightFront"), NodePath("CargoSlots/UpperCenterBack"), NodePath("CargoSlots/UpperCenterFront"), NodePath("CargoSlots/UpperLeftBack"), NodePath("CargoSlots/UpperRightBack"), NodePath("CargoSlots/UpperLeftFront"), NodePath("CargoSlots/UpperRightFront")])
+cargo_area = NodePath("SPAWN_ZONE")
+door_animation = NodePath("AnimationPlayer")
 
 [node name="Visual" type="Node3D" parent="." unique_id=2014138015]
 
@@ -162,3 +167,41 @@ libraries/ = SubResource("AnimationLibrary_twxg6")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SPAWN_ZONE" unique_id=1160666868]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.99766564, 0.7487788)
 shape = SubResource("BoxShape3D_lqn1g")
+
+[node name="CargoSlots" type="Node3D" parent="."]
+
+[node name="FloorCenterBack" type="Marker3D" parent="CargoSlots"]
+position = Vector3(0, 0.2, 0.38)
+
+[node name="FloorCenterFront" type="Marker3D" parent="CargoSlots"]
+position = Vector3(0, 0.2, 1.13)
+
+[node name="FloorLeftBack" type="Marker3D" parent="CargoSlots"]
+position = Vector3(-0.4, 0.2, 0.38)
+
+[node name="FloorRightBack" type="Marker3D" parent="CargoSlots"]
+position = Vector3(0.4, 0.2, 0.38)
+
+[node name="FloorLeftFront" type="Marker3D" parent="CargoSlots"]
+position = Vector3(-0.4, 0.2, 1.13)
+
+[node name="FloorRightFront" type="Marker3D" parent="CargoSlots"]
+position = Vector3(0.4, 0.2, 1.13)
+
+[node name="UpperCenterBack" type="Marker3D" parent="CargoSlots"]
+position = Vector3(0, 0.82, 0.38)
+
+[node name="UpperCenterFront" type="Marker3D" parent="CargoSlots"]
+position = Vector3(0, 0.82, 1.13)
+
+[node name="UpperLeftBack" type="Marker3D" parent="CargoSlots"]
+position = Vector3(-0.4, 0.82, 0.38)
+
+[node name="UpperRightBack" type="Marker3D" parent="CargoSlots"]
+position = Vector3(0.4, 0.82, 0.38)
+
+[node name="UpperLeftFront" type="Marker3D" parent="CargoSlots"]
+position = Vector3(-0.4, 0.82, 1.13)
+
+[node name="UpperRightFront" type="Marker3D" parent="CargoSlots"]
+position = Vector3(0.4, 0.82, 1.13)

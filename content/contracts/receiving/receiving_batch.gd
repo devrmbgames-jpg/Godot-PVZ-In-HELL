@@ -15,3 +15,5 @@ enum Source {
 @export var next_package: int = 0
 ## Ключи выбранных коробок; сохраняются, чтобы загрузка не пересобирала партию.
 @export var package_keys: PackedStringArray = []
+## Выбранные один раз физические варианты; занятность места и перезапуск не меняют коробку.
+@export var package_scenes: PackedStringArray = []

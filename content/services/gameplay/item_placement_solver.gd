@@ -114,7 +114,11 @@ func find(
 
 func _support(space: PhysicsDirectSpaceState3D, ray: PhysicsRayQueryParameters3D, position: Vector3, bounds: AABB, definition: DEF_ItemPlacement) -> Vector2:
 	var center: Vector3 = bounds.get_center()
-	var probes: Array[Vector2] = [Vector2(center.x, center.z), Vector2(bounds.position.x, bounds.position.z), Vector2(bounds.end.x, bounds.position.z), Vector2(bounds.position.x, bounds.end.z), Vector2(bounds.end.x, bounds.end.z)]
+	var inset_x: float = minf(definition.support_inset, bounds.size.x * 0.25)
+	var inset_z: float = minf(definition.support_inset, bounds.size.z * 0.25)
+	var minimum: Vector2 = Vector2(bounds.position.x + inset_x, bounds.position.z + inset_z)
+	var maximum: Vector2 = Vector2(bounds.end.x - inset_x, bounds.end.z - inset_z)
+	var probes: Array[Vector2] = [Vector2(center.x, center.z), minimum, Vector2(maximum.x, minimum.y), Vector2(minimum.x, maximum.y), maximum]
 	var highest: float = -INF
 	var lowest: float = INF
 	for probe: Vector2 in probes:

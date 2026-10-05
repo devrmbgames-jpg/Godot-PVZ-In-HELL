@@ -17,13 +17,17 @@ func query() -> QueryBuilder:
 ## Утром уменьшает паузу повторов в секундах и откладывает доставку через CommandBuffer.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
-	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING:
+	if cycle == null:
 		return
 
 	var states: Array = components[0]
 	for index: int in entities.size():
 		var zone: E_ReceivingZone = entities[index] as E_ReceivingZone
 		var receiving: C_Receiving = states[index]
+		if cycle.phase != C_DayCycle.Phase.MORNING:
+			if zone != null and zone.get_truck() != null:
+				cmd.add_custom(zone.clear_truck)
+			continue
 		receiving.retry_remaining = maxf(0.0, receiving.retry_remaining - delta)
 		if receiving.retry_remaining > 0.0 or zone == null:
 			continue
