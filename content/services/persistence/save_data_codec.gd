@@ -23,7 +23,7 @@ static var _component_fields: Dictionary = {
 	C_Hunger: ["value"],
 	C_Stamina: ["current", "initialized"],
 	C_ImpactProtection: ["tier"],
-	C_Receiving: ["last_started_day", "batch_id", "incoming_package_ids", "pending", "delivered_counts"],
+	C_Receiving: ["last_started_day", "batch_id", "dispatched_batch_id", "incoming_package_ids", "pending", "delivered_counts"],
 	C_Openable: ["locked", "requested_open", "actual_fraction"],
 	C_LightCircuit: ["enabled"],
 	C_HazardEmitter: ["fired", "sequence"],

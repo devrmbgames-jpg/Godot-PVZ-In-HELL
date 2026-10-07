@@ -100,9 +100,11 @@ func _unload_and_finish(level: Node3D, zone: E_ReceivingZone) -> void:
 	_check(_count() == 5 and state.pending.is_empty(), "long morning keeps exactly five boxes")
 	DayPhaseService.current().phase = C_DayCycle.Phase.DAY
 	ECS.world.process(1.0 / 60.0, "GamePlay")
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_check(zone.get_truck() == null and _count() == 5, "despawn leaves unloaded boxes")
+	for frame: int in MAX_FRAMES:
+		await get_tree().physics_frame
+		if zone.get_truck() == null:
+			break
+	_check(zone.get_truck() == null and _count() == 5, "finite door lifecycle leaves unloaded boxes")
 
 
 func _count() -> int:

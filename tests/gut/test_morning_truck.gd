@@ -48,7 +48,7 @@ func _ready_truck() -> E_MorningTruck:
 func _plan_big_boxes() -> void:
 	var assortment: Array[DEF_Package] = [_zone.supply.packages[1], _zone.supply.packages[2]]
 	_zone.supply = _zone.supply.duplicate() as DEF_Delivery
-	_zone.supply.packages.assign(assortment)
+	_zone.supply.packages = assortment
 	ReceivingDeliveryService.prepare_batch(_zone.supply, _state, 1)
 
 

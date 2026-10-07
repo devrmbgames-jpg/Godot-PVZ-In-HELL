@@ -20,7 +20,7 @@ static func permits(cycle: C_DayCycle, kind: DayTransitionRequest.Kind) -> bool:
 
 	match kind:
 		DayTransitionRequest.Kind.START_SHIFT:
-			return cycle.phase == C_DayCycle.Phase.MORNING
+			return cycle.phase == C_DayCycle.Phase.MORNING and start_blockers(cycle).is_empty()
 
 		DayTransitionRequest.Kind.FINISH_SHIFT:
 			return cycle.phase == C_DayCycle.Phase.DAY and finish_blockers(cycle).is_empty()
@@ -33,6 +33,11 @@ static func permits(cycle: C_DayCycle, kind: DayTransitionRequest.Kind) -> bool:
 #endregion
 
 #region Условия и представление
+## Читает единый текущий запрет начала смены: поставка, разгрузка, ручной LOST и игрок в кузове.
+static func start_blockers(cycle: C_DayCycle) -> PackedStringArray:
+	return ReceivingShiftService.status(cycle).reasons
+
+
 ## Собирает одинаковые текущие запреты для запроса, фиксации перехода и интерфейса.
 static func finish_blockers(cycle: C_DayCycle) -> PackedStringArray:
 	var reasons: PackedStringArray = []
@@ -91,6 +96,9 @@ static func customers_in_room(cycle: C_DayCycle) -> int:
 static func shift_status(cycle: C_DayCycle) -> String:
 	if cycle == null:
 		return ""
+	if cycle.phase == C_DayCycle.Phase.MORNING:
+		var start_reasons: PackedStringArray = start_blockers(cycle)
+		return "Начало смены доступно" if start_reasons.is_empty() else "Начало смены: " + " · ".join(start_reasons)
 	if cycle.phase == C_DayCycle.Phase.EVENING:
 		var sleep_reasons: PackedStringArray = NpcSleepService.blockers()
 		return "Сон доступен" if sleep_reasons.is_empty() else "Сон: " + " · ".join(sleep_reasons)

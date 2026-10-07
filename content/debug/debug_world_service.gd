@@ -33,7 +33,9 @@ static func day_next() -> DebugServiceResult:
 
 	if not DayPhaseService.submit(request):
 		result.message = "DayPhaseService rejected transition"
-		if cycle.phase == C_DayCycle.Phase.DAY:
+		if cycle.phase == C_DayCycle.Phase.MORNING:
+			result.details.append_array(DayPhaseService.start_blockers(cycle))
+		elif cycle.phase == C_DayCycle.Phase.DAY:
 			result.details.append_array(DayPhaseService.finish_blockers(cycle))
 		return result
 

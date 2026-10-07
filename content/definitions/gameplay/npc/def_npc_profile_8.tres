@@ -9,9 +9,7 @@
 [sub_resource type="Resource" id="Schedule"]
 script = ExtResource("Schedule")
 weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
-morning = 0
 day = 0
-evening = 0
 
 [resource]
 script = ExtResource("Profile")

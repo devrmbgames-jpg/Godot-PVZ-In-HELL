@@ -111,6 +111,7 @@ func test_queued_finish_revalidates_and_clock_advances_only_during_shift() -> vo
 	_cycle.phase = C_DayCycle.Phase.MORNING
 	assert_true(DayPhaseService.submit(_request(DayTransitionRequest.Kind.START_SHIFT)))
 	_system.process([_owner], [[_cycle]], 2.0)
+	_system.cmd.execute()
 	assert_eq(_cycle.phase, C_DayCycle.Phase.DAY)
 	assert_eq(_cycle.shift_elapsed_seconds, 0.0)
 	_system.process([_owner], [[_cycle]], NAN)

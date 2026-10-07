@@ -12,7 +12,11 @@ static func tier(state: C_Hunger) -> C_Hunger.Tier:
 		return C_Hunger.Tier.NORMAL
 	if state.value >= state.policy.starving_threshold:
 		return C_Hunger.Tier.STARVING
-	return C_Hunger.Tier.HUNGRY if state.value >= state.policy.hungry_threshold else C_Hunger.Tier.NORMAL
+	return (
+		C_Hunger.Tier.HUNGRY
+		if state.value >= state.policy.hungry_threshold
+		else C_Hunger.Tier.NORMAL
+	)
 
 
 ## Проверяет хищное восприятие отдельно от ступеней скорости и боевого урона.

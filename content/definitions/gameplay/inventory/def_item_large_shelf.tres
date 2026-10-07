@@ -1,11 +1,10 @@
-[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3]
+[gd_resource type="Resource" script_class="DEF_InventoryItem" format=3 uid="uid://dx7l4jhx1rd00"]
 
-[ext_resource type="Script" path="res://content/definitions/gameplay/inventory/def_inventory_item.gd" id="Item"]
-[ext_resource type="Texture2D" path="res://addons/at-icons/mesh/chair.svg" id="Icon"]
+[ext_resource type="Texture2D" uid="uid://dtgt0217j31l1" path="res://addons/at-icons/mesh/chair.svg" id="Icon"]
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/definitions/gameplay/inventory/def_inventory_item.gd" id="Item"]
 
 [resource]
 script = ExtResource("Item")
-key = &"large_shelf"
 market_price = 180
 display_name = "Большая полка 3×3×1,5 м · 75 кг"
 icon = ExtResource("Icon")
@@ -13,3 +12,4 @@ world_pickup_scene = "res://content/entities/props/large_shelf.tscn"
 kind = 3
 bulky_furniture = true
 maximum_stack = 1
+key = &"large_shelf"

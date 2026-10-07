@@ -25,8 +25,8 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		var zone: E_ReceivingZone = entities[index] as E_ReceivingZone
 		var receiving: C_Receiving = states[index]
 		if cycle.phase != C_DayCycle.Phase.MORNING:
-			if zone != null and zone.get_truck() != null:
-				cmd.add_custom(zone.clear_truck)
+			if zone != null and zone.get_truck() != null and not zone.get_truck().is_departing():
+				cmd.add_custom(ReceivingShiftService.request_departure.bind(zone))
 			continue
 		receiving.retry_remaining = maxf(0.0, receiving.retry_remaining - delta)
 		if receiving.retry_remaining > 0.0 or zone == null:

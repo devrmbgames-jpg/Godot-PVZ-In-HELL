@@ -10,6 +10,7 @@ signal morning_started(day_index: int)
 signal phase_changed(day_index: int, phase: C_DayCycle.Phase)
 
 
+#region Планирование переходов
 ## Выбирает сессионные данные игрового цикла.
 func query() -> QueryBuilder:
 	return q.with_all([C_DayCycle]).iterate([C_DayCycle])
@@ -45,8 +46,8 @@ func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 
 		match request.kind:
 			DayTransitionRequest.Kind.START_SHIFT:
-				cycle.shift_elapsed_seconds = 0.0
-				cycle.phase = C_DayCycle.Phase.DAY
+				cmd.add_custom(_commit_start_shift.bind(cycle, request))
+				continue
 			DayTransitionRequest.Kind.FINISH_SHIFT:
 				cycle.phase = C_DayCycle.Phase.EVENING
 			DayTransitionRequest.Kind.SLEEP:
@@ -54,3 +55,18 @@ func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 				cycle.night_ready = not _entities[index].has_component(C_Autosave)
 				night_started.emit(cycle.day_index)
 		phase_changed.emit(cycle.day_index, cycle.phase)
+
+#endregion
+
+
+#region Безопасная фиксация утренней команды
+func _commit_start_shift(cycle: C_DayCycle, request: DayTransitionRequest) -> void:
+	if cycle.day_index != request.expected_day or cycle.phase != request.expected_phase:
+		return
+	if not DayPhaseService.permits(cycle, request.kind) or not ReceivingShiftService.commit_departure(cycle):
+		return
+
+	cycle.shift_elapsed_seconds = 0.0
+	cycle.phase = C_DayCycle.Phase.DAY
+	phase_changed.emit(cycle.day_index, cycle.phase)
+#endregion
