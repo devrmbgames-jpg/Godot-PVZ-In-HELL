@@ -1,52 +1,70 @@
-# Refactoring v2 — полный архитектурный и Code Style рефакторинг
+# Refactoring v2 — полный Core Architecture + Code Style рефакторинг
 
 Status: **PLANNED**
 
 Базовая ветка: `chore/gdscript-human-first-style`.
 
+Целевая архитектура: [Project Core Architecture](../../docs/project_core_architecture_proposal.md).
+
 ## Goal
 
-Пока проект находится на ранней стадии, привести кодовую базу к одной прозрачной архитектуре: ECS graph должен описывать реальное scheduled-поведение, сервисный слой не должен быть скрытым вторым scheduler'ом, а весь project-owned GDScript после архитектурной миграции должен соответствовать human-first Code Style.
+Пока проект находится на ранней стадии, довести кодовую базу до устойчивого gameplay core, после которого новый контент в основном создаётся через сцены/ассеты, Definitions, Entity Templates/Traits, Smart Objects, Dialogue, AI profiles/schedules и настройки уровней.
 
-Рефакторинг сохраняет текущее игровое поведение. Изменения механик, баланса, контента и UX не входят в эту работу, кроме минимальных исправлений, без которых невозможно сохранить существующий контракт.
+Рефакторинг сохраняет текущее игровое поведение, если конкретная задача явно не вводит новый core capability. Изменения баланса, контента и UX не смешивать с архитектурной миграцией.
+
+## Full-refactor invariant
+
+Если выбран архитектурный scope, он доводится до целевого состояния полностью.
+
+Не считать milestone завершённым, если внутри его scope остались permanent:
+- старый и новый execution path одновременно;
+- compatibility wrappers/aliases только ради старых callers;
+- duplicate authority;
+- renamed/moved files без изменения ownership;
+- половина domain в новом layout, половина в legacy horizontal roots;
+- бессрочный migration allowlist известных нарушений.
+
+Temporary adapters допустимы только внутри незавершённого milestone и удаляются до DONE, если внешний compatibility contract не требует иного.
 
 ## Три фазы
 
 1. **Закрепить архитектурные правила.**
-   Сначала сделать границы `System / Observer / Service / Solver / Rules / Geometry / Factory / Presentation` явным проектным контрактом и добавить автоматические проверки архитектурных запахов.
+   Сделать роли, ownership и validation guardrails однозначными до runtime migration.
 
-2. **Рефакторинг архитектуры.**
-   Убрать скрытые Systems из сервисов, вернуть scheduled/time-based orchestration в `S_*`, дискретные переходы — в `O_*`, оставить сервисам явные синхронные domain-операции, а чистые алгоритмы — Rules/Calculation/Solver/Geometry.
+2. **Полный рефакторинг архитектуры/core.**
+   Исправить execution model, перейти на vertical domains, закрепить typed Commands/Events, Templates/Traits, scene-first authoring, Smart Objects, AI layering, Simulation LOD, Content Doctor, Game Time/deterministic randomness и Gameplay Debugger.
 
 3. **Рефакторинг под Code Style.**
-   После стабилизации архитектуры пройти всю project-owned GDScript базу по `.agents/skills/gdscript-style/SKILL.md`, formatter/linter и human-first требованиям без повторного изменения архитектуры.
+   Только после стабильной архитектуры пройти всю project-owned GDScript базу по human-first style и единому formatter/linter gate.
 
 ## Global constraints
 
-- Godot 4.7, Forward Plus, Jolt, GECS v8 и текущий LimboAI сохраняются.
+- Godot 4.7, Forward Plus, Jolt, GECS v8, LimboAI и Dialogue Manager сохраняются.
 - `addons/` не изменять.
-- Поведение сохранять; архитектурную миграцию не смешивать с feature work.
-- Components остаются данными/состоянием; Relationships — authoritative live Entity-to-Entity bindings.
-- Systems владеют scheduled поведением и порядком выполнения. Observers владеют дискретными реакциями.
+- Components/Relationships остаются authoritative gameplay state.
+- Systems владеют scheduled поведением; Observers — discrete reactions.
 - Service не должен становиться скрытой System.
-- Не переносить код механически только ради уменьшения числа файлов. Граница определяется ownership и временем исполнения.
-- Physics-callback solvers вроде `CharacterMotionSolver` могут оставаться вне Systems, если движок требует исполнения внутри physics callback.
-- Не делать один гигантский `S_*` вместо гигантского Service: делить по независимым scheduling responsibilities.
-- После каждого небольшого этапа — узкая проверка и отдельный связный commit. Полные suite/runtime проверки — на приёмочных этапах, а не после каждой правки.
-- Не запускать rendered gameplay автоматически. Если после крупного этапа нужна визуальная/gameplay QA — оформить owner QA.
+- UI — обычный Godot `Control`/glue layer, **не ECS**.
+- Traits/Templates — authoring/compiler layer, не runtime scheduler и не mutable gameplay state.
+- Визуальное scene authoring сохраняется: placed NPC/object должен оставаться видимым реальным объектом в Godot Editor.
+- Placed и runtime-spawned Entity после materialization имеют один runtime contract.
+- Не заменять большой Service одним гигантским System; делить по scheduling responsibility.
+- Physics-callback solvers остаются вне Systems, если Godot/Jolt требует callback ownership.
 - Субагенты, если используются, запускать только последовательно.
+- Не запускать rendered gameplay автоматически; subjective visual/gameplay QA оформлять владельцу.
+- После небольшого этапа — узкая проверка и отдельный coherent commit; broad smoke/suite — на milestone acceptance.
 
 ## Порядок выполнения
 
 ### Phase 1 — Architecture contract
 
 1. [Архитектурные роли и ownership](01_architecture_contract.md)
-2. [Правила scheduled execution и Service boundaries](02_execution_ownership_rules.md)
+2. [Scheduled execution и Service boundaries](02_execution_ownership_rules.md)
 3. [Architecture validation и service smells](03_architecture_validation.md)
 
-Phase 2 начинается только после закрытия всех трёх задач Phase 1.
+Phase 2 начинается только после закрытия всех Phase 1 tasks.
 
-### Phase 2 — Architecture refactor
+### Phase 2A — Execution model cleanup
 
 4. [Полный inventory сервисов](10_service_inventory.md)
 5. [CustomerFlow: planning, arrival и day transitions](11_customer_flow_planning.md)
@@ -65,38 +83,73 @@ Phase 2 начинается только после закрытия всех �
 18. [Economy, Inventory и Commerce](24_economy_inventory_commerce.md)
 19. [Persistence и remaining services](25_persistence_remaining.md)
 20. [Очистка execution graph](26_execution_graph_cleanup.md)
-21. [Архитектурная приёмка Phase 2](27_architecture_acceptance.md)
+21. [Execution-model acceptance checkpoint](27_architecture_acceptance.md)
+
+### Phase 2B — Vertical domains
+
+22. [Domain layout contract + validator](28_domain_layout_contract.md)
+23. [Domains: NPC и Customers](29_domain_npc_customers.md)
+24. [Domains: Interaction, Combat и Motion](30_domain_interaction_combat_motion.md)
+25. [Domains: world gameplay](31_domain_world_economy_packages.md)
+26. [Shared core + удаление horizontal roots](32_domain_shared_core.md)
+27. [Domain dependency validation](33_domain_dependency_validation.md)
+
+### Phase 2C — Core framework
+
+28. [Typed Commands / Events](40_typed_commands_events.md)
+29. [Entity Templates / Traits](41_entity_templates_traits.md)
+30. [Visual Entity authoring](42_visual_entity_authoring.md)
+31. [Smart Objects / Affordances / Reservations](43_smart_objects.md)
+32. [Schedule → Utility → GOAP → LimboAI](44_ai_schedule_utility_goap.md)
+33. [Simulation LOD](45_simulation_lod.md)
+34. [Content Doctor](46_content_doctor.md)
+35. [Unified Game Time + deterministic randomness](47_game_time_randomness.md)
+36. [Gameplay Debugger](48_gameplay_debugger.md)
+37. [Core architecture acceptance](49_core_architecture_acceptance.md)
 
 ### Phase 3 — Code Style refactor
 
-22. [Formatter/linter как единый style gate](30_style_tooling.md)
-23. [Systems, Observers, Components, Relationships](31_style_ecs_core.md)
-24. [NPC и Customers](32_style_npc_customers.md)
-25. [Interaction, Combat и Motion](33_style_interaction_combat_motion.md)
-26. [Gameplay services, Economy, Inventory, Persistence](34_style_gameplay_services.md)
-27. [Entities, UI, AI tasks, scenes scripts, tests и utils](35_style_remaining_code.md)
-28. [Финальная приёмка Refactoring v2](36_final_acceptance.md)
+38. [Formatter/linter как единый style gate](60_style_tooling.md)
+39. [Systems, Observers, Components, Relationships](61_style_ecs_core.md)
+40. [NPC и Customers](62_style_npc_customers.md)
+41. [Interaction, Combat и Motion](63_style_interaction_combat_motion.md)
+42. [Gameplay services, Economy, Inventory, Persistence](64_style_gameplay_services.md)
+43. [Entities, UI, AI, scene scripts, tests и utils](65_style_remaining_code.md)
+44. [Финальная приёмка Refactoring v2](66_final_acceptance.md)
 
 ## Current
 
-План создан. Реализация не начиналась.
+План расширен до полного core refactor. Реализация runtime migration не начиналась.
 
-Первое действие: выполнить только [01 — архитектурные роли и ownership](01_architecture_contract.md). Не начинать массовую миграцию кода до фиксации правил и validation guardrails.
+Первое действие: выполнить только [01 — архитектурные роли и ownership](01_architecture_contract.md). Не начинать массовую runtime migration до фиксации rules/validation.
+
+Domain structure guardrail уже подготовлен в transition mode:
+`python utils/validate_domain_structure.py`.
+
+После завершения vertical-domain migration обязательный gate:
+`python utils/validate_domain_structure.py --strict`.
 
 ## Global acceptance
 
-Refactoring v2 считается завершённым, когда:
+Refactoring v2 завершён, когда:
 
-- execution graph можно понять по `S_*`, `O_*`, их queries и `deps()`, без поиска регулярных `Service.tick()`;
-- project-owned Service не владеет регулярным frame/physics tick, кроме явно документированных engine-bound adapter/solver исключений;
-- thin System, единственная обязанность которой — вызвать `SomeService.tick/process/update`, отсутствует либо имеет документированное исключение;
-- broad per-frame ECS iteration не спрятан в Service;
-- дискретные lifecycle transitions не polling'уются каждый кадр без необходимости;
-- сервисы имеют явные domain API (`submit`, `start`, `finish`, `bind`, `resolve`, `spawn`, `calculate` и т. п.);
-- вся project-owned GDScript база проходит утверждённый formatter/linter/style gate;
-- parser/static validation, структура, профильные GUT/smoke и итоговая интеграционная проверка проходят;
-- оставшаяся ручная визуальная/gameplay QA вынесена в `qa_tasks/`.
+- execution graph читается по `S_*`, `O_*`, queries и `deps()`;
+- Service не владеет скрытым регулярным scheduler lifecycle;
+- vertical domains полностью заменили legacy horizontal gameplay roots;
+- strict domain validator и dependency validator PASS;
+- key cross-domain flows используют typed Commands/Events или stable APIs;
+- Templates/Traits deterministic и не содержат runtime authority;
+- placed Entity остаются полноценно видимыми/настраиваемыми в Godot Editor;
+- Smart Objects/reservations имеют единый contract;
+- macro AI разделён на Schedule/Utility/GOAP, realtime execution остаётся LimboAI/local systems;
+- Simulation LOD не создаёт duplicate identity/state;
+- Content Doctor ловит broken authored content headless;
+- Game Time/random decisions имеют explicit reproducible contracts;
+- Gameplay Debugger объясняет состояние выбранной Entity;
+- вся project-owned GDScript база проходит formatter/linter/style gate;
+- parser/static validation, профильные GUT/smoke и итоговая integration validation PASS;
+- remaining subjective QA вынесена в `qa_tasks/`.
 
 ## Rule for continuing
 
-На один рабочий запрос брать одну задачу из списка. Читать этот README, выбранную задачу и только прямые владельцы затрагиваемого кода. После завершения обновлять Status/Current/Validation выбранной задачи и следующее действие здесь.
+На один рабочий запрос брать одну выбранную небольшую задачу. Читать этот README, выбранную задачу и только прямых владельцев кода/контрактов. После завершения обновлять Status/Current/Validation задачи и следующее действие здесь.
