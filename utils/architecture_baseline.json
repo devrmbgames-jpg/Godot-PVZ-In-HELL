@@ -63,16 +63,6 @@
     },
     {
       "rule": "service-step",
-      "owner": "CustomerFlowService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Settlement and complaint polling only; removed by task 13",
-      "task": "13_customer_outcomes.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
       "owner": "HungerService",
       "method": "tick",
       "target": "",
@@ -209,16 +199,6 @@
       "count": 1,
       "reason": "Legacy customer combat polling",
       "task": "17_combat.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "system-service-step",
-      "owner": "S_CustomerFlow",
-      "method": "_advance",
-      "target": "CustomerFlowService.tick",
-      "count": 1,
-      "reason": "Settlement and complaint polling only; removed by task 13",
-      "task": "13_customer_outcomes.md",
       "removal_gate": "26/27"
     },
     {

@@ -5,7 +5,7 @@ class_name S_NpcCombat
 
 ## Исполняет атаки после обслуживания/испытаний и до навигационного намерения.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_CustomerFlow, S_CustomerChallengeOutcome], Runs.Before: [S_NpcIntent]}
+	return {Runs.After: [S_CustomerFlow, S_ChallengeRuntime], Runs.Before: [S_NpcIntent]}
 
 
 ## Выбирает участников с исполнением атак NPC.

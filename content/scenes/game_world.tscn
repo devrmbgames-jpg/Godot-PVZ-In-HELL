@@ -14,7 +14,7 @@
 [ext_resource type="Script" uid="uid://1lt5dpwlayff" path="res://content/systems/gameplay/s_challenge_gaze.gd" id="Challenge_gaze"]
 [ext_resource type="Script" uid="uid://cswr1rtmadl02" path="res://content/observers/challenges/o_challenge_lifecycle.gd" id="Challenge_lifecycle"]
 [ext_resource type="Script" uid="uid://dgnc3qp12o736" path="res://content/systems/gameplay/s_challenge_light.gd" id="Challenge_light"]
-[ext_resource type="Script" uid="uid://g8wfgg4u2lm7" path="res://content/systems/gameplay/s_customer_challenge_outcome.gd" id="Challenge_outcome"]
+[ext_resource type="Script" uid="uid://g8wfgg4u2lm7" path="res://content/observers/gameplay/o_customer_challenge_outcome.gd" id="Challenge_outcome"]
 [ext_resource type="Script" uid="uid://bj76h4v2jcnh4" path="res://content/systems/gameplay/s_challenge_runtime.gd" id="Challenge_runtime"]
 [ext_resource type="Script" uid="uid://bjvg86wmi8k3a" path="res://content/observers/combat/o_combat_damage.gd" id="Combat_damage"]
 [ext_resource type="Script" uid="uid://d3nvoiqqlp2f" path="res://content/observers/combat/o_combat_lifecycle.gd" id="Combat_lifecycle"]
@@ -212,9 +212,8 @@ script = ExtResource("Floor_spawn")
 script = ExtResource("Challenge_runtime")
 group = &"GamePlay"
 
-[node name="S_CustomerChallengeOutcome" type="Node" parent="Systems/GamePlay" unique_id=1231108932]
+[node name="O_CustomerChallengeOutcome" type="Node" parent="Systems/GamePlay" unique_id=1231108932]
 script = ExtResource("Challenge_outcome")
-group = &"GamePlay"
 
 [node name="O_ChallengeLifecycle" type="Node" parent="Systems/GamePlay" unique_id=2123583786]
 script = ExtResource("Challenge_lifecycle")

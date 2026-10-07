@@ -5,7 +5,7 @@ class_name S_CustomerCombat
 
 ## Обрабатывает прежнюю эскалацию после обслуживания и до атак NPC.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_CustomerFlow, S_CustomerChallengeOutcome], Runs.Before: [S_NpcCombat]}
+	return {Runs.After: [S_CustomerFlow, S_ChallengeRuntime], Runs.Before: [S_NpcCombat]}
 
 
 ## Выбирает обслуживаемых клиентов с боевыми возможностями.

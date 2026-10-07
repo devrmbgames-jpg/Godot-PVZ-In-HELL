@@ -21,9 +21,9 @@ func before_each() -> void:
 	ECS.world = _world
 	_world.add_system(S_ChallengeGaze.new())
 	_world.add_system(S_ChallengeRuntime.new())
-	var receiver: S_CustomerChallengeOutcome = S_CustomerChallengeOutcome.new()
+	var receiver: O_CustomerChallengeOutcome = O_CustomerChallengeOutcome.new()
 	receiver.escalation_requested.connect(_on_escalation)
-	_world.add_system(receiver)
+	_world.add_observer(receiver)
 	_world.add_observer(O_ChallengeLifecycle.new())
 
 	var session: Entity = Entity.new()

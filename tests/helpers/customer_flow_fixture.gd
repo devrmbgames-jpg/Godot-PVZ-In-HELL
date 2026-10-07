@@ -5,7 +5,7 @@ class_name CustomerFlowFixture
 #region Real owner wiring
 ## Installs a missing planning handler in an isolated test/smoke World.
 static func install() -> void:
-	for observer_type: Script in [O_CustomerPlanning, O_CustomerGreeting, O_CustomerServiceClock]:
+	for observer_type: Script in [O_CustomerPlanning, O_CustomerGreeting, O_CustomerServiceClock, O_CustomerOutcomes]:
 		var installed: bool = false
 		for observer: Observer in ECS.world.observers:
 			if observer.get_script() == observer_type:

@@ -23,7 +23,7 @@ func before_each() -> void:
 	_world.add_system(S_ChallengeFloorSetup.new())
 	_world.add_system(S_FloorHazard.new())
 	_world.add_system(S_ChallengeRuntime.new())
-	_world.add_system(S_CustomerChallengeOutcome.new())
+	_world.add_observer(O_CustomerChallengeOutcome.new())
 
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_CustomerFlow.new()]

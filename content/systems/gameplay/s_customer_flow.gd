@@ -1,5 +1,5 @@
 extends System
-## Owns the arrival clock and history reconciliation; settlement migration follows in 13.
+## Owns the arrival clock and history reconciliation.
 class_name S_CustomerFlow
 
 #region Scheduling
@@ -36,7 +36,6 @@ func _advance(session: Entity, delta: float) -> void:
 		flow.arrival_cooldown_seconds = maxf(0.0, flow.arrival_cooldown_seconds - delta)
 
 	_sync_history(flow)
-	CustomerFlowService.tick(flow, cycle)
 
 #endregion
 

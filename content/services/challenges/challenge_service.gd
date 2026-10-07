@@ -121,23 +121,23 @@ static func tick(subject: Entity, state: C_Challenge, delta: float) -> void:
 					state.elapsed = minf(state.elapsed, state.definition.timeout_seconds)
 				_track_visit_condition(state, previous_elapsed)
 				if state.condition_violated:
-					_resolve(state, ChallengeResult.Type.FAILURE)
+					_resolve(subject, state, ChallengeResult.Type.FAILURE)
 				elif state.definition.timeout_seconds > 0.0 and state.elapsed >= state.definition.timeout_seconds:
-					_resolve(state, ChallengeResult.Type.SUCCESS)
+					_resolve(subject, state, ChallengeResult.Type.SUCCESS)
 			elif state.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]:
 				_track_visit_condition(state, previous_elapsed)
 				if state.condition_violated and state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE:
-					_resolve(state, ChallengeResult.Type.FAILURE)
+					_resolve(subject, state, ChallengeResult.Type.FAILURE)
 				elif state.departure_requested:
 					var satisfied: bool = not state.condition_violated and (
 						state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE
 						or state.condition_result == ChallengeResult.Type.SUCCESS
 					)
-					_resolve(state, ChallengeResult.Type.SUCCESS if satisfied else ChallengeResult.Type.FAILURE)
+					_resolve(subject, state, ChallengeResult.Type.SUCCESS if satisfied else ChallengeResult.Type.FAILURE)
 			elif state.condition_result in [ChallengeResult.Type.SUCCESS, ChallengeResult.Type.FAILURE]:
-				_resolve(state, state.condition_result)
+				_resolve(subject, state, state.condition_result)
 			elif state.definition.timeout_seconds > 0.0 and state.elapsed >= state.definition.timeout_seconds:
-				_resolve(state, ChallengeResult.Type.FAILURE)
+				_resolve(subject, state, ChallengeResult.Type.FAILURE)
 		C_Challenge.Phase.SUCCESS, C_Challenge.Phase.FAILURE:
 			state.result_remaining = maxf(0.0, state.result_remaining - delta)
 			if state.result_remaining <= 0.0:
@@ -209,7 +209,7 @@ static func _available(entity: Entity) -> bool:
 	return EntityAvailability.contains(entity, ECS.world) and not entity.has_component(C_Death)
 
 
-static func _resolve(state: C_Challenge, result: ChallengeResult.Type) -> void:
+static func _resolve(subject: Entity, state: C_Challenge, result: ChallengeResult.Type) -> void:
 	state.result = result
 	state.phase = C_Challenge.Phase.SUCCESS if result == ChallengeResult.Type.SUCCESS else C_Challenge.Phase.FAILURE
 	state.result_remaining = state.definition.result_display_seconds
@@ -219,6 +219,7 @@ static func _resolve(state: C_Challenge, result: ChallengeResult.Type) -> void:
 	event.satisfaction_delta = state.definition.success_satisfaction_delta if result == ChallengeResult.Type.SUCCESS else state.definition.failure_satisfaction_delta
 	event.request_escalation = result == ChallengeResult.Type.FAILURE and state.definition.escalation_on_failure
 	state.pending_result = event
+	ECS.world.emit_event(ChallengeResolution.EVENT, subject, event)
 
 
 static func _track_visit_condition(state: C_Challenge, previous_elapsed: float) -> void:
@@ -248,5 +249,11 @@ static func _cleanup(subject: Entity, state: C_Challenge) -> void:
 	for relation: Relationship in subject.relationships.duplicate():
 		if relation.relation is R_ChallengeActor:
 			subject.remove_relationship(relation)
+
+	# Publish cleanup after its live participation bindings have been released.
+	var closed: ChallengeSessionClosed = ChallengeSessionClosed.new()
+	closed.challenge_key = state.definition.key if state.definition != null else &""
+	closed.result = state.result
+	ECS.world.emit_event(ChallengeSessionClosed.EVENT, subject, closed)
 
 #endregion

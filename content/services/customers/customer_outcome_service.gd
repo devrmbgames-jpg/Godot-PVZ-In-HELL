@@ -40,9 +40,9 @@ static func check(
 ## Однократно записывает реальное принятие или отказ и состояние предложенной коробки.
 static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, declined: bool = false) -> bool:
 	if visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED:
-		return _trace_outcome(visit, &"customers.receive", false)
+		return _complete_outcome(visit, &"customers.receive", false)
 	if check_result.result != PackageDeliveryCheck.Result.READY:
-		return _trace_outcome(visit, &"customers.receive", false)
+		return _complete_outcome(visit, &"customers.receive", false)
 
 	var policy: DEF_Customer = visit.definition
 	visit.package_damaged = check_result.damaged
@@ -50,7 +50,7 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, de
 	if declined or policy.voluntary_refusal or (check_result.damaged and not policy.accepts_damaged) or (check_result.opened and not policy.accepts_opened):
 		visit.actual = CustomerVisit.Actual.CUSTOMER_REFUSED
 		visit.satisfaction = 0
-		return _trace_outcome(visit, &"customers.receive", true)
+		return _complete_outcome(visit, &"customers.receive", true)
 
 	visit.actual = CustomerVisit.Actual.DELIVERED
 	visit.disposition = CustomerVisit.Disposition.DELIVERED
@@ -64,7 +64,7 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, de
 		0,
 		SATISFACTION_SCALE,
 	)
-	return _trace_outcome(visit, &"customers.receive", true)
+	return _complete_outcome(visit, &"customers.receive", true)
 
 
 #endregion
@@ -73,7 +73,7 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, de
 ## Commits a riddle answer once through the visit owner, never through Dialogue/UI fields.
 static func answer_riddle(visit: CustomerVisit, correct: bool) -> bool:
 	if visit.definition == null or visit.finished:
-		return _trace_outcome(visit, &"customers.riddle", false)
+		return _complete_outcome(visit, &"customers.riddle", false)
 	var duplicate: bool = visit.riddle_solved if correct else visit.riddle_wrong_answer_applied
 	if not duplicate:
 		if correct:
@@ -99,7 +99,7 @@ static func apply_challenge_result(visit: CustomerVisit, event: ChallengeResolut
 		or event.result not in [ChallengeResult.Type.SUCCESS, ChallengeResult.Type.FAILURE]
 		or (visit.challenge_visit_count == visit.visit_count and visit.challenge_key == event.challenge_key)
 	):
-		return _trace_outcome(visit, &"customers.apply_challenge_result", false)
+		return _complete_outcome(visit, &"customers.apply_challenge_result", false)
 
 	visit.challenge_visit_count = visit.visit_count
 	visit.challenge_key = event.challenge_key
@@ -109,7 +109,7 @@ static func apply_challenge_result(visit: CustomerVisit, event: ChallengeResolut
 		visit.satisfaction = clampi(visit.definition.healthy_satisfaction + visit.dialogue_satisfaction_delta + visit.challenge_satisfaction_delta, 0, SATISFACTION_SCALE)
 	elif visit.actual == CustomerVisit.Actual.DELIVERED:
 		visit.satisfaction = clampi(visit.satisfaction + event.satisfaction_delta, 0, SATISFACTION_SCALE)
-	return _trace_outcome(visit, &"customers.apply_challenge_result", true)
+	return _complete_outcome(visit, &"customers.apply_challenge_result", true)
 
 
 ## Учитывает реакцию на смысл ответа; маска визита исключает повтор одного намерения.
@@ -118,12 +118,12 @@ static func apply_dialogue_intent(
 	intent: CustomerDialogueIntent.Type,
 ) -> bool:
 	if visit == null or visit.definition == null or intent == CustomerDialogueIntent.Type.NONE:
-		return _trace_outcome(visit, &"customers.apply_dialogue_intent", false)
+		return _complete_outcome(visit, &"customers.apply_dialogue_intent", false)
 
 	visit.last_dialogue_intent = intent
 	var intent_bit: int = CustomerDialogueIntent.bit(intent)
 	if intent_bit != 0 and bool(visit.applied_dialogue_intents & intent_bit):
-		return _trace_outcome(visit, &"customers.apply_dialogue_intent", true, true)
+		return _complete_outcome(visit, &"customers.apply_dialogue_intent", true, true)
 
 	for reaction: DEF_CustomerDialogueReaction in visit.definition.dialogue_reactions:
 		if reaction == null or reaction.intent != intent:
@@ -137,7 +137,7 @@ static func apply_dialogue_intent(
 
 	if intent_bit != 0:
 		visit.applied_dialogue_intents |= intent_bit
-	return _trace_outcome(visit, &"customers.apply_dialogue_intent", true)
+	return _complete_outcome(visit, &"customers.apply_dialogue_intent", true)
 
 
 ## Фиксирует фактический отказ игрока и агрессию по сохранённому броску визита.
@@ -148,7 +148,7 @@ static func commit_player_denial(visit: CustomerVisit) -> bool:
 		or visit.finished
 		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
 	):
-		return _trace_outcome(visit, &"customers.commit_player_denial", false)
+		return _complete_outcome(visit, &"customers.commit_player_denial", false)
 
 	visit.actual = CustomerVisit.Actual.PLAYER_DENIED
 	visit.reputation = CustomerVisit.Reputation.PLAYER_DENIAL
@@ -159,19 +159,19 @@ static func commit_player_denial(visit: CustomerVisit) -> bool:
 		1.0,
 	)
 	visit.aggressive = visit.aggression_roll < probability
-	return _trace_outcome(visit, &"customers.commit_player_denial", true)
+	return _complete_outcome(visit, &"customers.commit_player_denial", true)
 
 
 ## Однократно фиксирует заявление игрока; повтор того же значения допускается, смена — нет.
 static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> bool:
 	if visit == null or value == CustomerVisit.Declaration.NONE:
-		return _trace_outcome(visit, &"customers.declare", false)
+		return _complete_outcome(visit, &"customers.declare", false)
 	if not visit.started and value != CustomerVisit.Declaration.LOST:
-		return _trace_outcome(visit, &"customers.declare", false)
+		return _complete_outcome(visit, &"customers.declare", false)
 	if value < CustomerVisit.Declaration.TAKEN or value > CustomerVisit.Declaration.LOST:
-		return _trace_outcome(visit, &"customers.declare", false)
+		return _complete_outcome(visit, &"customers.declare", false)
 	if visit.declaration != CustomerVisit.Declaration.NONE:
-		return _trace_outcome(visit, &"customers.declare", visit.declaration == value, true)
+		return _complete_outcome(visit, &"customers.declare", visit.declaration == value, true)
 
 	visit.declaration = value
 	if value == CustomerVisit.Declaration.LOST:
@@ -186,7 +186,7 @@ static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> b
 			1.0,
 		)
 		visit.aggressive = visit.aggression_roll < probability
-	return _trace_outcome(visit, &"customers.declare", true)
+	return _complete_outcome(visit, &"customers.declare", true)
 
 
 ## Фиксирует пропущенный срок регистрации без заявления, закрытия заказа или выдуманной выдачи.
@@ -198,10 +198,10 @@ static func mark_registration_overdue(visit: CustomerVisit, day: int) -> bool:
 		or visit.declaration != CustomerVisit.Declaration.NONE
 		or visit.registration_overdue_day != 0
 	):
-		return _trace_outcome(visit, &"customers.mark_registration_overdue", false)
+		return _complete_outcome(visit, &"customers.mark_registration_overdue", false)
 
 	visit.registration_overdue_day = day
-	return _trace_outcome(visit, &"customers.mark_registration_overdue", true)
+	return _complete_outcome(visit, &"customers.mark_registration_overdue", true)
 
 
 #endregion
@@ -223,11 +223,21 @@ static func settle_registration_overdue(visit: CustomerVisit, wallet: C_Wallet, 
 		visit.registration_penalty_committed = true
 		visit.registration_penalty_day = operation.day_index
 		visit.registration_money_delta = -operation.amount
-	_trace_outcome(visit, &"customers.registration_settlement", visit.registration_penalty_committed)
+	_complete_outcome(visit, &"customers.registration_settlement", visit.registration_penalty_committed)
 
 
 ## Применяет выплату или штраф через идемпотентную операцию WalletService и записывает итог.
 static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
+	# A delivered receipt cannot settle until its active challenge consequences commit.
+	if visit.actual == CustomerVisit.Actual.DELIVERED and visit.declaration == CustomerVisit.Declaration.TAKEN:
+		var customer: E_Customer = CustomerFlowService.customer_for(visit.visit_id)
+		var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge if customer != null else null
+		if challenge != null:
+			if challenge.phase in [C_Challenge.Phase.ARMED, C_Challenge.Phase.ACTIVE]:
+				return
+			if challenge.pending_result != null and not challenge.consequences_applied:
+				return
+
 	settle_registration_overdue(visit, wallet, day)
 	if visit.settlement_committed or wallet == null:
 		return
@@ -261,7 +271,7 @@ static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 		visit.settlement_committed = true
 		visit.settlement_day = day
 		visit.money_delta = operation.amount if operation.reason == MoneyOperation.Reason.PAYMENT else -operation.amount
-	_trace_outcome(visit, &"customers.settlement", visit.settlement_committed)
+	_complete_outcome(visit, &"customers.settlement", visit.settlement_committed)
 
 
 ## Создаёт единственную жалобу; force обходит ожидание завершения и проверку вероятности.
@@ -274,13 +284,13 @@ static func create_complaint(
 	claimant_name: String = "",
 ) -> bool:
 	if visit == null or visit.definition == null:
-		return _trace_outcome(visit, &"customers.create_complaint", false)
+		return _complete_outcome(visit, &"customers.create_complaint", false)
 	if visit.complaint != null:
-		return _trace_outcome(
+		return _complete_outcome(
 			visit, &"customers.create_complaint", visit.complaint.reason == reason, true
 		)
 	if not force and not visit.finished:
-		return _trace_outcome(visit, &"customers.create_complaint", false)
+		return _complete_outcome(visit, &"customers.create_complaint", false)
 
 	if not force:
 		var probability: float = visit.definition.complaint_probability
@@ -296,7 +306,7 @@ static func create_complaint(
 			1.0,
 		)
 		if visit.complaint_roll >= probability:
-			return _trace_outcome(visit, &"customers.create_complaint", false)
+			return _complete_outcome(visit, &"customers.create_complaint", false)
 
 	var complaint: CustomerComplaint = CustomerComplaint.new()
 	complaint.complaint_id = StringName("complaint/" + String(visit.visit_id))
@@ -313,7 +323,7 @@ static func create_complaint(
 	complaint.created_day = day
 	complaint.resolve_day = day + maxi(1, visit.definition.complaint_delay_days)
 	visit.complaint = complaint
-	return _trace_outcome(visit, &"customers.create_complaint", true)
+	return _complete_outcome(visit, &"customers.create_complaint", true)
 
 
 ## Разрешает созревшую жалобу по фактам; ignore_delay допускает досрочный разбор.
@@ -378,11 +388,11 @@ static func resolve_complaint(
 ## Записывает одобрение и довольство, ограниченное диапазоном 0–100.
 static func approve(visit: CustomerVisit, satisfaction: int) -> bool:
 	if visit == null:
-		return _trace_outcome(visit, &"customers.approve", false)
+		return _complete_outcome(visit, &"customers.approve", false)
 
 	visit.feedback = CustomerVisit.Feedback.APPROVED
 	visit.satisfaction = clampi(satisfaction, 0, SATISFACTION_SCALE)
-	return _trace_outcome(visit, &"customers.approve", true)
+	return _complete_outcome(visit, &"customers.approve", true)
 
 
 static func _mark_false_claim(
@@ -403,8 +413,9 @@ static func retaliation_allowed(visit: CustomerVisit, day: int) -> bool:
 
 #endregion
 
-#region Boundary diagnostics
-static func _trace_outcome(
+#region Committed operation receipts
+# Publishes eligible record facts and diagnostics only after the operation has committed.
+static func _complete_outcome(
 	visit: CustomerVisit, operation: StringName, committed: bool, duplicate: bool = false,
 ) -> bool:
 	var trace_stage: BoundaryTraceEntry.Stage = (
@@ -419,5 +430,29 @@ static func _trace_outcome(
 	if committed:
 		reason = &"duplicate" if duplicate else &"committed"
 	BoundaryTrace.record(operation, correlation_id, trace_stage, reason, origin_id, target_id)
+	# Financial transactions are terminal; morning overdue marking keeps its explicit wallet endpoint.
+	var reconciled_by_caller: bool = operation in [
+		&"customers.settlement", &"customers.registration_settlement", &"customers.mark_registration_overdue",
+	]
+	if committed and not duplicate and not reconciled_by_caller:
+		publish_change(visit, operation)
 	return committed
+#endregion
+
+#region Committed visit facts
+## Publishes a committed record change only when this visit belongs to the current session.
+## Detached data fixtures retain explicit synchronous settlement commands and emit no World facts.
+static func publish_change(visit: CustomerVisit, reason: StringName) -> void:
+	if not is_instance_valid(ECS.world):
+		return
+	var session: Entity = ECS.world.query.with_all([C_CustomerFlow, C_DayCycle]).execute_one()
+	if session == null:
+		return
+	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
+	if visit not in flow.visits:
+		return
+	var fact: CustomerOutcomeChanged = CustomerOutcomeChanged.new()
+	fact.visit_id = visit.visit_id
+	fact.reason = reason
+	ECS.world.emit_event(CustomerOutcomeChanged.EVENT, session, fact)
 #endregion

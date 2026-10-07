@@ -281,6 +281,9 @@ static func release(body: Entity, visit_id: StringName) -> void:
 			body.remove_relationship(link)
 	if body.has_component(C_CustomerAgent):
 		body.remove_component(C_CustomerAgent)
+	var visit: CustomerVisit = CustomerFlowService.find_visit(visit_id)
+	if visit != null:
+		CustomerOutcomeService.publish_change(visit, &"service_role_released")
 
 static func _restore_walk_speed(body: Entity, agent: C_CustomerAgent) -> void:
 	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
@@ -309,6 +312,7 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 		visit.defeated_by_player = defeated_by_player
 		if not visit.finished:
 			CustomerFlowService.finish(visit, day_index)
+		CustomerOutcomeService.publish_change(visit, &"customer_death")
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent != null:
 		CustomerInspectionService.end(body)

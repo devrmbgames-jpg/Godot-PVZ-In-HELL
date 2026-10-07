@@ -55,7 +55,7 @@ releases due followups in the same day. S_CustomerFlow owns recurring arrival ti
 and submits one selected materialization after terminal phase commits. No second planning path.
 
 Planning cache is transient, rebuilt at bootstrap and invalidated by current-format restore.
-Active phases are owned by explicit Systems (task 12); outcome polling remains unfinished 13.
+Active phases are owned by explicit Systems (task 12); outcome reactions are owned by explicit Observers (task 13).
 District enqueue belongs to 16.
 
 ## Customer runtime cadence and first contact (task 12)
@@ -73,3 +73,21 @@ O_CustomerServiceClock consumes it synchronously before native BT execution; no 
 commands are queued for scalar role/entrance clock writes. Observer MANUAL buffer mode does
 not change this boundary. Task 15 migrates the decision publisher while preserving this
 fact/cadence; there is no second Service clock or generic customer phase dispatcher.
+
+## Outcome transactions and challenge completion (task 13)
+
+CustomerOutcomeChanged identifies a committed record in the targeted flow/day aggregate.
+O_CustomerOutcomes reacts to eligible mutation/appearance/death/role facts and committed
+calendar/bootstrap snapshots; it does not poll completed outcomes each frame. Settlement
+eligibility and idempotent wallet mutation remain in CustomerOutcomeService.settle.
+Delivered TAKEN waits for its active challenge and pending consequence commit. Explicit
+morning-overdue commands preserve their supplied optional wallet endpoint. Detached data
+fixtures emit no World fact and retain explicit synchronous transaction calls.
+
+ChallengeResolution.EVENT follows actual terminal challenge state/payload mutation.
+O_CustomerChallengeOutcome owns deferred consequence application, rejects superseded
+pending results and publishes a visit fact after consequences commit. ChallengeSessionClosed
+is a separate cleanup/cancellation fact; it releases an outstanding gate without announcing
+success/failure. Removal/release also reconcile after the live appearance gate is gone.
+Complaint maturity is a committed gameplay-day/bootstrap reaction. Current-format restore
+invalidates preparation cache and reaches this owner through the next bootstrap fact.

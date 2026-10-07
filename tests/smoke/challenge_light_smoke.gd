@@ -26,7 +26,7 @@ func _run() -> void:
 	_actor = _level.get_node("Entityes/Player") as Entity
 	(_actor as Node as RigidBody3D).freeze = true
 
-	var receiver: S_CustomerChallengeOutcome = _level.get_node("World/Systems/GamePlay/S_CustomerChallengeOutcome") as S_CustomerChallengeOutcome
+	var receiver: O_CustomerChallengeOutcome = _level.get_node("World/Systems/GamePlay/O_CustomerChallengeOutcome") as O_CustomerChallengeOutcome
 	receiver.escalation_requested.connect(_on_escalation)
 	for frame: int in WAIT_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")

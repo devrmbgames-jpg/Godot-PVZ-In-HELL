@@ -37,5 +37,6 @@ func _cleanup(customer: Entity) -> void:
 				actor = death.cause.request.source
 			visit.defeated_by_player = is_instance_valid(actor) and actor.has_component(C_PlayerInputController)
 		CustomerFlowService.finish(visit, DayPhaseService.current().day_index)
+		CustomerOutcomeService.publish_change(visit, &"customer_death")
 	CustomerFlowService.remove_appearance(customer as E_Customer, visit)
 #endregion

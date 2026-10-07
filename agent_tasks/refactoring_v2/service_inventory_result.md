@@ -36,7 +36,7 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `customers/customer_arrival_service.gd` | SPLIT | 12 | Polling moved to S_CustomerApproach; begin/result and authored lookup remain explicit. | DONE |
 | `customers/customer_debug_presentation.gd` | KEEP_PRESENTATION | 12 | Read-only visits/timers HUD text. | KEPT_WITH_REASON |
 | `customers/customer_dialogue_service.gd` | KEEP_SERVICE | 12 | Explicit dialogue/session open/validation/cleanup. | KEPT_WITH_REASON |
-| `customers/customer_flow_service.gd` | SPLIT | 11,12,13 | Planning/day arrivals, active phases and settlement share dispatcher. | PENDING |
+| `customers/customer_flow_service.gd` | SPLIT | 11,12,13 | Planning/arrival/active/settlement dispatch removed; explicit visit/lookup/bind/finish commands retained. | DONE |
 | `customers/customer_greeting_service.gd` | SPLIT | 12 | First-contact request handled by O_CustomerGreeting; reusable announcement remains. | DONE |
 | `customers/customer_handoff_service.gd` | KEEP_RULES | 12 | Eligibility/range/line-of-sight without progression. | KEPT_WITH_REASON |
 | `customers/customer_inspection_service.gd` | SPLIT | 12 | Isolated progression moved to S_CustomerInspection; BT uses narrow inspection commands. | DONE |
@@ -174,7 +174,7 @@ All five boundaries need a bounded trace provider with origin/target stable IDs,
 **11.A/11.B DONE** (2026-10-08): O_CustomerPlanning + typed day/registration/bootstrap boundaries;
 S_CustomerFlow owns arrival clock/history; S_CustomerArrivals now dispatches selection after active phase commits. Removed old planning/spawn APIs.
 Reusable one-visit creation/materialization and next-arrival lookup remain explicit Service contracts.
-**12.A/12.B DONE**: explicit clock/greeting/approach/waiting/inspection/departure and presence/cleanup owners. Removed _step/step_service and all three nested Service ticks. Actual district NpcServiceRole.advance clock migrated to O_CustomerServiceClock consuming NpcDecisionReady before BT, closing the clock part of 16.B. Slice 13 outcome polling and the full CustomerFlowService inventory row remain pending.
+**12.A/12.B DONE**: explicit clock/greeting/approach/waiting/inspection/departure and presence/cleanup owners. Removed _step/step_service and all three nested Service ticks. Actual district NpcServiceRole.advance clock migrated to O_CustomerServiceClock consuming NpcDecisionReady before BT, closing the clock part of 16.B. **13.A DONE**: CustomerOutcomeChanged/DayPhaseChanged/ChallengeSessionClosed reactions and reactive challenge bridge. Removed final flow tick and _settle_visit; one settlement gate and existing transaction IDs preserved. Full CustomerFlowService inventory row is DONE.
 
 | Slice | Responsibility / target | Before → after ordering and removal | Existing regression |
 | --- | --- | --- | --- |

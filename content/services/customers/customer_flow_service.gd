@@ -181,15 +181,6 @@ static func arrival_allowed(visit: CustomerVisit) -> bool:
 	return ledger != null and _has_active_registration_record(ledger, visit.package_id)
 
 
-## Reconciles settlement/complaints until the transaction owner migration in task 13.
-static func tick(flow: C_CustomerFlow, cycle: C_DayCycle) -> void:
-	# Only outcome transactions remain until task 13.
-	var wallet: C_Wallet = WalletService.current()
-	for visit: CustomerVisit in flow.visits:
-		_settle_visit(visit, wallet, cycle.day_index)
-		CustomerOutcomeService.resolve_complaint(visit, wallet, cycle.day_index)
-
-
 static func _has_active_registration_record(
 	ledger: C_PackageLedger,
 	package_id: String,
@@ -307,6 +298,8 @@ static func remove_appearance(customer: E_Customer, visit: CustomerVisit) -> voi
 				NpcServiceRole.release(customer, agent.visit_id)
 	else:
 		ECS.world.remove_entity(customer)
+	if visit != null:
+		CustomerOutcomeService.publish_change(visit, &"appearance_removed")
 
 
 #endregion
@@ -554,7 +547,7 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 	if visit == null or cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:
 		return false
 	if visit.declaration == declaration and declaration != CustomerVisit.Declaration.NONE:
-		_settle_visit(visit, WalletService.current(), cycle.day_index)
+		CustomerOutcomeService.settle(visit, WalletService.current(), cycle.day_index)
 		return true
 	if not visit.started and declaration == CustomerVisit.Declaration.LOST:
 		if PackageHistoryService.record_for(visit.package_id) == null:
@@ -567,7 +560,7 @@ static func declare(visit_id: StringName, declaration: CustomerVisit.Declaration
 	if declaration == CustomerVisit.Declaration.LOST and not visit.started:
 		visit.finished = true
 		visit.finished_day = cycle.day_index
-	_settle_visit(visit, WalletService.current(), cycle.day_index)
+	CustomerOutcomeService.settle(visit, WalletService.current(), cycle.day_index)
 
 	var customer: E_Customer = customer_for(visit_id)
 	if customer != null and visit.aggressive:
@@ -711,6 +704,7 @@ static func finish(visit: CustomerVisit, day: int) -> void:
 		flow.arrival_cooldown_seconds = maxf(flow.arrival_cooldown_seconds, interval)
 	visit.finished = true
 	visit.finished_day = day
+	CustomerOutcomeService.publish_change(visit, &"appearance_finished")
 	if visit.followup_committed and visit.next_followup_day > day:
 		return
 	if create_complaint(visit, day):
@@ -787,19 +781,6 @@ static func _leave(customer: E_Customer, visit: CustomerVisit) -> void:
 	NpcIntentService.look_along_movement(customer)
 	if visit.actual == CustomerVisit.Actual.NOT_RESOLVED:
 		customer.show_message("Я ухожу без заказа.")
-
-
-static func _settle_visit(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
-	if visit.actual == CustomerVisit.Actual.DELIVERED and visit.declaration == CustomerVisit.Declaration.TAKEN:
-		var customer: E_Customer = customer_for(visit.visit_id)
-		var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge if customer != null else null
-		if challenge != null:
-			if challenge.phase in [C_Challenge.Phase.ARMED, C_Challenge.Phase.ACTIVE]:
-				return
-			if challenge.pending_result != null and not challenge.consequences_applied:
-				return
-
-	CustomerOutcomeService.settle(visit, wallet, day)
 
 
 ## Requests player-facing attention without owning movement or a recurring phase.
