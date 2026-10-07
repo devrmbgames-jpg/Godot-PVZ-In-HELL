@@ -1,0 +1,56 @@
+# Refactoring v2.02 — scheduled execution и Service boundaries
+
+Status: **PLANNED**
+
+Зависимости: [01_architecture_contract.md](01_architecture_contract.md).
+
+## Goal
+
+Сделать критерии «Service превратился в скрытую System» достаточно конкретными, чтобы агент мог применять их одинаково по всей кодовой базе.
+
+## Rules to закрепить
+
+Считать architecture smell, если выполняется одно или несколько условий:
+
+- `System.process()` почти полностью состоит из `SomeService.tick/update/process(...)`;
+- Service имеет регулярный `tick/update/process`, который вызывается из System каждый frame/physics tick;
+- Service внутри регулярного шага делает broad `ECS.world.query...` по сущностям, которыми должен владеть System query;
+- Service владеет `delta`, cooldown/time progression, frame budget, регулярным lifecycle или ordering между подсистемами;
+- Service оркестрирует несколько других services каждый кадр и тем самым создаёт второй execution graph;
+- `cmd.add_custom()` используется главным образом чтобы вынести целую System в статический Service, а не для безопасной structural mutation/deferred operation;
+- phase/day/state transition polling идёт каждый frame, хотя это дискретное событие и может принадлежать Observer/event path.
+
+Не считать проблемой автоматически:
+
+- transaction API вроде `WalletService.submit()`;
+- request boundary вроде `DamageRequestService.submit()`;
+- lookup/read API;
+- factory/spawn command;
+- Geometry/Rules/Calculation;
+- physics Solver, вызываемый из обязательного Godot callback;
+- explicit one-shot command, даже если он изменяет несколько Components/Relationships.
+
+## Migration rule
+
+Для каждого найденного smell выбрать одно:
+
+1. move scheduled ownership в существующую System;
+2. split в несколько Systems с `deps()`;
+3. заменить polling на Observer/event;
+4. оставить Service, но переименовать/сузить его до explicit operation;
+5. оставить как документированное engine-bound исключение.
+
+## Acceptance
+
+Правила должны позволять однозначно объяснить судьбу как минимум:
+- `CustomerFlowService.tick`;
+- `HungerService.tick`;
+- `ProjectileService.tick`;
+- `NpcBrainService.tick`;
+- `CharacterMotionSolver.integrate_forces`;
+- `WalletService.submit`;
+- `DamageRequestService.submit`.
+
+## Validation
+
+Documentation-only + точечный аудит примеров. Runtime-код не менять.
