@@ -27,10 +27,14 @@ Status: **PLANNED**
 - local/emergency/combat flow виден в LimboAI tree; macro selection не дублирует его;
 - interruption/cancel освобождает intent/reservation через owning command; running action не перезапускается каждый decision tick;
 - validation/diagnostic provider возникает здесь: selected/rejected reason, obligation source, active action, timeout/cancel reason.
+- reuse the existing decision/action state after 15–16; replace overlapping selection paths atomically rather than adding a second goal model. Schedule target is a required obligation, current local target/action is execution state, not a second schedule writer;
+- budget belongs to each expensive System responsibility, not a new global scheduler. Stable fair cursor/coalesced wakes + authored work-unit cap + bounded max wait; urgent interrupts cancel stale queued work;
+- action identity/lifecycle is ECS-owned accepted/running/completed/failed/cancelled; BT handles control flow, queries result and never restarts or publishes terminal success independently.
 
 ## Acceptance
 
 Existing non-combat schedule/service obligation исполняется через LimboAI/action contract; priority interrupt, target loss, action failure и resumption доказаны fixtures. Простой authored schedule не проходит через planner. GOAP не требуется для DONE.
+Budget burst fixture proves no unbounded wake queue/starvation and reports due/processed/deferred/max-wait counters. Old selection/intent writer path removed; local emergency decisions remain native LimboAI branches.
 
 Future GOAP разрешается отдельной задачей только при доказанной альтернативной multi-step цели, существенно неудобной для schedule/subtree, с bounded search/observability/cancellation gate. Здесь не создавать пустые planner APIs «на будущее».
 

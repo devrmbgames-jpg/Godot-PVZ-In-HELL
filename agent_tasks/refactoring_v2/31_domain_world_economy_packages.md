@@ -21,13 +21,12 @@ content/domains/hazards/
 content/domains/time/
 content/domains/persistence/
 content/domains/inventory/
-content/domains/district/
 content/domains/needs/
 ```
 
 Inventory может быть объединён с commerce только если ownership действительно единый; не объединять домены ради уменьшения числа папок.
 
-Baseline разделяет inventory и commerce по state/transaction ownership; Hunger — needs, population — district. Отступление требует concrete inventory evidence и обновления dependency map в этом task, не wholesale redesign roadmap.
+Baseline разделяет inventory и commerce по state/transaction ownership; Hunger — needs, population/schedule уже перемещены в npc задачей 29. Отступление требует concrete inventory evidence и обновления dependency map в этом task, не wholesale redesign roadmap.
 
 ## Acceptance
 

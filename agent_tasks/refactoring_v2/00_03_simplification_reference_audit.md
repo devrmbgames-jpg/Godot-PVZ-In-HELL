@@ -1,6 +1,6 @@
 # Refactoring v2.00.03 — simplification, overengineering и reference audit
 
-Status: **PLANNED**
+Status: **DONE**
 
 Зависимости: [00_02_usability_authoring_audit.md](00_02_usability_authoring_audit.md).
 
@@ -110,9 +110,9 @@ Decision: ADOPT / REJECT / DEFER
 
 Planning/docs/validator-only. Runtime implementation запрещён.
 
-## Current — результат 2026-10-07
+## Current — повторный adversarial review 2026-10-07
 
-Adversarial review выполнен после DONE 00_02. Costs — estimate новых concepts/authoring edits, не measured code size/performance. Каждая строка содержит Problem, Current proposed solution, Suggested improvement, Why, Complexity cost, Migration impact, Decision.
+Adversarial review выполнен после отдельного commit 00_02. Учитываются actual physical-root freeze/hide/collision disable, C_District.people и schedule service, current LimboAI/actions/Dialogue. Costs — estimate concepts/authoring edits, не measured code size/performance. Каждая строка содержит Problem, Current proposed solution, Suggested improvement, Why, Complexity cost, Migration impact, Decision. Mass/Flecs primary pages повторно открыты; pinned GECS source важнее reference API.
 
 | Layer / пользователь | Problem | Current proposal | Suggested improvement / Why | Complexity cost | Migration impact | Decision |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -124,13 +124,17 @@ Adversarial review выполнен после DONE 00_02. Costs — estimate н
 | Arbitrary hooks / runtime | Scene setup | Trait setup hook | Declarative requirement + narrow engine adapter | 1 adapter per new capability | No compiler side effects; restore idempotency | REJECT arbitrary hooks |
 | Smart Objects / designer | Shared eligibility/reservation/cancel | Universal framework + Chair/Bed demos | Existing executor + affordance data, player/NPC same contract | Definition + relationship token + adapter; 0 scripts per variant | 43 replaces existing path; Sit/Sleep optional | ADOPT bounded |
 | Slot Entity / author | Slot exclusivity | Entity per slot | slot_id/token on actor→object R, scene marker; fewer objects | No extra Entity/wrapper | Slot invalidation в 43 | REJECT default slot Entity |
-| Four LOD / runtime | Absent population without body/BT cost | Four tiers + record/ECS alternatives | PHYSICAL/MACRO + independent cadence; one owner | 2 modes, 1 transition contract | 45A separation; B macro; C acceptance | ADOPT two; DEFER four/aggregate |
-| NpcRecord/body / programmer | Identity/history vs HP split | Second offscreen store possible | Canonical Entity, physical child; NpcRecord DTO | One live owner | 45A all callers/save adapters/links | ADOPT |
-| Vertical domains / agent | Horizontal context/search | Many proposed folders | Concrete owners incl. district/needs, no empty roles, public manifest | 15 owners, roles only as needed | 28 map/33 guard before moves; 32 removes roots | ADOPT |
-| Commands/Events / debugger | Hidden orchestration, intent vs fact | Potential global bus/framework | Existing targeted GECS + synchronous API, immutable trace | Types per boundary; no dispatcher | 40 before moves; internal calls remain | ADOPT contracts; REJECT bus |
+| LOD / runtime | Inactive NPC processing cost | Forced lightweight Entity + detachable body, then four tiers | ACTIVE/DORMANT with retained physical root; existing absent-phase lifecycle + cadence | One participation owner, no new actor/body lookup layer | 45A unify participation; B safe transitions; C save/performance | ADOPT dormancy; DEFER detach/travel/four/aggregate |
+| NpcRecord / programmer | Per-field metadata/actor authority unclear | Make every record DTO and migrate all state to new Entity shell | Existing aggregate is ECS state; document single writer and immutable mirrors/history | Authority map; no second live store | 45 proves metadata/HP/inventory/link continuity, no root migration | ADOPT aggregate; REJECT treating nested Resource as duplicate by default |
+| District domain / agent | NPC/population mutual dependencies | Separate district + npc owners | Merge population/schedule/config into npc; same personalities/lifecycle | 14 owners instead of 15 | 29 owns all NPC/population files; 31 no district move | REJECT separate district boundary |
+| Runtime dependency cycles / programmer | Public visibility hides bidirectional coupling | Public manifest alone | Acyclic allowed edges + public symbols; existing cross-owner contexts in global composition | No generic plugin/port registry | 28 matrix, 33 graph; NPC cannot import customers, domains cannot import persistence | ADOPT directed contracts |
+| Scene selector / designer | Cycle/duplicate scene source | Template.default_scene + scene.Template + Profile.scene | Factory(scene, context), Template on scene only | Remove field, 0 new wrappers | 41 all selectors/callers, 42 cycle fixture | REJECT default_scene back-reference |
+| Quest/Dialogue / author | No-code claim lacks content binding | Hardcoded Quest Definition, unconstrained ctx | Existing quest configuration + narrow typed read/action/session result | No Quest DSL/global registry | 19 variants, 40 replay/late-await, 46 validation | ADOPT bounded existing mechanic |
+| Commands/Events / debugger | Hidden orchestration, intent vs fact | Potential global bus/framework | Existing targeted GECS + synchronous API, immutable trace | Types only per useful boundary; no dispatcher | 40 before 11; internal sync operation need not create two payload classes | ADOPT contracts; REJECT bus |
 | Time/randomness / runtime | Mixed clocks/random decisions | Foundation after AI | 47 before 41, explicit clocks/seed, no physics lockstep | Clock/seed operation + needed counters | Preserve day semantics, version changed save shape | ADOPT |
 | Content Doctor / author | Silent invalid configs | Giant late validator | Owning providers + aggregate CLI 46 | One result schema; reuse Inspector rules | 41–45 negative fixtures before DONE | ADOPT incremental |
 | Debugger / debugger | Why/failure inaccessible | Late giant view | Early snapshots, bounded selected trace, native BT inspector | Providers + 1 view | 40–45 providers, 48 UI | ADOPT |
+| AI budget / runtime | Burst/repath work and starvation | Frequency numbers without fairness proof | Per-responsibility work caps, stable fair cursor/coalesced wakes, urgent cancel | Existing Systems/queues + bounded counters | 44 burst/max-wait fixtures; no global AI scheduler | ADOPT bounded budgeting |
 | Old saves / owner | Early unfinished project | Initially preserve schema 2 | Owner excludes conversion: reject old version safely | 0 alias/converter | Version bump/current-format tests; no user-file deletion | REJECT migration |
 
 ### Borrowed ideas / reference audit
@@ -141,15 +145,15 @@ Adversarial review выполнен после DONE 00_02. Costs — estimate н
 - [Mass Gameplay](https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-gameplay-in-unreal-engine): representation/simulation separation, signals и capability integration адаптированы; четыре tiers, StateTree и Unreal lifecycle не перенесены.
 - [Flecs Observers](https://www.flecs.dev/flecs/ObserversManual.html): scheduled/reactive distinction и explicit notification semantics полезны; actual delivery/flush — local GECS authority. No Flecs dependency.
 
-Standalone Mass Smart Objects URL недоступен через web tool; вывод об integration основан на доступном Gameplay overview.
+Smart Object integration reference — доступный Gameplay overview; project uses scene markers/Relationships/owning operation, no Unreal runtime API. Cadence vs representation distinction полезна для independent budgeting; zero-body representation itself deferred because current population/memory need is unmeasured. Deferred mutations borrow safety, not Mass chunk/EntityManager replacement. Signals become coalesced targeted wakes, not another bus.
 
 ### Freedom pass
 
-С нуля для Godot/GECS/LimboAI/Dialogue Manager выбрали бы исправленную bounded baseline: реальные сцены, flat recipes/Profile, query-visible execution, targeted contracts, native BT hierarchy и два representation modes. Универсальный planner, Template inheritance и ещё один event runtime не оправданы текущим scope. Retained layers не требуют нового script на каждый existing-capability variant.
+Первый план не прошёл бы freedom pass: mandatory detached body and separate district owner imposed two expensive migrations without demonstrated benefit. Исправленный target — real physical scenes, flat recipes/Profile, ECS-owned aggregate metadata, active/dormant processing, query-visible execution, directed typed contracts and native BT hierarchy. Template scene cycle, global bus/Quest DSL/planner/extra scheduler removed/deferred. Memory from retained dormant bodies is explicit tradeoff, not a hidden performance claim; measured need can justify a separate future detach milestone.
 
 ## Validation result
 
-Proposal, 41/43–49 и README синхронизированы с ADOPT/REJECT/DEFER. Core acceptance не требует deferred features. `git diff --check` PASS. Runtime/Godot/GUT не запускались.
+Proposal, 29/31/33/41/44–49 и README синхронизированы с ADOPT/REJECT/DEFER. Core acceptance не требует deferred features. `python utils/validate_refactoring_preflight.py`: PASS. `git diff --check`: PASS. Pending 00_04/05 reports первого прохода ещё не authoritative; обновляются последовательно. Runtime/Godot/GUT не запускались.
 
 ## Next
 

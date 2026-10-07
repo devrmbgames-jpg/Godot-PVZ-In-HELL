@@ -17,7 +17,7 @@ content/domains/npc/
 content/domains/customers/
 ```
 
-Перенести соответствующие Components, Relationships, Systems, Observers, Services, Rules/Solvers, Definitions, Entities, AI/dialogue adapters и domain scenes/resources.
+Перенести соответствующие Components, Relationships, Systems, Observers, Services, Rules/Solvers, Definitions, Entities, AI/dialogue adapters и domain scenes/resources. District population/schedule/configuration belongs to npc; separate district root is not created. Customer-specific trees/adapters belong to customers and import npc contracts. Base npc code does not depend on customer classes; cross-owner Dialogue contexts stay global composition glue. Migration slices update hierarchy/callers explicitly if existing E_DistrictNpc→E_Customer inheritance creates a runtime cycle; no forwarding superclass.
 
 ## Rules
 

@@ -20,7 +20,7 @@ Status: **PLANNED**
 
 Не строить полноценный GDScript compiler. Проверять path-level references и project `class_name` references через symbol-to-owner index: отсутствие preload не означает отсутствие зависимости. Dynamic loads остаются явным review/content gate.
 
-Validator вводится **до** 29–32: transition mode проверяет migrated owners и запрещает новые нарушения. Каждый legacy exemption имеет owner/removal task; после 32 strict rerun обязателен с пустой migration baseline. Shared не зависит от domain internals; global composition может связывать domains через public contracts. Authored asset references проверяются отдельно от runtime code dependencies.
+Validator вводится **до** 29–32: transition mode проверяет migrated owners и запрещает новые нарушения. Каждый legacy exemption имеет owner/removal task; после 32 strict rerun обязателен с пустой migration baseline. Shared не зависит от domains; global composition связывает public APIs без gameplay ownership. Runtime import cycles запрещены и для public APIs; разрешённый symbol не разрешает любое source→target ребро. Asset graph отдельно, не exemption runtime graph. Конкретные NPC↔Customer, domain↔Persistence, Dialogue→Quest/Commerce cycles разрываются owning adapter/composition responsibility, не public wrappers.
 
 ## Acceptance
 

@@ -6,38 +6,38 @@ Status: **PLANNED**
 
 ## Goal
 
-Разделить физическое представление NPC и macro simulation, чтобы население могло жить без постоянных Node3D/physics/BT.
+Снизить processing cost населения через ACTIVE/DORMANT participation и независимую cadence, сохранив существующие physical-root Entity и scene contracts. Это не обещание убрать allocated Node3D/body memory.
 
 ## Representation modes
 
-- PHYSICAL: canonical lightweight GECS Entity + physical/visual child + LimboAI;
-- MACRO: та же Entity и authoritative Components/Relationships, без body/BT.
+- ACTIVE: existing physical-root Entity + enabled physics/navigation/LimboAI;
+- DORMANT: та же registered Entity/body, hidden/frozen/zero collision, navigation/BT disabled.
 
-Cadence/budget independent of representation. Четыре tiers и population aggregation — DEFER до measured need. NpcRecord становится snapshot DTO, не параллельной live authority. Текущий physical-root E_DistrictNpc и C_District.people требуют явной migration всех direct body casts, BT agent bindings, damage/interaction target resolution, scene exports/paths и save adapters.
+Cadence/budget independent of participation. NpcRecord остаётся ECS-owned metadata в C_District.people; HP/inventory — actor Components, live links — Relationships. Per-field writer map исключает mutable mode/placement/action copies; identity mirrors readonly, death_day — history committed C_Death outcome. Disabled actors не исчезают из stable-ID resolver/save. Body detach/shell, четыре tiers, новый offscreen travel и aggregation — DEFER: нужны measurements, доказательство недостаточности dormancy и отдельная full caller/scene/BT/save migration task.
 
 ## Coherent slices
 
-1. **45A identity/representation separation:** все NPC используют один canonical Entity owner при ещё обязательном PHYSICAL; DTO/live-record duplication удалена; consumers и save/load мигрированы; no old physical-root gameplay path. Gate: actor/body resolution, health/inventory/links, placed/spawn parity, current-format save, NPC/combat/interaction regression.
-2. **45B macro transition:** detach/attach child, macro obligations/travel timestamps, safe materialization, token/idempotency, pinning active combat/hold/dialogue/slot usage. Gate: physical↔macro, blocked spawn, deletion/death/target loss, concurrent transition и links continuity.
-3. **45C acceptance:** save/reload в обоих modes, no duplicate state/outcomes, performance sanity, remove transition adapters/allowlist. DONE только после A–C; каждый slice — самостоятельный coherent commit/rollback.
+1. **45A participation ownership:** unify existing set_participating/placement/enable paths behind one owning operation; preserve physical-root scenes. Gate: per-field authority map, no competing caller, all dormant actors resolvable, no nav/BT/physics work while dormant.
+2. **45B safe transition:** phase/obligation-driven active↔dormant, generation/idempotency, pin/cancel hold/combat/dialogue/slot session, valid reactivation position and bounded failure. Gate: target loss/removal/death/blocked placement, preserved durable links, released transient sessions and no repeated arrival/settlement. No speculative macro travel.
+3. **45C acceptance:** save/reload both modes, same identity/HP/inventory/calendar metadata, performance comparison with population count/processing counters, remove transition adapters/allowlist. DONE only after A–C; each slice coherent commit.
 
 ## Work
 
-- materialize/dematerialize contract;
+- one participation/activation contract;
 - stable identity;
-- travel/arrival macro state;
+- existing home/outside/phase progression;
 - reservation/goal behavior при representation transition;
 - save/restore;
 - deterministic transition tests;
-- macro Entity остаётся enabled; gameplay queries фильтруют required capabilities;
-- body/glue не вторая gameplay Entity; physical state остаётся Godot authority;
+- aggregate population queries progress dormant metadata; default enabled-only actor queries are not used for save/cleanup/schedule;
+- body and Entity stay the same owner; physical state remains Godot authority;
 - diagnostic provider показывает mode/pin/transition reason и pending arrival.
 
 ## Acceptance
 
-Representative NPC может уйти из physical representation, продолжить macro lifecycle и восстановиться без duplicate identity/state.
+Representative NPC stops active processing, preserves existing absent-phase lifecycle and reactivates without duplicate identity/state. Body allocation is explicitly retained; measured update savings are recorded, not assumed.
 
-Authored placed NPC остаётся видимым в Editor. Legacy physical-root gameplay callers/parallel NpcRecord authority отсутствуют. Offscreen combat/new economy не добавляются. Schema changes используют version bump, old-save migration не требуется.
+Authored placed NPC remains visible in Editor. All old participation dispatchers/duplicate writers removed; retained physical-root and aggregate metadata are the chosen target, not temporary adapters. No offscreen combat/new economy. Schema changes versioned; old-save migration not required.
 
 ## Validation
 

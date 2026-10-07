@@ -46,7 +46,7 @@ Phase 1 запрещено начинать до результата `READY_FOR
    Сделать роли, ownership и validation guardrails однозначными до runtime migration.
 
 2. **Полный рефакторинг архитектуры/core.**
-   Исправить execution model, перейти на vertical domains, закрепить typed contracts, minimal Templates/Traits, scene-first authoring, Smart Objects, Schedule/goal selection/LimboAI, PHYSICAL/MACRO representation, Content Doctor, Game Time/randomness и Gameplay Debugger. GOAP и четыре LOD tiers отложены.
+   Исправить execution model, перейти на vertical domains, закрепить typed contracts, minimal Templates/Traits, scene-first authoring, Smart Objects, Schedule/goal selection/LimboAI, ACTIVE/DORMANT participation, Content Doctor, Game Time/randomness и Gameplay Debugger. GOAP, body detach и четыре LOD tiers отложены.
 
 3. **Рефакторинг под Code Style.**
    Только после стабильной архитектуры пройти всю project-owned GDScript базу по human-first style и единому formatter/linter gate.
@@ -141,11 +141,11 @@ Typed contracts уже закреплены задачей 40 перед executi
 
 План расширен до полного core refactor. Реализация runtime migration не начиналась.
 
-Повторный Phase 0 pass открыт 2026-10-07 по запросу владельца. 00_01–00_02 завершены последовательно; 00_03–00_05 ожидают review. Предыдущая readiness не действует до нового verdict 00_05. Phase 1–3 не начаты.
+Повторный Phase 0 pass открыт 2026-10-07 по запросу владельца. 00_01–00_03 завершены последовательно; 00_04–00_05 ожидают review. Предыдущая readiness не действует до нового verdict 00_05. Phase 1–3 не начаты.
 
-Текущее следующее действие: [00_03 — simplification/reference audit](00_03_simplification_reference_audit.md). Каждая 00-задача имеет отдельный coherent commit до перехода к следующей.
+Текущее следующее действие: [00_04 — migration/persistence/validation audit](00_04_migration_persistence_validation_audit.md). Каждая 00-задача имеет отдельный coherent commit до перехода к следующей.
 
-Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/четыре tiers deferred; baseline PHYSICAL/MACRO. Known structure failures (31, smoke reference/R26 metadata) закреплены за 03 и устраняются до runtime migration.
+Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/body detach/четыре tiers deferred; baseline ACTIVE/DORMANT with retained physical-root Entity and ECS-owned population records. Population/district schedules belong to npc, without separate district domain. Known structure failures (31, smoke reference/R26 metadata) закреплены за 03 и устраняются до runtime migration.
 
 Ни Phase 1, ни runtime migration не начинать до `READY_FOR_IMPLEMENTATION` в [00.05 — preflight readiness gate](00_05_preflight_readiness_gate.md).
 
@@ -171,7 +171,7 @@ Refactoring v2 завершён, когда:
 - placed Entity остаются полноценно видимыми/настраиваемыми в Godot Editor;
 - Smart Objects/reservations имеют единый contract;
 - macro obligations/goal selection и realtime LimboAI/local execution имеют один state owner; GOAP не mandatory;
-- PHYSICAL/MACRO representation не создаёт duplicate identity/state; четыре tiers не mandatory;
+- ACTIVE/DORMANT participation сохраняет physical-root Entity и explicit per-field aggregate/actor authority; body detach/четыре tiers не mandatory;
 - Content Doctor ловит broken authored content headless;
 - Game Time/random decisions имеют explicit reproducible contracts;
 - Gameplay Debugger объясняет состояние выбранной Entity;

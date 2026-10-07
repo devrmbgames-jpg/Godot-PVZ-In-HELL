@@ -189,23 +189,25 @@ Goal selection желательно будить событиями:
 - reservation lost;
 - new job/order appeared.
 
+Budget ownership is per expensive responsibility (perception/decision/repath), using existing Systems and queues, not a new global AI scheduler. Work units have authored per-tick caps, stable fair cursor/order and bounded coalesced wake flags; every eligible NPC has a bounded wait. Urgent damage/interrupts are handled by their owners immediately and cancel stale work. Diagnostics report due/processed/deferred work and maximum wait; tests include a burst exceeding budget and starvation. Frequencies above are tuning examples, not a performance guarantee. No elapsed-milliseconds cutoff in deterministic fixtures and no broad world search per actor per frame.
+
 ## 8. Simulation LOD
 
-Conceptual reference: [Mass Gameplay](https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-gameplay-in-unreal-engine) separates representation and simulation processing. GECS/Godot uses two modes, not Mass runtime APIs.
+Conceptual reference: [Mass Gameplay](https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-gameplay-in-unreal-engine) separates representation cost from simulation cadence. Borrow the separation of concerns; a detachable representation is not necessary for the current Godot population.
 
 ```text
-PHYSICAL - canonical GECS Entity + physical/visual child + LimboAI adapter
-MACRO    - same GECS Entity + timestamp/obligation state, without body/BT
-Cadence/budget is independent of representation mode.
+ACTIVE  - existing physical-root GECS Entity, Godot physics/navigation + LimboAI
+DORMANT - same registered Entity/body retained, hidden/frozen, no collision/nav/BT
+Simulation cadence/budget is independent of engine participation.
 ```
 
-A canonical NPC is a lightweight GECS Entity Node with health, inventory, identity, obligations and live Relationships. Its physical child is a Godot body/glue with a validated owner reference, not a second gameplay Entity. NpcRecord becomes a snapshot DTO in the final LOD baseline. Existing C_District.people/body ownership is migrated atomically in 45A with all callers and save adapters; tasks 14-16 preserve the current model until that slice.
+Keep the physical-root NPC and visible scene contracts. C_District.people is an ECS-owned aggregate: NpcRecord owns identity/history/schedule placement, actor Components own HP/inventory/local action, Relationships own live links. A nested Resource inside a Component is not a second runtime database. Mirror identity fields are immutable references; death_day is terminal history of a C_Death outcome, not a competing live health/death rule. No second mutable mode/location copy or live offscreen DTO store. The authority table in task 45 covers each field and its single writer.
 
-Placed authoring remains a visible scene with a real physical child. Resource/node contracts change through an explicit migration map. A MACRO Entity remains enabled for macro queries; disabling physics does not disable the whole Entity. Godot owns physical state while PHYSICAL. Attach/detach occurs at a safe physics boundary. Macro travel stores destination and departure/arrival timestamps, without hidden physical bodies.
+Mode derives from authoritative participation/placement and active-session pins. Dormant bodies remain allocated; this baseline reduces update/physics cost, not memory. Existing World.disable_entity may exclude the actor from ordinary queries; the NPC population System queries the enabled aggregate and explicitly resolves registered dormant actors by stable ID. Do not rely on default enabled-only queries for save/restore, cleanup or schedule progression. Godot owns transform/velocity; dormant position is not a second physical simulation. Existing home/outside/day-phase behavior remains; no new offscreen travel/economy/combat mechanics.
 
-A transition token prevents duplicate representations/outcomes. Held items, combat, dialogue and active slot use pin PHYSICAL, or are cancelled through their owners before detach. No offscreen combat or new economy. Materialization validates placement and never repeats arrival/settlement. Blocked placement has bounded retry rather than teleporting through gameplay collision.
+A transition generation prevents repeated participation/arrival/outcomes. Held items, combat, dialogue and active slot use pin ACTIVE, or are cancelled through owners before dormancy. Preserve durable home/work assignments, release transient sessions. Reactivation validates placement at a safe physics boundary and never repeats arrival/settlement; blocked placement has bounded retry with a reason, then a defined failure. Cadence hysteresis prevents active/dormant oscillation.
 
-**Four tiers and mathematical population aggregation - DEFER** until measured need. Physical/macro transitions and existing schedule/job behavior prove the baseline; reduced cadence requires no additional state model.
+**Body detach/lightweight actor shell, offscreen travel, four tiers and population aggregation - DEFER** until measured memory/physics/CPU cost cannot meet the actual population budget with dormancy/cadence. A future detach task must migrate all casts, collider-to-owner resolution, BT agents, scenes/exports and save adapters before DONE. No placeholder shell/provider/alternate execution path in Refactoring v2.
 
 ## 9. Entity Templates / Traits
 
@@ -566,7 +568,7 @@ typed events/requests
 - world timestamp;
 - real/UI time.
 
-Schedule, goal selection, offscreen simulation и save/restore используют единый game-time contract. World timestamp — monotonic integer simulation ticks; C_DayCycle остаётся authority explicit day/phase transitions. Pause/skip/Night mappings сохраняют current semantics; physics callback delta и UI clock отдельны.
+Schedule, goal selection, dormant processing и save/restore используют explicit game-time contract. World timestamp — monotonic integer elapsed simulation ticks with an explicit quantum/remainder; C_DayCycle remains authority player-driven day/phase transitions. Daily deadlines/phase schedules use calendar labels/events, local delays use elapsed ticks; no inferred automatic day length. Pause stops gameplay elapsed time; sleep/skip emits calendar transition without inventing elapsed night duration. Preserve existing phase behavior; physics callback delta and UI clock are separate. Save persists authoritative tick/remainder/calendar state; reload does not reset overdue work or replay phase outcomes.
 
 ## 16. Seeded deterministic randomness
 
@@ -671,9 +673,11 @@ python utils/validate_domain_structure.py --strict
 
 Strict mode дополнительно запрещает legacy horizontal gameplay roots.
 
-Owners baseline: `npc`, `customers`, `district`, `interaction`, `combat`, `motion`, `packages`, `hazards`, `commerce`, `inventory`, `quests`, `challenges`, `needs`, `time`, `persistence`. Hunger — needs; wallet/purchase — commerce; receiving/delivery — packages; input/focus — interaction; camera/locomotion — motion. Shared требует нескольких реальных consumers, не превращается в universal gameplay service. Empty roles не создавать.
+Owners baseline: `npc`, `customers`, `interaction`, `combat`, `motion`, `packages`, `hazards`, `commerce`, `inventory`, `quests`, `challenges`, `needs`, `time`, `persistence`. Population/district schedules and their configuration belong to npc: they operate on the same personalities and lifecycle, so a separate district domain adds a cyclic boundary without independent ownership. Hunger — needs; wallet/purchase — commerce; receiving/delivery — packages; input/focus — interaction; camera/locomotion — motion. Shared требует нескольких реальных consumers, не превращается в universal gameplay service. Empty roles не создавать.
 
-Runtime direction: shared kernel не импортирует domains; time/needs/motion/combat/inventory/interaction expose public contracts; npc composes leaf capabilities; customers composes npc/packages/commerce contracts; district orchestrates public population boundaries; quests/challenges react to facts; persistence imports declared snapshot adapters. Cyclic internal imports запрещены. Global scenes/UI compose public APIs. Authored asset references (например package→hazard scene) проверяются отдельно от runtime code graph.
+Runtime direction: shared kernel не импортирует domains; leaf capability contracts feed npc and customers; quests/challenges consume producer-owned facts; persistence imports declared snapshot adapters. Domain runtime import graph must be acyclic, including public API imports. Public visibility alone does not authorize an edge. Domain code does not import persistence: startup/autosave wiring belongs to global composition. Customers imports npc public capabilities; npc base code cannot import customer implementation/classes. Customer-specific BT subtrees/action adapters belong to customers and use npc contracts. Scene/BT asset composition is a separate authored graph.
+
+Cross-domain Dialogue contexts/action routing that bind multiple owners live in existing global Godot glue (UI/scene integration), not in shared kernel or a base NPC class. Prefer relocating/splitting existing context responsibility over adding forwarding APIs. Composition may subscribe to facts and invoke typed owner APIs; it cannot own a timer, transaction state or gameplay polling. Task 28 records source→target public symbols plus read/query/request/subscription rights and forbidden writes. Task 33 checks allowed edges, public surface and cycles separately. Authored assets (например package→hazard scene) имеют отдельную policy и не маскируют runtime cycles.
 
 Task 28 уточняет file-to-owner map по inventory 10 в рамках этой policy. Public `contracts/` имеют explicit symbol/path manifest; перенос internal класса в папку не разрешает dependency. Validator 33 индексирует class_name; arbitrary dynamic imports запрещены вне declared adapters и проверяются review/content scan.
 
@@ -761,7 +765,7 @@ Project-specific differences:
 - Godot scenes remain the primary visual/physical authoring representation;
 - UI remains ordinary Godot Control glue;
 - LimboAI remains local/realtime behavior execution;
-- GOAP and four-tier LOD are deferred; the baseline uses existing obligations, LimboAI and two representation modes;
+- GOAP, detachable bodies and four-tier LOD are deferred; the baseline uses existing obligations, LimboAI and active/dormant participation;
 - project Relationships/Commands/Events remain the authoritative integration mechanism.
 
 When an architectural rule is derived from one of these references, documentation/tasks should name the reference explicitly instead of presenting it as an arbitrary local convention.
@@ -772,9 +776,9 @@ When an architectural rule is derived from one of these references, documentatio
 
 ## 22. Phase 0 scope decisions
 
-- ADOPT: minimal flat Templates/Traits, one validation path, scoped typed contracts, existing-object affordances/reservations, two representation modes, time/seed contract, early content/diagnostic providers.
-- REJECT: Template inheritance, arbitrary install hooks, global bus/framework, default slot Entity, duplicate live NpcRecord state, blanket seven-group scheduler replacement.
-- DEFER: GOAP, mandatory Utility framework, four tiers/aggregated population, new Sit/Sleep/trader mechanics solely as demos.
+- ADOPT: minimal flat Templates/Traits, one validation path, scoped typed contracts, existing-object affordances/reservations, active/dormant participation, ECS-owned aggregates with per-field authority, time/seed contract, early content/diagnostic providers.
+- REJECT: Template inheritance/default_scene cycle, arbitrary install hooks, global bus/framework, default slot Entity, separate district ownership, blanket seven-group scheduler replacement, generic quest/action interpreter.
+- DEFER: GOAP, mandatory Utility framework, body detach/lightweight actor shell, new macro travel, four tiers/aggregated population, new Sit/Sleep mechanics solely as demos.
 - Owner decision 2026-10-07: old save migration/backward compatibility не требуется. Changed format bumps schema и отклоняет unsupported saves до live mutation. New-format identity/roundtrip/links обязательны; tooling не удаляет/перезаписывает пользовательские файлы.
 
 Это preflight design decisions, не реализованные runtime capabilities. Phase 1 не начата. Rationale/scorecards находятся в owning 00_* tasks.

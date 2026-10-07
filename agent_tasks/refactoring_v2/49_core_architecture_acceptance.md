@@ -19,7 +19,7 @@ Status: **PLANNED**
 - headless placed/spawned composition + physical scene capability contract PASS; subjective Inspector/visual ergonomics остаются в owner QA, без заявления об автоматическом visual pass;
 - Smart Objects reservation flow PASS;
 - Schedule/goal selection/LimboAI existing obligation flow PASS; GOAP deferred и не mandatory gate;
-- PHYSICAL↔MACRO transition + canonical identity/current-format save PASS; четыре tiers deferred;
+- ACTIVE↔DORMANT participation + per-field aggregate/actor authority + current-format save PASS; physical roots retained, body detach/новый travel/четыре tiers deferred;
 - Content Doctor full scan PASS;
 - unified game time/seed tests PASS;
 - Gameplay Debugger owner QA подготовлена;
