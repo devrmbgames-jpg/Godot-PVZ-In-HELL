@@ -234,6 +234,8 @@ Apply this style to new and materially edited project-owned code.
 
 Do not turn a focused task into a mass style rewrite of neighboring legacy code. Clean up nearby code only when it materially improves the changed behavior, removes ambiguity, or is necessary to make the edited area coherent.
 
+When the user explicitly requested a broad refactor, this focused-task rule does not justify leaving the declared scope half-migrated. Load and follow `.agents/skills/refactoring/SKILL.md`: finish the chosen architecture migration, update all callers/contracts in scope, and remove temporary legacy paths before marking the milestone DONE.
+
 Do not modify third-party/addon code for project style unless dependency/addon work is explicitly part of the task.
 
 ## Review question
