@@ -2,7 +2,7 @@
 
 Status: **READY_FOR_IMPLEMENTATION**
 
-Next task: `03_architecture_validation.md`
+Next task: `04_identity_persistence_contract.md`
 
 Рабочая ветка Phase 0: `dev`. Историческая подготовка: `chore/gdscript-human-first-style`; это не требование checkout.
 
@@ -140,15 +140,17 @@ Typed contracts уже закреплены задачей 40 перед executi
 
 ## Current
 
-Phase 1: [01 — architecture contract](01_architecture_contract.md) и [02 — execution ownership](02_execution_ownership_rules.md) **DONE** 2026-10-07. Canonical roles, service smells и request timing закреплены в `content/ARCHITECTURE.md`. 03–04 остаются PLANNED; runtime migration не начиналась.
+Phase 1: задачи 01–03 **DONE** 2026-10-07. Canonical roles/service smells/request timing закреплены в `content/ARCHITECTURE.md`; architecture guardrail и infrastructure repairs завершены. 04 остаётся PLANNED; runtime migration не начиналась.
 
 Повторный Phase 0 pass завершён 2026-10-07 строго последовательно, с отдельным coherent commit каждой 00_задачи. Final full review [00_05](00_05_preflight_readiness_gate.md): **READY_FOR_IMPLEMENTATION**. Этот исторический gate разрешил Phase 1; его preflight pass завершён до реализации 01.
 
-Следующее действие: [03 — architecture validation](03_architecture_validation.md). По текущему указанию владельца задачи выполняются последовательно до полного Phase 1 gate, с отдельным coherent commit каждой задачи.
+Следующее действие: [04 — identity/persistence contract](04_identity_persistence_contract.md). По текущему указанию владельца задачи выполняются последовательно до полного Phase 1 gate, с отдельным coherent commit каждой задачи.
 
-Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/body detach/четыре tiers deferred; baseline ACTIVE/DORMANT with retained physical-root Entity and ECS-owned population records. Population/district schedules belong to npc, without separate district domain. Known structure failures (31, smoke reference/R26 metadata) закреплены за 03 и устраняются до runtime migration.
+Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/body detach/четыре tiers deferred; baseline ACTIVE/DORMANT with retained physical-root Entity and ECS-owned population records. Population/district schedules belong to npc, without separate district domain. Known structure failures (31, smoke reference/R26 metadata) устранены в 03.
 
 Ни Phase 1, ни runtime migration не начинать до `READY_FOR_IMPLEMENTATION` в [00.05 — preflight readiness gate](00_05_preflight_readiness_gate.md).
+
+Execution guardrail: `python utils/validate_architecture.py`; fixtures: `python -m unittest discover -s tests/tools -p test_validate_architecture.py`. Symbol/occurrence migration baseline хранится в `utils/architecture_baseline.json`, сокращается при каждом owning migration и обнуляется в 26. Gate 27: `python utils/validate_architecture.py --strict`. Infrastructure diagnostics (31, smoke reference/R26 metadata) устранены в 03: full structure PASS.
 
 Domain structure guardrail уже подготовлен в transition mode:
 `python utils/validate_domain_structure.py`.

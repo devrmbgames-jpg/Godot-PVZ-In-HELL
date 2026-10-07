@@ -162,6 +162,8 @@ A declared migration scope is DONE only when all callers, state ownership and ex
 
 Use the narrowest relevant surface:
 - repository structure: `python utils/validate_project_structure.py`;
+- lexical execution guard: `python utils/validate_architecture.py` (symbol/count baseline under `utils/architecture_baseline.json`; trim entries with each migration, empty at 26/27);
+- final execution gate: `python utils/validate_architecture.py --strict`;
 - vertical domains during migration: `python utils/validate_domain_structure.py`;
 - final vertical-domain gate: `python utils/validate_domain_structure.py --strict`;
 - changed-file formatter/lint/static checks;

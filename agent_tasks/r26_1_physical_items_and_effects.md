@@ -216,3 +216,21 @@ Breaking an item may spawn a hazard/explosion, but the spawned effect must use t
 ## Validation
 
 Near completion: changed-script parser, structure check, focused GUT for item/damage/hazard surface, and one bounded headless physical smoke. No rendered playtest without owner approval.
+
+## Task state
+
+### Goal
+
+Implement the scope and acceptance specified in the Goal and required-design sections above.
+
+### Current
+
+PLANNED. Specification only; implementation has not started. Phase 1 task 03 normalizes metadata only; no R26 gameplay work is authorized by this repair.
+
+### Validation
+
+Specification only; no R26 engine or gameplay tests run. Use the validation requirements above when implementation is scheduled.
+
+### Owner QA / blockers
+
+No implementation blocker assessed. Subjective gameplay, dialogue, assets and balance require owner QA after implementation.
