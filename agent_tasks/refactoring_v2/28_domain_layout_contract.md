@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [40_typed_commands_events.md](40_typed_commands_events.md), [04_identity_persistence_contract.md](04_identity_persistence_contract.md).
+Зависимости: [27_architecture_acceptance.md](27_architecture_acceptance.md), [40_typed_commands_events.md](40_typed_commands_events.md), [04_identity_persistence_contract.md](04_identity_persistence_contract.md).
 
 ## Goal
 

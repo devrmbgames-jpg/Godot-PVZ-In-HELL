@@ -1,8 +1,8 @@
 # Refactoring v2.00.05 — preflight readiness gate
 
-Status: **DONE**
+Status: **PLANNED**
 
-Result: **READY_FOR_IMPLEMENTATION**
+Result: **PENDING_REVIEW**
 
 Зависимости:
 - [00_01_architecture_coherence_audit.md](00_01_architecture_coherence_audit.md)

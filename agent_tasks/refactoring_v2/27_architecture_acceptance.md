@@ -20,6 +20,7 @@ Status: **PLANNED**
 - save/restore smoke PASS, если persistence boundary затрагивалась;
 - нет новых refactor-related errors/warnings;
 - временные wrappers execution-model migration удалены.
+- ключевые typed flows из 40 проверены в final execution graph: единственный handler, commit-before-fact, отсутствие reentrant event cycles и повторного settlement; deferred work имеет explicit flush boundary.
 
 ## Review
 

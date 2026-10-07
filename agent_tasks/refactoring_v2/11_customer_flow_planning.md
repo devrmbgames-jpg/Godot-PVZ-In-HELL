@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [10_service_inventory.md](10_service_inventory.md).
+Зависимости: [40_typed_commands_events.md](40_typed_commands_events.md), [10_service_inventory.md](10_service_inventory.md).
 
 ## Goal
 

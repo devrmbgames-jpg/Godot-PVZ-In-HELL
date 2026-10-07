@@ -1,6 +1,6 @@
 # Refactoring v2.00.03 — simplification, overengineering и reference audit
 
-Status: **DONE**
+Status: **PLANNED**
 
 Зависимости: [00_02_usability_authoring_audit.md](00_02_usability_authoring_audit.md).
 

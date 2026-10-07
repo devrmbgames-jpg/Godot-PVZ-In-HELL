@@ -1,6 +1,6 @@
 # Refactoring v2.00.04 — migration, persistence и validation audit
 
-Status: **DONE**
+Status: **PLANNED**
 
 Зависимости: [00_03_simplification_reference_audit.md](00_03_simplification_reference_audit.md).
 

@@ -82,11 +82,11 @@ Runtime/subsystem code читать выборочно только там, гд
 
 Documentation/validator-only. Runtime/gameplay tests не запускать.
 
-## Current — результат 2026-10-07
+## Current — повторный pass 2026-10-07
 
-Прочитаны все 49 исходных task files, README, target proposal, runtime architecture, AGENTS и обязательные skills. Добавлена planning-задача 04; Phase 1 не исполнялась. Исправлен порядок foundations, поздний dependency gate, неясная зависимость 26 от «всех Phase 2», stale Phase 3 scopes и IDs заголовков 60–65.
+Повторно сопоставлены весь 50-task roadmap, target candidate, runtime architecture, AGENTS и обязательные skills. Предыдущая readiness переоткрыта; 00_02–00_05 проходят новый review последовательно. Phase 1 не исполнялась. Сохранены полезные изменения первого прохода: identity baseline 04, transition dependency gate 33 до moves, time/seed 47 до новых AI/LOD и full style coverage по новым roots.
 
-Проверены конкретные assumptions по pinned GECS `entity.gd`, `world.gd`, `observer.gd`, текущим DamageRequestService, main_level, snapshot/codec, C_District/NpcRecord и E_DistrictNpc. Addons читались без изменений.
+Проверены assumptions по pinned GECS `entity.gd`, `world.gd`, `ecs.gd`, `observer.gd`, текущим main_level, snapshot/codec, C_District/NpcRecord и E_DistrictNpc. Addons читались без изменений. Подтверждены immediate System.setup при ECS.world assignment и synchronous construction callbacks; отсутствие early side effects теперь explicit gate.
 
 ### Dependency graph и аудит всех milestones
 
@@ -104,7 +104,8 @@ README задаёт один последовательный topological order.
 | 03 | 02; layout-independent smells guard + finite baseline |
 | 04 | 03; identity/schema-2/path baseline до migration |
 | 10 | 04; 100% service inventory, ownership/removal task каждого item |
-| 11 | 10; только planning/arrival/day ownership, active visit остаётся scope 12 |
+| 40 | 10, 04; typed boundary foundation + direct callers до execution migration; no generic framework |
+| 11 | 40, 10; только planning/arrival/day ownership, active visit остаётся scope 12 |
 | 12 | 11; active visit scheduler, удалить его service dispatcher |
 | 13 | 12; settlement/outcomes idempotency, без повторного outcome polling |
 | 14 | 13; district schedule/population owner и ordering |
@@ -121,8 +122,7 @@ README задаёт один последовательный topological order.
 | 25 | 24; закрыть весь inventory, persistence semantics не менять ради rename |
 | 26 | 25; удалить execution wrappers, обнулить smell baseline |
 | 27 | 26; execution acceptance до moves |
-| 40 | 27, 04; typed domain boundaries до moves, без global bus |
-| 28 | 40, 04; полный ownership/path/save/tooling migration map |
+| 28 | 27, 40, 04; полный ownership/path/save/tooling migration map |
 | 33 | 28; transition dependency enforcement до moves |
 | 29 | 33; весь NPC/Customer owner, no old-path wrapper |
 | 30 | 29; весь Interaction/Combat/Motion owner |
@@ -150,22 +150,23 @@ README задаёт один последовательный topological order.
 | Finding | Решение / следующая Phase 0 задача |
 | --- | --- |
 | Time/seed после AI/LOD | FIXED: 47 перед 41–46 |
-| Typed contracts после domain consumers | FIXED: 40 перед 28–33 |
+| Typed contracts после execution consumers 11–25 | FIXED: 40 после inventory 10, до 11; bounded existing boundary migration, final execution gate 27 |
 | Domain guard только после moves | FIXED: 33 transition до 29, strict после 32 |
 | Content Doctor/debugger слишком поздно | FIXED: providers в owning milestones, aggregate/UI позднее |
-| Template registration до/после GECS init | FIXED contract: recipes → World init → endpoint fixup → ready; детали authoring в 00_02 |
+| Early ECS.world assignment запускает System.setup до preparation | FIXED: explicit World build context, pre-registration checks, pinned registration once; setup passive, startup spawn/restore/fixup до gameplay ready |
 | Shallow Component copy / synchronous observers | FIXED invariant: nested mutable state изолировать, ready barrier, явные notifications |
 | Persisted paths + `scene/` keys уже существуют | 04 identity/version baseline добавлена; владелец исключил old-save compatibility, schema bump вместо конвертации; detailed policy в 00_04 |
-| Entity = Node, NpcRecord + physical body в текущем районе | 00_03/04: выбрать один LOD state owner и explicit representation migration |
-| Mandatory GOAP/четыре LOD/Traits ceremony | 00_02/03: проверить project necessity и упростить |
+| Forced Entity/body separation в 45A после Templates/Inspector | 00_02/03: проверить стоимость; либо убрать неоправданную миграцию, либо вынести необходимый foundation раньше 41. C_District.people уже ECS-owned: nested Resource не автоматически duplicate authority |
+| GOAP/четыре LOD/Traits ceremony | 00_02/03: повторно проверить necessity; прежние DEFER/REJECT — кандидаты, не неприкосновенные решения |
+| Cross-domain cycles через persistence и passive construction | 00_02–04: concrete dependency direction, snapshot integration, read/write authority и save-safe barrier |
 | Phase 3 сканирует удалённые roots | FIXED: domain/shared scope и coverage manifest |
 | Broad tasks 21/29–31/41/44–45 | 00_04: coherent internal slices с removal gates, без premature DONE |
 
-Нет prerequisites, которые требуют ещё не созданный foundation в исправленном порядке. Открытые вопросы ограничены следующими Phase 0 audits; readiness ещё не объявлена.
+Known typed-contract ordering defect исправлен. Representation foundation risk явно передан 00_02/03 и должен быть закрыт до 00_05; промежуточный graph не объявляется окончательно готовым. Ready/bootstrap invariant уточнён без addon/runtime edits. Remaining broad scopes и acceptance проверяются в 00_04.
 
 ## Validation result
 
-Все roadmap tasks прочитаны и сопоставлены с graph. Документарная проверка diff/ссылок выполняется после coherent batch; итоговая автоматическая проверка graph входит в 00_04/05. Runtime/parser/GUT/gameplay не запускались: исходный код не меняется.
+Все roadmap tasks сопоставлены с graph. `python utils/validate_refactoring_preflight.py`: PASS. `git diff --check`: PASS. `--require-gate` пока намеренно не разрешён: новый 00_05 ещё не выполнен. Runtime/parser/GUT/gameplay не запускались: runtime source не меняется.
 
 ## Next
 

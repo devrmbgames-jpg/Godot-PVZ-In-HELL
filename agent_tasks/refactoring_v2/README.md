@@ -1,6 +1,6 @@
 # Refactoring v2 — полный Core Architecture + Code Style рефакторинг
 
-Status: **READY_FOR_IMPLEMENTATION**
+Status: **IN_PROGRESS**
 
 Рабочая ветка Phase 0: `dev`. Историческая подготовка: `chore/gdscript-human-first-style`; это не требование checkout.
 
@@ -82,29 +82,29 @@ Phase 2 начинается только после закрытия всех P
 ### Phase 2A — Execution model cleanup
 
 10. [Полный inventory сервисов](10_service_inventory.md)
-11. [CustomerFlow: planning, arrival и day transitions](11_customer_flow_planning.md)
-12. [CustomerFlow: активный lifecycle визита](12_customer_flow_runtime.md)
-13. [Customer outcomes и settlement](13_customer_outcomes.md)
-14. [District lifecycle и schedule](14_district_lifecycle.md)
-15. [NPC brain, perception и traits](15_npc_brain.md)
-16. [NPC route и service role](16_npc_route_service_role.md)
-17. [Combat, attacks и projectiles](17_combat.md)
-18. [Challenge lifecycle](18_challenges.md)
-19. [Hunger и Quests](19_hunger_quests.md)
-20. [Interaction input и action routing](20_interaction_input.md)
-21. [Grab, Push, Carry и physical slots](21_grab_push_slots.md)
-22. [Motion и physics boundaries](22_motion_physics.md)
-23. [Hazards, receiving, loot и delivery runtime](23_hazards_receiving_loot.md)
-24. [Economy, Inventory и Commerce](24_economy_inventory_commerce.md)
-25. [Persistence и remaining services](25_persistence_remaining.md)
-26. [Очистка execution graph](26_execution_graph_cleanup.md)
-27. [Execution-model acceptance checkpoint](27_architecture_acceptance.md)
+11. [Typed Commands / Events](40_typed_commands_events.md)
+12. [CustomerFlow: planning, arrival и day transitions](11_customer_flow_planning.md)
+13. [CustomerFlow: активный lifecycle визита](12_customer_flow_runtime.md)
+14. [Customer outcomes и settlement](13_customer_outcomes.md)
+15. [District lifecycle и schedule](14_district_lifecycle.md)
+16. [NPC brain, perception и traits](15_npc_brain.md)
+17. [NPC route и service role](16_npc_route_service_role.md)
+18. [Combat, attacks и projectiles](17_combat.md)
+19. [Challenge lifecycle](18_challenges.md)
+20. [Hunger и Quests](19_hunger_quests.md)
+21. [Interaction input и action routing](20_interaction_input.md)
+22. [Grab, Push, Carry и physical slots](21_grab_push_slots.md)
+23. [Motion и physics boundaries](22_motion_physics.md)
+24. [Hazards, receiving, loot и delivery runtime](23_hazards_receiving_loot.md)
+25. [Economy, Inventory и Commerce](24_economy_inventory_commerce.md)
+26. [Persistence и remaining services](25_persistence_remaining.md)
+27. [Очистка execution graph](26_execution_graph_cleanup.md)
+28. [Execution-model acceptance checkpoint](27_architecture_acceptance.md)
 
 ### Phase 2B — Contracts и vertical domains
 
-Typed contracts закрепляются после execution cleanup и **до** domain moves. Dependency guardrail появляется до первого move.
+Typed contracts уже закреплены задачей 40 перед execution migration. Здесь переносится завершённый execution model; dependency guardrail появляется до первого domain move.
 
-28. [Typed Commands / Events](40_typed_commands_events.md)
 
 29. [Domain layout contract + validator](28_domain_layout_contract.md)
 30. [Domain dependency validation — transition gate](33_domain_dependency_validation.md)
@@ -141,9 +141,9 @@ Typed contracts закрепляются после execution cleanup и **до*
 
 План расширен до полного core refactor. Реализация runtime migration не начиналась.
 
-Phase 0 (00_01–00_05) завершена последовательно 2026-10-07. Результат [00.05](00_05_preflight_readiness_gate.md): **READY_FOR_IMPLEMENTATION**. Phase 1–3 не начаты.
+Повторный Phase 0 pass открыт 2026-10-07 по запросу владельца. 00_01 завершена; 00_02–00_05 ожидают последовательного review. Предыдущая readiness не действует до нового verdict 00_05. Phase 1–3 не начаты.
 
-Следующее действие отдельного запроса: [01 — architecture contract](01_architecture_contract.md). Текущий scope закончен на preflight gate.
+Текущее следующее действие: [00_02 — usability/authoring audit](00_02_usability_authoring_audit.md). Каждая 00-задача имеет отдельный coherent commit до перехода к следующей.
 
 Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/четыре tiers deferred; baseline PHYSICAL/MACRO. Known structure failures (31, smoke reference/R26 metadata) закреплены за 03 и устраняются до runtime migration.
 

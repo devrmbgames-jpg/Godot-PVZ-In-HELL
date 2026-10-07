@@ -1,6 +1,6 @@
 # Refactoring v2.00.02 — usability и content-authoring audit
 
-Status: **DONE**
+Status: **PLANNED**
 
 Зависимости: [00_01_architecture_coherence_audit.md](00_01_architecture_coherence_audit.md).
 

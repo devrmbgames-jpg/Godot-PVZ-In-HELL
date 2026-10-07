@@ -1,8 +1,8 @@
 # Project Core Architecture
 
-Status: **PREFLIGHT_TARGET_APPROVED — IMPLEMENTATION_PENDING**
+Status: **PREFLIGHT_CANDIDATE — SECOND_REVIEW_IN_PROGRESS**
 
-Документ фиксирует target после последовательного Phase 0 preflight 2026-10-07; gate `agent_tasks/refactoring_v2/00_05_preflight_readiness_gate.md` — READY_FOR_IMPLEMENTATION. Runtime/Phase 1 ещё не начаты. Цель — новый контент преимущественно из сцен, ассетов, Definitions, Templates/Traits, Smart Objects, Dialogue, profiles/schedules и настроек уровней. Новый runtime code нужен прежде всего для новой механики; existing variant обычно создаётся данными.
+Документ повторно проверяется последовательным Phase 0 preflight 2026-10-07. Предыдущая readiness не разрешает implementation во время этого pass; новый verdict принадлежит `agent_tasks/refactoring_v2/00_05_preflight_readiness_gate.md`. Runtime/Phase 1 ещё не начаты. Цель — новый контент преимущественно из сцен, ассетов, Definitions, Templates/Traits, Smart Objects, Dialogue, profiles/schedules и настроек уровней. Новый runtime code нужен прежде всего для новой механики; existing variant обычно создаётся данными.
 
 ## 1. Authoritative gameplay model
 
@@ -273,11 +273,11 @@ EntityTrait + DEF_EntityTemplate
 
 The plan validates incompatible providers, missing requirements and scene capabilities before registration. Flat composition, no Template inheritance. The compiler is side-effect-free; arbitrary install hooks are rejected. A standalone compiler/context/factory class is justified only by a real boundary.
 
-Pinned authority: addons/gecs/ecs/entity.gd, world.gd and observer.gd. World discovers placed Entities and initializes Components while synchronously notifying Observers. Project glue prepares fresh recipes before super._initialize, does not register placed scenes twice, and uses public World/CommandBuffer lifecycle APIs. New-template gameplay consumers require composition-ready; endpoint fixup completes before simulation. Failure prevents ready publication and rolls back partial registration.
+Pinned authority: addons/gecs/ecs/entity.gd, world.gd, ecs.gd and observer.gd. World discovers placed Entities and initializes Components while synchronously notifying Observers. Project glue prepares fresh recipes before super._initialize, does not register placed scenes twice, and uses public World/CommandBuffer lifecycle APIs. Gameplay consumers require composition-ready and completed world startup; endpoint fixup/restore completes before simulation. Failure prevents ready publication and cleans up partial registration. Cleanup cannot undo external side effects; gameplay commands/outcomes are forbidden before ready, passive engine bindings are permitted.
 
 GECS copies top-level Components shallowly. Nested mutable containers/resources must be isolated explicitly; Definitions remain shared immutable. on_changed requires explicit property_changed notification or an owning typed outcome; direct assignment does not automatically notify. Build fixtures prove nested-state isolation, placed/spawned parity and load without HP reset or repeated setup.
 
-Placed startup needs a project-owned World/bootstrap hook **before** automatic World.initialize/add_entities: set the owned ECS.world context, compile all placed recipes, validate duplicate IDs/endpoints, then run the pinned World lifecycle once. A project World subclass/glue can perform this one-shot preparation before its superclass ready path; addons remain read-only. Validation only inside Entity._initialize is too late to prevent World.add_entity ID-collision replacement. After registration, fix up endpoints and publish ready before main_level simulation. Factory performs the same pre-registration validation. This is explicit startup glue, not another scheduler or compatibility wrapper.
+Placed startup needs a project-owned World/bootstrap hook **before** automatic World.initialize/add_entities: pass an explicit World build context, compile all placed recipes, validate duplicate IDs/endpoints, then run the pinned World lifecycle once. Do not assign ECS.world early for compilation: its setter finalizes System.setup immediately, and add_system sets up immediately when that world is active. A project World subclass/glue performs one-shot preparation before its superclass ready path; addons remain read-only. Validation only inside Entity._initialize is too late to prevent ID-collision replacement. Normal ECS.world binding/setup remains passive until startup spawns, saved-state overlay and endpoint fixup finish; then publish ready before main_level simulation. Runtime factory follows the same gate for each new Entity. Entity.on_ready, engine callbacks and synchronous Observers must not publish gameplay effects during construction/restore. This is explicit startup glue, not another scheduler or generic lifecycle framework.
 
 ### 9.2 Trait invariants
 
@@ -692,9 +692,9 @@ Temporary adapters допустимы только внутри незаверш
 
 ## 20. Target roadmap inside Refactoring v2
 
-После исправления текущего ECS execution model Phase 2 продолжает архитектурную миграцию (IDs задач — stable identifiers, а не sort order):
+Phase 2 начинается с inventory 10 и typed-contract foundation 40 до execution migration 11–27; последующие owners сразу используют готовые boundaries. Затем архитектурная миграция продолжается (IDs задач — stable identifiers, а не sort order):
 
-1. typed Commands / Events (40);
+1. execution acceptance (27), включая final typed Commands / Events flows из 40;
 2. vertical layout contract (28) + dependency validator (33);
 3. domain moves (29–32), strict dependency/layout rerun;
 4. unified Game Time + deterministic randomness (47);
