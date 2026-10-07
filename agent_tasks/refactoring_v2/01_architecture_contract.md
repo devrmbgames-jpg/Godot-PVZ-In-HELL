@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: нет.
+Зависимости: [00_05_preflight_readiness_gate.md](00_05_preflight_readiness_gate.md) должен завершиться результатом `READY_FOR_IMPLEMENTATION`.
 
 ## Goal
 

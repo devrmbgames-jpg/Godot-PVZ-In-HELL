@@ -26,7 +26,21 @@ Status: **PLANNED**
 
 Temporary adapters допустимы только внутри незавершённого milestone и удаляются до DONE, если внешний compatibility contract не требует иного.
 
-## Три фазы
+## Preliminary Phase 0 + три implementation-фазы
+
+### Phase 0 — Architecture Preflight
+
+До любого implementation/refactor провести отдельный xhigh planning pass. Текущая target architecture считается сильным кандидатом, но её разрешено упрощать, дополнять или менять, если это делает ядро заметно удобнее для Godot, programmers, designers/content authors, debugging и AI-agent workflow.
+
+1. [Architecture coherence audit](00_01_architecture_coherence_audit.md)
+2. [Usability и content-authoring audit](00_02_usability_authoring_audit.md)
+3. [Simplification / overengineering / reference audit](00_03_simplification_reference_audit.md)
+4. [Migration / persistence / validation audit](00_04_migration_persistence_validation_audit.md)
+5. [Preflight readiness gate](00_05_preflight_readiness_gate.md)
+
+Phase 1 запрещено начинать до результата `READY_FOR_IMPLEMENTATION` в `00_05_preflight_readiness_gate.md`.
+
+## Три implementation-фазы
 
 1. **Закрепить архитектурные правила.**
    Сделать роли, ownership и validation guardrails однозначными до runtime migration.
@@ -58,70 +72,72 @@ Temporary adapters допустимы только внутри незаверш
 
 ### Phase 1 — Architecture contract
 
-1. [Архитектурные роли и ownership](01_architecture_contract.md)
-2. [Scheduled execution и Service boundaries](02_execution_ownership_rules.md)
-3. [Architecture validation и service smells](03_architecture_validation.md)
+6. [Архитектурные роли и ownership](01_architecture_contract.md)
+7. [Scheduled execution и Service boundaries](02_execution_ownership_rules.md)
+8. [Architecture validation и service smells](03_architecture_validation.md)
 
 Phase 2 начинается только после закрытия всех Phase 1 tasks.
 
 ### Phase 2A — Execution model cleanup
 
-4. [Полный inventory сервисов](10_service_inventory.md)
-5. [CustomerFlow: planning, arrival и day transitions](11_customer_flow_planning.md)
-6. [CustomerFlow: активный lifecycle визита](12_customer_flow_runtime.md)
-7. [Customer outcomes и settlement](13_customer_outcomes.md)
-8. [District lifecycle и schedule](14_district_lifecycle.md)
-9. [NPC brain, perception и traits](15_npc_brain.md)
-10. [NPC route и service role](16_npc_route_service_role.md)
-11. [Combat, attacks и projectiles](17_combat.md)
-12. [Challenge lifecycle](18_challenges.md)
-13. [Hunger и Quests](19_hunger_quests.md)
-14. [Interaction input и action routing](20_interaction_input.md)
-15. [Grab, Push, Carry и physical slots](21_grab_push_slots.md)
-16. [Motion и physics boundaries](22_motion_physics.md)
-17. [Hazards, receiving, loot и delivery runtime](23_hazards_receiving_loot.md)
-18. [Economy, Inventory и Commerce](24_economy_inventory_commerce.md)
-19. [Persistence и remaining services](25_persistence_remaining.md)
-20. [Очистка execution graph](26_execution_graph_cleanup.md)
-21. [Execution-model acceptance checkpoint](27_architecture_acceptance.md)
+9. [Полный inventory сервисов](10_service_inventory.md)
+10. [CustomerFlow: planning, arrival и day transitions](11_customer_flow_planning.md)
+11. [CustomerFlow: активный lifecycle визита](12_customer_flow_runtime.md)
+12. [Customer outcomes и settlement](13_customer_outcomes.md)
+13. [District lifecycle и schedule](14_district_lifecycle.md)
+14. [NPC brain, perception и traits](15_npc_brain.md)
+15. [NPC route и service role](16_npc_route_service_role.md)
+16. [Combat, attacks и projectiles](17_combat.md)
+17. [Challenge lifecycle](18_challenges.md)
+18. [Hunger и Quests](19_hunger_quests.md)
+19. [Interaction input и action routing](20_interaction_input.md)
+20. [Grab, Push, Carry и physical slots](21_grab_push_slots.md)
+21. [Motion и physics boundaries](22_motion_physics.md)
+22. [Hazards, receiving, loot и delivery runtime](23_hazards_receiving_loot.md)
+23. [Economy, Inventory и Commerce](24_economy_inventory_commerce.md)
+24. [Persistence и remaining services](25_persistence_remaining.md)
+25. [Очистка execution graph](26_execution_graph_cleanup.md)
+26. [Execution-model acceptance checkpoint](27_architecture_acceptance.md)
 
 ### Phase 2B — Vertical domains
 
-22. [Domain layout contract + validator](28_domain_layout_contract.md)
-23. [Domains: NPC и Customers](29_domain_npc_customers.md)
-24. [Domains: Interaction, Combat и Motion](30_domain_interaction_combat_motion.md)
-25. [Domains: world gameplay](31_domain_world_economy_packages.md)
-26. [Shared core + удаление horizontal roots](32_domain_shared_core.md)
-27. [Domain dependency validation](33_domain_dependency_validation.md)
+27. [Domain layout contract + validator](28_domain_layout_contract.md)
+28. [Domains: NPC и Customers](29_domain_npc_customers.md)
+29. [Domains: Interaction, Combat и Motion](30_domain_interaction_combat_motion.md)
+30. [Domains: world gameplay](31_domain_world_economy_packages.md)
+31. [Shared core + удаление horizontal roots](32_domain_shared_core.md)
+32. [Domain dependency validation](33_domain_dependency_validation.md)
 
 ### Phase 2C — Core framework
 
-28. [Typed Commands / Events](40_typed_commands_events.md)
-29. [Entity Templates / Traits](41_entity_templates_traits.md)
-30. [Visual Entity authoring](42_visual_entity_authoring.md)
-31. [Smart Objects / Affordances / Reservations](43_smart_objects.md)
-32. [Schedule → Utility → GOAP → LimboAI](44_ai_schedule_utility_goap.md)
-33. [Simulation LOD](45_simulation_lod.md)
-34. [Content Doctor](46_content_doctor.md)
-35. [Unified Game Time + deterministic randomness](47_game_time_randomness.md)
-36. [Gameplay Debugger](48_gameplay_debugger.md)
-37. [Core architecture acceptance](49_core_architecture_acceptance.md)
+33. [Typed Commands / Events](40_typed_commands_events.md)
+34. [Entity Templates / Traits](41_entity_templates_traits.md)
+35. [Visual Entity authoring](42_visual_entity_authoring.md)
+36. [Smart Objects / Affordances / Reservations](43_smart_objects.md)
+37. [Schedule → Utility → GOAP → LimboAI](44_ai_schedule_utility_goap.md)
+38. [Simulation LOD](45_simulation_lod.md)
+39. [Content Doctor](46_content_doctor.md)
+40. [Unified Game Time + deterministic randomness](47_game_time_randomness.md)
+41. [Gameplay Debugger](48_gameplay_debugger.md)
+42. [Core architecture acceptance](49_core_architecture_acceptance.md)
 
 ### Phase 3 — Code Style refactor
 
-38. [Formatter/linter как единый style gate](60_style_tooling.md)
-39. [Systems, Observers, Components, Relationships](61_style_ecs_core.md)
-40. [NPC и Customers](62_style_npc_customers.md)
-41. [Interaction, Combat и Motion](63_style_interaction_combat_motion.md)
-42. [Gameplay services, Economy, Inventory, Persistence](64_style_gameplay_services.md)
-43. [Entities, UI, AI, scene scripts, tests и utils](65_style_remaining_code.md)
-44. [Финальная приёмка Refactoring v2](66_final_acceptance.md)
+43. [Formatter/linter как единый style gate](60_style_tooling.md)
+44. [Systems, Observers, Components, Relationships](61_style_ecs_core.md)
+45. [NPC и Customers](62_style_npc_customers.md)
+46. [Interaction, Combat и Motion](63_style_interaction_combat_motion.md)
+47. [Gameplay services, Economy, Inventory, Persistence](64_style_gameplay_services.md)
+48. [Entities, UI, AI, scene scripts, tests и utils](65_style_remaining_code.md)
+49. [Финальная приёмка Refactoring v2](66_final_acceptance.md)
 
 ## Current
 
 План расширен до полного core refactor. Реализация runtime migration не начиналась.
 
-Первое действие: выполнить только [01 — архитектурные роли и ownership](01_architecture_contract.md). Не начинать массовую runtime migration до фиксации rules/validation.
+Первое действие: выполнить [00.01 — architecture coherence audit](00_01_architecture_coherence_audit.md) в Plan Mode / xhigh. Затем пройти весь Phase 0 последовательно.
+
+Ни Phase 1, ни runtime migration не начинать до `READY_FOR_IMPLEMENTATION` в [00.05 — preflight readiness gate](00_05_preflight_readiness_gate.md).
 
 Domain structure guardrail уже подготовлен в transition mode:
 `python utils/validate_domain_structure.py`.
@@ -149,6 +165,26 @@ Refactoring v2 завершён, когда:
 - вся project-owned GDScript база проходит formatter/linter/style gate;
 - parser/static validation, профильные GUT/smoke и итоговая integration validation PASS;
 - remaining subjective QA вынесена в `qa_tasks/`.
+
+## Recommended GPT-6.1 Sol reasoning
+
+Use `gpt-6.1-sol` throughout Refactoring v2 and change reasoning effort by task type rather than switching model families.
+
+- **high** — normal implementation default: bounded domain refactors, moving ownership, writing Systems/Observers, tests, validators, Traits, Smart Objects and ordinary bug fixing.
+- **xhigh** — весь Phase 0 Architecture Preflight и дальнейшие planning/architecture/review задачи: Phase 1 rules, service inventory classification, execution-graph design, vertical-domain boundaries, Commands/Events contract, Traits architecture, GOAP/LOD design, difficult debugging, migration planning and milestone review.
+- **max** — rare architecture gates only: resolving a genuinely ambiguous cross-domain design, reviewing a large completed architectural milestone, or final Phase 2 / Refactoring v2 acceptance when a missed flaw would propagate through the whole project.
+- **medium** — mechanical work after architecture is already decided: straightforward path/resource updates, repetitive file moves, simple fixtures, generated migration edits, documentation synchronization and low-risk Code Style batches.
+- **low** — only for trivial mechanical edits with a completely explicit transformation. Do not use it for ownership decisions, architecture classification, physics, persistence, AI planning, or review.
+
+Practical default for Codex configuration:
+
+```toml
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
+plan_mode_reasoning_effort = "xhigh"
+```
+
+Escalate an individual task to `max` only when the task itself is an architecture/final-review gate. Do not run the whole refactor at `max`: most implementation work gains little from paying the maximum reasoning budget continuously.
 
 ## Rule for continuing
 

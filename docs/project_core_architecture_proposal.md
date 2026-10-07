@@ -1,8 +1,8 @@
 # Project Core Architecture
 
-Status: **TARGET ARCHITECTURE**
+Status: **CANDIDATE TARGET ARCHITECTURE — SUBJECT TO REFACTORING V2 PHASE 0 PREFLIGHT**
 
-Этот документ фиксирует целевое ядро проекта. Его задача — довести проект до состояния, где новый контент в основном собирается из сцен, ассетов, Definitions, Entity Templates / Traits, Smart Objects, Dialogue, AI profiles/schedules и настроек уровней. Новый runtime gameplay-код должен требоваться прежде всего для **новой механики**, а не для нового NPC, предмета, квеста или варианта уже существующей механики.
+Этот документ фиксирует текущего кандидата на целевое ядро проекта. До начала runtime-refactor он проходит Phase 0 audit в `agent_tasks/refactoring_v2/00_*`; аудит имеет право упростить, дополнить или изменить решения, если это делает ядро удобнее и уменьшает ненужную сложность. Его задача — довести проект до состояния, где новый контент в основном собирается из сцен, ассетов, Definitions, Entity Templates / Traits, Smart Objects, Dialogue, AI profiles/schedules и настроек уровней. Новый runtime gameplay-код должен требоваться прежде всего для **новой механики**, а не для нового NPC, предмета, квеста или варианта уже существующей механики.
 
 ## 1. Authoritative gameplay model
 
@@ -103,6 +103,12 @@ Presentation notifications
 Внутри фаз используются `deps()`. Разработчик должен понимать порядок исполнения без чтения service call graph.
 
 ## 5. Smart Objects / Affordances
+
+Reference: Unreal Engine Mass Gameplay — Mass SmartObject integration:
+https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-gameplay-in-unreal-engine
+
+This is a conceptual reference for capability-based world interaction and reservations. We are not adopting Unreal SmartObject runtime classes; the project keeps its own ECS Relationships, Definitions and Godot scene markers.
+
 
 Мир должен объявлять доступные действия вместо проверки конкретных типов объектов.
 
@@ -206,6 +212,12 @@ GOAP передаёт LimboAI action/execution contract, но не станов�
 
 ## 7. AI budgeting and event-driven updates
 
+Reference: Unreal Engine Mass Gameplay — Mass Signals / Mass Simulation LOD / StateTree integration:
+https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-gameplay-in-unreal-engine
+
+The useful reference idea is that expensive entity processing can be budgeted/LOD'd and some decision logic can be woken by signals instead of being polled at full frequency. Our AI stack remains Schedule → Utility → GOAP → LimboAI rather than Mass StateTree.
+
+
 Не каждый NPC обязан думать каждый physics frame.
 
 Ориентир:
@@ -228,6 +240,12 @@ Planner желательно будить событиями:
 - new job/order appeared.
 
 ## 8. Simulation LOD
+
+Reference: Unreal Engine Mass Gameplay — Representation LOD and Simulation LOD:
+https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-gameplay-in-unreal-engine
+
+We borrow the separation between **simulation detail** and **representation detail**. In this project the concrete implementation is Godot/GECS-specific: physical Node3D + LimboAI near the player, reduced/macro simulation farther away.
+
 
 Целевые уровни:
 
@@ -257,6 +275,12 @@ current_macro_goal
 При materialization физическое представление восстанавливается из authoritative simulation state.
 
 ## 9. Entity Templates / Traits
+
+Reference: Unreal Engine Mass Entity — Entity Templates and Traits:
+https://dev.epicgames.com/documentation/unreal-engine/overview-of-mass-entity-in-unreal-engine?lang=en-US
+
+We intentionally borrow the **authoring/composition idea** from Mass: an Entity Config/Template is composed from Traits, and Traits contribute/configure the runtime data needed for a capability. Our implementation remains native to Godot + GECS and does not copy Unreal runtime APIs.
+
 
 Traits — **authoring recipes**, а не runtime Components и не Systems.
 
@@ -750,3 +774,36 @@ Temporary adapters допустимы только внутри незаверш
 - новая механика требует нового System/Observer/Rules;
 - новая разновидность существующей механики требует в основном данных;
 - designer видит реальные NPC/объекты в Godot Editor и получает validation до запуска игры.
+
+
+## References and borrowed ideas
+
+The target architecture is project-specific. The following external systems are used as **design references**, not as APIs to reproduce mechanically.
+
+### Unreal Engine Mass Entity / Mass Gameplay
+
+- Mass Entity overview — Entity Manager, Entity Templates, Traits, deferred entity operations:
+  https://dev.epicgames.com/documentation/unreal-engine/overview-of-mass-entity-in-unreal-engine?lang=en-US
+- Mass Gameplay overview — Representation LOD, Simulation LOD, Signals, StateTree integration, Smart Objects:
+  https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-gameplay-in-unreal-engine
+- Mass Observer Processor:
+  https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/MassEntity/UMassObserverProcessor
+
+Ideas explicitly inspired by Mass:
+- Entity Templates assembled from composable Traits;
+- Traits as authoring/configuration of runtime capabilities rather than per-frame behavior;
+- scheduled processors vs reactive observers;
+- deferred/command-buffer structural mutations;
+- separate representation LOD and simulation LOD;
+- signal/event-driven wake-up of expensive logic;
+- Smart Object integration as a reusable interaction capability.
+
+Project-specific differences:
+- GECS v8 remains the ECS runtime;
+- Godot scenes remain the primary visual/physical authoring representation;
+- UI remains ordinary Godot Control glue;
+- LimboAI remains local/realtime behavior execution;
+- GOAP is proposed only for macro multi-step planning;
+- project Relationships/Commands/Events remain the authoritative integration mechanism.
+
+When an architectural rule is derived from one of these references, documentation/tasks should name the reference explicitly instead of presenting it as an arbitrary local convention.
