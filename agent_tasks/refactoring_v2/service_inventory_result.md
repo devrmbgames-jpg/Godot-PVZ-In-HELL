@@ -110,7 +110,7 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `npc/district_population_service.gd` | SPLIT | 14 | Explicit registry/materialization/participation retained; phase/preparation/completion owners moved to O_DistrictLifecycle with typed receipts. | DONE |
 | `npc/district_schedule_service.gd` | MOVE_SYSTEM | 14 | Deleted tick/forwarder; S_District bootstraps facts, O_DistrictLifecycle owns calendar/death reactions. | DONE |
 | `npc/npc_activity_service.gd` | KEEP_SERVICE | 16 | One BT-selected activity/destination/observe command. | KEPT_WITH_REASON |
-| `npc/npc_brain_service.gd` | SPLIT | 15 | LimboAI adapter mixed with actor/sensor/role/route/tree scheduling and noise ageing. | PENDING |
+| `npc/npc_brain_service.gd` | SPLIT | 15 | LimboAI install/participation/update adapter retained; cadence/native execution/branch cleanup/noise moved to explicit owners. | DONE |
 | `npc/npc_community_service.gd` | KEEP_SERVICE | 16 | BT-selected reserve/collect/eat/conflict operations. | KEPT_WITH_REASON |
 | `npc/npc_decision_service.gd` | KEEP_SERVICE | 16 | Narrow BT leaf search/flee/observe commands, no outer scheduler. | KEPT_WITH_REASON |
 | `npc/npc_delivery_offer_service.gd` | KEEP_SERVICE | 16 | Explicit Morning/registration offer generation and responses. | KEPT_WITH_REASON |
@@ -119,12 +119,12 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `npc/npc_home_delivery_service.gd` | KEEP_SERVICE | 16 | Accept/knock/complete/evening settlement commands, one obligation writer. | KEPT_WITH_REASON |
 | `npc/npc_intent_arbiter.gd` | KEEP_SERVICE | 16 | Per-decision priority acquisition and motion command. | KEPT_WITH_REASON |
 | `npc/npc_lighting_service.gd` | KEEP_GEOMETRY | 15 | Lifecycle-fed zone registry/derived context and explicit exposure query. | KEPT_WITH_REASON |
-| `npc/npc_perception_service.gd` | SPLIT | 15 | Sight/hear/noise operations mixed with sensor/search/hearing/footstep clocks. | PENDING |
+| `npc/npc_perception_service.gd` | SPLIT | 15 | Explicit geometry/hear/noise retained; sensor/search/hearing/footstep clocks moved to Systems. | DONE |
 | `npc/npc_route_service.gd` | SPLIT | 16 | Path/risk algorithms mixed with stall/blocked clocks and queue budget. | PENDING |
 | `npc/npc_service_role.gd` | SPLIT | 16 | Role commands mixed with elapsed/entrance progression. | PENDING |
 | `npc/npc_sleep_service.gd` | KEEP_RULES | 16 | Explicit blocker query over perceived threats. | KEPT_WITH_REASON |
 | `npc/npc_social_service.gd` | KEEP_SERVICE | 16 | One idempotent incident/reaction/promise transaction; event-owned witnesses. | KEPT_WITH_REASON |
-| `npc/npc_trait_service.gd` | SPLIT | 15 | Authored immunity/aura install mixed with timed exposure/retreat. | PENDING |
+| `npc/npc_trait_service.gd` | SPLIT | 15 | Explicit authored immunity/aura/refuge operations retained; timed exposure/retreat owned by S_NpcTraits, predicates by Rules. | DONE |
 | `packages/package_contents_service.gd` | KEEP_SERVICE | 23 | One-shot contents release; released flag owns idempotency. | KEPT_WITH_REASON |
 | `packages/package_history_service.gd` | KEEP_SERVICE | 23 | Stable history-ID allocation and ledger/note commands. | KEPT_WITH_REASON |
 | `packages/package_lifecycle.gd` | KEEP_SERVICE | 23 | Typed fact after package state commit. | KEPT_WITH_REASON |
@@ -185,6 +185,8 @@ Reusable one-visit creation/materialization and next-arrival lookup remain expli
 | 13.A | Terminal death/disappearance/outcome/complaint/settlement reactions and _settle_visit polling → committed fact handlers | Flow loop polls old results → one outcome reaction after committed state. CustomerOutcomeService retains transactions/IDs only. | test_customer_flow.gd, test_combat_attribution.gd, test_wallet.gd, test_terminal_notes_complaints.gd |
 
 ### 14 / 15 / 16 — district, sensors, decisions, route and role
+
+**14.A/14.B DONE**: reactive district calendar/death/goal/preparation/completion; native receipts and gated Night capture. **15.A/15.B/15.C DONE**: explicit cadence/footsteps/perception/trait/native-decision/noise graph; old ticks removed, adapter/geometry/explicit aura retained. Route cadence and budget remain solely with the next task 16; the existing route allowance follows that owner.
 
 | Slice | Responsibility / target | Before → after ordering and removal | Existing regression |
 | --- | --- | --- | --- |

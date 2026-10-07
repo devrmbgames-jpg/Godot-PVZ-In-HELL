@@ -24,6 +24,10 @@ func _ready() -> void:
 		var customer_owner: System = owner_type.new() as System
 		customer_owner.group = "GamePlay"
 		world.add_system(customer_owner)
+	for owner_type: Script in [S_NpcCadence, S_NpcFootsteps, S_NpcPerception, S_NpcTraits, S_NpcNoise]:
+		var npc_owner: System = owner_type.new() as System
+		npc_owner.group = "GamePlay"
+		world.add_system(npc_owner)
 	world.add_system(S_LootDrops.new(), true)
 	_bind_furniture_delivery()
 	DistrictPopulationService.initialize()

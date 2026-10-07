@@ -43,6 +43,8 @@ A Relationship either guarantees its target remains live while the binding exist
 
 District calendar goals, phase completion and morning preparation are owned by O_DistrictLifecycle. S_District bootstraps only missing/restored calendar facts before customer/day/native-decision/intent consumers. Population registry/materialization and physical participation are explicit operations. Native goal completion and night capture wait for actual typed receipts; retained dormant bodies remain lifecycle targets. Derived calendar caches are not persisted.
 
+Native NPC cadence, footsteps, perception, traits, decisions and noise ageing are explicit Systems with one transient captured due interval in C_NpcDecision. NpcDecisionReady commits after sampled sensing/traits and before native BT/role-clock consumers. Queued stages reject replaced components or calendar/participation changes; decision revalidates after synchronous ready reactions. NpcBrainService is only a LimboAI runtime adapter.
+
 ### Choosing execution ownership
 
 1. Required engine timing comes first: work that must use `PhysicsDirectBodyState3D` in `_integrate_forces` stays in that callback's Entity glue and independent non-System Solvers.

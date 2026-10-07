@@ -103,42 +103,12 @@
     },
     {
       "rule": "service-step",
-      "owner": "NpcBrainService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Perception/decision cadence and route orchestration; tasks 15-16",
-      "task": "15_npc_brain.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step-query",
-      "owner": "NpcBrainService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Perception/decision cadence and route orchestration; tasks 15-16",
-      "task": "15_npc_brain.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
       "owner": "NpcRouteService",
       "method": "tick",
       "target": "",
       "count": 1,
       "reason": "Route temporal progression",
       "task": "16_npc_route_service_role.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
-      "owner": "NpcTraitService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Trait scheduled step",
-      "task": "15_npc_brain.md",
       "removal_gate": "26/27"
     },
     {
@@ -223,16 +193,6 @@
     },
     {
       "rule": "system-service-step",
-      "owner": "S_NpcDecision",
-      "method": "process",
-      "target": "NpcBrainService.tick",
-      "count": 1,
-      "reason": "Perception/decision cadence and route orchestration; tasks 15-16",
-      "task": "15_npc_brain.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "system-service-step",
       "owner": "S_RefusalQuest",
       "method": "process",
       "target": "RefusalQuestService.tick",
@@ -249,6 +209,16 @@
       "count": 1,
       "reason": "Marker input/session update",
       "task": "20_interaction_input.md",
+      "removal_gate": "26/27"
+    },
+    {
+      "rule": "system-service-step",
+      "owner": "S_NpcDecision",
+      "method": "_decide",
+      "target": "NpcRouteService.tick",
+      "count": 1,
+      "reason": "Existing route step moved with native decision ordering; remove through the immediately following task 16, not a new permanent allowance",
+      "task": "16_npc_route_service_role.md",
       "removal_gate": "26/27"
     }
   ]

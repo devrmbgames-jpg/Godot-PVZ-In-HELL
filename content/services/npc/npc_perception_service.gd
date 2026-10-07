@@ -89,28 +89,6 @@ static func can_see_point(observer: E_DistrictNpc, point: Vector3, profile: DEF_
 	return hit.is_empty() or (target != null and HazardTargets.entity_for(hit.get("collider") as Node) == target)
 
 
-## Обновляет только подтверждённые позиции; скрытые позиции не копируются из живой цели.
-static func sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: float) -> void:
-	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
-	awareness.player_visible = player != null and can_see(actor, player, person.profile)
-	if not awareness.player_visible and NpcDialogueService.participant(actor) == null:
-		NpcIntentService.look_along_movement(actor)
-	var opponent: Entity = CombatService.target_for(actor)
-	awareness.target_visible = opponent != null and can_see(actor, opponent, person.profile)
-	if awareness.target_visible:
-		awareness.last_seen_position = (opponent as Node as Node3D).global_position
-		awareness.has_last_seen = true
-		awareness.search_elapsed = 0.0
-		awareness.search_index = 0
-	elif opponent != null:
-		awareness.search_elapsed += delta
-	awareness.heard_remaining = maxf(0.0, awareness.heard_remaining - delta)
-
-	var district: C_District = DistrictPopulationService.current()
-	for noise: NpcNoise in district.noises:
-		if noise.sequence > awareness.last_noise_sequence:
-			awareness.last_noise_sequence = noise.sequence
-			hear(actor, person.profile, noise)
 #endregion
 
 #region Слух
@@ -163,29 +141,4 @@ static func hear(listener: Entity, profile: DEF_NpcProfile, noise: NpcNoise) -> 
 	awareness.investigate_noise = noise.investigate
 	return true
 
-## Создаёт слышимые шаги; прохожие не отвлекают друг друга, шум игрока остаётся поводом проверки.
-static func footsteps(actor: Entity, delta: float) -> void:
-	var body: RigidBody3D = actor as Node as RigidBody3D
-	if body == null or not actor.enabled:
-		return
-
-	var speed: float = Vector2(body.linear_velocity.x, body.linear_velocity.z).length()
-	if speed < 0.2:
-		return
-
-	var district: C_District = DistrictPopulationService.current()
-	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
-	var elapsed: float = awareness.footstep_elapsed + delta if awareness != null else district.player_step_elapsed + delta
-	if elapsed < district.definition.footstep_interval:
-		if awareness != null: awareness.footstep_elapsed = elapsed
-		else: district.player_step_elapsed = elapsed
-		return
-	if awareness != null: awareness.footstep_elapsed = 0.0
-	else: district.player_step_elapsed = 0.0
-
-	var crouch: C_Crouch = actor.get_component(C_Crouch) as C_Crouch
-	var radius: float = district.definition.running_noise_radius if speed > 3.0 else district.definition.walking_noise_radius
-	if crouch != null and crouch.active:
-		radius *= district.definition.crouching_noise_fraction
-	emit_noise(actor, body.global_position + Vector3.UP * TORSO_HEIGHT, radius, actor.has_component(C_PlayerInputController))
 #endregion

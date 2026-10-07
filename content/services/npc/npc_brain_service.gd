@@ -1,7 +1,8 @@
 extends RefCounted
-## Распределяет восприятие и решения между постоянными NPC с нативными деревьями LimboAI.
+## Installs and advances one native LimboAI runtime; scheduling belongs to explicit AI Systems.
 class_name NpcBrainService
 
+## Authored native decision tree installed by the runtime adapter.
 const TREE_PATH: String = "res://content/ai/trees/bt_district_npc.tres"
 
 #region Жизненный цикл AI
@@ -70,58 +71,4 @@ static func _abort_tree(actor: E_DistrictNpc, runner: BTPlayer) -> void:
 		decision.intent_owner = C_NpcDecision.Owner.NONE
 		decision.active_behavior = ""
 
-## Обновляет согласованное восприятие, затем каждое нативное дерево решений.
-static func tick(district: C_District, delta: float) -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
-	if cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:
-		return
-
-	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
-	if player != null:
-		NpcPerceptionService.footsteps(player, delta)
-	var due: Array[E_DistrictNpc] = []
-	for person: NpcRecord in district.people:
-		if person.death_day != 0 or person.placement != NpcRecord.Placement.STREET:
-			continue
-
-		var actor: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
-		if actor == null:
-			continue
-		if not actor.has_component(C_NpcDecision) or not actor.has_component(C_NpcAwareness) or actor.get_node_or_null("Brain") == null:
-			install(actor)
-		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-		decision.update_elapsed += maxf(0.0, delta)
-		if decision.update_elapsed < district.definition.decision_interval:
-			continue
-
-		NpcPerceptionService.footsteps(actor, decision.update_elapsed)
-		NpcPerceptionService.sense(actor, person, player, decision.update_elapsed)
-		NpcTraitService.tick(actor, person, player, decision.update_elapsed)
-		due.append(actor)
-	for actor: E_DistrictNpc in due:
-		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-		var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
-		var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
-		if decision.intent_owner == C_NpcDecision.Owner.IDLE and not (intent.movement_active and not intent.arrived):
-			awareness.idle_elapsed += decision.update_elapsed
-		# Perception has committed; role clocks consume this exact due-step delta before BT.
-		ECS.world.emit_event(NpcDecisionReady.EVENT, actor, NpcDecisionReady.new(decision.update_elapsed))
-		decision.intent_owner = C_NpcDecision.Owner.NONE
-		update_tree(actor, decision.update_elapsed)
-		if not actor.enabled:
-			decision.update_elapsed = 0.0
-			continue
-		if decision.intent_owner != C_NpcDecision.Owner.IDLE:
-			NpcCommunityService.cancel_activity(actor)
-		if decision.intent_owner in [C_NpcDecision.Owner.EMERGENCY, C_NpcDecision.Owner.COMBAT]:
-			NpcDialogueService.end(actor)
-			NpcServiceRole.suspend(actor)
-		var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
-		NpcRouteService.tick(actor, DistrictPopulationService.person_for(identity.npc_id), decision.update_elapsed)
-		decision.update_elapsed = 0.0
-	NpcRouteService.process_pending(district)
-	for noise: NpcNoise in district.noises.duplicate():
-		noise.remaining -= maxf(0.0, delta)
-		if noise.remaining <= 0.0:
-			district.noises.erase(noise)
 #endregion

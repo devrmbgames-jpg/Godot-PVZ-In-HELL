@@ -151,13 +151,13 @@ func test_hidden_target_position_never_updates_search_memory() -> void:
 	person.profile = _profile
 	CombatService.bind_target(_observer, _target)
 	await _synchronize()
-	NpcPerceptionService.sense(_observer, person, _target, 0.2)
+	NpcAiFixture.sense(_observer, person, _target, 0.2)
 	var awareness: C_NpcAwareness = _observer.get_component(C_NpcAwareness) as C_NpcAwareness
 	var confirmed: Vector3 = awareness.last_seen_position
 	_wall.position = Vector3(0, 1.5, -1.5)
 	_target.place_at(Vector3(0.5, 0, -6))
 	await _synchronize()
-	NpcPerceptionService.sense(_observer, person, _target, 0.2)
+	NpcAiFixture.sense(_observer, person, _target, 0.2)
 	assert_false(awareness.target_visible)
 	assert_eq(awareness.last_seen_position, confirmed)
 	assert_almost_eq(awareness.search_elapsed, 0.2, 0.001)

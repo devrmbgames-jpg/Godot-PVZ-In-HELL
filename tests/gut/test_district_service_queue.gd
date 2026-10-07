@@ -18,7 +18,7 @@ func test_fire_customer_death_releases_aura_and_counter() -> void:
 	NpcServiceRole.begin(fire_body, fire_person, first, cycle.day_index)
 	NpcServiceRole.begin(next_body, _district.people[3], next, cycle.day_index)
 	NpcServiceRole.claim_counter(fire_body)
-	NpcTraitService.tick(fire_body, fire_person, null, 0.2)
+	NpcAiFixture.traits(fire_body, fire_person, null, 0.2)
 	_world.process(0.0)
 	var effects: Array = _world.query.with_all([C_Hazard, C_ToxicArea]).execute()
 	assert_eq(effects.size(), 1, "A real fire aura exists before death")

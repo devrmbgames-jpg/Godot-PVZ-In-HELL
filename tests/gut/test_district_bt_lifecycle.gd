@@ -175,7 +175,7 @@ func test_schedule_departure_aborts_after_its_own_tick() -> void:
 	person.profile.schedule.day = DEF_NpcSchedule.Location.OUTSIDE
 	assert_true(DistrictPopulationService.request_phase(body, cycle.day_index, cycle.phase).succeeded)
 	body.place_at(DistrictPopulationService.position_for(person.goal_id) + Vector3(0.4, 0, 0))
-	NpcBrainService.tick(_district, 0.3)
+	NpcAiFixture.advance(_district, 0.3)
 	var runner: BTPlayer = body.get_node("Brain") as BTPlayer
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	assert_eq(person.placement, NpcRecord.Placement.OUTSIDE)

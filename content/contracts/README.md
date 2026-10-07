@@ -107,3 +107,18 @@ receipt; repeated requests cannot create another replacement or reset reaction s
 NightSaveService waits for this receipt before snapshot capture. Record references in requests
 are immutable identity checks, never competing mutable state or Entity-to-Entity bindings.
 Lifecycle cache fields are derived and excluded from the codec; restore invalidates them.
+
+## Native AI sampled execution (task 15)
+
+S_NpcCadence captures the accumulated due interval and calendar in transient C_NpcDecision
+fields. Scheduled order is footsteps -> due perception -> traits -> native decision -> noise
+ageing; district/customer/day commits precede cadence. Each sampled queued stage revalidates
+component identity, actor participation and calendar. NpcDecisionReady publishes after sensing
+and traits, using that same interval; O_CustomerServiceClock commits scalar role time before
+native BT. Decision checks participation again after synchronous consumers may retire the body.
+Blackboard stores no second gameplay authority. Captured scheduling fields are not serialized.
+
+NpcBrainService only installs/updates/participates/aborts the native runtime. Geometry/hearing,
+noise publication and explicit immunity/aura operations remain reusable commands/calculations.
+Task 16 removes the remaining route step/pending budget; task 15 introduces no replacement
+brain scheduler or old tick aliases.

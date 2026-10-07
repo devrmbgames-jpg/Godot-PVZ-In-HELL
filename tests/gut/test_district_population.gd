@@ -104,7 +104,7 @@ func test_morning_retry_is_idempotent() -> void:
 func test_native_tree_drives_schedule_without_another_movement_owner() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
-	NpcBrainService.tick(_district, 0.2)
+	NpcAiFixture.advance(_district, 0.2)
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	var intent: C_NpcIntent = body.get_component(C_NpcIntent) as C_NpcIntent
 	assert_not_null(body.get_node_or_null("Brain") as BTPlayer)

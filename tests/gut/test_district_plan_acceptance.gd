@@ -129,7 +129,7 @@ func test_footsteps_do_not_pull_idle_npc_into_a_crowd() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	source.linear_velocity = Vector3.RIGHT
-	NpcPerceptionService.footsteps(source, _district.definition.footstep_interval)
+	NpcAiFixture.footsteps(source, _district.definition.footstep_interval)
 	assert_false(_district.noises.is_empty())
 	var noise: NpcNoise = _district.noises.back()
 	assert_false(noise.investigate)
@@ -152,7 +152,7 @@ func test_player_footsteps_still_prompt_anonymous_investigation() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	player.linear_velocity = Vector3.RIGHT
-	NpcPerceptionService.footsteps(player, _district.definition.footstep_interval)
+	NpcAiFixture.footsteps(player, _district.definition.footstep_interval)
 	assert_false(_district.noises.is_empty())
 	var noise: NpcNoise = _district.noises.back()
 	assert_true(noise.investigate)
@@ -299,23 +299,23 @@ func test_retreat_requires_visible_confrontation_and_does_not_restart_attack() -
 	player.linear_velocity = Vector3(0, 0, -3)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	NpcPerceptionService.sense(body, person, player, 0.2)
+	NpcAiFixture.sense(body, person, player, 0.2)
 
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	assert_true(awareness.player_visible)
-	NpcTraitService.tick(body, person, player, 1.0)
+	NpcAiFixture.traits(body, person, player, 1.0)
 	assert_true(person.memories.is_empty())
 	CombatService.bind_target(body, player)
 	var combat: C_NpcCombat = body.get_component(C_NpcCombat) as C_NpcCombat
 	combat.phase = C_NpcCombat.Phase.WINDUP
-	NpcTraitService.tick(body, person, player, person.profile.retreat_seconds)
+	NpcAiFixture.traits(body, person, player, person.profile.retreat_seconds)
 	assert_eq(person.memories.size(), 1)
 	assert_eq(person.memories[0].kind, NpcMemory.Kind.SUBMISSION)
 	assert_eq(combat.phase, C_NpcCombat.Phase.WINDUP)
-	NpcTraitService.tick(body, person, player, 5.0)
+	NpcAiFixture.traits(body, person, player, 5.0)
 	assert_eq(person.memories.size(), 1)
 	awareness.player_visible = false
-	NpcTraitService.tick(body, person, player, 5.0)
+	NpcAiFixture.traits(body, person, player, 5.0)
 	assert_eq(awareness.retreat_elapsed, 0.0)
 	assert_eq(person.memories.size(), 1)
 
@@ -333,15 +333,15 @@ func test_gaze_warning_has_a_working_countermeasure() -> void:
 	camera.current = true
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	NpcPerceptionService.sense(body, person, player, 0.2)
+	NpcAiFixture.sense(body, person, player, 0.2)
 
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
-	NpcTraitService.tick(body, person, player, rule.warning_seconds * 0.5)
+	NpcAiFixture.traits(body, person, player, rule.warning_seconds * 0.5)
 	assert_true(awareness.warned_rules.is_empty())
-	NpcTraitService.tick(body, person, player, rule.warning_seconds)
+	NpcAiFixture.traits(body, person, player, rule.warning_seconds)
 	assert_true(awareness.warned_rules.has(rule.kind))
 	camera.rotation.y = 0.0
-	NpcTraitService.tick(body, person, player, rule.reaction_seconds + 1.0)
+	NpcAiFixture.traits(body, person, player, rule.reaction_seconds + 1.0)
 	assert_true(person.memories.is_empty())
 	assert_eq(awareness.rule_exposure[rule.kind], 0.0)
 
@@ -356,14 +356,14 @@ func test_light_and_darkness_countermeasures_reset_exposure() -> void:
 	person.profile.rules = [rule]
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	NpcPerceptionService.sense(body, person, player, 0.2)
+	NpcAiFixture.sense(body, person, player, 0.2)
 
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
-	NpcTraitService.tick(body, person, player, rule.warning_seconds)
+	NpcAiFixture.traits(body, person, player, rule.warning_seconds)
 	assert_true(awareness.light_distress)
 	assert_true(awareness.warned_rules.has(rule.kind))
 	zone.enabled = false
-	NpcTraitService.tick(body, person, player, rule.reaction_seconds + 1.0)
+	NpcAiFixture.traits(body, person, player, rule.reaction_seconds + 1.0)
 	assert_false(awareness.light_distress)
 	assert_eq(awareness.rule_exposure[rule.kind], 0.0)
 	assert_true(person.memories.is_empty())
@@ -371,10 +371,10 @@ func test_light_and_darkness_countermeasures_reset_exposure() -> void:
 	rule = DEF_NpcTrait.new()
 	rule.kind = DEF_NpcTrait.Kind.DARK_PREDATOR
 	person.profile.rules = [rule]
-	NpcTraitService.tick(body, person, player, rule.warning_seconds)
+	NpcAiFixture.traits(body, person, player, rule.warning_seconds)
 	assert_true(awareness.warned_rules.has(rule.kind))
 	zone.enabled = true
-	NpcTraitService.tick(body, person, player, rule.reaction_seconds + 1.0)
+	NpcAiFixture.traits(body, person, player, rule.reaction_seconds + 1.0)
 	assert_eq(awareness.rule_exposure[rule.kind], 0.0)
 	assert_true(person.memories.is_empty())
 #endregion
@@ -393,14 +393,14 @@ func test_strength_test_uses_latest_observed_response() -> void:
 	var player: E_DistrictNpc = _player()
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	NpcPerceptionService.sense(body, person, player, 0.2)
+	NpcAiFixture.sense(body, person, player, 0.2)
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	assert_true(awareness.player_visible)
 	assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.THREAT, &"test/respect"), NpcMemory.Reaction.RESPECT)
-	NpcTraitService.tick(body, person, player, rule.warning_seconds)
+	NpcAiFixture.traits(body, person, player, rule.warning_seconds)
 	assert_eq(awareness.rule_exposure[rule.kind], 0.0)
 	NpcSocialService.react(body, player, NpcMemory.Kind.SUBMISSION, &"test/later_submission")
-	NpcTraitService.tick(body, person, player, rule.warning_seconds)
+	NpcAiFixture.traits(body, person, player, rule.warning_seconds)
 	assert_gt(awareness.rule_exposure[rule.kind], 0.0)
 	assert_true(awareness.warned_rules.has(rule.kind))
 
