@@ -2,7 +2,7 @@
 
 Status: **READY_FOR_IMPLEMENTATION**
 
-Next task: `01_architecture_contract.md`
+Next task: `02_execution_ownership_rules.md`
 
 Рабочая ветка Phase 0: `dev`. Историческая подготовка: `chore/gdscript-human-first-style`; это не требование checkout.
 
@@ -140,11 +140,11 @@ Typed contracts уже закреплены задачей 40 перед executi
 
 ## Current
 
-План расширен до полного core refactor. Реализация runtime migration не начиналась.
+Phase 1 начата: [01 — architecture contract](01_architecture_contract.md) **DONE** 2026-10-07. Canonical role/ownership rules закреплены в `content/ARCHITECTURE.md`, AGENTS/GECS skill ссылаются на них. 02–04 остаются PLANNED; реализация runtime migration не начиналась.
 
-Повторный Phase 0 pass завершён 2026-10-07 строго последовательно, с отдельным coherent commit каждой 00_задачи. Final full review [00_05](00_05_preflight_readiness_gate.md): **READY_FOR_IMPLEMENTATION**. Phase 1–3 и runtime migration не начаты.
+Повторный Phase 0 pass завершён 2026-10-07 строго последовательно, с отдельным coherent commit каждой 00_задачи. Final full review [00_05](00_05_preflight_readiness_gate.md): **READY_FOR_IMPLEMENTATION**. Этот исторический gate разрешил Phase 1; его preflight pass завершён до реализации 01.
 
-Следующее действие отдельного запроса: [01 — architecture contract](01_architecture_contract.md). Эта сессия завершена на preflight gate; 01 здесь не исполнять.
+Следующее действие отдельного запроса: [02 — scheduled execution и Service boundaries](02_execution_ownership_rules.md). В текущем запросе выполнена одна небольшая задача 01 согласно правилу продолжения ниже.
 
 Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/body detach/четыре tiers deferred; baseline ACTIVE/DORMANT with retained physical-root Entity and ECS-owned population records. Population/district schedules belong to npc, without separate district domain. Known structure failures (31, smoke reference/R26 metadata) закреплены за 03 и устраняются до runtime migration.
 
@@ -156,7 +156,8 @@ Domain structure guardrail уже подготовлен в transition mode:
 После завершения vertical-domain migration обязательный gate:
 `python utils/validate_domain_structure.py --strict`.
 
-Preflight docs gate: `python utils/validate_refactoring_preflight.py --require-gate`.
+Текущие roadmap links/dependencies/encoding: `python utils/validate_refactoring_preflight.py`.
+Frozen Phase 0 docs gate: `python utils/validate_refactoring_preflight.py --require-gate` (проверяет состояние до implementation: все будущие tasks PLANNED и next01; после старта Phase 1 неприменим к текущему task state).
 Fixtures: `python -m unittest discover -s tests/tools -p test_validate_refactoring_preflight.py`.
 
 Phase 0 commit footprint: `python utils/validate_refactoring_preflight.py --phase0-commit <commit-id>`; repeat flag for each commit. Index before commit: `--check-staged-scope`. These checks include only owned committed/staged paths, preserving unrelated unstaged config/addon changes.

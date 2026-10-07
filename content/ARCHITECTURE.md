@@ -2,7 +2,7 @@
 
 Durable cross-system gameplay contracts. Read on demand only when a task crosses subsystem boundaries or the owning authority is unclear; focused work should start from the named code.
 
-The complete target-core design is documented in `docs/project_core_architecture_proposal.md`. During Refactoring v2, this file remains the concise runtime contract while the proposal defines the migration destination.
+The complete target-core design is documented in [Project Core Architecture](../docs/project_core_architecture_proposal.md). This file owns the canonical role and ownership rules; the proposal describes the migration destination. These rules constrain new work and migration acceptance; they do not assert that every legacy execution path has already migrated.
 
 ## Runtime entry and scheduling
 
@@ -12,27 +12,63 @@ The complete target-core design is documented in `docs/project_core_architecture
 - RigidBody transform/velocity authority stays in Godot/Jolt. Character/body integration is orchestrated from Entity physics callbacks through independent solvers; scheduled Systems must not be used as imperative physics services.
 - Structural ECS mutation during iteration uses the pinned GECS-safe command/lifecycle path.
 
-## ECS authority
+## Canonical roles and ownership
 
-- `C_*`: intrinsic/config/runtime state, or explicitly documented derived cache.
-- `R_*`: authoritative live Entity-to-Entity ownership/session/binding.
-- `S_*`: scheduled GECS behavior with a real query/process responsibility.
-- `O_*`: discrete/reactive lifecycle/event behavior.
-- services/solvers: reusable imperative domain logic or physics helpers that are not scheduled Systems.
-- `DEF_*`: immutable/shared authored design data.
-- UI is ordinary Godot `Control`/glue. It may read domain state/events and submit typed commands, but it is not scheduled through ECS and does not get UI-only Components.
-- Entity Templates / `ET_*` Traits are authoring/compiler inputs. They do not tick and do not own mutable runtime gameplay state.
-- Placed scenes remain visible physical/visual authoring objects in Godot Editor; Templates/Traits add gameplay composition without replacing scene authoring.
+Choose a role by its responsibility, not its current class suffix. A misleading name is migration debt: rename/move it with its callers in the owning task rather than treating the name as permission to retain the wrong ownership.
 
-A System never calls another System as a service. Order is expressed through groups/`deps()`; cross-system communication uses Components, Relationships, typed requests/events/results.
+| Role | Owns | Boundary |
+| --- | --- | --- |
+| `C_*` | Intrinsic/config/runtime state, or an explicitly documented derived cache | Data only; no scheduled behavior. Mark cache source and writer. |
+| `R_*` | Authoritative live Entity-to-Entity ownership, session or binding | One binding authority; reverse lookups/caches do not become another owner. This role holds even when GECS uses the Component base. |
+| `S_*` | Scheduled GECS behavior: query, iteration, temporal progression, cadence and ordering | One coherent scheduled responsibility; use groups/`deps()` rather than calling another System. |
+| `O_*` | Discrete lifecycle/event reactions and transitions | Respond to an actual change/request; do not hide a regular polling loop in a reaction. |
+| `*Service` | Explicit synchronous domain operation, transaction, lookup or factory boundary | May mutate the operation's owned C/R state; does not own a recurring tick, broad scheduled iteration or a second execution graph. |
+| `*Rules` / `*Calculation` | Predominantly pure validation, decisions and calculations over explicit inputs | Return decisions/values; the owning handler commits gameplay transitions. |
+| `*Geometry` | Spatial calculations and explicit ray/shape/world queries | No ownership of gameplay lifecycle, timer progression or recurring actor iteration. |
+| `*Solver` | An isolated reusable algorithm, including required engine-bound physics integration | An engine callback may apply its owned physical contribution; a Solver is not an alternative gameplay scheduler. |
+| `*Presentation` | Visual/UI representation of authoritative state | Owns presentation state only; gameplay changes enter through the owning request/API. |
+| `*Factory` | Construction/materialization for an explicit creation operation | No recurring post-spawn lifecycle; prepare/validate before registration and hand runtime behavior to Systems/Observers. |
+| Entity / engine glue | Identity, registration/lifetime and thin scene/callback bindings | Godot bodies own physical transform/velocity; glue does not become a parallel gameplay model. |
+| `DEF_*` | Immutable/shared authored design data | Runtime mutable state belongs to C/R, not a shared Definition. |
+| UI (`Control`, HUD, menus) | Godot layout, focus and presentation glue | May read domain state/facts and submit typed intent; no UI-only Components/Systems or gameplay authority. |
+| Entity Templates / `ET_*` Traits | Authoring/compiler recipes for runtime composition | Do not tick or own mutable gameplay state; materialization produces ordinary C/R contracts. |
+| Typed Commands / Requests | Intent submitted to an authoritative handler | Submission is not proof of completion; the boundary declares acceptance/defer/rejection semantics. |
+| Typed Events / Results | Authoritative outcome, including explicit rejection where applicable | Publish a fact only after the mutation it describes is committed and visible. An Event is not a hidden command. |
 
-Cross-domain intent should prefer typed Commands/Requests; successful authoritative outcomes are published as Events/Results. Do not use an Event as a hidden command or report an outcome before the authoritative mutation succeeds.
+### State authority
+
+Components and Relationships remain the gameplay authority. Typed records/Resources nested in an ECS-owned Component may form one aggregate with an explicit owner and writer per field; their Resource type alone does not create another runtime model. Mark derived caches, immutable identity mirrors and terminal history. Reject competing mutable copies in services, Blackboard, Dialogue, UI or the Node tree.
+
+A Relationship either guarantees its target remains live while the binding exists, or its single lifecycle/resolving boundary handles stale endpoints. Do not replace the live binding with independently mutable Entity references in Components or service registries.
+
+### Choosing execution ownership
+
+1. Required engine timing comes first: work that must use `PhysicsDirectBodyState3D` in `_integrate_forces` stays in that callback's Entity glue and independent non-System Solvers.
+2. Regular query/iteration, cooldown progression or per-frame ordering belongs to a System. For example, a System that queries actors and advances their cooldown using `delta` owns that step; forwarding the entire step to `SomeService.tick(delta)` does not transfer it to a legitimate Service.
+3. A discrete request or lifecycle change belongs to its Observer/event handler or explicit synchronous domain operation, according to the delivery contract.
+4. A reusable calculation/spatial algorithm belongs to Rules/Calculation/Geometry/Solver; an explicit transaction/lookup/construction belongs to Service/Factory.
+
+A System may be large when it implements one coherent scheduled responsibility. Do not extract scheduled behavior into a Service merely to reduce file size. If responsibilities or cadence differ, split into Systems with explicit `deps()` and data flow. A System never calls another System as an imperative service/helper.
+
+A narrow Service may call another Service or Rules helper within one synchronous operation. That composition must not introduce regular service ticks, hidden subsystem ordering or a frame-by-frame scheduler graph. Deferred structural work has an explicit commit/flush point; publishing a completed outcome cannot rely on enqueue alone.
+
+Physics solvers called from a body's callback read their owned state/relationships and apply only their owned contribution. They do not call each other or Systems, and are not registered as no-op Systems to expose static helpers. Godot/Jolt retains physical transform/velocity authority unless an explicit synchronization contract says otherwise.
+
+### Scene-first authoring
+
+Placed NPCs/objects remain real visible physical/visual scenes in Godot Editor. Templates/Traits compose gameplay capabilities without replacing those scenes with invisible placeholders. Scene-only declarative composition is valid; an empty Template asset is not mandatory. Placed and runtime-spawned Entities have the same C/R runtime contract after materialization; Systems do not branch on authoring origin.
 
 ## Vertical domain target
 
 Refactoring v2 migrates project-owned gameplay code from horizontal role roots toward `content/domains/<domain>/<role>/`, with genuine cross-domain infrastructure under `content/shared/<role>/`. Canonical role-folder spelling is enforced by `python utils/validate_domain_structure.py`; final architecture acceptance requires `--strict`, which rejects legacy horizontal gameplay roots.
 
 Domains communicate through typed commands/events, stable public domain APIs, or explicit shared contracts. File moves alone are not a domain migration: ownership and dependencies must move with them.
+
+Execution-model cleanup precedes domain moves. Public data/query access does not grant write authority; declare the owner and permitted operation at each boundary. Shared infrastructure requires real consumers and does not become a universal gameplay Service. The proposal owns the detailed owner/dependency map.
+
+## Migration completion
+
+A declared migration scope is DONE only when all callers, state ownership and execution paths in that scope use the target model. Permanent old/new execution paths, compatibility wrappers kept solely for old callers, duplicate authority, renamed-but-unmigrated classes, partially moved owners and indefinite violation allowlists prevent completion. Temporary adapters exist only inside an unfinished milestone and are removed before DONE unless an explicit external compatibility contract requires them. Later planned scopes may still contain legacy code; this does not permit legacy paths inside the scope being closed.
 
 ## Input and interaction
 

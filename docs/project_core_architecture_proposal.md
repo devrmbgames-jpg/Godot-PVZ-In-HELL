@@ -2,7 +2,7 @@
 
 Status: **PREFLIGHT_TARGET_APPROVED — IMPLEMENTATION_PENDING**
 
-Документ повторно проверен последовательным Phase 0 preflight 2026-10-07; final full review `agent_tasks/refactoring_v2/00_05_preflight_readiness_gate.md` — READY_FOR_IMPLEMENTATION. Runtime/Phase 1 ещё не начаты; следующий запрос начинается с 01 architecture contract. Цель — новый контент преимущественно из сцен, ассетов, Definitions, Templates/Traits, Smart Objects, Dialogue, profiles/schedules и настроек уровней. Новый runtime code нужен прежде всего для новой механики; existing variant обычно создаётся данными.
+Документ повторно проверен последовательным Phase 0 preflight 2026-10-07; final full review `agent_tasks/refactoring_v2/00_05_preflight_readiness_gate.md` — READY_FOR_IMPLEMENTATION. Phase 1 начата: 01 architecture contract DONE, следующий запрос — 02 execution ownership rules. Runtime migration ещё не начата. Canonical role/ownership rules закреплены в [content/ARCHITECTURE.md](../content/ARCHITECTURE.md#canonical-roles-and-ownership); этот proposal описывает полный target и детали миграции. Цель — новый контент преимущественно из сцен, ассетов, Definitions, Templates/Traits, Smart Objects, Dialogue, profiles/schedules и настроек уровней. Новый runtime code нужен прежде всего для новой механики; existing variant обычно создаётся данными.
 
 ## 1. Authoritative gameplay model
 
