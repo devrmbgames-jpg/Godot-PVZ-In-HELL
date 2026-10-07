@@ -54,6 +54,34 @@ A narrow Service may call another Service or Rules helper within one synchronous
 
 Physics solvers called from a body's callback read their owned state/relationships and apply only their owned contribution. They do not call each other or Systems, and are not registered as no-op Systems to expose static helpers. Godot/Jolt retains physical transform/velocity authority unless an explicit synchronization contract says otherwise.
 
+### Service smells and request timing
+
+Review a recurring execution path as a hidden System when it has any of these properties:
+
+- System `process()` mainly forwards to `Service.tick/update/process`, directly or through `cmd.add_custom()`.
+- A Service advances `delta`, cooldowns, frame budgets or recurring lifecycle, performs scheduled broad `ECS.world.query` iteration, or orders multiple service steps each frame.
+- A frame loop polls a day/phase/state transition that should have a discrete owner/event path.
+
+The remedy is to move scheduled work into its owning System, split differing responsibilities into Systems with `deps()`, or replace transition polling with an Observer/event. Narrow remaining Services to explicit operations and rename misleading classes. Preserve required callback Solvers as bounded engine exceptions. An explicit transaction, read/lookup, spawn command or multi-C/R one-shot operation is not a smell merely because it touches ECS; neither are Rules/Geometry calculations or required physics integration. CommandBuffer is for GECS-safe deferred work, not an architectural escape from scheduled ownership.
+
+Pinned GECS `World.emit_event()` dispatches synchronously. An Observer's default `PER_CALLBACK` buffer executes after its callback; `MANUAL` waits for `World.flush_command_buffers()`. Systems default to `PER_SYSTEM`; `PER_GROUP` buffers execute only after every System in the group. `deps()` orders Systems inside the group and does not make a producer's `PER_GROUP` structural work visible to a later System in that same group. The manual flush method drains MANUAL buffers, not arbitrary pending PER_GROUP work.
+
+Each request boundary declares mutation timing, the flush point, and when a terminal outcome is observable. A successful enqueue/submit may mean accepted/pending; callers must use the committed result/fact for completed behavior. Publish facts only after all fields and structural changes they describe are visible. Synchronous event dispatch permits reentrancy: a recursive command/outcome chain needs a bounded owner and focused test; unbounded feedback is an architecture failure.
+
+The following classifications describe the audited legacy paths and their migration owners, not completed runtime changes:
+
+| Audited symbol | Evidence and destination |
+| --- | --- |
+| `CustomerFlowService.tick` | `S_CustomerFlow.process` queues the whole tick; it advances arrival cooldown, plans/syncs history, settles visits and queries customers. Split planning/day reactions and active visit execution under tasks 11–13. Keep narrow operation APIs. |
+| `HungerService.tick` | `S_Hunger.process` forwards each actor's timed progression; the Service resolves phase and calls `advance`. Move progression/query responsibility to System in 19; retain explicit food/value operations and pure multiplier rules. |
+| `ProjectileService.tick` | `S_CombatProjectile.process` defers flight/lifetime/raycast/damage/removal to the Service. Task 17 gives flight/lifecycle to System with safe structural mutation; launch may remain an explicit factory operation. No required body callback makes this an engine exception. |
+| `NpcBrainService.tick` | `S_NpcDecision.process` defers perception cadence, actor iteration, trait/role/tree/route orchestration and noise decay. Split these scheduling responsibilities in 15/16, preserving native LimboAI local execution. |
+| `CharacterMotionSolver.integrate_forces` | Uses `PhysicsDirectBodyState3D` from `E_RigidBodyCharacter._integrate_forces`. Keep engine callback ownership and independent physical contributions (22); do not move it into a System/helper System. |
+| `WalletService.submit` | Synchronously validates/applies one `MoneyOperation` through `apply`; returns COMMITTED/DUPLICATE or rejection status. COMMITTED follows balance/history mutation; DUPLICATE introduces no new effect. Keep transaction boundary (24). |
+| `DamageRequestService.submit` | Copies and emits a targeted request; `true` means dispatched, not applied damage. `O_Damage` queues resolution and publishes `DamageResult` after HP mutation or rejection. Default PER_CALLBACK normally resolves during dispatch, but completion is defined by result, not boolean. Preserve request boundary (17/40). |
+
+Static validation catches only dependable lexical patterns. Cadence, indirect helper calls, transition polling, write authority, event reentrancy and result timing remain mandatory review/behavioral-test responsibilities.
+
 ### Scene-first authoring
 
 Placed NPCs/objects remain real visible physical/visual scenes in Godot Editor. Templates/Traits compose gameplay capabilities without replacing those scenes with invisible placeholders. Scene-only declarative composition is valid; an empty Template asset is not mandatory. Placed and runtime-spawned Entities have the same C/R runtime contract after materialization; Systems do not branch on authoring origin.

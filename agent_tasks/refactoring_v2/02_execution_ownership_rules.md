@@ -1,6 +1,6 @@
 # Refactoring v2.02 — scheduled execution и Service boundaries
 
-Status: **PLANNED**
+Status: **DONE**
 
 Зависимости: [01_architecture_contract.md](01_architecture_contract.md).
 
@@ -56,3 +56,21 @@ Pinned GECS events dispatch synchronously and may flush Observer commands after 
 ## Validation
 
 Documentation-only + точечный аудит примеров. Runtime-код не менять.
+
+## Current — 2026-10-07
+
+Canonical smells, допустимые explicit operations, пять вариантов migration и request/flush/reentrancy rules закреплены в [architecture contract](../../content/ARCHITECTURE.md#service-smells-and-request-timing). Таблица содержит все семь acceptance examples с evidence и owning tasks. Runtime-код не менялся.
+
+Проверены прямые callers `S_CustomerFlow`, `S_Hunger`, `S_CombatProjectile`, `S_NpcDecision`, четыре Service.tick implementations, callback Solver, Wallet submit/apply и Damage submit/O_Damage. Pinned source `world.gd`, `system.gd`, `observer.gd` подтверждает synchronous dispatch, PER_CALLBACK/PER_SYSTEM/PER_GROUP/MANUAL timing. Не предполагается, что deps flush-ит structural work; Damage bool не трактуется как applied outcome.
+
+## Validation result
+
+- `python utils/validate_refactoring_preflight.py`: PASS.
+- `git diff --check`: PASS.
+- Focused source/contract audit всех семи symbols и GECS timing: PASS; это static/documentation evidence, не behavioral run.
+
+Godot/GUT не запускались: документация и аудит без runtime edits. Owner QA не требуется.
+
+## Next
+
+[03_architecture_validation.md](03_architecture_validation.md) — static guardrails и устранение 31 infrastructure diagnostics.
