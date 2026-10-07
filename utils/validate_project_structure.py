@@ -9,6 +9,8 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote
 
+from validate_domain_structure import validate_domain_structure
+
 ROOT: Path = Path(__file__).resolve().parents[1]
 
 ROLE_RULES: tuple[tuple[str, str, str], ...] = (
@@ -527,6 +529,7 @@ def main() -> int:
     errors: list[str] = []
 
     _check_role_placement(errors)
+    errors.extend(validate_domain_structure(ROOT, strict=False))
     _check_private_member_naming(errors)
     _check_resource_file_naming(errors)
     _check_relationship_role_usage(errors)
