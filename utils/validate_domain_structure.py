@@ -72,6 +72,25 @@ ALLOWED_CONTAINER_FILES: frozenset[str] = frozenset(
 )
 
 
+def get_content_role(root: Path, path: Path) -> str | None:
+    """Identify a file's owning role in horizontal, domain or shared content."""
+    try:
+        parts = path.relative_to(root / "content").parts
+    except ValueError:
+        return None
+
+    if len(parts) >= 4 and parts[0] == "domains":
+        role_name = parts[2]
+    elif len(parts) >= 3 and parts[0] == "shared":
+        role_name = parts[1]
+    elif len(parts) >= 2:
+        role_name = parts[0]
+    else:
+        return None
+
+    return role_name if role_name in CANONICAL_ROLE_DIRS else None
+
+
 def _relative(root: Path, path: Path) -> str:
     return path.relative_to(root).as_posix()
 
