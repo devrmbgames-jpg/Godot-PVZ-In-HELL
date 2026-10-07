@@ -18,7 +18,7 @@ Status: **PLANNED**
 - compile/validate operation;
 - существующая factory boundary с Template support.
 
-Flat Templates, без inheritance/override framework. BuildPlan — transient validated recipes, не второй cache/runtime registry. New Trait script нужен для новой capability; content variants используют existing Trait/Profile. Arbitrary install hooks и mutable shared state запрещены. Explicit conflict policy сохраняет scene-owned engine components.
+Flat Templates, без inheritance/override framework. BuildPlan — transient validated recipes, не второй cache/runtime registry. New Trait script нужен для новой capability; content variants используют existing Trait/Profile. Arbitrary install hooks и mutable shared state запрещены. Explicit conflict policy сохраняет scene-owned engine components. Factory получает PackedScene/context и читает Template из scene instance; Template не хранит default_scene/back-reference. Existing Profile/Definition scene selector имеет одного owner, циклические Scene→Template→Scene Resources запрещены.
 
 ## Invariants
 
@@ -39,7 +39,7 @@ Scene/template/profile/instance ownership и explicit override/conflict policy �
 
 ## Acceptance
 
-Собрать representative templates для существующих capabilities: physical NPC, resident/customer NPC и physical interactable object. Trader Template требуется только при готовой trading capability; новую механику ради demo не добавлять.
+Собрать representative templates для существующих capabilities: physical NPC, resident/customer, existing Trader и physical interactable object. C_Trader/DEF_TraderProfile уже существуют; здесь capability wiring, а не новая trade mechanic. Variant не требует ET script или global registration edit.
 Compile-time validation ловит duplicate/incompatible providers и missing requirements.
 
 Positive/negative fixtures доказывают placed↔spawned parity, ordering-independent deterministic recipes, duplicate provider, missing binding, two-instance nested mutation isolation, failed-registration cleanup и load без повторного setup/HP reset. Cleanup не обещает отменить уже опубликованные wallet/dialogue/outcomes: таких effects до ready быть не должно. `World.add_entity` не вызывается дважды для placed scene. Setup, synchronous Observer callbacks и Entity.on_ready входят в startup ordering fixture.

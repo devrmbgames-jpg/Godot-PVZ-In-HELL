@@ -16,6 +16,7 @@ Status: **PLANNED**
 - required Components/bindings;
 - stable ID uniqueness;
 - referenced Dialogue;
+- imported Dialogue cues/tags и declared ctx methods; unsupported dynamic expressions получают explicit review gate, не исполняются ради validation;
 - Smart Object executor/slot;
 - existing action executor; GOAP-specific check только если optional planner введён отдельной задачей;
 - schedule locations;
@@ -30,6 +31,7 @@ Content Doctor имеет быстрый CLI mode и вызывается кру
 Representative broken fixtures дают понятные ошибки с resource/path context.
 
 Эта задача агрегирует validation providers, созданные в 41–45 вместе с соответствующим contract. Missing requirements, bindings, executor и ID errors обязаны ловиться уже в owning milestone; нельзя откладывать первую проверку до 46.
+Quest/Trader providers появляются в 19/24, dialogue contract provider в 40. Doctor не изобретает универсальный quest/action interpreter. Resource cycle и duplicate authored-instance ID дают resource/field/instance diagnostics.
 
 ## Validation
 

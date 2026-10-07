@@ -424,7 +424,7 @@ World initialization + endpoint fixup + composition-ready
 Runtime spawned Entity:
 
 ```text
-template.default_scene
+PackedScene selected by the existing Definition / level / spawn caller
     ↓
 instantiate
     ↓
@@ -437,7 +437,7 @@ World initialization + endpoint fixup + composition-ready
 
 После регистрации Systems не должны различать, был объект поставлен дизайнером или создан factory.
 
-`default_scene` у Template может быть optional: уникальная placed scene может использовать тот же gameplay Template с другим визуальным представлением.
+Scene owns its Template reference; factory receives a PackedScene plus typed context/Profile, instantiates it and compiles that instance's Template. Template does not own a default_scene back-reference. This avoids a Scene → Template → PackedScene resource cycle and competing scene selectors in NPC Profile vs Template. Existing Definition scene selection migrates explicitly, without another mandatory SpawnDefinition wrapper. Multiple visual scenes may use the same flat gameplay Template.
 
 ### 10.4 Editor inspector/plugin
 
@@ -457,6 +457,16 @@ Advanced mode — resolved composition/build diagnostics для программ
 Editor preview может обновлять presentation (`@tool`): appearance, markers, Smart Object slots, facing directions.
 
 Editor preview **не запускает ECS simulation, GOAP, Hunger, CustomerFlow и другие runtime Systems**.
+
+### 10.5 Dialogue and quest authoring boundary
+
+Dialogue Manager remains the imported dialogue/branch renderer. Typed `ctx` exposes narrow observational predicates and owning action methods; no world/Entity/service object is exposed for arbitrary mutation. The existing Customer/NPC contexts and panel remain the integration points. Conditions cannot commit gameplay. Cues/tags and context methods are declared by the owning dialogue contract, not inferred from displayed text.
+
+An action uses a stable session/operation identity and an explicit committed/rejected/pending result. A success branch waits for committed outcome; accepted submission alone is insufficient. Re-entering a branch cannot pay or issue a quest twice. Awaited lines/actions verify the original session and actor/visit generation before use; closing, death, target loss and load close the session and release modal focus/reservations. Retain the pinned DialogueResourceLifecycle cleanup for late async results.
+
+Quest baseline is the existing refusal/delivery/event-driven lifecycle, not an arbitrary quest DSL or graph executor. Task 19 makes the existing quest Definition author-selectable through its owner/issuer configuration instead of a hardcoded singleton; variants select existing rules and change reward/deadline/targets/Dialogue. A new objective or effect kind is a new mechanic and needs owner code, validation and fixtures. No global string action registry or universal expression interpreter.
+
+Doctor validates imported dialogue/cues and declared context/tag references without executing mutations. Dynamic expressions beyond the supported surface require an explicit bounded review/test; static checking does not prove arbitrary script semantics. Two distinct quest/dialogue variants and repeated-entry/late-result fixtures are acceptance, not a claim of universal no-code quests.
 
 ## 11. Capability-driven gameplay
 

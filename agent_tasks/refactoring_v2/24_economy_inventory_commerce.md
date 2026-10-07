@@ -15,6 +15,7 @@ Status: **PLANNED**
 - commerce/order purchasing;
 - food/effects;
 - day summary/economy progression.
+- existing Trader Profile/catalog authoring: выбрать DEF_TraderProfile единственным assortment source, перенести legacy inline catalog в inline/shared Profile и удалить fallback/all callers в том же slice.
 
 ## Direction
 
@@ -27,6 +28,7 @@ Derived calculations могут стать Rules/Calculation.
 Сервисный слой экономики остаётся явным и синхронным.
 Нет scheduled clock внутри transaction service.
 Idempotency operation IDs и save-visible semantics не изменены.
+Два existing Trader variants используют разные Profiles без нового runtime-кода. Legacy catalog/profile dual path закрыт; unrelated terminal C_Commerce catalog не становится shop authority.
 
 ## Validation
 

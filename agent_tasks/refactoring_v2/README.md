@@ -141,9 +141,9 @@ Typed contracts уже закреплены задачей 40 перед executi
 
 План расширен до полного core refactor. Реализация runtime migration не начиналась.
 
-Повторный Phase 0 pass открыт 2026-10-07 по запросу владельца. 00_01 завершена; 00_02–00_05 ожидают последовательного review. Предыдущая readiness не действует до нового verdict 00_05. Phase 1–3 не начаты.
+Повторный Phase 0 pass открыт 2026-10-07 по запросу владельца. 00_01–00_02 завершены последовательно; 00_03–00_05 ожидают review. Предыдущая readiness не действует до нового verdict 00_05. Phase 1–3 не начаты.
 
-Текущее следующее действие: [00_02 — usability/authoring audit](00_02_usability_authoring_audit.md). Каждая 00-задача имеет отдельный coherent commit до перехода к следующей.
+Текущее следующее действие: [00_03 — simplification/reference audit](00_03_simplification_reference_audit.md). Каждая 00-задача имеет отдельный coherent commit до перехода к следующей.
 
 Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/четыре tiers deferred; baseline PHYSICAL/MACRO. Known structure failures (31, smoke reference/R26 metadata) закреплены за 03 и устраняются до runtime migration.
 

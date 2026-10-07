@@ -15,6 +15,7 @@ Status: **PLANNED**
 - domain dependency validator PASS;
 - typed Commands/Events core flows PASS;
 - Templates/Traits representative composition PASS;
+- content authoring cookbook и headless fixtures: два existing NPC/Trader/combat/object/quest-dialogue variants + новый level с reused mechanics; no runtime script/global registry edit для варианта. Sit/new objective types не обязательны;
 - headless placed/spawned composition + physical scene capability contract PASS; subjective Inspector/visual ergonomics остаются в owner QA, без заявления об автоматическом visual pass;
 - Smart Objects reservation flow PASS;
 - Schedule/goal selection/LimboAI existing obligation flow PASS; GOAP deferred и не mandatory gate;

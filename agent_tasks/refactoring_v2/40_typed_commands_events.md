@@ -16,6 +16,7 @@ Status: **PLANNED**
 - сохранить direct synchronous call внутри одного domain, если он проще и корректнее;
 - обеспечить idempotency для transaction-like commands, где она уже нужна;
 - UI отправляет Commands и читает Events/state, но не становится ECS participant.
+- Customer/NPC Dialogue ctx methods — narrow read/action API с declared cues/tags, session validity и commit result. Success branch не следует за merely accepted submit; repeated entry и late async result не повторяют mutation и не возобновляют закрытый session. Preserve pinned resource cleanup; generic Dialogue action registry не вводить.
 
 Контракты вводятся **до** execution migration 11–25 и vertical-domain moves. Owner определяется inventory 10, layout ещё horizontal. Для Damage, Commerce, Interaction, Customer outcomes и Quests зафиксировать handler, submit/result semantics, допустимый synchronous call и smallest regression. Завершить все объявленные boundary slices с обновлением callers; не оставлять aliases старого payload/API. Удаление scheduled service dispatchers принадлежит последующим owners, это отдельная ответственность, а не adapter этого milestone. Задача 28 переносит contracts; 33 проверяет границы. Global bus/dispatcher не вводить.
 
