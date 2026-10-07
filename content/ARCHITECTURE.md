@@ -91,7 +91,8 @@ Domains communicate through typed commands/events, stable public domain APIs, or
 
 - Persistent/domain identity uses explicit stable IDs, never NodePath or instance ID.
 - Runtime Entity references are not durable save identity.
-- Relationships with durable meaning require an explicit persistence representation when R21 serialization is implemented; do not silently serialize live Object references.
+- Current schema-2 snapshot/restore is implemented; durable links use explicit endpoint keys, never serialized live Objects. Its legacy authored `scene/<relative path>` fallback is a known current contract, not the stable-ID target.
+- Refactoring v2 preflight target replaces path-derived identity with explicit authored IDs and versions changed formats. The owner explicitly excludes old-save conversion/backward compatibility for this early project; new-format identity/roundtrip/link reconstruction still require validation. Detailed current runtime semantics remain in `docs/persistence.md` until implementation changes them.
 
 ## Validation routing
 

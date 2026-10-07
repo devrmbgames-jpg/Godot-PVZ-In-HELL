@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: AI/Traits/LOD contracts готовы.
+Зависимости: [46_content_doctor.md](46_content_doctor.md), AI/Traits/LOD contracts готовы.
 
 ## Goal
 
@@ -14,7 +14,7 @@ Status: **PLANNED**
 - Components;
 - Relationships;
 - current Goal;
-- GOAP plan/action;
+- active obligation/action и selection/cancel reason; GOAP plan только при введённом optional planner;
 - LimboAI status/reference;
 - Intent;
 - reservations;
@@ -27,6 +27,8 @@ Status: **PLANNED**
 Debugger read-only по умолчанию.
 Не создавать debug gameplay authority.
 Использовать существующий LimboAI debugger, а не дублировать его tree inspector.
+
+Read-only diagnostic snapshots/reason codes создаются в 40–45 вместе с владельцами состояния. Задача 48 добавляет selected-Entity view, а не впервые изобретает observability после AI/LOD migration.
 
 ## Acceptance
 

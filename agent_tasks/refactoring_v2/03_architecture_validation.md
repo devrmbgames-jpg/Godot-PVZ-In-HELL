@@ -31,6 +31,12 @@ Status: **PLANNED**
 - Allowlist должен быть малым, явным и объяснённым.
 - Validator должен быть быстрым и пригодным для запуска на каждом крупном implementation batch.
 
+Scan discovery должен покрывать project-owned GDScript независимо от horizontal/vertical layout. Baseline entries привязаны к символу/owner, а не только старому пути; move не должен скрыть нарушение. Задача 26 обнуляет execution baseline, 27 проверяет результат. Engine-bound solvers — отдельная ограниченная категория, не разрешение generic service tick.
+
+### Existing infrastructure failures to close before runtime migration
+
+Phase 0 запуск `validate_project_structure.py` выявил 31 pre-existing errors: отсутствующий script reference в `tests/smoke/truck_shift_gate_smoke.tscn` и 30 task-state errors в шести top-level `agent_tasks/r26*.md`. Эти файлы не менялись в Phase 0. В этой задаче восстановить корректный static smoke fixture reference и нормализовать task-state metadata с сохранением их scope/status; не ослаблять validator и не начинать R26 gameplay. Gate: полный project structure PASS до завершения Phase 1/начала 10. Это infrastructure repair, не service migration baseline и не бессрочный allowlist.
+
 ## Acceptance
 
 - Новый скрытый `SomeService.tick()` не проходит validation незаметно.

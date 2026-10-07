@@ -2,6 +2,8 @@
 
 Durable implementation source: Git history; remaining manual acceptance is tracked under `qa_tasks/`.
 
+Refactoring v2 Phase 0 policy (owner decision 2026-10-07): old save-file migration/backward compatibility is not required. The following bullets describe the current schema-2 runtime, which Phase 0 does not modify. Future incompatible format/path/identity changes bump schema and reject old saves; current-format roundtrip, stable IDs, links and safe failure remain mandatory. Tooling does not delete or overwrite user saves automatically.
+
 - Main startup reads one `user://autosave.pvzh` before simulation. Tests supply an isolated `autosave_path`. Missing, invalid checksum or incompatible schema starts a fresh scene and reports the reason in debug UI.
 - Schema **2** includes permanent district people, absent bodies, personal memories, replacement sequence and home-delivery obligations. Schema 1 is deliberately incompatible: startup reports this without migrating or deleting the old file.
 - Sleep enters Night with `night_ready=false`. `S_NightSave` runs after phase, wallet/customer settlement and quest outcomes. It clears transient participation, captures the next Morning, writes/flushes a temporary file and atomically renames it into the slot. Failed writes keep Night and retry the same target day; successful writes permit the existing phase System to advance once.

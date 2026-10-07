@@ -1,4 +1,4 @@
-# Refactoring v2.34 — Code Style: gameplay services, economy, inventory, persistence
+# Refactoring v2.64 — Code Style: gameplay services, economy, inventory, persistence
 
 Status: **PLANNED**
 
@@ -14,7 +14,7 @@ Status: **PLANNED**
 - economy/commerce/inventory;
 - persistence/save/codec;
 - input/settings/debug project-owned services;
-- остальные доменные helpers из content/services/**.
+- остальные доменные helpers из `content/domains/*/{services,rules,solvers,presentation}/**` и соответствующих roles в `content/shared/` по manifest задачи 61.
 
 ## Focus
 
@@ -27,7 +27,7 @@ Status: **PLANNED**
 
 ## Acceptance
 
-Style gate PASS по всему content/services/**, не покрытому предыдущими задачами.
+Style gate PASS по всему назначенному manifest scope, не покрытому предыдущими задачами.
 Parser PASS.
 
 ## Validation

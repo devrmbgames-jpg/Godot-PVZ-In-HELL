@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: все Phase 2 architecture tasks завершены.
+Зависимости: [48_gameplay_debugger.md](48_gameplay_debugger.md); все Phase 2 tasks завершены, strict rerun 32/33 PASS.
 
 ## Goal
 
@@ -15,10 +15,10 @@ Status: **PLANNED**
 - domain dependency validator PASS;
 - typed Commands/Events core flows PASS;
 - Templates/Traits representative composition PASS;
-- visual placed/spawned authoring contract PASS;
+- headless placed/spawned composition + physical scene capability contract PASS; subjective Inspector/visual ergonomics остаются в owner QA, без заявления об автоматическом visual pass;
 - Smart Objects reservation flow PASS;
-- Schedule/Utility/GOAP/LimboAI representative AI flow PASS;
-- Simulation LOD transition PASS;
+- Schedule/goal selection/LimboAI existing obligation flow PASS; GOAP deferred и не mandatory gate;
+- PHYSICAL↔MACRO transition + canonical identity/current-format save PASS; четыре tiers deferred;
 - Content Doctor full scan PASS;
 - unified game time/seed tests PASS;
 - Gameplay Debugger owner QA подготовлена;

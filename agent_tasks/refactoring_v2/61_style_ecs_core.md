@@ -1,4 +1,4 @@
-# Refactoring v2.31 — Code Style: ECS core
+# Refactoring v2.61 — Code Style: ECS core
 
 Status: **PLANNED**
 
@@ -10,11 +10,10 @@ Status: **PLANNED**
 
 ## Scope
 
-- content/systems/**
-- content/observers/**
-- content/components/**
-- content/relationships/**
-- content/definitions/**
+- `content/domains/*/{systems,observers,components,relationships,definitions}/**`;
+- соответствующие canonical role folders в `content/shared/`.
+
+Сформировать explicit script manifest для 61–65: каждый project-owned `.gd` имеет один owning style task. Последующие задачи исключают уже принятые файлы. Старые horizontal roots не являются style scope и должны отсутствовать после 32.
 
 ## Focus
 

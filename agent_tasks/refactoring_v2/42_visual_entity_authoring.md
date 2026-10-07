@@ -28,9 +28,14 @@ Placed и runtime-spawned Entity после materialization используют
 - `@tool` preview допускается только для presentation/markers;
 - editor preview не запускает ECS simulation/GOAP/gameplay Systems.
 
+- Simple Inspector: Template/Profile, instance stable ID, named Home/Workplace bindings; Advanced: resolved recipes/provider provenance и conflict diagnostics.
+- Scene-contained Template разрешён; отдельный Resource не обязателен для one-off object. Profile tuning не дублируется в каждом Trait.
+- Duplicated instance и imported district получают stable-ID uniqueness validation; repair — явная editor operation, не автоматическая gameplay mutation preview.
+- Inspector и headless validation используют provider задачи 41; не создавать два набора rules.
+
 ## Acceptance
 
-NPC и Smart Object можно поставить руками на сцену, видеть mesh/collision/markers и до запуска получить validation Template/bindings.
+NPC и существующий interactable можно поставить руками на сцену, видеть mesh/collision/markers и до запуска получить validation Template/bindings. Smart Object-specific Inspector validation добавляется в 43, когда его runtime contract уже существует.
 
 ## Validation
 

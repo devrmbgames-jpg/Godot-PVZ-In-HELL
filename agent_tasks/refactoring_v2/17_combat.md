@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: service inventory завершён.
+Зависимости: [16_npc_route_service_role.md](16_npc_route_service_role.md), [10_service_inventory.md](10_service_inventory.md).
 
 ## Goal
 

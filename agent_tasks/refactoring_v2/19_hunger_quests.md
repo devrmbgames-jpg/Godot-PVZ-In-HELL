@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: service inventory завершён.
+Зависимости: [18_challenges.md](18_challenges.md), [13_customer_outcomes.md](13_customer_outcomes.md).
 
 ## Goal
 

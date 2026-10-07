@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: service inventory завершён.
+Зависимости: [19_hunger_quests.md](19_hunger_quests.md), [10_service_inventory.md](10_service_inventory.md).
 
 ## Goal
 

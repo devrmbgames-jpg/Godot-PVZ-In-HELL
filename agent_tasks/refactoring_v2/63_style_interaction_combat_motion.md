@@ -1,4 +1,4 @@
-# Refactoring v2.33 — Code Style: Interaction, Combat и Motion
+# Refactoring v2.63 — Code Style: Interaction, Combat и Motion
 
 Status: **PLANNED**
 
@@ -14,6 +14,8 @@ Status: **PLANNED**
 - combat/damage;
 - motion/navigation/physics solvers;
 - связанные entities/glue.
+
+Scope: оставшиеся scripts в `content/domains/{interaction,combat,motion}/` и явно назначенные shared solvers по manifest задачи 61.
 
 ## Extra focus
 

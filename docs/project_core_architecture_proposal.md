@@ -1,12 +1,12 @@
 # Project Core Architecture
 
-Status: **CANDIDATE TARGET ARCHITECTURE — SUBJECT TO REFACTORING V2 PHASE 0 PREFLIGHT**
+Status: **PREFLIGHT_TARGET_APPROVED — IMPLEMENTATION_PENDING**
 
-Этот документ фиксирует текущего кандидата на целевое ядро проекта. До начала runtime-refactor он проходит Phase 0 audit в `agent_tasks/refactoring_v2/00_*`; аудит имеет право упростить, дополнить или изменить решения, если это делает ядро удобнее и уменьшает ненужную сложность. Его задача — довести проект до состояния, где новый контент в основном собирается из сцен, ассетов, Definitions, Entity Templates / Traits, Smart Objects, Dialogue, AI profiles/schedules и настроек уровней. Новый runtime gameplay-код должен требоваться прежде всего для **новой механики**, а не для нового NPC, предмета, квеста или варианта уже существующей механики.
+Документ фиксирует target после последовательного Phase 0 preflight 2026-10-07; gate `agent_tasks/refactoring_v2/00_05_preflight_readiness_gate.md` — READY_FOR_IMPLEMENTATION. Runtime/Phase 1 ещё не начаты. Цель — новый контент преимущественно из сцен, ассетов, Definitions, Templates/Traits, Smart Objects, Dialogue, profiles/schedules и настроек уровней. Новый runtime code нужен прежде всего для новой механики; existing variant обычно создаётся данными.
 
 ## 1. Authoritative gameplay model
 
-ECS остаётся единственной authoritative gameplay model.
+ECS остаётся единственной authoritative domain/gameplay model. Godot/Jolt сохраняет authority physical transform/velocity; ECS читает эту физическую величину либо выполняет явную одноразовую synchronization при spawn/restore/representation transition. Derived snapshot не является второй физической симуляцией.
 
 - `C_*` — intrinsic/config/runtime state или явно документированный derived cache.
 - `R_*` — authoritative live Entity-to-Entity relationships.
@@ -76,6 +76,8 @@ InteractRequest → Interaction → InteractionStarted
 
 Commands/Requests означают намерение выполнить изменение. Events/Outcomes означают уже произошедший authoritative факт.
 
+Transport — существующий GECS targeted event/request path либо synchronous domain operation. Не вводить global EventBus, wildcard registry, generic dispatcher или retry/saga framework. Payload immutable snapshot; request имеет target/operation identity. Bool submit означает принятие; outcome подтверждает результат. Gameplay handler один, presentation listeners read-only. Reactions публикуются после coherent commit; cycles commands/outcomes — review failure. Deferred structural work flush на owning boundary и проверяется ordering test.
+
 Цель — уменьшить `Service → Service → Service` coupling и позволить нескольким системам реагировать на результат без скрытого call graph.
 
 ## 4. Stable simulation pipeline
@@ -101,6 +103,8 @@ Presentation notifications
 ```
 
 Внутри фаз используются `deps()`. Разработчик должен понимать порядок исполнения без чтения service call graph.
+
+Это logical flow, не требование заменить четыре существующие World groups семью новыми. Baseline сохраняет Input → Interaction → Physics → GamePlay из main_level; internal ordering задаётся `deps()`, callback solvers сохраняют Godot timing. Изменение phase latency требует отдельного before/after contract test.
 
 ## 5. Smart Objects / Affordances
 
@@ -134,88 +138,34 @@ Fridge
 Reservations выражаются через Relationships:
 
 ```text
-NPC --R_Reserved--> SmartObjectSlot
+NPC --R_Reserved(slot_id, token)--> SmartObject
 ```
 
-Одни и те же affordances должны быть доступны игроку, GOAP, LimboAI, quests, Dialogue и tutorials через общий domain contract.
+Одни и те же affordances доступны игроку, LimboAI, quests, Dialogue и tutorials через общий domain contract. Future optional GOAP будет consumer того же API, не обязательным участником baseline.
 
 ## 6. AI hierarchy
 
-Целевая иерархия:
+Mandatory preflight baseline:
 
 ```text
 Authored schedule / world obligations
-    ↓
-Utility / Goal selection
-    ↓
-GOAP for macro multi-step planning
-    ↓
-LimboAI for local execution and reactive behavior
-    ↓
-Intent / Interaction / Combat systems
+    -> Bounded goal/obligation selection
+    -> LimboAI local execution and reactive hierarchy
+    -> Intent / Interaction / Combat owners
 ```
 
-### Schedule
+Schedule defines obligations and game timestamps. Goal selection stores the selected obligation in ECS and defines priority/interruption/cancellation. Pure normalized utility scoring with hysteresis is optional when goals genuinely compete; no separate Utility runtime is mandatory.
 
-Для deterministic распорядка использовать authored schedule:
+LimboAI retains local/emergency/combat decision flow in its native tree. Macro selection does not duplicate selectors inside a leaf and never controls physics. Action adapters request work from the owning domain; that owner confirms completion/failure and releases intent/reservation on cancellation.
 
-```text
-08:00 Work
-18:00 GoHome
-22:00 Sleep
-```
-
-GOAP здесь не нужен.
-
-### Utility / Goal selection
-
-Выбирает текущую цель, например:
-
-```text
-Survive
-Work
-Eat
-Sleep
-DeliverPackage
-Socialize
-GoHome
-```
-
-### GOAP
-
-GOAP применяется к macro-задачам с несколькими путями достижения.
-
-```text
-Goal: Eat
-
-FindFood
-→ ReservePlace
-→ MoveThere
-→ AcquireFood
-→ Eat
-```
-
-Planner не управляет физикой и realtime боем.
-
-### LimboAI
-
-LimboAI выполняет поведение "здесь и сейчас":
-- движение;
-- реакцию;
-- бой;
-- interrupt;
-- ожидание;
-- animation-driven behavior;
-- локальные tactical decisions.
-
-GOAP передаёт LimboAI action/execution contract, но не становится вторым runtime authority.
+**GOAP - DEFER.** Existing schedule/route/service jobs do not demonstrate a need for alternative macro search. GOAP is excluded from mandatory Refactoring v2 acceptance; no placeholder planner classes. Future evidence gate: an authored goal with alternative multi-step paths that is substantially less readable as a schedule/subtree, plus bounded search, observability and interruption tests. Such a feature requires a separate optional task. Its world state would be a derived ECS view.
 
 ## 7. AI budgeting and event-driven updates
 
 Reference: Unreal Engine Mass Gameplay — Mass Signals / Mass Simulation LOD / StateTree integration:
 https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-gameplay-in-unreal-engine
 
-The useful reference idea is that expensive entity processing can be budgeted/LOD'd and some decision logic can be woken by signals instead of being polled at full frequency. Our AI stack remains Schedule → Utility → GOAP → LimboAI rather than Mass StateTree.
+The useful reference idea is budgeting expensive work and waking relevant decisions with targeted notifications. Our baseline uses schedule/goal selection and LimboAI; GOAP and StateTree integration are not required.
 
 
 Не каждый NPC обязан думать каждый physics frame.
@@ -226,13 +176,13 @@ The useful reference idea is that expensive entity processing can be budgeted/LO
 Immediate combat/reaction: 30–60 Hz
 Nearby perception:         5–10 Hz
 Normal decisions:          2–5 Hz
-Macro planner:             0.2–1 Hz
+Optional future planner:   0.2–1 Hz
 Offscreen simulation:      events / game time
 ```
 
-Planner желательно будить событиями:
+Goal selection желательно будить событиями:
 - goal invalidated;
-- plan finished;
+- action/obligation finished;
 - target disappeared;
 - day phase changed;
 - hunger threshold crossed;
@@ -241,38 +191,21 @@ Planner желательно будить событиями:
 
 ## 8. Simulation LOD
 
-Reference: Unreal Engine Mass Gameplay — Representation LOD and Simulation LOD:
-https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-gameplay-in-unreal-engine
-
-We borrow the separation between **simulation detail** and **representation detail**. In this project the concrete implementation is Godot/GECS-specific: physical Node3D + LimboAI near the player, reduced/macro simulation farther away.
-
-
-Целевые уровни:
+Conceptual reference: [Mass Gameplay](https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-gameplay-in-unreal-engine) separates representation and simulation processing. GECS/Godot uses two modes, not Mass runtime APIs.
 
 ```text
-LOD0 — рядом с игроком
-full Entity + Node3D + physics + LimboAI
-
-LOD1 — активный район
-Entity + simplified/reduced-rate AI
-
-LOD2 — далеко
-ECS/NpcRecord + schedule/GOAP without physical body
-
-LOD3 — совсем далеко
-mathematical/event-based simulation
+PHYSICAL - canonical GECS Entity + physical/visual child + LimboAI adapter
+MACRO    - same GECS Entity + timestamp/obligation state, without body/BT
+Cadence/budget is independent of representation mode.
 ```
 
-Offscreen NPC не обязан физически проходить маршрут. Достаточно хранить macro state:
+A canonical NPC is a lightweight GECS Entity Node with health, inventory, identity, obligations and live Relationships. Its physical child is a Godot body/glue with a validated owner reference, not a second gameplay Entity. NpcRecord becomes a snapshot DTO in the final LOD baseline. Existing C_District.people/body ownership is migrated atomically in 45A with all callers and save adapters; tasks 14-16 preserve the current model until that slice.
 
-```text
-travel_target
-departure_time
-arrival_time
-current_macro_goal
-```
+Placed authoring remains a visible scene with a real physical child. Resource/node contracts change through an explicit migration map. A MACRO Entity remains enabled for macro queries; disabling physics does not disable the whole Entity. Godot owns physical state while PHYSICAL. Attach/detach occurs at a safe physics boundary. Macro travel stores destination and departure/arrival timestamps, without hidden physical bodies.
 
-При materialization физическое представление восстанавливается из authoritative simulation state.
+A transition token prevents duplicate representations/outcomes. Held items, combat, dialogue and active slot use pin PHYSICAL, or are cancelled through their owners before detach. No offscreen combat or new economy. Materialization validates placement and never repeats arrival/settlement. Blocked placement has bounded retry rather than teleporting through gameplay collision.
+
+**Four tiers and mathematical population aggregation - DEFER** until measured need. Physical/macro transitions and existing schedule/job behavior prove the baseline; reduced cadence requires no additional state model.
 
 ## 9. Entity Templates / Traits
 
@@ -318,7 +251,7 @@ Trait при compilation/materialization может:
 - добавить initial Relationship intent;
 - указать required scene capability;
 - зарегистрировать Definition/profile references;
-- выполнить одноразовый install/setup hook.
+- объявить required setup adapter из ограниченного capability contract; произвольные side effects в compiler запрещены.
 
 Trait **не тикает**.
 
@@ -326,44 +259,25 @@ Trait **не тикает**.
 
 ### 9.1 Trait implementation
 
-Базовые authoring типы:
+Minimal roles, rather than six mandatory standalone public classes:
 
 ```text
-EntityTrait
-DEF_EntityTemplate
-EntityBuildPlan
-EntitySpawnContext
-EntityTemplateCompiler
-EntityFactory
+EntityTrait + DEF_EntityTemplate
+    -> compile/validate operation
+    -> transient EntityBuildPlan + typed spawn-context contract
+    -> existing factory / placed scene preparation
+    -> World.add_entity and GECS _initialize
+    -> endpoint Relationship fixup
+    -> composition-ready publication
 ```
 
-Рекомендуемый pipeline:
+The plan validates incompatible providers, missing requirements and scene capabilities before registration. Flat composition, no Template inheritance. The compiler is side-effect-free; arbitrary install hooks are rejected. A standalone compiler/context/factory class is justified only by a real boundary.
 
-```text
-EntityTemplate
-    ↓
-all Traits contribute
-    ↓
-EntityBuildPlan
-    ↓
-validation
-    ↓
-instantiate / use placed scene
-    ↓
-materialize Components
-    ↓
-resolve initial Relationships
-    ↓
-ECS.world registration
-```
+Pinned authority: addons/gecs/ecs/entity.gd, world.gd and observer.gd. World discovers placed Entities and initializes Components while synchronously notifying Observers. Project glue prepares fresh recipes before super._initialize, does not register placed scenes twice, and uses public World/CommandBuffer lifecycle APIs. New-template gameplay consumers require composition-ready; endpoint fixup completes before simulation. Failure prevents ready publication and rolls back partial registration.
 
-`EntityBuildPlan` нужен для проверки конфликтов **до runtime registration**.
+GECS copies top-level Components shallowly. Nested mutable containers/resources must be isolated explicitly; Definitions remain shared immutable. on_changed requires explicit property_changed notification or an owning typed outcome; direct assignment does not automatically notify. Build fixtures prove nested-state isolation, placed/spawned parity and load without HP reset or repeated setup.
 
-Примеры ошибок:
-- два Traits пытаются предоставить один incompatible Component;
-- `ET_Combat` требует `C_Health`, но template его не предоставляет;
-- physical Trait требует совместимый Entity root;
-- обязательный binding Home/Workplace отсутствует.
+Placed startup needs a project-owned World/bootstrap hook **before** automatic World.initialize/add_entities: set the owned ECS.world context, compile all placed recipes, validate duplicate IDs/endpoints, then run the pinned World lifecycle once. A project World subclass/glue can perform this one-shot preparation before its superclass ready path; addons remain read-only. Validation only inside Entity._initialize is too late to prevent World.add_entity ID-collision replacement. After registration, fix up endpoints and publish ready before main_level simulation. Factory performs the same pre-registration validation. This is explicit startup glue, not another scheduler or compatibility wrapper.
 
 ### 9.2 Trait invariants
 
@@ -473,7 +387,27 @@ Profile/Definitions отвечают за конкретный content/tuning.
 
 Instance bindings отвечают за контекст конкретного экземпляра на уровне.
 
-### 10.1 Placed и spawned используют один pipeline
+### 10.1 Minimal authoring contract
+
+Для варианта существующей capability обязательны visible scene instance, один Profile и существующий Template. Template можно хранить inline в базовой сцене; отдельный `.tres` создаётся при переиспользовании. Новый `ET_*` script нужен для новой capability, а не для каждого NPC или предмета. Template inheritance в baseline отсутствует; композиция плоская, через reusable Traits и Profiles.
+
+Resolved precedence: scene owns mesh/collision/animation/node paths и engine-glue Components; Template owns capability recipes; Profile owns tuning; instance owns stable ID, bindings и явно перечисленные initial-state overrides. Два providers одного Component дают compile error, если field-level merge не объявлен в capability schema. «Последний Trait победил» запрещено. Runtime save values применяются после defaults и до ready publication; reload не сбрасывает HP/inventory из Template.
+
+Inspector показывает Template/Profile, stable ID и named bindings в Simple mode; Advanced раскрывает resolved providers, conflicts и source provenance. Compile/validate — одна entry point для Inspector, factory и headless Doctor. Preview read-only и не изменяет shared Resources, save или gameplay world. Error указывает resource, placed instance, binding/field и owning capability.
+
+Local authoring Node references удобны для выбора Home/Workplace/slot marker. Build context переводит их в authored stable ID и проверяет принадлежность нужному world; runtime Entity binding появляется только при fixup. Duplicating scene instance требует нового instance ID; tool предлагает repair явно и не молча переименовывает gameplay identity.
+
+Smart Object slot не требует отдельной GECS Entity: `actor --R_Reserved(slot_id, token)--> object`. `slot_id` — authored stable ID внутри объекта; marker NodePath — локальный scene binding, а не durable identity. Это сохраняет scene/Inspector workflow и bounded relationship count.
+
+### 10.2 Programmer / debugger / agent workflow
+
+Owner определяется `content/domains/<owner>/<role>/`; public payload/API находятся в `contracts/`, внутренние записи там не становятся public автоматически. Каждая task начинает с owner + direct contract + smallest regression surface. Новая capability добавляет recipe/requirements, System/Observer только для нового поведения и validation provider в тот же milestone.
+
+Command trace несёт origin, target stable ID, operation/correlation ID и явный accepted/rejected/completed result. Bounded diagnostic snapshot включает source of selected goal, rejected options, active action, cancellation reason, intent, reservation owner/token и cadence/representation mode. State consumers read-only; recent-event ring bounded и включается для выбранной Entity, не логирует каждый мир/frame. LimboAI tree debugger остаётся отдельным native inspector.
+
+Debug provider возникает вместе с contract; task 48 объединяет views. GOAP fields отображаются только если такой optional planner когда-либо введён. Configuration error, command rejection и runtime action failure — разные причины, которые не маскируются общей ошибкой «invalid».
+
+### 10.3 Placed и spawned используют один pipeline
 
 Placed Entity:
 
@@ -482,9 +416,9 @@ visible authored scene instance
     ↓
 template compile
     ↓
-materialize Components/Relationships
+prepare recipes before GECS initialization
     ↓
-world registration
+World initialization + endpoint fixup + composition-ready
 ```
 
 Runtime spawned Entity:
@@ -496,16 +430,16 @@ instantiate
     ↓
 template compile
     ↓
-materialize Components/Relationships
+prepare recipes before GECS initialization
     ↓
-world registration
+World initialization + endpoint fixup + composition-ready
 ```
 
 После регистрации Systems не должны различать, был объект поставлен дизайнером или создан factory.
 
 `default_scene` у Template может быть optional: уникальная placed scene может использовать тот же gameplay Template с другим визуальным представлением.
 
-### 10.2 Editor inspector/plugin
+### 10.4 Editor inspector/plugin
 
 Нужен небольшой editor tooling слой, а не отдельный runtime framework.
 
@@ -553,7 +487,7 @@ Relationships использовать для live links:
 ```text
 R_CombatTarget
 R_AssignedTo
-R_ReservedBy
+R_Reserved
 R_Follows
 R_TradingWith
 R_DialogueWith
@@ -602,7 +536,7 @@ typed events/requests
 - required bindings;
 - referenced Dialogue;
 - Smart Object executors;
-- GOAP action executors;
+- existing action executors; GOAP checks only if optional planner is introduced;
 - schedule locations;
 - animation names;
 - stable IDs;
@@ -622,7 +556,7 @@ typed events/requests
 - world timestamp;
 - real/UI time.
 
-Schedule, GOAP, offscreen simulation и save/restore используют единый game-time contract.
+Schedule, goal selection, offscreen simulation и save/restore используют единый game-time contract. World timestamp — monotonic integer simulation ticks; C_DayCycle остаётся authority explicit day/phase transitions. Pause/skip/Night mappings сохраняют current semantics; physics callback delta и UI clock отдельны.
 
 ## 16. Seeded deterministic randomness
 
@@ -633,9 +567,12 @@ world_seed
 + stable_entity_id
 + game_day
 + decision/action identifier
++ persisted decision sequence when repeated decisions require it
 ```
 
 Это нужно для воспроизводимых regression tests и сложных NPC сценариев.
+
+Seed derivation использует фиксированное canonical byte encoding/hash, stable iteration order и explicit counter persistence; engine/process hash не является durable determinism contract. Jolt lockstep не требуется.
 
 ## 17. Gameplay Debugger
 
@@ -649,7 +586,7 @@ Relationships
 
 AI:
   Current Goal
-  Current GOAP Plan
+  Active obligation/action (optional GOAP plan only if introduced)
   Current Action
   LimboAI task/status
 
@@ -724,6 +661,14 @@ python utils/validate_domain_structure.py --strict
 
 Strict mode дополнительно запрещает legacy horizontal gameplay roots.
 
+Owners baseline: `npc`, `customers`, `district`, `interaction`, `combat`, `motion`, `packages`, `hazards`, `commerce`, `inventory`, `quests`, `challenges`, `needs`, `time`, `persistence`. Hunger — needs; wallet/purchase — commerce; receiving/delivery — packages; input/focus — interaction; camera/locomotion — motion. Shared требует нескольких реальных consumers, не превращается в universal gameplay service. Empty roles не создавать.
+
+Runtime direction: shared kernel не импортирует domains; time/needs/motion/combat/inventory/interaction expose public contracts; npc composes leaf capabilities; customers composes npc/packages/commerce contracts; district orchestrates public population boundaries; quests/challenges react to facts; persistence imports declared snapshot adapters. Cyclic internal imports запрещены. Global scenes/UI compose public APIs. Authored asset references (например package→hazard scene) проверяются отдельно от runtime code graph.
+
+Task 28 уточняет file-to-owner map по inventory 10 в рамках этой policy. Public `contracts/` имеют explicit symbol/path manifest; перенос internal класса в папку не разрешает dependency. Validator 33 индексирует class_name; arbitrary dynamic imports запрещены вне declared adapters и проверяются review/content scan.
+
+Explicit public data/capability contracts могут экспортировать owning `C_*`, Profile или Trait из canonical role paths (например read/query C_Health), без forwarding script в contracts/. Manifest сохраняет writer authority: import/query не разрешает другому domain менять HP/relationship/lifecycle через private fields. Write authority проверяется ownership review и behavioral fixtures; path validator не доказывает semantics.
+
 Домены общаются через:
 - typed commands;
 - typed events;
@@ -747,19 +692,22 @@ Temporary adapters допустимы только внутри незаверш
 
 ## 20. Target roadmap inside Refactoring v2
 
-После исправления текущего ECS execution model Phase 2 продолжает архитектурную миграцию:
+После исправления текущего ECS execution model Phase 2 продолжает архитектурную миграцию (IDs задач — stable identifiers, а не sort order):
 
-1. vertical domains + dependency boundaries;
-2. typed Commands / Events;
-3. Entity Templates / Traits;
-4. visual authoring/editor validation;
-5. Smart Objects / Reservations / Affordances;
-6. AI stack: Schedule → Utility → GOAP → LimboAI;
-7. Simulation LOD;
-8. Content Doctor;
-9. unified Game Time + deterministic randomness;
-10. Gameplay Debugger;
-11. final architecture acceptance.
+1. typed Commands / Events (40);
+2. vertical layout contract (28) + dependency validator (33);
+3. domain moves (29–32), strict dependency/layout rerun;
+4. unified Game Time + deterministic randomness (47);
+5. Entity Templates / Traits (41);
+6. visual authoring/editor validation (42);
+7. Smart Objects / Reservations / Affordances (43);
+8. AI decision/execution contract (44);
+9. Simulation LOD (45);
+10. Content Doctor aggregation (46);
+11. Gameplay Debugger view (48);
+12. final architecture acceptance (49).
+
+Validation и diagnostic providers добавляются в owning milestone 40–45, а не впервые в 46/48. Identity/schema baseline определена задачей Phase 1.04 до любых execution/path migrations.
 
 Только после стабильной архитектурной baseline выполняется массовый Code Style pass.
 
@@ -803,7 +751,20 @@ Project-specific differences:
 - Godot scenes remain the primary visual/physical authoring representation;
 - UI remains ordinary Godot Control glue;
 - LimboAI remains local/realtime behavior execution;
-- GOAP is proposed only for macro multi-step planning;
+- GOAP and four-tier LOD are deferred; the baseline uses existing obligations, LimboAI and two representation modes;
 - project Relationships/Commands/Events remain the authoritative integration mechanism.
 
 When an architectural rule is derived from one of these references, documentation/tasks should name the reference explicitly instead of presenting it as an arbitrary local convention.
+
+### Flecs observers
+
+[Flecs Observers manual](https://www.flecs.dev/flecs/ObserversManual.html) distinguishes periodic Systems from event reactions and documents notification costs. Borrowed: genuine transitions and explicit delivery semantics. Rejected: composition changes solely to send ordinary events and assuming direct assignment notifies automatically. Actual GECS semantics come from pinned local source.
+
+## 22. Phase 0 scope decisions
+
+- ADOPT: minimal flat Templates/Traits, one validation path, scoped typed contracts, existing-object affordances/reservations, two representation modes, time/seed contract, early content/diagnostic providers.
+- REJECT: Template inheritance, arbitrary install hooks, global bus/framework, default slot Entity, duplicate live NpcRecord state, blanket seven-group scheduler replacement.
+- DEFER: GOAP, mandatory Utility framework, four tiers/aggregated population, new Sit/Sleep/trader mechanics solely as demos.
+- Owner decision 2026-10-07: old save migration/backward compatibility не требуется. Changed format bumps schema и отклоняет unsupported saves до live mutation. New-format identity/roundtrip/links обязательны; tooling не удаляет/перезаписывает пользовательские файлы.
+
+Это preflight design decisions, не реализованные runtime capabilities. Phase 1 не начата. Rationale/scorecards находятся в owning 00_* tasks.

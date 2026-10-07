@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: все доменные migration tasks Phase 2 завершены.
+Зависимости: [25_persistence_remaining.md](25_persistence_remaining.md), все execution tasks 11–24 завершены. Задачи 28–49 не являются prerequisites этого checkpoint.
 
 ## Goal
 

@@ -1,6 +1,6 @@
 # Refactoring v2.00.03 — simplification, overengineering и reference audit
 
-Status: **PLANNED**
+Status: **DONE**
 
 Зависимости: [00_02_usability_authoring_audit.md](00_02_usability_authoring_audit.md).
 
@@ -109,3 +109,48 @@ Decision: ADOPT / REJECT / DEFER
 ## Validation
 
 Planning/docs/validator-only. Runtime implementation запрещён.
+
+## Current — результат 2026-10-07
+
+Adversarial review выполнен после DONE 00_02. Costs — estimate новых concepts/authoring edits, не measured code size/performance. Каждая строка содержит Problem, Current proposed solution, Suggested improvement, Why, Complexity cost, Migration impact, Decision.
+
+| Layer / пользователь | Problem | Current proposal | Suggested improvement / Why | Complexity cost | Migration impact | Decision |
+| --- | --- | --- | --- | --- | --- | --- |
+| GOAP / runtime | Альтернативные macro paths текущими jobs не доказаны | Mandatory planner в 44/49 | Existing obligations + LimboAI; planner только при evidence, меньше search/state/debug burden | Сейчас 0 planner types/API | Убрать mandatory GOAP acceptance, no placeholder | DEFER |
+| Utility / programmer | Competing goals/thrashing | Separate layer каждого NPC | Bounded priorities; pure scoring/hysteresis только при need | 1 selection owner, optional helper | 44 сохраняет local BT hierarchy | ADOPT helper; DEFER framework |
+| Traits / author | Repeated capability wiring | Full framework, 6 mandatory classes | Flat recipes + Profiles; no per-item script, compile conflicts | 2 authored types, transient plan, compile/factory operations | 41 migrates families/callers целиком | ADOPT minimal |
+| Template inheritance / author | Reuse variants | Parent Templates possible | Godot inherited scenes + flat Traits/Profile; explicit merge | 0 parent graph | No hidden override order | REJECT |
+| Compiler classes / programmer | Invalid config before registration | Mandatory context/compiler/factory hierarchy | One typed operation, class только для real boundary | No mandatory wrappers | Extend factory, GECS ready barrier | ADOPT roles; REJECT six-class mandate |
+| Arbitrary hooks / runtime | Scene setup | Trait setup hook | Declarative requirement + narrow engine adapter | 1 adapter per new capability | No compiler side effects; restore idempotency | REJECT arbitrary hooks |
+| Smart Objects / designer | Shared eligibility/reservation/cancel | Universal framework + Chair/Bed demos | Existing executor + affordance data, player/NPC same contract | Definition + relationship token + adapter; 0 scripts per variant | 43 replaces existing path; Sit/Sleep optional | ADOPT bounded |
+| Slot Entity / author | Slot exclusivity | Entity per slot | slot_id/token on actor→object R, scene marker; fewer objects | No extra Entity/wrapper | Slot invalidation в 43 | REJECT default slot Entity |
+| Four LOD / runtime | Absent population without body/BT cost | Four tiers + record/ECS alternatives | PHYSICAL/MACRO + independent cadence; one owner | 2 modes, 1 transition contract | 45A separation; B macro; C acceptance | ADOPT two; DEFER four/aggregate |
+| NpcRecord/body / programmer | Identity/history vs HP split | Second offscreen store possible | Canonical Entity, physical child; NpcRecord DTO | One live owner | 45A all callers/save adapters/links | ADOPT |
+| Vertical domains / agent | Horizontal context/search | Many proposed folders | Concrete owners incl. district/needs, no empty roles, public manifest | 15 owners, roles only as needed | 28 map/33 guard before moves; 32 removes roots | ADOPT |
+| Commands/Events / debugger | Hidden orchestration, intent vs fact | Potential global bus/framework | Existing targeted GECS + synchronous API, immutable trace | Types per boundary; no dispatcher | 40 before moves; internal calls remain | ADOPT contracts; REJECT bus |
+| Time/randomness / runtime | Mixed clocks/random decisions | Foundation after AI | 47 before 41, explicit clocks/seed, no physics lockstep | Clock/seed operation + needed counters | Preserve day semantics, version changed save shape | ADOPT |
+| Content Doctor / author | Silent invalid configs | Giant late validator | Owning providers + aggregate CLI 46 | One result schema; reuse Inspector rules | 41–45 negative fixtures before DONE | ADOPT incremental |
+| Debugger / debugger | Why/failure inaccessible | Late giant view | Early snapshots, bounded selected trace, native BT inspector | Providers + 1 view | 40–45 providers, 48 UI | ADOPT |
+| Old saves / owner | Early unfinished project | Initially preserve schema 2 | Owner excludes conversion: reject old version safely | 0 alias/converter | Version bump/current-format tests; no user-file deletion | REJECT migration |
+
+### Borrowed ideas / reference audit
+
+Первичные источники открыты 2026-10-07; это conceptual references, не API проекта:
+
+- [Mass Entity](https://dev.epicgames.com/documentation/unreal-engine/overview-of-mass-entity-in-unreal-engine?lang=en-US): composition/Traits и deferred structural changes полезны для repeated wiring; Template inheritance не переносится, command buffer — pinned GECS.
+- [Mass Gameplay](https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-gameplay-in-unreal-engine): representation/simulation separation, signals и capability integration адаптированы; четыре tiers, StateTree и Unreal lifecycle не перенесены.
+- [Flecs Observers](https://www.flecs.dev/flecs/ObserversManual.html): scheduled/reactive distinction и explicit notification semantics полезны; actual delivery/flush — local GECS authority. No Flecs dependency.
+
+Standalone Mass Smart Objects URL недоступен через web tool; вывод об integration основан на доступном Gameplay overview.
+
+### Freedom pass
+
+С нуля для Godot/GECS/LimboAI/Dialogue Manager выбрали бы исправленную bounded baseline: реальные сцены, flat recipes/Profile, query-visible execution, targeted contracts, native BT hierarchy и два representation modes. Универсальный planner, Template inheritance и ещё один event runtime не оправданы текущим scope. Retained layers не требуют нового script на каждый existing-capability variant.
+
+## Validation result
+
+Proposal, 41/43–49 и README синхронизированы с ADOPT/REJECT/DEFER. Core acceptance не требует deferred features. `git diff --check` PASS. Runtime/Godot/GUT не запускались.
+
+## Next
+
+[00_04_migration_persistence_validation_audit.md](00_04_migration_persistence_validation_audit.md): slices, current-format persistence, validator coverage и removal gates.

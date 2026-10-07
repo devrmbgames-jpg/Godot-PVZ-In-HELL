@@ -41,6 +41,8 @@ Morning/day transitions принадлежат отдельному Observer/tra
 - отсутствует morning logic, проверяемая каждый обычный frame без причины;
 - `CustomerFlowService.tick()` больше не является владельцем этого lifecycle.
 
+Active visit progression остаётся существующим owner до 12: это другой responsibility slice. Planning/arrival/day transitions уже не выполняются вторым legacy path. Не добавлять compatibility API для callers мигрированного planning; active-visit callers принадлежат следующему scope и не дублируют новый planning.
+
 ## Validation
 
 Parser changed files + профильные customer timing/flow tests. Не запускать весь проект.

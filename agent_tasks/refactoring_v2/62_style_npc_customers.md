@@ -1,4 +1,4 @@
-# Refactoring v2.32 — Code Style: NPC и Customers
+# Refactoring v2.62 — Code Style: NPC и Customers
 
 Status: **PLANNED**
 
@@ -13,6 +13,8 @@ Status: **PLANNED**
 - project-owned NPC services/rules/solvers/presentation;
 - Customer services/rules/presentation;
 - NPC/Customer entities и related AI glue, если они не покрываются отдельной remaining task.
+
+Scope: оставшиеся scripts в `content/domains/{npc,customers}/` по manifest задачи 61. Не повторять принятые ECS-role files.
 
 ## Extra focus
 

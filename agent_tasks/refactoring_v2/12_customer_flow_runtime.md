@@ -29,6 +29,8 @@ Status: **PLANNED**
 - Service не владеет generic per-frame `_step`;
 - не появляется новый hidden dispatcher под другим именем.
 
+Временные adapters внутри этого scope удалены до DONE; visit phases не выполняются и в Service, и в System. Outcome transactions могут оставаться scope 13, но их однократный commit path сохраняется уже здесь.
+
 ## Validation
 
 Customer flow/service/inspection профильные GUT + parser изменённых файлов.

@@ -1,8 +1,8 @@
-# Refactoring v2.30 — formatter/linter как единый style gate
+# Refactoring v2.60 — formatter/linter как единый style gate
 
 Status: **PLANNED**
 
-Зависимости: Phase 2 acceptance PASS.
+Зависимости: [49_core_architecture_acceptance.md](49_core_architecture_acceptance.md) PASS.
 
 ## Goal
 

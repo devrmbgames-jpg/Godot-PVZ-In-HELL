@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: все предыдущие Refactoring v2 tasks завершены.
+Зависимости: [65_style_remaining_code.md](65_style_remaining_code.md); все предыдущие Refactoring v2 tasks завершены.
 
 ## Goal
 

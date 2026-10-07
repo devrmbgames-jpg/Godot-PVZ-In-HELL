@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: domain migrations 29–31 завершены.
+Зависимости: [31_domain_world_economy_packages.md](31_domain_world_economy_packages.md); domain migrations 29–30 завершены по chain, [33_domain_dependency_validation.md](33_domain_dependency_validation.md) уже включён.
 
 ## Goal
 
@@ -20,6 +20,8 @@ Status: **PLANNED**
 
 `python utils/validate_domain_structure.py --strict` PASS.
 Legacy horizontal gameplay roots отсутствуют.
+
+Strict dependency rerun 33 PASS с пустой migration baseline. Shared→domain internal imports отсутствуют. Old path-prefix guards, tests/tooling roots и save paths обновлены; несовместимый persisted формат versioned и old saves отклоняются, не конвертируются.
 Новый разработчик определяет owner файла по пути без глобального поиска по role root.
 
 ## Validation

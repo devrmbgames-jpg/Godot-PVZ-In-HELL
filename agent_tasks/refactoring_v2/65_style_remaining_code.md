@@ -1,4 +1,4 @@
-# Refactoring v2.35 — Code Style: remaining project-owned GDScript
+# Refactoring v2.65 — Code Style: remaining project-owned GDScript
 
 Status: **PLANNED**
 
@@ -11,9 +11,9 @@ Status: **PLANNED**
 ## Scope
 
 Проверить и привести к стилю:
-- content/entities/**;
+- оставшиеся `content/domains/*/entities/**` и `content/shared/**`;
 - content/ui/**;
-- content/ai/**;
+- оставшиеся `content/domains/*/ai/**`;
 - scripts рядом со сценами/resources;
 - utils/**;
 - tests/** — с разумным исключением для test readability;
@@ -24,6 +24,8 @@ Status: **PLANNED**
 Tests тоже должны быть читаемы, но не превращать компактные table-driven fixtures в церемониальный production-код.
 Generated/imported files не форматировать вручную.
 Third-party addons/ исключены.
+
+Scope задаётся дополнением manifest 61–64 до полного project-owned `.gd` set; global UI/scene/debug glue сохраняет обычную Godot ownership.
 
 ## Acceptance
 

@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: service inventory завершён.
+Зависимости: [21_grab_push_slots.md](21_grab_push_slots.md), [16_npc_route_service_role.md](16_npc_route_service_role.md).
 
 ## Goal
 

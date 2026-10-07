@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: задачи 11–24 и inventory почти завершены.
+Зависимости: [24_economy_inventory_commerce.md](24_economy_inventory_commerce.md); задачи 10–23 завершены по последовательному execution chain.
 
 ## Goal
 

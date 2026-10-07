@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [28_domain_layout_contract.md](28_domain_layout_contract.md), NPC/Customer execution refactor завершён.
+Зависимости: [33_domain_dependency_validation.md](33_domain_dependency_validation.md), NPC/Customer execution refactor завершён в 27.
 
 ## Goal
 

@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: service inventory завершён; customer outcomes стабилизированы.
+Зависимости: [23_hazards_receiving_loot.md](23_hazards_receiving_loot.md), [13_customer_outcomes.md](13_customer_outcomes.md).
 
 ## Goal
 

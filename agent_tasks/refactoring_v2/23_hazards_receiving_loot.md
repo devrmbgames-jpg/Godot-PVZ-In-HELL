@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: service inventory завершён; combat/damage boundary стабилен.
+Зависимости: [22_motion_physics.md](22_motion_physics.md), [17_combat.md](17_combat.md).
 
 ## Goal
 

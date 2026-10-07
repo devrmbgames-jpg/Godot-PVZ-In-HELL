@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [10_service_inventory.md](10_service_inventory.md), customer planning завершён.
+Зависимости: [13_customer_outcomes.md](13_customer_outcomes.md); customer planning/runtime завершены через 11–13.
 
 ## Goal
 

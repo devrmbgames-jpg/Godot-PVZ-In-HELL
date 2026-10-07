@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: service inventory завершён, Customer outcome boundary определён.
+Зависимости: [17_combat.md](17_combat.md), [13_customer_outcomes.md](13_customer_outcomes.md).
 
 ## Goal
 

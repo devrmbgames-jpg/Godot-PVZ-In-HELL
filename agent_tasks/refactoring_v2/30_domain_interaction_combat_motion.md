@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [28_domain_layout_contract.md](28_domain_layout_contract.md), соответствующие execution-refactor задачи завершены.
+Зависимости: [29_domain_npc_customers.md](29_domain_npc_customers.md), соответствующие execution-refactor задачи завершены в 27.
 
 ## Goal
 

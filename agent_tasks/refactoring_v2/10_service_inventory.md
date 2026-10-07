@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: Phase 1 полностью завершена.
+Зависимости: Phase 1 (01–04) полностью завершена, включая [04_identity_persistence_contract.md](04_identity_persistence_contract.md).
 
 ## Goal
 
@@ -38,6 +38,8 @@ Status: **PLANNED**
 - целевой владелец/роль;
 - задача Phase 2, которая исправляет его;
 - риски/тестовая поверхность.
+
+Перед migration каждого назначенного item указать bounded coherent slice: полный owned responsibility + all callers, adapter/removal condition, точный existing regression и before/after scheduler ordering. Большой смешанный файл не делает весь Service ownership одной задачей. Слишком большой scope дробится до начала edits; DONE owning task требует closure всех её slices. Baseline infrastructure failures задачи 03 должны быть устранены.
 
 ## Acceptance
 

@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: stable domain boundaries.
+Зависимости: [27_architecture_acceptance.md](27_architecture_acceptance.md), [04_identity_persistence_contract.md](04_identity_persistence_contract.md).
 
 ## Goal
 
@@ -16,6 +16,10 @@ Status: **PLANNED**
 - сохранить direct synchronous call внутри одного domain, если он проще и корректнее;
 - обеспечить idempotency для transaction-like commands, где она уже нужна;
 - UI отправляет Commands и читает Events/state, но не становится ECS participant.
+
+Контракты вводятся **до** vertical-domain moves. На этом шаге owner определяется service inventory, а layout ещё horizontal. Задача 28 переносит уже выбранные public contracts; задача 33 проверяет их границы. Новый global bus/dispatcher не вводить.
+
+Trace/diagnostics: bounded reason-coded accepted/rejected/completed result, origin/target stable ID и correlation/operation ID. Handler/consumers discoverable по public contract и owning domain, без wildcard subscriptions. Provider tests возникают здесь, UI view — в 48.
 
 ## Acceptance
 

@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [32_domain_shared_core.md](32_domain_shared_core.md).
+Зависимости: [28_domain_layout_contract.md](28_domain_layout_contract.md).
 
 ## Goal
 
@@ -18,7 +18,9 @@ Status: **PLANNED**
 - content/shared low-level contracts;
 - явно документированные integration boundaries.
 
-Не строить полноценный GDScript compiler. Проверять надёжно определяемые path-level violations и поддерживать небольшой explicit dependency map.
+Не строить полноценный GDScript compiler. Проверять path-level references и project `class_name` references через symbol-to-owner index: отсутствие preload не означает отсутствие зависимости. Dynamic loads остаются явным review/content gate.
+
+Validator вводится **до** 29–32: transition mode проверяет migrated owners и запрещает новые нарушения. Каждый legacy exemption имеет owner/removal task; после 32 strict rerun обязателен с пустой migration baseline. Shared не зависит от domain internals; global composition может связывать domains через public contracts. Authored asset references проверяются отдельно от runtime code dependencies.
 
 ## Acceptance
 
@@ -29,4 +31,4 @@ Status: **PLANNED**
 
 ## Validation
 
-Validator fixture tests + strict project structure.
+Validator fixtures: allowed/forbidden path и class_name reference, shared→domain, public contract, unknown target, cycle и expired exemption. Transition structure при создании; strict structure/dependency rerun после 32.
