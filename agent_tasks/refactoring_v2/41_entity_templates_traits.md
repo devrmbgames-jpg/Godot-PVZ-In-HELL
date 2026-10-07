@@ -37,10 +37,13 @@ Project-owned World/bootstrap preparation выполняется до automatic 
 
 Scene/template/profile/instance ownership и explicit override/conflict policy заданы section 10 target proposal. Nested mutable state между двумя spawn instances изолирован; Definitions shared immutable. Restore применяет saved state поверх defaults до ready и не повторяет side effects. Требуются validation/diagnostic providers вместе с capability.
 
+Composition manifest covers every existing procedural capability installer from inventory/migration map, including NPC/customer/trader, items/interactables and package/hazard factories. Representative examples are tests, not the migration scope limit. Native declarative scene Components/pure define_components recipes remain deliberate providers of intrinsic data/engine glue, validated by the same preparation path with an optional Template; no empty Template asset is mandatory. Reusable gameplay capability wiring migrates to Traits; old on_ready/factory/install branches for that capability disappear. Each Component/Relationship is contributed once; passing a compiled recipe plus old define_components output to GECS as duplicate overrides is forbidden. Provenance fixtures cover scene+code+Trait provider conflicts and no repeated Component-added reaction.
+
 ## Acceptance
 
 Собрать representative templates для существующих capabilities: physical NPC, resident/customer, existing Trader и physical interactable object. C_Trader/DEF_TraderProfile уже существуют; здесь capability wiring, а не новая trade mechanic. Variant не требует ET script или global registration edit.
 Compile-time validation ловит duplicate/incompatible providers и missing requirements.
+Manifest is 100% closed: each installer removed/migrated or retained as a documented declarative intrinsic provider with no duplicate setup path. Package/item/hazard family fixtures join NPC/interactable parity tests; remaining scene-only recipes are part of the target pipeline, not a legacy fallback.
 
 Positive/negative fixtures доказывают placed↔spawned parity, ordering-independent deterministic recipes, duplicate provider, missing binding, two-instance nested mutation isolation, failed-registration cleanup и load без повторного setup/HP reset. Cleanup не обещает отменить уже опубликованные wallet/dialogue/outcomes: таких effects до ready быть не должно. `World.add_entity` не вызывается дважды для placed scene. Setup, synchronous Observer callbacks и Entity.on_ready входят в startup ordering fixture.
 

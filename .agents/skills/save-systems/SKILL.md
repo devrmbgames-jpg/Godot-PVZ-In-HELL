@@ -25,7 +25,7 @@ Every durable save format must have a schema version from its first shipped vers
 Load flow:
 1. parse;
 2. check version;
-3. migrate older schema step-by-step;
+3. reject unsupported older/newer schemas; migrate an older schema only when compatibility is explicitly required;
 4. validate required data/ranges/IDs;
 5. construct authoritative entities/domain records;
 6. restore relationships/references in a second phase;
@@ -54,13 +54,15 @@ Capture at an explicit safe boundary or from a coherent authoritative snapshot.
 
 A migration transforms data from version N to N+1 and should be deterministic and testable without gameplay.
 
-Preserve old migrations after release. Do not make current gameplay code contain scattered legacy-version conditionals when a load-time migration can normalize the data once.
+For this early project, the owner explicitly excludes old-save conversion/backward compatibility from Refactoring v2. Version incompatible changes and reject unsupported files before world mutation; do not introduce aliases/converters or previous-version roundtrip requirements. Preserve the file and use isolated slots for tests.
+
+If compatibility becomes an explicit released-product requirement later, preserve those migrations and normalize data at load time rather than scattering legacy conditionals through gameplay.
 
 ## Validation
 
 For persistence changes, prefer tests that:
 - round-trip representative data;
-- load at least the previous schema version;
+- reject the previous schema when unsupported; load it only when compatibility is part of the task;
 - reject malformed/newer unsupported data cleanly;
 - verify stable relationships reconstruct by ID;
 - fully quit/reload when a real persistence path must be proven.

@@ -31,4 +31,4 @@ Validator вводится **до** 29–32: transition mode проверяет 
 
 ## Validation
 
-Validator fixtures: allowed/forbidden path и class_name reference, shared→domain, public contract, unknown target, cycle и expired exemption. Transition structure при создании; strict structure/dependency rerun после 32.
+Validator fixtures: allowed/forbidden path и class_name reference, comments/strings without false symbol edge, shared→domain, public symbol on forbidden edge, unknown target, public import cycle и expired exemption. Each transition exemption names exact legacy edge/symbol, owner/removal task and must disappear by that owner's DONE; zero after 32. Transition structure при создании; strict structure/dependency rerun после 32. Regex guard не доказывает write semantics; ownership and behavior tests remain required.

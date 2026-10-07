@@ -16,6 +16,8 @@ ECS остаётся единственной authoritative domain/gameplay mode
 - Rules / Calculation / Geometry / Solver — reusable algorithms без скрытого gameplay lifecycle.
 - `DEF_*` — immutable/shared authored design data.
 
+An ECS-owned aggregate may contain typed records/Resources when they have one owner/writer and are validated/serialized through that Component. Per-actor data uses actor Components when queried/mutated per actor; duplicate copies are rejected by authority, not by the mere existence of a Resource. Caches, mirror IDs and terminal history are explicitly marked as derived/immutable.
+
 Не создавать второй gameplay authority в LimboAI Blackboard, GOAP world state, Dialogue, UI, AnimationPlayer или Node tree. Эти слои могут хранить transient/derived working state, но authoritative факт живёт в ECS.
 
 ## 2. UI — только Godot glue
@@ -393,7 +395,7 @@ Instance bindings отвечают за контекст конкретного 
 
 Для варианта существующей capability обязательны visible scene instance, один Profile и существующий Template. Template можно хранить inline в базовой сцене; отдельный `.tres` создаётся при переиспользовании. Новый `ET_*` script нужен для новой capability, а не для каждого NPC или предмета. Template inheritance в baseline отсутствует; композиция плоская, через reusable Traits и Profiles.
 
-Resolved precedence: scene owns mesh/collision/animation/node paths и engine-glue Components; Template owns capability recipes; Profile owns tuning; instance owns stable ID, bindings и явно перечисленные initial-state overrides. Два providers одного Component дают compile error, если field-level merge не объявлен в capability schema. «Последний Trait победил» запрещено. Runtime save values применяются после defaults и до ready publication; reload не сбрасывает HP/inventory из Template.
+Resolved precedence: scene owns mesh/collision/animation/node paths and declarative intrinsic/engine-glue Components; optional Template owns reusable capability recipes; Profile owns tuning; instance owns stable ID, bindings and enumerated initial overrides. Scene-only declarative Entity is valid and passes the same preparation/validation path, without an empty Template asset. All procedural capability installers migrate under a closed manifest in 41; a migrated capability cannot also be installed by old on_ready/factory code. GECS receives each provider exactly once, including pure define_components output. Duplicate providers fail unless field merge is explicitly declared; no last-Trait-wins. Save overlay follows defaults and precedes ready, preserving HP/inventory.
 
 Inspector показывает Template/Profile, stable ID и named bindings в Simple mode; Advanced раскрывает resolved providers, conflicts и source provenance. Compile/validate — одна entry point для Inspector, factory и headless Doctor. Preview read-only и не изменяет shared Resources, save или gameplay world. Error указывает resource, placed instance, binding/field и owning capability.
 
@@ -780,5 +782,9 @@ When an architectural rule is derived from one of these references, documentatio
 - REJECT: Template inheritance/default_scene cycle, arbitrary install hooks, global bus/framework, default slot Entity, separate district ownership, blanket seven-group scheduler replacement, generic quest/action interpreter.
 - DEFER: GOAP, mandatory Utility framework, body detach/lightweight actor shell, new macro travel, four tiers/aggregated population, new Sit/Sleep mechanics solely as demos.
 - Owner decision 2026-10-07: old save migration/backward compatibility не требуется. Changed format bumps schema и отклоняет unsupported saves до live mutation. New-format identity/roundtrip/links обязательны; tooling не удаляет/перезаписывает пользовательские файлы.
+
+Persistence baseline remains Night-only prepared-Morning snapshots: finish evening/reset/prepare once, drain owning structural/outcome work, then capture immutable data and write. A failed write retry does not repeat settlement/preparation. Restore preflights all IDs/recipes/resources/endpoints without effects, constructs defaults, overlays saved state, reconstructs durable links/caches/participation and publishes ready last. Invalid preflight leaves live state untouched; unexpected startup failure abandons the unfinished World. No universal undo system or arbitrary mid-action checkpoint is implied by LOD save tests.
+
+Authored actor IDs are world/level-scoped local IDs, spawned IDs are persisted domain sequences. Definition IDs, actor keys, GECS ecs_id and operation IDs have different meanings. NpcRecord and C_NpcIdentity reference one actor; the resolver/reverse indexes are derived. Durable IDs survive path moves and explicit scene duplication repair. Stable bindings are restored after every endpoint exists, including dormant registered actors.
 
 Это preflight design decisions, не реализованные runtime capabilities. Phase 1 не начата. Rationale/scorecards находятся в owning 00_* tasks.

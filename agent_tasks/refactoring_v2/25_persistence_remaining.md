@@ -14,6 +14,10 @@ Codec/snapshot/store/migration helpers обычно остаются вне ECS 
 Отделить serialization от gameplay authority.
 Не менять save schema только ради архитектурной чистоты без отдельной необходимости.
 
+Complete safe snapshot/reconstruction contract из 04: Night prepared-Morning quiescence, no pending structural/outcome work at capture, no repeated preparation on write retry, immutable snapshot before I/O. Validation includes all prefab/recipe/ID/link checks before live replacement; new-template startup suppresses gameplay effects until restore/fixup. Missing required endpoint rejects; explicitly optional endpoint may be dropped with a reason, never guessed. Invalid save leaves prior valid state/file intact; unexpected startup construction failure abandons incomplete world rather than simulating partial restore. No old-save converters or aliases.
+
+Persistence owns storage/codec/composition of snapshot adapters; domains own state and expose schema contracts. Domain→Persistence imports/autosave calls migrate to global composition bindings, keeping the import graph acyclic. UI/BT/navigation/perception/reservation queues are reconstructed/reset under Night policy, not serialized as live Objects. Actual current-format roundtrip includes dormant registered bodies and per-field NPC aggregate metadata.
+
 ## Remaining services
 
 Для каждого ещё не закрытого inventory item выполнить назначенный KEEP/MOVE/SPLIT/RENAME/DELETE.

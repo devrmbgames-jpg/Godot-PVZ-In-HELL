@@ -141,9 +141,9 @@ Typed contracts уже закреплены задачей 40 перед executi
 
 План расширен до полного core refactor. Реализация runtime migration не начиналась.
 
-Повторный Phase 0 pass открыт 2026-10-07 по запросу владельца. 00_01–00_03 завершены последовательно; 00_04–00_05 ожидают review. Предыдущая readiness не действует до нового verdict 00_05. Phase 1–3 не начаты.
+Повторный Phase 0 pass открыт 2026-10-07 по запросу владельца. 00_01–00_04 завершены последовательно; 00_05 ожидает полного final review. Предыдущая readiness не действует до нового verdict 00_05. Phase 1–3 не начаты.
 
-Текущее следующее действие: [00_04 — migration/persistence/validation audit](00_04_migration_persistence_validation_audit.md). Каждая 00-задача имеет отдельный coherent commit до перехода к следующей.
+Текущее следующее действие: [00_05 — final readiness review](00_05_preflight_readiness_gate.md). Каждая 00-задача имеет отдельный coherent commit до перехода к следующей.
 
 Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/body detach/четыре tiers deferred; baseline ACTIVE/DORMANT with retained physical-root Entity and ECS-owned population records. Population/district schedules belong to npc, without separate district domain. Known structure failures (31, smoke reference/R26 metadata) закреплены за 03 и устраняются до runtime migration.
 
@@ -157,6 +157,8 @@ Domain structure guardrail уже подготовлен в transition mode:
 
 Preflight docs gate: `python utils/validate_refactoring_preflight.py --require-gate`.
 Fixtures: `python -m unittest discover -s tests/tools -p test_validate_refactoring_preflight.py`.
+
+Phase 0 commit footprint: `python utils/validate_refactoring_preflight.py --phase0-commit <commit-id>`; repeat flag for each commit. Index before commit: `--check-staged-scope`. These checks include only owned committed/staged paths, preserving unrelated unstaged config/addon changes.
 
 ## Global acceptance
 

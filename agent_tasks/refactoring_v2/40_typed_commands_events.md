@@ -27,6 +27,7 @@ Trace/diagnostics: bounded reason-coded accepted/rejected/completed result, orig
 Ключевые cross-domain flows Damage, Commerce, Interaction, Customer outcomes и Quests имеют явные boundaries и contract fixtures; их final execution acceptance проверяется в 27. Single synchronous domain operation не требует отдельной пары Command/Event classes ради единообразия.
 Event не используется как скрытая команда.
 Command не объявляет факт до успешного authoritative mutation.
+Fixtures include synchronous Observer reentrancy and deferred structural mutation: deps alone does not imply PER_GROUP buffer was flushed. Result after flush, pending before it; no consumer observes half-committed links/state. Terminal facts may be consumed by multiple domain owners for distinct effects, each effect idempotent; there is one handler for a command.
 
 ## Validation
 

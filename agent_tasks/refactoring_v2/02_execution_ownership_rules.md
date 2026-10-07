@@ -30,6 +30,8 @@ Status: **PLANNED**
 - physics Solver, вызываемый из обязательного Godot callback;
 - explicit one-shot command, даже если он изменяет несколько Components/Relationships.
 
+Pinned GECS events dispatch synchronously and may flush Observer commands after callback. deps() orders Systems inside coarse groups; PER_GROUP structural work is not visible to a later System in that same group merely because it declares deps. Each request boundary declares synchronous vs deferred mutation, flush point and terminal outcome timing. Publish a fact only after all fields/structural changes it describes are visible; rejected/deferred submit cannot be treated as completed. No recursive command/outcome chain without a bounded owner/test.
+
 ## Migration rule
 
 Для каждого найденного smell выбрать одно:

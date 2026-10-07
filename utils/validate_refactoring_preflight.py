@@ -5,7 +5,8 @@ from __future__ import annotations
 
 import argparse
 import re
-from pathlib import Path
+import subprocess
+from pathlib import Path, PurePosixPath
 from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,6 +20,22 @@ RESULT = re.compile(
     re.MULTILINE,
 )
 DEPENDENCY_LABEL = "Зависимости:"
+SCORE_CATEGORIES = (
+    "Programmer UX", "Designer UX", "Debugging UX", "AI-agent UX",
+    "Content scalability", "Architecture clarity",
+)
+SCOPE_FILES = frozenset({
+    "AGENTS.md", "content/ARCHITECTURE.md",
+    "docs/project_core_architecture_proposal.md", "docs/persistence.md",
+    "utils/validate_refactoring_preflight.py", "utils/validate_domain_structure.py",
+    "utils/validate_project_structure.py", "utils/validate_architecture.py",
+    "utils/validate_domain_dependencies.py",
+    "tests/tools/test_validate_refactoring_preflight.py",
+    "tests/tools/test_validate_domain_structure.py",
+    "tests/tools/test_validate_project_structure.py",
+    "tests/tools/test_validate_architecture.py",
+    "tests/tools/test_validate_domain_dependencies.py",
+})
 PREFLIGHT = tuple(
     f"00_0{index}_{suffix}.md"
     for index, suffix in enumerate(
@@ -48,6 +65,43 @@ def dependency_references(document: str) -> set[str]:
             declaration.append(continuation)
         return set(TASK_REFERENCE.findall("\n".join(declaration)))
     return set()
+
+
+def validate_phase0_paths(paths: list[str]) -> list[str]:
+    """Check the authorized planning footprint, not the meaning of file contents."""
+    errors: list[str] = []
+    for path in paths:
+        parts = PurePosixPath(path).parts
+        if not parts or ".." in parts or "\\" in path or PurePosixPath(path).is_absolute():
+            errors.append(f"invalid Phase 0 path: {path}")
+            continue
+        planning_doc = path.startswith("agent_tasks/refactoring_v2/") and path.endswith(".md")
+        skill_doc = path.startswith(".agents/skills/") and path.endswith(".md")
+        if path not in SCOPE_FILES and not planning_doc and not skill_doc:
+            errors.append(f"outside authorized Phase 0 scope: {path}")
+    return errors
+
+
+def validate_git_scope(root: Path, commit: str | None = None) -> list[str]:
+    """Inspect one commit or the index; unrelated unstaged edits are not included."""
+    if commit is not None and not re.fullmatch(r"[0-9a-fA-F]{7,40}", commit):
+        return ["Phase 0 commit must be a hexadecimal commit ID"]
+    command = (
+        ["git", "show", "--format=", "--name-only", "-z", "--no-renames", commit, "--"]
+        if commit is not None
+        else ["git", "diff", "--cached", "--name-only", "-z", "--no-renames", "--"]
+    )
+    try:
+        result = subprocess.run(command, cwd=root, capture_output=True, check=False, timeout=20)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return [f"cannot inspect Phase 0 git scope: {error}"]
+    if result.returncode:
+        return ["cannot inspect Phase 0 git scope: " + result.stderr.decode("utf-8", "replace").strip()]
+    try:
+        paths = [path for path in result.stdout.decode("utf-8").split("\0") if path]
+    except UnicodeDecodeError:
+        return ["Phase 0 git scope contains invalid UTF-8 paths"]
+    return validate_phase0_paths(paths)
 
 
 def validate(root: Path = ROOT, require_gate: bool = False) -> list[str]:
@@ -131,16 +185,52 @@ def validate(root: Path = ROOT, require_gate: bool = False) -> list[str]:
                     errors.append(f"{path.name}: broken local link {target}")
 
     if require_gate:
+        for name, document in {"README.md": roadmap, **documents}.items():
+            if len(STATUS.findall(document)) != 1:
+                errors.append(f"{name}: exactly one Status is required")
         for name in PREFLIGHT:
             status = STATUS.search(documents.get(name, ""))
             if status is None or status.group(1) != "DONE":
                 errors.append(f"{name}: Phase 0 audit is not DONE")
-        gate = RESULT.search(documents.get(PREFLIGHT[-1], ""))
+        gate_document = documents.get(PREFLIGHT[-1], "")
+        gate = RESULT.search(gate_document)
         roadmap_status = STATUS.search(roadmap)
-        if gate is None:
+        if len(RESULT.findall(gate_document)) != 1:
             errors.append("readiness gate has no explicit final Result")
         elif roadmap_status is None or roadmap_status.group(1) != gate.group(1):
             errors.append("README Status does not match readiness Result")
+        if gate is not None:
+            ready = gate.group(1) == "READY_FOR_IMPLEMENTATION"
+            target_status = (
+                "PREFLIGHT_TARGET_APPROVED — IMPLEMENTATION_PENDING"
+                if ready else "PREFLIGHT_NOT_READY — IMPLEMENTATION_BLOCKED"
+            )
+            proposal = proposal_path.read_text(encoding="utf-8") if proposal_path.is_file() else ""
+            if STATUS.findall(proposal) != [target_status]:
+                errors.append("proposal Status does not match readiness Result")
+            next_tasks = re.findall(r"^Next task: `([^`]+)`$", roadmap, re.MULTILINE)
+            planning_actions = re.findall(r"^Next planning action: (.+)$", roadmap, re.MULTILINE)
+            blockers = re.findall(r"^Blockers: (.+)$", gate_document, re.MULTILINE)
+            if ready:
+                if next_tasks != ["01_architecture_contract.md"] or planning_actions:
+                    errors.append("READY roadmap must name 01_architecture_contract.md as the sole next task")
+                if blockers != ["NONE"]:
+                    errors.append("READY gate must explicitly have Blockers: NONE")
+            elif (
+                next_tasks or len(planning_actions) != 1
+                or not planning_actions[0].strip()
+                or len(blockers) != 1 or blockers[0].strip() in ("", "NONE", "TBD", "-")
+            ):
+                errors.append("NOT_READY gate requires blockers and a next planning action, without implementation next task")
+        for category in SCORE_CATEGORIES:
+            rows = re.findall(
+                rf"^\| {re.escape(category)} \| (\d+)/10 \| ([^\n|]*) \|$",
+                gate_document, re.MULTILINE,
+            )
+            if len(rows) != 1 or not 1 <= int(rows[0][0]) <= 10:
+                errors.append(f"readiness scorecard missing or invalid: {category}")
+            elif int(rows[0][0]) < 8 and rows[0][1].strip() in ("", "-", "TBD"):
+                errors.append(f"score below 8 needs an explanation: {category}")
         for name, document in documents.items():
             if name in PREFLIGHT:
                 continue
@@ -154,8 +244,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--require-gate", action="store_true")
+    parser.add_argument("--phase0-commit", action="append", default=[], metavar="COMMIT")
+    parser.add_argument("--check-staged-scope", action="store_true")
     arguments = parser.parse_args()
     errors = validate(arguments.root.resolve(), arguments.require_gate)
+    for commit in arguments.phase0_commit:
+        errors.extend(validate_git_scope(arguments.root.resolve(), commit))
+    if arguments.check_staged_scope:
+        errors.extend(validate_git_scope(arguments.root.resolve()))
     if errors:
         print("Refactoring preflight validation: FAIL")
         for error in errors:
