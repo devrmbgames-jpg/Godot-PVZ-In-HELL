@@ -1,6 +1,6 @@
 extends RefCounted
 ## Запрос мерцания ламп; enabled цепи сохраняет состояние игрового выключателя.
-class_name LightFlickerEvent
+class_name LightFlickerRequest
 
 ## Имя мирового события с этим типизированным запросом.
 const EVENT: StringName = &"light_flickering"

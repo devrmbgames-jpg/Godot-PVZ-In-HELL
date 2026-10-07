@@ -3,6 +3,7 @@ extends RefCounted
 class_name NpcDialogueContext
 
 var _delivery_job_id: StringName = &""
+var _closed: bool = false
 
 #region Интерфейс контекста
 func _init(_actor: Entity = null, _interlocutor: Entity = null) -> void:
@@ -14,7 +15,12 @@ func begin() -> bool:
 
 ## Освобождает участников, не владея модальным захватом ввода.
 func end() -> void:
-	pass
+	invalidate()
+
+
+## Seals a session during tree teardown without returning participants to gameplay.
+func invalidate() -> void:
+	_closed = true
 
 ## Проверяет текущих участников и условия предметной области.
 func is_valid() -> bool:
@@ -88,7 +94,7 @@ func has_broken_promise() -> bool:
 
 ## Применяет зафиксированную реакцию характера через сервис при следующем разговоре.
 func resolve_broken_promise() -> bool:
-	return NpcSocialService.resolve_promise(_delivery_npc(), _delivery_player())
+	return is_valid() and NpcSocialService.resolve_promise(_delivery_npc(), _delivery_player())
 
 func _delivery_record() -> NpcHomeDelivery:
 	if not _delivery_job_id.is_empty():

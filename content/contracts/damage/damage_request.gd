@@ -40,3 +40,7 @@ var instigator_id: String = ""
 var combat_context: CombatContext = null
 ## Устойчивый личный инцидент, назначаемый при восприятии фактического насилия.
 var incident_id: StringName = &""
+## Transient request/result correlation; not a damage idempotency or incident key.
+var correlation_id: StringName = &""
+## Target identity snapshot for results after a queued target expires.
+var target_id: String = ""

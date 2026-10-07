@@ -176,7 +176,7 @@ static func warn_light(body: E_DistrictNpc) -> void:
 	agent.light_warning_started = true
 	var config: DEF_District = DistrictPopulationService.current().definition
 	body.show_message("Я боюсь света. Выключите освещение ПВЗ, я подожду снаружи.")
-	LightCircuitService.flicker(config.service_light_circuit, config.service_flicker_seconds, LightFlickerEvent.DEFAULT_INTERVAL_SECONDS, StringName("npc-light/" + String(agent.visit_id)))
+	LightCircuitService.flicker(config.service_light_circuit, config.service_flicker_seconds, LightFlickerRequest.DEFAULT_INTERVAL_SECONDS, StringName("npc-light/" + String(agent.visit_id)))
 
 ## Учитывает часы роли один раз на обновление восприятия, без выбора поведения.
 static func advance(body: E_DistrictNpc, delta: float) -> void:

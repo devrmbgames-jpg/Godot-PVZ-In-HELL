@@ -19,7 +19,10 @@ func before_each() -> void:
 	ECS.world = _world
 	_world.add_system(S_RefusalQuest.new())
 	var session: Entity = Entity.new()
-	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_QuestSession.new(), C_PackageLedger.new(), C_CustomerFlow.new()]
+	session.component_resources = [
+		C_DayCycle.new(), C_Wallet.new(), C_QuestSession.new(), C_PackageLedger.new(),
+		C_CustomerFlow.new(), C_BoundaryTrace.new()
+	]
 	_world.add_entity(session)
 	_cycle = session.get_component(C_DayCycle) as C_DayCycle
 	_wallet = session.get_component(C_Wallet) as C_Wallet
@@ -60,6 +63,31 @@ func after_each() -> void:
 #endregion
 
 #region Постоянная цель и фактический исход
+## Diagnostic completion agrees with the single committed quest/reward ledger.
+func test_quest_trace_reports_choice_rejection_and_exactly_one_reward() -> void:
+	var record: RefusalQuestRecord = RefusalQuestService.offer(_trader)
+	assert_true(RefusalQuestService.accept(record.quest_id))
+	assert_false(RefusalQuestService.accept(record.quest_id))
+	var trace_rows: Array[Dictionary] = BoundaryTrace.snapshots(String(record.quest_id))
+	assert_eq(trace_rows.size(), 3)
+	assert_eq(trace_rows[0]["operation"], &"quests.offer")
+	assert_eq(trace_rows[0]["stage"], BoundaryTraceEntry.Stage.COMPLETED)
+	assert_eq(trace_rows[1]["stage"], BoundaryTraceEntry.Stage.COMPLETED)
+	assert_eq(trace_rows[2]["stage"], BoundaryTraceEntry.Stage.REJECTED)
+
+	_visit.actual = CustomerVisit.Actual.PLAYER_DENIED
+	_world.process(0.1)
+	_world.process(0.1)
+	assert_true(record.reward_paid)
+	var reward_results: int = 0
+	for row: Dictionary in BoundaryTrace.snapshots(String(record.quest_id)):
+		if row["operation"] == &"quests.reward":
+			reward_results += 1
+			assert_eq(row["stage"], BoundaryTraceEntry.Stage.COMPLETED)
+			assert_eq(row["correlation_id"], StringName("quest_reward/" + String(record.quest_id)))
+	assert_eq(reward_results, 1)
+
+
 ## Предложение однократно связывает живую коробку с выдавшим задание торговцем.
 func test_offer_is_idempotent_and_live_bindings_target_real_package_and_issuer() -> void:
 	var record: RefusalQuestRecord = RefusalQuestService.offer(_trader)

@@ -22,11 +22,11 @@ func can_offer_delivery() -> bool:
 
 ## Принимает добровольное обещание через сервис доставки.
 func accept_home_delivery() -> bool:
-	return _speaker != null and NpcHomeDeliveryService.accept(_speaker)
+	return is_valid() and NpcHomeDeliveryService.accept(_speaker)
 
 ## Переносит самостоятельное получение на 1–3 дня после отказа от доставки.
 func decline_home_delivery() -> bool:
-	return _speaker != null and NpcHomeDeliveryService.decline(_speaker)
+	return is_valid() and NpcHomeDeliveryService.decline(_speaker)
 
 ## Позволяет закрыть именно этот уличный разговор перед боем.
 func speaks_with(npc: Entity) -> bool:
@@ -60,11 +60,16 @@ func begin() -> bool:
 
 ## Освобождает живых собеседников и возвращает NPC к прерванному занятию.
 func end() -> void:
+	if _closed:
+		return
+	_closed = true
 	if is_instance_valid(_speaker):
 		NpcDialogueService.end(_speaker)
 
 ## Уличный разговор недоступен при бое, смерти или превышении дистанции.
 func is_valid() -> bool:
+	if _closed:
+		return false
 	var person: NpcRecord = DistrictPopulationService.person_for(_person_id)
 	var awareness: C_NpcAwareness = _speaker.get_component(C_NpcAwareness) as C_NpcAwareness if is_instance_valid(_speaker) else null
 	var player_body: Node3D = _player as Node as Node3D if is_instance_valid(_player) else null

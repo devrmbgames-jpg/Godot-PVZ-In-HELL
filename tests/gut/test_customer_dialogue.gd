@@ -20,7 +20,9 @@ func before_each() -> void:
 	var cycle: C_DayCycle = C_DayCycle.new()
 	cycle.phase = C_DayCycle.Phase.DAY
 	cycle.day_index = 3
-	owner.component_resources = [flow, cycle, C_Wallet.new(), C_PackageLedger.new()]
+	owner.component_resources = [
+		flow, cycle, C_Wallet.new(), C_PackageLedger.new(), C_BoundaryTrace.new()
+	]
 	_world.add_entity(owner)
 
 	_visit = CustomerVisit.new()
@@ -94,6 +96,33 @@ func _reaction(
 #endregion
 
 #region Намерения и реакции
+## Tree teardown seals the session without restarting its gameplay phase.
+func test_invalidated_context_rejects_late_actions_without_returning_to_service() -> void:
+	assert_true(_context.begin())
+	_context.invalidate()
+	assert_false(_context.is_valid())
+	assert_false(_context.begin())
+	assert_false(_context.answer_riddle_wrong())
+	assert_false(_context.apply_response_tags(PackedStringArray(["lie"])))
+	assert_eq((_customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase,
+		C_CustomerAgent.Phase.DIALOGUE)
+
+
+## Repeated semantic response is a duplicate committed result, not a second mutation.
+func test_customer_trace_distinguishes_repeated_committed_response() -> void:
+	_visit.definition.dialogue_reactions = [
+		_reaction(CustomerDialogueIntent.Type.LIE, -20, 0.0, 0.0, 0.0)
+	]
+	assert_true(_context.apply_response_tags(PackedStringArray(["lie"])))
+	assert_true(_context.apply_response_tags(PackedStringArray(["lie"])))
+	var trace_rows: Array[Dictionary] = BoundaryTrace.snapshots(String(_visit.visit_id))
+	assert_eq(trace_rows.size(), 2)
+	assert_eq(trace_rows[0]["stage"], BoundaryTraceEntry.Stage.COMPLETED)
+	assert_eq(trace_rows[1]["stage"], BoundaryTraceEntry.Stage.DUPLICATE)
+	assert_eq(trace_rows[1]["correlation_id"], _visit.visit_id)
+	assert_eq(_visit.dialogue_satisfaction_delta, -20)
+
+
 ## Одна ложь учитывается один раз, даже при повторном применении тега ответа.
 func test_response_intent_tags_are_typed_and_idempotent() -> void:
 	_visit.definition.dialogue_reactions = [
@@ -195,6 +224,21 @@ func test_forced_delayed_complaint_is_idempotent() -> void:
 #endregion
 
 #region Жизненный цикл обслуживания
+## A closed context cannot replay late mutations or re-enter its finished UI session.
+func test_closed_context_rejects_late_actions_and_does_not_resume_service() -> void:
+	assert_true(_context.begin())
+	_context.end()
+	assert_false(_context.begin())
+	assert_false(_context.answer_riddle_wrong())
+	assert_false(_context.answer_riddle_correct())
+	assert_false(_context.schedule_non_delivery_complaint())
+	assert_false(_context.apply_response_tags(PackedStringArray(["lie"])))
+	assert_eq(_visit.dialogue_satisfaction_delta, 0)
+	assert_false(_visit.riddle_solved)
+	assert_null(_visit.complaint)
+	assert_eq(_context.customer_phase(), C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
+
+
 ## Обнаружение ложной выдачи запускает преследование, не сбрасывая уже выполняющееся движение.
 func test_false_taken_detection_routes_to_existing_aggressive_receiver() -> void:
 	_visit.aggression_roll = 0.0

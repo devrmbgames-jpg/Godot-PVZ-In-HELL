@@ -26,3 +26,5 @@ var applied_amount: float = 0.0
 
 ## Мировая поза цели до последующих реакций жизненного цикла и удаления.
 var world_pose: Transform3D = Transform3D.IDENTITY
+## Machine-readable terminal reason from the sole damage handler.
+var reason: StringName = &"target_unavailable"

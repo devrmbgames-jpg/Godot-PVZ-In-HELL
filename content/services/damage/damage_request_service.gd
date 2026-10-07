@@ -3,11 +3,21 @@ extends RefCounted
 class_name DamageRequestService
 
 
-## Публикует отдельный снимок запроса к конкретной цели; null не становится broadcast.
+#region Submission
+## Dispatches a snapshot; true means accepted, completion is exclusively DamageResult.EVENT.
 static func submit(request: DamageRequest) -> bool:
-	if request == null or not EntityAvailability.contains(request.target, ECS.world):
+	if request == null:
+		BoundaryTrace.record(&"damage.submit", &"", BoundaryTraceEntry.Stage.REJECTED, &"invalid_target")
+		return false
+	if not EntityAvailability.contains(request.target, ECS.world):
+		BoundaryTrace.record(&"damage.submit", request.correlation_id,
+			BoundaryTraceEntry.Stage.REJECTED, &"invalid_target", request.origin_id,
+			request.target_id)
 		return false
 	if not request.target.has_component(C_Health):
+		BoundaryTrace.record(&"damage.submit", request.correlation_id,
+			BoundaryTraceEntry.Stage.REJECTED, &"missing_health", request.origin_id,
+			BoundaryTrace.identity(request.target))
 		return false
 
 	var snapshot: DamageRequest = DamageRequest.new()
@@ -16,17 +26,31 @@ static func submit(request: DamageRequest) -> bool:
 	snapshot.instigator = request.instigator
 	snapshot.origin_id = request.origin_id
 	snapshot.instigator_id = request.instigator_id
+	snapshot.target_id = BoundaryTrace.identity(request.target)
+	if snapshot.origin_id.is_empty():
+		snapshot.origin_id = BoundaryTrace.identity(snapshot.source)
+	if snapshot.instigator_id.is_empty():
+		snapshot.instigator_id = BoundaryTrace.identity(snapshot.instigator)
+
 	snapshot.amount = request.amount
 	snapshot.operation = request.operation
 	snapshot.damage_type = request.damage_type
+	snapshot.incident_id = request.incident_id
+	snapshot.correlation_id = request.correlation_id
+	if snapshot.correlation_id.is_empty():
+		snapshot.correlation_id = BoundaryTrace.next_id(&"damage")
 	if request.operation == DamageRequest.Operation.DAMAGE:
 		snapshot.combat_context = request.combat_context.duplicate(true) as CombatContext if request.combat_context != null else CombatAttribution.describe(snapshot)
+
+	BoundaryTrace.record(&"damage.submit", snapshot.correlation_id,
+		BoundaryTraceEntry.Stage.ACCEPTED, &"dispatched", snapshot.origin_id,
+		snapshot.target_id)
 	ECS.world.emit_event(DamageRequest.EVENT, snapshot.target, snapshot)
 	return true
+#endregion
 
-## Дополнительный построитель использует ту же границу отправки запроса.
 
-
+#region Request builder
 ## Создаёт одноразовый построитель запроса; отправка использует обычный submit.
 static func create_request() -> DamageRequestBuilder:
 	return DamageRequestBuilder.new()
@@ -35,7 +59,7 @@ static func create_request() -> DamageRequestBuilder:
 ## Одноразовая последовательная сборка запроса без изменения здоровья.
 class DamageRequestBuilder:
 	## Ещё не отправленный запрос; submit освобождает ссылку.
-	var request := DamageRequest.new()
+	var request: DamageRequest = DamageRequest.new()
 
 
 	## Задаёт вызвавшего действие участника и возвращает построитель.
@@ -79,3 +103,4 @@ class DamageRequestBuilder:
 		var submitted: bool = DamageRequestService.submit(request)
 		request = null
 		return submitted
+#endregion

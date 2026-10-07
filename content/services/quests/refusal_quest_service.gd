@@ -73,6 +73,9 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 
 	for record: RefusalQuestRecord in state.records:
 		if record.issuer_key == shop.trader_key and record.state in [RefusalQuestRecord.State.OFFERED, RefusalQuestRecord.State.ACTIVE]:
+			BoundaryTrace.record(&"quests.offer", record.quest_id,
+				BoundaryTraceEntry.Stage.DUPLICATE, &"already_offered",
+				String(record.issuer_key), String(record.quest_id))
 			return record
 
 	for registration: PackageRegistrationRecord in ledger.records:
@@ -109,6 +112,10 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 			binding.add_relationship(Relationship.new(R_IssuedBy.new(), trader))
 			binding.add_relationship(Relationship.new(R_TargetsPackage.new(), parcel))
 			binding.add_relationship(Relationship.new(R_QuestSession.new(), _session()))
+
+			BoundaryTrace.record(&"quests.offer", record.quest_id,
+				BoundaryTraceEntry.Stage.COMPLETED, &"offered",
+				String(record.issuer_key), String(record.quest_id))
 			return record
 	return null
 
@@ -118,10 +125,10 @@ static func accept(quest_id: StringName) -> bool:
 	var record: RefusalQuestRecord = find(quest_id)
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if record == null or cycle == null or cycle.phase != C_DayCycle.Phase.EVENING or cycle.day_index > record.deadline_day or record.state != RefusalQuestRecord.State.OFFERED:
-		return false
+		return _trace_choice(quest_id, &"quests.accept", false)
 
 	record.state = RefusalQuestRecord.State.ACTIVE
-	return true
+	return _trace_choice(quest_id, &"quests.accept", true)
 
 
 ## Вечером разрешает открытое предложение отказом и снимает живые связи.
@@ -129,10 +136,10 @@ static func ignore(quest_id: StringName) -> bool:
 	var record: RefusalQuestRecord = find(quest_id)
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if record == null or cycle == null or cycle.phase != C_DayCycle.Phase.EVENING or record.state != RefusalQuestRecord.State.OFFERED:
-		return false
+		return _trace_choice(quest_id, &"quests.ignore", false)
 
 	_resolve(record, RefusalQuestRecord.State.IGNORED, cycle.day_index)
-	return true
+	return _trace_choice(quest_id, &"quests.ignore", true)
 
 
 #endregion
@@ -166,6 +173,10 @@ static func _resolve(record: RefusalQuestRecord, outcome: RefusalQuestRecord.Sta
 		if (binding.get_component(C_QuestBinding) as C_QuestBinding).quest_id == record.quest_id:
 			ECS.world.remove_entity(binding)
 
+	BoundaryTrace.record(&"quests.resolve", record.quest_id, BoundaryTraceEntry.Stage.COMPLETED,
+		StringName(String(RefusalQuestRecord.State.keys()[outcome]).to_lower()),
+		String(record.issuer_key), String(record.quest_id))
+
 
 static func _pay_reward(record: RefusalQuestRecord, day_index: int) -> void:
 	var operation: MoneyOperation = MoneyOperation.new()
@@ -176,8 +187,29 @@ static func _pay_reward(record: RefusalQuestRecord, day_index: int) -> void:
 	var status: WalletService.Status = WalletService.submit(operation)
 	record.reward_paid = status in [WalletService.Status.COMMITTED, WalletService.Status.DUPLICATE]
 
+	var trace_stage: BoundaryTraceEntry.Stage = BoundaryTraceEntry.Stage.REJECTED
+	if status == WalletService.Status.COMMITTED:
+		trace_stage = BoundaryTraceEntry.Stage.COMPLETED
+	elif status == WalletService.Status.DUPLICATE:
+		trace_stage = BoundaryTraceEntry.Stage.DUPLICATE
+	BoundaryTrace.record(&"quests.reward", operation.operation_id, trace_stage,
+		StringName(String(WalletService.Status.keys()[status]).to_lower()),
+		String(record.issuer_key), String(record.quest_id))
+
 
 static func _session() -> Entity:
 	return ECS.world.query.with_all([C_QuestSession, C_DayCycle]).execute_one() if is_instance_valid(ECS.world) else null
 
+#endregion
+
+#region Boundary diagnostics
+static func _trace_choice(quest_id: StringName, operation: StringName, committed: bool) -> bool:
+	var record: RefusalQuestRecord = find(quest_id)
+	var trace_stage: BoundaryTraceEntry.Stage = (
+		BoundaryTraceEntry.Stage.COMPLETED if committed else BoundaryTraceEntry.Stage.REJECTED
+	)
+	var origin_id: String = String(record.issuer_key) if record != null else ""
+	BoundaryTrace.record(operation, quest_id, trace_stage,
+		&"committed" if committed else &"invalid_choice", origin_id, String(quest_id))
+	return committed
 #endregion

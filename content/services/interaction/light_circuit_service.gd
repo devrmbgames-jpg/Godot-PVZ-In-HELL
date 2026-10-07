@@ -40,12 +40,12 @@ static func flicker(circuit_id: StringName, duration: float, interval: float, re
 	if circuit == null or not is_enabled(circuit_id) or not is_finite(duration) or duration <= 0.0 or not is_finite(interval) or interval <= 0.0:
 		return false
 
-	var event: LightFlickerEvent = LightFlickerEvent.new()
+	var event: LightFlickerRequest = LightFlickerRequest.new()
 	event.request_id = request_id
 	event.circuit_id = circuit_id
 	event.duration_seconds = duration
 	event.interval_seconds = interval
-	ECS.world.emit_event(LightFlickerEvent.EVENT, circuit, event)
+	ECS.world.emit_event(LightFlickerRequest.EVENT, circuit, event)
 	return true
 
 ## Останавливает визуальный запрос мерцания по circuit_id и request_id.
@@ -54,11 +54,11 @@ static func stop_flicker(circuit_id: StringName, request_id: StringName) -> void
 	if circuit == null:
 		return
 
-	var event: LightFlickerEvent = LightFlickerEvent.new()
-	event.kind = LightFlickerEvent.Kind.STOP
+	var event: LightFlickerRequest = LightFlickerRequest.new()
+	event.kind = LightFlickerRequest.Kind.STOP
 	event.request_id = request_id
 	event.circuit_id = circuit_id
-	ECS.world.emit_event(LightFlickerEvent.EVENT, circuit, event)
+	ECS.world.emit_event(LightFlickerRequest.EVENT, circuit, event)
 
 ## Меняет цепь по постоянному авторскому ID.
 static func set_by_id(circuit_id: StringName, enabled: bool) -> bool:

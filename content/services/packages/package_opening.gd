@@ -66,15 +66,28 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 	return hit_distance <= interactor.interaction_distance
 
 
-## Повторно проверяет доступ перед отправкой; наблюдатель проверяет ещё раз перед фиксацией.
-static func request_open(actor: Entity, package: Entity) -> bool:
+## Returns a receipt; only COMMITTED confirms opening, PENDING means queued acceptance.
+static func request_open(actor: Entity, package: Entity) -> PackageOpenResult:
+	var resolution: PackageOpenResult = PackageOpenResult.new()
+	resolution.correlation_id = BoundaryTrace.next_id(&"package.open")
+	resolution.package_id = BoundaryTrace.identity(package)
+	resolution.actor_id = BoundaryTrace.identity(actor)
 	if not can_open(actor, package):
-		return false
+		BoundaryTrace.record(&"package.open", resolution.correlation_id,
+			BoundaryTraceEntry.Stage.REJECTED, resolution.reason,
+			resolution.actor_id, resolution.package_id)
+		return resolution
 
+	resolution.status = PackageOpenResult.Status.PENDING
+	resolution.reason = &"dispatched"
 	var request: PackageOpenRequest = PackageOpenRequest.new()
 	request.actor = actor
 	request.package = package
+	request.resolution = resolution
+	BoundaryTrace.record(&"package.open", resolution.correlation_id,
+		BoundaryTraceEntry.Stage.ACCEPTED, resolution.reason,
+		resolution.actor_id, resolution.package_id)
 	ECS.world.emit_event(PackageOpenRequest.EVENT, package, request)
-	return true
+	return resolution
 
 #endregion

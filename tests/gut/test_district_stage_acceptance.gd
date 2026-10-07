@@ -4,7 +4,7 @@ extends "res://tests/gut/test_district_service_queue.gd"
 var _service_zone: NpcLightZone
 var _light_view: CircuitLightView
 var _light_switch: Entity
-var _flicker_events: Array[LightFlickerEvent] = []
+var _flicker_events: Array[LightFlickerRequest] = []
 
 #region Окружение световой цепи
 ## Освобождает ссылки и запросы после штатного teardown унаследованного World.
@@ -38,7 +38,7 @@ func _install_service_light() -> void:
 	_service_zone.flicker_view_path = NodePath("../ServiceLamp/CircuitLightView")
 	_root.add_child(_service_zone)
 
-func _remember_flicker(event: LightFlickerEvent) -> void:
+func _remember_flicker(event: LightFlickerRequest) -> void:
 	_flicker_events.append(event)
 
 func _light_averse_recipient(suffix: String) -> E_DistrictNpc:
@@ -64,9 +64,9 @@ func test_light_warning_flickers_once_and_expires_without_allowing_entry() -> vo
 	var body: E_DistrictNpc = _light_averse_recipient("finite_light")
 	var service: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(_flicker_events.size(), 1)
-	assert_eq(_flicker_events[0].kind, LightFlickerEvent.Kind.START)
+	assert_eq(_flicker_events[0].kind, LightFlickerRequest.Kind.START)
 	assert_true((body.get_node("Message") as Label3D).text.contains("Выключите"))
-	_light_view._process(LightFlickerEvent.DEFAULT_INTERVAL_SECONDS * 1.1)
+	_light_view._process(LightFlickerRequest.DEFAULT_INTERVAL_SECONDS * 1.1)
 	assert_false(_service_zone.is_lit())
 	assert_true(_service_zone.is_logically_lit())
 	assert_true(NpcServiceRole.needs_darkness(body))
@@ -113,11 +113,11 @@ func test_switch_and_sensors_drive_retreat_from_lit_counter() -> void:
 func test_departure_cancels_the_service_flicker() -> void:
 	var body: E_DistrictNpc = _light_averse_recipient("departing_light")
 	var request_id: StringName = _flicker_events[0].request_id
-	_light_view._process(LightFlickerEvent.DEFAULT_INTERVAL_SECONDS * 1.1)
+	_light_view._process(LightFlickerRequest.DEFAULT_INTERVAL_SECONDS * 1.1)
 	assert_false(_service_zone.is_lit())
 	DistrictPopulationService.set_placement(_district.people[6], body, NpcRecord.Placement.OUTSIDE)
-	var cancellation: LightFlickerEvent = _flicker_events.back()
-	assert_eq(cancellation.kind, LightFlickerEvent.Kind.STOP)
+	var cancellation: LightFlickerRequest = _flicker_events.back()
+	assert_eq(cancellation.kind, LightFlickerRequest.Kind.STOP)
 	assert_eq(cancellation.request_id, request_id)
 	assert_true(_service_zone.is_lit())
 	assert_true(LightCircuitService.is_enabled(&"warehouse"))
@@ -127,11 +127,11 @@ func test_departure_cancels_the_service_flicker() -> void:
 func test_death_cancels_the_service_flicker_without_payment() -> void:
 	var body: E_DistrictNpc = _light_averse_recipient("dead_light")
 	var visit: CustomerVisit = NpcServiceRole.visit_for(body)
-	_light_view._process(LightFlickerEvent.DEFAULT_INTERVAL_SECONDS * 1.1)
+	_light_view._process(LightFlickerRequest.DEFAULT_INTERVAL_SECONDS * 1.1)
 	body.add_component(C_Death.new())
 	DistrictPopulationService.mark_dead(_district.people[6], body, DayPhaseService.current().day_index)
-	var cancellation: LightFlickerEvent = _flicker_events.back()
-	assert_eq(cancellation.kind, LightFlickerEvent.Kind.STOP)
+	var cancellation: LightFlickerRequest = _flicker_events.back()
+	assert_eq(cancellation.kind, LightFlickerRequest.Kind.STOP)
 	assert_true(_service_zone.is_lit())
 	assert_true(LightCircuitService.is_enabled(&"warehouse"))
 	assert_true(visit.customer_dead)

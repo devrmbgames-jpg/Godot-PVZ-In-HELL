@@ -34,6 +34,11 @@ func _resolve(request: DamageRequest) -> void:
 
 	# Уведомить об отклонении даже при исчезновении цели после снимка запроса.
 	var target: Entity = request.target if is_instance_valid(request.target) else null
+	var trace_stage: BoundaryTraceEntry.Stage = BoundaryTraceEntry.Stage.COMPLETED
+	if result.outcome == DamageResult.Outcome.REJECTED:
+		trace_stage = BoundaryTraceEntry.Stage.REJECTED
+	BoundaryTrace.record(&"damage.resolve", request.correlation_id, trace_stage, result.reason,
+		request.origin_id, request.target_id)
 	_world.emit_event(DamageResult.EVENT, target, result)
 
 
@@ -43,10 +48,13 @@ func _apply(request: DamageRequest, health: C_Health, result: DamageResult) -> v
 		is_finite(health.current) and is_finite(health.value) and health.value > 0.0
 	)
 	if not valid_amount or not valid_health or health.depleted or health.current <= 0.0:
+		result.reason = &"invalid_health_or_amount"
 		return
 	if request.source != null and not EntityAvailability.contains(request.source, _world):
+		result.reason = &"source_unavailable"
 		return
 	if request.operation not in [DamageRequest.Operation.DAMAGE, DamageRequest.Operation.HEAL]:
+		result.reason = &"invalid_operation"
 		return
 
 	result.previous_value = clampf(health.current, 0.0, health.value)
@@ -58,6 +66,7 @@ func _apply(request: DamageRequest, health: C_Health, result: DamageResult) -> v
 	)
 	if blocked:
 		result.outcome = DamageResult.Outcome.BLOCKED
+		result.reason = &"source_veto"
 		return
 
 	var effective_amount: float = request.amount if is_heal else DamageResistanceRules.effective(request.target, request.amount, request.damage_type)
@@ -72,5 +81,6 @@ func _apply(request: DamageRequest, health: C_Health, result: DamageResult) -> v
 	result.outcome = (
 		DamageResult.Outcome.HEALTH_DEPLETED if depleted else DamageResult.Outcome.APPLIED
 	)
+	result.reason = &"health_depleted" if depleted else &"applied"
 
 #endregion

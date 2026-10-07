@@ -13,9 +13,9 @@ func _ready() -> void:
 	_run.call_deferred()
 
 
-func _on_flicker(event: LightFlickerEvent) -> void:
+func _on_flicker(event: LightFlickerRequest) -> void:
 	assert(event.circuit_id == &"warehouse")
-	if event.kind == LightFlickerEvent.Kind.START:
+	if event.kind == LightFlickerRequest.Kind.START:
 		_flickers += 1
 
 

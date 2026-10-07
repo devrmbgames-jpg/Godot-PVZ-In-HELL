@@ -39,19 +39,22 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.PURCHASE, false)
 	if valid != Status.COMMITTED:
-		return valid
+		return _trace_result(valid, operation_id, &"commerce.purchase", actor, item)
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not GrabService.holder_available(trader):
-		return Status.INVALID
+		return _trace_result(Status.INVALID, operation_id, &"commerce.purchase", actor, item)
 
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
 	if shop == null or trader.has_component(C_Death) or item not in TraderCatalogService.catalog(shop):
-		return Status.INVALID
+		return _trace_result(Status.INVALID, operation_id, &"commerce.purchase", actor, item)
 	if not TraderCatalogService.is_open(shop, cycle):
-		return Status.WRONG_PHASE
+		return _trace_result(Status.WRONG_PHASE, operation_id, &"commerce.purchase", actor, item)
 	if item.kind == DEF_InventoryItem.Kind.FURNITURE:
-		return _purchase_furniture(trader, shop, item, quantity, operation_id, state, cycle)
+		var furniture_status: Status = _purchase_furniture(
+			trader, shop, item, quantity, operation_id, state, cycle
+		)
+		return _trace_result(furniture_status, operation_id, &"commerce.purchase", actor, item)
 	if not actor.has_component(C_Inventory):
-		return Status.INVALID
+		return _trace_result(Status.INVALID, operation_id, &"commerce.purchase", actor, item)
 
 	state.transaction_in_progress = true
 	var grant: Entity = Entity.new()
@@ -63,19 +66,19 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 	if not InventoryService.can_transfer(grant, actor):
 		ECS.world.remove_entity(grant)
 		state.transaction_in_progress = false
-		return Status.INVENTORY_FULL
+		return _trace_result(Status.INVENTORY_FULL, operation_id, &"commerce.purchase", actor, item)
 
 	var money_status: Status = _pay(item, quantity, operation_id, cycle.day_index)
 	if money_status != Status.COMMITTED:
 		ECS.world.remove_entity(grant)
 		state.transaction_in_progress = false
-		return money_status
+		return _trace_result(money_status, operation_id, &"commerce.purchase", actor, item)
 	# Расчёт кошелька синхронен и не меняет инвентарь: проверенный перенос остаётся допустимым.
 	var transferred: bool = InventoryService.transfer(grant, actor)
 	assert(transferred, "Commerce grant must honor its validated synchronous Inventory contract")
 	_record(state, item, quantity, operation_id, cycle.day_index, PurchaseReceipt.Mode.PURCHASE)
 	state.transaction_in_progress = false
-	return Status.COMMITTED
+	return _trace_result(Status.COMMITTED, operation_id, &"commerce.purchase", actor, item)
 
 
 static func _purchase_furniture(trader: Entity, shop: C_Trader, item: DEF_InventoryItem, quantity: int, operation_id: StringName, state: C_Commerce, cycle: C_DayCycle) -> Status:
@@ -120,27 +123,27 @@ static func home_delivery(actor: Entity, trader: Entity, item: DEF_InventoryItem
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.TRADER_DELIVERY, false)
 	if valid != Status.COMMITTED:
-		return valid
+		return _trace_result(valid, operation_id, &"commerce.home_delivery", actor, item)
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not GrabService.holder_available(trader) or trader.has_component(C_Death):
-		return Status.INVALID
+		return _trace_result(Status.INVALID, operation_id, &"commerce.home_delivery", actor, item)
 
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
 	if not TraderCatalogService.can_deliver(shop, item) or quantity != 1 or item not in TraderCatalogService.catalog(shop):
-		return Status.INVALID
+		return _trace_result(Status.INVALID, operation_id, &"commerce.home_delivery", actor, item)
 	if not TraderCatalogService.is_open(shop, cycle):
-		return Status.WRONG_PHASE
+		return _trace_result(Status.WRONG_PHASE, operation_id, &"commerce.home_delivery", actor, item)
 
 	var profile: DEF_TraderProfile = shop.profile
 	if profile.delivery_fee < 0 or profile.delivery_delay_days < 1 or profile.delivery_fee > WalletService.MAX_AMOUNT - item.market_price * quantity or (item.kind == DEF_InventoryItem.Kind.FURNITURE and quantity != 1):
-		return Status.INVALID
+		return _trace_result(Status.INVALID, operation_id, &"commerce.home_delivery", actor, item)
 	if not OrderDeliveryService.can_fulfill_definition(item):
-		return Status.INVALID
+		return _trace_result(Status.INVALID, operation_id, &"commerce.home_delivery", actor, item)
 
 	state.transaction_in_progress = true
 	var paid: Status = _pay(item, quantity, operation_id, cycle.day_index, profile.delivery_fee)
 	if paid != Status.COMMITTED:
 		state.transaction_in_progress = false
-		return paid
+		return _trace_result(paid, operation_id, &"commerce.home_delivery", actor, item)
 
 	var delivery: PendingDelivery = PendingDelivery.new()
 	delivery.delivery_id = operation_id
@@ -151,7 +154,7 @@ static func home_delivery(actor: Entity, trader: Entity, item: DEF_InventoryItem
 	state.pending_deliveries.append(delivery)
 	_record(state, item, quantity, operation_id, cycle.day_index, PurchaseReceipt.Mode.TRADER_DELIVERY, profile.delivery_fee)
 	state.transaction_in_progress = false
-	return Status.COMMITTED
+	return _trace_result(Status.COMMITTED, operation_id, &"commerce.home_delivery", actor, item)
 
 
 ## Оплачивает заказ терминала утром/вечером для физической доставки следующим днём.
@@ -160,17 +163,17 @@ static func order(actor: Entity, item: DEF_InventoryItem, quantity: int, operati
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.ORDER)
 	if valid != Status.COMMITTED:
-		return valid
+		return _trace_result(valid, operation_id, &"commerce.order", actor, item)
 	if cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING]:
-		return Status.WRONG_PHASE
+		return _trace_result(Status.WRONG_PHASE, operation_id, &"commerce.order", actor, item)
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death):
-		return Status.INVALID
+		return _trace_result(Status.INVALID, operation_id, &"commerce.order", actor, item)
 
 	state.transaction_in_progress = true
 	var money_status: Status = _pay(item, quantity, operation_id, cycle.day_index)
 	if money_status != Status.COMMITTED:
 		state.transaction_in_progress = false
-		return money_status
+		return _trace_result(money_status, operation_id, &"commerce.order", actor, item)
 
 	var delivery: PendingDelivery = PendingDelivery.new()
 	delivery.delivery_id = operation_id
@@ -181,7 +184,7 @@ static func order(actor: Entity, item: DEF_InventoryItem, quantity: int, operati
 	state.pending_deliveries.append(delivery)
 	_record(state, item, quantity, operation_id, cycle.day_index, PurchaseReceipt.Mode.ORDER)
 	state.transaction_in_progress = false
-	return Status.COMMITTED
+	return _trace_result(Status.COMMITTED, operation_id, &"commerce.order", actor, item)
 
 
 #endregion
@@ -228,4 +231,21 @@ static func _record(state: C_Commerce, item: DEF_InventoryItem, quantity: int, o
 	receipt.day_index = day_index
 	state.receipts.append(receipt)
 
+#endregion
+
+#region Boundary diagnostics
+static func _trace_result(
+	status: Status, operation_id: StringName, operation: StringName,
+	actor: Entity, item: DEF_InventoryItem,
+) -> Status:
+	var trace_stage: BoundaryTraceEntry.Stage = BoundaryTraceEntry.Stage.REJECTED
+	if status == Status.COMMITTED:
+		trace_stage = BoundaryTraceEntry.Stage.COMPLETED
+	elif status == Status.DUPLICATE:
+		trace_stage = BoundaryTraceEntry.Stage.DUPLICATE
+	var reason: StringName = StringName(String(Status.keys()[status]).to_lower())
+	var target_id: String = String(item.key) if item != null else ""
+	BoundaryTrace.record(operation, operation_id, trace_stage, reason,
+		BoundaryTrace.identity(actor), target_id)
+	return status
 #endregion

@@ -2,14 +2,20 @@ extends RefCounted
 ## Публикует отдельный снимок запроса создания через мировое событие observers.
 class_name HazardSpawnService
 
+#region Spawn submission
+
 
 ## Принимает запрос независимо от дальнейшего срока источника; prefab окончательно проверяет фабрика.
 static func submit(request: HazardSpawnRequest) -> bool:
 	if request == null or not is_instance_valid(ECS.world):
 		return false
 	if request.request_id.is_empty() or request.origin_id.is_empty():
+		BoundaryTrace.record(&"hazards.spawn", StringName(request.request_id),
+			BoundaryTraceEntry.Stage.REJECTED, &"missing_identity", request.origin_id)
 		return false
 	if request.scene == null or not request.world_pose.is_finite():
+		BoundaryTrace.record(&"hazards.spawn", StringName(request.request_id),
+			BoundaryTraceEntry.Stage.REJECTED, &"invalid_prefab_or_pose", request.origin_id)
 		return false
 
 	var snapshot: HazardSpawnRequest = HazardSpawnRequest.new()
@@ -28,5 +34,8 @@ static func submit(request: HazardSpawnRequest) -> bool:
 	if snapshot.instigator_id.is_empty() and snapshot.instigator != null:
 		snapshot.instigator_id = snapshot.instigator.id
 
+	BoundaryTrace.record(&"hazards.spawn", StringName(snapshot.request_id),
+		BoundaryTraceEntry.Stage.ACCEPTED, &"dispatched", snapshot.origin_id, snapshot.request_id)
 	ECS.world.emit_event(HazardSpawnRequest.EVENT, null, snapshot)
 	return true
+#endregion

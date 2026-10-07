@@ -19,3 +19,5 @@ var actor_id: String = ""
 var object_id: String = ""
 ## Доменный ID посылки для событий переноски коробки.
 var package_id: String = ""
+## Transient committed-fact identity for correlation; not a second gameplay ledger.
+var operation_id: StringName = &""

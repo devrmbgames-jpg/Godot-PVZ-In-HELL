@@ -20,7 +20,9 @@ func before_each() -> void:
 	_world.add_observer(O_InventoryEffect.new())
 	_world.add_observer(O_InventoryLifecycle.new())
 	var session: Entity = Entity.new()
-	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new()]
+	session.component_resources = [
+		C_DayCycle.new(), C_Wallet.new(), C_Commerce.new(), C_BoundaryTrace.new()
+	]
 	_world.add_entity(session)
 	_cycle = session.get_component(C_DayCycle) as C_DayCycle
 	_wallet = session.get_component(C_Wallet) as C_Wallet
@@ -50,6 +52,26 @@ func after_each() -> void:
 #endregion
 
 #region Атомарная покупка
+## Trace reports the committed/duplicate/rejected transaction after its inventory and wallet state.
+func test_commerce_trace_matches_idempotent_transaction_status_and_identity() -> void:
+	var operation_id: StringName = &"trace/purchase"
+	assert_eq(CommerceService.purchase(_actor, _trader, _food, 1, operation_id),
+		CommerceService.Status.COMMITTED)
+	var committed_balance: int = _wallet.balance
+	assert_eq(CommerceService.purchase(_actor, _trader, _food, 1, operation_id),
+		CommerceService.Status.DUPLICATE)
+	assert_eq(_wallet.balance, committed_balance)
+	assert_eq(CommerceService.purchase(_actor, _trader, _food, 2, operation_id),
+		CommerceService.Status.CONFLICT)
+	var trace_rows: Array[Dictionary] = BoundaryTrace.snapshots(String(_food.key))
+	assert_eq(trace_rows.size(), 3)
+	assert_eq(trace_rows[0]["stage"], BoundaryTraceEntry.Stage.COMPLETED)
+	assert_eq(trace_rows[1]["stage"], BoundaryTraceEntry.Stage.DUPLICATE)
+	assert_eq(trace_rows[2]["stage"], BoundaryTraceEntry.Stage.REJECTED)
+	assert_eq(trace_rows[2]["reason"], &"conflict")
+	assert_eq(trace_rows[0]["correlation_id"], operation_id)
+
+
 ## Одна операция списывает деньги и выдаёт количество один раз; изменение её данных даёт конфликт.
 func test_purchase_debits_once_and_grants_owned_quantity_once() -> void:
 	assert_eq(CommerceService.purchase(_actor, _trader, _food, 2, &"buy:1"), CommerceService.Status.COMMITTED)

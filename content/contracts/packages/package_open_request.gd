@@ -9,3 +9,5 @@ const EVENT: StringName = &"package_open_requested"
 var actor: Entity = null
 ## Физическая коробка, которую требуется открыть.
 var package: Entity = null
+## Receipt shared with the caller; the Observer is its only terminal-state writer.
+var resolution: PackageOpenResult = null

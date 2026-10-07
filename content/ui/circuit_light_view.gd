@@ -9,7 +9,7 @@ var _observer: O_LightFlicker = null
 var _world: World = null
 var _remaining: float = 0.0
 var _elapsed: float = 0.0
-var _interval: float = LightFlickerEvent.DEFAULT_INTERVAL_SECONDS
+var _interval: float = LightFlickerRequest.DEFAULT_INTERVAL_SECONDS
 var _request_id: StringName = &""
 @onready var _light: Light3D = get_parent() as Light3D
 
@@ -84,10 +84,10 @@ func _disconnect() -> void:
 	_remaining = 0.0
 
 
-func _on_flicker(event: LightFlickerEvent) -> void:
+func _on_flicker(event: LightFlickerRequest) -> void:
 	if event.circuit_id != circuit_id:
 		return
-	if event.kind == LightFlickerEvent.Kind.STOP:
+	if event.kind == LightFlickerRequest.Kind.STOP:
 		if event.request_id == _request_id:
 			cancel_flicker()
 		return

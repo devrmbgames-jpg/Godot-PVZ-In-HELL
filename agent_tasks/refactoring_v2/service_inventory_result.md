@@ -155,6 +155,10 @@ Each slice owns the entire named responsibility and all callers in the snapshot 
 
 ### 40 — boundary foundation before scheduler edits
 
+**DONE** (2026-10-08): all five boundary slices; `content/contracts/README.md` catalog,
+provider + real-World fixtures and domain regressions PASS. Scheduled-owner closures
+below remain pending their respective tasks; no premature closure from contract migration.
+
 | Slice | Complete boundary and callers | Timing / removal gate | Existing regression |
 | --- | --- | --- | --- |
 | 40.D | DamageRequestService → O_Damage → DamageResult; combat/hazard/impact producers | One handler; submit means dispatched, result follows committed HP or rejection. Remove ambiguous completion assumptions in all callers. | test_combat_attribution.gd, test_npc_attacks.gd, test_player_melee.gd |

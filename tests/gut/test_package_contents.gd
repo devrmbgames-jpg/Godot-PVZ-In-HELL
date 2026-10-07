@@ -5,6 +5,7 @@ var _root: Node3D
 var _world: World
 var _actor: E_RigidBodyCharacter
 var _ray: RayCast3D
+var _opening_observer: O_PackageOpening
 
 
 #region Физическое тестовое окружение
@@ -15,7 +16,8 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
-	_world.add_observer(O_PackageOpening.new())
+	_opening_observer = O_PackageOpening.new()
+	_world.add_observer(_opening_observer)
 	_world.add_observer(O_PackageContents.new())
 	_world.add_observer(O_Damage.new())
 	_world.add_observer(O_InventoryEffect.new())
@@ -88,13 +90,36 @@ func _open(parcel: E_Package) -> void:
 	(_actor.get_component(C_Interactor) as C_Interactor).target = parcel
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	assert_true(PackageOpening.request_open(_actor, parcel))
+	assert_eq(PackageOpening.request_open(_actor, parcel).status, PackageOpenResult.Status.COMMITTED)
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
 
 
 #endregion
 
 #region Вскрытие, использование и snapshot
+## A queued request does not complete a prolonged action before the opening commit.
+func test_open_receipt_does_not_report_pending_work_as_success() -> void:
+	var parcel: E_Package = _package("bread")
+	_ray.look_at((parcel as Node as Node3D).global_position)
+	(_actor.get_component(C_Interactor) as C_Interactor).target = parcel
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_opening_observer.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+
+	var receipt: PackageOpenResult = PackageOpening.request_open(_actor, parcel)
+	assert_eq(receipt.status, PackageOpenResult.Status.PENDING)
+	assert_false((parcel.get_component(C_PackageContents) as C_PackageContents).released)
+	var action: DEF_OpenPackageAction = DEF_OpenPackageAction.new()
+	assert_false(action.complete(_actor, parcel, parcel), "Enqueue is not completion")
+
+	_world.flush_command_buffers()
+	assert_eq(receipt.status, PackageOpenResult.Status.COMMITTED)
+	assert_eq(receipt.reason, &"opened")
+	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
+	assert_eq((parcel.get_component(C_PackageState) as C_PackageState).opening,
+		C_PackageState.Opening.OPENED)
+
+
 ## Вскрытие обновляет массу переносимого груза, сохраняя живой хват коробки.
 func test_opening_held_package_refreshes_empty_carry_mass_without_releasing() -> void:
 	var parcel: E_Package = _package("bread")
@@ -108,7 +133,7 @@ func test_opening_held_package_refreshes_empty_carry_mass_without_releasing() ->
 	var load_state: C_CarryLoad = _actor.get_component(C_CarryLoad) as C_CarryLoad
 	assert_true(load_state.active)
 	assert_eq(load_state.mass_kg, 10.0)
-	assert_true(PackageOpening.request_open(_actor, parcel))
+	assert_eq(PackageOpening.request_open(_actor, parcel).status, PackageOpenResult.Status.COMMITTED)
 	assert_true(load_state.active)
 	assert_eq(load_state.mass_kg, 1.0)
 	assert_eq(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.CARRY), parcel)
@@ -141,7 +166,7 @@ func test_bread_box_produces_five_individual_usable_items_once() -> void:
 	assert_eq((owned[0].get_component(C_InventoryItem) as C_InventoryItem).quantity, 4)
 	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Opened, _actor)
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 1, "Even consumed/merged contents cannot respawn")
-	assert_false(PackageOpening.request_open(_actor, parcel))
+	assert_eq(PackageOpening.request_open(_actor, parcel).status, PackageOpenResult.Status.REJECTED)
 
 
 ## Коробка создаёт пять аптечек; успешное лечение расходует выбранный предмет.

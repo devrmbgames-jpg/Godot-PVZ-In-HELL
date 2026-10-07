@@ -35,6 +35,9 @@ func begin() -> bool:
 
 ## После ручного закрытия возвращает к выдаче; уходящий или погибший NPC не возобновляет обслуживание.
 func end() -> void:
+	if _closed:
+		return
+	_closed = true
 	if NpcDialogueService.participant(_customer) == _actor or not EntityAvailability.contains(_actor, ECS.world):
 		NpcDialogueService.end(_customer)
 
@@ -56,6 +59,8 @@ func end() -> void:
 
 ## Проверяет, что тот же живой CustomerVisit всё ещё допускает этот разговор.
 func is_valid() -> bool:
+	if _closed:
+		return false
 	var visit: CustomerVisit = _visit()
 	var agent: C_CustomerAgent = _agent()
 	if not is_instance_valid(_actor) or not is_instance_valid(_customer) or _actor.has_component(C_Death):
@@ -196,11 +201,11 @@ func can_offer_delivery() -> bool:
 
 ## Принимает допуслугу через сервис домашних доставок.
 func accept_home_delivery() -> bool:
-	return _customer is E_DistrictNpc and NpcHomeDeliveryService.accept(_customer as E_DistrictNpc)
+	return is_valid() and _customer is E_DistrictNpc and NpcHomeDeliveryService.accept(_customer as E_DistrictNpc)
 
 ## Отказывает в допуслуге; получатель заберёт эту же коробку через 1–3 дня.
 func decline_home_delivery() -> bool:
-	return _customer is E_DistrictNpc and NpcHomeDeliveryService.decline(_customer as E_DistrictNpc)
+	return is_valid() and _customer is E_DistrictNpc and NpcHomeDeliveryService.decline(_customer as E_DistrictNpc)
 
 ## Позволяет синхронно закрыть именно разговор с этим NPC перед нападением.
 func speaks_with(npc: Entity) -> bool:
@@ -235,28 +240,12 @@ func is_followup() -> bool:
 
 ## Применяет последствие неверного ответа однократно.
 func answer_riddle_wrong() -> bool:
-	var visit: CustomerVisit = _visit()
-	if visit == null or visit.definition == null:
-		return false
-	if visit.riddle_wrong_answer_applied:
-		return true
-
-	visit.dialogue_satisfaction_delta -= maxi(
-		0,
-		visit.definition.riddle_wrong_satisfaction_penalty,
-	)
-	visit.riddle_wrong_answer_applied = true
-	return true
+	return is_valid() and CustomerOutcomeService.answer_riddle(_visit(), false)
 
 
 ## Раскрывает настоящий номер, не заменяя заказ.
 func answer_riddle_correct() -> bool:
-	var visit: CustomerVisit = _visit()
-	if visit == null:
-		return false
-
-	visit.riddle_solved = true
-	return true
+	return is_valid() and CustomerOutcomeService.answer_riddle(_visit(), true)
 
 
 ## Запрашивает физический отказ получателя от предлагаемой коробки.
@@ -266,6 +255,8 @@ func voluntary_refuse() -> bool:
 
 ## Создаёт жалобу о невыдаче однократно.
 func schedule_non_delivery_complaint() -> bool:
+	if not is_valid():
+		return false
 	var visit: CustomerVisit = _visit()
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if visit == null or cycle == null:
@@ -291,7 +282,7 @@ func false_taken_detected() -> bool:
 
 ## Передаёт обнаруженное ложное заявление сервису эскалации.
 func enter_aggressive() -> bool:
-	return false_taken_detected() and CustomerFlowService.enter_aggressive(_customer)
+	return is_valid() and false_taken_detected() and CustomerFlowService.enter_aggressive(_customer)
 
 
 ## Возвращает ID конкретной коробки этого заказа.
