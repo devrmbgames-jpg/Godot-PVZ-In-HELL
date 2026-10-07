@@ -181,6 +181,64 @@ Prefer concrete member types over broad engine base types when the real contract
 
 Use typed containers when their element/value type is stable and known.
 
+## Lifetime and nullability contracts
+
+Treat validity as part of the API contract, not as a defensive check to repeat everywhere.
+
+### Required synchronous values
+
+Inside one ordinary synchronous gameplay call stack, mandatory Entity/Node arguments are expected to remain valid. Required Components/Relationships established by the caller/query are expected to exist.
+
+Do not write defensive soup such as:
+
+```gdscript
+func apply_effect(actor: Entity, health: C_Health) -> void:
+    if not is_instance_valid(actor):
+        return
+    if health == null:
+        return
+```
+
+when both values are required by the function contract.
+
+If such a value is unexpectedly invalid, that is an invariant/lifecycle bug upstream. Fix the owner, caller, query, or destruction path.
+
+### Valid reasons to revalidate
+
+Use `is_instance_valid()` when a reference intentionally crosses a time/lifetime boundary and therefore may outlive its source call stack, for example:
+
+- `call_deferred()` or another queued/deferred call;
+- a deferred/queued signal;
+- a World event/request that is queued and processed later;
+- `await`, Timer, delayed callback, or stored Callable;
+- an Entity/Node reference cached in a member/container for later use;
+- cleanup/teardown where object lifetime is explicitly uncertain.
+
+Do not assume every signal or World event is asynchronous: if the concrete API dispatches synchronously, it does not become a lifetime boundary merely because it is called an event.
+
+### Optional values
+
+A `null` check is correct when absence is an intentional part of the API, such as an optional Component, optional target, lookup miss, or nullable authored reference.
+
+Required and optional state must be distinguishable from the contract. Do not silently reinterpret a required value as optional just to avoid an error.
+
+### Assertions
+
+For suspicious required-state failures, prefer a debug assertion over a silent guard:
+
+```gdscript
+assert(is_instance_valid(actor), "Combat actor must be valid during a synchronous transaction.")
+assert(health != null, "C_Health is required by this code path.")
+```
+
+Assertions document and expose invariants; they are not runtime recovery. Keep assertion expressions free of side effects and never rely on an assertion to perform work needed by release builds.
+
+Do not replace legitimate boundary validation with `assert()`: deferred/queued/stored references still require real runtime handling when expiry is expected.
+
+### Destruction invariant
+
+Gameplay code must not intentionally invalidate mandatory Entity references in the middle of a synchronous gameplay transaction. Prefer the project/GECS lifecycle path, CommandBuffer, or queued deletion/removal so structural destruction happens at a controlled boundary.
+
 ## Public API and documentation
 
 Each project-owned script has a short `##` description.
