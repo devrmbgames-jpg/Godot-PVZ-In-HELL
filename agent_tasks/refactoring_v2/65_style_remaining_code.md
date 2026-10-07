@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: 34_style_gameplay_services.md.
+Зависимости: 64_style_gameplay_services.md.
 
 ## Goal
 

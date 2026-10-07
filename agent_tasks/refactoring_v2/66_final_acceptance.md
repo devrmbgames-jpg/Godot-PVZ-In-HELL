@@ -1,4 +1,4 @@
-# Refactoring v2.36 — финальная приёмка
+# Refactoring v2.66 — финальная приёмка
 
 Status: **PLANNED**
 
@@ -16,7 +16,11 @@ Status: **PLANNED**
 - architecture validator PASS без migration baseline;
 - нет hidden System shell patterns;
 - execution ordering review PASS;
-- нет duplicate authority между Components/Relationships/services/BT/UI.
+- strict vertical-domain validation PASS;
+- domain dependency validation PASS;
+- Templates/Traits, Smart Objects, AI layering, Simulation LOD, Content Doctor и Game Time contracts прошли Phase 2 acceptance;
+- UI остаётся Godot glue и не является gameplay authority;
+- нет duplicate authority между Components/Relationships/services/BT/GOAP/UI.
 
 ### Code Style
 

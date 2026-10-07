@@ -1,0 +1,37 @@
+# Refactoring v2.29 — vertical domains: NPC и Customers
+
+Status: **PLANNED**
+
+Зависимости: [28_domain_layout_contract.md](28_domain_layout_contract.md), NPC/Customer execution refactor завершён.
+
+## Goal
+
+Перенести NPC и Customer ownership из horizontal role roots в vertical domains без изменения runtime behavior.
+
+## Scope
+
+Целевые owners:
+
+```text
+content/domains/npc/
+content/domains/customers/
+```
+
+Перенести соответствующие Components, Relationships, Systems, Observers, Services, Rules/Solvers, Definitions, Entities, AI/dialogue adapters и domain scenes/resources.
+
+## Rules
+
+- move ownership, not only files;
+- обновить все res:// paths, scene ext_resources, tests и docs;
+- не оставлять forwarding wrappers в старых roots;
+- truly shared code переносить только в `content/shared/`, с явной причиной;
+- UI остаётся Godot glue и не превращается в ECS.
+
+## Acceptance
+
+NPC/Customer gameplay код не разделён между старым horizontal root и новым domain без документированного shared contract.
+Domain validator PASS.
+
+## Validation
+
+Parser changed scripts + NPC/Customer regression suites + structure validator.

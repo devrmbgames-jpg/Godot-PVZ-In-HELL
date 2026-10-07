@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: 30_style_tooling.md.
+Зависимости: 60_style_tooling.md.
 
 ## Goal
 

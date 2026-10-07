@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: 33_style_interaction_combat_motion.md.
+Зависимости: 63_style_interaction_combat_motion.md.
 
 ## Goal
 

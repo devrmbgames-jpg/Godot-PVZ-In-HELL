@@ -8,6 +8,8 @@ Status: **PLANNED**
 
 Закрепить один проектный архитектурный словарь до изменения runtime-кода, чтобы последующий рефакторинг не зависел от вкуса отдельного агента.
 
+Полная target architecture зафиксирована в [`docs/project_core_architecture_proposal.md`](../../docs/project_core_architecture_proposal.md). Эта задача должна превратить её ключевые invariants в короткие canonical rules.
+
 ## Scope
 
 Обновить долговечные архитектурные документы и agent rules. Runtime-код не рефакторить.
@@ -23,7 +25,11 @@ Status: **PLANNED**
 - `*Geometry` — пространственные вычисления/queries без ownership игрового lifecycle;
 - `*Solver` — изолированный алгоритм, включая engine-bound physics callback;
 - `*Presentation` — визуальное/UI представление без gameplay authority;
-- `*Factory` — создание/конструирование без владения регулярным lifecycle.
+- `*Factory` — создание/конструирование без владения регулярным lifecycle;
+- UI — обычный Godot glue, не ECS;
+- `ET_*` Traits / Entity Templates — authoring/compiler layer, не runtime state/scheduler;
+- vertical domains — целевой owner layout после execution-model cleanup;
+- typed Commands/Requests — intent, Events/Results — authoritative outcome.
 
 ## Required decisions
 
@@ -48,6 +54,8 @@ Status: **PLANNED**
 - Есть правило выбора между System и Service на примере scheduled tick.
 - Есть отдельное исключение для physics/engine-bound solvers.
 - Существующие правила «System не вызывает другой System» и Components/Relationships не ослаблены.
+- Зафиксировано правило scene-first authoring: Traits не заменяют видимый placed NPC/object в Godot Editor.
+- Зафиксирован full-refactor invariant: выбранный migration scope не закрывается с permanent dual architecture.
 
 ## Validation
 

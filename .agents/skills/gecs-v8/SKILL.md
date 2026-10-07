@@ -17,6 +17,8 @@ Pinned local source under `addons/gecs/` is the API authority. Inspect it only w
 - Systems own scheduled behavior; Observers own discrete/reactive transitions.
 - Reusable algorithms that are not ECS scheduling belong in non-System services/solvers/helpers.
 - Presentation must not become gameplay authority.
+- Godot UI (`Control`, HUD, menus) remains ordinary glue outside ECS scheduling; do not create UI-only Components/Systems.
+- Entity Templates / `ET_*` Traits are authoring/compiler recipes only. Runtime behavior is driven by the Components/Relationships they materialize, not by Trait ticks.
 
 ## Systems and queries
 
@@ -29,7 +31,7 @@ Pinned local source under `addons/gecs/` is the API authority. Inspect it only w
 
 ## Relationships
 
-Authoritative cross-Entity ownership/link state lives in `content/relationships/<subsystem>/` with `r_*.gd` filenames and `R_*` classes, even when GECS requires the Component base. Derived lookup/cache state that is not authority remains `C_*`.
+Authoritative cross-Entity ownership/link state uses `r_*.gd` filenames and `R_*` classes, even when GECS requires the Component base. During Refactoring v2 legacy files may still live under `content/relationships/<subsystem>/`; the target location is `content/domains/<domain>/relationships/` or `content/shared/relationships/`. Derived lookup/cache state that is not authority remains `C_*`.
 
 ## Godot physics boundary
 
@@ -40,6 +42,12 @@ Those solvers:
 - read only their owned state/relationships;
 - mutate only their own physics contribution;
 - should not be registered as no-op Systems merely to provide static helper methods.
+
+## Service and execution boundary
+
+A Service must not become a hidden System. Generic per-frame `tick/update/process` ownership, broad scheduled ECS iteration, cooldown/time progression, or orchestration of several domains belongs in Systems/Observers unless an engine callback contract requires a Solver.
+
+A thin `S_*` whose only meaningful job is forwarding every frame to `SomeService.tick()` is an architecture smell, not a preferred abstraction.
 
 ## State transitions
 

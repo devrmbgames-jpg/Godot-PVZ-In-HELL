@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: 32_style_npc_customers.md.
+Зависимости: 62_style_npc_customers.md.
 
 ## Goal
 

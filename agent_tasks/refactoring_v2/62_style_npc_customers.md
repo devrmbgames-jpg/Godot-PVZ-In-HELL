@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: 31_style_ecs_core.md.
+Зависимости: 61_style_ecs_core.md.
 
 ## Goal
 

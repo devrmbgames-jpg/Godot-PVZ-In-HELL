@@ -14,6 +14,7 @@ Start from the user's task and the exact files, symbols, errors, scenes, or reso
 - Behavior/glue/UI members are private by default; all `@onready` members are private. Public mutable fields are deliberate data/API contracts only.
 - Avoid unexplained gameplay constants; use named constants or authored/data-driven values.
 - Preserve unrelated user edits. Do not rewrite unrelated history, force-push, upgrade dependencies, write authored files into `.godot/`, or use `gh`.
+- When the user explicitly requests a broad refactor, complete the declared migration to its target architecture instead of leaving permanent old/new parallel paths, compatibility wrappers, duplicate authority, or renamed-but-unmigrated ownership. Temporary adapters are allowed only inside the same unfinished milestone; if they cannot be removed, the milestone is not DONE.
 - `master` is read-only. Normal development targets `dev`; use a separate branch when the user requests one.
 - `MeshInstance3D.material_overlay` is reserved for interactive feedback/highlights; authored highlight materials are external editable resources.
 
@@ -46,6 +47,7 @@ One durable task file owns its own status/current/next/validation. There is no s
 ## Specialized skills
 
 Load a skill only when its domain is actually involved:
+- explicit broad refactoring, architecture migration, subsystem decomposition, or repository-wide cleanup: `.agents/skills/refactoring/SKILL.md`;
 - creating or modifying project-owned GDScript: `.agents/skills/gdscript-style/SKILL.md`;
 - GECS-specific API/architecture: `.agents/skills/gecs-v8/SKILL.md`;
 - GUT test authoring/execution: `.agents/skills/gut-testing/SKILL.md`;
