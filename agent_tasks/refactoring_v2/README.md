@@ -1,8 +1,8 @@
 # Refactoring v2 — полный Core Architecture + Code Style рефакторинг
 
-Status: **READY_FOR_IMPLEMENTATION**
+Status: **IN_PROGRESS**
 
-Next task: `10_service_inventory.md`
+Next task: `40_typed_commands_events.md`
 
 Рабочая ветка Phase 0: `dev`. Историческая подготовка: `chore/gdscript-human-first-style`; это не требование checkout.
 
@@ -144,7 +144,7 @@ Phase 1 **DONE**: задачи 01–03 завершены 2026-10-07, 04 — 202
 
 Повторный Phase 0 pass завершён 2026-10-07 строго последовательно, с отдельным coherent commit каждой 00_задачи. Final full review [00_05](00_05_preflight_readiness_gate.md): **READY_FOR_IMPLEMENTATION**. Этот исторический gate разрешил Phase 1; его preflight pass завершён до реализации 01.
 
-Следующий milestone: Phase 2A, [10 — service inventory](10_service_inventory.md), затем40 по dependency order. Текущий запрос останавливается на Phase 1 acceptance gate; 10 здесь не начинать. Владелец разрешил последовательное выполнение до полного milestone с отдельным coherent commit каждой задачи; правило одной задачи на запрос ниже не ограничивает этот явно расширенный scope.
+Phase 2A начата 2026-10-08: [10 — service inventory](10_service_inventory.md) **DONE**, static coverage 136/136; [полная классификация и bounded slices](service_inventory_result.md). Далее [40 — typed Commands / Events](40_typed_commands_events.md), пять boundary slices до execution migration. Владелец разрешил полный dependency-order проход 2A → 2B → 2C с отдельным coherent commit каждой завершённой задачи и остановкой после PASS 49; Phase 3 не начинать. Правило одной задачи на запрос ниже не ограничивает этот явно расширенный scope. Rendered gameplay и subjective visual QA запрещены; headless/parser/validators/GUT/smoke/save-load разрешены.
 
 Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/body detach/четыре tiers deferred; baseline ACTIVE/DORMANT with retained physical-root Entity and ECS-owned population records. Population/district schedules belong to npc, without separate district domain. Known structure failures (31, smoke reference/R26 metadata) устранены в 03.
 
