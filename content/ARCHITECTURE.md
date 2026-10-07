@@ -2,6 +2,8 @@
 
 Durable cross-system gameplay contracts. Read on demand only when a task crosses subsystem boundaries or the owning authority is unclear; focused work should start from the named code.
 
+The complete target-core design is documented in `docs/project_core_architecture_proposal.md`. During Refactoring v2, this file remains the concise runtime contract while the proposal defines the migration destination.
+
 ## Runtime entry and scheduling
 
 - Startup: `content/scenes/main_level.tscn`; glue: `content/scenes/main_level.gd`.
@@ -18,9 +20,19 @@ Durable cross-system gameplay contracts. Read on demand only when a task crosses
 - `O_*`: discrete/reactive lifecycle/event behavior.
 - services/solvers: reusable imperative domain logic or physics helpers that are not scheduled Systems.
 - `DEF_*`: immutable/shared authored design data.
-- UI/presentation reads authoritative state; it does not become gameplay authority.
+- UI is ordinary Godot `Control`/glue. It may read domain state/events and submit typed commands, but it is not scheduled through ECS and does not get UI-only Components.
+- Entity Templates / `ET_*` Traits are authoring/compiler inputs. They do not tick and do not own mutable runtime gameplay state.
+- Placed scenes remain visible physical/visual authoring objects in Godot Editor; Templates/Traits add gameplay composition without replacing scene authoring.
 
 A System never calls another System as a service. Order is expressed through groups/`deps()`; cross-system communication uses Components, Relationships, typed requests/events/results.
+
+Cross-domain intent should prefer typed Commands/Requests; successful authoritative outcomes are published as Events/Results. Do not use an Event as a hidden command or report an outcome before the authoritative mutation succeeds.
+
+## Vertical domain target
+
+Refactoring v2 migrates project-owned gameplay code from horizontal role roots toward `content/domains/<domain>/<role>/`, with genuine cross-domain infrastructure under `content/shared/<role>/`. Canonical role-folder spelling is enforced by `python utils/validate_domain_structure.py`; final architecture acceptance requires `--strict`, which rejects legacy horizontal gameplay roots.
+
+Domains communicate through typed commands/events, stable public domain APIs, or explicit shared contracts. File moves alone are not a domain migration: ownership and dependencies must move with them.
 
 ## Input and interaction
 
@@ -85,6 +97,8 @@ A System never calls another System as a service. Order is expressed through gro
 
 Use the narrowest relevant surface:
 - repository structure: `python utils/validate_project_structure.py`;
+- vertical domains during migration: `python utils/validate_domain_structure.py`;
+- final vertical-domain gate: `python utils/validate_domain_structure.py --strict`;
 - changed-file formatter/lint/static checks;
 - Grab/input: `tests/gut/test_s_grab.gd`;
 - Jump: `tests/gut/test_s_jump.gd`;
