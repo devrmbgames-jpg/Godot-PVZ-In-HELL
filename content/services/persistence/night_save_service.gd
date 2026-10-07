@@ -28,7 +28,12 @@ static func process(session: Entity, cycle: C_DayCycle, state: C_Autosave, delta
 
 		state.started_night = cycle.day_index
 		NightResetService.reset()
-		DistrictPopulationService.prepare_morning(cycle.day_index + 1)
+
+	var preparation: DistrictMorningPreparationRequest = DistrictPopulationService.prepare_morning(cycle.day_index + 1)
+	if not preparation.completed or not preparation.succeeded:
+		state.last_error = ERR_BUSY if not preparation.completed else ERR_INVALID_DATA
+		state.retry_remaining = maxf(MIN_RETRY_SECONDS, state.retry_seconds)
+		return
 
 	var root: Node = ECS.world.get_parent()
 	var snapshot: Dictionary = WorldSnapshotService.capture(root, cycle.day_index + 1)

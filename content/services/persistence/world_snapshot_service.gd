@@ -320,6 +320,10 @@ static func restore(data: Dictionary, root: Node) -> bool:
 				flow.planning_day = 0
 				flow.planning_phase = -1
 				flow.arrival_cooldown_seconds = 0.0
+			if target is C_District:
+				var district: C_District = target as C_District
+				district.lifecycle_day = 0
+				district.lifecycle_phase = -1
 			if target is C_Package:
 				(target as C_Package).condition_initialized = true
 			if target is C_LootDrops:

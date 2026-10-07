@@ -67,7 +67,7 @@ func test_schedule_exit_accepts_ground_radius_without_exact_marker_contact() -> 
 	var person: NpcRecord = _district.people[0]
 	person.profile.schedule = person.profile.schedule.duplicate() as DEF_NpcSchedule
 	person.profile.schedule.day = DEF_NpcSchedule.Location.OUTSIDE
-	DistrictPopulationService.plan_phase(person, 1, C_DayCycle.Phase.DAY)
+	assert_true(DistrictPopulationService.request_phase(body, 1, C_DayCycle.Phase.DAY).succeeded)
 	var destination: Vector3 = DistrictPopulationService.position_for(person.goal_id)
 	body.place_at(destination + Vector3(0.8, 2.0, 0.0))
 	assert_true(_run_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2))
@@ -102,7 +102,7 @@ func test_stalled_schedule_exit_keeps_unfinished_departure() -> void:
 	var person: NpcRecord = _district.people[0]
 	person.profile.schedule = person.profile.schedule.duplicate() as DEF_NpcSchedule
 	person.profile.schedule.day = DEF_NpcSchedule.Location.OUTSIDE
-	DistrictPopulationService.plan_phase(person, 1, C_DayCycle.Phase.DAY)
+	assert_true(DistrictPopulationService.request_phase(body, 1, C_DayCycle.Phase.DAY).succeeded)
 	var native: Dictionary[StringName, RID] = await _flat_map()
 	body.navigation_agent.set_navigation_map(native[&"map"])
 	_run_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)

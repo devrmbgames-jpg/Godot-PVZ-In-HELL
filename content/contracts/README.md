@@ -91,3 +91,19 @@ is a separate cleanup/cancellation fact; it releases an outstanding gate without
 success/failure. Removal/release also reconcile after the live appearance gate is gone.
 Complaint maturity is a committed gameplay-day/bootstrap reaction. Current-format restore
 invalidates preparation cache and reaches this owner through the next bootstrap fact.
+
+## District lifecycle requests (task 14)
+
+O_DistrictLifecycle consumes committed DayPhaseChanged snapshots and body death matches.
+S_District only bootstraps missing/restored calendar state before customer/day/AI consumers.
+NpcPhasePlanRequest and NpcScheduleCompletionRequest have one handler and pending/terminal
+receipts. The queued boundary revalidates retained body registration, aggregate record identity,
+current goal and selected decision owner; interrupted or superseded goals cannot hide the body.
+A dormant body remains a valid lifecycle target. Native completion stays RUNNING until commit.
+
+DistrictMorningPreparationRequest captures the current calendar context while requesting a
+future morning. It does not advance the day clock. Preparation commits before its succeeded
+receipt; repeated requests cannot create another replacement or reset reaction state twice.
+NightSaveService waits for this receipt before snapshot capture. Record references in requests
+are immutable identity checks, never competing mutable state or Entity-to-Entity bindings.
+Lifecycle cache fields are derived and excluded from the codec; restore invalidates them.

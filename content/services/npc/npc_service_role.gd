@@ -196,8 +196,8 @@ static func defer_visit(body: E_DistrictNpc, visit: CustomerVisit, reason: Strin
 		release(body, visit.visit_id)
 		var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
 		var person: NpcRecord = DistrictPopulationService.person_for(identity.npc_id)
-		if person != null:
-			person.planned_phase = -1
+		if person != null and cycle.phase != C_DayCycle.Phase.NIGHT:
+			DistrictPopulationService.request_phase(body, cycle.day_index, cycle.phase, false, true)
 		body.show_message(reason + ". Приду в другой день.")
 
 ## Разрешает вход после выключения света; движение выполняет отдельный лист дерева.
@@ -260,7 +260,8 @@ static func finish_appearance(body: E_DistrictNpc, visit: CustomerVisit) -> void
 
 	var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
 	if person != null and person.death_day == 0:
-		person.planned_phase = -1
+		if cycle != null and cycle.phase != C_DayCycle.Phase.NIGHT:
+			DistrictPopulationService.request_phase(body, cycle.day_index, cycle.phase, false, true)
 		body.present_profile(person.profile)
 		body.show_message(person.display_name)
 

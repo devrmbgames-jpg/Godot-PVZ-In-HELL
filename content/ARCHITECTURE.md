@@ -41,6 +41,8 @@ Components and Relationships remain the gameplay authority. Typed records/Resour
 
 A Relationship either guarantees its target remains live while the binding exists, or its single lifecycle/resolving boundary handles stale endpoints. Do not replace the live binding with independently mutable Entity references in Components or service registries.
 
+District calendar goals, phase completion and morning preparation are owned by O_DistrictLifecycle. S_District bootstraps only missing/restored calendar facts before customer/day/native-decision/intent consumers. Population registry/materialization and physical participation are explicit operations. Native goal completion and night capture wait for actual typed receipts; retained dormant bodies remain lifecycle targets. Derived calendar caches are not persisted.
+
 ### Choosing execution ownership
 
 1. Required engine timing comes first: work that must use `PhysicsDirectBodyState3D` in `_integrate_forces` stays in that callback's Entity glue and independent non-System Solvers.

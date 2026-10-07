@@ -107,8 +107,8 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `motion/kinematic_character_solver.gd` | KEEP_SOLVER | 22 | CharacterBody integration from body callback; move_and_slide authority. | KEPT_WITH_REASON |
 | `motion/kinematic_push_solver.gd` | KEEP_SOLVER | 22 | Bounded physical impulse after slide contacts. | KEPT_WITH_REASON |
 | `motion/npc_intent_service.gd` | KEEP_SERVICE | 22 | Explicit move/look commands; live targets belong to Relationships. | KEPT_WITH_REASON |
-| `npc/district_population_service.gd` | SPLIT | 14 | Materialization/registry operations mixed with phase planning/reconciliation. | PENDING |
-| `npc/district_schedule_service.gd` | MOVE_SYSTEM | 14 | Whole tick polls phase/conflict/death over population; move to explicit owners. | PENDING |
+| `npc/district_population_service.gd` | SPLIT | 14 | Explicit registry/materialization/participation retained; phase/preparation/completion owners moved to O_DistrictLifecycle with typed receipts. | DONE |
+| `npc/district_schedule_service.gd` | MOVE_SYSTEM | 14 | Deleted tick/forwarder; S_District bootstraps facts, O_DistrictLifecycle owns calendar/death reactions. | DONE |
 | `npc/npc_activity_service.gd` | KEEP_SERVICE | 16 | One BT-selected activity/destination/observe command. | KEPT_WITH_REASON |
 | `npc/npc_brain_service.gd` | SPLIT | 15 | LimboAI adapter mixed with actor/sensor/role/route/tree scheduling and noise ageing. | PENDING |
 | `npc/npc_community_service.gd` | KEEP_SERVICE | 16 | BT-selected reserve/collect/eat/conflict operations. | KEPT_WITH_REASON |

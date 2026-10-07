@@ -68,11 +68,12 @@ static func flee(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwaren
 			if visit != null:
 				NpcServiceRole.finish_appearance(actor, visit)
 		CombatService.end_combat(actor)
+		var completion: NpcScheduleCompletionRequest = DistrictPopulationService.request_phase_completion(actor, NpcRecord.Placement.OUTSIDE)
+		if not completion.completed or not completion.succeeded:
+			return false
 		awareness.fleeing = false
 		awareness.flee_portal_id = &""
 		awareness.has_last_seen = false
-		person.phase_complete = true
-		DistrictPopulationService.set_placement(person, actor, NpcRecord.Placement.OUTSIDE)
 		return true
 
 	NpcIntentArbiter.move_to(actor, destination, district.definition.portal_arrival_distance, C_NpcDecision.Owner.EMERGENCY)

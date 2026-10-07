@@ -25,6 +25,7 @@ func before_each() -> void:
 	owner_entity.component_resources = [_district, C_DayCycle.new()]
 	_world.add_entity(owner_entity)
 	_district = owner_entity.get_component(C_District) as C_District
+	_world.add_observer(O_DistrictLifecycle.new())
 	DistrictPopulationService.initialize()
 
 ## Освобождает World до окружающей сцены и сбрасывает глобальное участие ECS.
@@ -50,10 +51,10 @@ func test_merchant_schedule_keeps_same_live_trader_on_shop_goal_all_day() -> voi
 	assert_true(person.profile.merchant)
 	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		cycle.phase = phase
-		DistrictPopulationService.plan_phase(person, 1, phase)
+		assert_true(DistrictPopulationService.request_phase(body, 1, phase).succeeded)
 		assert_eq(person.profile.schedule.location_for(1, phase), DEF_NpcSchedule.Location.STREET)
 		assert_eq(_district.definition.place_for(person.goal_id).kind, DEF_DistrictPlace.Kind.SHOP)
-		DistrictPopulationService.complete_phase(person, body)
+		assert_true(DistrictPopulationService.request_phase_completion(body).succeeded)
 		assert_eq(person.placement, NpcRecord.Placement.STREET)
 		assert_same(DistrictPopulationService.body_for(person.npc_id), body)
 		assert_true(GrabService.holder_available(body))
@@ -74,7 +75,7 @@ func test_departure_and_return_keep_body_health_and_memory() -> void:
 	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.OUTSIDE)
 	assert_false(body.enabled)
 	assert_eq((body as Node as RigidBody3D).collision_layer, 0)
-	DistrictPopulationService.plan_phase(person, 2, C_DayCycle.Phase.MORNING)
+	assert_true(DistrictPopulationService.request_phase(body, 2, C_DayCycle.Phase.MORNING).succeeded)
 	assert_same(DistrictPopulationService.body_for(person.npc_id), body)
 	assert_true(body.enabled)
 	assert_eq(health.current, health.value * 0.5)

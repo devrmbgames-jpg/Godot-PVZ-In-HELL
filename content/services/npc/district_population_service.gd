@@ -91,7 +91,8 @@ static func recipient_for(recipient_key: StringName) -> NpcRecord:
 #endregion
 
 #region Восстановление состояния движка
-static func _reset_brain(body: E_DistrictNpc) -> void:
+## Clears transient engine/AI participation before restore or explicit morning preparation.
+static func reset_brain(body: E_DistrictNpc) -> void:
 	NpcBrainService.set_participating(body, false)
 	NpcCommunityService.cancel_activity(body)
 	NpcDialogueService.end(body)
@@ -125,7 +126,7 @@ static func restore_participation() -> void:
 		if body == null:
 			continue
 
-		_reset_brain(body)
+		reset_brain(body)
 		_install_roles(body, person)
 		body.present_profile(person.profile)
 		body.show_message(person.display_name)
@@ -202,8 +203,8 @@ static func _spawn_body(person: NpcRecord) -> E_DistrictNpc:
 		ECS.world.get_parent().add_child(body)
 		ECS.world.add_entity(body, null, false)
 	var identity: C_NpcIdentity = C_NpcIdentity.new()
-	body.add_component(identity)
 	identity.npc_id = person.npc_id
+	body.add_component(identity)
 	var persistent: C_PersistentIdentity = C_PersistentIdentity.new()
 	persistent.key = String(person.npc_id)
 	body.add_component(persistent)
@@ -221,57 +222,58 @@ static func _spawn_body(person: NpcRecord) -> E_DistrictNpc:
 #endregion
 
 #region Календарь и участие в мире
-## Один раз готовит будущее утро с заселением; повтор записи безопасен.
-static func prepare_morning(morning_day: int) -> void:
+## Requests one future morning; the typed receipt distinguishes dispatch from preparation.
+static func prepare_morning(morning_day: int) -> DistrictMorningPreparationRequest:
+	var request: DistrictMorningPreparationRequest = DistrictMorningPreparationRequest.new()
+	request.day_index = morning_day
+	if morning_day <= 0:
+		request.completed = true
+		request.rejection_reason = &"invalid_day"
+		return request
+
 	var district: C_District = current()
 	if district == null or district.prepared_morning >= morning_day:
-		return
+		request.completed = true
+		request.succeeded = true
+		return request
+	var session: Entity = ECS.world.query.with_all([C_District, C_DayCycle]).execute_one()
+	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+	request.context_day = cycle.day_index
+	request.context_phase = cycle.phase
+	ECS.world.emit_event(DistrictMorningPreparationRequest.EVENT, session, request)
+	return request
 
-	district.prepared_morning = morning_day
-	district.noises.clear()
-	district.pending_routes.clear()
-	district.lighting_context = null
-	_replace_vacancies(district, morning_day)
-	for person: NpcRecord in district.people:
-		if person.death_day != 0:
-			continue
 
-		var body: E_DistrictNpc = body_for(person.npc_id)
-		if body == null:
-			continue
+## Requests one calendar goal assignment; the lifecycle handler owns phase/placement mutation.
+static func request_phase(body: E_DistrictNpc, day_index: int, phase: C_DayCycle.Phase,
+		synchronize: bool = false, force: bool = false) -> NpcPhasePlanRequest:
+	var request: NpcPhasePlanRequest = NpcPhasePlanRequest.new()
+	request.day_index = day_index
+	request.phase = phase
+	request.synchronize = synchronize
+	request.force = force
+	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+	request.record_identity = person_for(identity.npc_id)
+	ECS.world.emit_event(NpcPhasePlanRequest.EVENT, body, request)
+	return request
 
-		_reset_brain(body)
-		NpcBrainService.install(body)
-		plan_phase(person, morning_day, C_DayCycle.Phase.MORNING, true)
-	NpcDeliveryOfferService.prepare_day(morning_day)
 
-## Назначает цель фазы; видимый NPC сначала доходит до двери или прохода.
-static func plan_phase(person: NpcRecord, day_index: int, phase: C_DayCycle.Phase, synchronize: bool = false) -> void:
-	if person.death_day != 0 or (person.planned_day == day_index and person.planned_phase == phase and not synchronize):
-		return
+## Captures one goal's identity and submits its requested completion participation.
+## Authored completion is the default; explicit escape/skip commands may supply placement.
+static func request_phase_completion(body: E_DistrictNpc, placement: int = -1) -> NpcScheduleCompletionRequest:
+	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+	var person: NpcRecord = person_for(identity.npc_id)
+	var request: NpcScheduleCompletionRequest = NpcScheduleCompletionRequest.new()
+	request.planned_day = person.planned_day
+	request.planned_phase = person.planned_phase
+	request.goal_id = person.goal_id
+	request.record_identity = person
+	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+	request.decision_owner = decision.intent_owner
+	request.placement = NpcScheduleRules.completed_placement(person) if placement < 0 else placement as NpcRecord.Placement
+	ECS.world.emit_event(NpcScheduleCompletionRequest.EVENT, body, request)
+	return request
 
-	var body: E_DistrictNpc = body_for(person.npc_id)
-	if body == null:
-		return
-
-	person.planned_day = day_index
-	person.planned_phase = phase
-	person.phase_complete = false
-	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
-	if awareness != null:
-		awareness.called_out = false
-		awareness.warned_rules.clear()
-		awareness.reacted_rules.clear()
-		awareness.rule_exposure.clear()
-
-	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(day_index, phase)
-	person.goal_id = person.home_id if location == DEF_NpcSchedule.Location.HOME else person.portal_id if location == DEF_NpcSchedule.Location.OUTSIDE else _activity_for(person) if person.profile.resident else person.exit_id
-	if synchronize:
-		body.place_at(position_for(person.home_id if person.profile.resident else person.portal_id))
-		set_placement(person, body, NpcRecord.Placement.STREET if location == DEF_NpcSchedule.Location.STREET else NpcRecord.Placement.HOME if location == DEF_NpcSchedule.Location.HOME else NpcRecord.Placement.OUTSIDE)
-	elif location == DEF_NpcSchedule.Location.STREET and person.placement != NpcRecord.Placement.STREET:
-		body.place_at(position_for(person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id))
-		set_placement(person, body, NpcRecord.Placement.STREET)
 
 ## Изменяет авторитетное размещение и участие тела в движке.
 static func set_placement(person: NpcRecord, body: E_DistrictNpc, placement: NpcRecord.Placement) -> void:
@@ -293,15 +295,6 @@ static func set_placement(person: NpcRecord, body: E_DistrictNpc, placement: Npc
 	if placement == NpcRecord.Placement.DEAD:
 		body.sync_death_presentation()
 
-## Завершает обязательную цель фазы после прибытия.
-static func complete_phase(person: NpcRecord, body: E_DistrictNpc) -> void:
-	person.phase_complete = true
-	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(person.planned_day, person.planned_phase as C_DayCycle.Phase)
-	if not person.profile.resident and location == DEF_NpcSchedule.Location.STREET:
-		set_placement(person, body, NpcRecord.Placement.OUTSIDE)
-	elif location != DEF_NpcSchedule.Location.STREET:
-		set_placement(person, body, NpcRecord.Placement.HOME if location == DEF_NpcSchedule.Location.HOME else NpcRecord.Placement.OUTSIDE)
-
 ## Один раз фиксирует смерть; будущие заказы не используют погибшую личность.
 static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) -> void:
 	if person.death_day != 0:
@@ -320,20 +313,8 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 	if district.replacement_morning == 0 and district.definition.resident_count - living_residents >= district.definition.replacement_threshold:
 		district.replacement_morning = day_index + district.definition.replacement_delay_days
 
-static func _activity_for(person: NpcRecord) -> StringName:
-	var district: C_District = current()
-	if person.profile.merchant:
-		for place: DEF_DistrictPlace in district.definition.places:
-			if place.kind == DEF_DistrictPlace.Kind.SHOP:
-				return place.key
-
-	var activities: Array[StringName] = []
-	for place: DEF_DistrictPlace in district.definition.places:
-		if place.kind == DEF_DistrictPlace.Kind.ACTIVITY:
-			activities.append(place.key)
-	return activities[abs(hash(person.npc_id) + person.activity_sequence) % activities.size()] if not activities.is_empty() else person.portal_id
-
-static func _replace_vacancies(district: C_District, morning_day: int) -> void:
+## Materializes one bounded replacement wave for an explicitly supplied future morning.
+static func replace_vacancies(district: C_District, morning_day: int) -> void:
 	var locals_alive: int = 0
 	var outside_alive: int = 0
 	var vacant: NpcRecord = null

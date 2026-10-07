@@ -26,6 +26,7 @@ func before_each() -> void:
 	_fixture_root.add_child(_fixture_world)
 	ECS.world = _fixture_world
 	_fixture_world.add_observer(O_InventoryLifecycle.new())
+	_fixture_world.add_observer(O_DistrictLifecycle.new())
 
 	_district = C_District.new()
 	_district.definition = load("res://content/definitions/gameplay/npc/def_district_default.tres") as DEF_District

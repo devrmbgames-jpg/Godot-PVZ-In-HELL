@@ -173,7 +173,7 @@ func test_schedule_departure_aborts_after_its_own_tick() -> void:
 	cycle.phase = C_DayCycle.Phase.DAY
 	person.profile.schedule = person.profile.schedule.duplicate() as DEF_NpcSchedule
 	person.profile.schedule.day = DEF_NpcSchedule.Location.OUTSIDE
-	DistrictPopulationService.plan_phase(person, cycle.day_index, cycle.phase)
+	assert_true(DistrictPopulationService.request_phase(body, cycle.day_index, cycle.phase).succeeded)
 	body.place_at(DistrictPopulationService.position_for(person.goal_id) + Vector3(0.4, 0, 0))
 	NpcBrainService.tick(_district, 0.3)
 	var runner: BTPlayer = body.get_node("Brain") as BTPlayer

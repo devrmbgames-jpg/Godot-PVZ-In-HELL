@@ -50,7 +50,7 @@ func _buy(level: Node3D) -> void:
 	var shop: C_Trader = merchant.get_component(C_Trader) as C_Trader
 	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		cycle.phase = phase
-		DistrictPopulationService.plan_phase(person, 1, phase)
+		_check(DistrictPopulationService.request_phase(merchant, 1, phase).succeeded, "merchant phase request committed")
 		_check(person.profile.schedule.location_for(1, phase) == DEF_NpcSchedule.Location.STREET, "merchant schedule stays local")
 		_check(TraderCatalogService.is_open(shop, cycle), "profile allows live phase")
 	cycle.phase = C_DayCycle.Phase.DAY

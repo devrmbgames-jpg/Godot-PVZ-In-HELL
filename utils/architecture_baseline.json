@@ -103,16 +103,6 @@
     },
     {
       "rule": "service-step",
-      "owner": "DistrictScheduleService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "District schedule/day polling",
-      "task": "14_district_lifecycle.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
       "owner": "NpcBrainService",
       "method": "tick",
       "target": "",
@@ -199,16 +189,6 @@
       "count": 1,
       "reason": "Legacy customer combat polling",
       "task": "17_combat.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "system-service-step",
-      "owner": "S_District",
-      "method": "process",
-      "target": "DistrictScheduleService.tick",
-      "count": 1,
-      "reason": "District schedule/day polling",
-      "task": "14_district_lifecycle.md",
       "removal_gate": "26/27"
     },
     {

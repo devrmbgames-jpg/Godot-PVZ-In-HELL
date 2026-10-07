@@ -36,6 +36,10 @@ var route_planning_frame: int = -1
 var route_plans_this_frame: int = 0
 ## Накопитель частоты шагов игрока; не сохраняется.
 var player_step_elapsed: float = 0.0
+## Derived lifecycle reconciliation day; O_DistrictLifecycle writes it, restore invalidates it.
+var lifecycle_day: int = 0
+## Derived lifecycle phase snapshot; excluded from persistence and gameplay authority.
+var lifecycle_phase: int = -1
 ## Порядок появления на обслуживании, независимый от порядка архетипов GECS.
 @export var next_service_order: int = 1
 ## Номер новой личности, возрастающий на протяжении сессии.

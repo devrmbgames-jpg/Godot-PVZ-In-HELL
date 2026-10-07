@@ -135,7 +135,7 @@ static func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute)
 		var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(person.planned_day, person.planned_phase as C_DayCycle.Phase)
 		# Недостижимое занятие можно пропустить; уход через проход или домой требует реального прибытия.
 		if decision != null and decision.intent_owner == C_NpcDecision.Owner.SCHEDULE and person.profile.resident and location == DEF_NpcSchedule.Location.STREET:
-			person.phase_complete = true
+			DistrictPopulationService.request_phase_completion(actor, NpcRecord.Placement.STREET)
 		route.map_iteration = -1
 		route.points.clear()
 	NpcIntentService.stop(actor)
