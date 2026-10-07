@@ -1,4 +1,4 @@
-# Refactoring v2.27 — приёмка архитектурного рефакторинга
+# Refactoring v2.27 — execution-model acceptance checkpoint
 
 Status: **PLANNED**
 
@@ -6,7 +6,7 @@ Status: **PLANNED**
 
 ## Goal
 
-Закрыть Phase 2 до начала массового Code Style pass.
+Закрыть первую часть Phase 2: доказать, что scheduled/reactive/service ownership стабилен **до** массового vertical-domain перемещения файлов.
 
 ## Required acceptance
 
@@ -14,26 +14,21 @@ Status: **PLANNED**
 - hidden System patterns устранены;
 - architecture validator PASS;
 - project structure PASS;
-- parser всех project-owned GDScript PASS;
-- профильные GUT по изменённым подсистемам PASS;
-- один связный headless smoke основного уровня/основных gameplay contracts PASS;
+- parser всех затронутых GDScript PASS;
+- профильные GUT изменённых подсистем PASS;
+- один связный headless smoke основных gameplay contracts PASS;
 - save/restore smoke PASS, если persistence boundary затрагивалась;
-- нет новых ошибок/предупреждений, связанных с refactor;
-- behavior changes отсутствуют либо отдельно документированы как неизбежная compatibility fix.
+- нет новых refactor-related errors/warnings;
+- временные wrappers execution-model migration удалены.
 
 ## Review
 
-Провести отдельный architecture review:
-- ownership;
-- execution ordering;
-- service dependency chains;
-- event loops;
-- duplicate authority;
-- dead wrappers;
-- unnecessary abstractions.
+Проверить ownership, execution ordering, service chains, event loops, duplicate authority, dead wrappers и unnecessary abstractions.
 
-Каждый finding получает статус FIXED / ACCEPTED_WITH_REASON / OUT_OF_SCOPE_WITH_TASK.
+Каждый finding получает FIXED / ACCEPTED_WITH_REASON / OUT_OF_SCOPE_WITH_TASK.
 
 ## Gate
 
-Phase 3 нельзя начинать, пока Phase 2 не имеет стабильную зелёную архитектурную baseline. Иначе style pass создаст шум поверх ещё движущихся файлов.
+Это **не** разрешение начинать Code Style.
+
+После PASS продолжить [28 — vertical-domain layout](28_domain_layout_contract.md). Полный архитектурный gate находится в [49_core_architecture_acceptance.md](49_core_architecture_acceptance.md).
