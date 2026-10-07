@@ -134,6 +134,7 @@ static func register_package(target: Entity) -> PackageScanResult:
 	result.number = registration.number
 	result.message = "Зарегистрирована · №%03d" % registration.number
 	NpcDeliveryOfferService.refresh()
+	ECS.world.emit_event(PackageScanResult.EVENT, target, result)
 	return result
 
 

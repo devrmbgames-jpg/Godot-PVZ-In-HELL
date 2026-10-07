@@ -72,8 +72,25 @@ static func customer_next() -> DebugServiceResult:
 		if wallet != null and wallet.policy != null
 		else 0
 	)
-	CustomerFlowService.plan_day(flow, cycle.day_index, payment)
-	if not CustomerFlowService.spawn_next_due(flow, cycle):
+	var planning: CustomerPlanningRequest = CustomerPlanningRequest.new()
+	planning.flow = flow
+	planning.day_index = cycle.day_index
+	planning.payment = payment
+	var session: Entity = ECS.world.query.with_all([C_CustomerFlow, C_DayCycle]).execute_one()
+	ECS.world.emit_event(CustomerPlanningRequest.EVENT, session, planning)
+	if not planning.completed or not planning.rejection_reason.is_empty():
+		result.message = "customer planning is pending"
+		return result
+
+	var started: bool = false
+	if DistrictPopulationService.current() != null:
+		started = NpcServiceRole.enqueue_next(flow, cycle)
+	else:
+		var visit: CustomerVisit = CustomerFlowService.next_arrival(flow, cycle)
+		if visit != null:
+			CustomerFlowService.start_visit(flow, visit, cycle.day_index)
+			started = true
+	if not started:
 		result.message = "no due unstarted CustomerVisit"
 		return result
 

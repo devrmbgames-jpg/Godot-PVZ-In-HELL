@@ -86,7 +86,7 @@ func test_planned_shipments_share_lifetime_identity() -> void:
 		identity.supply_key = flow.schedule.supply.key
 		identity.delivery_day = day_index
 		CustomerFlowService.plan_delivered_package(identity)
-	CustomerFlowService.plan_day(flow, 2, 10)
+	CustomerFlowFixture.plan(flow, 2, 10)
 	var books: Array[CustomerVisit] = []
 	for visit: CustomerVisit in flow.visits:
 		if visit.package_id.ends_with(":books"):
@@ -137,6 +137,6 @@ func test_current_death_allows_another_recipient() -> void:
 func test_calendar_without_boxes_does_not_create_district_cases() -> void:
 	var flow: C_CustomerFlow = CustomerFlowService.current()
 	flow.schedule = DEF_CustomerSchedule.new()
-	CustomerFlowService.plan_day(flow, 20, 10)
+	CustomerFlowFixture.plan(flow, 20, 10)
 	assert_eq(flow.visits.size(), 0)
 #endregion

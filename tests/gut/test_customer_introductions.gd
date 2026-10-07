@@ -75,7 +75,7 @@ func _register_order() -> void:
 
 
 func _spawn() -> void:
-	assert_true(CustomerFlowService.spawn_next_due(_flow, _cycle))
+	assert_true(CustomerFlowFixture.spawn(_flow, _cycle))
 	_customer = CustomerFlowService.customer_for(_visit.visit_id)
 	assert_not_null(_customer)
 	(_customer as Node as RigidBody3D).freeze = true
@@ -115,7 +115,7 @@ func test_quick_spawn_announces_true_number_preserves_it_and_accepts_without_dia
 
 	var text: String = message.text
 	(_customer.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
-	CustomerFlowService.tick(_flow, _cycle, 0.0)
+	CustomerFlowFixture.advance(_flow, _cycle, 0.0)
 	CustomerFlowService.greet(_customer)
 	assert_eq(message.text, text)
 	assert_false(CustomerDialogueService.start(_actor, _customer))
@@ -146,12 +146,12 @@ func test_quick_pending_registration_announces_once_and_riddle_wall_profiles_kee
 	_spawn()
 	assert_false(_agent().order_announced)
 	_register_order()
-	CustomerFlowService.tick(_flow, _cycle, 0.0)
+	CustomerFlowFixture.advance(_flow, _cycle, 0.0)
 	assert_true(_agent().order_announced)
 
 	var message: Label3D = _customer.get_node("Message") as Label3D
 	message.text = "Другой результат"
-	CustomerFlowService.tick(_flow, _cycle, 0.0)
+	CustomerFlowFixture.advance(_flow, _cycle, 0.0)
 	assert_eq(message.text, "Другой результат", "Repeated ticks do not republish the bubble")
 	_visit.definition.dialogue_mode = DEF_Customer.DialogueMode.RIDDLE
 	assert_false(CustomerPresentation.uses_quick_order(_visit.definition))

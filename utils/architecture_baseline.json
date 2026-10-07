@@ -264,11 +264,11 @@
     {
       "rule": "system-service-step",
       "owner": "S_CustomerFlow",
-      "method": "process",
+      "method": "_advance",
       "target": "CustomerFlowService.tick",
       "count": 1,
-      "reason": "Customer planning/runtime orchestration; tasks 11-13",
-      "task": "11_customer_flow_planning.md",
+      "reason": "Active visit/outcome legacy slice only after task 11; removed by tasks 12/13",
+      "task": "12_customer_flow_runtime.md",
       "removal_gate": "26/27"
     },
     {

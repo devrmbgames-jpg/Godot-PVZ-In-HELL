@@ -306,7 +306,7 @@ func test_customer_spawn_activates_arrival_challenge_before_approach_and_dialogu
 	var scene: PackedScene = load("res://content/entities/stations/delivery_counter.tscn") as PackedScene
 	var station: E_DeliveryCounter = scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(station)
-	assert_true(CustomerFlowService.spawn_next_due(flow, cycle))
+	assert_true(CustomerFlowFixture.spawn(flow, cycle))
 
 	var customer: E_Customer = CustomerFlowService.customer_for(visit.visit_id)
 	assert_not_null(customer)

@@ -72,12 +72,12 @@ func _run() -> void:
 	_check(future.arrival_day > cycle.day_index, "authored delayed order is not due next morning")
 	var overdue: CustomerVisit = flow.visits[3]
 	var overdue_parcel: Entity = CustomerFlowService.parcel_for(overdue.package_id)
-	_check(CustomerFlowService.finalize_missed_unregistered(flow, cycle, wallet) == 2, "next morning records only unresolved unregistered due receipts")
+	_check(CustomerFlowFixture.morning(flow, cycle, wallet) == 2, "next morning records only unresolved unregistered due receipts")
 	_check(overdue.registration_overdue_day == 2 and future.registration_overdue_day == 0, "deadline follows authored order date")
 	_check(overdue.declaration == CustomerVisit.Declaration.NONE and overdue.actual == CustomerVisit.Actual.NOT_RESOLVED and not overdue.finished, "overdue is separate from declaration")
 	_check(CustomerFlowService.parcel_for(overdue.package_id) == overdue_parcel, "morning does not delete overdue box")
 	var balance_after_overdue: int = wallet.balance
-	_check(CustomerFlowService.finalize_missed_unregistered(flow, cycle, wallet) == 0, "morning retry has no new fact")
+	_check(CustomerFlowFixture.morning(flow, cycle, wallet) == 0, "morning retry has no new fact")
 	_check(wallet.balance == balance_after_overdue and wallet.operations.size() == 3, "morning retry has no duplicate fine")
 	_check(second.registration_overdue_day == 0, "registered box does not get overdue penalty")
 	print("District package receipts smoke: ", "FAIL" if _failed else "PASS")

@@ -250,20 +250,24 @@ func test_return_does_not_erase_valid_refusal_complaint() -> void:
 #region Старое расписание и копии записей
 ## Проверяет старое авторское расписание без районной сессии: повторное планирование и поздний визит.
 func test_schedule_is_idempotent_has_six_daily_challenge_profiles_and_ten_day_late_visit() -> void:
+	_world = World.new()
+	add_child(_world)
+	ECS.world = _world
+
 	var flow: C_CustomerFlow = C_CustomerFlow.new()
 	flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
-	CustomerFlowService.plan_day(flow, 1, 100)
-	CustomerFlowService.plan_day(flow, 1, 100)
+	CustomerFlowFixture.plan(flow, 1, 100)
+	CustomerFlowFixture.plan(flow, 1, 100)
 	assert_eq(flow.visits.size(), 8)
 	assert_eq(CustomerFlowService.remaining(flow, 1), 7)
 	assert_eq(flow.visits[3].arrival_day, 11)
 	assert_eq(flow.visits[3].package_id, "base_supply:1:equipment")
 	for day: int in range(1, 11):
-		CustomerFlowService.plan_day(flow, day, 100)
+		CustomerFlowFixture.plan(flow, day, 100)
 		for visit: CustomerVisit in flow.visits:
 			if visit.arrival_day <= day:
 				visit.finished = true
-	CustomerFlowService.plan_day(flow, 11, 100)
+	CustomerFlowFixture.plan(flow, 11, 100)
 	assert_eq(CustomerFlowService.remaining(flow, 11), 8)
 
 	var gaze_visits: int = 0
@@ -364,7 +368,7 @@ func test_disappeared_customer_finishes_event_without_releasing_package_number()
 	record.package_id = visit.package_id
 	record.number = 1
 	PackageRegistrationService.ledger().records.append(record)
-	CustomerFlowService.tick(CustomerFlowService.current(), DayPhaseService.current(), 0.0)
+	CustomerFlowFixture.advance(CustomerFlowService.current(), DayPhaseService.current(), 0.0)
 	assert_true(visit.finished)
 	assert_eq(DayPhaseService.current().remaining_customer_events, 0)
 	assert_true(record.active)
@@ -392,7 +396,7 @@ func test_player_caused_death_finishes_live_event_and_records_attribution() -> v
 	death.cause.request = DamageRequest.new()
 	death.cause.request.instigator = actor
 	customer.add_component(death)
-	CustomerFlowService.tick(CustomerFlowService.current(), DayPhaseService.current(), 0.0)
+	CustomerFlowFixture.advance(CustomerFlowService.current(), DayPhaseService.current(), 0.0)
 	assert_true(visit.finished)
 	assert_true(visit.defeated_by_player)
 	assert_true(visit.customer_dead)
@@ -444,7 +448,7 @@ func test_next_morning_records_overdue_without_automatic_loss_or_removal_once() 
 	cycle.phase = C_DayCycle.Phase.MORNING
 	var wallet: C_Wallet = WalletService.current()
 
-	assert_eq(CustomerFlowService.finalize_missed_unregistered(CustomerFlowService.current(), cycle, wallet), 1)
+	assert_eq(CustomerFlowFixture.morning(CustomerFlowService.current(), cycle, wallet), 1)
 	assert_false(visit.started)
 	assert_false(visit.finished)
 	assert_eq(visit.declaration, CustomerVisit.Declaration.NONE)
@@ -458,7 +462,7 @@ func test_next_morning_records_overdue_without_automatic_loss_or_removal_once() 
 	assert_eq(wallet.balance, -300)
 	assert_eq(wallet.operations[0].reason, MoneyOperation.Reason.MISSED_REGISTRATION)
 	assert_eq(CustomerFlowService.parcel_for(visit.package_id), parcel)
-	assert_eq(CustomerFlowService.finalize_missed_unregistered(CustomerFlowService.current(), cycle, wallet), 0)
+	assert_eq(CustomerFlowFixture.morning(CustomerFlowService.current(), cycle, wallet), 0)
 	assert_eq(wallet.operations.size(), 1)
 
 
@@ -484,7 +488,7 @@ func test_next_morning_keeps_registered_or_other_purpose_visit() -> void:
 	cycle.day_index = 2
 	cycle.phase = C_DayCycle.Phase.MORNING
 	assert_eq(
-		CustomerFlowService.finalize_missed_unregistered(
+		CustomerFlowFixture.morning(
 			CustomerFlowService.current(),
 			cycle,
 			WalletService.current(),
@@ -525,8 +529,8 @@ func test_explicit_come_back_tomorrow_skips_complaint_and_reactivates_exactly_ne
 	assert_true(visit.followup_committed)
 
 	var flow: C_CustomerFlow = CustomerFlowService.current()
-	assert_eq(CustomerFlowService.reactivate_due_followups(flow, 1), 0)
-	assert_eq(CustomerFlowService.reactivate_due_followups(flow, 2), 1)
+	assert_eq(CustomerFlowFixture.reactivate(flow, 1), 0)
+	assert_eq(CustomerFlowFixture.reactivate(flow, 2), 1)
 	assert_false(visit.finished)
 	assert_false(visit.started)
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
@@ -558,8 +562,8 @@ func test_unresolved_case_can_schedule_and_reactivate_followup() -> void:
 	assert_eq(visit.followup_count, 1)
 	assert_true(is_instance_valid(parcel))
 
-	assert_eq(CustomerFlowService.reactivate_due_followups(CustomerFlowService.current(), 1), 0)
-	assert_eq(CustomerFlowService.reactivate_due_followups(CustomerFlowService.current(), 2), 1)
+	assert_eq(CustomerFlowFixture.reactivate(CustomerFlowService.current(), 1), 0)
+	assert_eq(CustomerFlowFixture.reactivate(CustomerFlowService.current(), 2), 1)
 	assert_false(visit.started)
 	assert_false(visit.finished)
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
@@ -584,7 +588,7 @@ func test_terminal_declaration_blocks_pending_followup_without_changing_actual()
 	assert_eq(visit.next_followup_day, 2)
 	assert_true(CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.TAKEN))
 	assert_eq(visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
-	assert_eq(CustomerFlowService.reactivate_due_followups(CustomerFlowService.current(), 2), 0)
+	assert_eq(CustomerFlowFixture.reactivate(CustomerFlowService.current(), 2), 0)
 	assert_true(visit.finished)
 
 

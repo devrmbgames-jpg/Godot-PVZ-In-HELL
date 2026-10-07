@@ -171,6 +171,11 @@ All five boundaries need a bounded trace provider with origin/target stable IDs,
 
 ### 11 / 12 / 13 — three CustomerFlow responsibilities
 
+**11.A/11.B DONE** (2026-10-08): O_CustomerPlanning + typed day/registration/bootstrap boundaries;
+S_CustomerFlow owns arrival clock/history/selection dispatch. Removed old planning/spawn APIs.
+Reusable one-visit creation/materialization and next-arrival lookup remain explicit Service contracts.
+12/13 active/outcome slices and the full CustomerFlowService inventory row remain pending.
+
 | Slice | Responsibility / target | Before → after ordering and removal | Existing regression |
 | --- | --- | --- | --- |
 | 11.A | plan_day, delivered-package planning, Morning history/missed-registration/followup reconciliation → explicit day/bootstrap reaction | S_CustomerFlow whole deferred tick before DayPhase/NpcIntent → one reaction plus arrival owner. Remove migrated planning from tick; active visit progression belongs to 12. | test_customer_flow.gd, test_package_receipts_loss.gd, test_shift_completion.gd |

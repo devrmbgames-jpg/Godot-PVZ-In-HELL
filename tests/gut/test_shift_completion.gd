@@ -21,7 +21,7 @@ func before_each() -> void:
 	_flow = _owner.get_component(C_CustomerFlow) as C_CustomerFlow
 	_cycle.phase = C_DayCycle.Phase.DAY
 	_system = S_DayPhase.new()
-	_world.add_child(_system)
+	_world.add_system(_system)
 
 
 ## Освобождает систему вместе с World и сбрасывает ECS.world.

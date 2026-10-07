@@ -44,3 +44,15 @@ not persistent idempotency keys. Entries authorize no effects and are excluded f
 Provider fixtures live in task 40; the read-only debugger presentation belongs to task 48.
 Execution dispatcher removal remains with tasks 11–25, contract relocation with task 28 and
 dependency enforcement with task 33. There is no global dispatcher or wildcard subscription.
+
+## Customer planning execution owner (task 11)
+
+O_CustomerPlanning is the sole handler of CustomerPlanningRequest (discrete planning/reconciliation).
+A completion receipt is pending until its actual buffer flush; stale runtime session/day may reject
+with rejection_reason. DayPhaseChanged is an immutable committed phase snapshot, also used to bootstrap
+the authored/restored current phase. PackageScanResult.EVENT follows actual registered state and
+releases due followups in the same day. S_CustomerFlow owns recurring arrival timing/history/count
+and submits one selected materialization command; it retains no second planning path.
+
+Planning cache is transient, rebuilt at bootstrap and invalidated by current-format restore.
+Active visits/outcomes remain their explicit unfinished slices 12/13; district enqueue belongs to 16.

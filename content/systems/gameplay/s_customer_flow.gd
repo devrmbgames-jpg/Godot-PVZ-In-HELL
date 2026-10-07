@@ -1,21 +1,60 @@
 extends System
-## Планирует обслуживание через CustomerFlowService до фаз и исполнения навигационных намерений.
+## Owns arrival scheduling and history reconciliation; active visit migration follows in 12/13.
 class_name S_CustomerFlow
 
-
-## Обновляет обслуживание до S_DayPhase и исполнения S_NpcIntent.
+#region Scheduling
+## Arrivals commit before phase gates and navigation consume their state.
 func deps() -> Dictionary[int, Array]:
-	return { Runs.Before: [S_DayPhase, S_NpcIntent] }
+	return {Runs.Before: [S_DayPhase, S_NpcIntent]}
 
 
-## Выбирает сессию обслуживания вместе с её циклом дня.
+## Selects the authoritative visit/day session.
 func query() -> QueryBuilder:
-	return q.with_all([C_CustomerFlow, C_DayCycle]).iterate([C_CustomerFlow, C_DayCycle])
+	return q.with_all([C_CustomerFlow, C_DayCycle])
 
 
-## Ставит шаг CustomerFlowService в CommandBuffer; delta задаётся в секундах.
-func process(_entities: Array[Entity], components: Array, delta: float) -> void:
-	var flows: Array = components[0]
-	var cycles: Array = components[1]
-	for index: int in flows.size():
-		cmd.add_custom(CustomerFlowService.tick.bind(flows[index], cycles[index], delta))
+## Queues the complete arrival step at this System's concrete buffer boundary.
+func process(entities: Array[Entity], _components: Array, delta: float) -> void:
+	for session: Entity in entities:
+		cmd.add_custom(_advance.bind(session, delta))
+
+
+func _advance(session: Entity, delta: float) -> void:
+	if not EntityAvailability.contains(session, _world):
+		return
+	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
+	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+
+	# Bootstrap/load and missed authored transitions reconcile once, never each frame.
+	if flow.planning_day != cycle.day_index or flow.planning_phase != int(cycle.phase):
+		_world.emit_event(DayPhaseChanged.EVENT, session, DayPhaseChanged.from_cycle(cycle))
+		if flow.planning_day != cycle.day_index or flow.planning_phase != int(cycle.phase):
+			return
+	if cycle.phase == C_DayCycle.Phase.MORNING:
+		flow.arrival_cooldown_seconds = 0.0
+	elif is_finite(delta) and delta >= 0.0:
+		flow.arrival_cooldown_seconds = maxf(0.0, flow.arrival_cooldown_seconds - delta)
+
+	_sync_history(flow)
+	CustomerFlowService.tick(flow, cycle, delta)
+	cycle.remaining_customer_events = CustomerFlowService.actionable_remaining(flow, cycle.day_index)
+
+	if DistrictPopulationService.current() != null:
+		# District queue selection belongs to task 16, not isolated appearance materialization.
+		NpcServiceRole.enqueue_next(flow, cycle)
+	else:
+		var visit: CustomerVisit = CustomerFlowService.next_arrival(flow, cycle)
+		if visit != null:
+			CustomerFlowService.start_visit(flow, visit, cycle.day_index)
+#endregion
+
+#region Derived package identity
+func _sync_history(flow: C_CustomerFlow) -> void:
+	for visit: CustomerVisit in flow.visits:
+		if not visit.package_history_id.is_empty():
+			continue
+		var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
+		if parcel != null:
+			var identity: C_Package = parcel.get_component(C_Package) as C_Package
+			visit.package_history_id = identity.history_id
+#endregion

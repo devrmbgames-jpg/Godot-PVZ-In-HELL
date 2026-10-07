@@ -10,3 +10,8 @@ class_name C_CustomerFlow
 @export var visits: Array[CustomerVisit] = []
 ## Временная пауза до следующего визита, в секундах; утром сбрасывается, не сохраняется.
 var arrival_cooldown_seconds: float = 0.0
+
+## Derived bootstrap/day cache: O_CustomerPlanning writes it; restore invalidates, codecs exclude it.
+var planning_day: int = 0
+## Last consumed committed phase; -1 requests preparation after materialization/load.
+var planning_phase: int = -1

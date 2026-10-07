@@ -213,7 +213,7 @@ func test_customer_remains_survive_visit_and_challenge_cleanup() -> void:
 	(npc.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id = visit.visit_id
 	_damage(npc, 200.0)
 	assert_eq(_drops().size(), 3)
-	CustomerFlowService.tick(flow, cycle, 0.1)
+	CustomerFlowFixture.advance(flow, cycle, 0.1)
 	assert_null(CustomerFlowService.customer_for(visit.visit_id))
 	assert_true(visit.customer_dead)
 	assert_true(visit.defeated_by_player)

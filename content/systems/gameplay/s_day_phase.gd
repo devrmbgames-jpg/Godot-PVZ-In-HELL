@@ -31,7 +31,7 @@ func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 				cycle.phase = C_DayCycle.Phase.MORNING
 				cycle.pending_transition = null
 				morning_started.emit(cycle.day_index)
-				phase_changed.emit(cycle.day_index, cycle.phase)
+				_publish_phase(_entities[index], cycle)
 			continue
 
 		var request: DayTransitionRequest = cycle.pending_transition
@@ -46,7 +46,7 @@ func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 
 		match request.kind:
 			DayTransitionRequest.Kind.START_SHIFT:
-				cmd.add_custom(_commit_start_shift.bind(cycle, request))
+				cmd.add_custom(_commit_start_shift.bind(_entities[index], cycle, request))
 				continue
 			DayTransitionRequest.Kind.FINISH_SHIFT:
 				cycle.phase = C_DayCycle.Phase.EVENING
@@ -54,13 +54,17 @@ func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 				cycle.phase = C_DayCycle.Phase.NIGHT
 				cycle.night_ready = not _entities[index].has_component(C_Autosave)
 				night_started.emit(cycle.day_index)
-		phase_changed.emit(cycle.day_index, cycle.phase)
+		_publish_phase(_entities[index], cycle)
 
 #endregion
 
 
 #region Безопасная фиксация утренней команды
-func _commit_start_shift(cycle: C_DayCycle, request: DayTransitionRequest) -> void:
+func _commit_start_shift(
+	session: Entity, cycle: C_DayCycle, request: DayTransitionRequest,
+) -> void:
+	if not EntityAvailability.contains(session, _world):
+		return
 	if cycle.day_index != request.expected_day or cycle.phase != request.expected_phase:
 		return
 	if not DayPhaseService.permits(cycle, request.kind) or not ReceivingShiftService.commit_departure(cycle):
@@ -68,5 +72,11 @@ func _commit_start_shift(cycle: C_DayCycle, request: DayTransitionRequest) -> vo
 
 	cycle.shift_elapsed_seconds = 0.0
 	cycle.phase = C_DayCycle.Phase.DAY
+	_publish_phase(session, cycle)
+#endregion
+
+#region Committed phase notification
+func _publish_phase(session: Entity, cycle: C_DayCycle) -> void:
+	_world.emit_event(DayPhaseChanged.EVENT, session, DayPhaseChanged.from_cycle(cycle))
 	phase_changed.emit(cycle.day_index, cycle.phase)
 #endregion

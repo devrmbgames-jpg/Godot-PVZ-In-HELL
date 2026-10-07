@@ -67,11 +67,11 @@ func test_legacy_short_departure_cannot_remove_customer_before_three_minutes() -
 	var visit: CustomerVisit = _visit(&"blocked-exit")
 	visit.definition.leaving_seconds = 2.0
 	var customer: E_Customer = _leaving_customer(visit)
-	CustomerFlowService.tick(_flow, _cycle, 180.0)
+	CustomerFlowFixture.advance(_flow, _cycle, 180.0)
 	assert_eq(CustomerFlowService.customer_for(visit.visit_id), customer)
 	assert_false(visit.finished)
 	assert_eq(_flow.arrival_cooldown_seconds, 0.0)
-	CustomerFlowService.tick(_flow, _cycle, 1.0)
+	CustomerFlowFixture.advance(_flow, _cycle, 1.0)
 	assert_null(CustomerFlowService.customer_for(visit.visit_id))
 	assert_true(visit.finished)
 	assert_eq(_flow.arrival_cooldown_seconds, 30.0)
@@ -82,7 +82,7 @@ func test_arriving_at_exit_finishes_immediately_and_starts_gap_once() -> void:
 	var visit: CustomerVisit = _visit(&"exit-arrived")
 	var customer: E_Customer = _leaving_customer(visit)
 	(customer.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
-	CustomerFlowService.tick(_flow, _cycle, 0.1)
+	CustomerFlowFixture.advance(_flow, _cycle, 0.1)
 	assert_null(CustomerFlowService.customer_for(visit.visit_id))
 	assert_true(visit.finished)
 	_flow.arrival_cooldown_seconds = 7.0
@@ -96,14 +96,14 @@ func test_next_eligible_customer_waits_for_configured_gap_after_previous_departu
 	var previous: CustomerVisit = _visit(&"previous")
 	var customer: E_Customer = _leaving_customer(previous)
 	var next: CustomerVisit = _visit(&"next")
-	assert_false(CustomerFlowService.spawn_next_due(_flow, _cycle), "Leaving NPC still occupies the visit slot")
+	assert_false(CustomerFlowFixture.spawn(_flow, _cycle), "Leaving NPC still occupies the visit slot")
 	(customer.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
-	CustomerFlowService.tick(_flow, _cycle, 0.1)
+	CustomerFlowFixture.advance(_flow, _cycle, 0.1)
 	assert_false(next.started)
-	CustomerFlowService.tick(_flow, _cycle, 44.0)
+	CustomerFlowFixture.advance(_flow, _cycle, 44.0)
 	assert_false(next.started)
 	assert_string_contains(CustomerDebugPresentation.summary(), "Пауза до следующего: 1 с")
-	CustomerFlowService.tick(_flow, _cycle, 1.0)
+	CustomerFlowFixture.advance(_flow, _cycle, 1.0)
 	assert_true(next.started)
 	assert_not_null(CustomerFlowService.customer_for(next.visit_id))
 	assert_eq(next.visit_count, 1)
@@ -112,11 +112,11 @@ func test_next_eligible_customer_waits_for_configured_gap_after_previous_departu
 ## Первый визит доступен сразу; утро очищает паузу предыдущего дня.
 func test_first_customer_and_morning_are_not_delayed_by_previous_day_gap() -> void:
 	var first: CustomerVisit = _visit(&"first")
-	assert_true(CustomerFlowService.spawn_next_due(_flow, _cycle))
+	assert_true(CustomerFlowFixture.spawn(_flow, _cycle))
 	assert_not_null(CustomerFlowService.customer_for(first.visit_id))
 	_flow.arrival_cooldown_seconds = 30.0
 	_cycle.phase = C_DayCycle.Phase.MORNING
-	CustomerFlowService.tick(_flow, _cycle, 0.0)
+	CustomerFlowFixture.advance(_flow, _cycle, 0.0)
 	assert_eq(_flow.arrival_cooldown_seconds, 0.0)
 
 
@@ -129,12 +129,12 @@ func test_single_live_customer_blocks_queue_and_debug_even_after_accounting_fini
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	for phase: C_CustomerAgent.Phase in [C_CustomerAgent.Phase.RECEIVING, C_CustomerAgent.Phase.GOING_TO_BOOTH, C_CustomerAgent.Phase.INSPECTING, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH, C_CustomerAgent.Phase.AGGRESSIVE, C_CustomerAgent.Phase.LEAVING]:
 		agent.phase = phase
-		assert_false(CustomerFlowService.spawn_next_due(_flow, _cycle))
+		assert_false(CustomerFlowFixture.spawn(_flow, _cycle))
 		assert_false(DebugWorldService.customer_next().success)
 		assert_false(queued.started)
 		assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 1)
 	_world.remove_entity(customer)
-	assert_true(CustomerFlowService.spawn_next_due(_flow, _cycle))
+	assert_true(CustomerFlowFixture.spawn(_flow, _cycle))
 	assert_true(queued.started)
 	assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 1)
 
@@ -146,7 +146,7 @@ func test_unspawned_visit_completion_does_not_add_artificial_delay() -> void:
 	assert_true(missed.finished)
 	assert_eq(_flow.arrival_cooldown_seconds, 0.0)
 	var next: CustomerVisit = _visit(&"first-real")
-	assert_true(CustomerFlowService.spawn_next_due(_flow, _cycle))
+	assert_true(CustomerFlowFixture.spawn(_flow, _cycle))
 	assert_true(next.started)
 	assert_eq(missed.visit_count, 0, "Already finished unspawned visits cannot spawn again")
 
@@ -187,8 +187,8 @@ func test_two_arrival_requests_in_one_command_batch_spawn_only_one_customer() ->
 	var first: CustomerVisit = _visit(&"batch-first")
 	var second: CustomerVisit = _visit(&"batch-second")
 	var commands: CommandBuffer = CommandBuffer.new(_world)
-	commands.add_custom(func() -> void: CustomerFlowService.spawn_next_due(_flow, _cycle))
-	commands.add_custom(func() -> void: CustomerFlowService.spawn_next_due(_flow, _cycle))
+	commands.add_custom(func() -> void: CustomerFlowFixture.spawn(_flow, _cycle))
+	commands.add_custom(func() -> void: CustomerFlowFixture.spawn(_flow, _cycle))
 	commands.execute()
 	assert_true(first.started)
 	assert_false(second.started, "A newly created customer blocks the next request before query-cache invalidation")
@@ -200,11 +200,11 @@ func test_repeated_flow_ticks_in_one_batch_keep_first_visit_and_next_queued() ->
 	var first: CustomerVisit = _visit(&"tick-first")
 	var second: CustomerVisit = _visit(&"tick-second")
 	var commands: CommandBuffer = CommandBuffer.new(_world)
-	commands.add_custom(CustomerFlowService.tick.bind(_flow, _cycle, 0.0))
+	commands.add_custom(CustomerFlowFixture.advance.bind(_flow, _cycle, 0.0))
 	commands.add_custom(func() -> void:
 		assert_not_null(CustomerFlowService.customer_for(first.visit_id), "Registered customer is visible before cache invalidation")
 	)
-	commands.add_custom(CustomerFlowService.tick.bind(_flow, _cycle, 0.0))
+	commands.add_custom(CustomerFlowFixture.advance.bind(_flow, _cycle, 0.0))
 	commands.execute()
 	assert_true(first.started)
 	assert_false(first.finished, "Cache delay must not finish a physically present visit")

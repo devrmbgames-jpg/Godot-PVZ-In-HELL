@@ -90,28 +90,6 @@ static func waiting_customer() -> E_Customer:
 #endregion
 
 #region Планирование и сверка заказов
-## В районе заказы добавляет реальная поставка; старые изолированные сцены используют календарь.
-static func plan_day(flow: C_CustomerFlow, day: int, payment: int) -> void:
-	var schedule: DEF_CustomerSchedule = flow.schedule
-	if schedule == null or schedule.supply == null:
-		return
-
-	if DistrictPopulationService.current() != null:
-		flow.planned_through_day = maxi(flow.planned_through_day, day)
-		return
-
-	while flow.planned_through_day < day:
-		flow.planned_through_day += 1
-		var supply_day: int = flow.planned_through_day
-		for event: DEF_CustomerEvent in schedule.events:
-			if event.arrival_delay_days < 0 or event.customer == null:
-				continue
-
-			for definition: DEF_Package in schedule.supply.packages:
-				if definition.key != event.package_key:
-					continue
-
-				_plan_package(flow, definition, event, supply_day, payment)
 
 
 ## Фиксирует визит для реально привезённой коробки, без повторного заказа при повторе команды.
@@ -124,11 +102,20 @@ static func plan_delivered_package(identity: C_Package) -> CustomerVisit:
 	var payment: int = wallet.policy.delivery_payment if wallet != null and wallet.policy != null else 0
 	for event: DEF_CustomerEvent in flow.schedule.events:
 		if event.package_key == identity.definition.key and event.customer != null and event.arrival_delay_days >= 0:
-			return _plan_package(flow, identity.definition, event, identity.delivery_day, payment)
+			var visit: CustomerVisit = create_visit(
+				flow, identity.definition, event, identity.delivery_day, payment
+			)
+			if visit != null:
+				visit.package_history_id = identity.history_id
+			return visit
 	return null
 
 
-static func _plan_package(flow: C_CustomerFlow, definition: DEF_Package, event: DEF_CustomerEvent, supply_day: int, payment: int) -> CustomerVisit:
+## Creates one idempotent visit for an explicit supplied package/event pair.
+static func create_visit(
+	flow: C_CustomerFlow, definition: DEF_Package, event: DEF_CustomerEvent,
+	supply_day: int, payment: int,
+) -> CustomerVisit:
 	var package_id: String = "%s:%d:%s" % [flow.schedule.supply.key, supply_day, definition.key]
 	var visit_id: StringName = StringName("visit/" + package_id)
 	for existing: CustomerVisit in flow.visits:
@@ -194,95 +181,19 @@ static func arrival_allowed(visit: CustomerVisit) -> bool:
 	return ledger != null and _has_active_registration_record(ledger, visit.package_id)
 
 
-## Записывает реальные предшествующие повреждение и вскрытие в историю заказа однократно.
-static func sync_package_history(flow: C_CustomerFlow) -> void:
-	if flow == null:
-		return
-
-	for visit: CustomerVisit in flow.visits:
-		if not visit.package_history_id.is_empty():
-			continue
-
-		var parcel: Entity = parcel_for(visit.package_id)
-		if parcel == null:
-			continue
-
-		var identity: C_Package = parcel.get_component(C_Package) as C_Package
-		if identity != null:
-			visit.package_history_id = identity.history_id
-
-
-## Продвигает поток и расчёты; delta и пауза прихода измеряются в секундах.
+## Advances active visits/outcomes only until their owner migrations in tasks 12 and 13.
 static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
-	if cycle.phase == C_DayCycle.Phase.MORNING:
-		flow.arrival_cooldown_seconds = 0.0
-	elif is_finite(delta) and delta >= 0.0:
-		flow.arrival_cooldown_seconds = maxf(0.0, flow.arrival_cooldown_seconds - delta)
+	# Active visits/outcomes remain the legacy owner until tasks 12 and 13.
 	var wallet: C_Wallet = WalletService.current()
-	var payment: int = wallet.policy.delivery_payment if wallet != null and wallet.policy != null else 0
-	plan_day(flow, cycle.day_index, payment)
-	sync_package_history(flow)
-	if cycle.phase == C_DayCycle.Phase.MORNING:
-		finalize_missed_unregistered(flow, cycle, wallet)
-	reactivate_due_followups(flow, cycle.day_index)
 	for visit: CustomerVisit in flow.visits:
 		_settle_visit(visit, wallet, cycle.day_index)
 		CustomerOutcomeService.resolve_complaint(visit, wallet, cycle.day_index)
 		if visit.started and not visit.finished and customer_for(visit.visit_id) == null:
 			finish(visit, cycle.day_index)
+
 	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		if not customer.has_component(C_NpcIdentity):
 			_step(customer as E_Customer, cycle, delta)
-	cycle.remaining_customer_events = actionable_remaining(flow, cycle.day_index)
-	spawn_next_due(flow, cycle)
-
-
-## Утренняя сверка фиксирует просрочку без LOST, удаления коробки или закрытия заказа.
-static func finalize_missed_unregistered(
-	flow: C_CustomerFlow,
-	cycle: C_DayCycle,
-	wallet: C_Wallet,
-) -> int:
-	if (
-		flow == null
-		or cycle == null
-		or cycle.phase != C_DayCycle.Phase.MORNING
-		or cycle.day_index <= 1
-	):
-		return 0
-
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
-	if ledger == null:
-		return 0
-
-	var overdue_count: int = 0
-	for visit: CustomerVisit in flow.visits:
-		if (
-			not visit.requires_registered_package
-			or visit.arrival_day >= cycle.day_index
-			or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
-			or visit.declaration != CustomerVisit.Declaration.NONE
-			or (visit.registration_overdue_day > 0 and visit.registration_penalty_committed)
-		):
-			continue
-		var record: PackageRegistrationRecord = PackageHistoryService.record_for(visit.package_id, ledger)
-		if record == null or (record.active and record.number > 0):
-			continue
-
-		var parcel: Entity = parcel_for(visit.package_id)
-		if parcel != null:
-			var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
-			if state == null or state.registration != C_PackageState.Registration.UNREGISTERED:
-				continue
-
-			var identity: C_Package = parcel.get_component(C_Package) as C_Package
-			if identity != null and visit.package_history_id.is_empty():
-				visit.package_history_id = identity.history_id
-
-		if CustomerOutcomeService.mark_registration_overdue(visit, cycle.day_index):
-			overdue_count += 1
-		CustomerOutcomeService.settle_registration_overdue(visit, wallet, cycle.day_index)
-	return overdue_count
 
 
 static func _has_active_registration_record(
@@ -298,32 +209,25 @@ static func _has_active_registration_record(
 #endregion
 
 #region Приход и исполнение роли
-## Назначает очередного получателя района либо создаёт клиента изолированной сцены.
-static func spawn_next_due(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
-	if flow == null or cycle == null or not is_instance_valid(ECS.world):
-		return false
-	if DistrictPopulationService.current() != null:
-		return NpcServiceRole.enqueue_next(flow, cycle)
+## Looks up the next isolated arrival without mutating queue, visit or physical state.
+static func next_arrival(flow: C_CustomerFlow, cycle: C_DayCycle) -> CustomerVisit:
 	if cycle.phase != C_DayCycle.Phase.DAY or flow.arrival_cooldown_seconds > 0.0:
-		return false
-	# Внутри CommandBuffer query ещё может быть пустым после появления первого клиента.
+		return null
+
+	# Registered entities are authoritative before CommandBuffer query-cache invalidation.
 	for customer: Entity in ECS.world.entities:
 		if is_instance_valid(customer) and customer.has_component(C_CustomerAgent):
-			return false
+			return null
 
 	for visit: CustomerVisit in flow.visits:
-		if (
-			not visit.started
-			and not visit.finished
-			and visit.arrival_day <= cycle.day_index
-			and arrival_allowed(visit)
-		):
-			_spawn(flow, visit, cycle.day_index)
-			return true
-	return false
+		if not visit.started and not visit.finished and visit.arrival_day <= cycle.day_index:
+			if arrival_allowed(visit):
+				return visit
+	return null
 
 
-static func _spawn(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void:
+## Materializes one selected isolated visit; scheduling and selection belong to its caller.
+static func start_visit(flow: C_CustomerFlow, visit: CustomerVisit, day: int) -> void:
 	var station: E_DeliveryCounter = counter()
 	var scene: PackedScene = flow.schedule.customer_scene
 	if not visit.definition.customer_scene_path.is_empty():
@@ -953,36 +857,6 @@ static func schedule_followup(visit: CustomerVisit, day: int) -> bool:
 	visit.next_followup_day = day + maxi(1, visit.definition.followup_delay_days)
 	visit.followup_committed = true
 	return true
-
-
-## Возобновляет созревшие повторы того же заказа; возвращает число возобновлённых визитов.
-static func reactivate_due_followups(flow: C_CustomerFlow, day: int) -> int:
-	if flow == null:
-		return 0
-
-	var reactivated: int = 0
-	for visit: CustomerVisit in flow.visits:
-		if (
-			not visit.finished
-			or visit.next_followup_day <= 0
-			or visit.next_followup_day > day
-			or visit.declaration != CustomerVisit.Declaration.NONE
-			or visit.complaint != null
-			or visit.customer_dead
-		):
-			continue
-		if visit.requires_registered_package and not arrival_allowed(visit):
-			continue
-
-		visit.started = false
-		visit.finished = false
-		visit.finished_day = 0
-		visit.next_followup_day = 0
-		visit.followup_committed = false
-		visit.actual = CustomerVisit.Actual.NOT_RESOLVED
-		visit.aggressive = false
-		reactivated += 1
-	return reactivated
 
 
 ## Запрашивает обычный уход; дерево NPC выбирает момент этого действия.

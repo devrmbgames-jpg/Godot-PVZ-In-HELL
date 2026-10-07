@@ -271,7 +271,7 @@ func test_declining_authored_trap_preserves_normal_collection() -> void:
 	NpcHomeDeliveryService.finish_evening(1)
 	assert_true(person.memories.is_empty())
 	assert_eq(WalletService.current().operations.size(), 0)
-	assert_eq(CustomerFlowService.reactivate_due_followups(CustomerFlowService.current(), visit.next_followup_day), 1)
+	assert_eq(CustomerFlowFixture.reactivate(CustomerFlowService.current(), visit.next_followup_day), 1)
 	assert_false(visit.finished)
 
 ## Дерево ждёт невидимого/далёкого игрока; повторный стук и прямой приём не обходят сценарий.

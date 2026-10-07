@@ -75,6 +75,27 @@ func after_each() -> void:
 #endregion
 
 #region Восстановление мира и проверка снимка
+## Current-format in-place restore clears transient planning state and rebuilds it once.
+func test_restore_rebuilds_customer_planning_cache_without_serializing_it() -> void:
+	_session.add_component(C_CustomerFlow.new())
+	var flow: C_CustomerFlow = _session.get_component(C_CustomerFlow) as C_CustomerFlow
+	flow.planning_day = 2
+	flow.planning_phase = int(C_DayCycle.Phase.DAY)
+	flow.arrival_cooldown_seconds = 17.0
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(flow.planning_day, 0)
+	assert_eq(flow.planning_phase, -1)
+	assert_eq(flow.arrival_cooldown_seconds, 0.0)
+
+	CustomerFlowFixture.advance(flow, DayPhaseService.current(), 0.0)
+	assert_eq(flow.planning_day, 2)
+	assert_eq(flow.planning_phase, int(C_DayCycle.Phase.MORNING))
+	var encoded: Dictionary = SaveDataCodec.component_data(flow)
+	assert_false((encoded.fields as Dictionary).has("planning_day"))
+	assert_false((encoded.fields as Dictionary).has("planning_phase"))
+
+
 ## Долг, ID и владение предметом переживают запись и повторную загрузку без дубликатов.
 func test_negative_wallet_and_owned_inventory_survive_snapshot_and_repeated_restore() -> void:
 	var wallet: C_Wallet = _session.get_component(C_Wallet) as C_Wallet

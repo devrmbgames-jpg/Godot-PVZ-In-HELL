@@ -15,6 +15,7 @@ func _ready() -> void:
 	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
 	var day_session: Entity = world.query.with_all([C_DayCycle]).execute_one()
 	day_session.add_component(C_BoundaryTrace.new())
+	world.add_observer(O_CustomerPlanning.new())
 	world.add_system(S_LootDrops.new(), true)
 	_bind_furniture_delivery()
 	DistrictPopulationService.initialize()

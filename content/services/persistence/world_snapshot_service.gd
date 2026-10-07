@@ -314,6 +314,12 @@ static func restore(data: Dictionary, root: Node) -> bool:
 				target = script.new() as Component
 				entity.add_component(target)
 			SaveDataCodec.apply_fields(target, component.fields as Dictionary)
+			if target is C_CustomerFlow:
+				# Rebuild day/phase preparation from restored authority, including in-place loads.
+				var flow: C_CustomerFlow = target as C_CustomerFlow
+				flow.planning_day = 0
+				flow.planning_phase = -1
+				flow.arrival_cooldown_seconds = 0.0
 			if target is C_Package:
 				(target as C_Package).condition_initialized = true
 			if target is C_LootDrops:

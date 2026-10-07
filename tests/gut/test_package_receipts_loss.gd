@@ -59,7 +59,7 @@ func _parcel(package_id: String = "receipt") -> Entity:
 func _next_morning(day_index: int = 2) -> int:
 	_cycle.day_index = day_index
 	_cycle.phase = C_DayCycle.Phase.MORNING
-	return CustomerFlowService.finalize_missed_unregistered(_flow, _cycle, _wallet)
+	return CustomerFlowFixture.morning(_flow, _cycle, _wallet)
 #endregion
 
 #region Поступление и сканирование
@@ -224,7 +224,7 @@ func test_overdue_penalty_retries_without_repeating_fact_when_wallet_becomes_ava
 	var parcel: Entity = _parcel()
 	PackageHistoryService.record_arrival(parcel, 1)
 	_cycle.day_index = 2
-	assert_eq(CustomerFlowService.finalize_missed_unregistered(_flow, _cycle, null), 1)
+	assert_eq(CustomerFlowFixture.morning(_flow, _cycle, null), 1)
 	assert_false(_visit.registration_penalty_committed)
 	PackageRegistrationService.register_package(parcel)
 	_cycle.day_index = 3

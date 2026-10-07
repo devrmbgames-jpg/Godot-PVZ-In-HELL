@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 
-Next task: `11_customer_flow_planning.md`
+Next task: `12_customer_flow_runtime.md`
 
 Рабочая ветка Phase 0: `dev`. Историческая подготовка: `chore/gdscript-human-first-style`; это не требование checkout.
 
@@ -144,7 +144,7 @@ Phase 1 **DONE**: задачи 01–03 завершены 2026-10-07, 04 — 202
 
 Повторный Phase 0 pass завершён 2026-10-07 строго последовательно, с отдельным coherent commit каждой 00_задачи. Final full review [00_05](00_05_preflight_readiness_gate.md): **READY_FOR_IMPLEMENTATION**. Этот исторический gate разрешил Phase 1; его preflight pass завершён до реализации 01.
 
-Phase 2A начата 2026-10-08: [10 — service inventory](10_service_inventory.md) **DONE**, static coverage 136/136; [полная классификация и bounded slices](service_inventory_result.md). [40 — typed Commands / Events](40_typed_commands_events.md) **DONE**: пять boundary slices, bounded diagnostic provider, reentrancy/deferred fixtures, final GUT 55/55 и parser 39 files PASS. Далее [11 — CustomerFlow planning](11_customer_flow_planning.md). Владелец разрешил полный dependency-order проход 2A → 2B → 2C с отдельным coherent commit каждой завершённой задачи и остановкой после PASS 49; Phase 3 не начинать. Правило одной задачи на запрос ниже не ограничивает этот явно расширенный scope. Rendered gameplay и subjective visual QA запрещены; headless/parser/validators/GUT/smoke/save-load разрешены.
+Phase 2A начата 2026-10-08: [10 — service inventory](10_service_inventory.md) **DONE**, static coverage 136/136; [полная классификация и bounded slices](service_inventory_result.md). [40 — typed Commands / Events](40_typed_commands_events.md) **DONE**: пять boundary slices, bounded diagnostic provider, reentrancy/deferred fixtures, final GUT 55/55 и parser 39 files PASS. [11 — CustomerFlow planning](11_customer_flow_planning.md) **DONE**: discrete planning/day/registration owner, scheduled arrival owner, typed receipts и current-format cache rebuild; core GUT 70/70, final owner GUT 34/34, parser 28 files PASS. Далее [12 — active Customer lifecycle](12_customer_flow_runtime.md). Владелец разрешил полный dependency-order проход 2A → 2B → 2C с отдельным coherent commit каждой завершённой задачи и остановкой после PASS 49; Phase 3 не начинать. Правило одной задачи на запрос ниже не ограничивает этот явно расширенный scope. Rendered gameplay и subjective visual QA запрещены; headless/parser/validators/GUT/smoke/save-load разрешены.
 
 Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/body detach/четыре tiers deferred; baseline ACTIVE/DORMANT with retained physical-root Entity and ECS-owned population records. Population/district schedules belong to npc, without separate district domain. Known structure failures (31, smoke reference/R26 metadata) устранены в 03.
 
