@@ -120,8 +120,8 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `npc/npc_intent_arbiter.gd` | KEEP_SERVICE | 16 | Per-decision priority acquisition and motion command. | KEPT_WITH_REASON |
 | `npc/npc_lighting_service.gd` | KEEP_GEOMETRY | 15 | Lifecycle-fed zone registry/derived context and explicit exposure query. | KEPT_WITH_REASON |
 | `npc/npc_perception_service.gd` | SPLIT | 15 | Explicit geometry/hear/noise retained; sensor/search/hearing/footstep clocks moved to Systems. | DONE |
-| `npc/npc_route_service.gd` | SPLIT | 16 | Path/risk algorithms mixed with stall/blocked clocks and queue budget. | PENDING |
-| `npc/npc_service_role.gd` | SPLIT | 16 | Role commands mixed with elapsed/entrance progression. | PENDING |
+| `npc/npc_route_service.gd` | SPLIT | 16 | Removed ticks; S_NpcRoute/S_NpcRoutePlanning own progress and fair physical-frame queue budget. Algorithms renamed NpcRouteSolver with retained UID. | DONE |
+| `npc/npc_service_role.gd` | SPLIT | 16 | Explicit enqueue/defer/finish/suspend/release retained; elapsed/entrance clock owned by O_CustomerServiceClock (12), publication verified through 15/16. | DONE |
 | `npc/npc_sleep_service.gd` | KEEP_RULES | 16 | Explicit blocker query over perceived threats. | KEPT_WITH_REASON |
 | `npc/npc_social_service.gd` | KEEP_SERVICE | 16 | One idempotent incident/reaction/promise transaction; event-owned witnesses. | KEPT_WITH_REASON |
 | `npc/npc_trait_service.gd` | SPLIT | 15 | Explicit authored immunity/aura/refuge operations retained; timed exposure/retreat owned by S_NpcTraits, predicates by Rules. | DONE |
@@ -186,7 +186,7 @@ Reusable one-visit creation/materialization and next-arrival lookup remain expli
 
 ### 14 / 15 / 16 — district, sensors, decisions, route and role
 
-**14.A/14.B DONE**: reactive district calendar/death/goal/preparation/completion; native receipts and gated Night capture. **15.A/15.B/15.C DONE**: explicit cadence/footsteps/perception/trait/native-decision/noise graph; old ticks removed, adapter/geometry/explicit aura retained. Route cadence and budget remain solely with the next task 16; the existing route allowance follows that owner.
+**14.A/14.B DONE**: reactive district calendar/death/goal/preparation/completion; native receipts and gated Night capture. **15.A/15.B/15.C DONE**: explicit cadence/footsteps/perception/trait/native-decision/noise graph; old ticks removed, adapter/geometry/explicit aura retained. **16.A/16.B DONE**: explicit route progress and fair queue/budget owners; NpcRouteSolver retained UID, old ticks/classes/callers removed, role commands and chosen activity/home-delivery operations verified. Both route allowances removed.
 
 | Slice | Responsibility / target | Before → after ordering and removal | Existing regression |
 | --- | --- | --- | --- |

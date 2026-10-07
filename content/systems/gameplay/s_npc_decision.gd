@@ -5,7 +5,7 @@ class_name S_NpcDecision
 #region Scheduling
 ## Declares the due-step execution order before native decisions.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_NpcTraits], Runs.Before: [S_NpcNoise, S_NpcCombat, S_NpcIntent]}
+	return {Runs.After: [S_NpcTraits], Runs.Before: [S_NpcRoute, S_NpcCombat, S_NpcIntent]}
 
 
 ## Selects live actors with the cadence owner's captured interval.
@@ -19,7 +19,6 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 	for entity: Entity in entities:
 		var decision: C_NpcDecision = entity.get_component(C_NpcDecision) as C_NpcDecision
 		cmd.add_custom(_advance.bind(entity, decision))
-	cmd.add_custom(_flush_routes)
 #endregion
 
 #region Due-step progression
@@ -34,10 +33,10 @@ func _advance(entity: Entity, captured: C_NpcDecision) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if not NpcDecisionRules.matches_step(person, captured, cycle) or actor.has_component(C_Death):
 		return
-	_decide(actor, person, captured)
+	_decide(actor, captured)
 
 
-func _decide(actor: E_DistrictNpc, person: NpcRecord, decision: C_NpcDecision) -> void:
+func _decide(actor: E_DistrictNpc, decision: C_NpcDecision) -> void:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	if decision.intent_owner == C_NpcDecision.Owner.IDLE and not (intent.movement_active and not intent.arrived):
@@ -57,15 +56,7 @@ func _decide(actor: E_DistrictNpc, person: NpcRecord, decision: C_NpcDecision) -
 		if decision.intent_owner in [C_NpcDecision.Owner.EMERGENCY, C_NpcDecision.Owner.COMBAT]:
 			NpcDialogueService.end(actor)
 			NpcServiceRole.suspend(actor)
-		# Route cadence/budget migration is the following dependency task 16.
-		NpcRouteService.tick(actor, person, decision.scheduled_delta)
+	else:
+		decision.scheduled_delta = 0.0
 	decision.update_elapsed = 0.0
-	decision.scheduled_delta = 0.0
-#endregion
-
-#region Route queue boundary
-func _flush_routes() -> void:
-	var district: C_District = DistrictPopulationService.current()
-	if district != null and DayPhaseService.current().phase != C_DayCycle.Phase.NIGHT:
-		NpcRouteService.process_pending(district)
 #endregion

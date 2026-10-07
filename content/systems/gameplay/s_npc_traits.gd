@@ -39,7 +39,7 @@ func _advance(entity: Entity, captured: C_NpcDecision) -> void:
 
 func _advance_traits(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: float) -> void:
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
-	awareness.hazard_distress = NpcRouteService.danger_here(actor)
+	awareness.hazard_distress = NpcRouteSolver.danger_here(actor)
 	awareness.light_distress = false
 	_observe_retreat(actor, person, player, awareness, delta)
 	for rule: DEF_NpcTrait in person.profile.rules:

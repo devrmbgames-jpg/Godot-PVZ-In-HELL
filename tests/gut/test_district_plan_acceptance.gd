@@ -106,14 +106,14 @@ func test_stalled_schedule_exit_keeps_unfinished_departure() -> void:
 	var native: Dictionary[StringName, RID] = await _flat_map()
 	body.navigation_agent.set_navigation_map(native[&"map"])
 	_run_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)
-	NpcRouteService.tick(body, person, 0.2)
-	NpcRouteService.process_pending(_district)
-	NpcRouteService.tick(body, person, _district.definition.route_timeout + 0.1)
+	NpcAiFixture.route(body, person, 0.2)
+	NpcAiFixture.plan_routes(_district)
+	NpcAiFixture.route(body, person, _district.definition.route_timeout + 0.1)
 	assert_false(person.phase_complete)
 	assert_eq(person.placement, NpcRecord.Placement.STREET)
 	assert_false((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	_run_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)
-	NpcRouteService.tick(body, person, 0.2)
+	NpcAiFixture.route(body, person, 0.2)
 	assert_true((body.get_component(C_NpcRoute) as C_NpcRoute).pending)
 	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	NavigationServer3D.free_rid(native[&"region"])
@@ -534,10 +534,10 @@ func test_stalled_reachable_route_releases_pickup() -> void:
 	body.add_relationship(Relationship.new(R_NpcLootTarget.new(), loot))
 	NpcIntentArbiter.acquire(body, C_NpcDecision.Owner.IDLE, "Test pickup")
 	NpcIntentArbiter.move_to(body, Vector3(8, 0, 0), 0.3, C_NpcDecision.Owner.IDLE)
-	NpcRouteService.tick(body, person, 0.2)
-	NpcRouteService.process_pending(_district)
+	NpcAiFixture.route(body, person, 0.2)
+	NpcAiFixture.plan_routes(_district)
 	assert_true((body.get_component(C_NpcRoute) as C_NpcRoute).reachable)
-	NpcRouteService.tick(body, person, _district.definition.route_timeout + 0.1)
+	NpcAiFixture.route(body, person, _district.definition.route_timeout + 0.1)
 	assert_false((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	assert_true(body.get_relationships(Relationship.new(R_NpcLootTarget.new(), loot)).is_empty())
 	NavigationServer3D.free_rid(native[&"region"])
@@ -565,10 +565,10 @@ func test_stalled_home_route_releases_meeting_without_false_delivery() -> void:
 	assert_true(NpcHomeDeliveryService.knock(player, door))
 	var native: Dictionary[StringName, RID] = await _flat_map()
 	body.navigation_agent.set_navigation_map(native[&"map"])
-	NpcRouteService.tick(body, person, 0.2)
-	NpcRouteService.process_pending(_district)
+	NpcAiFixture.route(body, person, 0.2)
+	NpcAiFixture.plan_routes(_district)
 	assert_true((body.get_component(C_NpcRoute) as C_NpcRoute).reachable)
-	NpcRouteService.tick(body, person, _district.definition.route_timeout + 0.1)
+	NpcAiFixture.route(body, person, _district.definition.route_timeout + 0.1)
 	assert_null(NpcHomeDeliveryService.meeting_for(body))
 	assert_false(body.has_component(C_CustomerAgent))
 	assert_eq(job.status, NpcHomeDelivery.Status.ACCEPTED)
@@ -589,9 +589,9 @@ func test_route_risk_matches_actual_speed_modifiers() -> void:
 	var hunger: C_Hunger = body.get_component(C_Hunger) as C_Hunger
 	hunger.value = 0.0
 
-	var ordinary: float = NpcRouteService.expected_damage(body, path)
+	var ordinary: float = NpcRouteSolver.expected_damage(body, path)
 	hunger.value = 100.0
-	assert_lt(NpcRouteService.expected_damage(body, path), ordinary)
+	assert_lt(NpcRouteSolver.expected_damage(body, path), ordinary)
 	hunger.value = 0.0
 	if not body.has_component(C_Strength):
 		body.add_component(C_Strength.new())
@@ -602,7 +602,7 @@ func test_route_risk_matches_actual_speed_modifiers() -> void:
 	var load_state: C_CarryLoad = body.get_component(C_CarryLoad) as C_CarryLoad
 	load_state.active = true
 	load_state.mass_kg = (CarryLoadPolicy.minimum_mass_kg(strength) + CarryLoadPolicy.maximum_mass_kg(strength)) * 0.5
-	assert_gt(NpcRouteService.expected_damage(body, path), ordinary)
+	assert_gt(NpcRouteSolver.expected_damage(body, path), ordinary)
 
 ## Движущаяся опасная сфера вызывает локальный обход без подходящих узлов уличного графа.
 func test_native_route_replans_around_moving_fire() -> void:
@@ -631,14 +631,14 @@ func test_native_route_replans_around_moving_fire() -> void:
 
 	assert_eq(NavigationServer3D.map_get_closest_point_owner(map, Vector3.ZERO), region)
 	var goal: Vector3 = Vector3(8, 0, 0)
-	var path: PackedVector3Array = NpcRouteService.plan(body, person, body.global_position, goal, map)
+	var path: PackedVector3Array = NpcRouteSolver.plan(body, person, body.global_position, goal, map)
 	assert_false(path.is_empty())
-	assert_eq(NpcRouteService.expected_damage(body, path), 0.0)
+	assert_eq(NpcRouteSolver.expected_damage(body, path), 0.0)
 	assert_gt(path.size(), 2)
 	(fire as Node as Node3D).global_position = Vector3(0, 1, 12)
-	var revised: PackedVector3Array = NpcRouteService.plan(body, person, body.global_position, goal, map)
+	var revised: PackedVector3Array = NpcRouteSolver.plan(body, person, body.global_position, goal, map)
 	assert_eq(revised.size(), 2)
-	assert_eq(NpcRouteService.expected_damage(body, revised), 0.0)
+	assert_eq(NpcRouteSolver.expected_damage(body, revised), 0.0)
 	NavigationServer3D.free_rid(region)
 	NavigationServer3D.free_rid(map)
 #endregion

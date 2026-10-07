@@ -5,7 +5,7 @@ class_name S_NpcNoise
 #region Scheduling
 ## Retires noise after decision/route consumption and before downstream gameplay consumers.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_NpcDecision], Runs.Before: [S_NpcCombat, S_NpcIntent]}
+	return {Runs.After: [S_NpcRoutePlanning], Runs.Before: [S_NpcCombat, S_NpcIntent]}
 
 
 ## Selects authoritative district noise with its calendar gate.

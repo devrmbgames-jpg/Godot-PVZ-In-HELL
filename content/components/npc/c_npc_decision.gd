@@ -17,7 +17,7 @@ var update_elapsed: float = 0.0
 ## Время ожидания недостижимой цели.
 var blocked_elapsed: float = 0.0
 
-## Transient due-step interval written by S_NpcCadence and consumed by sensing/traits/decision.
+## Transient interval captured by cadence, shared through sensing/traits/BT and cleared by route progression.
 var scheduled_delta: float = 0.0
 ## Calendar day captured by the cadence owner; queued stages reject superseded steps.
 var scheduled_day: int = 0

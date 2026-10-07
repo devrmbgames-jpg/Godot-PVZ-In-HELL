@@ -35,7 +35,7 @@ class ReadyRecorder extends Observer:
 func _owners() -> Array[System]:
 	var owners: Array[System] = []
 	# Deliberately register backwards so only deps define the execution order.
-	for owner_type: Script in [S_NpcNoise, S_NpcDecision, S_NpcTraits, S_NpcPerception, S_NpcFootsteps, S_NpcCadence]:
+	for owner_type: Script in [S_NpcNoise, S_NpcRoutePlanning, S_NpcRoute, S_NpcDecision, S_NpcTraits, S_NpcPerception, S_NpcFootsteps, S_NpcCadence]:
 		var owner: System = owner_type.new() as System
 		owner.group = "npc_scheduling"
 		owners.append(owner)
@@ -155,4 +155,46 @@ func test_ready_consumer_death_prevents_later_native_update() -> void:
 	assert_false(actor.enabled)
 	assert_eq(decision.scheduled_delta, 0.0)
 	assert_eq(decision.active_task_id, 0)
+
+
+## A route queued while live cannot advance clocks after the body leaves participation.
+func test_pending_route_rejects_departed_body() -> void:
+	var actor: E_DistrictNpc = _stage(0)
+	var person: NpcRecord = _district.people[0]
+	var route: C_NpcRoute = C_NpcRoute.new()
+	route.elapsed = 0.2
+	actor.add_component(route)
+	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	decision.scheduled_delta = 2.0
+	decision.scheduled_day = 1
+	decision.scheduled_phase = int(C_DayCycle.Phase.MORNING)
+	NpcIntentService.move_to(actor, Vector3(20, 0, 0), 0.3)
+	var owner: S_NpcRoute = S_NpcRoute.new()
+	owner.group = "queued_route"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+	DistrictPopulationService.set_placement(person, actor, NpcRecord.Placement.HOME)
+	_world.flush_command_buffers()
+	assert_eq(route.elapsed, 0.2)
+	assert_false(route.pending)
+	assert_eq(person.placement, NpcRecord.Placement.HOME)
+
+
+## A queued budget operation cannot mutate an aggregate replaced before its commit.
+func test_pending_planner_rejects_replaced_district_aggregate() -> void:
+	var session: Entity = _world.query.with_all([C_District]).execute_one()
+	_district.pending_routes.append(_district.people[0].npc_id)
+	var planner: S_NpcRoutePlanning = S_NpcRoutePlanning.new()
+	planner.group = "queued_planning"
+	planner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(planner)
+	_world.process(0.0, planner.group)
+	session.remove_component(C_District)
+	var replacement: C_District = C_District.new()
+	session.add_component(replacement)
+	_world.flush_command_buffers()
+	assert_eq(_district.pending_routes.size(), 1)
+	assert_eq(_district.route_planning_frame, -1)
+	assert_eq(replacement.route_planning_frame, -1)
 #endregion

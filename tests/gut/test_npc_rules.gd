@@ -15,8 +15,8 @@ func test_fire_immunity_matches_real_damage_and_route_risk() -> void:
 	(fire as Node as Node3D).global_position = Vector3(50, 1, 8)
 
 	var path: PackedVector3Array = PackedVector3Array([Vector3(45, 0, 8), Vector3(55, 0, 8)])
-	assert_eq(NpcRouteService.expected_damage(immune, path), 0.0)
-	assert_gt(NpcRouteService.expected_damage(normal, path), 0.0)
+	assert_eq(NpcRouteSolver.expected_damage(immune, path), 0.0)
+	assert_gt(NpcRouteSolver.expected_damage(normal, path), 0.0)
 	for receiver: Entity in [immune, normal]:
 		var hit: DamageRequest = DamageRequest.new()
 		hit.target = receiver
@@ -50,7 +50,7 @@ func test_pursuit_risk_requires_health_reserve() -> void:
 	var target: E_DistrictNpc = DistrictPopulationService.body_for(_district.people[3].npc_id)
 	CombatService.bind_target(body, target)
 	var health: C_Health = body.get_component(C_Health) as C_Health
-	assert_true(NpcRouteService.acceptable(body, person, 20.0))
+	assert_true(NpcRouteSolver.acceptable(body, person, 20.0))
 	health.current = health.value * person.profile.pursuit_health_reserve
-	assert_false(NpcRouteService.acceptable(body, person, 1.0))
+	assert_false(NpcRouteSolver.acceptable(body, person, 1.0))
 #endregion

@@ -120,5 +120,19 @@ Blackboard stores no second gameplay authority. Captured scheduling fields are n
 
 NpcBrainService only installs/updates/participates/aborts the native runtime. Geometry/hearing,
 noise publication and explicit immunity/aura operations remain reusable commands/calculations.
-Task 16 removes the remaining route step/pending budget; task 15 introduces no replacement
-brain scheduler or old tick aliases.
+S_NpcRoute and S_NpcRoutePlanning own the following route step and fair physical-frame
+pending budget (task 16); there is no brain scheduler or old tick alias.
+
+## Route progression and fair planning (task 16)
+
+Native decision leaves the captured due interval for S_NpcRoute, which owns route clocks,
+progress sampling and abandonment reactions, then clears the interval. S_NpcRoutePlanning
+consumes the district FIFO after all route progression, before noise ageing/combat/navigation.
+Budget resets by native physics frame, so repeated queue processing within one frame cannot
+exceed its allowance. Queued work revalidates the district aggregate, body participation,
+current intent and map readiness; stale/cancelled requests cannot commit an older route.
+
+NpcRouteSolver performs bounded authored/native path and hazard-risk calculations. It has
+no scheduling/budget ownership. Godot retains physical transform/velocity authority;
+S_NpcIntent consumes waypoints and composes native movement/avoidance. Route and queue
+state remain transient derived data, with reset/materialization using explicit lifecycle paths.

@@ -42,7 +42,7 @@ func _run() -> void:
 	var measurements: PackedFloat64Array = PackedFloat64Array()
 	for sample: int in SAMPLE_COUNT:
 		var began: int = Time.get_ticks_usec()
-		var path: PackedVector3Array = NpcRouteService.plan(actor, person, start, goal, map)
+		var path: PackedVector3Array = NpcRouteSolver.plan(actor, person, start, goal, map)
 		measurements.append(float(Time.get_ticks_usec() - began) / 1000.0)
 		if path.is_empty():
 			push_error("NPC benchmark route is empty")

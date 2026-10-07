@@ -24,7 +24,7 @@ func _ready() -> void:
 		var customer_owner: System = owner_type.new() as System
 		customer_owner.group = "GamePlay"
 		world.add_system(customer_owner)
-	for owner_type: Script in [S_NpcCadence, S_NpcFootsteps, S_NpcPerception, S_NpcTraits, S_NpcNoise]:
+	for owner_type: Script in [S_NpcCadence, S_NpcFootsteps, S_NpcPerception, S_NpcTraits, S_NpcRoute, S_NpcRoutePlanning, S_NpcNoise]:
 		var npc_owner: System = owner_type.new() as System
 		npc_owner.group = "GamePlay"
 		world.add_system(npc_owner)

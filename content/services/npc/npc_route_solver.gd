@@ -1,145 +1,14 @@
 extends RefCounted
-## Следует авторскому теневому проходу или нативному пути с ограничением работы и проверкой опасностей.
-class_name NpcRouteService
+## Bounded native/authored route and hazard-risk calculations; Systems own route clocks and budget.
+class_name NpcRouteSolver
 
+## Existing native endpoint tolerance used to reject incomplete paths.
 const ENDPOINT_TOLERANCE: float = 1.0
 
 static var _query_world: World = null
 static var _hazard_query: QueryBuilder = null
 
-#region Выполнение маршрута
-## Обновляет производный маршрут, сохраняя правила прибытия и обслуживания.
-static func tick(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> void:
-	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
-	if not actor.has_component(C_NpcRoute):
-		actor.add_component(C_NpcRoute.new())
-	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
-	if not intent.movement_active or intent.move_uses_entity or not intent.navigation_enabled:
-		route.pending = false
-		route.map_iteration = -1
-		route.points.clear()
-		route.reachable = true
-		route.blocked_seconds = 0.0
-		route.progress_initialized = false
-		route.stalled_seconds = 0.0
-		return
-
-	route.elapsed += delta
-	var district: C_District = DistrictPopulationService.current()
-	var new_goal: bool = route.goal.distance_to(intent.move_position) > district.definition.waypoint_distance
-	if new_goal:
-		route.progress_initialized = false
-		route.points.clear()
-		route.reachable = false
-	var needs_plan: bool = new_goal or route.map_iteration < 0
-	if route.elapsed >= district.definition.route_interval:
-		route.elapsed = 0.0
-		var map: RID = actor.navigation_agent.get_navigation_map()
-		var iteration: int = NavigationServer3D.map_get_iteration_id(map) if map.is_valid() else 0
-		needs_plan = needs_plan or route.points.is_empty() or route.navigation_map != map or route.map_iteration != iteration
-		if not route.points.is_empty():
-			var remaining: PackedVector3Array = PackedVector3Array([actor.global_position])
-			remaining.append_array(route.points.slice(route.point_index))
-			if not acceptable(actor, person, expected_damage(actor, remaining)):
-				route.points.clear()
-				needs_plan = true
-	if needs_plan:
-		route.goal = intent.move_position
-		if route.points.is_empty():
-			route.reachable = false
-		route.pending = true
-		if not district.pending_routes.has(person.npc_id):
-			district.pending_routes.append(person.npc_id)
-
-	var physical_position: Vector3 = actor.global_position
-	physical_position.y = 0.0
-	var final_position: Vector3 = intent.move_position
-	final_position.y = 0.0
-	if not route.progress_initialized or physical_position.distance_to(route.progress_position) >= district.definition.route_progress_distance or physical_position.distance_to(final_position) <= intent.arrival_distance:
-		route.progress_initialized = true
-		route.progress_position = physical_position
-		route.stalled_seconds = 0.0
-	else:
-		route.stalled_seconds += delta
-
-	if route.reachable:
-		route.blocked_seconds = 0.0
-	else:
-		route.blocked_seconds += delta
-
-	if maxf(route.blocked_seconds, route.stalled_seconds) >= district.definition.route_timeout:
-		_abandon(actor, person, route)
-
-## Выполняет ограниченную справедливую очередь планирования, перепроверяя текущее намерение.
-static func process_pending(district: C_District) -> void:
-	var frame: int = Engine.get_physics_frames()
-	if district.route_planning_frame != frame:
-		district.route_planning_frame = frame
-		district.route_plans_this_frame = 0
-
-	var attempts: int = district.pending_routes.size()
-	while attempts > 0 and not district.pending_routes.is_empty() and district.route_plans_this_frame < district.definition.route_plans_per_frame:
-		attempts -= 1
-		var npc_id: StringName = district.pending_routes.pop_front()
-		var person: NpcRecord = DistrictPopulationService.person_for(npc_id)
-		var actor: E_DistrictNpc = DistrictPopulationService.body_for(npc_id)
-		if person == null or person.death_day != 0 or person.placement != NpcRecord.Placement.STREET or not EntityAvailability.contains(actor, ECS.world):
-			continue
-
-		var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
-		if route == null or not route.pending:
-			continue
-
-		var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
-		if not intent.movement_active or intent.move_uses_entity or not intent.navigation_enabled:
-			route.pending = false
-			route.points.clear()
-			route.reachable = true
-			continue
-
-		var map: RID = actor.navigation_agent.get_navigation_map()
-		if not map.is_valid() or NavigationServer3D.map_get_iteration_id(map) == 0:
-			district.pending_routes.append(npc_id)
-			continue
-
-		route.goal = intent.move_position
-		route.points = plan(actor, person, actor.global_position, route.goal, map)
-		route.navigation_map = map
-		route.map_iteration = NavigationServer3D.map_get_iteration_id(map)
-		route.point_index = 1 if route.points.size() > 1 else 0
-		route.reachable = not route.points.is_empty()
-		route.elapsed = 0.0
-		route.pending = false
-		district.route_plans_this_frame += 1
-
-static func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute) -> void:
-	route.pending = false
-	route.blocked_seconds = 0.0
-	route.stalled_seconds = 0.0
-	route.progress_initialized = false
-	NpcCommunityService.cancel_activity(actor)
-	NpcDialogueService.end(actor)
-	if CombatService.target_for(actor) != null:
-		CombatService.end_combat(actor)
-		(actor.get_component(C_NpcAwareness) as C_NpcAwareness).fleeing = true
-
-	var agent: C_CustomerAgent = actor.get_component(C_CustomerAgent) as C_CustomerAgent
-	if agent != null:
-		var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
-		if NpcHomeDeliveryService.meeting_for(actor) != null:
-			NpcServiceRole.suspend(actor)
-		elif visit != null:
-			NpcServiceRole.defer_visit(actor, visit, "Путь к ПВЗ недоступен")
-	else:
-		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-		var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(person.planned_day, person.planned_phase as C_DayCycle.Phase)
-		# Недостижимое занятие можно пропустить; уход через проход или домой требует реального прибытия.
-		if decision != null and decision.intent_owner == C_NpcDecision.Owner.SCHEDULE and person.profile.resident and location == DEF_NpcSchedule.Location.STREET:
-			DistrictPopulationService.request_phase_completion(actor, NpcRecord.Placement.STREET)
-		route.map_iteration = -1
-		route.points.clear()
-	NpcIntentService.stop(actor)
-
+#region Authored route calculation
 ## Строит один путь по авторскому теневому проходу или обычной navmesh.
 static func plan(actor: E_DistrictNpc, person: NpcRecord, start: Vector3, goal: Vector3, map: RID) -> PackedVector3Array:
 	var context: NpcRouteContext = _context(actor)

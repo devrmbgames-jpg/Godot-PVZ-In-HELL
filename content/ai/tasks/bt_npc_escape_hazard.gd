@@ -6,7 +6,7 @@ extends "res://content/ai/tasks/bt_npc_action.gd"
 func _tick(_delta: float) -> Status:
 	if not _claim("Выйти из опасной зоны"):
 		return FAILURE
-	_move(NpcRouteService.refuge(_actor), NpcDecisionService.ARRIVAL_DISTANCE)
+	_move(NpcRouteSolver.refuge(_actor), NpcDecisionService.ARRIVAL_DISTANCE)
 	return RUNNING
 
 #endregion
