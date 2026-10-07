@@ -1,8 +1,8 @@
 # Project Core Architecture
 
-Status: **TARGET ARCHITECTURE**
+Status: **CANDIDATE TARGET ARCHITECTURE — SUBJECT TO REFACTORING V2 PHASE 0 PREFLIGHT**
 
-Этот документ фиксирует целевое ядро проекта. Его задача — довести проект до состояния, где новый контент в основном собирается из сцен, ассетов, Definitions, Entity Templates / Traits, Smart Objects, Dialogue, AI profiles/schedules и настроек уровней. Новый runtime gameplay-код должен требоваться прежде всего для **новой механики**, а не для нового NPC, предмета, квеста или варианта уже существующей механики.
+Этот документ фиксирует текущего кандидата на целевое ядро проекта. До начала runtime-refactor он проходит Phase 0 audit в `agent_tasks/refactoring_v2/00_*`; аудит имеет право упростить, дополнить или изменить решения, если это делает ядро удобнее и уменьшает ненужную сложность. Его задача — довести проект до состояния, где новый контент в основном собирается из сцен, ассетов, Definitions, Entity Templates / Traits, Smart Objects, Dialogue, AI profiles/schedules и настроек уровней. Новый runtime gameplay-код должен требоваться прежде всего для **новой механики**, а не для нового NPC, предмета, квеста или варианта уже существующей механики.
 
 ## 1. Authoritative gameplay model
 
