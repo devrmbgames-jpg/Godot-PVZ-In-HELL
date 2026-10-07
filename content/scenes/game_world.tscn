@@ -10,7 +10,7 @@
 [ext_resource type="Script" uid="uid://cv8oyv1lnwa6u" path="res://content/systems/motion/s_crouch.gd" id="7_6b1dm"]
 [ext_resource type="Script" uid="uid://c1o1ef2y40vmv" path="res://content/systems/input/s_player_input.gd" id="8_qm6qd"]
 [ext_resource type="Script" uid="uid://dkb2c2k1cmk1v" path="res://content/systems/interaction/s_anchor_stability.gd" id="Anchor_stability"]
-[ext_resource type="Script" uid="uid://cgqgtiq38w0ep" path="res://content/systems/gameplay/s_challenge_floor_setup.gd" id="Challenge_floor"]
+[ext_resource type="Script" uid="uid://cgqgtiq38w0ep" path="res://content/observers/challenges/o_challenge_floor_activation.gd" id="Challenge_floor"]
 [ext_resource type="Script" uid="uid://1lt5dpwlayff" path="res://content/systems/gameplay/s_challenge_gaze.gd" id="Challenge_gaze"]
 [ext_resource type="Script" uid="uid://cswr1rtmadl02" path="res://content/observers/challenges/o_challenge_lifecycle.gd" id="Challenge_lifecycle"]
 [ext_resource type="Script" uid="uid://dgnc3qp12o736" path="res://content/systems/gameplay/s_challenge_light.gd" id="Challenge_light"]
@@ -197,7 +197,7 @@ group = &"GamePlay"
 script = ExtResource("Challenge_gaze")
 group = &"GamePlay"
 
-[node name="S_ChallengeFloorSetup" type="Node" parent="Systems/GamePlay" unique_id=2028100959]
+[node name="O_ChallengeFloorActivation" type="Node" parent="Systems/GamePlay" unique_id=2028100959]
 script = ExtResource("Challenge_floor")
 group = &"GamePlay"
 

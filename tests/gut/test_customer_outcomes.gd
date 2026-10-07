@@ -46,6 +46,15 @@ func after_each() -> void:
 	ECS.world = null
 
 
+func _advance_challenge(delta: float) -> void:
+	var owner: S_ChallengeRuntime = S_ChallengeRuntime.new()
+	owner.group = "challenge_fixture"
+	_world.add_system(owner)
+	_world.process(delta, owner.group)
+	_world.remove_system(owner)
+	owner.free()
+
+
 func _deliver() -> void:
 	var receipt: PackageDeliveryCheck = PackageDeliveryCheck.new()
 	receipt.result = PackageDeliveryCheck.Result.READY
@@ -140,7 +149,7 @@ func test_challenge_result_releases_correct_payment_only_after_bridge_flush() ->
 	assert_eq(_wallet.balance, 0)
 
 	state.condition_result = ChallengeResult.Type.SUCCESS
-	ChallengeService.tick(customer, state, 0.1)
+	_advance_challenge(0.1)
 	assert_not_null(state.pending_result)
 	assert_false(state.consequences_applied)
 	assert_eq(_wallet.balance, 0)
@@ -193,7 +202,7 @@ func test_stale_challenge_result_is_discarded_after_cleanup() -> void:
 	_deliver()
 	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.TAKEN))
 	state.condition_result = ChallengeResult.Type.SUCCESS
-	ChallengeService.tick(customer, state, 0.1)
+	_advance_challenge(0.1)
 	ChallengeService.cancel(customer)
 	_world.flush_command_buffers()
 	assert_eq(_visit.challenge_satisfaction_delta, 0)

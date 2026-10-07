@@ -107,22 +107,22 @@ func _on_escalation(_customer: Entity, _player: Entity, _event: ChallengeResolut
 ## Проверяет включительные границы угла/расстояния и недопустимое нулевое направление.
 func test_geometry_angle_distance_boundaries_and_invalid_direction() -> void:
 	var direction: Vector3 = Vector3.FORWARD.rotated(Vector3.UP, deg_to_rad(_rule.half_angle_degrees))
-	GazeTrackingService.measure_geometry(Vector3.ZERO, Vector3.FORWARD, direction * 3.0, _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, direction * 3.0, _rule, _observation)
 	assert_true(_observation.within_angle)
 	assert_true(_observation.within_range)
-	GazeTrackingService.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.FORWARD * _rule.maximum_distance, _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.FORWARD * _rule.maximum_distance, _rule, _observation)
 	assert_true(_observation.within_range)
-	GazeTrackingService.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.FORWARD * (_rule.maximum_distance + 0.1), _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.FORWARD * (_rule.maximum_distance + 0.1), _rule, _observation)
 	assert_false(_observation.within_range)
-	GazeTrackingService.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.BACK, _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.BACK, _rule, _observation)
 	assert_false(_observation.within_angle)
-	GazeTrackingService.measure_geometry(Vector3.ZERO, Vector3.ZERO, Vector3.FORWARD, _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.ZERO, Vector3.FORWARD, _rule, _observation)
 	assert_false(_observation.sample_valid)
 
 
 ## Поза головы и реальная стена определяют внимание, исключая собственный collider.
 func test_actual_head_pose_and_physics_wall_determine_attention() -> void:
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_true(_observation.attention, "Actor collider must be excluded and target collider must count as visible")
 	var wall: StaticBody3D = StaticBody3D.new()
 	var shape_node: CollisionShape3D = CollisionShape3D.new()
@@ -134,14 +134,14 @@ func test_actual_head_pose_and_physics_wall_determine_attention() -> void:
 	add_child(wall)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_true(_observation.within_angle)
 	assert_false(_observation.line_of_sight)
 	assert_false(_observation.attention)
 	wall.free()
 	await get_tree().physics_frame
 	_actor.head_axis_x.rotation.y = PI
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_false(_observation.within_angle)
 	assert_false(_observation.attention)
 
@@ -152,17 +152,17 @@ func test_actor_camera_pose_overrides_head_and_unrelated_camera_does_not() -> vo
 	_actor.head_axis_x.add_child(camera)
 	camera.make_current()
 	camera.rotation.y = PI
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_false(_observation.attention)
 	camera.rotation.y = 0.0
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_true(_observation.attention)
 
 	var unrelated: Camera3D = Camera3D.new()
 	add_child(unrelated)
 	unrelated.rotation.y = PI
 	unrelated.make_current()
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_true(_observation.attention, "Another actor's camera must not supply this actor's gaze")
 	unrelated.free()
 

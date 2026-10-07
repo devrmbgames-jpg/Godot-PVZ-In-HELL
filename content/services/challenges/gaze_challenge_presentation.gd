@@ -20,7 +20,7 @@ static func strength(state: C_Challenge) -> float:
 	if state == null or state.condition_result == ChallengeResult.Type.SUCCESS or state.elapsed < state.definition.preparation_seconds:
 		return 0.0
 
-	var progress: float = clampf(state.violation_elapsed / maxf(state.definition.violation_grace_seconds, GazeTrackingService.DIRECTION_EPSILON), 0.0, 1.0)
+	var progress: float = clampf(state.violation_elapsed / maxf(state.definition.violation_grace_seconds, GazeTrackingGeometry.DIRECTION_EPSILON), 0.0, 1.0)
 	return progress
 
 

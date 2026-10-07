@@ -151,3 +151,20 @@ Terminal retirement revalidates registration after damage publication. Jolt bodi
 physical transform/velocity authority. S_CustomerCombat reconciles isolated legacy roles
 before common attacks; district personalities remain under their native BT. Manual weapon
 AnimationPlayer mapping is a presentation adapter. Combat scheduling fields are transient.
+
+## Challenge lifecycle and autonomous floor setup (task 18)
+
+S_ChallengeRuntime owns elapsed/violation/timeout/display progression after condition
+measurements. Queued work captures Component/phase/immutable Definition and revalidates
+calendar/live bindings before commit. ChallengeService owns arm/activate/cancel and explicit
+terminal resolve/close transactions; terminal facts follow actual state mutation. Reentrant
+consumers may close/remove the body; the public runtime signal requires the result to remain
+current. Outcome consequences remain in their discrete Observer.
+
+ChallengeActivated follows ACTIVE/elapsed commit. O_ChallengeFloorActivation owns one-shot
+setup and HazardSpawnRequest dispatch; pending is not a bound effect. O_FloorChallengeSpawn
+requires the current transient session request ID before installing R_ChallengeEffect. Replay
+or replaced/cancelled queued setup cannot bind an older factory result. Floor sessions/effects
+are transient. S_FloorHazard owns contact/damage interval and preparation/grace/timeout clipping;
+Geometry only measures explicit support/pose/ray. Cleanup releases effects and actor bindings
+before ChallengeSessionClosed, retaining the terminal result without duplicate consequences.

@@ -1,5 +1,5 @@
 extends RefCounted
-## Общий жизненный цикл испытания; вычисление условий и последствия обслуживания отделены.
+## Explicit challenge session commands and terminal facts; S_ChallengeRuntime owns time progression.
 class_name ChallengeService
 
 
@@ -53,6 +53,10 @@ static func activate(subject: Entity) -> bool:
 
 	state.phase = C_Challenge.Phase.ACTIVE
 	state.elapsed = 0.0
+
+	var activated: ChallengeActivated = ChallengeActivated.new()
+	activated.definition = state.definition
+	ECS.world.emit_event(ChallengeActivated.EVENT, subject, activated)
 	return true
 
 
@@ -98,50 +102,13 @@ static func actor_for(subject: Entity) -> Entity:
 
 #endregion
 
-#region Продвижение и отмена
-## Продвигает общий итог/показ и проверяет сеанс; delta в секундах.
-static func tick(subject: Entity, state: C_Challenge, delta: float) -> void:
-	if state == null or state.phase in [C_Challenge.Phase.INACTIVE, C_Challenge.Phase.CLEANUP]:
-		return
-	if not _valid_session(subject, state) or state.definition == null:
-		cancel(subject)
-		return
-	if not is_finite(delta) or delta < 0.0:
-		return
-
-	match state.phase:
-		C_Challenge.Phase.ARMED:
-			return
-
-		C_Challenge.Phase.ACTIVE:
-			var previous_elapsed: float = state.elapsed
-			state.elapsed += delta
-			if state.definition.completion == DEF_Challenge.Completion.SURVIVE_DURATION:
-				if state.definition.timeout_seconds > 0.0:
-					state.elapsed = minf(state.elapsed, state.definition.timeout_seconds)
-				_track_visit_condition(state, previous_elapsed)
-				if state.condition_violated:
-					_resolve(subject, state, ChallengeResult.Type.FAILURE)
-				elif state.definition.timeout_seconds > 0.0 and state.elapsed >= state.definition.timeout_seconds:
-					_resolve(subject, state, ChallengeResult.Type.SUCCESS)
-			elif state.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]:
-				_track_visit_condition(state, previous_elapsed)
-				if state.condition_violated and state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE:
-					_resolve(subject, state, ChallengeResult.Type.FAILURE)
-				elif state.departure_requested:
-					var satisfied: bool = not state.condition_violated and (
-						state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE
-						or state.condition_result == ChallengeResult.Type.SUCCESS
-					)
-					_resolve(subject, state, ChallengeResult.Type.SUCCESS if satisfied else ChallengeResult.Type.FAILURE)
-			elif state.condition_result in [ChallengeResult.Type.SUCCESS, ChallengeResult.Type.FAILURE]:
-				_resolve(subject, state, state.condition_result)
-			elif state.definition.timeout_seconds > 0.0 and state.elapsed >= state.definition.timeout_seconds:
-				_resolve(subject, state, ChallengeResult.Type.FAILURE)
-		C_Challenge.Phase.SUCCESS, C_Challenge.Phase.FAILURE:
-			state.result_remaining = maxf(0.0, state.result_remaining - delta)
-			if state.result_remaining <= 0.0:
-				_cleanup(subject, state)
+#region Отмена и завершение
+## Closes a terminal display after its owning System has exhausted the timer.
+static func close(subject: Entity) -> void:
+	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
+	assert(state != null and state.phase in [C_Challenge.Phase.SUCCESS, C_Challenge.Phase.FAILURE])
+	assert(state.result_remaining <= 0.0)
+	_cleanup(subject, state)
 
 
 ## Идемпотентно отменяет незавершённый итог и очищает эффекты/участие.
@@ -209,7 +176,12 @@ static func _available(entity: Entity) -> bool:
 	return EntityAvailability.contains(entity, ECS.world) and not entity.has_component(C_Death)
 
 
-static func _resolve(subject: Entity, state: C_Challenge, result: ChallengeResult.Type) -> void:
+## Commits one terminal result before publishing its typed fact; the session must be ACTIVE.
+static func resolve(subject: Entity, result: ChallengeResult.Type) -> void:
+	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
+	assert(state != null and state.phase == C_Challenge.Phase.ACTIVE)
+	assert(result in [ChallengeResult.Type.SUCCESS, ChallengeResult.Type.FAILURE])
+
 	state.result = result
 	state.phase = C_Challenge.Phase.SUCCESS if result == ChallengeResult.Type.SUCCESS else C_Challenge.Phase.FAILURE
 	state.result_remaining = state.definition.result_display_seconds
@@ -220,18 +192,6 @@ static func _resolve(subject: Entity, state: C_Challenge, result: ChallengeResul
 	event.request_escalation = result == ChallengeResult.Type.FAILURE and state.definition.escalation_on_failure
 	state.pending_result = event
 	ECS.world.emit_event(ChallengeResolution.EVENT, subject, event)
-
-
-static func _track_visit_condition(state: C_Challenge, previous_elapsed: float) -> void:
-	if state.condition_result == ChallengeResult.Type.SUCCESS:
-		if state.definition.reset_violation_on_compliance:
-			state.violation_elapsed = 0.0
-		return
-
-	var checked_seconds: float = maxf(0.0, state.elapsed - maxf(previous_elapsed, state.definition.preparation_seconds))
-	state.violation_elapsed += checked_seconds
-	if checked_seconds > 0.0 and (state.violation_elapsed >= state.definition.violation_grace_seconds or is_equal_approx(state.violation_elapsed, state.definition.violation_grace_seconds)):
-		state.condition_violated = true
 
 
 static func _cleanup(subject: Entity, state: C_Challenge) -> void:
@@ -245,6 +205,10 @@ static func _cleanup(subject: Entity, state: C_Challenge) -> void:
 	state.violation_elapsed = 0.0
 	state.departure_requested = false
 	state.pending_result = null
+	var floor: C_FloorChallenge = subject.get_component(C_FloorChallenge) as C_FloorChallenge
+	if floor != null:
+		floor.touching_danger = false
+
 	ChallengeEffectLifecycle.retire(subject)
 	for relation: Relationship in subject.relationships.duplicate():
 		if relation.relation is R_ChallengeActor:

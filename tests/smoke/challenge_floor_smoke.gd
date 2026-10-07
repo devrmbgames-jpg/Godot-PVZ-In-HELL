@@ -3,7 +3,7 @@ extends Node
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const SETTLE_FRAMES: int = 180
-const CUSTOMER_WAIT_FRAMES: int = 900
+const TICK_ROUNDING_MARGIN_FRAMES: int = 2
 
 var _world: World = null
 
@@ -32,7 +32,7 @@ func _physical_support() -> void:
 	_world.add_observer(O_FloorChallengeSpawn.new())
 	_world.add_observer(O_ChallengeLifecycle.new())
 	_world.add_observer(O_Damage.new())
-	_world.add_system(S_ChallengeFloorSetup.new())
+	_world.add_observer(O_ChallengeFloorActivation.new())
 	_world.add_system(S_FloorHazard.new())
 	_world.add_system(S_ChallengeRuntime.new())
 
@@ -89,7 +89,10 @@ func _physical_support() -> void:
 	subject.component_resources = [challenge, C_FloorChallenge.new()]
 	_world.add_entity(subject)
 	assert(ChallengeService.arm(subject, actor) and ChallengeService.activate(subject))
-	for frame: int in 36:
+	var effect: Entity = _world.query.with_all([C_FloorHazard]).execute_one()
+	var profile: DEF_FloorHazard = (effect.get_component(C_Hazard) as C_Hazard).definition as DEF_FloorHazard
+	var damage_frames: int = ceili(profile.tick_seconds / FRAME_DELTA) + TICK_ROUNDING_MARGIN_FRAMES
+	for frame: int in damage_frames:
 		_world.process(FRAME_DELTA)
 		await get_tree().physics_frame
 	assert(health.current < 100.0, "Actual floor support must feed O_Damage")
@@ -100,7 +103,7 @@ func _physical_support() -> void:
 	assert(motion.floor_contact_position.y > 0.3)
 
 	var safe_health: float = health.current
-	for frame: int in 90:
+	for frame: int in damage_frames:
 		_world.process(FRAME_DELTA)
 		await get_tree().physics_frame
 	assert(health.current == safe_health, "Player on a movable box must not be damaged by the floor projection")
@@ -132,37 +135,39 @@ func _wait_support(motion: C_Motion, expected: RID) -> void:
 #endregion
 
 #region Историческая встреча в основной сцене
-## Проверяет историческую встречу напольного клиента; требует прежний ассортимент и безопасные ящики.
+## Checks the authored floor condition through the current main World and an isolated legacy visit.
 func _main_customer() -> void:
 	var level: Node = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
+	level.set("autosave_path", "")
 	add_child(level)
 	level.set_physics_process(false)
-	var actor: Entity = level.get_node("Entityes/Player") as Entity
-	(actor as Node as RigidBody3D).freeze = true
-	for frame: int in CUSTOMER_WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
-		await get_tree().physics_frame
-		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
-			break
+	var actor: Entity = level.get_node("Entityes/Player") as E_PhysicalCharacter
+	(actor as Node).set_physics_process(false)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
 
-	assert(PackageRegistrationService.register_package(CustomerFlowService.parcel_for("base_supply:1:tools")).outcome == PackageScanResult.Outcome.REGISTERED)
 	var cycle: C_DayCycle = DayPhaseService.current()
-	var request: DayTransitionRequest = DayTransitionRequest.new()
-	request.kind = DayTransitionRequest.Kind.START_SHIFT
-	request.expected_day = cycle.day_index
-	request.expected_phase = cycle.phase
-	assert(DayPhaseService.submit(request))
-	var customer: E_Customer = null
-	for frame: int in CUSTOMER_WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
-		await get_tree().physics_frame
-		customer = CustomerFlowService.waiting_customer()
-		if customer != null:
-			break
-
-	assert(customer != null)
-	var visit: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
-	assert(visit.definition.key == &"floor_customer")
+	cycle.phase = C_DayCycle.Phase.DAY
+	var flow: C_CustomerFlow = CustomerFlowService.current()
+	flow.schedule = null
+	var visit: CustomerVisit = CustomerVisit.new()
+	visit.visit_id = &"smoke/floor"
+	visit.definition = DEF_Customer.new()
+	visit.definition.key = &"floor_customer"
+	visit.definition.challenge = load("res://content/definitions/gameplay/challenges/def_challenge_floor.tres") as DEF_Challenge
+	visit.started = true
+	visit.visit_count = 1
+	flow.visits = [visit]
+	var customer: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
+	var body: RigidBody3D = customer as Node as RigidBody3D
+	body.position = CustomerFlowService.counter().waiting_position()
+	body.freeze = true
+	level.add_child(body)
+	ECS.world.add_entity(customer, null, false)
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.visit_id = visit.visit_id
+	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	(customer.get_component(C_Challenge) as C_Challenge).definition = visit.definition.challenge
 	var context: CustomerDialogueContext = CustomerDialogueContext.new(actor, customer)
 	assert(context.begin() and context.arm_challenge())
 	context.end()
@@ -170,9 +175,9 @@ func _main_customer() -> void:
 	assert(state.phase == C_Challenge.Phase.ACTIVE)
 	ECS.world.process(FRAME_DELTA, "GamePlay")
 	assert(ECS.world.query.with_all([C_FloorHazard]).execute().size() == 1)
-	assert(level.get_node("Entityes/FloorSafeBox1") is RigidBody3D)
-	assert(level.get_node("Entityes/FloorSafeBox2") is RigidBody3D)
-	assert(level.get_node("Entityes/FloorSafeBox3") is RigidBody3D)
+	assert(level.get_node("Entityes/Props/FloorSafeBox1") is RigidBody3D)
+	assert(level.get_node("Entityes/Props/FloorSafeBox2") is RigidBody3D)
+	assert(level.get_node("Entityes/Props/FloorSafeBox3") is RigidBody3D)
 	await get_tree().process_frame
 
 	var debug: Label3D = customer.get_node("DebugStatus") as Label3D

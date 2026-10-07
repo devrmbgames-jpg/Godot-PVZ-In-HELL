@@ -34,6 +34,15 @@ func after_each() -> void:
 	ECS.world = null
 
 
+func _advance_challenge(delta: float) -> void:
+	var owner: S_ChallengeRuntime = S_ChallengeRuntime.new()
+	owner.group = "challenge_fixture"
+	_world.add_system(owner)
+	_world.process(delta, owner.group)
+	_world.remove_system(owner)
+	owner.free()
+
+
 func _visit(id: StringName) -> CustomerVisit:
 	var visit: CustomerVisit = CustomerVisit.new()
 	visit.visit_id = id
@@ -226,9 +235,9 @@ func test_authored_gaze_has_twelve_seconds_and_light_entrance_is_not_scaled_twic
 	assert_true(ChallengeService.arm(subject, actor))
 	assert_true(ChallengeService.activate(subject))
 	state.condition_result = ChallengeResult.Type.FAILURE
-	ChallengeService.tick(subject, state, 11.9)
+	_advance_challenge(11.9)
 	assert_null(state.pending_result)
-	ChallengeService.tick(subject, state, 0.1)
+	_advance_challenge(0.1)
 	assert_not_null(state.pending_result)
 	assert_eq(state.pending_result.result, ChallengeResult.Type.FAILURE)
 

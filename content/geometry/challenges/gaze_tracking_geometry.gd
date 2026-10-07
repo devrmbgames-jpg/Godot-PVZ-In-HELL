@@ -1,11 +1,12 @@
 extends RefCounted
 ## Измеряет фактическую позу камеры/головы и первое физическое препятствие, отдельно от намерения ввода.
-class_name GazeTrackingService
+class_name GazeTrackingGeometry
 
 const DIRECTION_EPSILON: float = 0.0001
 const ANGLE_BOUNDARY_EPSILON: float = 0.0001
 
 
+#region Explicit pose measurements
 ## Измеряет фактическую камеру/голову и луч до головы носителя; неверная геометрия очищает измерение.
 static func sample(actor: Entity, subject: Entity, rule: DEF_GazeChallengeCondition, observation: C_GazeChallenge) -> void:
 	clear(observation)
@@ -67,3 +68,5 @@ static func clear(observation: C_GazeChallenge) -> void:
 	observation.within_angle = false
 	observation.line_of_sight = false
 	observation.attention = false
+
+#endregion

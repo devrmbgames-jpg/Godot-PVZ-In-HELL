@@ -22,11 +22,11 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 		var observation: C_GazeChallenge = observations[index] as C_GazeChallenge
 		var rule: DEF_GazeChallengeCondition = state.definition.condition as DEF_GazeChallengeCondition if state.definition != null else null
 		if state.phase != C_Challenge.Phase.ACTIVE or rule == null:
-			GazeTrackingService.clear(observation)
+			GazeTrackingGeometry.clear(observation)
 			observation.warning_active = false
 			continue
 
-		GazeTrackingService.sample(ChallengeService.actor_for(entities[index]), entities[index], rule, observation)
+		GazeTrackingGeometry.sample(ChallengeService.actor_for(entities[index]), entities[index], rule, observation)
 		state.condition_result = ChallengeResult.Type.SUCCESS if observation.sample_valid and observation.attention == rule.required_attention else ChallengeResult.Type.NONE
 		var warning: bool = (
 			state.condition_result != ChallengeResult.Type.SUCCESS

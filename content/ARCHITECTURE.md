@@ -86,6 +86,8 @@ The following classifications describe the audited legacy paths and their migrat
 | `WalletService.submit` | Synchronously validates/applies one `MoneyOperation` through `apply`; returns COMMITTED/DUPLICATE or rejection status. COMMITTED follows balance/history mutation; DUPLICATE introduces no new effect. Keep transaction boundary (24). |
 | `DamageRequestService.submit` | Copies and emits a targeted request; `true` means dispatched, not applied damage. `O_Damage` queues resolution and publishes `DamageResult` after HP mutation or rejection. Default PER_CALLBACK normally resolves during dispatch, but completion is defined by result, not boolean. Preserve request boundary (17/40). |
 
+Challenge lifecycle clocks belong to S_ChallengeRuntime; autonomous floor setup reacts to committed ChallengeActivated, and S_FloorHazard owns periodic damage. Explicit session commands and Geometry measurements retain separate ownership (18).
+
 Static validation catches only dependable lexical patterns. Cadence, indirect helper calls, transition polling, write authority, event reentrancy and result timing remain mandatory review/behavioral-test responsibilities.
 
 ### Scene-first authoring

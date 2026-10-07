@@ -1,6 +1,29 @@
 extends GutTest
 ## Проверяет световые условия, подтверждение, таймауты и применение результата испытания к визиту.
 
+class TerminalRetirer extends Observer:
+	## Counts actual terminal facts after their state is committed.
+	var fact_count: int = 0
+	## Records whether phase, payload and result were visible before publication.
+	var saw_committed_state: bool = false
+
+	#region Committed terminal consumer
+	## Selects actual typed challenge results.
+	func query() -> QueryBuilder:
+		return q.with_all([C_Challenge]).on_event(ChallengeResolution.EVENT)
+
+	## Cancels and retires the subject synchronously to exercise the producer's lifetime boundary.
+	func each(_event: Variant, subject: Entity, payload: Variant = null) -> void:
+		var resolution: ChallengeResolution = payload as ChallengeResolution
+		var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
+		fact_count += 1
+		saw_committed_state = state.pending_result == resolution and state.result == resolution.result \
+				and state.phase == C_Challenge.Phase.FAILURE
+		ChallengeService.cancel(subject)
+		_world.remove_entity(subject)
+	#endregion
+
+
 const FRAME_DELTA: float = 0.1
 const TIMEOUT: float = 2.0
 const VISIT_ID: StringName = &"challenge-test"
@@ -13,6 +36,8 @@ var _state: C_Challenge = null
 var _cycle: C_DayCycle = null
 var _visit: CustomerVisit = null
 var _escalations: int = 0
+var _resolved_calls: int = 0
+var _runtime: S_ChallengeRuntime
 
 
 #region Окружение световой цепи
@@ -22,7 +47,9 @@ func before_each() -> void:
 	add_child(_world)
 	ECS.world = _world
 	_world.add_system(S_ChallengeLight.new())
-	_world.add_system(S_ChallengeRuntime.new())
+	_runtime = S_ChallengeRuntime.new()
+	_runtime.resolved.connect(_on_resolved)
+	_world.add_system(_runtime)
 	var receiver: O_CustomerChallengeOutcome = O_CustomerChallengeOutcome.new()
 	receiver.escalation_requested.connect(_on_escalation)
 	_world.add_observer(receiver)
@@ -51,6 +78,7 @@ func before_each() -> void:
 	(session.get_component(C_CustomerFlow) as C_CustomerFlow).visits.append(_visit)
 	_circuit = _entity([C_LightCircuit.new()])
 	_escalations = 0
+	_resolved_calls = 0
 
 
 ## Удаляет World и очищает ссылки участников и состояния испытания.
@@ -77,6 +105,11 @@ func _entity(components: Array[Component]) -> Entity:
 func _start() -> void:
 	assert_true(ChallengeService.arm(_subject, _actor))
 	assert_true(ChallengeService.activate(_subject))
+
+
+func _on_resolved(_subject_value: Entity, _actor_value: Entity, _event_value: ChallengeResolution) -> void:
+	_resolved_calls += 1
+
 
 
 func _on_escalation(subject: Entity, actor: Entity, event: ChallengeResolution) -> void:
@@ -474,4 +507,88 @@ func test_departure_result_precedes_removal_and_payment() -> void:
 	assert_eq(wallet.balance, 70)
 	assert_eq(wallet.operations.size(), 1)
 
+#endregion
+
+#region Deferred lifecycle and reentrant terminal facts
+## A queued ARMED step cannot start consuming an ACTIVE session's clock.
+func test_manual_armed_step_rejects_activation_before_flush() -> void:
+	assert_true(ChallengeService.arm(_subject, _actor))
+	_runtime.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.process(TIMEOUT)
+	assert_true(ChallengeService.activate(_subject))
+	_world.flush_command_buffers()
+	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
+	assert_eq(_state.elapsed, 0.0)
+	assert_eq(_state.result, ChallengeResult.Type.NONE)
+	_runtime.command_buffer_flush_mode = System.FlushMode.PER_SYSTEM
+	_world.process(FRAME_DELTA)
+	assert_almost_eq(_state.elapsed, FRAME_DELTA, 0.0001)
+
+
+## Replacing a cancelled component cannot inherit time from its queued predecessor.
+func test_manual_runtime_rejects_replaced_component() -> void:
+	_start()
+	_runtime.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.process(TIMEOUT)
+	var definition: DEF_Challenge = _state.definition
+	ChallengeService.cancel(_subject)
+	_subject.remove_component(C_Challenge)
+	_state = C_Challenge.new()
+	_state.definition = definition
+	_subject.add_component(_state)
+	_start()
+	_world.flush_command_buffers()
+	assert_eq(_state.elapsed, 0.0)
+	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
+	assert_eq(_visit.challenge_satisfaction_delta, 0)
+	assert_eq(_resolved_calls, 0)
+
+
+## A queued step rechecks its calendar before committing any timeout penalty.
+func test_manual_calendar_change_cancels_before_timeout_commit() -> void:
+	_start()
+	_runtime.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.process(TIMEOUT)
+	_cycle.day_index += 1
+	_world.flush_command_buffers()
+	assert_eq(_state.phase, C_Challenge.Phase.CLEANUP)
+	assert_eq(_state.result, ChallengeResult.Type.CANCELLED)
+	assert_eq(_visit.challenge_satisfaction_delta, 0)
+	assert_eq(_resolved_calls, 0)
+
+
+## Invalid deltas consume neither active nor display time; display begins on the next step.
+func test_invalid_delta_and_result_display_use_separate_steps() -> void:
+	_start()
+	_world.process(NAN)
+	_world.process(INF)
+	_world.process(-FRAME_DELTA)
+	assert_eq(_state.elapsed, 0.0)
+	_world.process(TIMEOUT)
+	assert_eq(_state.phase, C_Challenge.Phase.FAILURE)
+	assert_eq(_state.result_remaining, _state.definition.result_display_seconds)
+	assert_eq(_resolved_calls, 1)
+	_world.process(INF)
+	assert_eq(_state.result_remaining, _state.definition.result_display_seconds)
+	_world.process(_state.definition.result_display_seconds)
+	assert_eq(_state.phase, C_Challenge.Phase.CLEANUP)
+	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
+	assert_null(ChallengeService.actor_for(_subject))
+	assert_eq(_resolved_calls, 1)
+
+
+## A committed fact consumer may close/remove the body before the scheduled stage returns.
+func test_reentrant_terminal_consumer_retires_subject_without_stale_signal() -> void:
+	var consumer: TerminalRetirer = TerminalRetirer.new()
+	_world.add_observer(consumer)
+	_start()
+	_world.process(TIMEOUT)
+	assert_eq(consumer.fact_count, 1)
+	assert_true(consumer.saw_committed_state)
+	assert_eq(_state.phase, C_Challenge.Phase.CLEANUP)
+	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
+	assert_null(_state.pending_result)
+	assert_false(EntityAvailability.contains(_subject, _world))
+	assert_eq(_resolved_calls, 0)
+	assert_eq(_visit.challenge_satisfaction_delta, -30)
 #endregion

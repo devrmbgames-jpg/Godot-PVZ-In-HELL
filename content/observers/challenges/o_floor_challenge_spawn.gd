@@ -22,7 +22,8 @@ func _bind(entity: Entity) -> void:
 	var effect: E_FloorHazard = entity as E_FloorHazard
 	var subject: Entity = hazard.origin
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge if EntityAvailability.contains(subject, _world) else null
-	if profile == null or effect == null or state == null or state.phase != C_Challenge.Phase.ACTIVE or state.definition == null or not state.definition.condition is DEF_FloorChallengeCondition:
+	var floor: C_FloorChallenge = subject.get_component(C_FloorChallenge) as C_FloorChallenge if state != null else null
+	if floor == null or not floor.spawn_requested or floor.spawn_request_id != hazard.request_id or profile == null or effect == null or state == null or state.phase != C_Challenge.Phase.ACTIVE or state.definition == null or not state.definition.condition is DEF_FloorChallengeCondition:
 		HazardLifecycle.retire(entity, _world)
 		return
 	if not profile.size.is_finite() or profile.size.x <= 0.0 or profile.size.y <= 0.0 or not is_finite(profile.tick_seconds) or profile.tick_seconds <= 0.0 or not is_finite(profile.damage_per_tick) or profile.damage_per_tick < 0.0 or not is_finite(profile.contact_tolerance) or profile.contact_tolerance < 0.0:

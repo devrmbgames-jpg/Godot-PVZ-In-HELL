@@ -3,16 +3,6 @@
   "entries": [
     {
       "rule": "service-step",
-      "owner": "ChallengeService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Challenge lifecycle progression",
-      "task": "18_challenges.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
       "owner": "HungerService",
       "method": "tick",
       "target": "",
@@ -69,16 +59,6 @@
       "count": 1,
       "reason": "Quest polling",
       "task": "19_hunger_quests.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "system-service-step",
-      "owner": "S_ChallengeRuntime",
-      "method": "_step",
-      "target": "ChallengeService.tick",
-      "count": 1,
-      "reason": "Challenge lifecycle progression",
-      "task": "18_challenges.md",
       "removal_gate": "26/27"
     },
     {

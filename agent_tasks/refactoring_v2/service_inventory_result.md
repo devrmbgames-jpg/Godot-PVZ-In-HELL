@@ -14,11 +14,11 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | --- | --- | --- | --- | --- |
 | `challenges/challenge_effect_lifecycle.gd` | KEEP_SERVICE | 18 | Explicit retire/lookup over R_ChallengeEffect; no clock. | KEPT_WITH_REASON |
 | `challenges/challenge_presentation.gd` | KEEP_PRESENTATION | 18 | Read-only challenge text. | KEPT_WITH_REASON |
-| `challenges/challenge_service.gd` | SPLIT | 18 | Session commands mixed with elapsed/timeout/result/cleanup clock. | PENDING |
-| `challenges/floor_challenge_service.gd` | SPLIT | 18 | Effect setup polling, contact geometry and periodic damage. | PENDING |
+| `challenges/challenge_service.gd` | SPLIT | 18 | Explicit session/resolve/close commands retained; all time progression owned by S_ChallengeRuntime, old tick removed. | DONE |
+| `challenges/floor_challenge_service.gd` | SPLIT | 18 | Mixed class removed; reactive activation setup, S_FloorHazard damage clock and FloorContactGeometry, retained UID. | DONE |
 | `challenges/gaze_challenge_presentation.gd` | KEEP_PRESENTATION | 18 | Read-only warning strength/text. | KEPT_WITH_REASON |
 | `challenges/gaze_order_clue_presentation.gd` | KEEP_PRESENTATION | 18 | Clue text reads visit/registration. | KEPT_WITH_REASON |
-| `challenges/gaze_tracking_service.gd` | RENAME_MOVE | 18 | Head/camera ray measurement becomes GazeTrackingGeometry. | PENDING |
+| `challenges/gaze_tracking_service.gd` | RENAME_MOVE | 18 | Explicit pose/ray measurements renamed/moved GazeTrackingGeometry with retained UID, all callers migrated. | DONE |
 | `combat/combat_attribution.gd` | KEEP_RULES | 17 | Request-context construction and retaliation eligibility. | KEPT_WITH_REASON |
 | `combat/combat_geometry.gd` | KEEP_GEOMETRY | 17 | Origin/cone/line-of-sight queries. | KEPT_WITH_REASON |
 | `combat/combat_presentation.gd` | KEEP_PRESENTATION | 17 | Read-only combat diagnostics. | KEPT_WITH_REASON |
@@ -201,6 +201,8 @@ Reusable one-visit creation/materialization and next-arrival lookup remain expli
 Activity/decision/community/social/home-delivery/offers are explicit BT-selected or event/day commands. Task 16 verifies KEEP rather than granting them scheduling ownership. Validate `test_npc_community.gd`, `test_district_delivery.gd`, `test_district_delivery_offers.gd`. NpcLightingService's registry/context is a lifecycle-fed derived cache, not a second light-state authority.
 
 ### 17 / 18 / 19 — combat, challenges, hunger and quests
+
+**18.A–18.C DONE**: real lifecycle/floor damage owners, committed ChallengeActivated reactive setup, transient session factory identity and Geometry roles. Old clocks/classes/callers removed; GUT 72/72 and actual headless floor Jolt support/main cleanup smoke PASS.
 
 **17.A–17.D DONE**: real melee/attack/projectile/isolated-customer scheduled owners, old clock APIs/callers removed, deferred identity/generation and reentrant damage guards. Explicit commands/Geometry/attribution retained; manual weapon presentation moved with UID. Combat GUT and actual main headless Jolt/escalation/self-defense smoke PASS.
 
