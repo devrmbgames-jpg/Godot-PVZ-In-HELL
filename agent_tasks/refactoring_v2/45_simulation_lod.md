@@ -32,6 +32,7 @@ Cadence/budget independent of participation. NpcRecord остаётся ECS-owne
 - aggregate population queries progress dormant metadata; default enabled-only actor queries are not used for save/cleanup/schedule;
 - body and Entity stay the same owner; physical state remains Godot authority;
 - diagnostic provider показывает mode/pin/transition reason и pending arrival.
+- Street NPC is not hidden merely because it leaves camera view; ACTIVE/DORMANT follows existing placement/participation semantics. Reduced active cadence is separate, with bounded response latency. Dormant hunger/health/action timers follow their current absent-phase owner policy; no blanket elapsed-time catchup/new offscreen outcomes.
 
 ## Acceptance
 

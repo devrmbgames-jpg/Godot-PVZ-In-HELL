@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [25_persistence_remaining.md](25_persistence_remaining.md), все execution tasks 11–24 завершены. Задачи 28–49 не являются prerequisites этого checkpoint.
+Зависимости: [25_persistence_remaining.md](25_persistence_remaining.md), все execution tasks 11–24 завершены. Foundation 40 уже завершена до 11; поздние layout/core tasks 28–33 и 41–49 не являются prerequisites этого checkpoint.
 
 ## Goal
 

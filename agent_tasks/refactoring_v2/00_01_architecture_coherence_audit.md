@@ -164,6 +164,8 @@ README задаёт один последовательный topological order.
 
 Known typed-contract ordering defect исправлен. Representation foundation risk явно передан 00_02/03 и должен быть закрыт до 00_05; промежуточный graph не объявляется окончательно готовым. Ready/bootstrap invariant уточнён без addon/runtime edits. Remaining broad scopes и acceptance проверяются в 00_04.
 
+Final disposition: 00_03 выбрала retained physical-root ACTIVE/DORMANT и merged population→npc; 00_04 закрыла construction/save/installer/removal gates; 00_05 уточнила actual implementation cycles vs reciprocal leaf contracts и назначила stable-ID implementation25. Открытых global design findings этого audit к final gate нет.
+
 ## Validation result
 
 Все roadmap tasks сопоставлены с graph. `python utils/validate_refactoring_preflight.py`: PASS. `git diff --check`: PASS. `--require-gate` пока намеренно не разрешён: новый 00_05 ещё не выполнен. Runtime/parser/GUT/gameplay не запускались: runtime source не меняется.

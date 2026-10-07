@@ -141,6 +141,8 @@ Remove capability workflow: удалить Trait/reference из scene/Template, 
 
 Body separation не улучшает ни один из шести authoring walkthroughs и добавляет actor/body casts, BT bindings и scene/save migration после 41/42. C_District.people — уже ECS-owned aggregate; metadata там не дублирует C_Health/Inventory. 00_03 должна либо оправдать detach measured requirement, либо заменить baseline сохранением existing physical-root + inactive processing. До этого representation choice не объявлена approved.
 
+Final disposition: 00_03 сохранила physical roots/aggregate и выбрала ACTIVE/DORMANT; body detach deferred. Final 00_05 подтверждает scene-first authoring и устраняет coarse-DAG wrapper tax. Этот UX audit не оставляет unresolved representation decision.
+
 ### Four UX views
 
 | View | Оценка target plan | Обоснование / ограничение |

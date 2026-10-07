@@ -10,9 +10,11 @@ Status: **PLANNED**
 
 ## Persistence
 
-Codec/snapshot/store/migration helpers обычно остаются вне ECS scheduling.
+Codec/snapshot/store/validation helpers обычно остаются вне ECS scheduling. Old-schema converters вне scope по решению владельца.
 Отделить serialization от gameplay authority.
 Не менять save schema только ради архитектурной чистоты без отдельной необходимости.
+
+This milestone implements the explicit stable authored actor identity specified in 04, before path moves 28–32. Assign world/level-scoped local instance IDs to every persistent placed Entity; generated domain IDs remain persisted sequences. Remove scene/<relative path> fallback and NodePath-based restore matching with all callers/scenes/fixtures; diagnostic scene paths are not identity. Bump incompatible schema, reject old saves; test that renaming/reparenting an authored node retains identity and links. No legacy-key alias. Phase 1.04 defines the contract; it does not perform this runtime migration.
 
 Complete safe snapshot/reconstruction contract из 04: Night prepared-Morning quiescence, no pending structural/outcome work at capture, no repeated preparation on write retry, immutable snapshot before I/O. Validation includes all prefab/recipe/ID/link checks before live replacement; new-template startup suppresses gameplay effects until restore/fixup. Missing required endpoint rejects; explicitly optional endpoint may be dropped with a reason, never guessed. Invalid save leaves prior valid state/file intact; unexpected startup construction failure abandons incomplete world rather than simulating partial restore. No old-save converters or aliases.
 

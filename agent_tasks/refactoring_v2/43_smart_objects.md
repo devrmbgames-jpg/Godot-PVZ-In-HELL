@@ -32,6 +32,8 @@ Reservation token/slot exclusivity проверяются при execute и canc
 
 Acquire выполняется одной serialized owning operation без yield между eligibility/exclusivity check и relationship mutation. Occupancy reverse index — derived cache из Relationships, не второй slot authority. Race/conflict fixture доказывает единственного победителя и отсутствие leaked reservation при failed execute.
 
+If structural mutation is deferred, eligibility/exclusivity is checked when the owning queued operation executes, not only when requests enqueue. Caller remains pending until the relation is committed; stale target/slot is rejected at that boundary. Token includes world/session + object incarnation + acquisition sequence; it is transient and is not serialized as durable identity. Late callback from a removed/recreated object or pre-load world cannot release a new reservation even when stable actor/object IDs match. Fixtures cover two queued contenders, object reincarnation and world reload.
+
 ## Validation
 
 Reservation/content validation + representative interaction tests.

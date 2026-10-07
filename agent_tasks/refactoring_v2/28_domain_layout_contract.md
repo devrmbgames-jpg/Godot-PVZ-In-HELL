@@ -25,7 +25,7 @@ Canonical role names задаёт `utils/validate_domain_structure.py`.
 
 - проверить/утвердить список gameplay domains;
 - описать dependency direction между domains;
-- manifest records allowed source→target edge and public symbol plus read/query/request/subscription rights. Public declaration alone never authorizes an edge or mutation. Runtime graph acyclic; concrete NPC→Customer reverse import, domain→Persistence and cross-owner Dialogue cycles resolved before moving that owner;
+- manifest records allowed source→target edge and public symbol plus read/query/request/subscription rights. Public declaration alone never authorizes an edge or mutation. Actual file/symbol implementation graph acyclic; reciprocal coarse domain read/data/fact edges may be declared when no implementation cycle/writer conflict exists. Do not create wrappers merely to enforce a coarse DAG. NPC→Customer implementation, domain→Persistence and cross-owner Dialogue cycles resolved before moving that owner;
 - включить transition-mode domain validator в общий structure validator;
 - запретить произвольные role-folder spelling variants;
 - определить, что считается truly shared и что обязано иметь domain owner;
@@ -35,7 +35,7 @@ Migration map включает `.gd.uid`, scene/resource UIDs, preload/load, ext
 
 Ownership moves режутся по целому owner: его scripts/resources, all incoming references, test/tooling discovery и current-format save adapters входят в один coherent commit. 29 имеет NPC и Customers slices, 30 — Interaction/Combat/Motion, 31 — отдельные оставшиеся owners. No DONE пока весь заявленный map не закрыт. `.tscn` editing соблюдает opened-scene ownership; Godot MCP операции при открытой сцене, raw edits только при закрытой. Generated `.godot/` не является source migration.
 
-NPC/Customer dependency decomposition is one responsibility slice before their path move: base NPC hierarchy/trees import only lower contracts, Customer-specific subtree belongs to Customers; cross-owner ctx belongs existing global UI/scene glue. Do not scatter base-class edits into later Traits/LOD task. Runtime path validator must not treat comments/string literals as class_name code references; declared dynamic loads remain bounded review/Doctor checks. Asset graph is checked separately from code graph.
+NPC/Customer dependency decomposition is one responsibility slice before their path move: base NPC hierarchy/trees import lower contracts, Customer subtree belongs Customers; cross-owner ctx/UI opening belongs existing global glue. Domains cannot import global panel/context construction; split existing start responsibility into UI routing and domain begin/end API. Do not defer hierarchy changes to Traits/LOD. Validator distinguishes leaf contract reference from behavioral implementation edge and ignores comments/strings as symbols. Dynamic loads remain review/Doctor checks; asset graph separate.
 
 ## Acceptance
 

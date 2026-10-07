@@ -1,8 +1,10 @@
 # Refactoring v2.00.05 — preflight readiness gate
 
-Status: **PLANNED**
+Status: **DONE**
 
-Result: **PENDING_REVIEW**
+Result: **READY_FOR_IMPLEMENTATION**
+
+Blockers: NONE
 
 Зависимости:
 - [00_01_architecture_coherence_audit.md](00_01_architecture_coherence_audit.md)
@@ -99,78 +101,84 @@ Architecture clarity: X/10
 
 Documentation/validator-only. Godot gameplay/runtime implementation и broad gameplay tests не запускать.
 
-## Current — второй полный review 2026-10-07
+## Current — повторный полный readiness review 2026-10-07
 
-00_01 → 00_02 → 00_03 → 00_04 завершены последовательно до gate. Повторно проверены исправленный 50-task roadmap, dependencies/acceptance, final proposal и соответствие AGENTS/skills/runtime contracts. Phase 1–3 tasks остаются PLANNED; изменения их файлов — исправленный план, не выполнение Work.
+00_01 → 00_02 → 00_03 → 00_04 завершены строго последовательно с отдельными commits 0485062e, 56482e6c, f2c81333, 35ce7953. Этот gate — отдельный второй review исправленного плана в новом pass, не повтор checkbox-отчёта первого прохода. Повторно сопоставлены 50-task roadmap, contracts/scopes/acceptance, target proposal, AGENTS и relevant skills с actual GECS/bootstrap/NPC/Dialogue/save contracts. Phase 1–3 PLANNED; runtime migration не начата.
 
 ### Final review matrix
 
 | Area | Verdict / evidence |
 | --- | --- |
-| Dependency graph | PASS: все tasks ровно один раз, 40 до moves, 33 до первого move, 47 до AI/LOD, 26 не зависит от поздней Phase 2B/C; automated order/cycle/link check |
-| Authoritative ownership | PASS: C/R domain state, Systems cadence/query, Observers reactions, Services synchronous operations; Godot physical authority отдельно |
-| UI / scenes | PASS target: Control glue вне ECS, visible placed scene, read-only preview; shared Inspector/headless rules |
-| Authoring cost | PASS target: ordinary variant 2–4 local edits, reused Template/Profile; new mechanic честно требует code |
-| Debugging / agent context | PASS target: owner path/public manifest/local regression, early reason/source providers, bounded trace, native BT inspector |
-| Overengineering | PASS: GOAP/4 tiers/Utility framework deferred; inheritance/hooks/global bus/default slot Entity rejected; no placeholder layer |
-| Vertical boundaries | PASS target: whole ownership + references/UIDs/loader/tooling; class_name/data contracts по manifest; checker не обещает semantics |
-| Commands/Events | PASS target: targeted transport, immutable payload, one handler, accepted vs committed result; ordering/cycle fixtures 40 |
-| Templates/Traits | PASS target: flat recipes, isolation, conflict/override/restore policy, ready/fixup, placed pre-registration gate |
-| Smart Objects | PASS target: existing executor, actor→object slot/token, serialized acquire/cancel, stale-token/loss/conflict fixtures |
-| AI | PASS target: schedule obligations, bounded selection, native LimboAI; cancel/resume/target loss, no duplicate authority |
-| Representation | PASS target: canonical Entity, physical child/DTO separation, two modes/cadence, A/B/C gates, active-session pinning |
-| Time/randomness | PASS target: early game ticks, day/phase policy, canonical seed encoding/sequence/order; no physics lockstep |
-| Persistence | PASS target: new-format identity/links/safe restore/schema rejection; old saves не мигрируются по решению владельца |
-| Validators | PASS preflight: graph/links/encoding + 10 fixtures, transition domain + 4 fixtures. Global structure FAIL recorded below |
-| Milestone sizing | PASS plan: responsibility/family/whole-owner commits, adapters removed before declared DONE; 45A/B/C explicit largest risk |
-| Acceptance | PASS plan: Phase 1 baseline repair before runtime, execution 27, strict layout/dependency 32/33, core 49, style coverage 61–65, final 66 |
+| Dependencies | PASS: inventory 10 → typed foundation 40 → execution 11–27 → layout 28/transition guard 33 → whole-owner moves 29–32 → time/seed 47 → composition/authoring/AI/LOD 41–45 → Doctor/debugger/acceptance 46/48/49 → bulk style 60–66 |
+| ECS authority | PASS target: C/R and owned aggregate metadata; single writer per field; Godot owns physical transform/velocity; Blackboard/UI/Dialogue/cache derived only |
+| Execution ownership | PASS target: query/time/cadence in Systems, reactions in Observers, synchronous operations in Services; callback solvers stay engine-owned; no generic service dispatcher or mega-System |
+| Commands/facts | PASS target: targeted GECS or synchronous API, explicit accepted/pending/committed result, immutable payload, one command handler; distinct idempotent fact consumers; PER_GROUP flush/reentrancy tests |
+| Vertical boundaries | PASS target: 14 owners, population/schedule under npc; edge/symbol/read/write manifest; actual implementation cycles fail; reciprocal leaf data contracts alone require no wrappers |
+| Global glue | PASS target: UI/resource/context opening and cross-owner composition outside domains; domains expose narrow session/action API, no domain→UI/shared→domain/domain→persistence imports |
+| Scene-first authoring | PASS target: real visible physical-root scenes, native declarative recipes; optional inline Template, Profile/bindings/ID provenance; explicit repair; no empty Template asset or scene back-reference |
+| Templates/Traits | PASS target: flat pure recipes, each provider once, nested mutable isolation, pre-registration ID checks; closed installer manifest/all families before DONE, no manual+Trait double setup |
+| Bootstrap/restore | PASS target: explicit World context before registration; ECS.world setter does not run early; setup/on_ready/Observers passive until startup overlay/fixup/ready; failed construction publishes no gameplay effects |
+| Content workflow | PASS target: six walkthroughs and two-variant cookbook/fixtures; existing Trader/Quest configuration author-selectable; new objective/executor/attack kind is honestly a new mechanic |
+| Smart Objects | PASS target: marker/slot_id + actor→object R/token; occupancy derived; atomic deferred acquire checks at execution; queued contenders, stale incarnation/load/cancel/loss fixtures |
+| AI | PASS target: obligations/bounded selection/native LimboAI; one ECS action lifecycle, cancel/resume/target-loss tests; pure optional scoring; GOAP deferred |
+| AI budgeting | PASS target: per-responsibility work-unit caps/fair cursor/coalesced wakes; urgent cancellation, burst/no-starvation/max-wait diagnostics; no additional scheduler or performance promise from Hz examples |
+| Simulation LOD | PASS target: ACTIVE/DORMANT keeps allocated physical roots; one participation writer, dormant actors still resolvable, current absent-phase semantics; safe reactivation/pinning/latency tests; no camera-driven disappearance |
+| Time/randomness | PASS target: elapsed integer ticks/quantum/remainder distinct from player calendar; pause/skip/Night policy; persisted decision sequence/canonical seed/output fixture; no physics lockstep |
+| Stable IDs | PASS target: 04 specifies baseline, 25 implements stable placed IDs/removes path matching before moves; world/local vs spawned/content/operation namespaces; node rename/reparent fixture |
+| Persistence | PASS target: Night prepared-Morning quiescent snapshot, retry once semantics, version rejection, defaults→save overlay→links→cache→ready; no old-save migration/mid-action checkpoint or generic undo |
+| Validation/observability | PASS preflight tooling; future owner providers start at 19/24/40–45, Doctor46 aggregates and Debugger48 views; static guard limits/write semantics acknowledged |
+| Milestone closure | PASS plan: responsibility/whole-owner/family slices with all callers, closed manifests and removal before DONE; 45A participation/B transition/C save+cost replaces speculative shell migration |
+| Style/acceptance | PASS plan: changed/new code follows current style/parser throughout; bulk toolchain/pass after49; coverage manifest61–65, final66; no deferred features silently added to acceptance |
 
-### Findings исправлены в этом повторном review
+### Findings исправлены в final review
 
-1. Validation внутри `_initialize` слишком поздно для GECS ID-collision replacement. В 41/proposal закреплён project-owned placed World/bootstrap: context/recipes/IDs/endpoints **до** pinned registration once, затем fixup/ready и first simulation. Factory использует тот же gate; addons read-only.
-2. Trader demo в 41 могла требовать deferred new mechanic. Mandatory example — existing resident/customer; Trader optional при готовой capability.
-3. Stale mandatory GOAP references, inconsistent reservation name и повторяющиеся proposal subsection IDs исправлены; time/seed синхронизирован с 47.
-4. Public data contracts разрешены из owning component/profile/trait paths по manifest без forwarding copy. Read access не передаёт writer authority.
-5. Headless placed/spawned capability contract отделён от subjective Inspector QA; visual pass не заявлен.
-6. Preflight fixtures дополнены escaped repository link и missing final result; итог 10 tests.
+1. **Stable-ID implementation gap.** 04 была contract-only, а path moves уже рассчитывали на durable placed IDs. Runtime migration всех authored IDs и removal `scene/<path>`/NodePath matching назначены 25, до 28–32; no aliases, explicit schema bump/new-format fixtures.
+2. **Deferred reservation race.** Enqueue-time check недостаточен: acquire проверяет eligibility/exclusivity в момент mutation. Token включает world/session + object incarnation + sequence; callbacks до load/recreate не отменяют новый reservation. Acceptance 43 усилена.
+3. **Coarse domain DAG overengineering.** Blanket запрет взаимных публичных data/query references заставил бы создавать shared copies/wrappers. 28/33/proposal различают actual file/symbol implementation cycles и aggregate domain graph; declared leaf contract references допустимы при single writer и отсутствии actual cycle. Behavioral public API cycle всё ещё FAIL.
+4. **Domain→UI back edge.** Одного переноса ctx недостаточно, если domain start() продолжает его создавать. Panel/resource/context construction явно moves into existing global UI/glue; domain retains begin/end/eligibility/outcomes. Scope 29 закрывает callers/hierarchy одновременно.
+5. **Stale scope wording.** 26 больше не исключает early40 из prerequisites по numerical range; optional Template consistent throughout proposal; new/changed code style/parser действует до bulk Phase3. Native scene recipes являются target provider, no empty asset/fallback.
+6. **LOD behavior scope.** Street NPC не исчезает из-за camera culling, dormant timers следуют existing absence semantics; retained-body memory and tuning measurements explicit, no speculative offscreen gameplay.
+
+После этих fixes снова сопоставлены затронутые scopes 25/26/28/29/33/41/43/45 с whole roadmap/target и prerequisites. Ни один fix не требует нового runtime framework или Phase 0 gameplay edits.
+
+### Freedom pass
+
+С нуля выбрали бы эту исправленную baseline: native Godot scene/component authoring для простых объектов, flat Traits для повторяемых capability bundles, Profile для variants, один prepare/validate path и explicit construction gate GECS. Removing Templates entirely would restore duplicated multi-capability wiring; forcing them onto every simple object would add ceremony. Optional composition with one validated provider resolves both cases.
+
+Existing population record aggregate and physical roots fit нынешний Godot workflow лучше обязательного actor shell. Dormancy/budget решают processing cost; память не исчезает и измеряется в 45. Separate district ownership, coarse-DAG wrappers, generic action/quest interpreter, bus, planner and custom RNG do not justify their cost. NPC и Customer remain separate because personality/behavior and visit/package/settlement have distinct lifecycle/regression owners; known inheritance/context back edges receive concrete decomposition scope.
+
+Новая механика получает owner, data/recipe contract, System/Observer only for behavior, validator/diagnostic provider и focused fixture. Вариация существующей mechanics меняет scene/Profile/Definition/Dialogue/bindings; новый ET/script/global registry edit не требуется. Debug snapshots explain source/rejection/cancel/result with bounded trace/native BT inspector. Temporary adapter cannot survive its owned slice or task DONE.
 
 ### Required scorecard
 
-Оценки относятся к **target plan**, не текущей реализации/playtest. 8 = ownership/workflow определены и gates/QA owners есть; 9 = особенно ясная граница без outstanding global design choice. 10 не ставится до практического применения.
+Оценки относятся к target plan, не текущему runtime или visual playtest. 8 — удобный explicit workflow с доказуемыми gates и оставшейся practical QA; 9 — особенно ясная ownership/context boundary. 10 до production usage не ставится.
 
 | Category | Score | Evidence / limitation |
 | --- | --- | --- |
-| Programmer UX | 8/10 | Canonical path, query/deps, contracts, local fixtures; 45A требует тщательного caller review |
-| Designer UX | 8/10 | Visible scene, inline Resources, named bindings; ergonomics — owner QA 42 |
-| Debugging UX | 8/10 | Early reason snapshots, bounded trace/native BT; actual view — 48 |
-| AI-agent UX | 9/10 | Ordered tasks, owner paths, bounded regression, graph/dependency gates |
-| Content scalability | 8/10 | Existing variant data-driven, reused executor/provider; new mechanics требуют code |
-| Architecture clarity | 9/10 | One domain authority, physics exception, two modes, no hidden scheduler/bus/planner state |
+| Programmer UX | 8/10 | Early typed APIs, local ownership/fixtures, no shell or wrapper tax; bootstrap/domain decomposition still require careful implementation |
+| Designer UX | 8/10 | Visible scenes, inline optional Templates, local Profiles/bindings and two-variant gates; actual Inspector ergonomics await42 QA |
+| Debugging UX | 8/10 | Early reason/provenance/result snapshots, fairness counters and native BT inspector; view usability awaits48 QA |
+| AI-agent UX | 9/10 | Ordered bounded tasks, owner/contract manifest, staged/commit scope checks and explicit completion/removal gates |
+| Content scalability | 8/10 | Variants reuse recipes/executors without code; new mechanics require explicit owner; retained body budget measured at45 |
+| Architecture clarity | 9/10 | Per-field C/R/aggregate authority, physical exception, explicit startup/result/time/session contracts; no competing AI/state framework |
 
-### Freedom pass / decision
+### Readiness and open questions
 
-Да: с нуля для Godot + GECS + LimboAI + Dialogue Manager выбрали бы эту bounded baseline. Retained layers решают concrete authoring/scheduling/absence/debug problems; deferred layers не нужны для acceptance. Новая механика имеет owner/capability/provider; existing variant обычно меняет scene/Profile/Definitions/bindings. Implementation details решаются локально в task без пересмотра всего graph.
+Architectural blockers отсутствуют. Next — 01 contract/guardrail pass отдельным запросом; Phase 1 здесь не начата. Local implementation choices имеют owners: quantum/hash framing/output vectors —47, concrete public symbol/slice map —10/28, Inspector details —42, actual AI work caps/population costs —44/45. Эти решения не требуют нового global design. Body detach/GOAP/macro travel требуют отдельного evidence-driven feature decision и не являются обязательным acceptance.
 
-**READY_FOR_IMPLEMENTATION** разрешает следующий Phase 1 contract/guardrail pass. Это не runtime acceptance и не утверждение, что текущий проект уже проходит все checks. Unresolved architectural blockers нет; infrastructure debt имеет repair owner до runtime migration.
-
-### Existing debt / future gates
-
-- Project structure сейчас FAIL: 31 pre-existing diagnostics, missing smoke script reference + metadata шести R26 tasks. Owner **03**, full PASS до 10; Phase 0 не исправляла эти файлы и не ослабила validator. Debt не требует architectural redesign и не блокирует начало contract Phase 1.
-- Highest implementation risk — 45A physical-root/identity separation. All callers/BT/scene/save adapters входят в coherent slice; no duplicate actor/record authority. Failure удерживает 45 unfinished, не легализует permanent adapter.
-- Parser/GUT/smoke/content/strict runtime gates ещё не выполнялись; обязательны в owning implementation tasks. Subjective Inspector/AI/feel/debugger QA — 42/44/45/48/66, не автоматический PASS.
+Known infrastructure debt: project structure FAIL with 31 unchanged errors (missing smoke-script reference and R26 metadata). Repair owner03, mandatory full PASS before10. Это blocker runtime migration, но не Phase1 documentation/guardrail work; validator не ослаблен. Subjective Inspector/AI/feel/debugger QA assigned42/44/45/48/66. No visual/runtime acceptance is claimed here.
 
 ## Validation result
 
-- `python utils/validate_refactoring_preflight.py --require-gate`: PASS.
-- `python -m unittest discover -s tests/tools -p test_validate_refactoring_preflight.py`: PASS, 10 tests.
-- `python utils/validate_domain_structure.py`: PASS (transition).
-- `python -m unittest discover -s tests/tools -p test_validate_domain_structure.py`: PASS, 4 tests.
-- `python utils/validate_project_structure.py`: FAIL, known 31 pre-existing diagnostics assigned 03; no new Phase 0 diagnostics.
+- `python utils/validate_refactoring_preflight.py --require-gate`: PASS; graph/links/encoding, five DONE audits, all future tasks PLANNED, unique final result/README/proposal/next task/blockers/six scores.
+- `python -m unittest discover -s tests/tools -p test_validate_refactoring_preflight.py`: PASS, 20 tests in 00_04; no validator/test changes in this final review.
+- `python utils/validate_domain_structure.py`: PASS (transition); 4 fixture tests PASS in00_04, unchanged tooling thereafter.
+- Commit footprint of preceding four audits plus staged final-review changes: PASS via `--phase0-commit`/`--check-staged-scope`; unrelated unstaged config/addon edits preserved.
+- `python utils/validate_project_structure.py`: FAIL, known31 unchanged diagnostics verified in00_04 and assigned03; no new tooling/structure contract added afterward.
 - `git diff --check`: PASS.
-- Scope: no project-owned `.gd`/`.tscn` edits; Phase 1–3 PLANNED; unrelated config/addon edits preserved.
 
-Godot parser/gameplay/GUT/rendered checks не запускались: изменены planning docs и Python validator/tests. Primary Mass/Flecs references проверены в 00_03, GECS API — local source.
+Godot/parser/GUT/gameplay/rendered checks не запускались: runtime `.gd`/`.tscn` не изменялись. Existing Python tooling fixtures ran; future behavioral/strict/content acceptance remains mandatory in implementation owners. Mass/Flecs references opened in00_03; actual APIs verified from local pinned GECS/Dialogue source/skills.
 
 ## Next
 
-[01_architecture_contract.md](01_architecture_contract.md) — отдельный следующий рабочий запрос. **Не начата в этом pass.**
+[01_architecture_contract.md](01_architecture_contract.md) — следующий отдельный рабочий запрос. **Остановиться; не начинать Phase 1 в этой сессии.**

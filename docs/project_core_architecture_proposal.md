@@ -1,8 +1,8 @@
 # Project Core Architecture
 
-Status: **PREFLIGHT_CANDIDATE — SECOND_REVIEW_IN_PROGRESS**
+Status: **PREFLIGHT_TARGET_APPROVED — IMPLEMENTATION_PENDING**
 
-Документ повторно проверяется последовательным Phase 0 preflight 2026-10-07. Предыдущая readiness не разрешает implementation во время этого pass; новый verdict принадлежит `agent_tasks/refactoring_v2/00_05_preflight_readiness_gate.md`. Runtime/Phase 1 ещё не начаты. Цель — новый контент преимущественно из сцен, ассетов, Definitions, Templates/Traits, Smart Objects, Dialogue, profiles/schedules и настроек уровней. Новый runtime code нужен прежде всего для новой механики; existing variant обычно создаётся данными.
+Документ повторно проверен последовательным Phase 0 preflight 2026-10-07; final full review `agent_tasks/refactoring_v2/00_05_preflight_readiness_gate.md` — READY_FOR_IMPLEMENTATION. Runtime/Phase 1 ещё не начаты; следующий запрос начинается с 01 architecture contract. Цель — новый контент преимущественно из сцен, ассетов, Definitions, Templates/Traits, Smart Objects, Dialogue, profiles/schedules и настроек уровней. Новый runtime code нужен прежде всего для новой механики; existing variant обычно создаётся данными.
 
 ## 1. Authoritative gameplay model
 
@@ -78,7 +78,7 @@ InteractRequest → Interaction → InteractionStarted
 
 Commands/Requests означают намерение выполнить изменение. Events/Outcomes означают уже произошедший authoritative факт.
 
-Transport — существующий GECS targeted event/request path либо synchronous domain operation. Не вводить global EventBus, wildcard registry, generic dispatcher или retry/saga framework. Payload immutable snapshot; request имеет target/operation identity. Bool submit означает принятие; outcome подтверждает результат. Gameplay handler один, presentation listeners read-only. Reactions публикуются после coherent commit; cycles commands/outcomes — review failure. Deferred structural work flush на owning boundary и проверяется ordering test.
+Transport — существующий GECS targeted event/request path либо synchronous domain operation. Не вводить global EventBus, wildcard registry, generic dispatcher или retry/saga framework. Payload immutable snapshot; request имеет target/operation identity. Deferred submit reports accepted/pending, committed result confirms completion; a synchronous operation may return committed directly under its explicit contract. One handler owns a command; multiple fact consumers own distinct idempotent effects, presentation listeners read-only. Reactions publish after coherent commit; reentrant cycles are review failure. Deferred structural work has an explicit flush boundary: deps alone does not flush a PER_GROUP buffer.
 
 Цель — уменьшить `Service → Service → Service` coupling и позволить нескольким системам реагировать на результат без скрытого call graph.
 
@@ -145,6 +145,8 @@ NPC --R_Reserved(slot_id, token)--> SmartObject
 
 Одни и те же affordances доступны игроку, LimboAI, quests, Dialogue и tutorials через общий domain contract. Future optional GOAP будет consumer того же API, не обязательным участником baseline.
 
+Acquire checks eligibility/exclusivity atomically at mutation execution, including deferred requests. Pending enqueue is not a reservation. Token carries world/session and object incarnation plus acquisition sequence; it cannot cancel a new object/world reservation with the same stable ID. Occupancy is derived from R_Reserved, marker path is local authoring and slot_id is durable content identity.
+
 ## 6. AI hierarchy
 
 Mandatory preflight baseline:
@@ -208,6 +210,8 @@ Keep the physical-root NPC and visible scene contracts. C_District.people is an 
 Mode derives from authoritative participation/placement and active-session pins. Dormant bodies remain allocated; this baseline reduces update/physics cost, not memory. Existing World.disable_entity may exclude the actor from ordinary queries; the NPC population System queries the enabled aggregate and explicitly resolves registered dormant actors by stable ID. Do not rely on default enabled-only queries for save/restore, cleanup or schedule progression. Godot owns transform/velocity; dormant position is not a second physical simulation. Existing home/outside/day-phase behavior remains; no new offscreen travel/economy/combat mechanics.
 
 A transition generation prevents repeated participation/arrival/outcomes. Held items, combat, dialogue and active slot use pin ACTIVE, or are cancelled through owners before dormancy. Preserve durable home/work assignments, release transient sessions. Reactivation validates placement at a safe physics boundary and never repeats arrival/settlement; blocked placement has bounded retry with a reason, then a defined failure. Cadence hysteresis prevents active/dormant oscillation.
+
+Street NPCs do not disappear merely because the camera looks away. Active reduced cadence is independent; response latency is bounded/tested. Dormant hunger/health/timer behavior follows existing absence policy, not a blanket catchup calculation or a new offscreen outcome path.
 
 **Body detach/lightweight actor shell, offscreen travel, four tiers and population aggregation - DEFER** until measured memory/physics/CPU cost cannot meet the actual population budget with dormancy/cadence. A future detach task must migrate all casts, collider-to-owner resolution, BT agents, scenes/exports and save adapters before DONE. No placeholder shell/provider/alternate execution path in Refactoring v2.
 
@@ -393,7 +397,7 @@ Instance bindings отвечают за контекст конкретного 
 
 ### 10.1 Minimal authoring contract
 
-Для варианта существующей capability обязательны visible scene instance, один Profile и существующий Template. Template можно хранить inline в базовой сцене; отдельный `.tres` создаётся при переиспользовании. Новый `ET_*` script нужен для новой capability, а не для каждого NPC или предмета. Template inheritance в baseline отсутствует; композиция плоская, через reusable Traits и Profiles.
+Для варианта существующей capability используются visible scene instance и нужный Profile; reusable composition использует existing Template, а простой declarative scene-only object не требует empty Template. Template можно хранить inline; отдельный `.tres` создаётся при переиспользовании. Новый `ET_*` script нужен для новой capability, а не для каждого NPC или предмета. Template inheritance в baseline отсутствует; композиция плоская, через reusable Traits и Profiles.
 
 Resolved precedence: scene owns mesh/collision/animation/node paths and declarative intrinsic/engine-glue Components; optional Template owns reusable capability recipes; Profile owns tuning; instance owns stable ID, bindings and enumerated initial overrides. Scene-only declarative Entity is valid and passes the same preparation/validation path, without an empty Template asset. All procedural capability installers migrate under a closed manifest in 41; a migrated capability cannot also be installed by old on_ready/factory code. GECS receives each provider exactly once, including pure define_components output. Duplicate providers fail unless field merge is explicitly declared; no last-Trait-wins. Save overlay follows defaults and precedes ready, preserving HP/inventory.
 
@@ -677,9 +681,9 @@ Strict mode дополнительно запрещает legacy horizontal game
 
 Owners baseline: `npc`, `customers`, `interaction`, `combat`, `motion`, `packages`, `hazards`, `commerce`, `inventory`, `quests`, `challenges`, `needs`, `time`, `persistence`. Population/district schedules and their configuration belong to npc: they operate on the same personalities and lifecycle, so a separate district domain adds a cyclic boundary without independent ownership. Hunger — needs; wallet/purchase — commerce; receiving/delivery — packages; input/focus — interaction; camera/locomotion — motion. Shared требует нескольких реальных consumers, не превращается в universal gameplay service. Empty roles не создавать.
 
-Runtime direction: shared kernel не импортирует domains; leaf capability contracts feed npc and customers; quests/challenges consume producer-owned facts; persistence imports declared snapshot adapters. Domain runtime import graph must be acyclic, including public API imports. Public visibility alone does not authorize an edge. Domain code does not import persistence: startup/autosave wiring belongs to global composition. Customers imports npc public capabilities; npc base code cannot import customer implementation/classes. Customer-specific BT subtrees/action adapters belong to customers and use npc contracts. Scene/BT asset composition is a separate authored graph.
+Runtime direction: shared kernel не импортирует domains; leaf capability contracts feed npc and customers; quests/challenges consume producer-owned facts; persistence imports declared snapshot adapters. File/symbol implementation dependency graph must be acyclic, including behavioral public API imports. A coarse domain graph may contain reciprocal references to declared leaf data/read/query/fact contracts when the actual implementation graph has no cycle and writer authority remains one-way; do not add wrappers/shared copies merely to make this coarse graph a DAG. Public visibility alone does not authorize an edge. Domains do not import persistence: startup/autosave wiring belongs global composition. Customers imports npc capabilities; npc base code cannot import customer implementation/classes. Customer-specific trees/adapters belong customers. Asset graph is separate.
 
-Cross-domain Dialogue contexts/action routing that bind multiple owners live in existing global Godot glue (UI/scene integration), not in shared kernel or a base NPC class. Prefer relocating/splitting existing context responsibility over adding forwarding APIs. Composition may subscribe to facts and invoke typed owner APIs; it cannot own a timer, transaction state or gameplay polling. Task 28 records source→target public symbols plus read/query/request/subscription rights and forbidden writes. Task 33 checks allowed edges, public surface and cycles separately. Authored assets (например package→hazard scene) имеют отдельную policy и не маскируют runtime cycles.
+Cross-domain Dialogue contexts/UI-opening routing live in existing global Godot glue, not shared kernel or a base NPC class. Move panel/resource/context construction out of domain start methods; domains expose begin/end/eligibility/session outcomes and never import global UI. Composition binds public APIs/facts without owning gameplay timers/state; relocations replace existing responsibility, no forwarding registry. Task 28 records source→target symbols plus read/query/request/subscription rights and forbidden writes. Task 33 separately checks actual file/symbol cycles and coarse domain edges. Authored assets (package→hazard scene) do not mask runtime cycles.
 
 Task 28 уточняет file-to-owner map по inventory 10 в рамках этой policy. Public `contracts/` имеют explicit symbol/path manifest; перенос internal класса в папку не разрешает dependency. Validator 33 индексирует class_name; arbitrary dynamic imports запрещены вне declared adapters и проверяются review/content scan.
 
@@ -786,5 +790,7 @@ When an architectural rule is derived from one of these references, documentatio
 Persistence baseline remains Night-only prepared-Morning snapshots: finish evening/reset/prepare once, drain owning structural/outcome work, then capture immutable data and write. A failed write retry does not repeat settlement/preparation. Restore preflights all IDs/recipes/resources/endpoints without effects, constructs defaults, overlays saved state, reconstructs durable links/caches/participation and publishes ready last. Invalid preflight leaves live state untouched; unexpected startup failure abandons the unfinished World. No universal undo system or arbitrary mid-action checkpoint is implied by LOD save tests.
 
 Authored actor IDs are world/level-scoped local IDs, spawned IDs are persisted domain sequences. Definition IDs, actor keys, GECS ecs_id and operation IDs have different meanings. NpcRecord and C_NpcIdentity reference one actor; the resolver/reverse indexes are derived. Durable IDs survive path moves and explicit scene duplication repair. Stable bindings are restored after every endpoint exists, including dormant registered actors.
+
+Task 04 specifies identity/version baseline; task 25 implements stable placed IDs and removes path-derived key/restore matching before moves 28–32. Task 41 adds composition/duplicate-ID gates and 42 explicit editor ID repair. Tests prove node rename/reparent does not change identity or links. No legacy key aliases or save converters.
 
 Это preflight design decisions, не реализованные runtime capabilities. Phase 1 не начата. Rationale/scorecards находятся в owning 00_* tasks.

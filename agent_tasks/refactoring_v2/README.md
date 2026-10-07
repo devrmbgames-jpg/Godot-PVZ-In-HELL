@@ -1,6 +1,8 @@
 # Refactoring v2 — полный Core Architecture + Code Style рефакторинг
 
-Status: **IN_PROGRESS**
+Status: **READY_FOR_IMPLEMENTATION**
+
+Next task: `01_architecture_contract.md`
 
 Рабочая ветка Phase 0: `dev`. Историческая подготовка: `chore/gdscript-human-first-style`; это не требование checkout.
 
@@ -49,7 +51,7 @@ Phase 1 запрещено начинать до результата `READY_FOR
    Исправить execution model, перейти на vertical domains, закрепить typed contracts, minimal Templates/Traits, scene-first authoring, Smart Objects, Schedule/goal selection/LimboAI, ACTIVE/DORMANT participation, Content Doctor, Game Time/randomness и Gameplay Debugger. GOAP, body detach и четыре LOD tiers отложены.
 
 3. **Рефакторинг под Code Style.**
-   Только после стабильной архитектуры пройти всю project-owned GDScript базу по human-first style и единому formatter/linter gate.
+   Только после стабильной архитектуры пройти всю project-owned GDScript базу по human-first style и единому formatter/linter gate. New/materially changed code следует существующему gdscript-style и parser gates уже в Phase 2; поздний bulk style pass не разрешает писать нечитаемый или untyped implementation.
 
 ## Global constraints
 
@@ -105,7 +107,6 @@ Phase 2 начинается только после закрытия всех P
 
 Typed contracts уже закреплены задачей 40 перед execution migration. Здесь переносится завершённый execution model; dependency guardrail появляется до первого domain move.
 
-
 29. [Domain layout contract + validator](28_domain_layout_contract.md)
 30. [Domain dependency validation — transition gate](33_domain_dependency_validation.md)
 31. [Domains: NPC и Customers](29_domain_npc_customers.md)
@@ -141,9 +142,9 @@ Typed contracts уже закреплены задачей 40 перед executi
 
 План расширен до полного core refactor. Реализация runtime migration не начиналась.
 
-Повторный Phase 0 pass открыт 2026-10-07 по запросу владельца. 00_01–00_04 завершены последовательно; 00_05 ожидает полного final review. Предыдущая readiness не действует до нового verdict 00_05. Phase 1–3 не начаты.
+Повторный Phase 0 pass завершён 2026-10-07 строго последовательно, с отдельным coherent commit каждой 00_задачи. Final full review [00_05](00_05_preflight_readiness_gate.md): **READY_FOR_IMPLEMENTATION**. Phase 1–3 и runtime migration не начаты.
 
-Текущее следующее действие: [00_05 — final readiness review](00_05_preflight_readiness_gate.md). Каждая 00-задача имеет отдельный coherent commit до перехода к следующей.
+Следующее действие отдельного запроса: [01 — architecture contract](01_architecture_contract.md). Эта сессия завершена на preflight gate; 01 здесь не исполнять.
 
 Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/body detach/четыре tiers deferred; baseline ACTIVE/DORMANT with retained physical-root Entity and ECS-owned population records. Population/district schedules belong to npc, without separate district domain. Known structure failures (31, smoke reference/R26 metadata) закреплены за 03 и устраняются до runtime migration.
 
