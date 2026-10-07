@@ -86,17 +86,17 @@ func _borrow() -> void:
 
 func _arrive_and_inspect() -> void:
 	(_customer.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
-	CustomerFlowService._step(_customer, _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, 0.0)
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.INSPECTING)
-	CustomerFlowService._step(_customer, _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, 0.0)
 
 
 func _return() -> void:
-	CustomerFlowService._step(_customer, _cycle, _visit.definition.inspection_seconds)
+	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, _visit.definition.inspection_seconds)
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH)
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	(_customer.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
-	CustomerFlowService._step(_customer, _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, 0.0)
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.RECEIVING)
 
 
@@ -115,7 +115,7 @@ func test_physical_borrow_finishes_only_after_return_and_kept_parcel_leaves_once
 	assert_false(EntityAvailability.contains(_parcel, _world))
 	assert_true(CustomerInspectionService.cargo(_customer).is_empty())
 	assert_true(_customer.get_relationships(Relationship.new(R_InspectingAt.new(), null)).is_empty())
-	CustomerFlowService._step(_customer, _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, 0.0)
 	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
 
 
@@ -248,7 +248,7 @@ func test_cleanup_refused_unpacked_results_stay_edible_after_return() -> void:
 func test_cleanup_customer_death_or_external_removal_releases_physical_borrow() -> void:
 	_borrow()
 	_customer.add_component(C_Death.new())
-	CustomerFlowService._step(_customer, _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, 0.0)
 	assert_true(_visit.customer_dead)
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_null(PhysicalSlotService.relationship(_parcel))
@@ -277,10 +277,10 @@ func test_missing_booth_keeps_legacy_handoff_and_walk_timeout_refuses_safely() -
 	assert_false((_parcel as Node as RigidBody3D).freeze)
 	(booth.get_component(C_InspectionBooth) as C_InspectionBooth).enabled = true
 	_borrow()
-	CustomerFlowService._step(_customer, _cycle, _visit.definition.approach_timeout)
+	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, _visit.definition.approach_timeout)
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH)
 	assert_true(_agent.inspection_force_refusal)
-	CustomerFlowService._step(_customer, _cycle, _visit.definition.approach_timeout)
+	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, _visit.definition.approach_timeout)
 	assert_eq(_visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
 	assert_null(PhysicalSlotService.relationship(_parcel))
 

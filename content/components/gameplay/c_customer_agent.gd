@@ -29,3 +29,6 @@ var light_warning_started: bool = false
 
 ## Скорость личности до ускоренного подхода; отрицательное значение означает отсутствие C_Motion.
 var original_walk_speed: float = -1.0
+
+## Derived isolated-step phase snapshot; S_CustomerGreeting writes it, never persisted.
+var scheduled_phase: int = -1

@@ -61,6 +61,63 @@ func _leaving_customer(visit: CustomerVisit) -> E_Customer:
 
 #endregion
 
+#region Explicit lifecycle owners
+## A phase entered by arrival does not execute again later in the same scheduled step.
+func test_arrival_and_greeting_consume_distinct_phase_steps() -> void:
+	var visit: CustomerVisit = _visit(&"phase-snapshot")
+	visit.definition.greeting_seconds = 0.0
+	visit.definition.patience_seconds = 0.0
+	var customer: E_Customer = _leaving_customer(visit)
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.phase = C_CustomerAgent.Phase.APPROACHING
+	(customer.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
+
+	CustomerFlowFixture.advance(_flow, _cycle, 0.0)
+	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING)
+	assert_eq(agent.elapsed, 0.0)
+	CustomerFlowFixture.advance(_flow, _cycle, 0.0)
+	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
+	CustomerFlowFixture.advance(_flow, _cycle, 0.0)
+	assert_eq(agent.phase, C_CustomerAgent.Phase.LEAVING)
+	assert_false(visit.finished, "Entering departure does not also remove the appearance")
+
+
+## Phase consumers share one clock increment rather than accumulating delta independently.
+func test_isolated_phase_clock_advances_once_per_world_step() -> void:
+	var visit: CustomerVisit = _visit(&"one-clock")
+	visit.definition.patience_seconds = 10.0
+	var customer: E_Customer = _leaving_customer(visit)
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+
+	CustomerFlowFixture.advance(_flow, _cycle, 0.25)
+	assert_almost_eq(agent.elapsed, 0.25, 0.0001)
+	CustomerFlowFixture.advance(_flow, _cycle, 0.25)
+	assert_almost_eq(agent.elapsed, 0.5, 0.0001)
+	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
+
+
+## Retained roles consume due-step facts synchronously, independent of structural flush mode.
+func test_district_role_clock_does_not_advance_on_isolated_frame_or_structural_flush() -> void:
+	var visit: CustomerVisit = _visit(&"district-clock")
+	var customer: E_Customer = _leaving_customer(visit)
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	customer.add_component(C_NpcIdentity.new())
+	CustomerFlowFixture.advance(_flow, _cycle, 0.1)
+	assert_eq(agent.elapsed, 0.0)
+
+	for observer: Observer in _world.observers:
+		if observer is O_CustomerServiceClock:
+			observer.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	CustomerFlowFixture.decision_ready(customer, 0.2)
+	assert_almost_eq(agent.elapsed, 0.2, 0.0001)
+	_world.flush_command_buffers()
+	assert_almost_eq(agent.elapsed, 0.2, 0.0001)
+	CustomerFlowFixture.decision_ready(customer, 0.4)
+	assert_almost_eq(agent.elapsed, 0.6, 0.0001)
+#endregion
+
 #region Уход и интервалы очереди
 ## Старый короткий таймаут выхода ограничивается минимумом в три минуты.
 func test_legacy_short_departure_cannot_remove_customer_before_three_minutes() -> void:

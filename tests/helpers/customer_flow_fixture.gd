@@ -1,14 +1,18 @@
 extends RefCounted
-## Test-only wiring of real planning Observer and arrival System.
+## Test-only wiring of real planning, first-contact and scheduled visit owners.
 class_name CustomerFlowFixture
 
 #region Real owner wiring
 ## Installs a missing planning handler in an isolated test/smoke World.
 static func install() -> void:
-	for observer: Observer in ECS.world.observers:
-		if observer is O_CustomerPlanning:
-			return
-	ECS.world.add_observer(O_CustomerPlanning.new())
+	for observer_type: Script in [O_CustomerPlanning, O_CustomerGreeting, O_CustomerServiceClock]:
+		var installed: bool = false
+		for observer: Observer in ECS.world.observers:
+			if observer.get_script() == observer_type:
+				installed = true
+				break
+		if not installed:
+			ECS.world.add_observer(observer_type.new() as Observer)
 
 
 ## Advances the actual scheduling owner through the fixture's isolated World group.
@@ -23,6 +27,16 @@ static func advance(_flow: C_CustomerFlow, _cycle: C_DayCycle, delta: float) -> 
 		owner = S_CustomerFlow.new()
 		owner.group = "customer_fixture"
 		ECS.world.add_system(owner)
+	for owner_type: Script in [S_CustomerVisitPresence, S_CustomerCleanup, S_CustomerClock, S_CustomerGreeting, S_CustomerApproach, S_CustomerWaiting, S_CustomerInspection, S_CustomerDeparture, S_CustomerArrivals]:
+		var installed: bool = false
+		for system: System in ECS.world.systems:
+			if system.get_script() == owner_type:
+				installed = true
+				break
+		if not installed:
+			var phase_owner: System = owner_type.new() as System
+			phase_owner.group = owner.group
+			ECS.world.add_system(phase_owner, true)
 	ECS.world.process(delta, owner.group)
 
 
@@ -30,6 +44,16 @@ static func advance(_flow: C_CustomerFlow, _cycle: C_DayCycle, delta: float) -> 
 static func spawn(_flow: C_CustomerFlow, _cycle: C_DayCycle) -> bool:
 	install()
 	return DebugWorldService.customer_next().success
+## Sends a real first-contact request without advancing unrelated test clocks.
+static func greet(customer: E_Customer) -> void:
+	install()
+	ECS.world.emit_event(CustomerGreetingRequest.EVENT, customer, CustomerGreetingRequest.new())
+
+
+## Publishes the same committed perception interval consumed before production BT execution.
+static func decision_ready(customer: Entity, delta: float) -> void:
+	install()
+	ECS.world.emit_event(NpcDecisionReady.EVENT, customer, NpcDecisionReady.new(delta))
 #endregion
 
 #region Explicit commands

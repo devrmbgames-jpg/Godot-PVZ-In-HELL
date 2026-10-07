@@ -171,7 +171,7 @@ func test_first_approach_checks_range_wall_and_busy_capture_then_starts_only_onc
 	_spawn()
 	_agent().phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	(_customer as Node as Node3D).position = Vector3(0, 0, -4)
-	CustomerGreetingService.tick(_customer, _visit)
+	CustomerFlowFixture.greet(_customer)
 	assert_null(_panel())
 	(_customer as Node as Node3D).position = Vector3(0, 0, -1.5)
 
@@ -185,22 +185,22 @@ func test_first_approach_checks_range_wall_and_busy_capture_then_starts_only_onc
 	_world.add_child(wall)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	CustomerGreetingService.tick(_customer, _visit)
+	CustomerFlowFixture.greet(_customer)
 	assert_null(_panel(), "Walls block involuntary conversation")
 	wall.queue_free()
 	await get_tree().process_frame
 	await get_tree().physics_frame
 	Console.toggle_console()
-	CustomerGreetingService.tick(_customer, _visit)
+	CustomerFlowFixture.greet(_customer)
 	assert_null(_panel(), "The developer console keeps input focus")
 	Console.toggle_console()
 
 	var capture: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
-	CustomerGreetingService.tick(_customer, _visit)
+	CustomerFlowFixture.greet(_customer)
 	assert_false(_agent().dialogue_started)
 	assert_null(_panel())
 	InteractionControlFocus.release(_actor, capture)
-	CustomerGreetingService.tick(_customer, _visit)
+	CustomerFlowFixture.greet(_customer)
 	assert_true(_agent().dialogue_started)
 	assert_eq(_agent().phase, C_CustomerAgent.Phase.DIALOGUE)
 	assert_not_null(_panel())
@@ -208,7 +208,7 @@ func test_first_approach_checks_range_wall_and_busy_capture_then_starts_only_onc
 	await _await_line()
 	_panel().close_dialogue()
 	await get_tree().process_frame
-	CustomerGreetingService.tick(_customer, _visit)
+	CustomerFlowFixture.greet(_customer)
 	assert_null(_panel())
 	assert_eq(_agent().phase, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.HANDS)
@@ -220,22 +220,22 @@ func test_manual_start_consumes_auto_guard_and_leaving_or_dead_customer_never_st
 	_spawn()
 	_agent().phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	(_customer as Node as Node3D).position = Vector3(0, 0, -1.5)
-	CustomerGreetingService.tick(_customer, _visit)
+	CustomerFlowFixture.greet(_customer)
 	assert_null(_panel(), "Manual profile still waits for interaction")
 	assert_true(CustomerDialogueService.start(_actor, _customer))
 	await _await_line()
 	_panel().close_dialogue()
 	await get_tree().process_frame
 	_visit.definition.introduction = DEF_Customer.Introduction.FIRST_APPROACH_DIALOGUE
-	CustomerGreetingService.tick(_customer, _visit)
+	CustomerFlowFixture.greet(_customer)
 	assert_null(_panel(), "The first successful conversation already consumed the guard")
 	_agent().dialogue_started = false
 	_agent().phase = C_CustomerAgent.Phase.LEAVING
-	CustomerGreetingService.tick(_customer, _visit)
+	CustomerFlowFixture.greet(_customer)
 	assert_null(_panel())
 
 #endregion
 	_agent().phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	_customer.add_component(C_Death.new())
-	CustomerGreetingService.tick(_customer, _visit)
+	CustomerFlowFixture.greet(_customer)
 	assert_null(_panel())

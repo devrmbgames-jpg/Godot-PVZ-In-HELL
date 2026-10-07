@@ -16,6 +16,12 @@ func _ready() -> void:
 	var day_session: Entity = world.query.with_all([C_DayCycle]).execute_one()
 	day_session.add_component(C_BoundaryTrace.new())
 	world.add_observer(O_CustomerPlanning.new())
+	world.add_observer(O_CustomerGreeting.new())
+	world.add_observer(O_CustomerServiceClock.new())
+	for owner_type: Script in [S_CustomerVisitPresence, S_CustomerCleanup, S_CustomerClock, S_CustomerGreeting, S_CustomerApproach, S_CustomerWaiting, S_CustomerInspection, S_CustomerDeparture, S_CustomerArrivals]:
+		var customer_owner: System = owner_type.new() as System
+		customer_owner.group = "GamePlay"
+		world.add_system(customer_owner)
 	world.add_system(S_LootDrops.new(), true)
 	_bind_furniture_delivery()
 	DistrictPopulationService.initialize()

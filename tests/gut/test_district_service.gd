@@ -27,7 +27,7 @@ func _run_tree(body: E_DistrictNpc, tree_path: String, delta: float) -> bool:
 		runner.behavior_tree = load(tree_path) as BehaviorTree
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	decision.intent_owner = C_NpcDecision.Owner.NONE
-	NpcServiceRole.advance(body, delta)
+	CustomerFlowFixture.decision_ready(body, delta)
 	return NpcBrainService.update_tree(body, delta)
 #endregion
 

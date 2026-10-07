@@ -496,6 +496,8 @@ func test_service_dialogue_closes_when_participant_leaves_or_dies() -> void:
 	context.end()
 	assert_null(NpcDialogueService.participant(body))
 	player.global_position = Vector3(0, 0, -3)
+	assert_false(context.begin(), "Closed dialogue contexts cannot be reused")
+	context = CustomerDialogueContext.new(player, body)
 	assert_true(context.begin())
 	player.add_component(C_Death.new())
 	assert_false(context.can_continue())

@@ -6,7 +6,7 @@ class_name CustomerArrivalService
 #region Ожидание и результат
 ## При включённом свете ставит клиента ждать темноты и запускает авторское мерцание.
 static func begin(customer: E_Customer, challenge: C_Challenge) -> void:
-	var rule: DEF_LightChallengeCondition = _darkness_rule(challenge)
+	var rule: DEF_LightChallengeCondition = darkness_rule(challenge)
 	if rule == null or not LightCircuitService.is_enabled(rule.circuit_id):
 		return
 
@@ -17,29 +17,10 @@ static func begin(customer: E_Customer, challenge: C_Challenge) -> void:
 	LightCircuitService.flicker(rule.circuit_id, challenge.definition.timeout_seconds, rule.flicker_interval_seconds, StringName(customer.id))
 
 
-## Возвращает true, когда CustomerFlow должен отправить ожидающего клиента обратно.
-static func tick(customer: E_Customer, agent: C_CustomerAgent, visit: CustomerVisit, cycle: C_DayCycle) -> bool:
-	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
-	var rule: DEF_LightChallengeCondition = _darkness_rule(challenge)
-	if rule == null or cycle.phase != C_DayCycle.Phase.DAY or challenge.result == ChallengeResult.Type.CANCELLED:
-		return true
-	if not LightCircuitService.is_enabled(rule.circuit_id) and challenge.result != ChallengeResult.Type.FAILURE:
-		agent.phase = C_CustomerAgent.Phase.APPROACHING
-		agent.elapsed = 0.0
-		var station: E_DeliveryCounter = CustomerFlowService.counter()
-		if station == null:
-			return true
-
-		NpcIntentService.move_to(customer, station.waiting_position(), visit.definition.arrival_distance)
-		NpcIntentService.look_along_movement(customer)
-		customer.show_message("Теперь я могу войти. Спасибо.")
-	return false
-
-
 ## После провала соответствующего старого испытания выключает его световую цепь.
 static func apply_result(customer: Entity, event: ChallengeResolution) -> void:
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
-	var rule: DEF_LightChallengeCondition = _darkness_rule(challenge)
+	var rule: DEF_LightChallengeCondition = darkness_rule(challenge)
 	if rule != null and event.result == ChallengeResult.Type.FAILURE:
 		LightCircuitService.set_by_id(rule.circuit_id, false)
 
@@ -47,7 +28,8 @@ static func apply_result(customer: Entity, event: ChallengeResolution) -> void:
 #endregion
 
 #region Чтение авторского условия
-static func _darkness_rule(challenge: C_Challenge) -> DEF_LightChallengeCondition:
+## Reads the optional authored darkness gate without advancing its lifecycle.
+static func darkness_rule(challenge: C_Challenge) -> DEF_LightChallengeCondition:
 	if challenge == null or challenge.definition == null or challenge.definition.trigger != DEF_Challenge.Trigger.ON_ARRIVAL:
 		return null
 

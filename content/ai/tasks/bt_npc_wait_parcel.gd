@@ -7,7 +7,7 @@ func _tick(_delta: float) -> Status:
 	if not _claim("Жду посылку"):
 		return FAILURE
 	NpcIntentArbiter.stop(_actor, intent_owner)
-	CustomerGreetingService.tick(_actor, _visit())
+	ECS.world.emit_event(CustomerGreetingRequest.EVENT, _actor, CustomerGreetingRequest.new())
 	return RUNNING
 
 #endregion

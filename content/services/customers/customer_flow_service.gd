@@ -181,19 +181,13 @@ static func arrival_allowed(visit: CustomerVisit) -> bool:
 	return ledger != null and _has_active_registration_record(ledger, visit.package_id)
 
 
-## Advances active visits/outcomes only until their owner migrations in tasks 12 and 13.
-static func tick(flow: C_CustomerFlow, cycle: C_DayCycle, delta: float) -> void:
-	# Active visits/outcomes remain the legacy owner until tasks 12 and 13.
+## Reconciles settlement/complaints until the transaction owner migration in task 13.
+static func tick(flow: C_CustomerFlow, cycle: C_DayCycle) -> void:
+	# Only outcome transactions remain until task 13.
 	var wallet: C_Wallet = WalletService.current()
 	for visit: CustomerVisit in flow.visits:
 		_settle_visit(visit, wallet, cycle.day_index)
 		CustomerOutcomeService.resolve_complaint(visit, wallet, cycle.day_index)
-		if visit.started and not visit.finished and customer_for(visit.visit_id) == null:
-			finish(visit, cycle.day_index)
-
-	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
-		if not customer.has_component(C_NpcIdentity):
-			_step(customer as E_Customer, cycle, delta)
 
 
 static func _has_active_registration_record(
@@ -302,95 +296,8 @@ static func assigned(parcel: Entity, customer: Entity, visit: CustomerVisit) -> 
 	return false
 
 
-## Исполняет роль обслуживания, когда дерево решений NPC предоставляет ей управление.
-static func step_service(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void:
-	if cycle != null:
-		_step(customer, cycle, delta)
-
-
-static func _step(customer: E_Customer, cycle: C_DayCycle, delta: float) -> void:
-	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	var visit: CustomerVisit = find_visit(agent.visit_id)
-	if visit == null:
-		CustomerInspectionService.end(customer)
-		_remove_appearance(customer, visit)
-		return
-
-	var death: C_Death = customer.get_component(C_Death) as C_Death
-	if death != null:
-		CustomerInspectionService.end(customer)
-		visit.customer_dead = true
-		if death.cause != null and death.cause.request != null:
-			var actor: Entity = death.cause.request.instigator
-			if not is_instance_valid(actor):
-				actor = death.cause.request.source
-			visit.defeated_by_player = is_instance_valid(actor) and actor.has_component(C_PlayerInputController)
-		finish(visit, cycle.day_index)
-		_remove_appearance(customer, visit)
-		return
-
-	bind_parcel(customer, visit)
-	agent.elapsed += delta
-	CustomerGreetingService.tick(customer, visit)
-	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
-	match agent.phase:
-		C_CustomerAgent.Phase.QUEUED:
-			pass # Постоянных NPC исполняет нативное дерево, не legacy-клиент.
-		C_CustomerAgent.Phase.WAITING_FOR_DARKNESS:
-			if CustomerArrivalService.tick(customer, agent, visit, cycle):
-				_leave(customer, visit)
-		C_CustomerAgent.Phase.APPROACHING:
-			if intent != null and intent.arrived:
-				_transition(agent, C_CustomerAgent.Phase.WAITING)
-				NpcIntentService.stop(customer)
-				_watch_player(customer)
-				if not agent.order_announced:
-					customer.show_message("Здравствуйте!")
-				var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
-				if challenge != null and challenge.phase == C_Challenge.Phase.ACTIVE and not agent.order_announced:
-					customer.show_message(challenge.definition.rule_text)
-			elif agent.elapsed >= visit.definition.approach_timeout:
-				_leave(customer, visit)
-		C_CustomerAgent.Phase.WAITING:
-			if try_automatic_handoff(customer, visit):
-				return
-			if agent.elapsed >= visit.definition.greeting_seconds:
-				greet(customer)
-		C_CustomerAgent.Phase.WAITING_FOR_PACKAGE, C_CustomerAgent.Phase.DIALOGUE, C_CustomerAgent.Phase.OPTIONAL_FITTING:
-			if try_automatic_handoff(customer, visit):
-				return
-			if agent.elapsed >= visit.definition.patience_seconds:
-				_leave(customer, visit)
-		C_CustomerAgent.Phase.RECEIVING:
-			if agent.elapsed >= visit.definition.receiving_seconds:
-				_leave(customer, visit)
-		C_CustomerAgent.Phase.GOING_TO_BOOTH, C_CustomerAgent.Phase.INSPECTING, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH:
-			if CustomerInspectionService.tick(customer, visit):
-				complete_inspection(customer, visit)
-		C_CustomerAgent.Phase.AGGRESSIVE:
-			if (customer is E_DistrictNpc and CombatService.target_for(customer) == null) or agent.elapsed >= visit.definition.aggressive_seconds:
-				_leave(customer, visit)
-		C_CustomerAgent.Phase.LEAVING:
-			var departure_timeout: float = maxf(
-				DEF_Customer.MINIMUM_LEAVING_SECONDS, visit.definition.leaving_seconds,
-			)
-			if (intent != null and intent.arrived) or agent.elapsed >= departure_timeout:
-				ChallengeService.request_departure(customer)
-				var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
-				if challenge != null and challenge.definition != null:
-					# Оценка света и применение результата идут после CustomerFlow.
-					# Уходящий экземпляр живёт до обработки последнего условия этими владельцами.
-					if challenge.phase == C_Challenge.Phase.ACTIVE and challenge.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]:
-						return
-					if challenge.pending_result != null and not challenge.consequences_applied:
-						return
-
-				_transition(agent, C_CustomerAgent.Phase.FINISHED)
-				finish(visit, cycle.day_index)
-				_remove_appearance(customer, visit)
-
-
-static func _remove_appearance(customer: E_Customer, visit: CustomerVisit) -> void:
+## Removes one completed or orphaned appearance, preserving retained district bodies.
+static func remove_appearance(customer: E_Customer, visit: CustomerVisit) -> void:
 	if customer is E_DistrictNpc:
 		if visit != null:
 			NpcServiceRole.finish_appearance(customer as E_DistrictNpc, visit)
@@ -769,7 +676,7 @@ static func enter_aggressive(customer: E_Customer) -> bool:
 	if customer is E_DistrictNpc:
 		NpcServiceRole.escalate(customer as E_DistrictNpc)
 	NpcIntentService.stop(customer)
-	_watch_player(customer)
+	watch_player(customer)
 	customer.show_message("Вы меня обманули!")
 	return true
 
@@ -895,7 +802,8 @@ static func _settle_visit(visit: CustomerVisit, wallet: C_Wallet, day: int) -> v
 	CustomerOutcomeService.settle(visit, wallet, day)
 
 
-static func _watch_player(customer: E_Customer) -> void:
+## Requests player-facing attention without owning movement or a recurring phase.
+static func watch_player(customer: E_Customer) -> void:
 	var awareness: C_NpcAwareness = customer.get_component(C_NpcAwareness) as C_NpcAwareness
 	if awareness != null and not awareness.player_visible:
 		NpcIntentService.look_along_movement(customer)

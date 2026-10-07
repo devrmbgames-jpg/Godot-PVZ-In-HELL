@@ -101,6 +101,18 @@ func test_armed_waits_for_dialogue_close_before_countdown() -> void:
 	assert_almost_eq(_state.elapsed, FRAME_DELTA, 0.0001)
 
 
+func _advance_arrival() -> void:
+	# Exercise only the actual approach owner, preserving the fixture's challenge clocks.
+	var agent: C_CustomerAgent = _subject.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.scheduled_phase = int(agent.phase)
+	var owner: S_CustomerApproach = S_CustomerApproach.new()
+	owner.group = "arrival_fixture"
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+	_world.remove_system(owner)
+	owner.free()
+
+
 func _arrival_customer() -> E_Customer:
 	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_light_entrance.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
 	_state.definition.timeout_seconds = TIMEOUT
@@ -116,7 +128,7 @@ func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
 	var customer: E_Customer = _arrival_customer()
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
-	assert_false(CustomerArrivalService.tick(customer, agent, _visit, _cycle))
+	_advance_arrival()
 	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
 	_world.process(FRAME_DELTA)
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
@@ -127,7 +139,7 @@ func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
 	assert_true(LightCircuitService.set_enabled(_circuit, false))
 	_world.process(FRAME_DELTA)
 	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
-	assert_false(CustomerArrivalService.tick(customer, agent, _visit, _cycle))
+	_advance_arrival()
 	assert_eq(agent.phase, C_CustomerAgent.Phase.APPROACHING)
 
 	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
@@ -164,7 +176,8 @@ func test_already_dark_arrival_does_not_gate_or_flicker_and_phase_cancel_departs
 	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_DARKNESS
 	_cycle.phase = C_DayCycle.Phase.EVENING
-	assert_true(CustomerArrivalService.tick(customer, agent, _visit, _cycle), "Phase change must not strand the entrance")
+	_advance_arrival()
+	assert_eq(agent.phase, C_CustomerAgent.Phase.LEAVING, "Phase change must not strand the entrance")
 
 
 func _flickering_view() -> CircuitLightView:

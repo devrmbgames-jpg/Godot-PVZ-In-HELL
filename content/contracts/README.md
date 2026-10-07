@@ -51,8 +51,25 @@ O_CustomerPlanning is the sole handler of CustomerPlanningRequest (discrete plan
 A completion receipt is pending until its actual buffer flush; stale runtime session/day may reject
 with rejection_reason. DayPhaseChanged is an immutable committed phase snapshot, also used to bootstrap
 the authored/restored current phase. PackageScanResult.EVENT follows actual registered state and
-releases due followups in the same day. S_CustomerFlow owns recurring arrival timing/history/count
-and submits one selected materialization command; it retains no second planning path.
+releases due followups in the same day. S_CustomerFlow owns recurring arrival timing/history; S_CustomerArrivals projects the count
+and submits one selected materialization after terminal phase commits. No second planning path.
 
 Planning cache is transient, rebuilt at bootstrap and invalidated by current-format restore.
-Active visits/outcomes remain their explicit unfinished slices 12/13; district enqueue belongs to 16.
+Active phases are owned by explicit Systems (task 12); outcome polling remains unfinished 13.
+District enqueue belongs to 16.
+
+## Customer runtime cadence and first contact (task 12)
+
+Isolated S_CustomerClock -> S_CustomerGreeting -> phase-specific Systems -> S_CustomerArrivals
+runs before day/navigation/decision consumers. Transient scheduled_phase snapshots prevent
+multiple owners consuming a newly entered phase in the same step; they are not persisted.
+
+CustomerGreetingRequest has one synchronous O_CustomerGreeting handler. Scheduling or the
+native wait-for-parcel leaf requests first contact; the handler owns authored eligibility,
+input focus and line-of-sight checks. Announcement remains a reusable explicit command.
+
+NpcDecisionReady is a committed perception snapshot with its accumulated due-step interval.
+O_CustomerServiceClock consumes it synchronously before native BT execution; no structural
+commands are queued for scalar role/entrance clock writes. Observer MANUAL buffer mode does
+not change this boundary. Task 15 migrates the decision publisher while preserving this
+fact/cadence; there is no second Service clock or generic customer phase dispatcher.

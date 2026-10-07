@@ -33,13 +33,13 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `commerce/meta_presentation.gd` | KEEP_PRESENTATION | 25 | Read-only cross-domain diagnostics; relocate to composition. | KEPT_WITH_REASON |
 | `commerce/order_delivery_service.gd` | KEEP_SERVICE | 23 | One delivery attempt; S_OrderReceiving owns interval/iteration. | KEPT_WITH_REASON |
 | `commerce/trader_catalog_service.gd` | RENAME_MOVE | 24 | TraderCatalogRules; remove inline/profile dual authority. | PENDING |
-| `customers/customer_arrival_service.gd` | SPLIT | 12 | Darkness begin/result commands mixed with arrival polling. | PENDING |
+| `customers/customer_arrival_service.gd` | SPLIT | 12 | Polling moved to S_CustomerApproach; begin/result and authored lookup remain explicit. | DONE |
 | `customers/customer_debug_presentation.gd` | KEEP_PRESENTATION | 12 | Read-only visits/timers HUD text. | KEPT_WITH_REASON |
 | `customers/customer_dialogue_service.gd` | KEEP_SERVICE | 12 | Explicit dialogue/session open/validation/cleanup. | KEPT_WITH_REASON |
 | `customers/customer_flow_service.gd` | SPLIT | 11,12,13 | Planning/day arrivals, active phases and settlement share dispatcher. | PENDING |
-| `customers/customer_greeting_service.gd` | SPLIT | 12 | Order announcement mixed with greeting/quick-dialogue polling. | PENDING |
+| `customers/customer_greeting_service.gd` | SPLIT | 12 | First-contact request handled by O_CustomerGreeting; reusable announcement remains. | DONE |
 | `customers/customer_handoff_service.gd` | KEEP_RULES | 12 | Eligibility/range/line-of-sight without progression. | KEPT_WITH_REASON |
-| `customers/customer_inspection_service.gd` | SPLIT | 12 | Bind/begin/end commands mixed with inspection progression. | PENDING |
+| `customers/customer_inspection_service.gd` | SPLIT | 12 | Isolated progression moved to S_CustomerInspection; BT uses narrow inspection commands. | DONE |
 | `customers/customer_outcome_service.gd` | KEEP_SERVICE | 13 | One-shot outcome/complaint/settlement with committed-ID guards; migrate polling callers. | KEPT_WITH_REASON |
 | `customers/customer_presentation.gd` | KEEP_PRESENTATION | 12 | Formats authoritative visit/package state. | KEPT_WITH_REASON |
 | `customers/dialogue_resource_lifecycle.gd` | KEEP_SERVICE | 25 | Explicit release of pinned DialogueResource references. | KEPT_WITH_REASON |
@@ -172,15 +172,15 @@ All five boundaries need a bounded trace provider with origin/target stable IDs,
 ### 11 / 12 / 13 — three CustomerFlow responsibilities
 
 **11.A/11.B DONE** (2026-10-08): O_CustomerPlanning + typed day/registration/bootstrap boundaries;
-S_CustomerFlow owns arrival clock/history/selection dispatch. Removed old planning/spawn APIs.
+S_CustomerFlow owns arrival clock/history; S_CustomerArrivals now dispatches selection after active phase commits. Removed old planning/spawn APIs.
 Reusable one-visit creation/materialization and next-arrival lookup remain explicit Service contracts.
-12/13 active/outcome slices and the full CustomerFlowService inventory row remain pending.
+**12.A/12.B DONE**: explicit clock/greeting/approach/waiting/inspection/departure and presence/cleanup owners. Removed _step/step_service and all three nested Service ticks. Actual district NpcServiceRole.advance clock migrated to O_CustomerServiceClock consuming NpcDecisionReady before BT, closing the clock part of 16.B. Slice 13 outcome polling and the full CustomerFlowService inventory row remain pending.
 
 | Slice | Responsibility / target | Before → after ordering and removal | Existing regression |
 | --- | --- | --- | --- |
 | 11.A | plan_day, delivered-package planning, Morning history/missed-registration/followup reconciliation → explicit day/bootstrap reaction | S_CustomerFlow whole deferred tick before DayPhase/NpcIntent → one reaction plus arrival owner. Remove migrated planning from tick; active visit progression belongs to 12. | test_customer_flow.gd, test_package_receipts_loss.gd, test_shift_completion.gd |
 | 11.B | Arrival cooldown/eligibility/spawn_next_due → arrival System | Preserve district/isolated behavior and initial bootstrap before arrivals; no second legacy arrival path. | test_customer_timing.gd, test_district_service.gd |
-| 12.A | _step/step_service phases/timers, removal, intent handoff → phase Systems | Current nested step → explicit phase queries/deps before NpcIntent. Migrate district step_service callers too; no second role clock. | test_customer_flow.gd, test_customer_timing.gd, test_district_service.gd |
+| 12.A | _step/step_service phases/timers, removal, intent handoff → phase Systems | Current nested step → explicit phase queries/deps before NpcIntent. Unused step_service removed; actual district advance publisher migrated to typed due-step reaction; no second role clock. | test_customer_flow.gd, test_customer_timing.gd, test_district_service.gd |
 | 12.B | ArrivalService.tick, GreetingService.tick, InspectionService.tick → phase owners; retain begin/announce/bind/end commands | Nested flow calls → same phase visibility/order via deps. No hidden aggregate phase dispatcher. | test_customer_introductions.gd, test_customer_handoff.gd, test_customer_inspection.gd, test_challenge_light.gd |
 | 13.A | Terminal death/disappearance/outcome/complaint/settlement reactions and _settle_visit polling → committed fact handlers | Flow loop polls old results → one outcome reaction after committed state. CustomerOutcomeService retains transactions/IDs only. | test_customer_flow.gd, test_combat_attribution.gd, test_wallet.gd, test_terminal_notes_complaints.gd |
 
@@ -194,7 +194,7 @@ Reusable one-visit creation/materialization and next-arrival lookup remain expli
 | 15.B | Perception sense/footsteps search/hearing/step timers and sensor sampling → sensor/footstep/noise Systems | All-due sensors before decision batch; noise expiry after consumption. Geometry/hear/emit APIs stay explicit. No replacement hidden sense scheduler. | test_npc_perception.gd, test_hunger_perception.gd |
 | 15.C | Trait tick/_observe_retreat exposure/retreat → trait System; immunity/aura install remains one-shot | Sensors → trait progression → BT, same elapsed. Remove tick clock, preserve authored reactions. | test_npc_rules.gd, test_npc_perception.gd |
 | 16.A | Route tick/process_pending/_abandon clocks and fair per-physics-frame budget → S_NpcRoute/budget owner; plan/risk/path → Solver/Geometry | BT intent → route progress → bounded pending queue → S_NpcIntent. One budget writer, no brain-to-route service chain. | test_npc_performance_contracts.gd, test_npc_avoidance.gd, test_warehouse_navigation.gd |
-| 16.B | NpcServiceRole.advance elapsed/entrance clock → role System; retain enqueue/claim/arrive/defer/suspend/release operations | Due role advancement before tree; role → decision → route → intent deps. Remove advance delegation and preserve state shared with 12. | test_district_service.gd, test_district_service_queue.gd, test_district_plan_acceptance.gd |
+| 16.B | NpcServiceRole.advance elapsed/entrance clock → role System; retain enqueue/claim/arrive/defer/suspend/release operations | Clock DONE in 12 via NpcDecisionReady/O_CustomerServiceClock; 15 preserves publisher. Remaining 16 verifies commands/queue/role selection; no advance delegation. | test_district_service.gd, test_district_service_queue.gd, test_district_plan_acceptance.gd |
 
 Activity/decision/community/social/home-delivery/offers are explicit BT-selected or event/day commands. Task 16 verifies KEEP rather than granting them scheduling ownership. Validate `test_npc_community.gd`, `test_district_delivery.gd`, `test_district_delivery_offers.gd`. NpcLightingService's registry/context is a lifecycle-fed derived cache, not a second light-state authority.
 

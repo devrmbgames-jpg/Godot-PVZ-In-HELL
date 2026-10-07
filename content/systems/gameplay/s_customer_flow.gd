@@ -1,5 +1,5 @@
 extends System
-## Owns arrival scheduling and history reconciliation; active visit migration follows in 12/13.
+## Owns the arrival clock and history reconciliation; settlement migration follows in 13.
 class_name S_CustomerFlow
 
 #region Scheduling
@@ -36,16 +36,8 @@ func _advance(session: Entity, delta: float) -> void:
 		flow.arrival_cooldown_seconds = maxf(0.0, flow.arrival_cooldown_seconds - delta)
 
 	_sync_history(flow)
-	CustomerFlowService.tick(flow, cycle, delta)
-	cycle.remaining_customer_events = CustomerFlowService.actionable_remaining(flow, cycle.day_index)
+	CustomerFlowService.tick(flow, cycle)
 
-	if DistrictPopulationService.current() != null:
-		# District queue selection belongs to task 16, not isolated appearance materialization.
-		NpcServiceRole.enqueue_next(flow, cycle)
-	else:
-		var visit: CustomerVisit = CustomerFlowService.next_arrival(flow, cycle)
-		if visit != null:
-			CustomerFlowService.start_visit(flow, visit, cycle.day_index)
 #endregion
 
 #region Derived package identity

@@ -72,7 +72,7 @@ The following classifications describe the audited legacy paths and their migrat
 
 | Audited symbol | Evidence and destination |
 | --- | --- |
-| `CustomerFlowService.tick` | `S_CustomerFlow.process` queues the whole tick; it advances arrival cooldown, plans/syncs history, settles visits and queries customers. Split planning/day reactions and active visit execution under tasks 11–13. Keep narrow operation APIs. |
+| `CustomerFlowService.tick` | Tasks 11/12 removed planning/active dispatch: O_CustomerPlanning and explicit clock/greeting/phase/presence/arrival Systems own it. Only settlement/complaint polling remains for 13; narrow synchronous commands are retained. |
 | `HungerService.tick` | `S_Hunger.process` forwards each actor's timed progression; the Service resolves phase and calls `advance`. Move progression/query responsibility to System in 19; retain explicit food/value operations and pure multiplier rules. |
 | `ProjectileService.tick` | `S_CombatProjectile.process` defers flight/lifetime/raycast/damage/removal to the Service. Task 17 gives flight/lifecycle to System with safe structural mutation; launch may remain an explicit factory operation. No required body callback makes this an engine exception. |
 | `NpcBrainService.tick` | `S_NpcDecision.process` defers perception cadence, actor iteration, trait/role/tree/route orchestration and noise decay. Split these scheduling responsibilities in 15/16, preserving native LimboAI local execution. |

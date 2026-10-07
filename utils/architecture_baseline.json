@@ -63,62 +63,12 @@
     },
     {
       "rule": "service-step",
-      "owner": "CustomerArrivalService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Visit arrival step",
-      "task": "12_customer_flow_runtime.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
       "owner": "CustomerFlowService",
       "method": "tick",
       "target": "",
       "count": 1,
-      "reason": "Customer planning/runtime orchestration; tasks 11-13",
-      "task": "11_customer_flow_planning.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step-query",
-      "owner": "CustomerFlowService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Customer planning/runtime orchestration; tasks 11-13",
-      "task": "11_customer_flow_planning.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
-      "owner": "CustomerGreetingService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Visit greeting progression",
-      "task": "12_customer_flow_runtime.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step-query",
-      "owner": "CustomerGreetingService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Visit greeting progression",
-      "task": "12_customer_flow_runtime.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
-      "owner": "CustomerInspectionService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Visit inspection progression",
-      "task": "12_customer_flow_runtime.md",
+      "reason": "Settlement and complaint polling only; removed by task 13",
+      "task": "13_customer_outcomes.md",
       "removal_gate": "26/27"
     },
     {
@@ -267,8 +217,8 @@
       "method": "_advance",
       "target": "CustomerFlowService.tick",
       "count": 1,
-      "reason": "Active visit/outcome legacy slice only after task 11; removed by tasks 12/13",
-      "task": "12_customer_flow_runtime.md",
+      "reason": "Settlement and complaint polling only; removed by task 13",
+      "task": "13_customer_outcomes.md",
       "removal_gate": "26/27"
     },
     {

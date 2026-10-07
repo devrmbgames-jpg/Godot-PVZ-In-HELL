@@ -100,39 +100,6 @@ static func bind_contents(package: Entity, contents: Array[Entity]) -> void:
 #endregion
 
 #region Исполнение и завершение осмотра
-## Возвращает true после возвращения клиента или таймаута; решение об осмотре принимается один раз.
-static func tick(customer: E_Customer, visit: CustomerVisit) -> bool:
-	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
-	if parcel_for(customer) == null:
-		agent.inspection_force_refusal = true
-		return true
-
-	match agent.phase:
-		C_CustomerAgent.Phase.GOING_TO_BOOTH:
-			if intent != null and intent.arrived:
-				_transition(agent, C_CustomerAgent.Phase.INSPECTING)
-				NpcIntentService.stop(customer)
-				customer.show_message("Осматриваю заказ…")
-			elif agent.elapsed >= visit.definition.approach_timeout:
-				agent.inspection_force_refusal = true
-				_return(customer, agent, visit)
-		C_CustomerAgent.Phase.INSPECTING:
-			if not agent.inspection_open_attempted:
-				agent.inspection_open_attempted = true
-				if roll(visit, "unpack") < visit.definition.inspection_unpack_probability:
-					PackageOpening.request_open(customer, parcel_for(customer))
-			if agent.elapsed >= visit.definition.inspection_seconds:
-				_return(customer, agent, visit)
-		C_CustomerAgent.Phase.RETURNING_FROM_BOOTH:
-			if intent != null and intent.arrived:
-				return true
-			if agent.elapsed >= visit.definition.approach_timeout:
-				agent.inspection_force_refusal = true
-				return true
-	return false
-
-
 ## Возвращает стабильный бросок 0–1 для выбора и номера прихода; повтор не меняет исход.
 static func roll(visit: CustomerVisit, choice: String) -> float:
 	var random: RandomNumberGenerator = RandomNumberGenerator.new()

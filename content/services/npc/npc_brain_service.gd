@@ -104,7 +104,8 @@ static func tick(district: C_District, delta: float) -> void:
 		var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 		if decision.intent_owner == C_NpcDecision.Owner.IDLE and not (intent.movement_active and not intent.arrived):
 			awareness.idle_elapsed += decision.update_elapsed
-		NpcServiceRole.advance(actor, decision.update_elapsed)
+		# Perception has committed; role clocks consume this exact due-step delta before BT.
+		ECS.world.emit_event(NpcDecisionReady.EVENT, actor, NpcDecisionReady.new(decision.update_elapsed))
 		decision.intent_owner = C_NpcDecision.Owner.NONE
 		update_tree(actor, decision.update_elapsed)
 		if not actor.enabled:

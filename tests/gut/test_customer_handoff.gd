@@ -80,7 +80,7 @@ func _expect_held() -> void:
 func test_waiting_customer_takes_correct_carry_once_without_button_or_greeting_delay() -> void:
 	_agent.phase = C_CustomerAgent.Phase.WAITING
 	await get_tree().physics_frame
-	CustomerFlowService._step(_customer, _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, 0.0)
 	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.RECEIVING)
 	assert_null(GrabService.held_object(_actor))

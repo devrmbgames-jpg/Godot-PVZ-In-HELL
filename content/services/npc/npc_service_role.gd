@@ -178,19 +178,6 @@ static func warn_light(body: E_DistrictNpc) -> void:
 	body.show_message("Я боюсь света. Выключите освещение ПВЗ, я подожду снаружи.")
 	LightCircuitService.flicker(config.service_light_circuit, config.service_flicker_seconds, LightFlickerRequest.DEFAULT_INTERVAL_SECONDS, StringName("npc-light/" + String(agent.visit_id)))
 
-## Учитывает часы роли один раз на обновление восприятия, без выбора поведения.
-static func advance(body: E_DistrictNpc, delta: float) -> void:
-	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
-	if agent == null:
-		return
-	agent.elapsed += delta
-	var station: E_DeliveryCounter = CustomerFlowService.counter()
-	if station != null and agent.phase in [C_CustomerAgent.Phase.QUEUED, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS, C_CustomerAgent.Phase.APPROACHING]:
-		var offset: Vector3 = body.global_position - station.entry_position()
-		offset.y = 0.0
-		if offset.length_squared() <= QUEUE_SPACING * QUEUE_SPACING:
-			agent.entrance_wait_elapsed += delta
-
 ## Переносит недоступный приход на следующее утро без автоматической потери или оплаты.
 static func defer_visit(body: E_DistrictNpc, visit: CustomerVisit, reason: String) -> void:
 	var cycle: C_DayCycle = DayPhaseService.current()
