@@ -79,6 +79,8 @@ Prefer ordinary file/search/edit tools when cheaper. Use MCP when live scene tre
 
 If live MCP access matters and the editor is not running, the agent may start it with `.vscode/start-godot.ps1`. Do not launch gameplay/rendered playtests, capture visual evidence, or perform subjective visual validation unless the user explicitly approved it for the task.
 
+If MCP needs Godot, launch Godot automatically.
+If the Editor blocks MCP because a scene or project file must be updated, close Godot, apply the update, and relaunch it if needed.
 
 ### Scene ownership
 

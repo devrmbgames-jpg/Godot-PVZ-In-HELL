@@ -1,24 +1,27 @@
 model = "gpt-6.1-sol"
 
-# Main implementation: strong reasoning without using xhigh for every edit.
+# Main implementation default.
 model_reasoning_effort = "high"
 
-# Planning can spend more reasoning than routine implementation.
+# Architecture/planning tasks may use more reasoning.
 plan_mode_reasoning_effort = "xhigh"
 
 model_verbosity = "medium"
 model_reasoning_summary = "auto"
-file_opener = "vscode"
 
-approval_policy = "on-request"
-sandbox_mode = "workspace-write"
+file_opener = "vscode"
 web_search = "live"
 
-# Guard against instruction creep. AGENTS.md + scoped instructions should stay lean.
+# Keep project instructions bounded.
 project_doc_max_bytes = 16384
 
-# Keep noisy Godot/tool output from consuming the session context.
+# Prevent noisy Godot/tool output from consuming context.
 tool_output_token_limit = 8096
+
+
+# ---------------------------------------------------------------------------
+# Agents
+# ---------------------------------------------------------------------------
 
 [agents]
 enabled = true
@@ -33,11 +36,3 @@ config_file = "./agents/reviewer.toml"
 [agents.validator]
 description = "Opt-in execution of explicitly assigned validation with concise PASS/FAIL output."
 config_file = "./agents/validator.toml"
-
-[sandbox_workspace_write]
-network_access = true
-
-# Godot user:// data lives outside the repository.
-writable_roots = [
-    "C:\\Users\\Valeryn\\AppData\\Roaming\\Godot\\app_userdata"
-]
