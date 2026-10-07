@@ -157,6 +157,7 @@ A declared migration scope is DONE only when all callers, state ownership and ex
 - Runtime Entity references are not durable save identity.
 - Current schema-2 snapshot/restore is implemented; durable links use explicit endpoint keys, never serialized live Objects. Its legacy authored `scene/<relative path>` fallback is a known current contract, not the stable-ID target.
 - Refactoring v2 preflight target replaces path-derived identity with explicit authored IDs and versions changed formats. The owner explicitly excludes old-save conversion/backward compatibility for this early project; new-format identity/roundtrip/link reconstruction still require validation. Detailed current runtime semantics remain in `docs/persistence.md` until implementation changes them.
+- Phase 1 [identity/persistence contract](../docs/persistence.md#refactoring-v2-identity-contract) owns namespace, schema/change, snapshot/restore and save-visible path rules. Task 25 removes path matching before moves; Phase 1 fixtures prove the current format, not the future startup/composition pipeline.
 
 ## Validation routing
 
@@ -164,6 +165,7 @@ Use the narrowest relevant surface:
 - repository structure: `python utils/validate_project_structure.py`;
 - lexical execution guard: `python utils/validate_architecture.py` (symbol/count baseline under `utils/architecture_baseline.json`; trim entries with each migration, empty at 26/27);
 - final execution gate: `python utils/validate_architecture.py --strict`;
+- save-visible identity/path baseline: `python utils/validate_persistence_baseline.py`;
 - vertical domains during migration: `python utils/validate_domain_structure.py`;
 - final vertical-domain gate: `python utils/validate_domain_structure.py --strict`;
 - changed-file formatter/lint/static checks;
