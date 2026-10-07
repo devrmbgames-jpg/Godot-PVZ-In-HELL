@@ -139,7 +139,7 @@ func test_running_attack_keeps_elapsed_across_tree_updates() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_true(NpcAttackService.start(body, C_NpcCombat.Kind.MELEE, 0))
-	NpcAttackService.tick(body, 0.1)
+	CombatFixture.npc(body, 0.1)
 	var attack: DEF_NpcAttack = combat.attack
 	var elapsed: float = combat.elapsed
 	(body.get_component(C_NpcAwareness) as C_NpcAwareness).target_visible = true

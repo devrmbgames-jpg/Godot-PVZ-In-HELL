@@ -136,3 +136,18 @@ NpcRouteSolver performs bounded authored/native path and hazard-risk calculation
 no scheduling/budget ownership. Godot retains physical transform/velocity authority;
 S_NpcIntent consumes waypoints and composes native movement/avoidance. Route and queue
 state remain transient derived data, with reset/materialization using explicit lifecycle paths.
+
+## Combat execution ownership (task 17)
+
+S_PlayerMelee owns strike elapsed/window scan; S_NpcCombat owns cooldown, phase time and
+native animation watchdog. Target/start/cancel/effect/finish/hit are explicit synchronous
+operations. Their transient execution generations advance on start/cancel; queued stages
+capture component identity and generation. Synchronous damage publication may cancel or
+restart the same Definition, so the owner revalidates before committing old hit/phase state.
+
+S_CombatProjectile owns nonphysical Node3D flight/TTL and whole-segment ray before pose
+commit. Launch snapshots damage/attribution and binds the live source through a Relationship.
+Terminal retirement revalidates registration after damage publication. Jolt bodies retain
+physical transform/velocity authority. S_CustomerCombat reconciles isolated legacy roles
+before common attacks; district personalities remain under their native BT. Manual weapon
+AnimationPlayer mapping is a presentation adapter. Combat scheduling fields are transient.

@@ -1,5 +1,5 @@
 extends RefCounted
-## Живые связи противников и удары оружием игрока; исполнение атак NPC принадлежит NpcAttackService.
+## Explicit live target/weapon bindings and start/cancel/hit commands; Systems own combat clocks.
 class_name CombatService
 
 
@@ -32,7 +32,7 @@ static func end_combat(actor: Entity) -> void:
 	if not is_instance_valid(actor):
 		return
 
-	_cancel_strike(actor)
+	cancel_strike(actor)
 	NpcAttackService.cancel(actor)
 	for relation: Relationship in actor.relationships.duplicate():
 		if relation.relation is R_CombatTarget:
@@ -62,6 +62,7 @@ static func start_strike(actor: Entity, weapon: Entity) -> bool:
 		return false
 
 	var state: C_Combat = actor.get_component(C_Combat) as C_Combat
+	state.execution_generation += 1
 	state.strike = (weapon.get_component(C_MeleeWeapon) as C_MeleeWeapon).attack
 	state.phase = C_Combat.Phase.WINDUP
 	state.elapsed = 0.0
@@ -72,33 +73,6 @@ static func start_strike(actor: Entity, weapon: Entity) -> bool:
 	if district != null:
 		NpcPerceptionService.action_noise(actor, district.definition.strike_noise_radius)
 	return true
-
-
-## Продвигает часы удара, проверяет хват/управление и завершает/отменяет исполнение; delta в секундах.
-static func tick_strike(actor: Entity, delta: float) -> void:
-	var state: C_Combat = actor.get_component(C_Combat) as C_Combat
-	if state == null or state.phase == C_Combat.Phase.READY:
-		return
-
-	var weapon: Entity = _weapon_for(actor)
-	var grip: Relationship = GrabService.held_relationship(weapon)
-	if not GrabService.holder_available(actor) or grip == null or grip.target != actor or InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.PROLONGED:
-		_cancel_strike(actor)
-		return
-
-	var previous: float = state.elapsed
-	state.elapsed += maxf(0.0, delta)
-	var attack: DEF_MeleeAttack = state.strike
-	MeleeWeaponPresentation.update(weapon, state.elapsed, attack)
-	var active_end: float = attack.windup_seconds + attack.active_seconds
-	if state.elapsed >= attack.windup_seconds and previous < active_end and not state.hit_committed:
-		_scan_strike(actor, weapon, state)
-	if state.elapsed >= active_end + attack.recovery_seconds:
-		_cancel_strike(actor)
-	elif state.elapsed >= active_end:
-		state.phase = C_Combat.Phase.RECOVERY
-	elif state.elapsed >= attack.windup_seconds:
-		state.phase = C_Combat.Phase.ACTIVE
 
 
 ## Запрашивает ближний урон с множителем голода; здоровье меняет O_Damage.
@@ -135,41 +109,22 @@ static func entity_unavailable(actor: Entity) -> void:
 #endregion
 
 #region Геометрия и очистка удара
-static func _scan_strike(actor: Entity, weapon: Entity, state: C_Combat) -> void:
-	var node: Node3D = actor as Node as Node3D
-	if node == null or not node.is_inside_tree():
-		return
-
-	var attack: DEF_MeleeAttack = state.strike
-	var closest: Entity = null
-	var distance: float = INF
-	# Близкие статические плитки могут заполнить ограниченный overlap-запрос;
-	# поэтому кандидаты удара берутся среди владельцев Health и проверяются лучом.
-	for target: Entity in ECS.world.query.with_all([C_Health]).execute():
-		if target == actor or not (target as Node) is PhysicsBody3D or not GrabService.holder_available(target):
-			continue
-		if not CombatGeometry.in_cone(actor, target, attack.reach, attack.half_angle_degrees) or not CombatGeometry.clear_line(actor, target, attack.collision_mask):
-			continue
-
-		var candidate: float = CombatGeometry.origin(actor).distance_squared_to(CombatGeometry.aim_point(target))
-		if candidate < distance:
-			closest = target
-			distance = candidate
-	if closest != null:
-		state.hit_committed = hit(actor, weapon, closest, attack.damage)
 
 
-static func _weapon_for(actor: Entity) -> Entity:
+## Reads the optional live weapon binding of the current strike.
+static func weapon_for(actor: Entity) -> Entity:
 	for relation: Relationship in actor.relationships:
 		if relation.relation is R_AttackWeapon:
 			return relation.target as Entity if is_instance_valid(relation.target) else null
 	return null
 
 
-static func _cancel_strike(actor: Entity) -> void:
-	MeleeWeaponPresentation.reset(_weapon_for(actor))
+## Cancels one strike and invalidates queued clock work without applying another hit.
+static func cancel_strike(actor: Entity) -> void:
+	MeleeWeaponPresentation.reset(weapon_for(actor))
 	var state: C_Combat = actor.get_component(C_Combat) as C_Combat
 	if state != null:
+		state.execution_generation += 1
 		state.phase = C_Combat.Phase.READY
 		state.elapsed = 0.0
 		state.strike = null

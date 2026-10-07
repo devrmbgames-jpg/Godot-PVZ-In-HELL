@@ -72,23 +72,102 @@ func _body(npc: bool) -> E_RigidBodyCharacter:
 
 #endregion
 
+#region Scheduled replacement and automatic selection
+## A queued old attack cannot consume windup time from its restarted replacement.
+func test_manual_clock_rejects_restarted_same_definition_attack() -> void:
+	_state.automatic_attack_selection = false
+	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
+	var owner: S_NpcCombat = S_NpcCombat.new()
+	owner.group = "queued_npc_attack"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(owner)
+	_world.process(0.5, owner.group)
+	NpcAttackService.cancel(_npc)
+	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
+	_world.flush_command_buffers()
+	assert_eq(_state.elapsed, 0.0)
+	assert_eq(_state.phase, C_NpcCombat.Phase.WINDUP)
+	assert_eq(_health.current, 100.0)
+	owner.command_buffer_flush_mode = System.FlushMode.PER_SYSTEM
+	_world.process(_state.attack.windup_seconds, owner.group)
+	assert_true(_state.effect_committed)
+	assert_lt(_health.current, 100.0)
+
+
+## Killing a target at zero windup cannot resurrect the cancelled execution as ACTIVE.
+func test_lethal_effect_cancellation_does_not_resurrect_attack_phase() -> void:
+	var attack: DEF_NpcAttack = _state.melee_attacks[0].duplicate() as DEF_NpcAttack
+	attack.windup_seconds = 0.0
+	attack.damage = _health.current
+	_state.melee_attacks[0] = attack
+	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
+	CombatFixture.npc(_npc, 0.1)
+	assert_eq(_health.current, 0.0)
+	assert_eq(_state.phase, C_NpcCombat.Phase.READY)
+	assert_null(_state.attack)
+	assert_eq(_state.elapsed, 0.0)
+	assert_null(CombatService.target_for(_npc))
+
+
+## The full production owner chooses automatically only after the authored cooldown expires.
+func test_full_owner_preserves_automatic_attack_and_cooldown_selection() -> void:
+	_state.automatic_attack_selection = true
+	var owner: S_NpcCombat = S_NpcCombat.new()
+	owner.group = "automatic_npc_attack"
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+	assert_eq(_state.phase, C_NpcCombat.Phase.WINDUP)
+	var generation: int = _state.execution_generation
+	var attack: DEF_NpcAttack = _state.attack
+	_world.process(attack.windup_seconds + attack.active_seconds + attack.recovery_seconds, owner.group)
+	assert_eq(_state.phase, C_NpcCombat.Phase.READY)
+	assert_gt(_state.cooldown_remaining, 0.0)
+	_world.process(_state.cooldown_remaining, owner.group)
+	assert_eq(_state.phase, C_NpcCombat.Phase.WINDUP)
+	assert_gt(_state.execution_generation, generation)
+
+
+## Pending flight cannot move or damage using a replaced projectile component.
+func test_manual_flight_rejects_replaced_launch_state() -> void:
+	var attack: DEF_NpcAttack = _state.ranged_attacks[0]
+	assert_true(ProjectileService.launch(_npc, _target, attack))
+	var projectile: Entity = _world.query.with_all([C_CombatProjectile]).execute_one()
+	var original: C_CombatProjectile = projectile.get_component(C_CombatProjectile) as C_CombatProjectile
+	var position: Vector3 = (projectile as Node as Node3D).global_position
+	var owner: S_CombatProjectile = S_CombatProjectile.new()
+	owner.group = "queued_projectile"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(owner)
+	_world.process(0.5, owner.group)
+	projectile.remove_component(C_CombatProjectile)
+	var replacement: C_CombatProjectile = C_CombatProjectile.new()
+	replacement.velocity = original.velocity
+	replacement.remaining_seconds = original.remaining_seconds
+	projectile.add_component(replacement)
+	_world.flush_command_buffers()
+	assert_eq((projectile as Node as Node3D).global_position, position)
+	assert_eq(replacement.remaining_seconds, original.remaining_seconds)
+	assert_eq(_health.current, 100.0)
+	assert_true(EntityAvailability.contains(projectile, _world))
+#endregion
+
 #region Выбор и таймеры
 ## Замах, однократный удар и cooldown проходят общий DamageRequest; повтор эффекта не наносит урон.
 func test_melee_windup_one_effect_and_shared_damage_pipeline() -> void:
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
-	NpcAttackService.tick(_npc, 0.3)
+	CombatFixture.npc(_npc, 0.3)
 	assert_eq(_health.current, 100.0)
-	NpcAttackService.tick(_npc, 0.16)
+	CombatFixture.npc(_npc, 0.16)
 	assert_eq(_health.current, 88.0)
 	assert_false(NpcAttackService.commit_effect(_npc))
-	NpcAttackService.tick(_npc, 0.1)
+	CombatFixture.npc(_npc, 0.1)
 	assert_eq(_health.current, 88.0)
 	assert_false(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
-	NpcAttackService.tick(_npc, 0.5)
+	CombatFixture.npc(_npc, 0.5)
 	assert_eq(_state.phase, C_NpcCombat.Phase.READY)
 	assert_gt(_state.cooldown_remaining, 0.0)
 	assert_false(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
-	NpcAttackService.tick(_npc, 0.8)
+	CombatFixture.npc(_npc, 0.8)
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
 
 
@@ -206,7 +285,7 @@ func test_actual_animation_method_tracks_commit_once_and_finish_with_cooldown() 
 	_state.melee_attacks[0].animation = &"Strike"
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
 	assert_true(_state.animation_driven)
-	NpcAttackService.tick(_npc, 0.5)
+	CombatFixture.npc(_npc, 0.5)
 	assert_eq(_health.current, 100.0, "Timer must not commit an animation-owned hit")
 	player.advance(0.35)
 	assert_eq(_health.current, 88.0)
@@ -223,7 +302,7 @@ func test_unassigned_or_missing_animation_keeps_timed_prototype_playable() -> vo
 	_state.melee_attacks[0].animation = &"NotAuthoredYet"
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
 	assert_false(_state.animation_driven)
-	NpcAttackService.tick(_npc, 0.5)
+	CombatFixture.npc(_npc, 0.5)
 	assert_eq(_health.current, 88.0)
 
 
@@ -264,11 +343,11 @@ func test_ranged_effect_launches_once_and_projectile_hits_real_collider() -> voi
 	await get_tree().physics_frame
 	assert_false(NpcAttackService.can_start(_npc, C_NpcCombat.Kind.MELEE, 0))
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.RANGED, 0))
-	NpcAttackService.tick(_npc, 0.71)
+	CombatFixture.npc(_npc, 0.71)
 	var projectiles: Array[Entity] = _world.query.with_all([C_CombatProjectile]).execute()
 	assert_eq(projectiles.size(), 1)
 	assert_false(NpcAttackService.commit_effect(_npc))
-	ProjectileService.tick(projectiles[0], 0.8)
+	CombatFixture.projectile(projectiles[0], 0.8)
 	assert_eq(_health.current, 92.0)
 	assert_true(_world.query.with_all([C_CombatProjectile]).execute().is_empty())
 
@@ -291,7 +370,7 @@ func test_projectile_snapshots_hunger_damage_before_food_restores_shooter() -> v
 	food.hunger_relief = 100.0
 	assert_true(HungerService.apply_food(_npc, food))
 	assert_eq(hunger.value, 0.0)
-	ProjectileService.tick(projectile, 1.0)
+	CombatFixture.projectile(projectile, 1.0)
 	assert_eq(_health.current, 88.0, "Already launched projectiles retain their effective damage")
 	assert_eq(_state.ranged_attacks[0].damage, 8.0)
 
@@ -313,11 +392,11 @@ func test_wall_blocks_projectile_even_for_long_frame() -> void:
 	await get_tree().physics_frame
 
 	var projectile: Entity = _world.query.with_all([C_CombatProjectile]).execute_one()
-	ProjectileService.tick(projectile, 1.0)
+	CombatFixture.projectile(projectile, 1.0)
 	assert_eq(_health.current, 100.0)
 	assert_true(_world.query.with_all([C_CombatProjectile]).execute().is_empty())
 	NpcAttackService.finish(_npc)
-	NpcAttackService.tick(_npc, 2.0)
+	CombatFixture.npc(_npc, 2.0)
 	assert_false(NpcAttackService.can_start(_npc, C_NpcCombat.Kind.RANGED, 0), "AI must not shoot through the wall")
 
 
@@ -330,7 +409,7 @@ func test_no_damage_shooter_cannot_bypass_guard_with_projectile() -> void:
 	assert_true(NpcAttackService.commit_effect(_npc))
 	var projectile: Entity = _world.query.with_all([C_CombatProjectile]).execute_one()
 	assert_true(projectile.has_component(C_NoDamage))
-	ProjectileService.tick(projectile, 1.0)
+	CombatFixture.projectile(projectile, 1.0)
 	assert_eq(_health.current, 100.0)
 
 
@@ -346,7 +425,7 @@ func test_projectile_retains_generic_shooter_id_after_source_removal() -> void:
 	assert_false(state.instigator_id.is_empty())
 	_world.remove_entity(_npc)
 	_npc = null
-	ProjectileService.tick(projectile, 1.0)
+	CombatFixture.projectile(projectile, 1.0)
 	assert_eq(_health.current, 92.0)
 
 

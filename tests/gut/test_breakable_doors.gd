@@ -68,7 +68,7 @@ func _equip(path: String) -> void:
 
 func _strike() -> void:
 	assert_true(CombatService.start_strike(_actor, _weapon))
-	CombatService.tick_strike(_actor, 1.0)
+	CombatFixture.melee(_actor, 1.0)
 
 
 #endregion

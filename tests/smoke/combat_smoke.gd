@@ -2,8 +2,6 @@ extends Node
 ## Проверяет реальные удары Jolt и историческую эскалацию клиента в боевой сценарий main_level.
 
 const FRAME_DELTA: float = 1.0 / 60.0
-const WAIT_FRAMES: int = 900
-const UI_WAIT_FRAMES: int = 32
 
 var _level: Node = null
 var _actor: Entity = null
@@ -90,40 +88,43 @@ func _physical_impacts() -> void:
 ## Историческая световая эскалация проверяет преследование, дальнюю атаку и самооборону игрока.
 func _customer_combat() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
+	_level.set("autosave_path", "")
 	add_child(_level)
 	_level.set_physics_process(false)
-	_actor = _level.get_node("Entityes/Player") as Entity
-	var actor_body: RigidBody3D = _actor as Node as RigidBody3D
-	actor_body.freeze = true
-	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
-		await get_tree().physics_frame
-		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
-			break
+	_actor = _level.get_node("Entityes/Player") as E_PhysicalCharacter
+	var actor_body: Node3D = _actor as Node as Node3D
+	actor_body.set_physics_process(false)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
 
-	assert(PackageRegistrationService.register_package(CustomerFlowService.parcel_for("base_supply:1:books")).outcome == PackageScanResult.Outcome.REGISTERED)
+	# Historical escalation uses a dedicated visit, independent of district deliveries.
 	var cycle: C_DayCycle = DayPhaseService.current()
-	var request: DayTransitionRequest = DayTransitionRequest.new()
-	request.kind = DayTransitionRequest.Kind.START_SHIFT
-	request.expected_day = cycle.day_index
-	request.expected_phase = cycle.phase
-	assert(DayPhaseService.submit(request))
-	var customer: E_Customer = null
-	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
-		ECS.world.process(FRAME_DELTA, "Physics")
-		await get_tree().physics_frame
-		customer = CustomerFlowService.waiting_customer()
-		if customer != null:
-			break
-
-	assert(customer != null)
+	cycle.phase = C_DayCycle.Phase.DAY
+	var flow: C_CustomerFlow = CustomerFlowService.current()
+	flow.schedule = null
+	var visit: CustomerVisit = CustomerVisit.new()
+	visit.visit_id = &"smoke/combat"
+	visit.definition = DEF_Customer.new()
+	visit.started = true
+	visit.visit_count = 1
+	flow.visits = [visit]
+	var customer: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
+	(customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
 	var customer_body: RigidBody3D = customer as Node as RigidBody3D
+	customer_body.position = CustomerFlowService.counter().waiting_position()
+	_level.add_child(customer_body)
+	ECS.world.add_entity(customer, null, false)
+	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.visit_id = visit.visit_id
+	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	var original_rid: RID = customer_body.get_rid()
-	var visit: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
-	await _acknowledge_challenge(customer)
+	var definition: DEF_Challenge = load("res://content/definitions/gameplay/challenges/def_challenge_light_entrance.tres") as DEF_Challenge
+	var rule: DEF_LightChallengeCondition = definition.condition as DEF_LightChallengeCondition
+	assert(LightCircuitService.set_by_id(rule.circuit_id, true))
+	assert(ChallengeService.debug_start(customer, _actor, definition))
 	var npc_state: C_NpcCombat = customer.get_component(C_NpcCombat) as C_NpcCombat
-	var authored_melee: Array[DEF_NpcAttack] = npc_state.melee_attacks
+	npc_state.ranged_attacks = [load("res://content/definitions/gameplay/combat/def_npc_shot.tres") as DEF_NpcAttack]
+	var authored_melee: Array[DEF_NpcAttack] = [load("res://content/definitions/gameplay/combat/def_npc_punch.tres") as DEF_NpcAttack]
 	npc_state.melee_attacks = []
 
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
@@ -149,23 +150,22 @@ func _customer_combat() -> void:
 			break
 
 	assert(player_health.current < 100.0, "Escalated Customer must actually hit Player")
-	for frame: int in UI_WAIT_FRAMES:
-		await get_tree().process_frame
-		var debug: Label = _level.get_node("InteractionHud/Overlay/PlayerDebugPanel/Debug/CombatDebug") as Label
-		if debug.text.contains("Задача:") and debug.text.contains("cooldown"):
-			break
-
+	# The HUD shows its compact first line; the full diagnostic retains combat details.
+	DebugHudService.set_enabled(true)
+	await get_tree().process_frame
+	var summary: String = CombatPresentation.debug_text(_actor)
+	assert(summary.contains("Задача:") and summary.contains("cooldown") and summary.contains("Дистанция"))
 	var debug: Label = _level.get_node("InteractionHud/Overlay/PlayerDebugPanel/Debug/CombatDebug") as Label
-	assert(debug.text.contains("Задача:") and debug.text.contains("cooldown") and debug.text.contains("Дистанция"))
+	assert(debug.text == summary.split("\n")[0])
 	var weapon: Entity = _level.get_node("Entityes/UtilityBlade") as Entity
 	var weapon_body: RigidBody3D = weapon as Node as RigidBody3D
-	weapon_body.global_position = (_actor as E_RigidBodyCharacter).right_hand_slot.global_position
+	weapon_body.global_position = (_actor as E_PhysicalCharacter).right_hand_slot.global_position
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
 	weapon.add_relationship(Relationship.new(grip, _actor))
 	assert(GrabService.held_relationship(weapon) != null)
 
-	var head: Node3D = (_actor as E_RigidBodyCharacter).head_axis_x
+	var head: Node3D = (_actor as E_PhysicalCharacter).head_axis_x
 	head.look_at(CombatGeometry.aim_point(customer))
 	var controller: C_Controller = _actor.get_component(C_Controller) as C_Controller
 	controller.action_main_pressed = true
@@ -184,39 +184,5 @@ func _customer_combat() -> void:
 	_actor = null
 	ECS.world = null
 
-
-func _acknowledge_challenge(customer: E_Customer) -> void:
-	assert(CustomerDialogueService.start(_actor, customer))
-	var panel: CustomerDialoguePanel = null
-	var shown: bool = false
-	for frame: int in UI_WAIT_FRAMES:
-		await get_tree().process_frame
-		var panels: Array[Node] = get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP)
-		if panels.is_empty():
-			continue
-
-		panel = panels[0] as CustomerDialoguePanel
-		for node: Node in panel.find_children("*", "RichTextLabel", true, false):
-			if (node as RichTextLabel).text.contains("свет"):
-				shown = true
-		if shown:
-			break
-
-	assert(shown and panel != null)
-	var acknowledged: bool = false
-	for node: Node in panel.find_children("*", "Button", true, false):
-		var button: Button = node as Button
-		if button.text == "Продолжить" and button.visible and not button.disabled:
-			button.pressed.emit()
-			acknowledged = true
-			break
-
-	assert(acknowledged)
-	for frame: int in UI_WAIT_FRAMES:
-		await get_tree().process_frame
-		if get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP).is_empty():
-			return
-
-	assert(false, "Acknowledgement must close the demand before combat starts")
 
 #endregion

@@ -13,56 +13,6 @@
     },
     {
       "rule": "service-step",
-      "owner": "CustomerCombatService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Legacy customer combat polling",
-      "task": "17_combat.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step-query",
-      "owner": "CustomerCombatService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Legacy customer combat polling",
-      "task": "17_combat.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
-      "owner": "MeleeWeaponPresentation",
-      "method": "update",
-      "target": "",
-      "count": 1,
-      "reason": "Presentation update in legacy services folder; move to its proper role",
-      "task": "17_combat.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
-      "owner": "NpcAttackService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Attack windup/cooldown progression",
-      "task": "17_combat.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
-      "owner": "ProjectileService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Projectile flight/lifetime progression",
-      "task": "17_combat.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
       "owner": "HungerService",
       "method": "tick",
       "target": "",
@@ -133,26 +83,6 @@
     },
     {
       "rule": "system-service-step",
-      "owner": "S_CombatProjectile",
-      "method": "process",
-      "target": "ProjectileService.tick",
-      "count": 1,
-      "reason": "Projectile flight/lifetime progression",
-      "task": "17_combat.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "system-service-step",
-      "owner": "S_CustomerCombat",
-      "method": "process",
-      "target": "CustomerCombatService.tick",
-      "count": 1,
-      "reason": "Legacy customer combat polling",
-      "task": "17_combat.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "system-service-step",
       "owner": "S_Hunger",
       "method": "process",
       "target": "HungerService.tick",
@@ -169,16 +99,6 @@
       "count": 1,
       "reason": "Save preparation/retry polling",
       "task": "25_persistence_remaining.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "system-service-step",
-      "owner": "S_NpcCombat",
-      "method": "_step",
-      "target": "NpcAttackService.tick",
-      "count": 1,
-      "reason": "Attack windup/cooldown progression",
-      "task": "17_combat.md",
       "removal_gate": "26/27"
     },
     {

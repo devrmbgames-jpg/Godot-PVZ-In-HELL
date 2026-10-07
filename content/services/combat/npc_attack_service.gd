@@ -1,5 +1,5 @@
 extends RefCounted
-## Исполнение атак NPC; AI выбирает вид/индекс, а сервис повторно проверяет возможность.
+## Explicit NPC attack selection/start/effect/finish/cancel operations; S_NpcCombat owns progression.
 class_name NpcAttackService
 
 const MELEE_HALF_ANGLE_DEGREES: float = 70.0
@@ -28,7 +28,7 @@ static func can_start_against(actor: Entity, target: Entity, kind: C_NpcCombat.K
 		return false
 
 	var attack: DEF_NpcAttack = variant_for(state, kind, index)
-	return _valid_attack(attack, kind) and _valid_pair(actor, target) and in_range(actor, target, attack) and CombatGeometry.clear_line(actor, target, attack.collision_mask)
+	return _valid_attack(attack, kind) and pair_available(actor, target) and in_range(actor, target, attack) and CombatGeometry.clear_line(actor, target, attack.collision_mask)
 
 
 ## Отклонённый запрос не меняет текущего противника, намерение и cooldown.
@@ -42,6 +42,7 @@ static func start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 		return false
 
 	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
+	state.execution_generation += 1
 	state.attack = variant_for(state, kind, index)
 	state.kind = kind
 	state.variant = index
@@ -52,7 +53,7 @@ static func start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 	state.animation_driven = npc != null and npc.animation_player != null and state.attack.animation != &"" and npc.animation_player.has_animation(state.attack.animation)
 	if state.animation_driven:
 		npc.animation_player.play(state.attack.animation, E_NpcCharacter.ANIMATION_BLEND_SECONDS)
-	_set_movement(actor, false)
+	allow_movement(actor, false)
 	return true
 
 
@@ -101,43 +102,6 @@ static func choose_and_start(actor: Entity) -> bool:
 #endregion
 
 #region Исполнение и завершение
-## Продвигает cooldown и исполнение; исчезновение цели завершает бой, неверный клип не зависает.
-static func tick(actor: Entity, delta: float) -> void:
-	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
-	if state == null:
-		return
-
-	state.cooldown_remaining = maxf(0.0, state.cooldown_remaining - maxf(0.0, delta))
-	var target: Entity = CombatService.target_for(actor)
-	if target == null and state.phase == C_NpcCombat.Phase.READY:
-		return
-	if not _valid_pair(actor, target):
-		CombatService.end_combat(actor)
-		return
-	if state.phase == C_NpcCombat.Phase.READY:
-		_set_movement(actor, true)
-		return
-
-	state.elapsed += maxf(0.0, delta)
-	var attack: DEF_NpcAttack = state.attack
-	if state.animation_driven:
-		var npc: E_NpcCharacter = actor as E_NpcCharacter
-		if npc == null or npc.animation_player == null or npc.animation_player.current_animation != attack.animation or not npc.animation_player.is_playing():
-			finish(actor)
-		elif state.elapsed >= npc.animation_player.get_animation(attack.animation).length + attack.recovery_seconds:
-			# Зацикленный или неверный клип не должен удерживать участника в одной атаке бесконечно.
-			finish(actor)
-		return
-	if state.elapsed >= attack.windup_seconds and not state.effect_committed:
-		commit_effect(actor)
-
-	var active_end: float = attack.windup_seconds + attack.active_seconds
-	if state.elapsed >= active_end + attack.recovery_seconds:
-		finish(actor)
-	elif state.elapsed >= active_end:
-		state.phase = C_NpcCombat.Phase.RECOVERY
-	elif state.elapsed >= attack.windup_seconds:
-		state.phase = C_NpcCombat.Phase.ACTIVE
 
 
 ## Hook анимации или таймера: одна попытка эффекта на атаку, включая промах и невидимую цель.
@@ -147,7 +111,7 @@ static func commit_effect(actor: Entity) -> bool:
 		return false
 
 	var target: Entity = CombatService.target_for(actor)
-	if not _valid_pair(actor, target):
+	if not pair_available(actor, target):
 		cancel(actor)
 		return false
 
@@ -202,7 +166,8 @@ static func in_range(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bo
 	return distance >= attack.minimum_range and distance <= attack.maximum_range
 
 
-static func _valid_pair(actor: Entity, target: Entity) -> bool:
+## Tests optional live endpoints before a command or captured attack step.
+static func pair_available(actor: Entity, target: Entity) -> bool:
 	return GrabService.holder_available(actor) and GrabService.holder_available(target) and actor != target
 
 
@@ -218,7 +183,8 @@ static func _valid_attack(attack: DEF_NpcAttack, kind: C_NpcCombat.Kind) -> bool
 	return kind != C_NpcCombat.Kind.RANGED or (is_finite(attack.projectile_speed) and attack.projectile_speed > 0.0 and is_finite(attack.projectile_lifetime) and attack.projectile_lifetime > 0.0)
 
 
-static func _set_movement(actor: Entity, allowed: bool) -> void:
+## Applies one explicit attack movement gate to an optional intent component.
+static func allow_movement(actor: Entity, allowed: bool) -> void:
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
 	if intent != null:
 		intent.speed_fraction = 1.0 if allowed else 0.0
@@ -228,12 +194,13 @@ static func _clear_execution(actor: Entity, state: C_NpcCombat) -> void:
 	var npc: E_NpcCharacter = actor as E_NpcCharacter
 	if state.animation_driven and npc != null and npc.animation_player != null and state.attack != null and npc.animation_player.current_animation == state.attack.animation:
 		npc.animation_player.stop()
+	state.execution_generation += 1
 	state.phase = C_NpcCombat.Phase.READY
 	state.variant = -1
 	state.attack = null
 	state.elapsed = 0.0
 	state.effect_committed = false
 	state.animation_driven = false
-	_set_movement(actor, true)
+	allow_movement(actor, true)
 
 #endregion

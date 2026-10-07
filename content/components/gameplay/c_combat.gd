@@ -12,3 +12,6 @@ var elapsed: float = 0.0
 var strike: DEF_MeleeAttack = null
 ## Запрос попадания принят; второй успешный запрос этого удара запрещён.
 var hit_committed: bool = false
+
+## Session-local start/cancel generation; queued progression cannot advance a replacement attack.
+var execution_generation: int = 0

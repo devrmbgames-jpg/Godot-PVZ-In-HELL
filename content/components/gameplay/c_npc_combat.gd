@@ -30,3 +30,6 @@ var effect_committed: bool = false
 var animation_driven: bool = false
 ## Причина агрессии для снимка атрибуции.
 var aggression_reason: CombatContext.Reason = CombatContext.Reason.ORDINARY_ATTACK
+
+## Session-local start/cancel generation; queued progression cannot advance a replacement attack.
+var execution_generation: int = 0

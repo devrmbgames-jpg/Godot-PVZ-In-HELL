@@ -22,11 +22,11 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `combat/combat_attribution.gd` | KEEP_RULES | 17 | Request-context construction and retaliation eligibility. | KEPT_WITH_REASON |
 | `combat/combat_geometry.gd` | KEEP_GEOMETRY | 17 | Origin/cone/line-of-sight queries. | KEPT_WITH_REASON |
 | `combat/combat_presentation.gd` | KEEP_PRESENTATION | 17 | Read-only combat diagnostics. | KEPT_WITH_REASON |
-| `combat/combat_service.gd` | SPLIT | 17 | Target/start/cancel/hit commands mixed with tick_strike/scan. | PENDING |
-| `combat/customer_combat_service.gd` | SPLIT | 17 | Legacy-customer pursuit/escalation polling mixed with retaliation. | PENDING |
-| `combat/melee_weapon_presentation.gd` | KEEP_PRESENTATION | 17 | Maps strike elapsed to manual AnimationPlayer; relocate to presentation. | KEPT_WITH_REASON |
-| `combat/npc_attack_service.gd` | SPLIT | 17 | Start/commit/cancel mixed with windup/completion/cooldown. | PENDING |
-| `combat/projectile_service.gd` | SPLIT | 17 | Launch factory mixed with flight/lifetime/raycast/removal. | PENDING |
+| `combat/combat_service.gd` | SPLIT | 17 | Explicit target/start/cancel/hit retained; strike clock and scan moved to S_PlayerMelee, old API/callers removed. | DONE |
+| `combat/customer_combat_service.gd` | SPLIT | 17 | Retaliation retained; isolated escalation/pursuit reconciliation moved to S_CustomerCombat. | DONE |
+| `combat/melee_weapon_presentation.gd` | KEEP_PRESENTATION | 17 | Manual AnimationPlayer elapsed mapping moved to content/presentation/combat with retained UID. | DONE |
+| `combat/npc_attack_service.gd` | SPLIT | 17 | Explicit choose/start/effect/finish/cancel retained; phases/cooldown/watchdog owned by S_NpcCombat. | DONE |
+| `combat/projectile_service.gd` | SPLIT | 17 | Launch factory retained; flight/TTL/raycast/retirement moved to S_CombatProjectile. | DONE |
 | `commerce/commerce_panel_service.gd` | RENAME_MOVE | 24 | Control/modal construction becomes CommercePanelFactory in UI glue. | PENDING |
 | `commerce/commerce_service.gd` | KEEP_SERVICE | 24 | Synchronous purchase/order/payment with idempotent receipts. | KEPT_WITH_REASON |
 | `commerce/furniture_placement.gd` | KEEP_SERVICE | 24 | Explicit prepare/validate/commit construction before payment. | KEPT_WITH_REASON |
@@ -201,6 +201,8 @@ Reusable one-visit creation/materialization and next-arrival lookup remain expli
 Activity/decision/community/social/home-delivery/offers are explicit BT-selected or event/day commands. Task 16 verifies KEEP rather than granting them scheduling ownership. Validate `test_npc_community.gd`, `test_district_delivery.gd`, `test_district_delivery_offers.gd`. NpcLightingService's registry/context is a lifecycle-fed derived cache, not a second light-state authority.
 
 ### 17 / 18 / 19 — combat, challenges, hunger and quests
+
+**17.A–17.D DONE**: real melee/attack/projectile/isolated-customer scheduled owners, old clock APIs/callers removed, deferred identity/generation and reentrant damage guards. Explicit commands/Geometry/attribution retained; manual weapon presentation moved with UID. Combat GUT and actual main headless Jolt/escalation/self-defense smoke PASS.
 
 | Slice | Responsibility / target | Before → after ordering and removal | Existing regression |
 | --- | --- | --- | --- |
