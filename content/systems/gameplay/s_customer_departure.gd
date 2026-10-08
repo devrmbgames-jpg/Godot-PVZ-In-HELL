@@ -19,12 +19,18 @@ func query() -> QueryBuilder:
 ## Queues one phase operation without advancing the shared clock again.
 func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 	for customer: Entity in entities:
-		cmd.add_custom(_advance.bind(customer))
+		var captured_agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+		cmd.add_custom(_advance.bind(weakref(customer), captured_agent))
 
 
-func _advance(entity: Entity) -> void:
-	if not EntityAvailability.contains(entity, _world):
+func _advance(entity_reference: WeakRef, captured_agent: C_CustomerAgent) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(entity, _world) \
+			or entity.get_component(C_CustomerAgent) != captured_agent:
 		return
+
 	var customer: E_Customer = entity as E_Customer
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if int(agent.phase) != agent.scheduled_phase:

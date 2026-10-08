@@ -17,35 +17,43 @@ func sub_observers() -> Array[Array]:
 func _on_day(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	var fact: DayPhaseChanged = payload as DayPhaseChanged
 	assert(fact != null)
-	cmd.add_custom(_reconcile_day.bind(session, fact))
+	var captured_district: C_District = session.get_component(C_District) as C_District
+	var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+	cmd.add_custom(_reconcile_day.bind(weakref(session), fact, captured_district, captured_cycle))
 
 
 func _on_death(_event: Variant, body: Entity, _payload: Variant = null) -> void:
-	cmd.add_custom(_reconcile_death.bind(body))
+	cmd.add_custom(_reconcile_death.bind(weakref(body)))
 
 
 func _on_morning(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	var request: DistrictMorningPreparationRequest = payload as DistrictMorningPreparationRequest
 	assert(request != null)
-	cmd.add_custom(_prepare_morning.bind(session, request))
+	cmd.add_custom(_prepare_morning.bind(weakref(session), request))
 
 
 func _on_plan(_event: Variant, body: Entity, payload: Variant = null) -> void:
 	var request: NpcPhasePlanRequest = payload as NpcPhasePlanRequest
 	assert(request != null)
-	cmd.add_custom(_execute_plan.bind(body, request))
+	cmd.add_custom(_execute_plan.bind(weakref(body), request))
 
 
 func _on_completion(_event: Variant, body: Entity, payload: Variant = null) -> void:
 	var request: NpcScheduleCompletionRequest = payload as NpcScheduleCompletionRequest
 	assert(request != null)
-	cmd.add_custom(_complete_phase.bind(body, request))
+	cmd.add_custom(_complete_phase.bind(weakref(body), request))
 #endregion
 
 #region Calendar and death reconciliation
-func _reconcile_day(session: Entity, fact: DayPhaseChanged) -> void:
-	if not EntityAvailability.contains(session, _world):
+func _reconcile_day(session_reference: WeakRef, fact: DayPhaseChanged, captured_district: C_District, captured_cycle: C_DayCycle) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(session, _world) \
+			or session.get_component(C_District) != captured_district \
+			or session.get_component(C_DayCycle) != captured_cycle:
 		return
+
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	if cycle.day_index != fact.day_index or cycle.phase != fact.phase:
 		return
@@ -71,7 +79,10 @@ func _reconcile_day(session: Entity, fact: DayPhaseChanged) -> void:
 	district.lifecycle_phase = int(fact.phase)
 
 
-func _reconcile_death(entity: Entity) -> void:
+func _reconcile_death(entity_reference: WeakRef) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
 	if not _retains_body(entity):
 		return
 	var cycle: C_DayCycle = DayPhaseService.current()
@@ -85,7 +96,10 @@ func _reconcile_death(entity: Entity) -> void:
 #endregion
 
 #region Explicit preparation and goal assignment
-func _prepare_morning(session: Entity, request: DistrictMorningPreparationRequest) -> void:
+func _prepare_morning(session_reference: WeakRef, request: DistrictMorningPreparationRequest) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
 	if request.completed:
 		return
 	if not EntityAvailability.contains(session, _world):
@@ -121,7 +135,10 @@ func _prepare_morning(session: Entity, request: DistrictMorningPreparationReques
 	request.completed = true
 
 
-func _execute_plan(entity: Entity, request: NpcPhasePlanRequest) -> void:
+func _execute_plan(entity_reference: WeakRef, request: NpcPhasePlanRequest) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
 	if request.completed:
 		return
 	if not _retains_body(entity):
@@ -180,7 +197,10 @@ func _plan_phase(district: C_District, person: NpcRecord, body: E_DistrictNpc, d
 #endregion
 
 #region Captured goal completion
-func _complete_phase(entity: Entity, request: NpcScheduleCompletionRequest) -> void:
+func _complete_phase(entity_reference: WeakRef, request: NpcScheduleCompletionRequest) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
 	if request.completed:
 		return
 	if not _retains_body(entity):

@@ -44,7 +44,7 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighb
 		controller.direction_look = Vector3.ZERO
 		for relation: Relationship in actor.relationships:
 			if relation.relation is R_NpcMoveTarget or relation.relation is R_NpcLookTarget:
-				cmd.remove_relationship(actor, relation)
+				cmd.add_custom(_remove_captured_relationship.bind(weakref(actor), relation))
 		return
 	if intent.movement_active:
 		var position: Vector3 = intent.move_position
@@ -206,7 +206,18 @@ func _target(actor: Entity, relation_type: Script) -> Node3D:
 				if not target.has_component(C_Death) and node != null:
 					return node
 
-			cmd.remove_relationship(actor, relation)
+			cmd.add_custom(_remove_captured_relationship.bind(weakref(actor), relation))
 	return null
 
+#endregion
+
+
+#region Captured relationship retirement
+func _remove_captured_relationship(owner_reference: WeakRef, captured: Relationship) -> void:
+	# GECS pattern removal could otherwise match a replacement after the original binding disappeared.
+	var subject: Entity = owner_reference.get_ref() as Entity
+	if subject == null or not _world.entity_to_archetype.has(subject) or subject.is_queued_for_deletion():
+		return
+	if subject.relationships.has(captured):
+		subject.remove_relationship(captured)
 #endregion

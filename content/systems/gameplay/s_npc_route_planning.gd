@@ -17,11 +17,14 @@ func query() -> QueryBuilder:
 func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 	for session: Entity in entities:
 		var district: C_District = session.get_component(C_District) as C_District
-		cmd.add_custom(_plan_pending.bind(session, district))
+		cmd.add_custom(_plan_pending.bind(weakref(session), district))
 #endregion
 
 #region Fair planning queue
-func _plan_pending(session: Entity, captured: C_District) -> void:
+func _plan_pending(session_reference: WeakRef, captured: C_District) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
 	if not EntityAvailability.contains(session, _world) or session.get_component(C_District) != captured:
 		return
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle

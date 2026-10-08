@@ -46,7 +46,7 @@ func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 
 		match request.kind:
 			DayTransitionRequest.Kind.START_SHIFT:
-				cmd.add_custom(_commit_start_shift.bind(_entities[index], cycle, request))
+				cmd.add_custom(_commit_start_shift.bind(weakref(_entities[index]), cycle, request))
 				continue
 			DayTransitionRequest.Kind.FINISH_SHIFT:
 				cycle.phase = C_DayCycle.Phase.EVENING
@@ -61,9 +61,12 @@ func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 
 #region Безопасная фиксация утренней команды
 func _commit_start_shift(
-	session: Entity, cycle: C_DayCycle, request: DayTransitionRequest,
+	session_reference: WeakRef, cycle: C_DayCycle, request: DayTransitionRequest,
 ) -> void:
-	if not EntityAvailability.contains(session, _world):
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(session, _world) or session.get_component(C_DayCycle) != cycle:
 		return
 	if cycle.day_index != request.expected_day or cycle.phase != request.expected_phase:
 		return

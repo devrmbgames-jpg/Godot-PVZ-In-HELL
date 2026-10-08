@@ -17,9 +17,17 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	):
 		return
 
-	cmd.add_custom(_remove.bind(entity))
+	var captured_policy: C_RemoveOnHealthDepleted = entity.get_component(C_RemoveOnHealthDepleted) as C_RemoveOnHealthDepleted
+	cmd.add_custom(_remove.bind(weakref(entity), captured_policy))
 
-func _remove(entity: Entity) -> void:
+func _remove(entity_reference: WeakRef, captured_policy: C_RemoveOnHealthDepleted) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(entity, _world) \
+			or entity.get_component(C_RemoveOnHealthDepleted) != captured_policy:
+		return
+
 	if not is_instance_valid(entity):
 		return
 	if EntityAvailability.contains(entity, _world):

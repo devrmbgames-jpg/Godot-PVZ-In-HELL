@@ -10,12 +10,20 @@ func query() -> QueryBuilder:
 
 ## Ставит проверку и связь с ещё действующим испытанием в CommandBuffer.
 func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
-	cmd.add_custom(_bind.bind(entity))
+	var captured_hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
+	var captured_floor: C_FloorHazard = entity.get_component(C_FloorHazard) as C_FloorHazard
+	cmd.add_custom(_bind.bind(weakref(entity), captured_hazard, captured_floor))
 
 
-func _bind(entity: Entity) -> void:
-	if not EntityAvailability.contains(entity, _world):
+func _bind(entity_reference: WeakRef, captured_hazard: C_Hazard, captured_floor: C_FloorHazard) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(entity, _world) \
+			or entity.get_component(C_Hazard) != captured_hazard \
+			or entity.get_component(C_FloorHazard) != captured_floor:
 		return
+
 
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	var profile: DEF_FloorHazard = hazard.definition as DEF_FloorHazard

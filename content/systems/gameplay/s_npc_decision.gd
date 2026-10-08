@@ -18,11 +18,14 @@ func query() -> QueryBuilder:
 func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 	for entity: Entity in entities:
 		var decision: C_NpcDecision = entity.get_component(C_NpcDecision) as C_NpcDecision
-		cmd.add_custom(_advance.bind(entity, decision))
+		cmd.add_custom(_advance.bind(weakref(entity), decision))
 #endregion
 
 #region Due-step progression
-func _advance(entity: Entity, captured: C_NpcDecision) -> void:
+func _advance(entity_reference: WeakRef, captured: C_NpcDecision) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
 	if not EntityAvailability.contains(entity, _world) or not entity.has_component(C_NpcIdentity):
 		return
 	if entity.get_component(C_NpcDecision) != captured:

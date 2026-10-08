@@ -22,11 +22,14 @@ func query() -> QueryBuilder:
 func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 	for customer: Entity in entities:
 		var captured: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-		cmd.add_custom(_advance.bind(customer, captured))
+		cmd.add_custom(_advance.bind(weakref(customer), captured))
 #endregion
 
 #region Isolated escalation
-func _advance(entity: Entity, captured: C_CustomerAgent) -> void:
+func _advance(entity_reference: WeakRef, captured: C_CustomerAgent) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
 	if not EntityAvailability.contains(entity, _world) or entity.get_component(C_CustomerAgent) != captured:
 		return
 	_reconcile(entity as E_Customer)

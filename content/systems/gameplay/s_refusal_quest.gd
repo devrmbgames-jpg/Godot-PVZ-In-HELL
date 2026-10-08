@@ -19,11 +19,17 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 		var state: C_QuestSession = session.get_component(C_QuestSession) as C_QuestSession
 		var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 		var records: Array[RefusalQuestRecord] = state.records.duplicate()
-		cmd.add_custom(_advance.bind(session, state, cycle, cycle.day_index, cycle.phase, records))
+		cmd.add_custom(_advance.bind(weakref(session), state, cycle, cycle.day_index, cycle.phase, records))
 #endregion
 
 #region Deadline/outcome and reward progression
-func _advance(session: Entity, state: C_QuestSession, cycle: C_DayCycle, day_index: int, phase: C_DayCycle.Phase, records: Array[RefusalQuestRecord]) -> void:
+func _advance(
+	session_reference: WeakRef, state: C_QuestSession, cycle: C_DayCycle, day_index: int,
+	phase: C_DayCycle.Phase, records: Array[RefusalQuestRecord],
+) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
 	if not EntityAvailability.contains(session, _world) or session.get_component(C_QuestSession) != state \
 			or session.get_component(C_DayCycle) != cycle:
 		return

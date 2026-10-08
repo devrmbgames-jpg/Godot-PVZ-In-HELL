@@ -22,10 +22,13 @@ func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 		var cart: E_TransportCart = entity as E_TransportCart
 		assert(cart != null, "C_CartTransport requires the authored E_TransportCart physical root")
 		var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
-		cmd.add_custom(_sample_membership.bind(cart, config, Engine.get_physics_frames(), delta))
+		cmd.add_custom(_sample_membership.bind(weakref(cart), config, Engine.get_physics_frames(), delta))
 
 
-func _sample_membership(cart: E_TransportCart, config: C_CartTransport, physics_frame: int, delta: float) -> void:
+func _sample_membership(cart_reference: WeakRef, config: C_CartTransport, physics_frame: int, delta: float) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var cart: E_TransportCart = cart_reference.get_ref() as E_TransportCart
+
 	# Deferred support/timing cannot span a physical frame or a replaced load aggregate.
 	if not EntityAvailability.contains(cart, _world) or cart.get_component(C_CartTransport) != config:
 		return

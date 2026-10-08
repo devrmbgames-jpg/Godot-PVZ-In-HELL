@@ -16,12 +16,18 @@ func query() -> QueryBuilder:
 ## Queues terminal cleanup; death provenance may have crossed a stored-reference boundary.
 func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 	for customer: Entity in entities:
-		cmd.add_custom(_cleanup.bind(customer))
+		var captured_agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+		cmd.add_custom(_cleanup.bind(weakref(customer), captured_agent))
 
 
-func _cleanup(customer: Entity) -> void:
-	if not EntityAvailability.contains(customer, _world):
+func _cleanup(customer_reference: WeakRef, captured_agent: C_CustomerAgent) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var customer: Entity = customer_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(customer, _world) \
+			or customer.get_component(C_CustomerAgent) != captured_agent:
 		return
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
 	var death: C_Death = customer.get_component(C_Death) as C_Death

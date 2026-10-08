@@ -37,14 +37,17 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		var records: Array[PendingLootDrop] = queue.pending.slice(0, attempts)
 		queue.retry_queued = true
 		queue.retry_revision += 1
-		cmd.add_custom(_retry.bind(entities[index], queue, cycle, cycle.day_index, cycle.phase, placement, records, queue.retry_revision))
+		cmd.add_custom(_retry.bind(weakref(entities[index]), queue, cycle, cycle.day_index, cycle.phase, placement, records, queue.retry_revision))
 #endregion
 
 #region Bounded retry commit
 func _retry(
-	session: Entity, queue: C_LootDrops, cycle: C_DayCycle, day: int,
+	session_reference: WeakRef, queue: C_LootDrops, cycle: C_DayCycle, day: int,
 	phase: C_DayCycle.Phase, placement: DEF_ItemPlacement, records: Array[PendingLootDrop], revision: int,
 ) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
 	if queue.retry_revision != revision:
 		return
 	_retry_records(session, queue, cycle, day, phase, placement, records, revision)

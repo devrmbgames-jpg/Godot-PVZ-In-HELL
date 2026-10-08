@@ -22,9 +22,19 @@ func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 
 		var data: R_ThrownBy = active.relation as R_ThrownBy
 		if data == null:
-			cmd.add_custom(ThrowContext.cancel.bind(source))
+			cmd.add_custom(_cancel_expired.bind(weakref(source), active))
 			continue
 
 		data.remaining_seconds = maxf(0.0, data.remaining_seconds - delta)
 		if data.remaining_seconds <= 0.0:
-			cmd.add_custom(ThrowContext.cancel.bind(source))
+			cmd.add_custom(_cancel_expired.bind(weakref(source), active))
+
+
+#region Captured operation
+func _cancel_expired(source_reference: WeakRef, captured: Relationship) -> void:
+	var source: Entity = source_reference.get_ref() as Entity
+	if not EntityAvailability.contains(source, _world) or ThrowContext.relationship(source) != captured:
+		return
+
+	ThrowContext.cancel(source)
+#endregion

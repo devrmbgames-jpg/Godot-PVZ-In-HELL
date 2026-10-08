@@ -16,12 +16,20 @@ func query() -> QueryBuilder:
 ## Queues the complete arrival step at this System's concrete buffer boundary.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for session: Entity in entities:
-		cmd.add_custom(_advance.bind(session, delta))
+		var captured_flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
+		var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+		cmd.add_custom(_advance.bind(weakref(session), delta, captured_flow, captured_cycle))
 
 
-func _advance(session: Entity, delta: float) -> void:
-	if not EntityAvailability.contains(session, _world):
+func _advance(session_reference: WeakRef, delta: float, captured_flow: C_CustomerFlow, captured_cycle: C_DayCycle) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(session, _world) \
+			or session.get_component(C_CustomerFlow) != captured_flow \
+			or session.get_component(C_DayCycle) != captured_cycle:
 		return
+
 	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 

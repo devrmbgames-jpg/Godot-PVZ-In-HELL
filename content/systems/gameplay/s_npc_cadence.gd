@@ -16,13 +16,21 @@ func query() -> QueryBuilder:
 ## Queues interval selection at the declared structural boundary.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for session: Entity in entities:
-		cmd.add_custom(_select_due.bind(session, delta))
+		var captured_district: C_District = session.get_component(C_District) as C_District
+		var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+		cmd.add_custom(_select_due.bind(weakref(session), delta, captured_district, captured_cycle))
 #endregion
 
 #region Due selection
-func _select_due(session: Entity, delta: float) -> void:
-	if not EntityAvailability.contains(session, _world):
+func _select_due(session_reference: WeakRef, delta: float, captured_district: C_District, captured_cycle: C_DayCycle) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(session, _world) \
+			or session.get_component(C_District) != captured_district \
+			or session.get_component(C_DayCycle) != captured_cycle:
 		return
+
 	var district: C_District = session.get_component(C_District) as C_District
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	for person: NpcRecord in district.people:

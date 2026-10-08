@@ -16,12 +16,20 @@ func query() -> QueryBuilder:
 ## Publishes only a missing calendar snapshot, never a recurring population/service dispatcher.
 func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 	for session: Entity in entities:
-		cmd.add_custom(_ensure_calendar.bind(session))
+		var captured_district: C_District = session.get_component(C_District) as C_District
+		var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+		cmd.add_custom(_ensure_calendar.bind(weakref(session), captured_district, captured_cycle))
 
 
-func _ensure_calendar(session: Entity) -> void:
-	if not EntityAvailability.contains(session, _world):
+func _ensure_calendar(session_reference: WeakRef, captured_district: C_District, captured_cycle: C_DayCycle) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(session, _world) \
+			or session.get_component(C_District) != captured_district \
+			or session.get_component(C_DayCycle) != captured_cycle:
 		return
+
 	var district: C_District = session.get_component(C_District) as C_District
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	if district.lifecycle_day != cycle.day_index or district.lifecycle_phase != int(cycle.phase):

@@ -23,4 +23,14 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	if visit != null:
 		visit.last_combat_context = context
 	if context.actor_is_player and result.outcome != DamageResult.Outcome.HEALTH_DEPLETED:
-		cmd.add_custom(CustomerCombatService.retaliate.bind(entity, context))
+		cmd.add_custom(_retaliate.bind(weakref(entity), agent, context))
+
+
+#region Captured operation
+func _retaliate(customer_reference: WeakRef, agent: C_CustomerAgent, context: CombatContext) -> void:
+	var customer: Entity = customer_reference.get_ref() as Entity
+	if not EntityAvailability.contains(customer, _world) or customer.get_component(C_CustomerAgent) != agent:
+		return
+
+	CustomerCombatService.retaliate(customer, context)
+#endregion

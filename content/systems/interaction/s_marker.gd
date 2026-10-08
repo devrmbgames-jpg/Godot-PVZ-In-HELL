@@ -24,10 +24,17 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 		var actor: Entity = grip.target as Entity if grip != null else null
 		var controller: C_Controller = actor.get_component(C_Controller) as C_Controller if is_instance_valid(actor) else null
 		var snapshot: C_Controller = InteractionInputSnapshot.capture(controller) if controller != null else null
-		cmd.add_custom(_advance_marker.bind(tool, marker, marker.capture_token, grip, actor, controller, snapshot))
+		cmd.add_custom(_advance_marker.bind(weakref(tool), marker, marker.capture_token, grip, weakref(actor) if actor != null else null, controller, snapshot))
 
 
-func _advance_marker(tool: Entity, marker: C_Marker, token: int, grip: Relationship, actor: Entity, captured_controller: C_Controller, controller: C_Controller) -> void:
+func _advance_marker(
+	tool_reference: WeakRef, marker: C_Marker, token: int, grip: Relationship, actor_reference: WeakRef,
+	captured_controller: C_Controller, controller: C_Controller,
+) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var tool: Entity = tool_reference.get_ref() as Entity
+	var actor: Entity = actor_reference.get_ref() as Entity if actor_reference != null else null
+
 	# A queued draw step cannot continue a removed tool or a newer capture/held relationship.
 	if not is_instance_valid(tool) or tool not in _world.entities or tool.get_component(C_Marker) != marker:
 		return

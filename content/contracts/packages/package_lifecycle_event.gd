@@ -18,6 +18,8 @@ var package_id: String = ""
 var package: Entity = null
 ## Инициатор вскрытия либо известный источник урона.
 var actor: Entity = null
+## Captured initiator identity survives removal before deferred contents release.
+var actor_id: String = ""
 ## Зафиксированный переход состояния коробки.
 var kind: Kind = Kind.Damaged
 ## Причина урона для повреждения и уничтожения, иначе null.

@@ -17,13 +17,21 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	if result.applied_amount <= 0.0:
 		return
 
-	cmd.add_custom(_commit_condition.bind(entity, result))
+	var captured_condition: C_PackageState = entity.get_component(C_PackageState) as C_PackageState
+	cmd.add_custom(_commit_condition.bind(weakref(entity), result, captured_condition))
 
 
 #endregion
 
 #region Переход состояния коробки
-func _commit_condition(target: Entity, result: DamageResult) -> void:
+func _commit_condition(target_reference: WeakRef, result: DamageResult, captured_condition: C_PackageState) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var target: Entity = target_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(target, _world) \
+			or target.get_component(C_PackageState) != captured_condition:
+		return
+
 	if not GrabService.entity_available(target):
 		return
 

@@ -11,12 +11,25 @@ func query() -> QueryBuilder:
 ## Ставит настройку в CommandBuffer, сохраняя признак восстановления.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: HazardSpawnResult = payload as HazardSpawnResult
-	cmd.add_custom(_configure.bind(entity, result != null and result.restored))
+	var captured_hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
+	var captured_explosion: C_Explosion = entity.get_component(C_Explosion) as C_Explosion
+	var captured_lifetime: C_HazardLifetime = entity.get_component(C_HazardLifetime) as C_HazardLifetime
+	cmd.add_custom(_configure.bind(weakref(entity), result != null and result.restored, captured_hazard, captured_explosion, captured_lifetime))
 
 
-func _configure(entity: Entity, restored: bool) -> void:
-	if not EntityAvailability.contains(entity, _world):
+func _configure(
+	entity_reference: WeakRef, restored: bool, captured_hazard: C_Hazard, captured_explosion: C_Explosion,
+	captured_lifetime: C_HazardLifetime,
+) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(entity, _world) \
+			or entity.get_component(C_Hazard) != captured_hazard \
+			or entity.get_component(C_Explosion) != captured_explosion \
+			or entity.get_component(C_HazardLifetime) != captured_lifetime:
 		return
+
 
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	var profile: DEF_Explosion = hazard.definition as DEF_Explosion

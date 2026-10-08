@@ -15,10 +15,13 @@ func query() -> QueryBuilder:
 func each(_event: Variant, subject: Entity, payload: Variant = null) -> void:
 	var resolution: ChallengeResolution = payload as ChallengeResolution
 	assert(resolution != null)
-	cmd.add_custom(_apply.bind(subject, resolution))
+	cmd.add_custom(_apply.bind(weakref(subject), resolution))
 
 
-func _apply(subject: Entity, resolution: ChallengeResolution) -> void:
+func _apply(subject_reference: WeakRef, resolution: ChallengeResolution) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var subject: Entity = subject_reference.get_ref() as Entity
+
 	if not EntityAvailability.contains(subject, _world):
 		return
 	# A queued result may outlive its role or be superseded by challenge cleanup/restart.

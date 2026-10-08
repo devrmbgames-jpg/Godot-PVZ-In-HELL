@@ -20,12 +20,20 @@ func query() -> QueryBuilder:
 ## Queues selection after the current appearance's concrete commit boundary.
 func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 	for session: Entity in entities:
-		cmd.add_custom(_dispatch.bind(session))
+		var captured_flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
+		var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+		cmd.add_custom(_dispatch.bind(weakref(session), captured_flow, captured_cycle))
 
 
-func _dispatch(session: Entity) -> void:
-	if not EntityAvailability.contains(session, _world):
+func _dispatch(session_reference: WeakRef, captured_flow: C_CustomerFlow, captured_cycle: C_DayCycle) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(session, _world) \
+			or session.get_component(C_CustomerFlow) != captured_flow \
+			or session.get_component(C_DayCycle) != captured_cycle:
 		return
+
 	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	if flow.planning_day != cycle.day_index or flow.planning_phase != int(cycle.phase):

@@ -17,11 +17,14 @@ func query() -> QueryBuilder:
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for projectile: Entity in entities:
 		var captured: C_CombatProjectile = projectile.get_component(C_CombatProjectile) as C_CombatProjectile
-		cmd.add_custom(_advance.bind(projectile, captured, delta))
+		cmd.add_custom(_advance.bind(weakref(projectile), captured, delta))
 #endregion
 
 #region Flight and retirement
-func _advance(projectile: Entity, captured: C_CombatProjectile, delta: float) -> void:
+func _advance(projectile_reference: WeakRef, captured: C_CombatProjectile, delta: float) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var projectile: Entity = projectile_reference.get_ref() as Entity
+
 	if not EntityAvailability.contains(projectile, _world) or projectile.get_component(C_CombatProjectile) != captured:
 		return
 	_step(projectile, delta)

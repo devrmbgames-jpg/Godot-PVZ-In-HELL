@@ -16,9 +16,14 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 
 	var data: R_HazardFollow = relationship.relation as R_HazardFollow
 	if data != null and data.on_loss == DEF_Hazard.OwnerLoss.Despawn:
-		cmd.add_custom(_retire_if_unbound.bind(entity))
+		cmd.add_custom(_retire_if_unbound.bind(weakref(entity)))
 
 
-func _retire_if_unbound(effect: Entity) -> void:
+func _retire_if_unbound(effect_reference: WeakRef) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var effect: Entity = effect_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(effect, _world):
+		return
 	if HazardFollowService.binding(effect) == null:
 		HazardLifecycle.retire(effect, _world)

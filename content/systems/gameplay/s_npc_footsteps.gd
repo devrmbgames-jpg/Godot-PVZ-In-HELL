@@ -21,13 +21,21 @@ func query() -> QueryBuilder:
 ## Queues the bounded player/due-actor sampling operation.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for session: Entity in entities:
-		cmd.add_custom(_sample.bind(session, delta))
+		var captured_district: C_District = session.get_component(C_District) as C_District
+		var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+		cmd.add_custom(_sample.bind(weakref(session), delta, captured_district, captured_cycle))
 #endregion
 
 #region Footstep clocks
-func _sample(session: Entity, delta: float) -> void:
-	if not EntityAvailability.contains(session, _world):
+func _sample(session_reference: WeakRef, delta: float, captured_district: C_District, captured_cycle: C_DayCycle) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(session, _world) \
+			or session.get_component(C_District) != captured_district \
+			or session.get_component(C_DayCycle) != captured_cycle:
 		return
+
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	if cycle.phase == C_DayCycle.Phase.NIGHT:
 		return

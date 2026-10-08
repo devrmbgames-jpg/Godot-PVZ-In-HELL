@@ -13,13 +13,21 @@ func query() -> QueryBuilder:
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
 	if result != null and result.outcome == DamageResult.Outcome.HEALTH_DEPLETED:
-		cmd.add_custom(_commit_death.bind(entity, result))
+		var captured_living: C_Living = entity.get_component(C_Living) as C_Living
+		cmd.add_custom(_commit_death.bind(weakref(entity), result, captured_living))
 
 
 #endregion
 
 #region Смерть и освобождение управления
-func _commit_death(target: Entity, result: DamageResult) -> void:
+func _commit_death(target_reference: WeakRef, result: DamageResult, captured_living: C_Living) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var target: Entity = target_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(target, _world) \
+			or target.get_component(C_Living) != captured_living:
+		return
+
 	if not GrabService.entity_available(target) or target.has_component(C_Death):
 		return
 

@@ -21,10 +21,16 @@ func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 		var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 		var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 		var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
-		cmd.add_custom(_consume_input.bind(actor, controller, interactor, control, InteractionInputSnapshot.capture(controller), delta))
+		cmd.add_custom(_consume_input.bind(weakref(actor), controller, interactor, control, InteractionInputSnapshot.capture(controller), delta))
 
 
-func _consume_input(actor: Entity, captured_controller: C_Controller, interactor: C_Interactor, control: C_GrabControl, controller: C_Controller, delta: float) -> void:
+func _consume_input(
+	actor_reference: WeakRef, captured_controller: C_Controller, interactor: C_Interactor,
+	control: C_GrabControl, controller: C_Controller, delta: float,
+) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var actor: Entity = actor_reference.get_ref() as Entity
+
 	# Deferred actors may have left the World or replaced their loaded/controller state.
 	if not is_instance_valid(actor) or actor not in _world.entities or not actor.is_inside_tree():
 		return

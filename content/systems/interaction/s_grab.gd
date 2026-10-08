@@ -46,12 +46,12 @@ func _integrate_generic_bodies(holder: Entity, delta: float) -> void:
 			not GrabService.holder_available(holder) or body.freeze or profile == null
 			or not is_instance_valid(anchor)
 		):
-			cmd.add_custom(_release_invalid_grip.bind(holder, held, grip))
+			cmd.add_custom(_release_invalid_grip.bind(weakref(holder), weakref(held), grip))
 			continue
 
 		var interactable: C_Interactable = held.get_component(C_Interactable) as C_Interactable
 		if interactable != null and not interactable.enabled:
-			cmd.add_custom(_release_invalid_grip.bind(holder, held, grip))
+			cmd.add_custom(_release_invalid_grip.bind(weakref(holder), weakref(held), grip))
 			continue
 
 		var allowed_break_distance: float = GrabPhysicsSolver.allowed_break_distance(
@@ -68,10 +68,14 @@ func _integrate_generic_bodies(holder: Entity, delta: float) -> void:
 			profile,
 			allowed_break_distance,
 		):
-			cmd.add_custom(_release_invalid_grip.bind(holder, held, grip))
+			cmd.add_custom(_release_invalid_grip.bind(weakref(holder), weakref(held), grip))
 
 
-func _release_invalid_grip(holder: Entity, held: Entity, grip: Relationship) -> void:
+func _release_invalid_grip(holder_reference: WeakRef, held_reference: WeakRef, grip: Relationship) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var holder: Entity = holder_reference.get_ref() as Entity
+	var held: Entity = held_reference.get_ref() as Entity
+
 	# A queued invalid grip cannot retire a replacement binding created before flush.
 	if not EntityAvailability.contains(held, _world) or GrabService.held_relationship(held) != grip:
 		return

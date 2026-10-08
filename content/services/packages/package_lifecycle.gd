@@ -19,5 +19,6 @@ static func publish(
 	package_lifecycle.package_id = identity.package_id if identity != null else ""
 	package_lifecycle.kind = kind
 	package_lifecycle.actor = actor
+	package_lifecycle.actor_id = actor.id if is_instance_valid(actor) else ""
 	package_lifecycle.cause = cause
 	ECS.world.emit_event(PackageLifecycleEvent.EVENT, package, package_lifecycle)

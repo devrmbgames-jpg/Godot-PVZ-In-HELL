@@ -16,13 +16,22 @@ func query() -> QueryBuilder:
 ## Queues the request and phase snapshot together at this owner's buffer boundary.
 func process(entities: Array[Entity], _components: Array, _delta: float) -> void:
 	for customer: Entity in entities:
-		cmd.add_custom(_prepare.bind(customer))
+		var captured_agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+		cmd.add_custom(_prepare.bind(weakref(customer), captured_agent))
 
 
-func _prepare(customer: Entity) -> void:
-	if not EntityAvailability.contains(customer, _world):
+func _prepare(customer_reference: WeakRef, captured_agent: C_CustomerAgent) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var customer: Entity = customer_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(customer, _world) \
+			or customer.get_component(C_CustomerAgent) != captured_agent:
 		return
+
 	_world.emit_event(CustomerGreetingRequest.EVENT, customer, CustomerGreetingRequest.new())
+	# A synchronous greeting reaction may end the role or retire its body.
+	if not EntityAvailability.contains(customer, _world) or customer.get_component(C_CustomerAgent) != captured_agent:
+		return
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.scheduled_phase = int(agent.phase)
 #endregion

@@ -20,12 +20,15 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		if not lifetime.awaiting_resolution:
 			lifetime.remaining_seconds = maxf(0.0, lifetime.remaining_seconds - delta)
 		if not entities[index].enabled or lifetime.remaining_seconds <= 0.0:
-			cmd.add_custom(_retire_if_expired.bind(entities[index], lifetime, entities[index].get_component(C_Hazard) as C_Hazard))
+			cmd.add_custom(_retire_if_expired.bind(weakref(entities[index]), lifetime, entities[index].get_component(C_Hazard) as C_Hazard))
 
 #endregion
 
 #region Captured expiry
-func _retire_if_expired(effect: Entity, lifetime: C_HazardLifetime, hazard: C_Hazard) -> void:
+func _retire_if_expired(effect_reference: WeakRef, lifetime: C_HazardLifetime, hazard: C_Hazard) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var effect: Entity = effect_reference.get_ref() as Entity
+
 	# Disabled effects deliberately participate in expiry; require registration without the active predicate.
 	if not is_instance_valid(effect) or not effect.is_inside_tree() or effect.is_queued_for_deletion():
 		return

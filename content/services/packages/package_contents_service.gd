@@ -17,7 +17,8 @@ static func is_empty(package: Entity) -> bool:
 	return contents != null and contents.released
 
 ## Фиксирует состав открытой целой коробки один раз; возвращает только безопасно размещённые тела.
-static func release(package: Entity, actor: Entity = null) -> Array[Entity]:
+## captured_actor_id preserves committed attribution when the optional live initiator is unavailable.
+static func release(package: Entity, actor: Entity = null, captured_actor_id: String = "") -> Array[Entity]:
 	if not EntityAvailability.contains(package, ECS.world):
 		return []
 
@@ -46,7 +47,7 @@ static func release(package: Entity, actor: Entity = null) -> Array[Entity]:
 	var template: PendingLootDrop = PendingLootDrop.new()
 	template.anchor = body.global_position
 	template.source_id = package.id
-	template.actor_id = actor.id if is_instance_valid(actor) else ""
+	template.actor_id = captured_actor_id if not captured_actor_id.is_empty() else (actor.id if is_instance_valid(actor) else "")
 	template.package_id = identity.package_id
 	template.airborne = definition.spill_contents
 	template.activate_hazard = definition.activate_contents_hazard

@@ -21,11 +21,18 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var spatial: Node3D = entity as Node as Node3D
 	if district == null or spatial == null:
 		return
-	cmd.add_custom(_emit.bind(committed.actor, entity, committed.actor_id, committed.object_id,
+	cmd.add_custom(_emit.bind(weakref(committed.actor), weakref(entity), committed.actor_id, committed.object_id,
 		district, district.definition, spatial.global_position, district.definition.interaction_noise_radius))
 
 
-func _emit(actor: Entity, subject: Entity, actor_id: String, object_id: String, district: C_District, definition: DEF_District, position: Vector3, radius: float) -> void:
+func _emit(
+	actor_reference: WeakRef, subject_reference: WeakRef, actor_id: String, object_id: String,
+	district: C_District, definition: DEF_District, position: Vector3, radius: float,
+) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var actor: Entity = actor_reference.get_ref() as Entity
+	var subject: Entity = subject_reference.get_ref() as Entity
+
 	if not EntityAvailability.contains(actor, _world) or not EntityAvailability.contains(subject, _world):
 		return
 	if actor.id != actor_id or subject.id != object_id or not actor.has_component(C_PlayerInputController):

@@ -20,11 +20,14 @@ func query() -> QueryBuilder:
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for subject: Entity in entities:
 		var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
-		cmd.add_custom(_advance.bind(subject, state, state.phase, state.definition, delta))
+		cmd.add_custom(_advance.bind(weakref(subject), state, state.phase, state.definition, delta))
 #endregion
 
 #region Authoritative clocks
-func _advance(subject: Entity, captured: C_Challenge, phase: C_Challenge.Phase, definition: DEF_Challenge, delta: float) -> void:
+func _advance(subject_reference: WeakRef, captured: C_Challenge, phase: C_Challenge.Phase, definition: DEF_Challenge, delta: float) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var subject: Entity = subject_reference.get_ref() as Entity
+
 	if not EntityAvailability.contains(subject, _world) or subject.get_component(C_Challenge) != captured:
 		return
 	if captured.phase != phase or captured.definition != definition:

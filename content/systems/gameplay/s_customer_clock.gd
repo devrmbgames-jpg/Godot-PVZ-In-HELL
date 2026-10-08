@@ -17,12 +17,18 @@ func query() -> QueryBuilder:
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	assert(is_finite(delta) and delta >= 0.0)
 	for customer: Entity in entities:
-		cmd.add_custom(_advance.bind(customer, delta))
+		var captured_agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
+		cmd.add_custom(_advance.bind(weakref(customer), delta, captured_agent))
 
 
-func _advance(customer: Entity, delta: float) -> void:
-	if not EntityAvailability.contains(customer, _world):
+func _advance(customer_reference: WeakRef, delta: float, captured_agent: C_CustomerAgent) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var customer: Entity = customer_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(customer, _world) \
+			or customer.get_component(C_CustomerAgent) != captured_agent:
 		return
+
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
 	if visit == null:

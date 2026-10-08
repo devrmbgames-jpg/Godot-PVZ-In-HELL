@@ -15,13 +15,15 @@ func sub_observers() -> Array[Array]:
 func _on_day(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	var transition: DayPhaseChanged = payload as DayPhaseChanged
 	assert(transition != null)
-	cmd.add_custom(_prepare_session.bind(session, transition))
+	var captured_flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
+	var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+	cmd.add_custom(_prepare_session.bind(weakref(session), transition, captured_flow, captured_cycle))
 
 
 func _on_request(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	var request: CustomerPlanningRequest = payload as CustomerPlanningRequest
 	assert(request != null)
-	cmd.add_custom(_execute_request.bind(request, session))
+	cmd.add_custom(_execute_request.bind(request, weakref(session) if session != null else null))
 
 
 func _on_registered(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
@@ -38,10 +40,19 @@ func _reactivate_current() -> void:
 		_reactivate(flow, cycle.day_index)
 
 
-func _prepare_session(session: Entity, transition: DayPhaseChanged) -> void:
-	# The queued fact may outlive its session or be superseded by a later phase.
-	if not EntityAvailability.contains(session, _world):
+func _prepare_session(
+	session_reference: WeakRef, transition: DayPhaseChanged, captured_flow: C_CustomerFlow,
+	captured_cycle: C_DayCycle,
+) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(session, _world) \
+			or session.get_component(C_CustomerFlow) != captured_flow \
+			or session.get_component(C_DayCycle) != captured_cycle:
 		return
+
+	# The queued fact may outlive its session or be superseded by a later phase.
 	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	if cycle.day_index != transition.day_index or cycle.phase != transition.phase:
@@ -63,7 +74,15 @@ func _prepare_session(session: Entity, transition: DayPhaseChanged) -> void:
 	flow.planning_phase = int(cycle.phase)
 
 
-func _execute_request(request: CustomerPlanningRequest, session: Entity) -> void:
+func _execute_request(request: CustomerPlanningRequest, session_reference: WeakRef) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity if session_reference != null else null
+
+	if session_reference != null and session == null:
+		request.rejection_reason = &"session_unavailable"
+		request.completed = true
+		return
+
 	# Runtime commands retain their owning session across the buffer boundary.
 	# Null is reserved for isolated data fixtures, which deliberately have no Entity owner.
 	if session != null:

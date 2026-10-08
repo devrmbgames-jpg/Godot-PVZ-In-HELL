@@ -25,13 +25,13 @@ func each(event: Variant, entity: Entity, payload: Variant = null) -> void:
 	if binding.relation is R_CartCargo:
 		if event == Observer.Event.RELATIONSHIP_ADDED:
 			if not CartCargoService.cargo_added(entity, binding):
-				cmd.add_custom(entity.remove_relationship.bind(binding))
+				cmd.add_custom(_remove_captured_relationship.bind(weakref(entity), binding))
 		elif event == Observer.Event.RELATIONSHIP_REMOVED:
 			CartCargoService.cargo_removed(entity, binding)
 	elif binding.relation is R_CartDrivenBy:
 		if event == Observer.Event.RELATIONSHIP_ADDED:
 			if not CartTransportService.driver_added(entity, binding):
-				cmd.add_custom(entity.remove_relationship.bind(binding))
+				cmd.add_custom(_remove_captured_relationship.bind(weakref(entity), binding))
 		elif event == Observer.Event.RELATIONSHIP_REMOVED:
 			CartTransportService.driver_removed(entity, binding)
 
@@ -43,3 +43,14 @@ func _entity_unavailable(entity: Entity) -> void:
 	CartCargoService.release(entity)
 	CartCargoService.release_all(entity)
 	CartTransportService.entity_unavailable(entity)
+
+
+#region Captured relationship retirement
+func _remove_captured_relationship(owner_reference: WeakRef, captured: Relationship) -> void:
+	# GECS pattern removal could otherwise match a replacement after the original binding disappeared.
+	var subject: Entity = owner_reference.get_ref() as Entity
+	if subject == null or not _world.entity_to_archetype.has(subject) or subject.is_queued_for_deletion():
+		return
+	if subject.relationships.has(captured):
+		subject.remove_relationship(captured)
+#endregion

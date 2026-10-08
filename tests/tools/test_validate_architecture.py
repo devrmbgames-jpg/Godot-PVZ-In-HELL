@@ -116,6 +116,28 @@ ECS.world.query.execute()
         self.write("scratch/a.gd", "class_name ScratchService\nstatic func tick():\n\tpass\n")
         self.assertEqual([], scan(self.root))
 
+    def test_typed_private_node_binding_is_rejected_before_callback_guard(self) -> None:
+        self.write("content/systems/a.gd", "extends System\nclass_name S_A\nfunc process():\n\tcmd.add_custom(_apply.bind(subject))\nfunc _apply(subject: Entity) -> void:\n\tif is_instance_valid(subject):\n\t\tpass\n")
+        self.assertEqual(["queued-typed-node"], [f.rule for f in scan(self.root)])
+
+    def test_external_callback_resolves_custom_native_node_type(self) -> None:
+        self.write("content/entities/a.gd", "extends RigidBody3D\nclass_name E_Parcel\n")
+        self.write("content/services/a.gd", "class_name ParcelService\nstatic func release(parcel: E_Parcel) -> void:\n\tpass\n")
+        self.write("content/observers/a.gd", "extends Observer\nclass_name O_A\nfunc each():\n\tcmd.add_custom(ParcelService.release.bind(parcel))\n")
+        self.assertEqual(["queued-typed-node"], [f.rule for f in scan(self.root)])
+
+    def test_resource_payload_weak_reference_and_native_signal_are_not_buffer_node_bindings(self) -> None:
+        self.write("content/systems/a.gd", "extends System\nclass_name S_A\nfunc process():\n\tcmd.add_custom(_apply.bind(weakref(subject), state))\n\tbody.body_exited.connect(_on_exit.bind(body))\nfunc _apply(subject: WeakRef, state: Resource) -> void:\n\tpass\nfunc _on_exit(other: Node, body: PhysicsBody3D) -> void:\n\tpass\n")
+        self.assertEqual([], scan(self.root))
+
+    def test_pinned_structural_closure_and_bound_node_method_are_rejected(self) -> None:
+        self.write("content/observers/a.gd", "extends Observer\nclass_name O_A\nfunc each():\n\tcmd.remove_relationship(subject, binding)\n\tcmd.add_custom(subject.remove_relationship.bind(binding))\n")
+        self.assertEqual({"queued-node-closure", "queued-typed-node"}, {f.rule for f in scan(self.root)})
+
+    def test_system_imperative_calls_are_rejected_but_construction_is_allowed(self) -> None:
+        self.write("content/systems/a.gd", "extends System\nclass_name S_A\nfunc process():\n\tS_B.advance(entity)\n\tS_B.new()\n")
+        self.assertEqual(["S_B.advance"], [f.target for f in scan(self.root)])
+
 
 if __name__ == "__main__":
     unittest.main()

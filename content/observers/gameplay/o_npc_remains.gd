@@ -16,4 +16,15 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	if result.request == null or result.request.target != entity:
 		return
 
-	cmd.add_custom(NpcRemainsService.release.bind(entity))
+	var remains: C_NpcRemains = entity.get_component(C_NpcRemains) as C_NpcRemains
+	cmd.add_custom(_release.bind(weakref(entity), remains))
+
+
+#region Captured operation
+func _release(npc_reference: WeakRef, remains: C_NpcRemains) -> void:
+	var npc: Entity = npc_reference.get_ref() as Entity
+	if not EntityAvailability.contains(npc, _world) or npc.get_component(C_NpcRemains) != remains:
+		return
+
+	NpcRemainsService.release(npc)
+#endregion

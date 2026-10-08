@@ -18,11 +18,14 @@ func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for entity: Entity in entities:
 		var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 		var floor_effect: C_FloorHazard = entity.get_component(C_FloorHazard) as C_FloorHazard
-		cmd.add_custom(_advance.bind(entity, hazard, floor_effect, delta))
+		cmd.add_custom(_advance.bind(weakref(entity), hazard, floor_effect, delta))
 #endregion
 
 #region Support and damage clocks
-func _advance(entity: Entity, hazard: C_Hazard, floor_effect: C_FloorHazard, delta: float) -> void:
+func _advance(entity_reference: WeakRef, hazard: C_Hazard, floor_effect: C_FloorHazard, delta: float) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
 	if not EntityAvailability.contains(entity, _world) or entity.get_component(C_Hazard) != hazard \
 			or entity.get_component(C_FloorHazard) != floor_effect:
 		return

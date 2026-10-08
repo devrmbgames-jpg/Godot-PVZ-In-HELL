@@ -14,10 +14,13 @@ func each(_event: Variant, subject: Entity, payload: Variant = null) -> void:
 	assert(activated != null)
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	var floor: C_FloorChallenge = subject.get_component(C_FloorChallenge) as C_FloorChallenge
-	cmd.add_custom(_prepare.bind(subject, state, floor, activated.definition))
+	cmd.add_custom(_prepare.bind(weakref(subject), state, floor, activated.definition))
 
 
-func _prepare(subject: Entity, state: C_Challenge, floor: C_FloorChallenge, definition: DEF_Challenge) -> void:
+func _prepare(subject_reference: WeakRef, state: C_Challenge, floor: C_FloorChallenge, definition: DEF_Challenge) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var subject: Entity = subject_reference.get_ref() as Entity
+
 	if not EntityAvailability.contains(subject, _world) or subject.get_component(C_Challenge) != state \
 			or subject.get_component(C_FloorChallenge) != floor:
 		return

@@ -87,13 +87,68 @@ def discover(root: Path) -> list[Path]:
     return paths
 
 
+def deferred_owner_findings(scripts: dict[str, tuple[str, str]]) -> list[Finding]:
+    """Reject bound typed Nodes before their callback can perform lifetime checks.
+
+    This deliberately checks direct custom-buffer bindings only. Resource payload
+    references still require runtime validation; native synchronous signals have
+    no pending buffer capture. Godot parser/runtime tests remain authoritative.
+    """
+    parents: dict[str, str] = {}
+    signatures: dict[tuple[str, str], str] = {}
+    for owner, (_, source) in scripts.items():
+        base = re.search(r"^extends\s+(\w+)", source, re.MULTILINE)
+        if base:
+            parents[owner] = base.group(1)
+        for function in re.finditer(r"^(?:static\s+)?func\s+(\w+)\s*\((.*?)\)", source, re.MULTILINE | re.DOTALL):
+            signatures[(owner, function.group(1))] = function.group(2)
+
+    node_bases = {"Entity", "Node", "Node2D", "Node3D", "Control", "World",
+                  "PhysicsBody3D", "RigidBody3D", "CharacterBody3D", "Area3D"}
+
+    def is_node(type_name: str) -> bool:
+        visited: set[str] = set()
+        while type_name not in visited:
+            if type_name in node_bases:
+                return True
+            visited.add(type_name)
+            type_name = parents.get(type_name, "")
+        return False
+
+    findings: list[Finding] = []
+    queued = re.compile(r"\bcmd\s*\.\s*add_custom\s*\(\s*([\w.]+)\s*\.\s*bind\s*\(")
+    structural = re.compile(r"\bcmd\s*\.\s*(add_component|remove_component|add_components|remove_components|add_entity|remove_entity|add_relationship|remove_relationship)\s*\(")
+    for owner, (relative, source) in scripts.items():
+        if not ({"systems", "observers"} & set(Path(relative).parts)
+                or parents.get(owner) in {"System", "Observer"}):
+            continue
+        for capture in queued.finditer(source):
+            target = capture.group(1)
+            parts = target.split(".")
+            callback_owner, method = (owner, parts[0]) if len(parts) == 1 else (parts[0], parts[-1])
+            signature = signatures.get((callback_owner, method), "")
+            bound_nodes = [type_name for type_name in re.findall(r":\s*(\w+)", signature) if is_node(type_name)]
+            if bound_nodes or (len(parts) > 1 and method == "remove_relationship"):
+                findings.append(Finding("queued-typed-node", owner, "<buffer>", target,
+                                        relative, source.count("\n", 0, capture.start()) + 1))
+        # Pinned GECS structural closures log an engine capture error even before
+        # their internal is_instance_valid guard. Keep safe WeakRef callbacks in
+        # the project owner instead of introducing an addon compatibility layer.
+        for capture in structural.finditer(source):
+            findings.append(Finding("queued-node-closure", owner, "<buffer>", capture.group(1),
+                                    relative, source.count("\n", 0, capture.start()) + 1))
+    return findings
+
+
 def scan(root: Path) -> list[Finding]:
     findings: list[Finding] = []
+    scripts: dict[str, tuple[str, str]] = {}
     for path in discover(root):
         relative = path.relative_to(root).as_posix()
         source = code_only(path.read_text(encoding="utf-8-sig"))
         class_match = re.search(r"^class_name\s+(\w+)", source, re.MULTILINE)
         owner = class_match.group(1) if class_match else relative
+        scripts[owner] = (relative, source)
         role_parts = path.relative_to(root).parts
         is_service = owner.endswith("Service") or "services" in role_parts
         is_system = (
@@ -119,8 +174,14 @@ def scan(root: Path) -> list[Finding]:
                 for call in SERVICE_CALL.finditer(line):
                     target = f"{call.group(1)}.{call.group(2)}"
                     findings.append(Finding("system-service-step", owner, method, target, relative, number))
+            if is_system:
+                for call in re.finditer(r"\b(S_\w+)\s*\.\s*(\w+)\s*\(", line):
+                    if call.group(2) != "new":
+                        findings.append(Finding("system-calls-system", owner, method,
+                                                f"{call.group(1)}.{call.group(2)}", relative, number))
             if static_step and re.search(r"\bECS\s*\.\s*world\s*\.\s*query\b", line):
                 findings.append(Finding("service-step-query", owner, method, "", relative, number))
+    findings.extend(deferred_owner_findings(scripts))
     return findings
 
 

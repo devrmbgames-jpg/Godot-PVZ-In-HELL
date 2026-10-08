@@ -37,7 +37,9 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 	)
 	cmd.add_custom(
 		_replace_with_debris.bind(
-			package,
+			weakref(package),
+			identity,
+			destruction,
 			identity.package_id,
 			identity.definition,
 			destruction.debris_scene,
@@ -53,7 +55,9 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 
 #region Замена физического экземпляра
 func _replace_with_debris(
-	package: Entity,
+	package_reference: WeakRef,
+	captured_identity: C_Package,
+	captured_destruction: C_PackageDestruction,
 	package_id: String,
 	definition: DEF_Package,
 	debris_scene: PackedScene,
@@ -63,7 +67,12 @@ func _replace_with_debris(
 	cause: DamageResult,
 	contents_released: bool,
 ) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var package: Entity = package_reference.get_ref() as Entity
+
 	if not is_instance_valid(_world) or not EntityAvailability.contains(package, _world):
+		return
+	if package.get_component(C_Package) != captured_identity or package.get_component(C_PackageDestruction) != captured_destruction:
 		return
 
 	var node: Node = debris_scene.instantiate()

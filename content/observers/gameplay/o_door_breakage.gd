@@ -17,15 +17,23 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	if result.request == null or result.request.target != entity:
 		return
 
-	cmd.add_custom(_break.bind(entity))
+	var captured_door: C_BreakableDoor = entity.get_component(C_BreakableDoor) as C_BreakableDoor
+	var captured_openable: C_Openable = entity.get_component(C_Openable) as C_Openable
+	cmd.add_custom(_break.bind(weakref(entity), captured_door, captured_openable))
 
 
 #endregion
 
 #region Применение разрушения
-func _break(entity: Entity) -> void:
-	if not EntityAvailability.contains(entity, _world):
+func _break(entity_reference: WeakRef, captured_door: C_BreakableDoor, captured_openable: C_Openable) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(entity, _world) \
+			or entity.get_component(C_BreakableDoor) != captured_door \
+			or entity.get_component(C_Openable) != captured_openable:
 		return
+
 
 	var config: C_BreakableDoor = entity.get_component(C_BreakableDoor) as C_BreakableDoor
 	if config.mode == C_BreakableDoor.Mode.PADLOCK:

@@ -15,24 +15,34 @@ func sub_observers() -> Array[Array]:
 func _on_change(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	var fact: CustomerOutcomeChanged = payload as CustomerOutcomeChanged
 	assert(fact != null)
-	cmd.add_custom(_reconcile_visit.bind(session, fact.visit_id))
+	var captured_flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
+	var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+	cmd.add_custom(_reconcile_visit.bind(weakref(session), fact.visit_id, captured_flow, captured_cycle))
 
 
 func _on_day(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	var fact: DayPhaseChanged = payload as DayPhaseChanged
 	assert(fact != null)
-	cmd.add_custom(_reconcile_day.bind(session, fact))
+	var captured_flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
+	var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+	cmd.add_custom(_reconcile_day.bind(weakref(session), fact, captured_flow, captured_cycle))
 
 
 func _on_closed(_event: Variant, subject: Entity, payload: Variant = null) -> void:
 	assert(payload is ChallengeSessionClosed)
-	cmd.add_custom(_reconcile_appearance.bind(subject))
+	var captured_agent: C_CustomerAgent = subject.get_component(C_CustomerAgent) as C_CustomerAgent
+	cmd.add_custom(_reconcile_appearance.bind(weakref(subject), captured_agent))
 #endregion
 
 #region Transaction reconciliation
-func _reconcile_appearance(subject: Entity) -> void:
-	if not EntityAvailability.contains(subject, _world):
+func _reconcile_appearance(subject_reference: WeakRef, captured_agent: C_CustomerAgent) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var subject: Entity = subject_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(subject, _world) \
+			or subject.get_component(C_CustomerAgent) != captured_agent:
 		return
+
 	var agent: C_CustomerAgent = subject.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null:
 		return
@@ -42,9 +52,15 @@ func _reconcile_appearance(subject: Entity) -> void:
 		_reconcile(visit, WalletService.current(), cycle.day_index)
 
 
-func _reconcile_visit(session: Entity, visit_id: StringName) -> void:
-	if not EntityAvailability.contains(session, _world):
+func _reconcile_visit(session_reference: WeakRef, visit_id: StringName, captured_flow: C_CustomerFlow, captured_cycle: C_DayCycle) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(session, _world) \
+			or session.get_component(C_CustomerFlow) != captured_flow \
+			or session.get_component(C_DayCycle) != captured_cycle:
 		return
+
 	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	for visit: CustomerVisit in flow.visits:
@@ -53,9 +69,15 @@ func _reconcile_visit(session: Entity, visit_id: StringName) -> void:
 			return
 
 
-func _reconcile_day(session: Entity, fact: DayPhaseChanged) -> void:
-	if not EntityAvailability.contains(session, _world):
+func _reconcile_day(session_reference: WeakRef, fact: DayPhaseChanged, captured_flow: C_CustomerFlow, captured_cycle: C_DayCycle) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var session: Entity = session_reference.get_ref() as Entity
+
+	if not EntityAvailability.contains(session, _world) \
+			or session.get_component(C_CustomerFlow) != captured_flow \
+			or session.get_component(C_DayCycle) != captured_cycle:
 		return
+
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	if cycle.day_index != fact.day_index or cycle.phase != fact.phase:
 		return

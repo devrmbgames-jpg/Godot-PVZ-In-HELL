@@ -15,10 +15,13 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 
 	var state: C_LightCircuit = entity.get_component(C_LightCircuit) as C_LightCircuit
-	cmd.add_custom(_apply.bind(entity, state, committed.circuit_id, committed.enabled))
+	cmd.add_custom(_apply.bind(weakref(entity), state, committed.circuit_id, committed.enabled))
 
 
-func _apply(entity: Entity, state: C_LightCircuit, circuit_id: StringName, enabled: bool) -> void:
+func _apply(entity_reference: WeakRef, state: C_LightCircuit, circuit_id: StringName, enabled: bool) -> void:
+	# Resolve queued owners before passing them to typed gameplay operations.
+	var entity: Entity = entity_reference.get_ref() as Entity
+
 	if not EntityAvailability.contains(entity, _world) or entity.get_component(C_LightCircuit) != state:
 		return
 	if state.circuit_id == circuit_id and state.enabled == enabled:
