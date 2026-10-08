@@ -54,6 +54,7 @@ func before_each() -> void:
 	_actor.component_resources = [C_PlayerInputController.new(), C_Controller.new(), C_Interactor.new(), C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
 	_root.add_child(body)
 	_actor.owner = _root
+	FixturePlacedIdentity.assign(_root, _actor, &"actor")
 	_world.add_entity(_actor, null, false)
 
 	var session: Entity = Entity.new()
@@ -61,6 +62,7 @@ func before_each() -> void:
 	session.component_resources = [C_DayCycle.new()]
 	_root.add_child(session)
 	session.owner = _root
+	FixturePlacedIdentity.assign(_root, session, &"session")
 	_world.add_entity(session, null, false)
 
 
@@ -76,6 +78,7 @@ func _door() -> E_Door:
 	var door: E_Door = (load("res://content/entities/doors/door_template.tscn") as PackedScene).instantiate() as E_Door
 	_root.add_child(door)
 	door.owner = _root
+	FixturePlacedIdentity.assign(_root, door, &"door")
 	_world.add_entity(door, null, false)
 	door.set_physics_process(false)
 	door.door_root.freeze = true

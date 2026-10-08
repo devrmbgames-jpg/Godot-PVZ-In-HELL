@@ -2,6 +2,9 @@ extends Component
 ## Сессионная очередь неразмещённого лута и журнал однократно подготовленных партий.
 class_name C_LootDrops
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = ["placement", "pending", "committed_batches"]
+
 #region Постоянные и временные данные
 ## Авторские позиции и ограничение стоимости проверки.
 @export var placement: DEF_ItemPlacement = preload("res://content/definitions/gameplay/def_item_placement_default.tres")

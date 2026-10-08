@@ -104,7 +104,7 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	cycle.phase = C_DayCycle.Phase.NIGHT
 	var state: C_Autosave = session.get_component(C_Autosave) as C_Autosave
 	state.path = "user://gut_district_missing_directory/slot.pvzh"
-	NightSaveService.process(session, cycle, state, 0.2)
+	_night_step(0.2)
 	assert_ne(state.last_error, OK)
 	assert_ne(state.last_error, ERR_INVALID_DATA)
 	assert_false(cycle.night_ready)
@@ -115,7 +115,7 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	var replacement_id: StringName = _district.people.back().npc_id
 	state.path = "user://gut_district_night_retry.pvzh"
 	state.retry_remaining = 0.0
-	NightSaveService.process(session, cycle, state, 0.2)
+	_night_step(0.2)
 	assert_eq(state.last_error, OK)
 	assert_true(cycle.night_ready)
 	assert_eq(_district.people.size(), 13)
@@ -128,4 +128,17 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	assert_eq(DistrictPopulationService.current().home_deliveries[0].order_number, 1)
 	assert_eq(DistrictPopulationService.current().people.back().npc_id, replacement_id)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(state.path))
+#endregion
+
+#region Scheduled persistence fixture
+func _night_step(delta: float) -> void:
+	var installed: bool = false
+	for owner: System in _world.systems:
+		if owner is S_NightSave:
+			installed = true
+	if not installed:
+		var night_owner: S_NightSave = S_NightSave.new()
+		night_owner.group = "PersistenceTest"
+		_world.add_system(night_owner)
+	_world.process(delta, "PersistenceTest")
 #endregion

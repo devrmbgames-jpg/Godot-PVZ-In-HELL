@@ -49,14 +49,12 @@ static func restore(data: Dictionary, entity: Entity, entities: Dictionary[Strin
 		follow.local_offset = saved.offset as Transform3D
 		follow.on_loss = int(saved.on_loss) as DEF_Hazard.OwnerLoss
 	HazardFollowService.replace(entity, owner, follow)
-	# Восстановить столкновения и геометрию без повторного разрешения завершённого взрыва.
-	if entity.has_component(C_ToxicArea) or entity.has_component(C_Explosion):
-		var result: HazardSpawnResult = HazardSpawnResult.new()
-		result.hazard = entity
-		result.request_id = hazard.request_id
-		result.origin_id = hazard.origin_id
-		result.restored = true
-		ECS.world.emit_event(HazardSpawnResult.EVENT, entity, result)
+	# Geometry reconstruction is explicit and never replays spawn/damage reactions.
+	if entity is E_ToxicArea:
+		HazardGeometry.configure_toxic(entity as E_ToxicArea, hazard.definition as DEF_ToxicArea)
+	elif entity is E_Explosion:
+		HazardGeometry.configure_explosion(entity as E_Explosion, hazard.definition as DEF_Explosion)
+
 
 
 ## Снимает потерянное следование либо удаляет опасность согласно её политике.
@@ -85,6 +83,6 @@ static func _key(entity: Entity, root: Node) -> String:
 	if not EntityAvailability.contains(entity, ECS.world):
 		return ""
 
-	var key: String = WorldSnapshotService.key_for(entity, root)
+	var key: String = ActorIdentityRules.key_for(entity, root)
 	# Временные клиенты/снаряды удаляются до снимка; сохраняются постоянные живые участники.
 	return key

@@ -138,6 +138,13 @@ static func saved_game(level: String, path_overrides: Array[String] = []) -> Gam
 #endregion
 
 #region Передача снимка и смена сцены
+## Returns a detached startup candidate without consuming the one-shot scene handoff.
+static func startup_snapshot(root: Node, path: String) -> Dictionary:
+	if _pending_level == root.scene_file_path:
+		return _pending_snapshot.duplicate(true)
+	return AutosaveStore.read(path) if not path.is_empty() else {}
+
+
 ## Предварительная проверка происходит до закрытия текущей сцены. Новый старт не удаляет слоты.
 static func start_game(tree: SceneTree, level: String, saved: GameSaveResult = null) -> Error:
 	if level not in [MAIN_LEVEL, TEST_LEVEL]:
@@ -179,12 +186,20 @@ static func restore_startup(root: Node, state: C_Autosave) -> void:
 	_pending_snapshot = {}
 	if snapshot.is_empty():
 		state.startup_status = "Новое прохождение"
-	elif WorldSnapshotService.restore(snapshot, root):
-		state.last_saved_morning = int(snapshot.morning_day)
-		state.startup_status = "Восстановлено утро %d" % state.last_saved_morning
 	else:
-		state.startup_status = "Не удалось восстановить сохранение"
-		push_error(state.startup_status)
+		# A selected compatible manual slot does not authorize overwriting an
+		# incompatible automatic slot previously rejected by the selection scan.
+		if FileAccess.file_exists(state.path):
+			var automatic: Dictionary = AutosaveStore.read(state.path)
+			if not WorldSnapshotService.can_restore(automatic, root):
+				state.rejected_path = state.path
+		if WorldSnapshotService.restore(snapshot, root):
+			state.last_saved_morning = int(snapshot.morning_day)
+			state.startup_status = "Восстановлено утро %d" % state.last_saved_morning
+		else:
+			state.construction_failed = true
+			state.startup_status = "Не удалось восстановить сохранение"
+			push_error(state.startup_status)
 
 
 ## Снимает паузу и меняет сцену; ошибка восстанавливает прежнее состояние паузы.

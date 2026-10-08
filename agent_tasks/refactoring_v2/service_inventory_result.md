@@ -30,7 +30,7 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `commerce/commerce_panel_service.gd` | RENAME_MOVE | 24 | CommercePanelFactory moved to UI glue with original UID; all callers migrated, no alias. | DONE |
 | `commerce/commerce_service.gd` | KEEP_SERVICE | 24 | Synchronous purchase/order/payment with idempotent receipts. | KEPT_WITH_REASON |
 | `commerce/furniture_placement.gd` | KEEP_SERVICE | 24 | Explicit prepare/validate/commit construction before payment. | KEPT_WITH_REASON |
-| `commerce/meta_presentation.gd` | KEEP_PRESENTATION | 25 | Read-only cross-domain diagnostics; relocate to composition. | KEPT_WITH_REASON |
+| `commerce/meta_presentation.gd` | KEEP_PRESENTATION | 25 | Reviewed read-only cross-domain diagnostics; moved with retained UID to content/presentation/global/meta_presentation.gd. No gameplay writer/clock. | KEPT_WITH_REASON |
 | `commerce/order_delivery_service.gd` | KEEP_SERVICE | 23 | One delivery attempt; S_OrderDelivery owns interval/iteration and captured restore-safe commits. | KEPT_WITH_REASON |
 | `commerce/trader_catalog_service.gd` | RENAME_MOVE | 24 | TraderCatalogRules moved with original UID; Profile sole assortment/schedule authority, legacy field/fallback/callers removed. | DONE |
 | `customers/customer_arrival_service.gd` | SPLIT | 12 | Polling moved to S_CustomerApproach; begin/result and authored lookup remain explicit. | DONE |
@@ -141,12 +141,12 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `persistence/game_session_service.gd` | KEEP_SERVICE | 25 | Explicit slot/start/restore/menu with transient snapshot handoff. | KEPT_WITH_REASON |
 | `persistence/loot_snapshot_rules.gd` | KEEP_RULES | 25 | Prefab/drop-ID/policy validation before restore. | KEPT_WITH_REASON |
 | `persistence/night_reset_service.gd` | KEEP_SERVICE | 25 | Explicit Night quiescence invoked once by scheduled owner. | KEPT_WITH_REASON |
-| `persistence/night_save_service.gd` | SPLIT | 25 | Night preparation/retry/ready clock mixed with startup restore/I/O. | PENDING |
-| `persistence/persistent_hazard_state.gd` | KEEP_SERVICE | 25 | Key-based hazard-link capture/fixup adapter; suppress restore facts in 25. | KEPT_WITH_REASON |
+| `persistence/night_save_service.gd` | SPLIT | 25 | S_NightSave owns preparation/retry/readiness and immutable retention; this explicit composition service only drains queued work/restores a protected startup slot. | DONE |
+| `persistence/persistent_hazard_state.gd` | KEEP_SERVICE | 25 | Key-based hazard-link capture/fixup; explicit geometry reconstruction emits no gameplay spawn/damage facts. | KEPT_WITH_REASON |
 | `persistence/persistent_interaction_state.gd` | KEEP_SERVICE | 25 | Terminal NEVER progress capture/fixup, no live session persistence. | KEPT_WITH_REASON |
-| `persistence/save_data_codec.gd` | KEEP_RULES | 25 | Closed-field record encode/decode without live Objects. | KEPT_WITH_REASON |
+| `persistence/save_data_codec.gd` | KEEP_RULES | 25 | Closed-field encode/decode consumes Component-owned SAVE_FIELDS contracts; no live Objects or gameplay authority. | KEPT_WITH_REASON |
 | `persistence/snapshot_graph_rules.gd` | KEEP_RULES | 25 | Preflight roles/capacity/prefab/link validation. | KEPT_WITH_REASON |
-| `persistence/world_snapshot_service.gd` | KEEP_SERVICE | 25 | Explicit snapshot/reconstruction; replace path identity/adapter imports in 25. | KEPT_WITH_REASON |
+| `persistence/world_snapshot_service.gd` | KEEP_SERVICE | 25 | Explicit schema-4 preflight/reconstruction, passive restore, recipe/link/cache fixup; shared identity/link rules remove recursive imports. | KEPT_WITH_REASON |
 | `quests/refusal_quest_service.gd` | SPLIT | 19 | Explicit quest operations retained; S_RefusalQuest owns deadline/outcome/reward selection, authored issuer variants/provider and schema-3 exactly-once reload; no tick or hardcoded Definition. | DONE |
 
 ## Bounded migration slices
@@ -290,5 +290,11 @@ Snapshot includes source references, not a dependency allowlist. Before each sli
 - **NpcRouteService** (16): `content/ai/tasks/bt_npc_escape_hazard.gd`; `content/services/npc/npc_brain_service.gd`; `content/services/npc/npc_trait_service.gd`.
 - **NpcServiceRole** (16): `content/ai/tasks/bt_npc_action.gd`; `content/ai/tasks/bt_npc_arrive_service.gd`; `content/ai/tasks/bt_npc_begin_approach.gd`; `content/ai/tasks/bt_npc_can_approach.gd`; `content/ai/tasks/bt_npc_claim_counter.gd`; `content/ai/tasks/bt_npc_condition.gd`; `content/ai/tasks/bt_npc_defer_service.gd`; `content/ai/tasks/bt_npc_finish_service.gd`; `content/ai/tasks/bt_npc_needs_darkness.gd`; `content/ai/tasks/bt_npc_queue_walk.gd`; `content/ai/tasks/bt_npc_wait_light.gd`; `content/services/customers/customer_flow_service.gd`; `content/services/npc/district_population_service.gd`; `content/services/npc/npc_brain_service.gd`; `content/services/npc/npc_decision_service.gd`; `content/services/npc/npc_delivery_offer_service.gd`; `content/services/npc/npc_delivery_scenario_service.gd`; `content/services/npc/npc_home_delivery_service.gd`; `content/services/npc/npc_route_service.gd`; `content/services/persistence/night_reset_service.gd`.
 - **NpcTraitService** (15): `content/ai/tasks/bt_npc_escape_light.gd`; `content/services/npc/npc_brain_service.gd`.
-- **NightSaveService** (25): `content/services/persistence/game_session_service.gd`; `content/systems/gameplay/s_night_save.gd`.
+- **NightSaveService** (25): `content/services/persistence/game_session_service.gd`; `content/systems/persistence/s_night_save.gd`.
 - **RefusalQuestService** (19): `content/services/commerce/meta_presentation.gd`; `content/services/persistence/world_snapshot_service.gd`; `content/systems/gameplay/s_refusal_quest.gd`; `content/ui/commerce_panel.gd`.
+
+## Task 25 final remaining-services review
+
+All original inventory rows now have DONE or KEPT_WITH_REASON status. Remaining settings/InputMap/ConfigFile operations are explicit process configuration, prompt/device/texture revisions are derived UI caches, lifetime predicates are side-effect-free, dialogue resource release is explicit cleanup, and terminal notice acknowledgement writes only its declared history record. Codec/store/preflight/snapshot/reset services perform explicit synchronous operations; none owns elapsed scheduled work. MetaPresentation moved to global composition with UID continuity.
+
+New bounded helpers introduced by 25 have one role each: PlacedIdentityRules is authoring validation/compiler; ActorIdentityRules/SnapshotLinks are shared value contracts; ReceivingSnapshotRules is offline recipe preflight; SnapshotRestoreBoundary is a one-shot passive reconstruction adapter; HazardGeometry materializes geometry; PackageConditionService materializes defaults or unsaved recipe fields while preserving durable HP. Package/receiving defaults and restored recipe construction use the same explicit operations. S_NightSave is the sole new scheduling/workflow owner and lives under systems/persistence. No legacy ID/path alias, old-format converter, Service.process wrapper or migration baseline entry remains.

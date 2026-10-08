@@ -16,3 +16,15 @@ var retry_remaining: float = 0.0
 var last_error: Error = OK
 ## Пояснение восстановления для интерфейса, включая несовместимый формат.
 var startup_status: String = "Новое прохождение"
+## Prepared value-only snapshot; retries never recapture live gameplay state.
+var prepared_snapshot: Dictionary = {}
+## Sole transient preparation request for this Night.
+var preparation: DistrictMorningPreparationRequest = null
+## Prevents duplicate queued steps for the same workflow.
+var work_queued: bool = false
+## Invalidates queued steps after an in-place restore.
+var revision: int = 0
+## Existing rejected slot protected against subsequent automatic writes.
+var rejected_path: String = ""
+## Failed construction of a prevalidated startup requires abandoning the world.
+var construction_failed: bool = false

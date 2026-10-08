@@ -3,29 +3,31 @@ extends Observer
 class_name O_PackageConditionSetup
 
 
+#region Reactive package defaults
 ## Подписывается на появление коробок с Health и получателем ударов.
 func query() -> QueryBuilder:
 	return q.with_all([C_Package, C_Health, C_ImpactReceiver]).on_match()
 
 
-## По флагу инициализации однократно задаёт HP и профиль; для жидкости откладывает добавление контроля наклона.
+## Queues one recipe operation for the exact package/health/impact context.
 func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
 	var identity: C_Package = entity.get_component(C_Package) as C_Package
 	if identity.condition_initialized or identity.definition == null:
 		return
 
-	identity.condition_initialized = true
-	var definition: DEF_Package = identity.definition
 	var health: C_Health = entity.get_component(C_Health) as C_Health
 	var receiver: C_ImpactReceiver = entity.get_component(C_ImpactReceiver) as C_ImpactReceiver
-	health.base = definition.maximum_health
-	health.value = definition.maximum_health
-	health.current = definition.maximum_health
-	receiver.profile = definition.impact_profile
+	cmd.add_custom(_initialize.bind(weakref(entity), identity, health, receiver))
 
-	if definition.tags & DEF_Package.Tag.LIQUID:
-		var tilt: C_LiquidTilt = C_LiquidTilt.new()
-		tilt.maximum_angle_degrees = definition.liquid_maximum_angle_degrees
-		tilt.duration_seconds = definition.liquid_tilt_seconds
-		tilt.damage_amount = definition.liquid_tilt_damage
-		cmd.add_component(entity, tilt)
+
+func _initialize(reference: WeakRef, package: C_Package, health: C_Health,
+		receiver: C_ImpactReceiver) -> void:
+	var entity: Entity = reference.get_ref() as Entity
+	if entity == null or not EntityAvailability.contains(entity, _world):
+		return
+	if entity.get_component(C_Package) != package or entity.get_component(C_Health) != health:
+		return
+	if entity.get_component(C_ImpactReceiver) != receiver or package.condition_initialized:
+		return
+	PackageConditionService.initialize(entity)
+#endregion

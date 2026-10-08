@@ -2,6 +2,15 @@ extends Component
 ## Постоянный сессионный кошелёк; runtime-запись выполняет WalletService.
 class_name C_Wallet
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = [
+	"balance",
+	"penalties",
+	"completed_days",
+	"operations",
+	"daily_results",
+]
+
 ## Доступный баланс в целых денежных единицах.
 @export var balance: int = 0
 ## Накопленная сумма штрафов с учётом явных отмен.

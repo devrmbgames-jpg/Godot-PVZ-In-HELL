@@ -58,6 +58,9 @@ func _authored(label: String, components: Array[Component]) -> Entity:
 	entity.component_resources = components
 	_root.add_child(entity)
 	entity.owner = _root
+	_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+	entity.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(entity.name))
+	assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 	_world.add_entity(entity, null, false)
 	return entity
 
@@ -229,19 +232,21 @@ func test_failed_write_holds_night_and_retry_commits_the_same_morning_in_debt() 
 	cycle.phase = C_DayCycle.Phase.NIGHT
 	cycle.night_ready = false
 	state.path = "user://r21_missing_directory/slot.pvzh"
-	NightSaveService.process(_session, cycle, state, 0.1)
+	_night_step(0.1)
 	assert_ne(state.last_error, OK)
 	assert_false(cycle.night_ready)
 	assert_eq(cycle.day_index, 1)
 	assert_eq(state.started_night, 1)
+	var captured: Dictionary = state.prepared_snapshot.duplicate(true)
+	(_session.get_component(C_Wallet) as C_Wallet).balance = -123
 	state.path = SAVE_PATH
 	state.retry_remaining = 0.0
-	NightSaveService.process(_session, cycle, state, 0.1)
+	_night_step(0.1)
 	assert_eq(state.last_error, OK)
 	assert_true(cycle.night_ready)
 	assert_eq(state.last_saved_morning, 2)
-	assert_eq(AutosaveStore.read(SAVE_PATH).morning_day, 2)
-	NightSaveService.process(_session, cycle, state, 0.1)
+	assert_eq(AutosaveStore.read(SAVE_PATH), captured, "I/O retry writes the original detached state")
+	_night_step(0.1)
 	assert_eq(state.last_saved_morning, 2)
 	assert_eq(cycle.day_index, 1)
 	_world.add_system(S_DayPhase.new())
@@ -279,8 +284,8 @@ func test_inventory_with_unknown_relationship_target_is_rejected_before_mutation
 
 
 ## Пропущенная сцена или авторский путь не допускают частичного восстановления.
-func test_missing_scene_or_authored_path_is_rejected_before_mutation() -> void:
-	for field: String in ["scene", "authored_path"]:
+func test_missing_scene_or_authored_id_is_rejected_before_mutation() -> void:
+	for field: String in ["scene", "authored_id"]:
 		var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 		var records: Array = snapshot.entities as Array
 		(records[0] as Dictionary).erase(field)
@@ -327,6 +332,9 @@ func test_restore_disabled_entity_uses_world_lifecycle_and_reenables_existing_en
 	entity.component_resources = [C_Health.new()]
 	_root.add_child(entity)
 	entity.owner = _root
+	_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+	entity.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(entity.name))
+	assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 	_world.add_entity(entity, null, false)
 	var enabled_snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	_world.disable_entity(entity)
@@ -357,12 +365,18 @@ func test_restore_swapped_slots_clears_all_old_occupancy_before_attaching() -> v
 		slot.name = "Slot%d" % index
 		_root.add_child(slot)
 		slot.owner = _root
+		_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+		slot.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(slot.name))
+		assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 		_world.add_entity(slot, null, false)
 		slots.append(slot)
 		var box: Entity = (load("res://content/entities/props/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
 		box.name = "Box%d" % index
 		_root.add_child(box)
 		box.owner = _root
+		_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+		box.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(box.name))
+		assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 		_world.add_entity(box, null, false)
 		boxes.append(box)
 		var binding: Relationship = Relationship.new(R_StoredIn.new(), slot)
@@ -391,19 +405,19 @@ func test_duplicate_owners_wrong_role_or_capacity_fail_before_any_mutation() -> 
 		var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 		var records: Array = snapshot.entities as Array
 		for record: Dictionary in records:
-			if String(record.key) == WorldSnapshotService.key_for(_item, _root):
+			if String(record.key) == ActorIdentityRules.key_for(_item, _root):
 				if invalid == "owners":
 					(record.links as Array).append((record.links[0] as Dictionary).duplicate())
 				elif invalid == "role":
-					(record.links as Array)[0].target = WorldSnapshotService.key_for(_session, _root)
-			if invalid == "capacity" and String(record.key) == WorldSnapshotService.key_for(_actor, _root):
+					(record.links as Array)[0].target = ActorIdentityRules.key_for(_session, _root)
+			if invalid == "capacity" and String(record.key) == ActorIdentityRules.key_for(_actor, _root):
 				for component: Dictionary in record.components:
 					if SaveDataCodec.component_script(String(component.type)) == C_Inventory:
 						(component.fields as Dictionary).maximum_stacks = 0
 		if invalid == "ids":
 			(records[1] as Dictionary).entity_id = (records[0] as Dictionary).entity_id
 		if invalid == "paths":
-			(records[1] as Dictionary).authored_path = (records[0] as Dictionary).authored_path
+			(records[1] as Dictionary).authored_id = (records[0] as Dictionary).authored_id
 		assert_false(WorldSnapshotService.restore(snapshot, _root), invalid)
 		assert_eq(DayPhaseService.current().day_index, 1)
 		assert_eq(InventoryService.owner_for(_item), _actor)
@@ -433,12 +447,18 @@ func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -
 	slot.name = "ValidationSlot"
 	_root.add_child(slot)
 	slot.owner = _root
+	_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+	slot.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(slot.name))
+	assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 	_world.add_entity(slot, null, false)
 	for index: int in 2:
 		var box: Entity = (load("res://content/entities/props/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
 		box.name = "ValidationBox%d" % index
 		_root.add_child(box)
 		box.owner = _root
+		_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+		box.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(box.name))
+		assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 		_world.add_entity(box, null, false)
 		box.add_relationship(Relationship.new(R_StoredIn.new(), slot))
 
@@ -448,9 +468,9 @@ func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -
 	## Для одного оставшегося предмета проверяем отказ связи с целью без роли физического слота.
 	var first: bool = true
 	for record: Dictionary in snapshot.entities:
-		if not (record.links as Array).is_empty() and String(record.links[0].kind) == WorldSnapshotService.STORED:
+		if not (record.links as Array).is_empty() and String(record.links[0].kind) == SnapshotLinks.STORED:
 			if first:
-				(record.links as Array)[0].target = WorldSnapshotService.key_for(_actor, _root)
+				(record.links as Array)[0].target = ActorIdentityRules.key_for(_actor, _root)
 				first = false
 			else:
 				(record.links as Array).clear()
@@ -459,16 +479,16 @@ func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -
 
 
 ## Алиас авторского пути и выход за корень запрещены до изменения реестра или владения.
-func test_authored_path_alias_or_outside_root_is_rejected_before_registry_changes() -> void:
+func test_authored_id_alias_or_outside_root_is_rejected_before_registry_changes() -> void:
 	var id: String = _actor.id
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	var records: Array = snapshot.entities as Array
 	for record: Dictionary in records:
-		if String(record.key) == WorldSnapshotService.key_for(_actor, _root):
+		if String(record.key) == ActorIdentityRules.key_for(_actor, _root):
 			var alias: Dictionary = record.duplicate(true)
-			alias.key = "scene/AliasActor"
+			alias.key = "placed/fixture/AliasActor"
 			alias.entity_id = "alias_actor"
-			alias.authored_path = "./Actor"
+			alias.authored_id = "placed/fixture/UnknownActor"
 			records.append(alias)
 			break
 
@@ -481,8 +501,8 @@ func test_authored_path_alias_or_outside_root_is_rejected_before_registry_change
 	add_child(outside)
 	snapshot = WorldSnapshotService.capture(_root, 2)
 	for record: Dictionary in snapshot.entities:
-		if String(record.key) == WorldSnapshotService.key_for(_actor, _root):
-			record.authored_path = "../Outside"
+		if String(record.key) == ActorIdentityRules.key_for(_actor, _root):
+			record.authored_id = "placed/other_world/Actor"
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(InventoryService.owner_for(_item), _actor)
 	outside.free()
@@ -532,4 +552,169 @@ func test_pre_stamina_snapshot_clears_existing_sprint_session() -> void:
 	assert_eq(stamina.recovery_remaining, 0.0)
 	assert_eq(motion.sprint_multiplier, 1.0)
 
+#endregion
+
+#region Scheduled persistence fixture
+func _night_step(delta: float) -> void:
+	var installed: bool = false
+	for owner: System in _world.systems:
+		if owner is S_NightSave:
+			installed = true
+	if not installed:
+		var night_owner: S_NightSave = S_NightSave.new()
+		night_owner.group = "PersistenceTest"
+		_world.add_system(night_owner)
+	_world.process(delta, "PersistenceTest")
+#endregion
+
+#region Explicit identity and rejected-slot regression
+## Rename/reparent changes presentation topology while immutable identity and ownership remain stable.
+func test_renamed_and_reparented_placed_actor_restores_same_identity_and_links() -> void:
+	var key: String = ActorIdentityRules.key_for(_actor, _root)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	var group: Node = Node.new()
+	group.name = "Reorganized"
+	_root.add_child(group)
+	_actor.reparent(group)
+	_actor.owner = _root
+	_actor.name = "RenamedActor"
+	assert_eq(ActorIdentityRules.key_for(_actor, _root), key)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(InventoryService.owner_for(_item), _actor)
+	assert_eq(PlacedIdentityRules.resolver(_root)[key], _actor)
+
+
+## Both duplicate and missing identity reject before any authored Entity enters the actual GameWorld.
+func test_game_world_rejects_invalid_authored_ids_before_registration() -> void:
+	for missing: bool in [false, true]:
+		var root: Node = Node.new()
+		root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"invalid_fixture")
+		var actors: Node = Node.new()
+		actors.name = "Actors"
+		root.add_child(actors)
+		for index: int in 2:
+			var actor: Entity = Entity.new()
+			actor.name = "Actor%d" % index
+			actors.add_child(actor)
+			actor.owner = root
+			if not missing or index == 0:
+				actor.set_meta(PlacedIdentityRules.LOCAL_ID_META, &"same_id")
+		var world: GameWorld = GameWorld.new()
+		world.entity_nodes_root = NodePath("../Actors")
+		root.add_child(world)
+		add_child(root)
+		assert_true(world.initialization_failed())
+		assert_eq(world.entities.size(), 0)
+		for child: Node in actors.get_children():
+			assert_null(PlacedIdentityRules.component_for(child as Entity), "No partially compiled identity")
+		world.purge(false)
+		root.free()
+	ECS.world = _world
+
+
+## A rejected old-schema slot remains byte-identical after subsequent actual Night scheduling.
+func test_rejected_schema_slot_is_protected_from_later_night_and_other_slot_is_allowed() -> void:
+	var old_snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	old_snapshot.version = AutosaveStore.SCHEMA_VERSION - 1
+	assert_eq(AutosaveStore.write(old_snapshot, SAVE_PATH), OK)
+	var bytes_before: PackedByteArray = FileAccess.get_file_as_bytes(SAVE_PATH)
+	var state: C_Autosave = _session.get_component(C_Autosave) as C_Autosave
+	assert_false(NightSaveService.restore_startup(_root, state))
+	assert_eq(state.rejected_path, SAVE_PATH)
+	var cycle: C_DayCycle = DayPhaseService.current()
+	cycle.phase = C_DayCycle.Phase.NIGHT
+	_night_step(0.1)
+	assert_eq(state.last_error, ERR_UNAUTHORIZED)
+	assert_eq(FileAccess.get_file_as_bytes(SAVE_PATH), bytes_before)
+	state.path = SAVE_PATH + ".other"
+	state.retry_remaining = 0.0
+	_night_step(0.1)
+	assert_eq(state.last_error, OK)
+	assert_true(cycle.night_ready)
+	assert_eq(FileAccess.get_file_as_bytes(SAVE_PATH), bytes_before)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(state.path))
+#endregion
+
+#region Selected-slot and receiving preflight
+## A compatible manual handoff retains automatic rejected-slot protection through the next Night.
+func test_selected_snapshot_does_not_overwrite_rejected_automatic_slot() -> void:
+	_root.scene_file_path = GameSessionService.MAIN_LEVEL
+	var selected: Dictionary = WorldSnapshotService.capture(_root, 1)
+	var old: Dictionary = selected.duplicate(true)
+	old.version = AutosaveStore.SCHEMA_VERSION - 1
+	assert_eq(AutosaveStore.write(old, SAVE_PATH), OK)
+	var retained: PackedByteArray = FileAccess.get_file_as_bytes(SAVE_PATH)
+	GameSessionService._pending_level = _root.scene_file_path
+	GameSessionService._pending_snapshot = selected
+	var state: C_Autosave = _session.get_component(C_Autosave) as C_Autosave
+	GameSessionService.restore_startup(_root, state)
+	assert_eq(state.last_saved_morning, 1)
+	assert_eq(state.rejected_path, SAVE_PATH)
+	DayPhaseService.current().phase = C_DayCycle.Phase.NIGHT
+	_night_step(0.1)
+	assert_eq(state.last_error, ERR_UNAUTHORIZED)
+	assert_eq(FileAccess.get_file_as_bytes(SAVE_PATH), retained)
+
+
+## A retained recipe pointing at a non-package prefab rejects before changing the live queue/calendar.
+func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -> void:
+	var receiving: C_Receiving = C_Receiving.new()
+	var batch: ReceivingBatch = ReceivingBatch.new()
+	batch.day_index = 1
+	batch.package_keys = ["fixture_package"]
+	batch.package_scenes = ["res://content/entities/packages/package.tscn"]
+	receiving.pending.append(batch)
+	_session.add_component(receiving)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	for record: Dictionary in snapshot.entities:
+		for component: Dictionary in record.components:
+			if component.type == C_Receiving.resource_path:
+				var invalid: C_Receiving = C_Receiving.new()
+				assert_true(SaveDataCodec.apply_fields(invalid, component.fields as Dictionary))
+				invalid.pending[0].package_scenes[0] = "res://content/entities/props/anchorable_test_box.tscn"
+				component.fields = SaveDataCodec.component_data(invalid).fields
+	var count_before: int = _world.entities.size()
+	assert_false(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(_world.entities.size(), count_before)
+	assert_eq(receiving.pending[0], batch)
+	assert_eq(batch.package_scenes[0], "res://content/entities/packages/package.tscn")
+	assert_eq(DayPhaseService.current().day_index, 1)
+#endregion
+
+#region Raw package recipe reconstruction
+## Fresh restored receiving prefab retains authored carry/impact/liquid settings and overlaid damaged HP.
+func test_fresh_package_restore_rebuilds_recipe_without_resetting_saved_health() -> void:
+	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
+	var definition: DEF_Package = null
+	for candidate: DEF_Package in supply.packages:
+		if candidate.tags & DEF_Package.Tag.LIQUID:
+			definition = candidate
+			break
+	assert_not_null(definition)
+	var parcel: E_Package = (load(String(definition.scene_variants[0])) as PackedScene).instantiate() as E_Package
+	assert_true(ReceivingPackageFactory.configure_recipe(parcel, definition, "fixture/liquid_recipe"))
+	_world.add_entity(parcel)
+	PackageConditionService.initialize(parcel)
+	(parcel.get_component(C_Health) as C_Health).current = definition.maximum_health * 0.5
+	var expected_health: float = (parcel.get_component(C_Health) as C_Health).current
+	var key: String = ActorIdentityRules.key_for(parcel, _root)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	_world.remove_entity(parcel)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	var restored: Entity = null
+	for actor: Entity in _world.entities:
+		if ActorIdentityRules.key_for(actor, _root) == key:
+			restored = actor
+	assert_not_null(restored)
+	assert_eq((restored.get_component(C_Health) as C_Health).current, expected_health)
+	assert_eq((restored.get_component(C_Grabbable) as C_Grabbable).throw_velocity, definition.throw_velocity)
+	assert_eq((restored.get_component(C_ImpactReceiver) as C_ImpactReceiver).profile, definition.impact_profile)
+	var tilt: C_LiquidTilt = restored.get_component(C_LiquidTilt) as C_LiquidTilt
+	assert_not_null(tilt)
+	assert_eq(tilt.maximum_angle_degrees, definition.liquid_maximum_angle_degrees)
+	assert_eq(tilt.duration_seconds, definition.liquid_tilt_seconds)
+	assert_eq(tilt.unsafe_seconds, 0.0)
 #endregion

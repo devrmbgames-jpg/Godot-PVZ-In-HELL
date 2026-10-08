@@ -2,6 +2,9 @@ extends Component
 ## Логическое состояние замка и запроса движения; физическое исполнение принадлежит контроллеру тела.
 class_name C_Openable
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = ["locked", "requested_open", "actual_fraction"]
+
 ## Замок запрещает запрос обычного открытия и закрытия.
 @export var locked: bool = false
 ## Необязательное требование предмета для разблокировки.

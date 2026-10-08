@@ -28,6 +28,7 @@ func before_each() -> void:
 	session.component_resources = [C_DayCycle.new()]
 	_root.add_child(session)
 	session.owner = _root
+	FixturePlacedIdentity.assign(_root, session, &"session")
 	_world.add_entity(session, null, false)
 	var floor: StaticBody3D = StaticBody3D.new()
 	var collision: CollisionShape3D = CollisionShape3D.new()
@@ -63,6 +64,8 @@ func before_each() -> void:
 	_actor.left_hand_slot = hand
 	_actor.hold_anchor = hand
 	_world.add_entity(_actor)
+	_actor.owner = _root
+	FixturePlacedIdentity.assign(_root, _actor, &"actor")
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
@@ -81,6 +84,7 @@ func _package(name: String) -> E_Package:
 	(parcel as Node as Node3D).position = Vector3(0, 0.5, -1.3)
 	_root.add_child(parcel)
 	parcel.owner = _root
+	FixturePlacedIdentity.assign(_root, parcel, &"parcel")
 	_world.add_entity(parcel, null, false)
 	return parcel
 

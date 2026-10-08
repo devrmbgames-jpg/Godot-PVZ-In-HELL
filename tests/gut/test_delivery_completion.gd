@@ -41,8 +41,20 @@ func _night_session() -> Entity:
 	var session: Entity = _world.query.with_all([C_District]).execute_one()
 	session.name = "Session"
 	session.owner = _root
+	_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+	session.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(session.name))
+	var placed_identity_session: C_AuthoredIdentity = C_AuthoredIdentity.new()
+	placed_identity_session.world_id = &"fixture"
+	placed_identity_session.local_id = StringName(session.name)
+	session.add_component(placed_identity_session)
 	(_player as Node).name = "Player"
 	(_player as Node).owner = _root
+	_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+	(_player as Node).set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName((_player as Node).name))
+	var placed_identity_player: C_AuthoredIdentity = C_AuthoredIdentity.new()
+	placed_identity_player.world_id = &"fixture"
+	placed_identity_player.local_id = StringName((_player as Node).name)
+	_player.add_component(placed_identity_player)
 	if not session.has_component(C_Autosave):
 		session.add_component(C_Autosave.new())
 	(session.get_component(C_Autosave) as C_Autosave).path = SAVE_PATH
@@ -176,14 +188,14 @@ func test_failed_base_payment_waits_before_bonus_and_night_preparation() -> void
 	var cycle: C_DayCycle = DayPhaseService.current()
 	cycle.phase = C_DayCycle.Phase.NIGHT
 	var state: C_Autosave = session.get_component(C_Autosave) as C_Autosave
-	NightSaveService.process(session, cycle, state, 0.1)
+	_night_step(0.1)
 	assert_false(cycle.night_ready)
 	assert_eq(state.started_night, 0)
 	assert_eq(_district.prepared_morning, 1)
 	assert_false(FileAccess.file_exists(SAVE_PATH))
 	wallet.balance = 0
 	state.retry_remaining = 0.0
-	NightSaveService.process(session, cycle, state, 0.1)
+	_night_step(0.1)
 	assert_true(visit.settlement_committed)
 	assert_true(job.bonus_committed)
 	assert_eq(wallet.balance, 11)
@@ -221,7 +233,7 @@ func test_interrupted_meeting_can_retry_then_sleep_keeps_box_and_notes() -> void
 	var session: Entity = _night_session()
 	_sleep_request()
 	var cycle: C_DayCycle = DayPhaseService.current()
-	NightSaveService.process(session, cycle, session.get_component(C_Autosave) as C_Autosave, 0.1)
+	_night_step(0.1)
 	assert_true(cycle.night_ready)
 	assert_eq(_job(visit).status, NpcHomeDelivery.Status.FAILED)
 	assert_eq((parcel as Node as Node3D).global_transform, pose)
@@ -263,7 +275,7 @@ func test_night_write_retry_restores_one_failed_promise_without_duplicate_box() 
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var state: C_Autosave = session.get_component(C_Autosave) as C_Autosave
 	state.path = MISSING_SLOT
-	NightSaveService.process(session, cycle, state, 0.1)
+	_night_step(0.1)
 	assert_ne(state.last_error, OK)
 	assert_false(cycle.night_ready)
 	assert_eq(state.started_night, 1)
@@ -272,7 +284,7 @@ func test_night_write_retry_restores_one_failed_promise_without_duplicate_box() 
 	assert_eq((parcel as Node as Node3D).global_transform, pose)
 	state.path = SAVE_PATH
 	state.retry_remaining = 0.0
-	NightSaveService.process(session, cycle, state, 0.1)
+	_night_step(0.1)
 	assert_true(cycle.night_ready)
 	assert_eq(person.memories.size(), 1)
 	assert_eq(cycle.day_index, 1)
@@ -297,4 +309,17 @@ func _box_count(package_id: String) -> int:
 		if (parcel.get_component(C_Package) as C_Package).package_id == package_id:
 			count += 1
 	return count
+#endregion
+
+#region Scheduled persistence fixture
+func _night_step(delta: float) -> void:
+	var installed: bool = false
+	for owner: System in _world.systems:
+		if owner is S_NightSave:
+			installed = true
+	if not installed:
+		var night_owner: S_NightSave = S_NightSave.new()
+		night_owner.group = "PersistenceTest"
+		_world.add_system(night_owner)
+	_world.process(delta, "PersistenceTest")
 #endregion

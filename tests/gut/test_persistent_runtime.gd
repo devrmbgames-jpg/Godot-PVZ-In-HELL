@@ -18,6 +18,9 @@ func before_each() -> void:
 	session.component_resources = [C_DayCycle.new(), C_Wallet.new()]
 	_root.add_child(session)
 	session.owner = _root
+	_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+	session.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(session.name))
+	assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 	_world.add_entity(session, null, false)
 	_world.add_observer(O_ToxicAreaSetup.new())
 	_world.add_observer(O_ExplosionSetup.new())
@@ -36,6 +39,9 @@ func _valve() -> E_InteractionTestValve:
 	valve.name = "Valve"
 	_root.add_child(valve)
 	valve.owner = _root
+	_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+	valve.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName("valve_%d" % _world.entities.size()))
+	assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 	_world.add_entity(valve, null, false)
 	return valve
 
@@ -104,7 +110,7 @@ func test_unknown_or_repeatable_completed_action_fails_before_day_or_effect_chan
 	for id: StringName in [&"missing", &"test_valve_decay"]:
 		var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 		for record: Dictionary in snapshot.entities:
-			if String(record.key) == WorldSnapshotService.key_for(valve, _root):
+			if String(record.key) == ActorIdentityRules.key_for(valve, _root):
 				record.completed_actions = [id]
 		assert_false(WorldSnapshotService.restore(snapshot, _root))
 		assert_eq(DayPhaseService.current().day_index, 1)
@@ -218,12 +224,12 @@ func test_persistent_toxic_clock_follow_attribution_and_geometry_survive_recreat
 	follow.local_offset.origin = Vector3(2, 0, 0)
 	HazardFollowService.replace(toxin, valve, follow)
 	(toxin.get_component(C_ToxicArea) as C_ToxicArea).tick_elapsed = 0.35
-	var key: String = WorldSnapshotService.key_for(toxin, _root)
+	var key: String = ActorIdentityRules.key_for(toxin, _root)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	_world.remove_entity(toxin)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	for entity: Entity in _world.entities:
-		if WorldSnapshotService.key_for(entity, _root) == key:
+		if ActorIdentityRules.key_for(entity, _root) == key:
 			toxin = entity
 	assert_true(is_instance_valid(toxin))
 	hazard = toxin.get_component(C_Hazard) as C_Hazard
@@ -250,7 +256,7 @@ func test_follow_restore_preserves_despawn_effect_until_owner_relationship_is_lo
 	HazardFollowService.replace(toxin, valve, follow)
 	var saved: Dictionary = PersistentHazardState.capture(toxin, _root)
 	var entities: Dictionary[String, Entity] = {}
-	entities[WorldSnapshotService.key_for(valve, _root)] = valve
+	entities[ActorIdentityRules.key_for(valve, _root)] = valve
 	PersistentHazardState.restore(saved, toxin, entities)
 	assert_true(EntityAvailability.contains(toxin, _world))
 	assert_false(toxin.has_component(R_HazardFollow))
@@ -309,7 +315,7 @@ func test_night_drains_disabled_owner_loss_before_persistent_snapshot_capture() 
 	var customer: E_InteractionTestValve = _valve()
 	customer.add_component(C_CustomerAgent.new())
 	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
-	var key: String = WorldSnapshotService.key_for(toxin, _root)
+	var key: String = ActorIdentityRules.key_for(toxin, _root)
 	var follow: R_HazardFollow = R_HazardFollow.new()
 	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
 	HazardFollowService.replace(toxin, customer, follow)

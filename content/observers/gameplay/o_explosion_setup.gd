@@ -35,7 +35,4 @@ func _configure(entity: Entity, restored: bool) -> void:
 	if not restored:
 		lifetime.awaiting_resolution = true
 
-	var mesh: SphereMesh = SphereMesh.new()
-	mesh.radius = profile.radius
-	mesh.height = profile.radius * 2.0
-	effect.get_visual().mesh = mesh
+	HazardGeometry.configure_explosion(effect, profile)

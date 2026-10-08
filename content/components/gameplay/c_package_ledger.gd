@@ -2,6 +2,14 @@ extends Component
 ## Складской журнал; выделение номеров и переходы записей принадлежат сервису регистрации.
 class_name C_PackageLedger
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = [
+	"records",
+	"history_sequence_day",
+	"next_history_number",
+	"last_departed_package_id",
+]
+
 ## Все поступления и регистрации, включая неактивные для сохранения истории.
 @export var records: Array[PackageRegistrationRecord] = []
 ## День счётчика скрытых ID истории; сохраняется вместе с журналом.

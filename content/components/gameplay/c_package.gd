@@ -2,6 +2,15 @@ extends Component
 ## Постоянная идентичность поставки и признак инициализации, независимые от состояния коробки.
 class_name C_Package
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = [
+	"package_id",
+	"history_id",
+	"definition",
+	"delivery_day",
+	"supply_key",
+]
+
 ## Постоянный ID, независимый от путей Node и instance ID движка.
 @export var package_id: String = ""
 ## Скрытый читаемый ID истории; для выдачи клиенту используется отдельный регистрационный номер.

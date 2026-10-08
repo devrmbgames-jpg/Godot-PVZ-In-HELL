@@ -18,9 +18,9 @@ class PersistenceBaselineTest(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
         self.codec = self.write("content/services/persistence/save_data_codec.gd",
-                                'static var _component_fields = {\n C_Health: ["current"],\n}\n'
+                                'static var _component_fields = {\n C_Health: C_Health.SAVE_FIELDS,\n}\n'
                                 'static var _record_types: Array[Script] = [MoneyOperation]\n')
-        self.write("content/components/c_health.gd", "class_name C_Health\n")
+        self.write("content/components/c_health.gd", 'class_name C_Health\nconst SAVE_FIELDS: Array[String] = ["current"]\n')
         self.write("content/contracts/money_operation.gd", "class_name MoneyOperation\n")
         self.write("content/services/persistence/autosave_store.gd", "const SCHEMA_VERSION: int = 2\n")
         self.write("content/definitions/supply.tres", "[gd_resource]\n")
@@ -40,7 +40,8 @@ class PersistenceBaselineTest(unittest.TestCase):
         self.assertEqual([], validate(self.root))
 
     def test_codec_field_change_requires_explicit_baseline_decision(self) -> None:
-        self.codec.write_text(self.codec.read_text().replace('"current"', '"current", "base"'), encoding="utf-8")
+        contract = self.root / "content/components/c_health.gd"
+        contract.write_text(contract.read_text().replace('"current"', '"current", "base"'), encoding="utf-8")
         self.assertTrue(validate(self.root))
 
     def test_component_move_is_visible_to_schema_inventory(self) -> None:

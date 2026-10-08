@@ -2,6 +2,9 @@ extends Component
 ## Состояние накопленного голода; пороги и множители задаёт авторская политика.
 class_name C_Hunger
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = ["value"]
+
 enum Tier { NORMAL, HUNGRY, STARVING }
 
 ## Авторская политика порогов и эффектов; null отключает рост/усиление.

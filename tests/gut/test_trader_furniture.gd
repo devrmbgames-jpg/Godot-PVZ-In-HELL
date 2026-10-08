@@ -27,6 +27,7 @@ func before_each() -> void:
 	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new()]
 	_root.add_child(session)
 	session.owner = _root
+	FixturePlacedIdentity.assign(_root, session, &"session")
 	_world.add_entity(session, null, false)
 	_commerce = session.get_component(C_Commerce) as C_Commerce
 	_cycle = session.get_component(C_DayCycle) as C_DayCycle
@@ -38,11 +39,13 @@ func before_each() -> void:
 	_actor.component_resources = [C_Inventory.new(), C_GrabControl.new()]
 	_root.add_child(_actor)
 	_actor.owner = _root
+	FixturePlacedIdentity.assign(_root, _actor, &"actor")
 	_world.add_entity(_actor, null, false)
 	_trader = (load("res://content/entities/commerce/trader.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	(_trader as Node as RigidBody3D).freeze = true
 	_root.add_child(_trader)
 	_trader.owner = _root
+	FixturePlacedIdentity.assign(_root, _trader, &"trader")
 	_world.add_entity(_trader, null, false)
 	_shop = _trader.get_component(C_Trader) as C_Trader
 	_shelf = load("res://content/definitions/gameplay/inventory/def_item_large_shelf.tres") as DEF_InventoryItem

@@ -1,25 +1,4 @@
 {
   "version": 1,
-  "entries": [
-    {
-      "rule": "service-step",
-      "owner": "NightSaveService",
-      "method": "process",
-      "target": "",
-      "count": 1,
-      "reason": "Save preparation/retry polling",
-      "task": "25_persistence_remaining.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "system-service-step",
-      "owner": "S_NightSave",
-      "method": "process",
-      "target": "NightSaveService.process",
-      "count": 1,
-      "reason": "Save preparation/retry polling",
-      "task": "25_persistence_remaining.md",
-      "removal_gate": "26/27"
-    }
-  ]
+  "entries": []
 }

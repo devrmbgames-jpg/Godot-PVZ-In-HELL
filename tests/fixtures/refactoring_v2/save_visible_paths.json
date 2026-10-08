@@ -1,5 +1,5 @@
 {
-  "schema": 3,
+  "schema": 4,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -371,6 +371,7 @@
     "res://content/definitions/gameplay/npc/def_npc_profile_8.tres",
     "res://content/definitions/gameplay/npc/def_npc_profile_9.tres",
     "res://content/entities/npc/district_npc.tscn",
+    "res://content/entities/npc/npc_address.tscn",
     "res://content/entities/packages/package_b.tscn",
     "res://content/entities/props/anchorable_test_box.tscn",
     "res://content/entities/props/physical_slot.tscn",

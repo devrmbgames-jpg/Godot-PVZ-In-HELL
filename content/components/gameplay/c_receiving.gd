@@ -2,6 +2,16 @@ extends Component
 ## Прогресс реальной утренней поставки; повторные попытки не создают дополнительные партии.
 class_name C_Receiving
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = [
+	"last_started_day",
+	"batch_id",
+	"dispatched_batch_id",
+	"incoming_package_ids",
+	"pending",
+	"delivered_counts",
+]
+
 ## День последней подготовленной партии, сохраняемый между запусками.
 var last_started_day: int = 0
 ## Стабильный ID текущей утренней партии, включая пустую поставку.

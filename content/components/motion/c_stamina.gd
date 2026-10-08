@@ -2,6 +2,9 @@ extends Component
 ## Запас бега и его состояние; единственный runtime-владелец — S_Sprint.
 class_name C_Stamina
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = ["current", "initialized"]
+
 ## Базовый запас выносливости без вклада силы.
 @export var base_capacity: float = 70.0
 ## Добавка запаса на единицу вычисленной силы.

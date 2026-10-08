@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d3vj5iyw4p75d"]
 
-[ext_resource type="Script" uid="uid://cdu5tlyk72uu4" path="res://addons/gecs/ecs/world.gd" id="2_da1x8"]
+[ext_resource type="Script" path="res://content/scenes/game_world.gd" id="2_da1x8"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_district.gd" id="District_system"]
 [ext_resource type="Script" path="res://content/observers/gameplay/o_npc_incident.gd" id="Npc_incident"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_npc_decision.gd" id="Npc_decision"]
@@ -49,7 +49,7 @@
 [ext_resource type="Script" uid="uid://d1i778tayoyj8" path="res://content/observers/challenges/o_light_flicker.gd" id="Light_flicker"]
 [ext_resource type="Script" uid="uid://3rvc41qs05l" path="res://content/systems/gameplay/s_liquid_tilt.gd" id="LiquidTilt"]
 [ext_resource type="Script" uid="uid://bupm4th6s12s4" path="res://content/systems/interaction/s_marker.gd" id="Marker_system"]
-[ext_resource type="Script" uid="uid://vvee5q27rhon" path="res://content/systems/gameplay/s_night_save.gd" id="Night_save_system"]
+[ext_resource type="Script" uid="uid://vvee5q27rhon" path="res://content/systems/persistence/s_night_save.gd" id="Night_save_system"]
 [ext_resource type="Script" uid="uid://bknxe15k0dr0u" path="res://content/systems/gameplay/s_npc_combat.gd" id="Npc_combat"]
 [ext_resource type="Script" uid="uid://dxqnrpxm2pr5l" path="res://content/systems/motion/s_npc_intent.gd" id="Npc_intent"]
 [ext_resource type="Script" uid="uid://dl88dabj3ptfa" path="res://content/observers/gameplay/o_npc_remains.gd" id="Npc_remains"]
@@ -86,7 +86,7 @@
 script = ExtResource("2_da1x8")
 entity_nodes_root = NodePath("../Entityes")
 system_nodes_root = NodePath("Systems")
-metadata/_custom_type_script = "uid://cdu5tlyk72uu4"
+metadata/_custom_type_script = "uid://byf0m4svrxxd0"
 
 [node name="DeveloperConsoleCommands" type="Node" parent="." unique_id=1828195528]
 script = ExtResource("DeveloperConsole")

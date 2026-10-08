@@ -35,6 +35,9 @@ func before_each() -> void:
 	session.component_resources = [_district, C_DayCycle.new(), C_Wallet.new(), C_PackageLedger.new(), C_Receiving.new(), C_Commerce.new()]
 	_fixture_root.add_child(session)
 	session.owner = _fixture_root
+	_fixture_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+	session.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(session.name))
+	assert_true(PlacedIdentityRules.compile_for(_fixture_root).is_empty())
 	_fixture_world.add_entity(session, null, false)
 	DistrictPopulationService.initialize()
 	DistrictPopulationService.prepare_morning(MORNING_DAY)
@@ -131,6 +134,9 @@ func _placed(scene_path: String, label: String) -> Entity:
 	entity.name = label
 	_fixture_root.add_child(entity)
 	entity.owner = _fixture_root
+	_fixture_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+	entity.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(entity.name))
+	assert_true(PlacedIdentityRules.compile_for(_fixture_root).is_empty())
 	_fixture_world.add_entity(entity, null, false)
 	return entity
 

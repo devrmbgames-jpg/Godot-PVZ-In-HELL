@@ -2,6 +2,9 @@ extends Component
 ## Состояние управляемых игроком фаз и условий завершения смены.
 class_name C_DayCycle
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = ["phase", "day_index"]
+
 enum Phase {
 	MORNING,
 	DAY,

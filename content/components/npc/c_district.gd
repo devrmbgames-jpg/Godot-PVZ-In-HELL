@@ -2,6 +2,23 @@ extends Component
 ## Сессия района хранит личности, календарные фиксации и заселение.
 class_name C_District
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = [
+	"definition",
+	"people",
+	"home_deliveries",
+	"delivery_offer_day",
+	"terminal_offer_target",
+	"delivery_considered",
+	"next_incident",
+	"next_person",
+	"prepared_morning",
+	"replacement_morning",
+	"conflict_phase",
+	"ambient_conflicts",
+	"next_service_order",
+]
+
 ## Авторская конфигурация района.
 @export var definition: DEF_District = null
 ## Живые личности и история погибших жителей.

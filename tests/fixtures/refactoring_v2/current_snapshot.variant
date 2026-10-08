@@ -1,6 +1,6 @@
 {
 "entities": Array[Dictionary]([{
-"authored_path": "Session",
+"authored_id": "placed/fixture/Session",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -395,11 +395,99 @@
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/0",
-"key": "scene/Session",
+"key": "placed/fixture/Session",
 "links": Array[Dictionary]([]),
 "scene": ""
 }, {
-"authored_path": "",
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/1",
+"key": "runtime/fixture/entity/1",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, -8),
+"scene": "res://content/entities/npc/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/2",
+"key": "runtime/fixture/entity/2",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, -8),
+"scene": "res://content/entities/npc/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/3",
+"key": "runtime/fixture/entity/3",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -8),
+"scene": "res://content/entities/npc/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/4",
+"key": "runtime/fixture/entity/4",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, -8),
+"scene": "res://content/entities/npc/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/5",
+"key": "runtime/fixture/entity/5",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, 24),
+"scene": "res://content/entities/npc/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/6",
+"key": "runtime/fixture/entity/6",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, 24),
+"scene": "res://content/entities/npc/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/7",
+"key": "runtime/fixture/entity/7",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, 24),
+"scene": "res://content/entities/npc/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/8",
+"key": "runtime/fixture/entity/8",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, 24),
+"scene": "res://content/entities/npc/npc_address.tscn"
+}, {
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -448,7 +536,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, -8),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -499,7 +587,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, -8),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -548,7 +636,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -8),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -597,7 +685,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, -8),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -646,7 +734,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, 24),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -695,7 +783,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, 24),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -744,7 +832,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, 24),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -793,7 +881,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, 24),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -842,7 +930,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 28),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -891,7 +979,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0, 8),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -940,7 +1028,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, -12),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -989,7 +1077,7 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 28),
 "scene": "res://content/entities/npc/district_npc.tscn"
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -1015,7 +1103,7 @@
 }]),
 "scene": ""
 }, {
-"authored_path": "",
+"authored_id": "",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -1067,32 +1155,32 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
 "scene": "res://content/entities/packages/package_b.tscn"
 }, {
-"authored_path": "Slot",
+"authored_id": "placed/fixture/Slot",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([]),
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/23",
-"key": "scene/Slot",
+"key": "placed/fixture/Slot",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
 "scene": "res://content/entities/props/physical_slot.tscn"
 }, {
-"authored_path": "StoredBox",
+"authored_id": "placed/fixture/StoredBox",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([]),
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/24",
-"key": "scene/StoredBox",
+"key": "placed/fixture/StoredBox",
 "links": Array[Dictionary]([{
 "kind": "stored",
-"target": "scene/Slot"
+"target": "placed/fixture/Slot"
 }]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0),
 "scene": "res://content/entities/props/anchorable_test_box.tscn"
 }, {
-"authored_path": "Cart",
+"authored_id": "placed/fixture/Cart",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
@@ -1108,13 +1196,13 @@
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
 "scene": "res://content/entities/props/push_cart.tscn"
 }, {
-"authored_path": "CargoBox",
+"authored_id": "placed/fixture/CargoBox",
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([]),
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/26",
-"key": "scene/CargoBox",
+"key": "placed/fixture/CargoBox",
 "links": Array[Dictionary]([{
 "kind": "cargo",
 &"local_pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
@@ -1124,5 +1212,5 @@
 "scene": "res://content/entities/props/anchorable_test_box.tscn"
 }]),
 "morning_day": 2,
-"version": 3
+"version": 4
 }

@@ -41,9 +41,21 @@ static func create(
 		parcel.free()
 		return null
 
+	if not configure_recipe(parcel, definition, package_id):
+		parcel.free()
+		return null
+	parcel.name = "Parcel_%03d_%02d" % [day_index, package_index + 1]
+	return parcel
+
+
+## Materializes a prevalidated unregistered package recipe for delivery or snapshot reconstruction.
+## Returns false for a prefab without a physical body or required carry configuration.
+static func configure_recipe(parcel: E_Package, definition: DEF_Package, package_id: String) -> bool:
+	var body: RigidBody3D = parcel as Node as RigidBody3D
+	if body == null:
+		return false
 	parcel.package_id = package_id
 	parcel.package_definition = definition
-	parcel.name = "Parcel_%03d_%02d" % [day_index, package_index + 1]
 	body.mass = definition.mass_kg
 
 	var component_resources: Array[Component] = parcel.component_resources.duplicate()
@@ -55,12 +67,11 @@ static func create(
 			component_resources[component_index] = carry
 			break
 	if carry == null:
-		parcel.free()
-		return null
+		return false
 
 	carry.throw_velocity = definition.throw_velocity
 	parcel.component_resources = component_resources
-	return parcel
+	return true
 
 
 #endregion

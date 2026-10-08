@@ -2,6 +2,9 @@ extends Component
 ## Сессионные записи торговли; runtime-изменения проходят через CommerceService.
 class_name C_Commerce
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = ["receipts", "pending_deliveries", "next_request"]
+
 ## Журнал оплаченных покупок; ID защищают от повторного списания.
 @export var receipts: Array[PurchaseReceipt] = []
 ## Оплаченные доставки, включая уже исполненные для защиты от повтора.

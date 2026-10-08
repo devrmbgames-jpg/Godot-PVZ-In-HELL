@@ -18,10 +18,21 @@ MANIFEST = ROOT / "tests/fixtures/refactoring_v2/save_visible_paths.json"
 
 def inventory(root: Path) -> dict:
     codec = (root / "content/services/persistence/save_data_codec.gd").read_text(encoding="utf-8")
-    fields = {
-        name: re.findall(r'"([^"]+)"', declaration)
-        for name, declaration in re.findall(r"^\s*(C_\w+): \[([^\n]*)\],?$", codec, re.MULTILINE)
-    }
+    declarations = re.findall(r"^\s*(C_\w+): (C_\w+)\.SAVE_FIELDS,?$", codec, re.MULTILINE)
+    fields = {}
+    component_sources = {}
+    for path in (root / "content").rglob("*.gd"):
+        source = path.read_text(encoding="utf-8")
+        symbol = re.search(r"^class_name\s+(C_\w+)", source, re.MULTILINE)
+        if symbol:
+            component_sources[symbol.group(1)] = source
+    for name, owner in declarations:
+        if name != owner:
+            raise ValueError(f"schema contract owner differs: {name} vs {owner}")
+        contract = re.search(r"^const SAVE_FIELDS: Array\[String\] = \[([^\]]*)\]$", component_sources[name], re.MULTILINE)
+        if contract is None:
+            raise ValueError(f"missing explicit Component schema contract: {name}")
+        fields[name] = re.findall(r'"([^\"]+)"', contract.group(1))
     records = re.search(r"^static var _record_types[^=]*= \[([^\n]+)\]$", codec, re.MULTILINE)
     if not fields or not records:
         raise ValueError("closed codec declarations changed shape; update inventory explicitly")

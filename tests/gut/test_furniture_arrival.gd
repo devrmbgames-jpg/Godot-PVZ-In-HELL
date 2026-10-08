@@ -167,6 +167,7 @@ func test_full_snapshot_restores_blocked_order_then_issued_item_without_duplicat
 	var zone: Entity = _home()
 	zone.name = "Receiving"
 	zone.owner = _root
+	FixturePlacedIdentity.assign(_root, zone, &"zone")
 	_area(zone)
 	var state: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
 	var blocker: StaticBody3D = _block(Vector3(-8, 1.5, 8), Vector3(5, 4, 5))
@@ -260,6 +261,7 @@ func test_order_manual_flush_discards_same_morning_preload_ticket() -> void:
 	var zone: Entity = _home()
 	zone.name = "Receiving"
 	zone.owner = _root
+	FixturePlacedIdentity.assign(_root, zone, &"zone")
 	_area(zone)
 	var state: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
 	var owner: S_OrderDelivery = _receiving_system()

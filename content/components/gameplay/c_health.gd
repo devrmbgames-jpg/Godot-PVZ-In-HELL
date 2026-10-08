@@ -3,6 +3,9 @@ extends C_AttributeChanged
 ## Общие данные здоровья живых участников, посылок и разрушаемых предметов.
 class_name C_Health
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = ["base", "value", "current", "depleted"]
+
 ## Унаследованные value и current означают максимум и оставшееся здоровье.
 ## Обычный расчёт здоровья выполняет O_Damage; истощение терминально до явного восстановления.
 @export var depleted: bool = false

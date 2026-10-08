@@ -2,6 +2,9 @@ extends Component
 ## Данные автономной опасности с авторским определением и постоянной атрибуцией.
 class_name C_Hazard
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = ["definition", "request_id", "origin_id", "instigator_id"]
+
 ## Авторское определение, выбранное общей фабрикой.
 @export var definition: DEF_Hazard = null
 ## Устойчивый ID запроса, сохраняемый после удаления источника.

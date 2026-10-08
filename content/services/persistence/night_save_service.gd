@@ -1,51 +1,25 @@
 extends RefCounted
-## Однократно готовит утро района и повторяет запись без повторного завершения вечера и заселения.
+## Explicit save composition: command quiescence and validated startup restore.
 class_name NightSaveService
 
-const MIN_RETRY_SECONDS: float = 0.1
-
-
-#region Ночная подготовка и запись
-## Завершает обещания и размещение один раз на ночь; повторно снимает и записывает подготовленное утро.
-static func process(session: Entity, cycle: C_DayCycle, state: C_Autosave, delta: float) -> void:
-	if cycle.phase != C_DayCycle.Phase.NIGHT:
-		return
-
-	cycle.night_ready = false
-	if state.last_saved_morning == cycle.day_index + 1:
-		cycle.night_ready = true
-		return
-
-	state.retry_remaining = maxf(0.0, state.retry_remaining - delta)
-	if state.retry_remaining > 0.0:
-		return
-
-	if state.started_night != cycle.day_index:
-		if not NpcHomeDeliveryService.finish_evening(cycle.day_index):
-			state.last_error = ERR_INVALID_DATA
-			state.retry_remaining = maxf(MIN_RETRY_SECONDS, state.retry_seconds)
-			return
-
-		state.started_night = cycle.day_index
-		NightResetService.reset()
-
-	var preparation: DistrictMorningPreparationRequest = DistrictPopulationService.prepare_morning(cycle.day_index + 1)
-	if not preparation.completed or not preparation.succeeded:
-		state.last_error = ERR_BUSY if not preparation.completed else ERR_INVALID_DATA
-		state.retry_remaining = maxf(MIN_RETRY_SECONDS, state.retry_seconds)
-		return
-
-	var root: Node = ECS.world.get_parent()
-	var snapshot: Dictionary = WorldSnapshotService.capture(root, cycle.day_index + 1)
-	if not WorldSnapshotService.valid(snapshot, root):
-		state.last_error = ERR_INVALID_DATA
-	else:
-		state.last_error = AutosaveStore.write(snapshot, state.path)
-	if state.last_error == OK:
-		state.last_saved_morning = cycle.day_index + 1
-		cycle.night_ready = true
-	else:
-		state.retry_remaining = maxf(MIN_RETRY_SECONDS, state.retry_seconds)
+#region Explicit quiescence barrier
+## Drains structural/outcome commands without running a scheduled tick.
+## A non-settling reaction chain rejects capture instead of saving partial state.
+static func drain_pending(world: World) -> bool:
+	const MAX_DRAIN_PASSES: int = 32
+	for _pass_index: int in MAX_DRAIN_PASSES:
+		var pending: bool = false
+		for owner: System in world.systems:
+			if owner.has_pending_commands():
+				pending = true
+				owner.cmd.execute()
+		for owner: Observer in world.observers:
+			if owner.has_pending_commands():
+				pending = true
+				owner.cmd.execute()
+		if not pending:
+			return true
+	return false
 #endregion
 
 
@@ -54,12 +28,23 @@ static func process(session: Entity, cycle: C_DayCycle, state: C_Autosave, delta
 static func restore_startup(root: Node, state: C_Autosave) -> bool:
 	var snapshot: Dictionary = AutosaveStore.read(state.path)
 	if snapshot.is_empty():
-		state.startup_status = "Сохранение повреждено — новое прохождение" if FileAccess.file_exists(state.path) else "Новое прохождение"
+		if FileAccess.file_exists(state.path):
+			state.rejected_path = state.path
+		state.startup_status = ("Сохранение повреждено — новое прохождение"
+			if FileAccess.file_exists(state.path) else "Новое прохождение")
 		return false
 	if snapshot.get("version") != AutosaveStore.SCHEMA_VERSION:
-		state.startup_status = "Старое сохранение несовместимо с живым районом. Файл сохранён; начните новое прохождение."
+		state.rejected_path = state.path
+		state.startup_status = ("Старое сохранение несовместимо с живым районом. "
+			+ "Файл сохранён; начните новое прохождение.")
+		return false
+	if not WorldSnapshotService.can_restore(snapshot, root):
+		state.rejected_path = state.path
+		state.startup_status = "Сохранение несовместимо — новое прохождение"
 		return false
 	if not WorldSnapshotService.restore(snapshot, root):
+		state.construction_failed = true
+		state.rejected_path = state.path
 		state.startup_status = "Сохранение несовместимо — новое прохождение"
 		return false
 

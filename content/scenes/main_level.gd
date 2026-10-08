@@ -11,15 +11,38 @@ extends Node3D
 
 #region Жизненный цикл уровня
 func _ready() -> void:
+	var authored_world: GameWorld = world as GameWorld
+	if authored_world != null and authored_world.initialization_failed():
+		for issue: String in authored_world.identity_issues():
+			push_error(issue)
+		set_physics_process(false)
+		queue_free()
+		return
+
 	ECS.world = world
 	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
 	var day_session: Entity = world.query.with_all([C_DayCycle]).execute_one()
 	day_session.add_component(C_BoundaryTrace.new())
-	world.add_observer(O_DistrictLifecycle.new())
-	world.add_observer(O_CustomerPlanning.new())
-	world.add_observer(O_CustomerOutcomes.new())
-	world.add_observer(O_CustomerGreeting.new())
-	world.add_observer(O_CustomerServiceClock.new())
+	if authored_world != null:
+		authored_world.add_startup_observer(O_DistrictLifecycle.new())
+	else:
+		world.add_observer(O_DistrictLifecycle.new())
+	if authored_world != null:
+		authored_world.add_startup_observer(O_CustomerPlanning.new())
+	else:
+		world.add_observer(O_CustomerPlanning.new())
+	if authored_world != null:
+		authored_world.add_startup_observer(O_CustomerOutcomes.new())
+	else:
+		world.add_observer(O_CustomerOutcomes.new())
+	if authored_world != null:
+		authored_world.add_startup_observer(O_CustomerGreeting.new())
+	else:
+		world.add_observer(O_CustomerGreeting.new())
+	if authored_world != null:
+		authored_world.add_startup_observer(O_CustomerServiceClock.new())
+	else:
+		world.add_observer(O_CustomerServiceClock.new())
 	for owner_type: Script in [S_CustomerVisitPresence, S_CustomerCleanup, S_CustomerClock, S_CustomerGreeting, S_CustomerApproach, S_CustomerWaiting, S_CustomerInspection, S_CustomerDeparture, S_CustomerArrivals]:
 		var customer_owner: System = owner_type.new() as System
 		customer_owner.group = "GamePlay"
@@ -30,14 +53,21 @@ func _ready() -> void:
 		world.add_system(npc_owner)
 	world.add_system(S_LootDrops.new(), true)
 	_bind_furniture_delivery()
-	DistrictPopulationService.initialize()
+	if authored_world == null or not authored_world.restoring_startup():
+		DistrictPopulationService.initialize()
 	var session: Entity = world.query.with_all([C_Autosave]).execute_one()
 	if session != null:
 		var save: C_Autosave = session.get_component(C_Autosave) as C_Autosave
 		save.path = autosave_path
 		if not autosave_path.is_empty():
 			GameSessionService.restore_startup(self, save)
+		if save.construction_failed:
+			set_physics_process(false)
+			queue_free()
+			return
 	DistrictPopulationService.restore_participation()
+	if authored_world != null:
+		authored_world.finish_startup()
 	if OS.has_feature("qa_build"):
 		print("QA level: ", scene_file_path, "; save slot=", autosave_path)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

@@ -22,6 +22,7 @@ func before_each() -> void:
 	session.component_resources = [C_DayCycle.new()]
 	_root.add_child(session)
 	session.owner = _root
+	FixturePlacedIdentity.assign(_root, session, &"session")
 	_world.add_entity(session, null, false)
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
@@ -34,6 +35,8 @@ func before_each() -> void:
 	body.add_child(head)
 	_actor.head_axis_x = head
 	_world.add_entity(_actor)
+	_actor.owner = _root
+	FixturePlacedIdentity.assign(_root, _actor, &"actor")
 
 
 ## Возвращает отладочный HUD, удаляет World и очищает ECS.world.
@@ -50,6 +53,7 @@ func _door(path: String) -> E_Door:
 	(door as Node as Node3D).position = Vector3(-1.22, 0, -1.4)
 	_root.add_child(door)
 	door.owner = _root
+	FixturePlacedIdentity.assign(_root, door, &"door")
 	_world.add_entity(door, null, false)
 	return door
 

@@ -2,6 +2,17 @@ extends Component
 ## Независимые регистрация, вскрытие и состояние; HP принадлежит C_Health.
 class_name C_PackageState
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = [
+	"registration",
+	"scan",
+	"opening",
+	"damage",
+	"registration_number",
+	"registration_day",
+	"leaking",
+]
+
 enum Registration {
 	UNREGISTERED,
 	REGISTERED,

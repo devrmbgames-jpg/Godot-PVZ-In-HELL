@@ -32,11 +32,4 @@ func _configure(entity: Entity) -> void:
 		HazardLifecycle.retire(entity, _world)
 		return
 
-	var sphere: SphereShape3D = SphereShape3D.new()
-	sphere.radius = profile.radius
-	effect.get_shape().shape = sphere
-	effect.get_area().collision_mask = profile.collision_mask
-	var mesh: SphereMesh = SphereMesh.new()
-	mesh.radius = profile.radius
-	mesh.height = profile.radius * 2.0
-	effect.get_visual().mesh = mesh
+	HazardGeometry.configure_toxic(effect, profile)

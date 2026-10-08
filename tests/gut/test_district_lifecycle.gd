@@ -175,29 +175,33 @@ func test_pending_preparation_rejects_superseded_calendar_context() -> void:
 	assert_eq(_district.prepared_morning, 1)
 
 
-## Night capture cannot mark the save ready while future morning placement remains queued.
+## Night barrier drains queued preparation before capture and retries retain the same prepared graph.
 func test_night_save_waits_for_preparation_and_then_retries_without_resetting() -> void:
 	var session: Entity = _world.query.with_all([C_District]).execute_one()
 	session.add_component(C_Autosave.new())
 	var state: C_Autosave = session.get_component(C_Autosave) as C_Autosave
-	state.path = SAVE_PATH
+	state.path = "user://gut_district_lifecycle_missing/slot.pvzh"
 	var cycle: C_DayCycle = DayPhaseService.current()
 	cycle.phase = C_DayCycle.Phase.NIGHT
 	_lifecycle().command_buffer_flush_mode = Observer.FlushMode.MANUAL
-	NightSaveService.process(session, cycle, state, 0.2)
-	assert_eq(state.last_error, ERR_BUSY)
+	_night_step(0.2)
+	assert_ne(state.last_error, OK)
+	assert_ne(state.last_error, ERR_BUSY)
 	assert_false(cycle.night_ready)
 	assert_eq(state.last_saved_morning, 0)
-	assert_eq(_district.prepared_morning, 1)
-	assert_false(FileAccess.file_exists(SAVE_PATH))
-	_world.flush_command_buffers()
 	assert_eq(_district.prepared_morning, 2)
+	assert_false(_lifecycle().has_pending_commands())
+	assert_false(state.prepared_snapshot.is_empty())
+	assert_false(FileAccess.file_exists(SAVE_PATH))
+	var retained: Dictionary = state.prepared_snapshot.duplicate(true)
+	state.path = SAVE_PATH
 	state.retry_remaining = 0.0
-	NightSaveService.process(session, cycle, state, 0.2)
+	_night_step(0.2)
 	assert_eq(state.last_error, OK)
 	assert_true(cycle.night_ready)
 	assert_eq(state.last_saved_morning, 2)
 	assert_eq(state.started_night, 1)
+	assert_eq(AutosaveStore.read(SAVE_PATH), retained)
 	assert_true(FileAccess.file_exists(SAVE_PATH))
 
 
@@ -217,4 +221,17 @@ func test_restore_invalidates_calendar_cache_without_serializing_it() -> void:
 	var encoded: Dictionary = SaveDataCodec.component_data(_district)
 	assert_false((encoded.fields as Dictionary).has("lifecycle_day"))
 	assert_false((encoded.fields as Dictionary).has("lifecycle_phase"))
+#endregion
+
+#region Scheduled persistence fixture
+func _night_step(delta: float) -> void:
+	var installed: bool = false
+	for owner: System in _world.systems:
+		if owner is S_NightSave:
+			installed = true
+	if not installed:
+		var night_owner: S_NightSave = S_NightSave.new()
+		night_owner.group = "PersistenceTest"
+		_world.add_system(night_owner)
+	_world.process(delta, "PersistenceTest")
 #endregion

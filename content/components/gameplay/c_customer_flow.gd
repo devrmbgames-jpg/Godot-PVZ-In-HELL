@@ -2,6 +2,9 @@ extends Component
 ## Состояние обслуживания сессии дня: политики, постоянные заказы и временная пауза прихода.
 class_name C_CustomerFlow
 
+## Domain-owned durable field contract consumed by the closed persistence codec.
+const SAVE_FIELDS: Array[String] = ["planned_through_day", "visits"]
+
 ## Авторские соответствия коробок правилам визита.
 @export var schedule: DEF_CustomerSchedule = null
 ## Последний подготовленный день; повтор такта не создаёт новый календарный план.

@@ -24,6 +24,7 @@ func before_each() -> void:
 	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new(), C_CustomerFlow.new()]
 	_root.add_child(session)
 	session.owner = _root
+	FixturePlacedIdentity.assign(_root, session, &"session")
 	_world.add_entity(session, null, false)
 	(session.get_component(C_DayCycle) as C_DayCycle).phase = C_DayCycle.Phase.EVENING
 	(session.get_component(C_Wallet) as C_Wallet).balance = 500
@@ -35,6 +36,7 @@ func before_each() -> void:
 	_actor.component_resources = [C_Inventory.new(), C_GrabControl.new(), C_Controller.new(), C_Health.new(), hunger, C_PlayerInputController.new()]
 	_root.add_child(_actor)
 	_actor.owner = _root
+	FixturePlacedIdentity.assign(_root, _actor, &"actor")
 	_world.add_entity(_actor, null, false)
 	var floor: StaticBody3D = StaticBody3D.new()
 	var collision: CollisionShape3D = CollisionShape3D.new()
