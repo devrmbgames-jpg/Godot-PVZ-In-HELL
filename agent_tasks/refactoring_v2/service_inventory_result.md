@@ -31,7 +31,7 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `commerce/commerce_service.gd` | KEEP_SERVICE | 24 | Synchronous purchase/order/payment with idempotent receipts. | KEPT_WITH_REASON |
 | `commerce/furniture_placement.gd` | KEEP_SERVICE | 24 | Explicit prepare/validate/commit construction before payment. | KEPT_WITH_REASON |
 | `commerce/meta_presentation.gd` | KEEP_PRESENTATION | 25 | Read-only cross-domain diagnostics; relocate to composition. | KEPT_WITH_REASON |
-| `commerce/order_delivery_service.gd` | KEEP_SERVICE | 23 | One delivery attempt; S_OrderReceiving owns interval/iteration. | KEPT_WITH_REASON |
+| `commerce/order_delivery_service.gd` | KEEP_SERVICE | 23 | One delivery attempt; S_OrderDelivery owns interval/iteration and captured restore-safe commits. | KEPT_WITH_REASON |
 | `commerce/trader_catalog_service.gd` | RENAME_MOVE | 24 | TraderCatalogRules; remove inline/profile dual authority. | PENDING |
 | `customers/customer_arrival_service.gd` | SPLIT | 12 | Polling moved to S_CustomerApproach; begin/result and authored lookup remain explicit. | DONE |
 | `customers/customer_debug_presentation.gd` | KEEP_PRESENTATION | 12 | Read-only visits/timers HUD text. | KEPT_WITH_REASON |
@@ -54,7 +54,7 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `gameplay/day_phase_service.gd` | KEEP_SERVICE | 23 | Transition validation/submission; S_DayPhase owns clock/commit. | KEPT_WITH_REASON |
 | `gameplay/hazard_profile_rules.gd` | KEEP_RULES | 23 | Pure authored-profile validation. | KEPT_WITH_REASON |
 | `gameplay/item_placement_solver.gd` | KEEP_SOLVER | 23 | Bounded placement over explicit reservations/world queries. | KEPT_WITH_REASON |
-| `gameplay/loot_drop_service.gd` | SPLIT | 23 | Explicit enqueue/prepare/place mixed with retry loop/budget. | PENDING |
+| `gameplay/loot_drop_service.gd` | SPLIT | 23 | S_LootDrops owns captured fair retry traversal/budget/cadence; explicit enqueue/prepare/place_pending retained, old retry dispatcher removed. | DONE |
 | `gameplay/npc_remains_service.gd` | KEEP_SERVICE | 23 | One-shot defeat/remains drop; Observer owns trigger. | KEPT_WITH_REASON |
 | `hazards/explosion_resolver.gd` | KEEP_SERVICE | 23 | One explosion transaction submits damage/applies impulses; no clock. | KEPT_WITH_REASON |
 | `hazards/hazard_damage.gd` | KEEP_SERVICE | 23 | One typed damage submission with attribution. | KEPT_WITH_REASON |
@@ -239,8 +239,8 @@ Push/slot/carry/proxy Services retain explicit operations and discrete lifecycle
 | Slice | Responsibility / target | Before → after ordering and removal | Existing regression |
 | --- | --- | --- | --- |
 | 22.A | Independent CharacterMotion/Look/Kinematic/Impact solvers and body callbacks, scheduled S_NpcIntent | Physical callback timing stays authoritative; intent → body integration, no no-op helper System. Explicit effective-speed calculations may be Rules. | test_characterbody_physics.gd, test_npc_intent.gd, test_s_jump.gd |
-| 23.A | LootDropService.retry queue/budget → S_LootDrops; retain enqueue/one placement attempt | DayPhase → retry clock/batch commit → NightSave quiescence. Remove whole-batch Service dispatcher and preserve fair budget/IDs/reservations. | test_safe_loot_placement.gd, test_npc_remains.gd, test_package_contents.gd |
-| 23.B | Hazard/receiving/order/package KEEP authority review | Lifetime/delivery cadence remains in existing Systems; spawn/setup/destruction in Observers; factories/fulfill_one stay explicit. Commit facts after registration/link visibility. | test_receiving_limits.gd, test_truck_shift_gate.gd, test_delivery_completion.gd, test_furniture_arrival.gd |
+| 23.A DONE | LootDropService.retry queue/budget → S_LootDrops; retain enqueue/one placement attempt | DayPhase → retry clock/batch commit → NightSave quiescence. Remove whole-batch Service dispatcher and preserve fair budget/IDs/reservations. | test_safe_loot_placement.gd, test_npc_remains.gd, test_package_contents.gd |
+| 23.B DONE | Hazard/receiving/order/package KEEP authority review | Lifetime/delivery cadence remains in existing Systems; spawn/setup/destruction in Observers; factories/fulfill_one stay explicit. Commit facts after registration/link visibility. | test_receiving_limits.gd, test_truck_shift_gate.gd, test_delivery_completion.gd, test_furniture_arrival.gd |
 | 24.A | CommercePanelService → UI CommercePanelFactory; TraderCatalogService → TraderCatalogRules/Profile | One authored Profile assortment source, remove inline fallback with all scenes/tests/callers; terminal catalog remains separate. UI reads/submits, no ECS participant. | test_trader_purchase.gd, test_trader_furniture.gd, test_commerce.gd |
 | 24.B | Wallet/inventory KEEP review and explicit day summaries | No second transaction scheduler; preserve committed/duplicate/rejected status and persisted operation IDs. | test_wallet.gd, test_inventory.gd |
 | 25.A | NightSaveService.process preparation/retry/ready progression → S_NightSave; retain explicit startup/I/O APIs | Night quiescence → prepare once → immutable snapshot → I/O/retry → ready. Remove process dispatcher; retry never repeats preparation or writes rejected slot. | test_game_session.gd, test_world_snapshot.gd, test_refactoring_v2_persistence_baseline.gd; smoke night_persistence |

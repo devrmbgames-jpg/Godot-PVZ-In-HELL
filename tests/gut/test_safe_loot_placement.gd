@@ -175,7 +175,7 @@ func test_pending_survives_source_removal_and_world_round_trip() -> void:
 	assert_true(LootDropService.enqueue(queue, batch_id, repeated, PendingLootDrop.new()).is_empty())
 	assert_eq(_drops().size(), 4)
 
-## Повторы ограничены временем и количеством; сервис также проверяет фазу перед мутацией.
+## Retry cadence/budget and the night gate are owned by the real scheduled System.
 func test_retry_budget_interval_and_night_gate() -> void:
 	var queue: C_LootDrops = LootDropService.current()
 	queue.placement = _policy()
@@ -193,7 +193,6 @@ func test_retry_budget_interval_and_night_gate() -> void:
 	var session: Entity = _world.query.with_all([C_DayCycle]).execute_one()
 	(session.get_component(C_DayCycle) as C_DayCycle).phase = C_DayCycle.Phase.NIGHT
 	_world.process(100.0, "GamePlay")
-	LootDropService.retry(session, queue)
 	assert_eq(_drops().size(), 2)
 	assert_eq(queue.pending.size(), 2)
 
@@ -229,4 +228,96 @@ func _queue_fields(snapshot: Dictionary) -> Dictionary:
 			if SaveDataCodec.component_script(String(component.type)) == C_LootDrops:
 				return component.fields as Dictionary
 	return {}
+#endregion
+
+#region Deferred retry ownership
+func _loot_owner() -> S_LootDrops:
+	for installed: System in _world.systems:
+		if installed is S_LootDrops:
+			return installed as S_LootDrops
+	assert(false, "The real loot retry owner is required")
+	return null
+
+
+func _pending_retry() -> C_LootDrops:
+	var queue: C_LootDrops = LootDropService.current()
+	queue.placement = _policy()
+	queue.placement.initial_budget = 1
+	queue.placement.retry_budget = 1
+	_damage(_npc(false, 1.0), 200.0)
+	assert_eq(_drops().size(), 1)
+	assert_eq(queue.pending.size(), 3)
+	queue.retry_remaining = 0.0
+	return queue
+
+
+## Repeated scheduled calls before flush cannot charge another retry budget to the same due request.
+func test_manual_flush_keeps_one_bounded_retry_request() -> void:
+	var queue: C_LootDrops = _pending_retry()
+	_loot_owner().command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.process(1.0, "GamePlay")
+	_world.process(1.0, "GamePlay")
+	assert_eq(_drops().size(), 1)
+	_world.flush_command_buffers()
+	assert_eq(_drops().size(), 2)
+	assert_eq(queue.pending.size(), 2)
+	assert_false(queue.retry_queued)
+
+
+## Night cancels an already-queued retry, then a new eligible stage places its own captured record.
+func test_manual_flush_revalidates_calendar_before_placement() -> void:
+	var queue: C_LootDrops = _pending_retry()
+	var session: Entity = _world.query.with_all([C_DayCycle]).execute_one()
+	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+	_loot_owner().command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.process(1.0, "GamePlay")
+	cycle.phase = C_DayCycle.Phase.NIGHT
+	_world.flush_command_buffers()
+	assert_eq(_drops().size(), 1)
+	assert_eq(queue.pending.size(), 3)
+	assert_false(queue.retry_queued)
+
+	cycle.phase = C_DayCycle.Phase.EVENING
+	_world.process(1.0, "GamePlay")
+	_world.flush_command_buffers()
+	assert_eq(_drops().size(), 2)
+
+
+## A same-morning current-format restore invalidates the ticket even when authored Component identity is retained.
+func test_manual_flush_discards_retry_after_current_format_restore() -> void:
+	var previous: C_LootDrops = _pending_retry()
+	# Persistent snapshots reference authored policies, rather than the transient one-item budget fixture.
+	previous.placement = load("res://content/definitions/gameplay/def_item_placement_default.tres") as DEF_ItemPlacement
+	DayPhaseService.current().phase = C_DayCycle.Phase.MORNING
+	_loot_owner().command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.process(1.0, "GamePlay")
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, DayPhaseService.current().day_index)
+	assert_true(WorldSnapshotService.valid(snapshot, _root))
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	var restored: C_LootDrops = LootDropService.current()
+	assert_eq(restored, previous, "Authored Components retain identity across restore")
+	assert_false(restored.retry_queued)
+	assert_eq(restored.retry_remaining, 0.0)
+	_world.flush_command_buffers()
+	assert_eq(_drops().size(), 1)
+	assert_eq(restored.pending.size(), 3)
+	assert_false(restored.retry_queued)
+
+	_world.process(1.0, "GamePlay")
+	_world.flush_command_buffers()
+	assert_eq(_drops().size(), 4)
+	assert_true(restored.pending.is_empty())
+
+
+## Removing a captured manifest entry before flush cannot resurrect that canceled drop.
+func test_manual_flush_skips_canceled_record() -> void:
+	var queue: C_LootDrops = _pending_retry()
+	_loot_owner().command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.process(1.0, "GamePlay")
+	var canceled: PendingLootDrop = queue.pending[0]
+	queue.pending.erase(canceled)
+	_world.flush_command_buffers()
+	assert_eq(_drops().size(), 1)
+	assert_eq(queue.pending.size(), 2)
+	assert_false(_world.entity_id_registry.has(canceled.drop_id))
 #endregion

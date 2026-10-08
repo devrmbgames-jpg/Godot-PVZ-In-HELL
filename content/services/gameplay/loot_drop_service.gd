@@ -97,25 +97,17 @@ static func _single_item(item: Entity, require_inventory: bool) -> bool:
 	return not require_inventory
 #endregion
 
-#region Ограниченные повторы и регистрация
-## Обрабатывает ограниченную часть остатка по кругу; не сканирует завершённые партии или уровень.
-static func retry(session: Entity, queue: C_LootDrops) -> void:
-	if not EntityAvailability.contains(session, ECS.world) or queue.placement == null:
-		return
+#region Explicit recorded placement and registration
+## Attempts one recorded placement and returns only the actual registered item; no retry clock or traversal.
+static func place_pending(queue: C_LootDrops, record: PendingLootDrop) -> Entity:
+	var item: Entity = _instantiate(record)
+	if item == null:
+		return null
+	if not _place(queue, record, item):
+		item.free()
+		return null
+	return item
 
-	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
-	if cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:
-		return
-
-	queue.retry_remaining = queue.placement.retry_seconds
-	var attempts: int = mini(queue.pending.size(), queue.placement.retry_budget)
-	for index: int in attempts:
-		var record: PendingLootDrop = queue.pending.pop_front() as PendingLootDrop
-		var item: Entity = _instantiate(record)
-		if item == null or not _place(queue, record, item):
-			if item != null:
-				item.free()
-			queue.pending.append(record)
 
 static func _instantiate(record: PendingLootDrop) -> Entity:
 	var scene: PackedScene = load(record.scene_path) as PackedScene

@@ -167,6 +167,7 @@ static func deliver_one(
 
 ## Сбрасывает временные повторы и резервы после восстановления снимка; состав партии сохраняется.
 static func reset_context(receiving: C_Receiving) -> void:
+	receiving.context_revision += 1
 	receiving.blocked = false
 	receiving.retry_remaining = 0.0
 	receiving.last_spawn_tick = -1

@@ -16,6 +16,9 @@ func query() -> QueryBuilder:
 
 ## Утром уменьшает паузу повторов в секундах и откладывает доставку через CommandBuffer.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
+	if not is_finite(delta) or delta < 0.0:
+		return
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	if cycle == null:
 		return
@@ -26,16 +29,35 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		var receiving: C_Receiving = states[index]
 		if cycle.phase != C_DayCycle.Phase.MORNING:
 			if zone != null and zone.get_truck() != null and not zone.get_truck().is_departing():
-				cmd.add_custom(ReceivingShiftService.request_departure.bind(zone))
+				cmd.add_custom(_depart.bind(zone, receiving, cycle, cycle.day_index, cycle.phase, receiving.context_revision))
 			continue
 		receiving.retry_remaining = maxf(0.0, receiving.retry_remaining - delta)
 		if receiving.retry_remaining > 0.0 or zone == null:
 			continue
 
-		cmd.add_custom(ReceivingDeliveryService.deliver_one.bind(
-			zone,
-			receiving,
-			cycle.day_index,
-		))
+		cmd.add_custom(_deliver.bind(zone, receiving, cycle, cycle.day_index, receiving.last_started_day, receiving.batch_id, receiving.context_revision))
 
+#endregion
+
+#region Captured receiving commits
+func _deliver(zone: E_ReceivingZone, receiving: C_Receiving, cycle: C_DayCycle, day: int, started_day: int, batch_id: String, revision: int) -> void:
+	if not _matches(zone, receiving, cycle, day, C_DayCycle.Phase.MORNING):
+		return
+	if receiving.last_started_day != started_day or receiving.batch_id != batch_id or receiving.context_revision != revision:
+		return
+	ReceivingDeliveryService.deliver_one(zone, receiving, day)
+
+
+func _depart(zone: E_ReceivingZone, receiving: C_Receiving, cycle: C_DayCycle, day: int, phase: C_DayCycle.Phase, revision: int) -> void:
+	if receiving.context_revision != revision:
+		return
+	if _matches(zone, receiving, cycle, day, phase):
+		ReceivingShiftService.request_departure(zone)
+
+
+func _matches(zone: E_ReceivingZone, receiving: C_Receiving, cycle: C_DayCycle, day: int, phase: C_DayCycle.Phase) -> bool:
+	return (
+		EntityAvailability.contains(zone, _world) and zone.get_component(C_Receiving) == receiving
+		and DayPhaseService.current() == cycle and cycle.day_index == day and cycle.phase == phase
+	)
 #endregion

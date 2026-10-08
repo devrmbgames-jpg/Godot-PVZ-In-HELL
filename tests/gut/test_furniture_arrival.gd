@@ -16,10 +16,11 @@ func _paid(operation_id: StringName = &"arrival") -> PendingDelivery:
 	assert_eq(CommerceService.home_delivery(_actor, _trader, _shelf, 1, operation_id), CommerceService.Status.COMMITTED)
 	return _commerce.pending_deliveries.back()
 
-func _receiving_system() -> void:
+func _receiving_system() -> S_OrderDelivery:
 	var system: S_OrderDelivery = S_OrderDelivery.new()
 	system.group = "TestArrival"
 	_world.add_system(system, true)
+	return system
 #endregion
 
 #region Авторский маркер и физическое исполнение
@@ -198,4 +199,86 @@ func test_full_snapshot_restores_blocked_order_then_issued_item_without_duplicat
 	assert_eq(_wallet.operations.size(), 1)
 	_world.remove_entity(_goods(key))
 	assert_false(OrderDeliveryService.fulfill_one(zone, state, _commerce, 3), "Fulfilled orders do not resurrect removed furniture")
+#endregion
+
+#region Deferred paid-order lifetime
+## An already paid order stays pending if its queued morning placement crosses a phase change.
+func test_order_manual_flush_revalidates_calendar_without_repayment() -> void:
+	var order: PendingDelivery = _paid()
+	var zone: Entity = _home()
+	_area(zone)
+	var owner: S_OrderDelivery = _receiving_system()
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_cycle.day_index = 2
+	_cycle.phase = C_DayCycle.Phase.MORNING
+	_world.process(0.01, "TestArrival")
+	_cycle.phase = C_DayCycle.Phase.DAY
+	_world.flush_command_buffers()
+	assert_false(order.fulfilled)
+	assert_null(_goods(OrderDeliveryService.key_for(order)))
+	assert_eq(_wallet.balance, 720)
+
+	_cycle.phase = C_DayCycle.Phase.MORNING
+	_world.process(1.0, "TestArrival")
+	_world.flush_command_buffers()
+	assert_true(order.fulfilled)
+	assert_eq(_wallet.operations.size(), 1)
+
+
+## A replaced receiving Component cannot be fulfilled through its pre-load queued command.
+func test_order_manual_flush_rejects_replaced_receiving_component() -> void:
+	var order: PendingDelivery = _paid()
+	var zone: Entity = _home()
+	_area(zone)
+	var original: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
+	var owner: S_OrderDelivery = _receiving_system()
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_cycle.day_index = 2
+	_cycle.phase = C_DayCycle.Phase.MORNING
+	_world.process(0.01, "TestArrival")
+
+	zone.remove_component(C_OrderReceiving)
+	var replacement: C_OrderReceiving = C_OrderReceiving.new()
+	replacement.furniture_anchor_path = original.furniture_anchor_path
+	replacement.furniture_placement = original.furniture_placement
+	zone.add_component(replacement)
+	_world.flush_command_buffers()
+	assert_false(order.fulfilled)
+	assert_null(_goods(OrderDeliveryService.key_for(order)))
+
+	_world.process(0.01, "TestArrival")
+	_world.flush_command_buffers()
+	assert_true(order.fulfilled)
+	assert_eq(_wallet.operations.size(), 1)
+#endregion
+
+#region Same-morning paid-order restore
+## Restore invalidates a queued fulfillment even when the authored receiving/calendar/commerce Components survive.
+func test_order_manual_flush_discards_same_morning_preload_ticket() -> void:
+	var order: PendingDelivery = _paid()
+	var delivery_key: String = OrderDeliveryService.key_for(order)
+	var zone: Entity = _home()
+	zone.name = "Receiving"
+	zone.owner = _root
+	_area(zone)
+	var state: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
+	var owner: S_OrderDelivery = _receiving_system()
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_cycle.day_index = 2
+	_cycle.phase = C_DayCycle.Phase.MORNING
+	_world.process(0.01, "TestArrival")
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(zone.get_component(C_OrderReceiving), state)
+	assert_false(state.delivery_queued)
+	_world.flush_command_buffers()
+	assert_false(_commerce.pending_deliveries[0].fulfilled)
+	assert_null(_goods(delivery_key))
+	assert_eq(state.retry_remaining, 0.0)
+
+	_world.process(0.01, "TestArrival")
+	_world.flush_command_buffers()
+	assert_true(_commerce.pending_deliveries[0].fulfilled)
+	assert_not_null(_goods(delivery_key))
+	assert_eq(_wallet.operations.size(), 1)
 #endregion

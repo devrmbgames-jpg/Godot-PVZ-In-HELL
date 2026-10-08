@@ -125,10 +125,19 @@ func test_partial_exit_and_rotated_cargo_use_full_body_bounds() -> void:
 	_parking.rotation.y = PI / 3.0
 	var truck: E_MorningTruck = await _complete_and_unload()
 	var body: RigidBody3D = _parcels()[0] as Node as RigidBody3D
-	body.global_transform = truck.cargo_area.global_transform * Transform3D(Basis.IDENTITY, Vector3(0.9, 0.3, 0.3))
+	var cargo_shape: CollisionShape3D = _cargo_shape(truck)
+	var volume: AABB = cargo_shape.shape.get_debug_mesh().get_aabb()
+	var solver: ItemPlacementSolver = ItemPlacementSolver.new()
+	assert_true(solver.prepare(body))
+	var local_bounds: AABB = solver.bounds_at(Transform3D.IDENTITY)
+	var partial_exit: Vector3 = Vector3(volume.end.x + local_bounds.size.x * 0.25, 0.0, 0.0)
+	body.global_transform = cargo_shape.global_transform * Transform3D(Basis.IDENTITY, partial_exit)
+	assert_gt(partial_exit.x, volume.end.x, "The body origin is already outside the authored cargo volume")
 	assert_eq(ReceivingShiftService.status(_cycle).inside, 1)
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.START_SHIFT))
-	body.global_position = truck.cargo_area.global_transform * Vector3(1.6, 0.3, 0.3)
+
+	var complete_exit: Vector3 = Vector3(volume.end.x - local_bounds.position.x + truck.placement.clearance, 0.0, 0.0)
+	body.global_position = cargo_shape.global_transform * complete_exit
 	assert_eq(ReceivingShiftService.status(_cycle).inside, 0)
 	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.START_SHIFT))
 

@@ -330,6 +330,8 @@ static func restore(data: Dictionary, root: Node) -> bool:
 				(target as C_Package).condition_initialized = true
 			if target is C_LootDrops:
 				var queue: C_LootDrops = target as C_LootDrops
+				queue.retry_revision += 1
+				queue.retry_queued = false
 				queue.retry_remaining = 0.0
 				queue.reservations.clear()
 				queue.reservation_frame = -1

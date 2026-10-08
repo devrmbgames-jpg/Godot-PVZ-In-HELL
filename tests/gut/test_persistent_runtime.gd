@@ -417,3 +417,78 @@ func test_loading_unfixed_snapshot_clears_old_anchor_and_restores_body_policy() 
 	assert_false(body.can_sleep)
 
 #endregion
+
+#region Deferred hazard scheduling
+## Renewal before flush invalidates an old expiry; the next due expiry retires the live aggregate.
+func test_hazard_manual_flush_revalidates_renewed_lifetime() -> void:
+	var effect: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var lifetime: C_HazardLifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime
+	lifetime.remaining_seconds = 0.1
+	var owner: S_HazardLifetime = S_HazardLifetime.new()
+	owner.group = "HazardFixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(owner)
+	_world.process(0.2, owner.group)
+	lifetime.remaining_seconds = 20.0
+	_world.flush_command_buffers()
+	assert_true(EntityAvailability.contains(effect, _world))
+	assert_false(effect.is_queued_for_deletion())
+
+	_world.process(20.0, owner.group)
+	_world.flush_command_buffers()
+	assert_false(_world.entity_to_archetype.has(effect))
+	assert_true(effect.is_queued_for_deletion())
+
+
+## Restored/replaced lifetime state survives an expiry command captured for the old Component.
+func test_hazard_manual_flush_rejects_replaced_lifetime() -> void:
+	var effect: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var previous: C_HazardLifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime
+	previous.remaining_seconds = 0.1
+	var owner: S_HazardLifetime = S_HazardLifetime.new()
+	owner.group = "HazardFixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(owner)
+	_world.process(0.2, owner.group)
+
+	effect.remove_component(C_HazardLifetime)
+	var replacement: C_HazardLifetime = C_HazardLifetime.new()
+	replacement.remaining_seconds = 20.0
+	effect.add_component(replacement)
+	_world.flush_command_buffers()
+	assert_true(EntityAvailability.contains(effect, _world))
+	assert_eq(replacement.remaining_seconds, 20.0)
+
+
+## Disabled effects participate in cleanup even though the active EntityAvailability predicate excludes them.
+func test_hazard_lifetime_owner_retires_disabled_effect() -> void:
+	var effect: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	_world.disable_entity(effect)
+	var owner: S_HazardLifetime = S_HazardLifetime.new()
+	owner.group = "HazardFixture"
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+	assert_false(_world.entity_to_archetype.has(effect))
+	assert_true(effect.is_queued_for_deletion())
+
+
+## A lost-owner sample cannot despawn an effect whose live follow binding was replaced before flush.
+func test_hazard_follow_manual_flush_preserves_rebound_effect() -> void:
+	var original_owner: Entity = _valve()
+	var replacement_owner: Entity = _valve()
+	var effect: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var follow: R_HazardFollow = R_HazardFollow.new()
+	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
+	HazardFollowService.replace(effect, original_owner, follow)
+	_world.disable_entity(original_owner)
+	var owner: S_HazardFollow = S_HazardFollow.new()
+	owner.group = "HazardFixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+
+	HazardFollowService.replace(effect, replacement_owner, follow.duplicate() as R_HazardFollow)
+	_world.flush_command_buffers()
+	assert_true(EntityAvailability.contains(effect, _world))
+	assert_eq(HazardFollowService.binding(effect).target, replacement_owner)
+#endregion

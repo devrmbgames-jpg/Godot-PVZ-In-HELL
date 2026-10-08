@@ -34,7 +34,7 @@ CharacterBody/RigidBody physics профильные tests + parser. Rendered fe
 
 ## Current / Next
 
-DONE 2026-10-08. Далее задача 23 — Package lifecycle/damage.
+DONE 2026-10-08. Далее задача 23 — Hazards, receiving, loot и delivery runtime.
 
 - `MotionRules` owns shared pure effective-speed/material-traction calculations. Removed `CharacterMotionSolver.effective_speed`; all Systems, route solver, native adapters, tests and smoke callers migrated without facade.
 - Native RigidBody callback and independent motion/look/impact/driver/push contributions preserved. No callback work moved into a System.

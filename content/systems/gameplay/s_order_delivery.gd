@@ -16,6 +16,9 @@ func query() -> QueryBuilder:
 
 ## Только утром ставит исполнение готового заказа каждой зоны в CommandBuffer.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
+	if not is_finite(delta) or delta < 0.0:
+		return
+
 	var cycle: C_DayCycle = DayPhaseService.current()
 	var commerce: C_Commerce = CommerceService.current()
 	if cycle == null or commerce == null or cycle.phase != C_DayCycle.Phase.MORNING:
@@ -28,13 +31,34 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			state.attempt_day = cycle.day_index
 			state.retry_remaining = 0.0
 			state.exhausted = false
-		if state.exhausted:
+		if state.exhausted or state.delivery_queued:
 			continue
 
 		state.retry_remaining = maxf(0.0, state.retry_remaining - delta)
 		if state.retry_remaining > 0.0:
 			continue
 		state.retry_remaining = state.retry_seconds
-		cmd.add_custom(OrderDeliveryService.fulfill_one.bind(entities[index], state, commerce, cycle.day_index))
+		state.delivery_queued = true
+		state.delivery_revision += 1
+		cmd.add_custom(_fulfill.bind(entities[index], state, commerce, cycle, cycle.day_index, state.delivery_revision))
 
+#endregion
+
+#region Captured delivery commit
+func _fulfill(zone: Entity, state: C_OrderReceiving, commerce: C_Commerce, cycle: C_DayCycle, day: int, revision: int) -> void:
+	if state.delivery_revision != revision:
+		return
+	_fulfill_current(zone, state, commerce, cycle, day)
+	if state.delivery_revision == revision:
+		state.delivery_queued = false
+
+
+func _fulfill_current(zone: Entity, state: C_OrderReceiving, commerce: C_Commerce, cycle: C_DayCycle, day: int) -> void:
+	if not EntityAvailability.contains(zone, _world) or zone.get_component(C_OrderReceiving) != state:
+		return
+	if CommerceService.current() != commerce or DayPhaseService.current() != cycle:
+		return
+	if cycle.phase != C_DayCycle.Phase.MORNING or cycle.day_index != day:
+		return
+	OrderDeliveryService.fulfill_one(zone, state, commerce, day)
 #endregion

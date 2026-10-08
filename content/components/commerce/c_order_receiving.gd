@@ -34,3 +34,9 @@ var goods: Dictionary[String, WeakRef] = {}
 var reservations: Array[AABB] = []
 ## Физический кадр текущего набора резервов.
 var reservation_frame: int = -1
+
+## One scheduled fulfillment is queued for this live aggregate; never persisted.
+var delivery_queued: bool = false
+
+## Transient fulfillment ticket revision; explicit restore invalidates outstanding requests.
+var delivery_revision: int = 0

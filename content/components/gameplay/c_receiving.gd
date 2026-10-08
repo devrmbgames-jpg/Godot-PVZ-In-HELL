@@ -24,3 +24,6 @@ var blocked: bool = false
 var retry_remaining: float = 0.0
 ## Номер последнего физического кадра создания; запрещает две коробки в одном кадре.
 var last_spawn_tick: int = -1
+
+## Transient delivery context revision; explicit restore invalidates pre-load requests.
+var context_revision: int = 0

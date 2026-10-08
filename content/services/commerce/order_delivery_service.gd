@@ -172,6 +172,8 @@ static func _furniture(zone: Entity, state: C_OrderReceiving, delivery: PendingD
 #region Производный контекст выдачи
 ## Сбрасывает таймеры, резервы и слабые ссылки после восстановления World; заказы не меняет.
 static func reset_context(state: C_OrderReceiving) -> void:
+	state.delivery_revision += 1
+	state.delivery_queued = false
 	state.retry_remaining = 0.0
 	state.attempt_day = 0
 	state.exhausted = false
