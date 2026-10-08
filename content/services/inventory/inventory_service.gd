@@ -291,7 +291,7 @@ static func _finish_use(owner: Entity, item: Entity, applied: bool) -> void:
 
 
 static func _owner_available(owner: Entity) -> bool:
-	if not GrabService.holder_available(owner) or owner.has_component(C_Death):
+	if not GrabQueries.holder_available(owner) or owner.has_component(C_Death):
 		return false
 
 	var inventory: C_Inventory = owner.get_component(C_Inventory) as C_Inventory

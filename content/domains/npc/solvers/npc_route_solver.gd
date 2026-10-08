@@ -162,7 +162,7 @@ static func _risk_budget(actor: Entity, person: NpcRecord) -> float:
 	if awareness != null and awareness.hazard_distress:
 		return health.current
 
-	var budget: float = health.current - health.value * person.profile.pursuit_health_reserve if CombatService.target_for(actor) != null else health.value * district.definition.ordinary_route_risk
+	var budget: float = health.current - health.value * person.profile.pursuit_health_reserve if CombatQueries.target_for(actor) != null else health.value * district.definition.ordinary_route_risk
 	return maxf(0.0, budget)
 
 static func _speed(actor: Entity) -> float:

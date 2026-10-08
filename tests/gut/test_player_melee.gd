@@ -57,7 +57,7 @@ func before_each() -> void:
 	(_player as Node).add_child(anchor)
 	(_player as E_RigidBodyCharacter).right_hand_slot = anchor
 	_target = _character(Vector3(0, 0, -1.3))
-	_weapon = (load("res://content/entities/tools/utility_blade.tscn") as PackedScene).instantiate() as Entity
+	_weapon = (load("res://content/domains/combat/entities/utility_blade.tscn") as PackedScene).instantiate() as Entity
 	_world.add_entity(_weapon)
 	(_weapon as Node as RigidBody3D).gravity_scale = 0.0
 	(_weapon as Node as Node3D).global_position = anchor.global_position
@@ -70,7 +70,7 @@ func before_each() -> void:
 	var weapon_state: C_MeleeWeapon = _weapon.get_component(C_MeleeWeapon) as C_MeleeWeapon
 	assert_not_null(weapon_state)
 	assert_not_null(weapon_state.attack)
-	assert_not_null(GrabService.held_relationship(_weapon))
+	assert_not_null(GrabQueries.held_relationship(_weapon))
 
 
 ## Удаляет World и очищает ссылки оружия и участников.
@@ -87,7 +87,7 @@ func after_each() -> void:
 func _character(position: Vector3) -> Entity:
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
-	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	var entity: E_RigidBodyCharacter = body as Node as E_RigidBodyCharacter
 	var health: C_Health = C_Health.new()
 	health.current = 100.0
@@ -180,7 +180,7 @@ func test_one_primary_click_throws_or_attacks_and_keeps_raw_input() -> void:
 	controller.action_main_pressed = true
 	controller.physical_override = true
 	InteractionInputFixture.advance(_player)
-	assert_null(GrabService.held_relationship(_weapon))
+	assert_null(GrabQueries.held_relationship(_weapon))
 	assert_eq((_player.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.READY)
 	assert_true(controller.action_main_pressed)
 	assert_true(controller.physical_override)
@@ -191,7 +191,7 @@ func test_one_primary_click_throws_or_attacks_and_keeps_raw_input() -> void:
 	controller.input_tick += 1
 	controller.physical_override = false
 	InteractionInputFixture.advance(_player)
-	assert_not_null(GrabService.held_relationship(_weapon))
+	assert_not_null(GrabQueries.held_relationship(_weapon))
 	assert_eq((_player.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.WINDUP)
 	assert_true(controller.action_main_pressed)
 
@@ -199,7 +199,7 @@ func test_one_primary_click_throws_or_attacks_and_keeps_raw_input() -> void:
 ## Отпускание оружия отменяет ожидающий удар.
 func test_dropped_weapon_cancels_pending_hit() -> void:
 	assert_true(CombatService.start_strike(_player, _weapon))
-	GrabService.release(_player, _weapon)
+	GrabReleaseService.release(_player, _weapon)
 	CombatFixture.melee(_player, 0.3)
 	assert_eq((_target.get_component(C_Health) as C_Health).current, 100.0)
 	assert_eq((_player.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.READY)
@@ -219,7 +219,7 @@ func test_knife_animation_stabs_forward_on_strike_clock_and_resets_on_drop() -> 
 	assert_eq(body.global_transform, physical_pose, "Animation leaves native rigid transform alone")
 	CombatFixture.melee(_player, 0.1)
 	assert_eq((_target.get_component(C_Health) as C_Health).current, 60.0, "Pose updates do not duplicate damage")
-	GrabService.release(_player, _weapon)
+	GrabReleaseService.release(_player, _weapon)
 	CombatFixture.melee(_player, 0.1)
 	assert_false(animation.is_playing())
 	assert_eq(blade.position, baseline, "Cancellation restores authored mesh pose")
@@ -227,8 +227,8 @@ func test_knife_animation_stabs_forward_on_strike_clock_and_resets_on_drop() -> 
 
 ## Молоток атакует NPC, сохраняя более высокий приоритет доступного крепления.
 func test_hammer_can_attack_with_overhead_swing_and_preserves_anchoring_action() -> void:
-	GrabService.release(_player, _weapon)
-	_weapon = (load("res://content/entities/tools/hammer.tscn") as PackedScene).instantiate() as Entity
+	GrabReleaseService.release(_player, _weapon)
+	_weapon = (load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate() as Entity
 	_world.add_entity(_weapon)
 	(_weapon as Node as RigidBody3D).gravity_scale = 0.0
 	(_weapon as Node as Node3D).global_position = (_player as E_PhysicalCharacter).right_hand_slot.global_position
@@ -289,7 +289,7 @@ func test_scenery_count_does_not_hide_melee_target() -> void:
 ## Общая защита контакта не наносит владельцу урон его собственным удерживаемым предметом.
 func test_existing_r08_impact_guard_prevents_own_held_object_damage() -> void:
 	var receiver: C_ImpactReceiver = C_ImpactReceiver.new()
-	receiver.profile = load("res://content/definitions/gameplay/def_impact_living.tres") as DEF_ImpactProfile
+	receiver.profile = load("res://content/domains/combat/definitions/def_impact_living.tres") as DEF_ImpactProfile
 	_player.add_component(receiver)
 	_world.add_system(S_Impact.new())
 	var contact: PhysicsContact = PhysicsContact.new()
@@ -301,6 +301,6 @@ func test_existing_r08_impact_guard_prevents_own_held_object_damage() -> void:
 	(_weapon.get_component(C_ImpactInbox) as C_ImpactInbox).contacts.append(contact)
 	_world.process(1.0 / 60.0)
 	assert_eq((_player.get_component(C_Health) as C_Health).current, 100.0)
-	assert_not_null(GrabService.held_relationship(_weapon))
+	assert_not_null(GrabQueries.held_relationship(_weapon))
 
 #endregion

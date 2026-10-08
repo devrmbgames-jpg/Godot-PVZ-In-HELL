@@ -86,7 +86,7 @@ func test_food_commands_obey_bounds_capacity_and_normal_consumption() -> void:
 
 ## Предпросмотр прогресса меняет колесо и сигнал без выполнения эффекта действия.
 func test_progress_command_updates_real_rotation_and_signal_without_activation() -> void:
-	var valve: E_InteractionTestValve = (load("res://content/entities/props/interaction_test_valve.tscn") as PackedScene).instantiate() as E_InteractionTestValve
+	var valve: E_InteractionTestValve = (load("res://content/domains/interaction/entities/interaction_test_valve.tscn") as PackedScene).instantiate() as E_InteractionTestValve
 	valve.mode = E_InteractionTestValve.Mode.HOLD_NEVER
 	_world.add_entity(valve)
 	var basis: Basis = (valve.get_node("Wheel") as Node3D).basis
@@ -196,7 +196,7 @@ func test_invalid_npc_request_does_not_reset_cooldown_or_opponent() -> void:
 	var opponent: Entity = Entity.new()
 	_world.add_entity(opponent)
 	assert_true(_run("npc_attack", ["entity:" + npc.id, "melee", "0", "entity:" + opponent.id]).contains("ERROR npc_attack"))
-	assert_same(CombatService.target_for(npc), _actor)
+	assert_same(CombatQueries.target_for(npc), _actor)
 	assert_eq(state.cooldown_remaining, 5.0)
 	assert_true(_run("npc_info", ["entity:" + npc.id]).contains("cooldown=5.00s"))
 

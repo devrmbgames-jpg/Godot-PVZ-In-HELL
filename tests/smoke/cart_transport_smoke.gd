@@ -22,7 +22,7 @@ func _physics_process(delta: float) -> void:
 	InteractionInputFixture.advance(_actor)
 	ECS.world.process(delta, "cart_fixture_cargo")
 	for cargo: Entity in _cargo:
-		var binding: Relationship = CartCargoService.relationship(cargo)
+		var binding: Relationship = CartCargoQueries.relationship(cargo)
 		var data: R_CartCargo = binding.relation as R_CartCargo if binding != null else null
 		if data != null and binding.target == _cart:
 			var desired: Transform3D = (_cart as Node as Node3D).global_transform * data.local_pose
@@ -42,14 +42,14 @@ func _run() -> void:
 	world.add_observer(O_GrabLifecycle.new())
 	world.add_observer(O_CartLifecycle.new())
 	_obstacle(Vector3(0, -0.5, 0), Vector3(40, 1, 40))
-	var scene: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
+	var scene: PackedScene = load("res://content/domains/interaction/entities/push_cart.tscn") as PackedScene
 	var cart_body: CharacterBody3D = scene.instantiate() as CharacterBody3D
 	cart_body.position = Vector3(0, 0.8, 0)
 	_cart = cart_body as Node as Entity
 	world.add_entity(_cart)
 
 	var actor_scene: PackedScene = load(
-		"res://content/entities/characters/e_rigid_body_character.tscn"
+		"res://content/domains/motion/entities/e_rigid_body_character.tscn"
 	) as PackedScene
 	var actor_body: RigidBody3D = actor_scene.instantiate() as RigidBody3D
 	actor_body.position = Vector3(0, 0.05, 1.6)
@@ -64,7 +64,7 @@ func _run() -> void:
 	var rest_height: float = cart_body.position.y
 	var load_ready: bool = await _load_cargo(cart_body)
 	assert(load_ready)
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	ray.look_at(cart_body.global_position)
 	CartTransportService.begin(_actor, _cart)
 	assert(
@@ -136,9 +136,9 @@ func _run() -> void:
 	var target: Entity = _cargo[1]
 	ray.look_at((target as Node as Node3D).global_position + Vector3.UP * 0.2)
 	assert(GrabService.try_pickup(_actor, target, C_Grabbable.HoldSlot.CARRY))
-	assert(CartCargoService.relationship(target) == null, "Picking up cargo must release the restraint")
+	assert(CartCargoQueries.relationship(target) == null, "Picking up cargo must release the restraint")
 	assert(not (target as Node as RigidBody3D).custom_integrator)
-	GrabService.release(_actor, target)
+	GrabReleaseService.release(_actor, target)
 
 	var terrain_passed: bool = await _terrain_checks(cart_body, actor_body, rest_height)
 	assert(terrain_passed)
@@ -147,7 +147,7 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	for cargo: Entity in saved_cargo:
-		assert(CartCargoService.relationship(cargo) == null, "Disabling transport must restore free cargo")
+		assert(CartCargoQueries.relationship(cargo) == null, "Disabling transport must restore free cargo")
 		assert(not (cargo as Node as RigidBody3D).custom_integrator)
 
 	set_physics_process(false)
@@ -253,7 +253,7 @@ func _place(cart_body: CharacterBody3D, actor_body: RigidBody3D, location: Vecto
 	for tick: int in 30:
 		await get_tree().physics_frame
 
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	ray.look_at(cart_body.global_position)
 	CartTransportService.begin(_actor, _cart)
 	assert(CartTransportService.current(_actor) == _cart)

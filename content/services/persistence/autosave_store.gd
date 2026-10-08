@@ -5,7 +5,7 @@ class_name AutosaveStore
 const DEFAULT_PATH: String = "user://autosave.pvzh"
 const MAGIC: String = "PVZH1"
 ## Версия закрытой схемы; прежний формат отклоняется без миграции и удаления.
-const SCHEMA_VERSION: int = 5
+const SCHEMA_VERSION: int = 6
 ## Максимальный размер сериализованной нагрузки в байтах.
 const MAX_BYTES: int = 64 * 1024 * 1024
 

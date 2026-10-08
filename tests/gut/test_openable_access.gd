@@ -119,12 +119,12 @@ func test_consumption_is_opt_in_and_removes_only_matching_item() -> void:
 	var left: Entity = _key()
 	var right: Entity = _key(C_Grabbable.HoldSlot.RIGHT_HAND)
 	assert_true(OpenableService.request(_actor, _target, OpenableService.Operation.UNLOCK))
-	assert_true(GrabService.entity_available(left))
+	assert_true(GrabQueries.entity_available(left))
 	_state.locked = true
 	_requirement.consume_item = true
 	assert_true(OpenableService.request(_actor, _target, OpenableService.Operation.UNLOCK))
-	assert_false(GrabService.entity_available(left))
-	assert_true(GrabService.entity_available(right))
+	assert_false(GrabQueries.entity_available(left))
+	assert_true(GrabQueries.entity_available(right))
 
 
 ## Пустое требование с расходованием отклоняется, не забирая произвольный предмет.
@@ -146,8 +146,8 @@ func test_provider_refusal_keeps_lock_and_item_unchanged() -> void:
 	assert_true(OpenableService.can_request(_actor, _target, OpenableService.Operation.UNLOCK))
 	assert_false(OpenableService.request(_actor, _target, OpenableService.Operation.UNLOCK))
 	assert_true(_state.locked)
-	assert_true(GrabService.entity_available(item))
-	assert_not_null(GrabService.held_relationship(item))
+	assert_true(GrabQueries.entity_available(item))
+	assert_not_null(GrabQueries.held_relationship(item))
 
 
 #endregion

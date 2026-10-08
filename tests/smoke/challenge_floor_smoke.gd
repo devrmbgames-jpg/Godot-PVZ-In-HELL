@@ -49,11 +49,11 @@ func _physical_support() -> void:
 	floor_body.position.y = -0.1
 	_world.add_child(floor_body)
 
-	var box: RigidBody3D = (load("res://content/entities/props/box.tscn") as PackedScene).instantiate() as RigidBody3D
+	var box: RigidBody3D = (load("res://content/domains/interaction/entities/box.tscn") as PackedScene).instantiate() as RigidBody3D
 	box.position.x = 1.5
 	_world.add_entity(box as Node as Entity)
 	var body: RigidBody3D = RigidBody3D.new()
-	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	body.collision_layer = 4
 	body.collision_mask = 31
 	body.contact_monitor = true

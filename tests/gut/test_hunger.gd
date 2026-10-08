@@ -149,7 +149,7 @@ func test_food_reverses_attack_multiplier_and_authored_attack_is_unchanged() -> 
 	_world.add_entity(target)
 	health = target.get_component(C_Health) as C_Health
 
-	var attack: DEF_MeleeAttack = load("res://content/definitions/gameplay/combat/def_blade_attack.tres") as DEF_MeleeAttack
+	var attack: DEF_MeleeAttack = load("res://content/domains/combat/definitions/def_blade_attack.tres") as DEF_MeleeAttack
 	_state.value = 75.0
 	assert_eq(attack.damage * HungerRules.damage_multiplier(_state), 60.0)
 	assert_true(CombatService.hit(_actor, _actor, target, attack.damage))

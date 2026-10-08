@@ -37,12 +37,12 @@ static func reset() -> void:
 		if pushed != null:
 			PushService.end(entity, pushed)
 		if entity.has_component(C_Marker):
-			MarkerSessionService.end(entity)
+			MarkerSessionCleanup.end(entity)
 		if entity.has_component(C_GrabControl):
 			for slot: int in 3:
-				var item: Entity = GrabService.held_in_slot(entity, slot)
+				var item: Entity = GrabQueries.held_in_slot(entity, slot)
 				if item != null:
-					GrabService.release(entity, item, false)
+					GrabReleaseService.release(entity, item, false)
 			var control: C_GrabControl = entity.get_component(C_GrabControl) as C_GrabControl
 			control.captures.clear()
 			control.rotation_active = false

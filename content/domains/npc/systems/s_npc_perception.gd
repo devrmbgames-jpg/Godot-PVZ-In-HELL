@@ -45,7 +45,7 @@ func _sense(actor: E_DistrictNpc, person: NpcRecord, player: Entity, delta: floa
 	awareness.player_visible = player != null and NpcPerceptionService.can_see(actor, player, person.profile)
 	if not awareness.player_visible and NpcDialogueService.participant(actor) == null:
 		NpcIntentService.look_along_movement(actor)
-	var opponent: Entity = CombatService.target_for(actor)
+	var opponent: Entity = CombatQueries.target_for(actor)
 	awareness.target_visible = opponent != null and NpcPerceptionService.can_see(actor, opponent, person.profile)
 	if awareness.target_visible:
 		awareness.last_seen_position = (opponent as Node as Node3D).global_position

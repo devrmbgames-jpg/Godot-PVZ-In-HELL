@@ -70,7 +70,7 @@ func after_each() -> void:
 
 func _expect_held() -> void:
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
-	assert_eq(GrabService.held_object(_actor), _parcel)
+	assert_eq(GrabQueries.held_object(_actor), _parcel)
 
 
 #endregion
@@ -83,7 +83,7 @@ func test_waiting_customer_takes_correct_carry_once_without_button_or_greeting_d
 	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, 0.0)
 	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.RECEIVING)
-	assert_null(GrabService.held_object(_actor))
+	assert_null(GrabQueries.held_object(_actor))
 	assert_false(EntityAvailability.contains(_parcel, _world))
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	assert_false(_agent.dialogue_started)
@@ -185,7 +185,7 @@ func test_disabled_automatic_mode_keeps_manual_handoff_and_refusal_policy() -> v
 	_expect_held()
 	assert_eq(CustomerFlowService.confirm_direct_delivery(_actor, _customer), PackageDeliveryCheck.Result.READY)
 	assert_eq(_visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
-	assert_null(GrabService.held_object(_actor))
+	assert_null(GrabQueries.held_object(_actor))
 	assert_true(EntityAvailability.contains(_parcel, _world))
 
 
@@ -199,7 +199,7 @@ func test_automatic_receive_borrows_to_booth_without_finishing_delivery() -> voi
 	assert_true(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.GOING_TO_BOOTH)
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
-	assert_null(GrabService.held_object(_actor))
+	assert_null(GrabQueries.held_object(_actor))
 	assert_eq(CustomerInspectionQueries.owner_for(_parcel), _customer)
 	assert_true((_parcel as Node as RigidBody3D).freeze)
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))

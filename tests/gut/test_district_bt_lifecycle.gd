@@ -143,7 +143,7 @@ func test_lost_target_search_uses_last_contact_and_finishes() -> void:
 	assert_eq((body.get_component(C_NpcIntent) as C_NpcIntent).move_position, awareness.last_seen_position)
 	awareness.search_elapsed = _district.people[0].profile.search_seconds
 	assert_true(_run_branch(body, C_NpcDecision.Owner.COMBAT, 0.2))
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 	assert_false(awareness.has_last_seen)
 	assert_false((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 
@@ -152,7 +152,7 @@ func test_running_attack_keeps_elapsed_across_tree_updates() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var player: E_DistrictNpc = _player(Vector3(0, 0, -1.2))
 	var combat: C_NpcCombat = body.get_component(C_NpcCombat) as C_NpcCombat
-	combat.melee_attacks = [load("res://content/definitions/gameplay/combat/def_npc_punch.tres") as DEF_NpcAttack]
+	combat.melee_attacks = [load("res://content/domains/combat/definitions/def_npc_punch.tres") as DEF_NpcAttack]
 	assert_true(CombatService.bind_target(body, player))
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -168,7 +168,7 @@ func test_running_attack_keeps_elapsed_across_tree_updates() -> void:
 		assert_eq(combat.phase, C_NpcCombat.Phase.WINDUP)
 	player.add_component(C_Death.new())
 	assert_true(_run_branch(body, C_NpcDecision.Owner.COMBAT, 0.2))
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 	assert_eq(combat.phase, C_NpcCombat.Phase.READY)
 	assert_false((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 

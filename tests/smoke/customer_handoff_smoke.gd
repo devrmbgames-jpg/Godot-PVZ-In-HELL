@@ -51,8 +51,8 @@ func _run() -> void:
 	assert(CustomerFlowService.direct_handoff_package(_actor, customer) == null)
 	await _pickup(glass)
 	assert(CustomerFlowService.confirm_direct_delivery(_actor, customer) == PackageDeliveryCheck.Result.WRONG_PACKAGE)
-	assert(GrabService.held_object(_actor) == glass, "Wrong package must stay held")
-	GrabService.release(_actor, glass)
+	assert(GrabQueries.held_object(_actor) == glass, "Wrong package must stay held")
+	GrabReleaseService.release(_actor, glass)
 	await _pickup(books)
 
 	var first: CustomerVisit = CustomerFlowQueries.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
@@ -61,7 +61,7 @@ func _run() -> void:
 	action.execute(_actor, customer, customer)
 	assert(first.actual == CustomerVisit.Actual.DELIVERED)
 	assert(first.declaration == CustomerVisit.Declaration.NONE)
-	assert(GrabService.held_object(_actor) == null, "Delivered package must release the grip")
+	assert(GrabQueries.held_object(_actor) == null, "Delivered package must release the grip")
 	customer = await _waiting_customer()
 
 	var second: CustomerVisit = CustomerFlowQueries.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
@@ -73,8 +73,8 @@ func _run() -> void:
 	await _pickup(glass)
 	assert(CustomerFlowService.confirm_direct_delivery(_actor, customer) == PackageDeliveryCheck.Result.READY)
 	assert(second.actual == CustomerVisit.Actual.CUSTOMER_REFUSED)
-	assert(GrabService.held_object(_actor) == null, "Refused parcel has actually left the player's hands")
-	assert(GrabService.held_relationship(glass) == null)
+	assert(GrabQueries.held_object(_actor) == null, "Refused parcel has actually left the player's hands")
+	assert(GrabQueries.held_relationship(glass) == null)
 	assert(ECS.world.entities.has(glass), "Refused parcel remains physical in the warehouse")
 
 	var drop: Vector3 = (customer as Node as Node3D).global_transform * second.definition.refused_parcel_offset
@@ -107,7 +107,7 @@ func _pickup(parcel: Entity) -> void:
 	var parcel_body: RigidBody3D = parcel as Node as RigidBody3D
 	parcel_body.global_position = actor_body.global_position + PICKUP_OFFSET
 	parcel_body.linear_velocity = Vector3.ZERO
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	ray.look_at(parcel_body.global_position + Vector3.UP * 0.2)
 	for frame: int in 2:
 		await get_tree().physics_frame

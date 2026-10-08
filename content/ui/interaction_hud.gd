@@ -137,7 +137,7 @@ func _process(delta: float) -> void:
 		_last_phase = -1
 		_phase_label.text = ""
 
-	if not GrabService.holder_available(player):
+	if not GrabQueries.holder_available(player):
 		_prompt.set_prompt("")
 		_update_debug_presentation(null)
 		return

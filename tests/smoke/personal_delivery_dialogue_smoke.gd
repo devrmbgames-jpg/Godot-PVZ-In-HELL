@@ -122,7 +122,7 @@ func _ambush(job: NpcHomeDelivery, player: Entity) -> void:
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	decision.intent_owner = C_NpcDecision.Owner.NONE
 	_check(NpcBrainService.update_tree(body, 0.2), "native production tree selects encounter")
-	_check(job.status == NpcHomeDelivery.Status.AMBUSHED and CombatService.target_for(body) == player, "tree requests combat without receiving box")
+	_check(job.status == NpcHomeDelivery.Status.AMBUSHED and CombatQueries.target_for(body) == player, "tree requests combat without receiving box")
 	_check(InteractionControlFocus.current(player) < InteractionControlFocus.Priority.MODAL and NpcDialogueService.participant(body) == null, "conversation and input released")
 	_check(HomeMeetingQueries.meeting_for(body) == null and not body.has_component(C_CustomerAgent), "home and service reservations released")
 	_check(not NpcDeliveryScenarioService.start_ambush(body), "ambush cannot repeat")

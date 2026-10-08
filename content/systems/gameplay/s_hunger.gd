@@ -23,7 +23,7 @@ func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 
 	for actor: Entity in entities:
 		var state: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
-		if not HungerRules.valid_policy(state.policy) or not GrabService.holder_available(actor):
+		if not HungerRules.valid_policy(state.policy) or not GrabQueries.holder_available(actor):
 			continue
 
 		state.value = clampf(state.value + delta * state.policy.growth_per_second, 0.0, state.policy.maximum)

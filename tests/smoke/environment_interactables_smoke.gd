@@ -17,9 +17,9 @@ func _run() -> void:
 	_world = World.new()
 	add_child(_world)
 	ECS.world = _world
-	var door: E_Openable = _spawn("res://content/entities/doors/door_template.tscn", Vector3.ZERO)
-	var window: E_Openable = _spawn("res://content/entities/props/window.tscn", Vector3(4, 1, 0))
-	var drawer: E_Openable = _spawn("res://content/entities/props/drawer.tscn", Vector3(7, 1.5, 0))
+	var door: E_Openable = _spawn("res://content/domains/interaction/entities/door_template.tscn", Vector3.ZERO)
+	var window: E_Openable = _spawn("res://content/domains/interaction/entities/window.tscn", Vector3(4, 1, 0))
+	var drawer: E_Openable = _spawn("res://content/domains/interaction/entities/drawer.tscn", Vector3(7, 1.5, 0))
 	for actor: E_Openable in [door, window, drawer]:
 		(actor.get_component(C_Openable) as C_Openable).requested_open = true
 	await _frames(SETTLE_FRAMES)

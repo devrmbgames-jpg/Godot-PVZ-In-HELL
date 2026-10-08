@@ -142,7 +142,7 @@ func _check_locked_prompt(level: Node, player: Entity) -> void:
 	var point: Vector3 = (door as Node as Node3D).global_position + Vector3(0.8, 1.4, 0)
 	await _aim(player, point)
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	assert(interactor.target == door, "door target=%s collider=%s point=%s leaf=%s" % [interactor.target, GrabService.interaction_raycast(player).get_collider(), point, leaf.global_position])
+	assert(interactor.target == door, "door target=%s collider=%s point=%s leaf=%s" % [interactor.target, GrabQueries.interaction_raycast(player).get_collider(), point, leaf.global_position])
 	InteractionActionResolver.refresh_prompt(player)
 	assert(interactor.prompt_text.contains("Заперто") and not interactor.prompt_text.contains("Отпереть"))
 	assert(state.locked)
@@ -160,11 +160,11 @@ func _check_locked_prompt(level: Node, player: Entity) -> void:
 	assert(interactor.prompt_text.contains("Отпереть") and not interactor.prompt_text.contains("Заперто"))
 	assert(not interactor.prompt_text.contains("Контекст"))
 	assert(state.locked, "Presentation must not unlock the door")
-	GrabService.release(player, hammer)
+	GrabReleaseService.release(player, hammer)
 
 
 func _aim(player: Entity, point: Vector3) -> void:
-	var ray: RayCast3D = GrabService.interaction_raycast(player)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(player)
 	(player as Node as RigidBody3D).global_position = point + Vector3.BACK * 1.5
 	ray.global_position = point + Vector3.BACK * 1.5
 	ray.look_at(point, Vector3.UP)

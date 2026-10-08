@@ -4,5 +4,5 @@ extends "res://content/domains/npc/ai/tasks/bt_npc_condition.gd"
 
 #region Проверка состояния
 func _tick(_delta: float) -> Status:
-	return SUCCESS if CombatService.target_for(_actor) != null else FAILURE
+	return SUCCESS if CombatQueries.target_for(_actor) != null else FAILURE
 #endregion

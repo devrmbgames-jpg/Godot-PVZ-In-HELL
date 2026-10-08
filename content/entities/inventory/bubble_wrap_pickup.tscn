@@ -4,8 +4,8 @@
 [ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
 [ext_resource type="Script" path="res://content/components/inventory/c_inventory_item.gd" id="Item"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_bubble_wrap.tres" id="Definition"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="Actions"]
 [ext_resource type="Script" path="res://content/definitions/interaction/def_inventory_pickup_action.gd" id="Action"]
 
 [sub_resource type="Resource" id="Item"]

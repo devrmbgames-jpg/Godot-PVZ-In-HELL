@@ -26,7 +26,7 @@ func before_each() -> void:
 	_world.add_entity(session, null, false)
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
-	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 	_actor.component_resources = [C_Combat.new(), C_GrabControl.new(), C_Controller.new()]
 
@@ -80,8 +80,8 @@ func _strike() -> void:
 #region Разрушение физических преград
 ## Молоток ломает замок, сохраняя физическое полотно и открывание двери.
 func test_hammer_breaks_padlock_and_preserves_door_leaf_and_open_action() -> void:
-	var door: E_Door = _door("res://content/entities/doors/padlocked_door.tscn")
-	_equip("res://content/entities/tools/hammer.tscn")
+	var door: E_Door = _door("res://content/domains/interaction/entities/padlocked_door.tscn")
+	_equip("res://content/domains/combat/entities/hammer.tscn")
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	var health: C_Health = door.get_component(C_Health) as C_Health
@@ -110,8 +110,8 @@ func test_hammer_breaks_padlock_and_preserves_door_leaf_and_open_action() -> voi
 
 ## Нож разрушает полотно и снимает его физические препятствия для луча.
 func test_knife_breaks_leaf_and_removes_all_physical_blockers() -> void:
-	var door: E_Door = _door("res://content/entities/doors/breakable_door.tscn")
-	_equip("res://content/entities/tools/utility_blade.tscn")
+	var door: E_Door = _door("res://content/domains/interaction/entities/breakable_door.tscn")
+	_equip("res://content/domains/combat/entities/utility_blade.tscn")
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	_actor.head_axis_x.look_at(door.strike_point())
@@ -145,7 +145,7 @@ func test_knife_breaks_leaf_and_removes_all_physical_blockers() -> void:
 #region Сохранение состояния двери
 ## Snapshot и ночь сохраняют разрушенный замок и возможность открыть дверь.
 func test_padlock_depletion_and_unlocked_state_survive_snapshot_and_night() -> void:
-	var door: E_Door = _door("res://content/entities/doors/padlocked_door.tscn")
+	var door: E_Door = _door("res://content/domains/interaction/entities/padlocked_door.tscn")
 	var intact: Dictionary = WorldSnapshotService.capture(_root, 2)
 	assert_true(CombatService.hit(_actor, _actor, door, 100.0))
 	var broken: Dictionary = WorldSnapshotService.capture(_root, 2)
@@ -164,7 +164,7 @@ func test_padlock_depletion_and_unlocked_state_survive_snapshot_and_night() -> v
 
 ## Restore меняет состояние одного авторского экземпляра двери, восстанавливая либо отключая столкновения.
 func test_broken_leaf_and_intact_physics_restore_without_respawning_authored_door() -> void:
-	var door: E_Door = _door("res://content/entities/doors/breakable_door.tscn")
+	var door: E_Door = _door("res://content/domains/interaction/entities/breakable_door.tscn")
 	var intact: Dictionary = WorldSnapshotService.capture(_root, 2)
 	var initial_layer: int = door.door_root.collision_layer
 	assert_true(CombatService.hit(_actor, _actor, door, 100.0))

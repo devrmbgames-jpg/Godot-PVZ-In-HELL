@@ -8,10 +8,10 @@ class_name PackageRegistrationService
 static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	if not is_instance_valid(target) or not is_instance_valid(scanner):
 		return false
-	if not GrabService.holder_available(actor) or not GrabService.entity_available(target):
+	if not GrabQueries.holder_available(actor) or not GrabQueries.entity_available(target):
 		return false
 
-	var grip: Relationship = GrabService.held_relationship(scanner)
+	var grip: Relationship = GrabQueries.held_relationship(scanner)
 	if grip == null or grip.target != actor or not scanner.has_component(C_Scanner):
 		return false
 	if (
@@ -34,7 +34,7 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	if interactor == null or InteractionTargetingGeometry.find_target(actor, interactor) != target:
 		return false
 
-	var ray: RayCast3D = GrabService.interaction_raycast(actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(actor)
 	var config: C_Scanner = scanner.get_component(C_Scanner) as C_Scanner
 	return ray.global_position.distance_to(ray.get_collision_point()) <= config.scan_range
 

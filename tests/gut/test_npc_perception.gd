@@ -98,7 +98,7 @@ func test_held_upper_body_cover_does_not_hide_visible_legs() -> void:
 	box.global_position = Vector3(0, 1.25, -2.5)
 	item.add_relationship(Relationship.new(R_HeldBy.new(), _target))
 	await _synchronize()
-	assert_same(GrabService.held_relationship(item).target, _target)
+	assert_same(GrabQueries.held_relationship(item).target, _target)
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
 	shape.size.y = 2.0
 	box.global_position.y = 0.85
@@ -206,7 +206,7 @@ func test_interaction_noise_is_anonymous() -> void:
 	PlayerInteractionEvents.publish(_observer, _target, PlayerInteractionEvent.Kind.DOOR_OPENED)
 	assert_eq(_district.noises.size(), 1)
 	assert_eq(_district.noises[0].position, _target.global_position)
-	assert_null(CombatService.target_for(_target))
+	assert_null(CombatQueries.target_for(_target))
 
 ## Шум за укрытием даёт место интереса без знания личности или создания противника.
 func test_hearing_does_not_reveal_source_identity() -> void:
@@ -220,6 +220,6 @@ func test_hearing_does_not_reveal_source_identity() -> void:
 
 	var awareness: C_NpcAwareness = _observer.get_component(C_NpcAwareness) as C_NpcAwareness
 	assert_eq(awareness.heard_position, noise.position)
-	assert_null(CombatService.target_for(_observer))
+	assert_null(CombatQueries.target_for(_observer))
 	assert_false(awareness.target_visible)
 #endregion

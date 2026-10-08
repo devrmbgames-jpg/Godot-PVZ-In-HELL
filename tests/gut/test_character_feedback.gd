@@ -19,7 +19,7 @@ func before_each() -> void:
 	ECS.world = _world
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
-	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 
 	var motion: C_Motion = C_Motion.new()
@@ -174,7 +174,7 @@ func test_normal_cadence_and_camera_share_phase_even_when_audio_is_muted() -> vo
 
 ## Приседание опускает пояс независимо от pitch камеры и возвращает авторскую позу.
 func test_player_belt_lowers_without_camera_pitch_and_returns_to_authored_pose() -> void:
-	var actor: E_PhysicalCharacter = (load("res://content/entities/characters/character_body_player.tscn") as PackedScene).instantiate() as E_PhysicalCharacter
+	var actor: E_PhysicalCharacter = (load("res://content/domains/motion/entities/character_body_player.tscn") as PackedScene).instantiate() as E_PhysicalCharacter
 	_root.add_child(actor as Node)
 	_world.add_entity(actor, null, false)
 	assert_eq(actor.crouch_mounts.size(), 2)

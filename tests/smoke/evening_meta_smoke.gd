@@ -123,7 +123,7 @@ func _transition(kind: DayTransitionRequest.Kind) -> void:
 
 func _aim(target: Entity, offset: Vector3) -> void:
 	var position: Vector3 = (target as Node as Node3D).global_position + offset
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	# Тест сам ставит участника перед целью; обычное взаимодействие не перемещает физические тела.
 	(_actor as Node as RigidBody3D).global_position = (target as Node as Node3D).global_position + Vector3.BACK * 1.5
 	ray.global_position = position + Vector3.BACK * 1.5

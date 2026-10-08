@@ -41,7 +41,7 @@ static func search_points(person: NpcRecord, last_position: Vector3) -> Array[Ve
 ## Продолжает уход к выбранному проходу; возвращает true только после достижения выхода.
 static func flee(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwareness) -> bool:
 	awareness.fleeing = true
-	if CombatService.target_for(actor) != null:
+	if CombatQueries.target_for(actor) != null:
 		CombatService.end_combat(actor)
 
 	var district: C_District = NpcPopulationQueries.current()

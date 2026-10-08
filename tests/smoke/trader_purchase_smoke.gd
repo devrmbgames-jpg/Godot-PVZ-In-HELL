@@ -41,7 +41,7 @@ func _run() -> void:
 func _buy(level: Node3D) -> void:
 	var player: Entity = level.get_node("Entityes/Player") as Entity
 	var merchant: E_DistrictNpc = NpcActivityService.merchant()
-	_check(GrabService.holder_available(merchant), "permanent merchant available in morning")
+	_check(GrabQueries.holder_available(merchant), "permanent merchant available in morning")
 	if _failed:
 		return
 

@@ -15,7 +15,7 @@ const COLLISION_MASK: int = 31
 #region Выкладка стека
 ## Возвращает причину запрета выкладки или пустую строку; свободное место проверяет drop.
 static func drop_reason(actor: Entity, item: Entity) -> String:
-	if not GrabService.holder_available(actor) or actor.has_component(C_Death):
+	if not GrabQueries.holder_available(actor) or actor.has_component(C_Death):
 		return "Игрок недоступен"
 
 	var inventory: C_Inventory = actor.get_component(C_Inventory) as C_Inventory

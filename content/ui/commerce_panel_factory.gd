@@ -6,7 +6,7 @@ class_name CommercePanelFactory
 #region Panel construction
 ## Создаёт панель после проверки участников и приоритета; отказ возвращает null.
 static func open(actor: Entity, trader: Entity = null, order_mode: bool = false) -> CommercePanel:
-	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or CommerceService.current() == null or InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.MODAL:
+	if not GrabQueries.holder_available(actor) or actor.has_component(C_Death) or CommerceService.current() == null or InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.MODAL:
 		return null
 	if trader != null and (not EntityAvailability.contains(trader, ECS.world) or trader.has_component(C_Death)):
 		return null

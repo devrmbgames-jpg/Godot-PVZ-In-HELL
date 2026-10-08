@@ -69,7 +69,7 @@ enum HazardClass {
 
 ## Общий профиль удара, независимый от описательных тегов и состояния коробки.
 @export var impact_profile: DEF_ImpactProfile = preload(
-	"res://content/definitions/gameplay/def_impact_default.tres"
+	"res://content/domains/combat/definitions/def_impact_default.tres"
 )
 
 #endregion

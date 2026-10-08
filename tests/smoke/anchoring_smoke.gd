@@ -27,7 +27,7 @@ func _run() -> void:
 	var middle: Entity = _box(Vector3(0.20, 0.75, -2.0))
 	var top: Entity = _box(Vector3(0.40, 1.25, -2.0))
 	var authored_frozen: Entity = _box(Vector3(0.60, 1.75, -2.0))
-	var authored_body: RigidBody3D = GrabService.physical_body(authored_frozen)
+	var authored_body: RigidBody3D = GrabQueries.physical_body(authored_frozen)
 	authored_body.freeze = true
 
 	await _sync_physics()
@@ -45,9 +45,9 @@ func _run() -> void:
 	assert(not AnchoringService.is_player_anchored(bottom))
 	assert(not AnchoringService.is_player_anchored(middle), "Direct supported anchor must join unfix")
 	assert(not AnchoringService.is_player_anchored(top), "Recursive supported anchor must join unfix")
-	assert(not GrabService.physical_body(bottom).freeze)
-	assert(not GrabService.physical_body(middle).freeze)
-	assert(not GrabService.physical_body(top).freeze)
+	assert(not GrabQueries.physical_body(bottom).freeze)
+	assert(not GrabQueries.physical_body(middle).freeze)
+	assert(not GrabQueries.physical_body(top).freeze)
 	assert(authored_body.freeze, "Authored frozen neighbor must never be unfrozen")
 
 	_world.free()
@@ -139,7 +139,7 @@ func _hold_hammer() -> void:
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
 	_hammer.add_relationship(Relationship.new(grip, _actor))
-	assert(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND) == _hammer)
+	assert(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND) == _hammer)
 
 
 func _anchor_visible(target: Entity) -> bool:
@@ -152,7 +152,7 @@ func _anchor_visible(target: Entity) -> bool:
 
 
 func _aim(target: Entity) -> bool:
-	var body: RigidBody3D = GrabService.physical_body(target)
+	var body: RigidBody3D = GrabQueries.physical_body(target)
 	_ray.position = Vector3(body.global_position.x, body.global_position.y, 0)
 	_ray.target_position = Vector3(0, 0, -3)
 	_interactor.target = target

@@ -22,13 +22,13 @@ Optional routing map. Read only when the task does not already identify the owni
 
 | Concern | Start with |
 | --- | --- |
-| Character physics | `content/entities/characters/e_rigid_body_character.gd` |
+| Character physics | `content/domains/motion/entities/e_rigid_body_character.gd` |
 | Raw input / intent | `content/systems/input/` |
 | Motion / look | `content/services/motion/` |
 | Interaction targeting / actions | `content/systems/interaction/`, `content/services/interaction/` |
 | Grab / carry / push | `content/services/interaction/`, `docs/physical_grab.md` |
-| Cart | `content/services/interaction/cart_transport_service.gd`, `docs/cart_transport.md` |
-| Damage / impact | `content/services/damage/`, `content/observers/gameplay/o_damage.gd`, `docs/damage_impact.md` |
+| Cart | `content/domains/interaction/services/cart_transport_service.gd`, `docs/cart_transport.md` |
+| Damage / impact | `content/services/damage/`, `content/domains/combat/observers/o_damage.gd`, `docs/damage_impact.md` |
 | Packages / receiving | `content/entities/packages/`, `content/services/packages/` |
 | Hazards | `content/services/hazards/`, `content/observers/gameplay/`, `docs/hazards.md` |
 | Customers / commerce | `content/services/customers/`, `docs/customers.md`, `docs/economy.md` |

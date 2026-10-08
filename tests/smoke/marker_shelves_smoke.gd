@@ -24,7 +24,7 @@ func _run() -> void:
 	actor_body.freeze = true
 	actor_body.position = Vector3(20, 20, 20)
 	var camera: Camera3D = get_viewport().get_camera_3d()
-	var ray: RayCast3D = GrabService.interaction_raycast(actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(actor)
 	var marker_tool: Entity = level.get_node("Entityes/Marker") as Entity
 	var scanner: Entity = level.get_node("Entityes/Scanner") as Entity
 	var parcel: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
@@ -120,10 +120,10 @@ func _run() -> void:
 	_drive(actor, false, false)
 	controller.interact_pressed = false
 	assert(marker.capture_token == 0, "E exits without releasing or replacing the marker")
-	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.LEFT_HAND) == marker_tool)
+	assert(GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.LEFT_HAND) == marker_tool)
 	control.swap_hand_controls = false
-	GrabService.release(actor, scanner)
-	GrabService.release(actor, marker_tool)
+	GrabReleaseService.release(actor, scanner)
+	GrabReleaseService.release(actor, marker_tool)
 	ray.look_at((marker_tool as Node as Node3D).global_position)
 	assert(GrabService.try_pickup(actor, marker_tool, C_Grabbable.HoldSlot.RIGHT_HAND))
 	ray.look_at(camera.global_position + Vector3(0, 0, -2))
@@ -147,7 +147,7 @@ func _run() -> void:
 	controller.cancel_pressed = false
 	_drive(actor, true, false)
 	assert(marker.capture_token != 0, "Reentering after Escape must work")
-	GrabService.release(actor, marker_tool)
+	GrabReleaseService.release(actor, marker_tool)
 	_drive(actor, false, false)
 	assert(marker.capture_token == 0, "Lost ownership cancels capture")
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.HANDS)
@@ -229,14 +229,14 @@ func _store_on_shelf(
 	parcel_body.freeze = false
 	parcel_body.linear_velocity = Vector3.ZERO
 	parcel_body.angular_velocity = Vector3.ZERO
-	var ray: RayCast3D = GrabService.interaction_raycast(actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(actor)
 	ray.look_at(parcel_body.global_position + Vector3(0, 0.2, 0))
 	await get_tree().physics_frame
 
 	var parcel: Entity = parcel_body as Node as Entity
 	assert(GrabService.try_pickup(actor, parcel, C_Grabbable.HoldSlot.CARRY))
 	var point_count: int = marks.point_count
-	GrabService.release(actor, parcel)
+	GrabReleaseService.release(actor, parcel)
 	for tick: int in 90:
 		await get_tree().physics_frame
 

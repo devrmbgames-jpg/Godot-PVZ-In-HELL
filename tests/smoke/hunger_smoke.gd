@@ -42,7 +42,7 @@ func _run() -> void:
 	assert(hunger.value == maxf(0.0, hunger.policy.hungry_threshold - food.hunger_relief))
 
 	# The real carry body is independent of the current district supply assortment.
-	var heavy: Entity = (load("res://content/entities/props/box.tscn") as PackedScene).instantiate() as Entity
+	var heavy: Entity = (load("res://content/domains/interaction/entities/box.tscn") as PackedScene).instantiate() as Entity
 	var heavy_body: RigidBody3D = heavy as Node as RigidBody3D
 	heavy_body.mass = HEAVY_MASS_KG
 	heavy_body.gravity_scale = 0.0
@@ -50,7 +50,7 @@ func _run() -> void:
 	ECS.world.add_entity(heavy, null, false)
 	heavy_body.global_position = actor_body.global_position + Vector3(0, 0.8, -1.5)
 
-	var ray: RayCast3D = GrabService.interaction_raycast(actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(actor)
 	ray.look_at((heavy as Node as Node3D).global_position + Vector3.UP * 0.2)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -66,7 +66,7 @@ func _run() -> void:
 	assert(HungerService.apply_food(actor, food))
 	assert(HungerRules.tier(hunger) == C_Hunger.Tier.NORMAL)
 	assert(is_equal_approx(MotionRules.effective_speed(motion, carry, strength, hunger), carried_speed) and motion.max_speed == baseline)
-	GrabService.release(actor, heavy)
+	GrabReleaseService.release(actor, heavy)
 	ECS.world.remove_entity(heavy)
 
 	var visit: CustomerVisit = CustomerVisit.new()

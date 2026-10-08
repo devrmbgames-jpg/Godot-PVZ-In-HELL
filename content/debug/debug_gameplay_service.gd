@@ -95,7 +95,7 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 		"npc":
 			var state: C_NpcCombat = entity.get_component(C_NpcCombat) as C_NpcCombat
 			if state == null: return failure("Target has no NPC attacks")
-			var victim: Entity = CombatService.target_for(entity)
+			var victim: Entity = CombatQueries.target_for(entity)
 			lines.append("entity=%s phase=%s target=%s cooldown=%.2fs automatic=%s" % [entity.id, C_NpcCombat.Phase.keys()[state.phase], victim.id if victim != null else "none", state.cooldown_remaining, state.automatic_attack_selection])
 			var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
 			if agent != null:
@@ -157,7 +157,7 @@ static func trader_for(raw: String = "") -> Entity:
 static func meat_spawn() -> DebugServiceResult:
 	var actor: Entity = DebugTargetResolver.player()
 	var node: Node3D = actor as Node as Node3D
-	if not GrabService.holder_available(actor) or node == null: return failure("Live physical player unavailable")
+	if not GrabQueries.holder_available(actor) or node == null: return failure("Live physical player unavailable")
 	var meat: Entity = MEAT_SCENE.instantiate() as Entity
 	# Позиция задаётся однократно при создании; дальнейшее движение принадлежит физическому телу.
 	var position: Vector3 = node.global_transform * MEAT_OFFSET

@@ -1,5 +1,5 @@
 {
-  "schema": 5,
+  "schema": 6,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -66,7 +66,7 @@
     },
     {
       "symbol": "C_DamageResistance",
-      "path": "res://content/components/npc/c_damage_resistance.gd",
+      "path": "res://content/domains/combat/components/c_damage_resistance.gd",
       "fields": [
         "multipliers"
       ]
@@ -151,7 +151,7 @@
     },
     {
       "symbol": "C_Health",
-      "path": "res://content/components/gameplay/c_health.gd",
+      "path": "res://content/domains/combat/components/c_health.gd",
       "fields": [
         "base",
         "value",
@@ -168,7 +168,7 @@
     },
     {
       "symbol": "C_Stamina",
-      "path": "res://content/components/motion/c_stamina.gd",
+      "path": "res://content/domains/motion/components/c_stamina.gd",
       "fields": [
         "current",
         "initialized"
@@ -176,7 +176,7 @@
     },
     {
       "symbol": "C_ImpactProtection",
-      "path": "res://content/components/gameplay/c_impact_protection.gd",
+      "path": "res://content/domains/combat/components/c_impact_protection.gd",
       "fields": [
         "tier"
       ]
@@ -195,7 +195,7 @@
     },
     {
       "symbol": "C_Openable",
-      "path": "res://content/components/interaction/c_openable.gd",
+      "path": "res://content/domains/interaction/components/c_openable.gd",
       "fields": [
         "locked",
         "requested_open",
@@ -204,7 +204,7 @@
     },
     {
       "symbol": "C_LightCircuit",
-      "path": "res://content/components/gameplay/c_light_circuit.gd",
+      "path": "res://content/domains/interaction/components/c_light_circuit.gd",
       "fields": [
         "enabled"
       ]
@@ -245,7 +245,7 @@
     },
     {
       "symbol": "C_InteractionToggle",
-      "path": "res://content/components/interaction/c_interaction_toggle.gd",
+      "path": "res://content/domains/interaction/components/c_interaction_toggle.gd",
       "fields": [
         "active"
       ]
@@ -266,7 +266,7 @@
     },
     {
       "symbol": "C_NoDamage",
-      "path": "res://content/components/gameplay/c_no_damage.gd",
+      "path": "res://content/domains/combat/components/c_no_damage.gd",
       "fields": []
     }
   ],
@@ -293,7 +293,7 @@
     },
     {
       "symbol": "CombatContext",
-      "path": "res://content/contracts/combat/combat_context.gd"
+      "path": "res://content/domains/combat/contracts/combat_context.gd"
     },
     {
       "symbol": "MoneyOperation",
@@ -331,9 +331,7 @@
   "snapshot_paths": [
     "res://content/components/commerce/c_commerce.gd",
     "res://content/components/gameplay/c_day_cycle.gd",
-    "res://content/components/gameplay/c_health.gd",
     "res://content/components/gameplay/c_hunger.gd",
-    "res://content/components/gameplay/c_impact_protection.gd",
     "res://content/components/gameplay/c_package.gd",
     "res://content/components/gameplay/c_package_contents.gd",
     "res://content/components/gameplay/c_package_ledger.gd",
@@ -342,7 +340,6 @@
     "res://content/components/gameplay/c_wallet.gd",
     "res://content/components/inventory/c_inventory.gd",
     "res://content/components/inventory/c_inventory_item.gd",
-    "res://content/components/npc/c_damage_resistance.gd",
     "res://content/components/persistence/c_persistent_identity.gd",
     "res://content/contracts/commerce/pending_delivery.gd",
     "res://content/contracts/commerce/purchase_receipt.gd",
@@ -352,6 +349,12 @@
     "res://content/contracts/receiving/receiving_batch.gd",
     "res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres::Books",
     "res://content/definitions/gameplay/inventory/def_item_npc_meat.tres",
+    "res://content/domains/combat/components/c_damage_resistance.gd",
+    "res://content/domains/combat/components/c_health.gd",
+    "res://content/domains/combat/components/c_impact_protection.gd",
+    "res://content/domains/interaction/entities/anchorable_test_box.tscn",
+    "res://content/domains/interaction/entities/physical_slot.tscn",
+    "res://content/domains/interaction/entities/push_cart.tscn",
     "res://content/domains/npc/components/c_district.gd",
     "res://content/domains/npc/components/c_npc_identity.gd",
     "res://content/domains/npc/components/c_npc_remains.gd",
@@ -372,9 +375,6 @@
     "res://content/domains/npc/definitions/def_npc_profile_9.tres",
     "res://content/domains/npc/entities/district_npc.tscn",
     "res://content/domains/npc/entities/npc_address.tscn",
-    "res://content/entities/packages/package_b.tscn",
-    "res://content/entities/props/anchorable_test_box.tscn",
-    "res://content/entities/props/physical_slot.tscn",
-    "res://content/entities/props/push_cart.tscn"
+    "res://content/entities/packages/package_b.tscn"
   ]
 }

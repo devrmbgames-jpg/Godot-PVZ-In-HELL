@@ -5,5 +5,5 @@ extends "res://content/domains/npc/ai/tasks/bt_npc_condition.gd"
 #region Проверка состояния
 func _tick(_delta: float) -> Status:
 	var health: C_Health = _actor.get_component(C_Health) as C_Health
-	return SUCCESS if _awareness.fleeing or (CombatService.target_for(_actor) != null and health.current < health.value * _person.profile.pursuit_health_reserve) else FAILURE
+	return SUCCESS if _awareness.fleeing or (CombatQueries.target_for(_actor) != null and health.current < health.value * _person.profile.pursuit_health_reserve) else FAILURE
 #endregion

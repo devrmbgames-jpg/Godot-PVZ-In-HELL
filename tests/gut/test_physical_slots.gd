@@ -50,11 +50,11 @@ func before_each() -> void:
 	_actor.lowered_right_hand_slot = anchor
 	_actor.lowered_left_hand_slot = anchor
 	_world.add_entity(_actor)
-	_slot = (load("res://content/entities/props/physical_slot.tscn") as PackedScene).instantiate() as E_PhysicalSlot
+	_slot = (load("res://content/domains/interaction/entities/physical_slot.tscn") as PackedScene).instantiate() as E_PhysicalSlot
 	(_slot as Node as Node3D).position = Vector3(0, 1, -1.5)
 	_world.add_entity(_slot)
 	_item = _make_item()
-	_body = GrabService.physical_body(_item)
+	_body = GrabQueries.physical_body(_item)
 	_hold(_item, C_Grabbable.HoldSlot.RIGHT_HAND)
 	await get_tree().physics_frame
 	await get_tree().process_frame
@@ -64,7 +64,7 @@ func before_each() -> void:
 func after_each() -> void:
 	for entity: Entity in _world.entities.duplicate():
 		PhysicalSlotService.entity_unavailable(entity)
-		GrabService.entity_unavailable(entity)
+		GrabReleaseService.entity_unavailable(entity)
 	_world.free()
 	ECS.world = null
 
@@ -105,7 +105,7 @@ func test_store_freezes_attaches_and_restores_physics_on_take() -> void:
 	_body.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
 	_body.set_physics_process(true)
 	assert_true(PhysicalSlotService.store(_actor, _slot, C_Grabbable.HoldSlot.RIGHT_HAND))
-	assert_null(GrabService.held_relationship(_item))
+	assert_null(GrabQueries.held_relationship(_item))
 	assert_eq(PhysicalSlotService.occupant(_slot), _item)
 	assert_true(_body.freeze)
 	assert_eq(_body.collision_layer, 0)
@@ -122,7 +122,7 @@ func test_store_freezes_attaches_and_restores_physics_on_take() -> void:
 	await get_tree().process_frame
 	assert_true(GrabService.take_from_storage(_actor, _item, C_Grabbable.HoldSlot.LEFT_HAND))
 	assert_null(PhysicalSlotService.relationship(_item))
-	assert_eq(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.LEFT_HAND), _item)
+	assert_eq(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.LEFT_HAND), _item)
 	assert_false(_body.freeze)
 	assert_eq(_body.freeze_mode, RigidBody3D.FREEZE_MODE_KINEMATIC)
 	assert_eq(_body.collision_layer, 8)
@@ -138,14 +138,14 @@ func test_occupied_slot_and_filter_failure_preserve_hand() -> void:
 	config.filter = DEF_AccessRequirement.new()
 	config.filter.required_item_id = &"key"
 	assert_false(PhysicalSlotService.store(_actor, _slot, C_Grabbable.HoldSlot.RIGHT_HAND))
-	assert_eq(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND), _item)
+	assert_eq(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND), _item)
 	config.filter = null
 	assert_true(PhysicalSlotService.store(_actor, _slot, C_Grabbable.HoldSlot.RIGHT_HAND))
 
 	var other: Entity = _make_item()
 	_hold(other, C_Grabbable.HoldSlot.RIGHT_HAND)
 	assert_false(PhysicalSlotService.store(_actor, _slot, C_Grabbable.HoldSlot.RIGHT_HAND))
-	assert_eq(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND), other)
+	assert_eq(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND), other)
 
 
 ## Извлечение в занятую руку требует явного разрешения заменить прежний предмет.
@@ -156,8 +156,8 @@ func test_full_hand_requires_explicit_common_replacement() -> void:
 	assert_false(GrabService.take_from_storage(_actor, _item, C_Grabbable.HoldSlot.RIGHT_HAND))
 	assert_true(_body.freeze)
 	assert_true(GrabService.take_from_storage(_actor, _item, C_Grabbable.HoldSlot.RIGHT_HAND, true))
-	assert_null(GrabService.held_relationship(other))
-	assert_true(GrabService.entity_available(other))
+	assert_null(GrabQueries.held_relationship(other))
+	assert_true(GrabQueries.entity_available(other))
 
 
 #endregion
@@ -170,7 +170,7 @@ func test_slot_removal_restores_item_and_releases_ownership() -> void:
 	assert_null(PhysicalSlotService.relationship(_item))
 	assert_false(_body.freeze)
 	assert_eq(_body.collision_layer, 8)
-	assert_true(GrabService.entity_available(_item))
+	assert_true(GrabQueries.entity_available(_item))
 
 
 ## Внешнее удаление Relationship восстанавливает физику и освобождает слот.
@@ -206,7 +206,7 @@ func test_resolver_uses_swapped_secondary_hand_without_leaking_to_carry() -> voi
 	if choice != null:
 		choice.action.execute(_actor, choice.source, choice.target)
 	assert_eq(PhysicalSlotService.occupant(_slot), _item)
-	assert_null(GrabService.held_object(_actor))
+	assert_null(GrabQueries.held_object(_actor))
 
 
 ## Удаление компонента слота освобождает предмет и возвращает столкновения.
@@ -220,7 +220,7 @@ func test_removing_slot_configuration_restores_stored_body() -> void:
 
 ## Авторские поясные слоты принадлежат корневому телу игрока.
 func test_player_belt_slots_are_mounted_to_body_root() -> void:
-	var player_scene: PackedScene = load("res://content/entities/characters/e_rigid_body_character.tscn") as PackedScene
+	var player_scene: PackedScene = load("res://content/domains/motion/entities/e_rigid_body_character.tscn") as PackedScene
 	var player: E_RigidBodyCharacter = player_scene.instantiate() as E_RigidBodyCharacter
 	assert_not_null(player)
 	if player == null:
@@ -246,7 +246,7 @@ func test_mount_owner_removal_releases_stored_item() -> void:
 	assert_false(_world.entities.has(_slot))
 	assert_null(PhysicalSlotService.relationship(_item))
 	assert_false(_body.freeze)
-	assert_true(GrabService.entity_available(_item))
+	assert_true(GrabQueries.entity_available(_item))
 	await get_tree().process_frame
 	assert_false(is_instance_valid(_slot))
 	for registered: Entity in _world.entities:

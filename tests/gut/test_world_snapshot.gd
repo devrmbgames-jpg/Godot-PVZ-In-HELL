@@ -361,7 +361,7 @@ func test_restore_swapped_slots_clears_all_old_occupancy_before_attaching() -> v
 	var slots: Array[E_PhysicalSlot] = []
 	var boxes: Array[Entity] = []
 	for index: int in 2:
-		var slot: E_PhysicalSlot = (load("res://content/entities/props/physical_slot.tscn") as PackedScene).instantiate() as E_PhysicalSlot
+		var slot: E_PhysicalSlot = (load("res://content/domains/interaction/entities/physical_slot.tscn") as PackedScene).instantiate() as E_PhysicalSlot
 		slot.name = "Slot%d" % index
 		_root.add_child(slot)
 		slot.owner = _root
@@ -370,7 +370,7 @@ func test_restore_swapped_slots_clears_all_old_occupancy_before_attaching() -> v
 		assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 		_world.add_entity(slot, null, false)
 		slots.append(slot)
-		var box: Entity = (load("res://content/entities/props/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
+		var box: Entity = (load("res://content/domains/interaction/entities/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
 		box.name = "Box%d" % index
 		_root.add_child(box)
 		box.owner = _root
@@ -443,7 +443,7 @@ func test_authored_ids_restore_as_a_group_and_reindex_world_lookup() -> void:
 
 ## Двойная занятость слота и цель без нужной роли отклоняются до изменения дня.
 func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -> void:
-	var slot: E_PhysicalSlot = (load("res://content/entities/props/physical_slot.tscn") as PackedScene).instantiate() as E_PhysicalSlot
+	var slot: E_PhysicalSlot = (load("res://content/domains/interaction/entities/physical_slot.tscn") as PackedScene).instantiate() as E_PhysicalSlot
 	slot.name = "ValidationSlot"
 	_root.add_child(slot)
 	slot.owner = _root
@@ -452,7 +452,7 @@ func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -
 	assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 	_world.add_entity(slot, null, false)
 	for index: int in 2:
-		var box: Entity = (load("res://content/entities/props/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
+		var box: Entity = (load("res://content/domains/interaction/entities/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
 		box.name = "ValidationBox%d" % index
 		_root.add_child(box)
 		box.owner = _root
@@ -673,7 +673,7 @@ func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -
 			if component.type == C_Receiving.resource_path:
 				var invalid: C_Receiving = C_Receiving.new()
 				assert_true(SaveDataCodec.apply_fields(invalid, component.fields as Dictionary))
-				invalid.pending[0].package_scenes[0] = "res://content/entities/props/anchorable_test_box.tscn"
+				invalid.pending[0].package_scenes[0] = "res://content/domains/interaction/entities/anchorable_test_box.tscn"
 				component.fields = SaveDataCodec.component_data(invalid).fields
 	var count_before: int = _world.entities.size()
 	assert_false(WorldSnapshotService.restore(snapshot, _root))

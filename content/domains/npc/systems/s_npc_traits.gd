@@ -79,7 +79,7 @@ func _advance_traits(actor: E_DistrictNpc, person: NpcRecord, player: Entity, de
 
 func _observe_retreat(actor: E_DistrictNpc, person: NpcRecord, player: Entity, awareness: C_NpcAwareness, delta: float) -> void:
 	var player_body: RigidBody3D = player as Node as RigidBody3D
-	if person.profile.personality != DEF_NpcProfile.Personality.BRAZEN or player_body == null or not awareness.player_visible or CombatService.target_for(actor) != player:
+	if person.profile.personality != DEF_NpcProfile.Personality.BRAZEN or player_body == null or not awareness.player_visible or CombatQueries.target_for(actor) != player:
 		awareness.retreat_elapsed = 0.0
 		return
 

@@ -12,8 +12,8 @@ const SIGHT_MASK: int = 31
 #region Зрение
 ## Проверяет физическую видимость с учётом зрения, света и частичного прикрытия.
 static func can_see(observer: Entity, target: Entity, profile: DEF_NpcProfile, allow_dead_target: bool = false) -> bool:
-	var target_available: bool = is_instance_valid(target) and is_instance_valid(ECS.world) and ECS.world.entities.has(target) if allow_dead_target else GrabService.holder_available(target)
-	if observer == target or not target_available or not GrabService.holder_available(observer):
+	var target_available: bool = is_instance_valid(target) and is_instance_valid(ECS.world) and ECS.world.entities.has(target) if allow_dead_target else GrabQueries.holder_available(target)
+	if observer == target or not target_available or not GrabQueries.holder_available(observer):
 		return false
 
 	var observer_body: PhysicsBody3D = observer as Node as PhysicsBody3D
@@ -63,7 +63,7 @@ static func _head_point(actor: Entity, physical: PhysicsBody3D) -> Vector3:
 
 ## Проверяет предмет или авторскую точку по тем же правилам света, сектора и препятствий.
 static func can_see_point(observer: E_DistrictNpc, point: Vector3, profile: DEF_NpcProfile, target: Entity = null) -> bool:
-	if not GrabService.holder_available(observer):
+	if not GrabQueries.holder_available(observer):
 		return false
 
 	var eye: Vector3 = observer.global_position + Vector3.UP * EYE_HEIGHT

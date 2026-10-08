@@ -109,7 +109,7 @@ func test_damage_refusal_keeps_physical_box_and_is_idempotent() -> void:
 	_handoff(body, visit)
 	assert_eq(visit.actual, CustomerVisit.Actual.CUSTOMER_REFUSED)
 	assert_same(PackageQueries.find_live_package(visit.package_id), parcel)
-	assert_null(GrabService.held_relationship(parcel))
+	assert_null(GrabQueries.held_relationship(parcel))
 	assert_true(_run_tree(body, SERVICE_TREE, 0.2))
 	var job: NpcHomeDelivery = _job(visit)
 	assert_eq(job.status, NpcHomeDelivery.Status.REFUSED)
@@ -127,7 +127,7 @@ func test_invalid_parcel_never_changes_home_outcome_or_money() -> void:
 	var wrong: Entity = PackageQueries.find_live_package(other.package_id)
 	wrong.add_relationship(Relationship.new(R_HeldBy.new(), _player))
 	assert_eq(CustomerFlowService.confirm_direct_delivery(_player, body), PackageDeliveryCheck.Result.WRONG_PACKAGE)
-	GrabService.release(_player, wrong)
+	GrabReleaseService.release(_player, wrong)
 	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _player))
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
@@ -141,7 +141,7 @@ func test_invalid_parcel_never_changes_home_outcome_or_money() -> void:
 	CustomerParcelAssignment.bind_parcel(body, visit)
 	state.damage = C_PackageState.Damage.DESTROYED
 	assert_eq(CustomerFlowService.confirm_direct_delivery(_player, body), PackageDeliveryCheck.Result.DESTROYED)
-	assert_not_null(GrabService.held_relationship(parcel))
+	assert_not_null(GrabQueries.held_relationship(parcel))
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(_job(visit).status, NpcHomeDelivery.Status.ACCEPTED)
 	assert_true(WalletService.current().operations.is_empty())

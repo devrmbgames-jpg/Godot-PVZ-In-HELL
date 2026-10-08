@@ -177,7 +177,7 @@ func _start_after_demand(customer: E_NpcCharacter) -> void:
 func _use_switch() -> void:
 	var light_switch: Entity = _level.get_node("Entityes/LightSwitch") as Entity
 	var position: Vector3 = (light_switch as Node as Node3D).global_position
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	ray.global_position = position + Vector3.RIGHT * 1.5
 	ray.look_at(position)
 	for frame: int in 2:

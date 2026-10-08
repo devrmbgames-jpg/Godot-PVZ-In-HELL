@@ -35,7 +35,7 @@ func before_each() -> void:
 	(session.get_component(C_DayCycle) as C_DayCycle).phase = C_DayCycle.Phase.DAY
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
-	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 	_motion = C_Motion.new()
 	_motion.is_on_floor = true

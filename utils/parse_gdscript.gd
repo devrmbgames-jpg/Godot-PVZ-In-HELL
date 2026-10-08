@@ -30,7 +30,9 @@ func _parse_selected_scripts() -> void:
 		# The running parser has already compiled; reloading its live instance is forbidden.
 		if selected_script == get_script():
 			continue
-		var reload_error: Error = selected_script.reload()
+		# Earlier scene/resource dependencies may already have instantiated a Component.
+		# Recompile its script while retaining those instances in this headless parser.
+		var reload_error: Error = selected_script.reload(true)
 		if reload_error != OK:
 			push_error("Parser failed: %s (%s)" % [resource_path, error_string(reload_error)])
 			failures += 1

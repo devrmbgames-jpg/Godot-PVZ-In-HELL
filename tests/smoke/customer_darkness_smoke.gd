@@ -107,7 +107,7 @@ func _run() -> void:
 	assert(not LightCircuitService.is_enabled(&"warehouse"))
 	assert(retry.aggressive)
 	assert((second.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.AGGRESSIVE)
-	assert(CombatService.target_for(second) == actor)
+	assert(CombatQueries.target_for(second) == actor)
 	for node: Node in get_tree().get_nodes_in_group(&"warehouse_lights"):
 		assert(not (node as Light3D).visible)
 	assert(_flickers == 2)

@@ -367,7 +367,7 @@ static func _remove_live_package(entity: Entity) -> void:
 		return
 
 	CartCargoService.release(entity)
-	GrabService.entity_unavailable(entity)
+	GrabReleaseService.entity_unavailable(entity)
 	PackageMarkService.clear_marks(entity)
 	ECS.world.remove_entity(entity)
 	entity.queue_free()

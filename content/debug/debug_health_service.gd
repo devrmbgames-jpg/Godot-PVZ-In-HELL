@@ -71,7 +71,7 @@ static func reset(target: DebugTarget) -> DebugServiceResult:
 		result.message = "target has invalid Health"
 		return result
 
-	GrabService.entity_unavailable(entity)
+	GrabReleaseService.entity_unavailable(entity)
 	PushService.entity_unavailable(entity)
 	CartTransportService.entity_unavailable(entity)
 

@@ -26,7 +26,7 @@ func before_each() -> void:
 	ECS.world = _world
 	_body = RigidBody3D.new()
 	_body.freeze = true
-	_body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	_body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = _body as Node as E_RigidBodyCharacter
 	_motion = C_Motion.new()
 	_motion.is_on_floor = true

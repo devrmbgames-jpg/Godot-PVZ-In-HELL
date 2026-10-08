@@ -90,7 +90,7 @@ func _process(delta: float) -> void:
 		return
 
 	var trader: Entity = _shop()
-	if not GrabService.holder_available(_actor) or _actor.has_component(C_Death) or (not _order_mode and (not GrabService.holder_available(trader) or trader.has_component(C_Death))):
+	if not GrabQueries.holder_available(_actor) or _actor.has_component(C_Death) or (not _order_mode and (not GrabQueries.holder_available(trader) or trader.has_component(C_Death))):
 		close_panel()
 		return
 
@@ -105,7 +105,7 @@ func _process(delta: float) -> void:
 #region Модальный сеанс
 ## Захватывает ввод для торговли/заказа и запрашивает доступное задание торговца.
 func open_for(actor: Entity, trader: Entity = null, order_mode: bool = false) -> bool:
-	if _capture != 0 or not GrabService.holder_available(actor) or actor.has_component(C_Death) or CommerceService.current() == null:
+	if _capture != 0 or not GrabQueries.holder_available(actor) or actor.has_component(C_Death) or CommerceService.current() == null:
 		return false
 
 	_actor = actor
@@ -334,7 +334,7 @@ func _can_click() -> bool:
 
 
 func _has_input() -> bool:
-	return _capture != 0 and GrabService.holder_available(_actor) and InteractionControlFocus.current(_actor, _capture) < InteractionControlFocus.Priority.MODAL
+	return _capture != 0 and GrabQueries.holder_available(_actor) and InteractionControlFocus.current(_actor, _capture) < InteractionControlFocus.Priority.MODAL
 
 
 func _clear(container: VBoxContainer) -> void:

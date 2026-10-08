@@ -35,7 +35,7 @@ func after_each() -> void:
 
 
 func _valve() -> E_InteractionTestValve:
-	var valve: E_InteractionTestValve = (load("res://content/entities/props/interaction_test_valve.tscn") as PackedScene).instantiate() as E_InteractionTestValve
+	var valve: E_InteractionTestValve = (load("res://content/domains/interaction/entities/interaction_test_valve.tscn") as PackedScene).instantiate() as E_InteractionTestValve
 	valve.name = "Valve"
 	_root.add_child(valve)
 	valve.owner = _root
@@ -406,7 +406,7 @@ func test_night_removes_temporary_hazards_and_applies_persistent_owner_loss() ->
 
 ## Загрузка незафиксированного предмета снимает старый anchor и возвращает сохранённые настройки тела.
 func test_loading_unfixed_snapshot_clears_old_anchor_and_restores_body_policy() -> void:
-	var box: Entity = (load("res://content/entities/props/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
+	var box: Entity = (load("res://content/domains/interaction/entities/anchorable_test_box.tscn") as PackedScene).instantiate() as Entity
 	_world.add_entity(box)
 	var body: RigidBody3D = box as Node as RigidBody3D
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)

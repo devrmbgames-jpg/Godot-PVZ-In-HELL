@@ -75,7 +75,7 @@ func test_schedule_exit_accepts_ground_radius_without_exact_marker_contact() -> 
 	assert_eq(person.placement, NpcRecord.Placement.OUTSIDE)
 	assert_false(body.enabled)
 	assert_eq(body.collision_layer, 0)
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 
 ## Бегство использует тот же наземный радиус, а удалённая точка не завершает уход преждевременно.
 func test_flee_exit_stops_only_within_portal_radius() -> void:
@@ -159,7 +159,7 @@ func test_player_footsteps_still_prompt_anonymous_investigation() -> void:
 	assert_true(NpcPerceptionService.hear(body, person.profile, noise))
 	_run_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
 	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 	assert_true(person.memories.is_empty())
 
 ## Наблюдатель выбирает воспринимаемого соседа и теряет фокус за реальным укрытием.
@@ -258,7 +258,7 @@ func test_wounded_pursuer_releases_combat_and_allows_sleep() -> void:
 	assert_false(NpcSleepService.blockers().is_empty())
 	assert_true(_run_branch(body, C_NpcDecision.Owner.EMERGENCY, 0.2))
 	assert_true(awareness.fleeing)
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 	assert_eq((body.get_component(C_NpcCombat) as C_NpcCombat).phase, C_NpcCombat.Phase.READY)
 	assert_true(NpcSleepService.blockers().is_empty())
 

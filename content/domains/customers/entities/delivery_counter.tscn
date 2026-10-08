@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" path="res://content/domains/customers/entities/e_delivery_counter.gd" id="Entity"]
 [ext_resource type="Script" path="res://content/domains/customers/components/c_delivery_counter.gd" id="Counter"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="Actions"]
 [ext_resource type="Script" path="res://content/domains/customers/definitions/def_delivery_action.gd" id="Action"]
 [ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
 

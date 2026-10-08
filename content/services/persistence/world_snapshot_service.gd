@@ -6,6 +6,9 @@ const _ENTITY_SCENE_ROOTS: Array[String] = [
 	"res://content/entities/",
 	"res://content/domains/npc/entities/",
 	"res://content/domains/customers/entities/",
+	"res://content/domains/interaction/entities/",
+	"res://content/domains/combat/entities/",
+	"res://content/domains/motion/entities/",
 ]
 
 

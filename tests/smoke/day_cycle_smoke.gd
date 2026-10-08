@@ -63,7 +63,7 @@ func _run() -> void:
 ## Наводит тестовый луч на станцию и проводит взаимодействие через штатные группы World.
 func _use_station(station_name: String) -> void:
 	var station: Node3D = _level.get_node("Entityes/" + station_name) as Node3D
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	ray.look_at(station.global_position + Vector3.UP * 0.55)
 	_controller.interact_pressed = true
 	_controller.input_tick += 1

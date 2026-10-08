@@ -40,7 +40,7 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.PURCHASE, false)
 	if valid != Status.COMMITTED:
 		return _trace_result(valid, operation_id, &"commerce.purchase", actor, item)
-	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not GrabService.holder_available(trader):
+	if not GrabQueries.holder_available(actor) or actor.has_component(C_Death) or not GrabQueries.holder_available(trader):
 		return _trace_result(Status.INVALID, operation_id, &"commerce.purchase", actor, item)
 
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
@@ -124,7 +124,7 @@ static func home_delivery(actor: Entity, trader: Entity, item: DEF_InventoryItem
 	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.TRADER_DELIVERY, false)
 	if valid != Status.COMMITTED:
 		return _trace_result(valid, operation_id, &"commerce.home_delivery", actor, item)
-	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or not GrabService.holder_available(trader) or trader.has_component(C_Death):
+	if not GrabQueries.holder_available(actor) or actor.has_component(C_Death) or not GrabQueries.holder_available(trader) or trader.has_component(C_Death):
 		return _trace_result(Status.INVALID, operation_id, &"commerce.home_delivery", actor, item)
 
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
@@ -166,7 +166,7 @@ static func order(actor: Entity, item: DEF_InventoryItem, quantity: int, operati
 		return _trace_result(valid, operation_id, &"commerce.order", actor, item)
 	if cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING]:
 		return _trace_result(Status.WRONG_PHASE, operation_id, &"commerce.order", actor, item)
-	if not GrabService.holder_available(actor) or actor.has_component(C_Death):
+	if not GrabQueries.holder_available(actor) or actor.has_component(C_Death):
 		return _trace_result(Status.INVALID, operation_id, &"commerce.order", actor, item)
 
 	state.transaction_in_progress = true

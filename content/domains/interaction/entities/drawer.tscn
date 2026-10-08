@@ -1,0 +1,89 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/domains/interaction/entities/e_openable.gd" id="Entity"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_openable.gd" id="Openable"]
+[ext_resource type="Script" path="res://content/domains/interaction/definitions/def_openable_motion.gd" id="Motion"]
+[ext_resource type="Resource" path="res://content/domains/interaction/definitions/def_openable_actions.tres" id="Actions"]
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="Motion"]
+script = ExtResource("Motion")
+open_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.6)
+duration_seconds = 0.75
+slide_motor_force_limit = 120.0
+
+[sub_resource type="Resource" id="Openable"]
+script = ExtResource("Openable")
+motion = SubResource("Motion")
+
+[sub_resource type="StandardMaterial3D" id="Wood"]
+albedo_color = Color(0.3, 0.2, 0.12, 1)
+
+[sub_resource type="BoxMesh" id="Mesh"]
+size = Vector3(0.9, 0.25, 0.7)
+material = SubResource("Wood")
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.9, 0.25, 0.7)
+
+[sub_resource type="BoxMesh" id="CabinetMesh"]
+size = Vector3(1.1, 0.65, 0.8)
+material = SubResource("Wood")
+
+[sub_resource type="BoxShape3D" id="CabinetShape"]
+size = Vector3(1.1, 0.65, 0.8)
+
+[node name="Drawer" type="StaticBody3D" node_paths=PackedStringArray("door_root", "slide_joint")]
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("Entity")
+door_root = NodePath("SlidingBody")
+slide_joint = NodePath("SlideJoint")
+component_resources = Array[ExtResource("Component")]([SubResource("Interactable"), SubResource("Openable"), ExtResource("Actions")])
+
+[node name="Cabinet" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.45, 0.05)
+mesh = SubResource("CabinetMesh")
+
+[node name="CabinetCollision" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.45, 0.05)
+shape = SubResource("CabinetShape")
+
+[node name="SlidingBody" type="RigidBody3D" parent="."]
+collision_layer = 1
+collision_mask = 29
+mass = 8.0
+gravity_scale = 0.0
+can_sleep = false
+
+[node name="Visual" type="MeshInstance3D" parent="SlidingBody"]
+mesh = SubResource("Mesh")
+
+[node name="Collision" type="CollisionShape3D" parent="SlidingBody"]
+shape = SubResource("Shape")
+
+[node name="SlideJoint" type="Generic6DOFJoint3D" parent="."]
+node_a = NodePath("..")
+node_b = NodePath("../SlidingBody")
+linear_limit_x/enabled = true
+linear_limit_x/lower_distance = 0.0
+linear_limit_x/upper_distance = 0.0
+linear_limit_y/enabled = true
+linear_limit_y/lower_distance = 0.0
+linear_limit_y/upper_distance = 0.0
+linear_limit_z/enabled = true
+linear_limit_z/lower_distance = -0.6
+linear_limit_z/upper_distance = 0.0
+angular_limit_x/enabled = true
+angular_limit_x/lower_angle = 0.0
+angular_limit_x/upper_angle = 0.0
+angular_limit_y/enabled = true
+angular_limit_y/lower_angle = 0.0
+angular_limit_y/upper_angle = 0.0
+angular_limit_z/enabled = true
+angular_limit_z/lower_angle = 0.0
+angular_limit_z/upper_angle = 0.0

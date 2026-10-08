@@ -496,7 +496,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -526,7 +526,7 @@
 "fields": {
 "multipliers": {}
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -545,7 +545,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -577,7 +577,7 @@
 7: 0.0
 }
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -596,7 +596,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -626,7 +626,7 @@
 "fields": {
 "multipliers": {}
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -645,7 +645,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -675,7 +675,7 @@
 "fields": {
 "multipliers": {}
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -694,7 +694,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -724,7 +724,7 @@
 "fields": {
 "multipliers": {}
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -743,7 +743,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -773,7 +773,7 @@
 "fields": {
 "multipliers": {}
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -792,7 +792,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -822,7 +822,7 @@
 "fields": {
 "multipliers": {}
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -841,7 +841,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -871,7 +871,7 @@
 "fields": {
 "multipliers": {}
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -890,7 +890,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -920,7 +920,7 @@
 "fields": {
 "multipliers": {}
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -939,7 +939,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -969,7 +969,7 @@
 "fields": {
 "multipliers": {}
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -988,7 +988,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -1018,7 +1018,7 @@
 "fields": {
 "multipliers": {}
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -1037,7 +1037,7 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "released": false
@@ -1067,7 +1067,7 @@
 "fields": {
 "multipliers": {}
 },
-"type": "res://content/components/npc/c_damage_resistance.gd"
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -1123,12 +1123,12 @@
 "depleted": false,
 "value": 100.0
 },
-"type": "res://content/components/gameplay/c_health.gd"
+"type": "res://content/domains/combat/components/c_health.gd"
 }, {
 "fields": {
 "tier": 0
 },
-"type": "res://content/components/gameplay/c_impact_protection.gd"
+"type": "res://content/domains/combat/components/c_impact_protection.gd"
 }, {
 "fields": {
 "definition": {
@@ -1164,7 +1164,7 @@
 "key": "placed/fixture/Slot",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
-"scene": "res://content/entities/props/physical_slot.tscn"
+"scene": "res://content/domains/interaction/entities/physical_slot.tscn"
 }, {
 "authored_id": "placed/fixture/StoredBox",
 &"completed_actions": Array[StringName]([]),
@@ -1178,7 +1178,7 @@
 "target": "placed/fixture/Slot"
 }]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0),
-"scene": "res://content/entities/props/anchorable_test_box.tscn"
+"scene": "res://content/domains/interaction/entities/anchorable_test_box.tscn"
 }, {
 "authored_id": "placed/fixture/Cart",
 &"completed_actions": Array[StringName]([]),
@@ -1194,7 +1194,7 @@
 "key": "fixture/cart",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
-"scene": "res://content/entities/props/push_cart.tscn"
+"scene": "res://content/domains/interaction/entities/push_cart.tscn"
 }, {
 "authored_id": "placed/fixture/CargoBox",
 &"completed_actions": Array[StringName]([]),
@@ -1209,8 +1209,8 @@
 "target": "fixture/cart"
 }]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
-"scene": "res://content/entities/props/anchorable_test_box.tscn"
+"scene": "res://content/domains/interaction/entities/anchorable_test_box.tscn"
 }]),
 "morning_day": 2,
-"version": 5
+"version": 6
 }

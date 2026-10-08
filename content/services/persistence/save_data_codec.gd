@@ -43,6 +43,9 @@ const _DEFINITION_ROOTS: Array[String] = [
 	"res://content/definitions/",
 	"res://content/domains/npc/definitions/",
 	"res://content/domains/customers/definitions/",
+	"res://content/domains/interaction/definitions/",
+	"res://content/domains/combat/definitions/",
+	"res://content/domains/motion/definitions/",
 ]
 
 

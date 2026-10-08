@@ -16,17 +16,17 @@ static func append_sample(
 	world_normal: Vector3,
 ) -> void:
 	if not drawable(parcel):
-		break_stroke(marker)
+		MarkerSessionCleanup.break_stroke(marker)
 		return
 
 	var marks: C_PackageMarks = parcel.get_component(C_PackageMarks) as C_PackageMarks
 	if marks == null or marks.point_count >= marker.max_package_points:
-		break_stroke(marker)
+		MarkerSessionCleanup.break_stroke(marker)
 		return
 
 	var body: Node3D = parcel as Node as Node3D
 	if body == null:
-		break_stroke(marker)
+		MarkerSessionCleanup.break_stroke(marker)
 		return
 
 	var local_normal: Vector3 = (body.global_basis.transposed() * world_normal).normalized()
@@ -61,15 +61,6 @@ static func append_sample(
 	marks.revision += 1
 
 
-## Сбрасывает временную непрерывность маркера, сохраняя уже нанесённые чернила.
-static func break_stroke(marker: C_Marker) -> void:
-	if marker == null:
-		return
-
-	marker.parcel = null
-	marker.stroke = null
-
-
 ## Удаляет чернила коробки и повышает revision для обновления представления.
 static func clear_marks(parcel: Entity) -> void:
 	if not is_instance_valid(parcel):
@@ -84,7 +75,7 @@ static func clear_marks(parcel: Entity) -> void:
 
 ## Проверяет доступную коробку с чернилами, которая не уничтожена и не покинула склад.
 static func drawable(parcel: Entity) -> bool:
-	if not GrabService.entity_available(parcel) or not parcel.has_component(C_PackageMarks):
+	if not GrabQueries.entity_available(parcel) or not parcel.has_component(C_PackageMarks):
 		return false
 
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState

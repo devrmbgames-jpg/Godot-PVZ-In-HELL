@@ -59,9 +59,9 @@ func _run() -> void:
 	var first_supply_position: Vector3 = (first as Node as Node3D).global_position
 	var second_supply_position: Vector3 = (second as Node as Node3D).global_position
 	await _prepare_target(actor, scanner, Vector3(0.0, 0.0, -1.6))
-	assert(GrabService.within_pickup_reach(actor, scanner))
+	assert(GrabReachQueries.within_pickup_reach(actor, scanner))
 	_drive(actor, true, false, false)
-	assert(GrabService.held_object(actor) == scanner, "E must pick up the real scanner")
+	assert(GrabQueries.held_object(actor) == scanner, "E must pick up the real scanner")
 	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
 	assert(InteractionTargetingGeometry.find_target(actor, interactor) == first)
 	_drive(actor, false, false, true)
@@ -70,7 +70,7 @@ func _run() -> void:
 	var registry: C_PackageLedger = PackageQueries.ledger()
 	assert(first_state.registration_number == 1 and registry.records.size() == 1)
 	assert(first_state.scan == C_PackageState.Scan.SCANNED)
-	assert(GrabService.held_object(actor) == scanner, "Scan must not throw")
+	assert(GrabQueries.held_object(actor) == scanner, "Scan must not throw")
 	var feedback: Label3D = scanner.get_node("Feedback/Result") as Label3D
 	assert("\u2116001" in feedback.text)
 	assert((scanner.get_node("Feedback/Beep") as AudioStreamPlayer3D).playing)
@@ -91,7 +91,7 @@ func _run() -> void:
 	)
 	scanner_config.scan_range = 3.0
 
-	var ray: RayCast3D = GrabService.interaction_raycast(actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(actor)
 	ray.look_at(ray.global_position + Vector3(0, 1, -1))
 	ray.force_raycast_update()
 	assert(
@@ -239,13 +239,13 @@ func _drive(actor: Entity, interact: bool, use: bool, primary: bool) -> void:
 func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> void:
 	if is_instance_valid(_prepared_body):
 		var previous_entity: Entity = _prepared_body as Node as Entity
-		if GrabService.held_relationship(previous_entity) == null:
+		if GrabQueries.held_relationship(previous_entity) == null:
 			_prepared_body.global_transform = _prepared_transform
 
 	var target_body: Node3D = target as Node as Node3D
 	_prepared_body = target_body
 	_prepared_transform = target_body.global_transform
-	var ray: RayCast3D = GrabService.interaction_raycast(actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(actor)
 	target_body.global_position = ray.global_position + target_offset
 	await get_tree().physics_frame
 	ray.look_at(target_body.global_position)

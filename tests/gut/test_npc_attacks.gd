@@ -43,7 +43,7 @@ func _body(npc: bool) -> E_RigidBodyCharacter:
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.collision_layer = 2 if npc else 4
-	body.set_script(load("res://content/domains/npc/entities/e_npc_character.gd" if npc else "res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/npc/entities/e_npc_character.gd" if npc else "res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	var entity: E_RigidBodyCharacter = body as Node as E_RigidBodyCharacter
 	var health: C_Health = C_Health.new()
 	health.current = 100.0
@@ -51,8 +51,8 @@ func _body(npc: bool) -> E_RigidBodyCharacter:
 	entity.component_resources = [health, C_Living.new(), C_Controller.new(), C_NpcIntent.new()]
 	if npc:
 		var combat: C_NpcCombat = C_NpcCombat.new()
-		combat.melee_attacks = [load("res://content/definitions/gameplay/combat/def_npc_punch.tres") as DEF_NpcAttack]
-		combat.ranged_attacks = [load("res://content/definitions/gameplay/combat/def_npc_shot.tres") as DEF_NpcAttack]
+		combat.melee_attacks = [load("res://content/domains/combat/definitions/def_npc_punch.tres") as DEF_NpcAttack]
+		combat.ranged_attacks = [load("res://content/domains/combat/definitions/def_npc_shot.tres") as DEF_NpcAttack]
 		entity.component_resources.append(combat)
 
 	var head: Marker3D = Marker3D.new()
@@ -106,7 +106,7 @@ func test_lethal_effect_cancellation_does_not_resurrect_attack_phase() -> void:
 	assert_eq(_state.phase, C_NpcCombat.Phase.READY)
 	assert_null(_state.attack)
 	assert_eq(_state.elapsed, 0.0)
-	assert_null(CombatService.target_for(_npc))
+	assert_null(CombatQueries.target_for(_npc))
 
 
 ## The full production owner chooses automatically only after the authored cooldown expires.
@@ -352,7 +352,7 @@ func test_removed_target_cancels_pending_animation_hook_and_navigation() -> void
 	_world.remove_entity(_target)
 	_target = null
 	assert_eq(_state.phase, C_NpcCombat.Phase.READY)
-	assert_null(CombatService.target_for(_npc))
+	assert_null(CombatQueries.target_for(_npc))
 	assert_false(NpcAttackService.commit_effect(_npc))
 	assert_false((_npc.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 
@@ -367,7 +367,7 @@ func test_death_cancels_strike_before_effect_and_clears_opponent() -> void:
 	request.amount = 200.0
 	DamageRequestService.submit(request)
 	assert_true(_npc.has_component(C_Death))
-	assert_null(CombatService.target_for(_npc))
+	assert_null(CombatQueries.target_for(_npc))
 	assert_false(NpcAttackService.commit_effect(_npc))
 	assert_eq(_health.current, 100.0)
 

@@ -53,7 +53,7 @@ func is_valid() -> bool:
 	if _customer is E_DistrictNpc:
 		var player_body: Node3D = _actor as Node as Node3D
 		var district: C_District = NpcPopulationQueries.current()
-		if not GrabService.holder_available(_actor) or not GrabService.holder_available(_customer) or player_body == null or district == null:
+		if not GrabQueries.holder_available(_actor) or not GrabQueries.holder_available(_customer) or player_body == null or district == null:
 			return false
 		if _customer.global_position.distance_to(player_body.global_position) > district.definition.conversation_range:
 			return false
@@ -73,7 +73,7 @@ func is_valid() -> bool:
 func can_continue() -> bool:
 	var agent: C_CustomerAgent = _agent()
 	var awareness: C_NpcAwareness = _customer.get_component(C_NpcAwareness) as C_NpcAwareness if is_instance_valid(_customer) else null
-	return is_valid() and NpcDialogueService.participant(_customer) == _actor and agent.phase == C_CustomerAgent.Phase.DIALOGUE and CombatService.target_for(_customer) == null and (awareness == null or not awareness.fleeing)
+	return is_valid() and NpcDialogueService.participant(_customer) == _actor and agent.phase == C_CustomerAgent.Phase.DIALOGUE and CombatQueries.target_for(_customer) == null and (awareness == null or not awareness.fleeing)
 
 
 #endregion

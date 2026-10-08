@@ -73,7 +73,7 @@ func _character(customer: bool) -> E_RigidBodyCharacter:
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.collision_layer = 2 if customer else 4
-	body.set_script(load("res://content/domains/customers/entities/e_customer.gd" if customer else "res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/customers/entities/e_customer.gd" if customer else "res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	var entity: E_RigidBodyCharacter = body as Node as E_RigidBodyCharacter
 	var eyes: Marker3D = Marker3D.new()
 	eyes.position.y = 1.5

@@ -4,6 +4,6 @@ extends "res://content/domains/npc/ai/tasks/bt_npc_condition.gd"
 
 #region Проверка состояния
 func _tick(_delta: float) -> Status:
-	var target: Entity = CombatService.target_for(_actor)
-	return SUCCESS if GrabService.holder_available(target) and not target.has_component(C_Death) else FAILURE
+	var target: Entity = CombatQueries.target_for(_actor)
+	return SUCCESS if GrabQueries.holder_available(target) and not target.has_component(C_Death) else FAILURE
 #endregion

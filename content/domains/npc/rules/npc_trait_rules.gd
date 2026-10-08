@@ -16,7 +16,7 @@ static func gazing(player: Entity, actor: E_DistrictNpc, rule: DEF_NpcTrait) -> 
 
 ## Reads the latest observed confrontation response and visible held weapon.
 static func looks_vulnerable(player: Entity, person: NpcRecord) -> bool:
-	var held: Entity = GrabService.held_object(player)
+	var held: Entity = GrabQueries.held_object(player)
 	if held != null and held.has_component(C_MeleeWeapon):
 		return false
 

@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" path="res://addons/gecs/ecs/entity.gd" id="Entity"]
 [ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="Actions"]
 [ext_resource type="Script" path="res://content/definitions/interaction/def_package_return_action.gd" id="Action"]
 
 [sub_resource type="Resource" id="Interactable"]

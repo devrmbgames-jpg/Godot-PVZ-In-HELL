@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="DEF_NpcProfile" format=3 uid="uid://c1yve1adpnxk0"]
 
-[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/definitions/gameplay/combat/def_npc_attack.gd" id="1_ey8fa"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/combat/def_npc_punch.tres" id="2_o7hov"]
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="1_ey8fa"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_npc_punch.tres" id="2_o7hov"]
 [ext_resource type="Script" uid="uid://b5sdb0rpo1bdu" path="res://content/domains/npc/definitions/def_npc_profile.gd" id="Profile"]
 [ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_trait_4.tres" id="Rule"]
 [ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="RuleScript"]

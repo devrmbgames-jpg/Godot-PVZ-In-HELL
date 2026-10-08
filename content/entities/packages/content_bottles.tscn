@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://content/entities/packages/content_stub.tscn" id="Base"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/def_impact_fragile.tres" id="Impact"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_impact_fragile.tres" id="Impact"]
 [ext_resource type="PackedScene" path="res://content/entities/hazards/toxic_residue.tscn" id="Hazard"]
 
 [sub_resource type="StandardMaterial3D" id="Material"]

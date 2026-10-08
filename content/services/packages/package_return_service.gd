@@ -7,11 +7,11 @@ class_name PackageReturnService
 ## Утром находит удерживаемую игроком коробку, допустимую к физическому возврату.
 static func held_refused(actor: Entity) -> Entity:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
-	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING or not GrabService.holder_available(actor):
+	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING or not GrabQueries.holder_available(actor):
 		return null
 
 	for slot: int in 3:
-		var parcel: Entity = GrabService.held_in_slot(actor, slot)
+		var parcel: Entity = GrabQueries.held_in_slot(actor, slot)
 		if can_return(parcel):
 			return parcel
 	return null
@@ -61,7 +61,7 @@ static func return_held(actor: Entity) -> bool:
 			visit.disposition = CustomerVisit.Disposition.RETURNED
 			visit.next_followup_day = 0
 	# Фактический исход, заявление, спор и записи расчёта сохраняются при возврате.
-	GrabService.release(actor, parcel)
+	GrabReleaseService.release(actor, parcel)
 	ECS.world.remove_entity(parcel)
 	return true
 

@@ -32,7 +32,7 @@ func _commit_condition(target_reference: WeakRef, result: DamageResult, captured
 			or target.get_component(C_PackageState) != captured_condition:
 		return
 
-	if not GrabService.entity_available(target):
+	if not GrabQueries.entity_available(target):
 		return
 
 	var condition: C_PackageState = target.get_component(C_PackageState) as C_PackageState
@@ -41,7 +41,7 @@ func _commit_condition(target_reference: WeakRef, result: DamageResult, captured
 	if result.outcome == DamageResult.Outcome.HEALTH_DEPLETED:
 		condition.damage = C_PackageState.Damage.DESTROYED
 		CartCargoService.release(target)
-		GrabService.entity_unavailable(target)
+		GrabReleaseService.entity_unavailable(target)
 		PackageMarkService.clear_marks(target)
 		PackageLifecycle.publish(
 			target,

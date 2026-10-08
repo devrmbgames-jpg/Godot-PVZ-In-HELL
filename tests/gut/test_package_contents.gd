@@ -41,7 +41,7 @@ func before_each() -> void:
 
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
-	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 	var hunger: C_Hunger = C_Hunger.new()
 	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
@@ -140,8 +140,8 @@ func test_opening_held_package_refreshes_empty_carry_mass_without_releasing() ->
 	assert_eq(PackageOpening.request_open(_actor, parcel).status, PackageOpenResult.Status.COMMITTED)
 	assert_true(load_state.active)
 	assert_eq(load_state.mass_kg, 1.0)
-	assert_eq(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.CARRY), parcel)
-	GrabService.release(_actor, parcel)
+	assert_eq(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.CARRY), parcel)
+	GrabReleaseService.release(_actor, parcel)
 
 
 ## Пять физических порций объединяются в инвентаре; расход и повторное событие не возрождают содержимое.
@@ -365,7 +365,7 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 	assert_eq((bottom.shape as BoxShape3D).size, Vector3(1.5, 0.08, 1.5))
 	assert_almost_eq(body.global_position.y, 1.53, 0.01, "Shelf is placed with its real bottom on the floor")
 
-	var hammer: Entity = (load("res://content/entities/tools/hammer.tscn") as PackedScene).instantiate() as Entity
+	var hammer: Entity = (load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate() as Entity
 	_world.add_entity(hammer)
 	(hammer as Node as RigidBody3D).gravity_scale = 0.0
 	(hammer as Node as Node3D).global_position = Vector3(-2, 1, 0)
@@ -381,8 +381,8 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 
 	_ray.look_at(body.global_position)
 	(_actor.get_component(C_Interactor) as C_Interactor).target = shelf
-	assert_not_null(GrabService.held_relationship(hammer))
-	assert_true(GrabService.within_pickup_reach(_actor, shelf))
+	assert_not_null(GrabQueries.held_relationship(hammer))
+	assert_true(GrabReachQueries.within_pickup_reach(_actor, shelf))
 	assert_true(AnchoringService.anchor(_actor, hammer, shelf))
 	assert_true(body.freeze)
 	assert_true(shelf.has_component(C_PlayerAnchored))

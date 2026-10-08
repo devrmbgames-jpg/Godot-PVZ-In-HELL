@@ -19,7 +19,7 @@ func _install_service_light() -> void:
 	var relay: O_LightFlicker = O_LightFlicker.new()
 	_world.add_observer(relay)
 	relay.flickering_light.connect(_remember_flicker)
-	_light_switch = (load("res://content/entities/props/light_switch.tscn") as PackedScene).instantiate() as Entity
+	_light_switch = (load("res://content/domains/interaction/entities/light_switch.tscn") as PackedScene).instantiate() as Entity
 	_world.add_entity(_light_switch)
 	var lamp: OmniLight3D = OmniLight3D.new()
 	lamp.name = "ServiceLamp"
@@ -190,7 +190,7 @@ func test_aggressive_retreat_requires_real_health_risk() -> void:
 	health.current = health.value * person.profile.pursuit_health_reserve * 0.5
 	assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.THREAT, &"wounded_threat"), NpcMemory.Reaction.FLEE)
 	assert_true((body.get_component(C_NpcAwareness) as C_NpcAwareness).fleeing)
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 
 ## Тот же инцидент сохраняет решение после смены риска и не применяет нападение повторно.
 func test_repeated_incident_keeps_reaction_without_restarting_combat() -> void:
@@ -200,7 +200,7 @@ func test_repeated_incident_keeps_reaction_without_restarting_combat() -> void:
 	person.profile.high_attack_probability = 1.0
 	var player: E_DistrictNpc = _player()
 	assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.THREAT, &"same_threat"), NpcMemory.Reaction.ATTACK)
-	assert_same(CombatService.target_for(body), player)
+	assert_same(CombatQueries.target_for(body), player)
 	CombatService.end_combat(body)
 	person.profile.high_attack_probability = 0.0
 	person.profile.low_flee_probability = 1.0
@@ -208,7 +208,7 @@ func test_repeated_incident_keeps_reaction_without_restarting_combat() -> void:
 	for repeat_index: int in 4:
 		assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.THREAT, &"same_threat"), NpcMemory.Reaction.ATTACK)
 	assert_eq(person.memories.size(), 1)
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 	assert_false((body.get_component(C_NpcAwareness) as C_NpcAwareness).fleeing)
 #endregion
 

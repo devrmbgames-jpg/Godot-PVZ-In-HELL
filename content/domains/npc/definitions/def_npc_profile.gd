@@ -3,7 +3,7 @@ extends GameDefinition
 class_name DEF_NpcProfile
 
 ## Способности ближнего боя для существующего исполнителя атак.
-@export var melee_attacks: Array[DEF_NpcAttack] = [preload("res://content/definitions/gameplay/combat/def_npc_punch.tres")]
+@export var melee_attacks: Array[DEF_NpcAttack] = [preload("res://content/domains/combat/definitions/def_npc_punch.tres")]
 ## Способности дальнего боя; у обычных жителей список пуст.
 @export var ranged_attacks: Array[DEF_NpcAttack] = []
 

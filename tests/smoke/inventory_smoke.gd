@@ -121,7 +121,7 @@ func _run() -> void:
 #region Тестовое наведение и UI
 func _aim(target: Entity, offset: Vector3 = Vector3.ZERO) -> void:
 	var position: Vector3 = (target as Node as Node3D).global_position + offset
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	ray.global_position = position + Vector3.BACK * 1.5
 	ray.look_at(position)
 	for frame: int in 2:

@@ -50,7 +50,7 @@ static func valid_participants(player: Entity, body: E_DistrictNpc) -> bool:
 	var person: NpcRecord = NpcPopulationQueries.person_for(NpcSocialService.identity_for(body))
 	if person == null or person.death_day != 0 or person.placement != NpcRecord.Placement.STREET:
 		return false
-	if not GrabService.holder_available(player) or not GrabService.holder_available(body) or CombatService.target_for(body) != null:
+	if not GrabQueries.holder_available(player) or not GrabQueries.holder_available(body) or CombatQueries.target_for(body) != null:
 		return false
 
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness

@@ -945,16 +945,13 @@
     {
       "source_owner": "combat",
       "target_owner": "interaction",
-      "symbol": "GrabService",
-      "path": "content/domains/interaction/services/grab_service.gd",
+      "symbol": "GrabQueries",
+      "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
         "entity_available",
-        "entity_unavailable",
         "held_in_slot",
         "held_relationship",
         "holder_available",
@@ -972,11 +969,36 @@
       ],
       "method_rights": {
         "entity_available": "request",
-        "entity_unavailable": "request",
         "held_in_slot": "request",
         "held_relationship": "request",
         "holder_available": "request",
         "physical_body": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "interaction",
+      "symbol": "GrabReleaseService",
+      "path": "content/domains/interaction/services/grab_release_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "entity_unavailable"
+      ],
+      "sources": [
+        "content/observers/gameplay/o_health_lifecycle.gd",
+        "content/services/combat/combat_attribution.gd",
+        "content/services/combat/combat_geometry.gd",
+        "content/services/combat/combat_service.gd",
+        "content/services/combat/npc_attack_service.gd",
+        "content/services/combat/projectile_service.gd",
+        "content/services/damage/kinematic_impact_capture.gd",
+        "content/systems/gameplay/s_player_melee.gd"
+      ],
+      "method_rights": {
+        "entity_unavailable": "request"
       },
       "public_instance_methods": []
     },
@@ -1544,11 +1566,9 @@
     {
       "source_owner": "commerce",
       "target_owner": "interaction",
-      "symbol": "GrabService",
-      "path": "content/domains/interaction/services/grab_service.gd",
+      "symbol": "GrabQueries",
+      "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
@@ -2300,16 +2320,12 @@
     {
       "source_owner": "customers",
       "target_owner": "combat",
-      "symbol": "CombatService",
-      "path": "content/domains/combat/services/combat_service.gd",
+      "symbol": "CombatQueries",
+      "path": "content/domains/combat/services/combat_queries.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
-        "bind_target",
-        "end_combat",
         "target_for"
       ],
       "sources": [
@@ -2321,9 +2337,35 @@
         "content/systems/gameplay/s_customer_combat.gd"
       ],
       "method_rights": {
-        "bind_target": "request",
-        "end_combat": "request",
         "target_for": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "combat",
+      "symbol": "CombatService",
+      "path": "content/domains/combat/services/combat_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "bind_target",
+        "end_combat"
+      ],
+      "sources": [
+        "content/ai/tasks/bt_npc_light_escape.gd",
+        "content/services/customers/customer_flow_service.gd",
+        "content/services/npc/npc_delivery_scenario_service.gd",
+        "content/services/npc/npc_home_delivery_service.gd",
+        "content/services/npc/npc_service_role.gd",
+        "content/systems/gameplay/s_customer_combat.gd"
+      ],
+      "method_rights": {
+        "bind_target": "request",
+        "end_combat": "request"
       },
       "public_instance_methods": []
     },
@@ -2585,21 +2627,17 @@
     {
       "source_owner": "customers",
       "target_owner": "interaction",
-      "symbol": "GrabService",
-      "path": "content/domains/interaction/services/grab_service.gd",
+      "symbol": "GrabQueries",
+      "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
         "entity_available",
-        "entity_unavailable",
         "held_in_slot",
         "held_relationship",
         "holder_available",
-        "physical_body",
-        "release"
+        "physical_body"
       ],
       "sources": [
         "content/services/customers/customer_dialogue_service.gd",
@@ -2611,11 +2649,35 @@
       ],
       "method_rights": {
         "entity_available": "request",
-        "entity_unavailable": "request",
         "held_in_slot": "request",
         "held_relationship": "request",
         "holder_available": "request",
-        "physical_body": "request",
+        "physical_body": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "interaction",
+      "symbol": "GrabReleaseService",
+      "path": "content/domains/interaction/services/grab_release_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "entity_unavailable",
+        "release"
+      ],
+      "sources": [
+        "content/services/customers/customer_dialogue_service.gd",
+        "content/services/customers/customer_flow_service.gd",
+        "content/services/customers/customer_handoff_service.gd",
+        "content/services/npc/npc_delivery_scenario_service.gd",
+        "content/services/npc/npc_home_delivery_service.gd",
+        "content/systems/gameplay/s_customer_combat.gd"
+      ],
+      "method_rights": {
+        "entity_unavailable": "request",
         "release": "request"
       },
       "public_instance_methods": []
@@ -2986,6 +3048,22 @@
     {
       "source_owner": "customers",
       "target_owner": "npc",
+      "symbol": "DistrictMorningPrepared",
+      "path": "content/domains/npc/contracts/district_morning_prepared.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/observers/gameplay/o_customer_planning.gd"
+      ]
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
       "symbol": "DistrictPopulationService",
       "path": "content/domains/npc/services/district_population_service.gd",
       "rights": [
@@ -3066,6 +3144,24 @@
       "public_instance_methods": [
         "show_message"
       ]
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcBrainRecipeRequest",
+      "path": "content/domains/npc/contracts/npc_brain_recipe_request.gd",
+      "rights": [
+        "read",
+        "configure",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/customers/customer_npc_lifecycle_binding.gd"
+      ],
+      "purpose": "Higher Customer composition supplies an authored immutable recipe; native owner remains the sole BTPlayer installer and scheduler."
     },
     {
       "source_owner": "customers",
@@ -3312,6 +3408,22 @@
     {
       "source_owner": "customers",
       "target_owner": "npc",
+      "symbol": "NpcRoleCleanupRequest",
+      "path": "content/domains/npc/contracts/npc_role_cleanup_request.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/customers/customer_npc_lifecycle_binding.gd"
+      ]
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
       "symbol": "NpcRoleInterruptionRequest",
       "path": "content/domains/npc/contracts/npc_role_interruption_request.gd",
       "rights": [
@@ -3325,6 +3437,22 @@
       ],
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcRolePresenceRequest",
+      "path": "content/domains/npc/contracts/npc_role_presence_request.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/customers/customer_npc_lifecycle_binding.gd"
+      ]
     },
     {
       "source_owner": "customers",
@@ -3374,6 +3502,39 @@
         "apply_reaction": "request"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "S_District",
+      "path": "content/domains/npc/systems/s_district.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/systems/gameplay/s_customer_flow.gd"
+      ],
+      "purpose": "Higher Customer scheduling declares its ordering against native NPC owners; base NPC does not import Customer Systems."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "S_NpcCadence",
+      "path": "content/domains/npc/systems/s_npc_cadence.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/systems/gameplay/s_customer_arrivals.gd",
+        "content/systems/gameplay/s_customer_flow.gd"
+      ],
+      "purpose": "Higher Customer scheduling declares its ordering against native NPC owners; base NPC does not import Customer Systems."
     },
     {
       "source_owner": "customers",
@@ -3531,6 +3692,22 @@
         "accept_contents": "request"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "packages",
+      "symbol": "PackageContentPlaced",
+      "path": "content/domains/packages/contracts/package_content_placed.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/observers/gameplay/o_customer_inspection_cargo.gd"
+      ]
     },
     {
       "source_owner": "customers",
@@ -4192,13 +4369,10 @@
     {
       "source_owner": "global",
       "target_owner": "combat",
-      "symbol": "CombatService",
-      "path": "content/domains/combat/services/combat_service.gd",
+      "symbol": "CombatQueries",
+      "path": "content/domains/combat/services/combat_queries.gd",
       "rights": [
-        "query",
-        "read",
-        "request",
-        "subscribe"
+        "request"
       ],
       "public_methods": [
         "target_for"
@@ -4842,6 +5016,25 @@
     {
       "source_owner": "global",
       "target_owner": "customers",
+      "symbol": "CustomerNpcLifecycleBinding",
+      "path": "content/domains/customers/services/customer_npc_lifecycle_binding.gd",
+      "rights": [
+        "configure"
+      ],
+      "public_methods": [
+        "bind"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "bind": "configure"
+      },
+      "sources": [
+        "content/scenes/npc_customer_composition.gd"
+      ]
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
       "symbol": "CustomerOutcomeService",
       "path": "content/domains/customers/services/customer_outcome_service.gd",
       "rights": [
@@ -4974,6 +5167,37 @@
         "new": "read"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "CustomerVisitLifecycle",
+      "path": "content/domains/customers/services/customer_visit_lifecycle.gd",
+      "rights": [
+        "query",
+        "read",
+        "request",
+        "subscribe"
+      ],
+      "public_methods": [
+        "create_complaint"
+      ],
+      "sources": [
+        "content/debug/debug_customer_service.gd",
+        "content/debug/debug_gameplay_service.gd",
+        "content/debug/debug_package_service.gd",
+        "content/debug/debug_target_resolver.gd",
+        "content/debug/debug_world_service.gd",
+        "content/debug/developer_console_diagnostics.gd",
+        "content/dialogue/customer_dialogue_context.gd",
+        "content/presentation/global/meta_presentation.gd",
+        "content/ui/terminal_panel.gd"
+      ],
+      "method_rights": {
+        "create_complaint": "request"
+      },
+      "public_instance_methods": [],
+      "purpose": "Existing explicit operation permission transferred to its actual responsibility owner; no forwarding API remains."
     },
     {
       "source_owner": "global",
@@ -5240,6 +5464,22 @@
         "new": "read"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "O_CustomerInspectionCargo",
+      "path": "content/domains/customers/observers/o_customer_inspection_cargo.gd",
+      "rights": [
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "purpose": "Global level composition installs the real Customer-owned committed-content consumer."
     },
     {
       "source_owner": "global",
@@ -5830,16 +6070,12 @@
     {
       "source_owner": "global",
       "target_owner": "interaction",
-      "symbol": "GrabService",
-      "path": "content/domains/interaction/services/grab_service.gd",
+      "symbol": "GrabQueries",
+      "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
-        "query",
-        "read",
-        "request",
-        "subscribe"
+        "request"
       ],
       "public_methods": [
-        "entity_unavailable",
         "holder_available"
       ],
       "sources": [
@@ -5856,8 +6092,36 @@
         "content/ui/terminal_panel.gd"
       ],
       "method_rights": {
-        "entity_unavailable": "request",
         "holder_available": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "interaction",
+      "symbol": "GrabReleaseService",
+      "path": "content/domains/interaction/services/grab_release_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "entity_unavailable"
+      ],
+      "sources": [
+        "content/debug/debug_gameplay_service.gd",
+        "content/debug/debug_health_service.gd",
+        "content/debug/debug_package_service.gd",
+        "content/dialogue/customer_dialogue_context.gd",
+        "content/dialogue/npc_street_dialogue_context.gd",
+        "content/ui/commerce_panel.gd",
+        "content/ui/commerce_panel_factory.gd",
+        "content/ui/customer_dialogue_panel.gd",
+        "content/ui/interaction_hud.gd",
+        "content/ui/inventory_panel.gd",
+        "content/ui/terminal_panel.gd"
+      ],
+      "method_rights": {
+        "entity_unavailable": "request"
       },
       "public_instance_methods": []
     },
@@ -8576,6 +8840,27 @@
     {
       "source_owner": "interaction",
       "target_owner": "customers",
+      "symbol": "CustomerInspectionQueries",
+      "path": "content/domains/customers/services/customer_inspection_queries.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "owner_for"
+      ],
+      "sources": [
+        "content/services/interaction/grab_service.gd"
+      ],
+      "method_rights": {
+        "owner_for": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Read authoritative inspection reservations without importing their mutable transaction owner."
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "customers",
       "symbol": "CustomerInspectionService",
       "path": "content/domains/customers/services/customer_inspection_service.gd",
       "rights": [
@@ -8609,6 +8894,27 @@
       ],
       "method_rights": {
         "is_enabled": "query"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "interaction",
+      "symbol": "MarkerSessionCleanup",
+      "path": "content/domains/interaction/services/marker_session_cleanup.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "break_stroke"
+      ],
+      "sources": [
+        "content/services/interaction/marker_session_service.gd",
+        "content/services/interaction/marker_surface_sampler.gd",
+        "content/systems/interaction/s_marker.gd"
+      ],
+      "method_rights": {
+        "break_stroke": "request"
       },
       "public_instance_methods": []
     },
@@ -8710,7 +9016,6 @@
       ],
       "public_methods": [
         "append_sample",
-        "break_stroke",
         "drawable"
       ],
       "sources": [
@@ -8720,7 +9025,6 @@
       ],
       "method_rights": {
         "append_sample": "request",
-        "break_stroke": "request",
         "drawable": "request"
       },
       "public_instance_methods": []
@@ -8970,6 +9274,27 @@
     {
       "source_owner": "inventory",
       "target_owner": "customers",
+      "symbol": "CustomerInspectionQueries",
+      "path": "content/domains/customers/services/customer_inspection_queries.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "owner_for"
+      ],
+      "sources": [
+        "content/services/inventory/inventory_service.gd"
+      ],
+      "method_rights": {
+        "owner_for": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Read authoritative inspection reservations without importing their mutable transaction owner."
+    },
+    {
+      "source_owner": "inventory",
+      "target_owner": "customers",
       "symbol": "CustomerInspectionService",
       "path": "content/domains/customers/services/customer_inspection_service.gd",
       "rights": [
@@ -9053,11 +9378,9 @@
     {
       "source_owner": "inventory",
       "target_owner": "interaction",
-      "symbol": "GrabService",
-      "path": "content/domains/interaction/services/grab_service.gd",
+      "symbol": "GrabQueries",
+      "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
@@ -9499,11 +9822,9 @@
     {
       "source_owner": "motion",
       "target_owner": "interaction",
-      "symbol": "GrabService",
-      "path": "content/domains/interaction/services/grab_service.gd",
+      "symbol": "GrabQueries",
+      "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
@@ -9790,11 +10111,9 @@
     {
       "source_owner": "needs",
       "target_owner": "interaction",
-      "symbol": "GrabService",
-      "path": "content/domains/interaction/services/grab_service.gd",
+      "symbol": "GrabQueries",
+      "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
@@ -10078,16 +10397,12 @@
     {
       "source_owner": "npc",
       "target_owner": "combat",
-      "symbol": "CombatService",
-      "path": "content/domains/combat/services/combat_service.gd",
+      "symbol": "CombatQueries",
+      "path": "content/domains/combat/services/combat_queries.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
-        "bind_target",
-        "end_combat",
         "target_for"
       ],
       "sources": [
@@ -10106,9 +10421,42 @@
         "content/systems/gameplay/s_npc_traits.gd"
       ],
       "method_rights": {
-        "bind_target": "request",
-        "end_combat": "request",
         "target_for": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "combat",
+      "symbol": "CombatService",
+      "path": "content/domains/combat/services/combat_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "bind_target",
+        "end_combat"
+      ],
+      "sources": [
+        "content/ai/tasks/bt_npc_end_combat.gd",
+        "content/ai/tasks/bt_npc_has_target.gd",
+        "content/ai/tasks/bt_npc_needs_flee.gd",
+        "content/ai/tasks/bt_npc_target_available.gd",
+        "content/services/npc/district_population_service.gd",
+        "content/services/npc/npc_community_service.gd",
+        "content/services/npc/npc_decision_service.gd",
+        "content/services/npc/npc_route_solver.gd",
+        "content/services/npc/npc_sleep_service.gd",
+        "content/services/npc/npc_social_service.gd",
+        "content/systems/gameplay/s_npc_perception.gd",
+        "content/systems/gameplay/s_npc_route.gd",
+        "content/systems/gameplay/s_npc_traits.gd"
+      ],
+      "method_rights": {
+        "bind_target": "request",
+        "end_combat": "request"
       },
       "public_instance_methods": []
     },
@@ -10205,6 +10553,32 @@
       ],
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "combat",
+      "symbol": "NpcAttackExecutionService",
+      "path": "content/domains/combat/services/npc_attack_execution_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "cancel",
+        "finish"
+      ],
+      "sources": [
+        "content/ai/tasks/bt_npc_attack.gd",
+        "content/entities/characters/e_npc_character.gd",
+        "content/services/npc/district_population_service.gd"
+      ],
+      "method_rights": {
+        "cancel": "request",
+        "finish": "request"
+      },
+      "public_instance_methods": [],
+      "purpose": "Existing attack completion/cancellation rights belong to execution cleanup, which never calls selection or hit commit."
     },
     {
       "source_owner": "npc",
@@ -10662,11 +11036,9 @@
     {
       "source_owner": "npc",
       "target_owner": "interaction",
-      "symbol": "GrabService",
-      "path": "content/domains/interaction/services/grab_service.gd",
+      "symbol": "GrabQueries",
+      "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
@@ -11547,6 +11919,28 @@
     {
       "source_owner": "packages",
       "target_owner": "customers",
+      "symbol": "CustomerInspectionQueries",
+      "path": "content/domains/customers/services/customer_inspection_queries.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "owner_for"
+      ],
+      "sources": [
+        "content/services/gameplay/loot_drop_service.gd",
+        "content/services/packages/package_opening.gd"
+      ],
+      "method_rights": {
+        "owner_for": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Read authoritative inspection reservations without importing their mutable transaction owner."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "customers",
       "symbol": "CustomerVisit",
       "path": "content/domains/customers/contracts/customer_visit.gd",
       "rights": [
@@ -11845,23 +12239,17 @@
     {
       "source_owner": "packages",
       "target_owner": "interaction",
-      "symbol": "GrabService",
-      "path": "content/domains/interaction/services/grab_service.gd",
+      "symbol": "GrabQueries",
+      "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
         "entity_available",
-        "entity_unavailable",
         "held_in_slot",
         "held_relationship",
         "holder_available",
-        "interaction_raycast",
-        "refresh_carry_mass",
-        "release",
-        "within_pickup_reach"
+        "interaction_raycast"
       ],
       "sources": [
         "content/definitions/interaction/def_package_return_action.gd",
@@ -11873,14 +12261,86 @@
       ],
       "method_rights": {
         "entity_available": "request",
-        "entity_unavailable": "request",
         "held_in_slot": "request",
         "held_relationship": "request",
         "holder_available": "request",
-        "interaction_raycast": "request",
-        "refresh_carry_mass": "request",
-        "release": "request",
+        "interaction_raycast": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "interaction",
+      "symbol": "GrabReachQueries",
+      "path": "content/domains/interaction/services/grab_reach_queries.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "within_pickup_reach"
+      ],
+      "sources": [
+        "content/definitions/interaction/def_package_return_action.gd",
+        "content/observers/gameplay/o_package_damage.gd",
+        "content/services/interaction/package_mark_service.gd",
+        "content/services/packages/package_contents_service.gd",
+        "content/services/packages/package_registration_service.gd",
+        "content/services/packages/package_return_service.gd"
+      ],
+      "method_rights": {
         "within_pickup_reach": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "interaction",
+      "symbol": "GrabReleaseService",
+      "path": "content/domains/interaction/services/grab_release_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "entity_unavailable",
+        "release"
+      ],
+      "sources": [
+        "content/definitions/interaction/def_package_return_action.gd",
+        "content/observers/gameplay/o_package_damage.gd",
+        "content/services/interaction/package_mark_service.gd",
+        "content/services/packages/package_contents_service.gd",
+        "content/services/packages/package_registration_service.gd",
+        "content/services/packages/package_return_service.gd"
+      ],
+      "method_rights": {
+        "entity_unavailable": "request",
+        "release": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "interaction",
+      "symbol": "GrabService",
+      "path": "content/domains/interaction/services/grab_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "refresh_carry_mass"
+      ],
+      "sources": [
+        "content/definitions/interaction/def_package_return_action.gd",
+        "content/observers/gameplay/o_package_damage.gd",
+        "content/services/interaction/package_mark_service.gd",
+        "content/services/packages/package_contents_service.gd",
+        "content/services/packages/package_registration_service.gd",
+        "content/services/packages/package_return_service.gd"
+      ],
+      "method_rights": {
+        "refresh_carry_mass": "request"
       },
       "public_instance_methods": []
     },
@@ -11925,6 +12385,25 @@
         "find_target": "query"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "interaction",
+      "symbol": "MarkerSessionCleanup",
+      "path": "content/domains/interaction/services/marker_session_cleanup.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "break_stroke"
+      ],
+      "public_instance_methods": [],
+      "sources": [
+        "content/services/interaction/package_mark_service.gd"
+      ],
+      "method_rights": {
+        "break_stroke": "request"
+      }
     },
     {
       "source_owner": "packages",
@@ -12867,6 +13346,29 @@
     {
       "source_owner": "persistence",
       "target_owner": "customers",
+      "symbol": "HomeMeetingBindings",
+      "path": "content/domains/customers/services/home_meeting_bindings.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "release_meeting"
+      ],
+      "sources": [
+        "content/services/persistence/night_reset_service.gd",
+        "content/systems/persistence/s_night_save.gd"
+      ],
+      "method_rights": {
+        "release_meeting": "request"
+      },
+      "public_instance_methods": [],
+      "purpose": "Existing explicit operation permission transferred to its actual responsibility owner; no forwarding API remains."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "customers",
       "symbol": "NpcHomeDelivery",
       "path": "content/domains/customers/contracts/npc_home_delivery.gd",
       "rights": [
@@ -13637,22 +14139,37 @@
     {
       "source_owner": "persistence",
       "target_owner": "interaction",
-      "symbol": "GrabService",
-      "path": "content/domains/interaction/services/grab_service.gd",
+      "symbol": "GrabQueries",
+      "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
-        "held_in_slot",
+        "held_in_slot"
+      ],
+      "sources": [
+        "content/services/persistence/night_reset_service.gd"
+      ],
+      "method_rights": {
+        "held_in_slot": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "interaction",
+      "symbol": "GrabReleaseService",
+      "path": "content/domains/interaction/services/grab_release_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
         "release"
       ],
       "sources": [
         "content/services/persistence/night_reset_service.gd"
       ],
       "method_rights": {
-        "held_in_slot": "request",
         "release": "request"
       },
       "public_instance_methods": []
@@ -13681,11 +14198,9 @@
     {
       "source_owner": "persistence",
       "target_owner": "interaction",
-      "symbol": "MarkerSessionService",
-      "path": "content/domains/interaction/services/marker_session_service.gd",
+      "symbol": "MarkerSessionCleanup",
+      "path": "content/domains/interaction/services/marker_session_cleanup.gd",
       "rights": [
-        "query",
-        "read",
         "request"
       ],
       "public_methods": [
@@ -15495,300 +16010,6 @@
         "contains": "request"
       },
       "public_instance_methods": []
-    },
-    {
-      "source_owner": "interaction",
-      "target_owner": "customers",
-      "symbol": "CustomerInspectionQueries",
-      "path": "content/domains/customers/services/customer_inspection_queries.gd",
-      "rights": [
-        "read",
-        "query"
-      ],
-      "public_methods": [
-        "owner_for"
-      ],
-      "sources": [
-        "content/services/interaction/grab_service.gd"
-      ],
-      "method_rights": {
-        "owner_for": "query"
-      },
-      "public_instance_methods": [],
-      "purpose": "Read authoritative inspection reservations without importing their mutable transaction owner."
-    },
-    {
-      "source_owner": "inventory",
-      "target_owner": "customers",
-      "symbol": "CustomerInspectionQueries",
-      "path": "content/domains/customers/services/customer_inspection_queries.gd",
-      "rights": [
-        "read",
-        "query"
-      ],
-      "public_methods": [
-        "owner_for"
-      ],
-      "sources": [
-        "content/services/inventory/inventory_service.gd"
-      ],
-      "method_rights": {
-        "owner_for": "query"
-      },
-      "public_instance_methods": [],
-      "purpose": "Read authoritative inspection reservations without importing their mutable transaction owner."
-    },
-    {
-      "source_owner": "packages",
-      "target_owner": "customers",
-      "symbol": "CustomerInspectionQueries",
-      "path": "content/domains/customers/services/customer_inspection_queries.gd",
-      "rights": [
-        "read",
-        "query"
-      ],
-      "public_methods": [
-        "owner_for"
-      ],
-      "sources": [
-        "content/services/gameplay/loot_drop_service.gd",
-        "content/services/packages/package_opening.gd"
-      ],
-      "method_rights": {
-        "owner_for": "query"
-      },
-      "public_instance_methods": [],
-      "purpose": "Read authoritative inspection reservations without importing their mutable transaction owner."
-    },
-    {
-      "source_owner": "customers",
-      "target_owner": "npc",
-      "symbol": "S_District",
-      "path": "content/domains/npc/systems/s_district.gd",
-      "rights": [
-        "read"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/systems/gameplay/s_customer_flow.gd"
-      ],
-      "purpose": "Higher Customer scheduling declares its ordering against native NPC owners; base NPC does not import Customer Systems."
-    },
-    {
-      "source_owner": "customers",
-      "target_owner": "npc",
-      "symbol": "S_NpcCadence",
-      "path": "content/domains/npc/systems/s_npc_cadence.gd",
-      "rights": [
-        "read"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/systems/gameplay/s_customer_arrivals.gd",
-        "content/systems/gameplay/s_customer_flow.gd"
-      ],
-      "purpose": "Higher Customer scheduling declares its ordering against native NPC owners; base NPC does not import Customer Systems."
-    },
-    {
-      "source_owner": "customers",
-      "target_owner": "npc",
-      "symbol": "NpcRoleCleanupRequest",
-      "path": "content/domains/npc/contracts/npc_role_cleanup_request.gd",
-      "rights": [
-        "read",
-        "subscribe"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/services/customers/customer_npc_lifecycle_binding.gd"
-      ]
-    },
-    {
-      "source_owner": "global",
-      "target_owner": "customers",
-      "symbol": "CustomerNpcLifecycleBinding",
-      "path": "content/domains/customers/services/customer_npc_lifecycle_binding.gd",
-      "rights": [
-        "configure"
-      ],
-      "public_methods": [
-        "bind"
-      ],
-      "public_instance_methods": [],
-      "method_rights": {
-        "bind": "configure"
-      },
-      "sources": [
-        "content/scenes/npc_customer_composition.gd"
-      ]
-    },
-    {
-      "source_owner": "customers",
-      "target_owner": "packages",
-      "symbol": "PackageContentPlaced",
-      "path": "content/domains/packages/contracts/package_content_placed.gd",
-      "rights": [
-        "read",
-        "subscribe"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/observers/gameplay/o_customer_inspection_cargo.gd"
-      ]
-    },
-    {
-      "source_owner": "global",
-      "target_owner": "customers",
-      "symbol": "O_CustomerInspectionCargo",
-      "path": "content/domains/customers/observers/o_customer_inspection_cargo.gd",
-      "rights": [
-        "configure"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/scenes/main_level.gd"
-      ],
-      "purpose": "Global level composition installs the real Customer-owned committed-content consumer."
-    },
-    {
-      "source_owner": "customers",
-      "target_owner": "npc",
-      "symbol": "NpcRolePresenceRequest",
-      "path": "content/domains/npc/contracts/npc_role_presence_request.gd",
-      "rights": [
-        "read",
-        "subscribe"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/services/customers/customer_npc_lifecycle_binding.gd"
-      ]
-    },
-    {
-      "source_owner": "customers",
-      "target_owner": "npc",
-      "symbol": "DistrictMorningPrepared",
-      "path": "content/domains/npc/contracts/district_morning_prepared.gd",
-      "rights": [
-        "read",
-        "subscribe"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/observers/gameplay/o_customer_planning.gd"
-      ]
-    },
-    {
-      "source_owner": "customers",
-      "target_owner": "npc",
-      "symbol": "NpcBrainRecipeRequest",
-      "path": "content/domains/npc/contracts/npc_brain_recipe_request.gd",
-      "rights": [
-        "read",
-        "configure",
-        "subscribe"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/services/customers/customer_npc_lifecycle_binding.gd"
-      ],
-      "purpose": "Higher Customer composition supplies an authored immutable recipe; native owner remains the sole BTPlayer installer and scheduler."
-    },
-    {
-      "source_owner": "global",
-      "target_owner": "customers",
-      "symbol": "CustomerVisitLifecycle",
-      "path": "content/domains/customers/services/customer_visit_lifecycle.gd",
-      "rights": [
-        "query",
-        "read",
-        "request",
-        "subscribe"
-      ],
-      "public_methods": [
-        "create_complaint"
-      ],
-      "sources": [
-        "content/debug/debug_customer_service.gd",
-        "content/debug/debug_gameplay_service.gd",
-        "content/debug/debug_package_service.gd",
-        "content/debug/debug_target_resolver.gd",
-        "content/debug/debug_world_service.gd",
-        "content/debug/developer_console_diagnostics.gd",
-        "content/dialogue/customer_dialogue_context.gd",
-        "content/presentation/global/meta_presentation.gd",
-        "content/ui/terminal_panel.gd"
-      ],
-      "method_rights": {
-        "create_complaint": "request"
-      },
-      "public_instance_methods": [],
-      "purpose": "Existing explicit operation permission transferred to its actual responsibility owner; no forwarding API remains."
-    },
-    {
-      "source_owner": "persistence",
-      "target_owner": "customers",
-      "symbol": "HomeMeetingBindings",
-      "path": "content/domains/customers/services/home_meeting_bindings.gd",
-      "rights": [
-        "query",
-        "read",
-        "request"
-      ],
-      "public_methods": [
-        "release_meeting"
-      ],
-      "sources": [
-        "content/services/persistence/night_reset_service.gd",
-        "content/systems/persistence/s_night_save.gd"
-      ],
-      "method_rights": {
-        "release_meeting": "request"
-      },
-      "public_instance_methods": [],
-      "purpose": "Existing explicit operation permission transferred to its actual responsibility owner; no forwarding API remains."
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "combat",
-      "symbol": "NpcAttackExecutionService",
-      "path": "content/domains/combat/services/npc_attack_execution_service.gd",
-      "rights": [
-        "query",
-        "read",
-        "request"
-      ],
-      "public_methods": [
-        "cancel",
-        "finish"
-      ],
-      "sources": [
-        "content/ai/tasks/bt_npc_attack.gd",
-        "content/entities/characters/e_npc_character.gd",
-        "content/services/npc/district_population_service.gd"
-      ],
-      "method_rights": {
-        "cancel": "request",
-        "finish": "request"
-      },
-      "public_instance_methods": [],
-      "purpose": "Existing attack completion/cancellation rights belong to execution cleanup, which never calls selection or hit commit."
     }
   ],
   "legacy_decomposition": [

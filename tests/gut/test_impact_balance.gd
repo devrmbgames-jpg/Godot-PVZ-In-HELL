@@ -2,10 +2,10 @@ extends GutTest
 ## Проверяет авторскую стойкость коробок, предел урона одного контакта и пороги видимого повреждения.
 
 const REGULAR: DEF_ImpactProfile = preload(
-	"res://content/definitions/gameplay/def_impact_default.tres"
+	"res://content/domains/combat/definitions/def_impact_default.tres"
 )
 const FRAGILE: DEF_ImpactProfile = preload(
-	"res://content/definitions/gameplay/def_impact_fragile.tres"
+	"res://content/domains/combat/definitions/def_impact_fragile.tres"
 )
 const SUPPLY: DEF_Delivery = preload(
 	"res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres"

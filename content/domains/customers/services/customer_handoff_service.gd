@@ -11,13 +11,13 @@ const OCCLUSION_MASK: int = 31
 static func can_receive(actor: Entity, customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity, assigned: bool) -> bool:
 	if visit == null or visit.definition == null or visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED or not visit.definition.automatic_handoff:
 		return false
-	if not GrabService.holder_available(customer) or customer.has_component(C_Death):
+	if not GrabQueries.holder_available(customer) or customer.has_component(C_Death):
 		return false
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or agent.visit_id != visit.visit_id or agent.phase not in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]:
 		return false
-	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or bool(Console.is_visible()):
+	if not GrabQueries.holder_available(actor) or actor.has_component(C_Death) or bool(Console.is_visible()):
 		return false
 	if InteractionControlFocus.current(actor) > InteractionControlFocus.Priority.CARRY:
 		return false
@@ -27,7 +27,7 @@ static func can_receive(actor: Entity, customer: E_NpcCharacter, visit: Customer
 	var distance: float = visit.definition.automatic_handoff_distance
 	if actor_body == null or customer_body == null or not is_finite(distance) or distance <= 0.0 or actor_body.global_position.distance_squared_to(customer_body.global_position) > distance * distance:
 		return false
-	if not GrabService.entity_available(parcel) or CustomerInspectionQueries.owner_for(parcel) != null:
+	if not GrabQueries.entity_available(parcel) or CustomerInspectionQueries.owner_for(parcel) != null:
 		return false
 
 	var check: PackageDeliveryCheck = CustomerOutcomeService.check(
@@ -55,7 +55,7 @@ static func _has_line_of_sight(actor: Entity, customer: E_NpcCharacter) -> bool:
 		if body != null:
 			excluded.append(body.get_rid())
 	for slot: int in 3:
-		var held_body: RigidBody3D = GrabService.physical_body(GrabService.held_in_slot(actor, slot))
+		var held_body: RigidBody3D = GrabQueries.physical_body(GrabQueries.held_in_slot(actor, slot))
 		if held_body != null:
 			excluded.append(held_body.get_rid())
 

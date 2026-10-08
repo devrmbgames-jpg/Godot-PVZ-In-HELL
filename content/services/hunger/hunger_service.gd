@@ -5,7 +5,7 @@ class_name HungerService
 #region Рост и питание
 ## Явно задаёт допустимый уровень через ту же проверку доступности и границ, что у еды.
 static func set_value(actor: Entity, value: float) -> bool:
-	if not GrabService.holder_available(actor) or actor.has_component(C_Death):
+	if not GrabQueries.holder_available(actor) or actor.has_component(C_Death):
 		return false
 
 	var state: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
@@ -18,7 +18,7 @@ static func set_value(actor: Entity, value: float) -> bool:
 
 ## Уменьшает положительный голод доступного живого участника; отказ не требует расходования еды.
 static func apply_food(actor: Entity, effect: DEF_FoodEffect) -> bool:
-	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or effect == null or not is_finite(effect.hunger_relief) or effect.hunger_relief <= 0.0:
+	if not GrabQueries.holder_available(actor) or actor.has_component(C_Death) or effect == null or not is_finite(effect.hunger_relief) or effect.hunger_relief <= 0.0:
 		return false
 
 	var state: C_Hunger = actor.get_component(C_Hunger) as C_Hunger

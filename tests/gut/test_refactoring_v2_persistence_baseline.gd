@@ -99,18 +99,18 @@ func before_each() -> void:
 	delivery.fulfilled = true
 	commerce.pending_deliveries.append(delivery)
 
-	var slot: Entity = _placed("res://content/entities/props/physical_slot.tscn", "Slot")
-	var stored_box: Entity = _placed("res://content/entities/props/anchorable_test_box.tscn", "StoredBox")
+	var slot: Entity = _placed("res://content/domains/interaction/entities/physical_slot.tscn", "Slot")
+	var stored_box: Entity = _placed("res://content/domains/interaction/entities/anchorable_test_box.tscn", "StoredBox")
 	var stored_link: Relationship = Relationship.new(R_StoredIn.new(), slot)
 	stored_box.add_relationship(stored_link)
 	var attached: bool = PhysicalSlotService.attach(stored_box, stored_link)
 	assert_true(attached, "Attach stored physical box")
-	var cart: Entity = _placed("res://content/entities/props/push_cart.tscn", "Cart")
+	var cart: Entity = _placed("res://content/domains/interaction/entities/push_cart.tscn", "Cart")
 	# CharacterBody carts require an explicit persistent capability in this schema.
 	var cart_identity: C_PersistentIdentity = C_PersistentIdentity.new()
 	cart_identity.key = "fixture/cart"
 	cart.add_component(cart_identity)
-	var cargo_box: Entity = _placed("res://content/entities/props/anchorable_test_box.tscn", "CargoBox")
+	var cargo_box: Entity = _placed("res://content/domains/interaction/entities/anchorable_test_box.tscn", "CargoBox")
 	var cargo_data: R_CartCargo = R_CartCargo.new()
 	cargo_data.local_pose = Transform3D.IDENTITY
 	var cargo_link: Relationship = Relationship.new(cargo_data, cart)
@@ -126,7 +126,7 @@ func before_each() -> void:
 		_fixture_world.entity_id_registry[entity.id] = entity
 		var body: RigidBody3D = entity as Node as RigidBody3D
 		# Active cargo must retain the live integrator contract during restore.
-		if body != null and CartCargoService.relationship(entity) == null:
+		if body != null and CartCargoQueries.relationship(entity) == null:
 			body.freeze = true
 
 
@@ -193,7 +193,7 @@ func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 	assert_eq(InventoryService.items(dormant_body).size(), 1)
 	assert_eq(PhysicalSlotService.occupant(_fixture_root.get_node("Slot") as Entity), _fixture_root.get_node("StoredBox"))
 	var cargo_box: Entity = _fixture_root.get_node("CargoBox") as Entity
-	var cargo_link: Relationship = CartCargoService.relationship(cargo_box)
+	var cargo_link: Relationship = CartCargoQueries.relationship(cargo_box)
 	assert_not_null(cargo_link)
 	assert_true((cargo_link.relation as R_CartCargo).lifecycle_applied)
 	var cart_state: C_CartTransport = (_fixture_root.get_node("Cart") as Entity).get_component(C_CartTransport) as C_CartTransport

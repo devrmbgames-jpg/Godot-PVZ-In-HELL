@@ -44,7 +44,7 @@ func _process(_delta: float) -> void:
 		return
 	if (
 		not is_instance_valid(_actor)
-		or not GrabService.holder_available(_actor)
+		or not GrabQueries.holder_available(_actor)
 		or _context == null
 		or not _context.can_continue()
 	):

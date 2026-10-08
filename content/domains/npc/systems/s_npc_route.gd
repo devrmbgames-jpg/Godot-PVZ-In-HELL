@@ -112,7 +112,7 @@ func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute) -> voi
 	route.progress_initialized = false
 	NpcCommunityService.cancel_activity(actor)
 	NpcDialogueService.end(actor)
-	if CombatService.target_for(actor) != null:
+	if CombatQueries.target_for(actor) != null:
 		CombatService.end_combat(actor)
 		(actor.get_component(C_NpcAwareness) as C_NpcAwareness).fleeing = true
 

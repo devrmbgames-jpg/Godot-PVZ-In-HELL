@@ -32,7 +32,7 @@ func _physical_impacts() -> void:
 	world.add_system(S_Impact.new())
 	var characters: Array[Entity] = []
 	for index: int in 2:
-		var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn" if index == 1 else "res://content/entities/characters/physical_character.tscn") as PackedScene
+		var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn" if index == 1 else "res://content/domains/motion/entities/physical_character.tscn") as PackedScene
 		var target: Entity = scene.instantiate() as Entity
 		var body: RigidBody3D = target as Node as RigidBody3D
 		body.freeze = true
@@ -48,7 +48,7 @@ func _physical_impacts() -> void:
 		body.global_position = Vector3(index * 5.0, 0, 0)
 		characters.append(target)
 	for target: Entity in characters:
-		var prop: Entity = (load("res://content/entities/props/box.tscn") as PackedScene).instantiate() as Entity
+		var prop: Entity = (load("res://content/domains/interaction/entities/box.tscn") as PackedScene).instantiate() as Entity
 		world.add_entity(prop)
 		var body: RigidBody3D = prop as Node as RigidBody3D
 		body.gravity_scale = 0.0
@@ -123,15 +123,15 @@ func _customer_combat() -> void:
 	assert(LightCircuitService.set_by_id(rule.circuit_id, true))
 	assert(ChallengeService.debug_start(customer, _actor, definition))
 	var npc_state: C_NpcCombat = customer.get_component(C_NpcCombat) as C_NpcCombat
-	npc_state.ranged_attacks = [load("res://content/definitions/gameplay/combat/def_npc_shot.tres") as DEF_NpcAttack]
-	var authored_melee: Array[DEF_NpcAttack] = [load("res://content/definitions/gameplay/combat/def_npc_punch.tres") as DEF_NpcAttack]
+	npc_state.ranged_attacks = [load("res://content/domains/combat/definitions/def_npc_shot.tres") as DEF_NpcAttack]
+	var authored_melee: Array[DEF_NpcAttack] = [load("res://content/domains/combat/definitions/def_npc_punch.tres") as DEF_NpcAttack]
 	npc_state.melee_attacks = []
 
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 	ECS.world.process(challenge.definition.timeout_seconds, "GamePlay")
 	assert(challenge.result == ChallengeResult.Type.FAILURE)
 	assert((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.AGGRESSIVE)
-	assert(CombatService.target_for(customer) == _actor)
+	assert(CombatQueries.target_for(customer) == _actor)
 	assert(customer_body.get_rid() == original_rid and customer.navigation_agent != null)
 	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
 	assert(intent.move_uses_entity and intent.movement_active, "Combat must use generic NPC pursuit")
@@ -163,7 +163,7 @@ func _customer_combat() -> void:
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
 	weapon.add_relationship(Relationship.new(grip, _actor))
-	assert(GrabService.held_relationship(weapon) != null)
+	assert(GrabQueries.held_relationship(weapon) != null)
 
 	var head: Node3D = (_actor as E_PhysicalCharacter).head_axis_x
 	head.look_at(CombatGeometry.aim_point(customer))
@@ -173,7 +173,7 @@ func _customer_combat() -> void:
 	for strike: int in 3:
 		controller.input_tick += 1
 		InteractionInputFixture.advance(_actor)
-		assert(controller.action_main_pressed and GrabService.held_relationship(weapon) != null)
+		assert(controller.action_main_pressed and GrabQueries.held_relationship(weapon) != null)
 		ECS.world.process(1.0, "GamePlay")
 	assert(customer.has_component(C_Death))
 	ECS.world.process(FRAME_DELTA, "GamePlay")

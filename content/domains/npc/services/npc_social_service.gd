@@ -38,7 +38,7 @@ static func apply_reaction(body: E_DistrictNpc, actor: Entity, reaction: NpcMemo
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	match reaction:
 		NpcMemory.Reaction.ATTACK:
-			if GrabService.holder_available(actor):
+			if GrabQueries.holder_available(actor):
 				CombatService.bind_target(body, actor)
 				awareness.last_seen_position = (actor as Node as Node3D).global_position
 				awareness.has_last_seen = true
@@ -57,7 +57,7 @@ static func apply_reaction(body: E_DistrictNpc, actor: Entity, reaction: NpcMemo
 			body.show_message("Ха! Договорились.")
 		_:
 			body.show_message("Поговорим спокойно. Без новых провокаций.")
-	var fact: NpcSocialReactionCommitted = NpcSocialReactionCommitted.new(reaction, CombatService.target_for(body) != null)
+	var fact: NpcSocialReactionCommitted = NpcSocialReactionCommitted.new(reaction, CombatQueries.target_for(body) != null)
 	ECS.world.emit_event(NpcSocialReactionCommitted.EVENT, body, fact)
 
 ## Запоминает распознанные сведения, не заставляя свидетеля вступать в бой.

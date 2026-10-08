@@ -26,7 +26,7 @@ static func start_ambush(body: E_DistrictNpc) -> bool:
 		return false
 
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
-	if not GrabService.holder_available(player):
+	if not GrabQueries.holder_available(player):
 		return false
 	if not CombatService.bind_target(body, player):
 		return false

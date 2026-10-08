@@ -224,7 +224,7 @@ func test_timid_submission_does_not_attack_or_flee() -> void:
 	var player: E_DistrictNpc = _player(Vector3(0, 0, -2))
 	assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.SUBMISSION, &"submission"), NpcMemory.Reaction.TALK)
 	assert_false((body.get_component(C_NpcAwareness) as C_NpcAwareness).fleeing)
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 
 ## Обычная угроза не обращает здорового агрессивного NPC в бегство; голод 80% ещё не хищный.
 func test_aggressive_fear_requires_visible_predatory_hunger_above_eighty() -> void:
@@ -250,5 +250,5 @@ func test_aggressive_fear_requires_visible_predatory_hunger_above_eighty() -> vo
 	assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.THREAT, &"hidden_hunger"), NpcMemory.Reaction.TALK)
 	awareness.player_visible = true
 	assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.THREAT, &"visible_hunger"), NpcMemory.Reaction.FLEE)
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 #endregion

@@ -54,7 +54,7 @@ func _run() -> void:
 			_check(person.placement == NpcRecord.Placement.OUTSIDE, "NPC actually leaves district: " + str(npc_id))
 			_check(not body.enabled and not body.visible and body.collision_layer == 0, "outside body does not participate: " + str(npc_id))
 			_check(not body.navigation_agent.avoidance_enabled, "outside body leaves navigation avoidance: " + str(npc_id))
-			_check(CombatService.target_for(body) == null and not (body.get_component(C_NpcIntent) as C_NpcIntent).movement_active, "exit clears actions: " + str(npc_id))
+			_check(CombatQueries.target_for(body) == null and not (body.get_component(C_NpcIntent) as C_NpcIntent).movement_active, "exit clears actions: " + str(npc_id))
 			if person.placement == NpcRecord.Placement.OUTSIDE:
 				verified_exits += 1
 		print("Neighbour phase complete=", phase, " survivors=", survivors, " verified_exits=", verified_exits)

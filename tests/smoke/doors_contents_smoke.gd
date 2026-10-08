@@ -49,7 +49,7 @@ func _run() -> void:
 
 	var shelf: Entity = null
 	for candidate: Entity in ECS.world.query.with_all([C_Anchorable]).execute():
-		if candidate.scene_file_path == "res://content/entities/props/small_shelf.tscn":
+		if candidate.scene_file_path == "res://content/domains/interaction/entities/small_shelf.tscn":
 			shelf = candidate
 	assert(shelf != null)
 	var body: RigidBody3D = shelf as Node as RigidBody3D

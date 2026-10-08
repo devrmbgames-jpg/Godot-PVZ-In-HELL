@@ -202,7 +202,7 @@ static func direct_handoff_package(actor: Entity, customer: E_NpcCharacter, allo
 		C_Grabbable.HoldSlot.RIGHT_HAND,
 		C_Grabbable.HoldSlot.LEFT_HAND,
 	]:
-		var held: Entity = GrabService.held_in_slot(actor, slot_index)
+		var held: Entity = GrabQueries.held_in_slot(actor, slot_index)
 		if held == null:
 			continue
 
@@ -225,7 +225,7 @@ static func try_automatic_handoff(customer: E_NpcCharacter, visit: CustomerVisit
 
 	var actor: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 	var parcel: Entity = direct_handoff_package(actor, customer, true)
-	if not GrabService.entity_available(parcel):
+	if not GrabQueries.entity_available(parcel):
 		return false
 	if not CustomerHandoffService.can_receive(actor, customer, visit, parcel, CustomerFlowQueries.assigned(parcel, customer, visit)):
 		return false
@@ -270,7 +270,7 @@ static func _resolve_delivery(
 	if customer == null or visit == null or parcel == null:
 		return PackageDeliveryCheck.Result.MISSING
 
-	var held: bool = GrabService.held_relationship(parcel) != null
+	var held: bool = GrabQueries.held_relationship(parcel) != null
 	var allow_held: bool = is_instance_valid(direct_holder)
 	var check_result: PackageDeliveryCheck = CustomerOutcomeService.check(
 		visit,
@@ -284,7 +284,7 @@ static func _resolve_delivery(
 		return check_result.result
 	# Допустимая передача освобождает хват игрока до принятия или отказа получателя.
 	if allow_held:
-		GrabService.release(direct_holder, parcel)
+		GrabReleaseService.release(direct_holder, parcel)
 	if CustomerInspectionService.begin(customer, visit, parcel):
 		return check_result.result
 	return _complete_delivery(customer, visit, parcel, check_result, allow_held)
@@ -421,7 +421,7 @@ static func deny(visit_id: StringName) -> bool:
 	if customer != null:
 		if customer is E_DistrictNpc:
 			NpcServiceRole.escalate(customer as E_DistrictNpc)
-			visit.aggressive = CombatService.target_for(customer) != null
+			visit.aggressive = CombatQueries.target_for(customer) != null
 		if visit.aggressive:
 			enter_aggressive(customer)
 		else:

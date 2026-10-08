@@ -1,11 +1,11 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://content/entities/packages/e_package_content.gd" id="Entity"]
-[ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
-[ext_resource type="Script" path="res://content/components/interaction/c_grabbable.gd" id="Grabbable"]
-[ext_resource type="Script" path="res://content/components/gameplay/c_health.gd" id="Health"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/attributes/def_attr_health.tres" id="HealthDefinition"]
-[ext_resource type="Script" path="res://content/components/gameplay/c_impact_inbox.gd" id="Inbox"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_grabbable.gd" id="Grabbable"]
+[ext_resource type="Script" path="res://content/domains/combat/components/c_health.gd" id="Health"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_attr_health.tres" id="HealthDefinition"]
+[ext_resource type="Script" path="res://content/domains/combat/components/c_impact_inbox.gd" id="Inbox"]
 
 [sub_resource type="Resource" id="Interactable"]
 script = ExtResource("Interactable")

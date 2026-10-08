@@ -56,7 +56,7 @@ func _process(delta: float) -> void:
 	_close.icon = icons[0] if not icons.is_empty() else null
 	if _capture == 0:
 		return
-	if not GrabService.holder_available(player) or player.has_component(C_Death):
+	if not GrabQueries.holder_available(player) or player.has_component(C_Death):
 		close_inventory()
 		return
 
@@ -71,7 +71,7 @@ func _process(delta: float) -> void:
 #region Открытие и закрытие
 ## Захватывает модальный ввод и запоминает слабую цель посылки; возвращает успех открытия.
 func open_inventory() -> bool:
-	if _capture != 0 or not GrabService.holder_available(player) or player.has_component(C_Death) or not player.has_component(C_Inventory) or InteractionControlFocus.current(player) >= InteractionControlFocus.Priority.PUSH:
+	if _capture != 0 or not GrabQueries.holder_available(player) or player.has_component(C_Death) or not player.has_component(C_Inventory) or InteractionControlFocus.current(player) >= InteractionControlFocus.Priority.PUSH:
 		return false
 
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
@@ -217,7 +217,7 @@ func _drop_selected() -> void:
 
 
 func _can_submit() -> bool:
-	return _capture != 0 and GrabService.holder_available(player) and InteractionControlFocus.current(player, _capture) < InteractionControlFocus.Priority.MODAL
+	return _capture != 0 and GrabQueries.holder_available(player) and InteractionControlFocus.current(player, _capture) < InteractionControlFocus.Priority.MODAL
 
 
 func _use_item(item_id: String) -> void:

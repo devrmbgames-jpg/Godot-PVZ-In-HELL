@@ -41,7 +41,7 @@ static func accept(body: E_DistrictNpc) -> bool:
 #region Встреча и общая выдача
 ## Вызывает отсутствующего получателя у своей двери или направляет видимого NPC домой.
 static func knock(player: Entity, door: Entity) -> bool:
-	if not GrabService.holder_available(player) or player.has_component(C_Death) or not EntityAvailability.contains(door, ECS.world):
+	if not GrabQueries.holder_available(player) or player.has_component(C_Death) or not EntityAvailability.contains(door, ECS.world):
 		return false
 
 	var address: C_NpcAddress = door.get_component(C_NpcAddress) as C_NpcAddress
@@ -53,7 +53,7 @@ static func knock(player: Entity, door: Entity) -> bool:
 	var person: NpcRecord = NpcPopulationQueries.person_for(job.npc_id)
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(job.npc_id)
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(job.visit_id)
-	if body == null or person == null or person.death_day != 0 or visit == null or CombatService.target_for(body) != null:
+	if body == null or person == null or person.death_day != 0 or visit == null or CombatQueries.target_for(body) != null:
 		return false
 
 	if HomeMeetingQueries.meeting_for(body) != null:

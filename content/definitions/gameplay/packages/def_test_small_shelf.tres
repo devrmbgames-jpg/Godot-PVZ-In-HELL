@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="DEF_Package" format=3]
 
 [ext_resource type="Script" path="res://content/definitions/gameplay/packages/def_package.gd" id="Definition"]
-[ext_resource type="PackedScene" path="res://content/entities/props/small_shelf.tscn" id="Contents"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/small_shelf.tscn" id="Contents"]
 
 [resource]
 script = ExtResource("Definition")

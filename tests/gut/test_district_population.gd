@@ -60,7 +60,7 @@ func test_merchant_schedule_keeps_same_live_trader_on_shop_goal_all_day() -> voi
 		assert_true(DistrictPopulationService.request_phase_completion(body).succeeded)
 		assert_eq(person.placement, NpcRecord.Placement.STREET)
 		assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
-		assert_true(GrabService.holder_available(body))
+		assert_true(GrabQueries.holder_available(body))
 		assert_true(TraderCatalogRules.is_open(shop, cycle))
 	cycle.phase = C_DayCycle.Phase.NIGHT
 	assert_false(TraderCatalogRules.is_open(shop, cycle))

@@ -4,7 +4,7 @@ extends E_GrabbableBody
 class_name E_PackageContent
 
 ## Профиль общего расчёта удара для физического содержимого.
-@export var impact_profile: DEF_ImpactProfile = preload("res://content/definitions/gameplay/def_impact_default.tres")
+@export var impact_profile: DEF_ImpactProfile = preload("res://content/domains/combat/definitions/def_impact_default.tres")
 ## Необязательная сцена самостоятельной опасности содержимого.
 @export var hazard_scene: PackedScene = null
 

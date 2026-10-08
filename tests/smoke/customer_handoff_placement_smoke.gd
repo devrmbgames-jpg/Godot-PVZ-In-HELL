@@ -22,7 +22,7 @@ func _run() -> void:
 
 	var parcel: Entity = PACKAGE.instantiate() as Entity
 	ECS.world.add_entity(parcel)
-	var body: RigidBody3D = GrabService.physical_body(parcel)
+	var body: RigidBody3D = GrabQueries.physical_body(parcel)
 	body.gravity_scale = 0.0
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	for index: int in range(1, 9):
@@ -50,7 +50,7 @@ func _run() -> void:
 		assert(choice != null and choice.action is DEF_CarryPlacementAction, "Free main-level shelf must offer placement")
 		assert(choice.action.caption == "Поставить")
 		assert(choice.action.complete(actor, choice.source, choice.target))
-		assert(GrabService.held_object(actor) == null)
+		assert(GrabQueries.held_object(actor) == null)
 		assert(body.global_transform.is_equal_approx(area.anchor.global_transform))
 		await get_tree().physics_frame
 		await get_tree().process_frame

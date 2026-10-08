@@ -10,7 +10,7 @@ class ObservedCustomerContext extends CustomerDialogueContext:
 	#region Наблюдение жизненного цикла
 	## Сохраняет наблюдения, затем выполняет обычное завершение обслуживания.
 	func end() -> void:
-		closed_before_combat = CombatService.target_for(_delivery_npc()) == null
+		closed_before_combat = CombatQueries.target_for(_delivery_npc()) == null
 		released_before_end = InteractionControlFocus.current(_delivery_player()) < InteractionControlFocus.Priority.MODAL
 		super.end()
 	#endregion
@@ -199,7 +199,7 @@ func test_failed_promise_reacts_once_after_dialogue_and_blocks_personal_work() -
 	NpcHomeDeliveryService.finish_evening(1)
 	assert_eq(person.memories.size(), 1)
 	assert_eq(person.memories[0].reaction, NpcMemory.Reaction.ATTACK)
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 	assert_true(NpcSocialService.distrusts_player(person))
 	assert_eq(WalletService.current().operations.size(), 0)
 	assert_null(visit.complaint)
@@ -222,7 +222,7 @@ func test_failed_promise_reacts_once_after_dialogue_and_blocks_personal_work() -
 	assert_null(end_line)
 	assert_true(context.closed_before_combat)
 	assert_true(context.released_before_end)
-	assert_same(CombatService.target_for(body), _player)
+	assert_same(CombatQueries.target_for(body), _player)
 	assert_true(job.promise_reaction_applied)
 	assert_true(_copy_job(job).promise_reaction_applied)
 	assert_false(CustomerSocialService.resolve_promise(body, _player))
@@ -247,7 +247,7 @@ func test_timid_promise_flees_but_terminal_failure_does_not_remove_personal_trus
 	assert_true(context.begin())
 	assert_true(context.resolve_broken_promise())
 	assert_true((body.get_component(C_NpcAwareness) as C_NpcAwareness).fleeing)
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 	assert_null(NpcDialogueService.participant(body))
 #endregion
 
@@ -265,7 +265,7 @@ func test_declining_authored_trap_preserves_normal_collection() -> void:
 	context.end()
 	assert_false(NpcHomeDeliveryService.knock(_player, _door(person.home_id)))
 	assert_null(NpcDeliveryScenarioService.armed_for(body))
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 	assert_not_null(PackageQueries.find_live_package(visit.package_id))
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	NpcHomeDeliveryService.finish_evening(1)
@@ -288,11 +288,11 @@ func test_trap_waits_for_visible_near_player_without_receiving_box() -> void:
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.player_visible = false
 	assert_true(_run_tree(body, "res://content/domains/customers/ai/trees/bt_npc_service.tres", 0.2))
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 	awareness.player_visible = true
 	(_player as Node as Node3D).global_position = body.global_position + Vector3.FORWARD * 8.0
 	assert_true(_run_tree(body, "res://content/domains/customers/ai/trees/bt_npc_service.tres", 0.2))
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 	assert_eq(job.status, NpcHomeDelivery.Status.ACCEPTED)
 	assert_same(PackageQueries.find_live_package(job.package_id), parcel)
 	assert_eq(WalletService.current().operations.size(), 0)
@@ -314,7 +314,7 @@ func test_native_trap_closes_conversation_before_combat_and_does_not_repeat() ->
 	assert_true(_run_tree(body, "res://content/domains/customers/ai/trees/bt_npc_service.tres", 0.2))
 	assert_true(context.closed_before_combat)
 	assert_true(context.released_before_end)
-	assert_same(CombatService.target_for(body), _player)
+	assert_same(CombatQueries.target_for(body), _player)
 	assert_eq((body.get_component(C_NpcDecision) as C_NpcDecision).intent_owner, C_NpcDecision.Owner.COMBAT)
 	assert_null(NpcDialogueService.participant(body))
 	assert_null(HomeMeetingQueries.meeting_for(body))
@@ -336,7 +336,7 @@ func test_trap_uses_normal_approach_before_home() -> void:
 	body.place_at(NpcPopulationQueries.position_for(job.address_id) + Vector3.RIGHT * 6.0)
 	(body.get_component(C_NpcAwareness) as C_NpcAwareness).player_visible = true
 	assert_true(_run_tree(body, "res://content/domains/customers/ai/trees/bt_npc_service.tres", 0.2))
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	assert_not_null(HomeMeetingQueries.meeting_for(body))
 #endregion

@@ -54,21 +54,21 @@ func _reconcile(customer: E_NpcCharacter) -> void:
 			state.aggression_reason = CombatContext.Reason.CHALLENGE_ESCALATION
 			CustomerFlowService.enter_aggressive(customer)
 	if agent.phase != C_CustomerAgent.Phase.AGGRESSIVE:
-		if CombatService.target_for(customer) != null:
+		if CombatQueries.target_for(customer) != null:
 			CombatService.end_combat(customer)
 		return
 
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
-	if not GrabService.holder_available(player):
+	if not GrabQueries.holder_available(player):
 		CombatService.end_combat(customer)
 		return
-	if CombatService.target_for(customer) == player:
+	if CombatQueries.target_for(customer) == player:
 		return
 	if visit.declaration == CustomerVisit.Declaration.TAKEN and visit.actual != CustomerVisit.Actual.DELIVERED:
 		state.aggression_reason = CombatContext.Reason.FRAUD_ESCALATION
 	if CombatService.bind_target(customer, player):
 		ChallengeService.cancel(customer)
-		GrabService.entity_unavailable(customer)
+		GrabReleaseService.entity_unavailable(customer)
 		NpcIntentService.follow(customer, player, _pursuit_stop_distance(state))
 		NpcIntentService.watch(customer, player, Vector3.UP * CombatGeometry.GENERIC_TARGET_HEIGHT)
 		customer.show_message("Я нападаю! Отойдите или защищайтесь.")

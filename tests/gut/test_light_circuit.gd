@@ -19,7 +19,7 @@ func before_each() -> void:
 	_actor = Entity.new()
 	_world.add_entity(_actor)
 
-	var scene: PackedScene = load("res://content/entities/props/light_switch.tscn") as PackedScene
+	var scene: PackedScene = load("res://content/domains/interaction/entities/light_switch.tscn") as PackedScene
 	_switch = scene.instantiate() as Entity
 	_world.add_entity(_switch)
 	_state = _switch.get_component(C_LightCircuit) as C_LightCircuit

@@ -97,7 +97,7 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if not visible:
 		return
-	if not is_instance_valid(_reader) or not GrabService.holder_available(_reader):
+	if not is_instance_valid(_reader) or not GrabQueries.holder_available(_reader):
 		close_panel()
 		return
 
@@ -114,7 +114,7 @@ func open_for(actor: Entity) -> void:
 	if visible:
 		_refresh(true)
 		return
-	if not GrabService.holder_available(actor):
+	if not GrabQueries.holder_available(actor):
 		return
 
 	_reader = actor

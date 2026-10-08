@@ -76,7 +76,7 @@ func test_phase_budget_does_not_block_self_defense() -> void:
 	assert_eq(_district.ambient_conflicts, 1)
 	assert_false(NpcCommunityService.begin_conflict(second, _district.people[2], victim))
 	assert_eq(NpcSocialService.react(victim, attacker, NpcMemory.Kind.ATTACK, &"test/defense"), NpcMemory.Reaction.ATTACK)
-	assert_same(CombatService.target_for(victim), attacker)
+	assert_same(CombatQueries.target_for(victim), attacker)
 	assert_eq(_district.ambient_conflicts, 1)
 
 ## Свидетель запоминает видимого виновника смерти; стена препятствует атрибуции.
@@ -147,10 +147,10 @@ func test_witness_memory_does_not_start_personal_revenge() -> void:
 	await get_tree().physics_frame
 	assert_false(NpcCommunityService.begin_conflict(witness, person, attacker))
 	assert_eq(_district.ambient_conflicts, 0)
-	assert_null(CombatService.target_for(witness))
+	assert_null(CombatQueries.target_for(witness))
 	NpcSocialService.remember(person, attacker, witness, NpcMemory.Kind.ATTACK, &"test/personal_attack")
 	assert_true(NpcCommunityService.begin_conflict(witness, person, attacker))
-	assert_same(CombatService.target_for(witness), attacker)
+	assert_same(CombatQueries.target_for(witness), attacker)
 
 ## Боль от окружающего огня слышна, но не заманивает соседей в ауру; подтверждённый удар остаётся поводом проверить звук.
 func test_environmental_damage_noise_does_not_lure_neighbours() -> void:

@@ -9322,6 +9322,22 @@
       "uid": "uid://daswfcsonq7j"
     },
     {
+      "source": "content/services/combat/combat_queries.gd",
+      "target": "content/domains/combat/services/combat_queries.gd",
+      "owner": "combat",
+      "role": "services",
+      "task": "30",
+      "symbol": "CombatQueries"
+    },
+    {
+      "source": "content/services/combat/combat_queries.gd.uid",
+      "target": "content/domains/combat/services/combat_queries.gd.uid",
+      "owner": "combat",
+      "role": "services",
+      "task": "30",
+      "uid": "uid://2j75omscwcce"
+    },
+    {
       "source": "content/services/combat/combat_service.gd",
       "target": "content/domains/combat/services/combat_service.gd",
       "owner": "combat",
@@ -10329,6 +10345,22 @@
       "uid": "uid://ddsxv6r5muhxp"
     },
     {
+      "source": "content/services/interaction/cart_cargo_queries.gd",
+      "target": "content/domains/interaction/services/cart_cargo_queries.gd",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "symbol": "CartCargoQueries"
+    },
+    {
+      "source": "content/services/interaction/cart_cargo_queries.gd.uid",
+      "target": "content/domains/interaction/services/cart_cargo_queries.gd.uid",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "uid": "uid://dx7cf3llkgp53"
+    },
+    {
       "source": "content/services/interaction/cart_cargo_service.gd",
       "target": "content/domains/interaction/services/cart_cargo_service.gd",
       "owner": "interaction",
@@ -10414,6 +10446,22 @@
       "uid": "uid://b4g5nlm5w6gy7"
     },
     {
+      "source": "content/services/interaction/grab_hold_cache.gd",
+      "target": "content/domains/interaction/services/grab_hold_cache.gd",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "symbol": "GrabHoldCache"
+    },
+    {
+      "source": "content/services/interaction/grab_hold_cache.gd.uid",
+      "target": "content/domains/interaction/services/grab_hold_cache.gd.uid",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "uid": "uid://coxf1voftgy7i"
+    },
+    {
       "source": "content/services/interaction/grab_physics_solver.gd",
       "target": "content/domains/interaction/solvers/grab_physics_solver.gd",
       "owner": "interaction",
@@ -10429,6 +10477,54 @@
       "task": "30",
       "symbol": "GrabPhysicsSolver",
       "uid": "uid://ba7hckjnhm6tc"
+    },
+    {
+      "source": "content/services/interaction/grab_queries.gd",
+      "target": "content/domains/interaction/services/grab_queries.gd",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "symbol": "GrabQueries"
+    },
+    {
+      "source": "content/services/interaction/grab_queries.gd.uid",
+      "target": "content/domains/interaction/services/grab_queries.gd.uid",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "uid": "uid://21q2dlmjyjba"
+    },
+    {
+      "source": "content/services/interaction/grab_reach_queries.gd",
+      "target": "content/domains/interaction/services/grab_reach_queries.gd",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "symbol": "GrabReachQueries"
+    },
+    {
+      "source": "content/services/interaction/grab_reach_queries.gd.uid",
+      "target": "content/domains/interaction/services/grab_reach_queries.gd.uid",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "uid": "uid://cdgwihh2u4yw0"
+    },
+    {
+      "source": "content/services/interaction/grab_release_service.gd",
+      "target": "content/domains/interaction/services/grab_release_service.gd",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "symbol": "GrabReleaseService"
+    },
+    {
+      "source": "content/services/interaction/grab_release_service.gd.uid",
+      "target": "content/domains/interaction/services/grab_release_service.gd.uid",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "uid": "uid://c8q3sser87hvk"
     },
     {
       "source": "content/services/interaction/grab_service.gd",
@@ -10514,6 +10610,22 @@
       "task": "30",
       "symbol": "LightCircuitService",
       "uid": "uid://deus7xeyc68qm"
+    },
+    {
+      "source": "content/services/interaction/marker_session_cleanup.gd",
+      "target": "content/domains/interaction/services/marker_session_cleanup.gd",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "symbol": "MarkerSessionCleanup"
+    },
+    {
+      "source": "content/services/interaction/marker_session_cleanup.gd.uid",
+      "target": "content/domains/interaction/services/marker_session_cleanup.gd.uid",
+      "owner": "interaction",
+      "role": "services",
+      "task": "30",
+      "uid": "uid://glx3xnpurx4a"
     },
     {
       "source": "content/services/interaction/marker_session_service.gd",

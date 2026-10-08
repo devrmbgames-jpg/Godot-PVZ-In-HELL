@@ -49,7 +49,7 @@ static func cancel_activity(actor: Entity) -> void:
 ## Расходует лимит фазы только на новое мотивированное, воспринимаемое и допустимое по риску нападение.
 static func begin_conflict(actor: E_DistrictNpc, person: NpcRecord, target: E_DistrictNpc) -> bool:
 	var district: C_District = NpcPopulationQueries.current()
-	if not person.profile.initiates_conflicts or district.ambient_conflicts >= district.definition.ambient_conflicts_per_phase or CombatService.target_for(actor) != null:
+	if not person.profile.initiates_conflicts or district.ambient_conflicts >= district.definition.ambient_conflicts_per_phase or CombatQueries.target_for(actor) != null:
 		return false
 	if target == null or target == actor or target.has_component(C_Death) or target.has_active_role() or not NpcPerceptionService.can_see(actor, target, person.profile):
 		return false
@@ -89,7 +89,7 @@ static func try_conflict(actor: E_DistrictNpc, person: NpcRecord) -> bool:
 	return false
 
 static func _available_loot(item: Entity, claimant: Entity) -> bool:
-	if not EntityAvailability.contains(item, ECS.world) or item.has_component(C_Package) or InventoryService.owner_for(item) != null or GrabService.held_relationship(item) != null:
+	if not EntityAvailability.contains(item, ECS.world) or item.has_component(C_Package) or InventoryService.owner_for(item) != null or GrabQueries.held_relationship(item) != null:
 		return false
 
 	for link: Relationship in item.relationships:

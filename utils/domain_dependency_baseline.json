@@ -2,69 +2,6 @@
   "version": 1,
   "entries": [
     {
-      "rule": "implementation-cycle",
-      "source": "content/services/combat/combat_service.gd",
-      "source_owner": "combat",
-      "target_symbol": "DamageRequestService",
-      "target_path": "content/services/damage/damage_request_service.gd",
-      "removal_task": "30",
-      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
-    },
-    {
-      "rule": "implementation-cycle",
-      "source": "content/services/interaction/cart_cargo_service.gd",
-      "source_owner": "interaction",
-      "target_symbol": "CartCargoGeometry",
-      "target_path": "content/geometry/interaction/cart_cargo_geometry.gd",
-      "removal_task": "30",
-      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
-    },
-    {
-      "rule": "implementation-cycle",
-      "source": "content/services/interaction/grab_service.gd",
-      "source_owner": "interaction",
-      "target_symbol": "CartCargoService",
-      "target_path": "content/services/interaction/cart_cargo_service.gd",
-      "removal_task": "30",
-      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
-    },
-    {
-      "rule": "implementation-cycle",
-      "source": "content/services/interaction/grab_service.gd",
-      "source_owner": "interaction",
-      "target_symbol": "GrabPhysicsSolver",
-      "target_path": "content/services/interaction/grab_physics_solver.gd",
-      "removal_task": "30",
-      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
-    },
-    {
-      "rule": "implementation-cycle",
-      "source": "content/services/interaction/grab_service.gd",
-      "source_owner": "interaction",
-      "target_symbol": "InteractionTargetingGeometry",
-      "target_path": "content/geometry/interaction/interaction_targeting_geometry.gd",
-      "removal_task": "30",
-      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
-    },
-    {
-      "rule": "implementation-cycle",
-      "source": "content/services/interaction/grab_service.gd",
-      "source_owner": "interaction",
-      "target_symbol": "MarkerSessionService",
-      "target_path": "content/services/interaction/marker_session_service.gd",
-      "removal_task": "30",
-      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
-    },
-    {
-      "rule": "implementation-cycle",
-      "source": "content/services/interaction/grab_service.gd",
-      "source_owner": "interaction",
-      "target_symbol": "PhysicalSlotService",
-      "target_path": "content/services/interaction/physical_slot_service.gd",
-      "removal_task": "30",
-      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
-    },
-    {
       "rule": "forbidden-edge",
       "source": "content/definitions/interaction/def_trader_action.gd",
       "source_owner": "commerce",

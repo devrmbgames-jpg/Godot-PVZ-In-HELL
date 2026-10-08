@@ -24,7 +24,7 @@ static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 		if body.has_component(C_CustomerAgent):
 			continue
 		var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
-		if CombatService.target_for(body) != null or (awareness != null and (awareness.fleeing or awareness.hazard_distress)):
+		if CombatQueries.target_for(body) != null or (awareness != null and (awareness.fleeing or awareness.hazard_distress)):
 			defer_visit(body, visit, "Получатель покинул очередь из-за опасности")
 			continue
 		begin(body, person, visit, cycle.day_index)
