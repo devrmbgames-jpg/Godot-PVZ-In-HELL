@@ -166,7 +166,7 @@ func _update_player_status() -> void:
 	_status_hunger_bar.visible = has_hunger
 	if has_hunger:
 		const HUNGER_NAMES: Array[String] = ["Сыт", "Голоден", "Сильный голод"]
-		_status_hunger.text = "Голод  %.0f / %.0f · %s" % [hunger.value, hunger.policy.maximum, HUNGER_NAMES[HungerService.tier(hunger)]]
+		_status_hunger.text = "Голод  %.0f / %.0f · %s" % [hunger.value, hunger.policy.maximum, HUNGER_NAMES[HungerRules.tier(hunger)]]
 		_status_hunger_bar.max_value = hunger.policy.maximum
 		_status_hunger_bar.value = hunger.value
 

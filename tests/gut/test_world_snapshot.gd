@@ -74,6 +74,107 @@ func after_each() -> void:
 
 #endregion
 
+#region Quest variant persistence and exactly-once payment
+func _offered_quest() -> RefusalQuestRecord:
+	var cycle: C_DayCycle = DayPhaseService.current()
+	cycle.phase = C_DayCycle.Phase.EVENING
+	var wallet: C_Wallet = _session.get_component(C_Wallet) as C_Wallet
+	wallet.balance = 500
+	var shop: C_Trader = C_Trader.new()
+	shop.profile = (load("res://content/definitions/gameplay/commerce/def_trader_default.tres") as DEF_TraderProfile).duplicate() as DEF_TraderProfile
+	shop.profile.refusal_quest = load("res://content/definitions/gameplay/quests/def_refusal_patient.tres") as DEF_RefusalQuest
+	var trader: Entity = _authored("QuestIssuer", [shop])
+	var package: C_Package = C_Package.new()
+	package.package_id = "fixture/quest/parcel"
+	package.definition = load("res://content/definitions/gameplay/packages/def_test_bread.tres") as DEF_Package
+	_authored("QuestParcel", [package, C_PackageState.new()])
+	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
+	registration.package_id = package.package_id
+	registration.number = 3
+	(_session.get_component(C_PackageLedger) as C_PackageLedger).records.append(registration)
+	var visit: CustomerVisit = CustomerVisit.new()
+	visit.visit_id = &"fixture/quest/visit"
+	visit.customer_id = &"fixture/quest/recipient"
+	visit.package_id = package.package_id
+	visit.arrival_day = 2
+	visit.definition = load("res://content/definitions/gameplay/customers/def_customer_prototype.tres") as DEF_Customer
+	(_session.get_component(C_CustomerFlow) as C_CustomerFlow).visits.append(visit)
+	return RefusalQuestService.offer(trader)
+
+
+## Real slot write/read keeps the authored variant and rejects a queued pre-load reward.
+func test_quest_variant_slot_roundtrip_and_pending_outcome_do_not_double_pay() -> void:
+	var record: RefusalQuestRecord = _offered_quest()
+	assert_not_null(record)
+	assert_true(RefusalQuestService.accept(record.quest_id))
+	var quest_owner: S_RefusalQuest = S_RefusalQuest.new()
+	quest_owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(quest_owner)
+	var cycle: C_DayCycle = DayPhaseService.current()
+	cycle.day_index = 2
+	cycle.phase = C_DayCycle.Phase.MORNING
+	CustomerFlowService.find_visit(record.visit_id).actual = CustomerVisit.Actual.PLAYER_DENIED
+	_world.process(0.0)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
+	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
+	var loaded: RefusalQuestRecord = RefusalQuestService.find(record.quest_id)
+	assert_ne(loaded, record)
+	assert_eq(loaded.definition.resource_path, "res://content/definitions/gameplay/quests/def_refusal_patient.tres")
+	assert_eq(loaded.deadline_day, 4)
+	assert_eq(loaded.reward, 90)
+	_world.flush_command_buffers()
+	var wallet: C_Wallet = _session.get_component(C_Wallet) as C_Wallet
+	assert_eq(wallet.balance, 500)
+	assert_eq(loaded.state, RefusalQuestRecord.State.ACTIVE)
+	_world.process(0.0)
+	_world.flush_command_buffers()
+	assert_true(loaded.reward_paid)
+	assert_eq(wallet.balance, 590)
+	assert_eq(wallet.operations.size(), 1)
+	assert_false(RefusalQuestService.accept(loaded.quest_id))
+
+	# Reload a committed wallet operation with a missing derived receipt flag.
+	loaded.reward_paid = false
+	snapshot = WorldSnapshotService.capture(_root, 2)
+	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
+	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
+	loaded = RefusalQuestService.find(record.quest_id)
+	_world.process(0.0)
+	_world.flush_command_buffers()
+	_world.process(0.0)
+	_world.flush_command_buffers()
+	assert_true(loaded.reward_paid)
+	assert_eq(wallet.balance, 590)
+	assert_eq(wallet.operations.size(), 1)
+	assert_eq(loaded.definition.accepted_text, "Тестовое задание ждёт фактического отказа.")
+
+
+## Invalid current quest fields reject the full snapshot before calendar/wallet/relationships change.
+func test_invalid_quest_snapshot_rejects_before_live_mutation() -> void:
+	var record: RefusalQuestRecord = _offered_quest()
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	var fields: Dictionary = {}
+	for entity_row: Dictionary in snapshot.entities:
+		for component_row: Dictionary in entity_row.components:
+			if SaveDataCodec.component_script(String(component_row.type)) == C_QuestSession:
+				var quest_records: Array = (component_row.fields as Dictionary).records as Array
+				fields = (quest_records[0] as Dictionary).fields as Dictionary
+	assert_false(fields.is_empty())
+	for corruption: Dictionary in [{"definition": null}, {"quest_id": &""}, {"reward": -1}, {"reward_paid": true}, {"deadline_day": 1}]:
+		var saved_fields: Dictionary = fields.duplicate(true)
+		fields.merge(corruption, true)
+		assert_false(WorldSnapshotService.restore(snapshot, _root))
+		assert_eq(DayPhaseService.current().phase, C_DayCycle.Phase.EVENING)
+		assert_eq((_session.get_component(C_Wallet) as C_Wallet).balance, 500)
+		assert_eq(RefusalQuestService.find(record.quest_id), record)
+		assert_eq(_world.query.with_all([C_QuestBinding]).execute().size(), 1)
+		fields.clear()
+		fields.merge(saved_fields)
+#endregion
+
 #region Восстановление мира и проверка снимка
 ## Current-format in-place restore clears transient planning state and rebuilds it once.
 func test_restore_rebuilds_customer_planning_cache_without_serializing_it() -> void:

@@ -423,13 +423,13 @@ func arm_challenge() -> bool:
 
 ## Читает уровень голода без изменения Hunger и личности получателя.
 func hunger_tier() -> int:
-	return HungerService.tier(_actor.get_component(C_Hunger) as C_Hunger) if is_instance_valid(_actor) else DEFAULT_HUNGER_TIER
+	return HungerRules.tier(_actor.get_component(C_Hunger) as C_Hunger) if is_instance_valid(_actor) else DEFAULT_HUNGER_TIER
 
 
 ## Меняет только восприятие реплики; настоящую ветку и текст выбирает DialogueManager.
 func perceived_text(actual_text: String) -> String:
 	var hunger: C_Hunger = _actor.get_component(C_Hunger) as C_Hunger if is_instance_valid(_actor) else null
-	return "Съешь меня" if HungerService.sees_npcs_as_food(hunger) and not actual_text.is_empty() else actual_text
+	return "Съешь меня" if HungerRules.sees_npcs_as_food(hunger) and not actual_text.is_empty() else actual_text
 
 
 #endregion

@@ -48,7 +48,7 @@ def validate(root: Path = ROOT) -> list[str]:
     version = re.search(r"const SCHEMA_VERSION: int = (\d+)", store)
     if version is None or manifest.get("schema") != int(version.group(1)):
         errors.append("supported schema differs from baseline")
-    fixture = root / "tests/fixtures/refactoring_v2/schema2_snapshot.variant"
+    fixture = root / "tests/fixtures/refactoring_v2/current_snapshot.variant"
     if not fixture.is_file():
         errors.append("isolated current-format snapshot fixture is missing")
     else:

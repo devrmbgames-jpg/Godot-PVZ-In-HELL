@@ -64,7 +64,7 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `hazards/hazard_spawn_service.gd` | KEEP_SERVICE | 23 | Typed spawn request; O_HazardSpawn owns committed result. | KEPT_WITH_REASON |
 | `hazards/hazard_targets.gd` | KEEP_RULES | 23 | Collider-to-Entity resolution. | KEPT_WITH_REASON |
 | `hunger/hunger_presentation.gd` | KEEP_PRESENTATION | 19 | Read-only hunger diagnostics. | KEPT_WITH_REASON |
-| `hunger/hunger_service.gd` | SPLIT | 19 | Food/set commands and multipliers mixed with advance/tick. | PENDING |
+| `hunger/hunger_service.gd` | SPLIT | 19 | Food/set commands retained; growth/active seconds in S_Hunger, pure tiers/multipliers in HungerRules, old tick/advance and callers removed. | DONE |
 | `input/game_settings_service.gd` | KEEP_SERVICE | 25 | Explicit process InputMap/settings/ConfigFile operations outside snapshots. | KEPT_WITH_REASON |
 | `input/input_binding_codec.gd` | KEEP_RULES | 25 | Portable input encode/decode/normalize/overlap. | KEPT_WITH_REASON |
 | `input/input_prompt_catalog.gd` | KEEP_PRESENTATION | 25 | Texture lookup cache only. | KEPT_WITH_REASON |
@@ -147,7 +147,7 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `persistence/save_data_codec.gd` | KEEP_RULES | 25 | Closed-field record encode/decode without live Objects. | KEPT_WITH_REASON |
 | `persistence/snapshot_graph_rules.gd` | KEEP_RULES | 25 | Preflight roles/capacity/prefab/link validation. | KEPT_WITH_REASON |
 | `persistence/world_snapshot_service.gd` | KEEP_SERVICE | 25 | Explicit snapshot/reconstruction; replace path identity/adapter imports in 25. | KEPT_WITH_REASON |
-| `quests/refusal_quest_service.gd` | SPLIT | 19 | Offer/accept/reward mixed with deadline/outcome polling and hardcoded Definition. | PENDING |
+| `quests/refusal_quest_service.gd` | SPLIT | 19 | Explicit quest operations retained; S_RefusalQuest owns deadline/outcome/reward selection, authored issuer variants/provider and schema-3 exactly-once reload; no tick or hardcoded Definition. | DONE |
 
 ## Bounded migration slices
 

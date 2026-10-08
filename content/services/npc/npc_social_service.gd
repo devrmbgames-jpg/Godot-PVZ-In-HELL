@@ -38,7 +38,7 @@ static func react(body: E_DistrictNpc, actor: Entity, kind: NpcMemory.Kind, inci
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	var health: C_Health = body.get_component(C_Health) as C_Health
 	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger if is_instance_valid(actor) else null
-	var predatory_player: bool = awareness.player_visible and is_instance_valid(actor) and actor.has_component(C_PlayerInputController) and HungerService.sees_npcs_as_food(hunger)
+	var predatory_player: bool = awareness.player_visible and is_instance_valid(actor) and actor.has_component(C_PlayerInputController) and HungerRules.sees_npcs_as_food(hunger)
 	var can_retreat: bool = predatory_player or health.current < health.value * person.profile.pursuit_health_reserve
 	var reaction: NpcMemory.Reaction = _choose(person.profile, kind, hash(str(person.npc_id) + ":" + str(incident)), can_retreat)
 	remember(person, actor, body, kind, incident, reaction)

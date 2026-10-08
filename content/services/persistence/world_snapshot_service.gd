@@ -139,6 +139,8 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				return false
 
 			types[script] = probe
+			if probe is C_QuestSession and not RefusalQuestValidator.session_issues(probe as C_QuestSession).is_empty():
+				return false
 			if probe is C_DayCycle:
 				session_count += 1
 				if (probe as C_DayCycle).day_index != int(data.morning_day) or (probe as C_DayCycle).phase != C_DayCycle.Phase.MORNING:

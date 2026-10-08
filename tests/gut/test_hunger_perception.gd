@@ -194,10 +194,10 @@ func test_starving_honest_denial_keeps_actual_response_tags_and_domain_transitio
 func test_food_perception_starts_strictly_above_eighty_percent() -> void:
 	for value: float in [30.0, 75.0, 80.0]:
 		_state.value = value
-		assert_false(HungerService.sees_npcs_as_food(_state))
+		assert_false(HungerRules.sees_npcs_as_food(_state))
 		assert_eq(_context.perceived_text("Настоящая реплика"), "Настоящая реплика")
 	_state.value = 81.0
-	assert_true(HungerService.sees_npcs_as_food(_state))
+	assert_true(HungerRules.sees_npcs_as_food(_state))
 	assert_eq(_context.perceived_text("Настоящая реплика"), "Съешь меня")
-	assert_eq(HungerService.tier(_state), C_Hunger.Tier.STARVING)
+	assert_eq(HungerRules.tier(_state), C_Hunger.Tier.STARVING)
 #endregion

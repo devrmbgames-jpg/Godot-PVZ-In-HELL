@@ -3,16 +3,6 @@
   "entries": [
     {
       "rule": "service-step",
-      "owner": "HungerService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Hunger temporal progression",
-      "task": "19_hunger_quests.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
       "owner": "CartCargoService",
       "method": "update",
       "target": "",
@@ -52,26 +42,6 @@
       "removal_gate": "26/27"
     },
     {
-      "rule": "service-step",
-      "owner": "RefusalQuestService",
-      "method": "tick",
-      "target": "",
-      "count": 1,
-      "reason": "Quest polling",
-      "task": "19_hunger_quests.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "system-service-step",
-      "owner": "S_Hunger",
-      "method": "process",
-      "target": "HungerService.tick",
-      "count": 1,
-      "reason": "Hunger temporal progression",
-      "task": "19_hunger_quests.md",
-      "removal_gate": "26/27"
-    },
-    {
       "rule": "system-service-step",
       "owner": "S_NightSave",
       "method": "process",
@@ -79,16 +49,6 @@
       "count": 1,
       "reason": "Save preparation/retry polling",
       "task": "25_persistence_remaining.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "system-service-step",
-      "owner": "S_RefusalQuest",
-      "method": "process",
-      "target": "RefusalQuestService.tick",
-      "count": 1,
-      "reason": "Quest polling",
-      "task": "19_hunger_quests.md",
       "removal_gate": "26/27"
     },
     {

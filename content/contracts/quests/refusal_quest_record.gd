@@ -3,6 +3,8 @@ extends Resource
 class_name RefusalQuestRecord
 
 enum State { OFFERED, ACTIVE, COMPLETED, FAILED, IGNORED, EXPIRED }
+## Immutable authored variant reference; reward/deadline remain the accepted operation snapshots.
+@export var definition: DEF_RefusalQuest = null
 ## Неповторяющийся ID задания для исхода и выплаты.
 @export var quest_id: StringName = &""
 ## Постоянный ключ торговой роли, выдавшей задание.

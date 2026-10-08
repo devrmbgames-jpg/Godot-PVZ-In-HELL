@@ -43,16 +43,28 @@ func after_each() -> void:
 #endregion
 
 #region Время, еда и эффективные параметры
+## Disabled participation consumes neither hunger nor active time, then resumes at the next real step.
+func test_disabled_actor_does_not_accumulate_hunger_or_active_time() -> void:
+	_world.disable_entity(_actor)
+	_world.process(10.0)
+	assert_eq(_state.value, 0.0)
+	assert_eq(_state.active_seconds, 0.0)
+	_world.enable_entity(_actor)
+	_world.process(10.0)
+	assert_eq(_state.value, 0.5)
+	assert_eq(_state.active_seconds, 10.0)
+
+
 ## Пороги включают граничные значения; рост ограничивает голод максимумом.
 func test_thresholds_are_inclusive_and_value_is_bounded() -> void:
 	_state.value = 39.999
-	assert_eq(HungerService.tier(_state), C_Hunger.Tier.NORMAL)
+	assert_eq(HungerRules.tier(_state), C_Hunger.Tier.NORMAL)
 	_state.value = 40.0
-	assert_eq(HungerService.tier(_state), C_Hunger.Tier.HUNGRY)
+	assert_eq(HungerRules.tier(_state), C_Hunger.Tier.HUNGRY)
 	_state.value = 74.999
-	assert_eq(HungerService.tier(_state), C_Hunger.Tier.HUNGRY)
+	assert_eq(HungerRules.tier(_state), C_Hunger.Tier.HUNGRY)
 	_state.value = 75.0
-	assert_eq(HungerService.tier(_state), C_Hunger.Tier.STARVING)
+	assert_eq(HungerRules.tier(_state), C_Hunger.Tier.STARVING)
 	_world.process(1000.0)
 	assert_eq(_state.value, 100.0)
 	assert_eq(_state.active_seconds, 1000.0)
@@ -82,7 +94,7 @@ func test_growth_uses_active_non_night_unpaused_living_time() -> void:
 ## Недопустимые интервалы не меняют значение и активные часы.
 func test_invalid_or_negative_elapsed_time_does_not_change_state() -> void:
 	for delta: float in [-1.0, NAN, INF, 0.0]:
-		HungerService.advance(_state, delta, C_DayCycle.Phase.DAY, false, true)
+		_world.process(delta)
 	assert_eq(_state.value, 0.0)
 	assert_eq(_state.active_seconds, 0.0)
 
@@ -94,7 +106,7 @@ func test_food_is_public_typed_effect_and_never_consumes_at_zero_or_on_dead_acto
 	_state.value = 80.0
 	assert_true(HungerService.apply_food(_actor, food))
 	assert_eq(_state.value, 45.0)
-	assert_eq(HungerService.tier(_state), C_Hunger.Tier.HUNGRY)
+	assert_eq(HungerRules.tier(_state), C_Hunger.Tier.HUNGRY)
 	assert_true(HungerService.apply_food(_actor, food))
 	assert_eq(_state.value, 10.0)
 	assert_true(HungerService.apply_food(_actor, food))
@@ -139,13 +151,13 @@ func test_food_reverses_attack_multiplier_and_authored_attack_is_unchanged() -> 
 
 	var attack: DEF_MeleeAttack = load("res://content/definitions/gameplay/combat/def_blade_attack.tres") as DEF_MeleeAttack
 	_state.value = 75.0
-	assert_eq(attack.damage * HungerService.damage_multiplier(_state), 60.0)
+	assert_eq(attack.damage * HungerRules.damage_multiplier(_state), 60.0)
 	assert_true(CombatService.hit(_actor, _actor, target, attack.damage))
 	assert_eq(health.current, 40.0, "The actual damage producer must use the effective hunger multiplier")
 	var food: DEF_FoodEffect = DEF_FoodEffect.new()
 	food.hunger_relief = 100.0
 	assert_true(HungerService.apply_food(_actor, food))
-	assert_eq(attack.damage * HungerService.damage_multiplier(_state), 40.0)
+	assert_eq(attack.damage * HungerRules.damage_multiplier(_state), 40.0)
 	assert_true(CombatService.hit(_actor, _actor, target, attack.damage))
 	assert_eq(health.current, 0.0)
 	assert_eq(attack.damage, 40.0)

@@ -1,8 +1,8 @@
 extends GutTest
-## Phase 1 schema-2 fixture: real retained NPC bodies, durable links and codec path coverage.
+## Current-format fixture: real retained NPC bodies, durable links and codec path coverage.
 
 const SLOT_PATH: String = "user://gut_refactoring_v2_phase1.pvzh"
-const SNAPSHOT_PATH: String = "res://tests/fixtures/refactoring_v2/schema2_snapshot.variant"
+const SNAPSHOT_PATH: String = "res://tests/fixtures/refactoring_v2/current_snapshot.variant"
 const MANIFEST_PATH: String = "res://tests/fixtures/refactoring_v2/save_visible_paths.json"
 const MORNING_DAY: int = 2
 
@@ -203,7 +203,7 @@ func test_incompatible_and_unresolved_data_reject_before_live_mutation() -> void
 	var body: E_DistrictNpc = DistrictPopulationService.body_for(_dormant_id)
 	var entity_count: int = _fixture_world.entities.size()
 	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
-	for version: int in [1, AutosaveStore.SCHEMA_VERSION + 1]:
+	for version: int in [1, AutosaveStore.SCHEMA_VERSION - 1, AutosaveStore.SCHEMA_VERSION + 1]:
 		var incompatible: Dictionary = snapshot.duplicate(true)
 		incompatible.version = version
 		assert_false(WorldSnapshotService.restore(incompatible, _fixture_root))

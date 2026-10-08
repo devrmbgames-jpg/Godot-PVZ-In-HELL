@@ -2,10 +2,10 @@
 
 Durable implementation source: Git history; remaining manual acceptance is tracked under `qa_tasks/`.
 
-Refactoring v2 Phase 0 policy (owner decision 2026-10-07): old save-file migration/backward compatibility is not required. The following bullets describe the current schema-2 runtime, which Phase 0 does not modify. Future incompatible format/path/identity changes bump schema and reject old saves; current-format roundtrip, stable IDs, links and safe failure remain mandatory. Tooling does not delete or overwrite user saves automatically.
+Refactoring v2 Phase 0 policy (owner decision 2026-10-07): old save-file migration/backward compatibility is not required. The following bullets describe the current runtime; task 19 advances its schema to 3 for an authored quest variant reference. Future incompatible format/path/identity changes bump schema and reject old saves; current-format roundtrip, stable IDs, links and safe failure remain mandatory. Tooling does not delete or overwrite user saves automatically.
 
 - Main startup reads one `user://autosave.pvzh` before simulation. Tests supply an isolated `autosave_path`. Missing, invalid checksum or incompatible schema starts a fresh scene and reports the reason in debug UI.
-- Schema **2** includes permanent district people, absent bodies, personal memories, replacement sequence and home-delivery obligations. Schema 1 is deliberately incompatible: startup reports this without migrating or deleting the old file.
+- Schema **3** includes permanent district people, absent bodies, personal memories, replacement sequence, home-delivery obligations and immutable authored quest variant references. Earlier schemas are deliberately incompatible: startup reports this without migrating or deleting the old file.
 - Sleep enters Night with `night_ready=false`. `S_NightSave` runs after phase, wallet/customer settlement and quest outcomes. It clears transient participation, captures the next Morning, writes/flushes a temporary file and atomically renames it into the slot. Failed writes keep Night and retry the same target day; successful writes permit the existing phase System to advance once.
 - A successful slot already describes the next Morning. Interruption after file replacement but before the live phase transition therefore resumes that Morning. Progress during the day is committed at Sleep.
 - Night first completes delivered home jobs or records failed promises, then clears participation, prepares the next district morning once and captures it. A failed file write retries that prepared morning; bonus operations, promise memory and replacement IDs cannot be generated twice. Physical undelivered boxes are neither marked lost nor moved to storage by this closeout.
@@ -21,7 +21,7 @@ Checks include the existing save/world snapshot regression, district absent-body
 
 ## Refactoring v2 identity contract
 
-Phase 1 records the current schema-2 baseline and the target for task 25; it does not claim that runtime migration has happened. `AutosaveStore.SCHEMA_VERSION` is the supported payload version, separate from the `PVZH1` file envelope. The file contains a SHA-256-checked native Variant dictionary without runtime Objects. Current schema 1 and newer versions are rejected; schema 2 may also become unsupported after the next incompatible change.
+Phase 1 records the current schema-2 baseline and the target for task 25; it does not claim that runtime migration has happened. `AutosaveStore.SCHEMA_VERSION` is the supported payload version, separate from the `PVZH1` file envelope. The file contains a SHA-256-checked native Variant dictionary without runtime Objects. The supported schema is now 3; earlier schemas and newer versions are rejected without migration. Quest snapshot preflight validates its Definition, stable operation/target IDs, reward/deadline and terminal receipt before live mutation.
 
 | Namespace | Current durable meaning | Target/removal rule |
 | --- | --- | --- |
@@ -54,7 +54,7 @@ Failed preflight leaves the live World and file intact. An unexpected constructi
 
 ## Save-visible path inventory and change gate
 
-The machine-readable [save-visible inventory](../tests/fixtures/refactoring_v2/save_visible_paths.json) lists all 31 current Component scripts with exact persisted fields, all 14 allowed record scripts, and 46 paths observed in the [captured schema-2 fixture](../tests/fixtures/refactoring_v2/schema2_snapshot.variant). These are actual codec envelopes and snapshot values. Task 28 uses this inventory plus the following exhaustive path-bearing surfaces for its source→target map:
+The machine-readable [save-visible inventory](../tests/fixtures/refactoring_v2/save_visible_paths.json) lists all 31 current Component scripts with exact persisted fields, all 14 allowed record scripts, and 46 paths observed in the [captured current-format fixture](../tests/fixtures/refactoring_v2/current_snapshot.variant). These are actual codec envelopes and snapshot values. Task 28 uses this inventory plus the following exhaustive path-bearing surfaces for its source→target map:
 
 | Serialized surface | Current resolver/guard | Migration obligation |
 | --- | --- | --- |

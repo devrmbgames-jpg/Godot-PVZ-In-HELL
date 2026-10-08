@@ -204,19 +204,25 @@ func _refresh() -> void:
 func _show_quest(record: RefusalQuestRecord, cycle: C_DayCycle) -> void:
 	var label: Label = Label.new()
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.text = "Нет нового задания: нужна зарегистрированная посылка для будущего клиента." if record == null else "Задание: не выдавай посылку №%03d.\nСрок: до Night дня %d (осталось %d дней). Награда %d за настоящий отказ. Обычные штрафы и жалобы сохраняются." % [record.display_number, record.deadline_day, maxi(0, record.deadline_day - cycle.day_index), record.reward]
+	if record == null:
+		label.text = "Нет нового задания: нужна зарегистрированная посылка для будущего клиента."
+	else:
+		label.text = record.definition.offer_text.format({
+			"number": "%03d" % record.display_number, "deadline": record.deadline_day,
+			"days": maxi(0, record.deadline_day - cycle.day_index), "reward": record.reward,
+		})
 	_quest.add_child(label)
 	if record == null:
 		return
 	if record.state == RefusalQuestRecord.State.OFFERED:
 		for accept: bool in [true, false]:
 			var button: Button = Button.new()
-			button.text = "Принять задание" if accept else "Отказаться от задания"
+			button.text = record.definition.accept_text if accept else record.definition.ignore_text
 			button.pressed.connect(_quest_choice.bind(record.quest_id, accept))
 			_quest.add_child(button)
 	elif record.state == RefusalQuestRecord.State.ACTIVE:
 		var active: Label = Label.new()
-		active.text = "Задание принято. Отказ в Terminal без реального отказа клиенту не выполняет задачу."
+		active.text = record.definition.accepted_text
 		_quest.add_child(active)
 	else:
 		var resolved: Label = Label.new()

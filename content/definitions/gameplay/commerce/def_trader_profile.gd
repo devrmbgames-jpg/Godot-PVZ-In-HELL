@@ -18,3 +18,6 @@ class_name DEF_TraderProfile
 @export_range(0, 1000000000) var delivery_fee: int = 100
 ## Задержка доставки после оплаты в игровых днях.
 @export_range(1, 30) var delivery_delay_days: int = 1
+
+## Optional authored refusal quest; null disables this mechanic for this issuer.
+@export var refusal_quest: DEF_RefusalQuest = null

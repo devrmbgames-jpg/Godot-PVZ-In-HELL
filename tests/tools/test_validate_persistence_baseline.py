@@ -24,7 +24,7 @@ class PersistenceBaselineTest(unittest.TestCase):
         self.write("content/contracts/money_operation.gd", "class_name MoneyOperation\n")
         self.write("content/services/persistence/autosave_store.gd", "const SCHEMA_VERSION: int = 2\n")
         self.write("content/definitions/supply.tres", "[gd_resource]\n")
-        self.fixture = self.write("tests/fixtures/refactoring_v2/schema2_snapshot.variant",
+        self.fixture = self.write("tests/fixtures/refactoring_v2/current_snapshot.variant",
                                   '{"definition": "res://content/definitions/supply.tres::Books"}')
         self.manifest = self.write("tests/fixtures/refactoring_v2/save_visible_paths.json",
                                    json.dumps(dict(schema=2, **inventory(self.root),

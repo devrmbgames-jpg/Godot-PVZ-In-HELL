@@ -1,8 +1,7 @@
 extends RefCounted
-## Предлагает и разрешает задания по реальному исходу обслуживания; награду проводит через кошелёк.
+## Explicit offer/choice/outcome/reward transactions; S_RefusalQuest owns scheduled deadline selection.
 class_name RefusalQuestService
 
-const DEFINITION: DEF_RefusalQuest = preload("res://content/definitions/gameplay/quests/def_refusal_default.tres")
 
 
 #region Записи и восстановление связей
@@ -71,6 +70,10 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 	if cycle == null or cycle.phase != C_DayCycle.Phase.EVENING or state == null or shop == null or ledger == null or flow == null:
 		return null
 
+	var definition: DEF_RefusalQuest = shop.profile.refusal_quest if shop.profile != null else null
+	if definition == null or not RefusalQuestValidator.issuer_issues(shop).is_empty():
+		return null
+
 	for record: RefusalQuestRecord in state.records:
 		if record.issuer_key == shop.trader_key and record.state in [RefusalQuestRecord.State.OFFERED, RefusalQuestRecord.State.ACTIVE]:
 			BoundaryTrace.record(&"quests.offer", record.quest_id,
@@ -90,19 +93,24 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 			if visit.package_id != registration.package_id or visit.finished or visit.arrival_day <= cycle.day_index or visit.actual != CustomerVisit.Actual.NOT_RESOLVED:
 				continue
 
+			var target_identity: C_Package = parcel.get_component(C_Package) as C_Package
+			if not RefusalQuestValidator.target_issues(visit, registration, target_identity).is_empty():
+				continue
+
 			var quest_id: StringName = StringName("refusal/" + visit.package_id)
 			if find(quest_id) != null:
 				continue
 
 			var record: RefusalQuestRecord = RefusalQuestRecord.new()
+			record.definition = definition
 			record.quest_id = quest_id
 			record.issuer_key = shop.trader_key
 			record.package_id = visit.package_id
 			record.visit_id = visit.visit_id
 			record.display_number = registration.number
 			record.offered_day = cycle.day_index
-			record.deadline_day = maxi(cycle.day_index + DEFINITION.minimum_deadline_days, visit.arrival_day)
-			record.reward = DEFINITION.reward
+			record.deadline_day = maxi(cycle.day_index + definition.minimum_deadline_days, visit.arrival_day)
+			record.reward = definition.reward
 			state.records.append(record)
 			var binding: Entity = Entity.new()
 			var identity: C_QuestBinding = C_QuestBinding.new()
@@ -138,34 +146,22 @@ static func ignore(quest_id: StringName) -> bool:
 	if record == null or cycle == null or cycle.phase != C_DayCycle.Phase.EVENING or record.state != RefusalQuestRecord.State.OFFERED:
 		return _trace_choice(quest_id, &"quests.ignore", false)
 
-	_resolve(record, RefusalQuestRecord.State.IGNORED, cycle.day_index)
+	resolve(record, RefusalQuestRecord.State.IGNORED, cycle.day_index)
 	return _trace_choice(quest_id, &"quests.ignore", true)
 
 
 #endregion
 
 #region Исходы, очистка и награда
-## Проверяет сроки и фактическую выдачу/отказ, снимает связи и однократно запрашивает награду.
-static func tick(state: C_QuestSession, cycle: C_DayCycle) -> void:
-	if state == null or cycle == null:
+## Commits one quest outcome and removes its live bindings before reporting completion.
+static func resolve(record: RefusalQuestRecord, outcome: RefusalQuestRecord.State, day_index: int) -> void:
+	if find(record.quest_id) != record or record.state not in [RefusalQuestRecord.State.OFFERED, RefusalQuestRecord.State.ACTIVE]:
+		return
+	if outcome not in [RefusalQuestRecord.State.COMPLETED, RefusalQuestRecord.State.FAILED, RefusalQuestRecord.State.IGNORED, RefusalQuestRecord.State.EXPIRED]:
+		return
+	if outcome in [RefusalQuestRecord.State.COMPLETED, RefusalQuestRecord.State.FAILED] and record.state != RefusalQuestRecord.State.ACTIVE:
 		return
 
-	for record: RefusalQuestRecord in state.records:
-		if record.state in [RefusalQuestRecord.State.OFFERED, RefusalQuestRecord.State.ACTIVE]:
-			var visit: CustomerVisit = CustomerFlowService.find_visit(record.visit_id)
-			if cycle.day_index > record.deadline_day:
-				_resolve(record, RefusalQuestRecord.State.EXPIRED, cycle.day_index)
-			elif record.state == RefusalQuestRecord.State.ACTIVE and visit != null and visit.actual == CustomerVisit.Actual.DELIVERED:
-				_resolve(record, RefusalQuestRecord.State.FAILED, cycle.day_index)
-			elif record.state == RefusalQuestRecord.State.ACTIVE and visit != null and visit.actual == CustomerVisit.Actual.PLAYER_DENIED:
-				_resolve(record, RefusalQuestRecord.State.COMPLETED, cycle.day_index)
-			elif cycle.day_index == record.deadline_day and cycle.phase == C_DayCycle.Phase.NIGHT:
-				_resolve(record, RefusalQuestRecord.State.EXPIRED, cycle.day_index)
-		if record.state == RefusalQuestRecord.State.COMPLETED and not record.reward_paid:
-			_pay_reward(record, cycle.day_index)
-
-
-static func _resolve(record: RefusalQuestRecord, outcome: RefusalQuestRecord.State, day_index: int) -> void:
 	record.state = outcome
 	record.resolved_day = day_index
 	var bindings: Array[Entity] = ECS.world.query.with_all([C_QuestBinding]).execute().duplicate()
@@ -178,7 +174,11 @@ static func _resolve(record: RefusalQuestRecord, outcome: RefusalQuestRecord.Sta
 		String(record.issuer_key), String(record.quest_id))
 
 
-static func _pay_reward(record: RefusalQuestRecord, day_index: int) -> void:
+## Submits one idempotent wallet operation; reward_paid follows the actual receipt.
+static func pay_reward(record: RefusalQuestRecord, day_index: int) -> void:
+	if find(record.quest_id) != record or record.state != RefusalQuestRecord.State.COMPLETED or record.reward_paid:
+		return
+
 	var operation: MoneyOperation = MoneyOperation.new()
 	operation.operation_id = StringName("quest_reward/" + String(record.quest_id))
 	operation.reason = MoneyOperation.Reason.PAYMENT

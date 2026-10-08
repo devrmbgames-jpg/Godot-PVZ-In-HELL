@@ -19,7 +19,7 @@ static func launch(actor: Entity, target: Entity, attack: DEF_NpcAttack) -> bool
 	var state: C_CombatProjectile = projectile.get_component(C_CombatProjectile) as C_CombatProjectile
 	state.velocity = node.global_position.direction_to(CombatGeometry.aim_point(target)) * attack.projectile_speed
 	state.remaining_seconds = attack.projectile_lifetime
-	state.damage = attack.damage * HungerService.damage_multiplier(actor.get_component(C_Hunger) as C_Hunger)
+	state.damage = attack.damage * HungerRules.damage_multiplier(actor.get_component(C_Hunger) as C_Hunger)
 	state.collision_mask = attack.collision_mask
 
 	var request: DamageRequest = DamageRequest.new()

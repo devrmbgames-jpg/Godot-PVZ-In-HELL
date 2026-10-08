@@ -438,6 +438,6 @@ static func effective_speed(
 	hunger: C_Hunger = null,
 ) -> float:
 	var carry_multiplier: float = CarryLoadPolicy.active_multiplier(carry_load, strength) if carry_load != null and carry_load.active else 1.0
-	return motion.max_speed * motion.sprint_multiplier * carry_multiplier * HungerService.speed_multiplier(hunger)
+	return motion.max_speed * motion.sprint_multiplier * carry_multiplier * HungerRules.speed_multiplier(hunger)
 
 #endregion

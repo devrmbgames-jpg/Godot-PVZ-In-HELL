@@ -90,7 +90,7 @@ static func hit(actor: Entity, source: Entity, target: Entity, damage: float) ->
 	request.source = source
 	request.instigator = actor
 	request.target = target
-	request.amount = damage * HungerService.damage_multiplier(actor.get_component(C_Hunger) as C_Hunger)
+	request.amount = damage * HungerRules.damage_multiplier(actor.get_component(C_Hunger) as C_Hunger)
 	request.damage_type = DamageRequest.Type.MELEE
 	return DamageRequestService.submit(request)
 

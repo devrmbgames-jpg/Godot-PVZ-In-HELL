@@ -58,7 +58,7 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 		"hunger":
 			var state: C_Hunger = entity.get_component(C_Hunger) as C_Hunger
 			if state == null or state.policy == null: return failure("Target has no hunger policy")
-			lines.append("entity=%s value=%.1f range=0..%.1f tier=%s speed_multiplier=%.2f damage_multiplier=%.2f" % [entity.id, state.value, state.policy.maximum, C_Hunger.Tier.keys()[HungerService.tier(state)], HungerService.speed_multiplier(state), HungerService.damage_multiplier(state)])
+			lines.append("entity=%s value=%.1f range=0..%.1f tier=%s speed_multiplier=%.2f damage_multiplier=%.2f" % [entity.id, state.value, state.policy.maximum, C_Hunger.Tier.keys()[HungerRules.tier(state)], HungerRules.speed_multiplier(state), HungerRules.damage_multiplier(state)])
 
 		"inventory":
 			var state: C_Inventory = entity.get_component(C_Inventory) as C_Inventory

@@ -9,12 +9,12 @@ var _person_id: StringName = &""
 #region Общее отображение
 ## Голод меняет воспринимаемую речь NPC без изменения авторского текста.
 func hunger_tier() -> int:
-	return HungerService.tier(_player.get_component(C_Hunger) as C_Hunger) if is_instance_valid(_player) else C_Hunger.Tier.NORMAL
+	return HungerRules.tier(_player.get_component(C_Hunger) as C_Hunger) if is_instance_valid(_player) else C_Hunger.Tier.NORMAL
 
 ## Общий интерфейс отображения для уличного и клиентского контекстов.
 func perceived_text(actual_text: String) -> String:
 	var hunger: C_Hunger = _player.get_component(C_Hunger) as C_Hunger if is_instance_valid(_player) else null
-	return "Съешь меня" if HungerService.sees_npcs_as_food(hunger) and not actual_text.is_empty() else actual_text
+	return "Съешь меня" if HungerRules.sees_npcs_as_food(hunger) and not actual_text.is_empty() else actual_text
 
 ## Проверяет, может ли местный житель предложить настоящую вечернюю посылку.
 func can_offer_delivery() -> bool:
