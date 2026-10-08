@@ -89,6 +89,10 @@ func test_light_wait_keeps_counter_available_for_next_recipient() -> void:
 	assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 4)
 ## Наследуемая длинная пауза потока не задерживает уже подготовленного жителя.
 func test_prepared_recipient_uses_short_district_pause() -> void:
+	# Other inherited fixtures disable this authored pause; this regression needs a positive interval.
+	var configured_pause: float = _district.definition.service_transfer_pause
+	const SHORT_SERVICE_PAUSE_SECONDS: float = 0.25
+	_district.definition.service_transfer_pause = SHORT_SERVICE_PAUSE_SECONDS
 	var cycle: C_DayCycle = DayPhaseService.current()
 	cycle.phase = C_DayCycle.Phase.DAY
 	var flow: C_CustomerFlow = CustomerFlowService.current()
@@ -106,6 +110,7 @@ func test_prepared_recipient_uses_short_district_pause() -> void:
 	assert_false(NpcServiceRole.can_approach(next_body))
 	flow.arrival_cooldown_seconds = 0.0
 	assert_true(NpcServiceRole.can_approach(next_body))
+	_district.definition.service_transfer_pause = configured_pause
 
 ## Три разные личности готовятся заранее, четвёртая и второй заказ того же NPC ждут.
 func test_preparation_keeps_two_next_distinct_recipients() -> void:

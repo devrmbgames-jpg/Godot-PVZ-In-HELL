@@ -126,16 +126,16 @@ func test_effective_speed_combines_carry_and_hunger_without_baseline_drift() -> 
 	carry.active = true
 	carry.mass_kg = 80.0
 	var baseline: float = motion.max_speed
-	var carry_speed: float = CharacterMotionSolver.effective_speed(motion, carry, strength)
+	var carry_speed: float = MotionRules.effective_speed(motion, carry, strength)
 	for iteration: int in 32:
 		_state.value = 75.0
-		assert_almost_eq(CharacterMotionSolver.effective_speed(motion, carry, strength, _state), carry_speed * 1.35, 0.00001)
+		assert_almost_eq(MotionRules.effective_speed(motion, carry, strength, _state), carry_speed * 1.35, 0.00001)
 		_state.value = 0.0
-		assert_almost_eq(CharacterMotionSolver.effective_speed(motion, carry, strength, _state), carry_speed, 0.00001)
+		assert_almost_eq(MotionRules.effective_speed(motion, carry, strength, _state), carry_speed, 0.00001)
 	assert_eq(motion.max_speed, baseline)
 	carry.active = false
 	_state.value = 40.0
-	assert_almost_eq(CharacterMotionSolver.effective_speed(motion, carry, strength, _state), baseline * 1.15, 0.00001)
+	assert_almost_eq(MotionRules.effective_speed(motion, carry, strength, _state), baseline * 1.15, 0.00001)
 
 
 ## Еда снимает боевой модификатор голода, сохраняя авторский урон атаки.

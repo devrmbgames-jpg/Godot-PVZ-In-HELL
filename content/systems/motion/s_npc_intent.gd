@@ -112,7 +112,7 @@ func _apply_avoidance(actor: Entity, intent: C_NpcIntent, controller: C_Controll
 	if motion == null:
 		return
 
-	var speed: float = CharacterMotionSolver.effective_speed(
+	var speed: float = MotionRules.effective_speed(
 		motion, actor.get_component(C_CarryLoad) as C_CarryLoad,
 		actor.get_component(C_Strength) as C_Strength, actor.get_component(C_Hunger) as C_Hunger,
 	)

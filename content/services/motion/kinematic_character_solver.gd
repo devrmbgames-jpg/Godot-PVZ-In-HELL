@@ -8,11 +8,11 @@ const TERRAIN_MASK: int = 1
 
 
 #region Физический шаг
-## Один физический шаг в секундах: взгляд, импульсы, транспорт, move_and_slide, толкание и снимок опоры.
+## Applies native look/impulse/transport/slide motion and returns the callback-local contact sample.
 static func step(
 	actor: E_CharacterBodyPlayer, body: CharacterBody3D, control: C_Controller,
 	motion: C_Motion, config: C_CharacterBody, delta: float,
-) -> void:
+) -> KinematicMotionSample:
 	_update_view(actor, body, control, config, delta)
 	var old_impulse: Vector3 = config.impulse_velocity
 	var impulse: Vector3 = motion.pending_impulse / maxf(config.mass_kg, MINIMUM_MASS)
@@ -33,7 +33,7 @@ static func step(
 
 	var desired: Vector3 = control.direction_motion.limit_length(1.0) if motion.control_enabled else Vector3.ZERO
 	desired.y = 0.0
-	var speed: float = CharacterMotionSolver.effective_speed(
+	var speed: float = MotionRules.effective_speed(
 		motion, actor.get_component(C_CarryLoad) as C_CarryLoad,
 		actor.get_component(C_Strength) as C_Strength, actor.get_component(C_Hunger) as C_Hunger,
 	)
@@ -54,9 +54,14 @@ static func step(
 
 	var incoming: Vector3 = body.velocity
 	body.move_and_slide()
-	KinematicPushSolver.push_contacts(actor, body, config, desired * speed, delta)
-	KinematicImpactCapture.capture(actor, body, config, incoming)
+	return KinematicMotionSample.new(incoming, desired * speed)
 
+
+## Samples actual support after independent push/impact contributions; called by the physical Entity callback.
+static func update_support(
+	actor: E_CharacterBodyPlayer, body: CharacterBody3D, motion: C_Motion,
+	config: C_CharacterBody, delta: float,
+) -> void:
 	motion.is_on_floor = body.is_on_floor()
 	motion.floor_normal = body.get_floor_normal() if motion.is_on_floor else Vector3.UP
 	motion.floor_velocity = body.get_platform_velocity() if motion.is_on_floor else Vector3.ZERO

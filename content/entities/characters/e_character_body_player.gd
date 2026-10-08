@@ -34,6 +34,10 @@ func _physics_process(delta: float) -> void:
 	var control: C_Controller = get_component(C_Controller) as C_Controller
 	var config: C_CharacterBody = get_component(C_CharacterBody) as C_CharacterBody
 	if body != null and motion != null and control != null and config != null:
-		KinematicCharacterSolver.step(self, body, control, motion, config, delta)
+		# Native motion owns the slide; each independent contact contribution observes that same step.
+		var sample: KinematicMotionSample = KinematicCharacterSolver.step(self, body, control, motion, config, delta)
+		KinematicPushSolver.push_contacts(self, body, config, sample.desired_velocity, delta)
+		KinematicImpactCapture.capture(self, body, config, sample.incoming_velocity)
+		KinematicCharacterSolver.update_support(self, body, motion, config, delta)
 
 #endregion

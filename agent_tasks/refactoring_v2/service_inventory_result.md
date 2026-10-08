@@ -103,8 +103,8 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `inventory/inventory_presentation.gd` | KEEP_PRESENTATION | 24 | Read-only item diagnostics. | KEPT_WITH_REASON |
 | `inventory/inventory_service.gd` | KEEP_SERVICE | 24 | R_OwnedBy transfer/use/consume and discrete cleanup. | KEPT_WITH_REASON |
 | `motion/character_look_solver.gd` | KEEP_SOLVER | 22 | RigidBody look contribution in _integrate_forces. | KEPT_WITH_REASON |
-| `motion/character_motion_solver.gd` | KEEP_SOLVER | 22 | RigidBody motion/support/impulse contribution in callback. | KEPT_WITH_REASON |
-| `motion/kinematic_character_solver.gd` | KEEP_SOLVER | 22 | CharacterBody integration from body callback; move_and_slide authority. | KEPT_WITH_REASON |
+| `motion/character_motion_solver.gd` | KEEP_SOLVER | 22 | Native RigidBody motion/support/impulse contribution retained; common speed/material-traction calculation split into MotionRules (22), all callers migrated. | KEPT_WITH_REASON |
+| `motion/kinematic_character_solver.gd` | KEEP_SOLVER | 22 | Native CharacterBody gravity/impulse/transport/slide/support retained; Entity callback independently composes push/impact using ephemeral KinematicMotionSample (22), no solver nesting or helper System. | KEPT_WITH_REASON |
 | `motion/kinematic_push_solver.gd` | KEEP_SOLVER | 22 | Bounded physical impulse after slide contacts. | KEPT_WITH_REASON |
 | `motion/npc_intent_service.gd` | KEEP_SERVICE | 22 | Explicit move/look commands; live targets belong to Relationships. | KEPT_WITH_REASON |
 | `npc/district_population_service.gd` | SPLIT | 14 | Explicit registry/materialization/participation retained; phase/preparation/completion owners moved to O_DistrictLifecycle with typed receipts. | DONE |

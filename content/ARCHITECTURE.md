@@ -60,6 +60,21 @@ A narrow Service may call another Service or Rules helper within one synchronous
 
 Physics solvers called from a body's callback read their owned state/relationships and apply only their owned contribution. They do not call each other or Systems, and are not registered as no-op Systems to expose static helpers. Godot/Jolt retains physical transform/velocity authority unless an explicit synchronization contract says otherwise.
 
+### Physical motion execution contract
+
+The main-level root schedules `Input → Interaction → Physics → GamePlay`; Godot then invokes the child body callbacks. Dependencies within a group remain declared by `deps()`. Systems prepare intent, control policies and pending impulses; the physical callback consumes them. `MotionRules` provides the shared effective-speed/material-traction calculation and has no scheduled or physical state writer.
+
+| Boundary | Owner and permitted writes |
+| --- | --- |
+| Raw player events and held/edge snapshot | `S_PlayerInput` writes `C_Controller`; `S_PlayerIntent` derives world motion/look according to control focus. Neither writes physical transform/velocity. |
+| Jump, sprint and crouch | `S_Jump` queues an additive `C_Motion.pending_impulse`; `S_Sprint` owns stamina/sprint multiplier from actual body velocity; `S_Crouch` owns posture and collider selection, presentation owns camera/mount height. |
+| RigidBody native integration | `E_RigidBodyCharacter._integrate_forces` independently invokes impact capture, optional cart-driver/push contribution, then motion/look. `CharacterMotionSolver` consumes the impulse and samples support through `PhysicsDirectBodyState3D`; `CharacterLookSolver` owns body/head orientation in that callback. |
+| CharacterBody native integration | `E_CharacterBodyPlayer._physics_process` invokes native slide motion, walking-push contact contribution, impact capture, then actual support sample in that order. `KinematicCharacterSolver` owns gravity/impulse/transport/step/slide and returns `KinematicMotionSample`, a callback-local immutable-by-contract pair of velocities. That sample is neither persisted state nor another gameplay owner. Independent contact solvers are composed by Entity glue. |
+| Native NPC path/avoidance intent | `S_NpcIntent` owns per-frame Controller preparation, waypoint consumption and avoidance request; `E_NpcCharacter.velocity_computed` supplies only a frame-stamped safe-velocity cache. No navigation callback moves the body; expired safe samples are ignored and death clears participation/cache. |
+| Route lifecycle and planning | `S_NpcRoute` owns cadence-scoped route clocks/progress/retirement. `S_NpcRoutePlanning` atomically publishes new points and initializes their cursor under its frame budget; `S_NpcIntent` alone advances that cursor between publications. Goals/targets remain in the intent Component and authoritative live Relationships. |
+
+`C_Motion` floor data is a derived physical observation, not transform authority. External jump/damage impulses are additive until the callback consumes them once. Floor adhesion cannot erase upward jump/bounce, moving supports retain relative locomotion, and cart/held cargo keep independent native body callbacks. No artificial solver-forwarding Systems are introduced.
+
 ### Service smells and request timing
 
 Review a recurring execution path as a hidden System when it has any of these properties:

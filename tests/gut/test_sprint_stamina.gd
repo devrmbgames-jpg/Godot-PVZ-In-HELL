@@ -77,7 +77,7 @@ func test_one_hundred_lasts_sixty_seconds_and_strength_increases_capacity() -> v
 		_tick(1.0)
 	assert_almost_eq(_stamina.current, 100.0 / 60.0, 0.00001)
 	assert_true(_stamina.running)
-	assert_almost_eq(CharacterMotionSolver.effective_speed(_motion, _carry, _strength), 9.0, 0.00001)
+	assert_almost_eq(MotionRules.effective_speed(_motion, _carry, _strength), 9.0, 0.00001)
 	_tick(1.0)
 	assert_eq(_stamina.current, 0.0)
 	assert_true(_stamina.exhausted)
@@ -97,7 +97,7 @@ func test_carry_weight_scales_drain_and_respects_existing_slowdown() -> void:
 	_tick(1.0)
 	assert_almost_eq(_stamina.drain_multiplier, 4.75, 0.00001)
 	assert_almost_eq(_stamina.current, 100.0 - 100.0 / 60.0 * 4.75, 0.00001)
-	assert_almost_eq(CharacterMotionSolver.effective_speed(_motion, _carry, _strength), 6.0, 0.00001)
+	assert_almost_eq(MotionRules.effective_speed(_motion, _carry, _strength), 6.0, 0.00001)
 	_carry.mass_kg = 120.0
 
 	var reserve: float = _stamina.current

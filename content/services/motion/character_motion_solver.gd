@@ -3,7 +3,6 @@ extends RefCounted
 class_name CharacterMotionSolver
 
 const INPUT_EPSILON: float = 0.0001
-const DEFAULT_FRICTION: float = 1.0
 const FLOOR_QUERY_MARGIN: float = 0.05
 
 
@@ -166,7 +165,7 @@ static func _integrate_limited_velocity(
 	strength: C_Strength,
 	hunger: C_Hunger,
 ) -> void:
-	var max_speed: float = effective_speed(motion, carry_load, strength, hunger)
+	var max_speed: float = MotionRules.effective_speed(motion, carry_load, strength, hunger)
 	var relative: Vector3 = state.linear_velocity - motion.floor_velocity
 	var planar: Vector3 = relative.slide(motion.floor_normal)
 	# Быстрый внешний толчок сохраняется вне ограничения скорости управления.
@@ -212,7 +211,7 @@ static func _integrate_ground_motion(
 
 	var relative_velocity := (state.linear_velocity - motion.floor_velocity)
 
-	var wish_speed: float = effective_speed(motion, carry_load, strength, hunger) * input_strength
+	var wish_speed: float = MotionRules.effective_speed(motion, carry_load, strength, hunger) * input_strength
 
 	_accelerate(state, relative_velocity, wish_direction, wish_speed, acceleration)
 
@@ -226,7 +225,7 @@ static func _integrate_air_motion(
 	strength: C_Strength,
 	hunger: C_Hunger,
 ) -> void:
-	var wish_speed: float = effective_speed(motion, carry_load, strength, hunger) * input_strength
+	var wish_speed: float = MotionRules.effective_speed(motion, carry_load, strength, hunger) * input_strength
 
 	_accelerate(
 		state,
@@ -368,7 +367,7 @@ static func _update_floor_state(
 		motion.floor_contact_position = Vector3.ZERO
 		motion.floor_normal = Vector3.UP
 		motion.floor_velocity = Vector3.ZERO
-		motion.floor_friction = DEFAULT_FRICTION
+		motion.floor_friction = MotionRules.DEFAULT_FRICTION
 
 		return
 
@@ -393,7 +392,7 @@ static func _update_floor_state(
 ## Управляемость рассчитывается отдельно по материалу опоры.
 static func _get_surface_traction(collider: Object) -> float:
 	var surface_material: PhysicsMaterial = _get_physics_material(collider)
-	return surface_material.friction if surface_material != null else DEFAULT_FRICTION
+	return MotionRules.surface_traction(surface_material)
 
 
 static func _get_physics_material(collider: Object) -> PhysicsMaterial:
@@ -429,15 +428,5 @@ static func _apply_pending_impulse(state: PhysicsDirectBodyState3D, motion: C_Mo
 
 	motion.pending_impulse = Vector3.ZERO
 
-
-## Скорость в м/с с текущими множителями бега, реальной массы груза, Strength и голода.
-static func effective_speed(
-	motion: C_Motion,
-	carry_load: C_CarryLoad,
-	strength: C_Strength,
-	hunger: C_Hunger = null,
-) -> float:
-	var carry_multiplier: float = CarryLoadPolicy.active_multiplier(carry_load, strength) if carry_load != null and carry_load.active else 1.0
-	return motion.max_speed * motion.sprint_multiplier * carry_multiplier * HungerRules.speed_multiplier(hunger)
 
 #endregion

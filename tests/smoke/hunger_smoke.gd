@@ -59,13 +59,13 @@ func _run() -> void:
 	var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
 	var strength: C_Strength = actor.get_component(C_Strength) as C_Strength
 	var baseline: float = motion.max_speed
-	var carried_speed: float = CharacterMotionSolver.effective_speed(motion, carry, strength)
+	var carried_speed: float = MotionRules.effective_speed(motion, carry, strength)
 	hunger.value = 75.0
-	assert(is_equal_approx(CharacterMotionSolver.effective_speed(motion, carry, strength, hunger), carried_speed * hunger.policy.starving_speed_multiplier))
+	assert(is_equal_approx(MotionRules.effective_speed(motion, carry, strength, hunger), carried_speed * hunger.policy.starving_speed_multiplier))
 	assert(HungerService.apply_food(actor, food))
 	assert(HungerService.apply_food(actor, food))
 	assert(HungerRules.tier(hunger) == C_Hunger.Tier.NORMAL)
-	assert(is_equal_approx(CharacterMotionSolver.effective_speed(motion, carry, strength, hunger), carried_speed) and motion.max_speed == baseline)
+	assert(is_equal_approx(MotionRules.effective_speed(motion, carry, strength, hunger), carried_speed) and motion.max_speed == baseline)
 	GrabService.release(actor, heavy)
 	ECS.world.remove_entity(heavy)
 

@@ -167,7 +167,7 @@ static func _risk_budget(actor: Entity, person: NpcRecord) -> float:
 
 static func _speed(actor: Entity) -> float:
 	var motion: C_Motion = actor.get_component(C_Motion) as C_Motion
-	return maxf(0.1, CharacterMotionSolver.effective_speed(motion, actor.get_component(C_CarryLoad) as C_CarryLoad, actor.get_component(C_Strength) as C_Strength, actor.get_component(C_Hunger) as C_Hunger) if motion != null else 1.0)
+	return maxf(0.1, MotionRules.effective_speed(motion, actor.get_component(C_CarryLoad) as C_CarryLoad, actor.get_component(C_Strength) as C_Strength, actor.get_component(C_Hunger) as C_Hunger) if motion != null else 1.0)
 
 static func _hazard_entities() -> Array:
 	if not is_instance_valid(ECS.world):
