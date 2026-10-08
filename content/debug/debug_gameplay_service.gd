@@ -73,9 +73,9 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 			var trader: Entity = trader_for(raw)
 			if trader == null: return failure("Live trader unavailable")
 			var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
-			lines.append("entity=%s open=%s schedule=%s" % [trader.id, TraderCatalogService.is_open(shop, DayPhaseService.current()), TraderCatalogService.schedule_text(shop)])
+			lines.append("entity=%s open=%s schedule=%s" % [trader.id, TraderCatalogRules.is_open(shop, DayPhaseService.current()), TraderCatalogRules.schedule_text(shop)])
 			if shop.profile != null: lines.append("profile=%s courier=%s fee=%d delay_days=%d" % [shop.profile.key, shop.profile.home_delivery_enabled, shop.profile.delivery_fee, shop.profile.delivery_delay_days])
-			for offer: DEF_InventoryItem in TraderCatalogService.catalog(shop):
+			for offer: DEF_InventoryItem in TraderCatalogRules.catalog(shop):
 				if offer != null: lines.append("key=%s price=%d max_stack=%d kind=%s" % [offer.key, offer.market_price, offer.maximum_stack, DEF_InventoryItem.Kind.keys()[offer.kind]])
 
 		"order":

@@ -50,7 +50,7 @@ func _buy_and_block(level: Node3D) -> void:
 
 	DayPhaseService.current().phase = C_DayCycle.Phase.DAY
 	WalletService.current().balance = 1000
-	var panel: CommercePanel = CommercePanelService.open(player, merchant)
+	var panel: CommercePanel = CommercePanelFactory.open(player, merchant)
 	_check(panel != null, "day shop opens")
 	if panel == null:
 		return

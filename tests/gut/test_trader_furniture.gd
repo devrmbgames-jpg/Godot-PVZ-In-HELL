@@ -149,10 +149,10 @@ func test_configured_catalog_and_schedule_are_independent_from_terminal_orders()
 	_cycle.phase = C_DayCycle.Phase.MORNING
 	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"schedule"), CommerceService.Status.WRONG_PHASE)
 	_cycle.day_index = 2
-	assert_true(TraderCatalogService.is_open(_shop, _cycle))
+	assert_true(TraderCatalogRules.is_open(_shop, _cycle))
 	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"schedule"), CommerceService.Status.COMMITTED)
 	_cycle.day_index = 3
-	assert_false(TraderCatalogService.is_open(_shop, _cycle))
+	assert_false(TraderCatalogRules.is_open(_shop, _cycle))
 	assert_eq(CommerceService.order(_actor, _shelf, 1, &"terminal"), CommerceService.Status.INVALID)
 	assert_eq(_wallet.balance, 820)
 
@@ -243,7 +243,7 @@ func test_courier_rejects_unfulfillable_definition_and_trader_panel_offers_separ
 	assert_true(_commerce.pending_deliveries.is_empty())
 	profile.catalog = [_shelf]
 
-	var panel: CommercePanel = CommercePanelService.open(_actor, _trader)
+	var panel: CommercePanel = CommercePanelFactory.open(_actor, _trader)
 	assert_not_null(panel)
 	assert_eq(panel._offers.get_child_count(), 1)
 	var row: Node = panel._offers.get_child(0)

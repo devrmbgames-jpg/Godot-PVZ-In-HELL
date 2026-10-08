@@ -58,9 +58,9 @@ func test_merchant_schedule_keeps_same_live_trader_on_shop_goal_all_day() -> voi
 		assert_eq(person.placement, NpcRecord.Placement.STREET)
 		assert_same(DistrictPopulationService.body_for(person.npc_id), body)
 		assert_true(GrabService.holder_available(body))
-		assert_true(TraderCatalogService.is_open(shop, cycle))
+		assert_true(TraderCatalogRules.is_open(shop, cycle))
 	cycle.phase = C_DayCycle.Phase.NIGHT
-	assert_false(TraderCatalogService.is_open(shop, cycle))
+	assert_false(TraderCatalogRules.is_open(shop, cycle))
 
 ## Уход и возвращение сохраняют постоянный ID, тот же экземпляр тела, здоровье и память.
 func test_departure_and_return_keep_body_health_and_memory() -> void:

@@ -3,6 +3,7 @@ extends Observer
 class_name O_InventoryLifecycle
 
 
+#region Lifecycle subscriptions
 ## Подписывает текущий World на недоступность сущностей.
 func setup() -> void:
 	_world.entity_disabled.connect(_on_disabled)
@@ -20,7 +21,9 @@ func _bind_item(_event: Variant, item: Entity, _payload: Variant = null) -> void
 
 
 func _on_death(_event: Variant, owner: Entity, _payload: Variant = null) -> void:
-	cmd.add_custom(_death_inventory.bind(owner))
+	var inventory: C_Inventory = owner.get_component(C_Inventory) as C_Inventory
+	var death: C_Death = owner.get_component(C_Death) as C_Death
+	cmd.add_custom(_death_inventory.bind(weakref(owner), inventory, death))
 
 
 func _on_disabled(owner: Entity) -> void:
@@ -28,9 +31,22 @@ func _on_disabled(owner: Entity) -> void:
 		return
 
 	InventoryService.entity_unavailable(owner)
+#endregion
 
 
-func _death_inventory(owner: Entity) -> void:
+#region Captured death cleanup
+func _death_inventory(owner_reference: WeakRef, inventory: C_Inventory, death: C_Death) -> void:
+	# The owner may disappear or its restored Components may replace the queued context.
+	# Registered disabled owners still need terminal cleanup.
+	# Resolve the weak reference inside the callback: typed Callable arguments reject
+	# a freed Entity before the function's own lifetime checks can execute.
+	var owner: Entity = owner_reference.get_ref() as Entity
+	if owner == null or not _world.entity_to_archetype.has(owner) or owner.is_queued_for_deletion():
+		return
+	if owner.get_component(C_Inventory) != inventory or owner.get_component(C_Death) != death:
+		return
+
 	if owner.has_component(C_NpcIdentity):
 		InventoryDropService.release_on_death(owner)
 	InventoryService.clear_owner(owner)
+#endregion

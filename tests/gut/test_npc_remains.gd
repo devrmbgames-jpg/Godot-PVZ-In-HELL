@@ -158,7 +158,7 @@ func test_dead_trader_stops_native_body_avoidance_and_cannot_sell() -> void:
 
 	var food: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem
 	assert_eq(CommerceService.purchase(_actor, npc, food, 1, &"dead-trader"), CommerceService.Status.INVALID)
-	assert_null(CommercePanelService.open(_actor, npc))
+	assert_null(CommercePanelFactory.open(_actor, npc))
 	assert_eq(WalletService.current().balance, 500)
 
 
@@ -186,7 +186,7 @@ func test_remains_and_dead_trader_restore_without_new_loot_or_night_resurrection
 ## Смерть участника закрывает открытую торговую панель и возвращает игровой фокус.
 func test_open_trading_panel_closes_and_releases_input_when_trader_dies() -> void:
 	var npc: E_NpcCharacter = _npc()
-	var panel: CommercePanel = CommercePanelService.open(_actor, npc)
+	var panel: CommercePanel = CommercePanelFactory.open(_actor, npc)
 	assert_not_null(panel)
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.MODAL)
 	_damage(npc, 200.0)

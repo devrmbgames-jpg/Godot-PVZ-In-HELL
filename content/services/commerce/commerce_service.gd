@@ -44,9 +44,9 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 		return _trace_result(Status.INVALID, operation_id, &"commerce.purchase", actor, item)
 
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
-	if shop == null or trader.has_component(C_Death) or item not in TraderCatalogService.catalog(shop):
+	if shop == null or trader.has_component(C_Death) or item not in TraderCatalogRules.catalog(shop):
 		return _trace_result(Status.INVALID, operation_id, &"commerce.purchase", actor, item)
-	if not TraderCatalogService.is_open(shop, cycle):
+	if not TraderCatalogRules.is_open(shop, cycle):
 		return _trace_result(Status.WRONG_PHASE, operation_id, &"commerce.purchase", actor, item)
 	if item.kind == DEF_InventoryItem.Kind.FURNITURE:
 		var furniture_status: Status = _purchase_furniture(
@@ -128,9 +128,9 @@ static func home_delivery(actor: Entity, trader: Entity, item: DEF_InventoryItem
 		return _trace_result(Status.INVALID, operation_id, &"commerce.home_delivery", actor, item)
 
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
-	if not TraderCatalogService.can_deliver(shop, item) or quantity != 1 or item not in TraderCatalogService.catalog(shop):
+	if not TraderCatalogRules.can_deliver(shop, item) or quantity != 1 or item not in TraderCatalogRules.catalog(shop):
 		return _trace_result(Status.INVALID, operation_id, &"commerce.home_delivery", actor, item)
-	if not TraderCatalogService.is_open(shop, cycle):
+	if not TraderCatalogRules.is_open(shop, cycle):
 		return _trace_result(Status.WRONG_PHASE, operation_id, &"commerce.home_delivery", actor, item)
 
 	var profile: DEF_TraderProfile = shop.profile

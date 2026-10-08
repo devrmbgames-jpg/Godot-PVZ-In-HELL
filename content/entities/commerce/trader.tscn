@@ -18,9 +18,6 @@
 [ext_resource type="Script" path="res://content/components/commerce/c_trader.gd" id="Trader"]
 [ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
 [ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_food.tres" id="food"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_med.tres" id="med"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_bubble_wrap.tres" id="bubble_wrap"]
 
 [ext_resource type="Script" path="res://content/components/gameplay/c_npc_remains.gd" id="Remains"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/def_npc_remains_default.tres" id="RemainsDefinition"]
@@ -63,7 +60,6 @@ script = ExtResource("NpcCombat")
 
 [sub_resource type="Resource" id="Trader"]
 script = ExtResource("Trader")
-catalog = [ExtResource("food"), ExtResource("med"), ExtResource("bubble_wrap")]
 profile = ExtResource("Profile")
 
 [sub_resource type="Resource" id="Interactable"]

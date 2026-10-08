@@ -5,6 +5,7 @@ var _world: World = null
 var _owner: Entity = null
 var _other: Entity = null
 var _damage: O_Damage = null
+var _lifecycle: O_InventoryLifecycle = null
 
 
 #region Владельцы и предметы
@@ -16,7 +17,8 @@ func before_each() -> void:
 	_damage = O_Damage.new()
 	_world.add_observer(_damage)
 	_world.add_observer(O_InventoryEffect.new())
-	_world.add_observer(O_InventoryLifecycle.new())
+	_lifecycle = O_InventoryLifecycle.new()
+	_world.add_observer(_lifecycle)
 	_owner = _new_owner()
 	_other = _new_owner()
 
@@ -262,6 +264,36 @@ func test_disabled_item_explicit_owner_detachment_and_death_cleanup() -> void:
 	assert_true(InventoryService.transfer(item, _other))
 	_world.disable_entity(item)
 	_other.add_component(C_Death.new())
+	assert_false(_world.entity_to_archetype.has(item))
+
+
+## A buffered death cannot dereference a freed owner after synchronous removal already cleared its items.
+func test_queued_death_revalidates_owner_after_removal() -> void:
+	_lifecycle.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	var item: Entity = _item("food")
+	assert_true(InventoryService.transfer(item, _other))
+	_other.add_component(C_Death.new())
+	assert_true(_world.entity_to_archetype.has(item))
+	_world.remove_entity(_other)
+	assert_false(_world.entity_to_archetype.has(item))
+	await get_tree().process_frame
+	assert_false(is_instance_valid(_other))
+	_world.flush_command_buffers()
+	assert_true(EntityAvailability.contains(_owner, _world))
+
+
+## Cancelling a death before flush preserves owned items; a fresh death still completes cleanup.
+func test_queued_death_revalidates_terminal_component() -> void:
+	_lifecycle.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	var item: Entity = _item("food")
+	assert_true(InventoryService.transfer(item, _other))
+	_other.add_component(C_Death.new())
+	_other.remove_component(C_Death)
+	_world.flush_command_buffers()
+	assert_same(InventoryService.owner_for(item), _other)
+	assert_true(_world.entity_to_archetype.has(item))
+	_other.add_component(C_Death.new())
+	_world.flush_command_buffers()
 	assert_false(_world.entity_to_archetype.has(item))
 
 

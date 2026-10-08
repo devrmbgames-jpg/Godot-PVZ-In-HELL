@@ -101,7 +101,7 @@ func _trader_open(raw: String = "") -> void:
 		_report("trader_open", false, "Live nearby trader and free interaction focus required; Night unavailable")
 		return
 	if bool(Console.is_visible()): Console.toggle_console()
-	_report("trader_open", CommercePanelService.open(actor, trader) != null, "Normal shop UI rejected request")
+	_report("trader_open", CommercePanelFactory.open(actor, trader) != null, "Normal shop UI rejected request")
 
 
 func _trader_buy(key: String, count: String = "1", raw: String = "") -> void: _trade("trader_buy", key, count, raw, false)
@@ -114,7 +114,7 @@ func _trade(command: String, key: String, count: String, raw: String, courier: b
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader if trader != null else null
 	var definition: DEF_InventoryItem = null
 	if shop != null:
-		for offer: DEF_InventoryItem in TraderCatalogService.catalog(shop):
+		for offer: DEF_InventoryItem in TraderCatalogRules.catalog(shop):
 			if offer != null and String(offer.key) == key: definition = offer
 	if definition == null or not count.is_valid_int():
 		_report(command, false, "Authored trader catalog key and integer count required")

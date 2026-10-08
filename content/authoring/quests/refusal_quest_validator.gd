@@ -31,7 +31,10 @@ static func issuer_issues(shop: C_Trader, context: String = "") -> Array[Diction
 	var issues: Array[Dictionary] = []
 	if shop.trader_key == &"":
 		issues.append(_issue(context, "trader_key", "Quest issuer ID must be nonempty"))
-	if shop.profile != null and shop.profile.refusal_quest != null:
+	if shop.profile == null:
+		issues.append(_issue(context, "profile", "Trader role requires DEF_TraderProfile"))
+		return issues
+	if shop.profile.refusal_quest != null:
 		issues.append_array(definition_issues(shop.profile.refusal_quest, context))
 	return issues
 #endregion

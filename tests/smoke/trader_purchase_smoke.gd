@@ -52,11 +52,11 @@ func _buy(level: Node3D) -> void:
 		cycle.phase = phase
 		_check(DistrictPopulationService.request_phase(merchant, 1, phase).succeeded, "merchant phase request committed")
 		_check(person.profile.schedule.location_for(1, phase) == DEF_NpcSchedule.Location.STREET, "merchant schedule stays local")
-		_check(TraderCatalogService.is_open(shop, cycle), "profile allows live phase")
+		_check(TraderCatalogRules.is_open(shop, cycle), "profile allows live phase")
 	cycle.phase = C_DayCycle.Phase.DAY
 	WalletService.current().balance = INITIAL_BALANCE
 	var shelf: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_large_shelf.tres") as DEF_InventoryItem
-	var panel: CommercePanel = CommercePanelService.open(player, merchant)
+	var panel: CommercePanel = CommercePanelFactory.open(player, merchant)
 	_check(panel != null, "real player opens shop in day")
 	if _failed:
 		return

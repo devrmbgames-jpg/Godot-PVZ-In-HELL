@@ -20,6 +20,8 @@ Status: **PLANNED**
 - проверить observers/events на циклы и дублированные transitions;
 - обновить `content/ARCHITECTURE.md` только если итоговая реализация уточнила контракт.
 
+Task 24 regression confirmed a concrete queued-lifetime trap: binding a Node/Entity directly to a typed Callable argument raises an engine type error if that Node is freed before flush, before any is_instance_valid guard inside the callback can run. Inventory death completion now captures WeakRef and resolves its typed Entity inside the callback. Audit the migrated queued System/Observer callbacks for the same actual freed-owner case (not only disabled/component-replaced cases), and close relevant lifetime paths with safe captured references and regression coverage before checkpoint 27. Resource Component identity guards remain necessary after resolving the owner. This is a validation/ownership issue, not an old-save migration or gameplay choice.
+
 ## Acceptance
 
 Architecture validator имеет пустой migration baseline либо только документированные engine-bound исключения.

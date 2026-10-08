@@ -153,6 +153,7 @@ foreach ($scene in $selectedScenes) {
 	[hashtable]$restartSmokes = @{
 		"safe_loot_placement" = "Safe loot smoke"
 		"furniture_arrival" = "Furniture arrival smoke"
+		"trader_purchase" = "Trader purchase smoke"
 	}
 	[string[]]$phases = if ($restartSmokes.ContainsKey($smokeName)) { @("write", "restore") } else { @("run") }
 	[int]$frameBudget = if ($PSBoundParameters.ContainsKey("Frames")) { $Frames } elseif ($smokeName -eq "district") { 16000 } elseif ($smokeName -eq "cart_transport") { 2400 } elseif ($phases.Count -gt 1) { 1600 } else { 360 }

@@ -37,7 +37,9 @@ func before_each() -> void:
 	_trader = Entity.new()
 
 	var shop: C_Trader = C_Trader.new()
-	shop.catalog = [_food, _med]
+	shop.profile = DEF_TraderProfile.new()
+	shop.profile.catalog = [_food, _med]
+	shop.profile.home_delivery_enabled = false
 	_trader.component_resources = [shop]
 	_world.add_entity(_trader)
 

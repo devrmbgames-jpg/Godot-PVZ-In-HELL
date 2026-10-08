@@ -1,8 +1,9 @@
 extends RefCounted
 ## Создаёт одну торговую панель доступного участника с модальным захватом ввода.
-class_name CommercePanelService
+class_name CommercePanelFactory
 
 
+#region Panel construction
 ## Создаёт панель после проверки участников и приоритета; отказ возвращает null.
 static func open(actor: Entity, trader: Entity = null, order_mode: bool = false) -> CommercePanel:
 	if not GrabService.holder_available(actor) or actor.has_component(C_Death) or CommerceService.current() == null or InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.MODAL:
@@ -20,3 +21,4 @@ static func open(actor: Entity, trader: Entity = null, order_mode: bool = false)
 		panel.queue_free()
 		return null
 	return panel
+#endregion

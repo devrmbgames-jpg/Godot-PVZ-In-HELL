@@ -743,7 +743,7 @@ func _on_orders_pressed() -> void:
 
 	var actor: Entity = _reader
 	close_panel()
-	CommercePanelService.open(actor, null, true)
+	CommercePanelFactory.open(actor, null, true)
 
 
 

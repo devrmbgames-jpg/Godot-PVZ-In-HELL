@@ -4,7 +4,7 @@ class_name DEF_TraderProfile
 
 ## Отображаемое имя торговца.
 @export var display_name: String = "Торговец"
-## Ассортимент определения, заменяющий прежний catalog компонента.
+## Единственный авторский ассортимент торговой роли; каталог терминала независим.
 @export var catalog: Array[DEF_InventoryItem] = []
 ## Первый день торговли, начиная с 1.
 @export_range(1, 365) var first_day: int = 1

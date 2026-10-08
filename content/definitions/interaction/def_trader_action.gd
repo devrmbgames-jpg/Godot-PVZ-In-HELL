@@ -12,4 +12,4 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 ## Повторно проверяет доступность и открывает торговую панель.
 func execute(actor: Entity, source: Entity, target: Entity) -> void:
 	if is_available(actor, source, target):
-		CommercePanelService.open(actor, source)
+		CommercePanelFactory.open(actor, source)
