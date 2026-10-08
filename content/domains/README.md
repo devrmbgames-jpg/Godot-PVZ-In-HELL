@@ -16,7 +16,7 @@ Target ownership is `content/domains/<owner>/<canonical role>/`; shared foundati
 | `quests` | Issuer/provider definitions, quest records/bindings, committed outcome consumers and deadlines/rewards. |
 | `challenges` | Challenge definitions/session bindings, activation/runtime/resolution and scenario representation. Generic circuit/flicker capability belongs interaction. |
 | `needs` | Hunger state/policy, food effects and growth/application. |
-| `time` | Day/calendar state and explicit transition commands/facts; scheduled phase commit. |
+| `time` | Owned elapsed ticks/remainder/world seed, player-driven calendar commands/facts and deterministic decision-seed rules; scheduled clock/phase commits. |
 | `persistence` | Store/schema/codec/preflight, passive snapshot reconstruction, Night prepare/capture/write and restore bindings. |
 
 Global `content/ui/`, `content/scenes/`, `content/materials/` and `content/debug/` retain Godot composition and representation. Context/panel construction is existing global UI responsibility. `GameSessionService` is global SceneTree/slot-handoff composition. Authored `NpcLightZone`, customer `NpcServiceRoutes`, `CircuitLightView` and `PackageMarksView` are domain capabilities/representation, not global panel construction.

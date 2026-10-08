@@ -73,8 +73,10 @@ static func bind_contents(package: Entity, contents: Array[Entity]) -> void:
 #region Исполнение и завершение осмотра
 ## Возвращает стабильный бросок 0–1 для выбора и номера прихода; повтор не меняет исход.
 static func roll(visit: CustomerVisit, choice: String) -> float:
-	var random: RandomNumberGenerator = RandomNumberGenerator.new()
-	random.seed = String("%s/inspection/%d/%s" % [visit.visit_id, visit.visit_count, choice]).hash()
+	var random: RandomNumberGenerator = GameTimeQueries.decision(
+		String(visit.visit_id), maxi(1, visit.last_visit_day),
+		"customer/inspection/" + choice, visit.visit_count,
+	)
 	return random.randf()
 
 

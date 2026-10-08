@@ -6,6 +6,9 @@ const MAX_FRAMES: int = 600
 const DELTA: float = 1.0 / 60.0
 const EXPECTED_BALANCE: int = -275
 const EXPECTED_HUNGER: float = 55.0
+const EXPECTED_ELAPSED_TICKS: int = 123456789
+const EXPECTED_TICK_REMAINDER: float = 0.625
+const EXPECTED_WORLD_SEED: int = -42
 
 var _failed: bool = false
 
@@ -49,14 +52,18 @@ func _write_night(level: Node3D, actor: Entity) -> void:
 	box.add_relationship(stored)
 	_check(PhysicalSlotService.attach(box, stored), "real physical slot attached")
 	var cycle: C_DayCycle = DayPhaseQueries.current()
+	cycle.clock.elapsed_ticks = EXPECTED_ELAPSED_TICKS
+	cycle.clock.tick_remainder = EXPECTED_TICK_REMAINDER
+	cycle.clock.world_seed = EXPECTED_WORLD_SEED
 	cycle.phase = C_DayCycle.Phase.NIGHT
 	cycle.night_ready = false
 	for _frame: int in MAX_FRAMES:
-		ECS.world.process(DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, DELTA)
 		if cycle.day_index == 2:
 			break
 		await get_tree().physics_frame
 	_check(cycle.day_index == 2 and cycle.phase == C_DayCycle.Phase.MORNING, "actual Night owner completed prepared Morning")
+	_verify_clock(cycle)
 	var snapshot: Dictionary = AutosaveStore.read(SAVE_PATH)
 	_check(not snapshot.is_empty() and snapshot.get("morning_day") == 2, "real atomic slot contains Morning 2")
 	_check(WorldSnapshotService.can_restore(snapshot, level), "saved prefab/recipe/link graph validates")
@@ -65,6 +72,7 @@ func _write_night(level: Node3D, actor: Entity) -> void:
 func _verify_restored(level: Node3D, actor: Entity) -> void:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	_check(cycle.day_index == 2 and cycle.phase == C_DayCycle.Phase.MORNING, "new process restored Morning 2")
+	_verify_clock(cycle)
 	_check(WalletService.current().balance == EXPECTED_BALANCE, "saved debt was not reset by startup")
 	_check(is_equal_approx((actor.get_component(C_Hunger) as C_Hunger).value, EXPECTED_HUNGER), "saved hunger overlay applied")
 	_check(InventoryService.items(actor).size() == 1, "one restored inventory item")
@@ -77,6 +85,12 @@ func _verify_restored(level: Node3D, actor: Entity) -> void:
 #endregion
 
 #region Deterministic smoke reporting
+func _verify_clock(cycle: C_DayCycle) -> void:
+	_check(cycle.clock.elapsed_ticks == EXPECTED_ELAPSED_TICKS, "Night and restart retain elapsed ticks")
+	_check(cycle.clock.tick_remainder == EXPECTED_TICK_REMAINDER, "restart retains fractional tick")
+	_check(cycle.clock.world_seed == EXPECTED_WORLD_SEED, "restart retains decision world seed")
+
+
 func _check(condition: bool, message: String) -> void:
 	if not condition:
 		_failed = true

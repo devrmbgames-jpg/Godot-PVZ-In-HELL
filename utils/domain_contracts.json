@@ -629,6 +629,27 @@
     {
       "source_owner": "challenges",
       "target_owner": "time",
+      "symbol": "GameTimeQueries",
+      "path": "content/domains/time/services/game_time_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "decision"
+      ],
+      "sources": [
+        "content/services/challenges/gaze_order_clue_presentation.gd"
+      ],
+      "method_rights": {
+        "decision": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
+    },
+    {
+      "source_owner": "challenges",
+      "target_owner": "time",
       "symbol": "S_DayPhase",
       "path": "content/domains/time/systems/s_day_phase.gd",
       "rights": [
@@ -1371,6 +1392,26 @@
     {
       "source_owner": "combat",
       "target_owner": "shared",
+      "symbol": "ActorIdentityRules",
+      "path": "content/shared/rules/actor_identity_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "trace_key_for"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "trace_key_for": "query"
+      },
+      "sources": [
+        "content/domains/combat/services/damage_request_service.gd"
+      ]
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "shared",
       "symbol": "BoundaryTrace",
       "path": "content/shared/debug/boundary_trace.gd",
       "rights": [
@@ -1695,6 +1736,26 @@
       ],
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "shared",
+      "symbol": "ActorIdentityRules",
+      "path": "content/shared/rules/actor_identity_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "trace_key_for"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "trace_key_for": "query"
+      },
+      "sources": [
+        "content/domains/commerce/services/commerce_service.gd"
+      ]
     },
     {
       "source_owner": "commerce",
@@ -4060,6 +4121,30 @@
         "shift_status": "request"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "time",
+      "symbol": "GameTimeQueries",
+      "path": "content/domains/time/services/game_time_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "decision"
+      ],
+      "sources": [
+        "content/services/customers/customer_flow_service.gd",
+        "content/services/customers/customer_inspection_service.gd",
+        "content/services/customers/customer_visit_lifecycle.gd",
+        "content/services/npc/npc_delivery_offer_service.gd"
+      ],
+      "method_rights": {
+        "decision": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
     },
     {
       "source_owner": "customers",
@@ -8274,6 +8359,67 @@
       "public_instance_methods": []
     },
     {
+      "source_owner": "global",
+      "target_owner": "time",
+      "symbol": "GameTimeQueries",
+      "path": "content/domains/time/services/game_time_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "current",
+        "decision"
+      ],
+      "sources": [
+        "content/scenes/main_level.gd",
+        "content/debug/debug_customer_service.gd"
+      ],
+      "method_rights": {
+        "current": "query",
+        "decision": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "time",
+      "symbol": "GameTimeRules",
+      "path": "content/domains/time/rules/game_time_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "seconds"
+      ],
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "method_rights": {
+        "seconds": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "time",
+      "symbol": "S_GameTime",
+      "path": "content/domains/time/systems/s_game_time.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Task 47: schedule ordering/composition only; no imperative System calls."
+    },
+    {
       "source_owner": "hazards",
       "target_owner": "challenges",
       "symbol": "C_Challenge",
@@ -9133,6 +9279,26 @@
       ],
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "shared",
+      "symbol": "ActorIdentityRules",
+      "path": "content/shared/rules/actor_identity_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "trace_key_for"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "trace_key_for": "query"
+      },
+      "sources": [
+        "content/domains/interaction/services/player_interaction_events.gd"
+      ]
     },
     {
       "source_owner": "interaction",
@@ -11532,6 +11698,42 @@
     {
       "source_owner": "npc",
       "target_owner": "shared",
+      "symbol": "ActorIdentityRules",
+      "path": "content/shared/rules/actor_identity_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "key_for"
+      ],
+      "sources": [
+        "content/services/gameplay/npc_remains_service.gd"
+      ],
+      "method_rights": {
+        "key_for": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "shared",
+      "symbol": "C_ActorIdentityReference",
+      "path": "content/shared/components/c_actor_identity_reference.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/npc/components/c_npc_identity.gd"
+      ]
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "shared",
       "symbol": "C_PersistentIdentity",
       "path": "content/shared/components/c_persistent_identity.gd",
       "rights": [
@@ -11679,7 +11881,8 @@
         "content/systems/gameplay/s_npc_decision.gd",
         "content/systems/gameplay/s_npc_perception.gd",
         "content/systems/gameplay/s_npc_route.gd",
-        "content/systems/gameplay/s_npc_traits.gd"
+        "content/systems/gameplay/s_npc_traits.gd",
+        "content/services/gameplay/npc_remains_service.gd"
       ],
       "method_rights": {
         "current": "query"
@@ -11711,6 +11914,94 @@
     {
       "source_owner": "npc",
       "target_owner": "time",
+      "symbol": "DecisionRandomRules",
+      "path": "content/domains/time/rules/decision_random_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "generator"
+      ],
+      "sources": [
+        "content/services/npc/npc_schedule_rules.gd",
+        "content/systems/gameplay/s_npc_cadence.gd",
+        "content/services/gameplay/npc_remains_service.gd"
+      ],
+      "method_rights": {
+        "generator": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "time",
+      "symbol": "GameClock",
+      "path": "content/domains/time/contracts/game_clock.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/systems/gameplay/s_npc_cadence.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "time",
+      "symbol": "GameTimeQueries",
+      "path": "content/domains/time/services/game_time_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "current",
+        "decision"
+      ],
+      "sources": [
+        "content/services/npc/npc_activity_service.gd",
+        "content/services/npc/npc_social_service.gd",
+        "content/services/npc/district_population_service.gd",
+        "content/observers/gameplay/o_district_lifecycle.gd"
+      ],
+      "method_rights": {
+        "current": "query",
+        "decision": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "time",
+      "symbol": "GameTimeRules",
+      "path": "content/domains/time/rules/game_time_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "seconds",
+        "duration_ticks"
+      ],
+      "sources": [
+        "content/systems/gameplay/s_npc_cadence.gd"
+      ],
+      "method_rights": {
+        "seconds": "query",
+        "duration_ticks": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "time",
       "symbol": "S_DayPhase",
       "path": "content/domains/time/systems/s_day_phase.gd",
       "rights": [
@@ -11724,6 +12015,22 @@
       "purpose": "Explicit schedule dependency/composition only; no imperative System calls.",
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "time",
+      "symbol": "S_GameTime",
+      "path": "content/domains/time/systems/s_game_time.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/systems/gameplay/s_npc_cadence.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Task 47: schedule ordering/composition only; no imperative System calls."
     },
     {
       "source_owner": "packages",
@@ -12642,6 +12949,26 @@
     {
       "source_owner": "packages",
       "target_owner": "shared",
+      "symbol": "ActorIdentityRules",
+      "path": "content/shared/rules/actor_identity_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "trace_key_for"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "trace_key_for": "query"
+      },
+      "sources": [
+        "content/domains/packages/services/package_opening.gd"
+      ]
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "shared",
       "symbol": "BoundaryTrace",
       "path": "content/shared/debug/boundary_trace.gd",
       "rights": [
@@ -12680,6 +13007,21 @@
       ],
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "shared",
+      "symbol": "C_ActorIdentityReference",
+      "path": "content/shared/components/c_actor_identity_reference.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/packages/components/c_package.gd"
+      ]
     },
     {
       "source_owner": "packages",
@@ -12894,6 +13236,49 @@
       ],
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "time",
+      "symbol": "DecisionRandomRules",
+      "path": "content/domains/time/rules/decision_random_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "generator"
+      ],
+      "sources": [
+        "content/domains/packages/rules/package_scene_rules.gd"
+      ],
+      "method_rights": {
+        "generator": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "time",
+      "symbol": "GameTimeQueries",
+      "path": "content/domains/time/services/game_time_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "current"
+      ],
+      "sources": [
+        "content/services/packages/receiving_delivery_service.gd",
+        "content/services/packages/receiving_package_factory.gd"
+      ],
+      "method_rights": {
+        "current": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
     },
     {
       "source_owner": "packages",
@@ -15543,6 +15928,45 @@
     {
       "source_owner": "persistence",
       "target_owner": "time",
+      "symbol": "GameClock",
+      "path": "content/domains/time/contracts/game_clock.gd",
+      "rights": [
+        "read",
+        "restore"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": [],
+      "purpose": "Task 47: closed schema-9 clock record reconstruction before gameplay resumes; no live tick writes."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "time",
+      "symbol": "GameTimeRules",
+      "path": "content/domains/time/rules/game_time_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "valid"
+      ],
+      "sources": [
+        "content/services/persistence/save_data_codec.gd",
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "method_rights": {
+        "valid": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 47: explicit clock/seed read or pure calculation; sequences remain with the committing domain owner."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "time",
       "symbol": "NightPreparationRequirement",
       "path": "content/domains/time/contracts/night_preparation_requirement.gd",
       "rights": [
@@ -16179,116 +16603,6 @@
         "contains": "request"
       },
       "public_instance_methods": []
-    },
-    {
-      "source_owner": "packages",
-      "target_owner": "shared",
-      "symbol": "C_ActorIdentityReference",
-      "path": "content/shared/components/c_actor_identity_reference.gd",
-      "rights": [
-        "read"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/domains/packages/components/c_package.gd"
-      ]
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "shared",
-      "symbol": "C_ActorIdentityReference",
-      "path": "content/shared/components/c_actor_identity_reference.gd",
-      "rights": [
-        "read"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/domains/npc/components/c_npc_identity.gd"
-      ]
-    },
-    {
-      "source_owner": "combat",
-      "target_owner": "shared",
-      "symbol": "ActorIdentityRules",
-      "path": "content/shared/rules/actor_identity_rules.gd",
-      "rights": [
-        "query",
-        "read"
-      ],
-      "public_methods": [
-        "trace_key_for"
-      ],
-      "public_instance_methods": [],
-      "method_rights": {
-        "trace_key_for": "query"
-      },
-      "sources": [
-        "content/domains/combat/services/damage_request_service.gd"
-      ]
-    },
-    {
-      "source_owner": "commerce",
-      "target_owner": "shared",
-      "symbol": "ActorIdentityRules",
-      "path": "content/shared/rules/actor_identity_rules.gd",
-      "rights": [
-        "query",
-        "read"
-      ],
-      "public_methods": [
-        "trace_key_for"
-      ],
-      "public_instance_methods": [],
-      "method_rights": {
-        "trace_key_for": "query"
-      },
-      "sources": [
-        "content/domains/commerce/services/commerce_service.gd"
-      ]
-    },
-    {
-      "source_owner": "interaction",
-      "target_owner": "shared",
-      "symbol": "ActorIdentityRules",
-      "path": "content/shared/rules/actor_identity_rules.gd",
-      "rights": [
-        "query",
-        "read"
-      ],
-      "public_methods": [
-        "trace_key_for"
-      ],
-      "public_instance_methods": [],
-      "method_rights": {
-        "trace_key_for": "query"
-      },
-      "sources": [
-        "content/domains/interaction/services/player_interaction_events.gd"
-      ]
-    },
-    {
-      "source_owner": "packages",
-      "target_owner": "shared",
-      "symbol": "ActorIdentityRules",
-      "path": "content/shared/rules/actor_identity_rules.gd",
-      "rights": [
-        "query",
-        "read"
-      ],
-      "public_methods": [
-        "trace_key_for"
-      ],
-      "public_instance_methods": [],
-      "method_rights": {
-        "trace_key_for": "query"
-      },
-      "sources": [
-        "content/domains/packages/services/package_opening.gd"
-      ]
     }
   ],
   "legacy_decomposition": []

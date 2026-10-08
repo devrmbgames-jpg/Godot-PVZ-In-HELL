@@ -50,8 +50,9 @@ static func create_visit(
 	visit.arrival_day = supply_day + event.arrival_delay_days
 	visit.accounting_value = definition.accounting_value
 	visit.payment = payment
-	var random: RandomNumberGenerator = RandomNumberGenerator.new()
-	random.seed = String(visit_id).hash()
+	var random: RandomNumberGenerator = GameTimeQueries.decision(
+		String(visit_id), supply_day, "customer/initial",
+	)
 	visit.complaint_roll = random.randf()
 	visit.aggression_roll = random.randf()
 	flow.visits.append(visit)

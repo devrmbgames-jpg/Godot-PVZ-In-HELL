@@ -173,6 +173,9 @@ static func _hazard_entities() -> Array:
 	if not is_instance_valid(ECS.world):
 		return []
 	if _query_world != ECS.world or not is_instance_valid(_query_world):
+		# Static query recipes retain Component scripts; release them at world handoff/exit.
+		if not ECS.world_changed.is_connected(_clear_lookup):
+			ECS.world_changed.connect(_clear_lookup)
 		_query_world = ECS.world
 		_hazard_query = QueryBuilder.new(_query_world).with_all([C_Hazard, C_ToxicArea])
 	return _hazard_query.execute()
@@ -235,4 +238,12 @@ static func _nav_path(map: RID, start: Vector3, goal: Vector3) -> PackedVector3A
 		return PackedVector3Array()
 	return path
 
+#endregion
+
+#region Query cache lifetime
+static func _clear_lookup(_next_world: World) -> void:
+	# The callback belongs to this cache lifetime, not the lifetime of the ECS autoload.
+	ECS.world_changed.disconnect(_clear_lookup)
+	_query_world = null
+	_hazard_query = null
 #endregion

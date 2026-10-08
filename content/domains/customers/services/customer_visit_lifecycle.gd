@@ -62,10 +62,9 @@ static func schedule_followup(visit: CustomerVisit, day: int) -> bool:
 		0.0,
 		1.0,
 	)
-	var random: RandomNumberGenerator = RandomNumberGenerator.new()
-	random.seed = String(
-		"%s/followup/%d" % [visit.visit_id, visit.followup_count + 1]
-	).hash()
+	var random: RandomNumberGenerator = GameTimeQueries.decision(
+		String(visit.visit_id), day, "customer/followup", visit.followup_count,
+	)
 	if random.randf() >= probability:
 		return false
 

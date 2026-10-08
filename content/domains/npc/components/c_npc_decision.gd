@@ -12,8 +12,6 @@ var active_task_id: int = 0
 var tree_updating: bool = false
 ## Название текущего поведения для отладки.
 var active_behavior: String = ""
-## Накопленное время до следующего обновления AI.
-var update_elapsed: float = 0.0
 ## Время ожидания недостижимой цели.
 var blocked_elapsed: float = 0.0
 

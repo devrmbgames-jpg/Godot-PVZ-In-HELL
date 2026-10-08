@@ -1,12 +1,15 @@
 {
-  "schema": 8,
+  "schema": 9,
   "components": [
     {
       "symbol": "C_DayCycle",
       "path": "res://content/domains/time/components/c_day_cycle.gd",
       "fields": [
         "phase",
-        "day_index"
+        "day_index",
+        "clock",
+        "shift_start_tick",
+        "shift_end_tick"
       ]
     },
     {
@@ -272,6 +275,10 @@
   ],
   "records": [
     {
+      "symbol": "GameClock",
+      "path": "res://content/domains/time/contracts/game_clock.gd"
+    },
+    {
       "symbol": "NpcRecord",
       "path": "res://content/domains/npc/contracts/npc_record.gd"
     },
@@ -375,6 +382,7 @@
     "res://content/domains/packages/definitions/def_delivery_morning_supply.tres::Books",
     "res://content/domains/packages/entities/package_b.tscn",
     "res://content/domains/time/components/c_day_cycle.gd",
+    "res://content/domains/time/contracts/game_clock.gd",
     "res://content/shared/components/c_persistent_identity.gd"
   ]
 }

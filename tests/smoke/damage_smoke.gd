@@ -19,7 +19,7 @@ func _run() -> void:
 	level.set_physics_process(false)
 	for delivery_tick: int in 12:
 		await get_tree().physics_frame
-		ECS.world.process(1.0 / 60.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var package: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
@@ -80,7 +80,7 @@ func _send(
 	request.amount = amount
 	request.operation = operation
 	assert(DamageRequestService.submit(request))
-	ECS.world.process(1.0 / 60.0, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 
 
 func _on_resolved(result: DamageResult) -> void:

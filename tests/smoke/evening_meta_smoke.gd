@@ -19,7 +19,7 @@ func _run() -> void:
 	_actor = level.get_node("Entityes/Player") as Entity
 	(_actor as Node as RigidBody3D).freeze = true
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
@@ -117,7 +117,7 @@ func _transition(kind: DayTransitionRequest.Kind) -> void:
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
 	assert(DayPhaseService.submit(request))
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	await get_tree().physics_frame
 
 

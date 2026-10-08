@@ -181,7 +181,9 @@ func _plan_phase(district: C_District, person: NpcRecord, body: E_DistrictNpc, d
 		awareness.rule_exposure.clear()
 
 	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(day, phase)
-	person.goal_id = NpcScheduleRules.goal_for(district.definition, person, location)
+	person.goal_id = NpcScheduleRules.goal_for(
+		district.definition, person, location, GameTimeQueries.current().world_seed, day, phase,
+	)
 
 	# Synchronization teleports at preparation; ordinary transitions preserve native travel.
 	if synchronize:

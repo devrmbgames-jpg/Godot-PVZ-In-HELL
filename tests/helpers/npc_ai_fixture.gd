@@ -8,7 +8,7 @@ const GROUP: String = "npc_ai_fixture"
 #region Real owner execution
 ## Advances the complete production cadence/sensing/trait/native-decision/noise dependency graph.
 static func advance(_district: C_District, delta: float) -> void:
-	_run([S_NpcCadence, S_NpcFootsteps, S_NpcPerception, S_NpcTraits, S_NpcDecision, S_NpcRoute, S_NpcRoutePlanning, S_NpcNoise], delta)
+	_run([S_GameTime, S_NpcCadence, S_NpcFootsteps, S_NpcPerception, S_NpcTraits, S_NpcDecision, S_NpcRoute, S_NpcRoutePlanning, S_NpcNoise], delta)
 
 
 ## Runs actual sensing in isolation so geometry assertions do not advance unrelated trait clocks.

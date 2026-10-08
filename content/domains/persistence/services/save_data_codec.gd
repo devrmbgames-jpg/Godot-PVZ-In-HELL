@@ -35,7 +35,7 @@ static var _component_fields: Dictionary = {
 	C_Explosion: C_Explosion.SAVE_FIELDS,
 	C_NoDamage: C_NoDamage.SAVE_FIELDS,
 }
-static var _record_types: Array[Script] = [NpcRecord, NpcMemory, NpcHomeDelivery, CustomerVisit, CustomerComplaint, CombatContext, MoneyOperation, DailyMoneyResult, PackageRegistrationRecord, PurchaseReceipt, PendingDelivery, RefusalQuestRecord, ReceivingBatch, PendingLootDrop]
+static var _record_types: Array[Script] = [GameClock, NpcRecord, NpcMemory, NpcHomeDelivery, CustomerVisit, CustomerComplaint, CombatContext, MoneyOperation, DailyMoneyResult, PackageRegistrationRecord, PurchaseReceipt, PendingDelivery, RefusalQuestRecord, ReceivingBatch, PendingLootDrop]
 ## Максимальная глубина вложенных сериализуемых данных.
 const MAX_DEPTH: int = 16
 
@@ -162,6 +162,12 @@ static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 ## Последовательно проверяет и записывает разрешённые поля; полная валидация использует отдельную заготовку.
 static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0) -> bool:
 	var script: Script = resource.get_script() as Script
+	if script == GameClock:
+		if fields.size() != GameClock.SAVE_FIELDS.size():
+			return false
+		for clock_field: String in GameClock.SAVE_FIELDS:
+			if not fields.has(clock_field):
+				return false
 	var allowed: Array = _component_fields.get(script, []) as Array
 	if script in _record_types:
 		for property: Dictionary in resource.get_property_list():
@@ -223,6 +229,8 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 				return false
 
 			resource.set(field, decoded)
+	if resource is GameClock:
+		return GameTimeRules.valid(resource as GameClock)
 	return true
 
 

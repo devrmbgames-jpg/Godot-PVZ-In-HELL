@@ -17,7 +17,9 @@
 "next_service_order": 1,
 "people": [{
 "fields": {
-"activity_sequence": 0,
+"activity_sequence": 19,
+"cadence_elapsed_ticks": 12345,
+"cadence_sample_tick": 123456789,
 "death_day": 0,
 "display_name": "Архивариус",
 "exit_id": &"portal_north",
@@ -39,10 +41,12 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
 "death_day": 0,
 "display_name": "Зольник",
 "exit_id": &"portal_south",
-"goal_id": &"activity_3",
+"goal_id": &"activity_0",
 "home_id": &"home_2",
 "memories": [{
 "fields": {
@@ -70,6 +74,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
 "death_day": 0,
 "display_name": "Костоправ",
 "exit_id": &"portal_east",
@@ -91,10 +97,12 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
 "death_day": 0,
 "display_name": "Стекольщица",
 "exit_id": &"portal_north",
-"goal_id": &"activity_1",
+"goal_id": &"activity_2",
 "home_id": &"home_4",
 "memories": [],
 "npc_id": &"npc/4",
@@ -112,6 +120,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
 "death_day": 0,
 "display_name": "Ночной сосед",
 "exit_id": &"portal_south",
@@ -133,6 +143,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
 "death_day": 0,
 "display_name": "Следователь",
 "exit_id": &"portal_east",
@@ -154,6 +166,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
 "death_day": 0,
 "display_name": "Швея",
 "exit_id": &"portal_north",
@@ -175,6 +189,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
 "death_day": 0,
 "display_name": "Торговец",
 "exit_id": &"portal_south",
@@ -196,6 +212,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
 "death_day": 0,
 "display_name": "Попутчик",
 "exit_id": &"portal_east",
@@ -217,6 +235,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
 "death_day": 0,
 "display_name": "Приставала",
 "exit_id": &"portal_north",
@@ -238,6 +258,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
 "death_day": 0,
 "display_name": "Собиратель загадок",
 "exit_id": &"portal_south",
@@ -259,6 +281,8 @@
 }, {
 "fields": {
 "activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
 "death_day": 0,
 "display_name": "Паломник",
 "exit_id": &"portal_east",
@@ -280,13 +304,23 @@
 }],
 "prepared_morning": 2,
 "replacement_morning": 0,
-"terminal_offer_target": 2
+"terminal_offer_target": 3
 },
 "type": "res://content/domains/npc/components/c_district.gd"
 }, {
 "fields": {
+"clock": {
+"fields": {
+"elapsed_ticks": 123456789,
+"tick_remainder": 0.625,
+"world_seed": -42
+},
+"type": "res://content/domains/time/contracts/game_clock.gd"
+},
 "day_index": 2,
-"phase": 0
+"phase": 0,
+"shift_end_tick": -1,
+"shift_start_tick": -1
 },
 "type": "res://content/domains/time/components/c_day_cycle.gd"
 }, {
@@ -1212,5 +1246,5 @@
 "scene": "res://content/domains/interaction/entities/anchorable_test_box.tscn"
 }]),
 "morning_day": 2,
-"version": 8
+"version": 9
 }

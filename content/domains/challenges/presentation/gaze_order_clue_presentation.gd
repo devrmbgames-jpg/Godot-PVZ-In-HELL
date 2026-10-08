@@ -22,7 +22,10 @@ static func text_for(clue: Node) -> String:
 		if state.phase != C_Challenge.Phase.ACTIVE or not ChallengeService.session_valid(subject) or visit == null or not CustomerPresentation.uses_wall_order(visit.definition):
 			continue
 
-		var selected: int = int(String(visit.visit_id).hash() % locations.size())
+		var selected: int = GameTimeQueries.decision(
+			String(visit.visit_id), maxi(1, visit.last_visit_day),
+			"customer/gaze_clue", visit.visit_count,
+		).randi_range(0, locations.size() - 1)
 		if locations[selected] == clue:
 			var number: int = CustomerPresentation.registered_number(visit)
 			return "ЗАКАЗ\n№%03d" % number if number >= 0 else ""

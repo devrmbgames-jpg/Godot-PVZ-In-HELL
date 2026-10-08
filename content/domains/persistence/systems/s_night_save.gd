@@ -5,6 +5,11 @@ class_name S_NightSave
 const MIN_RETRY_SECONDS: float = 0.1
 
 #region Scheduled Night ownership
+## Operational storage retries run after gameplay with raw callback seconds, independently of game ticks.
+func _init() -> void:
+	group = "Storage"
+
+
 ## Runs after calendar, payments, customer outcomes and quest outcomes.
 func deps() -> Dictionary[int, Array]:
 	return {Runs.After: [S_DayPhase, S_WalletDay, S_CustomerFlow, S_RefusalQuest, S_LootDrops]}
@@ -17,6 +22,8 @@ func query() -> QueryBuilder:
 
 ## Advances retry time and queues one step for the exact calendar/component context.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
+	if not is_finite(delta) or delta < 0.0:
+		return
 	var cycles: Array = components[0]
 	var states: Array = components[1]
 	for index: int in entities.size():

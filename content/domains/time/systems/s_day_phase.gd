@@ -16,15 +16,14 @@ func query() -> QueryBuilder:
 	return q.with_all([C_DayCycle]).iterate([C_DayCycle])
 
 
-## Считает время смены, повторно проверяет запрос и переводит готовую ночь в следующее утро.
-func process(_entities: Array[Entity], components: Array, delta: float) -> void:
+## Повторно проверяет запрос и переводит готовую ночь в следующее утро без elapsed time skip.
+func process(_entities: Array[Entity], components: Array, _delta: float) -> void:
 	var cycles: Array = components[0]
 	for index: int in cycles.size():
 		var cycle: C_DayCycle = cycles[index] as C_DayCycle
-		if cycle.phase == C_DayCycle.Phase.DAY and is_finite(delta) and delta >= 0.0:
-			cycle.shift_elapsed_seconds += delta
-		elif cycle.phase == C_DayCycle.Phase.MORNING:
-			cycle.shift_elapsed_seconds = 0.0
+		if cycle.phase == C_DayCycle.Phase.MORNING:
+			cycle.shift_start_tick = -1
+			cycle.shift_end_tick = -1
 		if cycle.phase == C_DayCycle.Phase.NIGHT:
 			if cycle.night_ready:
 				cycle.day_index += 1
@@ -49,6 +48,7 @@ func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 				cmd.add_custom(_commit_start_shift.bind(weakref(_entities[index]), cycle, request))
 				continue
 			DayTransitionRequest.Kind.FINISH_SHIFT:
+				cycle.shift_end_tick = cycle.clock.elapsed_ticks
 				cycle.phase = C_DayCycle.Phase.EVENING
 			DayTransitionRequest.Kind.SLEEP:
 				cycle.phase = C_DayCycle.Phase.NIGHT
@@ -75,7 +75,8 @@ func _commit_start_shift(
 	if not DayPhaseService.permits(cycle, request.kind) or not ReceivingShiftService.commit_departure(cycle):
 		return
 
-	cycle.shift_elapsed_seconds = 0.0
+	cycle.shift_start_tick = cycle.clock.elapsed_ticks
+	cycle.shift_end_tick = -1
 	cycle.phase = C_DayCycle.Phase.DAY
 	_publish_phase(session, cycle)
 #endregion

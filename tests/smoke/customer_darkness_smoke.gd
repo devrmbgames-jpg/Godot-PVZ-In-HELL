@@ -28,7 +28,7 @@ func _run() -> void:
 	var actor: Entity = _level.get_node("Entityes/Player") as Entity
 	(actor as Node).set_physics_process(false)
 	for frame: int in SUPPLY_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if PackageQueries.find_live_package("base_supply:1:oil") != null:
 			break
@@ -47,7 +47,7 @@ func _run() -> void:
 
 	var first: E_NpcCharacter = null
 	for frame: int in SUPPLY_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		first = ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_NpcCharacter
 		if first != null:
@@ -73,8 +73,8 @@ func _run() -> void:
 		assert(not light.visible)
 	assert(LightCircuitService.is_enabled(&"warehouse"))
 	assert(LightCircuitService.set_by_id(&"warehouse", false))
-	ECS.world.process(FRAME_DELTA, "GamePlay")
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 
 	var state: C_Challenge = first.get_component(C_Challenge) as C_Challenge
 	assert(state.result == ChallengeResult.Type.SUCCESS)
@@ -82,8 +82,8 @@ func _run() -> void:
 	assert((first.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	assert(not visit.aggressive)
 	assert(CustomerFlowService.deny(visit.visit_id))
-	ECS.world.process(visit.definition.leaving_seconds, "GamePlay")
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, visit.definition.leaving_seconds)
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(visit.finished)
 	assert(LightCircuitService.set_by_id(&"warehouse", true))
 	# Повторный визит за той же зарегистрированной коробкой проверяет ветку таймаута.
@@ -94,7 +94,7 @@ func _run() -> void:
 	retry.arrival_day = cycle.day_index
 	CustomerFlowQueries.current().visits.append(retry)
 	assert(not CustomerFlowFixture.spawn(CustomerFlowQueries.current(), cycle), "New visit must respect the authored gap")
-	ECS.world.process(CustomerFlowQueries.current().arrival_cooldown_seconds + FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, CustomerFlowQueries.current().arrival_cooldown_seconds + FRAME_DELTA)
 
 	var second: E_NpcCharacter = CustomerFlowQueries.customer_for(retry.visit_id)
 	assert(second != null)
@@ -102,7 +102,7 @@ func _run() -> void:
 	assert(_flickers == 2)
 	state = second.get_component(C_Challenge) as C_Challenge
 	assert(state.phase == C_Challenge.Phase.ACTIVE)
-	ECS.world.process(state.definition.timeout_seconds, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, state.definition.timeout_seconds)
 	assert(state.result == ChallengeResult.Type.FAILURE)
 	assert(not LightCircuitService.is_enabled(&"warehouse"))
 	assert(retry.aggressive)

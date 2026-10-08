@@ -32,7 +32,7 @@ func _run() -> void:
 	assert(hunger != null and hunger.policy != null)
 	hunger.value = 0.0
 	var active_before: float = hunger.active_seconds
-	ECS.world.process(1.0, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 1.0)
 	assert(is_equal_approx(hunger.value, hunger.policy.growth_per_second))
 	assert(is_equal_approx(hunger.active_seconds, active_before + 1.0))
 	assert(HungerService.set_value(actor, hunger.policy.hungry_threshold))
@@ -122,7 +122,7 @@ func _run() -> void:
 	assert(context.perceived_text("Заказ клиента") == "Заказ клиента" and visit.package_id == order)
 	assert(CombatService.hit(actor, weapon, customer, 40.0))
 	assert(customer.has_component(C_Death))
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(visit.finished and visit.defeated_by_player)
 	level.free()
 	ECS.world = null

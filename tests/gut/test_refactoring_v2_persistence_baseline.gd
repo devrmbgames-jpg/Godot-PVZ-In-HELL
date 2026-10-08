@@ -41,8 +41,15 @@ func before_each() -> void:
 	session.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(session.name))
 	assert_true(PlacedIdentityRules.compile_for(_fixture_root).is_empty())
 	_fixture_world.add_entity(session, null, false)
+	var calendar: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
+	calendar.clock.world_seed = -42
+	calendar.clock.elapsed_ticks = 123_456_789
+	calendar.clock.tick_remainder = 0.625
 	DistrictPopulationService.initialize()
 	DistrictPopulationService.prepare_morning(MORNING_DAY)
+	_district.people[0].activity_sequence = 19
+	_district.people[0].cadence_elapsed_ticks = 12_345
+	_district.people[0].cadence_sample_tick = calendar.clock.elapsed_ticks
 
 	_active_id = _district.people[0].npc_id
 	_dormant_id = _district.people[1].npc_id
@@ -157,6 +164,9 @@ func after_each() -> void:
 #region Current-format roundtrip and rejection
 ## Reads the committed native-Variant fixture, writes an isolated slot and restores real links/bodies.
 func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
+	var expected_roll: int = GameTimeQueries.decision(
+		String(_active_id), MORNING_DAY, "npc/activity", 19,
+	).randi()
 	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
 	assert_true(WorldSnapshotService.valid(snapshot, _fixture_root), "Captured data validates before golden write")
 	var supported: bool = WorldSnapshotService.can_restore(snapshot, _fixture_root)
@@ -181,6 +191,18 @@ func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 	assert_eq(stored_snapshot, snapshot)
 	var retained_body: E_DistrictNpc = NpcPopulationQueries.body_for(_dormant_id)
 	assert_true(WorldSnapshotService.restore(stored_snapshot, _fixture_root))
+	var restored_calendar: C_DayCycle = DayPhaseQueries.current()
+	assert_eq(restored_calendar.clock.elapsed_ticks, 123_456_789)
+	assert_eq(restored_calendar.clock.tick_remainder, 0.625)
+	assert_eq(restored_calendar.clock.world_seed, -42)
+	assert_eq(restored_calendar.day_index, MORNING_DAY)
+	var restored_person: NpcRecord = NpcPopulationQueries.person_for(_active_id)
+	assert_eq(restored_person.activity_sequence, 19)
+	assert_eq(restored_person.cadence_elapsed_ticks, 12_345)
+	assert_eq(restored_person.cadence_sample_tick, restored_calendar.clock.elapsed_ticks)
+	assert_eq(GameTimeQueries.decision(
+		String(_active_id), MORNING_DAY, "npc/activity", restored_person.activity_sequence,
+	).randi(), expected_roll)
 
 	var active_body: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
 	var dormant_body: E_DistrictNpc = NpcPopulationQueries.body_for(_dormant_id)
@@ -268,4 +290,28 @@ func test_manifest_covers_runtime_codec_script_paths() -> void:
 		var restored: Variant = SaveDataCodec.decode(encoded)
 		assert_true(restored is Resource)
 		assert_eq(SaveDataCodec.encode(restored), encoded)
+#endregion
+
+#region Time snapshot rejection
+## Malformed elapsed time or future NPC samples reject before changing the live clock/body state.
+func test_invalid_time_snapshot_rejects_before_live_mutation() -> void:
+	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
+	var calendar: C_DayCycle = DayPhaseQueries.current()
+	for scenario: int in 3:
+		var malformed: Dictionary = snapshot.duplicate(true)
+		for record: Dictionary in malformed.entities:
+			for component: Dictionary in record.components:
+				if String(component.type) == (C_DayCycle as Script).resource_path:
+					var clock_fields: Dictionary = component.fields.clock.fields as Dictionary
+					if scenario == 0:
+						clock_fields.tick_remainder = 1.0
+					elif scenario == 1:
+						clock_fields.erase("world_seed")
+				if scenario == 2 and String(component.type) == (C_District as Script).resource_path:
+					var first_person: Dictionary = (component.fields.people as Array)[0] as Dictionary
+					(first_person.fields as Dictionary).cadence_sample_tick = 123_456_790
+		assert_false(WorldSnapshotService.restore(malformed, _fixture_root))
+		assert_eq(calendar.clock.elapsed_ticks, 123_456_789)
+		assert_eq(calendar.clock.tick_remainder, 0.625)
+		assert_eq(NpcPopulationQueries.person_for(_active_id).cadence_sample_tick, 123_456_789)
 #endregion

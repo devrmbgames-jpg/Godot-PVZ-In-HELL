@@ -35,7 +35,7 @@ class ReadyRecorder extends Observer:
 func _owners() -> Array[System]:
 	var owners: Array[System] = []
 	# Deliberately register backwards so only deps define the execution order.
-	for owner_type: Script in [S_NpcNoise, S_NpcRoutePlanning, S_NpcRoute, S_NpcDecision, S_NpcTraits, S_NpcPerception, S_NpcFootsteps, S_NpcCadence]:
+	for owner_type: Script in [S_NpcNoise, S_NpcRoutePlanning, S_NpcRoute, S_NpcDecision, S_NpcTraits, S_NpcPerception, S_NpcFootsteps, S_NpcCadence, S_GameTime]:
 		var owner: System = owner_type.new() as System
 		owner.group = "npc_scheduling"
 		owners.append(owner)
@@ -60,7 +60,9 @@ func test_all_due_sensors_commit_before_either_native_decision() -> void:
 	_district.definition = _district.definition.duplicate() as DEF_District
 	_district.definition.decision_interval = 0.3
 	for actor: E_DistrictNpc in [first, second]:
-		(actor.get_component(C_NpcDecision) as C_NpcDecision).update_elapsed = 0.0
+		var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
+		NpcPopulationQueries.person_for(identity.npc_id).cadence_elapsed_ticks = 0
+		NpcPopulationQueries.person_for(identity.npc_id).cadence_sample_tick = 0
 	var recorder: ReadyRecorder = ReadyRecorder.new()
 	recorder.configure(second)
 	_world.add_observer(recorder)
@@ -83,7 +85,8 @@ func test_noise_expires_only_after_due_hearing_consumers() -> void:
 	_isolate(0, 0)
 	var actor: E_DistrictNpc = _stage(0)
 	var player: E_DistrictNpc = _player()
-	(actor.get_component(C_NpcDecision) as C_NpcDecision).update_elapsed = 0.0
+	_district.people[0].cadence_elapsed_ticks = 0
+	_district.people[0].cadence_sample_tick = 0
 	NpcPerceptionService.emit_noise(player, player.global_position, 100.0)
 	_district.noises.back().remaining = 0.01
 	_owners()
@@ -94,23 +97,53 @@ func test_noise_expires_only_after_due_hearing_consumers() -> void:
 	assert_true(_district.noises.is_empty())
 
 
+## Pausing the clock cannot re-publish a due decision from the previous complete step.
+func test_paused_clock_cannot_replay_the_previous_due_decision() -> void:
+	_isolate(0, 0)
+	var actor: E_DistrictNpc = _stage(0)
+	var person: NpcRecord = _district.people[0]
+	person.cadence_elapsed_ticks = 0
+	person.cadence_sample_tick = 0
+	var recorder: ReadyRecorder = ReadyRecorder.new()
+	recorder.configure(actor)
+	_world.add_observer(recorder)
+	_owners()
+	var interval: float = _district.definition.decision_interval
+	_world.process(interval, "npc_scheduling")
+	assert_eq(recorder.intervals.size(), 1)
+
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var previous_tick: int = cycle.clock.elapsed_ticks
+	cycle.clock.paused = true
+	_world.process(0.0, "npc_scheduling")
+	assert_eq(recorder.intervals.size(), 1)
+	assert_eq((actor.get_component(C_NpcDecision) as C_NpcDecision).scheduled_delta, 0.0)
+	assert_eq(cycle.clock.elapsed_ticks, previous_tick)
+	assert_eq(person.cadence_elapsed_ticks, 0)
+
+	cycle.clock.paused = false
+	_world.process(interval, "npc_scheduling")
+	assert_eq(recorder.intervals.size(), 2)
+
+
 ## Night and dormant participation freeze interval/noise progression without a second scheduler.
 func test_night_and_dormant_bodies_do_not_advance_ai_clocks() -> void:
 	_isolate(0, 0)
 	var actor: E_DistrictNpc = _stage(0)
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-	decision.update_elapsed = 0.0
+	_district.people[0].cadence_elapsed_ticks = 0
+	_district.people[0].cadence_sample_tick = 0
 	NpcPerceptionService.emit_noise(actor, actor.global_position, 20.0)
 	var remaining: float = _district.noises[0].remaining
 	_owners()
 	DayPhaseQueries.current().phase = C_DayCycle.Phase.NIGHT
 	_world.process(1.0, "npc_scheduling")
-	assert_eq(decision.update_elapsed, 0.0)
+	assert_eq(_district.people[0].cadence_elapsed_ticks, 0)
 	assert_eq(_district.noises[0].remaining, remaining)
 	DayPhaseQueries.current().phase = C_DayCycle.Phase.MORNING
 	DistrictPopulationService.set_placement(_district.people[0], actor, NpcRecord.Placement.HOME)
 	_world.process(1.0, "npc_scheduling")
-	assert_eq(decision.update_elapsed, 0.0)
+	assert_eq(_district.people[0].cadence_elapsed_ticks, 0)
 	assert_eq(decision.scheduled_delta, 0.0)
 #endregion
 
@@ -144,7 +177,8 @@ func test_ready_consumer_death_prevents_later_native_update() -> void:
 	_isolate(0, 0)
 	var actor: E_DistrictNpc = _stage(0)
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-	decision.update_elapsed = 0.0
+	_district.people[0].cadence_elapsed_ticks = 0
+	_district.people[0].cadence_sample_tick = 0
 	var recorder: ReadyRecorder = ReadyRecorder.new()
 	recorder.configure(actor, true)
 	_world.add_observer(recorder)

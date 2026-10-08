@@ -25,7 +25,11 @@ static func create(
 
 	if not physical_scene.is_empty() and physical_scene not in definition.scene_variants:
 		return null
-	var package_scene_path: String = physical_scene if not physical_scene.is_empty() else String(definition.scene_variants.pick_random())
+	var package_scene_path: String = physical_scene
+	if package_scene_path.is_empty():
+		package_scene_path = PackageSceneRules.variant_for(
+			definition, package_id, day_index, GameTimeQueries.current().world_seed,
+		)
 	var packed: PackedScene = load(package_scene_path) as PackedScene
 	if packed == null:
 		return null

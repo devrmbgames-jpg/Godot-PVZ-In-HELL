@@ -128,7 +128,7 @@ func _customer_combat() -> void:
 	npc_state.melee_attacks = []
 
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
-	ECS.world.process(challenge.definition.timeout_seconds, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, challenge.definition.timeout_seconds)
 	assert(challenge.result == ChallengeResult.Type.FAILURE)
 	assert((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.AGGRESSIVE)
 	assert(CombatQueries.target_for(customer) == _actor)
@@ -138,12 +138,12 @@ func _customer_combat() -> void:
 	assert(intent.arrival_distance > npc_state.ranged_attacks[0].minimum_range and intent.arrival_distance < npc_state.ranged_attacks[0].maximum_range, "Ranged-only NPC must stop within its usable attack range")
 	npc_state.melee_attacks = authored_melee
 	CombatService.end_combat(customer)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 
 	var player_health: C_Health = _actor.get_component(C_Health) as C_Health
 	actor_body.global_position = customer_body.global_position + Vector3(0, 0, 1.3)
 	for frame: int in 240:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		ECS.world.process(FRAME_DELTA, "Physics")
 		await get_tree().physics_frame
 		if player_health.current < 100.0:
@@ -174,9 +174,9 @@ func _customer_combat() -> void:
 		controller.input_tick += 1
 		InteractionInputFixture.advance(_actor)
 		assert(controller.action_main_pressed and GrabQueries.held_relationship(weapon) != null)
-		ECS.world.process(1.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0)
 	assert(customer.has_component(C_Death))
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(visit.finished and visit.customer_dead and visit.defeated_by_player)
 	assert(visit.last_combat_context != null and visit.last_combat_context.reason == CombatContext.Reason.SELF_DEFENSE)
 	_level.free()

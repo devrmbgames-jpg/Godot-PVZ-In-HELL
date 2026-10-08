@@ -79,6 +79,9 @@ static func entity_for(circuit_id: StringName) -> Entity:
 	if not is_instance_valid(ECS.world):
 		return null
 	if _lookup_world != ECS.world or not is_instance_valid(_lookup_world):
+		# Static query recipes retain Component scripts; release them at world handoff/exit.
+		if not ECS.world_changed.is_connected(_clear_lookup):
+			ECS.world_changed.connect(_clear_lookup)
 		_lookup_world = ECS.world
 		_circuit_references.clear()
 		_circuit_query = QueryBuilder.new(_lookup_world).with_all([C_LightCircuit])
@@ -96,4 +99,13 @@ static func entity_for(circuit_id: StringName) -> Entity:
 		if state.circuit_id == circuit_id:
 			return circuit
 	return null
+#endregion
+
+#region Query cache lifetime
+static func _clear_lookup(_next_world: World) -> void:
+	# The callback belongs to this cache lifetime, not the lifetime of the ECS autoload.
+	ECS.world_changed.disconnect(_clear_lookup)
+	_lookup_world = null
+	_circuit_query = null
+	_circuit_references.clear()
 #endregion

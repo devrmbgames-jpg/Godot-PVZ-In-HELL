@@ -24,6 +24,9 @@ func _ready() -> void:
 	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
 	var day_session: Entity = world.query.with_all([C_DayCycle]).execute_one()
 	day_session.add_component(C_BoundaryTrace.new())
+	var clock_owner: S_GameTime = S_GameTime.new()
+	clock_owner.group = "Clock"
+	world.add_system(clock_owner)
 	if authored_world != null:
 		authored_world.add_startup_observer(O_DistrictLifecycle.new())
 	else:
@@ -117,10 +120,14 @@ func _physics_process(delta: float) -> void:
 	if world == null:
 		return
 
-	world.process(delta, "Input")
-	world.process(delta, "Interaction")
+	world.process(delta, "Clock")
+	var gameplay_delta: float = GameTimeRules.seconds(GameTimeQueries.current().step_ticks)
+	world.process(gameplay_delta, "Input")
+	world.process(gameplay_delta, "Interaction")
 	world.process(delta, "Physics")
-	world.process(delta, "GamePlay")
+	world.process(gameplay_delta, "GamePlay")
+	# Night I/O retries do not depend on a frozen gameplay clock.
+	world.process(delta, "Storage")
 
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -173,8 +173,7 @@ func _place_outside_truck(zone: E_ReceivingZone, parcel: Entity, used_markers: D
 
 func _step(world: World, frames: int) -> void:
 	for _frame: int in frames:
-		for group_name: String in ["Input", "Interaction", "Physics", "GamePlay"]:
-			world.process(DELTA, group_name)
+		GameTimeFixture.frame(world, DELTA)
 		await get_tree().physics_frame
 #endregion
 

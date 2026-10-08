@@ -140,13 +140,13 @@ func _night(level: Node3D, player: Entity, missed: NpcHomeDelivery) -> void:
 	var session: Entity = ECS.world.query.with_all([C_Autosave]).execute_one()
 	var state: C_Autosave = session.get_component(C_Autosave) as C_Autosave
 	state.path = MISSING_SLOT
-	ECS.world.process(0.1, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 0.1)
 	_check(DayPhaseQueries.current().phase == C_DayCycle.Phase.NIGHT and not DayPhaseQueries.current().night_ready, "failed real write holds night")
 	_check(state.started_night == 1 and missed.status == NpcHomeDelivery.Status.FAILED, "evening prepared once despite write failure")
 	var operation_count: int = WalletService.current().operations.size()
 	state.path = SAVE_PATH
 	state.retry_remaining = 0.0
-	ECS.world.process(0.1, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 0.1)
 	_check(state.last_error == OK and DayPhaseQueries.current().night_ready, "retry writes the same prepared morning")
 	_check(WalletService.current().operations.size() == operation_count, "retry creates no duplicate payment or fine")
 	_check((parcel as Node as Node3D).global_transform == pose, "sleep leaves real missed box at original position")

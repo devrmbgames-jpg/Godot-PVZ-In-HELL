@@ -24,7 +24,7 @@ func _run() -> void:
 	var receiving_zone: E_ReceivingZone = level.get_node("Entityes/ReceivingZone") as E_ReceivingZone
 	var expected_packages: int = mini(receiving_zone.supply.maximum_batch_packages, receiving_zone.supply.packages.size())
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == expected_packages:
 			break

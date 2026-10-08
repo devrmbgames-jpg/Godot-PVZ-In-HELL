@@ -28,21 +28,21 @@ func _run() -> void:
 	transition.expected_day = 1
 	transition.expected_phase = C_DayCycle.Phase.MORNING
 	assert(DayPhaseService.submit(transition))
-	ECS.world.process(0.0, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 0.0)
 	transition = DayTransitionRequest.new()
 	transition.kind = DayTransitionRequest.Kind.FINISH_SHIFT
 	transition.expected_day = 1
 	transition.expected_phase = C_DayCycle.Phase.DAY
 	assert(DayPhaseService.submit(transition))
-	ECS.world.process(0.0, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 0.0)
 	assert(wallet.completed_days == 1)
 	transition = DayTransitionRequest.new()
 	transition.kind = DayTransitionRequest.Kind.SLEEP
 	transition.expected_day = 1
 	transition.expected_phase = C_DayCycle.Phase.EVENING
 	assert(DayPhaseService.submit(transition))
-	ECS.world.process(0.0, "GamePlay")
-	ECS.world.process(0.0, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 0.0)
+	GameTimeFixture.gameplay(ECS.world, 0.0)
 	assert(cycle.day_index == 2)
 	assert(wallet.daily_results.size() == 2)
 	assert(wallet.daily_results[1].income == 0)

@@ -13565,6 +13565,96 @@
       "role": "dialogue",
       "task": "32",
       "uid": "uid://b0jous4f6057v"
+    },
+    {
+      "source": "content/domains/packages/rules/package_scene_rules.gd",
+      "target": "content/domains/packages/rules/package_scene_rules.gd",
+      "owner": "packages",
+      "role": "rules",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/packages/rules/package_scene_rules.gd.uid",
+      "target": "content/domains/packages/rules/package_scene_rules.gd.uid",
+      "owner": "packages",
+      "role": "rules",
+      "task": "retain",
+      "uid": "uid://dxl3x826weg7y"
+    },
+    {
+      "source": "content/domains/time/contracts/game_clock.gd",
+      "target": "content/domains/time/contracts/game_clock.gd",
+      "owner": "time",
+      "role": "contracts",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/time/contracts/game_clock.gd.uid",
+      "target": "content/domains/time/contracts/game_clock.gd.uid",
+      "owner": "time",
+      "role": "contracts",
+      "task": "retain",
+      "uid": "uid://bgfxj08lastts"
+    },
+    {
+      "source": "content/domains/time/rules/decision_random_rules.gd",
+      "target": "content/domains/time/rules/decision_random_rules.gd",
+      "owner": "time",
+      "role": "rules",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/time/rules/decision_random_rules.gd.uid",
+      "target": "content/domains/time/rules/decision_random_rules.gd.uid",
+      "owner": "time",
+      "role": "rules",
+      "task": "retain",
+      "uid": "uid://bfr5uify4d4sd"
+    },
+    {
+      "source": "content/domains/time/rules/game_time_rules.gd",
+      "target": "content/domains/time/rules/game_time_rules.gd",
+      "owner": "time",
+      "role": "rules",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/time/rules/game_time_rules.gd.uid",
+      "target": "content/domains/time/rules/game_time_rules.gd.uid",
+      "owner": "time",
+      "role": "rules",
+      "task": "retain",
+      "uid": "uid://dqvirvggxw7pi"
+    },
+    {
+      "source": "content/domains/time/services/game_time_queries.gd",
+      "target": "content/domains/time/services/game_time_queries.gd",
+      "owner": "time",
+      "role": "services",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/time/services/game_time_queries.gd.uid",
+      "target": "content/domains/time/services/game_time_queries.gd.uid",
+      "owner": "time",
+      "role": "services",
+      "task": "retain",
+      "uid": "uid://671lcql12wi8"
+    },
+    {
+      "source": "content/domains/time/systems/s_game_time.gd",
+      "target": "content/domains/time/systems/s_game_time.gd",
+      "owner": "time",
+      "role": "systems",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/time/systems/s_game_time.gd.uid",
+      "target": "content/domains/time/systems/s_game_time.gd.uid",
+      "owner": "time",
+      "role": "systems",
+      "task": "retain",
+      "uid": "uid://bfkhrdxlcac7r"
     }
   ],
   "old_save_migration": false,

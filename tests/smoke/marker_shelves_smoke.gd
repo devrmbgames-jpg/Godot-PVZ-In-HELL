@@ -17,7 +17,7 @@ func _run() -> void:
 	level.set_physics_process(false)
 	for tick: int in 12:
 		await get_tree().physics_frame
-		ECS.world.process(STEP, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, STEP)
 
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var actor_body: RigidBody3D = actor as Node as RigidBody3D
@@ -176,7 +176,7 @@ func _run() -> void:
 	damage.target = parcel
 	damage.amount = 10000.0
 	DamageRequestService.submit(damage)
-	ECS.world.process(STEP, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, STEP)
 	assert(state.damage == C_PackageState.Damage.DESTROYED)
 	assert(marks.point_count == 0 and marks.strokes.is_empty())
 	await get_tree().process_frame

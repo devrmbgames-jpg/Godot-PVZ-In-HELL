@@ -22,7 +22,15 @@ static func choose(actor: E_DistrictNpc, person: NpcRecord) -> DEF_DistrictPlace
 
 		candidates.append(place)
 
-	return candidates[abs(hash(person.npc_id) + person.activity_sequence) % candidates.size()] if not candidates.is_empty() else null
+	if candidates.is_empty():
+		return null
+	candidates.sort_custom(func(a: DEF_DistrictPlace, b: DEF_DistrictPlace) -> bool:
+		return String(a.key) < String(b.key))
+	var random: RandomNumberGenerator = GameTimeQueries.decision(
+		String(person.npc_id), DayPhaseQueries.current().day_index,
+		"npc/activity", person.activity_sequence,
+	)
+	return candidates[random.randi_range(0, candidates.size() - 1)]
 
 ## Находит живого участвующего торговца; пустая торговая точка не является целью.
 static func merchant() -> E_DistrictNpc:

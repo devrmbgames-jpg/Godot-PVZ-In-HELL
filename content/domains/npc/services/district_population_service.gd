@@ -230,16 +230,16 @@ static func replace_vacancies(district: C_District, morning_day: int) -> void:
 			if vacant == null or person.profile.merchant:
 				vacant = person
 	if district.replacement_morning > 0 and morning_day >= district.replacement_morning and locals_alive < district.definition.resident_count and vacant != null:
-		_replace_person(district, vacant)
+		_replace_person(district, vacant, morning_day)
 		locals_alive += 1
 		district.replacement_morning = morning_day + 1 if locals_alive < district.definition.resident_count else 0
 	if outside_alive < district.definition.visitor_count:
 		for person: NpcRecord in district.people:
 			if not person.profile.resident and person.death_day > 0 and morning_day >= person.death_day + district.definition.replacement_delay_days and not person.portal_id.is_empty():
-				_replace_person(district, person)
+				_replace_person(district, person, morning_day)
 				break
 
-static func _replace_person(district: C_District, deceased: NpcRecord) -> void:
+static func _replace_person(district: C_District, deceased: NpcRecord, morning_day: int) -> void:
 	var replacement: NpcRecord = NpcRecord.new()
 	replacement.npc_id = StringName("npc/%d" % district.next_person)
 	district.next_person += 1
@@ -251,7 +251,14 @@ static func _replace_person(district: C_District, deceased: NpcRecord) -> void:
 	for candidate: DEF_NpcProfile in district.definition.profiles:
 		if candidate.resident == deceased.profile.resident and candidate.merchant == deceased.profile.merchant and candidate.valid_rules() and (not candidate.initiates_conflicts or initiators < district.definition.maximum_conflict_initiators):
 			pool.append(candidate)
-	replacement.profile = pool[abs(hash(replacement.npc_id)) % pool.size()] if not pool.is_empty() else deceased.profile
+	replacement.profile = deceased.profile
+	if not pool.is_empty():
+		pool.sort_custom(func(a: DEF_NpcProfile, b: DEF_NpcProfile) -> bool:
+			return String(a.key) < String(b.key))
+		var random: RandomNumberGenerator = GameTimeQueries.decision(
+			String(replacement.npc_id), morning_day, "npc/replacement_profile",
+		)
+		replacement.profile = pool[random.randi_range(0, pool.size() - 1)]
 
 	var names: PackedStringArray = district.definition.replacement_names
 	replacement.display_name = "%s %d" % [names[(district.next_person - 2) % names.size()] if not names.is_empty() else replacement.profile.display_name, district.next_person - 1]

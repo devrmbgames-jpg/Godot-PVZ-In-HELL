@@ -34,3 +34,10 @@ enum Placement { STREET, HOME, OUTSIDE, DEAD }
 @export var death_day: int = 0
 ## Последовательность занятий сохраняет выбор при перезагрузке.
 @export var activity_sequence: int = 0
+
+#region Durable AI cadence
+## Last elapsed clock timestamp sampled by S_NpcCadence; -1 before first participation.
+@export var cadence_sample_tick: int = -1
+## Retained active AI interval in microsecond ticks; S_NpcCadence owns accumulation/consumption.
+@export var cadence_elapsed_ticks: int = 0
+#endregion

@@ -106,7 +106,7 @@ func _release_restored() -> void:
 		await get_tree().physics_frame
 		await get_tree().physics_frame
 		var before: int = queue.pending.size()
-		ECS.world.process(queue.placement.retry_seconds, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, queue.placement.retry_seconds)
 		_check(before - queue.pending.size() <= queue.placement.retry_budget, "one retry respects item budget")
 		if queue.pending.is_empty():
 			break
@@ -118,7 +118,7 @@ func _release_restored() -> void:
 			found[entity.id] = true
 			_check((entity.get_component(C_PersistentIdentity) as C_PersistentIdentity).key == entity.id, "physical key equals planned ID")
 	_check(found.size() == ids.size(), "all intended loot recreated exactly once")
-	ECS.world.process(queue.placement.retry_seconds, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, queue.placement.retry_seconds)
 	_check(queue.pending.is_empty(), "repeat never regenerates consumed manifest")
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	_check(cycle.day_index == 1 and cycle.phase == C_DayCycle.Phase.MORNING, "normal day state survives loot restart")

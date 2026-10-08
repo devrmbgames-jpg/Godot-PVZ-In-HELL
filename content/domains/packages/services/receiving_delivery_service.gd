@@ -28,7 +28,10 @@ static func prepare_batch(supply: DEF_Delivery, receiving: C_Receiving, day_inde
 		if definition == null or definition.scene_variants.is_empty() or not _has_recipient(definition):
 			continue
 		batch.package_keys.append(String(definition.key))
-		batch.package_scenes.append(String(definition.scene_variants.pick_random()))
+		var package_id: String = "%s:%s" % [receiving.batch_id, definition.key]
+		batch.package_scenes.append(PackageSceneRules.variant_for(
+			definition, package_id, day_index, GameTimeQueries.current().world_seed,
+		))
 		receiving.incoming_package_ids.append("%s:%s" % [receiving.batch_id, definition.key])
 		if batch.package_keys.size() >= limit:
 			break

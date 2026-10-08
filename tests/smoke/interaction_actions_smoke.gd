@@ -44,7 +44,7 @@ func _run() -> void:
 	level.set_physics_process(false)
 	for delivery_tick: int in 12:
 		await get_tree().physics_frame
-		ECS.world.process(1.0 / 60.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var scanner: Entity = level.get_node("Entityes/Scanner") as Entity
 	# Carry routing uses a real package independent of the current district supply assortment.

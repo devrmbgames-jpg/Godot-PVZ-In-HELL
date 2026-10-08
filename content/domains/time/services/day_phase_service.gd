@@ -39,8 +39,10 @@ static func finish_blockers(cycle: C_DayCycle) -> PackedStringArray:
 	var unfinished: int = CustomerFlowQueries.actionable_remaining(flow, cycle.day_index) if flow != null else cycle.remaining_customer_events
 	if cycle.require_finished_customers and unfinished > 0:
 		reasons.append("Завершить визиты: %d" % unfinished)
-	if cycle.minimum_shift_seconds > cycle.shift_elapsed_seconds:
-		reasons.append("До конца смены: %.0f с" % ceilf(cycle.minimum_shift_seconds - cycle.shift_elapsed_seconds))
+	var shift_seconds: float = GameTimeQueries.shift_seconds(cycle)
+	if cycle.minimum_shift_seconds > shift_seconds:
+		var remaining_seconds: float = ceilf(cycle.minimum_shift_seconds - shift_seconds)
+		reasons.append("До конца смены: %.0f с" % remaining_seconds)
 	if cycle.require_empty_customer_room:
 		var inside: int = customers_in_room(cycle)
 		if inside < 0:
@@ -97,7 +99,8 @@ static func shift_status(cycle: C_DayCycle) -> String:
 		return ""
 
 	var reasons: PackedStringArray = finish_blockers(cycle)
-	return "Смена %.0f с · %s" % [floorf(cycle.shift_elapsed_seconds), "Завершение доступно" if reasons.is_empty() else " · ".join(reasons)]
+	var availability: String = "Завершение доступно" if reasons.is_empty() else " · ".join(reasons)
+	return "Смена %.0f с · %s" % [floorf(GameTimeQueries.shift_seconds(cycle)), availability]
 
 
 #endregion

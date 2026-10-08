@@ -21,7 +21,7 @@ func _run() -> void:
 	hud.set("debug_status_enabled", false)
 	hud.set("challenge_debug_enabled", false)
 	for frame: int in MAX_FRAMES:
-		ECS.world.process(1.0 / 60.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break

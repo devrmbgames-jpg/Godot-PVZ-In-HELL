@@ -24,6 +24,8 @@ static func capture(root: Node, morning_day: int) -> Dictionary:
 			if component is C_DayCycle:
 				(data.fields as Dictionary).day_index = morning_day
 				(data.fields as Dictionary).phase = C_DayCycle.Phase.MORNING
+				(data.fields as Dictionary).shift_start_tick = -1
+				(data.fields as Dictionary).shift_end_tick = -1
 			components.append(data)
 		var links: Array[Dictionary] = []
 		for binding: Relationship in entity.relationships:
@@ -129,6 +131,11 @@ static func valid(data: Dictionary, root: Node) -> bool:
 			if probe is C_QuestSession and not RefusalQuestValidator.session_issues(probe as C_QuestSession).is_empty():
 				return false
 			if probe is C_DayCycle:
+				var calendar: C_DayCycle = probe as C_DayCycle
+				if not GameTimeRules.valid(calendar.clock):
+					return false
+				if calendar.shift_start_tick != -1 or calendar.shift_end_tick != -1:
+					return false
 				session_count += 1
 				if (probe as C_DayCycle).day_index != int(data.morning_day) or (probe as C_DayCycle).phase != C_DayCycle.Phase.MORNING:
 					return false

@@ -28,7 +28,7 @@ func _run() -> void:
 		event.customer.receiving_seconds = 0.05
 		event.customer.leaving_seconds = 0.05
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
@@ -46,7 +46,7 @@ func _run() -> void:
 	_register(late)
 
 	var late_number: int = (late.get_component(C_PackageState) as C_PackageState).registration_number
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(_cycle.remaining_customer_events == 1)
 	_transition(DayTransitionRequest.Kind.START_SHIFT)
 	assert(not DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
@@ -107,17 +107,17 @@ func _run() -> void:
 	assert(dialogue_context.schedule_non_delivery_complaint())
 	assert(dialogue_context.enter_aggressive())
 	assert((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.AGGRESSIVE)
-	ECS.world.process(third.definition.aggressive_seconds, "GamePlay")
-	ECS.world.process(third.definition.leaving_seconds, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, third.definition.aggressive_seconds)
+	GameTimeFixture.gameplay(ECS.world, third.definition.leaving_seconds)
 	# Результат испытания ухода применяется до следующего удаления клиента из обслуживания.
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(_cycle.remaining_customer_events == 0)
 	assert(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
 	_transition(DayTransitionRequest.Kind.FINISH_SHIFT)
 	assert(WalletService.current().completed_days == 1)
 	_transition(DayTransitionRequest.Kind.SLEEP)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(_cycle.day_index == 2 and _cycle.phase == C_DayCycle.Phase.MORNING)
 	assert(third.complaint.outcome == CustomerComplaint.Outcome.CONFIRMED)
 	assert(second.complaint.outcome == CustomerComplaint.Outcome.CONFIRMED)
@@ -145,12 +145,12 @@ func _transition(kind: DayTransitionRequest.Kind) -> void:
 	request.expected_day = _cycle.day_index
 	request.expected_phase = _cycle.phase
 	assert(DayPhaseService.submit(request))
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 
 
 func _wait_for_customer() -> E_NpcCharacter:
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		var customer: E_NpcCharacter = CustomerFlowQueries.waiting_customer()
 		if customer != null:

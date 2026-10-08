@@ -12,6 +12,9 @@ static func current() -> C_District:
 	if not is_instance_valid(ECS.world):
 		return null
 	if _lookup_world != ECS.world or not is_instance_valid(_lookup_world):
+		# Static query recipes retain Component scripts; release them at world handoff/exit.
+		if not ECS.world_changed.is_connected(_clear_lookup):
+			ECS.world_changed.connect(_clear_lookup)
 		_lookup_world = ECS.world
 		_session_reference = null
 		_session_query = QueryBuilder.new(_lookup_world).with_all([C_District])
@@ -88,4 +91,13 @@ static func recipient_for(recipient_key: StringName) -> NpcRecord:
 			if person.death_day == 0 and person.recipient_key == recipient_key:
 				return person
 	return null
+#endregion
+
+#region Query cache lifetime
+static func _clear_lookup(_next_world: World) -> void:
+	# The callback belongs to this cache lifetime, not the lifetime of the ECS autoload.
+	ECS.world_changed.disconnect(_clear_lookup)
+	_lookup_world = null
+	_session_query = null
+	_session_reference = null
 #endregion

@@ -3,7 +3,7 @@ extends Component
 class_name C_DayCycle
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.
-const SAVE_FIELDS: Array[String] = ["phase", "day_index"]
+const SAVE_FIELDS: Array[String] = ["phase", "day_index", "clock", "shift_start_tick", "shift_end_tick"]
 
 enum Phase {
 	MORNING,
@@ -29,8 +29,16 @@ enum Phase {
 @export_range(0.0, 86400.0, 1.0, "or_greater") var minimum_shift_seconds: float = 0.0
 ## Дополнительно требует начала всех незавершённых визитов, назначенных к текущему дню.
 @export var require_all_planned_arrivals: bool = false
-## Временной счётчик текущей смены в секундах; утро сбрасывает его.
-var shift_elapsed_seconds: float = 0.0
+## Owned clock value; assignment copies exported state so GECS cannot alias prefab clock Resources.
+## Only S_GameTime advances the live ticks/remainder; transient step/pause state starts fresh.
+@export var clock: GameClock = GameClock.new():
+	set(clock_value):
+		assert(clock_value != null, "DayCycle requires an owned clock value")
+		clock = clock_value.duplicate() as GameClock
+## Elapsed timestamp at shift start, or -1 before the first active shift.
+@export var shift_start_tick: int = -1
+## Captured shift end timestamp, or -1 while the shift is active.
+@export var shift_end_tick: int = -1
 ## Разрешает переход из ночи в утро после успешной подготовки и записи сохранения.
 var night_ready: bool = true
 ## Единственный ожидающий запрос; система извлекает его перед повторной проверкой.

@@ -210,3 +210,12 @@ Do not run every suite after ordinary edits. See `AGENTS.md` for cadence.
 - Every physically created package receives a hidden `C_Package.history_id` formatted as `<day>-<day-local number>-<5-char diagnostic code>`. The code is reversible: hazard class, physical size class, and mass in 0.1 kg encoded as three base36 characters. Do not show this ID in customer dialogue or the Terminal registry; it is reserved for package history/debugging.
 - Package-pickup Customer events default to `requires_registered_package = true`: their NPC does not spawn until the requested Package has an active registration record, and blocked unregistered visits do not prevent shift completion. Events with another authored NPC purpose may explicitly opt out.
 - On the next Morning, a due package-pickup visit that never became eligible because its Package is still unregistered is closed as LOST with `LossCause.MISSED_REGISTRATION` without spawning the NPC. R10 charges the dedicated data-driven missed-registration settlement (default 300%), not the cheaper honest LOST settlement (120%). Registered unresolved packages, not-yet-due visits, and opt-out events are not affected.
+
+## Game time and decision seeds
+
+The Time domain owns one durable GameClock aggregate inside C_DayCycle. S_GameTime alone advances
+microsecond ticks/remainder; calendar transitions retain their existing player-driven authority.
+NPC cadence consumes the session timestamp and persists active interval/sample ticks in NpcRecord;
+C_NpcDecision holds only the captured transient native interval. Physics frames/deltas remain native
+contracts. Pure DecisionRandomRules uses versioned UTF-8 length framing/SHA-256 and the pinned Godot
+RNG; sequences advance only at domain commits. See [the time/seed contract](../docs/game_time.md).

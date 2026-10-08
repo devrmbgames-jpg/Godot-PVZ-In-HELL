@@ -178,8 +178,8 @@ func _run() -> void:
 		request.expected_day = cycle.day_index
 		request.expected_phase = cycle.phase
 		assert(DayPhaseService.submit(request))
-		ECS.world.process(1.0 / 60.0, "GamePlay")
-	ECS.world.process(1.0 / 60.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
+	GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 	assert(DayPhaseQueries.current().day_index == 2)
 
 	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
@@ -192,7 +192,7 @@ func _run() -> void:
 		stored.global_position = Vector3(-10, 1, parcel_index * 2)
 	for tick_index: int in 45:
 		await get_tree().physics_frame
-		ECS.world.process(1.0 / 60.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 	assert(ECS.world.query.with_all([C_Package]).execute().size() == 16)
 	assert((first as Node as Node3D).global_position.is_equal_approx(previous_location))
 	assert(_has_active_number(registry, 1))

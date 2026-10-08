@@ -17,14 +17,21 @@ static func release(npc: Entity) -> void:
 	var definition: DEF_NpcRemains = state.definition
 	if definition.meat_scene == null or definition.meat_piece_count < 1 or definition.meat_piece_count > DEF_NpcRemains.MAX_MEAT_PIECES:
 		return
+	# Lazy queue installation crosses a structural boundary; capture calendar/seed before it.
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	assert(cycle != null, "NPC remains require the session calendar")
+	var world_seed: int = cycle.clock.world_seed
+	var decision_day: int = cycle.day_index
 	var queue: C_LootDrops = LootDropService.current()
 	if queue == null:
 		return
 	var scenes: Array[PackedScene] = []
 	for index: int in definition.meat_piece_count:
 		scenes.append(definition.meat_scene)
-	var random: RandomNumberGenerator = RandomNumberGenerator.new()
-	random.seed = hash(npc.id)
+	var random: RandomNumberGenerator = DecisionRandomRules.generator(
+		world_seed, ActorIdentityRules.key_for(npc, ECS.world.get_parent()),
+		decision_day, "npc/remains",
+	)
 	if definition.loot_scene != null and random.randf() < clampf(definition.loot_chance, 0.0, 1.0):
 		scenes.append(definition.loot_scene)
 	var items: Array[Entity] = LootDropService.prepare(scenes, true)

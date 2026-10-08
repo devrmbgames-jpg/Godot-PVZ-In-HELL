@@ -24,7 +24,7 @@ func _run() -> void:
 	_actor = _level.get_node("Entityes/Player") as Entity
 	(_actor as Node).set_physics_process(false)
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
@@ -91,7 +91,7 @@ func _run() -> void:
 #region Ожидание и тестовое размещение
 func _waiting_customer() -> E_NpcCharacter:
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		var customer: E_NpcCharacter = CustomerFlowQueries.waiting_customer()
 		if customer != null:

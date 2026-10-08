@@ -173,7 +173,7 @@ func _main_customer() -> void:
 	context.end()
 	var state: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 	assert(state.phase == C_Challenge.Phase.ACTIVE)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(ECS.world.query.with_all([C_FloorHazard]).execute().size() == 1)
 	assert(level.get_node("Entityes/Props/FloorSafeBox1") is RigidBody3D)
 	assert(level.get_node("Entityes/Props/FloorSafeBox2") is RigidBody3D)
@@ -187,9 +187,9 @@ func _main_customer() -> void:
 
 		await get_tree().process_frame
 	assert(debug.text.contains("Пол:") and debug.text.contains("Таймер урона"), "Floor debug must show contact and damage clock: " + debug.text)
-	ECS.world.process(state.definition.timeout_seconds, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, state.definition.timeout_seconds)
 	assert(state.result == ChallengeResult.Type.SUCCESS)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(ECS.world.query.with_all([C_FloorHazard]).execute().is_empty())
 	assert(visit.challenge_result == &"success")
 	level.free()

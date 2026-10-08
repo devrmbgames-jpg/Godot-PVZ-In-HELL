@@ -20,7 +20,9 @@ static func prepare_day(day_index: int) -> void:
 		var settings: DEF_District = district.definition
 		var minimum: int = clampi(settings.terminal_delivery_minimum, 0, 3)
 		var maximum: int = clampi(settings.terminal_delivery_maximum, minimum, 3)
-		district.terminal_offer_target = _random("terminal/%d" % day_index).randi_range(minimum, maximum)
+		district.terminal_offer_target = GameTimeQueries.decision(
+			String(settings.key), day_index, "delivery/terminal_count",
+		).randi_range(minimum, maximum)
 	if flow == null or registry == null:
 		return
 
@@ -41,6 +43,7 @@ static func prepare_day(day_index: int) -> void:
 			else:
 				personal_count += 1
 	var states: Dictionary[String, C_PackageState] = PackageQueries.live_states()
+	# The persisted authored queue owns order, including the first valid claim for duplicate package cases.
 	for visit: CustomerVisit in flow.visits:
 		if claimed.has(visit.package_id) or district.delivery_considered.has(String(visit.visit_id)):
 			continue
@@ -51,7 +54,11 @@ static func prepare_day(day_index: int) -> void:
 			continue
 		district.delivery_considered.append(String(visit.visit_id))
 		var personal: bool = personal_count < district.definition.personal_delivery_daily_minimum
-		personal = (personal or _random("personal/%d/%s" % [day_index, visit.visit_id]).randf() < district.definition.personal_delivery_probability) and not NpcSocialService.distrusts_player(person)
+		var personal_roll: float = GameTimeQueries.decision(
+			String(visit.visit_id), day_index, "delivery/personal",
+		).randf()
+		personal = (personal or personal_roll < district.definition.personal_delivery_probability) \
+			and not NpcSocialService.distrusts_player(person)
 		if personal:
 			_create(district, visit, person, entry, day_index, NpcHomeDelivery.Source.PERSONAL, personal_count == 0)
 			claimed[visit.package_id] = true
@@ -138,7 +145,9 @@ static func decline(job_id: StringName) -> bool:
 	job.status = NpcHomeDelivery.Status.DECLINED
 	if job.source == NpcHomeDelivery.Source.PERSONAL:
 		var visit: CustomerVisit = CustomerFlowQueries.find_visit(job.visit_id)
-		var delay: int = _random("return/" + String(job.job_id)).randi_range(PERSONAL_DELAY_MIN, PERSONAL_DELAY_MAX)
+		var delay: int = GameTimeQueries.decision(
+			String(job.job_id), job.day_index, "delivery/return_delay",
+		).randi_range(PERSONAL_DELAY_MIN, PERSONAL_DELAY_MAX)
 		visit.home_delivery_declined = true
 		visit.next_followup_day = job.day_index + delay
 		visit.arrival_day = visit.next_followup_day
@@ -182,7 +191,9 @@ static func _create(district: C_District, visit: CustomerVisit, person: NpcRecor
 	job.status = NpcHomeDelivery.Status.OFFERED
 	job.base_bonus = maxi(0, district.definition.terminal_delivery_bonus if source == NpcHomeDelivery.Source.TERMINAL and district.definition.terminal_delivery_bonus >= 0 else visit.payment)
 	job.bonus = job.base_bonus
-	job.bargain_roll = _random("bargain/" + String(job.job_id)).randf()
+	job.bargain_roll = GameTimeQueries.decision(
+		String(job.job_id), job.day_index, "delivery/bargain",
+	).randf()
 	district.home_deliveries.append(job)
 	return job
 
@@ -195,8 +206,4 @@ static func _finish_visit(visit: CustomerVisit) -> void:
 		var cycle: C_DayCycle = DayPhaseQueries.current()
 		CustomerVisitLifecycle.finish(visit, cycle.day_index)
 
-static func _random(seed_text: String) -> RandomNumberGenerator:
-	var generator: RandomNumberGenerator = RandomNumberGenerator.new()
-	generator.seed = seed_text.hash()
-	return generator
 #endregion

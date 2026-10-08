@@ -25,6 +25,17 @@ func test_both_hosts_register_once_and_release_world_on_exit() -> void:
 		for frame: int in STARTUP_FRAMES:
 			await get_tree().physics_frame
 		assert_eq(world.query.with_all([C_DayCycle]).execute().size(), 1)
+		var clock_owners: int = 0
+		var storage_owners: int = 0
+		for scheduled_owner: System in world.systems:
+			if scheduled_owner is S_GameTime:
+				assert_eq(scheduled_owner.group, "Clock")
+				clock_owners += 1
+			if scheduled_owner is S_NightSave:
+				assert_eq(scheduled_owner.group, "Storage")
+				storage_owners += 1
+		assert_eq(clock_owners, 1)
+		assert_eq(storage_owners, 1)
 		assert_eq(world.query.with_all([C_PlayerInputController]).execute().size(), 1)
 		assert_eq(world.query.with_all([C_Trader]).execute().size(), 1)
 		var seen: Dictionary[int, bool] = {}

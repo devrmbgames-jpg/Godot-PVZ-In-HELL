@@ -1,20 +1,21 @@
 extends Node
 ## Сценарий физического пути к авторской кабине осмотра и возврата коробки через NavigationAgent.
 
+const MAIN: PackedScene = preload("res://content/scenes/main_level.tscn")
 const FRAME_DELTA: float = 1.0 / 60.0
 const MAX_FRAMES: int = 2400
 const INSPECTION_SECONDS: float = 1.0
 
 var _level: Node
 
-
+#region Smoke lifecycle
 func _ready() -> void:
 	_run.call_deferred()
 
 
-## Создаёт отдельный визит и проверяет реальный путь в кабину с временно занятой коробкой.
+## Creates the real host and releases it after the awaited scenario has released its local state.
 func _run() -> void:
-	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
+	_level = MAIN.instantiate()
 	_level.set("autosave_path", "")
 	add_child(_level)
 	_level.set_physics_process(false)
@@ -22,6 +23,16 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
+	await _exercise_inspection()
+	_level.free()
+	_level = null
+	await get_tree().process_frame
+	print("Customer inspection actual main native booth walk parcel return refusal smoke PASS")
+	get_tree().quit.call_deferred()
+#endregion
+
+#region Native inspection scenario
+func _exercise_inspection() -> void:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
@@ -57,13 +68,16 @@ func _run() -> void:
 	ECS.world.add_entity(parcel, null, false)
 	(parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState.Registration.REGISTERED
 	CustomerParcelAssignment.bind_parcel(customer, visit)
-	assert(CustomerFlowService._resolve_delivery(customer, visit, parcel, null) == PackageDeliveryCheck.Result.READY)
+	var delivery_result: PackageDeliveryCheck.Result = CustomerFlowService._resolve_delivery(
+		customer, visit, parcel, null,
+	)
+	assert(delivery_result == PackageDeliveryCheck.Result.READY)
 	assert(agent.phase == C_CustomerAgent.Phase.GOING_TO_BOOTH)
 
 	var visited: bool = false
 	for frame: int in MAX_FRAMES:
 		ECS.world.process(FRAME_DELTA, "Physics")
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if agent.phase == C_CustomerAgent.Phase.INSPECTING:
 			visited = true
@@ -80,9 +94,4 @@ func _run() -> void:
 	assert(body.global_position.distance_to(counter.waiting_position()) < 0.5)
 	assert(PhysicalSlotService.relationship(parcel) == null)
 	assert(not (parcel as Node as RigidBody3D).freeze)
-	ECS.world.purge(false)
-	_level.free()
-	ECS.world = null
-	await get_tree().process_frame
-	print("Customer inspection actual main native booth walk parcel return refusal smoke PASS")
-	get_tree().quit.call_deferred()
+#endregion

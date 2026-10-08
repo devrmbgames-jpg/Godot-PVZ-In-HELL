@@ -62,5 +62,4 @@ func _decide(actor: E_DistrictNpc, decision: C_NpcDecision) -> void:
 			_world.emit_event(NpcRoleInterruptionRequest.EVENT, actor, interruption)
 	else:
 		decision.scheduled_delta = 0.0
-	decision.update_elapsed = 0.0
 #endregion

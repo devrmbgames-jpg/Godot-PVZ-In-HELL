@@ -6,11 +6,12 @@ extends "res://content/domains/npc/ai/tasks/bt_npc_action.gd"
 func _tick(_delta: float) -> Status:
 	if not _claim("Выбрать прогулку"):
 		return FAILURE
-	_awareness.idle_elapsed = 0.0
-	_person.activity_sequence += 1
 	var destination: DEF_DistrictPlace = NpcActivityService.choose(_actor, _person)
 	if destination == null:
 		return FAILURE
+	# A preview without an eligible destination does not consume the durable decision sequence.
+	_awareness.idle_elapsed = 0.0
+	_person.activity_sequence += 1
 	_person.goal_id = destination.key
 	NpcIntentArbiter.move_to(_actor, NpcActivityService.destination(destination), NpcDecisionService.ARRIVAL_DISTANCE, intent_owner)
 	return SUCCESS

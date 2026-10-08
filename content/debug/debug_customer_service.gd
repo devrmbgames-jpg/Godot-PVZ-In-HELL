@@ -50,8 +50,9 @@ static func create_visit(
 		else 0
 	)
 
-	var random: RandomNumberGenerator = RandomNumberGenerator.new()
-	random.seed = String(visit.visit_id).hash()
+	var random: RandomNumberGenerator = GameTimeQueries.decision(
+		String(visit.visit_id), cycle.day_index, "customer/initial",
+	)
 	visit.complaint_roll = random.randf()
 	visit.aggression_roll = random.randf()
 	visit.started = not arrive

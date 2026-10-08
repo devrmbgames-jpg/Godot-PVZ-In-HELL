@@ -28,7 +28,11 @@ static func react(body: E_DistrictNpc, actor: Entity, kind: NpcMemory.Kind, inci
 	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger if is_instance_valid(actor) else null
 	var predatory_player: bool = awareness.player_visible and is_instance_valid(actor) and actor.has_component(C_PlayerInputController) and HungerRules.sees_npcs_as_food(hunger)
 	var can_retreat: bool = predatory_player or health.current < health.value * person.profile.pursuit_health_reserve
-	var reaction: NpcMemory.Reaction = _choose(person.profile, kind, hash(str(person.npc_id) + ":" + str(incident)), can_retreat)
+	var roll: float = GameTimeQueries.decision(
+		String(person.npc_id), DayPhaseQueries.current().day_index,
+		"npc/social/%d/%s" % [kind, incident],
+	).randf()
+	var reaction: NpcMemory.Reaction = _choose(person.profile, kind, roll, can_retreat)
 	remember(person, actor, body, kind, incident, reaction)
 	apply_reaction(body, actor, reaction)
 	return reaction
@@ -82,7 +86,11 @@ static func remember_promise(person: NpcRecord, actor: Entity, body: E_DistrictN
 		if previous.incident_id == incident:
 			return
 
-	var reaction: NpcMemory.Reaction = _choose(person.profile, NpcMemory.Kind.BROKEN_PROMISE, hash(str(person.npc_id) + ":" + str(incident)))
+	var roll: float = GameTimeQueries.decision(
+		String(person.npc_id), DayPhaseQueries.current().day_index,
+		"npc/social/%d/%s" % [NpcMemory.Kind.BROKEN_PROMISE, incident],
+	).randf()
+	var reaction: NpcMemory.Reaction = _choose(person.profile, NpcMemory.Kind.BROKEN_PROMISE, roll)
 	remember(person, actor, body, NpcMemory.Kind.BROKEN_PROMISE, incident, reaction)
 	# Обещание принято игроком даже в тестовой сессии, где его физическое тело отсутствует.
 	person.memories.back().actor_id = &"player"
@@ -95,10 +103,7 @@ static func distrusts_player(person: NpcRecord) -> bool:
 				if job.job_id == memory.incident_id and job.source == NpcHomeDelivery.Source.PERSONAL:
 					return true
 	return false
-static func _choose(profile: DEF_NpcProfile, kind: NpcMemory.Kind, seed_value: int, can_retreat: bool = false) -> NpcMemory.Reaction:
-	var random: RandomNumberGenerator = RandomNumberGenerator.new()
-	random.seed = seed_value
-	var roll: float = random.randf()
+static func _choose(profile: DEF_NpcProfile, kind: NpcMemory.Kind, roll: float, can_retreat: bool = false) -> NpcMemory.Reaction:
 	if kind == NpcMemory.Kind.HELP:
 		return NpcMemory.Reaction.ACCEPT
 	if kind == NpcMemory.Kind.SUBMISSION:

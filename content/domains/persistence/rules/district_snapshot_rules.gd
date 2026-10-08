@@ -6,10 +6,13 @@ class_name DistrictSnapshotRules
 ## Проверяет личности, размещение, адреса, профили, память и вечерние обязательства.
 static func valid(records: Dictionary[String, Dictionary], components: Dictionary[String, Dictionary], morning_day: int) -> bool:
 	var district: C_District = null
+	var calendar: C_DayCycle = null
 	var flow: C_CustomerFlow = null
 	var identities: Dictionary[StringName, String] = {}
 	for key: String in components:
 		var fields: Dictionary = components[key]
+		if fields.has(C_DayCycle):
+			calendar = fields[C_DayCycle] as C_DayCycle
 		if fields.has(C_District):
 			if district != null:
 				return false
@@ -25,6 +28,8 @@ static func valid(records: Dictionary[String, Dictionary], components: Dictionar
 			identities[identity.npc_id] = key
 	if district == null:
 		return identities.is_empty()
+	if calendar == null:
+		return false
 	if district.definition == null or district.prepared_morning > morning_day or district.prepared_morning < 0 or district.next_incident < 1 or district.next_service_order < 1:
 		return false
 
@@ -38,6 +43,11 @@ static func valid(records: Dictionary[String, Dictionary], components: Dictionar
 		if person == null or person.npc_id.is_empty() or people.has(person.npc_id) or person.profile == null or not district.definition.profiles.has(person.profile) or not person.profile.valid_rules() or person.display_name.is_empty():
 			return false
 		if not String(person.npc_id).begins_with("npc/") or not String(person.npc_id).get_slice("/", 1).is_valid_int():
+			return false
+
+		if person.activity_sequence < 0 or person.cadence_elapsed_ticks < 0 \
+				or person.cadence_sample_tick < -1 \
+				or person.cadence_sample_tick > calendar.clock.elapsed_ticks:
 			return false
 
 		sequence = maxi(sequence, int(String(person.npc_id).get_slice("/", 1)))

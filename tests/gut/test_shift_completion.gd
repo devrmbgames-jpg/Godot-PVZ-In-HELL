@@ -5,6 +5,7 @@ var _world: World
 var _owner: Entity
 var _cycle: C_DayCycle
 var _flow: C_CustomerFlow
+var _clock_owner: S_GameTime
 var _system: S_DayPhase
 
 
@@ -20,6 +21,9 @@ func before_each() -> void:
 	_cycle = _owner.get_component(C_DayCycle) as C_DayCycle
 	_flow = _owner.get_component(C_CustomerFlow) as C_CustomerFlow
 	_cycle.phase = C_DayCycle.Phase.DAY
+	_cycle.shift_start_tick = 0
+	_clock_owner = S_GameTime.new()
+	_world.add_system(_clock_owner)
 	_system = S_DayPhase.new()
 	_world.add_system(_system)
 
@@ -65,7 +69,7 @@ func test_independent_gates_combine_and_unregistered_planned_arrivals_are_explic
 	_cycle.minimum_shift_seconds = 240.0
 	assert_eq(DayPhaseService.finish_blockers(_cycle).size(), 1)
 	assert_false(DayPhaseService.submit(_request(DayTransitionRequest.Kind.FINISH_SHIFT)))
-	_cycle.shift_elapsed_seconds = 240.0
+	_cycle.clock.elapsed_ticks = GameTimeRules.duration_ticks(240.0)
 	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Receipt without registration cannot enable an unreachable arrival")
 	receipt.number = 1
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
@@ -96,26 +100,27 @@ func test_live_actionable_visits_override_stale_derived_event_count() -> void:
 ## Отложенная команда повторно проверяет условия; часы идут только во время дневной смены.
 func test_queued_finish_revalidates_and_clock_advances_only_during_shift() -> void:
 	_cycle.minimum_shift_seconds = 60.0
-	_cycle.shift_elapsed_seconds = 60.0
+	_cycle.clock.elapsed_ticks = GameTimeRules.duration_ticks(60.0)
 	assert_true(DayPhaseService.submit(_request(DayTransitionRequest.Kind.FINISH_SHIFT)))
 	var late: CustomerVisit = _visit(1)
+	_clock_owner.process([_owner], [[_cycle]], 5.0)
 	_system.process([_owner], [[_cycle]], 5.0)
 	assert_eq(_cycle.phase, C_DayCycle.Phase.DAY, "Arrival after submission blocks commit")
-	assert_eq(_cycle.shift_elapsed_seconds, 65.0)
+	assert_eq(GameTimeQueries.shift_seconds(_cycle), 65.0)
 	assert_null(_cycle.pending_transition)
 	late.finished = true
 	assert_true(DayPhaseService.submit(_request(DayTransitionRequest.Kind.FINISH_SHIFT)))
 	_system.process([_owner], [[_cycle]], 0.0)
 	_system.process([_owner], [[_cycle]], 30.0)
-	assert_eq(_cycle.shift_elapsed_seconds, 65.0)
+	assert_eq(GameTimeQueries.shift_seconds(_cycle), 65.0)
 	_cycle.phase = C_DayCycle.Phase.MORNING
 	assert_true(DayPhaseService.submit(_request(DayTransitionRequest.Kind.START_SHIFT)))
 	_system.process([_owner], [[_cycle]], 2.0)
 	_system.cmd.execute()
 	assert_eq(_cycle.phase, C_DayCycle.Phase.DAY)
-	assert_eq(_cycle.shift_elapsed_seconds, 0.0)
+	assert_eq(GameTimeQueries.shift_seconds(_cycle), 0.0)
 	_system.process([_owner], [[_cycle]], NAN)
-	assert_eq(_cycle.shift_elapsed_seconds, 0.0)
+	assert_eq(GameTimeQueries.shift_seconds(_cycle), 0.0)
 
 
 #endregion

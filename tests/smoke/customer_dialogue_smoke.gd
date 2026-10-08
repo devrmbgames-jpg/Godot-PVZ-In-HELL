@@ -22,7 +22,7 @@ func _run() -> void:
 	_cycle = DayPhaseQueries.current()
 
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
@@ -48,7 +48,7 @@ func _run() -> void:
 	assert(get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP).is_empty())
 
 	var leaving_visit: CustomerVisit = CustomerFlowQueries.find_visit(leaving_agent.visit_id)
-	ECS.world.process(leaving_visit.definition.leaving_seconds, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, leaving_visit.definition.leaving_seconds)
 	assert(PackageRegistrationService.register_package(glass).outcome == PackageScanResult.Outcome.REGISTERED)
 	var dead_customer: E_NpcCharacter = await _wait_for_customer()
 	assert(CustomerDialogueService.request_open(actor, dead_customer))
@@ -73,12 +73,12 @@ func _transition(kind: DayTransitionRequest.Kind) -> void:
 	request.expected_day = _cycle.day_index
 	request.expected_phase = _cycle.phase
 	assert(DayPhaseService.submit(request))
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 
 
 func _wait_for_customer() -> E_NpcCharacter:
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		var customer: E_NpcCharacter = CustomerFlowQueries.waiting_customer()
 		if customer != null:

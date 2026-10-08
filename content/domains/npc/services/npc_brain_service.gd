@@ -15,11 +15,7 @@ static func install(actor: E_DistrictNpc) -> void:
 	if not actor.has_component(C_NpcAwareness):
 		actor.add_component(C_NpcAwareness.new())
 	if not actor.has_component(C_NpcDecision):
-		var decision: C_NpcDecision = C_NpcDecision.new()
-		var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
-		var district: C_District = NpcPopulationQueries.current()
-		decision.update_elapsed = float(abs(hash(identity.npc_id)) % 10) / 10.0 * district.definition.decision_interval
-		actor.add_component(decision)
+		actor.add_component(C_NpcDecision.new())
 
 	var combat: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
 	if combat != null:

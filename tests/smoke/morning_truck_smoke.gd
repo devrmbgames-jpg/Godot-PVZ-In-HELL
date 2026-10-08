@@ -70,7 +70,7 @@ func _unload_and_finish(level: Node3D, zone: E_ReceivingZone) -> void:
 	var unloaded: Dictionary[String, bool] = {}
 	for frame: int in MAX_FRAMES:
 		await get_tree().physics_frame
-		ECS.world.process(1.0 / 60.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 		for parcel: Entity in ECS.world.query.with_all([C_Package]).execute():
 			var identity: C_Package = parcel.get_component(C_Package) as C_Package
 			if unloaded.has(identity.package_id):
@@ -96,10 +96,10 @@ func _unload_and_finish(level: Node3D, zone: E_ReceivingZone) -> void:
 	_check(WorldSnapshotService.restore(finished, level), "repeated restore does not duplicate cargo")
 	for frame: int in 30:
 		await get_tree().physics_frame
-		ECS.world.process(1.0 / 60.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 	_check(_count() == 5 and state.pending.is_empty(), "long morning keeps exactly five boxes")
 	DayPhaseQueries.current().phase = C_DayCycle.Phase.DAY
-	ECS.world.process(1.0 / 60.0, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 	for frame: int in MAX_FRAMES:
 		await get_tree().physics_frame
 		if zone.get_truck() == null:

@@ -262,9 +262,12 @@ script = ExtResource("Inventory_effect")
 [node name="O_InventoryLifecycle" type="Node" parent="Systems/GamePlay" unique_id=1404685658]
 script = ExtResource("Inventory_lifecycle")
 
-[node name="S_NightSave" type="Node" parent="Systems/GamePlay" unique_id=994431759]
+[node name="Storage" type="Node" parent="Systems"]
+script = ExtResource("3_ahxau")
+
+[node name="S_NightSave" type="Node" parent="Systems/Storage" unique_id=994431759]
 script = ExtResource("Night_save_system")
-group = &"GamePlay"
+group = &"Storage"
 
 [node name="S_OrderDelivery" type="Node" parent="Systems/GamePlay" unique_id=2137672552]
 script = ExtResource("Order_delivery_system")

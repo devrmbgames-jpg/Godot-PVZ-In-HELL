@@ -29,7 +29,7 @@ func _run() -> void:
 	var receiver: O_CustomerChallengeOutcome = _level.get_node("World/Systems/GamePlay/O_CustomerChallengeOutcome") as O_CustomerChallengeOutcome
 	receiver.escalation_requested.connect(_on_escalation)
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
@@ -49,11 +49,11 @@ func _run() -> void:
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
 	assert(DayPhaseService.submit(request))
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	var first: E_NpcCharacter = await _wait_for_customer()
 	var first_state: C_Challenge = first.get_component(C_Challenge) as C_Challenge
 	await _show_demand(first)
-	ECS.world.process(first_state.definition.timeout_seconds + FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, first_state.definition.timeout_seconds + FRAME_DELTA)
 	assert(first_state.phase == C_Challenge.Phase.INACTIVE, "Reading the demand must not consume the timer")
 	# Закрытие до подтверждения оставляет требование доступным следующему разговору.
 	(get_tree().get_nodes_in_group(CustomerDialogueService.ACTIVE_GROUP)[0] as CustomerDialoguePanel).close_dialogue()
@@ -63,14 +63,14 @@ func _run() -> void:
 	assert(first_state.phase == C_Challenge.Phase.ACTIVE)
 	assert(InteractionControlFocus.current(_actor) != InteractionControlFocus.Priority.MODAL)
 	await _use_switch()
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(first_state.result == ChallengeResult.Type.SUCCESS)
 
 	var first_visit: CustomerVisit = _visit(first)
 	assert(first_visit.challenge_satisfaction_delta == 10)
 	assert(_escalations == 0)
 	assert(CustomerFlowService.deny(first_visit.visit_id))
-	ECS.world.process(first_visit.definition.leaving_seconds, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, first_visit.definition.leaving_seconds)
 	var glass: Entity = PackageQueries.find_live_package("base_supply:1:glass")
 	assert(PackageRegistrationService.register_package(glass).outcome == PackageScanResult.Outcome.REGISTERED)
 	var second: E_NpcCharacter = await _wait_for_customer()
@@ -78,18 +78,18 @@ func _run() -> void:
 
 	var second_state: C_Challenge = second.get_component(C_Challenge) as C_Challenge
 	assert((second_state.definition.condition as DEF_LightChallengeCondition).required_enabled)
-	ECS.world.process(second_state.definition.timeout_seconds, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, second_state.definition.timeout_seconds)
 	assert(second_state.result == ChallengeResult.Type.FAILURE)
 	assert(_visit(second).challenge_satisfaction_delta == -30)
 	assert(_escalations == 1)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(_escalations == 1)
 
 	var second_visit: CustomerVisit = _visit(second)
 	assert(CustomerFlowService.deny(second_visit.visit_id))
 	# Выполняющееся столкновение завершается по авторскому сроку перед проверкой ухода.
-	ECS.world.process(second_visit.definition.aggressive_seconds, "GamePlay")
-	ECS.world.process(second_visit.definition.leaving_seconds, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, second_visit.definition.aggressive_seconds)
+	GameTimeFixture.gameplay(ECS.world, second_visit.definition.leaving_seconds)
 	var clothes: Entity = PackageQueries.find_live_package("base_supply:1:clothes")
 	assert(PackageRegistrationService.register_package(clothes).outcome == PackageScanResult.Outcome.REGISTERED)
 	var third: E_NpcCharacter = await _wait_for_customer()
@@ -98,7 +98,7 @@ func _run() -> void:
 	assert(third_state.definition.completion == DEF_Challenge.Completion.UNTIL_DEPARTURE)
 	assert(ChallengePresentation.text_for(_actor).contains("до ухода"))
 	await _use_switch()
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(third_state.phase == C_Challenge.Phase.ACTIVE, "Correct light must not end the visit challenge early")
 	await get_tree().process_frame
 
@@ -107,9 +107,9 @@ func _run() -> void:
 	assert(debug.text.contains("Свет:"))
 	assert(debug.text.contains("До физического ухода"))
 	assert(CustomerFlowService.voluntary_refuse(third))
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(third_state.phase == C_Challenge.Phase.ACTIVE, "Walking away still belongs to the visit")
-	ECS.world.process(_visit(third).definition.leaving_seconds, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, _visit(third).definition.leaving_seconds)
 	assert(third_state.result == ChallengeResult.Type.SUCCESS)
 	assert(_visit(third).challenge_result == &"success")
 	assert(_escalations == 1)
@@ -124,7 +124,7 @@ func _run() -> void:
 #region Ожидание встречи и тестовый ввод
 func _wait_for_customer() -> E_NpcCharacter:
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		var customer: E_NpcCharacter = CustomerFlowQueries.waiting_customer()
 		if customer != null:

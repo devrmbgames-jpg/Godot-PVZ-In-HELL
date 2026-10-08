@@ -21,7 +21,7 @@ func _run() -> void:
 	var actor: Entity = _level.get_node("Entityes/Player") as Entity
 	(actor as Node).set_physics_process(false)
 	for frame: int in SUPPLY_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if PackageQueries.find_live_package("base_supply:1:oil") != null:
 			break
@@ -38,7 +38,7 @@ func _run() -> void:
 
 	var npc: E_NpcCharacter = null
 	for frame: int in SUPPLY_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		npc = ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_NpcCharacter
 		if npc != null:
@@ -50,7 +50,7 @@ func _run() -> void:
 	assert(npc.has_component(C_Death))
 	assert((npc.get_component(C_NpcRemains) as C_NpcRemains).released)
 	assert(not (npc as Node as Node3D).visible)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(CustomerFlowQueries.customer_for(visit.visit_id) == null)
 	assert(visit.customer_dead and visit.defeated_by_player)
 

@@ -4,7 +4,9 @@ class_name NpcScheduleRules
 
 #region Authored schedule calculations
 ## Chooses the stable goal identity for one authored location and personality.
-static func goal_for(definition: DEF_District, person: NpcRecord, location: DEF_NpcSchedule.Location) -> StringName:
+static func goal_for(definition: DEF_District, person: NpcRecord,
+		location: DEF_NpcSchedule.Location, world_seed: int, day: int,
+		phase: C_DayCycle.Phase) -> StringName:
 	if location == DEF_NpcSchedule.Location.HOME:
 		return person.home_id
 	if location == DEF_NpcSchedule.Location.OUTSIDE:
@@ -23,7 +25,12 @@ static func goal_for(definition: DEF_District, person: NpcRecord, location: DEF_
 			activities.append(place.key)
 	if activities.is_empty():
 		return person.portal_id
-	return activities[abs(hash(person.npc_id) + person.activity_sequence) % activities.size()]
+	activities.sort()
+	var random: RandomNumberGenerator = DecisionRandomRules.generator(
+		world_seed, String(person.npc_id), day, "npc/schedule/%d" % phase,
+		person.activity_sequence,
+	)
+	return activities[random.randi_range(0, activities.size() - 1)]
 
 
 ## Chooses participation after arriving at the captured authored goal.
