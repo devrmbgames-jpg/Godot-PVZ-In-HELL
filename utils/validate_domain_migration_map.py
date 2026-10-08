@@ -67,7 +67,7 @@ def validate_migration_map(root: Path = ROOT, map_path: Path | None = None) -> l
             text = active_path.read_text(encoding="utf-8")
             declared_uid = text.strip() if active_path.suffix == ".uid" else None
             if declared_uid is None:
-                header = text.splitlines()[0] if text else ""
+                header = text.partition("[deps]")[0] if active_path.suffix == ".import" else text.splitlines()[0] if text else ""
                 match = re.search(r'\buid="([^"]+)"', header)
                 declared_uid = match.group(1) if match else ""
             if declared_uid != row["uid"]:
@@ -84,11 +84,21 @@ def validate_migration_map(root: Path = ROOT, map_path: Path | None = None) -> l
             base = sources.get(source.removesuffix(".uid"))
             if base is None or row["target"] != base["target"] + ".uid" or any(row.get(key) != base.get(key) for key in ["owner", "role", "task"]):
                 errors.append(f"{source}: UID must follow its source asset with the same owner/task.")
+        elif source.endswith(".import"):
+            base = sources.get(source.removesuffix(".import"))
+            if base is None or row["target"] != base["target"] + ".import" or any(row.get(key) != base.get(key) for key in ["owner", "role"]):
+                errors.append(f"{source}: import sidecar must follow its source asset with the same owner/role.")
+            else:
+                active = root / source if (root / source).is_file() else root / row["target"]
+                if active.is_file():
+                    expected_source = source.removesuffix(".import") if (root / source).is_file() else row["target"].removesuffix(".import")
+                    if f'source_file="res://{expected_source}"' not in active.read_text(encoding="utf-8"):
+                        errors.append(f"{source}: import source_file must match its active authored asset.")
         elif (root / (source + ".uid")).is_file() and source + ".uid" not in sources:
             errors.append(f"{source}: source UID is missing from the migration map.")
     for legacy_root in plan.get("roots", []):
         for path in (root / "content" / legacy_root).rglob("*"):
-            if path.is_file() and not path.name.endswith(".import") and path.relative_to(root).as_posix() not in sources:
+            if path.is_file() and path.relative_to(root).as_posix() not in sources:
                 errors.append(f"{path.relative_to(root).as_posix()}: legacy gameplay file missing from the migration map.")
     return errors
 

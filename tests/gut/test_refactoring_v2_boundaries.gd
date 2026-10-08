@@ -212,9 +212,29 @@ func test_trace_is_bounded_detached_and_uses_explicit_identities() -> void:
 	assert_eq(snapshots_out[0]["correlation_id"], &"3")
 	snapshots_out[0]["reason"] = &"reader_mutation"
 	assert_eq(BoundaryTrace.snapshots(_target.id)[0]["reason"], &"fixture_reason")
-	assert_eq(BoundaryTrace.identity(_target), "fixture/target")
+	assert_eq(ActorIdentityRules.trace_key_for(_target), "fixture/target")
 	var package_identity: C_Package = C_Package.new()
 	package_identity.package_id = "shipment/stable"
 	_target.add_component(package_identity)
-	assert_eq(BoundaryTrace.identity(_target), "shipment/stable")
+	assert_eq(ActorIdentityRules.trace_key_for(_target), "shipment/stable")
+	assert_eq(ActorIdentityRules.key_for(_target, _world), "package/shipment/stable")
+
+	package_identity.package_id = "shipment/current"
+	assert_eq(ActorIdentityRules.trace_key_for(_target), "shipment/current",
+		"Shared lookup reads the actual domain field instead of a cached identity mirror")
+	_target.remove_component(C_Package)
+	var persistent_identity: C_PersistentIdentity = C_PersistentIdentity.new()
+	persistent_identity.key = "fixture/target"
+	_target.add_component(persistent_identity)
+	var npc_identity: C_NpcIdentity = C_NpcIdentity.new()
+	npc_identity.npc_id = &"person/stable"
+	_target.add_component(npc_identity)
+	assert_eq(ActorIdentityRules.trace_key_for(_target), "person/stable")
+	assert_eq(ActorIdentityRules.key_for(_target, _world), "fixture/target",
+		"NPC diagnostic identity does not change its existing persistent actor key")
+
+	_target.remove_component(C_NpcIdentity)
+	_target.remove_component(C_PersistentIdentity)
+	assert_eq(ActorIdentityRules.trace_key_for(_target), _target.id)
+	assert_eq(ActorIdentityRules.key_for(_target, _world), "runtime/" + _target.id)
 #endregion

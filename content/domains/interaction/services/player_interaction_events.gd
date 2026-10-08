@@ -25,6 +25,6 @@ static func publish(actor: Entity, target: Entity, kind: PlayerInteractionEvent.
 	BoundaryTrace.record(&"interaction.fact", event.operation_id,
 		BoundaryTraceEntry.Stage.COMPLETED,
 		StringName(String(PlayerInteractionEvent.Kind.keys()[kind]).to_lower()),
-		BoundaryTrace.identity(actor), BoundaryTrace.identity(target))
+		ActorIdentityRules.trace_key_for(actor), ActorIdentityRules.trace_key_for(target))
 	ECS.world.emit_event(PlayerInteractionEvent.EVENT, target, event)
 #endregion

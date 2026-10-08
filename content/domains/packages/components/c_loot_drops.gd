@@ -7,7 +7,7 @@ const SAVE_FIELDS: Array[String] = ["placement", "pending", "committed_batches"]
 
 #region Постоянные и временные данные
 ## Авторские позиции и ограничение стоимости проверки.
-@export var placement: DEF_ItemPlacement = preload("res://content/definitions/gameplay/def_item_placement_default.tres")
+@export var placement: DEF_ItemPlacement = preload("res://content/shared/definitions/def_item_placement_default.tres")
 ## Остаток фиксированных партий; удаление источника его не удаляет.
 var pending: Array[PendingLootDrop] = []
 ## Зафиксированные партии, включая полностью размещённые или употреблённые предметы.

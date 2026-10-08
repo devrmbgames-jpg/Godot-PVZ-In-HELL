@@ -246,6 +246,6 @@ static func _trace_result(
 	var reason: StringName = StringName(String(Status.keys()[status]).to_lower())
 	var target_id: String = String(item.key) if item != null else ""
 	BoundaryTrace.record(operation, operation_id, trace_stage, reason,
-		BoundaryTrace.identity(actor), target_id)
+		ActorIdentityRules.trace_key_for(actor), target_id)
 	return status
 #endregion

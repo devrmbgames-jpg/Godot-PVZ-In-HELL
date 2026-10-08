@@ -1,5 +1,5 @@
 {
-  "schema": 7,
+  "schema": 8,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -238,7 +238,7 @@
     },
     {
       "symbol": "C_PersistentIdentity",
-      "path": "res://content/components/persistence/c_persistent_identity.gd",
+      "path": "res://content/shared/components/c_persistent_identity.gd",
       "fields": [
         "key"
       ]
@@ -329,7 +329,6 @@
     }
   ],
   "snapshot_paths": [
-    "res://content/components/persistence/c_persistent_identity.gd",
     "res://content/domains/combat/components/c_damage_resistance.gd",
     "res://content/domains/combat/components/c_health.gd",
     "res://content/domains/combat/components/c_impact_protection.gd",
@@ -375,6 +374,7 @@
     "res://content/domains/packages/contracts/receiving_batch.gd",
     "res://content/domains/packages/definitions/def_delivery_morning_supply.tres::Books",
     "res://content/domains/packages/entities/package_b.tscn",
-    "res://content/domains/time/components/c_day_cycle.gd"
+    "res://content/domains/time/components/c_day_cycle.gd",
+    "res://content/shared/components/c_persistent_identity.gd"
   ]
 }

@@ -77,5 +77,39 @@ class MigrationMapTests(unittest.TestCase):
         self.assertTrue(any("original authored UID changed" in error for error in self._check()))
 
 
+    def test_import_sidecar_coverage_native_uid_and_completed_move(self) -> None:
+        source = "content/dialogue/person.dialogue"
+        target = "content/domains/npc/dialogue/person.dialogue"
+        asset = self.root / source
+        asset.parent.mkdir(parents=True)
+        asset.write_text("~ start\nHello\n=> END", encoding="utf-8")
+        sidecar = self.root / (source + ".import")
+        sidecar.write_text('[remap]\nuid="uid://original"\n\n[deps]\nsource_file="res://' + source + '"\n', encoding="utf-8")
+        self.plan["roots"].append("dialogue")
+        self.plan["files"].append(dict(source=source, target=target, owner="npc", role="dialogue", task="29"))
+        self.assertTrue(any("missing from the migration map" in error for error in self._check()))
+        sidecar_row = dict(source=source + ".import", target=target + ".import", owner="npc", role="dialogue", task="32", uid="uid://original")
+        self.plan["files"].append(sidecar_row)
+        self.assertEqual([], self._check())
+
+        destination = self.root / target
+        destination.parent.mkdir(parents=True)
+        asset.rename(destination)
+        sidecar.rename(self.root / sidecar_row["target"])
+        sidecar = self.root / sidecar_row["target"]
+        self.assertTrue(any("source_file must match" in error for error in self._check()))
+        text = sidecar.read_text(encoding="utf-8").replace(source, target)
+        sidecar.write_text(text, encoding="utf-8")
+        self.assertEqual([], self._check())
+        sidecar.write_text(text.replace("uid://original", "uid://replacement"), encoding="utf-8")
+        self.assertTrue(any("original authored UID changed" in error for error in self._check()))
+
+    def test_import_sidecar_cannot_target_a_different_owner_asset(self) -> None:
+        sidecar = self.root / (self.source + ".import")
+        sidecar.write_text('[remap]\nuid="uid://original"\n', encoding="utf-8")
+        self.plan["files"].append(dict(source=self.source + ".import", target="content/domains/npc/dialogue/other.dialogue.import", owner="npc", role="dialogue", task="32", uid="uid://original"))
+        self.assertTrue(any("import sidecar must follow" in error for error in self._check()))
+
+
 if __name__ == "__main__":
     unittest.main()

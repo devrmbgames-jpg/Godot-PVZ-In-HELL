@@ -60,3 +60,7 @@ No project-owned GDScript, authored runtime resource or scene behavior changed i
 ## Current / Next
 
 **DONE — PASS**, enforcement active before migration. Continue [29 — NPC/Customers](29_domain_npc_customers.md): resolve the declared hierarchy/BT/role/dialogue/implementation cycles, remove all 68 owning exemptions, move complete owners/UID/assets/references/save contracts, and run its Acceptance/Validation. Do not begin Phase 3; final authorized stop remains PASS 49.
+
+## Post-migration strict rerun
+
+2026-10-09 after complete task 32: strict dependency validator PASS with empty migration baseline and no legacy decomposition entries; all 16 horizontal roots absent. Strict dependency/layout are enforced by ordinary project structure validation. Final domain tooling fixtures 33/33 PASS. Identity/UID/shared responsibilities and native schema-8 acceptance evidence are owned by task 32.

@@ -35,7 +35,7 @@ Contract tests + профильные domain regressions.
 
 ## Result
 
-All five inventory slices 40.D/C/I/U/Q are DONE. [Boundary catalog](../../content/contracts/README.md)
+All five inventory slices 40.D/C/I/U/Q are DONE. [Boundary catalog](../../content/shared/contracts/README.md)
 classifies intent/fact/state payloads and records sole handlers, submit/result semantics,
 commit points, idempotency and regressions. Synchronous Commerce/outcome/quest APIs are preserved;
 no new bus/framework. Scheduled orchestration remains tasks 11–25.

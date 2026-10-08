@@ -29,7 +29,7 @@ func _solver(body: RigidBody3D) -> ItemPlacementSolver:
 	return solver
 
 func _policy() -> DEF_ItemPlacement:
-	var original: DEF_ItemPlacement = load("res://content/definitions/gameplay/def_item_placement_default.tres") as DEF_ItemPlacement
+	var original: DEF_ItemPlacement = load("res://content/shared/definitions/def_item_placement_default.tres") as DEF_ItemPlacement
 	var policy: DEF_ItemPlacement = original.duplicate() as DEF_ItemPlacement
 	policy.offsets = original.offsets.duplicate()
 	return policy
@@ -90,7 +90,7 @@ func test_candidate_seventeen_is_never_searched() -> void:
 	var result: ItemPlacementSolver.Result = _find(_solver(body), body, Vector3(0, 0.5, 0), policy)
 	assert_false(result.available)
 	assert_eq(result.attempts, 16)
-	assert_eq((load("res://content/definitions/gameplay/def_item_placement_default.tres") as DEF_ItemPlacement).offsets.size(), 16)
+	assert_eq((load("res://content/shared/definitions/def_item_placement_default.tres") as DEF_ItemPlacement).offsets.size(), 16)
 	body.free()
 
 ## Узкая опора под центром не поддерживает весь предмет; без пола лут не создаётся.
@@ -287,7 +287,7 @@ func test_manual_flush_revalidates_calendar_before_placement() -> void:
 func test_manual_flush_discards_retry_after_current_format_restore() -> void:
 	var previous: C_LootDrops = _pending_retry()
 	# Persistent snapshots reference authored policies, rather than the transient one-item budget fixture.
-	previous.placement = load("res://content/definitions/gameplay/def_item_placement_default.tres") as DEF_ItemPlacement
+	previous.placement = load("res://content/shared/definitions/def_item_placement_default.tres") as DEF_ItemPlacement
 	DayPhaseQueries.current().phase = C_DayCycle.Phase.MORNING
 	_loot_owner().command_buffer_flush_mode = System.FlushMode.MANUAL
 	_world.process(1.0, "GamePlay")

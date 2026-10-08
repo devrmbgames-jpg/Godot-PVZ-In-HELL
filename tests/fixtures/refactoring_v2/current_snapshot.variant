@@ -511,7 +511,7 @@
 "fields": {
 "key": "npc/1"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -560,7 +560,7 @@
 "fields": {
 "key": "npc/2"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -611,7 +611,7 @@
 "fields": {
 "key": "npc/3"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -660,7 +660,7 @@
 "fields": {
 "key": "npc/4"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -709,7 +709,7 @@
 "fields": {
 "key": "npc/5"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -758,7 +758,7 @@
 "fields": {
 "key": "npc/6"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -807,7 +807,7 @@
 "fields": {
 "key": "npc/7"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -856,7 +856,7 @@
 "fields": {
 "key": "npc/8"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -905,7 +905,7 @@
 "fields": {
 "key": "npc/9"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -954,7 +954,7 @@
 "fields": {
 "key": "npc/10"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -1003,7 +1003,7 @@
 "fields": {
 "key": "npc/11"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -1052,7 +1052,7 @@
 "fields": {
 "key": "npc/12"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -1091,7 +1091,7 @@
 "fields": {
 "key": "order/fixture/order/1"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -1186,7 +1186,7 @@
 "fields": {
 "key": "fixture/cart"
 },
-"type": "res://content/components/persistence/c_persistent_identity.gd"
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -1212,5 +1212,5 @@
 "scene": "res://content/domains/interaction/entities/anchorable_test_box.tscn"
 }]),
 "morning_day": 2,
-"version": 7
+"version": 8
 }

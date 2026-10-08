@@ -25,9 +25,9 @@ static func is_entity_scene_path(path: String) -> bool:
 	return _role_path_allowed(path, "entities")
 
 
-## Принимает authored Definition roles; legacy Shared resources переезжают в task 32.
+## Принимает authored Definition roles только в завершённых domain/shared roots.
 static func is_definition_path(path: String) -> bool:
-	return path.begins_with("res://content/definitions/") or _role_path_allowed(path, "definitions")
+	return _role_path_allowed(path, "definitions")
 
 
 static func _role_path_allowed(path: String, role: String) -> bool:

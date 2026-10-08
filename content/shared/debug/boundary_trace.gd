@@ -55,22 +55,6 @@ static func snapshots(target_id: String = "") -> Array[Dictionary]:
 	return snapshots_out
 
 
-## Resolves current domain identity; it never manufactures a NodePath or instance-ID key.
-static func identity(entity: Entity) -> String:
-	if entity == null or not is_instance_valid(entity):
-		return ""
-	var package_identity: C_Package = entity.get_component(C_Package) as C_Package
-	if package_identity != null:
-		return package_identity.package_id
-	var npc_identity: C_NpcIdentity = entity.get_component(C_NpcIdentity) as C_NpcIdentity
-	if npc_identity != null:
-		return String(npc_identity.npc_id)
-	var persistent_identity: C_PersistentIdentity = (
-		entity.get_component(C_PersistentIdentity) as C_PersistentIdentity
-	)
-	return persistent_identity.key if persistent_identity != null else entity.id
-
-
 static func _state() -> C_BoundaryTrace:
 	# Diagnostics is optional in isolated Worlds; normal level composition installs it once.
 	if not is_instance_valid(ECS.world):

@@ -13524,6 +13524,47 @@
       "task": "30",
       "symbol": "ItemAccessRules",
       "uid": "uid://bgvmqb0dgfxvr"
+    },
+    {
+      "source": "content/shared/components/c_actor_identity_reference.gd",
+      "target": "content/shared/components/c_actor_identity_reference.gd",
+      "owner": "shared",
+      "role": "components",
+      "task": "32",
+      "symbol": "C_ActorIdentityReference"
+    },
+    {
+      "source": "content/shared/components/c_actor_identity_reference.gd.uid",
+      "target": "content/shared/components/c_actor_identity_reference.gd.uid",
+      "owner": "shared",
+      "role": "components",
+      "task": "32",
+      "symbol": "C_ActorIdentityReference",
+      "uid": "uid://dg8wsvypgbgvy"
+    },
+    {
+      "source": "content/dialogue/customer_prototype.dialogue.import",
+      "target": "content/domains/customers/dialogue/customer_prototype.dialogue.import",
+      "owner": "customers",
+      "role": "dialogue",
+      "task": "32",
+      "uid": "uid://hdgkt4ibdgxc"
+    },
+    {
+      "source": "content/dialogue/customer_service.dialogue.import",
+      "target": "content/domains/customers/dialogue/customer_service.dialogue.import",
+      "owner": "customers",
+      "role": "dialogue",
+      "task": "32",
+      "uid": "uid://ht6fta0yu3yt"
+    },
+    {
+      "source": "content/dialogue/npc_street.dialogue.import",
+      "target": "content/domains/npc/dialogue/npc_street.dialogue.import",
+      "owner": "npc",
+      "role": "dialogue",
+      "task": "32",
+      "uid": "uid://b0jous4f6057v"
     }
   ],
   "old_save_migration": false,

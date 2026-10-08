@@ -1,32 +1,4 @@
 {
   "version": 1,
-  "entries": [
-    {
-      "rule": "forbidden-edge",
-      "source": "content/debug/boundary_trace.gd",
-      "source_owner": "shared",
-      "target_symbol": "C_NpcIdentity",
-      "target_path": "content/components/npc/c_npc_identity.gd",
-      "removal_task": "32",
-      "reason": "shared imports no domain/global gameplay implementation"
-    },
-    {
-      "rule": "forbidden-edge",
-      "source": "content/debug/boundary_trace.gd",
-      "source_owner": "shared",
-      "target_symbol": "C_Package",
-      "target_path": "content/components/gameplay/c_package.gd",
-      "removal_task": "32",
-      "reason": "shared imports no domain/global gameplay implementation"
-    },
-    {
-      "rule": "forbidden-edge",
-      "source": "content/rules/persistence/actor_identity_rules.gd",
-      "source_owner": "shared",
-      "target_symbol": "C_Package",
-      "target_path": "content/components/gameplay/c_package.gd",
-      "removal_task": "32",
-      "reason": "shared imports no domain/global gameplay implementation"
-    }
-  ]
+  "entries": []
 }

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="DEF_ItemPlacement" format=3 uid="uid://dtj8pdi70gey1"]
 
-[ext_resource type="Script" uid="uid://celt1a7gbsw08" path="res://content/definitions/gameplay/def_item_placement.gd" id="1"]
+[ext_resource type="Script" uid="uid://celt1a7gbsw08" path="res://content/shared/definitions/def_item_placement.gd" id="1"]
 
 [resource]
 script = ExtResource("1")

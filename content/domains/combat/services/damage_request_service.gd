@@ -17,7 +17,7 @@ static func submit(request: DamageRequest) -> bool:
 	if not request.target.has_component(C_Health):
 		BoundaryTrace.record(&"damage.submit", request.correlation_id,
 			BoundaryTraceEntry.Stage.REJECTED, &"missing_health", request.origin_id,
-			BoundaryTrace.identity(request.target))
+			ActorIdentityRules.trace_key_for(request.target))
 		return false
 
 	var snapshot: DamageRequest = DamageRequest.new()
@@ -26,11 +26,11 @@ static func submit(request: DamageRequest) -> bool:
 	snapshot.instigator = request.instigator
 	snapshot.origin_id = request.origin_id
 	snapshot.instigator_id = request.instigator_id
-	snapshot.target_id = BoundaryTrace.identity(request.target)
+	snapshot.target_id = ActorIdentityRules.trace_key_for(request.target)
 	if snapshot.origin_id.is_empty():
-		snapshot.origin_id = BoundaryTrace.identity(snapshot.source)
+		snapshot.origin_id = ActorIdentityRules.trace_key_for(snapshot.source)
 	if snapshot.instigator_id.is_empty():
-		snapshot.instigator_id = BoundaryTrace.identity(snapshot.instigator)
+		snapshot.instigator_id = ActorIdentityRules.trace_key_for(snapshot.instigator)
 
 	snapshot.amount = request.amount
 	snapshot.operation = request.operation

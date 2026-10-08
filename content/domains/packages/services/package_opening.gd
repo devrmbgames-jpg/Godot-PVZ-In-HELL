@@ -70,8 +70,8 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 static func request_open(actor: Entity, package: Entity) -> PackageOpenResult:
 	var resolution: PackageOpenResult = PackageOpenResult.new()
 	resolution.correlation_id = BoundaryTrace.next_id(&"package.open")
-	resolution.package_id = BoundaryTrace.identity(package)
-	resolution.actor_id = BoundaryTrace.identity(actor)
+	resolution.package_id = ActorIdentityRules.trace_key_for(package)
+	resolution.actor_id = ActorIdentityRules.trace_key_for(actor)
 	if not can_open(actor, package):
 		BoundaryTrace.record(&"package.open", resolution.correlation_id,
 			BoundaryTraceEntry.Stage.REJECTED, resolution.reason,

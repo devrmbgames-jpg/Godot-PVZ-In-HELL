@@ -1379,7 +1379,6 @@
         "request"
       ],
       "public_methods": [
-        "identity",
         "next_id",
         "record"
       ],
@@ -1388,7 +1387,6 @@
         "content/services/damage/damage_request_service.gd"
       ],
       "method_rights": {
-        "identity": "request",
         "next_id": "request",
         "record": "request"
       },
@@ -1709,14 +1707,12 @@
         "request"
       ],
       "public_methods": [
-        "identity",
         "record"
       ],
       "sources": [
         "content/services/commerce/commerce_service.gd"
       ],
       "method_rights": {
-        "identity": "request",
         "record": "request"
       },
       "public_instance_methods": []
@@ -9149,7 +9145,6 @@
         "request"
       ],
       "public_methods": [
-        "identity",
         "next_id",
         "record"
       ],
@@ -9157,7 +9152,6 @@
         "content/services/interaction/player_interaction_events.gd"
       ],
       "method_rights": {
-        "identity": "request",
         "next_id": "request",
         "record": "request"
       },
@@ -12656,7 +12650,6 @@
         "request"
       ],
       "public_methods": [
-        "identity",
         "next_id",
         "record"
       ],
@@ -12665,7 +12658,6 @@
         "content/services/packages/package_opening.gd"
       ],
       "method_rights": {
-        "identity": "request",
         "next_id": "request",
         "record": "request"
       },
@@ -16187,493 +16179,117 @@
         "contains": "request"
       },
       "public_instance_methods": []
-    }
-  ],
-  "legacy_decomposition": [
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "shared",
+      "symbol": "C_ActorIdentityReference",
+      "path": "content/shared/components/c_actor_identity_reference.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/packages/components/c_package.gd"
+      ]
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "shared",
+      "symbol": "C_ActorIdentityReference",
+      "path": "content/shared/components/c_actor_identity_reference.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/npc/components/c_npc_identity.gd"
+      ]
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "shared",
+      "symbol": "ActorIdentityRules",
+      "path": "content/shared/rules/actor_identity_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "trace_key_for"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "trace_key_for": "query"
+      },
+      "sources": [
+        "content/domains/combat/services/damage_request_service.gd"
+      ]
+    },
     {
       "source_owner": "commerce",
-      "target_owner": "global",
-      "symbol": "CommercePanelFactory",
-      "path": "content/ui/commerce_panel_factory.gd",
+      "target_owner": "shared",
+      "symbol": "ActorIdentityRules",
+      "path": "content/shared/rules/actor_identity_rules.gd",
       "rights": [
-        "read",
         "query",
-        "request"
-      ],
-      "public_methods": [
-        "open"
-      ],
-      "sources": [
-        "content/definitions/interaction/def_trader_action.gd"
-      ],
-      "reason": "domain imports global UI/composition",
-      "removal_task": "31"
-    },
-    {
-      "source_owner": "customers",
-      "target_owner": "global",
-      "symbol": "CustomerDialogueContext",
-      "path": "content/ui/customer_dialogue_context.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [
-        "new"
-      ],
-      "sources": [
-        "content/services/customers/customer_dialogue_service.gd"
-      ],
-      "reason": "domain imports global UI/composition",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "customers",
-      "target_owner": "global",
-      "symbol": "CustomerDialoguePanel",
-      "path": "content/ui/customer_dialogue_panel.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [
-        "new"
-      ],
-      "sources": [
-        "content/services/customers/customer_dialogue_service.gd"
-      ],
-      "reason": "domain imports global UI/composition",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "customers",
-      "symbol": "C_CustomerAgent",
-      "path": "content/domains/customers/components/c_customer_agent.gd",
-      "rights": [
-        "read",
-        "query"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/ai/tasks/bt_npc_action.gd",
-        "content/ai/tasks/bt_npc_condition.gd",
-        "content/observers/gameplay/o_district_lifecycle.gd",
-        "content/services/npc/district_population_service.gd",
-        "content/services/npc/npc_community_service.gd",
-        "content/services/npc/npc_decision_service.gd",
-        "content/services/npc/npc_dialogue_service.gd",
-        "content/services/npc/npc_social_service.gd",
-        "content/systems/gameplay/s_npc_route.gd"
-      ],
-      "reason": "base NPC imports Customer implementation/state",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "customers",
-      "symbol": "CustomerFlowService",
-      "path": "content/domains/customers/services/customer_flow_service.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [
-        "find_visit"
-      ],
-      "sources": [
-        "content/services/npc/npc_decision_service.gd",
-        "content/services/npc/npc_social_service.gd",
-        "content/systems/gameplay/s_npc_route.gd"
-      ],
-      "reason": "base NPC imports Customer implementation/state",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "customers",
-      "symbol": "CustomerInspectionService",
-      "path": "content/domains/customers/services/customer_inspection_service.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [
-        "end"
-      ],
-      "sources": [
-        "content/services/npc/district_population_service.gd"
-      ],
-      "reason": "base NPC imports Customer implementation/state",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "customers",
-      "symbol": "E_Customer",
-      "path": "content/domains/customers/entities/e_customer.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/entities/npc/e_district_npc.gd"
-      ],
-      "reason": "base NPC imports Customer implementation/state",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "customers",
-      "symbol": "NpcDeliveryOfferService",
-      "path": "content/domains/customers/services/npc_delivery_offer_service.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [
-        "find",
-        "prepare_day"
-      ],
-      "sources": [
-        "content/observers/gameplay/o_district_lifecycle.gd",
-        "content/services/npc/npc_social_service.gd"
-      ],
-      "reason": "base NPC imports Customer implementation/state",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "customers",
-      "symbol": "NpcHomeDeliveryService",
-      "path": "content/domains/customers/services/npc_home_delivery_service.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [
-        "job_for_address",
-        "knock",
-        "meeting_for",
-        "release_meeting"
-      ],
-      "sources": [
-        "content/definitions/interaction/def_npc_door_action.gd",
-        "content/services/npc/district_population_service.gd",
-        "content/systems/gameplay/s_npc_route.gd"
-      ],
-      "reason": "base NPC imports Customer implementation/state",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "customers",
-      "symbol": "NpcServiceRole",
-      "path": "content/domains/customers/services/npc_service_role.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [
-        "defer_visit",
-        "finish_appearance",
-        "mark_dead",
-        "release",
-        "suspend",
-        "visit_for"
-      ],
-      "sources": [
-        "content/ai/tasks/bt_npc_action.gd",
-        "content/ai/tasks/bt_npc_condition.gd",
-        "content/services/npc/district_population_service.gd",
-        "content/services/npc/npc_decision_service.gd",
-        "content/systems/gameplay/s_npc_decision.gd",
-        "content/systems/gameplay/s_npc_route.gd"
-      ],
-      "reason": "base NPC imports Customer implementation/state",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "customers",
-      "symbol": "NpcServiceRoutes",
-      "path": "content/domains/customers/authoring/npc_service_routes.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/components/npc/c_district.gd"
-      ],
-      "reason": "base NPC imports Customer implementation/state",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "customers",
-      "symbol": "R_AssignedTo",
-      "path": "content/domains/customers/relationships/r_assigned_to.gd",
-      "rights": [
-        "read",
-        "query"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/services/npc/npc_community_service.gd"
-      ],
-      "reason": "base NPC imports Customer implementation/state",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "customers",
-      "symbol": "S_CustomerArrivals",
-      "path": "content/domains/customers/systems/s_customer_arrivals.gd",
-      "rights": [
         "read"
       ],
-      "public_methods": [],
-      "sources": [
-        "content/systems/gameplay/s_npc_cadence.gd"
+      "public_methods": [
+        "trace_key_for"
       ],
-      "purpose": "Explicit schedule dependency/composition only; no imperative System calls.",
-      "reason": "base NPC imports Customer implementation/state",
-      "removal_task": "29"
+      "public_instance_methods": [],
+      "method_rights": {
+        "trace_key_for": "query"
+      },
+      "sources": [
+        "content/domains/commerce/services/commerce_service.gd"
+      ]
     },
     {
-      "source_owner": "npc",
-      "target_owner": "customers",
-      "symbol": "S_CustomerFlow",
-      "path": "content/domains/customers/systems/s_customer_flow.gd",
+      "source_owner": "interaction",
+      "target_owner": "shared",
+      "symbol": "ActorIdentityRules",
+      "path": "content/shared/rules/actor_identity_rules.gd",
       "rights": [
+        "query",
         "read"
       ],
-      "public_methods": [],
-      "sources": [
-        "content/systems/gameplay/s_district.gd",
-        "content/systems/gameplay/s_npc_cadence.gd"
-      ],
-      "purpose": "Explicit schedule dependency/composition only; no imperative System calls.",
-      "reason": "base NPC imports Customer implementation/state",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "global",
-      "symbol": "CustomerDialoguePanel",
-      "path": "content/ui/customer_dialogue_panel.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
       "public_methods": [
-        "new"
+        "trace_key_for"
       ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "trace_key_for": "query"
+      },
       "sources": [
-        "content/services/npc/npc_dialogue_service.gd"
-      ],
-      "reason": "domain imports global UI/composition",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "global",
-      "symbol": "DistrictDeliveryView",
-      "path": "content/ui/district_delivery_view.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [
-        "new"
-      ],
-      "sources": [
-        "content/services/npc/district_population_service.gd"
-      ],
-      "reason": "domain imports global UI/composition",
-      "removal_task": "29"
-    },
-    {
-      "source_owner": "npc",
-      "target_owner": "global",
-      "symbol": "NpcStreetDialogueContext",
-      "path": "content/ui/npc_street_dialogue_context.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [
-        "new"
-      ],
-      "sources": [
-        "content/services/npc/npc_dialogue_service.gd"
-      ],
-      "reason": "domain imports global UI/composition",
-      "removal_task": "29"
+        "content/domains/interaction/services/player_interaction_events.gd"
+      ]
     },
     {
       "source_owner": "packages",
-      "target_owner": "global",
-      "symbol": "TerminalPanel",
-      "path": "content/ui/terminal_panel.gd",
+      "target_owner": "shared",
+      "symbol": "ActorIdentityRules",
+      "path": "content/shared/rules/actor_identity_rules.gd",
       "rights": [
-        "read",
         "query",
-        "request"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/entities/stations/e_terminal.gd"
-      ],
-      "reason": "domain imports global UI/composition",
-      "removal_task": "31"
-    },
-    {
-      "source_owner": "packages",
-      "target_owner": "persistence",
-      "symbol": "S_NightSave",
-      "path": "content/domains/persistence/systems/s_night_save.gd",
-      "rights": [
         "read"
       ],
-      "public_methods": [],
+      "public_methods": [
+        "trace_key_for"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "trace_key_for": "query"
+      },
       "sources": [
-        "content/systems/gameplay/s_loot_drops.gd"
-      ],
-      "purpose": "Explicit schedule dependency/composition only; no imperative System calls.",
-      "reason": "domains cannot import persistence",
-      "removal_task": "31"
-    },
-    {
-      "source_owner": "persistence",
-      "target_owner": "global",
-      "symbol": "CommercePanel",
-      "path": "content/ui/commerce_panel.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/services/persistence/night_reset_service.gd"
-      ],
-      "reason": "domain imports global UI/composition",
-      "removal_task": "31"
-    },
-    {
-      "source_owner": "persistence",
-      "target_owner": "global",
-      "symbol": "CustomerDialoguePanel",
-      "path": "content/ui/customer_dialogue_panel.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/services/persistence/night_reset_service.gd"
-      ],
-      "reason": "domain imports global UI/composition",
-      "removal_task": "31"
-    },
-    {
-      "source_owner": "persistence",
-      "target_owner": "global",
-      "symbol": "InventoryPanel",
-      "path": "content/ui/inventory_panel.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/services/persistence/night_reset_service.gd"
-      ],
-      "reason": "domain imports global UI/composition",
-      "removal_task": "31"
-    },
-    {
-      "source_owner": "persistence",
-      "target_owner": "global",
-      "symbol": "TerminalPanel",
-      "path": "content/ui/terminal_panel.gd",
-      "rights": [
-        "read",
-        "query",
-        "request"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/services/persistence/night_reset_service.gd"
-      ],
-      "reason": "domain imports global UI/composition",
-      "removal_task": "31"
-    },
-    {
-      "source_owner": "shared",
-      "target_owner": "npc",
-      "symbol": "C_NpcIdentity",
-      "path": "content/domains/npc/components/c_npc_identity.gd",
-      "rights": [
-        "read",
-        "query"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/debug/boundary_trace.gd"
-      ],
-      "reason": "shared imports no domains/global gameplay",
-      "removal_task": "32"
-    },
-    {
-      "source_owner": "shared",
-      "target_owner": "packages",
-      "symbol": "C_Package",
-      "path": "content/domains/packages/components/c_package.gd",
-      "rights": [
-        "read",
-        "query"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/debug/boundary_trace.gd",
-        "content/rules/persistence/actor_identity_rules.gd"
-      ],
-      "reason": "shared imports no domains/global gameplay",
-      "removal_task": "32"
-    },
-    {
-      "source_owner": "time",
-      "target_owner": "persistence",
-      "symbol": "C_Autosave",
-      "path": "content/domains/persistence/components/c_autosave.gd",
-      "rights": [
-        "read",
-        "query"
-      ],
-      "public_methods": [],
-      "sources": [
-        "content/systems/gameplay/s_day_phase.gd"
-      ],
-      "reason": "domains cannot import persistence",
-      "removal_task": "31"
+        "content/domains/packages/services/package_opening.gd"
+      ]
     }
-  ]
+  ],
+  "legacy_decomposition": []
 }

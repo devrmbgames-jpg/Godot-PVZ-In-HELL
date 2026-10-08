@@ -30,7 +30,7 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `commerce/commerce_panel_service.gd` | RENAME_MOVE | 24 | CommercePanelFactory moved to UI glue with original UID; all callers migrated, no alias. | DONE |
 | `commerce/commerce_service.gd` | KEEP_SERVICE | 24 | Synchronous purchase/order/payment with idempotent receipts. | KEPT_WITH_REASON |
 | `commerce/furniture_placement.gd` | KEEP_SERVICE | 24 | Explicit prepare/validate/commit construction before payment. | KEPT_WITH_REASON |
-| `commerce/meta_presentation.gd` | KEEP_PRESENTATION | 25 | Reviewed read-only cross-domain diagnostics; moved with retained UID to content/presentation/global/meta_presentation.gd. No gameplay writer/clock. | KEPT_WITH_REASON |
+| `commerce/meta_presentation.gd` | KEEP_PRESENTATION | 25 | Reviewed read-only cross-domain diagnostics; moved with retained UID to content/ui/meta_presentation.gd. No gameplay writer/clock. | KEPT_WITH_REASON |
 | `commerce/order_delivery_service.gd` | KEEP_SERVICE | 23 | One delivery attempt; S_OrderDelivery owns interval/iteration and captured restore-safe commits. | KEPT_WITH_REASON |
 | `commerce/trader_catalog_service.gd` | RENAME_MOVE | 24 | TraderCatalogRules moved with original UID; Profile sole assortment/schedule authority, legacy field/fallback/callers removed. | DONE |
 | `customers/customer_arrival_service.gd` | SPLIT | 12 | Polling moved to S_CustomerApproach; begin/result and authored lookup remain explicit. | DONE |
@@ -155,7 +155,7 @@ Each slice owns the entire named responsibility and all callers in the snapshot 
 
 ### 40 — boundary foundation before scheduler edits
 
-**DONE** (2026-10-08): all five boundary slices; `content/contracts/README.md` catalog,
+**DONE** (2026-10-08): all five boundary slices; `content/shared/contracts/README.md` catalog,
 provider + real-World fixtures and domain regressions PASS. Scheduled-owner closures
 below remain pending their respective tasks; no premature closure from contract migration.
 
