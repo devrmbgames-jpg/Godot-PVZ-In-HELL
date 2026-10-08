@@ -96,7 +96,7 @@ func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 				carry_load,
 				strength,
 			)
-			grip_data.rotation_offset = GrabService.rotated_offset(
+			grip_data.rotation_offset = GrabPhysicsSolver.rotated_offset(
 				grip_data.rotation_offset,
 				controller.look_delta * mobility_multiplier,
 				profile.rotation_axis,

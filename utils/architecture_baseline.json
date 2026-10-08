@@ -3,16 +3,6 @@
   "entries": [
     {
       "rule": "service-step",
-      "owner": "CartCargoService",
-      "method": "update",
-      "target": "",
-      "count": 1,
-      "reason": "Cargo synchronization step",
-      "task": "21_grab_push_slots.md",
-      "removal_gate": "26/27"
-    },
-    {
-      "rule": "service-step",
       "owner": "NightSaveService",
       "method": "process",
       "target": "",

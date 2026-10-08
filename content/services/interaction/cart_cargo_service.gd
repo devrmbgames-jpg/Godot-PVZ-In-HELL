@@ -1,9 +1,6 @@
 extends RefCounted
-## Находит груз в кузове и сопровождает его связи; авторитетное владение — R_CartCargo.
+## Explicit cargo bind/release/lookup and reversible R_CartCargo lifecycle effects; no membership clock.
 class_name CartCargoService
-
-const SUPPORT_DISTANCE: float = 0.06
-const MIN_SUPPORT_NORMAL: float = 0.7
 
 
 #region Обнаружение и освобождение груза
@@ -16,43 +13,6 @@ static func relationship(cargo: Entity) -> Relationship:
 		if candidate.relation is R_CartCargo:
 			return candidate
 	return null
-
-
-## Проверяет текущий груз и устойчивых кандидатов в кузове по опоре и скорости; delta в секундах.
-static func update(cart: E_TransportCart, delta: float) -> void:
-	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
-	if config == null:
-		return
-
-	for loaded: Entity in config.cargo.duplicate():
-		var binding: Relationship = relationship(loaded)
-		if binding == null or binding.target != cart or not GrabService.entity_available(loaded):
-			release(loaded)
-			config.cargo.erase(loaded)
-
-	var present: Dictionary[int, bool] = { }
-	for node: Node3D in cart.get_cargo_area().get_overlapping_bodies():
-		var candidate: Entity = node as Node as Entity
-		if not _loadable(candidate):
-			continue
-
-		var body: RigidBody3D = node as RigidBody3D
-		var instance_id: int = candidate.get_instance_id()
-		present[instance_id] = true
-		var relative_speed: float = (body.linear_velocity - config.actual_velocity).length()
-		if relative_speed > config.cargo_settle_speed or not _supported(body, cart):
-			config.settling.erase(instance_id)
-			continue
-
-		var elapsed: float = float(config.settling.get(instance_id, 0.0)) + delta
-		config.settling[instance_id] = elapsed
-		if elapsed >= config.cargo_settle_seconds:
-			_load(cart, candidate, body)
-			config.settling.erase(instance_id)
-
-	for instance_id: int in config.settling.keys():
-		if not present.has(instance_id):
-			config.settling.erase(instance_id)
 
 
 ## Освобождает связь конкретного груза и её физические эффекты.
@@ -147,7 +107,8 @@ static func cargo_removed(cargo: Entity, binding: Relationship) -> void:
 #endregion
 
 #region Физическая допустимость и загрузка
-static func _loadable(cargo: Entity) -> bool:
+## Checks explicit live cargo eligibility without any settling progression.
+static func loadable(cargo: Entity) -> bool:
 	if not GrabService.entity_available(cargo) or not cargo.has_component(C_Grabbable):
 		return false
 	if relationship(cargo) != null or GrabService.held_relationship(cargo) != null:
@@ -162,30 +123,24 @@ static func _destroyed(cargo: Entity) -> bool:
 	return package_state != null and package_state.damage == C_PackageState.Damage.DESTROYED
 
 
-static func _supported(body: RigidBody3D, cart: Entity) -> bool:
-	var contact: KinematicCollision3D = KinematicCollision3D.new()
-	if not body.test_move(body.global_transform, Vector3.DOWN * SUPPORT_DISTANCE, contact):
-		return false
-	if contact.get_normal().y < MIN_SUPPORT_NORMAL:
+## Commits one supported settled cargo binding and its reversible lifecycle effects.
+static func load_supported(cart: E_TransportCart, cargo: Entity) -> bool:
+	if not EntityAvailability.contains(cart, ECS.world) or not loadable(cargo):
 		return false
 
-	var support: Entity = contact.get_collider() as Node as Entity
-	if support == cart:
-		return true
-	if not is_instance_valid(support):
+	var body: RigidBody3D = cargo as Node as RigidBody3D
+	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
+	var elapsed: float = float(config.settling.get(cargo.get_instance_id(), 0.0))
+	if elapsed < config.cargo_settle_seconds or (body.linear_velocity - config.actual_velocity).length() > config.cargo_settle_speed \
+			or not CartCargoGeometry.supported(body, cart):
 		return false
 
-	var binding: Relationship = relationship(support)
-	return binding != null and binding.target == cart
-
-
-static func _load(cart: Entity, cargo: Entity, body: RigidBody3D) -> void:
 	if relationship(cargo) != null:
-		return
+		return false
 
 	var cart_body: PhysicsBody3D = cart as Node as PhysicsBody3D
 	if cart_body == null:
-		return
+		return false
 
 	var data: R_CartCargo = R_CartCargo.new()
 	data.local_pose = cart_body.global_transform.affine_inverse() * body.global_transform
@@ -193,5 +148,6 @@ static func _load(cart: Entity, cargo: Entity, body: RigidBody3D) -> void:
 	cargo.add_relationship(binding)
 	if not data.lifecycle_applied and not cargo_added(cargo, binding):
 		cargo.remove_relationship(binding)
+	return data.lifecycle_applied and relationship(cargo) == binding
 
 #endregion

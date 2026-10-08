@@ -69,17 +69,17 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `input/input_binding_codec.gd` | KEEP_RULES | 25 | Portable input encode/decode/normalize/overlap. | KEPT_WITH_REASON |
 | `input/input_prompt_catalog.gd` | KEEP_PRESENTATION | 25 | Texture lookup cache only. | KEPT_WITH_REASON |
 | `input/input_prompt_service.gd` | KEEP_PRESENTATION | 25 | Event-fed device/revision cache and prompt formatting. | KEPT_WITH_REASON |
-| `interaction/anchoring_service.gd` | SPLIT | 21 | Anchor/unfix transactions mixed with stable_seconds progression. | PENDING |
+| `interaction/anchoring_service.gd` | SPLIT | 21 | Anchor/unfix transactions and support-cluster lookup retained; S_AnchorStability owns rest progression, AnchoringRules owns pure eligibility, old update_stability removed. | DONE |
 | `interaction/body_placement_query.gd` | KEEP_GEOMETRY | 21 | Explicit swept path/overlap without physical transform writes. | KEPT_WITH_REASON |
 | `interaction/carry_load_policy.gd` | KEEP_RULES | 21 | Mass/Strength/mobility calculations. | KEPT_WITH_REASON |
 | `interaction/carry_placement_service.gd` | KEEP_SERVICE | 21 | Explicit check/path/release/placement transaction. | KEPT_WITH_REASON |
-| `interaction/cart_cargo_service.gd` | SPLIT | 21 | R_CartCargo commands mixed with support sampling/settling timers. | PENDING |
+| `interaction/cart_cargo_service.gd` | SPLIT | 21 | Explicit bind/release/lookup and reversible relationship effects retained; S_CartCargo owns frame-scoped sampling/settling, CartCargoGeometry owns native support probe; old update removed. | DONE |
 | `interaction/cart_cargo_solver.gd` | KEEP_SOLVER | 21 | Cargo physical contribution in body callback. | KEPT_WITH_REASON |
-| `interaction/cart_drive_solver.gd` | SPLIT | 21 | Valid CharacterBody step also invokes unrelated cargo membership clock. | PENDING |
+| `interaction/cart_drive_solver.gd` | SPLIT | 21 | Native CharacterBody motion retained; cargo membership clock removed, S_CartCargo samples completed native space at Interaction stage once per physics frame. | DONE |
 | `interaction/cart_driver_solver.gd` | KEEP_SOLVER | 21 | Driver physical-follow contribution from actor callback. | KEPT_WITH_REASON |
 | `interaction/cart_transport_service.gd` | KEEP_SERVICE | 21 | Driver relationship/focus commands and lifecycle reactions. | KEPT_WITH_REASON |
 | `interaction/grab_physics_solver.gd` | KEEP_SOLVER | 21 | Hold-force/rotation/anchor algorithms. | KEPT_WITH_REASON |
-| `interaction/grab_service.gd` | SPLIT | 20,21 | 20 input slice DONE in S_InteractionInput; 21 transaction/cache/body synchronization and physical callback slices remain pending. | PENDING |
+| `interaction/grab_service.gd` | SPLIT | 20,21 | Explicit grip transactions/lookup and reversible relationship/cache effects retained; S_InteractionInput owns input (20), S_Grab owns generic traversal, GrabPhysicsSolver owns callback/calculations (21); all old schedulers/force facades removed. | DONE |
 | `interaction/interaction_action_resolver.gd` | SPLIT | 20 | Explicit resolve/execute_slot retained; priority/edge/held orchestration moved to S_InteractionInput, old handle_input and callers removed. | DONE |
 | `interaction/interaction_control_focus.gd` | KEEP_SERVICE | 20 | Acquire/release/query authoritative capture state. | KEPT_WITH_REASON |
 | `interaction/interaction_highlight_service.gd` | RENAME_MOVE | 20 | InteractionHighlightRules moved with retained UID, all callers migrated; existing overlay restore authority preserved. | DONE |
@@ -89,7 +89,7 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `interaction/marker_session_service.gd` | SPLIT | 20 | Explicit begin/end retained; S_Marker owns pointer/sample/ink continuation, queued session/input identity and per-tick receipt; old update removed. | DONE |
 | `interaction/marker_surface_sampler.gd` | KEEP_GEOMETRY | 20 | One explicit marker ray/sample. | KEPT_WITH_REASON |
 | `interaction/openable_joint_solver.gd` | KEEP_SOLVER | 21 | Physical callback motor contribution/fraction reporting. | KEPT_WITH_REASON |
-| `interaction/openable_service.gd` | SPLIT | 21 | Request/report operations mixed with fraction/transform calculations. | PENDING |
+| `interaction/openable_service.gd` | SPLIT | 21 | Explicit request/report attribution retained; fraction/transform calculations moved to OpenableMotionSolver, all callers migrated; joint callback keeps actual physics authority. | DONE |
 | `interaction/package_mark_service.gd` | KEEP_SERVICE | 20 | Append/break/clear authored stroke commands. | KEPT_WITH_REASON |
 | `interaction/physical_slot_service.gd` | KEEP_SERVICE | 21 | Slot transactions and discrete attach/detach/removal effects. | KEPT_WITH_REASON |
 | `interaction/physics_grab_target.gd` | KEEP_SERVICE | 21 | Body/proxy construction/lookup with lifecycle cleanup. | KEPT_WITH_REASON |
@@ -98,7 +98,7 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `interaction/prolonged_progress_service.gd` | RENAME_MOVE | 20 | ProlongedProgressSolver moved with retained UID and every caller migrated; no target iteration/cadence. | DONE |
 | `interaction/push_actor_solver.gd` | KEEP_SOLVER | 21 | Actor callback physical contribution. | KEPT_WITH_REASON |
 | `interaction/push_cart_solver.gd` | KEEP_SOLVER | 21 | Cart callback physical contribution. | KEPT_WITH_REASON |
-| `interaction/push_service.gd` | KEEP_SERVICE | 21 | R_PushedBy operations/reactions and derived actor cache. | KEPT_WITH_REASON |
+| `interaction/push_service.gd` | KEEP_SERVICE | 21 | R_PushedBy transactions/reactions and relationship-validated actor cache retained; S_Push owns scheduled checks with captured binding identity, forwarding validate_actor removed. | KEPT_WITH_REASON |
 | `inventory/inventory_drop_service.gd` | KEEP_SERVICE | 24 | Explicit drop/death-release with checked placement. | KEPT_WITH_REASON |
 | `inventory/inventory_presentation.gd` | KEEP_PRESENTATION | 24 | Read-only item diagnostics. | KEPT_WITH_REASON |
 | `inventory/inventory_service.gd` | KEEP_SERVICE | 24 | R_OwnedBy transfer/use/consume and discrete cleanup. | KEPT_WITH_REASON |
@@ -229,7 +229,7 @@ Activity/decision/community/social/home-delivery/offers are explicit BT-selected
 | 20.E | LightCircuit visual sync → Presentation, explicit switch/lookups remain Service; PlayerInteractionEvents noise side effect → committed NPC consumer | Logical enabled separate from flicker; one noise per committed operation. Request/Event correction starts in 40.I; no fact-as-command path. | test_light_circuit.gd, test_player_interaction_events.gd |
 | 21.A | Grab transactions/reverse-cache reactions, hold geometry/calculations, callback adapter and integrate_generic_bodies actor iteration split by role | S_Grab owns generic-body scheduling; body callbacks keep physical contributions. Remove pass-through force/rotation wrappers and update every Entity callback. One R_HeldBy authority. | test_s_grab.gd, test_grab_main_scene.gd, test_impact_balance.gd |
 | 21.B | AnchoringService.update_stability → S_AnchorStability | Stable time in System before anchor request; unfix support-cluster query stays part of explicit transaction. Remove Service clock. | test_anchoring.gd |
-| 21.C | CartCargoService.update membership/support/settling → cargo System after physical sample; remove nested call from CartDriveSolver | Current body move → cargo membership update; target uses explicit sampled-frame boundary and one settling delta. Keep physical bodies and independent cargo solver, no detach/freeze migration. | test_physical_slots.gd, test_characterbody_physics.gd, test_refactoring_v2_persistence_baseline.gd; smoke cart_transport |
+| 21.C | CartCargoService.update membership/support/settling → cargo System after physical sample; remove nested call from CartDriveSolver | Native body motion remains callback-owned; S_CartCargo reads the latest completed Jolt space in Interaction stage and commits one frame-scoped settling delta. Keep physical bodies and independent cargo solver, no detach/freeze migration. | test_physical_slots.gd, test_characterbody_physics.gd, test_refactoring_v2_persistence_baseline.gd; smoke cart_transport |
 | 21.D | Openable proposed_fraction/local_transform → pure calculation/geometry; request/report/cancel remain commands | Preserve requested vs actual fraction and physical motor callback timing. Migrate every System/solver caller. | test_openable_access.gd, test_breakable_doors.gd |
 
 Push/slot/carry/proxy Services retain explicit operations and discrete lifecycle reactions; no additional clock found. Task 21 validates `test_physical_slots.gd` and `test_s_grab.gd` and checks GECS-safe structural commits.

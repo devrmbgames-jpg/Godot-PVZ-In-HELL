@@ -159,26 +159,26 @@ func test_motion_proposal_is_bounded_and_does_not_advance_blocked_state() -> voi
 	_state.motion = DEF_OpenableMotion.new()
 	_state.motion.duration_seconds = 2.0
 	_state.requested_open = true
-	assert_eq(OpenableService.proposed_fraction(_state, 1.0), 0.5)
+	assert_eq(OpenableMotionSolver.proposed_fraction(_state, 1.0), 0.5)
 	assert_eq(_state.actual_fraction, 0.0)
-	assert_eq(OpenableService.proposed_fraction(_state, 100.0), 1.0)
+	assert_eq(OpenableMotionSolver.proposed_fraction(_state, 100.0), 1.0)
 	assert_true(OpenableService.report_fraction(_state, 0.3))
 	assert_true(OpenableService.request(_actor, _target, OpenableService.Operation.CLOSE))
-	assert_eq(OpenableService.proposed_fraction(_state, 1.0), 0.0)
+	assert_eq(OpenableMotionSolver.proposed_fraction(_state, 1.0), 0.0)
 	assert_false(OpenableService.report_fraction(_state, NAN))
 	assert_false(OpenableService.report_fraction(_state, 1.1))
 	assert_eq(_state.actual_fraction, 0.3)
 	_state.locked = true
-	assert_eq(OpenableService.proposed_fraction(_state, 1.0), 0.3)
+	assert_eq(OpenableMotionSolver.proposed_fraction(_state, 1.0), 0.3)
 
 
 ## Один контракт интерполяции поддерживает сдвиг ящика и поворот двери.
 func test_same_motion_contract_supports_translation_and_rotation() -> void:
 	var motion: DEF_OpenableMotion = DEF_OpenableMotion.new()
 	motion.open_transform.origin = Vector3(0.0, 0.0, 0.6)
-	assert_eq(OpenableService.local_transform(motion, 0.5).origin, Vector3(0.0, 0.0, 0.3))
+	assert_eq(OpenableMotionSolver.local_transform(motion, 0.5).origin, Vector3(0.0, 0.0, 0.3))
 	motion.open_transform = Transform3D(Basis(Vector3.UP, PI / 2.0), Vector3.ZERO)
-	var halfway: Transform3D = OpenableService.local_transform(motion, 0.5)
+	var halfway: Transform3D = OpenableMotionSolver.local_transform(motion, 0.5)
 	assert_almost_eq(halfway.basis.get_euler().y, PI / 4.0, 0.0001)
 
 #endregion

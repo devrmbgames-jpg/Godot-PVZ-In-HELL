@@ -9,7 +9,7 @@ const TERRAIN_MASK: int = 1
 
 
 #region Физический шаг тележки
-## Продвигает физическую тележку, ограничивает отставание водителя и обновляет груз; delta в секундах.
+## Продвигает физическую тележку, ограничивает отставание водителя без clock определения груза; delta в секундах.
 static func step(cart: E_TransportCart, delta: float) -> void:
 	if not GrabService.entity_available(cart) or delta <= 0.0:
 		CartCargoService.release_all(cart)
@@ -67,7 +67,6 @@ static func step(cart: E_TransportCart, delta: float) -> void:
 	if not _try_step(body, planar_velocity * delta, config.step_height):
 		body.move_and_slide()
 	config.actual_velocity = (body.global_position - previous_position) / delta
-	CartCargoService.update(cart, delta)
 
 
 #endregion

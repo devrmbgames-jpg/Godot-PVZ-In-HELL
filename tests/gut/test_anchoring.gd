@@ -142,7 +142,7 @@ func _hold_hammer() -> void:
 
 
 func _stabilize(seconds: float = 0.5) -> void:
-	AnchoringService.update_stability(_target, _config, seconds)
+	InteractionPhysicsFixture.anchor(_target, seconds)
 
 
 #endregion
@@ -199,17 +199,17 @@ func _drive_input(primary_pressed: bool, use_pressed: bool, use_held: bool, delt
 ## Покой накапливается непрерывно только при малой скорости и отсутствии владельца управления.
 func test_stability_requires_continuous_low_motion_and_no_control_owner() -> void:
 	_body.linear_velocity = Vector3(0.2, 0, 0)
-	AnchoringService.update_stability(_target, _config, 0.3)
+	InteractionPhysicsFixture.anchor(_target, 0.3)
 	assert_eq(_config.stable_seconds, 0.0)
 	_body.linear_velocity = Vector3.ZERO
-	AnchoringService.update_stability(_target, _config, 0.3)
+	InteractionPhysicsFixture.anchor(_target, 0.3)
 	assert_almost_eq(_config.stable_seconds, 0.3, 0.0001)
 	var push: Relationship = Relationship.new(R_PushedBy.new(), _actor)
 	_target.add_relationship(push)
-	AnchoringService.update_stability(_target, _config, 0.3)
+	InteractionPhysicsFixture.anchor(_target, 0.3)
 	assert_eq(_config.stable_seconds, 0.0)
 	_target.remove_relationship(push)
-	AnchoringService.update_stability(_target, _config, 0.5)
+	InteractionPhysicsFixture.anchor(_target, 0.5)
 	assert_almost_eq(_config.stable_seconds, 0.5, 0.0001)
 
 

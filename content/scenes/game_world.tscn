@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://content/systems/gameplay/s_district.gd" id="District_system"]
 [ext_resource type="Script" path="res://content/observers/gameplay/o_npc_incident.gd" id="Npc_incident"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_npc_decision.gd" id="Npc_decision"]
+[ext_resource type="Script" path="res://content/systems/interaction/s_cart_cargo.gd" id="Cart_cargo_system"]
 [ext_resource type="Script" path="res://content/observers/interaction/o_light_circuit_presentation.gd" id="Circuit_presentation"]
 [ext_resource type="Script" path="res://content/observers/gameplay/o_player_interaction_noise.gd" id="Interaction_noise"]
 [ext_resource type="Script" path="res://content/systems/interaction/s_interaction_input.gd" id="Interaction_input"]
@@ -351,6 +352,10 @@ script = ExtResource("Circuit_presentation")
 
 [node name="O_PlayerInteractionNoise" type="Node" parent="Systems/Interaction"]
 script = ExtResource("Interaction_noise")
+
+[node name="S_CartCargo" type="Node" parent="Systems/Interaction"]
+script = ExtResource("Cart_cargo_system")
+group = &"Interaction"
 
 [node name="S_InteractionInput" type="Node" parent="Systems/Interaction"]
 script = ExtResource("Interaction_input")

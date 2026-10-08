@@ -41,3 +41,6 @@ var settling: Dictionary[int, float] = { }
 var drive_speed: float = 0.0
 ## Измеренная фактическая мировая скорость тележки, в метрах в секунду.
 var actual_velocity: Vector3 = Vector3.ZERO
+
+## Transient receipt written by S_CartCargo: one settling sample per actual physical frame.
+var cargo_update_frame: int = -1

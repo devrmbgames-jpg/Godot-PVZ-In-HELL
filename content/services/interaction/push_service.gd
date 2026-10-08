@@ -147,13 +147,6 @@ static func pushed_object(actor: Entity) -> Entity:
 	return null
 
 
-## Завершает сеанс, если текущая пара больше не допускает толкание.
-static func validate_actor(actor: Entity) -> void:
-	var cart: Entity = pushed_object(actor)
-	if cart != null and not valid_pair(actor, cart):
-		end(actor, cart)
-
-
 ## Проверяет доступность, дистанцию, направление взгляда и свободный луч к тележке.
 static func valid_pair(actor: Entity, cart: Entity) -> bool:
 	if not GrabService.holder_available(actor) or not GrabService.entity_available(cart):

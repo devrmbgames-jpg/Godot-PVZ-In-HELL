@@ -1,16 +1,40 @@
 extends System
-## Накапливает покой по авторским правилам; сама фиксация исполняется отдельной командой.
+## Owns stable_seconds progression; anchor/unfix remain explicit physical transactions.
 class_name S_AnchorStability
 
-
-## Выбирает включённые сущности с C_Anchorable.
+#region Scheduled rest accumulation
+## Selects enabled authored anchor targets.
 func query() -> QueryBuilder:
-	return q.enabled().with_all([C_Anchorable]).iterate([C_Anchorable])
+	return q.enabled().with_all([C_Anchorable])
 
 
-## Обновляет накопленный покой каждой цели через сервис; delta в секундах.
-func process(entities: Array[Entity], components: Array, delta: float) -> void:
-	var anchorables: Array = components[0]
-	for entity_index: int in entities.size():
-		var config: C_Anchorable = anchorables[entity_index] as C_Anchorable
-		AnchoringService.update_stability(entities[entity_index], config, delta)
+## Commits transient rest time from actual body motion and live relationship participation.
+func process(entities: Array[Entity], _components: Array, delta: float) -> void:
+	if not is_finite(delta):
+		return
+
+	for target: Entity in entities:
+		var config: C_Anchorable = target.get_component(C_Anchorable) as C_Anchorable
+		_accumulate_rest(target, config, delta)
+
+
+func _accumulate_rest(target: Entity, config: C_Anchorable, delta: float) -> void:
+	if (
+		delta <= 0.0 or not GrabService.entity_available(target)
+		or AnchoringService.state(target) != null or AnchoringService.controlled(target)
+	):
+		config.stable_seconds = 0.0
+		return
+
+	var body: RigidBody3D = GrabService.physical_body(target)
+	if body == null or body.freeze:
+		config.stable_seconds = 0.0
+		return
+	if not AnchoringRules.within_motion_limits(body, config):
+		config.stable_seconds = 0.0
+		return
+
+	config.stable_seconds += delta
+
+
+#endregion

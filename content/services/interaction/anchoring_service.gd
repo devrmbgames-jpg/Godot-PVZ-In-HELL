@@ -16,28 +16,6 @@ static func state(target: Entity) -> C_PlayerAnchored:
 	)
 
 
-## Накапливает покой на delta секунд; движение, управление предметом и фиксация сбрасывают время.
-static func update_stability(target: Entity, config: C_Anchorable, delta: float) -> void:
-	if config == null:
-		return
-	if (
-		delta <= 0.0 or not GrabService.entity_available(target)
-		or state(target) != null or _controlled(target)
-	):
-		config.stable_seconds = 0.0
-		return
-
-	var body: RigidBody3D = GrabService.physical_body(target)
-	if body == null or body.freeze:
-		config.stable_seconds = 0.0
-		return
-	if not _within_motion_limits(body, config):
-		config.stable_seconds = 0.0
-		return
-
-	config.stable_seconds += delta
-
-
 ## Проверяет инструмент основной руки, доступную неподконтрольную цель, дистанцию и достаточный покой.
 static func can_anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 	if (
@@ -57,9 +35,9 @@ static func can_anchor(actor: Entity, tool: Entity, target: Entity) -> bool:
 	var body: RigidBody3D = GrabService.physical_body(target)
 	if config == null or body == null or body.freeze or state(target) != null:
 		return false
-	if _controlled(target) or not GrabService.within_pickup_reach(actor, target):
+	if controlled(target) or not GrabService.within_pickup_reach(actor, target):
 		return false
-	if not _valid_config(config) or not _within_motion_limits(body, config):
+	if not AnchoringRules.valid_config(config) or not AnchoringRules.within_motion_limits(body, config):
 		return false
 	return config.stable_seconds + DIRECTION_EPSILON >= config.minimum_rest_seconds
 
@@ -223,7 +201,8 @@ static func _supported_by(candidate: Entity, supporter: Entity) -> bool:
 #endregion
 
 #region Участники и авторские пределы
-static func _controlled(target: Entity) -> bool:
+## Reads current live ownership and prolonged participation without advancing their clocks.
+static func controlled(target: Entity) -> bool:
 	for binding: Relationship in target.relationships:
 		if (
 			binding.relation is R_HeldBy or binding.relation is R_StoredIn
@@ -248,22 +227,5 @@ static func _anchor_tool_in_hand(actor: Entity) -> Entity:
 			return item
 	return null
 
-
-static func _valid_config(config: C_Anchorable) -> bool:
-	return (
-		is_finite(config.minimum_rest_seconds) and config.minimum_rest_seconds >= 0.0
-		and is_finite(config.maximum_linear_speed) and config.maximum_linear_speed >= 0.0
-		and is_finite(config.maximum_angular_speed) and config.maximum_angular_speed >= 0.0
-		and is_finite(config.support_tolerance) and config.support_tolerance > 0.0
-		and config.support_direction_local.is_finite()
-		and config.support_direction_local.length_squared() > DIRECTION_EPSILON * DIRECTION_EPSILON
-	)
-
-
-static func _within_motion_limits(body: RigidBody3D, config: C_Anchorable) -> bool:
-	return (
-		body.linear_velocity.length() <= config.maximum_linear_speed
-		and body.angular_velocity.length() <= config.maximum_angular_speed
-	)
 
 #endregion

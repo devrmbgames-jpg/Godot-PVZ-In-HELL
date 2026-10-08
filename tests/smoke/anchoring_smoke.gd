@@ -147,7 +147,7 @@ func _anchor_visible(target: Entity) -> bool:
 		return false
 
 	var config: C_Anchorable = target.get_component(C_Anchorable) as C_Anchorable
-	AnchoringService.update_stability(target, config, 0.01)
+	InteractionPhysicsFixture.anchor(target, 0.01)
 	return AnchoringService.anchor(_actor, _hammer, target)
 
 

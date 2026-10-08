@@ -3,7 +3,6 @@ extends RefCounted
 class_name GrabService
 
 #region Общие ограничения
-const ROTATION_SENSITIVITY: float = 0.006
 const NO_CARRY_GROUP: StringName = &"no_carry"
 #endregion
 
@@ -198,7 +197,7 @@ static func throw(holder: Entity, held: Entity) -> void:
 	var controller: C_Controller = holder.get_component(C_Controller) as C_Controller
 	var body: RigidBody3D = physical_body(held)
 	var grip_data: R_HeldBy = grip.relation as R_HeldBy
-	var profile: GrabControlProfile = _grip_profile(held, grip_data)
+	var profile: GrabControlProfile = grip_data.profile
 
 	if controller == null or body == null or profile == null:
 		release(holder, held)
@@ -211,7 +210,7 @@ static func throw(holder: Entity, held: Entity) -> void:
 		carry_load,
 		strength,
 	)
-	var impulse: Vector3 = throw_impulse(
+	var impulse: Vector3 = GrabPhysicsSolver.throw_impulse(
 		controller.direction_look,
 		effective_throw_velocity,
 		body.mass,
@@ -223,44 +222,6 @@ static func throw(holder: Entity, held: Entity) -> void:
 	if not impulse.is_zero_approx():
 		ThrowContext.arm(held, holder)
 
-
-## В физическом callback применяет удержание по точке живой связи; не перемещает transform напрямую.
-static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
-	var grip: Relationship = held_relationship(entity)
-	if grip == null:
-		return
-
-	var holder: Entity = grip.target as Entity
-	var body: RigidBody3D = physical_body(entity)
-	var anchor: Node3D = object_anchor(holder, entity)
-	var grip_data: R_HeldBy = grip.relation as R_HeldBy
-	var profile: GrabControlProfile = _grip_profile(entity, grip_data)
-	if (
-		not holder_available(holder) or not entity_available(entity)
-		or body == null or body.freeze or profile == null or not is_instance_valid(anchor)
-	):
-		release(holder, entity, false)
-		return
-
-	var interactable: C_Interactable = entity.get_component(C_Interactable) as C_Interactable
-	if interactable != null and not interactable.enabled:
-		release(holder, entity, false)
-		return
-
-	var allowed_break_distance: float = _allowed_break_distance(
-		holder,
-		anchor,
-		grip_data,
-		profile,
-	)
-	if not GrabPhysicsSolver.integrate_state(
-		state,
-		anchor,
-		grip_data,
-		profile,
-		allowed_break_distance,
-	):
-		release(holder, entity, false)
 
 #endregion
 
@@ -291,7 +252,9 @@ static func grip_added(held: Entity, grip: Relationship) -> bool:
 	var holder: Entity = grip.target as Entity
 	var body: RigidBody3D = physical_body(held)
 	var grip_data: R_HeldBy = grip.relation as R_HeldBy
-	var profile: GrabControlProfile = _grip_profile(held, grip_data)
+	if grip_data.profile == null:
+		grip_data.profile = profile_for(held)
+	var profile: GrabControlProfile = grip_data.profile
 	var is_invalid: bool = (
 		not holder_available(holder) or not entity_available(held) or body == null
 		or PhysicalSlotService.relationship(held) != null
@@ -415,59 +378,6 @@ static func reset_holder(holder: Entity, slot_index: int = C_Grabbable.HoldSlot.
 		load_state.active = false
 		load_state.mass_kg = 0.0
 
-#endregion
-
-
-#region Сила, поворот и импульс
-## Возвращает ограниченную силу пружины в ньютонах с учётом массы и компенсацией гравитации.
-static func position_force(
-	position_error: Vector3,
-	velocity_error: Vector3,
-	gravity: Vector3,
-	body_mass: float,
-	config: C_Grabbable,
-) -> Vector3:
-	return GrabPhysicsSolver.position_force(
-		position_error,
-		velocity_error,
-		gravity,
-		body_mass,
-		GrabControlProfile.from_grabbable(config),
-	)
-
-
-## Возвращает ограниченную угловую скорость кратчайшего поворота в рад/с без остаточного импульса пружины.
-static func rotation_velocity(
-	current: Quaternion,
-	desired: Quaternion,
-	step: float,
-	config: C_Grabbable,
-) -> Vector3:
-	return GrabPhysicsSolver.rotation_velocity(
-		current,
-		desired,
-		step,
-		GrabControlProfile.from_grabbable(config),
-	)
-
-
-## Применяет ручной поворот с ограничением авторских осей вращения.
-static func rotated_offset(
-	offset: Quaternion,
-	look_delta: Vector2,
-	axis: C_Grabbable.RotationAxis = C_Grabbable.RotationAxis.FREE,
-) -> Quaternion:
-	if axis == C_Grabbable.RotationAxis.Y_ONLY:
-		return Quaternion(Vector3.UP, offset.get_euler().y - look_delta.x * ROTATION_SENSITIVITY)
-	return (
-		Quaternion(Vector3.UP, -look_delta.x * ROTATION_SENSITIVITY)
-		* Quaternion(Vector3.RIGHT, -look_delta.y * ROTATION_SENSITIVITY) * offset
-	).normalized()
-
-
-## Преобразует изменение скорости в м/с и массу в кг в импульс тела.
-static func throw_impulse(direction: Vector3, velocity_change: float, body_mass: float) -> Vector3:
-	return direction.normalized() * maxf(velocity_change, 0.0) * body_mass
 #endregion
 
 
@@ -762,88 +672,6 @@ static func profile_for(handle: Entity) -> GrabControlProfile:
 		profile.rotation_axis = C_Grabbable.RotationAxis.Y_ONLY
 		profile.max_rotation_speed = minf(profile.max_rotation_speed, liquid.upright_rotation_speed)
 	return profile
-
-
-static func _grip_profile(handle: Entity, grip_data: R_HeldBy) -> GrabControlProfile:
-	if grip_data == null:
-		return null
-	if grip_data.profile == null:
-		grip_data.profile = profile_for(handle)
-	return grip_data.profile
-
-
-static func _allowed_break_distance(
-	holder: Entity,
-	anchor: Node3D,
-	grip_data: R_HeldBy,
-	profile: GrabControlProfile,
-) -> float:
-	var allowed: float = profile.break_distance
-	var hand_suspended: bool = (
-		grip_data.slot != C_Grabbable.HoldSlot.CARRY
-		and InteractionControlFocus.current(holder) != InteractionControlFocus.Priority.HANDS
-	)
-	if not hand_suspended:
-		return allowed
-
-	var hand_property: StringName = &"right_hand_slot"
-	if grip_data.slot == C_Grabbable.HoldSlot.LEFT_HAND:
-		hand_property = &"left_hand_slot"
-	var normal_anchor: Node3D = holder.get(hand_property) as Node3D
-	if is_instance_valid(normal_anchor):
-		allowed += normal_anchor.global_position.distance_to(anchor.global_position)
-	return allowed
-
-
-## Тела с _integrate_forces продолжают использовать собственный физический callback;
-## остальные используют ту же пружину через систему держателя перед физическим шагом.
-static func integrate_generic_bodies(holder: Entity, delta: float) -> void:
-	if delta <= 0.0:
-		return
-
-	for slot_index: int in 3:
-		var held: Entity = held_in_slot(holder, slot_index)
-		if held == null:
-			continue
-
-		var body: RigidBody3D = physical_body(held)
-		if body == null or held is E_GrabbableBody:
-			continue
-
-		var grip: Relationship = held_relationship(held)
-		if grip == null or grip.target != holder:
-			continue
-
-		var grip_data: R_HeldBy = grip.relation as R_HeldBy
-		var profile: GrabControlProfile = _grip_profile(held, grip_data)
-		var anchor: Node3D = object_anchor(holder, held)
-		if (
-			not holder_available(holder) or body.freeze or profile == null
-			or not is_instance_valid(anchor)
-		):
-			release(holder, held, false)
-			continue
-
-		var interactable: C_Interactable = held.get_component(C_Interactable) as C_Interactable
-		if interactable != null and not interactable.enabled:
-			release(holder, held, false)
-			continue
-
-		var allowed_break_distance: float = _allowed_break_distance(
-			holder,
-			anchor,
-			grip_data,
-			profile,
-		)
-		if not GrabPhysicsSolver.integrate_body(
-			body,
-			delta,
-			anchor,
-			grip_data,
-			profile,
-			allowed_break_distance,
-		):
-			release(holder, held, false)
 
 
 ## Проверяет живое дерево, enabled и регистрацию в текущем World перед изменением игры.

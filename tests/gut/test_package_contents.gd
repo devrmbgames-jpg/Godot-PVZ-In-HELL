@@ -371,7 +371,7 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 	var config: C_Anchorable = shelf.get_component(C_Anchorable) as C_Anchorable
 	for frame: int in 180:
 		await get_tree().physics_frame
-		AnchoringService.update_stability(shelf, config, 1.0 / 60.0)
+		InteractionPhysicsFixture.anchor(shelf, 1.0 / 60.0)
 		if config.stable_seconds >= config.minimum_rest_seconds:
 			break
 

@@ -2,6 +2,7 @@ extends RefCounted
 ## Общая физика пружины и вращения для callback-тел и обычного Carry без скрипта.
 class_name GrabPhysicsSolver
 
+const ROTATION_SENSITIVITY: float = 0.006
 const MIN_MASS: float = 0.001
 const ROTATION_EPSILON: float = 0.00001
 const ANCHOR_TRANSITION_SECONDS: float = 0.5
@@ -217,4 +218,94 @@ static func _commit_anchor_sample(
 	grip.previous_anchor_position = desired_position
 	grip.anchor_sample_valid = true
 
+#endregion
+
+#region Entity physical callback and suspended-hand allowance
+## В физическом callback применяет удержание по точке живой связи; не перемещает transform напрямую.
+static func integrate_forces(entity: Entity, state: PhysicsDirectBodyState3D) -> void:
+	var grip: Relationship = GrabService.held_relationship(entity)
+	if grip == null:
+		return
+
+	var pending: R_HeldBy = grip.relation as R_HeldBy
+	if not pending.lifecycle_applied:
+		return
+
+	var holder: Entity = grip.target as Entity
+	var body: RigidBody3D = GrabService.physical_body(entity)
+	var anchor: Node3D = GrabService.object_anchor(holder, entity)
+	var grip_data: R_HeldBy = grip.relation as R_HeldBy
+	var profile: GrabControlProfile = grip_data.profile
+	if (
+		not GrabService.holder_available(holder) or not GrabService.entity_available(entity)
+		or body == null or body.freeze or profile == null or not is_instance_valid(anchor)
+	):
+		GrabService.release(holder, entity, false)
+		return
+
+	var interactable: C_Interactable = entity.get_component(C_Interactable) as C_Interactable
+	if interactable != null and not interactable.enabled:
+		GrabService.release(holder, entity, false)
+		return
+
+	var break_limit: float = allowed_break_distance(
+		holder,
+		anchor,
+		grip_data,
+		profile,
+	)
+	if not GrabPhysicsSolver.integrate_state(
+		state,
+		anchor,
+		grip_data,
+		profile,
+		break_limit,
+	):
+		GrabService.release(holder, entity, false)
+
+
+## Computes the physical break allowance for suspended hands without changing ownership.
+static func allowed_break_distance(
+	holder: Entity,
+	anchor: Node3D,
+	grip_data: R_HeldBy,
+	profile: GrabControlProfile,
+) -> float:
+	var allowed: float = profile.break_distance
+	var hand_suspended: bool = (
+		grip_data.slot != C_Grabbable.HoldSlot.CARRY
+		and InteractionControlFocus.current(holder) != InteractionControlFocus.Priority.HANDS
+	)
+	if not hand_suspended:
+		return allowed
+
+	var hand_property: StringName = &"right_hand_slot"
+	if grip_data.slot == C_Grabbable.HoldSlot.LEFT_HAND:
+		hand_property = &"left_hand_slot"
+	var normal_anchor: Node3D = holder.get(hand_property) as Node3D
+	if is_instance_valid(normal_anchor):
+		allowed += normal_anchor.global_position.distance_to(anchor.global_position)
+	return allowed
+
+
+#endregion
+
+#region Manual rotation and throw impulse
+## Применяет ручной поворот с ограничением авторских осей вращения.
+static func rotated_offset(
+	offset: Quaternion,
+	look_delta: Vector2,
+	axis: C_Grabbable.RotationAxis = C_Grabbable.RotationAxis.FREE,
+) -> Quaternion:
+	if axis == C_Grabbable.RotationAxis.Y_ONLY:
+		return Quaternion(Vector3.UP, offset.get_euler().y - look_delta.x * ROTATION_SENSITIVITY)
+	return (
+		Quaternion(Vector3.UP, -look_delta.x * ROTATION_SENSITIVITY)
+		* Quaternion(Vector3.RIGHT, -look_delta.y * ROTATION_SENSITIVITY) * offset
+	).normalized()
+
+
+## Преобразует изменение скорости в м/с и массу в кг в импульс тела.
+static func throw_impulse(direction: Vector3, velocity_change: float, body_mass: float) -> Vector3:
+	return direction.normalized() * maxf(velocity_change, 0.0) * body_mass
 #endregion

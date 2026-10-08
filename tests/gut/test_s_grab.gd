@@ -1283,7 +1283,7 @@ func test_carry_throw_does_not_route_secondary_input_to_hand_item() -> void:
 
 ## Политика поворота ограничивает движение осью Y либо полностью отключает его.
 func test_y_only_rotation_and_disabled_rotation_policy() -> void:
-	var y_only_offset: Quaternion = GrabService.rotated_offset(
+	var y_only_offset: Quaternion = GrabPhysicsSolver.rotated_offset(
 		Quaternion.IDENTITY,
 		Vector2(30.0, 20.0),
 		C_Grabbable.RotationAxis.Y_ONLY,
@@ -1366,15 +1366,15 @@ func test_position_force_compensates_gravity_and_is_bounded() -> void:
 	var config: C_Grabbable = C_Grabbable.new()
 	var gravity: Vector3 = Vector3(0.0, -10.0, 0.0)
 	assert_eq(
-		GrabService.position_force(Vector3.ZERO, Vector3.ZERO, gravity, 5.0, config),
+		GrabPhysicsSolver.position_force(Vector3.ZERO, Vector3.ZERO, gravity, 5.0, GrabControlProfile.from_grabbable(config)),
 		Vector3(0.0, 50.0, 0.0),
 	)
-	var force: Vector3 = GrabService.position_force(
+	var force: Vector3 = GrabPhysicsSolver.position_force(
 		Vector3.ONE * 100.0,
 		Vector3.ZERO,
 		gravity,
 		80.0,
-		config,
+		GrabControlProfile.from_grabbable(config),
 	)
 	assert_almost_eq(force.length(), config.max_hold_force, 0.001)
 
@@ -1383,28 +1383,28 @@ func test_position_force_compensates_gravity_and_is_bounded() -> void:
 func test_rotation_shortest_arc_and_no_residual_velocity() -> void:
 	var config: C_Grabbable = C_Grabbable.new()
 	assert_eq(
-		GrabService.rotation_velocity(Quaternion.IDENTITY, -Quaternion.IDENTITY, 1.0 / 60.0, config),
+		GrabPhysicsSolver.rotation_velocity(Quaternion.IDENTITY, -Quaternion.IDENTITY, 1.0 / 60.0, GrabControlProfile.from_grabbable(config)),
 		Vector3.ZERO,
 	)
-	var angular_velocity: Vector3 = GrabService.rotation_velocity(
+	var angular_velocity: Vector3 = GrabPhysicsSolver.rotation_velocity(
 		Quaternion.IDENTITY,
 		Quaternion.IDENTITY,
 		1.0 / 60.0,
-		config,
+		GrabControlProfile.from_grabbable(config),
 	)
 	assert_eq(angular_velocity, Vector3.ZERO)
 
 	var offset: Quaternion = Quaternion.IDENTITY
 	for step_index: int in 1000:
-		offset = GrabService.rotated_offset(offset, Vector2(4.0, 3.0))
+		offset = GrabPhysicsSolver.rotated_offset(offset, Vector2(4.0, 3.0))
 	assert_almost_eq(offset.length(), 1.0, 0.00001)
 
 
 ## Импульс броска переводит желаемое изменение скорости и массу в Н·с.
 func test_throw_impulse_converts_scaled_velocity_change_to_mass_impulse() -> void:
-	assert_eq(GrabService.throw_impulse(Vector3.FORWARD, 10.0, 5.0), Vector3(0.0, 0.0, -50.0))
-	assert_eq(GrabService.throw_impulse(Vector3.FORWARD, 5.0, 75.0), Vector3(0.0, 0.0, -375.0))
-	assert_eq(GrabService.throw_impulse(Vector3.FORWARD, 0.0, 120.0), Vector3.ZERO)
+	assert_eq(GrabPhysicsSolver.throw_impulse(Vector3.FORWARD, 10.0, 5.0), Vector3(0.0, 0.0, -50.0))
+	assert_eq(GrabPhysicsSolver.throw_impulse(Vector3.FORWARD, 5.0, 75.0), Vector3(0.0, 0.0, -375.0))
+	assert_eq(GrabPhysicsSolver.throw_impulse(Vector3.FORWARD, 0.0, 120.0), Vector3.ZERO)
 #endregion
 
 
@@ -1762,6 +1762,56 @@ func test_scriptless_solver_moves_body_without_assigning_transform() -> void:
 	assert_gt(rock.global_position.z, initial_position.z)
 
 
+## The real scheduled generic owner applies forces without assigning physical transform.
+func test_generic_hold_world_owner_moves_scriptless_body_without_teleport() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.8))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_true(GrabService.try_pickup_body(holder_entity, rock))
+	var owner: S_Grab = S_Grab.new()
+	owner.group = "generic_hold_fixture"
+	grab_world.add_system(owner)
+	var initial_position: Vector3 = rock.global_position
+
+	grab_world.process(1.0 / 60.0, owner.group)
+	assert_eq(rock.global_position, initial_position, "Scheduled forces cannot teleport the body")
+	for physics_tick: int in 10:
+		await get_tree().physics_frame
+		grab_world.process(1.0 / 60.0, owner.group)
+	assert_gt(rock.global_position.z, initial_position.z)
+	assert_not_null(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY))
+	grab_world.remove_system(owner)
+
+
+## Deferred invalid-grip retirement cannot clear a newly acquired binding of the same object.
+func test_generic_hold_manual_flush_preserves_replacement_grip() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_true(GrabService.try_pickup_body(holder_entity, rock))
+	var held: Entity = GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	var previous: Relationship = GrabService.held_relationship(held)
+	var owner: S_Grab = S_Grab.new()
+	owner.group = "generic_hold_fixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	grab_world.add_system(owner)
+	rock.freeze = true
+	grab_world.process(1.0 / 60.0, owner.group)
+
+	GrabService.release(holder_entity, held, false)
+	rock.freeze = false
+	assert_true(GrabService.try_pickup_body(holder_entity, rock))
+	var replacement: Relationship = GrabService.held_relationship(held)
+	assert_ne(replacement, previous)
+	grab_world.flush_command_buffers()
+	assert_eq(GrabService.held_relationship(held), replacement)
+	assert_true(carry_load.active)
+	assert_true(rock.get_collision_exceptions().has(holder_body))
+	grab_world.remove_system(owner)
+
+
 ## Удаление исходного тела убирает proxy и производное состояние владельца.
 func test_scriptless_body_removal_cleans_runtime_proxy_and_holder() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
@@ -1879,6 +1929,53 @@ func test_character_body_transport_remains_interactable_after_generic_rigidbody_
 	InteractionInputFixture.advance(holder_entity)
 	assert_eq(CartTransportService.current(holder_entity), cart)
 	CartTransportService.end(cart)
+#endregion
+
+
+#region Deferred cargo sampling
+## Replacing the load aggregate discards a queued native-space sample before mutation.
+func test_cart_cargo_manual_flush_rejects_replaced_component() -> void:
+	var scene: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
+	var cart: E_TransportCart = scene.instantiate() as E_TransportCart
+	cart.set_physics_process(false)
+	grab_world.add_entity(cart)
+	var original: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
+	var owner: S_CartCargo = S_CartCargo.new()
+	owner.group = "cargo_fixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	grab_world.add_system(owner)
+	grab_world.process(1.0 / 60.0, owner.group)
+
+	cart.remove_component(C_CartTransport)
+	var replacement: C_CartTransport = C_CartTransport.new()
+	cart.add_component(replacement)
+	grab_world.flush_command_buffers()
+	assert_eq(original.cargo_update_frame, -1)
+	assert_eq(replacement.cargo_update_frame, -1)
+	assert_true(replacement.cargo.is_empty())
+	grab_world.remove_system(owner)
+
+
+## A native-space sample expires across physics frames instead of charging an old settling delta.
+func test_cart_cargo_manual_flush_rejects_previous_physics_frame() -> void:
+	var scene: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
+	var cart: E_TransportCart = scene.instantiate() as E_TransportCart
+	cart.set_physics_process(false)
+	grab_world.add_entity(cart)
+	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
+	var owner: S_CartCargo = S_CartCargo.new()
+	owner.group = "cargo_fixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	grab_world.add_system(owner)
+	grab_world.process(1.0 / 60.0, owner.group)
+	await get_tree().physics_frame
+	grab_world.flush_command_buffers()
+	assert_eq(config.cargo_update_frame, -1)
+
+	grab_world.process(1.0 / 60.0, owner.group)
+	grab_world.flush_command_buffers()
+	assert_eq(config.cargo_update_frame, Engine.get_physics_frames())
+	grab_world.remove_system(owner)
 #endregion
 
 
@@ -2042,6 +2139,32 @@ func test_push_modal_overlap_pauses_motor_and_retains_capture_after_ui_release()
 		InteractionControlFocus.Priority.HANDS,
 	)
 	cart.free()
+
+
+## A queued push check cannot retire a replacement session even if the pair loses focus.
+func test_push_manual_flush_preserves_replacement_binding() -> void:
+	var cart: Entity = _make_push_cart()
+	await get_tree().physics_frame
+	assert_true(PushService.try_begin(holder_entity, cart))
+	var previous: Relationship = PushService.relationship(cart)
+	var owner: S_Push = S_Push.new()
+	owner.group = "push_fixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	grab_world.add_system(owner)
+	grab_world.process(1.0 / 60.0, owner.group)
+
+	PushService.end(holder_entity, cart)
+	assert_true(PushService.try_begin(holder_entity, cart))
+	var replacement: Relationship = PushService.relationship(cart)
+	assert_ne(replacement, previous)
+	input_state.direction_look = Vector3.BACK
+	grab_world.flush_command_buffers()
+	assert_eq(PushService.relationship(cart), replacement)
+
+	grab_world.process(1.0 / 60.0, owner.group)
+	grab_world.flush_command_buffers()
+	assert_null(PushService.relationship(cart), "A current scheduled check retires the invalid session")
+	grab_world.remove_system(owner)
 
 
 ## Занятое тело и перекрытая стеной рукоять не допускают второго владельца.

@@ -13,13 +13,14 @@ func _ready() -> void:
 	_run.call_deferred()
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if not is_instance_valid(_actor) or _controller == null:
 		return
 
 	_controller.input_tick += 1
 	_controller.direction_look = -(_cart as Node as Node3D).global_basis.z
 	InteractionInputFixture.advance(_actor)
+	ECS.world.process(delta, "cart_fixture_cargo")
 	for cargo: Entity in _cargo:
 		var binding: Relationship = CartCargoService.relationship(cargo)
 		var data: R_CartCargo = binding.relation as R_CartCargo if binding != null else null
@@ -35,6 +36,9 @@ func _run() -> void:
 	var world: World = World.new()
 	add_child(world)
 	ECS.world = world
+	var cargo_owner: S_CartCargo = S_CartCargo.new()
+	cargo_owner.group = "cart_fixture_cargo"
+	world.add_system(cargo_owner)
 	world.add_observer(O_GrabLifecycle.new())
 	world.add_observer(O_CartLifecycle.new())
 	_obstacle(Vector3(0, -0.5, 0), Vector3(40, 1, 40))
