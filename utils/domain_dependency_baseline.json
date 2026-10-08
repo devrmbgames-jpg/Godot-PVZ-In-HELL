@@ -1,0 +1,797 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "rule": "forbidden-edge",
+      "source": "content/ai/tasks/bt_npc_action.gd",
+      "source_owner": "npc",
+      "target_symbol": "C_CustomerAgent",
+      "target_path": "content/components/gameplay/c_customer_agent.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/ai/tasks/bt_npc_action.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcServiceRole",
+      "target_path": "content/services/npc/npc_service_role.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/ai/tasks/bt_npc_condition.gd",
+      "source_owner": "npc",
+      "target_symbol": "C_CustomerAgent",
+      "target_path": "content/components/gameplay/c_customer_agent.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/ai/tasks/bt_npc_condition.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcServiceRole",
+      "target_path": "content/services/npc/npc_service_role.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/components/npc/c_district.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcServiceRoutes",
+      "target_path": "content/scenes/npc_service_routes.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/definitions/interaction/def_npc_door_action.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcHomeDeliveryService",
+      "target_path": "content/services/npc/npc_home_delivery_service.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/entities/characters/e_npc_character.gd",
+      "source_owner": "npc",
+      "target_symbol": "E_RigidBodyCharacter",
+      "target_path": "content/entities/characters/e_rigid_body_character.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/entities/characters/e_npc_character.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcAttackService",
+      "target_path": "content/services/combat/npc_attack_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/entities/npc/e_district_npc.gd",
+      "source_owner": "npc",
+      "target_symbol": "E_Customer",
+      "target_path": "content/entities/customers/e_customer.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/observers/gameplay/o_district_lifecycle.gd",
+      "source_owner": "npc",
+      "target_symbol": "C_CustomerAgent",
+      "target_path": "content/components/gameplay/c_customer_agent.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/observers/gameplay/o_district_lifecycle.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcDeliveryOfferService",
+      "target_path": "content/services/npc/npc_delivery_offer_service.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/combat/combat_service.gd",
+      "source_owner": "combat",
+      "target_symbol": "GrabService",
+      "target_path": "content/services/interaction/grab_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/combat/combat_service.gd",
+      "source_owner": "combat",
+      "target_symbol": "NpcAttackService",
+      "target_path": "content/services/combat/npc_attack_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/customers/customer_dialogue_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "CustomerDialogueContext",
+      "target_path": "content/dialogue/customer_dialogue_context.gd",
+      "removal_task": "29",
+      "reason": "domains cannot import global UI/composition"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/customers/customer_dialogue_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "CustomerDialoguePanel",
+      "target_path": "content/ui/customer_dialogue_panel.gd",
+      "removal_task": "29",
+      "reason": "domains cannot import global UI/composition"
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_flow_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "ChallengeService",
+      "target_path": "content/services/challenges/challenge_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_flow_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "CombatService",
+      "target_path": "content/services/combat/combat_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_flow_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "CustomerGreetingService",
+      "target_path": "content/services/customers/customer_greeting_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_flow_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "CustomerHandoffService",
+      "target_path": "content/services/customers/customer_handoff_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_flow_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "CustomerInspectionService",
+      "target_path": "content/services/customers/customer_inspection_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_flow_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "CustomerOutcomeService",
+      "target_path": "content/services/customers/customer_outcome_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_flow_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "CustomerPresentation",
+      "target_path": "content/services/customers/customer_presentation.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_flow_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "NpcHomeDeliveryService",
+      "target_path": "content/services/npc/npc_home_delivery_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_flow_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "NpcServiceRole",
+      "target_path": "content/services/npc/npc_service_role.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_flow_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "PackageRegistrationService",
+      "target_path": "content/services/packages/package_registration_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_inspection_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "LootDropService",
+      "target_path": "content/services/gameplay/loot_drop_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/customers/customer_inspection_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "PackageOpening",
+      "target_path": "content/services/packages/package_opening.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/gameplay/day_phase_service.gd",
+      "source_owner": "time",
+      "target_symbol": "CustomerFlowService",
+      "target_path": "content/services/customers/customer_flow_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/gameplay/day_phase_service.gd",
+      "source_owner": "time",
+      "target_symbol": "NpcSleepService",
+      "target_path": "content/services/npc/npc_sleep_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/interaction/grab_service.gd",
+      "source_owner": "interaction",
+      "target_symbol": "CustomerInspectionService",
+      "target_path": "content/services/customers/customer_inspection_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/district_population_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "C_CustomerAgent",
+      "target_path": "content/components/gameplay/c_customer_agent.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/district_population_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "CombatService",
+      "target_path": "content/services/combat/combat_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/district_population_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "CustomerInspectionService",
+      "target_path": "content/services/customers/customer_inspection_service.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/district_population_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "DistrictDeliveryView",
+      "target_path": "content/ui/district_delivery_view.gd",
+      "removal_task": "29",
+      "reason": "domains cannot import global UI/composition"
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/district_population_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcAttackService",
+      "target_path": "content/services/combat/npc_attack_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/district_population_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcBrainService",
+      "target_path": "content/services/npc/npc_brain_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/district_population_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcCommunityService",
+      "target_path": "content/services/npc/npc_community_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/district_population_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcHomeDeliveryService",
+      "target_path": "content/services/npc/npc_home_delivery_service.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/district_population_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcRemainsService",
+      "target_path": "content/services/gameplay/npc_remains_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/district_population_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcServiceRole",
+      "target_path": "content/services/npc/npc_service_role.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/npc_community_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "C_CustomerAgent",
+      "target_path": "content/components/gameplay/c_customer_agent.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/npc_community_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "R_AssignedTo",
+      "target_path": "content/relationships/customers/r_assigned_to.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/npc_decision_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "C_CustomerAgent",
+      "target_path": "content/components/gameplay/c_customer_agent.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/npc_decision_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "CustomerFlowService",
+      "target_path": "content/services/customers/customer_flow_service.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/npc_decision_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcServiceRole",
+      "target_path": "content/services/npc/npc_service_role.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/npc_delivery_scenario_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "CustomerFlowService",
+      "target_path": "content/services/customers/customer_flow_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/npc_delivery_scenario_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "NpcHomeDeliveryService",
+      "target_path": "content/services/npc/npc_home_delivery_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/npc_delivery_scenario_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "NpcServiceRole",
+      "target_path": "content/services/npc/npc_service_role.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/npc_dialogue_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "C_CustomerAgent",
+      "target_path": "content/components/gameplay/c_customer_agent.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/npc_dialogue_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "CustomerDialoguePanel",
+      "target_path": "content/ui/customer_dialogue_panel.gd",
+      "removal_task": "29",
+      "reason": "domains cannot import global UI/composition"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/npc_dialogue_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcStreetDialogueContext",
+      "target_path": "content/dialogue/npc_street_dialogue_context.gd",
+      "removal_task": "29",
+      "reason": "domains cannot import global UI/composition"
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/npc_home_delivery_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "CustomerInspectionService",
+      "target_path": "content/services/customers/customer_inspection_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/npc_home_delivery_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "NpcDeliveryOfferService",
+      "target_path": "content/services/npc/npc_delivery_offer_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/npc_home_delivery_service.gd",
+      "source_owner": "customers",
+      "target_symbol": "NpcServiceRole",
+      "target_path": "content/services/npc/npc_service_role.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/npc_lighting_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcLightZone",
+      "target_path": "content/scenes/npc_light_zone.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/npc/npc_service_role.gd",
+      "source_owner": "customers",
+      "target_symbol": "CustomerPresentation",
+      "target_path": "content/services/customers/customer_presentation.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/npc_social_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "C_CustomerAgent",
+      "target_path": "content/components/gameplay/c_customer_agent.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/npc_social_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "CustomerFlowService",
+      "target_path": "content/services/customers/customer_flow_service.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/npc/npc_social_service.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcDeliveryOfferService",
+      "target_path": "content/services/npc/npc_delivery_offer_service.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/packages/package_registration_service.gd",
+      "source_owner": "packages",
+      "target_symbol": "NpcDeliveryOfferService",
+      "target_path": "content/services/npc/npc_delivery_offer_service.gd",
+      "removal_task": "29",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/systems/gameplay/s_district.gd",
+      "source_owner": "npc",
+      "target_symbol": "S_CustomerFlow",
+      "target_path": "content/systems/gameplay/s_customer_flow.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/systems/gameplay/s_npc_cadence.gd",
+      "source_owner": "npc",
+      "target_symbol": "S_CustomerArrivals",
+      "target_path": "content/systems/gameplay/s_customer_arrivals.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/systems/gameplay/s_npc_cadence.gd",
+      "source_owner": "npc",
+      "target_symbol": "S_CustomerFlow",
+      "target_path": "content/systems/gameplay/s_customer_flow.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/systems/gameplay/s_npc_decision.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcServiceRole",
+      "target_path": "content/services/npc/npc_service_role.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/systems/gameplay/s_npc_route.gd",
+      "source_owner": "npc",
+      "target_symbol": "C_CustomerAgent",
+      "target_path": "content/components/gameplay/c_customer_agent.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/systems/gameplay/s_npc_route.gd",
+      "source_owner": "npc",
+      "target_symbol": "CustomerFlowService",
+      "target_path": "content/services/customers/customer_flow_service.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/systems/gameplay/s_npc_route.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcHomeDeliveryService",
+      "target_path": "content/services/npc/npc_home_delivery_service.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/systems/gameplay/s_npc_route.gd",
+      "source_owner": "npc",
+      "target_symbol": "NpcServiceRole",
+      "target_path": "content/services/npc/npc_service_role.gd",
+      "removal_task": "29",
+      "reason": "base NPC imports Customer behavior/state"
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/combat/combat_service.gd",
+      "source_owner": "combat",
+      "target_symbol": "DamageRequestService",
+      "target_path": "content/services/damage/damage_request_service.gd",
+      "removal_task": "30",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/interaction/cart_cargo_service.gd",
+      "source_owner": "interaction",
+      "target_symbol": "CartCargoGeometry",
+      "target_path": "content/geometry/interaction/cart_cargo_geometry.gd",
+      "removal_task": "30",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/interaction/grab_service.gd",
+      "source_owner": "interaction",
+      "target_symbol": "CartCargoService",
+      "target_path": "content/services/interaction/cart_cargo_service.gd",
+      "removal_task": "30",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/interaction/grab_service.gd",
+      "source_owner": "interaction",
+      "target_symbol": "GrabPhysicsSolver",
+      "target_path": "content/services/interaction/grab_physics_solver.gd",
+      "removal_task": "30",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/interaction/grab_service.gd",
+      "source_owner": "interaction",
+      "target_symbol": "InteractionTargetingGeometry",
+      "target_path": "content/geometry/interaction/interaction_targeting_geometry.gd",
+      "removal_task": "30",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/interaction/grab_service.gd",
+      "source_owner": "interaction",
+      "target_symbol": "MarkerSessionService",
+      "target_path": "content/services/interaction/marker_session_service.gd",
+      "removal_task": "30",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/interaction/grab_service.gd",
+      "source_owner": "interaction",
+      "target_symbol": "PhysicalSlotService",
+      "target_path": "content/services/interaction/physical_slot_service.gd",
+      "removal_task": "30",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/definitions/interaction/def_trader_action.gd",
+      "source_owner": "commerce",
+      "target_symbol": "CommercePanelFactory",
+      "target_path": "content/ui/commerce_panel_factory.gd",
+      "removal_task": "31",
+      "reason": "domains cannot import global UI/composition"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/entities/stations/e_terminal.gd",
+      "source_owner": "packages",
+      "target_symbol": "TerminalPanel",
+      "target_path": "content/ui/terminal_panel.gd",
+      "removal_task": "31",
+      "reason": "domains cannot import global UI/composition"
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/entities/zones/e_receiving_zone.gd",
+      "source_owner": "packages",
+      "target_symbol": "ReceivingShiftService",
+      "target_path": "content/services/packages/receiving_shift_service.gd",
+      "removal_task": "31",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "implementation-cycle",
+      "source": "content/services/gameplay/day_phase_service.gd",
+      "source_owner": "time",
+      "target_symbol": "ReceivingShiftService",
+      "target_path": "content/services/packages/receiving_shift_service.gd",
+      "removal_task": "31",
+      "reason": "Exact pre-migration behavioral cycle; resolve responsibility before the earliest involved owner closes."
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/persistence/night_reset_service.gd",
+      "source_owner": "persistence",
+      "target_symbol": "CommercePanel",
+      "target_path": "content/ui/commerce_panel.gd",
+      "removal_task": "31",
+      "reason": "domains cannot import global UI/composition"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/persistence/night_reset_service.gd",
+      "source_owner": "persistence",
+      "target_symbol": "CustomerDialoguePanel",
+      "target_path": "content/ui/customer_dialogue_panel.gd",
+      "removal_task": "31",
+      "reason": "domains cannot import global UI/composition"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/persistence/night_reset_service.gd",
+      "source_owner": "persistence",
+      "target_symbol": "InventoryPanel",
+      "target_path": "content/ui/inventory_panel.gd",
+      "removal_task": "31",
+      "reason": "domains cannot import global UI/composition"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/services/persistence/night_reset_service.gd",
+      "source_owner": "persistence",
+      "target_symbol": "TerminalPanel",
+      "target_path": "content/ui/terminal_panel.gd",
+      "removal_task": "31",
+      "reason": "domains cannot import global UI/composition"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/systems/gameplay/s_day_phase.gd",
+      "source_owner": "time",
+      "target_symbol": "C_Autosave",
+      "target_path": "content/components/persistence/c_autosave.gd",
+      "removal_task": "31",
+      "reason": "domains cannot import persistence"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/systems/gameplay/s_loot_drops.gd",
+      "source_owner": "packages",
+      "target_symbol": "S_NightSave",
+      "target_path": "content/systems/persistence/s_night_save.gd",
+      "removal_task": "31",
+      "reason": "domains cannot import persistence"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/debug/boundary_trace.gd",
+      "source_owner": "shared",
+      "target_symbol": "C_NpcIdentity",
+      "target_path": "content/components/npc/c_npc_identity.gd",
+      "removal_task": "32",
+      "reason": "shared imports no domain/global gameplay implementation"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/debug/boundary_trace.gd",
+      "source_owner": "shared",
+      "target_symbol": "C_Package",
+      "target_path": "content/components/gameplay/c_package.gd",
+      "removal_task": "32",
+      "reason": "shared imports no domain/global gameplay implementation"
+    },
+    {
+      "rule": "forbidden-edge",
+      "source": "content/rules/persistence/actor_identity_rules.gd",
+      "source_owner": "shared",
+      "target_symbol": "C_Package",
+      "target_path": "content/components/gameplay/c_package.gd",
+      "removal_task": "32",
+      "reason": "shared imports no domain/global gameplay implementation"
+    }
+  ]
+}

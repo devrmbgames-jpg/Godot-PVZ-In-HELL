@@ -38,7 +38,7 @@ Global `content/ui/`, `content/scenes/`, `content/materials/` and `content/debug
 
 29 closes NPC+Customers, including hierarchy/BT/service role and dialogue routing decomposition before their paths move. 30 closes Interaction/Combat/Motion. 31 closes the remaining concrete owners and global SceneTree composition. 32 closes truly shared foundations, including domain-independent identity/diagnostics. Complete owner scripts/resources, all incoming references, tests/tooling discovery, native save golden/codec scene/definition/type paths and closed path-prefix guards in the same coherent owner commit. Preserve .gd.uid and scene/resource UIDs; .godot is generated. Changed save formats are versioned/rejected; no old-save migration. Raw .tscn changes require the editor to be closed.
 
-`legacy_decomposition` in the access manifest names forbidden existing dependencies and their removal task; it does not grant access. Task 33 enables exact legacy exemptions/enforcement immediately after 28 and before 29. An owner cannot become DONE with its exemption; all exemptions/baseline are empty after 32. No temporary compatibility facade survives closure.
+`legacy_decomposition` in the access manifest names forbidden existing dependencies and their removal task; it does not grant access. Task 33 has enabled exact frozen legacy exemptions/enforcement after 28 and before 29. An owner cannot become DONE with its exemption; all exemptions/baseline are empty after 32. No temporary compatibility facade survives closure.
 
 Validation during migration:
 
@@ -46,6 +46,7 @@ Validation during migration:
 python utils/validate_project_structure.py
 python utils/validate_domain_structure.py
 python utils/validate_domain_migration_map.py
+python utils/validate_domain_dependencies.py
 ```
 
 After migration, strict domain/dependency gates are mandatory. No new role spelling variants (`camponent`, `component`, `geometry`) or unapproved owner (`district`) are allowed.
