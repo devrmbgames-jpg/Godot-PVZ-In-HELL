@@ -29,8 +29,8 @@ func before_each() -> void:
 	_commerce = session.get_component(C_Commerce) as C_Commerce
 	_cycle.phase = C_DayCycle.Phase.EVENING
 	_wallet.balance = 500
-	_food = load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem
-	_med = load("res://content/definitions/gameplay/inventory/def_item_med.tres") as DEF_InventoryItem
+	_food = load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem
+	_med = load("res://content/domains/inventory/definitions/def_item_med.tres") as DEF_InventoryItem
 	_actor = Entity.new()
 	_actor.component_resources = [C_Inventory.new()]
 	_world.add_entity(_actor)
@@ -111,7 +111,7 @@ func test_full_inventory_and_bad_catalog_do_not_charge() -> void:
 	assert_eq(CommerceService.purchase(_actor, _trader, _med, 1, &"blocked"), CommerceService.Status.INVENTORY_FULL)
 	assert_eq(_wallet.balance, balance)
 	assert_eq(_commerce.receipts.size(), 1)
-	var wrap: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_bubble_wrap.tres") as DEF_InventoryItem
+	var wrap: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_bubble_wrap.tres") as DEF_InventoryItem
 	assert_eq(CommerceService.purchase(_actor, _trader, wrap, 1, &"not-stocked"), CommerceService.Status.INVALID)
 	assert_eq(_wallet.balance, balance)
 
@@ -173,17 +173,17 @@ func test_persistent_records_copy_and_serial_prevent_request_id_collision() -> v
 
 ## Учётная стоимость коробки отличается от рыночной цены содержимого; upgrade-заготовки имеют свои ID.
 func test_authored_market_contents_and_upgrade_stubs_are_distinct_data() -> void:
-	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
 	var compared: bool = false
 	for parcel: DEF_Package in supply.packages:
 		if parcel.content_item_key == &"bubble_wrap":
-			var wrap: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_bubble_wrap.tres") as DEF_InventoryItem
+			var wrap: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_bubble_wrap.tres") as DEF_InventoryItem
 			assert_eq(parcel.content_quantity, 4)
 			assert_ne(parcel.accounting_value, wrap.market_price * parcel.content_quantity)
 			compared = true
 	assert_true(compared)
 	for key: String in ["label_printer", "cart", "better_scanner", "storage_upgrade"]:
-		var upgrade: DEF_Upgrade = load("res://content/definitions/gameplay/commerce/def_upgrade_%s.tres" % key) as DEF_Upgrade
+		var upgrade: DEF_Upgrade = load("res://content/domains/commerce/definitions/def_upgrade_%s.tres" % key) as DEF_Upgrade
 		assert_not_null(upgrade)
 		assert_eq(upgrade.key, StringName(key))
 

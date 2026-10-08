@@ -3130,6 +3130,22 @@
       "uid": "uid://dcqj2rnlc65lf"
     },
     {
+      "source": "content/contracts/commerce/commerce_panel_open_request.gd",
+      "target": "content/domains/commerce/contracts/commerce_panel_open_request.gd",
+      "owner": "commerce",
+      "role": "contracts",
+      "task": "31",
+      "symbol": "CommercePanelOpenRequest"
+    },
+    {
+      "source": "content/contracts/commerce/commerce_panel_open_request.gd.uid",
+      "target": "content/domains/commerce/contracts/commerce_panel_open_request.gd.uid",
+      "owner": "commerce",
+      "role": "contracts",
+      "task": "31",
+      "uid": "uid://ogo3k6gkpxvj"
+    },
+    {
       "source": "content/contracts/commerce/pending_delivery.gd",
       "target": "content/domains/commerce/contracts/pending_delivery.gd",
       "owner": "commerce",
@@ -3518,6 +3534,22 @@
       "task": "32",
       "symbol": "BoundaryTraceEntry",
       "uid": "uid://bbb3krlcgbwbj"
+    },
+    {
+      "source": "content/contracts/gameplay/night_preparation_requirement.gd",
+      "target": "content/domains/time/contracts/night_preparation_requirement.gd",
+      "owner": "time",
+      "role": "contracts",
+      "task": "31",
+      "symbol": "NightPreparationRequirement"
+    },
+    {
+      "source": "content/contracts/gameplay/night_preparation_requirement.gd.uid",
+      "target": "content/domains/time/contracts/night_preparation_requirement.gd.uid",
+      "owner": "time",
+      "role": "contracts",
+      "task": "31",
+      "uid": "uid://bop5xkjtwcdyd"
     },
     {
       "source": "content/contracts/gameplay/pending_loot_drop.gd",
@@ -4299,6 +4331,22 @@
       "uid": "uid://qoxpbyfvdb4f"
     },
     {
+      "source": "content/contracts/packages/terminal_panel_state_query.gd",
+      "target": "content/domains/packages/contracts/terminal_panel_state_query.gd",
+      "owner": "packages",
+      "role": "contracts",
+      "task": "31",
+      "symbol": "TerminalPanelStateQuery"
+    },
+    {
+      "source": "content/contracts/packages/terminal_panel_state_query.gd.uid",
+      "target": "content/domains/packages/contracts/terminal_panel_state_query.gd.uid",
+      "owner": "packages",
+      "role": "contracts",
+      "task": "31",
+      "uid": "uid://bqneqx6h1fmw6"
+    },
+    {
       "source": "content/contracts/persistence/game_save_result.gd",
       "target": "content/domains/persistence/contracts/game_save_result.gd",
       "owner": "persistence",
@@ -4314,6 +4362,22 @@
       "task": "31",
       "symbol": "GameSaveResult",
       "uid": "uid://dlpxawjag5geg"
+    },
+    {
+      "source": "content/contracts/persistence/night_ui_reset_request.gd",
+      "target": "content/domains/persistence/contracts/night_ui_reset_request.gd",
+      "owner": "persistence",
+      "role": "contracts",
+      "task": "31",
+      "symbol": "NightUiResetRequest"
+    },
+    {
+      "source": "content/contracts/persistence/night_ui_reset_request.gd.uid",
+      "target": "content/domains/persistence/contracts/night_ui_reset_request.gd.uid",
+      "owner": "persistence",
+      "role": "contracts",
+      "task": "31",
+      "uid": "uid://dll72ve32cj7h"
     },
     {
       "source": "content/contracts/persistence/snapshot_links.gd",
@@ -7493,6 +7557,22 @@
       "uid": "uid://kestjkhe0fr5"
     },
     {
+      "source": "content/entities/zones/e_receiving_zone_body.gd",
+      "target": "content/domains/packages/entities/e_receiving_zone_body.gd",
+      "owner": "packages",
+      "role": "entities",
+      "task": "31",
+      "symbol": "E_ReceivingZoneBody"
+    },
+    {
+      "source": "content/entities/zones/e_receiving_zone_body.gd.uid",
+      "target": "content/domains/packages/entities/e_receiving_zone_body.gd.uid",
+      "owner": "packages",
+      "role": "entities",
+      "task": "31",
+      "uid": "uid://dfegeaqmq2drh"
+    },
+    {
       "source": "content/entities/zones/receiving_zone.tscn",
       "target": "content/domains/packages/entities/receiving_zone.tscn",
       "owner": "packages",
@@ -8392,6 +8472,22 @@
       "uid": "uid://cl8wk6dmtityy"
     },
     {
+      "source": "content/observers/persistence/o_night_preparation_requirement.gd",
+      "target": "content/domains/persistence/observers/o_night_preparation_requirement.gd",
+      "owner": "persistence",
+      "role": "observers",
+      "task": "31",
+      "symbol": "O_NightPreparationRequirement"
+    },
+    {
+      "source": "content/observers/persistence/o_night_preparation_requirement.gd.uid",
+      "target": "content/domains/persistence/observers/o_night_preparation_requirement.gd.uid",
+      "owner": "persistence",
+      "role": "observers",
+      "task": "31",
+      "uid": "uid://cx5truahrysmb"
+    },
+    {
       "source": "content/presentation/combat/melee_weapon_presentation.gd",
       "target": "content/domains/combat/presentation/melee_weapon_presentation.gd",
       "owner": "combat",
@@ -8968,6 +9064,22 @@
       "task": "31",
       "symbol": "TraderCatalogRules",
       "uid": "uid://phvsvdl8776s"
+    },
+    {
+      "source": "content/rules/gameplay/gameplay_resource_paths.gd",
+      "target": "content/shared/rules/gameplay_resource_paths.gd",
+      "owner": "shared",
+      "role": "rules",
+      "task": "32",
+      "symbol": "GameplayResourcePaths"
+    },
+    {
+      "source": "content/rules/gameplay/gameplay_resource_paths.gd.uid",
+      "target": "content/shared/rules/gameplay_resource_paths.gd.uid",
+      "owner": "shared",
+      "role": "rules",
+      "task": "32",
+      "uid": "uid://damfjmw2qdtbh"
     },
     {
       "source": "content/rules/hunger/hunger_rules.gd",
@@ -13184,6 +13296,22 @@
       "uid": "uid://use82ldqp2wp"
     },
     {
+      "source": "content/ui/o_gameplay_panel_request.gd",
+      "target": "content/ui/o_gameplay_panel_request.gd",
+      "owner": "global",
+      "role": "ui",
+      "task": "retain",
+      "symbol": "O_GameplayPanelRequest"
+    },
+    {
+      "source": "content/ui/o_gameplay_panel_request.gd.uid",
+      "target": "content/ui/o_gameplay_panel_request.gd.uid",
+      "owner": "global",
+      "role": "ui",
+      "task": "retain",
+      "uid": "uid://clmx2c6rxcd7i"
+    },
+    {
       "source": "content/ui/package_condition_view.gd",
       "target": "content/ui/package_condition_view.gd",
       "owner": "global",
@@ -13379,6 +13507,23 @@
       "role": "ui",
       "task": "retain",
       "uid": "uid://dgsb0j06iiqcg"
+    },
+    {
+      "source": "content/domains/interaction/rules/item_access_rules.gd",
+      "target": "content/domains/interaction/rules/item_access_rules.gd",
+      "owner": "interaction",
+      "role": "rules",
+      "task": "30",
+      "symbol": "ItemAccessRules"
+    },
+    {
+      "source": "content/domains/interaction/rules/item_access_rules.gd.uid",
+      "target": "content/domains/interaction/rules/item_access_rules.gd.uid",
+      "owner": "interaction",
+      "role": "rules",
+      "task": "30",
+      "symbol": "ItemAccessRules",
+      "uid": "uid://bgvmqb0dgfxvr"
     }
   ],
   "old_save_migration": false,

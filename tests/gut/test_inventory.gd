@@ -36,7 +36,7 @@ func _new_owner() -> Entity:
 	health.current = 50.0
 	health.value = 100.0
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
 	hunger.value = 75.0
 	actor.component_resources = [C_Inventory.new(), C_Living.new(), health, hunger]
 	_world.add_entity(actor)
@@ -46,7 +46,7 @@ func _new_owner() -> Entity:
 func _item(key: String, quantity: int = 1) -> Entity:
 	var item: Entity = Entity.new()
 	var state: C_InventoryItem = C_InventoryItem.new()
-	state.definition = load("res://content/definitions/gameplay/inventory/def_item_%s.tres" % key) as DEF_InventoryItem
+	state.definition = load("res://content/domains/inventory/definitions/def_item_%s.tres" % key) as DEF_InventoryItem
 	state.quantity = quantity
 	item.component_resources = [state]
 	_world.add_entity(item)

@@ -90,7 +90,7 @@ func _run() -> void:
 	_check(dialogue != null and dialogue.cues.has("home_request") and dialogue.cues.has("home_declined"), "compiled customer delivery branches")
 	var street: DialogueResource = load("res://content/domains/npc/dialogue/npc_street.dialogue") as DialogueResource
 	_check(street != null and street.cues.has("delivery_request") and street.cues.has("delivery_declined"), "compiled street delivery branches")
-	var aura: DEF_ToxicArea = load("res://content/definitions/gameplay/hazards/def_npc_fire_aura.tres") as DEF_ToxicArea
+	var aura: DEF_ToxicArea = load("res://content/domains/hazards/definitions/def_npc_fire_aura.tres") as DEF_ToxicArea
 	_check(is_equal_approx(aura.radius, 2.25), "fire radius reduced by 25 percent")
 	_level.free()
 	ECS.world = null

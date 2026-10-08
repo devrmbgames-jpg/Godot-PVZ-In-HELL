@@ -3,7 +3,7 @@ extends RefCounted
 class_name NpcTraitService
 
 ## Authored effect prefab for explicit fire-aura materialization.
-const AURA_SCENE: String = "res://content/entities/hazards/npc_fire_aura.tscn"
+const AURA_SCENE: String = "res://content/domains/hazards/entities/npc_fire_aura.tscn"
 
 #region Жизненный цикл особенностей
 ## Устанавливает настоящий иммунитет к огню до воздействия собственной ауры.

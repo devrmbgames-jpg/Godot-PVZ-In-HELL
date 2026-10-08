@@ -1,7 +1,7 @@
 extends "res://tests/gut/test_npc_remains.gd"
 ## Реальное Jolt-пространство, форма лута, ограниченные повторы и постоянный остаток без источника.
 
-const MEAT_SCENE: String = "res://content/entities/inventory/npc_meat_pickup.tscn"
+const MEAT_SCENE: String = "res://content/domains/inventory/entities/npc_meat_pickup.tscn"
 
 #region Физические проверки
 ## Дополняет настоящее окружение урона/останков сессионной системой повторов.

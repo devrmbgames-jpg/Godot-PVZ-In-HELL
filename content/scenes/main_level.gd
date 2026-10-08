@@ -48,7 +48,7 @@ func _ready() -> void:
 		authored_world.add_startup_observer(O_CustomerNpcInterruption.new())
 	else:
 		world.add_observer(O_CustomerNpcInterruption.new())
-	for observer_type: Script in [O_CustomerNpcConversation, O_CustomerInspectionCargo, O_DialoguePanelRequest]:
+	for observer_type: Script in [O_CustomerNpcConversation, O_CustomerInspectionCargo, O_DialoguePanelRequest, O_GameplayPanelRequest, O_NightPreparationRequirement]:
 		var composition_observer: Observer = observer_type.new() as Observer
 		if authored_world != null:
 			authored_world.add_startup_observer(composition_observer)

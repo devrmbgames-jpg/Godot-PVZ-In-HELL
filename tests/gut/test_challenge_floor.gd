@@ -51,7 +51,7 @@ func before_each() -> void:
 	_motion.floor_body_rid = body.get_rid()
 	_subject = Entity.new()
 	_state = C_Challenge.new()
-	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_floor.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition = (load("res://content/domains/challenges/definitions/def_challenge_floor.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
 	# Короткие изолированные часы отделяют механику теста от авторского темпа приёмки.
 	_state.definition.timeout_seconds = 15.0
 	_state.definition.preparation_seconds = 3.0

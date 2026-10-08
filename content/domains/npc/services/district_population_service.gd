@@ -269,7 +269,7 @@ static func _install_roles(body: E_DistrictNpc, person: NpcRecord) -> void:
 		body.add_component(C_Inventory.new())
 	if not body.has_component(C_Hunger):
 		var hunger: C_Hunger = C_Hunger.new()
-		hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+		hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
 		hunger.value = NpcPopulationQueries.current().definition.npc_start_hunger
 		body.add_component(hunger)
 
@@ -286,7 +286,7 @@ static func _install_roles(body: E_DistrictNpc, person: NpcRecord) -> void:
 		actions.actions.append(street)
 	if person.profile.merchant and not body.has_component(C_Trader):
 		var trader: C_Trader = C_Trader.new()
-		trader.profile = load("res://content/definitions/gameplay/commerce/def_trader_default.tres") as DEF_TraderProfile
+		trader.profile = load("res://content/domains/commerce/definitions/def_trader_default.tres") as DEF_TraderProfile
 		body.add_component(trader)
 		var trade: DEF_TraderAction = DEF_TraderAction.new()
 		trade.action_id = &"trade"

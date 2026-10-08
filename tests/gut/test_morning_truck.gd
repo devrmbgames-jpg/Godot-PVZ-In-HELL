@@ -18,7 +18,7 @@ func before_each() -> void:
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_PackageLedger.new()]
 	_world.add_entity(session)
-	_zone = (load("res://content/entities/zones/receiving_zone.tscn") as PackedScene).instantiate() as E_ReceivingZone
+	_zone = (load("res://content/domains/packages/entities/receiving_zone.tscn") as PackedScene).instantiate() as E_ReceivingZone
 	_zone.package_parent = _root
 	_parking = Marker3D.new()
 	_parking.position = Vector3(5, 0, 7)
@@ -229,7 +229,7 @@ func test_restored_batch_and_arrival_history_prevent_duplicate_spawn() -> void:
 func test_unlisted_saved_scene_is_rejected_without_creating_a_node() -> void:
 	var created: E_Package = ReceivingPackageFactory.create(
 		_zone, _zone.supply.packages[0], "invalid-scene", 1, 0,
-		"res://content/entities/car/car.tscn",
+		"res://content/domains/packages/entities/car.tscn",
 	)
 	assert_null(created)
 	assert_true(_parcels().is_empty())
@@ -266,7 +266,7 @@ func test_snapshot_manifest_and_scene_choices_are_independent() -> void:
 	var scenes: PackedStringArray = _state.pending[0].package_scenes.duplicate()
 	var fields: Dictionary = SaveDataCodec.component_data(_state).fields as Dictionary
 	_state.incoming_package_ids.clear()
-	_state.pending[0].package_scenes[0] = "res://content/entities/packages/package_a.tscn"
+	_state.pending[0].package_scenes[0] = "res://content/domains/packages/entities/package_a.tscn"
 	var restored: C_Receiving = C_Receiving.new()
 	assert_true(SaveDataCodec.apply_fields(restored, fields))
 	assert_eq(restored.incoming_package_ids, ids)

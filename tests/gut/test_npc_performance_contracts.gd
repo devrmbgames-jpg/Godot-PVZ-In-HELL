@@ -283,9 +283,9 @@ func test_moving_hazard_invalidates_retained_route_before_movement() -> void:
 	await _flat_map()
 	var actor: E_DistrictNpc = _travel(0)
 	NpcAiFixture.plan_routes(_district)
-	var fire: Entity = (load("res://content/entities/hazards/npc_fire_aura.tscn") as PackedScene).instantiate() as Entity
+	var fire: Entity = (load("res://content/domains/hazards/entities/npc_fire_aura.tscn") as PackedScene).instantiate() as Entity
 	var hazard: C_Hazard = C_Hazard.new()
-	hazard.definition = load("res://content/definitions/gameplay/hazards/def_npc_fire_aura.tres") as DEF_ToxicArea
+	hazard.definition = load("res://content/domains/hazards/definitions/def_npc_fire_aura.tres") as DEF_ToxicArea
 	_world.add_entity(fire, [hazard])
 	(fire as Node as Node3D).global_position = Vector3(0, 1, 0)
 	NpcAiFixture.route(actor, _district.people[0], _district.definition.route_interval)
@@ -346,9 +346,9 @@ func test_hazard_escape_uses_short_direct_route() -> void:
 	await _flat_map()
 	var actor: E_DistrictNpc = _travel(0)
 	var person: NpcRecord = _district.people[0]
-	var fire: Entity = (load("res://content/entities/hazards/npc_fire_aura.tscn") as PackedScene).instantiate() as Entity
+	var fire: Entity = (load("res://content/domains/hazards/entities/npc_fire_aura.tscn") as PackedScene).instantiate() as Entity
 	var hazard: C_Hazard = C_Hazard.new()
-	hazard.definition = load("res://content/definitions/gameplay/hazards/def_npc_fire_aura.tres") as DEF_ToxicArea
+	hazard.definition = load("res://content/domains/hazards/definitions/def_npc_fire_aura.tres") as DEF_ToxicArea
 	_world.add_entity(fire, [hazard])
 	(fire as Node as Node3D).global_position = actor.global_position + Vector3.UP
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness

@@ -10,7 +10,7 @@ func test_absent_person_roundtrip_preserves_body_state_and_resets_brain() -> voi
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	var health: C_Health = body.get_component(C_Health) as C_Health
 	health.current = 41.0
-	var meat: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_npc_meat.tres") as DEF_InventoryItem
+	var meat: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_npc_meat.tres") as DEF_InventoryItem
 	assert_true(InventoryService.grant(body, meat, 3))
 
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness

@@ -4,10 +4,10 @@ extends "res://tests/gut/test_trader_furniture.gd"
 #region Доступность и авторские ограничения
 ## Two authored Profiles change actual offers and availability without changing transaction code.
 func test_authored_profile_variants_are_the_only_live_shop_assortment() -> void:
-	var general: DEF_TraderProfile = load("res://content/definitions/gameplay/commerce/def_trader_default.tres") as DEF_TraderProfile
-	var medical: DEF_TraderProfile = load("res://content/definitions/gameplay/commerce/def_trader_medical.tres") as DEF_TraderProfile
-	var food: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem
-	var medicine: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_med.tres") as DEF_InventoryItem
+	var general: DEF_TraderProfile = load("res://content/domains/commerce/definitions/def_trader_default.tres") as DEF_TraderProfile
+	var medical: DEF_TraderProfile = load("res://content/domains/commerce/definitions/def_trader_medical.tres") as DEF_TraderProfile
+	var food: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem
+	var medicine: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_med.tres") as DEF_InventoryItem
 	assert_same(_shop.profile, general)
 	assert_true(food in TraderCatalogRules.catalog(_shop))
 	assert_true(_shelf in TraderCatalogRules.catalog(_shop))
@@ -31,7 +31,7 @@ func test_authored_profile_variants_are_the_only_live_shop_assortment() -> void:
 
 ## Покупка и доставка доступны в трёх игровых фазах, но никогда в техническую ночь.
 func test_default_trader_purchases_and_delivery_in_all_live_phases() -> void:
-	var food: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem
+	var food: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem
 	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		_cycle.phase = phase
 		assert_true(TraderCatalogRules.is_open(_shop, _cycle))
@@ -50,7 +50,7 @@ func test_default_trader_purchases_and_delivery_in_all_live_phases() -> void:
 ## Вид, авторский признак, профиль и количество проверяются сервисом даже при обходе UI.
 func test_delivery_rejects_consumables_unmarked_furniture_and_disabled_profile() -> void:
 	for key: String in ["food", "med", "bubble_wrap"]:
-		var item: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_%s.tres" % key) as DEF_InventoryItem
+		var item: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_%s.tres" % key) as DEF_InventoryItem
 		assert_false(TraderCatalogRules.can_deliver(_shop, item))
 		assert_eq(CommerceService.home_delivery(_actor, _trader, item, 1, StringName(key)), CommerceService.Status.INVALID)
 	var unmarked: DEF_InventoryItem = _shelf.duplicate() as DEF_InventoryItem
@@ -208,5 +208,55 @@ func test_unavailable_trader_at_answer_cancels_purchase_and_releases_control() -
 	_trader.remove_component(C_Death)
 	_world.remove_entity(_trader)
 	assert_eq(CommerceService.home_delivery(_actor, _trader, _shelf, 1, &"removed"), CommerceService.Status.INVALID)
+	assert_eq(_wallet.balance, 1000)
+#endregion
+
+
+#region Domain requests and native UI composition
+## The actual interaction opens native UI; Night cleanup releases the same modal capture.
+func test_trader_action_request_opens_panel_and_night_reset_closes_it() -> void:
+	DialogueUiFixture.install()
+	var action: DEF_TraderAction = DEF_TraderAction.new()
+	assert_true(action.is_available(_actor, _trader, _trader))
+	action.execute(_actor, _trader, _trader)
+
+	var panels: Array[CommercePanel] = []
+	for child: Node in _actor.get_children():
+		if child is CommercePanel:
+			panels.append(child as CommercePanel)
+	assert_eq(panels.size(), 1)
+	var control: C_GrabControl = _actor.get_component(C_GrabControl) as C_GrabControl
+	assert_eq(control.captures.size(), 1)
+
+	NightResetService.reset()
+	assert_true(control.captures.is_empty())
+	assert_true(panels[0].is_queued_for_deletion())
+	assert_eq(_wallet.balance, 1000)
+	assert_true(_commerce.receipts.is_empty())
+
+
+## A request captured before role replacement cannot open a shop for the new Component.
+func test_captured_commerce_request_rejects_replaced_trader_role() -> void:
+	DialogueUiFixture.install()
+	var request: CommercePanelOpenRequest = CommercePanelOpenRequest.new(_actor, _trader)
+	_trader.remove_component(C_Trader)
+	var replacement: C_Trader = C_Trader.new()
+	replacement.profile = _shop.profile
+	_trader.add_component(replacement)
+
+	_world.emit_event(CommercePanelOpenRequest.EVENT, _trader, request)
+	assert_false(request.opened)
+	assert_true((_actor.get_component(C_GrabControl) as C_GrabControl).captures.is_empty())
+	assert_eq(_wallet.balance, 1000)
+
+
+## Unregistered actors cannot reacquire a modal through a previously captured request.
+func test_captured_commerce_request_rejects_removed_actor() -> void:
+	DialogueUiFixture.install()
+	var request: CommercePanelOpenRequest = CommercePanelOpenRequest.new(_actor, _trader)
+	_world.remove_entity(_actor)
+
+	_world.emit_event(CommercePanelOpenRequest.EVENT, _trader, request)
+	assert_false(request.opened)
 	assert_eq(_wallet.balance, 1000)
 #endregion

@@ -15,6 +15,7 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	DialogueUiFixture.install()
 	_world.add_observer(O_Damage.new())
 	_world.add_observer(O_DoorBreakage.new())
 

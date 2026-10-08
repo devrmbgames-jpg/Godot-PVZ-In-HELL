@@ -393,7 +393,7 @@ func test_ranged_effect_launches_once_and_projectile_hits_real_collider() -> voi
 ## Снаряд сохраняет эффективный урон при запуске; последующая еда не меняет его или авторскую атаку.
 func test_projectile_snapshots_hunger_damage_before_food_restores_shooter() -> void:
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
 	hunger.value = 75.0
 	_npc.add_component(hunger)
 	hunger = _npc.get_component(C_Hunger) as C_Hunger

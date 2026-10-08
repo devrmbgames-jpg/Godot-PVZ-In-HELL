@@ -13,6 +13,7 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	DialogueUiFixture.install()
 	var session: Entity = Entity.new()
 	session.name = "Session"
 	session.component_resources = [C_DayCycle.new(), C_Wallet.new()]
@@ -212,7 +213,7 @@ func _hazard(path: String, persistent: bool) -> Entity:
 func test_persistent_toxic_clock_follow_attribution_and_geometry_survive_recreation() -> void:
 	var valve: E_InteractionTestValve = _valve()
 	var id: String = valve.id
-	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var toxin: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var hazard: C_Hazard = toxin.get_component(C_Hazard) as C_Hazard
 	hazard.origin = valve
 	hazard.instigator = valve
@@ -250,7 +251,7 @@ func test_persistent_toxic_clock_follow_attribution_and_geometry_survive_recreat
 ## Восстановленная связь остаётся Relationship и удаляет эффект только после потери владельца.
 func test_follow_restore_preserves_despawn_effect_until_owner_relationship_is_lost() -> void:
 	var valve: E_InteractionTestValve = _valve()
-	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var toxin: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var follow: R_HazardFollow = R_HazardFollow.new()
 	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
 	HazardFollowService.replace(toxin, valve, follow)
@@ -270,8 +271,8 @@ func test_follow_restore_preserves_despawn_effect_until_owner_relationship_is_lo
 ## Отключённая опасность соблюдает detach/despawn при потере владельца до повторного включения.
 func test_disabled_follow_effect_honours_owner_loss_and_cannot_resume_damage() -> void:
 	var valve: E_InteractionTestValve = _valve()
-	var detached: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
-	var despawned: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var detached: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
+	var despawned: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var despawned_id: String = despawned.id
 	for effect: Entity in [detached, despawned]:
 		var follow: R_HazardFollow = R_HazardFollow.new()
@@ -291,7 +292,7 @@ func test_disabled_follow_effect_honours_owner_loss_and_cannot_resume_damage() -
 ## Восстановление независимого эффекта отменяет ранее отложенное удаление по потере владельца.
 func test_independent_restore_cancels_deferred_owner_loss_retirement() -> void:
 	var owner: E_InteractionTestValve = _valve()
-	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var toxin: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var follow: R_HazardFollow = R_HazardFollow.new()
 	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
 	HazardFollowService.replace(toxin, owner, follow)
@@ -314,7 +315,7 @@ func test_independent_restore_cancels_deferred_owner_loss_retirement() -> void:
 func test_night_drains_disabled_owner_loss_before_persistent_snapshot_capture() -> void:
 	var customer: E_InteractionTestValve = _valve()
 	customer.add_component(C_CustomerAgent.new())
-	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var toxin: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var key: String = ActorIdentityRules.key_for(toxin, _root)
 	var follow: R_HazardFollow = R_HazardFollow.new()
 	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
@@ -332,7 +333,7 @@ func test_night_drains_disabled_owner_loss_before_persistent_snapshot_capture() 
 
 ## Уже разрешённый взрыв не получает новый запрос разрешения после загрузки.
 func test_resolved_persistent_explosion_does_not_rearm_resolution_gate_on_load() -> void:
-	var blast: Entity = _hazard("res://content/entities/hazards/explosion.tscn", true)
+	var blast: Entity = _hazard("res://content/domains/hazards/entities/explosion.tscn", true)
 	(blast.get_component(C_Explosion) as C_Explosion).resolved = true
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
@@ -342,7 +343,7 @@ func test_resolved_persistent_explosion_does_not_rearm_resolution_gate_on_load()
 
 ## Отключённый токсин восстанавливает форму и маску до применения конечного disabled-состояния.
 func test_disabled_persistent_toxin_rebuilds_geometry_before_final_disable() -> void:
-	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var toxin: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var id: String = toxin.id
 	_world.disable_entity(toxin)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
@@ -360,7 +361,7 @@ func test_disabled_persistent_toxin_rebuilds_geometry_before_final_disable() -> 
 
 ## Пропущенный компонент или несовместимый профиль опасности отклоняется без изменения World.
 func test_null_wrong_profile_or_omitted_hazard_component_fails_without_mutation() -> void:
-	var toxin: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var toxin: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	for invalid: String in ["null", "wrong", "omitted"]:
 		var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 		for record: Dictionary in snapshot.entities:
@@ -376,7 +377,7 @@ func test_null_wrong_profile_or_omitted_hazard_component_fails_without_mutation(
 				elif invalid == "null":
 					(components[index].fields as Dictionary).definition = null
 				else:
-					(components[index].fields as Dictionary).definition = SaveDataCodec.encode(load("res://content/definitions/gameplay/hazards/def_parcel_blast.tres") as DEF_Explosion)
+					(components[index].fields as Dictionary).definition = SaveDataCodec.encode(load("res://content/domains/hazards/definitions/def_parcel_blast.tres") as DEF_Explosion)
 				break
 
 		var count: int = _world.entities.size()
@@ -389,9 +390,9 @@ func test_null_wrong_profile_or_omitted_hazard_component_fails_without_mutation(
 ## Ночь удаляет временные опасности и применяет правила потери владельца к постоянным.
 func test_night_removes_temporary_hazards_and_applies_persistent_owner_loss() -> void:
 	var valve: E_InteractionTestValve = _valve()
-	var temporary: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", false)
-	var detached: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
-	var despawned: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var temporary: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", false)
+	var detached: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
+	var despawned: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	for entity: Entity in [detached, despawned]:
 		var follow: R_HazardFollow = R_HazardFollow.new()
 		follow.on_loss = DEF_Hazard.OwnerLoss.Despawn if entity == despawned else DEF_Hazard.OwnerLoss.Detach
@@ -427,7 +428,7 @@ func test_loading_unfixed_snapshot_clears_old_anchor_and_restores_body_policy() 
 #region Deferred hazard scheduling
 ## Renewal before flush invalidates an old expiry; the next due expiry retires the live aggregate.
 func test_hazard_manual_flush_revalidates_renewed_lifetime() -> void:
-	var effect: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var effect: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var lifetime: C_HazardLifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime
 	lifetime.remaining_seconds = 0.1
 	var owner: S_HazardLifetime = S_HazardLifetime.new()
@@ -448,7 +449,7 @@ func test_hazard_manual_flush_revalidates_renewed_lifetime() -> void:
 
 ## Restored/replaced lifetime state survives an expiry command captured for the old Component.
 func test_hazard_manual_flush_rejects_replaced_lifetime() -> void:
-	var effect: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var effect: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var previous: C_HazardLifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime
 	previous.remaining_seconds = 0.1
 	var owner: S_HazardLifetime = S_HazardLifetime.new()
@@ -468,7 +469,7 @@ func test_hazard_manual_flush_rejects_replaced_lifetime() -> void:
 
 ## Disabled effects participate in cleanup even though the active EntityAvailability predicate excludes them.
 func test_hazard_lifetime_owner_retires_disabled_effect() -> void:
-	var effect: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var effect: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	_world.disable_entity(effect)
 	var owner: S_HazardLifetime = S_HazardLifetime.new()
 	owner.group = "HazardFixture"
@@ -482,7 +483,7 @@ func test_hazard_lifetime_owner_retires_disabled_effect() -> void:
 func test_hazard_follow_manual_flush_preserves_rebound_effect() -> void:
 	var original_owner: Entity = _valve()
 	var replacement_owner: Entity = _valve()
-	var effect: Entity = _hazard("res://content/entities/hazards/toxic_area.tscn", true)
+	var effect: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var follow: R_HazardFollow = R_HazardFollow.new()
 	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
 	HazardFollowService.replace(effect, original_owner, follow)

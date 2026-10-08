@@ -14,6 +14,7 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	DialogueUiFixture.install()
 	_world.add_observer(O_Damage.new())
 	_world.add_observer(O_HealthLifecycle.new())
 	_world.add_observer(O_NpcRemains.new())
@@ -31,7 +32,7 @@ func before_each() -> void:
 	_actor = Entity.new()
 
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
 	hunger.value = 80.0
 	_actor.component_resources = [C_Inventory.new(), C_GrabControl.new(), C_Controller.new(), C_Health.new(), hunger, C_PlayerInputController.new()]
 	_root.add_child(_actor)
@@ -58,7 +59,7 @@ func after_each() -> void:
 
 
 func _npc(customer: bool = false, loot_chance: float = 0.0) -> E_NpcCharacter:
-	var path: String = "res://content/domains/customers/entities/customer.tscn" if customer else "res://content/entities/commerce/trader.tscn"
+	var path: String = "res://content/domains/customers/entities/customer.tscn" if customer else "res://content/domains/commerce/entities/trader.tscn"
 	var npc: E_NpcCharacter = (load(path) as PackedScene).instantiate() as E_NpcCharacter
 	var components: Array[Component] = npc.component_resources.duplicate()
 	for index: int in components.size():
@@ -158,7 +159,7 @@ func test_dead_trader_stops_native_body_avoidance_and_cannot_sell() -> void:
 	assert_false(npc.navigation_agent.avoidance_enabled)
 	assert_false((npc.get_component(C_Motion) as C_Motion).control_enabled)
 
-	var food: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem
+	var food: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem
 	assert_eq(CommerceService.purchase(_actor, npc, food, 1, &"dead-trader"), CommerceService.Status.INVALID)
 	assert_null(CommercePanelFactory.open(_actor, npc))
 	assert_eq(WalletService.current().balance, 500)

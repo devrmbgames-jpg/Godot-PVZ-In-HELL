@@ -25,7 +25,7 @@ func _run() -> void:
 	wallet.balance = 1000
 	var trader: Entity = ECS.world.query.with_all([C_Trader]).execute_one() as Entity
 	assert(trader != null)
-	var item: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_large_shelf.tres") as DEF_InventoryItem
+	var item: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_large_shelf.tres") as DEF_InventoryItem
 	assert(CommerceService.purchase(actor, trader, item, 1, &"smoke/pickup") == CommerceService.Status.COMMITTED, "Actual trader pickup zone must fit a supported large shelf")
 
 	var shelf: RigidBody3D = _goods("purchase/smoke/pickup") as Node as RigidBody3D

@@ -222,7 +222,7 @@ func test_unspawned_visit_completion_does_not_add_artificial_delay() -> void:
 #region Авторские таймауты
 ## Проверяет авторские таймауты старых испытаний взгляда и выключения света.
 func test_authored_gaze_has_twelve_seconds_and_light_entrance_is_not_scaled_twice() -> void:
-	var gaze: DEF_Challenge = load("res://content/definitions/gameplay/challenges/def_challenge_dont_look.tres") as DEF_Challenge
+	var gaze: DEF_Challenge = load("res://content/domains/challenges/definitions/def_challenge_dont_look.tres") as DEF_Challenge
 	var state: C_Challenge = C_Challenge.new()
 	state.definition = gaze
 	var subject: Entity = Entity.new()
@@ -241,7 +241,7 @@ func test_authored_gaze_has_twelve_seconds_and_light_entrance_is_not_scaled_twic
 	assert_not_null(state.pending_result)
 	assert_eq(state.pending_result.result, ChallengeResult.Type.FAILURE)
 
-	var entrance: DEF_Challenge = load("res://content/definitions/gameplay/challenges/def_challenge_light_entrance.tres") as DEF_Challenge
+	var entrance: DEF_Challenge = load("res://content/domains/challenges/definitions/def_challenge_light_entrance.tres") as DEF_Challenge
 	assert_eq(entrance.timeout_seconds, 80.0)
 
 

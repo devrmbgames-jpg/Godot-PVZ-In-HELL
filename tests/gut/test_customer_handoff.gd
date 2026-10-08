@@ -50,7 +50,7 @@ func before_each() -> void:
 	_agent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	_agent.visit_id = _visit.visit_id
 	_agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	_parcel = (load("res://content/entities/packages/package_a.tscn") as PackedScene).instantiate() as E_Package
+	_parcel = (load("res://content/domains/packages/entities/package_a.tscn") as PackedScene).instantiate() as E_Package
 	(_parcel as Node as RigidBody3D).gravity_scale = 0.0
 	_world.add_entity(_parcel)
 	(_parcel.get_component(C_Package) as C_Package).package_id = _visit.package_id

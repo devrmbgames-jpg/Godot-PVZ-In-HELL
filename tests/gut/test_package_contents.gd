@@ -16,6 +16,7 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	DialogueUiFixture.install()
 	_opening_observer = O_PackageOpening.new()
 	_world.add_observer(_opening_observer)
 	_world.add_observer(O_PackageContents.new())
@@ -44,7 +45,7 @@ func before_each() -> void:
 	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
 	var health: C_Health = C_Health.new()
 	health.value = 100.0
 	health.current = 100.0
@@ -78,7 +79,7 @@ func after_each() -> void:
 
 
 func _package(name: String) -> E_Package:
-	var prefab: PackedScene = load("res://content/entities/packages/test_%s.tscn" % name) as PackedScene
+	var prefab: PackedScene = load("res://content/domains/packages/entities/test_%s.tscn" % name) as PackedScene
 	var parcel: E_Package = prefab.instantiate() as E_Package
 	(parcel as Node as RigidBody3D).freeze = true
 	(parcel as Node as Node3D).position = Vector3(0, 0.5, -1.3)
@@ -223,7 +224,7 @@ func _catalog_package(definition: DEF_Package) -> E_Package:
 
 
 func _supply_definition(key: StringName) -> DEF_Package:
-	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
 	for definition: DEF_Package in supply.packages:
 		if definition.key == key: return definition
 	return null
@@ -233,7 +234,7 @@ func _supply_definition(key: StringName) -> DEF_Package:
 func test_every_supply_type_has_real_one_shot_contents_and_leaves_empty_light_shell() -> void:
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ToxicAreaSetup.new())
-	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
 	for definition: DEF_Package in supply.packages:
 		assert_not_null(definition.unpack_scene, String(definition.key))
 		var parcel: E_Package = _catalog_package(definition)
@@ -339,10 +340,10 @@ func test_authored_opening_hazard_uses_existing_emitter_and_deduplicates_hook() 
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ExplosionSetup.new())
 	_world.add_observer(O_PackageHazard.new())
-	var prefab: PackedScene = load("res://content/entities/packages/test_bread.tscn") as PackedScene
+	var prefab: PackedScene = load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene
 	var parcel: E_Package = prefab.instantiate() as E_Package
 	parcel.package_definition = parcel.package_definition.duplicate(true) as DEF_Package
-	parcel.package_definition.hazard_on_opened = load("res://content/entities/hazards/explosion.tscn") as PackedScene
+	parcel.package_definition.hazard_on_opened = load("res://content/domains/hazards/entities/explosion.tscn") as PackedScene
 	(parcel as Node as RigidBody3D).freeze = true
 	(parcel as Node as Node3D).position = Vector3(0, 0.5, -1.3)
 	_world.add_entity(parcel)

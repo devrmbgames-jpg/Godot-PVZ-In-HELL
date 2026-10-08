@@ -2,7 +2,7 @@ extends Node
 ## Реальная геометрия восьми площадок main_level: наведение, размещение и повторный захват.
 
 const MAIN_LEVEL: PackedScene = preload("res://content/scenes/main_level.tscn")
-const PACKAGE: PackedScene = preload("res://content/entities/packages/package_a.tscn")
+const PACKAGE: PackedScene = preload("res://content/domains/packages/entities/package_a.tscn")
 
 
 func _ready() -> void:

@@ -55,7 +55,7 @@ func _buy(level: Node3D) -> void:
 		_check(TraderCatalogRules.is_open(shop, cycle), "profile allows live phase")
 	cycle.phase = C_DayCycle.Phase.DAY
 	WalletService.current().balance = INITIAL_BALANCE
-	var shelf: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_large_shelf.tres") as DEF_InventoryItem
+	var shelf: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_large_shelf.tres") as DEF_InventoryItem
 	var panel: CommercePanel = CommercePanelFactory.open(player, merchant)
 	_check(panel != null, "real player opens shop in day")
 	if _failed:

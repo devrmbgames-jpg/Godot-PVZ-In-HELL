@@ -22,7 +22,7 @@ func before_each() -> void:
 	_actor = Entity.new()
 
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
 	_actor.component_resources = [hunger, C_PlayerInputController.new(), C_Living.new()]
 	_world.add_entity(_actor)
 	_state = _actor.get_component(C_Hunger) as C_Hunger
@@ -101,7 +101,7 @@ func test_invalid_or_negative_elapsed_time_does_not_change_state() -> void:
 
 ## Еда действует через типизированный эффект; нулевой голод и смерть отклоняют применение.
 func test_food_is_public_typed_effect_and_never_consumes_at_zero_or_on_dead_actor() -> void:
-	var food: DEF_FoodEffect = load("res://content/definitions/gameplay/hunger/def_food_bread.tres") as DEF_FoodEffect
+	var food: DEF_FoodEffect = load("res://content/domains/needs/definitions/def_food_bread.tres") as DEF_FoodEffect
 	assert_false(HungerService.apply_food(_actor, food))
 	_state.value = 80.0
 	assert_true(HungerService.apply_food(_actor, food))

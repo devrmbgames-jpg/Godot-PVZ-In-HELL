@@ -18,7 +18,7 @@ static func can_place(actor: Entity, area: E_PlacementArea) -> bool:
 	var item: Entity = GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY)
 	if config == null or not GrabQueries.entity_available(item):
 		return false
-	if config.filter != null and not ItemAccessService.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter):
+	if config.filter != null and not ItemAccessRules.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter):
 		return false
 
 	var body: RigidBody3D = GrabQueries.physical_body(item)

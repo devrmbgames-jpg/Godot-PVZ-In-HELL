@@ -4601,6 +4601,24 @@
     {
       "source_owner": "global",
       "target_owner": "commerce",
+      "symbol": "CommercePanelOpenRequest",
+      "path": "content/domains/commerce/contracts/commerce_panel_open_request.gd",
+      "rights": [
+        "read",
+        "request",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "sources": [
+        "content/ui/o_gameplay_panel_request.gd"
+      ],
+      "method_rights": {},
+      "purpose": "Existing UI/scheduled ownership moved to explicit composition/query/request boundary; no new gameplay authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "commerce",
       "symbol": "CommerceService",
       "path": "content/domains/commerce/services/commerce_service.gd",
       "rights": [
@@ -7764,6 +7782,29 @@
     },
     {
       "source_owner": "global",
+      "target_owner": "packages",
+      "symbol": "TerminalPanelStateQuery",
+      "path": "content/domains/packages/contracts/terminal_panel_state_query.gd",
+      "rights": [
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "record_open"
+      ],
+      "public_instance_methods": [
+        "record_open"
+      ],
+      "sources": [
+        "content/ui/terminal_panel.gd"
+      ],
+      "method_rights": {
+        "record_open": "request"
+      },
+      "purpose": "Existing UI/scheduled ownership moved to explicit composition/query/request boundary; no new gameplay authority."
+    },
+    {
+      "source_owner": "global",
       "target_owner": "persistence",
       "symbol": "AutosaveStore",
       "path": "content/domains/persistence/services/autosave_store.gd",
@@ -7853,6 +7894,40 @@
         "restore_startup": "request"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "persistence",
+      "symbol": "NightUiResetRequest",
+      "path": "content/domains/persistence/contracts/night_ui_reset_request.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "sources": [
+        "content/ui/o_gameplay_panel_request.gd"
+      ],
+      "method_rights": {},
+      "purpose": "Existing UI/scheduled ownership moved to explicit composition/query/request boundary; no new gameplay authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "persistence",
+      "symbol": "O_NightPreparationRequirement",
+      "path": "content/domains/persistence/observers/o_night_preparation_requirement.gd",
+      "rights": [
+        "configure",
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "method_rights": {},
+      "purpose": "Existing UI/scheduled ownership moved to explicit composition/query/request boundary; no new gameplay authority."
     },
     {
       "source_owner": "global",
@@ -12713,6 +12788,26 @@
     {
       "source_owner": "packages",
       "target_owner": "shared",
+      "symbol": "GameplayResourcePaths",
+      "path": "content/shared/rules/gameplay_resource_paths.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "is_entity_scene_path"
+      ],
+      "public_instance_methods": [],
+      "sources": [
+        "content/services/gameplay/loot_drop_service.gd"
+      ],
+      "method_rights": {
+        "is_entity_scene_path": "query"
+      }
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "shared",
       "symbol": "ItemPlacementSolver",
       "path": "content/shared/solvers/item_placement_solver.gd",
       "rights": [
@@ -14177,12 +14272,11 @@
     {
       "source_owner": "persistence",
       "target_owner": "interaction",
-      "symbol": "ItemAccessService",
-      "path": "content/domains/interaction/services/item_access_service.gd",
+      "symbol": "ItemAccessRules",
+      "path": "content/domains/interaction/rules/item_access_rules.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "matches"
@@ -14191,7 +14285,7 @@
         "content/services/persistence/snapshot_graph_rules.gd"
       ],
       "method_rights": {
-        "matches": "request"
+        "matches": "query"
       },
       "public_instance_methods": []
     },
@@ -15143,6 +15237,22 @@
     },
     {
       "source_owner": "persistence",
+      "target_owner": "packages",
+      "symbol": "S_LootDrops",
+      "path": "content/domains/packages/systems/s_loot_drops.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "sources": [
+        "content/systems/persistence/s_night_save.gd"
+      ],
+      "method_rights": {},
+      "purpose": "Existing UI/scheduled ownership moved to explicit composition/query/request boundary; no new gameplay authority."
+    },
+    {
+      "source_owner": "persistence",
       "target_owner": "quests",
       "symbol": "C_QuestBinding",
       "path": "content/domains/quests/components/c_quest_binding.gd",
@@ -15351,6 +15461,30 @@
     {
       "source_owner": "persistence",
       "target_owner": "shared",
+      "symbol": "GameplayResourcePaths",
+      "path": "content/shared/rules/gameplay_resource_paths.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "is_entity_scene_path",
+        "is_definition_path"
+      ],
+      "public_instance_methods": [],
+      "sources": [
+        "content/services/persistence/save_data_codec.gd",
+        "content/services/persistence/world_snapshot_service.gd",
+        "content/rules/persistence/loot_snapshot_rules.gd"
+      ],
+      "method_rights": {
+        "is_entity_scene_path": "query",
+        "is_definition_path": "query"
+      }
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "shared",
       "symbol": "PlacedIdentityRules",
       "path": "content/shared/rules/placed_identity_rules.gd",
       "rights": [
@@ -15413,6 +15547,29 @@
       "purpose": "Prevalidated passive reconstruction of the declared SAVE_FIELDS/links; gameplay writers resume after fixup. This grants no live gameplay mutation.",
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "time",
+      "symbol": "NightPreparationRequirement",
+      "path": "content/domains/time/contracts/night_preparation_requirement.gd",
+      "rights": [
+        "read",
+        "request",
+        "subscribe"
+      ],
+      "public_methods": [
+        "require_preparation"
+      ],
+      "public_instance_methods": [
+        "require_preparation"
+      ],
+      "sources": [
+        "content/observers/persistence/o_night_preparation_requirement.gd"
+      ],
+      "method_rights": {
+        "require_preparation": "request"
+      }
     },
     {
       "source_owner": "persistence",
@@ -15748,6 +15905,26 @@
       ],
       "method_rights": {},
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "quests",
+      "target_owner": "shared",
+      "symbol": "GameplayResourcePaths",
+      "path": "content/shared/rules/gameplay_resource_paths.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "is_definition_path"
+      ],
+      "public_instance_methods": [],
+      "sources": [
+        "content/authoring/quests/refusal_quest_validator.gd"
+      ],
+      "method_rights": {
+        "is_definition_path": "query"
+      }
     },
     {
       "source_owner": "quests",

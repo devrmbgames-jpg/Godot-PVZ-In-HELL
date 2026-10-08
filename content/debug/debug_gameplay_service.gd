@@ -4,9 +4,9 @@ class_name DebugGameplayService
 
 const SLOT_DIRECTORY: String = "user://debug_slots"
 const MAX_SLOT_LENGTH: int = 32
-const ITEM_DIRECTORY: String = "res://content/definitions/gameplay/inventory"
-const CHALLENGE_DIRECTORY: String = "res://content/definitions/gameplay/challenges"
-const MEAT_SCENE: PackedScene = preload("res://content/entities/inventory/npc_meat_pickup.tscn")
+const ITEM_DIRECTORY: String = "res://content/domains/inventory/definitions"
+const CHALLENGE_DIRECTORY: String = "res://content/domains/challenges/definitions"
+const MEAT_SCENE: PackedScene = preload("res://content/domains/inventory/entities/npc_meat_pickup.tscn")
 const MEAT_OFFSET: Vector3 = Vector3(0.0, 0.6, -1.0)
 
 

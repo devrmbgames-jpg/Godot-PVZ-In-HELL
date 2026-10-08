@@ -50,7 +50,7 @@ func _run() -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	var parcel: E_Package = (load("res://content/entities/packages/test_bread.tscn") as PackedScene).instantiate() as E_Package
+	var parcel: E_Package = (load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene).instantiate() as E_Package
 	parcel.package_id = visit.package_id
 	(parcel as Node as RigidBody3D).position = body.position + Vector3(0, 1, 0)
 	_level.add_child(parcel)

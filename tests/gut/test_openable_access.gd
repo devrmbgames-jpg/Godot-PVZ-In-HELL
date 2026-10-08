@@ -71,13 +71,13 @@ func test_id_and_all_tags_must_match_one_item() -> void:
 	identity.item_id = &"warehouse_key"
 	identity.tags = [&"brass"]
 	_requirement.required_tags = [&"brass", &"warehouse"]
-	assert_false(ItemAccessService.matches(identity, _requirement))
+	assert_false(ItemAccessRules.matches(identity, _requirement))
 	identity.tags.append(&"warehouse")
-	assert_true(ItemAccessService.matches(identity, _requirement))
+	assert_true(ItemAccessRules.matches(identity, _requirement))
 	identity.item_id = &"other_key"
-	assert_false(ItemAccessService.matches(identity, _requirement))
+	assert_false(ItemAccessRules.matches(identity, _requirement))
 	_requirement.required_item_id = &""
-	assert_true(ItemAccessService.matches(identity, _requirement), "Tags alone are supported")
+	assert_true(ItemAccessRules.matches(identity, _requirement), "Tags alone are supported")
 
 
 ## Ключ в любой руке даёт доступ по Relationship; устаревший кеш руки не даёт.

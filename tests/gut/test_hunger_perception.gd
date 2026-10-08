@@ -126,7 +126,7 @@ func test_food_visual_is_reversible_and_keeps_entity_body_order_and_message() ->
 	assert_eq(_visit.customer_id, &"real-customer")
 	assert_eq(_visit.package_id, "real-order")
 	assert_eq(_context.package_number(), 3)
-	assert_true(HungerService.apply_food(_actor, load("res://content/definitions/gameplay/hunger/def_food_bread.tres") as DEF_FoodEffect))
+	assert_true(HungerService.apply_food(_actor, load("res://content/domains/needs/definitions/def_food_bread.tres") as DEF_FoodEffect))
 	await _food(false)
 	assert_true((_customer.get_node("Body") as Node3D).visible)
 	assert_true((_customer.get_node("Message") as Node3D).visible)

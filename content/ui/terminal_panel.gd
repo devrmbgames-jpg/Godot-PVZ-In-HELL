@@ -56,6 +56,11 @@ var _last_data_signature: String = ""
 #region Жизненный цикл и обновление
 func _ready() -> void:
 	visible = false
+	var terminal: E_Terminal = get_parent() as E_Terminal
+	if terminal != null:
+		terminal.panel_open_requested.connect(open_for)
+		terminal.panel_close_requested.connect(close_panel)
+		terminal.panel_state_requested.connect(_record_panel_state)
 	var hint: InputPromptLabel = InputPromptLabel.new()
 	hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	hint.position = Vector2(-280, -65)
@@ -748,4 +753,10 @@ func _on_orders_pressed() -> void:
 
 
 
+#endregion
+
+
+#region Native terminal visibility response
+func _record_panel_state(query: TerminalPanelStateQuery) -> void:
+	query.record_open(visible)
 #endregion

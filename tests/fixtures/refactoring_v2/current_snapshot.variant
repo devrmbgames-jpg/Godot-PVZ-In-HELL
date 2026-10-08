@@ -288,7 +288,7 @@
 "day_index": 2,
 "phase": 0
 },
-"type": "res://content/components/gameplay/c_day_cycle.gd"
+"type": "res://content/domains/time/components/c_day_cycle.gd"
 }, {
 "fields": {
 "balance": 17,
@@ -302,7 +302,7 @@
 "shift_completed": false,
 "spending": 0
 },
-"type": "res://content/contracts/economy/daily_money_result.gd"
+"type": "res://content/domains/commerce/contracts/daily_money_result.gd"
 }],
 "operations": [{
 "fields": {
@@ -313,11 +313,11 @@
 "reason": 0,
 "settlement_id": &""
 },
-"type": "res://content/contracts/economy/money_operation.gd"
+"type": "res://content/domains/commerce/contracts/money_operation.gd"
 }],
 "penalties": 0
 },
-"type": "res://content/components/gameplay/c_wallet.gd"
+"type": "res://content/domains/commerce/components/c_wallet.gd"
 }, {
 "fields": {
 "history_sequence_day": 1,
@@ -328,7 +328,7 @@
 "active": true,
 "day_index": 0,
 "definition": {
-"definition": "res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres::Books"
+"definition": "res://content/domains/packages/definitions/def_delivery_morning_supply.tres::Books"
 },
 "departure": 2,
 "history_id": "1-01-NS01E",
@@ -338,10 +338,10 @@
 "read_event_ids": PackedStringArray(),
 "received_day": 1
 },
-"type": "res://content/contracts/packages/package_registration_record.gd"
+"type": "res://content/domains/packages/contracts/package_registration_record.gd"
 }]
 },
-"type": "res://content/components/gameplay/c_package_ledger.gd"
+"type": "res://content/domains/packages/components/c_package_ledger.gd"
 }, {
 "fields": {
 "batch_id": "",
@@ -354,13 +354,13 @@
 "day_index": 2,
 "next_package": 0,
 "package_keys": PackedStringArray("books"),
-"package_scenes": PackedStringArray("res://content/entities/packages/package_b.tscn"),
+"package_scenes": PackedStringArray("res://content/domains/packages/entities/package_b.tscn"),
 "source": 0
 },
-"type": "res://content/contracts/receiving/receiving_batch.gd"
+"type": "res://content/domains/packages/contracts/receiving_batch.gd"
 }]
 },
-"type": "res://content/components/gameplay/c_receiving.gd"
+"type": "res://content/domains/packages/components/c_receiving.gd"
 }, {
 "fields": {
 "next_request": 0,
@@ -370,12 +370,12 @@
 "delivery_id": &"fixture/order/1",
 "fulfilled": true,
 "item": {
-"definition": "res://content/definitions/gameplay/inventory/def_item_npc_meat.tres"
+"definition": "res://content/domains/inventory/definitions/def_item_npc_meat.tres"
 },
 "ordered_day": 1,
 "quantity": 3
 },
-"type": "res://content/contracts/commerce/pending_delivery.gd"
+"type": "res://content/domains/commerce/contracts/pending_delivery.gd"
 }],
 "receipts": [{
 "fields": {
@@ -387,10 +387,10 @@
 "quantity": 3,
 "total_price": 0
 },
-"type": "res://content/contracts/commerce/purchase_receipt.gd"
+"type": "res://content/domains/commerce/contracts/purchase_receipt.gd"
 }]
 },
-"type": "res://content/components/commerce/c_commerce.gd"
+"type": "res://content/domains/commerce/components/c_commerce.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -516,12 +516,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {}
@@ -565,12 +565,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {
@@ -616,12 +616,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {}
@@ -665,12 +665,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {}
@@ -714,12 +714,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {}
@@ -763,12 +763,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {}
@@ -812,12 +812,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {}
@@ -861,12 +861,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {}
@@ -910,12 +910,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {}
@@ -959,12 +959,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {}
@@ -1008,12 +1008,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {}
@@ -1057,12 +1057,12 @@
 "fields": {
 "maximum_stacks": 8
 },
-"type": "res://content/components/inventory/c_inventory.gd"
+"type": "res://content/domains/inventory/components/c_inventory.gd"
 }, {
 "fields": {
 "value": 20.0
 },
-"type": "res://content/components/gameplay/c_hunger.gd"
+"type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
 "multipliers": {}
@@ -1082,11 +1082,11 @@
 "components": Array[Dictionary]([{
 "fields": {
 "definition": {
-"definition": "res://content/definitions/gameplay/inventory/def_item_npc_meat.tres"
+"definition": "res://content/domains/inventory/definitions/def_item_npc_meat.tres"
 },
 "quantity": 3
 },
-"type": "res://content/components/inventory/c_inventory_item.gd"
+"type": "res://content/domains/inventory/components/c_inventory_item.gd"
 }, {
 "fields": {
 "key": "order/fixture/order/1"
@@ -1115,7 +1115,7 @@
 "registration_number": 0,
 "scan": 0
 },
-"type": "res://content/components/gameplay/c_package_state.gd"
+"type": "res://content/domains/packages/components/c_package_state.gd"
 }, {
 "fields": {
 "base": 100.0,
@@ -1132,19 +1132,19 @@
 }, {
 "fields": {
 "definition": {
-"definition": "res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres::Books"
+"definition": "res://content/domains/packages/definitions/def_delivery_morning_supply.tres::Books"
 },
 "delivery_day": 0,
 "history_id": "1-01-NS01E",
 "package_id": "fixture/shipment/1",
 "supply_key": &""
 },
-"type": "res://content/components/gameplay/c_package.gd"
+"type": "res://content/domains/packages/components/c_package.gd"
 }, {
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_package_contents.gd"
+"type": "res://content/domains/packages/components/c_package_contents.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -1153,7 +1153,7 @@
 "key": "package/fixture/shipment/1",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
-"scene": "res://content/entities/packages/package_b.tscn"
+"scene": "res://content/domains/packages/entities/package_b.tscn"
 }, {
 "authored_id": "placed/fixture/Slot",
 &"completed_actions": Array[StringName]([]),
@@ -1212,5 +1212,5 @@
 "scene": "res://content/domains/interaction/entities/anchorable_test_box.tscn"
 }]),
 "morning_day": 2,
-"version": 6
+"version": 7
 }

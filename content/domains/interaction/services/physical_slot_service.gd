@@ -55,7 +55,7 @@ static func can_store(actor: Entity, slot: E_PhysicalSlot, hand: int) -> bool:
 	var config: C_PhysicalSlot = slot.get_component(C_PhysicalSlot) as C_PhysicalSlot
 	if body.mass > config.maximum_mass:
 		return false
-	return config.filter == null or ItemAccessService.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter)
+	return config.filter == null or ItemAccessRules.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter)
 
 
 ## После проверки освобождает руку, создаёт R_StoredIn и применяет крепление.
@@ -97,7 +97,7 @@ static func attach(item: Entity, binding: Relationship) -> bool:
 
 	var config: C_PhysicalSlot = slot.get_component(C_PhysicalSlot) as C_PhysicalSlot
 	if body.mass > config.maximum_mass or (
-		config.filter != null and not ItemAccessService.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter)
+		config.filter != null and not ItemAccessRules.matches(item.get_component(C_AccessItem) as C_AccessItem, config.filter)
 	):
 		return false
 

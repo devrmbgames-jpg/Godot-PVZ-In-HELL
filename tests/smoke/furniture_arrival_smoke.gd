@@ -54,7 +54,7 @@ func _buy_and_block(level: Node3D) -> void:
 	_check(panel != null, "day shop opens")
 	if panel == null:
 		return
-	var shelf: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_large_shelf.tres") as DEF_InventoryItem
+	var shelf: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_large_shelf.tres") as DEF_InventoryItem
 	panel._buy(shelf)
 	panel._purchase_dialog.custom_action.emit(&"delivery")
 	panel.close_panel()

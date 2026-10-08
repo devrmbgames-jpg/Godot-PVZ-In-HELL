@@ -7,7 +7,7 @@ func test_absence_preserves_owned_inventory() -> void:
 	_world.add_observer(O_InventoryLifecycle.new())
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
-	var food: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_npc_meat.tres") as DEF_InventoryItem
+	var food: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_npc_meat.tres") as DEF_InventoryItem
 	assert_true(InventoryService.grant(body, food, 2))
 	var item: Entity = InventoryService.items(body)[0]
 	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.OUTSIDE)
@@ -39,7 +39,7 @@ func test_replacement_is_new_person_with_existing_address_alias() -> void:
 ## NPC однократно расходует реальный мясной предмет через обычное использование инвентаря.
 func test_npc_consumes_real_meat_once() -> void:
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[0].npc_id)
-	var food: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_npc_meat.tres") as DEF_InventoryItem
+	var food: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_npc_meat.tres") as DEF_InventoryItem
 	assert_true(InventoryService.grant(body, food, 1))
 	var hunger: C_Hunger = body.get_component(C_Hunger) as C_Hunger
 	hunger.value = 50.0
@@ -122,7 +122,7 @@ func test_killing_witness_requires_visible_actor_and_victim() -> void:
 func test_loot_claim_is_exclusive_until_interrupted() -> void:
 	var first: E_DistrictNpc = _stage_person(0, Vector3.ZERO)
 	var second: E_DistrictNpc = _stage_person(3, Vector3(2, 0, 0))
-	var pickup: Entity = (load("res://content/entities/inventory/npc_meat_pickup.tscn") as PackedScene).instantiate() as Entity
+	var pickup: Entity = (load("res://content/domains/inventory/entities/npc_meat_pickup.tscn") as PackedScene).instantiate() as Entity
 	_world.add_entity(pickup)
 	(pickup as Node as Node3D).global_position = Vector3(0, 0, -2)
 	await get_tree().physics_frame

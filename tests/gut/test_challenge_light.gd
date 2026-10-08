@@ -147,7 +147,7 @@ func _advance_arrival() -> void:
 
 
 func _arrival_customer() -> E_NpcCharacter:
-	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_light_entrance.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition = (load("res://content/domains/challenges/definitions/def_challenge_light_entrance.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
 	_state.definition.timeout_seconds = TIMEOUT
 	_visit.definition.challenge = _state.definition
 	assert_true(ChallengeService.begin_on_arrival(_subject, _actor))

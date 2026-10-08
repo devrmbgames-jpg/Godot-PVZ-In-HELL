@@ -81,7 +81,7 @@ func _physical_support() -> void:
 	assert(absf(motion.floor_contact_position.y) < 0.06)
 	var subject: Entity = Entity.new()
 	var challenge: C_Challenge = C_Challenge.new()
-	challenge.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_floor.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	challenge.definition = (load("res://content/domains/challenges/definitions/def_challenge_floor.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
 	challenge.definition.preparation_seconds = 0.0
 	challenge.definition.timeout_seconds = 30.0
 	challenge.definition.violation_grace_seconds = 10.0
@@ -154,7 +154,7 @@ func _main_customer() -> void:
 	visit.visit_id = &"smoke/floor"
 	visit.definition = DEF_Customer.new()
 	visit.definition.key = &"floor_customer"
-	visit.definition.challenge = load("res://content/definitions/gameplay/challenges/def_challenge_floor.tres") as DEF_Challenge
+	visit.definition.challenge = load("res://content/domains/challenges/definitions/def_challenge_floor.tres") as DEF_Challenge
 	visit.started = true
 	visit.visit_count = 1
 	flow.visits = [visit]

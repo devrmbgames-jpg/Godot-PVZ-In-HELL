@@ -38,13 +38,14 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	_world.add_observer(O_NightPreparationRequirement.new())
 	_world.add_observer(O_InventoryLifecycle.new())
 	_session = _authored("Session", [C_DayCycle.new(), C_Wallet.new(), C_PackageLedger.new(), C_CustomerFlow.new(), C_Commerce.new(), C_QuestSession.new(), C_Autosave.new()])
 	(_session.get_component(C_Autosave) as C_Autosave).path = SAVE_PATH
 	_actor = _authored("Actor", [C_Inventory.new(), C_Hunger.new(), C_Health.new()])
 
 	var stack: C_InventoryItem = C_InventoryItem.new()
-	stack.definition = (load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem)
+	stack.definition = (load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem)
 	stack.quantity = 4
 	_item = Entity.new()
 	_item.component_resources = [stack]
@@ -84,12 +85,12 @@ func _offered_quest() -> RefusalQuestRecord:
 	var wallet: C_Wallet = _session.get_component(C_Wallet) as C_Wallet
 	wallet.balance = 500
 	var shop: C_Trader = C_Trader.new()
-	shop.profile = (load("res://content/definitions/gameplay/commerce/def_trader_default.tres") as DEF_TraderProfile).duplicate() as DEF_TraderProfile
-	shop.profile.refusal_quest = load("res://content/definitions/gameplay/quests/def_refusal_patient.tres") as DEF_RefusalQuest
+	shop.profile = (load("res://content/domains/commerce/definitions/def_trader_default.tres") as DEF_TraderProfile).duplicate() as DEF_TraderProfile
+	shop.profile.refusal_quest = load("res://content/domains/quests/definitions/def_refusal_patient.tres") as DEF_RefusalQuest
 	var trader: Entity = _authored("QuestIssuer", [shop])
 	var package: C_Package = C_Package.new()
 	package.package_id = "fixture/quest/parcel"
-	package.definition = load("res://content/definitions/gameplay/packages/def_test_bread.tres") as DEF_Package
+	package.definition = load("res://content/domains/packages/definitions/def_test_bread.tres") as DEF_Package
 	_authored("QuestParcel", [package, C_PackageState.new()])
 	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	registration.package_id = package.package_id
@@ -124,7 +125,7 @@ func test_quest_variant_slot_roundtrip_and_pending_outcome_do_not_double_pay() -
 	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
 	var loaded: RefusalQuestRecord = RefusalQuestService.find(record.quest_id)
 	assert_ne(loaded, record)
-	assert_eq(loaded.definition.resource_path, "res://content/definitions/gameplay/quests/def_refusal_patient.tres")
+	assert_eq(loaded.definition.resource_path, "res://content/domains/quests/definitions/def_refusal_patient.tres")
 	assert_eq(loaded.deadline_day, 4)
 	assert_eq(loaded.reward, 90)
 	_world.flush_command_buffers()
@@ -312,7 +313,7 @@ func test_restore_replaces_previous_inventory_owner_without_retiring_item() -> v
 func test_null_package_definition_is_rejected_before_mutation() -> void:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "late:equipment"
-	identity.definition = (load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery).packages[0]
+	identity.definition = (load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery).packages[0]
 	_authored("Package", [identity, C_PackageState.new()])
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	assert_true(WorldSnapshotService.valid(snapshot, _root))
@@ -510,9 +511,9 @@ func test_authored_id_alias_or_outside_root_is_rejected_before_registry_changes(
 
 ## Отсутствующий C_Package запрещает загрузку до создания физических экземпляров.
 func test_omitted_package_identity_is_rejected_before_instantiation_commit() -> void:
-	var package: E_Package = (load("res://content/entities/packages/package.tscn") as PackedScene).instantiate() as E_Package
+	var package: E_Package = (load("res://content/domains/packages/entities/package.tscn") as PackedScene).instantiate() as E_Package
 	package.package_id = "test/required_identity"
-	package.package_definition = (load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery).packages[0]
+	package.package_definition = (load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery).packages[0]
 	_world.add_entity(package)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	_world.remove_entity(package)
@@ -663,7 +664,7 @@ func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -
 	var batch: ReceivingBatch = ReceivingBatch.new()
 	batch.day_index = 1
 	batch.package_keys = ["fixture_package"]
-	batch.package_scenes = ["res://content/entities/packages/package.tscn"]
+	batch.package_scenes = ["res://content/domains/packages/entities/package.tscn"]
 	receiving.pending.append(batch)
 	_session.add_component(receiving)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
@@ -679,14 +680,14 @@ func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(_world.entities.size(), count_before)
 	assert_eq(receiving.pending[0], batch)
-	assert_eq(batch.package_scenes[0], "res://content/entities/packages/package.tscn")
+	assert_eq(batch.package_scenes[0], "res://content/domains/packages/entities/package.tscn")
 	assert_eq(DayPhaseQueries.current().day_index, 1)
 #endregion
 
 #region Raw package recipe reconstruction
 ## Fresh restored receiving prefab retains authored carry/impact/liquid settings and overlaid damaged HP.
 func test_fresh_package_restore_rebuilds_recipe_without_resetting_saved_health() -> void:
-	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
 	var definition: DEF_Package = null
 	for candidate: DEF_Package in supply.packages:
 		if candidate.tags & DEF_Package.Tag.LIQUID:
@@ -717,4 +718,18 @@ func test_fresh_package_restore_rebuilds_recipe_without_resetting_saved_health()
 	assert_eq(tilt.maximum_angle_degrees, definition.liquid_maximum_angle_degrees)
 	assert_eq(tilt.duration_seconds, definition.liquid_tilt_seconds)
 	assert_eq(tilt.unsafe_seconds, 0.0)
+#endregion
+
+
+#region Time preparation contract
+## Only an installed autosave workflow holds Night; removing it updates the real query scope.
+func test_night_preparation_query_tracks_the_configured_workflow() -> void:
+	var requirement: NightPreparationRequirement = NightPreparationRequirement.new()
+	_world.emit_event(NightPreparationRequirement.EVENT, _session, requirement)
+	assert_true(requirement.is_required())
+
+	_session.remove_component(C_Autosave)
+	var without_workflow: NightPreparationRequirement = NightPreparationRequirement.new()
+	_world.emit_event(NightPreparationRequirement.EVENT, _session, without_workflow)
+	assert_false(without_workflow.is_required())
 #endregion

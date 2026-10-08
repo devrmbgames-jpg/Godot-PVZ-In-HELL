@@ -37,7 +37,7 @@ func _run() -> void:
 	assert(is_equal_approx(hunger.active_seconds, active_before + 1.0))
 	assert(HungerService.set_value(actor, hunger.policy.hungry_threshold))
 	assert(HungerRules.tier(hunger) == C_Hunger.Tier.HUNGRY)
-	var food: DEF_FoodEffect = load("res://content/definitions/gameplay/hunger/def_food_bread.tres") as DEF_FoodEffect
+	var food: DEF_FoodEffect = load("res://content/domains/needs/definitions/def_food_bread.tres") as DEF_FoodEffect
 	assert(HungerService.apply_food(actor, food))
 	assert(hunger.value == maxf(0.0, hunger.policy.hungry_threshold - food.hunger_relief))
 

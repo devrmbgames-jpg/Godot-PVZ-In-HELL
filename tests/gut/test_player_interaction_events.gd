@@ -31,6 +31,7 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	DialogueUiFixture.install()
 	_world.add_observer(O_GrabLifecycle.new())
 	_probe = Probe.new()
 	_world.add_observer(_probe)
@@ -171,7 +172,7 @@ func test_rejected_pickup_and_replaced_district_do_not_generate_noise() -> void:
 #region Фактические переходы и атрибуция
 ## Открытие и закрытие панели дают по одному событию и корректно возвращают ввод.
 func test_terminal_reports_actual_visibility_and_releases_capture_once() -> void:
-	var terminal: E_Terminal = (load("res://content/entities/stations/terminal.tscn") as PackedScene).instantiate() as E_Terminal
+	var terminal: E_Terminal = (load("res://content/domains/packages/entities/terminal.tscn") as PackedScene).instantiate() as E_Terminal
 	_world.add_entity(terminal)
 	terminal.open_for(_actor)
 	terminal.open_for(_actor)

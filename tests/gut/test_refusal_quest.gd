@@ -34,7 +34,7 @@ func before_each() -> void:
 	_wallet.balance = 500
 	_trader = Entity.new()
 	var shop: C_Trader = C_Trader.new()
-	shop.profile = load("res://content/definitions/gameplay/commerce/def_trader_default.tres") as DEF_TraderProfile
+	shop.profile = load("res://content/domains/commerce/definitions/def_trader_default.tres") as DEF_TraderProfile
 	_trader.component_resources = [shop]
 	_world.add_entity(_trader)
 	_parcel = Entity.new()
@@ -72,8 +72,8 @@ func test_authored_variants_select_reward_deadline_and_dialogue_without_script_c
 	var shop: C_Trader = _trader.get_component(C_Trader) as C_Trader
 	shop.profile = shop.profile.duplicate() as DEF_TraderProfile
 	var variants: Array[String] = [
-		"res://content/definitions/gameplay/quests/def_refusal_default.tres",
-		"res://content/definitions/gameplay/quests/def_refusal_patient.tres",
+		"res://content/domains/quests/definitions/def_refusal_default.tres",
+		"res://content/domains/quests/definitions/def_refusal_patient.tres",
 	]
 	for path: String in variants:
 		shop.profile.refusal_quest = load(path) as DEF_RefusalQuest
@@ -137,7 +137,7 @@ func test_authoring_provider_rejects_invalid_definition_issuer_and_target_before
 		assert_false(String(issue.field).is_empty())
 		assert_false(String(issue.message).is_empty())
 	assert_null(RefusalQuestService.offer(_trader))
-	shop.profile.refusal_quest = load("res://content/definitions/gameplay/quests/def_refusal_default.tres") as DEF_RefusalQuest
+	shop.profile.refusal_quest = load("res://content/domains/quests/definitions/def_refusal_default.tres") as DEF_RefusalQuest
 	shop.trader_key = &""
 	assert_false(RefusalQuestValidator.issuer_issues(shop).is_empty())
 	assert_null(RefusalQuestService.offer(_trader))

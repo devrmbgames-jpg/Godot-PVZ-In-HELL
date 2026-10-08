@@ -7,8 +7,8 @@ func test_fire_immunity_matches_real_damage_and_route_risk() -> void:
 	_world.add_observer(O_Damage.new())
 	var immune: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[1].npc_id)
 	var normal: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[0].npc_id)
-	var fire: Entity = (load("res://content/entities/hazards/npc_fire_aura.tscn") as PackedScene).instantiate() as Entity
-	var config: DEF_ToxicArea = load("res://content/definitions/gameplay/hazards/def_npc_fire_aura.tres") as DEF_ToxicArea
+	var fire: Entity = (load("res://content/domains/hazards/entities/npc_fire_aura.tscn") as PackedScene).instantiate() as Entity
+	var config: DEF_ToxicArea = load("res://content/domains/hazards/definitions/def_npc_fire_aura.tres") as DEF_ToxicArea
 	var hazard: C_Hazard = C_Hazard.new()
 	hazard.definition = config
 	_world.add_entity(fire, [hazard])

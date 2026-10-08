@@ -118,7 +118,7 @@ func _customer_combat() -> void:
 	agent.visit_id = visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	var original_rid: RID = customer_body.get_rid()
-	var definition: DEF_Challenge = load("res://content/definitions/gameplay/challenges/def_challenge_light_entrance.tres") as DEF_Challenge
+	var definition: DEF_Challenge = load("res://content/domains/challenges/definitions/def_challenge_light_entrance.tres") as DEF_Challenge
 	var rule: DEF_LightChallengeCondition = definition.condition as DEF_LightChallengeCondition
 	assert(LightCircuitService.set_by_id(rule.circuit_id, true))
 	assert(ChallengeService.debug_start(customer, _actor, definition))

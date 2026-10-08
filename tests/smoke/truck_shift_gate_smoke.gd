@@ -19,7 +19,7 @@ func _run() -> void:
 	session.component_resources = [cycle, C_PackageLedger.new()]
 	world.add_entity(session)
 
-	var zone_scene: PackedScene = load("res://content/entities/zones/receiving_zone.tscn") as PackedScene
+	var zone_scene: PackedScene = load("res://content/domains/packages/entities/receiving_zone.tscn") as PackedScene
 	var zone: E_ReceivingZone = zone_scene.instantiate() as E_ReceivingZone
 	zone.package_parent = physical_root
 	var parking: Marker3D = Marker3D.new()

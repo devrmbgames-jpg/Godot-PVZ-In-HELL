@@ -4,19 +4,6 @@ class_name ItemAccessService
 
 
 #region Требование и доступный предмет
-## Проверяет точный ID и все заданные теги на одном предмете.
-static func matches(identity: C_AccessItem, requirement: DEF_AccessRequirement) -> bool:
-	if identity == null or requirement == null:
-		return false
-	if requirement.required_item_id != &"" and identity.item_id != requirement.required_item_id:
-		return false
-
-	for tag: StringName in requirement.required_tags:
-		if tag == &"" or not identity.tags.has(tag):
-			return false
-	return true
-
-
 ## Выбирает доступный предмет и адаптер; null-требование допускается без расходования.
 static func evaluate(actor: Entity, requirement: DEF_AccessRequirement) -> AccessResult:
 	var result: AccessResult = AccessResult.new()
@@ -46,7 +33,7 @@ static func evaluate(actor: Entity, requirement: DEF_AccessRequirement) -> Acces
 				continue
 
 			var identity: C_AccessItem = item.get_component(C_AccessItem) as C_AccessItem
-			if not matches(identity, requirement):
+			if not ItemAccessRules.matches(identity, requirement):
 				continue
 			if requirement.consume_item and not provider.can_consume(actor, item):
 				result.outcome = AccessResult.Outcome.CONSUMPTION_UNAVAILABLE

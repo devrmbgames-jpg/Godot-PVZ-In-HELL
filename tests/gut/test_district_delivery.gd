@@ -34,7 +34,7 @@ func _delivery_case(person: NpcRecord, suffix: String) -> CustomerVisit:
 	var visit: CustomerVisit = _case(person, suffix)
 	visit.payment = 10
 	visit.definition = DEF_Customer.new()
-	var parcel: E_Package = (load("res://content/entities/packages/package_a.tscn") as PackedScene).instantiate() as E_Package
+	var parcel: E_Package = (load("res://content/domains/packages/entities/package_a.tscn") as PackedScene).instantiate() as E_Package
 	parcel.package_id = visit.package_id
 	parcel.package_definition = (load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule).supply.packages[0]
 	_world.add_entity(parcel)

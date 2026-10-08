@@ -1,8 +1,0 @@
-[gd_resource type="Resource" script_class="DEF_FoodEffect" format=3]
-
-[ext_resource type="Script" path="res://content/definitions/gameplay/hunger/def_food_effect.gd" id="Effect"]
-
-[resource]
-script = ExtResource("Effect")
-key = &"bread_food"
-hunger_relief = 35.0

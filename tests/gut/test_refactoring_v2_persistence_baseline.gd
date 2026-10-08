@@ -51,7 +51,7 @@ func before_each() -> void:
 	DistrictPopulationService.set_placement(_district.people[0], active_body, NpcRecord.Placement.STREET)
 	DistrictPopulationService.set_placement(_district.people[1], dormant_body, NpcRecord.Placement.STREET)
 	(dormant_body.get_component(C_Health) as C_Health).current = 41.0
-	var food: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_npc_meat.tres") as DEF_InventoryItem
+	var food: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_npc_meat.tres") as DEF_InventoryItem
 	var granted: bool = InventoryService.grant(dormant_body, food, 3)
 	assert_true(granted, "Grant owned stack while the body is active")
 	var owned_item: Entity = InventoryService.items(dormant_body)[0]
@@ -70,7 +70,7 @@ func before_each() -> void:
 	operation.amount = 17
 	var wallet: C_Wallet = session.get_component(C_Wallet) as C_Wallet
 	assert_eq(WalletService.apply(wallet, operation, 1), WalletService.Status.COMMITTED)
-	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
 	var batch: ReceivingBatch = ReceivingBatch.new()
 	batch.day_index = MORNING_DAY
 	batch.package_keys = [String(supply.packages[0].key)]

@@ -18,6 +18,7 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	DialogueUiFixture.install()
 	_world.add_observer(O_PhysicalSlotLifecycle.new())
 	_world.add_observer(O_PackageOpening.new())
 	_world.add_observer(O_PackageContents.new())
@@ -61,7 +62,7 @@ func before_each() -> void:
 	_agent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	_agent.visit_id = _visit.visit_id
 	_agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	_parcel = (load("res://content/entities/packages/test_bread.tscn") as PackedScene).instantiate() as E_Package
+	_parcel = (load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene).instantiate() as E_Package
 	_parcel.package_definition = _parcel.package_definition.duplicate(true) as DEF_Package
 	(_parcel as Node as RigidBody3D).gravity_scale = 0.0
 	_world.add_entity(_parcel)
@@ -177,7 +178,7 @@ func test_refusal_releases_borrowed_parcel_and_booth_without_losing_registration
 ## Реальное вскрытие создаёт содержимое и опасность один раз; при выдаче содержимое уходит с клиентом.
 func test_unpack_uses_real_opening_contents_and_hazard_then_keeps_results_once() -> void:
 	_visit.definition.inspection_unpack_probability = 1.0
-	(_parcel.get_component(C_Package) as C_Package).definition.hazard_on_opened = load("res://content/entities/hazards/explosion.tscn") as PackedScene
+	(_parcel.get_component(C_Package) as C_Package).definition.hazard_on_opened = load("res://content/domains/hazards/entities/explosion.tscn") as PackedScene
 	_borrow()
 	_arrive_and_inspect()
 	assert_eq((_parcel.get_component(C_PackageState) as C_PackageState).opening, C_PackageState.Opening.OPENED)

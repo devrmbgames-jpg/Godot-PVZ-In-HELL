@@ -8,7 +8,7 @@ const FRAGILE: DEF_ImpactProfile = preload(
 	"res://content/domains/combat/definitions/def_impact_fragile.tres"
 )
 const SUPPLY: DEF_Delivery = preload(
-	"res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres"
+	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
 )
 
 

@@ -17,7 +17,7 @@ MANIFEST = ROOT / "tests/fixtures/refactoring_v2/save_visible_paths.json"
 
 
 def inventory(root: Path) -> dict:
-    codec = (root / "content/services/persistence/save_data_codec.gd").read_text(encoding="utf-8")
+    codec = (root / "content/domains/persistence/services/save_data_codec.gd").read_text(encoding="utf-8")
     declarations = re.findall(r"^\s*(C_\w+): (C_\w+)\.SAVE_FIELDS,?$", codec, re.MULTILINE)
     fields = {}
     component_sources = {}
@@ -55,7 +55,7 @@ def validate(root: Path = ROOT) -> list[str]:
     for category in ("components", "records"):
         if manifest.get(category) != actual[category]:
             errors.append(f"save-visible {category} changed; update schema decision and baseline explicitly")
-    store = (root / "content/services/persistence/autosave_store.gd").read_text(encoding="utf-8")
+    store = (root / "content/domains/persistence/services/autosave_store.gd").read_text(encoding="utf-8")
     version = re.search(r"const SCHEMA_VERSION: int = (\d+)", store)
     if version is None or manifest.get("schema") != int(version.group(1)):
         errors.append("supported schema differs from baseline")

@@ -4,7 +4,7 @@ extends Node
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 900
 const UI_WAIT_FRAMES: int = 32
-const LIGHT_OFF_FIXTURE: DEF_Challenge = preload("res://content/definitions/gameplay/challenges/def_challenge_light_off.tres")
+const LIGHT_OFF_FIXTURE: DEF_Challenge = preload("res://content/domains/challenges/definitions/def_challenge_light_off.tres")
 
 var _level: Node = null
 var _actor: Entity = null

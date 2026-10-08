@@ -222,7 +222,7 @@ func _terrain_checks(
 func _load_cargo(cart_body: CharacterBody3D) -> bool:
 	_cargo.clear()
 	_maximum_cargo_drift = 0.0
-	var scene: PackedScene = load("res://content/entities/packages/package.tscn") as PackedScene
+	var scene: PackedScene = load("res://content/domains/packages/entities/package.tscn") as PackedScene
 	var offsets: Array[Vector3] = [
 		Vector3(0, 0.2, -0.85),
 		Vector3(0, 0.2, 0),

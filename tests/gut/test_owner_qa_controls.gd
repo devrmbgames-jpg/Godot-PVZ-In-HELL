@@ -2,7 +2,7 @@ extends GutTest
 ## Регрессии по QA владельца: резкий поворот камеры, ровные стыки пола, поясные слоты и торговля.
 
 const MAIN_SCENE: PackedScene = preload("res://content/scenes/main_level.tscn")
-const TRADER_SCENE: PackedScene = preload("res://content/entities/commerce/trader.tscn")
+const TRADER_SCENE: PackedScene = preload("res://content/domains/commerce/entities/trader.tscn")
 ## Размер одной физической плиты в метрах; стык двух плит проходит под траекторией игрока.
 const FLOOR_TILE_SIZE: Vector3 = Vector3(8.0, 0.5, 8.0)
 ## Число физических кадров ожидания устойчивого контакта с опорой.

@@ -34,15 +34,15 @@ func before_each() -> void:
 	_subject = _character(true) as E_NpcCharacter
 	(_subject as Node as Node3D).position = Vector3(0.0, 0.0, -3.0)
 	_state = C_Challenge.new()
-	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_dont_look.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition = (load("res://content/domains/challenges/definitions/def_challenge_dont_look.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
 	# Тест механики использует короткие интервалы; авторские сроки проверяются отдельно.
 	_state.definition.violation_grace_seconds = 3.0
 	_observation = C_GazeChallenge.new()
 
-	var agent: C_CustomerAgent = C_CustomerAgent.new()
+	var agent: C_CustomerAgent = _subject.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = &"gaze-test"
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	_subject.add_components([_state, _observation, agent])
+	_subject.add_components([_state, _observation])
 	_rule = _state.definition.condition as DEF_GazeChallengeCondition
 	_visit = CustomerVisit.new()
 	_visit.visit_id = agent.visit_id
@@ -195,7 +195,7 @@ func test_dont_look_warns_resets_and_fails_at_continuous_threshold_once() -> voi
 
 ## Обратное правило требует сохранять взгляд до окончания, без досрочного успеха.
 func test_keep_looking_is_inverse_configuration_and_compliance_is_not_early_success() -> void:
-	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_keep_looking.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition = (load("res://content/domains/challenges/definitions/def_challenge_keep_looking.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
 	_state.definition.violation_grace_seconds = 3.0
 	_rule = _state.definition.condition as DEF_GazeChallengeCondition
 	_start()

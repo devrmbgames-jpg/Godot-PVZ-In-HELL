@@ -41,14 +41,14 @@ func before_each() -> void:
 	_actor.owner = _root
 	FixturePlacedIdentity.assign(_root, _actor, &"actor")
 	_world.add_entity(_actor, null, false)
-	_trader = (load("res://content/entities/commerce/trader.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	_trader = (load("res://content/domains/commerce/entities/trader.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	(_trader as Node as RigidBody3D).freeze = true
 	_root.add_child(_trader)
 	_trader.owner = _root
 	FixturePlacedIdentity.assign(_root, _trader, &"trader")
 	_world.add_entity(_trader, null, false)
 	_shop = _trader.get_component(C_Trader) as C_Trader
-	_shelf = load("res://content/definitions/gameplay/inventory/def_item_large_shelf.tres") as DEF_InventoryItem
+	_shelf = load("res://content/domains/inventory/definitions/def_item_large_shelf.tres") as DEF_InventoryItem
 	_floor = _block(Vector3(0, -0.1, 0), Vector3(40, 0.2, 40))
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -86,7 +86,7 @@ func _goods(key: String) -> Entity:
 
 
 func _home() -> Entity:
-	var zone: Entity = (load("res://content/entities/commerce/order_receiving.tscn") as PackedScene).instantiate() as Entity
+	var zone: Entity = (load("res://content/domains/commerce/entities/order_receiving.tscn") as PackedScene).instantiate() as Entity
 	(zone as Node as Node3D).position = Vector3(-6, 0.22, -6)
 	_world.add_entity(zone)
 	return zone
@@ -145,7 +145,7 @@ func test_blocked_or_unsupported_zone_never_charges_and_paid_retry_is_atomic() -
 
 ## Личный каталог и расписание торговца не подменяются каталогом терминала.
 func test_configured_catalog_and_schedule_are_independent_from_terminal_orders() -> void:
-	var profile: DEF_TraderProfile = (load("res://content/definitions/gameplay/commerce/def_trader_medical.tres") as DEF_TraderProfile).duplicate() as DEF_TraderProfile
+	var profile: DEF_TraderProfile = (load("res://content/domains/commerce/definitions/def_trader_medical.tres") as DEF_TraderProfile).duplicate() as DEF_TraderProfile
 	profile.catalog = [_shelf]
 	_shop.profile = profile
 	assert_false(_shelf in _commerce.catalog)
@@ -168,7 +168,7 @@ func test_consumable_deliveries_create_physical_pickups_and_do_not_stall_queue()
 	var zone: Entity = _home()
 	var receiving: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
 	for key: String in ["food", "med", "bubble_wrap", "npc_meat"]:
-		var item: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_%s.tres" % key) as DEF_InventoryItem
+		var item: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_%s.tres" % key) as DEF_InventoryItem
 		assert_not_null(item)
 		assert_true(OrderDeliveryService.can_fulfill_definition(item))
 		var delivery: PendingDelivery = PendingDelivery.new()

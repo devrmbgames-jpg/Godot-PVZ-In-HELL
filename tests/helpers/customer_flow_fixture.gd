@@ -7,7 +7,7 @@ class_name CustomerFlowFixture
 static func install() -> void:
 	DialogueUiFixture.install()
 	NpcCustomerComposition.install(ECS.world)
-	for observer_type: Script in [O_CustomerPlanning, O_CustomerGreeting, O_CustomerServiceClock, O_CustomerOutcomes, O_CustomerNpcInterruption, O_CustomerNpcConversation, O_CustomerInspectionCargo]:
+	for observer_type: Script in [O_CustomerPlanning, O_CustomerGreeting, O_CustomerServiceClock, O_CustomerOutcomes, O_CustomerNpcInterruption, O_CustomerNpcConversation, O_CustomerInspectionCargo, O_NightPreparationRequirement]:
 		var installed: bool = false
 		for observer: Observer in ECS.world.observers:
 			if observer.get_script() == observer_type:

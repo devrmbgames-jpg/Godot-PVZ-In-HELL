@@ -70,7 +70,7 @@ func _blocked_sources(level: Node3D) -> void:
 	ECS.world.remove_entity(parcel)
 	_check(visit.declaration == CustomerVisit.Declaration.NONE, "removing shell never declares parcel LOST")
 
-	var npc: E_NpcCharacter = (load("res://content/entities/commerce/trader.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	var npc: E_NpcCharacter = (load("res://content/domains/commerce/entities/trader.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	(npc as Node as RigidBody3D).freeze = true
 	(npc as Node as Node3D).position = ARENA + Vector3.UP
 	level.add_child(npc)

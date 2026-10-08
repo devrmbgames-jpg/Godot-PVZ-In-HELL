@@ -63,7 +63,7 @@ func after_each() -> void:
 ## Выключение debug скрывает диагностические панели, сохраняя состояние игрока и предупреждение взгляда.
 func test_console_toggle_hides_screen_and_customer_debug_but_preserves_gameplay_feedback() -> void:
 	var challenge: C_Challenge = _customer.get_component(C_Challenge) as C_Challenge
-	challenge.definition = load("res://content/definitions/gameplay/challenges/def_challenge_dont_look.tres") as DEF_Challenge
+	challenge.definition = load("res://content/domains/challenges/definitions/def_challenge_dont_look.tres") as DEF_Challenge
 	assert_true(ChallengeService.begin_on_arrival(_customer, _actor))
 	challenge.violation_elapsed = 1.0
 	var label: Label3D = _customer.get_node("DebugStatus") as Label3D

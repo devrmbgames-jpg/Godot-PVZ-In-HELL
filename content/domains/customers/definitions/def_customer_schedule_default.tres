@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="DEF_CustomerSchedule" format=3 uid="uid://ct5hbf2hdp6tl"]
 
-[ext_resource type="Resource" uid="uid://b0k2u7q42pcgm" path="res://content/definitions/gameplay/challenges/def_challenge_light_on.tres" id="ChallengeOn"]
-[ext_resource type="Resource" uid="uid://bn08dhchhy0mx" path="res://content/definitions/gameplay/challenges/def_challenge_light_visit.tres" id="ChallengeVisit"]
+[ext_resource type="Resource" uid="uid://b0k2u7q42pcgm" path="res://content/domains/challenges/definitions/def_challenge_light_on.tres" id="ChallengeOn"]
+[ext_resource type="Resource" uid="uid://bn08dhchhy0mx" path="res://content/domains/challenges/definitions/def_challenge_light_visit.tres" id="ChallengeVisit"]
 [ext_resource type="Script" uid="uid://vyx4wrt4eqv7" path="res://content/domains/customers/definitions/def_customer.gd" id="Customer"]
 [ext_resource type="Script" uid="uid://c1wdbe15l5tk3" path="res://content/domains/customers/definitions/def_customer_event.gd" id="Event"]
 [ext_resource type="Resource" path="res://content/domains/customers/definitions/def_customer_floor.tres" id="FloorCustomer"]

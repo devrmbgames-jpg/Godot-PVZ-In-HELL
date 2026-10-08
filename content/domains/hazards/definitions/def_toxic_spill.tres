@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_ToxicArea" format=3 uid="uid://dbmsomdyuc1gm"]
+
+[ext_resource type="Script" uid="uid://3pmdek12dmb" path="res://content/domains/hazards/definitions/def_toxic_area.gd" id="Definition"]
+
+[resource]
+script = ExtResource("Definition")
+lifetime_seconds = 48.0
+key = &"toxic_spill"

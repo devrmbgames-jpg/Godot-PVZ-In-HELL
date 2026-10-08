@@ -32,7 +32,7 @@ Optional routing map. Read only when the task does not already identify the owni
 | Packages / receiving | `content/entities/packages/`, `content/services/packages/` |
 | Hazards | `content/services/hazards/`, `content/observers/gameplay/`, `docs/hazards.md` |
 | Customers / commerce | `content/services/customers/`, `docs/customers.md`, `docs/economy.md` |
-| Day cycle | `content/systems/gameplay/s_day_phase.gd` |
+| Day cycle | `content/domains/time/systems/s_day_phase.gd` |
 | Persistence | `docs/persistence.md` |
 
 For version-sensitive APIs inspect the checked-out dependency source. Do not expand this index into a second architecture document.
