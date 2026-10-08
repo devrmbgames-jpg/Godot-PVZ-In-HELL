@@ -18,7 +18,7 @@ static func text_for(clue: Node) -> String:
 	for subject: Entity in ECS.world.query.with_all([C_Challenge, C_CustomerAgent]).execute():
 		var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 		var agent: C_CustomerAgent = subject.get_component(C_CustomerAgent) as C_CustomerAgent
-		var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+		var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 		if state.phase != C_Challenge.Phase.ACTIVE or not ChallengeService.session_valid(subject) or visit == null or not CustomerPresentation.uses_wall_order(visit.definition):
 			continue
 

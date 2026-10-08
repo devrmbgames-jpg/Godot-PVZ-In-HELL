@@ -15,7 +15,7 @@ static func debug_text(actor: Entity) -> String:
 		return ""
 
 	var tier: C_Hunger.Tier = HungerRules.tier(state)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var active: bool = cycle != null and cycle.phase != C_DayCycle.Phase.NIGHT and GrabService.holder_available(actor) and not actor.has_component(C_Death) and not actor.get_tree().paused
 	var target: float = state.policy.hungry_threshold if tier == C_Hunger.Tier.NORMAL else state.policy.starving_threshold
 	var seconds: float = maxf(0.0, target - state.value) / state.policy.growth_per_second if state.policy.growth_per_second > 0.0 else INF

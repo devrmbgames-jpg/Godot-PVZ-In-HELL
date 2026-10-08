@@ -7,7 +7,7 @@
 "ambient_conflicts": 0,
 "conflict_phase": &"",
 "definition": {
-"definition": "res://content/definitions/gameplay/npc/def_district_default.tres"
+"definition": "res://content/domains/npc/definitions/def_district_default.tres"
 },
 "delivery_considered": PackedStringArray(),
 "delivery_offer_day": 2,
@@ -31,11 +31,11 @@
 "planned_phase": 0,
 "portal_id": &"portal_east",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_1.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_1.tres"
 },
 "recipient_key": &"customer_01"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }, {
 "fields": {
 "activity_sequence": 0,
@@ -53,7 +53,7 @@
 "reaction": 0,
 "victim_id": &""
 },
-"type": "res://content/contracts/npc/npc_memory.gd"
+"type": "res://content/domains/npc/contracts/npc_memory.gd"
 }],
 "npc_id": &"npc/2",
 "phase_complete": false,
@@ -62,11 +62,11 @@
 "planned_phase": 0,
 "portal_id": &"portal_north",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_2.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_2.tres"
 },
 "recipient_key": &"customer_02"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }, {
 "fields": {
 "activity_sequence": 0,
@@ -83,11 +83,11 @@
 "planned_phase": 0,
 "portal_id": &"portal_south",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_3.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_3.tres"
 },
 "recipient_key": &"customer_03"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }, {
 "fields": {
 "activity_sequence": 0,
@@ -104,11 +104,11 @@
 "planned_phase": 0,
 "portal_id": &"portal_east",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_4.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_4.tres"
 },
 "recipient_key": &"customer_04"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }, {
 "fields": {
 "activity_sequence": 0,
@@ -125,11 +125,11 @@
 "planned_phase": 0,
 "portal_id": &"portal_north",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_5.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_5.tres"
 },
 "recipient_key": &"customer_05"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }, {
 "fields": {
 "activity_sequence": 0,
@@ -146,11 +146,11 @@
 "planned_phase": 0,
 "portal_id": &"portal_south",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_6.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_6.tres"
 },
 "recipient_key": &"customer_06"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }, {
 "fields": {
 "activity_sequence": 0,
@@ -167,11 +167,11 @@
 "planned_phase": 0,
 "portal_id": &"portal_east",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_7.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_7.tres"
 },
 "recipient_key": &"customer_07"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }, {
 "fields": {
 "activity_sequence": 0,
@@ -188,11 +188,11 @@
 "planned_phase": 0,
 "portal_id": &"portal_north",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_8.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_8.tres"
 },
 "recipient_key": &"customer_08"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }, {
 "fields": {
 "activity_sequence": 0,
@@ -209,11 +209,11 @@
 "planned_phase": 0,
 "portal_id": &"portal_south",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_9.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_9.tres"
 },
 "recipient_key": &"visitor_1"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }, {
 "fields": {
 "activity_sequence": 0,
@@ -230,11 +230,11 @@
 "planned_phase": 0,
 "portal_id": &"portal_east",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_10.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_10.tres"
 },
 "recipient_key": &"visitor_2"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }, {
 "fields": {
 "activity_sequence": 0,
@@ -251,11 +251,11 @@
 "planned_phase": 0,
 "portal_id": &"portal_north",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_11.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_11.tres"
 },
 "recipient_key": &"visitor_3"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }, {
 "fields": {
 "activity_sequence": 0,
@@ -272,17 +272,17 @@
 "planned_phase": 0,
 "portal_id": &"portal_south",
 "profile": {
-"definition": "res://content/definitions/gameplay/npc/def_npc_profile_12.tres"
+"definition": "res://content/domains/npc/definitions/def_npc_profile_12.tres"
 },
 "recipient_key": &"visitor_4"
 },
-"type": "res://content/contracts/npc/npc_record.gd"
+"type": "res://content/domains/npc/contracts/npc_record.gd"
 }],
 "prepared_morning": 2,
 "replacement_morning": 0,
 "terminal_offer_target": 2
 },
-"type": "res://content/components/npc/c_district.gd"
+"type": "res://content/domains/npc/components/c_district.gd"
 }, {
 "fields": {
 "day_index": 2,
@@ -408,7 +408,7 @@
 "key": "runtime/fixture/entity/1",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, -8),
-"scene": "res://content/entities/npc/npc_address.tscn"
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -419,7 +419,7 @@
 "key": "runtime/fixture/entity/2",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, -8),
-"scene": "res://content/entities/npc/npc_address.tscn"
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -430,7 +430,7 @@
 "key": "runtime/fixture/entity/3",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -8),
-"scene": "res://content/entities/npc/npc_address.tscn"
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -441,7 +441,7 @@
 "key": "runtime/fixture/entity/4",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, -8),
-"scene": "res://content/entities/npc/npc_address.tscn"
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -452,7 +452,7 @@
 "key": "runtime/fixture/entity/5",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, 24),
-"scene": "res://content/entities/npc/npc_address.tscn"
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -463,7 +463,7 @@
 "key": "runtime/fixture/entity/6",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, 24),
-"scene": "res://content/entities/npc/npc_address.tscn"
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -474,7 +474,7 @@
 "key": "runtime/fixture/entity/7",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, 24),
-"scene": "res://content/entities/npc/npc_address.tscn"
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -485,7 +485,7 @@
 "key": "runtime/fixture/entity/8",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, 24),
-"scene": "res://content/entities/npc/npc_address.tscn"
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -501,12 +501,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/1"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/1"
@@ -534,7 +534,7 @@
 "key": "npc/1",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, -8),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -550,12 +550,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/2"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/2"
@@ -585,7 +585,7 @@
 "key": "npc/2",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, -8),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -601,12 +601,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/3"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/3"
@@ -634,7 +634,7 @@
 "key": "npc/3",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -8),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -650,12 +650,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/4"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/4"
@@ -683,7 +683,7 @@
 "key": "npc/4",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, -8),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -699,12 +699,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/5"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/5"
@@ -732,7 +732,7 @@
 "key": "npc/5",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, 24),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -748,12 +748,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/6"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/6"
@@ -781,7 +781,7 @@
 "key": "npc/6",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, 24),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -797,12 +797,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/7"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/7"
@@ -830,7 +830,7 @@
 "key": "npc/7",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, 24),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -846,12 +846,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/8"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/8"
@@ -879,7 +879,7 @@
 "key": "npc/8",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, 24),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -895,12 +895,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/9"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/9"
@@ -928,7 +928,7 @@
 "key": "npc/9",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 28),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -944,12 +944,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/10"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/10"
@@ -977,7 +977,7 @@
 "key": "npc/10",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0, 8),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -993,12 +993,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/11"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/11"
@@ -1026,7 +1026,7 @@
 "key": "npc/11",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, -12),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -1042,12 +1042,12 @@
 "fields": {
 "released": false
 },
-"type": "res://content/components/gameplay/c_npc_remains.gd"
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
 }, {
 "fields": {
 "npc_id": &"npc/12"
 },
-"type": "res://content/components/npc/c_npc_identity.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
 }, {
 "fields": {
 "key": "npc/12"
@@ -1075,7 +1075,7 @@
 "key": "npc/12",
 "links": Array[Dictionary]([]),
 &"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 28),
-"scene": "res://content/entities/npc/district_npc.tscn"
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
@@ -1212,5 +1212,5 @@
 "scene": "res://content/entities/props/anchorable_test_box.tscn"
 }]),
 "morning_day": 2,
-"version": 4
+"version": 5
 }

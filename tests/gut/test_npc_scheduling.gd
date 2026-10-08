@@ -47,7 +47,7 @@ func _isolate(first_index: int = 0, second_index: int = 3) -> void:
 	for index: int in _district.people.size():
 		if index != first_index and index != second_index:
 			var person: NpcRecord = _district.people[index]
-			DistrictPopulationService.set_placement(person, DistrictPopulationService.body_for(person.npc_id), NpcRecord.Placement.HOME)
+			DistrictPopulationService.set_placement(person, NpcPopulationQueries.body_for(person.npc_id), NpcRecord.Placement.HOME)
 #endregion
 
 #region Shared due-step ordering
@@ -103,11 +103,11 @@ func test_night_and_dormant_bodies_do_not_advance_ai_clocks() -> void:
 	NpcPerceptionService.emit_noise(actor, actor.global_position, 20.0)
 	var remaining: float = _district.noises[0].remaining
 	_owners()
-	DayPhaseService.current().phase = C_DayCycle.Phase.NIGHT
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.NIGHT
 	_world.process(1.0, "npc_scheduling")
 	assert_eq(decision.update_elapsed, 0.0)
 	assert_eq(_district.noises[0].remaining, remaining)
-	DayPhaseService.current().phase = C_DayCycle.Phase.MORNING
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.MORNING
 	DistrictPopulationService.set_placement(_district.people[0], actor, NpcRecord.Placement.HOME)
 	_world.process(1.0, "npc_scheduling")
 	assert_eq(decision.update_elapsed, 0.0)

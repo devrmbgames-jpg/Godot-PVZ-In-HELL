@@ -67,7 +67,7 @@ func _run() -> void:
 	_drive(actor, false, false, true)
 
 	var first_state: C_PackageState = first.get_component(C_PackageState) as C_PackageState
-	var registry: C_PackageLedger = PackageRegistrationService.ledger()
+	var registry: C_PackageLedger = PackageQueries.ledger()
 	assert(first_state.registration_number == 1 and registry.records.size() == 1)
 	assert(first_state.scan == C_PackageState.Scan.SCANNED)
 	assert(GrabService.held_object(actor) == scanner, "Scan must not throw")
@@ -172,7 +172,7 @@ func _run() -> void:
 		DayTransitionRequest.Kind.FINISH_SHIFT,
 		DayTransitionRequest.Kind.SLEEP,
 	]:
-		var cycle: C_DayCycle = DayPhaseService.current()
+		var cycle: C_DayCycle = DayPhaseQueries.current()
 		var request: DayTransitionRequest = DayTransitionRequest.new()
 		request.kind = transition
 		request.expected_day = cycle.day_index
@@ -180,7 +180,7 @@ func _run() -> void:
 		assert(DayPhaseService.submit(request))
 		ECS.world.process(1.0 / 60.0, "GamePlay")
 	ECS.world.process(1.0 / 60.0, "GamePlay")
-	assert(DayPhaseService.current().day_index == 2)
+	assert(DayPhaseQueries.current().day_index == 2)
 
 	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
 	assert(receiving.blocked and ECS.world.query.with_all([C_Package]).execute().size() == 8)

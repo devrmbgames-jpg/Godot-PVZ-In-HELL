@@ -5,7 +5,9 @@ class_name CustomerFlowFixture
 #region Real owner wiring
 ## Installs a missing planning handler in an isolated test/smoke World.
 static func install() -> void:
-	for observer_type: Script in [O_CustomerPlanning, O_CustomerGreeting, O_CustomerServiceClock, O_CustomerOutcomes]:
+	DialogueUiFixture.install()
+	NpcCustomerComposition.install(ECS.world)
+	for observer_type: Script in [O_CustomerPlanning, O_CustomerGreeting, O_CustomerServiceClock, O_CustomerOutcomes, O_CustomerNpcInterruption, O_CustomerNpcConversation, O_CustomerInspectionCargo]:
 		var installed: bool = false
 		for observer: Observer in ECS.world.observers:
 			if observer.get_script() == observer_type:
@@ -45,7 +47,7 @@ static func spawn(_flow: C_CustomerFlow, _cycle: C_DayCycle) -> bool:
 	install()
 	return DebugWorldService.customer_next().success
 ## Sends a real first-contact request without advancing unrelated test clocks.
-static func greet(customer: E_Customer) -> void:
+static func greet(customer: E_NpcCharacter) -> void:
 	install()
 	ECS.world.emit_event(CustomerGreetingRequest.EVENT, customer, CustomerGreetingRequest.new())
 

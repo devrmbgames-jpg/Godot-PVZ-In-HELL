@@ -27,12 +27,12 @@ static func status(cycle: C_DayCycle, zone_filter: E_ReceivingZone = null) -> St
 			var identity: C_Package = parcel.get_component(C_Package) as C_Package
 			parcels[identity.package_id] = parcel
 	var received: Dictionary[String, bool] = {}
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger != null:
 		for record: PackageRegistrationRecord in ledger.records:
 			received[record.package_id] = true
 	var declared_lost: Dictionary[String, bool] = {}
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow != null:
 		for visit: CustomerVisit in flow.visits:
 			if visit.declaration == CustomerVisit.Declaration.LOST:

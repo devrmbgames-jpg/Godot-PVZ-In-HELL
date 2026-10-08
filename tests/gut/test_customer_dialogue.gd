@@ -3,7 +3,7 @@ extends GutTest
 
 var _world: World = null
 var _actor: Entity = null
-var _customer: E_Customer = null
+var _customer: E_NpcCharacter = null
 var _visit: CustomerVisit = null
 var _context: CustomerDialogueContext = null
 
@@ -37,8 +37,8 @@ func before_each() -> void:
 	_world.add_entity(_actor)
 
 	var customer_body: RigidBody3D = RigidBody3D.new()
-	customer_body.set_script(load("res://content/entities/customers/e_customer.gd"))
-	_customer = customer_body as Node as E_Customer
+	customer_body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
+	_customer = customer_body as Node as E_NpcCharacter
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = _visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE

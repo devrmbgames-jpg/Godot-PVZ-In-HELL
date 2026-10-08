@@ -28,7 +28,7 @@ static func present(record: PackageRegistrationRecord, visit: CustomerVisit, del
 #region Постоянное чтение
 ## Записывает ключи показанных событий один раз; номер выдачи не служит ключом истории.
 static func mark_read(history_id: String, event_ids: PackedStringArray) -> bool:
-	var registry: C_PackageLedger = PackageRegistrationService.ledger()
+	var registry: C_PackageLedger = PackageQueries.ledger()
 	if registry == null or history_id.is_empty():
 		return false
 	for record: PackageRegistrationRecord in registry.records:

@@ -326,7 +326,7 @@ func test_receiving_manual_flush_rejects_replaced_state() -> void:
 func test_receiving_manual_flush_revalidates_calendar() -> void:
 	await _ready_truck()
 	_plan_big_boxes()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var owner: S_Receiving = S_Receiving.new()
 	owner.group = "ReceivingFixture"
 	owner.command_buffer_flush_mode = System.FlushMode.MANUAL

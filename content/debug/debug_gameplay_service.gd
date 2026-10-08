@@ -36,7 +36,7 @@ static func item(key: String) -> DEF_InventoryItem:
 ## Разрешает QA-цель; для визита возвращает его действующего получателя, иначе Entity цели.
 static func subject(raw: String) -> Entity:
 	var target: DebugTarget = DebugTargetResolver.resolve(raw)
-	return CustomerFlowService.customer_for(target.visit.visit_id) if target.visit != null else target.entity
+	return CustomerFlowQueries.customer_for(target.visit.visit_id) if target.visit != null else target.entity
 
 
 #endregion
@@ -73,7 +73,7 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 			var trader: Entity = trader_for(raw)
 			if trader == null: return failure("Live trader unavailable")
 			var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
-			lines.append("entity=%s open=%s schedule=%s" % [trader.id, TraderCatalogRules.is_open(shop, DayPhaseService.current()), TraderCatalogRules.schedule_text(shop)])
+			lines.append("entity=%s open=%s schedule=%s" % [trader.id, TraderCatalogRules.is_open(shop, DayPhaseQueries.current()), TraderCatalogRules.schedule_text(shop)])
 			if shop.profile != null: lines.append("profile=%s courier=%s fee=%d delay_days=%d" % [shop.profile.key, shop.profile.home_delivery_enabled, shop.profile.delivery_fee, shop.profile.delivery_delay_days])
 			for offer: DEF_InventoryItem in TraderCatalogRules.catalog(shop):
 				if offer != null: lines.append("key=%s price=%d max_stack=%d kind=%s" % [offer.key, offer.market_price, offer.maximum_stack, DEF_InventoryItem.Kind.keys()[offer.kind]])
@@ -99,7 +99,7 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 			lines.append("entity=%s phase=%s target=%s cooldown=%.2fs automatic=%s" % [entity.id, C_NpcCombat.Phase.keys()[state.phase], victim.id if victim != null else "none", state.cooldown_remaining, state.automatic_attack_selection])
 			var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
 			if agent != null:
-				var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+				var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 				lines.append("visit=%s phase=%s profile=%s" % [agent.visit_id, C_CustomerAgent.Phase.keys()[agent.phase], visit.definition.key if visit != null and visit.definition != null else &""])
 			for kind_value: C_NpcCombat.Kind in [C_NpcCombat.Kind.MELEE, C_NpcCombat.Kind.RANGED]:
 				for index: int in C_NpcCombat.MAX_VARIANTS:
@@ -174,7 +174,7 @@ static func meat_spawn() -> DebugServiceResult:
 static func save_slot(slot: String, writing: bool) -> DebugServiceResult:
 	var path: String = slot_path(slot)
 	if path.is_empty(): return failure("Slot requires 1..32 ASCII letters/digits/_/-. No paths; gameplay autosave is never used")
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING or not is_instance_valid(ECS.world): return failure("Persistence testing requires Morning; existing save contract restores a Morning snapshot")
 	if not ECS.world.query.with_all([C_CustomerAgent]).with_none([C_Death]).execute().is_empty(): return failure("Finish live visits before persistence testing")
 	for actor: Entity in ECS.world.entities:

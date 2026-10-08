@@ -35,7 +35,7 @@ static func debug_text(actor: Entity) -> String:
 		if state.attack != null:
 			lines.append("Условие %.1f–%.1f м · %s" % [state.attack.minimum_range, state.attack.maximum_range, "анимация" if state.animation_driven else "таймер"])
 		var agent: C_CustomerAgent = npc.get_component(C_CustomerAgent) as C_CustomerAgent
-		var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id) if agent != null else null
+		var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id) if agent != null else null
 		if visit != null:
 			lines.append("Конфликт: осталось %.1f c" % [maxf(0.0, visit.definition.aggressive_seconds - agent.elapsed)])
 	return "\n".join(lines)

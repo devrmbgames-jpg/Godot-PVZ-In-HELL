@@ -7,9 +7,9 @@ var _supply: DEF_Delivery = null
 ## Использует настоящий ассортимент и дешёвые компоненты физических коробок.
 func before_each() -> void:
 	super.before_each()
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
-	flow.schedule.events = (load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule).events
+	flow.schedule.events = (load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule).events
 	_supply = flow.schedule.supply
 
 func _waiting_package(index: int) -> CustomerVisit:
@@ -82,7 +82,7 @@ func test_every_supply_package_has_a_real_recipient_case() -> void:
 		identity.delivery_day = 1
 		var visit: CustomerVisit = CustomerFlowService.plan_delivered_package(identity)
 		assert_not_null(visit, String(definition.key))
-		assert_not_null(DistrictPopulationService.person_for(visit.customer_id))
+		assert_not_null(NpcPopulationQueries.person_for(visit.customer_id))
 		assert_same(CustomerFlowService.plan_delivered_package(identity), visit)
-	assert_eq(CustomerFlowService.current().visits.size(), _supply.packages.size())
+	assert_eq(CustomerFlowQueries.current().visits.size(), _supply.packages.size())
 #endregion

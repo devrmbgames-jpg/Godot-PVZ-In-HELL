@@ -25,11 +25,13 @@ func before_each() -> void:
 	_fixture_world = World.new()
 	_fixture_root.add_child(_fixture_world)
 	ECS.world = _fixture_world
+	NpcCustomerComposition.install(_fixture_world)
 	_fixture_world.add_observer(O_InventoryLifecycle.new())
 	_fixture_world.add_observer(O_DistrictLifecycle.new())
+	_fixture_world.add_observer(O_CustomerPlanning.new())
 
 	_district = C_District.new()
-	_district.definition = load("res://content/definitions/gameplay/npc/def_district_default.tres") as DEF_District
+	_district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
 	var session: Entity = Entity.new()
 	session.name = "Session"
 	session.component_resources = [_district, C_DayCycle.new(), C_Wallet.new(), C_PackageLedger.new(), C_Receiving.new(), C_Commerce.new()]
@@ -44,8 +46,8 @@ func before_each() -> void:
 
 	_active_id = _district.people[0].npc_id
 	_dormant_id = _district.people[1].npc_id
-	var active_body: E_DistrictNpc = DistrictPopulationService.body_for(_active_id)
-	var dormant_body: E_DistrictNpc = DistrictPopulationService.body_for(_dormant_id)
+	var active_body: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
+	var dormant_body: E_DistrictNpc = NpcPopulationQueries.body_for(_dormant_id)
 	DistrictPopulationService.set_placement(_district.people[0], active_body, NpcRecord.Placement.STREET)
 	DistrictPopulationService.set_placement(_district.people[1], dormant_body, NpcRecord.Placement.STREET)
 	(dormant_body.get_component(C_Health) as C_Health).current = 41.0
@@ -177,17 +179,17 @@ func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 	assert_eq(AutosaveStore.write(snapshot, SLOT_PATH), OK)
 	var stored_snapshot: Dictionary = AutosaveStore.read(SLOT_PATH)
 	assert_eq(stored_snapshot, snapshot)
-	var retained_body: E_DistrictNpc = DistrictPopulationService.body_for(_dormant_id)
+	var retained_body: E_DistrictNpc = NpcPopulationQueries.body_for(_dormant_id)
 	assert_true(WorldSnapshotService.restore(stored_snapshot, _fixture_root))
 
-	var active_body: E_DistrictNpc = DistrictPopulationService.body_for(_active_id)
-	var dormant_body: E_DistrictNpc = DistrictPopulationService.body_for(_dormant_id)
+	var active_body: E_DistrictNpc = NpcPopulationQueries.body_for(_active_id)
+	var dormant_body: E_DistrictNpc = NpcPopulationQueries.body_for(_dormant_id)
 	assert_same(dormant_body, retained_body)
 	assert_true(active_body.enabled)
 	assert_false(dormant_body.enabled)
 	assert_true((dormant_body as Node) is RigidBody3D)
 	assert_eq((dormant_body.get_component(C_Health) as C_Health).current, 41.0)
-	DistrictPopulationService.set_placement(DistrictPopulationService.person_for(_dormant_id), dormant_body, NpcRecord.Placement.STREET)
+	DistrictPopulationService.set_placement(NpcPopulationQueries.person_for(_dormant_id), dormant_body, NpcRecord.Placement.STREET)
 	assert_eq(InventoryService.items(dormant_body).size(), 1)
 	assert_eq(PhysicalSlotService.occupant(_fixture_root.get_node("Slot") as Entity), _fixture_root.get_node("StoredBox"))
 	var cargo_box: Entity = _fixture_root.get_node("CargoBox") as Entity
@@ -206,14 +208,14 @@ func test_current_format_fixture_roundtrip_and_retained_body_identity() -> void:
 
 ## Rejects unsupported versions and unresolved links without touching the live retained body.
 func test_incompatible_and_unresolved_data_reject_before_live_mutation() -> void:
-	var body: E_DistrictNpc = DistrictPopulationService.body_for(_dormant_id)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(_dormant_id)
 	var entity_count: int = _fixture_world.entities.size()
 	var snapshot: Dictionary = WorldSnapshotService.capture(_fixture_root, MORNING_DAY)
 	for version: int in [1, AutosaveStore.SCHEMA_VERSION - 1, AutosaveStore.SCHEMA_VERSION + 1]:
 		var incompatible: Dictionary = snapshot.duplicate(true)
 		incompatible.version = version
 		assert_false(WorldSnapshotService.restore(incompatible, _fixture_root))
-		assert_same(DistrictPopulationService.body_for(_dormant_id), body)
+		assert_same(NpcPopulationQueries.body_for(_dormant_id), body)
 		assert_eq(_fixture_world.entities.size(), entity_count)
 		assert_eq(AutosaveStore.write(incompatible, SLOT_PATH), OK)
 		var rejected_slot: PackedByteArray = FileAccess.get_file_as_bytes(SLOT_PATH)
@@ -221,19 +223,19 @@ func test_incompatible_and_unresolved_data_reject_before_live_mutation() -> void
 		autosave.path = SLOT_PATH
 		assert_false(NightSaveService.restore_startup(_fixture_root, autosave))
 		assert_eq(FileAccess.get_file_as_bytes(SLOT_PATH), rejected_slot)
-		assert_same(DistrictPopulationService.body_for(_dormant_id), body)
+		assert_same(NpcPopulationQueries.body_for(_dormant_id), body)
 
 	var duplicate: Dictionary = snapshot.duplicate(true)
 	(duplicate.entities as Array).append((duplicate.entities as Array)[0])
 	assert_false(WorldSnapshotService.restore(duplicate, _fixture_root))
-	assert_same(DistrictPopulationService.body_for(_dormant_id), body)
+	assert_same(NpcPopulationQueries.body_for(_dormant_id), body)
 
 	for record: Dictionary in snapshot.entities:
 		if not (record.links as Array).is_empty():
 			(record.links as Array)[0].target = "unresolved/fixture"
 			break
 	assert_false(WorldSnapshotService.restore(snapshot, _fixture_root))
-	assert_same(DistrictPopulationService.body_for(_dormant_id), body)
+	assert_same(NpcPopulationQueries.body_for(_dormant_id), body)
 	assert_eq((body.get_component(C_Health) as C_Health).current, 41.0)
 	assert_eq(_fixture_world.entities.size(), entity_count)
 #endregion

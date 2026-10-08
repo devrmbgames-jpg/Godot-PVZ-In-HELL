@@ -19,5 +19,5 @@ func _process(delta: float) -> void:
 		return
 
 	var name_text: String = shop.profile.display_name
-	var state_text: String = "Открыто" if TraderCatalogRules.is_open(shop, DayPhaseService.current()) else "Закрыто"
+	var state_text: String = "Открыто" if TraderCatalogRules.is_open(shop, DayPhaseQueries.current()) else "Закрыто"
 	text = "%s · %s\n%s" % [name_text, state_text, TraderCatalogRules.schedule_text(shop)]

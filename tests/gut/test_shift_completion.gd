@@ -58,7 +58,7 @@ func test_independent_gates_combine_and_unregistered_planned_arrivals_are_explic
 	var receipt: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	receipt.package_id = pending.package_id
 	receipt.received_day = 1
-	PackageRegistrationService.ledger().records.append(receipt)
+	PackageQueries.ledger().records.append(receipt)
 	var future: CustomerVisit = _visit(2)
 	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Legacy actionable filter does not trap unregistered visits")
 	_cycle.require_all_planned_arrivals = true
@@ -141,9 +141,9 @@ func test_configured_room_counts_live_customer_bodies_only() -> void:
 	body.freeze = true
 	body.position = Vector3(8, 0, 0)
 	body.collision_layer = 2
-	body.set_script(load("res://content/entities/customers/e_customer.gd"))
+	body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
 
-	var customer: E_Customer = body as Node as E_Customer
+	var customer: E_NpcCharacter = body as Node as E_NpcCharacter
 	customer.component_resources = [C_CustomerAgent.new()]
 	var body_shape: CollisionShape3D = CollisionShape3D.new()
 	body_shape.shape = SphereShape3D.new()

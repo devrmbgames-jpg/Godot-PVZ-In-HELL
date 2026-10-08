@@ -4,40 +4,6 @@ class_name PackageRegistrationService
 
 
 #region Регистрация и складской резерв
-## Находит живую коробку по постоянному package_id, отдельно от номера регистрации.
-static func find_live_package(package_id: String) -> Entity:
-	if not is_instance_valid(ECS.world):
-		return null
-
-	for parcel: Entity in ECS.world.query.with_all([C_Package]).execute():
-		var identity: C_Package = parcel.get_component(C_Package) as C_Package
-		if identity != null and identity.package_id == package_id:
-			return parcel
-	return null
-
-
-## Читает журнал текущего склада, независимо от номера дня.
-static func ledger() -> C_PackageLedger:
-	if not is_instance_valid(ECS.world):
-		return null
-
-	var session: Entity = ECS.world.query.with_all([C_PackageLedger]).execute_one()
-	return session.get_component(C_PackageLedger) as C_PackageLedger if session != null else null
-
-
-## Возвращает соответствие ID живым C_PackageState для чтения интерфейсом; ссылки компонентов не являются копиями.
-static func live_states() -> Dictionary[String, C_PackageState]:
-	var result: Dictionary[String, C_PackageState] = {}
-	if not is_instance_valid(ECS.world):
-		return result
-
-	for parcel: Entity in ECS.world.query.with_all([C_Package, C_PackageState]).execute():
-		var identity: C_Package = parcel.get_component(C_Package) as C_Package
-		var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
-		result[identity.package_id] = state
-	return result
-
-
 ## Требует сканер в руке, доступную коробку под лучом и дистанцию scan_range.
 static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	if not is_instance_valid(target) or not is_instance_valid(scanner):
@@ -54,8 +20,8 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 	):
 		return false
 
-	var cycle: C_DayCycle = DayPhaseService.current()
-	if cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT or ledger() == null:
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	if cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT or PackageQueries.ledger() == null:
 		return false
 	if not target.has_component(C_Package) or not target.has_component(C_PackageState):
 		return false
@@ -89,8 +55,8 @@ static func register_package(target: Entity) -> PackageScanResult:
 	if not target.has_component(C_Package) or not target.has_component(C_PackageState):
 		return result
 
-	var registry: C_PackageLedger = ledger()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var registry: C_PackageLedger = PackageQueries.ledger()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if registry == null or cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:
 		return result
 
@@ -114,7 +80,7 @@ static func register_package(target: Entity) -> PackageScanResult:
 	if state.scan == C_PackageState.Scan.SCANNED or state.registration_number != 0:
 		result.message = "Ошибка реестра: запись отсутствует"
 		return result
-	if CustomerFlowService.package_declared_lost(identity.package_id):
+	if CustomerFlowQueries.package_declared_lost(identity.package_id):
 		result.message = "Посылка уже заявлена потерянной"
 		return result
 
@@ -133,7 +99,6 @@ static func register_package(target: Entity) -> PackageScanResult:
 	result.outcome = PackageScanResult.Outcome.REGISTERED
 	result.number = registration.number
 	result.message = "Зарегистрирована · №%03d" % registration.number
-	NpcDeliveryOfferService.refresh()
 	ECS.world.emit_event(PackageScanResult.EVENT, target, result)
 	return result
 
@@ -160,7 +125,7 @@ static func release_number(parcel: Entity) -> bool:
 
 	var identity: C_Package = parcel.get_component(C_Package)
 	var state: C_PackageState = parcel.get_component(C_PackageState)
-	var registry: C_PackageLedger = ledger()
+	var registry: C_PackageLedger = PackageQueries.ledger()
 	if identity == null or state == null or registry == null:
 		return false
 	if state.registration < C_PackageState.Registration.DELIVERED:

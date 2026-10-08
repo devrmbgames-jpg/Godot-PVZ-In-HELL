@@ -16,16 +16,19 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	DialogueUiFixture.install()
+	NpcCustomerComposition.install(_world)
 
 	var owner_node: Node = Node.new()
 	owner_node.set_script(load("res://addons/gecs/ecs/entity.gd"))
 	var owner_entity: Entity = owner_node as Entity
 	_district = C_District.new()
-	_district.definition = load("res://content/definitions/gameplay/npc/def_district_default.tres") as DEF_District
+	_district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
 	owner_entity.component_resources = [_district, C_DayCycle.new()]
 	_world.add_entity(owner_entity)
 	_district = owner_entity.get_component(C_District) as C_District
 	_world.add_observer(O_DistrictLifecycle.new())
+	_world.add_observer(O_CustomerPlanning.new())
 	DistrictPopulationService.initialize()
 
 ## Освобождает World до окружающей сцены и сбрасывает глобальное участие ECS.
@@ -45,8 +48,8 @@ func after_each() -> void:
 ## Постоянный торговец достигает своей точки и остаётся доступен во всех игровых фазах.
 func test_merchant_schedule_keeps_same_live_trader_on_shop_goal_all_day() -> void:
 	var person: NpcRecord = _district.people[7]
-	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var shop: C_Trader = body.get_component(C_Trader) as C_Trader
 	assert_true(person.profile.merchant)
 	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
@@ -56,7 +59,7 @@ func test_merchant_schedule_keeps_same_live_trader_on_shop_goal_all_day() -> voi
 		assert_eq(_district.definition.place_for(person.goal_id).kind, DEF_DistrictPlace.Kind.SHOP)
 		assert_true(DistrictPopulationService.request_phase_completion(body).succeeded)
 		assert_eq(person.placement, NpcRecord.Placement.STREET)
-		assert_same(DistrictPopulationService.body_for(person.npc_id), body)
+		assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
 		assert_true(GrabService.holder_available(body))
 		assert_true(TraderCatalogRules.is_open(shop, cycle))
 	cycle.phase = C_DayCycle.Phase.NIGHT
@@ -65,7 +68,7 @@ func test_merchant_schedule_keeps_same_live_trader_on_shop_goal_all_day() -> voi
 ## Уход и возвращение сохраняют постоянный ID, тот же экземпляр тела, здоровье и память.
 func test_departure_and_return_keep_body_health_and_memory() -> void:
 	var person: NpcRecord = _district.people[0]
-	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	var health: C_Health = body.get_component(C_Health) as C_Health
 	health.current = health.value * 0.5
 	var memory: NpcMemory = NpcMemory.new()
@@ -76,7 +79,7 @@ func test_departure_and_return_keep_body_health_and_memory() -> void:
 	assert_false(body.enabled)
 	assert_eq((body as Node as RigidBody3D).collision_layer, 0)
 	assert_true(DistrictPopulationService.request_phase(body, 2, C_DayCycle.Phase.MORNING).succeeded)
-	assert_same(DistrictPopulationService.body_for(person.npc_id), body)
+	assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
 	assert_true(body.enabled)
 	assert_eq(health.current, health.value * 0.5)
 	assert_eq(person.memories.size(), 1)
@@ -103,14 +106,14 @@ func test_morning_retry_is_idempotent() -> void:
 ## Реальное дерево LimboAI исполняет расписание через арбитр намерений движения.
 func test_native_tree_drives_schedule_without_another_movement_owner() -> void:
 	var person: NpcRecord = _district.people[0]
-	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	NpcAiFixture.advance(_district, 0.2)
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	var intent: C_NpcIntent = body.get_component(C_NpcIntent) as C_NpcIntent
 	assert_not_null(body.get_node_or_null("Brain") as BTPlayer)
 	assert_eq(decision.intent_owner, C_NpcDecision.Owner.SCHEDULE)
 	assert_true(intent.movement_active)
-	assert_eq(intent.move_position, DistrictPopulationService.position_for(person.goal_id))
+	assert_eq(intent.move_position, NpcPopulationQueries.position_for(person.goal_id))
 #endregion
 
 #region Окончательная смерть и заселение
@@ -120,9 +123,9 @@ func test_two_deaths_start_delayed_one_per_morning_resettlement() -> void:
 	var second: NpcRecord = _district.people[1]
 	var first_id: StringName = first.npc_id
 	var first_home: StringName = first.home_id
-	DistrictPopulationService.mark_dead(first, DistrictPopulationService.body_for(first_id), 1)
+	DistrictPopulationService.mark_dead(first, NpcPopulationQueries.body_for(first_id), 1)
 	assert_eq(_district.replacement_morning, 0)
-	DistrictPopulationService.mark_dead(second, DistrictPopulationService.body_for(second.npc_id), 1)
+	DistrictPopulationService.mark_dead(second, NpcPopulationQueries.body_for(second.npc_id), 1)
 	assert_eq(_district.replacement_morning, 3)
 	DistrictPopulationService.prepare_morning(2)
 	assert_eq(_district.people.size(), 12)

@@ -9,7 +9,7 @@ const MAX_HAZARD_DEBUG_ROWS: int = 4
 static func debug_text() -> String:
 	var commerce: C_Commerce = CommerceService.current()
 	var quests: C_QuestSession = RefusalQuestService.current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if commerce == null or quests == null or cycle == null:
 		return ""
 
@@ -20,8 +20,8 @@ static func debug_text() -> String:
 	for quest: RefusalQuestRecord in quests.records:
 		lines.append("Не выдавай №%03d · %s · срок Night дня %d (ещё %d дней)" % [quest.display_number, RefusalQuestRecord.State.keys()[quest.state], quest.deadline_day, maxi(0, quest.deadline_day - cycle.day_index)])
 	if cycle.phase == C_DayCycle.Phase.MORNING:
-		for visit: CustomerVisit in CustomerFlowService.current().visits:
-			var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
+		for visit: CustomerVisit in CustomerFlowQueries.current().visits:
+			var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 			if PackageReturnService.can_return(parcel):
 				var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 				lines.append("Задача Morning: №%03d — держать и вернуть на F во дворе; прежний штраф сохраняется" % state.registration_number)

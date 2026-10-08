@@ -60,8 +60,8 @@ func before_each() -> void:
 	_cycle.phase = C_DayCycle.Phase.DAY
 	_actor = _entity([])
 	var customer_body: RigidBody3D = RigidBody3D.new()
-	customer_body.set_script(load("res://content/entities/customers/e_customer.gd"))
-	_subject = customer_body as Node as E_Customer
+	customer_body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
+	_subject = customer_body as Node as E_NpcCharacter
 	_subject.component_resources = [C_Challenge.new(), C_CustomerAgent.new(), C_NpcIntent.new(), C_Controller.new()]
 	_world.add_entity(_subject)
 	(_subject.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id = VISIT_ID
@@ -146,19 +146,19 @@ func _advance_arrival() -> void:
 	owner.free()
 
 
-func _arrival_customer() -> E_Customer:
+func _arrival_customer() -> E_NpcCharacter:
 	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_light_entrance.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
 	_state.definition.timeout_seconds = TIMEOUT
 	_visit.definition.challenge = _state.definition
 	assert_true(ChallengeService.begin_on_arrival(_subject, _actor))
-	var customer: E_Customer = _subject as E_Customer
+	var customer: E_NpcCharacter = _subject as E_NpcCharacter
 	CustomerArrivalService.begin(customer, _state)
 	return customer
 
 
 ## Светобоязненный клиент ждёт у входа, затем получает намерение подхода после выключения.
 func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
-	var customer: E_Customer = _arrival_customer()
+	var customer: E_NpcCharacter = _arrival_customer()
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
 	_advance_arrival()
@@ -166,7 +166,7 @@ func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
 	_world.process(FRAME_DELTA)
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
 
-	var scene: PackedScene = load("res://content/entities/stations/delivery_counter.tscn") as PackedScene
+	var scene: PackedScene = load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
 	var station: E_DeliveryCounter = scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(station)
 	assert_true(LightCircuitService.set_enabled(_circuit, false))
@@ -182,7 +182,7 @@ func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
 
 ## Таймаут гасит свет и направляет одну эскалацию в существующую боевую роль.
 func test_dark_room_timeout_turns_lights_off_and_reuses_combat_escalation_once() -> void:
-	var customer: E_Customer = _arrival_customer()
+	var customer: E_NpcCharacter = _arrival_customer()
 	_actor.add_components([C_PlayerInputController.new(), C_Health.new()])
 	customer.add_component(C_NpcCombat.new())
 	_world.process(TIMEOUT)
@@ -201,7 +201,7 @@ func test_dark_room_timeout_turns_lights_off_and_reuses_combat_escalation_once()
 ## Уже тёмный вход не задерживает клиента и не мерцает; смена фазы не оставляет его у входа.
 func test_already_dark_arrival_does_not_gate_or_flicker_and_phase_cancel_departs() -> void:
 	assert_true(LightCircuitService.set_enabled(_circuit, false))
-	var customer: E_Customer = _arrival_customer()
+	var customer: E_NpcCharacter = _arrival_customer()
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(agent.phase, C_CustomerAgent.Phase.APPROACHING)
 	assert_false(LightCircuitService.flicker(&"warehouse", 2.0, 0.1))
@@ -477,10 +477,10 @@ func test_delivery_payment_waits_for_timed_challenge_result() -> void:
 	assert_eq(wallet.balance, 0)
 	assert_false(_visit.settlement_committed)
 	_world.process(TIMEOUT)
-	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, 0.0)
 	assert_eq(_visit.satisfaction, 70)
 	assert_eq(wallet.balance, 70)
-	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, 0.0)
 	assert_eq(wallet.operations.size(), 1)
 
 
@@ -491,18 +491,18 @@ func test_departure_result_precedes_removal_and_payment() -> void:
 	var wallet: C_Wallet = _deliver_and_declare()
 	var agent: C_CustomerAgent = _subject.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.RECEIVING
-	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, _visit.definition.receiving_seconds)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, _visit.definition.receiving_seconds)
 	_world.process(TIMEOUT)
 	assert_eq(agent.phase, C_CustomerAgent.Phase.LEAVING)
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
 	assert_eq(wallet.balance, 0)
-	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, _visit.definition.leaving_seconds)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, _visit.definition.leaving_seconds)
 	assert_false(_visit.finished)
 	assert_true(EntityAvailability.contains(_subject, _world))
 	_world.process(FRAME_DELTA)
 	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
 	assert_eq(_visit.satisfaction, 70)
-	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, 0.0)
 	assert_true(_visit.finished)
 	assert_eq(wallet.balance, 70)
 	assert_eq(wallet.operations.size(), 1)

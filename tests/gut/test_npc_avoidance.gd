@@ -1,7 +1,7 @@
 extends GutTest
 ## Native RVO и реальные RigidBody: обход происходит до физического толкания соседей/очереди.
 
-const NPC_SCENE: PackedScene = preload("res://content/entities/customers/customer.tscn")
+const NPC_SCENE: PackedScene = preload("res://content/domains/customers/entities/customer.tscn")
 const TRADER_SCENE: PackedScene = preload("res://content/entities/commerce/trader.tscn")
 const SETTLE_FRAMES: int = 12
 const ROUTE_FRAMES: int = 420

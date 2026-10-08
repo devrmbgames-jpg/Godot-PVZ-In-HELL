@@ -107,7 +107,7 @@ func _parcel() -> Entity:
 #region NPC consumption of committed facts
 func _noise_consumer(manual: bool = false) -> C_District:
 	var district: C_District = C_District.new()
-	district.definition = load("res://content/definitions/gameplay/npc/def_district_default.tres") as DEF_District
+	district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
 	(_root.get_node("Session") as Entity).add_component(district)
 	var observer: O_PlayerInteractionNoise = O_PlayerInteractionNoise.new()
 	if manual:

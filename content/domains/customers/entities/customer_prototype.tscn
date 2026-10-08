@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://content/domains/customers/entities/customer.tscn" id="Base"]
+
+[node name="CustomerPrototype" instance=ExtResource("Base")]
+editor_description = "Copy this scene and def_customer_prototype.tres. Assign the copied scene path in the profile and use that profile in a schedule event. Animation hooks and combat variants stay in this scene."
+inspection_animation = &"Idle"
+receiving_animation = &"Idle"
+dialogue_animation = &"Idle"

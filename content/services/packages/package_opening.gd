@@ -26,11 +26,11 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 		return false
 	if motion != null and not motion.control_enabled:
 		return false
-	if actor is E_Customer:
+	if actor.has_component(C_CustomerAgent):
 		var agent: C_CustomerAgent = actor.get_component(C_CustomerAgent) as C_CustomerAgent
 		var stored: Relationship = PhysicalSlotService.relationship(package)
-		return agent != null and agent.phase == C_CustomerAgent.Phase.INSPECTING and CustomerInspectionService.owner_for(package) == actor and stored != null and (stored.relation as R_StoredIn).applied
-	if CustomerInspectionService.owner_for(package) != null:
+		return agent != null and agent.phase == C_CustomerAgent.Phase.INSPECTING and CustomerInspectionQueries.owner_for(package) == actor and stored != null and (stored.relation as R_StoredIn).applied
+	if CustomerInspectionQueries.owner_for(package) != null:
 		return false
 	if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.DRAWING:
 		return false

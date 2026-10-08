@@ -19,7 +19,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 
 	var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
-	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	if visit != null:
 		visit.last_combat_context = context
 	if context.actor_is_player and result.outcome != DamageResult.Outcome.HEALTH_DEPLETED:

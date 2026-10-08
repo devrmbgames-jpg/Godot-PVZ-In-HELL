@@ -29,25 +29,25 @@ func _run() -> void:
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
 
-	var books: Entity = CustomerFlowService.parcel_for("base_supply:1:books")
-	var glass: Entity = CustomerFlowService.parcel_for("base_supply:1:glass")
+	var books: Entity = PackageQueries.find_live_package("base_supply:1:books")
+	var glass: Entity = PackageQueries.find_live_package("base_supply:1:glass")
 	assert(books != null and glass != null)
 	assert(PackageRegistrationService.register_package(books).outcome == PackageScanResult.Outcome.REGISTERED)
 	assert(PackageRegistrationService.register_package(glass).outcome == PackageScanResult.Outcome.REGISTERED)
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = flow.schedule.duplicate(true) as DEF_CustomerSchedule
 	for event: DEF_CustomerEvent in flow.schedule.events:
 		event.customer.greeting_seconds = 0.05
 		event.customer.receiving_seconds = 0.05
 		event.customer.leaving_seconds = 0.05
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.START_SHIFT
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
 	assert(DayPhaseService.submit(request))
-	var customer: E_Customer = await _waiting_customer()
+	var customer: E_NpcCharacter = await _waiting_customer()
 	assert(CustomerFlowService.direct_handoff_package(_actor, customer) == null)
 	await _pickup(glass)
 	assert(CustomerFlowService.confirm_direct_delivery(_actor, customer) == PackageDeliveryCheck.Result.WRONG_PACKAGE)
@@ -55,7 +55,7 @@ func _run() -> void:
 	GrabService.release(_actor, glass)
 	await _pickup(books)
 
-	var first: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
+	var first: CustomerVisit = CustomerFlowQueries.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	var action: DEF_CustomerHandoffAction = DEF_CustomerHandoffAction.new()
 	assert(action.is_available(_actor, customer, customer))
 	action.execute(_actor, customer, customer)
@@ -64,7 +64,7 @@ func _run() -> void:
 	assert(GrabService.held_object(_actor) == null, "Delivered package must release the grip")
 	customer = await _waiting_customer()
 
-	var second: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
+	var second: CustomerVisit = CustomerFlowQueries.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	assert(second.package_id == "base_supply:1:glass")
 	second.definition.voluntary_refusal = true
 	assert(not CustomerFlowService.voluntary_refuse(customer), "Customer cannot refuse before physical handoff")
@@ -89,11 +89,11 @@ func _run() -> void:
 #endregion
 
 #region Ожидание и тестовое размещение
-func _waiting_customer() -> E_Customer:
+func _waiting_customer() -> E_NpcCharacter:
 	for frame: int in WAIT_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
 		await get_tree().physics_frame
-		var customer: E_Customer = CustomerFlowService.waiting_customer()
+		var customer: E_NpcCharacter = CustomerFlowQueries.waiting_customer()
 		if customer != null:
 			return customer
 

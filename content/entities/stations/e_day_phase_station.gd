@@ -26,5 +26,5 @@ func _process(delta: float) -> void:
 		return
 
 	_remaining = REFRESH_SECONDS
-	var status: String = DayPhaseService.shift_status(DayPhaseService.current())
+	var status: String = DayPhaseService.shift_status(DayPhaseQueries.current())
 	_sign.text = "СМЕНА\nНачать / завершить" + ("\n" + status if not status.is_empty() else "")

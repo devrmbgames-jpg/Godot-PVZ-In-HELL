@@ -46,7 +46,7 @@ func before_each() -> void:
 	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	registration.package_id = identity.package_id
 	registration.number = 3
-	PackageRegistrationService.ledger().records.append(registration)
+	PackageQueries.ledger().records.append(registration)
 	_visit = CustomerVisit.new()
 	_visit.visit_id = &"visit/durable:first"
 	_visit.package_id = identity.package_id
@@ -79,7 +79,7 @@ func test_authored_variants_select_reward_deadline_and_dialogue_without_script_c
 		shop.profile.refusal_quest = load(path) as DEF_RefusalQuest
 		_visit.package_id = "variant/" + String(shop.profile.refusal_quest.key)
 		(_parcel.get_component(C_Package) as C_Package).package_id = _visit.package_id
-		PackageRegistrationService.ledger().records[0].package_id = _visit.package_id
+		PackageQueries.ledger().records[0].package_id = _visit.package_id
 		_visit.actual = CustomerVisit.Actual.NOT_RESOLVED
 		var record: RefusalQuestRecord = RefusalQuestService.offer(_trader)
 		assert_not_null(record)
@@ -143,7 +143,7 @@ func test_authoring_provider_rejects_invalid_definition_issuer_and_target_before
 	assert_null(RefusalQuestService.offer(_trader))
 	shop.trader_key = &"evening_trader"
 	_visit.customer_id = &""
-	var registration: PackageRegistrationRecord = PackageRegistrationService.ledger().records[0]
+	var registration: PackageRegistrationRecord = PackageQueries.ledger().records[0]
 	var package: C_Package = _parcel.get_component(C_Package) as C_Package
 	assert_false(RefusalQuestValidator.target_issues(_visit, registration, package).is_empty())
 	assert_null(RefusalQuestService.offer(_trader))

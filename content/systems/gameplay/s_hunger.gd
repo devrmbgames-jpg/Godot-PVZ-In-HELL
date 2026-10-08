@@ -15,7 +15,7 @@ func query() -> QueryBuilder:
 
 ## Commits only scalar growth; no structural command or hidden Service clock is required.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT or not is_finite(delta) or delta <= 0.0:
 		return
 	if get_tree().paused:

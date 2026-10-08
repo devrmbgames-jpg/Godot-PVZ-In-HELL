@@ -83,12 +83,11 @@
     {
       "source_owner": "challenges",
       "target_owner": "customers",
-      "symbol": "CustomerFlowService",
-      "path": "content/domains/customers/services/customer_flow_service.gd",
+      "symbol": "CustomerFlowQueries",
+      "path": "content/domains/customers/services/customer_flow_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "find_visit"
@@ -101,6 +100,25 @@
       "method_rights": {
         "find_visit": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "challenges",
+      "target_owner": "customers",
+      "symbol": "CustomerFlowService",
+      "path": "content/domains/customers/services/customer_flow_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/observers/gameplay/o_customer_challenge_outcome.gd",
+        "content/services/challenges/challenge_presentation.gd",
+        "content/services/challenges/gaze_order_clue_presentation.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -182,12 +200,8 @@
       "sources": [
         "content/systems/gameplay/s_challenge_gaze.gd"
       ],
-      "method_rights": {
-        "show_message": "request"
-      },
-      "public_instance_methods": [
-        "show_message"
-      ]
+      "method_rights": {},
+      "public_instance_methods": []
     },
     {
       "source_owner": "challenges",
@@ -490,6 +504,27 @@
     },
     {
       "source_owner": "challenges",
+      "target_owner": "npc",
+      "symbol": "E_NpcCharacter",
+      "path": "content/domains/npc/entities/e_npc_character.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/systems/gameplay/s_challenge_gaze.gd"
+      ],
+      "method_rights": {
+        "show_message": "request"
+      },
+      "public_instance_methods": [
+        "show_message"
+      ]
+    },
+    {
+      "source_owner": "challenges",
       "target_owner": "shared",
       "symbol": "EntityAvailability",
       "path": "content/shared/services/entity_availability.gd",
@@ -555,12 +590,11 @@
     {
       "source_owner": "challenges",
       "target_owner": "time",
-      "symbol": "DayPhaseService",
-      "path": "content/domains/time/services/day_phase_service.gd",
+      "symbol": "DayPhaseQueries",
+      "path": "content/domains/time/services/day_phase_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "current"
@@ -572,6 +606,24 @@
       "method_rights": {
         "current": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "challenges",
+      "target_owner": "time",
+      "symbol": "DayPhaseService",
+      "path": "content/domains/time/services/day_phase_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/challenges/challenge_presentation.gd",
+        "content/services/challenges/challenge_service.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -685,12 +737,11 @@
     {
       "source_owner": "combat",
       "target_owner": "customers",
-      "symbol": "CustomerFlowService",
-      "path": "content/domains/customers/services/customer_flow_service.gd",
+      "symbol": "CustomerFlowQueries",
+      "path": "content/domains/customers/services/customer_flow_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "current",
@@ -705,6 +756,25 @@
         "current": "query",
         "find_visit": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "customers",
+      "symbol": "CustomerFlowService",
+      "path": "content/domains/customers/services/customer_flow_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/observers/combat/o_combat_damage.gd",
+        "content/services/combat/combat_attribution.gd",
+        "content/services/combat/combat_presentation.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -1133,16 +1203,12 @@
         "read",
         "request"
       ],
-      "public_methods": [
-        "current"
-      ],
+      "public_methods": [],
       "sources": [
         "content/services/combat/combat_service.gd",
         "content/services/combat/npc_attack_service.gd"
       ],
-      "method_rights": {
-        "current": "query"
-      },
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -1153,7 +1219,8 @@
       "rights": [
         "query",
         "read",
-        "request"
+        "request",
+        "subscribe"
       ],
       "public_methods": [],
       "sources": [
@@ -1161,7 +1228,8 @@
         "content/systems/gameplay/s_npc_combat.gd"
       ],
       "method_rights": {},
-      "public_instance_methods": []
+      "public_instance_methods": [],
+      "purpose": "Combat subscribes to native method-track requests for its captured attack execution; native actor never imports the Combat operation owner."
     },
     {
       "source_owner": "combat",
@@ -1206,6 +1274,27 @@
       ],
       "method_rights": {
         "action_noise": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "npc",
+      "symbol": "NpcPopulationQueries",
+      "path": "content/domains/npc/services/npc_population_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "current"
+      ],
+      "sources": [
+        "content/services/combat/combat_service.gd",
+        "content/services/combat/npc_attack_service.gd"
+      ],
+      "method_rights": {
+        "current": "query"
       },
       "public_instance_methods": []
     },
@@ -1386,12 +1475,11 @@
     {
       "source_owner": "combat",
       "target_owner": "time",
-      "symbol": "DayPhaseService",
-      "path": "content/domains/time/services/day_phase_service.gd",
+      "symbol": "DayPhaseQueries",
+      "path": "content/domains/time/services/day_phase_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "current"
@@ -1402,6 +1490,23 @@
       "method_rights": {
         "current": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "time",
+      "symbol": "DayPhaseService",
+      "path": "content/domains/time/services/day_phase_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/combat/combat_attribution.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -1741,12 +1846,11 @@
     {
       "source_owner": "commerce",
       "target_owner": "time",
-      "symbol": "DayPhaseService",
-      "path": "content/domains/time/services/day_phase_service.gd",
+      "symbol": "DayPhaseQueries",
+      "path": "content/domains/time/services/day_phase_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "current"
@@ -1760,6 +1864,26 @@
       "method_rights": {
         "current": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "time",
+      "symbol": "DayPhaseService",
+      "path": "content/domains/time/services/day_phase_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/definitions/interaction/def_trader_action.gd",
+        "content/services/commerce/commerce_service.gd",
+        "content/services/economy/wallet_service.gd",
+        "content/systems/gameplay/s_order_delivery.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -1888,6 +2012,7 @@
         "request"
       ],
       "public_methods": [
+        "activate",
         "begin_on_arrival",
         "cancel",
         "request_departure"
@@ -1902,7 +2027,8 @@
       "method_rights": {
         "begin_on_arrival": "request",
         "cancel": "request",
-        "request_departure": "request"
+        "request_departure": "request",
+        "activate": "request"
       },
       "public_instance_methods": []
     },
@@ -2357,6 +2483,29 @@
         "content/services/customers/customer_flow_service.gd"
       ],
       "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "interaction",
+      "symbol": "C_InteractionActionSet",
+      "path": "content/domains/interaction/components/c_interaction_action_set.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "new"
+      ],
+      "sources": [
+        "content/entities/customers/e_customer.gd",
+        "content/services/customers/customer_action_recipe.gd"
+      ],
+      "purpose": "Host recipe installation adds immutable customer action definitions once; runtime availability remains definition/role data. Native population configures its own initial capability definitions before the customer role installer.",
+      "method_rights": {
+        "new": "configure"
+      },
       "public_instance_methods": []
     },
     {
@@ -2845,12 +2994,6 @@
         "request"
       ],
       "public_methods": [
-        "body_for",
-        "current",
-        "person_for",
-        "place_name",
-        "position_for",
-        "recipient_for",
         "request_phase",
         "set_placement"
       ],
@@ -2867,12 +3010,6 @@
         "content/systems/gameplay/s_customer_arrivals.gd"
       ],
       "method_rights": {
-        "body_for": "query",
-        "current": "query",
-        "person_for": "query",
-        "place_name": "request",
-        "position_for": "request",
-        "recipient_for": "request",
         "request_phase": "request",
         "set_placement": "request"
       },
@@ -2886,11 +3023,13 @@
       "rights": [
         "query",
         "read",
-        "request"
+        "request",
+        "subscribe"
       ],
       "public_methods": [],
       "sources": [
         "content/services/customers/customer_flow_service.gd",
+        "content/services/customers/customer_npc_lifecycle_binding.gd",
         "content/services/npc/npc_delivery_offer_service.gd",
         "content/services/npc/npc_delivery_scenario_service.gd",
         "content/services/npc/npc_home_delivery_service.gd",
@@ -2920,6 +3059,27 @@
       "public_methods": [],
       "sources": [
         "content/entities/customers/e_customer.gd"
+      ],
+      "method_rights": {
+        "show_message": "request"
+      },
+      "public_instance_methods": [
+        "show_message"
+      ]
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcConversationPermissionRequest",
+      "path": "content/domains/npc/contracts/npc_conversation_permission_request.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/observers/gameplay/o_customer_npc_conversation.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -2952,6 +3112,8 @@
         "request"
       ],
       "public_methods": [
+        "begin",
+        "close_for",
         "end",
         "participant"
       ],
@@ -2962,7 +3124,9 @@
       ],
       "method_rights": {
         "end": "request",
-        "participant": "request"
+        "participant": "request",
+        "close_for": "request",
+        "begin": "request"
       },
       "public_instance_methods": []
     },
@@ -3088,6 +3252,45 @@
     {
       "source_owner": "customers",
       "target_owner": "npc",
+      "symbol": "NpcPopulationQueries",
+      "path": "content/domains/npc/services/npc_population_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "body_for",
+        "current",
+        "person_for",
+        "place_name",
+        "position_for",
+        "recipient_for"
+      ],
+      "sources": [
+        "content/ai/tasks/bt_npc_entrance_deadline.gd",
+        "content/ai/tasks/bt_npc_home_reached.gd",
+        "content/observers/gameplay/o_customer_planning.gd",
+        "content/services/customers/customer_flow_service.gd",
+        "content/services/customers/customer_presentation.gd",
+        "content/services/npc/npc_delivery_offer_service.gd",
+        "content/services/npc/npc_delivery_scenario_service.gd",
+        "content/services/npc/npc_home_delivery_service.gd",
+        "content/services/npc/npc_service_role.gd",
+        "content/systems/gameplay/s_customer_arrivals.gd"
+      ],
+      "method_rights": {
+        "body_for": "query",
+        "current": "query",
+        "person_for": "query",
+        "place_name": "query",
+        "position_for": "query",
+        "recipient_for": "query"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
       "symbol": "NpcRecord",
       "path": "content/domains/npc/contracts/npc_record.gd",
       "rights": [
@@ -3109,6 +3312,39 @@
     {
       "source_owner": "customers",
       "target_owner": "npc",
+      "symbol": "NpcRoleInterruptionRequest",
+      "path": "content/domains/npc/contracts/npc_role_interruption_request.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/observers/gameplay/o_customer_npc_interruption.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcSocialReactionCommitted",
+      "path": "content/domains/npc/contracts/npc_social_reaction_committed.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/observers/gameplay/o_customer_outcomes.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
       "symbol": "NpcSocialService",
       "path": "content/domains/npc/services/npc_social_service.gd",
       "rights": [
@@ -3117,6 +3353,7 @@
         "request"
       ],
       "public_methods": [
+        "apply_reaction",
         "distrusts_player",
         "identity_for",
         "react",
@@ -3133,7 +3370,8 @@
         "identity_for": "request",
         "react": "request",
         "remember": "request",
-        "remember_promise": "request"
+        "remember_promise": "request",
+        "apply_reaction": "request"
       },
       "public_instance_methods": []
     },
@@ -3341,6 +3579,33 @@
     {
       "source_owner": "customers",
       "target_owner": "packages",
+      "symbol": "PackageQueries",
+      "path": "content/domains/packages/services/package_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "find_live_package",
+        "ledger",
+        "live_states"
+      ],
+      "sources": [
+        "content/observers/gameplay/o_customer_planning.gd",
+        "content/services/customers/customer_flow_service.gd",
+        "content/services/customers/customer_presentation.gd",
+        "content/services/npc/npc_delivery_offer_service.gd"
+      ],
+      "method_rights": {
+        "ledger": "query",
+        "live_states": "query",
+        "find_live_package": "query"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "packages",
       "symbol": "PackageRegistrationRecord",
       "path": "content/domains/packages/contracts/package_registration_record.gd",
       "rights": [
@@ -3369,8 +3634,6 @@
         "request"
       ],
       "public_methods": [
-        "ledger",
-        "live_states",
         "release_number"
       ],
       "sources": [
@@ -3380,8 +3643,6 @@
         "content/services/npc/npc_delivery_offer_service.gd"
       ],
       "method_rights": {
-        "ledger": "request",
-        "live_states": "request",
         "release_number": "request"
       },
       "public_instance_methods": []
@@ -3571,6 +3832,35 @@
     {
       "source_owner": "customers",
       "target_owner": "time",
+      "symbol": "DayPhaseQueries",
+      "path": "content/domains/time/services/day_phase_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "current"
+      ],
+      "sources": [
+        "content/observers/gameplay/o_customer_outcomes.gd",
+        "content/observers/gameplay/o_customer_planning.gd",
+        "content/services/customers/customer_debug_presentation.gd",
+        "content/services/customers/customer_flow_service.gd",
+        "content/services/npc/npc_delivery_offer_service.gd",
+        "content/services/npc/npc_home_delivery_service.gd",
+        "content/services/npc/npc_service_role.gd",
+        "content/systems/gameplay/s_customer_approach.gd",
+        "content/systems/gameplay/s_customer_cleanup.gd",
+        "content/systems/gameplay/s_customer_departure.gd"
+      ],
+      "method_rights": {
+        "current": "query"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "time",
       "symbol": "DayPhaseService",
       "path": "content/domains/time/services/day_phase_service.gd",
       "rights": [
@@ -3579,7 +3869,6 @@
         "request"
       ],
       "public_methods": [
-        "current",
         "shift_status"
       ],
       "sources": [
@@ -3595,7 +3884,6 @@
         "content/systems/gameplay/s_customer_departure.gd"
       ],
       "method_rights": {
-        "current": "query",
         "shift_status": "request"
       },
       "public_instance_methods": []
@@ -4432,6 +4720,84 @@
     {
       "source_owner": "global",
       "target_owner": "customers",
+      "symbol": "CustomerDialogueOpenRequest",
+      "path": "content/domains/customers/contracts/customer_dialogue_open_request.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/ui/o_dialogue_panel_request.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "CustomerDialogueService",
+      "path": "content/domains/customers/services/customer_dialogue_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "begin",
+        "can_start",
+        "end",
+        "mark_opened"
+      ],
+      "sources": [
+        "content/dialogue/customer_dialogue_context.gd"
+      ],
+      "method_rights": {
+        "begin": "request",
+        "end": "request",
+        "can_start": "query",
+        "mark_opened": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "CustomerFlowQueries",
+      "path": "content/domains/customers/services/customer_flow_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "current",
+        "customer_for",
+        "find_visit",
+        "next_arrival"
+      ],
+      "sources": [
+        "content/debug/debug_customer_service.gd",
+        "content/debug/debug_gameplay_service.gd",
+        "content/debug/debug_package_service.gd",
+        "content/debug/debug_target_resolver.gd",
+        "content/debug/debug_world_service.gd",
+        "content/debug/developer_console_diagnostics.gd",
+        "content/dialogue/customer_dialogue_context.gd",
+        "content/presentation/global/meta_presentation.gd",
+        "content/ui/terminal_panel.gd"
+      ],
+      "method_rights": {
+        "current": "query",
+        "customer_for": "query",
+        "find_visit": "query",
+        "next_arrival": "query"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
       "symbol": "CustomerFlowService",
       "path": "content/domains/customers/services/customer_flow_service.gd",
       "rights": [
@@ -4441,17 +4807,12 @@
         "subscribe"
       ],
       "public_methods": [
-        "create_complaint",
-        "current",
-        "customer_for",
         "declare",
         "defer_until_next_day",
         "deny",
         "enter_aggressive",
         "enter_service_phase",
-        "find_visit",
-        "next_arrival",
-        "parcel_for",
+        "greet",
         "start_visit",
         "voluntary_refuse"
       ],
@@ -4467,19 +4828,14 @@
         "content/ui/terminal_panel.gd"
       ],
       "method_rights": {
-        "create_complaint": "request",
-        "current": "query",
-        "customer_for": "request",
         "declare": "request",
         "defer_until_next_day": "request",
         "deny": "request",
         "enter_aggressive": "request",
         "enter_service_phase": "request",
-        "find_visit": "query",
-        "next_arrival": "request",
-        "parcel_for": "request",
         "start_visit": "request",
-        "voluntary_refuse": "request"
+        "voluntary_refuse": "request",
+        "greet": "request"
       },
       "public_instance_methods": []
     },
@@ -4554,6 +4910,33 @@
       ],
       "method_rights": {
         "customer_name": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "CustomerSocialService",
+      "path": "content/domains/customers/services/customer_social_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "dialogue_response",
+        "pending_promise",
+        "resolve_promise"
+      ],
+      "sources": [
+        "content/dialogue/customer_dialogue_context.gd",
+        "content/dialogue/npc_dialogue_context.gd",
+        "content/dialogue/npc_street_dialogue_context.gd"
+      ],
+      "method_rights": {
+        "dialogue_response": "request",
+        "pending_promise": "request",
+        "resolve_promise": "request"
       },
       "public_instance_methods": []
     },
@@ -4690,6 +5073,33 @@
     {
       "source_owner": "global",
       "target_owner": "customers",
+      "symbol": "HomeDeliveryQueries",
+      "path": "content/domains/customers/services/home_delivery_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "find",
+        "personal_for",
+        "published_by_package"
+      ],
+      "sources": [
+        "content/dialogue/customer_dialogue_context.gd",
+        "content/dialogue/npc_dialogue_context.gd",
+        "content/dialogue/npc_street_dialogue_context.gd",
+        "content/ui/terminal_panel.gd"
+      ],
+      "method_rights": {
+        "find": "query",
+        "personal_for": "query",
+        "published_by_package": "query"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
       "symbol": "NpcDeliveryOfferService",
       "path": "content/domains/customers/services/npc_delivery_offer_service.gd",
       "rights": [
@@ -4699,10 +5109,7 @@
         "subscribe"
       ],
       "public_methods": [
-        "find",
         "negotiate",
-        "personal_for",
-        "published_by_package",
         "respond_published"
       ],
       "sources": [
@@ -4712,10 +5119,7 @@
         "content/ui/terminal_panel.gd"
       ],
       "method_rights": {
-        "find": "request",
         "negotiate": "request",
-        "personal_for": "request",
-        "published_by_package": "request",
         "respond_published": "request"
       },
       "public_instance_methods": []
@@ -4835,6 +5239,40 @@
       "method_rights": {
         "new": "read"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "O_CustomerNpcConversation",
+      "path": "content/domains/customers/observers/o_customer_npc_conversation.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "O_CustomerNpcInterruption",
+      "path": "content/domains/customers/observers/o_customer_npc_interruption.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -6174,10 +6612,7 @@
         "subscribe"
       ],
       "public_methods": [
-        "current",
         "initialize",
-        "person_for",
-        "place_name",
         "restore_participation"
       ],
       "sources": [
@@ -6188,10 +6623,7 @@
         "content/scenes/main_level.gd"
       ],
       "method_rights": {
-        "current": "query",
         "initialize": "request",
-        "person_for": "query",
-        "place_name": "request",
         "restore_participation": "request"
       },
       "public_instance_methods": []
@@ -6229,7 +6661,45 @@
       ],
       "public_methods": [],
       "sources": [
-        "content/debug/debug_gameplay_service.gd"
+        "content/debug/debug_gameplay_service.gd",
+        "content/debug/debug_world_service.gd",
+        "content/debug/developer_console_diagnostics.gd",
+        "content/dialogue/customer_dialogue_context.gd",
+        "content/ui/customer_debug_status.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "NpcDialogueCloseRequest",
+      "path": "content/domains/npc/contracts/npc_dialogue_close_request.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/ui/o_dialogue_panel_request.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "NpcDialogueOpenRequest",
+      "path": "content/domains/npc/contracts/npc_dialogue_open_request.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/ui/o_dialogue_panel_request.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -6246,8 +6716,11 @@
         "subscribe"
       ],
       "public_methods": [
+        "begin",
+        "can_start",
         "end",
-        "participant"
+        "participant",
+        "valid_participants"
       ],
       "sources": [
         "content/dialogue/customer_dialogue_context.gd",
@@ -6255,7 +6728,10 @@
       ],
       "method_rights": {
         "end": "request",
-        "participant": "request"
+        "participant": "request",
+        "begin": "request",
+        "can_start": "query",
+        "valid_participants": "query"
       },
       "public_instance_methods": []
     },
@@ -6303,6 +6779,34 @@
     {
       "source_owner": "global",
       "target_owner": "npc",
+      "symbol": "NpcPopulationQueries",
+      "path": "content/domains/npc/services/npc_population_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "current",
+        "person_for",
+        "place_name"
+      ],
+      "sources": [
+        "content/debug/debug_world_service.gd",
+        "content/dialogue/customer_dialogue_context.gd",
+        "content/dialogue/npc_dialogue_context.gd",
+        "content/dialogue/npc_street_dialogue_context.gd",
+        "content/scenes/main_level.gd"
+      ],
+      "method_rights": {
+        "current": "query",
+        "person_for": "query",
+        "place_name": "query"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
       "symbol": "NpcRecord",
       "path": "content/domains/npc/contracts/npc_record.gd",
       "rights": [
@@ -6331,11 +6835,8 @@
         "subscribe"
       ],
       "public_methods": [
-        "dialogue_response",
         "identity_for",
-        "pending_promise",
-        "react",
-        "resolve_promise"
+        "react"
       ],
       "sources": [
         "content/dialogue/customer_dialogue_context.gd",
@@ -6343,11 +6844,8 @@
         "content/dialogue/npc_street_dialogue_context.gd"
       ],
       "method_rights": {
-        "dialogue_response": "request",
         "identity_for": "request",
-        "pending_promise": "request",
-        "react": "request",
-        "resolve_promise": "request"
+        "react": "request"
       },
       "public_instance_methods": []
     },
@@ -6770,6 +7268,38 @@
     {
       "source_owner": "global",
       "target_owner": "packages",
+      "symbol": "PackageQueries",
+      "path": "content/domains/packages/services/package_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "find_live_package",
+        "ledger",
+        "live_states"
+      ],
+      "sources": [
+        "content/debug/debug_customer_service.gd",
+        "content/debug/debug_gameplay_service.gd",
+        "content/debug/debug_package_service.gd",
+        "content/debug/debug_target_resolver.gd",
+        "content/debug/debug_world_service.gd",
+        "content/debug/developer_console_diagnostics.gd",
+        "content/dialogue/customer_dialogue_context.gd",
+        "content/presentation/global/meta_presentation.gd",
+        "content/ui/terminal_panel.gd"
+      ],
+      "method_rights": {
+        "find_live_package": "query",
+        "ledger": "query",
+        "live_states": "query"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "packages",
       "symbol": "PackageRegistrationRecord",
       "path": "content/domains/packages/contracts/package_registration_record.gd",
       "rights": [
@@ -6804,8 +7334,6 @@
         "subscribe"
       ],
       "public_methods": [
-        "ledger",
-        "live_states",
         "register_package"
       ],
       "sources": [
@@ -6816,8 +7344,6 @@
         "content/ui/terminal_panel.gd"
       ],
       "method_rights": {
-        "ledger": "request",
-        "live_states": "request",
         "register_package": "request"
       },
       "public_instance_methods": []
@@ -7318,6 +7844,40 @@
     {
       "source_owner": "global",
       "target_owner": "time",
+      "symbol": "DayPhaseQueries",
+      "path": "content/domains/time/services/day_phase_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "current"
+      ],
+      "sources": [
+        "content/debug/debug_customer_service.gd",
+        "content/debug/debug_economy_service.gd",
+        "content/debug/debug_gameplay_service.gd",
+        "content/debug/debug_package_service.gd",
+        "content/debug/debug_world_service.gd",
+        "content/debug/developer_console_diagnostics.gd",
+        "content/debug/developer_console_gameplay.gd",
+        "content/dialogue/customer_dialogue_context.gd",
+        "content/dialogue/npc_street_dialogue_context.gd",
+        "content/presentation/global/meta_presentation.gd",
+        "content/services/persistence/game_session_service.gd",
+        "content/ui/commerce_panel.gd",
+        "content/ui/interaction_hud.gd",
+        "content/ui/terminal_panel.gd",
+        "content/ui/trader_status.gd"
+      ],
+      "method_rights": {
+        "current": "query"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "time",
       "symbol": "DayPhaseService",
       "path": "content/domains/time/services/day_phase_service.gd",
       "rights": [
@@ -7327,7 +7887,6 @@
         "subscribe"
       ],
       "public_methods": [
-        "current",
         "finish_blockers",
         "start_blockers",
         "submit"
@@ -7350,7 +7909,6 @@
         "content/ui/trader_status.gd"
       ],
       "method_rights": {
-        "current": "query",
         "finish_blockers": "request",
         "start_blockers": "request",
         "submit": "request"
@@ -8025,15 +8583,11 @@
         "read",
         "request"
       ],
-      "public_methods": [
-        "owner_for"
-      ],
+      "public_methods": [],
       "sources": [
         "content/services/interaction/grab_service.gd"
       ],
-      "method_rights": {
-        "owner_for": "query"
-      },
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -8423,15 +8977,11 @@
         "read",
         "request"
       ],
-      "public_methods": [
-        "owner_for"
-      ],
+      "public_methods": [],
       "sources": [
         "content/services/inventory/inventory_service.gd"
       ],
-      "method_rights": {
-        "owner_for": "query"
-      },
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -9298,12 +9848,11 @@
     {
       "source_owner": "needs",
       "target_owner": "time",
-      "symbol": "DayPhaseService",
-      "path": "content/domains/time/services/day_phase_service.gd",
+      "symbol": "DayPhaseQueries",
+      "path": "content/domains/time/services/day_phase_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "current"
@@ -9315,6 +9864,24 @@
       "method_rights": {
         "current": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "needs",
+      "target_owner": "time",
+      "symbol": "DayPhaseService",
+      "path": "content/domains/time/services/day_phase_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/hunger/hunger_presentation.gd",
+        "content/systems/gameplay/s_hunger.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -9650,10 +10217,8 @@
         "request"
       ],
       "public_methods": [
-        "cancel",
         "choose",
         "commit_effect",
-        "finish",
         "start"
       ],
       "sources": [
@@ -9662,10 +10227,8 @@
         "content/services/npc/district_population_service.gd"
       ],
       "method_rights": {
-        "cancel": "request",
         "choose": "request",
         "commit_effect": "request",
-        "finish": "request",
         "start": "request"
       },
       "public_instance_methods": []
@@ -10660,12 +11223,11 @@
     {
       "source_owner": "npc",
       "target_owner": "time",
-      "symbol": "DayPhaseService",
-      "path": "content/domains/time/services/day_phase_service.gd",
+      "symbol": "DayPhaseQueries",
+      "path": "content/domains/time/services/day_phase_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "current"
@@ -10681,6 +11243,28 @@
       "method_rights": {
         "current": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "time",
+      "symbol": "DayPhaseService",
+      "path": "content/domains/time/services/day_phase_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/observers/gameplay/o_district_lifecycle.gd",
+        "content/services/npc/npc_social_service.gd",
+        "content/systems/gameplay/s_npc_decision.gd",
+        "content/systems/gameplay/s_npc_perception.gd",
+        "content/systems/gameplay/s_npc_route.gd",
+        "content/systems/gameplay/s_npc_traits.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -10914,17 +11498,15 @@
     {
       "source_owner": "packages",
       "target_owner": "customers",
-      "symbol": "CustomerFlowService",
-      "path": "content/domains/customers/services/customer_flow_service.gd",
+      "symbol": "CustomerFlowQueries",
+      "path": "content/domains/customers/services/customer_flow_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "current",
-        "package_declared_lost",
-        "plan_delivered_package"
+        "package_declared_lost"
       ],
       "sources": [
         "content/services/packages/package_registration_service.gd",
@@ -10934,32 +11516,31 @@
       ],
       "method_rights": {
         "current": "query",
-        "package_declared_lost": "request",
-        "plan_delivered_package": "request"
+        "package_declared_lost": "query"
       },
       "public_instance_methods": []
     },
     {
       "source_owner": "packages",
       "target_owner": "customers",
-      "symbol": "CustomerInspectionService",
-      "path": "content/domains/customers/services/customer_inspection_service.gd",
+      "symbol": "CustomerFlowService",
+      "path": "content/domains/customers/services/customer_flow_service.gd",
       "rights": [
         "query",
         "read",
         "request"
       ],
       "public_methods": [
-        "bind_contents",
-        "owner_for"
+        "plan_delivered_package"
       ],
       "sources": [
-        "content/services/gameplay/loot_drop_service.gd",
-        "content/services/packages/package_opening.gd"
+        "content/services/packages/package_registration_service.gd",
+        "content/services/packages/package_return_service.gd",
+        "content/services/packages/receiving_delivery_service.gd",
+        "content/services/packages/receiving_shift_service.gd"
       ],
       "method_rights": {
-        "bind_contents": "request",
-        "owner_for": "query"
+        "plan_delivered_package": "request"
       },
       "public_instance_methods": []
     },
@@ -11014,27 +11595,6 @@
         "content/services/packages/package_opening.gd"
       ],
       "method_rights": {},
-      "public_instance_methods": []
-    },
-    {
-      "source_owner": "packages",
-      "target_owner": "customers",
-      "symbol": "NpcDeliveryOfferService",
-      "path": "content/domains/customers/services/npc_delivery_offer_service.gd",
-      "rights": [
-        "query",
-        "read",
-        "request"
-      ],
-      "public_methods": [
-        "refresh"
-      ],
-      "sources": [
-        "content/services/packages/package_registration_service.gd"
-      ],
-      "method_rights": {
-        "refresh": "request"
-      },
       "public_instance_methods": []
     },
     {
@@ -11466,6 +12026,39 @@
         "read",
         "request"
       ],
+      "public_methods": [],
+      "sources": [
+        "content/services/packages/receiving_delivery_service.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "npc",
+      "symbol": "E_NpcCharacter",
+      "path": "content/domains/npc/entities/e_npc_character.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/packages/package_opening.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "npc",
+      "symbol": "NpcPopulationQueries",
+      "path": "content/domains/npc/services/npc_population_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
       "public_methods": [
         "current",
         "person_for",
@@ -11477,7 +12070,7 @@
       "method_rights": {
         "current": "query",
         "person_for": "query",
-        "recipient_for": "request"
+        "recipient_for": "query"
       },
       "public_instance_methods": []
     },
@@ -11694,12 +12287,11 @@
     {
       "source_owner": "packages",
       "target_owner": "time",
-      "symbol": "DayPhaseService",
-      "path": "content/domains/time/services/day_phase_service.gd",
+      "symbol": "DayPhaseQueries",
+      "path": "content/domains/time/services/day_phase_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "current"
@@ -11714,6 +12306,27 @@
       "method_rights": {
         "current": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "time",
+      "symbol": "DayPhaseService",
+      "path": "content/domains/time/services/day_phase_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/definitions/interaction/def_terminal_action.gd",
+        "content/entities/zones/e_receiving_zone.gd",
+        "content/services/packages/package_registration_service.gd",
+        "content/services/packages/package_return_service.gd",
+        "content/systems/gameplay/s_receiving.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -12175,12 +12788,11 @@
     {
       "source_owner": "persistence",
       "target_owner": "customers",
-      "symbol": "CustomerFlowService",
-      "path": "content/domains/customers/services/customer_flow_service.gd",
+      "symbol": "CustomerFlowQueries",
+      "path": "content/domains/customers/services/customer_flow_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "find_visit"
@@ -12191,6 +12803,23 @@
       "method_rights": {
         "find_visit": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "customers",
+      "symbol": "CustomerFlowService",
+      "path": "content/domains/customers/services/customer_flow_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/persistence/night_reset_service.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -12266,16 +12895,14 @@
         "request"
       ],
       "public_methods": [
-        "finish_evening",
-        "release_meeting"
+        "finish_evening"
       ],
       "sources": [
         "content/services/persistence/night_reset_service.gd",
         "content/systems/persistence/s_night_save.gd"
       ],
       "method_rights": {
-        "finish_evening": "request",
-        "release_meeting": "request"
+        "finish_evening": "request"
       },
       "public_instance_methods": []
     },
@@ -14366,17 +14993,15 @@
     {
       "source_owner": "quests",
       "target_owner": "customers",
-      "symbol": "CustomerFlowService",
-      "path": "content/domains/customers/services/customer_flow_service.gd",
+      "symbol": "CustomerFlowQueries",
+      "path": "content/domains/customers/services/customer_flow_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "current",
-        "find_visit",
-        "parcel_for"
+        "find_visit"
       ],
       "sources": [
         "content/services/quests/refusal_quest_service.gd",
@@ -14384,9 +15009,26 @@
       ],
       "method_rights": {
         "current": "query",
-        "find_visit": "query",
-        "parcel_for": "request"
+        "find_visit": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "quests",
+      "target_owner": "customers",
+      "symbol": "CustomerFlowService",
+      "path": "content/domains/customers/services/customer_flow_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/quests/refusal_quest_service.gd",
+        "content/systems/gameplay/s_refusal_quest.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -14460,6 +15102,29 @@
     {
       "source_owner": "quests",
       "target_owner": "packages",
+      "symbol": "PackageQueries",
+      "path": "content/domains/packages/services/package_queries.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "find_live_package",
+        "ledger"
+      ],
+      "sources": [
+        "content/services/quests/refusal_quest_service.gd",
+        "content/systems/gameplay/s_refusal_quest.gd"
+      ],
+      "method_rights": {
+        "find_live_package": "query",
+        "ledger": "query"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "quests",
+      "target_owner": "packages",
       "symbol": "PackageRegistrationRecord",
       "path": "content/domains/packages/contracts/package_registration_record.gd",
       "rights": [
@@ -14485,15 +15150,11 @@
         "read",
         "request"
       ],
-      "public_methods": [
-        "ledger"
-      ],
+      "public_methods": [],
       "sources": [
         "content/services/quests/refusal_quest_service.gd"
       ],
-      "method_rights": {
-        "ledger": "request"
-      },
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -14593,12 +15254,11 @@
     {
       "source_owner": "quests",
       "target_owner": "time",
-      "symbol": "DayPhaseService",
-      "path": "content/domains/time/services/day_phase_service.gd",
+      "symbol": "DayPhaseQueries",
+      "path": "content/domains/time/services/day_phase_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "current"
@@ -14609,6 +15269,23 @@
       "method_rights": {
         "current": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "quests",
+      "target_owner": "time",
+      "symbol": "DayPhaseService",
+      "path": "content/domains/time/services/day_phase_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/quests/refusal_quest_service.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -14678,12 +15355,11 @@
     {
       "source_owner": "time",
       "target_owner": "customers",
-      "symbol": "CustomerFlowService",
-      "path": "content/domains/customers/services/customer_flow_service.gd",
+      "symbol": "CustomerFlowQueries",
+      "path": "content/domains/customers/services/customer_flow_queries.gd",
       "rights": [
         "query",
-        "read",
-        "request"
+        "read"
       ],
       "public_methods": [
         "actionable_remaining",
@@ -14696,12 +15372,29 @@
         "content/services/gameplay/day_phase_service.gd"
       ],
       "method_rights": {
-        "actionable_remaining": "request",
-        "arrival_allowed": "request",
+        "actionable_remaining": "query",
+        "arrival_allowed": "query",
         "current": "query",
         "find_visit": "query",
-        "visit_due": "request"
+        "visit_due": "query"
       },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "time",
+      "target_owner": "customers",
+      "symbol": "CustomerFlowService",
+      "path": "content/domains/customers/services/customer_flow_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/services/gameplay/day_phase_service.gd"
+      ],
+      "method_rights": {},
       "public_instance_methods": []
     },
     {
@@ -14802,6 +15495,300 @@
         "contains": "request"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "customers",
+      "symbol": "CustomerInspectionQueries",
+      "path": "content/domains/customers/services/customer_inspection_queries.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "owner_for"
+      ],
+      "sources": [
+        "content/services/interaction/grab_service.gd"
+      ],
+      "method_rights": {
+        "owner_for": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Read authoritative inspection reservations without importing their mutable transaction owner."
+    },
+    {
+      "source_owner": "inventory",
+      "target_owner": "customers",
+      "symbol": "CustomerInspectionQueries",
+      "path": "content/domains/customers/services/customer_inspection_queries.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "owner_for"
+      ],
+      "sources": [
+        "content/services/inventory/inventory_service.gd"
+      ],
+      "method_rights": {
+        "owner_for": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Read authoritative inspection reservations without importing their mutable transaction owner."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "customers",
+      "symbol": "CustomerInspectionQueries",
+      "path": "content/domains/customers/services/customer_inspection_queries.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "owner_for"
+      ],
+      "sources": [
+        "content/services/gameplay/loot_drop_service.gd",
+        "content/services/packages/package_opening.gd"
+      ],
+      "method_rights": {
+        "owner_for": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Read authoritative inspection reservations without importing their mutable transaction owner."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "S_District",
+      "path": "content/domains/npc/systems/s_district.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/systems/gameplay/s_customer_flow.gd"
+      ],
+      "purpose": "Higher Customer scheduling declares its ordering against native NPC owners; base NPC does not import Customer Systems."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "S_NpcCadence",
+      "path": "content/domains/npc/systems/s_npc_cadence.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/systems/gameplay/s_customer_arrivals.gd",
+        "content/systems/gameplay/s_customer_flow.gd"
+      ],
+      "purpose": "Higher Customer scheduling declares its ordering against native NPC owners; base NPC does not import Customer Systems."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcRoleCleanupRequest",
+      "path": "content/domains/npc/contracts/npc_role_cleanup_request.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/customers/customer_npc_lifecycle_binding.gd"
+      ]
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "CustomerNpcLifecycleBinding",
+      "path": "content/domains/customers/services/customer_npc_lifecycle_binding.gd",
+      "rights": [
+        "configure"
+      ],
+      "public_methods": [
+        "bind"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "bind": "configure"
+      },
+      "sources": [
+        "content/scenes/npc_customer_composition.gd"
+      ]
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "packages",
+      "symbol": "PackageContentPlaced",
+      "path": "content/domains/packages/contracts/package_content_placed.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/observers/gameplay/o_customer_inspection_cargo.gd"
+      ]
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "O_CustomerInspectionCargo",
+      "path": "content/domains/customers/observers/o_customer_inspection_cargo.gd",
+      "rights": [
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/scenes/main_level.gd"
+      ],
+      "purpose": "Global level composition installs the real Customer-owned committed-content consumer."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcRolePresenceRequest",
+      "path": "content/domains/npc/contracts/npc_role_presence_request.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/customers/customer_npc_lifecycle_binding.gd"
+      ]
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "DistrictMorningPrepared",
+      "path": "content/domains/npc/contracts/district_morning_prepared.gd",
+      "rights": [
+        "read",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/observers/gameplay/o_customer_planning.gd"
+      ]
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "npc",
+      "symbol": "NpcBrainRecipeRequest",
+      "path": "content/domains/npc/contracts/npc_brain_recipe_request.gd",
+      "rights": [
+        "read",
+        "configure",
+        "subscribe"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/customers/customer_npc_lifecycle_binding.gd"
+      ],
+      "purpose": "Higher Customer composition supplies an authored immutable recipe; native owner remains the sole BTPlayer installer and scheduler."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "customers",
+      "symbol": "CustomerVisitLifecycle",
+      "path": "content/domains/customers/services/customer_visit_lifecycle.gd",
+      "rights": [
+        "query",
+        "read",
+        "request",
+        "subscribe"
+      ],
+      "public_methods": [
+        "create_complaint"
+      ],
+      "sources": [
+        "content/debug/debug_customer_service.gd",
+        "content/debug/debug_gameplay_service.gd",
+        "content/debug/debug_package_service.gd",
+        "content/debug/debug_target_resolver.gd",
+        "content/debug/debug_world_service.gd",
+        "content/debug/developer_console_diagnostics.gd",
+        "content/dialogue/customer_dialogue_context.gd",
+        "content/presentation/global/meta_presentation.gd",
+        "content/ui/terminal_panel.gd"
+      ],
+      "method_rights": {
+        "create_complaint": "request"
+      },
+      "public_instance_methods": [],
+      "purpose": "Existing explicit operation permission transferred to its actual responsibility owner; no forwarding API remains."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "customers",
+      "symbol": "HomeMeetingBindings",
+      "path": "content/domains/customers/services/home_meeting_bindings.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "release_meeting"
+      ],
+      "sources": [
+        "content/services/persistence/night_reset_service.gd",
+        "content/systems/persistence/s_night_save.gd"
+      ],
+      "method_rights": {
+        "release_meeting": "request"
+      },
+      "public_instance_methods": [],
+      "purpose": "Existing explicit operation permission transferred to its actual responsibility owner; no forwarding API remains."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "combat",
+      "symbol": "NpcAttackExecutionService",
+      "path": "content/domains/combat/services/npc_attack_execution_service.gd",
+      "rights": [
+        "query",
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "cancel",
+        "finish"
+      ],
+      "sources": [
+        "content/ai/tasks/bt_npc_attack.gd",
+        "content/entities/characters/e_npc_character.gd",
+        "content/services/npc/district_population_service.gd"
+      ],
+      "method_rights": {
+        "cancel": "request",
+        "finish": "request"
+      },
+      "public_instance_methods": [],
+      "purpose": "Existing attack completion/cancellation rights belong to execution cleanup, which never calls selection or hit commit."
     }
   ],
   "legacy_decomposition": [

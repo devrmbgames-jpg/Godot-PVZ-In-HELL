@@ -64,7 +64,7 @@ static func grant(owner: Entity, definition: DEF_InventoryItem, quantity: int) -
 
 ## Проверяет ожидаемого владельца, резервирование, блокировки и вместимость без переноса.
 static func can_transfer(item: Entity, destination: Entity, expected_owner: Entity = null) -> bool:
-	if CustomerInspectionService.owner_for(item) != null:
+	if CustomerInspectionQueries.owner_for(item) != null:
 		return false
 	if not _owner_available(destination) or not EntityAvailability.contains(item, ECS.world) or item == destination or item.has_component(C_Package) or item.has_component(C_Grabbable):
 		return false

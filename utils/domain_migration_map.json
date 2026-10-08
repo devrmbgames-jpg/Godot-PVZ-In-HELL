@@ -43,6 +43,36 @@
       "task": "retain"
     },
     {
+      "source": "content/ai/tasks/bt_customer_action.gd",
+      "target": "content/domains/customers/ai/tasks/bt_customer_action.gd",
+      "owner": "customers",
+      "role": "ai",
+      "task": "29"
+    },
+    {
+      "source": "content/ai/tasks/bt_customer_action.gd.uid",
+      "target": "content/domains/customers/ai/tasks/bt_customer_action.gd.uid",
+      "owner": "customers",
+      "role": "ai",
+      "task": "29",
+      "uid": "uid://cdfydb6tpimu3"
+    },
+    {
+      "source": "content/ai/tasks/bt_customer_condition.gd",
+      "target": "content/domains/customers/ai/tasks/bt_customer_condition.gd",
+      "owner": "customers",
+      "role": "ai",
+      "task": "29"
+    },
+    {
+      "source": "content/ai/tasks/bt_customer_condition.gd.uid",
+      "target": "content/domains/customers/ai/tasks/bt_customer_condition.gd.uid",
+      "owner": "customers",
+      "role": "ai",
+      "task": "29",
+      "uid": "uid://dfwl1d68dk7l6"
+    },
+    {
       "source": "content/ai/tasks/bt_npc_action.gd",
       "target": "content/domains/npc/ai/tasks/bt_npc_action.gd",
       "owner": "npc",
@@ -1184,8 +1214,8 @@
     },
     {
       "source": "content/ai/trees/bt_district_npc.tres",
-      "target": "content/domains/npc/ai/trees/bt_district_npc.tres",
-      "owner": "npc",
+      "target": "content/domains/customers/ai/trees/bt_district_npc.tres",
+      "owner": "customers",
       "role": "ai",
       "task": "29",
       "uid": "uid://cr2atstlyq1gn"
@@ -1197,6 +1227,13 @@
       "role": "ai",
       "task": "29",
       "uid": "uid://dxtsv5gf1nt3g"
+    },
+    {
+      "source": "content/ai/trees/bt_npc_conversation.tres",
+      "target": "content/domains/npc/ai/trees/bt_npc_conversation.tres",
+      "owner": "npc",
+      "role": "ai",
+      "task": "29"
     },
     {
       "source": "content/ai/trees/bt_npc_delivery_ambush.tres",
@@ -1220,6 +1257,13 @@
       "role": "ai",
       "task": "29",
       "uid": "uid://bmc5t70coej8t"
+    },
+    {
+      "source": "content/ai/trees/bt_npc_native.tres",
+      "target": "content/domains/npc/ai/trees/bt_npc_native.tres",
+      "owner": "npc",
+      "role": "ai",
+      "task": "29"
     },
     {
       "source": "content/ai/trees/bt_npc_schedule.tres",
@@ -3171,6 +3215,22 @@
       "uid": "uid://dnw33v303c15l"
     },
     {
+      "source": "content/contracts/customers/customer_dialogue_open_request.gd",
+      "target": "content/domains/customers/contracts/customer_dialogue_open_request.gd",
+      "owner": "customers",
+      "role": "contracts",
+      "task": "29",
+      "symbol": "CustomerDialogueOpenRequest"
+    },
+    {
+      "source": "content/contracts/customers/customer_dialogue_open_request.gd.uid",
+      "target": "content/domains/customers/contracts/customer_dialogue_open_request.gd.uid",
+      "owner": "customers",
+      "role": "contracts",
+      "task": "29",
+      "uid": "uid://cwhwcydh4y2nx"
+    },
+    {
       "source": "content/contracts/customers/customer_greeting_request.gd",
       "target": "content/domains/customers/contracts/customer_greeting_request.gd",
       "owner": "customers",
@@ -3756,6 +3816,54 @@
       "uid": "uid://caeameolhd4n8"
     },
     {
+      "source": "content/contracts/npc/district_morning_prepared.gd",
+      "target": "content/domains/npc/contracts/district_morning_prepared.gd",
+      "owner": "npc",
+      "role": "contracts",
+      "symbol": "DistrictMorningPrepared",
+      "task": "29"
+    },
+    {
+      "source": "content/contracts/npc/district_morning_prepared.gd.uid",
+      "target": "content/domains/npc/contracts/district_morning_prepared.gd.uid",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "uid": "uid://djg1xsdkmpj0a"
+    },
+    {
+      "source": "content/contracts/npc/npc_brain_recipe_request.gd",
+      "target": "content/domains/npc/contracts/npc_brain_recipe_request.gd",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "symbol": "NpcBrainRecipeRequest"
+    },
+    {
+      "source": "content/contracts/npc/npc_brain_recipe_request.gd.uid",
+      "target": "content/domains/npc/contracts/npc_brain_recipe_request.gd.uid",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "uid": "uid://dbym762bnccy"
+    },
+    {
+      "source": "content/contracts/npc/npc_conversation_permission_request.gd",
+      "target": "content/domains/npc/contracts/npc_conversation_permission_request.gd",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "symbol": "NpcConversationPermissionRequest"
+    },
+    {
+      "source": "content/contracts/npc/npc_conversation_permission_request.gd.uid",
+      "target": "content/domains/npc/contracts/npc_conversation_permission_request.gd.uid",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "uid": "uid://dd4lahdy63bgt"
+    },
+    {
       "source": "content/contracts/npc/npc_decision_ready.gd",
       "target": "content/domains/npc/contracts/npc_decision_ready.gd",
       "owner": "npc",
@@ -3771,6 +3879,38 @@
       "task": "29",
       "symbol": "NpcDecisionReady",
       "uid": "uid://b1sj56kirmado"
+    },
+    {
+      "source": "content/contracts/npc/npc_dialogue_close_request.gd",
+      "target": "content/domains/npc/contracts/npc_dialogue_close_request.gd",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "symbol": "NpcDialogueCloseRequest"
+    },
+    {
+      "source": "content/contracts/npc/npc_dialogue_close_request.gd.uid",
+      "target": "content/domains/npc/contracts/npc_dialogue_close_request.gd.uid",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "uid": "uid://bi84axvvneltk"
+    },
+    {
+      "source": "content/contracts/npc/npc_dialogue_open_request.gd",
+      "target": "content/domains/npc/contracts/npc_dialogue_open_request.gd",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "symbol": "NpcDialogueOpenRequest"
+    },
+    {
+      "source": "content/contracts/npc/npc_dialogue_open_request.gd.uid",
+      "target": "content/domains/npc/contracts/npc_dialogue_open_request.gd.uid",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "uid": "uid://cjqxy228htuja"
     },
     {
       "source": "content/contracts/npc/npc_home_delivery.gd",
@@ -3875,6 +4015,54 @@
       "uid": "uid://b227fscex8vpu"
     },
     {
+      "source": "content/contracts/npc/npc_role_cleanup_request.gd",
+      "target": "content/domains/npc/contracts/npc_role_cleanup_request.gd",
+      "owner": "npc",
+      "role": "contracts",
+      "symbol": "NpcRoleCleanupRequest",
+      "task": "29"
+    },
+    {
+      "source": "content/contracts/npc/npc_role_cleanup_request.gd.uid",
+      "target": "content/domains/npc/contracts/npc_role_cleanup_request.gd.uid",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "uid": "uid://dn34olbr2pwf3"
+    },
+    {
+      "source": "content/contracts/npc/npc_role_interruption_request.gd",
+      "target": "content/domains/npc/contracts/npc_role_interruption_request.gd",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "symbol": "NpcRoleInterruptionRequest"
+    },
+    {
+      "source": "content/contracts/npc/npc_role_interruption_request.gd.uid",
+      "target": "content/domains/npc/contracts/npc_role_interruption_request.gd.uid",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "uid": "uid://j5o554ocycw"
+    },
+    {
+      "source": "content/contracts/npc/npc_role_presence_request.gd",
+      "target": "content/domains/npc/contracts/npc_role_presence_request.gd",
+      "owner": "npc",
+      "role": "contracts",
+      "symbol": "NpcRolePresenceRequest",
+      "task": "29"
+    },
+    {
+      "source": "content/contracts/npc/npc_role_presence_request.gd.uid",
+      "target": "content/domains/npc/contracts/npc_role_presence_request.gd.uid",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "uid": "uid://lpd14l7266f7"
+    },
+    {
       "source": "content/contracts/npc/npc_route_context.gd",
       "target": "content/domains/npc/contracts/npc_route_context.gd",
       "owner": "npc",
@@ -3907,6 +4095,38 @@
       "task": "29",
       "symbol": "NpcScheduleCompletionRequest",
       "uid": "uid://c6jdg4y6ycnr7"
+    },
+    {
+      "source": "content/contracts/npc/npc_social_reaction_committed.gd",
+      "target": "content/domains/npc/contracts/npc_social_reaction_committed.gd",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "symbol": "NpcSocialReactionCommitted"
+    },
+    {
+      "source": "content/contracts/npc/npc_social_reaction_committed.gd.uid",
+      "target": "content/domains/npc/contracts/npc_social_reaction_committed.gd.uid",
+      "owner": "npc",
+      "role": "contracts",
+      "task": "29",
+      "uid": "uid://cwocefixt0b8s"
+    },
+    {
+      "source": "content/contracts/packages/package_content_placed.gd",
+      "target": "content/domains/packages/contracts/package_content_placed.gd",
+      "owner": "packages",
+      "role": "contracts",
+      "symbol": "PackageContentPlaced",
+      "task": "31"
+    },
+    {
+      "source": "content/contracts/packages/package_content_placed.gd.uid",
+      "target": "content/domains/packages/contracts/package_content_placed.gd.uid",
+      "owner": "packages",
+      "role": "contracts",
+      "task": "31",
+      "uid": "uid://ckcqgq5tevegc"
     },
     {
       "source": "content/contracts/packages/package_debris_spawned_event.gd",
@@ -5912,16 +6132,16 @@
     },
     {
       "source": "content/definitions/interaction/def_npc_door_action.gd",
-      "target": "content/domains/npc/definitions/def_npc_door_action.gd",
-      "owner": "npc",
+      "target": "content/domains/customers/definitions/def_npc_door_action.gd",
+      "owner": "customers",
       "role": "definitions",
       "task": "29",
       "symbol": "DEF_NpcDoorAction"
     },
     {
       "source": "content/definitions/interaction/def_npc_door_action.gd.uid",
-      "target": "content/domains/npc/definitions/def_npc_door_action.gd.uid",
-      "owner": "npc",
+      "target": "content/domains/customers/definitions/def_npc_door_action.gd.uid",
+      "owner": "customers",
       "role": "definitions",
       "task": "29",
       "symbol": "DEF_NpcDoorAction",
@@ -6457,10 +6677,10 @@
     },
     {
       "source": "content/entities/customers/inspection_parcel_slot.tscn",
-      "target": "content/domains/customers/entities/inspection_parcel_slot.tscn",
-      "owner": "customers",
+      "target": "content/domains/interaction/entities/inspection_parcel_slot.tscn",
+      "owner": "interaction",
       "role": "entities",
-      "task": "29"
+      "task": "30"
     },
     {
       "source": "content/entities/doors/breakable_door.tscn",
@@ -6677,6 +6897,13 @@
     {
       "source": "content/entities/npc/npc_address.tscn",
       "target": "content/domains/npc/entities/npc_address.tscn",
+      "owner": "npc",
+      "role": "entities",
+      "task": "29"
+    },
+    {
+      "source": "content/entities/npc/npc_character.tscn",
+      "target": "content/domains/npc/entities/npc_character.tscn",
       "owner": "npc",
       "role": "entities",
       "task": "29"
@@ -7388,17 +7615,17 @@
     },
     {
       "source": "content/navigation/navmesh_primitive_test.tres",
-      "target": "content/domains/npc/definitions/navmesh_primitive_test.tres",
+      "target": "content/domains/npc/authoring/navigation/navmesh_primitive_test.tres",
       "owner": "npc",
-      "role": "definitions",
+      "role": "authoring",
       "task": "29",
       "uid": "uid://cyo2cb52cr63c"
     },
     {
       "source": "content/navigation/navmesh_warehouse.tres",
-      "target": "content/domains/npc/definitions/navmesh_warehouse.tres",
+      "target": "content/domains/npc/authoring/navigation/navmesh_warehouse.tres",
       "owner": "npc",
-      "role": "definitions",
+      "role": "authoring",
       "task": "29",
       "uid": "uid://bd0sp42a7x3qr"
     },
@@ -7537,6 +7764,54 @@
       "task": "29",
       "symbol": "O_CustomerGreeting",
       "uid": "uid://djbcsg2tf28qg"
+    },
+    {
+      "source": "content/observers/gameplay/o_customer_inspection_cargo.gd",
+      "target": "content/domains/customers/observers/o_customer_inspection_cargo.gd",
+      "owner": "customers",
+      "role": "observers",
+      "symbol": "O_CustomerInspectionCargo",
+      "task": "29"
+    },
+    {
+      "source": "content/observers/gameplay/o_customer_inspection_cargo.gd.uid",
+      "target": "content/domains/customers/observers/o_customer_inspection_cargo.gd.uid",
+      "owner": "customers",
+      "role": "observers",
+      "task": "29",
+      "uid": "uid://b8tn1ypncsxk2"
+    },
+    {
+      "source": "content/observers/gameplay/o_customer_npc_conversation.gd",
+      "target": "content/domains/customers/observers/o_customer_npc_conversation.gd",
+      "owner": "customers",
+      "role": "observers",
+      "task": "29",
+      "symbol": "O_CustomerNpcConversation"
+    },
+    {
+      "source": "content/observers/gameplay/o_customer_npc_conversation.gd.uid",
+      "target": "content/domains/customers/observers/o_customer_npc_conversation.gd.uid",
+      "owner": "customers",
+      "role": "observers",
+      "task": "29",
+      "uid": "uid://b0fc3fblayetb"
+    },
+    {
+      "source": "content/observers/gameplay/o_customer_npc_interruption.gd",
+      "target": "content/domains/customers/observers/o_customer_npc_interruption.gd",
+      "owner": "customers",
+      "role": "observers",
+      "task": "29",
+      "symbol": "O_CustomerNpcInterruption"
+    },
+    {
+      "source": "content/observers/gameplay/o_customer_npc_interruption.gd.uid",
+      "target": "content/domains/customers/observers/o_customer_npc_interruption.gd.uid",
+      "owner": "customers",
+      "role": "observers",
+      "task": "29",
+      "uid": "uid://baee3y77i4hh8"
     },
     {
       "source": "content/observers/gameplay/o_customer_outcomes.gd",
@@ -8842,6 +9117,22 @@
       "task": "retain"
     },
     {
+      "source": "content/scenes/npc_customer_composition.gd",
+      "target": "content/scenes/npc_customer_composition.gd",
+      "owner": "global",
+      "role": "scenes",
+      "symbol": "NpcCustomerComposition",
+      "task": "retain"
+    },
+    {
+      "source": "content/scenes/npc_customer_composition.gd.uid",
+      "target": "content/scenes/npc_customer_composition.gd.uid",
+      "owner": "global",
+      "role": "scenes",
+      "task": "retain",
+      "uid": "uid://b0xljtj2tva54"
+    },
+    {
       "source": "content/scenes/npc_light_zone.gd",
       "target": "content/domains/npc/authoring/npc_light_zone.gd",
       "owner": "npc",
@@ -9065,6 +9356,22 @@
       "uid": "uid://cv10b5qqsnlwu"
     },
     {
+      "source": "content/services/combat/npc_attack_execution_service.gd",
+      "target": "content/domains/combat/services/npc_attack_execution_service.gd",
+      "owner": "combat",
+      "role": "services",
+      "symbol": "NpcAttackExecutionService",
+      "task": "30"
+    },
+    {
+      "source": "content/services/combat/npc_attack_execution_service.gd.uid",
+      "target": "content/domains/combat/services/npc_attack_execution_service.gd.uid",
+      "owner": "combat",
+      "role": "services",
+      "task": "30",
+      "uid": "uid://41rkus3kpp53"
+    },
+    {
       "source": "content/services/combat/npc_attack_service.gd",
       "target": "content/domains/combat/services/npc_attack_service.gd",
       "owner": "combat",
@@ -9150,6 +9457,22 @@
       "uid": "uid://dbnkcnp82rhoc"
     },
     {
+      "source": "content/services/customers/customer_action_recipe.gd",
+      "target": "content/domains/customers/services/customer_action_recipe.gd",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "symbol": "CustomerActionRecipe"
+    },
+    {
+      "source": "content/services/customers/customer_action_recipe.gd.uid",
+      "target": "content/domains/customers/services/customer_action_recipe.gd.uid",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://bvutf1uuevdmc"
+    },
+    {
       "source": "content/services/customers/customer_arrival_service.gd",
       "target": "content/domains/customers/services/customer_arrival_service.gd",
       "owner": "customers",
@@ -9199,6 +9522,22 @@
       "task": "29",
       "symbol": "CustomerDialogueService",
       "uid": "uid://ck7gjguwoooiy"
+    },
+    {
+      "source": "content/services/customers/customer_flow_queries.gd",
+      "target": "content/domains/customers/services/customer_flow_queries.gd",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "symbol": "CustomerFlowQueries"
+    },
+    {
+      "source": "content/services/customers/customer_flow_queries.gd.uid",
+      "target": "content/domains/customers/services/customer_flow_queries.gd.uid",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://hdcfaftdmrkj"
     },
     {
       "source": "content/services/customers/customer_flow_service.gd",
@@ -9252,6 +9591,22 @@
       "uid": "uid://7sgqtlwdspag"
     },
     {
+      "source": "content/services/customers/customer_inspection_queries.gd",
+      "target": "content/domains/customers/services/customer_inspection_queries.gd",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "symbol": "CustomerInspectionQueries"
+    },
+    {
+      "source": "content/services/customers/customer_inspection_queries.gd.uid",
+      "target": "content/domains/customers/services/customer_inspection_queries.gd.uid",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://cuqe5fcdrg74f"
+    },
+    {
       "source": "content/services/customers/customer_inspection_service.gd",
       "target": "content/domains/customers/services/customer_inspection_service.gd",
       "owner": "customers",
@@ -9267,6 +9622,22 @@
       "task": "29",
       "symbol": "CustomerInspectionService",
       "uid": "uid://cdi6caqdlhtri"
+    },
+    {
+      "source": "content/services/customers/customer_npc_lifecycle_binding.gd",
+      "target": "content/domains/customers/services/customer_npc_lifecycle_binding.gd",
+      "owner": "customers",
+      "role": "services",
+      "symbol": "CustomerNpcLifecycleBinding",
+      "task": "29"
+    },
+    {
+      "source": "content/services/customers/customer_npc_lifecycle_binding.gd.uid",
+      "target": "content/domains/customers/services/customer_npc_lifecycle_binding.gd.uid",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://dbmilpun0387w"
     },
     {
       "source": "content/services/customers/customer_outcome_service.gd",
@@ -9286,6 +9657,22 @@
       "uid": "uid://bvquwvv0iphks"
     },
     {
+      "source": "content/services/customers/customer_parcel_assignment.gd",
+      "target": "content/domains/customers/services/customer_parcel_assignment.gd",
+      "owner": "customers",
+      "role": "services",
+      "symbol": "CustomerParcelAssignment",
+      "task": "29"
+    },
+    {
+      "source": "content/services/customers/customer_parcel_assignment.gd.uid",
+      "target": "content/domains/customers/services/customer_parcel_assignment.gd.uid",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://webqpq5jm8ms"
+    },
+    {
       "source": "content/services/customers/customer_presentation.gd",
       "target": "content/domains/customers/presentation/customer_presentation.gd",
       "owner": "customers",
@@ -9303,6 +9690,54 @@
       "uid": "uid://djnc7rteje4y7"
     },
     {
+      "source": "content/services/customers/customer_role_interruption_service.gd",
+      "target": "content/domains/customers/services/customer_role_interruption_service.gd",
+      "owner": "customers",
+      "role": "services",
+      "symbol": "CustomerRoleInterruptionService",
+      "task": "29"
+    },
+    {
+      "source": "content/services/customers/customer_role_interruption_service.gd.uid",
+      "target": "content/domains/customers/services/customer_role_interruption_service.gd.uid",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://05tvebh6mlyl"
+    },
+    {
+      "source": "content/services/customers/customer_social_service.gd",
+      "target": "content/domains/customers/services/customer_social_service.gd",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "symbol": "CustomerSocialService"
+    },
+    {
+      "source": "content/services/customers/customer_social_service.gd.uid",
+      "target": "content/domains/customers/services/customer_social_service.gd.uid",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://6r6k7wgxg5hc"
+    },
+    {
+      "source": "content/services/customers/customer_visit_lifecycle.gd",
+      "target": "content/domains/customers/services/customer_visit_lifecycle.gd",
+      "owner": "customers",
+      "role": "services",
+      "symbol": "CustomerVisitLifecycle",
+      "task": "29"
+    },
+    {
+      "source": "content/services/customers/customer_visit_lifecycle.gd.uid",
+      "target": "content/domains/customers/services/customer_visit_lifecycle.gd.uid",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://df1yt26pxbfl1"
+    },
+    {
       "source": "content/services/customers/dialogue_resource_lifecycle.gd",
       "target": "content/shared/services/dialogue_resource_lifecycle.gd",
       "owner": "shared",
@@ -9318,6 +9753,54 @@
       "task": "32",
       "symbol": "DialogueResourceLifecycle",
       "uid": "uid://blfvlpb3q5008"
+    },
+    {
+      "source": "content/services/customers/home_delivery_queries.gd",
+      "target": "content/domains/customers/services/home_delivery_queries.gd",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "symbol": "HomeDeliveryQueries"
+    },
+    {
+      "source": "content/services/customers/home_delivery_queries.gd.uid",
+      "target": "content/domains/customers/services/home_delivery_queries.gd.uid",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://cne7fk5v1rseb"
+    },
+    {
+      "source": "content/services/customers/home_meeting_bindings.gd",
+      "target": "content/domains/customers/services/home_meeting_bindings.gd",
+      "owner": "customers",
+      "role": "services",
+      "symbol": "HomeMeetingBindings",
+      "task": "29"
+    },
+    {
+      "source": "content/services/customers/home_meeting_bindings.gd.uid",
+      "target": "content/domains/customers/services/home_meeting_bindings.gd.uid",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://c1pftv5dk8il6"
+    },
+    {
+      "source": "content/services/customers/home_meeting_queries.gd",
+      "target": "content/domains/customers/services/home_meeting_queries.gd",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "symbol": "HomeMeetingQueries"
+    },
+    {
+      "source": "content/services/customers/home_meeting_queries.gd.uid",
+      "target": "content/domains/customers/services/home_meeting_queries.gd.uid",
+      "owner": "customers",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://b7aoqvqremhhm"
     },
     {
       "source": "content/services/damage/damage_request_service.gd",
@@ -9454,6 +9937,22 @@
       "task": "32",
       "symbol": "EntityAvailability",
       "uid": "uid://do5oy6uw5zn"
+    },
+    {
+      "source": "content/services/gameplay/day_phase_queries.gd",
+      "target": "content/domains/time/services/day_phase_queries.gd",
+      "owner": "time",
+      "role": "services",
+      "task": "31",
+      "symbol": "DayPhaseQueries"
+    },
+    {
+      "source": "content/services/gameplay/day_phase_queries.gd.uid",
+      "target": "content/domains/time/services/day_phase_queries.gd.uid",
+      "owner": "time",
+      "role": "services",
+      "task": "31",
+      "uid": "uid://qodywumcg2uv"
     },
     {
       "source": "content/services/gameplay/day_phase_service.gd",
@@ -10578,6 +11077,22 @@
       "uid": "uid://c7fsc1txxluqs"
     },
     {
+      "source": "content/services/npc/npc_population_queries.gd",
+      "target": "content/domains/npc/services/npc_population_queries.gd",
+      "owner": "npc",
+      "role": "services",
+      "task": "29",
+      "symbol": "NpcPopulationQueries"
+    },
+    {
+      "source": "content/services/npc/npc_population_queries.gd.uid",
+      "target": "content/domains/npc/services/npc_population_queries.gd.uid",
+      "owner": "npc",
+      "role": "services",
+      "task": "29",
+      "uid": "uid://diplabkwbv2uj"
+    },
+    {
       "source": "content/services/npc/npc_route_solver.gd",
       "target": "content/domains/npc/solvers/npc_route_solver.gd",
       "owner": "npc",
@@ -10797,6 +11312,22 @@
       "task": "31",
       "symbol": "PackageProtectionService",
       "uid": "uid://4sbl1778ob0c"
+    },
+    {
+      "source": "content/services/packages/package_queries.gd",
+      "target": "content/domains/packages/services/package_queries.gd",
+      "owner": "packages",
+      "role": "services",
+      "task": "31",
+      "symbol": "PackageQueries"
+    },
+    {
+      "source": "content/services/packages/package_queries.gd.uid",
+      "target": "content/domains/packages/services/package_queries.gd.uid",
+      "owner": "packages",
+      "role": "services",
+      "task": "31",
+      "uid": "uid://tcjec3mo7xq5"
     },
     {
       "source": "content/services/packages/package_registration_service.gd",
@@ -12332,6 +12863,22 @@
       "task": "retain"
     },
     {
+      "source": "content/ui/dialogue_panel_router.gd",
+      "target": "content/ui/dialogue_panel_router.gd",
+      "owner": "global",
+      "role": "ui",
+      "task": "retain",
+      "symbol": "DialoguePanelRouter"
+    },
+    {
+      "source": "content/ui/dialogue_panel_router.gd.uid",
+      "target": "content/ui/dialogue_panel_router.gd.uid",
+      "owner": "global",
+      "role": "ui",
+      "task": "retain",
+      "uid": "uid://c25ifraumh1lx"
+    },
+    {
       "source": "content/ui/district_delivery_view.gd",
       "target": "content/ui/district_delivery_view.gd",
       "owner": "global",
@@ -12507,6 +13054,22 @@
       "role": "ui",
       "task": "retain",
       "uid": "uid://deelgucfnux40"
+    },
+    {
+      "source": "content/ui/o_dialogue_panel_request.gd",
+      "target": "content/ui/o_dialogue_panel_request.gd",
+      "owner": "global",
+      "role": "ui",
+      "task": "retain",
+      "symbol": "O_DialoguePanelRequest"
+    },
+    {
+      "source": "content/ui/o_dialogue_panel_request.gd.uid",
+      "target": "content/ui/o_dialogue_panel_request.gd.uid",
+      "owner": "global",
+      "role": "ui",
+      "task": "retain",
+      "uid": "uid://use82ldqp2wp"
     },
     {
       "source": "content/ui/package_condition_view.gd",

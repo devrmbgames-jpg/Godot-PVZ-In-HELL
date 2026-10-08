@@ -28,7 +28,7 @@ static func restore_bindings() -> void:
 		if already_bound:
 			continue
 
-		var parcel: Entity = CustomerFlowService.parcel_for(record.package_id)
+		var parcel: Entity = PackageQueries.find_live_package(record.package_id)
 		if parcel == null:
 			continue
 
@@ -62,11 +62,11 @@ static func find(quest_id: StringName) -> RefusalQuestRecord:
 #region Предложение и выбор игрока
 ## Вечером возвращает действующее предложение или создаёт задание для зарегистрированной будущей посылки.
 static func offer(trader: Entity) -> RefusalQuestRecord:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var state: C_QuestSession = current()
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader if EntityAvailability.contains(trader, ECS.world) else null
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if cycle == null or cycle.phase != C_DayCycle.Phase.EVENING or state == null or shop == null or ledger == null or flow == null:
 		return null
 
@@ -85,7 +85,7 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 		if not registration.active:
 			continue
 
-		var parcel: Entity = CustomerFlowService.parcel_for(registration.package_id)
+		var parcel: Entity = PackageQueries.find_live_package(registration.package_id)
 		if not EntityAvailability.contains(parcel, ECS.world):
 			continue
 
@@ -131,7 +131,7 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 ## Вечером принимает ещё открытое предложение до истечения срока.
 static func accept(quest_id: StringName) -> bool:
 	var record: RefusalQuestRecord = find(quest_id)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if record == null or cycle == null or cycle.phase != C_DayCycle.Phase.EVENING or cycle.day_index > record.deadline_day or record.state != RefusalQuestRecord.State.OFFERED:
 		return _trace_choice(quest_id, &"quests.accept", false)
 
@@ -142,7 +142,7 @@ static func accept(quest_id: StringName) -> bool:
 ## Вечером разрешает открытое предложение отказом и снимает живые связи.
 static func ignore(quest_id: StringName) -> bool:
 	var record: RefusalQuestRecord = find(quest_id)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if record == null or cycle == null or cycle.phase != C_DayCycle.Phase.EVENING or record.state != RefusalQuestRecord.State.OFFERED:
 		return _trace_choice(quest_id, &"quests.ignore", false)
 

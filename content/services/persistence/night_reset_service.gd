@@ -29,7 +29,7 @@ static func reset() -> void:
 		CombatService.end_combat(entity)
 		NpcDialogueService.end(entity)
 		NpcCommunityService.cancel_activity(entity)
-		NpcHomeDeliveryService.release_meeting(entity)
+		HomeMeetingBindings.release_meeting(entity)
 
 		if entity.has_component(C_CartTransport):
 			CartTransportService.end(entity)
@@ -49,7 +49,7 @@ static func reset() -> void:
 
 		if entity is E_DistrictNpc and entity.has_component(C_CustomerAgent):
 			var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
-			var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+			var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 			if visit != null:
 				NpcServiceRole.finish_appearance(entity as E_DistrictNpc, visit)
 		if entity.has_component(C_CustomerAgent) and not entity.has_component(C_NpcIdentity):

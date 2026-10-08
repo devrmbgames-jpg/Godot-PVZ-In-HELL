@@ -81,7 +81,7 @@ func test_morning_reconciliation_runs_at_entry_instead_of_every_frame() -> void:
 func test_planning_request_is_pending_before_manual_flush_and_idempotent_after_it() -> void:
 	_planning.command_buffer_flush_mode = Observer.FlushMode.MANUAL
 	_flow.schedule = load(
-		"res://content/definitions/gameplay/customers/def_customer_schedule_default.tres"
+		"res://content/domains/customers/definitions/def_customer_schedule_default.tres"
 	) as DEF_CustomerSchedule
 	var request: CustomerPlanningRequest = CustomerPlanningRequest.new()
 	request.flow = _flow
@@ -109,7 +109,7 @@ func test_registration_fact_reactivates_due_followup_in_same_phase() -> void:
 	_world.process(0.0, "fixture")
 	assert_true(visit.finished)
 
-	var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
+	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	assert_eq(PackageRegistrationService.register_package(parcel).outcome,
 		PackageScanResult.Outcome.REGISTERED)
 	assert_false(visit.finished)

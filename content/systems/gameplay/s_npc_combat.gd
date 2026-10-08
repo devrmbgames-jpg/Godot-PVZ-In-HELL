@@ -48,7 +48,7 @@ func _step(actor: Entity, delta: float) -> void:
 		CombatService.end_combat(actor)
 		return
 	if state.phase == C_NpcCombat.Phase.READY:
-		NpcAttackService.allow_movement(actor, true)
+		NpcAttackExecutionService.allow_movement(actor, true)
 		return
 
 	var generation: int = state.execution_generation
@@ -57,10 +57,10 @@ func _step(actor: Entity, delta: float) -> void:
 	if state.animation_driven:
 		var npc: E_NpcCharacter = actor as E_NpcCharacter
 		if npc == null or npc.animation_player == null or npc.animation_player.current_animation != attack.animation or not npc.animation_player.is_playing():
-			NpcAttackService.finish(actor)
+			NpcAttackExecutionService.finish(actor)
 		elif state.elapsed >= npc.animation_player.get_animation(attack.animation).length + attack.recovery_seconds:
 			# Зацикленный или неверный клип не должен удерживать участника в одной атаке бесконечно.
-			NpcAttackService.finish(actor)
+			NpcAttackExecutionService.finish(actor)
 		return
 	if state.elapsed >= attack.windup_seconds and not state.effect_committed:
 		NpcAttackService.commit_effect(actor)
@@ -72,7 +72,7 @@ func _step(actor: Entity, delta: float) -> void:
 
 	var active_end: float = attack.windup_seconds + attack.active_seconds
 	if state.elapsed >= active_end + attack.recovery_seconds:
-		NpcAttackService.finish(actor)
+		NpcAttackExecutionService.finish(actor)
 	elif state.elapsed >= active_end:
 		state.phase = C_NpcCombat.Phase.RECOVERY
 	elif state.elapsed >= attack.windup_seconds:

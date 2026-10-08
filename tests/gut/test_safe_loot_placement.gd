@@ -288,10 +288,10 @@ func test_manual_flush_discards_retry_after_current_format_restore() -> void:
 	var previous: C_LootDrops = _pending_retry()
 	# Persistent snapshots reference authored policies, rather than the transient one-item budget fixture.
 	previous.placement = load("res://content/definitions/gameplay/def_item_placement_default.tres") as DEF_ItemPlacement
-	DayPhaseService.current().phase = C_DayCycle.Phase.MORNING
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.MORNING
 	_loot_owner().command_buffer_flush_mode = System.FlushMode.MANUAL
 	_world.process(1.0, "GamePlay")
-	var snapshot: Dictionary = WorldSnapshotService.capture(_root, DayPhaseService.current().day_index)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, DayPhaseQueries.current().day_index)
 	assert_true(WorldSnapshotService.valid(snapshot, _root))
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	var restored: C_LootDrops = LootDropService.current()

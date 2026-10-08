@@ -19,7 +19,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if not is_finite(delta) or delta < 0.0:
 		return
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var commerce: C_Commerce = CommerceService.current()
 	if cycle == null or commerce == null or cycle.phase != C_DayCycle.Phase.MORNING:
 		return
@@ -59,7 +59,7 @@ func _fulfill(zone_reference: WeakRef, state: C_OrderReceiving, commerce: C_Comm
 func _fulfill_current(zone: Entity, state: C_OrderReceiving, commerce: C_Commerce, cycle: C_DayCycle, day: int) -> void:
 	if not EntityAvailability.contains(zone, _world) or zone.get_component(C_OrderReceiving) != state:
 		return
-	if CommerceService.current() != commerce or DayPhaseService.current() != cycle:
+	if CommerceService.current() != commerce or DayPhaseQueries.current() != cycle:
 		return
 	if cycle.phase != C_DayCycle.Phase.MORNING or cycle.day_index != day:
 		return

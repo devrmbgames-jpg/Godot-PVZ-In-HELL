@@ -146,9 +146,9 @@ func _main_customer() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = null
 	var visit: CustomerVisit = CustomerVisit.new()
 	visit.visit_id = &"smoke/floor"
@@ -158,9 +158,9 @@ func _main_customer() -> void:
 	visit.started = true
 	visit.visit_count = 1
 	flow.visits = [visit]
-	var customer: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
+	var customer: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	var body: RigidBody3D = customer as Node as RigidBody3D
-	body.position = CustomerFlowService.counter().waiting_position()
+	body.position = CustomerFlowQueries.counter().waiting_position()
 	body.freeze = true
 	level.add_child(body)
 	ECS.world.add_entity(customer, null, false)

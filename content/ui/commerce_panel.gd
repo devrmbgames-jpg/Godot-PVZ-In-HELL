@@ -148,7 +148,7 @@ func _shop() -> Entity:
 
 
 func _refresh() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var wallet: C_Wallet = WalletService.current()
 	var commerce: C_Commerce = CommerceService.current()
 	if cycle == null or wallet == null or commerce == null:
@@ -244,7 +244,7 @@ func _buy(item: DEF_InventoryItem) -> void:
 		_purchase_item = item
 		_purchase_id = operation_id
 		_purchase_focus = weakref(get_viewport().gui_get_focus_owner()) if get_viewport().gui_get_focus_owner() != null else null
-		_purchase_dialog.dialog_text = "%s\nСамовывоз: %d$ · доставка: %d$\nДоставка утром дня %d." % [item.display_name, item.market_price, item.market_price + shop.profile.delivery_fee, DayPhaseService.current().day_index + shop.profile.delivery_delay_days]
+		_purchase_dialog.dialog_text = "%s\nСамовывоз: %d$ · доставка: %d$\nДоставка утром дня %d." % [item.display_name, item.market_price, item.market_price + shop.profile.delivery_fee, DayPhaseQueries.current().day_index + shop.profile.delivery_delay_days]
 		_delivery_button.text = "Доставить +%d$" % shop.profile.delivery_fee
 		_delivery_button.disabled = WalletService.current().balance < item.market_price + shop.profile.delivery_fee
 		_purchase_dialog.popup_centered()

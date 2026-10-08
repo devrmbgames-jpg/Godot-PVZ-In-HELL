@@ -24,7 +24,7 @@ func _run() -> void:
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
 
-	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:equipment")
+	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:equipment")
 	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
 	var budget: MoneyOperation = MoneyOperation.new()
 	budget.operation_id = &"evening_meta_smoke/budget"
@@ -34,7 +34,7 @@ func _run() -> void:
 	assert(WalletService.submit(budget) == WalletService.Status.COMMITTED)
 	await _transition(DayTransitionRequest.Kind.START_SHIFT)
 	await _transition(DayTransitionRequest.Kind.FINISH_SHIFT)
-	assert(DayPhaseService.current().phase == C_DayCycle.Phase.EVENING)
+	assert(DayPhaseQueries.current().phase == C_DayCycle.Phase.EVENING)
 
 	var trader: E_NpcCharacter = level.get_node("Entityes/Trader") as E_NpcCharacter
 	assert(trader.navigation_agent != null)
@@ -111,7 +111,7 @@ func _run() -> void:
 
 #region Тестовые переходы и интерфейс
 func _transition(kind: DayTransitionRequest.Kind) -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = kind
 	request.expected_day = cycle.day_index

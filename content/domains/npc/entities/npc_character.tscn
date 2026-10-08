@@ -1,0 +1,150 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/definitions/gameplay/combat/def_npc_attack.gd" id="9_s8kfq"]
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/definitions/gameplay/attributes/def_attr_health.tres" id="19_q7am6"]
+[ext_resource type="Script" uid="uid://dhgwcpds3v85h" path="res://content/components/gameplay/c_challenge.gd" id="Challenge"]
+[ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Component"]
+[ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/components/gameplay/c_controller.gd" id="Controller"]
+[ext_resource type="Script" uid="uid://c6m2fq7itnjdo" path="res://content/ui/customer_debug_status.gd" id="Customer_debug_status"]
+[ext_resource type="Script" uid="uid://bo8hgqqtg866o" path="res://content/domains/npc/entities/e_npc_character.gd" id="Entity"]
+[ext_resource type="Script" uid="uid://msokk2te2ouj" path="res://content/components/gameplay/c_floor_challenge.gd" id="FloorChallenge"]
+[ext_resource type="PackedScene" path="res://content/entities/characters/physical_character.tscn" id="Foundation"]
+[ext_resource type="Script" uid="uid://c7lknx1nib7lx" path="res://content/components/gameplay/c_gaze_challenge.gd" id="GazeChallenge"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/components/gameplay/c_health.gd" id="Health"]
+[ext_resource type="PackedScene" path="res://content/ui/hunger_npc_visual.tscn" id="HungerPerception"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
+[ext_resource type="PackedScene" path="res://content/entities/customers/inspection_parcel_slot.tscn" id="InspectionSlot"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/components/gameplay/c_living.gd" id="Living"]
+[ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/definitions/gameplay/def_impact_living.tres" id="LivingImpact"]
+[ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/components/motion/c_look.gd" id="Look"]
+[ext_resource type="PackedScene" uid="uid://c57tjcgwtk4qh" path="res://resources/Animation Library[Standard]/AnimationLibrary_Godot_Standard.glb" id="Model"]
+[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/components/motion/c_motion.gd" id="Motion"]
+[ext_resource type="Script" uid="uid://cvgkpkfqjch0p" path="res://content/components/gameplay/c_npc_combat.gd" id="NpcCombat"]
+[ext_resource type="Script" uid="uid://cgf0j12tlcr1q" path="res://content/domains/npc/components/c_npc_intent.gd" id="NpcIntent"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/combat/def_npc_punch.tres" id="NpcPunch"]
+[ext_resource type="Resource" path="res://content/definitions/gameplay/combat/def_npc_shot.tres" id="NpcShot"]
+[ext_resource type="Script" uid="uid://b4ih834b7gts0" path="res://content/domains/npc/components/c_npc_remains.gd" id="Remains"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_remains_default.tres" id="RemainsDefinition"]
+[ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="RigidBody"]
+
+[sub_resource type="Resource" id="RigidBody"]
+script = ExtResource("RigidBody")
+
+[sub_resource type="Resource" id="Controller"]
+script = ExtResource("Controller")
+
+[sub_resource type="Resource" id="Motion"]
+script = ExtResource("Motion")
+
+[sub_resource type="Resource" id="Look"]
+script = ExtResource("Look")
+
+[sub_resource type="Resource" id="NpcIntent"]
+script = ExtResource("NpcIntent")
+
+[sub_resource type="Resource" id="NpcCombat"]
+script = ExtResource("NpcCombat")
+melee_attacks = Array[ExtResource("9_s8kfq")]([ExtResource("NpcPunch")])
+ranged_attacks = Array[ExtResource("9_s8kfq")]([ExtResource("NpcShot")])
+
+[sub_resource type="Resource" id="Challenge"]
+script = ExtResource("Challenge")
+
+[sub_resource type="Resource" id="GazeChallenge"]
+script = ExtResource("GazeChallenge")
+
+[sub_resource type="Resource" id="FloorChallenge"]
+script = ExtResource("FloorChallenge")
+
+[sub_resource type="Resource" id="ImpactReceiver"]
+script = ExtResource("ImpactReceiver")
+profile = ExtResource("LivingImpact")
+
+
+[sub_resource type="Resource" id="Health"]
+script = ExtResource("Health")
+definition = ExtResource("19_q7am6")
+
+[sub_resource type="Resource" id="Living"]
+script = ExtResource("Living")
+
+[sub_resource type="Resource" id="Remains"]
+script = ExtResource("Remains")
+definition = ExtResource("RemainsDefinition")
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("Interactable")
+
+[sub_resource type="CapsuleShape3D" id="Shape"]
+radius = 0.3
+height = 1.7
+
+[node name="NpcCharacter" unique_id=1416865295 node_paths=PackedStringArray("animation_player", "navigation_agent") instance=ExtResource("Foundation")]
+collision_layer = 2
+collision_mask = 31
+script = ExtResource("Entity")
+animation_player = NodePath("Body/AnimationPlayer")
+navigation_agent = NodePath("NavigationAgent3D")
+idle_animation = &"Idle"
+walk_animation = &"Walk"
+component_resources = Array[ExtResource("Component")]([SubResource("RigidBody"), SubResource("Controller"), SubResource("Motion"), SubResource("Look"), SubResource("NpcIntent"), SubResource("NpcCombat"), SubResource("Challenge"), SubResource("GazeChallenge"), SubResource("FloorChallenge"), SubResource("ImpactReceiver"), SubResource("Health"), SubResource("Living"), SubResource("Remains"), SubResource("Interactable")])
+
+[node name="HeadY" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3946805, 0.044673994)
+
+[node name="HeadX" parent="HeadY" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11703396, 0)
+
+[node name="TargetLook" type="Marker3D" parent="HeadY/HeadX" index="0" unique_id=1942447436]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." index="1" unique_id=1842879683]
+path_desired_distance = 0.35
+target_desired_distance = 0.25
+path_max_distance = 1.0
+avoidance_enabled = true
+height = 1.7
+radius = 0.4
+neighbor_distance = 6.0
+
+[node name="Body" parent="." index="2" unique_id=1355080631 instance=ExtResource("Model")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+
+[node name="LookAtModifier3D" type="LookAtModifier3D" parent="Body/Rig/Skeleton3D" parent_id_path=PackedInt32Array(1355080631, 2065414162) index="1" unique_id=688742751]
+target_node = NodePath("../../../../HeadY/HeadX/TargetLook")
+bone_name = "DEF-head"
+bone = 6
+
+[node name="AnimationPlayer" parent="Body" index="1" unique_id=1771309942]
+autoplay = &"Idle"
+
+[node name="Collision" type="CollisionShape3D" parent="." index="3" unique_id=1962391393]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+shape = SubResource("Shape")
+
+[node name="Message" type="Label3D" parent="." index="4" unique_id=499901599]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
+pixel_size = 0.003
+billboard = 1
+
+[node name="HungerPerception" parent="." index="5" unique_id=1914732137 instance=ExtResource("HungerPerception")]
+
+[node name="DebugStatus" type="Label3D" parent="." index="6" unique_id=2030974460]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+pixel_size = 0.004
+billboard = 1
+modulate = Color(0.7, 1, 0.8, 1)
+font_size = 24
+outline_size = 6
+script = ExtResource("Customer_debug_status")
+
+[node name="CharacterFeedback" parent="." index="7" unique_id=1273590992 instance=ExtResource("CharacterFeedback")]
+spatial_audio = true
+volume_db = -18.0
+bob_enabled = false
+
+[node name="InspectionParcelSlot" parent="." index="8" unique_id=968083495 instance=ExtResource("InspectionSlot")]
+
+[editable path="Body"]

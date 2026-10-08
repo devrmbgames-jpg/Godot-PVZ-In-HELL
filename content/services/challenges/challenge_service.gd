@@ -9,7 +9,7 @@ static func debug_start(subject: Entity, actor: Entity, definition: DEF_Challeng
 	if not _available(subject) or not _available(actor) or definition == null or definition.condition == null:
 		return false
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	if cycle == null or cycle.phase != C_DayCycle.Phase.DAY or (state != null and (state.consumed or state.phase != C_Challenge.Phase.INACTIVE)):
 		return false
@@ -26,7 +26,7 @@ static func arm(subject: Entity, actor: Entity) -> bool:
 		return false
 
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if (
 		state == null or state.definition == null or state.definition.condition == null
 		or state.consumed or state.phase != C_Challenge.Phase.INACTIVE
@@ -165,7 +165,7 @@ static func session_valid(subject: Entity) -> bool:
 
 #region Проверки и однократный итог
 static func _valid_session(subject: Entity, state: C_Challenge) -> bool:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	return (
 		_available(subject) and actor_for(subject) != null and cycle != null
 		and cycle.day_index == state.started_day and cycle.phase == state.started_phase

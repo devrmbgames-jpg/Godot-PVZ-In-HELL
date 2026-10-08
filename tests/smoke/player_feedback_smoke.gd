@@ -26,14 +26,14 @@ func _run() -> void:
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
 
-	assert(CustomerFlowService.parcel_for("base_supply:1:glass") != null)
+	assert(PackageQueries.find_live_package("base_supply:1:glass") != null)
 	var health: C_Health = player.get_component(C_Health) as C_Health
 	var hunger: C_Hunger = player.get_component(C_Hunger) as C_Hunger
 	health.current = health.value * 0.5
 	hunger.value = hunger.policy.starving_threshold
 	WalletService.current().balance = -321
 	WalletService.current().penalties = 60
-	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:glass")
+	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:glass")
 	var condition: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	condition.damage = C_PackageState.Damage.DAMAGED
 	condition.opening = C_PackageState.Opening.OPENED
@@ -55,7 +55,7 @@ func _run() -> void:
 		assert(label.visible and label.billboard == BaseMaterial3D.BILLBOARD_DISABLED)
 		assert(label.text.contains("ХРУПКОЕ") and label.text.contains("Повреждена") and label.text.contains("Вскрыта"))
 	for shipment: String in ["equipment", "oil"]:
-		var other: Entity = CustomerFlowService.parcel_for("base_supply:1:" + shipment)
+		var other: Entity = PackageQueries.find_live_package("base_supply:1:" + shipment)
 		var label: Label3D = (other as E_Package).get_marking_surface().get_node("PackageLabel0") as Label3D
 		assert(label.text.contains("ТЯЖЁЛОЕ" if shipment == "equipment" else "ЖИДКОСТЬ"))
 	await _check_damage(player, hud, parcel)

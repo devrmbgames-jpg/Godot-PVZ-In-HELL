@@ -8,7 +8,7 @@ const DEFAULT_PLACEMENT: DEF_ItemPlacement = preload("res://content/definitions/
 #region Создание экземпляра
 ## Проверяет наличие живой физической коробки с этим package_id.
 static func exists(package_id: String) -> bool:
-	return PackageRegistrationService.find_live_package(package_id) != null
+	return PackageQueries.find_live_package(package_id) != null
 
 
 ## Создаёт незарегистрированный экземпляр с собственными ID и параметрами переноски; размещение выполняется отдельно.

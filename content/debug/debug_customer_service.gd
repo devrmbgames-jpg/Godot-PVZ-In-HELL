@@ -22,8 +22,8 @@ static func create_visit(
 		result.details.append("visit=%s" % String(target.visit.visit_id))
 		return result
 
-	var flow: C_CustomerFlow = CustomerFlowService.current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var wallet: C_Wallet = WalletService.current()
 	var definition: DEF_Package = _package_definition(target)
 	if flow == null or flow.schedule == null or cycle == null or definition == null:
@@ -152,7 +152,7 @@ static func complaint(
 ) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	var visit: CustomerVisit = target.visit
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if visit == null:
 		result.message = "target has no CustomerVisit"
 		return result
@@ -169,7 +169,7 @@ static func complaint(
 		if state != null and state.damage != C_PackageState.Damage.UNDAMAGED:
 			visit.package_damaged = true
 
-	if not CustomerFlowService.create_complaint(visit, cycle.day_index, reason, true):
+	if not CustomerVisitLifecycle.create_complaint(visit, cycle.day_index, reason, true):
 		result.message = "complaint conflicts with existing complaint"
 		return result
 	if resolve_now:
@@ -196,7 +196,7 @@ static func complaint(
 static func resolve_complaint(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	var visit: CustomerVisit = target.visit
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if visit == null or visit.complaint == null:
 		result.message = "target has no complaint"
 		return result

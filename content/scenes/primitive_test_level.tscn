@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://content/entities/customers/inspection_booth.tscn" id="InspectionBooth"]
+[ext_resource type="PackedScene" path="res://content/domains/customers/entities/inspection_booth.tscn" id="InspectionBooth"]
 [ext_resource type="Script" uid="uid://c2jikq1w8bhv2" path="res://content/scenes/main_level.gd" id="1_ixiin"]
 [ext_resource type="PackedScene" path="res://content/entities/characters/character_body_player.tscn" id="13_da1x8"]
 [ext_resource type="Script" path="res://content/components/physics/c_character_body.gd" id="23_d7jx2"]
@@ -31,13 +31,13 @@
 [ext_resource type="PackedScene" path="res://content/entities/props/anchorable_test_box.tscn" id="AnchorTest_scene"]
 [ext_resource type="Script" uid="uid://00y5l3hnucd5" path="res://content/components/persistence/c_autosave.gd" id="Autosave_state"]
 [ext_resource type="Script" uid="uid://cf2u01epo1k4k" path="res://content/components/commerce/c_commerce.gd" id="Commerce_state"]
-[ext_resource type="Script" uid="uid://d18j5e5xkjfsg" path="res://content/components/gameplay/c_customer_flow.gd" id="Customer_flow"]
-[ext_resource type="Resource" uid="uid://ct5hbf2hdp6tl" path="res://content/definitions/gameplay/customers/def_customer_schedule_default.tres" id="Customer_schedule"]
+[ext_resource type="Script" uid="uid://d18j5e5xkjfsg" path="res://content/domains/customers/components/c_customer_flow.gd" id="Customer_flow"]
+[ext_resource type="Resource" uid="uid://ct5hbf2hdp6tl" path="res://content/domains/customers/definitions/def_customer_schedule_default.tres" id="Customer_schedule"]
 [ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/entities/sessions/e_day_session.gd" id="Day_entity"]
 [ext_resource type="Script" uid="uid://04u6xvav8opi" path="res://content/components/gameplay/c_package_ledger.gd" id="Day_ledger"]
 [ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
 [ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/entities/stations/day_phase_station.tscn" id="Day_station"]
-[ext_resource type="PackedScene" path="res://content/entities/stations/delivery_counter.tscn" id="Delivery_counter"]
+[ext_resource type="PackedScene" path="res://content/domains/customers/entities/delivery_counter.tscn" id="Delivery_counter"]
 [ext_resource type="PackedScene" path="res://content/entities/props/drawer.tscn" id="Drawer_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/inventory/food_pickup.tscn" id="Food_pickup"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
@@ -77,7 +77,7 @@
 [ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/entities/props/window.tscn" id="Window_scene"]
 [ext_resource type="PackedScene" path="res://content/entities/inventory/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
 [ext_resource type="PackedScene" path="res://content/scenes/game_world.tscn" id="Game_world"]
-[ext_resource type="NavigationMesh" path="res://content/navigation/navmesh_primitive_test.tres" id="Test_navigation"]
+[ext_resource type="NavigationMesh" path="res://content/domains/npc/authoring/navigation/navmesh_primitive_test.tres" id="Test_navigation"]
 
 [ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="Gaze_order_clue"]
 

@@ -176,7 +176,7 @@ func test_player_death_cleans_owned_effects() -> void:
 func test_phase_change_retires_effect_before_another_damage_tick() -> void:
 	_start()
 	_world.process(0.4)
-	DayPhaseService.current().phase = C_DayCycle.Phase.EVENING
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.EVENING
 	_world.process(0.2)
 	assert_eq(_state.result, ChallengeResult.Type.CANCELLED)
 	assert_eq(_health.current, 100.0)
@@ -187,7 +187,7 @@ func test_phase_change_retires_effect_before_another_damage_tick() -> void:
 func test_next_day_retires_effect_before_another_damage_tick() -> void:
 	_start()
 	_world.process(0.4)
-	DayPhaseService.current().day_index += 1
+	DayPhaseQueries.current().day_index += 1
 	_world.process(0.2)
 	assert_eq(_state.result, ChallengeResult.Type.CANCELLED)
 	assert_eq(_health.current, 100.0)

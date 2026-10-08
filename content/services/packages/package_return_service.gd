@@ -6,7 +6,7 @@ class_name PackageReturnService
 #region Утренний физический возврат
 ## Утром находит удерживаемую игроком коробку, допустимую к физическому возврату.
 static func held_refused(actor: Entity) -> Entity:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING or not GrabService.holder_available(actor):
 		return null
 
@@ -19,9 +19,9 @@ static func held_refused(actor: Entity) -> Entity:
 
 ## Проверяет активную регистрацию и прошлый отказ с оставшейся на складе коробкой.
 static func can_return(parcel: Entity) -> bool:
-	var cycle: C_DayCycle = DayPhaseService.current()
-	var flow: C_CustomerFlow = CustomerFlowService.current()
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING or flow == null or ledger == null or not EntityAvailability.contains(parcel, ECS.world):
 		return false
 
@@ -56,7 +56,7 @@ static func return_held(actor: Entity) -> bool:
 		state.registration = C_PackageState.Registration.REGISTERED
 		return false
 
-	for visit: CustomerVisit in CustomerFlowService.current().visits:
+	for visit: CustomerVisit in CustomerFlowQueries.current().visits:
 		if visit.package_id == identity.package_id and visit.disposition == CustomerVisit.Disposition.WAREHOUSE:
 			visit.disposition = CustomerVisit.Disposition.RETURNED
 			visit.next_followup_day = 0

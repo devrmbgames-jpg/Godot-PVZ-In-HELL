@@ -41,7 +41,7 @@ static func waiting_count() -> int:
 	if not is_instance_valid(ECS.world):
 		return 0
 
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	var cases: Dictionary[String, CustomerVisit] = {}
 	if flow != null:
 		for visit: CustomerVisit in flow.visits:
@@ -54,7 +54,7 @@ static func waiting_count() -> int:
 			continue
 		var visit: CustomerVisit = cases.get(identity.package_id) as CustomerVisit
 		if visit != null:
-			var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
+			var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
 			if visit.customer_dead or (person != null and person.death_day != 0):
 				continue
 			if visit.actual != CustomerVisit.Actual.NOT_RESOLVED or visit.declaration != CustomerVisit.Declaration.NONE or visit.settlement_committed or visit.complaint != null:
@@ -68,12 +68,12 @@ static func waiting_count() -> int:
 
 
 static func _has_recipient(definition: DEF_Package) -> bool:
-	if DistrictPopulationService.current() == null:
+	if NpcPopulationQueries.current() == null:
 		return true
-	if DistrictPopulationService.recipient_for(definition.recipient_id) == null:
+	if NpcPopulationQueries.recipient_for(definition.recipient_id) == null:
 		return false
 
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow == null or flow.schedule == null:
 		return false
 	for event: DEF_CustomerEvent in flow.schedule.events:

@@ -32,10 +32,10 @@ func _run() -> void:
 	else:
 		for frame: int in MAX_DELIVERY_FRAMES:
 			await get_tree().physics_frame
-			if CustomerFlowService.current().visits.size() == EXPECTED_BATCH_SIZE:
+			if CustomerFlowQueries.current().visits.size() == EXPECTED_BATCH_SIZE:
 				break
 	level.set_physics_process(false)
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	_check(flow.visits.size() == EXPECTED_BATCH_SIZE, "five real received orders")
 	if flow.visits.is_empty():
 		get_tree().quit(1)
@@ -61,9 +61,9 @@ func _run() -> void:
 		panel._refresh(true)
 		_check(record.note == NOTE_TEXT, "real input updated persistent journal")
 		_check(editor.get_caret_line() == 1 and editor.get_caret_column() == 5, "refresh preserved caret")
-		_check(CustomerFlowService.create_complaint(visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true), "real resident complaint created")
+		_check(CustomerVisitLifecycle.create_complaint(visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true), "real resident complaint created")
 		visit.complaint.message = COMPLAINT_TEXT
-		ECS.world.remove_entity(CustomerFlowService.parcel_for(visit.package_id))
+		ECS.world.remove_entity(PackageQueries.find_live_package(visit.package_id))
 		panel.close_panel()
 		panel.open_for(actor)
 		_check(editor.text == NOTE_TEXT and editor.get_caret_column() == 5, "close and reopen preserved note and caret")
@@ -74,7 +74,7 @@ func _run() -> void:
 	else:
 		_check(record.note == NOTE_TEXT and editor.text == NOTE_TEXT, "note restored after process restart")
 		_check(visit.complaint != null and visit.complaint.message == COMPLAINT_TEXT, "complaint text restored after process restart")
-		_check(CustomerFlowService.parcel_for(visit.package_id) == null, "missing parcel not resurrected")
+		_check(PackageQueries.find_live_package(visit.package_id) == null, "missing parcel not resurrected")
 		var description: RichTextLabel = detail.get_node("%RichTextLabelDescription") as RichTextLabel
 		_check(COMPLAINT_TEXT in description.get_parsed_text(), "complaint rendered literally")
 		_check(visit.complaint.customer_name in description.get_parsed_text(), "saved resident name shown")

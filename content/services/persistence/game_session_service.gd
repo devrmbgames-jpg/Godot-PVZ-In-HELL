@@ -39,7 +39,7 @@ static func save_reason(root: Node, menu_owner: Object = null) -> String:
 	if root.scene_file_path not in [MAIN_LEVEL, TEST_LEVEL]:
 		return "Для этой сцены нет игрового слота."
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING:
 		return "Сохранение доступно утром, перед началом смены."
 	if not ECS.world.query.with_all([C_CustomerAgent]).with_none([C_Death]).execute().is_empty():
@@ -73,7 +73,7 @@ static func save_game(root: Node, menu_owner: Object = null, path_override: Stri
 	if not result.message.is_empty():
 		return result
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var snapshot: Dictionary = WorldSnapshotService.capture(root, cycle.day_index)
 	snapshot["level_scene"] = root.scene_file_path
 	if not WorldSnapshotService.can_restore(snapshot, root):

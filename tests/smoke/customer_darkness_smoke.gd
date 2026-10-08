@@ -30,39 +30,39 @@ func _run() -> void:
 	for frame: int in SUPPLY_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
 		await get_tree().physics_frame
-		if CustomerFlowService.parcel_for("base_supply:1:oil") != null:
+		if PackageQueries.find_live_package("base_supply:1:oil") != null:
 			break
 
-	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:oil")
+	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:oil")
 	assert(parcel != null)
 	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
 	var relay: O_LightFlicker = _level.get_node("World/Systems/GamePlay/O_LightFlicker") as O_LightFlicker
 	relay.flickering_light.connect(_on_flicker)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.START_SHIFT
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
 	assert(DayPhaseService.submit(request))
 
-	var first: E_Customer = null
+	var first: E_NpcCharacter = null
 	for frame: int in SUPPLY_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
 		await get_tree().physics_frame
-		first = ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_Customer
+		first = ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_NpcCharacter
 		if first != null:
 			break
 
 	assert(first != null)
 	(first as Node as RigidBody3D).freeze = true
 	var agent: C_CustomerAgent = first.get_component(C_CustomerAgent) as C_CustomerAgent
-	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	assert(visit.definition.key == &"light_sensitive_customer")
 	assert(agent.phase == C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
 	assert(not (first.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	assert(_flickers == 1)
 
-	var station: E_DeliveryCounter = CustomerFlowService.counter()
+	var station: E_DeliveryCounter = CustomerFlowQueries.counter()
 	var offset: Vector3 = (first as Node as Node3D).global_position - station.entry_position()
 	offset.y = 0.0
 	assert(offset.length() < ARRIVAL_POSITION_EPSILON, "Stopped entrance intent must keep its horizontal position; native gravity owns Y")
@@ -92,11 +92,11 @@ func _run() -> void:
 	retry.package_id = visit.package_id
 	retry.definition = visit.definition
 	retry.arrival_day = cycle.day_index
-	CustomerFlowService.current().visits.append(retry)
-	assert(not CustomerFlowFixture.spawn(CustomerFlowService.current(), cycle), "New visit must respect the authored gap")
-	ECS.world.process(CustomerFlowService.current().arrival_cooldown_seconds + FRAME_DELTA, "GamePlay")
+	CustomerFlowQueries.current().visits.append(retry)
+	assert(not CustomerFlowFixture.spawn(CustomerFlowQueries.current(), cycle), "New visit must respect the authored gap")
+	ECS.world.process(CustomerFlowQueries.current().arrival_cooldown_seconds + FRAME_DELTA, "GamePlay")
 
-	var second: E_Customer = CustomerFlowService.customer_for(retry.visit_id)
+	var second: E_NpcCharacter = CustomerFlowQueries.customer_for(retry.visit_id)
 	assert(second != null)
 	(second as Node as RigidBody3D).freeze = true
 	assert(_flickers == 2)

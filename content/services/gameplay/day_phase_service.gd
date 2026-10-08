@@ -4,15 +4,6 @@ class_name DayPhaseService
 
 
 #region Состояние и доступность переходов
-## Возвращает данные цикла текущей сессии или null.
-static func current() -> C_DayCycle:
-	if not is_instance_valid(ECS.world):
-		return null
-
-	var session: Entity = ECS.world.query.with_all([C_DayCycle]).execute_one()
-	return session.get_component(C_DayCycle) as C_DayCycle if session != null else null
-
-
 ## Проверяет фазу, отсутствие ожидающего запроса и актуальные запреты смены/сна.
 static func permits(cycle: C_DayCycle, kind: DayTransitionRequest.Kind) -> bool:
 	if cycle == null or cycle.pending_transition != null:
@@ -44,8 +35,8 @@ static func finish_blockers(cycle: C_DayCycle) -> PackedStringArray:
 	if cycle == null:
 		return ["Смена недоступна"]
 
-	var flow: C_CustomerFlow = CustomerFlowService.current()
-	var unfinished: int = CustomerFlowService.actionable_remaining(flow, cycle.day_index) if flow != null else cycle.remaining_customer_events
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	var unfinished: int = CustomerFlowQueries.actionable_remaining(flow, cycle.day_index) if flow != null else cycle.remaining_customer_events
 	if cycle.require_finished_customers and unfinished > 0:
 		reasons.append("Завершить визиты: %d" % unfinished)
 	if cycle.minimum_shift_seconds > cycle.shift_elapsed_seconds:
@@ -61,7 +52,7 @@ static func finish_blockers(cycle: C_DayCycle) -> PackedStringArray:
 	elif cycle.require_all_planned_arrivals:
 		var unarrived: int = 0
 		for visit: CustomerVisit in flow.visits:
-			if CustomerFlowService.visit_due(visit, cycle.day_index) and not visit.started and CustomerFlowService.arrival_allowed(visit):
+			if CustomerFlowQueries.visit_due(visit, cycle.day_index) and not visit.started and CustomerFlowQueries.arrival_allowed(visit):
 				unarrived += 1
 		if unarrived > 0:
 			reasons.append("Ожидаются запланированные клиенты: %d" % unarrived)
@@ -84,7 +75,7 @@ static func customers_in_room(cycle: C_DayCycle) -> int:
 	for customer: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		var body: Node3D = customer as Node as Node3D
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-		var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+		var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 		if visit != null and visit.finished:
 			continue
 		if not customer.has_component(C_Death) and (room == null or (body != null and room.overlaps_body(body))):
@@ -114,7 +105,7 @@ static func shift_status(cycle: C_DayCycle) -> String:
 #region Отправка запроса
 ## Сохраняет один допустимый запрос с совпадающими ожидаемыми днём и фазой.
 static func submit(request: DayTransitionRequest) -> bool:
-	var cycle: C_DayCycle = current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if request == null or not permits(cycle, request.kind):
 		return false
 	if request.expected_day != cycle.day_index or request.expected_phase != cycle.phase:

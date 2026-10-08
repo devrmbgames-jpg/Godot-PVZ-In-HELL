@@ -33,3 +33,8 @@ var aggression_reason: CombatContext.Reason = CombatContext.Reason.ORDINARY_ATTA
 
 ## Session-local start/cancel generation; queued progression cannot advance a replacement attack.
 var execution_generation: int = 0
+
+## Derived native signal binding for the current execution; never serialized.
+var animation_hit_callback: Callable = Callable()
+## Derived native completion binding for the current execution; never serialized.
+var animation_finish_callback: Callable = Callable()

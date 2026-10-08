@@ -19,7 +19,7 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if not is_finite(delta) or delta < 0.0:
 		return
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null:
 		return
 
@@ -67,6 +67,6 @@ func _depart(zone_reference: WeakRef, receiving: C_Receiving, cycle: C_DayCycle,
 func _matches(zone: E_ReceivingZone, receiving: C_Receiving, cycle: C_DayCycle, day: int, phase: C_DayCycle.Phase) -> bool:
 	return (
 		EntityAvailability.contains(zone, _world) and zone.get_component(C_Receiving) == receiving
-		and DayPhaseService.current() == cycle and cycle.day_index == day and cycle.phase == phase
+		and DayPhaseQueries.current() == cycle and cycle.day_index == day and cycle.phase == phase
 	)
 #endregion

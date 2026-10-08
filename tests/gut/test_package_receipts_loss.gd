@@ -19,7 +19,7 @@ func before_each() -> void:
 	_cycle = C_DayCycle.new()
 	_ledger = C_PackageLedger.new()
 	_wallet = C_Wallet.new()
-	var schedule: DEF_CustomerSchedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	var schedule: DEF_CustomerSchedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
 	_package_definition = schedule.supply.packages[0]
 	_visit = CustomerVisit.new()
 	_visit.visit_id = &"visit/receipt"
@@ -78,7 +78,7 @@ func test_arrival_is_stable_unregistered_record_without_counter_arrival() -> voi
 	assert_eq(state.registration, C_PackageState.Registration.UNREGISTERED)
 	assert_eq(state.scan, C_PackageState.Scan.NOT_SCANNED)
 	assert_eq(state.registration_number, 0)
-	assert_false(CustomerFlowService.arrival_allowed(_visit))
+	assert_false(CustomerFlowQueries.arrival_allowed(_visit))
 	assert_eq(CustomerPresentation.registered_number(_visit), -1)
 	assert_eq(PackageRegistrationService.smallest_free_number(_ledger), 1)
 
@@ -97,7 +97,7 @@ func test_scanning_upgrades_existing_receipt_once_and_preserves_history() -> voi
 	assert_eq(record.received_day, 1)
 	assert_eq(record.day_index, 2)
 	assert_eq(record.history_id, history_id)
-	assert_true(CustomerFlowService.arrival_allowed(_visit))
+	assert_true(CustomerFlowQueries.arrival_allowed(_visit))
 	assert_eq(PackageRegistrationService.register_package(parcel).outcome, PackageScanResult.Outcome.ALREADY_REGISTERED)
 	assert_eq(PackageRegistrationService.smallest_free_number(_ledger), 2)
 
@@ -120,17 +120,17 @@ func test_destroyed_unregistered_box_can_be_declared_lost_before_visit_once() ->
 	(parcel.get_component(C_PackageState) as C_PackageState).damage = C_PackageState.Damage.DESTROYED
 	_world.remove_entity(parcel)
 	assert_eq(PackageHistoryService.record_for("receipt"), record)
-	assert_false(CustomerFlowService.package_declared_lost("receipt"))
+	assert_false(CustomerFlowQueries.package_declared_lost("receipt"))
 	assert_false(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.TAKEN))
 	assert_false(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.REFUSED))
 	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.LOST))
-	assert_true(CustomerFlowService.package_declared_lost("receipt"))
+	assert_true(CustomerFlowQueries.package_declared_lost("receipt"))
 	assert_eq(record.number, 0)
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(_visit.loss_cause, CustomerVisit.LossCause.DECLARED_LOST)
 	assert_true(_visit.finished)
 	assert_false(_visit.started)
-	assert_eq(CustomerFlowService.actionable_remaining(_flow, 1), 0)
+	assert_eq(CustomerFlowQueries.actionable_remaining(_flow, 1), 0)
 	assert_eq(_wallet.balance, -120)
 	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.LOST))
 	assert_eq(_wallet.operations.size(), 1)
@@ -153,7 +153,7 @@ func test_registered_destroyed_box_keeps_history_and_number_until_manual_loss() 
 	PackageRegistrationService.register_package(parcel)
 	_world.remove_entity(parcel)
 	assert_eq(_next_morning(), 0)
-	assert_false(CustomerFlowService.package_declared_lost("receipt"))
+	assert_false(CustomerFlowQueries.package_declared_lost("receipt"))
 	assert_eq(PackageRegistrationService.smallest_free_number(_ledger), 2)
 	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.LOST))
 	assert_eq(_ledger.records.size(), 1)
@@ -205,7 +205,7 @@ func test_late_registration_keeps_real_delivery_and_payment_available() -> void:
 	PackageHistoryService.record_arrival(parcel, 1)
 	assert_eq(_next_morning(), 1)
 	assert_eq(PackageRegistrationService.register_package(parcel).outcome, PackageScanResult.Outcome.REGISTERED)
-	assert_true(CustomerFlowService.arrival_allowed(_visit))
+	assert_true(CustomerFlowQueries.arrival_allowed(_visit))
 	_visit.started = true
 	var check_result: PackageDeliveryCheck = CustomerOutcomeService.check(
 		_visit, parcel.get_component(C_Package) as C_Package,
@@ -268,7 +268,7 @@ func test_receipt_and_overdue_round_trip_preserves_missing_box_and_financial_his
 	assert_eq(_visit.registration_penalty_day, 2)
 	assert_eq(_next_morning(3), 0)
 	assert_eq(_wallet.operations.size(), 1)
-	assert_null(PackageRegistrationService.find_live_package("receipt"))
+	assert_null(PackageQueries.find_live_package("receipt"))
 	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.LOST))
 	assert_true(SaveDataCodec.apply_fields(_flow, SaveDataCodec.component_data(_flow).fields as Dictionary))
 	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.LOST))

@@ -29,7 +29,7 @@ func _apply(subject_reference: WeakRef, resolution: ChallengeResolution) -> void
 	var agent: C_CustomerAgent = subject.get_component(C_CustomerAgent) as C_CustomerAgent
 	if state == null or agent == null or state.pending_result != resolution or state.consequences_applied:
 		return
-	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	if visit == null or visit.finished:
 		return
 

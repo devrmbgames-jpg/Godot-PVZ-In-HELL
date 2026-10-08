@@ -16,7 +16,7 @@ func before_each() -> void:
 	_session.add_component(C_CustomerFlow.new())
 	_session.add_component(C_Wallet.new())
 	_flow = _session.get_component(C_CustomerFlow) as C_CustomerFlow
-	_flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	_flow.schedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
 	_phase_system = S_DayPhase.new()
 	_world.add_system(_phase_system)
 
@@ -166,7 +166,7 @@ func test_absent_unregistered_package_requires_manual_lost_and_keeps_receipt() -
 	_world.remove_entity(_parcels()[0])
 	assert_eq(ReceivingShiftService.status(_cycle).missing, 1)
 	assert_false(DayPhaseService.submit(_request()))
-	assert_false(CustomerFlowService.package_declared_lost(package_id))
+	assert_false(CustomerFlowQueries.package_declared_lost(package_id))
 	assert_same(PackageHistoryService.record_for(package_id), receipt)
 	assert_eq(receipt.number, 0)
 
@@ -183,7 +183,7 @@ func test_destroyed_package_never_automatically_declares_lost() -> void:
 	var condition: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	condition.damage = C_PackageState.Damage.DESTROYED
 	assert_eq(ReceivingShiftService.status(_cycle).missing, 1)
-	assert_false(CustomerFlowService.package_declared_lost(identity.package_id))
+	assert_false(CustomerFlowQueries.package_declared_lost(identity.package_id))
 	var visit: CustomerVisit = _visit_for(identity.package_id)
 	assert_true(CustomerFlowService.declare(visit.visit_id, CustomerVisit.Declaration.LOST))
 	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.START_SHIFT))

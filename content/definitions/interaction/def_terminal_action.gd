@@ -5,7 +5,7 @@ class_name DEF_TerminalAction
 
 ## Разрешает открытие терминала при существующем цикле вне ночи.
 func is_available(_actor: Entity, source: Entity, _target: Entity) -> bool:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	return source is E_Terminal and cycle != null and cycle.phase != C_DayCycle.Phase.NIGHT
 
 

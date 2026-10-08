@@ -29,10 +29,10 @@ func _run() -> void:
 	else:
 		for frame: int in MAX_RECEIVING_FRAMES:
 			await get_tree().physics_frame
-			if CustomerFlowService.current().visits.size() == 5:
+			if CustomerFlowQueries.current().visits.size() == 5:
 				break
 		level.set_physics_process(false)
-		_check(CustomerFlowService.current().visits.size() == 5, "real receiving batch ready")
+		_check(CustomerFlowQueries.current().visits.size() == 5, "real receiving batch ready")
 		if not _failed:
 			await _buy(level)
 	print("Trader purchase smoke ", "restore" if restoring else "write", ": ", "FAIL" if _failed else "PASS")
@@ -45,8 +45,8 @@ func _buy(level: Node3D) -> void:
 	if _failed:
 		return
 
-	var cycle: C_DayCycle = DayPhaseService.current()
-	var person: NpcRecord = DistrictPopulationService.person_for((merchant.get_component(C_NpcIdentity) as C_NpcIdentity).npc_id)
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var person: NpcRecord = NpcPopulationQueries.person_for((merchant.get_component(C_NpcIdentity) as C_NpcIdentity).npc_id)
 	var shop: C_Trader = merchant.get_component(C_Trader) as C_Trader
 	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		cycle.phase = phase

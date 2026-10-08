@@ -23,9 +23,9 @@ func _run() -> void:
 	actor_body.set_physics_process(false)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = null
 
 	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger
@@ -76,7 +76,7 @@ func _run() -> void:
 	visit.definition = DEF_Customer.new()
 	visit.started = true
 	flow.visits = [visit]
-	var customer: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
+	var customer: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	var customer_body: RigidBody3D = customer as Node as RigidBody3D
 	customer_body.freeze = true
 	level.add_child(customer_body)

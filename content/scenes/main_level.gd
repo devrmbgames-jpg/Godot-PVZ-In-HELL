@@ -20,6 +20,7 @@ func _ready() -> void:
 		return
 
 	ECS.world = world
+	NpcCustomerComposition.install(world)
 	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
 	var day_session: Entity = world.query.with_all([C_DayCycle]).execute_one()
 	day_session.add_component(C_BoundaryTrace.new())
@@ -43,6 +44,16 @@ func _ready() -> void:
 		authored_world.add_startup_observer(O_CustomerServiceClock.new())
 	else:
 		world.add_observer(O_CustomerServiceClock.new())
+	if authored_world != null:
+		authored_world.add_startup_observer(O_CustomerNpcInterruption.new())
+	else:
+		world.add_observer(O_CustomerNpcInterruption.new())
+	for observer_type: Script in [O_CustomerNpcConversation, O_CustomerInspectionCargo, O_DialoguePanelRequest]:
+		var composition_observer: Observer = observer_type.new() as Observer
+		if authored_world != null:
+			authored_world.add_startup_observer(composition_observer)
+		else:
+			world.add_observer(composition_observer)
 	for owner_type: Script in [S_CustomerVisitPresence, S_CustomerCleanup, S_CustomerClock, S_CustomerGreeting, S_CustomerApproach, S_CustomerWaiting, S_CustomerInspection, S_CustomerDeparture, S_CustomerArrivals]:
 		var customer_owner: System = owner_type.new() as System
 		customer_owner.group = "GamePlay"
@@ -66,6 +77,9 @@ func _ready() -> void:
 			queue_free()
 			return
 	DistrictPopulationService.restore_participation()
+	if NpcPopulationQueries.current() != null:
+		var delivery_view: DistrictDeliveryView = DistrictDeliveryView.new()
+		add_child(delivery_view)
 	if authored_world != null:
 		authored_world.finish_startup()
 	if OS.has_feature("qa_build"):

@@ -5,7 +5,7 @@ extends GutTest
 const UI_FRAMES: int = 32
 var _world: World = null
 var _actor: Entity = null
-var _customer: E_Customer = null
+var _customer: E_NpcCharacter = null
 var _state: C_Hunger = null
 var _visit: CustomerVisit = null
 var _context: CustomerDialogueContext = null
@@ -17,6 +17,7 @@ func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
 	ECS.world = _world
+	DialogueUiFixture.install()
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_CustomerFlow.new(), C_PackageLedger.new()]
 	_world.add_entity(session)
@@ -28,7 +29,7 @@ func before_each() -> void:
 	_actor.component_resources = [C_PlayerInputController.new(), C_GrabControl.new(), hunger]
 	_world.add_entity(_actor)
 	_state = _actor.get_component(C_Hunger) as C_Hunger
-	_customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
+	_customer = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	(_customer as Node as RigidBody3D).freeze = true
 	_world.add_entity(_customer)
 
@@ -138,7 +139,7 @@ func test_food_visual_is_reversible_and_keeps_entity_body_order_and_message() ->
 ## Еда возвращает текущую настоящую строку без перехода по ветке диалога.
 func test_open_dialogue_reverts_current_npc_line_after_food_without_advancing_branch() -> void:
 	_state.value = 81.0
-	assert_true(CustomerDialogueService.start(_actor, _customer))
+	assert_true(CustomerDialogueService.request_open(_actor, _customer))
 	assert_true(await _press("Продолжить"))
 	for frame: int in UI_FRAMES:
 		await get_tree().process_frame
@@ -170,7 +171,7 @@ func test_open_dialogue_reverts_current_npc_line_after_food_without_advancing_br
 ## Искажённая реплика NPC сохраняет смысл честного ответа игрока и фактический отказ.
 func test_starving_honest_denial_keeps_actual_response_tags_and_domain_transition() -> void:
 	_state.value = 81.0
-	assert_true(CustomerDialogueService.start(_actor, _customer))
+	assert_true(CustomerDialogueService.request_open(_actor, _customer))
 	assert_true(await _press("Продолжить"))
 	assert_true(await _press("Я не могу выдать вам посылку."))
 	assert_true(await _press("[честно] Мы не можем найти вашу посылку."))

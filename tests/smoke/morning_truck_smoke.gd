@@ -98,7 +98,7 @@ func _unload_and_finish(level: Node3D, zone: E_ReceivingZone) -> void:
 		await get_tree().physics_frame
 		ECS.world.process(1.0 / 60.0, "GamePlay")
 	_check(_count() == 5 and state.pending.is_empty(), "long morning keeps exactly five boxes")
-	DayPhaseService.current().phase = C_DayCycle.Phase.DAY
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.DAY
 	ECS.world.process(1.0 / 60.0, "GamePlay")
 	for frame: int in MAX_FRAMES:
 		await get_tree().physics_frame

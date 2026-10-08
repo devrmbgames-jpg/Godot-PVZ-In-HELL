@@ -6,7 +6,7 @@ class_name DebugWorldService
 ## Запрашивает следующий допустимый переход фазы через DayPhaseService; ночь не переключает вручную.
 static func day_next() -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null:
 		result.message = "day cycle is unavailable"
 		return result
@@ -54,8 +54,8 @@ static func day_next() -> DebugServiceResult:
 ## В дневную фазу запрашивает следующую доступную задачу обслуживания при свободной активной роли.
 static func customer_next() -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
-	var flow: C_CustomerFlow = CustomerFlowService.current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if flow == null or cycle == null:
 		result.message = "customer flow/day cycle is unavailable"
 		return result
@@ -83,10 +83,10 @@ static func customer_next() -> DebugServiceResult:
 		return result
 
 	var started: bool = false
-	if DistrictPopulationService.current() != null:
+	if NpcPopulationQueries.current() != null:
 		started = NpcServiceRole.enqueue_next(flow, cycle)
 	else:
-		var visit: CustomerVisit = CustomerFlowService.next_arrival(flow, cycle)
+		var visit: CustomerVisit = CustomerFlowQueries.next_arrival(flow, cycle)
 		if visit != null:
 			CustomerFlowService.start_visit(flow, visit, cycle.day_index)
 			started = true
@@ -94,8 +94,8 @@ static func customer_next() -> DebugServiceResult:
 		result.message = "no due unstarted CustomerVisit"
 		return result
 
-	var customer: E_Customer = (
-		ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_Customer
+	var customer: E_NpcCharacter = (
+		ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_NpcCharacter
 	)
 	result.success = true
 	result.message = "next due Customer started"

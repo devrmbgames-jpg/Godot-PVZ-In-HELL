@@ -58,7 +58,7 @@ func after_each() -> void:
 
 
 func _npc(customer: bool = false, loot_chance: float = 0.0) -> E_NpcCharacter:
-	var path: String = "res://content/entities/customers/customer.tscn" if customer else "res://content/entities/commerce/trader.tscn"
+	var path: String = "res://content/domains/customers/entities/customer.tscn" if customer else "res://content/entities/commerce/trader.tscn"
 	var npc: E_NpcCharacter = (load(path) as PackedScene).instantiate() as E_NpcCharacter
 	var components: Array[Component] = npc.component_resources.duplicate()
 	for index: int in components.size():
@@ -66,7 +66,7 @@ func _npc(customer: bool = false, loot_chance: float = 0.0) -> E_NpcCharacter:
 			continue
 
 		var remains: C_NpcRemains = C_NpcRemains.new()
-		remains.definition = (load("res://content/definitions/gameplay/def_npc_remains_default.tres") as DEF_NpcRemains).duplicate() as DEF_NpcRemains
+		remains.definition = (load("res://content/domains/npc/definitions/def_npc_remains_default.tres") as DEF_NpcRemains).duplicate() as DEF_NpcRemains
 		remains.definition.loot_chance = loot_chance
 		components[index] = remains
 	npc.component_resources = components
@@ -216,7 +216,7 @@ func test_customer_remains_survive_visit_and_challenge_cleanup() -> void:
 	_damage(npc, 200.0)
 	assert_eq(_drops().size(), 3)
 	CustomerFlowFixture.advance(flow, cycle, 0.1)
-	assert_null(CustomerFlowService.customer_for(visit.visit_id))
+	assert_null(CustomerFlowQueries.customer_for(visit.visit_id))
 	assert_true(visit.customer_dead)
 	assert_true(visit.defeated_by_player)
 	assert_true(visit.finished)

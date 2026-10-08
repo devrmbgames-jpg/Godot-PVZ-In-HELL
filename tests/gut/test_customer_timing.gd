@@ -20,9 +20,9 @@ func before_each() -> void:
 	_cycle.phase = C_DayCycle.Phase.DAY
 	_flow.schedule = DEF_CustomerSchedule.new()
 	_flow.schedule.supply = null
-	_flow.schedule.customer_scene = load("res://content/entities/customers/customer.tscn") as PackedScene
+	_flow.schedule.customer_scene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 
-	var counter_scene: PackedScene = load("res://content/entities/stations/delivery_counter.tscn") as PackedScene
+	var counter_scene: PackedScene = load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
 	var counter: E_DeliveryCounter = counter_scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(counter)
 
@@ -53,11 +53,11 @@ func _visit(id: StringName) -> CustomerVisit:
 	return visit
 
 
-func _leaving_customer(visit: CustomerVisit) -> E_Customer:
+func _leaving_customer(visit: CustomerVisit) -> E_NpcCharacter:
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
-	body.set_script(load("res://content/entities/customers/e_customer.gd"))
-	var customer: E_Customer = body as Node as E_Customer
+	body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
+	var customer: E_NpcCharacter = body as Node as E_NpcCharacter
 	customer.component_resources = [C_CustomerAgent.new(), C_NpcIntent.new()]
 	_world.add_entity(customer)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -76,7 +76,7 @@ func test_arrival_and_greeting_consume_distinct_phase_steps() -> void:
 	var visit: CustomerVisit = _visit(&"phase-snapshot")
 	visit.definition.greeting_seconds = 0.0
 	visit.definition.patience_seconds = 0.0
-	var customer: E_Customer = _leaving_customer(visit)
+	var customer: E_NpcCharacter = _leaving_customer(visit)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.APPROACHING
 	(customer.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
@@ -95,7 +95,7 @@ func test_arrival_and_greeting_consume_distinct_phase_steps() -> void:
 func test_isolated_phase_clock_advances_once_per_world_step() -> void:
 	var visit: CustomerVisit = _visit(&"one-clock")
 	visit.definition.patience_seconds = 10.0
-	var customer: E_Customer = _leaving_customer(visit)
+	var customer: E_NpcCharacter = _leaving_customer(visit)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 
@@ -109,7 +109,7 @@ func test_isolated_phase_clock_advances_once_per_world_step() -> void:
 ## Retained roles consume due-step facts synchronously, independent of structural flush mode.
 func test_district_role_clock_does_not_advance_on_isolated_frame_or_structural_flush() -> void:
 	var visit: CustomerVisit = _visit(&"district-clock")
-	var customer: E_Customer = _leaving_customer(visit)
+	var customer: E_NpcCharacter = _leaving_customer(visit)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	customer.add_component(C_NpcIdentity.new())
@@ -132,13 +132,13 @@ func test_district_role_clock_does_not_advance_on_isolated_frame_or_structural_f
 func test_legacy_short_departure_cannot_remove_customer_before_three_minutes() -> void:
 	var visit: CustomerVisit = _visit(&"blocked-exit")
 	visit.definition.leaving_seconds = 2.0
-	var customer: E_Customer = _leaving_customer(visit)
+	var customer: E_NpcCharacter = _leaving_customer(visit)
 	CustomerFlowFixture.advance(_flow, _cycle, 180.0)
-	assert_eq(CustomerFlowService.customer_for(visit.visit_id), customer)
+	assert_eq(CustomerFlowQueries.customer_for(visit.visit_id), customer)
 	assert_false(visit.finished)
 	assert_eq(_flow.arrival_cooldown_seconds, 0.0)
 	CustomerFlowFixture.advance(_flow, _cycle, 1.0)
-	assert_null(CustomerFlowService.customer_for(visit.visit_id))
+	assert_null(CustomerFlowQueries.customer_for(visit.visit_id))
 	assert_true(visit.finished)
 	assert_eq(_flow.arrival_cooldown_seconds, 30.0)
 
@@ -146,13 +146,13 @@ func test_legacy_short_departure_cannot_remove_customer_before_three_minutes() -
 ## Прибытие к выходу немедленно освобождает клиента; повторное завершение не перезапускает паузу.
 func test_arriving_at_exit_finishes_immediately_and_starts_gap_once() -> void:
 	var visit: CustomerVisit = _visit(&"exit-arrived")
-	var customer: E_Customer = _leaving_customer(visit)
+	var customer: E_NpcCharacter = _leaving_customer(visit)
 	(customer.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
 	CustomerFlowFixture.advance(_flow, _cycle, 0.1)
-	assert_null(CustomerFlowService.customer_for(visit.visit_id))
+	assert_null(CustomerFlowQueries.customer_for(visit.visit_id))
 	assert_true(visit.finished)
 	_flow.arrival_cooldown_seconds = 7.0
-	CustomerFlowService.finish(visit, _cycle.day_index)
+	CustomerVisitLifecycle.finish(visit, _cycle.day_index)
 	assert_eq(_flow.arrival_cooldown_seconds, 7.0, "Duplicate completion cannot restart the gap")
 
 
@@ -160,7 +160,7 @@ func test_arriving_at_exit_finishes_immediately_and_starts_gap_once() -> void:
 func test_next_eligible_customer_waits_for_configured_gap_after_previous_departure() -> void:
 	_flow.schedule.arrival_interval_seconds = 45.0
 	var previous: CustomerVisit = _visit(&"previous")
-	var customer: E_Customer = _leaving_customer(previous)
+	var customer: E_NpcCharacter = _leaving_customer(previous)
 	var next: CustomerVisit = _visit(&"next")
 	assert_false(CustomerFlowFixture.spawn(_flow, _cycle), "Leaving NPC still occupies the visit slot")
 	(customer.get_component(C_NpcIntent) as C_NpcIntent).arrived = true
@@ -171,7 +171,7 @@ func test_next_eligible_customer_waits_for_configured_gap_after_previous_departu
 	assert_string_contains(CustomerDebugPresentation.summary(), "Пауза до следующего: 1 с")
 	CustomerFlowFixture.advance(_flow, _cycle, 1.0)
 	assert_true(next.started)
-	assert_not_null(CustomerFlowService.customer_for(next.visit_id))
+	assert_not_null(CustomerFlowQueries.customer_for(next.visit_id))
 	assert_eq(next.visit_count, 1)
 
 
@@ -179,7 +179,7 @@ func test_next_eligible_customer_waits_for_configured_gap_after_previous_departu
 func test_first_customer_and_morning_are_not_delayed_by_previous_day_gap() -> void:
 	var first: CustomerVisit = _visit(&"first")
 	assert_true(CustomerFlowFixture.spawn(_flow, _cycle))
-	assert_not_null(CustomerFlowService.customer_for(first.visit_id))
+	assert_not_null(CustomerFlowQueries.customer_for(first.visit_id))
 	_flow.arrival_cooldown_seconds = 30.0
 	_cycle.phase = C_DayCycle.Phase.MORNING
 	CustomerFlowFixture.advance(_flow, _cycle, 0.0)
@@ -189,7 +189,7 @@ func test_first_customer_and_morning_are_not_delayed_by_previous_day_gap() -> vo
 ## Живой обслуживаемый клиент блокирует обычный и отладочный приход даже после завершения учёта.
 func test_single_live_customer_blocks_queue_and_debug_even_after_accounting_finished() -> void:
 	var previous: CustomerVisit = _visit(&"still-physically-present")
-	var customer: E_Customer = _leaving_customer(previous)
+	var customer: E_NpcCharacter = _leaving_customer(previous)
 	var queued: CustomerVisit = _visit(&"queued")
 	previous.finished = true
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -208,7 +208,7 @@ func test_single_live_customer_blocks_queue_and_debug_even_after_accounting_fini
 ## Завершение не начатого визита не создаёт паузу для первой встречи.
 func test_unspawned_visit_completion_does_not_add_artificial_delay() -> void:
 	var missed: CustomerVisit = _visit(&"unspawned")
-	CustomerFlowService.finish(missed, _cycle.day_index)
+	CustomerVisitLifecycle.finish(missed, _cycle.day_index)
 	assert_true(missed.finished)
 	assert_eq(_flow.arrival_cooldown_seconds, 0.0)
 	var next: CustomerVisit = _visit(&"first-real")
@@ -268,7 +268,7 @@ func test_repeated_flow_ticks_in_one_batch_keep_first_visit_and_next_queued() ->
 	var commands: CommandBuffer = CommandBuffer.new(_world)
 	commands.add_custom(CustomerFlowFixture.advance.bind(_flow, _cycle, 0.0))
 	commands.add_custom(func() -> void:
-		assert_not_null(CustomerFlowService.customer_for(first.visit_id), "Registered customer is visible before cache invalidation")
+		assert_not_null(CustomerFlowQueries.customer_for(first.visit_id), "Registered customer is visible before cache invalidation")
 	)
 	commands.add_custom(CustomerFlowFixture.advance.bind(_flow, _cycle, 0.0))
 	commands.execute()

@@ -51,11 +51,11 @@ func _exercise_current_world() -> Dictionary:
 
 	_audit_customer_query("received")
 	var ids: PackedStringArray = receiving.incoming_package_ids.duplicate()
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if not _check(flow.visits.size() == ids.size(), "one planned customer record per provider-selected package"):
 		return {}
 	for package_id: String in ids:
-		var parcel: Entity = CustomerFlowService.parcel_for(package_id)
+		var parcel: Entity = PackageQueries.find_live_package(package_id)
 		if not _check(parcel != null, "physical package exists: " + package_id):
 			return {}
 		var scanned: PackageScanResult = PackageRegistrationService.register_package(parcel)
@@ -94,7 +94,7 @@ func _exercise_current_world() -> Dictionary:
 		return {}
 
 	await _step(world, 3)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var shift: DayTransitionRequest = DayTransitionRequest.new()
 	shift.expected_day = cycle.day_index
 	shift.expected_phase = cycle.phase
@@ -186,7 +186,7 @@ func _verify_fresh_startup(expected: Dictionary) -> void:
 	add_child(_level)
 	_level.set_physics_process(false)
 	var actor: Entity = _level.get_node("Entityes/Player") as Entity
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	_check(cycle.phase == C_DayCycle.Phase.MORNING and cycle.day_index == 2, "fresh startup restored saved Morning")
 	_check(ActorIdentityRules.key_for(actor, _level) == expected.player_key, "explicit placed player identity survives new instance")
 	_check(WalletService.current().balance == expected.saved_balance
@@ -201,7 +201,7 @@ func _verify_fresh_startup(expected: Dictionary) -> void:
 	_audit_customer_query("fresh_after_tick")
 	_check(WalletService.current().balance == expected.balance and WalletService.current().operations.size() == expected.operations,
 		"first scheduled Morning entry matches the original continuation, without lost or duplicate settlement")
-	var visit: CustomerVisit = CustomerFlowService.find_visit(expected.visit_id)
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(expected.visit_id)
 	if not _check(visit != null and visit.settlement_committed and visit.declaration == CustomerVisit.Declaration.LOST,
 			"terminal customer settlement remains committed"):
 		return

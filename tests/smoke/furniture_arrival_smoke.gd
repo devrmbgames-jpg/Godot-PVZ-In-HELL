@@ -29,10 +29,10 @@ func _run() -> void:
 	else:
 		for frame: int in MAX_RECEIVING_FRAMES:
 			await get_tree().physics_frame
-			if CustomerFlowService.current().visits.size() == 5:
+			if CustomerFlowQueries.current().visits.size() == 5:
 				break
 		level.set_physics_process(false)
-		_check(CustomerFlowService.current().visits.size() == 5, "real receiving batch ready")
+		_check(CustomerFlowQueries.current().visits.size() == 5, "real receiving batch ready")
 		if not _failed:
 			await _buy_and_block(level)
 	print("Furniture arrival smoke ", "restore" if restoring else "write", ": ", "FAIL" if _failed else "PASS")
@@ -48,7 +48,7 @@ func _buy_and_block(level: Node3D) -> void:
 	if _failed:
 		return
 
-	DayPhaseService.current().phase = C_DayCycle.Phase.DAY
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.DAY
 	WalletService.current().balance = 1000
 	var panel: CommercePanel = CommercePanelFactory.open(player, merchant)
 	_check(panel != null, "day shop opens")

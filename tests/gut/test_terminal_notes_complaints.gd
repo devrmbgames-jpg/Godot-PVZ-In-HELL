@@ -55,7 +55,7 @@ func test_switching_reused_number_keeps_notes_and_restores_previous_history_care
 	var editor: TextEdit = _note_field(detail)
 	editor.insert_text_at_caret("первое примечание")
 	editor.set_caret_column(6)
-	var parcel: Entity = PackageRegistrationService.find_live_package("receipt")
+	var parcel: Entity = PackageQueries.find_live_package("receipt")
 	PackageRegistrationService.register_package(parcel)
 	(parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState.Registration.DELIVERED
 	assert_true(PackageRegistrationService.release_number(parcel))
@@ -99,10 +99,10 @@ func test_notes_and_complaint_survive_slot_write_read_and_ui_recreation() -> voi
 	detail.end_editing()
 	_visit.definition = _visit.definition.duplicate() as DEF_Customer
 	_visit.definition.complaint_text = "Где посылка, бездельник? [b]Текст[/b]"
-	assert_true(CustomerFlowService.create_complaint(_visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true))
+	assert_true(CustomerVisitLifecycle.create_complaint(_visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true))
 	# Авторское определение остаётся каноническим; уже поданный текст сохранён в самой жалобе.
-	_visit.definition = (load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule).events[0].customer
-	_world.remove_entity(PackageRegistrationService.find_live_package("receipt"))
+	_visit.definition = (load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule).events[0].customer
+	_world.remove_entity(PackageQueries.find_live_package("receipt"))
 	var data: Dictionary = {
 		"ledger": SaveDataCodec.component_data(_ledger),
 		"flow": SaveDataCodec.component_data(_flow),
@@ -120,7 +120,7 @@ func test_notes_and_complaint_survive_slot_write_read_and_ui_recreation() -> voi
 	detail = _panel.get_node("%PackageDetailInfo") as UI_TerminalPackageDetailInfo
 	assert_eq(_note_field(detail).text, "[img]это обычное примечание[/img]\nне трогать")
 	assert_eq(_flow.visits[0].complaint.message, "Где посылка, бездельник? [b]Текст[/b]")
-	assert_null(PackageRegistrationService.find_live_package("receipt"))
+	assert_null(PackageQueries.find_live_package("receipt"))
 
 
 ## Выход открытого терминала из SceneTree сохраняет ввод и не освобождает уже отключённый GUI-фокус.
@@ -142,7 +142,7 @@ func test_complaint_resolution_refreshes_without_erasing_note_or_caret() -> void
 	var editor: TextEdit = _note_field(detail)
 	editor.insert_text_at_caret("жду решения")
 	editor.set_caret_column(2)
-	assert_true(CustomerFlowService.create_complaint(_visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true))
+	assert_true(CustomerVisitLifecycle.create_complaint(_visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true))
 	_panel._refresh()
 	var description: RichTextLabel = detail.get_node("%RichTextLabelDescription") as RichTextLabel
 	assert_true("Штраф по жалобе ещё не назначен" in description.text)
@@ -182,7 +182,7 @@ func test_manual_loss_fee_remains_visible_when_complaint_is_already_settled() ->
 	var detail: UI_TerminalPackageDetailInfo = _open_details()
 	_panel._show_archive = true
 	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.LOST))
-	assert_true(CustomerFlowService.create_complaint(_visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true))
+	assert_true(CustomerVisitLifecycle.create_complaint(_visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true))
 	CustomerOutcomeService.resolve_complaint(_visit, _wallet, 2)
 	_panel._refresh(true)
 	var description: String = (detail.get_node("%RichTextLabelDescription") as RichTextLabel).get_parsed_text()
@@ -195,12 +195,12 @@ func test_manual_loss_fee_remains_visible_when_complaint_is_already_settled() ->
 ## Подтверждённое повреждение с нулевой санкцией не превращается в выдуманный штраф.
 func test_damaged_complaint_displays_zero_fine_and_hides_unreported_physical_truth() -> void:
 	var detail: UI_TerminalPackageDetailInfo = _open_details()
-	var parcel: Entity = PackageRegistrationService.find_live_package("receipt")
+	var parcel: Entity = PackageQueries.find_live_package("receipt")
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	state.damage = C_PackageState.Damage.DESTROYED
 	state.opening = C_PackageState.Opening.OPENED
 	_visit.package_damaged = true
-	assert_true(CustomerFlowService.create_complaint(_visit, 1, CustomerComplaint.Reason.DAMAGED, true))
+	assert_true(CustomerVisitLifecycle.create_complaint(_visit, 1, CustomerComplaint.Reason.DAMAGED, true))
 	CustomerOutcomeService.resolve_complaint(_visit, _wallet, 2)
 	_panel._refresh(true)
 	var description: String = (detail.get_node("%RichTextLabelDescription") as RichTextLabel).get_parsed_text()
@@ -215,7 +215,7 @@ func test_damaged_complaint_displays_zero_fine_and_hides_unreported_physical_tru
 func test_missing_catalog_metadata_keeps_known_complaint_visible() -> void:
 	var detail: UI_TerminalPackageDetailInfo = _open_details()
 	_ledger.records[0].definition = null
-	assert_true(CustomerFlowService.create_complaint(_visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true))
+	assert_true(CustomerVisitLifecycle.create_complaint(_visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true))
 	_panel._refresh(true)
 	var description: String = (detail.get_node("%RichTextLabelDescription") as RichTextLabel).get_parsed_text()
 	assert_true("Данные посылки недоступны" in description)

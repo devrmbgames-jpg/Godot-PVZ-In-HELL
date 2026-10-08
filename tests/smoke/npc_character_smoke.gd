@@ -12,7 +12,7 @@ const IMPULSE: Vector3 = Vector3(600, 0, 0)
 const MIN_IMPULSE_SPEED: float = 7.0
 
 var _world: World = null
-var _customer: E_Customer = null
+var _customer: E_NpcCharacter = null
 var _body: RigidBody3D = null
 
 
@@ -28,8 +28,8 @@ func _run() -> void:
 	_world.add_system(S_NpcIntent.new())
 	_obstacle(Vector3(0, -0.5, 0), Vector3(20, 1, 20))
 	var blocker: StaticBody3D = _obstacle(Vector3(1.3, 1, 0), Vector3(1, 2, 3))
-	var scene: PackedScene = load("res://content/entities/customers/customer.tscn") as PackedScene
-	_customer = scene.instantiate() as E_Customer
+	var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	_customer = scene.instantiate() as E_NpcCharacter
 	_body = _customer as Node as RigidBody3D
 	_world.add_entity(_customer)
 	# Окружение изолирует столкновения/импульс; маршруты проверяет отдельный smoke с настоящей картой.

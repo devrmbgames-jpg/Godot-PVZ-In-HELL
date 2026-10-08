@@ -23,35 +23,35 @@ func _run() -> void:
 	for frame: int in SUPPLY_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
 		await get_tree().physics_frame
-		if CustomerFlowService.parcel_for("base_supply:1:oil") != null:
+		if PackageQueries.find_live_package("base_supply:1:oil") != null:
 			break
 
-	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:oil")
+	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:oil")
 	assert(parcel != null)
 	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.START_SHIFT
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
 	assert(DayPhaseService.submit(request))
 
-	var npc: E_Customer = null
+	var npc: E_NpcCharacter = null
 	for frame: int in SUPPLY_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
 		await get_tree().physics_frame
-		npc = ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_Customer
+		npc = ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_NpcCharacter
 		if npc != null:
 			break
 
 	assert(npc != null)
-	var visit: CustomerVisit = CustomerFlowService.find_visit((npc.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit((npc.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	assert(CombatService.hit(actor, actor, npc, 200.0))
 	assert(npc.has_component(C_Death))
 	assert((npc.get_component(C_NpcRemains) as C_NpcRemains).released)
 	assert(not (npc as Node as Node3D).visible)
 	ECS.world.process(FRAME_DELTA, "GamePlay")
-	assert(CustomerFlowService.customer_for(visit.visit_id) == null)
+	assert(CustomerFlowQueries.customer_for(visit.visit_id) == null)
 	assert(visit.customer_dead and visit.defeated_by_player)
 
 	var meat: Array[Entity] = []

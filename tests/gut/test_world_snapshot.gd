@@ -79,7 +79,7 @@ func after_each() -> void:
 
 #region Quest variant persistence and exactly-once payment
 func _offered_quest() -> RefusalQuestRecord:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.EVENING
 	var wallet: C_Wallet = _session.get_component(C_Wallet) as C_Wallet
 	wallet.balance = 500
@@ -100,7 +100,7 @@ func _offered_quest() -> RefusalQuestRecord:
 	visit.customer_id = &"fixture/quest/recipient"
 	visit.package_id = package.package_id
 	visit.arrival_day = 2
-	visit.definition = load("res://content/definitions/gameplay/customers/def_customer_prototype.tres") as DEF_Customer
+	visit.definition = load("res://content/domains/customers/definitions/def_customer_prototype.tres") as DEF_Customer
 	(_session.get_component(C_CustomerFlow) as C_CustomerFlow).visits.append(visit)
 	return RefusalQuestService.offer(trader)
 
@@ -113,10 +113,10 @@ func test_quest_variant_slot_roundtrip_and_pending_outcome_do_not_double_pay() -
 	var quest_owner: S_RefusalQuest = S_RefusalQuest.new()
 	quest_owner.command_buffer_flush_mode = System.FlushMode.MANUAL
 	_world.add_system(quest_owner)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.day_index = 2
 	cycle.phase = C_DayCycle.Phase.MORNING
-	CustomerFlowService.find_visit(record.visit_id).actual = CustomerVisit.Actual.PLAYER_DENIED
+	CustomerFlowQueries.find_visit(record.visit_id).actual = CustomerVisit.Actual.PLAYER_DENIED
 	_world.process(0.0)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
@@ -170,7 +170,7 @@ func test_invalid_quest_snapshot_rejects_before_live_mutation() -> void:
 		var saved_fields: Dictionary = fields.duplicate(true)
 		fields.merge(corruption, true)
 		assert_false(WorldSnapshotService.restore(snapshot, _root))
-		assert_eq(DayPhaseService.current().phase, C_DayCycle.Phase.EVENING)
+		assert_eq(DayPhaseQueries.current().phase, C_DayCycle.Phase.EVENING)
 		assert_eq((_session.get_component(C_Wallet) as C_Wallet).balance, 500)
 		assert_eq(RefusalQuestService.find(record.quest_id), record)
 		assert_eq(_world.query.with_all([C_QuestBinding]).execute().size(), 1)
@@ -192,7 +192,7 @@ func test_restore_rebuilds_customer_planning_cache_without_serializing_it() -> v
 	assert_eq(flow.planning_phase, -1)
 	assert_eq(flow.arrival_cooldown_seconds, 0.0)
 
-	CustomerFlowFixture.advance(flow, DayPhaseService.current(), 0.0)
+	CustomerFlowFixture.advance(flow, DayPhaseQueries.current(), 0.0)
 	assert_eq(flow.planning_day, 2)
 	assert_eq(flow.planning_phase, int(C_DayCycle.Phase.MORNING))
 	var encoded: Dictionary = SaveDataCodec.component_data(flow)
@@ -212,7 +212,7 @@ func test_negative_wallet_and_owned_inventory_survive_snapshot_and_repeated_rest
 	wallet.balance = 0
 	assert_true(WorldSnapshotService.restore(AutosaveStore.read(SAVE_PATH), _root))
 	assert_eq(wallet.balance, -123)
-	assert_eq(DayPhaseService.current().day_index, 2)
+	assert_eq(DayPhaseQueries.current().day_index, 2)
 	assert_eq(InventoryService.items(_actor).size(), 1)
 
 	var restored: Entity = InventoryService.items(_actor)[0]
@@ -267,7 +267,7 @@ func test_invalid_snapshot_is_rejected_before_mutating_wallet_or_ownership() -> 
 	records.append(duplicate)
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(wallet.balance, 70)
-	assert_eq(DayPhaseService.current().day_index, 1)
+	assert_eq(DayPhaseQueries.current().day_index, 1)
 	assert_eq(InventoryService.owner_for(_item), _actor)
 	assert_eq(InventoryService.items(_actor).size(), 1)
 
@@ -280,7 +280,7 @@ func test_inventory_with_unknown_relationship_target_is_rejected_before_mutation
 			(record.links as Array)[0].target = "missing/owner"
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(InventoryService.owner_for(_item), _actor)
-	assert_eq(DayPhaseService.current().day_index, 1)
+	assert_eq(DayPhaseQueries.current().day_index, 1)
 
 
 ## Пропущенная сцена или авторский путь не допускают частичного восстановления.
@@ -291,7 +291,7 @@ func test_missing_scene_or_authored_id_is_rejected_before_mutation() -> void:
 		(records[0] as Dictionary).erase(field)
 		assert_false(WorldSnapshotService.restore(snapshot, _root))
 		assert_eq(InventoryService.owner_for(_item), _actor)
-		assert_eq(DayPhaseService.current().day_index, 1)
+		assert_eq(DayPhaseQueries.current().day_index, 1)
 
 
 ## Загрузка заменяет прежнего владельца без удаления предмета или сохранения блокировки передачи.
@@ -321,7 +321,7 @@ func test_null_package_definition_is_rejected_before_mutation() -> void:
 			if SaveDataCodec.component_script(String(component.type)) == C_Package:
 				(component.fields as Dictionary).definition = null
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
-	assert_eq(DayPhaseService.current().day_index, 1)
+	assert_eq(DayPhaseQueries.current().day_index, 1)
 	assert_eq(InventoryService.owner_for(_item), _actor)
 
 
@@ -419,7 +419,7 @@ func test_duplicate_owners_wrong_role_or_capacity_fail_before_any_mutation() -> 
 		if invalid == "paths":
 			(records[1] as Dictionary).authored_id = (records[0] as Dictionary).authored_id
 		assert_false(WorldSnapshotService.restore(snapshot, _root), invalid)
-		assert_eq(DayPhaseService.current().day_index, 1)
+		assert_eq(DayPhaseQueries.current().day_index, 1)
 		assert_eq(InventoryService.owner_for(_item), _actor)
 
 
@@ -464,7 +464,7 @@ func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -
 
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
-	assert_eq(DayPhaseService.current().day_index, 1)
+	assert_eq(DayPhaseQueries.current().day_index, 1)
 	## Для одного оставшегося предмета проверяем отказ связи с целью без роли физического слота.
 	var first: bool = true
 	for record: Dictionary in snapshot.entities:
@@ -475,7 +475,7 @@ func test_duplicate_slot_occupants_or_wrong_slot_entity_fail_before_mutation() -
 			else:
 				(record.links as Array).clear()
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
-	assert_eq(DayPhaseService.current().day_index, 1)
+	assert_eq(DayPhaseQueries.current().day_index, 1)
 
 
 ## Алиас авторского пути и выход за корень запрещены до изменения реестра или владения.
@@ -495,7 +495,7 @@ func test_authored_id_alias_or_outside_root_is_rejected_before_registry_changes(
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(_world.get_entity_by_id(id), _actor)
 	assert_null(_world.get_entity_by_id("alias_actor"))
-	assert_eq(DayPhaseService.current().day_index, 1)
+	assert_eq(DayPhaseQueries.current().day_index, 1)
 	var outside: Entity = Entity.new()
 	outside.name = "Outside"
 	add_child(outside)
@@ -526,7 +526,7 @@ func test_omitted_package_identity_is_rejected_before_instantiation_commit() -> 
 	var count: int = _world.entities.size()
 	assert_false(WorldSnapshotService.restore(snapshot, _root))
 	assert_eq(_world.entities.size(), count)
-	assert_eq(DayPhaseService.current().day_index, 1)
+	assert_eq(DayPhaseQueries.current().day_index, 1)
 	assert_eq(InventoryService.owner_for(_item), _actor)
 
 
@@ -622,7 +622,7 @@ func test_rejected_schema_slot_is_protected_from_later_night_and_other_slot_is_a
 	var state: C_Autosave = _session.get_component(C_Autosave) as C_Autosave
 	assert_false(NightSaveService.restore_startup(_root, state))
 	assert_eq(state.rejected_path, SAVE_PATH)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.NIGHT
 	_night_step(0.1)
 	assert_eq(state.last_error, ERR_UNAUTHORIZED)
@@ -651,7 +651,7 @@ func test_selected_snapshot_does_not_overwrite_rejected_automatic_slot() -> void
 	GameSessionService.restore_startup(_root, state)
 	assert_eq(state.last_saved_morning, 1)
 	assert_eq(state.rejected_path, SAVE_PATH)
-	DayPhaseService.current().phase = C_DayCycle.Phase.NIGHT
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.NIGHT
 	_night_step(0.1)
 	assert_eq(state.last_error, ERR_UNAUTHORIZED)
 	assert_eq(FileAccess.get_file_as_bytes(SAVE_PATH), retained)
@@ -680,7 +680,7 @@ func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -
 	assert_eq(_world.entities.size(), count_before)
 	assert_eq(receiving.pending[0], batch)
 	assert_eq(batch.package_scenes[0], "res://content/entities/packages/package.tscn")
-	assert_eq(DayPhaseService.current().day_index, 1)
+	assert_eq(DayPhaseQueries.current().day_index, 1)
 #endregion
 
 #region Raw package recipe reconstruction

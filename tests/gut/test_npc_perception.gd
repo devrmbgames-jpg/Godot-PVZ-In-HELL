@@ -20,6 +20,8 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	_world.add_observer(O_LightCircuitPresentation.new())
+	_world.add_observer(O_PlayerInteractionNoise.new())
 
 	var session_node: Node = Node.new()
 	session_node.set_script(load("res://addons/gecs/ecs/entity.gd"))
@@ -56,7 +58,7 @@ func after_each() -> void:
 
 func _actor(world_position: Vector3) -> E_DistrictNpc:
 	var body: RigidBody3D = RigidBody3D.new()
-	body.set_script(load("res://content/entities/npc/e_district_npc.gd"))
+	body.set_script(load("res://content/domains/npc/entities/e_district_npc.gd"))
 	var actor: E_DistrictNpc = body as Node as E_DistrictNpc
 	actor.component_resources = [C_Health.new(), C_NpcAwareness.new(), C_NpcDecision.new(), C_NpcIntent.new(), C_NpcCombat.new(), C_NpcIdentity.new()]
 	body.freeze = true

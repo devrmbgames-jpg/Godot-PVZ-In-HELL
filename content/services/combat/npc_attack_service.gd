@@ -1,5 +1,5 @@
 extends RefCounted
-## Explicit NPC attack selection/start/effect/finish/cancel operations; S_NpcCombat owns progression.
+## Selects, starts and commits NPC attack effects; S_NpcCombat owns progression and execution cleanup is explicit.
 class_name NpcAttackService
 
 const MELEE_HALF_ANGLE_DEGREES: float = 70.0
@@ -52,8 +52,9 @@ static func start(actor: Entity, kind: C_NpcCombat.Kind, index: int) -> bool:
 	var npc: E_NpcCharacter = actor as E_NpcCharacter
 	state.animation_driven = npc != null and npc.animation_player != null and state.attack.animation != &"" and npc.animation_player.has_animation(state.attack.animation)
 	if state.animation_driven:
+		_bind_animation_callbacks(npc, state)
 		npc.animation_player.play(state.attack.animation, E_NpcCharacter.ANIMATION_BLEND_SECONDS)
-	allow_movement(actor, false)
+	NpcAttackExecutionService.allow_movement(actor, false)
 	return true
 
 
@@ -112,12 +113,12 @@ static func commit_effect(actor: Entity) -> bool:
 
 	var target: Entity = CombatService.target_for(actor)
 	if not pair_available(actor, target):
-		cancel(actor)
+		NpcAttackExecutionService.cancel(actor)
 		return false
 
 	state.effect_committed = true
 	state.phase = C_NpcCombat.Phase.ACTIVE
-	var district: C_District = DistrictPopulationService.current()
+	var district: C_District = NpcPopulationQueries.current()
 	if district != null:
 		NpcPerceptionService.action_noise(actor, district.definition.strike_noise_radius)
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
@@ -132,24 +133,6 @@ static func commit_effect(actor: Entity) -> bool:
 	if not CombatGeometry.in_cone(actor, target, attack.maximum_range, MELEE_HALF_ANGLE_DEGREES):
 		return false
 	return CombatService.hit(actor, actor, target, attack.damage)
-
-
-## Завершает текущую атаку с авторским cooldown и возвращает движение.
-static func finish(actor: Entity) -> void:
-	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
-	if state == null or state.attack == null:
-		return
-
-	state.cooldown_remaining = maxf(state.cooldown_remaining, state.attack.cooldown_seconds)
-	_clear_execution(actor, state)
-
-
-## Отменяет исполнение и обнуляет cooldown без эффекта атаки.
-static func cancel(actor: Entity) -> void:
-	var state: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
-	if state != null:
-		_clear_execution(actor, state)
-		state.cooldown_remaining = 0.0
 
 
 #endregion
@@ -183,24 +166,37 @@ static func _valid_attack(attack: DEF_NpcAttack, kind: C_NpcCombat.Kind) -> bool
 	return kind != C_NpcCombat.Kind.RANGED or (is_finite(attack.projectile_speed) and attack.projectile_speed > 0.0 and is_finite(attack.projectile_lifetime) and attack.projectile_lifetime > 0.0)
 
 
-## Applies one explicit attack movement gate to an optional intent component.
-static func allow_movement(actor: Entity, allowed: bool) -> void:
-	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
-	if intent != null:
-		intent.speed_fraction = 1.0 if allowed else 0.0
+#endregion
+
+#region Native animation execution bindings
+static func _bind_animation_callbacks(npc: E_NpcCharacter, state: C_NpcCombat) -> void:
+	# Weak witnesses avoid retaining the actor or a Component/Callable reference cycle.
+	var actor_reference: WeakRef = weakref(npc)
+	var state_reference: WeakRef = weakref(state)
+	state.animation_hit_callback = _on_animation_hit.bind(actor_reference, state_reference, state.execution_generation)
+	state.animation_finish_callback = _on_animation_finish.bind(actor_reference, state_reference, state.execution_generation)
+	npc.attack_effect_requested.connect(state.animation_hit_callback)
+	npc.attack_finish_requested.connect(state.animation_finish_callback)
 
 
-static func _clear_execution(actor: Entity, state: C_NpcCombat) -> void:
-	var npc: E_NpcCharacter = actor as E_NpcCharacter
-	if state.animation_driven and npc != null and npc.animation_player != null and state.attack != null and npc.animation_player.current_animation == state.attack.animation:
-		npc.animation_player.stop()
-	state.execution_generation += 1
-	state.phase = C_NpcCombat.Phase.READY
-	state.variant = -1
-	state.attack = null
-	state.elapsed = 0.0
-	state.effect_committed = false
-	state.animation_driven = false
-	allow_movement(actor, true)
+static func _animation_actor(actor_reference: WeakRef, state_reference: WeakRef, generation: int) -> Entity:
+	var actor: Entity = actor_reference.get_ref() as Entity
+	var state: C_NpcCombat = state_reference.get_ref() as C_NpcCombat
+	if not EntityAvailability.contains(actor, ECS.world) or state == null:
+		return null
+	if actor.get_component(C_NpcCombat) != state or state.execution_generation != generation:
+		return null
+	return actor
 
+
+static func _on_animation_hit(actor_reference: WeakRef, state_reference: WeakRef, generation: int) -> void:
+	var actor: Entity = _animation_actor(actor_reference, state_reference, generation)
+	if actor != null:
+		commit_effect(actor)
+
+
+static func _on_animation_finish(actor_reference: WeakRef, state_reference: WeakRef, generation: int) -> void:
+	var actor: Entity = _animation_actor(actor_reference, state_reference, generation)
+	if actor != null:
+		NpcAttackExecutionService.finish(actor)
 #endregion

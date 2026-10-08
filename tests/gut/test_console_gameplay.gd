@@ -17,7 +17,7 @@ func before_each() -> void:
 	ECS.world = _world
 	_cycle = C_DayCycle.new()
 	var flow: C_CustomerFlow = C_CustomerFlow.new()
-	flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	flow.schedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
 	_session = Entity.new()
 	_session.component_resources = [_cycle, C_Commerce.new(), C_Wallet.new(), flow]
 	_world.add_entity(_session)
@@ -147,7 +147,7 @@ func test_live_visit_option_preserves_accounting_default_and_authored_introducti
 	_world.add_entity(parcel)
 	assert_true(_run("visit_create", ["pkg:console_live", "ordinary", "1"]).contains("OK visit_create"))
 
-	var visit: CustomerVisit = CustomerFlowService.find_visit(&"visit/console_live")
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(&"visit/console_live")
 	assert_false(visit.started)
 	assert_false(visit.finished)
 	assert_eq(visit.definition.introduction, DEF_Customer.Introduction.ANNOUNCE_ORDER)

@@ -20,7 +20,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var light_box: Entity = level.get_node("Entityes/Parcel_001_01") as Entity
 	var medium_box: Entity = level.get_node("Entityes/Parcel_001_02") as Entity
 	var heavy_box: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	var supply: DEF_Delivery = flow.schedule.supply
 	assert_eq(world.query.with_all([C_Package]).execute().size(), mini(supply.maximum_batch_packages, supply.packages.size()))
 	assert_true(world.get_node("Systems/Interaction/S_CartCargo") is S_CartCargo)

@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://content/entities/characters/physical_character.tscn" id="Foundation"]
-[ext_resource type="Script" path="res://content/entities/characters/e_npc_character.gd" id="Entity"]
+[ext_resource type="Script" path="res://content/domains/npc/entities/e_npc_character.gd" id="Entity"]
 [ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
 [ext_resource type="Script" path="res://content/definitions/interaction/def_trader_action.gd" id="Action"]
 [ext_resource type="PackedScene" path="res://content/ui/hunger_npc_visual.tscn" id="HungerPerception"]
@@ -13,14 +13,14 @@
 [ext_resource type="Script" path="res://content/components/gameplay/c_health.gd" id="Health"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_living.gd" id="Living"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_impact_receiver.gd" id="Impact"]
-[ext_resource type="Script" path="res://content/components/motion/c_npc_intent.gd" id="NpcIntent"]
+[ext_resource type="Script" path="res://content/domains/npc/components/c_npc_intent.gd" id="NpcIntent"]
 [ext_resource type="Script" path="res://content/components/gameplay/c_npc_combat.gd" id="NpcCombat"]
 [ext_resource type="Script" path="res://content/components/commerce/c_trader.gd" id="Trader"]
 [ext_resource type="Script" path="res://content/components/interaction/c_interactable.gd" id="Interactable"]
 [ext_resource type="Script" path="res://content/components/interaction/c_interaction_action_set.gd" id="Actions"]
 
-[ext_resource type="Script" path="res://content/components/gameplay/c_npc_remains.gd" id="Remains"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/def_npc_remains_default.tres" id="RemainsDefinition"]
+[ext_resource type="Script" path="res://content/domains/npc/components/c_npc_remains.gd" id="Remains"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_npc_remains_default.tres" id="RemainsDefinition"]
 
 [ext_resource type="PackedScene" path="res://content/ui/character_feedback.tscn" id="CharacterFeedback"]
 [ext_resource type="Resource" path="res://content/definitions/gameplay/commerce/def_trader_default.tres" id="Profile"]

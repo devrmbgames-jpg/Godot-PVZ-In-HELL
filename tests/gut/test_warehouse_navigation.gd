@@ -16,7 +16,7 @@ func before_each() -> void:
 	entities.name = "Entityes"
 	_level.add_child(entities)
 	var counter_body: StaticBody3D = StaticBody3D.new()
-	counter_body.set_script(load("res://content/entities/stations/e_delivery_counter.gd"))
+	counter_body.set_script(load("res://content/domains/customers/entities/e_delivery_counter.gd"))
 	_station = counter_body as Node as E_DeliveryCounter
 	_station.name = "DeliveryCounter"
 	entities.add_child(_station)

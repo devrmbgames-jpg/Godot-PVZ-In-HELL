@@ -152,9 +152,9 @@ func close_panel() -> void:
 
 #region Список посылок и сортировка
 func _refresh(force: bool = false) -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	_orders_button.disabled = CommerceService.current() == null or cycle == null or cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING]
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger == null:
 		_clear_package_rows()
 		_package_detail.clear_info()
@@ -162,7 +162,7 @@ func _refresh(force: bool = false) -> void:
 
 	var states: Dictionary[String, C_PackageState] = _live_states()
 	var visits: Dictionary[String, CustomerVisit] = _visits_by_package()
-	var deliveries: Dictionary[String, TerminalDeliveryInfo] = NpcDeliveryOfferService.published_by_package(ledger, states, visits)
+	var deliveries: Dictionary[String, TerminalDeliveryInfo] = HomeDeliveryQueries.published_by_package(ledger, states, visits)
 	var signature: String = _data_signature(ledger, states, visits, deliveries)
 	if not force and signature == _last_data_signature:
 		return
@@ -190,7 +190,7 @@ func _rebuild_package_rows(
 	if not selected_visible:
 		_selected_package_id = records[0].package_id if not records.is_empty() else ""
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var actions_enabled: bool = cycle != null and cycle.phase != C_DayCycle.Phase.NIGHT
 	for record: PackageRegistrationRecord in records:
 		var delivery: TerminalDeliveryInfo = deliveries.get(record.package_id) as TerminalDeliveryInfo
@@ -490,12 +490,12 @@ static func _help_entries() -> PackedStringArray:
 
 #region Снимок данных и видимость панелей
 func _live_states() -> Dictionary[String, C_PackageState]:
-	return PackageRegistrationService.live_states()
+	return PackageQueries.live_states()
 
 
 func _visits_by_package() -> Dictionary[String, CustomerVisit]:
 	var result: Dictionary[String, CustomerVisit] = {}
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow == null:
 		return result
 
@@ -512,7 +512,7 @@ func _data_signature(
 	deliveries: Dictionary[String, TerminalDeliveryInfo] = {},
 ) -> String:
 	var parts: PackedStringArray = ["debug:%s" % debug_package_status_enabled]
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	parts.append("phase:%d" % (cycle.phase if cycle != null else -1))
 	for record: PackageRegistrationRecord in ledger.records:
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
@@ -646,7 +646,7 @@ func _on_delivery_declined(job_id: StringName) -> void:
 func _respond_delivery(job_id: StringName, accept_delivery: bool) -> void:
 	if not visible:
 		return
-	var job: NpcHomeDelivery = NpcDeliveryOfferService.find(job_id)
+	var job: NpcHomeDelivery = HomeDeliveryQueries.find(job_id)
 	if job == null or not job.published:
 		return
 	_selected_package_id = job.package_id

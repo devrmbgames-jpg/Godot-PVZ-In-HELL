@@ -18,7 +18,7 @@ func _run() -> void:
 
 	var wallet: C_Wallet = WalletService.current()
 	assert(wallet != null)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var operation: MoneyOperation = MoneyOperation.new()
 	operation.operation_id = &"smoke/payment"
 	operation.amount = wallet.policy.delivery_payment

@@ -8,12 +8,12 @@ class_name DEF_DayPhaseAction
 
 ## Проверяет допустимость перехода из текущей фазы.
 func is_available(_actor: Entity, _source: Entity, _target: Entity) -> bool:
-	return DayPhaseService.permits(DayPhaseService.current(), transition)
+	return DayPhaseService.permits(DayPhaseQueries.current(), transition)
 
 
 ## Отправляет запрос с текущими днём и фазой для защиты от устаревшего действия.
 func execute(_actor: Entity, _source: Entity, _target: Entity) -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null:
 		return
 

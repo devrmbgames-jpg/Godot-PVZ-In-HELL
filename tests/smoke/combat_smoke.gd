@@ -32,7 +32,7 @@ func _physical_impacts() -> void:
 	world.add_system(S_Impact.new())
 	var characters: Array[Entity] = []
 	for index: int in 2:
-		var scene: PackedScene = load("res://content/entities/customers/customer.tscn" if index == 1 else "res://content/entities/characters/physical_character.tscn") as PackedScene
+		var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn" if index == 1 else "res://content/entities/characters/physical_character.tscn") as PackedScene
 		var target: Entity = scene.instantiate() as Entity
 		var body: RigidBody3D = target as Node as RigidBody3D
 		body.freeze = true
@@ -98,9 +98,9 @@ func _customer_combat() -> void:
 	await get_tree().physics_frame
 
 	# Historical escalation uses a dedicated visit, independent of district deliveries.
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = null
 	var visit: CustomerVisit = CustomerVisit.new()
 	visit.visit_id = &"smoke/combat"
@@ -108,10 +108,10 @@ func _customer_combat() -> void:
 	visit.started = true
 	visit.visit_count = 1
 	flow.visits = [visit]
-	var customer: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
+	var customer: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	(customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
 	var customer_body: RigidBody3D = customer as Node as RigidBody3D
-	customer_body.position = CustomerFlowService.counter().waiting_position()
+	customer_body.position = CustomerFlowQueries.counter().waiting_position()
 	_level.add_child(customer_body)
 	ECS.world.add_entity(customer, null, false)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent

@@ -255,11 +255,11 @@ func test_schedule_is_idempotent_has_six_daily_challenge_profiles_and_ten_day_la
 	ECS.world = _world
 
 	var flow: C_CustomerFlow = C_CustomerFlow.new()
-	flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	flow.schedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
 	CustomerFlowFixture.plan(flow, 1, 100)
 	CustomerFlowFixture.plan(flow, 1, 100)
 	assert_eq(flow.visits.size(), 8)
-	assert_eq(CustomerFlowService.remaining(flow, 1), 7)
+	assert_eq(CustomerFlowQueries.remaining(flow, 1), 7)
 	assert_eq(flow.visits[3].arrival_day, 11)
 	assert_eq(flow.visits[3].package_id, "base_supply:1:equipment")
 	for day: int in range(1, 11):
@@ -268,7 +268,7 @@ func test_schedule_is_idempotent_has_six_daily_challenge_profiles_and_ten_day_la
 			if visit.arrival_day <= day:
 				visit.finished = true
 	CustomerFlowFixture.plan(flow, 11, 100)
-	assert_eq(CustomerFlowService.remaining(flow, 11), 8)
+	assert_eq(CustomerFlowQueries.remaining(flow, 11), 8)
 
 	var gaze_visits: int = 0
 	var floor_visits: int = 0
@@ -330,14 +330,14 @@ func test_live_assignment_is_relationship_and_disappears_with_customer() -> void
 	var parcel: Entity = _live_parcel(visit)
 	var customer: Entity = Entity.new()
 	_world.add_entity(customer)
-	CustomerFlowService.bind_parcel(customer, visit)
-	CustomerFlowService.bind_parcel(customer, visit)
+	CustomerParcelAssignment.bind_parcel(customer, visit)
+	CustomerParcelAssignment.bind_parcel(customer, visit)
 	assert_eq(parcel.relationships.size(), 1)
-	assert_true(CustomerFlowService.assigned(parcel, customer, visit))
+	assert_true(CustomerFlowQueries.assigned(parcel, customer, visit))
 
 	var impostor: Entity = Entity.new()
 	_world.add_entity(impostor)
-	assert_false(CustomerFlowService.assigned(parcel, impostor, visit))
+	assert_false(CustomerFlowQueries.assigned(parcel, impostor, visit))
 	_world.remove_entity(customer)
 	assert_true(parcel.relationships.is_empty())
 	assert_eq(visit.package_id, "shipment1")
@@ -351,13 +351,13 @@ func test_customer_refusal_keeps_package_and_number_until_physical_departure() -
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = visit.package_id
 	record.number = 1
-	PackageRegistrationService.ledger().records.append(record)
+	PackageQueries.ledger().records.append(record)
 
 	assert_true(is_instance_valid(parcel))
 	assert_true(record.active)
 	assert_eq(visit.disposition, CustomerVisit.Disposition.WAREHOUSE)
 	assert_eq(WalletService.current().balance, 0)
-	assert_eq(PackageRegistrationService.smallest_free_number(PackageRegistrationService.ledger()), 2)
+	assert_eq(PackageRegistrationService.smallest_free_number(PackageQueries.ledger()), 2)
 
 
 ## Исчезновение тела завершает визит, сохраняя активную коробку и её номер.
@@ -367,12 +367,12 @@ func test_disappeared_customer_finishes_event_without_releasing_package_number()
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = visit.package_id
 	record.number = 1
-	PackageRegistrationService.ledger().records.append(record)
-	CustomerFlowFixture.advance(CustomerFlowService.current(), DayPhaseService.current(), 0.0)
+	PackageQueries.ledger().records.append(record)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), DayPhaseQueries.current(), 0.0)
 	assert_true(visit.finished)
-	assert_eq(DayPhaseService.current().remaining_customer_events, 0)
+	assert_eq(DayPhaseQueries.current().remaining_customer_events, 0)
 	assert_true(record.active)
-	assert_eq(PackageRegistrationService.smallest_free_number(PackageRegistrationService.ledger()), 2)
+	assert_eq(PackageRegistrationService.smallest_free_number(PackageQueries.ledger()), 2)
 
 
 ## Смерть завершает визит и берёт виновника из DamageRequest для последствий жалобы.
@@ -384,9 +384,9 @@ func test_player_caused_death_finishes_live_event_and_records_attribution() -> v
 	actor.component_resources = [C_PlayerInputController.new()]
 	_world.add_entity(actor)
 	var customer_body: RigidBody3D = RigidBody3D.new()
-	customer_body.set_script(load("res://content/entities/customers/e_customer.gd"))
+	customer_body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
 
-	var customer: E_Customer = customer_body as Node as E_Customer
+	var customer: E_NpcCharacter = customer_body as Node as E_NpcCharacter
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = visit.visit_id
 	customer.component_resources = [agent]
@@ -396,11 +396,11 @@ func test_player_caused_death_finishes_live_event_and_records_attribution() -> v
 	death.cause.request = DamageRequest.new()
 	death.cause.request.instigator = actor
 	customer.add_component(death)
-	CustomerFlowFixture.advance(CustomerFlowService.current(), DayPhaseService.current(), 0.0)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), DayPhaseQueries.current(), 0.0)
 	assert_true(visit.finished)
 	assert_true(visit.defeated_by_player)
 	assert_true(visit.customer_dead)
-	assert_eq(DayPhaseService.current().remaining_customer_events, 0)
+	assert_eq(DayPhaseQueries.current().remaining_customer_events, 0)
 	CustomerOutcomeService.resolve_complaint(visit, WalletService.current(), 2)
 	assert_eq(visit.complaint.outcome, CustomerComplaint.Outcome.WAIVED_PLAYER_DEFEAT)
 
@@ -413,20 +413,20 @@ func test_player_caused_death_finishes_live_event_and_records_attribution() -> v
 func test_package_pickup_arrival_waits_for_registration_unless_event_opts_out() -> void:
 	var visit: CustomerVisit = _live_fixture()
 	visit.started = false
-	assert_false(CustomerFlowService.arrival_allowed(visit))
-	assert_eq(CustomerFlowService.actionable_remaining(CustomerFlowService.current(), 1), 0)
+	assert_false(CustomerFlowQueries.arrival_allowed(visit))
+	assert_eq(CustomerFlowQueries.actionable_remaining(CustomerFlowQueries.current(), 1), 0)
 
 	visit.requires_registered_package = false
-	assert_true(CustomerFlowService.arrival_allowed(visit))
-	assert_eq(CustomerFlowService.actionable_remaining(CustomerFlowService.current(), 1), 1)
+	assert_true(CustomerFlowQueries.arrival_allowed(visit))
+	assert_eq(CustomerFlowQueries.actionable_remaining(CustomerFlowQueries.current(), 1), 1)
 
 	visit.requires_registered_package = true
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = visit.package_id
 	record.number = 1
-	PackageRegistrationService.ledger().records.append(record)
-	assert_true(CustomerFlowService.arrival_allowed(visit))
-	assert_eq(CustomerFlowService.actionable_remaining(CustomerFlowService.current(), 1), 1)
+	PackageQueries.ledger().records.append(record)
+	assert_true(CustomerFlowQueries.arrival_allowed(visit))
+	assert_eq(CustomerFlowQueries.actionable_remaining(CustomerFlowQueries.current(), 1), 1)
 
 
 ## Утро отдельно штрафует просрочку, сохраняя физическую коробку и право ручного заявления.
@@ -443,12 +443,12 @@ func test_next_morning_records_overdue_without_automatic_loss_or_removal_once() 
 	_world.add_entity(parcel)
 	assert_not_null(PackageHistoryService.record_arrival(parcel, 1))
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.day_index = 2
 	cycle.phase = C_DayCycle.Phase.MORNING
 	var wallet: C_Wallet = WalletService.current()
 
-	assert_eq(CustomerFlowFixture.morning(CustomerFlowService.current(), cycle, wallet), 1)
+	assert_eq(CustomerFlowFixture.morning(CustomerFlowQueries.current(), cycle, wallet), 1)
 	assert_false(visit.started)
 	assert_false(visit.finished)
 	assert_eq(visit.declaration, CustomerVisit.Declaration.NONE)
@@ -461,8 +461,8 @@ func test_next_morning_records_overdue_without_automatic_loss_or_removal_once() 
 	assert_true(visit.registration_penalty_committed)
 	assert_eq(wallet.balance, -300)
 	assert_eq(wallet.operations[0].reason, MoneyOperation.Reason.MISSED_REGISTRATION)
-	assert_eq(CustomerFlowService.parcel_for(visit.package_id), parcel)
-	assert_eq(CustomerFlowFixture.morning(CustomerFlowService.current(), cycle, wallet), 0)
+	assert_eq(PackageQueries.find_live_package(visit.package_id), parcel)
+	assert_eq(CustomerFlowFixture.morning(CustomerFlowQueries.current(), cycle, wallet), 0)
 	assert_eq(wallet.operations.size(), 1)
 
 
@@ -474,7 +474,7 @@ func test_next_morning_keeps_registered_or_other_purpose_visit() -> void:
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = registered.package_id
 	record.number = 1
-	PackageRegistrationService.ledger().records.append(record)
+	PackageQueries.ledger().records.append(record)
 
 	var other_purpose: CustomerVisit = CustomerVisit.new()
 	other_purpose.visit_id = &"visit/other-purpose"
@@ -482,14 +482,14 @@ func test_next_morning_keeps_registered_or_other_purpose_visit() -> void:
 	other_purpose.definition = DEF_Customer.new()
 	other_purpose.arrival_day = 1
 	other_purpose.requires_registered_package = false
-	CustomerFlowService.current().visits.append(other_purpose)
+	CustomerFlowQueries.current().visits.append(other_purpose)
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.day_index = 2
 	cycle.phase = C_DayCycle.Phase.MORNING
 	assert_eq(
 		CustomerFlowFixture.morning(
-			CustomerFlowService.current(),
+			CustomerFlowQueries.current(),
 			cycle,
 			WalletService.current(),
 		),
@@ -512,7 +512,7 @@ func test_explicit_come_back_tomorrow_skips_complaint_and_reactivates_exactly_ne
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = visit.package_id
 	record.number = 1
-	PackageRegistrationService.ledger().records.append(record)
+	PackageQueries.ledger().records.append(record)
 	visit.definition.complaint_probability = 1.0
 	visit.definition.unresolved_complaint_probability = 1.0
 	visit.definition.max_followup_visits = 2
@@ -521,14 +521,14 @@ func test_explicit_come_back_tomorrow_skips_complaint_and_reactivates_exactly_ne
 	visit.next_followup_day = 2
 	visit.followup_committed = true
 
-	CustomerFlowService.finish(visit, 1)
+	CustomerVisitLifecycle.finish(visit, 1)
 	assert_true(visit.finished)
 	assert_null(visit.complaint)
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(visit.next_followup_day, 2)
 	assert_true(visit.followup_committed)
 
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	assert_eq(CustomerFlowFixture.reactivate(flow, 1), 0)
 	assert_eq(CustomerFlowFixture.reactivate(flow, 2), 1)
 	assert_false(visit.finished)
@@ -552,18 +552,18 @@ func test_unresolved_case_can_schedule_and_reactivate_followup() -> void:
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = visit.package_id
 	record.number = 1
-	PackageRegistrationService.ledger().records.append(record)
+	PackageQueries.ledger().records.append(record)
 
 	assert_true(CustomerOutcomeService.commit_player_denial(visit))
-	CustomerFlowService.finish(visit, 1)
+	CustomerVisitLifecycle.finish(visit, 1)
 	assert_true(visit.finished)
 	assert_eq(visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
 	assert_eq(visit.next_followup_day, 2)
 	assert_eq(visit.followup_count, 1)
 	assert_true(is_instance_valid(parcel))
 
-	assert_eq(CustomerFlowFixture.reactivate(CustomerFlowService.current(), 1), 0)
-	assert_eq(CustomerFlowFixture.reactivate(CustomerFlowService.current(), 2), 1)
+	assert_eq(CustomerFlowFixture.reactivate(CustomerFlowQueries.current(), 1), 0)
+	assert_eq(CustomerFlowFixture.reactivate(CustomerFlowQueries.current(), 2), 1)
 	assert_false(visit.started)
 	assert_false(visit.finished)
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
@@ -581,14 +581,14 @@ func test_terminal_declaration_blocks_pending_followup_without_changing_actual()
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = visit.package_id
 	record.number = 1
-	PackageRegistrationService.ledger().records.append(record)
+	PackageQueries.ledger().records.append(record)
 
 	assert_true(CustomerOutcomeService.commit_player_denial(visit))
-	CustomerFlowService.finish(visit, 1)
+	CustomerVisitLifecycle.finish(visit, 1)
 	assert_eq(visit.next_followup_day, 2)
 	assert_true(CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.TAKEN))
 	assert_eq(visit.actual, CustomerVisit.Actual.PLAYER_DENIED)
-	assert_eq(CustomerFlowFixture.reactivate(CustomerFlowService.current(), 2), 0)
+	assert_eq(CustomerFlowFixture.reactivate(CustomerFlowQueries.current(), 2), 0)
 	assert_true(visit.finished)
 
 

@@ -45,7 +45,7 @@ static func debug_text_for(actor: Entity) -> String:
 		return ""
 
 	var lines: PackedStringArray = ["ЗАДАЧИ / УСЛОВИЯ (DEBUG)"]
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle != null:
 		lines.append("День %d • %s • клиентов: %d" % [cycle.day_index, String(C_DayCycle.Phase.keys()[cycle.phase]), cycle.remaining_customer_events])
 	var found: bool = false
@@ -75,7 +75,7 @@ static func debug_text_for(actor: Entity) -> String:
 			lines.append("Таймер %.1f / %.1f с" % [state.elapsed, state.definition.timeout_seconds])
 		var agent: C_CustomerAgent = subject.get_component(C_CustomerAgent) as C_CustomerAgent
 		if agent != null:
-			var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+			var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 			lines.append("Клиент %s • таймер %.1f с" % [String(C_CustomerAgent.Phase.keys()[agent.phase]), agent.elapsed])
 			if visit != null:
 				lines.append("Satisfaction Δ: %d" % visit.challenge_satisfaction_delta)

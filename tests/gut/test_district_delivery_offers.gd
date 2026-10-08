@@ -14,7 +14,7 @@ func _pause_offers() -> void:
 	_district.definition.personal_delivery_daily_minimum = 0
 
 func _next_day() -> void:
-	DayPhaseService.current().day_index += 1
+	DayPhaseQueries.current().day_index += 1
 	NpcDeliveryOfferService.refresh()
 
 func _job(visit: CustomerVisit) -> NpcHomeDelivery:
@@ -30,7 +30,7 @@ func test_daily_choice_has_one_personal_and_three_terminal_orders() -> void:
 	for index: int in [0, 3, 6, 1]:
 		_delivery_case(_district.people[index], "offer_%d" % index)
 	assert_eq(_district.home_deliveries.size(), 4)
-	assert_eq(NpcDeliveryOfferService.terminal_offers().size(), 3)
+	assert_eq(HomeDeliveryQueries.terminal_offers().size(), 3)
 	assert_eq(_district.delivery_considered.size(), 4)
 	var ids: PackedStringArray = []
 	for job: NpcHomeDelivery in _district.home_deliveries:
@@ -53,7 +53,7 @@ func test_candidate_shortage_preserves_private_personal_minimum() -> void:
 	_delivery_case(_district.people[0], "single")
 	assert_eq(_district.home_deliveries.size(), 1)
 	assert_eq(_district.home_deliveries[0].source, NpcHomeDelivery.Source.PERSONAL)
-	assert_eq(NpcDeliveryOfferService.terminal_offers().size(), 0)
+	assert_eq(HomeDeliveryQueries.terminal_offers().size(), 0)
 	assert_eq(_district.terminal_offer_target, 3)
 	assert_eq(NpcHomeDeliveryService.status_text(), "")
 
@@ -62,7 +62,7 @@ func test_ineligible_orders_are_excluded_from_next_morning_choice() -> void:
 	_pause_offers()
 	_delivery_case(_district.people[8], "visitor")
 	_delivery_case(_district.people[3], "dead")
-	DistrictPopulationService.mark_dead(_district.people[3], DistrictPopulationService.body_for(_district.people[3].npc_id), 1)
+	DistrictPopulationService.mark_dead(_district.people[3], NpcPopulationQueries.body_for(_district.people[3].npc_id), 1)
 	var lost: CustomerVisit = _delivery_case(_district.people[6], "lost")
 	lost.declaration = CustomerVisit.Declaration.LOST
 	var delivered: CustomerVisit = _delivery_case(_district.people[1], "delivered")
@@ -126,7 +126,7 @@ func test_accept_and_decline_are_idempotent_without_two_job_cap() -> void:
 		assert_true(NpcDeliveryOfferService.accept(candidate.job_id))
 		accepted += 1
 	assert_eq(accepted, 3)
-	assert_eq(NpcDeliveryOfferService.terminal_offers().size(), 0)
+	assert_eq(HomeDeliveryQueries.terminal_offers().size(), 0)
 	assert_eq(WalletService.current().balance, 0)
 
 ## Фиксированная цена терминала сохраняется при изменении базовой оплаты и настроек.
@@ -153,10 +153,10 @@ func test_successful_bargain_has_one_increment_and_one_bonus_operation() -> void
 	assert_eq(NpcDeliveryOfferService.negotiate(job.job_id), NpcHomeDelivery.Bargain.ACCEPTED)
 	assert_eq(job.bonus, 15)
 	assert_true(NpcDeliveryOfferService.accept(job.job_id))
-	var body: E_DistrictNpc = DistrictPopulationService.body_for(visit.customer_id)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(visit.customer_id)
 	assert_true(NpcHomeDeliveryService.knock(_player, _door(job.address_id)))
 	(body.get_component(C_CustomerAgent) as C_CustomerAgent).phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
+	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _player))
 	assert_eq(CustomerFlowService.confirm_direct_delivery(_player, body), PackageDeliveryCheck.Result.READY)
 	assert_true(NpcHomeDeliveryService.complete(job))
@@ -193,7 +193,7 @@ func test_scripted_personal_offer_has_stable_identity_and_scenario() -> void:
 func test_stale_offer_cannot_accept_missing_box() -> void:
 	var visit: CustomerVisit = _delivery_case(_district.people[0], "missing")
 	var job: NpcHomeDelivery = _job(visit)
-	var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
+	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	_world.remove_entity(parcel)
 	parcel.queue_free()
 	assert_false(NpcDeliveryOfferService.accept(job.job_id))
@@ -222,7 +222,7 @@ func test_offer_catalogue_round_trip_keeps_ids_decisions_and_selection() -> void
 	NpcDeliveryOfferService.negotiate(job.job_id)
 	var roll: float = job.bargain_roll
 	var job_id: StringName = job.job_id
-	_district.definition = load("res://content/definitions/gameplay/npc/def_district_default.tres") as DEF_District
+	_district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
 	var copy: C_District = C_District.new()
 	var fields: Dictionary = SaveDataCodec.component_data(_district).fields as Dictionary
 	assert_true(SaveDataCodec.apply_fields(copy, fields))
@@ -242,5 +242,5 @@ func test_offer_catalogue_round_trip_keeps_ids_decisions_and_selection() -> void
 	NpcDeliveryOfferService.refresh()
 	assert_eq(_district.home_deliveries.size(), 2)
 	assert_eq(NpcDeliveryOfferService.negotiate(job_id), NpcHomeDelivery.Bargain.ACCEPTED)
-	assert_eq(NpcDeliveryOfferService.find(job_id).bonus, 15)
+	assert_eq(HomeDeliveryQueries.find(job_id).bonus, 15)
 #endregion

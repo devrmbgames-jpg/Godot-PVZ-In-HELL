@@ -48,7 +48,7 @@ func _write_night(level: Node3D, actor: Entity) -> void:
 	var stored: Relationship = Relationship.new(R_StoredIn.new(), slot)
 	box.add_relationship(stored)
 	_check(PhysicalSlotService.attach(box, stored), "real physical slot attached")
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.NIGHT
 	cycle.night_ready = false
 	for _frame: int in MAX_FRAMES:
@@ -63,7 +63,7 @@ func _write_night(level: Node3D, actor: Entity) -> void:
 
 
 func _verify_restored(level: Node3D, actor: Entity) -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	_check(cycle.day_index == 2 and cycle.phase == C_DayCycle.Phase.MORNING, "new process restored Morning 2")
 	_check(WalletService.current().balance == EXPECTED_BALANCE, "saved debt was not reset by startup")
 	_check(is_equal_approx((actor.get_component(C_Hunger) as C_Hunger).value, EXPECTED_HUNGER), "saved hunger overlay applied")
@@ -72,7 +72,7 @@ func _verify_restored(level: Node3D, actor: Entity) -> void:
 	var slot: Entity = level.get_node("Entityes/Player/BeltSlotLeft") as Entity
 	var links: Array[Relationship] = box.get_relationships(Relationship.new(R_StoredIn.new()))
 	_check(links.size() == 1 and links[0].target == slot, "renamed authored body retains physical link by explicit ID")
-	_check(DistrictPopulationService.current().prepared_morning == 2, "prepared district restored without preparing another Morning")
+	_check(NpcPopulationQueries.current().prepared_morning == 2, "prepared district restored without preparing another Morning")
 	_check(MetaPresentation.debug_text().contains("Восстановлено утро 2"), "startup published restored readiness")
 #endregion
 

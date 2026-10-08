@@ -1,5 +1,5 @@
 {
-  "schema": 4,
+  "schema": 5,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -32,7 +32,7 @@
     },
     {
       "symbol": "C_CustomerFlow",
-      "path": "res://content/components/gameplay/c_customer_flow.gd",
+      "path": "res://content/domains/customers/components/c_customer_flow.gd",
       "fields": [
         "planned_through_day",
         "visits"
@@ -40,7 +40,7 @@
     },
     {
       "symbol": "C_District",
-      "path": "res://content/components/npc/c_district.gd",
+      "path": "res://content/domains/npc/components/c_district.gd",
       "fields": [
         "definition",
         "people",
@@ -59,7 +59,7 @@
     },
     {
       "symbol": "C_NpcIdentity",
-      "path": "res://content/components/npc/c_npc_identity.gd",
+      "path": "res://content/domains/npc/components/c_npc_identity.gd",
       "fields": [
         "npc_id"
       ]
@@ -135,7 +135,7 @@
     },
     {
       "symbol": "C_NpcRemains",
-      "path": "res://content/components/gameplay/c_npc_remains.gd",
+      "path": "res://content/domains/npc/components/c_npc_remains.gd",
       "fields": [
         "released"
       ]
@@ -273,23 +273,23 @@
   "records": [
     {
       "symbol": "NpcRecord",
-      "path": "res://content/contracts/npc/npc_record.gd"
+      "path": "res://content/domains/npc/contracts/npc_record.gd"
     },
     {
       "symbol": "NpcMemory",
-      "path": "res://content/contracts/npc/npc_memory.gd"
+      "path": "res://content/domains/npc/contracts/npc_memory.gd"
     },
     {
       "symbol": "NpcHomeDelivery",
-      "path": "res://content/contracts/npc/npc_home_delivery.gd"
+      "path": "res://content/domains/customers/contracts/npc_home_delivery.gd"
     },
     {
       "symbol": "CustomerVisit",
-      "path": "res://content/contracts/customers/customer_visit.gd"
+      "path": "res://content/domains/customers/contracts/customer_visit.gd"
     },
     {
       "symbol": "CustomerComplaint",
-      "path": "res://content/contracts/customers/customer_complaint.gd"
+      "path": "res://content/domains/customers/contracts/customer_complaint.gd"
     },
     {
       "symbol": "CombatContext",
@@ -334,7 +334,6 @@
     "res://content/components/gameplay/c_health.gd",
     "res://content/components/gameplay/c_hunger.gd",
     "res://content/components/gameplay/c_impact_protection.gd",
-    "res://content/components/gameplay/c_npc_remains.gd",
     "res://content/components/gameplay/c_package.gd",
     "res://content/components/gameplay/c_package_contents.gd",
     "res://content/components/gameplay/c_package_ledger.gd",
@@ -344,34 +343,35 @@
     "res://content/components/inventory/c_inventory.gd",
     "res://content/components/inventory/c_inventory_item.gd",
     "res://content/components/npc/c_damage_resistance.gd",
-    "res://content/components/npc/c_district.gd",
-    "res://content/components/npc/c_npc_identity.gd",
     "res://content/components/persistence/c_persistent_identity.gd",
     "res://content/contracts/commerce/pending_delivery.gd",
     "res://content/contracts/commerce/purchase_receipt.gd",
     "res://content/contracts/economy/daily_money_result.gd",
     "res://content/contracts/economy/money_operation.gd",
-    "res://content/contracts/npc/npc_memory.gd",
-    "res://content/contracts/npc/npc_record.gd",
     "res://content/contracts/packages/package_registration_record.gd",
     "res://content/contracts/receiving/receiving_batch.gd",
     "res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres::Books",
     "res://content/definitions/gameplay/inventory/def_item_npc_meat.tres",
-    "res://content/definitions/gameplay/npc/def_district_default.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_1.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_10.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_11.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_12.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_2.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_3.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_4.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_5.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_6.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_7.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_8.tres",
-    "res://content/definitions/gameplay/npc/def_npc_profile_9.tres",
-    "res://content/entities/npc/district_npc.tscn",
-    "res://content/entities/npc/npc_address.tscn",
+    "res://content/domains/npc/components/c_district.gd",
+    "res://content/domains/npc/components/c_npc_identity.gd",
+    "res://content/domains/npc/components/c_npc_remains.gd",
+    "res://content/domains/npc/contracts/npc_memory.gd",
+    "res://content/domains/npc/contracts/npc_record.gd",
+    "res://content/domains/npc/definitions/def_district_default.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_1.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_10.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_11.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_12.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_2.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_3.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_4.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_5.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_6.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_7.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_8.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_9.tres",
+    "res://content/domains/npc/entities/district_npc.tscn",
+    "res://content/domains/npc/entities/npc_address.tscn",
     "res://content/entities/packages/package_b.tscn",
     "res://content/entities/props/anchorable_test_box.tscn",
     "res://content/entities/props/physical_slot.tscn",

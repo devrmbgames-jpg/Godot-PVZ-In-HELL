@@ -19,7 +19,7 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.EVENING
 	var wallet: C_Wallet = WalletService.current()
 	wallet.balance = 1000

@@ -56,7 +56,7 @@ func _run() -> void:
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	assert(state.registration_number == 1, "Scan before drawing must register the package")
 	(scanner.get_node("Feedback/Beep") as AudioStreamPlayer3D).stop()
-	var registry: C_PackageLedger = PackageRegistrationService.ledger()
+	var registry: C_PackageLedger = PackageQueries.ledger()
 	assert(registry != null and registry.records.size() == 1)
 	var registered_package_id: String = registry.records[0].package_id
 	var registered_number: int = registry.records[0].number

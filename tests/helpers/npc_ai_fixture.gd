@@ -32,7 +32,7 @@ static func footsteps(body: Entity, delta: float) -> void:
 	_clear_due()
 	if body.has_component(C_NpcIdentity) and not body.has_component(C_PlayerInputController):
 		var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
-		_select_only(body as E_DistrictNpc, DistrictPopulationService.person_for(identity.npc_id), delta)
+		_select_only(body as E_DistrictNpc, NpcPopulationQueries.person_for(identity.npc_id), delta)
 	_run([S_NpcFootsteps], delta)
 ## Runs route progress without consuming the fair queue, matching isolated regression phases.
 static func route(body: E_DistrictNpc, person: NpcRecord, delta: float) -> void:
@@ -59,9 +59,9 @@ static func _select_only(body: E_DistrictNpc, person: NpcRecord, delta: float) -
 		person.npc_id = StringName("fixture/npc/%d" % body.get_instance_id())
 		identity.npc_id = person.npc_id
 		person.placement = NpcRecord.Placement.STREET
-		DistrictPopulationService.current().people.append(person)
+		NpcPopulationQueries.current().people.append(person)
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	decision.scheduled_delta = delta
 	decision.scheduled_day = cycle.day_index
 	decision.scheduled_phase = int(cycle.phase)

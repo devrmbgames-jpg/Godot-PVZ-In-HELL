@@ -61,9 +61,9 @@ func _deliver() -> void:
 	assert_true(CustomerOutcomeService.receive(_visit, receipt))
 
 
-func _challenged_customer() -> E_Customer:
-	var scene: PackedScene = load("res://content/entities/customers/customer.tscn") as PackedScene
-	var customer: E_Customer = scene.instantiate() as E_Customer
+func _challenged_customer() -> E_NpcCharacter:
+	var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	var customer: E_NpcCharacter = scene.instantiate() as E_NpcCharacter
 	(customer as Node as RigidBody3D).freeze = true
 	_world.add_entity(customer)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -141,7 +141,7 @@ func test_challenge_result_releases_correct_payment_only_after_bridge_flush() ->
 	var bridge: O_CustomerChallengeOutcome = O_CustomerChallengeOutcome.new()
 	bridge.command_buffer_flush_mode = Observer.FlushMode.MANUAL
 	_world.add_observer(bridge)
-	var customer: E_Customer = _challenged_customer()
+	var customer: E_NpcCharacter = _challenged_customer()
 	var state: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 	_deliver()
 	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.TAKEN))
@@ -165,7 +165,7 @@ func test_challenge_result_releases_correct_payment_only_after_bridge_flush() ->
 
 ## Cancellation releases the active gate through a separate committed cleanup fact.
 func test_cancelled_challenge_releases_pending_receipt_without_a_polling_frame() -> void:
-	var customer: E_Customer = _challenged_customer()
+	var customer: E_NpcCharacter = _challenged_customer()
 	_deliver()
 	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.TAKEN))
 	assert_eq(_wallet.balance, 0)
@@ -179,10 +179,10 @@ func test_cancelled_challenge_releases_pending_receipt_without_a_polling_frame()
 
 ## Final physical removal releases a finished receipt even if its challenge stayed active.
 func test_removing_finished_appearance_reconciles_after_the_live_gate_is_gone() -> void:
-	var customer: E_Customer = _challenged_customer()
+	var customer: E_NpcCharacter = _challenged_customer()
 	_deliver()
 	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.TAKEN))
-	CustomerFlowService.finish(_visit, _cycle.day_index)
+	CustomerVisitLifecycle.finish(_visit, _cycle.day_index)
 	assert_true(_visit.finished)
 	assert_eq(_wallet.balance, 0)
 	CustomerFlowService.remove_appearance(customer, _visit)
@@ -197,7 +197,7 @@ func test_stale_challenge_result_is_discarded_after_cleanup() -> void:
 	var bridge: O_CustomerChallengeOutcome = O_CustomerChallengeOutcome.new()
 	bridge.command_buffer_flush_mode = Observer.FlushMode.MANUAL
 	_world.add_observer(bridge)
-	var customer: E_Customer = _challenged_customer()
+	var customer: E_NpcCharacter = _challenged_customer()
 	var state: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 	_deliver()
 	assert_true(CustomerFlowService.declare(_visit.visit_id, CustomerVisit.Declaration.TAKEN))

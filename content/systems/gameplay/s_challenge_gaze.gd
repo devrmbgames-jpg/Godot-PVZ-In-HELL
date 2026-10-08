@@ -35,6 +35,6 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 		)
 		if warning != observation.warning_active:
 			observation.warning_active = warning
-			var customer: E_Customer = entities[index] as E_Customer
+			var customer: E_NpcCharacter = entities[index] as E_NpcCharacter
 			if customer != null:
 				customer.show_message(rule.warning_text if warning else state.definition.rule_text)

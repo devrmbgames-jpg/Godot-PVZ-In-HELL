@@ -17,12 +17,12 @@ static func describe(request: DamageRequest) -> CombatContext:
 
 	request.instigator = actor
 	var context: CombatContext = CombatContext.new()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	context.day = cycle.day_index if cycle != null else 0
 	context.actor_is_player = actor.has_component(C_PlayerInputController)
 	var customer: Entity = request.target if context.actor_is_player else actor
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id) if agent != null else null
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id) if agent != null else null
 	if visit != null:
 		context.customer_id = visit.customer_id
 		context.visit_id = visit.visit_id
@@ -44,7 +44,7 @@ static func describe(request: DamageRequest) -> CombatContext:
 
 ## Проверяет сохранённые визиты личности, включая отсутствующего сейчас участника.
 static func retaliation_allowed(customer_id: StringName, day: int) -> bool:
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow == null or customer_id == &"":
 		return false
 

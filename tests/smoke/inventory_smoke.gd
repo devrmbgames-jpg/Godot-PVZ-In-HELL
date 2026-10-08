@@ -54,7 +54,7 @@ func _run() -> void:
 	request.amount = 50.0
 	assert(DamageRequestService.submit(request))
 	assert((_actor.get_component(C_Health) as C_Health).current == 50.0)
-	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:books")
+	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:books")
 	await _aim(parcel, Vector3.UP * 0.15)
 
 	var quantity_before: int = InventoryService.items(_actor).size()

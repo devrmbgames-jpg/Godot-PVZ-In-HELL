@@ -3,7 +3,7 @@ extends GutTest
 
 var _world: World = null
 var _actor: Entity = null
-var _customer: E_Customer = null
+var _customer: E_NpcCharacter = null
 var _hud: CanvasLayer = null
 var _commands: DeveloperConsoleCommands = null
 var _visit: CustomerVisit = null
@@ -19,11 +19,11 @@ func before_each() -> void:
 	var session: Entity = Entity.new()
 	session.component_resources = [C_CustomerFlow.new(), C_DayCycle.new(), C_PackageLedger.new(), C_Wallet.new()]
 	_world.add_entity(session)
-	DayPhaseService.current().phase = C_DayCycle.Phase.DAY
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.DAY
 	_actor = Entity.new()
 	_actor.component_resources = [C_PlayerInputController.new(), C_Health.new()]
 	_world.add_entity(_actor)
-	_customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
+	_customer = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	(_customer as Node as RigidBody3D).freeze = true
 	_world.add_entity(_customer)
 
@@ -37,12 +37,12 @@ func before_each() -> void:
 	_visit.definition = DEF_Customer.new()
 	_visit.definition.patience_seconds = 47.0
 	_visit.satisfaction = 74
-	CustomerFlowService.current().visits.append(_visit)
+	CustomerFlowQueries.current().visits.append(_visit)
 
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = _visit.package_id
 	record.number = 19
-	PackageRegistrationService.ledger().records.append(record)
+	PackageQueries.ledger().records.append(record)
 	_hud = (load("res://content/ui/interaction_hud.tscn") as PackedScene).instantiate() as CanvasLayer
 	_hud.set("player", _actor)
 	_world.add_child(_hud)
@@ -97,7 +97,7 @@ func test_customer_label_reads_registration_health_state_and_real_authored_timer
 	assert_string_contains(text, "довольство 74")
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_DARKNESS
-	_visit.definition = load("res://content/definitions/gameplay/customers/def_customer_light_sensitive.tres") as DEF_Customer
+	_visit.definition = load("res://content/domains/customers/definitions/def_customer_light_sensitive.tres") as DEF_Customer
 	text = CustomerDebugPresentation.text_for(_customer)
 	assert_string_contains(text, "Ждёт темноты")
 	assert_string_contains(text, "7.0 / 80.0 с")

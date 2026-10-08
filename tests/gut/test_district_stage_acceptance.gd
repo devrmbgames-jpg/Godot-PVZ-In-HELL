@@ -42,17 +42,17 @@ func _remember_flicker(event: LightFlickerRequest) -> void:
 	_flicker_events.append(event)
 
 func _light_averse_recipient(suffix: String) -> E_DistrictNpc:
-	DayPhaseService.current().phase = C_DayCycle.Phase.DAY
-	var body: E_DistrictNpc = _stage(6, CustomerFlowService.counter().entry_position())
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.DAY
+	var body: E_DistrictNpc = _stage(6, CustomerFlowQueries.counter().entry_position())
 	var rule: DEF_NpcTrait = DEF_NpcTrait.new()
 	rule.kind = DEF_NpcTrait.Kind.LIGHT_AVERSION
 	_district.people[6].profile.rules = [rule]
 	_install_service_light()
 	_case(_district.people[6], suffix)
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
 	flow.schedule.arrival_interval_seconds = 0.0
-	assert_true(NpcServiceRole.enqueue_next(flow, DayPhaseService.current()))
+	assert_true(NpcServiceRole.enqueue_next(flow, DayPhaseQueries.current()))
 	assert_true(_run_branch(body, C_NpcDecision.Owner.SERVICE, 0.2))
 	assert_true(_run_branch(body, C_NpcDecision.Owner.SERVICE, 0.2))
 	return body
@@ -80,11 +80,11 @@ func test_light_warning_flickers_once_and_expires_without_allowing_entry() -> vo
 	assert_true(LightCircuitService.is_enabled(&"warehouse"))
 	assert_eq(_flicker_events.size(), 1)
 	assert_eq(service.phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
-	assert_false(NpcServiceRole.visit_for(body).settlement_committed)
+	assert_false(CustomerFlowQueries.visit_for(body).settlement_committed)
 
 ## Переключатель через настоящие сенсоры и корневой BT вызывает укрытие, без ручного флага тревоги.
 func test_switch_and_sensors_drive_retreat_from_lit_counter() -> void:
-	DayPhaseService.current().phase = C_DayCycle.Phase.DAY
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.DAY
 	var body: E_DistrictNpc = _stage(0)
 	_player()
 	var rule: DEF_NpcTrait = DEF_NpcTrait.new()
@@ -104,7 +104,7 @@ func test_switch_and_sensors_drive_retreat_from_lit_counter() -> void:
 	assert_eq((body.get_component(C_NpcDecision) as C_NpcDecision).intent_owner, C_NpcDecision.Owner.EMERGENCY)
 	assert_eq((body.get_component(C_NpcIntent) as C_NpcIntent).move_position, NpcTraitService.dark_refuge(body, _district.people[0]))
 	assert_false(body.has_component(C_CustomerAgent))
-	assert_eq(body.get_relationships(Relationship.new(R_NpcServiceAt.new(), CustomerFlowService.counter())).size(), 0)
+	assert_eq(body.get_relationships(Relationship.new(R_NpcServiceAt.new(), CustomerFlowQueries.counter())).size(), 0)
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(visit.declaration, CustomerVisit.Declaration.NONE)
 	assert_false(visit.settlement_committed)
@@ -126,10 +126,10 @@ func test_departure_cancels_the_service_flicker() -> void:
 ## Смерть ожидающего NPC прекращает мерцание и не подменяет смерть выдачей.
 func test_death_cancels_the_service_flicker_without_payment() -> void:
 	var body: E_DistrictNpc = _light_averse_recipient("dead_light")
-	var visit: CustomerVisit = NpcServiceRole.visit_for(body)
+	var visit: CustomerVisit = CustomerFlowQueries.visit_for(body)
 	_light_view._process(LightFlickerRequest.DEFAULT_INTERVAL_SECONDS * 1.1)
 	body.add_component(C_Death.new())
-	DistrictPopulationService.mark_dead(_district.people[6], body, DayPhaseService.current().day_index)
+	DistrictPopulationService.mark_dead(_district.people[6], body, DayPhaseQueries.current().day_index)
 	var cancellation: LightFlickerRequest = _flicker_events.back()
 	assert_eq(cancellation.kind, LightFlickerRequest.Kind.STOP)
 	assert_true(_service_zone.is_lit())
@@ -216,7 +216,7 @@ func test_repeated_incident_keeps_reaction_without_restarting_combat() -> void:
 ## Продолжение той же фазы не создаёт новый визит и не повторяет оплату выданного заказа.
 func test_long_phase_keeps_one_visit_and_one_payment() -> void:
 	var body: E_DistrictNpc = _stage(0)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
 	var visit: CustomerVisit = _service(body, "long_phase")
 	visit.payment = 100
@@ -227,10 +227,10 @@ func test_long_phase_keeps_one_visit_and_one_payment() -> void:
 	var wallet: C_Wallet = C_Wallet.new()
 	CustomerOutcomeService.settle(visit, wallet, cycle.day_index)
 	NpcServiceRole.finish_appearance(body, visit)
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	for repeat_index: int in 3:
 		assert_false(NpcServiceRole.enqueue_next(flow, cycle))
-		_run_tree(body, NpcBrainService.TREE_PATH, _district.definition.service_wait_timeout + 1.0)
+		_run_tree(body, CustomerNpcLifecycleBinding.TREE_PATH, _district.definition.service_wait_timeout + 1.0)
 		CustomerOutcomeService.settle(visit, wallet, cycle.day_index)
 		assert_false(CustomerOutcomeService.receive(visit, ready))
 	assert_eq(flow.visits.size(), 1)

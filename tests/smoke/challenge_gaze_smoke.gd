@@ -7,7 +7,7 @@ const UI_WAIT_FRAMES: int = 32
 
 var _level: Node = null
 var _actor: Entity = null
-var _customer: E_Customer = null
+var _customer: E_NpcCharacter = null
 var _camera: Camera3D = null
 
 
@@ -32,9 +32,9 @@ func _run() -> void:
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
 
-	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:bottles")
+	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:bottles")
 	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.START_SHIFT
 	request.expected_day = cycle.day_index
@@ -43,14 +43,14 @@ func _run() -> void:
 	for frame: int in WAIT_FRAMES:
 		ECS.world.process(FRAME_DELTA, "GamePlay")
 		await get_tree().physics_frame
-		_customer = CustomerFlowService.waiting_customer()
+		_customer = CustomerFlowQueries.waiting_customer()
 		if _customer != null:
 			break
 
 	assert(_customer != null)
 	(_customer as Node as RigidBody3D).freeze = true
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	var identity: StringName = visit.customer_id
 	assert(visit.definition.key == &"gaze_customer")
 	var state: C_Challenge = _customer.get_component(C_Challenge) as C_Challenge
@@ -99,7 +99,7 @@ func _run() -> void:
 	assert(state.violation_elapsed == 0.0)
 	assert(not (hud.get_node("GazeDistortion") as ColorRect).visible)
 	# Авторское правило действует и при входе реальной коробки в физическую зону стойки.
-	var counter: E_DeliveryCounter = CustomerFlowService.counter()
+	var counter: E_DeliveryCounter = CustomerFlowQueries.counter()
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	body.freeze = true
 	body.global_position = (counter as Node as Node3D).global_position + Vector3.UP * 1.3

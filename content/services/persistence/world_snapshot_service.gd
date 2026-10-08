@@ -2,6 +2,12 @@ extends RefCounted
 ## Снимок постоянного мира; restore — явная однократная граница синхронизации тел и связей.
 class_name WorldSnapshotService
 
+const _ENTITY_SCENE_ROOTS: Array[String] = [
+	"res://content/entities/",
+	"res://content/domains/npc/entities/",
+	"res://content/domains/customers/entities/",
+]
+
 
 
 #region Ключи и снимок
@@ -103,7 +109,7 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				return false
 
 			authored_entities.append(target)
-		if authored.is_empty() and not scene.is_empty() and (not scene.begins_with("res://content/entities/") or not ResourceLoader.exists(scene, "PackedScene")):
+		if authored.is_empty() and not scene.is_empty() and (not _entity_scene_path_allowed(scene) or not ResourceLoader.exists(scene, "PackedScene")):
 			return false
 		if record.has("pose") and (not record.pose is Transform3D or not (record.pose as Transform3D).is_finite()):
 			return false
@@ -470,4 +476,13 @@ static func _persistent(entity: Entity) -> bool:
 		return lifetime.persistent and not lifetime.owner_loss_pending
 	return (entity as Node) is PhysicsBody3D or entity is E_PhysicalSlot or not PersistentInteractionState.completed(entity).is_empty() or entity.components.values().any(func(value: Variant) -> bool: return value is Component and not SaveDataCodec.component_data(value as Component).is_empty())
 
+#endregion
+
+
+#region Разрешённые пути сцен сущностей
+static func _entity_scene_path_allowed(scene: String) -> bool:
+	for directory: String in _ENTITY_SCENE_ROOTS:
+		if scene.begins_with(directory):
+			return true
+	return false
 #endregion

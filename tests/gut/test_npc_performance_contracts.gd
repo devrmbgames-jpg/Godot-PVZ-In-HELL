@@ -5,6 +5,12 @@ var _native_map: RID = RID()
 var _native_region: RID = RID()
 
 #region Тестовое окружение
+## Устанавливает реального потребителя committed switch facts в минимальном World.
+func before_each() -> void:
+	super.before_each()
+	_world.add_observer(O_LightCircuitPresentation.new())
+
+
 ## Освобождает RID тестовой карты/региона перед очисткой унаследованной World-fixture.
 func after_each() -> void:
 	if _native_region.is_valid():
@@ -33,7 +39,7 @@ func _flat_map() -> void:
 
 func _travel(index: int) -> E_DistrictNpc:
 	var person: NpcRecord = _district.people[index]
-	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
 	body.freeze = true
 	body.place_at(Vector3(-8, 0, index * 3))
@@ -74,15 +80,15 @@ func _circuit() -> Entity:
 #region Жизненный цикл lookup
 ## Замена районного компонента и удаление тела обновляют lookup без старых результатов кеша.
 func test_replaced_session_and_removed_body_refresh_lookups() -> void:
-	assert_same(DistrictPopulationService.current(), _district)
-	var old_body: E_DistrictNpc = DistrictPopulationService.body_for(_district.people[0].npc_id)
+	assert_same(NpcPopulationQueries.current(), _district)
+	var old_body: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[0].npc_id)
 	_world.remove_entity(old_body)
-	assert_null(DistrictPopulationService.body_for(_district.people[0].npc_id))
+	assert_null(NpcPopulationQueries.body_for(_district.people[0].npc_id))
 	var session: Entity = _world.query.with_all([C_District]).execute_one()
 	session.remove_component(C_District)
 	var replacement: C_District = C_District.new()
 	session.add_component(replacement)
-	assert_same(DistrictPopulationService.current(), replacement)
+	assert_same(NpcPopulationQueries.current(), replacement)
 
 ## При одновременном существовании двух World кеши возвращают только данные активного уровня.
 func test_world_switch_never_reuses_previous_session_or_circuit() -> void:
@@ -94,12 +100,12 @@ func test_world_switch_never_reuses_previous_session_or_circuit() -> void:
 	var session: Entity = Entity.new()
 	session.component_resources = [C_District.new()]
 	replacement_world.add_entity(session)
-	assert_same(DistrictPopulationService.current(), session.get_component(C_District))
+	assert_same(NpcPopulationQueries.current(), session.get_component(C_District))
 	assert_null(LightCircuitService.entity_for(&"performance_test"))
 	replacement_world.purge(false)
 	replacement_world.free()
 	ECS.world = _world
-	assert_same(DistrictPopulationService.current(), _district)
+	assert_same(NpcPopulationQueries.current(), _district)
 	assert_same(LightCircuitService.entity_for(&"performance_test"), old_circuit)
 
 ## Новая цепь с прежним авторским ID заменяет кешированное состояние удалённой Entity.

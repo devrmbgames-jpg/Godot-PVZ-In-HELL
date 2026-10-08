@@ -22,7 +22,7 @@ static func current() -> C_Commerce:
 ## Увеличивает сохраняемый счётчик запросов вне активной транзакции; отказ даёт пустой ID.
 static func next_id(prefix: String) -> StringName:
 	var state: C_Commerce = current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if state == null or cycle == null or state.transaction_in_progress:
 		return &""
 
@@ -36,7 +36,7 @@ static func next_id(prefix: String) -> StringName:
 ## Проверяет торговца и место/инвентарь, затем оплачивает и выдаёт товар однократно.
 static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, quantity: int, operation_id: StringName) -> Status:
 	var state: C_Commerce = current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.PURCHASE, false)
 	if valid != Status.COMMITTED:
 		return _trace_result(valid, operation_id, &"commerce.purchase", actor, item)
@@ -120,7 +120,7 @@ static func _purchase_furniture(trader: Entity, shop: C_Trader, item: DEF_Invent
 ## Оплачивает товар и доставку торговца, сохраняя отложенный заказ с датой исполнения.
 static func home_delivery(actor: Entity, trader: Entity, item: DEF_InventoryItem, quantity: int, operation_id: StringName) -> Status:
 	var state: C_Commerce = current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.TRADER_DELIVERY, false)
 	if valid != Status.COMMITTED:
 		return _trace_result(valid, operation_id, &"commerce.home_delivery", actor, item)
@@ -160,7 +160,7 @@ static func home_delivery(actor: Entity, trader: Entity, item: DEF_InventoryItem
 ## Оплачивает заказ терминала утром/вечером для физической доставки следующим днём.
 static func order(actor: Entity, item: DEF_InventoryItem, quantity: int, operation_id: StringName) -> Status:
 	var state: C_Commerce = current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var valid: Status = _validate(state, cycle, item, quantity, operation_id, PurchaseReceipt.Mode.ORDER)
 	if valid != Status.COMMITTED:
 		return _trace_result(valid, operation_id, &"commerce.order", actor, item)

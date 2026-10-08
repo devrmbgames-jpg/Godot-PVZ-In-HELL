@@ -123,7 +123,7 @@ func _process(delta: float) -> void:
 	_announcement_remaining = maxf(0.0, _announcement_remaining - delta)
 	_announcement.visible = _announcement_remaining > 0.0
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle != null:
 		if cycle.day_index != _last_day_index or cycle.phase != _last_phase:
 			_on_phase_changed(cycle.day_index, cycle.phase)
@@ -329,7 +329,7 @@ func _hazard_scene_name(scene: PackedScene) -> String:
 
 #region Представление смены фазы
 func _refresh_phase_presentation() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle != null:
 		_on_phase_changed(cycle.day_index, cycle.phase)
 

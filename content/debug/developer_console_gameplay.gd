@@ -96,7 +96,7 @@ func _trader_open(raw: String = "") -> void:
 	var actor_node: Node3D = actor as Node as Node3D
 	var trader_node: Node3D = trader as Node as Node3D
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor if actor != null else null
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if actor_node == null or trader_node == null or interactor == null or actor_node.global_position.distance_to(trader_node.global_position) > interactor.interaction_distance or cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT or InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.MODAL:
 		_report("trader_open", false, "Live nearby trader and free interaction focus required; Night unavailable")
 		return
@@ -170,7 +170,7 @@ func _challenge_stop(raw: String) -> void:
 
 #region Слоты и сценовые QA-действия
 func _save_info() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	DeveloperConsoleOutput.ok("save_info", PackedStringArray(["isolated_directory=%s; gameplay_autosave_untouched=true" % DebugGameplayService.SLOT_DIRECTORY, "phase=%s; Morning only, no live customers/modal/grip/challenge" % (C_DayCycle.Phase.keys()[cycle.phase] if cycle != null else "none")]))
 
 

@@ -27,7 +27,7 @@ static func snapshot(wallet: C_Wallet) -> C_Wallet:
 #region Синхронный расчёт операций
 ## Применяет операцию к текущему кошельку и дню через общий контракт apply.
 static func submit(operation: MoneyOperation) -> Status:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var wallet: C_Wallet = current()
 	if cycle == null:
 		return Status.INVALID

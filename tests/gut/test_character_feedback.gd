@@ -142,7 +142,7 @@ func test_air_idle_modal_and_death_do_not_trigger_footsteps() -> void:
 
 ## Реальный prefab клиента содержит ручной пул пространственного аудио без качания камеры.
 func test_real_customer_prefab_uses_spatial_addon_players_under_rigid_body() -> void:
-	var npc: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
+	var npc: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	(npc as Node as RigidBody3D).freeze = true
 	_root.add_child(npc)
 	_world.add_entity(npc, null, false)

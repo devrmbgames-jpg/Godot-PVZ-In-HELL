@@ -5,7 +5,7 @@ const FRAME_DELTA: float = 0.1
 
 var _world: World = null
 var _actor: E_RigidBodyCharacter = null
-var _subject: E_Customer = null
+var _subject: E_NpcCharacter = null
 var _state: C_Challenge = null
 var _observation: C_GazeChallenge = null
 var _rule: DEF_GazeChallengeCondition = null
@@ -31,7 +31,7 @@ func before_each() -> void:
 	_world.add_entity(session)
 	(session.get_component(C_DayCycle) as C_DayCycle).phase = C_DayCycle.Phase.DAY
 	_actor = _character(false)
-	_subject = _character(true) as E_Customer
+	_subject = _character(true) as E_NpcCharacter
 	(_subject as Node as Node3D).position = Vector3(0.0, 0.0, -3.0)
 	_state = C_Challenge.new()
 	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_dont_look.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
@@ -73,7 +73,7 @@ func _character(customer: bool) -> E_RigidBodyCharacter:
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.collision_layer = 2 if customer else 4
-	body.set_script(load("res://content/entities/customers/e_customer.gd" if customer else "res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/customers/entities/e_customer.gd" if customer else "res://content/entities/characters/e_rigid_body_character.gd"))
 	var entity: E_RigidBodyCharacter = body as Node as E_RigidBodyCharacter
 	var eyes: Marker3D = Marker3D.new()
 	eyes.position.y = 1.5
@@ -295,20 +295,20 @@ func test_customer_spawn_activates_arrival_challenge_before_approach_and_dialogu
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	flow.visits.clear()
 	flow.schedule = DEF_CustomerSchedule.new()
-	flow.schedule.customer_scene = load("res://content/entities/customers/customer.tscn") as PackedScene
+	flow.schedule.customer_scene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 
 	var visit: CustomerVisit = CustomerVisit.new()
 	visit.visit_id = &"arrival-gaze"
 	visit.requires_registered_package = false
 	visit.arrival_day = cycle.day_index
-	visit.definition = load("res://content/definitions/gameplay/customers/def_customer_gaze.tres") as DEF_Customer
+	visit.definition = load("res://content/domains/customers/definitions/def_customer_gaze.tres") as DEF_Customer
 	flow.visits.append(visit)
-	var scene: PackedScene = load("res://content/entities/stations/delivery_counter.tscn") as PackedScene
+	var scene: PackedScene = load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
 	var station: E_DeliveryCounter = scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(station)
 	assert_true(CustomerFlowFixture.spawn(flow, cycle))
 
-	var customer: E_Customer = CustomerFlowService.customer_for(visit.visit_id)
+	var customer: E_NpcCharacter = CustomerFlowQueries.customer_for(visit.visit_id)
 	assert_not_null(customer)
 	if customer == null:
 		return

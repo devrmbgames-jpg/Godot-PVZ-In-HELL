@@ -3,7 +3,7 @@ extends GutTest
 
 var _world: World
 var _actor: E_RigidBodyCharacter
-var _customer: E_Customer
+var _customer: E_NpcCharacter
 var _agent: C_CustomerAgent
 var _cycle: C_DayCycle
 var _visit: CustomerVisit
@@ -43,7 +43,7 @@ func before_each() -> void:
 	_actor.component_resources = [C_PlayerInputController.new(), C_Controller.new(), C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new(), C_Motion.new(), C_Health.new()]
 	_world.add_entity(_actor)
 	(_actor.get_component(C_Health) as C_Health).current = 10.0
-	_customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
+	_customer = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	(_customer as Node as RigidBody3D).freeze = true
 	(_customer as Node as Node3D).position = Vector3(0, 0, -1)
 	_world.add_entity(_customer)
@@ -55,7 +55,7 @@ func before_each() -> void:
 	_world.add_entity(_parcel)
 	(_parcel.get_component(C_Package) as C_Package).package_id = _visit.package_id
 	(_parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState.Registration.REGISTERED
-	CustomerFlowService.bind_parcel(_customer, _visit)
+	CustomerParcelAssignment.bind_parcel(_customer, _visit)
 	_parcel.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
 
 
@@ -80,7 +80,7 @@ func _expect_held() -> void:
 func test_waiting_customer_takes_correct_carry_once_without_button_or_greeting_delay() -> void:
 	_agent.phase = C_CustomerAgent.Phase.WAITING
 	await get_tree().physics_frame
-	CustomerFlowFixture.advance(CustomerFlowService.current(), _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, 0.0)
 	assert_eq(_visit.actual, CustomerVisit.Actual.DELIVERED)
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.RECEIVING)
 	assert_null(GrabService.held_object(_actor))
@@ -192,7 +192,7 @@ func test_disabled_automatic_mode_keeps_manual_handoff_and_refusal_policy() -> v
 ## Осмотр временно забирает коробку в физический слот, сохраняя незавершённый исход.
 func test_automatic_receive_borrows_to_booth_without_finishing_delivery() -> void:
 	_visit.definition.private_inspection = true
-	var booth: Entity = (load("res://content/entities/customers/inspection_booth.tscn") as PackedScene).instantiate() as Entity
+	var booth: Entity = (load("res://content/domains/customers/entities/inspection_booth.tscn") as PackedScene).instantiate() as Entity
 	(booth as Node as Node3D).position.x = 4.0
 	_world.add_entity(booth)
 	await get_tree().physics_frame
@@ -200,7 +200,7 @@ func test_automatic_receive_borrows_to_booth_without_finishing_delivery() -> voi
 	assert_eq(_agent.phase, C_CustomerAgent.Phase.GOING_TO_BOOTH)
 	assert_eq(_visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_null(GrabService.held_object(_actor))
-	assert_eq(CustomerInspectionService.owner_for(_parcel), _customer)
+	assert_eq(CustomerInspectionQueries.owner_for(_parcel), _customer)
 	assert_true((_parcel as Node as RigidBody3D).freeze)
 	assert_false(CustomerFlowService.try_automatic_handoff(_customer, _visit))
 

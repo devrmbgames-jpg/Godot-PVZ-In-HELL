@@ -31,10 +31,10 @@ func _run() -> void:
 	else:
 		for frame: int in MAX_RECEIVING_FRAMES:
 			await get_tree().physics_frame
-			if CustomerFlowService.current().visits.size() == 5:
+			if CustomerFlowQueries.current().visits.size() == 5:
 				break
 		level.set_physics_process(false)
-		_check(CustomerFlowService.current().visits.size() == 5, "real morning batch arrived")
+		_check(CustomerFlowQueries.current().visits.size() == 5, "real morning batch arrived")
 		if not _failed:
 			await _blocked_sources(level)
 	print("Safe loot smoke ", "restore" if restoring else "write", ": ", "FAIL" if _failed else "PASS")
@@ -54,8 +54,8 @@ func _blocked_sources(level: Node3D) -> void:
 	_solid(Vector3(16, 8, 16), ARENA + Vector3(0, 4, 0))
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	var visit: CustomerVisit = CustomerFlowService.current().visits[0]
-	var parcel: E_Package = CustomerFlowService.parcel_for(visit.package_id) as E_Package
+	var visit: CustomerVisit = CustomerFlowQueries.current().visits[0]
+	var parcel: E_Package = PackageQueries.find_live_package(visit.package_id) as E_Package
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	body.freeze = true
 	body.global_position = ARENA + Vector3.UP
@@ -120,7 +120,7 @@ func _release_restored() -> void:
 	_check(found.size() == ids.size(), "all intended loot recreated exactly once")
 	ECS.world.process(queue.placement.retry_seconds, "GamePlay")
 	_check(queue.pending.is_empty(), "repeat never regenerates consumed manifest")
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	_check(cycle.day_index == 1 and cycle.phase == C_DayCycle.Phase.MORNING, "normal day state survives loot restart")
 
 func _cleanup() -> void:

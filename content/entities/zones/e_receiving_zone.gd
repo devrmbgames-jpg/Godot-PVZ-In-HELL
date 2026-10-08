@@ -90,7 +90,7 @@ func _process(delta: float) -> void:
 	_status_remaining = STATUS_REFRESH_SECONDS
 
 	var receiving: C_Receiving = get_component(C_Receiving) as C_Receiving
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if receiving == null or cycle == null or supply == null:
 		return
 

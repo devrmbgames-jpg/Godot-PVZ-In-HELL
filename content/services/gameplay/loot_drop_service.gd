@@ -167,7 +167,7 @@ static func _finish_context(record: PendingLootDrop, item: Entity, source: Entit
 		HazardEmitter.activate(item, actor, "", record.actor_id)
 
 	if not record.package_id.is_empty() and EntityAvailability.contains(source, ECS.world):
-		CustomerInspectionService.bind_contents(source, [item])
+		ECS.world.emit_event(PackageContentPlaced.EVENT, source, PackageContentPlaced.new(item, source))
 
 	if not record.primary or record.package_id.is_empty():
 		return

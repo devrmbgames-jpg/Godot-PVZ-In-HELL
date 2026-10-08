@@ -40,7 +40,7 @@ func _advance(
 		if record not in state.records:
 			continue
 		if record.state in [RefusalQuestRecord.State.OFFERED, RefusalQuestRecord.State.ACTIVE]:
-			var visit: CustomerVisit = CustomerFlowService.find_visit(record.visit_id)
+			var visit: CustomerVisit = CustomerFlowQueries.find_visit(record.visit_id)
 			if cycle.day_index > record.deadline_day:
 				RefusalQuestService.resolve(record, RefusalQuestRecord.State.EXPIRED, cycle.day_index)
 			elif record.state == RefusalQuestRecord.State.ACTIVE and visit != null and visit.actual == CustomerVisit.Actual.DELIVERED:

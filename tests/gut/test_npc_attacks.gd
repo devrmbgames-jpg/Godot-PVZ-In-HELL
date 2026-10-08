@@ -43,7 +43,7 @@ func _body(npc: bool) -> E_RigidBodyCharacter:
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.collision_layer = 2 if npc else 4
-	body.set_script(load("res://content/entities/characters/e_npc_character.gd" if npc else "res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/npc/entities/e_npc_character.gd" if npc else "res://content/entities/characters/e_rigid_body_character.gd"))
 	var entity: E_RigidBodyCharacter = body as Node as E_RigidBodyCharacter
 	var health: C_Health = C_Health.new()
 	health.current = 100.0
@@ -82,7 +82,7 @@ func test_manual_clock_rejects_restarted_same_definition_attack() -> void:
 	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
 	_world.add_system(owner)
 	_world.process(0.5, owner.group)
-	NpcAttackService.cancel(_npc)
+	NpcAttackExecutionService.cancel(_npc)
 	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
 	_world.flush_command_buffers()
 	assert_eq(_state.elapsed, 0.0)
@@ -296,6 +296,44 @@ func test_actual_animation_method_tracks_commit_once_and_finish_with_cooldown() 
 	assert_gt(_state.cooldown_remaining, 0.0)
 
 
+## Captured native hooks cannot hit or finish a restarted attack or a replacement Component.
+func test_captured_animation_hooks_reject_restarted_and_replaced_execution() -> void:
+	var player: AnimationPlayer = AnimationPlayer.new()
+	(_npc as Node).add_child(player)
+	_npc.animation_player = player
+	player.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+	var library: AnimationLibrary = AnimationLibrary.new()
+	var animation: Animation = Animation.new()
+	animation.length = 1.0
+	library.add_animation(&"Strike", animation)
+	player.add_animation_library(&"", library)
+	_state.melee_attacks[0] = _state.melee_attacks[0].duplicate(true) as DEF_NpcAttack
+	_state.melee_attacks[0].animation = &"Strike"
+	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
+	var old_hit: Callable = _state.animation_hit_callback
+	var old_finish: Callable = _state.animation_finish_callback
+
+	NpcAttackExecutionService.cancel(_npc)
+	assert_false(_npc.attack_effect_requested.is_connected(old_hit))
+	assert_false(_npc.attack_finish_requested.is_connected(old_finish))
+	assert_true(NpcAttackService.start(_npc, C_NpcCombat.Kind.MELEE, 0))
+	old_hit.call()
+	old_finish.call()
+	assert_eq(_health.current, 100.0)
+	assert_eq(_state.phase, C_NpcCombat.Phase.WINDUP)
+
+	var replaced_hit: Callable = _state.animation_hit_callback
+	var replaced_finish: Callable = _state.animation_finish_callback
+	var replacement: C_NpcCombat = C_NpcCombat.new()
+	replacement.melee_attacks = _state.melee_attacks
+	_npc.remove_component(C_NpcCombat)
+	_npc.add_component(replacement)
+	replaced_hit.call()
+	replaced_finish.call()
+	assert_eq(_health.current, 100.0)
+	assert_eq(replacement.phase, C_NpcCombat.Phase.READY)
+
+
 ## Отсутствующая авторская анимация оставляет доступным исполнение удара по таймеру.
 func test_unassigned_or_missing_animation_keeps_timed_prototype_playable() -> void:
 	_state.melee_attacks[0] = _state.melee_attacks[0].duplicate(true) as DEF_NpcAttack
@@ -395,7 +433,7 @@ func test_wall_blocks_projectile_even_for_long_frame() -> void:
 	CombatFixture.projectile(projectile, 1.0)
 	assert_eq(_health.current, 100.0)
 	assert_true(_world.query.with_all([C_CombatProjectile]).execute().is_empty())
-	NpcAttackService.finish(_npc)
+	NpcAttackExecutionService.finish(_npc)
 	CombatFixture.npc(_npc, 2.0)
 	assert_false(NpcAttackService.can_start(_npc, C_NpcCombat.Kind.RANGED, 0), "AI must not shoot through the wall")
 

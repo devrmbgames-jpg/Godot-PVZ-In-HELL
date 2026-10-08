@@ -49,7 +49,7 @@ static func can_pickup_body(
 	if resolved_handle != null:
 		if not entity_available(resolved_handle) or held_relationship(resolved_handle) != null:
 			return false
-		if CustomerInspectionService.owner_for(resolved_handle) != null:
+		if CustomerInspectionQueries.owner_for(resolved_handle) != null:
 			return false
 		# Физическое тело не обязательно является предметом; живого персонажа нельзя переносить.
 		if resolved_handle.has_component(C_Living) and not resolved_handle.has_component(C_Death):

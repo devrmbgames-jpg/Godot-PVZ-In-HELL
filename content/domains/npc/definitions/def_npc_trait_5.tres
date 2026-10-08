@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_NpcTrait" format=3]
+
+[ext_resource type="Script" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="Script"]
+
+[resource]
+script = ExtResource("Script")
+key = &"trait_5"
+kind = 5
+warning_text = "Отвечай осторожно."
+countermeasure = "Не поддаваться провокации"

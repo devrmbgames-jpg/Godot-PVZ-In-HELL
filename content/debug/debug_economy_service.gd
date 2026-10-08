@@ -64,7 +64,7 @@ static func _submit(
 		return result
 
 	var wallet: C_Wallet = WalletService.current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if wallet == null or cycle == null:
 		result.message = "wallet/day cycle is unavailable"
 		return result

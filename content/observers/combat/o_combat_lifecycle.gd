@@ -19,7 +19,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var relation: Relationship = payload as Relationship
 	if relation != null and relation.relation is R_CombatTarget:
 		# Входящие связи могут исчезнуть раньше сигнала World.entity_removed.
-		NpcAttackService.cancel(entity)
+		NpcAttackExecutionService.cancel(entity)
 		if entity.has_component(C_NpcIntent):
 			NpcIntentService.stop(entity)
 			NpcIntentService.look_along_movement(entity)

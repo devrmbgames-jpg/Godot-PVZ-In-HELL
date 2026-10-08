@@ -113,7 +113,7 @@ func test_unknown_or_repeatable_completed_action_fails_before_day_or_effect_chan
 			if String(record.key) == ActorIdentityRules.key_for(valve, _root):
 				record.completed_actions = [id]
 		assert_false(WorldSnapshotService.restore(snapshot, _root))
-		assert_eq(DayPhaseService.current().day_index, 1)
+		assert_eq(DayPhaseQueries.current().day_index, 1)
 		assert_false(valve.is_active())
 
 
@@ -381,7 +381,7 @@ func test_null_wrong_profile_or_omitted_hazard_component_fails_without_mutation(
 
 		var count: int = _world.entities.size()
 		assert_false(WorldSnapshotService.restore(snapshot, _root), invalid)
-		assert_eq(DayPhaseService.current().day_index, 1)
+		assert_eq(DayPhaseQueries.current().day_index, 1)
 		assert_eq(_world.entities.size(), count)
 		assert_true(_world.entities.has(toxin))
 

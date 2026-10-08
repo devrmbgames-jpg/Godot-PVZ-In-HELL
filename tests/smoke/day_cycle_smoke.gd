@@ -25,7 +25,7 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	assert(cycle != null and cycle.phase == C_DayCycle.Phase.MORNING)
 	assert(not DayPhaseService.permits(cycle, DayTransitionRequest.Kind.SLEEP))
 	var stale: DayTransitionRequest = DayTransitionRequest.new()

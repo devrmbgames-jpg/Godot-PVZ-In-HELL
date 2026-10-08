@@ -8,7 +8,7 @@ func _stage(index: int, point: Vector3 = Vector3.ZERO) -> E_DistrictNpc:
 	person.profile.rules = []
 	person.profile.dark_vision_fraction = 1.0
 	person.phase_complete = true
-	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
 	body.place_at(point)
 	body.freeze = true
@@ -16,7 +16,7 @@ func _stage(index: int, point: Vector3 = Vector3.ZERO) -> E_DistrictNpc:
 
 func _player(point: Vector3 = Vector3(0, 0, -3)) -> E_DistrictNpc:
 	var physical: RigidBody3D = RigidBody3D.new()
-	physical.set_script(load("res://content/entities/npc/e_district_npc.gd"))
+	physical.set_script(load("res://content/domains/npc/entities/e_district_npc.gd"))
 	var player: E_DistrictNpc = physical as Node as E_DistrictNpc
 	player.component_resources = [C_Health.new(), C_PlayerInputController.new(), C_NpcIntent.new()]
 	player.freeze = true
@@ -34,7 +34,7 @@ func _player(point: Vector3 = Vector3(0, 0, -3)) -> E_DistrictNpc:
 
 func _service(body: E_DistrictNpc, suffix: String) -> CustomerVisit:
 	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
-	var person: NpcRecord = DistrictPopulationService.person_for(identity.npc_id)
+	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
 	var visit: CustomerVisit = _case(person, suffix)
 	visit.definition = visit.definition.duplicate() as DEF_Customer
 	NpcServiceRole.begin(body, person, visit, 1)
@@ -51,11 +51,11 @@ func _light_zone() -> NpcLightZone:
 
 func _run_branch(body: E_DistrictNpc, owner_kind: C_NpcDecision.Owner, delta: float) -> bool:
 	var paths: Dictionary[C_NpcDecision.Owner, String] = {
-		C_NpcDecision.Owner.EMERGENCY: "res://content/ai/trees/bt_npc_emergency.tres",
-		C_NpcDecision.Owner.COMBAT: "res://content/ai/trees/bt_npc_combat.tres",
-		C_NpcDecision.Owner.SERVICE: "res://content/ai/trees/bt_npc_service.tres",
-		C_NpcDecision.Owner.SCHEDULE: "res://content/ai/trees/bt_npc_schedule.tres",
-		C_NpcDecision.Owner.IDLE: "res://content/ai/trees/bt_npc_idle.tres",
+		C_NpcDecision.Owner.EMERGENCY: "res://content/domains/npc/ai/trees/bt_npc_emergency.tres",
+		C_NpcDecision.Owner.COMBAT: "res://content/domains/npc/ai/trees/bt_npc_combat.tres",
+		C_NpcDecision.Owner.SERVICE: "res://content/domains/customers/ai/trees/bt_npc_service.tres",
+		C_NpcDecision.Owner.SCHEDULE: "res://content/domains/npc/ai/trees/bt_npc_schedule.tres",
+		C_NpcDecision.Owner.IDLE: "res://content/domains/npc/ai/trees/bt_npc_idle.tres",
 	}
 	return _run_tree(body, paths[owner_kind], delta)
 #endregion
@@ -68,7 +68,7 @@ func test_schedule_exit_accepts_ground_radius_without_exact_marker_contact() -> 
 	person.profile.schedule = person.profile.schedule.duplicate() as DEF_NpcSchedule
 	person.profile.schedule.day = DEF_NpcSchedule.Location.OUTSIDE
 	assert_true(DistrictPopulationService.request_phase(body, 1, C_DayCycle.Phase.DAY).succeeded)
-	var destination: Vector3 = DistrictPopulationService.position_for(person.goal_id)
+	var destination: Vector3 = NpcPopulationQueries.position_for(person.goal_id)
 	body.place_at(destination + Vector3(0.8, 2.0, 0.0))
 	assert_true(_run_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2))
 	assert_true(person.phase_complete)
@@ -82,7 +82,7 @@ func test_flee_exit_stops_only_within_portal_radius() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
-	var destination: Vector3 = DistrictPopulationService.position_for(person.portal_id)
+	var destination: Vector3 = NpcPopulationQueries.position_for(person.portal_id)
 	body.place_at(destination + Vector3(2.0, 2.0, 0.0))
 	awareness.last_seen_position = body.global_position
 	awareness.fleeing = true
@@ -225,7 +225,7 @@ func test_shop_visit_uses_a_clear_standing_point_and_requires_a_merchant() -> vo
 	var place: DEF_DistrictPlace = NpcActivityService.choose(body, person)
 	assert_not_null(place)
 	assert_eq(place.key, &"shop")
-	assert_gt(NpcActivityService.destination(place).distance_to(DistrictPopulationService.position_for(place.key)), 1.0)
+	assert_gt(NpcActivityService.destination(place).distance_to(NpcPopulationQueries.position_for(place.key)), 1.0)
 	DistrictPopulationService.mark_dead(_district.people[7], shopkeeper, 1)
 	assert_null(NpcActivityService.choose(body, person))
 
@@ -277,7 +277,7 @@ func test_new_morning_resets_transient_fear_without_resetting_person() -> void:
 	memory.incident_id = &"test/persistent_help"
 	person.memories.append(memory)
 	DistrictPopulationService.prepare_morning(2)
-	assert_same(DistrictPopulationService.body_for(person.npc_id), body)
+	assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
 	assert_eq(health.current, 31.0)
 	assert_eq(person.memories.size(), 1)
 	var refreshed: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
@@ -550,7 +550,7 @@ func test_stalled_home_route_releases_meeting_without_false_delivery() -> void:
 	var player: E_DistrictNpc = _player()
 	var visit: CustomerVisit = _service(body, "stalled_home")
 	NpcServiceRole.release(body, visit.visit_id)
-	DayPhaseService.current().phase = C_DayCycle.Phase.EVENING
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.EVENING
 	var job: NpcHomeDelivery = NpcHomeDelivery.new()
 	job.job_id = &"home/test/stalled"
 	job.npc_id = person.npc_id
@@ -569,7 +569,7 @@ func test_stalled_home_route_releases_meeting_without_false_delivery() -> void:
 	NpcAiFixture.plan_routes(_district)
 	assert_true((body.get_component(C_NpcRoute) as C_NpcRoute).reachable)
 	NpcAiFixture.route(body, person, _district.definition.route_timeout + 0.1)
-	assert_null(NpcHomeDeliveryService.meeting_for(body))
+	assert_null(HomeMeetingQueries.meeting_for(body))
 	assert_false(body.has_component(C_CustomerAgent))
 	assert_eq(job.status, NpcHomeDelivery.Status.ACCEPTED)
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)

@@ -39,6 +39,12 @@ static var _record_types: Array[Script] = [NpcRecord, NpcMemory, NpcHomeDelivery
 ## Максимальная глубина вложенных сериализуемых данных.
 const MAX_DEPTH: int = 16
 
+const _DEFINITION_ROOTS: Array[String] = [
+	"res://content/definitions/",
+	"res://content/domains/npc/definitions/",
+	"res://content/domains/customers/definitions/",
+]
+
 
 #region Кодирование и декодирование
 ## Кодирует только разрешённые поля известного компонента; неизвестный тип даёт пустой словарь.
@@ -102,7 +108,7 @@ static func decode(value: Variant, depth: int = 0) -> Variant:
 		var data: Dictionary = value as Dictionary
 		if data.has("definition"):
 			var path: String = String(data.definition)
-			if not path.begins_with("res://content/definitions/") or not ResourceLoader.exists(path):
+			if not _definition_path_allowed(path) or not ResourceLoader.exists(path):
 				return null
 			return load(path) as GameDefinition
 		if data.has("type"):
@@ -236,4 +242,13 @@ static func _script_matches(actual: Script, expected: StringName) -> bool:
 		actual = actual.get_base_script()
 	return false
 
+#endregion
+
+
+#region Разрешённые пути определений
+static func _definition_path_allowed(path: String) -> bool:
+	for directory: String in _DEFINITION_ROOTS:
+		if path.begins_with(directory):
+			return true
+	return false
 #endregion
