@@ -11,6 +11,7 @@ The complete target-core design is documented in [Project Core Architecture](../
 - Group/node order does not replace explicit `deps()` or physics-callback ownership.
 - RigidBody transform/velocity authority stays in Godot/Jolt. Character/body integration is orchestrated from Entity physics callbacks through independent solvers; scheduled Systems must not be used as imperative physics services.
 - Structural ECS mutation during iteration uses the pinned GECS-safe command/lifecycle path.
+- Registered disabled actors retain structural tracking in `GameWorld`: native disable facts/process shutdown remain intact, while Component/Relationship mutations keep the pinned archetype index current. Disabled participation does not end persistent lifecycle ownership; restore and morning fixup may mutate dormant bodies before reactivation. The project-owned override reconnects the six pinned structural callbacks; it introduces no secondary index or addon modification.
 
 ## Canonical roles and ownership
 

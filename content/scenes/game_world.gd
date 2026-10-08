@@ -53,3 +53,20 @@ func finish_startup() -> void:
 	_startup_activity.clear()
 	_restoring = false
 #endregion
+
+
+#region Registered disabled entities
+## Stops participation while retaining structural tracking for persistent lifecycle changes.
+func disable_entity(entity: Variant) -> Entity:
+	var subject: Entity = super.disable_entity(entity)
+	# Pinned GECS v8 disconnects these signals while keeping the Entity in its
+	# archetype. Dormant persistent actors still receive reset/restore operations;
+	# their Component/Relationship changes must keep that same native index current.
+	subject.component_added.connect(_on_entity_component_added)
+	subject.component_removed.connect(_on_entity_component_removed)
+	subject.relationship_added.connect(_on_entity_relationship_added)
+	subject.relationship_removed.connect(_on_entity_relationship_removed)
+	subject.relationships_batch_added.connect(_on_entity_relationships_batch_added)
+	subject.relationships_batch_removed.connect(_on_entity_relationships_batch_removed)
+	return subject
+#endregion
