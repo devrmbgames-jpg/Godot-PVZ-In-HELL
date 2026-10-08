@@ -73,5 +73,41 @@ class DomainStructureValidatorTest(unittest.TestCase):
         self.assertTrue(any("legacy horizontal gameplay root" in error for error in errors))
 
 
+    def test_rejects_unapproved_district_owner(self) -> None:
+        temporary, root = self._root()
+        self.addCleanup(temporary.cleanup)
+        (root / "content/domains/district/components").mkdir(parents=True)
+        errors = validate_domain_structure(root)
+        self.assertTrue(any("unknown gameplay owner" in error and "'npc'" in error for error in errors))
+
+    def test_strict_rejects_remaining_algorithm_and_authoring_roots(self) -> None:
+        temporary, root = self._root()
+        self.addCleanup(temporary.cleanup)
+        (root / "content/domains").mkdir()
+        for name in ["geometry", "rules", "solvers", "authoring", "presentation"]:
+            (root / "content" / name).mkdir()
+        errors = validate_domain_structure(root, strict=True)
+        for name in ["geometry", "rules", "solvers", "authoring", "presentation"]:
+            self.assertTrue(any(f"content/{name}/:" in error for error in errors))
+
+    def test_existing_private_member_scan_discovers_vertical_roles(self) -> None:
+        from unittest.mock import patch
+        import validate_project_structure as structure
+        temporary, root = self._root()
+        self.addCleanup(temporary.cleanup)
+        for location in ["domains/combat/services", "shared/services"]:
+            folder = root / "content" / location
+            folder.mkdir(parents=True)
+            (folder / "hit_service.gd").write_text(
+                "extends RefCounted\nclass_name HitService\nvar cached_actor: Node\n",
+                encoding="utf-8",
+            )
+        errors: list[str] = []
+        with patch.object(structure, "ROOT", root):
+            structure._check_private_member_naming(errors)
+        self.assertEqual(2, len(errors))
+        self.assertTrue(all("cached_actor" in error for error in errors))
+
+
 if __name__ == "__main__":
     unittest.main()

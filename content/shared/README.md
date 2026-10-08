@@ -1,11 +1,9 @@
-# Shared gameplay infrastructure
+# Shared gameplay foundations
 
-`content/shared/<role>/` is reserved for infrastructure that is genuinely used across multiple gameplay domains and has no honest single domain owner.
+`content/shared/<canonical role>/` contains a small domain-independent kernel with concrete consumers. Multiple consumers alone do not remove honest domain ownership: health/damage belongs combat, native motion bodies belong motion, and live inventory ownership belongs inventory.
 
-Use the same canonical role directories as `content/domains/<domain>/`.
+Approved migration candidates are listed explicitly in `utils/domain_migration_map.json`: immutable authored/persistent actor identity and authoring compiler; foundational definition/attribute/object-description contracts; bounded boundary-trace data/writer/read provider; stable link vocabulary; native body availability and placement algorithms; domain-independent Dialogue Manager resource-reference cleanup. None owns a gameplay scheduler or duplicates mutable gameplay authority.
 
-Do not move code here merely because choosing an owner is inconvenient. Prefer a concrete domain owner unless the contract is truly cross-domain/foundational.
+Shared imports no domains or global gameplay implementation. Before task 32 closes, ActorIdentityRules and BoundaryTrace must use immutable shared identity contracts rather than importing C_Package/C_NpcIdentity. This is actual responsibility decomposition, with no mutable alias registry or compatibility forwarding layer. Global UI/scene/debug projection remains Godot glue; its domain-independent diagnostic backend moves here.
 
-UI `Control` glue is not ECS infrastructure and should not be moved here merely for architectural symmetry.
-
-The canonical role-folder vocabulary is validated by `utils/validate_domain_structure.py`.
+Use canonical role folders only; create no empty roles. The source-owner/public-symbol access manifest (`utils/domain_contracts.json`) still applies: public visibility and a shared folder do not authorize arbitrary field writes. Component aggregates and live Relationships retain their explicit writers.
