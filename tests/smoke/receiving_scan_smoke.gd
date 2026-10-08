@@ -63,7 +63,7 @@ func _run() -> void:
 	_drive(actor, true, false, false)
 	assert(GrabService.held_object(actor) == scanner, "E must pick up the real scanner")
 	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
-	assert(InteractionTargetingService.find_target(actor, interactor) == first)
+	assert(InteractionTargetingGeometry.find_target(actor, interactor) == first)
 	_drive(actor, false, false, true)
 
 	var first_state: C_PackageState = first.get_component(C_PackageState) as C_PackageState
@@ -78,7 +78,7 @@ func _run() -> void:
 	assert(first_state.registration_number == 1 and registry.records.size() == 1)
 	assert("\u2116001" in feedback.text)
 	await _prepare_target(actor, second, Vector3(0.0, -0.2, -2.2))
-	assert(InteractionTargetingService.find_target(actor, interactor) == second)
+	assert(InteractionTargetingGeometry.find_target(actor, interactor) == second)
 	_drive(actor, false, false, true)
 
 	var second_state: C_PackageState = second.get_component(C_PackageState) as C_PackageState
@@ -111,7 +111,7 @@ func _run() -> void:
 	desk_query.exclude = [terminal_body.get_rid()]
 	assert(terminal_body.get_world_3d().direct_space_state.intersect_shape(desk_query).is_empty())
 	await _prepare_target(actor, terminal, Vector3(0.0, -0.5, -1.8))
-	assert(InteractionTargetingService.find_target(actor, interactor) == terminal)
+	assert(InteractionTargetingGeometry.find_target(actor, interactor) == terminal)
 	_drive(actor, true, false, false)
 	assert(terminal.is_panel_open())
 
@@ -199,11 +199,11 @@ func _run() -> void:
 
 	var next_day_parcel: Entity = level.get_node("Entityes/Parcel_002_01") as Entity
 	await _prepare_target(actor, next_day_parcel, Vector3(0.0, -0.2, -2.2))
-	assert(InteractionTargetingService.find_target(actor, interactor) == next_day_parcel)
+	assert(InteractionTargetingGeometry.find_target(actor, interactor) == next_day_parcel)
 	assert(PackageRegistrationService.scan(actor, scanner, next_day_parcel).number == 3)
 	assert(_has_active_number(registry, 3))
 	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
-	assert(InteractionTargetingService.find_target(actor, interactor) == first)
+	assert(InteractionTargetingGeometry.find_target(actor, interactor) == first)
 	assert(PackageRegistrationService.scan(actor, scanner, first).number == 1)
 	assert(registry.records.size() == 3)
 	assert(not PackageRegistrationService.release_number(first))
@@ -252,7 +252,7 @@ func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> v
 	ray.force_raycast_update()
 
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(actor, interactor)
 
 
 func _has_active_number(registry: C_PackageLedger, number: int) -> bool:

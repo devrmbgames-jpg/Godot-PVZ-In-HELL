@@ -15,6 +15,7 @@ func before_each() -> void:
 	ECS.world = _world
 	_world.add_system(S_LightCircuit.new())
 	_world.add_observer(O_LightFlicker.new())
+	_world.add_observer(O_LightCircuitPresentation.new())
 	_actor = Entity.new()
 	_world.add_entity(_actor)
 
@@ -44,6 +45,26 @@ func _light(group_id: StringName) -> OmniLight3D:
 #endregion
 
 #region Авторская цепь
+## A replaced loaded circuit invalidates a queued projection while preserving its current state.
+func test_queued_projection_revalidates_circuit_component_identity() -> void:
+	var queued: O_LightCircuitPresentation = O_LightCircuitPresentation.new()
+	queued.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	for observer: Observer in _world.observers:
+		if observer is O_LightCircuitPresentation:
+			_world.remove_observer(observer)
+	_world.add_observer(queued)
+	var light: OmniLight3D = _light(&"warehouse_lights")
+	assert_true(LightCircuitService.set_enabled(_switch, false))
+	assert_false(_state.enabled)
+	assert_true(light.visible, "Presentation is deferred; the command state is already committed")
+	var replacement: C_LightCircuit = C_LightCircuit.new()
+	_switch.add_component(replacement)
+	_world.flush_command_buffers()
+	assert_true(light.visible)
+	assert_true(replacement.enabled)
+	assert_false(_state.enabled)
+
+
 ## Переключение меняет состояние цепи и только её авторские группы ламп.
 func test_toggle_updates_circuit_and_only_its_authored_light_groups() -> void:
 	var light: OmniLight3D = _light(&"warehouse_lights")

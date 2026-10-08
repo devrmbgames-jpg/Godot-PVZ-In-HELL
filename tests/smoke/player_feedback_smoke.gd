@@ -174,7 +174,7 @@ func _aim(player: Entity, point: Vector3) -> void:
 	ray.force_raycast_update()
 
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(player, interactor)
-	interactor.physics_target = InteractionTargetingService.find_physics_target(player, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(player, interactor)
+	interactor.physics_target = InteractionTargetingGeometry.find_physics_target(player, interactor)
 
 #endregion

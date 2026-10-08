@@ -40,7 +40,7 @@ static func sample(actor: Entity, subject: Entity, rule: DEF_GazeChallengeCondit
 	var space: PhysicsDirectSpaceState3D = eyes.get_world_3d().direct_space_state
 	var hit: Dictionary = space.intersect_ray(query)
 	var collider: Object = hit.get("collider") as Object
-	observation.line_of_sight = hit.is_empty() or InteractionTargetingService.collider_entity(collider) == subject
+	observation.line_of_sight = hit.is_empty() or InteractionTargetingGeometry.collider_entity(collider) == subject
 	observation.attention = observation.line_of_sight
 
 

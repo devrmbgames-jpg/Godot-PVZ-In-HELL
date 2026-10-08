@@ -172,7 +172,7 @@ func _customer_combat() -> void:
 	controller.physical_override = false
 	for strike: int in 3:
 		controller.input_tick += 1
-		InteractionActionResolver.handle_input(_actor)
+		InteractionInputFixture.advance(_actor)
 		assert(controller.action_main_pressed and GrabService.held_relationship(weapon) != null)
 		ECS.world.process(1.0, "GamePlay")
 	assert(customer.has_component(C_Death))

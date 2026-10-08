@@ -119,8 +119,8 @@ func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() 
 	_cycle.phase = C_DayCycle.Phase.MORNING
 
 	var interactor: C_Interactor = _player.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(_player, interactor)
-	interactor.physics_target = InteractionTargetingService.find_physics_target(_player, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(_player, interactor)
+	interactor.physics_target = InteractionTargetingGeometry.find_physics_target(_player, interactor)
 	assert_eq(interactor.target, trader, "Actual head ray reaches the Trader")
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_player, DEF_InteractionAction.Slot.INTERACT)
 	assert_not_null(choice, "E resolves to trading instead of physical pickup")
@@ -130,7 +130,7 @@ func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() 
 
 	var controller: C_Controller = _player.get_component(C_Controller) as C_Controller
 	controller.interact_pressed = true
-	InteractionActionResolver.handle_input(_player)
+	InteractionInputFixture.advance(_player)
 	var opened: bool = false
 	for child: Node in _player.get_children():
 		if child is CommercePanel:
@@ -165,7 +165,7 @@ func test_looking_down_reaches_both_own_belt_slots_without_turning_them_away() -
 		for frame: int in 2:
 			await get_tree().physics_frame
 		_player.interaction_ray_cast.force_raycast_update()
-		assert_eq(InteractionTargetingService.find_target(_player, interactor), slot, "Head ray reaches %s" % path)
+		assert_eq(InteractionTargetingGeometry.find_target(_player, interactor), slot, "Head ray reaches %s" % path)
 		assert_almost_eq((_player as Node as CharacterBody3D).rotation.y, initial_yaw, 0.001, "Belt remains still while aiming down")
 
 #endregion

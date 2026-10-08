@@ -8,91 +8,9 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"action_primary",
 	&"action_secondary",
 ]
-const DROP_ORDER: Array[int] = [
-	C_Grabbable.HoldSlot.CARRY,
-	C_Grabbable.HoldSlot.LEFT_HAND,
-	C_Grabbable.HoldSlot.RIGHT_HAND,
-]
 
 
 #region Действия и подсказки
-## Обрабатывает снимок ввода однократно; захваченные кнопки не передаются меньшим приоритетам.
-static func handle_input(actor: Entity, delta: float = 0.0) -> void:
-	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
-	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
-	if controller.input_tick > 0 and interactor.last_action_tick == controller.input_tick:
-		return
-
-	interactor.last_action_tick = controller.input_tick
-	control.rotation_active = false
-	if ProlongedInteractionService.tick(actor, delta):
-		refresh_prompt(actor)
-		return
-
-	var active_focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
-	if active_focus >= InteractionControlFocus.Priority.DRAWING:
-		refresh_prompt(actor)
-		return
-	if active_focus == InteractionControlFocus.Priority.TRANSPORT:
-		if controller.interact_pressed:
-			_execute_slot(actor, DEF_InteractionAction.Slot.INTERACT, true)
-		elif controller.use_pressed:
-			_execute_slot(actor, DEF_InteractionAction.Slot.USE, true)
-		refresh_prompt(actor)
-		return
-
-	if active_focus == InteractionControlFocus.Priority.PUSH:
-		if controller.interact_pressed or controller.move_axis.y > PushService.DIRECTION_EPSILON:
-			_execute_slot(actor, DEF_InteractionAction.Slot.INTERACT, true)
-		elif controller.use_pressed:
-			_execute_slot(actor, DEF_InteractionAction.Slot.USE, true)
-		refresh_prompt(actor)
-		return
-
-	if controller.drop_long_pressed:
-		control.context_wheel_requested = true
-
-	elif controller.drop_pressed:
-		control.context_wheel_requested = false
-		for slot_index: int in DROP_ORDER:
-			var dropped: Entity = GrabService.held_in_slot(actor, slot_index)
-			if dropped != null:
-				GrabService.release(actor, dropped)
-				break
-
-	elif controller.interact_pressed:
-		_execute_slot(actor, DEF_InteractionAction.Slot.INTERACT, true)
-
-	elif controller.use_pressed:
-		_execute_slot(actor, DEF_InteractionAction.Slot.USE, true)
-
-	else:
-		# Приоритет фиксируется: освобождение Carry не передаёт тот же снимок ввода рукам.
-		var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
-		var primary_consumed: bool = _execute_slot(
-			actor,
-			DEF_InteractionAction.Slot.PRIMARY,
-			controller.action_main_pressed,
-			controller.action_main,
-		)
-
-		if focus == InteractionControlFocus.current(actor):
-			var secondary_consumed: bool = _execute_slot(
-				actor,
-				DEF_InteractionAction.Slot.SECONDARY,
-				controller.action_second_pressed,
-				controller.action_second_held,
-			)
-
-			if not primary_consumed and not secondary_consumed and controller.rotate_held:
-				var rotation: InteractionActionChoice = rotation_choice(actor)
-				if rotation != null:
-					rotation.action.execute(actor, rotation.source, rotation.target)
-
-	refresh_prompt(actor)
-
-
 ## Выбирает доступное действие канала без исполнения; excluded_capture исключает собственный токен сеанса.
 static func resolve(
 	actor: Entity,
@@ -112,14 +30,14 @@ static func resolve(
 		return null
 
 	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
-	if target != null and InteractionTargetingService.find_target(actor, interactor) != target:
+	if target != null and InteractionTargetingGeometry.find_target(actor, interactor) != target:
 		target = null
 	var physics_target: RigidBody3D = (
 		interactor.physics_target if is_instance_valid(interactor.physics_target) else null
 	)
 	if (
 		physics_target != null
-		and InteractionTargetingService.find_physics_target(actor, interactor) != physics_target
+		and InteractionTargetingGeometry.find_physics_target(actor, interactor) != physics_target
 	):
 		physics_target = null
 	if focus == InteractionControlFocus.Priority.TRANSPORT:
@@ -341,7 +259,7 @@ static func _access_denial(actor: Entity, interactor: C_Interactor) -> String:
 		return ""
 
 	var target: Entity = interactor.target if is_instance_valid(interactor.target) else null
-	if target == null or InteractionTargetingService.find_target(actor, interactor) != target:
+	if target == null or InteractionTargetingGeometry.find_target(actor, interactor) != target:
 		return ""
 
 	var lock: C_Openable = target.get_component(C_Openable) as C_Openable
@@ -374,7 +292,7 @@ static func _is_overweight_carry_target(actor: Entity, interactor: C_Interactor)
 		return false
 
 	var body: RigidBody3D = interactor.physics_target
-	if InteractionTargetingService.find_physics_target(actor, interactor) != body:
+	if InteractionTargetingGeometry.find_physics_target(actor, interactor) != body:
 		return false
 
 	var handle: Entity = PhysicsGrabTarget.handle_for(body, false)
@@ -393,7 +311,8 @@ static func button_label(slot_index: int) -> String:
 
 
 #region Исполнение и выбор источника
-static func _execute_slot(
+## Resolves and executes one explicit channel request; scheduled input arbitration belongs to S_InteractionInput.
+static func execute_slot(
 	actor: Entity,
 	input_slot: DEF_InteractionAction.Slot,
 	pressed: bool,

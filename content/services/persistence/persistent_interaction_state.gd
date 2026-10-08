@@ -39,7 +39,7 @@ static func restore(ids: Array, entity: Entity) -> void:
 		var progress: ProlongedInteractionProgress = ProlongedInteractionProgress.new()
 		progress.action_id = id
 		progress.timing = _timing(entity, id)
-		progress.fraction = ProlongedProgressService.COMPLETE_FRACTION
+		progress.fraction = ProlongedProgressSolver.COMPLETE_FRACTION
 		progress.phase = ProlongedInteractionProgress.Phase.COMPLETED
 		state.actions.append(progress)
 

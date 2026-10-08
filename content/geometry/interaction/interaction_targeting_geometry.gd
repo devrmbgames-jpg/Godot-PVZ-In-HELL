@@ -1,6 +1,6 @@
 extends RefCounted
 ## Определяет цель первого попадания луча без побочных эффектов представления.
-class_name InteractionTargetingService
+class_name InteractionTargetingGeometry
 
 const MAX_HELD_RECASTS: int = 3
 

@@ -157,7 +157,7 @@ func _aim(target: Entity) -> bool:
 	_ray.target_position = Vector3(0, 0, -3)
 	_interactor.target = target
 	_ray.force_raycast_update()
-	return InteractionTargetingService.find_target(_actor, _interactor) == target
+	return InteractionTargetingGeometry.find_target(_actor, _interactor) == target
 
 
 func _sync_physics() -> void:

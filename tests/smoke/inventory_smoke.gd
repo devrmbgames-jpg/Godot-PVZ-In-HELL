@@ -35,7 +35,7 @@ func _run() -> void:
 		var controller: C_Controller = _actor.get_component(C_Controller) as C_Controller
 		controller.input_tick += 1
 		controller.interact_pressed = true
-		InteractionActionResolver.handle_input(_actor)
+		InteractionInputFixture.advance(_actor)
 		controller.interact_pressed = false
 		assert(InventoryService.owner_for(pickup) == _actor)
 		for frame: int in 3:
@@ -121,7 +121,7 @@ func _aim(target: Entity, offset: Vector3 = Vector3.ZERO) -> void:
 	for frame: int in 2:
 		await get_tree().physics_frame
 	var interactor: C_Interactor = _actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(_actor, interactor)
 	assert(interactor.target == target, "Expected %s, actual %s, collider %s" % [target.name, interactor.target.name if interactor.target != null else "none", ray.get_collider()])
 
 

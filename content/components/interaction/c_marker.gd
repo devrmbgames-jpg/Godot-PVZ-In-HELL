@@ -20,3 +20,8 @@ var pointer: Vector2 = Vector2.ZERO
 var parcel: Entity = null
 ## Продолжаемый штрих коробки; ссылка сбрасывается при разрыве рисования.
 var stroke: PackageMarkStroke = null
+
+## Transient input receipt written only by S_Marker; never persisted with package ink.
+var last_input_tick: int = -1
+## Capture identity paired with the receipt; a new session is a distinct operation.
+var last_processed_capture: int = 0

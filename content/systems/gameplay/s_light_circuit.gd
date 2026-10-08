@@ -12,4 +12,4 @@ func query() -> QueryBuilder:
 func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var circuits: Array = components[0]
 	for index: int in entities.size():
-		LightCircuitService.sync(entities[index], circuits[index] as C_LightCircuit)
+		LightCircuitPresentation.apply(entities[index], circuits[index] as C_LightCircuit)

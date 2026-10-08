@@ -1,6 +1,6 @@
 extends RefCounted
 ## Вычисляет состояние подсветки по реальным действиям, включая ограничения массы; мир не изменяет.
-class_name InteractionHighlightService
+class_name InteractionHighlightRules
 
 enum State { UNAVAILABLE, BUSY, AVAILABLE }
 

@@ -103,7 +103,7 @@ static func begin(actor: Entity, choice: InteractionActionChoice, slot: DEF_Inte
 		progress.action_id = action.action_id
 		progress.timing = action.timing
 		state.actions.append(progress)
-	if progress.timing != action.timing or progress.phase == ProlongedInteractionProgress.Phase.COMPLETED:
+	if progress.timing != action.timing or progress.phase in [ProlongedInteractionProgress.Phase.COMPLETED, ProlongedInteractionProgress.Phase.READY]:
 		return false
 
 	var data: R_ProlongedOn = R_ProlongedOn.new()
@@ -127,54 +127,6 @@ static func begin(actor: Entity, choice: InteractionActionChoice, slot: DEF_Inte
 #endregion
 
 #region Исполнение и освобождение участия
-## Продвигает сеанс на delta секунд; true резервирует весь снимок ввода, включая прерывание.
-static func tick(actor: Entity, delta: float) -> bool:
-	var binding: Relationship = session(actor)
-	if binding == null:
-		return false
-
-	var data: R_ProlongedOn = binding.relation as R_ProlongedOn
-	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
-	if (
-		controller == null or not _held(controller, data.input_slot) or controller.cancel_pressed
-		or not GrabService.holder_available(actor)
-		or InteractionControlFocus.current(actor) != InteractionControlFocus.Priority.PROLONGED
-	):
-		cancel(actor)
-		return true
-
-	var target: Entity = binding.target as Entity
-	var source: Entity = _source(actor, target)
-	var progress: ProlongedInteractionProgress = progress_for(target, data.action.action_id)
-	if (
-		progress == null or not GrabService.entity_available(target)
-		or not GrabService.entity_available(source)
-	):
-		cancel(actor)
-		return true
-	# Повторный выбор исключает только свой токен; луч, сопоставление инструмента и другие захваты
-	# сохраняют авторитетность без временного освобождения и повторного захвата управления.
-	var choice: InteractionActionChoice = InteractionActionResolver.resolve(actor, data.input_slot, data.capture_token)
-	if (
-		choice == null or choice.action != data.action or choice.source != source
-		or (choice.target if choice.target != null else choice.source) != target
-	):
-		cancel(actor)
-		return true
-	if ProlongedProgressService.advance(progress, data.action.timing, delta, true):
-		# Вложенное удаление эффектом освобождает участие, но не сбрасывает READY
-		# до синхронной фиксации результата успешного завершения.
-		data.finishing = true
-		var success: bool = data.action.complete(actor, source, choice.target)
-		data.finishing = false
-		if success:
-			ProlongedProgressService.commit_success(progress, data.action.timing)
-		if not success or data.cleaned:
-			ProlongedProgressService.interrupt(progress, data.action.timing)
-			cancel(actor)
-	return true
-
-
 ## Очищает ресурсы сеанса и удаляет его связь; повтор безопасен.
 static func cancel(actor: Entity) -> void:
 	var binding: Relationship = session(actor)
@@ -192,14 +144,14 @@ static func removed(actor: Entity, binding: Relationship) -> void:
 
 	data.cleaned = true
 	var target: Entity = binding.target as Entity
-	var source: Entity = _source(actor, target)
+	var source: Entity = source_for(actor, target)
 	var cleanup: Callable = _cancel_session.bind(actor, binding)
 	for participant: Entity in [actor, target, source]:
 		if is_instance_valid(participant) and participant.tree_exiting.is_connected(cleanup):
 			participant.tree_exiting.disconnect(cleanup)
 	var progress: ProlongedInteractionProgress = progress_for(target, data.action.action_id)
 	if progress != null and not data.finishing:
-		ProlongedProgressService.interrupt(progress, data.action.timing)
+		ProlongedProgressSolver.interrupt(progress, data.action.timing)
 	InteractionControlFocus.release(actor, data.capture_token)
 	for relation: Relationship in actor.relationships.duplicate():
 		if relation.relation is R_ProlongedUsing:
@@ -214,7 +166,7 @@ static func entity_unavailable(entity: Entity) -> void:
 	cancel(entity)
 	for actor: Entity in ECS.world.entities.duplicate():
 		var binding: Relationship = session(actor)
-		if binding != null and (binding.target == entity or _source(actor, binding.target as Entity) == entity):
+		if binding != null and (binding.target == entity or source_for(actor, binding.target as Entity) == entity):
 			cancel(actor)
 
 
@@ -236,17 +188,11 @@ static func source_removed(actor: Entity, source_binding: Relationship) -> void:
 	cancel(actor)
 
 
-## Применяет авторское затухание только простаивающему прогрессу; delta в секундах.
-static func decay(state: C_ProlongedInteraction, delta: float) -> void:
-	for progress: ProlongedInteractionProgress in state.actions:
-		if progress.phase == ProlongedInteractionProgress.Phase.IDLE:
-			ProlongedProgressService.advance(progress, progress.timing, delta, false)
-
-
 #endregion
 
 #region Живые связи и канал ввода
-static func _source(actor: Entity, target: Entity) -> Entity:
+## Resolves the authoritative live tool relationship, otherwise the target itself.
+static func source_for(actor: Entity, target: Entity) -> Entity:
 	for binding: Relationship in actor.relationships:
 		if binding.relation is R_ProlongedUsing:
 			return binding.target as Entity
@@ -257,20 +203,5 @@ static func _cancel_session(actor: Entity, binding: Relationship) -> void:
 	if session(actor) == binding:
 		cancel(actor)
 
-
-static func _held(controller: C_Controller, slot: DEF_InteractionAction.Slot) -> bool:
-	match slot:
-		DEF_InteractionAction.Slot.INTERACT:
-			return controller.interact_held
-
-		DEF_InteractionAction.Slot.USE:
-			return controller.use_held
-
-		DEF_InteractionAction.Slot.PRIMARY:
-			return controller.action_main
-
-		DEF_InteractionAction.Slot.SECONDARY:
-			return controller.action_second_held
-	return false
 
 #endregion

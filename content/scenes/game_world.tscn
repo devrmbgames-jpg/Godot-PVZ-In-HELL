@@ -4,6 +4,9 @@
 [ext_resource type="Script" path="res://content/systems/gameplay/s_district.gd" id="District_system"]
 [ext_resource type="Script" path="res://content/observers/gameplay/o_npc_incident.gd" id="Npc_incident"]
 [ext_resource type="Script" path="res://content/systems/gameplay/s_npc_decision.gd" id="Npc_decision"]
+[ext_resource type="Script" path="res://content/observers/interaction/o_light_circuit_presentation.gd" id="Circuit_presentation"]
+[ext_resource type="Script" path="res://content/observers/gameplay/o_player_interaction_noise.gd" id="Interaction_noise"]
+[ext_resource type="Script" path="res://content/systems/interaction/s_interaction_input.gd" id="Interaction_input"]
 [ext_resource type="Script" uid="uid://b3vi2ingux88g" path="res://addons/gecs/lib/system_group.gd" id="3_ahxau"]
 [ext_resource type="Script" uid="uid://nsdmrnqs0no0" path="res://content/observers/gameplay/o_damage.gd" id="5_ad8bv"]
 [ext_resource type="Script" uid="uid://c1benmwwnwobr" path="res://content/systems/motion/s_jump.gd" id="6_gg2sc"]
@@ -342,6 +345,16 @@ script = ExtResource("Prolonged_lifecycle")
 
 [node name="O_PhysicalSlotLifecycle" type="Node" parent="Systems/Interaction" unique_id=20007239]
 script = ExtResource("PhysicalSlot_lifecycle")
+
+[node name="O_LightCircuitPresentation" type="Node" parent="Systems/Interaction"]
+script = ExtResource("Circuit_presentation")
+
+[node name="O_PlayerInteractionNoise" type="Node" parent="Systems/Interaction"]
+script = ExtResource("Interaction_noise")
+
+[node name="S_InteractionInput" type="Node" parent="Systems/Interaction"]
+script = ExtResource("Interaction_input")
+group = &"Interaction"
 
 [node name="S_Grab" type="Node" parent="Systems/Interaction" unique_id=767923781]
 script = ExtResource("Grab_system")

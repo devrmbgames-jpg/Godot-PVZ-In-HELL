@@ -20,7 +20,7 @@ static func can_begin(actor: Entity, tool: Entity, target: Entity) -> bool:
 		return false
 
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	if interactor == null or InteractionTargetingService.find_target(actor, interactor) != target:
+	if interactor == null or InteractionTargetingGeometry.find_target(actor, interactor) != target:
 		return false
 
 	var ray: RayCast3D = GrabService.interaction_raycast(actor)
@@ -66,44 +66,5 @@ static func end(tool_or_marker: Variant, actor_hint: Entity = null) -> void:
 	marker.capture_token = 0
 	PackageMarkService.break_stroke(marker)
 
-
-#endregion
-
-#region Продолжение и выбор поверхности
-## Проверяет продолжение сеанса и передаёт допустимое попадание сервису чернил.
-static func update(tool: Entity, marker: C_Marker) -> void:
-	var grip: Relationship = GrabService.held_relationship(tool)
-	var actor: Entity = grip.target as Entity if grip != null else null
-	if not GrabService.holder_available(actor) or not GrabService.entity_available(tool):
-		end(tool, actor)
-		return
-
-	var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
-	var focus: InteractionControlFocus.Priority = InteractionControlFocus.current(actor)
-	if (
-		controller == null or controller.cancel_pressed or controller.interact_pressed
-		or focus != InteractionControlFocus.Priority.DRAWING
-	):
-		end(tool, actor)
-		return
-
-	var viewport: Viewport = (actor as Node).get_viewport()
-	marker.pointer = (
-		marker.pointer + controller.look_delta
-	).clamp(Vector2.ZERO, viewport.get_visible_rect().size)
-	var secondary: bool = (
-		GrabService.held_in_slot(actor, GrabService.mapped_hand(actor, true)) == tool
-	)
-	var drawing: bool = controller.action_second if secondary else controller.action_main
-	if not drawing:
-		PackageMarkService.break_stroke(marker)
-		return
-
-	var hit: MarkerSurfaceSample = MarkerSurfaceSampler.sample(tool, actor, marker)
-	if hit == null:
-		PackageMarkService.break_stroke(marker)
-		return
-
-	PackageMarkService.append_sample(marker, hit.parcel, hit.world_point, hit.world_normal)
 
 #endregion

@@ -41,7 +41,7 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 		var holder: Entity = entities[index]
 		var interactor: C_Interactor = interactors[index] as C_Interactor
 		var key: int = holder.get_instance_id()
-		var target: Node = InteractionTargetingService.visual_target(holder, interactor)
+		var target: Node = InteractionTargetingGeometry.visual_target(holder, interactor)
 		if not GrabService.holder_available(holder) or holder.has_component(C_Death) or InteractionControlFocus.current(holder) >= InteractionControlFocus.Priority.MODAL:
 			target = null
 		if target == null:
@@ -49,7 +49,7 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 			_holder_states.erase(key)
 		else:
 			_previous_targets[key] = weakref(target)
-			_holder_states[key] = InteractionHighlightService.state_for(holder, target)
+			_holder_states[key] = InteractionHighlightRules.state_for(holder, target)
 	_refresh_meshes()
 
 
@@ -104,7 +104,7 @@ func _refresh_meshes() -> void:
 
 			var mesh_key: int = mesh.get_instance_id()
 			meshes[mesh_key] = mesh
-			states[mesh_key] = maxi(states.get(mesh_key, InteractionHighlightService.State.UNAVAILABLE), state)
+			states[mesh_key] = maxi(states.get(mesh_key, InteractionHighlightRules.State.UNAVAILABLE), state)
 	for mesh_key: int in _previous_meshes.keys():
 		if not meshes.has(mesh_key):
 			_clear_mesh(mesh_key)
@@ -136,10 +136,10 @@ func _clear_mesh(key: int) -> void:
 
 func _material_for(state: int) -> Material:
 	match state:
-		InteractionHighlightService.State.AVAILABLE:
+		InteractionHighlightRules.State.AVAILABLE:
 			return available_material
 
-		InteractionHighlightService.State.BUSY:
+		InteractionHighlightRules.State.BUSY:
 			return busy_material
 	return unavailable_material
 

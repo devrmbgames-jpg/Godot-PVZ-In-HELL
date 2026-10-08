@@ -42,7 +42,7 @@ func _run() -> void:
 		body.global_transform = Transform3D(Basis.from_euler(Vector3(0.2, 0.3, 0)), area.anchor.global_position + Vector3(1.0, 0.6, 0))
 		actor.interaction_ray_cast.look_at(area.anchor.global_position, Vector3.UP)
 		actor.interaction_ray_cast.force_update_transform()
-		interactor.target = InteractionTargetingService.find_target(actor, interactor)
+		interactor.target = InteractionTargetingGeometry.find_target(actor, interactor)
 		if interactor.target != area:
 			print("Placement target failed: index=", index, " collider=", actor.interaction_ray_cast.get_collider(), " ray=", actor.interaction_ray_cast.global_position, " direction=", -actor.interaction_ray_cast.global_basis.z, " anchor=", area.anchor.global_position)
 		assert(interactor.target == area, "Carry volume must be targetable above the thin pad")
@@ -55,7 +55,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 		await get_tree().process_frame
 		actor.interaction_ray_cast.look_at(body.global_position + Vector3.UP * 0.2, Vector3.UP)
-		assert(InteractionTargetingService.find_target(actor, interactor) == parcel, "Empty-handed retrieval must ignore Carry volume")
+		assert(InteractionTargetingGeometry.find_target(actor, interactor) == parcel, "Empty-handed retrieval must ignore Carry volume")
 		assert(GrabService.can_pickup(actor, parcel, C_Grabbable.HoldSlot.CARRY), "Placed parcel remains grabbable")
 		body.global_position = Vector3(0, 3, 0)
 		await get_tree().physics_frame

@@ -64,7 +64,7 @@ func _run() -> void:
 	assert(carried_body != null)
 	carried_body.global_position = Vector3(0, 1, -1)
 	await _sync_physics()
-	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(_actor, interactor)
 	assert(interactor.target == _area, "Held Carry body must not steal PlacementArea focus")
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
 	assert(choice != null and choice.action is DEF_CarryPlacementAction)

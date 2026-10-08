@@ -39,7 +39,7 @@ static func sample(tool: Entity, actor: Entity, marker: C_Marker) -> MarkerSurfa
 	if hit.is_empty():
 		return null
 
-	var parcel: Entity = InteractionTargetingService.collider_entity(hit["collider"] as Object)
+	var parcel: Entity = InteractionTargetingGeometry.collider_entity(hit["collider"] as Object)
 	if not PackageMarkService.drawable(parcel):
 		return null
 

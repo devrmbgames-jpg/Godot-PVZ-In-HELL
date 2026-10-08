@@ -179,7 +179,7 @@ func test_one_primary_click_throws_or_attacks_and_keeps_raw_input() -> void:
 	controller.input_tick = 1
 	controller.action_main_pressed = true
 	controller.physical_override = true
-	InteractionActionResolver.handle_input(_player)
+	InteractionInputFixture.advance(_player)
 	assert_null(GrabService.held_relationship(_weapon))
 	assert_eq((_player.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.READY)
 	assert_true(controller.action_main_pressed)
@@ -190,7 +190,7 @@ func test_one_primary_click_throws_or_attacks_and_keeps_raw_input() -> void:
 	_weapon.add_relationship(Relationship.new(grip, _player))
 	controller.input_tick += 1
 	controller.physical_override = false
-	InteractionActionResolver.handle_input(_player)
+	InteractionInputFixture.advance(_player)
 	assert_not_null(GrabService.held_relationship(_weapon))
 	assert_eq((_player.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.WINDUP)
 	assert_true(controller.action_main_pressed)

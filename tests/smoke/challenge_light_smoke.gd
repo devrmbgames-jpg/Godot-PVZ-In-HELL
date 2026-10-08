@@ -184,7 +184,7 @@ func _use_switch() -> void:
 		await get_tree().physics_frame
 
 	var interactor: C_Interactor = _actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(_actor, interactor)
 	assert(interactor.target == light_switch)
 	var controller: C_Controller = _actor.get_component(C_Controller) as C_Controller
 	controller.input_tick += 1

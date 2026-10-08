@@ -75,7 +75,7 @@ func _aim(target: Entity, offset: Vector3, approach: Vector3 = Vector3.BACK) -> 
 	ray.look_at(position)
 	await _frames(2)
 	var interactor: C_Interactor = _actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(_actor, interactor)
 	assert(interactor.target == target, "Targeting must hit the actual main-scene interaction surface")
 
 

@@ -7,7 +7,7 @@ static var _circuit_query: QueryBuilder = null
 static var _circuit_references: Dictionary[StringName, WeakRef] = {}
 
 #region Действия световой цепи
-## Задаёт enabled доступной световой цепи и синхронизирует её представление.
+## Commits enabled and publishes the completed circuit fact; presentation consumes it separately.
 static func set_enabled(circuit: Entity, enabled: bool) -> bool:
 	if not EntityAvailability.contains(circuit, ECS.world):
 		return false
@@ -17,22 +17,11 @@ static func set_enabled(circuit: Entity, enabled: bool) -> bool:
 		return false
 
 	state.enabled = enabled
-	sync(circuit, state)
+	var committed: LightCircuitCommitted = LightCircuitCommitted.new()
+	committed.circuit_id = state.circuit_id
+	committed.enabled = state.enabled
+	ECS.world.emit_event(LightCircuitCommitted.EVENT, circuit, committed)
 	return true
-
-## Применяет состояние цепи к авторским группам света; выключение прекращает мерцание.
-static func sync(circuit: Entity, state: C_LightCircuit) -> void:
-	if state == null:
-		return
-
-	for group_id: StringName in state.light_groups:
-		for node: Node in circuit.get_tree().get_nodes_in_group(group_id):
-			var light: Light3D = node as Light3D
-			if light != null:
-				var view: CircuitLightView = light.get_node_or_null("CircuitLightView") as CircuitLightView
-				if view != null and not state.enabled:
-					view.cancel_flicker()
-				light.visible = state.enabled and (view == null or view.is_lit())
 
 ## Публикует временное мерцание: duration и interval в секундах, enabled цепи не меняется.
 static func flicker(circuit_id: StringName, duration: float, interval: float, request_id: StringName = &"") -> bool:

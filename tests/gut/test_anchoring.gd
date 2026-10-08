@@ -169,7 +169,7 @@ func test_authored_hammer_fastens_instead_of_attacking_and_plays_swing_without_d
 		assert_true(choice.action is DEF_AnchorAction)
 	_controller.action_main_pressed = true
 	_controller.input_tick += 1
-	InteractionActionResolver.handle_input(_actor)
+	InteractionInputFixture.advance(_actor)
 	assert_true(_body.freeze)
 	assert_eq((_actor.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.READY)
 
@@ -191,7 +191,7 @@ func _drive_input(primary_pressed: bool, use_pressed: bool, use_held: bool, delt
 	_controller.use_pressed = use_pressed
 	_controller.use_held = use_held
 	_controller.input_tick += 1
-	InteractionActionResolver.handle_input(_actor, delta)
+	InteractionInputFixture.advance(_actor, delta)
 	_controller.action_main_pressed = false
 	_controller.use_pressed = false
 
@@ -272,7 +272,7 @@ func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> voi
 
 	_controller.use_held = false
 	_controller.input_tick += 1
-	InteractionActionResolver.handle_input(_actor, 0.0)
+	InteractionInputFixture.advance(_actor, 0.0)
 	assert_null(ProlongedInteractionService.session(_actor))
 
 

@@ -102,9 +102,9 @@ func _run() -> void:
 	var progress_state: C_ProlongedInteraction = C_ProlongedInteraction.new()
 	progress_state.actions.append(completed)
 	valve.add_component(progress_state)
-	assert(ProlongedProgressService.advance(completed, completed.timing, 2.0, true))
+	assert(ProlongedProgressSolver.advance(completed, completed.timing, 2.0, true))
 	valve.activate()
-	assert(ProlongedProgressService.commit_success(completed, completed.timing))
+	assert(ProlongedProgressSolver.commit_success(completed, completed.timing))
 	var carry_box: Entity = level.get_node("Entityes/AnchorableTestBox") as Entity
 	(carry_box as Node as RigidBody3D).global_position = Vector3(17.5, 1.4, 1.5)
 
@@ -148,7 +148,7 @@ func _run() -> void:
 	assert(valve.is_active())
 	completed = (valve.get_component(C_ProlongedInteraction) as C_ProlongedInteraction).actions[0]
 	assert(completed.phase == ProlongedInteractionProgress.Phase.COMPLETED)
-	assert(not ProlongedProgressService.advance(completed, completed.timing, 10.0, true))
+	assert(not ProlongedProgressSolver.advance(completed, completed.timing, 10.0, true))
 	assert(WalletService.current().balance == expected_balance)
 	assert((actor.get_component(C_Hunger) as C_Hunger).value >= 55.0)
 	assert(InventoryService.items(actor).size() == 1)
@@ -288,7 +288,7 @@ func _aim(actor: Entity, target: Entity) -> void:
 		await get_tree().physics_frame
 
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(actor, interactor)
 	assert(interactor.target == target, "aim target=%s resolved=%s collider=%s pose=%s ray=%s" % [target.name, interactor.target, ray.get_collider(), (target as Node as Node3D).global_position, ray.global_position])
 
 #endregion

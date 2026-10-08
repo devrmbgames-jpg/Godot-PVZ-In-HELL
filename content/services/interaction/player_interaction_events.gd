@@ -22,9 +22,6 @@ static func publish(actor: Entity, target: Entity, kind: PlayerInteractionEvent.
 	if parcel != null:
 		event.package_id = parcel.package_id
 
-	var district: C_District = DistrictPopulationService.current()
-	if district != null and kind in [PlayerInteractionEvent.Kind.PARCEL_PICKED, PlayerInteractionEvent.Kind.PARCEL_PLACED, PlayerInteractionEvent.Kind.DOOR_OPENED, PlayerInteractionEvent.Kind.DOOR_CLOSED]:
-		NpcPerceptionService.action_noise(target, district.definition.interaction_noise_radius)
 	BoundaryTrace.record(&"interaction.fact", event.operation_id,
 		BoundaryTraceEntry.Stage.COMPLETED,
 		StringName(String(PlayerInteractionEvent.Kind.keys()[kind]).to_lower()),

@@ -101,6 +101,70 @@ func _parcel() -> Entity:
 
 #endregion
 
+#region NPC consumption of committed facts
+func _noise_consumer(manual: bool = false) -> C_District:
+	var district: C_District = C_District.new()
+	district.definition = load("res://content/definitions/gameplay/npc/def_district_default.tres") as DEF_District
+	(_root.get_node("Session") as Entity).add_component(district)
+	var observer: O_PlayerInteractionNoise = O_PlayerInteractionNoise.new()
+	if manual:
+		observer.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	_world.add_observer(observer)
+	return district
+
+
+## Actual pickup/placement facts create NPC noise after the authoritative relationship transition.
+func test_committed_pickup_and_placement_generate_noise_in_the_consumer() -> void:
+	var district: C_District = _noise_consumer()
+	var parcel: Entity = _parcel()
+	assert_true(GrabService.try_pickup(_actor, parcel))
+	assert_eq(_probe.events.size(), 1)
+	assert_eq(district.noises.size(), 1)
+	assert_eq(district.noises[0].source, parcel)
+	assert_eq(district.noises[0].radius, district.definition.interaction_noise_radius)
+	assert_not_null(GrabService.held_relationship(parcel))
+	GrabService.release(_actor, parcel)
+	assert_eq(_probe.events.size(), 2)
+	assert_eq(district.noises.size(), 2)
+	assert_null(GrabService.held_relationship(parcel))
+
+
+## Queued noise uses the committed position and rejects a removed physical source.
+func test_deferred_noise_seals_position_and_revalidates_source_lifetime() -> void:
+	var district: C_District = _noise_consumer(true)
+	var parcel: Entity = _parcel()
+	var body: RigidBody3D = parcel as Node as RigidBody3D
+	var committed_position: Vector3 = body.global_position
+	assert_true(GrabService.try_pickup(_actor, parcel))
+	assert_true(district.noises.is_empty())
+	body.global_position += Vector3.RIGHT * 5.0
+	_world.flush_command_buffers()
+	assert_eq(district.noises.size(), 1)
+	assert_eq(district.noises[0].position, committed_position)
+	GrabService.release(_actor, parcel)
+	_world.remove_entity(parcel)
+	_world.flush_command_buffers()
+	assert_eq(district.noises.size(), 1, "Removed source cannot create a new queued noise")
+
+
+## Invalid pickup and a replaced load aggregate cannot produce committed NPC noise.
+func test_rejected_pickup_and_replaced_district_do_not_generate_noise() -> void:
+	var district: C_District = _noise_consumer(true)
+	var parcel: Entity = _parcel()
+	var body: RigidBody3D = parcel as Node as RigidBody3D
+	body.freeze = true
+	assert_false(GrabService.try_pickup(_actor, parcel))
+	assert_true(district.noises.is_empty())
+	body.freeze = false
+	assert_true(GrabService.try_pickup(_actor, parcel))
+	var replacement: C_District = C_District.new()
+	replacement.definition = district.definition
+	(_root.get_node("Session") as Entity).add_component(replacement)
+	_world.flush_command_buffers()
+	assert_true(district.noises.is_empty())
+	assert_true(replacement.noises.is_empty())
+#endregion
+
 #region Фактические переходы и атрибуция
 ## Открытие и закрытие панели дают по одному событию и корректно возвращают ввод.
 func test_terminal_reports_actual_visibility_and_releases_capture_once() -> void:
@@ -205,7 +269,7 @@ func test_npc_and_forced_release_do_not_emit_player_action() -> void:
 	assert_eq(_probe.events.size(), 1)
 	assert_true(GrabService.try_pickup(_actor, parcel))
 	(parcel as Node as RigidBody3D).freeze = true
-	GrabService.handle_input(_actor)
+	InteractionInputFixture.advance(_actor)
 	assert_null(GrabService.held_relationship(parcel))
 	assert_eq(_probe.events.size(), 2, "Invalid-grip input cleanup is not a player placement")
 	(parcel as Node as RigidBody3D).freeze = false

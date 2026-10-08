@@ -1,5 +1,5 @@
 extends System
-## В расписании GECS исполняет физический адаптер обычных тел и откладывает ввод через GrabService.
+## В расписании GECS исполняет физический адаптер обычных тел перед S_InteractionInput.
 class_name S_Grab
 
 
@@ -16,8 +16,7 @@ func query() -> QueryBuilder:
 	)
 
 
-## Интегрирует обычные тела и откладывает обработку ввода; delta в секундах.
+## Integrates physical proxies; S_InteractionInput owns input arbitration after this stage.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for holder: Entity in entities:
 		GrabService.integrate_generic_bodies(holder, delta)
-		cmd.add_custom(GrabService.handle_input.bind(holder, delta))

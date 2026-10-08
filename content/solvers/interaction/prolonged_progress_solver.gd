@@ -1,6 +1,6 @@
 extends RefCounted
 ## Вычисляет прогресс детерминированно; эффекты и захват управления принадлежат исполнителю.
-class_name ProlongedProgressService
+class_name ProlongedProgressSolver
 
 const COMPLETE_FRACTION: float = 1.0
 

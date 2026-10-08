@@ -19,7 +19,7 @@ func _physics_process(_delta: float) -> void:
 
 	_controller.input_tick += 1
 	_controller.direction_look = -(_cart as Node as Node3D).global_basis.z
-	GrabService.handle_input(_actor)
+	InteractionInputFixture.advance(_actor)
 	for cargo: Entity in _cargo:
 		var binding: Relationship = CartCargoService.relationship(cargo)
 		var data: R_CartCargo = binding.relation as R_CartCargo if binding != null else null

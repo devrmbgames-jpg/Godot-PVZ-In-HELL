@@ -79,23 +79,23 @@ Paths below are relative to `content/services/`; numbers refer to owning roadmap
 | `interaction/cart_driver_solver.gd` | KEEP_SOLVER | 21 | Driver physical-follow contribution from actor callback. | KEPT_WITH_REASON |
 | `interaction/cart_transport_service.gd` | KEEP_SERVICE | 21 | Driver relationship/focus commands and lifecycle reactions. | KEPT_WITH_REASON |
 | `interaction/grab_physics_solver.gd` | KEEP_SOLVER | 21 | Hold-force/rotation/anchor algorithms. | KEPT_WITH_REASON |
-| `interaction/grab_service.gd` | SPLIT | 20,21 | Transactions, input, reverse-cache reactions, body iteration and callback adapter. | PENDING |
-| `interaction/interaction_action_resolver.gd` | SPLIT | 20 | Action selection/execution mixed with input priority/edge orchestration. | PENDING |
+| `interaction/grab_service.gd` | SPLIT | 20,21 | 20 input slice DONE in S_InteractionInput; 21 transaction/cache/body synchronization and physical callback slices remain pending. | PENDING |
+| `interaction/interaction_action_resolver.gd` | SPLIT | 20 | Explicit resolve/execute_slot retained; priority/edge/held orchestration moved to S_InteractionInput, old handle_input and callers removed. | DONE |
 | `interaction/interaction_control_focus.gd` | KEEP_SERVICE | 20 | Acquire/release/query authoritative capture state. | KEPT_WITH_REASON |
-| `interaction/interaction_highlight_service.gd` | RENAME_MOVE | 20 | Feedback-state calculation becomes InteractionHighlightRules. | PENDING |
-| `interaction/interaction_targeting_service.gd` | RENAME_MOVE | 20 | Explicit ray/collider queries become InteractionTargetingGeometry. | PENDING |
+| `interaction/interaction_highlight_service.gd` | RENAME_MOVE | 20 | InteractionHighlightRules moved with retained UID, all callers migrated; existing overlay restore authority preserved. | DONE |
+| `interaction/interaction_targeting_service.gd` | RENAME_MOVE | 20 | InteractionTargetingGeometry moved with retained UID, every collider/ray caller migrated; S_InteractionTargeting owns regular selection. | DONE |
 | `interaction/item_access_service.gd` | KEEP_SERVICE | 21 | Explicit access evaluation/fulfillment transaction. | KEPT_WITH_REASON |
-| `interaction/light_circuit_service.gd` | SPLIT | 20 | Switch/lookups mixed with group presentation; flicker Event payload is intent. | PENDING |
-| `interaction/marker_session_service.gd` | SPLIT | 20 | Begin/end commands mixed with pointer/sample/stroke input step. | PENDING |
+| `interaction/light_circuit_service.gd` | SPLIT | 20 | Explicit switch/lookups/flicker intent retained; committed circuit fact consumed by O_LightCircuitPresentation, group projection in LightCircuitPresentation and S_LightCircuit. | DONE |
+| `interaction/marker_session_service.gd` | SPLIT | 20 | Explicit begin/end retained; S_Marker owns pointer/sample/ink continuation, queued session/input identity and per-tick receipt; old update removed. | DONE |
 | `interaction/marker_surface_sampler.gd` | KEEP_GEOMETRY | 20 | One explicit marker ray/sample. | KEPT_WITH_REASON |
 | `interaction/openable_joint_solver.gd` | KEEP_SOLVER | 21 | Physical callback motor contribution/fraction reporting. | KEPT_WITH_REASON |
 | `interaction/openable_service.gd` | SPLIT | 21 | Request/report operations mixed with fraction/transform calculations. | PENDING |
 | `interaction/package_mark_service.gd` | KEEP_SERVICE | 20 | Append/break/clear authored stroke commands. | KEPT_WITH_REASON |
 | `interaction/physical_slot_service.gd` | KEEP_SERVICE | 21 | Slot transactions and discrete attach/detach/removal effects. | KEPT_WITH_REASON |
 | `interaction/physics_grab_target.gd` | KEEP_SERVICE | 21 | Body/proxy construction/lookup with lifecycle cleanup. | KEPT_WITH_REASON |
-| `interaction/player_interaction_events.gd` | SPLIT | 20 | Fact publisher also generates NPC noise; separate committed consumer. | PENDING |
-| `interaction/prolonged_interaction_service.gd` | SPLIT | 20 | Session commands mixed with input progression/effect/idle-decay loops. | PENDING |
-| `interaction/prolonged_progress_service.gd` | RENAME_MOVE | 20 | Explicit algorithm becomes ProlongedProgressSolver; no query/cadence. | PENDING |
+| `interaction/player_interaction_events.gd` | SPLIT | 20 | Publisher emits only committed interaction facts; O_PlayerInteractionNoise owns NPC noise consumption with queued position/lifetime/aggregate checks. | DONE |
+| `interaction/prolonged_interaction_service.gd` | SPLIT | 20 | Explicit session commands/lookup/cleanup retained; S_InteractionInput owns active clock/effect handoff, S_ProlongedDecay owns idle iteration; no tick/decay. | DONE |
+| `interaction/prolonged_progress_service.gd` | RENAME_MOVE | 20 | ProlongedProgressSolver moved with retained UID and every caller migrated; no target iteration/cadence. | DONE |
 | `interaction/push_actor_solver.gd` | KEEP_SOLVER | 21 | Actor callback physical contribution. | KEPT_WITH_REASON |
 | `interaction/push_cart_solver.gd` | KEEP_SOLVER | 21 | Cart callback physical contribution. | KEPT_WITH_REASON |
 | `interaction/push_service.gd` | KEEP_SERVICE | 21 | R_PushedBy operations/reactions and derived actor cache. | KEPT_WITH_REASON |

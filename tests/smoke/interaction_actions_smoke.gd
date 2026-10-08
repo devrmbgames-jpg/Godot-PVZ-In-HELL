@@ -39,6 +39,7 @@ func _run() -> void:
 
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
+	level.set("autosave_path", "")
 	add_child(level)
 	level.set_physics_process(false)
 	for delivery_tick: int in 12:
@@ -46,10 +47,16 @@ func _run() -> void:
 		ECS.world.process(1.0 / 60.0, "GamePlay")
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var scanner: Entity = level.get_node("Entityes/Scanner") as Entity
-	var parcel: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
+	# Carry routing uses a real package independent of the current district supply assortment.
+	var parcel: E_Package = (load("res://content/entities/packages/package.tscn") as PackedScene).instantiate() as E_Package
+	parcel.package_id = "smoke/interaction/parcel"
+	parcel.package_definition = load("res://content/definitions/gameplay/packages/def_test_bread.tres") as DEF_Package
+	level.add_child(parcel as Node)
+	ECS.world.add_entity(parcel, null, false)
+	(parcel as Node as RigidBody3D).gravity_scale = 0.0
 	var terminal: E_Terminal = level.get_node("Entityes/Terminal") as E_Terminal
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	(actor as Node as RigidBody3D).freeze = true
+	(actor as Node as Node3D).set_physics_process(false)
 	await _prepare_target(actor, scanner, Vector3(0.0, 0.0, -1.6))
 	assert(GrabService.within_pickup_reach(actor, scanner))
 	assert(GrabService.pickup_slot(actor, scanner, false) == C_Grabbable.HoldSlot.RIGHT_HAND)
@@ -82,7 +89,7 @@ func _run() -> void:
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 2, "Hand use must resume after Carry release")
 	await _prepare_target(actor, terminal, Vector3(0.0, -0.5, -1.8))
-	assert(InteractionTargetingService.find_target(actor, interactor) == terminal)
+	assert(InteractionTargetingGeometry.find_target(actor, interactor) == terminal)
 	_drive(actor, true, false, false, false, false)
 	assert(terminal.is_panel_open())
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.MODAL)
@@ -142,7 +149,7 @@ func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> v
 	ray.look_at(target_body.global_position)
 	ray.force_raycast_update()
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(actor, interactor)
 
 
 func _drive(

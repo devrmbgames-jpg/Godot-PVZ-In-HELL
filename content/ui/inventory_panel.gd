@@ -75,7 +75,7 @@ func open_inventory() -> bool:
 		return false
 
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	var target: Entity = InteractionTargetingService.find_target(player, interactor) if interactor != null else null
+	var target: Entity = InteractionTargetingGeometry.find_target(player, interactor) if interactor != null else null
 	_target = weakref(target) if target != null and target.has_component(C_Package) else null
 	_capture = InteractionControlFocus.acquire(player, self, InteractionControlFocus.Priority.MODAL)
 	if _capture == 0:
@@ -113,7 +113,7 @@ func _package_target() -> Entity:
 		return null
 
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	return target if interactor != null and InteractionTargetingService.find_target(player, interactor) == target else null
+	return target if interactor != null and InteractionTargetingGeometry.find_target(player, interactor) == target else null
 
 
 func _refresh() -> void:

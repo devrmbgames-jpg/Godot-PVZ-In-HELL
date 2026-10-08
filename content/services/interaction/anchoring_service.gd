@@ -215,7 +215,7 @@ static func _supported_by(candidate: Entity, supporter: Entity) -> bool:
 		)
 		for hit: Dictionary in hits:
 			var collider: Object = hit.get("collider") as Object
-			if InteractionTargetingService.collider_rigid_body(collider) == supporter_body:
+			if InteractionTargetingGeometry.collider_rigid_body(collider) == supporter_body:
 				return true
 	return false
 

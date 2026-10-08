@@ -3,9 +3,9 @@ extends System
 class_name S_ProlongedDecay
 
 
-## Выполняет затухание до S_Grab, который обрабатывает активное участие.
+## Выполняет затухание до S_InteractionInput, который обрабатывает активное участие.
 func deps() -> Dictionary[int, Array]:
-	return { Runs.Before: [S_Grab] }
+	return { Runs.Before: [S_InteractionInput] }
 
 
 ## Выбирает цели с сохранённым прогрессом длительных действий.
@@ -13,7 +13,9 @@ func query() -> QueryBuilder:
 	return q.with_all([C_ProlongedInteraction]).iterate([C_ProlongedInteraction])
 
 
-## Продвигает простой по авторским правилам через сервис; delta в секундах.
+## Owns idle progression; the pure progress operation contains no target iteration.
 func process(_entities: Array[Entity], components: Array, delta: float) -> void:
 	for state: C_ProlongedInteraction in components[0]:
-		ProlongedInteractionService.decay(state, delta)
+		for progress: ProlongedInteractionProgress in state.actions:
+			if progress.phase == ProlongedInteractionProgress.Phase.IDLE:
+				ProlongedProgressSolver.advance(progress, progress.timing, delta, false)

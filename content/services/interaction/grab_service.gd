@@ -11,39 +11,6 @@ const NO_CARRY_GROUP: StringName = &"no_carry"
 
 
 #region Команды хвата и физическое исполнение
-## Освобождает недопустимые хваты перед обработкой снимка ввода актора; delta в секундах.
-static func handle_input(holder: Entity, delta: float = 0.0) -> void:
-	if not is_instance_valid(holder):
-		return
-
-	var control: C_GrabControl = holder.get_component(C_GrabControl) as C_GrabControl
-	var controller: C_Controller = holder.get_component(C_Controller) as C_Controller
-	var interactor: C_Interactor = holder.get_component(C_Interactor) as C_Interactor
-	if control == null or controller == null or interactor == null:
-		ProlongedInteractionService.cancel(holder)
-		return
-
-	for slot_index: int in 3:
-		var held: Entity = held_in_slot(holder, slot_index)
-		if held == null:
-			continue
-
-		var body: RigidBody3D = physical_body(held)
-		var interactable: C_Interactable = held.get_component(C_Interactable) as C_Interactable
-		if (
-			not holder_available(holder) or not entity_available(held)
-			or body == null or body.freeze
-			or (interactable != null and not interactable.enabled)
-		):
-			release(holder, held, false)
-	if not holder_available(holder):
-		ProlongedInteractionService.cancel(holder)
-		interactor.prompt_text = ""
-		return
-
-	InteractionActionResolver.handle_input(holder, delta)
-
-
 ## Проверяет всю транзакцию до освобождения предмета из занятой руки.
 static func can_pickup(
 	holder: Entity,
@@ -730,7 +697,7 @@ static func within_pickup_reach(holder: Entity, target: Entity) -> bool:
 	var raycast: RayCast3D = interaction_raycast(holder)
 	if control == null or interactor == null or not is_instance_valid(raycast):
 		return false
-	if InteractionTargetingService.find_target(holder, interactor) != target:
+	if InteractionTargetingGeometry.find_target(holder, interactor) != target:
 		return false
 	if not raycast.is_colliding():
 		return false
@@ -749,7 +716,7 @@ static func within_pickup_reach_body(holder: Entity, body: RigidBody3D) -> bool:
 	var raycast: RayCast3D = interaction_raycast(holder)
 	if control == null or interactor == null or not is_instance_valid(raycast):
 		return false
-	if InteractionTargetingService.find_physics_target(holder, interactor) != body:
+	if InteractionTargetingGeometry.find_physics_target(holder, interactor) != body:
 		return false
 	if not raycast.is_colliding():
 		return false

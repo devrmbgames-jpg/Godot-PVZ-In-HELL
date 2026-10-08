@@ -65,7 +65,7 @@ static func can_scan(actor: Entity, scanner: Entity, target: Entity) -> bool:
 		return false
 
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	if interactor == null or InteractionTargetingService.find_target(actor, interactor) != target:
+	if interactor == null or InteractionTargetingGeometry.find_target(actor, interactor) != target:
 		return false
 
 	var ray: RayCast3D = GrabService.interaction_raycast(actor)

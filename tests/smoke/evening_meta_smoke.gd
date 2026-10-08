@@ -46,7 +46,7 @@ func _run() -> void:
 	var controller: C_Controller = _actor.get_component(C_Controller) as C_Controller
 	controller.input_tick += 1
 	controller.use_pressed = true
-	InteractionActionResolver.handle_input(_actor)
+	InteractionInputFixture.advance(_actor)
 	controller.use_pressed = false
 
 	var shop: CommercePanel = _panel()
@@ -132,7 +132,7 @@ func _aim(target: Entity, offset: Vector3) -> void:
 		await get_tree().physics_frame
 
 	var interactor: C_Interactor = _actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(_actor, interactor)
 	assert(interactor.target == target)
 
 

@@ -60,7 +60,7 @@ static func clear_line(actor: Entity, target: Entity, mask: int) -> bool:
 
 	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin(actor), aim_point(target), mask, exclusions(actor))
 	var hit: Dictionary = node.get_world_3d().direct_space_state.intersect_ray(ray)
-	return hit.is_empty() or InteractionTargetingService.collider_entity(hit.get("collider") as Object) == target
+	return hit.is_empty() or InteractionTargetingGeometry.collider_entity(hit.get("collider") as Object) == target
 
 
 ## Проверяет дальность в метрах и половину угла сектора в градусах.
