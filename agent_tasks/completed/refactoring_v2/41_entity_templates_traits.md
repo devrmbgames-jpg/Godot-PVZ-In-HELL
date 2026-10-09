@@ -1,8 +1,8 @@
 # Refactoring v2.41 — Entity Templates / Traits runtime composition
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
-Зависимости: [47_game_time_randomness.md](../completed/refactoring_v2/47_game_time_randomness.md), strict domains и authoritative ECS contracts.
+Зависимости: [47_game_time_randomness.md](47_game_time_randomness.md), strict domains и authoritative ECS contracts.
 Baseline: `857ec02d7703eab840dbf496730be48d29294d99`.
 
 ## Goal
@@ -52,22 +52,22 @@ Scope remains №41. Do not start №42 or expand the migration to unrelated def
 
 ## Current / Next
 
-Implementation, memory comparison and native regression are complete. RV-004 is repaired;
-bounded fix review and final headless smoke remain pending.
+Implementation, memory comparison, native regression, smoke and review/triage are complete.
+Final code checkpoint: `499a99bef5eea81a6a13729035fe4b1ad80a8df7`.
 Runtime comparison target: `fc58024f827607286afd1d20d009e3bf22495f64`.
 Memory criterion: `1097d8421892e86c4c8a6aff9b3fa6af18069dfa` (explicit owner decision).
 The RV-001 runtime fix and its tests are unchanged since their full fix SHA below.
 
-[Composition manifest](../../utils/entity_composition_manifest.json): **72/72 resolved**,
+[Composition manifest](../../../utils/entity_composition_manifest.json): **72/72 resolved**,
 **73 scene intrinsic sources**, verified in committed HEAD and the current worktree.
-[Domain contracts](../../utils/domain_contracts.json) and
-[migration map](../../utils/domain_migration_map.json) retain the declared ownership.
+[Domain contracts](../../../utils/domain_contracts.json) and
+[migration map](../../../utils/domain_migration_map.json) retain the declared ownership.
 Pre-existing config, authored definitions, manifests and addon worktree edits remain preserved.
 
-Next: collect the bounded RV-004 fix review and finish headless smoke.
+Next: none within №41; keep the independent shutdown diagnostic in its owning task.
 Repeated equivalent lifecycles are stable; RV-003 is rejected as a memory-leak claim below.
 The independently inherited compile-only shutdown diagnostic is owned by
-[cold snapshot resource retention](../cold_snapshot_resource_retention.md).
+[cold snapshot resource retention](../../cold_snapshot_resource_retention.md).
 The owner explicitly changed the former shutdown-only blocker on 2026-10-10; warnings remain
 visible and parser/runtime/ownership errors still block. No global warning suppression added.
 Audit found an independent baseline HazardLifecycle use-after-free, repaired separately in
@@ -76,8 +76,11 @@ No №42 or Phase-3 work is authorized by the current request.
 
 ## Review findings
 
-Checkpoint review is **COLLECTED / TRIAGED**; R1 is deduplicated into RV-004.
-The repair's bounded committed-SHA review is still required before DONE.
+All available reviews are **COLLECTED / TRIAGED**; no REVIEW_PENDING remains.
+R1 is deduplicated into RV-004. Bounded repair review is **FIX VERIFIED**:
+BASE `4dee2e2557b4737b279b6eb83e03183619b5e6ad`,
+TARGET `499a99bef5eea81a6a13729035fe4b1ad80a8df7`.
+Bounded ARCHITECTURE/STYLE PASS; native VALIDATION NOT_RUN by reviewer.
 Exactly one reviewer, `/root/review_task41_checkpoint`, was reused after it finished.
 An older unrecoverable result remains **NOT_RUN (result unavailable)**; no PASS was fabricated.
 
@@ -128,17 +131,18 @@ Both snapshots keep Objects/Resources/Nodes constant and orphans at zero. MEMORY
 to a plateau (inspection oscillates within 336 bytes); RSS/Private Bytes plateau.
 This includes Entity/proxy/inspection in one live World.
 No retaining owner or runtime-growth regression is claimed from shutdown counts.
-Evidence: [trend CSV](../../tests/fixtures/memory_lifecycle_baseline.csv) and
-[source/conditions](../../tests/fixtures/memory_lifecycle_evidence.json). No fake fix SHA assigned.
+Evidence: [trend CSV](../../../tests/fixtures/memory_lifecycle_baseline.csv) and
+[source/conditions](../../../tests/fixtures/memory_lifecycle_evidence.json). No fake fix SHA assigned.
 
-**RV-004 | P2 | ACCEPTED | Main / №41 style gate**
+**RV-004 | P2 | FIXED | Main / №41 style gate**
 
 Source `4dee2e2557b4737b279b6eb83e03183619b5e6ad`: original-base formatter finds
 24 task-owned files with formatting, long-line or duplicate-load failures. Incremental
 harness checks did not cover the whole migration; reviewer R1 is the same defect.
 Repair implemented: new-file formatter structure verification, concise comments/expressions,
 fixture scene-path constant and shorter test name. Original-base formatter **134 files PASS**,
-parser **24/24**, affected GUT **124/124 / 1158 assertions**; bounded fix review pending.
+parser **24/24**, affected GUT **124/124 / 1158 assertions**.
+Fix: `499a99bef5eea81a6a13729035fe4b1ad80a8df7`; bounded independent review FIX VERIFIED.
 
 ## Validation
 
@@ -151,14 +155,15 @@ Recorded evidence is scoped; historical passes are not a fresh whole-task accept
 - RV-001: **3 scripts / 61/61 / 657 assertions**, zero diagnostics; final parser **4/4**.
   Logs: `tests/artifacts/refactoring_v2_41_rv001_gut.log`,
   `tests/artifacts/refactoring_v2_41_rv001_final_parser.log`.
-- Previously run actual main, Night two-process roundtrip, receiving_scan and relevant factory
-  smokes passed; this diagnostic batch did not rerun them or launch rendered gameplay.
+- Final headless actual main vertical_slice **PASS**, zero diagnostics:
+  `tests/artifacts/vertical_slice-20261010-035924333.log`.
+  Previously accepted Night two-process roundtrip, receiving_scan and factory smokes remain valid.
 - Same-engine baseline/current comparison: controls parse **1/1 clean on both**; compile-only
   snapshot probes parse successfully but **FAIL** at shutdown (280/236 baseline, 294/247 target).
   Identical save-data GUT is **6/6 / 40 assertions PASS** with zero diagnostics on both.
 - Same baseline district leaf is **10/10 / 87**, clean baseline versus RV-003 target FAIL.
   Leaf and probe SHA-256, full source SHAs, engine/settings/GECS identity and exact commands:
-  [durable comparison evidence](../../tests/fixtures/cold_snapshot_retention_evidence.json).
+  [durable comparison evidence](../../../tests/fixtures/cold_snapshot_retention_evidence.json).
 - Raw machine results/logs: `tests/artifacts/refactoring_v2_41_compare_same_probes.json`,
   `tests/artifacts/refactoring_v2_41_compare_same_district.json`,
   `tests/artifacts/refactoring_v2_41_compare_{baseline,current}_district_gut.log`,
@@ -170,16 +175,16 @@ Recorded evidence is scoped; historical passes are not a fresh whole-task accept
   5184 assertions per snapshot in main ten-scenario run; supplements exercise persistent Entity,
   proxy and inspection plus 100 World cycles. All functional checks and native diagnostics clean.
   Host RSS/Private Bytes sampled through a quiescent handshake; assertion bookkeeping bounded.
-- [Lifetime audit](../../tests/fixtures/memory_lifecycle_audit.json): 921 project-owned scripts
+- [Lifetime audit](../../../tests/fixtures/memory_lifecycle_audit.json): 921 project-owned scripts
   scanned, 85 production free/queue_free sites, no reference/unreference calls. Significant
   caches, WeakRef containers, Callables and seven priority owners reviewed; one baseline UAF fixed.
 - Native parser: prior hazard/test/probe **3/3**, final probe **1/1**, style repair **24/24**,
   zero diagnostics. Original-base formatter **134 files**, agent, strict architecture/structure,
-  preflight and three trend-analysis Python fixtures PASS. Final smoke/fix review pending.
+  preflight and three trend-analysis Python fixtures PASS. Review/triage and smoke complete.
 
 ## Owner QA / blockers
 
 Shutdown retention alone no longer blocks DONE under the owner's explicit criterion change.
-RV-004 and final review/regression/smoke block archive. Independent shutdown investigation remains
+No accepted P0/P1/P2 or pending review remains. Independent shutdown investigation remains
 separate; no engine/addon upgrade, warning suppression or load-order workaround adopted.
 No rendered/manual QA is claimed. Tests establish stability on listed lifecycles, not every path.

@@ -27,7 +27,7 @@ gameplay execution and snapshot capture execution are unnecessary for reproducti
 A Script/resource lifetime interaction is suspected; a project or engine owner is not proven.
 Do not infer a common retaining owner or runtime leak from these shutdown counts.
 The owner changed memory acceptance on 2026-10-10: repeated equivalent lifecycles stabilize
-on both snapshots; this investigation no longer blocks [№41](refactoring_v2/41_entity_templates_traits.md).
+on both snapshots; this investigation no longer blocks [№41](completed/refactoring_v2/41_entity_templates_traits.md).
 See [growth evidence](../tests/fixtures/memory_lifecycle_evidence.json) and
 [trend baseline](../tests/fixtures/memory_lifecycle_baseline.csv).
 

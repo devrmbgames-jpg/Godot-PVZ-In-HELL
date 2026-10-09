@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [41_entity_templates_traits.md](41_entity_templates_traits.md).
+Зависимости: [41_entity_templates_traits.md](../completed/refactoring_v2/41_entity_templates_traits.md).
 
 ## Goal
 
