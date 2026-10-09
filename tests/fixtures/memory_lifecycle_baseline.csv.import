@@ -1,0 +1,9 @@
+[remap]
+
+importer="keep"
+
+[deps]
+
+source_file="res://tests/fixtures/memory_lifecycle_baseline.csv"
+
+[params]
