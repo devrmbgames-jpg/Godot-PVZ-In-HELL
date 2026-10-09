@@ -23,15 +23,29 @@ static func actor_state(actor: E_DistrictNpc) -> Dictionary[String, Variant]:
 		"local_activity": String(decision.local_activity_id),
 		"participation": "ACTIVE" if _body_participating(person, actor) else "DORMANT",
 		"participation_reason": String(decision.participation_reason),
+		"pending_arrival": _pending_arrival(person),
+		"participation_pin": "service_role" if actor.has_active_role() else "",
 		"wake_pending": decision.wake_requested,
 	}
 
 
 static func _body_participating(person: NpcRecord, actor: E_DistrictNpc) -> bool:
 	return (
-			person.placement == NpcRecord.Placement.STREET and person.death_day == 0 \
+		person.placement == NpcRecord.Placement.STREET and person.death_day == 0 \
 				and actor.enabled
 		and not actor.has_component(C_Death)
+	)
+
+
+static func _pending_arrival(person: NpcRecord) -> bool:
+	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(
+		person.planned_day,
+		person.planned_phase as C_DayCycle.Phase,
+	)
+	return (
+		person.death_day == 0 and person.placement != NpcRecord.Placement.STREET \
+				and not person.phase_complete
+		and location == DEF_NpcSchedule.Location.STREET
 	)
 
 

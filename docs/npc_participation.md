@@ -44,5 +44,20 @@ animation mixers are eligible; 7 dormant mixers stop. This measures work eligibi
 not wall-clock frame time, memory savings or shipping FPS. Body allocation is retained.
 Evidence: `tests/artifacts/refactoring_v2_45_baseline.log` and task45 focused fixtures.
 
-Task45B–C still own safe activation failure/session acceptance, same-mode persistence and
-the completed milestone performance report. No offscreen travel/economy/combat is introduced.
+Preparation and arrival callers supply their intended synchronization position to the placement
+operation. Before activating or relocating a living actor, `NpcActivationSolver` checks each
+active authored body shape once against native physics, excluding only that body. A blocked
+or invalid pose rejects before changing placement, pose or generations. Restore reconciles the
+captured physical state through its explicit reconstruction boundary. No search loop, new
+timer or alternate arrival outcome is introduced.
+
+A phase-plan receipt confirms the calendar obligation, not a physical arrival. If its position
+is blocked, the actor remains dormant and the phase remains unfinished. A repeated explicit
+phase request retries that arrival without assigning a second goal or resetting action state.
+Service/home delivery activation also rejects before starting a visit or meeting. Existing
+role planners retain their bounded candidate iteration. Diagnostics derive pending arrival and
+the service-role pin from current roster/role state; they do not store another mode copy.
+
+Departure explicitly cancels conversation and combat and publishes native unavailability for
+hold/slot/reservation owners. Inventory ownership survives. Task45C still owns same-mode
+persistence and the completed performance report. No offscreen travel/economy/combat is introduced.

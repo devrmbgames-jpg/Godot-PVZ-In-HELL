@@ -54,13 +54,17 @@ duplicates its World/body writes. `E_DistrictNpc.set_participating` is the physi
 and derive ACTIVE/DORMANT from roster placement/death instead of adding a mode copy.
 Baseline proves GECS already suspends dormant root callbacks, but child animation mixers
 remain active; measure their actual processing eligibility before changing the native adapter.
-45A implemented, REVIEW_PENDING: restore uses the single placement operation, repeated
+45A implemented and reviewed: restore uses the single placement operation, repeated
 requests are idempotent, callback boundaries reject nested opposite GECS mode commits,
 and inherited child processing suspends with the body. Writer map and measured scope:
 [NPC participation](../../docs/npc_participation.md).
 Base: `0cbd5eaa832c6ab715f05a0699d0c2cc88da1fc5`.
 Reviewed target: `69a3b9729f21be26e0e75cf08a3aaa509e51a874`.
-Next: targeted RV-001 repair review; 45B bounded activation failure/session cleanup, then 45C
+Repair target: `4e549abab5b5c03280b3363be9f3182f539cdcea` (review PASS).
+45B implements bounded native shape preflight, explicit phase-arrival retry and rejection
+before starting service/home meetings. Actual hold, dialogue, combat and Smart Object
+cleanup is covered without replacing their owners.
+Next: 45B immutable-SHA review, then 45C
 same-mode save/reload and final measured processing acceptance. Full task remains IN_PROGRESS.
 
 ## Evidence / Current gate
@@ -75,7 +79,7 @@ same-mode save/reload and final measured processing acceptance. Full task remain
 - Final participation/reentrant-native-signal/dormant snapshot: PASS, 23 tests / 246 assertions
   (`tests/artifacts/refactoring_v2_45a_final_gut.log`).
 - Parser: PASS, 5 owned files / 0 failures (`tests/artifacts/refactoring_v2_45a_parser.log`).
-- Formatter/lint and architecture/structure gates: PASS. Review: REVIEW_PENDING.
+- Formatter/lint and architecture/structure gates: PASS. 45A repair review: ARCHITECTURE/STYLE PASS.
 - RV-001 focused repair: PASS, 12 tests / 133 assertions, including preserved Night policy
   (`tests/artifacts/refactoring_v2_45a_rv001_after.log`). Original reproduction FAIL,
   1 test / 2 assertions (`tests/artifacts/refactoring_v2_45a_rv001_before.log`).
@@ -87,7 +91,7 @@ same-mode save/reload and final measured processing acceptance. Full task remain
 RV-001 (reviewer R1, P1, `DistrictPopulationService.set_placement`): confirmed death
 inside native suspension commits history but the nested DEAD mode is rejected by the
 transition lock; the outer inactive transition originally failed to reconcile it.
-ACCEPTED / FIX_IMPLEMENTED, awaiting exact-SHA targeted repair review. The actual
+ACCEPTED / FIXED at `4e549abab5b5c03280b3363be9f3182f539cdcea`; targeted repair review PASS. The actual
 C_Death-disable fixture reproduced the original result and passes after reconciling
 already-confirmed death for both requested modes. Night's uncommitted history remains
 with the original morning owner. Original review ARCHITECTURE FAIL / STYLE PASS;

@@ -201,7 +201,11 @@ func _plan_phase(
 	force: bool = false,
 ) -> void:
 	var already_planned: bool = person.planned_day == day and person.planned_phase == int(phase)
-	if person.death_day != 0 or (already_planned and not synchronize and not force):
+	if person.death_day != 0:
+		return
+	if already_planned and not synchronize and not force:
+		# Explicit retries reconcile a blocked arrival without assigning the obligation twice.
+		_try_arrival(person, body, person.profile.schedule.location_for(day, phase))
 		return
 
 	# Commit the new macro goal and reset only phase-scoped reaction state.
@@ -229,27 +233,46 @@ func _plan_phase(
 
 	# Synchronization teleports at preparation; ordinary transitions preserve native travel.
 	if synchronize:
-		body.place_at(
-			NpcPopulationQueries.position_for(
-				person.home_id if person.profile.resident else person.portal_id
-			)
+		var preparation_position: Vector3 = NpcPopulationQueries.position_for(
+			person.home_id if person.profile.resident else person.portal_id
 		)
 		var placement: NpcRecord.Placement = NpcRecord.Placement.STREET
 		if location == DEF_NpcSchedule.Location.HOME:
 			placement = NpcRecord.Placement.HOME
 		elif location == DEF_NpcSchedule.Location.OUTSIDE:
 			placement = NpcRecord.Placement.OUTSIDE
-		DistrictPopulationService.set_placement(person, body, placement)
-	elif (
+		DistrictPopulationService.set_placement(
+			person,
+			body,
+			placement,
+			&"phase_preparation",
+			false,
+			preparation_position,
+		)
+	else:
+		_try_arrival(person, body, location)
+
+
+func _try_arrival(
+	person: NpcRecord,
+	body: E_DistrictNpc,
+	location: DEF_NpcSchedule.Location,
+) -> void:
+	if (
 		location == DEF_NpcSchedule.Location.STREET
 		and person.placement != NpcRecord.Placement.STREET
 	):
-		body.place_at(
-			NpcPopulationQueries.position_for(
-				person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id
-			)
+		var arrival_position: Vector3 = NpcPopulationQueries.position_for(
+			person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id
 		)
-		DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
+		DistrictPopulationService.set_placement(
+			person,
+			body,
+			NpcRecord.Placement.STREET,
+			&"phase_arrival",
+			false,
+			arrival_position,
+		)
 #endregion
 
 

@@ -2,6 +2,7 @@ extends RefCounted
 ## Добровольная доставка использует обычную проверку коробки и однократную отдельную доплату.
 class_name NpcHomeDeliveryService
 
+
 #region Обязательства
 ## Адаптирует постоянное личное предложение к существующему клиентскому диалогу.
 static func offer_for(body: E_DistrictNpc) -> CustomerVisit:
@@ -9,8 +10,12 @@ static func offer_for(body: E_DistrictNpc) -> CustomerVisit:
 	if cycle == null or cycle.phase not in [C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		return null
 	var active: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
-	var job: NpcHomeDelivery = HomeDeliveryQueries.personal_for(NpcSocialService.identity_for(body), active.visit_id if active != null else &"")
+	var job: NpcHomeDelivery = HomeDeliveryQueries.personal_for(
+		NpcSocialService.identity_for(body),
+		active.visit_id if active != null else &"",
+	)
 	return CustomerFlowQueries.find_visit(job.visit_id) if job != null else null
+
 
 ## После отказа получатель сам приходит через 1–3 дня; срок фиксирован для заказа.
 static func decline(body: E_DistrictNpc) -> bool:
@@ -25,6 +30,7 @@ static func decline(body: E_DistrictNpc) -> bool:
 	body.show_message("Тогда зайду сам через %d дн." % (visit.next_followup_day - cycle.day_index))
 	return true
 
+
 ## Принимает уже выбранное личное предложение и завершает визит к стойке.
 static func accept(body: E_DistrictNpc) -> bool:
 	var visit: CustomerVisit = offer_for(body)
@@ -34,14 +40,21 @@ static func accept(body: E_DistrictNpc) -> bool:
 	var job: NpcHomeDelivery = HomeDeliveryQueries.personal_for(visit.customer_id, visit.visit_id)
 	if job == null or not NpcDeliveryOfferService.accept(job.job_id):
 		return false
-	body.show_message("Жду у дома до сна. Адрес: " + NpcPopulationQueries.place_name(job.address_id) + " · доплата " + str(job.bonus))
+	body.show_message(
+		"Жду у дома до сна. Адрес: " + NpcPopulationQueries.place_name(job.address_id)
+		+ " · доплата " + str(job.bonus)
+	)
 	return true
 #endregion
+
 
 #region Встреча и общая выдача
 ## Вызывает отсутствующего получателя у своей двери или направляет видимого NPC домой.
 static func knock(player: Entity, door: Entity) -> bool:
-	if not GrabQueries.holder_available(player) or player.has_component(C_Death) or not EntityAvailability.contains(door, ECS.world):
+	if (
+		not GrabQueries.holder_available(player) or player.has_component(C_Death)
+		or not EntityAvailability.contains(door, ECS.world)
+	):
 		return false
 
 	var address: C_NpcAddress = door.get_component(C_NpcAddress) as C_NpcAddress
@@ -49,11 +62,17 @@ static func knock(player: Entity, door: Entity) -> bool:
 	if job == null:
 		return false
 
-	NpcPerceptionService.action_noise(door, NpcPopulationQueries.current().definition.interaction_noise_radius)
+	NpcPerceptionService.action_noise(
+		door,
+		NpcPopulationQueries.current().definition.interaction_noise_radius,
+	)
 	var person: NpcRecord = NpcPopulationQueries.person_for(job.npc_id)
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(job.npc_id)
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(job.visit_id)
-	if body == null or person == null or person.death_day != 0 or visit == null or CombatQueries.target_for(body) != null:
+	if (
+		body == null or person == null or person.death_day != 0
+		or visit == null or CombatQueries.target_for(body) != null
+	):
 		return false
 
 	if HomeMeetingQueries.meeting_for(body) != null:
@@ -64,9 +83,15 @@ static func knock(player: Entity, door: Entity) -> bool:
 		return false
 
 	if person.placement != NpcRecord.Placement.STREET:
-		body.place_at(NpcPopulationQueries.position_for(person.home_id))
-		DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
-
+		if not DistrictPopulationService.set_placement(
+			person,
+			body,
+			NpcRecord.Placement.STREET,
+			&"home_meeting_arrival",
+			false,
+			NpcPopulationQueries.position_for(person.home_id),
+		):
+			return false
 
 	var service: C_CustomerAgent = C_CustomerAgent.new()
 	service.visit_id = visit.visit_id
@@ -80,9 +105,14 @@ static func knock(player: Entity, door: Entity) -> bool:
 	visit.visit_count += 1
 	visit.last_visit_day = job.day_index
 	CustomerParcelAssignment.bind_parcel(body, visit)
-	NpcIntentService.move_to(body, NpcPopulationQueries.position_for(job.address_id), visit.definition.arrival_distance)
+	NpcIntentService.move_to(
+		body,
+		NpcPopulationQueries.position_for(job.address_id),
+		visit.definition.arrival_distance,
+	)
 	body.show_message(person.display_name + " · иду к двери")
 	return true
+
 
 ## Фиксирует обычную оплату и доплату с раздельными ключами однократного начисления.
 static func complete(job: NpcHomeDelivery) -> bool:
@@ -93,7 +123,11 @@ static func complete(job: NpcHomeDelivery) -> bool:
 
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(job.visit_id)
 	var cycle: C_DayCycle = DayPhaseQueries.current()
-	if visit == null or cycle == null or visit.actual not in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
+	if (
+		visit == null or cycle == null
+		or visit.actual
+		not in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]
+	):
 		return false
 
 	if visit.actual == CustomerVisit.Actual.DELIVERED:
@@ -125,6 +159,7 @@ static func complete(job: NpcHomeDelivery) -> bool:
 
 #endregion
 
+
 #region Завершение вечера и отображение
 ## Завершает обещания один раз; false требует повторить незавершённую оплату до подготовки утра.
 static func finish_evening(day_index: int) -> bool:
@@ -144,7 +179,11 @@ static func finish_evening(day_index: int) -> bool:
 			continue
 
 		var visit: CustomerVisit = CustomerFlowQueries.find_visit(job.visit_id)
-		if visit != null and visit.actual in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
+		if (
+			visit != null
+			and visit.actual
+			in [CustomerVisit.Actual.DELIVERED, CustomerVisit.Actual.CUSTOMER_REFUSED]
+		):
 			if not complete(job):
 				settled = false
 			continue
@@ -157,14 +196,24 @@ static func finish_evening(day_index: int) -> bool:
 			if job.source == NpcHomeDelivery.Source.PERSONAL:
 				NpcSocialService.remember_promise(person, player, body, job.job_id)
 			else:
-				NpcSocialService.remember(person, player, body, NpcMemory.Kind.BROKEN_PROMISE, job.job_id)
+				NpcSocialService.remember(
+					person,
+					player,
+					body,
+					NpcMemory.Kind.BROKEN_PROMISE,
+					job.job_id,
+				)
 		if body != null:
 			CustomerInspectionService.end(body)
 			HomeMeetingBindings.release_meeting(body)
 			if visit != null:
 				NpcServiceRole.release(body, visit.visit_id)
 		# Явный LOST/REFUSED/TAKEN и уже известный спор остаются под властью журнала обслуживания.
-		if visit != null and not visit.customer_dead and visit.actual == CustomerVisit.Actual.NOT_RESOLVED and visit.declaration == CustomerVisit.Declaration.NONE and visit.complaint == null:
+		if (
+			visit != null and not visit.customer_dead
+			and visit.actual == CustomerVisit.Actual.NOT_RESOLVED
+			and visit.declaration == CustomerVisit.Declaration.NONE and visit.complaint == null
+		):
 			visit.started = false
 			visit.finished = false
 			visit.finished_day = 0
@@ -173,6 +222,7 @@ static func finish_evening(day_index: int) -> bool:
 			visit.followup_committed = false
 
 	return settled
+
 
 ## Краткий список авторитетных обязательств для HUD без внутренних деталей реализации.
 static func status_text() -> String:
@@ -185,7 +235,21 @@ static func status_text() -> String:
 	for job: NpcHomeDelivery in district.home_deliveries:
 		if job.day_index == cycle.day_index and job.status <= NpcHomeDelivery.Status.FAILED:
 			var person: NpcRecord = NpcPopulationQueries.person_for(job.npc_id)
-			var states: PackedStringArray = ["до сна", "доставлено", "получатель отказался", "не выполнено"]
-			lines.append("%s · %s · №%03d · +%d · %s" % [person.display_name if person != null else "Получатель", NpcPopulationQueries.place_name(job.address_id), job.order_number, job.bonus, states[job.status]])
+			var states: PackedStringArray = [
+				"до сна",
+				"доставлено",
+				"получатель отказался",
+				"не выполнено",
+			]
+			lines.append(
+				"%s · %s · №%03d · +%d · %s"
+				% [
+					person.display_name if person != null else "Получатель",
+					NpcPopulationQueries.place_name(job.address_id),
+					job.order_number,
+					job.bonus,
+					states[job.status],
+				]
+			)
 	return "" if lines.is_empty() else "Доставка домой\n" + "\n".join(lines)
 #endregion

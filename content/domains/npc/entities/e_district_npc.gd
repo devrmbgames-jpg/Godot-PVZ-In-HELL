@@ -26,6 +26,11 @@ func _ready() -> void:
 
 
 #region Представление района
+## Reads authored living collision policy while the dormant body's runtime mask is zero.
+func participation_collision_mask() -> int:
+	return _body_mask
+
+
 ## Изменяет физическое участие без удаления или сброса личности.
 func set_participating(participating: bool) -> void:
 	var body: RigidBody3D = self as Node as RigidBody3D

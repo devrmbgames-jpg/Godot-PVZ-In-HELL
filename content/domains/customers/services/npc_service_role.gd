@@ -4,6 +4,7 @@ class_name NpcServiceRole
 
 const QUEUE_SPACING: float = 1.3
 
+
 #region Планирование обслуживания
 ## Подготавливает до двух следующих получателей рядом с текущим; утро допускает прогулку.
 static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
@@ -14,7 +15,10 @@ static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 		return false
 
 	for visit: CustomerVisit in flow.visits:
-		if visit.started or not CustomerFlowQueries.visit_due(visit, cycle.day_index) or not CustomerFlowQueries.arrival_allowed(visit):
+		if (
+			visit.started or not CustomerFlowQueries.visit_due(visit, cycle.day_index)
+			or not CustomerFlowQueries.arrival_allowed(visit)
+		):
 			continue
 		var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
 		var body: E_DistrictNpc = NpcPopulationQueries.body_for(visit.customer_id)
@@ -24,18 +28,37 @@ static func enqueue_next(flow: C_CustomerFlow, cycle: C_DayCycle) -> bool:
 		if body.has_component(C_CustomerAgent):
 			continue
 		var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
-		if CombatQueries.target_for(body) != null or (awareness != null and (awareness.fleeing or awareness.hazard_distress)):
+		if (
+			CombatQueries.target_for(body) != null
+			or (awareness != null and (awareness.fleeing or awareness.hazard_distress))
+		):
 			defer_visit(body, visit, "Получатель покинул очередь из-за опасности")
 			continue
-		begin(body, person, visit, cycle.day_index)
-		return true
+		if begin(body, person, visit, cycle.day_index):
+			return true
 	return false
 
+
 ## Добавляет визит сохранённому телу; движением управляет дерево решений.
-static func begin(body: E_DistrictNpc, person: NpcRecord, visit: CustomerVisit, day_index: int) -> void:
+static func begin(
+	body: E_DistrictNpc,
+	person: NpcRecord,
+	visit: CustomerVisit,
+	day_index: int,
+) -> bool:
 	if person.placement != NpcRecord.Placement.STREET:
-		body.place_at(NpcPopulationQueries.position_for(person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id))
-		DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
+		var arrival_position: Vector3 = NpcPopulationQueries.position_for(
+			person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id,
+		)
+		if not DistrictPopulationService.set_placement(
+			person,
+			body,
+			NpcRecord.Placement.STREET,
+			&"service_arrival",
+			false,
+			arrival_position,
+		):
+			return false
 	var service: C_CustomerAgent = C_CustomerAgent.new()
 	service.visit_id = visit.visit_id
 	service.phase = C_CustomerAgent.Phase.QUEUED
@@ -43,7 +66,10 @@ static func begin(body: E_DistrictNpc, person: NpcRecord, visit: CustomerVisit, 
 	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
 	if motion != null:
 		service.original_walk_speed = motion.max_speed
-		motion.max_speed = maxf(motion.max_speed, NpcPopulationQueries.current().definition.service_approach_speed)
+		motion.max_speed = maxf(
+			motion.max_speed,
+			NpcPopulationQueries.current().definition.service_approach_speed,
+		)
 	var station: E_DeliveryCounter = CustomerFlowQueries.counter()
 	if station != null:
 		var waiting: R_NpcWaitingAt = R_NpcWaitingAt.new()
@@ -61,6 +87,8 @@ static func begin(body: E_DistrictNpc, person: NpcRecord, visit: CustomerVisit, 
 	visit.last_visit_day = day_index
 	CustomerParcelAssignment.bind_parcel(body, visit)
 	body.show_message(person.display_name + " · за посылкой")
+	return true
+
 
 ## Возвращает живых получателей стойки из малого постоянного населения, включая свежие роли.
 static func _prepared() -> Array[E_DistrictNpc]:
@@ -68,14 +96,22 @@ static func _prepared() -> Array[E_DistrictNpc]:
 	var district: C_District = NpcPopulationQueries.current()
 	for person: NpcRecord in district.people:
 		var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
-		if body != null and body.enabled and not body.has_component(C_Death) and body.has_component(C_CustomerAgent) and HomeMeetingQueries.meeting_for(body) == null:
+		if (
+			body != null and body.enabled and not body.has_component(C_Death)
+			and body.has_component(C_CustomerAgent) and HomeMeetingQueries.meeting_for(body) == null
+		):
 			prepared.append(body)
-	prepared.sort_custom(func(first: E_DistrictNpc, second: E_DistrictNpc) -> bool:
-		var first_visit: CustomerVisit = CustomerFlowQueries.visit_for(first)
-		var second_visit: CustomerVisit = CustomerFlowQueries.visit_for(second)
-		return first_visit != null and (second_visit == null or first_visit.queue_order < second_visit.queue_order)
+	prepared.sort_custom(
+		func(first: E_DistrictNpc, second: E_DistrictNpc) -> bool:
+			var first_visit: CustomerVisit = CustomerFlowQueries.visit_for(first)
+			var second_visit: CustomerVisit = CustomerFlowQueries.visit_for(second)
+			return (
+				first_visit != null
+				and (second_visit == null or first_visit.queue_order < second_visit.queue_order)
+			),
 	)
 	return prepared
+
 
 static func _ready_queue() -> Array[E_DistrictNpc]:
 	var ready: Array[E_DistrictNpc] = []
@@ -84,6 +120,8 @@ static func _ready_queue() -> Array[E_DistrictNpc]:
 		if agent.phase != C_CustomerAgent.Phase.WAITING_FOR_DARKNESS:
 			ready.append(body)
 	return ready
+
+
 ## Проверяет, первый ли это ожидающий и свободна ли стойка в дневную фазу.
 static func can_approach(body: E_DistrictNpc) -> bool:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
@@ -109,6 +147,7 @@ static func can_approach(body: E_DistrictNpc) -> bool:
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	return flow == null or flow.arrival_cooldown_seconds <= 0.0
 
+
 ## Резервирует стойку и начинает подход либо явное ожидание темноты у входа.
 static func claim_counter(body: E_DistrictNpc) -> void:
 	var visit: CustomerVisit = CustomerFlowQueries.visit_for(body)
@@ -116,14 +155,29 @@ static func claim_counter(body: E_DistrictNpc) -> void:
 	if visit == null or station == null or not can_approach(body):
 		return
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
-	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_DARKNESS if needs_darkness(body) else C_CustomerAgent.Phase.APPROACHING
+	var approaching_phase: C_CustomerAgent.Phase = C_CustomerAgent.Phase.APPROACHING
+	if needs_darkness(body):
+		approaching_phase = C_CustomerAgent.Phase.WAITING_FOR_DARKNESS
+	agent.phase = approaching_phase
 	if agent.phase == C_CustomerAgent.Phase.APPROACHING:
 		var reservation: R_NpcServiceAt = R_NpcServiceAt.new()
 		reservation.visit_id = visit.visit_id
 		body.add_relationship(Relationship.new(reservation, station))
 	agent.elapsed = 0.0
-	var destination: Vector3 = station.entry_position() if agent.phase == C_CustomerAgent.Phase.WAITING_FOR_DARKNESS else station.waiting_position()
-	NpcIntentArbiter.move_to(body, destination, visit.definition.arrival_distance, C_NpcDecision.Owner.SERVICE)
+	var destination: Vector3 = (
+		station.entry_position()
+		if agent.phase == C_CustomerAgent \
+				.Phase \
+				.WAITING_FOR_DARKNESS
+		else station.waiting_position()
+	)
+	NpcIntentArbiter.move_to(
+		body,
+		destination,
+		visit.definition.arrival_distance,
+		C_NpcDecision.Owner.SERVICE,
+	)
+
 
 ## Выбирает следующую явную точку прогулки, а не строит маршрут перебором.
 static func waiting_destination(body: E_DistrictNpc) -> Vector3:
@@ -142,7 +196,9 @@ static func waiting_destination(body: E_DistrictNpc) -> Vector3:
 	var district: C_District = NpcPopulationQueries.current()
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if not is_instance_valid(flow.service_routes):
-		flow.service_routes = ECS.world.get_parent().get_node_or_null(district.definition.service_routes_path) as NpcServiceRoutes
+		flow.service_routes = ECS.world.get_parent().get_node_or_null(
+			district.definition.service_routes_path
+		) as NpcServiceRoutes
 	if flow.service_routes == null:
 		return station.entry_position()
 	var marker: Node3D = flow.service_routes.point_for(route_index, agent.waiting_point)
@@ -155,13 +211,23 @@ static func waiting_destination(body: E_DistrictNpc) -> Vector3:
 		marker = flow.service_routes.point_for(route_index, agent.waiting_point)
 	return marker.global_position if marker != null else station.entry_position()
 
+
 ## Читает логическое освещение стойки без кратких тёмных кадров собственного мерцания.
 static func needs_darkness(body: E_DistrictNpc) -> bool:
 	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
 	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
 	var rule: DEF_NpcTrait = person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION)
 	var station: E_DeliveryCounter = CustomerFlowQueries.counter()
-	return rule != null and station != null and NpcLightingService.exposure_at(station.waiting_position() + Vector3.UP, [], null, true) > rule.light_threshold
+	if rule == null or station == null:
+		return false
+	var exposure: float = NpcLightingService.exposure_at(
+		station.waiting_position() + Vector3.UP,
+		[],
+		null,
+		true,
+	)
+	return (exposure > rule.light_threshold)
+
 
 ## Предупреждает и запускает конечное мерцание только один раз за этот физический приход.
 static func warn_light(body: E_DistrictNpc) -> void:
@@ -171,7 +237,13 @@ static func warn_light(body: E_DistrictNpc) -> void:
 	agent.light_warning_started = true
 	var config: DEF_District = NpcPopulationQueries.current().definition
 	body.show_message("Я боюсь света. Выключите освещение ПВЗ, я подожду снаружи.")
-	LightCircuitService.flicker(config.service_light_circuit, config.service_flicker_seconds, LightFlickerRequest.DEFAULT_INTERVAL_SECONDS, StringName("npc-light/" + String(agent.visit_id)))
+	LightCircuitService.flicker(
+		config.service_light_circuit,
+		config.service_flicker_seconds,
+		LightFlickerRequest.DEFAULT_INTERVAL_SECONDS,
+		StringName("npc-light/" + String(agent.visit_id)),
+	)
+
 
 ## Переносит недоступный приход на следующее утро без автоматической потери или оплаты.
 static func defer_visit(body: E_DistrictNpc, visit: CustomerVisit, reason: String) -> void:
@@ -195,23 +267,34 @@ static func defer_visit(body: E_DistrictNpc, visit: CustomerVisit, reason: Strin
 			DistrictPopulationService.request_phase(body, cycle.day_index, cycle.phase, false, true)
 		body.show_message(reason + ". Приду в другой день.")
 
+
 ## Разрешает вход после выключения света; движение выполняет отдельный лист дерева.
 static func enter_counter(body: E_DistrictNpc) -> void:
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	claim_counter(body)
 	var config: DEF_District = NpcPopulationQueries.current().definition
-	LightCircuitService.stop_flicker(config.service_light_circuit, StringName("npc-light/" + String(agent.visit_id)))
+	LightCircuitService.stop_flicker(
+		config.service_light_circuit,
+		StringName("npc-light/" + String(agent.visit_id)),
+	)
+
 
 ## Фиксирует прибытие к стойке либо к двери без смены экономического исхода.
 static func arrive(body: E_DistrictNpc) -> void:
 	var agent: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	_restore_walk_speed(body, agent)
-	agent.phase = C_CustomerAgent.Phase.WAITING if HomeMeetingQueries.meeting_for(body) == null else C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	var waiting_phase: C_CustomerAgent.Phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	if HomeMeetingQueries.meeting_for(body) == null:
+		waiting_phase = C_CustomerAgent.Phase.WAITING
+	agent.phase = waiting_phase
 	agent.elapsed = 0.0
 	NpcIntentService.stop(body)
-	body.show_message("Здравствуйте!" if agent.phase == C_CustomerAgent.Phase.WAITING else CustomerPresentation.request_text(CustomerFlowQueries.visit_for(body)))
+	var greeting: String = "Здравствуйте!" if agent.phase == C_CustomerAgent.Phase.WAITING \
+			else CustomerPresentation.request_text(CustomerFlowQueries.visit_for(body))
+	body.show_message(greeting)
 
 #endregion
+
 
 #region Завершение роли
 ## Завершает только визит, сохраняя личность и правила нерешённого заказа.
@@ -231,17 +314,28 @@ static func finish_appearance(body: E_DistrictNpc, visit: CustomerVisit) -> void
 		body.present_profile(person.profile)
 		body.show_message(person.display_name)
 
+
 ## Снимает роль и только её живые связи с коробкой и стойкой.
 static func release(body: Entity, visit_id: StringName) -> void:
 	_restore_walk_speed(body, body.get_component(C_CustomerAgent) as C_CustomerAgent)
 	var district: C_District = NpcPopulationQueries.current()
 	if district != null:
-		LightCircuitService.stop_flicker(district.definition.service_light_circuit, StringName("npc-light/" + String(visit_id)))
+		LightCircuitService.stop_flicker(
+			district.definition.service_light_circuit,
+			StringName("npc-light/" + String(visit_id)),
+		)
 	NpcDialogueService.end(body)
-	var parcel: Entity = PackageQueries.find_live_package(CustomerFlowQueries.find_visit(visit_id).package_id) if CustomerFlowQueries.find_visit(visit_id) != null else null
+	var parcel: Entity = (
+		PackageQueries.find_live_package(CustomerFlowQueries.find_visit(visit_id).package_id)
+		if CustomerFlowQueries.find_visit(visit_id) != null
+		else null
+	)
 	if parcel != null:
 		for link: Relationship in parcel.relationships.duplicate():
-			if link.relation is R_AssignedTo and (link.relation as R_AssignedTo).visit_id == visit_id:
+			if (
+				link.relation is R_AssignedTo
+				and (link.relation as R_AssignedTo).visit_id == visit_id
+			):
 				parcel.remove_relationship(link)
 	for link: Relationship in body.relationships.duplicate():
 		if link.relation is R_NpcServiceAt or link.relation is R_NpcWaitingAt:
@@ -252,11 +346,13 @@ static func release(body: Entity, visit_id: StringName) -> void:
 	if visit != null:
 		CustomerOutcomeService.publish_change(visit, &"service_role_released")
 
+
 static func _restore_walk_speed(body: Entity, agent: C_CustomerAgent) -> void:
 	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
 	if agent != null and motion != null and agent.original_walk_speed >= 0.0:
 		motion.max_speed = agent.original_walk_speed
 		agent.original_walk_speed = -1.0
+
 
 ## Применяет окончательную смерть ко всем заказам без переназначения владельца.
 static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) -> void:
@@ -270,7 +366,9 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 		var actor: Entity = death.cause.request.instigator
 		if not is_instance_valid(actor):
 			actor = death.cause.request.source
-		defeated_by_player = is_instance_valid(actor) and actor.has_component(C_PlayerInputController)
+		defeated_by_player = (
+			is_instance_valid(actor) and actor.has_component(C_PlayerInputController)
+		)
 	for visit: CustomerVisit in flow.visits:
 		if visit.customer_id != person.npc_id:
 			continue
@@ -284,6 +382,7 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 	if agent != null:
 		CustomerInspectionService.end(body)
 		release(body, agent.visit_id)
+
 
 ## Преобразует эскалацию обслуживания в обычный выбор боевой цели.
 static func escalate(body: E_DistrictNpc) -> void:

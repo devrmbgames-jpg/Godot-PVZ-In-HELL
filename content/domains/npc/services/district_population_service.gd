@@ -287,6 +287,7 @@ static func set_placement(
 	placement: NpcRecord.Placement,
 	reason: StringName = &"placement_changed",
 	reconcile_native: bool = false,
+	activation_position: Vector3 = Vector3(INF, INF, INF),
 ) -> bool:
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	assert(decision != null, "NPC participation requires its constructed decision capability")
@@ -297,9 +298,21 @@ static func set_placement(
 	if active and (person.death_day != 0 or body.has_component(C_Death)):
 		decision.participation_reason = &"dead_actor"
 		return false
+	var supplied_position: bool = activation_position != Vector3(INF, INF, INF)
+	if supplied_position and not activation_position.is_finite():
+		decision.participation_reason = &"invalid_activation_position"
+		return false
 	var changed: bool = person.placement != placement or body.enabled != active
-	if not changed and not reconcile_native:
+	var relocating: bool = activation_position.is_finite() \
+			and not body.global_position.is_equal_approx(activation_position)
+	if not changed and not reconcile_native and not relocating:
 		return true
+	var target_position: Vector3 = body.global_position if not activation_position.is_finite() \
+			else activation_position
+	if active and (not body.enabled or relocating) and not reconcile_native \
+			and not NpcActivationSolver.available(body, target_position):
+		decision.participation_reason = &"activation_blocked"
+		return false
 
 	# Invalidate captured work once before callbacks; repeated mode requests remain idempotent.
 	decision.lifecycle_generation += 1
@@ -314,6 +327,8 @@ static func set_placement(
 	var captured_generation: int = decision.participation_generation
 	var captured_world: World = ECS.world
 	decision.participation_committing = true
+	if activation_position.is_finite():
+		body.place_at(activation_position)
 	if not active:
 		body.request_role_cleanup(NpcRoleCleanupRequest.Kind.SUSPEND)
 		NpcCommunityService.cancel_activity(body)
