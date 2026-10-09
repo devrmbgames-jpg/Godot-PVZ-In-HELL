@@ -19,6 +19,14 @@
 - [ ] `progress_set target 0.5` на hold-вентиле вращает колесо и сообщает progress_changed, не вызывает gameplay completion. Активный/completed hold запрещён. Immediate-кнопка принимает0/1.
 - [ ] Morning: save_write qa_console / save_load qa_console. Плохой путь, Day, активное толкание/тележка/предмет в руках/диалог запрещают запись и загрузку без изменения мира или слота. Обычный autosave не перезаписывается.
 
+## Memory purge (только debug)
+
+- [ ] В debug-сборке проверить `help kill` и autocomplete: доступны `kill self` и `kill game`.
+- [ ] `kill self` по-прежнему убивает персонажа без очистки всего мира.
+- [ ] После `kill game` игровая сцена и GECS World очищены, процесс Godot и Editor Debugger остаются живыми. В логе появляется `DEBUG KILL GAME PURGE COMPLETE`.
+- [ ] Autoload-узлы остаются в `/root`, но обработка отключена и их дочернее runtime-дерево удалено. Снять ObjectDB Snapshot из редактора после очистки.
+- [ ] В release с явно включённой консолью `kill game` не должен запускать purge. В обычном release команда отсутствует вместе с проектными debug-командами.
+
 ## Результат игрока
 
 - Дата и сборка:

@@ -58,6 +58,30 @@ func _run(command: String, args: Array = []) -> String:
 #endregion
 
 #region Игровые границы команд консоли
+## The destructive command is never executed inside GUT: it would remove GUT itself.
+func test_kill_game_is_debug_only_and_preserves_kill_self() -> void:
+	var kill_command: Console.ConsoleCommand = Console.console_commands.get(
+		DeveloperConsoleCommands.KILL_COMMAND
+	) as Console.ConsoleCommand
+	assert_not_null(kill_command)
+	assert_eq(kill_command.required, 0)
+	if OS.is_debug_build():
+		assert_true(kill_command.arguments.has("target|game"))
+		assert_true(Console.command_parameters[DeveloperConsoleCommands.KILL_COMMAND].has("game"))
+	else:
+		assert_true(kill_command.arguments.has("target"))
+		assert_false(Console.command_parameters[DeveloperConsoleCommands.KILL_COMMAND].has("game"))
+
+	var worker_script: Script = load("res://content/debug/debug_runtime_purge.gd") as Script
+	assert_not_null(worker_script)
+	var worker: Node = worker_script.new() as Node
+	add_child(worker)
+	assert_true(bool(worker.call(&"_is_autoload", Console)))
+	assert_true(bool(worker.call(&"_is_autoload", ECS)))
+	assert_false(bool(worker.call(&"_is_autoload", _world)))
+	worker.free()
+
+
 ## Выдача/употребление соблюдают владение, вместимость и диапазон голода; отказ не оставляет сирот.
 func test_food_commands_obey_bounds_capacity_and_normal_consumption() -> void:
 	assert_true(_run("hunger_set", ["50"]).contains("OK hunger_set"))
