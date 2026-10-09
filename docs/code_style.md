@@ -71,12 +71,27 @@ Do not use public member state as a shortcut for cross-system access.
 ## GDScript naming
 
 - files: `snake_case.gd`;
-- classes: `PascalCase`;
+- classes: `PascalCase` for ordinary types; **project role names deliberately keep `C_`, `S_`, `O_`, `R_`, `E_`, `DEF_`, `ET_`, `UI_` + PascalCase suffix**;
 - private member variables/functions: `_snake_case`;
 - public methods/data: `snake_case`;
 - constants: `UPPER_SNAKE_CASE`;
 - signals: `snake_case`;
-- GECS role prefixes: `C_`, `R_`, `S_`, `O_`, `E_`, `DEF_`.
+- GECS role prefixes: `C_`, `R_`, `S_`, `O_`, `E_`, `DEF_`, `ET_`, `UI_`.
+
+**Formatter exception:** the GDQuest linter's built-in `class-name` rule would reject the intended `C_Health`, `S_NpcIntent`, `O_CustomerArrived` and similar readable names. The project's `utils/check_gdscript_format.py` disables **only** `class-name` in the external linter, then applies its own allowlist of role prefixes and ordinary PascalCase. All other lint rules, including naming of methods, variables, signals and max line length, stay active. Never rename GECS classes or suppress every lint rule merely to get a green check.
+
+Normal local commands:
+
+```powershell
+python utils/check_gdscript_format.py --changed
+python utils/validate_agent_changes.py
+python -B utils/validate_architecture.py --strict
+python utils/validate_project_structure.py
+```
+
+If the relevant batch has already been committed, add `--base <base-commit>` to both incremental commands; `--strict` on the style checker verifies **whole files**, intended for Refactoring v2 Phase 3. Missing `gdscript-formatter` gives `NOT_RUN` (exit 2), not PASS. The CLI is read-only: it does **not** rewrite scripts. Do not run a full-project format pass during an unrelated feature.
+
+For matching editor diagnostics, open **Editor Settings → GDQuest GDScript Formatter → Lint Ignored Rules** and set `class-name` (no other global exclusions). The Editor setting is per-developer; the repository CLI enforces the policy independently. The project `.editorconfig` fixes tab indentation and 100-column wrapping but cannot make the editor-wide role exception itself.
 
 Use explicit types whenever inference is ambiguous or an API returns Variant/untyped data.
 
