@@ -30,6 +30,10 @@ reference; do not append one entry per run or diagnostic trial. GUT assertions a
 do not excuse parser/runtime/ownership errors. Shutdown ObjectDB/Resource/RID retention alone
 is a diagnostic baseline, not proof of a memory leak or an automatic task blocker; retain it
 in logs and apply [the memory acceptance policy](../../../AGENTS.md#validation-and-commits).
+Godot 4.7.1's specified shutdown-only engine retention category is
+`KNOWN_ENGINE_LIMITATION / DEFERRED`: do not block tasks, start an investigation or require
+another growth run solely for those warnings. Reconsider only after the project moves to
+stable Godot 4.8+ and relevant upstream fixes are checked. Runtime defects remain failures.
 For lifetime checks, warm up then repeat equivalent operations 50–100 times in one process,
 settle deletion/deferred work and compare memory/object trends against the same baseline.
 Bound the test's own assertion history and samples so instrumentation cannot imitate a leak.

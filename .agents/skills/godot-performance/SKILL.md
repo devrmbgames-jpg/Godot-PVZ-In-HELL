@@ -63,6 +63,10 @@ Optimize the dominant side first.
 - Prefer reuse/caching where ownership and invalidation are clear.
 - Shutdown ObjectDB/Resource/RID retention alone does not prove a memory leak. One-time allocations,
   bounded services/caches, pooling and warmed memory reuse are acceptable. Preserve diagnostics.
+- Apply the owner's Godot 4.7.1 `KNOWN_ENGINE_LIMITATION / DEFERRED` category for shutdown-only
+  GDScript/GDScriptNativeClass/Resource/StringName/RID retention. Do not block tasks or start
+  an independent investigation before a project move to stable Godot 4.8+ and upstream-fix review.
+  Do not change typing, references, WeakRef, free() or GECS solely to clear shutdown warnings.
 - Prove defects through sustained post-warmup growth, survivors after their owned lifecycle,
   unbounded containers/references, use-after-free, double-free or ownership violations.
 - Warm up, repeat equivalent operations 50–100 times per process, settle queued deletion/deferred

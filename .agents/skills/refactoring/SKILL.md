@@ -43,9 +43,12 @@ reproduction and acceptance instead of broadening the refactor indefinitely. Kee
 task's mandatory gate open; changing it requires an explicit owner decision, not a silent waiver.
 
 Memory acceptance follows [AGENTS.md](../../../AGENTS.md#validation-and-commits): shutdown
-retention alone is not a leak or a completion blocker. Preserve the baseline and investigate
-independently if post-warmup repeated lifecycles are stable and ownership is sound. Sustained
-growth or lifecycle violations caused by the migration remain in scope and require a verified fix.
+retention alone is not a leak or a completion blocker. Godot 4.7.1's specified shutdown-only
+category is `KNOWN_ENGINE_LIMITATION / DEFERRED`; preserve the baseline and defer investigation
+until the project moves to stable Godot 4.8+ with relevant upstream fixes checked.
+Do not alter typing, references, WeakRef, free() or GECS solely to remove those warnings.
+Sustained runtime growth or lifecycle violations caused by the migration remain in scope
+and require a verified fix.
 
 ## Required completion work
 

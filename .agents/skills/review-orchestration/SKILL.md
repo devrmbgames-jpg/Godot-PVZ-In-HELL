@@ -41,6 +41,10 @@ Follow existing GECS and GDScript style contracts. Main is the sole writer.
 - Allowed final statuses: `FIXED(fix SHA, test)`, `REJECTED(evidence)`,
   `OBSOLETE(current SHA)`, `DEFERRED(owner/task/reason)`.
   `ACCEPTED` is temporary until resolved; `REVIEW_PENDING` blocks DONE.
+- Apply [the engine limitation policy](../../../AGENTS.md#validation-and-commits): Godot 4.7.1's
+  specified shutdown-only retention category is `KNOWN_ENGINE_LIMITATION / DEFERRED`, not an
+  accepted blocking finding. Do not initiate its investigation before stable Godot 4.8+ adoption
+  and upstream-fix review. Proven runtime growth, lost Nodes and invalid destruction still block.
 - **P0:** data loss/security/authority → stop affected work immediately.
   **P1:** behavioral/GECS/lifecycle blocker → fix before dependent changes.
   **P2:** changed-scope architecture/style → fix before milestone DONE.

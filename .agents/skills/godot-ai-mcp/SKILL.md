@@ -62,6 +62,13 @@ A parser-clean file with avoidable type/shadowing warnings is not considered cle
 
 Use incremental cursors when doing repeated checks; do not repeatedly dump the whole editor log.
 
+Godot 4.7.1 shutdown-only GDScript/GDScriptNativeClass/Resource/StringName/RID retention follows
+[the engine limitation policy](../../../AGENTS.md#validation-and-commits): preserve diagnostics,
+classify `KNOWN_ENGINE_LIMITATION / DEFERRED`, and neither block tasks nor investigate that
+category before a project move to stable Godot 4.8+ with upstream-fix review. It does not waive
+parser/reload warnings, runtime regressions, lost Nodes or invalid destruction. Do not change
+typing, references, WeakRef, free() or GECS solely to remove the deferred shutdown warnings.
+
 ## PVZ custom GECS tools
 
 When `addons/pvz_ai_tools/` is enabled, prefer its compact read-only tools before broad SceneTree or source-code reconstruction for GECS inspection:
