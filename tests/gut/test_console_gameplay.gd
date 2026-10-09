@@ -79,6 +79,11 @@ func test_kill_game_is_debug_only_and_preserves_kill_self() -> void:
 	assert_true(bool(worker.call(&"_is_autoload", Console)))
 	assert_true(bool(worker.call(&"_is_autoload", ECS)))
 	assert_false(bool(worker.call(&"_is_autoload", _world)))
+	worker.call(&"_show_exit_ui")
+	var exit_button: Button = worker.find_child("ExitAfterSnapshot", true, false) as Button
+	assert_not_null(exit_button, "Debug purge must leave an actionable exit control")
+	if exit_button != null:
+		assert_true(exit_button.pressed.is_connected(Callable(worker, "_request_quit")))
 	worker.free()
 
 

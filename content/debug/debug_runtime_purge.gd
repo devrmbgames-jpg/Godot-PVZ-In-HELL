@@ -6,6 +6,8 @@ extends Node
 const DRAIN_FRAMES: int = 2
 
 var _started: bool = false
+var _quitting: bool = false
+var _exit_controls_ready: bool = false
 
 
 func purge_runtime() -> void:
@@ -82,7 +84,80 @@ func purge_runtime() -> void:
 		" nodes=", int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)),
 		" orphan_nodes=", int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)))
 	print("Take ObjectDB Snapshot in the editor debugger; the game process remains running.")
-	queue_free()
+	_show_exit_ui()
+	if not root.close_requested.is_connected(_request_quit):
+		root.close_requested.connect(_request_quit)
+	set_process_input(true)
+
+
+## Stay outside gameplay and outside disabled Autoloads so input still works.
+## This intentionally creates a few UI objects AFTER memory metrics are printed.
+func _show_exit_ui() -> void:
+	if _exit_controls_ready:
+		return
+	_exit_controls_ready = true
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
+	var canvas: CanvasLayer = CanvasLayer.new()
+	canvas.name = "RuntimePurgeExitOverlay"
+	canvas.layer = 100
+	add_child(canvas)
+
+	var background: ColorRect = ColorRect.new()
+	background.color = Color(0.035, 0.045, 0.060, 1.0)
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	canvas.add_child(background)
+
+	var center: CenterContainer = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	canvas.add_child(center)
+
+	var panel: PanelContainer = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(560, 0)
+	center.add_child(panel)
+
+	var column: VBoxContainer = VBoxContainer.new()
+	column.add_theme_constant_override("separation", 16)
+	panel.add_child(column)
+
+	var title: Label = Label.new()
+	title.text = "DEBUG: Runtime purged"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(title)
+
+	var instructions: Label = Label.new()
+	instructions.text = "1. Take ObjectDB Snapshot in Godot Editor.\n2. Press the button below to quit Godot normally.\nThe runtime is no longer playable."
+	instructions.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(instructions)
+
+	var exit_button: Button = Button.new()
+	exit_button.name = "ExitAfterSnapshot"
+	exit_button.text = "Exit Godot (graceful shutdown)"
+	exit_button.custom_minimum_size.y = 48
+	exit_button.pressed.connect(_request_quit)
+	column.add_child(exit_button)
+	exit_button.grab_focus()
+
+
+## Escape is independent of the removed console and disabled InputHelper.
+func _input(event: InputEvent) -> void:
+	if not _exit_controls_ready or _quitting:
+		return
+	var key: InputEventKey = event as InputEventKey
+	if key == null or not key.pressed or key.echo or key.keycode != KEY_ESCAPE:
+		return
+	get_viewport().set_input_as_handled()
+	_request_quit()
+
+
+## Exit via the button, Escape, or the window close request.
+## SceneTree.quit() runs Godot's normal teardown and verbose leak diagnostics.
+func _request_quit() -> void:
+	if _quitting or not OS.is_debug_build():
+		return
+	_quitting = true
+	print("DEBUG KILL GAME EXIT REQUESTED (SceneTree.quit)")
+	get_tree().quit(0)
 
 
 func _drain(tree: SceneTree) -> void:
