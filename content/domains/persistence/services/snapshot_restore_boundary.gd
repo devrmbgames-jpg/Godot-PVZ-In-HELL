@@ -2,9 +2,11 @@ extends RefCounted
 ## Suppresses gameplay reactions while a prevalidated snapshot overlays defaults and fixes links.
 class_name SnapshotRestoreBoundary
 
+
 #region Transaction reaction boundary
 ## Starts only after complete preflight; pending old-context commands cannot survive replacement.
 static func begin(world: World) -> Dictionary[Observer, bool]:
+	world.emit_event(WorldReconstructionStarted.EVENT, null, WorldReconstructionStarted.new())
 	var activity: Dictionary[Observer, bool] = ObserverReactionBoundary.suspend(world.observers)
 	for observer: Observer in world.observers:
 		observer.cmd.clear()
@@ -24,7 +26,7 @@ static func finish(world: World, activity: Dictionary[Observer, bool]) -> void:
 			autosave.revision += 1
 			autosave.work_queued = false
 			autosave.preparation = null
-			autosave.prepared_snapshot = {}
+			autosave.prepared_snapshot = { }
 			autosave.started_night = 0
 	ObserverReactionBoundary.resume(world, activity)
 #endregion

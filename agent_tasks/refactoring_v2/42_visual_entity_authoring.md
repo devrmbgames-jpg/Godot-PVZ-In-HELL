@@ -46,7 +46,7 @@ Editor/tool tests где возможно + owner visual QA.
 ## Current / Next
 
 Active Goal authorizes tasks 42–66 in dependency order. Task 41 is DONE.
-Implementation is complete; **REVIEW_PENDING** against a committed immutable checkpoint.
+Implementation and review are complete; **OWNER_QA_PENDING** for required visual acceptance.
 Baseline: `dc7e9490e59510fefa820793874ae117fbb07d01`.
 Project-owned Inspector installs once per editor session using an idempotent EditorScript;
 addons and project plugin settings are unchanged. Simple mode opens the single authoring
@@ -55,12 +55,13 @@ Current external authored Resource values are copied into a disposable scene sna
 retaining original provenance and external Script/scene refs. The task-41 compiler runs
 only on detached actors after autoload registration; no ECS registration or ready callback.
 Named endpoints, native dependency cycles and whole-level identity use existing providers.
-Review checkpoint: `1b194028c3c67811aa3a62fb45fed1cbc66fa29a`; two P2 findings accepted.
-RV-001: FIXED in pending repair checkpoint. Non-Entity edited roots now have a read-only
+Review checkpoint: `4975105e9eb6da2f1eeabaf8f0a5929a0cf26da3`; targeted re-review PASS.
+RV-001: FIXED (`4975105e9eb6da2f1eeabaf8f0a5929a0cf26da3`). Non-Entity edited roots have a read-only
 Level ID panel and explicit repair; native root suppression/repair/undo/redo check PASS.
-RV-002: FIXED in pending repair checkpoint. Per-field sources and embedded diagnostic
+RV-002: FIXED (`4975105e9eb6da2f1eeabaf8f0a5929a0cf26da3`). Per-field sources and embedded diagnostic
 sources map back to authored Traits; real native capture/save/reload regression PASS.
-Next: bounded re-review of these fixes, archive 42 and continue 43.
+Next: authorized visual/owner acceptance before archiving 42. Independent task43 runtime
+work may proceed using the verified compiler/Inspector extension boundary. No visual PASS.
 
 ## Automated evidence
 

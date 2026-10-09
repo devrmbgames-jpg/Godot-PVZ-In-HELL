@@ -8911,7 +8911,9 @@
       "sources": [
         "content/rules/interaction/interaction_highlight_rules.gd",
         "content/services/interaction/grab_service.gd",
-        "content/systems/interaction/s_interaction_highlight.gd"
+        "content/systems/interaction/s_interaction_highlight.gd",
+        "content/domains/interaction/services/smart_object_service.gd",
+        "content/domains/interaction/observers/o_smart_object.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -17655,6 +17657,42 @@
         "content/editor/entity_authoring/entity_authoring_preview_rules.gd"
       ],
       "purpose": "Task 42: detached authoring tooling reads immutable compiler inputs and transient diagnostic provenance; no live registration, gameplay writes or scheduler."
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "shared",
+      "symbol": "EntityTrait",
+      "path": "content/shared/authoring/entity_trait.gd",
+      "rights": ["read"],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": ["content/domains/interaction/authoring/et_smart_object.gd"],
+      "purpose": "Task 43: pure Smart Object schema and isolated C/R recipe authoring through the common compiler, without live World writes."
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "shared",
+      "symbol": "WorldReconstructionStarted",
+      "path": "content/shared/contracts/world_reconstruction_started.gd",
+      "rights": ["read", "subscribe"],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": ["content/domains/interaction/observers/o_smart_object.gd"],
+      "purpose": "Task 43: accepted restore boundary retires transient requests and reservations before observers suspend."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "shared",
+      "symbol": "WorldReconstructionStarted",
+      "path": "content/shared/contracts/world_reconstruction_started.gd",
+      "rights": ["read", "request"],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": ["content/domains/persistence/services/snapshot_restore_boundary.gd"],
+      "purpose": "Task 43: publish only after saved snapshot preflight accepts reconstruction, before transient buffers are cleared."
     }
   ],
   "legacy_decomposition": []

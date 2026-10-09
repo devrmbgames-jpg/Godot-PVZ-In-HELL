@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/package_return_point.tscn" id="Base"]
+
+[node name="WallReturnPoint" instance=ExtResource("Base")]
+
+[node name="Caption" parent="."]
+text = "ВОЗВРАТ · УТРО\nНастенный пункт · F"
+
+[node name="ReturnMarker" parent="."]
+position = Vector3(0, 0, 1.0)

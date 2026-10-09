@@ -1,0 +1,32 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://content/domains/interaction/definitions/def_smart_object.gd" id="Definition"]
+[ext_resource type="Script" path="res://content/domains/interaction/definitions/def_smart_slot.gd" id="Slot"]
+[ext_resource type="Script" path="res://content/domains/interaction/definitions/def_smart_affordance.gd" id="Affordance"]
+[ext_resource type="Script" path="res://content/domains/packages/definitions/def_package_return_action.gd" id="Executor"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_grab_control.gd" id="GrabControl"]
+
+[sub_resource type="Resource" id="Slot"]
+script = ExtResource("Slot")
+slot_id = &"return"
+marker = NodePath("ReturnMarker")
+
+[sub_resource type="Resource" id="Executor"]
+script = ExtResource("Executor")
+action_id = &"return_refused_package"
+slot = 1
+caption = "Вернуть отказную посылку"
+allow_interact_fallback = false
+
+[sub_resource type="Resource" id="Affordance"]
+script = ExtResource("Affordance")
+affordance_id = &"return_refused_package"
+slot_id = &"return"
+executor = SubResource("Executor")
+required_actor_components = Array[Script]([ExtResource("GrabControl")])
+
+[resource]
+script = ExtResource("Definition")
+key = &"package_return"
+slots = Array[ExtResource("Slot")]([SubResource("Slot")])
+affordances = Array[ExtResource("Affordance")]([SubResource("Affordance")])

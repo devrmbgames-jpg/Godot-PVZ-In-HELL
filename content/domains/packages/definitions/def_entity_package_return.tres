@@ -1,0 +1,16 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://content/shared/definitions/def_entity_template.gd" id="Template"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
+[ext_resource type="Script" path="res://content/domains/interaction/authoring/et_smart_object.gd" id="SmartTrait"]
+[ext_resource type="Resource" path="res://content/domains/packages/definitions/def_smart_package_return.tres" id="Definition"]
+
+[sub_resource type="Resource" id="SmartObject"]
+script = ExtResource("SmartTrait")
+trait_id = &"smart_object"
+definition = ExtResource("Definition")
+
+[resource]
+script = ExtResource("Template")
+key = &"package_return"
+traits = Array[ExtResource("Trait")]([SubResource("SmartObject")])

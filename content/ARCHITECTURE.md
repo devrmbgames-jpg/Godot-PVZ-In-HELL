@@ -140,6 +140,11 @@ A declared migration scope is DONE only when all callers, state ownership and ex
 - `InteractionControlFocus` is the control-priority authority. Current priority order is MODAL > TRANSPORT/PUSH/CARRY as defined by the service > HANDS; drawing reserves its documented capture priority.
 - Contextual actions route through `InteractionActionResolver`; do not add parallel raw E/F/LMB/RMB consumers for ordinary item interactions.
 - Stable interaction contracts and control mapping live in `docs/physical_grab.md` and `docs/controls.md`.
+- Smart Object occupancy is `actor --R_SmartObjectReservation--> object`, with stable authored
+  slot/operation IDs. `O_SmartObject` commits typed requests through one synchronous transaction,
+  rechecking eligibility/exclusivity after queueing. Markers are presentation and definitions
+  are immutable data; there is no second occupancy registry. Exact token/binding retirement
+  and accepted restore invalidation are documented in [Smart Objects](../docs/smart_objects.md).
 
 ## Grab, Push and Cart
 

@@ -1,6 +1,6 @@
 # Refactoring v2.43 — Smart Objects / Affordances / Reservations
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Зависимости: [42_visual_entity_authoring.md](42_visual_entity_authoring.md), [40_typed_commands_events.md](../completed/refactoring_v2/40_typed_commands_events.md).
 
@@ -37,3 +37,32 @@ If structural mutation is deferred, eligibility/exclusivity is checked when the 
 ## Validation
 
 Reservation/content validation + representative interaction tests.
+
+## Current / Next
+
+Authorized by active Goal. Task42 implementation/re-review passes; required owner visual
+acceptance is still pending and does not affect this runtime/schema implementation.
+Owner scope: interaction Smart Object C/R, typed definitions/request/receipt, one queued
+Observer commit boundary, pure Trait validation, generic interaction adapter, native
+package return point and a data-only variant, focused contention/lifetime/return fixtures.
+No second occupancy authority or concrete scene-class checks. Reservation is transient.
+Implementation complete; **REVIEW_PENDING** at a committed checkpoint.
+Baseline: `4975105e9eb6da2f1eeabaf8f0a5929a0cf26da3`.
+The generic API and input adapter replace the old independent return-point action provider.
+Native wall variant uses the same definition/executor; original action ID/control is preserved.
+Same-World accepted restore emits a shared fact before buffer clearing: pending receipts are
+rejected and reservations retired, without saving tokens or changing the snapshot schema.
+Tree-exit and native relationship retirement disconnect derived lifetime callbacks.
+Next: immutable checkpoint review/triage, then complete runtime task43 and continue 44.
+
+## Evidence
+
+- Formatter **PASS**, 17 owned scripts; strict architecture/project structure/agent changes PASS.
+- Parser **PASS**, 17 checked / 0 failed.
+- Smart Object + actual return GUT **PASS**, 20/20 tests, 136 assertions, no script/runtime errors.
+- Affected Smart Object/return/snapshot/startup batch **PASS**, 51/51 tests, 470 assertions
+  before the final tree-exit addition; unchanged persistence behavior covered in that batch.
+- Authored main-level interaction smoke **PASS**, `R06.1 interaction hands smoke PASS`.
+- Logs: `tests/artifacts/refactoring_v2_43_{final_gut,regression,parser,interaction_smoke}.log`.
+  Godot 4.7.1 shutdown-only retention is owner-deferred; raw logs retained, no visual QA claimed.
+- Product contract/API/authoring: [Smart Objects](../../docs/smart_objects.md).
