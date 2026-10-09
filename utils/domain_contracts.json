@@ -8029,7 +8029,10 @@
         "restore",
         "valid",
         "construction_district",
-        "construction_npc_identities"
+        "construction_npc_identities",
+        "construction_record",
+        "overlay_construction_fields",
+        "apply_placed_construction_pose"
       ],
       "sources": [
         "content/debug/debug_gameplay_service.gd",
@@ -8042,7 +8045,10 @@
         "restore": "request",
         "valid": "query",
         "construction_district": "query",
-        "construction_npc_identities": "query"
+        "construction_npc_identities": "query",
+        "construction_record": "query",
+        "overlay_construction_fields": "request",
+        "apply_placed_construction_pose": "request"
       },
       "public_instance_methods": []
     },
@@ -16772,11 +16778,16 @@
       "symbol": "EntityBuildPlan",
       "path": "content/shared/contracts/entity_build_plan.gd",
       "rights": [
-        "read"
+        "read",
+        "query"
       ],
       "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
+      "public_instance_methods": [
+        "valid"
+      ],
+      "method_rights": {
+        "valid": "query"
+      },
       "sources": [
         "content/scenes/game_world.gd",
         "content/scenes/main_level.gd"
@@ -17495,6 +17506,27 @@
         "content/domains/persistence/services/snapshot_restore_boundary.gd"
       ],
       "purpose": "Task 41: synchronous construction/restore scope suppresses partial gameplay reactions and silently rebuilds pinned derived monitor membership before readiness."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "shared",
+      "symbol": "C_AuthoredIdentity",
+      "path": "content/shared/components/c_authored_identity.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [
+        "actor_key"
+      ],
+      "sources": [
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "method_rights": {
+        "actor_key": "query"
+      },
+      "purpose": "Task 41: match saved placed records by immutable authored identity before native construction."
     }
   ],
   "legacy_decomposition": []

@@ -487,6 +487,47 @@ static func construction_npc_identities(records: Array) -> Dictionary[String, St
 	return identities
 
 
+## Resolves one saved placed record from immutable authored identity, without touching live state.
+static func construction_record(actor: Entity, records: Array) -> Dictionary:
+	var identity: C_AuthoredIdentity = PlacedIdentityRules.component_for(actor)
+	if identity == null:
+		return {}
+	for record: Dictionary in records:
+		if String(record.get("authored_id", "")) == identity.actor_key():
+			return record
+	return {}
+
+
+## Overlays validated durable state on fresh recipes before any native initialization callbacks.
+static func overlay_construction_fields(plan: EntityBuildPlan, record: Dictionary) -> bool:
+	if not plan.valid():
+		return false
+	if record.is_empty():
+		return true
+	for saved: Dictionary in record.components:
+		var component_script: Script = SaveDataCodec.component_script(String(saved.type))
+		var target: Component = null
+		for recipe: Component in plan.component_recipes:
+			if recipe.get_script() == component_script:
+				target = recipe
+				break
+		if target == null:
+			target = component_script.new() as Component
+			plan.component_recipes.append(target)
+			plan.provenance[component_script] = "saved runtime state"
+		if not SaveDataCodec.apply_fields(target, saved.fields as Dictionary):
+			return false
+	return true
+
+
+## Commits a validated saved pose on a placed physical owner before native World registration.
+static func apply_placed_construction_pose(actor: Entity, record: Dictionary) -> void:
+	if record.has("pose"):
+		var spatial: Node3D = actor as Node as Node3D
+		assert(spatial != null, "Validated saved pose requires its native spatial owner")
+		spatial.global_transform = record.pose as Transform3D
+
+
 static func _prepare_fresh_recipes(records: Array, entities: Dictionary[String, Entity],
 		fresh: Array[Entity], world: World, plans: Dictionary[Entity, EntityBuildPlan]) -> bool:
 	var candidates: Array[Entity] = []
@@ -528,18 +569,8 @@ static func _prepare_fresh_recipes(records: Array, entities: Dictionary[String, 
 
 		# Durable fields overlay fresh defaults before GECS initializes or publishes the actor.
 		# Components absent from the current prefab are explicit saved runtime state providers.
-		for saved: Dictionary in record.components:
-			var component_script: Script = SaveDataCodec.component_script(String(saved.type))
-			var target: Component = null
-			for recipe: Component in plan.component_recipes:
-				if recipe.get_script() == component_script:
-					target = recipe
-					break
-			if target == null:
-				target = component_script.new() as Component
-				plan.component_recipes.append(target)
-			if not SaveDataCodec.apply_fields(target, saved.fields as Dictionary):
-				return false
+		if not overlay_construction_fields(plan, record):
+			return false
 		if not EntityCompositionService.prepare(entity, plan):
 			return false
 		plans[entity] = plan

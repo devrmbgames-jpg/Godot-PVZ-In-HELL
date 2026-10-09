@@ -230,3 +230,9 @@ first System tick waits, membership reconstructs silently and structural NPC par
 saved/default placement. Morning work stays in its scheduled owner and dispatches after ready.
 Final native GUT 35/35 / 356 and parser PASS; actual main/Night restart PASS. Per-Entity ready,
 remaining manifest and cold retention remain required; task 41 stays IN_PROGRESS.
+
+Task 41 placed saved-state milestone: saved fields, opaque Entity IDs and physical pose now precede
+pinned native initialization; incompatible saved physical owners reject before registration. Native
+parser 4 files PASS, focused GUT 34/34 PASS (394 assertions), actual Night two-process write/restore
+PASS, strict/static contracts and local Formatter PASS. Task 41 remains IN_PROGRESS; endpoint/
+per-Entity readiness and full provider migration acceptance remain open. Phase 42/3 not started.

@@ -140,7 +140,7 @@ static func saved_game(level: String, path_overrides: Array[String] = []) -> Gam
 #region Передача снимка и смена сцены
 ## Returns a detached startup candidate without consuming the one-shot scene handoff.
 static func startup_snapshot(root: Node, path: String) -> Dictionary:
-	if _pending_level == root.scene_file_path:
+	if not _pending_level.is_empty() and _pending_level == root.scene_file_path:
 		return _pending_snapshot.duplicate(true)
 	return AutosaveStore.read(path) if not path.is_empty() else {}
 
@@ -177,7 +177,7 @@ static func start_game(tree: SceneTree, level: String, saved: GameSaveResult = n
 
 ## Вызывается новым уровнем после регистрации World; F6-сцены сохраняют прежний auto-restore.
 static func restore_startup(root: Node, state: C_Autosave) -> void:
-	if _pending_level != root.scene_file_path:
+	if _pending_level.is_empty() or _pending_level != root.scene_file_path:
 		NightSaveService.restore_startup(root, state)
 		return
 

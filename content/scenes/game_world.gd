@@ -20,9 +20,17 @@ func _ready() -> void:
 		String(level.get("autosave_path")))
 	var construction_snapshot: Dictionary = candidate \
 		if not candidate.is_empty() and WorldSnapshotService.valid(candidate, level) else {}
+	_restoring = not construction_snapshot.is_empty()
+	if _restoring and not WorldSnapshotService.can_restore(construction_snapshot, level):
+		var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()
+		issue.code = &"invalid_saved_composition"
+		issue.message = "Saved state does not match the current authored composition"
+		issue.instance_path = String(level.get_path())
+		issue.source = "saved construction preflight"
+		_composition_issues.append(issue)
+		return
 	if not _prepare_placed_recipes(construction_snapshot):
 		return
-	_restoring = not candidate.is_empty() and WorldSnapshotService.can_restore(candidate, level)
 	super._ready()
 	_bind_placed_intents()
 	_placed_actors.clear()
@@ -88,14 +96,18 @@ func _prepare_placed_recipes(snapshot: Dictionary) -> bool:
 		return true
 	_placed_actors.assign(actor_root.find_children("*", "Entity"))
 	var contexts: Array[EntitySpawnContext] = []
+	var records: Array = snapshot.get("entities", []) as Array
 	for actor: Entity in _placed_actors:
-		var actor_id: String = actor.id if not actor.id.is_empty() else GECSIO.uuid()
+		var saved: Dictionary = WorldSnapshotService.construction_record(actor, records)
+		var actor_id: String = (
+			String(saved.entity_id) if not saved.is_empty()
+			else (actor.id if not actor.id.is_empty() else GECSIO.uuid())
+		)
 		var context: EntitySpawnContext = EntityCompositionService.context_for(actor, self,
 			actor_id, _placed_actors)
 		contexts.append(context)
 
 	# Roster and placed merchant identity are compiler inputs, before any native World callbacks.
-	var records: Array = snapshot.get("entities", []) as Array
 	var npc_issues: PackedStringArray = NpcConstructionService.configure_placed(contexts,
 		WorldSnapshotService.construction_district(records),
 		WorldSnapshotService.construction_npc_identities(records))
@@ -109,7 +121,16 @@ func _prepare_placed_recipes(snapshot: Dictionary) -> bool:
 	if not _composition_issues.is_empty():
 		return false
 	for context: EntitySpawnContext in contexts:
-		_placed_plans.append(EntityCompositionService.build_plan(context))
+		var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
+		var saved: Dictionary = WorldSnapshotService.construction_record(context.actor, records)
+		if plan.valid() and not WorldSnapshotService.overlay_construction_fields(plan, saved):
+			var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()
+			issue.code = &"invalid_saved_fields"
+			issue.message = "Saved state cannot overlay this placed composition"
+			issue.instance_path = context.instance_path
+			issue.source = "saved construction fields"
+			plan.issues.append(issue)
+		_placed_plans.append(plan)
 
 	# Collision and endpoint checks precede every pinned add_entity/System.setup callback.
 	if not EntityBuildRules.validate_registration_batch(contexts, _placed_plans):
@@ -125,6 +146,8 @@ func _prepare_placed_recipes(snapshot: Dictionary) -> bool:
 		var prepared: bool = EntityCompositionService.prepare(actor, plan)
 		assert(prepared, "Whole-set validation requires an uninitialized placed instance")
 		actor.id = contexts[build_index].actor_id
+		WorldSnapshotService.apply_placed_construction_pose(actor,
+			WorldSnapshotService.construction_record(actor, records))
 	return true
 
 

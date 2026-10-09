@@ -533,3 +533,21 @@ This closes the global startup gap, not complete task-41 acceptance. Per-Entity 
 placed saved overlays/native initial callbacks, remaining providers, legacy receiving_scan migration
 and inherited cold/golden retention still need work. Manifest remains **14/72 resolved** in the
 ongoing worktree. Task 41 IN_PROGRESS; 42 and Phase 3 have not started.
+
+Placed saved-state construction milestone (task 41 remains IN_PROGRESS):
+- Authored actors resolve saved entity IDs and overlay durable fields onto fresh compiler recipes
+  before pinned native initialization. Accepted saved poses reach the physical owner before on_ready
+  and entity_added. The detached restore path shares the same field overlay operation.
+- Whole snapshot compatibility now precedes placed recipe/ID/pose commits; a valid saved pose for a
+  non-spatial authored actor rejects with invalid_saved_composition and zero registrations/callbacks.
+- An empty pending scene-handoff sentinel no longer masks an explicit automatic startup slot.
+- Native parser 4 changed files PASS; GUT 34/34 PASS, 394 assertions; strict dependencies, architecture,
+  project/domain structure, migration map, persistence baseline and formatter PASS (41 incremental
+  files, local .bin/gdscript-formatter.exe). No runtime warnings/errors in these native gates.
+- Actual main Night write/restore in TWO new headless processes PASS, logs
+  tests/artifacts/night_persistence-write-20261009-164450717.log and
+  tests/artifacts/night_persistence-restore-20261009-164501908.log. Focused logs:
+  tests/artifacts/refactoring_v2_41_placed_saved_state_parser.log /
+  tests/artifacts/refactoring_v2_41_placed_saved_state_gut.log.
+Remaining: per-Entity readiness with endpoint fixup, fresh-spawn saved pose ordering, complete provider
+manifest migration and task-41 acceptance. No Phase 42/3 started, no old-save conversion or visual QA.

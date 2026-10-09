@@ -1,6 +1,9 @@
 extends GutTest
 ## Exercises project World preparation before pinned registration and deferred System.setup.
 
+const SAVE_PATH: String = "user://refactoring_v2_41_placed_bootstrap.pvzh"
+
+
 ## Minimal real level contract consumed by the existing save/startup boundary.
 class FixtureLevel extends Node:
 	## Empty path keeps this fixture outside live user slots.
@@ -39,6 +42,23 @@ class PassiveActor extends Entity:
 	## Returns data visible at the native on_ready boundary.
 	func ready_components() -> int:
 		return _ready_components
+
+
+## Captures durable fields and the physical owner at the actual native initialization callback.
+class SavedStateActor extends PassiveActor:
+	var _construction_state: Dictionary = {}
+
+	## Reads prepared state before any later persistence overlay can run.
+	func on_ready() -> void:
+		super.on_ready()
+		var health: C_Health = get_component(C_Health) as C_Health
+		var spatial: Node3D = self as Node as Node3D
+		_construction_state = {"health": health.current, "id": id,
+			"pose": spatial.global_transform}
+
+	## Returns the fields seen by pinned native initialization.
+	func construction_state() -> Dictionary:
+		return _construction_state.duplicate()
 
 
 ## Deferred setup confirms compilation never binds ECS.world early.
@@ -100,6 +120,42 @@ func after_each() -> void:
 		ECS.world = null
 	_world.purge(false)
 	_level.free()
+	for path: String in [SAVE_PATH, SAVE_PATH + ".tmp"]:
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+
+func _saved_actor(recipe: C_Health) -> SavedStateActor:
+	var spatial: Node3D = Node3D.new()
+	spatial.set_script(SavedStateActor)
+	var actor: SavedStateActor = spatial as Node as SavedStateActor
+	actor.name = "Subject"
+	actor.component_resources = [recipe]
+	actor.set_meta(PlacedIdentityRules.LOCAL_ID_META, &"Subject")
+	_actors.add_child(actor)
+	actor.owner = _level
+	return actor
+
+
+func _write_saved_fixture() -> Dictionary:
+	_actor("Session", [C_DayCycle.new()])
+	var source: SavedStateActor = _saved_actor(C_Health.new())
+	source.id = "saved/Subject"
+	add_child(_level)
+	ECS.world = _world
+	(source.get_component(C_Health) as C_Health).current = 37.0
+	(source as Node as Node3D).global_position = Vector3(2.0, 3.0, 4.0)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_level, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _level))
+	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
+
+	# Rebuild a separate native tree with the same authored identity and untouched defaults.
+	ECS.world = null
+	_world.purge(false)
+	_level.free()
+	before_each()
+	_level.autosave_path = SAVE_PATH
+	return snapshot
 
 
 func _actor(label: String, recipes: Array[Component]) -> PassiveActor:
@@ -286,4 +342,56 @@ func test_late_startup_observer_is_suspended_until_all_initial_entities_are_comp
 	future_actor.component_resources = [C_Health.new()]
 	EntityCompositionFixture.register(_world, future_actor)
 	assert_eq(spy.effects, 1)
+#endregion
+
+
+#region Saved placed state before native initialization
+## Native ready and publication both see restored fields, identity and physical pose.
+func test_saved_placed_state_is_complete_before_native_ready_and_publication() -> void:
+	_write_saved_fixture()
+	_actor("Session", [C_DayCycle.new()])
+	var prototype: C_Health = C_Health.new()
+	var original_health: float = prototype.current
+	var subject: SavedStateActor = _saved_actor(prototype)
+	var publications: Array[Dictionary] = []
+	_world.entity_added.connect(func(actor: Entity) -> void:
+		if actor == subject:
+			publications.append(subject.construction_state()))
+	add_child(_level)
+
+	assert_false(_world.initialization_failed())
+	assert_true(_world.restoring_startup())
+	assert_false(_world.composition_ready())
+	assert_eq(_world.registrations(), 2)
+	assert_eq(subject.ready_calls(), 1)
+	var expected: Dictionary = {"health": 37.0, "id": "saved/Subject",
+		"pose": Transform3D(Basis.IDENTITY, Vector3(2.0, 3.0, 4.0))}
+	assert_eq(subject.construction_state(), expected)
+	assert_eq(publications, [expected])
+	assert_eq(prototype.current, original_health, "Authored recipe stays immutable")
+	assert_eq((subject.get_component(C_Health) as C_Health).current, 37.0)
+
+
+## A valid record requiring a missing physical owner rejects before native registration.
+func test_incompatible_saved_pose_rejects_before_preparing_or_registering_placed_actors() -> void:
+	var snapshot: Dictionary = _write_saved_fixture()
+	var session: PassiveActor = _actor("Session", [C_DayCycle.new()])
+	var prototype: C_Health = C_Health.new()
+	var subject: PassiveActor = _actor("Subject", [prototype])
+	assert_true(WorldSnapshotService.valid(snapshot, _level))
+	assert_false(WorldSnapshotService.can_restore(snapshot, _level))
+	var original_health: float = prototype.current
+	add_child(_level)
+
+	assert_true(_world.initialization_failed())
+	assert_eq(_world.registrations(), 0)
+	assert_eq(_world.entities.size(), 0)
+	assert_eq(subject.ready_calls(), 0)
+	assert_eq(session.ready_calls(), 0)
+	assert_eq(subject.id, "")
+	assert_false(EntityCompositionService.recipes_prepared(subject))
+	assert_false(EntityCompositionService.recipes_prepared(session))
+	assert_eq(prototype.current, original_health)
+	assert_true(_world.composition_issues().any(func(issue: EntityBuildPlan.Issue) -> bool:
+		return issue.code == &"invalid_saved_composition"))
 #endregion
