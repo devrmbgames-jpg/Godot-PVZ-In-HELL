@@ -55,7 +55,8 @@ def inspect_file(path: str, current: str, previous: str | None) -> list[Finding]
         findings.append(Finding(severity, path, reason))
 
     new = previous is None
-    added = added_code(current, previous)
+    added = "\n".join(line for line in added_code(current, previous).splitlines()
+                      if not line.lstrip().startswith("#"))
     if not added:
         return findings
 

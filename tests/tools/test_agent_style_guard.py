@@ -39,6 +39,26 @@ class StyleGuardTests(unittest.TestCase):
         issues = style.local_issues("c_bad.gd", source, style.added_lines(None, source))
         self.assertTrue(any("class_name" in issue for issue in issues))
 
+    def test_renamed_script_preserves_original_baseline(self) -> None:
+        import subprocess
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            def git(*cmd):
+                subprocess.run(["git", *cmd], cwd=root, capture_output=True, check=True)
+            git("init", "-q")
+            git("config", "user.email", "test@example.invalid")
+            git("config", "user.name", "Test")
+            source = root / "old.gd"
+            source.write_text("class_name Old_name\nextends Node\n", encoding="utf-8")
+            git("add", ".")
+            git("commit", "-qm", "initial")
+            source.rename(root / "new.gd")
+            git("add", "-A")
+            origins = style.changed_origins(root, "HEAD")
+            self.assertEqual("old.gd", origins["new.gd"])
+            old = style.previous_text(root, origins["new.gd"], "HEAD")
+            self.assertIn("Old_name", old)
+
     def test_added_whitespace_and_indentation(self) -> None:
         original = "extends Node\n  old_bad_indent\n"
         current = original + "func foo() -> void:\n  broken_line()\n\tpass \n"

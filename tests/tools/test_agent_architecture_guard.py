@@ -41,6 +41,10 @@ class ArchitectureGuardTests(unittest.TestCase):
         results = module.inspect_file("content/ui/new_menu.gd", source, None)
         self.assertTrue(any("UI layout" in f.reason for f in results))
 
+    def test_comment_examples_are_not_executable_generators(self) -> None:
+        text = "extends Node\n# Do not run GDScript.new() in production\n"
+        self.assertEqual([], module.inspect_file("content/ui/help.gd", text, None))
+
     def test_legitimate_dynamic_card_is_not_blocked(self) -> None:
         source = "extends Control\nvar row = Label.new()\n"
         self.assertEqual([], module.inspect_file("content/ui/dynamic_card.gd", source, None))

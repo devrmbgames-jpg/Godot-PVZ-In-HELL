@@ -31,11 +31,34 @@ def run_git(root: Path, *args: str, allow_failure: bool = False) -> subprocess.C
     return result
 
 
-def changed_files(root: Path, base: str) -> list[str]:
+def changed_origins(root: Path, base: str) -> dict[str, str | None]:
+    """Map current paths to base paths; tracked renames must not become 'new'."""
     commit = run_git(root, "rev-parse", "--verify", f"{base}^{{commit}}").stdout.decode().strip()
-    changed = run_git(root, "diff", "--name-only", "--diff-filter=ACMR", "-z", commit).stdout
+    raw = run_git(root, "diff", "--name-status", "--find-renames", "--diff-filter=ACMR",
+                  "-z", commit).stdout
+    parts = [item.decode().replace("\\", "/") for item in raw.split(b"\x00") if item]
+    result: dict[str, str | None] = {}
+    i = 0
+    while i < len(parts):
+        status = parts[i]
+        i += 1
+        if status.startswith("R"):
+            old, new = parts[i:i + 2]
+            result[new] = old
+            i += 2
+        else:
+            path = parts[i]
+            result[path] = None if status.startswith("A") else path
+            i += 1
     untracked = run_git(root, "ls-files", "--others", "--exclude-standard", "-z").stdout
-    return sorted({item.decode().replace("\\", "/") for item in (changed + untracked).split(b"\x00") if item})
+    for item in untracked.split(b"\x00"):
+        if item:
+            result[item.decode().replace("\\", "/")] = None
+    return result
+
+
+def changed_files(root: Path, base: str) -> list[str]:
+    return sorted(changed_origins(root, base))
 
 
 def previous_text(root: Path, path: str, base: str) -> str | None:
@@ -127,9 +150,10 @@ def main(argv: list[str] | None = None) -> int:
     if not args.paths and not args.changed:
         args_parser.error("specify GDScript paths or --changed; never lint the entire repository by accident")
     try:
+        origins = changed_origins(root, args.base)
         paths = set(args.paths)
         if args.changed:
-            paths.update(changed_files(root, args.base))
+            paths.update(origins)
         paths = {p.replace("\\", "/") for p in paths if p.endswith(".gd")
                  and not p.replace("\\", "/").startswith("addons/")}
         paths = {p for p in paths if (root / p).is_file() and (root / p).resolve().is_relative_to(root)}
@@ -140,7 +164,8 @@ def main(argv: list[str] | None = None) -> int:
         errors: list[str] = []
         missing = False
         for path in sorted(paths):
-            old = previous_text(root, path, args.base)
+            old_path = origins.get(path, path)
+            old = previous_text(root, old_path, args.base) if old_path else None
             results, skipped = inspect_file(root, path, old, binary, args.strict)
             errors.extend(results)
             missing |= skipped
