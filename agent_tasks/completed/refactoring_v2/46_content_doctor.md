@@ -93,5 +93,5 @@ the new CLI parser consumed unittest host argv. FIXED: main accepts explicit opt
 and defaults programmatic calls to no arguments; only the executable entry point passes
 sys.argv[1:]. No validation rule or permission changed. Existing tooling88/88 PASS; actual
 structure/Doctor CLI with --content-doctor PASS (91 scenes,3 dialogues,zero errors/review
-gates,12.43 seconds; tests/artifacts/refactoring_v2_46_cli_repair.log). Scoped repair commit
-is recorded in Git; this maintenance regression does not reopen completed content checks.
+gates,12.43 seconds; tests/artifacts/refactoring_v2_46_cli_repair.log). Repair commit
+5e686deb68c4dc838ecbf1ab4a5e8dce146d88f4; this maintenance regression does not reopen completed content checks.

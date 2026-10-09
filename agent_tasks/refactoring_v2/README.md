@@ -154,7 +154,7 @@ Phase 1 **DONE**: задачи 01–03 завершены 2026-10-07, 04 — 202
 
 Phase 2A и 2B **DONE**. Execution ownership, typed contracts, all vertical-domain moves and removal of horizontal roots are complete; immutable checkpoints, reviews and acceptance evidence live in the linked archived owning tasks above.
 
-Phase 2C: tasks 41, 43, 44, 45 and 47 are **DONE**, with evidence in their archived owning files. [42 — visual Entity authoring](42_visual_entity_authoring.md) is OWNER_QA_PENDING after implementation/re-review PASS. [46 — Content Doctor](../completed/refactoring_v2/46_content_doctor.md) is DONE after repaired immutable review. [48 — Gameplay Debugger](48_gameplay_debugger.md) is IN_PROGRESS. Continue 48–49, then 60–66 after the core acceptance gate; mandatory owner acceptance remains open.
+Phase 2C: tasks 41, 43, 44, 45 and 47 are **DONE**, with evidence in their archived owning files. [42 — visual Entity authoring](42_visual_entity_authoring.md) is OWNER_QA_PENDING after implementation/re-review PASS. [46 — Content Doctor](../completed/refactoring_v2/46_content_doctor.md) is DONE after repaired immutable review. [48 — Gameplay Debugger](48_gameplay_debugger.md) is OWNER_QA_PENDING after implementation, review and headless gates PASS. Continue 48–49, then 60–66 after the core acceptance gate; mandatory owner acceptance remains open.
 
 Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/body detach/четыре tiers deferred; baseline ACTIVE/DORMANT with retained physical-root Entity and ECS-owned population records. Population/district schedules belong to npc, without separate district domain. Known structure failures (31, smoke reference/R26 metadata) устранены в 03.
 

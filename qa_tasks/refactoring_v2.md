@@ -21,13 +21,15 @@ acceptance that cannot be proved by detached/headless checks. No rendered QA is 
 ## NPC participation (45)
 
 - Latest Windows QA launcher: `.export/LATEST.cmd`; build
-  `20261009-214532Z-3fad54ae-npc-participation-final` (menu/level headless startup PASS).
+  `20261009-225258Z-180e403f-gameplay-debugger-review` (menu/level headless startup PASS).
 - Check daytime arrival/departure and repeated sleep/reload in the actual level for animation,
   collision and conversation continuity. Headless mode, identity, state and routing acceptance
   passed; subjective presentation remains owner QA. The build preserves current user edits
   and records a dirty worktree in its manifest.
 
 ## Gameplay Debugger (48)
+
+- Windows QA build: `.export/LATEST.cmd` -> `20261009-225258Z-180e403f-gameplay-debugger-review`; exported menu/level headless120-frame startup PASS, rendered QA PENDING.
 
 - In the actual editor-run level, open the developer console; use `debug_targets`, then
   `debug_inspect target` or `debug_inspect entity:<id>`. Check the two-column Tree, long

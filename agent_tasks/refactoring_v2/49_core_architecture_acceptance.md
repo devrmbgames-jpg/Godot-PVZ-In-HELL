@@ -32,3 +32,22 @@ Status: **PLANNED**
 ## Gate
 
 Только после этого начинать Phase 3 Code Style.
+
+## Preparatory evidence (2026-10-10)
+
+Dependencies42/48 remain OWNER_QA_PENDING;49 remains PLANNED and Phase3 is gated.
+Independent strict domain structure/dependency reruns PASS with empty baseline at
+180e403f8f1be66595126db7395e163b506a4378. Strict architecture and full structure/Doctor PASS
+(91 scenes,3 dialogues,zero errors/review gates). Provider/console GUT21/323 and district
+queue smoke16000-frame PASS belong to48. Prepare representative core regressions while
+waiting for owner editor/visual approval; do not interpret these as completed49 acceptance.
+
+Tooling88/88 and persistence baseline PASS after evidenced Content Doctor CLI compatibility
+repair5e686deb68c4dc838ecbf1ab4a5e8dce146d88f4 (owned/closed in46). Full structure/Doctor
+CLI rerun PASS91/3,zero errors/review gates. Windows48 QA export/menu/level headless startup
+PASS; native rendering/focus QA remains pending. Core representative GUT preparation PASS:11 suites,175 tests /1902 assertions,25.271s; no runtime or shutdown errors (tests/artifacts/refactoring_v2_49_core_preparation_gut.log). Native authoring/placed/identity preparation PASS:3 suites,33 tests /281 assertions,1.444s; no diagnostics (tests/artifacts/refactoring_v2_49_authoring_preparation_gut.log).
+
+Preparatory architecture review will inspect immutable Phase2C delta from the accepted41
+baseline dc7e9490e59510fefa820793874ae117fbb07d01 to current committed source. Previous
+individual milestone reviews passed after repairs; this separate review checks cross-owner
+core contracts. Required42/48 owner QA still prevents49/Phase3 completion.
