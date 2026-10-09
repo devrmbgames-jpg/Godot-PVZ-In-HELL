@@ -116,6 +116,18 @@
 [ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/domains/interaction/entities/window.tscn" id="Window_scene"]
 [ext_resource type="PackedScene" path="res://content/domains/inventory/entities/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
 
+[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="Entity_composition"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_entity_district_trader.tres" id="Npc_template"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_entity_district_session.tres" id="District_template"]
+
+[sub_resource type="Resource" id="Npc_composition"]
+script = ExtResource("Entity_composition")
+entity_template = ExtResource("Npc_template")
+
+[sub_resource type="Resource" id="District_composition"]
+script = ExtResource("Entity_composition")
+entity_template = ExtResource("District_template")
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
 [sub_resource type="Sky" id="Sky_bghjr"]
@@ -1825,6 +1837,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.22, 0.5)
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
 metadata/persistent_local_id = &"placed_entityes_daysession"
+metadata/entity_composition = SubResource("District_composition")
 script = ExtResource("Day_entity")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state"), SubResource("District_state")])
 
@@ -1864,6 +1877,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.25, 1.22, -1.2911086)
 
 [node name="Trader" parent="Entityes" unique_id=50836948 instance=ExtResource("Trader_scene")]
 metadata/persistent_local_id = &"placed_entityes_trader"
+metadata/entity_composition = SubResource("Npc_composition")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.031166, 0.30710316, -0.9131813)
 script = ExtResource("District_npc")
 inspection_animation = &""

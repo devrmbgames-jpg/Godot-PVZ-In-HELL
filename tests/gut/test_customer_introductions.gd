@@ -131,7 +131,7 @@ func test_quick_spawn_announces_true_number_preserves_it_and_accepts_without_dia
 	state.registration = C_PackageState.Registration.REGISTERED
 	state.registration_number = 73
 	parcel.component_resources = [identity, state, C_Grabbable.new()]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	CustomerParcelAssignment.bind_parcel(_customer, _visit)
 	parcel.add_relationship(Relationship.new(R_HeldBy.new(), _actor))
 	assert_eq(CustomerFlowService.confirm_direct_delivery(_actor, _customer), PackageDeliveryCheck.Result.READY)

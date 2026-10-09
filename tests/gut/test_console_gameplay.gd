@@ -144,7 +144,7 @@ func test_live_visit_option_preserves_accounting_default_and_authored_introducti
 	identity.definition = DEF_Package.new()
 	identity.definition.key = &"books"
 	parcel.component_resources = [identity, C_PackageState.new()]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	assert_true(_run("visit_create", ["pkg:console_live", "ordinary", "1"]).contains("OK visit_create"))
 
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(&"visit/console_live")

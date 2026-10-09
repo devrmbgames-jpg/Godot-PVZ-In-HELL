@@ -106,6 +106,25 @@ func test_support_checks_footprint_and_missing_floor() -> void:
 	assert_false(_find(solver, body, Vector3(30, 0.5, 30), policy).available)
 	body.free()
 
+## A pending loot record cannot replace another live Entity by its requested persistent ID.
+func test_pending_loot_collision_preserves_actor_and_does_not_reserve_or_emit() -> void:
+	var queue: C_LootDrops = LootDropService.current()
+	var record: PendingLootDrop = PendingLootDrop.new()
+	record.drop_id = "loot/composition/collision"
+	record.scene_path = MEAT_SCENE
+	record.origin = Vector3(0, 0.5, 0)
+	var existing: Entity = Entity.new()
+	existing.id = record.drop_id
+	_world.add_entity(existing)
+	var before_count: int = _world.entities.size()
+	assert_null(LootDropService.place_pending(queue, record))
+	assert_eq(_world.entities.size(), before_count)
+	assert_same(_world.entity_id_registry[record.drop_id], existing)
+	assert_false(existing.is_queued_for_deletion())
+	assert_true(queue.reservations.is_empty())
+	assert_true(_drops().is_empty())
+
+
 ## Предметы смерти в одном кадре получают непересекающиеся резервы и постоянные ID.
 func test_batch_reserves_each_shape_before_next_physics_frame() -> void:
 	_damage(_npc(false, 1.0), 200.0)

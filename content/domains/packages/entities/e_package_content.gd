@@ -10,12 +10,14 @@ class_name E_PackageContent
 
 
 ## Создаёт получатель ударов и необязательный эмиттер опасности из авторских параметров.
-func define_components() -> Array:
+func define_components() -> Array[Component]:
+	if EntityCompositionService.recipes_prepared(self):
+		return []
 	var receiver: C_ImpactReceiver = C_ImpactReceiver.new()
 	receiver.profile = impact_profile
-	var components: Array[Component] = [receiver]
+	var recipes: Array[Component] = [receiver]
 	if hazard_scene != null:
 		var emitter: C_HazardEmitter = C_HazardEmitter.new()
 		emitter.hazard_scene = hazard_scene
-		components.append(emitter)
-	return components
+		recipes.append(emitter)
+	return recipes

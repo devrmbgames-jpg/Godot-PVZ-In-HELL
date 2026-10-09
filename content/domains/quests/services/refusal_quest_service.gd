@@ -36,15 +36,35 @@ static func restore_bindings() -> void:
 			if (trader.get_component(C_Trader) as C_Trader).trader_key != record.issuer_key:
 				continue
 
-			var binding: Entity = Entity.new()
-			var identity: C_QuestBinding = C_QuestBinding.new()
-			identity.quest_id = record.quest_id
-			binding.component_resources = [identity]
-			ECS.world.add_entity(binding)
-			binding.add_relationship(Relationship.new(R_IssuedBy.new(), trader))
-			binding.add_relationship(Relationship.new(R_TargetsPackage.new(), parcel))
-			binding.add_relationship(Relationship.new(R_QuestSession.new(), _session()))
+			if not _create_binding(record, trader, parcel):
+				return
 			break
+
+
+static func _create_binding(record: RefusalQuestRecord, trader: Entity, parcel: Entity) -> bool:
+	var binding: Entity = Entity.new()
+	var identity: C_QuestBinding = C_QuestBinding.new()
+	identity.quest_id = record.quest_id
+	binding.component_resources = [identity]
+	var context: EntitySpawnContext = EntityCompositionService.context_for(binding, ECS.world,
+		GECSIO.uuid())
+	context.bindings[&"issuer"] = trader
+	context.bindings[&"package"] = parcel
+	context.bindings[&"session"] = _session()
+	var issuer_intent: EntityInitialBinding = EntityInitialBinding.new()
+	issuer_intent.relation = R_IssuedBy.new()
+	issuer_intent.endpoint = &"issuer"
+	var package_intent: EntityInitialBinding = EntityInitialBinding.new()
+	package_intent.relation = R_TargetsPackage.new()
+	package_intent.endpoint = &"package"
+	var session_intent: EntityInitialBinding = EntityInitialBinding.new()
+	session_intent.relation = R_QuestSession.new()
+	session_intent.endpoint = &"session"
+	context.initial_bindings = [issuer_intent, package_intent, session_intent]
+	if not EntityCompositionService.try_register(context):
+		binding.free()
+		return false
+	return true
 
 
 ## Находит постоянную запись по устойчивому ID.
@@ -111,15 +131,9 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 			record.offered_day = cycle.day_index
 			record.deadline_day = maxi(cycle.day_index + definition.minimum_deadline_days, visit.arrival_day)
 			record.reward = definition.reward
+			if not _create_binding(record, trader, parcel):
+				return null
 			state.records.append(record)
-			var binding: Entity = Entity.new()
-			var identity: C_QuestBinding = C_QuestBinding.new()
-			identity.quest_id = record.quest_id
-			binding.component_resources = [identity]
-			ECS.world.add_entity(binding)
-			binding.add_relationship(Relationship.new(R_IssuedBy.new(), trader))
-			binding.add_relationship(Relationship.new(R_TargetsPackage.new(), parcel))
-			binding.add_relationship(Relationship.new(R_QuestSession.new(), _session()))
 
 			BoundaryTrace.record(&"quests.offer", record.quest_id,
 				BoundaryTraceEntry.Stage.COMPLETED, &"offered",

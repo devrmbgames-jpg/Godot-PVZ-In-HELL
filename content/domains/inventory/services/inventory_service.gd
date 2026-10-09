@@ -54,7 +54,11 @@ static func grant(owner: Entity, definition: DEF_InventoryItem, quantity: int) -
 	state.definition = definition
 	state.quantity = quantity
 	item.component_resources = [state]
-	ECS.world.add_entity(item)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(item, ECS.world,
+		GECSIO.uuid())
+	if not EntityCompositionService.try_register(context):
+		item.free()
+		return false
 	if transfer(item, owner):
 		return true
 

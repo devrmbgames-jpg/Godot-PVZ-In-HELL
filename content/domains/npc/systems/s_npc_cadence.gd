@@ -49,16 +49,15 @@ func _select_due(session_reference: WeakRef, captured_district: C_District, capt
 		if actor == null:
 			continue
 		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-		if decision != null:
-			decision.scheduled_delta = 0.0
+		assert(decision != null and actor.has_component(C_NpcAwareness),
+			"Retained NPCs require their compiled brain capability")
+		decision.scheduled_delta = 0.0
 		if cycle.phase == C_DayCycle.Phase.NIGHT or person.death_day != 0 \
 				or person.placement != NpcRecord.Placement.STREET or not actor.enabled:
 			continue
 
-		# Materialization normally installs these; explicit lifecycle repair preserves the adapter contract.
-		if decision == null or not actor.has_component(C_NpcAwareness) or actor.get_node_or_null("Brain") == null:
-			NpcBrainService.install(actor)
-			decision = actor.get_component(C_NpcDecision) as C_NpcDecision
+		assert(actor.get_node_or_null("Brain") is BTPlayer,
+			"Active participation requires completed passive engine binding")
 		if person.cadence_sample_tick < 0:
 			var stagger: float = DecisionRandomRules.generator(
 				clock.world_seed, String(person.npc_id), cycle.day_index, "npc/cadence_stagger",

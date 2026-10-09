@@ -8166,23 +8166,6 @@
       "uid": "uid://dl88dabj3ptfa"
     },
     {
-      "source": "content/observers/gameplay/o_package_condition_setup.gd",
-      "target": "content/domains/packages/observers/o_package_condition_setup.gd",
-      "owner": "packages",
-      "role": "observers",
-      "task": "31",
-      "symbol": "O_PackageConditionSetup"
-    },
-    {
-      "source": "content/observers/gameplay/o_package_condition_setup.gd.uid",
-      "target": "content/domains/packages/observers/o_package_condition_setup.gd.uid",
-      "owner": "packages",
-      "role": "observers",
-      "task": "31",
-      "symbol": "O_PackageConditionSetup",
-      "uid": "uid://59ul5d9hny"
-    },
-    {
       "source": "content/observers/gameplay/o_package_contents.gd",
       "target": "content/domains/packages/observers/o_package_contents.gd",
       "owner": "packages",
@@ -11436,23 +11419,6 @@
       "uid": "uid://dfl3o1pesdsx6"
     },
     {
-      "source": "content/services/packages/package_condition_service.gd",
-      "target": "content/domains/packages/services/package_condition_service.gd",
-      "owner": "packages",
-      "role": "services",
-      "task": "31",
-      "symbol": "PackageConditionService"
-    },
-    {
-      "source": "content/services/packages/package_condition_service.gd.uid",
-      "target": "content/domains/packages/services/package_condition_service.gd.uid",
-      "owner": "packages",
-      "role": "services",
-      "task": "31",
-      "symbol": "PackageConditionService",
-      "uid": "uid://jha7pn2gfnxs"
-    },
-    {
       "source": "content/services/packages/package_contents_service.gd",
       "target": "content/domains/packages/services/package_contents_service.gd",
       "owner": "packages",
@@ -13655,6 +13621,275 @@
       "role": "systems",
       "task": "retain",
       "uid": "uid://bfkhrdxlcac7r"
+    },
+    {
+      "source": "content/shared/rules/entity_recipe_rules.gd",
+      "target": "content/shared/rules/entity_recipe_rules.gd",
+      "owner": "shared",
+      "role": "rules",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/rules/entity_recipe_rules.gd.uid",
+      "target": "content/shared/rules/entity_recipe_rules.gd.uid",
+      "owner": "shared",
+      "role": "rules",
+      "task": "retain",
+      "uid": "uid://b7gxbf3xqimog"
+    },
+    {
+      "source": "content/shared/contracts/entity_spawn_context.gd",
+      "target": "content/shared/contracts/entity_spawn_context.gd",
+      "owner": "shared",
+      "role": "contracts",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/contracts/entity_spawn_context.gd.uid",
+      "target": "content/shared/contracts/entity_spawn_context.gd.uid",
+      "owner": "shared",
+      "role": "contracts",
+      "task": "retain",
+      "uid": "uid://fbnurq23licb"
+    },
+    {
+      "source": "content/shared/contracts/entity_initial_binding.gd",
+      "target": "content/shared/contracts/entity_initial_binding.gd",
+      "owner": "shared",
+      "role": "contracts",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/contracts/entity_initial_binding.gd.uid",
+      "target": "content/shared/contracts/entity_initial_binding.gd.uid",
+      "owner": "shared",
+      "role": "contracts",
+      "task": "retain",
+      "uid": "uid://2yaavdod56ox"
+    },
+    {
+      "source": "content/shared/authoring/entity_trait.gd",
+      "target": "content/shared/authoring/entity_trait.gd",
+      "owner": "shared",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/authoring/entity_trait.gd.uid",
+      "target": "content/shared/authoring/entity_trait.gd.uid",
+      "owner": "shared",
+      "role": "authoring",
+      "task": "retain",
+      "uid": "uid://bjwjbtb1hnub0"
+    },
+    {
+      "source": "content/shared/definitions/def_entity_template.gd",
+      "target": "content/shared/definitions/def_entity_template.gd",
+      "owner": "shared",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/definitions/def_entity_template.gd.uid",
+      "target": "content/shared/definitions/def_entity_template.gd.uid",
+      "owner": "shared",
+      "role": "definitions",
+      "task": "retain",
+      "uid": "uid://cdbwrqyj5t310"
+    },
+    {
+      "source": "content/shared/contracts/entity_build_plan.gd",
+      "target": "content/shared/contracts/entity_build_plan.gd",
+      "owner": "shared",
+      "role": "contracts",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/contracts/entity_build_plan.gd.uid",
+      "target": "content/shared/contracts/entity_build_plan.gd.uid",
+      "owner": "shared",
+      "role": "contracts",
+      "task": "retain",
+      "uid": "uid://cvhwjre434abl"
+    },
+    {
+      "source": "content/shared/rules/entity_build_rules.gd",
+      "target": "content/shared/rules/entity_build_rules.gd",
+      "owner": "shared",
+      "role": "rules",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/rules/entity_build_rules.gd.uid",
+      "target": "content/shared/rules/entity_build_rules.gd.uid",
+      "owner": "shared",
+      "role": "rules",
+      "task": "retain",
+      "uid": "uid://ctlimhx2w8ml6"
+    },
+    {
+      "source": "content/shared/authoring/entity_authoring.gd",
+      "target": "content/shared/authoring/entity_authoring.gd",
+      "owner": "shared",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/authoring/entity_authoring.gd.uid",
+      "target": "content/shared/authoring/entity_authoring.gd.uid",
+      "owner": "shared",
+      "role": "authoring",
+      "task": "retain",
+      "uid": "uid://dqu81i08jek6l"
+    },
+    {
+      "source": "content/shared/services/entity_composition_service.gd",
+      "target": "content/shared/services/entity_composition_service.gd",
+      "owner": "shared",
+      "role": "services",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/services/entity_composition_service.gd.uid",
+      "target": "content/shared/services/entity_composition_service.gd.uid",
+      "owner": "shared",
+      "role": "services",
+      "task": "retain",
+      "uid": "uid://ck3f3pby72dj6"
+    },
+    {
+      "source": "content/domains/packages/authoring/et_package_state.gd",
+      "target": "content/domains/packages/authoring/et_package_state.gd",
+      "owner": "packages",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/packages/authoring/et_package_state.gd.uid",
+      "target": "content/domains/packages/authoring/et_package_state.gd.uid",
+      "owner": "packages",
+      "role": "authoring",
+      "task": "retain",
+      "uid": "uid://dc1022koex5v6"
+    },
+    {
+      "source": "content/domains/packages/definitions/def_entity_package.tres",
+      "target": "content/domains/packages/definitions/def_entity_package.tres",
+      "owner": "packages",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/definitions/def_entity_npc_address.tres",
+      "target": "content/domains/npc/definitions/def_entity_npc_address.tres",
+      "owner": "npc",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/authoring/et_npc_identity.gd",
+      "target": "content/domains/npc/authoring/et_npc_identity.gd",
+      "owner": "npc",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/authoring/et_npc_identity.gd.uid",
+      "target": "content/domains/npc/authoring/et_npc_identity.gd.uid",
+      "owner": "npc",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/rules/npc_population_rules.gd",
+      "target": "content/domains/npc/rules/npc_population_rules.gd",
+      "owner": "npc",
+      "role": "rules",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/rules/npc_population_rules.gd.uid",
+      "target": "content/domains/npc/rules/npc_population_rules.gd.uid",
+      "owner": "npc",
+      "role": "rules",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/services/npc_construction_service.gd",
+      "target": "content/domains/npc/services/npc_construction_service.gd",
+      "owner": "npc",
+      "role": "services",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/services/npc_construction_service.gd.uid",
+      "target": "content/domains/npc/services/npc_construction_service.gd.uid",
+      "owner": "npc",
+      "role": "services",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/definitions/def_entity_district_npc.tres",
+      "target": "content/domains/npc/definitions/def_entity_district_npc.tres",
+      "owner": "npc",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/definitions/def_entity_district_session.tres",
+      "target": "content/domains/npc/definitions/def_entity_district_session.tres",
+      "owner": "npc",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/authoring/et_npc_brain_state.gd",
+      "target": "content/domains/npc/authoring/et_npc_brain_state.gd",
+      "owner": "npc",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/authoring/et_npc_brain_state.gd.uid",
+      "target": "content/domains/npc/authoring/et_npc_brain_state.gd.uid",
+      "owner": "npc",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/authoring/et_npc_roles.gd",
+      "target": "content/domains/npc/authoring/et_npc_roles.gd",
+      "owner": "npc",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/authoring/et_npc_roles.gd.uid",
+      "target": "content/domains/npc/authoring/et_npc_roles.gd.uid",
+      "owner": "npc",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/definitions/def_entity_district_trader.tres",
+      "target": "content/domains/npc/definitions/def_entity_district_trader.tres",
+      "owner": "npc",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/npc/definitions/def_action_npc_street.tres",
+      "target": "content/domains/npc/definitions/def_action_npc_street.tres",
+      "owner": "npc",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/commerce/definitions/def_action_npc_trade.tres",
+      "target": "content/domains/commerce/definitions/def_action_npc_trade.tres",
+      "owner": "commerce",
+      "role": "definitions",
+      "task": "retain"
     }
   ],
   "old_save_migration": false,

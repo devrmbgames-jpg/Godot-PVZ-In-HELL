@@ -127,6 +127,32 @@ func test_full_owner_preserves_automatic_attack_and_cooldown_selection() -> void
 	assert_gt(_state.execution_generation, generation)
 
 
+## entity_added sees complete launch data; source intent is fixed up before launch returns.
+func test_projectile_launch_data_precedes_native_entity_added() -> void:
+	var attack: DEF_NpcAttack = _state.ranged_attacks[0]
+	var captured: Dictionary[String, Variant] = {}
+	var callback: Callable = func(added: Entity) -> void:
+		var launch_state: C_CombatProjectile = (
+			added.get_component(C_CombatProjectile) as C_CombatProjectile)
+		if launch_state != null:
+			captured["velocity"] = launch_state.velocity
+			captured["damage"] = launch_state.damage
+			captured["instigator_id"] = launch_state.instigator_id
+			captured["remaining_seconds"] = launch_state.remaining_seconds
+	_world.entity_added.connect(callback)
+	assert_true(ProjectileService.launch(_npc, _target, attack))
+	_world.entity_added.disconnect(callback)
+	assert_eq(captured["instigator_id"], _npc.id)
+	assert_eq(captured["damage"], attack.damage)
+	assert_eq(captured["remaining_seconds"], attack.projectile_lifetime)
+	assert_gt((captured["velocity"] as Vector3).length(), 0.0)
+	var projectile: Entity = _world.query.with_all([C_CombatProjectile]).execute_one()
+	assert_true(EntityCompositionService.recipes_prepared(projectile))
+	assert_eq(projectile.relationships.size(), 1)
+	assert_true(projectile.relationships[0].relation is R_ProjectileSource)
+	assert_same(projectile.relationships[0].target, _npc)
+
+
 ## Pending flight cannot move or damage using a replaced projectile component.
 func test_manual_flight_rejects_replaced_launch_state() -> void:
 	var attack: DEF_NpcAttack = _state.ranged_attacks[0]

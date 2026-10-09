@@ -163,7 +163,11 @@ static func meat_spawn() -> DebugServiceResult:
 	var position: Vector3 = node.global_transform * MEAT_OFFSET
 	node.get_parent().add_child(meat)
 	(meat as Node as Node3D).global_position = position
-	ECS.world.add_entity(meat, null, false)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(meat, ECS.world,
+		meat.id if not meat.id.is_empty() else GECSIO.uuid())
+	if not EntityCompositionService.try_register(context, false):
+		meat.free()
+		return failure("Meat composition rejected")
 	return success(PackedStringArray(["entity=%s; edible physical meat spawned" % meat.id]))
 
 

@@ -127,7 +127,7 @@ func _prepare_morning(session_reference: WeakRef, request: DistrictMorningPrepar
 				if body == null:
 					continue
 				DistrictPopulationService.reset_brain(body)
-				NpcBrainService.install(body)
+				NpcBrainService.bind_engine(body)
 				_plan_phase(district, person, body, request.day_index, C_DayCycle.Phase.MORNING, true)
 			district.prepared_morning = request.day_index
 			_world.emit_event(DistrictMorningPrepared.EVENT, session,

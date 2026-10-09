@@ -42,7 +42,7 @@ func before_each() -> void:
 	var identity: C_Package = C_Package.new()
 	identity.package_id = "durable:first"
 	_parcel.component_resources = [identity]
-	_world.add_entity(_parcel)
+	EntityCompositionFixture.register(_world, _parcel)
 	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	registration.package_id = identity.package_id
 	registration.number = 3

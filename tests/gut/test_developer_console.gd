@@ -61,7 +61,7 @@ func _add_package(package_id: String) -> Entity:
 	identity.definition = definition
 	var parcel: Entity = Entity.new()
 	parcel.component_resources = [identity, C_PackageState.new()]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	return parcel
 
 

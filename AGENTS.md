@@ -110,3 +110,11 @@ Use the cheapest check that can falsify the change. Do not run GUT, smoke, or br
 - Runnable Windows QA builds under `.export/` are for completed large gameplay milestones, not documentation/config-only changes.
 
 Report material findings first, then validation, then remaining owner QA.
+
+
+## Working tree safety
+
+- Never bulk-restore modified files based only on directory or filename patterns.
+- Do not discard pre-existing or unrelated working-tree changes.
+- `git restore`, baseline pruning, generated-file cleanup, and other destructive mutations must target only files known to belong to the current task.
+- Run validation separately from destructive cleanup or baseline mutation.

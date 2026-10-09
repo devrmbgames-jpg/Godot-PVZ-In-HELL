@@ -14,7 +14,9 @@ func configure_source(package_id: String, definition: DEF_Package) -> void:
 
 
 ## Создаёт C_PackageDebris из предварительно заданных данных источника.
-func define_components() -> Array:
+func define_components() -> Array[Component]:
+	if EntityCompositionService.recipes_prepared(self):
+		return []
 	var metadata: C_PackageDebris = C_PackageDebris.new()
 	metadata.package_id = _source_package_id
 	metadata.definition = _source_definition

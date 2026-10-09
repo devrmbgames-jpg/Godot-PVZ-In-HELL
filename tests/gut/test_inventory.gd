@@ -209,7 +209,7 @@ func test_wrap_only_consumes_on_valid_package_protection_increase() -> void:
 	health.current = 100.0
 	health.value = 100.0
 	parcel.component_resources = [C_Package.new(), health]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	assert_true(InventoryService.use(_owner, item, parcel))
 	assert_eq((parcel.get_component(C_ImpactProtection) as C_ImpactProtection).tier, ImpactResult.Severity.Medium)
 	assert_eq((item.get_component(C_InventoryItem) as C_InventoryItem).quantity, 1)

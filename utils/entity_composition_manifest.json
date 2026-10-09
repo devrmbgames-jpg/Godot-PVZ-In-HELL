@@ -1,0 +1,1365 @@
+{
+  "version": 1,
+  "task": "41_entity_templates_traits",
+  "contracts": {
+    "composition": "Flat optional scene-owned Template plus validated declarative intrinsic providers; no default_scene back-reference or arbitrary install hooks.",
+    "authority": "Traits/config and transient build plans own no mutable runtime authority; Components/Relationships remain scheduled/discrete owner state.",
+    "conflicts": "Every Component/Relationship provider contributes once; duplicate/incompatible scene/code/Trait providers fail unless an enumerated initial-field merge is declared.",
+    "isolation": "Fresh runtime recipes/records/containers per Entity; immutable Definitions/assets and explicit scene identity references may be shared.",
+    "registration": "Explicit World context; validate the whole placed set and factory plan before World.add_entity collision policy; no compilation via early ECS.world assignment.",
+    "readiness": "No gameplay consumers, setup/on_ready/Observer side effects or first tick before complete defaults/saved overlay/endpoint fixup; failed build publishes no ready and replaces no existing Entity.",
+    "coverage": "Every baseline structural writer is classified; runtime transitions are distinct from initial providers. All current native scene recipes use the same preparation path, including optional-Template scenes."
+  },
+  "baseline_providers": [
+    {
+      "source": "content/debug/debug_gameplay_service.gd",
+      "method": "meat_spawn",
+      "line": 157,
+      "operations": [
+        "register"
+      ],
+      "components": [],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/debug/debug_package_service.gd",
+      "method": "_place_near_player",
+      "line": 262,
+      "operations": [
+        "register"
+      ],
+      "components": [],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/challenges/observers/o_floor_challenge_spawn.gd",
+      "method": "_bind",
+      "line": 18,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_Challenge",
+        "C_FloorChallenge",
+        "C_FloorHazard",
+        "C_Hazard"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/challenges/services/challenge_service.gd",
+      "method": "arm",
+      "line": 24,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_Challenge",
+        "C_DayCycle"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/challenges/services/challenge_service.gd",
+      "method": "debug_start",
+      "line": 8,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_Challenge",
+        "C_DayCycle"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/combat/observers/o_depletion_effects.gd",
+      "method": "_dispatch",
+      "line": 38,
+      "operations": [
+        "register"
+      ],
+      "components": [],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/combat/observers/o_health_lifecycle.gd",
+      "method": "_commit_death",
+      "line": 23,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_Death",
+        "C_Interactor",
+        "C_Living",
+        "C_Motion"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/combat/services/combat_service.gd",
+      "method": "bind_target",
+      "line": 8,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/combat/services/combat_service.gd",
+      "method": "start_strike",
+      "line": 49,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_Combat",
+        "C_District",
+        "C_MeleeWeapon"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/combat/services/projectile_service.gd",
+      "method": "launch",
+      "line": 9,
+      "operations": [
+        "register",
+        "component_write",
+        "relationship_write"
+      ],
+      "components": [
+        "C_CombatProjectile",
+        "C_Hunger",
+        "C_NoDamage"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/combat/services/throw_context.gd",
+      "method": "arm",
+      "line": 18,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_ThrowDamage"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/combat/systems/s_impact.gd",
+      "method": "_on_entity_added",
+      "line": 195,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_CharacterBody",
+        "C_ImpactInbox"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "physical_impact",
+      "contract": "Move C_ImpactInbox construction into initial composition; setup retains passive native signal binding only.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/commerce/services/commerce_service.gd",
+      "method": "purchase",
+      "line": 37,
+      "operations": [
+        "register",
+        "recipe_write"
+      ],
+      "components": [
+        "C_Commerce",
+        "C_DayCycle",
+        "C_Death",
+        "C_Inventory",
+        "C_InventoryItem",
+        "C_Trader"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/commerce/services/furniture_placement.gd",
+      "method": "commit",
+      "line": 98,
+      "operations": [
+        "register",
+        "recipe_write"
+      ],
+      "components": [
+        "C_PersistentIdentity"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/commerce/services/order_delivery_service.gd",
+      "method": "fulfill_one",
+      "line": 50,
+      "operations": [
+        "register",
+        "recipe_write"
+      ],
+      "components": [
+        "C_Commerce",
+        "C_InventoryItem",
+        "C_OrderReceiving",
+        "C_PersistentIdentity"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/customers/entities/e_customer.gd",
+      "method": "define_components",
+      "line": 31,
+      "operations": [
+        "code_recipe"
+      ],
+      "components": [
+        "C_CustomerAgent",
+        "C_InteractionActionSet"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "customer",
+      "contract": "Replace conditional procedural Agent/action provisioning with explicit Template providers; duplicate scene/code/Trait providers fail.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/customers/services/customer_action_recipe.gd",
+      "method": "install",
+      "line": 14,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_InteractionActionSet"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "customer_actions",
+      "contract": "Initial reusable customer actions belong to compiler composition; live service/home roles retain only their role transactions.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/customers/services/customer_flow_service.gd",
+      "method": "start_visit",
+      "line": 66,
+      "operations": [
+        "register"
+      ],
+      "components": [
+        "C_Challenge",
+        "C_CustomerAgent",
+        "C_CustomerFlow",
+        "C_Motion",
+        "C_PlayerInputController"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/customers/services/customer_inspection_service.gd",
+      "method": "begin",
+      "line": 8,
+      "operations": [
+        "register",
+        "relationship_write"
+      ],
+      "components": [
+        "C_CustomerAgent",
+        "C_Death",
+        "C_InspectionBooth"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/customers/services/customer_inspection_service.gd",
+      "method": "bind_contents",
+      "line": 61,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/customers/services/customer_parcel_assignment.gd",
+      "method": "bind_parcel",
+      "line": 7,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_Package",
+        "C_PackageState"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/customers/services/npc_home_delivery_service.gd",
+      "method": "knock",
+      "line": 43,
+      "operations": [
+        "component_write",
+        "relationship_write"
+      ],
+      "components": [
+        "C_CustomerAgent",
+        "C_Death",
+        "C_NpcAddress"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/customers/services/npc_service_role.gd",
+      "method": "begin",
+      "line": 35,
+      "operations": [
+        "component_write",
+        "relationship_write"
+      ],
+      "components": [
+        "C_Challenge",
+        "C_CustomerAgent",
+        "C_District",
+        "C_Motion"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/customers/services/npc_service_role.gd",
+      "method": "claim_counter",
+      "line": 114,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_CustomerAgent",
+        "C_NpcDecision"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/hazards/observers/o_hazard_spawn.gd",
+      "method": "_spawn",
+      "line": 31,
+      "operations": [
+        "register"
+      ],
+      "components": [
+        "C_Hazard",
+        "C_HazardLifetime",
+        "C_NoDamage"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/hazards/services/hazard_follow_service.gd",
+      "method": "replace",
+      "line": 21,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_HazardLifetime"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/entities/e_interaction_test_valve.gd",
+      "method": "define_components",
+      "line": 54,
+      "operations": [
+        "code_recipe"
+      ],
+      "components": [
+        "C_InteractionToggle"
+      ],
+      "kind": "declarative_intrinsic",
+      "action": "retain_and_validate",
+      "contract": "Pure scene-owned valve state remains declarative, contributed exactly once and validated through common preparation.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/entities/e_physical_slot.gd",
+      "method": "on_ready",
+      "line": 13,
+      "operations": [
+        "initialize"
+      ],
+      "components": [],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "physical_slot",
+      "contract": "Initial R_SlotMountedOn becomes a validated binding intent; fix endpoints after one registration of the whole placed set.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/services/anchoring_service.gd",
+      "method": "anchor",
+      "line": 46,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_Anchorable",
+        "C_PlayerAnchored"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/services/cart_cargo_service.gd",
+      "method": "load_supported",
+      "line": 116,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_CartTransport"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/services/cart_transport_service.gd",
+      "method": "begin",
+      "line": 34,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/services/cart_transport_service.gd",
+      "method": "driver_added",
+      "line": 79,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_CartDriver",
+        "C_CartTransport"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/services/grab_service.gd",
+      "method": "_acquire_validated",
+      "line": 122,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_GrabControl",
+        "C_Grabbable"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/services/openable_service.gd",
+      "method": "_track_player_request",
+      "line": 88,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_PlayerInputController"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/services/physical_slot_service.gd",
+      "method": "store",
+      "line": 62,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/services/prolonged_interaction_service.gd",
+      "method": "begin",
+      "line": 67,
+      "operations": [
+        "component_write",
+        "relationship_write"
+      ],
+      "components": [
+        "C_ProlongedInteraction"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/services/prolonged_interaction_service.gd",
+      "method": "debug_set_progress",
+      "line": 30,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_ProlongedInteraction"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/services/push_service.gd",
+      "method": "try_begin",
+      "line": 23,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/interaction/solvers/physics_grab_target.gd",
+      "method": "handle_for",
+      "line": 25,
+      "operations": [
+        "register",
+        "component_write"
+      ],
+      "components": [
+        "C_PhysicsBodyRef"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/inventory/services/inventory_drop_service.gd",
+      "method": "drop",
+      "line": 36,
+      "operations": [
+        "register",
+        "recipe_write"
+      ],
+      "components": [
+        "C_Inventory",
+        "C_InventoryItem"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/inventory/services/inventory_drop_service.gd",
+      "method": "release_on_death",
+      "line": 87,
+      "operations": [
+        "register",
+        "recipe_write"
+      ],
+      "components": [
+        "C_InventoryItem"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/inventory/services/inventory_service.gd",
+      "method": "grant",
+      "line": 48,
+      "operations": [
+        "register",
+        "recipe_write"
+      ],
+      "components": [
+        "C_InventoryItem"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/inventory/services/inventory_service.gd",
+      "method": "transfer",
+      "line": 97,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_Inventory",
+        "C_InventoryItem"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/npc/services/district_population_service.gd",
+      "method": "_install_roles",
+      "line": 274,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_Hunger",
+        "C_InteractionActionSet",
+        "C_Inventory",
+        "C_Trader"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "resident_capabilities",
+      "contract": "Move Inventory/Hunger/street actions/Trader capability and defaults into flat Traits; preserve original tuning and authored scene structure.",
+      "resolved": true,
+      "resolution": {
+        "kind": "removed_live_role_installer",
+        "replacement": "content/domains/npc/authoring/et_npc_roles.gd",
+        "templates": [
+          "content/domains/npc/definitions/def_entity_district_npc.tres",
+          "content/domains/npc/definitions/def_entity_district_trader.tres"
+        ],
+        "contract": "Fresh Inventory/Hunger/actions and optional merchant data compile with identity/brain before native registration. Explicit SCENE mode preserves placed Trader Profile/action Definitions; missing scene providers reject rather than falling back. Authored pickup nodes are scene-owned. _spawn_body reuses an already prepared placed identity or registers one accepted common plan; only presentation/passive native runner binding remains after registration.",
+        "validation": "Role-first coupled native GUT 125/125, 1276 assertions; changed owner parser 5 files; actual main/Night write/restore PASS with zero diagnostics. Reverse fixture loader order/cold inherited snapshot parser retention is explicitly pending; full population transaction/readiness also pending."
+      }
+    },
+    {
+      "source": "content/domains/npc/services/district_population_service.gd",
+      "method": "_spawn_addresses",
+      "line": 86,
+      "operations": [
+        "register"
+      ],
+      "components": [
+        "C_District",
+        "C_NpcAddress"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": true,
+      "resolution": {
+        "kind": "intrinsic_scene_plus_enumerated_instance_fields",
+        "replacement": "content/domains/npc/definitions/def_entity_npc_address.tres",
+        "scene": "content/domains/npc/entities/npc_address.tscn",
+        "contract": "Existing scene Address/Interactable/Actions remain explicit intrinsic providers. Generic flat Trait validates StaticBody3D/Address-node/Address Component and permits address_id only. All contexts/plans validate as a detached batch before any native registration or roster mutation. Label/pose precede native publication; no post-registration ID installer remains.",
+        "validation": "Address parser 3 files and GUT 104/104 / 1002 assertions PASS, zero diagnostics, including actual publication and whole-batch conflict rejection. Native import preserves 6 ObjectDB/3-resource editor baseline; main smoke PASS."
+      }
+    },
+    {
+      "source": "content/domains/npc/services/district_population_service.gd",
+      "method": "_spawn_body",
+      "line": 100,
+      "operations": [
+        "register",
+        "component_write"
+      ],
+      "components": [
+        "C_Motion",
+        "C_NpcIdentity",
+        "C_PersistentIdentity"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "resident_identity",
+      "contract": "Prepare NPC identity, persistent reference and Profile defaults before registration; use the same placed/spawned path.",
+      "resolved": true,
+      "resolution": {
+        "kind": "common_pre_registration_identity_profile_factory",
+        "replacement": "content/domains/npc/authoring/et_npc_roles.gd",
+        "templates": [
+          "content/domains/npc/definitions/def_entity_district_npc.tres",
+          "content/domains/npc/definitions/def_entity_district_trader.tres"
+        ],
+        "contract": "Fresh Inventory/Hunger/actions and optional merchant data compile with identity/brain before native registration. Explicit SCENE mode preserves placed Trader Profile/action Definitions; missing scene providers reject rather than falling back. Authored pickup nodes are scene-owned. _spawn_body reuses an already prepared placed identity or registers one accepted common plan; only presentation/passive native runner binding remains after registration.",
+        "validation": "Role-first coupled native GUT 125/125, 1276 assertions; changed owner parser 5 files; actual main/Night write/restore PASS with zero diagnostics. Reverse fixture loader order/cold inherited snapshot parser retention is explicitly pending; full population transaction/readiness also pending."
+      }
+    },
+    {
+      "source": "content/domains/npc/services/npc_brain_service.gd",
+      "method": "install",
+      "line": 10,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_NpcAwareness",
+        "C_NpcCombat",
+        "C_NpcDecision",
+        "C_NpcIdentity"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "npc_brain",
+      "contract": "Trait supplies fresh awareness/decision/resistance/combat defaults; one bounded passive native BT adapter is ready before simulation.",
+      "resolved": true,
+      "resolution": {
+        "kind": "removed_data_installer_retained_passive_engine_or_runtime_effect_operations",
+        "replacement": "content/domains/npc/authoring/et_npc_brain_state.gd",
+        "template": "content/domains/npc/definitions/def_entity_district_npc.tres",
+        "contract": "Fresh Awareness/Decision/resistance and Profile combat defaults compile before native publication. NpcBrainService.bind_engine only attaches a manual native runner; explicit reset retains Component instances and advances a transient generation. Cadence never installs or repairs capabilities. Existing aura/refuge operations remain explicit runtime effects, not initial installers.",
+        "validation": "NPC brain Trait parser 15 files and coupled native GUT 126/126, 1208 assertions PASS, zero diagnostics; actual main and two-process Night write/restore PASS. Complete readiness/role migration remains pending."
+      }
+    },
+    {
+      "source": "content/domains/npc/services/npc_community_service.gd",
+      "method": "choose_loot",
+      "line": 24,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_InventoryItem"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/npc/services/npc_dialogue_service.gd",
+      "method": "begin",
+      "line": 21,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/npc/services/npc_intent_service.gd",
+      "method": "follow",
+      "line": 22,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_NpcIntent"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/npc/services/npc_intent_service.gd",
+      "method": "watch",
+      "line": 50,
+      "operations": [
+        "relationship_write"
+      ],
+      "components": [
+        "C_NpcIntent"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/npc/services/npc_trait_service.gd",
+      "method": "install",
+      "line": 10,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_DamageResistance"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "npc_quirk_defaults",
+      "contract": "Compile existing Profile-derived resistance defaults; DEF_NpcTrait quirks stay distinct from authoring EntityTrait.",
+      "resolved": true,
+      "resolution": {
+        "kind": "removed_data_installer_retained_passive_engine_or_runtime_effect_operations",
+        "replacement": "content/domains/npc/authoring/et_npc_brain_state.gd",
+        "template": "content/domains/npc/definitions/def_entity_district_npc.tres",
+        "contract": "Fresh Awareness/Decision/resistance and Profile combat defaults compile before native publication. NpcBrainService.bind_engine only attaches a manual native runner; explicit reset retains Component instances and advances a transient generation. Cadence never installs or repairs capabilities. Existing aura/refuge operations remain explicit runtime effects, not initial installers.",
+        "validation": "NPC brain Trait parser 15 files and coupled native GUT 126/126, 1208 assertions PASS, zero diagnostics; actual main and two-process Night write/restore PASS. Complete readiness/role migration remains pending."
+      }
+    },
+    {
+      "source": "content/domains/npc/systems/s_npc_route.gd",
+      "method": "_progress_route",
+      "line": 43,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_District",
+        "C_NpcIntent",
+        "C_NpcRoute"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/packages/entities/e_package.gd",
+      "method": "define_components",
+      "line": 21,
+      "operations": [
+        "code_recipe"
+      ],
+      "components": [
+        "C_Package",
+        "C_PackageContents"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "package",
+      "contract": "Move identity/default/contents capability into compile inputs; opaque identity allocation belongs to the boundary, not pure compilation.",
+      "resolved": true,
+      "resolution": {
+        "kind": "trait_plus_intrinsic_identity",
+        "intrinsic": "E_Package.define_components retains fresh identity/configuration only; boundary supplies package_id before compilation. Prepared native calls contribute nothing twice.",
+        "replacement": "content/domains/packages/authoring/et_package_state.gd",
+        "template": "content/domains/packages/definitions/def_entity_package.tres",
+        "scene": "content/domains/packages/entities/package.tscn",
+        "validation": "refactoring_v2_41_package_activation_full_gut_final.log: 96 scripts, 1346/1346 PASS, zero diagnostics; latest factory fields 116/116 PASS; actual main/Night/loot headless PASS. Complete task-41 readiness and remaining providers still pending."
+      }
+    },
+    {
+      "source": "content/domains/packages/entities/e_package_content.gd",
+      "method": "define_components",
+      "line": 13,
+      "operations": [
+        "code_recipe"
+      ],
+      "components": [
+        "C_HazardEmitter",
+        "C_ImpactReceiver"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "package_content",
+      "contract": "Initial impact/hazard capability follows compiler provider/provenance rules for the whole content family.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/packages/entities/e_package_debris.gd",
+      "method": "define_components",
+      "line": 17,
+      "operations": [
+        "code_recipe"
+      ],
+      "components": [
+        "C_PackageDebris"
+      ],
+      "kind": "declarative_intrinsic",
+      "action": "retain_and_validate",
+      "contract": "Pure scene-owned source metadata remains declarative, configured from typed factory context and validated through common preparation.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/packages/observers/o_package_condition_setup.gd",
+      "method": "_initialize",
+      "line": 23,
+      "operations": [
+        "initialize"
+      ],
+      "components": [
+        "C_Health",
+        "C_ImpactReceiver",
+        "C_Package"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "package_defaults",
+      "contract": "Remove reactive initial capability/default setup once Trait defaults are supplied before ready; saved Health overlays defaults.",
+      "resolved": true,
+      "resolution": {
+        "kind": "removed",
+        "replacement": "content/domains/packages/authoring/et_package_state.gd",
+        "contract": "No reactive/late condition installer remains; fresh common plans configure Profile defaults before native registration and saved overlays never repeat defaults.",
+        "validation": "refactoring_v2_41_package_activation_full_gut_final.log: 96 scripts, 1346/1346 PASS, zero diagnostics; latest factory fields 116/116 PASS; actual main/Night/loot headless PASS. Complete task-41 readiness and remaining providers still pending."
+      }
+    },
+    {
+      "source": "content/domains/packages/observers/o_package_destruction.gd",
+      "method": "_replace_with_debris",
+      "line": 57,
+      "operations": [
+        "register"
+      ],
+      "components": [
+        "C_Package",
+        "C_PackageDestruction"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/packages/services/loot_drop_service.gd",
+      "method": "_place",
+      "line": 123,
+      "operations": [
+        "register",
+        "recipe_write"
+      ],
+      "components": [
+        "C_LootDrops",
+        "C_PersistentIdentity"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/packages/services/loot_drop_service.gd",
+      "method": "_single_item",
+      "line": 82,
+      "operations": [
+        "recipe_write"
+      ],
+      "components": [
+        "C_InventoryItem"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/packages/services/loot_drop_service.gd",
+      "method": "current",
+      "line": 7,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_DayCycle",
+        "C_LootDrops"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "session_loot_queue",
+      "contract": "Session loot queue is an initial capability; reads must not install missing Components into a ready session.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/packages/services/package_condition_service.gd",
+      "method": "initialize",
+      "line": 7,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_Health",
+        "C_ImpactReceiver",
+        "C_LiquidTilt",
+        "C_Package"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "package_condition",
+      "contract": "Compile Health/impact/liquid defaults once; passive restore overlays state without replaying installation or resetting saved Health.",
+      "resolved": true,
+      "resolution": {
+        "kind": "removed",
+        "replacement": "content/domains/packages/authoring/et_package_state.gd",
+        "contract": "No reactive/late condition installer remains; fresh common plans configure Profile defaults before native registration and saved overlays never repeat defaults.",
+        "validation": "refactoring_v2_41_package_activation_full_gut_final.log: 96 scripts, 1346/1346 PASS, zero diagnostics; latest factory fields 116/116 PASS; actual main/Night/loot headless PASS. Complete task-41 readiness and remaining providers still pending."
+      }
+    },
+    {
+      "source": "content/domains/packages/services/package_protection_service.gd",
+      "method": "apply",
+      "line": 20,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_ImpactProtection"
+      ],
+      "kind": "runtime_transition",
+      "action": "retain",
+      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/packages/services/receiving_package_factory.gd",
+      "method": "configure_recipe",
+      "line": 57,
+      "operations": [
+        "recipe_write"
+      ],
+      "components": [
+        "C_Grabbable"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "package_profile",
+      "contract": "Apply typed Profile/instance configuration through the same compiler with enumerated initial fields; preserve body ownership and mass/throw tuning.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/packages/services/receiving_package_factory.gd",
+      "method": "try_place",
+      "line": 85,
+      "operations": [
+        "register"
+      ],
+      "components": [
+        "C_Receiving"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/persistence/services/persistent_interaction_state.gd",
+      "method": "restore",
+      "line": 29,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_ProlongedInteraction"
+      ],
+      "kind": "passive_restore",
+      "action": "migrate_gate",
+      "contract": "Saved completed action records are passive state reconstruction, not reusable capability installation; ready follows overlay/fixup.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/persistence/services/world_snapshot_service.gd",
+      "method": "restore",
+      "line": 222,
+      "operations": [
+        "register",
+        "component_write",
+        "relationship_write"
+      ],
+      "components": [
+        "C_CharacterBody",
+        "C_CustomerFlow",
+        "C_Death",
+        "C_District",
+        "C_Hazard",
+        "C_InventoryItem",
+        "C_LootDrops",
+        "C_Motion",
+        "C_OrderReceiving",
+        "C_Package",
+        "C_PackageMarks",
+        "C_PlayerAnchored",
+        "C_Receiving",
+        "C_Stamina"
+      ],
+      "kind": "passive_restore",
+      "action": "migrate_gate",
+      "contract": "Preflight all absent prefabs/default plans and identities before live mutation; overlay saved data/endpoints while consumers are gated, then publish ready without replay.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/quests/services/refusal_quest_service.gd",
+      "method": "offer",
+      "line": 64,
+      "operations": [
+        "register",
+        "relationship_write",
+        "recipe_write"
+      ],
+      "components": [
+        "C_CustomerFlow",
+        "C_DayCycle",
+        "C_Package",
+        "C_PackageLedger",
+        "C_QuestBinding",
+        "C_QuestSession",
+        "C_Trader"
+      ],
+      "kind": "factory_boundary",
+      "action": "migrate_gate",
+      "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/domains/quests/services/refusal_quest_service.gd",
+      "method": "restore_bindings",
+      "line": 15,
+      "operations": [
+        "register",
+        "relationship_write",
+        "recipe_write"
+      ],
+      "components": [
+        "C_QuestBinding",
+        "C_QuestSession",
+        "C_Trader"
+      ],
+      "kind": "passive_restore",
+      "action": "migrate_gate",
+      "contract": "Restored quest binding Entities follow the common pre-registration gate; retain passive idempotent relation reconstruction.",
+      "resolved": false
+    },
+    {
+      "source": "content/scenes/game_world.gd",
+      "method": "_ready",
+      "line": 11,
+      "operations": [
+        "automatic_world_initialize"
+      ],
+      "components": [],
+      "kind": "bootstrap_boundary",
+      "action": "migrate_gate",
+      "contract": "Compile/validate all placed intrinsic/Trait recipes, Entity and stable IDs and endpoints before super._ready/automatic World.initialize; suppress gameplay until defaults/saved overlay/fixup are complete.",
+      "resolved": false
+    },
+    {
+      "source": "content/scenes/main_level.gd",
+      "method": "_ready",
+      "line": 13,
+      "operations": [
+        "component_write"
+      ],
+      "components": [
+        "C_Autosave",
+        "C_BoundaryTrace",
+        "C_DayCycle"
+      ],
+      "kind": "initial_capability",
+      "action": "migrate",
+      "capability": "level_bootstrap",
+      "contract": "Prepare all placed recipes/IDs/endpoints before automatic World.initialize; passive setup, startup spawns/restore/fixup precede world and Entity ready.",
+      "resolved": false
+    },
+    {
+      "source": "content/shared/rules/placed_identity_rules.gd",
+      "method": "compile_for",
+      "line": 12,
+      "operations": [
+        "recipe_write"
+      ],
+      "components": [
+        "C_AuthoredIdentity"
+      ],
+      "kind": "authoring_identity",
+      "action": "migrate_gate",
+      "contract": "Whole-set identity validation precedes recipe/state mutation; metadata compiles to isolated immutable references and never replaces existing Entity IDs.",
+      "resolved": false
+    }
+  ],
+  "scene_intrinsic_sources": [
+    "content/domains/combat/entities/combat_projectile.tscn",
+    "content/domains/combat/entities/hammer.tscn",
+    "content/domains/combat/entities/utility_blade.tscn",
+    "content/domains/commerce/entities/exterior_yard.tscn",
+    "content/domains/commerce/entities/order_receiving.tscn",
+    "content/domains/commerce/entities/trader.tscn",
+    "content/domains/customers/entities/customer.tscn",
+    "content/domains/customers/entities/customer_prototype.tscn",
+    "content/domains/customers/entities/delivery_counter.tscn",
+    "content/domains/customers/entities/inspection_booth.tscn",
+    "content/domains/hazards/entities/explosion.tscn",
+    "content/domains/hazards/entities/floor_hazard.tscn",
+    "content/domains/hazards/entities/npc_fire_aura.tscn",
+    "content/domains/hazards/entities/toxic_area.tscn",
+    "content/domains/hazards/entities/toxic_residue.tscn",
+    "content/domains/interaction/entities/anchorable_test_box.tscn",
+    "content/domains/interaction/entities/box.tscn",
+    "content/domains/interaction/entities/box_big.tscn",
+    "content/domains/interaction/entities/box_v2.tscn",
+    "content/domains/interaction/entities/box_v3.tscn",
+    "content/domains/interaction/entities/breakable_door.tscn",
+    "content/domains/interaction/entities/bucket.tscn",
+    "content/domains/interaction/entities/cloth_sample.tscn",
+    "content/domains/interaction/entities/door_template.tscn",
+    "content/domains/interaction/entities/drawer.tscn",
+    "content/domains/interaction/entities/inspection_parcel_slot.tscn",
+    "content/domains/interaction/entities/interaction_test_valve.tscn",
+    "content/domains/interaction/entities/large_shelf.tscn",
+    "content/domains/interaction/entities/light_switch.tscn",
+    "content/domains/interaction/entities/marker.tscn",
+    "content/domains/interaction/entities/numbered_shelves.tscn",
+    "content/domains/interaction/entities/padlocked_door.tscn",
+    "content/domains/interaction/entities/physical_slot.tscn",
+    "content/domains/interaction/entities/placement_area.tscn",
+    "content/domains/interaction/entities/push_cart.tscn",
+    "content/domains/interaction/entities/small_shelf.tscn",
+    "content/domains/interaction/entities/window.tscn",
+    "content/domains/inventory/entities/bubble_wrap_pickup.tscn",
+    "content/domains/inventory/entities/food_pickup.tscn",
+    "content/domains/inventory/entities/med_pickup.tscn",
+    "content/domains/inventory/entities/npc_meat_pickup.tscn",
+    "content/domains/motion/entities/archive/rigid_player.tscn",
+    "content/domains/motion/entities/character_body_player.tscn",
+    "content/domains/motion/entities/e_rigid_body_character.tscn",
+    "content/domains/motion/entities/physical_character.tscn",
+    "content/domains/npc/entities/district_npc.tscn",
+    "content/domains/npc/entities/npc_address.tscn",
+    "content/domains/npc/entities/npc_character.tscn",
+    "content/domains/packages/entities/car.tscn",
+    "content/domains/packages/entities/content_books.tscn",
+    "content/domains/packages/entities/content_bottles.tscn",
+    "content/domains/packages/entities/content_equipment.tscn",
+    "content/domains/packages/entities/content_glass.tscn",
+    "content/domains/packages/entities/content_oil.tscn",
+    "content/domains/packages/entities/content_oil_spill.tscn",
+    "content/domains/packages/entities/content_power_cells.tscn",
+    "content/domains/packages/entities/content_stub.tscn",
+    "content/domains/packages/entities/content_tools.tscn",
+    "content/domains/packages/entities/package.tscn",
+    "content/domains/packages/entities/package_a.tscn",
+    "content/domains/packages/entities/package_b.tscn",
+    "content/domains/packages/entities/package_big.tscn",
+    "content/domains/packages/entities/package_debris_stub.tscn",
+    "content/domains/packages/entities/package_return_point.tscn",
+    "content/domains/packages/entities/receiving_zone.tscn",
+    "content/domains/packages/entities/scanner.tscn",
+    "content/domains/packages/entities/terminal.tscn",
+    "content/domains/packages/entities/test_bread.tscn",
+    "content/domains/packages/entities/test_medkits.tscn",
+    "content/domains/packages/entities/test_small_shelf.tscn",
+    "content/domains/time/entities/day_phase_station.tscn",
+    "content/scenes/main_level.tscn",
+    "content/scenes/primitive_test_level.tscn"
+  ],
+  "required_regressions": [
+    "physical_npc",
+    "resident_customer",
+    "existing_trader",
+    "physical_interactable",
+    "package_item_hazard_families",
+    "placed_spawned_parity",
+    "trait_order_independence",
+    "scene_code_trait_duplicate_provider",
+    "incompatible_provider",
+    "missing_requirements_binding",
+    "nested_mutation_isolation",
+    "duplicate_stable_entity_ids_no_replacement",
+    "failed_registration_cleanup_no_outcomes",
+    "setup_observer_on_ready_order",
+    "saved_overlay_no_setup_hp_reset"
+  ],
+  "npc_identity_construction": {
+    "status": "identity_brain_roles_active_population_transaction_and_readiness_pending",
+    "owners": [
+      "NpcPopulationRules",
+      "NpcConstructionService",
+      "ET_NpcIdentity",
+      "GameWorld",
+      "WorldSnapshotService"
+    ],
+    "contract": "Detached fresh/saved roster/Profile inputs, placed merchant identity before its sole native registration, fresh factory/restore common compilation; no second population registry.",
+    "regressions": [
+      "tests/gut/test_entity_npc_identity_traits.gd",
+      "tests/gut/test_entity_placed_bootstrap.gd",
+      "tests/gut/test_district_snapshot.gd"
+    ],
+    "unresolved": "Whole population transaction, remaining customer/factory providers and complete readiness are pending; initial identity/brain/role installers are resolved."
+  }
+}

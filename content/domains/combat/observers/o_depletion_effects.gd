@@ -53,7 +53,11 @@ func _dispatch(
 			spatial.global_transform = health_depletion_effects.world_pose * entry.offset
 		var entity: Entity = spawned as Entity
 		if entity != null:
-			_world.add_entity(entity, null, false)
+			var context: EntitySpawnContext = EntityCompositionService.context_for(entity, _world,
+				entity.id if not entity.id.is_empty() else GECSIO.uuid())
+			if not EntityCompositionService.try_register(context, false):
+				spawned.free()
+				continue
 
 	# Уведомление остаётся пригодным после удаления исходной цели доменной реакцией.
 	_world.emit_event(HealthDepletionEvent.EVENT, null, health_depletion_effects)

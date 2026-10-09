@@ -1,28 +1,15 @@
 extends RefCounted
-## Installs and advances one native LimboAI runtime; scheduling belongs to explicit AI Systems.
+## Binds and advances one native LimboAI runtime over already constructed ECS capability state.
 class_name NpcBrainService
 
 ## Authored native decision tree installed by the runtime adapter.
 const TREE_PATH: String = "res://content/domains/npc/ai/trees/bt_npc_native.tres"
 
 #region Жизненный цикл AI
-## Создаёт производные сенсоры и единственный BTPlayer с ручным обновлением.
-static func install(actor: E_DistrictNpc) -> void:
-	var profile_identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
-	var person: NpcRecord = NpcPopulationQueries.person_for(profile_identity.npc_id)
-	if person != null:
-		NpcTraitService.install(actor, person.profile)
-	if not actor.has_component(C_NpcAwareness):
-		actor.add_component(C_NpcAwareness.new())
-	if not actor.has_component(C_NpcDecision):
-		actor.add_component(C_NpcDecision.new())
-
-	var combat: C_NpcCombat = actor.get_component(C_NpcCombat) as C_NpcCombat
-	if combat != null:
-		if person != null:
-			combat.melee_attacks.assign(person.profile.melee_attacks)
-			combat.ranged_attacks.assign(person.profile.ranged_attacks)
-		combat.automatic_attack_selection = false
+## Binds one passive manual BTPlayer; required ECS data was already compiled before registration.
+static func bind_engine(actor: E_DistrictNpc) -> void:
+	assert(actor.has_component(C_NpcAwareness) and actor.has_component(C_NpcDecision),
+		"Native brain binding requires compiled sensor/decision capability")
 	if actor.get_node_or_null("Brain") != null:
 		return
 

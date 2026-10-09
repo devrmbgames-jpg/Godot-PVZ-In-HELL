@@ -93,7 +93,11 @@ func _replace_with_debris(
 		rigid.linear_velocity = linear_velocity
 		rigid.angular_velocity = angular_velocity
 
-	_world.add_entity(debris, null, false)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(debris, _world,
+		debris.id if not debris.id.is_empty() else GECSIO.uuid())
+	if not EntityCompositionService.try_register(context, false):
+		debris.free()
+		return
 
 	var spawned: PackageDebrisSpawnedEvent = PackageDebrisSpawnedEvent.new()
 	spawned.debris = debris

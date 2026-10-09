@@ -41,6 +41,7 @@ func before_each() -> void:
 	session.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(session.name))
 	assert_true(PlacedIdentityRules.compile_for(_fixture_root).is_empty())
 	_fixture_world.add_entity(session, null, false)
+	_district = session.get_component(C_District) as C_District
 	var calendar: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	calendar.clock.world_seed = -42
 	calendar.clock.elapsed_ticks = 123_456_789
@@ -88,7 +89,7 @@ func before_each() -> void:
 	package.package_id = "fixture/shipment/1"
 	package.package_definition = supply.packages[0]
 	_fixture_root.add_child(package)
-	_fixture_world.add_entity(package, null, false)
+	EntityCompositionFixture.register(_fixture_world, package, false)
 	var history_record: PackageRegistrationRecord = PackageHistoryService.record_arrival(package, 1)
 	assert_not_null(history_record)
 

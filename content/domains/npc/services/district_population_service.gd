@@ -3,6 +3,30 @@ extends RefCounted
 class_name DistrictPopulationService
 
 
+## Detached construction transaction; never retained as a second population model.
+class PopulationBuild extends RefCounted:
+	## Fresh unregistered nodes owned only until accepted commit or rejection cleanup.
+	var instances: Array[Entity] = []
+	## Explicit instance inputs for one whole registration preflight.
+	var contexts: Array[EntitySpawnContext] = []
+	## Compiler output consumed by the same synchronous transaction.
+	var plans: Array[EntityBuildPlan] = []
+	## Authored places for initial address label/pose synchronization.
+	var address_places: Dictionary[Entity, DEF_DistrictPlace] = {}
+	## Fresh or already registered bodies indexed only within this operation.
+	var bodies: Dictionary[StringName, E_DistrictNpc] = {}
+
+	## Releases only this transaction's rejected detached instances.
+	func discard() -> void:
+		for actor: Entity in instances:
+			actor.free()
+		instances.clear()
+		contexts.clear()
+		plans.clear()
+		address_places.clear()
+		bodies.clear()
+
+
 #region Восстановление состояния движка
 ## Clears transient engine/AI participation before restore or explicit morning preparation.
 static func reset_brain(body: E_DistrictNpc) -> void:
@@ -14,9 +38,12 @@ static func reset_brain(body: E_DistrictNpc) -> void:
 	NpcAttackExecutionService.cancel(body)
 	NpcIntentService.stop(body)
 	body.request_role_cleanup(NpcRoleCleanupRequest.Kind.RESET_RELEASE)
-	for script: Script in [C_NpcAwareness, C_NpcDecision, C_NpcRoute]:
-		if body.has_component(script):
-			body.remove_component(script)
+	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+	awareness.reset_transient_state()
+	decision.reset_transient_state()
+	if body.has_component(C_NpcRoute):
+		body.remove_component(C_NpcRoute)
 
 	var runner: BTPlayer = body.get_node_or_null("Brain") as BTPlayer
 	if runner != null:
@@ -37,10 +64,9 @@ static func restore_participation() -> void:
 			continue
 
 		reset_brain(body)
-		_install_roles(body, person)
 		body.present_profile(person.profile)
 		body.show_message(person.display_name)
-		NpcBrainService.install(body)
+		NpcBrainService.bind_engine(body)
 		body.set_participating(person.placement == NpcRecord.Placement.STREET and person.death_day == 0)
 		if person.death_day != 0:
 			body.sync_death_presentation()
@@ -48,83 +74,115 @@ static func restore_participation() -> void:
 #endregion
 
 #region Создание населения
-## Создаёт одно исходное население до восстановления сохранения при старте.
-static func initialize() -> void:
+## Validates all address/body recipes before any native registration or roster mutation.
+static func initialize() -> bool:
 	var district: C_District = NpcPopulationQueries.current()
-	if district == null or district.definition == null or not district.people.is_empty():
-		return
+	if district == null or district.definition == null:
+		return true
 
-	_spawn_addresses()
-	var homes: Array[StringName] = []
-	var portals: Array[StringName] = []
-	for place: DEF_DistrictPlace in district.definition.places:
-		if place.kind == DEF_DistrictPlace.Kind.HOME:
-			homes.append(place.key)
-		elif place.kind == DEF_DistrictPlace.Kind.PORTAL:
-			portals.append(place.key)
+	var complete: bool = district.prepared_morning > 0
+	for person: NpcRecord in district.people:
+		if NpcPopulationQueries.body_for(person.npc_id) == null:
+			complete = false
+	if complete:
+		return true
 
-	var home_index: int = 0
-	for profile: DEF_NpcProfile in district.definition.profiles:
-		if profile == null or not profile.valid_rules() or portals.is_empty():
-			continue
+	var fresh_roster: bool = district.people.is_empty()
+	var people: Array[NpcRecord] = NpcPopulationRules.initial_records(district.definition,
+		district.next_person) if fresh_roster else district.people
+	var build: PopulationBuild = PopulationBuild.new()
+	_prepare_addresses(district, build)
+	if not _prepare_bodies(district, people, build) or not _validate_build(build):
+		build.discard()
+		return false
 
-		var person: NpcRecord = NpcRecord.new()
-		person.npc_id = StringName("npc/%d" % district.next_person)
-		district.next_person += 1
-		person.profile = profile
-		person.display_name = profile.display_name
-		person.recipient_key = profile.recipient_key
-		person.portal_id = portals[(district.next_person - 2) % portals.size()]
-		person.exit_id = portals[(district.next_person - 1) % portals.size()]
-		if profile.resident and home_index < homes.size():
-			person.home_id = homes[home_index]
-			home_index += 1
-		district.people.append(person)
-		_spawn_body(person)
+	# Published NPC identities resolve to the accepted authoritative roster immediately.
+	if fresh_roster:
+		district.people = people
+		district.next_person += people.size()
+	_commit_build(build)
+	_bind_bodies(people, build)
 	prepare_morning(1)
+	return true
 
-static func _spawn_addresses() -> void:
-	var district: C_District = NpcPopulationQueries.current()
-	var prefab: PackedScene = load("res://content/domains/npc/entities/npc_address.tscn") as PackedScene
+
+static func _prepare_addresses(district: C_District, build: PopulationBuild) -> void:
+	var prefab: PackedScene = load(
+		"res://content/domains/npc/entities/npc_address.tscn") as PackedScene
 	for place: DEF_DistrictPlace in district.definition.places:
 		if place.kind != DEF_DistrictPlace.Kind.HOME:
 			continue
-
 		var address: Entity = prefab.instantiate() as Entity
-		ECS.world.get_parent().add_child(address)
-		(address as Node as Node3D).global_position = NpcPopulationQueries.position_for(place.key)
-		ECS.world.add_entity(address, null, false)
-		(address.get_component(C_NpcAddress) as C_NpcAddress).address_id = place.key
-		(address.get_node("Address") as Label3D).text = place.display_name
+		build.instances.append(address)
+		build.address_places[address] = place
+		var context: EntitySpawnContext = EntityCompositionService.context_for(address, ECS.world,
+			GECSIO.uuid())
+		context.initial_fields[C_NpcAddress as Script] = {&"address_id": place.key}
+		build.contexts.append(context)
 
-static func _spawn_body(person: NpcRecord) -> E_DistrictNpc:
-	var scene: PackedScene = load(person.profile.npc_scene_path) as PackedScene
-	if scene == null:
-		return null
 
-	var body: E_DistrictNpc = ECS.world.get_parent().get_node_or_null("Entityes/Trader") as E_DistrictNpc if person.profile.merchant else null
-	if body == null or body.has_component(C_NpcIdentity):
-		body = scene.instantiate() as E_DistrictNpc
+static func _prepare_bodies(district: C_District, people: Array[NpcRecord],
+		build: PopulationBuild) -> bool:
+	for person: NpcRecord in people:
+		if build.bodies.has(person.npc_id):
+			return false
+		var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+		if body != null:
+			build.bodies[person.npc_id] = body
+			continue
+
+		# The declared Profile remains the sole scene selector; invalid roots are never published.
+		if person.profile == null or not ResourceLoader.exists(person.profile.npc_scene_path,
+				"PackedScene"):
+			return false
+		var prefab: PackedScene = load(person.profile.npc_scene_path) as PackedScene
+		var instance: Node = prefab.instantiate()
+		body = instance as E_DistrictNpc
 		if body == null:
-			return null
+			instance.free()
+			return false
+		build.instances.append(body)
+		build.bodies[person.npc_id] = body
+		var context: EntitySpawnContext = EntityCompositionService.context_for(body, ECS.world,
+			GECSIO.uuid())
+		NpcConstructionService.configure_context(context, person, district.definition)
+		build.contexts.append(context)
+	return true
 
-		ECS.world.get_parent().add_child(body)
-		ECS.world.add_entity(body, null, false)
-	var identity: C_NpcIdentity = C_NpcIdentity.new()
-	identity.npc_id = person.npc_id
-	body.add_component(identity)
-	var persistent: C_PersistentIdentity = C_PersistentIdentity.new()
-	persistent.key = String(person.npc_id)
-	body.add_component(persistent)
 
-	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
-	motion.max_speed = person.profile.move_speed
-	body.present_profile(person.profile)
-	body.show_message(person.display_name)
-	_install_roles(body, person)
-	NpcBrainService.install(body)
-	body.place_at(NpcPopulationQueries.position_for(person.home_id if person.profile.resident else person.portal_id))
-	return body
+static func _validate_build(build: PopulationBuild) -> bool:
+	# Endpoints and stable IDs are checked against the entire detached set plus the live World.
+	for context: EntitySpawnContext in build.contexts:
+		context.candidate_actors = build.instances.duplicate()
+		build.plans.append(EntityCompositionService.build_plan(context))
+	return EntityBuildRules.validate_registration_batch(build.contexts, build.plans)
+
+
+static func _commit_build(build: PopulationBuild) -> void:
+	for build_index: int in build.contexts.size():
+		var context: EntitySpawnContext = build.contexts[build_index]
+		var actor: Entity = context.actor
+		ECS.world.get_parent().add_child(actor)
+		if build.address_places.has(actor):
+			var place: DEF_DistrictPlace = build.address_places[actor]
+			(actor.get_node("Address") as Label3D).text = place.display_name
+			(actor as Node as Node3D).global_position = NpcPopulationQueries.position_for(place.key)
+		else:
+			var identity_fields: Dictionary = context.initial_fields[C_NpcIdentity as Script]
+			var person: NpcRecord = NpcPopulationQueries.person_for(identity_fields[&"npc_id"])
+			var origin: StringName = person.home_id if person.profile.resident else person.portal_id
+			(actor as E_DistrictNpc).place_at(NpcPopulationQueries.position_for(origin))
+		var registered: bool = EntityCompositionService.register_plan(context,
+			build.plans[build_index], false)
+		assert(registered, "Accepted synchronous population batch requires one native registration")
+
+
+static func _bind_bodies(people: Array[NpcRecord], build: PopulationBuild) -> void:
+	for person: NpcRecord in people:
+		var body: E_DistrictNpc = build.bodies[person.npc_id]
+		body.present_profile(person.profile)
+		body.show_message(person.display_name)
+		NpcBrainService.bind_engine(body)
 #endregion
 
 #region Календарь и участие в мире
@@ -230,19 +288,19 @@ static func replace_vacancies(district: C_District, morning_day: int) -> void:
 			if vacant == null or person.profile.merchant:
 				vacant = person
 	if district.replacement_morning > 0 and morning_day >= district.replacement_morning and locals_alive < district.definition.resident_count and vacant != null:
-		_replace_person(district, vacant, morning_day)
-		locals_alive += 1
-		district.replacement_morning = morning_day + 1 if locals_alive < district.definition.resident_count else 0
+		if _replace_person(district, vacant, morning_day):
+			locals_alive += 1
+			district.replacement_morning = morning_day + 1 \
+				if locals_alive < district.definition.resident_count else 0
 	if outside_alive < district.definition.visitor_count:
 		for person: NpcRecord in district.people:
 			if not person.profile.resident and person.death_day > 0 and morning_day >= person.death_day + district.definition.replacement_delay_days and not person.portal_id.is_empty():
 				_replace_person(district, person, morning_day)
 				break
 
-static func _replace_person(district: C_District, deceased: NpcRecord, morning_day: int) -> void:
+static func _replace_person(district: C_District, deceased: NpcRecord, morning_day: int) -> bool:
 	var replacement: NpcRecord = NpcRecord.new()
 	replacement.npc_id = StringName("npc/%d" % district.next_person)
-	district.next_person += 1
 	var pool: Array[DEF_NpcProfile] = []
 	var initiators: int = 0
 	for person: NpcRecord in district.people:
@@ -261,46 +319,25 @@ static func _replace_person(district: C_District, deceased: NpcRecord, morning_d
 		replacement.profile = pool[random.randi_range(0, pool.size() - 1)]
 
 	var names: PackedStringArray = district.definition.replacement_names
-	replacement.display_name = "%s %d" % [names[(district.next_person - 2) % names.size()] if not names.is_empty() else replacement.profile.display_name, district.next_person - 1]
+	var display_name: String = replacement.profile.display_name
+	if not names.is_empty():
+		display_name = names[(district.next_person - 1) % names.size()]
+	replacement.display_name = "%s %d" % [display_name, district.next_person]
 	replacement.recipient_key = deceased.recipient_key
 	replacement.home_id = deceased.home_id
 	replacement.portal_id = deceased.portal_id
 	replacement.exit_id = deceased.exit_id
+	var build: PopulationBuild = PopulationBuild.new()
+	if not _prepare_bodies(district, [replacement], build) or not _validate_build(build):
+		build.discard()
+		return false
+
+	district.next_person += 1
 	deceased.home_id = &""
 	deceased.portal_id = &""
 	district.people.append(replacement)
-	_spawn_body(replacement)
+	_commit_build(build)
+	_bind_bodies([replacement], build)
+	return true
 
-static func _install_roles(body: E_DistrictNpc, person: NpcRecord) -> void:
-	if not body.has_component(C_Inventory):
-		body.add_component(C_Inventory.new())
-	if not body.has_component(C_Hunger):
-		var hunger: C_Hunger = C_Hunger.new()
-		hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
-		hunger.value = NpcPopulationQueries.current().definition.npc_start_hunger
-		body.add_component(hunger)
-
-	var actions: C_InteractionActionSet = body.get_component(C_InteractionActionSet) as C_InteractionActionSet
-	if actions == null:
-		actions = C_InteractionActionSet.new()
-		body.add_component(actions)
-	var street: DEF_NpcDialogueAction = DEF_NpcDialogueAction.new()
-	street.action_id = &"npc_street_dialogue"
-	street.caption = "Поговорить с жителем"
-	street.slot = DEF_InteractionAction.Slot.INTERACT
-	street.priority = 5
-	if not actions.actions.any(func(action: DEF_InteractionAction) -> bool: return action.action_id == street.action_id):
-		actions.actions.append(street)
-	if person.profile.merchant and not body.has_component(C_Trader):
-		var trader: C_Trader = C_Trader.new()
-		trader.profile = load("res://content/domains/commerce/definitions/def_trader_default.tres") as DEF_TraderProfile
-		body.add_component(trader)
-		var trade: DEF_TraderAction = DEF_TraderAction.new()
-		trade.action_id = &"trade"
-		trade.caption = "Торговля и задание"
-		actions.actions.append(trade)
-		var pickup: Marker3D = Marker3D.new()
-		pickup.name = "FurniturePickup"
-		pickup.position = Vector3(2, 0, 0)
-		body.add_child(pickup)
 #endregion

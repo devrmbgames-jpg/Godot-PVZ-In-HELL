@@ -54,7 +54,6 @@
 [ext_resource type="Script" uid="uid://dxqnrpxm2pr5l" path="res://content/domains/npc/systems/s_npc_intent.gd" id="Npc_intent"]
 [ext_resource type="Script" uid="uid://dl88dabj3ptfa" path="res://content/domains/npc/observers/o_npc_remains.gd" id="Npc_remains"]
 [ext_resource type="Script" uid="uid://b501bsvk8m4xf" path="res://content/domains/commerce/systems/s_order_delivery.gd" id="Order_delivery_system"]
-[ext_resource type="Script" uid="uid://6aul5eahny" path="res://content/domains/packages/observers/o_package_condition_setup.gd" id="PackageConditionSetup"]
 [ext_resource type="Script" uid="uid://23bxju80ro1e" path="res://content/domains/packages/observers/o_package_damage.gd" id="PackageDamage"]
 [ext_resource type="Script" uid="uid://brndd61fr2e7a" path="res://content/domains/hazards/observers/o_package_destroyed_hazard.gd" id="PackageDestroyedHazard"]
 [ext_resource type="Script" uid="uid://oskus8laisoe" path="res://content/domains/packages/observers/o_package_destruction.gd" id="PackageDestruction"]
@@ -100,9 +99,6 @@ metadata/_custom_type_script = "uid://b3vi2ingux88g"
 [node name="S_Receiving" type="Node" parent="Systems/GamePlay" unique_id=160792962]
 script = ExtResource("Receiving_system")
 group = &"GamePlay"
-
-[node name="O_PackageConditionSetup" type="Node" parent="Systems/GamePlay" unique_id=902458022]
-script = ExtResource("PackageConditionSetup")
 
 [node name="O_PackageOpening" type="Node" parent="Systems/GamePlay" unique_id=59264951]
 script = ExtResource("PackageOpening")

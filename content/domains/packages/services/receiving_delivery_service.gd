@@ -140,21 +140,16 @@ static func deliver_one(
 		receiving.blocked = true
 		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
 		return
-	if not ReceivingPackageFactory.try_place(zone, parcel):
+	var initial_fields: Dictionary[Script, Dictionary] = {}
+	initial_fields[C_Package as Script] = {&"delivery_day": batch.day_index,
+		&"supply_key": zone.supply.key}
+	if not ReceivingPackageFactory.try_place(zone, parcel, initial_fields):
 		parcel.free()
 		receiving.blocked = true
 		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
 		return
 
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
-	if identity == null:
-		ECS.world.remove_entity(parcel)
-		receiving.blocked = true
-		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
-		return
-
-	identity.delivery_day = batch.day_index
-	identity.supply_key = zone.supply.key
 	if PackageHistoryService.record_arrival(parcel, batch.day_index) == null:
 		ECS.world.remove_entity(parcel)
 		receiving.blocked = true
