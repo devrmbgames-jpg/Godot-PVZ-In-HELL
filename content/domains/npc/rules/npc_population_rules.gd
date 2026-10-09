@@ -2,6 +2,7 @@ extends RefCounted
 ## Pure initial roster allocation; records are detached until the district construction commits.
 class_name NpcPopulationRules
 
+
 #region Initial roster
 ## Preserves authored Profile order, sequential identity, homes and paired entry/exit portals.
 static func initial_records(definition: DEF_District, next_person: int) -> Array[NpcRecord]:

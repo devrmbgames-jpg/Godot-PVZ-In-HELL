@@ -14,11 +14,12 @@ class FixtureLevel extends Node:
 class CountingWorld extends GameWorld:
 	var _registrations: int = 0
 
+
 	## Records the one native registration of each placed scene actor.
-	func add_entity(actor: Entity, components: Variant = null,
-			add_to_tree: bool = true) -> void:
+	func add_entity(actor: Entity, components: Variant = null, add_to_tree: bool = true) -> void:
 		_registrations += 1
 		super.add_entity(actor, components, add_to_tree)
+
 
 	## Returns the number of native calls made by automatic World.initialize.
 	func registrations() -> int:
@@ -30,14 +31,17 @@ class PassiveActor extends Entity:
 	var _native_ready_calls: int = 0
 	var _ready_components: int = 0
 
+
 	## Counts native readiness while leaving gameplay state untouched.
 	func on_ready() -> void:
 		_native_ready_calls += 1
 		_ready_components = components.size()
 
+
 	## Returns the number of native initialization callbacks.
 	func ready_calls() -> int:
 		return _native_ready_calls
+
 
 	## Returns data visible at the native on_ready boundary.
 	func ready_components() -> int:
@@ -46,7 +50,8 @@ class PassiveActor extends Entity:
 
 ## Captures durable fields and the physical owner at the actual native initialization callback.
 class SavedStateActor extends PassiveActor:
-	var _construction_state: Dictionary = {}
+	var _construction_state: Dictionary = { }
+
 
 	## Reads prepared state before any later persistence overlay can run.
 	func on_ready() -> void:
@@ -55,17 +60,25 @@ class SavedStateActor extends PassiveActor:
 		var spatial: Node3D = self as Node as Node3D
 		var marks: C_PackageMarks = get_component(C_PackageMarks) as C_PackageMarks
 		var anchored: C_PlayerAnchored = get_component(C_PlayerAnchored) as C_PlayerAnchored
-		var original: Dictionary = {}
+		var original: Dictionary = { }
 		if anchored != null:
-			original = {"freeze": anchored.snapshot.freeze,
+			original = {
+				"freeze": anchored.snapshot.freeze,
 				"freeze_mode": anchored.snapshot.freeze_mode,
-				"can_sleep": anchored.snapshot.can_sleep}
-		_construction_state = {"health": health.current, "id": id,
-			"pose": spatial.global_transform, "death": has_component(C_Death),
+				"can_sleep": anchored.snapshot.can_sleep,
+			}
+		_construction_state = {
+			"health": health.current,
+			"id": id,
+			"pose": spatial.global_transform,
+			"death": has_component(C_Death),
 			"ink_points": marks.point_count if marks != null else 0,
 			"completed": PersistentInteractionState.completed(self),
-			"anchored": anchored != null, "frozen": (spatial as RigidBody3D).freeze,
-			"anchor_original": original}
+			"anchored": anchored != null,
+			"frozen": (spatial as RigidBody3D).freeze,
+			"anchor_original": original,
+		}
+
 
 	## Returns the fields seen by pinned native initialization.
 	func construction_state() -> Dictionary:
@@ -78,26 +91,32 @@ class SetupProbe extends System:
 	var _setup_entities: int = 0
 	var _process_calls: int = 0
 
+
 	## Records the World contents when normal ECS.world binding finalizes setup.
 	func setup() -> void:
 		_setup_calls += 1
 		_setup_entities = _world.entities.size()
 
+
 	## Selects actual fixture data for scheduled execution after global readiness.
 	func query() -> QueryBuilder:
 		return q.with_all([C_DayCycle])
+
 
 	## Counts real native System execution; no gameplay effects are synthesized by the test.
 	func process(_entities: Array[Entity], _components: Array, _delta: float) -> void:
 		_process_calls += 1
 
+
 	## Returns the actual scheduler dispatch count.
 	func process_calls() -> int:
 		return _process_calls
 
+
 	## Returns the number of normal native setup invocations.
 	func setup_calls() -> int:
 		return _setup_calls
+
 
 	## Returns the number of fully registered actors visible to passive setup.
 	func setup_entities() -> int:
@@ -108,6 +127,7 @@ var _level: FixtureLevel = null
 var _world: CountingWorld = null
 var _actors: Node = null
 var _systems: Node = null
+
 
 #region Prepared fixture lifetime
 func before_each() -> void:
@@ -201,8 +221,11 @@ func _actor(label: String, recipes: Array[Component]) -> PassiveActor:
 	return actor
 
 
-func _template_actor(actor: Entity, capability_id: StringName,
-		recipes: Array[Component]) -> EntityAuthoring:
+func _template_actor(
+	actor: Entity,
+	capability_id: StringName,
+	recipes: Array[Component],
+) -> EntityAuthoring:
 	var authoring: EntityAuthoring = EntityAuthoring.new()
 	authoring.entity_template = DEF_EntityTemplate.new()
 	var capability: EntityTrait = EntityTrait.new()
@@ -212,6 +235,7 @@ func _template_actor(actor: Entity, capability_id: StringName,
 	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
 	return authoring
 #endregion
+
 
 #region Whole placed preparation
 ## Intrinsic scene and Template data initialize once, before normal passive System.setup.
@@ -251,8 +275,14 @@ func test_duplicate_provider_aborts_all_placed_registration_without_side_effects
 	assert_false(EntityCompositionService.recipes_prepared(invalid))
 	assert_eq(neighbour.id, "")
 	assert_eq(invalid.id, "")
-	assert_true(_world.composition_issues().any(func(issue: EntityBuildPlan.Issue) -> bool:
-		return issue.code == &"duplicate_provider"))
+	assert_true(
+		_world
+		.composition_issues()
+		.any(
+			func(issue: EntityBuildPlan.Issue) -> bool:
+				return issue.code == &"duplicate_provider",
+		)
+	)
 
 
 ## The pre-native gate prevents GECS's replacement policy for repeated authored Entity IDs.
@@ -271,7 +301,7 @@ func test_duplicate_entity_id_is_rejected_before_native_collision_replacement() 
 	assert_eq(_world.entity_id_registry.size(), 0)
 
 
-## A later-declared endpoint is validated as part of the same set and bound after both registrations.
+## Validates a later-declared endpoint in the same set and binds it after both registrations.
 func test_initial_binding_uses_fully_registered_endpoint_from_the_placed_set() -> void:
 	var source: PassiveActor = _actor("Source", [])
 	var target: PassiveActor = _actor("Target", [])
@@ -292,19 +322,21 @@ func test_initial_binding_uses_fully_registered_endpoint_from_the_placed_set() -
 	assert_eq(target.ready_calls(), 1)
 #endregion
 
+
 #region District construction before native registration
 ## The same prepass gives placed merchant identity and fresh roster before ECS.world binding.
 func test_placed_district_roster_and_merchant_identity_precede_native_publication() -> void:
 	var district: C_District = C_District.new()
-	district.definition = load(
-		"res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	var definition_path: String = "res://content/domains/npc/definitions/def_district_default.tres"
+	district.definition = load(definition_path) as DEF_District
 	var session: PassiveActor = _actor("Session", [district, C_DayCycle.new()])
 	var authoring: EntityAuthoring = EntityAuthoring.new()
 	authoring.entity_template = load(
-		"res://content/domains/npc/definitions/def_entity_district_session.tres") as DEF_EntityTemplate
+		"res://content/domains/npc/definitions/def_entity_district_session.tres"
+	) as DEF_EntityTemplate
 	session.set_meta(EntityCompositionService.AUTHORING_META, authoring)
-	var prefab: PackedScene = load(
-		"res://content/domains/npc/entities/district_npc.tscn") as PackedScene
+	var npc_path: String = "res://content/domains/npc/entities/district_npc.tscn"
+	var prefab: PackedScene = load(npc_path) as PackedScene
 	var merchant: E_DistrictNpc = prefab.instantiate() as E_DistrictNpc
 	merchant.name = "Trader"
 	merchant.set_meta(PlacedIdentityRules.LOCAL_ID_META, &"Trader")
@@ -313,9 +345,11 @@ func test_placed_district_roster_and_merchant_identity_precede_native_publicatio
 	var inspection_slot: Entity = merchant.get_node("InspectionParcelSlot") as Entity
 	inspection_slot.set_meta(PlacedIdentityRules.LOCAL_ID_META, &"merchant_inspection_slot")
 	var publications: Array[StringName] = []
-	_world.entity_added.connect(func(actor: Entity) -> void:
-		if actor == merchant:
-			publications.append((actor.get_component(C_NpcIdentity) as C_NpcIdentity).npc_id))
+	_world.entity_added.connect(
+		func(actor: Entity) -> void:
+			if actor == merchant:
+				publications.append((actor.get_component(C_NpcIdentity) as C_NpcIdentity).npc_id),
+	)
 	var previous_world: World = ECS.world
 	add_child(_level)
 	var diagnostics: Array[String] = _world.identity_issues()
@@ -387,9 +421,11 @@ func test_saved_placed_state_is_complete_before_native_ready_and_publication() -
 	var original_health: float = prototype.current
 	var subject: SavedStateActor = _saved_actor(prototype)
 	var publications: Array[Dictionary] = []
-	_world.entity_added.connect(func(actor: Entity) -> void:
-		if actor == subject:
-			publications.append(subject.construction_state()))
+	_world.entity_added.connect(
+		func(actor: Entity) -> void:
+			if actor == subject:
+				publications.append(subject.construction_state()),
+	)
 	add_child(_level)
 
 	assert_false(_world.initialization_failed())
@@ -397,10 +433,17 @@ func test_saved_placed_state_is_complete_before_native_ready_and_publication() -
 	assert_false(_world.composition_ready())
 	assert_eq(_world.registrations(), 2)
 	assert_eq(subject.ready_calls(), 1)
-	var expected: Dictionary = {"health": 37.0, "id": "saved/Subject",
-		"pose": Transform3D(Basis.IDENTITY, Vector3(2.0, 3.0, 4.0)), "death": false,
-		"ink_points": 0, "completed": [], "anchored": false, "frozen": false,
-		"anchor_original": {}}
+	var expected: Dictionary = {
+		"health": 37.0,
+		"id": "saved/Subject",
+		"pose": Transform3D(Basis.IDENTITY, Vector3(2.0, 3.0, 4.0)),
+		"death": false,
+		"ink_points": 0,
+		"completed": [],
+		"anchored": false,
+		"frozen": false,
+		"anchor_original": { },
+	}
 	assert_eq(subject.construction_state(), expected)
 	assert_eq(publications, [expected])
 	assert_eq(prototype.current, original_health, "Authored recipe stays immutable")
@@ -430,24 +473,43 @@ func test_incompatible_saved_pose_rejects_before_preparing_or_registering_placed
 	assert_false(EntityCompositionService.recipes_prepared(subject))
 	assert_false(EntityCompositionService.recipes_prepared(session))
 	assert_eq(prototype.current, original_health)
-	assert_true(_world.composition_issues().any(func(issue: EntityBuildPlan.Issue) -> bool:
-		return issue.code == &"invalid_saved_composition"))
+	assert_true(
+		_world
+		.composition_issues()
+		.any(
+			func(issue: EntityBuildPlan.Issue) -> bool:
+				return issue.code == &"invalid_saved_composition",
+		)
+	)
 #endregion
+
 
 #region Saved runtime markers before native callbacks
 ## Invalid progress rejects the placed overlay before markers or prepared state are installed.
 func test_saved_progress_overlay_rejects_invalid_ids_without_materializing_markers() -> void:
 	var subject: SavedStateActor = _saved_actor(C_Health.new())
-	var context: EntitySpawnContext = EntityCompositionService.context_for(subject, _world,
-		"fixture/overlay/Subject", [subject])
-	var invalid_progress: Array[Variant] = ["wrong_container", [1], ["fixture_never"],
-		[&"missing"], [&"fixture_never", &"fixture_never"]]
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		subject,
+		_world,
+		"fixture/overlay/Subject",
+		[subject],
+	)
+	var invalid_progress: Array[Variant] = [
+		"wrong_container",
+		[1],
+		["fixture_never"],
+		[&"missing"],
+		[&"fixture_never", &"fixture_never"],
+	]
 	for invalid_ids: Variant in invalid_progress:
 		var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
 		assert_true(plan.valid())
 		var recipes_before: Array[Component] = plan.component_recipes.duplicate()
-		var saved: Dictionary = {"components": [], "death": true,
-			"completed_actions": invalid_ids}
+		var saved: Dictionary = {
+			"components": [],
+			"death": true,
+			"completed_actions": invalid_ids,
+		}
 		assert_false(WorldSnapshotService.overlay_construction_fields(plan, saved))
 		assert_eq(plan.component_recipes, recipes_before)
 		assert_eq(_world.registrations(), 0)
@@ -462,16 +524,28 @@ func test_saved_runtime_markers_are_complete_before_placed_native_ready() -> voi
 	_actor("Session", [C_DayCycle.new()])
 	var subject: SavedStateActor = _saved_actor(C_Health.new())
 	var publications: Array[Dictionary] = []
-	_world.entity_added.connect(func(actor: Entity) -> void:
-		if actor == subject:
-			publications.append(subject.construction_state()))
+	_world.entity_added.connect(
+		func(actor: Entity) -> void:
+			if actor == subject:
+				publications.append(subject.construction_state()),
+	)
 	add_child(_level)
 
-	var expected: Dictionary = {"health": 0.0, "id": "saved/Subject",
-		"pose": Transform3D(Basis.IDENTITY, Vector3(2.0, 3.0, 4.0)), "death": true,
-		"ink_points": 2, "completed": [&"fixture_never"], "anchored": true, "frozen": true,
-		"anchor_original": {"freeze": false, "freeze_mode": RigidBody3D.FREEZE_MODE_KINEMATIC,
-			"can_sleep": false}}
+	var expected: Dictionary = {
+		"health": 0.0,
+		"id": "saved/Subject",
+		"pose": Transform3D(Basis.IDENTITY, Vector3(2.0, 3.0, 4.0)),
+		"death": true,
+		"ink_points": 2,
+		"completed": [&"fixture_never"],
+		"anchored": true,
+		"frozen": true,
+		"anchor_original": {
+			"freeze": false,
+			"freeze_mode": RigidBody3D.FREEZE_MODE_KINEMATIC,
+			"can_sleep": false,
+		},
+	}
 	assert_false(_world.initialization_failed())
 	assert_eq(subject.ready_calls(), 1)
 	assert_eq(publications, [expected])

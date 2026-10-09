@@ -3,6 +3,7 @@ extends EntityTrait
 ## Compiles package condition/content/liquid capability defaults from the scene's package Profile.
 class_name ET_PackageState
 
+
 #region Immutable capability contract
 func _init() -> void:
 	trait_id = &"package_state"
@@ -20,8 +21,9 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 	return PackedStringArray()
 #endregion
 
+
 #region Pure capability recipes
-## Supplies optional package contents and liquid state before native registration/consumer reactions.
+## Supplies optional contents and liquid state before registration and consumer reactions.
 func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 	var definition: DEF_Package = _definition(context)
 	if definition == null:
@@ -41,14 +43,17 @@ func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 ## Configures exact scene-owned data fields; saved overlays apply later without repeating defaults.
 func configuration_for(context: EntitySpawnContext) -> Dictionary[Script, Dictionary]:
 	var definition: DEF_Package = _definition(context)
-	var fields: Dictionary[Script, Dictionary] = {}
+	var fields: Dictionary[Script, Dictionary] = { }
 	if definition == null:
 		return fields
-	fields[C_Package as Script] = {&"condition_initialized": true}
-	fields[C_Health as Script] = {&"base": definition.maximum_health,
-		&"value": definition.maximum_health, &"current": definition.maximum_health}
-	fields[C_ImpactReceiver as Script] = {&"profile": definition.impact_profile}
-	fields[C_Grabbable as Script] = {&"throw_velocity": definition.throw_velocity}
+	fields[C_Package as Script] = { &"condition_initialized": true }
+	fields[C_Health as Script] = {
+		&"base": definition.maximum_health,
+		&"value": definition.maximum_health,
+		&"current": definition.maximum_health,
+	}
+	fields[C_ImpactReceiver as Script] = { &"profile": definition.impact_profile }
+	fields[C_Grabbable as Script] = { &"throw_velocity": definition.throw_velocity }
 	return fields
 
 

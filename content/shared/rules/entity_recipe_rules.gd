@@ -2,21 +2,33 @@ extends RefCounted
 ## Copies compiler recipes with independent nested mutable state and shared immutable Definitions.
 class_name EntityRecipeRules
 
+
 #region Fresh recipe state
 ## Returns one independent recipe, retaining immutable Definitions/assets and scene Node identities.
 ## Non-export script fields are copied because pinned GECS also preserves their initial values.
 static func copy_component(recipe: Component) -> Component:
-	var copied_references: Dictionary[int, RefCounted] = {}
+	var copied_references: Dictionary[int, RefCounted] = { }
 	return _copy_reference(recipe, copied_references) as Component
 
 
-static func _copy_reference(source_reference: RefCounted,
-		copied_references: Dictionary[int, RefCounted]) -> RefCounted:
+static func _copy_reference(
+	source_reference: RefCounted,
+	copied_references: Dictionary[int, RefCounted],
+) -> RefCounted:
 	# Definitions and authored engine assets are references, not writable runtime records.
-	if source_reference is GameDefinition or source_reference is Script \
-			or source_reference is PackedScene or source_reference is Texture \
-			or source_reference is Shader or source_reference is Material \
-			or source_reference is AudioStream or source_reference is Animation:
+	if (
+		(
+			(
+				source_reference is GameDefinition or source_reference is Script \
+						or source_reference is PackedScene
+				or source_reference is Texture
+			) \
+					or source_reference is Shader
+			or source_reference is Material
+		) \
+				or source_reference is AudioStream
+		or source_reference is Animation
+	):
 		return source_reference
 
 	var record_script: Script = source_reference.get_script() as Script
@@ -61,7 +73,7 @@ static func _is_definition_script(record_script: Script) -> bool:
 	while record_script != null:
 		var source_path: String = record_script.resource_path
 		var canonical_root: bool = source_path.begins_with("res://content/domains/") \
-			or source_path.begins_with("res://content/shared/")
+				or source_path.begins_with("res://content/shared/")
 		if canonical_root and "/definitions/" in source_path \
 				and String(record_script.get_global_name()).begins_with("DEF_"):
 			return true
@@ -69,8 +81,10 @@ static func _is_definition_script(record_script: Script) -> bool:
 	return false
 
 
-static func _copy_value(initial_value: Variant,
-		copied_references: Dictionary[int, RefCounted]) -> Variant:
+static func _copy_value(
+	initial_value: Variant,
+	copied_references: Dictionary[int, RefCounted],
+) -> Variant:
 	if initial_value is RefCounted:
 		return _copy_reference(initial_value as RefCounted, copied_references)
 
@@ -87,10 +101,13 @@ static func _copy_value(initial_value: Variant,
 		copied_fields.clear()
 		for original_key: Variant in original_fields:
 			var copied_key: Variant = _copy_value(original_key, copied_references)
-			copied_fields[copied_key] = _copy_value(original_fields[original_key], copied_references)
+			copied_fields[copied_key] = _copy_value(
+				original_fields[original_key],
+				copied_references,
+			)
 		return copied_fields
 
-	# Packed containers also need an explicit copy; Node references are immutable binding identities.
+	# Copy packed containers explicitly; Node references remain immutable binding identities.
 	match typeof(initial_value):
 		TYPE_PACKED_BYTE_ARRAY:
 			var byte_values: PackedByteArray = initial_value

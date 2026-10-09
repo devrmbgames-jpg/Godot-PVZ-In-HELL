@@ -11,6 +11,7 @@ class RegistrationScope extends RefCounted:
 	var _notifications: Array[Dictionary] = []
 	var _closed: bool = false
 
+
 	#region Initial native event capture
 	func _init(world: World, actor: Entity) -> void:
 		_world = world
@@ -19,13 +20,16 @@ class RegistrationScope extends RefCounted:
 		_world.component_added.connect(_capture_component)
 		_world.relationship_added.connect(_capture_relationship)
 
+
 	func _capture_component(actor: Entity, component: Resource) -> void:
 		if actor == _actor:
 			_capture(Observer.Event.ADDED, component)
 
+
 	func _capture_relationship(actor: Entity, relationship: Relationship) -> void:
 		if actor == _actor:
 			_capture(Observer.Event.RELATIONSHIP_ADDED, relationship)
+
 
 	func _capture(event: Observer.Event, payload: Variant) -> void:
 		# Read the pinned dispatcher index when the native event occurs.
@@ -44,12 +48,17 @@ class RegistrationScope extends RefCounted:
 			else:
 				var query: QueryBuilder = entry.query as QueryBuilder
 				var relation_types: Array = query.get("_observer_rel_add_types") as Array
-				if not relation_types.is_empty() and not bool(_world.call(
-						"_relationship_matches_types", payload, relation_types)):
+				if (
+					not relation_types.is_empty()
+					and not bool(
+						_world.call("_relationship_matches_types", payload, relation_types)
+					)
+				):
 					continue
 			if bool(_world.call("_observer_entry_entity_matches", entry, _actor)):
-				_notifications.append({"entry": entry, "event": event, "payload": payload})
+				_notifications.append({ "entry": entry, "event": event, "payload": payload })
 	#endregion
+
 
 	#region Accepted ready publication
 	## Delivers captured initial events once after fields and bindings are ready.
@@ -66,8 +75,13 @@ class RegistrationScope extends RefCounted:
 			var entry: Dictionary = notification.entry as Dictionary
 			var observer: Observer = entry.observer as Observer
 			if is_instance_valid(observer) and observer.active and not observer.paused:
-				_world.call("_invoke_entry", entry, notification.event,
-					_actor, notification.payload)
+				_world.call(
+					"_invoke_entry",
+					entry,
+					notification.event,
+					_actor,
+					notification.payload,
+				)
 		_notifications.clear()
 		_world.call("_evaluate_monitors_for_entity", _actor, [])
 		_activity.clear()

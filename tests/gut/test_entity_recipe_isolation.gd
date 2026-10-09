@@ -1,6 +1,7 @@
 extends GutTest
 ## Proves compiler copies isolate nested state while preserving immutable tuning references.
 
+
 ## Mutable record with a deliberately non-exported initial field.
 class RuntimeRecord extends Resource:
 	## Initial state must survive a recipe copy without becoming shared between builds.

@@ -52,7 +52,8 @@ Scope remains №41. Do not start №42 or expand the migration to unrelated def
 
 ## Current / Next
 
-Implementation and memory comparison are complete; final review/regression/smoke are pending.
+Implementation, memory comparison and native regression are complete. RV-004 is repaired;
+bounded fix review and final headless smoke remain pending.
 Runtime comparison target: `fc58024f827607286afd1d20d009e3bf22495f64`.
 Memory criterion: `1097d8421892e86c4c8a6aff9b3fa6af18069dfa` (explicit owner decision).
 The RV-001 runtime fix and its tests are unchanged since their full fix SHA below.
@@ -63,7 +64,7 @@ The RV-001 runtime fix and its tests are unchanged since their full fix SHA belo
 [migration map](../../utils/domain_migration_map.json) retain the declared ownership.
 Pre-existing config, authored definitions, manifests and addon worktree edits remain preserved.
 
-Next: collect the memory/lifetime checkpoint review, run final native GUT and headless smoke.
+Next: collect the bounded RV-004 fix review and finish headless smoke.
 Repeated equivalent lifecycles are stable; RV-003 is rejected as a memory-leak claim below.
 The independently inherited compile-only shutdown diagnostic is owned by
 [cold snapshot resource retention](../cold_snapshot_resource_retention.md).
@@ -75,7 +76,8 @@ No №42 or Phase-3 work is authorized by the current request.
 
 ## Review findings
 
-All available reviews are **COLLECTED / TRIAGED**; no REVIEW_PENDING remains.
+Checkpoint review is **COLLECTED / TRIAGED**; R1 is deduplicated into RV-004.
+The repair's bounded committed-SHA review is still required before DONE.
 Exactly one reviewer, `/root/review_task41_checkpoint`, was reused after it finished.
 An older unrecoverable result remains **NOT_RUN (result unavailable)**; no PASS was fabricated.
 
@@ -86,10 +88,11 @@ Current immutable review evidence:
 - Fix review: BASE `a95d10e7d01dbb513788289f6771d41dbefb58d8`,
   TARGET `bed9908d38a709f8f565a7a3ced60f78e1980ac2`;
   **FIX VERIFIED / ARCHITECTURE PASS**, bounded to RV-001.
-- Latest additional review: BASE `857ec02d7703eab840dbf496730be48d29294d99`,
-  TARGET `3a7566318350d4091226cf962e8a6321dd609d60`;
-  **NO_FINDING**, ARCHITECTURE/VALIDATION **NOT_RUN**; not full task acceptance.
-- Reviewer STYLE PASS is static assessment only; native checks below were run by Main.
+- Final checkpoint review: BASE `857ec02d7703eab840dbf496730be48d29294d99`,
+  TARGET `4dee2e2557b4737b279b6eb83e03183619b5e6ad`;
+  **ARCHITECTURE PASS / STYLE FAIL** (RV-004), native VALIDATION **NOT_RUN** by reviewer.
+  Seven priority owners, memory methodology/policy and independent HazardLifecycle fix reviewed.
+- Review scores are static assessment only; native checks below were run by Main.
   GECS at both snapshots: `14d4282e5c1cb2713c187706ba2f5ff4e315d36e`.
 
 **RV-001 | P1 | FIXED | Main / №41**
@@ -128,12 +131,23 @@ No retaining owner or runtime-growth regression is claimed from shutdown counts.
 Evidence: [trend CSV](../../tests/fixtures/memory_lifecycle_baseline.csv) and
 [source/conditions](../../tests/fixtures/memory_lifecycle_evidence.json). No fake fix SHA assigned.
 
+**RV-004 | P2 | ACCEPTED | Main / №41 style gate**
+
+Source `4dee2e2557b4737b279b6eb83e03183619b5e6ad`: original-base formatter finds
+24 task-owned files with formatting, long-line or duplicate-load failures. Incremental
+harness checks did not cover the whole migration; reviewer R1 is the same defect.
+Repair implemented: new-file formatter structure verification, concise comments/expressions,
+fixture scene-path constant and shorter test name. Original-base formatter **134 files PASS**,
+parser **24/24**, affected GUT **124/124 / 1158 assertions**; bounded fix review pending.
+
 ## Validation
 
 Recorded evidence is scoped; historical passes are not a fresh whole-task acceptance:
 
-- Full native suite: **98 scripts / 1415/1415 / 11960 assertions**, zero diagnostics.
-  Log: `tests/artifacts/refactoring_v2_41_complete_after_callers_gut.log`.
+- Final full native suite: **99 scripts / 1422/1422 / 12060 assertions**, zero diagnostics.
+  Log: `tests/artifacts/refactoring_v2_41_final_lifecycle_gut.log` (before RV-004 format repair).
+  Post-repair relevant surface: **8 scripts / 124/124 / 1158 assertions**, zero diagnostics.
+  Log: `tests/artifacts/refactoring_v2_41_style_regression_gut.log`.
 - RV-001: **3 scripts / 61/61 / 657 assertions**, zero diagnostics; final parser **4/4**.
   Logs: `tests/artifacts/refactoring_v2_41_rv001_gut.log`,
   `tests/artifacts/refactoring_v2_41_rv001_final_parser.log`.
@@ -159,13 +173,13 @@ Recorded evidence is scoped; historical passes are not a fresh whole-task accept
 - [Lifetime audit](../../tests/fixtures/memory_lifecycle_audit.json): 921 project-owned scripts
   scanned, 85 production free/queue_free sites, no reference/unreference calls. Significant
   caches, WeakRef containers, Callables and seven priority owners reviewed; one baseline UAF fixed.
-- Final changed parser **3/3** and final probe parser **1/1**, zero diagnostics; formatter,
-  agent, strict architecture/structure and three trend-analysis Python fixtures PASS.
-  Final whole-native GUT, smoke and pinned checkpoint review remain pending.
+- Native parser: prior hazard/test/probe **3/3**, final probe **1/1**, style repair **24/24**,
+  zero diagnostics. Original-base formatter **134 files**, agent, strict architecture/structure,
+  preflight and three trend-analysis Python fixtures PASS. Final smoke/fix review pending.
 
 ## Owner QA / blockers
 
 Shutdown retention alone no longer blocks DONE under the owner's explicit criterion change.
-Complete final review/regression/smoke before archive. Independent shutdown investigation remains
+RV-004 and final review/regression/smoke block archive. Independent shutdown investigation remains
 separate; no engine/addon upgrade, warning suppression or load-order workaround adopted.
 No rendered/manual QA is claimed. Tests establish stability on listed lifecycles, not every path.

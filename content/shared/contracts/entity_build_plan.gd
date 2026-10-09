@@ -2,6 +2,7 @@ extends RefCounted
 ## Transient validated recipes/provenance; it is neither a runtime registry nor gameplay authority.
 class_name EntityBuildPlan
 
+
 ## Actionable configuration diagnostic with source capability and authored instance context.
 class Issue extends RefCounted:
 	## Stable reason category, distinct from gameplay rejection or runtime action failure.
@@ -37,11 +38,12 @@ var component_recipes: Array[Component] = []
 ## Validated binding intents to materialize after registration and any saved-state overlay.
 var bindings: Array[Binding] = []
 ## One provider per Component Script; this cache explains composition and owns no live state.
-var provenance: Dictionary[Script, String] = {}
+var provenance: Dictionary[Script, String] = { }
 ## Exact initial field provenance per Component Script; this is transient compiler explanation.
-var field_provenance: Dictionary[Script, Dictionary] = {}
+var field_provenance: Dictionary[Script, Dictionary] = { }
 ## Configuration errors prevent materialization and ready publication.
 var issues: Array[Issue] = []
+
 
 #region Build outcome
 ## Reports whether every known provider/requirement/binding validation passed.

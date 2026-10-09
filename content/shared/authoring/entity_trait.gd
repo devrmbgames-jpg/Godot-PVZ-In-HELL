@@ -17,7 +17,8 @@ class_name EntityTrait
 @export var initial_bindings: Array[EntityInitialBinding] = []
 
 ## Enumerated instance fields accepted from factory inputs, never arbitrary live state writes.
-@export var initial_field_names: Dictionary[Script, PackedStringArray] = {}
+@export var initial_field_names: Dictionary[Script, PackedStringArray] = { }
+
 
 #region Pure capability compilation
 ## A concrete capability may select its existing Profile variant without changing configuration.
@@ -33,10 +34,10 @@ func recipes_for(_context: EntitySpawnContext) -> Array[Component]:
 ## Declares exact initial Component fields configured from immutable Profile inputs.
 ## The compiler validates fields/types and rejects two Traits configuring the same field.
 func configuration_for(_context: EntitySpawnContext) -> Dictionary[Script, Dictionary]:
-	return {}
+	return { }
 
 
-## Returns capability-specific configuration errors; no install hooks or runtime effects are allowed.
+## Returns capability configuration errors without install hooks or runtime effects.
 func configuration_issues(_context: EntitySpawnContext) -> PackedStringArray:
 	return PackedStringArray()
 #endregion

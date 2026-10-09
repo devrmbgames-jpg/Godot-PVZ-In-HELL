@@ -4,7 +4,10 @@ extends EntityTrait
 class_name ET_NpcRoles
 
 ## Each reusable provider is explicitly authored; a missing scene provider never triggers fallback.
-enum Provider { TRAIT, SCENE }
+enum Provider {
+	TRAIT,
+	SCENE,
+}
 
 ## Selects whether this Trait supplies actions or merges the authored scene action list.
 @export var action_set_provider: Provider = Provider.TRAIT
@@ -21,6 +24,7 @@ enum Provider { TRAIT, SCENE }
 @export var additional_actions: Array[DEF_InteractionAction] = []
 ## Sole Trader tuning owner in TRAIT mode; SCENE mode requires this field to remain empty.
 @export var trader_profile: DEF_TraderProfile = null
+
 
 #region Explicit provider contract
 func _init() -> void:
@@ -40,7 +44,7 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 	if trader_provider == Provider.SCENE and trader_profile != null:
 		issues.append("Scene-owned Trader Profile cannot have a competing Trait Profile")
 
-	var additional_ids: Dictionary[StringName, bool] = {}
+	var additional_ids: Dictionary[StringName, bool] = { }
 	for action: DEF_InteractionAction in additional_actions:
 		if action == null or action.action_id.is_empty():
 			issues.append("Additional role actions require Definitions with action IDs")
@@ -55,8 +59,10 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 		additional_ids[action.action_id] = true
 
 	if action_set_provider == Provider.SCENE:
-		var scene_actions: C_InteractionActionSet = _scene_component(context,
-			C_InteractionActionSet) as C_InteractionActionSet
+		var scene_actions: C_InteractionActionSet = _scene_component(
+			context,
+			C_InteractionActionSet,
+		) as C_InteractionActionSet
 		if scene_actions == null:
 			issues.append("SCENE action provider requires authored C_InteractionActionSet")
 		elif street_action != null:
@@ -77,6 +83,7 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 	return issues
 #endregion
 
+
 #region Pure resident and merchant recipes
 ## Supplies fresh aggregate state without installing live Components or engine nodes.
 func recipes_for(context: EntitySpawnContext) -> Array[Component]:
@@ -94,14 +101,19 @@ func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 ## Initial hunger comes from the explicit district owner; saved fields overlay these defaults.
 ## Optional role actions precede retained scene Definitions and the appended street action.
 func configuration_for(context: EntitySpawnContext) -> Dictionary[Script, Dictionary]:
-	var fields: Dictionary[Script, Dictionary] = {}
+	var fields: Dictionary[Script, Dictionary] = { }
 	var district: DEF_District = context.definitions.get(&"district_definition") as DEF_District
 	if district != null:
-		fields[C_Hunger as Script] = {&"policy": hunger_policy, &"value": district.npc_start_hunger}
+		fields[C_Hunger as Script] = {
+			&"policy": hunger_policy,
+			&"value": district.npc_start_hunger,
+		}
 	var actions: Array[DEF_InteractionAction] = additional_actions.duplicate()
 	if action_set_provider == Provider.SCENE:
-		var scene_actions: C_InteractionActionSet = _scene_component(context,
-			C_InteractionActionSet) as C_InteractionActionSet
+		var scene_actions: C_InteractionActionSet = _scene_component(
+			context,
+			C_InteractionActionSet,
+		) as C_InteractionActionSet
 		if scene_actions != null:
 			actions.append_array(scene_actions.actions)
 	if street_action != null:
@@ -110,7 +122,7 @@ func configuration_for(context: EntitySpawnContext) -> Dictionary[Script, Dictio
 	if profile != null and profile.merchant and trader_provider == Provider.TRAIT:
 		if trade_action != null:
 			actions.append(trade_action)
-	fields[C_InteractionActionSet as Script] = {&"actions": actions}
+	fields[C_InteractionActionSet as Script] = { &"actions": actions }
 	return fields
 
 

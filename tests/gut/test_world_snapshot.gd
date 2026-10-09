@@ -2,6 +2,7 @@ extends GutTest
 ## Проверки снимка World: стабильные ID, владение, физические слоты, lifecycle и отказ до изменения живого состояния.
 
 const SAVE_PATH: String = "user://gut_r21_world_snapshot.pvzh"
+const _PACKAGE_SCENE_PATH: String = "res://content/domains/packages/entities/package.tscn"
 var _root: Node = null
 var _world: World = null
 var _session: Entity = null
@@ -511,7 +512,8 @@ func test_authored_id_alias_or_outside_root_is_rejected_before_registry_changes(
 
 ## Отсутствующий C_Package запрещает загрузку до создания физических экземпляров.
 func test_omitted_package_identity_is_rejected_before_instantiation_commit() -> void:
-	var package: E_Package = (load("res://content/domains/packages/entities/package.tscn") as PackedScene).instantiate() as E_Package
+	var package_scene: PackedScene = load(_PACKAGE_SCENE_PATH) as PackedScene
+	var package: E_Package = package_scene.instantiate() as E_Package
 	package.package_id = "test/required_identity"
 	package.package_definition = (load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery).packages[0]
 	EntityCompositionFixture.register(_world, package)
@@ -685,10 +687,10 @@ func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -
 #endregion
 
 #region Package composition preflight
-## Invalid current authoring rejects a saved missing package before registry/calendar/ownership changes.
+## Invalid authoring rejects a saved missing package before registry/calendar/ownership changes.
 func test_fresh_package_template_conflict_rejects_restore_before_live_mutation() -> void:
-	var parcel: E_Package = (load(
-		"res://content/domains/packages/entities/package.tscn") as PackedScene).instantiate() as E_Package
+	var package_scene: PackedScene = load(_PACKAGE_SCENE_PATH) as PackedScene
+	var parcel: E_Package = package_scene.instantiate() as E_Package
 	parcel.package_id = "fixture/package/rejected_template"
 	EntityCompositionFixture.register(_world, parcel)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)

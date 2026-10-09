@@ -1,6 +1,7 @@
 extends RefCounted
-## Registers fixture instances through production recipe validation before native GECS initialization.
+## Registers fixture instances through production validation before native GECS initialization.
 class_name EntityCompositionFixture
+
 
 #region Explicit fixture construction
 ## Supplies package/actor IDs and commits one common native registration; rejects broken fixtures.
@@ -19,7 +20,7 @@ static func register_visit(world: World, actor: E_NpcCharacter, visit: CustomerV
 	var actor_id: String = actor.id if not actor.id.is_empty() else GECSIO.uuid()
 	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world, actor_id)
 	context.definitions[&"customer_policy"] = visit.definition
-	context.initial_fields[C_CustomerAgent as Script] = {&"visit_id": visit.visit_id}
+	context.initial_fields[C_CustomerAgent as Script] = { &"visit_id": visit.visit_id }
 	_register(context, true)
 
 

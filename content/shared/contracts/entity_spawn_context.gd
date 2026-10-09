@@ -11,13 +11,13 @@ var actor_id: String = ""
 ## Human-readable authored instance path supplied by Inspector/factory/bootstrap.
 var instance_path: String = ""
 ## Immutable tuning inputs keyed by their explicit capability role.
-var definitions: Dictionary[StringName, GameDefinition] = {}
+var definitions: Dictionary[StringName, GameDefinition] = { }
 ## Named endpoints supplied by authored bindings or the owning spawn request.
-var bindings: Dictionary[StringName, Entity] = {}
+var bindings: Dictionary[StringName, Entity] = { }
 ## Entire unregistered placed set allowed as endpoints during one bootstrap preparation.
 var candidate_actors: Array[Entity] = []
 ## Data-only binding intents supplied by a factory request, validated with authored Trait intents.
 var initial_bindings: Array[EntityInitialBinding] = []
 
 ## Explicit instance values; only fields enumerated by the enabled Traits may be supplied.
-var initial_fields: Dictionary[Script, Dictionary] = {}
+var initial_fields: Dictionary[Script, Dictionary] = { }

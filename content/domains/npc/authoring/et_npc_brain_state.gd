@@ -3,6 +3,7 @@ extends EntityTrait
 ## Compiles native decision/sensor state, combat Profile defaults and authored fire resistance.
 class_name ET_NpcBrainState
 
+
 #region Required capability inputs
 func _init() -> void:
 	trait_id = &"npc_brain_state"
@@ -16,6 +17,7 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 		return PackedStringArray(["NPC brain state requires the roster's NPC Profile"])
 	return PackedStringArray()
 #endregion
+
 
 #region Pure brain and immunity recipes
 ## Supplies fresh decision/route state and durable resistance before damage/AI consumers react.
@@ -31,10 +33,12 @@ func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 func configuration_for(context: EntitySpawnContext) -> Dictionary[Script, Dictionary]:
 	var profile: DEF_NpcProfile = context.definitions.get(&"npc_profile") as DEF_NpcProfile
 	if profile == null:
-		return {}
-	return {C_NpcCombat as Script: {
-		&"melee_attacks": profile.melee_attacks,
-		&"ranged_attacks": profile.ranged_attacks,
-		&"automatic_attack_selection": false,
-	}}
+		return { }
+	return {
+		C_NpcCombat as Script: {
+			&"melee_attacks": profile.melee_attacks,
+			&"ranged_attacks": profile.ranged_attacks,
+			&"automatic_attack_selection": false,
+		}
+	}
 #endregion

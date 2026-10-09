@@ -2,11 +2,14 @@ extends RefCounted
 ## Pure flat composition validation before registration, engine setup, saved overlay and ready.
 class_name EntityBuildRules
 
+
 #region Side-effect-free compilation
 ## Compiles optional Traits and scene/code providers without changing their inputs or World.
 static func compile(
-		template: DEF_EntityTemplate, scene_recipes: Array[Component],
-		code_recipes: Array[Component], context: EntitySpawnContext
+	template: DEF_EntityTemplate,
+	scene_recipes: Array[Component],
+	code_recipes: Array[Component],
+	context: EntitySpawnContext,
 ) -> EntityBuildPlan:
 	var plan: EntityBuildPlan = EntityBuildPlan.new()
 	plan.built_actor = context.actor
@@ -18,8 +21,8 @@ static func compile(
 	if context.actor_id.is_empty():
 		_issue(plan, context, &"missing_identity", "Build boundary must supply instance identity")
 
-	var providers: Dictionary[Script, Component] = {}
-	var configured_fields: Dictionary[Script, Dictionary] = {}
+	var providers: Dictionary[Script, Component] = { }
+	var configured_fields: Dictionary[Script, Dictionary] = { }
 	_contribute(plan, context, providers, scene_recipes, "scene")
 	_contribute(plan, context, providers, code_recipes, "code")
 
@@ -28,7 +31,7 @@ static func compile(
 	if template != null:
 		traits.assign(template.traits)
 	traits.sort_custom(_trait_before)
-	var seen_traits: Dictionary[StringName, bool] = {}
+	var seen_traits: Dictionary[StringName, bool] = { }
 	var enabled_traits: Array[EntityTrait] = []
 	for capability: EntityTrait in traits:
 		if capability == null:
@@ -36,7 +39,13 @@ static func compile(
 			continue
 		var source: String = _trait_source(capability)
 		if capability.trait_id.is_empty():
-			_issue(plan, context, &"missing_trait_identity", "Trait requires a capability ID", capability)
+			_issue(
+				plan,
+				context,
+				&"missing_trait_identity",
+				"Trait requires a capability ID",
+				capability,
+			)
 		elif seen_traits.has(capability.trait_id):
 			_issue(plan, context, &"duplicate_trait", "Duplicate capability ID", capability)
 		seen_traits[capability.trait_id] = true
@@ -47,20 +56,43 @@ static func compile(
 			_issue(plan, context, &"invalid_configuration", message, capability)
 		_validate_structure(plan, context, capability)
 		_contribute(plan, context, providers, capability.recipes_for(context), source, capability)
-		_contribute_fields(plan, context, configured_fields, capability.configuration_for(context),
-			_trait_source(capability), capability)
+		_contribute_fields(
+			plan,
+			context,
+			configured_fields,
+			capability.configuration_for(context),
+			_trait_source(capability),
+			capability,
+		)
 
 	# Requirements see the complete provider set, independent of declaration/order.
-	var binding_providers: Dictionary[Script, Array] = {}
+	var binding_providers: Dictionary[Script, Array] = { }
 	for capability: EntityTrait in enabled_traits:
 		for required_script: Script in capability.required_components:
 			if required_script == null or not providers.has(required_script):
-				_issue(plan, context, &"missing_component", "Required Component provider is absent",
-					capability)
-		_validate_binding_recipes(plan, context, capability.initial_bindings, binding_providers,
-			capability, _trait_source(capability))
-	_validate_binding_recipes(plan, context, context.initial_bindings, binding_providers,
-		null, "context")
+				_issue(
+					plan,
+					context,
+					&"missing_component",
+					"Required Component provider is absent",
+					capability,
+				)
+		_validate_binding_recipes(
+			plan,
+			context,
+			capability.initial_bindings,
+			binding_providers,
+			capability,
+			_trait_source(capability),
+		)
+	_validate_binding_recipes(
+		plan,
+		context,
+		context.initial_bindings,
+		binding_providers,
+		null,
+		"context",
+	)
 	_contribute_instance_fields(plan, context, enabled_traits, configured_fields)
 	_validate_fields(plan, context, providers, configured_fields)
 	if not plan.valid():
@@ -82,19 +114,22 @@ static func compile(
 	return plan
 #endregion
 
+
 #region Whole-set registration validation
 ## Validates the whole prepared set before any native registration; one rejection aborts every plan.
 ## This gate never assigns IDs, binds ECS.world, replaces registry entries or publishes readiness.
-static func validate_registration_batch(contexts: Array[EntitySpawnContext],
-		plans: Array[EntityBuildPlan]) -> bool:
+static func validate_registration_batch(
+	contexts: Array[EntitySpawnContext],
+	plans: Array[EntityBuildPlan],
+) -> bool:
 	assert(contexts.size() == plans.size(), "Every prepared actor requires one build plan")
 	if contexts.is_empty():
 		return true
 
 	var expected_world: World = contexts[0].world
-	var prepared_actors: Dictionary[Entity, bool] = {}
-	var entity_ids: Dictionary[String, String] = {}
-	var stable_ids: Dictionary[String, String] = {}
+	var prepared_actors: Dictionary[Entity, bool] = { }
+	var entity_ids: Dictionary[String, String] = { }
+	var stable_ids: Dictionary[String, String] = { }
 	if expected_world != null:
 		for existing: Entity in expected_world.entities:
 			var existing_recipes: Array[Component] = []
@@ -108,24 +143,47 @@ static func validate_registration_batch(contexts: Array[EntitySpawnContext],
 		var plan: EntityBuildPlan = plans[build_index]
 		if plan.built_actor != context.actor or plan.built_world != context.world \
 				or plan.built_actor_id != context.actor_id:
-			_issue(plan, context, &"inconsistent_plan",
-				"Build plan belongs to a different instance, World or captured identity")
+			_issue(
+				plan,
+				context,
+				&"inconsistent_plan",
+				"Build plan belongs to a different instance, World or captured identity",
+			)
 		if context.world != expected_world:
 			_issue(plan, context, &"different_world", "Build set requires one explicit World")
 		if context.actor == null or not is_instance_valid(context.actor):
 			_issue(plan, context, &"missing_instance", "Prepared scene instance is absent")
 			continue
 		if not context.actor.components.is_empty():
-			_issue(plan, context, &"preinstalled_components",
-				"Native initialization requires uninstalled Component recipes")
+			_issue(
+				plan,
+				context,
+				&"preinstalled_components",
+				"Native initialization requires uninstalled Component recipes",
+			)
 		if prepared_actors.has(context.actor):
-			_issue(plan, context, &"duplicate_instance", "Scene instance appears twice in build set")
+			_issue(
+				plan,
+				context,
+				&"duplicate_instance",
+				"Scene instance appears twice in build set",
+			)
 		prepared_actors[context.actor] = true
 		if context.actor_id.is_empty():
-			_issue(plan, context, &"missing_identity", "Build boundary must supply instance identity")
+			_issue(
+				plan,
+				context,
+				&"missing_identity",
+				"Build boundary must supply instance identity",
+			)
 		elif entity_ids.has(context.actor_id):
-			_issue(plan, context, &"duplicate_entity_id", "Entity ID %s also belongs to %s"
-				% [context.actor_id, entity_ids[context.actor_id]])
+			var existing_instance_path: String = entity_ids[context.actor_id]
+			_issue(
+				plan,
+				context,
+				&"duplicate_entity_id",
+				"Entity ID %s also belongs to %s" % [context.actor_id, existing_instance_path],
+			)
 		else:
 			entity_ids[context.actor_id] = context.instance_path
 		if not context.actor.id.is_empty() and context.actor.id != context.actor_id:
@@ -134,8 +192,12 @@ static func validate_registration_batch(contexts: Array[EntitySpawnContext],
 			_issue(plan, context, &"registered_entity_id", "Entity ID already exists in World")
 		for actor_key: String in _stable_keys(plan.component_recipes):
 			if stable_ids.has(actor_key):
-				_issue(plan, context, &"duplicate_stable_id", "Actor key %s also belongs to %s"
-					% [actor_key, stable_ids[actor_key]])
+				_issue(
+					plan,
+					context,
+					&"duplicate_stable_id",
+					"Actor key %s also belongs to %s" % [actor_key, stable_ids[actor_key]],
+				)
 			else:
 				stable_ids[actor_key] = context.instance_path
 
@@ -146,7 +208,7 @@ static func validate_registration_batch(contexts: Array[EntitySpawnContext],
 		var plan: EntityBuildPlan = plans[build_index]
 		for binding: EntityBuildPlan.Binding in plan.bindings:
 			var target_registered: bool = expected_world != null \
-				and expected_world.entities.has(binding.target)
+					and expected_world.entities.has(binding.target)
 			if not prepared_actors.has(binding.target) and not target_registered:
 				_issue(plan, context, &"unprepared_binding", "Endpoint has no prepared build plan")
 		accepted = accepted and plan.valid()
@@ -178,86 +240,147 @@ static func _stable_keys(recipes: Array[Component]) -> Array[String]:
 	return actor_keys
 #endregion
 
+
 #region Explicit initial field configuration
-static func _contribute_fields(plan: EntityBuildPlan, context: EntitySpawnContext,
-		configured_fields: Dictionary[Script, Dictionary], declarations: Dictionary[Script, Dictionary],
-		source: String, capability: EntityTrait = null) -> void:
+static func _contribute_fields(
+	plan: EntityBuildPlan,
+	context: EntitySpawnContext,
+	configured_fields: Dictionary[Script, Dictionary],
+	declarations: Dictionary[Script, Dictionary],
+	source: String,
+	capability: EntityTrait = null,
+) -> void:
 	for component_script: Script in declarations:
 		if component_script == null:
-			_issue(plan, context, &"invalid_configuration", "Field configuration requires a Script",
-				capability, source)
+			_issue(
+				plan,
+				context,
+				&"invalid_configuration",
+				"Field configuration requires a Script",
+				capability,
+				source,
+			)
 			continue
 		if not configured_fields.has(component_script):
-			configured_fields[component_script] = {}
-			plan.field_provenance[component_script] = {}
+			configured_fields[component_script] = { }
+			plan.field_provenance[component_script] = { }
 		var initial_fields: Dictionary = configured_fields[component_script]
 		var field_sources: Dictionary = plan.field_provenance[component_script]
 		for declared_name: Variant in declarations[component_script]:
 			if not declared_name is StringName and not declared_name is String:
-				_issue(plan, context, &"invalid_initial_field", "Field name requires text",
-					capability, source)
+				_issue(
+					plan,
+					context,
+					&"invalid_initial_field",
+					"Field name requires text",
+					capability,
+					source,
+				)
 				continue
 			var field_name: StringName = StringName(declared_name)
 			if initial_fields.has(field_name):
-				_issue(plan, context, &"duplicate_initial_field",
-					"%s.%s is configured by both %s and %s" % [component_script.resource_path,
-						field_name, field_sources[field_name], source], capability, source)
+				_issue(
+					plan,
+					context,
+					&"duplicate_initial_field",
+					"%s.%s is configured by both %s and %s"
+					% [
+						component_script.resource_path,
+						field_name,
+						field_sources[field_name],
+						source,
+					],
+					capability,
+					source,
+				)
 				continue
 			initial_fields[field_name] = declarations[component_script][declared_name]
 			field_sources[field_name] = source
 
 
-static func _contribute_instance_fields(plan: EntityBuildPlan, context: EntitySpawnContext,
-		capabilities: Array[EntityTrait], configured_fields: Dictionary[Script, Dictionary]) -> void:
-	var allowed: Dictionary[Script, Dictionary] = {}
+static func _contribute_instance_fields(
+	plan: EntityBuildPlan,
+	context: EntitySpawnContext,
+	capabilities: Array[EntityTrait],
+	configured_fields: Dictionary[Script, Dictionary],
+) -> void:
+	var allowed: Dictionary[Script, Dictionary] = { }
 	for capability: EntityTrait in capabilities:
 		for component_script: Script in capability.initial_field_names:
 			if component_script == null:
-				_issue(plan, context, &"invalid_initial_field_policy",
-					"Instance field policy requires a Component Script", capability)
+				_issue(
+					plan,
+					context,
+					&"invalid_initial_field_policy",
+					"Instance field policy requires a Component Script",
+					capability,
+				)
 				continue
 			if not allowed.has(component_script):
-				allowed[component_script] = {}
+				allowed[component_script] = { }
 			var field_owners: Dictionary = allowed[component_script]
 			for field_name: String in capability.initial_field_names[component_script]:
 				var field_key: StringName = StringName(field_name)
 				if field_owners.has(field_key):
-					_issue(plan, context, &"duplicate_initial_field_policy",
-						"Instance field %s has two policy owners" % field_key, capability)
+					_issue(
+						plan,
+						context,
+						&"duplicate_initial_field_policy",
+						"Instance field %s has two policy owners" % field_key,
+						capability,
+					)
 				else:
 					field_owners[field_key] = _trait_source(capability)
 
 	# Reject arbitrary factory fields before the shared declaration/type/isolation pass.
-	var declarations: Dictionary[Script, Dictionary] = {}
+	var declarations: Dictionary[Script, Dictionary] = { }
 	for component_script: Script in context.initial_fields:
 		for declared_name: Variant in context.initial_fields[component_script]:
 			if not declared_name is String and not declared_name is StringName:
-				_issue(plan, context, &"invalid_initial_field", "Field name requires text",
-					null, "context:initial_fields")
+				_issue(
+					plan,
+					context,
+					&"invalid_initial_field",
+					"Field name requires text",
+					null,
+					"context:initial_fields",
+				)
 				continue
 			var field_name: StringName = StringName(declared_name)
 			if not allowed.has(component_script) or not allowed[component_script].has(field_name):
-				_issue(plan, context, &"unauthorized_initial_field",
+				_issue(
+					plan,
+					context,
+					&"unauthorized_initial_field",
 					"Instance field %s is not declared by an enabled Trait" % field_name,
-					null, "context:initial_fields")
+					null,
+					"context:initial_fields",
+				)
 				continue
 			if not declarations.has(component_script):
-				declarations[component_script] = {}
+				declarations[component_script] = { }
 			var initial_value: Variant = context.initial_fields[component_script][declared_name]
 			declarations[component_script][field_name] = initial_value
 	_contribute_fields(plan, context, configured_fields, declarations, "context:initial_fields")
 
 
-static func _validate_fields(plan: EntityBuildPlan, context: EntitySpawnContext,
-		providers: Dictionary[Script, Component], configured_fields: Dictionary[Script, Dictionary]
+static func _validate_fields(
+	plan: EntityBuildPlan,
+	context: EntitySpawnContext,
+	providers: Dictionary[Script, Component],
+	configured_fields: Dictionary[Script, Dictionary],
 ) -> void:
 	for component_script: Script in configured_fields:
 		var initial_fields: Dictionary = configured_fields[component_script]
 		if not providers.has(component_script):
-			_issue(plan, context, &"missing_configuration_provider",
-				"Configured Component %s has no provider" % component_script.resource_path)
+			_issue(
+				plan,
+				context,
+				&"missing_configuration_provider",
+				"Configured Component %s has no provider" % component_script.resource_path,
+			)
 			continue
-		var descriptors: Dictionary[StringName, Dictionary] = {}
+		var descriptors: Dictionary[StringName, Dictionary] = { }
 		for descriptor: Dictionary in providers[component_script].get_property_list():
 			if int(descriptor.usage) & PROPERTY_USAGE_SCRIPT_VARIABLE:
 				descriptors[StringName(descriptor.name)] = descriptor
@@ -266,17 +389,35 @@ static func _validate_fields(plan: EntityBuildPlan, context: EntitySpawnContext,
 			# Runtime parent/private state and Resource engine bookkeeping are never configurable.
 			if field_name == &"parent" or String(field_name).begins_with("_") \
 					or not descriptors.has(field_name):
-				_issue(plan, context, &"invalid_initial_field",
-					"%s is not a public Component data field" % field_name, null, source)
+				_issue(
+					plan,
+					context,
+					&"invalid_initial_field",
+					"%s is not a public Component data field" % field_name,
+					null,
+					source,
+				)
 				continue
-			if not _matches_field_type(initial_fields[field_name], descriptors[field_name],
-					providers[component_script].get(field_name)):
-				_issue(plan, context, &"incompatible_initial_field",
-					"%s has incompatible initial value" % field_name, null, source)
+			if not _matches_field_type(
+				initial_fields[field_name],
+				descriptors[field_name],
+				providers[component_script].get(field_name),
+			):
+				_issue(
+					plan,
+					context,
+					&"incompatible_initial_field",
+					"%s has incompatible initial value" % field_name,
+					null,
+					source,
+				)
 
 
-static func _matches_field_type(initial_value: Variant, descriptor: Dictionary,
-		existing_value: Variant) -> bool:
+static func _matches_field_type(
+	initial_value: Variant,
+	descriptor: Dictionary,
+	existing_value: Variant,
+) -> bool:
 	var expected_type: int = int(descriptor.type)
 	if expected_type == TYPE_NIL:
 		return true
@@ -307,70 +448,143 @@ static func _matches_field_type(initial_value: Variant, descriptor: Dictionary,
 
 
 #region Provider and scene requirements
-static func _contribute(plan: EntityBuildPlan, context: EntitySpawnContext,
-		providers: Dictionary[Script, Component], recipes: Array[Component], source: String,
-		capability: EntityTrait = null) -> void:
+static func _contribute(
+	plan: EntityBuildPlan,
+	context: EntitySpawnContext,
+	providers: Dictionary[Script, Component],
+	recipes: Array[Component],
+	source: String,
+	capability: EntityTrait = null,
+) -> void:
 	for recipe: Component in recipes:
 		if recipe == null:
-			_issue(plan, context, &"missing_recipe", "Provider contains an empty Component", capability,
-				source)
+			_issue(
+				plan,
+				context,
+				&"missing_recipe",
+				"Provider contains an empty Component",
+				capability,
+				source,
+			)
 			continue
 		var component_script: Script = recipe.get_script() as Script
 		if component_script == null:
-			_issue(plan, context, &"invalid_recipe", "Component requires a data Script", capability,
-				source)
+			_issue(
+				plan,
+				context,
+				&"invalid_recipe",
+				"Component requires a data Script",
+				capability,
+				source,
+			)
 			continue
 		if providers.has(component_script):
-			_issue(plan, context, &"duplicate_provider",
-				"%s is supplied by both %s and %s" % [component_script.resource_path,
-					plan.provenance[component_script], source], capability, source)
+			_issue(
+				plan,
+				context,
+				&"duplicate_provider",
+				"%s is supplied by both %s and %s"
+				% [component_script.resource_path, plan.provenance[component_script], source],
+				capability,
+				source,
+			)
 			continue
 		providers[component_script] = recipe
 		plan.provenance[component_script] = source
 
 
-static func _validate_structure(plan: EntityBuildPlan, context: EntitySpawnContext,
-		capability: EntityTrait) -> void:
+static func _validate_structure(
+	plan: EntityBuildPlan,
+	context: EntitySpawnContext,
+	capability: EntityTrait,
+) -> void:
 	if not capability.required_root_class.is_empty() \
 			and not context.actor.is_class(String(capability.required_root_class)):
-		_issue(plan, context, &"incompatible_root", "Required scene root class is absent", capability)
+		_issue(
+			plan,
+			context,
+			&"incompatible_root",
+			"Required scene root class is absent",
+			capability,
+		)
 	for node_path: NodePath in capability.required_nodes:
 		if context.actor.get_node_or_null(node_path) == null:
-			_issue(plan, context, &"missing_node", "Required scene node %s is absent" % node_path,
-				capability)
+			_issue(
+				plan,
+				context,
+				&"missing_node",
+				"Required scene node %s is absent" % node_path,
+				capability,
+			)
 
 
-static func _validate_binding_recipes(plan: EntityBuildPlan, context: EntitySpawnContext,
-		recipes: Array[EntityInitialBinding], binding_providers: Dictionary[Script, Array],
-		capability: EntityTrait, source: String) -> void:
+static func _validate_binding_recipes(
+	plan: EntityBuildPlan,
+	context: EntitySpawnContext,
+	recipes: Array[EntityInitialBinding],
+	binding_providers: Dictionary[Script, Array],
+	capability: EntityTrait,
+	source: String,
+) -> void:
 	for recipe: EntityInitialBinding in recipes:
 		if recipe == null or recipe.relation == null or recipe.endpoint.is_empty():
-			_issue(plan, context, &"invalid_binding", "Binding requires data and a named endpoint",
-				capability, source)
+			_issue(
+				plan,
+				context,
+				&"invalid_binding",
+				"Binding requires data and a named endpoint",
+				capability,
+				source,
+			)
 			continue
 		var endpoint: Entity = context.bindings.get(recipe.endpoint) as Entity
 		if endpoint == null or not is_instance_valid(endpoint):
 			if not recipe.optional:
-				_issue(plan, context, &"missing_binding", "Required binding %s is absent"
-					% recipe.endpoint, capability, source)
+				_issue(
+					plan,
+					context,
+					&"missing_binding",
+					"Required binding %s is absent" % recipe.endpoint,
+					capability,
+					source,
+				)
 			continue
 		var in_world: bool = context.world != null and is_instance_valid(context.world) \
-			and context.world.entities.has(endpoint)
+				and context.world.entities.has(endpoint)
 		if endpoint not in context.candidate_actors and not in_world:
-			_issue(plan, context, &"foreign_binding", "Binding %s belongs to another World/set"
-				% recipe.endpoint, capability, source)
+			_issue(
+				plan,
+				context,
+				&"foreign_binding",
+				"Binding %s belongs to another World/set" % recipe.endpoint,
+				capability,
+				source,
+			)
 			continue
 		# Multiple targets of one relation type are valid; the same pair has one provider.
 		var relation_script: Script = recipe.relation.get_script() as Script
 		if relation_script == null:
-			_issue(plan, context, &"invalid_binding", "Relationship requires a data Script", capability, source)
+			_issue(
+				plan,
+				context,
+				&"invalid_binding",
+				"Relationship requires a data Script",
+				capability,
+				source,
+			)
 			continue
 		if not binding_providers.has(relation_script):
 			binding_providers[relation_script] = []
 		var targets: Array = binding_providers[relation_script]
 		if targets.has(endpoint):
-			_issue(plan, context, &"duplicate_binding", "Relationship endpoint has two providers",
-				capability, source)
+			_issue(
+				plan,
+				context,
+				&"duplicate_binding",
+				"Relationship endpoint has two providers",
+				capability,
+				source,
+			)
 			continue
 		targets.append(endpoint)
 
@@ -380,6 +594,7 @@ static func _validate_binding_recipes(plan: EntityBuildPlan, context: EntitySpaw
 		binding.source = source
 		plan.bindings.append(binding)
 #endregion
+
 
 #region Deterministic provenance and diagnostics
 static func _trait_before(first: EntityTrait, second: EntityTrait) -> bool:
@@ -398,8 +613,14 @@ static func _trait_source(capability: EntityTrait) -> String:
 	return "trait:%s:%s" % [capability.trait_id, capability.resource_path]
 
 
-static func _issue(plan: EntityBuildPlan, context: EntitySpawnContext, code: StringName,
-		message: String, capability: EntityTrait = null, source: String = "") -> void:
+static func _issue(
+	plan: EntityBuildPlan,
+	context: EntitySpawnContext,
+	code: StringName,
+	message: String,
+	capability: EntityTrait = null,
+	source: String = "",
+) -> void:
 	var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()
 	issue.code = code
 	issue.message = message

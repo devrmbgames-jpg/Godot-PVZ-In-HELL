@@ -1,11 +1,13 @@
 extends GutTest
 ## Verifies prepared authoring recipes reach pinned GECS once without duplicate provider reactions.
 
+
 ## Minimal native Entity with data-only intrinsic recipes and passive initialization counters.
 class PreparedActor extends Entity:
 	var _intrinsic_calls: int = 0
 	var _passive_ready_calls: int = 0
 	var _ready_components: int = 0
+
 
 	## Supplies a fresh native data recipe, without installing a live capability.
 	func define_components() -> Array[Component]:
@@ -14,18 +16,22 @@ class PreparedActor extends Entity:
 		_intrinsic_calls += 1
 		return [C_DamageResistance.new()]
 
+
 	## Passive native ready inspects complete data and publishes no gameplay outcomes.
 	func on_ready() -> void:
 		_passive_ready_calls += 1
 		_ready_components = components.size()
 
+
 	## Returns compile-time provider evaluations for the registration ordering assertion.
 	func intrinsic_calls() -> int:
 		return _intrinsic_calls
 
+
 	## Returns passive ready invocations made by pinned GECS.
 	func passive_ready_calls() -> int:
 		return _passive_ready_calls
+
 
 	## Returns the complete Component count visible to passive native ready.
 	func ready_components() -> int:
@@ -37,8 +43,10 @@ class ReadySpy extends Observer:
 	var _kind: StringName
 	var _observations: Array[Dictionary] = []
 
+
 	func _init(kind: StringName) -> void:
 		_kind = kind
+
 
 	## Uses native initial Component, monitor or Relationship notifications.
 	func query() -> QueryBuilder:
@@ -48,10 +56,17 @@ class ReadySpy extends Observer:
 			return q.with_all([C_Health]).on_match()
 		return q.with_all([C_Health]).on_relationship_added([R_SlotMountedOn])
 
+
 	## Captures actual reaction state; no implementation flags replace the native dispatch.
 	func each(_event: Variant, actor: Entity, _payload: Variant = null) -> void:
-		_observations.append({"ready": EntityCompositionService.composition_ready(actor),
-			"components": actor.components.size(), "bindings": actor.relationships.size()})
+		_observations.append(
+			{
+				"ready": EntityCompositionService.composition_ready(actor),
+				"components": actor.components.size(),
+				"bindings": actor.relationships.size(),
+			}
+		)
+
 
 	## Returns complete data seen by each real callback for exact-once assertions.
 	func observations() -> Array[Dictionary]:
@@ -74,15 +89,21 @@ func test_prepared_components_are_added_once_before_passive_native_ready() -> vo
 	authoring.entity_template = DEF_EntityTemplate.new()
 	authoring.entity_template.traits = [capability]
 	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world, "fixture/prepared")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		world,
+		"fixture/prepared",
+	)
 	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
 	assert_true(plan.valid())
 	assert_true(EntityBuildRules.validate_registration_batch([context], [plan]))
 	assert_true(EntityCompositionService.prepare(actor, plan))
 	actor.id = context.actor_id
 	var delivered: Array[Script] = []
-	actor.component_added.connect(func(_entity: Entity, component: Component) -> void:
-		delivered.append(component.get_script() as Script))
+	actor.component_added.connect(
+		func(_entity: Entity, component: Component) -> void:
+			delivered.append(component.get_script() as Script),
+	)
 	world.add_entity(actor)
 	assert_eq(world.entities.size(), 1)
 	assert_eq(actor.intrinsic_calls(), 1)
@@ -103,7 +124,11 @@ func test_failed_prepare_preserves_scene_inputs_without_ready_side_effects() -> 
 	var actor: PreparedActor = autofree(PreparedActor.new()) as PreparedActor
 	var source: C_DayCycle = C_DayCycle.new()
 	actor.component_resources = [source]
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, null, "fixture/rejected")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		null,
+		"fixture/rejected",
+	)
 	var authoring: EntityAuthoring = EntityAuthoring.new()
 	authoring.entity_template = DEF_EntityTemplate.new()
 	var duplicate: EntityTrait = EntityTrait.new()
@@ -125,13 +150,19 @@ func test_repeated_preparation_is_rejected_without_changing_registered_state() -
 	var world: World = World.new()
 	add_child(world)
 	var actor: PreparedActor = PreparedActor.new()
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world, "fixture/once")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		world,
+		"fixture/once",
+	)
 	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
 	assert_true(EntityBuildRules.validate_registration_batch([context], [plan]))
 	assert_true(EntityCompositionService.prepare(actor, plan))
 	actor.id = context.actor_id
 	world.add_entity(actor)
-	var resistance: C_DamageResistance = actor.get_component(C_DamageResistance) as C_DamageResistance
+	var resistance: C_DamageResistance = (
+		actor.get_component(C_DamageResistance) as C_DamageResistance
+	)
 	resistance.multipliers[DamageRequest.Type.FIRE] = 0.0
 	assert_false(EntityCompositionService.prepare(actor, plan))
 	assert_eq(actor.get_component(C_DamageResistance), resistance)
@@ -146,8 +177,11 @@ func test_repeated_preparation_is_rejected_without_changing_registered_state() -
 func test_invalid_authoring_metadata_is_reported_without_native_initialization() -> void:
 	var actor: PreparedActor = autofree(PreparedActor.new()) as PreparedActor
 	actor.set_meta(EntityCompositionService.AUTHORING_META, "invalid resource")
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, null,
-		"fixture/bad_metadata")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		null,
+		"fixture/bad_metadata",
+	)
 	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
 	assert_false(plan.valid())
 	assert_eq(plan.issues[0].code, &"invalid_authoring")
@@ -164,8 +198,11 @@ func test_runtime_factory_gate_rejects_collision_without_replacing_existing_acto
 	existing.id = "fixture/existing"
 	world.add_entity(existing)
 	var proposed: PreparedActor = autofree(PreparedActor.new()) as PreparedActor
-	var context: EntitySpawnContext = EntityCompositionService.context_for(proposed, world,
-		"fixture/existing")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		proposed,
+		world,
+		"fixture/existing",
+	)
 	assert_false(EntityCompositionService.try_register(context))
 	assert_eq(world.entities, [existing])
 	assert_eq(world.entity_id_registry[existing.id], existing)
@@ -182,13 +219,19 @@ func test_validated_factory_plan_cannot_register_a_different_actor() -> void:
 	var world: World = World.new()
 	add_child(world)
 	var first: PreparedActor = autofree(PreparedActor.new()) as PreparedActor
-	var first_context: EntitySpawnContext = EntityCompositionService.context_for(first, world,
-		"fixture/planned")
+	var first_context: EntitySpawnContext = EntityCompositionService.context_for(
+		first,
+		world,
+		"fixture/planned",
+	)
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(first_context)
 	assert_true(plan.valid())
 	var second: PreparedActor = autofree(PreparedActor.new()) as PreparedActor
-	var second_context: EntitySpawnContext = EntityCompositionService.context_for(second, world,
-		"fixture/planned")
+	var second_context: EntitySpawnContext = EntityCompositionService.context_for(
+		second,
+		world,
+		"fixture/planned",
+	)
 	assert_false(EntityCompositionService.prepare(second, plan))
 	assert_false(EntityCompositionService.recipes_prepared(second))
 	assert_false(EntityCompositionService.register_plan(second_context, plan))
@@ -204,8 +247,11 @@ func test_validated_factory_plan_cannot_register_a_different_actor() -> void:
 ## Pure preview accepts no World; runtime registration preflight must reject it explicitly.
 func test_runtime_registration_requires_world_and_returns_actionable_configuration_issue() -> void:
 	var actor: PreparedActor = autofree(PreparedActor.new()) as PreparedActor
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, null,
-		"fixture/no_world")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		null,
+		"fixture/no_world",
+	)
 	assert_true(EntityCompositionService.build_plan(context).valid())
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 	assert_false(plan.valid())
@@ -222,8 +268,11 @@ func test_runtime_factory_gate_registers_complete_native_data_once() -> void:
 	add_child(world)
 	var actor: PreparedActor = PreparedActor.new()
 	actor.component_resources = [C_DayCycle.new()]
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world,
-		"fixture/runtime")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		world,
+		"fixture/runtime",
+	)
 	assert_true(EntityCompositionService.try_register(context))
 	assert_eq(world.entities.size(), 1)
 	assert_eq(actor.id, "fixture/runtime")
@@ -242,16 +291,17 @@ func test_authored_physical_inbox_exists_at_registration_and_is_private_per_inst
 	var world: World = World.new()
 	add_child(world)
 	ECS.world = world
-	var scene: PackedScene = load(
-		"res://content/domains/interaction/entities/box.tscn"
-	) as PackedScene
+	var box_path: String = "res://content/domains/interaction/entities/box.tscn"
+	var scene: PackedScene = load(box_path) as PackedScene
 	var first: Entity = scene.instantiate() as Entity
 	var second: Entity = scene.instantiate() as Entity
 	var template: DEF_EntityTemplate = EntityCompositionService.authoring_for(first).entity_template
 	var prototype: C_ImpactInbox = template.traits[0].component_recipes[0] as C_ImpactInbox
 	var published_inboxes: Array[C_ImpactInbox] = []
-	world.entity_added.connect(func(actor: Entity) -> void:
-		published_inboxes.append(actor.get_component(C_ImpactInbox) as C_ImpactInbox))
+	world.entity_added.connect(
+		func(actor: Entity) -> void:
+			published_inboxes.append(actor.get_component(C_ImpactInbox) as C_ImpactInbox),
+	)
 
 	EntityCompositionFixture.register(world, first)
 	EntityCompositionFixture.register(world, second)
@@ -291,8 +341,11 @@ func test_physical_impact_trait_rejects_nonphysical_root_before_native_publicati
 		"res://content/domains/combat/definitions/def_entity_physical_impact.tres"
 	) as DEF_EntityTemplate
 	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world,
-		"fixture/wrong_physical_root")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		world,
+		"fixture/wrong_physical_root",
+	)
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 	assert_false(plan.valid())
 	assert_false(EntityCompositionService.register_plan(context, plan))
@@ -311,8 +364,11 @@ func test_rigid_player_variant_compiles_without_duplicate_scene_receivers() -> v
 		"res://content/domains/motion/entities/e_rigid_body_character.tscn"
 	) as PackedScene
 	var actor: Entity = autofree(scene.instantiate()) as Entity
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, null,
-		"fixture/rigid_player")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		null,
+		"fixture/rigid_player",
+	)
 	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
 	assert_true(plan.valid())
 	var receiver_count: int = 0
@@ -321,9 +377,10 @@ func test_rigid_player_variant_compiles_without_duplicate_scene_receivers() -> v
 		if recipe is C_ImpactReceiver:
 			receiver_count += 1
 			var receiver: C_ImpactReceiver = recipe as C_ImpactReceiver
-			assert_eq(receiver.profile, load(
-				"res://content/domains/combat/definitions/def_impact_living.tres"
-			))
+			assert_eq(
+				receiver.profile,
+				load("res://content/domains/combat/definitions/def_impact_living.tres"),
+			)
 		elif recipe is C_ImpactInbox:
 			inbox_count += 1
 	assert_eq(receiver_count, 1)
@@ -335,32 +392,37 @@ func test_rigid_player_variant_compiles_without_duplicate_scene_receivers() -> v
 #region Physical scene provider coverage
 ## Every migrated native physical root compiles exactly one inbox without registration side effects.
 func test_migrated_physical_scene_roots_have_one_valid_inbox_provider() -> void:
-	var paths: PackedStringArray = PackedStringArray([
-		"res://content/domains/combat/entities/hammer.tscn",
-		"res://content/domains/combat/entities/utility_blade.tscn",
-		"res://content/domains/interaction/entities/anchorable_test_box.tscn",
-		"res://content/domains/interaction/entities/box.tscn",
-		"res://content/domains/interaction/entities/bucket.tscn",
-		"res://content/domains/interaction/entities/cloth_sample.tscn",
-		"res://content/domains/interaction/entities/large_shelf.tscn",
-		"res://content/domains/interaction/entities/marker.tscn",
-		"res://content/domains/interaction/entities/small_shelf.tscn",
-		"res://content/domains/inventory/entities/bubble_wrap_pickup.tscn",
-		"res://content/domains/inventory/entities/food_pickup.tscn",
-		"res://content/domains/inventory/entities/med_pickup.tscn",
-		"res://content/domains/inventory/entities/npc_meat_pickup.tscn",
-		"res://content/domains/motion/entities/character_body_player.tscn",
-		"res://content/domains/motion/entities/physical_character.tscn",
-		"res://content/domains/motion/entities/e_rigid_body_character.tscn",
-		"res://content/domains/packages/entities/content_stub.tscn",
-		"res://content/domains/packages/entities/package_debris_stub.tscn",
-		"res://content/domains/packages/entities/scanner.tscn",
-	])
+	var paths: PackedStringArray = PackedStringArray(
+		[
+			"res://content/domains/combat/entities/hammer.tscn",
+			"res://content/domains/combat/entities/utility_blade.tscn",
+			"res://content/domains/interaction/entities/anchorable_test_box.tscn",
+			"res://content/domains/interaction/entities/box.tscn",
+			"res://content/domains/interaction/entities/bucket.tscn",
+			"res://content/domains/interaction/entities/cloth_sample.tscn",
+			"res://content/domains/interaction/entities/large_shelf.tscn",
+			"res://content/domains/interaction/entities/marker.tscn",
+			"res://content/domains/interaction/entities/small_shelf.tscn",
+			"res://content/domains/inventory/entities/bubble_wrap_pickup.tscn",
+			"res://content/domains/inventory/entities/food_pickup.tscn",
+			"res://content/domains/inventory/entities/med_pickup.tscn",
+			"res://content/domains/inventory/entities/npc_meat_pickup.tscn",
+			"res://content/domains/motion/entities/character_body_player.tscn",
+			"res://content/domains/motion/entities/physical_character.tscn",
+			"res://content/domains/motion/entities/e_rigid_body_character.tscn",
+			"res://content/domains/packages/entities/content_stub.tscn",
+			"res://content/domains/packages/entities/package_debris_stub.tscn",
+			"res://content/domains/packages/entities/scanner.tscn",
+		]
+	)
 	for scene_path: String in paths:
 		var scene: PackedScene = load(scene_path) as PackedScene
 		var actor: Entity = autofree(scene.instantiate()) as Entity
-		var context: EntitySpawnContext = EntityCompositionService.context_for(actor, null,
-			"fixture/physical_scene")
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			actor,
+			null,
+			"fixture/physical_scene",
+		)
 		var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
 		var diagnostics: PackedStringArray = PackedStringArray()
 		for issue: EntityBuildPlan.Issue in plan.issues:
@@ -383,11 +445,15 @@ func test_session_loot_queue_is_complete_before_publication_and_reads_do_not_ins
 	ECS.world = world
 	var actor: Entity = _loot_session_actor()
 	var delivered: Array[Script] = []
-	actor.component_added.connect(func(_actor: Entity, component: Component) -> void:
-		delivered.append(component.get_script() as Script))
+	actor.component_added.connect(
+		func(_actor: Entity, component: Component) -> void:
+			delivered.append(component.get_script() as Script),
+	)
 	var published: Array[C_LootDrops] = []
-	world.entity_added.connect(func(subject: Entity) -> void:
-		published.append(subject.get_component(C_LootDrops) as C_LootDrops))
+	world.entity_added.connect(
+		func(subject: Entity) -> void:
+			published.append(subject.get_component(C_LootDrops) as C_LootDrops),
+	)
 	EntityCompositionFixture.register(world, actor)
 	var queue: C_LootDrops = actor.get_component(C_LootDrops) as C_LootDrops
 	assert_eq(published, [queue])
@@ -454,9 +520,9 @@ func _loot_recipe(plan: EntityBuildPlan) -> C_LootDrops:
 #region Package content capability
 ## All authored content variants compile one receiver and optional emitter without live publication.
 func test_package_content_variants_compile_authored_capabilities_before_registration() -> void:
-	var keys: PackedStringArray = PackedStringArray([
-		"stub", "tools", "power_cells", "oil", "glass", "equipment", "bottles", "books",
-	])
+	var keys: PackedStringArray = PackedStringArray(
+		["stub", "tools", "power_cells", "oil", "glass", "equipment", "bottles", "books"]
+	)
 	for key: String in keys:
 		var actor: E_PackageContent = autofree(_content_actor(key)) as E_PackageContent
 		var plan: EntityBuildPlan = EntityCompositionService.build_plan(
@@ -483,23 +549,36 @@ func test_package_content_native_publication_sees_complete_capabilities() -> voi
 	add_child(world)
 	var actor: E_PackageContent = _content_actor("power_cells")
 	var delivered: Array[Script] = []
-	actor.component_added.connect(func(_actor: Entity, component: Component) -> void:
-		delivered.append(component.get_script() as Script))
+	actor.component_added.connect(
+		func(_actor: Entity, component: Component) -> void:
+			delivered.append(component.get_script() as Script),
+	)
 	var published: Array[bool] = []
-	world.entity_added.connect(func(subject: Entity) -> void:
-		published.append(subject.has_component(C_ImpactInbox)
-			and subject.has_component(C_ImpactReceiver) and subject.has_component(C_HazardEmitter)))
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world,
-		"fixture/content/published")
+	world.entity_added.connect(
+		func(subject: Entity) -> void:
+			published.append(
+				subject.has_component(C_ImpactInbox) and subject.has_component(C_ImpactReceiver)
+				and subject.has_component(C_HazardEmitter)
+			),
+	)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		world,
+		"fixture/content/published",
+	)
 	assert_true(EntityCompositionService.try_register(context))
 	assert_eq(published, [true])
 	assert_eq(delivered.count(C_ImpactReceiver as Script), 1)
 	assert_eq(delivered.count(C_ImpactInbox as Script), 1)
 	assert_eq(delivered.count(C_HazardEmitter as Script), 1)
-	assert_eq((actor.get_component(C_ImpactReceiver) as C_ImpactReceiver).profile,
-		actor.impact_profile)
-	assert_eq((actor.get_component(C_HazardEmitter) as C_HazardEmitter).hazard_scene,
-		actor.hazard_scene)
+	assert_eq(
+		(actor.get_component(C_ImpactReceiver) as C_ImpactReceiver).profile,
+		actor.impact_profile,
+	)
+	assert_eq(
+		(actor.get_component(C_HazardEmitter) as C_HazardEmitter).hazard_scene,
+		actor.hazard_scene,
+	)
 	world.purge(false)
 	world.free()
 
@@ -544,8 +623,11 @@ func test_package_content_invalid_providers_reject_before_registration() -> void
 	var duplicate: E_PackageContent = autofree(_content_actor("stub")) as E_PackageContent
 	duplicate.component_resources.append(C_ImpactReceiver.new())
 	for actor: E_PackageContent in [missing, duplicate]:
-		var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world,
-			"fixture/content/rejected")
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			actor,
+			world,
+			"fixture/content/rejected",
+		)
 		var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 		assert_false(plan.valid())
 		assert_false(EntityCompositionService.register_plan(context, plan))
@@ -579,9 +661,8 @@ func test_content_loot_preflight_keeps_world_and_native_instances_unpublished() 
 
 
 func _content_actor(key: String) -> E_PackageContent:
-	var scene: PackedScene = load(
-		"res://content/domains/packages/entities/content_%s.tscn" % key
-	) as PackedScene
+	var scene_path: String = "res://content/domains/packages/entities/content_%s.tscn" % key
+	var scene: PackedScene = load(scene_path) as PackedScene
 	return scene.instantiate() as E_PackageContent
 
 
@@ -602,14 +683,20 @@ func test_factory_observers_wait_for_readiness_and_preserve_native_initial_count
 	add_child(world)
 	var target: Entity = Entity.new()
 	EntityCompositionFixture.register(world, target)
-	var spies: Array[ReadySpy] = [ReadySpy.new(&"added"), ReadySpy.new(&"match"),
-		ReadySpy.new(&"relationship")]
+	var spies: Array[ReadySpy] = [
+		ReadySpy.new(&"added"),
+		ReadySpy.new(&"match"),
+		ReadySpy.new(&"relationship"),
+	]
 	for spy: ReadySpy in spies:
 		world.add_observer(spy)
 	var actor: PreparedActor = PreparedActor.new()
 	actor.component_resources = [C_Health.new(), C_Inventory.new()]
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world,
-		"fixture/complete_reactions")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		world,
+		"fixture/complete_reactions",
+	)
 	context.bindings[&"support"] = target
 	var intent: EntityInitialBinding = EntityInitialBinding.new()
 	intent.relation = R_SlotMountedOn.new()
@@ -620,7 +707,7 @@ func test_factory_observers_wait_for_readiness_and_preserve_native_initial_count
 	assert_true(EntityCompositionService.composition_ready(actor))
 	for spy: ReadySpy in spies:
 		assert_true(spy.active)
-		assert_eq(spy.observations(), [{"ready": true, "components": 3, "bindings": 1}])
+		assert_eq(spy.observations(), [{ "ready": true, "components": 3, "bindings": 1 }])
 	assert_eq(actor.passive_ready_calls(), 1)
 	assert_eq(actor.relationships[0].target, target)
 	world.purge(false)
@@ -638,8 +725,11 @@ func test_failed_factory_keeps_observers_active_without_ready_or_initial_effects
 	world.add_observer(spy)
 	var actor: PreparedActor = autofree(PreparedActor.new()) as PreparedActor
 	actor.component_resources = [C_Health.new()]
-	var context: EntitySpawnContext = EntityCompositionService.context_for(actor,
-		world, existing.id)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		actor,
+		world,
+		existing.id,
+	)
 	assert_false(EntityCompositionService.try_register(context))
 	assert_true(spy.active)
 	assert_true(spy.observations().is_empty())

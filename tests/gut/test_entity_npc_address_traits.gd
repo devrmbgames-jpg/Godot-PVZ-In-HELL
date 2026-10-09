@@ -3,11 +3,13 @@ extends GutTest
 
 const _ADDRESS: PackedScene = preload("res://content/domains/npc/entities/npc_address.tscn")
 const _TEMPLATE: DEF_EntityTemplate = preload(
-	"res://content/domains/npc/definitions/def_entity_npc_address.tres")
+	"res://content/domains/npc/definitions/def_entity_npc_address.tres"
+)
 
 var _root: Node3D
 var _world: World
 var _district: C_District
+
 
 #region Isolated district construction
 func before_each() -> void:
@@ -46,18 +48,25 @@ func after_each() -> void:
 	ECS.world = null
 #endregion
 
+
 #region Production address Template
 ## Same generic Trait supports two addresses without a new ET script or source recipe mutation.
 func test_address_instance_fields_compile_fresh_scene_data() -> void:
 	var first: Entity = autofree(_ADDRESS.instantiate()) as Entity
 	var second: Entity = autofree(_ADDRESS.instantiate()) as Entity
 	assert_same(EntityCompositionService.authoring_for(first).entity_template, _TEMPLATE)
-	var first_context: EntitySpawnContext = EntityCompositionService.context_for(first, _world,
-		"fixture/address/first")
-	first_context.initial_fields[C_NpcAddress as Script] = {&"address_id": &"first"}
-	var second_context: EntitySpawnContext = EntityCompositionService.context_for(second, _world,
-		"fixture/address/second")
-	second_context.initial_fields[C_NpcAddress as Script] = {&"address_id": &"second"}
+	var first_context: EntitySpawnContext = EntityCompositionService.context_for(
+		first,
+		_world,
+		"fixture/address/first",
+	)
+	first_context.initial_fields[C_NpcAddress as Script] = { &"address_id": &"first" }
+	var second_context: EntitySpawnContext = EntityCompositionService.context_for(
+		second,
+		_world,
+		"fixture/address/second",
+	)
+	second_context.initial_fields[C_NpcAddress as Script] = { &"address_id": &"second" }
 	var first_plan: EntityBuildPlan = EntityCompositionService.build_plan(first_context)
 	var second_plan: EntityBuildPlan = EntityCompositionService.build_plan(second_context)
 	assert_true(first_plan.valid())
@@ -77,11 +86,13 @@ func test_address_batch_publishes_complete_instance_data_once() -> void:
 	var published: Array[StringName] = []
 	var texts: Array[String] = []
 	var positions: Array[Vector3] = []
-	_world.entity_added.connect(func(actor: Entity) -> void:
-		if actor.has_component(C_NpcAddress):
-			published.append((actor.get_component(C_NpcAddress) as C_NpcAddress).address_id)
-			texts.append((actor.get_node("Address") as Label3D).text)
-			positions.append((actor as Node as Node3D).global_position))
+	_world.entity_added.connect(
+		func(actor: Entity) -> void:
+			if actor.has_component(C_NpcAddress):
+				published.append((actor.get_component(C_NpcAddress) as C_NpcAddress).address_id)
+				texts.append((actor.get_node("Address") as Label3D).text)
+				positions.append((actor as Node as Node3D).global_position),
+	)
 	assert_true(DistrictPopulationService.initialize())
 	assert_eq(published, [&"home_first", &"home_second"])
 	assert_eq(texts, ["First address", "Second address"])
@@ -98,7 +109,10 @@ func test_address_conflict_rejects_batch_before_population_mutation() -> void:
 	var before_count: int = _world.entities.size()
 	var before_next: int = _district.next_person
 	var published: Array[Entity] = []
-	_world.entity_added.connect(func(actor: Entity) -> void: published.append(actor))
+	_world.entity_added.connect(
+		func(actor: Entity) -> void:
+			published.append(actor),
+	)
 	_TEMPLATE.traits.append(conflicting)
 	var initialized: bool = DistrictPopulationService.initialize()
 	_TEMPLATE.traits.erase(conflicting)
@@ -111,6 +125,7 @@ func test_address_conflict_rejects_batch_before_population_mutation() -> void:
 	assert_eq(_district.prepared_morning, 0)
 #endregion
 
+
 #region Fresh address recipe lookup
 func _address_recipe(recipes: Array[Component]) -> C_NpcAddress:
 	for recipe: Component in recipes:
@@ -119,6 +134,7 @@ func _address_recipe(recipes: Array[Component]) -> C_NpcAddress:
 	return null
 #endregion
 
+
 #region Atomic whole population construction
 func _population_profiles(scene_paths: PackedStringArray) -> void:
 	var portal: DEF_DistrictPlace = DEF_DistrictPlace.new()
@@ -126,7 +142,8 @@ func _population_profiles(scene_paths: PackedStringArray) -> void:
 	portal.kind = DEF_DistrictPlace.Kind.PORTAL
 	_district.definition.places.append(portal)
 	var authored: DEF_District = load(
-		"res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+		"res://content/domains/npc/definitions/def_district_default.tres"
+	) as DEF_District
 	for scene_path: String in scene_paths:
 		var profile: DEF_NpcProfile = authored.profiles[0].duplicate() as DEF_NpcProfile
 		profile.npc_scene_path = scene_path
@@ -134,16 +151,23 @@ func _population_profiles(scene_paths: PackedStringArray) -> void:
 
 
 ## A later invalid NPC root rejects earlier valid bodies and addresses before any publication.
-func test_invalid_later_body_rejects_whole_population_without_registry_roster_or_pose_effects() -> void:
-	_population_profiles(PackedStringArray([
-		"res://content/domains/npc/entities/district_npc.tscn",
-		"res://content/domains/npc/entities/npc_address.tscn",
-	]))
+func test_invalid_later_body_rejects_population_before_registry_roster_or_pose_changes() -> void:
+	_population_profiles(
+		PackedStringArray(
+			[
+				"res://content/domains/npc/entities/district_npc.tscn",
+				"res://content/domains/npc/entities/npc_address.tscn",
+			]
+		)
+	)
 	var before_count: int = _world.entities.size()
 	var before_children: int = _root.get_child_count()
 	var before_next: int = _district.next_person
 	var publications: Array[Entity] = []
-	_world.entity_added.connect(func(actor: Entity) -> void: publications.append(actor))
+	_world.entity_added.connect(
+		func(actor: Entity) -> void:
+			publications.append(actor),
+	)
 	assert_false(DistrictPopulationService.initialize())
 	assert_true(publications.is_empty())
 	assert_eq(_world.entities.size(), before_count)
@@ -156,11 +180,12 @@ func test_invalid_later_body_rejects_whole_population_without_registry_roster_or
 
 ## A body Trait conflict aborts already prepared addresses with no partial population commit.
 func test_body_provider_conflict_discards_addresses_and_preserves_person_sequence() -> void:
-	_population_profiles(PackedStringArray([
-		"res://content/domains/npc/entities/district_npc.tscn",
-	]))
+	_population_profiles(
+		PackedStringArray(["res://content/domains/npc/entities/district_npc.tscn"])
+	)
 	var template: DEF_EntityTemplate = load(
-		"res://content/domains/npc/definitions/def_entity_district_npc.tres") as DEF_EntityTemplate
+		"res://content/domains/npc/definitions/def_entity_district_npc.tres"
+	) as DEF_EntityTemplate
 	var conflict: EntityTrait = EntityTrait.new()
 	conflict.trait_id = &"duplicate_population_inventory"
 	conflict.component_recipes = [C_Inventory.new()]
@@ -178,19 +203,25 @@ func test_body_provider_conflict_discards_addresses_and_preserves_person_sequenc
 
 ## Accepted population publishes complete roster/body data once, and initialize retry is idempotent.
 func test_complete_population_commit_and_retry_publish_every_actor_once() -> void:
-	_population_profiles(PackedStringArray([
-		"res://content/domains/npc/entities/district_npc.tscn",
-		"res://content/domains/npc/entities/district_npc.tscn",
-	]))
+	_population_profiles(
+		PackedStringArray(
+			[
+				"res://content/domains/npc/entities/district_npc.tscn",
+				"res://content/domains/npc/entities/district_npc.tscn",
+			]
+		)
+	)
 	var publications: Array[Entity] = []
-	_world.entity_added.connect(func(actor: Entity) -> void:
-		publications.append(actor)
-		if actor.has_component(C_NpcIdentity):
-			var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
-			assert_not_null(NpcPopulationQueries.person_for(identity.npc_id))
-			assert_true(actor.has_component(C_Inventory))
-			assert_true(actor.has_component(C_Hunger))
-			assert_true(actor.has_component(C_InteractionActionSet)))
+	_world.entity_added.connect(
+		func(actor: Entity) -> void:
+			publications.append(actor)
+			if actor.has_component(C_NpcIdentity):
+				var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
+				assert_not_null(NpcPopulationQueries.person_for(identity.npc_id))
+				assert_true(actor.has_component(C_Inventory))
+				assert_true(actor.has_component(C_Hunger))
+				assert_true(actor.has_component(C_InteractionActionSet)),
+	)
 	assert_true(DistrictPopulationService.initialize())
 	assert_eq(publications.size(), 4)
 	assert_eq(_district.people.size(), 2)

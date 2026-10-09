@@ -3,7 +3,9 @@ extends GutTest
 
 const _PACKAGE: PackedScene = preload("res://content/domains/packages/entities/package.tscn")
 const _TEMPLATE: DEF_EntityTemplate = preload(
-	"res://content/domains/packages/definitions/def_entity_package.tres")
+	"res://content/domains/packages/definitions/def_entity_package.tres"
+)
+
 
 #region Profile-derived package capabilities
 ## Profile defaults replace exact fresh fields, while scene shape and source recipes stay intact.
@@ -26,7 +28,9 @@ func test_package_profile_compiles_health_impact_contents_and_liquid_before_regi
 	var plan: EntityBuildPlan = _compile(parcel)
 	assert_true(plan.valid())
 	var health: C_Health = _recipe(plan.component_recipes, C_Health) as C_Health
-	var receiver: C_ImpactReceiver = _recipe(plan.component_recipes, C_ImpactReceiver) as C_ImpactReceiver
+	var receiver: C_ImpactReceiver = (
+		_recipe(plan.component_recipes, C_ImpactReceiver) as C_ImpactReceiver
+	)
 	var identity: C_Package = _recipe(plan.component_recipes, C_Package) as C_Package
 	var tilt: C_LiquidTilt = _recipe(plan.component_recipes, C_LiquidTilt) as C_LiquidTilt
 	assert_eq(health.current, 73.0)
@@ -62,21 +66,32 @@ func test_two_package_builds_share_profile_and_isolate_health_and_liquid_state()
 	first_health.current = 3.0
 	assert_eq(second_health.current, definition.maximum_health)
 	assert_ne(first_health, second_health)
-	var first_tilt: C_LiquidTilt = _recipe(first_plan.component_recipes, C_LiquidTilt) as C_LiquidTilt
-	var second_tilt: C_LiquidTilt = _recipe(second_plan.component_recipes, C_LiquidTilt) as C_LiquidTilt
+	var first_tilt: C_LiquidTilt = (
+		_recipe(first_plan.component_recipes, C_LiquidTilt) as C_LiquidTilt
+	)
+	var second_tilt: C_LiquidTilt = (
+		_recipe(second_plan.component_recipes, C_LiquidTilt) as C_LiquidTilt
+	)
 	first_tilt.unsafe_seconds = 2.0
 	assert_eq(second_tilt.unsafe_seconds, 0.0)
-	assert_same((_recipe(first_plan.component_recipes, C_Package) as C_Package).definition,
-		definition)
-	assert_same((_recipe(second_plan.component_recipes, C_Package) as C_Package).definition,
-		definition)
+	assert_same(
+		(_recipe(first_plan.component_recipes, C_Package) as C_Package).definition,
+		definition,
+	)
+	assert_same(
+		(_recipe(second_plan.component_recipes, C_Package) as C_Package).definition,
+		definition,
+	)
 
 
 ## An authored duplicate conflicts with the production Trait rather than replacing its provider.
 func test_authored_contents_and_production_trait_conflict_is_not_silently_overridden() -> void:
 	var parcel: E_Package = autofree(_PACKAGE.instantiate()) as E_Package
-	var context: EntitySpawnContext = EntityCompositionService.context_for(parcel, null,
-		"fixture/package/authored_conflict")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		parcel,
+		null,
+		"fixture/package/authored_conflict",
+	)
 	parcel.component_resources = parcel.component_resources.duplicate()
 	parcel.component_resources.append(C_PackageContents.new())
 	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
@@ -84,6 +99,8 @@ func test_authored_contents_and_production_trait_conflict_is_not_silently_overri
 	assert_eq(plan.issues[0].code, &"duplicate_provider")
 	assert_true(plan.component_recipes.is_empty())
 	assert_true(parcel.components.is_empty())
+
+
 ## Native publication observes the complete Profile defaults and contributes each class once.
 func test_native_package_registration_publishes_complete_profile_without_default_observer() -> void:
 	var world: World = World.new()
@@ -100,17 +117,27 @@ func test_native_package_registration_publishes_complete_profile_without_default
 	var published_day: Array[int] = []
 	var published_throw: Array[float] = []
 	var published_supply: Array[StringName] = []
-	parcel.component_added.connect(func(_actor: Entity, component: Component) -> void:
-		delivered.append(component.get_script() as Script))
-	world.entity_added.connect(func(actor: Entity) -> void:
-		published_health.append((actor.get_component(C_Health) as C_Health).current)
-		published_throw.append((actor.get_component(C_Grabbable) as C_Grabbable).throw_velocity)
-		var identity: C_Package = actor.get_component(C_Package) as C_Package
-		published_day.append(identity.delivery_day)
-		published_supply.append(identity.supply_key))
-	var context: EntitySpawnContext = EntityCompositionService.context_for(parcel, world,
-		"fixture/package/native_actor")
-	context.initial_fields[C_Package as Script] = {&"delivery_day": 11, &"supply_key": &"fixture_supply"}
+	parcel.component_added.connect(
+		func(_actor: Entity, component: Component) -> void:
+			delivered.append(component.get_script() as Script),
+	)
+	world.entity_added.connect(
+		func(actor: Entity) -> void:
+			published_health.append((actor.get_component(C_Health) as C_Health).current)
+			published_throw.append((actor.get_component(C_Grabbable) as C_Grabbable).throw_velocity)
+			var identity: C_Package = actor.get_component(C_Package) as C_Package
+			published_day.append(identity.delivery_day)
+			published_supply.append(identity.supply_key),
+	)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		parcel,
+		world,
+		"fixture/package/native_actor",
+	)
+	context.initial_fields[C_Package as Script] = {
+		&"delivery_day": 11,
+		&"supply_key": &"fixture_supply",
+	}
 	assert_true(EntityCompositionService.try_register(context))
 	assert_eq(world.entities.size(), 1)
 	assert_eq(published_health, [73.0])
@@ -121,19 +148,25 @@ func test_native_package_registration_publishes_complete_profile_without_default
 	assert_eq(delivered.count(C_PackageContents as Script), 1)
 	assert_eq(delivered.count(C_LiquidTilt as Script), 1)
 	assert_true((parcel.get_component(C_Package) as C_Package).condition_initialized)
-	assert_same((parcel.get_component(C_ImpactReceiver) as C_ImpactReceiver).profile,
-		definition.impact_profile)
+	assert_same(
+		(parcel.get_component(C_ImpactReceiver) as C_ImpactReceiver).profile,
+		definition.impact_profile,
+	)
 	world.purge(false)
 	world.free()
 #endregion
+
 
 #region Pure compilation fixture
 func _compile(parcel: E_Package) -> EntityBuildPlan:
 	parcel.package_id = "fixture/package"
 	var authoring: EntityAuthoring = EntityCompositionService.authoring_for(parcel)
 	assert_same(authoring.entity_template, _TEMPLATE)
-	var context: EntitySpawnContext = EntityCompositionService.context_for(parcel, null,
-		"fixture/package/actor")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		parcel,
+		null,
+		"fixture/package/actor",
+	)
 	return EntityCompositionService.build_plan(context)
 
 
@@ -175,8 +208,11 @@ func test_package_profile_missing_carry_rejects_before_registration() -> void:
 			kept.append(recipe)
 	parcel.component_resources = kept
 	parcel.package_id = "fixture/receiving/missing_carry"
-	var context: EntitySpawnContext = EntityCompositionService.context_for(parcel, world,
-		"fixture/receiving/missing_carry")
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		parcel,
+		world,
+		"fixture/receiving/missing_carry",
+	)
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 	assert_false(plan.valid())
 	assert_false(EntityCompositionService.register_plan(context, plan))

@@ -1,10 +1,12 @@
 extends GutTest
 ## Exercises pure composition contracts before any registration or ready publication.
 
+
 ## Data-only Profile fixture; no live install operation or mutable shared gameplay model.
 class ConfiguredTrait extends EntityTrait:
 	## Explicit fields returned to the compiler, keyed by their required Component provider.
-	var fields: Dictionary[Script, Dictionary] = {}
+	var fields: Dictionary[Script, Dictionary] = { }
+
 
 	## Supplies exact initial values without touching the scene/World or original provider.
 	func configuration_for(_context: EntitySpawnContext) -> Dictionary[Script, Dictionary]:
@@ -12,17 +14,22 @@ class ConfiguredTrait extends EntityTrait:
 
 
 #region Enumerated factory instance fields
-## Only declared fields merge into fresh providers, with exact factory provenance and no source mutation.
+## Only declared fields merge into fresh providers with factory provenance; sources stay intact.
 func test_factory_fields_require_trait_policy_and_preserve_profile_defaults() -> void:
 	var capability: ConfiguredTrait = ConfiguredTrait.new()
 	capability.trait_id = &"health"
-	capability.fields[C_Health as Script] = {&"base": 80.0, &"value": 80.0}
+	capability.fields[C_Health as Script] = { &"base": 80.0, &"value": 80.0 }
 	capability.initial_field_names[C_Health as Script] = PackedStringArray(["current"])
 	var context: EntitySpawnContext = _context()
-	context.initial_fields[C_Health as Script] = {&"current": 37.0}
+	context.initial_fields[C_Health as Script] = { &"current": 37.0 }
 	var source: C_Health = C_Health.new()
 	var original_health: float = source.current
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]), [source], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile(
+		_template([capability]),
+		[source],
+		[],
+		context,
+	)
 	assert_true(plan.valid())
 	var built: C_Health = plan.component_recipes[0] as C_Health
 	assert_eq(built.current, 37.0)
@@ -37,15 +44,23 @@ func test_factory_fields_cannot_write_undeclared_or_incompatible_state() -> void
 	var capability: EntityTrait = _trait(&"health", [])
 	capability.initial_field_names[C_Health as Script] = PackedStringArray(["current"])
 	var context: EntitySpawnContext = _context()
-	context.initial_fields[C_Health as Script] = {&"base": 80.0}
-	var forbidden: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[C_Health.new()], [], context)
+	context.initial_fields[C_Health as Script] = { &"base": 80.0 }
+	var forbidden: EntityBuildPlan = EntityBuildRules.compile(
+		_template([capability]),
+		[C_Health.new()],
+		[],
+		context,
+	)
 	assert_false(forbidden.valid())
 	assert_eq(_issue_codes(forbidden), [&"unauthorized_initial_field"])
 	assert_true(forbidden.component_recipes.is_empty())
-	context.initial_fields[C_Health as Script] = {&"current": "wrong type"}
-	var incompatible: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[C_Health.new()], [], context)
+	context.initial_fields[C_Health as Script] = { &"current": "wrong type" }
+	var incompatible: EntityBuildPlan = EntityBuildRules.compile(
+		_template([capability]),
+		[C_Health.new()],
+		[],
+		context,
+	)
 	assert_false(incompatible.valid())
 	assert_eq(_issue_codes(incompatible), [&"incompatible_initial_field"])
 
@@ -54,12 +69,16 @@ func test_factory_fields_cannot_write_undeclared_or_incompatible_state() -> void
 func test_factory_fields_do_not_silently_replace_profile_field_writers() -> void:
 	var capability: ConfiguredTrait = ConfiguredTrait.new()
 	capability.trait_id = &"health"
-	capability.fields[C_Health as Script] = {&"current": 50.0}
+	capability.fields[C_Health as Script] = { &"current": 50.0 }
 	capability.initial_field_names[C_Health as Script] = PackedStringArray(["current"])
 	var context: EntitySpawnContext = _context()
-	context.initial_fields[C_Health as Script] = {&"current": 50.0}
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[C_Health.new()], [], context)
+	context.initial_fields[C_Health as Script] = { &"current": 50.0 }
+	var plan: EntityBuildPlan = EntityBuildRules.compile(
+		_template([capability]),
+		[C_Health.new()],
+		[],
+		context,
+	)
 	assert_false(plan.valid())
 	assert_eq(_issue_codes(plan), [&"duplicate_initial_field"])
 	assert_true(plan.component_recipes.is_empty())
@@ -73,11 +92,19 @@ func test_factory_field_containers_are_isolated_between_builds() -> void:
 	var people: Array[NpcRecord] = [NpcRecord.new()]
 	people[0].npc_id = &"factory_person"
 	var context: EntitySpawnContext = _context()
-	context.initial_fields[C_District as Script] = {&"people": people}
-	var first: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[C_District.new()], [], context)
-	var second: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[C_District.new()], [], context)
+	context.initial_fields[C_District as Script] = { &"people": people }
+	var first: EntityBuildPlan = EntityBuildRules.compile(
+		_template([capability]),
+		[C_District.new()],
+		[],
+		context,
+	)
+	var second: EntityBuildPlan = EntityBuildRules.compile(
+		_template([capability]),
+		[C_District.new()],
+		[],
+		context,
+	)
 	assert_true(first.valid())
 	assert_true(second.valid())
 	var first_district: C_District = first.component_recipes[0] as C_District
@@ -88,6 +115,7 @@ func test_factory_field_containers_are_isolated_between_builds() -> void:
 	assert_ne(first_district.people[0], people[0])
 #endregion
 
+
 #region Declared Profile field configuration
 ## Profile configuration changes fresh recipes without replacing scene engine/data providers.
 func test_explicit_profile_fields_preserve_provider_and_are_order_independent() -> void:
@@ -95,10 +123,10 @@ func test_explicit_profile_fields_preserve_provider_and_are_order_independent() 
 	health.current = 9.0
 	var maximum: ConfiguredTrait = ConfiguredTrait.new()
 	maximum.trait_id = &"maximum"
-	maximum.fields[C_Health as Script] = {&"base": 80.0, &"value": 80.0}
+	maximum.fields[C_Health as Script] = { &"base": 80.0, &"value": 80.0 }
 	var current: ConfiguredTrait = ConfiguredTrait.new()
 	current.trait_id = &"current"
-	current.fields[C_Health as Script] = {&"current": 37.0}
+	current.fields[C_Health as Script] = { &"current": 37.0 }
 	var template: DEF_EntityTemplate = _template([maximum, current])
 	var plan: EntityBuildPlan = EntityBuildRules.compile(template, [health], [], _context())
 	template.traits.reverse()
@@ -119,12 +147,16 @@ func test_explicit_profile_fields_preserve_provider_and_are_order_independent() 
 func test_duplicate_profile_field_writer_is_rejected_without_last_trait_wins() -> void:
 	var first: ConfiguredTrait = ConfiguredTrait.new()
 	first.trait_id = &"first"
-	first.fields[C_Health as Script] = {&"current": 50.0}
+	first.fields[C_Health as Script] = { &"current": 50.0 }
 	var second: ConfiguredTrait = ConfiguredTrait.new()
 	second.trait_id = &"second"
-	second.fields[C_Health as Script] = {&"current": 50.0}
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([second, first]),
-		[C_Health.new()], [], _context())
+	second.fields[C_Health as Script] = { &"current": 50.0 }
+	var plan: EntityBuildPlan = EntityBuildRules.compile(
+		_template([second, first]),
+		[C_Health.new()],
+		[],
+		_context(),
+	)
 	assert_false(plan.valid())
 	assert_eq(_issue_codes(plan), [&"duplicate_initial_field"])
 	assert_string_contains(plan.issues[0].message, "trait:first")
@@ -132,18 +164,26 @@ func test_duplicate_profile_field_writer_is_rejected_without_last_trait_wins() -
 	assert_true(plan.component_recipes.is_empty())
 
 
-## Missing providers, private/runtime fields and wrong scalar/Definition types are configuration errors.
+## Missing providers, private/runtime fields and wrong value types are configuration errors.
 func test_invalid_profile_fields_fail_before_property_assignment_or_registration() -> void:
 	var capability: ConfiguredTrait = ConfiguredTrait.new()
 	capability.trait_id = &"invalid"
-	capability.fields[C_Health as Script] = {&"current": "wrong float", &"parent": Entity.new(),
-		&"definition": DEF_ImpactProfile.new(), &"_private": 1}
+	capability.fields[C_Health as Script] = {
+		&"current": "wrong float",
+		&"parent": Entity.new(),
+		&"definition": DEF_ImpactProfile.new(),
+		&"_private": 1,
+	}
 	var forbidden_parent: Entity = capability.fields[C_Health as Script][&"parent"] as Entity
 	autofree(forbidden_parent)
-	capability.fields[C_Inventory as Script] = {&"maximum_stacks": 2}
+	capability.fields[C_Inventory as Script] = { &"maximum_stacks": 2 }
 	var source: C_Health = C_Health.new()
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[source], [], _context())
+	var plan: EntityBuildPlan = EntityBuildRules.compile(
+		_template([capability]),
+		[source],
+		[],
+		_context(),
+	)
 	assert_false(plan.valid())
 	assert_has(_issue_codes(plan), &"missing_configuration_provider")
 	assert_eq(_issue_codes(plan).count(&"incompatible_initial_field"), 2)
@@ -160,10 +200,20 @@ func test_configured_nested_records_are_copied_and_definitions_remain_shared() -
 	person.npc_id = &"configured/person"
 	person.profile = DEF_NpcProfile.new()
 	var people: Array[NpcRecord] = [person]
-	capability.fields[C_District as Script] = {&"people": people}
+	capability.fields[C_District as Script] = { &"people": people }
 	var template: DEF_EntityTemplate = _template([capability])
-	var first: EntityBuildPlan = EntityBuildRules.compile(template, [C_District.new()], [], _context())
-	var second: EntityBuildPlan = EntityBuildRules.compile(template, [C_District.new()], [], _context())
+	var first: EntityBuildPlan = EntityBuildRules.compile(
+		template,
+		[C_District.new()],
+		[],
+		_context(),
+	)
+	var second: EntityBuildPlan = EntityBuildRules.compile(
+		template,
+		[C_District.new()],
+		[],
+		_context(),
+	)
 	assert_true(first.valid())
 	assert_true(second.valid())
 	var first_district: C_District = first.component_recipes[0] as C_District
@@ -181,9 +231,13 @@ func test_wrong_typed_configuration_container_is_rejected_before_copy() -> void:
 	var capability: ConfiguredTrait = ConfiguredTrait.new()
 	capability.trait_id = &"wrong_people"
 	var wrong_people: Array[String] = ["not an NpcRecord"]
-	capability.fields[C_District as Script] = {&"people": wrong_people}
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[C_District.new()], [], _context())
+	capability.fields[C_District as Script] = { &"people": wrong_people }
+	var plan: EntityBuildPlan = EntityBuildRules.compile(
+		_template([capability]),
+		[C_District.new()],
+		[],
+		_context(),
+	)
 	assert_false(plan.valid())
 	assert_eq(_issue_codes(plan), [&"incompatible_initial_field"])
 	assert_true(plan.component_recipes.is_empty())
@@ -232,8 +286,12 @@ func test_trait_order_is_irrelevant_and_requirements_see_all_providers() -> void
 func test_duplicate_scene_code_and_trait_providers_fail_before_materialization() -> void:
 	var context: EntitySpawnContext = _context()
 	var capability: EntityTrait = _trait(&"time", [C_DayCycle.new()])
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[C_DayCycle.new()], [C_DayCycle.new()], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile(
+		_template([capability]),
+		[C_DayCycle.new()],
+		[C_DayCycle.new()],
+		context,
+	)
 	assert_false(plan.valid())
 	assert_eq(_issue_codes(plan), [&"duplicate_provider", &"duplicate_provider"])
 	assert_eq(plan.component_recipes.size(), 0)
@@ -249,8 +307,12 @@ func test_duplicate_scene_code_and_trait_providers_fail_before_materialization()
 func test_duplicate_trait_identity_is_a_configuration_error() -> void:
 	var first: EntityTrait = _trait(&"repeated", [C_DayCycle.new()])
 	var second: EntityTrait = _trait(&"repeated", [C_DamageResistance.new()])
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([first, second]),
-		[], [], _context())
+	var plan: EntityBuildPlan = EntityBuildRules.compile(
+		_template([first, second]),
+		[],
+		[],
+		_context(),
+	)
 	assert_false(plan.valid())
 	assert_has(_issue_codes(plan), &"duplicate_trait")
 	assert_eq(plan.component_recipes.size(), 0)
@@ -263,8 +325,7 @@ func test_missing_requirements_and_incompatible_root_do_not_mutate_instance() ->
 	capability.required_nodes = [NodePath("MissingMarker")]
 	capability.required_components = [C_DamageResistance]
 	var context: EntitySpawnContext = _context()
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]), [], [], context)
 	assert_false(plan.valid())
 	assert_eq(_issue_codes(plan), [&"incompatible_root", &"missing_node", &"missing_component"])
 	for issue: EntityBuildPlan.Issue in plan.issues:
@@ -297,6 +358,7 @@ func test_two_compiled_builds_isolate_nested_state_and_share_definitions() -> vo
 	assert_eq(second_district.people[0].npc_id, &"fixture/person")
 #endregion
 
+
 #region Binding intents
 ## An initial binding is fresh data, never a live Relationship during compilation.
 func test_candidate_binding_is_valid_without_registration_or_live_relationships() -> void:
@@ -307,8 +369,7 @@ func test_candidate_binding_is_valid_without_registration_or_live_relationships(
 	var intent: EntityInitialBinding = _binding(&"support")
 	var capability: EntityTrait = _trait(&"mounted", [])
 	capability.initial_bindings = [intent]
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]), [], [], context)
 	assert_true(plan.valid())
 	assert_eq(plan.bindings.size(), 1)
 	assert_eq(plan.bindings[0].target, target)
@@ -339,8 +400,7 @@ func test_foreign_binding_is_rejected_without_touching_the_endpoint() -> void:
 	context.bindings[&"support"] = foreign
 	var capability: EntityTrait = _trait(&"mounted", [])
 	capability.initial_bindings = [_binding(&"support")]
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]), [], [], context)
 	assert_false(plan.valid())
 	assert_eq(_issue_codes(plan), [&"foreign_binding"])
 	assert_eq(plan.bindings.size(), 0)
@@ -359,8 +419,12 @@ func test_duplicate_relationship_provider_fails_even_with_different_endpoint_nam
 	first.initial_bindings = [_binding(&"first")]
 	var second: EntityTrait = _trait(&"second", [])
 	second.initial_bindings = [_binding(&"second")]
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([second, first]),
-		[], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile(
+		_template([second, first]),
+		[],
+		[],
+		context,
+	)
 	assert_false(plan.valid())
 	assert_eq(_issue_codes(plan), [&"duplicate_binding"])
 	assert_eq(plan.bindings.size(), 0)
@@ -425,13 +489,13 @@ func test_distinct_relationship_targets_are_valid() -> void:
 	context.bindings[&"second"] = second_target
 	var capability: EntityTrait = _trait(&"mounted", [])
 	capability.initial_bindings = [_binding(&"first"), _binding(&"second")]
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]), [], [], context)
 	assert_true(plan.valid())
 	assert_eq(plan.bindings.size(), 2)
 	assert_eq(plan.bindings[0].target, first_target)
 	assert_eq(plan.bindings[1].target, second_target)
 #endregion
+
 
 #region Explicit build context
 ## Missing instance/identity produces configuration issues before any provider is materialized.
@@ -448,17 +512,22 @@ func test_instance_and_identity_are_required_boundary_inputs() -> void:
 	assert_eq(missing_id.actor.id, "")
 #endregion
 
+
 #region Whole-set rejection before native registration
 ## Duplicate Entity IDs reject both neighbours, without assigning either captured identity.
 func test_duplicate_entity_ids_reject_whole_set_without_changing_instances() -> void:
 	var first: EntitySpawnContext = _context()
 	var second: EntitySpawnContext = _context()
-	var first_plan: EntityBuildPlan = EntityBuildRules.compile(null,
-		[C_DayCycle.new()], [], first)
-	var second_plan: EntityBuildPlan = EntityBuildRules.compile(null,
-		[C_DamageResistance.new()], [], second)
-	assert_false(EntityBuildRules.validate_registration_batch([first, second],
-		[first_plan, second_plan]))
+	var first_plan: EntityBuildPlan = EntityBuildRules.compile(null, [C_DayCycle.new()], [], first)
+	var second_plan: EntityBuildPlan = EntityBuildRules.compile(
+		null,
+		[C_DamageResistance.new()],
+		[],
+		second,
+	)
+	assert_false(
+		EntityBuildRules.validate_registration_batch([first, second], [first_plan, second_plan])
+	)
 	assert_has(_issue_codes(second_plan), &"duplicate_entity_id")
 	assert_has(_issue_codes(first_plan), &"batch_rejected")
 	assert_false(first_plan.valid())
@@ -497,8 +566,9 @@ func test_duplicate_stable_ids_reject_the_entire_prepared_set() -> void:
 	identity.local_id = &"actor"
 	var first_plan: EntityBuildPlan = EntityBuildRules.compile(null, [identity], [], first)
 	var second_plan: EntityBuildPlan = EntityBuildRules.compile(null, [identity], [], second)
-	assert_false(EntityBuildRules.validate_registration_batch([first, second],
-		[first_plan, second_plan]))
+	assert_false(
+		EntityBuildRules.validate_registration_batch([first, second], [first_plan, second_plan])
+	)
 	assert_has(_issue_codes(second_plan), &"duplicate_stable_id")
 	assert_false(first_plan.valid())
 	assert_eq(identity.world_id, &"level")
@@ -513,8 +583,7 @@ func test_candidate_endpoint_without_prepared_plan_aborts_batch() -> void:
 	context.bindings[&"support"] = endpoint
 	var capability: EntityTrait = _trait(&"mounted", [])
 	capability.initial_bindings = [_binding(&"support")]
-	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]), [], [], context)
 	assert_true(plan.valid())
 	assert_false(EntityBuildRules.validate_registration_batch([context], [plan]))
 	assert_has(_issue_codes(plan), &"unprepared_binding")
@@ -531,11 +600,16 @@ func test_prepared_endpoint_is_valid_independent_of_actor_order() -> void:
 	source.bindings[&"support"] = target.actor
 	var capability: EntityTrait = _trait(&"mounted", [])
 	capability.initial_bindings = [_binding(&"support")]
-	var source_plan: EntityBuildPlan = EntityBuildRules.compile(_template([capability]),
-		[], [], source)
+	var source_plan: EntityBuildPlan = EntityBuildRules.compile(
+		_template([capability]),
+		[],
+		[],
+		source,
+	)
 	var target_plan: EntityBuildPlan = EntityBuildRules.compile(null, [], [], target)
-	assert_true(EntityBuildRules.validate_registration_batch([source, target],
-		[source_plan, target_plan]))
+	assert_true(
+		EntityBuildRules.validate_registration_batch([source, target], [source_plan, target_plan])
+	)
 	assert_eq(source_plan.bindings.size(), 1)
 	assert_eq(source.actor.id, "")
 	assert_eq(target.actor.id, "")
@@ -551,6 +625,7 @@ func test_captured_context_cannot_rename_native_instance_identity() -> void:
 	assert_has(_issue_codes(plan), &"identity_mismatch")
 	assert_eq(context.actor.id, "authored/id")
 #endregion
+
 
 #region Authored recipe ownership
 ## Duplicated scene instances cannot overwrite one another through a shared identity Resource.
@@ -622,6 +697,7 @@ func test_registered_placed_identity_cannot_be_silently_changed() -> void:
 	assert_eq(registered.local_id, &"actor")
 	assert_eq(actor.get_component(C_AuthoredIdentity), registered)
 #endregion
+
 
 #region Fixture construction
 func _context() -> EntitySpawnContext:

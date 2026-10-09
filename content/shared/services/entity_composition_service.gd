@@ -7,6 +7,7 @@ const AUTHORING_META: StringName = &"entity_composition"
 const _PREPARED_META: StringName = &"_entity_recipes_prepared"
 const _READY_META: StringName = &"_entity_composition_ready"
 
+
 #region Read-only authoring and context
 ## Reads the optional scene-owned authoring Resource, without allocating a Template or changing it.
 static func authoring_for(actor: Entity) -> EntityAuthoring:
@@ -17,13 +18,21 @@ static func authoring_for(actor: Entity) -> EntityAuthoring:
 
 
 ## Captures explicit World/identity inputs without assigning Entity.id or binding ECS.world.
-static func context_for(actor: Entity, world: World, actor_id: String,
-		candidates: Array[Entity] = []) -> EntitySpawnContext:
+static func context_for(
+	actor: Entity,
+	world: World,
+	actor_id: String,
+	candidates: Array[Entity] = [],
+) -> EntitySpawnContext:
 	var context: EntitySpawnContext = EntitySpawnContext.new()
 	context.world = world
 	context.actor = actor
 	context.actor_id = actor_id
-	context.instance_path = String(actor.get_path()) if actor.is_inside_tree() else String(actor.name)
+	context.instance_path = (
+		String(actor.get_path())
+		if actor.is_inside_tree()
+		else String(actor.name)
+	)
 	context.candidate_actors = candidates.duplicate()
 	var authoring: EntityAuthoring = authoring_for(actor)
 	if authoring == null:
@@ -62,6 +71,7 @@ static func publish_ready(actor: Entity) -> void:
 	actor.set_meta(_READY_META, true)
 #endregion
 
+
 #region Common recipe compilation
 ## Captures scene/intrinsic/optional Template inputs for the one pure compiler entry point.
 ## Runtime factories and placed preparation use this same operation before native registration.
@@ -78,7 +88,7 @@ static func build_plan(context: EntitySpawnContext) -> EntityBuildPlan:
 		rejected.issues.append(issue)
 		return rejected
 	var authoring_input: Variant = actor.get_meta(AUTHORING_META) \
-		if actor.has_meta(AUTHORING_META) else null
+			if actor.has_meta(AUTHORING_META) else null
 	if authoring_input != null and not authoring_input is EntityAuthoring:
 		var rejected: EntityBuildPlan = EntityBuildPlan.new()
 		var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()
@@ -91,7 +101,7 @@ static func build_plan(context: EntitySpawnContext) -> EntityBuildPlan:
 
 	var authoring: EntityAuthoring = authoring_input as EntityAuthoring
 	if authoring != null:
-		var seen_endpoints: Dictionary[StringName, bool] = {}
+		var seen_endpoints: Dictionary[StringName, bool] = { }
 		for endpoint_name: String in authoring.ancestor_entity_bindings:
 			var endpoint_key: StringName = StringName(endpoint_name)
 			if endpoint_key.is_empty() or authoring.bindings.has(endpoint_key) \
@@ -111,9 +121,10 @@ static func build_plan(context: EntitySpawnContext) -> EntityBuildPlan:
 	return EntityBuildRules.compile(template, actor.component_resources, code_recipes, context)
 #endregion
 
+
 #region Runtime factory registration
 ## Compiles and validates a factory instance before one native add_entity call.
-## False leaves rejected unregistered instances with their caller; no ownership/payment is committed.
+## False leaves rejected instances with their caller, without ownership or payment changes.
 static func try_register(context: EntitySpawnContext, add_to_tree: bool = true) -> bool:
 	var plan: EntityBuildPlan = registration_plan(context)
 	return register_plan(context, plan, add_to_tree)
@@ -136,8 +147,11 @@ static func registration_plan(context: EntitySpawnContext) -> EntityBuildPlan:
 
 ## Commits a plan within its synchronous transaction, after the owner's accepted preflight.
 ## No World mutation or lifetime boundary may intervene between preflight and this operation.
-static func register_plan(context: EntitySpawnContext, plan: EntityBuildPlan,
-		add_to_tree: bool = true) -> bool:
+static func register_plan(
+	context: EntitySpawnContext,
+	plan: EntityBuildPlan,
+	add_to_tree: bool = true,
+) -> bool:
 	if not plan.valid() or context.world == null:
 		return false
 	if not EntityBuildRules.validate_registration_batch([context], [plan]):
@@ -149,23 +163,29 @@ static func register_plan(context: EntitySpawnContext, plan: EntityBuildPlan,
 	# Native collision replacement is unreachable after identity/endpoint preflight.
 	actor.id = context.actor_id
 	var notifications: ObserverReactionBoundary.RegistrationScope = \
-		ObserverReactionBoundary.begin_registration(context.world, actor)
+			ObserverReactionBoundary.begin_registration(context.world, actor)
 	context.world.add_entity(actor, null, add_to_tree)
 	for binding: EntityBuildPlan.Binding in plan.bindings:
-		assert(context.world.entities.has(actor) and context.world.entities.has(binding.target),
-			"Factory binding endpoints require completed registration")
+		assert(
+			context.world.entities.has(actor) and context.world.entities.has(binding.target),
+			"Factory binding endpoints require completed registration",
+		)
 		actor.add_relationship(Relationship.new(binding.relation, binding.target))
 	publish_ready(actor)
 	notifications.finish()
 	return true
 #endregion
 
+
 #region Prepared native recipes
 ## Accepts validated recipes before registration; rejects live/previously prepared instances.
 ## The World/factory owner still validates identity, saved overlay, endpoints and readiness.
 static func prepare(actor: Entity, plan: EntityBuildPlan) -> bool:
-	if not plan.valid() or plan.built_actor != actor \
-			or recipes_prepared(actor) or not actor.components.is_empty():
+	if (
+		not plan.valid() or plan.built_actor != actor \
+				or recipes_prepared(actor)
+		or not actor.components.is_empty()
+	):
 		return false
 	actor.component_resources = plan.component_recipes
 	actor.set_meta(_PREPARED_META, true)

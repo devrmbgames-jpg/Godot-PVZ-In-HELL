@@ -25,7 +25,7 @@ func _enter_tree() -> void:
 #endregion
 
 #region Intrinsic package metadata
-## Returns fresh identity/configuration data without assigning identity or mutating authoring inputs.
+## Returns fresh identity/configuration data without changing identity or authoring inputs.
 func define_components() -> Array[Component]:
 	if EntityCompositionService.recipes_prepared(self):
 		return []
