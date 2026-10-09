@@ -79,3 +79,54 @@ func test_actual_fresh_startup_suppresses_observers_until_global_ready() -> void
 func _main_scene() -> PackedScene:
 	return load("res://content/scenes/main_level.tscn") as PackedScene
 #endregion
+
+
+#region Authored bootstrap diagnostics capability
+## Both real level variants publish complete diagnostics/queue data before MainLevel._ready.
+func test_actual_levels_prepare_session_capabilities_before_native_publication() -> void:
+	for path: String in ["res://content/scenes/main_level.tscn",
+			"res://content/scenes/primitive_test_level.tscn"]:
+		var packed: PackedScene = load(path) as PackedScene
+		_level = packed.instantiate() as Node3D
+		_level.set("autosave_path", "")
+		var world: GameWorld = _level.get_node("World") as GameWorld
+		var publications: Array[Dictionary] = []
+		world.entity_added.connect(func(actor: Entity) -> void:
+			if actor.has_component(C_DayCycle):
+				publications.append({"trace": actor.has_component(C_BoundaryTrace),
+					"queue": actor.has_component(C_LootDrops),
+					"ready": EntityCompositionService.composition_ready(actor)}))
+		add_child(_level)
+		_level.set_physics_process(false)
+		assert_eq(publications, [{"trace": true, "queue": true, "ready": false}], path)
+		var session: Entity = world.query.with_all([C_DayCycle]).execute_one()
+		assert_true(EntityCompositionService.composition_ready(session))
+		_level.free()
+		_level = null
+		await get_tree().process_frame
+
+
+## The shared diagnostics Trait allocates independent mutable history and counters per build.
+func test_diagnostics_trait_isolates_history_from_other_instances_and_authoring() -> void:
+	var capability: EntityTrait = load(
+		"res://content/shared/authoring/et_boundary_trace.tres") as EntityTrait
+	var template: DEF_EntityTemplate = DEF_EntityTemplate.new()
+	template.traits = [capability]
+	var actors: Array[Entity] = [Entity.new(), Entity.new()]
+	var plans: Array[EntityBuildPlan] = []
+	for actor: Entity in actors:
+		var context: EntitySpawnContext = EntityCompositionService.context_for(actor, null,
+			"fixture/trace/%s" % actor.get_instance_id())
+		plans.append(EntityBuildRules.compile(template, [], [], context))
+		assert_true(plans.back().valid())
+	var first: C_BoundaryTrace = plans[0].component_recipes[0] as C_BoundaryTrace
+	var second: C_BoundaryTrace = plans[1].component_recipes[0] as C_BoundaryTrace
+	first.entries.append(BoundaryTraceEntry.new())
+	first.next_sequence = 2
+	assert_true(second.entries.is_empty())
+	assert_eq(second.next_sequence, 1)
+	assert_true((capability.component_recipes[0] as C_BoundaryTrace).entries.is_empty())
+	assert_eq((capability.component_recipes[0] as C_BoundaryTrace).next_sequence, 1)
+	for actor: Entity in actors:
+		actor.free()
+#endregion

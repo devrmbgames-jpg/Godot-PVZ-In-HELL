@@ -26,7 +26,7 @@ func before_each() -> void:
 	_world.add_observer(O_GrabLifecycle.new())
 
 	var session: Entity = Entity.new()
-	session.component_resources = [C_DayCycle.new()]
+	session.component_resources = [C_DayCycle.new(), C_LootDrops.new()]
 	_root.add_child(session)
 	session.owner = _root
 	FixturePlacedIdentity.assign(_root, session, &"session")

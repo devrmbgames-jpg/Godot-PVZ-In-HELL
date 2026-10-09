@@ -249,3 +249,20 @@ arrival receipts, CharacterBody player, real unload/shift/sleep/next-truck block
 reacquisition after Night reset and stable number reuse. Headless receiving_scan PASS with clean
 runtime log; parser, local Formatter and structure PASS. Previously recorded legacy receiving_scan
 failure is resolved. Task 41 remains IN_PROGRESS for the full provider audit and acceptance.
+
+Session capability milestone (task 41 remains IN_PROGRESS):
+- Shared boundary_trace and package session_loot_queue Traits compile fresh mutable Components
+  before native publication in actual main and primitive levels. MainLevel asserts its required
+  diagnostic recipe; LootDropService.current reads its required queue without a lazy installer.
+- Native GUT 34/34 PASS / 393 assertions proves actual-level prepublication, withheld readiness,
+  repeated reads without component events and isolation of trace history and queue runtime state.
+  Parser 2 changed scripts PASS. Logs: tests/artifacts/refactoring_v2_41_bootstrap_trace_gut.log
+  and tests/artifacts/refactoring_v2_41_bootstrap_trace_parser.log.
+- Actual vertical_slice PASS (vertical_slice-20261009-173207325.log); Night write/restore PASS in
+  two new processes (night_persistence-write-20261009-173218495.log /
+  night_persistence-restore-20261009-173227628.log). Native gates have zero warnings/errors.
+- Local .bin/gdscript-formatter.exe is available: actual incremental formatter/lint PASS for
+  40 changed GDScript files, no NOT_RUN. Project/domain/map/strict dependencies/architecture,
+  persistence baseline and refactoring preflight PASS.
+Provider manifest now 16/72 resolved in the ongoing worktree. Complete provider migration/audit
+plus remaining native shutdown acceptance failures still require work; 42 and Phase 3 not started.

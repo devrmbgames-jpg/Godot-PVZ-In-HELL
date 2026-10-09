@@ -1053,7 +1053,8 @@
       "action": "migrate",
       "capability": "session_loot_queue",
       "contract": "Session loot queue is an initial capability; reads must not install missing Components into a ready session.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Initial C_LootDrops is supplied by immutable session_loot_queue Trait in both authored session Templates. current() only reads and asserts the required queue. Native queue publication/read/isolation GUT and actual main/primitive bootstrap GUT PASS; actual vertical slice and two-process Night restart PASS (2026-10-09)."
     },
     {
       "source": "content/domains/packages/services/package_condition_service.gd",
@@ -1248,7 +1249,8 @@
       "action": "migrate",
       "capability": "level_bootstrap",
       "contract": "Prepare all placed recipes/IDs/endpoints before automatic World.initialize; passive setup, startup spawns/restore/fixup precede world and Entity ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Day-session C_BoundaryTrace and C_LootDrops compile before native publication in actual main and primitive levels; MainLevel only asserts the trace and configures the authored autosave slot before startup reconstruction and readiness. Whole placed compile/ID/endpoint preflight and startup observer/tick barrier retain zero-side-effect rejection and passive fixup. Native actual-level prepublication/readiness/isolation GUT 34/34 and vertical/Night write+restore PASS (2026-10-09)."
     },
     {
       "source": "content/shared/rules/placed_identity_rules.gd",

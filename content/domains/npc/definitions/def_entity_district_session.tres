@@ -4,6 +4,9 @@
 [ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
 [ext_resource type="Script" path="res://content/domains/npc/components/c_district.gd" id="District"]
 
+[ext_resource type="Resource" path="res://content/domains/packages/authoring/et_session_loot_queue.tres" id="Loot"]
+[ext_resource type="Resource" path="res://content/shared/authoring/et_boundary_trace.tres" id="Trace"]
+
 [sub_resource type="Resource" id="Roster"]
 script = ExtResource("Trait")
 trait_id = &"district_roster"
@@ -15,4 +18,4 @@ ExtResource("District"): PackedStringArray("people", "next_person")
 [resource]
 script = ExtResource("Template")
 key = &"entity_district_session"
-traits = Array[ExtResource("Trait")]([SubResource("Roster")])
+traits = Array[ExtResource("Trait")]([SubResource("Roster"), ExtResource("Loot"), ExtResource("Trace")])

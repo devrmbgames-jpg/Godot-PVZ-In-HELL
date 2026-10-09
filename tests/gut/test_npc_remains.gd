@@ -22,7 +22,13 @@ func before_each() -> void:
 	_world.add_observer(O_InventoryLifecycle.new())
 
 	var session: Entity = Entity.new()
-	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new(), C_CustomerFlow.new()]
+	session.component_resources = [
+		C_DayCycle.new(),
+		C_LootDrops.new(),
+		C_Wallet.new(),
+		C_Commerce.new(),
+		C_CustomerFlow.new(),
+	]
 	_root.add_child(session)
 	session.owner = _root
 	FixturePlacedIdentity.assign(_root, session, &"session")

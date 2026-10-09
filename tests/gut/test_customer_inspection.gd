@@ -28,7 +28,12 @@ func before_each() -> void:
 	_world.add_observer(O_ExplosionSetup.new())
 
 	var session: Entity = Entity.new()
-	session.component_resources = [C_DayCycle.new(), C_CustomerFlow.new(), C_PackageLedger.new()]
+	session.component_resources = [
+		C_DayCycle.new(),
+		C_LootDrops.new(),
+		C_CustomerFlow.new(),
+		C_PackageLedger.new(),
+	]
 	_world.add_entity(session)
 	_cycle = session.get_component(C_DayCycle) as C_DayCycle
 	_cycle.phase = C_DayCycle.Phase.DAY

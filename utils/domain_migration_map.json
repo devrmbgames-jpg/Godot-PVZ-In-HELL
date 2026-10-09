@@ -13918,6 +13918,27 @@
       "owner": "shared",
       "role": "services",
       "task": "retain"
+    },
+    {
+      "source": "content/domains/packages/authoring/et_session_loot_queue.tres",
+      "target": "content/domains/packages/authoring/et_session_loot_queue.tres",
+      "owner": "packages",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/time/definitions/def_entity_day_session.tres",
+      "target": "content/domains/time/definitions/def_entity_day_session.tres",
+      "owner": "time",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/authoring/et_boundary_trace.tres",
+      "target": "content/shared/authoring/et_boundary_trace.tres",
+      "owner": "shared",
+      "role": "authoring",
+      "task": "retain"
     }
   ],
   "old_save_migration": false,

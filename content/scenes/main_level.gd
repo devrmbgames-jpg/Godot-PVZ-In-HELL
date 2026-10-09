@@ -26,7 +26,8 @@ func _ready() -> void:
 	NpcCustomerComposition.install(world)
 	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
 	var day_session: Entity = world.query.with_all([C_DayCycle]).execute_one()
-	day_session.add_component(C_BoundaryTrace.new())
+	assert(day_session.has_component(C_BoundaryTrace),
+		"Day session requires its authored diagnostics capability before native registration")
 	var clock_owner: S_GameTime = S_GameTime.new()
 	clock_owner.group = "Clock"
 	world.add_system(clock_owner)

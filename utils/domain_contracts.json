@@ -8128,20 +8128,13 @@
       "symbol": "C_BoundaryTrace",
       "path": "content/shared/components/c_boundary_trace.gd",
       "rights": [
-        "query",
-        "read",
-        "request",
-        "subscribe"
+        "read"
       ],
-      "public_methods": [
-        "new"
-      ],
+      "public_methods": [],
       "sources": [
         "content/scenes/main_level.gd"
       ],
-      "method_rights": {
-        "new": "read"
-      },
+      "method_rights": {},
       "public_instance_methods": []
     },
     {

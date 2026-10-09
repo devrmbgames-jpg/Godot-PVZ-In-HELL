@@ -94,6 +94,13 @@
 
 [ext_resource type="Script" path="res://content/domains/motion/components/c_stamina.gd" id="Player_stamina"]
 
+[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="SessionAuthoring"]
+[ext_resource type="Resource" path="res://content/domains/time/definitions/def_entity_day_session.tres" id="SessionTemplate"]
+
+[sub_resource type="Resource" id="SessionAuthoring"]
+script = ExtResource("SessionAuthoring")
+entity_template = ExtResource("SessionTemplate")
+
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
 
@@ -629,6 +636,7 @@ metadata/persistent_local_id = &"placed_entityes_orderreceiving"
 position = Vector3(16, 0.22, -8)
 
 [node name="DaySession" type="Node" parent="Entityes"]
+metadata/entity_composition = SubResource("SessionAuthoring")
 metadata/persistent_local_id = &"placed_entityes_daysession"
 script = ExtResource("Day_entity")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state")])

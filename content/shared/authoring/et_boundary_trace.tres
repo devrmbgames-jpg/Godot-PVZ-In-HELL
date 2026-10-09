@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EntityTrait" format=3]
+
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
+[ext_resource type="Script" path="res://content/shared/components/c_boundary_trace.gd" id="Trace"]
+
+[sub_resource type="Resource" id="Trace"]
+script = ExtResource("Trace")
+
+[resource]
+script = ExtResource("Trait")
+trait_id = &"boundary_trace"
+component_recipes = [SubResource("Trace")]

@@ -3,7 +3,7 @@ extends RefCounted
 class_name LootDropService
 
 #region Сессия и подготовка партии
-## Возвращает сессионную очередь; новый компонент создаётся на границе дискретного события.
+## Читает готовую очередь сессии; отсутствие сессии допустимо вне gameplay World.
 static func current() -> C_LootDrops:
 	if not is_instance_valid(ECS.world):
 		return null
@@ -13,9 +13,7 @@ static func current() -> C_LootDrops:
 		return null
 
 	var queue: C_LootDrops = session.get_component(C_LootDrops) as C_LootDrops
-	if queue == null:
-		queue = C_LootDrops.new()
-		session.add_component(queue)
+	assert(queue != null, "Day session must compose its loot queue before native registration")
 	return queue
 
 ## Проверяет всю партию до изменения источника и превращает авторские стеки в отдельные предметы.

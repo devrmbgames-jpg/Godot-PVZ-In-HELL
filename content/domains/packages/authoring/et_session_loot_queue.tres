@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EntityTrait" format=3]
+
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
+[ext_resource type="Script" path="res://content/domains/packages/components/c_loot_drops.gd" id="Queue"]
+[ext_resource type="Script" path="res://content/domains/time/components/c_day_cycle.gd" id="Day"]
+
+[sub_resource type="Resource" id="Queue"]
+script = ExtResource("Queue")
+
+[resource]
+script = ExtResource("Trait")
+trait_id = &"session_loot_queue"
+required_components = [ExtResource("Day")]
+component_recipes = [SubResource("Queue")]

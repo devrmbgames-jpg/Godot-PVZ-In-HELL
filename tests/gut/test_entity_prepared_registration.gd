@@ -235,6 +235,81 @@ func test_runtime_factory_gate_registers_complete_native_data_once() -> void:
 	world.free()
 #endregion
 
+#region Initial session loot queue
+## Native publication sees the queue, and current() only reads its existing mutable aggregate.
+func test_session_loot_queue_is_complete_before_publication_and_reads_do_not_install() -> void:
+	var world: World = World.new()
+	add_child(world)
+	ECS.world = world
+	var actor: Entity = _loot_session_actor()
+	var delivered: Array[Script] = []
+	actor.component_added.connect(func(_actor: Entity, component: Component) -> void:
+		delivered.append(component.get_script() as Script))
+	var published: Array[C_LootDrops] = []
+	world.entity_added.connect(func(subject: Entity) -> void:
+		published.append(subject.get_component(C_LootDrops) as C_LootDrops))
+	EntityCompositionFixture.register(world, actor)
+	var queue: C_LootDrops = actor.get_component(C_LootDrops) as C_LootDrops
+	assert_eq(published, [queue])
+	assert_not_null(queue)
+	assert_eq(delivered.count(C_LootDrops as Script), 1)
+	var pending: PendingLootDrop = PendingLootDrop.new()
+	pending.drop_id = "fixture/session_loot"
+	queue.pending.append(pending)
+	var before: int = delivered.size()
+	assert_eq(LootDropService.current(), queue)
+	assert_eq(LootDropService.current(), queue)
+	assert_eq(queue.pending, [pending])
+	assert_eq(delivered.size(), before)
+	world.purge(false)
+	world.free()
+	ECS.world = null
+
+
+## Session queue records and containers are private; immutable placement tuning stays shared.
+func test_session_loot_queue_recipes_isolate_runtime_state() -> void:
+	var first: Entity = autofree(_loot_session_actor()) as Entity
+	var second: Entity = autofree(_loot_session_actor()) as Entity
+	var first_plan: EntityBuildPlan = EntityCompositionService.build_plan(
+		EntityCompositionService.context_for(first, null, "fixture/first_session")
+	)
+	var second_plan: EntityBuildPlan = EntityCompositionService.build_plan(
+		EntityCompositionService.context_for(second, null, "fixture/second_session")
+	)
+	assert_true(first_plan.valid())
+	assert_true(second_plan.valid())
+	var first_queue: C_LootDrops = _loot_recipe(first_plan)
+	var second_queue: C_LootDrops = _loot_recipe(second_plan)
+	assert_ne(first_queue, second_queue)
+	assert_eq(first_queue.placement, second_queue.placement)
+	first_queue.pending.append(PendingLootDrop.new())
+	first_queue.committed_batches["fixture/batch"] = true
+	first_queue.reservations.append(AABB(Vector3.ZERO, Vector3.ONE))
+	assert_true(second_queue.pending.is_empty())
+	assert_true(second_queue.committed_batches.is_empty())
+	assert_true(second_queue.reservations.is_empty())
+	assert_true(first.components.is_empty())
+	assert_true(second.components.is_empty())
+
+
+func _loot_session_actor() -> Entity:
+	var actor: Entity = Entity.new()
+	actor.component_resources = [C_DayCycle.new()]
+	var authoring: EntityAuthoring = EntityAuthoring.new()
+	authoring.entity_template = load(
+		"res://content/domains/time/definitions/def_entity_day_session.tres"
+	) as DEF_EntityTemplate
+	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	return actor
+
+
+func _loot_recipe(plan: EntityBuildPlan) -> C_LootDrops:
+	for recipe: Component in plan.component_recipes:
+		if recipe is C_LootDrops:
+			return recipe as C_LootDrops
+	return null
+#endregion
+
 #region Runtime per-Entity reaction barrier
 ## Native multi-Component on_added matching is preserved; callbacks see final bindings exactly once.
 func test_factory_observers_wait_for_readiness_and_preserve_native_initial_counts() -> void:
