@@ -4,7 +4,7 @@ extends Node
 const SAVE_PATH: String = "user://personal_delivery_dialogue_smoke.pvzh"
 const MAX_RECEIVING_FRAMES: int = 900
 const EXPECTED_BATCH_SIZE: int = 5
-const TREE_PATH: String = "res://content/ai/trees/bt_district_npc.tres"
+const TREE_PATH: String = "res://content/domains/customers/ai/trees/bt_district_npc.tres"
 
 var _failed: bool = false
 
@@ -26,17 +26,17 @@ func _run() -> void:
 	else:
 		for frame: int in MAX_RECEIVING_FRAMES:
 			await get_tree().physics_frame
-			if CustomerFlowService.current().visits.size() == EXPECTED_BATCH_SIZE:
+			if CustomerFlowQueries.current().visits.size() == EXPECTED_BATCH_SIZE:
 				break
-		_check(CustomerFlowService.current().visits.size() == EXPECTED_BATCH_SIZE, "real morning batch received")
+		_check(CustomerFlowQueries.current().visits.size() == EXPECTED_BATCH_SIZE, "real morning batch received")
 	level.set_physics_process(false)
 	if _failed:
 		get_tree().quit(1)
 		return
 
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()
-	var district: C_District = DistrictPopulationService.current()
-	DayPhaseService.current().phase = C_DayCycle.Phase.EVENING
+	var district: C_District = NpcPopulationQueries.current()
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.EVENING
 	if not restoring:
 		district.definition = district.definition.duplicate() as DEF_District
 		district.definition.personal_delivery_probability = 0.0
@@ -45,8 +45,8 @@ func _run() -> void:
 		district.delivery_offer_day = 0
 		district.terminal_offer_target = 0
 		district.delivery_considered.clear()
-		for visit: CustomerVisit in CustomerFlowService.current().visits:
-			var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
+		for visit: CustomerVisit in CustomerFlowQueries.current().visits:
+			var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 			_check(parcel != null and PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED, "real box registered")
 
 	var job: NpcHomeDelivery = _personal_job(district)
@@ -60,12 +60,12 @@ func _run() -> void:
 	else:
 		await _negotiate_and_accept(job, player)
 
-	district.definition = load("res://content/definitions/gameplay/npc/def_district_default.tres") as DEF_District
+	district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
 	var snapshot: Dictionary = WorldSnapshotService.capture(level, 1)
 	_check(WorldSnapshotService.valid(snapshot, level), "complete district snapshot remains valid")
 	if restoring:
 		_check(WorldSnapshotService.restore(snapshot, level), "ambush outcome restores without replay")
-		job = NpcDeliveryOfferService.find(job.job_id)
+		job = HomeDeliveryQueries.find(job.job_id)
 		_check(job != null and job.status == NpcHomeDelivery.Status.AMBUSHED, "ambush remains terminal after restore")
 		NpcHomeDeliveryService.finish_evening(1)
 		_check(WalletService.current().operations.is_empty(), "restored scenario grants no money or fine")
@@ -78,9 +78,9 @@ func _run() -> void:
 
 #region Настоящий диалог и LimboAI
 func _negotiate_and_accept(job: NpcHomeDelivery, player: Entity) -> void:
-	var body: E_DistrictNpc = DistrictPopulationService.body_for(job.npc_id)
-	var person: NpcRecord = DistrictPopulationService.person_for(job.npc_id)
-	var visit: CustomerVisit = CustomerFlowService.find_visit(job.visit_id)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(job.npc_id)
+	var person: NpcRecord = NpcPopulationQueries.person_for(job.npc_id)
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(job.visit_id)
 	NpcServiceRole.begin(body, person, visit, 1)
 	(player as Node as Node3D).global_position = body.global_position + Vector3.FORWARD
 	(body.get_component(C_CustomerAgent) as C_CustomerAgent).phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
@@ -96,15 +96,15 @@ func _negotiate_and_accept(job: NpcHomeDelivery, player: Entity) -> void:
 		_check(end_line == null and job.status == NpcHomeDelivery.Status.ACCEPTED, "dialogue accepts actual delivery")
 	context.end()
 	DialogueResourceLifecycle.release_runtime_references(resource)
-	_check(CustomerFlowService.parcel_for(job.package_id) != null and WalletService.current().operations.is_empty(), "offer does not move box or grant money")
+	_check(PackageQueries.find_live_package(job.package_id) != null and WalletService.current().operations.is_empty(), "offer does not move box or grant money")
 
 func _ambush(job: NpcHomeDelivery, player: Entity) -> void:
 	_check(job.status == NpcHomeDelivery.Status.ACCEPTED and job.bargain == NpcHomeDelivery.Bargain.ACCEPTED and job.bonus == floori(job.base_bonus * 1.5), "accepted price and bargain survive restart")
-	var body: E_DistrictNpc = DistrictPopulationService.body_for(job.npc_id)
-	var person: NpcRecord = DistrictPopulationService.person_for(job.npc_id)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(job.npc_id)
+	var person: NpcRecord = NpcPopulationQueries.person_for(job.npc_id)
 	var door: Entity = _door(job.address_id)
 	_check(door != null and NpcHomeDeliveryService.knock(player, door), "same NPC responds at authored home")
-	body.place_at(DistrictPopulationService.position_for(job.address_id))
+	body.place_at(NpcPopulationQueries.position_for(job.address_id))
 	(player as Node as Node3D).global_position = body.global_position + Vector3.FORWARD
 	await get_tree().physics_frame
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
@@ -122,11 +122,11 @@ func _ambush(job: NpcHomeDelivery, player: Entity) -> void:
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	decision.intent_owner = C_NpcDecision.Owner.NONE
 	_check(NpcBrainService.update_tree(body, 0.2), "native production tree selects encounter")
-	_check(job.status == NpcHomeDelivery.Status.AMBUSHED and CombatService.target_for(body) == player, "tree requests combat without receiving box")
+	_check(job.status == NpcHomeDelivery.Status.AMBUSHED and CombatQueries.target_for(body) == player, "tree requests combat without receiving box")
 	_check(InteractionControlFocus.current(player) < InteractionControlFocus.Priority.MODAL and NpcDialogueService.participant(body) == null, "conversation and input released")
-	_check(NpcHomeDeliveryService.meeting_for(body) == null and not body.has_component(C_CustomerAgent), "home and service reservations released")
+	_check(HomeMeetingQueries.meeting_for(body) == null and not body.has_component(C_CustomerAgent), "home and service reservations released")
 	_check(not NpcDeliveryScenarioService.start_ambush(body), "ambush cannot repeat")
-	_check(CustomerFlowService.parcel_for(job.package_id) != null and WalletService.current().operations.is_empty(), "real box and money remain unchanged")
+	_check(PackageQueries.find_live_package(job.package_id) != null and WalletService.current().operations.is_empty(), "real box and money remain unchanged")
 	panel.close_dialogue()
 	DialogueResourceLifecycle.release_runtime_references(resource)
 

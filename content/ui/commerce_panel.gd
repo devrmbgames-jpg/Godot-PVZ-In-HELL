@@ -90,7 +90,7 @@ func _process(delta: float) -> void:
 		return
 
 	var trader: Entity = _shop()
-	if not GrabService.holder_available(_actor) or _actor.has_component(C_Death) or (not _order_mode and (not GrabService.holder_available(trader) or trader.has_component(C_Death))):
+	if not GrabQueries.holder_available(_actor) or _actor.has_component(C_Death) or (not _order_mode and (not GrabQueries.holder_available(trader) or trader.has_component(C_Death))):
 		close_panel()
 		return
 
@@ -105,7 +105,7 @@ func _process(delta: float) -> void:
 #region Модальный сеанс
 ## Захватывает ввод для торговли/заказа и запрашивает доступное задание торговца.
 func open_for(actor: Entity, trader: Entity = null, order_mode: bool = false) -> bool:
-	if _capture != 0 or not GrabService.holder_available(actor) or actor.has_component(C_Death) or CommerceService.current() == null:
+	if _capture != 0 or not GrabQueries.holder_available(actor) or actor.has_component(C_Death) or CommerceService.current() == null:
 		return false
 
 	_actor = actor
@@ -148,7 +148,7 @@ func _shop() -> Entity:
 
 
 func _refresh() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var wallet: C_Wallet = WalletService.current()
 	var commerce: C_Commerce = CommerceService.current()
 	if cycle == null or wallet == null or commerce == null:
@@ -157,17 +157,17 @@ func _refresh() -> void:
 	var shop: Entity = _shop()
 	var shop_state: C_Trader = shop.get_component(C_Trader) as C_Trader if shop != null else null
 	var profile: DEF_TraderProfile = shop_state.profile if shop_state != null else null
-	var allowed: bool = cycle.phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING] if _order_mode else TraderCatalogService.is_open(shop_state, cycle)
+	var allowed: bool = cycle.phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING] if _order_mode else TraderCatalogRules.is_open(shop_state, cycle)
 	_title.text = "Заказ на следующее утро" if _order_mode else profile.display_name if profile != null else "Торговец"
 	var inventory: C_Inventory = _actor.get_component(C_Inventory) as C_Inventory
 	var capacity: String = "%d / %d" % [InventoryService.items(_actor).size(), inventory.maximum_stacks] if inventory != null else "нет"
 	_status.text = "День %d · деньги %d · инвентарь %s\nУсловие: %s · доставка в Morning дня %d\nЗадача: подготовьтесь к следующей смене. %s" % [cycle.day_index, wallet.balance, capacity, "заказы доступны" if allowed else "дождитесь Morning / Evening" if _order_mode else "торговец закрыт", cycle.day_index + 1, _message]
 	if not _order_mode and shop_state != null:
-		_status.text = "День %d · деньги %d · инвентарь %s\n%s · %s\nМебель: забрать в зоне возле торговца, перенести и закрепить молотком. %s" % [cycle.day_index, wallet.balance, capacity, TraderCatalogService.schedule_text(shop_state), "открыто" if allowed else "закрыто", _message]
+		_status.text = "День %d · деньги %d · инвентарь %s\n%s · %s\nМебель: забрать в зоне возле торговца, перенести и закрепить молотком. %s" % [cycle.day_index, wallet.balance, capacity, TraderCatalogRules.schedule_text(shop_state), "открыто" if allowed else "закрыто", _message]
 
 	var catalog: Array[DEF_InventoryItem] = commerce.catalog
 	if not _order_mode and shop != null:
-		catalog = TraderCatalogService.catalog(shop_state)
+		catalog = TraderCatalogRules.catalog(shop_state)
 	var record: RefusalQuestRecord = RefusalQuestService.find(_quest_id)
 	var signature: String = "%d:%d:%d:%s:%s:%d" % [cycle.day_index, cycle.phase, wallet.balance, capacity, _message, record.state if record != null else -1]
 	for item: DEF_InventoryItem in catalog:
@@ -204,19 +204,25 @@ func _refresh() -> void:
 func _show_quest(record: RefusalQuestRecord, cycle: C_DayCycle) -> void:
 	var label: Label = Label.new()
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.text = "Нет нового задания: нужна зарегистрированная посылка для будущего клиента." if record == null else "Задание: не выдавай посылку №%03d.\nСрок: до Night дня %d (осталось %d дней). Награда %d за настоящий отказ. Обычные штрафы и жалобы сохраняются." % [record.display_number, record.deadline_day, maxi(0, record.deadline_day - cycle.day_index), record.reward]
+	if record == null:
+		label.text = "Нет нового задания: нужна зарегистрированная посылка для будущего клиента."
+	else:
+		label.text = record.definition.offer_text.format({
+			"number": "%03d" % record.display_number, "deadline": record.deadline_day,
+			"days": maxi(0, record.deadline_day - cycle.day_index), "reward": record.reward,
+		})
 	_quest.add_child(label)
 	if record == null:
 		return
 	if record.state == RefusalQuestRecord.State.OFFERED:
 		for accept: bool in [true, false]:
 			var button: Button = Button.new()
-			button.text = "Принять задание" if accept else "Отказаться от задания"
+			button.text = record.definition.accept_text if accept else record.definition.ignore_text
 			button.pressed.connect(_quest_choice.bind(record.quest_id, accept))
 			_quest.add_child(button)
 	elif record.state == RefusalQuestRecord.State.ACTIVE:
 		var active: Label = Label.new()
-		active.text = "Задание принято. Отказ в Terminal без реального отказа клиенту не выполняет задачу."
+		active.text = record.definition.accepted_text
 		_quest.add_child(active)
 	else:
 		var resolved: Label = Label.new()
@@ -234,11 +240,11 @@ func _buy(item: DEF_InventoryItem) -> void:
 	var trader: Entity = _shop()
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader if trader != null else null
 	var operation_id: StringName = CommerceService.next_id("order" if _order_mode else "buy")
-	if not _order_mode and TraderCatalogService.can_deliver(shop, item):
+	if not _order_mode and TraderCatalogRules.can_deliver(shop, item):
 		_purchase_item = item
 		_purchase_id = operation_id
 		_purchase_focus = weakref(get_viewport().gui_get_focus_owner()) if get_viewport().gui_get_focus_owner() != null else null
-		_purchase_dialog.dialog_text = "%s\nСамовывоз: %d$ · доставка: %d$\nДоставка утром дня %d." % [item.display_name, item.market_price, item.market_price + shop.profile.delivery_fee, DayPhaseService.current().day_index + shop.profile.delivery_delay_days]
+		_purchase_dialog.dialog_text = "%s\nСамовывоз: %d$ · доставка: %d$\nДоставка утром дня %d." % [item.display_name, item.market_price, item.market_price + shop.profile.delivery_fee, DayPhaseQueries.current().day_index + shop.profile.delivery_delay_days]
 		_delivery_button.text = "Доставить +%d$" % shop.profile.delivery_fee
 		_delivery_button.disabled = WalletService.current().balance < item.market_price + shop.profile.delivery_fee
 		_purchase_dialog.popup_centered()
@@ -328,7 +334,7 @@ func _can_click() -> bool:
 
 
 func _has_input() -> bool:
-	return _capture != 0 and GrabService.holder_available(_actor) and InteractionControlFocus.current(_actor, _capture) < InteractionControlFocus.Priority.MODAL
+	return _capture != 0 and GrabQueries.holder_available(_actor) and InteractionControlFocus.current(_actor, _capture) < InteractionControlFocus.Priority.MODAL
 
 
 func _clear(container: VBoxContainer) -> void:

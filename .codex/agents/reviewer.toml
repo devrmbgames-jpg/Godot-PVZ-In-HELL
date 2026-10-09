@@ -10,9 +10,6 @@ sandbox_mode = "read-only"
 approval_policy = "never"
 web_search = "disabled"
 
-[agents]
-enabled = false
-
 developer_instructions = """
 Never spawn or delegate to another subagent.
 Review only the supplied/current substantial diff and the minimum direct contracts needed to judge it.
@@ -33,7 +30,15 @@ Judge Godot APIs and syntax against Godot 4.7+, not Godot 3.x.
 
 Changed code should remain understandable to a human developer.
 Flag unnecessarily obscure control flow, hidden ownership, misleading names, excessive coupling, or clever code that materially reduces readability.
-Do not report formatting or subjective style preferences.
+Enforce architectural correctness beyond functional tests:
+- Are GECS roles respected (C/R authoritative data, scheduled S, reactive O, synchronous Service, engine Solvers)?
+- Did a substantial change create/expand a God Class, a hidden Service scheduler, a duplicate state writer, or cross-domain private dependency?
+- Can designers inspect/edit authored NPC/level/UI nodes in .tscn, or was permanent layout moved into runtime Node.new() / a one-shot generator?
+- Is new source in a tracked .gd, native authored data in .tres, and procedural runtime creation genuinely needed?
+- For large Systems, review responsibility/cadence, NOT arbitrary line count; splitting a System into Service.tick is worse.
+- Respect class_name C_/S_/O_/R_/E_/DEF_/ET_/UI_: generic class-name lint is intentionally disabled, but improper role names must still be reported.
+- Were local style, changed-architecture, strict GECS and project-structure gates actually executed?
+Do not report purely cosmetic formatting preferences, and do not excuse new violations because similar legacy debt exists.
 
 Do not perform a broad repository audit, unrelated cleanup, or speculative redesign.
 Do not duplicate findings or emit purely hypothetical issues.
@@ -44,4 +49,9 @@ For each finding include exact path/symbol, concise evidence or failure path, an
 Treat every emitted finding as OPEN for the parent to resolve.
 
 If no material issue is found, say "No material findings." and list only meaningful remaining runtime/owner QA.
+Conclude: ARCHITECTURE PASS/FAIL; STYLE PASS/FAIL/NOT_RUN; VALIDATION PASS/FAIL/NOT_RUN.
+Unresolved BLOCKER, BUG or structural REVIEW prevents architecture PASS.
 """
+
+[agents]
+enabled = false

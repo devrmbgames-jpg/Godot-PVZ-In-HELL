@@ -1,0 +1,46 @@
+extends Component
+## Авторские пределы движения и груза, производные и временные данные транспортной тележки.
+class_name C_CartTransport
+
+## Предельная скорость движения вперёд, в метрах в секунду.
+@export var forward_speed: float = 2.0
+## Предельная скорость движения назад, в метрах в секунду.
+@export var reverse_speed: float = 1.5
+## Изменение моторной скорости за секунду, в м/с².
+@export var acceleration: float = 5.0
+## Предельная скорость поворота, в радианах в секунду.
+@export var turn_speed: float = 1.2
+## Максимальная высота преодолеваемой ступеньки, в метрах.
+@export var step_height: float = 0.2
+## Длина прижатия к полу, в метрах.
+@export var floor_snap: float = 0.3
+## Ускорение падения тележки, в м/с².
+@export var gravity: float = 18.0
+## Расстояние за центром тележки до точки водителя, в метрах.
+@export var handle_distance: float = 1.6
+## Предельная скорость следования водителя за ручкой, в метрах в секунду.
+@export var follow_speed: float = 5.0
+## Предел отставания водителя в метрах; поворот и движение, увеличивающее отставание, останавливаются.
+@export var follow_tolerance: float = 0.65
+## Предельная дистанция водителя от тележки, в метрах.
+@export var focus_distance: float = 4.0
+## Время устойчивого нахождения кандидата в кузове до фиксации груза, в секундах.
+@export var cargo_settle_seconds: float = 0.15
+## Предельная относительная скорость кандидата для фиксации, в метрах в секунду.
+@export var cargo_settle_speed: float = 0.5
+## Предельная скорость коррекции груза к локальной точке тележки, в метрах в секунду.
+@export var cargo_follow_speed: float = 8.0
+## Отклонение груза от закреплённого положения до освобождения, в метрах.
+@export var cargo_break_distance: float = 0.35
+
+## Восстанавливаемый обратный кеш груза; авторитетные связи принадлежат R_CartCargo.
+var cargo: Array[Entity] = []
+## Временные таймеры кандидатов в груз, в секундах; не создают владение.
+var settling: Dictionary[int, float] = { }
+## Текущая моторная скорость тележки, в метрах в секунду.
+var drive_speed: float = 0.0
+## Измеренная фактическая мировая скорость тележки, в метрах в секунду.
+var actual_velocity: Vector3 = Vector3.ZERO
+
+## Transient receipt written by S_CartCargo: one settling sample per actual physical frame.
+var cargo_update_frame: int = -1

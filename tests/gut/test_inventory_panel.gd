@@ -21,10 +21,10 @@ func before_each() -> void:
 
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
-	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
 	hunger.value = 60.0
 	_actor.component_resources = [C_Inventory.new(), C_GrabControl.new(), C_Controller.new(), C_Health.new(), hunger]
 	_root.add_child(body)
@@ -59,7 +59,7 @@ func _floor(position: Vector3, size: Vector3) -> void:
 
 
 func _item(key: String, quantity: int = 1) -> Entity:
-	var definition: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_%s.tres" % key) as DEF_InventoryItem
+	var definition: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_%s.tres" % key) as DEF_InventoryItem
 	var item: Entity = Entity.new()
 	var stack: C_InventoryItem = C_InventoryItem.new()
 	stack.definition = definition

@@ -37,7 +37,7 @@ func _run() -> void:
 	interactor.collision_mask = 31
 	_actor.component_resources = [C_Controller.new(), interactor, C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
 	_world.add_entity(_actor)
-	_area = (load("res://content/entities/props/placement_area.tscn") as PackedScene).instantiate() as E_PlacementArea
+	_area = (load("res://content/domains/interaction/entities/placement_area.tscn") as PackedScene).instantiate() as E_PlacementArea
 	(_area as Node as Node3D).position = Vector3(0, 1, -2)
 	_area.anchor.position = Vector3.ZERO
 	_world.add_entity(_area)
@@ -49,29 +49,29 @@ func _run() -> void:
 	var blocker: StaticBody3D = _blocker(Vector3(0, 1, -2), Vector3.ONE * 0.3)
 	await _sync_physics()
 	assert(not CarryPlacementService.place(_actor, _area), "Occupied endpoint must reject")
-	assert(GrabService.held_object(_actor) == item, "Rejected placement must preserve Carry")
+	assert(GrabQueries.held_object(_actor) == item, "Rejected placement must preserve Carry")
 	blocker.position = Vector3(0.5, 1, -1.5)
 	await _sync_physics()
 	assert(not CarryPlacementService.place(_actor, _area), "Clear endpoint behind a wall must reject")
-	assert(GrabService.held_object(_actor) == item)
+	assert(GrabQueries.held_object(_actor) == item)
 	blocker.position = Vector3(10, 1, 0)
 	await _sync_physics()
 	interactor = _actor.get_component(C_Interactor) as C_Interactor
 	ray.target_position = Vector3(0, 0, -3)
 	anchor.position = Vector3(0, 1, -1)
 
-	var carried_body: RigidBody3D = GrabService.physical_body(item)
+	var carried_body: RigidBody3D = GrabQueries.physical_body(item)
 	assert(carried_body != null)
 	carried_body.global_position = Vector3(0, 1, -1)
 	await _sync_physics()
-	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(_actor, interactor)
 	assert(interactor.target == _area, "Held Carry body must not steal PlacementArea focus")
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_actor, DEF_InteractionAction.Slot.INTERACT)
 	assert(choice != null and choice.action is DEF_CarryPlacementAction)
 	assert(choice.action.complete(_actor, choice.source, choice.target))
 
-	var body: RigidBody3D = GrabService.physical_body(item)
-	assert(GrabService.held_object(_actor) == null)
+	var body: RigidBody3D = GrabQueries.physical_body(item)
+	assert(GrabQueries.held_object(_actor) == null)
 	assert(body.global_position.is_equal_approx(_area.anchor.global_position))
 	assert(not body.freeze and PhysicalSlotService.relationship(item) == null)
 	var second: Entity = _box(Vector3(1, 1, -1))
@@ -86,8 +86,8 @@ func _run() -> void:
 	blocker.position = Vector3(0.5, 1, -1.5)
 	await _sync_physics()
 	assert(not CarryPlacementService.place(_actor, _area))
-	assert(GrabService.held_object(_actor) == second)
-	GrabService.release(_actor, second)
+	assert(GrabQueries.held_object(_actor) == second)
+	GrabReleaseService.release(_actor, second)
 	_world.free()
 	ECS.world = null
 	print("R11.1 physical slots placement smoke PASS")
@@ -125,7 +125,7 @@ func _hold(item: Entity) -> void:
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = C_Grabbable.HoldSlot.CARRY
 	item.add_relationship(Relationship.new(grip, _actor))
-	assert(GrabService.held_object(_actor) == item)
+	assert(GrabQueries.held_object(_actor) == item)
 
 
 func _blocker(location: Vector3, size: Vector3) -> StaticBody3D:

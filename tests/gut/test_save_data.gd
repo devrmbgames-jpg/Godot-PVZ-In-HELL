@@ -51,7 +51,7 @@ func test_customer_dispute_round_trip_keeps_actual_declaration_and_retaliation_i
 ## Авторское определение предмета остаётся каноническим; временные блокировки передачи не сохраняются.
 func test_inventory_definition_remains_canonical_and_transient_locks_are_excluded() -> void:
 	var original: C_InventoryItem = C_InventoryItem.new()
-	original.definition = load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem
+	original.definition = load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem
 	original.quantity = 4
 	original.pending_use_id = &"temporary"
 	original.transfer_in_progress = true

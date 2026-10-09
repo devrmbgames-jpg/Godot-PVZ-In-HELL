@@ -14,6 +14,7 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	DialogueUiFixture.install()
 	_world.add_observer(O_Damage.new())
 	_world.add_observer(O_HealthLifecycle.new())
 	_world.add_observer(O_NpcRemains.new())
@@ -24,17 +25,19 @@ func before_each() -> void:
 	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new(), C_CustomerFlow.new()]
 	_root.add_child(session)
 	session.owner = _root
+	FixturePlacedIdentity.assign(_root, session, &"session")
 	_world.add_entity(session, null, false)
 	(session.get_component(C_DayCycle) as C_DayCycle).phase = C_DayCycle.Phase.EVENING
 	(session.get_component(C_Wallet) as C_Wallet).balance = 500
 	_actor = Entity.new()
 
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
 	hunger.value = 80.0
 	_actor.component_resources = [C_Inventory.new(), C_GrabControl.new(), C_Controller.new(), C_Health.new(), hunger, C_PlayerInputController.new()]
 	_root.add_child(_actor)
 	_actor.owner = _root
+	FixturePlacedIdentity.assign(_root, _actor, &"actor")
 	_world.add_entity(_actor, null, false)
 	var floor: StaticBody3D = StaticBody3D.new()
 	var collision: CollisionShape3D = CollisionShape3D.new()
@@ -56,7 +59,7 @@ func after_each() -> void:
 
 
 func _npc(customer: bool = false, loot_chance: float = 0.0) -> E_NpcCharacter:
-	var path: String = "res://content/entities/customers/customer.tscn" if customer else "res://content/entities/commerce/trader.tscn"
+	var path: String = "res://content/domains/customers/entities/customer.tscn" if customer else "res://content/domains/commerce/entities/trader.tscn"
 	var npc: E_NpcCharacter = (load(path) as PackedScene).instantiate() as E_NpcCharacter
 	var components: Array[Component] = npc.component_resources.duplicate()
 	for index: int in components.size():
@@ -64,7 +67,7 @@ func _npc(customer: bool = false, loot_chance: float = 0.0) -> E_NpcCharacter:
 			continue
 
 		var remains: C_NpcRemains = C_NpcRemains.new()
-		remains.definition = (load("res://content/definitions/gameplay/def_npc_remains_default.tres") as DEF_NpcRemains).duplicate() as DEF_NpcRemains
+		remains.definition = (load("res://content/domains/npc/definitions/def_npc_remains_default.tres") as DEF_NpcRemains).duplicate() as DEF_NpcRemains
 		remains.definition.loot_chance = loot_chance
 		components[index] = remains
 	npc.component_resources = components
@@ -156,9 +159,9 @@ func test_dead_trader_stops_native_body_avoidance_and_cannot_sell() -> void:
 	assert_false(npc.navigation_agent.avoidance_enabled)
 	assert_false((npc.get_component(C_Motion) as C_Motion).control_enabled)
 
-	var food: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem
+	var food: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem
 	assert_eq(CommerceService.purchase(_actor, npc, food, 1, &"dead-trader"), CommerceService.Status.INVALID)
-	assert_null(CommercePanelService.open(_actor, npc))
+	assert_null(CommercePanelFactory.open(_actor, npc))
 	assert_eq(WalletService.current().balance, 500)
 
 
@@ -186,7 +189,7 @@ func test_remains_and_dead_trader_restore_without_new_loot_or_night_resurrection
 ## Смерть участника закрывает открытую торговую панель и возвращает игровой фокус.
 func test_open_trading_panel_closes_and_releases_input_when_trader_dies() -> void:
 	var npc: E_NpcCharacter = _npc()
-	var panel: CommercePanel = CommercePanelService.open(_actor, npc)
+	var panel: CommercePanel = CommercePanelFactory.open(_actor, npc)
 	assert_not_null(panel)
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.MODAL)
 	_damage(npc, 200.0)
@@ -213,8 +216,8 @@ func test_customer_remains_survive_visit_and_challenge_cleanup() -> void:
 	(npc.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id = visit.visit_id
 	_damage(npc, 200.0)
 	assert_eq(_drops().size(), 3)
-	CustomerFlowService.tick(flow, cycle, 0.1)
-	assert_null(CustomerFlowService.customer_for(visit.visit_id))
+	CustomerFlowFixture.advance(flow, cycle, 0.1)
+	assert_null(CustomerFlowQueries.customer_for(visit.visit_id))
 	assert_true(visit.customer_dead)
 	assert_true(visit.defeated_by_player)
 	assert_true(visit.finished)

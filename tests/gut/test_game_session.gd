@@ -30,6 +30,9 @@ func _authored(label: String, components: Array[Component]) -> Entity:
 	entity.component_resources = components
 	_root.add_child(entity)
 	entity.owner = _root
+	_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+	entity.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(entity.name))
+	assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 	_world.add_entity(entity, null, false)
 	return entity
 
@@ -97,7 +100,7 @@ func test_preflight_rejects_bad_prefab_roles_without_live_world_changes() -> voi
 	assert_true(WorldSnapshotService.can_restore(data, _root))
 	assert_eq(_world.entities.size(), size_before)
 	for record: Dictionary in data.entities:
-		if String(record.authored_path) == "Actor":
+		if String(record.authored_id) == "placed/fixture/Actor":
 			record.anchor = {"freeze": false, "freeze_mode": 0, "can_sleep": true}
 	assert_false(WorldSnapshotService.can_restore(data, _root), "Entity без native anchor нельзя загрузить")
 	assert_eq(_world.entities.size(), size_before)

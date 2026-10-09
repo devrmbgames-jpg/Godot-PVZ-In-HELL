@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://content/entities/inventory/e_inventory_pickup.gd" id="Entity"]
+[ext_resource type="Script" path="res://content/domains/inventory/entities/e_inventory_pickup.gd" id="Entity"]
 
 [sub_resource type="BoxShape3D" id="Shape"]
 size = Vector3(0.45, 0.2, 0.25)

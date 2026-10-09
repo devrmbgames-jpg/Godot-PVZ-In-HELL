@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DEF_EntityTemplate" format=3]
+
+[ext_resource type="Script" path="res://content/shared/definitions/def_entity_template.gd" id="1_l71jc"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="2_wpjc1"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="3_o1k1g"]
+[ext_resource type="Script" path="res://content/shared/contracts/entity_initial_binding.gd" id="4_o2p2g"]
+[ext_resource type="Script" path="res://content/domains/packages/components/c_package.gd" id="5_sto5l"]
+[ext_resource type="Script" path="res://content/domains/combat/components/c_health.gd" id="6_sj6jl"]
+[ext_resource type="Script" path="res://content/domains/combat/components/c_impact_receiver.gd" id="7_1r53s"]
+[ext_resource type="Script" path="res://content/domains/packages/authoring/et_package_state.gd" id="8_4krgg"]
+
+[sub_resource type="Resource" id="Resource_nyljh"]
+script = ExtResource("8_4krgg")
+trait_id = &"package_state"
+required_components = Array[Script]([ExtResource("5_sto5l"), ExtResource("6_sj6jl"), ExtResource("7_1r53s")])
+required_root_class = &"RigidBody3D"
+
+[resource]
+script = ExtResource("1_l71jc")
+traits = Array[ExtResource("2_wpjc1")]([SubResource("Resource_nyljh")])
+key = &"entity_package"

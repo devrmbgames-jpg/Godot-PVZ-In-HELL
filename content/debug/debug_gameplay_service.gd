@@ -4,9 +4,9 @@ class_name DebugGameplayService
 
 const SLOT_DIRECTORY: String = "user://debug_slots"
 const MAX_SLOT_LENGTH: int = 32
-const ITEM_DIRECTORY: String = "res://content/definitions/gameplay/inventory"
-const CHALLENGE_DIRECTORY: String = "res://content/definitions/gameplay/challenges"
-const MEAT_SCENE: PackedScene = preload("res://content/entities/inventory/npc_meat_pickup.tscn")
+const ITEM_DIRECTORY: String = "res://content/domains/inventory/definitions"
+const CHALLENGE_DIRECTORY: String = "res://content/domains/challenges/definitions"
+const MEAT_SCENE: PackedScene = preload("res://content/domains/inventory/entities/npc_meat_pickup.tscn")
 const MEAT_OFFSET: Vector3 = Vector3(0.0, 0.6, -1.0)
 
 
@@ -36,7 +36,7 @@ static func item(key: String) -> DEF_InventoryItem:
 ## Разрешает QA-цель; для визита возвращает его действующего получателя, иначе Entity цели.
 static func subject(raw: String) -> Entity:
 	var target: DebugTarget = DebugTargetResolver.resolve(raw)
-	return CustomerFlowService.customer_for(target.visit.visit_id) if target.visit != null else target.entity
+	return CustomerFlowQueries.customer_for(target.visit.visit_id) if target.visit != null else target.entity
 
 
 #endregion
@@ -58,7 +58,7 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 		"hunger":
 			var state: C_Hunger = entity.get_component(C_Hunger) as C_Hunger
 			if state == null or state.policy == null: return failure("Target has no hunger policy")
-			lines.append("entity=%s value=%.1f range=0..%.1f tier=%s speed_multiplier=%.2f damage_multiplier=%.2f" % [entity.id, state.value, state.policy.maximum, C_Hunger.Tier.keys()[HungerService.tier(state)], HungerService.speed_multiplier(state), HungerService.damage_multiplier(state)])
+			lines.append("entity=%s value=%.1f range=0..%.1f tier=%s speed_multiplier=%.2f damage_multiplier=%.2f" % [entity.id, state.value, state.policy.maximum, C_Hunger.Tier.keys()[HungerRules.tier(state)], HungerRules.speed_multiplier(state), HungerRules.damage_multiplier(state)])
 
 		"inventory":
 			var state: C_Inventory = entity.get_component(C_Inventory) as C_Inventory
@@ -73,9 +73,9 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 			var trader: Entity = trader_for(raw)
 			if trader == null: return failure("Live trader unavailable")
 			var shop: C_Trader = trader.get_component(C_Trader) as C_Trader
-			lines.append("entity=%s open=%s schedule=%s" % [trader.id, TraderCatalogService.is_open(shop, DayPhaseService.current()), TraderCatalogService.schedule_text(shop)])
+			lines.append("entity=%s open=%s schedule=%s" % [trader.id, TraderCatalogRules.is_open(shop, DayPhaseQueries.current()), TraderCatalogRules.schedule_text(shop)])
 			if shop.profile != null: lines.append("profile=%s courier=%s fee=%d delay_days=%d" % [shop.profile.key, shop.profile.home_delivery_enabled, shop.profile.delivery_fee, shop.profile.delivery_delay_days])
-			for offer: DEF_InventoryItem in TraderCatalogService.catalog(shop):
+			for offer: DEF_InventoryItem in TraderCatalogRules.catalog(shop):
 				if offer != null: lines.append("key=%s price=%d max_stack=%d kind=%s" % [offer.key, offer.market_price, offer.maximum_stack, DEF_InventoryItem.Kind.keys()[offer.kind]])
 
 		"order":
@@ -95,11 +95,11 @@ static func info(kind: String, raw: String = "self") -> DebugServiceResult:
 		"npc":
 			var state: C_NpcCombat = entity.get_component(C_NpcCombat) as C_NpcCombat
 			if state == null: return failure("Target has no NPC attacks")
-			var victim: Entity = CombatService.target_for(entity)
+			var victim: Entity = CombatQueries.target_for(entity)
 			lines.append("entity=%s phase=%s target=%s cooldown=%.2fs automatic=%s" % [entity.id, C_NpcCombat.Phase.keys()[state.phase], victim.id if victim != null else "none", state.cooldown_remaining, state.automatic_attack_selection])
 			var agent: C_CustomerAgent = entity.get_component(C_CustomerAgent) as C_CustomerAgent
 			if agent != null:
-				var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+				var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 				lines.append("visit=%s phase=%s profile=%s" % [agent.visit_id, C_CustomerAgent.Phase.keys()[agent.phase], visit.definition.key if visit != null and visit.definition != null else &""])
 			for kind_value: C_NpcCombat.Kind in [C_NpcCombat.Kind.MELEE, C_NpcCombat.Kind.RANGED]:
 				for index: int in C_NpcCombat.MAX_VARIANTS:
@@ -157,13 +157,17 @@ static func trader_for(raw: String = "") -> Entity:
 static func meat_spawn() -> DebugServiceResult:
 	var actor: Entity = DebugTargetResolver.player()
 	var node: Node3D = actor as Node as Node3D
-	if not GrabService.holder_available(actor) or node == null: return failure("Live physical player unavailable")
+	if not GrabQueries.holder_available(actor) or node == null: return failure("Live physical player unavailable")
 	var meat: Entity = MEAT_SCENE.instantiate() as Entity
 	# Позиция задаётся однократно при создании; дальнейшее движение принадлежит физическому телу.
 	var position: Vector3 = node.global_transform * MEAT_OFFSET
 	node.get_parent().add_child(meat)
 	(meat as Node as Node3D).global_position = position
-	ECS.world.add_entity(meat, null, false)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(meat, ECS.world,
+		meat.id if not meat.id.is_empty() else GECSIO.uuid())
+	if not EntityCompositionService.try_register(context, false):
+		meat.free()
+		return failure("Meat composition rejected")
 	return success(PackedStringArray(["entity=%s; edible physical meat spawned" % meat.id]))
 
 
@@ -174,7 +178,7 @@ static func meat_spawn() -> DebugServiceResult:
 static func save_slot(slot: String, writing: bool) -> DebugServiceResult:
 	var path: String = slot_path(slot)
 	if path.is_empty(): return failure("Slot requires 1..32 ASCII letters/digits/_/-. No paths; gameplay autosave is never used")
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING or not is_instance_valid(ECS.world): return failure("Persistence testing requires Morning; existing save contract restores a Morning snapshot")
 	if not ECS.world.query.with_all([C_CustomerAgent]).with_none([C_Death]).execute().is_empty(): return failure("Finish live visits before persistence testing")
 	for actor: Entity in ECS.world.entities:

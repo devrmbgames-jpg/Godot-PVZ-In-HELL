@@ -17,8 +17,8 @@ func _run() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate() as Node3D
 	_level.set("autosave_path", "")
 	add_child(_level)
-	_cycle = DayPhaseService.current()
-	_flow = CustomerFlowService.current()
+	_cycle = DayPhaseQueries.current()
+	_flow = CustomerFlowQueries.current()
 	_cycle.day_index = 2
 	_cycle.minimum_shift_seconds = 0.0
 	DistrictPopulationService.prepare_morning(2)
@@ -32,7 +32,7 @@ func _run() -> void:
 		_check(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED, "registration")
 	_check_authored_service_light()
 
-	var routes: NpcServiceRoutes = _level.get_node(DistrictPopulationService.current().definition.service_routes_path) as NpcServiceRoutes
+	var routes: NpcServiceRoutes = _level.get_node(NpcPopulationQueries.current().definition.service_routes_path) as NpcServiceRoutes
 	_check(routes != null, "explicit scene routes")
 	for route_index: int in 2:
 		for point_index: int in 2:
@@ -55,7 +55,7 @@ func _run() -> void:
 			var agent: C_CustomerAgent = candidate.get_component(C_CustomerAgent) as C_CustomerAgent
 			if candidate.has_component(C_Death) or agent.phase not in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE, C_CustomerAgent.Phase.DIALOGUE]:
 				continue
-			var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+			var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 			var wait_seconds: float = float(Engine.get_physics_frames() - previous_departure) / float(Engine.physics_ticks_per_second) if previous_departure > 0 else 0.0
 			print("Second day arrival ", visit.customer_id, " wait=", snappedf(wait_seconds, 0.01))
 			arrived += 1
@@ -63,15 +63,15 @@ func _run() -> void:
 			NpcServiceRole.finish_appearance(candidate as E_DistrictNpc, visit)
 			previous_departure = Engine.get_physics_frames()
 		for visit: CustomerVisit in _flow.visits:
-			var person: NpcRecord = DistrictPopulationService.person_for(visit.customer_id)
+			var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
 			if visit.deferred_day == 2 and person.profile.rule_for(DEF_NpcTrait.Kind.LIGHT_AVERSION) != null:
 				light_deferred = true
 				_check(visit.actual == CustomerVisit.Actual.NOT_RESOLVED and visit.declaration == CustomerVisit.Declaration.NONE, "light timeout does not fake delivery or loss")
-		if light_deferred and CustomerFlowService.actionable_remaining(_flow, 2) == 0:
+		if light_deferred and CustomerFlowQueries.actionable_remaining(_flow, 2) == 0:
 			break
 	_check(arrived >= 2, "available recipients reach the counter by ordinary movement")
 	_check(light_deferred, "last light-averse case leaves finite wait")
-	_check(CustomerFlowService.actionable_remaining(_flow, 2) == 0, "no required unreachable case remains")
+	_check(CustomerFlowQueries.actionable_remaining(_flow, 2) == 0, "no required unreachable case remains")
 	_check(DayPhaseService.finish_blockers(_cycle).is_empty(), "second day can finish")
 	for visit: CustomerVisit in _flow.visits:
 		_check(visit.finished, "every real case ends or is explicitly deferred")
@@ -87,17 +87,17 @@ func _run() -> void:
 	get_tree().quit(1 if _failed else 0)
 
 func _check_authored_service_light() -> void:
-	var config: DEF_District = DistrictPopulationService.current().definition
+	var config: DEF_District = NpcPopulationQueries.current().definition
 	var zone: NpcLightZone = _level.get_node("LightZones/RoomClient") as NpcLightZone
 	var view: CircuitLightView = zone.get_node(zone.flicker_view_path) as CircuitLightView
-	var sample: Vector3 = CustomerFlowService.counter().waiting_position() + Vector3.UP
+	var sample: Vector3 = CustomerFlowQueries.counter().waiting_position() + Vector3.UP
 	_check(zone.contains_point(sample), "authored light volume covers service counter")
 	_check(LightCircuitService.set_by_id(config.service_light_circuit, false), "authored switch disables service light")
 	_check(NpcLightingService.exposure_at(sample) == config.ambient_light, "switch-off changes authored illumination")
 	_check(LightCircuitService.set_by_id(config.service_light_circuit, true), "authored switch enables service light")
 	_check(NpcLightingService.exposure_at(sample) > config.ambient_light, "switch-on changes authored illumination")
-	_check(LightCircuitService.flicker(config.service_light_circuit, config.service_flicker_seconds, LightFlickerEvent.DEFAULT_INTERVAL_SECONDS, &"smoke/light"), "actual service lamps receive flicker")
-	view._process(LightFlickerEvent.DEFAULT_INTERVAL_SECONDS * 1.1)
+	_check(LightCircuitService.flicker(config.service_light_circuit, config.service_flicker_seconds, LightFlickerRequest.DEFAULT_INTERVAL_SECONDS, &"smoke/light"), "actual service lamps receive flicker")
+	view._process(LightFlickerRequest.DEFAULT_INTERVAL_SECONDS * 1.1)
 	_check(not zone.is_lit() and zone.is_logically_lit(), "dark pulse preserves logical switch state")
 	_check(NpcLightingService.exposure_at(sample, [], null, true) > config.ambient_light, "dark pulse does not permit light-averse entry")
 	LightCircuitService.stop_flicker(config.service_light_circuit, &"smoke/light")
@@ -106,9 +106,9 @@ func _check_authored_service_light() -> void:
 
 func _nearby_recipients() -> int:
 	var count: int = 0
-	var station: E_DeliveryCounter = CustomerFlowService.counter()
-	for person: NpcRecord in DistrictPopulationService.current().people:
-		var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
+	var station: E_DeliveryCounter = CustomerFlowQueries.counter()
+	for person: NpcRecord in NpcPopulationQueries.current().people:
+		var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 		if body != null and body.has_component(C_CustomerAgent) and body.global_position.distance_to(station.entry_position()) < READY_RADIUS:
 			count += 1
 	return count

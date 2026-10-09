@@ -95,9 +95,9 @@ function Test-IgnoredCertificateStoreError([string]$Line) {
 	return $Line -match "^ERROR: Failed to read the root certificate store\.$"
 }
 
-function Test-SmokeLog([string[]]$LogLines) {
+function Test-SmokeLog([string[]]$LogLines, [string]$CompletionPattern = "(?m)(?:^PASS(?:\s|:|$)|\bsmoke PASS\s*$)") {
 	[string[]]$failures = @()
-	if (-not ($LogLines -match "(?m)(?:^PASS(?:\s|:|$)|\bsmoke PASS\s*$)")) {
+	if (-not ($LogLines -match $CompletionPattern)) {
 		$failures += "PASS line was not found"
 	}
 
@@ -149,42 +149,65 @@ New-Item -ItemType Directory -Path $artifactDirectory -Force | Out-Null
 
 foreach ($scene in $selectedScenes) {
 	[string]$smokeName = Get-SmokeName $scene
-	[int]$frameBudget = if ($PSBoundParameters.ContainsKey("Frames")) { $Frames } elseif ($smokeName -eq "district") { 16000 } elseif ($smokeName -eq "cart_transport") { 2400 } else { 360 }
-	[string]$timestamp = Get-Date -Format "yyyyMMdd-HHmmssfff"
-	[string]$logPath = Join-Path $artifactDirectory "$smokeName-$timestamp.log"
+	# These contracts require an actual process restart, with phase-specific completion checks.
+	[hashtable]$restartSmokes = @{
+		"safe_loot_placement" = "Safe loot smoke"
+		"furniture_arrival" = "Furniture arrival smoke"
+		"trader_purchase" = "Trader purchase smoke"
+		"night_persistence" = "Night persistence smoke"
+	}
+	[string[]]$phases = if ($restartSmokes.ContainsKey($smokeName)) { @("write", "restore") } else { @("run") }
+	[int]$frameBudget = if ($PSBoundParameters.ContainsKey("Frames")) { $Frames } elseif ($smokeName -eq "district") { 16000 } elseif ($smokeName -eq "cart_transport") { 2400 } elseif ($phases.Count -gt 1) { 1600 } else { 360 }
 	[string]$scenePath = $scene.FullName
 
-	[string]$stdoutPath = "$logPath.stdout"
-	[string]$stderrPath = "$logPath.stderr"
-	[hashtable]$launch = @{
-		FilePath = $godot
-		ArgumentList = @("--headless", "--fixed-fps", "60", "--path", ('"' + $repositoryRoot + '"'), ('"' + $scenePath + '"'), "--quit-after", $frameBudget)
-		RedirectStandardOutput = $stdoutPath
-		RedirectStandardError = $stderrPath
-		Wait = $true
-		PassThru = $true
-	}
-	if ($env:OS -eq "Windows_NT") {
-		$launch.WindowStyle = "Hidden"
-	}
-	# Native file redirects avoid Windows PowerShell turning stderr into terminating ErrorRecords.
-	[System.Diagnostics.Process]$process = Start-Process @launch
-	[int]$exitCode = $process.ExitCode
-	[string[]]$nativeLines = @(Get-Content -LiteralPath @($stdoutPath, $stderrPath))
-	[System.IO.File]::WriteAllLines($logPath, $nativeLines, [System.Text.Encoding]::UTF8)
-	Remove-Item -LiteralPath @($stdoutPath, $stderrPath)
-	[string[]]$logLines = @(Get-Content -LiteralPath $logPath)
-	[string[]]$failures = @(Test-SmokeLog $logLines)
-	if ($exitCode -ne 0) {
-		$failures += "Godot exited with code $exitCode"
-	}
+	foreach ($phase in $phases) {
+		[string]$timestamp = Get-Date -Format "yyyyMMdd-HHmmssfff"
+		[string]$runName = if ($phase -eq "run") { $smokeName } else { "$smokeName-$phase" }
+		[string]$logPath = Join-Path $artifactDirectory "$runName-$timestamp.log"
+		[string]$stdoutPath = "$logPath.stdout"
+		[string]$stderrPath = "$logPath.stderr"
+		[string[]]$engineArguments = @("--headless", "--fixed-fps", "60", "--path", ('"' + $repositoryRoot + '"'), ('"' + $scenePath + '"'), "--quit-after", $frameBudget)
+		if ($phase -eq "restore") {
+			$engineArguments += @("--", "restore")
+		}
 
-	if ($failures.Count -eq 0) {
-		Write-Output "PASS $smokeName ($logPath)"
-	} else {
-		$allPassed = $false
-		Write-Output "FAIL $smokeName ($logPath)"
-		$failures | Select-Object -Unique | ForEach-Object { Write-Output "  $_" }
+		[hashtable]$launch = @{
+			FilePath = $godot
+			ArgumentList = $engineArguments
+			RedirectStandardOutput = $stdoutPath
+			RedirectStandardError = $stderrPath
+			Wait = $true
+			PassThru = $true
+		}
+		if ($env:OS -eq "Windows_NT") {
+			$launch.WindowStyle = "Hidden"
+		}
+		# Native redirects keep stderr available for validation without PowerShell ErrorRecord conversion.
+		[System.Diagnostics.Process]$process = Start-Process @launch
+		[int]$exitCode = $process.ExitCode
+		[string[]]$nativeLines = @(Get-Content -LiteralPath @($stdoutPath, $stderrPath))
+		[System.IO.File]::WriteAllLines($logPath, $nativeLines, [System.Text.Encoding]::UTF8)
+		Remove-Item -LiteralPath @($stdoutPath, $stderrPath)
+		[string[]]$logLines = @(Get-Content -LiteralPath $logPath)
+		[string[]]$failures = @()
+		if ($phase -eq "run") {
+			$failures = @(Test-SmokeLog $logLines)
+		} else {
+			[string]$completionPattern = "^" + [regex]::Escape($restartSmokes[$smokeName] + " " + $phase + ": PASS") + "$"
+			$failures = @(Test-SmokeLog $logLines $completionPattern)
+		}
+		if ($exitCode -ne 0) {
+			$failures += "Godot exited with code $exitCode"
+		}
+
+		if ($failures.Count -eq 0) {
+			Write-Output "PASS $runName ($logPath)"
+		} else {
+			$allPassed = $false
+			Write-Output "FAIL $runName ($logPath)"
+			$failures | Select-Object -Unique | ForEach-Object { Write-Output "  $_" }
+			break
+		}
 	}
 }
 

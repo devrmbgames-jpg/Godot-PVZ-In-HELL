@@ -29,10 +29,10 @@ func _run() -> void:
 	else:
 		for frame: int in MAX_RECEIVING_FRAMES:
 			await get_tree().physics_frame
-			if CustomerFlowService.current().visits.size() == EXPECTED_BATCH_SIZE:
+			if CustomerFlowQueries.current().visits.size() == EXPECTED_BATCH_SIZE:
 				break
 	level.set_physics_process(false)
-	var district: C_District = DistrictPopulationService.current()
+	var district: C_District = NpcPopulationQueries.current()
 	if not restoring:
 		district.definition = district.definition.duplicate() as DEF_District
 		district.definition.terminal_delivery_minimum = 3
@@ -41,8 +41,8 @@ func _run() -> void:
 		district.delivery_offer_day = 0
 		district.terminal_offer_target = 0
 		district.delivery_considered.clear()
-		for visit: CustomerVisit in CustomerFlowService.current().visits:
-			_check(PackageRegistrationService.register_package(CustomerFlowService.parcel_for(visit.package_id)).outcome == PackageScanResult.Outcome.REGISTERED, "real received parcel registered")
+		for visit: CustomerVisit in CustomerFlowQueries.current().visits:
+			_check(PackageRegistrationService.register_package(PackageQueries.find_live_package(visit.package_id)).outcome == PackageScanResult.Outcome.REGISTERED, "real received parcel registered")
 	var private_job: NpcHomeDelivery = null
 	var terminal_jobs: Array[NpcHomeDelivery] = []
 	for job: NpcHomeDelivery in district.home_deliveries:
@@ -80,13 +80,13 @@ func _run() -> void:
 		panel._on_package_selected(second.package_id)
 		(_line(panel, second.package_id).get_node("%ButtonDeloveryCancel") as Button).pressed.emit()
 		_check(second.status == NpcHomeDelivery.Status.DECLINED, "real button declines optional delivery")
-		var visit: CustomerVisit = CustomerFlowService.find_visit(second.visit_id)
-		_check(CustomerFlowService.create_complaint(visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true), "known complaint created")
+		var visit: CustomerVisit = CustomerFlowQueries.find_visit(second.visit_id)
+		_check(CustomerVisitLifecycle.create_complaint(visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true), "known complaint created")
 		visit.complaint.message = COMPLAINT_TEXT
 		panel._refresh(true)
 		_check(COMPLAINT_TEXT in _description(panel), "known complaint rendered")
 		panel.close_panel()
-		district.definition = load("res://content/definitions/gameplay/npc/def_district_default.tres") as DEF_District
+		district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
 		var data: Dictionary = WorldSnapshotService.capture(level, 1)
 		_check(WorldSnapshotService.valid(data, level), "snapshot includes valid read markers and decisions")
 		_check(AutosaveStore.write(data, SAVE_PATH) == OK, "dedicated slot written")
@@ -106,7 +106,7 @@ func _run() -> void:
 		_check(not (_line(panel, second.package_id).get_node("%TextureAlertIconWar") as Control).visible, "read complaint does not become unread after restart")
 		panel.close_panel()
 		_cleanup_slot()
-	_check(CustomerFlowService.parcel_for(first.package_id) != null and CustomerFlowService.parcel_for(second.package_id) != null, "decisions preserve physical boxes")
+	_check(PackageQueries.find_live_package(first.package_id) != null and PackageQueries.find_live_package(second.package_id) != null, "decisions preserve physical boxes")
 	_check(WalletService.current().operations.size() == 0, "UI decisions do not issue money")
 	print("District terminal delivery smoke ", "restore" if restoring else "write", ": ", "FAIL" if _failed else "PASS")
 	get_tree().quit(1 if _failed else 0)

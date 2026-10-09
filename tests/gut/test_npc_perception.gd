@@ -20,6 +20,8 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	_world.add_observer(O_LightCircuitPresentation.new())
+	_world.add_observer(O_PlayerInteractionNoise.new())
 
 	var session_node: Node = Node.new()
 	session_node.set_script(load("res://addons/gecs/ecs/entity.gd"))
@@ -56,7 +58,7 @@ func after_each() -> void:
 
 func _actor(world_position: Vector3) -> E_DistrictNpc:
 	var body: RigidBody3D = RigidBody3D.new()
-	body.set_script(load("res://content/entities/npc/e_district_npc.gd"))
+	body.set_script(load("res://content/domains/npc/entities/e_district_npc.gd"))
 	var actor: E_DistrictNpc = body as Node as E_DistrictNpc
 	actor.component_resources = [C_Health.new(), C_NpcAwareness.new(), C_NpcDecision.new(), C_NpcIntent.new(), C_NpcCombat.new(), C_NpcIdentity.new()]
 	body.freeze = true
@@ -96,7 +98,7 @@ func test_held_upper_body_cover_does_not_hide_visible_legs() -> void:
 	box.global_position = Vector3(0, 1.25, -2.5)
 	item.add_relationship(Relationship.new(R_HeldBy.new(), _target))
 	await _synchronize()
-	assert_same(GrabService.held_relationship(item).target, _target)
+	assert_same(GrabQueries.held_relationship(item).target, _target)
 	assert_true(NpcPerceptionService.can_see(_observer, _target, _profile))
 	shape.size.y = 2.0
 	box.global_position.y = 0.85
@@ -151,13 +153,13 @@ func test_hidden_target_position_never_updates_search_memory() -> void:
 	person.profile = _profile
 	CombatService.bind_target(_observer, _target)
 	await _synchronize()
-	NpcPerceptionService.sense(_observer, person, _target, 0.2)
+	NpcAiFixture.sense(_observer, person, _target, 0.2)
 	var awareness: C_NpcAwareness = _observer.get_component(C_NpcAwareness) as C_NpcAwareness
 	var confirmed: Vector3 = awareness.last_seen_position
 	_wall.position = Vector3(0, 1.5, -1.5)
 	_target.place_at(Vector3(0.5, 0, -6))
 	await _synchronize()
-	NpcPerceptionService.sense(_observer, person, _target, 0.2)
+	NpcAiFixture.sense(_observer, person, _target, 0.2)
 	assert_false(awareness.target_visible)
 	assert_eq(awareness.last_seen_position, confirmed)
 	assert_almost_eq(awareness.search_elapsed, 0.2, 0.001)
@@ -204,7 +206,7 @@ func test_interaction_noise_is_anonymous() -> void:
 	PlayerInteractionEvents.publish(_observer, _target, PlayerInteractionEvent.Kind.DOOR_OPENED)
 	assert_eq(_district.noises.size(), 1)
 	assert_eq(_district.noises[0].position, _target.global_position)
-	assert_null(CombatService.target_for(_target))
+	assert_null(CombatQueries.target_for(_target))
 
 ## Шум за укрытием даёт место интереса без знания личности или создания противника.
 func test_hearing_does_not_reveal_source_identity() -> void:
@@ -218,6 +220,6 @@ func test_hearing_does_not_reveal_source_identity() -> void:
 
 	var awareness: C_NpcAwareness = _observer.get_component(C_NpcAwareness) as C_NpcAwareness
 	assert_eq(awareness.heard_position, noise.position)
-	assert_null(CombatService.target_for(_observer))
+	assert_null(CombatQueries.target_for(_observer))
 	assert_false(awareness.target_visible)
 #endregion

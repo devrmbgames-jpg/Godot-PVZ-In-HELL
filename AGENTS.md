@@ -8,10 +8,13 @@ Start from the user's task and the exact files, symbols, errors, scenes, or reso
 - GECS v8 is pinned under `addons/gecs/`; checked-out source is the API authority. `addons/` is read-only unless addon/dependency work is explicit.
 - Project-owned GDScript is statically typed. Declare concrete types when inference crosses Variant/untyped APIs, containers, dynamic lookup, or broad Object/Node boundaries. Avoid local/member/parameter names that shadow existing or inherited properties/methods.
 - Project-owned GDScript is written for humans first: clarity and explicit intent take priority over cleverness or brevity. Give each script a short `##` description; document public variables, every `@export` field, signals, and public methods with concise `##` comments; group methods by responsibility inside named `#region ...` / `#endregion` blocks. Inside non-trivial functions, separate distinct logical phases with a single blank line and add a short intent comment above non-obvious multi-step blocks. Do not compress setup, guards, state changes, side effects, and follow-up work into one dense uninterrupted block. Keep closely related statements together and do not add blank lines or comments mechanically.
-- Components contain data/state. Relationships own authoritative live Entity-to-Entity bindings. Systems are scheduled behavior and do not call other Systems as services. Reusable imperative logic belongs in services/solvers/observers or thin Entity/engine glue.
+- Components contain data/state. Relationships own authoritative live Entity-to-Entity bindings. Systems own scheduled behavior and do not call other Systems as services. Services own explicit synchronous operations; extracting a recurring tick into a Service does not change its scheduled ownership. Canonical role/selection rules live in [content/ARCHITECTURE.md](content/ARCHITECTURE.md#canonical-roles-and-ownership).
 - Typed records nested in an ECS-owned Component may form an aggregate with one explicit writer; they are not a second runtime model merely because they are Resources. Mark derived caches, immutable identity references and terminal history; reject competing mutable authorities.
 - Godot physics bodies own physical transform/velocity unless an explicit synchronization contract says otherwise.
 - Preserve scene/resource/data contracts unless migration is explicit: exported properties, node names/paths, signals, authored IDs, relationship/component ownership, and resource paths.
+- Scene-first authoring: permanent levels, visible placed NPC/objects, reusable physical actors and stable UI/HUD layouts belong in editable native `.tscn`; authored definitions/tuning belong in typed `.tres`. Dynamic spawn/procedural effects are exceptions, not a shortcut for writing permanent scene trees in `_ready()`. Never generate gameplay source `.gd` or authored `.tscn` from runtime.
+- A large `S_*` System is acceptable when it has one coherent scheduled responsibility; do not hide its tick in a Service just to reduce line count. Do not add more unrelated responsibilities to an existing large script or create one-shot generators that replace editable authored content.
+- Human-readable `class_name` role prefixes `C_`, `S_`, `O_`, `R_`, `E_`, `DEF_`, `ET_`, `UI_` are intentional. Never rename them to satisfy generic `PascalCase` lint. Project style checks disable only the generic `class-name` rule and independently verify valid role-aware names.
 - Behavior/glue/UI members are private by default; all `@onready` members are private. Public mutable fields are deliberate data/API contracts only.
 - Avoid unexplained gameplay constants; use named constants or authored/data-driven values.
 - Synchronous gameplay code trusts its required lifetime/type/component contracts. Do not scatter `null` / `is_instance_valid()` guards over mandatory Entity/Node arguments, required Components, or `ECS.world`. Revalidate only when a reference intentionally crossed a time/lifetime boundary (deferred/queued call or signal, queued World event/request, `await`/timer, stored callback/reference) or when the value is explicitly optional. For suspicious invariant violations, prefer a side-effect-free `assert(...)` in debug code over silently returning; fix the owner/lifecycle contract instead of normalizing invalid state.
@@ -66,6 +69,7 @@ Load a skill only when its domain is actually involved:
 - player input/rebinding/deadzones and control-focus routing: `.agents/skills/input-systems/SKILL.md`;
 - first/third-person camera ownership, smoothing, recoil/shake and camera bugs: `.agents/skills/camera-systems/SKILL.md`;
 - HUD/menu/dialogue UI layout, focus, modal lifecycle and accessibility: `.agents/skills/game-ui-ux/SKILL.md`;
+- creating or substantially altering authored `.tscn`, placed NPCs, levels or stable HUD/menu layouts: `.agents/skills/godot-scene-authoring/SKILL.md`;
 - first-person combat targeting/feel and damage-boundary composition: `.agents/skills/first-person-combat/SKILL.md`;
 - player-facing game design: `.agents/skills/professional-game-design/SKILL.md`.
 
@@ -79,6 +83,8 @@ Prefer ordinary file/search/edit tools when cheaper. Use MCP when live scene tre
 
 If live MCP access matters and the editor is not running, the agent may start it with `.vscode/start-godot.ps1`. Do not launch gameplay/rendered playtests, capture visual evidence, or perform subjective visual validation unless the user explicitly approved it for the task.
 
+If MCP needs Godot, launch Godot automatically.
+If the Editor blocks MCP because a scene or project file must be updated, close Godot, apply the update, and relaunch it if needed.
 
 ### Scene ownership
 
@@ -94,12 +100,14 @@ Routine work stays in the main GPT-6.1 Sol session. Optional native Codex subage
 - `reviewer` — read-only focused review of a substantial completed diff;
 - `validator` — explicitly assigned bounded validation with concise PASS/FAIL output.
 
-Run at most one subagent at a time and integrate it before starting another. Architecture/ownership/physics/GECS decisions remain with the main agent.
+Run at most one subagent at a time and integrate it before starting another. Architecture/ownership/physics/GECS decisions remain with the main agent. **Substantive feature/refactor/scene changes must have an architectural review before DONE**, even when Godot/GUT pass. Delegate to `reviewer` sequentially when authorized/available; otherwise self-review explicitly marked non-independent. Triage every BLOCKER/BUG/REVIEW finding, and never claim an unrun check passed.
 
 ## Validation and commits
 
 Use the cheapest check that can falsify the change. Do not run GUT, smoke, or broad runtime checks after every small edit.
 
+- For project-owned GDScript, run `python utils/check_gdscript_format.py --changed` before a coherent commit. It checks changed lines/new files without rewriting unrelated legacy code. Missing GDQuest `gdscript-formatter` is **NOT_RUN (exit 2)**, never PASS. To check a committed milestone compare with its original base using `--base <revision>`; Phase 3 uses `--strict`.
+- For substantial code/scene work, run `python utils/validate_agent_changes.py`, `python -B utils/validate_architecture.py --strict`, and `python utils/validate_project_structure.py` after the coherent batch. `validate_agent_changes.py --staged` checks the Git index; `--report-only` is **not** a valid PASS. Static checks supplement architectural review, not replace it.
 - Run changed-file/static checks and `python utils/validate_project_structure.py` when structure/contracts are affected.
 - Before completing GDScript work, validate the changed project-owned `.gd` files with Godot's parser near the end of the coherent edit batch. Resolve new/relevant parse or reload warnings as well as errors; do not launch gameplay merely for this check.
 - For a complete large implementation, normally run one relevant GUT surface and one relevant headless smoke/runtime check near completion unless the exact task says otherwise.
@@ -108,3 +116,11 @@ Use the cheapest check that can falsify the change. Do not run GUT, smoke, or br
 - Runnable Windows QA builds under `.export/` are for completed large gameplay milestones, not documentation/config-only changes.
 
 Report material findings first, then validation, then remaining owner QA.
+
+
+## Working tree safety
+
+- Never bulk-restore modified files based only on directory or filename patterns.
+- Do not discard pre-existing or unrelated working-tree changes.
+- `git restore`, baseline pruning, generated-file cleanup, and other destructive mutations must target only files known to belong to the current task.
+- Run validation separately from destructive cleanup or baseline mutation.

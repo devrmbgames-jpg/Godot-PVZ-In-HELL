@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DEF_NpcProfile" format=3 uid="uid://bgdvk3v4ung7m"]
+
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="1_2yjv1"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_npc_punch.tres" id="2_gofct"]
+[ext_resource type="Script" uid="uid://c3gjfrvhqmmbu" path="res://content/domains/npc/definitions/def_npc_trait.gd" id="3_vebev"]
+[ext_resource type="Script" uid="uid://b5sdb0rpo1bdu" path="res://content/domains/npc/definitions/def_npc_profile.gd" id="Profile"]
+[ext_resource type="Script" uid="uid://cb66i6qw3mod6" path="res://content/domains/npc/definitions/def_npc_schedule.gd" id="Schedule"]
+
+[sub_resource type="Resource" id="Schedule"]
+script = ExtResource("Schedule")
+weekdays = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
+day = 0
+
+[resource]
+script = ExtResource("Profile")
+display_name = "Торговец"
+merchant = true
+recipient_key = &"customer_08"
+schedule = SubResource("Schedule")
+body_color = Color(0.8, 0.6, 0.3, 1)
+key = &"person_8"

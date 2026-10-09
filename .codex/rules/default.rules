@@ -1,0 +1,48 @@
+# Local Codex escalation policy. Workspace operations remain subject to AGENTS.md.
+# master is read-only; do not treat these prefix rules as a replacement for branch checks.
+
+prefix_rule(
+    pattern = [["git", "git.exe"], ["status", "diff", "log", "show", "rev-parse", "rev-list", "merge-base", "fetch"]],
+    decision = "allow",
+    justification = "Read-only Git inspection.",
+)
+
+prefix_rule(
+    pattern = [["git", "git.exe"], ["add", "commit"]],
+    decision = "allow",
+    justification = "Coherent scoped local commits on development branches.",
+)
+
+prefix_rule(
+    pattern = [["git", "git.exe"], "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Never discard local changes automatically.",
+)
+
+prefix_rule(
+    pattern = [["git", "git.exe"], "push", "--force"],
+    decision = "forbidden",
+    justification = "No force pushes.",
+)
+
+prefix_rule(
+    pattern = [["git", "git.exe"], "push", "origin", "master"],
+    decision = "forbidden",
+    justification = "The master branch is read-only for agents.",
+)
+
+prefix_rule(
+    pattern = [["git", "git.exe"], ["push", "merge", "rebase", "restore", "checkout", "switch", "clean", "stash", "reset", "pull", "branch"]],
+    decision = "prompt",
+    justification = "Branch/remote/working tree changes require explicit approval and inspection.",
+)
+
+# Project-local Godot is allowed for headless parser/GUT/smoke checks, not visual gameplay.
+prefix_rule(
+    pattern = [[
+        ".\\.bin\\Godot_v4.7.1-stable_win64_console.exe",
+        ".bin\\Godot_v4.7.1-stable_win64_console.exe",
+    ]],
+    decision = "allow",
+    justification = "Project-local Godot headless validation.",
+)

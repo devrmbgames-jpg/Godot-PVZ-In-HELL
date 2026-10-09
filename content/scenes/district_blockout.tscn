@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c5yk7jxrcgyby"]
 
-[ext_resource type="Script" uid="uid://7ah3t80yjit4" path="res://content/ui/circuit_light_view.gd" id="LightView"]
+[ext_resource type="Script" uid="uid://7ah3t80yjit4" path="res://content/domains/interaction/presentation/circuit_light_view.gd" id="LightView"]
 
 [sub_resource type="StandardMaterial3D" id="GroundMaterial"]
 albedo_color = Color(0.16, 0.13, 0.12, 1)

@@ -10,11 +10,13 @@ from pathlib import Path
 from urllib.parse import unquote
 
 from validate_domain_structure import ROLE_SCRIPT_RULES, get_content_role, validate_domain_structure
+from validate_domain_migration_map import validate_migration_map
+from validate_domain_dependencies import validate_dependencies
 
 ROOT: Path = Path(__file__).resolve().parents[1]
 
 ROLE_EXCEPTIONS: set[str] = {
-    "content/definitions/definition.gd",
+    "content/shared/contracts/definition.gd",
 }
 
 TEXT_RESOURCE_ROOTS: tuple[str, ...] = (
@@ -518,7 +520,11 @@ def main() -> int:
     errors: list[str] = []
 
     _check_role_placement(errors)
-    errors.extend(validate_domain_structure(ROOT, strict=False))
+    errors.extend(validate_domain_structure(ROOT, strict=True))
+    if (ROOT / "utils/domain_migration_map.json").exists():
+        errors.extend(validate_migration_map(ROOT))
+    if (ROOT / "utils/domain_contracts.json").exists():
+        errors.extend(validate_dependencies(ROOT, strict=True))
     _check_private_member_naming(errors)
     _check_resource_file_naming(errors)
     _check_relationship_role_usage(errors)

@@ -42,7 +42,7 @@ func before_each() -> void:
 	state.registration = C_PackageState.Registration.REGISTERED
 	state.registration_number = _record.number
 	_parcel.component_resources = [identity, state]
-	_world.add_entity(_parcel)
+	EntityCompositionFixture.register(_world, _parcel)
 	_actor = Entity.new()
 	_actor.component_resources = [C_GrabControl.new()]
 	_world.add_entity(_actor)

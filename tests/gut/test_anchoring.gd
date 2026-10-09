@@ -65,7 +65,7 @@ func before_each() -> void:
 	_hammer = _make_hammer()
 	_hold_hammer()
 	_target = _make_target(Vector3(0, 1, -2))
-	_body = GrabService.physical_body(_target)
+	_body = GrabQueries.physical_body(_target)
 	_config = _target.get_component(C_Anchorable) as C_Anchorable
 	await get_tree().physics_frame
 	await get_tree().process_frame
@@ -78,7 +78,7 @@ func after_each() -> void:
 		ProlongedInteractionService.cancel(_actor)
 	if is_instance_valid(_world):
 		for entity: Entity in _world.entities.duplicate():
-			GrabService.entity_unavailable(entity)
+			GrabReleaseService.entity_unavailable(entity)
 			ProlongedInteractionService.entity_unavailable(entity)
 		_world.free()
 	ECS.world = null
@@ -138,11 +138,11 @@ func _hold_hammer() -> void:
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
 	_hammer.add_relationship(Relationship.new(grip, _actor))
-	assert_eq(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND), _hammer)
+	assert_eq(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND), _hammer)
 
 
 func _stabilize(seconds: float = 0.5) -> void:
-	AnchoringService.update_stability(_target, _config, seconds)
+	InteractionPhysicsFixture.anchor(_target, seconds)
 
 
 #endregion
@@ -150,8 +150,8 @@ func _stabilize(seconds: float = 0.5) -> void:
 #region Инструмент и обратимая фиксация
 ## Авторский молоток проигрывает крепление без боевого урона; бросок сразу отменяет анимацию.
 func test_authored_hammer_fastens_instead_of_attacking_and_plays_swing_without_damage() -> void:
-	GrabService.release(_actor, _hammer)
-	_hammer = (load("res://content/entities/tools/hammer.tscn") as PackedScene).instantiate() as Entity
+	GrabReleaseService.release(_actor, _hammer)
+	_hammer = (load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate() as Entity
 	_world.add_entity(_hammer)
 	(_hammer as Node as RigidBody3D).gravity_scale = 0.0
 	(_hammer as Node as Node3D).global_position = _actor.right_hand_slot.global_position
@@ -169,7 +169,7 @@ func test_authored_hammer_fastens_instead_of_attacking_and_plays_swing_without_d
 		assert_true(choice.action is DEF_AnchorAction)
 	_controller.action_main_pressed = true
 	_controller.input_tick += 1
-	InteractionActionResolver.handle_input(_actor)
+	InteractionInputFixture.advance(_actor)
 	assert_true(_body.freeze)
 	assert_eq((_actor.get_component(C_Combat) as C_Combat).phase, C_Combat.Phase.READY)
 
@@ -180,7 +180,7 @@ func test_authored_hammer_fastens_instead_of_attacking_and_plays_swing_without_d
 	var head: Node3D = _hammer.get_node("Head") as Node3D
 	assert_gt(head.position.y, 0.4, "Fastening has visible overhead swing")
 	assert_eq(health.current, 100.0, "Tool animation never schedules weapon damage")
-	GrabService.release(_actor, _hammer)
+	GrabReleaseService.release(_actor, _hammer)
 	assert_false(animation.is_playing())
 	assert_eq(head.position, Vector3(0.0, 0.18, 0.0), "Drop cancels tool presentation immediately")
 
@@ -191,7 +191,7 @@ func _drive_input(primary_pressed: bool, use_pressed: bool, use_held: bool, delt
 	_controller.use_pressed = use_pressed
 	_controller.use_held = use_held
 	_controller.input_tick += 1
-	InteractionActionResolver.handle_input(_actor, delta)
+	InteractionInputFixture.advance(_actor, delta)
 	_controller.action_main_pressed = false
 	_controller.use_pressed = false
 
@@ -199,17 +199,17 @@ func _drive_input(primary_pressed: bool, use_pressed: bool, use_held: bool, delt
 ## Покой накапливается непрерывно только при малой скорости и отсутствии владельца управления.
 func test_stability_requires_continuous_low_motion_and_no_control_owner() -> void:
 	_body.linear_velocity = Vector3(0.2, 0, 0)
-	AnchoringService.update_stability(_target, _config, 0.3)
+	InteractionPhysicsFixture.anchor(_target, 0.3)
 	assert_eq(_config.stable_seconds, 0.0)
 	_body.linear_velocity = Vector3.ZERO
-	AnchoringService.update_stability(_target, _config, 0.3)
+	InteractionPhysicsFixture.anchor(_target, 0.3)
 	assert_almost_eq(_config.stable_seconds, 0.3, 0.0001)
 	var push: Relationship = Relationship.new(R_PushedBy.new(), _actor)
 	_target.add_relationship(push)
-	AnchoringService.update_stability(_target, _config, 0.3)
+	InteractionPhysicsFixture.anchor(_target, 0.3)
 	assert_eq(_config.stable_seconds, 0.0)
 	_target.remove_relationship(push)
-	AnchoringService.update_stability(_target, _config, 0.5)
+	InteractionPhysicsFixture.anchor(_target, 0.5)
 	assert_almost_eq(_config.stable_seconds, 0.5, 0.0001)
 
 
@@ -272,13 +272,13 @@ func test_snapshot_restores_exact_physics_state_after_prolonged_f_unfix() -> voi
 
 	_controller.use_held = false
 	_controller.input_tick += 1
-	InteractionActionResolver.handle_input(_actor, 0.0)
+	InteractionInputFixture.advance(_actor, 0.0)
 	assert_null(ProlongedInteractionService.session(_actor))
 
 
 ## Молоток в неподходящей руке не предлагает основное действие крепления.
 func test_wrong_hand_tool_does_not_offer_primary_fix() -> void:
-	GrabService.release(_actor, _hammer)
+	GrabReleaseService.release(_actor, _hammer)
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = C_Grabbable.HoldSlot.LEFT_HAND
 	_hammer.add_relationship(Relationship.new(grip, _actor))

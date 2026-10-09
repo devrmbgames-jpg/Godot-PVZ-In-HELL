@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://content/scenes/npc_light_zone.gd" id="Zone"]
+[ext_resource type="Script" path="res://content/domains/npc/authoring/npc_light_zone.gd" id="Zone"]
 
 [sub_resource type="BoxShape3D" id="Volume"]
 size = Vector3(4, 3, 4)

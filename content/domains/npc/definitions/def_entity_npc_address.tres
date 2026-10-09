@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="DEF_EntityTemplate" format=3]
+
+[ext_resource type="Script" path="res://content/shared/definitions/def_entity_template.gd" id="1_pogsy"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="2_n80sg"]
+[ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="3_6tpe5"]
+[ext_resource type="Script" path="res://content/shared/contracts/entity_initial_binding.gd" id="4_al2gr"]
+[ext_resource type="Script" path="res://content/domains/npc/components/c_npc_address.gd" id="5_l3b8j"]
+
+[sub_resource type="Resource" id="Resource_hfifq"]
+script = ExtResource("2_n80sg")
+trait_id = &"npc_address"
+required_components = Array[Script]([ExtResource("5_l3b8j")])
+required_root_class = &"StaticBody3D"
+required_nodes = Array[NodePath]([NodePath("Address")])
+initial_field_names = Dictionary[Script, PackedStringArray]({
+ExtResource("5_l3b8j"): PackedStringArray("address_id")
+})
+
+[resource]
+script = ExtResource("1_pogsy")
+traits = Array[ExtResource("2_n80sg")]([SubResource("Resource_hfifq")])
+key = &"entity_npc_address"

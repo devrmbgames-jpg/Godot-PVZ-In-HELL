@@ -2,7 +2,7 @@ extends GutTest
 ## Регрессии по QA владельца: резкий поворот камеры, ровные стыки пола, поясные слоты и торговля.
 
 const MAIN_SCENE: PackedScene = preload("res://content/scenes/main_level.tscn")
-const TRADER_SCENE: PackedScene = preload("res://content/entities/commerce/trader.tscn")
+const TRADER_SCENE: PackedScene = preload("res://content/domains/commerce/entities/trader.tscn")
 ## Размер одной физической плиты в метрах; стык двух плит проходит под траекторией игрока.
 const FLOOR_TILE_SIZE: Vector3 = Vector3(8.0, 0.5, 8.0)
 ## Число физических кадров ожидания устойчивого контакта с опорой.
@@ -40,14 +40,14 @@ func before_each() -> void:
 	_player = authored_level.get_node("Entityes/Player") as E_CharacterBodyPlayer
 	_player.get_parent().remove_child(_player)
 	authored_level.free()
-	_world.add_entity(_player)
+	EntityCompositionFixture.register(_world, _player)
 	for child: Node in (_player as Node).find_children("*", "Entity", true, false):
-		_world.add_entity(child as Entity, null, false)
+		EntityCompositionFixture.register(_world, child as Entity, false)
 	_player.global_position = Vector3(0.0, 0.01, 4.0)
 
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new()]
-	_world.add_entity(session)
+	EntityCompositionFixture.register(_world, session)
 	_cycle = session.get_component(C_DayCycle) as C_DayCycle
 	for frame: int in FLOOR_SETTLE_FRAMES:
 		await get_tree().physics_frame
@@ -104,8 +104,9 @@ func test_flat_tile_seam_does_not_launch_or_stop_player() -> void:
 
 ## Реальное взаимодействие открывает торговлю через E/F, а живой NPC недоступен физическому хвату.
 func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() -> void:
+	DialogueUiFixture.install()
 	var trader: Entity = TRADER_SCENE.instantiate() as Entity
-	_world.add_entity(trader)
+	EntityCompositionFixture.register(_world, trader)
 	(trader as Node as Node3D).global_position = _player.global_position + Vector3.FORWARD
 	var actions: C_InteractionActionSet = trader.get_component(C_InteractionActionSet) as C_InteractionActionSet
 	var action: DEF_TraderAction = actions.actions[0] as DEF_TraderAction
@@ -119,8 +120,8 @@ func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() 
 	_cycle.phase = C_DayCycle.Phase.MORNING
 
 	var interactor: C_Interactor = _player.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(_player, interactor)
-	interactor.physics_target = InteractionTargetingService.find_physics_target(_player, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(_player, interactor)
+	interactor.physics_target = InteractionTargetingGeometry.find_physics_target(_player, interactor)
 	assert_eq(interactor.target, trader, "Actual head ray reaches the Trader")
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(_player, DEF_InteractionAction.Slot.INTERACT)
 	assert_not_null(choice, "E resolves to trading instead of physical pickup")
@@ -130,7 +131,7 @@ func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() 
 
 	var controller: C_Controller = _player.get_component(C_Controller) as C_Controller
 	controller.interact_pressed = true
-	InteractionActionResolver.handle_input(_player)
+	InteractionInputFixture.advance(_player)
 	var opened: bool = false
 	for child: Node in _player.get_children():
 		if child is CommercePanel:
@@ -165,7 +166,7 @@ func test_looking_down_reaches_both_own_belt_slots_without_turning_them_away() -
 		for frame: int in 2:
 			await get_tree().physics_frame
 		_player.interaction_ray_cast.force_raycast_update()
-		assert_eq(InteractionTargetingService.find_target(_player, interactor), slot, "Head ray reaches %s" % path)
+		assert_eq(InteractionTargetingGeometry.find_target(_player, interactor), slot, "Head ray reaches %s" % path)
 		assert_almost_eq((_player as Node as CharacterBody3D).rotation.y, initial_yaw, 0.001, "Belt remains still while aiming down")
 
 #endregion

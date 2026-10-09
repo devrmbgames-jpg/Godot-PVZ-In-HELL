@@ -190,7 +190,7 @@ func _package_adapter_contract() -> void:
 
 	var destruction: C_PackageDestruction = C_PackageDestruction.new()
 	destruction.debris_scene = preload(
-		"res://content/entities/packages/package_debris_stub.tscn"
+		"res://content/domains/packages/entities/package_debris_stub.tscn"
 	)
 	var package_state: C_PackageState = C_PackageState.new()
 	var package: Entity = _body(
@@ -403,7 +403,7 @@ func _toxic_scene(
 	definition.owner_loss = owner_loss
 	definition.persistent = persistent
 	return _scene_with_definition(
-		preload("res://content/entities/hazards/toxic_area.tscn"),
+		preload("res://content/domains/hazards/entities/toxic_area.tscn"),
 		definition,
 	)
 
@@ -414,7 +414,7 @@ func _blast_scene(lifetime: float = 0.35) -> PackedScene:
 	definition.impulse = 4.0
 	definition.lifetime_seconds = lifetime
 	return _scene_with_definition(
-		preload("res://content/entities/hazards/explosion.tscn"),
+		preload("res://content/domains/hazards/entities/explosion.tscn"),
 		definition,
 	)
 

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DEF_NpcAttack" format=3]
+
+[ext_resource type="Script" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="Script"]
+
+[resource]
+script = ExtResource("Script")
+key = &"npc_punch"
+damage = 12.0
+maximum_range = 1.8
+windup_seconds = 0.45
+active_seconds = 0.2
+recovery_seconds = 0.4
+cooldown_seconds = 0.8

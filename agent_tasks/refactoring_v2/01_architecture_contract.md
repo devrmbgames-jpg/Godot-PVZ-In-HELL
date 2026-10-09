@@ -1,6 +1,6 @@
 # Refactoring v2.01 — архитектурные роли и ownership
 
-Status: **PLANNED**
+Status: **DONE**
 
 Зависимости: [00_05_preflight_readiness_gate.md](00_05_preflight_readiness_gate.md) должен завершиться результатом `READY_FOR_IMPLEMENTATION`.
 
@@ -60,3 +60,25 @@ Status: **PLANNED**
 ## Validation
 
 Documentation-only: проверить ссылки, `git diff --check` и отсутствие противоречий между `AGENTS.md`, architecture doc и GECS skill. Godot/GUT не запускать.
+
+## Current — 2026-10-07
+
+Canonical role/ownership contract закреплён в [content/ARCHITECTURE.md](../../content/ARCHITECTURE.md#canonical-roles-and-ownership). Таблица различает C/R, scheduled S, reactive O, synchronous Service, Rules/Calculation, Geometry, Solver, Presentation, Factory, Entity glue, Definitions, UI, Traits/Templates и typed intent/outcome.
+
+Правило выбора execution owner содержит конкретный cooldown/query/delta пример: полный recurring шаг остаётся в System, размер файла сам по себе не оправдывает Service.tick. Разные responsibilities/cadence делятся на Systems с deps(); System→System imperative calls запрещены. Узкие Services могут композировать synchronous operations без второго scheduler graph. Required physics callback получает отдельное исключение для независимых non-System Solvers.
+
+Зафиксированы single-writer C/R/aggregate authority, scene-first видимые placed объекты, единый materialized runtime contract и full-refactor completion внутри объявленного scope. Подробный словарь не размножен: AGENTS и GECS skill ссылаются на canonical документ; skill сохраняет только краткие execution reminders и pinned GECS rules. Runtime-код, сцены и addon не менялись. Следующие execution-smell примеры/flush semantics принадлежат 02, static guardrails и infrastructure repair — 03, identity baseline — 04.
+
+## Validation result
+
+- `python utils/validate_refactoring_preflight.py`: PASS — roadmap links/dependencies/encoding.
+- Локальные ссылки и anchors в изменённых contract/rule документах: PASS.
+- `git diff --check`: PASS.
+- Ручное сопоставление AGENTS, architecture doc, GECS skill и target proposal: роли, C/R authority, System→System запрет, physical authority, scene-first и scope completion согласованы.
+- `python utils/validate_project_structure.py`: FAIL — те же 31 pre-existing diagnostics (missing smoke script reference + metadata шести R26 tasks), явно назначены 03; новых diagnostics нет.
+
+`--require-gate` остаётся проверкой frozen Phase 0 readiness snapshot (будущие tasks PLANNED, next01); после старта implementation используется обычная проверка roadmap. Godot/GUT/parser/gameplay не запускались: этап documentation-only, project-owned GDScript не менялся. Owner QA для этого контракта не требуется.
+
+## Next
+
+[02_execution_ownership_rules.md](02_execution_ownership_rules.md) — следующий отдельный рабочий запрос согласно правилу README. Phase 1 целиком ещё не закрыта; runtime migration начинается только после 02–04.

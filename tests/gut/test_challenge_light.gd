@@ -1,6 +1,29 @@
 extends GutTest
 ## Проверяет световые условия, подтверждение, таймауты и применение результата испытания к визиту.
 
+class TerminalRetirer extends Observer:
+	## Counts actual terminal facts after their state is committed.
+	var fact_count: int = 0
+	## Records whether phase, payload and result were visible before publication.
+	var saw_committed_state: bool = false
+
+	#region Committed terminal consumer
+	## Selects actual typed challenge results.
+	func query() -> QueryBuilder:
+		return q.with_all([C_Challenge]).on_event(ChallengeResolution.EVENT)
+
+	## Cancels and retires the subject synchronously to exercise the producer's lifetime boundary.
+	func each(_event: Variant, subject: Entity, payload: Variant = null) -> void:
+		var resolution: ChallengeResolution = payload as ChallengeResolution
+		var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
+		fact_count += 1
+		saw_committed_state = state.pending_result == resolution and state.result == resolution.result \
+				and state.phase == C_Challenge.Phase.FAILURE
+		ChallengeService.cancel(subject)
+		_world.remove_entity(subject)
+	#endregion
+
+
 const FRAME_DELTA: float = 0.1
 const TIMEOUT: float = 2.0
 const VISIT_ID: StringName = &"challenge-test"
@@ -13,6 +36,8 @@ var _state: C_Challenge = null
 var _cycle: C_DayCycle = null
 var _visit: CustomerVisit = null
 var _escalations: int = 0
+var _resolved_calls: int = 0
+var _runtime: S_ChallengeRuntime
 
 
 #region Окружение световой цепи
@@ -22,10 +47,12 @@ func before_each() -> void:
 	add_child(_world)
 	ECS.world = _world
 	_world.add_system(S_ChallengeLight.new())
-	_world.add_system(S_ChallengeRuntime.new())
-	var receiver: S_CustomerChallengeOutcome = S_CustomerChallengeOutcome.new()
+	_runtime = S_ChallengeRuntime.new()
+	_runtime.resolved.connect(_on_resolved)
+	_world.add_system(_runtime)
+	var receiver: O_CustomerChallengeOutcome = O_CustomerChallengeOutcome.new()
 	receiver.escalation_requested.connect(_on_escalation)
-	_world.add_system(receiver)
+	_world.add_observer(receiver)
 	_world.add_observer(O_ChallengeLifecycle.new())
 
 	var session: Entity = _entity([C_DayCycle.new(), C_CustomerFlow.new(), C_Wallet.new()])
@@ -33,8 +60,8 @@ func before_each() -> void:
 	_cycle.phase = C_DayCycle.Phase.DAY
 	_actor = _entity([])
 	var customer_body: RigidBody3D = RigidBody3D.new()
-	customer_body.set_script(load("res://content/entities/customers/e_customer.gd"))
-	_subject = customer_body as Node as E_Customer
+	customer_body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
+	_subject = customer_body as Node as E_NpcCharacter
 	_subject.component_resources = [C_Challenge.new(), C_CustomerAgent.new(), C_NpcIntent.new(), C_Controller.new()]
 	_world.add_entity(_subject)
 	(_subject.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id = VISIT_ID
@@ -51,6 +78,7 @@ func before_each() -> void:
 	(session.get_component(C_CustomerFlow) as C_CustomerFlow).visits.append(_visit)
 	_circuit = _entity([C_LightCircuit.new()])
 	_escalations = 0
+	_resolved_calls = 0
 
 
 ## Удаляет World и очищает ссылки участников и состояния испытания.
@@ -79,6 +107,11 @@ func _start() -> void:
 	assert_true(ChallengeService.activate(_subject))
 
 
+func _on_resolved(_subject_value: Entity, _actor_value: Entity, _event_value: ChallengeResolution) -> void:
+	_resolved_calls += 1
+
+
+
 func _on_escalation(subject: Entity, actor: Entity, event: ChallengeResolution) -> void:
 	assert_eq(subject, _subject)
 	assert_eq(actor, _actor)
@@ -101,33 +134,45 @@ func test_armed_waits_for_dialogue_close_before_countdown() -> void:
 	assert_almost_eq(_state.elapsed, FRAME_DELTA, 0.0001)
 
 
-func _arrival_customer() -> E_Customer:
-	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_light_entrance.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+func _advance_arrival() -> void:
+	# Exercise only the actual approach owner, preserving the fixture's challenge clocks.
+	var agent: C_CustomerAgent = _subject.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.scheduled_phase = int(agent.phase)
+	var owner: S_CustomerApproach = S_CustomerApproach.new()
+	owner.group = "arrival_fixture"
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+	_world.remove_system(owner)
+	owner.free()
+
+
+func _arrival_customer() -> E_NpcCharacter:
+	_state.definition = (load("res://content/domains/challenges/definitions/def_challenge_light_entrance.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
 	_state.definition.timeout_seconds = TIMEOUT
 	_visit.definition.challenge = _state.definition
 	assert_true(ChallengeService.begin_on_arrival(_subject, _actor))
-	var customer: E_Customer = _subject as E_Customer
+	var customer: E_NpcCharacter = _subject as E_NpcCharacter
 	CustomerArrivalService.begin(customer, _state)
 	return customer
 
 
 ## Светобоязненный клиент ждёт у входа, затем получает намерение подхода после выключения.
 func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
-	var customer: E_Customer = _arrival_customer()
+	var customer: E_NpcCharacter = _arrival_customer()
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
-	assert_false(CustomerArrivalService.tick(customer, agent, _visit, _cycle))
+	_advance_arrival()
 	assert_eq(agent.phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
 	_world.process(FRAME_DELTA)
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
 
-	var scene: PackedScene = load("res://content/entities/stations/delivery_counter.tscn") as PackedScene
+	var scene: PackedScene = load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
 	var station: E_DeliveryCounter = scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(station)
 	assert_true(LightCircuitService.set_enabled(_circuit, false))
 	_world.process(FRAME_DELTA)
 	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
-	assert_false(CustomerArrivalService.tick(customer, agent, _visit, _cycle))
+	_advance_arrival()
 	assert_eq(agent.phase, C_CustomerAgent.Phase.APPROACHING)
 
 	var intent: C_NpcIntent = customer.get_component(C_NpcIntent) as C_NpcIntent
@@ -137,26 +182,26 @@ func test_dark_room_customer_waits_then_approaches_after_switch_off() -> void:
 
 ## Таймаут гасит свет и направляет одну эскалацию в существующую боевую роль.
 func test_dark_room_timeout_turns_lights_off_and_reuses_combat_escalation_once() -> void:
-	var customer: E_Customer = _arrival_customer()
+	var customer: E_NpcCharacter = _arrival_customer()
 	_actor.add_components([C_PlayerInputController.new(), C_Health.new()])
 	customer.add_component(C_NpcCombat.new())
 	_world.process(TIMEOUT)
 	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
 	assert_false(LightCircuitService.is_enabled(&"warehouse"))
 	assert_eq(_escalations, 1)
-	CustomerCombatService.tick(customer)
+	CombatFixture.customer(customer)
 	assert_true(_visit.aggressive)
 	assert_eq((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.AGGRESSIVE)
-	assert_same(CombatService.target_for(customer), _actor)
+	assert_same(CombatQueries.target_for(customer), _actor)
 	_world.process(FRAME_DELTA)
-	CustomerCombatService.tick(customer)
+	CombatFixture.customer(customer)
 	assert_eq(_escalations, 1)
 
 
 ## Уже тёмный вход не задерживает клиента и не мерцает; смена фазы не оставляет его у входа.
 func test_already_dark_arrival_does_not_gate_or_flicker_and_phase_cancel_departs() -> void:
 	assert_true(LightCircuitService.set_enabled(_circuit, false))
-	var customer: E_Customer = _arrival_customer()
+	var customer: E_NpcCharacter = _arrival_customer()
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(agent.phase, C_CustomerAgent.Phase.APPROACHING)
 	assert_false(LightCircuitService.flicker(&"warehouse", 2.0, 0.1))
@@ -164,7 +209,8 @@ func test_already_dark_arrival_does_not_gate_or_flicker_and_phase_cancel_departs
 	assert_eq(_state.result, ChallengeResult.Type.SUCCESS)
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_DARKNESS
 	_cycle.phase = C_DayCycle.Phase.EVENING
-	assert_true(CustomerArrivalService.tick(customer, agent, _visit, _cycle), "Phase change must not strand the entrance")
+	_advance_arrival()
+	assert_eq(agent.phase, C_CustomerAgent.Phase.LEAVING, "Phase change must not strand the entrance")
 
 
 func _flickering_view() -> CircuitLightView:
@@ -431,10 +477,10 @@ func test_delivery_payment_waits_for_timed_challenge_result() -> void:
 	assert_eq(wallet.balance, 0)
 	assert_false(_visit.settlement_committed)
 	_world.process(TIMEOUT)
-	CustomerFlowService.tick(CustomerFlowService.current(), _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, 0.0)
 	assert_eq(_visit.satisfaction, 70)
 	assert_eq(wallet.balance, 70)
-	CustomerFlowService.tick(CustomerFlowService.current(), _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, 0.0)
 	assert_eq(wallet.operations.size(), 1)
 
 
@@ -445,20 +491,104 @@ func test_departure_result_precedes_removal_and_payment() -> void:
 	var wallet: C_Wallet = _deliver_and_declare()
 	var agent: C_CustomerAgent = _subject.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.RECEIVING
-	CustomerFlowService.tick(CustomerFlowService.current(), _cycle, _visit.definition.receiving_seconds)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, _visit.definition.receiving_seconds)
 	_world.process(TIMEOUT)
 	assert_eq(agent.phase, C_CustomerAgent.Phase.LEAVING)
 	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
 	assert_eq(wallet.balance, 0)
-	CustomerFlowService.tick(CustomerFlowService.current(), _cycle, _visit.definition.leaving_seconds)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, _visit.definition.leaving_seconds)
 	assert_false(_visit.finished)
 	assert_true(EntityAvailability.contains(_subject, _world))
 	_world.process(FRAME_DELTA)
 	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
 	assert_eq(_visit.satisfaction, 70)
-	CustomerFlowService.tick(CustomerFlowService.current(), _cycle, 0.0)
+	CustomerFlowFixture.advance(CustomerFlowQueries.current(), _cycle, 0.0)
 	assert_true(_visit.finished)
 	assert_eq(wallet.balance, 70)
 	assert_eq(wallet.operations.size(), 1)
 
+#endregion
+
+#region Deferred lifecycle and reentrant terminal facts
+## A queued ARMED step cannot start consuming an ACTIVE session's clock.
+func test_manual_armed_step_rejects_activation_before_flush() -> void:
+	assert_true(ChallengeService.arm(_subject, _actor))
+	_runtime.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.process(TIMEOUT)
+	assert_true(ChallengeService.activate(_subject))
+	_world.flush_command_buffers()
+	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
+	assert_eq(_state.elapsed, 0.0)
+	assert_eq(_state.result, ChallengeResult.Type.NONE)
+	_runtime.command_buffer_flush_mode = System.FlushMode.PER_SYSTEM
+	_world.process(FRAME_DELTA)
+	assert_almost_eq(_state.elapsed, FRAME_DELTA, 0.0001)
+
+
+## Replacing a cancelled component cannot inherit time from its queued predecessor.
+func test_manual_runtime_rejects_replaced_component() -> void:
+	_start()
+	_runtime.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.process(TIMEOUT)
+	var definition: DEF_Challenge = _state.definition
+	ChallengeService.cancel(_subject)
+	_subject.remove_component(C_Challenge)
+	_state = C_Challenge.new()
+	_state.definition = definition
+	_subject.add_component(_state)
+	_start()
+	_world.flush_command_buffers()
+	assert_eq(_state.elapsed, 0.0)
+	assert_eq(_state.phase, C_Challenge.Phase.ACTIVE)
+	assert_eq(_visit.challenge_satisfaction_delta, 0)
+	assert_eq(_resolved_calls, 0)
+
+
+## A queued step rechecks its calendar before committing any timeout penalty.
+func test_manual_calendar_change_cancels_before_timeout_commit() -> void:
+	_start()
+	_runtime.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.process(TIMEOUT)
+	_cycle.day_index += 1
+	_world.flush_command_buffers()
+	assert_eq(_state.phase, C_Challenge.Phase.CLEANUP)
+	assert_eq(_state.result, ChallengeResult.Type.CANCELLED)
+	assert_eq(_visit.challenge_satisfaction_delta, 0)
+	assert_eq(_resolved_calls, 0)
+
+
+## Invalid deltas consume neither active nor display time; display begins on the next step.
+func test_invalid_delta_and_result_display_use_separate_steps() -> void:
+	_start()
+	_world.process(NAN)
+	_world.process(INF)
+	_world.process(-FRAME_DELTA)
+	assert_eq(_state.elapsed, 0.0)
+	_world.process(TIMEOUT)
+	assert_eq(_state.phase, C_Challenge.Phase.FAILURE)
+	assert_eq(_state.result_remaining, _state.definition.result_display_seconds)
+	assert_eq(_resolved_calls, 1)
+	_world.process(INF)
+	assert_eq(_state.result_remaining, _state.definition.result_display_seconds)
+	_world.process(_state.definition.result_display_seconds)
+	assert_eq(_state.phase, C_Challenge.Phase.CLEANUP)
+	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
+	assert_null(ChallengeService.actor_for(_subject))
+	assert_eq(_resolved_calls, 1)
+
+
+## A committed fact consumer may close/remove the body before the scheduled stage returns.
+func test_reentrant_terminal_consumer_retires_subject_without_stale_signal() -> void:
+	var consumer: TerminalRetirer = TerminalRetirer.new()
+	_world.add_observer(consumer)
+	_start()
+	_world.process(TIMEOUT)
+	assert_eq(consumer.fact_count, 1)
+	assert_true(consumer.saw_committed_state)
+	assert_eq(_state.phase, C_Challenge.Phase.CLEANUP)
+	assert_eq(_state.result, ChallengeResult.Type.FAILURE)
+	assert_null(_state.pending_result)
+	assert_false(EntityAvailability.contains(_subject, _world))
+	assert_eq(_resolved_calls, 0)
+	assert_eq(_visit.challenge_satisfaction_delta, -30)
 #endregion

@@ -10,7 +10,7 @@ func _ready() -> void:
 	add_child(level)
 	for frame_index: int in 8:
 		await get_tree().process_frame
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase

@@ -42,14 +42,14 @@ func _run() -> void:
 		ray.look_at((parcel as Node as Node3D).global_position)
 		(actor.get_component(C_Interactor) as C_Interactor).target = parcel
 		await get_tree().physics_frame
-		assert(PackageOpening.request_open(actor, parcel))
+		assert(PackageOpening.request_open(actor, parcel).status == PackageOpenResult.Status.COMMITTED)
 		assert((parcel.get_component(C_PackageContents) as C_PackageContents).released)
-		assert(not PackageOpening.request_open(actor, parcel))
+		assert(PackageOpening.request_open(actor, parcel).status == PackageOpenResult.Status.REJECTED)
 	assert(ECS.world.query.with_all([C_InventoryItem]).execute().size() == before_count + 10)
 
 	var shelf: Entity = null
 	for candidate: Entity in ECS.world.query.with_all([C_Anchorable]).execute():
-		if candidate.scene_file_path == "res://content/entities/props/small_shelf.tscn":
+		if candidate.scene_file_path == "res://content/domains/interaction/entities/small_shelf.tscn":
 			shelf = candidate
 	assert(shelf != null)
 	var body: RigidBody3D = shelf as Node as RigidBody3D

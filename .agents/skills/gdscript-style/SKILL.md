@@ -278,7 +278,8 @@ Small universally obvious literals such as `0`, `1`, or simple loop bounds do no
 
 ## Formatting and line length
 
-The GDQuest GDScript formatter/linter and repository configuration are the mechanical formatting authority.
+The GDQuest GDScript formatter/linter and repository configuration are the mechanical formatting authority. **Exception:** its generic `class-name` rule rejects the project's intentional GECS role prefixes. The local wrapper calls `gdscript-formatter lint ... --disable class-name` and independently checks regular PascalCase or approved `C_`, `S_`, `O_`, `R_`, `E_`, `DEF_`, `ET_`, `UI_` prefixes. Do not rename classes or globally disable other linter rules. In Godot Editor set `GDQuest GDScript Formatter / Lint Ignored Rules` to exactly `class-name` for consistent diagnostics.
+Run `python utils/check_gdscript_format.py --changed` before completion: changed lines and new files are checked incrementally. Missing binary => NOT_RUN/exit 2; use `--strict` for the declared Phase 3 full-file style migration.
 
 Treat 100 characters as the normal hard line-length target for project-owned GDScript. Prefer naturally readable wrapping rather than awkwardly shortening good names.
 

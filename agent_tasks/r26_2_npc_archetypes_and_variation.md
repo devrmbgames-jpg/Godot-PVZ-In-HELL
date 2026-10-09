@@ -204,3 +204,21 @@ Missing categories/items must degrade gracefully instead of generating invalid o
 - Rolled traits and dialogue variant persist through save/load.
 - Existing district people migrate/retain deterministic valid data.
 - Traits do not become another gameplay-state authority parallel to GECS/Relationships.
+
+## Task state
+
+### Goal
+
+Implement the scope and acceptance specified in the Goal and required-design sections above.
+
+### Current
+
+PLANNED. Specification only; implementation has not started. Phase 1 task 03 normalizes metadata only; no R26 gameplay work is authorized by this repair.
+
+### Validation
+
+Specification only; no R26 engine or gameplay tests run. Use the validation requirements above when implementation is scheduled.
+
+### Owner QA / blockers
+
+No implementation blocker assessed. Subjective gameplay, dialogue, assets and balance require owner QA after implementation.

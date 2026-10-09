@@ -39,23 +39,30 @@ func _run() -> void:
 
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
+	level.set("autosave_path", "")
 	add_child(level)
 	level.set_physics_process(false)
 	for delivery_tick: int in 12:
 		await get_tree().physics_frame
-		ECS.world.process(1.0 / 60.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var scanner: Entity = level.get_node("Entityes/Scanner") as Entity
-	var parcel: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
+	# Carry routing uses a real package independent of the current district supply assortment.
+	var parcel: E_Package = (load("res://content/domains/packages/entities/package.tscn") as PackedScene).instantiate() as E_Package
+	parcel.package_id = "smoke/interaction/parcel"
+	parcel.package_definition = load("res://content/domains/packages/definitions/def_test_bread.tres") as DEF_Package
+	level.add_child(parcel as Node)
+	EntityCompositionFixture.register(ECS.world, parcel, false)
+	(parcel as Node as RigidBody3D).gravity_scale = 0.0
 	var terminal: E_Terminal = level.get_node("Entityes/Terminal") as E_Terminal
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	(actor as Node as RigidBody3D).freeze = true
+	(actor as Node as Node3D).set_physics_process(false)
 	await _prepare_target(actor, scanner, Vector3(0.0, 0.0, -1.6))
-	assert(GrabService.within_pickup_reach(actor, scanner))
-	assert(GrabService.pickup_slot(actor, scanner, false) == C_Grabbable.HoldSlot.RIGHT_HAND)
+	assert(GrabReachQueries.within_pickup_reach(actor, scanner))
+	assert(GrabQueries.pickup_slot(actor, scanner, false) == C_Grabbable.HoldSlot.RIGHT_HAND)
 	_drive(actor, true, false, false, false, false)
-	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
-	assert(GrabService.held_object(actor) == scanner)
+	assert(GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+	assert(GrabQueries.held_object(actor) == scanner)
 
 	var actions: C_InteractionActionSet = C_InteractionActionSet.new()
 	var primary_probe: ProbeAction = ProbeAction.new()
@@ -66,29 +73,29 @@ func _run() -> void:
 	scanner.add_component(actions)
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 1, "LMB must use the mapped right hand tool")
-	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+	assert(GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
 	_drive(actor, false, false, false, true, false)
 	assert(primary_probe.calls == 1, "RMB must address the other hand")
 	await _prepare_target(actor, parcel, Vector3(0.0, -0.2, -1.8))
-	assert(GrabService.within_pickup_reach(actor, parcel))
+	assert(GrabReachQueries.within_pickup_reach(actor, parcel))
 	assert(GrabService.try_pickup(actor, parcel, C_Grabbable.HoldSlot.CARRY))
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.CARRY)
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 1, "Carry capture must block hand tool use")
 	# Перенос груза забирает ЛКМ для броска и не передаёт этот такт инструменту в руке.
-	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY) == null)
-	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+	assert(GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.CARRY) == null)
+	assert(GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.HANDS)
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 2, "Hand use must resume after Carry release")
 	await _prepare_target(actor, terminal, Vector3(0.0, -0.5, -1.8))
-	assert(InteractionTargetingService.find_target(actor, interactor) == terminal)
+	assert(InteractionTargetingGeometry.find_target(actor, interactor) == terminal)
 	_drive(actor, true, false, false, false, false)
 	assert(terminal.is_panel_open())
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.MODAL)
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 2, "Terminal capture must block hand tool use")
-	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+	assert(GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
 
 	var extra_owner: RefCounted = RefCounted.new()
 	var extra_token: int = InteractionControlFocus.acquire(
@@ -98,12 +105,12 @@ func _run() -> void:
 	)
 	for physics_tick: int in 6:
 		await get_tree().physics_frame
-	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
+	assert(GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == scanner)
 
 	terminal.close_panel()
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.PUSH)
 	assert(
-		GrabService.slot_anchor(actor, C_Grabbable.HoldSlot.RIGHT_HAND)
+		GrabQueries.slot_anchor(actor, C_Grabbable.HoldSlot.RIGHT_HAND)
 		== actor.get("lowered_right_hand_slot")
 	)
 	InteractionControlFocus.release(actor, extra_token)
@@ -111,7 +118,7 @@ func _run() -> void:
 	_drive(actor, false, false, true, false, false)
 	assert(primary_probe.calls == 3, "Terminal close must restore hand tool use")
 	_drive(actor, false, false, true, false, false, true)
-	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == null)
+	assert(GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.RIGHT_HAND) == null)
 	assert(primary_probe.calls == 3, "Alt + LMB must throw instead of using")
 	assert(
 		(InputMap.action_get_events(&"physical_override")[0] as InputEventKey).physical_keycode
@@ -129,20 +136,20 @@ func _run() -> void:
 func _prepare_target(actor: Entity, target: Entity, target_offset: Vector3) -> void:
 	if is_instance_valid(_prepared_body):
 		var previous: Entity = _prepared_body as Node as Entity
-		if GrabService.held_relationship(previous) == null:
+		if GrabQueries.held_relationship(previous) == null:
 			_prepared_body.global_transform = _prepared_transform
 
 	var target_body: Node3D = target as Node as Node3D
 	_prepared_body = target_body
 	_prepared_transform = target_body.global_transform
 
-	var ray: RayCast3D = GrabService.interaction_raycast(actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(actor)
 	target_body.global_position = ray.global_position + target_offset
 	await get_tree().physics_frame
 	ray.look_at(target_body.global_position)
 	ray.force_raycast_update()
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(actor, interactor)
 
 
 func _drive(

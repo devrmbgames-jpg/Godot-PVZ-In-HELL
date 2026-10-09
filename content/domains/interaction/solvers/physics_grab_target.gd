@@ -1,0 +1,103 @@
+extends RefCounted
+## Связывает произвольные RigidBody3D с авторитетной моделью удержания R_HeldBy.
+class_name PhysicsGrabTarget
+
+const META_PROXY: StringName = &"_gecs_grab_proxy"
+
+
+#region Физическое тело и прокси
+## Читает реальное физическое тело сущности либо временного прокси.
+static func body_for(handle: Entity) -> RigidBody3D:
+	if not is_instance_valid(handle):
+		return null
+
+	var direct: RigidBody3D = handle as Node as RigidBody3D
+	if direct != null:
+		return direct
+
+	var reference: C_PhysicsBodyRef = handle.get_component(C_PhysicsBodyRef) as C_PhysicsBodyRef
+	if reference == null or not is_instance_valid(reference.body):
+		return null
+	return reference.body
+
+
+## Находит зарегистрированную сущность тела; create_proxy разрешает создать временный прокси.
+static func handle_for(body: RigidBody3D, create_proxy: bool = false) -> Entity:
+	if not is_instance_valid(body):
+		return null
+
+	var direct: Entity = body as Node as Entity
+	if direct != null and _registered(direct):
+		return direct
+
+	var cached: Entity = _cached_proxy(body)
+	if cached != null:
+		return cached
+	if not create_proxy or not is_instance_valid(ECS.world):
+		return null
+
+	var proxy: Entity = Entity.new()
+	proxy.name = "PhysicsGrabProxy_%d" % body.get_instance_id()
+	var reference: C_PhysicsBodyRef = C_PhysicsBodyRef.new()
+	reference.body = body
+	proxy.component_resources = [reference]
+	var context: EntitySpawnContext = EntityCompositionService.context_for(proxy, ECS.world,
+		GECSIO.uuid())
+	if not EntityCompositionService.try_register(context):
+		proxy.free()
+		return null
+
+	body.set_meta(META_PROXY, weakref(proxy))
+	# Выход родителя может застать proxy вне дерева: World тогда вызывает free().
+	# Отложенная связь дожидается конца обхода детей и не удерживает их в памяти.
+	body.tree_exiting.connect(
+		_on_body_tree_exiting.bind(weakref(proxy), weakref(ECS.world)),
+		CONNECT_DEFERRED | CONNECT_ONE_SHOT,
+	)
+	return proxy
+
+
+## Проверяет, является ли handle мостом с C_PhysicsBodyRef.
+static func is_proxy(handle: Entity) -> bool:
+	return (
+		is_instance_valid(handle)
+		and (handle.get_component(C_PhysicsBodyRef) as C_PhysicsBodyRef) != null
+	)
+
+
+#endregion
+
+#region Кеш и освобождение прокси
+static func _cached_proxy(body: RigidBody3D) -> Entity:
+	if not body.has_meta(META_PROXY):
+		return null
+
+	var reference: WeakRef = body.get_meta(META_PROXY) as WeakRef
+	var proxy: Entity = reference.get_ref() as Entity if reference != null else null
+	if _registered(proxy):
+		return proxy
+
+	body.remove_meta(META_PROXY)
+	return null
+
+
+static func _registered(entity: Entity) -> bool:
+	return (
+		is_instance_valid(entity)
+		and is_instance_valid(ECS.world)
+		and ECS.world.entity_to_archetype.has(entity)
+	)
+
+
+static func _on_body_tree_exiting(proxy_reference: WeakRef, world_reference: WeakRef) -> void:
+	var proxy: Entity = proxy_reference.get_ref() as Entity if proxy_reference != null else null
+	var owner_world: World = world_reference.get_ref() as World if world_reference != null else null
+	if not is_instance_valid(proxy) or not is_instance_valid(owner_world):
+		return
+	if owner_world.is_queued_for_deletion() or not owner_world.entity_to_archetype.has(proxy):
+		return
+
+	# queue_free() тела не снимает регистрацию отдельного proxy в GECS.
+	owner_world.remove_entity(proxy)
+
+#endregion

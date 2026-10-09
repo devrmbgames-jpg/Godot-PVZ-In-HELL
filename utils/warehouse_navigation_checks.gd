@@ -59,10 +59,10 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 			floor_point.y = level.global_position.y
 			points[marker_name] = floor_point
 
-	var district: C_District = DistrictPopulationService.current()
+	var district: C_District = NpcPopulationQueries.current()
 	if district != null:
 		for place: DEF_DistrictPlace in district.definition.places:
-			points[str(place.key)] = DistrictPopulationService.position_for(place.key)
+			points[str(place.key)] = NpcPopulationQueries.position_for(place.key)
 			if not place.activity_offset.is_zero_approx():
 				points[str(place.key) + "/activity"] = NpcActivityService.destination(place)
 
@@ -105,13 +105,13 @@ static func _graph_failures(definition: DEF_District, map_rid: RID, navigation_l
 
 	var connected_edges: int = 0
 	for junction_key: StringName in junctions:
-		var start: Vector3 = DistrictPopulationService.position_for(junction_key)
+		var start: Vector3 = NpcPopulationQueries.position_for(junction_key)
 		for neighbour_key: String in junctions[junction_key].neighbours:
 			var next_key: StringName = StringName(neighbour_key)
 			if not junctions.has(next_key):
 				continue
 
-			var target: Vector3 = DistrictPopulationService.position_for(next_key)
+			var target: Vector3 = NpcPopulationQueries.position_for(next_key)
 			var path: PackedVector3Array = NavigationServer3D.map_get_path(map_rid, start, target, true, navigation_layers)
 			if path.is_empty() or path[0].distance_to(start) > POINT_TOLERANCE or path[-1].distance_to(target) > POINT_TOLERANCE:
 				errors.append("Unreachable hazard-route edge: %s > %s" % [junction_key, next_key])

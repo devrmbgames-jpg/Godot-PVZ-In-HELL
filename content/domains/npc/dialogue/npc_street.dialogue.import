@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://b0jous4f6057v"
+path="res://.godot/imported/npc_street.dialogue-20b4145933d83513bd3230800bd264c9.tres"
+
+[deps]
+
+source_file="res://content/domains/npc/dialogue/npc_street.dialogue"
+dest_files=["res://.godot/imported/npc_street.dialogue-20b4145933d83513bd3230800bd264c9.tres"]
+
+[params]
+
+defaults=true

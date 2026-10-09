@@ -7,7 +7,7 @@ const UI_WAIT_FRAMES: int = 32
 
 var _level: Node = null
 var _actor: Entity = null
-var _customer: E_Customer = null
+var _customer: E_NpcCharacter = null
 var _camera: Camera3D = null
 
 
@@ -27,30 +27,30 @@ func _run() -> void:
 	assert(_camera != null and (_actor as Node).is_ancestor_of(_camera))
 	_camera.look_at(_camera.global_position + Vector3.DOWN, Vector3.RIGHT)
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
 
-	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:bottles")
+	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:bottles")
 	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.START_SHIFT
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
 	assert(DayPhaseService.submit(request))
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
-		_customer = CustomerFlowService.waiting_customer()
+		_customer = CustomerFlowQueries.waiting_customer()
 		if _customer != null:
 			break
 
 	assert(_customer != null)
 	(_customer as Node as RigidBody3D).freeze = true
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	var identity: StringName = visit.customer_id
 	assert(visit.definition.key == &"gaze_customer")
 	var state: C_Challenge = _customer.get_component(C_Challenge) as C_Challenge
@@ -77,7 +77,7 @@ func _run() -> void:
 	assert(visible_clues == 1)
 	assert(InteractionControlFocus.current(_actor) != InteractionControlFocus.Priority.MODAL)
 	_camera.look_at(_customer.head_axis_x.global_position)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 
 	var hud: Node = _level.get_node("InteractionHud/Overlay")
 	for frame: int in UI_WAIT_FRAMES:
@@ -90,7 +90,7 @@ func _run() -> void:
 	assert((_customer.get_node("DebugStatus") as Label3D).text.contains("LOS:"))
 	assert(visit.customer_id == identity and visit.definition.key == &"gaze_customer")
 	_camera.look_at(_camera.global_position + Vector3.LEFT)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	for frame: int in UI_WAIT_FRAMES:
 		await get_tree().process_frame
 		if not (hud.get_node("GazeDistortion") as ColorRect).visible:
@@ -99,13 +99,13 @@ func _run() -> void:
 	assert(state.violation_elapsed == 0.0)
 	assert(not (hud.get_node("GazeDistortion") as ColorRect).visible)
 	# Авторское правило действует и при входе реальной коробки в физическую зону стойки.
-	var counter: E_DeliveryCounter = CustomerFlowService.counter()
+	var counter: E_DeliveryCounter = CustomerFlowQueries.counter()
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	body.freeze = true
 	body.global_position = (counter as Node as Node3D).global_position + Vector3.UP * 1.3
 	for frame: int in 32:
 		await get_tree().physics_frame
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		if counter.parcels().has(parcel):
 			break
 
@@ -114,10 +114,10 @@ func _run() -> void:
 	assert(CustomerFlowService.confirm_delivery(counter) == PackageDeliveryCheck.Result.READY)
 	assert(CustomerFlowService.declare(visit.visit_id, CustomerVisit.Declaration.TAKEN))
 	assert(not visit.settlement_committed)
-	ECS.world.process(visit.definition.receiving_seconds, "GamePlay")
-	ECS.world.process(visit.definition.leaving_seconds, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, visit.definition.receiving_seconds)
+	GameTimeFixture.gameplay(ECS.world, visit.definition.leaving_seconds)
 	assert(state.result == ChallengeResult.Type.SUCCESS)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(visit.finished and visit.settlement_committed)
 	assert(visit.challenge_satisfaction_delta == 10)
 	await get_tree().process_frame

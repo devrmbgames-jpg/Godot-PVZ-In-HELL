@@ -56,6 +56,11 @@ var _last_data_signature: String = ""
 #region Жизненный цикл и обновление
 func _ready() -> void:
 	visible = false
+	var terminal: E_Terminal = get_parent() as E_Terminal
+	if terminal != null:
+		terminal.panel_open_requested.connect(open_for)
+		terminal.panel_close_requested.connect(close_panel)
+		terminal.panel_state_requested.connect(_record_panel_state)
 	var hint: InputPromptLabel = InputPromptLabel.new()
 	hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	hint.position = Vector2(-280, -65)
@@ -97,7 +102,7 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if not visible:
 		return
-	if not is_instance_valid(_reader) or not GrabService.holder_available(_reader):
+	if not is_instance_valid(_reader) or not GrabQueries.holder_available(_reader):
 		close_panel()
 		return
 
@@ -114,7 +119,7 @@ func open_for(actor: Entity) -> void:
 	if visible:
 		_refresh(true)
 		return
-	if not GrabService.holder_available(actor):
+	if not GrabQueries.holder_available(actor):
 		return
 
 	_reader = actor
@@ -152,9 +157,9 @@ func close_panel() -> void:
 
 #region Список посылок и сортировка
 func _refresh(force: bool = false) -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	_orders_button.disabled = CommerceService.current() == null or cycle == null or cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING]
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger == null:
 		_clear_package_rows()
 		_package_detail.clear_info()
@@ -162,7 +167,7 @@ func _refresh(force: bool = false) -> void:
 
 	var states: Dictionary[String, C_PackageState] = _live_states()
 	var visits: Dictionary[String, CustomerVisit] = _visits_by_package()
-	var deliveries: Dictionary[String, TerminalDeliveryInfo] = NpcDeliveryOfferService.published_by_package(ledger, states, visits)
+	var deliveries: Dictionary[String, TerminalDeliveryInfo] = HomeDeliveryQueries.published_by_package(ledger, states, visits)
 	var signature: String = _data_signature(ledger, states, visits, deliveries)
 	if not force and signature == _last_data_signature:
 		return
@@ -190,7 +195,7 @@ func _rebuild_package_rows(
 	if not selected_visible:
 		_selected_package_id = records[0].package_id if not records.is_empty() else ""
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var actions_enabled: bool = cycle != null and cycle.phase != C_DayCycle.Phase.NIGHT
 	for record: PackageRegistrationRecord in records:
 		var delivery: TerminalDeliveryInfo = deliveries.get(record.package_id) as TerminalDeliveryInfo
@@ -490,12 +495,12 @@ static func _help_entries() -> PackedStringArray:
 
 #region Снимок данных и видимость панелей
 func _live_states() -> Dictionary[String, C_PackageState]:
-	return PackageRegistrationService.live_states()
+	return PackageQueries.live_states()
 
 
 func _visits_by_package() -> Dictionary[String, CustomerVisit]:
 	var result: Dictionary[String, CustomerVisit] = {}
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow == null:
 		return result
 
@@ -512,7 +517,7 @@ func _data_signature(
 	deliveries: Dictionary[String, TerminalDeliveryInfo] = {},
 ) -> String:
 	var parts: PackedStringArray = ["debug:%s" % debug_package_status_enabled]
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	parts.append("phase:%d" % (cycle.phase if cycle != null else -1))
 	for record: PackageRegistrationRecord in ledger.records:
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
@@ -646,7 +651,7 @@ func _on_delivery_declined(job_id: StringName) -> void:
 func _respond_delivery(job_id: StringName, accept_delivery: bool) -> void:
 	if not visible:
 		return
-	var job: NpcHomeDelivery = NpcDeliveryOfferService.find(job_id)
+	var job: NpcHomeDelivery = HomeDeliveryQueries.find(job_id)
 	if job == null or not job.published:
 		return
 	_selected_package_id = job.package_id
@@ -743,9 +748,15 @@ func _on_orders_pressed() -> void:
 
 	var actor: Entity = _reader
 	close_panel()
-	CommercePanelService.open(actor, null, true)
+	CommercePanelFactory.open(actor, null, true)
 
 
 
 
+#endregion
+
+
+#region Native terminal visibility response
+func _record_panel_state(query: TerminalPanelStateQuery) -> void:
+	query.record_open(visible)
 #endregion

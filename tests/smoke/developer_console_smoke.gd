@@ -191,6 +191,6 @@ func _single_debug_package() -> Entity:
 ## Продвигает только GamePlay заданное число тактов по 1/60 секунды.
 func _process_gameplay(ticks: int) -> void:
 	for tick: int in ticks:
-		ECS.world.process(1.0 / 60.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 
 #endregion

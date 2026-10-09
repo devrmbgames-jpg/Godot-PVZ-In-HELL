@@ -71,13 +71,13 @@ func test_id_and_all_tags_must_match_one_item() -> void:
 	identity.item_id = &"warehouse_key"
 	identity.tags = [&"brass"]
 	_requirement.required_tags = [&"brass", &"warehouse"]
-	assert_false(ItemAccessService.matches(identity, _requirement))
+	assert_false(ItemAccessRules.matches(identity, _requirement))
 	identity.tags.append(&"warehouse")
-	assert_true(ItemAccessService.matches(identity, _requirement))
+	assert_true(ItemAccessRules.matches(identity, _requirement))
 	identity.item_id = &"other_key"
-	assert_false(ItemAccessService.matches(identity, _requirement))
+	assert_false(ItemAccessRules.matches(identity, _requirement))
 	_requirement.required_item_id = &""
-	assert_true(ItemAccessService.matches(identity, _requirement), "Tags alone are supported")
+	assert_true(ItemAccessRules.matches(identity, _requirement), "Tags alone are supported")
 
 
 ## Ключ в любой руке даёт доступ по Relationship; устаревший кеш руки не даёт.
@@ -119,12 +119,12 @@ func test_consumption_is_opt_in_and_removes_only_matching_item() -> void:
 	var left: Entity = _key()
 	var right: Entity = _key(C_Grabbable.HoldSlot.RIGHT_HAND)
 	assert_true(OpenableService.request(_actor, _target, OpenableService.Operation.UNLOCK))
-	assert_true(GrabService.entity_available(left))
+	assert_true(GrabQueries.entity_available(left))
 	_state.locked = true
 	_requirement.consume_item = true
 	assert_true(OpenableService.request(_actor, _target, OpenableService.Operation.UNLOCK))
-	assert_false(GrabService.entity_available(left))
-	assert_true(GrabService.entity_available(right))
+	assert_false(GrabQueries.entity_available(left))
+	assert_true(GrabQueries.entity_available(right))
 
 
 ## Пустое требование с расходованием отклоняется, не забирая произвольный предмет.
@@ -146,8 +146,8 @@ func test_provider_refusal_keeps_lock_and_item_unchanged() -> void:
 	assert_true(OpenableService.can_request(_actor, _target, OpenableService.Operation.UNLOCK))
 	assert_false(OpenableService.request(_actor, _target, OpenableService.Operation.UNLOCK))
 	assert_true(_state.locked)
-	assert_true(GrabService.entity_available(item))
-	assert_not_null(GrabService.held_relationship(item))
+	assert_true(GrabQueries.entity_available(item))
+	assert_not_null(GrabQueries.held_relationship(item))
 
 
 #endregion
@@ -159,26 +159,26 @@ func test_motion_proposal_is_bounded_and_does_not_advance_blocked_state() -> voi
 	_state.motion = DEF_OpenableMotion.new()
 	_state.motion.duration_seconds = 2.0
 	_state.requested_open = true
-	assert_eq(OpenableService.proposed_fraction(_state, 1.0), 0.5)
+	assert_eq(OpenableMotionSolver.proposed_fraction(_state, 1.0), 0.5)
 	assert_eq(_state.actual_fraction, 0.0)
-	assert_eq(OpenableService.proposed_fraction(_state, 100.0), 1.0)
+	assert_eq(OpenableMotionSolver.proposed_fraction(_state, 100.0), 1.0)
 	assert_true(OpenableService.report_fraction(_state, 0.3))
 	assert_true(OpenableService.request(_actor, _target, OpenableService.Operation.CLOSE))
-	assert_eq(OpenableService.proposed_fraction(_state, 1.0), 0.0)
+	assert_eq(OpenableMotionSolver.proposed_fraction(_state, 1.0), 0.0)
 	assert_false(OpenableService.report_fraction(_state, NAN))
 	assert_false(OpenableService.report_fraction(_state, 1.1))
 	assert_eq(_state.actual_fraction, 0.3)
 	_state.locked = true
-	assert_eq(OpenableService.proposed_fraction(_state, 1.0), 0.3)
+	assert_eq(OpenableMotionSolver.proposed_fraction(_state, 1.0), 0.3)
 
 
 ## Один контракт интерполяции поддерживает сдвиг ящика и поворот двери.
 func test_same_motion_contract_supports_translation_and_rotation() -> void:
 	var motion: DEF_OpenableMotion = DEF_OpenableMotion.new()
 	motion.open_transform.origin = Vector3(0.0, 0.0, 0.6)
-	assert_eq(OpenableService.local_transform(motion, 0.5).origin, Vector3(0.0, 0.0, 0.3))
+	assert_eq(OpenableMotionSolver.local_transform(motion, 0.5).origin, Vector3(0.0, 0.0, 0.3))
 	motion.open_transform = Transform3D(Basis(Vector3.UP, PI / 2.0), Vector3.ZERO)
-	var halfway: Transform3D = OpenableService.local_transform(motion, 0.5)
+	var halfway: Transform3D = OpenableMotionSolver.local_transform(motion, 0.5)
 	assert_almost_eq(halfway.basis.get_euler().y, PI / 4.0, 0.0001)
 
 #endregion

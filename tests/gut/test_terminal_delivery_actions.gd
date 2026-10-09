@@ -35,7 +35,7 @@ func _delivery(visit: CustomerVisit) -> NpcHomeDelivery:
 
 func _published(visit: CustomerVisit) -> TerminalDeliveryInfo:
 	var visits: Dictionary[String, CustomerVisit] = {visit.package_id: visit}
-	return NpcDeliveryOfferService.published_by_package(PackageRegistrationService.ledger(), PackageRegistrationService.live_states(), visits).get(visit.package_id) as TerminalDeliveryInfo
+	return HomeDeliveryQueries.published_by_package(PackageQueries.ledger(), PackageQueries.live_states(), visits).get(visit.package_id) as TerminalDeliveryInfo
 
 func _description() -> String:
 	return (_panel.get_node("%PackageDetailInfo").get_node("%RichTextLabelDescription") as RichTextLabel).text
@@ -56,13 +56,13 @@ func test_delivery_button_accepts_one_order_and_repeated_request_is_safe() -> vo
 	assert_eq(_district.home_deliveries.size(), 2)
 	assert_eq(visit.next_followup_day, 2)
 	assert_eq(visit.declaration, CustomerVisit.Declaration.NONE)
-	assert_not_null(CustomerFlowService.parcel_for(visit.package_id))
+	assert_not_null(PackageQueries.find_live_package(visit.package_id))
 	assert_eq(WalletService.current().operations.size(), 0)
 	_panel._on_delivery_accepted(job.job_id)
 	assert_eq(_district.home_deliveries.size(), 2)
 	assert_true("Принята" in _description())
 	assert_true("до утра дня 2" in _description())
-	assert_true(("Доставка: " + DistrictPopulationService.place_name(job.address_id)) in _description())
+	assert_true(("Доставка: " + NpcPopulationQueries.place_name(job.address_id)) in _description())
 	assert_false((_line(visit.package_id).get_node("%ButtonDeliveryOK") as Button).visible)
 	_panel.close_panel()
 	_panel.open_for(_player)
@@ -82,7 +82,7 @@ func test_decline_button_preserves_ordinary_collection() -> void:
 	assert_false(visit.home_delivery_declined)
 	assert_eq(visit.next_followup_day, 0)
 	assert_eq(visit.declaration, CustomerVisit.Declaration.NONE)
-	assert_not_null(CustomerFlowService.parcel_for(visit.package_id))
+	assert_not_null(PackageQueries.find_live_package(visit.package_id))
 	assert_eq(WalletService.current().balance, 0)
 	assert_true("Предложение отклонено" in _description())
 
@@ -111,13 +111,13 @@ func test_missing_box_and_night_disable_offer_actions() -> void:
 	var job: NpcHomeDelivery = _delivery(visit)
 	_create_panel()
 	_panel.open_for(_player)
-	DayPhaseService.current().phase = C_DayCycle.Phase.NIGHT
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.NIGHT
 	_panel._refresh()
 	assert_true((_line(visit.package_id).get_node("%ButtonDeliveryOK") as Button).disabled)
 	_panel._on_delivery_accepted(job.job_id)
 	assert_eq(job.status, NpcHomeDelivery.Status.OFFERED)
-	DayPhaseService.current().phase = C_DayCycle.Phase.EVENING
-	var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.EVENING
+	var parcel: Entity = PackageQueries.find_live_package(visit.package_id)
 	_world.remove_entity(parcel)
 	parcel.queue_free()
 	_panel._refresh()
@@ -146,7 +146,7 @@ func test_detail_read_clears_only_selected_notification() -> void:
 	var visit: CustomerVisit = _terminal_visit()
 	_create_panel()
 	assert_true((_line(visit.package_id).get_node("%TextureAlertIconInfo") as Control).visible)
-	_panel._selected_package_id = CustomerFlowService.current().visits[0].package_id
+	_panel._selected_package_id = CustomerFlowQueries.current().visits[0].package_id
 	_panel.open_for(_player)
 	assert_true((_line(visit.package_id).get_node("%TextureAlertIconInfo") as Control).visible)
 	_panel._on_package_selected(visit.package_id)
@@ -165,7 +165,7 @@ func test_notice_priority_and_later_complaint_decision() -> void:
 	var visit: CustomerVisit = _terminal_visit()
 	var record: PackageRegistrationRecord = PackageHistoryService.record_for(visit.package_id)
 	var info: TerminalDeliveryInfo = _published(visit)
-	assert_true(CustomerFlowService.create_complaint(visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true))
+	assert_true(CustomerVisitLifecycle.create_complaint(visit, 1, CustomerComplaint.Reason.NOT_DELIVERED, true))
 	var notice: TerminalPackageNotice = TerminalPackageNoticeService.present(record, visit, info)
 	assert_eq(notice.severity, TerminalPackageNotice.Severity.WARNING)
 	assert_true(TerminalPackageNoticeService.mark_read(record.history_id, notice.event_ids))

@@ -29,10 +29,10 @@ func _run() -> void:
 	else:
 		for frame: int in MAX_RECEIVING_FRAMES:
 			await get_tree().physics_frame
-			if CustomerFlowService.current().visits.size() == 5:
+			if CustomerFlowQueries.current().visits.size() == 5:
 				break
 		level.set_physics_process(false)
-		_check(CustomerFlowService.current().visits.size() == 5, "real receiving batch ready")
+		_check(CustomerFlowQueries.current().visits.size() == 5, "real receiving batch ready")
 		if not _failed:
 			await _buy(level)
 	print("Trader purchase smoke ", "restore" if restoring else "write", ": ", "FAIL" if _failed else "PASS")
@@ -41,22 +41,22 @@ func _run() -> void:
 func _buy(level: Node3D) -> void:
 	var player: Entity = level.get_node("Entityes/Player") as Entity
 	var merchant: E_DistrictNpc = NpcActivityService.merchant()
-	_check(GrabService.holder_available(merchant), "permanent merchant available in morning")
+	_check(GrabQueries.holder_available(merchant), "permanent merchant available in morning")
 	if _failed:
 		return
 
-	var cycle: C_DayCycle = DayPhaseService.current()
-	var person: NpcRecord = DistrictPopulationService.person_for((merchant.get_component(C_NpcIdentity) as C_NpcIdentity).npc_id)
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var person: NpcRecord = NpcPopulationQueries.person_for((merchant.get_component(C_NpcIdentity) as C_NpcIdentity).npc_id)
 	var shop: C_Trader = merchant.get_component(C_Trader) as C_Trader
 	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		cycle.phase = phase
-		DistrictPopulationService.plan_phase(person, 1, phase)
+		_check(DistrictPopulationService.request_phase(merchant, 1, phase).succeeded, "merchant phase request committed")
 		_check(person.profile.schedule.location_for(1, phase) == DEF_NpcSchedule.Location.STREET, "merchant schedule stays local")
-		_check(TraderCatalogService.is_open(shop, cycle), "profile allows live phase")
+		_check(TraderCatalogRules.is_open(shop, cycle), "profile allows live phase")
 	cycle.phase = C_DayCycle.Phase.DAY
 	WalletService.current().balance = INITIAL_BALANCE
-	var shelf: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_large_shelf.tres") as DEF_InventoryItem
-	var panel: CommercePanel = CommercePanelService.open(player, merchant)
+	var shelf: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_large_shelf.tres") as DEF_InventoryItem
+	var panel: CommercePanel = CommercePanelFactory.open(player, merchant)
 	_check(panel != null, "real player opens shop in day")
 	if _failed:
 		return

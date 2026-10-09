@@ -72,7 +72,7 @@ func _run() -> void:
 	var wallet: C_Wallet = WalletService.current()
 	var balance: int = wallet.balance
 	wallet.balance += 123
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
 	## Загрузка из меню во время смены должна восстановить сохранение в новом World.
 	var load_button: Button = menu.find_child("Session_load", true, false) as Button
@@ -88,7 +88,7 @@ func _run() -> void:
 	confirmation.confirmed.emit()
 	await get_tree().process_frame
 	level = await _wait_scene(GameSessionService.MAIN_LEVEL)
-	assert(DayPhaseService.current().phase == C_DayCycle.Phase.MORNING)
+	assert(DayPhaseQueries.current().phase == C_DayCycle.Phase.MORNING)
 	assert(WalletService.current().balance == balance)
 	assert(not get_tree().paused)
 

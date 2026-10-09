@@ -70,12 +70,12 @@ func _run() -> void:
 #region Тестовое наведение
 func _aim(target: Entity, offset: Vector3, approach: Vector3 = Vector3.BACK) -> void:
 	var position: Vector3 = (target as Node as Node3D).global_position + offset
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	ray.global_position = position + approach * 1.5
 	ray.look_at(position)
 	await _frames(2)
 	var interactor: C_Interactor = _actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(_actor, interactor)
 	assert(interactor.target == target, "Targeting must hit the actual main-scene interaction surface")
 
 

@@ -5,7 +5,7 @@ const FRAME_DELTA: float = 0.1
 
 var _world: World = null
 var _actor: E_RigidBodyCharacter = null
-var _subject: E_Customer = null
+var _subject: E_NpcCharacter = null
 var _state: C_Challenge = null
 var _observation: C_GazeChallenge = null
 var _rule: DEF_GazeChallengeCondition = null
@@ -21,9 +21,9 @@ func before_each() -> void:
 	ECS.world = _world
 	_world.add_system(S_ChallengeGaze.new())
 	_world.add_system(S_ChallengeRuntime.new())
-	var receiver: S_CustomerChallengeOutcome = S_CustomerChallengeOutcome.new()
+	var receiver: O_CustomerChallengeOutcome = O_CustomerChallengeOutcome.new()
 	receiver.escalation_requested.connect(_on_escalation)
-	_world.add_system(receiver)
+	_world.add_observer(receiver)
 	_world.add_observer(O_ChallengeLifecycle.new())
 
 	var session: Entity = Entity.new()
@@ -31,18 +31,18 @@ func before_each() -> void:
 	_world.add_entity(session)
 	(session.get_component(C_DayCycle) as C_DayCycle).phase = C_DayCycle.Phase.DAY
 	_actor = _character(false)
-	_subject = _character(true) as E_Customer
+	_subject = _character(true) as E_NpcCharacter
 	(_subject as Node as Node3D).position = Vector3(0.0, 0.0, -3.0)
 	_state = C_Challenge.new()
-	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_dont_look.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition = (load("res://content/domains/challenges/definitions/def_challenge_dont_look.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
 	# Тест механики использует короткие интервалы; авторские сроки проверяются отдельно.
 	_state.definition.violation_grace_seconds = 3.0
 	_observation = C_GazeChallenge.new()
 
-	var agent: C_CustomerAgent = C_CustomerAgent.new()
+	var agent: C_CustomerAgent = _subject.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = &"gaze-test"
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	_subject.add_components([_state, _observation, agent])
+	_subject.add_components([_state, _observation])
 	_rule = _state.definition.condition as DEF_GazeChallengeCondition
 	_visit = CustomerVisit.new()
 	_visit.visit_id = agent.visit_id
@@ -73,7 +73,7 @@ func _character(customer: bool) -> E_RigidBodyCharacter:
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.collision_layer = 2 if customer else 4
-	body.set_script(load("res://content/entities/customers/e_customer.gd" if customer else "res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/customers/entities/e_customer.gd" if customer else "res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	var entity: E_RigidBodyCharacter = body as Node as E_RigidBodyCharacter
 	var eyes: Marker3D = Marker3D.new()
 	eyes.position.y = 1.5
@@ -107,22 +107,22 @@ func _on_escalation(_customer: Entity, _player: Entity, _event: ChallengeResolut
 ## Проверяет включительные границы угла/расстояния и недопустимое нулевое направление.
 func test_geometry_angle_distance_boundaries_and_invalid_direction() -> void:
 	var direction: Vector3 = Vector3.FORWARD.rotated(Vector3.UP, deg_to_rad(_rule.half_angle_degrees))
-	GazeTrackingService.measure_geometry(Vector3.ZERO, Vector3.FORWARD, direction * 3.0, _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, direction * 3.0, _rule, _observation)
 	assert_true(_observation.within_angle)
 	assert_true(_observation.within_range)
-	GazeTrackingService.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.FORWARD * _rule.maximum_distance, _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.FORWARD * _rule.maximum_distance, _rule, _observation)
 	assert_true(_observation.within_range)
-	GazeTrackingService.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.FORWARD * (_rule.maximum_distance + 0.1), _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.FORWARD * (_rule.maximum_distance + 0.1), _rule, _observation)
 	assert_false(_observation.within_range)
-	GazeTrackingService.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.BACK, _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.FORWARD, Vector3.BACK, _rule, _observation)
 	assert_false(_observation.within_angle)
-	GazeTrackingService.measure_geometry(Vector3.ZERO, Vector3.ZERO, Vector3.FORWARD, _rule, _observation)
+	GazeTrackingGeometry.measure_geometry(Vector3.ZERO, Vector3.ZERO, Vector3.FORWARD, _rule, _observation)
 	assert_false(_observation.sample_valid)
 
 
 ## Поза головы и реальная стена определяют внимание, исключая собственный collider.
 func test_actual_head_pose_and_physics_wall_determine_attention() -> void:
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_true(_observation.attention, "Actor collider must be excluded and target collider must count as visible")
 	var wall: StaticBody3D = StaticBody3D.new()
 	var shape_node: CollisionShape3D = CollisionShape3D.new()
@@ -134,14 +134,14 @@ func test_actual_head_pose_and_physics_wall_determine_attention() -> void:
 	add_child(wall)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_true(_observation.within_angle)
 	assert_false(_observation.line_of_sight)
 	assert_false(_observation.attention)
 	wall.free()
 	await get_tree().physics_frame
 	_actor.head_axis_x.rotation.y = PI
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_false(_observation.within_angle)
 	assert_false(_observation.attention)
 
@@ -152,17 +152,17 @@ func test_actor_camera_pose_overrides_head_and_unrelated_camera_does_not() -> vo
 	_actor.head_axis_x.add_child(camera)
 	camera.make_current()
 	camera.rotation.y = PI
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_false(_observation.attention)
 	camera.rotation.y = 0.0
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_true(_observation.attention)
 
 	var unrelated: Camera3D = Camera3D.new()
 	add_child(unrelated)
 	unrelated.rotation.y = PI
 	unrelated.make_current()
-	GazeTrackingService.sample(_actor, _subject, _rule, _observation)
+	GazeTrackingGeometry.sample(_actor, _subject, _rule, _observation)
 	assert_true(_observation.attention, "Another actor's camera must not supply this actor's gaze")
 	unrelated.free()
 
@@ -195,7 +195,7 @@ func test_dont_look_warns_resets_and_fails_at_continuous_threshold_once() -> voi
 
 ## Обратное правило требует сохранять взгляд до окончания, без досрочного успеха.
 func test_keep_looking_is_inverse_configuration_and_compliance_is_not_early_success() -> void:
-	_state.definition = (load("res://content/definitions/gameplay/challenges/def_challenge_keep_looking.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
+	_state.definition = (load("res://content/domains/challenges/definitions/def_challenge_keep_looking.tres") as DEF_Challenge).duplicate(true) as DEF_Challenge
 	_state.definition.violation_grace_seconds = 3.0
 	_rule = _state.definition.condition as DEF_GazeChallengeCondition
 	_start()
@@ -295,20 +295,20 @@ func test_customer_spawn_activates_arrival_challenge_before_approach_and_dialogu
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	flow.visits.clear()
 	flow.schedule = DEF_CustomerSchedule.new()
-	flow.schedule.customer_scene = load("res://content/entities/customers/customer.tscn") as PackedScene
+	flow.schedule.customer_scene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 
 	var visit: CustomerVisit = CustomerVisit.new()
 	visit.visit_id = &"arrival-gaze"
 	visit.requires_registered_package = false
 	visit.arrival_day = cycle.day_index
-	visit.definition = load("res://content/definitions/gameplay/customers/def_customer_gaze.tres") as DEF_Customer
+	visit.definition = load("res://content/domains/customers/definitions/def_customer_gaze.tres") as DEF_Customer
 	flow.visits.append(visit)
-	var scene: PackedScene = load("res://content/entities/stations/delivery_counter.tscn") as PackedScene
+	var scene: PackedScene = load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene
 	var station: E_DeliveryCounter = scene.instantiate() as E_DeliveryCounter
 	_world.add_entity(station)
-	assert_true(CustomerFlowService.spawn_next_due(flow, cycle))
+	assert_true(CustomerFlowFixture.spawn(flow, cycle))
 
-	var customer: E_Customer = CustomerFlowService.customer_for(visit.visit_id)
+	var customer: E_NpcCharacter = CustomerFlowQueries.customer_for(visit.visit_id)
 	assert_not_null(customer)
 	if customer == null:
 		return

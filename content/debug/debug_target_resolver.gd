@@ -94,7 +94,7 @@ static func _resolve_registration_number(result: DebugTarget) -> DebugTarget:
 		result.error = "registration number must be positive"
 		return result
 
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger == null:
 		result.error = "package ledger is unavailable"
 		return result
@@ -136,7 +136,7 @@ static func _resolve_visit(result: DebugTarget, visit_id: String) -> DebugTarget
 		result.error = "visit id is empty"
 		return result
 
-	var visit: CustomerVisit = CustomerFlowService.find_visit(StringName(normalized))
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(StringName(normalized))
 	if visit == null:
 		result.error = "visit was not found: %s" % normalized
 		return result
@@ -183,7 +183,7 @@ static func _package_entity(package_id: String) -> Entity:
 
 
 static func _registration_for_package(package_id: String) -> PackageRegistrationRecord:
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger == null:
 		return null
 
@@ -194,7 +194,7 @@ static func _registration_for_package(package_id: String) -> PackageRegistration
 
 
 static func _visit_for_package(package_id: String) -> CustomerVisit:
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow == null:
 		return null
 

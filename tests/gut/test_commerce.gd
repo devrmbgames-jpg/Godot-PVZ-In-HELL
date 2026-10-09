@@ -20,22 +20,26 @@ func before_each() -> void:
 	_world.add_observer(O_InventoryEffect.new())
 	_world.add_observer(O_InventoryLifecycle.new())
 	var session: Entity = Entity.new()
-	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new()]
+	session.component_resources = [
+		C_DayCycle.new(), C_Wallet.new(), C_Commerce.new(), C_BoundaryTrace.new()
+	]
 	_world.add_entity(session)
 	_cycle = session.get_component(C_DayCycle) as C_DayCycle
 	_wallet = session.get_component(C_Wallet) as C_Wallet
 	_commerce = session.get_component(C_Commerce) as C_Commerce
 	_cycle.phase = C_DayCycle.Phase.EVENING
 	_wallet.balance = 500
-	_food = load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem
-	_med = load("res://content/definitions/gameplay/inventory/def_item_med.tres") as DEF_InventoryItem
+	_food = load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem
+	_med = load("res://content/domains/inventory/definitions/def_item_med.tres") as DEF_InventoryItem
 	_actor = Entity.new()
 	_actor.component_resources = [C_Inventory.new()]
 	_world.add_entity(_actor)
 	_trader = Entity.new()
 
 	var shop: C_Trader = C_Trader.new()
-	shop.catalog = [_food, _med]
+	shop.profile = DEF_TraderProfile.new()
+	shop.profile.catalog = [_food, _med]
+	shop.profile.home_delivery_enabled = false
 	_trader.component_resources = [shop]
 	_world.add_entity(_trader)
 
@@ -50,6 +54,26 @@ func after_each() -> void:
 #endregion
 
 #region Атомарная покупка
+## Trace reports the committed/duplicate/rejected transaction after its inventory and wallet state.
+func test_commerce_trace_matches_idempotent_transaction_status_and_identity() -> void:
+	var operation_id: StringName = &"trace/purchase"
+	assert_eq(CommerceService.purchase(_actor, _trader, _food, 1, operation_id),
+		CommerceService.Status.COMMITTED)
+	var committed_balance: int = _wallet.balance
+	assert_eq(CommerceService.purchase(_actor, _trader, _food, 1, operation_id),
+		CommerceService.Status.DUPLICATE)
+	assert_eq(_wallet.balance, committed_balance)
+	assert_eq(CommerceService.purchase(_actor, _trader, _food, 2, operation_id),
+		CommerceService.Status.CONFLICT)
+	var trace_rows: Array[Dictionary] = BoundaryTrace.snapshots(String(_food.key))
+	assert_eq(trace_rows.size(), 3)
+	assert_eq(trace_rows[0]["stage"], BoundaryTraceEntry.Stage.COMPLETED)
+	assert_eq(trace_rows[1]["stage"], BoundaryTraceEntry.Stage.DUPLICATE)
+	assert_eq(trace_rows[2]["stage"], BoundaryTraceEntry.Stage.REJECTED)
+	assert_eq(trace_rows[2]["reason"], &"conflict")
+	assert_eq(trace_rows[0]["correlation_id"], operation_id)
+
+
 ## Одна операция списывает деньги и выдаёт количество один раз; изменение её данных даёт конфликт.
 func test_purchase_debits_once_and_grants_owned_quantity_once() -> void:
 	assert_eq(CommerceService.purchase(_actor, _trader, _food, 2, &"buy:1"), CommerceService.Status.COMMITTED)
@@ -87,7 +111,7 @@ func test_full_inventory_and_bad_catalog_do_not_charge() -> void:
 	assert_eq(CommerceService.purchase(_actor, _trader, _med, 1, &"blocked"), CommerceService.Status.INVENTORY_FULL)
 	assert_eq(_wallet.balance, balance)
 	assert_eq(_commerce.receipts.size(), 1)
-	var wrap: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_bubble_wrap.tres") as DEF_InventoryItem
+	var wrap: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_bubble_wrap.tres") as DEF_InventoryItem
 	assert_eq(CommerceService.purchase(_actor, _trader, wrap, 1, &"not-stocked"), CommerceService.Status.INVALID)
 	assert_eq(_wallet.balance, balance)
 
@@ -149,17 +173,17 @@ func test_persistent_records_copy_and_serial_prevent_request_id_collision() -> v
 
 ## Учётная стоимость коробки отличается от рыночной цены содержимого; upgrade-заготовки имеют свои ID.
 func test_authored_market_contents_and_upgrade_stubs_are_distinct_data() -> void:
-	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
 	var compared: bool = false
 	for parcel: DEF_Package in supply.packages:
 		if parcel.content_item_key == &"bubble_wrap":
-			var wrap: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_bubble_wrap.tres") as DEF_InventoryItem
+			var wrap: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_bubble_wrap.tres") as DEF_InventoryItem
 			assert_eq(parcel.content_quantity, 4)
 			assert_ne(parcel.accounting_value, wrap.market_price * parcel.content_quantity)
 			compared = true
 	assert_true(compared)
 	for key: String in ["label_printer", "cart", "better_scanner", "storage_upgrade"]:
-		var upgrade: DEF_Upgrade = load("res://content/definitions/gameplay/commerce/def_upgrade_%s.tres" % key) as DEF_Upgrade
+		var upgrade: DEF_Upgrade = load("res://content/domains/commerce/definitions/def_upgrade_%s.tres" % key) as DEF_Upgrade
 		assert_not_null(upgrade)
 		assert_eq(upgrade.key, StringName(key))
 

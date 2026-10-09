@@ -1,12 +1,12 @@
 [gd_scene format=3 uid="uid://cyxcnblvg4iej"]
 
-[ext_resource type="Script" uid="uid://ct85lgjgqav4u" path="res://content/entities/props/e_pushable_body.gd" id="1_body"]
+[ext_resource type="Script" uid="uid://ct85lgjgqav4u" path="res://content/domains/interaction/entities/e_pushable_body.gd" id="1_body"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="2_component"]
-[ext_resource type="Script" uid="uid://f63mfe65d51u" path="res://content/components/interaction/c_pushable.gd" id="3_pushable"]
-[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="4_interactable"]
-[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="5_6r04d"]
-[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="5_actions"]
-[ext_resource type="Script" uid="uid://c1hb3cuxhf0u8" path="res://content/definitions/interaction/def_push_action.gd" id="6_action"]
+[ext_resource type="Script" uid="uid://f63mfe65d51u" path="res://content/domains/interaction/components/c_pushable.gd" id="3_pushable"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="4_interactable"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="5_6r04d"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="5_actions"]
+[ext_resource type="Script" uid="uid://c1hb3cuxhf0u8" path="res://content/domains/interaction/definitions/def_push_action.gd" id="6_action"]
 
 [sub_resource type="Resource" id="Pushable"]
 script = ExtResource("3_pushable")

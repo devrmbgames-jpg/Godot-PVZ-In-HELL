@@ -1,0 +1,170 @@
+# Typed gameplay boundaries
+
+Request/Command carries intent. A `true` submission accepts dispatch and does not promise
+completion. Event/Result carries a committed fact, or an explicit terminal rejection.
+Synchronous domain operations return their committed result directly. They do not need an
+artificial event pair. `World.emit_event` is synchronous; structural CommandBuffer work is not.
+`deps()` orders Systems but does not flush `PER_GROUP` work.
+
+## Owning boundaries
+
+| Domain | Entry / sole command handler | Completion / commit point | Idempotency and regression |
+|---|---|---|---|
+| Damage | `DamageRequestService.submit(DamageRequest)` → `O_Damage` | `DamageResult.EVENT` follows health arithmetic, with copied attribution/correlation and stable target ID; rejected/blocked results cannot announce applied damage | Separate hits remain separate commands. Death/depletion/package consumers protect their own terminal effects. `test_refactoring_v2_boundaries`, `test_damage_feedback`, combat regressions |
+| Commerce | `CommerceService.purchase`, `order`, `home_delivery` | Returned `Status.COMMITTED` follows wallet, grant/delivery and `PurchaseReceipt`; diagnostics follow the same mutation | Operation ID + payload receipt detect duplicate/conflict. `test_commerce` |
+| Interaction | Existing synchronous action API; `PackageOpening.request_open` → `O_PackageOpening` for deferred opening | `PackageOpenResult` remains `PENDING` until the handler commits; prolonged action succeeds only on `COMMITTED`. `PlayerInteractionEvent` and `PackageLifecycleEvent` describe actual transitions | Opening state prevents replay; action completion cannot mistake dispatch for success. `test_package_contents`, `test_player_interaction_events`, `test_prolonged_session` |
+| Customer outcomes | `CustomerOutcomeService` synchronous operations; Dialogue contexts validate the current session before invoking them | Bool success means committed mutation of the current `CustomerVisit` aggregate; settlement flags and wallet journal precede trace completion | Intent mask, riddle flags, complaint/declaration/settlement history protect repeated actions. Closed contexts reject late mutations; panel discards late awaited lines and releases pinned runtime references. `test_customer_dialogue`, `test_customer_flow` |
+| Quests | `RefusalQuestService.accept` / `ignore`; scheduled resolution remains task 19 | Choice returns committed bool; resolution records state and removes live binding before diagnostics; reward follows wallet result and `reward_paid` | Quest state and deterministic reward operation ID protect repeat effects. `test_refusal_quest` |
+| Hazards | `HazardSpawnService.submit` → `O_HazardSpawn`; `HazardResetRequest` → reset observer | `HazardSpawnResult.EVENT` follows materialization and required ownership links; bool submit is dispatch only | Request ID deduplication; scheduled ownership review remains task 23 |
+| Lights | `LightFlickerRequest` → `O_LightFlicker` | START/STOP are requests on the preserved `light_flickering` channel; `CircuitLightView` presents the request, not a second gameplay handler | No legacy `LightFlickerEvent` alias; light regressions |
+
+## Existing payload classification
+
+- Intent: `DamageRequest`, `PackageOpenRequest`, `HazardSpawnRequest`, `HazardResetRequest`,
+  `LightFlickerRequest`, `DayTransitionRequest`, `MoneyOperation`, `CustomerDialogueIntent`.
+- Terminal facts/results: `DamageResult`, `DamageFeedback`, `HealthDepletionEvent`,
+  `ImpactResult`, `PackageOpenResult`, `PackageLifecycleEvent`, `PackageDebrisSpawnedEvent`,
+  `PlayerInteractionEvent`, `HazardSpawnResult`, `ChallengeResult`, `ChallengeResolution`,
+  `DailyMoneyResult`, `PackageDeliveryCheck`, `PackageScanResult`, `AccessResult`, `GameSaveResult`.
+- ECS-owned records / immutable authored or computed data: visits/complaints, quest records,
+  purchase receipts/pending deliveries, NPC population/delivery/memory records, receiving batches,
+  package registration/mark/history records, body/contact snapshots, interaction progress/captures,
+  attack/action choices, combat/route/lighting/control contexts and presentation notices.
+  Their Resource/RefCounted representation does not establish a second mutable authority.
+
+## Diagnostic provider
+
+`BoundaryTrace` is the sole writer of transient `C_BoundaryTrace.entries`. The optional session
+component retains at most 128 reason-coded entries with operation, stage, correlation, origin
+and target IDs. `snapshots()` returns detached scalar copies. Domain identities prefer package,
+NPC and persistent IDs, then explicit Entity ID; never NodePath or instance ID. Explicit commerce,
+visit, quest and hazard IDs keep their domain meaning. Automatic IDs are session-local diagnostics,
+not persistent idempotency keys. Entries authorize no effects and are excluded from save codecs.
+
+Provider fixtures live in task 40; the read-only debugger presentation belongs to task 48.
+Execution dispatcher removal remains with tasks 11–25, contract relocation with task 28 and
+dependency enforcement with task 33. There is no global dispatcher or wildcard subscription.
+
+## Customer planning execution owner (task 11)
+
+O_CustomerPlanning is the sole handler of CustomerPlanningRequest (discrete planning/reconciliation).
+A completion receipt is pending until its actual buffer flush; stale runtime session/day may reject
+with rejection_reason. DayPhaseChanged is an immutable committed phase snapshot, also used to bootstrap
+the authored/restored current phase. PackageScanResult.EVENT follows actual registered state and
+releases due followups in the same day. S_CustomerFlow owns recurring arrival timing/history; S_CustomerArrivals projects the count
+and submits one selected materialization after terminal phase commits. No second planning path.
+
+Planning cache is transient, rebuilt at bootstrap and invalidated by current-format restore.
+Active phases are owned by explicit Systems (task 12); outcome reactions are owned by explicit Observers (task 13).
+District enqueue belongs to 16.
+
+## Customer runtime cadence and first contact (task 12)
+
+Isolated S_CustomerClock -> S_CustomerGreeting -> phase-specific Systems -> S_CustomerArrivals
+runs before day/navigation/decision consumers. Transient scheduled_phase snapshots prevent
+multiple owners consuming a newly entered phase in the same step; they are not persisted.
+
+CustomerGreetingRequest has one synchronous O_CustomerGreeting handler. Scheduling or the
+native wait-for-parcel leaf requests first contact; the handler owns authored eligibility,
+input focus and line-of-sight checks. Announcement remains a reusable explicit command.
+
+NpcDecisionReady is a committed perception snapshot with its accumulated due-step interval.
+O_CustomerServiceClock consumes it synchronously before native BT execution; no structural
+commands are queued for scalar role/entrance clock writes. Observer MANUAL buffer mode does
+not change this boundary. Task 15 migrates the decision publisher while preserving this
+fact/cadence; there is no second Service clock or generic customer phase dispatcher.
+
+## Outcome transactions and challenge completion (task 13)
+
+CustomerOutcomeChanged identifies a committed record in the targeted flow/day aggregate.
+O_CustomerOutcomes reacts to eligible mutation/appearance/death/role facts and committed
+calendar/bootstrap snapshots; it does not poll completed outcomes each frame. Settlement
+eligibility and idempotent wallet mutation remain in CustomerOutcomeService.settle.
+Delivered TAKEN waits for its active challenge and pending consequence commit. Explicit
+morning-overdue commands preserve their supplied optional wallet endpoint. Detached data
+fixtures emit no World fact and retain explicit synchronous transaction calls.
+
+ChallengeResolution.EVENT follows actual terminal challenge state/payload mutation.
+O_CustomerChallengeOutcome owns deferred consequence application, rejects superseded
+pending results and publishes a visit fact after consequences commit. ChallengeSessionClosed
+is a separate cleanup/cancellation fact; it releases an outstanding gate without announcing
+success/failure. Removal/release also reconcile after the live appearance gate is gone.
+Complaint maturity is a committed gameplay-day/bootstrap reaction. Current-format restore
+invalidates preparation cache and reaches this owner through the next bootstrap fact.
+
+## District lifecycle requests (task 14)
+
+O_DistrictLifecycle consumes committed DayPhaseChanged snapshots and body death matches.
+S_District only bootstraps missing/restored calendar state before customer/day/AI consumers.
+NpcPhasePlanRequest and NpcScheduleCompletionRequest have one handler and pending/terminal
+receipts. The queued boundary revalidates retained body registration, aggregate record identity,
+current goal and selected decision owner; interrupted or superseded goals cannot hide the body.
+A dormant body remains a valid lifecycle target. Native completion stays RUNNING until commit.
+
+DistrictMorningPreparationRequest captures the current calendar context while requesting a
+future morning. It does not advance the day clock. Preparation commits before its succeeded
+receipt; repeated requests cannot create another replacement or reset reaction state twice.
+NightSaveService waits for this receipt before snapshot capture. Record references in requests
+are immutable identity checks, never competing mutable state or Entity-to-Entity bindings.
+Lifecycle cache fields are derived and excluded from the codec; restore invalidates them.
+
+## Native AI sampled execution (task 15)
+
+S_NpcCadence captures the accumulated due interval and calendar in transient C_NpcDecision
+fields. Scheduled order is footsteps -> due perception -> traits -> native decision -> noise
+ageing; district/customer/day commits precede cadence. Each sampled queued stage revalidates
+component identity, actor participation and calendar. NpcDecisionReady publishes after sensing
+and traits, using that same interval; O_CustomerServiceClock commits scalar role time before
+native BT. Decision checks participation again after synchronous consumers may retire the body.
+Blackboard stores no second gameplay authority. Captured scheduling fields are not serialized.
+
+NpcBrainService only installs/updates/participates/aborts the native runtime. Geometry/hearing,
+noise publication and explicit immunity/aura operations remain reusable commands/calculations.
+S_NpcRoute and S_NpcRoutePlanning own the following route step and fair physical-frame
+pending budget (task 16); there is no brain scheduler or old tick alias.
+
+## Route progression and fair planning (task 16)
+
+Native decision leaves the captured due interval for S_NpcRoute, which owns route clocks,
+progress sampling and abandonment reactions, then clears the interval. S_NpcRoutePlanning
+consumes the district FIFO after all route progression, before noise ageing/combat/navigation.
+Budget resets by native physics frame, so repeated queue processing within one frame cannot
+exceed its allowance. Queued work revalidates the district aggregate, body participation,
+current intent and map readiness; stale/cancelled requests cannot commit an older route.
+
+NpcRouteSolver performs bounded authored/native path and hazard-risk calculations. It has
+no scheduling/budget ownership. Godot retains physical transform/velocity authority;
+S_NpcIntent consumes waypoints and composes native movement/avoidance. Route and queue
+state remain transient derived data, with reset/materialization using explicit lifecycle paths.
+
+## Combat execution ownership (task 17)
+
+S_PlayerMelee owns strike elapsed/window scan; S_NpcCombat owns cooldown, phase time and
+native animation watchdog. Target/start/cancel/effect/finish/hit are explicit synchronous
+operations. Their transient execution generations advance on start/cancel; queued stages
+capture component identity and generation. Synchronous damage publication may cancel or
+restart the same Definition, so the owner revalidates before committing old hit/phase state.
+
+S_CombatProjectile owns nonphysical Node3D flight/TTL and whole-segment ray before pose
+commit. Launch snapshots damage/attribution and binds the live source through a Relationship.
+Terminal retirement revalidates registration after damage publication. Jolt bodies retain
+physical transform/velocity authority. S_CustomerCombat reconciles isolated legacy roles
+before common attacks; district personalities remain under their native BT. Manual weapon
+AnimationPlayer mapping is a presentation adapter. Combat scheduling fields are transient.
+
+## Challenge lifecycle and autonomous floor setup (task 18)
+
+S_ChallengeRuntime owns elapsed/violation/timeout/display progression after condition
+measurements. Queued work captures Component/phase/immutable Definition and revalidates
+calendar/live bindings before commit. ChallengeService owns arm/activate/cancel and explicit
+terminal resolve/close transactions; terminal facts follow actual state mutation. Reentrant
+consumers may close/remove the body; the public runtime signal requires the result to remain
+current. Outcome consequences remain in their discrete Observer.
+
+ChallengeActivated follows ACTIVE/elapsed commit. O_ChallengeFloorActivation owns one-shot
+setup and HazardSpawnRequest dispatch; pending is not a bound effect. O_FloorChallengeSpawn
+requires the current transient session request ID before installing R_ChallengeEffect. Replay
+or replaced/cancelled queued setup cannot bind an older factory result. Floor sessions/effects
+are transient. S_FloorHazard owns contact/damage interval and preparation/grace/timeout clipping;
+Geometry only measures explicit support/pose/ray. Cleanup releases effects and actor bindings
+before ChallengeSessionClosed, retaining the terminal result without duplicate consequences.

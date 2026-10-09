@@ -56,6 +56,16 @@ LEGACY_HORIZONTAL_ROOTS: tuple[str, ...] = (
     "relationships",
     "services",
     "systems",
+    "geometry",
+    "presentation",
+    "rules",
+    "solvers",
+    "authoring",
+)
+
+APPROVED_DOMAINS: frozenset[str] = frozenset(
+    {"npc", "customers", "interaction", "combat", "motion", "packages", "hazards",
+     "commerce", "inventory", "quests", "challenges", "needs", "time", "persistence"}
 )
 
 DOMAIN_NAME_RE = re.compile(r"^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$")
@@ -192,6 +202,13 @@ def validate_domain_structure(root: Path = ROOT, strict: bool = False) -> list[s
                 errors.append(
                     f"{_relative(root, child)}/: domain name collides with canonical "
                     f"role directory {domain_name!r}."
+                )
+
+            if domain_name not in APPROVED_DOMAINS:
+                hint = " Population/district ownership belongs to 'npc'." if domain_name == "district" else ""
+                errors.append(
+                    f"{_relative(root, child)}/: unknown gameplay owner {domain_name!r}. "
+                    f"Use an approved domain: {', '.join(sorted(APPROVED_DOMAINS))}.{hint}"
                 )
 
             _check_role_container(root, child, errors)

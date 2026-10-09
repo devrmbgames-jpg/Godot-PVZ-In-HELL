@@ -25,8 +25,8 @@ func _run() -> void:
 	add_child(neutral_camera)
 	neutral_camera.position = Vector3.UP * 100.0
 	neutral_camera.current = true
-	var flow: C_CustomerFlow = CustomerFlowService.current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	flow.schedule = flow.schedule.duplicate() as DEF_CustomerSchedule
 	flow.schedule.arrival_interval_seconds = 0.0
 	for frame: int in MAX_WAIT_FRAMES:
@@ -68,7 +68,7 @@ func _run() -> void:
 			break
 
 		var agent: C_CustomerAgent = recipient.get_component(C_CustomerAgent) as C_CustomerAgent
-		var visit: CustomerVisit = CustomerFlowService.find_visit(agent.visit_id)
+		var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 		_check(not identities.has(visit.customer_id), "next recipient is a different living person")
 		_check(prepared_identities.has(visit.customer_id), "arrival belongs to the originally prepared queue")
 		identities.append(visit.customer_id)
@@ -86,11 +86,11 @@ func _run() -> void:
 		print("Clear-route case ", visit.customer_id, " finished=", visit.finished, " dead=", visit.customer_dead, " reason=", visit.defer_reason)
 		_check(visit.deferred_day == 0, "clear route does not defer a prepared recipient")
 
-	var dialogue: DialogueResource = load("res://content/dialogue/customer_service.dialogue") as DialogueResource
+	var dialogue: DialogueResource = load("res://content/domains/customers/dialogue/customer_service.dialogue") as DialogueResource
 	_check(dialogue != null and dialogue.cues.has("home_request") and dialogue.cues.has("home_declined"), "compiled customer delivery branches")
-	var street: DialogueResource = load("res://content/dialogue/npc_street.dialogue") as DialogueResource
+	var street: DialogueResource = load("res://content/domains/npc/dialogue/npc_street.dialogue") as DialogueResource
 	_check(street != null and street.cues.has("delivery_request") and street.cues.has("delivery_declined"), "compiled street delivery branches")
-	var aura: DEF_ToxicArea = load("res://content/definitions/gameplay/hazards/def_npc_fire_aura.tres") as DEF_ToxicArea
+	var aura: DEF_ToxicArea = load("res://content/domains/hazards/definitions/def_npc_fire_aura.tres") as DEF_ToxicArea
 	_check(is_equal_approx(aura.radius, 2.25), "fire radius reduced by 25 percent")
 	_level.free()
 	ECS.world = null
@@ -119,7 +119,7 @@ func _counter_reservations() -> int:
 
 func _nearby_recipients() -> int:
 	var count: int = 0
-	var station: E_DeliveryCounter = CustomerFlowService.counter()
+	var station: E_DeliveryCounter = CustomerFlowQueries.counter()
 	for entity: Entity in ECS.world.query.with_all([C_CustomerAgent]).execute():
 		var spatial: Node3D = entity as Node as Node3D
 		if spatial != null and spatial.global_position.distance_to(station.entry_position()) < NEARBY_RADIUS:
@@ -128,17 +128,17 @@ func _nearby_recipients() -> int:
 
 func _prepare_clear_route() -> void:
 	# Профили меняются до первого physics-кадра: уже созданная аура не исчезает от очистки rules.
-	for person: NpcRecord in DistrictPopulationService.current().people:
+	for person: NpcRecord in NpcPopulationQueries.current().people:
 		person.profile = person.profile.duplicate() as DEF_NpcProfile
 		person.profile.rules = []
 
 func _stage_prepared_recipients() -> Array[StringName]:
-	var station: E_DeliveryCounter = CustomerFlowService.counter()
-	var routes: NpcServiceRoutes = _level.get_node(DistrictPopulationService.current().definition.service_routes_path) as NpcServiceRoutes
+	var station: E_DeliveryCounter = CustomerFlowQueries.counter()
+	var routes: NpcServiceRoutes = _level.get_node(NpcPopulationQueries.current().definition.service_routes_path) as NpcServiceRoutes
 	var index: int = 0
 	var identities: Array[StringName] = []
-	for visit: CustomerVisit in CustomerFlowService.current().visits:
-		var recipient: E_DistrictNpc = CustomerFlowService.customer_for(visit.visit_id) as E_DistrictNpc
+	for visit: CustomerVisit in CustomerFlowQueries.current().visits:
+		var recipient: E_DistrictNpc = CustomerFlowQueries.customer_for(visit.visit_id) as E_DistrictNpc
 		if recipient == null:
 			continue
 		# Этот smoke изолирует короткий свободный подход уже подготовленных NPC.

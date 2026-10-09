@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://content/domains/npc/entities/npc_character.tscn" id="Base"]
+[ext_resource type="Script" path="res://content/domains/npc/entities/e_district_npc.gd" id="Entity"]
+[ext_resource type="Script" path="res://content/domains/npc/components/c_npc_identity.gd" id="Identity"]
+
+[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="Composition"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_entity_district_npc.tres" id="Template"]
+
+[sub_resource type="Resource" id="Composition"]
+script = ExtResource("Composition")
+entity_template = ExtResource("Template")
+
+[node name="DistrictNpc" instance=ExtResource("Base")]
+script = ExtResource("Entity")
+metadata/entity_composition = SubResource("Composition")
+
+[node name="FurniturePickup" type="Marker3D" parent="."]
+position = Vector3(2, 0, 0)
+editor_description = "Authored pickup origin for a spawned merchant; ordinary residents do not use it."

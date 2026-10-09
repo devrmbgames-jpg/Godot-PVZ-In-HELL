@@ -1,98 +1,98 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://content/entities/customers/inspection_booth.tscn" id="InspectionBooth"]
+[ext_resource type="PackedScene" path="res://content/domains/customers/entities/inspection_booth.tscn" id="InspectionBooth"]
 [ext_resource type="Script" uid="uid://c2jikq1w8bhv2" path="res://content/scenes/main_level.gd" id="1_ixiin"]
-[ext_resource type="PackedScene" path="res://content/entities/characters/character_body_player.tscn" id="13_da1x8"]
-[ext_resource type="Script" path="res://content/components/physics/c_character_body.gd" id="23_d7jx2"]
-[ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/components/input/c_player_input_controller.gd" id="24_x60uf"]
-[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/components/motion/c_motion.gd" id="25_t1fd8"]
-[ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/components/motion/c_look.gd" id="26_t86in"]
-[ext_resource type="Script" uid="uid://2wyyc10rw1bb" path="res://content/components/motion/c_jump.gd" id="27_bkyhs"]
-[ext_resource type="Script" uid="uid://cg8i3jfsnahs3" path="res://content/components/motion/c_crouch.gd" id="28_23iv7"]
-[ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/components/gameplay/c_controller.gd" id="29_uosx1"]
-[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/definitions/gameplay/attributes/def_attr_health.tres" id="30_4agnb"]
-[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/components/gameplay/c_health.gd" id="31_8uaqh"]
-[ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="32_mc3p1"]
-[ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="33_k7ct6"]
-[ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/components/motion/c_carry_load.gd" id="34_efpp8"]
-[ext_resource type="Script" uid="uid://c38vbt1oqvs4f" path="res://content/components/gameplay/c_receiving.gd" id="41_1hfqo"]
-[ext_resource type="PackedScene" uid="uid://cst4hp6tuv5fp" path="res://content/entities/props/bucket.tscn" id="45_8uaqh"]
-[ext_resource type="Script" uid="uid://bctiomc2begaj" path="res://content/components/interaction/c_marker.gd" id="46_yaqq7"]
-[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="48_eajlk"]
-[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="48_uqafv"]
-[ext_resource type="Script" uid="uid://bg7sadbblo6g6" path="res://content/definitions/interaction/def_mark_action.gd" id="50_4qx6d"]
-[ext_resource type="Script" uid="uid://swt054yqxt3s" path="res://content/components/interaction/c_cart_transport.gd" id="63_3w6s4"]
-[ext_resource type="PackedScene" uid="uid://bfyevmoy76bm3" path="res://content/entities/doors/door_template.tscn" id="63_uqafv"]
-[ext_resource type="Script" uid="uid://da6i6tt1dgukj" path="res://content/definitions/interaction/def_cart_transport_action.gd" id="64_mnsyy"]
+[ext_resource type="PackedScene" path="res://content/domains/motion/entities/character_body_player.tscn" id="13_da1x8"]
+[ext_resource type="Script" path="res://content/domains/motion/components/c_character_body.gd" id="23_d7jx2"]
+[ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/domains/interaction/components/c_player_input_controller.gd" id="24_x60uf"]
+[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="25_t1fd8"]
+[ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/domains/motion/components/c_look.gd" id="26_t86in"]
+[ext_resource type="Script" uid="uid://2wyyc10rw1bb" path="res://content/domains/motion/components/c_jump.gd" id="27_bkyhs"]
+[ext_resource type="Script" uid="uid://cg8i3jfsnahs3" path="res://content/domains/motion/components/c_crouch.gd" id="28_23iv7"]
+[ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/domains/interaction/components/c_controller.gd" id="29_uosx1"]
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/domains/combat/definitions/def_attr_health.tres" id="30_4agnb"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/domains/combat/components/c_health.gd" id="31_8uaqh"]
+[ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/domains/interaction/components/c_interactor.gd" id="32_mc3p1"]
+[ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/domains/interaction/components/c_grab_control.gd" id="33_k7ct6"]
+[ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/domains/interaction/components/c_carry_load.gd" id="34_efpp8"]
+[ext_resource type="Script" uid="uid://c38vbt1oqvs4f" path="res://content/domains/packages/components/c_receiving.gd" id="41_1hfqo"]
+[ext_resource type="PackedScene" uid="uid://cst4hp6tuv5fp" path="res://content/domains/interaction/entities/bucket.tscn" id="45_8uaqh"]
+[ext_resource type="Script" uid="uid://bctiomc2begaj" path="res://content/domains/interaction/components/c_marker.gd" id="46_yaqq7"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="48_eajlk"]
+[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/domains/interaction/components/c_grabbable.gd" id="48_uqafv"]
+[ext_resource type="Script" uid="uid://bg7sadbblo6g6" path="res://content/domains/interaction/definitions/def_mark_action.gd" id="50_4qx6d"]
+[ext_resource type="Script" uid="uid://swt054yqxt3s" path="res://content/domains/interaction/components/c_cart_transport.gd" id="63_3w6s4"]
+[ext_resource type="PackedScene" uid="uid://bfyevmoy76bm3" path="res://content/domains/interaction/entities/door_template.tscn" id="63_uqafv"]
+[ext_resource type="Script" uid="uid://da6i6tt1dgukj" path="res://content/domains/interaction/definitions/def_cart_transport_action.gd" id="64_mnsyy"]
 [ext_resource type="PackedScene" uid="uid://cubcn0opxbk6v" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_A/Barrel_A_rigid.tscn" id="77_iit40"]
 [ext_resource type="PackedScene" uid="uid://cbskdoyjbjixx" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_B/Barrel_B_rigid.tscn" id="78_at2gx"]
 [ext_resource type="PackedScene" uid="uid://bf2ntstxhdr1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_C/Barrel_C_rigid.tscn" id="79_ypydk"]
-[ext_resource type="PackedScene" path="res://content/entities/props/physical_slot.tscn" id="155_5h1gn"]
-[ext_resource type="PackedScene" path="res://content/entities/props/anchorable_test_box.tscn" id="AnchorTest_scene"]
-[ext_resource type="Script" uid="uid://00y5l3hnucd5" path="res://content/components/persistence/c_autosave.gd" id="Autosave_state"]
-[ext_resource type="Script" uid="uid://cf2u01epo1k4k" path="res://content/components/commerce/c_commerce.gd" id="Commerce_state"]
-[ext_resource type="Script" uid="uid://d18j5e5xkjfsg" path="res://content/components/gameplay/c_customer_flow.gd" id="Customer_flow"]
-[ext_resource type="Resource" uid="uid://ct5hbf2hdp6tl" path="res://content/definitions/gameplay/customers/def_customer_schedule_default.tres" id="Customer_schedule"]
-[ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/entities/sessions/e_day_session.gd" id="Day_entity"]
-[ext_resource type="Script" uid="uid://04u6xvav8opi" path="res://content/components/gameplay/c_package_ledger.gd" id="Day_ledger"]
-[ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
-[ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/entities/stations/day_phase_station.tscn" id="Day_station"]
-[ext_resource type="PackedScene" path="res://content/entities/stations/delivery_counter.tscn" id="Delivery_counter"]
-[ext_resource type="PackedScene" path="res://content/entities/props/drawer.tscn" id="Drawer_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/inventory/food_pickup.tscn" id="Food_pickup"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/physical_slot.tscn" id="155_5h1gn"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/anchorable_test_box.tscn" id="AnchorTest_scene"]
+[ext_resource type="Script" uid="uid://00y5l3hnucd5" path="res://content/domains/persistence/components/c_autosave.gd" id="Autosave_state"]
+[ext_resource type="Script" uid="uid://cf2u01epo1k4k" path="res://content/domains/commerce/components/c_commerce.gd" id="Commerce_state"]
+[ext_resource type="Script" uid="uid://d18j5e5xkjfsg" path="res://content/domains/customers/components/c_customer_flow.gd" id="Customer_flow"]
+[ext_resource type="Resource" uid="uid://ct5hbf2hdp6tl" path="res://content/domains/customers/definitions/def_customer_schedule_default.tres" id="Customer_schedule"]
+[ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/domains/time/entities/e_day_session.gd" id="Day_entity"]
+[ext_resource type="Script" uid="uid://04u6xvav8opi" path="res://content/domains/packages/components/c_package_ledger.gd" id="Day_ledger"]
+[ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/domains/time/components/c_day_cycle.gd" id="Day_state"]
+[ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/domains/time/entities/day_phase_station.tscn" id="Day_station"]
+[ext_resource type="PackedScene" path="res://content/domains/customers/entities/delivery_counter.tscn" id="Delivery_counter"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/drawer.tscn" id="Drawer_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/inventory/entities/food_pickup.tscn" id="Food_pickup"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
-[ext_resource type="PackedScene" path="res://content/entities/tools/hammer.tscn" id="Hammer_scene"]
-[ext_resource type="Resource" uid="uid://dnhtf6evpqsc8" path="res://content/definitions/gameplay/hunger/def_hunger_default.tres" id="Hunger_policy"]
-[ext_resource type="Script" uid="uid://ok26p4khdh4e" path="res://content/components/gameplay/c_hunger.gd" id="Hunger_state"]
-[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
+[ext_resource type="PackedScene" path="res://content/domains/combat/entities/hammer.tscn" id="Hammer_scene"]
+[ext_resource type="Resource" uid="uid://dnhtf6evpqsc8" path="res://content/domains/needs/definitions/def_hunger_default.tres" id="Hunger_policy"]
+[ext_resource type="Script" uid="uid://ok26p4khdh4e" path="res://content/domains/needs/components/c_hunger.gd" id="Hunger_state"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/domains/combat/components/c_impact_receiver.gd" id="ImpactReceiver"]
 [ext_resource type="PackedScene" uid="uid://dx3ysmmpho68c" path="res://content/ui/interaction_hud.tscn" id="Interaction_hud"]
 [ext_resource type="PackedScene" path="res://content/ui/inventory_panel.tscn" id="Inventory_panel"]
-[ext_resource type="Script" uid="uid://t8kbpaposqpt" path="res://content/components/inventory/c_inventory.gd" id="Inventory_state"]
-[ext_resource type="PackedScene" path="res://content/entities/props/light_switch.tscn" id="Light_switch_scene"]
-[ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/components/gameplay/c_living.gd" id="Living"]
-[ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/definitions/gameplay/def_impact_living.tres" id="LivingImpact"]
-[ext_resource type="PackedScene" uid="uid://2kqhx881j4yk" path="res://content/entities/tools/marker.tscn" id="Marker_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/inventory/med_pickup.tscn" id="Med_pickup"]
-[ext_resource type="PackedScene" path="res://content/entities/commerce/order_receiving.tscn" id="Order_receiving_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/stations/package_return_point.tscn" id="Package_return_point"]
-[ext_resource type="PackedScene" path="res://content/entities/props/placement_area.tscn" id="PlacementArea"]
-[ext_resource type="Script" uid="uid://bex7ad2uqbdgp" path="res://content/components/gameplay/c_combat.gd" id="Player_combat"]
-[ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
-[ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
-[ext_resource type="Script" uid="uid://dmxtpoip5hrcv" path="res://content/components/quests/c_quest_session.gd" id="Quest_state"]
-[ext_resource type="PackedScene" uid="uid://cpbp0t8jkh0ak" path="res://content/entities/zones/receiving_zone.tscn" id="Receiving_zone"]
-[ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/entities/props/box.tscn" id="Safe_box"]
-[ext_resource type="PackedScene" uid="uid://bxvltfdywwg6h" path="res://content/entities/tools/scanner.tscn" id="Scanner_scene"]
-[ext_resource type="PackedScene" uid="uid://bjno5jf76nuv7" path="res://content/entities/props/numbered_shelves.tscn" id="Shelves_scene"]
-[ext_resource type="Script" uid="uid://7emhwgdbxv7x" path="res://content/definitions/interaction/def_day_phase_action.gd" id="Sleep_action"]
-[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="Sleep_actions"]
-[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Sleep_interactable"]
-[ext_resource type="Script" uid="uid://bnia5xop2e6wt" path="res://content/components/gameplay/c_strength.gd" id="Strength"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/attributes/def_attr_strength.tres" id="StrengthDef"]
-[ext_resource type="PackedScene" uid="uid://cxcaew8qdooi6" path="res://content/entities/stations/terminal.tscn" id="Terminal_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/commerce/trader.tscn" id="Trader_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/tools/utility_blade.tscn" id="Utility_blade"]
-[ext_resource type="PackedScene" uid="uid://d36ymw1qbl12t" path="res://content/entities/props/interaction_test_valve.tscn" id="Valve_test"]
-[ext_resource type="Script" uid="uid://cecnkpuxts58i" path="res://content/components/gameplay/c_wallet.gd" id="Wallet_state"]
-[ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/entities/props/window.tscn" id="Window_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/inventory/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
+[ext_resource type="Script" uid="uid://t8kbpaposqpt" path="res://content/domains/inventory/components/c_inventory.gd" id="Inventory_state"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/light_switch.tscn" id="Light_switch_scene"]
+[ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/domains/combat/components/c_living.gd" id="Living"]
+[ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/domains/combat/definitions/def_impact_living.tres" id="LivingImpact"]
+[ext_resource type="PackedScene" uid="uid://2kqhx881j4yk" path="res://content/domains/interaction/entities/marker.tscn" id="Marker_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/inventory/entities/med_pickup.tscn" id="Med_pickup"]
+[ext_resource type="PackedScene" path="res://content/domains/commerce/entities/order_receiving.tscn" id="Order_receiving_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/package_return_point.tscn" id="Package_return_point"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/placement_area.tscn" id="PlacementArea"]
+[ext_resource type="Script" uid="uid://bex7ad2uqbdgp" path="res://content/domains/combat/components/c_combat.gd" id="Player_combat"]
+[ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/domains/interaction/entities/push_cart.tscn" id="Push_cart"]
+[ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/domains/interaction/components/c_push_control.gd" id="Push_control"]
+[ext_resource type="Script" uid="uid://dmxtpoip5hrcv" path="res://content/domains/quests/components/c_quest_session.gd" id="Quest_state"]
+[ext_resource type="PackedScene" uid="uid://cpbp0t8jkh0ak" path="res://content/domains/packages/entities/receiving_zone.tscn" id="Receiving_zone"]
+[ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/domains/interaction/entities/box.tscn" id="Safe_box"]
+[ext_resource type="PackedScene" uid="uid://bxvltfdywwg6h" path="res://content/domains/packages/entities/scanner.tscn" id="Scanner_scene"]
+[ext_resource type="PackedScene" uid="uid://bjno5jf76nuv7" path="res://content/domains/interaction/entities/numbered_shelves.tscn" id="Shelves_scene"]
+[ext_resource type="Script" uid="uid://7emhwgdbxv7x" path="res://content/domains/time/definitions/def_day_phase_action.gd" id="Sleep_action"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="Sleep_actions"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="Sleep_interactable"]
+[ext_resource type="Script" uid="uid://bnia5xop2e6wt" path="res://content/domains/motion/components/c_strength.gd" id="Strength"]
+[ext_resource type="Resource" path="res://content/domains/motion/definitions/def_attr_strength.tres" id="StrengthDef"]
+[ext_resource type="PackedScene" uid="uid://cxcaew8qdooi6" path="res://content/domains/packages/entities/terminal.tscn" id="Terminal_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/commerce/entities/trader.tscn" id="Trader_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/combat/entities/utility_blade.tscn" id="Utility_blade"]
+[ext_resource type="PackedScene" uid="uid://d36ymw1qbl12t" path="res://content/domains/interaction/entities/interaction_test_valve.tscn" id="Valve_test"]
+[ext_resource type="Script" uid="uid://cecnkpuxts58i" path="res://content/domains/commerce/components/c_wallet.gd" id="Wallet_state"]
+[ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/domains/interaction/entities/window.tscn" id="Window_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/inventory/entities/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
 [ext_resource type="PackedScene" path="res://content/scenes/game_world.tscn" id="Game_world"]
-[ext_resource type="NavigationMesh" path="res://content/navigation/navmesh_primitive_test.tres" id="Test_navigation"]
+[ext_resource type="NavigationMesh" path="res://content/domains/npc/authoring/navigation/navmesh_primitive_test.tres" id="Test_navigation"]
 
 [ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="Gaze_order_clue"]
 
-[ext_resource type="Script" path="res://content/ui/circuit_light_view.gd" id="Circuit_light_view"]
+[ext_resource type="Script" path="res://content/domains/interaction/presentation/circuit_light_view.gd" id="Circuit_light_view"]
 
-[ext_resource type="PackedScene" path="res://content/entities/doors/breakable_door.tscn" id="Breakable_door"]
-[ext_resource type="PackedScene" path="res://content/entities/doors/padlocked_door.tscn" id="Padlocked_door"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/breakable_door.tscn" id="Breakable_door"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/padlocked_door.tscn" id="Padlocked_door"]
 
-[ext_resource type="PackedScene" path="res://content/entities/packages/test_small_shelf.tscn" id="Unpack_small_shelf"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/test_small_shelf.tscn" id="Unpack_small_shelf"]
 
-[ext_resource type="PackedScene" path="res://content/entities/packages/test_medkits.tscn" id="Unpack_medkits"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/test_medkits.tscn" id="Unpack_medkits"]
 
-[ext_resource type="PackedScene" path="res://content/entities/packages/test_bread.tscn" id="Unpack_bread"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/test_bread.tscn" id="Unpack_bread"]
 
-[ext_resource type="Script" path="res://content/components/motion/c_stamina.gd" id="Player_stamina"]
+[ext_resource type="Script" path="res://content/domains/motion/components/c_stamina.gd" id="Player_stamina"]
 
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
@@ -318,6 +318,7 @@ resource_local_to_scene = true
 script = ExtResource("Player_stamina")
 
 [node name="PrimitiveTestLevel" type="Node3D" node_paths=PackedStringArray("world")]
+metadata/persistent_world_id = &"primitive_test_level"
 script = ExtResource("1_ixiin")
 world = NodePath("World")
 autosave_path = "user://primitive_test_level.pvzh"
@@ -519,12 +520,15 @@ script = ExtResource("Circuit_light_view")
 [node name="Windows" type="Node3D" parent="Entityes"]
 
 [node name="CarryPlacement" parent="Entityes" instance=ExtResource("PlacementArea")]
+metadata/persistent_local_id = &"placed_entityes_carryplacement"
 position = Vector3(-22, 0.02, 4)
 
 [node name="CarryPlacement2" parent="Entityes" instance=ExtResource("PlacementArea")]
+metadata/persistent_local_id = &"placed_entityes_carryplacement2"
 position = Vector3(-20, 0.02, 4)
 
 [node name="Player" parent="Entityes" instance=ExtResource("13_da1x8")]
+metadata/persistent_local_id = &"placed_entityes_player"
 position = Vector3(0, 0.02, 2)
 collision_layer = 16
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_3xfrw"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_jjqtf"), SubResource("Player_stamina")])
@@ -539,128 +543,163 @@ current = true
 cast_shadow = 3
 
 [node name="BeltSlotLeft" parent="Entityes/Player" index="5"]
+metadata/persistent_local_id = &"placed_entityes_player_beltslotleft"
 transform = Transform3D(0.41083163, -0.9117112, 0, 0, -4.371139e-08, 1, -0.91171116, -0.4108317, 0, -0.25, 0.7946805, -0.1371026)
 
 [node name="BeltSlotRight" parent="Entityes/Player" index="6"]
+metadata/persistent_local_id = &"placed_entityes_player_beltslotright"
 transform = Transform3D(0.21199018, 0.9772718, 2.9802322e-08, 1.3716061e-08, -5.0772293e-08, 1, 0.9772718, -0.21199018, 0, 0.25, 0.7946805, -0.1371026)
 
 [node name="DeliveryCounter" parent="Entityes" instance=ExtResource("Delivery_counter")]
+metadata/persistent_local_id = &"placed_entityes_deliverycounter"
 position = Vector3(0, 0, -8)
 
 [node name="Terminal" parent="Entityes" instance=ExtResource("Terminal_scene")]
+metadata/persistent_local_id = &"placed_entityes_terminal"
 position = Vector3(-6, 0, -8)
 
 [node name="Scanner" parent="Entityes" instance=ExtResource("Scanner_scene")]
+metadata/persistent_local_id = &"placed_entityes_scanner"
 position = Vector3(-6, 1.45, -8)
 
 [node name="Marker" parent="Entityes" instance=ExtResource("Marker_scene")]
+metadata/persistent_local_id = &"placed_entityes_marker"
 position = Vector3(-12, 1.25, 2)
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_2peb6"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Marker2" parent="Entityes" instance=ExtResource("Marker_scene")]
+metadata/persistent_local_id = &"placed_entityes_marker2"
 position = Vector3(-10, 1.25, 2)
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_5und5"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Marker3" parent="Entityes" instance=ExtResource("Marker_scene")]
+metadata/persistent_local_id = &"placed_entityes_marker3"
 position = Vector3(-8, 1.25, 2)
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_jpldi"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Hammer" parent="Entityes" instance=ExtResource("Hammer_scene")]
+metadata/persistent_local_id = &"placed_entityes_hammer"
 position = Vector3(-12, 1.25, 6)
 
 [node name="AnchorableTestBox" parent="Entityes" instance=ExtResource("AnchorTest_scene")]
+metadata/persistent_local_id = &"placed_entityes_anchorabletestbox"
 position = Vector3(-8, 1.25, 6)
 
 [node name="Valve_E_Press" parent="Entityes" instance=ExtResource("Valve_test")]
+metadata/persistent_local_id = &"placed_entityes_valve_e_press"
 position = Vector3(-4, 0.36, 20)
 editor_description = "Immediate E action. No prolonged progress/reset policy. Signal: activated(bool) -> child IndicatorLamp.set_active()."
 
 [node name="Valve_F_Decay" parent="Entityes" instance=ExtResource("Valve_test")]
+metadata/persistent_local_id = &"placed_entityes_valve_f_decay"
 position = Vector3(-2, 0.36, 20)
 editor_description = "Hold F. Interrupted progress decays gradually according to decay_per_second."
 mode = 1
 
 [node name="Valve_F_Instant" parent="Entityes" instance=ExtResource("Valve_test")]
+metadata/persistent_local_id = &"placed_entityes_valve_f_instant"
 position = Vector3(0, 0.36, 20)
 editor_description = "Hold F. Interrupted progress resets immediately to zero."
 mode = 2
 
 [node name="Valve_F_OnComplete" parent="Entityes" instance=ExtResource("Valve_test")]
+metadata/persistent_local_id = &"placed_entityes_valve_f_oncomplete"
 position = Vector3(2, 0.36, 20)
 editor_description = "Hold F. Partial progress is retained; successful completion resets progress for another use."
 mode = 3
 
 [node name="Valve_F_Never" parent="Entityes" instance=ExtResource("Valve_test")]
+metadata/persistent_local_id = &"placed_entityes_valve_f_never"
 position = Vector3(4, 0.36, 20)
 editor_description = "Hold F. Successful completion is permanent/one-shot; action becomes unavailable."
 mode = 4
 
 [node name="ReceivingZone" parent="Entityes" node_paths=PackedStringArray("package_parent") instance=ExtResource("Receiving_zone")]
+metadata/persistent_local_id = &"placed_entityes_receivingzone"
 position = Vector3(-20, 0, -14)
 package_parent = NodePath("..")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_vmj2w")])
 
 [node name="PackageReturnPoint" parent="Entityes" instance=ExtResource("Package_return_point")]
+metadata/persistent_local_id = &"placed_entityes_packagereturnpoint"
 position = Vector3(-10, 0, -8)
 
 [node name="OrderReceiving" parent="Entityes" instance=ExtResource("Order_receiving_scene")]
+metadata/persistent_local_id = &"placed_entityes_orderreceiving"
 position = Vector3(16, 0.22, -8)
 
 [node name="DaySession" type="Node" parent="Entityes"]
+metadata/persistent_local_id = &"placed_entityes_daysession"
 script = ExtResource("Day_entity")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state")])
 
 [node name="ShiftConsole" parent="Entityes" instance=ExtResource("Day_station")]
+metadata/persistent_local_id = &"placed_entityes_shiftconsole"
 position = Vector3(6, 0, 0)
 
 [node name="SleepPoint" parent="Entityes" instance=ExtResource("Day_station")]
+metadata/persistent_local_id = &"placed_entityes_sleeppoint"
 position = Vector3(10, 0, 0)
 sleep_station = true
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Sleep_interactable"), SubResource("Sleep_station_actions")])
 
 [node name="Bucket" parent="Entityes" instance=ExtResource("45_8uaqh")]
+metadata/persistent_local_id = &"placed_entityes_bucket"
 position = Vector3(-12, 0.5, 12)
 
 [node name="Drawer" parent="Entityes" instance=ExtResource("Drawer_scene")]
+metadata/persistent_local_id = &"placed_entityes_drawer"
 position = Vector3(-8, 0.775, 12)
 
 [node name="LightSwitch" parent="Entityes" instance=ExtResource("Light_switch_scene")]
+metadata/persistent_local_id = &"placed_entityes_lightswitch"
 position = Vector3(4, 1.3, -8)
 
 [node name="FoodPickup" parent="Entityes" instance=ExtResource("Food_pickup")]
+metadata/persistent_local_id = &"placed_entityes_foodpickup"
 position = Vector3(8, 1.25, -8)
 
 [node name="MedPickup" parent="Entityes" instance=ExtResource("Med_pickup")]
+metadata/persistent_local_id = &"placed_entityes_medpickup"
 position = Vector3(10, 1.25, -8)
 
 [node name="WrapPickup" parent="Entityes" instance=ExtResource("Wrap_pickup")]
+metadata/persistent_local_id = &"placed_entityes_wrappickup"
 position = Vector3(12, 1.25, -8)
 
 [node name="Trader" parent="Entityes" instance=ExtResource("Trader_scene")]
+metadata/persistent_local_id = &"placed_entityes_trader"
 position = Vector3(12, 0, -12)
 idle_animation = &"Idle"
 walk_animation = &"Walk"
 
 [node name="UtilityBlade" parent="Entityes" instance=ExtResource("Utility_blade")]
+metadata/persistent_local_id = &"placed_entityes_utilityblade"
 position = Vector3(-10, 1.25, 6)
 
 [node name="PushCart" parent="Entityes" instance=ExtResource("Push_cart")]
+metadata/persistent_local_id = &"placed_entityes_pushcart"
 position = Vector3(-18, 0.833, 4)
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_w4uhm"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 
 [node name="PhysicalSlot" parent="Entityes/Props" instance=ExtResource("155_5h1gn")]
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot"
 position = Vector3(-22, 0.02, 8)
 
 [node name="PhysicalSlot2" parent="Entityes/Props" instance=ExtResource("155_5h1gn")]
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot2"
 position = Vector3(-20, 0.02, 8)
 
 [node name="FloorSafeBox1" parent="Entityes/Props" instance=ExtResource("Safe_box")]
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox1"
 position = Vector3(-18, 0.45, 8)
 
 [node name="FloorSafeBox2" parent="Entityes/Props" instance=ExtResource("Safe_box")]
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox2"
 position = Vector3(-16, 0.45, 8)
 
 [node name="FloorSafeBox3" parent="Entityes/Props" instance=ExtResource("Safe_box")]
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox3"
 position = Vector3(-14, 0.45, 8)
 
 [node name="Barrel_C_rigid" parent="Entityes/Props" instance=ExtResource("79_ypydk")]
@@ -682,15 +721,19 @@ position = Vector3(-20, 0, -4)
 position = Vector3(-14, 0, -4)
 
 [node name="DoorTemplate" parent="Entityes/Doors" instance=ExtResource("63_uqafv")]
+metadata/persistent_local_id = &"placed_entityes_doors_doortemplate"
 position = Vector3(8, 0, 12)
 
 [node name="DoorTemplate2" parent="Entityes/Doors" instance=ExtResource("63_uqafv")]
+metadata/persistent_local_id = &"placed_entityes_doors_doortemplate2"
 position = Vector3(12, 0, 12)
 
 [node name="Window" parent="Entityes/Windows" instance=ExtResource("Window_scene")]
+metadata/persistent_local_id = &"placed_entityes_windows_window"
 position = Vector3(18, 1, 12)
 
 [node name="Window2" parent="Entityes/Windows" instance=ExtResource("Window_scene")]
+metadata/persistent_local_id = &"placed_entityes_windows_window2"
 position = Vector3(22, 1, 12)
 
 [node name="InteractionHud" parent="." node_paths=PackedStringArray("player", "damage_feedback") instance=ExtResource("Interaction_hud")]
@@ -856,9 +899,11 @@ text = "10 ВЕНТИЛИ: E / удержание F / сброс прогрес�
 [editable path="Entityes/ReceivingZone"]
 
 [node name="PadlockedDoor" parent="Entityes/Doors" instance=ExtResource("Padlocked_door")]
+metadata/persistent_local_id = &"placed_entityes_doors_padlockeddoor"
 position = Vector3(4, 0, 12)
 
 [node name="BreakableDoor" parent="Entityes/Doors" instance=ExtResource("Breakable_door")]
+metadata/persistent_local_id = &"placed_entityes_doors_breakabledoor"
 position = Vector3(0, 0, 12)
 
 [node name="DoorBreakage" type="Label3D" parent="Signs"]
@@ -870,14 +915,17 @@ text = "ЗАМОК: разбейте ножом/молотком → откро�
 ДВЕРЬ: удары освобождают проход"
 
 [node name="UnpackSmallShelf" parent="Entityes/Props" instance=ExtResource("Unpack_small_shelf")]
+metadata/persistent_local_id = &"placed_entityes_props_unpacksmallshelf"
 position = Vector3(-12, 0.5, -18)
 package_id = "test-unpack-small_shelf"
 
 [node name="UnpackMedkits" parent="Entityes/Props" instance=ExtResource("Unpack_medkits")]
+metadata/persistent_local_id = &"placed_entityes_props_unpackmedkits"
 position = Vector3(-6, 0.5, -18)
 package_id = "test-unpack-medkits"
 
 [node name="UnpackBread" parent="Entityes/Props" instance=ExtResource("Unpack_bread")]
+metadata/persistent_local_id = &"placed_entityes_props_unpackbread"
 position = Vector3(0, 0.5, -18)
 package_id = "test-unpack-bread"
 
@@ -890,7 +938,9 @@ text = "РАСПАКОВКА: полка / 5 аптечек / 5 хлеба
 F → вскрыть посылку. Полка закрепляется молотком."
 
 [node name="InspectionBooth1" parent="Entityes" instance=ExtResource("InspectionBooth")]
+metadata/persistent_local_id = &"placed_entityes_inspectionbooth1"
 position = Vector3(8, 0, -16)
 
 [node name="InspectionBooth2" parent="Entityes" instance=ExtResource("InspectionBooth")]
+metadata/persistent_local_id = &"placed_entityes_inspectionbooth2"
 position = Vector3(12, 0, -16)

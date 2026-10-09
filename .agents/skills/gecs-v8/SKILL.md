@@ -11,11 +11,14 @@ Pinned local source under `addons/gecs/` is the API authority. Inspect it only w
 
 ## Core model
 
+Canonical project roles and ownership are defined in [content/ARCHITECTURE.md](../../../content/ARCHITECTURE.md#canonical-roles-and-ownership). This skill adds pinned GECS usage rules; it does not define a competing role contract.
+
 - Components are data/state only.
 - Scene-authored reusable Components should normally be exposed through `component_resources`.
+- Visible/physical placed Entities stay native designer-editable `.tscn` scenes. Templates/Traits provide capabilities, not invisible replacements. `E_*` scripts own identity/lifecycle/engine glue only; no giant script assembling the entire world or duplicating runtime authority.
 - Entities own identity/lifecycle and thin Godot scene/physics glue.
 - Systems own scheduled behavior; Observers own discrete/reactive transitions.
-- Reusable algorithms that are not ECS scheduling belong in non-System services/solvers/helpers.
+- Explicit synchronous domain operations belong in Services; reusable algorithms belong in Rules/Calculation/Geometry/Solver helpers. Neither extracts scheduled ownership out of a System.
 - Presentation must not become gameplay authority.
 - Godot UI (`Control`, HUD, menus) remains ordinary glue outside ECS scheduling; do not create UI-only Components/Systems.
 - Entity Templates / `ET_*` Traits are authoring/compiler recipes only. Runtime behavior is driven by the Components/Relationships they materialize, not by Trait ticks.
@@ -58,9 +61,11 @@ Those solvers:
 
 ## Service and execution boundary
 
-A Service must not become a hidden System. Generic per-frame `tick/update/process` ownership, broad scheduled ECS iteration, cooldown/time progression, or orchestration of several domains belongs in Systems/Observers unless an engine callback contract requires a Solver.
+A Service must not become a hidden System. Per-frame iteration, cooldown/time progression and recurring ordering belong in Systems; discrete transitions belong in Observers/event handlers. Required engine callback work remains in non-System Solvers/glue.
 
 A thin `S_*` whose only meaningful job is forwarding every frame to `SomeService.tick()` is an architecture smell, not a preferred abstraction.
+
+Keep one coherent scheduled responsibility in its System even if substantial. Split differing responsibilities/cadences into Systems with explicit `deps()`, not service ticks. A Service may compose narrow operations/Rules within one synchronous call without creating a scheduler graph.
 
 ## State transitions
 

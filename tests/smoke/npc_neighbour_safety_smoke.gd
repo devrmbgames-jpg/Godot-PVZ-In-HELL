@@ -19,8 +19,8 @@ func _run() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate() as Node3D
 	_level.set("autosave_path", "")
 	add_child(_level)
-	var district: C_District = DistrictPopulationService.current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var district: C_District = NpcPopulationQueries.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var initial_residents: Array[StringName] = []
 	for person: NpcRecord in district.people:
 		if person.profile.resident:
@@ -45,8 +45,8 @@ func _run() -> void:
 		_check(survivors >= MINIMUM_RESIDENT_SURVIVORS, "original residents survive phase %d: %d" % [phase, survivors])
 		_check(district.ambient_conflicts <= district.definition.ambient_conflicts_per_phase, "ambient conflict budget")
 		for npc_id: StringName in departing:
-			var person: NpcRecord = DistrictPopulationService.person_for(npc_id)
-			var body: E_DistrictNpc = DistrictPopulationService.body_for(npc_id)
+			var person: NpcRecord = NpcPopulationQueries.person_for(npc_id)
+			var body: E_DistrictNpc = NpcPopulationQueries.body_for(npc_id)
 			if person.placement == NpcRecord.Placement.STREET:
 				var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 				print("Unfinished exit ", npc_id, " position=", body.global_position, " goal=", person.goal_id, " complete=", person.phase_complete, " behavior=", decision.active_behavior)
@@ -54,7 +54,7 @@ func _run() -> void:
 			_check(person.placement == NpcRecord.Placement.OUTSIDE, "NPC actually leaves district: " + str(npc_id))
 			_check(not body.enabled and not body.visible and body.collision_layer == 0, "outside body does not participate: " + str(npc_id))
 			_check(not body.navigation_agent.avoidance_enabled, "outside body leaves navigation avoidance: " + str(npc_id))
-			_check(CombatService.target_for(body) == null and not (body.get_component(C_NpcIntent) as C_NpcIntent).movement_active, "exit clears actions: " + str(npc_id))
+			_check(CombatQueries.target_for(body) == null and not (body.get_component(C_NpcIntent) as C_NpcIntent).movement_active, "exit clears actions: " + str(npc_id))
 			if person.placement == NpcRecord.Placement.OUTSIDE:
 				verified_exits += 1
 		print("Neighbour phase complete=", phase, " survivors=", survivors, " verified_exits=", verified_exits)
@@ -71,7 +71,7 @@ func _run() -> void:
 func _survivors(identities: Array[StringName]) -> int:
 	var survivors: int = 0
 	for npc_id: StringName in identities:
-		if DistrictPopulationService.person_for(npc_id).death_day == 0:
+		if NpcPopulationQueries.person_for(npc_id).death_day == 0:
 			survivors += 1
 	return survivors
 

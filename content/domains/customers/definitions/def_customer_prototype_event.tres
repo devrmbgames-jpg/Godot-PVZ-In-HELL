@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_CustomerEvent" format=3]
+
+[ext_resource type="Script" path="res://content/domains/customers/definitions/def_customer_event.gd" id="Event"]
+[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_customer_prototype.tres" id="Profile"]
+
+[resource]
+script = ExtResource("Event")
+package_key = &"clothes"
+customer = ExtResource("Profile")

@@ -15,6 +15,7 @@ var _capture_token: int = 0
 var _previous_mouse_mode: Input.MouseMode = Input.MOUSE_MODE_CAPTURED
 var _input_enabled: bool = false
 var _closed: bool = false
+var _advancing: bool = false
 
 var _speaker: Label = null
 var _text: RichTextLabel = null
@@ -43,7 +44,7 @@ func _process(_delta: float) -> void:
 		return
 	if (
 		not is_instance_valid(_actor)
-		or not GrabService.holder_available(_actor)
+		or not GrabQueries.holder_available(_actor)
 		or _context == null
 		or not _context.can_continue()
 	):
@@ -109,22 +110,31 @@ func close_dialogue() -> void:
 
 
 func _enable_input() -> void:
-	_input_enabled = true
+	if not _closed:
+		_input_enabled = true
 
 
 #endregion
 
 #region Реплики и ответы
 func _advance(next_id: String) -> void:
-	if _closed or _resource == null or _context == null:
+	if _closed or _advancing or _resource == null or _context == null:
 		return
 
+	_advancing = true
 	var resource: DialogueResource = _resource
-	_line = await resource.get_next_dialogue_line(next_id, [{ "ctx": _context }])
-	if _closed:
+	var session_context: NpcDialogueContext = _context
+	var next_line: DialogueLine = await resource.get_next_dialogue_line(
+		next_id, [{ "ctx": session_context }]
+	)
+	_advancing = false
+	if _closed or _context != session_context or not session_context.can_continue():
 		DialogueResourceLifecycle.release_runtime_references(resource)
 		_line = null
+		if not _closed:
+			close_dialogue()
 		return
+	_line = next_line
 	if _line == null:
 		close_dialogue()
 		return
@@ -178,15 +188,19 @@ static func format_response_text(text: String, tags: PackedStringArray) -> Strin
 
 
 func _on_response_pressed(response: DialogueResponse) -> void:
-	if response == null:
+	if _closed or _advancing or response == null or _context == null:
 		return
 
-	_context.apply_response_tags(response.tags)
-	_advance(response.next_id)
+	var session_context: NpcDialogueContext = _context
+	if not session_context.can_continue() or not session_context.apply_response_tags(response.tags):
+		close_dialogue()
+		return
+	if not _closed and _context == session_context:
+		_advance(response.next_id)
 
 
 func _on_continue_pressed() -> void:
-	if _line != null and _line.responses.is_empty():
+	if not _closed and not _advancing and _line != null and _line.responses.is_empty():
 		_continue_button.disabled = true
 		_advance(_line.next_id)
 
@@ -209,8 +223,11 @@ func _close_internal(return_to_service: bool) -> void:
 	if _capture_token != 0 and is_instance_valid(_actor):
 		InteractionControlFocus.release(_actor, _capture_token)
 	_capture_token = 0
-	if return_to_service and _context != null:
-		_context.end()
+	if _context != null:
+		if return_to_service:
+			_context.end()
+		else:
+			_context.invalidate()
 	_actor = null
 	_context = null
 	DialogueResourceLifecycle.release_runtime_references(_resource)

@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="DEF_EntityTemplate" format=3]
+
+[ext_resource type="Script" path="res://content/shared/definitions/def_entity_template.gd" id="Template"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
+[ext_resource type="Script" path="res://content/domains/npc/authoring/et_npc_identity.gd" id="Identity"]
+
+[ext_resource type="Script" path="res://content/domains/npc/authoring/et_npc_brain_state.gd" id="Brain"]
+
+[ext_resource type="Script" path="res://content/domains/npc/authoring/et_npc_roles.gd" id="Roles"]
+[ext_resource type="Resource" path="res://content/domains/needs/definitions/def_hunger_default.tres" id="Hunger_policy"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_action_npc_street.tres" id="Street_action"]
+[ext_resource type="Resource" path="res://content/domains/commerce/definitions/def_action_npc_trade.tres" id="Trade_action"]
+[ext_resource type="Resource" path="res://content/domains/commerce/definitions/def_trader_default.tres" id="Trader_profile"]
+
+[sub_resource type="Resource" id="Roles"]
+script = ExtResource("Roles")
+hunger_policy = ExtResource("Hunger_policy")
+street_action = ExtResource("Street_action")
+trade_action = ExtResource("Trade_action")
+trader_profile = ExtResource("Trader_profile")
+
+[sub_resource type="Resource" id="Brain"]
+script = ExtResource("Brain")
+
+[sub_resource type="Resource" id="Identity"]
+script = ExtResource("Identity")
+
+[resource]
+script = ExtResource("Template")
+key = &"entity_district_npc"
+traits = Array[ExtResource("Trait")]([SubResource("Identity"), SubResource("Brain"), SubResource("Roles")])

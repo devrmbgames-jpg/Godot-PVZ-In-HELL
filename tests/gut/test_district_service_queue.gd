@@ -4,21 +4,21 @@ extends "res://tests/gut/test_district_plan_acceptance.gd"
 #region Очередь района
 ## Смерть огненного получателя снимает настоящую ауру и освобождает стойку без ложной выдачи.
 func test_fire_customer_death_releases_aura_and_counter() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
 	_district.definition.service_transfer_pause = 0.0
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_system(S_HazardFollow.new())
 	var fire_body: E_DistrictNpc = _stage(1)
 	var fire_person: NpcRecord = _district.people[1]
-	fire_person.profile.rules = [load("res://content/definitions/gameplay/npc/def_npc_trait_2.tres") as DEF_NpcTrait]
+	fire_person.profile.rules = [load("res://content/domains/npc/definitions/def_npc_trait_2.tres") as DEF_NpcTrait]
 	var next_body: E_DistrictNpc = _stage(3, Vector3(10, 0, 0))
 	var first: CustomerVisit = _case(fire_person, "fire_death")
 	var next: CustomerVisit = _case(_district.people[3], "after_fire_death")
 	NpcServiceRole.begin(fire_body, fire_person, first, cycle.day_index)
 	NpcServiceRole.begin(next_body, _district.people[3], next, cycle.day_index)
 	NpcServiceRole.claim_counter(fire_body)
-	NpcTraitService.tick(fire_body, fire_person, null, 0.2)
+	NpcAiFixture.traits(fire_body, fire_person, null, 0.2)
 	_world.process(0.0)
 	var effects: Array = _world.query.with_all([C_Hazard, C_ToxicArea]).execute()
 	assert_eq(effects.size(), 1, "A real fire aura exists before death")
@@ -34,7 +34,7 @@ func test_fire_customer_death_releases_aura_and_counter() -> void:
 	assert_true(_world.query.with_all([C_Hazard, C_ToxicArea]).execute().is_empty())
 	assert_true(aura.is_queued_for_deletion())
 	assert_false(fire_body.has_component(C_CustomerAgent))
-	assert_eq(fire_body.get_relationships(Relationship.new(R_NpcServiceAt.new(), CustomerFlowService.counter())).size(), 0)
+	assert_eq(fire_body.get_relationships(Relationship.new(R_NpcServiceAt.new(), CustomerFlowQueries.counter())).size(), 0)
 	assert_true(first.customer_dead)
 	assert_eq(first.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(first.declaration, CustomerVisit.Declaration.NONE)
@@ -44,7 +44,7 @@ func test_fire_customer_death_releases_aura_and_counter() -> void:
 
 ## Ожидание выключателя снаружи не резервирует стойку для всех остальных жителей.
 func test_light_wait_keeps_counter_available_for_next_recipient() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
 	var waiting: E_DistrictNpc = _stage(6)
 	var rule: DEF_NpcTrait = DEF_NpcTrait.new()
@@ -53,14 +53,14 @@ func test_light_wait_keeps_counter_available_for_next_recipient() -> void:
 	var zone: NpcLightZone = _light_zone()
 	var first: CustomerVisit = _case(_district.people[6], "light_outside")
 	var next: CustomerVisit = _case(_district.people[3], "next_inside")
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
 	NpcServiceRole.enqueue_next(flow, cycle)
 	NpcServiceRole.enqueue_next(flow, cycle)
 	NpcServiceRole.claim_counter(waiting)
-	var next_body: E_DistrictNpc = DistrictPopulationService.body_for(next.customer_id)
+	var next_body: E_DistrictNpc = NpcPopulationQueries.body_for(next.customer_id)
 	assert_eq((waiting.get_component(C_CustomerAgent) as C_CustomerAgent).phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
-	assert_eq(waiting.get_relationships(Relationship.new(R_NpcServiceAt.new(), CustomerFlowService.counter())).size(), 0)
+	assert_eq(waiting.get_relationships(Relationship.new(R_NpcServiceAt.new(), CustomerFlowQueries.counter())).size(), 0)
 	assert_true(NpcServiceRole.can_approach(next_body))
 	NpcServiceRole.claim_counter(next_body)
 	zone.enabled = false
@@ -89,29 +89,34 @@ func test_light_wait_keeps_counter_available_for_next_recipient() -> void:
 	assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 4)
 ## Наследуемая длинная пауза потока не задерживает уже подготовленного жителя.
 func test_prepared_recipient_uses_short_district_pause() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	# Other inherited fixtures disable this authored pause; this regression needs a positive interval.
+	var configured_pause: float = _district.definition.service_transfer_pause
+	const SHORT_SERVICE_PAUSE_SECONDS: float = 0.25
+	_district.definition.service_transfer_pause = SHORT_SERVICE_PAUSE_SECONDS
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
 	flow.schedule.arrival_interval_seconds = 120.0
 	var first: CustomerVisit = _case(_district.people[0], "pause_first")
 	var next: CustomerVisit = _case(_district.people[3], "pause_next")
 	NpcServiceRole.enqueue_next(flow, cycle)
 	NpcServiceRole.enqueue_next(flow, cycle)
-	var first_body: E_DistrictNpc = DistrictPopulationService.body_for(first.customer_id)
-	var next_body: E_DistrictNpc = DistrictPopulationService.body_for(next.customer_id)
+	var first_body: E_DistrictNpc = NpcPopulationQueries.body_for(first.customer_id)
+	var next_body: E_DistrictNpc = NpcPopulationQueries.body_for(next.customer_id)
 	NpcServiceRole.claim_counter(first_body)
 	NpcServiceRole.finish_appearance(first_body, first)
 	assert_eq(flow.arrival_cooldown_seconds, _district.definition.service_transfer_pause)
 	assert_false(NpcServiceRole.can_approach(next_body))
 	flow.arrival_cooldown_seconds = 0.0
 	assert_true(NpcServiceRole.can_approach(next_body))
+	_district.definition.service_transfer_pause = configured_pause
 
 ## Три разные личности готовятся заранее, четвёртая и второй заказ того же NPC ждут.
 func test_preparation_keeps_two_next_distinct_recipients() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
 	flow.schedule.arrival_interval_seconds = 0.0
 	var first: CustomerVisit = _case(_district.people[0], "ready_one")
@@ -131,7 +136,7 @@ func test_preparation_keeps_two_next_distinct_recipients() -> void:
 
 ## Если свет не выключили, реальное дерево завершает ожидание и сохраняет следующий приход.
 func test_native_light_wait_defers_once_and_releases_counter() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.day_index = 2
 	cycle.phase = C_DayCycle.Phase.DAY
 	var body: E_DistrictNpc = _stage(6)
@@ -141,14 +146,14 @@ func test_native_light_wait_defers_once_and_releases_counter() -> void:
 	var zone: NpcLightZone = _light_zone()
 	assert_true(zone.is_logically_lit())
 	var visit: CustomerVisit = _case(_district.people[6], "wait_light")
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
 	flow.schedule.arrival_interval_seconds = 0.0
 	assert_true(NpcServiceRole.enqueue_next(flow, cycle))
 	_run_branch(body, C_NpcDecision.Owner.SERVICE, 0.2)
 	var service: C_CustomerAgent = body.get_component(C_CustomerAgent) as C_CustomerAgent
 	assert_eq(service.phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
-	body.place_at(CustomerFlowService.counter().entry_position())
+	body.place_at(CustomerFlowQueries.counter().entry_position())
 	_run_branch(body, C_NpcDecision.Owner.SERVICE, 0.2)
 	assert_true(service.light_warning_started)
 	assert_eq(service.phase, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS)
@@ -159,13 +164,13 @@ func test_native_light_wait_defers_once_and_releases_counter() -> void:
 	assert_eq(visit.next_followup_day, 3)
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 	assert_eq(visit.declaration, CustomerVisit.Declaration.NONE)
-	assert_eq(CustomerFlowService.actionable_remaining(flow, 2), 0)
+	assert_eq(CustomerFlowQueries.actionable_remaining(flow, 2), 0)
 	assert_true(DayPhaseService.finish_blockers(cycle).is_empty())
 	assert_false(NpcServiceRole.enqueue_next(flow, cycle))
 
 ## Выключенный свет разрешает вход, включение внутри прерывает роль для укрытия.
 func test_native_light_wait_resumes_and_inside_light_requests_refuge() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
 	var body: E_DistrictNpc = _stage(6)
 	var rule: DEF_NpcTrait = DEF_NpcTrait.new()
@@ -173,7 +178,7 @@ func test_native_light_wait_resumes_and_inside_light_requests_refuge() -> void:
 	_district.people[6].profile.rules = [rule]
 	var zone: NpcLightZone = _light_zone()
 	var visit: CustomerVisit = _case(_district.people[6], "switch_light")
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
 	flow.schedule.arrival_interval_seconds = 0.0
 	NpcServiceRole.enqueue_next(flow, cycle)
@@ -186,23 +191,23 @@ func test_native_light_wait_resumes_and_inside_light_requests_refuge() -> void:
 	zone.enabled = true
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.light_distress = true
-	_run_tree(body, NpcBrainService.TREE_PATH, 0.2)
+	_run_tree(body, CustomerNpcLifecycleBinding.TREE_PATH, 0.2)
 	assert_eq((body.get_component(C_NpcDecision) as C_NpcDecision).intent_owner, C_NpcDecision.Owner.EMERGENCY)
 	assert_eq((body.get_component(C_NpcIntent) as C_NpcIntent).move_position, NpcTraitService.dark_refuge(body, _district.people[6]))
-	NpcServiceRole.suspend(body)
+	CustomerRoleInterruptionService.suspend(body)
 	assert_false(body.has_component(C_CustomerAgent))
 	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 ## Зарегистрированный светобоязненный получатель получает роль даже при включённом свете.
 func test_day_two_light_averse_recipient_is_not_silently_skipped() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.day_index = 2
 	cycle.phase = C_DayCycle.Phase.DAY
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
 	flow.schedule.arrival_interval_seconds = 0.0
 	_light_zone()
 	var visit: CustomerVisit = _case(_district.people[6], "day_two_light")
-	assert_eq(CustomerFlowService.actionable_remaining(flow, 2), 1)
+	assert_eq(CustomerFlowQueries.actionable_remaining(flow, 2), 1)
 	assert_true(NpcServiceRole.enqueue_next(flow, cycle), "Lit service desk must not silently skip its required recipient")
 	assert_true(visit.started)
 #endregion
@@ -219,7 +224,7 @@ func test_timid_submission_does_not_attack_or_flee() -> void:
 	var player: E_DistrictNpc = _player(Vector3(0, 0, -2))
 	assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.SUBMISSION, &"submission"), NpcMemory.Reaction.TALK)
 	assert_false((body.get_component(C_NpcAwareness) as C_NpcAwareness).fleeing)
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 
 ## Обычная угроза не обращает здорового агрессивного NPC в бегство; голод 80% ещё не хищный.
 func test_aggressive_fear_requires_visible_predatory_hunger_above_eighty() -> void:
@@ -245,5 +250,5 @@ func test_aggressive_fear_requires_visible_predatory_hunger_above_eighty() -> vo
 	assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.THREAT, &"hidden_hunger"), NpcMemory.Reaction.TALK)
 	awareness.player_visible = true
 	assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.THREAT, &"visible_hunger"), NpcMemory.Reaction.FLEE)
-	assert_null(CombatService.target_for(body))
+	assert_null(CombatQueries.target_for(body))
 #endregion

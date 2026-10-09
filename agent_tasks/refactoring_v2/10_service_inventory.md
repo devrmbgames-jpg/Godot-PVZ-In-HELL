@@ -1,6 +1,6 @@
 # Refactoring v2.10 — полный inventory сервисного слоя
 
-Status: **PLANNED**
+Status: **DONE**
 
 Зависимости: Phase 1 (01–04) полностью завершена, включая [04_identity_persistence_contract.md](04_identity_persistence_contract.md).
 
@@ -51,3 +51,20 @@ Status: **PLANNED**
 ## Validation
 
 Только static audit. Runtime не менять и тесты не запускать.
+
+## Current — 2026-10-08
+
+Полный результат: [service_inventory_result.md](service_inventory_result.md). Классифицированы все 136 project-owned `.gd` (18 199 строк): 55 KEEP_SERVICE, 14 KEEP_RULES, 13 KEEP_PRESENTATION, 13 KEEP_SOLVER, 4 KEEP_GEOMETRY, 30 SPLIT, 6 RENAME_MOVE, 1 MOVE_SYSTEM. Для каждого файла указаны причина и owning task; для 37 non-KEEP файлов — текущие runtime callers, целевые роли и bounded migration slices с regression/ordering/removal gates. KEEP означает завершённую классификацию, а не освобождение от owning-task validation и последующей domain relocation.
+
+40 получает пять boundary slices (Damage, Commerce, Interaction, Customer outcomes, Quests), включая reason/status/correlation trace и reentrancy/structural-flush fixtures. 11–25 получают полные responsibility slices; CustomerFlow 11/12/13 и NPC 15/16 явно разделены. Семантический scope шире lexical baseline: strike/stability/floor/loot/perception/role/cart/input paths перечислены отдельно. Новая самостоятельная подсистема не обнаружена; roadmap сохраняет dependency order, назначенные дополнительные случаи закрываются существующими owning tasks.
+
+## Validation result
+
+- Static coverage audit: PASS, 136/136 unique source paths, ровно одно решение/owner на файл; ни одного необъяснённого KEEP или неназначенного non-KEEP.
+- Static regression-path audit и roadmap links/dependencies/encoding: PASS.
+- Owned documentation whitespace check: PASS.
+- Runtime-код не менялся; parser, GUT, smoke и gameplay не запускались в этой задаче.
+
+## Next
+
+[40_typed_commands_events.md](40_typed_commands_events.md), все пять boundary slices до scheduler migration 11.

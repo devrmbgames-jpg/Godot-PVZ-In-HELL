@@ -21,7 +21,7 @@ func _run() -> void:
 		await get_tree().physics_frame
 	_level.set_physics_process(false)
 
-	var district: C_District = DistrictPopulationService.current()
+	var district: C_District = NpcPopulationQueries.current()
 	var lighting: NpcLightingContext = NpcLightingService.context_for(district)
 	print("NPC benchmark authored_light_zones=", lighting.zones.size(), " shade_points=", district.definition.shade_route.size())
 	if lighting.zones.is_empty():
@@ -35,14 +35,14 @@ func _run() -> void:
 			person = candidate
 			break
 
-	var actor: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
+	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	var map: RID = actor.navigation_agent.get_navigation_map()
-	var start: Vector3 = DistrictPopulationService.position_for(person.portal_id)
-	var goal: Vector3 = DistrictPopulationService.position_for(&"shop")
+	var start: Vector3 = NpcPopulationQueries.position_for(person.portal_id)
+	var goal: Vector3 = NpcPopulationQueries.position_for(&"shop")
 	var measurements: PackedFloat64Array = PackedFloat64Array()
 	for sample: int in SAMPLE_COUNT:
 		var began: int = Time.get_ticks_usec()
-		var path: PackedVector3Array = NpcRouteService.plan(actor, person, start, goal, map)
+		var path: PackedVector3Array = NpcRouteSolver.plan(actor, person, start, goal, map)
 		measurements.append(float(Time.get_ticks_usec() - began) / 1000.0)
 		if path.is_empty():
 			push_error("NPC benchmark route is empty")
@@ -60,7 +60,7 @@ func _run() -> void:
 		measurements.append(float(Time.get_ticks_usec() - began) / 1000.0)
 	_report("809_light_queries_ms", measurements)
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 		cycle.phase = phase
 		measurements.clear()

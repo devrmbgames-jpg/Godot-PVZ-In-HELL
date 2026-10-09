@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="DEF_Upgrade" format=3]
-
-[ext_resource type="Script" path="res://content/definitions/gameplay/commerce/def_upgrade.gd" id="Upgrade"]
-
-[resource]
-script = ExtResource("Upgrade")
-key = &"cart"
-display_name = "Тележка"
-market_price = 250

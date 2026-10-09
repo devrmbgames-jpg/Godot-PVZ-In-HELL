@@ -18,7 +18,7 @@ func before_each() -> void:
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_PackageLedger.new()]
 	_world.add_entity(session)
-	_zone = (load("res://content/entities/zones/receiving_zone.tscn") as PackedScene).instantiate() as E_ReceivingZone
+	_zone = (load("res://content/domains/packages/entities/receiving_zone.tscn") as PackedScene).instantiate() as E_ReceivingZone
 	_zone.package_parent = _root
 	_parking = Marker3D.new()
 	_parking.position = Vector3(5, 0, 7)
@@ -50,6 +50,22 @@ func _plan_big_boxes() -> void:
 	_zone.supply = _zone.supply.duplicate() as DEF_Delivery
 	_zone.supply.packages = assortment
 	ReceivingDeliveryService.prepare_batch(_zone.supply, _state, 1)
+
+
+## Reads the current authored cargo shape, including its offset in the enlarged truck.
+func _cargo_shape(truck: E_MorningTruck) -> CollisionShape3D:
+	return truck.cargo_area.get_node("CollisionShape3D") as CollisionShape3D
+
+
+## Computes the actual prefab's compound local bounds without registering or moving a body.
+func _big_package_bounds() -> AABB:
+	var packed: PackedScene = load(_state.pending[0].package_scenes[0]) as PackedScene
+	var body: RigidBody3D = packed.instantiate() as RigidBody3D
+	var solver: ItemPlacementSolver = ItemPlacementSolver.new()
+	assert(solver.prepare(body))
+	var bounds: AABB = solver.bounds_at(Transform3D.IDENTITY)
+	body.free()
+	return bounds
 
 
 func _parcels() -> Array[Entity]:
@@ -102,7 +118,9 @@ func test_blocked_cargo_preserves_batch_until_space_is_free() -> void:
 	_plan_big_boxes()
 	var ids: PackedStringArray = _state.incoming_package_ids.duplicate()
 	var scenes: PackedStringArray = _state.pending[0].package_scenes.duplicate()
-	var obstacle: StaticBody3D = _block(Vector3(3, 2, 3), truck.global_position + Vector3(0, 1, 0.75))
+	var cargo_shape: CollisionShape3D = _cargo_shape(truck)
+	var volume: AABB = cargo_shape.global_transform * cargo_shape.shape.get_debug_mesh().get_aabb()
+	var obstacle: StaticBody3D = _block(volume.size, volume.get_center())
 	await get_tree().physics_frame
 	ReceivingDeliveryService.deliver_one(_zone, _state, 1)
 	assert_true(_state.blocked)
@@ -129,7 +147,10 @@ func test_full_shape_rejects_wall_and_respects_marker_edit() -> void:
 	_plan_big_boxes()
 	var marker: Marker3D = truck.cargo_slots[0]
 	truck.cargo_slots.assign([marker])
-	marker.position.x = 0.75
+	var cargo_shape: CollisionShape3D = _cargo_shape(truck)
+	var volume: AABB = truck.global_transform.affine_inverse() * cargo_shape.global_transform * cargo_shape.shape.get_debug_mesh().get_aabb()
+	var package_bounds: AABB = _big_package_bounds()
+	marker.position.x = volume.end.x - package_bounds.size.x * 0.25
 	ReceivingDeliveryService.deliver_one(_zone, _state, 1)
 	assert_true(_state.blocked)
 	assert_true(_parcels().is_empty())
@@ -153,6 +174,13 @@ func test_authored_upper_slot_stacks_on_real_box() -> void:
 		await get_tree().physics_frame
 	var bottom: RigidBody3D = _parcels()[0] as Node as RigidBody3D
 	bottom.freeze = true
+	var support_solver: ItemPlacementSolver = ItemPlacementSolver.new()
+	assert_true(support_solver.prepare(bottom))
+	var support_bounds: AABB = support_solver.bounds_at(bottom.global_transform)
+	var local_bounds: AABB = support_solver.bounds_at(Transform3D.IDENTITY)
+	var upper: Marker3D = truck.cargo_slots[1]
+	# The current authored upper deck is taller than one parcel; edit its fixture height to this real support.
+	upper.global_position.y = support_bounds.end.y + truck.placement.clearance - local_bounds.position.y
 	ReceivingDeliveryService.deliver_one(_zone, _state, 1)
 	assert_eq(_parcels().size(), 2)
 	if _parcels().size() != 2:
@@ -201,7 +229,7 @@ func test_restored_batch_and_arrival_history_prevent_duplicate_spawn() -> void:
 func test_unlisted_saved_scene_is_rejected_without_creating_a_node() -> void:
 	var created: E_Package = ReceivingPackageFactory.create(
 		_zone, _zone.supply.packages[0], "invalid-scene", 1, 0,
-		"res://content/entities/car/car.tscn",
+		"res://content/domains/packages/entities/car.tscn",
 	)
 	assert_null(created)
 	assert_true(_parcels().is_empty())
@@ -238,7 +266,7 @@ func test_snapshot_manifest_and_scene_choices_are_independent() -> void:
 	var scenes: PackedStringArray = _state.pending[0].package_scenes.duplicate()
 	var fields: Dictionary = SaveDataCodec.component_data(_state).fields as Dictionary
 	_state.incoming_package_ids.clear()
-	_state.pending[0].package_scenes[0] = "res://content/entities/packages/package_a.tscn"
+	_state.pending[0].package_scenes[0] = "res://content/domains/packages/entities/package_a.tscn"
 	var restored: C_Receiving = C_Receiving.new()
 	assert_true(SaveDataCodec.apply_fields(restored, fields))
 	assert_eq(restored.incoming_package_ids, ids)
@@ -267,4 +295,74 @@ func test_reset_context_only_clears_transient_placement_state() -> void:
 	assert_eq(_state.last_spawn_tick, -1)
 	assert_true(_state.reservations.is_empty())
 	assert_eq(_state.incoming_package_ids, ids)
+#endregion
+
+#region Captured receiving requests
+## A queued receiving attempt cannot mutate a replaced Component or create an orphaned historical batch.
+func test_receiving_manual_flush_rejects_replaced_state() -> void:
+	await _ready_truck()
+	_plan_big_boxes()
+	var owner: S_Receiving = S_Receiving.new()
+	owner.group = "ReceivingFixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+	var previous: C_Receiving = _state
+	_zone.remove_component(C_Receiving)
+	_zone.add_component(C_Receiving.new())
+	_state = _zone.get_component(C_Receiving) as C_Receiving
+	_world.flush_command_buffers()
+	assert_true(_parcels().is_empty())
+	assert_eq(previous.pending[0].next_package, 0)
+	assert_eq(_state.last_started_day, 0)
+
+	_world.process(0.0, owner.group)
+	_world.flush_command_buffers()
+	assert_eq(_parcels().size(), 1)
+	assert_eq(_state.last_started_day, 1)
+
+
+## Changing the phase before a delayed receiving commit prevents a morning spawn in Day.
+func test_receiving_manual_flush_revalidates_calendar() -> void:
+	await _ready_truck()
+	_plan_big_boxes()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var owner: S_Receiving = S_Receiving.new()
+	owner.group = "ReceivingFixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+	cycle.phase = C_DayCycle.Phase.DAY
+	_world.flush_command_buffers()
+	assert_true(_parcels().is_empty())
+	assert_eq(_state.pending[0].next_package, 0)
+
+	cycle.phase = C_DayCycle.Phase.MORNING
+	_world.process(0.0, owner.group)
+	_world.flush_command_buffers()
+	assert_eq(_parcels().size(), 1)
+#endregion
+
+#region Retained receiving aggregate reload
+## Decoding the same saved manifest invalidates a queued request even when Component/calendar identity stays unchanged.
+func test_receiving_manual_flush_rejects_redecoded_manifest() -> void:
+	await _ready_truck()
+	_plan_big_boxes()
+	var owner: S_Receiving = S_Receiving.new()
+	owner.group = "ReceivingFixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	_world.add_system(owner)
+	_world.process(0.0, owner.group)
+	var previous_batch: ReceivingBatch = _state.pending[0]
+	var saved: Dictionary = SaveDataCodec.component_data(_state).fields as Dictionary
+	assert_true(SaveDataCodec.apply_fields(_state, saved))
+	ReceivingDeliveryService.reset_context(_state)
+	assert_ne(_state.pending[0], previous_batch, "Typed record state is decoded into the retained Component/Array")
+	_world.flush_command_buffers()
+	assert_true(_parcels().is_empty())
+	assert_eq(_state.pending[0].next_package, 0)
+
+	_world.process(0.0, owner.group)
+	_world.flush_command_buffers()
+	assert_eq(_parcels().size(), 1)
 #endregion

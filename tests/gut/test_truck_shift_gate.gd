@@ -16,7 +16,7 @@ func before_each() -> void:
 	_session.add_component(C_CustomerFlow.new())
 	_session.add_component(C_Wallet.new())
 	_flow = _session.get_component(C_CustomerFlow) as C_CustomerFlow
-	_flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	_flow.schedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
 	_phase_system = S_DayPhase.new()
 	_world.add_system(_phase_system)
 
@@ -125,10 +125,19 @@ func test_partial_exit_and_rotated_cargo_use_full_body_bounds() -> void:
 	_parking.rotation.y = PI / 3.0
 	var truck: E_MorningTruck = await _complete_and_unload()
 	var body: RigidBody3D = _parcels()[0] as Node as RigidBody3D
-	body.global_transform = truck.cargo_area.global_transform * Transform3D(Basis.IDENTITY, Vector3(0.9, 0.3, 0.3))
+	var cargo_shape: CollisionShape3D = _cargo_shape(truck)
+	var volume: AABB = cargo_shape.shape.get_debug_mesh().get_aabb()
+	var solver: ItemPlacementSolver = ItemPlacementSolver.new()
+	assert_true(solver.prepare(body))
+	var local_bounds: AABB = solver.bounds_at(Transform3D.IDENTITY)
+	var partial_exit: Vector3 = Vector3(volume.end.x + local_bounds.size.x * 0.25, 0.0, 0.0)
+	body.global_transform = cargo_shape.global_transform * Transform3D(Basis.IDENTITY, partial_exit)
+	assert_gt(partial_exit.x, volume.end.x, "The body origin is already outside the authored cargo volume")
 	assert_eq(ReceivingShiftService.status(_cycle).inside, 1)
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.START_SHIFT))
-	body.global_position = truck.cargo_area.global_transform * Vector3(1.6, 0.3, 0.3)
+
+	var complete_exit: Vector3 = Vector3(volume.end.x - local_bounds.position.x + truck.placement.clearance, 0.0, 0.0)
+	body.global_position = cargo_shape.global_transform * complete_exit
 	assert_eq(ReceivingShiftService.status(_cycle).inside, 0)
 	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.START_SHIFT))
 
@@ -157,7 +166,7 @@ func test_absent_unregistered_package_requires_manual_lost_and_keeps_receipt() -
 	_world.remove_entity(_parcels()[0])
 	assert_eq(ReceivingShiftService.status(_cycle).missing, 1)
 	assert_false(DayPhaseService.submit(_request()))
-	assert_false(CustomerFlowService.package_declared_lost(package_id))
+	assert_false(CustomerFlowQueries.package_declared_lost(package_id))
 	assert_same(PackageHistoryService.record_for(package_id), receipt)
 	assert_eq(receipt.number, 0)
 
@@ -174,7 +183,7 @@ func test_destroyed_package_never_automatically_declares_lost() -> void:
 	var condition: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	condition.damage = C_PackageState.Damage.DESTROYED
 	assert_eq(ReceivingShiftService.status(_cycle).missing, 1)
-	assert_false(CustomerFlowService.package_declared_lost(identity.package_id))
+	assert_false(CustomerFlowQueries.package_declared_lost(identity.package_id))
 	var visit: CustomerVisit = _visit_for(identity.package_id)
 	assert_true(CustomerFlowService.declare(visit.visit_id, CustomerVisit.Declaration.LOST))
 	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.START_SHIFT))

@@ -17,7 +17,7 @@ var _message_was_visible: bool = true
 
 #region Переключение образа
 func _process(_delta: float) -> void:
-	var sees_food: bool = HungerService.sees_npcs_as_food(HungerService.player_state())
+	var sees_food: bool = HungerRules.sees_npcs_as_food(HungerService.player_state())
 	if sees_food == _applied:
 		return
 	if sees_food:

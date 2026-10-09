@@ -39,10 +39,10 @@ func _create_core_world() -> void:
 	session.component_resources = [_cycle, _wallet, _flow, _ledger]
 	_world.add_entity(session)
 	## После регистрации Entity читаем авторитетные runtime-экземпляры компонентов из сервисов.
-	_cycle = DayPhaseService.current()
+	_cycle = DayPhaseQueries.current()
 	_wallet = WalletService.current()
-	_flow = CustomerFlowService.current()
-	_ledger = PackageRegistrationService.ledger()
+	_flow = CustomerFlowQueries.current()
+	_ledger = PackageQueries.ledger()
 
 
 func _add_player() -> Entity:
@@ -61,7 +61,7 @@ func _add_package(package_id: String) -> Entity:
 	identity.definition = definition
 	var parcel: Entity = Entity.new()
 	parcel.component_resources = [identity, C_PackageState.new()]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	return parcel
 
 

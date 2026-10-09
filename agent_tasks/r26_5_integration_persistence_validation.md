@@ -187,3 +187,21 @@ Manual owner checks should focus on:
 - Vampire visibility/cloud escape;
 - final dialogue prose;
 - balance of aggression, probabilities, order weights and karma thresholds.
+
+## Task state
+
+### Goal
+
+Implement the scope and acceptance specified in the Goal and required-design sections above.
+
+### Current
+
+PLANNED. Specification only; implementation has not started. Phase 1 task 03 normalizes metadata only; no R26 gameplay work is authorized by this repair.
+
+### Validation
+
+Specification only; no R26 engine or gameplay tests run. Use the validation requirements above when implementation is scheduled.
+
+### Owner QA / blockers
+
+No implementation blocker assessed. Subjective gameplay, dialogue, assets and balance require owner QA after implementation.

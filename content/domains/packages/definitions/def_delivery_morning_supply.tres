@@ -1,0 +1,136 @@
+[gd_resource type="Resource" script_class="DEF_Delivery" format=3 uid="uid://btuoi3maxvuq3"]
+
+[ext_resource type="Script" uid="uid://bbb2wkmkgvu0d" path="res://content/domains/packages/definitions/def_package.gd" id="1_45rg7"]
+[ext_resource type="Resource" uid="uid://n1fplfbubuas" path="res://content/domains/combat/definitions/def_impact_default.tres" id="2_61ali"]
+[ext_resource type="Script" uid="uid://ccyyq1ami2lgi" path="res://content/domains/packages/definitions/def_delivery.gd" id="2_pfwa7"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/cloth_sample.tscn" id="ClothContents"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_books.tscn" id="Contents_Books"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_bottles.tscn" id="Contents_Bottles"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_power_cells.tscn" id="Contents_Cells"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_equipment.tscn" id="Contents_Equipment"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_glass.tscn" id="Contents_Glass"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_oil.tscn" id="Contents_Oil"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_tools.tscn" id="Contents_Tools"]
+[ext_resource type="PackedScene" uid="uid://xw8mjih3muua" path="res://content/domains/hazards/entities/explosion.tscn" id="ExplosionHazard"]
+[ext_resource type="Resource" uid="uid://ssekqccb7qe5" path="res://content/domains/combat/definitions/def_impact_fragile.tres" id="FragileImpact"]
+[ext_resource type="PackedScene" path="res://content/domains/hazards/entities/toxic_area.tscn" id="ToxicHazard"]
+[ext_resource type="PackedScene" path="res://content/domains/hazards/entities/toxic_residue.tscn" id="ToxicResidue"]
+
+[sub_resource type="Resource" id="Books"]
+script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Books")
+unpack_offset = Vector3(0, 0, 0)
+description = "Книги"
+comment = "Обычный заказ"
+recipient_id = &"customer_01"
+scene_variants = Array[String](["res://content/domains/packages/entities/package_b.tscn", "res://content/domains/packages/entities/package_a.tscn"])
+key = &"books"
+
+[sub_resource type="Resource" id="Bottles"]
+script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Bottles")
+unpack_offset = Vector3(0, 0, 0)
+activate_contents_hazard = true
+description = "Бутылки с реагентами"
+comment = "Хранить вертикально. Не вскрывать."
+recipient_id = &"customer_02"
+tags = 10
+history_hazard_class = 3
+mass_kg = 30.0
+throw_velocity = 6.0
+maximum_health = 60.0
+damaged_health_ratio = 0.85
+scene_variants = Array[String](["res://content/domains/packages/entities/package_big.tscn"])
+impact_profile = ExtResource("FragileImpact")
+hazard_on_damaged = ExtResource("ToxicHazard")
+hazard_on_destroyed = ExtResource("ToxicResidue")
+key = &"bottles"
+
+[sub_resource type="Resource" id="Equipment"]
+script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Equipment")
+unpack_offset = Vector3(0, 0, 0)
+description = "Лабораторное оборудование"
+comment = "Тяжёлое и хрупкое"
+recipient_id = &"customer_03"
+tags = 6
+history_hazard_class = 1
+mass_kg = 80.0
+throw_velocity = 3.0
+damaged_health_ratio = 0.85
+scene_variants = Array[String](["res://content/domains/packages/entities/package_big.tscn"])
+impact_profile = ExtResource("FragileImpact")
+key = &"equipment"
+
+[sub_resource type="Resource" id="Glass"]
+script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Glass")
+unpack_offset = Vector3(0, 0, 0)
+description = "Стеклянная посуда"
+comment = "Осторожно, стекло"
+recipient_id = &"customer_04"
+tags = 2
+history_hazard_class = 1
+mass_kg = 3.0
+maximum_health = 40.0
+damaged_health_ratio = 0.85
+scene_variants = Array[String](["res://content/domains/packages/entities/package_b.tscn"])
+impact_profile = ExtResource("FragileImpact")
+key = &"glass"
+
+[sub_resource type="Resource" id="Oil"]
+script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Oil")
+unpack_offset = Vector3(0, 0, 0)
+description = "Техническое масло"
+recipient_id = &"customer_05"
+tags = 8
+history_hazard_class = 2
+mass_kg = 8.0
+scene_variants = Array[String](["res://content/domains/packages/entities/package_a.tscn", "res://content/domains/packages/entities/package.tscn"])
+key = &"oil"
+
+[sub_resource type="Resource" id="Cells"]
+script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("Contents_Cells")
+unpack_offset = Vector3(0, 0, 0)
+description = "Энергетические ячейки"
+comment = "Беречь от ударов. Опасное содержимое."
+recipient_id = &"customer_06"
+tags = 2
+history_hazard_class = 4
+mass_kg = 6.0
+maximum_health = 50.0
+damaged_health_ratio = 0.85
+scene_variants = Array[String](["res://content/domains/packages/entities/package.tscn", "res://content/domains/packages/entities/package_a.tscn", "res://content/domains/packages/entities/package_b.tscn"])
+impact_profile = ExtResource("FragileImpact")
+hazard_on_destroyed = ExtResource("ExplosionHazard")
+key = &"power_cells"
+
+[sub_resource type="Resource" id="Clothes"]
+script = ExtResource("1_45rg7")
+unpack_scene = ExtResource("ClothContents")
+unpack_offset = Vector3(0, 0, 0)
+description = "Рабочая одежда"
+recipient_id = &"customer_07"
+mass_kg = 2.0
+scene_variants = Array[String](["res://content/domains/packages/entities/package_b.tscn", "res://content/domains/packages/entities/package_a.tscn"])
+key = &"clothes"
+
+[sub_resource type="Resource" id="Tools"]
+script = ExtResource("1_45rg7")
+content_item_key = &"bubble_wrap"
+content_quantity = 4
+unpack_scene = ExtResource("Contents_Tools")
+unpack_offset = Vector3(0, 0, 0)
+description = "Набор инструментов"
+recipient_id = &"customer_08"
+mass_kg = 12.0
+throw_velocity = 8.0
+scene_variants = Array[String](["res://content/domains/packages/entities/package.tscn", "res://content/domains/packages/entities/package_a.tscn", "res://content/domains/packages/entities/package_b.tscn", "res://content/domains/packages/entities/package_big.tscn"])
+key = &"tools"
+
+[resource]
+script = ExtResource("2_pfwa7")
+packages = Array[ExtResource("1_45rg7")]([SubResource("Books"), SubResource("Bottles"), SubResource("Equipment"), SubResource("Glass"), SubResource("Oil"), SubResource("Cells"), SubResource("Clothes"), SubResource("Tools")])
+key = &"base_supply"

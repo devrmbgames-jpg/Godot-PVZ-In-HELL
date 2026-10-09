@@ -31,6 +31,7 @@ func before_each() -> void:
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
+	DialogueUiFixture.install()
 	_world.add_observer(O_GrabLifecycle.new())
 	_probe = Probe.new()
 	_world.add_observer(_probe)
@@ -38,7 +39,7 @@ func before_each() -> void:
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
 	body.name = "Actor"
-	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 	var anchor: Marker3D = Marker3D.new()
 	anchor.position.y = 1.0
@@ -54,6 +55,7 @@ func before_each() -> void:
 	_actor.component_resources = [C_PlayerInputController.new(), C_Controller.new(), C_Interactor.new(), C_GrabControl.new(), C_CarryLoad.new(), C_Strength.new()]
 	_root.add_child(body)
 	_actor.owner = _root
+	FixturePlacedIdentity.assign(_root, _actor, &"actor")
 	_world.add_entity(_actor, null, false)
 
 	var session: Entity = Entity.new()
@@ -61,6 +63,7 @@ func before_each() -> void:
 	session.component_resources = [C_DayCycle.new()]
 	_root.add_child(session)
 	session.owner = _root
+	FixturePlacedIdentity.assign(_root, session, &"session")
 	_world.add_entity(session, null, false)
 
 
@@ -73,9 +76,10 @@ func after_each() -> void:
 
 
 func _door() -> E_Door:
-	var door: E_Door = (load("res://content/entities/doors/door_template.tscn") as PackedScene).instantiate() as E_Door
+	var door: E_Door = (load("res://content/domains/interaction/entities/door_template.tscn") as PackedScene).instantiate() as E_Door
 	_root.add_child(door)
 	door.owner = _root
+	FixturePlacedIdentity.assign(_root, door, &"door")
 	_world.add_entity(door, null, false)
 	door.set_physics_process(false)
 	door.door_root.freeze = true
@@ -95,16 +99,80 @@ func _parcel() -> Entity:
 	var collider: CollisionShape3D = CollisionShape3D.new()
 	collider.shape = BoxShape3D.new()
 	body.add_child(collider)
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	return parcel
 
 
 #endregion
 
+#region NPC consumption of committed facts
+func _noise_consumer(manual: bool = false) -> C_District:
+	var district: C_District = C_District.new()
+	district.definition = load("res://content/domains/npc/definitions/def_district_default.tres") as DEF_District
+	(_root.get_node("Session") as Entity).add_component(district)
+	var observer: O_PlayerInteractionNoise = O_PlayerInteractionNoise.new()
+	if manual:
+		observer.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+	_world.add_observer(observer)
+	return district
+
+
+## Actual pickup/placement facts create NPC noise after the authoritative relationship transition.
+func test_committed_pickup_and_placement_generate_noise_in_the_consumer() -> void:
+	var district: C_District = _noise_consumer()
+	var parcel: Entity = _parcel()
+	assert_true(GrabService.try_pickup(_actor, parcel))
+	assert_eq(_probe.events.size(), 1)
+	assert_eq(district.noises.size(), 1)
+	assert_eq(district.noises[0].source, parcel)
+	assert_eq(district.noises[0].radius, district.definition.interaction_noise_radius)
+	assert_not_null(GrabQueries.held_relationship(parcel))
+	GrabReleaseService.release(_actor, parcel)
+	assert_eq(_probe.events.size(), 2)
+	assert_eq(district.noises.size(), 2)
+	assert_null(GrabQueries.held_relationship(parcel))
+
+
+## Queued noise uses the committed position and rejects a removed physical source.
+func test_deferred_noise_seals_position_and_revalidates_source_lifetime() -> void:
+	var district: C_District = _noise_consumer(true)
+	var parcel: Entity = _parcel()
+	var body: RigidBody3D = parcel as Node as RigidBody3D
+	var committed_position: Vector3 = body.global_position
+	assert_true(GrabService.try_pickup(_actor, parcel))
+	assert_true(district.noises.is_empty())
+	body.global_position += Vector3.RIGHT * 5.0
+	_world.flush_command_buffers()
+	assert_eq(district.noises.size(), 1)
+	assert_eq(district.noises[0].position, committed_position)
+	GrabReleaseService.release(_actor, parcel)
+	_world.remove_entity(parcel)
+	_world.flush_command_buffers()
+	assert_eq(district.noises.size(), 1, "Removed source cannot create a new queued noise")
+
+
+## Invalid pickup and a replaced load aggregate cannot produce committed NPC noise.
+func test_rejected_pickup_and_replaced_district_do_not_generate_noise() -> void:
+	var district: C_District = _noise_consumer(true)
+	var parcel: Entity = _parcel()
+	var body: RigidBody3D = parcel as Node as RigidBody3D
+	body.freeze = true
+	assert_false(GrabService.try_pickup(_actor, parcel))
+	assert_true(district.noises.is_empty())
+	body.freeze = false
+	assert_true(GrabService.try_pickup(_actor, parcel))
+	var replacement: C_District = C_District.new()
+	replacement.definition = district.definition
+	(_root.get_node("Session") as Entity).add_component(replacement)
+	_world.flush_command_buffers()
+	assert_true(district.noises.is_empty())
+	assert_true(replacement.noises.is_empty())
+#endregion
+
 #region Фактические переходы и атрибуция
 ## Открытие и закрытие панели дают по одному событию и корректно возвращают ввод.
 func test_terminal_reports_actual_visibility_and_releases_capture_once() -> void:
-	var terminal: E_Terminal = (load("res://content/entities/stations/terminal.tscn") as PackedScene).instantiate() as E_Terminal
+	var terminal: E_Terminal = (load("res://content/domains/packages/entities/terminal.tscn") as PackedScene).instantiate() as E_Terminal
 	_world.add_entity(terminal)
 	terminal.open_for(_actor)
 	terminal.open_for(_actor)
@@ -133,10 +201,10 @@ func test_parcel_reports_accepted_grip_and_real_release_not_repeat_or_failure() 
 	assert_eq(_probe.events[0].package_id, "events/parcel")
 	assert_false(GrabService.try_pickup(_actor, parcel))
 	assert_eq(_probe.events.size(), 1)
-	GrabService.release(_actor, parcel)
-	GrabService.release(_actor, parcel)
-	assert_null(GrabService.held_relationship(parcel))
-	assert_null(GrabService.held_object(_actor))
+	GrabReleaseService.release(_actor, parcel)
+	GrabReleaseService.release(_actor, parcel)
+	assert_null(GrabQueries.held_relationship(parcel))
+	assert_null(GrabQueries.held_object(_actor))
 	assert_eq(_probe.events.size(), 2)
 	assert_eq(_probe.events[1].kind, PlayerInteractionEvent.Kind.PARCEL_PLACED)
 	assert_true(GrabService.try_pickup(_actor, parcel))
@@ -154,18 +222,18 @@ func test_door_reports_native_endpoint_not_request_blocked_fraction_or_jitter() 
 	state.locked = false
 	assert_true(OpenableService.request(_actor, door, OpenableService.Operation.OPEN))
 	assert_eq(_probe.events.size(), 0)
-	door.door_root.transform = OpenableService.local_transform(state.motion, 0.5)
+	door.door_root.transform = OpenableMotionSolver.local_transform(state.motion, 0.5)
 	OpenableJointSolver.step(door, door.door_root, door.hinge_joint, null)
 	assert_almost_eq(state.actual_fraction, 0.5, 0.001)
 	assert_eq(_probe.events.size(), 0)
-	door.door_root.transform = OpenableService.local_transform(state.motion, 0.99)
+	door.door_root.transform = OpenableMotionSolver.local_transform(state.motion, 0.99)
 	OpenableJointSolver.step(door, door.door_root, door.hinge_joint, null)
 	OpenableJointSolver.step(door, door.door_root, door.hinge_joint, null)
 	assert_eq(_probe.events.size(), 1)
 	assert_eq(_probe.events[0].kind, PlayerInteractionEvent.Kind.DOOR_OPENED)
 	assert_true(OpenableService.request(_actor, door, OpenableService.Operation.CLOSE))
 	assert_eq(_probe.events.size(), 1)
-	door.door_root.transform = OpenableService.local_transform(state.motion, 0.01)
+	door.door_root.transform = OpenableMotionSolver.local_transform(state.motion, 0.01)
 	OpenableJointSolver.step(door, door.door_root, door.hinge_joint, null)
 	OpenableJointSolver.step(door, door.door_root, door.hinge_joint, null)
 	assert_eq(_probe.events.size(), 2)
@@ -201,17 +269,17 @@ func test_npc_and_forced_release_do_not_emit_player_action() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_true(GrabService.try_pickup(_actor, parcel))
-	GrabService.release(_actor, parcel, false)
+	GrabReleaseService.release(_actor, parcel, false)
 	assert_eq(_probe.events.size(), 1)
 	assert_true(GrabService.try_pickup(_actor, parcel))
 	(parcel as Node as RigidBody3D).freeze = true
-	GrabService.handle_input(_actor)
-	assert_null(GrabService.held_relationship(parcel))
+	InteractionInputFixture.advance(_actor)
+	assert_null(GrabQueries.held_relationship(parcel))
 	assert_eq(_probe.events.size(), 2, "Invalid-grip input cleanup is not a player placement")
 	(parcel as Node as RigidBody3D).freeze = false
 	_actor.remove_component(C_PlayerInputController)
 	assert_true(GrabService.try_pickup(_actor, parcel))
-	GrabService.release(_actor, parcel)
+	GrabReleaseService.release(_actor, parcel)
 
 	var door: E_Door = _door()
 	var state: C_Openable = door.get_component(C_Openable) as C_Openable

@@ -8,113 +8,125 @@
 [ext_resource type="PackedScene" uid="uid://h6ovxls42pn1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Doorway/Primitive_Doorway_static.tscn" id="3_eim2b"]
 [ext_resource type="PackedScene" uid="uid://boxna5m5n5ofv" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Floor/Floor_static.tscn" id="7_eim2b"]
 [ext_resource type="PackedScene" uid="uid://fjtvcn3mifma" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Primitive_Beam/Primitive_Beam_static.tscn" id="9_ofyry"]
-[ext_resource type="PackedScene" path="res://content/entities/characters/character_body_player.tscn" id="13_da1x8"]
-[ext_resource type="Script" uid="uid://b3333vbu42x5j" path="res://content/components/physics/c_character_body.gd" id="23_d7jx2"]
-[ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/components/input/c_player_input_controller.gd" id="24_x60uf"]
-[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/components/motion/c_motion.gd" id="25_t1fd8"]
-[ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/components/motion/c_look.gd" id="26_t86in"]
-[ext_resource type="Script" uid="uid://2wyyc10rw1bb" path="res://content/components/motion/c_jump.gd" id="27_bkyhs"]
-[ext_resource type="Script" uid="uid://cg8i3jfsnahs3" path="res://content/components/motion/c_crouch.gd" id="28_23iv7"]
-[ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/components/gameplay/c_controller.gd" id="29_uosx1"]
-[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/definitions/gameplay/attributes/def_attr_health.tres" id="30_4agnb"]
-[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/components/gameplay/c_health.gd" id="31_8uaqh"]
-[ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/components/interaction/c_interactor.gd" id="32_mc3p1"]
-[ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/components/interaction/c_grab_control.gd" id="33_k7ct6"]
-[ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/components/motion/c_carry_load.gd" id="34_efpp8"]
-[ext_resource type="Script" uid="uid://c38vbt1oqvs4f" path="res://content/components/gameplay/c_receiving.gd" id="41_1hfqo"]
-[ext_resource type="Script" uid="uid://bjw3cnt57gt0j" path="res://content/contracts/packages/package_registration_record.gd" id="44_we4vi"]
-[ext_resource type="PackedScene" uid="uid://cst4hp6tuv5fp" path="res://content/entities/props/bucket.tscn" id="45_8uaqh"]
-[ext_resource type="Script" uid="uid://bctiomc2begaj" path="res://content/components/interaction/c_marker.gd" id="46_yaqq7"]
-[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/definitions/interaction/def_interaction_action.gd" id="48_eajlk"]
-[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/components/interaction/c_grabbable.gd" id="48_uqafv"]
-[ext_resource type="Script" uid="uid://bg7sadbblo6g6" path="res://content/definitions/interaction/def_mark_action.gd" id="50_4qx6d"]
-[ext_resource type="Script" uid="uid://swt054yqxt3s" path="res://content/components/interaction/c_cart_transport.gd" id="63_3w6s4"]
-[ext_resource type="PackedScene" uid="uid://bfyevmoy76bm3" path="res://content/entities/doors/door_template.tscn" id="63_uqafv"]
-[ext_resource type="Script" uid="uid://da6i6tt1dgukj" path="res://content/definitions/interaction/def_cart_transport_action.gd" id="64_mnsyy"]
+[ext_resource type="PackedScene" path="res://content/domains/motion/entities/character_body_player.tscn" id="13_da1x8"]
+[ext_resource type="Script" uid="uid://b3333vbu42x5j" path="res://content/domains/motion/components/c_character_body.gd" id="23_d7jx2"]
+[ext_resource type="Script" uid="uid://iq4pnvam7fq5" path="res://content/domains/interaction/components/c_player_input_controller.gd" id="24_x60uf"]
+[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="25_t1fd8"]
+[ext_resource type="Script" uid="uid://cfqxt4h2ae432" path="res://content/domains/motion/components/c_look.gd" id="26_t86in"]
+[ext_resource type="Script" uid="uid://2wyyc10rw1bb" path="res://content/domains/motion/components/c_jump.gd" id="27_bkyhs"]
+[ext_resource type="Script" uid="uid://cg8i3jfsnahs3" path="res://content/domains/motion/components/c_crouch.gd" id="28_23iv7"]
+[ext_resource type="Script" uid="uid://c772oxgdtatqf" path="res://content/domains/interaction/components/c_controller.gd" id="29_uosx1"]
+[ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/domains/combat/definitions/def_attr_health.tres" id="30_4agnb"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/domains/combat/components/c_health.gd" id="31_8uaqh"]
+[ext_resource type="Script" uid="uid://bkgrb3peb5ani" path="res://content/domains/interaction/components/c_interactor.gd" id="32_mc3p1"]
+[ext_resource type="Script" uid="uid://urd82u3rmqu8" path="res://content/domains/interaction/components/c_grab_control.gd" id="33_k7ct6"]
+[ext_resource type="Script" uid="uid://ctbo3rcxei5hp" path="res://content/domains/interaction/components/c_carry_load.gd" id="34_efpp8"]
+[ext_resource type="Script" uid="uid://c38vbt1oqvs4f" path="res://content/domains/packages/components/c_receiving.gd" id="41_1hfqo"]
+[ext_resource type="Script" uid="uid://bjw3cnt57gt0j" path="res://content/domains/packages/contracts/package_registration_record.gd" id="44_we4vi"]
+[ext_resource type="PackedScene" uid="uid://cst4hp6tuv5fp" path="res://content/domains/interaction/entities/bucket.tscn" id="45_8uaqh"]
+[ext_resource type="Script" uid="uid://bctiomc2begaj" path="res://content/domains/interaction/components/c_marker.gd" id="46_yaqq7"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="48_eajlk"]
+[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/domains/interaction/components/c_grabbable.gd" id="48_uqafv"]
+[ext_resource type="Script" uid="uid://bg7sadbblo6g6" path="res://content/domains/interaction/definitions/def_mark_action.gd" id="50_4qx6d"]
+[ext_resource type="Script" uid="uid://swt054yqxt3s" path="res://content/domains/interaction/components/c_cart_transport.gd" id="63_3w6s4"]
+[ext_resource type="PackedScene" uid="uid://bfyevmoy76bm3" path="res://content/domains/interaction/entities/door_template.tscn" id="63_uqafv"]
+[ext_resource type="Script" uid="uid://da6i6tt1dgukj" path="res://content/domains/interaction/definitions/def_cart_transport_action.gd" id="64_mnsyy"]
 [ext_resource type="PackedScene" uid="uid://cubcn0opxbk6v" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_A/Barrel_A_rigid.tscn" id="77_iit40"]
 [ext_resource type="PackedScene" uid="uid://cbskdoyjbjixx" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_B/Barrel_B_rigid.tscn" id="78_at2gx"]
 [ext_resource type="PackedScene" uid="uid://bf2ntstxhdr1" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_C/Barrel_C_rigid.tscn" id="79_ypydk"]
-[ext_resource type="Script" uid="uid://bbpvm5g08vknq" path="res://content/contracts/npc/npc_home_delivery.gd" id="80_p0mrl"]
-[ext_resource type="Script" uid="uid://b227fscex8vpu" path="res://content/contracts/npc/npc_record.gd" id="81_jxwan"]
-[ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/components/physics/c_rigid_body.gd" id="87_g8cxy"]
-[ext_resource type="Script" uid="uid://cgf0j12tlcr1q" path="res://content/components/motion/c_npc_intent.gd" id="88_4djqo"]
-[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/definitions/gameplay/combat/def_npc_attack.gd" id="89_21qce"]
-[ext_resource type="Script" uid="uid://cvgkpkfqjch0p" path="res://content/components/gameplay/c_npc_combat.gd" id="90_dtq54"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/commerce/def_trader_default.tres" id="91_say4p"]
-[ext_resource type="Script" uid="uid://bw4ora21yecmg" path="res://content/components/commerce/c_trader.gd" id="92_1brdc"]
-[ext_resource type="Script" uid="uid://b4miil035qw62" path="res://content/definitions/interaction/def_trader_action.gd" id="93_p0mrl"]
-[ext_resource type="Script" uid="uid://beak7vlgbw1xn" path="res://content/contracts/economy/daily_money_result.gd" id="94_dtq54"]
-[ext_resource type="Script" uid="uid://cel5d7cs0026u" path="res://content/contracts/economy/money_operation.gd" id="95_say4p"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/economy/def_economy_default.tres" id="96_1brdc"]
-[ext_resource type="Script" uid="uid://6wrc7la1nb8v" path="res://content/contracts/customers/customer_visit.gd" id="100_p0mrl"]
-[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/definitions/gameplay/inventory/def_inventory_item.gd" id="135_jjqtf"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_food.tres" id="136_2peb6"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_med.tres" id="137_5und5"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/inventory/def_item_bubble_wrap.tres" id="138_jpldi"]
-[ext_resource type="Script" uid="uid://b4mppsv72drxx" path="res://content/contracts/commerce/pending_delivery.gd" id="139_vmj2w"]
-[ext_resource type="Script" uid="uid://vocpbv1orkxs" path="res://content/contracts/commerce/purchase_receipt.gd" id="140_w4uhm"]
-[ext_resource type="Script" uid="uid://d12bthrxw322h" path="res://content/contracts/quests/refusal_quest_record.gd" id="142_ldc4y"]
-[ext_resource type="PackedScene" path="res://content/entities/props/physical_slot.tscn" id="155_5h1gn"]
-[ext_resource type="PackedScene" path="res://content/entities/props/anchorable_test_box.tscn" id="AnchorTest_scene"]
-[ext_resource type="Script" uid="uid://00y5l3hnucd5" path="res://content/components/persistence/c_autosave.gd" id="Autosave_state"]
-[ext_resource type="Script" uid="uid://7ah3t80yjit4" path="res://content/ui/circuit_light_view.gd" id="Circuit_light_view"]
-[ext_resource type="Script" uid="uid://cf2u01epo1k4k" path="res://content/components/commerce/c_commerce.gd" id="Commerce_state"]
-[ext_resource type="Script" uid="uid://d18j5e5xkjfsg" path="res://content/components/gameplay/c_customer_flow.gd" id="Customer_flow"]
-[ext_resource type="Resource" uid="uid://ct5hbf2hdp6tl" path="res://content/definitions/gameplay/customers/def_customer_schedule_default.tres" id="Customer_schedule"]
-[ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/entities/sessions/e_day_session.gd" id="Day_entity"]
-[ext_resource type="Script" uid="uid://04u6xvav8opi" path="res://content/components/gameplay/c_package_ledger.gd" id="Day_ledger"]
-[ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/components/gameplay/c_day_cycle.gd" id="Day_state"]
-[ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/entities/stations/day_phase_station.tscn" id="Day_station"]
-[ext_resource type="PackedScene" path="res://content/entities/stations/delivery_counter.tscn" id="Delivery_counter"]
+[ext_resource type="Script" uid="uid://bbpvm5g08vknq" path="res://content/domains/customers/contracts/npc_home_delivery.gd" id="80_p0mrl"]
+[ext_resource type="Script" uid="uid://b227fscex8vpu" path="res://content/domains/npc/contracts/npc_record.gd" id="81_jxwan"]
+[ext_resource type="Script" uid="uid://dwgcmbar0qthw" path="res://content/domains/motion/components/c_rigid_body.gd" id="87_g8cxy"]
+[ext_resource type="Script" uid="uid://cgf0j12tlcr1q" path="res://content/domains/npc/components/c_npc_intent.gd" id="88_4djqo"]
+[ext_resource type="Script" uid="uid://c17otn83ocqw0" path="res://content/domains/combat/definitions/def_npc_attack.gd" id="89_21qce"]
+[ext_resource type="Script" uid="uid://cvgkpkfqjch0p" path="res://content/domains/combat/components/c_npc_combat.gd" id="90_dtq54"]
+[ext_resource type="Resource" path="res://content/domains/commerce/definitions/def_trader_default.tres" id="91_say4p"]
+[ext_resource type="Script" uid="uid://bw4ora21yecmg" path="res://content/domains/commerce/components/c_trader.gd" id="92_1brdc"]
+[ext_resource type="Script" uid="uid://b4miil035qw62" path="res://content/domains/commerce/definitions/def_trader_action.gd" id="93_p0mrl"]
+[ext_resource type="Script" uid="uid://beak7vlgbw1xn" path="res://content/domains/commerce/contracts/daily_money_result.gd" id="94_dtq54"]
+[ext_resource type="Script" uid="uid://cel5d7cs0026u" path="res://content/domains/commerce/contracts/money_operation.gd" id="95_say4p"]
+[ext_resource type="Resource" path="res://content/domains/commerce/definitions/def_economy_default.tres" id="96_1brdc"]
+[ext_resource type="Script" uid="uid://6wrc7la1nb8v" path="res://content/domains/customers/contracts/customer_visit.gd" id="100_p0mrl"]
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="135_jjqtf"]
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_food.tres" id="136_2peb6"]
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_med.tres" id="137_5und5"]
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_bubble_wrap.tres" id="138_jpldi"]
+[ext_resource type="Script" uid="uid://b4mppsv72drxx" path="res://content/domains/commerce/contracts/pending_delivery.gd" id="139_vmj2w"]
+[ext_resource type="Script" uid="uid://vocpbv1orkxs" path="res://content/domains/commerce/contracts/purchase_receipt.gd" id="140_w4uhm"]
+[ext_resource type="Script" uid="uid://d12bthrxw322h" path="res://content/domains/quests/contracts/refusal_quest_record.gd" id="142_ldc4y"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/physical_slot.tscn" id="155_5h1gn"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/anchorable_test_box.tscn" id="AnchorTest_scene"]
+[ext_resource type="Script" uid="uid://00y5l3hnucd5" path="res://content/domains/persistence/components/c_autosave.gd" id="Autosave_state"]
+[ext_resource type="Script" uid="uid://7ah3t80yjit4" path="res://content/domains/interaction/presentation/circuit_light_view.gd" id="Circuit_light_view"]
+[ext_resource type="Script" uid="uid://cf2u01epo1k4k" path="res://content/domains/commerce/components/c_commerce.gd" id="Commerce_state"]
+[ext_resource type="Script" uid="uid://d18j5e5xkjfsg" path="res://content/domains/customers/components/c_customer_flow.gd" id="Customer_flow"]
+[ext_resource type="Resource" uid="uid://ct5hbf2hdp6tl" path="res://content/domains/customers/definitions/def_customer_schedule_default.tres" id="Customer_schedule"]
+[ext_resource type="Script" uid="uid://buqpv8gai0l34" path="res://content/domains/time/entities/e_day_session.gd" id="Day_entity"]
+[ext_resource type="Script" uid="uid://04u6xvav8opi" path="res://content/domains/packages/components/c_package_ledger.gd" id="Day_ledger"]
+[ext_resource type="Script" uid="uid://b4n57mc20tbc4" path="res://content/domains/time/components/c_day_cycle.gd" id="Day_state"]
+[ext_resource type="PackedScene" uid="uid://da1gddnei47i7" path="res://content/domains/time/entities/day_phase_station.tscn" id="Day_station"]
+[ext_resource type="PackedScene" path="res://content/domains/customers/entities/delivery_counter.tscn" id="Delivery_counter"]
 [ext_resource type="PackedScene" uid="uid://c5yk7jxrcgyby" path="res://content/scenes/district_blockout.tscn" id="District_blockout"]
-[ext_resource type="Resource" uid="uid://0japh62q4h57" path="res://content/definitions/gameplay/npc/def_district_default.tres" id="District_definition"]
-[ext_resource type="Script" uid="uid://cwknel8uiy5sw" path="res://content/entities/npc/e_district_npc.gd" id="District_npc"]
-[ext_resource type="Script" uid="uid://dcq6eusakildd" path="res://content/components/npc/c_district.gd" id="District_state"]
-[ext_resource type="PackedScene" path="res://content/entities/props/drawer.tscn" id="Drawer_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/inventory/food_pickup.tscn" id="Food_pickup"]
+[ext_resource type="Resource" uid="uid://0japh62q4h57" path="res://content/domains/npc/definitions/def_district_default.tres" id="District_definition"]
+[ext_resource type="Script" uid="uid://cwknel8uiy5sw" path="res://content/domains/npc/entities/e_district_npc.gd" id="District_npc"]
+[ext_resource type="Script" uid="uid://dcq6eusakildd" path="res://content/domains/npc/components/c_district.gd" id="District_state"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/drawer.tscn" id="Drawer_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/inventory/entities/food_pickup.tscn" id="Food_pickup"]
 [ext_resource type="PackedScene" uid="uid://d3vj5iyw4p75d" path="res://content/scenes/game_world.tscn" id="Game_world"]
 [ext_resource type="PackedScene" path="res://content/ui/gaze_order_clue.tscn" id="Gaze_order_clue"]
 [ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="Grab_component"]
-[ext_resource type="PackedScene" path="res://content/entities/tools/hammer.tscn" id="Hammer_scene"]
-[ext_resource type="Resource" uid="uid://dnhtf6evpqsc8" path="res://content/definitions/gameplay/hunger/def_hunger_default.tres" id="Hunger_policy"]
-[ext_resource type="Script" uid="uid://ok26p4khdh4e" path="res://content/components/gameplay/c_hunger.gd" id="Hunger_state"]
-[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/components/gameplay/c_impact_receiver.gd" id="ImpactReceiver"]
-[ext_resource type="PackedScene" path="res://content/entities/customers/inspection_booth.tscn" id="InspectionBooth"]
+[ext_resource type="PackedScene" path="res://content/domains/combat/entities/hammer.tscn" id="Hammer_scene"]
+[ext_resource type="Resource" uid="uid://dnhtf6evpqsc8" path="res://content/domains/needs/definitions/def_hunger_default.tres" id="Hunger_policy"]
+[ext_resource type="Script" uid="uid://ok26p4khdh4e" path="res://content/domains/needs/components/c_hunger.gd" id="Hunger_state"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/domains/combat/components/c_impact_receiver.gd" id="ImpactReceiver"]
+[ext_resource type="PackedScene" path="res://content/domains/customers/entities/inspection_booth.tscn" id="InspectionBooth"]
 [ext_resource type="PackedScene" uid="uid://dx3ysmmpho68c" path="res://content/ui/interaction_hud.tscn" id="Interaction_hud"]
 [ext_resource type="PackedScene" path="res://content/ui/inventory_panel.tscn" id="Inventory_panel"]
-[ext_resource type="Script" uid="uid://t8kbpaposqpt" path="res://content/components/inventory/c_inventory.gd" id="Inventory_state"]
-[ext_resource type="PackedScene" path="res://content/entities/props/light_switch.tscn" id="Light_switch_scene"]
-[ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/components/gameplay/c_living.gd" id="Living"]
-[ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/definitions/gameplay/def_impact_living.tres" id="LivingImpact"]
-[ext_resource type="PackedScene" uid="uid://2kqhx881j4yk" path="res://content/entities/tools/marker.tscn" id="Marker_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/inventory/med_pickup.tscn" id="Med_pickup"]
-[ext_resource type="Script" uid="uid://bpgnbax0t8575" path="res://content/scenes/npc_light_zone.gd" id="Npc_light_zone"]
+[ext_resource type="Script" uid="uid://t8kbpaposqpt" path="res://content/domains/inventory/components/c_inventory.gd" id="Inventory_state"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/light_switch.tscn" id="Light_switch_scene"]
+[ext_resource type="Script" uid="uid://4wbyk7ef8c8l" path="res://content/domains/combat/components/c_living.gd" id="Living"]
+[ext_resource type="Resource" uid="uid://bqyh8qtasvex4" path="res://content/domains/combat/definitions/def_impact_living.tres" id="LivingImpact"]
+[ext_resource type="PackedScene" uid="uid://2kqhx881j4yk" path="res://content/domains/interaction/entities/marker.tscn" id="Marker_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/inventory/entities/med_pickup.tscn" id="Med_pickup"]
+[ext_resource type="Script" uid="uid://bpgnbax0t8575" path="res://content/domains/npc/authoring/npc_light_zone.gd" id="Npc_light_zone"]
 [ext_resource type="PackedScene" path="res://content/scenes/npc_service_routes.tscn" id="Npc_service_routes"]
-[ext_resource type="PackedScene" path="res://content/entities/commerce/order_receiving.tscn" id="Order_receiving_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/stations/package_return_point.tscn" id="Package_return_point"]
-[ext_resource type="PackedScene" path="res://content/entities/props/placement_area.tscn" id="PlacementArea"]
-[ext_resource type="Script" uid="uid://bex7ad2uqbdgp" path="res://content/components/gameplay/c_combat.gd" id="Player_combat"]
-[ext_resource type="Script" uid="uid://bjrdbffkpomf6" path="res://content/components/motion/c_stamina.gd" id="Player_stamina"]
-[ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/entities/props/push_cart.tscn" id="Push_cart"]
-[ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/components/interaction/c_push_control.gd" id="Push_control"]
-[ext_resource type="Script" uid="uid://dmxtpoip5hrcv" path="res://content/components/quests/c_quest_session.gd" id="Quest_state"]
-[ext_resource type="PackedScene" uid="uid://cpbp0t8jkh0ak" path="res://content/entities/zones/receiving_zone.tscn" id="Receiving_zone"]
-[ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/entities/props/box.tscn" id="Safe_box"]
-[ext_resource type="PackedScene" uid="uid://bxvltfdywwg6h" path="res://content/entities/tools/scanner.tscn" id="Scanner_scene"]
-[ext_resource type="PackedScene" uid="uid://bjno5jf76nuv7" path="res://content/entities/props/numbered_shelves.tscn" id="Shelves_scene"]
-[ext_resource type="Script" uid="uid://7emhwgdbxv7x" path="res://content/definitions/interaction/def_day_phase_action.gd" id="Sleep_action"]
-[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/components/interaction/c_interaction_action_set.gd" id="Sleep_actions"]
-[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/components/interaction/c_interactable.gd" id="Sleep_interactable"]
-[ext_resource type="Script" uid="uid://bnia5xop2e6wt" path="res://content/components/gameplay/c_strength.gd" id="Strength"]
-[ext_resource type="Resource" path="res://content/definitions/gameplay/attributes/def_attr_strength.tres" id="StrengthDef"]
-[ext_resource type="PackedScene" uid="uid://cxcaew8qdooi6" path="res://content/entities/stations/terminal.tscn" id="Terminal_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/commerce/trader.tscn" id="Trader_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/tools/utility_blade.tscn" id="Utility_blade"]
-[ext_resource type="PackedScene" uid="uid://d36ymw1qbl12t" path="res://content/entities/props/interaction_test_valve.tscn" id="Valve_test"]
-[ext_resource type="Script" uid="uid://cecnkpuxts58i" path="res://content/components/gameplay/c_wallet.gd" id="Wallet_state"]
-[ext_resource type="NavigationMesh" uid="uid://bd0sp42a7x3qr" path="res://content/navigation/navmesh_warehouse.tres" id="Warehouse_navigation"]
-[ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/entities/props/window.tscn" id="Window_scene"]
-[ext_resource type="PackedScene" path="res://content/entities/inventory/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
+[ext_resource type="PackedScene" path="res://content/domains/commerce/entities/order_receiving.tscn" id="Order_receiving_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/packages/entities/package_return_point.tscn" id="Package_return_point"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/placement_area.tscn" id="PlacementArea"]
+[ext_resource type="Script" uid="uid://bex7ad2uqbdgp" path="res://content/domains/combat/components/c_combat.gd" id="Player_combat"]
+[ext_resource type="Script" uid="uid://bjrdbffkpomf6" path="res://content/domains/motion/components/c_stamina.gd" id="Player_stamina"]
+[ext_resource type="PackedScene" uid="uid://7fao1jy87b34" path="res://content/domains/interaction/entities/push_cart.tscn" id="Push_cart"]
+[ext_resource type="Script" uid="uid://do4hqcup072s" path="res://content/domains/interaction/components/c_push_control.gd" id="Push_control"]
+[ext_resource type="Script" uid="uid://dmxtpoip5hrcv" path="res://content/domains/quests/components/c_quest_session.gd" id="Quest_state"]
+[ext_resource type="PackedScene" uid="uid://cpbp0t8jkh0ak" path="res://content/domains/packages/entities/receiving_zone.tscn" id="Receiving_zone"]
+[ext_resource type="PackedScene" uid="uid://bhaj6sv41s03x" path="res://content/domains/interaction/entities/box.tscn" id="Safe_box"]
+[ext_resource type="PackedScene" uid="uid://bxvltfdywwg6h" path="res://content/domains/packages/entities/scanner.tscn" id="Scanner_scene"]
+[ext_resource type="PackedScene" uid="uid://bjno5jf76nuv7" path="res://content/domains/interaction/entities/numbered_shelves.tscn" id="Shelves_scene"]
+[ext_resource type="Script" uid="uid://7emhwgdbxv7x" path="res://content/domains/time/definitions/def_day_phase_action.gd" id="Sleep_action"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="Sleep_actions"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="Sleep_interactable"]
+[ext_resource type="Script" uid="uid://bnia5xop2e6wt" path="res://content/domains/motion/components/c_strength.gd" id="Strength"]
+[ext_resource type="Resource" path="res://content/domains/motion/definitions/def_attr_strength.tres" id="StrengthDef"]
+[ext_resource type="PackedScene" uid="uid://cxcaew8qdooi6" path="res://content/domains/packages/entities/terminal.tscn" id="Terminal_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/commerce/entities/trader.tscn" id="Trader_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/combat/entities/utility_blade.tscn" id="Utility_blade"]
+[ext_resource type="PackedScene" uid="uid://d36ymw1qbl12t" path="res://content/domains/interaction/entities/interaction_test_valve.tscn" id="Valve_test"]
+[ext_resource type="Script" uid="uid://cecnkpuxts58i" path="res://content/domains/commerce/components/c_wallet.gd" id="Wallet_state"]
+[ext_resource type="NavigationMesh" uid="uid://bd0sp42a7x3qr" path="res://content/domains/npc/authoring/navigation/navmesh_warehouse.tres" id="Warehouse_navigation"]
+[ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/domains/interaction/entities/window.tscn" id="Window_scene"]
+[ext_resource type="PackedScene" path="res://content/domains/inventory/entities/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
+
+[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="Entity_composition"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_entity_district_trader.tres" id="Npc_template"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_entity_district_session.tres" id="District_template"]
+
+[sub_resource type="Resource" id="Npc_composition"]
+script = ExtResource("Entity_composition")
+entity_template = ExtResource("Npc_template")
+
+[sub_resource type="Resource" id="District_composition"]
+script = ExtResource("Entity_composition")
+entity_template = ExtResource("District_template")
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
@@ -444,6 +456,7 @@ size = Vector3(1.6518555, 3.7236938, 1)
 size = Vector3(4.223633, 3.7236938, 7.4051514)
 
 [node name="MainLevel" type="Node3D" unique_id=1630507346 node_paths=PackedStringArray("world", "furniture_delivery_anchor") groups=["navigation_mesh_source_group"]]
+metadata/persistent_world_id = &"main_level"
 script = ExtResource("1_ixiin")
 world = NodePath("World")
 furniture_delivery_anchor = NodePath("Entityes/OrderReceiving/FurnitureDelivery")
@@ -1649,30 +1662,39 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 6, 1
 [node name="Entityes" type="Node3D" parent="." unique_id=118950221]
 
 [node name="CarryPlacement" parent="Entityes" unique_id=311356828 instance=ExtResource("PlacementArea")]
+metadata/persistent_local_id = &"placed_entityes_carryplacement"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -1.3605773)
 
 [node name="CarryPlacement2" parent="Entityes" unique_id=1589903994 instance=ExtResource("PlacementArea")]
+metadata/persistent_local_id = &"placed_entityes_carryplacement2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -2.7532282)
 
 [node name="CarryPlacement3" parent="Entityes" unique_id=1189909820 instance=ExtResource("PlacementArea")]
+metadata/persistent_local_id = &"placed_entityes_carryplacement3"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -3.997128)
 
 [node name="CarryPlacement4" parent="Entityes" unique_id=2131764686 instance=ExtResource("PlacementArea")]
+metadata/persistent_local_id = &"placed_entityes_carryplacement4"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 0.12648739, -5.272379)
 
 [node name="CarryPlacement5" parent="Entityes" unique_id=2042384809 instance=ExtResource("PlacementArea")]
+metadata/persistent_local_id = &"placed_entityes_carryplacement5"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -5.272379)
 
 [node name="CarryPlacement6" parent="Entityes" unique_id=54381134 instance=ExtResource("PlacementArea")]
+metadata/persistent_local_id = &"placed_entityes_carryplacement6"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -4.178487)
 
 [node name="CarryPlacement7" parent="Entityes" unique_id=1100157914 instance=ExtResource("PlacementArea")]
+metadata/persistent_local_id = &"placed_entityes_carryplacement7"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -3.1088612)
 
 [node name="CarryPlacement8" parent="Entityes" unique_id=1309072910 instance=ExtResource("PlacementArea")]
+metadata/persistent_local_id = &"placed_entityes_carryplacement8"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.506804, 1.3600584, -1.7013781)
 
 [node name="Player" parent="Entityes" unique_id=1703744943 instance=ExtResource("13_da1x8")]
+metadata/persistent_local_id = &"placed_entityes_player"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0845318, 0, -4.1375313)
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g"), SubResource("Resource_mn5t4"), SubResource("Resource_lf6x7"), SubResource("Resource_o5mei"), SubResource("Resource_rthl4"), SubResource("Resource_wo3yc"), SubResource("Resource_2vn7f"), SubResource("Grab_interactor"), SubResource("Resource_jxwan"), SubResource("Grab_carry_load"), SubResource("Strength"), SubResource("Push_control"), SubResource("Player_combat"), SubResource("Hunger_state"), SubResource("Inventory_state"), SubResource("Living"), SubResource("Resource_3auy4"), SubResource("Resource_sseuf")])
 
@@ -1686,15 +1708,18 @@ current = true
 cast_shadow = 3
 
 [node name="BeltSlotLeft" parent="Entityes/Player" index="5"]
+metadata/persistent_local_id = &"placed_entityes_player_beltslotleft"
 transform = Transform3D(0.41083163, -0.9117112, 0, 0, -4.371139e-08, 1, -0.91171116, -0.4108317, 0, -0.25, 0.7946805, -0.1371026)
 
 [node name="BeltSlotRight" parent="Entityes/Player" index="6"]
+metadata/persistent_local_id = &"placed_entityes_player_beltslotright"
 transform = Transform3D(0.21199018, 0.9772718, 2.9802322e-08, 1.3716061e-08, -5.0772293e-08, 1, 0.9772718, -0.21199018, 0, 0.25, 0.7946805, -0.1371026)
 
 [node name="Ground" parent="Entityes/Player" index="7"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
 
 [node name="DeliveryCounter" parent="Entityes" unique_id=1492129627 instance=ExtResource("Delivery_counter")]
+metadata/persistent_local_id = &"placed_entityes_deliverycounter"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4.0657115, 0, -4.821111)
 
 [node name="Desk" parent="Entityes/DeliveryCounter" index="0"]
@@ -1730,101 +1755,129 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 1)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2)
 
 [node name="Terminal" parent="Entityes" unique_id=911264778 instance=ExtResource("Terminal_scene")]
+metadata/persistent_local_id = &"placed_entityes_terminal"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 0, -2)
 
 [node name="Scanner" parent="Entityes" unique_id=1882453380 instance=ExtResource("Scanner_scene")]
+metadata/persistent_local_id = &"placed_entityes_scanner"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 1.45, -2)
 
 [node name="Scanner2" parent="Entityes" unique_id=935711068 instance=ExtResource("Scanner_scene")]
+metadata/persistent_local_id = &"placed_entityes_scanner2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2402446, 1.45, -2)
 
 [node name="Marker" parent="Entityes" unique_id=1749342287 instance=ExtResource("Marker_scene")]
+metadata/persistent_local_id = &"placed_entityes_marker"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.2880824)
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_v2668"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Marker2" parent="Entityes" unique_id=1086911559 instance=ExtResource("Marker_scene")]
+metadata/persistent_local_id = &"placed_entityes_marker2"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.1790984)
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_8wt2x"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Marker3" parent="Entityes" unique_id=529574383 instance=ExtResource("Marker_scene")]
+metadata/persistent_local_id = &"placed_entityes_marker3"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.8629334, 1.1597586, -2.0586202)
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_vfheu"), SubResource("Interactable"), SubResource("Grabbable"), SubResource("Actions")])
 
 [node name="Hammer" parent="Entityes" unique_id=1856779010 instance=ExtResource("Hammer_scene")]
+metadata/persistent_local_id = &"placed_entityes_hammer"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7814434, 1.5211676, -2.8830624)
 
 [node name="AnchorableTestBox" parent="Entityes" unique_id=1059473200 instance=ExtResource("AnchorTest_scene")]
+metadata/persistent_local_id = &"placed_entityes_anchorabletestbox"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.101066, 1.421769, -3.45)
 
 [node name="Valve_E_Press" parent="Entityes" unique_id=294277559 instance=ExtResource("Valve_test")]
+metadata/persistent_local_id = &"placed_entityes_valve_e_press"
 editor_description = "Immediate E action. No prolonged progress/reset policy. Signal: activated(bool) -> child IndicatorLamp.set_active()."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 0.36, 7.75)
 
 [node name="Valve_F_Decay" parent="Entityes" unique_id=1149222845 instance=ExtResource("Valve_test")]
+metadata/persistent_local_id = &"placed_entityes_valve_f_decay"
 editor_description = "Hold F. Interrupted progress decays gradually according to decay_per_second."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.95, 0.36, 7.75)
 mode = 1
 
 [node name="Valve_F_Instant" parent="Entityes" unique_id=1286648369 instance=ExtResource("Valve_test")]
+metadata/persistent_local_id = &"placed_entityes_valve_f_instant"
 editor_description = "Hold F. Interrupted progress resets immediately to zero."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.15, 0.36, 7.75)
 mode = 2
 
 [node name="Valve_F_OnComplete" parent="Entityes" unique_id=1314564000 instance=ExtResource("Valve_test")]
+metadata/persistent_local_id = &"placed_entityes_valve_f_oncomplete"
 editor_description = "Hold F. Partial progress is retained; successful completion resets progress for another use."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.35, 0.36, 7.75)
 mode = 3
 
 [node name="Valve_F_Never" parent="Entityes" unique_id=933290534 instance=ExtResource("Valve_test")]
+metadata/persistent_local_id = &"placed_entityes_valve_f_never"
 editor_description = "Hold F. Successful completion is permanent/one-shot; action becomes unavailable."
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.55, 0.36, 7.75)
 mode = 4
 
 [node name="ReceivingZone" parent="Entityes" unique_id=586439830 node_paths=PackedStringArray("package_parent", "truck_parking") instance=ExtResource("Receiving_zone")]
+metadata/persistent_local_id = &"placed_entityes_receivingzone"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -18.18865, 0.51578665, -6.508998)
 package_parent = NodePath("..")
 truck_parking = NodePath("../../TruckParking")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_t4pbu")])
 
 [node name="PackageReturnPoint" parent="Entityes" unique_id=622721691 instance=ExtResource("Package_return_point")]
+metadata/persistent_local_id = &"placed_entityes_packagereturnpoint"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.839949, 0.4, -7.3298917)
 
 [node name="OrderReceiving" parent="Entityes" unique_id=1034245790 instance=ExtResource("Order_receiving_scene")]
+metadata/persistent_local_id = &"placed_entityes_orderreceiving"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.22, 0.5)
 
 [node name="FurnitureDelivery" type="Marker3D" parent="Entityes/OrderReceiving"]
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
+metadata/persistent_local_id = &"placed_entityes_daysession"
+metadata/entity_composition = SubResource("District_composition")
 script = ExtResource("Day_entity")
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state"), SubResource("District_state")])
 
 [node name="ShiftConsole" parent="Entityes" unique_id=1907900219 instance=ExtResource("Day_station")]
+metadata/persistent_local_id = &"placed_entityes_shiftconsole"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.175833, 0, -0.95899534)
 
 [node name="SleepPoint" parent="Entityes" unique_id=1969214162 instance=ExtResource("Day_station")]
+metadata/persistent_local_id = &"placed_entityes_sleeppoint"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.510403, 2.3841858e-07, -0.6614268)
 sleep_station = true
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Sleep_interactable"), SubResource("Sleep_station_actions")])
 
 [node name="Bucket" parent="Entityes" unique_id=263915687 instance=ExtResource("45_8uaqh")]
+metadata/persistent_local_id = &"placed_entityes_bucket"
 transform = Transform3D(1, 0, 0, 0, 0.65209705, -0.7581355, 0, 0.7581355, 0.65209705, 15.433494, 1.8730338, 8.573659)
 
 [node name="Drawer" parent="Entityes" unique_id=1881781064 instance=ExtResource("Drawer_scene")]
+metadata/persistent_local_id = &"placed_entityes_drawer"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 11.044259, 0.775, -3.3000002)
 
 [node name="LightSwitch" parent="Entityes" unique_id=610409684 instance=ExtResource("Light_switch_scene")]
+metadata/persistent_local_id = &"placed_entityes_lightswitch"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.9202886, 1.5, -7.70335)
 
 [node name="FoodPickup" parent="Entityes" unique_id=249401670 instance=ExtResource("Food_pickup")]
+metadata/persistent_local_id = &"placed_entityes_foodpickup"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 2.5887012, 1.22, -1.3590674)
 
 [node name="MedPickup" parent="Entityes" unique_id=1873845329 instance=ExtResource("Med_pickup")]
+metadata/persistent_local_id = &"placed_entityes_medpickup"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.193355, 1.23, -1.357756)
 
 [node name="WrapPickup" parent="Entityes" unique_id=1375654069 instance=ExtResource("Wrap_pickup")]
+metadata/persistent_local_id = &"placed_entityes_wrappickup"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.25, 1.22, -1.2911086)
 
 [node name="Trader" parent="Entityes" unique_id=50836948 instance=ExtResource("Trader_scene")]
+metadata/persistent_local_id = &"placed_entityes_trader"
+metadata/entity_composition = SubResource("Npc_composition")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.031166, 0.30710316, -0.9131813)
 script = ExtResource("District_npc")
 inspection_animation = &""
@@ -1856,39 +1909,50 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.11661625, 10.667902)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="UtilityBlade" parent="Entityes" unique_id=1068136048 instance=ExtResource("Utility_blade")]
+metadata/persistent_local_id = &"placed_entityes_utilityblade"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 1.328057, -0.8)
 
 [node name="PushCart" parent="Entityes" unique_id=1664321513 instance=ExtResource("Push_cart")]
+metadata/persistent_local_id = &"placed_entityes_pushcart"
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -13.95594, 0.8329964, 2.4201646)
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Resource_6e2xu"), SubResource("Resource_o3be2"), SubResource("Resource_latxu")])
 
 [node name="Props" type="Node3D" parent="Entityes" unique_id=1751720738]
 
 [node name="PhysicalSlot" parent="Entityes/Props" unique_id=1249143366 instance=ExtResource("155_5h1gn")]
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1632135, 1.602072, -0.58928645)
 
 [node name="PhysicalSlot2" parent="Entityes/Props" unique_id=786696989 instance=ExtResource("155_5h1gn")]
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7266517, 1.602072, -0.58928645)
 
 [node name="PhysicalSlot3" parent="Entityes/Props" unique_id=174843533 instance=ExtResource("155_5h1gn")]
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot3"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.345997, 1.602072, -0.58928645)
 
 [node name="PhysicalSlot4" parent="Entityes/Props" unique_id=1008855800 instance=ExtResource("155_5h1gn")]
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot4"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.345997, 0.90635705, -0.58928645)
 
 [node name="PhysicalSlot5" parent="Entityes/Props" unique_id=354012702 instance=ExtResource("155_5h1gn")]
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot5"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6207736, 0.90635705, -0.58928645)
 
 [node name="PhysicalSlot6" parent="Entityes/Props" unique_id=614431075 instance=ExtResource("155_5h1gn")]
+metadata/persistent_local_id = &"placed_entityes_props_physicalslot6"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.070337, 0.90635705, -0.58928645)
 
 [node name="FloorSafeBox1" parent="Entityes/Props" unique_id=2047682183 instance=ExtResource("Safe_box")]
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox1"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.251211, 0.25295496, -6.9118934)
 
 [node name="FloorSafeBox2" parent="Entityes/Props" unique_id=1620710891 instance=ExtResource("Safe_box")]
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.4508557, 0.23964107, -7.071574)
 
 [node name="FloorSafeBox3" parent="Entityes/Props" unique_id=1503957729 instance=ExtResource("Safe_box")]
+metadata/persistent_local_id = &"placed_entityes_props_floorsafebox3"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.699815, 0.24764371, -7.077774)
 
 [node name="Barrel_C_rigid" parent="Entityes/Props" unique_id=1866096492 instance=ExtResource("79_ypydk")]
@@ -1932,29 +1996,37 @@ shape = SubResource("BoxShape3D_patme")
 [node name="Doors" type="Node3D" parent="Entityes" unique_id=1409983500]
 
 [node name="DoorTemplate" parent="Entityes/Doors" unique_id=964464054 instance=ExtResource("63_uqafv")]
+metadata/persistent_local_id = &"placed_entityes_doors_doortemplate"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.583366, 0.09600389, -9.215219)
 
 [node name="Windows" type="Node3D" parent="Entityes" unique_id=1063944992]
 
 [node name="Window" parent="Entityes/Windows" unique_id=1384280089 instance=ExtResource("Window_scene")]
+metadata/persistent_local_id = &"placed_entityes_windows_window"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.05, 1.05, 0.55)
 
 [node name="Window2" parent="Entityes/Windows" unique_id=506919701 instance=ExtResource("Window_scene")]
+metadata/persistent_local_id = &"placed_entityes_windows_window2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.95, 1.05, 0.55)
 
 [node name="Window3" parent="Entityes/Windows" unique_id=406812796 instance=ExtResource("Window_scene")]
+metadata/persistent_local_id = &"placed_entityes_windows_window3"
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -12.588538, 1.05, -14.9925995)
 
 [node name="Window4" parent="Entityes/Windows" unique_id=1546946061 instance=ExtResource("Window_scene")]
+metadata/persistent_local_id = &"placed_entityes_windows_window4"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12.608209, 1.05, -4.9855013)
 
 [node name="Window5" parent="Entityes/Windows" unique_id=84975236 instance=ExtResource("Window_scene")]
+metadata/persistent_local_id = &"placed_entityes_windows_window5"
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12.608209, 1.05, -8.969203)
 
 [node name="InspectionBooth1" parent="Entityes" unique_id=1872546858 instance=ExtResource("InspectionBooth")]
+metadata/persistent_local_id = &"placed_entityes_inspectionbooth1"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.9651318, 0, -1.4054787)
 
 [node name="InspectionBooth2" parent="Entityes" unique_id=565667034 instance=ExtResource("InspectionBooth")]
+metadata/persistent_local_id = &"placed_entityes_inspectionbooth2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.093425, 0, -10.093695)
 
 [node name="InteractionHud" parent="." unique_id=1897259854 node_paths=PackedStringArray("player", "damage_feedback") instance=ExtResource("Interaction_hud")]

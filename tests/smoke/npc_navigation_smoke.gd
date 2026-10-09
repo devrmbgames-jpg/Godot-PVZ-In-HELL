@@ -36,8 +36,8 @@ func _run() -> void:
 	var region: NavigationRegion3D = NavigationRegion3D.new()
 	region.navigation_mesh = mesh
 	_world.add_child(region)
-	var scene: PackedScene = load("res://content/entities/customers/customer.tscn") as PackedScene
-	var customer: E_Customer = scene.instantiate() as E_Customer
+	var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	var customer: E_NpcCharacter = scene.instantiate() as E_NpcCharacter
 	(customer as Node as Node3D).position = START
 	_world.add_entity(customer)
 	assert(customer.navigation_agent != null)

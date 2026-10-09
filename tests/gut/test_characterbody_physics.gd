@@ -122,7 +122,7 @@ func test_fast_rigid_hit_damages_and_knocks_back_native_player() -> void:
 	projectile.gravity_scale = 0.0
 	projectile.linear_damp = 0.0
 	projectile.continuous_cd = true
-	projectile.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	projectile.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	var entity: Entity = projectile as Node as Entity
 	entity.component_resources = [C_RigidBody.new()]
 
@@ -222,7 +222,7 @@ func _walk_obstacle(mass_kg: float, frozen: bool) -> RigidBody3D:
 #region Тележка и восстановление
 ## Игрок следует за тележкой через малую ступень; уход из допуска освобождает сессию.
 func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
-	var packed: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
+	var packed: PackedScene = load("res://content/domains/interaction/entities/push_cart.tscn") as PackedScene
 	var cart: Entity = packed.instantiate() as Entity
 	_world.add_entity(cart)
 	var cart_body: CharacterBody3D = cart as Node as CharacterBody3D
@@ -235,7 +235,7 @@ func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
 	control.direction_look = (cart_body.global_position + Vector3.UP * 0.24 + Vector3.BACK * 0.79 - _player.interaction_ray_cast.global_position).normalized()
 	for frame: int in 2:
 		await _tick()
-	assert_true(CartTransportService.can_begin(_player, cart), "Cart start actor=%s cart=%s reach=%s available=%s focus=%s" % [_body.global_position, cart_body.global_position, GrabService.within_pickup_reach(_player, cart), GrabService.holder_available(_player), InteractionControlFocus.current(_player)])
+	assert_true(CartTransportService.can_begin(_player, cart), "Cart start actor=%s cart=%s reach=%s available=%s focus=%s" % [_body.global_position, cart_body.global_position, GrabReachQueries.within_pickup_reach(_player, cart), GrabQueries.holder_available(_player), InteractionControlFocus.current(_player)])
 	CartTransportService.begin(_player, cart)
 	assert_eq(CartTransportService.current(_player), cart)
 	control.move_axis = Vector2(0.0, -1.0)
@@ -262,17 +262,16 @@ func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
 	assert_null(CartTransportService.current(_player), "Invalid session releases its relationship and focus")
 
 
-## Старая запись тела связывается с авторским CharacterBody, очищая накопленные скорости и импульсы.
-func test_saved_rigid_player_record_restores_to_authored_characterbody_and_clears_motion() -> void:
+## Current-format authored CharacterBody restore clears accumulated velocities and impulses.
+func test_current_format_authored_characterbody_restore_clears_motion() -> void:
 	(_player as Node).owner = _world
+	FixturePlacedIdentity.assign(_world, _player, &"player")
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new()]
 	_world.add_entity(session)
 	session.owner = _world
+	FixturePlacedIdentity.assign(_world, session, &"session")
 	var snapshot: Dictionary = WorldSnapshotService.capture(_world, 2)
-	for record: Dictionary in snapshot.entities:
-		if record.entity_id == _player.id:
-			record.scene = "res://content/entities/characters/e_rigid_body_character.tscn"
 
 	var saved_pose: Transform3D = _body.global_transform
 	_body.global_position += Vector3(3.0, 2.0, 1.0)

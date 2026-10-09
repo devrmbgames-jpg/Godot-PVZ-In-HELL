@@ -1,0 +1,63 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/domains/interaction/entities/e_placement_area.gd" id="Entity"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_placement_area.gd" id="Area"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="Actions"]
+[ext_resource type="Script" path="res://content/domains/interaction/definitions/def_carry_placement_action.gd" id="Action"]
+
+[sub_resource type="Resource" id="Area"]
+script = ExtResource("Area")
+volume_size = Vector3(0.8, 0.8, 0.8)
+
+[sub_resource type="Resource" id="Interactable"]
+script = ExtResource("Interactable")
+
+[sub_resource type="Resource" id="Action"]
+script = ExtResource("Action")
+action_id = &"place_carry"
+slot = 0
+caption = "Поставить"
+
+[sub_resource type="Resource" id="Actions"]
+script = ExtResource("Actions")
+actions = [SubResource("Action")]
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.9, 0.02, 0.9)
+
+[sub_resource type="BoxShape3D" id="TargetVolumeShape"]
+size = Vector3(0.9, 1, 0.9)
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+albedo_color = Color(0.2, 0.55, 0.48, 1)
+
+[sub_resource type="BoxMesh" id="Mesh"]
+size = Vector3(0.9, 0.02, 0.9)
+material = SubResource("Material")
+
+[node name="PlacementArea" type="StaticBody3D" node_paths=PackedStringArray("anchor")]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("Entity")
+anchor = NodePath("Anchor")
+component_resources = [SubResource("Area"), SubResource("Interactable"), SubResource("Actions")]
+
+[node name="Anchor" type="Marker3D" parent="."]
+position = Vector3(0, 0.6, 0)
+
+[node name="Target" type="CollisionShape3D" parent="."]
+shape = SubResource("Shape")
+
+[node name="CarryTarget" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 0
+monitoring = false
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="CarryTarget"]
+position = Vector3(0, 0.5, 0)
+shape = SubResource("TargetVolumeShape")
+
+[node name="Visual" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh")

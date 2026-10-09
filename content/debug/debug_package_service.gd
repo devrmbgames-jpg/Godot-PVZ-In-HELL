@@ -42,7 +42,7 @@ static func spawn(
 		result.message = "package definition was not found: %s" % String(definition_key)
 		return result
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null:
 		result.message = "day cycle is unavailable"
 		return result
@@ -150,12 +150,12 @@ static func purge(target: DebugTarget) -> DebugServiceResult:
 
 	if EntityAvailability.contains(target.entity, ECS.world):
 		_remove_live_package(target.entity)
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger != null:
 		for record: PackageRegistrationRecord in ledger.records.duplicate():
 			if record.package_id == target.package_id:
 				ledger.records.erase(record)
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow != null:
 		for visit: CustomerVisit in flow.visits.duplicate():
 			if visit.package_id == target.package_id:
@@ -284,7 +284,11 @@ static func _place_near_player(
 	)
 	zone.package_parent.add_child(parcel)
 	body.global_transform = Transform3D(Basis.IDENTITY, position)
-	ECS.world.add_entity(parcel, null, false)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(parcel, ECS.world,
+		parcel.id if not parcel.id.is_empty() else GECSIO.uuid())
+	if not EntityCompositionService.try_register(context, false):
+		zone.package_parent.remove_child(parcel)
+		return false
 	return true
 
 
@@ -313,13 +317,13 @@ static func _identity_exists(package_id: String) -> bool:
 	if ReceivingPackageFactory.exists(package_id):
 		return true
 
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger != null:
 		for record: PackageRegistrationRecord in ledger.records:
 			if record.package_id == package_id:
 				return true
 
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow != null:
 		for visit: CustomerVisit in flow.visits:
 			if visit.package_id == package_id:
@@ -343,7 +347,7 @@ static func _rollback(spawned: Array[Entity]) -> void:
 
 
 static func _remove_debug_registration(package_id: String) -> void:
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger == null:
 		return
 
@@ -353,7 +357,7 @@ static func _remove_debug_registration(package_id: String) -> void:
 
 
 static func _remove_debug_visit(package_id: String) -> void:
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow == null:
 		return
 
@@ -367,7 +371,7 @@ static func _remove_live_package(entity: Entity) -> void:
 		return
 
 	CartCargoService.release(entity)
-	GrabService.entity_unavailable(entity)
+	GrabReleaseService.entity_unavailable(entity)
 	PackageMarkService.clear_marks(entity)
 	ECS.world.remove_entity(entity)
 	entity.queue_free()

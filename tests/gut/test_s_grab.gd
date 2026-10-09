@@ -62,17 +62,17 @@ func test_held_liquid_rights_itself_and_stays_upright_when_camera_tilts() -> voi
 	for frame: int in 2:
 		await get_tree().physics_frame
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
-	var anchor: Node3D = GrabService.slot_anchor(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	var anchor: Node3D = GrabQueries.slot_anchor(holder_entity, C_Grabbable.HoldSlot.CARRY)
 	anchor.rotation = Vector3(-0.9, 0.65, 0.0)
 	for frame: int in 50:
 		await get_tree().physics_frame
 	assert_gt(box_body.global_basis.y.normalized().dot(Vector3.UP), 0.99, "Liquid stands upright despite the tilted carry anchor")
 
-	var profile: GrabControlProfile = GrabService.profile_for(box_entity)
+	var profile: GrabControlProfile = GrabQueries.profile_for(box_entity)
 	assert_eq(profile.rotation_axis, C_Grabbable.RotationAxis.Y_ONLY, "Manual yaw remains available")
 	assert_eq(profile.max_rotation_speed, 3.0)
-	GrabService.release(holder_entity, box_entity)
-	assert_null(GrabService.held_relationship(box_entity))
+	GrabReleaseService.release(holder_entity, box_entity)
+	assert_null(GrabQueries.held_relationship(box_entity))
 
 
 ## Обычный предмет следует наклону опоры; политика жидкости может явно отключить выпрямление.
@@ -80,17 +80,17 @@ func test_regular_prop_keeps_free_rotation_when_held_and_liquid_policy_can_opt_o
 	for frame: int in 2:
 		await get_tree().physics_frame
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
-	var anchor: Node3D = GrabService.slot_anchor(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	var anchor: Node3D = GrabQueries.slot_anchor(holder_entity, C_Grabbable.HoldSlot.CARRY)
 	anchor.rotation.x = 0.7
 	for frame: int in 12:
 		await get_tree().physics_frame
 	assert_lt(box_body.global_basis.y.normalized().dot(Vector3.UP), 0.9, "Ordinary prop follows manual/camera pitch")
-	assert_false(GrabService.profile_for(box_entity).keep_upright)
+	assert_false(GrabQueries.profile_for(box_entity).keep_upright)
 
 	var liquid: C_LiquidTilt = C_LiquidTilt.new()
 	liquid.keep_upright_while_held = false
 	box_entity.add_component(liquid)
-	assert_false(GrabService.profile_for(box_entity).keep_upright)
+	assert_false(GrabQueries.profile_for(box_entity).keep_upright)
 
 
 ## Создаёт физического владельца и коробку в отдельном World с observers хвата и толкания.
@@ -120,7 +120,7 @@ func after_each() -> void:
 	for actor: Entity in remaining:
 		if is_instance_valid(actor):
 			PushService.entity_unavailable(actor)
-			GrabService.entity_unavailable(actor)
+			GrabReleaseService.entity_unavailable(actor)
 	grab_world.entities = grab_world.entities.filter(func(entity: Variant) -> bool: return is_instance_valid(entity))
 	grab_world.purge(false)
 	grab_world.free()
@@ -259,7 +259,7 @@ func test_marker_samples_follow_package_transform_and_split_faces() -> void:
 		box_body.global_basis * Vector3.RIGHT,
 	)
 	assert_eq(marks.strokes.size(), 2, "Different faces must not be joined across an edge")
-	PackageMarkService.break_stroke(marker)
+	MarkerSessionCleanup.break_stroke(marker)
 	PackageMarkService.append_sample(
 		marker,
 		box_entity,
@@ -295,6 +295,60 @@ func test_marker_marks_are_bounded_and_destroyed_packages_reject_ink() -> void:
 	assert_null(marker.stroke)
 
 
+## Scheduled pointer continuation consumes each captured input tick exactly once.
+func test_marker_manual_flush_consumes_pointer_delta_once_per_input_tick() -> void:
+	_grabbable(box_entity).allowed_hand_slots = 6
+	assert_true(GrabService.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.LEFT_HAND))
+	var marker: C_Marker = C_Marker.new()
+	box_entity.add_component(marker)
+	marker.capture_token = InteractionControlFocus.acquire(holder_entity, box_entity, InteractionControlFocus.Priority.DRAWING)
+	marker.pointer = Vector2(100, 100)
+	input_state.input_tick = 1
+	input_state.look_delta = Vector2(5, 3)
+	var owner: S_Marker = S_Marker.new()
+	owner.group = "marker_manual"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	grab_world.add_system(owner)
+	grab_world.process(0.0, owner.group)
+	grab_world.process(0.0, owner.group)
+	assert_eq(marker.pointer, Vector2(100, 100))
+	grab_world.flush_command_buffers()
+	assert_eq(marker.pointer, Vector2(105, 103))
+	assert_eq(marker.last_input_tick, 1)
+	input_state.input_tick = 2
+	grab_world.process(0.0, owner.group)
+	input_state.look_delta = Vector2(50, 30)
+	grab_world.flush_command_buffers()
+	assert_eq(marker.pointer, Vector2(110, 106), "Queued pointer input is immutable")
+
+
+## A new marker capture cannot inherit the queued continuation from its predecessor.
+func test_marker_manual_flush_revalidates_capture_identity() -> void:
+	_grabbable(box_entity).allowed_hand_slots = 6
+	assert_true(GrabService.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.LEFT_HAND))
+	var marker: C_Marker = C_Marker.new()
+	box_entity.add_component(marker)
+	marker.capture_token = InteractionControlFocus.acquire(holder_entity, box_entity, InteractionControlFocus.Priority.DRAWING)
+	marker.pointer = Vector2(100, 100)
+	input_state.input_tick = 1
+	input_state.look_delta = Vector2(5, 3)
+	var owner: S_Marker = S_Marker.new()
+	owner.group = "marker_manual"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	grab_world.add_system(owner)
+	grab_world.process(0.0, owner.group)
+	var previous_token: int = marker.capture_token
+	MarkerSessionCleanup.end(box_entity, holder_entity)
+	marker.capture_token = InteractionControlFocus.acquire(holder_entity, box_entity, InteractionControlFocus.Priority.DRAWING)
+	assert_ne(marker.capture_token, previous_token)
+	grab_world.flush_command_buffers()
+	assert_eq(marker.pointer, Vector2(100, 100))
+	assert_ne(marker.capture_token, 0)
+	grab_world.process(0.0, owner.group)
+	grab_world.flush_command_buffers()
+	assert_eq(marker.pointer, Vector2(105, 103))
+
+
 ## Отмена рисования освобождает только его токен, сохраняя чужой захват и предмет в руке.
 func test_marker_cancel_releases_only_its_token_and_preserves_hand() -> void:
 	_grabbable(box_entity).allowed_hand_slots = 6
@@ -314,10 +368,10 @@ func test_marker_cancel_releases_only_its_token_and_preserves_hand() -> void:
 		InteractionControlFocus.Priority.PUSH,
 	)
 	input_state.cancel_pressed = true
-	MarkerSessionService.update(box_entity, marker)
+	InteractionInputFixture.marker(box_entity)
 	assert_eq(marker.capture_token, 0)
 	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.PUSH)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), box_entity)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), box_entity)
 	InteractionControlFocus.release(holder_entity, other_token)
 	assert_eq(
 		InteractionControlFocus.current(holder_entity),
@@ -344,7 +398,7 @@ func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> vo
 	assert_eq(input_state.look_delta, Vector2(25.0, 15.0))
 	input_state.rotate_held = true
 	assert_false(InteractionActionResolver.wants_rotation(holder_entity, input_state))
-	MarkerSessionService.end(marker, holder_entity)
+	MarkerSessionCleanup.end(marker, holder_entity)
 	producer.feed_event(_mouse_motion(Vector2(25.0, 15.0)))
 	producer.process([holder_entity], [[input_state]], 1.0 / 60.0)
 	_apply_player_intent()
@@ -355,14 +409,14 @@ func test_marker_capture_consumes_mouse_delta_without_camera_or_rotation() -> vo
 ## Ввод взаимодействия меняет живой хват и одновременно обновляет массу и исключения столкновений.
 func test_interact_picks_up_and_releases_with_load_and_collision_cleanup() -> void:
 	input_state.interact_pressed = true
-	GrabService.handle_input(holder_entity)
-	assert_eq(GrabService.held_object(holder_entity), box_entity)
+	InteractionInputFixture.advance(holder_entity)
+	assert_eq(GrabQueries.held_object(holder_entity), box_entity)
 	assert_true(carry_load.active)
 	assert_eq(carry_load.mass_kg, 5.0)
 	assert_true(box_body.get_collision_exceptions().has(holder_body))
 	assert_false(box_body.freeze)
-	GrabService.handle_input(holder_entity)
-	assert_null(GrabService.held_relationship(box_entity))
+	InteractionInputFixture.advance(holder_entity)
+	assert_null(GrabQueries.held_relationship(box_entity))
 	assert_false(carry_load.active)
 	assert_eq(carry_load.mass_kg, 0.0)
 	assert_false(box_body.get_collision_exceptions().has(holder_body))
@@ -373,7 +427,7 @@ func test_release_preserves_linear_and_angular_inertia() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	box_body.linear_velocity = Vector3(2.0, 3.0, 4.0)
 	box_body.angular_velocity = Vector3(0.0, 2.0, 1.0)
-	GrabService.release(holder_entity, box_entity)
+	GrabReleaseService.release(holder_entity, box_entity)
 	assert_eq(box_body.linear_velocity, Vector3(2.0, 3.0, 4.0))
 	assert_eq(box_body.angular_velocity, Vector3(0.0, 2.0, 1.0))
 
@@ -385,8 +439,8 @@ func test_primary_throws_after_releasing_ownership() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	input_state.action_main_pressed = true
 	input_state.direction_look = Vector3.FORWARD
-	GrabService.handle_input(holder_entity)
-	assert_null(GrabService.held_relationship(box_entity))
+	InteractionInputFixture.advance(holder_entity)
+	assert_null(GrabQueries.held_relationship(box_entity))
 	assert_false(carry_load.active)
 	assert_false(grab_control.rotation_active)
 	assert_false(box_body.get_collision_exceptions().has(holder_body))
@@ -399,8 +453,8 @@ func test_primary_throws_after_releasing_ownership() -> void:
 func test_free_primary_and_secondary_do_not_acquire_object() -> void:
 	input_state.action_main_pressed = true
 	input_state.action_second_held = true
-	GrabService.handle_input(holder_entity)
-	assert_null(GrabService.held_relationship(box_entity))
+	InteractionInputFixture.advance(holder_entity)
+	assert_null(GrabQueries.held_relationship(box_entity))
 	assert_false(grab_control.rotation_active)
 	assert_eq(box_body.linear_velocity, Vector3.ZERO)
 
@@ -412,15 +466,15 @@ func test_rotation_uses_offset_and_preserves_input_and_look() -> void:
 	input_state.look_delta = Vector2(30.0, 20.0)
 	var initial_look: Vector3 = input_state.direction_look
 	var initial_basis: Basis = box_body.basis
-	GrabService.handle_input(holder_entity)
-	var grip: R_HeldBy = GrabService.held_relationship(box_entity).relation as R_HeldBy
+	InteractionInputFixture.advance(holder_entity)
+	var grip: R_HeldBy = GrabQueries.held_relationship(box_entity).relation as R_HeldBy
 	assert_true(grab_control.rotation_active)
 	assert_false(grip.rotation_offset.is_equal_approx(Quaternion.IDENTITY))
 	assert_eq(input_state.look_delta, Vector2(30.0, 20.0))
 	assert_eq(input_state.direction_look, initial_look)
 	assert_eq(box_body.basis, initial_basis)
 	input_state.action_second_held = false
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_false(grab_control.rotation_active)
 
 
@@ -438,7 +492,7 @@ func test_holder_capacity_and_exclusive_ownership() -> void:
 func test_external_relationship_removal_restores_runtime_state() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	grab_control.rotation_active = true
-	box_entity.remove_relationship(GrabService.held_relationship(box_entity))
+	box_entity.remove_relationship(GrabQueries.held_relationship(box_entity))
 	assert_false(carry_load.active)
 	assert_false(grab_control.rotation_active)
 	assert_null(grab_control.held_carry)
@@ -448,9 +502,9 @@ func test_external_relationship_removal_restores_runtime_state() -> void:
 ## Внешний Relationship выполняет тот же lifecycle хвата и освобождения.
 func test_external_relationship_addition_applies_lifecycle() -> void:
 	box_entity.add_relationship(Relationship.new(R_HeldBy.new(), holder_entity))
-	assert_eq(GrabService.held_object(holder_entity), box_entity)
+	assert_eq(GrabQueries.held_object(holder_entity), box_entity)
 	assert_true(carry_load.active)
-	GrabService.release(holder_entity, box_entity)
+	GrabReleaseService.release(holder_entity, box_entity)
 	assert_false(carry_load.active)
 
 
@@ -480,7 +534,7 @@ func test_deleted_holder_releases_object() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	holder_entity.queue_free()
 	await get_tree().process_frame
-	assert_null(GrabService.held_relationship(box_entity))
+	assert_null(GrabQueries.held_relationship(box_entity))
 	assert_true(box_body.get_collision_exceptions().is_empty())
 
 
@@ -488,7 +542,7 @@ func test_deleted_holder_releases_object() -> void:
 func test_disabled_holder_releases_object() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	grab_world.disable_entity(holder_entity)
-	assert_null(GrabService.held_relationship(box_entity))
+	assert_null(GrabQueries.held_relationship(box_entity))
 	assert_false(carry_load.active)
 
 
@@ -522,7 +576,7 @@ func test_raycast_selects_and_highlights_only_the_current_target() -> void:
 	assert_not_null(mesh_instance.material_overlay)
 	assert_ne(mesh_instance.material_overlay, previous_overlay)
 
-	var interaction_ray: RayCast3D = GrabService.interaction_raycast(holder_entity)
+	var interaction_ray: RayCast3D = GrabQueries.interaction_raycast(holder_entity)
 	interaction_ray.rotation.y = PI
 	targeting.process([holder_entity], [[interactor]], 0.0)
 	highlight.process([holder_entity], [[interactor]], 0.0)
@@ -707,18 +761,18 @@ func test_carry_speed_is_linear_from_mass_and_current_strength() -> void:
 	box_body.mass = 75.0
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	assert_eq(carry_load.mass_kg, 75.0)
-	assert_almost_eq(CharacterMotionSolver.effective_speed(motion, carry_load, strength), 3.0, 0.001)
+	assert_almost_eq(MotionRules.effective_speed(motion, carry_load, strength), 3.0, 0.001)
 	assert_eq(motion.max_speed, 6.0)
 	assert_eq(motion.ground_acceleration, 25.0)
 
 	strength.value = 2.0
 	assert_eq(CarryLoadPolicy.minimum_mass_kg(strength), 50.0)
 	assert_eq(CarryLoadPolicy.maximum_mass_kg(strength), 150.0)
-	assert_almost_eq(CharacterMotionSolver.effective_speed(motion, carry_load, strength), 4.5, 0.001)
+	assert_almost_eq(MotionRules.effective_speed(motion, carry_load, strength), 4.5, 0.001)
 
-	GrabService.release(holder_entity, box_entity)
+	GrabReleaseService.release(holder_entity, box_entity)
 	assert_eq(carry_load.mass_kg, 0.0)
-	assert_eq(CharacterMotionSolver.effective_speed(motion, carry_load, strength), 6.0)
+	assert_eq(MotionRules.effective_speed(motion, carry_load, strength), 6.0)
 
 
 ## Коэффициент тяжёлого груза уменьшает обзор, ручной поворот и скорость броска.
@@ -750,16 +804,16 @@ func test_carry_mobility_scales_camera_manual_rotation_and_throw_velocity() -> v
 	input_state.action_second_held = true
 	input_state.input_tick += 1
 	input_state.look_delta = Vector2(100.0, 0.0)
-	GrabService.handle_input(holder_entity)
-	var grip: R_HeldBy = GrabService.held_relationship(box_entity).relation as R_HeldBy
+	InteractionInputFixture.advance(holder_entity)
+	var grip: R_HeldBy = GrabQueries.held_relationship(box_entity).relation as R_HeldBy
 	assert_almost_eq(absf(grip.rotation_offset.get_euler().y), 0.3, 0.001)
 
 	input_state.action_second_held = false
 	input_state.action_main_pressed = true
 	input_state.direction_look = Vector3.FORWARD
 	input_state.input_tick += 1
-	GrabService.handle_input(holder_entity)
-	assert_null(GrabService.held_relationship(box_entity))
+	InteractionInputFixture.advance(holder_entity)
+	assert_null(GrabQueries.held_relationship(box_entity))
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
 	assert_almost_eq(box_body.linear_velocity.z, -5.0, 0.15)
@@ -803,9 +857,9 @@ func test_holder_can_hold_carry_and_both_hand_slots() -> void:
 	_add_external_grip(box_entity, C_Grabbable.HoldSlot.CARRY)
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
 	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY), box_entity)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), left_item)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY), box_entity)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), left_item)
 	assert_true(carry_load.active)
 
 
@@ -815,9 +869,9 @@ func test_releasing_hand_item_preserves_carry_load_and_cache() -> void:
 	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
 	_add_external_grip(box_entity, C_Grabbable.HoldSlot.CARRY)
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
-	GrabService.release(holder_entity, right_item)
-	assert_null(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY), box_entity)
+	GrabReleaseService.release(holder_entity, right_item)
+	assert_null(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY), box_entity)
 	assert_true(carry_load.active)
 	assert_eq(carry_load.mass_kg, 5.0)
 
@@ -832,9 +886,9 @@ func test_disabled_holder_releases_all_slot_relationships() -> void:
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
 	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
 	grab_world.disable_entity(holder_entity)
-	assert_null(GrabService.held_relationship(box_entity))
-	assert_null(GrabService.held_relationship(right_item))
-	assert_null(GrabService.held_relationship(left_item))
+	assert_null(GrabQueries.held_relationship(box_entity))
+	assert_null(GrabQueries.held_relationship(right_item))
+	assert_null(GrabQueries.held_relationship(left_item))
 	assert_false(carry_load.active)
 	assert_null(grab_control.held_carry)
 	assert_null(grab_control.held_right)
@@ -848,12 +902,12 @@ func test_external_invalid_or_duplicate_slot_relationship_is_rejected() -> void:
 	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
 	_grabbable(second_right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
 	_add_external_grip(box_entity, C_Grabbable.HoldSlot.RIGHT_HAND)
-	assert_null(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
+	assert_null(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
 	assert_false(carry_load.active)
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
 	_add_external_grip(second_right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
-	assert_null(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND))
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_null(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND))
 
 
 ## Неуспешная замена предмета в руке сохраняет прежнего владельца слота.
@@ -869,11 +923,11 @@ func test_failed_hand_replacement_keeps_existing_occupant() -> void:
 	assert_false(
 		GrabService.try_pickup(holder_entity, frozen_target, C_Grabbable.HoldSlot.RIGHT_HAND, true)
 	)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), occupant)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), occupant)
 	assert_false(
 		GrabService.try_pickup(holder_entity, distant_target, C_Grabbable.HoldSlot.RIGHT_HAND, true)
 	)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), occupant)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), occupant)
 
 
 ## Авторская политика выбирает сброс либо сохранение относительного поворота при захвате.
@@ -886,9 +940,9 @@ func test_hand_pickup_rotation_reset_and_relative_offset() -> void:
 	config.reset_rotation_on_pickup = true
 	assert_true(GrabService.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
 
-	var reset_grip: R_HeldBy = GrabService.held_relationship(box_entity).relation as R_HeldBy
+	var reset_grip: R_HeldBy = GrabQueries.held_relationship(box_entity).relation as R_HeldBy
 	assert_eq(reset_grip.rotation_offset, Quaternion.IDENTITY)
-	GrabService.release(holder_entity, box_entity)
+	GrabReleaseService.release(holder_entity, box_entity)
 	config.reset_rotation_on_pickup = false
 	var expected_offset: Quaternion = (
 		right_anchor.global_basis.orthonormalized().get_rotation_quaternion().inverse()
@@ -896,7 +950,7 @@ func test_hand_pickup_rotation_reset_and_relative_offset() -> void:
 	).normalized()
 	assert_true(GrabService.try_pickup(holder_entity, box_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
 
-	var relative_grip: R_HeldBy = GrabService.held_relationship(box_entity).relation as R_HeldBy
+	var relative_grip: R_HeldBy = GrabQueries.held_relationship(box_entity).relation as R_HeldBy
 	assert_true(relative_grip.rotation_offset.is_equal_approx(expected_offset))
 #endregion
 
@@ -908,22 +962,22 @@ func test_pickup_slot_selection_accounts_for_hands_and_swap_mapping() -> void:
 	_grabbable(hand_item).allowed_hand_slots = (
 		(1 << C_Grabbable.HoldSlot.RIGHT_HAND) | (1 << C_Grabbable.HoldSlot.LEFT_HAND)
 	)
-	assert_eq(GrabService.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.RIGHT_HAND)
-	assert_eq(GrabService.pickup_slot(holder_entity, hand_item, true), -1)
+	assert_eq(GrabQueries.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.RIGHT_HAND)
+	assert_eq(GrabQueries.pickup_slot(holder_entity, hand_item, true), -1)
 	var right_item: Entity = make_box(Vector3(1.0, 1.0, -1.5))
 	_grabbable(right_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.RIGHT_HAND
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
-	assert_eq(GrabService.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.LEFT_HAND)
-	assert_eq(GrabService.pickup_slot(holder_entity, hand_item, true), C_Grabbable.HoldSlot.RIGHT_HAND)
+	assert_eq(GrabQueries.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.LEFT_HAND)
+	assert_eq(GrabQueries.pickup_slot(holder_entity, hand_item, true), C_Grabbable.HoldSlot.RIGHT_HAND)
 
 	var left_item: Entity = make_box(Vector3(-1.0, 1.0, -1.5))
 	_grabbable(left_item).allowed_hand_slots = 1 << C_Grabbable.HoldSlot.LEFT_HAND
 	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
-	assert_eq(GrabService.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.RIGHT_HAND)
-	assert_eq(GrabService.pickup_slot(holder_entity, hand_item, true), C_Grabbable.HoldSlot.LEFT_HAND)
+	assert_eq(GrabQueries.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.RIGHT_HAND)
+	assert_eq(GrabQueries.pickup_slot(holder_entity, hand_item, true), C_Grabbable.HoldSlot.LEFT_HAND)
 	grab_control.swap_hand_controls = true
-	assert_eq(GrabService.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.LEFT_HAND)
-	assert_eq(GrabService.pickup_slot(holder_entity, hand_item, true), C_Grabbable.HoldSlot.RIGHT_HAND)
+	assert_eq(GrabQueries.pickup_slot(holder_entity, hand_item, false), C_Grabbable.HoldSlot.LEFT_HAND)
+	assert_eq(GrabQueries.pickup_slot(holder_entity, hand_item, true), C_Grabbable.HoldSlot.RIGHT_HAND)
 
 
 ## Вложенные токены удерживают руки опущенными до отпускания последнего владельца.
@@ -948,24 +1002,24 @@ func test_nested_capture_lowers_hands_until_last_owner_releases() -> void:
 		InteractionControlFocus.Priority.MODAL,
 	)
 	assert_eq(
-		GrabService.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
+		GrabQueries.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
 		holder_entity.get("lowered_right_hand_slot"),
 	)
 	InteractionControlFocus.release(holder_entity, modal_token)
 	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.PUSH)
 	assert_eq(
-		GrabService.slot_anchor(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND),
+		GrabQueries.slot_anchor(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND),
 		holder_entity.get("lowered_left_hand_slot"),
 	)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), left_item)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), left_item)
 	InteractionControlFocus.release(holder_entity, push_token)
 	assert_eq(
 		InteractionControlFocus.current(holder_entity),
 		InteractionControlFocus.Priority.HANDS,
 	)
 	assert_eq(
-		GrabService.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
+		GrabQueries.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
 		holder_entity.get("right_hand_slot"),
 	)
 
@@ -991,12 +1045,12 @@ func test_primary_action_routes_to_mapped_hand_and_swap() -> void:
 	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
 	input_state.input_tick += 1
 	input_state.action_main_pressed = true
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_eq(right_action.calls, 1)
 	assert_eq(left_action.calls, 0)
 	grab_control.swap_hand_controls = true
 	input_state.input_tick += 1
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_eq(right_action.calls, 1)
 	assert_eq(left_action.calls, 1)
 
@@ -1022,14 +1076,14 @@ func test_capture_blocks_hand_use_throw_and_rotation() -> void:
 	input_state.action_main_pressed = true
 	input_state.physical_override = false
 	input_state.rotate_held = true
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_eq(action.calls, 0)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
 	assert_false(grab_control.rotation_active)
 	input_state.input_tick += 1
 	input_state.physical_override = true
-	GrabService.handle_input(holder_entity)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	InteractionInputFixture.advance(holder_entity)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
 	InteractionControlFocus.release(holder_entity, modal_token)
 
 
@@ -1044,22 +1098,22 @@ func test_drop_priority_and_long_press_placeholder() -> void:
 	_add_external_grip(left_item, C_Grabbable.HoldSlot.LEFT_HAND)
 	input_state.input_tick += 1
 	input_state.drop_pressed = true
-	GrabService.handle_input(holder_entity)
-	assert_null(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY))
-	assert_not_null(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND))
+	InteractionInputFixture.advance(holder_entity)
+	assert_null(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY))
+	assert_not_null(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND))
 	input_state.input_tick += 1
-	GrabService.handle_input(holder_entity)
-	assert_null(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND))
+	InteractionInputFixture.advance(holder_entity)
+	assert_null(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND))
 	input_state.input_tick += 1
-	GrabService.handle_input(holder_entity)
-	assert_null(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
+	InteractionInputFixture.advance(holder_entity)
+	assert_null(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND))
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
 	input_state.drop_pressed = false
 	input_state.drop_long_pressed = true
 	input_state.input_tick += 1
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_true(grab_control.context_wheel_requested)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
 
 
 ## Пауза очищает отслеживание броска, накопленную мышь и ожидающие действия.
@@ -1122,9 +1176,9 @@ func test_generic_hand_rotation_uses_rotate_modifier_without_hand_action() -> vo
 	input_state.input_tick += 1
 	input_state.rotate_held = true
 	input_state.look_delta = Vector2(30.0, 20.0)
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 
-	var grip: R_HeldBy = GrabService.held_relationship(right_item).relation as R_HeldBy
+	var grip: R_HeldBy = GrabQueries.held_relationship(right_item).relation as R_HeldBy
 	assert_true(grab_control.rotation_active)
 	assert_false(grip.rotation_offset.is_equal_approx(Quaternion.IDENTITY))
 
@@ -1182,7 +1236,7 @@ func test_hand_grip_survives_lowered_anchor_and_restore_grace() -> void:
 	config.break_distance = 0.5
 	_add_external_grip(right_item, C_Grabbable.HoldSlot.RIGHT_HAND)
 	await get_tree().physics_frame
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
 
 	var owner: RefCounted = RefCounted.new()
 	var token: int = InteractionControlFocus.acquire(
@@ -1192,18 +1246,18 @@ func test_hand_grip_survives_lowered_anchor_and_restore_grace() -> void:
 	)
 	for physics_tick: int in 3:
 		await get_tree().physics_frame
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
 	assert_eq(
-		GrabService.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
+		GrabQueries.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
 		holder_entity.get("lowered_right_hand_slot"),
 	)
 	InteractionControlFocus.release(holder_entity, token)
 	assert_eq(
-		GrabService.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
+		GrabQueries.slot_anchor(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND),
 		holder_entity.get("right_hand_slot"),
 	)
 	await get_tree().physics_frame
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
 
 
 ## Такт броска груза не передаёт вторичную кнопку инструменту в руке.
@@ -1221,15 +1275,15 @@ func test_carry_throw_does_not_route_secondary_input_to_hand_item() -> void:
 	input_state.action_main_pressed = true
 	input_state.action_second_pressed = true
 	input_state.action_second_held = true
-	GrabService.handle_input(holder_entity)
-	assert_null(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY))
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	InteractionInputFixture.advance(holder_entity)
+	assert_null(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY))
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
 	assert_eq(action.calls, 0)
 
 
 ## Политика поворота ограничивает движение осью Y либо полностью отключает его.
 func test_y_only_rotation_and_disabled_rotation_policy() -> void:
-	var y_only_offset: Quaternion = GrabService.rotated_offset(
+	var y_only_offset: Quaternion = GrabPhysicsSolver.rotated_offset(
 		Quaternion.IDENTITY,
 		Vector2(30.0, 20.0),
 		C_Grabbable.RotationAxis.Y_ONLY,
@@ -1247,7 +1301,7 @@ func test_y_only_rotation_and_disabled_rotation_policy() -> void:
 	input_state.input_tick += 1
 	input_state.rotate_held = true
 	input_state.look_delta = Vector2(30.0, 20.0)
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_false(grab_control.rotation_active)
 
 
@@ -1266,16 +1320,16 @@ func test_interact_replaces_primary_hand_after_los_validation() -> void:
 		await get_tree().physics_frame
 
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(holder_entity, interactor)
-	interactor.physics_target = InteractionTargetingService.find_physics_target(holder_entity, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(holder_entity, interactor)
+	interactor.physics_target = InteractionTargetingGeometry.find_physics_target(holder_entity, interactor)
 	assert_eq(interactor.target, box_entity)
 	assert_eq(interactor.physics_target, box_body)
 	input_state.input_tick += 1
 	input_state.interact_pressed = true
-	GrabService.handle_input(holder_entity)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), box_entity)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), left_item)
-	assert_null(GrabService.held_relationship(right_item))
+	InteractionInputFixture.advance(holder_entity)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), box_entity)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), left_item)
+	assert_null(GrabQueries.held_relationship(right_item))
 
 
 ## Замена во второй руке сохраняет предмет основной руки и требует видимости.
@@ -1293,16 +1347,16 @@ func test_use_replaces_secondary_hand_after_los_validation() -> void:
 		await get_tree().physics_frame
 
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(holder_entity, interactor)
-	interactor.physics_target = InteractionTargetingService.find_physics_target(holder_entity, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(holder_entity, interactor)
+	interactor.physics_target = InteractionTargetingGeometry.find_physics_target(holder_entity, interactor)
 	assert_eq(interactor.target, box_entity)
 	assert_eq(interactor.physics_target, box_body)
 	input_state.input_tick += 1
 	input_state.use_pressed = true
-	GrabService.handle_input(holder_entity)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), box_entity)
-	assert_null(GrabService.held_relationship(left_item))
+	InteractionInputFixture.advance(holder_entity)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), right_item)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.LEFT_HAND), box_entity)
+	assert_null(GrabQueries.held_relationship(left_item))
 #endregion
 
 
@@ -1312,15 +1366,15 @@ func test_position_force_compensates_gravity_and_is_bounded() -> void:
 	var config: C_Grabbable = C_Grabbable.new()
 	var gravity: Vector3 = Vector3(0.0, -10.0, 0.0)
 	assert_eq(
-		GrabService.position_force(Vector3.ZERO, Vector3.ZERO, gravity, 5.0, config),
+		GrabPhysicsSolver.position_force(Vector3.ZERO, Vector3.ZERO, gravity, 5.0, GrabControlProfile.from_grabbable(config)),
 		Vector3(0.0, 50.0, 0.0),
 	)
-	var force: Vector3 = GrabService.position_force(
+	var force: Vector3 = GrabPhysicsSolver.position_force(
 		Vector3.ONE * 100.0,
 		Vector3.ZERO,
 		gravity,
 		80.0,
-		config,
+		GrabControlProfile.from_grabbable(config),
 	)
 	assert_almost_eq(force.length(), config.max_hold_force, 0.001)
 
@@ -1329,28 +1383,28 @@ func test_position_force_compensates_gravity_and_is_bounded() -> void:
 func test_rotation_shortest_arc_and_no_residual_velocity() -> void:
 	var config: C_Grabbable = C_Grabbable.new()
 	assert_eq(
-		GrabService.rotation_velocity(Quaternion.IDENTITY, -Quaternion.IDENTITY, 1.0 / 60.0, config),
+		GrabPhysicsSolver.rotation_velocity(Quaternion.IDENTITY, -Quaternion.IDENTITY, 1.0 / 60.0, GrabControlProfile.from_grabbable(config)),
 		Vector3.ZERO,
 	)
-	var angular_velocity: Vector3 = GrabService.rotation_velocity(
+	var angular_velocity: Vector3 = GrabPhysicsSolver.rotation_velocity(
 		Quaternion.IDENTITY,
 		Quaternion.IDENTITY,
 		1.0 / 60.0,
-		config,
+		GrabControlProfile.from_grabbable(config),
 	)
 	assert_eq(angular_velocity, Vector3.ZERO)
 
 	var offset: Quaternion = Quaternion.IDENTITY
 	for step_index: int in 1000:
-		offset = GrabService.rotated_offset(offset, Vector2(4.0, 3.0))
+		offset = GrabPhysicsSolver.rotated_offset(offset, Vector2(4.0, 3.0))
 	assert_almost_eq(offset.length(), 1.0, 0.00001)
 
 
 ## Импульс броска переводит желаемое изменение скорости и массу в Н·с.
 func test_throw_impulse_converts_scaled_velocity_change_to_mass_impulse() -> void:
-	assert_eq(GrabService.throw_impulse(Vector3.FORWARD, 10.0, 5.0), Vector3(0.0, 0.0, -50.0))
-	assert_eq(GrabService.throw_impulse(Vector3.FORWARD, 5.0, 75.0), Vector3(0.0, 0.0, -375.0))
-	assert_eq(GrabService.throw_impulse(Vector3.FORWARD, 0.0, 120.0), Vector3.ZERO)
+	assert_eq(GrabPhysicsSolver.throw_impulse(Vector3.FORWARD, 10.0, 5.0), Vector3(0.0, 0.0, -50.0))
+	assert_eq(GrabPhysicsSolver.throw_impulse(Vector3.FORWARD, 5.0, 75.0), Vector3(0.0, 0.0, -375.0))
+	assert_eq(GrabPhysicsSolver.throw_impulse(Vector3.FORWARD, 0.0, 120.0), Vector3.ZERO)
 #endregion
 
 
@@ -1365,7 +1419,7 @@ func test_solver_moves_dynamic_box_to_anchor_without_teleporting() -> void:
 		await get_tree().physics_frame
 	assert_almost_eq(box_body.global_position.z, -1.25, 0.1)
 	assert_almost_eq(box_body.global_position.y, 1.0, 0.1)
-	assert_not_null(GrabService.held_relationship(box_entity))
+	assert_not_null(GrabQueries.held_relationship(box_entity))
 
 
 ## Большой разрыв между телом и опорой освобождает хват и массу груза.
@@ -1374,7 +1428,7 @@ func test_teleport_breaks_grip_and_restores_carry_state() -> void:
 	holder_body.position.x = 20.0
 	for physics_tick: int in 3:
 		await get_tree().physics_frame
-	assert_null(GrabService.held_relationship(box_entity))
+	assert_null(GrabQueries.held_relationship(box_entity))
 	assert_false(carry_load.active)
 
 
@@ -1384,7 +1438,7 @@ func test_wall_occludes_targeting_and_pickup() -> void:
 	for physics_tick: int in 2:
 		await get_tree().physics_frame
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
-	assert_null(InteractionTargetingService.find_target(holder_entity, interactor))
+	assert_null(InteractionTargetingGeometry.find_target(holder_entity, interactor))
 	assert_false(GrabService.try_pickup(holder_entity, box_entity))
 	wall.free()
 
@@ -1393,12 +1447,12 @@ func test_wall_occludes_targeting_and_pickup() -> void:
 func test_held_box_collides_with_wall_instead_of_snapping_through() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	var wall: StaticBody3D = make_wall(Vector3(0.0, 1.0, -2.5))
-	var grip: R_HeldBy = GrabService.held_relationship(box_entity).relation as R_HeldBy
+	var grip: R_HeldBy = GrabQueries.held_relationship(box_entity).relation as R_HeldBy
 	grip.hold_distance = 3.3
 	for physics_tick: int in 100:
 		await get_tree().physics_frame
 	assert_gt(box_body.global_position.z, -2.3)
-	assert_not_null(GrabService.held_relationship(box_entity))
+	assert_not_null(GrabQueries.held_relationship(box_entity))
 	wall.free()
 
 
@@ -1429,13 +1483,13 @@ func test_player_input_edges_are_consumed_once_on_physics_tick() -> void:
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
 	_apply_player_intent()
 	assert_true(input_state.interact_pressed)
-	GrabService.handle_input(holder_entity)
-	assert_eq(GrabService.held_object(holder_entity), box_entity)
+	InteractionInputFixture.advance(holder_entity)
+	assert_eq(GrabQueries.held_object(holder_entity), box_entity)
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
 	_apply_player_intent()
 	assert_false(input_state.interact_pressed)
-	GrabService.handle_input(holder_entity)
-	assert_eq(GrabService.held_object(holder_entity), box_entity)
+	InteractionInputFixture.advance(holder_entity)
+	assert_eq(GrabQueries.held_object(holder_entity), box_entity)
 	input_system.free()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
@@ -1450,14 +1504,14 @@ func test_rotation_priority_does_not_accumulate_camera_input() -> void:
 	input_system.feed_event(_mouse_motion(Vector2(40.0, 20.0)))
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
 	_apply_player_intent()
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_true(grab_control.rotation_active)
 	assert_eq(input_state.direction_look, Vector3.FORWARD)
 	assert_eq(input_state.look_delta, Vector2(40.0, 20.0))
 	Input.action_release(&"action_secondary")
 	input_system.process(holders, [[input_state]], 1.0 / 60.0)
 	_apply_player_intent()
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_false(grab_control.rotation_active)
 	assert_eq(input_state.direction_look, Vector3.FORWARD)
 	input_system.feed_event(_mouse_motion(Vector2(10.0, 0.0)))
@@ -1472,8 +1526,8 @@ func test_rotation_priority_does_not_accumulate_camera_input() -> void:
 func test_freezing_held_body_releases_on_next_control_tick() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	box_body.freeze = true
-	GrabService.handle_input(holder_entity)
-	assert_null(GrabService.held_relationship(box_entity))
+	InteractionInputFixture.advance(holder_entity)
+	assert_null(GrabQueries.held_relationship(box_entity))
 	assert_false(carry_load.active)
 	assert_false(grab_control.rotation_active)
 
@@ -1484,22 +1538,22 @@ func test_death_releases_hold_without_requiring_input() -> void:
 	var health: C_Health = C_Health.new()
 	holder_entity.add_component(health)
 	health.current = 0.0
-	GrabService.handle_input(holder_entity)
-	assert_null(GrabService.held_relationship(box_entity))
+	InteractionInputFixture.advance(holder_entity)
+	assert_null(GrabQueries.held_relationship(box_entity))
 	assert_false(carry_load.active)
 
 
 ## Solver поворачивает тело через физическую угловую скорость и останавливается у цели.
 func test_solver_rotates_body_through_physics_velocity() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
-	var grip: R_HeldBy = GrabService.held_relationship(box_entity).relation as R_HeldBy
+	var grip: R_HeldBy = GrabQueries.held_relationship(box_entity).relation as R_HeldBy
 	grip.rotation_offset = Quaternion(Vector3.UP, PI * 0.5)
 	for physics_tick: int in 6:
 		await get_tree().physics_frame
 	var result_rotation: Quaternion = box_body.global_basis.get_rotation_quaternion()
 	assert_lt(result_rotation.angle_to(grip.rotation_offset), 0.15)
 	assert_lt(box_body.angular_velocity.length(), 0.05)
-	assert_not_null(GrabService.held_relationship(box_entity))
+	assert_not_null(GrabQueries.held_relationship(box_entity))
 #endregion
 
 
@@ -1510,8 +1564,8 @@ func test_external_second_holder_is_rejected_without_changing_original_grip() ->
 	var other_holder: Entity = make_holder(Vector3(1.0, 0.0, 0.0))
 	box_entity.add_relationship(Relationship.new(R_HeldBy.new(), other_holder))
 	assert_eq(box_entity.relationships.size(), 1)
-	assert_eq(GrabService.held_object(holder_entity), box_entity)
-	assert_null(GrabService.held_object(other_holder))
+	assert_eq(GrabQueries.held_object(holder_entity), box_entity)
+	assert_null(GrabQueries.held_object(other_holder))
 	assert_false(box_body.can_sleep)
 	assert_true(box_body.get_collision_exceptions().has(holder_body))
 
@@ -1522,7 +1576,7 @@ func test_external_duplicate_relation_cannot_leave_lifecycle_effects() -> void:
 	box_entity.add_relationship(Relationship.new(R_HeldBy.new(), holder_entity))
 	assert_lte(box_entity.relationships.size(), 1)
 	# GECS удаляет совпадающие пары: отклонение точного дубликата освобождает обе связи.
-	if GrabService.held_relationship(box_entity) == null:
+	if GrabQueries.held_relationship(box_entity) == null:
 		assert_false(carry_load.active)
 		assert_false(box_body.get_collision_exceptions().has(holder_body))
 		assert_true(box_body.can_sleep)
@@ -1532,7 +1586,7 @@ func test_external_duplicate_relation_cannot_leave_lifecycle_effects() -> void:
 func test_world_removal_of_holder_releases_source_relationship() -> void:
 	assert_true(GrabService.try_pickup(holder_entity, box_entity))
 	grab_world.remove_entity(holder_entity)
-	assert_null(GrabService.held_relationship(box_entity))
+	assert_null(GrabQueries.held_relationship(box_entity))
 	assert_true(box_body.get_collision_exceptions().is_empty())
 #endregion
 
@@ -1546,8 +1600,8 @@ func test_scriptless_rigid_body_is_a_physics_target_without_becoming_gameplay_ta
 	await get_tree().physics_frame
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
 	assert_null(rock.get_script())
-	assert_null(InteractionTargetingService.find_target(holder_entity, interactor))
-	assert_eq(InteractionTargetingService.find_physics_target(holder_entity, interactor), rock)
+	assert_null(InteractionTargetingGeometry.find_target(holder_entity, interactor))
+	assert_eq(InteractionTargetingGeometry.find_physics_target(holder_entity, interactor), rock)
 	assert_null(PhysicsGrabTarget.handle_for(rock, false))
 
 
@@ -1563,15 +1617,15 @@ func test_interact_picks_up_scriptless_rigid_body_through_runtime_proxy() -> voi
 	input_state.interact_pressed = true
 	input_state.input_tick += 1
 
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 
-	var held: Entity = GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	var held: Entity = GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
 	assert_not_null(held)
 	assert_true(PhysicsGrabTarget.is_proxy(held))
 	assert_eq(PhysicsGrabTarget.body_for(held), rock)
 	assert_true(carry_load.active)
 	assert_true(rock.get_collision_exceptions().has(holder_body))
-	assert_eq((GrabService.held_relationship(held).relation as R_HeldBy).profile.allowed_hand_slots, 0)
+	assert_eq((GrabQueries.held_relationship(held).relation as R_HeldBy).profile.allowed_hand_slots, 0)
 
 
 ## Слишком тяжёлое тело остаётся подсвеченным с объяснением отказа и без proxy.
@@ -1605,8 +1659,8 @@ func test_overweight_scriptless_body_stays_highlighted_and_shows_weight_message(
 
 	input_state.interact_pressed = true
 	input_state.input_tick += 1
-	GrabService.handle_input(holder_entity)
-	assert_null(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY))
+	InteractionInputFixture.advance(holder_entity)
+	assert_null(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY))
 	assert_null(PhysicsGrabTarget.handle_for(rock, false))
 
 	rock.mass = 5.0
@@ -1638,7 +1692,7 @@ func test_scriptless_rigid_body_respects_mass_and_no_carry_policy() -> void:
 	assert_null(PhysicsGrabTarget.handle_for(heavy, false))
 
 	heavy.mass = 5.0
-	heavy.add_to_group(GrabService.NO_CARRY_GROUP)
+	heavy.add_to_group(GrabQueries.NO_CARRY_GROUP)
 	assert_false(
 		GrabService.can_pickup_body(
 			holder_entity,
@@ -1656,11 +1710,11 @@ func test_scriptless_release_preserves_inertia_and_restores_collision() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_true(GrabService.try_pickup_body(holder_entity, rock))
-	var held: Entity = GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	var held: Entity = GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
 	rock.linear_velocity = Vector3(2.0, 3.0, 4.0)
 	rock.angular_velocity = Vector3(0.0, 2.0, 1.0)
 
-	GrabService.release(holder_entity, held)
+	GrabReleaseService.release(holder_entity, held)
 
 	assert_eq(rock.linear_velocity, Vector3(2.0, 3.0, 4.0))
 	assert_eq(rock.angular_velocity, Vector3(0.0, 2.0, 1.0))
@@ -1675,10 +1729,10 @@ func test_scriptless_solver_moves_body_without_assigning_transform() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_true(GrabService.try_pickup_body(holder_entity, rock))
-	var held: Entity = GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
-	var relation: Relationship = GrabService.held_relationship(held)
+	var held: Entity = GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	var relation: Relationship = GrabQueries.held_relationship(held)
 	var grip: R_HeldBy = relation.relation as R_HeldBy
-	var anchor: Node3D = GrabService.object_anchor(holder_entity, held)
+	var anchor: Node3D = GrabQueries.object_anchor(holder_entity, held)
 	var initial_position: Vector3 = rock.global_position
 
 	assert_true(
@@ -1708,6 +1762,56 @@ func test_scriptless_solver_moves_body_without_assigning_transform() -> void:
 	assert_gt(rock.global_position.z, initial_position.z)
 
 
+## The real scheduled generic owner applies forces without assigning physical transform.
+func test_generic_hold_world_owner_moves_scriptless_body_without_teleport() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.8))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_true(GrabService.try_pickup_body(holder_entity, rock))
+	var owner: S_Grab = S_Grab.new()
+	owner.group = "generic_hold_fixture"
+	grab_world.add_system(owner)
+	var initial_position: Vector3 = rock.global_position
+
+	grab_world.process(1.0 / 60.0, owner.group)
+	assert_eq(rock.global_position, initial_position, "Scheduled forces cannot teleport the body")
+	for physics_tick: int in 10:
+		await get_tree().physics_frame
+		grab_world.process(1.0 / 60.0, owner.group)
+	assert_gt(rock.global_position.z, initial_position.z)
+	assert_not_null(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY))
+	grab_world.remove_system(owner)
+
+
+## Deferred invalid-grip retirement cannot clear a newly acquired binding of the same object.
+func test_generic_hold_manual_flush_preserves_replacement_grip() -> void:
+	box_body.position = Vector3(8.0, 1.0, -1.5)
+	var rock: RigidBody3D = make_raw_rigid_body(Vector3(0.0, 1.0, -1.5))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_true(GrabService.try_pickup_body(holder_entity, rock))
+	var held: Entity = GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	var previous: Relationship = GrabQueries.held_relationship(held)
+	var owner: S_Grab = S_Grab.new()
+	owner.group = "generic_hold_fixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	grab_world.add_system(owner)
+	rock.freeze = true
+	grab_world.process(1.0 / 60.0, owner.group)
+
+	GrabReleaseService.release(holder_entity, held, false)
+	rock.freeze = false
+	assert_true(GrabService.try_pickup_body(holder_entity, rock))
+	var replacement: Relationship = GrabQueries.held_relationship(held)
+	assert_ne(replacement, previous)
+	grab_world.flush_command_buffers()
+	assert_eq(GrabQueries.held_relationship(held), replacement)
+	assert_true(carry_load.active)
+	assert_true(rock.get_collision_exceptions().has(holder_body))
+	grab_world.remove_system(owner)
+
+
 ## Удаление исходного тела убирает proxy и производное состояние владельца.
 func test_scriptless_body_removal_cleans_runtime_proxy_and_holder() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
@@ -1715,7 +1819,7 @@ func test_scriptless_body_removal_cleans_runtime_proxy_and_holder() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_true(GrabService.try_pickup_body(holder_entity, rock))
-	var proxy: Entity = GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
+	var proxy: Entity = GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.CARRY)
 	assert_not_null(proxy)
 
 	rock.queue_free()
@@ -1793,7 +1897,7 @@ func test_scriptless_body_exit_accepts_an_already_removed_proxy() -> void:
 ## CharacterBody тележки сохраняет своё действие после переноса обычного RigidBody.
 func test_character_body_transport_remains_interactable_after_generic_rigidbody_carry() -> void:
 	box_body.position = Vector3(8.0, 1.0, -1.5)
-	var scene: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
+	var scene: PackedScene = load("res://content/domains/interaction/entities/push_cart.tscn") as PackedScene
 	var cart: Entity = scene.instantiate() as Entity
 	var cart_body: CharacterBody3D = cart as Node as CharacterBody3D
 	cart_body.position = Vector3(0.0, 0.7, -1.8)
@@ -1804,12 +1908,12 @@ func test_character_body_transport_remains_interactable_after_generic_rigidbody_
 	await get_tree().physics_frame
 
 	var interactor: C_Interactor = holder_entity.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(holder_entity, interactor)
-	interactor.physics_target = InteractionTargetingService.find_physics_target(holder_entity, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(holder_entity, interactor)
+	interactor.physics_target = InteractionTargetingGeometry.find_physics_target(holder_entity, interactor)
 
 	assert_eq(interactor.target, cart)
 	assert_null(interactor.physics_target)
-	assert_true(GrabService.within_pickup_reach(holder_entity, cart))
+	assert_true(GrabReachQueries.within_pickup_reach(holder_entity, cart))
 	assert_true(CartTransportService.can_begin(holder_entity, cart))
 
 	var choice: InteractionActionChoice = InteractionActionResolver.resolve(
@@ -1822,9 +1926,56 @@ func test_character_body_transport_remains_interactable_after_generic_rigidbody_
 
 	input_state.interact_pressed = true
 	input_state.input_tick += 1
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_eq(CartTransportService.current(holder_entity), cart)
 	CartTransportService.end(cart)
+#endregion
+
+
+#region Deferred cargo sampling
+## Replacing the load aggregate discards a queued native-space sample before mutation.
+func test_cart_cargo_manual_flush_rejects_replaced_component() -> void:
+	var scene: PackedScene = load("res://content/domains/interaction/entities/push_cart.tscn") as PackedScene
+	var cart: E_TransportCart = scene.instantiate() as E_TransportCart
+	cart.set_physics_process(false)
+	grab_world.add_entity(cart)
+	var original: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
+	var owner: S_CartCargo = S_CartCargo.new()
+	owner.group = "cargo_fixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	grab_world.add_system(owner)
+	grab_world.process(1.0 / 60.0, owner.group)
+
+	cart.remove_component(C_CartTransport)
+	var replacement: C_CartTransport = C_CartTransport.new()
+	cart.add_component(replacement)
+	grab_world.flush_command_buffers()
+	assert_eq(original.cargo_update_frame, -1)
+	assert_eq(replacement.cargo_update_frame, -1)
+	assert_true(replacement.cargo.is_empty())
+	grab_world.remove_system(owner)
+
+
+## A native-space sample expires across physics frames instead of charging an old settling delta.
+func test_cart_cargo_manual_flush_rejects_previous_physics_frame() -> void:
+	var scene: PackedScene = load("res://content/domains/interaction/entities/push_cart.tscn") as PackedScene
+	var cart: E_TransportCart = scene.instantiate() as E_TransportCart
+	cart.set_physics_process(false)
+	grab_world.add_entity(cart)
+	var config: C_CartTransport = cart.get_component(C_CartTransport) as C_CartTransport
+	var owner: S_CartCargo = S_CartCargo.new()
+	owner.group = "cargo_fixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	grab_world.add_system(owner)
+	grab_world.process(1.0 / 60.0, owner.group)
+	await get_tree().physics_frame
+	grab_world.flush_command_buffers()
+	assert_eq(config.cargo_update_frame, -1)
+
+	grab_world.process(1.0 / 60.0, owner.group)
+	grab_world.flush_command_buffers()
+	assert_eq(config.cargo_update_frame, Engine.get_physics_frames())
+	grab_world.remove_system(owner)
 #endregion
 
 
@@ -1851,9 +2002,9 @@ func test_push_contextual_start_stop_preserves_hands_and_uses_no_grab_slot() -> 
 
 	input_state.interact_pressed = true
 	input_state.input_tick += 1
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_eq(PushService.pushed_object(holder_entity), cart)
-	assert_null(GrabService.held_relationship(cart))
+	assert_null(GrabQueries.held_relationship(cart))
 	assert_false(cart.has_component(C_Grabbable))
 	assert_eq(InteractionControlFocus.current(holder_entity), InteractionControlFocus.Priority.PUSH)
 
@@ -1861,14 +2012,14 @@ func test_push_contextual_start_stop_preserves_hands_and_uses_no_grab_slot() -> 
 	input_state.action_main_pressed = true
 	input_state.physical_override = true
 	input_state.input_tick += 1
-	GrabService.handle_input(holder_entity)
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), box_entity)
+	InteractionInputFixture.advance(holder_entity)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), box_entity)
 
 	input_state.interact_pressed = true
 	input_state.input_tick += 1
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_null(PushService.pushed_object(holder_entity))
-	assert_eq(GrabService.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), box_entity)
+	assert_eq(GrabQueries.held_in_slot(holder_entity, C_Grabbable.HoldSlot.RIGHT_HAND), box_entity)
 	assert_eq(
 		InteractionControlFocus.current(holder_entity),
 		InteractionControlFocus.Priority.HANDS,
@@ -1901,7 +2052,7 @@ func test_push_fixed_forward_turn_speeds_and_no_reverse_motor() -> void:
 		await get_tree().physics_frame
 	assert_almost_eq(body.linear_velocity.length(), 0.0, 0.02)
 	input_state.input_tick += 1
-	GrabService.handle_input(holder_entity)
+	InteractionInputFixture.advance(holder_entity)
 	assert_null(PushService.relationship(cart))
 
 
@@ -1988,6 +2139,32 @@ func test_push_modal_overlap_pauses_motor_and_retains_capture_after_ui_release()
 		InteractionControlFocus.Priority.HANDS,
 	)
 	cart.free()
+
+
+## A queued push check cannot retire a replacement session even if the pair loses focus.
+func test_push_manual_flush_preserves_replacement_binding() -> void:
+	var cart: Entity = _make_push_cart()
+	await get_tree().physics_frame
+	assert_true(PushService.try_begin(holder_entity, cart))
+	var previous: Relationship = PushService.relationship(cart)
+	var owner: S_Push = S_Push.new()
+	owner.group = "push_fixture"
+	owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+	grab_world.add_system(owner)
+	grab_world.process(1.0 / 60.0, owner.group)
+
+	PushService.end(holder_entity, cart)
+	assert_true(PushService.try_begin(holder_entity, cart))
+	var replacement: Relationship = PushService.relationship(cart)
+	assert_ne(replacement, previous)
+	input_state.direction_look = Vector3.BACK
+	grab_world.flush_command_buffers()
+	assert_eq(PushService.relationship(cart), replacement)
+
+	grab_world.process(1.0 / 60.0, owner.group)
+	grab_world.flush_command_buffers()
+	assert_null(PushService.relationship(cart), "A current scheduled check retires the invalid session")
+	grab_world.remove_system(owner)
 
 
 ## Занятое тело и перекрытая стеной рукоять не допускают второго владельца.

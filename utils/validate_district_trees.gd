@@ -2,13 +2,15 @@ extends SceneTree
 ## Проверяет авторские ресурсы LimboAI, не перезаписывая настройки поведения.
 
 const TREE_PATHS: PackedStringArray = [
-	"res://content/ai/trees/bt_district_npc.tres",
-	"res://content/ai/trees/bt_npc_emergency.tres",
-	"res://content/ai/trees/bt_npc_combat.tres",
-	"res://content/ai/trees/bt_npc_service.tres",
-	"res://content/ai/trees/bt_npc_schedule.tres",
-	"res://content/ai/trees/bt_npc_idle.tres",
-	"res://content/ai/trees/bt_npc_delivery_ambush.tres",
+	"res://content/domains/customers/ai/trees/bt_district_npc.tres",
+	"res://content/domains/npc/ai/trees/bt_npc_native.tres",
+	"res://content/domains/npc/ai/trees/bt_npc_conversation.tres",
+	"res://content/domains/npc/ai/trees/bt_npc_emergency.tres",
+	"res://content/domains/npc/ai/trees/bt_npc_combat.tres",
+	"res://content/domains/customers/ai/trees/bt_npc_service.tres",
+	"res://content/domains/npc/ai/trees/bt_npc_schedule.tres",
+	"res://content/domains/npc/ai/trees/bt_npc_idle.tres",
+	"res://content/domains/customers/ai/trees/bt_npc_delivery_ambush.tres",
 ]
 
 var _failed: bool = false

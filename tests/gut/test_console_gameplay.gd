@@ -17,7 +17,7 @@ func before_each() -> void:
 	ECS.world = _world
 	_cycle = C_DayCycle.new()
 	var flow: C_CustomerFlow = C_CustomerFlow.new()
-	flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	flow.schedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
 	_session = Entity.new()
 	_session.component_resources = [_cycle, C_Commerce.new(), C_Wallet.new(), flow]
 	_world.add_entity(_session)
@@ -86,7 +86,7 @@ func test_food_commands_obey_bounds_capacity_and_normal_consumption() -> void:
 
 ## Предпросмотр прогресса меняет колесо и сигнал без выполнения эффекта действия.
 func test_progress_command_updates_real_rotation_and_signal_without_activation() -> void:
-	var valve: E_InteractionTestValve = (load("res://content/entities/props/interaction_test_valve.tscn") as PackedScene).instantiate() as E_InteractionTestValve
+	var valve: E_InteractionTestValve = (load("res://content/domains/interaction/entities/interaction_test_valve.tscn") as PackedScene).instantiate() as E_InteractionTestValve
 	valve.mode = E_InteractionTestValve.Mode.HOLD_NEVER
 	_world.add_entity(valve)
 	var basis: Basis = (valve.get_node("Wheel") as Node3D).basis
@@ -144,10 +144,10 @@ func test_live_visit_option_preserves_accounting_default_and_authored_introducti
 	identity.definition = DEF_Package.new()
 	identity.definition.key = &"books"
 	parcel.component_resources = [identity, C_PackageState.new()]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	assert_true(_run("visit_create", ["pkg:console_live", "ordinary", "1"]).contains("OK visit_create"))
 
-	var visit: CustomerVisit = CustomerFlowService.find_visit(&"visit/console_live")
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(&"visit/console_live")
 	assert_false(visit.started)
 	assert_false(visit.finished)
 	assert_eq(visit.definition.introduction, DEF_Customer.Introduction.ANNOUNCE_ORDER)
@@ -196,7 +196,7 @@ func test_invalid_npc_request_does_not_reset_cooldown_or_opponent() -> void:
 	var opponent: Entity = Entity.new()
 	_world.add_entity(opponent)
 	assert_true(_run("npc_attack", ["entity:" + npc.id, "melee", "0", "entity:" + opponent.id]).contains("ERROR npc_attack"))
-	assert_same(CombatService.target_for(npc), _actor)
+	assert_same(CombatQueries.target_for(npc), _actor)
 	assert_eq(state.cooldown_remaining, 5.0)
 	assert_true(_run("npc_info", ["entity:" + npc.id]).contains("cooldown=5.00s"))
 

@@ -5,9 +5,10 @@ extends "res://tests/gut/test_district_population.gd"
 ## Дополняет население обычным журналом заказов и реальной стойкой обслуживания.
 func before_each() -> void:
 	super.before_each()
+	CustomerFlowFixture.install()
 	var session: Entity = _world.query.with_all([C_District]).execute_one()
 	session.add_component(C_CustomerFlow.new())
-	var counter: E_DeliveryCounter = (load("res://content/entities/stations/delivery_counter.tscn") as PackedScene).instantiate() as E_DeliveryCounter
+	var counter: E_DeliveryCounter = (load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene).instantiate() as E_DeliveryCounter
 	_world.add_entity(counter)
 
 func _case(person: NpcRecord, suffix: String) -> CustomerVisit:
@@ -15,9 +16,9 @@ func _case(person: NpcRecord, suffix: String) -> CustomerVisit:
 	visit.visit_id = StringName("district/case/" + suffix)
 	visit.customer_id = person.npc_id
 	visit.package_id = "test/" + suffix
-	visit.definition = (load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule).events[0].customer
+	visit.definition = (load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule).events[0].customer
 	visit.requires_registered_package = false
-	CustomerFlowService.current().visits.append(visit)
+	CustomerFlowQueries.current().visits.append(visit)
 	return visit
 
 ## Исполняет настоящий ресурс дерева; тестовые тела сохраняют BTPlayer между тактами.
@@ -27,11 +28,40 @@ func _run_tree(body: E_DistrictNpc, tree_path: String, delta: float) -> bool:
 		runner.behavior_tree = load(tree_path) as BehaviorTree
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	decision.intent_owner = C_NpcDecision.Owner.NONE
-	NpcServiceRole.advance(body, delta)
+	CustomerFlowFixture.decision_ready(body, delta)
 	return NpcBrainService.update_tree(body, delta)
 #endregion
 
 #region Постоянство и очередь обслуживания
+## Native role cleanup remains synchronous during passive restore and repeated composition installs one binding.
+func test_passive_native_reset_releases_role_with_suspended_observers() -> void:
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	var visit: CustomerVisit = _case(person, "passive_role_cleanup")
+	NpcServiceRole.begin(body, person, visit, 1)
+	NpcCustomerComposition.install(_world)
+	NpcCustomerComposition.install(_world)
+	assert_eq(body.role_cleanup_requested.get_connections().size(), 1)
+	assert_eq(body.role_presence_requested.get_connections().size(), 1)
+	assert_true(body.has_active_role())
+
+	var previous_activity: Dictionary[Observer, bool] = {}
+	for observer: Observer in _world.observers:
+		previous_activity[observer] = observer.active
+		observer.active = false
+	assert_true(body.has_active_role(), "Role query remains native while Observers are suspended")
+	DistrictPopulationService.reset_brain(body)
+	assert_false(body.has_component(C_CustomerAgent))
+	assert_false(body.has_active_role())
+	assert_null(body.get_node_or_null("Brain"))
+	assert_false(visit.finished, "Passive cleanup releases an appearance without settling its durable visit")
+	for binding: Relationship in body.relationships:
+		assert_false(binding.relation is R_NpcWaitingAt or binding.relation is R_NpcServiceAt)
+
+	for observer: Observer in previous_activity:
+		observer.active = previous_activity[observer]
+
+
 ## Отладочная подпись определена для всех фаз обслуживания, включая очередь.
 func test_debug_projection_covers_every_service_phase() -> void:
 	assert_eq(CustomerDebugPresentation.PHASE_NAMES.size(), C_CustomerAgent.Phase.size())
@@ -40,29 +70,29 @@ func test_debug_projection_covers_every_service_phase() -> void:
 ## Завершение разных заказов освобождает роль, сохраняя одну живую физическую личность.
 func test_two_cases_use_the_same_living_body() -> void:
 	var person: NpcRecord = _district.people[0]
-	var body: E_DistrictNpc = DistrictPopulationService.body_for(person.npc_id)
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	var first: CustomerVisit = _case(person, "first")
 	NpcServiceRole.begin(body, person, first, 1)
 	NpcServiceRole.finish_appearance(body, first)
 	assert_true(first.finished)
 	assert_false(body.has_component(C_CustomerAgent))
-	assert_same(DistrictPopulationService.body_for(person.npc_id), body)
+	assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
 
 	var second: CustomerVisit = _case(person, "second")
 	NpcServiceRole.begin(body, person, second, 2)
-	assert_same(DistrictPopulationService.body_for(person.npc_id), body)
+	assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
 	assert_eq((body.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id, second.visit_id)
 	assert_ne(first.visit_id, second.visit_id)
 	assert_eq(first.customer_id, second.customer_id)
 
 ## Два ожидающих получателя не могут одновременно владеть местом обслуживания.
 func test_counter_reservation_is_exclusive_and_released() -> void:
-	DayPhaseService.current().phase = C_DayCycle.Phase.DAY
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.DAY
 	_district.definition.service_transfer_pause = 0.0
 	var first_person: NpcRecord = _district.people[0]
 	var second_person: NpcRecord = _district.people[3]
-	var first_body: E_DistrictNpc = DistrictPopulationService.body_for(first_person.npc_id)
-	var second_body: E_DistrictNpc = DistrictPopulationService.body_for(second_person.npc_id)
+	var first_body: E_DistrictNpc = NpcPopulationQueries.body_for(first_person.npc_id)
+	var second_body: E_DistrictNpc = NpcPopulationQueries.body_for(second_person.npc_id)
 	var first: CustomerVisit = _case(first_person, "queue_first")
 	var second: CustomerVisit = _case(second_person, "queue_second")
 	NpcServiceRole.begin(first_body, first_person, first, 1)
@@ -77,8 +107,8 @@ func test_counter_reservation_is_exclusive_and_released() -> void:
 
 ## Поставки разных дней имеют разные случаи обслуживания и общий постоянный ID получателя.
 func test_planned_shipments_share_lifetime_identity() -> void:
-	var flow: C_CustomerFlow = CustomerFlowService.current()
-	flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	flow.schedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
 	var definition: DEF_Package = flow.schedule.supply.packages[0]
 	for day_index: int in [1, 2]:
 		var identity: C_Package = C_Package.new()
@@ -86,7 +116,7 @@ func test_planned_shipments_share_lifetime_identity() -> void:
 		identity.supply_key = flow.schedule.supply.key
 		identity.delivery_day = day_index
 		CustomerFlowService.plan_delivered_package(identity)
-	CustomerFlowService.plan_day(flow, 2, 10)
+	CustomerFlowFixture.plan(flow, 2, 10)
 	var books: Array[CustomerVisit] = []
 	for visit: CustomerVisit in flow.visits:
 		if visit.package_id.ends_with(":books"):
@@ -94,15 +124,15 @@ func test_planned_shipments_share_lifetime_identity() -> void:
 	assert_eq(books.size(), 2)
 	assert_eq(books[0].customer_id, books[1].customer_id)
 	assert_ne(books[0].visit_id, books[1].visit_id)
-	assert_same(DistrictPopulationService.body_for(books[0].customer_id), DistrictPopulationService.body_for(books[1].customer_id))
+	assert_same(NpcPopulationQueries.body_for(books[0].customer_id), NpcPopulationQueries.body_for(books[1].customer_id))
 
 ## Следующий получатель готовится заранее, но стойку получает только после ухода текущего.
 func test_next_recipient_starts_after_current_is_released() -> void:
 	_district.definition.service_transfer_pause = 0.0
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
 	flow.schedule.arrival_interval_seconds = 0.0
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
 	var first: CustomerVisit = _case(_district.people[0], "sequential_first")
 	var second: CustomerVisit = _case(_district.people[3], "sequential_second")
@@ -110,8 +140,8 @@ func test_next_recipient_starts_after_current_is_released() -> void:
 	assert_true(first.started)
 	assert_true(NpcServiceRole.enqueue_next(flow, cycle))
 	assert_true(second.started)
-	var first_body: E_DistrictNpc = DistrictPopulationService.body_for(first.customer_id)
-	var second_body: E_DistrictNpc = DistrictPopulationService.body_for(second.customer_id)
+	var first_body: E_DistrictNpc = NpcPopulationQueries.body_for(first.customer_id)
+	var second_body: E_DistrictNpc = NpcPopulationQueries.body_for(second.customer_id)
 	NpcServiceRole.claim_counter(first_body)
 	assert_false(NpcServiceRole.can_approach(second_body))
 	NpcServiceRole.finish_appearance(first_body, first)
@@ -120,23 +150,75 @@ func test_next_recipient_starts_after_current_is_released() -> void:
 
 ## Смерть текущего освобождает обслуживание для другой постоянной личности.
 func test_current_death_allows_another_recipient() -> void:
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
 	flow.schedule.arrival_interval_seconds = 0.0
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
 	var first: CustomerVisit = _case(_district.people[0], "dead_first")
 	var second: CustomerVisit = _case(_district.people[3], "live_second")
 	assert_true(NpcServiceRole.enqueue_next(flow, cycle))
-	DistrictPopulationService.mark_dead(_district.people[0], DistrictPopulationService.body_for(first.customer_id), 1)
+	DistrictPopulationService.mark_dead(_district.people[0], NpcPopulationQueries.body_for(first.customer_id), 1)
 	assert_true(first.customer_dead)
 	assert_true(NpcServiceRole.enqueue_next(flow, cycle))
 	assert_true(second.started)
 
 ## Бесконечное утро без поставки не создаёт ожидающих визитов и ложных потерь.
 func test_calendar_without_boxes_does_not_create_district_cases() -> void:
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = DEF_CustomerSchedule.new()
-	CustomerFlowService.plan_day(flow, 20, 10)
+	CustomerFlowFixture.plan(flow, 20, 10)
 	assert_eq(flow.visits.size(), 0)
+#endregion
+
+#region Социальные факты и клиентская роль
+## Реальная реакция NPC изменяет только визит его текущей роли через клиентского потребителя.
+func test_committed_social_reaction_updates_only_the_bound_visit() -> void:
+	CustomerFlowFixture.install()
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	var active_visit: CustomerVisit = _case(person, "social-active")
+	var other_visit: CustomerVisit = _case(person, "social-other")
+	NpcServiceRole.begin(body, person, active_visit, 1)
+	active_visit.aggressive = true
+	other_visit.aggressive = true
+
+	NpcSocialService.apply_reaction(body, null, NpcMemory.Reaction.TALK)
+
+	assert_false(active_visit.aggressive)
+	assert_true(other_visit.aggressive)
+	assert_eq(CustomerFlowQueries.visit_for(body), active_visit)
+
+
+## Социальная реакция тела без роли не выбирает заказ только по совпадению личности.
+func test_committed_social_reaction_without_role_preserves_visit_history() -> void:
+	CustomerFlowFixture.install()
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	var history: CustomerVisit = _case(person, "social-history")
+	history.aggressive = true
+
+	NpcSocialService.apply_reaction(body, null, NpcMemory.Reaction.TALK)
+
+	assert_true(history.aggressive)
+	assert_null(CustomerFlowQueries.visit_for(body))
+#endregion
+
+#region Прерывание роли общим NPC AI
+## Прибытие бегущего NPC к проходу завершает его клиентскую роль до отключения тела.
+func test_native_flee_exit_releases_customer_role_before_departure() -> void:
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	var visit: CustomerVisit = _case(person, "flee-exit")
+	NpcServiceRole.begin(body, person, visit, 1)
+	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	awareness.flee_portal_id = person.portal_id
+	body.place_at(NpcPopulationQueries.position_for(person.portal_id))
+
+	assert_true(NpcDecisionService.flee(body, person, awareness))
+
+	assert_true(visit.finished)
+	assert_false(body.has_component(C_CustomerAgent))
+	assert_eq(person.placement, NpcRecord.Placement.OUTSIDE)
+	assert_eq(visit.actual, CustomerVisit.Actual.NOT_RESOLVED)
 #endregion

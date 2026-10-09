@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://ceby1m7bivr66"]
+
+[ext_resource type="PackedScene" path="res://content/domains/npc/entities/npc_character.tscn" id="Foundation"]
+[ext_resource type="Script" uid="uid://c5d3qdy5m6sgl" path="res://content/domains/customers/entities/e_customer.gd" id="Entity"]
+
+[node name="Customer" instance=ExtResource("Foundation")]
+script = ExtResource("Entity")
+inspection_animation = &""
+receiving_animation = &""
+dialogue_animation = &""
+
+[editable path="Body"]

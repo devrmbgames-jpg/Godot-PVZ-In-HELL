@@ -13,6 +13,7 @@ func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
 	ECS.world = _world
+	DialogueUiFixture.install()
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_CustomerFlow.new()]
 	_world.add_entity(session)
@@ -21,14 +22,14 @@ func before_each() -> void:
 	flow.schedule.customer_scene = null
 	_visit = CustomerVisit.new()
 	_visit.visit_id = &"prototype"
-	_visit.definition = load("res://content/definitions/gameplay/customers/def_customer_prototype.tres") as DEF_Customer
+	_visit.definition = load("res://content/domains/customers/definitions/def_customer_prototype.tres") as DEF_Customer
 	_visit.requires_registered_package = false
 	flow.visits.append(_visit)
 
-	var counter: E_DeliveryCounter = (load("res://content/entities/stations/delivery_counter.tscn") as PackedScene).instantiate() as E_DeliveryCounter
+	var counter: E_DeliveryCounter = (load("res://content/domains/customers/entities/delivery_counter.tscn") as PackedScene).instantiate() as E_DeliveryCounter
 	_world.add_entity(counter)
-	CustomerFlowService._spawn(flow, _visit, 1)
-	_customer = CustomerFlowService.customer_for(_visit.visit_id)
+	CustomerFlowService.start_visit(flow, _visit, 1)
+	_customer = CustomerFlowQueries.customer_for(_visit.visit_id) as E_Customer
 	(_customer as Node as RigidBody3D).freeze = true
 	(_customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
 	_actor = Entity.new()
@@ -58,7 +59,7 @@ func test_profile_selects_copyable_scene_and_custom_dialogue_with_interests() ->
 	assert_eq(_visit.visit_count, 1)
 	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	assert_true(CustomerDialogueService.start(_actor, _customer))
+	assert_true(CustomerDialogueService.request_open(_actor, _customer))
 
 	var panel: CustomerDialoguePanel = get_tree().get_first_node_in_group(CustomerDialogueService.ACTIVE_GROUP) as CustomerDialoguePanel
 	assert_not_null(panel)

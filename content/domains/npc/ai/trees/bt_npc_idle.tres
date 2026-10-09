@@ -1,0 +1,177 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://bmc5t70coej8t"]
+
+[ext_resource type="Script" uid="uid://bt3g5ndvuexik" path="res://content/domains/npc/ai/tasks/bt_npc_merchant.gd" id="s1"]
+[ext_resource type="Script" uid="uid://bix1fbh8p2fhq" path="res://content/domains/npc/ai/tasks/bt_npc_eat_food.gd" id="s2"]
+[ext_resource type="Script" uid="uid://bwqd23vmxqyc6" path="res://content/domains/npc/ai/tasks/bt_npc_has_loot.gd" id="s3"]
+[ext_resource type="Script" uid="uid://q16bquk0bi3j" path="res://content/domains/npc/ai/tasks/bt_npc_loot_near.gd" id="s4"]
+[ext_resource type="Script" uid="uid://c2a425mvdsyrm" path="res://content/domains/npc/ai/tasks/bt_npc_collect_loot.gd" id="s5"]
+[ext_resource type="Script" uid="uid://b13pdj47vc3fd" path="res://content/domains/npc/ai/tasks/bt_npc_move_loot.gd" id="s6"]
+[ext_resource type="Script" uid="uid://t7v37yvua102" path="res://content/domains/npc/ai/tasks/bt_npc_select_loot.gd" id="s7"]
+[ext_resource type="Script" uid="uid://bren48h8awopw" path="res://content/domains/npc/ai/tasks/bt_npc_start_conflict.gd" id="s8"]
+[ext_resource type="Script" uid="uid://qjeq7ppgew25" path="res://content/domains/npc/ai/tasks/bt_npc_heard_noise.gd" id="s9"]
+[ext_resource type="Script" uid="uid://q1nnmgi40yox" path="res://content/domains/npc/ai/tasks/bt_npc_investigate_noise.gd" id="s10"]
+[ext_resource type="Script" uid="uid://c4ogpahykgmq1" path="res://content/domains/npc/ai/tasks/bt_npc_activity_ready.gd" id="s11"]
+[ext_resource type="Script" uid="uid://bq54g6p4157yu" path="res://content/domains/npc/ai/tasks/bt_npc_choose_activity.gd" id="s12"]
+[ext_resource type="Script" uid="uid://b4s2wrlq3pfdo" path="res://content/domains/npc/ai/tasks/bt_npc_moving.gd" id="s13"]
+[ext_resource type="Script" uid="uid://bn4s0ilymptr2" path="res://content/domains/npc/ai/tasks/bt_npc_continue_walk.gd" id="s14"]
+[ext_resource type="Script" uid="uid://cqosq55nipqxp" path="res://content/domains/npc/ai/tasks/bt_npc_observe.gd" id="s15"]
+
+[sub_resource type="BTCondition" id="BTCondition_1"]
+custom_name = "Торговец"
+script = ExtResource("s1")
+
+[sub_resource type="BTInvert" id="BTInvert_2"]
+custom_name = "Условие не выполнено"
+children = [SubResource("BTCondition_1")]
+
+[sub_resource type="BTAction" id="BTAction_3"]
+custom_name = "Использовать свою еду"
+script = ExtResource("s2")
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_4"]
+custom_name = "Поесть"
+children = [SubResource("BTInvert_2"), SubResource("BTAction_3")]
+
+[sub_resource type="BTCondition" id="BTCondition_5"]
+custom_name = "Торговец"
+script = ExtResource("s1")
+
+[sub_resource type="BTInvert" id="BTInvert_6"]
+custom_name = "Условие не выполнено"
+children = [SubResource("BTCondition_5")]
+
+[sub_resource type="BTCondition" id="BTCondition_7"]
+custom_name = "Есть доступная добыча"
+script = ExtResource("s3")
+
+[sub_resource type="BTCondition" id="BTCondition_8"]
+custom_name = "Добыча рядом"
+script = ExtResource("s4")
+
+[sub_resource type="BTAction" id="BTAction_9"]
+custom_name = "Подобрать"
+script = ExtResource("s5")
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_10"]
+custom_name = "В пределах руки"
+children = [SubResource("BTCondition_8"), SubResource("BTAction_9")]
+
+[sub_resource type="BTAction" id="BTAction_11"]
+custom_name = "Подойти к добыче"
+script = ExtResource("s6")
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_12"]
+custom_name = "Подойти или подобрать"
+children = [SubResource("BTDynamicSequence_10"), SubResource("BTAction_11")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_13"]
+custom_name = "Зарезервированная добыча"
+children = [SubResource("BTInvert_6"), SubResource("BTCondition_7"), SubResource("BTDynamicSelector_12")]
+
+[sub_resource type="BTCondition" id="BTCondition_14"]
+custom_name = "Торговец"
+script = ExtResource("s1")
+
+[sub_resource type="BTInvert" id="BTInvert_15"]
+custom_name = "Условие не выполнено"
+children = [SubResource("BTCondition_14")]
+
+[sub_resource type="BTAction" id="BTAction_16"]
+custom_name = "Выбрать видимый свободный предмет"
+script = ExtResource("s7")
+
+[sub_resource type="BTCooldown" id="BTCooldown_17"]
+duration = 3.0
+trigger_on_failure = true
+custom_name = "Не чаще раза за 3 секунды"
+children = [SubResource("BTAction_16")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_18"]
+custom_name = "Искать добычу"
+children = [SubResource("BTInvert_15"), SubResource("BTCooldown_17")]
+
+[sub_resource type="BTCondition" id="BTCondition_19"]
+custom_name = "Торговец"
+script = ExtResource("s1")
+
+[sub_resource type="BTInvert" id="BTInvert_20"]
+custom_name = "Условие не выполнено"
+children = [SubResource("BTCondition_19")]
+
+[sub_resource type="BTAction" id="BTAction_21"]
+custom_name = "Проверить повод, риск и лимит фазы"
+script = ExtResource("s8")
+
+[sub_resource type="BTCooldown" id="BTCooldown_22"]
+duration = 3.0
+trigger_on_failure = true
+custom_name = "Не чаще раза за 3 секунды"
+children = [SubResource("BTAction_21")]
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_23"]
+custom_name = "Мотивированный конфликт"
+children = [SubResource("BTInvert_20"), SubResource("BTCooldown_22")]
+
+[sub_resource type="BTCondition" id="BTCondition_24"]
+custom_name = "Торговец"
+script = ExtResource("s1")
+
+[sub_resource type="BTInvert" id="BTInvert_25"]
+custom_name = "Условие не выполнено"
+children = [SubResource("BTCondition_24")]
+
+[sub_resource type="BTCondition" id="BTCondition_26"]
+custom_name = "Есть анонимный шум"
+script = ExtResource("s9")
+
+[sub_resource type="BTAction" id="BTAction_27"]
+custom_name = "Идти к услышанной позиции"
+script = ExtResource("s10")
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_28"]
+custom_name = "Проверить звук"
+children = [SubResource("BTInvert_25"), SubResource("BTCondition_26"), SubResource("BTAction_27")]
+
+[sub_resource type="BTCondition" id="BTCondition_29"]
+custom_name = "Торговец"
+script = ExtResource("s1")
+
+[sub_resource type="BTInvert" id="BTInvert_30"]
+custom_name = "Условие не выполнено"
+children = [SubResource("BTCondition_29")]
+
+[sub_resource type="BTCondition" id="BTCondition_31"]
+custom_name = "Прошёл интервал простоя"
+script = ExtResource("s11")
+
+[sub_resource type="BTAction" id="BTAction_32"]
+custom_name = "Назначить авторскую точку"
+script = ExtResource("s12")
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_33"]
+custom_name = "Новое занятие"
+children = [SubResource("BTInvert_30"), SubResource("BTCondition_31"), SubResource("BTAction_32")]
+
+[sub_resource type="BTCondition" id="BTCondition_34"]
+custom_name = "Путь не завершён"
+script = ExtResource("s13")
+
+[sub_resource type="BTAction" id="BTAction_35"]
+custom_name = "Пройти назначенный путь"
+script = ExtResource("s14")
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_36"]
+custom_name = "Продолжить прогулку"
+children = [SubResource("BTCondition_34"), SubResource("BTAction_35")]
+
+[sub_resource type="BTAction" id="BTAction_37"]
+custom_name = "Наблюдать окружение и окликать"
+script = ExtResource("s15")
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_38"]
+custom_name = "Свободное занятие"
+children = [SubResource("BTDynamicSequence_4"), SubResource("BTDynamicSequence_13"), SubResource("BTDynamicSequence_18"), SubResource("BTDynamicSequence_23"), SubResource("BTDynamicSequence_28"), SubResource("BTDynamicSequence_33"), SubResource("BTDynamicSequence_36"), SubResource("BTAction_37")]
+
+[resource]
+description = "Еда, добыча, ограниченный конфликт, слух, прогулка и наблюдение."
+root_task = SubResource("BTDynamicSelector_38")

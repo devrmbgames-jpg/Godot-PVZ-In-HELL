@@ -96,12 +96,12 @@ func _trader_open(raw: String = "") -> void:
 	var actor_node: Node3D = actor as Node as Node3D
 	var trader_node: Node3D = trader as Node as Node3D
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor if actor != null else null
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if actor_node == null or trader_node == null or interactor == null or actor_node.global_position.distance_to(trader_node.global_position) > interactor.interaction_distance or cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT or InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.MODAL:
 		_report("trader_open", false, "Live nearby trader and free interaction focus required; Night unavailable")
 		return
 	if bool(Console.is_visible()): Console.toggle_console()
-	_report("trader_open", CommercePanelService.open(actor, trader) != null, "Normal shop UI rejected request")
+	_report("trader_open", CommercePanelFactory.open(actor, trader) != null, "Normal shop UI rejected request")
 
 
 func _trader_buy(key: String, count: String = "1", raw: String = "") -> void: _trade("trader_buy", key, count, raw, false)
@@ -114,7 +114,7 @@ func _trade(command: String, key: String, count: String, raw: String, courier: b
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader if trader != null else null
 	var definition: DEF_InventoryItem = null
 	if shop != null:
-		for offer: DEF_InventoryItem in TraderCatalogService.catalog(shop):
+		for offer: DEF_InventoryItem in TraderCatalogRules.catalog(shop):
 			if offer != null and String(offer.key) == key: definition = offer
 	if definition == null or not count.is_valid_int():
 		_report(command, false, "Authored trader catalog key and integer count required")
@@ -170,7 +170,7 @@ func _challenge_stop(raw: String) -> void:
 
 #region Слоты и сценовые QA-действия
 func _save_info() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	DeveloperConsoleOutput.ok("save_info", PackedStringArray(["isolated_directory=%s; gameplay_autosave_untouched=true" % DebugGameplayService.SLOT_DIRECTORY, "phase=%s; Morning only, no live customers/modal/grip/challenge" % (C_DayCycle.Phase.keys()[cycle.phase] if cycle != null else "none")]))
 
 
