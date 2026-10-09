@@ -41,7 +41,12 @@ prefix_rule(
 prefix_rule(
     pattern = [[
         ".\\.bin\\Godot_v4.7.1-stable_win64_console.exe",
+        ".\\.bin\\Godot_v4.7.1-stable_win64.exe",
+        ".\\.bin\\gdscript-formatter.exe",
         ".bin\\Godot_v4.7.1-stable_win64_console.exe",
+        ".bin\\Godot_v4.7.1-stable_win64.exe",
+        ".bin\\gdscript-formatter.exe",
+		
     ]],
     decision = "allow",
     justification = "Project-local Godot headless validation.",
