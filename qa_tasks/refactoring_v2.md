@@ -27,4 +27,19 @@ acceptance that cannot be proved by detached/headless checks. No rendered QA is 
   passed; subjective presentation remains owner QA. The build preserves current user edits
   and records a dirty worktree in its manifest.
 
-Later milestones add only their remaining subjective acceptance here.
+## Gameplay Debugger (48)
+
+- In the actual editor-run level, open the developer console; use `debug_targets`, then
+  `debug_inspect target` or `debug_inspect entity:<id>`. Check the two-column Tree, long
+  node/asset paths, readable scale, scrolling and keyboard focus at the owner's resolutions.
+- Select one live and one dormant NPC. Compare obligation, selection/cancel reasons,
+  Intent, perception and physical/cadence participation with their authoritative Components
+  and roster. Use Refresh after a meaningful gameplay transition; no automatic logging runs.
+- Check a Smart Object reservation on its owner and object; owner/slot/token agree with the
+  live Relationship. Recent events must concern the selected Entity/domain identities.
+- Follow the displayed Brain node/instance in the native LimboAI debugger. Its tree inspector
+  remains the detailed tree UI. Removing the selected actor must show UNAVAILABLE on Refresh.
+- Close panel and console using buttons/normal keyboard paths; command input and mouse/focus
+  restore correctly. Reopen without stale state. See `docs/gameplay_debugger.md`.
+
+Owner editor/rendered approval remains pending for42/48; headless checks do not close it.

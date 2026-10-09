@@ -17871,6 +17871,62 @@
         "content/editor/content_doctor/content_doctor_resource_rules.gd"
       ],
       "purpose": "Content Doctor reads authored contracts and pure providers on detached inputs; it never publishes or ticks gameplay."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "NpcDecisionDiagnostics",
+      "path": "content/domains/npc/services/npc_decision_diagnostics.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "actor_state"
+      ],
+      "sources": [
+        "content/debug/gameplay_debugger_data.gd"
+      ],
+      "method_rights": {
+        "actor_state": "query"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "interaction",
+      "symbol": "R_SmartObjectReservation",
+      "path": "content/domains/interaction/relationships/r_smart_object_reservation.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "sources": [
+        "content/debug/gameplay_debugger_data.gd"
+      ],
+      "method_rights": {},
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "shared",
+      "symbol": "BoundaryTrace",
+      "path": "content/shared/debug/boundary_trace.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "snapshots"
+      ],
+      "sources": [
+        "content/debug/gameplay_debugger_data.gd"
+      ],
+      "method_rights": {
+        "snapshots": "query"
+      },
+      "public_instance_methods": []
     }
   ],
   "legacy_decomposition": []

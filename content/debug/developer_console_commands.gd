@@ -167,6 +167,8 @@ func _ready() -> void:
 	add_child(gameplay)
 	var presentation: Node = preload("res://content/debug/developer_console_presentation.gd").new()
 	add_child(presentation)
+	var debugger: Node = preload("res://content/debug/developer_console_debugger.gd").new()
+	add_child(debugger)
 
 
 func _exit_tree() -> void:
