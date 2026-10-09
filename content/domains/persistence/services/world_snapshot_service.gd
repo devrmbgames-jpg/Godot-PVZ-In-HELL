@@ -264,6 +264,8 @@ static func restore(data: Dictionary, root: Node) -> bool:
 		return false
 
 	var activity: Dictionary[Observer, bool] = SnapshotRestoreBoundary.begin(ECS.world)
+	for actor: Entity in entities.values():
+		EntityCompositionService.begin_reconstruction(actor)
 
 	for existing: Entity in ECS.world.entities.duplicate():
 		if not is_instance_valid(existing) or not _persistent(existing):
@@ -313,7 +315,10 @@ static func restore(data: Dictionary, root: Node) -> bool:
 		var entity: Entity = entities[String(record.key)]
 		if entity in fresh:
 			entity.id = String(record.entity_id)
-			ECS.world.add_entity(entity)
+			# Apply saved pose after tree entry and before native initialization.
+			ECS.world.get_node(ECS.world.entity_nodes_root).add_child(entity)
+			apply_construction_pose(entity, record)
+			ECS.world.add_entity(entity, null, false)
 		for component: Dictionary in record.components:
 			var script: Script = SaveDataCodec.component_script(String(component.type))
 			var target: Component = entity.get_component(script) as Component
@@ -456,6 +461,8 @@ static func restore(data: Dictionary, root: Node) -> bool:
 	RefusalQuestService.restore_bindings()
 	DistrictPopulationService.restore_participation()
 	SnapshotRestoreBoundary.finish(ECS.world, activity)
+	for actor: Entity in entities.values():
+		EntityCompositionService.publish_ready(actor)
 	return true
 
 
@@ -520,8 +527,8 @@ static func overlay_construction_fields(plan: EntityBuildPlan, record: Dictionar
 	return true
 
 
-## Commits a validated saved pose on a placed physical owner before native World registration.
-static func apply_placed_construction_pose(actor: Entity, record: Dictionary) -> void:
+## Commits a validated saved pose on its physical owner before native World registration.
+static func apply_construction_pose(actor: Entity, record: Dictionary) -> void:
 	if record.has("pose"):
 		var spatial: Node3D = actor as Node as Node3D
 		assert(spatial != null, "Validated saved pose requires its native spatial owner")

@@ -5,6 +5,7 @@ class_name EntityCompositionService
 ## Scene metadata stores optional authoring inputs on any native/project Entity without a new base.
 const AUTHORING_META: StringName = &"entity_composition"
 const _PREPARED_META: StringName = &"_entity_recipes_prepared"
+const _READY_META: StringName = &"_entity_composition_ready"
 
 #region Read-only authoring and context
 ## Reads the optional scene-owned authoring Resource, without allocating a Template or changing it.
@@ -43,6 +44,22 @@ static func context_for(actor: Entity, world: World, actor_id: String,
 ## Reads the construction marker used by retained pure native code providers.
 static func recipes_prepared(actor: Entity) -> bool:
 	return bool(actor.get_meta(_PREPARED_META, false))
+
+
+## Reports completed reconstruction; native initialization alone does not publish readiness.
+static func composition_ready(actor: Entity) -> bool:
+	return bool(actor.get_meta(_READY_META, false))
+
+
+## Withholds per-Entity readiness during an accepted saved-state reconstruction transaction.
+static func begin_reconstruction(actor: Entity) -> void:
+	actor.set_meta(_READY_META, false)
+
+
+## Publishes readiness after native data, durable overlays and initial endpoint fixup are complete.
+static func publish_ready(actor: Entity) -> void:
+	assert(actor.ecs_id > 0, "Only a natively registered Entity publishes composition readiness")
+	actor.set_meta(_READY_META, true)
 #endregion
 
 #region Common recipe compilation
@@ -131,11 +148,15 @@ static func register_plan(context: EntitySpawnContext, plan: EntityBuildPlan,
 
 	# Native collision replacement is unreachable after identity/endpoint preflight.
 	actor.id = context.actor_id
+	var notifications: ObserverReactionBoundary.RegistrationScope = \
+		ObserverReactionBoundary.begin_registration(context.world, actor)
 	context.world.add_entity(actor, null, add_to_tree)
 	for binding: EntityBuildPlan.Binding in plan.bindings:
 		assert(context.world.entities.has(actor) and context.world.entities.has(binding.target),
 			"Factory binding endpoints require completed registration")
 		actor.add_relationship(Relationship.new(binding.relation, binding.target))
+	publish_ready(actor)
+	notifications.finish()
 	return true
 #endregion
 
@@ -148,5 +169,6 @@ static func prepare(actor: Entity, plan: EntityBuildPlan) -> bool:
 		return false
 	actor.component_resources = plan.component_recipes
 	actor.set_meta(_PREPARED_META, true)
+	begin_reconstruction(actor)
 	return true
 #endregion

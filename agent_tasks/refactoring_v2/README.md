@@ -236,3 +236,10 @@ pinned native initialization; incompatible saved physical owners reject before r
 parser 4 files PASS, focused GUT 34/34 PASS (394 assertions), actual Night two-process write/restore
 PASS, strict/static contracts and local Formatter PASS. Task 41 remains IN_PROGRESS; endpoint/
 per-Entity readiness and full provider migration acceptance remain open. Phase 42/3 not started.
+
+Task 41 ready milestone: runtime factory Observer callbacks wait for complete initial bindings and
+preserve native initial event counts; placed/restore completion publishes per-Entity readiness.
+Fresh restored body pose now precedes native registration. Parser 7 files PASS; focused GUT 58/58
+(679 assertions) and lifecycle GUT 19/19 (133 assertions) PASS; actual vertical slice and two-process
+Night write/restore PASS, strict/static contracts and local Formatter PASS. Task 41 remains open
+for complete manifest migration/audit and acceptance. No Phase 42 or Phase 3 started.

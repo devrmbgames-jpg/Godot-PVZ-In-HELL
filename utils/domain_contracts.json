@@ -8032,7 +8032,7 @@
         "construction_npc_identities",
         "construction_record",
         "overlay_construction_fields",
-        "apply_placed_construction_pose"
+        "apply_construction_pose"
       ],
       "sources": [
         "content/debug/debug_gameplay_service.gd",
@@ -8048,7 +8048,7 @@
         "construction_npc_identities": "query",
         "construction_record": "query",
         "overlay_construction_fields": "request",
-        "apply_placed_construction_pose": "request"
+        "apply_construction_pose": "request"
       },
       "public_instance_methods": []
     },
@@ -16729,20 +16729,23 @@
       "rights": [
         "read",
         "query",
-        "configure"
+        "configure",
+        "request"
       ],
       "public_methods": [
         "context_for",
         "build_plan",
         "prepare",
-        "try_register"
+        "try_register",
+        "publish_ready"
       ],
       "public_instance_methods": [],
       "method_rights": {
         "context_for": "query",
         "build_plan": "query",
         "prepare": "configure",
-        "try_register": "configure"
+        "try_register": "configure",
+        "publish_ready": "request"
       },
       "sources": [
         "content/scenes/game_world.gd",
@@ -17211,18 +17214,23 @@
       "rights": [
         "read",
         "query",
-        "configure"
+        "configure",
+        "request"
       ],
       "public_methods": [
         "context_for",
         "build_plan",
-        "prepare"
+        "prepare",
+        "begin_reconstruction",
+        "publish_ready"
       ],
       "public_instance_methods": [],
       "method_rights": {
         "context_for": "query",
         "build_plan": "query",
-        "prepare": "configure"
+        "prepare": "configure",
+        "begin_reconstruction": "request",
+        "publish_ready": "request"
       },
       "sources": [
         "content/services/persistence/world_snapshot_service.gd"

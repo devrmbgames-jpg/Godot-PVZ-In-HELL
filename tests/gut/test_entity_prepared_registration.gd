@@ -32,6 +32,32 @@ class PreparedActor extends Entity:
 		return _ready_components
 
 
+## Real native subscriptions observe only accepted complete data and initial bindings.
+class ReadySpy extends Observer:
+	var _kind: StringName
+	var _observations: Array[Dictionary] = []
+
+	func _init(kind: StringName) -> void:
+		_kind = kind
+
+	## Uses native initial Component, monitor or Relationship notifications.
+	func query() -> QueryBuilder:
+		if _kind == &"added":
+			return q.with_all([C_Health, C_Inventory]).on_added()
+		if _kind == &"match":
+			return q.with_all([C_Health]).on_match()
+		return q.with_all([C_Health]).on_relationship_added([R_SlotMountedOn])
+
+	## Captures actual reaction state; no implementation flags replace the native dispatch.
+	func each(_event: Variant, actor: Entity, _payload: Variant = null) -> void:
+		_observations.append({"ready": EntityCompositionService.composition_ready(actor),
+			"components": actor.components.size(), "bindings": actor.relationships.size()})
+
+	## Returns complete data seen by each real callback for exact-once assertions.
+	func observations() -> Array[Dictionary]:
+		return _observations.duplicate()
+
+
 #region Prepared pinned initialization
 ## Scene/code/Trait providers are each delivered once and on_ready sees the complete composition.
 func test_prepared_components_are_added_once_before_passive_native_ready() -> void:
@@ -205,6 +231,62 @@ func test_runtime_factory_gate_registers_complete_native_data_once() -> void:
 	assert_eq(actor.passive_ready_calls(), 1)
 	assert_eq(actor.ready_components(), 2)
 	assert_true(EntityCompositionService.recipes_prepared(actor))
+	world.purge(false)
+	world.free()
+#endregion
+
+#region Runtime per-Entity reaction barrier
+## Native multi-Component on_added matching is preserved; callbacks see final bindings exactly once.
+func test_factory_observers_wait_for_readiness_and_preserve_native_initial_counts() -> void:
+	var world: World = World.new()
+	add_child(world)
+	var target: Entity = Entity.new()
+	EntityCompositionFixture.register(world, target)
+	var spies: Array[ReadySpy] = [ReadySpy.new(&"added"), ReadySpy.new(&"match"),
+		ReadySpy.new(&"relationship")]
+	for spy: ReadySpy in spies:
+		world.add_observer(spy)
+	var actor: PreparedActor = PreparedActor.new()
+	actor.component_resources = [C_Health.new(), C_Inventory.new()]
+	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world,
+		"fixture/complete_reactions")
+	context.bindings[&"support"] = target
+	var intent: EntityInitialBinding = EntityInitialBinding.new()
+	intent.relation = R_SlotMountedOn.new()
+	intent.endpoint = &"support"
+	context.initial_bindings = [intent]
+	assert_false(EntityCompositionService.composition_ready(actor))
+	assert_true(EntityCompositionService.try_register(context))
+	assert_true(EntityCompositionService.composition_ready(actor))
+	for spy: ReadySpy in spies:
+		assert_true(spy.active)
+		assert_eq(spy.observations(), [{"ready": true, "components": 3, "bindings": 1}])
+	assert_eq(actor.passive_ready_calls(), 1)
+	assert_eq(actor.relationships[0].target, target)
+	world.purge(false)
+	world.free()
+
+
+## Failed preflight never suspends unrelated reactions or publishes the rejected actor as ready.
+func test_failed_factory_keeps_observers_active_without_ready_or_initial_effects() -> void:
+	var world: World = World.new()
+	add_child(world)
+	var existing: Entity = Entity.new()
+	existing.id = "fixture/collision"
+	EntityCompositionFixture.register(world, existing)
+	var spy: ReadySpy = ReadySpy.new(&"match")
+	world.add_observer(spy)
+	var actor: PreparedActor = autofree(PreparedActor.new()) as PreparedActor
+	actor.component_resources = [C_Health.new()]
+	var context: EntitySpawnContext = EntityCompositionService.context_for(actor,
+		world, existing.id)
+	assert_false(EntityCompositionService.try_register(context))
+	assert_true(spy.active)
+	assert_true(spy.observations().is_empty())
+	assert_false(EntityCompositionService.composition_ready(actor))
+	assert_false(EntityCompositionService.recipes_prepared(actor))
+	assert_eq(actor.passive_ready_calls(), 0)
+	assert_eq(world.entities, [existing])
 	world.purge(false)
 	world.free()
 #endregion

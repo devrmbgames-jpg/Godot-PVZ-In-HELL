@@ -733,15 +733,21 @@ func test_fresh_package_restore_rebuilds_recipe_without_resetting_saved_health()
 	EntityCompositionFixture.register(_world, parcel)
 	(parcel.get_component(C_Health) as C_Health).current = definition.maximum_health * 0.5
 	var expected_health: float = (parcel.get_component(C_Health) as C_Health).current
+	(parcel as Node as Node3D).global_position = Vector3(3.0, 4.0, 5.0)
+	var expected_pose: Transform3D = (parcel as Node as Node3D).global_transform
 	var key: String = ActorIdentityRules.key_for(parcel, _root)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
 	_world.remove_entity(parcel)
 	var registration_health: Array[float] = []
 	var registration_quantity: Array[int] = []
+	var registration_poses: Array[Transform3D] = []
+	var registration_readiness: Array[bool] = []
 	var capture_saved_state: Callable = func(actor: Entity) -> void:
 		if actor is E_Package:
 			registration_health.append((actor.get_component(C_Health) as C_Health).current)
+			registration_poses.append((actor as Node as Node3D).global_transform)
+			registration_readiness.append(EntityCompositionService.composition_ready(actor))
 		if actor.has_component(C_InventoryItem):
 			var stack: C_InventoryItem = actor.get_component(C_InventoryItem) as C_InventoryItem
 			registration_quantity.append(stack.quantity)
@@ -751,11 +757,15 @@ func test_fresh_package_restore_rebuilds_recipe_without_resetting_saved_health()
 	_world.entity_added.disconnect(capture_saved_state)
 	assert_eq(registration_health, [expected_health])
 	assert_eq(registration_quantity, [4])
+	assert_eq(registration_poses, [expected_pose])
+	assert_eq(registration_readiness, [false], "Restore has not fixed saved endpoints yet")
 	var restored: Entity = null
 	for actor: Entity in _world.entities:
 		if ActorIdentityRules.key_for(actor, _root) == key:
 			restored = actor
 	assert_not_null(restored)
+	assert_true(EntityCompositionService.composition_ready(restored))
+	assert_true(EntityCompositionService.composition_ready(_actor))
 	assert_eq((restored.get_component(C_Health) as C_Health).current, expected_health)
 	assert_eq((restored.get_component(C_Grabbable) as C_Grabbable).throw_velocity, definition.throw_velocity)
 	assert_eq((restored.get_component(C_ImpactReceiver) as C_ImpactReceiver).profile, definition.impact_profile)

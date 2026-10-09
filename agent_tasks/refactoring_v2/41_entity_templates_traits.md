@@ -551,3 +551,29 @@ Placed saved-state construction milestone (task 41 remains IN_PROGRESS):
   tests/artifacts/refactoring_v2_41_placed_saved_state_gut.log.
 Remaining: per-Entity readiness with endpoint fixup, fresh-spawn saved pose ordering, complete provider
 manifest migration and task-41 acceptance. No Phase 42/3 started, no old-save conversion or visual QA.
+
+Per-Entity ready/reconstruction milestone (task 41 remains IN_PROGRESS):
+- One derived Entity readiness marker stays false through native registration and endpoint fixup.
+  Placed actors publish it when accepted startup finishes; restored actors publish it after saved
+  fields, physical state, relationships, participation and passive derived bindings are rebuilt.
+- Runtime factory registration captures native ADDED/RELATIONSHIP_ADDED subscription matches at
+  their original event, holds gameplay Observer callbacks, then delivers them once with complete
+  data/bindings and readiness. Final monitor matching occurs only after readiness. Re-matching all
+  Components at the end would duplicate multi-Component on_added effects; that shortcut is excluded
+  by an actual native fixture. Inactive startup/restore Observers retain their captured activity.
+- Fresh restored physical instances receive their saved pose after native tree entry and BEFORE
+  the one World.add_entity call; actual publication proves saved HP, quantity and pose are complete.
+- Native parser 7 files PASS; focused GUT 58/58 PASS / 679 assertions; Inventory death/ownership and
+  combat attribution GUT 19/19 PASS / 133 assertions. All these native logs have zero warnings/errors.
+- Actual main vertical_slice PASS and Night write/restore in TWO new processes PASS, logs
+  tests/artifacts/vertical_slice-20261009-165806305.log,
+  tests/artifacts/night_persistence-write-20261009-165817468.log and
+  tests/artifacts/night_persistence-restore-20261009-165826594.log.
+- Strict dependencies/architecture/domain structure, project structure, migration map, persistence
+  baseline, refactoring preflight and local Formatter PASS (43 incremental files). Focused logs:
+  tests/artifacts/refactoring_v2_41_entity_ready_parser.log,
+  tests/artifacts/refactoring_v2_41_entity_ready_gut.log and
+  tests/artifacts/refactoring_v2_41_ready_inventory_gut.log.
+Remaining task-41 acceptance: complete provider/factory manifest audit and migration, all runtime
+construction paths and rejection invariants, full relevant acceptance including known failing native
+shutdown/legacy receiving surfaces. These bounded passes do not close task 41 or authorize Phase 42.

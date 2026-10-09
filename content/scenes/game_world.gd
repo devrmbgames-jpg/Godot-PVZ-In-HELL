@@ -68,6 +68,8 @@ func add_observer(observer: Observer) -> void:
 ## Publishes readiness after all state, links and derived bindings have been reconstructed.
 func finish_startup() -> void:
 	assert(_starting and not initialization_failed(), "Only accepted startup publishes readiness")
+	for actor: Entity in entities:
+		EntityCompositionService.publish_ready(actor)
 	ObserverReactionBoundary.resume(self, _startup_activity)
 	_startup_activity.clear()
 	_restoring = false
@@ -146,7 +148,7 @@ func _prepare_placed_recipes(snapshot: Dictionary) -> bool:
 		var prepared: bool = EntityCompositionService.prepare(actor, plan)
 		assert(prepared, "Whole-set validation requires an uninitialized placed instance")
 		actor.id = contexts[build_index].actor_id
-		WorldSnapshotService.apply_placed_construction_pose(actor,
+		WorldSnapshotService.apply_construction_pose(actor,
 			WorldSnapshotService.construction_record(actor, records))
 	return true
 

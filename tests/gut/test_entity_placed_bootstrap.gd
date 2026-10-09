@@ -370,6 +370,9 @@ func test_saved_placed_state_is_complete_before_native_ready_and_publication() -
 	assert_eq(publications, [expected])
 	assert_eq(prototype.current, original_health, "Authored recipe stays immutable")
 	assert_eq((subject.get_component(C_Health) as C_Health).current, 37.0)
+	assert_false(EntityCompositionService.composition_ready(subject))
+	_world.finish_startup()
+	assert_true(EntityCompositionService.composition_ready(subject))
 
 
 ## A valid record requiring a missing physical owner rejects before native registration.
