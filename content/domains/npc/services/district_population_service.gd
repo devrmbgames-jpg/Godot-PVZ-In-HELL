@@ -330,7 +330,7 @@ static func set_placement(
 	# Native enable/disable signals may synchronously replace this transition.
 	decision.participation_committing = false
 	if (
-			not is_instance_valid(body) or not is_instance_valid(captured_world) \
+		not is_instance_valid(body) or not is_instance_valid(captured_world) \
 				or ECS.world != captured_world
 		or body.is_queued_for_deletion()
 	) \
@@ -340,11 +340,12 @@ static func set_placement(
 			or decision.participation_generation != captured_generation \
 			or person.placement != placement:
 		return false
-	if active and (person.death_day != 0 or body.has_component(C_Death)):
-		if person.death_day == 0:
-			mark_dead(person, body, DayPhaseQueries.current().day_index)
-		else:
-			set_placement(person, body, NpcRecord.Placement.DEAD, &"death_during_activation")
+	# A callback may commit death history while the nested native mode request is locked.
+	if person.death_day != 0 and placement != NpcRecord.Placement.DEAD:
+		set_placement(person, body, NpcRecord.Placement.DEAD, &"death_during_transition")
+		return false
+	if active and body.has_component(C_Death):
+		mark_dead(person, body, DayPhaseQueries.current().day_index)
 		return false
 	NpcBrainService.set_participating(body, active)
 	body.set_participating(active)
