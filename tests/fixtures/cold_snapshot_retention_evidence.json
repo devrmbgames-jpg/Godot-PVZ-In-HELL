@@ -1,0 +1,158 @@
+{
+  "purpose": "Immutable comparison evidence, not an activity log. Functional success with native shutdown diagnostics is FAIL.",
+  "base_sha": "857ec02d7703eab840dbf496730be48d29294d99",
+  "target_sha": "fc58024f827607286afd1d20d009e3bf22495f64",
+  "gecs_sha": "14d4282e5c1cb2713c187706ba2f5ff4e315d36e",
+  "engine": "4.7.1.stable.official.a13da4feb",
+  "binaries_sha256": {
+    "Godot_v4.7.1-stable_win64_console.exe": "35dab11e04ece16a2b93035e65204f4a944a3e00b020d43e54409193379d5eef",
+    "Godot_v4.7.1-stable_win64.exe": "323f9c4cc5db674e98815cdd8e69da007d5efc779abedc8c0e42883b7fdea12a"
+  },
+  "settings_sha256": "b56250e97531e1f18866a46ea5b725c8d43654e7e4a6f69c4f2e5ca78f30ec64",
+  "settings_contract": "Both isolated snapshots use byte-identical baseline project.godot, with editor plugins disabled for isolated import only. Warning gates are unchanged.",
+  "probe_sha256": {
+    "cold_snapshot_retention_control.gd": "08df955fd242e84a21e5a93591f252d55c086ff1fbd19f3b5c9154b91c74deea",
+    "cold_snapshot_retention_probe.gd": "bfdcc2a13b57f9c26fb98959727482fa2bcec64b1c92c2fbabea8728937e5c05"
+  },
+  "save_data_test_sha256": "ea13dca1446d2e3e3c3b5da2d6ae14725967e52059da5da02ac560a7b00b704b",
+  "district_leaf_source_sha": "857ec02d7703eab840dbf496730be48d29294d99",
+  "district_leaf_sha256": "e84ab189d6abc0dc56e92015916abaf32140610a5761bf29263c134b93534970",
+  "district_contract": "Baseline leaf tests/gut/test_district_snapshot.gd is copied verbatim into target. Its parent test_district_population.gd is unchanged in Git. Each command uses a separate native process.",
+  "commands": {
+    "control": "<same Godot> --headless --path <snapshot> --script res://utils/validate_district_scripts.gd -- res://tests/fixtures/cold_snapshot_retention_control.gd",
+    "probe": "<same Godot> --headless --path <snapshot> --script res://utils/validate_district_scripts.gd -- res://tests/fixtures/cold_snapshot_retention_probe.gd",
+    "save_data": "<same Godot> --headless --path <snapshot> --script res://addons/gut/gut_cmdln.gd -gtest=res://tests/gut/test_save_data.gd -gexit",
+    "district": "<same Godot> --headless --path <snapshot> --script res://addons/gut/gut_cmdln.gd -gtest=res://tests/gut/test_district_snapshot.gd -gexit"
+  },
+  "compile_only_and_save_data_results": [
+    {
+      "snapshot": "baseline",
+      "probe": "cold_snapshot_retention_control.gd",
+      "exit": 0,
+      "parser": [
+        "District parser: 1 checked, 0 failed"
+      ],
+      "diagnostics": [],
+      "log": "tests/artifacts/refactoring_v2_41_compare_baseline_cold_snapshot_retention_control.log"
+    },
+    {
+      "snapshot": "current",
+      "probe": "cold_snapshot_retention_control.gd",
+      "exit": 0,
+      "parser": [
+        "District parser: 1 checked, 0 failed"
+      ],
+      "diagnostics": [],
+      "log": "tests/artifacts/refactoring_v2_41_compare_current_cold_snapshot_retention_control.log"
+    },
+    {
+      "snapshot": "baseline",
+      "probe": "cold_snapshot_retention_probe.gd",
+      "exit": 0,
+      "parser": [
+        "District parser: 1 checked, 0 failed"
+      ],
+      "diagnostics": [
+        "ERROR: 3 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+        "WARNING: 280 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 236 resources still in use at exit (run with --verbose for details).",
+        "ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools12BucketMediumE",
+        "ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools11BucketSmallE"
+      ],
+      "log": "tests/artifacts/refactoring_v2_41_compare_baseline_cold_snapshot_retention_probe.log"
+    },
+    {
+      "snapshot": "current",
+      "probe": "cold_snapshot_retention_probe.gd",
+      "exit": 0,
+      "parser": [
+        "District parser: 1 checked, 0 failed"
+      ],
+      "diagnostics": [
+        "ERROR: 3 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+        "WARNING: 294 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 247 resources still in use at exit (run with --verbose for details).",
+        "ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools12BucketMediumE",
+        "ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools11BucketSmallE"
+      ],
+      "log": "tests/artifacts/refactoring_v2_41_compare_current_cold_snapshot_retention_probe.log"
+    },
+    {
+      "snapshot": "baseline",
+      "test": "tests/gut/test_save_data.gd",
+      "exit": 0,
+      "totals": [
+        "Tests                 6",
+        "Passing Tests         6",
+        "Asserts              40"
+      ],
+      "diagnostics": [],
+      "log": "tests/artifacts/refactoring_v2_41_compare_baseline_save_data_gut.log"
+    },
+    {
+      "snapshot": "current",
+      "test": "tests/gut/test_save_data.gd",
+      "exit": 0,
+      "totals": [
+        "Tests                 6",
+        "Passing Tests         6",
+        "Asserts              40"
+      ],
+      "diagnostics": [],
+      "log": "tests/artifacts/refactoring_v2_41_compare_current_save_data_gut.log"
+    }
+  ],
+  "native_district_results": [
+    {
+      "snapshot": "baseline",
+      "exit": 0,
+      "totals": [
+        "Tests                10",
+        "Passing Tests        10",
+        "Asserts              87"
+      ],
+      "diagnostics": [],
+      "log": "tests/artifacts/refactoring_v2_41_compare_baseline_district_gut.log"
+    },
+    {
+      "snapshot": "current",
+      "exit": 0,
+      "totals": [
+        "Tests                10",
+        "Passing Tests        10",
+        "Asserts              87"
+      ],
+      "diagnostics": [
+        "ERROR: 3 RID allocations of type 'P11JoltShape3D' were leaked at exit.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage13DummyMaterialE' were leaked at exit.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "ERROR: 3 RID allocations of type 'N13RendererDummy9DummyMeshE' were leaked at exit.",
+        "ERROR: 5 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+        "ERROR: 3 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+        "WARNING: 670 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 507 resources still in use at exit (run with --verbose for details).",
+        "ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools11BucketLargeE",
+        "ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools12BucketMediumE",
+        "ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools11BucketSmallE"
+      ],
+      "log": "tests/artifacts/refactoring_v2_41_compare_current_district_gut.log"
+    }
+  ],
+  "first_implementation_checkpoint": {
+    "sha": "f7e756fab3387dfa1f590c4d0ff047fec3ba9f57",
+    "test_contract": "Same baseline leaf, engine, settings and GECS; historical CustomerActionRecipe global-class cache restored from this immutable snapshot.",
+    "tests": 10,
+    "passing_tests": 10,
+    "assertions": 87,
+    "script_errors": 0,
+    "overall": "FAIL",
+    "objects_retained": 412,
+    "resources_retained": 272,
+    "other_diagnostics": "2 texture RIDs, 3 font RIDs and Variant allocator pages",
+    "log": "tests/artifacts/refactoring_v2_41_first_checkpoint_district_gut.log"
+  },
+  "classification": {
+    "compile_only": "Exists before task 41; independent task cold_snapshot_resource_retention.md.",
+    "native_district": "Task 41 regression RV-003; no verified fix and no proven retaining owner."
+  }
+}
