@@ -102,7 +102,7 @@ function Test-SmokeLog([string[]]$LogLines, [string]$CompletionPattern = "(?m)(?
 	}
 
 	foreach ($line in $LogLines) {
-		if ($line -match "(?i)SCRIPT ERROR|Parse Error|Assertion failed") {
+		if ($line -match "(?i)SCRIPT ERROR|Parse Error|Assertion failed|\bWARNING:") {
 			$failures += $line
 			continue
 		}
