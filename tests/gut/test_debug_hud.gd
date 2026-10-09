@@ -23,21 +23,24 @@ func before_each() -> void:
 	_actor = Entity.new()
 	_actor.component_resources = [C_PlayerInputController.new(), C_Health.new()]
 	_world.add_entity(_actor)
-	_customer = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
-	(_customer as Node as RigidBody3D).freeze = true
-	_world.add_entity(_customer)
-
-	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	agent.visit_id = &"hud-test"
-	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	agent.elapsed = 7.0
 	_visit = CustomerVisit.new()
-	_visit.visit_id = agent.visit_id
+	_visit.visit_id = &"hud-test"
 	_visit.package_id = "hud-parcel"
 	_visit.definition = DEF_Customer.new()
 	_visit.definition.patience_seconds = 47.0
 	_visit.satisfaction = 74
 	CustomerFlowQueries.current().visits.append(_visit)
+
+	var scene: PackedScene = load(
+		"res://content/domains/customers/entities/customer.tscn") as PackedScene
+	_customer = scene.instantiate() as E_NpcCharacter
+	(_customer as Node as RigidBody3D).freeze = true
+	EntityCompositionFixture.register_visit(_world, _customer, _visit)
+
+	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	agent.elapsed = 7.0
+
 
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = _visit.package_id

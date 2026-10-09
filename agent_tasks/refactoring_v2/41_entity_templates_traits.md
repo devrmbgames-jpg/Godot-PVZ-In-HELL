@@ -724,3 +724,23 @@ Completed-progress restore, whole snapshot restore, GameWorld bootstrap and auth
 providers are closed; manifest **24/72** resolved. This is provider migration evidence, not full task
 acceptance: remaining provider audits and known cold/shutdown retention still keep 41 IN_PROGRESS.
 Next remains 41, then the declared dependency order through PASS 49; Phase 3 is excluded.
+
+
+### Remaining Customer fixture callers and full regression rerun — 2026-10-09
+
+Full current GUT first exposed 17 failing tests in four remaining callers that registered a raw
+standalone Customer scene and depended on the removed define_components installer. Handoff,
+outcome/challenge, debug-HUD and hunger-perception fixtures now compile the selected visit policy
+and visit ID before native publication through the production gate. One test helper shares the
+common validated registration; no legacy production installer or compatibility path returned.
+
+Changed parser **5 files PASS** and actual local Formatter **5 files PASS**. Full explicit current
+GUT **98 scripts / 1415/1415 tests / 11960 assertions PASS**, with **zero native/GUT diagnostics**.
+Log: `tests/artifacts/refactoring_v2_41_complete_after_callers_gut.log`. Initial failing full-suite
+log remains `refactoring_v2_41_complete_current_gut.log` for diagnosis.
+
+The bounded four-script rerun executes **20/20 / 201 assertions**, but remains **overall FAIL**
+on native shutdown: 749 ObjectDB instances, 530 resources and Jolt/material/shader/mesh/texture/font
+RIDs/allocator pages are retained. Log: `refactoring_v2_41_remaining_customer_callers_gut.log`.
+No warning exemption or load-order workaround adopted. This cold/shutdown acceptance remains
+pending independently of the clean full suite; 41 remains IN_PROGRESS, next provider audit/retention.

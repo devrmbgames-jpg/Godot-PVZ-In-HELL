@@ -343,3 +343,10 @@ and applies physical anchor freeze before publication. Final parser **4 files**,
 native GUT **81/81 / 795 assertions** and independent Night write/restore PASS, zero diagnostics.
 Saved-state/bootstrap/authoring provider audit closes four more rows; manifest **24/72**. Full
 remaining-provider/cold-shutdown acceptance is pending, so 41 remains IN_PROGRESS; no Phase 3.
+
+
+Task 41 remaining Customer callers (2026-10-09): handoff/outcome/HUD/hunger fixtures now compile
+selected visit policy and ID before native publication. Final changed parser **5 files**, Formatter
+**5 files** and full current **98-script GUT / 1415/1415 / 11960 assertions PASS**, zero diagnostics.
+The separate four-script native shutdown still FAILs (749 ObjectDB/530 resources plus RIDs); no
+exemption adopted. Manifest remains **24/72** before remaining classification; 41 is IN_PROGRESS.

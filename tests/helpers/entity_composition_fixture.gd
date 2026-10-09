@@ -11,6 +11,19 @@ static func register(world: World, actor: Entity, add_to_tree: bool = true) -> v
 			parcel.package_id = GECSIO.uuid()
 	var actor_id: String = actor.id if not actor.id.is_empty() else GECSIO.uuid()
 	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world, actor_id)
+	_register(context, add_to_tree)
+
+
+## Compiles the selected visit policy and ID before native Customer fixture publication.
+static func register_visit(world: World, actor: E_NpcCharacter, visit: CustomerVisit) -> void:
+	var actor_id: String = actor.id if not actor.id.is_empty() else GECSIO.uuid()
+	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world, actor_id)
+	context.definitions[&"customer_policy"] = visit.definition
+	context.initial_fields[C_CustomerAgent as Script] = {&"visit_id": visit.visit_id}
+	_register(context, true)
+
+
+static func _register(context: EntitySpawnContext, add_to_tree: bool) -> void:
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 	var diagnostics: PackedStringArray = PackedStringArray()
 	for issue: EntityBuildPlan.Issue in plan.issues:

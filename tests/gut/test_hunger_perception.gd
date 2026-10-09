@@ -29,20 +29,23 @@ func before_each() -> void:
 	_actor.component_resources = [C_PlayerInputController.new(), C_GrabControl.new(), hunger]
 	_world.add_entity(_actor)
 	_state = _actor.get_component(C_Hunger) as C_Hunger
-	_customer = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
-	(_customer as Node as RigidBody3D).freeze = true
-	_world.add_entity(_customer)
-
-	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	agent.visit_id = &"hunger-visit"
-	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	_visit = CustomerVisit.new()
-	_visit.visit_id = agent.visit_id
+	_visit.visit_id = &"hunger-visit"
 	_visit.customer_id = &"real-customer"
 	_visit.package_id = "real-order"
 	_visit.definition = DEF_Customer.new()
 	_visit.started = true
 	(session.get_component(C_CustomerFlow) as C_CustomerFlow).visits = [_visit]
+
+	var scene: PackedScene = load(
+		"res://content/domains/customers/entities/customer.tscn") as PackedScene
+	_customer = scene.instantiate() as E_NpcCharacter
+	(_customer as Node as RigidBody3D).freeze = true
+	EntityCompositionFixture.register_visit(_world, _customer, _visit)
+
+	var agent: C_CustomerAgent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
+	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+
 
 	var registration: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	registration.package_id = _visit.package_id

@@ -65,9 +65,8 @@ func _challenged_customer() -> E_NpcCharacter:
 	var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 	var customer: E_NpcCharacter = scene.instantiate() as E_NpcCharacter
 	(customer as Node as RigidBody3D).freeze = true
-	_world.add_entity(customer)
+	EntityCompositionFixture.register_visit(_world, customer, _visit)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	agent.visit_id = _visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	var state: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 	state.definition = DEF_Challenge.new()
