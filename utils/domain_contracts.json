@@ -16739,7 +16739,8 @@
         "build_plan",
         "prepare",
         "try_register",
-        "publish_ready"
+        "publish_ready",
+        "authoring_for"
       ],
       "public_instance_methods": [],
       "method_rights": {
@@ -16747,12 +16748,14 @@
         "build_plan": "query",
         "prepare": "configure",
         "try_register": "configure",
-        "publish_ready": "request"
+        "publish_ready": "request",
+        "authoring_for": "query"
       },
       "sources": [
         "content/scenes/game_world.gd",
         "content/debug/debug_gameplay_service.gd",
-        "content/debug/debug_package_service.gd"
+        "content/debug/debug_package_service.gd",
+        "content/editor/entity_authoring/entity_authoring_preview_rules.gd"
       ],
       "purpose": "Task 41: explicit whole-placed compile/identity/endpoint preparation before pinned World.initialize, followed by one native registration; typed diagnostics and temporary plans own no runtime authority or scheduler."
     },
@@ -17603,6 +17606,55 @@
         "actor_key": "query"
       },
       "purpose": "Task 41: match saved placed records by immutable authored identity before native construction."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "shared",
+      "symbol": "EntityAuthoring",
+      "path": "content/shared/authoring/entity_authoring.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/editor/entity_authoring/entity_authoring_preview_rules.gd",
+        "content/editor/entity_authoring/entity_authoring_inspector.gd"
+      ],
+      "purpose": "Task 42: detached authoring tooling reads immutable compiler inputs and transient diagnostic provenance; no live registration, gameplay writes or scheduler."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "shared",
+      "symbol": "EntityTrait",
+      "path": "content/shared/authoring/entity_trait.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/editor/entity_authoring/entity_authoring_preview_rules.gd"
+      ],
+      "purpose": "Task 42: detached authoring tooling reads immutable compiler inputs and transient diagnostic provenance; no live registration, gameplay writes or scheduler."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "shared",
+      "symbol": "DEF_EntityTemplate",
+      "path": "content/shared/definitions/def_entity_template.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/editor/entity_authoring/entity_authoring_preview_rules.gd"
+      ],
+      "purpose": "Task 42: detached authoring tooling reads immutable compiler inputs and transient diagnostic provenance; no live registration, gameplay writes or scheduler."
     }
   ],
   "legacy_decomposition": []

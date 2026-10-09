@@ -1,0 +1,6 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="PackedScene" path="res://tests/fixtures/refactoring_v2/authoring_cycle_scene.tscn" id="Scene"]
+
+[resource]
+metadata/forbidden_scene = ExtResource("Scene")

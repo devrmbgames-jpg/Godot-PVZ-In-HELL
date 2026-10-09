@@ -33,7 +33,8 @@ class Finding:
 
 
 def is_runtime(path: str) -> bool:
-    return path.startswith("content/") and path.endswith(".gd")
+    return (path.startswith("content/") and path.endswith(".gd")
+            and not path.startswith("content/editor/"))
 
 
 def is_authoring_tool(path: str) -> bool:
@@ -78,7 +79,8 @@ def inspect_file(path: str, current: str, previous: str | None) -> list[Finding]
 
     if is_authoring_tool(path):
         if (re.search(r"\.(?:gd|tscn)\b", current)
-                and re.search(r"\b(?:write_text|write_bytes|FileAccess\.open|ResourceSaver\.save)\b", added)):
+                and (re.search(r"\b(?:write_text|write_bytes|ResourceSaver\.save)\b", added)
+                     or FILE_WRITE.search(added))):
             flag("REVIEW", "tool generates scripts/scenes: ensure native editable output "
                  "and no gameplay-runtime scaffolding")
 

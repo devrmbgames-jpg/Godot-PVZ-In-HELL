@@ -2,7 +2,7 @@
 
 The implementation uses an authored shade route and six manually placed room light volumes. Route planning and light queries have measured headless CPU improvements. Rendered FPS, GPU cost and subjective stutter remain unmeasured. Level geometry and navigation settings are preserved.
 
-Current build: [Windows QA executable](../.export/windows/20261004-024729Z-db5f6f5d-npc-authored-light-routes/PVZInHell.exe). Menu and main level each passed 120 headless startup frames without script errors or resource leaks in stdout/stderr. Relevant regression: 243 tests / 1569 assertions; final volume/route/perception regressions PASS; connected seven-day district smoke PASS.
+Current build: [Актуальная QA-сборка](../.export/LATEST.cmd). Menu and main level each passed 120 headless startup frames without script errors or resource leaks in stdout/stderr. Relevant regression: 243 tests / 1569 assertions; final volume/route/perception regressions PASS; connected seven-day district smoke PASS.
 
 ## Reproduction
 

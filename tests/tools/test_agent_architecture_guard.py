@@ -61,10 +61,26 @@ class ArchitectureGuardTests(unittest.TestCase):
         code = 'extends EditorScript\nResourceSaver.save(a, "res://models/saved.tscn")\n'
         self.assertEqual([], module.inspect_file("utils/gltf_import_split_script.gd", code, code))
 
+    def test_editor_snapshot_is_not_a_gameplay_scene_generator(self) -> None:
+        code = ('@tool\nextends EditorInspectorPlugin\nvar snapshot = PackedScene.new()\n'
+                'ResourceSaver.save(snapshot, "res://.artifacts/snapshot.tscn")\n')
+        self.assertEqual([], module.inspect_file(
+            "content/editor/entity_authoring/inspector.gd", code, None))
+        self.assertTrue(any(f.severity == "ERROR" for f in module.inspect_file(
+            "content/domains/npc/services/generator.gd", code, None)))
+
     def test_new_tool_generator_needs_review(self) -> None:
         code = 'from pathlib import Path\nPath("whole_game.gd").write_text("extends Node")\n'
         found = module.inspect_file("utils/one_click_game.py", code, None)
         self.assertTrue(any(f.severity == "REVIEW" for f in found))
+
+    def test_gdscript_reader_writing_json_is_not_a_scene_generator(self) -> None:
+        code = ('extends SceneTree\nvar rules = load("res://content/rules.gd")\n'
+                'var output = FileAccess.open("res://tests/artifacts/result.json", FileAccess.WRITE)\n')
+        self.assertEqual([], module.inspect_file("utils/preview.gd", code, None))
+        scene_writer = code.replace("result.json", "result.tscn")
+        self.assertTrue(any(f.severity == "REVIEW" for f in module.inspect_file(
+            "utils/preview.gd", scene_writer, None)))
 
     def test_rename_aware_git_baseline_and_staged(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

@@ -1,0 +1,25 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://content/domains/npc/entities/npc_character.tscn" id="Npc"]
+[ext_resource type="PackedScene" path="res://content/domains/commerce/entities/trader.tscn" id="Trader"]
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/box.tscn" id="Box"]
+
+[node name="AuthoringLevel" type="Node3D"]
+metadata/persistent_world_id = &"authoring_fixture"
+
+[node name="Resident" parent="." instance=ExtResource("Npc")]
+position = Vector3(-3, 0, 0)
+metadata/persistent_local_id = &"resident"
+
+[node name="InspectionParcelSlot" parent="Resident"]
+metadata/persistent_local_id = &"resident_inspection_slot"
+
+[node name="Trader" parent="." instance=ExtResource("Trader")]
+position = Vector3(3, 0, 0)
+metadata/persistent_local_id = &"trader"
+
+[node name="Box" parent="." instance=ExtResource("Box")]
+position = Vector3(0, 0, 2)
+metadata/persistent_local_id = &"box"
+
+[editable path="Resident"]
