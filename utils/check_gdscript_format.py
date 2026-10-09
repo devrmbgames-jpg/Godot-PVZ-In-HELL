@@ -144,12 +144,13 @@ def inspect_file(root: Path, path: str, previous: str | None, formatter: str | N
     if lint.returncode == 0 and findings:
         issues.append(f"{path}: linter returned 0 despite relevant diagnostics")
     if previous is None or strict:
-        for flag in ("--check", "--verify-structure"):
-            checked = subprocess.run([formatter, flag, path], cwd=root, capture_output=True,
-                                     text=True, errors="replace", check=False)
-            if checked.returncode:
-                detail = (checked.stdout + checked.stderr).strip().splitlines()
-                issues.append(f"{path}: formatter {flag} failed: {(detail or ['no detail'])[0][:220]}")
+        # --verify-structure validates the formatter's output but still writes by default.
+        # Keep --check in the same invocation so this gate never changes authored files.
+        checked = subprocess.run([formatter, "--check", "--verify-structure", path], cwd=root,
+                                 capture_output=True, text=True, errors="replace", check=False)
+        if checked.returncode:
+            detail = (checked.stdout + checked.stderr).strip().splitlines()
+            issues.append(f"{path}: formatter check failed: {(detail or ['no detail'])[0][:220]}")
     return issues, False
 
 
