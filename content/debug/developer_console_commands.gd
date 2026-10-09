@@ -144,7 +144,12 @@ func _ready() -> void:
 
 	_register_command(APPLY_DAMAGE_COMMAND, _apply_damage, ["target", "amount", "damage_type"], 2, "Submit typed damage to a Health target.")
 	_register_command(HEAL_COMMAND, _heal, ["target", "amount"], 2, "Submit typed healing to a non-depleted Health target.")
-	_register_command(KILL_COMMAND, _kill, ["target"], 0, "Deplete a Health target through DamageRequest. Defaults to self.")
+	var kill_arguments: Array = ["target"]
+	var kill_description: String = "Deplete a Health target through DamageRequest. Defaults to self."
+	if OS.is_debug_build():
+		kill_arguments = ["target|game"]
+		kill_description += " kill game purges the runtime for ObjectDB profiling (debug only)."
+	_register_command(KILL_COMMAND, _kill, kill_arguments, 0, kill_description)
 	_register_command(RESET_COMMAND, _reset, ["target"], 0, "Reset a live C_Living entity. Defaults to self.")
 	_register_command(PACKAGE_RESET_COMMAND, _pkg_reset, ["package"], 1, "Reset a live damaged Package.")
 
@@ -202,6 +207,10 @@ func _register_autocomplete() -> void:
 		RESET_COMMAND,
 	]:
 		Console.add_command_autocomplete_list(command, entity_targets)
+	if OS.is_debug_build():
+		var kill_targets: PackedStringArray = entity_targets.duplicate()
+		kill_targets.append("game")
+		Console.add_command_autocomplete_list(KILL_COMMAND, kill_targets)
 
 	for command: String in [
 		PACKAGE_INFO_COMMAND,
@@ -627,12 +636,45 @@ func _heal(raw_target: String, amount_text: String) -> void:
 
 func _kill(raw_target: String = "") -> void:
 	var normalized: String = raw_target.strip_edges()
+	if normalized.to_lower() == "game":
+		_kill_game()
+		return
 	if normalized.is_empty():
 		normalized = "self"
 	_print_service_result(
 		KILL_COMMAND,
 		DebugHealthService.kill(DebugTargetResolver.resolve(normalized)),
 	)
+
+
+## Starts teardown after the current Console callback has finished.
+## The coordinator is parented to /root, outside the scene being destroyed.
+func _kill_game() -> void:
+	if not OS.is_debug_build() or Engine.is_editor_hint():
+		DeveloperConsoleOutput.error("kill game", "Available only in debug game builds.")
+		return
+
+	var root: Window = get_tree().root
+	if root.has_node("DebugRuntimePurge"):
+		DeveloperConsoleOutput.error("kill game", "Runtime purge is already running.")
+		return
+
+	var script: Script = load("res://content/debug/debug_runtime_purge.gd") as Script
+	if script == null:
+		DeveloperConsoleOutput.error("kill game", "Debug purge coordinator could not be loaded.")
+		return
+	var worker: Node = script.new() as Node
+	if worker == null:
+		DeveloperConsoleOutput.error("kill game", "Debug purge coordinator could not be created.")
+		return
+
+	worker.name = "DebugRuntimePurge"
+	root.add_child(worker)
+	DeveloperConsoleOutput.ok("kill game", PackedStringArray([
+		"Runtime purge scheduled; preserve SceneTree for ObjectDB Snapshot.",
+		"Autoload nodes stay registered (Godot forbids freeing them at runtime).",
+	]))
+	worker.call_deferred(&"purge_runtime")
 
 
 func _reset(raw_target: String = "") -> void:

@@ -188,7 +188,7 @@ func _print_workflow(group_name: String) -> void:
 		"trader": Console.print_line("Commerce: trader_info -> money_add 500 qa -> trader_buy large_shelf 1 / trader_delivery large_shelf 1. Orders: order_place med 2 -> order_info -> normal day_next until next Morning -> order_info.")
 		"customers", "challenges": Console.print_line("Live client: pkg_spawn books 1 receiving 1 -> visit_create pkg:<id> ordinary 1 (if no visit) -> day_next -> customer_next -> visit_info pkg:<id> -> challenge_info visit:<id>. Departure completes visit-scoped challenges.")
 		"npc": Console.print_line("Combat: npc_info target -> npc_attack target melee 0 self -> health_info self. Kill NPC, inspect remains/physical meat, pick up and consume normally.")
-		"world": Console.print_line("Valve: progress_info target -> progress_set target 0.5. Save: Morning/no live sessions -> save_write qa_console -> change state -> save_load qa_console -> inspect restored facts. Load replaces Morning world state; default autosave untouched.")
+		"world": Console.print_line("Valve: progress_info target -> progress_set target 0.5. Save: Morning/no live sessions -> save_write qa_console -> change state -> save_load qa_console. Debug only: kill game -> purge runtime/Autoload state -> ObjectDB Snapshot in editor. The process and Autoload nodes stay alive.")
 
 
 func _group(command_name: String) -> String:
