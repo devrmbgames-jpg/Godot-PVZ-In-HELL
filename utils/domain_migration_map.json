@@ -13876,55 +13876,6 @@
       "task": "retain"
     },
     {
-      "source": "content/domains/interaction/authoring/et_physical_slot.tres",
-      "target": "content/domains/interaction/authoring/et_physical_slot.tres",
-      "owner": "interaction",
-      "role": "authoring",
-      "task": "retain"
-    },
-    {
-      "source": "content/domains/interaction/definitions/def_entity_physical_slot.tres",
-      "target": "content/domains/interaction/definitions/def_entity_physical_slot.tres",
-      "owner": "interaction",
-      "role": "definitions",
-      "task": "retain"
-    },
-    {
-      "source": "content/shared/services/observer_reaction_boundary.gd",
-      "target": "content/shared/services/observer_reaction_boundary.gd",
-      "owner": "shared",
-      "role": "services",
-      "task": "retain"
-    },
-    {
-      "source": "content/shared/services/observer_reaction_boundary.gd.uid",
-      "target": "content/shared/services/observer_reaction_boundary.gd.uid",
-      "owner": "shared",
-      "role": "services",
-      "task": "retain"
-    },
-    {
-      "source": "content/domains/packages/authoring/et_session_loot_queue.tres",
-      "target": "content/domains/packages/authoring/et_session_loot_queue.tres",
-      "owner": "packages",
-      "role": "authoring",
-      "task": "retain"
-    },
-    {
-      "source": "content/domains/time/definitions/def_entity_day_session.tres",
-      "target": "content/domains/time/definitions/def_entity_day_session.tres",
-      "owner": "time",
-      "role": "definitions",
-      "task": "retain"
-    },
-    {
-      "source": "content/shared/authoring/et_boundary_trace.tres",
-      "target": "content/shared/authoring/et_boundary_trace.tres",
-      "owner": "shared",
-      "role": "authoring",
-      "task": "retain"
-    },
-    {
       "source": "content/domains/customers/authoring/et_customer_visit.gd",
       "target": "content/domains/customers/authoring/et_customer_visit.gd",
       "owner": "customers",
@@ -13982,6 +13933,34 @@
       "task": "retain"
     },
     {
+      "source": "content/domains/interaction/authoring/et_physical_slot.tres",
+      "target": "content/domains/interaction/authoring/et_physical_slot.tres",
+      "owner": "interaction",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/interaction/definitions/def_entity_physical_slot.tres",
+      "target": "content/domains/interaction/definitions/def_entity_physical_slot.tres",
+      "owner": "interaction",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/packages/authoring/et_session_loot_queue.tres",
+      "target": "content/domains/packages/authoring/et_session_loot_queue.tres",
+      "owner": "packages",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/time/definitions/def_entity_day_session.tres",
+      "target": "content/domains/time/definitions/def_entity_day_session.tres",
+      "owner": "time",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
       "source": "content/domains/packages/authoring/et_package_content.tres",
       "target": "content/domains/packages/authoring/et_package_content.tres",
       "owner": "packages",
@@ -14003,9 +13982,30 @@
       "task": "retain"
     },
     {
+      "source": "content/shared/services/observer_reaction_boundary.gd",
+      "target": "content/shared/services/observer_reaction_boundary.gd",
+      "owner": "shared",
+      "role": "services",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/services/observer_reaction_boundary.gd.uid",
+      "target": "content/shared/services/observer_reaction_boundary.gd.uid",
+      "owner": "shared",
+      "role": "services",
+      "task": "retain"
+    },
+    {
       "source": "content/domains/packages/authoring/et_package_content.gd.uid",
       "target": "content/domains/packages/authoring/et_package_content.gd.uid",
       "owner": "packages",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/authoring/et_boundary_trace.tres",
+      "target": "content/shared/authoring/et_boundary_trace.tres",
+      "owner": "shared",
       "role": "authoring",
       "task": "retain"
     }

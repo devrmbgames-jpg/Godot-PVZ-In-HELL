@@ -6,8 +6,10 @@
   "godotFormatter.enableLinter": true,
   "godotFormatter.verifyStructure": true,
   "godotFormatter.reorderCode": false,
+  "godotFormatter.linterIgnoredRules": "class-name",
 
   // Enable Codex in the VS Code Agent Host / Agents window.
   "chat.agentHost.codexAgent.enabled": true,
   "godotTools.editorPath.godot4": "d:\\DEV\\pvz-in-hell-simulator\\.bin\\Godot_v4.7.1-stable_win64.exe"
+
 }

@@ -17478,6 +17478,68 @@
       "purpose": "Task 41: detached roster/Profile/identity construction inputs before native publication; no competing runtime authority."
     },
     {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "C_NpcAddress",
+      "path": "content/domains/npc/components/c_npc_address.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "sources": [
+        "content/services/persistence/world_snapshot_service.gd",
+        "content/domains/persistence/rules/district_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "method_rights": {},
+      "purpose": "Save preflight validates stable home IDs against immutable district authoring; detached reconstruction preserves identity before publication."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "shared",
+      "symbol": "EntityTrait",
+      "path": "content/shared/authoring/entity_trait.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [
+        "enabled_for",
+        "configuration_for",
+        "configuration_issues",
+        "recipes_for"
+      ],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/authoring/et_customer_visit.gd"
+      ],
+      "purpose": "Pure Customer capability recipes and validation, without live installation hooks."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "shared",
+      "symbol": "EntityBuildPlan",
+      "path": "content/shared/contracts/entity_build_plan.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [
+        "valid"
+      ],
+      "sources": [
+        "content/services/customers/customer_flow_service.gd"
+      ],
+      "method_rights": {
+        "valid": "query"
+      },
+      "purpose": "Standalone Customer validates transient construction before registration and visit effects."
+    },
+    {
       "source_owner": "global",
       "target_owner": "shared",
       "symbol": "ObserverReactionBoundary",
@@ -17541,68 +17603,6 @@
         "actor_key": "query"
       },
       "purpose": "Task 41: match saved placed records by immutable authored identity before native construction."
-    },
-    {
-      "source_owner": "customers",
-      "target_owner": "shared",
-      "symbol": "EntityTrait",
-      "path": "content/shared/authoring/entity_trait.gd",
-      "rights": [
-        "read",
-        "configure"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [
-        "enabled_for",
-        "configuration_for",
-        "configuration_issues",
-        "recipes_for"
-      ],
-      "method_rights": {},
-      "sources": [
-        "content/domains/customers/authoring/et_customer_visit.gd"
-      ],
-      "purpose": "Pure Customer capability recipes and validation, without live installation hooks."
-    },
-    {
-      "source_owner": "customers",
-      "target_owner": "shared",
-      "symbol": "EntityBuildPlan",
-      "path": "content/shared/contracts/entity_build_plan.gd",
-      "rights": [
-        "read",
-        "query"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [
-        "valid"
-      ],
-      "sources": [
-        "content/services/customers/customer_flow_service.gd"
-      ],
-      "method_rights": {
-        "valid": "query"
-      },
-      "purpose": "Standalone Customer validates transient construction before registration and visit effects."
-    },
-    {
-      "source_owner": "persistence",
-      "target_owner": "npc",
-      "symbol": "C_NpcAddress",
-      "path": "content/domains/npc/components/c_npc_address.gd",
-      "rights": [
-        "read",
-        "query"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "sources": [
-        "content/services/persistence/world_snapshot_service.gd",
-        "content/domains/persistence/rules/district_snapshot_rules.gd",
-        "content/services/persistence/save_data_codec.gd"
-      ],
-      "method_rights": {},
-      "purpose": "Save preflight validates stable home IDs against immutable district authoring; detached reconstruction preserves identity before publication."
     }
   ],
   "legacy_decomposition": []

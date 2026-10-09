@@ -53,14 +53,13 @@ export/convert_text_resources_to_binary=false
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/GDQuest_GDScript_formatter/plugin.cfg", "res://addons/StaticMeshMerger/plugin.cfg", "res://addons/asset_placer/plugin.cfg", "res://addons/at-icons/plugin.cfg", "res://addons/console/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/gecs/plugin.cfg", "res://addons/godoban/plugin.cfg", "res://addons/godot_ai/plugin.cfg", "res://addons/gut/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/pvz_ai_tools/plugin.cfg", "res://addons/quick_audio/plugin.cfg")
+enabled=PackedStringArray("res://addons/GDQuest_GDScript_formatter/plugin.cfg", "res://addons/StaticMeshMerger/plugin.cfg", "res://addons/asset_placer/plugin.cfg", "res://addons/at-icons/plugin.cfg", "res://addons/console/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/gecs/plugin.cfg", "res://addons/godot_ai/plugin.cfg", "res://addons/gut/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/pvz_ai_tools/plugin.cfg", "res://addons/quick_audio/plugin.cfg")
 
 [file_customization]
 
 folder_colors={
 "res://addons/": "blue",
 "res://content/": "orange",
-"res://godoban_boards/": "gray",
 "res://materials/": "purple",
 "res://resources/": "yellow",
 "res://tests/": "gray",
@@ -299,7 +298,7 @@ look_down={
 [internationalization]
 
 locale/translation_remaps={}
-locale/translations_pot_files=PackedStringArray("res://content/domains/customers/dialogue/customer_prototype.dialogue", "res://content/domains/customers/dialogue/customer_service.dialogue", "res://content/domains/npc/dialogue/npc_street.dialogue")
+locale/translations_pot_files=PackedStringArray("res://content/domains/customers/dialogue/customer_prototype.dialogue", "res://content/domains/customers/dialogue/customer_service.dialogue", "res://content/domains/npc/dialogue/npc_street.dialogue", "res://.bin/retention_baseline_snapshot/content/domains/customers/dialogue/customer_prototype.dialogue", "res://.bin/retention_baseline_snapshot/content/domains/customers/dialogue/customer_service.dialogue", "res://.bin/retention_baseline_snapshot/content/domains/npc/dialogue/npc_street.dialogue", "res://.bin/retention_current_snapshot/content/domains/customers/dialogue/customer_prototype.dialogue", "res://.bin/retention_current_snapshot/content/domains/customers/dialogue/customer_service.dialogue", "res://.bin/retention_current_snapshot/content/domains/npc/dialogue/npc_street.dialogue", "res://.bin/retention_first_checkpoint/content/domains/customers/dialogue/customer_prototype.dialogue", "res://.bin/retention_first_checkpoint/content/domains/customers/dialogue/customer_service.dialogue", "res://.bin/retention_first_checkpoint/content/domains/npc/dialogue/npc_street.dialogue")
 
 [layer_names]
 

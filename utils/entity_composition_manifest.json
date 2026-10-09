@@ -792,8 +792,15 @@
           "content/domains/npc/definitions/def_entity_district_npc.tres",
           "content/domains/npc/definitions/def_entity_district_trader.tres"
         ],
-        "contract": "Fresh Inventory/Hunger/actions and optional merchant data compile with identity/brain before native registration. Explicit SCENE mode preserves placed Trader Profile/action Definitions; missing scene providers reject rather than falling back. Authored pickup nodes are scene-owned. _spawn_body reuses an already prepared placed identity or registers one accepted common plan; only presentation/passive native runner binding remains after registration.",
-        "validation": "Role-first coupled native GUT 125/125, 1276 assertions; changed owner parser 5 files; actual main/Night write/restore PASS with zero diagnostics. Reverse fixture loader order/cold inherited snapshot parser retention is explicitly pending; full population transaction/readiness also pending."
+        "contract": "All fresh addresses/bodies compile and pass one whole registration preflight before any population sequence/history/roster publication. Existing placed bodies are reused without re-registration. Native actor data and address labels are complete before publication; accepted roster authority precedes it. Replacement rejection preserves vacancy/history/sequence and retry day. Passive native runner binding follows the whole body batch. Flat NPC/Trader Templates own identity/brain/resident roles, with immutable optional service actions and explicit SCENE providers.",
+        "validation": "Population/address/save GUT 70/70 / 851 assertions and owner parser 7 files PASS; whole-population rejection/success and replacement-history fixtures. Combined population/customer GUT 180/180 / 1834 assertions and main/Night PASS; complete ready barrier still pending.",
+        "construction_helpers": [
+          "_prepare_addresses",
+          "_prepare_bodies",
+          "_validate_build",
+          "_commit_build",
+          "_bind_bodies"
+        ]
       }
     },
     {
@@ -815,8 +822,15 @@
         "kind": "intrinsic_scene_plus_enumerated_instance_fields",
         "replacement": "content/domains/npc/definitions/def_entity_npc_address.tres",
         "scene": "content/domains/npc/entities/npc_address.tscn",
-        "contract": "Existing scene Address/Interactable/Actions remain explicit intrinsic providers. Generic flat Trait validates StaticBody3D/Address-node/Address Component and permits address_id only. All contexts/plans validate as a detached batch before any native registration or roster mutation. Label/pose precede native publication; no post-registration ID installer remains.",
-        "validation": "Address parser 3 files and GUT 104/104 / 1002 assertions PASS, zero diagnostics, including actual publication and whole-batch conflict rejection. Native import preserves 6 ObjectDB/3-resource editor baseline; main smoke PASS."
+        "contract": "All fresh addresses/bodies compile and pass one whole registration preflight before any population sequence/history/roster publication. Existing placed bodies are reused without re-registration. Native actor data and address labels are complete before publication; accepted roster authority precedes it. Replacement rejection preserves vacancy/history/sequence and retry day. Passive native runner binding follows the whole body batch. Flat NPC/Trader Templates own identity/brain/resident roles, with immutable optional service actions and explicit SCENE providers.",
+        "validation": "Population/address/save GUT 70/70 / 851 assertions and owner parser 7 files PASS; whole-population rejection/success and replacement-history fixtures. Combined population/customer GUT 180/180 / 1834 assertions and main/Night PASS; complete ready barrier still pending.",
+        "construction_helpers": [
+          "_prepare_addresses",
+          "_prepare_bodies",
+          "_validate_build",
+          "_commit_build",
+          "_bind_bodies"
+        ]
       }
     },
     {
@@ -844,8 +858,15 @@
           "content/domains/npc/definitions/def_entity_district_npc.tres",
           "content/domains/npc/definitions/def_entity_district_trader.tres"
         ],
-        "contract": "Fresh Inventory/Hunger/actions and optional merchant data compile with identity/brain before native registration. Explicit SCENE mode preserves placed Trader Profile/action Definitions; missing scene providers reject rather than falling back. Authored pickup nodes are scene-owned. _spawn_body reuses an already prepared placed identity or registers one accepted common plan; only presentation/passive native runner binding remains after registration.",
-        "validation": "Role-first coupled native GUT 125/125, 1276 assertions; changed owner parser 5 files; actual main/Night write/restore PASS with zero diagnostics. Reverse fixture loader order/cold inherited snapshot parser retention is explicitly pending; full population transaction/readiness also pending."
+        "contract": "All fresh addresses/bodies compile and pass one whole registration preflight before any population sequence/history/roster publication. Existing placed bodies are reused without re-registration. Native actor data and address labels are complete before publication; accepted roster authority precedes it. Replacement rejection preserves vacancy/history/sequence and retry day. Passive native runner binding follows the whole body batch. Flat NPC/Trader Templates own identity/brain/resident roles, with immutable optional service actions and explicit SCENE providers.",
+        "validation": "Population/address/save GUT 70/70 / 851 assertions and owner parser 7 files PASS; whole-population rejection/success and replacement-history fixtures. Combined population/customer GUT 180/180 / 1834 assertions and main/Night PASS; complete ready barrier still pending.",
+        "construction_helpers": [
+          "_prepare_addresses",
+          "_prepare_bodies",
+          "_validate_build",
+          "_commit_build",
+          "_bind_bodies"
+        ]
       }
     },
     {
