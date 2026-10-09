@@ -10,5 +10,7 @@ static func retire(entity: Entity, world: World) -> void:
 
 	if is_instance_valid(world) and world.entity_to_archetype.has(entity):
 		world.remove_entity(entity)
+		# GECS queues tree-owned Nodes and immediately frees detached Nodes.
+		return
 
 	entity.queue_free()
