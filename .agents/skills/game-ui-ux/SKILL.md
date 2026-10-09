@@ -12,6 +12,11 @@ UI presents and requests; it does not become authoritative gameplay state.
 
 ## Layout
 
+- Author stable screens, modal hierarchies and HUD layout as native `.tscn` scenes, editable in Godot Scene dock. GDScript binds state, signals and dynamic list rows; it should not build the whole permanent layout in `_ready()`.
+- Existing script-built `content/ui/settings_menu.gd` is legacy debt, not a template to copy. Its dynamically generated input-binding rows remain a legitimate exception.
+- Shared visual configuration belongs to `Theme`/`.tres` where Inspector editing helps designers. See `godot-scene-authoring` for scene ownership and exceptions.
+
+
 - Prefer Godot Control anchors/containers/theme layout over fixed absolute pixel placement.
 - Define an aspect/stretch policy rather than assuming one monitor size.
 - Keep important UI inside safe margins when platform/display constraints require it.

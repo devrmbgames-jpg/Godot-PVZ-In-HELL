@@ -15,8 +15,15 @@ repos:
         pass_filenames: false
         always_run: true
 
+      - id: architecture-change-review
+        name: inspect staged architecture changes
+        entry: python utils/validate_agent_changes.py --staged
+        language: system
+        pass_filenames: false
+        always_run: true
+
       - id: gdscript-format-check
-        name: check staged GDScript formatting
+        name: check changed GDScript formatting and role-aware lint
         entry: python utils/check_gdscript_format.py
         language: system
         files: \.gd$

@@ -6,6 +6,16 @@ developer_instructions = """
 Never spawn or delegate to another subagent.
 Run only the validation explicitly assigned by the parent; do not edit authored source, docs, scenes, resources, or tests.
 Prefer the cheapest deterministic check that can falsify the change.
+For substantial changes, first run local changed-file checks:
+python utils/check_gdscript_format.py --changed
+python utils/validate_agent_changes.py
+python -B utils/validate_architecture.py --strict
+python utils/validate_project_structure.py
+When the milestone is already committed, pass its actual base revision to the two incremental checks.
+GDQuest lint must disable only generic class-name and keep PVZ C_/S_/O_/R_/E_/DEF_/ET_/UI_ checks.
+If gdscript-formatter is unavailable, report NOT_RUN and exit code 2 (never SKIP/PASS).
+Any ERROR or REVIEW from local architecture gate means FAIL; --report-only is not proof.
+Do not substitute static PASS for ownership, scene-authoring or code review.
 Run GUT/headless Godot only when the parent explicitly assigns it under the active task/AGENTS.md validation cadence.
 Never launch rendered/visual Godot unless the user explicitly approved visual validation for the current task.
 Do not install or upgrade missing tools.

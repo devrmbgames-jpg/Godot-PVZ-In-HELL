@@ -1,60 +1,48 @@
-# ---------------------------------------------------------------------------
-# Git
-# ---------------------------------------------------------------------------
+# Local Codex escalation policy. Workspace operations remain subject to AGENTS.md.
+# master is read-only; do not treat these prefix rules as a replacement for branch checks.
 
 prefix_rule(
-    pattern = [[
-        "git",
-        "git.exe",
-        "C:\\Program Files\\Git\\cmd\\git.exe",
-        "C:\\Program Files\\Git\\bin\\git.exe",
-    ], [
-        "add",
-        "commit",
-        "status",
-        "diff",
-        "log",
-        "show",
-        "branch",
-        "checkout",
-        "switch",
-        "restore",
-        "fetch",
-        "pull",
-        "push",
-        "merge",
-        "rebase",
-        "worktree",
-        "tag",
-        "rev-parse",
-        "rev-list",
-        "merge-base",
-    ]],
+    pattern = [["git", "git.exe"], ["status", "diff", "log", "show", "rev-parse", "rev-list", "merge-base", "branch", "fetch"]],
     decision = "allow",
-    justification = "Normal Git development operations are trusted in this repository.",
+    justification = "Read-only Git inspection.",
 )
-
 
 prefix_rule(
-    pattern = ["git", "reset", "--hard"],
-    decision = "forbidden",
-    justification = "Do not discard repository changes automatically.",
+    pattern = [["git", "git.exe"], ["add", "commit"]],
+    decision = "allow",
+    justification = "Coherent scoped local commits on development branches.",
 )
 
+prefix_rule(
+    pattern = [["git", "git.exe"], "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Never discard local changes automatically.",
+)
 
+prefix_rule(
+    pattern = [["git", "git.exe"], "push", "--force"],
+    decision = "forbidden",
+    justification = "No force pushes.",
+)
 
+prefix_rule(
+    pattern = [["git", "git.exe"], "push", "origin", "master"],
+    decision = "forbidden",
+    justification = "The master branch is read-only for agents.",
+)
 
-# ---------------------------------------------------------------------------
-# Godot binaries from project .bin/
-# ---------------------------------------------------------------------------
+prefix_rule(
+    pattern = [["git", "git.exe"], ["push", "merge", "rebase", "restore", "checkout", "switch", "clean", "stash", "reset", "pull"]],
+    decision = "prompt",
+    justification = "Branch/remote/working tree changes require explicit approval and inspection.",
+)
 
+# Project-local Godot is allowed for headless parser/GUT/smoke checks, not visual gameplay.
 prefix_rule(
     pattern = [[
         ".\\.bin\\Godot_v4.7.1-stable_win64_console.exe",
-        ".\\.bin\\Godot_v4.7.1-stable_win64.exe",
         ".bin\\Godot_v4.7.1-stable_win64_console.exe",
-        ".bin\\Godot_v4.7.1-stable_win64.exe",
     ]],
     decision = "allow",
-    justification = "Project-local Godot binaries are trusted for parser, headless tests and tooling.",
+    justification = "Project-local Godot headless validation.",
 )
