@@ -47,8 +47,8 @@ Evidence: `tests/artifacts/refactoring_v2_45_baseline.log` and task45 focused fi
 Preparation and arrival callers supply their intended synchronization position to the placement
 operation. They require the referenced Definition and any declared anchor to still exist;
 missing targets produce an invalid pose instead of an arrival at the origin or a fallback
-after anchor removal. Before activating or relocating a living actor, `NpcActivationSolver` checks each
-active authored body shape once against native physics, excluding only that body. A blocked
+after anchor removal. Before activating or relocating a living actor, `NpcActivationSolver`
+checks each active authored body shape once against native physics, excluding only that body. A blocked
 or invalid pose rejects before changing placement, pose or generations. Restore reconciles the
 captured physical state through its explicit reconstruction boundary. No search loop, new
 timer or alternate arrival outcome is introduced.
@@ -61,5 +61,13 @@ role planners retain their bounded candidate iteration. Diagnostics derive pendi
 the service-role pin from current roster/role state; they do not store another mode copy.
 
 Departure explicitly cancels conversation and combat and publishes native unavailability for
-hold/slot/reservation owners. Inventory ownership survives. Task45C still owns same-mode
-persistence and the completed performance report. No offscreen travel/economy/combat is introduced.
+hold/slot/reservation owners. Inventory ownership survives.
+
+The disk roundtrip fixture saves ACTIVE and DORMANT actors together and restores twice. It
+checks the retained body/Entity ID, physical pose, HP, owned item ID/quantity, calendar goal
+and phase metadata, and native animation/BT participation. Fresh reconstruction of a missing
+saved dormant body publishes the saved identity and ends the synchronous restore dormant;
+repeated restoration does not duplicate it. No snapshot schema or migration adapter is added.
+Final save/target/processing acceptance: `tests/artifacts/refactoring_v2_45_final_gut.log`;
+actual main-level headless routing: `tests/artifacts/refactoring_v2_45_final_smoke.log`.
+No offscreen travel/economy/combat is introduced.

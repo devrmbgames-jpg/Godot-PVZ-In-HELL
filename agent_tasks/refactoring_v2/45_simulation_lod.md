@@ -50,8 +50,9 @@ LOD transition tests + save/restore smoke + performance sanity check.
 `4e549abab5b5c03280b3363be9f3182f539cdcea`; targeted ARCHITECTURE/STYLE PASS.
 45B checkpoint `c119bcb6f0bb53aabd0c390afa884361d44d1423` implements bounded native
 shape preflight, explicit phase-arrival retry and rejection before service/home activation.
-Its review found RV-002 (missing arrival target). The reproduced defect is repaired;
-next: commit/targeted repair review, then final 45C acceptance review and archive.
+Its review found RV-002 (missing arrival target), fixed and reviewed at
+`0d809e98b7d9f1c01ca7849681a66078e0cc0c87` (ARCHITECTURE/STYLE PASS).
+Next: final 45C acceptance review, Windows QA build and archive.
 One placement owner; retained physical roots; no speculative scheduler or mode mirror.
 Writer map and measured scope: [NPC participation](../../docs/npc_participation.md).
 Full task remains IN_PROGRESS until all slices and review gates are complete.
@@ -74,8 +75,10 @@ Full task remains IN_PROGRESS until all slices and review gates are complete.
   assertions (`tests/artifacts/refactoring_v2_45b_rv002_after.log`).
 - 45C disk roundtrip ACTIVE/DORMANT, fresh absent body, district persistence and processing
   acceptance: PASS, 54 tests / 554 assertions (`tests/artifacts/refactoring_v2_45c_gut.log`).
-- Actual main-level second-day queue headless smoke: PASS
-  (`tests/artifacts/refactoring_v2_45_main_smoke.log`, before strict target repair).
+- Final save/target/participation/processing acceptance after repair: PASS, 49 tests /
+  511 assertions (`tests/artifacts/refactoring_v2_45_final_gut.log`).
+- Actual main-level second-day queue headless smoke after repair: PASS
+  (`tests/artifacts/refactoring_v2_45_final_smoke.log`).
 - Formatter/lint, changed-source, strict architecture and project-structure gates: PASS.
   Compilation PASS, 6 files / 0 actual compile failures. Isolated fixture child exits 0
   with PASS before shutdown diagnostics; wrapper retention rejection is KNOWN_ENGINE_LIMITATION /
@@ -91,8 +94,10 @@ targeted review ARCHITECTURE/STYLE PASS. Night's uncommitted history retains its
 
 RV-002 (45B reviewer R1, P1, arrival callers): missing home/portal Definitions could resolve
 to origin and start a visit. Missing declared anchor could silently use fallback coordinates.
-ACCEPTED / FIX_IMPLEMENTED: activation callers require the declared target/anchor, and
+FIXED at `0d809e98b7d9f1c01ca7849681a66078e0cc0c87`: activation callers require the
+declared target/anchor, and
 nonfinite missing-target poses reject before mode/pose/generation or role/visit mutation.
 Actual phase/service missing-home/portal/anchor fixtures reproduce and pass after the repair.
-Original 45B review ARCHITECTURE FAIL / STYLE PASS; targeted repair review pending.
+Original 45B review ARCHITECTURE FAIL / STYLE PASS; targeted repair review
+ARCHITECTURE/STYLE PASS. No additional material findings.
 Reviewer VALIDATION NOT_RUN; main's executed evidence is listed separately above.
