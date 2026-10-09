@@ -350,3 +350,10 @@ selected visit policy and ID before native publication. Final changed parser **5
 **5 files** and full current **98-script GUT / 1415/1415 / 11960 assertions PASS**, zero diagnostics.
 The separate four-script native shutdown still FAILs (749 ObjectDB/530 resources plus RIDs); no
 exemption adopted. Manifest remains **24/72** before remaining classification; 41 is IN_PROGRESS.
+
+
+Task 41 provider audit (2026-10-09): **72/72** structural writers explicitly closed with individual
+factory/intrinsic/runtime-transition resolutions, backed by current full native **98 scripts /
+1415/1415 tests / 11960 assertions PASS**, zero diagnostics. No missing-capability tick/role repair
+or generic waiver remains. **41 stays IN_PROGRESS** on separately unresolved cold/inherited parser
+and bounded native shutdown resource retention; those gates were not waived. Next stays 41, then 42.

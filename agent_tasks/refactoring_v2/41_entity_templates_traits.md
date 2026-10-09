@@ -744,3 +744,25 @@ on native shutdown: 749 ObjectDB instances, 530 resources and Jolt/material/shad
 RIDs/allocator pages are retained. Log: `refactoring_v2_41_remaining_customer_callers_gut.log`.
 No warning exemption or load-order workaround adopted. This cold/shutdown acceptance remains
 pending independently of the clean full suite; 41 remains IN_PROGRESS, next provider audit/retention.
+
+
+### Complete procedural provider classification — 2026-10-09
+
+All **72/72** frozen structural writers are now explicitly resolved. Every remaining method and
+its construction caller was audited: factories use the common compiled registration gate and reject
+without replacing existing actors/committing source removal, wallet, visit, order or reservation
+facts; retained valve/debris recipes are deliberate fresh intrinsic data providers with no second
+native contribution. Runtime Relationships, transient customer roles, terminal death/anchoring/
+protection and per-action progress are explicit operations on existing compiled capabilities.
+C_CartDriver is a documented derived reverse lease cache; the Relationship remains authority.
+No runtime tick or role transition repairs missing reusable capability; no generic waiver adopted.
+Each manifest row records its actual operation/provider resolution.
+
+Evidence: full current native GUT **98 scripts / 1415/1415 / 11960 assertions PASS**, zero diagnostics
+(`refactoring_v2_41_complete_after_callers_gut.log`). Current schema/identity/compiled defaults/
+bindings/failure cleanup are covered together with actual damage, inventory, customer, interaction,
+NPC scheduling, package/hazard, receiving, quest and save/load surfaces. Strict validators remain PASS.
+
+**Task 41 remains IN_PROGRESS**, despite complete provider classification: its separately documented
+cold/inherited parser and bounded native shutdown resource retention are not waived. Next: isolate
+the concrete Script/resource reference cycle and complete this remaining acceptance; then 42.

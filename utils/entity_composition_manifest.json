@@ -22,7 +22,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Fixed authored physical meat scene is posed, then compiled/validated through the common registration gate once. Rejection frees the scene; debug command never installs capability after registration. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/debug/debug_package_service.gd",
@@ -35,7 +36,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "ReceivingPackageFactory supplies complete private package construction data. Near-player placement uses the common gate once; failure detaches the scene and its spawn caller frees it/rolls back accepted batch items. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/challenges/observers/o_floor_challenge_spawn.gd",
@@ -53,7 +55,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Captured accepted floor-spawn result binds R_ChallengeEffect only to the same live active challenge generation. It neither installs floor capability nor retries construction. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/challenges/services/challenge_service.gd",
@@ -69,7 +72,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Explicit challenge arm changes existing C_Challenge phase and captures R_ChallengeActor. Initial subject challenge data is already compiled; replay/consumed/live-day checks gate the transition. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/challenges/services/challenge_service.gd",
@@ -85,7 +89,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Explicit debug command optionally grants a challenge record from the requested authored Definition, then invokes the normal arm/activate lifecycle. This is an authorized runtime operation, not ordinary startup wiring. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/combat/observers/o_depletion_effects.gd",
@@ -98,7 +103,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Captured depletion scene is materialized from its immutable spawn Definition. Entity roots use common compilation/one registration and free on rejection; non-ECS authored VFX remain ordinary Nodes. The depletion fact remains valid after source retirement. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/combat/observers/o_health_lifecycle.gd",
@@ -116,7 +122,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Queued health terminal commit revalidates the captured health/living generation, then grants C_Death once and releases runtime participation. A living actor is not born with this terminal marker. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/combat/services/combat_service.gd",
@@ -129,7 +136,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Accepted combat target selection replaces only the live R_CombatTarget relationship; end_combat releases the previous attack/target lease. It supplies no initial combat Components. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/combat/services/combat_service.gd",
@@ -146,7 +154,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Accepted strike initializes the existing compiled C_Combat execution and grants the R_AttackWeapon lease for that strike. Weapon data is required before the operation; it is not an installer. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/combat/services/projectile_service.gd",
@@ -165,7 +174,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Private projectile velocity/lifetime/damage/attribution fields and source binding intent precede common compilation and one registration. Rejection frees the scene and initial binding data is not installed a second time. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/combat/services/throw_context.gd",
@@ -180,7 +190,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "An actual throw opens the existing C_ThrowDamage window and grants R_ThrownBy attribution for the committed throw. Initial throw capability remains scene-owned/compiled. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/combat/systems/s_impact.gd",
@@ -225,7 +236,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Virtual purchased stack is private and compiled before payment or ownership transfer. Failed build/payment/transfer removes only its proposed grant; furniture preparation validates a full common plan before Wallet apply. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/commerce/services/furniture_placement.gd",
@@ -241,7 +253,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Furniture commit consumes only its validated captured common plan, applies physical pose, then registers once. Preparation validates scene/shape/identity/recipes before payment; no compatibility registration path remains. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/commerce/services/order_delivery_service.gd",
@@ -330,7 +343,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Selected Customer policy and visit ID precede compilation of the standalone scene-owned flat Template. A valid plan precedes visit-start publication/one native registration; invalid build frees the original Node and preserves visit facts. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/customers/services/customer_inspection_service.gd",
@@ -348,7 +362,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "The authored physical inspection slot uses the same compiler before optional one-time registration. Reservation/borrowing/service transition happens only after accepted complete slot construction; its mount is already initial binding data. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/customers/services/customer_inspection_service.gd",
@@ -361,7 +376,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Only accepted extracted inspection cargo obtains R_InspectionCargo for the active customer reservation. It does not install item capability or recreate package contents. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/customers/services/customer_parcel_assignment.gd",
@@ -377,7 +393,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "A live visit assigns an existing undelivered package through R_AssignedTo with the captured visit ID. Missing package or existing assignment produces no alternate construction path. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/customers/services/npc_home_delivery_service.gd",
@@ -395,7 +412,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "A committed home knock grants transient C_CustomerAgent visit data and R_NpcHomeMeeting on the retained resident body. Resident request/handoff actions are already authored and compiled; no action installer remains. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/customers/services/npc_service_role.gd",
@@ -414,7 +432,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "A selected retained resident begins a transient service visit through C_CustomerAgent and R_NpcWaitingAt. Its action/motion/brain capabilities are already compiled; role changes do not rebuild them. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/customers/services/npc_service_role.gd",
@@ -430,7 +449,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Accepted queue selection grants the exclusive R_NpcServiceAt counter lease and updates the existing agent phase/intent. It does not create navigation or customer action capability. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/hazards/observers/o_hazard_spawn.gd",
@@ -447,7 +467,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Hazard scene root, lifetime, private geometry/no-damage data and follow intent are validated before common registration. The original Node is freed on every rejected root/configuration/plan; accepted result publishes only after registration. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/hazards/services/hazard_follow_service.gd",
@@ -462,7 +483,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Explicit hazard-owner replacement changes only R_HazardFollow under the existing owner-loss subscription/generation contract. Initial hazard follow bindings are compiled; this method handles accepted later transfers. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/entities/e_interaction_test_valve.gd",
@@ -477,7 +499,8 @@
       "kind": "declarative_intrinsic",
       "action": "retain_and_validate",
       "contract": "Pure scene-owned valve state remains declarative, contributed exactly once and validated through common preparation.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Retained declarative intrinsic provider supplies fresh C_InteractionToggle for the authored demonstration entity. The common prepared marker suppresses a second define_components contribution; action resources remain scene-owned. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/entities/e_physical_slot.gd",
@@ -514,7 +537,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Actual player fastening snapshots physical release settings and grants C_PlayerAnchored after tool/rest/reach/ownership validation. The optional marker is runtime action state; authored C_Anchorable remains separate. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/services/cart_cargo_service.gd",
@@ -529,7 +553,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Accepted supported cargo load grants R_CartCargo on an existing physical item and applies the reversible mount. Failed attachment removes the lease; it does not install initial transport/cargo capabilities. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/services/cart_transport_service.gd",
@@ -542,7 +567,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Accepted driving grants R_CartDrivenBy and its reversible capture/mount lifecycle. Initial C_CartTransport/configuration is required; no scheduled behavior is installed through this operation. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/services/cart_transport_service.gd",
@@ -558,7 +584,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "R_CartDrivenBy lifecycle derives C_CartDriver as a reverse lookup cache. The Relationship owns the live authoritative binding; release clears the cache and token. This is deliberately derived runtime cache, not second authority. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/services/grab_service.gd",
@@ -574,7 +601,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Validated physical pickup grants R_HeldBy with the selected hand/carry lease. Required authored hold/physical capabilities already exist; old lease release and rotation reset follow the normal runtime operation. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/services/openable_service.gd",
@@ -589,7 +617,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "A player motion request optionally grants R_OpenableRequestedBy for its accepted desired open state. It is cancellable runtime request attribution, not the initial openable capability. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/services/physical_slot_service.gd",
@@ -602,7 +631,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Accepted storage releases the actual held item and grants R_StoredIn; mount failure removes that lease. The authored slot mount is already compiled and is never installed lazily here. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/services/prolonged_interaction_service.gd",
@@ -618,7 +648,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "A validated prolonged action optionally creates private progress records and grants R_ProlongedOn/R_ProlongedUsing for its live session. Authored actions/timing are required; progress is durable action state, not reusable capability wiring. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/services/prolonged_interaction_service.gd",
@@ -633,7 +664,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Explicit debug progress edit optionally creates the selected action progress record after timing/range/current-session checks. It commits no completion effect and supplies no authored interaction capability. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/services/push_service.gd",
@@ -646,7 +678,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Accepted pushing grants R_PushedBy and reversible capture/contact lifecycle. It reads required authored pushable data and does not install initial push capability. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/interaction/solvers/physics_grab_target.gd",
@@ -662,7 +695,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Temporary grab proxy has private C_PhysicsBodyRef compiled/registered once before the weak body cache is published. Rejection frees the proxy; physics transform/velocity authority remains on the native body. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/inventory/services/inventory_drop_service.gd",
@@ -713,7 +747,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Virtual grant builds complete private inventory stack before common registration. Ownership transfer follows acceptance; capacity/transfer rejection removes the proposed item without creating a parallel stack authority. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/inventory/services/inventory_service.gd",
@@ -729,7 +764,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Inventory transfer changes R_OwnedBy and existing stack quantities only after reservation/ownership/capacity checks. It is an atomic live inventory transaction, not a factory or capability installer. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/npc/services/district_population_service.gd",
@@ -851,7 +887,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "NPC accepted loot selection claims an existing item through exclusive R_NpcLootTarget. Initial inventory/needs/brain data is compiled; selection never installs missing capabilities. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/npc/services/npc_dialogue_service.gd",
@@ -864,7 +901,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Accepted NPC conversation grants the live R_NpcConversation participation lease, cancelled on the normal dialogue/lifetime boundary. It supplies no initial dialogue or action capability. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/npc/services/npc_intent_service.gd",
@@ -879,7 +917,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "NPC follow selection replaces R_NpcMoveTarget for an existing compiled intent. Missing intent is not repaired; physical motion remains with the body owner. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/npc/services/npc_intent_service.gd",
@@ -894,7 +933,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "NPC watch selection replaces independent R_NpcLookTarget for an existing compiled intent. It supplies neither intent nor navigation Components. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/npc/services/npc_trait_service.gd",
@@ -1005,7 +1045,8 @@
       "kind": "declarative_intrinsic",
       "action": "retain_and_validate",
       "contract": "Pure scene-owned source metadata remains declarative, configured from typed factory context and validated through common preparation.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Retained declarative intrinsic provider supplies fresh C_PackageDebris source metadata from detached factory inputs. The common prepared marker suppresses native reinsertion; runtime consumers read only C_PackageDebris. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/packages/observers/o_package_condition_setup.gd",
@@ -1045,7 +1086,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Debris source metadata, physical pose and velocities are captured before common compilation/one registration. Rejection frees the original Node and preserves the source package; replacement/retirement follows accepted debris. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/packages/services/loot_drop_service.gd",
@@ -1062,7 +1104,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Loot stable identity/private recipes and safe physical placement precede the common gate. Rejection detaches/frees through its caller without reservation or domain placement event. Accepted placement then binds/updates its explicit runtime context. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/packages/services/loot_drop_service.gd",
@@ -1077,7 +1120,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Detached inventory content recipe receives private one-unit stack data without mutating the authored Resource. It performs no native registration; its accepted _place owner uses the one common compiler gate. Non-inventory physical loot remains explicit optional intrinsic data. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/packages/services/loot_drop_service.gd",
@@ -1135,7 +1179,8 @@
       "kind": "runtime_transition",
       "action": "retain",
       "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Actual protective-material consumption grants optional C_ImpactProtection state to the chosen package through the inventory operation. This is explicit gameplay state change, not birth-time package wiring. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/packages/services/receiving_package_factory.gd",
@@ -1172,7 +1217,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Receiving validates the detached package, complete initial shipment fields, pose and common plan before parent/native registration. Accepted placement alone commits reservations; collisions preserve the existing registered actor. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/persistence/services/persistent_interaction_state.gd",
@@ -1242,7 +1288,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Quest offer builds private binding data and required issuer/package/session intents through _create_binding and the common gate. Durable offer record append follows accepted construction; rejection creates no outcome or payment. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/domains/quests/services/refusal_quest_service.gd",
@@ -1261,7 +1308,8 @@
       "kind": "passive_restore",
       "action": "migrate_gate",
       "contract": "Restored quest binding Entities follow the common pre-registration gate; retain passive idempotent relation reconstruction.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Passive restore removes stale transient bindings and rebuilds only active saved quest bindings through the same common _create_binding gate. It never offers a new quest, advances outcome or pays reward during reconstruction. Exact owning method/callers audited; complete current native GUT 98 scripts / 1415 tests / 11960 assertions PASS with zero diagnostics (2026-10-09). This closes structural provider classification, not the separately pending cold/shutdown task gate."
     },
     {
       "source": "content/scenes/game_world.gd",
