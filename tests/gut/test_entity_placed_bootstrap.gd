@@ -435,6 +435,27 @@ func test_incompatible_saved_pose_rejects_before_preparing_or_registering_placed
 #endregion
 
 #region Saved runtime markers before native callbacks
+## Invalid progress rejects the placed overlay before markers or prepared state are installed.
+func test_saved_progress_overlay_rejects_invalid_ids_without_materializing_markers() -> void:
+	var subject: SavedStateActor = _saved_actor(C_Health.new())
+	var context: EntitySpawnContext = EntityCompositionService.context_for(subject, _world,
+		"fixture/overlay/Subject", [subject])
+	var invalid_progress: Array[Variant] = ["wrong_container", [1], ["fixture_never"],
+		[&"missing"], [&"fixture_never", &"fixture_never"]]
+	for invalid_ids: Variant in invalid_progress:
+		var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
+		assert_true(plan.valid())
+		var recipes_before: Array[Component] = plan.component_recipes.duplicate()
+		var saved: Dictionary = {"components": [], "death": true,
+			"completed_actions": invalid_ids}
+		assert_false(WorldSnapshotService.overlay_construction_fields(plan, saved))
+		assert_eq(plan.component_recipes, recipes_before)
+		assert_eq(_world.registrations(), 0)
+		assert_eq(subject.ready_calls(), 0)
+		assert_eq(subject.id, "")
+		assert_false(EntityCompositionService.recipes_prepared(subject))
+
+
 ## Native initialization and publication see terminal markers, private ink and completed NEVER data.
 func test_saved_runtime_markers_are_complete_before_placed_native_ready() -> void:
 	var snapshot: Dictionary = _write_saved_fixture(true)

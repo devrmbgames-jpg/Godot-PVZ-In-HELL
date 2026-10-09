@@ -513,8 +513,7 @@ static func overlay_construction_fields(plan: EntityBuildPlan, record: Dictionar
 			plan.provenance[component_script] = "saved runtime state"
 		if not SaveDataCodec.apply_fields(target, saved.fields as Dictionary):
 			return false
-	_overlay_saved_markers(plan, record)
-	return true
+	return _overlay_saved_markers(plan, record)
 
 
 ## Commits a validated saved pose on its physical owner before native World registration.
@@ -530,7 +529,22 @@ static func apply_construction_pose(actor: Entity, record: Dictionary) -> void:
 		body.freeze = true
 
 
-static func _overlay_saved_markers(plan: EntityBuildPlan, record: Dictionary) -> void:
+static func _overlay_saved_markers(plan: EntityBuildPlan, record: Dictionary) -> bool:
+	# Saved progress is untrusted input; validate it before constructing any runtime markers.
+	var saved_ids: Variant = record.get("completed_actions", [])
+	if not saved_ids is Array:
+		return false
+	var ids: Array = saved_ids as Array
+	var actions: C_InteractionActionSet = null
+	var progress: C_ProlongedInteraction = null
+	for recipe: Component in plan.component_recipes:
+		if recipe is C_InteractionActionSet:
+			actions = recipe as C_InteractionActionSet
+		elif recipe is C_ProlongedInteraction:
+			progress = recipe as C_ProlongedInteraction
+	if not PersistentInteractionState.valid_recipe(ids, actions):
+		return false
+
 	if bool(record.death):
 		_construction_marker(plan, C_Death)
 	else:
@@ -549,18 +563,11 @@ static func _overlay_saved_markers(plan: EntityBuildPlan, record: Dictionary) ->
 		_apply_saved_anchor(anchored, record.anchor as Dictionary)
 
 	# Completed actions are restored data, never a repeated gameplay operation.
-	var ids: Array = record.get("completed_actions", []) as Array
-	var actions: C_InteractionActionSet = null
-	var progress: C_ProlongedInteraction = null
-	for recipe: Component in plan.component_recipes:
-		if recipe is C_InteractionActionSet:
-			actions = recipe as C_InteractionActionSet
-		elif recipe is C_ProlongedInteraction:
-			progress = recipe as C_ProlongedInteraction
 	if progress == null and not ids.is_empty():
 		progress = _construction_marker(plan, C_ProlongedInteraction) as C_ProlongedInteraction
 	if progress != null:
 		progress.actions.assign(PersistentInteractionState.recipe_for(ids, actions).actions)
+	return true
 
 
 static func _construction_marker(plan: EntityBuildPlan, component_script: Script) -> Component:

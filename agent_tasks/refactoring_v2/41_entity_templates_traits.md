@@ -766,3 +766,97 @@ NPC scheduling, package/hazard, receiving, quest and save/load surfaces. Strict 
 **Task 41 remains IN_PROGRESS**, despite complete provider classification: its separately documented
 cold/inherited parser and bounded native shutdown resource retention are not waived. Next: isolate
 the concrete Script/resource reference cycle and complete this remaining acceptance; then 42.
+
+## Review findings
+
+Recovery audit (2026-10-09): task 41 remains **IN_PROGRESS**.
+
+- Last task-41 checkpoint: `da636b0c5c46cd82260e58db1a508ca00f531fb8`.
+- Current audit HEAD: `a95d10e7d01dbb513788289f6771d41dbefb58d8`.
+- Original task baseline: `857ec02d7703eab840dbf496730be48d29294d99`.
+- Previous review: **NOT_RUN (result unavailable)**. Neither this task's committed/current
+  contents nor the available local session records contain the previous reviewer ID, exact
+  snapshot pair, provisional findings, Main acceptance decisions or fix/test evidence. This
+  does not establish that a previous review never ran; its outcome cannot be recovered or
+  represented as PASS. No historical RV IDs or FIXED statuses are invented.
+- `collaboration.list_agents` showed only Main before replacement dispatch. Exactly one
+  replacement child was started: `/root/review_task41_checkpoint`.
+- Replacement snapshot: BASE_SHA=`857ec02d7703eab840dbf496730be48d29294d99`,
+  TARGET_SHA=`da636b0c5c46cd82260e58db1a508ca00f531fb8`.
+- GECS snapshot at both revisions: `14d4282e5c1cb2713c187706ba2f5ff4e315d36e`;
+  exact commit object is available in `addons/gecs`. Reviewer reads dependency contracts
+  with `git -C addons/gecs show <pinned SHA>:<path>`, not mutable addon files.
+- Replacement state: **TRIAGED — ARCHITECTURE FAIL**. Read-only bounded review of
+  compiler/fresh recipes, common registration, identity/endpoints, startup/observer readiness
+  and saved-state construction. It is not full provider-by-provider task acceptance. The
+  reviewer uses Git snapshots, does not write tasks/code or run tests/Godot/MCP.
+- The checkpoint-to-audit-HEAD diff changes review policy/documentation/tool tests only;
+  no runtime source or gameplay tests changed in that committed range. Mutable worktree
+  definition/config/manifest edits remain separate and preserved.
+
+Current validation evidence was read, not rerun: the saved full suite reports 1415/1415;
+the bounded Customer run reports 20/20 but leaks 749 Objects/530 resources, and the address
+run reports 49/49 but leaks 683 Objects/508 resources. These diagnostic failures remain open.
+Different failing fixture graphs are separate symptoms; a shared root cause is not established.
+No review PASS, fix verification or task completion is inferred from functional test counts.
+
+### Canonical triage
+
+Reviewer `/root/review_task41_checkpoint` completed the pinned review above. Its single provisional
+R1 is mapped to RV-001; unknown/renamed action, changed reset policy, wrong container/element types
+and duplicate IDs are triggers of the same validation-before-materialization contract, not separate
+findings. No other material finding was reported in the bounded scope. Reviewer STYLE PASS is
+static assessment only; reviewer VALIDATION is NOT_RUN.
+
+- **RV-001 | P1 BUG | ACCEPTED (OPEN, blocks DONE)**
+  - Source: `da636b0c5c46cd82260e58db1a508ca00f531fb8`,
+    `content/domains/persistence/services/world_snapshot_service.gd`, `_overlay_saved_markers`,
+    lines 552–563; `PersistentInteractionState.recipe_for`, lines 44–46.
+  - Evidence: `can_restore`/`restore` prepare and overlay fresh recipes before
+    `SnapshotGraphRules.valid_entities` checks `completed_actions`. Unknown IDs or changed NEVER
+    policy reach the mandatory timing assertion; malformed containers/elements are consumed before
+    rejection. The same overlay is used by placed bootstrap. Runtime reproduction NOT_RUN at triage.
+  - HEAD check: affected sources are unchanged at `a95d10e7d01dbb513788289f6771d41dbefb58d8`;
+    finding remains current. No existing fix SHA or verification was found.
+  - Owner: Main, task 41. Fix: validate container/types/uniqueness and authored NEVER timing against
+    the final compiled action set before materializing saved progress; reject through the existing
+    construction result. Keep assertions for validated synchronous recipe construction.
+  - Verification required: fresh restore and placed overlay negative cases, unchanged
+    World/registry/ownership/payment/IDs, no native diagnostics or orphan Nodes; changed parser,
+    formatter/static gates and one bounded fix re-review.
+
+Current next: repair RV-001 before dependent work. Cold/shutdown retention remains a separate
+unresolved task acceptance gate; no shared root cause with RV-001 is claimed.
+
+### Bounded repair checkpoint
+
+RV-001 fix is implemented: saved completed-actions container, element types, uniqueness and
+authored NEVER timing are checked against the final compiled action set before runtime markers
+are materialized. Existing Entity validation delegates to the same pure check. Rejection uses the
+existing overlay result for both fresh and placed construction; validated recipe assertions remain.
+
+- Actual focused native GUT: **61/61 / 657 assertions PASS**, three scripts; no native/GUT
+  errors, warnings or new orphan Nodes. Covers wrong container/element types, unknown/repeatable
+  action, duplicate IDs, changed authored reset policy, retained registry/World/calendar/wallet
+  and placed overlay without marker installation. Existing saved-state/publication regressions pass.
+- Final native changed parser: **4/4 PASS**, no diagnostics.
+- Actual incremental GDQuest formatter/lint: **4 files PASS**; incremental agent and strict
+  architecture validators PASS.
+- Initial project-structure validation FAIL exposed a separate current-HEAD policy task defect,
+  recorded below. After its metadata repair, project-structure validation **PASS**.
+- Logs: `tests/artifacts/refactoring_v2_41_rv001_gut.log` and
+  `tests/artifacts/refactoring_v2_41_rv001_final_parser.log`.
+- Fix re-review: **REVIEW_PENDING**, to be dispatched on a committed full-SHA fix snapshot
+  to the same now-finished reviewer; no concurrent second reviewer.
+
+- **RV-002 | P2 | ACCEPTED (metadata repair implemented, commit pending)**
+  - Origin: Main's required structure gate, not replacement reviewer R1.
+  - Source: `a95d10e7d01dbb513788289f6771d41dbefb58d8`,
+    `agent_tasks/parallel_review_pilot.md`, status/section headers. File was unchanged when
+    the gate failed: unsupported READY_FOR_PILOT and missing authoritative Task state sections.
+  - Contract: normalized task status and Goal/Current/Validation/Owner QA sections.
+  - Repair: IN_PROGRESS plus one Task state block; record the actual native pilot checkpoint
+    without duplicating task-41 findings or claiming benchmark/full-task completion.
+  - Verification: `python utils/validate_project_structure.py` PASS after repair.
+
+No broad acceptance rerun, rendered gameplay, task-42 or Phase-3 work is claimed.

@@ -35,8 +35,13 @@ func after_each() -> void:
 	ECS.world = null
 
 
+func _valve_scene() -> PackedScene:
+	return load(
+		"res://content/domains/interaction/entities/interaction_test_valve.tscn") as PackedScene
+
+
 func _valve() -> E_InteractionTestValve:
-	var valve: E_InteractionTestValve = (load("res://content/domains/interaction/entities/interaction_test_valve.tscn") as PackedScene).instantiate() as E_InteractionTestValve
+	var valve: E_InteractionTestValve = _valve_scene().instantiate() as E_InteractionTestValve
 	valve.name = "Valve"
 	_root.add_child(valve)
 	valve.owner = _root
@@ -116,6 +121,72 @@ func test_unknown_or_repeatable_completed_action_fails_before_day_or_effect_chan
 		assert_false(WorldSnapshotService.restore(snapshot, _root))
 		assert_eq(DayPhaseQueries.current().day_index, 1)
 		assert_false(valve.is_active())
+
+
+## Fresh recipes reject incompatible saved progress without publication or changes to live state.
+func test_fresh_completed_actions_reject_before_publication_or_live_mutation() -> void:
+	var packed: PackedScene = _valve_scene()
+	var valve: E_InteractionTestValve = packed.instantiate() as E_InteractionTestValve
+	EntityCompositionFixture.register(_world, valve)
+	var key: String = ActorIdentityRules.key_for(valve, _root)
+	var saved: Dictionary = WorldSnapshotService.capture(_root, 2)
+	_world.remove_entity(valve)
+	await get_tree().process_frame
+
+	var registry_before: Dictionary = _world.entity_id_registry.duplicate()
+	var entities_before: Array[Entity] = _world.entities.duplicate()
+	var calendar: C_DayCycle = DayPhaseQueries.current()
+	var session: Entity = _root.get_node("Session") as Entity
+	var wallet: C_Wallet = session.get_component(C_Wallet) as C_Wallet
+	calendar.day_index = 7
+	wallet.balance = 230
+	watch_signals(_world)
+
+	var invalid_progress: Array[Variant] = ["wrong_container", [1], ["test_valve_never"],
+		[&"missing"], [&"test_valve_decay"], [&"test_valve_never", &"test_valve_never"]]
+	for invalid_ids: Variant in invalid_progress:
+		var snapshot: Dictionary = saved.duplicate(true)
+		for record: Dictionary in snapshot.entities:
+			if String(record.key) == key:
+				record.completed_actions = invalid_ids
+		assert_false(WorldSnapshotService.can_restore(snapshot, _root))
+		assert_false(WorldSnapshotService.restore(snapshot, _root))
+		assert_eq(_world.entities, entities_before)
+		assert_eq(_world.entity_id_registry, registry_before)
+		assert_eq(calendar.day_index, 7)
+		assert_eq(wallet.balance, 230)
+		assert_signal_not_emitted(_world, "entity_added")
+		assert_no_new_orphans()
+
+
+## Changing an authored NEVER policy rejects a fresh save before recipe construction asserts.
+func test_fresh_completed_action_rejects_changed_authored_policy() -> void:
+	var packed: PackedScene = _valve_scene()
+	var valve: E_InteractionTestValve = packed.instantiate() as E_InteractionTestValve
+	EntityCompositionFixture.register(_world, valve)
+	PersistentInteractionState.restore([&"test_valve_never"], valve)
+	var saved: Dictionary = WorldSnapshotService.capture(_root, 2)
+	var actions: C_InteractionActionSet = valve.get_component(
+		C_InteractionActionSet) as C_InteractionActionSet
+	var timing: DEF_ProlongedInteraction = null
+	for action: DEF_InteractionAction in actions.actions:
+		if action.action_id == &"test_valve_never":
+			timing = action.timing
+	assert_not_null(timing)
+	_world.remove_entity(valve)
+	await get_tree().process_frame
+
+	var registry_before: Dictionary = _world.entity_id_registry.duplicate()
+	timing.reset_policy = DEF_ProlongedInteraction.ResetPolicy.INSTANT
+	var compatible: bool = WorldSnapshotService.can_restore(saved, _root)
+	var restored: bool = WorldSnapshotService.restore(saved, _root)
+	timing.reset_policy = DEF_ProlongedInteraction.ResetPolicy.NEVER
+
+	assert_false(compatible)
+	assert_false(restored)
+	assert_eq(_world.entity_id_registry, registry_before)
+	assert_eq(DayPhaseQueries.current().day_index, 1)
+	assert_no_new_orphans()
 
 
 ## Начальное значение и непосредственные переключения публикуют только фактические изменения прогресса.

@@ -17,9 +17,16 @@ static func completed(entity: Entity) -> Array[StringName]:
 
 ## Проверяет уникальные ID и соответствие авторским действиям NEVER.
 static func valid(ids: Array, entity: Entity) -> bool:
+	return valid_recipe(ids, _action_set(entity))
+
+
+## Validates saved IDs against the final compiled action set without creating progress or effects.
+static func valid_recipe(ids: Array, actions: C_InteractionActionSet) -> bool:
 	var seen: Dictionary[StringName, bool] = {}
 	for value: Variant in ids:
-		if not value is StringName or seen.has(value) or _timing(entity, value as StringName) == null:
+		if not value is StringName or seen.has(value):
+			return false
+		if _timing_in(actions, value as StringName) == null:
 			return false
 
 		seen[value] = true
@@ -68,10 +75,6 @@ static func reset_incomplete(entity: Entity) -> void:
 #endregion
 
 #region Authored action lookup
-static func _timing(entity: Entity, id: StringName) -> DEF_ProlongedInteraction:
-	return _timing_in(_action_set(entity), id)
-
-
 static func _action_set(entity: Entity) -> C_InteractionActionSet:
 	var set: C_InteractionActionSet = entity.get_component(C_InteractionActionSet) as C_InteractionActionSet
 	if set == null:
