@@ -13,7 +13,7 @@ Pinned local source under `addons/gecs/` is the API authority. Inspect it only w
 
 Canonical project roles and ownership are defined in [content/ARCHITECTURE.md](../../../content/ARCHITECTURE.md#canonical-roles-and-ownership). This skill adds pinned GECS usage rules; it does not define a competing role contract.
 
-- Components are data/state only.
+- Components are data/state only. Typed records nested inside an ECS-owned Component may form an aggregate when one explicit writer owns them. Distinguish derived caches, immutable identity references and terminal history; reject competing mutable state authorities.
 - Scene-authored reusable Components should normally be exposed through `component_resources`.
 - Visible/physical placed Entities stay native designer-editable `.tscn` scenes. Templates/Traits provide capabilities, not invisible replacements. `E_*` scripts own identity/lifecycle/engine glue only; no giant script assembling the entire world or duplicating runtime authority.
 - Entities own identity/lifecycle and thin Godot scene/physics glue.

@@ -5,6 +5,18 @@ description: Use for live Godot AI MCP editor/scene inspection, ClassDB, script 
 
 # Godot AI MCP
 
+## Connection and editor lifecycle
+
+Codex uses the Godot AI MCP connection in the user-level `~/.codex/config.toml`
+(or `$CODEX_HOME/config.toml` when overridden). Do not duplicate its server entry
+in project-local Codex config. MCP is optional for static file work.
+
+If live editor state is needed and Godot is closed, start Godot Editor with
+`.vscode/start-godot.ps1` automatically. Never launch rendered gameplay or
+perform subjective visual QA without approval. For editor-owned scene mutation
+use [godot-scene-authoring](../godot-scene-authoring/SKILL.md); if the editor
+blocks required filesystem changes, close and relaunch it when needed.
+
 The installed addon under `addons/godot_ai/` is the local tool/API authority. Use upstream `hi-godot/godot-ai` only when the local contract is unclear; inspect the smallest relevant tool/doc instead of preloading the addon or full docs.
 
 ## When to use MCP

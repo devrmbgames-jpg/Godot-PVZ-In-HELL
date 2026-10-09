@@ -21,6 +21,7 @@ Docs/prompt/config-only edits need relevant text/link/schema checks, not gamepla
 - `validate_agent_changes.py --staged` checks the Git index. `--report-only` is **not** an accepted PASS. Static validators supplement, not replace, architecture review.
 - For a completed large gameplay milestone, normally run one relevant focused GUT surface and one relevant headless smoke/runtime check, unless the task has a more specific acceptance contract. Use [gut-testing](../gut-testing/SKILL.md) for authoring/execution. Avoid running all tests after each edit.
 - Review substantive committed checkpoints against immutable SHAs via [review-orchestration](../review-orchestration/SKILL.md), triage findings and resolve accepted P0/P1/P2 before DONE.
+- Runnable Windows QA builds under `.export/` are for completed large gameplay milestones, not documentation/config-only changes.
 
 ## Evidence and exceptions
 
