@@ -1,9 +1,6 @@
 ---
 name: input-systems
-description: >
-  Use for player input architecture, InputMap actions, edge/held semantics,
-  mouse/gamepad look, rebinding, deadzones, buffering, and interaction-control
-  priority in this project.
+description: Use for player InputMap, mouse/gamepad controls, rebinding, buffering, deadzones or input focus.
 ---
 
 # Input Systems

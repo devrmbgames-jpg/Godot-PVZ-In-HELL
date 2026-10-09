@@ -1,9 +1,6 @@
 ---
 name: limboai-v1.8
-description: >
-  Use only for LimboAI v1.8.1 behavior trees, BTPlayer/BehaviorTree resources,
-  custom BT tasks, Blackboard, LimboHSM/LimboState, BTState, or version-sensitive
-  LimboAI integration work.
+description: Use for LimboAI v1.8.1 BehaviorTree, BTTask, Blackboard and HSM implementation or API debugging.
 ---
 
 # LimboAI v1.8.1

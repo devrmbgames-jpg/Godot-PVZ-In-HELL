@@ -1,9 +1,6 @@
 ---
 name: save-systems
-description: >
-  Use for persistent game-state serialization, stable IDs, save schema design,
-  migrations, autosave/checkpoints, crash-safe writes, and restoring GECS/domain
-  state across sessions.
+description: Use for persistent save/load, stable IDs, schema migration, checkpoints and restoring GECS game state.
 ---
 
 # Save Systems

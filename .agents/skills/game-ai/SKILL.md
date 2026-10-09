@@ -1,9 +1,6 @@
 ---
 name: game-ai
-description: >
-  Use for NPC decision architecture, sensing, navigation intent, steering,
-  behavior selection, utility scoring, patrol/chase/search logic, and AI update
-  cadence in this project. Pair with LimboAI for concrete BT/HSM APIs.
+description: Use for NPC sensing, behavior selection, navigation intent or AI update cadence; not LimboAI APIs alone.
 ---
 
 # Game AI

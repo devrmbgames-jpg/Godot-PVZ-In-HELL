@@ -1,10 +1,6 @@
 ---
 name: professional-game-design
-description: >
-  Review and design game mechanics professionally: core loops, player decisions, game feel,
-  onboarding, progression, difficulty, balance/economy, level pacing, accessibility, and
-  playtesting. Use for mechanic proposals, tuning, GDD decisions, RPG progression, combat feel,
-  or evaluating whether a feature improves the player experience.
+description: Use for player-facing mechanics, onboarding, progression, balance and game-design decisions; not code fixes.
 ---
 
 # Professional game design

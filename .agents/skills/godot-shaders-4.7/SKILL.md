@@ -1,8 +1,6 @@
 ---
 name: godot-shaders-4.7
-description: >
-  Use for Godot 4.7 .gdshader and ShaderMaterial work: spatial/canvas shaders,
-  uniforms, screen/depth textures, per-instance parameters, and shader performance.
+description: Use when editing Godot 4.7 .gdshader files, ShaderMaterial uniforms or shader-performance behavior.
 ---
 
 # Godot 4.7 Shaders

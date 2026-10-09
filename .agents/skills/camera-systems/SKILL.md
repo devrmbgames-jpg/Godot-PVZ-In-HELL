@@ -1,8 +1,6 @@
 ---
 name: camera-systems
-description: >
-  Use for first-person/3D camera look, smoothing, pitch/yaw ownership, recoil,
-  shake, FOV, camera jitter, clipping, and camera-related motion sickness issues.
+description: Use for camera look, smoothing, recoil, FOV or camera jitter implementation and debugging.
 ---
 
 # Camera Systems

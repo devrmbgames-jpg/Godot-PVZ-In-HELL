@@ -1,9 +1,6 @@
 ---
 name: dialogue-manager-v4.1
-description: >
-  Use for Nathan Hoad Dialogue Manager v4.1.0 syntax, DialogueResource/DialogueLine/
-  DialogueResponse APIs, cues, conditions, mutations, tags, extra_game_states,
-  custom dialogue UI, and addon-specific debugging in this project.
+description: Use for Dialogue Manager v4.1 .dialogue syntax, resource APIs, cues and mutations; not generic dialogue design.
 ---
 
 # Dialogue Manager v4.1.0

@@ -1,9 +1,6 @@
 ---
 name: dialogue-systems
-description: >
-  Use for Customer/NPC dialogue flow, branching choices, response tags,
-  conditions, dialogue-side actions, localization-ready lines, and conversation
-  validation in this project.
+description: Use for NPC/Customer conversation branching, response tags, dialogue conditions or gameplay-side actions.
 ---
 
 # Dialogue Systems

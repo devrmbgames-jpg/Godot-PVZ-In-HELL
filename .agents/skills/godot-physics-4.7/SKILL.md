@@ -1,9 +1,6 @@
 ---
 name: godot-physics-4.7
-description: >
-  Use for Godot 4.7 3D physics work in this project: Jolt Physics, RigidBody3D,
-  CharacterBody3D, Area3D, collision layers/masks, contacts, joints, ray/shape
-  queries, impulses, and physics-authority bugs.
+description: Use for Godot 4.7/Jolt body movement, collisions, contacts, joints, queries and physics-authority bugs.
 ---
 
 # Godot 4.7 / Jolt Physics

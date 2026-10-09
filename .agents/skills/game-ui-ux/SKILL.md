@@ -1,9 +1,6 @@
 ---
 name: game-ui-ux
-description: >
-  Use for runtime HUD/menu/dialogue UI implementation, responsive Control layout,
-  focus navigation, modal screens, UI-to-gameplay boundaries, localization-ready
-  layout, and accessibility behavior.
+description: Use for runtime Godot Control HUD/menus, focus navigation, dialogs, modals and responsive UI behavior.
 ---
 
 # Game UI / UX

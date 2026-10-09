@@ -1,9 +1,6 @@
 ---
 name: first-person-combat
-description: >
-  Use for first-person combat feel and targeting in this project: melee aim,
-  future hitscan/projectiles, camera-origin targeting, recoil/feedback, damage
-  routing, weapon timing, and combat readability.
+description: Use for first-person weapon targeting, melee/hitscan, combat feel, damage routing and combat feedback.
 ---
 
 # First-Person Combat
