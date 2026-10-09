@@ -1,8 +1,8 @@
 # Refactoring v2.44 — AI obligations, goal selection и LimboAI execution
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
-Зависимости: [43_smart_objects.md](43_smart_objects.md), [47_game_time_randomness.md](../completed/refactoring_v2/47_game_time_randomness.md), stable NPC domain.
+Зависимости: [43_smart_objects.md](../completed/refactoring_v2/43_smart_objects.md), [47_game_time_randomness.md](../completed/refactoring_v2/47_game_time_randomness.md), stable NPC domain.
 
 ## Goal
 
@@ -41,3 +41,17 @@ Future GOAP разрешается отдельной задачей тольк�
 ## Validation
 
 Goal/priority/cancellation deterministic fixtures + NPC smoke. Time/seed foundation берётся из 47. GOAP tests отсутствуют, пока feature отложена.
+
+## Current / Next
+
+Authorized by active Goal; task43 runtime review PASS at
+`9e7a139fbe473107ecf249e6116158a2269999d5`. Task42 visual acceptance remains open.
+Nearest owners: `S_NpcCadence` captures due work, `S_NpcDecision` updates the native tree,
+`C_NpcDecision` + `NpcIntentArbiter` own execution intent, district roster owns deterministic
+phase/goal obligations. Existing schedule leaves execute move/finish and existing reactive
+subtrees own emergency/combat/service control flow. No new planner/utility framework.
+Next: add bounded fair/coalesced due selection and observable counters to its existing owner;
+extend the current action lifecycle in ECS and route schedule completion/interruption through
+its owning operation, retaining visible native BT branch priority and existing domain roles.
+Completion: scoped deterministic lifecycle/burst fixtures, NPC smoke, static/parser checks
+and immutable review, with old overlapping execution paths removed.
