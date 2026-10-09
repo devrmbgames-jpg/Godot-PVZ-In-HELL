@@ -1,20 +1,23 @@
 extends Node
+## Исторический smoke фаз main_level через реальные станции; отдельно проверяет устаревшие запросы перехода.
 
 var _level: Node = null
 var _actor: Entity = null
 var _controller: C_Controller = null
 
 
+#region Переходы фаз через станции
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет переходы утро/смена/вечер/сон и отказ устаревшего запроса через авторские станции.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	_level = scene.instantiate()
 	add_child(_level)
 	_level.set_physics_process(false)
-	# This fixture isolates the day/wallet contract; R11 has its own full flow smoke.
+	## Убираем очередь клиентов, чтобы изолировать фазы и деньги; полный поток обслуживания проверяется отдельно.
 	var session: Entity = _level.get_node("Entityes/DaySession") as Entity
 	session.remove_component(C_CustomerFlow)
 	_actor = _level.get_node("Entityes/Player") as Entity
@@ -22,14 +25,14 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	assert(cycle != null and cycle.phase == C_DayCycle.Phase.MORNING)
 	assert(not DayPhaseService.permits(cycle, DayTransitionRequest.Kind.SLEEP))
 	var stale: DayTransitionRequest = DayTransitionRequest.new()
 	stale.expected_day = cycle.day_index
 	stale.expected_phase = cycle.phase
 	for tick_index: int in 10:
-		ECS.world.process(100.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 100.0)
 	assert(cycle.phase == C_DayCycle.Phase.MORNING)
 	_use_station("ShiftConsole")
 	assert(cycle.phase == C_DayCycle.Phase.DAY)
@@ -43,13 +46,13 @@ func _run() -> void:
 	_use_station("SleepPoint")
 	assert(cycle.phase == C_DayCycle.Phase.NIGHT and cycle.day_index == 1)
 	cycle.night_ready = false
-	ECS.world.process(1.0, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 1.0)
 	assert(cycle.phase == C_DayCycle.Phase.NIGHT and cycle.day_index == 1)
 	cycle.night_ready = true
-	ECS.world.process(1.0, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 1.0)
 	assert(cycle.phase == C_DayCycle.Phase.MORNING and cycle.day_index == 2)
 	assert(not DayPhaseService.submit(stale))
-	ECS.world.process(1.0, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 1.0)
 	assert(cycle.day_index == 2)
 	_level.free()
 	ECS.world = null
@@ -57,11 +60,14 @@ func _run() -> void:
 	get_tree().quit()
 
 
+## Наводит тестовый луч на станцию и проводит взаимодействие через штатные группы World.
 func _use_station(station_name: String) -> void:
 	var station: Node3D = _level.get_node("Entityes/" + station_name) as Node3D
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	ray.look_at(station.global_position + Vector3.UP * 0.55)
 	_controller.interact_pressed = true
 	_controller.input_tick += 1
 	ECS.world.process(1.0 / 60.0, "Interaction")
-	ECS.world.process(1.0 / 60.0, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
+
+#endregion

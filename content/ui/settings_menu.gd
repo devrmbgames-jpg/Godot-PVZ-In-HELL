@@ -2,6 +2,7 @@ extends CanvasLayer
 ## Модальное меню пользователя; приостановка мира принадлежит только открытому меню.
 class_name SettingsMenu
 
+## Меню освободило фокус и восстановило предыдущую паузу/режим мыши; вызывающий UI может вернуть фокус.
 signal closed
 
 const CAPTURE_THRESHOLD: float = 0.65
@@ -33,6 +34,8 @@ var _revision: int = -1
 var _settings_path: String = GameSettingsService.FILE_PATH
 
 
+#region Контекст меню
+## До добавления в дерево связывает игровое меню с актором и отдельным профилем пользовательских настроек.
 func setup(actor: Entity, settings_path: String = GameSettingsService.FILE_PATH) -> void:
 	_actor = actor
 	_standalone = false
@@ -52,10 +55,14 @@ func setup_save_paths(manual: String, autosave: String) -> void:
 	_auto_path = autosave
 
 
+## Есть активный токен игрового фокуса либо открыто меню вне World.
 func is_open() -> bool:
 	return _capture != 0 or _standalone_open
 
 
+#endregion
+
+#region Построение и события
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 110
@@ -159,7 +166,7 @@ func _input(event: InputEvent) -> void:
 		_cancel_binding()
 		get_viewport().set_input_as_handled()
 		return
-	# Capture cannot reach UI navigation or gameplay, including unsupported device events.
+	# Захваченные события, включая неподдерживаемые, не доходят до навигации UI или игры.
 	get_viewport().set_input_as_handled()
 	if InputBindingCodec.is_gamepad(event) != _await_pad:
 		return
@@ -202,6 +209,10 @@ func _process(_delta: float) -> void:
 	_close.icon = close_icons[0] if not close_icons.is_empty() else null
 
 
+#endregion
+
+#region Модальный фокус и освобождение
+## Захватывает модальный фокус и паузу; возвращает false при конфликте с консолью/занятым управлением.
 func open_menu() -> bool:
 	if is_open() or bool(Console.is_visible()):
 		return false
@@ -226,6 +237,7 @@ func open_menu() -> bool:
 	return true
 
 
+## Сохраняет настройки, отменяет ввод привязки и освобождает фокус/паузу; повторный вызов безопасен.
 func close_menu() -> void:
 	if not is_open():
 		return
@@ -257,6 +269,9 @@ func _release() -> void:
 	closed.emit()
 
 
+#endregion
+
+#region Действия игровой сессии
 func _build_session_menu(tabs: TabContainer) -> void:
 	var page: VBoxContainer = VBoxContainer.new()
 	page.name = "Игра"
@@ -347,6 +362,9 @@ func _confirm_session_action() -> void:
 		_save_preferences()
 
 
+#endregion
+
+#region Назначения и пользовательские настройки
 func _build_controls() -> void:
 	var heading: Label = Label.new()
 	heading.text = "Действие                                  Клавиатура / мышь               Геймпад"
@@ -448,3 +466,5 @@ func _reset() -> void:
 		if not key.is_empty():
 			(node as CheckButton).button_pressed = bool(GameSettingsService.value(key))
 	_status.text = "Восстановлены исходные настройки и назначения."
+
+#endregion

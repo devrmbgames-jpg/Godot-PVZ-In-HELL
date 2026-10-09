@@ -1,337 +1,234 @@
 extends Node
-## Ordinary input driver. Only the headless mouse-capture OS boundary is substituted.
+## Current main-level contracts: manifest, ledger, terminal settlement, ownership, damage, Night and startup restore.
 
 const SAVE_PATH: String = "user://vertical_slice_smoke.pvzh"
-const WAIT_FRAMES: int = 900
-const AIM_FRAMES: int = 180
-const MOVE_FRAMES: int = 1200
-const AIM_TOLERANCE: float = 0.012
-const MOVE_TOLERANCE: float = 0.2
+const DELTA: float = 1.0 / 60.0
+const MAX_RECEIVING_FRAMES: int = 900
+const MAX_NIGHT_FRAMES: int = 600
+const DAMAGE_AMOUNT: float = 2.0
 const MAIN: PackedScene = preload("res://content/scenes/main_level.tscn")
-const SUPPLY_SEED: int = 2302
 
-class CapturedInput extends S_PlayerInput:
-	func _accepts_input() -> bool:
-		return true
-
-	func deps() -> Dictionary[int, Array]:
-		return {Runs.Before: [S_PlayerIntent]}
-
-var _level: Node3D = null
-var _player: E_RigidBodyCharacter = null
-var _controller: C_Controller = null
-var _camera: Camera3D = null
+var _level: Node3D
 var _failed: bool = false
-var _actions: Dictionary[StringName, float] = {}
 
-
+#region Connected production contracts
 func _ready() -> void:
 	_run.call_deferred()
 
 
 func _run() -> void:
-	seed(SUPPLY_SEED)
-	get_window().size = Vector2i(1920, 1080)
-	if FileAccess.file_exists(SAVE_PATH):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
+	_cleanup_slot()
 	_level = MAIN.instantiate() as Node3D
 	_level.set("autosave_path", SAVE_PATH)
 	add_child(_level)
-	_player = _level.get_node("Entityes/Player") as E_RigidBodyCharacter
-	_controller = _player.get_component(C_Controller) as C_Controller
-	_camera = _player.get_node("HeadY/HeadX/HeadRoot/Camera3D") as Camera3D
+	_level.set_physics_process(false)
 
-	var input: System = _level.get_node("World/Systems/Input/S_PlayerInput") as System
-	ECS.world.remove_system(input)
+	var expected: Dictionary = await _exercise_current_world()
+	_level.free()
+	_level = null
 	await get_tree().process_frame
-	var producer: CapturedInput = CapturedInput.new()
-	producer.group = "Input"
-	producer.name = "S_PlayerInput"
-	ECS.world.add_system(producer, true)
-	for frame: int in WAIT_FRAMES:
-		await get_tree().physics_frame
-		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
+	if not _failed:
+		await _verify_fresh_startup(expected)
+	if _level != null:
+		_level.free()
+		_level = null
+	_cleanup_slot()
+	await get_tree().process_frame
+	print("Vertical slice smoke ", "FAIL" if _failed else "PASS")
+	get_tree().quit(1 if _failed else 0)
+
+
+func _exercise_current_world() -> Dictionary:
+	var world: World = ECS.world
+	var zone: E_ReceivingZone = world.query.with_all([C_Receiving]).execute_one() as E_ReceivingZone
+	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
+	var actor: Entity = _level.get_node("Entityes/Player") as Entity
+	# Body motion stays native; only the scene's scheduler is stepped explicitly below.
+	if not _check((actor as Node) is CharacterBody3D, "current authored CharacterBody player"):
+		return {}
+	if not await _receive_and_unload(world, zone, receiving):
+		return {}
+
+	_audit_customer_query("received")
+	var ids: PackedStringArray = receiving.incoming_package_ids.duplicate()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	if not _check(flow.visits.size() == ids.size(), "one planned customer record per provider-selected package"):
+		return {}
+	for package_id: String in ids:
+		var parcel: Entity = PackageQueries.find_live_package(package_id)
+		if not _check(parcel != null, "physical package exists: " + package_id):
+			return {}
+		var scanned: PackageScanResult = PackageRegistrationService.register_package(parcel)
+		_check(scanned.outcome == PackageScanResult.Outcome.REGISTERED, "ledger commits registration")
+		_check(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.ALREADY_REGISTERED,
+			"repeated registration is idempotent")
+		_check(PackageHistoryService.record_for(package_id).number > 0, "registered history visible immediately")
+	if _failed:
+		return {}
+
+	# Use the existing trusted terminal declaration API, not a fabricated delivery receipt.
+	var visit: CustomerVisit = flow.visits[0]
+	var wallet: C_Wallet = WalletService.current()
+	var operations_before: int = wallet.operations.size()
+	_check(CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.LOST), "terminal LOST declaration commits")
+	_check(visit.settlement_committed and wallet.operations.size() == operations_before + 1,
+		"committed customer fact settles once through the production Observer")
+	var settled_balance: int = wallet.balance
+	CustomerOutcomeService.publish_change(visit, &"smoke_replay")
+	_check(CustomerOutcomeService.declare(visit, CustomerVisit.Declaration.LOST), "repeated declaration acknowledged")
+	_check(wallet.balance == settled_balance and wallet.operations.size() == operations_before + 1,
+		"fact replay cannot settle twice")
+
+	var med: Entity = _level.get_node("Entityes/MedPickup") as Entity
+	_check(InventoryService.transfer(med, actor), "real pickup transferred into inventory")
+	_check(InventoryService.owner_for(med) == actor and InventoryService.items(actor).size() == 1,
+		"authoritative ownership link and derived inventory agree")
+	var health: C_Health = actor.get_component(C_Health) as C_Health
+	var previous_health: float = health.current
+	var damage: DamageRequest = DamageRequest.new()
+	damage.target = actor
+	damage.amount = DAMAGE_AMOUNT
+	_check(DamageRequestService.submit(damage), "typed damage accepted by sole handler")
+	_check(health.current < previous_health and not health.depleted, "applied health visible after damage completion")
+	if _failed:
+		return {}
+
+	await _step(world, 3)
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var shift: DayTransitionRequest = DayTransitionRequest.new()
+	shift.expected_day = cycle.day_index
+	shift.expected_phase = cycle.phase
+	if not _check(DayPhaseService.submit(shift), "unloaded registered manifest permits shift: " + str(DayPhaseService.start_blockers(cycle))):
+		return {}
+	_check(cycle.phase == C_DayCycle.Phase.MORNING, "accepted transition remains pending before System commit")
+	await _step(world, 1)
+	_check(cycle.phase == C_DayCycle.Phase.DAY and cycle.pending_transition == null, "scheduled shift owner commits phase")
+	if _failed:
+		return {}
+
+	# Enter the same Night gate as its dedicated smoke; preparation/capture/write remain production-owned.
+	cycle.phase = C_DayCycle.Phase.NIGHT
+	cycle.night_ready = false
+	for _frame: int in MAX_NIGHT_FRAMES:
+		await _step(world, 1)
+		if cycle.phase == C_DayCycle.Phase.MORNING and cycle.day_index == 2:
 			break
-	if not _check(ECS.world.query.with_all([C_Package]).execute().size() == 8, "eight packages arrive"):
-		_finish()
-		return
-
-	print("R23 route: native player start ", _player.global_position)
-	var scanner: Entity = _level.get_node("Entityes/Scanner") as Entity
-	if not await _aim(_point(scanner)):
-		_finish()
-		return
-
-	await _tap(&"interact")
-	if not _check(GrabService.held_relationship(scanner) != null, "scanner picked up using E"):
-		_finish()
-		return
-	if not await _walk(Vector3(8.0, 0.0, 1.0)):
-		_finish()
-		return
-
-	for key: String in ["books", "glass", "clothes", "bottles", "tools", "equipment", "oil", "power_cells"]:
-		var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:" + key)
-		print("R23 route: scan ", key, " at ", _point(parcel))
-		var position: Vector3 = _point(parcel)
-		var near: Vector3 = position + Vector3(0.0, 0.0, -1.3)
-		if not await _walk(Vector3(position.x, 0.0, 1.0)) or not await _walk(near) or not await _aim(_point(parcel), parcel):
-			_finish()
-			return
-
-		await _tap(&"action_primary")
-		var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
-		if not _check(state.registration_number > 0, "scan " + key + " by held scanner"):
-			_finish()
-			return
-	if not await _morning_terminal() or not await _ordinary_customer():
-		_finish()
-		return
-
-	print("PASS: vertical slice M2 draft: ordinary inputs, eight scans, Terminal and normal customer delivery/declaration")
-	_finish()
+	_check(cycle.phase == C_DayCycle.Phase.MORNING and cycle.day_index == 2, "scheduled Night prepared Morning 2")
+	_audit_customer_query("source_after_night")
+	var snapshot: Dictionary = AutosaveStore.read(SAVE_PATH)
+	_check(not snapshot.is_empty() and WorldSnapshotService.can_restore(snapshot, _level), "actual atomic Night snapshot validates")
+	var saved_balance: int = 0
+	var saved_operations: int = 0
+	var wallet_record_found: bool = false
+	for record: Dictionary in snapshot.get("entities", []):
+		for component: Dictionary in record.components:
+			if component.type == C_Wallet.resource_path:
+				saved_balance = int(component.fields.balance)
+				saved_operations = (component.fields.operations as Array).size()
+				wallet_record_found = true
+	_check(wallet_record_found, "captured snapshot contains the authoritative Wallet aggregate")
+	return {"balance": wallet.balance, "operations": wallet.operations.size(), "saved_balance": saved_balance,
+		"saved_operations": saved_operations, "health": health.current, "visit_id": visit.visit_id,
+		"package_ids": ids, "player_key": ActorIdentityRules.key_for(actor, _level)}
 
 
-func _morning_terminal() -> bool:
-	var terminal: Entity = _level.get_node("Entityes/Terminal") as Entity
-	if not await _walk(Vector3(2.0, 0.0, -2.8)) or not await _aim(_point(terminal), terminal):
-		return false
 
-	print("R23 Terminal aim ", (_player.get_component(C_Interactor) as C_Interactor).target, " · ", (_player.get_component(C_Interactor) as C_Interactor).prompt_text)
-	await _tap(&"interact")
-	var panel: TerminalPanel = terminal.get_node("TerminalPanel") as TerminalPanel
-	if not _check(panel.visible, "open Terminal using E"):
-		return false
-
-	var rows: Array[Node] = panel.find_children("*", "UI_TerminalButtonPackage", true, false)
-	if not _check(rows.size() == 8, "Terminal lists all eight scanned packages"):
-		return false
-
-	for row: Node in rows:
-		if (row as UI_TerminalButtonPackage).package_id() == "base_supply:1:equipment":
-			await _press_button(row.get_node("%Button") as Button)
+func _receive_and_unload(world: World, zone: E_ReceivingZone, receiving: C_Receiving) -> bool:
+	var unloaded: Dictionary[String, bool] = {}
+	var used_markers: Dictionary[int, bool] = {}
+	for _frame: int in MAX_RECEIVING_FRAMES:
+		await _step(world, 1)
+		for parcel: Entity in world.query.with_all([C_Package]).execute():
+			var identity: C_Package = parcel.get_component(C_Package) as C_Package
+			if not receiving.incoming_package_ids.has(identity.package_id) or unloaded.has(identity.package_id):
+				continue
+			if not _place_outside_truck(zone, parcel, used_markers):
+				return false
+			unloaded[identity.package_id] = true
+		if receiving.last_started_day == 1 and not receiving.incoming_package_ids.is_empty() and receiving.pending.is_empty():
 			break
+	return _check(receiving.last_started_day == 1 and receiving.pending.is_empty()
+		and unloaded.size() == receiving.incoming_package_ids.size() and not unloaded.is_empty(),
+		"scheduled receiving completes the current provider-selected manifest without duplicate bodies")
 
-	await _tap(&"menu")
-	return _check(not panel.visible, "close Terminal using Escape")
+
+func _place_outside_truck(zone: E_ReceivingZone, parcel: Entity, used_markers: Dictionary[int, bool]) -> bool:
+	# Only this fixture models carrying; production containment decides which authored marker is outside cargo.
+	var body: RigidBody3D = parcel as Node as RigidBody3D
+	for marker_index: int in zone.get_spawn_points().get_child_count():
+		if used_markers.has(marker_index):
+			continue
+		var marker: Node3D = zone.get_spawn_points().get_child(marker_index) as Node3D
+		body.global_transform = marker.global_transform
+		if zone.get_truck().overlaps_cargo(body):
+			continue
+
+		body.linear_velocity = Vector3.ZERO
+		body.angular_velocity = Vector3.ZERO
+		body.freeze = true
+		used_markers[marker_index] = true
+		return true
+	return _check(false, "authored warehouse has enough unload markers outside actual cargo bounds")
 
 
-func _ordinary_customer() -> bool:
-	var station: Entity = _level.get_node("Entityes/ShiftConsole") as Entity
-	if not await _walk(Vector3(2.0, 0.0, -5.7)) or not await _aim(_point(station), station):
-		return false
-
-	await _tap(&"interact")
-	if not _check(DayPhaseService.current().phase == C_DayCycle.Phase.DAY, "start shift using E"):
-		return false
-
-	var visit: CustomerVisit = CustomerFlowService.find_visit(&"visit/base_supply:1:books")
-	var customer: E_Customer = null
-	for frame: int in WAIT_FRAMES * 3:
+func _step(world: World, frames: int) -> void:
+	for _frame: int in frames:
+		GameTimeFixture.frame(world, DELTA)
 		await get_tree().physics_frame
-		customer = CustomerFlowService.customer_for(visit.visit_id)
-		if customer != null:
-			var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-			if agent.phase == C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
-				break
-		if visit.finished:
-			break
-	if not _check(customer != null and not visit.finished and (customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.WAITING_FOR_PACKAGE, "ordinary NPC physically reaches waiting position"):
-		return false
+#endregion
 
-	print("R23 ordinary customer position ", customer.global_position)
-	if not await _walk(customer.global_position + Vector3(0.0, 0.0, -1.3)) or not await _aim(_point(customer), customer):
-		return false
-
-	await _tap(&"interact")
-	if not await _complete_dialogue("Хорошо"):
-		return false
-
-	var parcel: Entity = CustomerFlowService.parcel_for(visit.package_id)
-	var point: Vector3 = _point(parcel)
-	if not await _walk(Vector3(7.0, 0.0, 4.6)) or not await _walk(Vector3(point.x, 0.0, 4.6)) or not await _walk(point + Vector3(0.0, 0.0, 1.3)) or not await _aim(_point(parcel), parcel):
-		return false
-
-	print("R23 pickup books target ", (_player.get_component(C_Interactor) as C_Interactor).target)
-	await _tap(&"interact")
-	if not _check(GrabService.held_object(_player) == parcel, "books picked up using E"):
-		return false
-	if not await _walk(customer.global_position + Vector3(0.0, 0.0, -1.3)) or not await _aim(_point(customer), customer):
-		return false
-
-	print("R23 handoff: held ", GrabService.held_object(_player), " target ", (_player.get_component(C_Interactor) as C_Interactor).target, " · ", (_player.get_component(C_Interactor) as C_Interactor).prompt_text)
-	await _tap(&"use")
-	print("R23 handoff result: actual ", CustomerVisit.Actual.keys()[visit.actual], " declaration ", CustomerVisit.Declaration.keys()[visit.declaration], " · ", (customer.get_node("Message") as Label3D).text)
-	if not _check(visit.actual == CustomerVisit.Actual.DELIVERED and visit.declaration == CustomerVisit.Declaration.NONE, "physical handoff preserves separate declaration"):
-		return false
-
-	var terminal: Entity = _level.get_node("Entityes/Terminal") as Entity
-	if not await _walk(Vector3(2.0, 0.0, -2.8)) or not await _aim(_point(terminal), terminal):
-		return false
-
-	await _tap(&"interact")
-	var panel: TerminalPanel = terminal.get_node("TerminalPanel") as TerminalPanel
-	for row: Node in panel.find_children("*", "UI_TerminalButtonPackage", true, false):
-		if (row as UI_TerminalButtonPackage).package_id() == visit.package_id:
-			await _press_button(row.get_node("%ButtonOK") as Button)
-			break
-
-	await _tap(&"menu")
-	return _check(visit.declaration == CustomerVisit.Declaration.TAKEN, "Terminal TAKEN through normal UI input")
-
-
-func _complete_dialogue(response_text: String) -> bool:
-	if not _check(not get_tree().get_nodes_in_group(CustomerDialoguePanel.ACTIVE_GROUP).is_empty(), "dialogue opened through interaction"):
-		return false
-
-	for frame: int in 120:
-		await _step()
-		var dialogs: Array[Node] = get_tree().get_nodes_in_group(CustomerDialoguePanel.ACTIVE_GROUP)
-		if dialogs.is_empty():
-			return true
-
-		var buttons: Array[Node] = dialogs[0].find_children("*", "Button", true, false)
-		var response: Button = null
-		for node: Node in buttons:
-			var button: Button = node as Button
-			if button.is_visible_in_tree() and not button.disabled and (button.text.contains(response_text) or button.text == "Продолжить"):
-				response = button
-				break
-		if response != null:
-			await _press_button(response)
-	return _check(false, "dialogue UI completion")
-
-
-func _press_button(button: Button) -> void:
-	button.grab_focus()
-	await _tap(&"ui_accept")
-
-
-func _step(frames: int = 3) -> void:
-	for frame: int in frames:
-		await get_tree().physics_frame
-
-
-func _action(action: StringName, strength: float) -> void:
-	if is_equal_approx(_actions.get(action, 0.0), strength):
+#region Fresh authored startup and cleanup
+func _verify_fresh_startup(expected: Dictionary) -> void:
+	_level = MAIN.instantiate() as Node3D
+	_level.set("autosave_path", SAVE_PATH)
+	_level.get_node("Entityes/AnchorableTestBox").name = "RenamedPersistentBox"
+	add_child(_level)
+	_level.set_physics_process(false)
+	var actor: Entity = _level.get_node("Entityes/Player") as Entity
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	_check(cycle.phase == C_DayCycle.Phase.MORNING and cycle.day_index == 2, "fresh startup restored saved Morning")
+	_check(ActorIdentityRules.key_for(actor, _level) == expected.player_key, "explicit placed player identity survives new instance")
+	_check(WalletService.current().balance == expected.saved_balance
+		and WalletService.current().operations.size() == expected.saved_operations,
+		"passive startup overlays the captured Wallet before scheduled Morning entry")
+	_check(is_equal_approx((actor.get_component(C_Health) as C_Health).current, float(expected.health)),
+		"saved damaged player health overlays the native recipe")
+	_check(InventoryService.items(actor).size() == 1, "one restored inventory item and live owner binding")
+	_audit_customer_query("fresh_before_tick")
+	# Capture precedes the live Morning-entry fact. The first restored step consumes the same entry once.
+	await _step(ECS.world, 1)
+	_audit_customer_query("fresh_after_tick")
+	_check(WalletService.current().balance == expected.balance and WalletService.current().operations.size() == expected.operations,
+		"first scheduled Morning entry matches the original continuation, without lost or duplicate settlement")
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(expected.visit_id)
+	if not _check(visit != null and visit.settlement_committed and visit.declaration == CustomerVisit.Declaration.LOST,
+			"terminal customer settlement remains committed"):
 		return
-
-	_actions[action] = strength
-	var event: InputEventAction = InputEventAction.new()
-	event.action = action
-	event.pressed = strength > 0.0
-	event.strength = strength
-	Input.parse_input_event(event)
-
-
-func _tap(action: StringName) -> void:
-	_action(action, 1.0)
-	await _step()
-	_action(action, 0.0)
-	await _step()
+	var wallet: C_Wallet = WalletService.current()
+	var operation_count: int = wallet.operations.size()
+	var balance: int = wallet.balance
+	CustomerOutcomeService.publish_change(visit, &"smoke_restored_replay")
+	_check(wallet.operations.size() == operation_count and wallet.balance == balance, "restored fact replay cannot charge again")
+	for package_id: String in expected.package_ids:
+		_check(PackageHistoryService.record_for(package_id) != null, "stable package history survives startup restore")
 
 
-func _point(entity: Entity) -> Vector3:
-	var shapes: Array[Node] = entity.find_children("*", "CollisionShape3D", true, false)
-	if not shapes.is_empty():
-		return (shapes[0] as CollisionShape3D).global_position
-	return (entity as Node as Node3D).global_position
+func _audit_customer_query(stage: String) -> void:
+	for subject: Entity in ECS.world.query.with_all([C_Challenge, C_CustomerAgent]).execute():
+		_check(subject.has_component(C_CustomerAgent) and subject.has_component(C_Challenge),
+			"required query components agree with restored actor state: " + stage)
 
 
-func _look(position: Vector3) -> void:
-	var desired: Vector3 = (position - _camera.global_position).normalized()
-	var current: Vector3 = _controller.direction_look.normalized()
-	var yaw: float = Vector3(current.x, 0.0, current.z).signed_angle_to(Vector3(desired.x, 0.0, desired.z), Vector3.UP)
-	var pitch: float = asin(clampf(desired.y, -1.0, 1.0)) - asin(clampf(current.y, -1.0, 1.0))
-	var load: C_CarryLoad = _player.get_component(C_CarryLoad) as C_CarryLoad
-	var strength: C_Strength = _player.get_component(C_Strength) as C_Strength
-	var mobility: float = CarryLoadPolicy.active_multiplier(load, strength)
-	var event: InputEventMouseMotion = InputEventMouseMotion.new()
-	event.relative = -Vector2(yaw, pitch) / (S_PlayerIntent.LOOK_SENSITIVITY * mobility)
-	Input.parse_input_event(event)
-
-
-func _aim(position: Vector3, target: Entity = null) -> bool:
-	for frame: int in AIM_FRAMES:
-		if target != null:
-			position = _point(target)
-		if frame % 6 == 0:
-			_look(position)
-		await get_tree().physics_frame
-		var desired: Vector3 = (position - _camera.global_position).normalized()
-		if (-_camera.global_basis.z).angle_to(desired) < AIM_TOLERANCE:
-			await _step()
-			return true
-	return _check(false, "aim timeout at %s; look %s camera %s" % [position, _controller.direction_look, -_camera.global_basis.z])
-
-
-func _walk(position: Vector3) -> bool:
-	var path: PackedVector3Array = NavigationServer3D.map_get_path(_player.get_world_3d().navigation_map, _player.global_position, position, true)
-	print("R23 input route to ", position, " · ", path.size(), " waypoints")
-	if not _check(not path.is_empty(), "navigation route toward " + str(position)):
-		return false
-
-	for waypoint: Vector3 in path:
-		if not await _walk_segment(waypoint):
-			return false
-	return await _walk_segment(position)
-
-
-func _walk_segment(position: Vector3) -> bool:
-	var progress: Vector3 = _player.global_position
-	if GrabService.held_in_slot(_player, C_Grabbable.HoldSlot.CARRY) != null:
-		if not await _aim(Vector3(position.x, _camera.global_position.y, position.z)):
-			return false
-
-	for frame: int in MOVE_FRAMES:
-		var death: C_Death = _player.get_component(C_Death) as C_Death
-		if death != null:
-			_stop_move()
-			return _check(false, "player died during movement; cause %s source %s amount %s" % [DamageRequest.Type.keys()[death.cause.request.damage_type], death.cause.request.source, death.cause.request.amount])
-
-		var offset: Vector3 = position - _player.global_position
-		offset.y = 0.0
-		if offset.length() <= MOVE_TOLERANCE:
-			_stop_move()
-			await _step(12)
-			return true
-
-		var direction: Vector3 = offset.normalized()
-		var forward: Vector3 = _controller.direction_look
-		forward.y = 0.0
-		forward = forward.normalized()
-		var right: Vector3 = forward.cross(Vector3.UP)
-		var speed: float = clampf(offset.length() * 2.0, 0.12, 1.0)
-		_action(&"forward", maxf(0.0, direction.dot(forward)) * speed)
-		_action(&"back", maxf(0.0, -direction.dot(forward)) * speed)
-		_action(&"right", maxf(0.0, direction.dot(right)) * speed)
-		_action(&"left", maxf(0.0, -direction.dot(right)) * speed)
-		if frame % 200 == 199:
-			print("R23 movement debug: ", _player.global_position, " velocity ", _player.linear_velocity, " raw ", Input.get_vector(&"left", &"right", &"forward", &"back"), " motion ", _controller.direction_motion, " requested ", direction)
-		if frame % 60 == 59:
-			if _player.global_position.distance_to(progress) < 0.1:
-				await _tap(&"jump")
-			progress = _player.global_position
-		await get_tree().physics_frame
-	_stop_move()
-	return _check(false, "walk timeout toward %s; player %s" % [position, _player.global_position])
-
-
-func _stop_move() -> void:
-	for action: StringName in [&"forward", &"back", &"left", &"right"]:
-		_action(action, 0.0)
-
-
-func _check(condition: bool, description: String) -> bool:
+func _check(condition: bool, message: String) -> bool:
 	if not condition:
 		_failed = true
-		push_error("R23 ordinary input: " + description)
+		push_error("Vertical slice smoke: " + message)
 	return condition
 
 
-func _finish() -> void:
-	for action: StringName in _actions.keys():
-		_action(action, 0.0)
-	_level.free()
-	await _step(30)
-	get_tree().quit(1 if _failed else 0)
+func _cleanup_slot() -> void:
+	for suffix: String in ["", ".tmp", ".bak"]:
+		var filename: String = ProjectSettings.globalize_path(SAVE_PATH + suffix)
+		if FileAccess.file_exists(filename):
+			DirAccess.remove_absolute(filename)
+#endregion

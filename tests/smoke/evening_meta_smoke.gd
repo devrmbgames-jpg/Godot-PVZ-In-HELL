@@ -1,14 +1,17 @@
 extends Node
+## Исторический вечерний сценарий торговли, заказа и задания на отказ.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 600
 var _actor: Entity = null
 
 
+#region Исторический вечерний сценарий
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет прежнюю вечернюю торговлю, постоянный заказ и награду задания без немедленной доставки.
 func _run() -> void:
 	var level: Node = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	add_child(level)
@@ -16,12 +19,12 @@ func _run() -> void:
 	_actor = level.get_node("Entityes/Player") as Entity
 	(_actor as Node as RigidBody3D).freeze = true
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
 
-	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:equipment")
+	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:equipment")
 	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
 	var budget: MoneyOperation = MoneyOperation.new()
 	budget.operation_id = &"evening_meta_smoke/budget"
@@ -31,7 +34,7 @@ func _run() -> void:
 	assert(WalletService.submit(budget) == WalletService.Status.COMMITTED)
 	await _transition(DayTransitionRequest.Kind.START_SHIFT)
 	await _transition(DayTransitionRequest.Kind.FINISH_SHIFT)
-	assert(DayPhaseService.current().phase == C_DayCycle.Phase.EVENING)
+	assert(DayPhaseQueries.current().phase == C_DayCycle.Phase.EVENING)
 
 	var trader: E_NpcCharacter = level.get_node("Entityes/Trader") as E_NpcCharacter
 	assert(trader.navigation_agent != null)
@@ -43,7 +46,7 @@ func _run() -> void:
 	var controller: C_Controller = _actor.get_component(C_Controller) as C_Controller
 	controller.input_tick += 1
 	controller.use_pressed = true
-	InteractionActionResolver.handle_input(_actor)
+	InteractionInputFixture.advance(_actor)
 	controller.use_pressed = false
 
 	var shop: CommercePanel = _panel()
@@ -104,21 +107,24 @@ func _run() -> void:
 	get_tree().quit.call_deferred()
 
 
+#endregion
+
+#region Тестовые переходы и интерфейс
 func _transition(kind: DayTransitionRequest.Kind) -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = kind
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
 	assert(DayPhaseService.submit(request))
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	await get_tree().physics_frame
 
 
 func _aim(target: Entity, offset: Vector3) -> void:
 	var position: Vector3 = (target as Node as Node3D).global_position + offset
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
-	# Fixture position only; production interaction never moves either physical actor.
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
+	# Тест сам ставит участника перед целью; обычное взаимодействие не перемещает физические тела.
 	(_actor as Node as RigidBody3D).global_position = (target as Node as Node3D).global_position + Vector3.BACK * 1.5
 	ray.global_position = position + Vector3.BACK * 1.5
 	ray.look_at(position)
@@ -126,7 +132,7 @@ func _aim(target: Entity, offset: Vector3) -> void:
 		await get_tree().physics_frame
 
 	var interactor: C_Interactor = _actor.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(_actor, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(_actor, interactor)
 	assert(interactor.target == target)
 
 
@@ -148,3 +154,5 @@ func _click(panel: CommercePanel, action: String, caption: String = "") -> void:
 			return
 
 	assert(false, "Expected an enabled commerce action button")
+
+#endregion

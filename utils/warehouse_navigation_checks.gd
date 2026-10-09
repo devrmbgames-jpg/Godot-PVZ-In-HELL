@@ -1,5 +1,5 @@
 extends RefCounted
-## Native coverage and connected-route regression for authored warehouse and district destinations.
+## Проверяет покрытие/связность авторских точек ПВЗ и района на отдельной native-карте; runtime-граф не строит.
 
 const POINT_TOLERANCE: float = 1.0
 const MAX_SYNCHRONIZATION_FRAMES: int = 120
@@ -7,8 +7,8 @@ const WAREHOUSE_MARKERS: PackedStringArray = [
 	"MainDoor", "BackDoor", "RoomClient", "RoomPrivate", "ReceivingZone", "TraderClientZone",
 ]
 
-#region Native validation
-## Returns failures without issuing gameplay commands or modifying the authored mesh.
+#region Покрытие авторских точек
+## Асинхронно возвращает нарушения покрытия/маршрутов; временные RID освобождаются, авторская сетка не меняется.
 static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]:
 	var errors: Array[String] = []
 	var mesh: NavigationMesh = region.navigation_mesh
@@ -25,7 +25,7 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 	NavigationServer3D.region_set_navigation_layers(region_rid, region.navigation_layers)
 	NavigationServer3D.region_set_transform(region_rid, region.global_transform)
 	NavigationServer3D.region_set_navigation_mesh(region_rid, mesh)
-	# An initial iteration can still be empty while the asynchronous region rebuild runs.
+	# Первая итерация может быть пустой: ожидается завершение асинхронной пересборки региона.
 	var probe: Vector3 = region.to_global(mesh.get_vertices()[0])
 	var synchronized: bool = false
 	for frame_index: int in MAX_SYNCHRONIZATION_FRAMES:
@@ -59,10 +59,10 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 			floor_point.y = level.global_position.y
 			points[marker_name] = floor_point
 
-	var district: C_District = DistrictPopulationService.current()
+	var district: C_District = NpcPopulationQueries.current()
 	if district != null:
 		for place: DEF_DistrictPlace in district.definition.places:
-			points[str(place.key)] = DistrictPopulationService.position_for(place.key)
+			points[str(place.key)] = NpcPopulationQueries.position_for(place.key)
 			if not place.activity_offset.is_zero_approx():
 				points[str(place.key) + "/activity"] = NpcActivityService.destination(place)
 
@@ -92,7 +92,7 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 	return errors
 #endregion
 
-#region Hazard-route graph
+#region Проверка авторской связности
 static func _graph_failures(definition: DEF_District, map_rid: RID, navigation_layers: int) -> Array[String]:
 	var errors: Array[String] = []
 	var junctions: Dictionary[StringName, DEF_DistrictPlace] = {}
@@ -105,20 +105,20 @@ static func _graph_failures(definition: DEF_District, map_rid: RID, navigation_l
 
 	var connected_edges: int = 0
 	for junction_key: StringName in junctions:
-		var start: Vector3 = DistrictPopulationService.position_for(junction_key)
+		var start: Vector3 = NpcPopulationQueries.position_for(junction_key)
 		for neighbour_key: String in junctions[junction_key].neighbours:
 			var next_key: StringName = StringName(neighbour_key)
 			if not junctions.has(next_key):
 				continue
 
-			var target: Vector3 = DistrictPopulationService.position_for(next_key)
+			var target: Vector3 = NpcPopulationQueries.position_for(next_key)
 			var path: PackedVector3Array = NavigationServer3D.map_get_path(map_rid, start, target, true, navigation_layers)
 			if path.is_empty() or path[0].distance_to(start) > POINT_TOLERANCE or path[-1].distance_to(target) > POINT_TOLERANCE:
 				errors.append("Unreachable hazard-route edge: %s > %s" % [junction_key, next_key])
 			else:
 				connected_edges += 1
 
-	# Directed connectivity is required from every junction used as a route connector.
+	# Каждый авторский узел должен достигать всех других по направленным связям; это offline-проверка.
 	for origin_key: StringName in junctions:
 		var pending: Array[StringName] = [origin_key]
 		var visited: Array[StringName] = []

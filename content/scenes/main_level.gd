@@ -1,34 +1,106 @@
 extends Node3D
-## Main level lifecycle, scene-local session restoration and scheduled ECS groups.
+## Жизненный цикл уровня: восстановление сессии, порядок групп ECS и освобождение World.
 
-## Authored world owning this level simulation.
+## Авторский World, владеющий симуляцией данного уровня.
 @export var world: World = null
-## Tests/embedded scenes may isolate their slot; empty disables automatic loading.
+## Авторский маркер утренней выдачи крупной мебели; перемещение/поворот меняет площадку.
+@export var furniture_delivery_anchor: Marker3D = null
+## Путь слота автосохранения; пустой отключает автоматическую загрузку, тесты могут задавать отдельный слот.
 @export var autosave_path: String = AutosaveStore.DEFAULT_PATH
 
 
-#region Level lifecycle
+#region Жизненный цикл уровня
 func _ready() -> void:
+	var authored_world: GameWorld = world as GameWorld
+	if authored_world != null and authored_world.initialization_failed():
+		for issue: String in authored_world.identity_issues():
+			push_error(issue)
+		set_physics_process(false)
+		queue_free()
+		return
+
 	ECS.world = world
+	NpcCustomerComposition.install(world)
 	assert(world.query.with_all([C_DayCycle]).execute().size() == 1, "Expected one day session")
-	DistrictPopulationService.initialize()
+	var day_session: Entity = world.query.with_all([C_DayCycle]).execute_one()
+	day_session.add_component(C_BoundaryTrace.new())
+	var clock_owner: S_GameTime = S_GameTime.new()
+	clock_owner.group = "Clock"
+	world.add_system(clock_owner)
+	if authored_world != null:
+		authored_world.add_startup_observer(O_DistrictLifecycle.new())
+	else:
+		world.add_observer(O_DistrictLifecycle.new())
+	if authored_world != null:
+		authored_world.add_startup_observer(O_CustomerPlanning.new())
+	else:
+		world.add_observer(O_CustomerPlanning.new())
+	if authored_world != null:
+		authored_world.add_startup_observer(O_CustomerOutcomes.new())
+	else:
+		world.add_observer(O_CustomerOutcomes.new())
+	if authored_world != null:
+		authored_world.add_startup_observer(O_CustomerGreeting.new())
+	else:
+		world.add_observer(O_CustomerGreeting.new())
+	if authored_world != null:
+		authored_world.add_startup_observer(O_CustomerServiceClock.new())
+	else:
+		world.add_observer(O_CustomerServiceClock.new())
+	if authored_world != null:
+		authored_world.add_startup_observer(O_CustomerNpcInterruption.new())
+	else:
+		world.add_observer(O_CustomerNpcInterruption.new())
+	for observer_type: Script in [O_CustomerNpcConversation, O_CustomerInspectionCargo, O_DialoguePanelRequest, O_GameplayPanelRequest, O_NightPreparationRequirement]:
+		var composition_observer: Observer = observer_type.new() as Observer
+		if authored_world != null:
+			authored_world.add_startup_observer(composition_observer)
+		else:
+			world.add_observer(composition_observer)
+	for owner_type: Script in [S_CustomerVisitPresence, S_CustomerCleanup, S_CustomerClock, S_CustomerGreeting, S_CustomerApproach, S_CustomerWaiting, S_CustomerInspection, S_CustomerDeparture, S_CustomerArrivals]:
+		var customer_owner: System = owner_type.new() as System
+		customer_owner.group = "GamePlay"
+		world.add_system(customer_owner)
+	for owner_type: Script in [S_NpcCadence, S_NpcFootsteps, S_NpcPerception, S_NpcTraits, S_NpcRoute, S_NpcRoutePlanning, S_NpcNoise]:
+		var npc_owner: System = owner_type.new() as System
+		npc_owner.group = "GamePlay"
+		world.add_system(npc_owner)
+	world.add_system(S_LootDrops.new(), true)
+	_bind_furniture_delivery()
+	if authored_world == null or not authored_world.restoring_startup():
+		DistrictPopulationService.initialize()
 	var session: Entity = world.query.with_all([C_Autosave]).execute_one()
 	if session != null:
 		var save: C_Autosave = session.get_component(C_Autosave) as C_Autosave
 		save.path = autosave_path
 		if not autosave_path.is_empty():
 			GameSessionService.restore_startup(self, save)
+		if save.construction_failed:
+			set_physics_process(false)
+			queue_free()
+			return
 	DistrictPopulationService.restore_participation()
+	if NpcPopulationQueries.current() != null:
+		var delivery_view: DistrictDeliveryView = DistrictDeliveryView.new()
+		add_child(delivery_view)
+	if authored_world != null:
+		authored_world.finish_startup()
 	if OS.has_feature("qa_build"):
 		print("QA level: ", scene_file_path, "; save slot=", autosave_path)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
+func _bind_furniture_delivery() -> void:
+	for zone: Entity in world.query.with_all([C_OrderReceiving]).execute():
+		var state: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
+		state.furniture_anchor_path = zone.get_path_to(furniture_delivery_anchor) if furniture_delivery_anchor != null else NodePath("")
+
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and is_instance_valid(world):
-		# GECS archetypes have transition edges that retain each other and their
-		# component resources. Purge breaks those cycles before the scene is freed.
-		# Tree shutdown can free Entity children before this parent notification.
+		# Рёбра переходов архетипов GECS удерживают друг друга и ресурсы
+		# компонентов; purge разрывает циклы перед освобождением сцены.
+		# При закрытии дерева дочерние Entity могут освободиться раньше уведомления родителя.
 		while not world.entities.is_empty():
 			world.entities = world.entities.filter(func(entity: Variant) -> bool: return is_instance_valid(entity))
 			if world.entities.is_empty():
@@ -43,15 +115,19 @@ func _notification(what: int) -> void:
 
 #endregion
 
-#region Runtime callbacks
+#region Игровые callbacks
 func _physics_process(delta: float) -> void:
 	if world == null:
 		return
 
-	world.process(delta, "Input")
-	world.process(delta, "Interaction")
+	world.process(delta, "Clock")
+	var gameplay_delta: float = GameTimeRules.seconds(GameTimeQueries.current().step_ticks)
+	world.process(gameplay_delta, "Input")
+	world.process(gameplay_delta, "Interaction")
 	world.process(delta, "Physics")
-	world.process(delta, "GamePlay")
+	world.process(gameplay_delta, "GamePlay")
+	# Night I/O retries do not depend on a frozen gameplay clock.
+	world.process(delta, "Storage")
 
 
 func _unhandled_input(event: InputEvent) -> void:

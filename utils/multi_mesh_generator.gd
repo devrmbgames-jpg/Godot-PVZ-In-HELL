@@ -1,17 +1,23 @@
 @tool
 extends Node3D
+## Редакторское объединение одинаковых mesh/material по пространственным ячейкам; меняет авторскую сцену.
 class_name ToolMultiMeshGenerator
 
 
+## Переносит найденные CollisionShape3D в создаваемое общее StaticBody.
 @export var gen_collision := false
+## После генерации удаляет исходные дочерние узлы, собранные обходом.
 @export var remove_old := false
+## Размер пространственной ячейки группировки в метрах.
 @export_range(1.0, 99999.0) var octan_size := 8.0
+## Редакторская кнопка генерации; добавляет MultiMesh и необязательные коллайдеры.
 @export_tool_button("Apply") var gen := _generate
 
 var _mesh_instances: Dictionary = {}
 var _remove_list := []
 var _shapes := []
 
+#region Сбор источников
 func _parse_recursive(node: Node) -> void :
 	for i in node.get_child_count() :
 		var child := node.get_child(i)
@@ -37,6 +43,9 @@ func _parse_recursive(node: Node) -> void :
 
 
 
+#endregion
+
+#region Создание и удаление узлов
 func _generate() -> void :
 	_mesh_instances.clear()
 	_shapes.clear()
@@ -119,3 +128,5 @@ func _generate() -> void :
 	for val in _remove_list :
 		val.queue_free()
 	
+
+#endregion

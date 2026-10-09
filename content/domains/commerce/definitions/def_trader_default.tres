@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="DEF_TraderProfile" format=3 uid="uid://bs5lvkvk8rlco"]
+
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_food.tres" id="Food"]
+[ext_resource type="Script" uid="uid://do55qpcjkjohy" path="res://content/domains/inventory/definitions/def_inventory_item.gd" id="Item"]
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_med.tres" id="Med"]
+[ext_resource type="Script" uid="uid://bey2qdx0m1auc" path="res://content/domains/commerce/definitions/def_trader_profile.gd" id="Profile"]
+[ext_resource type="Resource" uid="uid://dx7l4jhx1rd00" path="res://content/domains/inventory/definitions/def_item_large_shelf.tres" id="Shelf"]
+[ext_resource type="Resource" path="res://content/domains/inventory/definitions/def_item_bubble_wrap.tres" id="Wrap"]
+
+[ext_resource type="Resource" path="res://content/domains/quests/definitions/def_refusal_default.tres" id="RefusalQuest"]
+
+[resource]
+script = ExtResource("Profile")
+display_name = "Районный торговец"
+catalog = Array[ExtResource("Item")]([ExtResource("Food"), ExtResource("Med"), ExtResource("Wrap"), ExtResource("Shelf")])
+key = &"evening_trader"
+refusal_quest = ExtResource("RefusalQuest")

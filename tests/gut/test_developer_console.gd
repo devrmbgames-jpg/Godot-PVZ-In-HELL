@@ -1,4 +1,5 @@
 extends GutTest
+## Проверки разрешения отладочных целей, игровых результатов команд и однократных денежных операций.
 
 const MAIN_LEVEL: PackedScene = preload("res://content/scenes/main_level.tscn")
 
@@ -10,6 +11,8 @@ var _flow: C_CustomerFlow = null
 var _ledger: C_PackageLedger = null
 
 
+#region Подготовка и очистка
+## Освобождает реальный уровень или минимальный World и очищает ссылки на сессию.
 func after_each() -> void:
 	if is_instance_valid(_level):
 		_level.free()
@@ -35,11 +38,11 @@ func _create_core_world() -> void:
 	_ledger = C_PackageLedger.new()
 	session.component_resources = [_cycle, _wallet, _flow, _ledger]
 	_world.add_entity(session)
-	# Entity resources are runtime-owned after insertion; reacquire authoritative instances.
-	_cycle = DayPhaseService.current()
+	## После регистрации Entity читаем авторитетные runtime-экземпляры компонентов из сервисов.
+	_cycle = DayPhaseQueries.current()
 	_wallet = WalletService.current()
-	_flow = CustomerFlowService.current()
-	_ledger = PackageRegistrationService.ledger()
+	_flow = CustomerFlowQueries.current()
+	_ledger = PackageQueries.ledger()
 
 
 func _add_player() -> Entity:
@@ -90,6 +93,10 @@ func _process_gameplay(ticks: int = 1) -> void:
 		ECS.world.process(1.0 / 60.0, "GamePlay")
 
 
+#endregion
+
+#region Результаты и lifecycle команд
+## Цели разрешаются по постоянным ID/номеру; удалённый экземпляр остаётся исторической записью без живого handle.
 func test_target_resolver_uses_stable_identity_and_rejects_freed_handles() -> void:
 	_create_core_world()
 	var player: Entity = _add_player()
@@ -143,6 +150,7 @@ func test_target_resolver_uses_stable_identity_and_rejects_freed_handles() -> vo
 	assert_eq(historical.visit, visit)
 
 
+## Команды разделяют факт выдачи, заявление, жалобу и оценку; повтор расчёта отклоняется.
 func test_customer_debug_service_keeps_actual_declaration_complaint_and_feedback_distinct() -> void:
 	_create_core_world()
 	var delivered: CustomerVisit = _add_visit("debug:customer:delivered")
@@ -209,6 +217,7 @@ func test_customer_debug_service_keeps_actual_declaration_complaint_and_feedback
 	assert_false(DebugCustomerService.approve(approved_target, 101).success)
 
 
+## Денежные команды пишут уникальный журнал; повтор не меняет баланс, отмена штрафа ограничена его остатком.
 func test_debug_economy_is_journaled_idempotent_and_reversible() -> void:
 	_create_core_world()
 	assert_true(DebugEconomyService.credit(100, "stage9_credit").success)
@@ -237,6 +246,7 @@ func test_debug_economy_is_journaled_idempotent_and_reversible() -> void:
 	assert_eq(_wallet.penalties, 20)
 
 
+## Создание/регистрация/удаление коробки и урон/лечение проходят реальные сервисы; QA-сброс явно восстанавливает здоровье.
 func test_package_debug_service_and_health_lifecycle_use_real_domain_boundaries() -> void:
 	_level = MAIN_LEVEL.instantiate() as Node3D
 	add_child(_level)
@@ -314,3 +324,5 @@ func test_package_debug_service_and_health_lifecycle_use_real_domain_boundaries(
 	assert_false(health.depleted)
 	assert_almost_eq(health.current, health.value, 0.001)
 	assert_false(player.has_component(C_Death))
+
+#endregion

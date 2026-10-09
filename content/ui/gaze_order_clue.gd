@@ -1,6 +1,6 @@
 @tool
 extends Label3D
-## Presentation only; no cached live Entity ownership.
+## Периодически показывает настенную подсказку без кеша живой Entity.
 
 const REFRESH_SECONDS: float = 0.1
 

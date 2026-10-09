@@ -32,8 +32,8 @@ DialogueManager="*uid://c3rodes2l3gxb"
 Console="*uid://ouiu5xh1cs8n"
 ECS="*uid://dfqwl5njvdnmq"
 DebugD3D="*res://addons/debug_draw/debug_draw_3d.tscn"
-_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 _pvz_ai_runtime_bridge="*res://addons/pvz_ai_tools/runtime_bridge.gd"
+_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [display]
 
@@ -53,7 +53,7 @@ export/convert_text_resources_to_binary=false
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/GDQuest_GDScript_formatter/plugin.cfg", "res://addons/StaticMeshMerger/plugin.cfg", "res://addons/asset_placer/plugin.cfg", "res://addons/at-icons/plugin.cfg", "res://addons/console/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/gecs/plugin.cfg", "res://addons/godoban/plugin.cfg", "res://addons/godot_ai/plugin.cfg", "res://addons/pvz_ai_tools/plugin.cfg", "res://addons/gut/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/quick_audio/plugin.cfg")
+enabled=PackedStringArray("res://addons/GDQuest_GDScript_formatter/plugin.cfg", "res://addons/StaticMeshMerger/plugin.cfg", "res://addons/asset_placer/plugin.cfg", "res://addons/at-icons/plugin.cfg", "res://addons/console/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/gecs/plugin.cfg", "res://addons/godoban/plugin.cfg", "res://addons/godot_ai/plugin.cfg", "res://addons/gut/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/pvz_ai_tools/plugin.cfg", "res://addons/quick_audio/plugin.cfg")
 
 [file_customization]
 
@@ -299,7 +299,7 @@ look_down={
 [internationalization]
 
 locale/translation_remaps={}
-locale/translations_pot_files=PackedStringArray("res://content/dialogue/customer_prototype.dialogue", "res://content/dialogue/customer_service.dialogue", "res://content/dialogue/npc_street.dialogue")
+locale/translations_pot_files=PackedStringArray("res://content/domains/customers/dialogue/customer_prototype.dialogue", "res://content/domains/customers/dialogue/customer_service.dialogue", "res://content/domains/npc/dialogue/npc_street.dialogue")
 
 [layer_names]
 
@@ -312,6 +312,10 @@ locale/translations_pot_files=PackedStringArray("res://content/dialogue/customer
 3d_physics/layer_4="Props"
 3d_physics/layer_5="Player"
 3d_physics/layer_6="NPC"
+
+[limbo_ai]
+
+behavior_tree/user_task_dirs=PackedStringArray("res://content/domains/npc/ai/tasks", "res://content/domains/customers/ai/tasks")
 
 [navigation]
 

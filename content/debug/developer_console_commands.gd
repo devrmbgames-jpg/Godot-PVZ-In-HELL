@@ -1,5 +1,5 @@
 extends Node
-## Registers project-owned developer commands without placing domain logic in the addon.
+## Регистрирует проектные команды консоли; строки проверяются здесь, игровые действия принадлежат сервисам.
 class_name DeveloperConsoleCommands
 
 const ENABLE_SETTING: StringName = &"debug/developer_console_commands_enabled"
@@ -38,6 +38,7 @@ const DEBUG_HUD_COMMAND: String = "debug_hud"
 var _registered_commands: PackedStringArray = []
 
 
+#region Регистрация и освобождение
 func _ready() -> void:
 	if not _commands_enabled():
 		return
@@ -169,6 +170,7 @@ func _exit_tree() -> void:
 	_registered_commands.clear()
 
 
+## Команды доступны в debug-сборке либо по явной ProjectSettings-настройке.
 func _commands_enabled() -> bool:
 	return (
 		OS.is_debug_build()
@@ -234,6 +236,9 @@ func _register_autocomplete() -> void:
 	)
 
 
+#endregion
+
+#region Диагностические команды
 func _debug_resolve(raw_target: String) -> void:
 	var target: DebugTarget = DebugTargetResolver.resolve(raw_target)
 	if target.kind == DebugTarget.Kind.INVALID:
@@ -333,6 +338,9 @@ func _health_info(raw_target: String = "") -> void:
 
 
 
+#endregion
+
+#region Физические коробки
 func _pkg_spawn(
 	definition_key: String,
 	count_text: String = "",
@@ -401,6 +409,9 @@ func _print_service_result(command: String, result: DebugServiceResult) -> void:
 
 
 
+#endregion
+
+#region Учётные факты и заявления
 func _visit_create(raw_target: String, customer_key: String = "", arrive_text: String = "0") -> void:
 	if arrive_text.is_empty(): arrive_text = "0"
 	if arrive_text not in ["0", "1"]:
@@ -518,6 +529,9 @@ func _pkg_player_denied(raw_target: String) -> void:
 
 
 
+#endregion
+
+#region Ручные операции денег
 func _money_add(amount_text: String, note: String = "") -> void:
 	_run_money_command(MONEY_ADD_COMMAND, amount_text, note, MoneyOperation.Reason.DEBUG_CREDIT)
 
@@ -564,6 +578,9 @@ func _run_money_command(
 
 
 
+#endregion
+
+#region Урон и QA-сброс
 func _apply_damage(
 	raw_target: String,
 	amount_text: String,
@@ -641,6 +658,9 @@ func _positive_float(command: String, value: String) -> float:
 
 
 
+#endregion
+
+#region Фазы и отладочное представление
 func _pkg_reset(raw_target: String) -> void:
 	_print_service_result(
 		PACKAGE_RESET_COMMAND,
@@ -685,3 +705,5 @@ func _debug_hud(mode: String = "toggle") -> void:
 			return
 
 	DeveloperConsoleOutput.ok(DEBUG_HUD_COMMAND, PackedStringArray(["enabled=%s" % DebugHudService.is_enabled()]))
+
+#endregion

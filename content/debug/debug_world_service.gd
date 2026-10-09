@@ -1,11 +1,12 @@
 extends RefCounted
-## Developer-only convenience adapters over Day and Customer domain services.
+## QA-входы в обычные сервисы фаз дня и очереди обслуживания.
 class_name DebugWorldService
 
 
+## Запрашивает следующий допустимый переход фазы через DayPhaseService; ночь не переключает вручную.
 static func day_next() -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null:
 		result.message = "day cycle is unavailable"
 		return result
@@ -32,7 +33,9 @@ static func day_next() -> DebugServiceResult:
 
 	if not DayPhaseService.submit(request):
 		result.message = "DayPhaseService rejected transition"
-		if cycle.phase == C_DayCycle.Phase.DAY:
+		if cycle.phase == C_DayCycle.Phase.MORNING:
+			result.details.append_array(DayPhaseService.start_blockers(cycle))
+		elif cycle.phase == C_DayCycle.Phase.DAY:
 			result.details.append_array(DayPhaseService.finish_blockers(cycle))
 		return result
 
@@ -48,10 +51,11 @@ static func day_next() -> DebugServiceResult:
 	return result
 
 
+## В дневную фазу запрашивает следующую доступную задачу обслуживания при свободной активной роли.
 static func customer_next() -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
-	var flow: C_CustomerFlow = CustomerFlowService.current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if flow == null or cycle == null:
 		result.message = "customer flow/day cycle is unavailable"
 		return result
@@ -68,13 +72,30 @@ static func customer_next() -> DebugServiceResult:
 		if wallet != null and wallet.policy != null
 		else 0
 	)
-	CustomerFlowService.plan_day(flow, cycle.day_index, payment)
-	if not CustomerFlowService.spawn_next_due(flow, cycle):
+	var planning: CustomerPlanningRequest = CustomerPlanningRequest.new()
+	planning.flow = flow
+	planning.day_index = cycle.day_index
+	planning.payment = payment
+	var session: Entity = ECS.world.query.with_all([C_CustomerFlow, C_DayCycle]).execute_one()
+	ECS.world.emit_event(CustomerPlanningRequest.EVENT, session, planning)
+	if not planning.completed or not planning.rejection_reason.is_empty():
+		result.message = "customer planning is pending"
+		return result
+
+	var started: bool = false
+	if NpcPopulationQueries.current() != null:
+		started = NpcServiceRole.enqueue_next(flow, cycle)
+	else:
+		var visit: CustomerVisit = CustomerFlowQueries.next_arrival(flow, cycle)
+		if visit != null:
+			CustomerFlowService.start_visit(flow, visit, cycle.day_index)
+			started = true
+	if not started:
 		result.message = "no due unstarted CustomerVisit"
 		return result
 
-	var customer: E_Customer = (
-		ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_Customer
+	var customer: E_NpcCharacter = (
+		ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_NpcCharacter
 	)
 	result.success = true
 	result.message = "next due Customer started"

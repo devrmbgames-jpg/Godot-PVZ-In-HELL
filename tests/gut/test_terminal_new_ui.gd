@@ -1,6 +1,9 @@
 extends GutTest
+## Проверки терминала: заявления игрока отделены от физической истины, скрытые данные доступны только в debug.
 
 
+#region Заявления, архив и скрытая информация
+## Обычный статус строки следует только заявлению игрока, независимо от физического состояния коробки.
 func test_package_line_status_tracks_only_terminal_declarations() -> void:
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = "package/test"
@@ -20,6 +23,7 @@ func test_package_line_status_tracks_only_terminal_declarations() -> void:
 	assert_eq(UI_TerminalButtonPackage.status_text(record, state, visit), "ПОТЕРЯНА")
 
 
+## Архив определяется заявлением визита; физическое выбытие само не скрывает неотмеченную запись.
 func test_archive_follows_declaration_not_physical_departure_for_customer_visit() -> void:
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = "package/test"
@@ -34,6 +38,7 @@ func test_archive_follows_declaration_not_physical_departure_for_customer_visit(
 	assert_true(TerminalPanel._is_archived(record, null, true))
 
 
+## Скрытые повреждения и факт выдачи не влияют на обычный статус/поиск; debug раскрывает их явно.
 func test_hidden_truth_does_not_change_normal_status_or_search_but_debug_can_show_it() -> void:
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.number = 7
@@ -56,6 +61,7 @@ func test_hidden_truth_does_not_change_normal_status_or_search_but_debug_can_sho
 	panel.free()
 
 
+## Реальная панель деталей показывает повреждение и течь только при разрешённом debug-представлении.
 func test_real_terminal_detail_only_reveals_condition_when_opted_into_debug() -> void:
 	var packed: PackedScene = load("res://content/ui/ui_terminal_package_detail_info.tscn") as PackedScene
 	var detail: UI_TerminalPackageDetailInfo = packed.instantiate() as UI_TerminalPackageDetailInfo
@@ -77,6 +83,7 @@ func test_real_terminal_detail_only_reveals_condition_when_opted_into_debug() ->
 	detail.free()
 
 
+## Строка публикует только запросы трёх заявлений, не подменяя физические операции отказа/выкупа/возврата.
 func test_package_line_exposes_only_three_terminal_outcome_signals() -> void:
 	var line: UI_TerminalButtonPackage = UI_TerminalButtonPackage.new()
 	assert_true(line.has_signal("taken_requested"))
@@ -88,6 +95,7 @@ func test_package_line_exposes_only_three_terminal_outcome_signals() -> void:
 	line.free()
 
 
+## Вспомогательные представления создаются без обязательной загрузки сцены.
 func test_new_terminal_support_classes_compile_without_scene_assets() -> void:
 	var detail: UI_TerminalPackageDetailInfo = UI_TerminalPackageDetailInfo.new()
 	var history: UI_TerminalLogHistory = UI_TerminalLogHistory.new()
@@ -97,8 +105,11 @@ func test_new_terminal_support_classes_compile_without_scene_assets() -> void:
 	history.free()
 
 
+## Код скрытой истории хранится в регистрационной записи как постоянное значение.
 func test_registration_history_id_is_durable_record_data() -> void:
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = "package/test"
 	record.history_id = "3-02-TL08C"
 	assert_eq(record.history_id, "3-02-TL08C")
+
+#endregion

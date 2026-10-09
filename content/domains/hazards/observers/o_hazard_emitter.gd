@@ -1,0 +1,26 @@
+extends Observer
+## Активирует опасность истощённой Entity с emitter, сохраняя инициатора урона.
+class_name O_HazardEmitter
+
+
+## Подписывается на истощение здоровья производителей опасности.
+func query() -> QueryBuilder:
+	return q.with_all([C_HazardEmitter]).on_event(DamageResult.EVENT)
+
+
+## Передаёт принятый источник/инициатора в активатор emitter без изменения здоровья.
+func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
+	var result: DamageResult = payload as DamageResult
+	if result == null or result.request == null:
+		return
+	if result.outcome != DamageResult.Outcome.HEALTH_DEPLETED:
+		return
+	if not is_instance_valid(entity):
+		return
+
+	var actor: Entity = result.request.instigator if is_instance_valid(
+		result.request.instigator
+	) else null
+	if not is_instance_valid(actor) and result.request.instigator_id.is_empty():
+		actor = result.request.source if is_instance_valid(result.request.source) else null
+	HazardEmitter.activate(entity, actor, "", result.request.instigator_id)

@@ -1,6 +1,7 @@
 extends GutTest
-## Реальные компоненты/тело/намерение: минутный запас, вес, gates и восстановление.
+## Проверяет запас спринта, расход по массе, условия бега и восстановление на реальных компонентах.
 
+## В headless-тесте подменяет только проверку захвата курсора операционной системой.
 class CapturedInput extends S_PlayerInput:
 	func _accepts_input() -> bool:
 		return true
@@ -16,6 +17,8 @@ var _carry: C_CarryLoad
 var _system: S_Sprint
 
 
+#region Окружение и прямое исполнение
+## Создаёт реальное тело и компоненты спринта в режиме удержания кнопки.
 func before_each() -> void:
 	GameSettingsService.set_value("sprint_toggle", false)
 	_world = World.new()
@@ -23,7 +26,7 @@ func before_each() -> void:
 	ECS.world = _world
 	_body = RigidBody3D.new()
 	_body.freeze = true
-	_body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	_body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = _body as Node as E_RigidBodyCharacter
 	_motion = C_Motion.new()
 	_motion.is_on_floor = true
@@ -50,6 +53,7 @@ func before_each() -> void:
 	_system = S_Sprint.new()
 
 
+## Возвращает режим удержания, освобождает ввод и удаляет систему/World.
 func after_each() -> void:
 	GameSettingsService.set_value("sprint_toggle", false)
 	Input.action_release(&"sprint")
@@ -64,12 +68,16 @@ func _tick(delta: float) -> void:
 	_system.process([_actor], [[_stamina], [_control], [_motion], [_strength]], delta)
 
 
+#endregion
+
+#region Запас и условия бега
+## Базовый запас покрывает минуту бега; сила увеличивает ёмкость.
 func test_one_hundred_lasts_sixty_seconds_and_strength_increases_capacity() -> void:
 	for tick: int in 59:
 		_tick(1.0)
 	assert_almost_eq(_stamina.current, 100.0 / 60.0, 0.00001)
 	assert_true(_stamina.running)
-	assert_almost_eq(CharacterMotionSolver.effective_speed(_motion, _carry, _strength), 9.0, 0.00001)
+	assert_almost_eq(MotionRules.effective_speed(_motion, _carry, _strength), 9.0, 0.00001)
 	_tick(1.0)
 	assert_eq(_stamina.current, 0.0)
 	assert_true(_stamina.exhausted)
@@ -82,13 +90,14 @@ func test_one_hundred_lasts_sixty_seconds_and_strength_increases_capacity() -> v
 	assert_almost_eq(_stamina.current, 130.0 - 100.0 / 60.0, 0.00001)
 
 
+## Масса увеличивает расход и сохраняет замедление; неподвижный предельный груз не тратит запас.
 func test_carry_weight_scales_drain_and_respects_existing_slowdown() -> void:
 	_carry.active = true
 	_carry.mass_kg = 60.0
 	_tick(1.0)
 	assert_almost_eq(_stamina.drain_multiplier, 4.75, 0.00001)
 	assert_almost_eq(_stamina.current, 100.0 - 100.0 / 60.0 * 4.75, 0.00001)
-	assert_almost_eq(CharacterMotionSolver.effective_speed(_motion, _carry, _strength), 6.0, 0.00001)
+	assert_almost_eq(MotionRules.effective_speed(_motion, _carry, _strength), 6.0, 0.00001)
 	_carry.mass_kg = 120.0
 
 	var reserve: float = _stamina.current
@@ -101,6 +110,7 @@ func test_carry_weight_scales_drain_and_respects_existing_slowdown() -> void:
 	assert_almost_eq(_stamina.drain_multiplier, 1.5, 0.001)
 
 
+## Стена, отсутствие движения, воздух, приседание, модальный ввод и смерть ограничивают бег.
 func test_idle_wall_air_crouch_modal_and_death_gate_running() -> void:
 	_body.linear_velocity = Vector3.ZERO
 	_tick(1.0)
@@ -130,6 +140,7 @@ func test_idle_wall_air_crouch_modal_and_death_gate_running() -> void:
 	assert_eq(_motion.sprint_multiplier, 1.0)
 
 
+## Восстановление начинается после задержки; порог возвращения из истощения предотвращает дрожание состояния.
 func test_recovery_delay_and_exhaustion_hysteresis() -> void:
 	_tick(60.0)
 	assert_true(_stamina.exhausted)
@@ -147,6 +158,10 @@ func test_recovery_delay_and_exhaustion_hysteresis() -> void:
 	assert_true(_stamina.running)
 
 
+#endregion
+
+#region Ввод, настройки и сохранение
+## Режим переключения переживает отпускание и сбрасывается вторым нажатием, паузой или сменой режима.
 func test_toggle_release_second_press_crouch_pause_and_mode_switch() -> void:
 	GameSettingsService.set_value("sprint_toggle", true)
 	_control.sprint_held = false
@@ -179,6 +194,7 @@ func test_toggle_release_second_press_crouch_pause_and_mode_switch() -> void:
 	assert_false(_stamina.running, "Смена режима не оставляет скрытый toggle")
 
 
+## Производитель ввода публикует фронт один раз и отбрасывает его при паузе.
 func test_input_producer_buffers_single_press_and_discards_pause() -> void:
 	var input: CapturedInput = CapturedInput.new()
 	var event: InputEventKey = InputEventKey.new()
@@ -201,6 +217,7 @@ func test_input_producer_buffers_single_press_and_discards_pause() -> void:
 	input.free()
 
 
+## Авторские клавиши спринта присутствуют в InputMap и каталоге иконок.
 func test_project_defaults_are_shift_and_left_stick_click_with_atlas_prompts() -> void:
 	var shift: InputEventKey = InputEventKey.new()
 	shift.physical_keycode = KEY_SHIFT
@@ -213,6 +230,7 @@ func test_project_defaults_are_shift_and_left_stick_click_with_atlas_prompts() -
 	assert_false(InputPromptService.textures(&"sprint", 1).is_empty())
 
 
+## Snapshot сохраняет запас, исключая временные running и toggle.
 func test_snapshot_preserves_reserve_without_running_or_toggle_state() -> void:
 	_stamina.current = 37.0
 	_stamina.initialized = true
@@ -230,6 +248,7 @@ func test_snapshot_preserves_reserve_without_running_or_toggle_state() -> void:
 	assert_false(restored.toggled)
 
 
+## Очень медленный бег с тяжёлым грузом всё ещё расходует запас.
 func test_heavy_slow_motion_still_spends_reserve_near_weight_limit() -> void:
 	_carry.active = true
 	_carry.mass_kg = 119.0
@@ -238,3 +257,5 @@ func test_heavy_slow_motion_still_spends_reserve_near_weight_limit() -> void:
 	assert_true(_stamina.running, "Медленное движение тяжёлого груза не даёт бесплатный бег")
 	assert_gt(_stamina.drain_multiplier, 7.9)
 	assert_lt(_stamina.current, 87.0)
+
+#endregion

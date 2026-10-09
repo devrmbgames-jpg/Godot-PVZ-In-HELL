@@ -1,0 +1,55 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://ins84eoxxqqw"]
+
+[ext_resource type="Script" uid="uid://dj74y4sqxxcrf" path="res://content/domains/npc/ai/tasks/bt_npc_hazard.gd" id="s1"]
+[ext_resource type="Script" uid="uid://qcf4axdc8q6b" path="res://content/domains/npc/ai/tasks/bt_npc_escape_hazard.gd" id="s2"]
+[ext_resource type="Script" uid="uid://bwoscx2du1goy" path="res://content/domains/customers/ai/tasks/bt_npc_light_escape.gd" id="s3"]
+[ext_resource type="Script" uid="uid://bv1i6ii5dejm0" path="res://content/domains/npc/ai/tasks/bt_npc_escape_light.gd" id="s4"]
+[ext_resource type="Script" uid="uid://btx0oqh5nemt7" path="res://content/domains/npc/ai/tasks/bt_npc_needs_flee.gd" id="s5"]
+[ext_resource type="Script" uid="uid://clb4cd3beypj2" path="res://content/domains/npc/ai/tasks/bt_npc_flee.gd" id="s6"]
+
+[sub_resource type="BTCondition" id="BTCondition_1"]
+custom_name = "Опасная зона"
+script = ExtResource("s1")
+
+[sub_resource type="BTAction" id="BTAction_2"]
+custom_name = "Выйти из опасной зоны"
+script = ExtResource("s2")
+intent_owner = 0
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_3"]
+custom_name = "Урон в текущей зоне"
+children = [SubResource("BTCondition_1"), SubResource("BTAction_2")]
+
+[sub_resource type="BTCondition" id="BTCondition_4"]
+custom_name = "Свет вызывает опасность"
+script = ExtResource("s3")
+
+[sub_resource type="BTAction" id="BTAction_5"]
+custom_name = "Идти в авторское укрытие"
+script = ExtResource("s4")
+intent_owner = 0
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_6"]
+custom_name = "Укрытие от света"
+children = [SubResource("BTCondition_4"), SubResource("BTAction_5")]
+
+[sub_resource type="BTCondition" id="BTCondition_7"]
+custom_name = "Испуг или слишком мало здоровья"
+script = ExtResource("s5")
+
+[sub_resource type="BTAction" id="BTAction_8"]
+custom_name = "Добраться до выхода"
+script = ExtResource("s6")
+intent_owner = 0
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_9"]
+custom_name = "Бегство"
+children = [SubResource("BTCondition_7"), SubResource("BTAction_8")]
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_10"]
+custom_name = "Опасность"
+children = [SubResource("BTDynamicSequence_3"), SubResource("BTDynamicSequence_6"), SubResource("BTDynamicSequence_9")]
+
+[resource]
+description = "Приоритеты непосредственной опасности, светобоязненности и бегства."
+root_task = SubResource("BTDynamicSelector_10")

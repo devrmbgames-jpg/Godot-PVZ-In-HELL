@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DEF_RefusalQuest" format=3]
+
+[ext_resource type="Script" path="res://content/domains/quests/definitions/def_refusal_quest.gd" id="Quest"]
+
+[resource]
+script = ExtResource("Quest")
+key = &"fixture_patient_refusal"
+reward = 90
+minimum_deadline_days = 3
+offer_text = "Тестовое предложение: №{number}, день {deadline}, награда {reward}."
+accepted_text = "Тестовое задание ждёт фактического отказа."
+accept_text = "Принять тестовое предложение"
+ignore_text = "Отклонить тестовое предложение"

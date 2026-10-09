@@ -1,19 +1,24 @@
 extends GutTest
-## Authored contents through real opening, physical support, inventory and snapshots.
+## Проверяет авторское содержимое коробок через реальное вскрытие, физику, инвентарь и snapshot.
 
 var _root: Node3D
 var _world: World
 var _actor: E_RigidBodyCharacter
 var _ray: RayCast3D
+var _opening_observer: O_PackageOpening
 
 
+#region Физическое тестовое окружение
+## Создаёт физическую опору, игрока и observers вскрытия, содержимого и инвентаря.
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
 	_world = World.new()
 	_root.add_child(_world)
 	ECS.world = _world
-	_world.add_observer(O_PackageOpening.new())
+	DialogueUiFixture.install()
+	_opening_observer = O_PackageOpening.new()
+	_world.add_observer(_opening_observer)
 	_world.add_observer(O_PackageContents.new())
 	_world.add_observer(O_Damage.new())
 	_world.add_observer(O_InventoryEffect.new())
@@ -24,6 +29,7 @@ func before_each() -> void:
 	session.component_resources = [C_DayCycle.new()]
 	_root.add_child(session)
 	session.owner = _root
+	FixturePlacedIdentity.assign(_root, session, &"session")
 	_world.add_entity(session, null, false)
 	var floor: StaticBody3D = StaticBody3D.new()
 	var collision: CollisionShape3D = CollisionShape3D.new()
@@ -36,10 +42,10 @@ func before_each() -> void:
 
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
-	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
 	var health: C_Health = C_Health.new()
 	health.value = 100.0
 	health.current = 100.0
@@ -59,8 +65,13 @@ func before_each() -> void:
 	_actor.left_hand_slot = hand
 	_actor.hold_anchor = hand
 	_world.add_entity(_actor)
+	_actor.owner = _root
+	FixturePlacedIdentity.assign(_root, _actor, &"actor")
+	await get_tree().physics_frame
+	await get_tree().physics_frame
 
 
+## Удаляет World с физическими участниками и очищает ECS.world.
 func after_each() -> void:
 	_world.purge(false)
 	_root.free()
@@ -68,12 +79,13 @@ func after_each() -> void:
 
 
 func _package(name: String) -> E_Package:
-	var prefab: PackedScene = load("res://content/entities/packages/test_%s.tscn" % name) as PackedScene
+	var prefab: PackedScene = load("res://content/domains/packages/entities/test_%s.tscn" % name) as PackedScene
 	var parcel: E_Package = prefab.instantiate() as E_Package
 	(parcel as Node as RigidBody3D).freeze = true
 	(parcel as Node as Node3D).position = Vector3(0, 0.5, -1.3)
 	_root.add_child(parcel)
 	parcel.owner = _root
+	FixturePlacedIdentity.assign(_root, parcel, &"parcel")
 	_world.add_entity(parcel, null, false)
 	return parcel
 
@@ -83,10 +95,37 @@ func _open(parcel: E_Package) -> void:
 	(_actor.get_component(C_Interactor) as C_Interactor).target = parcel
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	assert_true(PackageOpening.request_open(_actor, parcel))
+	assert_eq(PackageOpening.request_open(_actor, parcel).status, PackageOpenResult.Status.COMMITTED)
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
 
 
+#endregion
+
+#region Вскрытие, использование и snapshot
+## A queued request does not complete a prolonged action before the opening commit.
+func test_open_receipt_does_not_report_pending_work_as_success() -> void:
+	var parcel: E_Package = _package("bread")
+	_ray.look_at((parcel as Node as Node3D).global_position)
+	(_actor.get_component(C_Interactor) as C_Interactor).target = parcel
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_opening_observer.command_buffer_flush_mode = Observer.FlushMode.MANUAL
+
+	var receipt: PackageOpenResult = PackageOpening.request_open(_actor, parcel)
+	assert_eq(receipt.status, PackageOpenResult.Status.PENDING)
+	assert_false((parcel.get_component(C_PackageContents) as C_PackageContents).released)
+	var action: DEF_OpenPackageAction = DEF_OpenPackageAction.new()
+	assert_false(action.complete(_actor, parcel, parcel), "Enqueue is not completion")
+
+	_world.flush_command_buffers()
+	assert_eq(receipt.status, PackageOpenResult.Status.COMMITTED)
+	assert_eq(receipt.reason, &"opened")
+	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
+	assert_eq((parcel.get_component(C_PackageState) as C_PackageState).opening,
+		C_PackageState.Opening.OPENED)
+
+
+## Вскрытие обновляет массу переносимого груза, сохраняя живой хват коробки.
 func test_opening_held_package_refreshes_empty_carry_mass_without_releasing() -> void:
 	var parcel: E_Package = _package("bread")
 	var body: RigidBody3D = parcel as Node as RigidBody3D
@@ -99,13 +138,14 @@ func test_opening_held_package_refreshes_empty_carry_mass_without_releasing() ->
 	var load_state: C_CarryLoad = _actor.get_component(C_CarryLoad) as C_CarryLoad
 	assert_true(load_state.active)
 	assert_eq(load_state.mass_kg, 10.0)
-	assert_true(PackageOpening.request_open(_actor, parcel))
+	assert_eq(PackageOpening.request_open(_actor, parcel).status, PackageOpenResult.Status.COMMITTED)
 	assert_true(load_state.active)
 	assert_eq(load_state.mass_kg, 1.0)
-	assert_eq(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.CARRY), parcel)
-	GrabService.release(_actor, parcel)
+	assert_eq(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.CARRY), parcel)
+	GrabReleaseService.release(_actor, parcel)
 
 
+## Пять физических порций объединяются в инвентаре; расход и повторное событие не возрождают содержимое.
 func test_bread_box_produces_five_individual_usable_items_once() -> void:
 	var parcel: E_Package = _package("bread")
 	await _open(parcel)
@@ -131,9 +171,10 @@ func test_bread_box_produces_five_individual_usable_items_once() -> void:
 	assert_eq((owned[0].get_component(C_InventoryItem) as C_InventoryItem).quantity, 4)
 	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Opened, _actor)
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 1, "Even consumed/merged contents cannot respawn")
-	assert_false(PackageOpening.request_open(_actor, parcel))
+	assert_eq(PackageOpening.request_open(_actor, parcel).status, PackageOpenResult.Status.REJECTED)
 
 
+## Коробка создаёт пять аптечек; успешное лечение расходует выбранный предмет.
 func test_med_box_produces_five_medkits_and_consumes_only_successful_healing() -> void:
 	await _open(_package("medkits"))
 	var items: Array[Entity] = _world.query.with_all([C_InventoryItem]).execute()
@@ -152,6 +193,7 @@ func test_med_box_produces_five_medkits_and_consumes_only_successful_healing() -
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 4)
 
 
+## Snapshot восстанавливает пустую оболочку и существующее содержимое без повторного выпадения.
 func test_released_contents_and_inventory_state_restore_without_duplication() -> void:
 	var parcel: E_Package = _package("bread")
 	await _open(parcel)
@@ -167,6 +209,9 @@ func test_released_contents_and_inventory_state_restore_without_duplication() ->
 	assert_true((parcel.get_component(C_PackageContents) as C_PackageContents).released)
 
 
+#endregion
+
+#region Авторский ассортимент и опасности
 func _catalog_package(definition: DEF_Package) -> E_Package:
 	var scene: PackedScene = load(definition.scene_variants[0]) as PackedScene
 	var parcel: E_Package = scene.instantiate() as E_Package
@@ -179,16 +224,17 @@ func _catalog_package(definition: DEF_Package) -> E_Package:
 
 
 func _supply_definition(key: StringName) -> DEF_Package:
-	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
 	for definition: DEF_Package in supply.packages:
 		if definition.key == key: return definition
 	return null
 
 
+## Каждый авторский тип выпускает реальные тела однократно и оставляет лёгкую оболочку без протечки.
 func test_every_supply_type_has_real_one_shot_contents_and_leaves_empty_light_shell() -> void:
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ToxicAreaSetup.new())
-	var supply: DEF_Delivery = load("res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres") as DEF_Delivery
+	var supply: DEF_Delivery = load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery
 	for definition: DEF_Package in supply.packages:
 		assert_not_null(definition.unpack_scene, String(definition.key))
 		var parcel: E_Package = _catalog_package(definition)
@@ -202,8 +248,15 @@ func test_every_supply_type_has_real_one_shot_contents_and_leaves_empty_light_sh
 		assert_false((parcel.get_component(C_PackageState) as C_PackageState).leaking)
 		assert_eq((parcel as Node as RigidBody3D).mass, definition.empty_mass_kg)
 		assert_true(PackageContentsService.release(parcel).is_empty())
+		# Каждый prefab проверяется в свободном месте; занятая партия проверяется отдельно.
+		for item: Entity in contents:
+			_world.remove_entity(item)
+		_world.remove_entity(parcel)
+		await get_tree().physics_frame
+		await get_tree().physics_frame
 
 
+## Токсичная зона следует за вынутой бутылкой; пустая коробка не создаёт новые опасности.
 func test_toxic_effect_follows_extracted_bottle_and_empty_shell_has_no_hazards_or_leaks() -> void:
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ToxicAreaSetup.new())
@@ -230,6 +283,7 @@ func test_toxic_effect_follows_extracted_bottle_and_empty_shell_has_no_hazards_o
 	assert_eq(HazardFollowService.binding(effect).target, contents[0])
 
 
+## Вынутый источник питания взрывается по урону один раз, а пустая упаковка не взрывается.
 func test_extracted_power_cell_can_explode_but_its_empty_package_cannot() -> void:
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ExplosionSetup.new())
@@ -252,6 +306,10 @@ func test_extracted_power_cell_can_explode_but_its_empty_package_cannot() -> voi
 	assert_false(HazardEmitter.activate(contents[0], _actor))
 
 
+#endregion
+
+#region Физическое хранение и оборудование
+## Инвентарь выключает физику хранимого предмета; выброс создаёт активное физическое тело.
 func test_inventory_freezes_real_pickup_and_drop_spawns_live_rigid_body() -> void:
 	var parcel: E_Package = _package("bread")
 	await _open(parcel)
@@ -277,14 +335,15 @@ func test_inventory_freezes_real_pickup_and_drop_spawns_live_rigid_body() -> voi
 	assert_eq(dropped.collision_layer, 8)
 
 
+## Авторская опасность вскрытия использует штатный emitter и не повторяется от дублирующего события.
 func test_authored_opening_hazard_uses_existing_emitter_and_deduplicates_hook() -> void:
 	_world.add_observer(O_HazardSpawn.new())
 	_world.add_observer(O_ExplosionSetup.new())
 	_world.add_observer(O_PackageHazard.new())
-	var prefab: PackedScene = load("res://content/entities/packages/test_bread.tscn") as PackedScene
+	var prefab: PackedScene = load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene
 	var parcel: E_Package = prefab.instantiate() as E_Package
 	parcel.package_definition = parcel.package_definition.duplicate(true) as DEF_Package
-	parcel.package_definition.hazard_on_opened = load("res://content/entities/hazards/explosion.tscn") as PackedScene
+	parcel.package_definition.hazard_on_opened = load("res://content/domains/hazards/entities/explosion.tscn") as PackedScene
 	(parcel as Node as RigidBody3D).freeze = true
 	(parcel as Node as Node3D).position = Vector3(0, 0.5, -1.3)
 	_world.add_entity(parcel)
@@ -295,6 +354,7 @@ func test_authored_opening_hazard_uses_existing_emitter_and_deduplicates_hook() 
 	assert_eq(_world.query.with_all([C_InventoryItem]).execute().size(), 5)
 
 
+## Выпавшая полка имеет реальную опору и крепится молотком; фиксация сохраняется в snapshot.
 func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hammer() -> void:
 	await _open(_package("small_shelf"))
 	var shelf: Entity = _world.query.with_all([C_Anchorable]).execute_one()
@@ -306,7 +366,7 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 	assert_eq((bottom.shape as BoxShape3D).size, Vector3(1.5, 0.08, 1.5))
 	assert_almost_eq(body.global_position.y, 1.53, 0.01, "Shelf is placed with its real bottom on the floor")
 
-	var hammer: Entity = (load("res://content/entities/tools/hammer.tscn") as PackedScene).instantiate() as Entity
+	var hammer: Entity = (load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate() as Entity
 	_world.add_entity(hammer)
 	(hammer as Node as RigidBody3D).gravity_scale = 0.0
 	(hammer as Node as Node3D).global_position = Vector3(-2, 1, 0)
@@ -316,14 +376,14 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 	var config: C_Anchorable = shelf.get_component(C_Anchorable) as C_Anchorable
 	for frame: int in 180:
 		await get_tree().physics_frame
-		AnchoringService.update_stability(shelf, config, 1.0 / 60.0)
+		InteractionPhysicsFixture.anchor(shelf, 1.0 / 60.0)
 		if config.stable_seconds >= config.minimum_rest_seconds:
 			break
 
 	_ray.look_at(body.global_position)
 	(_actor.get_component(C_Interactor) as C_Interactor).target = shelf
-	assert_not_null(GrabService.held_relationship(hammer))
-	assert_true(GrabService.within_pickup_reach(_actor, shelf))
+	assert_not_null(GrabQueries.held_relationship(hammer))
+	assert_true(GrabReachQueries.within_pickup_reach(_actor, shelf))
 	assert_true(AnchoringService.anchor(_actor, hammer, shelf))
 	assert_true(body.freeze)
 	assert_true(shelf.has_component(C_PlayerAnchored))
@@ -331,3 +391,5 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
 	assert_true(shelf.has_component(C_PlayerAnchored))
 	assert_true(body.freeze)
+
+#endregion

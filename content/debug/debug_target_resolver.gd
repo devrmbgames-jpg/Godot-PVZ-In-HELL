@@ -1,8 +1,10 @@
 extends RefCounted
-## Read-only resolver for developer-console target syntax.
+## Разбирает синтаксис QA-цели без изменения мира; запись может существовать без физической коробки.
 class_name DebugTargetResolver
 
 
+#region Публичный синтаксис цели
+## Разбирает self/target/#номер/pkg:/visit:/entity: либо raw package_id; отказ возвращает INVALID с error.
 static func resolve(raw_target: String) -> DebugTarget:
 	var result: DebugTarget = DebugTarget.new()
 	result.query = raw_target.strip_edges()
@@ -26,16 +28,20 @@ static func resolve(raw_target: String) -> DebugTarget:
 	if result.query.begins_with("entity:"):
 		return _resolve_entity_id(result, result.query.trim_prefix("entity:"))
 
-	# Package commands intentionally accept an exact raw stable package_id.
+	# Команды коробок также принимают точный стабильный package_id без префикса.
 	return _resolve_package_id(result, result.query)
 
 
+## Первая Entity с маркером ввода игрока либо null при отсутствии World.
 static func player() -> Entity:
 	if not is_instance_valid(ECS.world):
 		return null
 	return ECS.world.query.with_all([C_PlayerInputController]).execute_one()
 
 
+#endregion
+
+#region Игрок и наведение
 static func _resolve_self(result: DebugTarget) -> DebugTarget:
 	var actor: Entity = player()
 	if not EntityAvailability.contains(actor, ECS.world):
@@ -74,6 +80,9 @@ static func _resolve_interaction_target(result: DebugTarget) -> DebugTarget:
 	return result
 
 
+#endregion
+
+#region Записи и стабильные ID
 static func _resolve_registration_number(result: DebugTarget) -> DebugTarget:
 	var number_text: String = result.query.trim_prefix("#")
 	if not number_text.is_valid_int():
@@ -85,7 +94,7 @@ static func _resolve_registration_number(result: DebugTarget) -> DebugTarget:
 		result.error = "registration number must be positive"
 		return result
 
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger == null:
 		result.error = "package ledger is unavailable"
 		return result
@@ -127,7 +136,7 @@ static func _resolve_visit(result: DebugTarget, visit_id: String) -> DebugTarget
 		result.error = "visit id is empty"
 		return result
 
-	var visit: CustomerVisit = CustomerFlowService.find_visit(StringName(normalized))
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(StringName(normalized))
 	if visit == null:
 		result.error = "visit was not found: %s" % normalized
 		return result
@@ -162,6 +171,9 @@ static func _resolve_entity_id(result: DebugTarget, entity_id: String) -> DebugT
 	return result
 
 
+#endregion
+
+#region Связанные данные заказа
 static func _package_entity(package_id: String) -> Entity:
 	for entity: Entity in ECS.world.query.with_all([C_Package]).execute():
 		var identity: C_Package = entity.get_component(C_Package) as C_Package
@@ -171,7 +183,7 @@ static func _package_entity(package_id: String) -> Entity:
 
 
 static func _registration_for_package(package_id: String) -> PackageRegistrationRecord:
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger == null:
 		return null
 
@@ -182,7 +194,7 @@ static func _registration_for_package(package_id: String) -> PackageRegistration
 
 
 static func _visit_for_package(package_id: String) -> CustomerVisit:
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow == null:
 		return null
 
@@ -190,3 +202,5 @@ static func _visit_for_package(package_id: String) -> CustomerVisit:
 		if visit.package_id == package_id:
 			return visit
 	return null
+
+#endregion

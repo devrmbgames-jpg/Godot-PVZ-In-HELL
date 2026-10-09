@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Derived inventory view. Buttons submit gameplay effects; the UI owns no quantities or relationships.
+## Представление инвентаря: кнопки отправляют сервисные запросы, количество и связи принадлежат игре.
 class_name InventoryPanel
 
 const REFRESH_INTERVAL: float = 0.15
@@ -7,6 +7,7 @@ const SLOT_SIZE: Vector2 = Vector2(140, 130)
 const ICON_SIZE: Vector2 = Vector2(46, 46)
 const SLOT_PADDING: int = 8
 
+## Участник, чей инвентарь показывается и чей ввод захватывает панель.
 @export var player: Entity = null
 var _capture: int = 0
 var _previous_mouse: Input.MouseMode = Input.MOUSE_MODE_CAPTURED
@@ -25,6 +26,7 @@ var _selected_id: String = ""
 @onready var _drop: Button = $Root/Center/Panel/Content/Actions/Drop
 
 
+#region Жизненный цикл и ввод
 func _ready() -> void:
 	_close.text = "Закрыть"
 	_root.hide()
@@ -54,7 +56,7 @@ func _process(delta: float) -> void:
 	_close.icon = icons[0] if not icons.is_empty() else null
 	if _capture == 0:
 		return
-	if not GrabService.holder_available(player) or player.has_component(C_Death):
+	if not GrabQueries.holder_available(player) or player.has_component(C_Death):
 		close_inventory()
 		return
 
@@ -64,12 +66,16 @@ func _process(delta: float) -> void:
 		_refresh()
 
 
+#endregion
+
+#region Открытие и закрытие
+## Захватывает модальный ввод и запоминает слабую цель посылки; возвращает успех открытия.
 func open_inventory() -> bool:
-	if _capture != 0 or not GrabService.holder_available(player) or player.has_component(C_Death) or not player.has_component(C_Inventory) or InteractionControlFocus.current(player) >= InteractionControlFocus.Priority.PUSH:
+	if _capture != 0 or not GrabQueries.holder_available(player) or player.has_component(C_Death) or not player.has_component(C_Inventory) or InteractionControlFocus.current(player) >= InteractionControlFocus.Priority.PUSH:
 		return false
 
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	var target: Entity = InteractionTargetingService.find_target(player, interactor) if interactor != null else null
+	var target: Entity = InteractionTargetingGeometry.find_target(player, interactor) if interactor != null else null
 	_target = weakref(target) if target != null and target.has_component(C_Package) else null
 	_capture = InteractionControlFocus.acquire(player, self, InteractionControlFocus.Priority.MODAL)
 	if _capture == 0:
@@ -85,6 +91,7 @@ func open_inventory() -> bool:
 	return true
 
 
+## Идемпотентно освобождает захват, цель и режим мыши с учётом других модальных окон.
 func close_inventory() -> void:
 	if _capture == 0:
 		return
@@ -97,13 +104,16 @@ func close_inventory() -> void:
 		_root.hide()
 
 
+#endregion
+
+#region Производное представление
 func _package_target() -> Entity:
 	var target: Entity = _target.get_ref() as Entity if _target != null else null
 	if not EntityAvailability.contains(target, ECS.world):
 		return null
 
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	return target if interactor != null and InteractionTargetingService.find_target(player, interactor) == target else null
+	return target if interactor != null and InteractionTargetingGeometry.find_target(player, interactor) == target else null
 
 
 func _refresh() -> void:
@@ -180,6 +190,9 @@ func _add_slot(item: Entity, index: int) -> void:
 	button.pressed.connect(_select_item.bind(item.id))
 
 
+#endregion
+
+#region Выбор и сервисные запросы
 func _select_item(item_id: String) -> void:
 	_selected_id = item_id
 	_refresh()
@@ -204,7 +217,7 @@ func _drop_selected() -> void:
 
 
 func _can_submit() -> bool:
-	return _capture != 0 and GrabService.holder_available(player) and InteractionControlFocus.current(player, _capture) < InteractionControlFocus.Priority.MODAL
+	return _capture != 0 and GrabQueries.holder_available(player) and InteractionControlFocus.current(player, _capture) < InteractionControlFocus.Priority.MODAL
 
 
 func _use_item(item_id: String) -> void:
@@ -218,3 +231,5 @@ func _use_item(item_id: String) -> void:
 	else:
 		_status = reason
 	_refresh()
+
+#endregion

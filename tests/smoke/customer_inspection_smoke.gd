@@ -1,19 +1,21 @@
 extends Node
-## Actual authored main map: native NavigationAgent walking with a physical parcel.
+## Сценарий физического пути к авторской кабине осмотра и возврата коробки через NavigationAgent.
 
+const MAIN: PackedScene = preload("res://content/scenes/main_level.tscn")
 const FRAME_DELTA: float = 1.0 / 60.0
 const MAX_FRAMES: int = 2400
 const INSPECTION_SECONDS: float = 1.0
 
 var _level: Node
 
-
+#region Smoke lifecycle
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Creates the real host and releases it after the awaited scenario has released its local state.
 func _run() -> void:
-	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
+	_level = MAIN.instantiate()
 	_level.set("autosave_path", "")
 	add_child(_level)
 	_level.set_physics_process(false)
@@ -21,9 +23,19 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	await _exercise_inspection()
+	_level.free()
+	_level = null
+	await get_tree().process_frame
+	print("Customer inspection actual main native booth walk parcel return refusal smoke PASS")
+	get_tree().quit.call_deferred()
+#endregion
+
+#region Native inspection scenario
+func _exercise_inspection() -> void:
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.DAY
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = null
 	var visit: CustomerVisit = CustomerVisit.new()
 	visit.visit_id = &"smoke/inspection"
@@ -37,9 +49,9 @@ func _run() -> void:
 	visit.visit_count = 1
 	flow.visits = [visit]
 
-	var counter: E_DeliveryCounter = CustomerFlowService.counter()
-	var customer: E_Customer = (load("res://content/entities/customers/customer.tscn") as PackedScene).instantiate() as E_Customer
-	# Fixed-fps headless navigation runs faster than the audio mixer; sound has owner QA.
+	var counter: E_DeliveryCounter = CustomerFlowQueries.counter()
+	var customer: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	# Навигационный прогон с фиксированным FPS опережает аудиомикшер; звук проверяет владелец отдельно.
 	(customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
 	var body: RigidBody3D = customer as Node as RigidBody3D
 	body.position = counter.waiting_position()
@@ -49,20 +61,23 @@ func _run() -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
-	var parcel: E_Package = (load("res://content/entities/packages/test_bread.tscn") as PackedScene).instantiate() as E_Package
+	var parcel: E_Package = (load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene).instantiate() as E_Package
 	parcel.package_id = visit.package_id
 	(parcel as Node as RigidBody3D).position = body.position + Vector3(0, 1, 0)
 	_level.add_child(parcel)
 	ECS.world.add_entity(parcel, null, false)
 	(parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState.Registration.REGISTERED
-	CustomerFlowService.bind_parcel(customer, visit)
-	assert(CustomerFlowService._resolve_delivery(customer, visit, parcel, null) == PackageDeliveryCheck.Result.READY)
+	CustomerParcelAssignment.bind_parcel(customer, visit)
+	var delivery_result: PackageDeliveryCheck.Result = CustomerFlowService._resolve_delivery(
+		customer, visit, parcel, null,
+	)
+	assert(delivery_result == PackageDeliveryCheck.Result.READY)
 	assert(agent.phase == C_CustomerAgent.Phase.GOING_TO_BOOTH)
 
 	var visited: bool = false
 	for frame: int in MAX_FRAMES:
 		ECS.world.process(FRAME_DELTA, "Physics")
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if agent.phase == C_CustomerAgent.Phase.INSPECTING:
 			visited = true
@@ -79,9 +94,4 @@ func _run() -> void:
 	assert(body.global_position.distance_to(counter.waiting_position()) < 0.5)
 	assert(PhysicalSlotService.relationship(parcel) == null)
 	assert(not (parcel as Node as RigidBody3D).freeze)
-	ECS.world.purge(false)
-	_level.free()
-	ECS.world = null
-	await get_tree().process_frame
-	print("Customer inspection actual main native booth walk parcel return refusal smoke PASS")
-	get_tree().quit.call_deferred()
+#endregion

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_FoodEffect" format=3]
+
+[ext_resource type="Script" path="res://content/domains/needs/definitions/def_food_effect.gd" id="Effect"]
+
+[resource]
+script = ExtResource("Effect")
+key = &"npc_meat_food"
+hunger_relief = 25.0

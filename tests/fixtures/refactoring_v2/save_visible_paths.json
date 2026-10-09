@@ -1,0 +1,388 @@
+{
+  "schema": 9,
+  "components": [
+    {
+      "symbol": "C_DayCycle",
+      "path": "res://content/domains/time/components/c_day_cycle.gd",
+      "fields": [
+        "phase",
+        "day_index",
+        "clock",
+        "shift_start_tick",
+        "shift_end_tick"
+      ]
+    },
+    {
+      "symbol": "C_Wallet",
+      "path": "res://content/domains/commerce/components/c_wallet.gd",
+      "fields": [
+        "balance",
+        "penalties",
+        "completed_days",
+        "operations",
+        "daily_results"
+      ]
+    },
+    {
+      "symbol": "C_PackageLedger",
+      "path": "res://content/domains/packages/components/c_package_ledger.gd",
+      "fields": [
+        "records",
+        "history_sequence_day",
+        "next_history_number",
+        "last_departed_package_id"
+      ]
+    },
+    {
+      "symbol": "C_CustomerFlow",
+      "path": "res://content/domains/customers/components/c_customer_flow.gd",
+      "fields": [
+        "planned_through_day",
+        "visits"
+      ]
+    },
+    {
+      "symbol": "C_District",
+      "path": "res://content/domains/npc/components/c_district.gd",
+      "fields": [
+        "definition",
+        "people",
+        "home_deliveries",
+        "delivery_offer_day",
+        "terminal_offer_target",
+        "delivery_considered",
+        "next_incident",
+        "next_person",
+        "prepared_morning",
+        "replacement_morning",
+        "conflict_phase",
+        "ambient_conflicts",
+        "next_service_order"
+      ]
+    },
+    {
+      "symbol": "C_NpcIdentity",
+      "path": "res://content/domains/npc/components/c_npc_identity.gd",
+      "fields": [
+        "npc_id"
+      ]
+    },
+    {
+      "symbol": "C_DamageResistance",
+      "path": "res://content/domains/combat/components/c_damage_resistance.gd",
+      "fields": [
+        "multipliers"
+      ]
+    },
+    {
+      "symbol": "C_Commerce",
+      "path": "res://content/domains/commerce/components/c_commerce.gd",
+      "fields": [
+        "receipts",
+        "pending_deliveries",
+        "next_request"
+      ]
+    },
+    {
+      "symbol": "C_QuestSession",
+      "path": "res://content/domains/quests/components/c_quest_session.gd",
+      "fields": [
+        "records"
+      ]
+    },
+    {
+      "symbol": "C_Inventory",
+      "path": "res://content/domains/inventory/components/c_inventory.gd",
+      "fields": [
+        "maximum_stacks"
+      ]
+    },
+    {
+      "symbol": "C_InventoryItem",
+      "path": "res://content/domains/inventory/components/c_inventory_item.gd",
+      "fields": [
+        "definition",
+        "quantity"
+      ]
+    },
+    {
+      "symbol": "C_Package",
+      "path": "res://content/domains/packages/components/c_package.gd",
+      "fields": [
+        "package_id",
+        "history_id",
+        "definition",
+        "delivery_day",
+        "supply_key"
+      ]
+    },
+    {
+      "symbol": "C_PackageState",
+      "path": "res://content/domains/packages/components/c_package_state.gd",
+      "fields": [
+        "registration",
+        "scan",
+        "opening",
+        "damage",
+        "registration_number",
+        "registration_day",
+        "leaking"
+      ]
+    },
+    {
+      "symbol": "C_PackageContents",
+      "path": "res://content/domains/packages/components/c_package_contents.gd",
+      "fields": [
+        "released"
+      ]
+    },
+    {
+      "symbol": "C_NpcRemains",
+      "path": "res://content/domains/npc/components/c_npc_remains.gd",
+      "fields": [
+        "released"
+      ]
+    },
+    {
+      "symbol": "C_LootDrops",
+      "path": "res://content/domains/packages/components/c_loot_drops.gd",
+      "fields": [
+        "placement",
+        "pending",
+        "committed_batches"
+      ]
+    },
+    {
+      "symbol": "C_Health",
+      "path": "res://content/domains/combat/components/c_health.gd",
+      "fields": [
+        "base",
+        "value",
+        "current",
+        "depleted"
+      ]
+    },
+    {
+      "symbol": "C_Hunger",
+      "path": "res://content/domains/needs/components/c_hunger.gd",
+      "fields": [
+        "value"
+      ]
+    },
+    {
+      "symbol": "C_Stamina",
+      "path": "res://content/domains/motion/components/c_stamina.gd",
+      "fields": [
+        "current",
+        "initialized"
+      ]
+    },
+    {
+      "symbol": "C_ImpactProtection",
+      "path": "res://content/domains/combat/components/c_impact_protection.gd",
+      "fields": [
+        "tier"
+      ]
+    },
+    {
+      "symbol": "C_Receiving",
+      "path": "res://content/domains/packages/components/c_receiving.gd",
+      "fields": [
+        "last_started_day",
+        "batch_id",
+        "dispatched_batch_id",
+        "incoming_package_ids",
+        "pending",
+        "delivered_counts"
+      ]
+    },
+    {
+      "symbol": "C_Openable",
+      "path": "res://content/domains/interaction/components/c_openable.gd",
+      "fields": [
+        "locked",
+        "requested_open",
+        "actual_fraction"
+      ]
+    },
+    {
+      "symbol": "C_LightCircuit",
+      "path": "res://content/domains/interaction/components/c_light_circuit.gd",
+      "fields": [
+        "enabled"
+      ]
+    },
+    {
+      "symbol": "C_HazardEmitter",
+      "path": "res://content/domains/hazards/components/c_hazard_emitter.gd",
+      "fields": [
+        "fired",
+        "sequence"
+      ]
+    },
+    {
+      "symbol": "C_Hazard",
+      "path": "res://content/domains/hazards/components/c_hazard.gd",
+      "fields": [
+        "definition",
+        "request_id",
+        "origin_id",
+        "instigator_id"
+      ]
+    },
+    {
+      "symbol": "C_HazardLifetime",
+      "path": "res://content/domains/hazards/components/c_hazard_lifetime.gd",
+      "fields": [
+        "remaining_seconds",
+        "persistent",
+        "awaiting_resolution"
+      ]
+    },
+    {
+      "symbol": "C_PersistentIdentity",
+      "path": "res://content/shared/components/c_persistent_identity.gd",
+      "fields": [
+        "key"
+      ]
+    },
+    {
+      "symbol": "C_InteractionToggle",
+      "path": "res://content/domains/interaction/components/c_interaction_toggle.gd",
+      "fields": [
+        "active"
+      ]
+    },
+    {
+      "symbol": "C_ToxicArea",
+      "path": "res://content/domains/hazards/components/c_toxic_area.gd",
+      "fields": [
+        "tick_elapsed"
+      ]
+    },
+    {
+      "symbol": "C_Explosion",
+      "path": "res://content/domains/hazards/components/c_explosion.gd",
+      "fields": [
+        "resolved"
+      ]
+    },
+    {
+      "symbol": "C_NoDamage",
+      "path": "res://content/domains/combat/components/c_no_damage.gd",
+      "fields": []
+    }
+  ],
+  "records": [
+    {
+      "symbol": "GameClock",
+      "path": "res://content/domains/time/contracts/game_clock.gd"
+    },
+    {
+      "symbol": "NpcRecord",
+      "path": "res://content/domains/npc/contracts/npc_record.gd"
+    },
+    {
+      "symbol": "NpcMemory",
+      "path": "res://content/domains/npc/contracts/npc_memory.gd"
+    },
+    {
+      "symbol": "NpcHomeDelivery",
+      "path": "res://content/domains/customers/contracts/npc_home_delivery.gd"
+    },
+    {
+      "symbol": "CustomerVisit",
+      "path": "res://content/domains/customers/contracts/customer_visit.gd"
+    },
+    {
+      "symbol": "CustomerComplaint",
+      "path": "res://content/domains/customers/contracts/customer_complaint.gd"
+    },
+    {
+      "symbol": "CombatContext",
+      "path": "res://content/domains/combat/contracts/combat_context.gd"
+    },
+    {
+      "symbol": "MoneyOperation",
+      "path": "res://content/domains/commerce/contracts/money_operation.gd"
+    },
+    {
+      "symbol": "DailyMoneyResult",
+      "path": "res://content/domains/commerce/contracts/daily_money_result.gd"
+    },
+    {
+      "symbol": "PackageRegistrationRecord",
+      "path": "res://content/domains/packages/contracts/package_registration_record.gd"
+    },
+    {
+      "symbol": "PurchaseReceipt",
+      "path": "res://content/domains/commerce/contracts/purchase_receipt.gd"
+    },
+    {
+      "symbol": "PendingDelivery",
+      "path": "res://content/domains/commerce/contracts/pending_delivery.gd"
+    },
+    {
+      "symbol": "RefusalQuestRecord",
+      "path": "res://content/domains/quests/contracts/refusal_quest_record.gd"
+    },
+    {
+      "symbol": "ReceivingBatch",
+      "path": "res://content/domains/packages/contracts/receiving_batch.gd"
+    },
+    {
+      "symbol": "PendingLootDrop",
+      "path": "res://content/domains/packages/contracts/pending_loot_drop.gd"
+    }
+  ],
+  "snapshot_paths": [
+    "res://content/domains/combat/components/c_damage_resistance.gd",
+    "res://content/domains/combat/components/c_health.gd",
+    "res://content/domains/combat/components/c_impact_protection.gd",
+    "res://content/domains/commerce/components/c_commerce.gd",
+    "res://content/domains/commerce/components/c_wallet.gd",
+    "res://content/domains/commerce/contracts/daily_money_result.gd",
+    "res://content/domains/commerce/contracts/money_operation.gd",
+    "res://content/domains/commerce/contracts/pending_delivery.gd",
+    "res://content/domains/commerce/contracts/purchase_receipt.gd",
+    "res://content/domains/interaction/entities/anchorable_test_box.tscn",
+    "res://content/domains/interaction/entities/physical_slot.tscn",
+    "res://content/domains/interaction/entities/push_cart.tscn",
+    "res://content/domains/inventory/components/c_inventory.gd",
+    "res://content/domains/inventory/components/c_inventory_item.gd",
+    "res://content/domains/inventory/definitions/def_item_npc_meat.tres",
+    "res://content/domains/needs/components/c_hunger.gd",
+    "res://content/domains/npc/components/c_district.gd",
+    "res://content/domains/npc/components/c_npc_identity.gd",
+    "res://content/domains/npc/components/c_npc_remains.gd",
+    "res://content/domains/npc/contracts/npc_memory.gd",
+    "res://content/domains/npc/contracts/npc_record.gd",
+    "res://content/domains/npc/definitions/def_district_default.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_1.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_10.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_11.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_12.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_2.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_3.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_4.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_5.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_6.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_7.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_8.tres",
+    "res://content/domains/npc/definitions/def_npc_profile_9.tres",
+    "res://content/domains/npc/entities/district_npc.tscn",
+    "res://content/domains/npc/entities/npc_address.tscn",
+    "res://content/domains/packages/components/c_package.gd",
+    "res://content/domains/packages/components/c_package_contents.gd",
+    "res://content/domains/packages/components/c_package_ledger.gd",
+    "res://content/domains/packages/components/c_package_state.gd",
+    "res://content/domains/packages/components/c_receiving.gd",
+    "res://content/domains/packages/contracts/package_registration_record.gd",
+    "res://content/domains/packages/contracts/receiving_batch.gd",
+    "res://content/domains/packages/definitions/def_delivery_morning_supply.tres::Books",
+    "res://content/domains/packages/entities/package_b.tscn",
+    "res://content/domains/time/components/c_day_cycle.gd",
+    "res://content/domains/time/contracts/game_clock.gd",
+    "res://content/shared/components/c_persistent_identity.gd"
+  ]
+}

@@ -1,15 +1,17 @@
 extends Node
-## Existing damage regression, adapted to typed Observer results; run manually when requested.
+## Сценарий урона, лечения и поражения проверяет типизированные результаты observer.
 
 var _defeat_count: int = 0
 var _last_result: DamageResult = null
 var _resolved_count: int = 0
 
 
+#region Сценарий урона и поражения
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет применённый урон/лечение, разрушение коробки и однократное поражение игрока.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
@@ -17,7 +19,7 @@ func _run() -> void:
 	level.set_physics_process(false)
 	for delivery_tick: int in 12:
 		await get_tree().physics_frame
-		ECS.world.process(1.0 / 60.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var package: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
@@ -42,10 +44,10 @@ func _run() -> void:
 	assert(package_state.damage == C_PackageState.Damage.DESTROYED)
 	assert(_last_result.outcome == DamageResult.Outcome.HEALTH_DEPLETED)
 	package.add_relationship(Relationship.new(R_HeldBy.new(), actor))
-	assert(GrabService.held_object(actor) == package)
+	assert(GrabQueries.held_object(actor) == package)
 	_send(actor, 1000.0)
 	assert(health.current == 0.0 and health.depleted and _defeat_count == 2)
-	assert(GrabService.held_object(actor) == null)
+	assert(GrabQueries.held_object(actor) == null)
 	assert(not (actor.get_component(C_Motion) as C_Motion).control_enabled)
 	_send(actor, 10.0)
 	_send(actor, 100.0, DamageRequest.Operation.HEAL)
@@ -63,6 +65,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Типизированные запросы и результаты
 func _send(
 	target: Entity,
 	amount: float,
@@ -75,7 +80,7 @@ func _send(
 	request.amount = amount
 	request.operation = operation
 	assert(DamageRequestService.submit(request))
-	ECS.world.process(1.0 / 60.0, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 
 
 func _on_resolved(result: DamageResult) -> void:
@@ -85,13 +90,19 @@ func _on_resolved(result: DamageResult) -> void:
 		_defeat_count += 1
 
 
+## Тестовый подписчик передаёт типизированный DamageResult обработчику сценария.
 class ResultProbe extends Observer:
+	## Обработчик, назначенный перед регистрацией observer в World.
 	var received: Callable
 
 
+	## Подписывается на фактический DamageResult, отдельно от исходной команды.
 	func query() -> QueryBuilder:
 		return q.on_event(DamageResult.EVENT)
 
 
+	## Передаёт штатный payload обработчику тестового сценария.
 	func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 		received.call(payload as DamageResult)
+
+#endregion

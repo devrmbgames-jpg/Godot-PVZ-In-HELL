@@ -4,12 +4,13 @@ extends EditorScript
 ## Генерирует StandardMaterial3D из наборов BMP-текстур.
 ##
 ## Ожидаемая структура:
-## collection/<category>/<number>/*_<map_name>.bmp
+## Шаблон: collection/<category>/<number>/*_<map_name>.bmp
 ##
 ## Запуск: открыть скрипт в редакторе Godot и выбрать File > Run
 ## (Ctrl+Shift+X). Затем выбрать папку collection внутри res://.
 
 
+## Узловой контроллер диалогов живёт в дереве редактора независимо от краткоживущего EditorScript.
 class MaterialGeneratorController:
 	extends Node
 
@@ -31,6 +32,8 @@ class MaterialGeneratorController:
 	var _folder_dialog: FileDialog
 
 
+	#region Выбор источника и обход
+	## Открывает выбор res://-каталога; выбор запускает генерацию, отмена освобождает контроллер.
 	func open_folder_dialog() -> void:
 		_folder_dialog = FileDialog.new()
 		_folder_dialog.access = FileDialog.ACCESS_RESOURCES
@@ -102,6 +105,10 @@ class MaterialGeneratorController:
 			)
 
 
+	#endregion
+
+	#region Выбор набора и создание материала
+	## Выбирает наиболее полный общий префикс карт; сортировка делает выбор равных наборов воспроизводимым.
 	func _find_texture_set(directory_path: String) -> Dictionary:
 		var groups: Dictionary = {}
 		var file_names: PackedStringArray = DirAccess.get_files_at(directory_path)
@@ -222,6 +229,9 @@ class MaterialGeneratorController:
 		print("[Material Generator] Saved: ", output_path)
 
 
+	#endregion
+
+	#region Текстуры и преобразование smoothness
 	func _apply_texture_set(
 		material: StandardMaterial3D,
 		texture_set: Dictionary
@@ -282,6 +292,7 @@ class MaterialGeneratorController:
 		return texture
 
 
+	## Инвертирует красный канал smoothness и сохраняет сжатый roughness .res рядом с исходной текстурой.
 	func _create_roughness_texture(
 		smoothness_texture: Texture2D,
 		source_path: String
@@ -348,6 +359,9 @@ class MaterialGeneratorController:
 		return roughness_texture
 
 
+	#endregion
+
+	#region Имена и завершение
 	func _sanitize_name_part(value: String) -> String:
 		var regex: RegEx = RegEx.new()
 		var compile_error: Error = regex.compile("[^a-z0-9_-]+")
@@ -370,7 +384,9 @@ class MaterialGeneratorController:
 		add_child(result_dialog)
 		result_dialog.popup_centered()
 
+	#endregion
 
+## Запуск из редактора передаёт жизненный цикл диалогов отдельному Node-контроллеру.
 func _run() -> void:
 	# Контроллер является Node и остаётся в дереве редактора, пока открыты окна.
 	# Это защищает асинхронный UI от уничтожения EditorScript (RefCounted).

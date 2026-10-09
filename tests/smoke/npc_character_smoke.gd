@@ -1,5 +1,5 @@
 extends Node
-## Real shared character physics: obstacle, external impulse, recovery and head look.
+## Smoke общего физического персонажа: препятствие, внешний импульс, восстановление и взгляд головы.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const SETTLE_FRAMES: int = 30
@@ -12,10 +12,11 @@ const IMPULSE: Vector3 = Vector3(600, 0, 0)
 const MIN_IMPULSE_SPEED: float = 7.0
 
 var _world: World = null
-var _customer: E_Customer = null
+var _customer: E_NpcCharacter = null
 var _body: RigidBody3D = null
 
 
+#region Сценарий физического персонажа
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -27,11 +28,11 @@ func _run() -> void:
 	_world.add_system(S_NpcIntent.new())
 	_obstacle(Vector3(0, -0.5, 0), Vector3(20, 1, 20))
 	var blocker: StaticBody3D = _obstacle(Vector3(1.3, 1, 0), Vector3(1, 2, 3))
-	var scene: PackedScene = load("res://content/entities/customers/customer.tscn") as PackedScene
-	_customer = scene.instantiate() as E_Customer
+	var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	_customer = scene.instantiate() as E_NpcCharacter
 	_body = _customer as Node as RigidBody3D
 	_world.add_entity(_customer)
-	# This fixture isolates collision/impulse behavior; routing has its own real-map smoke.
+	# Окружение изолирует столкновения/импульс; маршруты проверяет отдельный smoke с настоящей картой.
 	(_customer.get_component(C_NpcIntent) as C_NpcIntent).navigation_enabled = false
 
 	var motion: C_Motion = _customer.get_component(C_Motion) as C_Motion
@@ -76,6 +77,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Ограниченные шаги и препятствия
 func _frames(count: int) -> void:
 	for frame: int in count:
 		_world.process(FRAME_DELTA)
@@ -102,3 +106,5 @@ func _obstacle(location: Vector3, dimensions: Vector3) -> StaticBody3D:
 	obstacle.position = location
 	_world.add_child(obstacle)
 	return obstacle
+
+#endregion

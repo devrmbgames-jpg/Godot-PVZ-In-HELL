@@ -1,5 +1,5 @@
 extends Node3D
-## Real-body transport regressions: reverse, terrain, collision and explicit handle release.
+## Проверяет загруженную тележку: задний ход, рельеф, столкновения и явное отпускание рукояти.
 
 var _actor: Entity = null
 var _cart: Entity = null
@@ -8,19 +8,21 @@ var _cargo: Array[Entity] = []
 var _maximum_cargo_drift: float = 0.0
 
 
+#region Движение и наблюдение за грузом
 func _ready() -> void:
 	_run.call_deferred()
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if not is_instance_valid(_actor) or _controller == null:
 		return
 
 	_controller.input_tick += 1
 	_controller.direction_look = -(_cart as Node as Node3D).global_basis.z
-	GrabService.handle_input(_actor)
+	InteractionInputFixture.advance(_actor)
+	ECS.world.process(delta, "cart_fixture_cargo")
 	for cargo: Entity in _cargo:
-		var binding: Relationship = CartCargoService.relationship(cargo)
+		var binding: Relationship = CartCargoQueries.relationship(cargo)
 		var data: R_CartCargo = binding.relation as R_CartCargo if binding != null else null
 		if data != null and binding.target == _cart:
 			var desired: Transform3D = (_cart as Node as Node3D).global_transform * data.local_pose
@@ -29,21 +31,25 @@ func _physics_process(_delta: float) -> void:
 			_maximum_cargo_drift = maxf(_maximum_cargo_drift, drift)
 
 
+## Проводит тележку с физическим грузом через движение, паузу модального ввода и отпускание.
 func _run() -> void:
 	var world: World = World.new()
 	add_child(world)
 	ECS.world = world
+	var cargo_owner: S_CartCargo = S_CartCargo.new()
+	cargo_owner.group = "cart_fixture_cargo"
+	world.add_system(cargo_owner)
 	world.add_observer(O_GrabLifecycle.new())
 	world.add_observer(O_CartLifecycle.new())
 	_obstacle(Vector3(0, -0.5, 0), Vector3(40, 1, 40))
-	var scene: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
+	var scene: PackedScene = load("res://content/domains/interaction/entities/push_cart.tscn") as PackedScene
 	var cart_body: CharacterBody3D = scene.instantiate() as CharacterBody3D
 	cart_body.position = Vector3(0, 0.8, 0)
 	_cart = cart_body as Node as Entity
 	world.add_entity(_cart)
 
 	var actor_scene: PackedScene = load(
-		"res://content/entities/characters/e_rigid_body_character.tscn"
+		"res://content/domains/motion/entities/e_rigid_body_character.tscn"
 	) as PackedScene
 	var actor_body: RigidBody3D = actor_scene.instantiate() as RigidBody3D
 	actor_body.position = Vector3(0, 0.05, 1.6)
@@ -58,7 +64,7 @@ func _run() -> void:
 	var rest_height: float = cart_body.position.y
 	var load_ready: bool = await _load_cargo(cart_body)
 	assert(load_ready)
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	ray.look_at(cart_body.global_position)
 	CartTransportService.begin(_actor, _cart)
 	assert(
@@ -126,13 +132,13 @@ func _run() -> void:
 	assert(CartTransportService.current(_actor) == null, "E explicitly releases the handle")
 	assert(InteractionControlFocus.current(_actor) == InteractionControlFocus.Priority.HANDS)
 	assert(CartTransportService.relationship(_cart) == null)
-	# Pick the exposed rear box; the front lower box is occluded by the stack.
+	# Доступна задняя коробка; передняя нижняя перекрыта стопкой.
 	var target: Entity = _cargo[1]
 	ray.look_at((target as Node as Node3D).global_position + Vector3.UP * 0.2)
 	assert(GrabService.try_pickup(_actor, target, C_Grabbable.HoldSlot.CARRY))
-	assert(CartCargoService.relationship(target) == null, "Picking up cargo must release the restraint")
+	assert(CartCargoQueries.relationship(target) == null, "Picking up cargo must release the restraint")
 	assert(not (target as Node as RigidBody3D).custom_integrator)
-	GrabService.release(_actor, target)
+	GrabReleaseService.release(_actor, target)
 
 	var terrain_passed: bool = await _terrain_checks(cart_body, actor_body, rest_height)
 	assert(terrain_passed)
@@ -141,7 +147,7 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	for cargo: Entity in saved_cargo:
-		assert(CartCargoService.relationship(cargo) == null, "Disabling transport must restore free cargo")
+		assert(CartCargoQueries.relationship(cargo) == null, "Disabling transport must restore free cargo")
 		assert(not (cargo as Node as RigidBody3D).custom_integrator)
 
 	set_physics_process(false)
@@ -153,6 +159,10 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Проверки рельефа
+## Проверяет подъём, спуск, малые неровности и стену без потери груза или водителя.
 func _terrain_checks(
 	cart_body: CharacterBody3D,
 	actor_body: RigidBody3D,
@@ -206,10 +216,13 @@ func _terrain_checks(
 	return true
 
 
+#endregion
+
+#region Тестовая загрузка и размещение
 func _load_cargo(cart_body: CharacterBody3D) -> bool:
 	_cargo.clear()
 	_maximum_cargo_drift = 0.0
-	var scene: PackedScene = load("res://content/entities/packages/package.tscn") as PackedScene
+	var scene: PackedScene = load("res://content/domains/packages/entities/package.tscn") as PackedScene
 	var offsets: Array[Vector3] = [
 		Vector3(0, 0.2, -0.85),
 		Vector3(0, 0.2, 0),
@@ -240,7 +253,7 @@ func _place(cart_body: CharacterBody3D, actor_body: RigidBody3D, location: Vecto
 	for tick: int in 30:
 		await get_tree().physics_frame
 
-	var ray: RayCast3D = GrabService.interaction_raycast(_actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(_actor)
 	ray.look_at(cart_body.global_position)
 	CartTransportService.begin(_actor, _cart)
 	assert(CartTransportService.current(_actor) == _cart)
@@ -256,3 +269,5 @@ func _obstacle(location: Vector3, dimensions: Vector3) -> StaticBody3D:
 	obstacle.position = location
 	add_child(obstacle)
 	return obstacle
+
+#endregion

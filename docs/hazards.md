@@ -19,7 +19,7 @@
 var request: HazardSpawnRequest = HazardSpawnRequest.new()
 request.request_id = "trap-17:activation-3"
 request.origin_id = "trap-17"
-request.scene = preload("res://content/entities/hazards/explosion.tscn")
+request.scene = preload("res://content/domains/hazards/entities/explosion.tscn")
 request.world_pose = Transform3D(Basis.IDENTITY, Vector3(2, 1, 3))
 HazardSpawnService.submit(request)
 ```

@@ -1,13 +1,18 @@
 extends Label3D
-## Read-only world feedback for package condition; never changes gameplay state.
+## Показывает состояние коробки в мире, читая компоненты без изменения игровых данных.
 class_name PackageConditionView
 
-## Authored colors for persistent condition labels.
+## Цвет метки повреждённой коробки.
 @export var damaged_color: Color = Color(1.0, 0.68, 0.2)
+## Цвет метки уничтоженной коробки.
 @export var destroyed_color: Color = Color(1.0, 0.25, 0.2)
+## Цвет вскрытия и исходный цвет наклеек.
 @export var opened_color: Color = Color(1.0, 0.93, 0.7)
+## Цвет метки протекающей коробки.
 @export var leaking_color: Color = Color(0.3, 0.85, 1.0)
+## Мировой размер пикселя наклеек, в метрах.
 @export var face_label_pixel_size: float = 0.0018
+## Отступ наклеек от грани модели, в метрах.
 @export var face_label_offset: float = 0.003
 
 var _damage: int = -1
@@ -19,6 +24,7 @@ var _stickers: Array[Label3D] = []
 @onready var _package: Entity = get_parent() as Entity
 
 
+#region Создание наклеек
 func _ready() -> void:
 	_create_stickers.call_deferred()
 
@@ -51,6 +57,9 @@ func _create_stickers() -> void:
 	_damage = -1
 
 
+#endregion
+
+#region Обновление состояния
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_package):
 		visible = false
@@ -106,3 +115,5 @@ func _process(_delta: float) -> void:
 		sticker.text = "\n".join(marking)
 		sticker.modulate = modulate
 		sticker.visible = not marking.is_empty()
+
+#endregion

@@ -1,14 +1,21 @@
 extends GutTest
+## Проверки закрытой схемы данных и атомарной записи слота; живые Node и временные блокировки не сериализуются.
 
 const SAVE_PATH: String = "user://gut_r21_autosave.pvzh"
 
 
+#region Очистка тестового слота
+## Удаляет только тестовый слот и его временный файл атомарной записи.
 func after_each() -> void:
 	for path: String in [SAVE_PATH, SAVE_PATH + ".tmp"]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 
+#endregion
+
+#region Схема данных и атомарное хранилище
+## Round-trip спора сохраняет факт, заявление, расчёт и личность участника ответного нападения.
 func test_customer_dispute_round_trip_keeps_actual_declaration_and_retaliation_identity() -> void:
 	var visit: CustomerVisit = CustomerVisit.new()
 	visit.visit_id = &"customer:11:tools"
@@ -41,9 +48,10 @@ func test_customer_dispute_round_trip_keeps_actual_declaration_and_retaliation_i
 	assert_ne(decoded.complaint, visit.complaint)
 
 
+## Авторское определение предмета остаётся каноническим; временные блокировки передачи не сохраняются.
 func test_inventory_definition_remains_canonical_and_transient_locks_are_excluded() -> void:
 	var original: C_InventoryItem = C_InventoryItem.new()
-	original.definition = load("res://content/definitions/gameplay/inventory/def_item_food.tres") as DEF_InventoryItem
+	original.definition = load("res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem
 	original.quantity = 4
 	original.pending_use_id = &"temporary"
 	original.transfer_in_progress = true
@@ -57,6 +65,7 @@ func test_inventory_definition_remains_canonical_and_transient_locks_are_exclude
 	assert_false((data.fields as Dictionary).has("transfer_in_progress"))
 
 
+## Типизированные ресурсы заказов и словарь поставок восстанавливают значения и ссылки на определения.
 func test_typed_resource_arrays_and_receiving_dictionary_round_trip() -> void:
 	var commerce: C_Commerce = C_Commerce.new()
 	var delivery: PendingDelivery = PendingDelivery.new()
@@ -90,6 +99,7 @@ func test_typed_resource_arrays_and_receiving_dictionary_round_trip() -> void:
 	assert_eq(other.pending[0].next_package, 4)
 
 
+## Повторная атомарная запись заменяет слот, сохраняя native Transform3D и массивы точек.
 func test_store_replaces_same_slot_and_preserves_native_physical_values() -> void:
 	var pose: Transform3D = Transform3D(Basis.from_euler(Vector3(0.1, 0.2, 0.3)), Vector3(1, 2, 3))
 	var data: Dictionary = {"version": 1, "day": 2, "pose": pose, "ink": PackedVector3Array([Vector3.ONE, Vector3.UP])}
@@ -101,6 +111,7 @@ func test_store_replaces_same_slot_and_preserves_native_physical_values() -> voi
 	assert_false(FileAccess.file_exists(SAVE_PATH + ".tmp"))
 
 
+## Отсутствующий, повреждённый или обрезанный файл даёт пустой результат чтения.
 func test_missing_corrupt_and_truncated_slot_are_safe() -> void:
 	assert_true(AutosaveStore.read(SAVE_PATH).is_empty())
 	var file: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -115,6 +126,7 @@ func test_missing_corrupt_and_truncated_slot_are_safe() -> void:
 	assert_true(AutosaveStore.read(SAVE_PATH).is_empty())
 
 
+## Закрытая схема отклоняет посторонние скрипты, неверные типы, transient-поля и живые Node.
 func test_unknown_script_fields_wrong_types_and_runtime_objects_are_rejected() -> void:
 	assert_null(SaveDataCodec.decode({"type": "res://content/scenes/main_level.gd", "fields": {}}))
 	assert_null(SaveDataCodec.decode({"definition": "res://project.godot"}))
@@ -126,3 +138,5 @@ func test_unknown_script_fields_wrong_types_and_runtime_objects_are_rejected() -
 	var encoded: Dictionary = SaveDataCodec.encode(node) as Dictionary
 	node.free()
 	assert_true(encoded.get("invalid", false))
+
+#endregion

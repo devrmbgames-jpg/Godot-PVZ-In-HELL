@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DEF_NpcRemains" format=3]
+
+[ext_resource type="Script" path="res://content/domains/npc/definitions/def_npc_remains.gd" id="Definition"]
+[ext_resource type="PackedScene" path="res://content/domains/inventory/entities/npc_meat_pickup.tscn" id="Meat"]
+[ext_resource type="PackedScene" path="res://content/domains/inventory/entities/med_pickup.tscn" id="Med"]
+
+[resource]
+script = ExtResource("Definition")
+key = &"npc_remains_default"
+meat_scene = ExtResource("Meat")
+meat_piece_count = 3
+piece_spacing = 0.45
+loot_scene = ExtResource("Med")
+loot_chance = 0.25

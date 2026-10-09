@@ -1,4 +1,5 @@
 extends GutTest
+## Регрессии намерений NPC и авторитетных живых целей; подготовка Controller не перемещает тело.
 
 var _world: World = null
 var _npc: Entity = null
@@ -6,6 +7,8 @@ var _intent: C_NpcIntent = null
 var _controller: C_Controller = null
 
 
+#region Минимальное окружение
+## Создаёт минимальный World с производителем намерений и нефизической Entity для проверки границ управления.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -16,6 +19,7 @@ func before_each() -> void:
 	_controller = _npc.get_component(C_Controller) as C_Controller
 
 
+## Освобождает World и временные ссылки Controller/Intent; сбрасывает ECS.world.
 func after_each() -> void:
 	_world.free()
 	ECS.world = null
@@ -34,6 +38,10 @@ func _actor(components: Array[Component]) -> Entity:
 	return actor
 
 
+#endregion
+
+#region Намерения и живые цели
+## Высота мировой цели не добавляет вертикального движения; обновляется лишь Controller, позиция остаётся прежней.
 func test_world_target_sets_planar_intent_without_moving_body() -> void:
 	NpcIntentService.move_to(_npc, Vector3(4, 10, 0), 0.25)
 	_world.process(1.0 / 60.0)
@@ -43,6 +51,7 @@ func test_world_target_sets_planar_intent_without_moving_body() -> void:
 	assert_false(_intent.arrived)
 
 
+## Прибытие останавливает запрос движения; уход живой цели возобновляет следование.
 func test_arrival_stops_and_resumes_following_when_target_moves() -> void:
 	var target: Entity = _actor([])
 	NpcIntentService.follow(_npc, target, 0.5)
@@ -55,6 +64,7 @@ func test_arrival_stops_and_resumes_following_when_target_moves() -> void:
 	assert_eq(_controller.direction_motion, Vector3.FORWARD)
 
 
+## Независимая цель взгляда обновляется при движении, не заменяя направление ходьбы.
 func test_move_and_look_targets_are_independent_live_relationships() -> void:
 	var watched: Entity = _actor([])
 	(watched as Node as Node3D).position = Vector3(0, 0, -4)
@@ -69,6 +79,7 @@ func test_move_and_look_targets_are_independent_live_relationships() -> void:
 	assert_eq(_controller.direction_motion, Vector3.RIGHT)
 
 
+## Удаление цели освобождает Relationships и переводит взгляд в режим движения без устаревшего намерения.
 func test_removed_targets_clear_intent_and_bindings_safely() -> void:
 	var target: Entity = _actor([])
 	NpcIntentService.follow(_npc, target, 0.25)
@@ -82,6 +93,7 @@ func test_removed_targets_clear_intent_and_bindings_safely() -> void:
 	assert_true(_npc.relationships.is_empty())
 
 
+## Маркер игрока исключает Controller из NPC-производителя и сохраняет его прежнее направление.
 func test_player_marker_excludes_actor_from_npc_producer() -> void:
 	_npc.add_component(C_PlayerInputController.new())
 	NpcIntentService.move_to(_npc, Vector3.RIGHT * 4, 0.25)
@@ -90,6 +102,7 @@ func test_player_marker_excludes_actor_from_npc_producer() -> void:
 	assert_eq(_controller.direction_motion, Vector3.LEFT)
 
 
+## Остановка и смерть гасят движение; терминальное состояние дополнительно освобождает взгляд/живые цели.
 func test_stop_and_death_release_targets_and_prevent_motion() -> void:
 	var target: Entity = _actor([])
 	(target as Node as Node3D).position = Vector3.RIGHT * 4
@@ -105,3 +118,5 @@ func test_stop_and_death_release_targets_and_prevent_motion() -> void:
 	assert_eq(_controller.direction_motion, Vector3.ZERO)
 	assert_eq(_controller.direction_look, Vector3.ZERO)
 	assert_true(_npc.relationships.is_empty())
+
+#endregion

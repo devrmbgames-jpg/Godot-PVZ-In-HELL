@@ -1,12 +1,15 @@
 extends GutTest
+## Проверяет смысл ответов, клиентский контекст и последствия диалога для обслуживания.
 
 var _world: World = null
 var _actor: Entity = null
-var _customer: E_Customer = null
+var _customer: E_NpcCharacter = null
 var _visit: CustomerVisit = null
 var _context: CustomerDialogueContext = null
 
 
+#region Тестовое окружение
+## Создаёт отдельный World, живого клиента и контекст активного заказа.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -17,7 +20,9 @@ func before_each() -> void:
 	var cycle: C_DayCycle = C_DayCycle.new()
 	cycle.phase = C_DayCycle.Phase.DAY
 	cycle.day_index = 3
-	owner.component_resources = [flow, cycle, C_Wallet.new(), C_PackageLedger.new()]
+	owner.component_resources = [
+		flow, cycle, C_Wallet.new(), C_PackageLedger.new(), C_BoundaryTrace.new()
+	]
 	_world.add_entity(owner)
 
 	_visit = CustomerVisit.new()
@@ -32,8 +37,8 @@ func before_each() -> void:
 	_world.add_entity(_actor)
 
 	var customer_body: RigidBody3D = RigidBody3D.new()
-	customer_body.set_script(load("res://content/entities/customers/e_customer.gd"))
-	_customer = customer_body as Node as E_Customer
+	customer_body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
+	_customer = customer_body as Node as E_NpcCharacter
 	var agent: C_CustomerAgent = C_CustomerAgent.new()
 	agent.visit_id = _visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
@@ -43,6 +48,7 @@ func before_each() -> void:
 	_context = CustomerDialogueContext.new(_actor, _customer)
 
 
+## Освобождает World и ссылки контекста; сбрасывает глобальный ECS.world.
 func after_each() -> void:
 	if is_instance_valid(_world):
 		_world.free()
@@ -87,6 +93,37 @@ func _reaction(
 	return reaction
 
 
+#endregion
+
+#region Намерения и реакции
+## Tree teardown seals the session without restarting its gameplay phase.
+func test_invalidated_context_rejects_late_actions_without_returning_to_service() -> void:
+	assert_true(_context.begin())
+	_context.invalidate()
+	assert_false(_context.is_valid())
+	assert_false(_context.begin())
+	assert_false(_context.answer_riddle_wrong())
+	assert_false(_context.apply_response_tags(PackedStringArray(["lie"])))
+	assert_eq((_customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase,
+		C_CustomerAgent.Phase.DIALOGUE)
+
+
+## Repeated semantic response is a duplicate committed result, not a second mutation.
+func test_customer_trace_distinguishes_repeated_committed_response() -> void:
+	_visit.definition.dialogue_reactions = [
+		_reaction(CustomerDialogueIntent.Type.LIE, -20, 0.0, 0.0, 0.0)
+	]
+	assert_true(_context.apply_response_tags(PackedStringArray(["lie"])))
+	assert_true(_context.apply_response_tags(PackedStringArray(["lie"])))
+	var trace_rows: Array[Dictionary] = BoundaryTrace.snapshots(String(_visit.visit_id))
+	assert_eq(trace_rows.size(), 2)
+	assert_eq(trace_rows[0]["stage"], BoundaryTraceEntry.Stage.COMPLETED)
+	assert_eq(trace_rows[1]["stage"], BoundaryTraceEntry.Stage.DUPLICATE)
+	assert_eq(trace_rows[1]["correlation_id"], _visit.visit_id)
+	assert_eq(_visit.dialogue_satisfaction_delta, -20)
+
+
+## Одна ложь учитывается один раз, даже при повторном применении тега ответа.
 func test_response_intent_tags_are_typed_and_idempotent() -> void:
 	_visit.definition.dialogue_reactions = [
 		_reaction(CustomerDialogueIntent.Type.LIE, -20, 0.25, 0.1, 0.05),
@@ -99,6 +136,7 @@ func test_response_intent_tags_are_typed_and_idempotent() -> void:
 	assert_eq(_visit.dialogue_satisfaction_delta, -20)
 
 
+## Шутка меняет отношение, сохраняя заказ без фактического отказа.
 func test_joke_tag_does_not_commit_denial() -> void:
 	_visit.definition.dialogue_reactions = [
 		_reaction(CustomerDialogueIntent.Type.JOKE, -5, 0.0, 0.0, 0.0),
@@ -108,6 +146,7 @@ func test_joke_tag_does_not_commit_denial() -> void:
 	assert_eq(_visit.dialogue_satisfaction_delta, -5)
 
 
+## Авторская реакция на угрозу переводит отказавшего клиента в агрессию.
 func test_threat_reaction_can_escalate_dialogue_denial_to_aggressive() -> void:
 	_visit.definition.immediate_aggression_probability = 0.0
 	_visit.definition.dialogue_reactions = [
@@ -124,6 +163,7 @@ func test_threat_reaction_can_escalate_dialogue_denial_to_aggressive() -> void:
 	assert_eq(agent.phase, C_CustomerAgent.Phase.AGGRESSIVE)
 
 
+## Модификатор убеждения уменьшает шанс жалобы и увеличивает шанс повторного визита.
 func test_persuasion_modifier_reduces_complaint_and_increases_followup() -> void:
 	_visit.definition.complaint_probability = 0.85
 	_visit.definition.followup_probability = 0.5
@@ -135,6 +175,10 @@ func test_persuasion_modifier_reduces_complaint_and_increases_followup() -> void
 	assert_almost_eq(_visit.followup_probability_delta, 0.25, 0.001)
 
 
+#endregion
+
+#region Условия и отложенные последствия
+## Ошибка загадки снижает итоговую удовлетворённость однократно; верный ответ открывает обычную выдачу.
 func test_riddle_wrong_answer_is_idempotent_and_affects_final_satisfaction() -> void:
 	_visit.definition.dialogue_mode = DEF_Customer.DialogueMode.RIDDLE
 	_visit.definition.riddle_wrong_satisfaction_penalty = 20
@@ -150,6 +194,7 @@ func test_riddle_wrong_answer_is_idempotent_and_affects_final_satisfaction() -> 
 	assert_eq(_context.dialogue_cue(), "direct")
 
 
+## Условия диалога читают реальное состояние коробки и безопасные значения отсутствующих ролей.
 func test_condition_adapter_reads_package_and_complaint_facts() -> void:
 	var state: C_PackageState = _add_requested_package()
 	state.opening = C_PackageState.Opening.OPENED
@@ -164,6 +209,7 @@ func test_condition_adapter_reads_package_and_complaint_facts() -> void:
 	assert_eq(_context.hunger_tier(), CustomerDialogueContext.DEFAULT_HUNGER_TIER)
 
 
+## Повторный запрос возвращает ту же отложенную жалобу, сохраняя день её рассмотрения.
 func test_forced_delayed_complaint_is_idempotent() -> void:
 	assert_true(_context.schedule_non_delivery_complaint())
 	var first: CustomerComplaint = _visit.complaint
@@ -175,6 +221,25 @@ func test_forced_delayed_complaint_is_idempotent() -> void:
 	assert_true(_context.complaint_pending())
 
 
+#endregion
+
+#region Жизненный цикл обслуживания
+## A closed context cannot replay late mutations or re-enter its finished UI session.
+func test_closed_context_rejects_late_actions_and_does_not_resume_service() -> void:
+	assert_true(_context.begin())
+	_context.end()
+	assert_false(_context.begin())
+	assert_false(_context.answer_riddle_wrong())
+	assert_false(_context.answer_riddle_correct())
+	assert_false(_context.schedule_non_delivery_complaint())
+	assert_false(_context.apply_response_tags(PackedStringArray(["lie"])))
+	assert_eq(_visit.dialogue_satisfaction_delta, 0)
+	assert_false(_visit.riddle_solved)
+	assert_null(_visit.complaint)
+	assert_eq(_context.customer_phase(), C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
+
+
+## Обнаружение ложной выдачи запускает преследование, не сбрасывая уже выполняющееся движение.
 func test_false_taken_detection_routes_to_existing_aggressive_receiver() -> void:
 	_visit.aggression_roll = 0.0
 	_visit.definition.immediate_aggression_probability = 1.0
@@ -197,6 +262,7 @@ func test_false_taken_detection_routes_to_existing_aggressive_receiver() -> void
 	assert_true((_customer.get_component(C_NpcIntent) as C_NpcIntent).movement_active, "A subsequent hit must not stop pursuit")
 
 
+## Добровольный отказ возникает после передачи; подтверждение диалога завершает его один раз.
 func test_voluntary_refusal_waits_for_handoff_then_dialogue_can_acknowledge() -> void:
 	_visit.definition.voluntary_refusal = true
 	assert_eq(_context.dialogue_cue(), "direct")
@@ -214,6 +280,7 @@ func test_voluntary_refusal_waits_for_handoff_then_dialogue_can_acknowledge() ->
 	assert_false(_context.voluntary_refuse())
 
 
+## Смерть клиента или завершение визита делает сервисный контекст недействительным.
 func test_context_invalidates_when_customer_dies_or_visit_finishes() -> void:
 	assert_true(_context.is_valid())
 	_customer.add_component(C_Death.new())
@@ -223,6 +290,10 @@ func test_context_invalidates_when_customer_dies_or_visit_finishes() -> void:
 	assert_false(_context.is_valid())
 
 
+#endregion
+
+#region Ресурсы и представление ответов
+## Префикс намерения оформляет UI, сохраняя исходные текст и теги DialogueResponse.
 func test_response_prefixes_preserve_authored_text_and_routing_tags() -> void:
 	var cases: Dictionary[String, String] = {
 		"hon": "[честно]", "lie": "[обман]", "prs": "[убедить]",
@@ -243,6 +314,7 @@ func test_response_prefixes_preserve_authored_text_and_routing_tags() -> void:
 	assert_eq(CustomerDialoguePanel.format_response_text("Хорошо.", PackedStringArray(["unknown"])), "Хорошо.")
 
 
+## Авторский ресурс содержит прямую выдачу, отказы и загадки; тест освобождает ссылки строк на ресурс.
 func test_dialogue_resource_exposes_direct_and_riddle_branches() -> void:
 	var resource: DialogueResource = load(CustomerDialogueService.DIALOGUE_PATH) as DialogueResource
 	assert_not_null(resource)
@@ -269,3 +341,5 @@ func test_dialogue_resource_exposes_direct_and_riddle_branches() -> void:
 	for value: Variant in resource.lines.values():
 		var data: Dictionary = value as Dictionary
 		assert_false(data.has("resource"), "Session close must break per-line resource self references")
+
+#endregion

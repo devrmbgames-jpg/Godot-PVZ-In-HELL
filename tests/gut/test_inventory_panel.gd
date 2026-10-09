@@ -1,5 +1,5 @@
 extends GutTest
-## Real grid/input capture and guarded whole-stack placement, with actual collision support.
+## Проверяет сетку инвентаря, захват ввода и физический выброс целого стека с проверкой опоры.
 
 var _root: Node3D
 var _world: World
@@ -7,6 +7,8 @@ var _actor: E_RigidBodyCharacter
 var _panel: InventoryPanel
 
 
+#region Физическое окружение и UI
+## Создаёт физическую опору, игрока и реальную панель инвентаря.
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
@@ -19,10 +21,10 @@ func before_each() -> void:
 
 	var body: RigidBody3D = RigidBody3D.new()
 	body.freeze = true
-	body.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	_actor = body as Node as E_RigidBodyCharacter
 	var hunger: C_Hunger = C_Hunger.new()
-	hunger.policy = load("res://content/definitions/gameplay/hunger/def_hunger_default.tres") as DEF_HungerPolicy
+	hunger.policy = load("res://content/domains/needs/definitions/def_hunger_default.tres") as DEF_HungerPolicy
 	hunger.value = 60.0
 	_actor.component_resources = [C_Inventory.new(), C_GrabControl.new(), C_Controller.new(), C_Health.new(), hunger]
 	_root.add_child(body)
@@ -36,6 +38,7 @@ func before_each() -> void:
 	await get_tree().physics_frame
 
 
+## Закрывает панель до удаления World и отложенных узлов.
 func after_each() -> void:
 	_panel.close_inventory()
 	_world.purge(false)
@@ -56,7 +59,7 @@ func _floor(position: Vector3, size: Vector3) -> void:
 
 
 func _item(key: String, quantity: int = 1) -> Entity:
-	var definition: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_%s.tres" % key) as DEF_InventoryItem
+	var definition: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_%s.tres" % key) as DEF_InventoryItem
 	var item: Entity = Entity.new()
 	var stack: C_InventoryItem = C_InventoryItem.new()
 	stack.definition = definition
@@ -75,6 +78,10 @@ func _button(name: String) -> Button:
 	return _panel.get_node("Root/Center/Panel/Content/Actions/" + name) as Button
 
 
+#endregion
+
+#region Выбор, применение и выброс
+## Сетка показывает пустую ёмкость и отдельные авторские иконки четырёх типов предметов.
 func test_capacity_grid_has_empty_slots_and_four_unused_authored_icons() -> void:
 	assert_true(_panel.open_inventory())
 	assert_eq(_grid().columns, 4)
@@ -96,6 +103,7 @@ func test_capacity_grid_has_empty_slots_and_four_unused_authored_icons() -> void
 	assert_eq(_grid().get_child_count(), 8)
 
 
+## Выбор аптечки не расходует её; кнопка применения учитывает актуальное HP и количество.
 func test_selecting_med_does_not_consume_and_use_follows_actual_health_then_updates_quantity() -> void:
 	var med: Entity = _item("med", 2)
 	var health: C_Health = _actor.get_component(C_Health) as C_Health
@@ -119,6 +127,7 @@ func test_selecting_med_does_not_consume_and_use_follows_actual_health_then_upda
 	assert_true(_button("Drop").disabled)
 
 
+## Выброс материализует весь виртуальный стек на опоре для последующего подбора.
 func test_drop_button_materializes_virtual_stack_on_floor_and_can_pick_it_back_up() -> void:
 	_item("npc_meat", 3)
 	assert_true(_panel.open_inventory())
@@ -136,6 +145,7 @@ func test_drop_button_materializes_virtual_stack_on_floor_and_can_pick_it_back_u
 	assert_eq(InventoryService.items(_actor).size(), 1)
 
 
+## Отсутствие опоры или стена отклоняют выброс без потери количества и владельца.
 func test_no_support_and_wall_reject_drop_without_item_or_relationship_loss() -> void:
 	var item: Entity = _item("food", 2)
 	(_actor as Node as Node3D).position = Vector3(0, 0, 20)
@@ -152,6 +162,7 @@ func test_no_support_and_wall_reject_drop_without_item_or_relationship_loss() ->
 	assert_eq((item.get_component(C_InventoryItem) as C_InventoryItem).quantity, 2)
 
 
+## Чужой модальный токен блокирует действия; закрытие панели сохраняет его.
 func test_nested_modal_prevents_grid_actions_and_close_preserves_other_capture() -> void:
 	var food: Entity = _item("food", 2)
 	assert_true(_panel.open_inventory())
@@ -168,6 +179,7 @@ func test_nested_modal_prevents_grid_actions_and_close_preserves_other_capture()
 	assert_eq(InteractionControlFocus.current(_actor), InteractionControlFocus.Priority.HANDS)
 
 
+## Ожидающее применение и чужой владелец блокируют выброс стека.
 func test_pending_use_and_nonowner_cannot_drop() -> void:
 	var item: Entity = _item("med")
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
@@ -181,3 +193,5 @@ func test_pending_use_and_nonowner_cannot_drop() -> void:
 	assert_false(InventoryDropService.drop(stranger, item))
 	assert_eq((item.get_component(C_InventoryItem) as C_InventoryItem).quantity, 1)
 	assert_eq(InventoryService.owner_for(item), _actor)
+
+#endregion

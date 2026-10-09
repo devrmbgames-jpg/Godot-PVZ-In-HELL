@@ -1,0 +1,246 @@
+[gd_resource type="Resource" script_class="DEF_District" format=3 uid="uid://0japh62q4h57"]
+
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_delivery_door_ambush.tres" id="DeliveryAmbush"]
+[ext_resource type="Script" uid="uid://hvheqqr7idk0" path="res://content/domains/npc/definitions/def_district.gd" id="District"]
+[ext_resource type="Resource" uid="uid://bek5jpjn2x3iw" path="res://content/domains/npc/definitions/def_npc_profile_1.tres" id="Person1"]
+[ext_resource type="Resource" uid="uid://b4uhj10iv4eg" path="res://content/domains/npc/definitions/def_npc_profile_2.tres" id="Person2"]
+[ext_resource type="Resource" uid="uid://c1yve1adpnxk0" path="res://content/domains/npc/definitions/def_npc_profile_3.tres" id="Person3"]
+[ext_resource type="Resource" uid="uid://ct8ee0w2frd6y" path="res://content/domains/npc/definitions/def_npc_profile_4.tres" id="Person4"]
+[ext_resource type="Resource" uid="uid://dcdbsid6u701n" path="res://content/domains/npc/definitions/def_npc_profile_5.tres" id="Person5"]
+[ext_resource type="Resource" uid="uid://c8sewdhwf65n5" path="res://content/domains/npc/definitions/def_npc_profile_6.tres" id="Person6"]
+[ext_resource type="Resource" uid="uid://ct6475rsrndpi" path="res://content/domains/npc/definitions/def_npc_profile_7.tres" id="Person7"]
+[ext_resource type="Resource" uid="uid://bgdvk3v4ung7m" path="res://content/domains/npc/definitions/def_npc_profile_8.tres" id="Person8"]
+[ext_resource type="Resource" uid="uid://bj5xcperb0ri0" path="res://content/domains/npc/definitions/def_npc_profile_9.tres" id="Person9"]
+[ext_resource type="Resource" uid="uid://e5j7iq2pdsb7" path="res://content/domains/npc/definitions/def_npc_profile_10.tres" id="Person10"]
+[ext_resource type="Resource" uid="uid://ba447hcivbpbv" path="res://content/domains/npc/definitions/def_npc_profile_11.tres" id="Person11"]
+[ext_resource type="Resource" uid="uid://b4uwkghcuclvf" path="res://content/domains/npc/definitions/def_npc_profile_12.tres" id="Person12"]
+[ext_resource type="Script" uid="uid://3jqx0cuvmvqq" path="res://content/domains/npc/definitions/def_district_place.gd" id="PlaceScript"]
+[ext_resource type="Script" uid="uid://b5sdb0rpo1bdu" path="res://content/domains/npc/definitions/def_npc_profile.gd" id="ProfileScript"]
+
+[sub_resource type="Resource" id="home_1"]
+script = ExtResource("PlaceScript")
+display_name = "Дом 1"
+kind = 0
+position = Vector3(36, 0, -8)
+key = &"home_1"
+
+[sub_resource type="Resource" id="home_2"]
+script = ExtResource("PlaceScript")
+display_name = "Дом 2"
+kind = 0
+position = Vector3(44, 0, -8)
+key = &"home_2"
+
+[sub_resource type="Resource" id="home_3"]
+script = ExtResource("PlaceScript")
+display_name = "Дом 3"
+kind = 0
+position = Vector3(52, 0, -8)
+key = &"home_3"
+
+[sub_resource type="Resource" id="home_4"]
+script = ExtResource("PlaceScript")
+display_name = "Дом 4"
+kind = 0
+position = Vector3(60, 0, -8)
+key = &"home_4"
+
+[sub_resource type="Resource" id="home_5"]
+script = ExtResource("PlaceScript")
+display_name = "Дом 5"
+kind = 0
+position = Vector3(36, 0, 24)
+key = &"home_5"
+
+[sub_resource type="Resource" id="home_6"]
+script = ExtResource("PlaceScript")
+display_name = "Дом 6"
+kind = 0
+position = Vector3(44, 0, 24)
+key = &"home_6"
+
+[sub_resource type="Resource" id="home_7"]
+script = ExtResource("PlaceScript")
+display_name = "Дом 7"
+kind = 0
+position = Vector3(52, 0, 24)
+key = &"home_7"
+
+[sub_resource type="Resource" id="home_8"]
+script = ExtResource("PlaceScript")
+display_name = "Дом 8"
+kind = 0
+position = Vector3(60, 0, 24)
+key = &"home_8"
+
+[sub_resource type="Resource" id="portal_east"]
+script = ExtResource("PlaceScript")
+kind = 1
+position = Vector3(66, 0, 8)
+key = &"portal_east"
+
+[sub_resource type="Resource" id="portal_north"]
+script = ExtResource("PlaceScript")
+kind = 1
+position = Vector3(56, 0, -12)
+key = &"portal_north"
+
+[sub_resource type="Resource" id="portal_south"]
+script = ExtResource("PlaceScript")
+kind = 1
+position = Vector3(40, 0, 28)
+key = &"portal_south"
+
+[sub_resource type="Resource" id="activity_0"]
+script = ExtResource("PlaceScript")
+activity = 1
+focus_path = NodePath("DebugMarkers/RoomClient")
+display_name = "Окно ПВЗ"
+position = Vector3(28, 0, 4)
+anchor_path = NodePath("DebugMarkers/MarkerNPCSpawnPoint")
+key = &"activity_0"
+
+[sub_resource type="Resource" id="activity_1"]
+script = ExtResource("PlaceScript")
+activity = 2
+display_name = "Наблюдать за улицей"
+position = Vector3(38, 0, 12)
+key = &"activity_1"
+
+[sub_resource type="Resource" id="activity_2"]
+script = ExtResource("PlaceScript")
+position = Vector3(48, 0, 4)
+key = &"activity_2"
+
+[sub_resource type="Resource" id="activity_3"]
+script = ExtResource("PlaceScript")
+position = Vector3(58, 0, 12)
+key = &"activity_3"
+
+[sub_resource type="Resource" id="shop"]
+script = ExtResource("PlaceScript")
+activity = 3
+activity_offset = Vector3(-1.5, 0, 1)
+kind = 3
+position = Vector3(30, 0, 0)
+anchor_path = NodePath("DebugMarkers/TraderClientZone")
+key = &"shop"
+
+[sub_resource type="Resource" id="pvz_entry"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(15, 0, 2.6)
+anchor_path = NodePath("DebugMarkers/MarkerNPCSpawnPoint")
+key = &"pvz_entry"
+
+[sub_resource type="Resource" id="street_0"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(30, 0, 8)
+key = &"street_0"
+
+[sub_resource type="Resource" id="street_1"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(40, 0, 8)
+key = &"street_1"
+
+[sub_resource type="Resource" id="street_2"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(50, 0, 8)
+key = &"street_2"
+
+[sub_resource type="Resource" id="street_3"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(60, 0, 8)
+key = &"street_3"
+
+[sub_resource type="Resource" id="north_0"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(30, 0, -4)
+key = &"north_0"
+
+[sub_resource type="Resource" id="north_1"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(40, 0, -4)
+key = &"north_1"
+
+[sub_resource type="Resource" id="north_2"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(50, 0, -4)
+key = &"north_2"
+
+[sub_resource type="Resource" id="north_3"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(60, 0, -4)
+key = &"north_3"
+
+[sub_resource type="Resource" id="south_0"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(30, 0, 18)
+key = &"south_0"
+
+[sub_resource type="Resource" id="south_1"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(40, 0, 18)
+key = &"south_1"
+
+[sub_resource type="Resource" id="south_2"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(50, 0, 18)
+key = &"south_2"
+
+[sub_resource type="Resource" id="south_3"]
+script = ExtResource("PlaceScript")
+kind = 4
+position = Vector3(60, 0, 18)
+key = &"south_3"
+
+[sub_resource type="Resource" id="cover_pvz_east"]
+script = ExtResource("PlaceScript")
+kind = 5
+position = Vector3(15, 0, 3.5)
+anchor_path = NodePath("DebugMarkers/MainDoor")
+key = &"cover_pvz_east"
+
+[sub_resource type="Resource" id="cover_pvz_back"]
+script = ExtResource("PlaceScript")
+kind = 5
+position = Vector3(15, 0, -4)
+anchor_path = NodePath("DebugMarkers/BackDoor")
+key = &"cover_pvz_back"
+
+[sub_resource type="Resource" id="cover_0"]
+script = ExtResource("PlaceScript")
+kind = 5
+position = Vector3(40, 0, 17)
+key = &"cover_0"
+
+[sub_resource type="Resource" id="cover_1"]
+script = ExtResource("PlaceScript")
+kind = 5
+position = Vector3(48, 0, 17)
+key = &"cover_1"
+
+[sub_resource type="Resource" id="cover_2"]
+script = ExtResource("PlaceScript")
+kind = 5
+position = Vector3(56, 0, 17)
+key = &"cover_2"
+
+[resource]
+script = ExtResource("District")
+shade_refuge = &"south_1"
+profiles = Array[ExtResource("ProfileScript")]([ExtResource("Person1"), ExtResource("Person2"), ExtResource("Person3"), ExtResource("Person4"), ExtResource("Person5"), ExtResource("Person6"), ExtResource("Person7"), ExtResource("Person8"), ExtResource("Person9"), ExtResource("Person10"), ExtResource("Person11"), ExtResource("Person12")])
+places = Array[ExtResource("PlaceScript")]([SubResource("home_1"), SubResource("home_2"), SubResource("home_3"), SubResource("home_4"), SubResource("home_5"), SubResource("home_6"), SubResource("home_7"), SubResource("home_8"), SubResource("portal_east"), SubResource("portal_north"), SubResource("portal_south"), SubResource("activity_0"), SubResource("activity_1"), SubResource("activity_2"), SubResource("activity_3"), SubResource("shop"), SubResource("pvz_entry"), SubResource("street_0"), SubResource("street_1"), SubResource("street_2"), SubResource("street_3"), SubResource("north_0"), SubResource("north_1"), SubResource("north_2"), SubResource("north_3"), SubResource("south_0"), SubResource("south_1"), SubResource("south_2"), SubResource("south_3"), SubResource("cover_pvz_east"), SubResource("cover_pvz_back"), SubResource("cover_0"), SubResource("cover_1"), SubResource("cover_2")])
+personal_delivery_scenario = ExtResource("DeliveryAmbush")
+key = &"hell_district"

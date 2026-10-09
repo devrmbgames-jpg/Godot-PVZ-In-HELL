@@ -1,5 +1,5 @@
 extends Node
-## Thin command frontend; all writes use domain services or explicit Entity glue.
+## Входы команд игрового QA; проверки и запись идут через сервисы либо явный сценовый API.
 
 const COMMANDS: Dictionary[String, Array] = {
 	"stamina_info": [["target=self"], 0, "Read sprint reserve, capacity, weight drain, recovery timer and control mode."],
@@ -34,6 +34,7 @@ const COMMANDS: Dictionary[String, Array] = {
 }
 
 
+#region Регистрация и освобождение
 func _ready() -> void:
 	for command: String in COMMANDS:
 		var metadata: Array = COMMANDS[command]
@@ -47,6 +48,9 @@ func _exit_tree() -> void:
 	for command: String in COMMANDS: Console.remove_command(command)
 
 
+#endregion
+
+#region Диагностические команды
 func _info(command: String, kind: String, raw: String) -> void:
 	if raw.is_empty() and kind in ["stamina", "hunger", "inventory"]: raw = "self"
 	if raw.is_empty() and kind == "hazard": raw = "target"
@@ -67,6 +71,9 @@ func _progress_info(raw: String) -> void: _info("progress_info", "progress", raw
 func _corpse_info(raw: String) -> void: _info("corpse_info", "corpse", raw)
 
 
+#endregion
+
+#region Игрок и торговля
 func _hunger_set(text: String) -> void:
 	_report("hunger_set", text.is_valid_float() and HungerService.set_value(DebugTargetResolver.player(), text.to_float()), "Finite value within authored hunger range required; live player only")
 
@@ -89,12 +96,12 @@ func _trader_open(raw: String = "") -> void:
 	var actor_node: Node3D = actor as Node as Node3D
 	var trader_node: Node3D = trader as Node as Node3D
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor if actor != null else null
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if actor_node == null or trader_node == null or interactor == null or actor_node.global_position.distance_to(trader_node.global_position) > interactor.interaction_distance or cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT or InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.MODAL:
 		_report("trader_open", false, "Live nearby trader and free interaction focus required; Night unavailable")
 		return
 	if bool(Console.is_visible()): Console.toggle_console()
-	_report("trader_open", CommercePanelService.open(actor, trader) != null, "Normal shop UI rejected request")
+	_report("trader_open", CommercePanelFactory.open(actor, trader) != null, "Normal shop UI rejected request")
 
 
 func _trader_buy(key: String, count: String = "1", raw: String = "") -> void: _trade("trader_buy", key, count, raw, false)
@@ -107,7 +114,7 @@ func _trade(command: String, key: String, count: String, raw: String, courier: b
 	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader if trader != null else null
 	var definition: DEF_InventoryItem = null
 	if shop != null:
-		for offer: DEF_InventoryItem in TraderCatalogService.catalog(shop):
+		for offer: DEF_InventoryItem in TraderCatalogRules.catalog(shop):
 			if offer != null and String(offer.key) == key: definition = offer
 	if definition == null or not count.is_valid_int():
 		_report(command, false, "Authored trader catalog key and integer count required")
@@ -129,6 +136,9 @@ func _order_place(key: String, count: String = "1") -> void:
 	_report("order_place", status == CommerceService.Status.COMMITTED, CommerceService.Status.keys()[status], "item=%s quantity=%d operation=%s" % [key, count.to_int(), operation])
 
 
+#endregion
+
+#region Атаки и испытания
 func _npc_attack(raw: String, kind_text: String, index_text: String, victim_text: String) -> void:
 	if kind_text not in ["melee", "ranged"] or not index_text.is_valid_int() or index_text.to_int() < 0 or index_text.to_int() >= C_NpcCombat.MAX_VARIANTS:
 		_report("npc_attack", false, "kind melee/ranged; zero-based slot0..2")
@@ -156,8 +166,11 @@ func _challenge_stop(raw: String) -> void:
 	_report("challenge_stop", true, "")
 
 
+#endregion
+
+#region Слоты и сценовые QA-действия
 func _save_info() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	DeveloperConsoleOutput.ok("save_info", PackedStringArray(["isolated_directory=%s; gameplay_autosave_untouched=true" % DebugGameplayService.SLOT_DIRECTORY, "phase=%s; Morning only, no live customers/modal/grip/challenge" % (C_DayCycle.Phase.keys()[cycle.phase] if cycle != null else "none")]))
 
 
@@ -193,6 +206,9 @@ func _progress_set(raw: String, text: String) -> void:
 func _meat_spawn() -> void: _print("meat_spawn", DebugGameplayService.meat_spawn())
 
 
+#endregion
+
+#region Вывод результата
 func _report(command: String, committed: bool, error: String, details: String = "") -> void:
 	var actor: Entity = DebugTargetResolver.player()
 	var lines: PackedStringArray = ["committed=true actor=%s" % (actor.id if actor != null else "none")]
@@ -203,3 +219,5 @@ func _report(command: String, committed: bool, error: String, details: String = 
 func _print(command: String, result: DebugServiceResult) -> void:
 	if result.success: DeveloperConsoleOutput.ok(command, result.details)
 	else: DeveloperConsoleOutput.error(command, result.message)
+
+#endregion

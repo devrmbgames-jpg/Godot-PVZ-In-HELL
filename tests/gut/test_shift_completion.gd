@@ -1,13 +1,16 @@
 extends GutTest
-## Real command/commit gates and native room occupancy, without a whole-day simulation.
+## Проверяет запрос и фиксацию конца смены, включая физическое присутствие клиентов в комнате.
 
 var _world: World
 var _owner: Entity
 var _cycle: C_DayCycle
 var _flow: C_CustomerFlow
+var _clock_owner: S_GameTime
 var _system: S_DayPhase
 
 
+#region Тестовое окружение
+## Создаёт дневной World и систему фаз для прямой проверки команды завершения смены.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -18,10 +21,14 @@ func before_each() -> void:
 	_cycle = _owner.get_component(C_DayCycle) as C_DayCycle
 	_flow = _owner.get_component(C_CustomerFlow) as C_CustomerFlow
 	_cycle.phase = C_DayCycle.Phase.DAY
+	_cycle.shift_start_tick = 0
+	_clock_owner = S_GameTime.new()
+	_world.add_system(_clock_owner)
 	_system = S_DayPhase.new()
-	_world.add_child(_system)
+	_world.add_system(_system)
 
 
+## Освобождает систему вместе с World и сбрасывает ECS.world.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -44,15 +51,27 @@ func _visit(day: int, registered: bool = true) -> CustomerVisit:
 	return visit
 
 
+#endregion
+
+#region Условия и фиксация перехода
+## Поступление без номера не блокирует смену; после сканирования возможный приход учитывается отдельно.
 func test_independent_gates_combine_and_unregistered_planned_arrivals_are_explicit() -> void:
 	var pending: CustomerVisit = _visit(1, false)
+	pending.package_id = "pending"
+	_owner.add_component(C_PackageLedger.new())
+	var receipt: PackageRegistrationRecord = PackageRegistrationRecord.new()
+	receipt.package_id = pending.package_id
+	receipt.received_day = 1
+	PackageQueries.ledger().records.append(receipt)
 	var future: CustomerVisit = _visit(2)
 	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Legacy actionable filter does not trap unregistered visits")
 	_cycle.require_all_planned_arrivals = true
 	_cycle.minimum_shift_seconds = 240.0
-	assert_eq(DayPhaseService.finish_blockers(_cycle).size(), 2)
+	assert_eq(DayPhaseService.finish_blockers(_cycle).size(), 1)
 	assert_false(DayPhaseService.submit(_request(DayTransitionRequest.Kind.FINISH_SHIFT)))
-	_cycle.shift_elapsed_seconds = 240.0
+	_cycle.clock.elapsed_ticks = GameTimeRules.duration_ticks(240.0)
+	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Receipt without registration cannot enable an unreachable arrival")
+	receipt.number = 1
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
 	pending.started = true
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Arrived still requires service when legacy gate enabled")
@@ -65,6 +84,7 @@ func test_independent_gates_combine_and_unregistered_planned_arrivals_are_explic
 	assert_true(CustomerDebugPresentation.summary().contains("Завершение доступно"))
 
 
+## Решение опирается на действующие визиты, а не устаревший производный счётчик.
 func test_live_actionable_visits_override_stale_derived_event_count() -> void:
 	var pending: CustomerVisit = _visit(1)
 	_cycle.remaining_customer_events = 0
@@ -77,29 +97,36 @@ func test_live_actionable_visits_override_stale_derived_event_count() -> void:
 	assert_eq(_cycle.phase, C_DayCycle.Phase.EVENING)
 
 
+## Отложенная команда повторно проверяет условия; часы идут только во время дневной смены.
 func test_queued_finish_revalidates_and_clock_advances_only_during_shift() -> void:
 	_cycle.minimum_shift_seconds = 60.0
-	_cycle.shift_elapsed_seconds = 60.0
+	_cycle.clock.elapsed_ticks = GameTimeRules.duration_ticks(60.0)
 	assert_true(DayPhaseService.submit(_request(DayTransitionRequest.Kind.FINISH_SHIFT)))
 	var late: CustomerVisit = _visit(1)
+	_clock_owner.process([_owner], [[_cycle]], 5.0)
 	_system.process([_owner], [[_cycle]], 5.0)
 	assert_eq(_cycle.phase, C_DayCycle.Phase.DAY, "Arrival after submission blocks commit")
-	assert_eq(_cycle.shift_elapsed_seconds, 65.0)
+	assert_eq(GameTimeQueries.shift_seconds(_cycle), 65.0)
 	assert_null(_cycle.pending_transition)
 	late.finished = true
 	assert_true(DayPhaseService.submit(_request(DayTransitionRequest.Kind.FINISH_SHIFT)))
 	_system.process([_owner], [[_cycle]], 0.0)
 	_system.process([_owner], [[_cycle]], 30.0)
-	assert_eq(_cycle.shift_elapsed_seconds, 65.0)
+	assert_eq(GameTimeQueries.shift_seconds(_cycle), 65.0)
 	_cycle.phase = C_DayCycle.Phase.MORNING
 	assert_true(DayPhaseService.submit(_request(DayTransitionRequest.Kind.START_SHIFT)))
 	_system.process([_owner], [[_cycle]], 2.0)
+	_system.cmd.execute()
 	assert_eq(_cycle.phase, C_DayCycle.Phase.DAY)
-	assert_eq(_cycle.shift_elapsed_seconds, 0.0)
+	assert_eq(GameTimeQueries.shift_seconds(_cycle), 0.0)
 	_system.process([_owner], [[_cycle]], NAN)
-	assert_eq(_cycle.shift_elapsed_seconds, 0.0)
+	assert_eq(GameTimeQueries.shift_seconds(_cycle), 0.0)
 
 
+#endregion
+
+#region Физическое присутствие в комнате
+## Настроенная Area учитывает живые тела внутри; отсутствующая зона блокирует завершение.
 func test_configured_room_counts_live_customer_bodies_only() -> void:
 	_cycle.require_finished_customers = false
 	_cycle.require_empty_customer_room = true
@@ -119,9 +146,9 @@ func test_configured_room_counts_live_customer_bodies_only() -> void:
 	body.freeze = true
 	body.position = Vector3(8, 0, 0)
 	body.collision_layer = 2
-	body.set_script(load("res://content/entities/customers/e_customer.gd"))
+	body.set_script(load("res://content/domains/customers/entities/e_customer.gd"))
 
-	var customer: E_Customer = body as Node as E_Customer
+	var customer: E_NpcCharacter = body as Node as E_NpcCharacter
 	customer.component_resources = [C_CustomerAgent.new()]
 	var body_shape: CollisionShape3D = CollisionShape3D.new()
 	body_shape.shape = SphereShape3D.new()
@@ -141,3 +168,5 @@ func test_configured_room_counts_live_customer_bodies_only() -> void:
 	assert_false(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
 	customer.add_component(C_Death.new())
 	assert_true(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT), "Dead remains are not live visitors")
+
+#endregion

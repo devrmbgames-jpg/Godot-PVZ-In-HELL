@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/domains/customers/authoring/npc_service_routes.gd" id="1_routes"]
+
+[node name="NpcServiceRoutes" type="Node3D"]
+script = ExtResource("1_routes")
+first_route = Array[NodePath]([NodePath("First/A"), NodePath("First/B")])
+second_route = Array[NodePath]([NodePath("Second/A"), NodePath("Second/B")])
+
+[node name="First" type="Node3D" parent="."]
+
+[node name="A" type="Marker3D" parent="First"]
+position = Vector3(2, 0, 2)
+gizmo_extents = 0.7
+
+[node name="B" type="Marker3D" parent="First"]
+position = Vector3(0, 0, 2)
+gizmo_extents = 0.7
+
+[node name="Second" type="Node3D" parent="."]
+
+[node name="A" type="Marker3D" parent="Second"]
+position = Vector3(-3, 0, 1)
+gizmo_extents = 0.7
+
+[node name="B" type="Marker3D" parent="Second"]
+position = Vector3(-5, 0, 1)
+gizmo_extents = 0.7

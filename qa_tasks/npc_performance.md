@@ -11,7 +11,7 @@ Launch the latest Windows QA build through [.export/LATEST.cmd](../.export/LATES
 ## Acceptance
 
 - [ ] Observe the first morning, start and end a shift, and check the phase transitions for periodic NPC planning stalls.
-- [ ] Capture profiler data while light-sensitive NPCs travel; compare NpcRouteService.plan, NpcLightingService.exposure_at, DistrictPopulationService.current/position_for and LightCircuitService.state_for/entity_for with the original screenshot.
+- [ ] Capture profiler data while light-sensitive NPCs travel; compare NpcRouteService.plan, NpcLightingService.exposure_at, NpcPopulationQueries.current/position_for and LightCircuitService.state_for/entity_for with the original screenshot.
 - [ ] Confirm several simultaneous route requests produce movement over adjacent frames, without prolonged waiting or invalid direct crossings of hazards.
 - [ ] Switch and flicker lights near a light-sensitive NPC; confirm behavior follows visible light promptly.
 - [ ] Check LightZones boundaries against the rooms and walls; adjust authored volumes where visible illumination differs. Props do not cast gameplay shadows onto light zones.

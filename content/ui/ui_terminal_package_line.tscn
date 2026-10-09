@@ -5,8 +5,10 @@
 [ext_resource type="ButtonGroup" uid="uid://btmhdlgjpndkq" path="res://content/ui/button_group_package_button_terminal.tres" id="1_iqip0"]
 [ext_resource type="Texture2D" uid="uid://ki6osksbg3g2" path="res://addons/at-icons/control/checkmark.svg" id="2_wy1ir"]
 [ext_resource type="Texture2D" uid="uid://bprhcoty4m42s" path="res://addons/at-icons/node3d/cross.svg" id="3_4tpgq"]
+[ext_resource type="Texture2D" uid="uid://c1fduhjqnjwt6" path="res://addons/at-icons/node2d/danger.svg" id="4_tx35x"]
 [ext_resource type="Texture2D" uid="uid://b1fd7hcrt118w" path="res://addons/at-icons/mesh/danger.svg" id="4_vfd67"]
 [ext_resource type="Texture2D" uid="uid://ds5svynpktbm4" path="res://addons/at-icons/node3d/explosion.svg" id="5_ojfob"]
+[ext_resource type="Texture2D" uid="uid://bnpawm7o34v24" path="res://addons/at-icons/node3d/danger.svg" id="6_dc658"]
 [ext_resource type="Texture2D" uid="uid://daheo0tpwdffd" path="res://addons/at-icons/control/radioactive_symbol.svg" id="6_ub8ok"]
 [ext_resource type="Texture2D" uid="uid://dwqpa2k6l3q3q" path="res://addons/at-icons/animation/brain.svg" id="7_iqip0"]
 [ext_resource type="Texture2D" uid="uid://dd1ms1oleh4nc" path="res://addons/at-icons/node3d/fire.svg" id="9_j7tcp"]
@@ -17,20 +19,26 @@
 [ext_resource type="Texture2D" uid="uid://cbblqmhf16dnh" path="res://addons/at-icons/node2d/glass.svg" id="15_uj1xn"]
 [ext_resource type="Texture2D" uid="uid://m4m78vcobqn4" path="res://addons/at-icons/mesh/coins.svg" id="16_admd5"]
 [ext_resource type="Texture2D" uid="uid://i323r3ahtjlh" path="res://addons/at-icons/node/arrow_right_to_bracket.svg" id="17_u7mvr"]
+[ext_resource type="Texture2D" uid="uid://chr672ny4vsxh" path="res://addons/at-icons/node/delivery_box.svg" id="19_dc658"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_74q6a"]
 
 [node name="PackageButton" type="PanelContainer" unique_id=1285062657]
+offset_right = 710.0
+offset_bottom = 140.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_74q6a")
 script = ExtResource("1_ag5v5")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=468534476]
 layout_mode = 2
 theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
+theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
+theme_override_constants/margin_bottom = 10
 
 [node name="Button" type="Button" parent="MarginContainer" unique_id=112444276]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(700, 174)
+custom_minimum_size = Vector2(700, 140)
 layout_mode = 2
 toggle_mode = true
 button_group = ExtResource("1_iqip0")
@@ -40,14 +48,58 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = 7.0
+offset_right = -6.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TexturePreviewPackage" type="TextureRect" parent="MarginContainer/Button/HBoxContainer" unique_id=1305583667]
+[node name="Center" type="CenterContainer" parent="MarginContainer/Button/HBoxContainer" unique_id=353015266]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/Button/HBoxContainer/Center" unique_id=1345848230]
+custom_maximum_size = Vector2(100, 118.41)
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="TexturePreviewPackage" type="TextureRect" parent="MarginContainer/Button/HBoxContainer/Center/Margin" unique_id=1305583667]
 unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("1_hv628")
 stretch_mode = 5
+
+[node name="TextureAlertIconInfo" type="TextureRect" parent="MarginContainer/Button/HBoxContainer/Center/Margin/TexturePreviewPackage" unique_id=1141362354]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_top = -8.0
+offset_right = 40.0
+offset_bottom = 32.0
+texture = ExtResource("4_tx35x")
+
+[node name="TextureAlertIconWar" type="TextureRect" parent="MarginContainer/Button/HBoxContainer/Center/Margin/TexturePreviewPackage" unique_id=752805501]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 16.0
+offset_top = -16.0
+offset_right = 56.0
+offset_bottom = 24.0
+texture = ExtResource("4_vfd67")
+
+[node name="TextureAlertIconCrit" type="TextureRect" parent="MarginContainer/Button/HBoxContainer/Center/Margin/TexturePreviewPackage" unique_id=1645240679]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 32.0
+offset_top = -24.0
+offset_right = 72.0
+offset_bottom = 16.0
+texture = ExtResource("6_dc658")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/Button/HBoxContainer" unique_id=1997283692]
 layout_mode = 2
@@ -61,11 +113,13 @@ theme_override_constants/separation = 21
 [node name="LabelNumber" type="Label" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/Header" unique_id=1988420623]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 28
 text = "#100"
 
 [node name="LabelStatus" type="Label" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/Header" unique_id=1233318296]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "ОЖИДАЕТ"
 
 [node name="Separator" type="Control" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/Header" unique_id=869958779]
@@ -156,18 +210,85 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo" unique_id=1985159981]
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 texture = ExtResource("16_admd5")
+expand_mode = 1
 stretch_mode = 5
 
 [node name="LabelPrice" type="Label" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo" unique_id=190322725]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 20
 text = "1000"
+
+[node name="Control" type="Control" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo" unique_id=994002741]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VSeparator" type="VSeparator" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo" unique_id=1437329280]
+layout_mode = 2
+
+[node name="DeliveryControl" type="HBoxContainer" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo" unique_id=1428291450]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=1768928453]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture = ExtResource("19_dc658")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=1807274989]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Доставка"
+
+[node name="Control3" type="Control" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=1888312446]
+custom_minimum_size = Vector2(6.335, 0)
+layout_mode = 2
+
+[node name="TextureRect2" type="TextureRect" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=63335919]
+custom_minimum_size = Vector2(26.03, 32)
+layout_mode = 2
+texture = ExtResource("16_admd5")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label2" type="Label" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=277089608]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "+1000"
+
+[node name="Control2" type="Control" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=1930093320]
+custom_minimum_size = Vector2(6.335, 0)
+layout_mode = 2
+
+[node name="ButtonDeliveryOK" type="Button" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=444318195]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+icon = ExtResource("2_wy1ir")
+expand_icon = true
+
+[node name="Control" type="Control" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=21894501]
+custom_minimum_size = Vector2(6.335, 0)
+layout_mode = 2
+
+[node name="ButtonDeloveryCancel" type="Button" parent="MarginContainer/Button/HBoxContainer/VBoxContainer/PriceInfo/DeliveryControl" unique_id=1417032479]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+icon = ExtResource("3_4tpgq")
+expand_icon = true
 
 [node name="LabelDescriptionShort" type="Label" parent="MarginContainer/Button/HBoxContainer/VBoxContainer" unique_id=2083466854]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 25
 text = "Краткое описание"

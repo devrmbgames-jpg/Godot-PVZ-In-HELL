@@ -1,5 +1,5 @@
 extends Node
-## One-shot real-physics support-cluster validation for player anchoring.
+## Проверяет фиксацию физически опирающейся стопки предметов игроком.
 
 var _world: World
 var _actor: Entity
@@ -8,10 +8,12 @@ var _ray: RayCast3D
 var _interactor: C_Interactor
 
 
+#region Опорная стопка
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет фиксируемую опорную стопку и отделяет авторский freeze от крепления игроком.
 func _run() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -25,7 +27,7 @@ func _run() -> void:
 	var middle: Entity = _box(Vector3(0.20, 0.75, -2.0))
 	var top: Entity = _box(Vector3(0.40, 1.25, -2.0))
 	var authored_frozen: Entity = _box(Vector3(0.60, 1.75, -2.0))
-	var authored_body: RigidBody3D = GrabService.physical_body(authored_frozen)
+	var authored_body: RigidBody3D = GrabQueries.physical_body(authored_frozen)
 	authored_body.freeze = true
 
 	await _sync_physics()
@@ -43,9 +45,9 @@ func _run() -> void:
 	assert(not AnchoringService.is_player_anchored(bottom))
 	assert(not AnchoringService.is_player_anchored(middle), "Direct supported anchor must join unfix")
 	assert(not AnchoringService.is_player_anchored(top), "Recursive supported anchor must join unfix")
-	assert(not GrabService.physical_body(bottom).freeze)
-	assert(not GrabService.physical_body(middle).freeze)
-	assert(not GrabService.physical_body(top).freeze)
+	assert(not GrabQueries.physical_body(bottom).freeze)
+	assert(not GrabQueries.physical_body(middle).freeze)
+	assert(not GrabQueries.physical_body(top).freeze)
 	assert(authored_body.freeze, "Authored frozen neighbor must never be unfrozen")
 
 	_world.free()
@@ -54,6 +56,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Тестовые участники и наведение
 func _make_actor() -> Entity:
 	var actor_body: RigidBody3D = RigidBody3D.new()
 	actor_body.set_script(E_RigidBodyCharacter)
@@ -134,7 +139,7 @@ func _hold_hammer() -> void:
 	var grip: R_HeldBy = R_HeldBy.new()
 	grip.slot = C_Grabbable.HoldSlot.RIGHT_HAND
 	_hammer.add_relationship(Relationship.new(grip, _actor))
-	assert(GrabService.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND) == _hammer)
+	assert(GrabQueries.held_in_slot(_actor, C_Grabbable.HoldSlot.RIGHT_HAND) == _hammer)
 
 
 func _anchor_visible(target: Entity) -> bool:
@@ -142,19 +147,21 @@ func _anchor_visible(target: Entity) -> bool:
 		return false
 
 	var config: C_Anchorable = target.get_component(C_Anchorable) as C_Anchorable
-	AnchoringService.update_stability(target, config, 0.01)
+	InteractionPhysicsFixture.anchor(target, 0.01)
 	return AnchoringService.anchor(_actor, _hammer, target)
 
 
 func _aim(target: Entity) -> bool:
-	var body: RigidBody3D = GrabService.physical_body(target)
+	var body: RigidBody3D = GrabQueries.physical_body(target)
 	_ray.position = Vector3(body.global_position.x, body.global_position.y, 0)
 	_ray.target_position = Vector3(0, 0, -3)
 	_interactor.target = target
 	_ray.force_raycast_update()
-	return InteractionTargetingService.find_target(_actor, _interactor) == target
+	return InteractionTargetingGeometry.find_target(_actor, _interactor) == target
 
 
 func _sync_physics() -> void:
 	await get_tree().physics_frame
 	await get_tree().process_frame
+
+#endregion

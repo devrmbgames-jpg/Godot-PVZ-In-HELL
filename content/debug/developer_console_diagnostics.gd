@@ -1,14 +1,16 @@
 extends RefCounted
-## Read-only developer-console projections over authoritative runtime state.
+## Формирует диагностические строки из авторитетного состояния без его изменения.
 class_name DeveloperConsoleDiagnostics
 
 const RECENT_MONEY_OPERATIONS: int = 5
 
 
+#region Коробки и учёт
+## Объединяет регистрационный журнал и физические коробки без повторных строк стабильного ID.
 static func package_list(include_inactive: bool) -> PackedStringArray:
 	var lines: PackedStringArray = []
 	var seen: Dictionary[String, bool] = { }
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger != null:
 		for record: PackageRegistrationRecord in ledger.records:
 			if not include_inactive and not record.active:
@@ -31,6 +33,7 @@ static func package_list(include_inactive: bool) -> PackedStringArray:
 	return lines
 
 
+## Показывает авторское определение, регистрацию, физическое состояние и визит выбранной коробки.
 static func package_info(target: DebugTarget) -> PackedStringArray:
 	var lines: PackedStringArray = [
 		"package_id=%s" % target.package_id,
@@ -68,6 +71,7 @@ static func package_info(target: DebugTarget) -> PackedStringArray:
 	return lines
 
 
+## Показывает фактический исход, заявление, деньги/жалобу и доступный runtime-контекст визита.
 static func visit_info(visit: CustomerVisit) -> PackedStringArray:
 	var lines: PackedStringArray = [
 		"visit=%s" % String(visit.visit_id),
@@ -89,7 +93,7 @@ static func visit_info(visit: CustomerVisit) -> PackedStringArray:
 	if visit.definition != null:
 		lines.append("profile=%s introduction=%s inspection=%s interests=%s" % [visit.definition.key, DEF_Customer.Introduction.keys()[visit.definition.introduction], visit.definition.private_inspection, ", ".join(visit.definition.interests)])
 
-	var customer: E_Customer = CustomerFlowService.customer_for(visit.visit_id)
+	var customer: E_NpcCharacter = CustomerFlowQueries.customer_for(visit.visit_id)
 	if customer != null:
 		var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 		lines.append("phase=%s announced=%s dialogue_started=%s elapsed=%.1fs" % [C_CustomerAgent.Phase.keys()[agent.phase], agent.order_announced, agent.dialogue_started, agent.elapsed])
@@ -109,9 +113,13 @@ static func visit_info(visit: CustomerVisit) -> PackedStringArray:
 	return lines
 
 
+#endregion
+
+#region Деньги и фазы
+## Показывает кошелёк, итог текущего дня и последние пять денежных операций.
 static func wallet_info() -> PackedStringArray:
 	var wallet: C_Wallet = WalletService.current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if wallet == null:
 		return PackedStringArray(["wallet=unavailable"])
 
@@ -147,8 +155,9 @@ static func wallet_info() -> PackedStringArray:
 	return lines
 
 
+## Показывает текущую фазу, очередь и ожидающий запрос перехода.
 static func day_info() -> PackedStringArray:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle == null:
 		return PackedStringArray(["day_cycle=unavailable"])
 
@@ -168,6 +177,10 @@ static func day_info() -> PackedStringArray:
 	return lines
 
 
+#endregion
+
+#region Доступные цели
+## Показывает доступные цели разных контрактов с ограничением в 64 строки.
 static func debug_targets() -> PackedStringArray:
 	const MAX_LINES: int = 64
 	var lines: PackedStringArray = []
@@ -178,7 +191,7 @@ static func debug_targets() -> PackedStringArray:
 	if EntityAvailability.contains(player, ECS.world):
 		lines.append("self | entity:%s | PLAYER" % player.id)
 
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	for entity: Entity in ECS.world.entities:
 		if lines.size() >= MAX_LINES:
 			lines.append("... truncated at %d targets" % MAX_LINES)
@@ -227,6 +240,10 @@ static func _package_number_text(
 	return "---"
 
 
+#endregion
+
+#region HP и формат строк
+## Фактические HP, жизнь/смерть и повреждение коробки; недоступная цель отмечается отдельно.
 static func health_info(target: DebugTarget) -> PackedStringArray:
 	if not EntityAvailability.contains(target.entity, ECS.world):
 		return PackedStringArray(["live=false"])
@@ -317,3 +334,5 @@ static func _enum_name(values: Dictionary, value: int) -> String:
 	if value < 0 or value >= keys.size():
 		return "UNKNOWN(%d)" % value
 	return String(keys[value])
+
+#endregion

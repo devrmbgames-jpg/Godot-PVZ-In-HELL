@@ -1,10 +1,12 @@
 extends RefCounted
-## Test-only adapters for persistent CustomerVisit facts; no presentation authority.
+## QA-адаптеры фактов CustomerVisit; изменения результата не имитируют физическую выдачу.
 class_name DebugCustomerService
 
 const DEFAULT_CUSTOMER_KEY: String = "default"
 
 
+#region Создание и исход визита
+## Для коробки создаёт один QA-визит либо возвращает существующий; arrive выбирает очередь вместо закрытого учётного случая.
 static func create_visit(
 	target: DebugTarget,
 	customer_key: String,
@@ -20,8 +22,8 @@ static func create_visit(
 		result.details.append("visit=%s" % String(target.visit.visit_id))
 		return result
 
-	var flow: C_CustomerFlow = CustomerFlowService.current()
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var wallet: C_Wallet = WalletService.current()
 	var definition: DEF_Package = _package_definition(target)
 	if flow == null or flow.schedule == null or cycle == null or definition == null:
@@ -48,8 +50,9 @@ static func create_visit(
 		else 0
 	)
 
-	var random: RandomNumberGenerator = RandomNumberGenerator.new()
-	random.seed = String(visit.visit_id).hash()
+	var random: RandomNumberGenerator = GameTimeQueries.decision(
+		String(visit.visit_id), cycle.day_index, "customer/initial",
+	)
 	visit.complaint_roll = random.randf()
 	visit.aggression_roll = random.randf()
 	visit.started = not arrive
@@ -64,6 +67,7 @@ static func create_visit(
 	return result
 
 
+## Явно меняет QA-факт до расчёта/жалобы; запрещает сброс при уже принятом заявлении.
 static func set_actual(
 	target: DebugTarget,
 	actual: CustomerVisit.Actual,
@@ -116,6 +120,7 @@ static func set_actual(
 	return result
 
 
+## Передаёт заявление в обычный CustomerFlowService, сохраняя его проверки и расчёт.
 static func declare(
 	target: DebugTarget,
 	declaration: CustomerVisit.Declaration,
@@ -137,6 +142,10 @@ static func declare(
 	return result
 
 
+#endregion
+
+#region Жалоба и одобрение
+## Создаёт QA-жалобу через сервис исхода; resolve_now сразу запускает её проверку/расчёт.
 static func complaint(
 	target: DebugTarget,
 	reason: CustomerComplaint.Reason,
@@ -144,7 +153,7 @@ static func complaint(
 ) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	var visit: CustomerVisit = target.visit
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if visit == null:
 		result.message = "target has no CustomerVisit"
 		return result
@@ -161,7 +170,7 @@ static func complaint(
 		if state != null and state.damage != C_PackageState.Damage.UNDAMAGED:
 			visit.package_damaged = true
 
-	if not CustomerOutcomeService.create_complaint(visit, cycle.day_index, reason, true):
+	if not CustomerVisitLifecycle.create_complaint(visit, cycle.day_index, reason, true):
 		result.message = "complaint conflicts with existing complaint"
 		return result
 	if resolve_now:
@@ -184,10 +193,11 @@ static func complaint(
 	return result
 
 
+## Разрешает существующую жалобу через сервис; success означает уже определённый исход.
 static func resolve_complaint(target: DebugTarget) -> DebugServiceResult:
 	var result: DebugServiceResult = DebugServiceResult.new()
 	var visit: CustomerVisit = target.visit
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if visit == null or visit.complaint == null:
 		result.message = "target has no complaint"
 		return result
@@ -209,6 +219,7 @@ static func resolve_complaint(target: DebugTarget) -> DebugServiceResult:
 	return result
 
 
+## Запрашивает одобрение с удовлетворённостью 0–100 через CustomerOutcomeService.
 static func approve(
 	target: DebugTarget,
 	satisfaction: int,
@@ -230,6 +241,9 @@ static func approve(
 	return result
 
 
+#endregion
+
+#region Авторские профили и формат
 static func _package_definition(target: DebugTarget) -> DEF_Package:
 	if EntityAvailability.contains(target.entity, ECS.world):
 		var identity: C_Package = target.entity.get_component(C_Package) as C_Package
@@ -269,3 +283,5 @@ static func _enum_name(values: Dictionary, value: int) -> String:
 	if value < 0 or value >= keys.size():
 		return "UNKNOWN(%d)" % value
 	return String(keys[value])
+
+#endregion

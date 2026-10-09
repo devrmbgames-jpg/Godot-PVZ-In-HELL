@@ -1,5 +1,5 @@
 extends Node3D
-## Minimal scene-side receiver showing how a valve signal can drive authored scene effects.
+## Представляет состояние демонстрационного вентиля переключением лампы и визуального света.
 
 @onready var _off_bulb: MeshInstance3D = $OffBulb
 @onready var _on_bulb: MeshInstance3D = $OnBulb
@@ -16,6 +16,7 @@ func _process(_delta: float) -> void:
 		set_active(valve.is_active())
 
 
+## Переключает авторские меши/визуальный свет без изменения состояния вентиля.
 func set_active(active: bool) -> void:
 	_off_bulb.visible = not active
 	_on_bulb.visible = active

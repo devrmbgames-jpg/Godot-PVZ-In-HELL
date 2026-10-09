@@ -1,5 +1,5 @@
 extends Node
-## Real main-scene bodies/counter, lifecycle, terminal buttons and next-morning return.
+## Старый сквозной сценарий main_level: стойка, терминал, жалобы и утренние остатки поставки.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const WAIT_FRAMES: int = 300
@@ -8,25 +8,27 @@ var _counter: E_DeliveryCounter = null
 var _cycle: C_DayCycle = null
 
 
+#region Исторический сценарий обслуживания
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет прежний ассортимент из восьми коробок; требует согласования с текущей районной поставкой.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	_level = scene.instantiate()
 	add_child(_level)
 	_level.set_physics_process(false)
-	_counter = CustomerFlowService.counter()
-	_cycle = DayPhaseService.current()
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	_counter = CustomerFlowQueries.counter()
+	_cycle = DayPhaseQueries.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	flow.schedule = flow.schedule.duplicate(true) as DEF_CustomerSchedule
 	for event: DEF_CustomerEvent in flow.schedule.events:
 		event.customer.greeting_seconds = 0.05
 		event.customer.receiving_seconds = 0.05
 		event.customer.leaving_seconds = 0.05
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
@@ -36,20 +38,20 @@ func _run() -> void:
 	(actor as Node as RigidBody3D).freeze = true
 	for parcel: Entity in ECS.world.query.with_all([C_Package]).execute():
 		(parcel as Node as RigidBody3D).freeze = true
-	var books: Entity = CustomerFlowService.parcel_for("base_supply:1:books")
-	var glass: Entity = CustomerFlowService.parcel_for("base_supply:1:glass")
-	var clothes: Entity = CustomerFlowService.parcel_for("base_supply:1:clothes")
-	var late: Entity = CustomerFlowService.parcel_for("base_supply:1:equipment")
+	var books: Entity = PackageQueries.find_live_package("base_supply:1:books")
+	var glass: Entity = PackageQueries.find_live_package("base_supply:1:glass")
+	var clothes: Entity = PackageQueries.find_live_package("base_supply:1:clothes")
+	var late: Entity = PackageQueries.find_live_package("base_supply:1:equipment")
 	_register(books)
 	_register(late)
 
 	var late_number: int = (late.get_component(C_PackageState) as C_PackageState).registration_number
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(_cycle.remaining_customer_events == 1)
 	_transition(DayTransitionRequest.Kind.START_SHIFT)
 	assert(not DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
-	var customer: E_Customer = await _wait_for_customer()
-	var first: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
+	var customer: E_NpcCharacter = await _wait_for_customer()
+	var first: CustomerVisit = CustomerFlowQueries.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	assert(first.package_id == "base_supply:1:books")
 	assert(CustomerFlowService.confirm_delivery(_counter) == PackageDeliveryCheck.Result.MISSING)
 	_register(glass)
@@ -65,7 +67,7 @@ func _run() -> void:
 	action.execute(actor, _counter, _counter)
 	assert(first.actual == CustomerVisit.Actual.DELIVERED)
 	assert(first.declaration == CustomerVisit.Declaration.NONE)
-	assert(PackageRegistrationService.smallest_free_number(PackageRegistrationService.ledger()) == number)
+	assert(PackageRegistrationService.smallest_free_number(PackageQueries.ledger()) == number)
 
 	var terminal: E_Terminal = _level.get_node("Entityes/Terminal") as E_Terminal
 	terminal.open_for(actor)
@@ -79,7 +81,7 @@ func _run() -> void:
 	terminal.close_panel()
 	customer = await _wait_for_customer()
 
-	var second: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
+	var second: CustomerVisit = CustomerFlowQueries.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	assert(second.package_id == "base_supply:1:glass")
 	second.complaint_roll = 0.0
 	var glass_state: C_PackageState = glass.get_component(C_PackageState) as C_PackageState
@@ -93,7 +95,7 @@ func _run() -> void:
 	_register(clothes)
 	customer = await _wait_for_customer()
 
-	var third: CustomerVisit = CustomerFlowService.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
+	var third: CustomerVisit = CustomerFlowQueries.find_visit((customer.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	third.complaint_roll = 0.0
 	third.aggression_roll = 0.0
 	assert(CustomerFlowService.declare(third.visit_id, CustomerVisit.Declaration.TAKEN))
@@ -105,17 +107,17 @@ func _run() -> void:
 	assert(dialogue_context.schedule_non_delivery_complaint())
 	assert(dialogue_context.enter_aggressive())
 	assert((customer.get_component(C_CustomerAgent) as C_CustomerAgent).phase == C_CustomerAgent.Phase.AGGRESSIVE)
-	ECS.world.process(third.definition.aggressive_seconds, "GamePlay")
-	ECS.world.process(third.definition.leaving_seconds, "GamePlay")
-	# Departure challenges publish/consume their outcome before the next flow tick removes the NPC.
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, third.definition.aggressive_seconds)
+	GameTimeFixture.gameplay(ECS.world, third.definition.leaving_seconds)
+	# Результат испытания ухода применяется до следующего удаления клиента из обслуживания.
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(_cycle.remaining_customer_events == 0)
 	assert(DayPhaseService.permits(_cycle, DayTransitionRequest.Kind.FINISH_SHIFT))
 	_transition(DayTransitionRequest.Kind.FINISH_SHIFT)
 	assert(WalletService.current().completed_days == 1)
 	_transition(DayTransitionRequest.Kind.SLEEP)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 	assert(_cycle.day_index == 2 and _cycle.phase == C_DayCycle.Phase.MORNING)
 	assert(third.complaint.outcome == CustomerComplaint.Outcome.CONFIRMED)
 	assert(second.complaint.outcome == CustomerComplaint.Outcome.CONFIRMED)
@@ -126,28 +128,31 @@ func _run() -> void:
 	assert(is_instance_valid(glass))
 	assert(is_instance_valid(late))
 	assert((late.get_component(C_PackageState) as C_PackageState).registration_number == late_number)
-	assert(CustomerFlowService.find_visit(&"visit/base_supply:1:equipment").arrival_day == 11)
-	assert(CustomerFlowService.parcel_for("base_supply:1:bottles") != null)
+	assert(CustomerFlowQueries.find_visit(&"visit/base_supply:1:equipment").arrival_day == 11)
+	assert(PackageQueries.find_live_package("base_supply:1:bottles") != null)
 	_level.free()
 	ECS.world = null
 	print("R11 customer physical delivery and dispute smoke PASS")
 	get_tree().quit()
 
 
+#endregion
+
+#region Управление тестовой фазой и физическими участниками
 func _transition(kind: DayTransitionRequest.Kind) -> void:
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = kind
 	request.expected_day = _cycle.day_index
 	request.expected_phase = _cycle.phase
 	assert(DayPhaseService.submit(request))
-	ECS.world.process(FRAME_DELTA, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 
 
-func _wait_for_customer() -> E_Customer:
+func _wait_for_customer() -> E_NpcCharacter:
 	for frame: int in WAIT_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
-		var customer: E_Customer = CustomerFlowService.waiting_customer()
+		var customer: E_NpcCharacter = CustomerFlowQueries.waiting_customer()
 		if customer != null:
 			return customer
 
@@ -161,7 +166,7 @@ func _wait_for_customer() -> E_Customer:
 
 
 func _place(parcel: Entity) -> void:
-	# Fixture placement only; gameplay confirmation never relocates a stored parcel.
+	# Тест размещает коробку; игровое подтверждение само не перемещает её со склада.
 	(parcel as Node as Node3D).global_position = (_counter as Node as Node3D).global_position + Vector3.UP * 1.3
 	for frame: int in 12:
 		await get_tree().physics_frame
@@ -172,10 +177,10 @@ func _place(parcel: Entity) -> void:
 
 
 func _register(parcel: Entity) -> void:
-	# Seed R06's existing registration contract; scanner interaction has its own smoke.
+	# Создаётся запись регистрации; физическое взаимодействие со сканером проверяет отдельный сценарий.
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	var record: PackageRegistrationRecord = PackageRegistrationRecord.new()
 	record.package_id = identity.package_id
 	record.history_id = identity.history_id
@@ -189,6 +194,9 @@ func _register(parcel: Entity) -> void:
 	state.registration_day = _cycle.day_index
 
 
+#endregion
+
+#region Поиск записей учёта
 func _terminal_line_for(terminal: E_Terminal, package_id: String) -> UI_TerminalButtonPackage:
 	var package_list: VBoxContainer = terminal.get_node("TerminalPanel/%PackageList") as VBoxContainer
 	for child: Node in package_list.get_children():
@@ -199,7 +207,7 @@ func _terminal_line_for(terminal: E_Terminal, package_id: String) -> UI_Terminal
 
 
 func _registration_for_package(package_id: String) -> PackageRegistrationRecord:
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger == null:
 		return null
 
@@ -207,3 +215,5 @@ func _registration_for_package(package_id: String) -> PackageRegistrationRecord:
 		if record.package_id == package_id:
 			return record
 	return null
+
+#endregion

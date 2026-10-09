@@ -1,5 +1,5 @@
 extends GutTest
-## Actual native player contacts; damage still travels through S_Impact and O_Damage.
+## Проверяет реальные контакты CharacterBody игрока с применением урона через S_Impact и O_Damage.
 
 const MAIN: PackedScene = preload("res://content/scenes/main_level.tscn")
 const DELTA: float = 1.0 / 60.0
@@ -12,6 +12,8 @@ var _health: C_Health
 var _floor: StaticBody3D
 
 
+#region Физическое окружение
+## Создаёт CharacterBody игрока и физическую опору с системой ударов и observer урона.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -41,6 +43,7 @@ func before_each() -> void:
 		await _tick()
 
 
+## Удаляет физический World и завершает отложенную очистку.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
@@ -60,6 +63,10 @@ func _collider(shape: Shape3D) -> CollisionShape3D:
 	return collision
 
 
+#endregion
+
+#region Контакты, урон и опора
+## Падение даёт ограниченный урон и отскок; повторный удар разрешается только после разделения.
 func test_big_fall_damages_and_bounces_then_rearms_after_separation() -> void:
 	for fall: int in 2:
 		var previous_hp: float = _health.current
@@ -79,6 +86,7 @@ func test_big_fall_damages_and_bounces_then_rearms_after_separation() -> void:
 		assert_almost_eq(_health.current, previous_hp - 25.0, 0.01, "Resting floor contact does not repeatedly damage")
 
 
+## Луч опоры сообщает небольшой ограниченный горизонтальный импульс реальному RigidBody.
 func test_ground_ray_gently_pushes_real_rigid_support() -> void:
 	var support: RigidBody3D = RigidBody3D.new()
 	support.mass = 10.0
@@ -107,13 +115,14 @@ func test_ground_ray_gently_pushes_real_rigid_support() -> void:
 	assert_eq(_health.current, 100.0)
 
 
+## Быстрое физическое тело наносит ограниченный урон и отбрасывает CharacterBody игрока.
 func test_fast_rigid_hit_damages_and_knocks_back_native_player() -> void:
 	var projectile: RigidBody3D = RigidBody3D.new()
 	projectile.mass = 10.0
 	projectile.gravity_scale = 0.0
 	projectile.linear_damp = 0.0
 	projectile.continuous_cd = true
-	projectile.set_script(load("res://content/entities/characters/e_rigid_body_character.gd"))
+	projectile.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	var entity: Entity = projectile as Node as Entity
 	entity.component_resources = [C_RigidBody.new()]
 
@@ -145,6 +154,10 @@ func test_fast_rigid_hit_damages_and_knocks_back_native_player() -> void:
 	assert_gte(_health.current, 75.0, "One physical hit respects living damage cap")
 
 
+#endregion
+
+#region Приседание и ходьба
+## Приседание переключает реальные collision shapes и общую высоту камеры.
 func test_crouch_switches_native_shapes_and_shared_camera_height() -> void:
 	_world.add_system(S_Crouch.new())
 	_world.add_system(S_CrouchPresentation.new())
@@ -165,6 +178,7 @@ func test_crouch_switches_native_shapes_and_shared_camera_height() -> void:
 	assert_true(_player.shape_crouching.disabled)
 
 
+## Ходьба двигает лёгкую коробку без подъёма игрока или урона.
 func test_walking_pushes_small_box_without_lifting_player() -> void:
 	var box: RigidBody3D = _walk_obstacle(5.0, false)
 	var control: C_Controller = _player.get_component(C_Controller) as C_Controller
@@ -179,6 +193,7 @@ func test_walking_pushes_small_box_without_lifting_player() -> void:
 	assert_eq(_health.current, 100.0)
 
 
+## Тяжёлая либо зафиксированная коробка сохраняет сопротивление ходьбе.
 func test_walking_does_not_push_heavy_or_frozen_box(frozen: bool = use_parameters([false, true])) -> void:
 	var box: RigidBody3D = _walk_obstacle(5.0 if frozen else 80.0, frozen)
 	(_player.get_component(C_Controller) as C_Controller).direction_motion = Vector3.FORWARD
@@ -202,8 +217,12 @@ func _walk_obstacle(mass_kg: float, frozen: bool) -> RigidBody3D:
 	return box
 
 
+#endregion
+
+#region Тележка и восстановление
+## Игрок следует за тележкой через малую ступень; уход из допуска освобождает сессию.
 func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
-	var packed: PackedScene = load("res://content/entities/props/push_cart.tscn") as PackedScene
+	var packed: PackedScene = load("res://content/domains/interaction/entities/push_cart.tscn") as PackedScene
 	var cart: Entity = packed.instantiate() as Entity
 	_world.add_entity(cart)
 	var cart_body: CharacterBody3D = cart as Node as CharacterBody3D
@@ -216,7 +235,7 @@ func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
 	control.direction_look = (cart_body.global_position + Vector3.UP * 0.24 + Vector3.BACK * 0.79 - _player.interaction_ray_cast.global_position).normalized()
 	for frame: int in 2:
 		await _tick()
-	assert_true(CartTransportService.can_begin(_player, cart), "Cart start actor=%s cart=%s reach=%s available=%s focus=%s" % [_body.global_position, cart_body.global_position, GrabService.within_pickup_reach(_player, cart), GrabService.holder_available(_player), InteractionControlFocus.current(_player)])
+	assert_true(CartTransportService.can_begin(_player, cart), "Cart start actor=%s cart=%s reach=%s available=%s focus=%s" % [_body.global_position, cart_body.global_position, GrabReachQueries.within_pickup_reach(_player, cart), GrabQueries.holder_available(_player), InteractionControlFocus.current(_player)])
 	CartTransportService.begin(_player, cart)
 	assert_eq(CartTransportService.current(_player), cart)
 	control.move_axis = Vector2(0.0, -1.0)
@@ -243,16 +262,16 @@ func test_cart_driver_follows_and_releases_when_out_of_range() -> void:
 	assert_null(CartTransportService.current(_player), "Invalid session releases its relationship and focus")
 
 
-func test_saved_rigid_player_record_restores_to_authored_characterbody_and_clears_motion() -> void:
+## Current-format authored CharacterBody restore clears accumulated velocities and impulses.
+func test_current_format_authored_characterbody_restore_clears_motion() -> void:
 	(_player as Node).owner = _world
+	FixturePlacedIdentity.assign(_world, _player, &"player")
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new()]
 	_world.add_entity(session)
 	session.owner = _world
+	FixturePlacedIdentity.assign(_world, session, &"session")
 	var snapshot: Dictionary = WorldSnapshotService.capture(_world, 2)
-	for record: Dictionary in snapshot.entities:
-		if record.entity_id == _player.id:
-			record.scene = "res://content/entities/characters/e_rigid_body_character.tscn"
 
 	var saved_pose: Transform3D = _body.global_transform
 	_body.global_position += Vector3(3.0, 2.0, 1.0)
@@ -269,3 +288,5 @@ func test_saved_rigid_player_record_restores_to_authored_characterbody_and_clear
 	assert_eq(config.pending_rebound_velocity, Vector3.ZERO)
 	assert_eq(motion.pending_impulse, Vector3.ZERO)
 	assert_false(_player.has_component(C_RigidBody))
+
+#endregion

@@ -1,5 +1,5 @@
 extends Node
-## Actual authored main scene: paid physical pickup and morning home delivery.
+## Проверяет оплаченную физическую мебель торговца и утреннюю доставку в основной сцене.
 
 var _level: Node
 
@@ -8,6 +8,7 @@ func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет физическую выдачу и утреннее исполнение оплаченной мебели без повторной оплаты.
 func _run() -> void:
 	_level = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	_level.set("autosave_path", "")
@@ -18,13 +19,13 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	cycle.phase = C_DayCycle.Phase.EVENING
 	var wallet: C_Wallet = WalletService.current()
 	wallet.balance = 1000
 	var trader: Entity = ECS.world.query.with_all([C_Trader]).execute_one() as Entity
 	assert(trader != null)
-	var item: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_large_shelf.tres") as DEF_InventoryItem
+	var item: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_large_shelf.tres") as DEF_InventoryItem
 	assert(CommerceService.purchase(actor, trader, item, 1, &"smoke/pickup") == CommerceService.Status.COMMITTED, "Actual trader pickup zone must fit a supported large shelf")
 
 	var shelf: RigidBody3D = _goods("purchase/smoke/pickup") as Node as RigidBody3D

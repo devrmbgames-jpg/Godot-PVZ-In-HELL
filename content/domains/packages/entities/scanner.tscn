@@ -1,0 +1,127 @@
+[gd_scene format=3 uid="uid://bxvltfdywwg6h"]
+
+[ext_resource type="Script" uid="uid://c63j0jgnx0qx6" path="res://content/domains/packages/entities/e_scanner.gd" id="1"]
+[ext_resource type="Script" uid="uid://ctrs3iak8sgmq" path="res://content/ui/scanner_feedback.gd" id="2"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="3_component"]
+[ext_resource type="Script" uid="uid://qs041oq2ktu" path="res://content/domains/packages/components/c_scanner.gd" id="4_scanner"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="5_interactable"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="6_1r4br"]
+[ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/domains/interaction/components/c_grabbable.gd" id="6_grabbable"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="7_actions"]
+[ext_resource type="Script" uid="uid://l86pj0y5txcq" path="res://content/domains/packages/definitions/def_scan_action.gd" id="8_action"]
+
+[sub_resource type="Resource" id="Scanner_state"]
+script = ExtResource("4_scanner")
+
+[sub_resource type="Resource" id="Scanner_interactable"]
+script = ExtResource("5_interactable")
+
+[sub_resource type="Resource" id="Scanner_grabbable"]
+script = ExtResource("6_grabbable")
+allowed_hand_slots = 6
+manual_rotation_enabled = false
+reset_rotation_on_pickup = true
+
+[sub_resource type="Resource" id="Scanner_action"]
+script = ExtResource("8_action")
+action_id = &"scan_package"
+slot = 2
+caption = "Сканировать"
+
+[sub_resource type="Resource" id="Scanner_actions"]
+script = ExtResource("7_actions")
+actions = Array[ExtResource("6_1r4br")]([SubResource("Scanner_action")])
+reserved_slots = 4
+
+[sub_resource type="StandardMaterial3D" id="BodyMaterial"]
+albedo_color = Color(0.12, 0.25, 0.32, 1)
+
+[sub_resource type="BoxMesh" id="BodyMesh"]
+material = SubResource("BodyMaterial")
+size = Vector3(0.18, 0.14, 0.32)
+
+[sub_resource type="BoxMesh" id="HandleMesh"]
+material = SubResource("BodyMaterial")
+size = Vector3(0.09, 0.2, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="LensMaterial"]
+albedo_color = Color(0.08, 0.8, 0.45, 1)
+emission_enabled = true
+emission = Color(0.02, 0.5, 0.2, 1)
+
+[sub_resource type="BoxMesh" id="LensMesh"]
+material = SubResource("LensMaterial")
+size = Vector3(0.14, 0.09, 0.02)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r70np"]
+blend_mode = 2
+albedo_color = Color(0.4541855, 0.4069214, 0.4609375, 1)
+emission = Color(0.02, 0.5, 0.2, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_xlk73"]
+material = SubResource("StandardMaterial3D_r70np")
+size = Vector3(0.1640625, 0.11543457, 0.0032861326)
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(0.18, 0.3, 0.34)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lqn1g"]
+resource_local_to_scene = true
+albedo_color = Color(0.265625, 0, 0, 1)
+emission_enabled = true
+emission = Color(1, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bghjr"]
+size = Vector3(0.05, 0.05, 0.001)
+
+[node name="Scanner" type="RigidBody3D" unique_id=935711068]
+collision_layer = 10
+collision_mask = 29
+mass = 0.5
+continuous_cd = true
+script = ExtResource("1")
+component_resources = Array[ExtResource("3_component")]([SubResource("Scanner_state"), SubResource("Scanner_interactable"), SubResource("Scanner_grabbable"), SubResource("Scanner_actions")])
+
+[node name="Body" type="MeshInstance3D" parent="." unique_id=1457605258]
+mesh = SubResource("BodyMesh")
+
+[node name="Handle" type="MeshInstance3D" parent="." unique_id=1262318525]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.14, 0.05)
+mesh = SubResource("HandleMesh")
+
+[node name="Lens" type="MeshInstance3D" parent="." unique_id=246329005]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.165)
+mesh = SubResource("LensMesh")
+
+[node name="Lens2" type="MeshInstance3D" parent="." unique_id=50181844]
+transform = Transform3D(1, 0, 0, 0, 0.7450216, 0.66704035, 0, -0.66704035, 0.7450216, 0, 0.106888644, -0.10381264)
+mesh = SubResource("BoxMesh_xlk73")
+
+[node name="CollisionShape" type="CollisionShape3D" parent="." unique_id=879491180]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.08, 0)
+shape = SubResource("Shape")
+
+[node name="Feedback" type="Node3D" parent="." unique_id=1134166937]
+script = ExtResource("2")
+
+[node name="IconOK" type="MeshInstance3D" parent="Feedback" unique_id=1639688379]
+transform = Transform3D(0, -0.99999994, 0, 0.7526589, 0, 0.6584104, -0.6584103, 0, 0.75265896, 0.00032763556, 0.094727196, -0.08976867)
+material_override = SubResource("StandardMaterial3D_lqn1g")
+mesh = SubResource("BoxMesh_bghjr")
+
+[node name="Result" type="Label3D" parent="Feedback" unique_id=899583660]
+transform = Transform3D(1, 0, 0, 0, 0.75265896, 0.6584104, 0, -0.6584104, 0.75265896, 0.002844654, 0.13489553, -0.119270265)
+pixel_size = 0.0013
+double_sided = false
+text = "№100"
+autowrap_mode = 2
+width = 220.0
+
+[node name="Beep" type="AudioStreamPlayer3D" parent="Feedback" unique_id=2105879405]
+volume_db = -8.0
+max_distance = 8.0
+
+[node name="Timer" type="Timer" parent="Feedback" unique_id=512964207]
+one_shot = true
+
+[connection signal="timeout" from="Feedback/Timer" to="Feedback" method="_on_timer_timeout"]

@@ -1,5 +1,5 @@
 extends Node
-## A real NavigationAgent path must route a rigid NPC around a wall.
+## Smoke реального NavigationAgent: физический NPC достигает цели по пути вокруг стены.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const MAX_FRAMES: int = 600
@@ -11,6 +11,7 @@ const MIN_ROUTE_DETOUR: float = 1.7
 var _world: World = null
 
 
+#region Сценарий native-пути
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -35,8 +36,8 @@ func _run() -> void:
 	var region: NavigationRegion3D = NavigationRegion3D.new()
 	region.navigation_mesh = mesh
 	_world.add_child(region)
-	var scene: PackedScene = load("res://content/entities/customers/customer.tscn") as PackedScene
-	var customer: E_Customer = scene.instantiate() as E_Customer
+	var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
+	var customer: E_NpcCharacter = scene.instantiate() as E_NpcCharacter
 	(customer as Node as Node3D).position = START
 	_world.add_entity(customer)
 	assert(customer.navigation_agent != null)
@@ -63,6 +64,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Геометрия проверки
 func _box(position: Vector3, size: Vector3) -> void:
 	var body: StaticBody3D = StaticBody3D.new()
 	var collision: CollisionShape3D = CollisionShape3D.new()
@@ -72,3 +76,5 @@ func _box(position: Vector3, size: Vector3) -> void:
 	body.add_child(collision)
 	body.position = position
 	_world.add_child(body)
+
+#endregion

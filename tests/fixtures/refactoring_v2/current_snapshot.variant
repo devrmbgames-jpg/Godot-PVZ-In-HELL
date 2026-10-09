@@ -1,0 +1,1250 @@
+{
+"entities": Array[Dictionary]([{
+"authored_id": "placed/fixture/Session",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"ambient_conflicts": 0,
+"conflict_phase": &"",
+"definition": {
+"definition": "res://content/domains/npc/definitions/def_district_default.tres"
+},
+"delivery_considered": PackedStringArray(),
+"delivery_offer_day": 2,
+"home_deliveries": [],
+"next_incident": 1,
+"next_person": 13,
+"next_service_order": 1,
+"people": [{
+"fields": {
+"activity_sequence": 19,
+"cadence_elapsed_ticks": 12345,
+"cadence_sample_tick": 123456789,
+"death_day": 0,
+"display_name": "Архивариус",
+"exit_id": &"portal_north",
+"goal_id": &"activity_2",
+"home_id": &"home_1",
+"memories": [],
+"npc_id": &"npc/1",
+"phase_complete": false,
+"placement": 0,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_east",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_1.tres"
+},
+"recipient_key": &"customer_01"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}, {
+"fields": {
+"activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
+"death_day": 0,
+"display_name": "Зольник",
+"exit_id": &"portal_south",
+"goal_id": &"activity_0",
+"home_id": &"home_2",
+"memories": [{
+"fields": {
+"actor_id": &"fixture/player",
+"day": 1,
+"incident_id": &"fixture/incident/1",
+"kind": 0,
+"reaction": 0,
+"victim_id": &""
+},
+"type": "res://content/domains/npc/contracts/npc_memory.gd"
+}],
+"npc_id": &"npc/2",
+"phase_complete": false,
+"placement": 2,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_north",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_2.tres"
+},
+"recipient_key": &"customer_02"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}, {
+"fields": {
+"activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
+"death_day": 0,
+"display_name": "Костоправ",
+"exit_id": &"portal_east",
+"goal_id": &"home_3",
+"home_id": &"home_3",
+"memories": [],
+"npc_id": &"npc/3",
+"phase_complete": false,
+"placement": 1,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_south",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_3.tres"
+},
+"recipient_key": &"customer_03"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}, {
+"fields": {
+"activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
+"death_day": 0,
+"display_name": "Стекольщица",
+"exit_id": &"portal_north",
+"goal_id": &"activity_2",
+"home_id": &"home_4",
+"memories": [],
+"npc_id": &"npc/4",
+"phase_complete": false,
+"placement": 0,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_east",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_4.tres"
+},
+"recipient_key": &"customer_04"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}, {
+"fields": {
+"activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
+"death_day": 0,
+"display_name": "Ночной сосед",
+"exit_id": &"portal_south",
+"goal_id": &"home_5",
+"home_id": &"home_5",
+"memories": [],
+"npc_id": &"npc/5",
+"phase_complete": false,
+"placement": 1,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_north",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_5.tres"
+},
+"recipient_key": &"customer_05"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}, {
+"fields": {
+"activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
+"death_day": 0,
+"display_name": "Следователь",
+"exit_id": &"portal_east",
+"goal_id": &"portal_south",
+"home_id": &"home_6",
+"memories": [],
+"npc_id": &"npc/6",
+"phase_complete": false,
+"placement": 2,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_south",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_6.tres"
+},
+"recipient_key": &"customer_06"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}, {
+"fields": {
+"activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
+"death_day": 0,
+"display_name": "Швея",
+"exit_id": &"portal_north",
+"goal_id": &"activity_0",
+"home_id": &"home_7",
+"memories": [],
+"npc_id": &"npc/7",
+"phase_complete": false,
+"placement": 0,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_east",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_7.tres"
+},
+"recipient_key": &"customer_07"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}, {
+"fields": {
+"activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
+"death_day": 0,
+"display_name": "Торговец",
+"exit_id": &"portal_south",
+"goal_id": &"shop",
+"home_id": &"home_8",
+"memories": [],
+"npc_id": &"npc/8",
+"phase_complete": false,
+"placement": 0,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_north",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_8.tres"
+},
+"recipient_key": &"customer_08"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}, {
+"fields": {
+"activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
+"death_day": 0,
+"display_name": "Попутчик",
+"exit_id": &"portal_east",
+"goal_id": &"portal_south",
+"home_id": &"",
+"memories": [],
+"npc_id": &"npc/9",
+"phase_complete": false,
+"placement": 2,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_south",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_9.tres"
+},
+"recipient_key": &"visitor_1"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}, {
+"fields": {
+"activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
+"death_day": 0,
+"display_name": "Приставала",
+"exit_id": &"portal_north",
+"goal_id": &"portal_east",
+"home_id": &"",
+"memories": [],
+"npc_id": &"npc/10",
+"phase_complete": false,
+"placement": 2,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_east",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_10.tres"
+},
+"recipient_key": &"visitor_2"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}, {
+"fields": {
+"activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
+"death_day": 0,
+"display_name": "Собиратель загадок",
+"exit_id": &"portal_south",
+"goal_id": &"portal_north",
+"home_id": &"",
+"memories": [],
+"npc_id": &"npc/11",
+"phase_complete": false,
+"placement": 2,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_north",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_11.tres"
+},
+"recipient_key": &"visitor_3"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}, {
+"fields": {
+"activity_sequence": 0,
+"cadence_elapsed_ticks": 0,
+"cadence_sample_tick": -1,
+"death_day": 0,
+"display_name": "Паломник",
+"exit_id": &"portal_east",
+"goal_id": &"portal_south",
+"home_id": &"",
+"memories": [],
+"npc_id": &"npc/12",
+"phase_complete": false,
+"placement": 2,
+"planned_day": 2,
+"planned_phase": 0,
+"portal_id": &"portal_south",
+"profile": {
+"definition": "res://content/domains/npc/definitions/def_npc_profile_12.tres"
+},
+"recipient_key": &"visitor_4"
+},
+"type": "res://content/domains/npc/contracts/npc_record.gd"
+}],
+"prepared_morning": 2,
+"replacement_morning": 0,
+"terminal_offer_target": 3
+},
+"type": "res://content/domains/npc/components/c_district.gd"
+}, {
+"fields": {
+"clock": {
+"fields": {
+"elapsed_ticks": 123456789,
+"tick_remainder": 0.625,
+"world_seed": -42
+},
+"type": "res://content/domains/time/contracts/game_clock.gd"
+},
+"day_index": 2,
+"phase": 0,
+"shift_end_tick": -1,
+"shift_start_tick": -1
+},
+"type": "res://content/domains/time/components/c_day_cycle.gd"
+}, {
+"fields": {
+"balance": 17,
+"completed_days": 0,
+"daily_results": [{
+"fields": {
+"closing_balance": 17,
+"day_index": 1,
+"income": 17,
+"penalties": 0,
+"shift_completed": false,
+"spending": 0
+},
+"type": "res://content/domains/commerce/contracts/daily_money_result.gd"
+}],
+"operations": [{
+"fields": {
+"amount": 17,
+"day_index": 1,
+"note": "",
+"operation_id": &"fixture/payment/1",
+"reason": 0,
+"settlement_id": &""
+},
+"type": "res://content/domains/commerce/contracts/money_operation.gd"
+}],
+"penalties": 0
+},
+"type": "res://content/domains/commerce/components/c_wallet.gd"
+}, {
+"fields": {
+"history_sequence_day": 1,
+"last_departed_package_id": "",
+"next_history_number": 2,
+"records": [{
+"fields": {
+"active": true,
+"day_index": 0,
+"definition": {
+"definition": "res://content/domains/packages/definitions/def_delivery_morning_supply.tres::Books"
+},
+"departure": 2,
+"history_id": "1-01-NS01E",
+"note": "",
+"number": 0,
+"package_id": "fixture/shipment/1",
+"read_event_ids": PackedStringArray(),
+"received_day": 1
+},
+"type": "res://content/domains/packages/contracts/package_registration_record.gd"
+}]
+},
+"type": "res://content/domains/packages/components/c_package_ledger.gd"
+}, {
+"fields": {
+"batch_id": "",
+"delivered_counts": {},
+"dispatched_batch_id": "",
+"incoming_package_ids": PackedStringArray(),
+"last_started_day": 0,
+"pending": [{
+"fields": {
+"day_index": 2,
+"next_package": 0,
+"package_keys": PackedStringArray("books"),
+"package_scenes": PackedStringArray("res://content/domains/packages/entities/package_b.tscn"),
+"source": 0
+},
+"type": "res://content/domains/packages/contracts/receiving_batch.gd"
+}]
+},
+"type": "res://content/domains/packages/components/c_receiving.gd"
+}, {
+"fields": {
+"next_request": 0,
+"pending_deliveries": [{
+"fields": {
+"delivery_day": 2,
+"delivery_id": &"fixture/order/1",
+"fulfilled": true,
+"item": {
+"definition": "res://content/domains/inventory/definitions/def_item_npc_meat.tres"
+},
+"ordered_day": 1,
+"quantity": 3
+},
+"type": "res://content/domains/commerce/contracts/pending_delivery.gd"
+}],
+"receipts": [{
+"fields": {
+"day_index": 1,
+"delivery_fee": 0,
+"item_key": &"npc_meat",
+"mode": 1,
+"operation_id": &"fixture/order/1",
+"quantity": 3,
+"total_price": 0
+},
+"type": "res://content/domains/commerce/contracts/purchase_receipt.gd"
+}]
+},
+"type": "res://content/domains/commerce/components/c_commerce.gd"
+}]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/0",
+"key": "placed/fixture/Session",
+"links": Array[Dictionary]([]),
+"scene": ""
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/1",
+"key": "runtime/fixture/entity/1",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, -8),
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/2",
+"key": "runtime/fixture/entity/2",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, -8),
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/3",
+"key": "runtime/fixture/entity/3",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -8),
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/4",
+"key": "runtime/fixture/entity/4",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, -8),
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/5",
+"key": "runtime/fixture/entity/5",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, 24),
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/6",
+"key": "runtime/fixture/entity/6",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, 24),
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/7",
+"key": "runtime/fixture/entity/7",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, 24),
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/8",
+"key": "runtime/fixture/entity/8",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, 24),
+"scene": "res://content/domains/npc/entities/npc_address.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/1"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/1"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/9",
+"key": "npc/1",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, -8),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 41.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/2"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/2"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {
+7: 0.0
+}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": false,
+"entity_id": "fixture/entity/10",
+"key": "npc/2",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, -8),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/3"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/3"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": false,
+"entity_id": "fixture/entity/11",
+"key": "npc/3",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -8),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/4"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/4"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/12",
+"key": "npc/4",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, -8),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/5"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/5"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": false,
+"entity_id": "fixture/entity/13",
+"key": "npc/5",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, 24),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/6"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/6"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": false,
+"entity_id": "fixture/entity/14",
+"key": "npc/6",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, 24),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/7"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/7"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/15",
+"key": "npc/7",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, 24),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/8"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/8"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/16",
+"key": "npc/8",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, 24),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/9"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/9"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": false,
+"entity_id": "fixture/entity/17",
+"key": "npc/9",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 28),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/10"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/10"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": false,
+"entity_id": "fixture/entity/18",
+"key": "npc/10",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0, 8),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/11"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/11"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": false,
+"entity_id": "fixture/entity/19",
+"key": "npc/11",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, -12),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"npc_id": &"npc/12"
+},
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"key": "npc/12"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}, {
+"fields": {
+"maximum_stacks": 8
+},
+"type": "res://content/domains/inventory/components/c_inventory.gd"
+}, {
+"fields": {
+"value": 20.0
+},
+"type": "res://content/domains/needs/components/c_hunger.gd"
+}, {
+"fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}]),
+"death": false,
+"enabled": false,
+"entity_id": "fixture/entity/20",
+"key": "npc/12",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 28),
+"scene": "res://content/domains/npc/entities/district_npc.tscn"
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"definition": {
+"definition": "res://content/domains/inventory/definitions/def_item_npc_meat.tres"
+},
+"quantity": 3
+},
+"type": "res://content/domains/inventory/components/c_inventory_item.gd"
+}, {
+"fields": {
+"key": "order/fixture/order/1"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/21",
+"key": "order/fixture/order/1",
+"links": Array[Dictionary]([{
+"kind": "owned",
+"target": "npc/2"
+}]),
+"scene": ""
+}, {
+"authored_id": "",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"damage": 0,
+"leaking": false,
+"opening": 0,
+"registration": 0,
+"registration_day": 0,
+"registration_number": 0,
+"scan": 0
+},
+"type": "res://content/domains/packages/components/c_package_state.gd"
+}, {
+"fields": {
+"base": 100.0,
+"current": 100.0,
+"depleted": false,
+"value": 100.0
+},
+"type": "res://content/domains/combat/components/c_health.gd"
+}, {
+"fields": {
+"tier": 0
+},
+"type": "res://content/domains/combat/components/c_impact_protection.gd"
+}, {
+"fields": {
+"definition": {
+"definition": "res://content/domains/packages/definitions/def_delivery_morning_supply.tres::Books"
+},
+"delivery_day": 0,
+"history_id": "1-01-NS01E",
+"package_id": "fixture/shipment/1",
+"supply_key": &""
+},
+"type": "res://content/domains/packages/components/c_package.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/packages/components/c_package_contents.gd"
+}]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/22",
+&"ink": Array[Dictionary]([]),
+"key": "package/fixture/shipment/1",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
+"scene": "res://content/domains/packages/entities/package_b.tscn"
+}, {
+"authored_id": "placed/fixture/Slot",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/23",
+"key": "placed/fixture/Slot",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
+"scene": "res://content/domains/interaction/entities/physical_slot.tscn"
+}, {
+"authored_id": "placed/fixture/StoredBox",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/24",
+"key": "placed/fixture/StoredBox",
+"links": Array[Dictionary]([{
+"kind": "stored",
+"target": "placed/fixture/Slot"
+}]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0),
+"scene": "res://content/domains/interaction/entities/anchorable_test_box.tscn"
+}, {
+"authored_id": "placed/fixture/Cart",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"key": "fixture/cart"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
+}]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/25",
+"key": "fixture/cart",
+"links": Array[Dictionary]([]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
+"scene": "res://content/domains/interaction/entities/push_cart.tscn"
+}, {
+"authored_id": "placed/fixture/CargoBox",
+&"completed_actions": Array[StringName]([]),
+"components": Array[Dictionary]([]),
+"death": false,
+"enabled": true,
+"entity_id": "fixture/entity/26",
+"key": "placed/fixture/CargoBox",
+"links": Array[Dictionary]([{
+"kind": "cargo",
+&"local_pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
+"target": "fixture/cart"
+}]),
+&"pose": Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
+"scene": "res://content/domains/interaction/entities/anchorable_test_box.tscn"
+}]),
+"morning_day": 2,
+"version": 9
+}

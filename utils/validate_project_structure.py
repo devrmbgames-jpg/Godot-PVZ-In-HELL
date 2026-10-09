@@ -9,19 +9,14 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote
 
+from validate_domain_structure import ROLE_SCRIPT_RULES, get_content_role, validate_domain_structure
+from validate_domain_migration_map import validate_migration_map
+from validate_domain_dependencies import validate_dependencies
+
 ROOT: Path = Path(__file__).resolve().parents[1]
 
-ROLE_RULES: tuple[tuple[str, str, str], ...] = (
-    ("content/components", "c_", "C_"),
-    ("content/relationships", "r_", "R_"),
-    ("content/systems", "s_", "S_"),
-    ("content/entities", "e_", "E_"),
-    ("content/observers", "o_", "O_"),
-    ("content/definitions", "def_", "DEF_"),
-)
-
 ROLE_EXCEPTIONS: set[str] = {
-    "content/definitions/definition.gd",
+    "content/shared/contracts/definition.gd",
 }
 
 TEXT_RESOURCE_ROOTS: tuple[str, ...] = (
@@ -48,12 +43,8 @@ TASK_STATUS_RE = re.compile(
     re.MULTILINE,
 )
 IMPLEMENTATION_ID_RE = re.compile(r"\bR\d+(?:\.\d+)?\b")
-BEHAVIOR_PRIVATE_ROOTS: tuple[str, ...] = (
-    "content/entities",
-    "content/ui",
-    "content/services",
-    "content/systems",
-    "content/observers",
+BEHAVIOR_PRIVATE_ROLES: frozenset[str] = frozenset(
+    {"entities", "ui", "services", "systems", "observers"}
 )
 
 ONREADY_VAR_RE = re.compile(
@@ -151,11 +142,16 @@ def _read_text(path: Path) -> str:
 
 
 def _check_role_placement(errors: list[str]) -> None:
+    """Retain horizontal-prefix checks during migration; vertical layout is delegated."""
     forbidden_core: Path = ROOT / "content/core"
     if forbidden_core.exists():
-        errors.append("content/core/ is forbidden; use contracts/, services/, systems/, or the owning subsystem.")
+        errors.append(
+            "content/core/ is forbidden; use content/domains/<owner>/<role>/ "
+            "or content/shared/<role>/."
+        )
 
-    for root_name, file_prefix, class_prefix in ROLE_RULES:
+    for role_name, (file_prefix, class_prefix) in ROLE_SCRIPT_RULES.items():
+        root_name: str = f"content/{role_name}"
         role_root: Path = ROOT / root_name
         if not role_root.exists():
             continue
@@ -181,47 +177,44 @@ def _check_role_placement(errors: list[str]) -> None:
 def _check_private_member_naming(errors: list[str]) -> None:
     """Enforce private runtime caches/state in behavior/glue/UI code."""
     content_root: Path = ROOT / "content"
-    if content_root.exists():
-        for script_path in sorted(content_root.rglob("*.gd")):
-            relative: str = _relative(script_path)
-            text: str = _read_text(script_path)
-            for match in ONREADY_VAR_RE.finditer(text):
-                name: str = match.group(1)
-                if not name.startswith("_"):
-                    errors.append(
-                        f"{relative}: @onready cache {name!r} must be private and start with '_'."
-                    )
+    if not content_root.exists():
+        return
 
-    for root_name in BEHAVIOR_PRIVATE_ROOTS:
-        root_path: Path = ROOT / root_name
-        if not root_path.exists():
+    for script_path in sorted(content_root.rglob("*.gd")):
+        relative: str = _relative(script_path)
+        text: str = _read_text(script_path)
+        for match in ONREADY_VAR_RE.finditer(text):
+            name: str = match.group(1)
+            if not name.startswith("_"):
+                errors.append(
+                    f"{relative}: @onready cache {name!r} must be private and start with '_'."
+                )
+
+        if get_content_role(ROOT, script_path) not in BEHAVIOR_PRIVATE_ROLES:
             continue
 
-        for script_path in sorted(root_path.rglob("*.gd")):
-            relative: str = _relative(script_path)
-            for line_number, raw_line in enumerate(_read_text(script_path).splitlines(), start=1):
-                if not raw_line or raw_line[0].isspace():
-                    continue
-                if raw_line.startswith("@export"):
-                    continue
+        for line_number, raw_line in enumerate(text.splitlines(), start=1):
+            if not raw_line or raw_line[0].isspace():
+                continue
+            if raw_line.startswith("@export"):
+                continue
 
-                match = TOP_LEVEL_ONREADY_RE.match(raw_line)
-                if match is None:
-                    match = TOP_LEVEL_VAR_RE.match(raw_line)
-                if match is None:
-                    continue
+            match = TOP_LEVEL_ONREADY_RE.match(raw_line)
+            if match is None:
+                match = TOP_LEVEL_VAR_RE.match(raw_line)
+            if match is None:
+                continue
 
-                name: str = match.group(1)
-                if not name.startswith("_"):
-                    errors.append(
-                        f"{relative}:{line_number}: non-exported member state {name!r} "
-                        "must be private and start with '_'."
-                    )
+            name: str = match.group(1)
+            if not name.startswith("_"):
+                errors.append(
+                    f"{relative}:{line_number}: non-exported member state {name!r} "
+                    "must be private and start with '_'."
+                )
 
 
 def _resource_prefix(path: Path, text: str) -> str | None:
-    relative: str = _relative(path)
-    if relative.startswith("content/definitions/"):
+    if get_content_role(ROOT, path) == "definitions":
         return "def_"
 
     header = RESOURCE_HEADER_RE.search(text)
@@ -265,7 +258,7 @@ def _check_relationship_role_usage(errors: list[str]) -> None:
                 for match in pattern.finditer(text):
                     errors.append(
                         f"{_relative(script_path)}: relationship payload {match.group(1)!r} "
-                        "must use an R_* class under content/relationships/."
+                        "must use an R_* class in the owning relationships/ role directory."
                     )
 
 
@@ -527,6 +520,11 @@ def main() -> int:
     errors: list[str] = []
 
     _check_role_placement(errors)
+    errors.extend(validate_domain_structure(ROOT, strict=True))
+    if (ROOT / "utils/domain_migration_map.json").exists():
+        errors.extend(validate_migration_map(ROOT))
+    if (ROOT / "utils/domain_contracts.json").exists():
+        errors.extend(validate_dependencies(ROOT, strict=True))
     _check_private_member_naming(errors)
     _check_resource_file_naming(errors)
     _check_relationship_role_usage(errors)

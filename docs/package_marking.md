@@ -16,7 +16,7 @@ Each Package scene authors a separate `C_PackageMarks`. `PackageMarkStroke` stor
 
 ## Physical storage
 
-`content/entities/props/numbered_shelves.tscn` is an authored StaticBody3D with six numbered compartments, solid boards, sides, dividers and a back. The main level places it against the warehouse wall at (6, 0, -7.2), clear of the doorway. Lower compartments are 01–03, upper compartments 04–06. Number plates are world-space Label3D presentation. Packages settle on shelves through Godot collision/gravity; shelves have no gameplay component, package assignment or connection to the Terminal ledger. Placement and mnemonic marks are the player's own organization system.
+`content/domains/interaction/entities/numbered_shelves.tscn` is an authored StaticBody3D with six numbered compartments, solid boards, sides, dividers and a back. The main level places it against the warehouse wall at (6, 0, -7.2), clear of the doorway. Lower compartments are 01–03, upper compartments 04–06. Number plates are world-space Label3D presentation. Packages settle on shelves through Godot collision/gravity; shelves have no gameplay component, package assignment or connection to the Terminal ledger. Placement and mnemonic marks are the player's own organization system.
 
 ## R21 persistence boundary
 

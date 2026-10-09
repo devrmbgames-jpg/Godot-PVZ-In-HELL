@@ -1,14 +1,17 @@
 extends Node
-## Native main scene + raw input; headless replaces only OS cursor capture.
+## Проверяет спринт в основной сцене через реальный ввод; headless подменяет только захват курсора ОС.
 
+## В headless-тесте подменяет только проверку захвата курсора операционной системой.
 class CapturedInput extends S_PlayerInput:
 	func _accepts_input() -> bool:
 		return true
 
+## Отдельный файл настроек сценария; не использует основной профиль игрока.
 const TEST_PATH: String = "user://r33_smoke_settings.cfg"
 var _level: Node3D
 
 
+#region Тестовый ввод и ожидание
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_run.call_deferred()
@@ -28,6 +31,10 @@ func _key(code: Key, pressed: bool = true) -> void:
 	await get_tree().process_frame
 
 
+#endregion
+
+#region Native спринт и настройки
+## Прогоняет native движение и ввод Shift, режим переключения, паузу настроек и консольный запрос.
 func _run() -> void:
 	GameSettingsService.initialize(TEST_PATH)
 	GameSettingsService.reset_defaults()
@@ -112,3 +119,5 @@ func _run() -> void:
 	await get_tree().process_frame
 	print("sprint stamina smoke PASS")
 	get_tree().quit()
+
+#endregion

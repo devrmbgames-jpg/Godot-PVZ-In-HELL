@@ -10,6 +10,8 @@ var _session: Entity
 var _cycle: C_DayCycle
 
 
+#region Подготовка и очистка
+## Создаёт авторские сущности минимальной игровой сессии с актуальным ECS.world.
 func before_each() -> void:
 	_root = Node.new()
 	_root.scene_file_path = GameSessionService.MAIN_LEVEL
@@ -28,10 +30,14 @@ func _authored(label: String, components: Array[Component]) -> Entity:
 	entity.component_resources = components
 	_root.add_child(entity)
 	entity.owner = _root
+	_root.set_meta(PlacedIdentityRules.WORLD_ID_META, &"fixture")
+	entity.set_meta(PlacedIdentityRules.LOCAL_ID_META, StringName(entity.name))
+	assert_true(PlacedIdentityRules.compile_for(_root).is_empty())
 	_world.add_entity(entity, null, false)
 	return entity
 
 
+## Снимает паузу, очищает World и удаляет только тестовые файлы сохранения/настроек.
 func after_each() -> void:
 	get_tree().paused = false
 	_world.purge(false)
@@ -41,6 +47,10 @@ func after_each() -> void:
 		DirAccess.remove_absolute(path)
 
 
+#endregion
+
+#region Условия записи и загрузки сессии
+## Собственный modal-токен меню допускает запись; чужой захват остаётся причиной отказа.
 func test_own_pause_token_allows_save_and_real_slot_round_trip() -> void:
 	var token: int = InteractionControlFocus.acquire(_actor, self, InteractionControlFocus.Priority.MODAL)
 	assert_eq(GameSessionService.save_reason(_root, self), "")
@@ -54,6 +64,7 @@ func test_own_pause_token_allows_save_and_real_slot_round_trip() -> void:
 	InteractionControlFocus.release(_actor, token)
 
 
+## Дневная фаза и захват переноски запрещают запись, сохраняя прежние байты слота.
 func test_day_and_capture_refuse_save_without_overwriting_slot() -> void:
 	assert_true(GameSessionService.save_game(_root, null, SAVE_PATH).success)
 	var saved: PackedByteArray = FileAccess.get_file_as_bytes(SAVE_PATH)
@@ -68,6 +79,7 @@ func test_day_and_capture_refuse_save_without_overwriting_slot() -> void:
 	InteractionControlFocus.release(_actor, token)
 
 
+## Активный клиент и удерживаемый предмет блокируют сохранение независимо от токена меню.
 func test_customer_or_held_relationship_blocks_even_with_menu_token() -> void:
 	var npc: Entity = Entity.new()
 	npc.component_resources = [C_CustomerAgent.new()]
@@ -81,19 +93,21 @@ func test_customer_or_held_relationship_blocks_even_with_menu_token() -> void:
 	_world.remove_entity(item)
 
 
+## Preflight отвергает несовместимую роль тела без изменения сущностей или фазы.
 func test_preflight_rejects_bad_prefab_roles_without_live_world_changes() -> void:
 	var data: Dictionary = WorldSnapshotService.capture(_root, 1)
 	var size_before: int = _world.entities.size()
 	assert_true(WorldSnapshotService.can_restore(data, _root))
 	assert_eq(_world.entities.size(), size_before)
 	for record: Dictionary in data.entities:
-		if String(record.authored_path) == "Actor":
+		if String(record.authored_id) == "placed/fixture/Actor":
 			record.anchor = {"freeze": false, "freeze_mode": 0, "can_sleep": true}
 	assert_false(WorldSnapshotService.can_restore(data, _root), "Entity без native anchor нельзя загрузить")
 	assert_eq(_world.entities.size(), size_before)
 	assert_eq(_cycle.phase, C_DayCycle.Phase.MORNING)
 
 
+## Основной и примитивный уровни используют разные слоты; неигровая сцена не имеет профиля загрузки.
 func test_profile_paths_separate_main_and_primitive() -> void:
 	assert_ne(GameSessionService.manual_path(GameSessionService.MAIN_LEVEL), GameSessionService.manual_path(GameSessionService.TEST_LEVEL))
 	assert_eq(GameSessionService.autosave_path(GameSessionService.MAIN_LEVEL), AutosaveStore.DEFAULT_PATH)
@@ -101,6 +115,7 @@ func test_profile_paths_separate_main_and_primitive() -> void:
 	assert_false(GameSessionService.saved_game("res://content/ui/main_menu.tscn").success)
 
 
+## Главное меню настроек управляет паузой и файлом без искусственного захвата управления игроком.
 func test_main_settings_without_actor_pause_release_and_no_fake_capture() -> void:
 	var menu: SettingsMenu = SettingsMenu.new()
 	menu.setup_main_menu(SETTINGS_PATH)
@@ -113,3 +128,5 @@ func test_main_settings_without_actor_pause_release_and_no_fake_capture() -> voi
 	assert_false(menu.is_open())
 	assert_false(get_tree().paused)
 	assert_true(FileAccess.file_exists(SETTINGS_PATH))
+
+#endregion

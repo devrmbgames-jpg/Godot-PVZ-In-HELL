@@ -1,9 +1,10 @@
 extends Label3D
+## Обновляет отладочную подпись клиента с частотой 10 Гц, читая CustomerDebugPresentation.
 
 const REFRESH_SECONDS: float = 0.1
 
 var _remaining: float = 0.0
-@onready var _customer: E_Customer = get_parent() as E_Customer
+@onready var _customer: E_NpcCharacter = get_parent() as E_NpcCharacter
 
 
 func _process(delta: float) -> void:

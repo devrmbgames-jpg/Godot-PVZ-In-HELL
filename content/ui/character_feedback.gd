@@ -1,15 +1,24 @@
 extends Node3D
-## Derived sound/camera feedback only. Native physics, look, head/hand/ray transforms are untouched.
+## Звуки шагов и локальное покачивание камеры по фактическому движению; физику и крепления головы не исполняет.
 class_name CharacterFeedback
 
+## Разрешает звук по пересечениям фазы фактических шагов.
 @export var footsteps_enabled: bool = true
+## Создаёт 3D-проигрыватели Footstepper вместо локального аудио.
 @export var spatial_audio: bool = false
+## Громкость шагов в децибелах.
 @export_range(-80.0, 0.0, 1.0) var volume_db: float = -14.0
+## Горизонтальное расстояние между звуками шагов в метрах.
 @export_range(0.2, 4.0, 0.1) var step_distance: float = 2.8
+## Разрешает производное покачивание камеры при ходьбе.
 @export var bob_enabled: bool = true
+## Локально отключает покачивание; игрок дополнительно учитывает общую настройку.
 @export var reduced_motion: bool = false
+## Путь камеры относительно физического персонажа; исходное смещение восстанавливается при выходе.
 @export var camera_path: NodePath = NodePath("HeadY/HeadX/HeadRoot/Camera3D")
+## Амплитуда горизонтального/вертикального смещения камеры в метрах.
 @export var bob_amplitude: Vector2 = Vector2(0.006, 0.012)
+## Скорость экспоненциального сглаживания покачивания, 1/с.
 @export_range(1.0, 30.0, 1.0) var bob_response: float = 12.0
 
 const MINIMUM_WALK_SPEED: float = 0.2
@@ -26,8 +35,9 @@ var _bob_phase: float = PI / 2.0
 @onready var _footsteps: Footstepper = $Footstepper
 
 
+#region Подготовка и восстановление
 func _enter_tree() -> void:
-	# Configure before the addon's _ready creates its native audio players.
+	# Настройки задаются до создания аудиопроигрывателей в _ready аддона.
 	var footsteps: Footstepper = get_node("Footstepper") as Footstepper
 	footsteps.audio_is_3d = spatial_audio
 	footsteps.audio_volume = volume_db
@@ -50,6 +60,9 @@ func _exit_tree() -> void:
 		_camera.position = _camera_rest
 
 
+#endregion
+
+#region Шаги и покачивание
 func _physics_process(delta: float) -> void:
 	if _actor == null or not EntityAvailability.contains(_actor, ECS.world) or delta <= 0.0:
 		return
@@ -83,3 +96,5 @@ func _physics_process(delta: float) -> void:
 	_camera_offset = _camera_offset.lerp(target, 1.0 - exp(-bob_response * delta))
 	if _camera != null:
 		_camera.position = _camera_rest + _camera_offset
+
+#endregion

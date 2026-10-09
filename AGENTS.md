@@ -7,13 +7,16 @@ Start from the user's task and the exact files, symbols, errors, scenes, or reso
 - Runtime: Godot 4.7, GDScript, Forward Plus, Jolt Physics.
 - GECS v8 is pinned under `addons/gecs/`; checked-out source is the API authority. `addons/` is read-only unless addon/dependency work is explicit.
 - Project-owned GDScript is statically typed. Declare concrete types when inference crosses Variant/untyped APIs, containers, dynamic lookup, or broad Object/Node boundaries. Avoid local/member/parameter names that shadow existing or inherited properties/methods.
-- Project-owned GDScript must be human-readable: give each script a short `##` description; document public variables, every `@export` field, signals, and public methods with concise `##` comments; group methods by responsibility inside named `#region ...` / `#endregion` blocks. Inside non-trivial functions, separate distinct logical phases with a single blank line; do not compress setup, guards, state changes, side effects, and follow-up work into one dense uninterrupted block. Keep closely related statements together and do not add blank lines mechanically after every statement.
-- Components contain data/state. Relationships own authoritative live Entity-to-Entity bindings. Systems are scheduled behavior and do not call other Systems as services. Reusable imperative logic belongs in services/solvers/observers or thin Entity/engine glue.
+- Project-owned GDScript is written for humans first: clarity and explicit intent take priority over cleverness or brevity. Give each script a short `##` description; document public variables, every `@export` field, signals, and public methods with concise `##` comments; group methods by responsibility inside named `#region ...` / `#endregion` blocks. Inside non-trivial functions, separate distinct logical phases with a single blank line and add a short intent comment above non-obvious multi-step blocks. Do not compress setup, guards, state changes, side effects, and follow-up work into one dense uninterrupted block. Keep closely related statements together and do not add blank lines or comments mechanically.
+- Components contain data/state. Relationships own authoritative live Entity-to-Entity bindings. Systems own scheduled behavior and do not call other Systems as services. Services own explicit synchronous operations; extracting a recurring tick into a Service does not change its scheduled ownership. Canonical role/selection rules live in [content/ARCHITECTURE.md](content/ARCHITECTURE.md#canonical-roles-and-ownership).
+- Typed records nested in an ECS-owned Component may form an aggregate with one explicit writer; they are not a second runtime model merely because they are Resources. Mark derived caches, immutable identity references and terminal history; reject competing mutable authorities.
 - Godot physics bodies own physical transform/velocity unless an explicit synchronization contract says otherwise.
 - Preserve scene/resource/data contracts unless migration is explicit: exported properties, node names/paths, signals, authored IDs, relationship/component ownership, and resource paths.
 - Behavior/glue/UI members are private by default; all `@onready` members are private. Public mutable fields are deliberate data/API contracts only.
 - Avoid unexplained gameplay constants; use named constants or authored/data-driven values.
+- Synchronous gameplay code trusts its required lifetime/type/component contracts. Do not scatter `null` / `is_instance_valid()` guards over mandatory Entity/Node arguments, required Components, or `ECS.world`. Revalidate only when a reference intentionally crossed a time/lifetime boundary (deferred/queued call or signal, queued World event/request, `await`/timer, stored callback/reference) or when the value is explicitly optional. For suspicious invariant violations, prefer a side-effect-free `assert(...)` in debug code over silently returning; fix the owner/lifecycle contract instead of normalizing invalid state.
 - Preserve unrelated user edits. Do not rewrite unrelated history, force-push, upgrade dependencies, write authored files into `.godot/`, or use `gh`.
+- When the user explicitly requests a broad refactor, complete the declared migration to its target architecture instead of leaving permanent old/new parallel paths, compatibility wrappers, duplicate authority, or renamed-but-unmigrated ownership. Temporary adapters are allowed only inside the same unfinished milestone; if they cannot be removed, the milestone is not DONE.
 - `master` is read-only. Normal development targets `dev`; use a separate branch when the user requests one.
 - `MeshInstance3D.material_overlay` is reserved for interactive feedback/highlights; authored highlight materials are external editable resources.
 
@@ -46,6 +49,8 @@ One durable task file owns its own status/current/next/validation. There is no s
 ## Specialized skills
 
 Load a skill only when its domain is actually involved:
+- explicit broad refactoring, architecture migration, subsystem decomposition, or repository-wide cleanup: `.agents/skills/refactoring/SKILL.md`;
+- creating or modifying project-owned GDScript: `.agents/skills/gdscript-style/SKILL.md`;
 - GECS-specific API/architecture: `.agents/skills/gecs-v8/SKILL.md`;
 - GUT test authoring/execution: `.agents/skills/gut-testing/SKILL.md`;
 - Godot AI MCP, GDScript parser diagnostics, live ClassDB/scene/editor inspection: `.agents/skills/godot-ai-mcp/SKILL.md`;
@@ -64,7 +69,7 @@ Load a skill only when its domain is actually involved:
 - first-person combat targeting/feel and damage-boundary composition: `.agents/skills/first-person-combat/SKILL.md`;
 - player-facing game design: `.agents/skills/professional-game-design/SKILL.md`.
 
-Ordinary Godot/GDScript implementation does not require a general-purpose workflow skill.
+Ordinary Godot/GDScript implementation does not require a general-purpose workflow skill. For any creation or modification of project-owned GDScript, load `gdscript-style` once before the first implementation edit.
 
 ## Godot AI MCP
 
@@ -73,6 +78,17 @@ Codex loads the Godot AI MCP entry from the user-level `~/.codex/config.toml` (o
 Prefer ordinary file/search/edit tools when cheaper. Use MCP when live scene tree, node/resource state, editor diagnostics, ClassDB introspection, or runtime state materially improves the task. For changed project-owned GDScript, use the Godot parser/diagnostics near completion; MCP `script_patch`/`script_create` is the preferred path when the editor is available. Query the smallest relevant scene/subtree/resource/log range first and widen only when useful.
 
 If live MCP access matters and the editor is not running, the agent may start it with `.vscode/start-godot.ps1`. Do not launch gameplay/rendered playtests, capture visual evidence, or perform subjective visual validation unless the user explicitly approved it for the task.
+
+If MCP needs Godot, launch Godot automatically.
+If the Editor blocks MCP because a scene or project file must be updated, close Godot, apply the update, and relaunch it if needed.
+
+### Scene ownership
+
+- Treat opened `.tscn` scenes in Godot Editor as editor-owned.
+- Do not modify an editor-owned `.tscn` through raw filesystem/text patches.
+- When a scene is open or loaded in the editor, prefer Godot AI MCP scene operations.
+- Raw `.tscn` edits are allowed only when the scene is not open in Godot.
+- Never choose or rely on "Ignore External Changes" as part of automated workflow.
 
 ## Subagents
 

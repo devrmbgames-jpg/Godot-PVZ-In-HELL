@@ -1,4 +1,5 @@
 extends Node
+## Показывает результат сканирования и воспроизводит сигнал; регистрацию выполняет игровой сервис.
 
 const SAMPLE_RATE: int = 22050
 const BEEP_SECONDS: float = 0.12
@@ -12,7 +13,7 @@ const FEEDBACK_SECONDS: float = 5.0
 
 
 
-#region Lifecycle
+#region Жизненный цикл
 func _ready() -> void:
 	var scanner: E_Scanner = get_parent() as E_Scanner
 	scanner.scan_feedback.connect(_on_scan_feedback)
@@ -25,7 +26,7 @@ func _ready() -> void:
 #endregion
 
 
-#region Presentation
+#region Представление результата
 func _on_scan_feedback(result: PackageScanResult) -> void:
 	_label.text = result.message if result.outcome == PackageScanResult.Outcome.REJECTED else "№%03d%s" % [result.number, " · уже зарегистрировано" if result.outcome == PackageScanResult.Outcome.ALREADY_REGISTERED else " · готово"]
 	_label.visible = true

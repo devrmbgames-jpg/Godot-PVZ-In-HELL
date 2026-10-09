@@ -2,13 +2,14 @@ extends Node
 ## Реальная геометрия восьми площадок main_level: наведение, размещение и повторный захват.
 
 const MAIN_LEVEL: PackedScene = preload("res://content/scenes/main_level.tscn")
-const PACKAGE: PackedScene = preload("res://content/entities/packages/package_a.tscn")
+const PACKAGE: PackedScene = preload("res://content/domains/packages/entities/package_a.tscn")
 
 
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## На восьми авторских площадках проверяет доступность действия и последующий захват коробки.
 func _run() -> void:
 	var level: Node3D = MAIN_LEVEL.instantiate() as Node3D
 	level.set("autosave_path", "")
@@ -21,7 +22,7 @@ func _run() -> void:
 
 	var parcel: Entity = PACKAGE.instantiate() as Entity
 	ECS.world.add_entity(parcel)
-	var body: RigidBody3D = GrabService.physical_body(parcel)
+	var body: RigidBody3D = GrabQueries.physical_body(parcel)
 	body.gravity_scale = 0.0
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 	for index: int in range(1, 9):
@@ -41,7 +42,7 @@ func _run() -> void:
 		body.global_transform = Transform3D(Basis.from_euler(Vector3(0.2, 0.3, 0)), area.anchor.global_position + Vector3(1.0, 0.6, 0))
 		actor.interaction_ray_cast.look_at(area.anchor.global_position, Vector3.UP)
 		actor.interaction_ray_cast.force_update_transform()
-		interactor.target = InteractionTargetingService.find_target(actor, interactor)
+		interactor.target = InteractionTargetingGeometry.find_target(actor, interactor)
 		if interactor.target != area:
 			print("Placement target failed: index=", index, " collider=", actor.interaction_ray_cast.get_collider(), " ray=", actor.interaction_ray_cast.global_position, " direction=", -actor.interaction_ray_cast.global_basis.z, " anchor=", area.anchor.global_position)
 		assert(interactor.target == area, "Carry volume must be targetable above the thin pad")
@@ -49,12 +50,12 @@ func _run() -> void:
 		assert(choice != null and choice.action is DEF_CarryPlacementAction, "Free main-level shelf must offer placement")
 		assert(choice.action.caption == "Поставить")
 		assert(choice.action.complete(actor, choice.source, choice.target))
-		assert(GrabService.held_object(actor) == null)
+		assert(GrabQueries.held_object(actor) == null)
 		assert(body.global_transform.is_equal_approx(area.anchor.global_transform))
 		await get_tree().physics_frame
 		await get_tree().process_frame
 		actor.interaction_ray_cast.look_at(body.global_position + Vector3.UP * 0.2, Vector3.UP)
-		assert(InteractionTargetingService.find_target(actor, interactor) == parcel, "Empty-handed retrieval must ignore Carry volume")
+		assert(InteractionTargetingGeometry.find_target(actor, interactor) == parcel, "Empty-handed retrieval must ignore Carry volume")
 		assert(GrabService.can_pickup(actor, parcel, C_Grabbable.HoldSlot.CARRY), "Placed parcel remains grabbable")
 		body.global_position = Vector3(0, 3, 0)
 		await get_tree().physics_frame

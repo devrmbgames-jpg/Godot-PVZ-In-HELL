@@ -1,11 +1,13 @@
 extends GutTest
-## Actual addon registry, long-output scrollbar and project mouse/focus integration.
+## Проверки реального реестра консоли, прокрутки длинного вывода и восстановления мыши/фокуса.
 
 var _commands: DeveloperConsoleCommands
 var _original_help: Console.ConsoleCommand
 var _mouse: Input.MouseMode
 
 
+#region Подготовка и очистка
+## Сохраняет mouse mode и встроенный help, затем подключает проектные команды.
 func before_each() -> void:
 	if bool(Console.is_visible()): Console.toggle_console()
 	_mouse = Input.mouse_mode
@@ -15,6 +17,7 @@ func before_each() -> void:
 	Console.clear()
 
 
+## Удаляет тестовые команды и возвращает состояние мыши/консоли.
 func after_each() -> void:
 	if bool(Console.is_visible()): Console.toggle_console()
 	_commands.free()
@@ -24,6 +27,10 @@ func after_each() -> void:
 	Console.clear()
 
 
+#endregion
+
+#region Справка, прокрутка и фокус
+## Проектный help показывает реальную сигнатуру, сохраняет встроенные инструкции и возвращается после удаления адаптера.
 func test_help_uses_registered_syntax_and_preserves_builtin_and_alias() -> void:
 	Console.console_commands["help"].function.call("apply_damage")
 	var output: String = Console.rich_label.get_parsed_text()
@@ -45,6 +52,7 @@ func test_help_uses_registered_syntax_and_preserves_builtin_and_alias() -> void:
 	add_child(_commands)
 
 
+## Справка читает текущий реестр, включая поздние команды и исключая скрытые.
 func test_plain_help_lists_live_registry_including_late_commands_but_not_hidden() -> void:
 	Console.add_command("qa_help_late", func(_value: String) -> void: pass, ["value"], 1, "Late registered help probe")
 	Console.add_hidden_command("qa_help_hidden", func() -> void: pass)
@@ -62,6 +70,7 @@ func test_plain_help_lists_live_registry_including_late_commands_but_not_hidden(
 	assert_true(Console.rich_label.get_parsed_text().contains("qa_help_late"), "Alias also enumerates the current registry")
 
 
+## Длинный вывод прокручивается мышью без потери фокуса командной строки; закрытие возвращает mouse mode.
 func test_long_output_scrolls_with_mouse_and_preserves_command_input() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	var before: Input.MouseMode = Input.mouse_mode
@@ -87,3 +96,5 @@ func test_long_output_scrolls_with_mouse_and_preserves_command_input() -> void:
 	assert_true(Console.rich_label.get_parsed_text().contains("scroll_input_ok"))
 	Console.toggle_console()
 	assert_eq(Input.mouse_mode, before)
+
+#endregion

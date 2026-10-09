@@ -1,11 +1,19 @@
-# Кнопка посылки с краткой информацией и тремя terminal outcome-действиями.
+## Строка посылки в терминале: показывает запись и отправляет запросы заявления владельцу интерфейса.
 extends PanelContainer
 class_name UI_TerminalButtonPackage
 
+## Запрос выбора записи с этим package_id.
 signal package_selected(package_id: String)
+## Запрос заявления TAKEN в журнале; физическую выдачу не подтверждает.
 signal taken_requested(package_id: String)
+## Запрос заявления REFUSED в журнале.
 signal refused_requested(package_id: String)
+## Запрос заявления LOST в журнале.
 signal lost_requested(package_id: String)
+## Запрос принятия конкретного опубликованного предложения доставки.
+signal delivery_accepted(job_id: StringName)
+## Запрос отказа от допуслуги; обычное получение посылки сохраняется.
+signal delivery_declined(job_id: StringName)
 
 @onready var _button_body: Button = %Button
 @onready var _icon_preview_package: TextureRect = %TexturePreviewPackage
@@ -27,16 +35,40 @@ signal lost_requested(package_id: String)
 @onready var _label_price: Label = %LabelPrice
 @onready var _label_description_short: Label = %LabelDescriptionShort
 
+## Непрочитанное предложение или обновление доставки.
+@onready var _alert_info:     Control = %TextureAlertIconInfo
+## Непрочитанная жалоба или обязательство.
+@onready var _alert_warrning: Control = %TextureAlertIconWar
+## Непрочитанная подтверждённая санкция.
+@onready var _alert_critical: Control = %TextureAlertIconCrit
+
+## Авторский раздел опубликованной доставки.
+@onready var _control_delivery: Control = %DeliveryControl
+## Запрос принятия допуслуги.
+@onready var _button_delivery_ok: Button = %ButtonDeliveryOK
+## Запрос отказа от допуслуги.
+@onready var _button_delivery_cancel: Button = %ButtonDeloveryCancel
+@onready var _label_delivery_bonus: Label = get_node("%DeliveryControl/Label2") as Label
+
+
 var _package_id: String = ""
+var _delivery_job_id: StringName = &""
 
 
+#region Заполнение строки
 func _ready() -> void:
 	_button_body.toggled.connect(_on_body_toggled)
 	_button_ok.pressed.connect(_on_taken_pressed)
 	_button_cancel.pressed.connect(_on_refused_pressed)
 	_button_lost.pressed.connect(_on_lost_pressed)
+	_button_delivery_ok.pressed.connect(_on_delivery_accepted)
+	_button_delivery_cancel.pressed.connect(_on_delivery_declined)
+	_control_delivery.visible = false
+	for icon: Control in [_alert_info, _alert_warrning, _alert_critical]:
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
+## Показывает запись; actions_enabled управляет заявлениями, debug_status раскрывает фактическое состояние.
 func present(
 	record: PackageRegistrationRecord,
 	state: C_PackageState,
@@ -44,10 +76,12 @@ func present(
 	selected: bool,
 	actions_enabled: bool = true,
 	debug_status: bool = false,
+	delivery: TerminalDeliveryInfo = null,
+	notice: TerminalPackageNotice = null,
 ) -> void:
 	_package_id = record.package_id
 	_button_body.set_pressed_no_signal(selected)
-	_label_number_info.text = "№%03d" % record.number
+	_label_number_info.text = number_text(record)
 	_label_status_info.text = status_text(record, state, visit, debug_status)
 
 	var definition: DEF_Package = record.definition
@@ -72,13 +106,51 @@ func present(
 	)
 	_button_ok.disabled = not can_declare
 	_button_cancel.disabled = not can_declare
-	_button_lost.disabled = not can_declare
+	_button_lost.disabled = not (
+		actions_enabled and visit != null and visit.declaration == CustomerVisit.Declaration.NONE
+	)
+	_present_delivery(delivery, actions_enabled)
+	_present_notice(notice)
 
 
+## Возвращает постоянный ID записи, показанной этой строкой.
 func package_id() -> String:
 	return _package_id
 
 
+## Возвращает клавиатурный фокус строке после пересборки или решения о доставке.
+func focus_row() -> void:
+	_button_body.grab_focus()
+
+
+func _present_delivery(delivery: TerminalDeliveryInfo, actions_enabled: bool) -> void:
+	_control_delivery.visible = delivery != null and delivery.published
+	_delivery_job_id = delivery.job_id if _control_delivery.visible else &""
+	_button_body.tooltip_text = ""
+	if not _control_delivery.visible:
+		return
+	_label_delivery_bonus.text = "+%d" % delivery.bonus
+	_control_delivery.tooltip_text = "%s\n%s · +%d$ · до утра дня %d" % [delivery.status_text, delivery.address, delivery.bonus, delivery.deadline_day]
+	_button_body.tooltip_text = _control_delivery.tooltip_text
+	var offered: bool = delivery.status == NpcHomeDelivery.Status.OFFERED
+	_button_delivery_ok.visible = offered
+	_button_delivery_cancel.visible = offered
+	_button_delivery_ok.disabled = not actions_enabled or not delivery.can_respond
+	_button_delivery_cancel.disabled = _button_delivery_ok.disabled
+	_button_delivery_ok.tooltip_text = "Принять доставку за +%d$ до утра дня %d" % [delivery.bonus, delivery.deadline_day]
+	_button_delivery_cancel.tooltip_text = "Отказаться от доставки. Покупатель получит посылку обычным способом."
+
+
+func _present_notice(notice: TerminalPackageNotice) -> void:
+	var severity: TerminalPackageNotice.Severity = notice.severity if notice != null else TerminalPackageNotice.Severity.NONE
+	_alert_info.visible = severity == TerminalPackageNotice.Severity.INFO
+	_alert_warrning.visible = severity == TerminalPackageNotice.Severity.WARNING
+	_alert_critical.visible = severity == TerminalPackageNotice.Severity.CRITICAL
+	if notice != null and not notice.text.is_empty():
+		_button_body.tooltip_text += ("\n" if not _button_body.tooltip_text.is_empty() else "") + notice.text
+
+
+## Форматирует заявление игрока; фактическую выдачу и состояние раскрывает только debug_status.
 static func status_text(
 	record: PackageRegistrationRecord,
 	state: C_PackageState,
@@ -95,6 +167,11 @@ static func status_text(
 
 			CustomerVisit.Declaration.LOST:
 				return "ПОТЕРЯНА"
+	if record.number == 0:
+		if visit != null and visit.registration_overdue_day > 0:
+			return "ПРОСРОЧЕНА РЕГИСТРАЦИЯ"
+		if not debug_status:
+			return "НЕ ЗАРЕГИСТРИРОВАНА"
 	if not debug_status:
 		return "БЕЗ ОТМЕТКИ"
 	if visit != null:
@@ -127,6 +204,14 @@ static func status_text(
 	return " · ".join(parts)
 
 
+## Не выдаёт внутренний нулевой номер за номер заказа получателя.
+static func number_text(record: PackageRegistrationRecord) -> String:
+	return "№%03d" % record.number if record.number > 0 else "Без номера"
+
+
+#endregion
+
+#region Иконки и запросы действий
 func _set_status_icons(definition: DEF_Package) -> void:
 	var has_definition: bool = definition != null
 	var hazard_class: DEF_Package.HazardClass = (
@@ -195,3 +280,15 @@ func _on_refused_pressed() -> void:
 func _on_lost_pressed() -> void:
 	if not _package_id.is_empty():
 		lost_requested.emit(_package_id)
+
+
+func _on_delivery_accepted() -> void:
+	if _control_delivery.visible and not _button_delivery_ok.disabled and not _delivery_job_id.is_empty():
+		delivery_accepted.emit(_delivery_job_id)
+
+
+func _on_delivery_declined() -> void:
+	if _control_delivery.visible and not _button_delivery_cancel.disabled and not _delivery_job_id.is_empty():
+		delivery_declined.emit(_delivery_job_id)
+
+#endregion

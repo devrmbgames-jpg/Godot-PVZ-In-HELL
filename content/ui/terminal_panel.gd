@@ -1,8 +1,8 @@
 extends CanvasLayer
-## Package-centric warehouse terminal. Gameplay authority remains in package/customer/economy services.
+## Журнал коробок и финансов: отображает записи и передаёт заявления в сервисы обслуживания.
 class_name TerminalPanel
 
-## Explicit author/debug opt-in; a debug executable alone does not reveal parcel truth.
+## Авторское разрешение отладочного состояния коробок; debug-сборка сама по себе его не включает.
 @export var debug_package_status_enabled: bool = false
 
 enum SortMode {
@@ -38,6 +38,8 @@ const SORT_ICON_DESCENDING_PATH: String = "res://addons/at-icons/control/file_ar
 @onready var _orders_button: Button = %ButtonOrders
 @onready var _help_button: Button = %ButtonHelp
 
+
+
 var _reader: Entity = null
 var _package_line_scene: PackedScene = null
 var _capture_token: int = 0
@@ -51,9 +53,14 @@ var _info_mode: InfoMode = InfoMode.DETAIL
 var _last_data_signature: String = ""
 
 
-#region Lifecycle
+#region Жизненный цикл и обновление
 func _ready() -> void:
 	visible = false
+	var terminal: E_Terminal = get_parent() as E_Terminal
+	if terminal != null:
+		terminal.panel_open_requested.connect(open_for)
+		terminal.panel_close_requested.connect(close_panel)
+		terminal.panel_state_requested.connect(_record_panel_state)
 	var hint: InputPromptLabel = InputPromptLabel.new()
 	hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	hint.position = Vector2(-280, -65)
@@ -71,6 +78,7 @@ func _ready() -> void:
 	_show_transactions_button.pressed.connect(_on_show_transactions_pressed)
 	_orders_button.pressed.connect(_on_orders_pressed)
 	_help_button.pressed.connect(_on_help_pressed)
+	_package_detail.note_changed.connect(_on_note_changed)
 	_apply_sort_presentation()
 	_set_info_mode(InfoMode.DETAIL)
 
@@ -84,7 +92,7 @@ func _input(event: InputEvent) -> void:
 		return
 
 	var close_requested: bool = event.is_action_pressed(&"menu")
-	if not _package_find.has_focus():
+	if not _package_find.has_focus() and not _package_detail.is_editing_note():
 		close_requested = close_requested or event.is_action_pressed(&"interact")
 	if close_requested:
 		close_panel()
@@ -94,7 +102,7 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if not visible:
 		return
-	if not is_instance_valid(_reader) or not GrabService.holder_available(_reader):
+	if not is_instance_valid(_reader) or not GrabQueries.holder_available(_reader):
 		close_panel()
 		return
 
@@ -105,12 +113,13 @@ func _process(delta: float) -> void:
 #endregion
 
 
-#region Public UI API
+#region Открытие и закрытие
+## Открывает журнал для доступного актора, захватывает модальный фокус и публикует событие открытия.
 func open_for(actor: Entity) -> void:
 	if visible:
 		_refresh(true)
 		return
-	if not GrabService.holder_available(actor):
+	if not GrabQueries.holder_available(actor):
 		return
 
 	_reader = actor
@@ -125,14 +134,18 @@ func open_for(actor: Entity) -> void:
 	_refresh_remaining = 0.0
 	_last_data_signature = ""
 	_refresh(true)
+	_focus_selected_row()
 	PlayerInteractionEvents.publish(_reader, get_parent() as E_Terminal, PlayerInteractionEvent.Kind.TERMINAL_OPENED)
 
 
+## Освобождает токен фокуса, возвращает мышь и публикует закрытие один раз.
 func close_panel() -> void:
 	if not visible:
 		return
 
 	visible = false
+	_package_detail.end_editing()
+	_release_ui_focus()
 	InteractionControlFocus.release(_reader, _capture_token)
 	_capture_token = 0
 	var reader: Entity = _reader
@@ -142,10 +155,11 @@ func close_panel() -> void:
 #endregion
 
 
+#region Список посылок и сортировка
 func _refresh(force: bool = false) -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	_orders_button.disabled = CommerceService.current() == null or cycle == null or cycle.phase not in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.EVENING]
-	var ledger: C_PackageLedger = PackageRegistrationService.ledger()
+	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger == null:
 		_clear_package_rows()
 		_package_detail.clear_info()
@@ -153,20 +167,24 @@ func _refresh(force: bool = false) -> void:
 
 	var states: Dictionary[String, C_PackageState] = _live_states()
 	var visits: Dictionary[String, CustomerVisit] = _visits_by_package()
-	var signature: String = _data_signature(ledger, states, visits)
+	var deliveries: Dictionary[String, TerminalDeliveryInfo] = HomeDeliveryQueries.published_by_package(ledger, states, visits)
+	var signature: String = _data_signature(ledger, states, visits, deliveries)
 	if not force and signature == _last_data_signature:
 		return
 
-	_last_data_signature = signature
-	_rebuild_package_rows(ledger, states, visits)
-	_refresh_info(ledger, states, visits)
+	_rebuild_package_rows(ledger, states, visits, deliveries)
+	_refresh_info(ledger, states, visits, deliveries)
+	# Чтение подробностей могло снять непрочитанный статус во время пересборки.
+	_last_data_signature = _data_signature(ledger, states, visits, deliveries)
 
 
 func _rebuild_package_rows(
 	ledger: C_PackageLedger,
 	states: Dictionary[String, C_PackageState],
 	visits: Dictionary[String, CustomerVisit],
+	deliveries: Dictionary[String, TerminalDeliveryInfo],
 ) -> void:
+	var focused_package_id: String = _focused_package_id()
 	_clear_package_rows()
 	var records: Array[PackageRegistrationRecord] = _visible_records(ledger, states, visits)
 	var selected_visible: bool = false
@@ -177,15 +195,22 @@ func _rebuild_package_rows(
 	if not selected_visible:
 		_selected_package_id = records[0].package_id if not records.is_empty() else ""
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var actions_enabled: bool = cycle != null and cycle.phase != C_DayCycle.Phase.NIGHT
 	for record: PackageRegistrationRecord in records:
+		var delivery: TerminalDeliveryInfo = deliveries.get(record.package_id) as TerminalDeliveryInfo
+		var notice: TerminalPackageNotice = TerminalPackageNoticeService.present(record, visits.get(record.package_id) as CustomerVisit, delivery)
+		if visible and _info_mode == InfoMode.DETAIL and record.package_id == _selected_package_id and notice.severity != TerminalPackageNotice.Severity.NONE:
+			TerminalPackageNoticeService.mark_read(record.history_id, notice.event_ids)
+			notice = TerminalPackageNoticeService.present(record, visits.get(record.package_id) as CustomerVisit, delivery)
 		var line: UI_TerminalButtonPackage = _package_line_scene.instantiate() as UI_TerminalButtonPackage
 		_package_list.add_child(line)
 		line.package_selected.connect(_on_package_selected)
 		line.taken_requested.connect(_on_taken_requested)
 		line.refused_requested.connect(_on_refused_requested)
 		line.lost_requested.connect(_on_lost_requested)
+		line.delivery_accepted.connect(_on_delivery_accepted)
+		line.delivery_declined.connect(_on_delivery_declined)
 		line.present(
 			record,
 			states.get(record.package_id) as C_PackageState,
@@ -193,7 +218,11 @@ func _rebuild_package_rows(
 			record.package_id == _selected_package_id,
 			actions_enabled,
 			debug_package_status_enabled,
+			delivery,
+			notice,
 		)
+		if record.package_id == focused_package_id:
+			line.focus_row()
 
 
 func _visible_records(
@@ -224,8 +253,8 @@ func _matches_search(
 	needle: String,
 ) -> bool:
 	var definition: DEF_Package = record.definition
-	var haystack: String = "%03d %s %s %s %s %s" % [
-		record.number,
+	var haystack: String = "%s %s %s %s %s %s" % [
+		UI_TerminalButtonPackage.number_text(record),
 		record.package_id,
 		record.history_id,
 		definition.description if definition != null else "",
@@ -255,7 +284,7 @@ func _compare_records(first: PackageRegistrationRecord, second: PackageRegistrat
 			return _compare_int(first.number, second.number)
 
 		SortMode.DATE:
-			return _compare_int(first.day_index, second.day_index)
+			return _compare_int(_record_day(first), _record_day(second))
 
 		SortMode.TYPE:
 			var first_type: String = String(first_definition.key) if first_definition != null else ""
@@ -268,6 +297,10 @@ func _compare_records(first: PackageRegistrationRecord, second: PackageRegistrat
 				second_definition.accounting_value if second_definition != null else 0,
 			)
 	return 0
+
+
+static func _record_day(record: PackageRegistrationRecord) -> int:
+	return record.day_index if record.number > 0 else record.received_day
 
 
 static func _compare_int(first: int, second: int) -> int:
@@ -296,10 +329,14 @@ static func _is_archived(
 	return debug_status and not record.active
 
 
+#endregion
+
+#region Подробности и истории
 func _refresh_info(
 	ledger: C_PackageLedger,
 	states: Dictionary[String, C_PackageState],
 	visits: Dictionary[String, CustomerVisit],
+	deliveries: Dictionary[String, TerminalDeliveryInfo],
 ) -> void:
 	match _info_mode:
 		InfoMode.DETAIL:
@@ -312,6 +349,7 @@ func _refresh_info(
 					states.get(record.package_id) as C_PackageState,
 					visits.get(record.package_id) as CustomerVisit,
 					debug_package_status_enabled,
+					deliveries.get(record.package_id) as TerminalDeliveryInfo,
 				)
 		InfoMode.PACKAGE_HISTORY:
 			_package_history.present(
@@ -346,11 +384,11 @@ func _package_history_entries(
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
 		var visit: CustomerVisit = visits.get(record.package_id) as CustomerVisit
 		entries.append(
-			"День %d · UID %s · №%03d\n%s · %s"
+			"День %d · UID %s · %s\n%s · %s"
 			% [
-				record.day_index,
+				_record_day(record),
 				uid,
-				record.number,
+				UI_TerminalButtonPackage.number_text(record),
 				title,
 				UI_TerminalButtonPackage.status_text(record, state, visit, debug_package_status_enabled),
 			]
@@ -362,8 +400,8 @@ static func _history_record_before(
 	first: PackageRegistrationRecord,
 	second: PackageRegistrationRecord,
 ) -> bool:
-	if first.day_index != second.day_index:
-		return first.day_index > second.day_index
+	if _record_day(first) != _record_day(second):
+		return _record_day(first) > _record_day(second)
 	return first.number > second.number
 
 
@@ -443,22 +481,26 @@ static func _is_credit(reason: MoneyOperation.Reason) -> bool:
 
 static func _help_entries() -> PackedStringArray:
 	return PackedStringArray([
-		"Выберите зарегистрированную посылку слева, чтобы увидеть подробности.",
+		"Выберите поступившую посылку слева, чтобы увидеть подробности. До сканирования она показывается без номера выдачи.",
 		"Три кнопки в строке — единственные Terminal outcome-действия: Забрали, Отказались, Потеряли.",
 		"Поиск фильтрует список. Сортировку можно менять по весу, номеру, дате, типу и цене.",
 		"Архив показывает записи, для которых outcome уже отмечен.",
 		"Отказная посылка не выкупается и не возвращается кнопкой Terminal. Её будущий исход определяется физической утренней выгрузкой/машиной/трешером.",
-		"Если due-посылку не зарегистрировать до следующего Morning, она автоматически считается потерянной с отдельным штрафом MISSED_REGISTRATION.",
+		"Пропущенный срок регистрации вызывает отдельный штраф. Посылку он не удаляет и потерю за игрока не объявляет.",
+		"Потерю поступившей посылки можно заявить до регистрации и прихода клиента. Выдача и отказ доступны после начала визита.",
 	])
 
 
+#endregion
+
+#region Снимок данных и видимость панелей
 func _live_states() -> Dictionary[String, C_PackageState]:
-	return PackageRegistrationService.live_states()
+	return PackageQueries.live_states()
 
 
 func _visits_by_package() -> Dictionary[String, CustomerVisit]:
 	var result: Dictionary[String, CustomerVisit] = {}
-	var flow: C_CustomerFlow = CustomerFlowService.current()
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow == null:
 		return result
 
@@ -467,15 +509,37 @@ func _visits_by_package() -> Dictionary[String, CustomerVisit]:
 	return result
 
 
+## Производная подпись UI ограничивает пересборку строк; не служит игровым журналом или сохранением.
 func _data_signature(
 	ledger: C_PackageLedger,
 	states: Dictionary[String, C_PackageState],
 	visits: Dictionary[String, CustomerVisit],
+	deliveries: Dictionary[String, TerminalDeliveryInfo] = {},
 ) -> String:
 	var parts: PackedStringArray = ["debug:%s" % debug_package_status_enabled]
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	parts.append("phase:%d" % (cycle.phase if cycle != null else -1))
 	for record: PackageRegistrationRecord in ledger.records:
 		var state: C_PackageState = states.get(record.package_id) as C_PackageState
 		var visit: CustomerVisit = visits.get(record.package_id) as CustomerVisit
+		parts.append("note:%d" % record.note.hash())
+		parts.append("read:" + "\n".join(record.read_event_ids))
+		var delivery: TerminalDeliveryInfo = deliveries.get(record.package_id) as TerminalDeliveryInfo
+		if delivery != null:
+			parts.append("delivery:%s:%d:%d:%d:%s:%s" % [delivery.job_id, delivery.status, delivery.bonus, delivery.deadline_day, delivery.can_respond, delivery.address])
+		var complaint: CustomerComplaint = visit.complaint if visit != null else null
+		if complaint != null:
+			parts.append("complaint:%s:%d:%d:%d:%d:%d:%d" % [
+				complaint.complaint_id, complaint.reason, complaint.outcome,
+				complaint.created_day, complaint.money_delta,
+				complaint.customer_name.hash(), complaint.message.hash(),
+			])
+		parts.append("receipt:%d:%d:%d:%s" % [
+			record.received_day,
+			record.day_index,
+			visit.registration_overdue_day if visit != null else 0,
+			visit.registration_money_delta if visit != null else 0,
+		])
 		parts.append(
 			"%s:%s:%d:%d:%d:%d:%d:%d:%d"
 			% [
@@ -511,6 +575,29 @@ func _clear_designer_rows() -> void:
 	_clear_package_rows()
 
 
+func _focused_package_id() -> String:
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	for child: Node in _package_list.get_children():
+		if child is UI_TerminalButtonPackage and focus_owner != null and child.is_ancestor_of(focus_owner):
+			return (child as UI_TerminalButtonPackage).package_id()
+	return ""
+
+
+func _focus_selected_row() -> void:
+	for child: Node in _package_list.get_children():
+		if child is UI_TerminalButtonPackage and (child as UI_TerminalButtonPackage).package_id() == _selected_package_id:
+			(child as UI_TerminalButtonPackage).focus_row()
+			return
+
+
+func _release_ui_focus() -> void:
+	if not is_inside_tree():
+		return
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	if focus_owner != null and is_ancestor_of(focus_owner):
+		focus_owner.release_focus()
+
+
 func _clear_package_rows() -> void:
 	for child: Node in _package_list.get_children():
 		_package_list.remove_child(child)
@@ -525,6 +612,14 @@ func _set_info_mode(mode: InfoMode) -> void:
 		or mode == InfoMode.HELP
 	)
 	_transaction_history.visible = mode == InfoMode.TRANSACTIONS
+
+
+#endregion
+
+#region Запросы пользователя
+func _on_note_changed(history_id: String, text: String) -> void:
+	if not PackageHistoryService.update_note(history_id, text):
+		push_warning("Terminal note rejected for history %s" % history_id)
 
 
 func _on_package_selected(package_id: String) -> void:
@@ -545,6 +640,27 @@ func _on_lost_requested(package_id: String) -> void:
 	_declare_package(package_id, CustomerVisit.Declaration.LOST)
 
 
+func _on_delivery_accepted(job_id: StringName) -> void:
+	_respond_delivery(job_id, true)
+
+
+func _on_delivery_declined(job_id: StringName) -> void:
+	_respond_delivery(job_id, false)
+
+
+func _respond_delivery(job_id: StringName, accept_delivery: bool) -> void:
+	if not visible:
+		return
+	var job: NpcHomeDelivery = HomeDeliveryQueries.find(job_id)
+	if job == null or not job.published:
+		return
+	_selected_package_id = job.package_id
+	_set_info_mode(InfoMode.DETAIL)
+	NpcDeliveryOfferService.respond_published(job_id, accept_delivery)
+	_refresh(true)
+
+
+## Запрашивает заявление в журнале обслуживания; физическую выдачу коробки не выполняет.
 func _declare_package(
 	package_id: String,
 	declaration: CustomerVisit.Declaration,
@@ -632,4 +748,15 @@ func _on_orders_pressed() -> void:
 
 	var actor: Entity = _reader
 	close_panel()
-	CommercePanelService.open(actor, null, true)
+	CommercePanelFactory.open(actor, null, true)
+
+
+
+
+#endregion
+
+
+#region Native terminal visibility response
+func _record_panel_state(query: TerminalPanelStateQuery) -> void:
+	query.record_open(visible)
+#endregion

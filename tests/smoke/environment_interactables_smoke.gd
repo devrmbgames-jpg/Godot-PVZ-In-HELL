@@ -1,5 +1,5 @@
 extends Node
-## Jolt must enforce door/window hinges and drawer limits/obstructions.
+## Проверяет физические шарниры дверей/окон, пределы ящика и блокирование закрытия предметом в Jolt.
 
 const SETTLE_FRAMES: int = 180
 const ENDPOINT_TOLERANCE: float = 0.02
@@ -7,17 +7,19 @@ const ENDPOINT_TOLERANCE: float = 0.02
 var _world: World = null
 
 
+#region Физический сценарий
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет авторские пределы joint, физические помехи закрытию и устойчивость к импульсу.
 func _run() -> void:
 	_world = World.new()
 	add_child(_world)
 	ECS.world = _world
-	var door: E_Openable = _spawn("res://content/entities/doors/door_template.tscn", Vector3.ZERO)
-	var window: E_Openable = _spawn("res://content/entities/props/window.tscn", Vector3(4, 1, 0))
-	var drawer: E_Openable = _spawn("res://content/entities/props/drawer.tscn", Vector3(7, 1.5, 0))
+	var door: E_Openable = _spawn("res://content/domains/interaction/entities/door_template.tscn", Vector3.ZERO)
+	var window: E_Openable = _spawn("res://content/domains/interaction/entities/window.tscn", Vector3(4, 1, 0))
+	var drawer: E_Openable = _spawn("res://content/domains/interaction/entities/drawer.tscn", Vector3(7, 1.5, 0))
 	for actor: E_Openable in [door, window, drawer]:
 		(actor.get_component(C_Openable) as C_Openable).requested_open = true
 	await _frames(SETTLE_FRAMES)
@@ -51,6 +53,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Тестовые тела и ожидание
 func _frames(count: int) -> void:
 	for frame: int in count:
 		await get_tree().physics_frame
@@ -74,3 +79,5 @@ func _box(position: Vector3, size: Vector3) -> StaticBody3D:
 	body.position = position
 	_world.add_child(body)
 	return body
+
+#endregion

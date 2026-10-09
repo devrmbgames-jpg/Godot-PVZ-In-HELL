@@ -1,17 +1,19 @@
 extends GutTest
-## Regression checks for R08 parcel toughness, impact caps and authored thresholds.
+## Проверяет авторскую стойкость коробок, предел урона одного контакта и пороги видимого повреждения.
 
 const REGULAR: DEF_ImpactProfile = preload(
-	"res://content/definitions/gameplay/def_impact_default.tres"
+	"res://content/domains/combat/definitions/def_impact_default.tres"
 )
 const FRAGILE: DEF_ImpactProfile = preload(
-	"res://content/definitions/gameplay/def_impact_fragile.tres"
+	"res://content/domains/combat/definitions/def_impact_fragile.tres"
 )
 const SUPPLY: DEF_Delivery = preload(
-	"res://content/definitions/gameplay/deliveries/def_delivery_morning_supply.tres"
+	"res://content/domains/packages/definitions/def_delivery_morning_supply.tres"
 )
 
 
+#region Авторский баланс физических контактов
+## Обычная коробка поглощает слабый квалифицируемый контакт, в отличие от хрупкой.
 func test_light_impacts_are_absorbed_by_regular_parcels() -> void:
 	var regular: ImpactResult = ImpactCalculation.evaluate(10.0, 10.0, 40.0, REGULAR)
 	var fragile: ImpactResult = ImpactCalculation.evaluate(10.0, 10.0, 40.0, FRAGILE)
@@ -21,17 +23,20 @@ func test_light_impacts_are_absorbed_by_regular_parcels() -> void:
 	assert_gt(fragile.amount, 0.0)
 
 
+## Авторский предел ограничивает урон одного удара обычной коробке.
 func test_regular_hit_cap_blocks_single_impact_destruction() -> void:
 	assert_almost_eq(ImpactCalculation.cap_damage(100.0, 100.0, REGULAR), 7.5, 0.001)
 	assert_eq(ImpactCalculation.cap_damage(5.0, 100.0, REGULAR), 5.0)
 
 
+## Предел хрупкой коробки масштабируется по её эффективному максимальному HP.
 func test_fragile_hit_cap_scales_with_effective_max_health() -> void:
 	assert_almost_eq(FRAGILE.max_hp_fraction_per_hit, 0.15, 0.001)
 	assert_almost_eq(ImpactCalculation.cap_damage(100.0, 100.0, FRAGILE), 15.0, 0.001)
 	assert_almost_eq(ImpactCalculation.cap_damage(100.0, 40.0, FRAGILE), 6.0, 0.001)
 
 
+## Одинаковый контакт даёт больший урон хрупкому профилю.
 func test_fragile_profiles_are_more_sensitive_than_regular_profiles() -> void:
 	var regular: ImpactResult = ImpactCalculation.evaluate(10.0, 10.0, 80.0, REGULAR)
 	var fragile: ImpactResult = ImpactCalculation.evaluate(10.0, 10.0, 80.0, FRAGILE)
@@ -40,6 +45,7 @@ func test_fragile_profiles_are_more_sensitive_than_regular_profiles() -> void:
 	assert_gt(fragile.amount, regular.amount)
 
 
+## В авторском ассортименте хрупкие коробки раньше показывают видимое повреждение.
 func test_fragile_supply_uses_earlier_visible_damage_threshold() -> void:
 	var regular_definition: DEF_Package = DEF_Package.new()
 	assert_almost_eq(regular_definition.damaged_health_ratio, 0.60, 0.001)
@@ -54,3 +60,5 @@ func test_fragile_supply_uses_earlier_visible_damage_threshold() -> void:
 			assert_almost_eq(definition.damaged_health_ratio, 0.60, 0.001)
 	assert_eq(checked_fragile, 4)
 	assert_eq(checked_regular, 4)
+
+#endregion

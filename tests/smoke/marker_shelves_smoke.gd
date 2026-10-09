@@ -1,13 +1,15 @@
 extends Node
-## Real physics-ray regression for hand mapping, marker ink, occlusion and lifecycle.
+## Проверяет сопоставление рук, физические лучи рисования, локальные чернила и хранение коробки на полке.
 
 const STEP: float = 1.0 / 60.0
 
 
+#region Исторический сценарий рисования
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проводит исторический сценарий рисования, хранения и разрушения коробки в main_level.
 func _run() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
@@ -15,14 +17,14 @@ func _run() -> void:
 	level.set_physics_process(false)
 	for tick: int in 12:
 		await get_tree().physics_frame
-		ECS.world.process(STEP, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, STEP)
 
 	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var actor_body: RigidBody3D = actor as Node as RigidBody3D
 	actor_body.freeze = true
 	actor_body.position = Vector3(20, 20, 20)
 	var camera: Camera3D = get_viewport().get_camera_3d()
-	var ray: RayCast3D = GrabService.interaction_raycast(actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(actor)
 	var marker_tool: Entity = level.get_node("Entityes/Marker") as Entity
 	var scanner: Entity = level.get_node("Entityes/Scanner") as Entity
 	var parcel: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
@@ -54,7 +56,7 @@ func _run() -> void:
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	assert(state.registration_number == 1, "Scan before drawing must register the package")
 	(scanner.get_node("Feedback/Beep") as AudioStreamPlayer3D).stop()
-	var registry: C_PackageLedger = PackageRegistrationService.ledger()
+	var registry: C_PackageLedger = PackageQueries.ledger()
 	assert(registry != null and registry.records.size() == 1)
 	var registered_package_id: String = registry.records[0].package_id
 	var registered_number: int = registry.records[0].number
@@ -118,10 +120,10 @@ func _run() -> void:
 	_drive(actor, false, false)
 	controller.interact_pressed = false
 	assert(marker.capture_token == 0, "E exits without releasing or replacing the marker")
-	assert(GrabService.held_in_slot(actor, C_Grabbable.HoldSlot.LEFT_HAND) == marker_tool)
+	assert(GrabQueries.held_in_slot(actor, C_Grabbable.HoldSlot.LEFT_HAND) == marker_tool)
 	control.swap_hand_controls = false
-	GrabService.release(actor, scanner)
-	GrabService.release(actor, marker_tool)
+	GrabReleaseService.release(actor, scanner)
+	GrabReleaseService.release(actor, marker_tool)
 	ray.look_at((marker_tool as Node as Node3D).global_position)
 	assert(GrabService.try_pickup(actor, marker_tool, C_Grabbable.HoldSlot.RIGHT_HAND))
 	ray.look_at(camera.global_position + Vector3(0, 0, -2))
@@ -145,7 +147,7 @@ func _run() -> void:
 	controller.cancel_pressed = false
 	_drive(actor, true, false)
 	assert(marker.capture_token != 0, "Reentering after Escape must work")
-	GrabService.release(actor, marker_tool)
+	GrabReleaseService.release(actor, marker_tool)
 	_drive(actor, false, false)
 	assert(marker.capture_token == 0, "Lost ownership cancels capture")
 	assert(InteractionControlFocus.current(actor) == InteractionControlFocus.Priority.HANDS)
@@ -174,7 +176,7 @@ func _run() -> void:
 	damage.target = parcel
 	damage.amount = 10000.0
 	DamageRequestService.submit(damage)
-	ECS.world.process(STEP, "GamePlay")
+	GameTimeFixture.gameplay(ECS.world, STEP)
 	assert(state.damage == C_PackageState.Damage.DESTROYED)
 	assert(marks.point_count == 0 and marks.strokes.is_empty())
 	await get_tree().process_frame
@@ -189,6 +191,10 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Тестовое рисование и полка
+## Рисует тестовую семёрку через обычный ввод маркера и экранные координаты.
 func _draw_seven(actor: Entity, marker: C_Marker, parcel_body: Node3D, camera: Camera3D) -> void:
 	_drive(actor, false, false)
 	var corners: Array[Vector3] = [
@@ -203,6 +209,7 @@ func _draw_seven(actor: Entity, marker: C_Marker, parcel_body: Node3D, camera: C
 			_drive(actor, true, false)
 
 
+## Проверяет реальную опору и сохранение чернил; --preview отдельно включает визуальный снимок.
 func _store_on_shelf(
 	level: Node,
 	actor: Entity,
@@ -222,14 +229,14 @@ func _store_on_shelf(
 	parcel_body.freeze = false
 	parcel_body.linear_velocity = Vector3.ZERO
 	parcel_body.angular_velocity = Vector3.ZERO
-	var ray: RayCast3D = GrabService.interaction_raycast(actor)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(actor)
 	ray.look_at(parcel_body.global_position + Vector3(0, 0.2, 0))
 	await get_tree().physics_frame
 
 	var parcel: Entity = parcel_body as Node as Entity
 	assert(GrabService.try_pickup(actor, parcel, C_Grabbable.HoldSlot.CARRY))
 	var point_count: int = marks.point_count
-	GrabService.release(actor, parcel)
+	GrabReleaseService.release(actor, parcel)
 	for tick: int in 90:
 		await get_tree().physics_frame
 
@@ -269,3 +276,5 @@ func _drive(actor: Entity, primary: bool, secondary: bool) -> void:
 	controller.action_second_held = secondary
 	controller.action_second_pressed = secondary
 	ECS.world.process(STEP, "Interaction")
+
+#endregion

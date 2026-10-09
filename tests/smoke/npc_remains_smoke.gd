@@ -1,5 +1,5 @@
 extends Node
-## Actual main-scene death wiring and consumable remains, separate from full-slice owner QA.
+## Smoke смерти клиента в основной сцене, сохранности физического мяса и обычного употребления.
 
 const FRAME_DELTA: float = 1.0 / 60.0
 const SUPPLY_FRAMES: int = 900
@@ -8,6 +8,7 @@ const TEST_HUNGER: float = 80.0
 var _level: Node
 
 
+#region Сценарий настоящей смерти и употребления
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -20,37 +21,37 @@ func _run() -> void:
 	var actor: Entity = _level.get_node("Entityes/Player") as Entity
 	(actor as Node).set_physics_process(false)
 	for frame: int in SUPPLY_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
-		if CustomerFlowService.parcel_for("base_supply:1:oil") != null:
+		if PackageQueries.find_live_package("base_supply:1:oil") != null:
 			break
 
-	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:oil")
+	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:oil")
 	assert(parcel != null)
 	assert(PackageRegistrationService.register_package(parcel).outcome == PackageScanResult.Outcome.REGISTERED)
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.kind = DayTransitionRequest.Kind.START_SHIFT
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
 	assert(DayPhaseService.submit(request))
 
-	var npc: E_Customer = null
+	var npc: E_NpcCharacter = null
 	for frame: int in SUPPLY_FRAMES:
-		ECS.world.process(FRAME_DELTA, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
 		await get_tree().physics_frame
-		npc = ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_Customer
+		npc = ECS.world.query.with_all([C_CustomerAgent]).execute_one() as E_NpcCharacter
 		if npc != null:
 			break
 
 	assert(npc != null)
-	var visit: CustomerVisit = CustomerFlowService.find_visit((npc.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit((npc.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id)
 	assert(CombatService.hit(actor, actor, npc, 200.0))
 	assert(npc.has_component(C_Death))
 	assert((npc.get_component(C_NpcRemains) as C_NpcRemains).released)
 	assert(not (npc as Node as Node3D).visible)
-	ECS.world.process(FRAME_DELTA, "GamePlay")
-	assert(CustomerFlowService.customer_for(visit.visit_id) == null)
+	GameTimeFixture.gameplay(ECS.world, FRAME_DELTA)
+	assert(CustomerFlowQueries.customer_for(visit.visit_id) == null)
 	assert(visit.customer_dead and visit.defeated_by_player)
 
 	var meat: Array[Entity] = []
@@ -79,3 +80,5 @@ func _run() -> void:
 	await get_tree().process_frame
 	print("NPC remains actual main death cleanup physical meat inventory eating smoke PASS")
 	get_tree().quit.call_deferred()
+
+#endregion

@@ -1,13 +1,16 @@
 extends Node
+## Ручной визуальный runner HUD: запускает уровень и сохраняет PNG после отрисовки; не является headless-проверкой.
 
 
+#region Ручной снимок HUD
+## Начинает смену и записывает viewport в tests/artifacts/hud_preview.png после frame_post_draw.
 func _ready() -> void:
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
 	add_child(level)
 	for frame_index: int in 8:
 		await get_tree().process_frame
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var request: DayTransitionRequest = DayTransitionRequest.new()
 	request.expected_day = cycle.day_index
 	request.expected_phase = cycle.phase
@@ -21,3 +24,5 @@ func _ready() -> void:
 	assert(save_error == OK)
 	print("HUD preview saved")
 	get_tree().quit()
+
+#endregion

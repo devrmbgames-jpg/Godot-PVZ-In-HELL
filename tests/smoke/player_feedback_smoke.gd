@@ -1,12 +1,15 @@
 extends Node
+## Исторический сценарий HUD, сканера, обратной связи урона и подсказки замка в основной сцене.
 
 const MAX_FRAMES: int = 600
 
 
+#region Исторический сценарий обратной связи
 func _ready() -> void:
 	_run.call_deferred()
 
 
+## Проверяет производный HUD и предупреждения без изменения здоровья отключением UI.
 func _run() -> void:
 	var level: Node = (load("res://content/scenes/main_level.tscn") as PackedScene).instantiate()
 	level.set("autosave_path", "")
@@ -18,19 +21,19 @@ func _run() -> void:
 	hud.set("debug_status_enabled", false)
 	hud.set("challenge_debug_enabled", false)
 	for frame: int in MAX_FRAMES:
-		ECS.world.process(1.0 / 60.0, "GamePlay")
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 		await get_tree().physics_frame
 		if ECS.world.query.with_all([C_Package]).execute().size() == 8:
 			break
 
-	assert(CustomerFlowService.parcel_for("base_supply:1:glass") != null)
+	assert(PackageQueries.find_live_package("base_supply:1:glass") != null)
 	var health: C_Health = player.get_component(C_Health) as C_Health
 	var hunger: C_Hunger = player.get_component(C_Hunger) as C_Hunger
 	health.current = health.value * 0.5
 	hunger.value = hunger.policy.starving_threshold
 	WalletService.current().balance = -321
 	WalletService.current().penalties = 60
-	var parcel: Entity = CustomerFlowService.parcel_for("base_supply:1:glass")
+	var parcel: Entity = PackageQueries.find_live_package("base_supply:1:glass")
 	var condition: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	condition.damage = C_PackageState.Damage.DAMAGED
 	condition.opening = C_PackageState.Opening.OPENED
@@ -52,7 +55,7 @@ func _run() -> void:
 		assert(label.visible and label.billboard == BaseMaterial3D.BILLBOARD_DISABLED)
 		assert(label.text.contains("ХРУПКОЕ") and label.text.contains("Повреждена") and label.text.contains("Вскрыта"))
 	for shipment: String in ["equipment", "oil"]:
-		var other: Entity = CustomerFlowService.parcel_for("base_supply:1:" + shipment)
+		var other: Entity = PackageQueries.find_live_package("base_supply:1:" + shipment)
 		var label: Label3D = (other as E_Package).get_marking_surface().get_node("PackageLabel0") as Label3D
 		assert(label.text.contains("ТЯЖЁЛОЕ" if shipment == "equipment" else "ЖИДКОСТЬ"))
 	await _check_damage(player, hud, parcel)
@@ -82,6 +85,9 @@ func _run() -> void:
 	get_tree().quit()
 
 
+#endregion
+
+#region Урон и доступ к двери
 func _check_damage(player: Entity, hud: CanvasLayer, parcel: Entity) -> void:
 	var view: DamageFeedbackView = hud.get_node("DamageFeedback") as DamageFeedbackView
 	var warning: Label = view.get_node("Warning") as Label
@@ -119,13 +125,14 @@ func _check_damage(player: Entity, hud: CanvasLayer, parcel: Entity) -> void:
 	assert(view.find_children("WorldDamageLabel*", "Label3D", false, false).is_empty())
 
 
+## Явно синхронизирует тестовую дверь и проверяет подсказку доступа по ключу.
 func _check_locked_prompt(level: Node, player: Entity) -> void:
 	var door: Entity = level.get_node("Entityes/DoorTemplate") as Entity
 	var state: C_Openable = door.get_component(C_Openable) as C_Openable
 	state.locked = true
 	state.access = DEF_AccessRequirement.new()
 	state.access.required_item_id = &"feedback_key"
-	# Fixture relocation is an explicit synchronization of the native door leaf.
+	# Тестовое перемещение явно синхронизирует физическое полотно двери.
 	(door as Node as AnimatableBody3D).sync_to_physics = false
 	(door as Node as Node3D).global_transform = Transform3D(Basis.IDENTITY, Vector3(16, 0, 2))
 
@@ -135,7 +142,7 @@ func _check_locked_prompt(level: Node, player: Entity) -> void:
 	var point: Vector3 = (door as Node as Node3D).global_position + Vector3(0.8, 1.4, 0)
 	await _aim(player, point)
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	assert(interactor.target == door, "door target=%s collider=%s point=%s leaf=%s" % [interactor.target, GrabService.interaction_raycast(player).get_collider(), point, leaf.global_position])
+	assert(interactor.target == door, "door target=%s collider=%s point=%s leaf=%s" % [interactor.target, GrabQueries.interaction_raycast(player).get_collider(), point, leaf.global_position])
 	InteractionActionResolver.refresh_prompt(player)
 	assert(interactor.prompt_text.contains("Заперто") and not interactor.prompt_text.contains("Отпереть"))
 	assert(state.locked)
@@ -153,11 +160,11 @@ func _check_locked_prompt(level: Node, player: Entity) -> void:
 	assert(interactor.prompt_text.contains("Отпереть") and not interactor.prompt_text.contains("Заперто"))
 	assert(not interactor.prompt_text.contains("Контекст"))
 	assert(state.locked, "Presentation must not unlock the door")
-	GrabService.release(player, hammer)
+	GrabReleaseService.release(player, hammer)
 
 
 func _aim(player: Entity, point: Vector3) -> void:
-	var ray: RayCast3D = GrabService.interaction_raycast(player)
+	var ray: RayCast3D = GrabQueries.interaction_raycast(player)
 	(player as Node as RigidBody3D).global_position = point + Vector3.BACK * 1.5
 	ray.global_position = point + Vector3.BACK * 1.5
 	ray.look_at(point, Vector3.UP)
@@ -167,5 +174,7 @@ func _aim(player: Entity, point: Vector3) -> void:
 	ray.force_raycast_update()
 
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
-	interactor.target = InteractionTargetingService.find_target(player, interactor)
-	interactor.physics_target = InteractionTargetingService.find_physics_target(player, interactor)
+	interactor.target = InteractionTargetingGeometry.find_target(player, interactor)
+	interactor.physics_target = InteractionTargetingGeometry.find_physics_target(player, interactor)
+
+#endregion

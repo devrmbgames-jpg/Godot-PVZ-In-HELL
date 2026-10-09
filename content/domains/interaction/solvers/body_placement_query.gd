@@ -1,0 +1,88 @@
+extends RefCounted
+## Проверяет пересечения на концах и swept-путь; вращение ограничивает консервативной
+## охватывающей сферой, чтобы промежуточный поворот не прошёл сквозь препятствие.
+class_name BodyPlacementQuery
+
+const ROTATION_EPSILON: float = 0.001
+
+
+#region Физическая проверка пути
+## Проверяет путь от текущего transform без перемещения тела; mask задаёт слои, margin — зазор в метрах.
+static func clear_path(body: RigidBody3D, destination: Transform3D, excluded: Array[RID], mask: int, margin: float) -> bool:
+	if not is_instance_valid(body):
+		return false
+	return clear_path_from(body, body.global_transform, destination, excluded, mask, margin)
+
+
+## Проверяет сегмент предполагаемого пути без перемещения физического тела.
+static func clear_path_from(body: RigidBody3D, start: Transform3D, destination: Transform3D, excluded: Array[RID], mask: int, margin: float) -> bool:
+	if not is_instance_valid(body) or not body.is_inside_tree() or not destination.is_finite():
+		return false
+	if not start.is_finite():
+		return false
+
+	var space: PhysicsDirectSpaceState3D = body.get_world_3d().direct_space_state
+	var moving_rotation: bool = not start.basis.is_equal_approx(destination.basis)
+	var count: int = 0
+	var radius: float = 0.0
+	for owner_id: int in body.get_shape_owners():
+		if body.is_shape_owner_disabled(owner_id):
+			continue
+
+		var local: Transform3D = body.shape_owner_get_transform(owner_id)
+		for index: int in body.shape_owner_get_shape_count(owner_id):
+			var shape: Shape3D = body.shape_owner_get_shape(owner_id, index)
+			# Подвижное жёсткое тело должно иметь ограниченные выпуклые collision shapes.
+			if shape == null or shape is ConcavePolygonShape3D or shape is WorldBoundaryShape3D:
+				return false
+
+			count += 1
+			var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+			query.shape = shape
+			query.transform = destination * local
+			query.exclude = excluded
+			query.collision_mask = mask
+			query.margin = margin
+			if not space.intersect_shape(query, 1).is_empty():
+				return false
+
+			query.transform = start * local
+			if not space.intersect_shape(query, 1).is_empty():
+				return false
+			if not moving_rotation:
+				query.motion = destination.origin - start.origin
+				var fractions: PackedFloat32Array = space.cast_motion(query)
+				if fractions.size() != 2 or fractions[0] < 1.0:
+					return false
+			else:
+				var bounds: AABB = shape.get_debug_mesh().get_aabb()
+				for corner: int in 8:
+					var offset: Vector3 = local * bounds.get_endpoint(corner)
+					radius = maxf(radius, (start.basis * offset).length())
+					radius = maxf(radius, (destination.basis * offset).length())
+	if count == 0:
+		return false
+	if moving_rotation:
+		var sphere: SphereShape3D = SphereShape3D.new()
+		sphere.radius = maxf(radius, ROTATION_EPSILON)
+		var sweep: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+		sweep.shape = sphere
+		sweep.transform = Transform3D(Basis.IDENTITY, start.origin)
+		sweep.exclude = excluded
+		sweep.collision_mask = mask
+		sweep.margin = margin
+		if not space.intersect_shape(sweep, 1).is_empty():
+			return false
+
+		sweep.motion = destination.origin - start.origin
+		var fractions: PackedFloat32Array = space.cast_motion(sweep)
+		if fractions.size() != 2 or fractions[0] < 1.0:
+			return false
+
+		sweep.motion = Vector3.ZERO
+		sweep.transform.origin = destination.origin
+		if not space.intersect_shape(sweep, 1).is_empty():
+			return false
+	return true
+
+#endregion

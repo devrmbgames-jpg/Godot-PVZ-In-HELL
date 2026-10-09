@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Project-owned DialogueManager presentation. It owns modal input only, never gameplay facts.
+## Показывает DialogueManager и владеет модальным вводом; игровые факты принадлежат контексту и сервисам.
 class_name CustomerDialoguePanel
 
 const PANEL_MIN_WIDTH: float = 720.0
@@ -15,6 +15,7 @@ var _capture_token: int = 0
 var _previous_mouse_mode: Input.MouseMode = Input.MOUSE_MODE_CAPTURED
 var _input_enabled: bool = false
 var _closed: bool = false
+var _advancing: bool = false
 
 var _speaker: Label = null
 var _text: RichTextLabel = null
@@ -23,6 +24,7 @@ var _continue_button: Button = null
 var _close_button: Button = null
 
 
+#region Жизненный цикл и модальный ввод
 func _ready() -> void:
 	add_to_group(ACTIVE_GROUP)
 	layer = 90
@@ -42,7 +44,7 @@ func _process(_delta: float) -> void:
 		return
 	if (
 		not is_instance_valid(_actor)
-		or not GrabService.holder_available(_actor)
+		or not GrabQueries.holder_available(_actor)
 		or _context == null
 		or not _context.can_continue()
 	):
@@ -66,6 +68,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_advance(_line.next_id)
 
 
+## Захватывает модальный ввод, показывает курсор и начинает cue; false означает отказ захвата.
 func open_for(
 	actor: Entity,
 	context: NpcDialogueContext,
@@ -94,6 +97,12 @@ func open_for(
 	return true
 
 
+## Проверяет представляемого собеседника; Relationships по-прежнему владеют разговором.
+func speaks_with(npc: Entity) -> bool:
+	return not _closed and _context != null and _context.speaks_with(npc)
+
+
+## Освобождает ввод и ресурс, завершает контекст и удаляет панель; повтор безопасен.
 func close_dialogue() -> void:
 	_close_internal(true)
 	if not is_queued_for_deletion():
@@ -101,19 +110,31 @@ func close_dialogue() -> void:
 
 
 func _enable_input() -> void:
-	_input_enabled = true
+	if not _closed:
+		_input_enabled = true
 
 
+#endregion
+
+#region Реплики и ответы
 func _advance(next_id: String) -> void:
-	if _closed or _resource == null or _context == null:
+	if _closed or _advancing or _resource == null or _context == null:
 		return
 
+	_advancing = true
 	var resource: DialogueResource = _resource
-	_line = await resource.get_next_dialogue_line(next_id, [{ "ctx": _context }])
-	if _closed:
+	var session_context: NpcDialogueContext = _context
+	var next_line: DialogueLine = await resource.get_next_dialogue_line(
+		next_id, [{ "ctx": session_context }]
+	)
+	_advancing = false
+	if _closed or _context != session_context or not session_context.can_continue():
 		DialogueResourceLifecycle.release_runtime_references(resource)
 		_line = null
+		if not _closed:
+			close_dialogue()
 		return
+	_line = next_line
 	if _line == null:
 		close_dialogue()
 		return
@@ -145,7 +166,7 @@ func _render_line() -> void:
 		_continue_button.grab_focus()
 
 
-## Presentation only: keep the authored response and its routing tags untouched.
+## Добавляет подсказку к ответу, не меняя его авторский текст и теги перехода.
 static func format_response_text(text: String, tags: PackedStringArray) -> String:
 	var prefix: String = ""
 	match CustomerDialogueIntent.from_tags(tags):
@@ -167,15 +188,19 @@ static func format_response_text(text: String, tags: PackedStringArray) -> Strin
 
 
 func _on_response_pressed(response: DialogueResponse) -> void:
-	if response == null:
+	if _closed or _advancing or response == null or _context == null:
 		return
 
-	_context.apply_response_tags(response.tags)
-	_advance(response.next_id)
+	var session_context: NpcDialogueContext = _context
+	if not session_context.can_continue() or not session_context.apply_response_tags(response.tags):
+		close_dialogue()
+		return
+	if not _closed and _context == session_context:
+		_advance(response.next_id)
 
 
 func _on_continue_pressed() -> void:
-	if _line != null and _line.responses.is_empty():
+	if not _closed and not _advancing and _line != null and _line.responses.is_empty():
 		_continue_button.disabled = true
 		_advance(_line.next_id)
 
@@ -186,6 +211,9 @@ func _clear_responses() -> void:
 		child.queue_free()
 
 
+#endregion
+
+#region Освобождение и построение интерфейса
 func _close_internal(return_to_service: bool) -> void:
 	if _closed:
 		return
@@ -195,8 +223,11 @@ func _close_internal(return_to_service: bool) -> void:
 	if _capture_token != 0 and is_instance_valid(_actor):
 		InteractionControlFocus.release(_actor, _capture_token)
 	_capture_token = 0
-	if return_to_service and _context != null:
-		_context.end()
+	if _context != null:
+		if return_to_service:
+			_context.end()
+		else:
+			_context.invalidate()
 	_actor = null
 	_context = null
 	DialogueResourceLifecycle.release_runtime_references(_resource)
@@ -262,3 +293,5 @@ func _build_ui() -> void:
 	_close_button.text = "Закрыть"
 	_close_button.pressed.connect(close_dialogue)
 	buttons.add_child(_close_button)
+
+#endregion

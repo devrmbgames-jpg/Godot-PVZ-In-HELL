@@ -1,13 +1,23 @@
 extends CanvasLayer
+## Представляет состояние игрока, дня и взаимодействий; запросы меню идут через отдельный SettingsMenu.
 
+## Игрок, чьи доступность, фокус и показатели отображает HUD.
 @export var player: Entity = null
+## Разрешает отладочные показатели при включённом DebugHudService.
 @export var debug_status_enabled: bool = true
+## Разрешает расширенное состояние испытаний при включённой отладке.
 @export var challenge_debug_enabled: bool = true
+## Уменьшает движение эффекта взгляда; общая настройка пользователя также учитывается.
 @export var reduced_gaze_motion: bool = true
+## Разрешает производное предупреждение о ранениях и голоде.
 @export var status_vignette_enabled: bool = true
+## Доля оставшихся HP, ниже которой усиливается виньетка ранения.
 @export_range(0.1, 1.0, 0.05) var injury_vignette_onset_ratio: float = 0.75
+## Непрозрачность статусной виньетки 0–0.8.
 @export_range(0.0, 0.8, 0.05) var status_vignette_opacity: float = 0.35
+## Разрешает обычную панель HP, голода, выносливости и денег.
 @export var player_status_enabled: bool = true
+## Источник принятых событий урона для дочернего DamageFeedbackView.
 @export var damage_feedback: O_DamageFeedback = null
 const MINIMUM_VIGNETTE_RATIO: float = 0.1
 const MINIMUM_HUNGER_SPAN: float = 1.0
@@ -67,7 +77,7 @@ var _last_phase: int = -1
 var _menu_hint: InputPromptLabel
 
 
-#region Lifecycle
+#region Жизненный цикл и обновление
 func _ready() -> void:
 	var settings: SettingsMenu = SettingsMenu.new()
 	settings.setup(player)
@@ -113,7 +123,7 @@ func _process(delta: float) -> void:
 	_announcement_remaining = maxf(0.0, _announcement_remaining - delta)
 	_announcement.visible = _announcement_remaining > 0.0
 
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle != null:
 		if cycle.day_index != _last_day_index or cycle.phase != _last_phase:
 			_on_phase_changed(cycle.day_index, cycle.phase)
@@ -127,7 +137,7 @@ func _process(delta: float) -> void:
 		_last_phase = -1
 		_phase_label.text = ""
 
-	if not GrabService.holder_available(player):
+	if not GrabQueries.holder_available(player):
 		_prompt.set_prompt("")
 		_update_debug_presentation(null)
 		return
@@ -138,6 +148,7 @@ func _process(delta: float) -> void:
 #endregion
 
 
+#region Статус игрока
 func _update_player_status() -> void:
 	_player_status.visible = player_status_enabled and is_instance_valid(player)
 	if not _player_status.visible:
@@ -155,7 +166,7 @@ func _update_player_status() -> void:
 	_status_hunger_bar.visible = has_hunger
 	if has_hunger:
 		const HUNGER_NAMES: Array[String] = ["Сыт", "Голоден", "Сильный голод"]
-		_status_hunger.text = "Голод  %.0f / %.0f · %s" % [hunger.value, hunger.policy.maximum, HUNGER_NAMES[HungerService.tier(hunger)]]
+		_status_hunger.text = "Голод  %.0f / %.0f · %s" % [hunger.value, hunger.policy.maximum, HUNGER_NAMES[HungerRules.tier(hunger)]]
 		_status_hunger_bar.max_value = hunger.policy.maximum
 		_status_hunger_bar.value = hunger.value
 
@@ -175,7 +186,9 @@ func _update_player_status() -> void:
 		_status_money.text = "Баланс  %d ₽ · Штрафы  %d ₽" % [wallet.balance, wallet.penalties]
 
 
-#region Debug acceptance presentation
+#endregion
+
+#region Отладочное представление и предупреждения
 func _compact_debug(message: String) -> String:
 	var lines: PackedStringArray = message.split("\n")
 	return lines[0] if not lines.is_empty() else ""
@@ -314,9 +327,9 @@ func _hazard_scene_name(scene: PackedScene) -> String:
 #endregion
 
 
-#region Presentation callbacks
+#region Представление смены фазы
 func _refresh_phase_presentation() -> void:
-	var cycle: C_DayCycle = DayPhaseService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if cycle != null:
 		_on_phase_changed(cycle.day_index, cycle.phase)
 

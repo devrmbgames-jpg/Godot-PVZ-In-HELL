@@ -10,6 +10,7 @@ var _revision: int = -1
 var _pattern: RegEx = RegEx.new()
 
 
+#region Подготовка и ревизия
 func _ready() -> void:
 	_pattern.compile("\\[input=([a-z0-9_]+)\\]")
 	bbcode_enabled = false
@@ -23,6 +24,10 @@ func _process(_delta: float) -> void:
 		_render()
 
 
+#endregion
+
+#region Текст и иконки
+## Устанавливает текст с [input=action]; одинаковый текст не пересобирается без смены ревизии.
 func set_prompt(message: String) -> void:
 	if message == _prompt and _revision == InputPromptService.revision():
 		return
@@ -56,3 +61,5 @@ func _render() -> void:
 		start = match_entry.get_end()
 	add_text(_prompt.substr(start))
 	pop()
+
+#endregion

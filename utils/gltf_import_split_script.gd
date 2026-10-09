@@ -1,7 +1,9 @@
 @tool
 extends EditorScenePostImport
+## Синхронный post-import GLTF: внешние меши/анимации и три варианта сцен рядом с источником.
 
 # Главная функция, вызываемая Godot после импорта сцены
+#region Синхронный импорт
 func _post_import(scene: Node) -> Object:
 	var source_path: String = get_source_file()
 	var base_name: String = source_path.get_file().get_basename()
@@ -32,11 +34,8 @@ func _post_import(scene: Node) -> Object:
 		used_animation_paths
 	)
 
-	# 4. После сохранения ресурсов нужно дождаться, пока редактор их увидит.
-	#    Поэтому создание сцен делаем через CallDeferred-подход:
-	#    запоминаем данные и создаём сцены в отложенном вызове.
-	#    Но EditorScenePostImport работает синхронно, поэтому используем
-	#    EditorInterface через ResourceLoader + ResourceSaver напрямую.
+	# Post-import выполняется синхронно: варианты сразу связываются с сохранёнными
+	# ресурсами через ResourceLoader/ResourceSaver, без отложенного создания сцен.
 
 	# Сохраняем дочерние сцены
 	_create_variant_scenes(scene, scene_dir, base_name, mesh_map, animation_map)
@@ -46,6 +45,9 @@ func _post_import(scene: Node) -> Object:
 
 # --- Вспомогательные методы ---
 
+#endregion
+
+#region Внешние ресурсы
 func _ensure_dir(path: String) -> void:
 	if not DirAccess.dir_exists_absolute(path):
 		DirAccess.make_dir_recursive_absolute(path)
@@ -190,6 +192,9 @@ func _sanitize(s: String) -> String:
 	return result
 
 
+#endregion
+
+#region Варианты и внешние ссылки
 func _create_variant_scenes(
 	original: Node,
 	scene_dir: String,
@@ -266,6 +271,7 @@ func _save_variant(
 		print("[GLTF Auto Processor] Saved: ", out_path)
 
 
+## Имя файла без расширения для имени создаваемого физического варианта.
 func base_name_from_path(p: String) -> String:
 	return p.get_file().get_basename()
 
@@ -340,6 +346,9 @@ func _relink_animations(node: Node, root: Node, animation_map: Dictionary) -> vo
 		_relink_animations(child, root, animation_map)
 
 
+#endregion
+
+#region Физические варианты и owner
 func _wrap_with_body(original_root: Node, body_class: String, new_name: String) -> Node:
 	# Создаём корневое тело
 	var body: Node3D = ClassDB.instantiate(body_class)
@@ -390,3 +399,5 @@ func _set_owner_recursive(node: Node, owner: Node) -> void:
 		if child != owner:
 			child.owner = owner
 		_set_owner_recursive(child, owner)
+
+#endregion

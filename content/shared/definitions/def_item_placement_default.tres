@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_ItemPlacement" format=3]
+
+[ext_resource type="Script" path="res://content/shared/definitions/def_item_placement.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+key = &"item_placement_default"
+offsets = PackedVector3Array(0, 0, 0, 0.65, 0, 0, -0.65, 0, 0, 0, 0, 0.65, 0, 0, -0.65, 0.65, 0, 0.65, -0.65, 0, 0.65, 0.65, 0, -0.65, -0.65, 0, -0.65, 1.3, 0, 0, -1.3, 0, 0, 0, 0, 1.3, 0, 0, -1.3, 1.3, 0, 1.3, -1.3, 0, 1.3, 1.3, 0, -1.3)

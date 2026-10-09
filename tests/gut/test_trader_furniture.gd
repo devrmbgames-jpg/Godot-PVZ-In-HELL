@@ -1,5 +1,5 @@
 extends GutTest
-## Real physical placement, courier fulfillment and persistent commerce records.
+## Проверяет физическую выдачу мебели, оплаченную доставку торговца и постоянные записи покупки.
 
 var _root: Node3D
 var _world: World
@@ -13,6 +13,8 @@ var _shelf: DEF_InventoryItem
 var _floor: StaticBody3D
 
 
+#region Торговая площадка и тестовые участники
+## Создаёт торговую площадку с реальной опорой, кошельком и мебелью авторского каталога.
 func before_each() -> void:
 	_root = Node3D.new()
 	add_child(_root)
@@ -25,6 +27,7 @@ func before_each() -> void:
 	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new()]
 	_root.add_child(session)
 	session.owner = _root
+	FixturePlacedIdentity.assign(_root, session, &"session")
 	_world.add_entity(session, null, false)
 	_commerce = session.get_component(C_Commerce) as C_Commerce
 	_cycle = session.get_component(C_DayCycle) as C_DayCycle
@@ -36,19 +39,22 @@ func before_each() -> void:
 	_actor.component_resources = [C_Inventory.new(), C_GrabControl.new()]
 	_root.add_child(_actor)
 	_actor.owner = _root
+	FixturePlacedIdentity.assign(_root, _actor, &"actor")
 	_world.add_entity(_actor, null, false)
-	_trader = (load("res://content/entities/commerce/trader.tscn") as PackedScene).instantiate() as E_NpcCharacter
+	_trader = (load("res://content/domains/commerce/entities/trader.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	(_trader as Node as RigidBody3D).freeze = true
 	_root.add_child(_trader)
 	_trader.owner = _root
+	FixturePlacedIdentity.assign(_root, _trader, &"trader")
 	_world.add_entity(_trader, null, false)
 	_shop = _trader.get_component(C_Trader) as C_Trader
-	_shelf = load("res://content/definitions/gameplay/inventory/def_item_large_shelf.tres") as DEF_InventoryItem
+	_shelf = load("res://content/domains/inventory/definitions/def_item_large_shelf.tres") as DEF_InventoryItem
 	_floor = _block(Vector3(0, -0.1, 0), Vector3(40, 0.2, 40))
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
 
+## Закрывает торговые панели до удаления World и его физической геометрии.
 func after_each() -> void:
 	for child: Node in _actor.get_children():
 		if child is CommercePanel:
@@ -80,12 +86,16 @@ func _goods(key: String) -> Entity:
 
 
 func _home() -> Entity:
-	var zone: Entity = (load("res://content/entities/commerce/order_receiving.tscn") as PackedScene).instantiate() as Entity
+	var zone: Entity = (load("res://content/domains/commerce/entities/order_receiving.tscn") as PackedScene).instantiate() as Entity
 	(zone as Node as Node3D).position = Vector3(-6, 0.22, -6)
 	_world.add_entity(zone)
 	return zone
 
 
+#endregion
+
+#region Физическая выдача и каталог
+## Покупка создаёт тяжёлую фиксируемую полку рядом с торговцем один раз, вне виртуального инвентаря.
 func test_purchase_spawns_massive_anchorable_shelf_beside_trader_without_inventory_or_repeat() -> void:
 	(_actor.get_component(C_Inventory) as C_Inventory).maximum_stacks = 0
 	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"shelf/one"), CommerceService.Status.COMMITTED)
@@ -107,6 +117,7 @@ func test_purchase_spawns_massive_anchorable_shelf_beside_trader_without_invento
 	assert_eq(_wallet.operations.size(), 1)
 
 
+## Занятое или неподдержанное место не списывает оплату; успешный повтор атомарен.
 func test_blocked_or_unsupported_zone_never_charges_and_paid_retry_is_atomic() -> void:
 	var blocker: StaticBody3D = _block(Vector3(5, 1.5, -3), Vector3(9, 3, 8))
 	await get_tree().physics_frame
@@ -132,27 +143,32 @@ func test_blocked_or_unsupported_zone_never_charges_and_paid_retry_is_atomic() -
 	assert_eq(_wallet.balance, 20)
 
 
+## Личный каталог и расписание торговца не подменяются каталогом терминала.
 func test_configured_catalog_and_schedule_are_independent_from_terminal_orders() -> void:
-	var profile: DEF_TraderProfile = (load("res://content/definitions/gameplay/commerce/def_trader_medical.tres") as DEF_TraderProfile).duplicate() as DEF_TraderProfile
+	var profile: DEF_TraderProfile = (load("res://content/domains/commerce/definitions/def_trader_medical.tres") as DEF_TraderProfile).duplicate() as DEF_TraderProfile
 	profile.catalog = [_shelf]
 	_shop.profile = profile
 	assert_false(_shelf in _commerce.catalog)
 	_cycle.phase = C_DayCycle.Phase.MORNING
 	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"schedule"), CommerceService.Status.WRONG_PHASE)
 	_cycle.day_index = 2
-	assert_true(TraderCatalogService.is_open(_shop, _cycle))
+	assert_true(TraderCatalogRules.is_open(_shop, _cycle))
 	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"schedule"), CommerceService.Status.COMMITTED)
 	_cycle.day_index = 3
-	assert_false(TraderCatalogService.is_open(_shop, _cycle))
+	assert_false(TraderCatalogRules.is_open(_shop, _cycle))
 	assert_eq(CommerceService.order(_actor, _shelf, 1, &"terminal"), CommerceService.Status.INVALID)
 	assert_eq(_wallet.balance, 820)
 
 
+#endregion
+
+#region Оплаченная доставка торговца
+## Расходные заказы создают реальные физические предметы и освобождают очередь получения.
 func test_consumable_deliveries_create_physical_pickups_and_do_not_stall_queue() -> void:
 	var zone: Entity = _home()
 	var receiving: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
 	for key: String in ["food", "med", "bubble_wrap", "npc_meat"]:
-		var item: DEF_InventoryItem = load("res://content/definitions/gameplay/inventory/def_item_%s.tres" % key) as DEF_InventoryItem
+		var item: DEF_InventoryItem = load("res://content/domains/inventory/definitions/def_item_%s.tres" % key) as DEF_InventoryItem
 		assert_not_null(item)
 		assert_true(OrderDeliveryService.can_fulfill_definition(item))
 		var delivery: PendingDelivery = PendingDelivery.new()
@@ -172,16 +188,17 @@ func test_consumable_deliveries_create_physical_pickups_and_do_not_stall_queue()
 	assert_false(OrderDeliveryService.fulfill_one(zone, receiving, _commerce, 2))
 
 
+## Оплаченный заказ ждёт дня и места; сохранение и повтор не дублируют мебель.
 func test_paid_home_delivery_waits_for_day_and_space_then_fulfills_once_after_save() -> void:
 	assert_eq(CommerceService.home_delivery(_actor, _trader, _shelf, 1, &"home/one"), CommerceService.Status.COMMITTED)
-	assert_eq(_wallet.balance, 790)
-	assert_eq(_commerce.receipts[0].total_price, 210)
-	assert_eq(_commerce.receipts[0].delivery_fee, 30)
+	assert_eq(_wallet.balance, 720)
+	assert_eq(_commerce.receipts[0].total_price, 280)
+	assert_eq(_commerce.receipts[0].delivery_fee, 100)
 	assert_eq(CommerceService.home_delivery(_actor, _trader, _shelf, 1, &"home/one"), CommerceService.Status.DUPLICATE)
 	assert_eq(CommerceService.purchase(_actor, _trader, _shelf, 1, &"home/one"), CommerceService.Status.CONFLICT)
 	var copy: C_Commerce = C_Commerce.new()
 	assert_true(SaveDataCodec.apply_fields(copy, SaveDataCodec.component_data(_commerce).fields as Dictionary))
-	assert_eq(copy.receipts[0].delivery_fee, 30)
+	assert_eq(copy.receipts[0].delivery_fee, 100)
 	assert_eq(copy.pending_deliveries[0].delivery_day, 2)
 
 	var zone: Entity = _home()
@@ -209,6 +226,7 @@ func test_paid_home_delivery_waits_for_day_and_space_then_fulfills_once_after_sa
 	assert_eq(_wallet.operations.size(), 1)
 
 
+## Непригодная сцена отклоняется; панель различает самовывоз и оплаченную доставку торговца.
 func test_courier_rejects_unfulfillable_definition_and_trader_panel_offers_separate_delivery() -> void:
 	var invalid: DEF_InventoryItem = _shelf.duplicate() as DEF_InventoryItem
 	invalid.world_pickup_scene = ""
@@ -228,15 +246,23 @@ func test_courier_rejects_unfulfillable_definition_and_trader_panel_offers_separ
 	assert_true(_commerce.pending_deliveries.is_empty())
 	profile.catalog = [_shelf]
 
-	var panel: CommercePanel = CommercePanelService.open(_actor, _trader)
+	var panel: CommercePanel = CommercePanelFactory.open(_actor, _trader)
 	assert_not_null(panel)
 	assert_eq(panel._offers.get_child_count(), 1)
 	var row: Node = panel._offers.get_child(0)
-	assert_true((row.get_child(0) as Button).text.contains("Забрать возле торговца"))
-	var delivery: Button = row.get_child(1) as Button
-	assert_true(delivery.text.contains("210"))
-	assert_true(delivery.text.contains("дня2"))
-	delivery.pressed.emit()
-	assert_eq(_wallet.balance, 790)
+	assert_eq(row.get_child_count(), 1, "Delivery appears only in the purchase popup")
+	(row.get_child(0) as Button).pressed.emit()
+	assert_eq(_wallet.balance, 1000, "Opening the choice does not charge")
+	assert_true(panel._purchase_dialog.visible)
+	assert_eq(panel._purchase_dialog.title, "Доставить или заберёшь сам?")
+	assert_eq(panel._purchase_dialog.get_ok_button().text, "Сам")
+	assert_eq(panel._delivery_button.text, "Доставить +100$")
+	assert_true(panel._purchase_dialog.dialog_text.contains("280$"))
+	assert_true(panel._purchase_dialog.dialog_text.contains("дня 2"))
+	await get_tree().process_frame
+	panel._delivery_button.pressed.emit()
+	assert_eq(_wallet.balance, 720)
 	assert_eq(_commerce.pending_deliveries.size(), 1)
 	assert_true(_world.query.with_all([C_Anchorable]).execute().is_empty())
+
+#endregion

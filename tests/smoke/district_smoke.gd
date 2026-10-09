@@ -1,14 +1,16 @@
 extends Node
-## Connected headless district week with real phase systems, native navigation and save restoration.
+## Связная headless-неделя района с реальными фазами, навигацией и восстановлением отдельного сохранения.
 
+## Отдельный тестовый слот; обычный autosave уровня отключён.
 const SAVE_PATH: String = "user://smoke_living_district.pvzh"
+## Количество физических кадров каждой фазы в недельном сценарии.
 const PHASE_FRAMES: int = 720
 const NAVIGATION_CHECKS: GDScript = preload("res://utils/warehouse_navigation_checks.gd")
 
 var _level: Node3D = null
 var _failed: bool = false
 
-#region Week runner
+#region Связная неделя
 func _ready() -> void:
 	call_deferred("_run")
 
@@ -29,8 +31,8 @@ func _run() -> void:
 		get_tree().quit(1)
 		return
 
-	var cycle: C_DayCycle = DayPhaseService.current()
-	var district: C_District = DistrictPopulationService.current()
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var district: C_District = NpcPopulationQueries.current()
 	var session: Entity = ECS.world.query.with_all([C_Autosave]).execute_one()
 	var autosave: C_Autosave = session.get_component(C_Autosave) as C_Autosave
 	autosave.path = SAVE_PATH
@@ -41,7 +43,7 @@ func _run() -> void:
 	_check(district.people.size() == 12, "initial 8+4 population")
 
 	var returning: StringName = district.people[8].npc_id
-	var returning_body: E_DistrictNpc = DistrictPopulationService.body_for(returning)
+	var returning_body: E_DistrictNpc = NpcPopulationQueries.body_for(returning)
 	for day_index: int in range(1, 8):
 		for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
 			print("District smoke phase ",day_index,"/",phase)
@@ -60,15 +62,15 @@ func _run() -> void:
 		print("District smoke morning ", cycle.day_index, ": records=", district.people.size(), " bodies=", ECS.world.query.with_all([C_NpcIdentity]).execute().size())
 	var survivors: int = 0
 	for identity: StringName in initial:
-		if DistrictPopulationService.person_for(identity).death_day == 0:
+		if NpcPopulationQueries.person_for(identity).death_day == 0:
 			survivors += 1
 	_check(survivors >= 6, "passive original residents survive: %d" % survivors)
-	_check(DistrictPopulationService.body_for(returning) == returning_body, "weekly visitor uses the same body")
+	_check(NpcPopulationQueries.body_for(returning) == returning_body, "weekly visitor uses the same body")
 
 	var snapshot: Dictionary = AutosaveStore.read(SAVE_PATH)
 	_check(WorldSnapshotService.can_restore(snapshot, _level), "saved week is restorable")
 	_check(WorldSnapshotService.restore(snapshot, _level), "week restoration succeeds")
-	_check(DistrictPopulationService.current().people.size() == district.people.size(), "restoration does not duplicate population")
+	_check(NpcPopulationQueries.current().people.size() == district.people.size(), "restoration does not duplicate population")
 	_level.free()
 	ECS.world = null
 	for path: String in [SAVE_PATH, SAVE_PATH + ".tmp"]:

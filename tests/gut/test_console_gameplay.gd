@@ -1,5 +1,5 @@
 extends GutTest
-## Commands exercise the same domain transitions as the player; isolated saves only.
+## Команды консоли проходят обычные игровые переходы; запись ограничена изолированными тестовыми слотами.
 
 var _world: World
 var _commands: DeveloperConsoleCommands
@@ -9,13 +9,15 @@ var _cycle: C_DayCycle
 var _slot: String
 
 
+#region Подготовка и очистка
+## Создаёт минимальные игрока/сессию и подключает команды консоли с уникальным тестовым слотом.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
 	ECS.world = _world
 	_cycle = C_DayCycle.new()
 	var flow: C_CustomerFlow = C_CustomerFlow.new()
-	flow.schedule = load("res://content/definitions/gameplay/customers/def_customer_schedule_default.tres") as DEF_CustomerSchedule
+	flow.schedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
 	_session = Entity.new()
 	_session.component_resources = [_cycle, C_Commerce.new(), C_Wallet.new(), flow]
 	_world.add_entity(_session)
@@ -32,6 +34,7 @@ func before_each() -> void:
 	Console.clear()
 
 
+## Закрывает консоль, очищает World и удаляет только созданный тестовый слот.
 func after_each() -> void:
 	if bool(Console.is_visible()): Console.toggle_console()
 	_commands.free()
@@ -52,6 +55,10 @@ func _run(command: String, args: Array = []) -> String:
 	return Console.rich_label.get_parsed_text()
 
 
+#endregion
+
+#region Игровые границы команд консоли
+## Выдача/употребление соблюдают владение, вместимость и диапазон голода; отказ не оставляет сирот.
 func test_food_commands_obey_bounds_capacity_and_normal_consumption() -> void:
 	assert_true(_run("hunger_set", ["50"]).contains("OK hunger_set"))
 	assert_true(_run("inventory_give", ["food", "2"]).contains("OK inventory_give"))
@@ -77,8 +84,9 @@ func test_food_commands_obey_bounds_capacity_and_normal_consumption() -> void:
 	assert_true(Console.command_parameters["help"].has("inventory_give"))
 
 
+## Предпросмотр прогресса меняет колесо и сигнал без выполнения эффекта действия.
 func test_progress_command_updates_real_rotation_and_signal_without_activation() -> void:
-	var valve: E_InteractionTestValve = (load("res://content/entities/props/interaction_test_valve.tscn") as PackedScene).instantiate() as E_InteractionTestValve
+	var valve: E_InteractionTestValve = (load("res://content/domains/interaction/entities/interaction_test_valve.tscn") as PackedScene).instantiate() as E_InteractionTestValve
 	valve.mode = E_InteractionTestValve.Mode.HOLD_NEVER
 	_world.add_entity(valve)
 	var basis: Basis = (valve.get_node("Wheel") as Node3D).basis
@@ -94,6 +102,7 @@ func test_progress_command_updates_real_rotation_and_signal_without_activation()
 	assert_true(_run("progress_info", [target]).contains("progress=0.500"))
 
 
+## Старт/остановка испытания освобождают живую связь и не допускают повтор использованной сессии.
 func test_debug_challenge_uses_lifecycle_and_cannot_repeat_consumed_session() -> void:
 	_cycle.phase = C_DayCycle.Phase.DAY
 	var subject: Entity = Entity.new()
@@ -110,6 +119,7 @@ func test_debug_challenge_uses_lifecycle_and_cannot_repeat_consumed_session() ->
 	assert_true(_run("challenge_start", [target, "warehouse-light-during-visit"]).contains("ERROR challenge_start"))
 
 
+## Именованный debug-слот сохраняет состояние; неверные фаза и путь отклоняются.
 func test_named_save_roundtrip_is_isolated_and_rejects_invalid_phase_and_path() -> void:
 	var wallet: C_Wallet = _session.get_component(C_Wallet) as C_Wallet
 	wallet.balance = 123
@@ -126,6 +136,7 @@ func test_named_save_roundtrip_is_isolated_and_rejects_invalid_phase_and_path() 
 	assert_eq(_cycle.phase, C_DayCycle.Phase.DAY)
 
 
+## Создание визита сохраняет авторское представление и состояние до прихода без повторного заказа.
 func test_live_visit_option_preserves_accounting_default_and_authored_introduction() -> void:
 	var parcel: Entity = Entity.new()
 	var identity: C_Package = C_Package.new()
@@ -136,7 +147,7 @@ func test_live_visit_option_preserves_accounting_default_and_authored_introducti
 	_world.add_entity(parcel)
 	assert_true(_run("visit_create", ["pkg:console_live", "ordinary", "1"]).contains("OK visit_create"))
 
-	var visit: CustomerVisit = CustomerFlowService.find_visit(&"visit/console_live")
+	var visit: CustomerVisit = CustomerFlowQueries.find_visit(&"visit/console_live")
 	assert_false(visit.started)
 	assert_false(visit.finished)
 	assert_eq(visit.definition.introduction, DEF_Customer.Introduction.ANNOUNCE_ORDER)
@@ -144,6 +155,7 @@ func test_live_visit_option_preserves_accounting_default_and_authored_introducti
 	assert_true(_run("visit_create", ["pkg:console_live", "ordinary", "2"]).contains("ERROR visit_create"))
 
 
+## Живые связи толкания/тележки блокируют запись и загрузку без изменения мира или файла.
 func test_persistence_rejects_push_and_cart_without_changing_session_slot_or_world() -> void:
 	assert_true(_run("save_write", [_slot]).contains("OK save_write"))
 	var path: String = DebugGameplayService.slot_path(_slot)
@@ -155,7 +167,7 @@ func test_persistence_rejects_push_and_cart_without_changing_session_slot_or_wor
 	for relation_script: Script in [R_PushedBy, R_CartDrivenBy]:
 		var binding: Relationship = Relationship.new(relation_script.new() as Component, _actor)
 		prop.add_relationship(binding)
-		# Also reject a live session if a capture is absent/stale: Relationship remains authority.
+		## Живая связь запрещает запись и без актуального capture-токена: Relationship остаётся источником истины.
 		assert_true(_run("save_load", [_slot]).contains("ERROR save_load"))
 		assert_eq(wallet.balance, 77)
 		assert_true(_run("save_write", [_slot]).contains("ERROR save_write"))
@@ -170,6 +182,7 @@ func test_persistence_rejects_push_and_cart_without_changing_session_slot_or_wor
 	InteractionControlFocus.release(_actor, token)
 
 
+## Отклонённый запрос атаки не меняет противника и оставшееся время перезарядки.
 func test_invalid_npc_request_does_not_reset_cooldown_or_opponent() -> void:
 	var npc: Entity = Entity.new()
 	var state: C_NpcCombat = C_NpcCombat.new()
@@ -183,6 +196,8 @@ func test_invalid_npc_request_does_not_reset_cooldown_or_opponent() -> void:
 	var opponent: Entity = Entity.new()
 	_world.add_entity(opponent)
 	assert_true(_run("npc_attack", ["entity:" + npc.id, "melee", "0", "entity:" + opponent.id]).contains("ERROR npc_attack"))
-	assert_same(CombatService.target_for(npc), _actor)
+	assert_same(CombatQueries.target_for(npc), _actor)
 	assert_eq(state.cooldown_remaining, 5.0)
 	assert_true(_run("npc_info", ["entity:" + npc.id]).contains("cooldown=5.00s"))
+
+#endregion

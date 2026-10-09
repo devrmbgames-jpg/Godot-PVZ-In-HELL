@@ -1,0 +1,53 @@
+[gd_scene format=3 uid="uid://cxcaew8qdooi6"]
+
+[ext_resource type="Script" uid="uid://gdbocqvj23m" path="res://content/domains/packages/entities/e_terminal.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://r3yt65cfpusa" path="res://content/ui/terminal_panel.tscn" id="2"]
+[ext_resource type="Script" uid="uid://b6k13gc2m4e5s" path="res://addons/gecs/ecs/component.gd" id="3_component"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="4_akd2p"]
+[ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="4_interactable"]
+[ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="5_actions"]
+[ext_resource type="Script" uid="uid://e4rnao1j28i3" path="res://content/domains/packages/definitions/def_terminal_action.gd" id="6_action"]
+
+[sub_resource type="Resource" id="Terminal_interactable"]
+script = ExtResource("4_interactable")
+
+[sub_resource type="Resource" id="Terminal_action"]
+script = ExtResource("6_action")
+action_id = &"open_terminal"
+caption = "Открыть реестр"
+
+[sub_resource type="Resource" id="Terminal_actions"]
+script = ExtResource("5_actions")
+actions = Array[ExtResource("4_akd2p")]([SubResource("Terminal_action")])
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+albedo_color = Color(0.13, 0.16, 0.19, 1)
+
+[sub_resource type="BoxMesh" id="Desk"]
+material = SubResource("Material")
+size = Vector3(1.3, 1.1, 0.7)
+
+[sub_resource type="BoxShape3D" id="Shape"]
+size = Vector3(1.3, 1.1, 0.7)
+
+[node name="Terminal" type="StaticBody3D" unique_id=1548369578]
+script = ExtResource("1")
+component_resources = Array[ExtResource("3_component")]([SubResource("Terminal_interactable"), SubResource("Terminal_actions")])
+
+[node name="Desk" type="MeshInstance3D" parent="." unique_id=1757746914]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+mesh = SubResource("Desk")
+
+[node name="CollisionShape" type="CollisionShape3D" parent="." unique_id=1915699688]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+shape = SubResource("Shape")
+
+[node name="Screen" type="Label3D" parent="." unique_id=1651020993]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+pixel_size = 0.003
+billboard = 1
+text = "ТЕРМИНАЛ
+E — открыть реестр
+Сканер лежит на столе"
+
+[node name="TerminalPanel" parent="." unique_id=1642625963 instance=ExtResource("2")]

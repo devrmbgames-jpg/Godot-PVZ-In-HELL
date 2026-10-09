@@ -1,4 +1,5 @@
 extends GutTest
+## Проверяет утренний возврат фактически отказанной коробки без изменения прежнего расчёта.
 
 var _world: World = null
 var _cycle: C_DayCycle = null
@@ -8,6 +9,8 @@ var _record: PackageRegistrationRecord = null
 var _actor: Entity = null
 
 
+#region Тестовое окружение
+## Создаёт вчерашний отказ, активную регистрацию и коробку утром второго дня.
 func before_each() -> void:
 	_world = World.new()
 	add_child(_world)
@@ -45,12 +48,17 @@ func before_each() -> void:
 	_world.add_entity(_actor)
 
 
+## Удаляет World и сбрасывает глобальную ссылку ECS.
 func after_each() -> void:
 	_world.purge(false)
 	_world.free()
 	ECS.world = null
 
 
+#endregion
+
+#region Условия возврата и прежний расчёт
+## Оба фактических отказа доступны для возврата лишь утром после дня визита.
 func test_both_actual_refusal_kinds_are_returnable_next_morning_only() -> void:
 	for actual: CustomerVisit.Actual in [CustomerVisit.Actual.PLAYER_DENIED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
 		_visit.actual = actual
@@ -63,6 +71,7 @@ func test_both_actual_refusal_kinds_are_returnable_next_morning_only() -> void:
 	assert_true(_record.active)
 
 
+## Заявление терминала не создаёт отказ и не разрешает возврат будущего заказа.
 func test_terminal_refused_cannot_invent_actual_refusal_or_return_future_target() -> void:
 	_visit.actual = CustomerVisit.Actual.NOT_RESOLVED
 	assert_false(PackageReturnService.can_return(_parcel))
@@ -74,6 +83,7 @@ func test_terminal_refused_cannot_invent_actual_refusal_or_return_future_target(
 	assert_true(_record.active)
 
 
+## Возврат требует согласованных ID, регистрации и активного номера.
 func test_registration_identity_and_active_number_are_required() -> void:
 	_record.active = false
 	assert_false(PackageReturnService.can_return(_parcel))
@@ -88,6 +98,7 @@ func test_registration_identity_and_active_number_are_required() -> void:
 	assert_false(PackageReturnService.can_return(_parcel))
 
 
+## Возврат без коробки в руках не удаляет предмет, не освобождает номер и не меняет штраф.
 func test_unheld_parcel_does_not_exit_release_number_or_change_settlement() -> void:
 	assert_true(PackageReturnService.can_return(_parcel))
 	assert_false(PackageReturnService.return_held(_actor))
@@ -99,3 +110,5 @@ func test_unheld_parcel_does_not_exit_release_number_or_change_settlement() -> v
 	assert_true(_visit.settlement_committed)
 	assert_eq(_visit.money_delta, -150)
 	assert_true(_world.entities.has(_parcel))
+
+#endregion

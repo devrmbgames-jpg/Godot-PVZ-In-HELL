@@ -1,13 +1,15 @@
 extends GutTest
+## Checks authored delivery limits, physical mass profiles and the registered main-level grip pipeline.
 
 const MAIN_LEVEL: PackedScene = preload("res://content/scenes/main_level.tscn")
 
 
+## Exercises actual scheduled targeting/input and native pickup/rotation/release with current authored supply.
 func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var level: Node3D = MAIN_LEVEL.instantiate() as Node3D
 	level.set("autosave_path", "")
 	add_child(level)
-	# Stop automatic input sampling; drive the real ECS groups deterministically below.
+	# Автоматический сбор ввода отключён: тест сам выполняет реальные группы ECS.
 	level.set_physics_process(false)
 	for delivery_tick: int in 12:
 		await get_tree().physics_frame
@@ -18,7 +20,12 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	var light_box: Entity = level.get_node("Entityes/Parcel_001_01") as Entity
 	var medium_box: Entity = level.get_node("Entityes/Parcel_001_02") as Entity
 	var heavy_box: Entity = level.get_node("Entityes/Parcel_001_03") as Entity
-	assert_eq(world.query.with_all([C_Package]).execute().size(), 8)
+	var flow: C_CustomerFlow = CustomerFlowQueries.current()
+	var supply: DEF_Delivery = flow.schedule.supply
+	assert_eq(world.query.with_all([C_Package]).execute().size(), mini(supply.maximum_batch_packages, supply.packages.size()))
+	assert_true(world.get_node("Systems/Interaction/S_CartCargo") is S_CartCargo)
+	assert_true(world.get_node("Systems/Interaction/S_Grab") is S_Grab)
+	assert_true(world.get_node("Systems/Interaction/S_AnchorStability") is S_AnchorStability)
 	for authored_entity: Node in level.get_node("Entityes").get_children():
 		if authored_entity is Entity:
 			assert_true(world.entities.has(authored_entity as Entity))
@@ -58,7 +65,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 
 	var interactor: C_Interactor = player.get_component(C_Interactor) as C_Interactor
 	var controller: C_Controller = player.get_component(C_Controller) as C_Controller
-	var interaction_ray: RayCast3D = GrabService.interaction_raycast(player)
+	var interaction_ray: RayCast3D = GrabQueries.interaction_raycast(player)
 	(player as Node).set_physics_process(false)
 	var heavy_position: Vector3 = (heavy_box as Node as Node3D).global_position
 	(player as Node as Node3D).global_position = heavy_position + Vector3(0, 0.1, 1.8)
@@ -67,14 +74,14 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 		await get_tree().physics_frame
 	controller.interact_pressed = true
 	world.process(1.0 / 60.0, "Interaction")
-	assert_eq(GrabService.held_object(player), heavy_box)
+	assert_eq(GrabQueries.held_object(player), heavy_box)
 	assert_eq(interactor.target, heavy_box)
 
 	var carry_load: C_CarryLoad = player.get_component(C_CarryLoad) as C_CarryLoad
 	var motion: C_Motion = player.get_component(C_Motion) as C_Motion
 	assert_eq(carry_load.mass_kg, 80.0)
 	assert_almost_eq(
-		CharacterMotionSolver.effective_speed(motion, carry_load, strength),
+		MotionRules.effective_speed(motion, carry_load, strength),
 		motion.max_speed * 4.0 / 9.0,
 		0.001,
 	)
@@ -87,7 +94,7 @@ func test_main_scene_profiles_and_registered_grab_pipeline() -> void:
 	assert_true(control.rotation_active)
 	controller.interact_pressed = true
 	world.process(1.0 / 60.0, "Interaction")
-	assert_null(GrabService.held_relationship(heavy_box))
+	assert_null(GrabQueries.held_relationship(heavy_box))
 	assert_false(control.rotation_active)
 	level.free()
 	ECS.world = null

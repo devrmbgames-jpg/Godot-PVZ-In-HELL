@@ -1,0 +1,21 @@
+[gd_resource type="BehaviorTree" format=3]
+
+[ext_resource type="Script" uid="uid://b7qw8a0yb17na" path="res://content/domains/npc/ai/tasks/bt_npc_has_conversation.gd" id="has_conversation"]
+[ext_resource type="Script" uid="uid://be5uu13bhrqtv" path="res://content/domains/npc/ai/tasks/bt_npc_conversation.gd" id="conversation"]
+
+[sub_resource type="BTCondition" id="Participants"]
+custom_name = "Участники связаны"
+script = ExtResource("has_conversation")
+
+[sub_resource type="BTAction" id="Conversation"]
+custom_name = "Следить за видимым собеседником"
+script = ExtResource("conversation")
+intent_owner = 2
+
+[sub_resource type="BTDynamicSequence" id="Root"]
+custom_name = "Уличный разговор"
+children = [SubResource("Participants"), SubResource("Conversation")]
+
+[resource]
+description = "Native conversation without Customer role branches."
+root_task = SubResource("Root")

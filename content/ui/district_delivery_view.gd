@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Bounded-refresh evening job list; services own promises, boxes and money.
+## Обновляет список вечерних доставок с паузой; обещания, коробки и деньги принадлежат сервисам.
 class_name DistrictDeliveryView
 
 const REFRESH_SECONDS: float = 0.5
@@ -10,7 +10,7 @@ const MAXIMUM_WIDTH: float = 560.0
 var _label: Label = null
 var _elapsed: float = 0.0
 
-#region Presentation
+#region Отображение
 func _ready() -> void:
 	layer = 12
 	_label = Label.new()
