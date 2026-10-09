@@ -881,7 +881,7 @@ resource graph and run its exact failing surfaces before claiming task acceptanc
 
 ### Cold retention investigation — 2026-10-10
 
-Task status remains **IN_PROGRESS**. Current immutable HEAD is
+Task status remains **IN_PROGRESS**. The immutable lifetime review target is
 `3a7566318350d4091226cf962e8a6321dd609d60`; the runtime fix checkpoint remains
 `bed9908d38a709f8f565a7a3ced60f78e1980ac2`. A Git comparison confirms the RV-001
 production and regression files are unchanged between those full revisions. RV-001/RV-002
@@ -925,12 +925,52 @@ it was closed without a verified fix and does not establish our root cause. The
 [`@static_unload` documentation](https://docs.godotengine.org/en/latest/classes/class_%40gdscript.html)
 also records unloading limitations. No engine/addon update or diagnostic waiver is adopted.
 
-Additional bounded lifetime review: **REVIEW_PENDING**. The previous reviewer is completed;
-the same `/root/review_task41_checkpoint` is reused, with no second concurrent child.
+Additional bounded lifetime review: **COLLECTED / TRIAGED — NO_FINDING**. The same
+`/root/review_task41_checkpoint` completed it; no second concurrent child was started.
 BASE_SHA=`857ec02d7703eab840dbf496730be48d29294d99`,
 TARGET_SHA=`3a7566318350d4091226cf962e8a6321dd609d60`.
 Scope: new compiler/recipe/notification/snapshot Script-resource ownership and immediate
 contracts. Reviewer reads immutable Git objects only; no edits/tests/Godot/MCP/live source.
-This new diagnostic review does not reopen or replace the collected RV-001 fix review.
-Next: collect and triage this result, reproduce any concrete owner finding, and verify the
-exact cold and bounded shutdown surfaces before task 41 acceptance and archive.
+Main accepts the result as inconclusive for the retention cause, not as a full task PASS.
+No provisional R-ID or new accepted error was reported; RV-001/RV-002 remain FIXED under
+their recorded fix SHA and verification. Reviewer ARCHITECTURE and VALIDATION are NOT_RUN;
+STYLE PASS is static assessment only. This review does not reopen the RV-001 fix review.
+
+The review's three proposed falsifying experiments were actually run in separate cold
+processes. A restores only the BASE registration block in `CustomerInspectionService.begin`;
+B restores only the BASE composition blocks in `LootDropService.prepare/_place`; C combines
+A+B. All three retain **383 Objects / 273 resources** plus font/texture RIDs and Variant
+allocator pages. Their zero exit codes are diagnostic FAIL, not PASS. Thus these two newly
+added edges are not necessary to reproduce this particular compile-only retention.
+The original production bytes were restored in `finally`; no runtime fix is inferred or kept.
+Logs: `tests/artifacts/refactoring_v2_41_edges_A_trial.log`,
+`tests/artifacts/refactoring_v2_41_edges_B_trial.log`, and
+`tests/artifacts/refactoring_v2_41_edges_C_trial.log`.
+
+No review remains REVIEW_PENDING. Next: establish the retained owner or a minimal engine
+reproduction, then verify the exact cold and bounded shutdown surfaces before task 41
+acceptance and archive. Task 42 still depends on task 41 acceptance.
+
+Main's subsequent compiler probes narrow but do not resolve that gate:
+
+- Stubbing `CartCargoSolver._destroyed` while keeping `integrate` gives a clean minimal
+  probe. Keeping `_destroyed` while stubbing `integrate` retains 376 Objects / 267 resources.
+  Four reduced `_destroyed` variants (typed null, component lookup only, enum only,
+  lookup plus numeric comparison) all retain 383 Objects / 273 resources. Removing its
+  dependency is not an acceptable production fix or proof of an incorrect gameplay rule.
+- Replacing GutTest inheritance/assertions with a plain RefCounted probe still retains
+  294 Objects / 247 resources for the solver/customer/snapshot combination and
+  315 Objects / 265 resources for TerminalPanel/snapshot. Thus GUT inheritance is not
+  necessary for retention. The same solver/customer probe without snapshot is clean;
+  the GutTest solver/customer probe without snapshot is also clean.
+- These are compile-only processes; no probe method body or rendered gameplay ran.
+  Temporary cart source bytes were restored, and the no-GUT probes only wrote ignored
+  diagnostic files. Production remains at the existing runtime checkpoint.
+- Logs: `tests/artifacts/refactoring_v2_41_cart_*_trial.log` and
+  `tests/artifacts/refactoring_v2_41_no_gut*_trial.log`.
+
+Triage was reconciled with full audit HEAD `1b02b9f46fabc50b5e52dc01e98ce47918550daa`.
+RV-001 production/regression files are unchanged from their fix SHA; RV-002's metadata
+repair remains present. Actual project-structure and refactoring-preflight validation PASS
+after the collected review update. Full GUT, bounded shutdown tests and broad acceptance
+were not rerun in this diagnostic batch; the previously recorded failures remain OPEN.
