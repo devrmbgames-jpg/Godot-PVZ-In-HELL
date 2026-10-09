@@ -44,9 +44,8 @@ func _advance(entity_reference: WeakRef, captured: C_NpcDecision,
 
 func _progress_route(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> void:
 	var intent: C_NpcIntent = actor.get_component(C_NpcIntent) as C_NpcIntent
-	if not actor.has_component(C_NpcRoute):
-		actor.add_component(C_NpcRoute.new())
 	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+	assert(route != null, "NPC brain must compose route state before native registration")
 
 	# Inactive/direct-follow intent releases derived navigation without inventing a failed trip.
 	if not intent.movement_active or intent.move_uses_entity or not intent.navigation_enabled:

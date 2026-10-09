@@ -8,7 +8,8 @@ const TREE_PATH: String = "res://content/domains/npc/ai/trees/bt_npc_native.tres
 #region Жизненный цикл AI
 ## Binds one passive manual BTPlayer; required ECS data was already compiled before registration.
 static func bind_engine(actor: E_DistrictNpc) -> void:
-	assert(actor.has_component(C_NpcAwareness) and actor.has_component(C_NpcDecision),
+	assert(actor.has_component(C_NpcAwareness) and actor.has_component(C_NpcDecision)
+		and actor.has_component(C_NpcRoute),
 		"Native brain binding requires compiled sensor/decision capability")
 	if actor.get_node_or_null("Brain") != null:
 		return

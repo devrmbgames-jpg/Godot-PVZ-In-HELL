@@ -18,13 +18,13 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 #endregion
 
 #region Pure brain and immunity recipes
-## Supplies fresh transient state and durable resistance before any damage/AI consumer can react.
+## Supplies fresh decision/route state and durable resistance before damage/AI consumers react.
 func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 	var resistance: C_DamageResistance = C_DamageResistance.new()
 	var profile: DEF_NpcProfile = context.definitions.get(&"npc_profile") as DEF_NpcProfile
 	if profile != null and profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null:
 		resistance.multipliers[DamageRequest.Type.FIRE] = 0.0
-	return [C_NpcAwareness.new(), C_NpcDecision.new(), resistance]
+	return [C_NpcAwareness.new(), C_NpcDecision.new(), C_NpcRoute.new(), resistance]
 
 
 ## Configures existing scene combat capability without installing an engine runner or ticking AI.

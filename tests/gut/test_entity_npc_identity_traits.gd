@@ -76,6 +76,7 @@ func test_native_publication_has_identity_persistent_key_and_profile_speed_once(
 		assert_eq(motion.max_speed, person.profile.move_speed)
 		assert_true(published.has_component(C_NpcAwareness))
 		assert_true(published.has_component(C_NpcDecision))
+		assert_true(published.has_component(C_NpcRoute))
 		assert_true(published.has_component(C_DamageResistance))
 		var combat: C_NpcCombat = published.get_component(C_NpcCombat) as C_NpcCombat
 		assert_false(combat.automatic_attack_selection)
@@ -249,4 +250,62 @@ func test_duplicate_additional_role_action_is_rejected_before_registration() -> 
 	assert_false(plan.valid())
 	assert_true(actor.components.is_empty())
 	actor.free()
+#endregion
+
+
+#region Initial navigation route capability
+## Native publication exposes private route buffers before any scheduled decision can advance.
+func test_route_state_is_ready_at_publication_and_isolated_between_instances() -> void:
+	var people: Array[NpcRecord] = NpcPopulationRules.initial_records(_DISTRICT, 1)
+	var published: Array[C_NpcRoute] = []
+	_world.entity_added.connect(func(actor: Entity) -> void:
+		var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+		assert_not_null(route)
+		assert_true(route.points.is_empty())
+		assert_eq(route.map_iteration, -1)
+		assert_false(route.pending)
+		published.append(route))
+	for index: int in range(2):
+		var actor: E_DistrictNpc = _SCENE.instantiate() as E_DistrictNpc
+		var context: EntitySpawnContext = _context(actor, people[index],
+			"fixture/initial_route/%d" % index)
+		assert_true(EntityCompositionService.try_register(context))
+	assert_eq(published.size(), 2)
+	assert_ne(published[0], published[1])
+
+	# A route operation on one actor cannot mutate another actor's compiled navigation state.
+	published[0].points.append(Vector3(1, 0, 2))
+	published[0].pending = true
+	published[0].blocked_seconds = 3.0
+	assert_true(published[1].points.is_empty())
+	assert_false(published[1].pending)
+	assert_eq(published[1].blocked_seconds, 0.0)
+#endregion
+
+
+#region Route participation reconstruction
+## Explicit reset clears route data without removing/reinstalling the initial capability.
+func test_brain_reset_retains_the_compiled_route_without_component_events() -> void:
+	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1)[0]
+	var actor: E_DistrictNpc = _SCENE.instantiate() as E_DistrictNpc
+	assert_true(EntityCompositionService.try_register(_context(actor, person,
+		"fixture/reset_route")))
+	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
+	route.points.append(Vector3(3, 0, 4))
+	route.map_iteration = 12
+	route.pending = true
+	route.elapsed = 1.5
+	var changes: Array[Component] = []
+	actor.component_added.connect(func(_subject: Entity, component: Component) -> void:
+		changes.append(component))
+	actor.component_removed.connect(func(_subject: Entity, component: Component) -> void:
+		changes.append(component))
+
+	DistrictPopulationService.reset_brain(actor)
+	assert_same(actor.get_component(C_NpcRoute), route)
+	assert_true(changes.is_empty())
+	assert_true(route.points.is_empty())
+	assert_eq(route.map_iteration, -1)
+	assert_false(route.pending)
+	assert_eq(route.elapsed, 0.0)
 #endregion

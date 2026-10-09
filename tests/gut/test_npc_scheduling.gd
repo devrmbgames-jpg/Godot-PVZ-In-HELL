@@ -195,9 +195,8 @@ func test_ready_consumer_death_prevents_later_native_update() -> void:
 func test_pending_route_rejects_departed_body() -> void:
 	var actor: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
-	var route: C_NpcRoute = C_NpcRoute.new()
+	var route: C_NpcRoute = actor.get_component(C_NpcRoute) as C_NpcRoute
 	route.elapsed = 0.2
-	actor.add_component(route)
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
 	decision.scheduled_delta = 2.0
 	decision.scheduled_day = 1
@@ -209,8 +208,10 @@ func test_pending_route_rejects_departed_body() -> void:
 	_world.add_system(owner)
 	_world.process(0.0, owner.group)
 	DistrictPopulationService.set_placement(person, actor, NpcRecord.Placement.HOME)
+	assert_same(actor.get_component(C_NpcRoute), route)
+	var elapsed_after_departure: float = route.elapsed
 	_world.flush_command_buffers()
-	assert_eq(route.elapsed, 0.2)
+	assert_eq(route.elapsed, elapsed_after_departure)
 	assert_false(route.pending)
 	assert_eq(person.placement, NpcRecord.Placement.HOME)
 

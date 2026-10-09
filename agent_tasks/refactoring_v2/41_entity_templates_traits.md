@@ -652,3 +652,21 @@ Stable address persistence milestone (task 41 remains IN_PROGRESS):
   All temporary owner edits were reverted to exact pre-trial bytes; no production workaround added.
 Remaining: complete provider audit and native shutdown acceptance fixes. Task 41 and the goal
 through PASS49 remain active; task 42/Phase 3 and rendered gameplay/visual QA have not started.
+
+Initial NPC route capability milestone (task 41 remains IN_PROGRESS):
+- Provider audit found S_NpcRoute._progress_route incorrectly classified as a runtime transition:
+  it installed C_NpcRoute on the first scheduled tick. The existing NPC brain Trait now provides
+  a fresh route before native publication; scheduled progression only uses required existing data.
+- District brain reset previously removed the route. It now clears derived paths/map/clock fields
+  on the same Component, retaining the construction contract through participation and restore.
+  Native brain binding requires it. Queued-route fixture checks post-departure state and identity.
+- Native changed parser 7 files PASS; GUT 123/123 / 777 assertions PASS across identity/publication,
+  scheduling, actual native route budgets and district planning. New fixtures prove private route
+  buffers and reset without Component-added/removed events. Logs:
+  tests/artifacts/refactoring_v2_41_route_final_parser.log / ...route_final_gut.log.
+- Actual vertical_slice PASS (vertical_slice-20261009-183213885.log); Night write/restore in two
+  new processes PASS (night_persistence-write-20261009-183225053.log /
+  night_persistence-restore-20261009-183234225.log). All final native gates have zero diagnostics.
+- Local Formatter 7 files PASS and strict dependencies PASS. Manifest is now 17/72 resolved.
+Full factory/runtime provider closure and native cold/golden shutdown failures remain required
+for task-41 acceptance; task 42 and Phase 3 have not started.

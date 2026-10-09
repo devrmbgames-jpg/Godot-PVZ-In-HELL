@@ -928,10 +928,17 @@
         "C_NpcIntent",
         "C_NpcRoute"
       ],
-      "kind": "runtime_transition",
-      "action": "retain",
-      "contract": "Owning scheduled/discrete runtime operation retains authoritative action/role/relationship state; this row grants no alternate initial capability installer or pre-ready gameplay effects.",
-      "resolved": false
+      "kind": "initial_capability",
+      "action": "migrate",
+      "contract": "Initial derived route state belongs to the NPC brain Trait. Scheduled route progression only reads existing state; participation/restore clears transient data without removing its capability.",
+      "resolved": true,
+      "capability": "npc_navigation_route",
+      "resolution": {
+        "kind": "pre_registration_route_state",
+        "replacement": "content/domains/npc/authoring/et_npc_brain_state.gd",
+        "contract": "Fresh C_NpcRoute exists before native publication and is private per actor. Explicit brain reset retains the Component and clears all derived path/map/clock fields. S_NpcRoute no longer installs it during a scheduled tick.",
+        "validation": "Native changed parser 7 files PASS; scheduling/native navigation/district route GUT 123/123 PASS, 777 assertions; actual main vertical slice and two-process Night write/restore PASS, zero native warnings/errors (2026-10-09)."
+      }
     },
     {
       "source": "content/domains/packages/entities/e_package.gd",

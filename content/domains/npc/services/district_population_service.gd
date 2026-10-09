@@ -42,8 +42,9 @@ static func reset_brain(body: E_DistrictNpc) -> void:
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	awareness.reset_transient_state()
 	decision.reset_transient_state()
-	if body.has_component(C_NpcRoute):
-		body.remove_component(C_NpcRoute)
+	var route: C_NpcRoute = body.get_component(C_NpcRoute) as C_NpcRoute
+	assert(route != null, "NPC brain reset requires its compiled route capability")
+	route.reset_transient_state()
 
 	var runner: BTPlayer = body.get_node_or_null("Brain") as BTPlayer
 	if runner != null:
