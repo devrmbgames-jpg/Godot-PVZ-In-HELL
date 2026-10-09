@@ -45,7 +45,9 @@ not wall-clock frame time, memory savings or shipping FPS. Body allocation is re
 Evidence: `tests/artifacts/refactoring_v2_45_baseline.log` and task45 focused fixtures.
 
 Preparation and arrival callers supply their intended synchronization position to the placement
-operation. Before activating or relocating a living actor, `NpcActivationSolver` checks each
+operation. They require the referenced Definition and any declared anchor to still exist;
+missing targets produce an invalid pose instead of an arrival at the origin or a fallback
+after anchor removal. Before activating or relocating a living actor, `NpcActivationSolver` checks each
 active authored body shape once against native physics, excluding only that body. A blocked
 or invalid pose rejects before changing placement, pose or generations. Restore reconciles the
 captured physical state through its explicit reconstruction boundary. No search loop, new

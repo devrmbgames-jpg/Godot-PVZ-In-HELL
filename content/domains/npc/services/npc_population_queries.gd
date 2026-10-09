@@ -6,6 +6,7 @@ static var _lookup_world: World = null
 static var _session_reference: WeakRef = null
 static var _session_query: QueryBuilder = null
 
+
 #region Чтение состояния
 ## Возвращает установленную сессию текущего района.
 static func current() -> C_District:
@@ -20,12 +21,16 @@ static func current() -> C_District:
 		_session_query = QueryBuilder.new(_lookup_world).with_all([C_District])
 
 	var session: Entity = _session_reference.get_ref() as Entity if _session_reference != null else null
-	if session != null and _lookup_world.entity_to_archetype.has(session) and session.has_component(C_District):
+	if (
+		session != null and _lookup_world.entity_to_archetype.has(session)
+		and session.has_component(C_District)
+	):
 		return session.get_component(C_District) as C_District
 
 	session = _session_query.execute_one()
 	_session_reference = weakref(session) if session != null else null
 	return session.get_component(C_District) as C_District if session != null else null
+
 
 ## Находит постоянную личность, включая погибших в истории района.
 static func person_for(npc_id: StringName) -> NpcRecord:
@@ -35,6 +40,7 @@ static func person_for(npc_id: StringName) -> NpcRecord:
 			if person.npc_id == npc_id:
 				return person
 	return null
+
 
 ## Находит сохранённое тело, в том числе временно отключённое.
 static func body_for(npc_id: StringName) -> E_DistrictNpc:
@@ -60,28 +66,51 @@ static func body_for(npc_id: StringName) -> E_DistrictNpc:
 			return entity as E_DistrictNpc
 	return null
 
+
 ## Возвращает начало координат района независимо от авторских DebugMarkers.
 static func origin() -> Node3D:
-	return ECS.world.get_parent().get_node_or_null("District") as Node3D if is_instance_valid(ECS.world) else null
+	return (
+		ECS.world.get_parent().get_node_or_null("District") as Node3D
+		if is_instance_valid(ECS.world)
+		else null
+	)
 
-## Преобразует авторское место района в мировую позицию.
-static func position_for(place_id: StringName) -> Vector3:
+
+## Resolves authored coordinates; activation requires the declared target/anchor to still exist.
+## A required missing target returns a nonfinite pose, rejected before participation mutation.
+static func position_for(place_id: StringName, require_target: bool = false) -> Vector3:
 	var district: C_District = current()
-	var place: DEF_DistrictPlace = district.definition.place_for(place_id) if district != null and district.definition != null else null
+	var place: DEF_DistrictPlace = (
+		district.definition.place_for(place_id)
+		if (district != null and district.definition != null)
+		else null
+	)
 	var district_root: Node3D = origin()
+	if place == null and require_target:
+		return Vector3(NAN, NAN, NAN)
 	if place != null and not place.anchor_path.is_empty() and is_instance_valid(ECS.world):
 		var anchor: Node3D = ECS.world.get_parent().get_node_or_null(place.anchor_path) as Node3D
 		if anchor != null:
 			var anchored: Vector3 = anchor.global_position
-			anchored.y = district_root.global_position.y + place.position.y if district_root != null else place.position.y
+			anchored.y = place.position.y
+			if district_root != null:
+				anchored.y += district_root.global_position.y
 			return anchored
-	return district_root.to_global(place.position) if place != null and district_root != null else place.position if place != null else Vector3.ZERO
+		if require_target:
+			return Vector3(NAN, NAN, NAN)
+	if place == null:
+		return Vector3.ZERO
+	if district_root != null:
+		return district_root.to_global(place.position)
+	return place.position
+
 
 ## Возвращает отображаемый адрес, не показывая его внутренний ID.
 static func place_name(place_id: StringName) -> String:
 	var district: C_District = current()
 	var place: DEF_DistrictPlace = district.definition.place_for(place_id) if district != null else null
 	return place.display_name if place != null else str(place_id)
+
 
 ## Выбирает текущего живого получателя для нового заказа поставки.
 static func recipient_for(recipient_key: StringName) -> NpcRecord:
@@ -92,6 +121,7 @@ static func recipient_for(recipient_key: StringName) -> NpcRecord:
 				return person
 	return null
 #endregion
+
 
 #region Query cache lifetime
 static func _clear_lookup(_next_world: World) -> void:

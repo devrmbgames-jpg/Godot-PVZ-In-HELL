@@ -46,53 +46,53 @@ LOD transition tests + save/restore smoke + performance sanity check.
 
 ## Current / Next
 
-Authorized by active Goal; task44 reviewed at
-`06fdc4c27406f41286d1ba40909f63dab3b98c63` (ARCHITECTURE/STYLE PASS).
-45A nearest owner is existing `DistrictPopulationService.set_placement`; restore currently
-duplicates its World/body writes. `E_DistrictNpc.set_participating` is the physical adapter,
-`NpcBrainService.set_participating` the native BT adapter. Retain one placement operation
-and derive ACTIVE/DORMANT from roster placement/death instead of adding a mode copy.
-Baseline proves GECS already suspends dormant root callbacks, but child animation mixers
-remain active; measure their actual processing eligibility before changing the native adapter.
-45A implemented and reviewed: restore uses the single placement operation, repeated
-requests are idempotent, callback boundaries reject nested opposite GECS mode commits,
-and inherited child processing suspends with the body. Writer map and measured scope:
-[NPC participation](../../docs/npc_participation.md).
-Base: `0cbd5eaa832c6ab715f05a0699d0c2cc88da1fc5`.
-Reviewed target: `69a3b9729f21be26e0e75cf08a3aaa509e51a874`.
-Repair target: `4e549abab5b5c03280b3363be9f3182f539cdcea` (review PASS).
-45B implements bounded native shape preflight, explicit phase-arrival retry and rejection
-before starting service/home meetings. Actual hold, dialogue, combat and Smart Object
-cleanup is covered without replacing their owners.
-Next: 45B immutable-SHA review, then 45C
-same-mode save/reload and final measured processing acceptance. Full task remains IN_PROGRESS.
+45A reviewed at `69a3b9729f21be26e0e75cf08a3aaa509e51a874`, repaired at
+`4e549abab5b5c03280b3363be9f3182f539cdcea`; targeted ARCHITECTURE/STYLE PASS.
+45B checkpoint `c119bcb6f0bb53aabd0c390afa884361d44d1423` implements bounded native
+shape preflight, explicit phase-arrival retry and rejection before service/home activation.
+Its review found RV-002 (missing arrival target). The reproduced defect is repaired;
+next: commit/targeted repair review, then final 45C acceptance review and archive.
+One placement owner; retained physical roots; no speculative scheduler or mode mirror.
+Writer map and measured scope: [NPC participation](../../docs/npc_participation.md).
+Full task remains IN_PROGRESS until all slices and review gates are complete.
 
 ## Evidence / Current gate
 
-- Baseline: 12 retained bodies, 5 ACTIVE, 5 processing roots, 12 processing animation mixers.
+- Baseline: 12 retained bodies, 5 ACTIVE, 5 processing roots, 12 processing mixers.
   `tests/artifacts/refactoring_v2_45_baseline.log`: PASS, 7 tests / 57 assertions.
-- After 45A: same 12 bodies / 5 ACTIVE, 5 processing roots / 5 processing mixers.
-  Root callback savings already belonged to GECS; this change stops 7 dormant child mixers.
+- After: same 12 bodies / 5 ACTIVE, 5 processing roots / 5 processing mixers.
+  Root savings already belonged to GECS; the change stops 7 dormant child mixers.
   Frame time, shipping FPS and body memory savings: NOT_MEASURED / not claimed.
-- Focused participation + previous obligation/cadence: PASS, 105 tests / 708 assertions
-  (`tests/artifacts/refactoring_v2_45a_gut.log`, before final callback-lock fixture).
-- Final participation/reentrant-native-signal/dormant snapshot: PASS, 23 tests / 246 assertions
+- 45A participation/callback/snapshot acceptance: PASS, 23 tests / 246 assertions
   (`tests/artifacts/refactoring_v2_45a_final_gut.log`).
-- Parser: PASS, 5 owned files / 0 failures (`tests/artifacts/refactoring_v2_45a_parser.log`).
-- Formatter/lint and architecture/structure gates: PASS. 45A repair review: ARCHITECTURE/STYLE PASS.
-- RV-001 focused repair: PASS, 12 tests / 133 assertions, including preserved Night policy
-  (`tests/artifacts/refactoring_v2_45a_rv001_after.log`). Original reproduction FAIL,
-  1 test / 2 assertions (`tests/artifacts/refactoring_v2_45a_rv001_before.log`).
-- 45B–C acceptance and the final NPC/save smoke are NOT_RUN; no owner visual QA claimed.
+- RV-001 repair: PASS, 12 tests / 133 assertions, including Night policy
+  (`tests/artifacts/refactoring_v2_45a_rv001_after.log`).
+- 45B affected customer/BT/activation regression: PASS, 153 tests / 1071 assertions
+  (`tests/artifacts/refactoring_v2_45b_regression.log`); parser PASS, 9 files / 0 failures.
+- RV-002 reproduction: FAIL, 2 tests / 12 assertions
+  (`tests/artifacts/refactoring_v2_45b_rv002_before.log`). Repair: PASS, 20 tests / 204
+  assertions (`tests/artifacts/refactoring_v2_45b_rv002_after.log`).
+- 45C disk roundtrip ACTIVE/DORMANT, fresh absent body, district persistence and processing
+  acceptance: PASS, 54 tests / 554 assertions (`tests/artifacts/refactoring_v2_45c_gut.log`).
+- Actual main-level second-day queue headless smoke: PASS
+  (`tests/artifacts/refactoring_v2_45_main_smoke.log`, before strict target repair).
+- Formatter/lint, changed-source, strict architecture and project-structure gates: PASS.
+  Compilation PASS, 6 files / 0 actual compile failures. Isolated fixture child exits 0
+  with PASS before shutdown diagnostics; wrapper retention rejection is KNOWN_ENGINE_LIMITATION /
+  DEFERRED (`tests/artifacts/refactoring_v2_45c_isolated_parser.log`). Review/QA build pending. No owner visual QA claimed.
   Shutdown-only specified retention remains KNOWN_ENGINE_LIMITATION / DEFERRED.
 
 ## Review triage
 
-RV-001 (reviewer R1, P1, `DistrictPopulationService.set_placement`): confirmed death
-inside native suspension commits history but the nested DEAD mode is rejected by the
-transition lock; the outer inactive transition originally failed to reconcile it.
-ACCEPTED / FIXED at `4e549abab5b5c03280b3363be9f3182f539cdcea`; targeted repair review PASS. The actual
-C_Death-disable fixture reproduced the original result and passes after reconciling
-already-confirmed death for both requested modes. Night's uncommitted history remains
-with the original morning owner. Original review ARCHITECTURE FAIL / STYLE PASS;
-reviewer VALIDATION NOT_RUN. No additional 45A material findings reported.
+RV-001 (45A reviewer R1, P1, `DistrictPopulationService.set_placement`): confirmed death
+inside native suspension originally failed to supersede a nonterminal placement.
+FIXED at `4e549abab5b5c03280b3363be9f3182f539cdcea`, actual C_Death-disable fixture;
+targeted review ARCHITECTURE/STYLE PASS. Night's uncommitted history retains its morning owner.
+
+RV-002 (45B reviewer R1, P1, arrival callers): missing home/portal Definitions could resolve
+to origin and start a visit. Missing declared anchor could silently use fallback coordinates.
+ACCEPTED / FIX_IMPLEMENTED: activation callers require the declared target/anchor, and
+nonfinite missing-target poses reject before mode/pose/generation or role/visit mutation.
+Actual phase/service missing-home/portal/anchor fixtures reproduce and pass after the repair.
+Original 45B review ARCHITECTURE FAIL / STYLE PASS; targeted repair review pending.
+Reviewer VALIDATION NOT_RUN; main's executed evidence is listed separately above.

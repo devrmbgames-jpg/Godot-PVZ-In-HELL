@@ -234,7 +234,8 @@ func _plan_phase(
 	# Synchronization teleports at preparation; ordinary transitions preserve native travel.
 	if synchronize:
 		var preparation_position: Vector3 = NpcPopulationQueries.position_for(
-			person.home_id if person.profile.resident else person.portal_id
+			person.home_id if person.profile.resident else person.portal_id,
+			true,
 		)
 		var placement: NpcRecord.Placement = NpcRecord.Placement.STREET
 		if location == DEF_NpcSchedule.Location.HOME:
@@ -263,7 +264,8 @@ func _try_arrival(
 		and person.placement != NpcRecord.Placement.STREET
 	):
 		var arrival_position: Vector3 = NpcPopulationQueries.position_for(
-			person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id
+			person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id,
+			true,
 		)
 		DistrictPopulationService.set_placement(
 			person,

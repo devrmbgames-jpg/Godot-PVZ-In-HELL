@@ -89,7 +89,7 @@ static func knock(player: Entity, door: Entity) -> bool:
 			NpcRecord.Placement.STREET,
 			&"home_meeting_arrival",
 			false,
-			NpcPopulationQueries.position_for(person.home_id),
+			NpcPopulationQueries.position_for(person.home_id, true),
 		):
 			return false
 

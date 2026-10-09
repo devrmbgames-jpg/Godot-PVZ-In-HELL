@@ -49,6 +49,7 @@ static func begin(
 	if person.placement != NpcRecord.Placement.STREET:
 		var arrival_position: Vector3 = NpcPopulationQueries.position_for(
 			person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id,
+			true,
 		)
 		if not DistrictPopulationService.set_placement(
 			person,
@@ -166,7 +167,8 @@ static func claim_counter(body: E_DistrictNpc) -> void:
 	agent.elapsed = 0.0
 	var destination: Vector3 = (
 		station.entry_position()
-		if agent.phase == C_CustomerAgent \
+		if agent.phase
+		== C_CustomerAgent \
 				.Phase \
 				.WAITING_FOR_DARKNESS
 		else station.waiting_position()
