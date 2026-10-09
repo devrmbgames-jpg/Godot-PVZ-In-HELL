@@ -26,6 +26,11 @@ Use headless Godot 4.7. Return only command + concise totals on success; on fail
 Rendered/visual validation is not part of GUT execution unless the user explicitly approves it for the current task.
 
 In durable tasks, replace the relevant validation checkpoint with its current result and log
-reference; do not append one entry per run or diagnostic trial. Native warnings/resource leaks
-remain FAIL even when GUT assertions pass or the process exits zero. Classify unfamiliar
-failures against an equal baseline/current reproduction before adding them to the task scope.
+reference; do not append one entry per run or diagnostic trial. GUT assertions and exit zero
+do not excuse parser/runtime/ownership errors. Shutdown ObjectDB/Resource/RID retention alone
+is a diagnostic baseline, not proof of a memory leak or an automatic task blocker; retain it
+in logs and apply [the memory acceptance policy](../../../AGENTS.md#validation-and-commits).
+For lifetime checks, warm up then repeat equivalent operations 50–100 times in one process,
+settle deletion/deferred work and compare memory/object trends against the same baseline.
+Bound the test's own assertion history and samples so instrumentation cannot imitate a leak.
+Classify unfamiliar failures before adding them to the task scope; do not suppress warnings.

@@ -61,6 +61,17 @@ Optimize the dominant side first.
 - Avoid new large Arrays/Dictionaries/resources every frame.
 - Pool only objects that are actually high-frequency/hot-path; do not add lifecycle complexity to rarely spawned objects.
 - Prefer reuse/caching where ownership and invalidation are clear.
+- Shutdown ObjectDB/Resource/RID retention alone does not prove a memory leak. One-time allocations,
+  bounded services/caches, pooling and warmed memory reuse are acceptable. Preserve diagnostics.
+- Prove defects through sustained post-warmup growth, survivors after their owned lifecycle,
+  unbounded containers/references, use-after-free, double-free or ownership violations.
+- Warm up, repeat equivalent operations 50–100 times per process, settle queued deletion/deferred
+  work, then sample RSS/Private Bytes and available Performance static-memory/object/resource/
+  node/orphan monitors. Compare full and tail trends under identical baseline/current conditions.
+  Keep instrumentation bounded and distinguish allocator high-water marks from live survivors.
+- Audit free/queue_free by actual type/owner; do not remove them or WeakRef mechanically.
+  WeakRef does not own its target, but weak-reference containers can themselves grow.
+  Follow [the memory acceptance policy](../../../AGENTS.md#validation-and-commits).
 
 ## Evidence and reporting
 

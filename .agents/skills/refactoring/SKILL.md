@@ -42,6 +42,11 @@ Fix an in-scope regression in the task. Give an independently evidenced defect i
 reproduction and acceptance instead of broadening the refactor indefinitely. Keep the original
 task's mandatory gate open; changing it requires an explicit owner decision, not a silent waiver.
 
+Memory acceptance follows [AGENTS.md](../../../AGENTS.md#validation-and-commits): shutdown
+retention alone is not a leak or a completion blocker. Preserve the baseline and investigate
+independently if post-warmup repeated lifecycles are stable and ownership is sound. Sustained
+growth or lifecycle violations caused by the migration remain in scope and require a verified fix.
+
 ## Required completion work
 
 A completed refactor normally includes, where applicable:
