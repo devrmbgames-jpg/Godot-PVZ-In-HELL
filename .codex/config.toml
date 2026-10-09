@@ -25,7 +25,9 @@ tool_output_token_limit = 8096
 
 [agents]
 enabled = true
-# Pilot: main implementation continues while one read-only reviewer runs; never two children.
+# Capacity is 2; the pilot policy still allows only ONE reviewer concurrently.
+# Validator and any second child are serialized to avoid shared Godot/editor conflicts.
+# This does not change the configured capacity or model reasoning.
 max_concurrent_threads_per_session = 2
 default_subagent_model = "gpt-6.1-sol"
 default_subagent_reasoning_effort = "medium"

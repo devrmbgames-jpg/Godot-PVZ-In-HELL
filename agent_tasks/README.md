@@ -29,7 +29,8 @@ Do not list every test run/experiment or copy implementation history already ava
 Aim for at most 200 lines; justify indispensable current detail if exceeding that recommendation.
 Use concise links to manifests/reproductions rather than a second report containing the same log.
 Independent defects belong to separate tasks; an existing acceptance gate remains open until fixed
-or explicitly changed by the owner. See [AGENTS.md](../AGENTS.md#plan-goal-and-durable-task-state).
+or explicitly changed by the owner. This README is the canonical task state and
+archiving contract; skills link here instead of duplicating its rules.
 
 For a substantive reviewed milestone, accepted findings belong to the **same existing task** under `## Review findings`; only Main assigns RV-001 and updates status. Keep SHA, priority, evidence, fix owner, verification and final disposition. No new global `REVIEW_QUEUE.md`. If the task is single-session and has no durable task file, keep triage in the session. See `docs/parallel_review_workflow.md`.
 

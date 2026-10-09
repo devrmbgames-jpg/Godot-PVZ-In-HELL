@@ -22,7 +22,8 @@ Inspect the nearest existing scene/controller, not the entire project.
 - Runtime gameplay must not generate `.gd` scripts or permanently authored
   `.tscn`. Editor scripts/import processors may save native reviewed output.
 - Prefer editor/MCP mutations for a scene currently open in Godot, and raw
-  edits only while it is closed. Preserve node names, UIDs, ownership, signals,
+  edits only while it is closed (see the `godot-ai-mcp` skill for editor
+  shutdown/relaunch). Preserve node names, UIDs, ownership, signals,
   exported fields, physics and component/relationship contracts.
 - Validate structural edits with `utils/validate_agent_changes.py`,
   strict role/domain checks and focused Godot parser/GUT. Visual/editor QA

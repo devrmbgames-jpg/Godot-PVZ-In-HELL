@@ -16,6 +16,22 @@ Prefer ordinary repository search/read/edit tools for cheap static work. Use God
 
 For project-owned GDScript, live MCP is also the preferred validation path when the editor is available. Syntax/warning validation does **not** require launching gameplay.
 
+## Editor activation and scene-file ownership
+
+- MCP is configured from the user's `~/.codex/config.toml` (or `$CODEX_HOME/config.toml`),
+  **not** duplicated in project Codex config. It is optional and only used when
+  live/editor context improves correctness.
+- If MCP requires the Editor and none is running, start the **Godot Editor** via
+  `.vscode/start-godot.ps1` when available. Do not start rendered gameplay,
+  screenshots or game-run QA without the user's explicit approval.
+- If an open/editor-loaded `.tscn` must change, treat Godot Editor as owner:
+  prefer MCP scene operations; never patch that file externally while open.
+  If external edits are required, close the Editor, edit, then relaunch as
+  necessary. Never choose "Ignore External Changes". Raw scene edits are
+  acceptable only while the scene is closed.
+- Prefer repository file/search tools when live MCP would be more expensive,
+  and query the smallest useful subtree/log range.
+
 ## GDScript write + validation contract
 
 When changing a `.gd` file and live MCP is available:
@@ -62,12 +78,9 @@ A parser-clean file with avoidable type/shadowing warnings is not considered cle
 
 Use incremental cursors when doing repeated checks; do not repeatedly dump the whole editor log.
 
-Godot 4.7.1 shutdown-only GDScript/GDScriptNativeClass/Resource/StringName/RID retention follows
-[the engine limitation policy](../../../AGENTS.md#validation-and-commits): preserve diagnostics,
-classify `KNOWN_ENGINE_LIMITATION / DEFERRED`, and neither block tasks nor investigate that
-category before a project move to stable Godot 4.8+ with upstream-fix review. It does not waive
-parser/reload warnings, runtime regressions, lost Nodes or invalid destruction. Do not change
-typing, references, WeakRef, free() or GECS solely to remove the deferred shutdown warnings.
+Shutdown-only retention and true runtime leak handling are governed by
+[Godot Performance — Allocation / lifetime](../godot-performance/SKILL.md#allocation--lifetime).
+Do not treat a Godot 4.7.1 shutdown warning as parser/reload/runtime validation failure.
 
 ## PVZ custom GECS tools
 

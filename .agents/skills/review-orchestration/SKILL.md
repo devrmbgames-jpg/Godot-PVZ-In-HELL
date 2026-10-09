@@ -22,8 +22,8 @@ Follow existing GECS and GDScript style contracts. Main is the sole writer.
    No test runs, editor/MCP access, Git checkout or task editing by reviewer.
 3. **Continue independent work without immediately waiting**, only if new
    work cannot depend on the unreviewed architecture and will not compete for
-   Godot/editor state. At most one child agent may run; do not spawn validator
-   concurrently. If no independent work exists, collect the review now.
+   Godot/editor state. Run at most one reviewer regardless of the configured child-agent capacity;
+   do not spawn validator concurrently. If no independent work exists, collect the review now.
 4. At integration boundary and always before DONE, collect the result. A
    pending/unavailable review is `REVIEW_PENDING`/`NOT_RUN`, not PASS.
    If host cannot run a parallel reviewer, fall back to serial review and
@@ -41,10 +41,9 @@ Follow existing GECS and GDScript style contracts. Main is the sole writer.
 - Allowed final statuses: `FIXED(fix SHA, test)`, `REJECTED(evidence)`,
   `OBSOLETE(current SHA)`, `DEFERRED(owner/task/reason)`.
   `ACCEPTED` is temporary until resolved; `REVIEW_PENDING` blocks DONE.
-- Apply [the engine limitation policy](../../../AGENTS.md#validation-and-commits): Godot 4.7.1's
-  specified shutdown-only retention category is `KNOWN_ENGINE_LIMITATION / DEFERRED`, not an
-  accepted blocking finding. Do not initiate its investigation before stable Godot 4.8+ adoption
-  and upstream-fix review. Proven runtime growth, lost Nodes and invalid destruction still block.
+- Follow the [Godot Performance memory policy](../godot-performance/SKILL.md#allocation--lifetime):
+  Godot 4.7.1 shutdown-only retention is DEFERRED; genuine runtime growth,
+  lost Nodes or invalid destruction are still blocking findings.
 - **P0:** data loss/security/authority → stop affected work immediately.
   **P1:** behavioral/GECS/lifecycle blocker → fix before dependent changes.
   **P2:** changed-scope architecture/style → fix before milestone DONE.
@@ -52,7 +51,7 @@ Follow existing GECS and GDScript style contracts. Main is the sole writer.
 
 Keep one current record per canonical finding and one current review state; replace stale
 checkpoint/next-action entries instead of appending the review conversation or each test run.
-Follow [the task-state policy](../../../AGENTS.md#plan-goal-and-durable-task-state), including
+Follow [the task-state policy](../../../agent_tasks/README.md#ownership), including
 the recommended 200-line active-task size and substantive justification for exceptions.
 Independent out-of-scope defects get their own evidence/reproduction/acceptance task;
 link the dependency without waiving the original task's mandatory criteria or expanding scope.
