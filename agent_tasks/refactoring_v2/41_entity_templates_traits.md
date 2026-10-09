@@ -494,3 +494,42 @@ Evidence: `.artifacts/refactoring_v2_41_receiving_profile_parser.log`,
 `...receiving_profile_gut.log`. This is a coherent initial-provider milestone inside task 41.
 Task remains IN_PROGRESS, with complete startup/saved-overlay/endpoint-ready gates and remaining
 manifest providers pending. Cold inherited parser and separate native golden retention remain OPEN.
+
+
+## Global fresh/restored startup readiness milestone
+
+GameWorld's native add_observer override suspends every placed and later startup Observer, preserving
+its previous activity. The separate startup-observer registration branch is removed; normal pinned
+registration is the sole entry. One shared ObserverReactionBoundary owns silent derived monitor
+membership reconstruction for both global startup and snapshot restore; nested scopes preserve
+inactive startup observers. GameWorld.process holds every scheduled group until accepted global
+readiness. Failed placed builds still publish no ready and perform no native registrations.
+
+Passive population participation now synchronizes Entity.enabled with authoritative saved/default
+placement before readiness. This removes the initial HOME/enabled disagreement that rejected an
+otherwise valid immediate snapshot. The level submits unprepared morning work only after ready,
+through the existing typed request and O_DistrictLifecycle scheduled owner. Scheduled planning was
+not moved into a Service. Real panel fixture teardown waits for queued UI cleanup rather than
+leaving 46 detached row nodes pending.
+
+Executed final native parser **6 owner/fixture files PASS**, then **3 final route files PASS**;
+actual placed/bootstrap/fresh+saved startup/snapshot GUT **35/35 / 356 assertions PASS**, zero
+native diagnostics and no reported orphans. Fixtures prove native/late Observer suppression,
+no initial match replay, normal future dispatch, passive deferred setup, withheld first System tick,
+accepted tick after ready and preserved saved HP. Actual main vertical_slice **PASS** and Night
+write/restore **PASS in independent processes**, final logs independently scanned by the strict
+runner: `vertical_slice-20261009-162258525.log`, `night_persistence-write-20261009-162308973.log`,
+`night_persistence-restore-20261009-162318075.log`. Truck write/restore also PASS after participation
+fix, logs `morning_truck-write-20261009-161922762.log` / `...restore-20261009-161931880.log`.
+Actual local Formatter **44 files PASS**; project/domain/map/strict dependencies/strict architecture,
+persistence baseline, preflight and incremental agent-change checks PASS. Headless editor import
+created native UIDs/class cache; its prior 6 ObjectDB/3-resource exit diagnostics remain, so import is
+not claimed as a clean validation gate. Self-review is non-independent, includes direct composition
+subscriptions and native add_observer interception; no addon mutation or gameplay replay introduced.
+
+Evidence: `.artifacts/refactoring_v2_41_fresh_startup_final_parser.log`,
+`...startup_gate_final_parser.log`, `...startup_gate_final_gut.log`, `...boundary_import.log`.
+This closes the global startup gap, not complete task-41 acceptance. Per-Entity factory readiness,
+placed saved overlays/native initial callbacks, remaining providers, legacy receiving_scan migration
+and inherited cold/golden retention still need work. Manifest remains **14/72 resolved** in the
+ongoing worktree. Task 41 IN_PROGRESS; 42 and Phase 3 have not started.

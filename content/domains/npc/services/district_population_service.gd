@@ -67,7 +67,13 @@ static func restore_participation() -> void:
 		body.present_profile(person.profile)
 		body.show_message(person.display_name)
 		NpcBrainService.bind_engine(body)
-		body.set_participating(person.placement == NpcRecord.Placement.STREET and person.death_day == 0)
+		var participating: bool = person.placement == NpcRecord.Placement.STREET \
+			and person.death_day == 0
+		if participating and not body.enabled:
+			ECS.world.enable_entity(body)
+		elif not participating and body.enabled:
+			ECS.world.disable_entity(body)
+		body.set_participating(participating)
 		if person.death_day != 0:
 			body.sync_death_presentation()
 

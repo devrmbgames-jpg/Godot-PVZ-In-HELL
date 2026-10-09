@@ -45,11 +45,24 @@ class PassiveActor extends Entity:
 class SetupProbe extends System:
 	var _setup_calls: int = 0
 	var _setup_entities: int = 0
+	var _process_calls: int = 0
 
 	## Records the World contents when normal ECS.world binding finalizes setup.
 	func setup() -> void:
 		_setup_calls += 1
 		_setup_entities = _world.entities.size()
+
+	## Selects actual fixture data for scheduled execution after global readiness.
+	func query() -> QueryBuilder:
+		return q.with_all([C_DayCycle])
+
+	## Counts real native System execution; no gameplay effects are synthesized by the test.
+	func process(_entities: Array[Entity], _components: Array, _delta: float) -> void:
+		_process_calls += 1
+
+	## Returns the actual scheduler dispatch count.
+	func process_calls() -> int:
+		return _process_calls
 
 	## Returns the number of normal native setup invocations.
 	func setup_calls() -> int:
@@ -230,4 +243,47 @@ func test_placed_district_roster_and_merchant_identity_precede_native_publicatio
 	assert_eq(committed.next_person, 1 + committed.people.size())
 	assert_true(district.people.is_empty(), "Scene recipes remain immutable")
 	assert_true(committed.people[7].profile.merchant)
+#endregion
+
+
+#region First scheduled tick barrier
+## Passive setup may bind before startup closes, but scheduled consumers wait for global ready.
+func test_first_scheduled_tick_waits_for_accepted_startup() -> void:
+	_actor("Actor", [C_DayCycle.new()])
+	var probe: SetupProbe = SetupProbe.new()
+	_systems.add_child(probe)
+	probe.owner = _level
+	add_child(_level)
+	ECS.world = _world
+	assert_eq(probe.setup_calls(), 1)
+	assert_false(_world.composition_ready())
+	_world.process(0.1)
+	assert_eq(probe.process_calls(), 0)
+	_world.finish_startup()
+	assert_true(_world.composition_ready())
+	_world.process(0.1)
+	assert_eq(probe.process_calls(), 1)
+#endregion
+
+
+#region Late startup Observer registration
+## Native and late startup observers use the same suspension path and never replay initial matches.
+func test_late_startup_observer_is_suspended_until_all_initial_entities_are_complete() -> void:
+	_actor("Initial", [C_Health.new()])
+	add_child(_level)
+	ECS.world = _world
+	var spy: O_StartupEffectSpy = O_StartupEffectSpy.new()
+	_world.add_observer(spy)
+	assert_false(spy.active)
+	var startup_actor: Entity = Entity.new()
+	startup_actor.component_resources = [C_Health.new()]
+	EntityCompositionFixture.register(_world, startup_actor)
+	assert_eq(spy.effects, 0)
+	_world.finish_startup()
+	assert_true(spy.active)
+	assert_eq(spy.effects, 0, "Initial membership is rebuilt without gameplay replay")
+	var future_actor: Entity = Entity.new()
+	future_actor.component_resources = [C_Health.new()]
+	EntityCompositionFixture.register(_world, future_actor)
+	assert_eq(spy.effects, 1)
 #endregion

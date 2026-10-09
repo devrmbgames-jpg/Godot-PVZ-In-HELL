@@ -6976,7 +6976,8 @@
       ],
       "public_methods": [
         "initialize",
-        "restore_participation"
+        "restore_participation",
+        "prepare_morning"
       ],
       "sources": [
         "content/debug/debug_world_service.gd",
@@ -6987,7 +6988,8 @@
       ],
       "method_rights": {
         "initialize": "request",
-        "restore_participation": "request"
+        "restore_participation": "request",
+        "prepare_morning": "request"
       },
       "public_instance_methods": []
     },
@@ -17449,6 +17451,50 @@
         "configure_context": "configure"
       },
       "purpose": "Task 41: detached roster/Profile/identity construction inputs before native publication; no competing runtime authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "shared",
+      "symbol": "ObserverReactionBoundary",
+      "path": "content/shared/services/observer_reaction_boundary.gd",
+      "rights": [
+        "configure"
+      ],
+      "public_methods": [
+        "suspend",
+        "resume"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "suspend": "configure",
+        "resume": "configure"
+      },
+      "sources": [
+        "content/scenes/game_world.gd"
+      ],
+      "purpose": "Task 41: synchronous construction/restore scope suppresses partial gameplay reactions and silently rebuilds pinned derived monitor membership before readiness."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "shared",
+      "symbol": "ObserverReactionBoundary",
+      "path": "content/shared/services/observer_reaction_boundary.gd",
+      "rights": [
+        "configure"
+      ],
+      "public_methods": [
+        "suspend",
+        "resume"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "suspend": "configure",
+        "resume": "configure"
+      },
+      "sources": [
+        "content/domains/persistence/services/snapshot_restore_boundary.gd"
+      ],
+      "purpose": "Task 41: synchronous construction/restore scope suppresses partial gameplay reactions and silently rebuilds pinned derived monitor membership before readiness."
     }
   ],
   "legacy_decomposition": []

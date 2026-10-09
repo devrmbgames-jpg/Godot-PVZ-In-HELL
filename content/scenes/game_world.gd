@@ -8,6 +8,7 @@ var _placed_actors: Array[Entity] = []
 var _placed_plans: Array[EntityBuildPlan] = []
 var _startup_activity: Dictionary[Observer, bool] = {}
 var _restoring: bool = false
+var _starting: bool = true
 
 #region Validated world registration
 func _ready() -> void:
@@ -22,11 +23,6 @@ func _ready() -> void:
 	if not _prepare_placed_recipes(construction_snapshot):
 		return
 	_restoring = not candidate.is_empty() and WorldSnapshotService.can_restore(candidate, level)
-	if _restoring:
-		for child: Node in get_node(system_nodes_root).find_children("*", "Observer"):
-			var observer: Observer = child as Observer
-			_startup_activity[observer] = observer.active
-			observer.active = false
 	super._ready()
 	_bind_placed_intents()
 	_placed_actors.clear()
@@ -53,20 +49,33 @@ func restoring_startup() -> bool:
 	return _restoring
 
 
-## Adds composition observers without enabling gameplay before restored fixup completes.
-func add_startup_observer(observer: Observer) -> void:
-	if _restoring:
+## Adds composition observers without enabling gameplay before all startup fixup completes.
+func add_observer(observer: Observer) -> void:
+	if _starting:
 		_startup_activity[observer] = observer.active
 		observer.active = false
-	add_observer(observer)
+	super.add_observer(observer)
 
 
 ## Publishes readiness after all state, links and derived bindings have been reconstructed.
 func finish_startup() -> void:
-	for observer: Observer in _startup_activity:
-		observer.active = _startup_activity[observer]
+	assert(_starting and not initialization_failed(), "Only accepted startup publishes readiness")
+	ObserverReactionBoundary.resume(self, _startup_activity)
 	_startup_activity.clear()
 	_restoring = false
+	_starting = false
+
+
+## Reports accepted global readiness after defaults, startup spawns and restored links are complete.
+func composition_ready() -> bool:
+	return not _starting and not initialization_failed()
+
+
+## Holds scheduled consumers until the level composition owner closes startup.
+func process(delta: float, group: String = "") -> void:
+	if not composition_ready():
+		return
+	super.process(delta, group)
 #endregion
 
 

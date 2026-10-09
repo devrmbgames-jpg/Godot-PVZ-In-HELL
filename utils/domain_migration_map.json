@@ -13904,6 +13904,20 @@
       "owner": "interaction",
       "role": "definitions",
       "task": "retain"
+    },
+    {
+      "source": "content/shared/services/observer_reaction_boundary.gd",
+      "target": "content/shared/services/observer_reaction_boundary.gd",
+      "owner": "shared",
+      "role": "services",
+      "task": "retain"
+    },
+    {
+      "source": "content/shared/services/observer_reaction_boundary.gd.uid",
+      "target": "content/shared/services/observer_reaction_boundary.gd.uid",
+      "owner": "shared",
+      "role": "services",
+      "task": "retain"
     }
   ],
   "old_save_migration": false,

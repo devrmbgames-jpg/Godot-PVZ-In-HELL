@@ -223,3 +223,10 @@ Additional task-41 initial provider: package carry Profile defaults now compile 
 ET_PackageState; receiving factory no longer rewrites carry recipes. Native parser 3 files and
 GUT 71/71 PASS; actual truck write/restore PASS. Runner restart registration fixed in e15b66ae.
 This milestone does not close task 41; readiness, complete manifest and cold retention remain open.
+
+
+Task-41 global startup readiness milestone: all native/late Observers suspend until ready;
+first System tick waits, membership reconstructs silently and structural NPC participation matches
+saved/default placement. Morning work stays in its scheduled owner and dispatches after ready.
+Final native GUT 35/35 / 356 and parser PASS; actual main/Night restart PASS. Per-Entity ready,
+remaining manifest and cold retention remain required; task 41 stays IN_PROGRESS.

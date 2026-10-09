@@ -30,36 +30,15 @@ func _ready() -> void:
 	var clock_owner: S_GameTime = S_GameTime.new()
 	clock_owner.group = "Clock"
 	world.add_system(clock_owner)
-	if authored_world != null:
-		authored_world.add_startup_observer(O_DistrictLifecycle.new())
-	else:
-		world.add_observer(O_DistrictLifecycle.new())
-	if authored_world != null:
-		authored_world.add_startup_observer(O_CustomerPlanning.new())
-	else:
-		world.add_observer(O_CustomerPlanning.new())
-	if authored_world != null:
-		authored_world.add_startup_observer(O_CustomerOutcomes.new())
-	else:
-		world.add_observer(O_CustomerOutcomes.new())
-	if authored_world != null:
-		authored_world.add_startup_observer(O_CustomerGreeting.new())
-	else:
-		world.add_observer(O_CustomerGreeting.new())
-	if authored_world != null:
-		authored_world.add_startup_observer(O_CustomerServiceClock.new())
-	else:
-		world.add_observer(O_CustomerServiceClock.new())
-	if authored_world != null:
-		authored_world.add_startup_observer(O_CustomerNpcInterruption.new())
-	else:
-		world.add_observer(O_CustomerNpcInterruption.new())
+	world.add_observer(O_DistrictLifecycle.new())
+	world.add_observer(O_CustomerPlanning.new())
+	world.add_observer(O_CustomerOutcomes.new())
+	world.add_observer(O_CustomerGreeting.new())
+	world.add_observer(O_CustomerServiceClock.new())
+	world.add_observer(O_CustomerNpcInterruption.new())
 	for observer_type: Script in [O_CustomerNpcConversation, O_CustomerInspectionCargo, O_DialoguePanelRequest, O_GameplayPanelRequest, O_NightPreparationRequirement]:
 		var composition_observer: Observer = observer_type.new() as Observer
-		if authored_world != null:
-			authored_world.add_startup_observer(composition_observer)
-		else:
-			world.add_observer(composition_observer)
+		world.add_observer(composition_observer)
 	for owner_type: Script in [S_CustomerVisitPresence, S_CustomerCleanup, S_CustomerClock, S_CustomerGreeting, S_CustomerApproach, S_CustomerWaiting, S_CustomerInspection, S_CustomerDeparture, S_CustomerArrivals]:
 		var customer_owner: System = owner_type.new() as System
 		customer_owner.group = "GamePlay"
@@ -70,7 +49,8 @@ func _ready() -> void:
 		world.add_system(npc_owner)
 	world.add_system(S_LootDrops.new(), true)
 	_bind_furniture_delivery()
-	if authored_world == null or not authored_world.restoring_startup():
+	var reconstructing: bool = authored_world != null and authored_world.restoring_startup()
+	if not reconstructing:
 		if not DistrictPopulationService.initialize():
 			set_physics_process(false)
 			queue_free()
@@ -91,6 +71,8 @@ func _ready() -> void:
 		add_child(delivery_view)
 	if authored_world != null:
 		authored_world.finish_startup()
+		# Construction held reactions; request unprepared scheduled work after readiness.
+		DistrictPopulationService.prepare_morning(DayPhaseQueries.current().day_index)
 	if OS.has_feature("qa_build"):
 		print("QA level: ", scene_file_path, "; save slot=", autosave_path)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
