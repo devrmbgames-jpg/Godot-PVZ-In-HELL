@@ -1,8 +1,8 @@
 # Refactoring v2.45 — NPC Simulation LOD
 
-Status: **IN_PROGRESS**
+Status: **DONE** (2026-10-10)
 
-Зависимости: [44_ai_schedule_utility_goap.md](../completed/refactoring_v2/44_ai_schedule_utility_goap.md), [04_identity_persistence_contract.md](../completed/refactoring_v2/04_identity_persistence_contract.md), [47_game_time_randomness.md](../completed/refactoring_v2/47_game_time_randomness.md).
+Зависимости: [44_ai_schedule_utility_goap.md](44_ai_schedule_utility_goap.md), [04_identity_persistence_contract.md](04_identity_persistence_contract.md), [47_game_time_randomness.md](47_game_time_randomness.md).
 
 ## Goal
 
@@ -52,10 +52,11 @@ LOD transition tests + save/restore smoke + performance sanity check.
 shape preflight, explicit phase-arrival retry and rejection before service/home activation.
 Its review found RV-002 (missing arrival target), fixed and reviewed at
 `0d809e98b7d9f1c01ca7849681a66078e0cc0c87` (ARCHITECTURE/STYLE PASS).
-Next: final 45C acceptance review, Windows QA build and archive.
+45C reviewed at `3fad54aefbf7c9451eed7d2bd576825b2a071327`: ARCHITECTURE/STYLE PASS.
+Windows QA menu/level startup checks PASS; all A-C gates complete. Next: task46.
 One placement owner; retained physical roots; no speculative scheduler or mode mirror.
-Writer map and measured scope: [NPC participation](../../docs/npc_participation.md).
-Full task remains IN_PROGRESS until all slices and review gates are complete.
+Writer map and measured scope: [NPC participation](../../../docs/npc_participation.md).
+Full task DONE; retained bodies are the chosen representation, with no dual transition path.
 
 ## Evidence / Current gate
 
@@ -82,7 +83,9 @@ Full task remains IN_PROGRESS until all slices and review gates are complete.
 - Formatter/lint, changed-source, strict architecture and project-structure gates: PASS.
   Compilation PASS, 6 files / 0 actual compile failures. Isolated fixture child exits 0
   with PASS before shutdown diagnostics; wrapper retention rejection is KNOWN_ENGINE_LIMITATION /
-  DEFERRED (`tests/artifacts/refactoring_v2_45c_isolated_parser.log`). Review/QA build pending. No owner visual QA claimed.
+  DEFERRED (`tests/artifacts/refactoring_v2_45c_isolated_parser.log`). All slice reviews PASS. Windows QA export/menu/level startup PASS (120 frames each);
+  `.export/windows/20261009-214532Z-3fad54ae-npc-participation-final/PVZInHell.exe`.
+  Build includes the preserved dirty worktree, recorded in build_info.json. No visual QA claimed.
   Shutdown-only specified retention remains KNOWN_ENGINE_LIMITATION / DEFERRED.
 
 ## Review triage

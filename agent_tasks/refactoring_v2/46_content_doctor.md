@@ -1,8 +1,8 @@
 # Refactoring v2.46 — Content Doctor
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
-Зависимости: [45_simulation_lod.md](45_simulation_lod.md), Templates, Smart Objects и AI contracts стабилизированы.
+Зависимости: [45_simulation_lod.md](../completed/refactoring_v2/45_simulation_lod.md), Templates, Smart Objects и AI contracts стабилизированы.
 
 ## Goal
 
@@ -36,3 +36,15 @@ Quest/Trader providers появляются в 19/24, dialogue contract provider
 ## Validation
 
 Fixture tests + полный content scan.
+
+## Current / Next
+
+Task45 A-C completed; final reviewed source `3fad54aefbf7c9451eed7d2bd576825b2a071327`.
+Nearest existing providers: detached EntityAuthoringPreviewRules/EntityBuildRules,
+SmartObjectRules, RefusalQuestValidator and authored Definition/AI contracts.
+Next: aggregate native scene/resource diagnostics in one headless CLI without running
+scene gameplay or dialogue expressions. Check factory-context prefabs through their declared
+inputs instead of reporting missing runtime IDs as authored content errors. Add representative
+broken fixtures and integrate the full scan into structural acceptance.
+Dialogue ctx methods/cues require a declared read-only contract check; no action interpreter.
+Implementation, fixture tests and complete content scan: NOT_RUN.

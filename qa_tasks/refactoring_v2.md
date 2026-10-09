@@ -18,4 +18,13 @@ acceptance that cannot be proved by detached/headless checks. No rendered QA is 
 - Follow `docs/entity_authoring.md` for two NPC/Trader/combat variants and a reused-assets
   level. Assess whether the documented manual editing locations are practical.
 
+## NPC participation (45)
+
+- Latest Windows QA launcher: `.export/LATEST.cmd`; build
+  `20261009-214532Z-3fad54ae-npc-participation-final` (menu/level headless startup PASS).
+- Check daytime arrival/departure and repeated sleep/reload in the actual level for animation,
+  collision and conversation continuity. Headless mode, identity, state and routing acceptance
+  passed; subjective presentation remains owner QA. The build preserves current user edits
+  and records a dirty worktree in its manifest.
+
 Later milestones add only their remaining subjective acceptance here.
