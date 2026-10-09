@@ -29,6 +29,19 @@ If a blocker prevents completing the declared scope, record the task as BLOCKED/
 
 "Refactor fully" does not mean changing unrelated features. Scope remains deliberate: complete the chosen architecture migration, preserve unrelated behavior and user edits, and do not expand into neighboring product changes without architectural necessity.
 
+## Scope and durable state
+
+Follow [the task-state policy](../../../AGENTS.md#plan-goal-and-durable-task-state): replace
+obsolete Current/Next at each checkpoint, keep only relevant validation/open findings, and use
+Git for implementation history. Do not append every run or diagnostic experiment. Aim for an
+active task of at most 200 lines; excess needs indispensable current detail, not a relocated log.
+
+Before treating an unfamiliar failure as part of the migration, compare baseline and current
+implementation with the same reproduction, engine/dependency versions and diagnostic gate.
+Fix an in-scope regression in the task. Give an independently evidenced defect its own task,
+reproduction and acceptance instead of broadening the refactor indefinitely. Keep the original
+task's mandatory gate open; changing it requires an explicit owner decision, not a silent waiver.
+
 ## Required completion work
 
 A completed refactor normally includes, where applicable:

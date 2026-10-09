@@ -13,6 +13,9 @@ Follow existing GECS and GDScript style contracts. Main is the sole writer.
 1. After a coherent committed checkpoint, resolve exact full `BASE_SHA`
    (previous reviewed baseline) and `TARGET_SHA` (checkpoint). Do not hand
    the reviewer a moving HEAD, mutable worktree, or untracked source.
+   Check the existing reviewer's live status first. Reuse/collect a running reviewer;
+   never start a second while it is still working. If a terminal review result is
+   unavailable, pin a replacement review to exact SHAs or record NOT_RUN.
 2. Spawn **one** configured `reviewer` with both SHAs, owning task goal and
    limited touched paths. It must read `git diff BASE_SHA TARGET_SHA` and
    `git show TARGET_SHA:path` rather than changing or reading live files.
@@ -42,6 +45,13 @@ Follow existing GECS and GDScript style contracts. Main is the sole writer.
   **P1:** behavioral/GECS/lifecycle blocker → fix before dependent changes.
   **P2:** changed-scope architecture/style → fix before milestone DONE.
   **P3:** optional cleanup → bundle or explicitly defer. No fake PASS.
+
+Keep one current record per canonical finding and one current review state; replace stale
+checkpoint/next-action entries instead of appending the review conversation or each test run.
+Follow [the task-state policy](../../../AGENTS.md#plan-goal-and-durable-task-state), including
+the recommended 200-line active-task size and substantive justification for exceptions.
+Independent out-of-scope defects get their own evidence/reproduction/acceptance task;
+link the dependency without waiving the original task's mandatory criteria or expanding scope.
 
 ## Bounded fix cycle
 

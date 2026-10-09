@@ -49,6 +49,12 @@ Do not create repository bookkeeping merely because a plan exists. Create or reu
 
 One durable task file owns its own status/current/next/validation. There is no separate queue, current-work, or task-history source of truth. Git history is the implementation history; design docs describe durable product contracts; `qa_tasks/` owns remaining manual acceptance.
 
+Task files describe current state, not an activity log. Keep the goal, acceptance, important architectural decisions, latest checkpoint/next action, relevant validation evidence and unresolved findings. A new checkpoint replaces obsolete Current/Next and validation entries; do not append a chronological account of every action, test run or diagnostic experiment. Preserve unique evidence through concise results and links to manifests/reproductions, and use full Git SHAs for review/fix checkpoints.
+
+Keep each task within its declared scope. Classify suspected regressions with comparable baseline/current evidence before expanding implementation. Independent defects get separate owning tasks with evidence, reproduction and acceptance; link any remaining dependency from the original task. Moving a defect does not waive an existing mandatory criterion: if changing that criterion is necessary, record the exact owner decision needed and keep acceptance open. Uncontrolled scope expansion is prohibited.
+
+Aim for at most 200 lines in an active task file. An exception needs a substantive explanation of the indispensable current contracts/evidence; accumulated history or repeated test results are not justification. Do not move the same activity log to an auxiliary report or duplicate Current/Next in an index.
+
 When a task reaches DONE after its required validation/review, move its existing task file to `agent_tasks/completed/<original relative path>` in the same completion batch. Preserve its status, evidence and original subdirectory structure; update incoming links and relative links inside the moved file. Do not leave a duplicate or forwarding task file in the active directory. Tasks with unfinished implementation, pending review, blockers or owner acceptance stay active under their actual status. The archive preserves completed task records, not a separate queue or history log.
 
 ## Specialized skills

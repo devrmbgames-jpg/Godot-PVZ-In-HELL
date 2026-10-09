@@ -24,3 +24,8 @@ Do not run GUT after every edit or milestone. For a complete large `Rxx` / `Rxx.
 Use headless Godot 4.7. Return only command + concise totals on success; on failure return the failing test/assertion and smallest useful stack. Never paste the full GUT log into the main context.
 
 Rendered/visual validation is not part of GUT execution unless the user explicitly approves it for the current task.
+
+In durable tasks, replace the relevant validation checkpoint with its current result and log
+reference; do not append one entry per run or diagnostic trial. Native warnings/resource leaks
+remain FAIL even when GUT assertions pass or the process exits zero. Classify unfamiliar
+failures against an equal baseline/current reproduction before adding them to the task scope.
