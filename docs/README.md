@@ -4,7 +4,8 @@
 
 | Документ | Назначение |
 | --- | --- |
-| [Правила агентов](../AGENTS.md) | Короткие always-on invariants и execution policy |
+| [Правила агентов](../AGENTS.md) | Короткие обязательные инварианты и маршрутизация |
+| [Каталог skills](../.agents/skills/README.md) | Условные навыки GECS, MCP, памяти, Code Style, review, GUT |
 | [Индекс проекта](../PROJECT_INDEX.md) | Найти owner/path, если задача сама их не указала |
 | [Gameplay architecture](../content/ARCHITECTURE.md) | Cross-system authority/lifecycle contracts |
 | [Code Style и локальные проверки](code_style.md) | GECS-префиксы, настройка GDQuest и локальные команды без GitHub CI |

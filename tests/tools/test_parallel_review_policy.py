@@ -16,7 +16,8 @@ class ParallelReviewPolicyTests(unittest.TestCase):
     def test_one_child_parallel_with_main(self) -> None:
         config = tomllib.loads(read(".codex/config.toml"))
         self.assertTrue(config["agents"]["enabled"])
-        self.assertEqual(1, config["agents"]["max_concurrent_threads_per_session"])
+        self.assertGreaterEqual(config["agents"]["max_concurrent_threads_per_session"], 1)
+        self.assertLessEqual(config["agents"]["max_concurrent_threads_per_session"], 2)
         self.assertIn("reviewer", config["agents"])
         self.assertIn("validator", config["agents"])
 

@@ -1,8 +1,9 @@
 # PVZ agent skills — on-demand index
 
-**Do not preload this catalog.** `AGENTS.md` holds the always-on contract.
-Load a matching `SKILL.md` only when its trigger appears; skill frontmatter
-(`name`, `description`) is the discovery source.
+**Do not preload this catalog.** `AGENTS.md` holds the always-on contract
+(target **8 KiB or less** and within `project_doc_max_bytes`).
+Load only the matching `SKILL.md` based on its frontmatter (`name`, `description`).
+Do not re-copy canonical memory, task-state or MCP rules into root instructions.
 
 | Work area | Skill |
 | --- | --- |
