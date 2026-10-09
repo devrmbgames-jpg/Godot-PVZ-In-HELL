@@ -1,0 +1,198 @@
+{
+  "baseline_sha": "857ec02d7703eab840dbf496730be48d29294d99",
+  "target_runtime_sha": "fc58024f827607286afd1d20d009e3bf22495f64",
+  "gecs_sha": "14d4282e5c1cb2713c187706ba2f5ff4e315d36e",
+  "engine": "4.7.1.stable.official.a13da4feb",
+  "owner_decision": "2026-10-10: shutdown retention alone is not proof of a leak; assess repeated post-warmup growth and ownership.",
+  "settings_sha256": "b56250e97531e1f18866a46ea5b725c8d43654e7e4a6f69c4f2e5ca78f30ec64",
+  "reports": [
+    {
+      "path": "tests/artifacts/memory_lifecycle/baseline.json",
+      "sha256": "5f80eb941831b0cb456a06fe7b059c59421c0513193f88d7013bb7133437fa94",
+      "functional": {
+        "assertions": 5184,
+        "cycles": 60,
+        "failures": 0,
+        "warmup": 12
+      },
+      "fixture_sha256": {
+        "probe": "b0b8f28bd066bef2db885e3119a06e1fb42e9ac83d1494bb16fa51434c53c6bb",
+        "test_s_grab.gd": "c30b66fb726bbfe47f42f38604b4db23a59a090763e8d81942d9782a55fa5d44",
+        "test_district_population.gd": "dfdf43e5c2b36c0ce89b80a0ef3c7471460a3caf749ce22569559c5d42bbdf1e",
+        "test_district_snapshot.gd": "e84ab189d6abc0dc56e92015916abaf32140610a5761bf29263c134b93534970",
+        "test_customer_handoff.gd": "87c198000ad5adacb0ca09978448261fd59a2cb71edbb15c654f3b79084e7a80",
+        "test_npc_remains.gd": "4c8291fcfc33ca86e7ff83cf82d6bfc60bfbea88a7cae7fdb2aa0af145bda744"
+      }
+    },
+    {
+      "path": "tests/artifacts/memory_lifecycle/target.json",
+      "sha256": "1d47f90d2760ef5c425aecd40d837bb189caf8125680bd138d31ef2b37f4d80b",
+      "functional": {
+        "assertions": 5184,
+        "cycles": 60,
+        "failures": 0,
+        "warmup": 12
+      },
+      "fixture_sha256": {
+        "probe": "b0b8f28bd066bef2db885e3119a06e1fb42e9ac83d1494bb16fa51434c53c6bb",
+        "test_s_grab.gd": "c30b66fb726bbfe47f42f38604b4db23a59a090763e8d81942d9782a55fa5d44",
+        "test_district_population.gd": "dfdf43e5c2b36c0ce89b80a0ef3c7471460a3caf749ce22569559c5d42bbdf1e",
+        "test_district_snapshot.gd": "e84ab189d6abc0dc56e92015916abaf32140610a5761bf29263c134b93534970",
+        "test_customer_handoff.gd": "87c198000ad5adacb0ca09978448261fd59a2cb71edbb15c654f3b79084e7a80",
+        "test_npc_remains.gd": "4c8291fcfc33ca86e7ff83cf82d6bfc60bfbea88a7cae7fdb2aa0af145bda744"
+      }
+    },
+    {
+      "path": "tests/artifacts/memory_lifecycle_world_extended_final/baseline.json",
+      "sha256": "2e82089919ac830d250fd573da33e7cd5c705c3ef39b584444d2fce2628939a4",
+      "functional": {
+        "assertions": 140,
+        "cycles": 100,
+        "failures": 0,
+        "warmup": 40
+      },
+      "fixture_sha256": {
+        "probe": "64976daebc75296ac4abade490166dfd3ba5fae83a254319bf16f155f1542db2",
+        "test_s_grab.gd": "c30b66fb726bbfe47f42f38604b4db23a59a090763e8d81942d9782a55fa5d44",
+        "test_district_population.gd": "dfdf43e5c2b36c0ce89b80a0ef3c7471460a3caf749ce22569559c5d42bbdf1e",
+        "test_district_snapshot.gd": "e84ab189d6abc0dc56e92015916abaf32140610a5761bf29263c134b93534970",
+        "test_customer_handoff.gd": "87c198000ad5adacb0ca09978448261fd59a2cb71edbb15c654f3b79084e7a80",
+        "test_npc_remains.gd": "4c8291fcfc33ca86e7ff83cf82d6bfc60bfbea88a7cae7fdb2aa0af145bda744"
+      }
+    },
+    {
+      "path": "tests/artifacts/memory_lifecycle_world_extended_final/target.json",
+      "sha256": "184853b3a3b578e34e4a286f88e325f434e2c06ec113e986b54f0a4b5c39f358",
+      "functional": {
+        "assertions": 140,
+        "cycles": 100,
+        "failures": 0,
+        "warmup": 40
+      },
+      "fixture_sha256": {
+        "probe": "64976daebc75296ac4abade490166dfd3ba5fae83a254319bf16f155f1542db2",
+        "test_s_grab.gd": "c30b66fb726bbfe47f42f38604b4db23a59a090763e8d81942d9782a55fa5d44",
+        "test_district_population.gd": "dfdf43e5c2b36c0ce89b80a0ef3c7471460a3caf749ce22569559c5d42bbdf1e",
+        "test_district_snapshot.gd": "e84ab189d6abc0dc56e92015916abaf32140610a5761bf29263c134b93534970",
+        "test_customer_handoff.gd": "87c198000ad5adacb0ca09978448261fd59a2cb71edbb15c654f3b79084e7a80",
+        "test_npc_remains.gd": "4c8291fcfc33ca86e7ff83cf82d6bfc60bfbea88a7cae7fdb2aa0af145bda744"
+      }
+    },
+    {
+      "path": "tests/artifacts/memory_lifecycle_persistent_entities/baseline.json",
+      "sha256": "4ce13cb2cea17440baff4de86eb6524d6add2a525f6fa491042224fabd41db43",
+      "functional": {
+        "assertions": 72,
+        "cycles": 60,
+        "failures": 0,
+        "warmup": 12
+      },
+      "fixture_sha256": {
+        "probe": "01807ddabfbd7376e9a0a1a7ff77b48c91094201abaa0d474c22d2b8dd9e99c3",
+        "test_s_grab.gd": "c30b66fb726bbfe47f42f38604b4db23a59a090763e8d81942d9782a55fa5d44",
+        "test_district_population.gd": "dfdf43e5c2b36c0ce89b80a0ef3c7471460a3caf749ce22569559c5d42bbdf1e",
+        "test_district_snapshot.gd": "e84ab189d6abc0dc56e92015916abaf32140610a5761bf29263c134b93534970",
+        "test_customer_handoff.gd": "87c198000ad5adacb0ca09978448261fd59a2cb71edbb15c654f3b79084e7a80",
+        "test_npc_remains.gd": "4c8291fcfc33ca86e7ff83cf82d6bfc60bfbea88a7cae7fdb2aa0af145bda744"
+      }
+    },
+    {
+      "path": "tests/artifacts/memory_lifecycle_persistent_entities/target.json",
+      "sha256": "166b926a906142b1a0ea79d064c36358b75304006bb8a0b0b1ed9d029c21b48a",
+      "functional": {
+        "assertions": 72,
+        "cycles": 60,
+        "failures": 0,
+        "warmup": 12
+      },
+      "fixture_sha256": {
+        "probe": "01807ddabfbd7376e9a0a1a7ff77b48c91094201abaa0d474c22d2b8dd9e99c3",
+        "test_s_grab.gd": "c30b66fb726bbfe47f42f38604b4db23a59a090763e8d81942d9782a55fa5d44",
+        "test_district_population.gd": "dfdf43e5c2b36c0ce89b80a0ef3c7471460a3caf749ce22569559c5d42bbdf1e",
+        "test_district_snapshot.gd": "e84ab189d6abc0dc56e92015916abaf32140610a5761bf29263c134b93534970",
+        "test_customer_handoff.gd": "87c198000ad5adacb0ca09978448261fd59a2cb71edbb15c654f3b79084e7a80",
+        "test_npc_remains.gd": "4c8291fcfc33ca86e7ff83cf82d6bfc60bfbea88a7cae7fdb2aa0af145bda744"
+      }
+    },
+    {
+      "path": "tests/artifacts/memory_lifecycle_persistent_proxies/baseline.json",
+      "sha256": "ad50280819a5a805ced7e15ca2c0a132207bee93f58eb181b422ab5d7574aebf",
+      "functional": {
+        "assertions": 360,
+        "cycles": 60,
+        "failures": 0,
+        "warmup": 12
+      },
+      "fixture_sha256": {
+        "probe": "01807ddabfbd7376e9a0a1a7ff77b48c91094201abaa0d474c22d2b8dd9e99c3",
+        "test_s_grab.gd": "c30b66fb726bbfe47f42f38604b4db23a59a090763e8d81942d9782a55fa5d44",
+        "test_district_population.gd": "dfdf43e5c2b36c0ce89b80a0ef3c7471460a3caf749ce22569559c5d42bbdf1e",
+        "test_district_snapshot.gd": "e84ab189d6abc0dc56e92015916abaf32140610a5761bf29263c134b93534970",
+        "test_customer_handoff.gd": "87c198000ad5adacb0ca09978448261fd59a2cb71edbb15c654f3b79084e7a80",
+        "test_npc_remains.gd": "4c8291fcfc33ca86e7ff83cf82d6bfc60bfbea88a7cae7fdb2aa0af145bda744"
+      }
+    },
+    {
+      "path": "tests/artifacts/memory_lifecycle_persistent_proxies/target.json",
+      "sha256": "499bf577c84330aaf948785a5889d649c25352ce813341fd9899134f18712af6",
+      "functional": {
+        "assertions": 360,
+        "cycles": 60,
+        "failures": 0,
+        "warmup": 12
+      },
+      "fixture_sha256": {
+        "probe": "01807ddabfbd7376e9a0a1a7ff77b48c91094201abaa0d474c22d2b8dd9e99c3",
+        "test_s_grab.gd": "c30b66fb726bbfe47f42f38604b4db23a59a090763e8d81942d9782a55fa5d44",
+        "test_district_population.gd": "dfdf43e5c2b36c0ce89b80a0ef3c7471460a3caf749ce22569559c5d42bbdf1e",
+        "test_district_snapshot.gd": "e84ab189d6abc0dc56e92015916abaf32140610a5761bf29263c134b93534970",
+        "test_customer_handoff.gd": "87c198000ad5adacb0ca09978448261fd59a2cb71edbb15c654f3b79084e7a80",
+        "test_npc_remains.gd": "4c8291fcfc33ca86e7ff83cf82d6bfc60bfbea88a7cae7fdb2aa0af145bda744"
+      }
+    },
+    {
+      "path": "tests/artifacts/memory_lifecycle_persistent_inspection/baseline.json",
+      "sha256": "1c2bb7448bedc380929c516904b4cfb158c99d268a74142956366076e24bb1c9",
+      "functional": {
+        "assertions": 216,
+        "cycles": 60,
+        "failures": 0,
+        "warmup": 12
+      },
+      "fixture_sha256": {
+        "probe": "a8260062e1bc8fe6e1b01b2f4267b3b3b6f2d37aadf7d54bd1e336b8485feeb5",
+        "test_s_grab.gd": "c30b66fb726bbfe47f42f38604b4db23a59a090763e8d81942d9782a55fa5d44",
+        "test_district_population.gd": "dfdf43e5c2b36c0ce89b80a0ef3c7471460a3caf749ce22569559c5d42bbdf1e",
+        "test_district_snapshot.gd": "e84ab189d6abc0dc56e92015916abaf32140610a5761bf29263c134b93534970",
+        "test_customer_handoff.gd": "87c198000ad5adacb0ca09978448261fd59a2cb71edbb15c654f3b79084e7a80",
+        "test_npc_remains.gd": "4c8291fcfc33ca86e7ff83cf82d6bfc60bfbea88a7cae7fdb2aa0af145bda744",
+        "test_customer_inspection.gd": "99443d4b15ffb613d513b5f93ba0b80a2b783e832b72a675bdcd5a1b8d2e6116"
+      }
+    },
+    {
+      "path": "tests/artifacts/memory_lifecycle_persistent_inspection/target.json",
+      "sha256": "9024b140b09199c5d9308d53e43068d9c73b63babba5d5d11d8b2179fbe5246c",
+      "functional": {
+        "assertions": 216,
+        "cycles": 60,
+        "failures": 0,
+        "warmup": 12
+      },
+      "fixture_sha256": {
+        "probe": "a8260062e1bc8fe6e1b01b2f4267b3b3b6f2d37aadf7d54bd1e336b8485feeb5",
+        "test_s_grab.gd": "c30b66fb726bbfe47f42f38604b4db23a59a090763e8d81942d9782a55fa5d44",
+        "test_district_population.gd": "dfdf43e5c2b36c0ce89b80a0ef3c7471460a3caf749ce22569559c5d42bbdf1e",
+        "test_district_snapshot.gd": "e84ab189d6abc0dc56e92015916abaf32140610a5761bf29263c134b93534970",
+        "test_customer_handoff.gd": "87c198000ad5adacb0ca09978448261fd59a2cb71edbb15c654f3b79084e7a80",
+        "test_npc_remains.gd": "4c8291fcfc33ca86e7ff83cf82d6bfc60bfbea88a7cae7fdb2aa0af145bda744",
+        "test_customer_inspection.gd": "99443d4b15ffb613d513b5f93ba0b80a2b783e832b72a675bdcd5a1b8d2e6116"
+      }
+    }
+  ],
+  "engine_sha256": "323f9c4cc5db674e98815cdd8e69da007d5efc779abedc8c0e42883b7fdea12a",
+  "finding": "No sustained live-object/static-memory growth in the tested scenarios. World RSS/private steps plateau with extended warmup/repetition; target 100-cycle private tail slope is zero. No universal proof for untested gameplay paths is implied.",
+  "reproduction": "python -B tests/tools/measure_memory_lifecycle.py --baseline-project .bin/retention_baseline_snapshot --target-project .bin/retention_current_snapshot --warmup 12 --cycles 60 --output tests/artifacts/memory_lifecycle",
+  "fixture_contract": "Both snapshots run identical baseline GUT bodies. Two migrated setup boundaries use identical offline test adapters selecting native registration on baseline and compiled production registration on target; loot queue inputs match. No authored gameplay source is generated or addon edited.",
+  "bookkeeping": "Fixture assertion text is disposed per cycle; persistent proxy fixture clears its own assertion strings after recording totals/failures. Native diagnostics and functional failures are preserved. Host samples are outside the engine process; a token handshake holds the next operation until Windows RSS/Private Bytes are captured.",
+  "harness_revision_note": "Main ten-scenario run precedes formatting-only customer method-literal wrapping, setup-only counter assertions and additional persistent-World cases. Supplemental runs exercise those final cases. Each report preserves its exact equal baseline/target fixture hashes."
+}

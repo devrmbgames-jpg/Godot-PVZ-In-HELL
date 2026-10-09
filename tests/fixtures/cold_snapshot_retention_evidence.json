@@ -1,5 +1,6 @@
 {
-  "purpose": "Immutable comparison evidence, not an activity log. Functional success with native shutdown diagnostics is FAIL.",
+  "purpose": "Immutable comparison evidence, not an activity log. Historical FAIL results used the former zero-shutdown-diagnostics gate; their raw output is preserved.",
+  "criterion_update": "Owner decision 2026-10-10: shutdown retention alone does not prove a memory leak or block task 41. Repeated lifecycle evidence is in tests/fixtures/memory_lifecycle_evidence.json. Parser/runtime/ownership errors remain failures; warnings were not suppressed.",
   "base_sha": "857ec02d7703eab840dbf496730be48d29294d99",
   "target_sha": "fc58024f827607286afd1d20d009e3bf22495f64",
   "gecs_sha": "14d4282e5c1cb2713c187706ba2f5ff4e315d36e",

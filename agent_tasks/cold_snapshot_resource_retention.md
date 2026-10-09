@@ -1,18 +1,18 @@
 # Cold snapshot Script / resource retention
 
-Status: **PLANNED**
+Status: **DEFERRED**
 
 ## Task state
 
 ### Goal
 
-Resolve the compile-only shutdown retention that predates Entity Templates / Traits.
-Scope is the minimal snapshot/dependency probe below; №41's native district regression RV-003
-remains owned by [№41](refactoring_v2/41_entity_templates_traits.md).
+Investigate the compile-only shutdown retention that predates Entity Templates / Traits.
+Scope is the minimal snapshot/dependency probe below. Retention is a diagnostic symptom;
+runtime leakage or a broken owner has not been established.
 
 ### Current
 
-Controlled comparison establishes **existing defect, not introduced by №41**:
+Controlled comparison establishes an **existing shutdown symptom, not introduced by №41**:
 
 | Identical surface | Baseline | Current |
 | --- | --- | --- |
@@ -20,12 +20,16 @@ Controlled comparison establishes **existing defect, not introduced by №41**:
 | Probe with snapshot reference | 1 checked, 0 failed; 280 Objects / 236 resources | 1 checked, 0 failed; 294 Objects / 247 resources |
 | Native save-data GUT | 6/6, 40 assertions; clean shutdown | Same, clean shutdown |
 
-Both failing probes additionally retain 3 texture RIDs and Variant allocator pages.
-Exit code 0 is **FAIL** because native WARNING/ERROR diagnostics remain.
+Both probes additionally retain 3 texture RIDs and Variant allocator pages.
+Their historical FAIL labels used the former zero-shutdown-diagnostics gate; raw logs remain.
 The probe extends RefCounted; its method is deliberately never invoked, so GUT inheritance,
 gameplay execution and snapshot capture execution are unnecessary for reproduction.
 A Script/resource lifetime interaction is suspected; a project or engine owner is not proven.
-Do not label the entire shutdown-retention family as this defect or waive №41 acceptance.
+Do not infer a common retaining owner or runtime leak from these shutdown counts.
+The owner changed memory acceptance on 2026-10-10: repeated equivalent lifecycles stabilize
+on both snapshots; this investigation no longer blocks [№41](refactoring_v2/41_entity_templates_traits.md).
+See [growth evidence](../tests/fixtures/memory_lifecycle_evidence.json) and
+[trend baseline](../tests/fixtures/memory_lifecycle_baseline.csv).
 
 BASE_SHA: `857ec02d7703eab840dbf496730be48d29294d99`.
 TARGET_SHA: `fc58024f827607286afd1d20d009e3bf22495f64`.
@@ -53,21 +57,23 @@ Run each independently in a **new headless process** (PowerShell; replace snapsh
 .bin/Godot_v4.7.1-stable_win64_console.exe --headless --path <snapshot> --script res://addons/gut/gut_cmdln.gd -gtest=res://tests/gut/test_save_data.gd -gexit
 ```
 
-Read stdout **and stderr** through process termination; require zero errors/warnings.
+Read stdout **and stderr** through process termination; preserve all diagnostics.
+Parser/runtime errors fail. Shutdown-only retention is a measured symptom, not a leak verdict.
 Captured results: `tests/artifacts/refactoring_v2_41_compare_same_probes.json`,
 `...compare_{baseline,current}_cold_snapshot_retention_{control,probe}.log` and
 `...compare_{baseline,current}_save_data_gut.log`.
 Snapshots for this comparison reside in `.bin/retention_{baseline,current}_snapshot`;
 ignored raw artifacts are supplementary; tracked evidence/fixtures permit reconstruction.
 
-Acceptance: control and probe parse with clean shutdown, native save-data remains 6/6 clean,
-required formatter/parser/static checks PASS, and the diagnosed ownership is documented.
-No fix has been implemented or verified. Do not expand into unrelated runtime repairs.
+Acceptance for a future repair: isolate and document the retaining owner or engine contract;
+preserve parser/runtime and save-data behavior, demonstrate the effect on the same probe,
+and verify repeated lifecycles do not grow. A clean shutdown would resolve the symptom;
+retention alone is insufficient justification for changing gameplay ownership.
+No repair has been implemented. Do not expand into unrelated runtime work.
 
 ### Owner QA / blockers
 
-Fix ownership needs isolation; engine involvement remains a hypothesis.
-No warning suppression, relaxed gate, addon edit or dependency upgrade is authorized.
-Separating this defect does not change №41's mandatory zero-diagnostics criterion.
-A criterion change or dependency upgrade requires a concrete owner decision before adoption.
+Deferred independent diagnostic investigation; engine involvement remains a hypothesis.
+No warning suppression, addon edit or dependency upgrade is authorized.
+The explicit owner decision is implemented in AGENTS.md and memory/testing/refactoring skills.
 Rendered gameplay / visual QA is not needed for this reproduction.

@@ -1,0 +1,112 @@
+{
+  "scan_checkpoint": "1e86867a7ad38a6dfcfbddd212c9d2705e88f129",
+  "project_owned_files_scanned": 921,
+  "production_files_with_matches": 245,
+  "all_occurrence_totals": {
+    "validity": 465,
+    "free": 331,
+    "static": 27,
+    "weak": 353,
+    "signals": 298,
+    "deferred": 939
+  },
+  "production_occurrence_totals": {
+    "validity": 408,
+    "free": 85,
+    "static": 26,
+    "weak": 344,
+    "signals": 248,
+    "deferred": 9
+  },
+  "manual_reference_calls": 0,
+  "raw_inventory": "tests/artifacts/memory_lifecycle_inventory.json",
+  "raw_inventory_sha256": "26912c751f6defe7b9e9893075bad5208d337328991d345f66d0ab6bdf2cd57f",
+  "cases": [
+    {
+      "subject": "EntityCompositionService / ObserverReactionBoundary",
+      "ownership_and_verdict": "Caller owns rejected detached actors; World owns accepted actors. RegistrationScope is transient and disconnects both World signals, clears notifications/activity at finish. No recurring cache.",
+      "path": "content/shared/services/entity_composition_service.gd"
+    },
+    {
+      "subject": "WorldSnapshotService",
+      "ownership_and_verdict": "Temporary validation/rejection actors are Nodes freed by this operation, accepted actors transfer to World. Mutable records/plans are transient Resources; no free(Resource). Capture does not preserve live Object/RID references.",
+      "path": "content/domains/persistence/services/world_snapshot_service.gd"
+    },
+    {
+      "subject": "PhysicsGrabTarget",
+      "ownership_and_verdict": "World owns proxy Node; physical body metadata stores WeakRef. Deferred one-shot body-exit callback binds weak proxy/original World and checks registry/expiry. Tested in persistent World; no surviving proxies/orphans.",
+      "path": "content/domains/interaction/solvers/physics_grab_target.gd"
+    },
+    {
+      "subject": "CartCargoSolver / GrabPhysicsSolver",
+      "ownership_and_verdict": "Borrow PhysicsDirectBodyState only for native callback; store transforms/sample values, not native state references. Relationships own bindings; release restores native collision/integrator state. No static cache.",
+      "path": "content/domains/interaction/solvers/cart_cargo_solver.gd"
+    },
+    {
+      "subject": "CustomerInspectionService",
+      "ownership_and_verdict": "Reuses customer-owned child slot, registers once, removes parcel/cargo/booth Relationships at end. World retires consumed contents. Sixty begin/end cycles in same World are stable.",
+      "path": "content/domains/customers/services/customer_inspection_service.gd"
+    },
+    {
+      "subject": "LootDropService",
+      "ownership_and_verdict": "Caller owns rejected/prepared detached Nodes; successful registration transfers ownership. Failure paths free once, pending/reservation caches are Component-owned and clear/rebuild. Four actual drops per cycle and repeated restore tested.",
+      "path": "content/domains/packages/services/loot_drop_service.gd"
+    },
+    {
+      "subject": "HazardLifecycle",
+      "ownership_and_verdict": "PROVEN independent baseline use-after-free: remove_entity immediately frees detached Node, then queue_free touched freed instance. Fixed by returning after World removal; unregistered queue_free remains.",
+      "path": "content/domains/hazards/services/hazard_lifecycle.gd"
+    },
+    {
+      "subject": "O_RemoveOnHealthDepleted / package destruction",
+      "ownership_and_verdict": "Detached actors are rejected by EntityAvailability; callbacks can only queue destruction of registered in-tree Nodes. Similar-looking queue_free is not a proven detached UAF; kept.",
+      "path": "content/domains/combat/observers/o_remove_on_health_depleted.gd"
+    },
+    {
+      "subject": "NpcPopulationQueries / NpcRouteSolver / CustomerFlowQueries / LightCircuitService",
+      "ownership_and_verdict": "Single current-World caches disconnect world_changed and clear queries/references at handoff. Weak containers are keyed by current roster/authored circuits, not a new entry per lookup.",
+      "path": "content/domains/npc/services/npc_population_queries.gd"
+    },
+    {
+      "subject": "KinematicImpactCapture",
+      "ownership_and_verdict": "Replaces contact_bodies with current collision set every capture, not cumulative WeakRef append.",
+      "path": "content/domains/combat/solvers/kinematic_impact_capture.gd"
+    },
+    {
+      "subject": "InteractionControlFocus / NpcAttackService",
+      "ownership_and_verdict": "Tokens erase on release or expired owner; animation callables bind weak actor/state to avoid Component->Callable->Component cycle, with generation validation and disconnect on finish.",
+      "path": "content/domains/interaction/services/interaction_control_focus.gd"
+    },
+    {
+      "subject": "CustomerNpcLifecycleBinding",
+      "ownership_and_verdict": "Native body owns signal lifetime; weak actor/World bindings deduplicate same-World installation and validate current World/registration at callback.",
+      "path": "content/domains/customers/services/customer_npc_lifecycle_binding.gd"
+    },
+    {
+      "subject": "GameSessionService",
+      "ownership_and_verdict": "One pending snapshot/level, replaced for a handoff and cleared at consume/failed scene change; no accumulating snapshot array. Detached scene probes are Nodes freed by caller.",
+      "path": "content/scenes/game_session_service.gd"
+    },
+    {
+      "subject": "SaveDataCodec / InputPromptCatalog / GameSettingsService / NpcLightingService",
+      "ownership_and_verdict": "Closed Script schema, finite authored texture paths, finite settings keys and one SceneTree/revision are bounded process services; no per-World actor retention or manual RefCounted destruction.",
+      "path": "content/domains/persistence/services/save_data_codec.gd"
+    },
+    {
+      "subject": "OrderDeliveryService / C_District",
+      "ownership_and_verdict": "Goods/body references are derived maps of corresponding receipts/roster, cleared/rebuilt on restore/world lifecycle. Durable terminal history is explicit domain data, not described as an orphan; changing history retention would be product scope.",
+      "path": "content/domains/commerce/services/order_delivery_service.gd"
+    },
+    {
+      "subject": "Factory failures and UI cleanup",
+      "ownership_and_verdict": "Production free targets are typed Node/Entity scene instances or UI children; pre-registration failure ownership remains caller, live destruction follows native World/scene lifecycle. UI rows/labels queue deletion; label arrays remove expired entries and enforce maximum.",
+      "path": "content/ui/damage_feedback_view.gd"
+    },
+    {
+      "subject": "Queued Systems/Observers",
+      "ownership_and_verdict": "CommandBuffer callbacks retain bounded captured Components/records until flush, weak Node witnesses and exact identity/generation checks reject stale work; purge/end World releases queued callbacks. No reference()/unreference() calls found.",
+      "path": "content/domains/interaction/systems/s_cart_cargo.gd"
+    }
+  ],
+  "conclusion": "One reproduced independent UAF repaired. No free(RefCounted/Resource) or further proven ownership defect found in reviewed significant sites. Static scan and scenario tests are not a universal proof for all runtime paths."
+}
