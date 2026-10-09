@@ -70,16 +70,34 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 		if delivery.item.kind == DEF_InventoryItem.Kind.FURNITURE:
 			return _furniture(zone, state, delivery)
 
-		var packed: PackedScene = load(delivery.item.world_pickup_scene) as PackedScene if not delivery.item.world_pickup_scene.is_empty() else null
-		var pickup: E_InventoryPickup = packed.instantiate() as E_InventoryPickup if packed != null else null
-		if pickup == null:
+		var scene_path: String = delivery.item.world_pickup_scene
+		if scene_path.is_empty() or not ResourceLoader.exists(scene_path, "PackedScene"):
 			state.blocked = true
 			return false
 
-		var collision: CollisionShape3D = pickup.get_node_or_null("Collision") as CollisionShape3D
-		var body: RigidBody3D = pickup as Node as RigidBody3D
-		if collision == null or collision.shape == null or body == null:
-			pickup.free()
+		var packed: PackedScene = load(scene_path) as PackedScene
+		var instance: Node = packed.instantiate()
+		var pickup: E_InventoryPickup = instance as E_InventoryPickup
+		var collision: CollisionShape3D = instance.get_node_or_null("Collision") as CollisionShape3D
+		var body: RigidBody3D = instance as RigidBody3D
+		if (pickup == null or collision == null or collision.disabled
+			or collision.shape == null or body == null):
+			instance.free()
+			state.blocked = true
+			return false
+
+		# A paid delivery must have its entire stack before native publication.
+		var components: Array[Component] = pickup.component_resources.duplicate()
+		var replaced: bool = false
+		for component_index: int in components.size():
+			if components[component_index] is C_InventoryItem:
+				var item: C_InventoryItem = C_InventoryItem.new()
+				item.definition = delivery.item
+				item.quantity = delivery.quantity
+				components[component_index] = item
+				replaced = true
+		if not replaced:
+			instance.free()
 			state.blocked = true
 			return false
 
@@ -95,13 +113,6 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 			if not space.intersect_shape(query, 1).is_empty():
 				continue
 
-			var components: Array[Component] = pickup.component_resources.duplicate()
-			for component_index: int in components.size():
-				if components[component_index] is C_InventoryItem:
-					var item: C_InventoryItem = C_InventoryItem.new()
-					item.definition = delivery.item
-					item.quantity = delivery.quantity
-					components[component_index] = item
 			var identity: C_PersistentIdentity = C_PersistentIdentity.new()
 			identity.key = key_for(delivery)
 			components.append(identity)

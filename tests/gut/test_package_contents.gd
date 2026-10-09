@@ -393,3 +393,60 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 	assert_true(body.freeze)
 
 #endregion
+
+#region Rejected death-drop construction
+## Failed physical construction keeps the owned stack and releases every detached Node.
+func test_death_drop_rejects_wrong_root_and_missing_stack_without_losing_inventory() -> void:
+	var definition: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_food.tres"
+	).duplicate() as DEF_InventoryItem
+	assert_true(InventoryService.grant(_actor, definition, 3))
+	var source: Entity = InventoryService.items(_actor)[0]
+	var stack: C_InventoryItem = source.get_component(C_InventoryItem) as C_InventoryItem
+	var entities_before: int = _world.entities.size()
+	var children_before: int = _root.get_child_count()
+
+	for scene_path: String in [
+		"res://tests/fixtures/invalid_furniture.tscn",
+		"res://tests/fixtures/invalid_delivery_pickup.tscn",
+		"res://tests/fixtures/missing_pickup_stack.tscn",
+		"res://tests/fixtures/" + "nonexistent_pickup.tscn",
+	]:
+		definition.world_pickup_scene = scene_path
+		InventoryDropService.release_on_death(_actor)
+		assert_same(InventoryService.owner_for(source), _actor)
+		assert_eq(InventoryService.items(_actor), [source])
+		assert_eq(stack.quantity, 3)
+		assert_false(stack.transfer_in_progress)
+		assert_eq(_world.entities.size(), entities_before)
+		assert_eq(_root.get_child_count(), children_before)
+		assert_no_new_orphans(scene_path)
+#endregion
+
+#region Accepted death-drop publication
+## Native observers see the complete replacement stack before the owned source is removed.
+func test_death_drop_publishes_complete_stack_once_before_removing_source() -> void:
+	var definition: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_med.tres"
+	) as DEF_InventoryItem
+	assert_true(InventoryService.grant(_actor, definition, 3))
+	var source: Entity = InventoryService.items(_actor)[0]
+	var publications: Array[Entity] = []
+	_world.entity_added.connect(func(pickup: Entity) -> void:
+		publications.append(pickup)
+		var stack: C_InventoryItem = pickup.get_component(C_InventoryItem) as C_InventoryItem
+		assert_not_null(stack)
+		assert_same(stack.definition, definition)
+		assert_eq(stack.quantity, 3)
+		assert_same(InventoryService.owner_for(source), _actor)
+		assert_null(InventoryService.owner_for(pickup))
+	)
+
+	InventoryDropService.release_on_death(_actor)
+	assert_eq(publications.size(), 1)
+	assert_true(InventoryService.items(_actor).is_empty())
+	var physical_items: Array[Entity] = _world.query.with_all([C_InventoryItem]).execute()
+	assert_eq(physical_items, publications)
+	assert_true((physical_items[0] as Node) is RigidBody3D)
+	assert_no_new_orphans()
+#endregion

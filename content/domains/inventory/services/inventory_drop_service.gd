@@ -10,6 +10,7 @@ const PATH_PROBE_HEIGHT: float = 0.5
 const SUPPORT_CLEARANCE: float = 0.03
 const MINIMUM_SUPPORT_NORMAL_Y: float = 0.75
 const COLLISION_MASK: int = 31
+const DEATH_DROP_OFFSET: Vector3 = Vector3(0.6, 0.4, 0.0)
 
 
 #region Выкладка стека
@@ -42,7 +43,8 @@ static func drop(actor: Entity, item: Entity) -> bool:
 	var instance: Node = prefab.instantiate()
 	var pickup: E_InventoryPickup = instance as E_InventoryPickup
 	var collider: CollisionShape3D = instance.get_node_or_null("Collision") as CollisionShape3D
-	if pickup == null or not instance is RigidBody3D or collider == null or collider.shape == null:
+	if (pickup == null or not instance is RigidBody3D or collider == null
+		or collider.disabled or collider.shape == null):
 		instance.free()
 		return false
 
@@ -101,22 +103,37 @@ static func release_on_death(owner: Entity) -> void:
 		if state == null or state.definition == null or state.definition.world_pickup_scene.is_empty():
 			continue
 
-		var prefab: PackedScene = load(state.definition.world_pickup_scene) as PackedScene
-		var pickup: E_InventoryPickup = prefab.instantiate() as E_InventoryPickup if prefab != null else null
-		if pickup == null:
+		var scene_path: String = state.definition.world_pickup_scene
+		if not ResourceLoader.exists(scene_path, "PackedScene"):
 			continue
 
+		var prefab: PackedScene = load(scene_path) as PackedScene
+		var instance: Node = prefab.instantiate()
+		var pickup: E_InventoryPickup = instance as E_InventoryPickup
+		var collider: CollisionShape3D = instance.get_node_or_null("Collision") as CollisionShape3D
+		if (pickup == null or not instance is RigidBody3D or collider == null
+			or collider.disabled or collider.shape == null):
+			instance.free()
+			continue
+
+		# Validate the physical stack recipe before touching the owned source.
 		var components: Array[Component] = pickup.component_resources.duplicate()
+		var replaced: bool = false
 		for index: int in components.size():
 			if components[index] is C_InventoryItem:
 				var stack: C_InventoryItem = C_InventoryItem.new()
 				stack.definition = state.definition
 				stack.quantity = state.quantity
 				components[index] = stack
+				replaced = true
+		if not replaced:
+			instance.free()
+			continue
+
 		pickup.component_resources = components
 		state.transfer_in_progress = true
 		owner.get_parent().add_child(pickup)
-		(pickup as Node as Node3D).global_position = spatial.global_position + Vector3(0.6, 0.4, 0.0)
+		(pickup as Node as Node3D).global_position = spatial.global_position + DEATH_DROP_OFFSET
 		var context: EntitySpawnContext = EntityCompositionService.context_for(pickup, ECS.world,
 			pickup.id if not pickup.id.is_empty() else GECSIO.uuid())
 		if not EntityCompositionService.try_register(context, false):

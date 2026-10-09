@@ -326,3 +326,12 @@ Initial NPC route capability milestone (task 41 remains IN_PROGRESS):
 - Local Formatter 7 files PASS and strict dependencies PASS. Manifest is now 17/72 resolved.
 Full factory/runtime provider closure and native cold/golden shutdown failures remain required
 for task-41 acceptance; task 42 and Phase 3 have not started.
+
+
+Task 41 physical-stack rejection audit (2026-10-09): wrong prefab root/body, missing stack recipe
+and missing resource now free all detached instances and preserve owned inventory/pending orders.
+Native publication receives complete death-drop data before source removal. Final parser **4 files**,
+local Formatter **4 files**, GUT **28/28 / 488 assertions**, inventory and independent furniture
+arrival write/restore headless smokes PASS with zero diagnostics. Manifest **20/72** closed;
+41 remains IN_PROGRESS with full provider/cold-shutdown acceptance pending. Next remains 41,
+then 42→43→44→45→46→48→49; no Phase 3.

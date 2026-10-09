@@ -670,3 +670,28 @@ Initial NPC route capability milestone (task 41 remains IN_PROGRESS):
 - Local Formatter 7 files PASS and strict dependencies PASS. Manifest is now 17/72 resolved.
 Full factory/runtime provider closure and native cold/golden shutdown failures remain required
 for task-41 acceptance; task 42 and Phase 3 have not started.
+
+
+### Physical stack factory rejection audit — 2026-10-09
+
+Inventory death release and paid pickup delivery now keep the original instantiated Node through
+root validation and free every rejected instance. Enabled physical collider and explicit stack recipe
+are required before registration/source removal or fulfillment. Missing resources reject without
+engine load errors; a missing stack never materializes an empty item. The common compiler remains the
+sole registration gate. Death-drop publication sees the complete replacement stack while source
+ownership still exists, then removes the source exactly once.
+
+Native GUT **28/28 PASS / 488 assertions**, including all malformed-root/body/recipe/resource cases
+with zero new orphan Nodes and retained ownership/quantity/pending order/receipts/payment/registry.
+Final changed parser **4 files PASS**, actual local Formatter **4 files PASS**, structure, strict
+dependency/architecture and incremental agent checks PASS. Actual inventory smoke and furniture
+arrival write/restore in **two independent processes PASS**, zero errors/warnings.
+
+Logs: `refactoring_v2_41_factory_rejection_final_parser.log`,
+`refactoring_v2_41_factory_rejection_final_gut.log`, `inventory-20261009-184936184.log`,
+`furniture_arrival-write-20261009-184951431.log`,
+`furniture_arrival-restore-20261009-185006603.log` under `tests/artifacts/`.
+
+Manifest rows `drop`, `release_on_death`, `fulfill_one` are closed; **20/72** resolved.
+Task 41 remains IN_PROGRESS: finish all remaining provider audits and full acceptance, including
+unresolved cold/shutdown retention. No task-42 or Phase-3 work started.

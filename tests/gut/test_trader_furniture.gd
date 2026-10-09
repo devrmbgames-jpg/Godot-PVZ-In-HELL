@@ -1,6 +1,8 @@
 extends GutTest
 ## Проверяет физическую выдачу мебели, оплаченную доставку торговца и постоянные записи покупки.
 
+const FOOD_PATH: String = "res://content/domains/inventory/definitions/def_item_food.tres"
+
 var _root: Node3D
 var _world: World
 var _actor: Entity
@@ -212,7 +214,7 @@ func test_delivery_composition_collision_preserves_unfulfilled_order_and_registr
 	var zone: Entity = _home()
 	var receiving: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
 	var food: DEF_InventoryItem = load(
-		"res://content/domains/inventory/definitions/def_item_food.tres") as DEF_InventoryItem
+		FOOD_PATH) as DEF_InventoryItem
 	for definition: DEF_InventoryItem in [food, _shelf]:
 		var delivery: PendingDelivery = PendingDelivery.new()
 		delivery.delivery_id = StringName("composition/%s" % definition.key)
@@ -313,4 +315,42 @@ func test_courier_rejects_unfulfillable_definition_and_trader_panel_offers_separ
 	assert_eq(_commerce.pending_deliveries.size(), 1)
 	assert_true(_world.query.with_all([C_Anchorable]).execute().is_empty())
 
+#endregion
+
+#region Rejected paid pickup construction
+## A malformed prefab cannot fulfill an order, publish goods or leak a detached instance.
+func test_pickup_delivery_rejection_preserves_pending_order_and_releases_instance() -> void:
+	var definition: DEF_InventoryItem = load(
+		FOOD_PATH
+	).duplicate() as DEF_InventoryItem
+	var delivery: PendingDelivery = PendingDelivery.new()
+	delivery.delivery_id = "rejected-pickup"
+	delivery.delivery_day = 2
+	delivery.item = definition
+	delivery.quantity = 3
+	_commerce.pending_deliveries.append(delivery)
+	var zone: Entity = _home()
+	var receiving: C_OrderReceiving = zone.get_component(C_OrderReceiving) as C_OrderReceiving
+	var entities_before: int = _world.entities.size()
+	var children_before: int = zone.get_child_count()
+
+	for scene_path: String in [
+		"res://tests/fixtures/invalid_furniture.tscn",
+		"res://tests/fixtures/invalid_delivery_pickup.tscn",
+		"res://tests/fixtures/missing_pickup_stack.tscn",
+		"res://tests/fixtures/" + "nonexistent_pickup.tscn",
+	]:
+		definition.world_pickup_scene = scene_path
+		assert_false(OrderDeliveryService.fulfill_one(zone, receiving, _commerce, 2))
+		assert_true(receiving.blocked)
+		assert_false(delivery.fulfilled)
+		assert_eq(delivery.quantity, 3)
+		assert_eq(_commerce.pending_deliveries, [delivery])
+		assert_true(_commerce.receipts.is_empty())
+		assert_eq(_wallet.balance, 1000)
+		assert_true(_wallet.operations.is_empty())
+		assert_null(_goods(OrderDeliveryService.key_for(delivery)))
+		assert_eq(_world.entities.size(), entities_before)
+		assert_eq(zone.get_child_count(), children_before)
+		assert_no_new_orphans(scene_path)
 #endregion

@@ -260,7 +260,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Paid pickup issuance validates detached root/shape/stack recipe, assigns complete fresh stack/stable identity, and uses common compilation and one native registration. Failed materialization frees the original Node and preserves pending order/receipts/payment/registry. Furniture uses a prevalidated common plan and one commit. Actual collision, malformed-prefab, idempotent delivery/save GUT PASS; two-process furniture arrival write/restore smoke PASS (2026-10-09)."
     },
     {
       "source": "content/domains/customers/entities/e_customer.gd",
@@ -678,7 +679,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Physical stack scene/shape/recipe validation precedes ownership flags. Fresh private C_InventoryItem goes through the common compiler and one native registration; source removal follows accepted publication only. Current actual pickup/drop and rejected support/wall/ownership GUT regressions PASS; inventory headless smoke PASS (2026-10-09)."
     },
     {
       "source": "content/domains/inventory/services/inventory_drop_service.gd",
@@ -694,7 +696,8 @@
       "kind": "factory_boundary",
       "action": "migrate_gate",
       "contract": "Retain owning Definition scene selector and transaction/placement policy; fresh typed context goes through common compile/validate before one registration and ready.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Death release validates the detached physical root, enabled collider and stack provider; wrong-root, wrong-body, missing-recipe and missing-resource rejection frees the original Node without changing ownership/quantity. Fresh stack uses the common compiler/one registration. Native publication sees complete data before source removal. Current positive/negative package/inventory GUT and parser PASS with no diagnostics or new orphan Nodes (2026-10-09)."
     },
     {
       "source": "content/domains/inventory/services/inventory_service.gd",
