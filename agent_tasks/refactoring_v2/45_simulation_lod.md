@@ -52,8 +52,28 @@ Authorized by active Goal; task44 reviewed at
 duplicates its World/body writes. `E_DistrictNpc.set_participating` is the physical adapter,
 `NpcBrainService.set_participating` the native BT adapter. Retain one placement operation
 and derive ACTIVE/DORMANT from roster placement/death instead of adding a mode copy.
-Dormant native roots still have processing enabled; measure that baseline before changing it.
-Next: complete 45A with a per-field writer map, unified restore/placement operation,
-idempotent native processing suspension and focused same-body/ID/navigation tests.
-45B–C remain required: generation-safe transitions, existing-owner session cleanup,
-bounded activation failure, same-mode save/reload and measured processing counters.
+Baseline proves GECS already suspends dormant root callbacks, but child animation mixers
+remain active; measure their actual processing eligibility before changing the native adapter.
+45A implemented, REVIEW_PENDING: restore uses the single placement operation, repeated
+requests are idempotent, callback boundaries reject nested opposite GECS mode commits,
+and inherited child processing suspends with the body. Writer map and measured scope:
+[NPC participation](../../docs/npc_participation.md).
+Base: `0cbd5eaa832c6ab715f05a0699d0c2cc88da1fc5`.
+Next: review 45A checkpoint; 45B bounded activation failure/session cleanup, then 45C
+same-mode save/reload and final measured processing acceptance. Full task remains IN_PROGRESS.
+
+## Evidence / Current gate
+
+- Baseline: 12 retained bodies, 5 ACTIVE, 5 processing roots, 12 processing animation mixers.
+  `tests/artifacts/refactoring_v2_45_baseline.log`: PASS, 7 tests / 57 assertions.
+- After 45A: same 12 bodies / 5 ACTIVE, 5 processing roots / 5 processing mixers.
+  Root callback savings already belonged to GECS; this change stops 7 dormant child mixers.
+  Frame time, shipping FPS and body memory savings: NOT_MEASURED / not claimed.
+- Focused participation + previous obligation/cadence: PASS, 105 tests / 708 assertions
+  (`tests/artifacts/refactoring_v2_45a_gut.log`, before final callback-lock fixture).
+- Final participation/reentrant-native-signal/dormant snapshot: PASS, 23 tests / 246 assertions
+  (`tests/artifacts/refactoring_v2_45a_final_gut.log`).
+- Parser: PASS, 5 owned files / 0 failures (`tests/artifacts/refactoring_v2_45a_parser.log`).
+- Formatter/lint and architecture/structure gates: PASS. Review: REVIEW_PENDING.
+- 45B–C acceptance and the final NPC/save smoke are NOT_RUN; no owner visual QA claimed.
+  Shutdown-only specified retention remains KNOWN_ENGINE_LIMITATION / DEFERRED.

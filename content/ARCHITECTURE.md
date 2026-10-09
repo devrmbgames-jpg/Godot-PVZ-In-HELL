@@ -48,6 +48,8 @@ Native NPC cadence, footsteps, perception, traits, decisions and noise ageing ar
 
 NPC schedule obligations remain district-roster authority. C_NpcDecision owns their transient execution incarnation/result; NpcScheduleActionService performs explicit transitions and O_DistrictLifecycle commits captured completion. Idle destinations cannot rewrite schedule goals. S_NpcCadence fairly caps due sampled work with authored work units and coalesced wakes; route planning keeps its independent frame budget. Read-only diagnostics and lifecycle details are in [NPC obligation execution](../docs/npc_obligation_execution.md).
 
+Retained district NPC participation derives from roster placement/death. DistrictPopulationService.set_placement is the single ordinary mode operation, also used for final restore reconciliation; native body/BT adapters apply its requested mode. Disabled actors retain identity/Components/Relationships for aggregate/save queries, while inherited child processing, physics and native decision participation suspend. Writer map and measured processing scope: [NPC participation](../docs/npc_participation.md).
+
 After native BT, S_NpcRoute consumes the same captured interval for route clocks/progress/cleanup. S_NpcRoutePlanning owns the district FIFO and one budget per native physics frame before noise/combat/navigation consumers. NpcRouteSolver calculates bounded paths/risk, while S_NpcIntent consumes waypoints and Godot integrates the body. Queued planning rejects replaced aggregates and stale participation/intent.
 
 ### Choosing execution ownership

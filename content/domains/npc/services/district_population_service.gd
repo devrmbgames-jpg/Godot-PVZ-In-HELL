@@ -77,15 +77,7 @@ static func restore_participation() -> void:
 		body.present_profile(person.profile)
 		body.show_message(person.display_name)
 		NpcBrainService.bind_engine(body)
-		var participating: bool = person.placement == NpcRecord.Placement.STREET \
-				and person.death_day == 0
-		if participating and not body.enabled:
-			ECS.world.enable_entity(body)
-		elif not participating and body.enabled:
-			ECS.world.disable_entity(body)
-		body.set_participating(participating)
-		if person.death_day != 0:
-			body.sync_death_presentation()
+		set_placement(person, body, person.placement, &"snapshot_restored", true)
 
 #endregion
 
@@ -288,27 +280,79 @@ static func request_phase_completion(
 	return request
 
 
-## Изменяет авторитетное размещение и участие тела в движке.
+## Sole placement operation; restore reconciles native state through the same boundary.
 static func set_placement(
 	person: NpcRecord,
 	body: E_DistrictNpc,
 	placement: NpcRecord.Placement,
-) -> void:
-	person.placement = placement
+	reason: StringName = &"placement_changed",
+	reconcile_native: bool = false,
+) -> bool:
+	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+	assert(decision != null, "NPC participation requires its constructed decision capability")
+	# GECS reconnects signals after emit; reject nested native transitions until it finishes.
+	if decision.participation_committing:
+		return false
 	var active: bool = placement == NpcRecord.Placement.STREET
-	if active and not body.enabled:
-		ECS.world.enable_entity(body)
-	elif not active and body.enabled:
+	if active and (person.death_day != 0 or body.has_component(C_Death)):
+		decision.participation_reason = &"dead_actor"
+		return false
+	var changed: bool = person.placement != placement or body.enabled != active
+	if not changed and not reconcile_native:
+		return true
+
+	# Invalidate captured work once before callbacks; repeated mode requests remain idempotent.
+	decision.lifecycle_generation += 1
+	decision.participation_generation += 1
+	decision.scheduled_delta = 0.0
+	decision.due_since_tick = -1
+	decision.wake_requested = false
+	decision.wake_urgent = false
+	decision.wake_reason = &""
+	decision.participation_reason = reason
+	person.placement = placement
+	var captured_generation: int = decision.participation_generation
+	var captured_world: World = ECS.world
+	decision.participation_committing = true
+	if not active:
 		body.request_role_cleanup(NpcRoleCleanupRequest.Kind.SUSPEND)
 		NpcCommunityService.cancel_activity(body)
 		NpcDialogueService.end(body)
 		NpcIntentService.stop(body)
+		NpcIntentService.look_along_movement(body)
 		CombatService.end_combat(body)
-		ECS.world.disable_entity(body)
+		NpcBrainService.set_participating(body, false)
+		if body.enabled:
+			ECS.world.disable_entity(body)
+	elif not body.enabled:
+		ECS.world.enable_entity(body)
+
+	# Native enable/disable signals may synchronously replace this transition.
+	decision.participation_committing = false
+	if (
+			not is_instance_valid(body) or not is_instance_valid(captured_world) \
+				or ECS.world != captured_world
+		or body.is_queued_for_deletion()
+	) \
+			or not captured_world.entity_to_archetype.has(body):
+		return false
+	if body.get_component(C_NpcDecision) != decision \
+			or decision.participation_generation != captured_generation \
+			or person.placement != placement:
+		return false
+	if active and (person.death_day != 0 or body.has_component(C_Death)):
+		if person.death_day == 0:
+			mark_dead(person, body, DayPhaseQueries.current().day_index)
+		else:
+			set_placement(person, body, NpcRecord.Placement.DEAD, &"death_during_activation")
+		return false
 	NpcBrainService.set_participating(body, active)
 	body.set_participating(active)
 	if placement == NpcRecord.Placement.DEAD:
 		body.sync_death_presentation()
+	elif active:
+		NpcDecisionService.request_wake(body, &"reactivated")
+	return true
 
 
 ## Один раз фиксирует смерть; будущие заказы не используют погибшую личность.

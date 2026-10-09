@@ -34,6 +34,12 @@ var action_phase: int = -1
 var action_reason: StringName = &""
 ## Local idle destination; cannot overwrite the district's required schedule goal.
 var local_activity_id: StringName = &""
+## Last explicit participation transition; mode itself is derived from roster placement/death.
+var participation_reason: StringName = &""
+## Explicit transition incarnation; unrelated AI wakes cannot supersede a native mode commit.
+var participation_generation: int = 0
+## Prevents nested native World transitions while enable/disable signal callbacks are running.
+var participation_committing: bool = false
 
 ## Ветка решения, имеющая право задавать движение и действия.
 var intent_owner: Owner = Owner.NONE
@@ -80,6 +86,9 @@ func reset_transient_state() -> void:
 	action_phase = -1
 	action_reason = &""
 	local_activity_id = &""
+	participation_reason = &""
+	participation_generation += 1
+	participation_committing = false
 
 	intent_owner = Owner.NONE
 	active_task_id = 0

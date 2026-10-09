@@ -21,8 +21,18 @@ static func actor_state(actor: E_DistrictNpc) -> Dictionary[String, Variant]:
 		"action_status": C_NpcDecision.ActionStatus.keys()[decision.action_status],
 		"action_reason": String(decision.action_reason),
 		"local_activity": String(decision.local_activity_id),
+		"participation": "ACTIVE" if _body_participating(person, actor) else "DORMANT",
+		"participation_reason": String(decision.participation_reason),
 		"wake_pending": decision.wake_requested,
 	}
+
+
+static func _body_participating(person: NpcRecord, actor: E_DistrictNpc) -> bool:
+	return (
+			person.placement == NpcRecord.Placement.STREET and person.death_day == 0 \
+				and actor.enabled
+		and not actor.has_component(C_Death)
+	)
 
 
 ## Captures bounded work accounting from the current cadence owner.
