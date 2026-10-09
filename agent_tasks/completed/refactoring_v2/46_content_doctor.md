@@ -85,3 +85,13 @@ Repair evidence:
 Final focused Doctor regression: PASS, 20 tests / 119 assertions (tests/artifacts/refactoring_v2_46_repair_final_gut.log). All46 acceptance gates completed; archived after repair review.
 Task42 still OWNER_QA_PENDING; no rendered/editor QA approval has arrived. After46,
 implement48 read-only selected-Entity view; owner editor QA is a separate required gate.
+
+## CLI compatibility repair (2026-10-10)
+
+RV-003 / P2: preparing49 reproduced two existing structure entry-point test errors because
+the new CLI parser consumed unittest host argv. FIXED: main accepts explicit optional argv
+and defaults programmatic calls to no arguments; only the executable entry point passes
+sys.argv[1:]. No validation rule or permission changed. Existing tooling88/88 PASS; actual
+structure/Doctor CLI with --content-doctor PASS (91 scenes,3 dialogues,zero errors/review
+gates,12.43 seconds; tests/artifacts/refactoring_v2_46_cli_repair.log). Scoped repair commit
+is recorded in Git; this maintenance regression does not reopen completed content checks.

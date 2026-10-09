@@ -537,11 +537,12 @@ def _check_staged_addons(errors: list[str]) -> None:
         errors.append(f"{path}: staged addon/dependency change is forbidden by default.")
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    """Validate explicit arguments; programmatic calls do not consume their host's CLI."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--content-doctor", action="store_true", help="Include the full detached Godot content acceptance scan")
     parser.add_argument("--godot", type=Path, help="Godot console executable for content acceptance")
-    arguments = parser.parse_args()
+    arguments = parser.parse_args(argv if argv is not None else [])
     errors: list[str] = []
 
     _check_role_placement(errors)
@@ -577,4 +578,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))
