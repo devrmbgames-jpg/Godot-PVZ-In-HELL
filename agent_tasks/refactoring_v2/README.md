@@ -243,3 +243,9 @@ Fresh restored body pose now precedes native registration. Parser 7 files PASS; 
 (679 assertions) and lifecycle GUT 19/19 (133 assertions) PASS; actual vertical slice and two-process
 Night write/restore PASS, strict/static contracts and local Formatter PASS. Task 41 remains open
 for complete manifest migration/audit and acceptance. No Phase 42 or Phase 3 started.
+
+Task 41 receiving_scan acceptance tooling migrated to current actual main contracts: 5-box supply,
+arrival receipts, CharacterBody player, real unload/shift/sleep/next-truck block/resume, scanner
+reacquisition after Night reset and stable number reuse. Headless receiving_scan PASS with clean
+runtime log; parser, local Formatter and structure PASS. Previously recorded legacy receiving_scan
+failure is resolved. Task 41 remains IN_PROGRESS for the full provider audit and acceptance.

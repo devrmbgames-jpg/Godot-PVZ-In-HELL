@@ -1,29 +1,63 @@
 extends Node
-## Старый сценарий приёмки проверяет сканер, терминал, повторное использование номера и свободные места.
+## Checks actual receiving, scanner/terminal state, blocked cargo and stable registration numbers.
+
+## Isolated slot for the real Night transition; live user slots remain outside this fixture.
+const SAVE_PATH: String = "user://receiving_scan_smoke.pvzh"
+## Bounds real physics/phase waits instead of relying on an arbitrary elapsed delay.
+const MAX_FRAMES: int = 480
+## Gives large box shapes clearance from the conservative native truck cargo volume.
+const UNLOAD_CLEARANCE_METERS: float = 4.0
 
 var _prepared_body: Node3D = null
 var _prepared_transform: Transform3D = Transform3D.IDENTITY
 
 
-#region Исторический сценарий приёмки
+#region Actual receiving and registration
 func _ready() -> void:
 	_run.call_deferred()
 
 
-## Проверяет старую поставку восьми коробок; отдельно ведёт игрока через сканер и терминал.
+## Exercises current authored supply and the real scanner/terminal across two mornings.
 func _run() -> void:
+	_cleanup_slot()
 	var scene: PackedScene = load("res://content/scenes/main_level.tscn") as PackedScene
 	var level: Node = scene.instantiate()
+	level.set("autosave_path", SAVE_PATH)
 	add_child(level)
-	# Приёмка отделена от расписания клиентов, для которого существует другой сценарий.
-	var session: Entity = level.get_node("Entityes/DaySession") as Entity
-	session.remove_component(C_CustomerFlow)
-	for tick_index: int in 30:
+	level.set_physics_process(false)
+	var actor: Entity = level.get_node("Entityes/Player") as Entity
+	(actor as Node).set_physics_process(false)
+	var feedback_nodes: Array[Node] = level.find_children("CharacterFeedback", "CharacterFeedback")
+	for node: Node in feedback_nodes:
+		(node as CharacterFeedback).footsteps_enabled = false
+	var zone: E_ReceivingZone = level.get_node("Entityes/ReceivingZone") as E_ReceivingZone
+	var batch_size: int = mini(zone.supply.maximum_batch_packages, zone.supply.packages.size())
+	assert(batch_size >= 2)
+	for frame: int in MAX_FRAMES:
 		await get_tree().physics_frame
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
+		if ECS.world.query.with_all([C_Package]).execute().size() == batch_size:
+			break
 
-	var parcels: Array = ECS.world.query.with_all([C_Package]).execute()
+	var parcels: Array[Entity] = []
+	parcels.assign(ECS.world.query.with_all([C_Package]).execute())
 	print("Receiving count: ", parcels.size())
-	assert(parcels.size() == 8)
+	assert(parcels.size() == batch_size)
+	# Model actual unloading to warehouse markers before the normal START_SHIFT gate.
+	for index: int in parcels.size():
+		var body: RigidBody3D = parcels[index] as Node as RigidBody3D
+		var marker: Node3D = zone.get_spawn_points().get_child(index) as Node3D
+		body.global_transform = marker.global_transform
+		body.global_position += zone.truck_parking.global_basis.x * UNLOAD_CLEARANCE_METERS
+		assert(not zone.get_truck().overlaps_cargo(body))
+		body.linear_velocity = Vector3.ZERO
+		body.angular_velocity = Vector3.ZERO
+		body.freeze = true
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	cycle.require_finished_customers = false
+	cycle.require_empty_customer_room = false
+	cycle.require_all_planned_arrivals = false
+	cycle.minimum_shift_seconds = 0.0
 	var ids: Dictionary[String, bool] = { }
 	var found_tags: int = 0
 	var found_damage_hazard: bool = false
@@ -47,12 +81,10 @@ func _run() -> void:
 	assert(found_tags == 15 and found_damage_hazard and found_destroyed_hazard)
 	for tick_index: int in 20:
 		await get_tree().physics_frame
-	assert(ECS.world.query.with_all([C_Package]).execute().size() == 8)
-	level.set_physics_process(false)
+	assert(ECS.world.query.with_all([C_Package]).execute().size() == batch_size)
 
-	var actor: Entity = level.get_node("Entityes/Player") as Entity
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
-	(actor as Node as RigidBody3D).freeze = true
+	assert((actor as Node) is CharacterBody3D)
 	var scanner: E_Scanner = level.get_node("Entityes/Scanner") as E_Scanner
 	var first: Entity = level.get_node("Entityes/Parcel_001_01") as Entity
 	var second: Entity = level.get_node("Entityes/Parcel_001_02") as Entity
@@ -68,21 +100,21 @@ func _run() -> void:
 
 	var first_state: C_PackageState = first.get_component(C_PackageState) as C_PackageState
 	var registry: C_PackageLedger = PackageQueries.ledger()
-	assert(first_state.registration_number == 1 and registry.records.size() == 1)
+	assert(first_state.registration_number == 1 and _registered_count(registry) == 1)
 	assert(first_state.scan == C_PackageState.Scan.SCANNED)
 	assert(GrabQueries.held_object(actor) == scanner, "Scan must not throw")
 	var feedback: Label3D = scanner.get_node("Feedback/Result") as Label3D
 	assert("\u2116001" in feedback.text)
 	assert((scanner.get_node("Feedback/Beep") as AudioStreamPlayer3D).playing)
 	_drive(actor, false, false, true)
-	assert(first_state.registration_number == 1 and registry.records.size() == 1)
+	assert(first_state.registration_number == 1 and _registered_count(registry) == 1)
 	assert("\u2116001" in feedback.text)
 	await _prepare_target(actor, second, Vector3(0.0, -0.2, -2.2))
 	assert(InteractionTargetingGeometry.find_target(actor, interactor) == second)
 	_drive(actor, false, false, true)
 
 	var second_state: C_PackageState = second.get_component(C_PackageState) as C_PackageState
-	assert(second_state.registration_number == 2 and registry.records.size() == 2)
+	assert(second_state.registration_number == 2 and _registered_count(registry) == 2)
 	var scanner_config: C_Scanner = scanner.get_component(C_Scanner) as C_Scanner
 	scanner_config.scan_range = 0.1
 	assert(
@@ -98,7 +130,7 @@ func _run() -> void:
 		PackageRegistrationService.scan(actor, scanner, first).outcome
 		== PackageScanResult.Outcome.REJECTED
 	)
-	assert(registry.records.size() == 2)
+	assert(_registered_count(registry) == 2)
 
 	var terminal: E_Terminal = level.get_node("Entityes/Terminal") as E_Terminal
 	var terminal_body: StaticBody3D = terminal as Node as StaticBody3D
@@ -117,7 +149,7 @@ func _run() -> void:
 
 	var terminal_panel: TerminalPanel = terminal.get_node("TerminalPanel") as TerminalPanel
 	var package_list: VBoxContainer = terminal_panel.get_node("%PackageList") as VBoxContainer
-	assert(package_list.get_child_count() == 2)
+	assert(package_list.get_child_count() == batch_size)
 	var found_number_one: bool = false
 	var found_number_two: bool = false
 	var found_fragile: bool = false
@@ -149,14 +181,22 @@ func _run() -> void:
 	await get_tree().physics_frame
 
 	var previous_location: Vector3 = (first as Node as Node3D).global_position
+	await _transition(DayTransitionRequest.Kind.START_SHIFT)
+	await _transition(DayTransitionRequest.Kind.FINISH_SHIFT)
+	for frame: int in MAX_FRAMES:
+		await get_tree().physics_frame
+		if zone.get_truck() == null:
+			break
+	assert(zone.get_truck() == null)
+	await _transition(DayTransitionRequest.Kind.SLEEP)
+	assert(DayPhaseQueries.current().day_index == 2)
 	for parcel: Entity in parcels:
 		(parcel as Node as RigidBody3D).freeze = true
-	# Заняты все маркеры приёмки: поставка должна дождаться свободного места.
-	var zone: E_ReceivingZone = level.get_node("Entityes/ReceivingZone") as E_ReceivingZone
+	# Block every actual cargo candidate before the new truck can accept its first parcel.
 	var blockers: Array[StaticBody3D] = []
-	var spawn_points: Node = zone.get_node("SpawnPoints")
-	for spawn_point: Node in spawn_points.get_children():
-		var marker: Node3D = spawn_point as Node3D
+	var incoming_truck: E_MorningTruck = zone.ensure_truck()
+	assert(incoming_truck != null)
+	for marker: Marker3D in zone.get_cargo_markers():
 		var blocker: StaticBody3D = StaticBody3D.new()
 		var collision: CollisionShape3D = CollisionShape3D.new()
 		var box_shape: BoxShape3D = BoxShape3D.new()
@@ -167,35 +207,30 @@ func _run() -> void:
 		blocker.global_position = marker.global_position
 		blockers.append(blocker)
 	await get_tree().physics_frame
-	for transition: DayTransitionRequest.Kind in [
-		DayTransitionRequest.Kind.START_SHIFT,
-		DayTransitionRequest.Kind.FINISH_SHIFT,
-		DayTransitionRequest.Kind.SLEEP,
-	]:
-		var cycle: C_DayCycle = DayPhaseQueries.current()
-		var request: DayTransitionRequest = DayTransitionRequest.new()
-		request.kind = transition
-		request.expected_day = cycle.day_index
-		request.expected_phase = cycle.phase
-		assert(DayPhaseService.submit(request))
-		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
 	GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
-	assert(DayPhaseQueries.current().day_index == 2)
-
 	var receiving: C_Receiving = zone.get_component(C_Receiving) as C_Receiving
-	assert(receiving.blocked and ECS.world.query.with_all([C_Package]).execute().size() == 8)
+	assert(receiving.blocked
+		and ECS.world.query.with_all([C_Package]).execute().size() == batch_size)
 	for blocker: StaticBody3D in blockers:
 		blocker.queue_free()
 	# Тест убирает вчерашнюю поставку на полки, оставляя первую коробку на месте.
 	for parcel_index: int in range(1, parcels.size()):
 		var stored: RigidBody3D = parcels[parcel_index] as Node as RigidBody3D
 		stored.global_position = Vector3(-10, 1, parcel_index * 2)
-	for tick_index: int in 45:
+	for frame: int in MAX_FRAMES:
 		await get_tree().physics_frame
 		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
-	assert(ECS.world.query.with_all([C_Package]).execute().size() == 16)
+		if ECS.world.query.with_all([C_Package]).execute().size() == batch_size * 2:
+			break
+	assert(ECS.world.query.with_all([C_Package]).execute().size() == batch_size * 2)
 	assert((first as Node as Node3D).global_position.is_equal_approx(previous_location))
 	assert(_has_active_number(registry, 1))
+
+	# The real Night reset releases held objects; acquire the same scanner through input again.
+	assert(GrabQueries.held_object(actor) == null)
+	await _prepare_target(actor, scanner, Vector3(0.0, 0.0, -1.6))
+	_drive(actor, true, false, false)
+	assert(GrabQueries.held_object(actor) == scanner)
 
 	var next_day_parcel: Entity = level.get_node("Entityes/Parcel_002_01") as Entity
 	await _prepare_target(actor, next_day_parcel, Vector3(0.0, -0.2, -2.2))
@@ -205,13 +240,14 @@ func _run() -> void:
 	await _prepare_target(actor, first, Vector3(0.0, -0.2, -2.2))
 	assert(InteractionTargetingGeometry.find_target(actor, interactor) == first)
 	assert(PackageRegistrationService.scan(actor, scanner, first).number == 1)
-	assert(registry.records.size() == 3)
+	assert(_registered_count(registry) == 3)
+	assert(registry.records.size() == batch_size * 2)
 	assert(not PackageRegistrationService.release_number(first))
 	first_state.registration = C_PackageState.Registration.DELIVERED
 	assert(PackageRegistrationService.release_number(first))
 	assert(not PackageRegistrationService.release_number(first))
 	assert(PackageRegistrationService.smallest_free_number(registry) == 1)
-	assert(registry.records[1].active and registry.records[1].number == 2)
+	assert(_has_active_number(registry, 2))
 	assert(registry.last_departed_package_id == (first.get_component(C_Package) as C_Package).package_id)
 
 	var replacement: Entity = level.get_node("Entityes/Parcel_002_02") as Entity
@@ -220,6 +256,8 @@ func _run() -> void:
 	assert(PackageRegistrationService.smallest_free_number(registry) == 4)
 	level.free()
 	ECS.world = null
+	await get_tree().process_frame
+	_cleanup_slot()
 	print("R05/R06 receiving -> scan -> terminal -> next day smoke PASS")
 	get_tree().quit()
 
@@ -261,4 +299,40 @@ func _has_active_number(registry: C_PackageLedger, number: int) -> bool:
 			return true
 	return false
 
+#endregion
+
+
+#region Fixture transition and receipt contracts
+func _transition(kind: DayTransitionRequest.Kind) -> void:
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var initial_day: int = cycle.day_index
+	var initial_phase: C_DayCycle.Phase = cycle.phase
+	var request: DayTransitionRequest = DayTransitionRequest.new()
+	request.kind = kind
+	request.expected_day = initial_day
+	request.expected_phase = initial_phase
+	var submitted: bool = DayPhaseService.submit(request)
+	assert(submitted, "kind=%s; start=%s; finish=%s; sleep=%s"
+		% [kind, DayPhaseService.start_blockers(cycle), DayPhaseService.finish_blockers(cycle),
+			NpcSleepService.blockers()])
+	for frame: int in MAX_FRAMES:
+		GameTimeFixture.gameplay(ECS.world, 1.0 / 60.0)
+		if cycle.phase != initial_phase and cycle.phase != C_DayCycle.Phase.NIGHT:
+			return
+		await get_tree().physics_frame
+	assert(false, "Day transition did not complete within the fixture frame bound")
+
+
+func _registered_count(registry: C_PackageLedger) -> int:
+	var count: int = 0
+	for receipt: PackageRegistrationRecord in registry.records:
+		if receipt.active and receipt.number > 0:
+			count += 1
+	return count
+
+
+func _cleanup_slot() -> void:
+	for path: String in [SAVE_PATH, SAVE_PATH + ".tmp"]:
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 #endregion

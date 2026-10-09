@@ -577,3 +577,19 @@ Per-Entity ready/reconstruction milestone (task 41 remains IN_PROGRESS):
 Remaining task-41 acceptance: complete provider/factory manifest audit and migration, all runtime
 construction paths and rejection invariants, full relevant acceptance including known failing native
 shutdown/legacy receiving surfaces. These bounded passes do not close task 41 or authorize Phase 42.
+
+Receiving acceptance tooling repaired (task 41 remains IN_PROGRESS):
+- receiving_scan now uses actual main's authored batch limit (5 then 10 total), CharacterBody player,
+  persistent CustomerFlow and current arrival receipts (all arrivals exist before numbered scans).
+- It physically unloads boxes outside the native cargo volume, uses the real START_SHIFT /
+  FINISH_SHIFT / SLEEP gates, waits for departure, blocks all actual new-truck cargo candidates,
+  then proves resumed second-day supply. Scanner reacquisition follows the real Night held-item reset.
+- Preserved checks: native input pickup/use, scan range/aim rejection, duplicate scan identity,
+  terminal number/tag state, unchanged older package pose, number release/reuse and no duplicate
+  receipts. Test uses only its own receiving_scan_smoke.pvzh slot and drains queued UI nodes.
+- Actual headless receiving_scan PASS, zero runtime warnings/errors:
+  tests/artifacts/receiving_scan-20261009-171446639.log. Changed-script parser 1 file PASS, formatter
+  39 incremental files PASS and project structure PASS. Parser log:
+  tests/artifacts/refactoring_v2_41_receiving_scan_parser.log. No rendered/subjective QA executed.
+This closes the previously recorded legacy receiving smoke failure, not full task-41 acceptance.
+Complete provider manifest migration/audit and remaining native shutdown gates are still open.
