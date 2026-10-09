@@ -1109,7 +1109,13 @@
       "action": "migrate",
       "capability": "package_profile",
       "contract": "Apply typed Profile/instance configuration through the same compiler with enumerated initial fields; preserve body ownership and mass/throw tuning.",
-      "resolved": false
+      "resolved": true,
+      "resolution": {
+        "kind": "trait_initial_field_configuration",
+        "replacement": "content/domains/packages/authoring/et_package_state.gd",
+        "contract": "Package Trait requires the scene-owned C_Grabbable provider and configures throw_velocity from the single package Definition. Receiving factory only supplies detached identity/Profile and physical mass; it no longer rewrites Component recipes. Missing carry rejects before native registration.",
+        "validation": "Changed parser 3 files PASS; native Profile/truck/receiving/delivery GUT 71/71 / 586 assertions PASS, zero diagnostics; actual morning_truck write and restore in fresh processes PASS. Separate legacy receiving_scan smoke FAIL remains task-level work; no task completion claimed."
+      }
     },
     {
       "source": "content/domains/packages/services/receiving_package_factory.gd",

@@ -217,3 +217,9 @@ Escalate an individual task to `max` only when the task itself is an architectur
 На один рабочий запрос брать одну выбранную небольшую задачу. Читать этот README, выбранную задачу и только прямых владельцев кода/контрактов. После завершения обновлять Status/Current/Validation задачи и следующее действие здесь.
 
 Physical-slot initial binding milestone: on_ready installer removed; shared ancestor endpoint capture and validated flat Template/fixup. Current task-41 worktree GUT 94/94 / 662 assertions, parser 6+1 files and main/placement/inspection/Night write+restore PASS. Task 41 remains IN_PROGRESS; no Phase 3.
+
+
+Additional task-41 initial provider: package carry Profile defaults now compile through
+ET_PackageState; receiving factory no longer rewrites carry recipes. Native parser 3 files and
+GUT 71/71 PASS; actual truck write/restore PASS. Runner restart registration fixed in e15b66ae.
+This milestone does not close task 41; readiness, complete manifest and cold retention remain open.

@@ -469,3 +469,28 @@ Evidence: `.artifacts/refactoring_v2_41_slot_final_gut.log`, `...slot_parser.log
 This is a bounded initial-provider milestone, not task-41 completion. Task remains IN_PROGRESS;
 full manifest, complete ready/saved-overlay/fixup barrier and inherited cold-loader retention are
 still pending. Next: session loot queue, package-content/Profile providers, then complete ready gate.
+
+
+## Receiving carry Profile milestone
+
+C_Grabbable.throw_velocity now derives from the package Definition through ET_PackageState's
+explicit field compiler; missing carry data rejects before registration. ReceivingPackageFactory
+only captures detached identity/Profile inputs and body-owned mass, with no recipe duplication or
+Component rewrite. Tests inspect native publication, source prototype isolation and missing-provider
+rejection. Self-review is non-independent; one Profile owns defaults and no compatibility branch
+remains for this field.
+
+Executed: changed parser **3 files PASS**; native package Profile/morning truck/receiving limits/
+delivery completion GUT **71/71 / 586 assertions PASS**, zero native diagnostics. Actual truck smoke
+**write and restore PASS in independent processes**, logs `morning_truck-write-20261009-155835962.log`
+and `morning_truck-restore-20261009-155845092.log`. The runner's missing truck restart registration
+was fixed independently in **e15b66ae**, with the existing native diagnostic regression PASS.
+Separate `receiving_scan-20261009-155855501.log` is **FAIL**: historical smoke removes a required
+CustomerFlow Component, still assumes eight/16 supplied boxes and a RigidBody player; the current
+main contract supplies five and keeps its required session aggregate. This smoke must be migrated
+before broad acceptance; the failure is not waived or reported as gameplay QA.
+
+Evidence: `.artifacts/refactoring_v2_41_receiving_profile_parser.log`,
+`...receiving_profile_gut.log`. This is a coherent initial-provider milestone inside task 41.
+Task remains IN_PROGRESS, with complete startup/saved-overlay/endpoint-ready gates and remaining
+manifest providers pending. Cold inherited parser and separate native golden retention remain OPEN.

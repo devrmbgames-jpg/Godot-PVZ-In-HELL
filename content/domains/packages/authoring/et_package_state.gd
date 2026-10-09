@@ -7,7 +7,7 @@ class_name ET_PackageState
 func _init() -> void:
 	trait_id = &"package_state"
 	required_root_class = &"RigidBody3D"
-	required_components = [C_Package, C_Health, C_ImpactReceiver]
+	required_components = [C_Package, C_Health, C_ImpactReceiver, C_Grabbable]
 	initial_field_names[C_Package as Script] = PackedStringArray(["delivery_day", "supply_key"])
 
 
@@ -48,6 +48,7 @@ func configuration_for(context: EntitySpawnContext) -> Dictionary[Script, Dictio
 	fields[C_Health as Script] = {&"base": definition.maximum_health,
 		&"value": definition.maximum_health, &"current": definition.maximum_health}
 	fields[C_ImpactReceiver as Script] = {&"profile": definition.impact_profile}
+	fields[C_Grabbable as Script] = {&"throw_velocity": definition.throw_velocity}
 	return fields
 
 

@@ -52,8 +52,8 @@ static func create(
 	return parcel
 
 
-## Materializes a prevalidated unregistered package recipe for delivery or snapshot reconstruction.
-## Returns false for a prefab without a physical body or required carry configuration.
+## Sets detached scene identity/Profile inputs and physical mass before compiler validation.
+## The common compiler validates required carry data and derives its Profile defaults.
 static func configure_recipe(parcel: E_Package, definition: DEF_Package, package_id: String) -> bool:
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	if body == null:
@@ -62,19 +62,6 @@ static func configure_recipe(parcel: E_Package, definition: DEF_Package, package
 	parcel.package_definition = definition
 	body.mass = definition.mass_kg
 
-	var component_resources: Array[Component] = parcel.component_resources.duplicate()
-	var carry: C_Grabbable = null
-	for component_index: int in component_resources.size():
-		var component: Component = component_resources[component_index]
-		if component is C_Grabbable:
-			carry = EntityRecipeRules.copy_component(component) as C_Grabbable
-			component_resources[component_index] = carry
-			break
-	if carry == null:
-		return false
-
-	carry.throw_velocity = definition.throw_velocity
-	parcel.component_resources = component_resources
 	return true
 
 
