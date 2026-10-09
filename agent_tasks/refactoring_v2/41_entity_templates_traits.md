@@ -878,3 +878,59 @@ In this task file, only the new review section is committed; pre-existing task/c
 worktree changes remain preserved and unstaged. Task 41 remains **IN_PROGRESS** because its separate
 cold/parser and bounded shutdown retention acceptance is unresolved. Next: isolate/repair that
 resource graph and run its exact failing surfaces before claiming task acceptance or beginning 42.
+
+### Cold retention investigation — 2026-10-10
+
+Task status remains **IN_PROGRESS**. Current immutable HEAD is
+`3a7566318350d4091226cf962e8a6321dd609d60`; the runtime fix checkpoint remains
+`bed9908d38a709f8f565a7a3ced60f78e1980ac2`. A Git comparison confirms the RV-001
+production and regression files are unchanged between those full revisions. RV-001/RV-002
+remain FIXED under their existing evidence; no new functional test PASS is claimed here.
+
+Native cold parser was actually rerun on Godot 4.7.1 (`a13da4feb` build): two scripts
+compile, but shutdown **FAILs** with 404 Objects / 291 resources plus font/texture RIDs
+and Variant allocator pages. A zero native exit code does not waive these diagnostics.
+Log: `tests/artifacts/refactoring_v2_41_retention_current_parser.log`.
+The full 1415-test suite and the bounded Customer/address GUT surfaces were not rerun.
+
+Compile-only bisect narrows one graph as follows:
+
+- `TerminalPanel` plus the snapshot call reproduces retention without executing fixture
+  setup, snapshot capture or any test body. UI teardown is not established as its cause.
+- Each direct TerminalPanel dependency alone with snapshot is clean. The combination of
+  `CustomerFlowService` and `CommercePanelFactory`/`CommerceService` fails. Further reduction
+  reaches `E_InventoryPickup`, its `E_GrabbableBody` base, and the cargo/grab combination.
+- `CartCargoSolver` + `GrabPhysicsSolver` + `CustomerInspectionService` + snapshot retain
+  383 Objects / 273 resources. Either solver alone with the Customer flow is clean.
+- In that diagnostic probe, omitting `CustomerInspectionService.end` or just its
+  `LootDropService.accept_contents(parcel)` call gives a clean shutdown. Omitting the
+  other end side effects does not. Stubbing the callee body while retaining the call
+  still fails. This isolates a compilation dependency, not a proven runtime transaction bug.
+- A lexical reachable-class graph has 405 scripts. It identifies project cart/character/time
+  cycles and self references, but lexical cycles alone do not prove the retained owner.
+
+All temporary runtime experiments were reverted; no partial workaround was committed:
+cart parameter-cycle separation, all eight retained static owners annotated with
+`@static_unload`, transient/string-backed codec schemas, explicit loot queue/ID arguments,
+in-place pending filtering, grab self-call/factory changes, separate notification scope,
+and dynamic static Callback construction. Some reduce retention; none eliminates the
+original failure. Source bytes were saved for bounded temporary stubs and restored in
+`finally`; final task-owned runtime diff is empty. Addons and unrelated user edits remain preserved.
+Diagnostic probes/logs remain ignored under `tests/artifacts/retention_*` and
+`tests/artifacts/refactoring_v2_41_*_trial.log` for reproducibility.
+
+Upstream context is a hypothesis only: [Godot issue 122022](https://github.com/godotengine/godot/issues/122022)
+reports a typed/self-reference retention combination on the same official 4.7.1 build;
+it was closed without a verified fix and does not establish our root cause. The
+[`@static_unload` documentation](https://docs.godotengine.org/en/latest/classes/class_%40gdscript.html)
+also records unloading limitations. No engine/addon update or diagnostic waiver is adopted.
+
+Additional bounded lifetime review: **REVIEW_PENDING**. The previous reviewer is completed;
+the same `/root/review_task41_checkpoint` is reused, with no second concurrent child.
+BASE_SHA=`857ec02d7703eab840dbf496730be48d29294d99`,
+TARGET_SHA=`3a7566318350d4091226cf962e8a6321dd609d60`.
+Scope: new compiler/recipe/notification/snapshot Script-resource ownership and immediate
+contracts. Reviewer reads immutable Git objects only; no edits/tests/Godot/MCP/live source.
+This new diagnostic review does not reopen or replace the collected RV-001 fix review.
+Next: collect and triage this result, reproduce any concrete owner finding, and verify the
+exact cold and bounded shutdown surfaces before task 41 acceptance and archive.

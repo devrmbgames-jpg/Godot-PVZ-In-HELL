@@ -140,6 +140,13 @@ Typed contracts уже закреплены задачей 40 перед executi
 
 ## Current
 
+Active Goal authorization (2026-10-10): complete the entire Refactoring v2 plan through
+task **66**, including Phase 3 after the Phase-2 acceptance gate. This supersedes historical
+session limits below that stopped at 49 or excluded Phase 3. The dependency order and
+required acceptance remain in force; task 41 is still IN_PROGRESS on cold/shutdown retention.
+Completed tasks move to `agent_tasks/completed/refactoring_v2/`; rendered gameplay and
+subjective visual QA remain owner acceptance. Next: resolve task 41, then 42–49, then 60–66.
+
 Phase 1 **DONE**: задачи 01–03 завершены 2026-10-07, 04 — 2026-10-08. Canonical roles/service smells/request timing, architecture guardrail, full structure repair и isolated identity/persistence baseline завершены. Phase 1 acceptance gate достигнут; runtime migration не начиналась.
 
 Повторный Phase 0 pass завершён 2026-10-07 строго последовательно, с отдельным coherent commit каждой 00_задачи. Final full review [00_05](../completed/refactoring_v2/00_05_preflight_readiness_gate.md): **READY_FOR_IMPLEMENTATION**. Этот исторический gate разрешил Phase 1; его preflight pass завершён до реализации 01.
