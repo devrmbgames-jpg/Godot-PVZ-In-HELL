@@ -14,7 +14,7 @@ var _pending: Dictionary[String, PhysicsContact] = { }
 
 #region Жизненный цикл и расписание GECS
 
-## Привязывает физические inbox и сигналы разделения к текущим и новым телам World.
+## Binds engine contact reporting to complete physical recipes; never installs Components.
 func setup() -> void:
 	_world.entity_added.connect(_on_entity_added)
 	_world.entity_enabled.connect(_on_entity_added)
@@ -193,15 +193,16 @@ func _resolve_direction(
 
 #region Подписки и проверки пары
 func _on_entity_added(entity: Entity) -> void:
-	if entity.has_component(C_CharacterBody) and not entity.has_component(C_ImpactInbox):
-		entity.add_component(C_ImpactInbox.new())
 	var body: RigidBody3D = entity as Node as RigidBody3D
+	if body == null and not entity.has_component(C_CharacterBody):
+		return
+
+	var inbox: C_ImpactInbox = entity.get_component(C_ImpactInbox) as C_ImpactInbox
+	assert(inbox != null, "Physical impact inbox must be composed before registration")
 	if body != null:
 		var on_exit: Callable = _on_body_exited.bind(body)
 		if not body.body_exited.is_connected(on_exit):
 			body.body_exited.connect(on_exit)
-		if not entity.has_component(C_ImpactInbox):
-			entity.add_component(C_ImpactInbox.new())
 		body.contact_monitor = true
 		body.max_contacts_reported = maxi(body.max_contacts_reported, CONTACT_LIMIT)
 

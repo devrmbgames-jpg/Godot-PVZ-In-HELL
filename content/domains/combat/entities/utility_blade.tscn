@@ -9,6 +9,13 @@
 [ext_resource type="Script" path="res://content/domains/combat/definitions/def_melee_action.gd" id="Action"]
 [ext_resource type="Script" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="Actions"]
 
+[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_entity_physical_impact.tres" id="ImpactTemplate"]
+
+[sub_resource type="Resource" id="ImpactAuthoring"]
+script = ExtResource("ImpactAuthoring")
+entity_template = ExtResource("ImpactTemplate")
+
 [sub_resource type="Resource" id="Interactable"]
 script = ExtResource("Interactable")
 
@@ -139,6 +146,7 @@ _data = {
 }
 
 [node name="UtilityBlade" type="RigidBody3D"]
+metadata/entity_composition = SubResource("ImpactAuthoring")
 collision_layer = 10
 collision_mask = 31
 mass = 0.7

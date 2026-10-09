@@ -51,7 +51,7 @@ func _physical_support() -> void:
 
 	var box: RigidBody3D = (load("res://content/domains/interaction/entities/box.tscn") as PackedScene).instantiate() as RigidBody3D
 	box.position.x = 1.5
-	_world.add_entity(box as Node as Entity)
+	EntityCompositionFixture.register(_world, box as Node as Entity)
 	var body: RigidBody3D = RigidBody3D.new()
 	body.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	body.collision_layer = 4
@@ -163,7 +163,7 @@ func _main_customer() -> void:
 	body.position = CustomerFlowQueries.counter().waiting_position()
 	body.freeze = true
 	level.add_child(body)
-	ECS.world.add_entity(customer, null, false)
+	EntityCompositionFixture.register(ECS.world, customer, false)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE

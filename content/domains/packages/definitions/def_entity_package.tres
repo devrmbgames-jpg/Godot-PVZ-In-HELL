@@ -9,6 +9,8 @@
 [ext_resource type="Script" path="res://content/domains/combat/components/c_impact_receiver.gd" id="7_1r53s"]
 [ext_resource type="Script" path="res://content/domains/packages/authoring/et_package_state.gd" id="8_4krgg"]
 
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="ImpactTrait"]
+
 [sub_resource type="Resource" id="Resource_nyljh"]
 script = ExtResource("8_4krgg")
 trait_id = &"package_state"
@@ -17,5 +19,5 @@ required_root_class = &"RigidBody3D"
 
 [resource]
 script = ExtResource("1_l71jc")
-traits = Array[ExtResource("2_wpjc1")]([SubResource("Resource_nyljh")])
+traits = Array[ExtResource("2_wpjc1")]([SubResource("Resource_nyljh"), ExtResource("ImpactTrait")])
 key = &"entity_package"

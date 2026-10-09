@@ -278,3 +278,121 @@ func test_repeated_flow_ticks_in_one_batch_keep_first_visit_and_next_queued() ->
 	assert_eq(_world.query.with_all([C_CustomerAgent]).execute().size(), 1)
 
 #endregion
+
+#region Prepared customer visit construction
+## Factory publication exposes complete role/Profile defaults before consumers run.
+func test_customer_factory_publishes_visit_policy_before_entity_added() -> void:
+	var visit: CustomerVisit = _visit(&"prepared-customer")
+	visit.definition.move_speed = 4.75
+	var published: Array[Entity] = []
+	_world.entity_added.connect(func(actor: Entity) -> void:
+		var agent: C_CustomerAgent = actor.get_component(C_CustomerAgent) as C_CustomerAgent
+		if agent == null:
+			return
+		assert_eq(agent.visit_id, visit.visit_id)
+		assert_true(visit.started)
+		assert_eq(visit.visit_count, 1)
+		assert_eq((actor.get_component(C_Motion) as C_Motion).max_speed, 4.75)
+		assert_same((actor.get_component(C_Challenge) as C_Challenge).definition,
+			visit.definition.challenge)
+		var actions: C_InteractionActionSet = actor.get_component(C_InteractionActionSet) \
+			as C_InteractionActionSet
+		assert_eq(actions.actions.size(), 2)
+		assert_true(actions.actions[0] is DEF_CustomerAction)
+		assert_true(actions.actions[1] is DEF_CustomerHandoffAction)
+		published.append(actor))
+	CustomerFlowService.start_visit(_flow, visit, 1)
+	assert_eq(published.size(), 1)
+	assert_true(visit.started)
+	assert_eq(visit.visit_count, 1)
+
+
+## Conflicting providers leave visit/history/registry/SceneTree unchanged.
+func test_rejected_customer_recipe_preserves_unstarted_visit() -> void:
+	var visit: CustomerVisit = _visit(&"rejected-customer")
+	var template: DEF_EntityTemplate = load(
+		"res://content/domains/customers/definitions/def_entity_customer_visit.tres") \
+		as DEF_EntityTemplate
+	var duplicate: EntityTrait = EntityTrait.new()
+	duplicate.trait_id = &"conflicting-motion"
+	duplicate.component_recipes = [C_Motion.new()]
+	template.traits.append(duplicate)
+	var entity_count: int = _world.entities.size()
+	var child_count: int = get_child_count()
+	CustomerFlowService.start_visit(_flow, visit, 1)
+	template.traits.erase(duplicate)
+	assert_false(visit.started)
+	assert_false(visit.finished)
+	assert_eq(visit.visit_count, 0)
+	assert_eq(visit.last_visit_day, 0)
+	assert_eq(_world.entities.size(), entity_count)
+	assert_eq(get_child_count(), child_count)
+
+
+## An inherited content variant uses the same Template without another Trait or registry edit.
+func test_customer_scene_variant_uses_same_role_template() -> void:
+	var visit: CustomerVisit = _visit(&"variant-customer")
+	visit.definition.customer_scene_path = \
+		"res://content/domains/customers/entities/customer_prototype.tscn"
+	CustomerFlowService.start_visit(_flow, visit, 1)
+	var actor: Entity = _world.query.with_all([C_CustomerAgent]).execute_one()
+	assert_not_null(actor)
+	assert_eq(actor.scene_file_path, visit.definition.customer_scene_path)
+	assert_eq((actor.get_component(C_CustomerAgent) as C_CustomerAgent).visit_id, visit.visit_id)
+	assert_true(actor.has_component(C_InteractionActionSet))
+	assert_eq((actor as E_Customer).inspection_animation, &"Idle")
+#endregion
+
+#region Rejected customer inputs
+## Wrong scene roots and missing prefab selectors cannot finish or charge an unstarted visit.
+func test_invalid_customer_scene_preserves_visit_and_native_registry() -> void:
+	for scene_path: String in [
+		"res://content/domains/npc/entities/npc_address.tscn", "res://" + "missing_customer.tscn",
+	]:
+		var visit: CustomerVisit = _visit(StringName(scene_path))
+		visit.definition.customer_scene_path = scene_path
+		var count_before: int = _world.entities.size()
+		CustomerFlowService.start_visit(_flow, visit, 1)
+		assert_false(visit.started)
+		assert_false(visit.finished)
+		assert_eq(visit.visit_count, 0)
+		assert_eq(_world.entities.size(), count_before)
+#endregion
+
+#region Scene-owned customer recipe parity
+## Placed preview and factory compilation share isolated role state and immutable Definitions.
+func test_customer_scene_compiles_without_factory_and_isolates_mutable_role_state() -> void:
+	var first: Entity = _flow.schedule.customer_scene.instantiate() as Entity
+	var second: Entity = _flow.schedule.customer_scene.instantiate() as Entity
+	var first_context: EntitySpawnContext = EntityCompositionService.context_for(
+		first, null, "first")
+	var second_context: EntitySpawnContext = EntityCompositionService.context_for(
+		second, null, "second")
+	var first_plan: EntityBuildPlan = EntityCompositionService.build_plan(first_context)
+	var second_plan: EntityBuildPlan = EntityCompositionService.build_plan(second_context)
+	assert_true(first_plan.valid())
+	assert_true(second_plan.valid())
+	var first_agent: C_CustomerAgent = null
+	var second_agent: C_CustomerAgent = null
+	var first_actions: C_InteractionActionSet = null
+	var second_actions: C_InteractionActionSet = null
+	for recipe: Component in first_plan.component_recipes:
+		if recipe is C_CustomerAgent:
+			first_agent = recipe as C_CustomerAgent
+		if recipe is C_InteractionActionSet:
+			first_actions = recipe as C_InteractionActionSet
+	for recipe: Component in second_plan.component_recipes:
+		if recipe is C_CustomerAgent:
+			second_agent = recipe as C_CustomerAgent
+		if recipe is C_InteractionActionSet:
+			second_actions = recipe as C_InteractionActionSet
+	assert_not_same(first_agent, second_agent)
+	assert_same(first_actions.actions[0], second_actions.actions[0])
+	first_agent.visit_id = &"only-first"
+	first_actions.actions.remove_at(0)
+	assert_eq(second_agent.visit_id, &"")
+	assert_eq(second_actions.actions.size(), 2)
+	assert_false(EntityCompositionService.recipes_prepared(first))
+	first.free()
+	second.free()
+#endregion

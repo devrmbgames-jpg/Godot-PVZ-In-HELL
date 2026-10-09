@@ -252,3 +252,28 @@ func test_aggressive_fear_requires_visible_predatory_hunger_above_eighty() -> vo
 	assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.THREAT, &"visible_hunger"), NpcMemory.Reaction.FLEE)
 	assert_null(CombatQueries.target_for(body))
 #endregion
+
+#region Initial role action capability
+## Entering/leaving a visit changes transient role state, never the compiled action capability.
+func test_service_role_keeps_initial_actions_and_inactive_choices_hidden() -> void:
+	var person: NpcRecord = _district.people[3]
+	var body: E_DistrictNpc = _stage(3)
+	var actions: C_InteractionActionSet = body.get_component(C_InteractionActionSet) \
+		as C_InteractionActionSet
+	var initial_actions: Array[DEF_InteractionAction] = actions.actions.duplicate()
+	assert_false(body.has_component(C_CustomerAgent))
+	assert_true(initial_actions[0] is DEF_CustomerAction)
+	assert_true(initial_actions[1] is DEF_CustomerHandoffAction)
+	assert_false(initial_actions[0].is_available(body, body, null))
+	assert_false(initial_actions[1].is_available(body, body, null))
+
+	var visit: CustomerVisit = _case(person, "prepared-role-actions")
+	NpcServiceRole.begin(body, person, visit, DayPhaseQueries.current().day_index)
+	assert_true(body.has_component(C_CustomerAgent))
+	assert_same(body.get_component(C_InteractionActionSet), actions)
+	assert_eq(actions.actions, initial_actions)
+	NpcServiceRole.release(body, visit.visit_id)
+	assert_false(body.has_component(C_CustomerAgent))
+	assert_same(body.get_component(C_InteractionActionSet), actions)
+	assert_eq(actions.actions, initial_actions)
+#endregion

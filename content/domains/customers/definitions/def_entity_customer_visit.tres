@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="DEF_EntityTemplate" format=3]
+
+[ext_resource type="Script" path="res://content/shared/definitions/def_entity_template.gd" id="Template"]
+[ext_resource type="Script" path="res://content/domains/customers/authoring/et_customer_visit.gd" id="Trait"]
+[ext_resource type="Script" path="res://content/domains/customers/components/c_customer_agent.gd" id="Agent"]
+[ext_resource type="Script" path="res://content/domains/motion/components/c_motion.gd" id="Motion"]
+[ext_resource type="Script" path="res://content/domains/challenges/components/c_challenge.gd" id="Challenge"]
+[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_request.tres" id="Request"]
+[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_handoff.tres" id="Handoff"]
+
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="ImpactTrait"]
+
+[sub_resource type="Resource" id="Visit"]
+script = ExtResource("Trait")
+trait_id = &"customer_visit"
+required_components = Array[Script]([ExtResource("Motion"), ExtResource("Challenge")])
+required_root_class = &"RigidBody3D"
+request_action = ExtResource("Request")
+handoff_action = ExtResource("Handoff")
+initial_field_names = Dictionary[Script, PackedStringArray]({
+ExtResource("Agent"): PackedStringArray("visit_id")
+})
+
+[resource]
+script = ExtResource("Template")
+traits = [SubResource("Visit"), ExtResource("ImpactTrait")]

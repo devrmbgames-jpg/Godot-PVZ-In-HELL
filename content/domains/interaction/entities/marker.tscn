@@ -10,6 +10,13 @@
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
 [ext_resource type="Script" uid="uid://bctiomc2begaj" path="res://content/domains/interaction/components/c_marker.gd" id="Marker"]
 
+[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_entity_physical_impact.tres" id="ImpactTemplate"]
+
+[sub_resource type="Resource" id="ImpactAuthoring"]
+script = ExtResource("ImpactAuthoring")
+entity_template = ExtResource("ImpactTemplate")
+
 [sub_resource type="Resource" id="Marker"]
 resource_local_to_scene = true
 script = ExtResource("Marker")
@@ -58,6 +65,7 @@ size = Vector3(0.035, 0.035, 0.045)
 size = Vector3(0.06, 0.06, 0.29)
 
 [node name="Marker" type="RigidBody3D" unique_id=1086911559]
+metadata/entity_composition = SubResource("ImpactAuthoring")
 collision_layer = 10
 collision_mask = 29
 mass = 0.12

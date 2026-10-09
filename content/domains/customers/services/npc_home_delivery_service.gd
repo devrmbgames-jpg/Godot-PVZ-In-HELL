@@ -72,7 +72,6 @@ static func knock(player: Entity, door: Entity) -> bool:
 	service.visit_id = visit.visit_id
 	service.phase = C_CustomerAgent.Phase.APPROACHING
 	body.add_component(service)
-	CustomerActionRecipe.install(body)
 	var meeting: R_NpcHomeMeeting = R_NpcHomeMeeting.new()
 	meeting.job_id = job.job_id
 	body.add_relationship(Relationship.new(meeting, door))

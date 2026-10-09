@@ -75,6 +75,8 @@ func _character(customer: bool) -> E_RigidBodyCharacter:
 	body.collision_layer = 2 if customer else 4
 	body.set_script(load("res://content/domains/customers/entities/e_customer.gd" if customer else "res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	var entity: E_RigidBodyCharacter = body as Node as E_RigidBodyCharacter
+	if customer:
+		entity.component_resources = [C_CustomerAgent.new()]
 	var eyes: Marker3D = Marker3D.new()
 	eyes.position.y = 1.5
 	body.add_child(eyes)

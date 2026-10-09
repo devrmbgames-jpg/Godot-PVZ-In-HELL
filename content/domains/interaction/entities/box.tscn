@@ -10,6 +10,13 @@
 [ext_resource type="Script" uid="uid://hmsdnubwk6gy" path="res://content/domains/interaction/entities/e_grabbable_body.gd" id="Grab_entity"]
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="Grab_interactable"]
 
+[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_entity_physical_impact.tres" id="ImpactTemplate"]
+
+[sub_resource type="Resource" id="ImpactAuthoring"]
+script = ExtResource("ImpactAuthoring")
+entity_template = ExtResource("ImpactTemplate")
+
 [sub_resource type="Resource" id="Grab_interactable"]
 script = ExtResource("Grab_interactable")
 
@@ -32,6 +39,7 @@ metadata/_custom_type_script = "uid://b3if3it5ryfeh"
 size = Vector3(0.81048584, 0.4020996, 0.5946045)
 
 [node name="Box" type="RigidBody3D" unique_id=173843081]
+metadata/entity_composition = SubResource("ImpactAuthoring")
 collision_layer = 10
 collision_mask = 29
 mass = 5.0

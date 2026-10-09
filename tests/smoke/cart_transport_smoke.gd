@@ -54,7 +54,7 @@ func _run() -> void:
 	var actor_body: RigidBody3D = actor_scene.instantiate() as RigidBody3D
 	actor_body.position = Vector3(0, 0.05, 1.6)
 	_actor = actor_body as Node as Entity
-	world.add_entity(_actor)
+	EntityCompositionFixture.register(world, _actor)
 	_controller = _actor.get_component(C_Controller) as C_Controller
 
 	var config: C_CartTransport = _cart.get_component(C_CartTransport) as C_CartTransport
@@ -232,7 +232,7 @@ func _load_cargo(cart_body: CharacterBody3D) -> bool:
 		var body: RigidBody3D = scene.instantiate() as RigidBody3D
 		body.position = cart_body.to_global(offset)
 		var cargo: Entity = body as Node as Entity
-		ECS.world.add_entity(cargo)
+		EntityCompositionFixture.register(ECS.world, cargo)
 		_cargo.append(cargo)
 	for tick: int in 100:
 		await get_tree().physics_frame

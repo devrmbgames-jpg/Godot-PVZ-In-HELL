@@ -58,7 +58,7 @@ func before_each() -> void:
 	(_player as E_RigidBodyCharacter).right_hand_slot = anchor
 	_target = _character(Vector3(0, 0, -1.3))
 	_weapon = (load("res://content/domains/combat/entities/utility_blade.tscn") as PackedScene).instantiate() as Entity
-	_world.add_entity(_weapon)
+	EntityCompositionFixture.register(_world, _weapon)
 	(_weapon as Node as RigidBody3D).gravity_scale = 0.0
 	(_weapon as Node as Node3D).global_position = anchor.global_position
 
@@ -92,7 +92,7 @@ func _character(position: Vector3) -> Entity:
 	var health: C_Health = C_Health.new()
 	health.current = 100.0
 	health.value = 100.0
-	entity.component_resources = [health, C_Living.new()]
+	entity.component_resources = [health, C_Living.new(), C_ImpactInbox.new()]
 
 	var head: Marker3D = Marker3D.new()
 	head.position.y = 1.5
@@ -229,7 +229,7 @@ func test_knife_animation_stabs_forward_on_strike_clock_and_resets_on_drop() -> 
 func test_hammer_can_attack_with_overhead_swing_and_preserves_anchoring_action() -> void:
 	GrabReleaseService.release(_player, _weapon)
 	_weapon = (load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate() as Entity
-	_world.add_entity(_weapon)
+	EntityCompositionFixture.register(_world, _weapon)
 	(_weapon as Node as RigidBody3D).gravity_scale = 0.0
 	(_weapon as Node as Node3D).global_position = (_player as E_PhysicalCharacter).right_hand_slot.global_position
 	var grip: R_HeldBy = R_HeldBy.new()

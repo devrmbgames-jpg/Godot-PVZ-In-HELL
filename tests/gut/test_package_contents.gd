@@ -367,7 +367,7 @@ func test_small_shelf_has_two_open_sections_and_can_be_fastened_with_actual_hamm
 	assert_almost_eq(body.global_position.y, 1.53, 0.01, "Shelf is placed with its real bottom on the floor")
 
 	var hammer: Entity = (load("res://content/domains/combat/entities/hammer.tscn") as PackedScene).instantiate() as Entity
-	_world.add_entity(hammer)
+	EntityCompositionFixture.register(_world, hammer)
 	(hammer as Node as RigidBody3D).gravity_scale = 0.0
 	(hammer as Node as Node3D).global_position = Vector3(-2, 1, 0)
 	var grip: R_HeldBy = R_HeldBy.new()

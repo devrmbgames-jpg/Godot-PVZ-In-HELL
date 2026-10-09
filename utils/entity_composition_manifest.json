@@ -197,7 +197,14 @@
       "action": "migrate",
       "capability": "physical_impact",
       "contract": "Move C_ImpactInbox construction into initial composition; setup retains passive native signal binding only.",
-      "resolved": false
+      "resolved": true,
+      "resolution": {
+        "kind": "pre_registration_physical_recipe",
+        "replacement": "content/domains/combat/authoring/et_impact_capture.tres",
+        "template": "content/domains/combat/definitions/def_entity_physical_impact.tres",
+        "contract": "Native physical roots inherit a scene-owned flat Template; existing NPC/Customer/Package flat Templates include the same immutable Trait directly. S_Impact only binds engine reporting to required prebuilt inboxes. Queues are isolated per actor and setup/re-enable retain pending data. Duplicate legacy receiver/inbox scene providers removed while preserving effective Profiles.",
+        "validation": "Native GUT 74/74 / 745 assertions, including 19 physical-root previews, registration publication/isolation/setup, wrong-root rejection, Jolt/melee and loot/content. Main/physical/Customer/native write+restore smoke logs clean. Final changed parser FAIL: inherited test_npc_remains cold retention remains an open task-level acceptance concern."
+      }
     },
     {
       "source": "content/domains/commerce/services/commerce_service.gd",
@@ -270,7 +277,14 @@
       "action": "migrate",
       "capability": "customer",
       "contract": "Replace conditional procedural Agent/action provisioning with explicit Template providers; duplicate scene/code/Trait providers fail.",
-      "resolved": false
+      "resolved": true,
+      "resolution": {
+        "kind": "removed_conditional_entity_recipe",
+        "replacement": "content/domains/customers/authoring/et_customer_visit.gd",
+        "template": "content/domains/customers/definitions/def_entity_customer_visit.tres",
+        "contract": "Scene-owned flat Template contributes fresh Agent/actions; explicit selected policy configures intrinsic motion/challenge before common registration. Duplicate providers reject; native E_Customer has no procedural capability installer. Native scene has an editable default policy; inherited prototype uses the same Trait.",
+        "validation": "Customer parser 6 files PASS; combined native population/customer/save GUT 180/180 / 1834 assertions; native publication, rejection, inherited variant and nested isolation fixtures."
+      }
     },
     {
       "source": "content/domains/customers/services/customer_action_recipe.gd",
@@ -286,7 +300,17 @@
       "action": "migrate",
       "capability": "customer_actions",
       "contract": "Initial reusable customer actions belong to compiler composition; live service/home roles retain only their role transactions.",
-      "resolved": false
+      "resolved": true,
+      "resolution": {
+        "kind": "removed_live_action_installer",
+        "replacement": "content/domains/npc/authoring/et_npc_roles.gd",
+        "definitions": [
+          "content/domains/customers/definitions/def_action_customer_request.tres",
+          "content/domains/customers/definitions/def_action_customer_handoff.tres"
+        ],
+        "contract": "Resident Templates supply immutable additional actions through the generic action contract before registration. Existing availability checks hide inactive customer roles. Service/home role acquisition changes transient Agent/bindings, never installs action capacity. CustomerActionRecipe and both callers are removed, with no compatibility wrapper.",
+        "validation": "Changed owner/role/queue parser 5 files and expanded native GUT 232/232 / 2171 assertions PASS with zero diagnostics. Real service role begin/release retains the original action Component/Definitions; inactive role actions unavailable and duplicate IDs reject. Full ready/loader gate remains task-level pending."
+      }
     },
     {
       "source": "content/domains/customers/services/customer_flow_service.gd",
@@ -949,7 +973,14 @@
       "action": "migrate",
       "capability": "package_content",
       "contract": "Initial impact/hazard capability follows compiler provider/provenance rules for the whole content family.",
-      "resolved": false
+      "resolved": true,
+      "resolution": {
+        "kind": "trait_initial_capabilities",
+        "replacement": "content/domains/packages/authoring/et_package_content.gd",
+        "template": "content/domains/packages/definitions/def_entity_package_content.tres",
+        "contract": "Eight inherited content variants use a flat impact/content Template. Single native scene Profile and optional hazard exports provide immutable tuning; fresh impact receiver/inbox and optional emitter compile before native publication. Old Entity capability provider removed; loot source preflight rejects invalid recipes before manifest commit.",
+        "validation": "Changed parser 4 files PASS; native registration/content/safe-loot GUT 51/51 / 651 assertions PASS; doors_contents, hazards and loot write/restore PASS, zero diagnostics. Broader cold parser and golden retention still FAIL and remain open task acceptance concerns."
+      }
     },
     {
       "source": "content/domains/packages/entities/e_package_debris.gd",

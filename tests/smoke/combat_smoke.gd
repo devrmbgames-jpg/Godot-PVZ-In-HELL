@@ -44,12 +44,12 @@ func _physical_impacts() -> void:
 			collision.shape = shape
 			collision.position.y = 0.85
 			body.add_child(collision)
-		world.add_entity(target)
+		EntityCompositionFixture.register(world, target)
 		body.global_position = Vector3(index * 5.0, 0, 0)
 		characters.append(target)
 	for target: Entity in characters:
 		var prop: Entity = (load("res://content/domains/interaction/entities/box.tscn") as PackedScene).instantiate() as Entity
-		world.add_entity(prop)
+		EntityCompositionFixture.register(world, prop)
 		var body: RigidBody3D = prop as Node as RigidBody3D
 		body.gravity_scale = 0.0
 		body.mass = 40.0
@@ -113,7 +113,7 @@ func _customer_combat() -> void:
 	var customer_body: RigidBody3D = customer as Node as RigidBody3D
 	customer_body.position = CustomerFlowQueries.counter().waiting_position()
 	_level.add_child(customer_body)
-	ECS.world.add_entity(customer, null, false)
+	EntityCompositionFixture.register(ECS.world, customer, false)
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id
 	agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE

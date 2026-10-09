@@ -69,35 +69,35 @@ static func start_visit(flow: C_CustomerFlow, visit: CustomerVisit, day: int) ->
 	if not visit.definition.customer_scene_path.is_empty():
 		scene = load(visit.definition.customer_scene_path) as PackedScene if ResourceLoader.exists(visit.definition.customer_scene_path) else null
 	if station == null or scene == null:
-		visit.started = true
-		CustomerVisitLifecycle.finish(visit, day)
 		return
 
 	var node: Node = scene.instantiate()
 	var customer: E_NpcCharacter = node as E_NpcCharacter
 	if customer == null:
 		node.free()
-		visit.started = true
-		CustomerVisitLifecycle.finish(visit, day)
+		return
+
+	var context: EntitySpawnContext = EntityCompositionService.context_for(customer, ECS.world,
+		GECSIO.uuid())
+	context.definitions[&"customer_policy"] = visit.definition
+	context.initial_fields[C_CustomerAgent as Script] = {&"visit_id": visit.visit_id}
+	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
+	if not plan.valid():
+		customer.free()
 		return
 
 	station.get_parent().add_child(customer)
 	(customer as Node as Node3D).global_position = station.entry_position()
-	ECS.world.add_entity(customer, null, false)
-	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	agent.visit_id = visit.visit_id
-	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
-	if challenge != null:
-		challenge.definition = visit.definition.challenge
-
-	var motion: C_Motion = customer.get_component(C_Motion) as C_Motion
-	if motion != null:
-		motion.max_speed = maxf(0.0, visit.definition.move_speed)
-	NpcIntentService.move_to(customer, station.waiting_position(), visit.definition.arrival_distance)
-	NpcIntentService.look_along_movement(customer)
+	# Publish accepted visit facts before native consumers see the actor.
 	visit.started = true
 	visit.visit_count += 1
 	visit.last_visit_day = day
+	var registered: bool = EntityCompositionService.register_plan(context, plan, false)
+	assert(registered, "Accepted customer build requires one native registration")
+	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
+	NpcIntentService.move_to(
+		customer, station.waiting_position(), visit.definition.arrival_distance)
+	NpcIntentService.look_along_movement(customer)
 	CustomerParcelAssignment.bind_parcel(customer, visit)
 	customer.show_message(visit.definition.display_name)
 

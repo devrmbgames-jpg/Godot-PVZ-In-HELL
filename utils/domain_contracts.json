@@ -16638,17 +16638,22 @@
       "public_methods": [
         "recipes_prepared",
         "context_for",
-        "try_register"
+        "try_register",
+        "registration_plan",
+        "register_plan"
       ],
       "public_instance_methods": [],
       "method_rights": {
         "recipes_prepared": "query",
         "context_for": "query",
-        "try_register": "configure"
+        "try_register": "configure",
+        "registration_plan": "configure",
+        "register_plan": "configure"
       },
       "sources": [
         "content/entities/customers/e_customer.gd",
-        "content/services/customers/customer_inspection_service.gd"
+        "content/services/customers/customer_inspection_service.gd",
+        "content/services/customers/customer_flow_service.gd"
       ],
       "purpose": "Task 41: native declarative code providers read the construction marker so GECS receives prepared recipes once; no public runtime capability installer or readiness writer."
     },
@@ -16692,6 +16697,7 @@
       "public_methods": [
         "recipes_prepared",
         "context_for",
+        "build_plan",
         "registration_plan",
         "register_plan",
         "try_register"
@@ -16702,7 +16708,8 @@
         "context_for": "query",
         "registration_plan": "query",
         "register_plan": "configure",
-        "try_register": "configure"
+        "try_register": "configure",
+        "build_plan": "query"
       },
       "sources": [
         "content/entities/packages/e_package.gd",
@@ -17528,6 +17535,49 @@
         "actor_key": "query"
       },
       "purpose": "Task 41: match saved placed records by immutable authored identity before native construction."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "shared",
+      "symbol": "EntityTrait",
+      "path": "content/shared/authoring/entity_trait.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [
+        "enabled_for",
+        "configuration_for",
+        "configuration_issues",
+        "recipes_for"
+      ],
+      "method_rights": {},
+      "sources": [
+        "content/domains/customers/authoring/et_customer_visit.gd"
+      ],
+      "purpose": "Pure Customer capability recipes and validation, without live installation hooks."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "shared",
+      "symbol": "EntityBuildPlan",
+      "path": "content/shared/contracts/entity_build_plan.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [
+        "valid"
+      ],
+      "sources": [
+        "content/services/customers/customer_flow_service.gd"
+      ],
+      "method_rights": {
+        "valid": "query"
+      },
+      "purpose": "Standalone Customer validates transient construction before registration and visit effects."
     }
   ],
   "legacy_decomposition": []

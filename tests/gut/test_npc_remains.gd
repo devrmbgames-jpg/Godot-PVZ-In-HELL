@@ -79,7 +79,7 @@ func _npc(customer: bool = false, loot_chance: float = 0.0) -> E_NpcCharacter:
 	npc.component_resources = components
 	(npc as Node as RigidBody3D).freeze = true
 	_root.add_child(npc)
-	_world.add_entity(npc, null, false)
+	EntityCompositionFixture.register(_world, npc, false)
 	return npc
 
 

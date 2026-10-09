@@ -5,7 +5,13 @@
 [ext_resource type="Script" path="res://content/domains/interaction/components/c_grabbable.gd" id="Grabbable"]
 [ext_resource type="Script" path="res://content/domains/combat/components/c_health.gd" id="Health"]
 [ext_resource type="Resource" path="res://content/domains/combat/definitions/def_attr_health.tres" id="HealthDefinition"]
-[ext_resource type="Script" path="res://content/domains/combat/components/c_impact_inbox.gd" id="Inbox"]
+
+[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
+[ext_resource type="Resource" path="res://content/domains/packages/definitions/def_entity_package_content.tres" id="ImpactTemplate"]
+
+[sub_resource type="Resource" id="ImpactAuthoring"]
+script = ExtResource("ImpactAuthoring")
+entity_template = ExtResource("ImpactTemplate")
 
 [sub_resource type="Resource" id="Interactable"]
 script = ExtResource("Interactable")
@@ -20,9 +26,6 @@ base = 20.0
 value = 20.0
 current = 20.0
 
-[sub_resource type="Resource" id="Inbox"]
-script = ExtResource("Inbox")
-
 [sub_resource type="StandardMaterial3D" id="Material"]
 albedo_color = Color(0.6, 0.6, 0.6, 1)
 [sub_resource type="BoxMesh" id="Mesh"]
@@ -32,6 +35,7 @@ material = SubResource("Material")
 size = Vector3(0.3, 0.3, 0.3)
 
 [node name="PackageContent" type="RigidBody3D"]
+metadata/entity_composition = SubResource("ImpactAuthoring")
 collision_layer = 8
 collision_mask = 29
 mass = 1.0
@@ -39,7 +43,7 @@ continuous_cd = true
 contact_monitor = true
 max_contacts_reported = 8
 script = ExtResource("Entity")
-component_resources = [SubResource("Interactable"), SubResource("Grabbable"), SubResource("Health"), SubResource("Inbox")]
+component_resources = [SubResource("Interactable"), SubResource("Grabbable"), SubResource("Health")]
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("Mesh")

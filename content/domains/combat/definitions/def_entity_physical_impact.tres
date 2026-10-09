@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DEF_EntityTemplate" format=3]
+
+[ext_resource type="Script" path="res://content/shared/definitions/def_entity_template.gd" id="Template"]
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="Impact"]
+
+[resource]
+script = ExtResource("Template")
+traits = [ExtResource("Impact")]
+key = &"entity_physical_impact"

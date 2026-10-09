@@ -40,7 +40,6 @@ static func begin(body: E_DistrictNpc, person: NpcRecord, visit: CustomerVisit, 
 	service.visit_id = visit.visit_id
 	service.phase = C_CustomerAgent.Phase.QUEUED
 	body.add_component(service)
-	CustomerActionRecipe.install(body)
 	var motion: C_Motion = body.get_component(C_Motion) as C_Motion
 	if motion != null:
 		service.original_walk_speed = motion.max_speed

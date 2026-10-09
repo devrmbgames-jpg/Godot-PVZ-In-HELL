@@ -29,6 +29,8 @@ func _run() -> void:
 	mesh.agent_height = 1.7
 	mesh.cell_size = 0.15
 	mesh.cell_height = 0.1
+	# Preserve the baked climb limit while supplying an exact whole-voxel input.
+	mesh.agent_max_climb = floorf(mesh.agent_max_climb / mesh.cell_height) * mesh.cell_height
 
 	var source: NavigationMeshSourceGeometryData3D = NavigationMeshSourceGeometryData3D.new()
 	NavigationServer3D.parse_source_geometry_data(mesh, source, _world)
@@ -38,8 +40,10 @@ func _run() -> void:
 	_world.add_child(region)
 	var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 	var customer: E_NpcCharacter = scene.instantiate() as E_NpcCharacter
+	# This headless fixture isolates physics/navigation from streamed footstep playback.
+	(customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
 	(customer as Node as Node3D).position = START
-	_world.add_entity(customer)
+	EntityCompositionFixture.register(_world, customer)
 	assert(customer.navigation_agent != null)
 
 	var body: RigidBody3D = customer as Node as RigidBody3D

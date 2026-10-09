@@ -18,6 +18,9 @@ func _run() -> void:
 	_level = MAIN.instantiate()
 	_level.set("autosave_path", "")
 	add_child(_level)
+	# The native route/parcel fixture isolates all district footsteps from accelerated playback.
+	for feedback: CharacterFeedback in _level.find_children("*", "CharacterFeedback", true, false):
+		feedback.footsteps_enabled = false
 	_level.set_physics_process(false)
 	(_level.get_node("Entityes/Player") as Node).set_physics_process(false)
 	await get_tree().physics_frame
@@ -56,7 +59,7 @@ func _exercise_inspection() -> void:
 	var body: RigidBody3D = customer as Node as RigidBody3D
 	body.position = counter.waiting_position()
 	_level.add_child(body)
-	ECS.world.add_entity(customer, null, false)
+	EntityCompositionFixture.register(ECS.world, customer, false)
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id

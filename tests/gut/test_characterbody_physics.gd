@@ -31,9 +31,9 @@ func before_each() -> void:
 	_player = host.get_node("Entityes/Player") as E_CharacterBodyPlayer
 	_player.get_parent().remove_child(_player)
 	host.free()
-	_world.add_entity(_player)
+	EntityCompositionFixture.register(_world, _player)
 	for child: Node in (_player as Node).find_children("*", "Entity", true, false):
-		_world.add_entity(child as Entity, null, false)
+		EntityCompositionFixture.register(_world, child as Entity, false)
 	_body = _player as Node as CharacterBody3D
 	_body.global_position = Vector3(0.0, 0.01, 0.0)
 	_health = _player.get_component(C_Health) as C_Health
@@ -124,7 +124,7 @@ func test_fast_rigid_hit_damages_and_knocks_back_native_player() -> void:
 	projectile.continuous_cd = true
 	projectile.set_script(load("res://content/domains/motion/entities/e_rigid_body_character.gd"))
 	var entity: Entity = projectile as Node as Entity
-	entity.component_resources = [C_RigidBody.new()]
+	entity.component_resources = [C_RigidBody.new(), C_ImpactInbox.new()]
 
 	var shape: SphereShape3D = SphereShape3D.new()
 	shape.radius = 0.25

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DEF_CustomerHandoffAction" format=3]
+
+[ext_resource type="Script" path="res://content/domains/customers/definitions/def_customer_handoff_action.gd" id="Action"]
+
+[resource]
+script = ExtResource("Action")
+action_id = &"customer_handoff"
+caption = "Передать посылку"
+priority = 10
+allow_interact_fallback = false

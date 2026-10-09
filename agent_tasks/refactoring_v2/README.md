@@ -266,3 +266,26 @@ Session capability milestone (task 41 remains IN_PROGRESS):
   persistence baseline and refactoring preflight PASS.
 Provider manifest now 16/72 resolved in the ongoing worktree. Complete provider migration/audit
 plus remaining native shutdown acceptance failures still require work; 42 and Phase 3 not started.
+
+Physical/package/customer capability milestone (task 41 remains IN_PROGRESS):
+- Physical impact inboxes now come from one immutable Trait in authored flat Templates;
+  S_Impact binds native reporting to required existing data. Duplicate receiver/inbox providers
+  are removed while retained authored Profiles remain the tuning owner.
+- Eight package-content variants compile fresh impact/hazard data from scene exports before
+  publication; the old Entity define_components provider is removed. Loot preflight rejects
+  incomplete recipes before committing the source manifest.
+- Standalone customers and district role action sets use authored immutable action Definitions.
+  CustomerActionRecipe and its late installers are deleted; entering a transient resident visit
+  preserves the compiled action aggregate. Failed customer builds leave visit/history untouched.
+- Native production/helper parser 11 files PASS; actual content/registration/loot GUT 53/53 PASS
+  / 669 assertions and NPC/customer role GUT 78/78 PASS / 517 assertions, with zero native diagnostics.
+  Logs: tests/artifacts/refactoring_v2_41_capability_owners_parser.log,
+  ...capability_content_gut.log and ...capability_roles_gut.log. Actual main/Night restart smoke
+  for this unchanged implementation batch already PASS in the preceding session milestone.
+- Local Formatter PASS for 38 changed GDScript files; project/map/strict dependency/architecture
+  and staged agent checks PASS. Native user UID/serialization edits remain unstaged and preserved.
+This commits the four previously pending manifest resolutions: committed coverage is now 16/72.
+Task-level cold parser/golden shutdown failures remain open: exact cold remains round-trip plus
+its setup reproduces retention, while GUT base, individual dependencies and other test functions
+compile cleanly. No warning exemption, addon edit or load-order workaround added. Complete provider
+audit, address persistence batch and full acceptance are still required before task 42.

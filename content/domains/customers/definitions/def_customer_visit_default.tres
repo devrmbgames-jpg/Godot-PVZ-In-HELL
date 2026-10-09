@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DEF_Customer" format=3]
+
+[ext_resource type="Script" path="res://content/domains/customers/definitions/def_customer.gd" id="Policy"]
+
+[resource]
+script = ExtResource("Policy")
+key = &"customer_visit_default"

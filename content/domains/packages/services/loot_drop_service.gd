@@ -24,7 +24,17 @@ static func prepare(scenes: Array[PackedScene], require_inventory: bool = false)
 		var item: Entity = node as Entity
 		var body: RigidBody3D = node as RigidBody3D
 		var solver: ItemPlacementSolver = ItemPlacementSolver.new()
-		if item == null or body == null or not GameplayResourcePaths.is_entity_scene_path(scene.resource_path) or not solver.prepare(body) or not _single_item(item, require_inventory):
+		var valid_item: bool = item != null and body != null \
+			and GameplayResourcePaths.is_entity_scene_path(scene.resource_path) \
+			and solver.prepare(body) and _single_item(item, require_inventory)
+		if valid_item:
+			# Reject incomplete capabilities before the source commits its one-time manifest.
+			var preview_id: String = item.id if not item.id.is_empty() \
+				else "preview/loot/%d" % items.size()
+			var context: EntitySpawnContext = EntityCompositionService.context_for(item,
+				ECS.world, preview_id)
+			valid_item = EntityCompositionService.build_plan(context).valid()
+		if not valid_item:
 			if node != null:
 				node.free()
 			for prepared: Entity in items:

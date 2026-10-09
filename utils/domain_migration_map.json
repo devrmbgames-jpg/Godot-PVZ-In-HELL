@@ -9568,22 +9568,6 @@
       "uid": "uid://dbnkcnp82rhoc"
     },
     {
-      "source": "content/services/customers/customer_action_recipe.gd",
-      "target": "content/domains/customers/services/customer_action_recipe.gd",
-      "owner": "customers",
-      "role": "services",
-      "task": "29",
-      "symbol": "CustomerActionRecipe"
-    },
-    {
-      "source": "content/services/customers/customer_action_recipe.gd.uid",
-      "target": "content/domains/customers/services/customer_action_recipe.gd.uid",
-      "owner": "customers",
-      "role": "services",
-      "task": "29",
-      "uid": "uid://bvutf1uuevdmc"
-    },
-    {
       "source": "content/services/customers/customer_arrival_service.gd",
       "target": "content/domains/customers/services/customer_arrival_service.gd",
       "owner": "customers",
@@ -13937,6 +13921,91 @@
       "source": "content/shared/authoring/et_boundary_trace.tres",
       "target": "content/shared/authoring/et_boundary_trace.tres",
       "owner": "shared",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/customers/authoring/et_customer_visit.gd",
+      "target": "content/domains/customers/authoring/et_customer_visit.gd",
+      "owner": "customers",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/customers/definitions/def_action_customer_handoff.tres",
+      "target": "content/domains/customers/definitions/def_action_customer_handoff.tres",
+      "owner": "customers",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/customers/definitions/def_action_customer_request.tres",
+      "target": "content/domains/customers/definitions/def_action_customer_request.tres",
+      "owner": "customers",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/customers/definitions/def_entity_customer_visit.tres",
+      "target": "content/domains/customers/definitions/def_entity_customer_visit.tres",
+      "owner": "customers",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/customers/authoring/et_customer_visit.gd.uid",
+      "target": "content/domains/customers/authoring/et_customer_visit.gd.uid",
+      "owner": "customers",
+      "role": "authoring",
+      "task": "retain",
+      "uid": "uid://c2bn2586dmbdm"
+    },
+    {
+      "source": "content/domains/customers/definitions/def_customer_visit_default.tres",
+      "target": "content/domains/customers/definitions/def_customer_visit_default.tres",
+      "owner": "customers",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/combat/authoring/et_impact_capture.tres",
+      "target": "content/domains/combat/authoring/et_impact_capture.tres",
+      "owner": "combat",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "target": "content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "owner": "combat",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/packages/authoring/et_package_content.tres",
+      "target": "content/domains/packages/authoring/et_package_content.tres",
+      "owner": "packages",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/packages/definitions/def_entity_package_content.tres",
+      "target": "content/domains/packages/definitions/def_entity_package_content.tres",
+      "owner": "packages",
+      "role": "definitions",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/packages/authoring/et_package_content.gd",
+      "target": "content/domains/packages/authoring/et_package_content.gd",
+      "owner": "packages",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/packages/authoring/et_package_content.gd.uid",
+      "target": "content/domains/packages/authoring/et_package_content.gd.uid",
+      "owner": "packages",
       "role": "authoring",
       "task": "retain"
     }

@@ -9,6 +9,13 @@
 [ext_resource type="Script" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="ActionBase"]
 [ext_resource type="Script" path="res://content/domains/interaction/definitions/def_unfix_anchor_action.gd" id="UnfixAction"]
 
+[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_entity_physical_impact.tres" id="ImpactTemplate"]
+
+[sub_resource type="Resource" id="ImpactAuthoring"]
+script = ExtResource("ImpactAuthoring")
+entity_template = ExtResource("ImpactTemplate")
+
 [sub_resource type="Resource" id="Interactable"]
 script = ExtResource("Interactable")
 
@@ -44,6 +51,7 @@ material = SubResource("Material")
 size = Vector3(0.62, 0.52, 0.62)
 
 [node name="AnchorableTestBox" type="RigidBody3D"]
+metadata/entity_composition = SubResource("ImpactAuthoring")
 collision_layer = 10
 collision_mask = 29
 mass = 3.0

@@ -17,7 +17,7 @@ func _run() -> void:
 	var standing: CollisionShape3D = character.get_node("ColNormal") as CollisionShape3D
 	var bounds: AABB = standing.shape.get_debug_mesh().get_aabb()
 	character.position = Vector3(-bounds.end.x - standing.position.x - 0.02, 3.0, 0.0)
-	world.add_entity(character as Node as Entity)
+	EntityCompositionFixture.register(world, character as Node as Entity)
 
 	var wall: StaticBody3D = _obstacle(Vector3(0.5, 5, 0), Vector3(1, 20, 20))
 	_obstacle(Vector3(10, 5, 0), Vector3(10, 1, 20))

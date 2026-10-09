@@ -31,7 +31,9 @@ func _run() -> void:
 	var scene: PackedScene = load("res://content/domains/customers/entities/customer.tscn") as PackedScene
 	_customer = scene.instantiate() as E_NpcCharacter
 	_body = _customer as Node as RigidBody3D
-	_world.add_entity(_customer)
+	# This headless fixture isolates physics/navigation from streamed footstep playback.
+	(_customer.get_node("CharacterFeedback") as CharacterFeedback).footsteps_enabled = false
+	EntityCompositionFixture.register(_world, _customer)
 	# Окружение изолирует столкновения/импульс; маршруты проверяет отдельный smoke с настоящей картой.
 	(_customer.get_component(C_NpcIntent) as C_NpcIntent).navigation_enabled = false
 

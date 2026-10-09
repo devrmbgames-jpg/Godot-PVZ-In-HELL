@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ET_PackageContent" format=3]
+
+[ext_resource type="Script" path="res://content/domains/packages/authoring/et_package_content.gd" id="Content"]
+
+[resource]
+script = ExtResource("Content")
+trait_id = &"package_content"
+required_root_class = &"RigidBody3D"

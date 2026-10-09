@@ -47,7 +47,7 @@ func _run() -> void:
 	heavy_body.mass = HEAVY_MASS_KG
 	heavy_body.gravity_scale = 0.0
 	level.add_child(heavy_body)
-	ECS.world.add_entity(heavy, null, false)
+	EntityCompositionFixture.register(ECS.world, heavy, false)
 	heavy_body.global_position = actor_body.global_position + Vector3(0, 0.8, -1.5)
 
 	var ray: RayCast3D = GrabQueries.interaction_raycast(actor)
@@ -80,7 +80,7 @@ func _run() -> void:
 	var customer_body: RigidBody3D = customer as Node as RigidBody3D
 	customer_body.freeze = true
 	level.add_child(customer_body)
-	ECS.world.add_entity(customer, null, false)
+	EntityCompositionFixture.register(ECS.world, customer, false)
 	var customer_rid: RID = customer_body.get_rid()
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.visit_id = visit.visit_id

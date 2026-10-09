@@ -235,6 +235,146 @@ func test_runtime_factory_gate_registers_complete_native_data_once() -> void:
 	world.free()
 #endregion
 
+
+#region Physical impact composition
+## Real physical scenes publish isolated inboxes before any System can observe registration.
+func test_authored_physical_inbox_exists_at_registration_and_is_private_per_instance() -> void:
+	var world: World = World.new()
+	add_child(world)
+	ECS.world = world
+	var scene: PackedScene = load(
+		"res://content/domains/interaction/entities/box.tscn"
+	) as PackedScene
+	var first: Entity = scene.instantiate() as Entity
+	var second: Entity = scene.instantiate() as Entity
+	var template: DEF_EntityTemplate = EntityCompositionService.authoring_for(first).entity_template
+	var prototype: C_ImpactInbox = template.traits[0].component_recipes[0] as C_ImpactInbox
+	var published_inboxes: Array[C_ImpactInbox] = []
+	world.entity_added.connect(func(actor: Entity) -> void:
+		published_inboxes.append(actor.get_component(C_ImpactInbox) as C_ImpactInbox))
+
+	EntityCompositionFixture.register(world, first)
+	EntityCompositionFixture.register(world, second)
+	var first_inbox: C_ImpactInbox = first.get_component(C_ImpactInbox) as C_ImpactInbox
+	var second_inbox: C_ImpactInbox = second.get_component(C_ImpactInbox) as C_ImpactInbox
+	assert_eq(published_inboxes, [first_inbox, second_inbox])
+	assert_not_null(first_inbox)
+	assert_not_null(second_inbox)
+	assert_ne(first_inbox, second_inbox)
+	assert_ne(first_inbox, prototype)
+	assert_eq(EntityCompositionService.authoring_for(second).entity_template, template)
+
+	# Setup and repeated enable notification bind engine reporting without replacing pending data.
+	var pending_contact: PhysicsContact = PhysicsContact.new()
+	first_inbox.contacts.append(pending_contact)
+	world.add_system(S_Impact.new())
+	world.entity_enabled.emit(first)
+	assert_eq(first.get_component(C_ImpactInbox), first_inbox)
+	assert_eq(first_inbox.contacts, [pending_contact])
+	assert_true(second_inbox.contacts.is_empty())
+	assert_true(prototype.contacts.is_empty())
+	assert_true(prototype.separations.is_empty())
+	assert_true((first as Node as RigidBody3D).contact_monitor)
+	assert_gte((first as Node as RigidBody3D).max_contacts_reported, S_Impact.CONTACT_LIMIT)
+	world.purge(false)
+	world.free()
+	ECS.world = null
+
+
+## A physical capability on the wrong native root rejects before registration or identity mutation.
+func test_physical_impact_trait_rejects_nonphysical_root_before_native_publication() -> void:
+	var world: World = World.new()
+	add_child(world)
+	var actor: Entity = autofree(Entity.new()) as Entity
+	var authoring: EntityAuthoring = EntityAuthoring.new()
+	authoring.entity_template = load(
+		"res://content/domains/combat/definitions/def_entity_physical_impact.tres"
+	) as DEF_EntityTemplate
+	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world,
+		"fixture/wrong_physical_root")
+	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
+	assert_false(plan.valid())
+	assert_false(EntityCompositionService.register_plan(context, plan))
+	assert_true(world.entities.is_empty())
+	assert_true(world.entity_id_registry.is_empty())
+	assert_true(actor.components.is_empty())
+	assert_eq(actor.id, "")
+	world.free()
+#endregion
+
+
+#region Inherited physical scene recipe
+## The retained RigidBody player variant has one living receiver and inherited inbox capability.
+func test_rigid_player_variant_compiles_without_duplicate_scene_receivers() -> void:
+	var scene: PackedScene = load(
+		"res://content/domains/motion/entities/e_rigid_body_character.tscn"
+	) as PackedScene
+	var actor: Entity = autofree(scene.instantiate()) as Entity
+	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, null,
+		"fixture/rigid_player")
+	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
+	assert_true(plan.valid())
+	var receiver_count: int = 0
+	var inbox_count: int = 0
+	for recipe: Component in plan.component_recipes:
+		if recipe is C_ImpactReceiver:
+			receiver_count += 1
+			var receiver: C_ImpactReceiver = recipe as C_ImpactReceiver
+			assert_eq(receiver.profile, load(
+				"res://content/domains/combat/definitions/def_impact_living.tres"
+			))
+		elif recipe is C_ImpactInbox:
+			inbox_count += 1
+	assert_eq(receiver_count, 1)
+	assert_eq(inbox_count, 1)
+	assert_true(actor.components.is_empty())
+#endregion
+
+
+#region Physical scene provider coverage
+## Every migrated native physical root compiles exactly one inbox without registration side effects.
+func test_migrated_physical_scene_roots_have_one_valid_inbox_provider() -> void:
+	var paths: PackedStringArray = PackedStringArray([
+		"res://content/domains/combat/entities/hammer.tscn",
+		"res://content/domains/combat/entities/utility_blade.tscn",
+		"res://content/domains/interaction/entities/anchorable_test_box.tscn",
+		"res://content/domains/interaction/entities/box.tscn",
+		"res://content/domains/interaction/entities/bucket.tscn",
+		"res://content/domains/interaction/entities/cloth_sample.tscn",
+		"res://content/domains/interaction/entities/large_shelf.tscn",
+		"res://content/domains/interaction/entities/marker.tscn",
+		"res://content/domains/interaction/entities/small_shelf.tscn",
+		"res://content/domains/inventory/entities/bubble_wrap_pickup.tscn",
+		"res://content/domains/inventory/entities/food_pickup.tscn",
+		"res://content/domains/inventory/entities/med_pickup.tscn",
+		"res://content/domains/inventory/entities/npc_meat_pickup.tscn",
+		"res://content/domains/motion/entities/character_body_player.tscn",
+		"res://content/domains/motion/entities/physical_character.tscn",
+		"res://content/domains/motion/entities/e_rigid_body_character.tscn",
+		"res://content/domains/packages/entities/content_stub.tscn",
+		"res://content/domains/packages/entities/package_debris_stub.tscn",
+		"res://content/domains/packages/entities/scanner.tscn",
+	])
+	for scene_path: String in paths:
+		var scene: PackedScene = load(scene_path) as PackedScene
+		var actor: Entity = autofree(scene.instantiate()) as Entity
+		var context: EntitySpawnContext = EntityCompositionService.context_for(actor, null,
+			"fixture/physical_scene")
+		var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
+		var diagnostics: PackedStringArray = PackedStringArray()
+		for issue: EntityBuildPlan.Issue in plan.issues:
+			diagnostics.append(issue.message)
+		assert_true(plan.valid(), scene_path + ": " + "; ".join(diagnostics))
+		var inbox_count: int = 0
+		for recipe: Component in plan.component_recipes:
+			if recipe is C_ImpactInbox:
+				inbox_count += 1
+		assert_eq(inbox_count, 1, scene_path)
+		assert_true(actor.components.is_empty(), scene_path)
+#endregion
+
+
 #region Initial session loot queue
 ## Native publication sees the queue, and current() only reads its existing mutable aggregate.
 func test_session_loot_queue_is_complete_before_publication_and_reads_do_not_install() -> void:
@@ -309,6 +449,151 @@ func _loot_recipe(plan: EntityBuildPlan) -> C_LootDrops:
 			return recipe as C_LootDrops
 	return null
 #endregion
+
+
+#region Package content capability
+## All authored content variants compile one receiver and optional emitter without live publication.
+func test_package_content_variants_compile_authored_capabilities_before_registration() -> void:
+	var keys: PackedStringArray = PackedStringArray([
+		"stub", "tools", "power_cells", "oil", "glass", "equipment", "bottles", "books",
+	])
+	for key: String in keys:
+		var actor: E_PackageContent = autofree(_content_actor(key)) as E_PackageContent
+		var plan: EntityBuildPlan = EntityCompositionService.build_plan(
+			EntityCompositionService.context_for(actor, null, "fixture/content/" + key)
+		)
+		assert_true(plan.valid(), key)
+		var receiver: C_ImpactReceiver = _content_recipe(plan, C_ImpactReceiver) as C_ImpactReceiver
+		assert_not_null(receiver, key)
+		assert_eq(receiver.profile, actor.impact_profile, key)
+		assert_not_null(_content_recipe(plan, C_ImpactInbox), key)
+		var emitter: C_HazardEmitter = _content_recipe(plan, C_HazardEmitter) as C_HazardEmitter
+		if actor.hazard_scene == null:
+			assert_null(emitter, key)
+		else:
+			assert_not_null(emitter, key)
+			assert_eq(emitter.hazard_scene, actor.hazard_scene, key)
+		assert_true(actor.components.is_empty(), key)
+		assert_eq(actor.id, "", key)
+
+
+## Native entity_added observes every capability, including hazardous content, exactly once.
+func test_package_content_native_publication_sees_complete_capabilities() -> void:
+	var world: World = World.new()
+	add_child(world)
+	var actor: E_PackageContent = _content_actor("power_cells")
+	var delivered: Array[Script] = []
+	actor.component_added.connect(func(_actor: Entity, component: Component) -> void:
+		delivered.append(component.get_script() as Script))
+	var published: Array[bool] = []
+	world.entity_added.connect(func(subject: Entity) -> void:
+		published.append(subject.has_component(C_ImpactInbox)
+			and subject.has_component(C_ImpactReceiver) and subject.has_component(C_HazardEmitter)))
+	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world,
+		"fixture/content/published")
+	assert_true(EntityCompositionService.try_register(context))
+	assert_eq(published, [true])
+	assert_eq(delivered.count(C_ImpactReceiver as Script), 1)
+	assert_eq(delivered.count(C_ImpactInbox as Script), 1)
+	assert_eq(delivered.count(C_HazardEmitter as Script), 1)
+	assert_eq((actor.get_component(C_ImpactReceiver) as C_ImpactReceiver).profile,
+		actor.impact_profile)
+	assert_eq((actor.get_component(C_HazardEmitter) as C_HazardEmitter).hazard_scene,
+		actor.hazard_scene)
+	world.purge(false)
+	world.free()
+
+
+## Mutable impact/hazard state is private while authored tuning and hazard scenes retain identity.
+func test_package_content_recipes_isolate_mutable_state() -> void:
+	var first: E_PackageContent = autofree(_content_actor("oil")) as E_PackageContent
+	var second: E_PackageContent = autofree(_content_actor("oil")) as E_PackageContent
+	var first_plan: EntityBuildPlan = EntityCompositionService.build_plan(
+		EntityCompositionService.context_for(first, null, "fixture/content/first")
+	)
+	var second_plan: EntityBuildPlan = EntityCompositionService.build_plan(
+		EntityCompositionService.context_for(second, null, "fixture/content/second")
+	)
+	assert_true(first_plan.valid())
+	assert_true(second_plan.valid())
+	var first_emitter: C_HazardEmitter = (
+		_content_recipe(first_plan, C_HazardEmitter) as C_HazardEmitter
+	)
+	var second_emitter: C_HazardEmitter = (
+		_content_recipe(second_plan, C_HazardEmitter) as C_HazardEmitter
+	)
+	var first_inbox: C_ImpactInbox = _content_recipe(first_plan, C_ImpactInbox) as C_ImpactInbox
+	var second_inbox: C_ImpactInbox = _content_recipe(second_plan, C_ImpactInbox) as C_ImpactInbox
+	assert_ne(first_emitter, second_emitter)
+	assert_ne(first_inbox, second_inbox)
+	assert_eq(first_emitter.hazard_scene, second_emitter.hazard_scene)
+	first_emitter.fired = true
+	first_emitter.sequence = 9
+	first_inbox.contacts.append(PhysicsContact.new())
+	assert_false(second_emitter.fired)
+	assert_eq(second_emitter.sequence, 0)
+	assert_true(second_inbox.contacts.is_empty())
+
+
+## Missing authored tuning and duplicate scene providers reject without identity or World mutation.
+func test_package_content_invalid_providers_reject_before_registration() -> void:
+	var world: World = World.new()
+	add_child(world)
+	var missing: E_PackageContent = autofree(_content_actor("stub")) as E_PackageContent
+	missing.impact_profile = null
+	var duplicate: E_PackageContent = autofree(_content_actor("stub")) as E_PackageContent
+	duplicate.component_resources.append(C_ImpactReceiver.new())
+	for actor: E_PackageContent in [missing, duplicate]:
+		var context: EntitySpawnContext = EntityCompositionService.context_for(actor, world,
+			"fixture/content/rejected")
+		var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
+		assert_false(plan.valid())
+		assert_false(EntityCompositionService.register_plan(context, plan))
+		assert_true(actor.components.is_empty())
+		assert_eq(actor.id, "")
+	assert_true(world.entities.is_empty())
+	assert_true(world.entity_id_registry.is_empty())
+	world.free()
+
+
+## A detached valid loot batch is checked without creating live capabilities or publishing actors.
+func test_content_loot_preflight_keeps_world_and_native_instances_unpublished() -> void:
+	var world: World = World.new()
+	add_child(world)
+	ECS.world = world
+	var scenes: Array[PackedScene] = [
+		load("res://content/domains/packages/entities/content_oil.tscn") as PackedScene,
+		load("res://content/domains/packages/entities/content_tools.tscn") as PackedScene,
+	]
+	var prepared: Array[Entity] = LootDropService.prepare(scenes)
+	assert_eq(prepared.size(), 2)
+	for actor: Entity in prepared:
+		assert_true(actor.components.is_empty())
+		assert_false(EntityCompositionService.recipes_prepared(actor))
+		assert_eq(actor.id, "")
+		actor.free()
+	assert_true(world.entities.is_empty())
+	assert_true(world.entity_id_registry.is_empty())
+	world.free()
+	ECS.world = null
+
+
+func _content_actor(key: String) -> E_PackageContent:
+	var scene: PackedScene = load(
+		"res://content/domains/packages/entities/content_%s.tscn" % key
+	) as PackedScene
+	return scene.instantiate() as E_PackageContent
+
+
+func _content_recipe(plan: EntityBuildPlan, script: Script) -> Component:
+	var found: Component = null
+	for recipe: Component in plan.component_recipes:
+		if recipe.get_script() == script:
+			assert_null(found, "Only one content capability provider is permitted")
+			found = recipe
+	return found
+#endregion
+
 
 #region Runtime per-Entity reaction barrier
 ## Native multi-Component on_added matching is preserved; callbacks see final bindings exactly once.

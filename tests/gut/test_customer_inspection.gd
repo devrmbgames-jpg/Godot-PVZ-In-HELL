@@ -63,7 +63,7 @@ func before_each() -> void:
 	_world.add_entity(booth)
 	_customer = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	(_customer as Node as RigidBody3D).freeze = true
-	_world.add_entity(_customer)
+	EntityCompositionFixture.register(_world, _customer)
 	_agent = _customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	_agent.visit_id = _visit.visit_id
 	_agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
@@ -303,7 +303,7 @@ func test_cleanup_customer_death_or_external_removal_releases_physical_borrow() 
 	# Независимый второй участник проверяет освобождение при штатном удалении из World.
 	var second: E_NpcCharacter = (load("res://content/domains/customers/entities/customer.tscn") as PackedScene).instantiate() as E_NpcCharacter
 	(second as Node as RigidBody3D).freeze = true
-	_world.add_entity(second)
+	EntityCompositionFixture.register(_world, second)
 
 	var next_visit: CustomerVisit = CustomerVisit.new()
 	next_visit.definition = _visit.definition

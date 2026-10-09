@@ -12,10 +12,15 @@
 [ext_resource type="Resource" path="res://content/domains/commerce/definitions/def_action_npc_trade.tres" id="Trade_action"]
 [ext_resource type="Resource" path="res://content/domains/commerce/definitions/def_trader_default.tres" id="Trader_profile"]
 
+[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_request.tres" id="Customer_request"]
+[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_handoff.tres" id="Customer_handoff"]
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="ImpactTrait"]
+
 [sub_resource type="Resource" id="Roles"]
 script = ExtResource("Roles")
 hunger_policy = ExtResource("Hunger_policy")
 street_action = ExtResource("Street_action")
+additional_actions = [ExtResource("Customer_request"), ExtResource("Customer_handoff")]
 trade_action = ExtResource("Trade_action")
 trader_profile = ExtResource("Trader_profile")
 
@@ -28,4 +33,4 @@ script = ExtResource("Identity")
 [resource]
 script = ExtResource("Template")
 key = &"entity_district_npc"
-traits = Array[ExtResource("Trait")]([SubResource("Identity"), SubResource("Brain"), SubResource("Roles")])
+traits = Array[ExtResource("Trait")]([SubResource("Identity"), SubResource("Brain"), SubResource("Roles"), ExtResource("ImpactTrait")])

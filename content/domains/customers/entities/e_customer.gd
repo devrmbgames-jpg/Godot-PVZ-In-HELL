@@ -25,22 +25,3 @@ func _stationary_animation() -> StringName:
 
 
 #endregion
-
-#region Рецепт клиентской роли
-## Добавляет начальную роль только при отсутствии явного authored recipe override.
-func define_components() -> Array[Component]:
-	if EntityCompositionService.recipes_prepared(self):
-		return []
-	var recipe: Array[Component] = []
-	var authored_agent: bool = false
-	var authored_actions: bool = false
-	for component: Component in component_resources:
-		authored_agent = authored_agent or component is C_CustomerAgent
-		authored_actions = authored_actions or component is C_InteractionActionSet
-
-	if not authored_agent:
-		recipe.append(C_CustomerAgent.new())
-	if not authored_actions:
-		recipe.append(CustomerActionRecipe.create())
-	return recipe
-#endregion

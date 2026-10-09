@@ -86,9 +86,9 @@ func test_native_publication_has_identity_persistent_key_and_profile_speed_once(
 		assert_not_null(hunger.policy)
 		var actions: C_InteractionActionSet = published.get_component(C_InteractionActionSet) \
 			as C_InteractionActionSet
-		assert_eq(actions.actions.size(), 1)
-		assert_eq(actions.actions[0].action_id, &"npc_street_dialogue")
-		assert_eq(actions.actions[0].slot, DEF_InteractionAction.Slot.INTERACT)
+		assert_eq(actions.actions.size(), 3)
+		assert_eq(actions.actions[2].action_id, &"npc_street_dialogue")
+		assert_eq(actions.actions[2].slot, DEF_InteractionAction.Slot.INTERACT)
 		publications.append(identity.npc_id))
 	assert_true(EntityCompositionService.try_register(context))
 	assert_eq(publications, [person.npc_id])
@@ -165,9 +165,9 @@ func test_spawned_merchant_compiles_inventory_hunger_trade_and_authored_marker()
 		"res://content/domains/commerce/definitions/def_trader_default.tres"))
 	var actions: C_InteractionActionSet = _recipe(plan.component_recipes,
 		C_InteractionActionSet) as C_InteractionActionSet
-	assert_eq(actions.actions.size(), 2)
-	assert_eq(actions.actions[0].action_id, &"npc_street_dialogue")
-	assert_eq(actions.actions[1].action_id, &"trade")
+	assert_eq(actions.actions.size(), 4)
+	assert_eq(actions.actions[2].action_id, &"npc_street_dialogue")
+	assert_eq(actions.actions[3].action_id, &"trade")
 	assert_not_null(_recipe(plan.component_recipes, C_Inventory))
 	assert_eq((_recipe(plan.component_recipes, C_Hunger) as C_Hunger).value,
 		_DISTRICT.npc_start_hunger)
@@ -192,8 +192,8 @@ func test_placed_trader_variant_preserves_scene_profile_and_merges_actions_expli
 		C_InteractionActionSet) as C_InteractionActionSet
 	assert_same(trader.profile, scene_trader.profile)
 	assert_ne(trader, scene_trader)
-	assert_eq(actions.actions.size(), scene_actions.actions.size() + 1)
-	assert_same(actions.actions[0], scene_actions.actions[0])
+	assert_eq(actions.actions.size(), scene_actions.actions.size() + 3)
+	assert_same(actions.actions[2], scene_actions.actions[0])
 	var street: DEF_InteractionAction = actions.actions.back()
 	assert_eq(street.action_id, &"npc_street_dialogue")
 	assert_eq(scene_actions.actions.size(), 1, "Authored action aggregate stays immutable")
@@ -229,4 +229,24 @@ func test_authored_inventory_conflicts_with_resident_trait_provider() -> void:
 	assert_false(EntityCompositionService.register_plan(context, plan))
 	assert_true(_world.entities.is_empty())
 	assert_true(actor.components.is_empty())
+#endregion
+
+#region Initial action provider conflicts
+## Supplemental role Definitions cannot silently override another compiled action ID.
+func test_duplicate_additional_role_action_is_rejected_before_registration() -> void:
+	var actor: E_DistrictNpc = _SCENE.instantiate() as E_DistrictNpc
+	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1)[0]
+	var context: EntitySpawnContext = _context(actor, person, "duplicate-action")
+	var roles: EntityTrait = null
+	var template: DEF_EntityTemplate = EntityCompositionService.authoring_for(actor).entity_template
+	for candidate: EntityTrait in template.traits:
+		if candidate.trait_id == &"npc_roles":
+			roles = candidate
+	var extra: Array = roles.get("additional_actions") as Array
+	extra.append(extra[0])
+	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
+	extra.pop_back()
+	assert_false(plan.valid())
+	assert_true(actor.components.is_empty())
+	actor.free()
 #endregion

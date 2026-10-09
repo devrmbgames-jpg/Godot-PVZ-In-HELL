@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EntityTrait" format=3]
+
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
+[ext_resource type="Script" path="res://content/domains/combat/components/c_impact_inbox.gd" id="Inbox"]
+
+[sub_resource type="Resource" id="Inbox"]
+script = ExtResource("Inbox")
+
+[resource]
+script = ExtResource("Trait")
+trait_id = &"physical_impact"
+required_root_class = &"PhysicsBody3D"
+component_recipes = [SubResource("Inbox")]

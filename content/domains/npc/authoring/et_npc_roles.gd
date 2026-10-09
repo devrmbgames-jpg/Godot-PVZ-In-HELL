@@ -16,6 +16,9 @@ enum Provider { TRAIT, SCENE }
 @export var street_action: DEF_NpcDialogueAction = null
 ## Immutable trade action supplied only with the Trait-owned merchant provider.
 @export var trade_action: DEF_TraderAction = null
+## Immutable optional role actions placed before intrinsic street/trade actions.
+## Their availability contracts keep inactive roles out of interaction choices.
+@export var additional_actions: Array[DEF_InteractionAction] = []
 ## Sole Trader tuning owner in TRAIT mode; SCENE mode requires this field to remain empty.
 @export var trader_profile: DEF_TraderProfile = null
 
@@ -37,6 +40,20 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 	if trader_provider == Provider.SCENE and trader_profile != null:
 		issues.append("Scene-owned Trader Profile cannot have a competing Trait Profile")
 
+	var additional_ids: Dictionary[StringName, bool] = {}
+	for action: DEF_InteractionAction in additional_actions:
+		if action == null or action.action_id.is_empty():
+			issues.append("Additional role actions require Definitions with action IDs")
+			continue
+		var duplicate_id: bool = (
+			additional_ids.has(action.action_id)
+			or (street_action != null and action.action_id == street_action.action_id)
+			or (trade_action != null and action.action_id == trade_action.action_id)
+		)
+		if duplicate_id:
+			issues.append("Additional role actions cannot duplicate an initial action ID")
+		additional_ids[action.action_id] = true
+
 	if action_set_provider == Provider.SCENE:
 		var scene_actions: C_InteractionActionSet = _scene_component(context,
 			C_InteractionActionSet) as C_InteractionActionSet
@@ -44,8 +61,11 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 			issues.append("SCENE action provider requires authored C_InteractionActionSet")
 		elif street_action != null:
 			for action: DEF_InteractionAction in scene_actions.actions:
-				if action == null or action.action_id == street_action.action_id:
-					issues.append("Scene actions must be valid and cannot duplicate the street action")
+				if action == null:
+					issues.append("Scene actions require valid immutable Definitions")
+				elif action.action_id == street_action.action_id \
+						or additional_ids.has(action.action_id):
+					issues.append("Scene actions cannot duplicate another initial action ID")
 	if profile != null and profile.merchant:
 		if not context.actor.get_node_or_null("FurniturePickup") is Marker3D:
 			issues.append("Merchant requires scene-owned FurniturePickup marker")
@@ -72,18 +92,18 @@ func recipes_for(context: EntitySpawnContext) -> Array[Component]:
 
 
 ## Initial hunger comes from the explicit district owner; saved fields overlay these defaults.
-## Scene actions retain their immutable Definitions, followed by the appended street action.
+## Optional role actions precede retained scene Definitions and the appended street action.
 func configuration_for(context: EntitySpawnContext) -> Dictionary[Script, Dictionary]:
 	var fields: Dictionary[Script, Dictionary] = {}
 	var district: DEF_District = context.definitions.get(&"district_definition") as DEF_District
 	if district != null:
 		fields[C_Hunger as Script] = {&"policy": hunger_policy, &"value": district.npc_start_hunger}
-	var actions: Array[DEF_InteractionAction] = []
+	var actions: Array[DEF_InteractionAction] = additional_actions.duplicate()
 	if action_set_provider == Provider.SCENE:
 		var scene_actions: C_InteractionActionSet = _scene_component(context,
 			C_InteractionActionSet) as C_InteractionActionSet
 		if scene_actions != null:
-			actions.assign(scene_actions.actions)
+			actions.append_array(scene_actions.actions)
 	if street_action != null:
 		actions.append(street_action)
 	var profile: DEF_NpcProfile = context.definitions.get(&"npc_profile") as DEF_NpcProfile

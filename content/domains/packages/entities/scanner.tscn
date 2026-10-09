@@ -10,6 +10,13 @@
 [ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="7_actions"]
 [ext_resource type="Script" uid="uid://l86pj0y5txcq" path="res://content/domains/packages/definitions/def_scan_action.gd" id="8_action"]
 
+[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
+[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_entity_physical_impact.tres" id="ImpactTemplate"]
+
+[sub_resource type="Resource" id="ImpactAuthoring"]
+script = ExtResource("ImpactAuthoring")
+entity_template = ExtResource("ImpactTemplate")
+
 [sub_resource type="Resource" id="Scanner_state"]
 script = ExtResource("4_scanner")
 
@@ -75,6 +82,7 @@ emission = Color(1, 0, 0, 1)
 size = Vector3(0.05, 0.05, 0.001)
 
 [node name="Scanner" type="RigidBody3D" unique_id=935711068]
+metadata/entity_composition = SubResource("ImpactAuthoring")
 collision_layer = 10
 collision_mask = 29
 mass = 0.5
