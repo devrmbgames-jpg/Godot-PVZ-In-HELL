@@ -1,8 +1,8 @@
 # Refactoring v2.44 — AI obligations, goal selection и LimboAI execution
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
-Зависимости: [43_smart_objects.md](../completed/refactoring_v2/43_smart_objects.md), [47_game_time_randomness.md](../completed/refactoring_v2/47_game_time_randomness.md), stable NPC domain.
+Зависимости: [43_smart_objects.md](43_smart_objects.md), [47_game_time_randomness.md](47_game_time_randomness.md), stable NPC domain.
 
 ## Goal
 
@@ -44,7 +44,7 @@ Goal/priority/cancellation deterministic fixtures + NPC smoke. Time/seed foundat
 
 ## Current / Next
 
-Implemented; awaiting immutable checkpoint review. Base:
+Completed and reviewed. Base:
 `e28cd033e6b127a9b91639b803fc35fcb11590ac`. Task42 visual acceptance remains open.
 `S_NpcCadence` caps/coalesces due work with stable-ID fairness; the existing sampled
 sensor/trait/BT graph consumes the same captured interval. Route planning retains its own cap.
@@ -53,14 +53,15 @@ sensor/trait/BT graph consumes the same captured interval. Route planning retain
 captured goal completion. Emergency/service/control flow remains native LimboAI.
 Removed idle's write to `NpcRecord.goal_id`; local activity now belongs to current decision state.
 No planner/utility/GOAP path added. Read provider and contract:
-[NPC obligation execution](../../docs/npc_obligation_execution.md).
-Next: collect exact-SHA review, triage findings, then archive and activate task45.
-Completion: all declared fixture/static/parser/NPC smoke gates and review PASS.
+[NPC obligation execution](../../../docs/npc_obligation_execution.md).
+Reviewed target: `06fdc4c27406f41286d1ba40909f63dab3b98c63`.
+Next implementation owner: task45, ACTIVE/DORMANT participation.
 
 ## Evidence
 
 - Formatter/lint: PASS, 24 owned scripts.
 - Parser: PASS, 24 files / 0 failures; final modified owners also compiled by runtime fixtures.
+- Final owner parser: PASS, 2 files / 0 failures (`tests/artifacts/refactoring_v2_44_final_parser.log`).
 - Architecture/agent/structure gates: PASS; detected Service cycle removed before checkpoint.
 - Final regression: PASS, 160 tests / 1051 assertions across obligation, budget,
   district BT lifecycle and GameClock fixtures (`tests/artifacts/refactoring_v2_44_final_gut.log`).
@@ -70,5 +71,10 @@ Completion: all declared fixture/static/parser/NPC smoke gates and review PASS.
 - Burst covers duplicate wakes, roster reordering, urgent queued-step invalidation,
   authored work cap and ceil(N/cap) service bound. Diagnostics read existing due/processed/
   deferred/max-wait state, without another mutable provider.
-- Review: REVIEW_PENDING. No visual/gameplay-feel QA claimed. Specified shutdown retention:
+- Final burst fixture: PASS, 52 tests / 315 assertions; 12 actors, cap 2, all served
+  within 6 passes, maximum observed wait 50000 GameClock ticks (50 ms), deferred 0
+  after the wake producer stops (`tests/artifacts/refactoring_v2_44_final_budget_gut.log`).
+- Immutable review: ARCHITECTURE PASS / STYLE PASS, no material findings;
+  reviewer VALIDATION NOT_RUN (source-only review). No visual/gameplay-feel QA claimed.
+  Specified shutdown retention:
   KNOWN_ENGINE_LIMITATION / DEFERRED; original logs preserved.

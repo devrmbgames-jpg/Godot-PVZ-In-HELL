@@ -1,8 +1,8 @@
 # Refactoring v2.45 — NPC Simulation LOD
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
-Зависимости: [44_ai_schedule_utility_goap.md](44_ai_schedule_utility_goap.md), [04_identity_persistence_contract.md](../completed/refactoring_v2/04_identity_persistence_contract.md), [47_game_time_randomness.md](../completed/refactoring_v2/47_game_time_randomness.md).
+Зависимости: [44_ai_schedule_utility_goap.md](../completed/refactoring_v2/44_ai_schedule_utility_goap.md), [04_identity_persistence_contract.md](../completed/refactoring_v2/04_identity_persistence_contract.md), [47_game_time_randomness.md](../completed/refactoring_v2/47_game_time_randomness.md).
 
 ## Goal
 
@@ -43,3 +43,17 @@ Authored placed NPC remains visible in Editor. All old participation dispatchers
 ## Validation
 
 LOD transition tests + save/restore smoke + performance sanity check.
+
+## Current / Next
+
+Authorized by active Goal; task44 reviewed at
+`06fdc4c27406f41286d1ba40909f63dab3b98c63` (ARCHITECTURE/STYLE PASS).
+45A nearest owner is existing `DistrictPopulationService.set_placement`; restore currently
+duplicates its World/body writes. `E_DistrictNpc.set_participating` is the physical adapter,
+`NpcBrainService.set_participating` the native BT adapter. Retain one placement operation
+and derive ACTIVE/DORMANT from roster placement/death instead of adding a mode copy.
+Dormant native roots still have processing enabled; measure that baseline before changing it.
+Next: complete 45A with a per-field writer map, unified restore/placement operation,
+idempotent native processing suspension and focused same-body/ID/navigation tests.
+45B–C remain required: generation-safe transitions, existing-owner session cleanup,
+bounded activation failure, same-mode save/reload and measured processing counters.
