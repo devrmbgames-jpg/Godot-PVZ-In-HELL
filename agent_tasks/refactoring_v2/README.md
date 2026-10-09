@@ -289,3 +289,22 @@ Task-level cold parser/golden shutdown failures remain open: exact cold remains 
 its setup reproduces retention, while GUT base, individual dependencies and other test functions
 compile cleanly. No warning exemption, addon edit or load-order workaround added. Complete provider
 audit, address persistence batch and full acceptance are still required before task 42.
+
+Stable address persistence milestone (task 41 remains IN_PROGRESS):
+- Schema 10 serializes only C_NpcAddress.address_id and rejects empty, duplicate, unknown or
+  non-home keys before live mutation. Detached restoration compiles the saved key and rebuilds
+  its authored label before native publication; the population factory shares these operations.
+- Current native snapshot/codec inventory and durable persistence documentation are updated.
+  Unsupported old versions remain protected; no old-save migration is implemented.
+- Actual production parser 7 files PASS, log
+  tests/artifacts/refactoring_v2_41_address_owners_parser.log. District/snapshot/codec/golden GUT
+  has 49/49 functional tests / 777 assertions, but OVERALL FAIL: native shutdown reports 683
+  ObjectDB / 508 resources, Jolt/render/font RIDs and allocator pages. Log
+  tests/artifacts/refactoring_v2_41_address_persistence_gut.log. This is not an acceptance PASS.
+- Cold failure is localized to the remains save/load function combined with setup. Minimal GUT
+  base, direct owners, each direct global class, individual setup constructors, other test functions
+  and the snapshot call alone compile cleanly. Uncached fixture loading and codec static_unload
+  do not fix it. Transient codec schema lookup reduces retention but still FAILs (359/249).
+  All temporary owner edits were reverted to exact pre-trial bytes; no production workaround added.
+Remaining: complete provider audit and native shutdown acceptance fixes. Task 41 and the goal
+through PASS49 remain active; task 42/Phase 3 and rendered gameplay/visual QA have not started.

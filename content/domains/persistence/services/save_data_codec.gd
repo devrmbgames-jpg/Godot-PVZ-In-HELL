@@ -9,6 +9,7 @@ static var _component_fields: Dictionary = {
 	C_CustomerFlow: C_CustomerFlow.SAVE_FIELDS,
 	C_District: C_District.SAVE_FIELDS,
 	C_NpcIdentity: C_NpcIdentity.SAVE_FIELDS,
+	C_NpcAddress: C_NpcAddress.SAVE_FIELDS,
 	C_DamageResistance: C_DamageResistance.SAVE_FIELDS,
 	C_Commerce: C_Commerce.SAVE_FIELDS,
 	C_QuestSession: C_QuestSession.SAVE_FIELDS,

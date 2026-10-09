@@ -178,3 +178,67 @@ func test_missing_body_restore_publishes_saved_identity_and_health_before_consum
 	assert_eq((recreated.get_component(C_Health) as C_Health).current, 37.0)
 	assert_eq((recreated.get_component(C_Hunger) as C_Hunger).value, 73.0)
 #endregion
+
+#region Persistent home reconstruction
+## A fresh restored door publishes the saved home key and authored label together.
+func test_missing_address_restore_publishes_home_identity_and_label() -> void:
+	var home: DEF_DistrictPlace = _places_of(DEF_DistrictPlace.Kind.HOME)[0]
+	var address: Entity = _address_for(home.key)
+	assert_not_null(address)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.valid(snapshot, _root))
+	_world.remove_entity(address)
+	await get_tree().process_frame
+	assert_null(_address_for(home.key))
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+
+	var publications: Array[StringName] = []
+	_world.entity_added.connect(func(actor: Entity) -> void:
+		var identity: C_NpcAddress = actor.get_component(C_NpcAddress) as C_NpcAddress
+		if identity == null:
+			return
+		assert_eq(identity.address_id, home.key)
+		assert_eq((actor.get_node("Address") as Label3D).text, home.display_name)
+		publications.append(identity.address_id))
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(publications, [home.key])
+	assert_not_null(_address_for(home.key))
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(publications, [home.key], "In-place restore does not register a second door")
+
+
+## Empty, unknown, non-home and duplicate home keys reject before live mutation.
+func test_invalid_address_snapshot_preserves_live_homes() -> void:
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	var homes: Array[DEF_DistrictPlace] = _places_of(DEF_DistrictPlace.Kind.HOME)
+	var portal: DEF_DistrictPlace = _places_of(DEF_DistrictPlace.Kind.PORTAL)[0]
+	var retained: Entity = _address_for(homes[0].key)
+	var count_before: int = _world.entities.size()
+	for invalid_id: StringName in [&"", &"unknown/home", portal.key, homes[1].key]:
+		var malformed: Dictionary = snapshot.duplicate(true)
+		for record: Dictionary in malformed.entities:
+			for component: Dictionary in record.components:
+				if String(component.type) == (C_NpcAddress as Script).resource_path \
+						and StringName(component.fields.address_id) == homes[0].key:
+					component.fields.address_id = invalid_id
+		assert_false(WorldSnapshotService.valid(malformed, _root))
+		assert_false(WorldSnapshotService.restore(malformed, _root))
+		assert_same(_address_for(homes[0].key), retained)
+		assert_eq(_world.entities.size(), count_before)
+
+
+func _places_of(kind: DEF_DistrictPlace.Kind) -> Array[DEF_DistrictPlace]:
+	var matches: Array[DEF_DistrictPlace] = []
+	for place: DEF_DistrictPlace in _district.definition.places:
+		if place.kind == kind:
+			matches.append(place)
+	return matches
+
+
+func _address_for(address_id: StringName) -> Entity:
+	for actor: Entity in _world.entities:
+		var identity: C_NpcAddress = actor.get_component(C_NpcAddress) as C_NpcAddress
+		if identity != null and identity.address_id == address_id:
+			return actor
+	return null
+#endregion

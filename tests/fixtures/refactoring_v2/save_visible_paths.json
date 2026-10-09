@@ -1,5 +1,5 @@
 {
-  "schema": 9,
+  "schema": 10,
   "components": [
     {
       "symbol": "C_DayCycle",
@@ -65,6 +65,13 @@
       "path": "res://content/domains/npc/components/c_npc_identity.gd",
       "fields": [
         "npc_id"
+      ]
+    },
+    {
+      "symbol": "C_NpcAddress",
+      "path": "res://content/domains/npc/components/c_npc_address.gd",
+      "fields": [
+        "address_id"
       ]
     },
     {
@@ -353,6 +360,7 @@
     "res://content/domains/inventory/definitions/def_item_npc_meat.tres",
     "res://content/domains/needs/components/c_hunger.gd",
     "res://content/domains/npc/components/c_district.gd",
+    "res://content/domains/npc/components/c_npc_address.gd",
     "res://content/domains/npc/components/c_npc_identity.gd",
     "res://content/domains/npc/components/c_npc_remains.gd",
     "res://content/domains/npc/contracts/npc_memory.gd",

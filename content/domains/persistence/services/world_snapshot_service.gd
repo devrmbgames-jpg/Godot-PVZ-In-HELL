@@ -494,6 +494,7 @@ static func construction_npc_identities(records: Array) -> Dictionary[String, St
 	return identities
 
 
+
 ## Resolves one saved placed record from immutable authored identity, without touching live state.
 static func construction_record(actor: Entity, records: Array) -> Dictionary:
 	var identity: C_AuthoredIdentity = PlacedIdentityRules.component_for(actor)
@@ -570,6 +571,15 @@ static func _prepare_fresh_recipes(records: Array, entities: Dictionary[String, 
 			if person == null:
 				return false
 			NpcConstructionService.configure_context(context, person, saved_district.definition)
+		var address_place: DEF_DistrictPlace = null
+		for saved: Dictionary in record.components:
+			if SaveDataCodec.component_script(String(saved.type)) != C_NpcAddress:
+				continue
+			if saved_district == null:
+				return false
+			address_place = saved_district.definition.place_for(
+				StringName((saved.fields as Dictionary).address_id))
+			NpcConstructionService.configure_address(context, address_place)
 		var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
 		if not plan.valid():
 			return false
@@ -578,6 +588,10 @@ static func _prepare_fresh_recipes(records: Array, entities: Dictionary[String, 
 		# Components absent from the current prefab are explicit saved runtime state providers.
 		if not overlay_construction_fields(plan, record):
 			return false
+		if address_place != null:
+			if not entity.get_node_or_null("Address") is Label3D:
+				return false
+			NpcConstructionService.present_address(entity, address_place)
 		if not EntityCompositionService.prepare(entity, plan):
 			return false
 		plans[entity] = plan

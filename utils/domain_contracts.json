@@ -15102,7 +15102,9 @@
       ],
       "public_methods": [],
       "sources": [
-        "content/services/persistence/district_snapshot_rules.gd"
+        "content/services/persistence/district_snapshot_rules.gd",
+        "content/services/persistence/world_snapshot_service.gd",
+        "content/domains/persistence/rules/district_snapshot_rules.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -17460,14 +17462,18 @@
         "configure"
       ],
       "public_methods": [
-        "configure_context"
+        "configure_context",
+        "configure_address",
+        "present_address"
       ],
       "public_instance_methods": [],
       "sources": [
         "content/services/persistence/world_snapshot_service.gd"
       ],
       "method_rights": {
-        "configure_context": "configure"
+        "configure_context": "configure",
+        "configure_address": "configure",
+        "present_address": "configure"
       },
       "purpose": "Task 41: detached roster/Profile/identity construction inputs before native publication; no competing runtime authority."
     },
@@ -17578,6 +17584,25 @@
         "valid": "query"
       },
       "purpose": "Standalone Customer validates transient construction before registration and visit effects."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "C_NpcAddress",
+      "path": "content/domains/npc/components/c_npc_address.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "sources": [
+        "content/services/persistence/world_snapshot_service.gd",
+        "content/domains/persistence/rules/district_snapshot_rules.gd",
+        "content/services/persistence/save_data_codec.gd"
+      ],
+      "method_rights": {},
+      "purpose": "Save preflight validates stable home IDs against immutable district authoring; detached reconstruction preserves identity before publication."
     }
   ],
   "legacy_decomposition": []

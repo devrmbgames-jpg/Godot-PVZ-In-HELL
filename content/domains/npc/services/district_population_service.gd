@@ -123,7 +123,7 @@ static func _prepare_addresses(district: C_District, build: PopulationBuild) -> 
 		build.address_places[address] = place
 		var context: EntitySpawnContext = EntityCompositionService.context_for(address, ECS.world,
 			GECSIO.uuid())
-		context.initial_fields[C_NpcAddress as Script] = {&"address_id": place.key}
+		NpcConstructionService.configure_address(context, place)
 		build.contexts.append(context)
 
 
@@ -171,7 +171,7 @@ static func _commit_build(build: PopulationBuild) -> void:
 		ECS.world.get_parent().add_child(actor)
 		if build.address_places.has(actor):
 			var place: DEF_DistrictPlace = build.address_places[actor]
-			(actor.get_node("Address") as Label3D).text = place.display_name
+			NpcConstructionService.present_address(actor, place)
 			(actor as Node as Node3D).global_position = NpcPopulationQueries.position_for(place.key)
 		else:
 			var identity_fields: Dictionary = context.initial_fields[C_NpcIdentity as Script]

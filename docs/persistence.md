@@ -21,7 +21,7 @@ Checks include the existing save/world snapshot regression, district absent-body
 
 ## Refactoring v2 identity contract
 
-Phase 1 records the current schema-2 baseline and the target for task 25; it does not claim that runtime migration has happened. `AutosaveStore.SCHEMA_VERSION` is the supported payload version, separate from the `PVZH1` file envelope. The file contains a SHA-256-checked native Variant dictionary without runtime Objects. The supported schema is now 8; earlier schemas and newer versions are rejected without migration. Quest snapshot preflight validates its Definition, stable operation/target IDs, reward/deadline and terminal receipt before live mutation.
+Phase 1 records the current schema-2 baseline and the target for task 25; it does not claim that runtime migration has happened. `AutosaveStore.SCHEMA_VERSION` is the supported payload version, separate from the `PVZH1` file envelope. The file contains a SHA-256-checked native Variant dictionary without runtime Objects. The supported schema is now 10; earlier schemas and newer versions are rejected without migration. Quest snapshot preflight validates its Definition, stable operation/target IDs, reward/deadline and terminal receipt before live mutation.
 
 | Namespace | Current durable meaning | Target/removal rule |
 | --- | --- | --- |
@@ -107,3 +107,11 @@ cadence fields as schema 9. The native current-format fixture contains nondefaul
 values and verifies the next decision output after reconstruction. Night advances calendar labels
 without adding elapsed time. Unsupported prior versions remain protected from automatic overwrite;
 no old-save conversion is implemented. See [Game Time and decision seeds](game_time.md).
+
+Task 41 adds the stable home key in `C_NpcAddress.SAVE_FIELDS` as schema 10. Physical address
+records no longer lose their semantic identity when reconstructed in a fresh process. Preflight
+rejects empty, duplicate, unknown and non-home IDs before live mutation. A fresh address compiles
+its saved key and reconstructs the label from the immutable district place before publication;
+pose remains owned by the existing explicit snapshot synchronization boundary. No position-based
+identity inference or old-save conversion is introduced. The current native golden and codec
+inventory include the new Component contract; unsupported slots remain preserved.

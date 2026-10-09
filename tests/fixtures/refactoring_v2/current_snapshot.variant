@@ -23,7 +23,7 @@
 "death_day": 0,
 "display_name": "Архивариус",
 "exit_id": &"portal_north",
-"goal_id": &"activity_2",
+"goal_id": &"activity_3",
 "home_id": &"home_1",
 "memories": [],
 "npc_id": &"npc/1",
@@ -102,7 +102,7 @@
 "death_day": 0,
 "display_name": "Стекольщица",
 "exit_id": &"portal_north",
-"goal_id": &"activity_2",
+"goal_id": &"activity_3",
 "home_id": &"home_4",
 "memories": [],
 "npc_id": &"npc/4",
@@ -435,7 +435,12 @@
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
-"components": Array[Dictionary]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"address_id": &"home_1"
+},
+"type": "res://content/domains/npc/components/c_npc_address.gd"
+}]),
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/1",
@@ -446,7 +451,12 @@
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
-"components": Array[Dictionary]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"address_id": &"home_2"
+},
+"type": "res://content/domains/npc/components/c_npc_address.gd"
+}]),
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/2",
@@ -457,7 +467,12 @@
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
-"components": Array[Dictionary]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"address_id": &"home_3"
+},
+"type": "res://content/domains/npc/components/c_npc_address.gd"
+}]),
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/3",
@@ -468,7 +483,12 @@
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
-"components": Array[Dictionary]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"address_id": &"home_4"
+},
+"type": "res://content/domains/npc/components/c_npc_address.gd"
+}]),
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/4",
@@ -479,7 +499,12 @@
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
-"components": Array[Dictionary]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"address_id": &"home_5"
+},
+"type": "res://content/domains/npc/components/c_npc_address.gd"
+}]),
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/5",
@@ -490,7 +515,12 @@
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
-"components": Array[Dictionary]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"address_id": &"home_6"
+},
+"type": "res://content/domains/npc/components/c_npc_address.gd"
+}]),
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/6",
@@ -501,7 +531,12 @@
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
-"components": Array[Dictionary]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"address_id": &"home_7"
+},
+"type": "res://content/domains/npc/components/c_npc_address.gd"
+}]),
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/7",
@@ -512,7 +547,12 @@
 }, {
 "authored_id": "",
 &"completed_actions": Array[StringName]([]),
-"components": Array[Dictionary]([]),
+"components": Array[Dictionary]([{
+"fields": {
+"address_id": &"home_8"
+},
+"type": "res://content/domains/npc/components/c_npc_address.gd"
+}]),
 "death": false,
 "enabled": true,
 "entity_id": "fixture/entity/8",
@@ -525,27 +565,17 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/1"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/1"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -558,9 +588,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {}
+"npc_id": &"npc/1"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/1"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -574,27 +614,19 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {
+7: 0.0
+}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 41.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/2"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/2"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -607,11 +639,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {
-7: 0.0
-}
+"npc_id": &"npc/2"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/2"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -625,27 +665,17 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/3"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/3"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -658,9 +688,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {}
+"npc_id": &"npc/3"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/3"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -674,27 +714,17 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/4"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/4"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -707,9 +737,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {}
+"npc_id": &"npc/4"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/4"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -723,27 +763,17 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/5"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/5"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -756,9 +786,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {}
+"npc_id": &"npc/5"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/5"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -772,27 +812,17 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/6"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/6"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -805,9 +835,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {}
+"npc_id": &"npc/6"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/6"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -821,27 +861,17 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/7"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/7"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -854,9 +884,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {}
+"npc_id": &"npc/7"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/7"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -870,27 +910,17 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/8"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/8"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -903,9 +933,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {}
+"npc_id": &"npc/8"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/8"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -919,27 +959,17 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/9"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/9"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -952,9 +982,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {}
+"npc_id": &"npc/9"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/9"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -968,27 +1008,17 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/10"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/10"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -1001,9 +1031,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {}
+"npc_id": &"npc/10"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/10"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -1017,27 +1057,17 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/11"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/11"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -1050,9 +1080,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {}
+"npc_id": &"npc/11"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/11"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -1066,27 +1106,17 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
+"multipliers": {}
+},
+"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+}, {
+"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
 "value": 100.0
 },
 "type": "res://content/domains/combat/components/c_health.gd"
-}, {
-"fields": {
-"released": false
-},
-"type": "res://content/domains/npc/components/c_npc_remains.gd"
-}, {
-"fields": {
-"npc_id": &"npc/12"
-},
-"type": "res://content/domains/npc/components/c_npc_identity.gd"
-}, {
-"fields": {
-"key": "npc/12"
-},
-"type": "res://content/shared/components/c_persistent_identity.gd"
 }, {
 "fields": {
 "maximum_stacks": 8
@@ -1099,9 +1129,19 @@
 "type": "res://content/domains/needs/components/c_hunger.gd"
 }, {
 "fields": {
-"multipliers": {}
+"npc_id": &"npc/12"
 },
-"type": "res://content/domains/combat/components/c_damage_resistance.gd"
+"type": "res://content/domains/npc/components/c_npc_identity.gd"
+}, {
+"fields": {
+"released": false
+},
+"type": "res://content/domains/npc/components/c_npc_remains.gd"
+}, {
+"fields": {
+"key": "npc/12"
+},
+"type": "res://content/shared/components/c_persistent_identity.gd"
 }]),
 "death": false,
 "enabled": false,
@@ -1141,17 +1181,6 @@
 &"completed_actions": Array[StringName]([]),
 "components": Array[Dictionary]([{
 "fields": {
-"damage": 0,
-"leaking": false,
-"opening": 0,
-"registration": 0,
-"registration_day": 0,
-"registration_number": 0,
-"scan": 0
-},
-"type": "res://content/domains/packages/components/c_package_state.gd"
-}, {
-"fields": {
 "base": 100.0,
 "current": 100.0,
 "depleted": false,
@@ -1179,6 +1208,17 @@
 "released": false
 },
 "type": "res://content/domains/packages/components/c_package_contents.gd"
+}, {
+"fields": {
+"damage": 0,
+"leaking": false,
+"opening": 0,
+"registration": 0,
+"registration_day": 0,
+"registration_number": 0,
+"scan": 0
+},
+"type": "res://content/domains/packages/components/c_package_state.gd"
 }]),
 "death": false,
 "enabled": true,
@@ -1246,5 +1286,5 @@
 "scene": "res://content/domains/interaction/entities/anchorable_test_box.tscn"
 }]),
 "morning_day": 2,
-"version": 9
+"version": 10
 }

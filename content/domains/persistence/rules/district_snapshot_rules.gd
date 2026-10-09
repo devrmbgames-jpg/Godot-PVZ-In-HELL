@@ -9,6 +9,7 @@ static func valid(records: Dictionary[String, Dictionary], components: Dictionar
 	var calendar: C_DayCycle = null
 	var flow: C_CustomerFlow = null
 	var identities: Dictionary[StringName, String] = {}
+	var addresses: Dictionary[StringName, bool] = {}
 	for key: String in components:
 		var fields: Dictionary = components[key]
 		if fields.has(C_DayCycle):
@@ -20,6 +21,11 @@ static func valid(records: Dictionary[String, Dictionary], components: Dictionar
 			district = fields[C_District] as C_District
 		if fields.has(C_CustomerFlow):
 			flow = fields[C_CustomerFlow] as C_CustomerFlow
+		if fields.has(C_NpcAddress):
+			var address: C_NpcAddress = fields[C_NpcAddress] as C_NpcAddress
+			if address.address_id.is_empty() or addresses.has(address.address_id):
+				return false
+			addresses[address.address_id] = true
 		if fields.has(C_NpcIdentity):
 			var identity: C_NpcIdentity = fields[C_NpcIdentity] as C_NpcIdentity
 			if identity.npc_id.is_empty() or identities.has(identity.npc_id) or key != String(identity.npc_id):
@@ -27,11 +33,16 @@ static func valid(records: Dictionary[String, Dictionary], components: Dictionar
 
 			identities[identity.npc_id] = key
 	if district == null:
-		return identities.is_empty()
+		return identities.is_empty() and addresses.is_empty()
 	if calendar == null:
 		return false
 	if district.definition == null or district.prepared_morning > morning_day or district.prepared_morning < 0 or district.next_incident < 1 or district.next_service_order < 1:
 		return false
+
+	for address_id: StringName in addresses:
+		var place: DEF_DistrictPlace = district.definition.place_for(address_id)
+		if place == null or place.kind != DEF_DistrictPlace.Kind.HOME:
+			return false
 
 	var people: Dictionary[StringName, NpcRecord] = {}
 	var occupied: Dictionary[StringName, bool] = {}

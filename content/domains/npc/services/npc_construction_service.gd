@@ -12,6 +12,16 @@ static func configure_context(context: EntitySpawnContext, person: NpcRecord,
 	context.initial_fields[C_PersistentIdentity as Script] = {&"key": String(person.npc_id)}
 
 
+## Supplies the stable authored home key before the common address compiler runs.
+static func configure_address(context: EntitySpawnContext, place: DEF_DistrictPlace) -> void:
+	context.initial_fields[C_NpcAddress as Script] = {&"address_id": place.key}
+
+
+## Rebuilds the address label from immutable authored data before native publication.
+static func present_address(actor: Entity, place: DEF_DistrictPlace) -> void:
+	(actor.get_node("Address") as Label3D).text = place.display_name
+
+
 ## Prepares the authored district and its placed merchant from fresh or validated saved authority.
 ## Returned issues abort the whole placed set before native registration and roster mutation.
 static func configure_placed(contexts: Array[EntitySpawnContext],
