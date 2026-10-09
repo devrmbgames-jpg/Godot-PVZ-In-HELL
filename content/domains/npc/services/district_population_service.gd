@@ -2,6 +2,8 @@ extends RefCounted
 ## Постоянное население; временный уход не создаёт другое тело личности.
 class_name DistrictPopulationService
 
+const ADDRESS_PREFAB: String = "res://content/domains/npc/entities/npc_address.tscn"
+
 
 ## Detached construction transaction; never retained as a second population model.
 class PopulationBuild extends RefCounted:
@@ -12,9 +14,10 @@ class PopulationBuild extends RefCounted:
 	## Compiler output consumed by the same synchronous transaction.
 	var plans: Array[EntityBuildPlan] = []
 	## Authored places for initial address label/pose synchronization.
-	var address_places: Dictionary[Entity, DEF_DistrictPlace] = {}
+	var address_places: Dictionary[Entity, DEF_DistrictPlace] = { }
 	## Fresh or already registered bodies indexed only within this operation.
-	var bodies: Dictionary[StringName, E_DistrictNpc] = {}
+	var bodies: Dictionary[StringName, E_DistrictNpc] = { }
+
 
 	## Releases only this transaction's rejected detached instances.
 	func discard() -> void:
@@ -50,6 +53,7 @@ static func reset_brain(body: E_DistrictNpc) -> void:
 	if runner != null:
 		runner.free()
 
+
 ## Восстанавливает участие в движке и представление личности после снимка.
 static func restore_participation() -> void:
 	var district: C_District = NpcPopulationQueries.current()
@@ -58,6 +62,11 @@ static func restore_participation() -> void:
 
 	district.noises.clear()
 	district.pending_routes.clear()
+	district.decision_cursor = &""
+	district.decisions_due = 0
+	district.decisions_processed = 0
+	district.decisions_deferred = 0
+	district.decision_max_wait_ticks = 0
 	district.lighting_context = null
 	for person: NpcRecord in district.people:
 		var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
@@ -69,7 +78,7 @@ static func restore_participation() -> void:
 		body.show_message(person.display_name)
 		NpcBrainService.bind_engine(body)
 		var participating: bool = person.placement == NpcRecord.Placement.STREET \
-			and person.death_day == 0
+				and person.death_day == 0
 		if participating and not body.enabled:
 			ECS.world.enable_entity(body)
 		elif not participating and body.enabled:
@@ -79,6 +88,7 @@ static func restore_participation() -> void:
 			body.sync_death_presentation()
 
 #endregion
+
 
 #region Создание населения
 ## Validates all address/body recipes before any native registration or roster mutation.
@@ -95,8 +105,11 @@ static func initialize() -> bool:
 		return true
 
 	var fresh_roster: bool = district.people.is_empty()
-	var people: Array[NpcRecord] = NpcPopulationRules.initial_records(district.definition,
-		district.next_person) if fresh_roster else district.people
+	var people: Array[NpcRecord] = (
+		NpcPopulationRules.initial_records(district.definition, district.next_person)
+		if fresh_roster
+		else district.people
+	)
 	var build: PopulationBuild = PopulationBuild.new()
 	_prepare_addresses(district, build)
 	if not _prepare_bodies(district, people, build) or not _validate_build(build):
@@ -114,22 +127,27 @@ static func initialize() -> bool:
 
 
 static func _prepare_addresses(district: C_District, build: PopulationBuild) -> void:
-	var prefab: PackedScene = load(
-		"res://content/domains/npc/entities/npc_address.tscn") as PackedScene
+	var prefab: PackedScene = load(ADDRESS_PREFAB) as PackedScene
 	for place: DEF_DistrictPlace in district.definition.places:
 		if place.kind != DEF_DistrictPlace.Kind.HOME:
 			continue
 		var address: Entity = prefab.instantiate() as Entity
 		build.instances.append(address)
 		build.address_places[address] = place
-		var context: EntitySpawnContext = EntityCompositionService.context_for(address, ECS.world,
-			GECSIO.uuid())
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			address,
+			ECS.world,
+			GECSIO.uuid(),
+		)
 		NpcConstructionService.configure_address(context, place)
 		build.contexts.append(context)
 
 
-static func _prepare_bodies(district: C_District, people: Array[NpcRecord],
-		build: PopulationBuild) -> bool:
+static func _prepare_bodies(
+	district: C_District,
+	people: Array[NpcRecord],
+	build: PopulationBuild,
+) -> bool:
 	for person: NpcRecord in people:
 		if build.bodies.has(person.npc_id):
 			return false
@@ -139,8 +157,10 @@ static func _prepare_bodies(district: C_District, people: Array[NpcRecord],
 			continue
 
 		# The declared Profile remains the sole scene selector; invalid roots are never published.
-		if person.profile == null or not ResourceLoader.exists(person.profile.npc_scene_path,
-				"PackedScene"):
+		if (
+			person.profile == null
+			or not ResourceLoader.exists(person.profile.npc_scene_path, "PackedScene")
+		):
 			return false
 		var prefab: PackedScene = load(person.profile.npc_scene_path) as PackedScene
 		var instance: Node = prefab.instantiate()
@@ -150,8 +170,11 @@ static func _prepare_bodies(district: C_District, people: Array[NpcRecord],
 			return false
 		build.instances.append(body)
 		build.bodies[person.npc_id] = body
-		var context: EntitySpawnContext = EntityCompositionService.context_for(body, ECS.world,
-			GECSIO.uuid())
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			body,
+			ECS.world,
+			GECSIO.uuid(),
+		)
 		NpcConstructionService.configure_context(context, person, district.definition)
 		build.contexts.append(context)
 	return true
@@ -179,8 +202,11 @@ static func _commit_build(build: PopulationBuild) -> void:
 			var person: NpcRecord = NpcPopulationQueries.person_for(identity_fields[&"npc_id"])
 			var origin: StringName = person.home_id if person.profile.resident else person.portal_id
 			(actor as E_DistrictNpc).place_at(NpcPopulationQueries.position_for(origin))
-		var registered: bool = EntityCompositionService.register_plan(context,
-			build.plans[build_index], false)
+		var registered: bool = EntityCompositionService.register_plan(
+			context,
+			build.plans[build_index],
+			false,
+		)
 		assert(registered, "Accepted synchronous population batch requires one native registration")
 
 
@@ -191,6 +217,7 @@ static func _bind_bodies(people: Array[NpcRecord], build: PopulationBuild) -> vo
 		body.show_message(person.display_name)
 		NpcBrainService.bind_engine(body)
 #endregion
+
 
 #region Календарь и участие в мире
 ## Requests one future morning; the typed receipt distinguishes dispatch from preparation.
@@ -216,8 +243,13 @@ static func prepare_morning(morning_day: int) -> DistrictMorningPreparationReque
 
 
 ## Requests one calendar goal assignment; the lifecycle handler owns phase/placement mutation.
-static func request_phase(body: E_DistrictNpc, day_index: int, phase: C_DayCycle.Phase,
-		synchronize: bool = false, force: bool = false) -> NpcPhasePlanRequest:
+static func request_phase(
+	body: E_DistrictNpc,
+	day_index: int,
+	phase: C_DayCycle.Phase,
+	synchronize: bool = false,
+	force: bool = false,
+) -> NpcPhasePlanRequest:
 	var request: NpcPhasePlanRequest = NpcPhasePlanRequest.new()
 	request.day_index = day_index
 	request.phase = phase
@@ -231,7 +263,10 @@ static func request_phase(body: E_DistrictNpc, day_index: int, phase: C_DayCycle
 
 ## Captures one goal's identity and submits its requested completion participation.
 ## Authored completion is the default; explicit escape/skip commands may supply placement.
-static func request_phase_completion(body: E_DistrictNpc, placement: int = -1) -> NpcScheduleCompletionRequest:
+static func request_phase_completion(
+	body: E_DistrictNpc,
+	placement: int = -1,
+) -> NpcScheduleCompletionRequest:
 	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
 	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
 	var request: NpcScheduleCompletionRequest = NpcScheduleCompletionRequest.new()
@@ -241,13 +276,24 @@ static func request_phase_completion(body: E_DistrictNpc, placement: int = -1) -
 	request.record_identity = person
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	request.decision_owner = decision.intent_owner
+	request.decision_identity = decision
+	if (
+		decision.intent_owner == C_NpcDecision.Owner.SCHEDULE
+		and decision.action_status
+		in [C_NpcDecision.ActionStatus.ACCEPTED, C_NpcDecision.ActionStatus.RUNNING]
+	):
+		request.action_generation = decision.action_generation
 	request.placement = NpcScheduleRules.completed_placement(person) if placement < 0 else placement as NpcRecord.Placement
 	ECS.world.emit_event(NpcScheduleCompletionRequest.EVENT, body, request)
 	return request
 
 
 ## Изменяет авторитетное размещение и участие тела в движке.
-static func set_placement(person: NpcRecord, body: E_DistrictNpc, placement: NpcRecord.Placement) -> void:
+static func set_placement(
+	person: NpcRecord,
+	body: E_DistrictNpc,
+	placement: NpcRecord.Placement,
+) -> void:
 	person.placement = placement
 	var active: bool = placement == NpcRecord.Placement.STREET
 	if active and not body.enabled:
@@ -264,6 +310,7 @@ static func set_placement(person: NpcRecord, body: E_DistrictNpc, placement: Npc
 	if placement == NpcRecord.Placement.DEAD:
 		body.sync_death_presentation()
 
+
 ## Один раз фиксирует смерть; будущие заказы не используют погибшую личность.
 static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) -> void:
 	if person.death_day != 0:
@@ -279,8 +326,15 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 	for other: NpcRecord in district.people:
 		if other.profile.resident and other.death_day == 0:
 			living_residents += 1
-	if district.replacement_morning == 0 and district.definition.resident_count - living_residents >= district.definition.replacement_threshold:
+	if (
+		district.replacement_morning == 0
+		and district.definition.resident_count - living_residents
+		>= district \
+				.definition \
+				.replacement_threshold
+	):
 		district.replacement_morning = day_index + district.definition.replacement_delay_days
+
 
 ## Materializes one bounded replacement wave for an explicitly supplied future morning.
 static func replace_vacancies(district: C_District, morning_day: int) -> void:
@@ -289,21 +343,31 @@ static func replace_vacancies(district: C_District, morning_day: int) -> void:
 	var vacant: NpcRecord = null
 	for person: NpcRecord in district.people:
 		if person.death_day == 0:
-			if person.profile.resident: locals_alive += 1
-			else: outside_alive += 1
+			if person.profile.resident:
+				locals_alive += 1
+			else:
+				outside_alive += 1
 		elif person.profile.resident and not person.home_id.is_empty():
 			if vacant == null or person.profile.merchant:
 				vacant = person
-	if district.replacement_morning > 0 and morning_day >= district.replacement_morning and locals_alive < district.definition.resident_count and vacant != null:
+	if (
+		district.replacement_morning > 0 and morning_day >= district.replacement_morning
+		and locals_alive < district.definition.resident_count and vacant != null
+	):
 		if _replace_person(district, vacant, morning_day):
 			locals_alive += 1
 			district.replacement_morning = morning_day + 1 \
-				if locals_alive < district.definition.resident_count else 0
+					if locals_alive < district.definition.resident_count else 0
 	if outside_alive < district.definition.visitor_count:
 		for person: NpcRecord in district.people:
-			if not person.profile.resident and person.death_day > 0 and morning_day >= person.death_day + district.definition.replacement_delay_days and not person.portal_id.is_empty():
+			if (
+				not person.profile.resident and person.death_day > 0
+				and morning_day >= person.death_day + district.definition.replacement_delay_days
+				and not person.portal_id.is_empty()
+			):
 				_replace_person(district, person, morning_day)
 				break
+
 
 static func _replace_person(district: C_District, deceased: NpcRecord, morning_day: int) -> bool:
 	var replacement: NpcRecord = NpcRecord.new()
@@ -314,14 +378,25 @@ static func _replace_person(district: C_District, deceased: NpcRecord, morning_d
 		if person.death_day == 0 and person.profile.resident and person.profile.initiates_conflicts:
 			initiators += 1
 	for candidate: DEF_NpcProfile in district.definition.profiles:
-		if candidate.resident == deceased.profile.resident and candidate.merchant == deceased.profile.merchant and candidate.valid_rules() and (not candidate.initiates_conflicts or initiators < district.definition.maximum_conflict_initiators):
+		if (
+			candidate.resident == deceased.profile.resident
+			and candidate.merchant == deceased.profile.merchant and candidate.valid_rules()
+			and (
+				not candidate.initiates_conflicts
+				or initiators < district.definition.maximum_conflict_initiators
+			)
+		):
 			pool.append(candidate)
 	replacement.profile = deceased.profile
 	if not pool.is_empty():
-		pool.sort_custom(func(a: DEF_NpcProfile, b: DEF_NpcProfile) -> bool:
-			return String(a.key) < String(b.key))
+		pool.sort_custom(
+			func(a: DEF_NpcProfile, b: DEF_NpcProfile) -> bool:
+				return String(a.key) < String(b.key),
+		)
 		var random: RandomNumberGenerator = GameTimeQueries.decision(
-			String(replacement.npc_id), morning_day, "npc/replacement_profile",
+			String(replacement.npc_id),
+			morning_day,
+			"npc/replacement_profile",
 		)
 		replacement.profile = pool[random.randi_range(0, pool.size() - 1)]
 

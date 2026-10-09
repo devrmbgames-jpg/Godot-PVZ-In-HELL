@@ -44,14 +44,31 @@ Goal/priority/cancellation deterministic fixtures + NPC smoke. Time/seed foundat
 
 ## Current / Next
 
-Authorized by active Goal; task43 runtime review PASS at
-`9e7a139fbe473107ecf249e6116158a2269999d5`. Task42 visual acceptance remains open.
-Nearest owners: `S_NpcCadence` captures due work, `S_NpcDecision` updates the native tree,
-`C_NpcDecision` + `NpcIntentArbiter` own execution intent, district roster owns deterministic
-phase/goal obligations. Existing schedule leaves execute move/finish and existing reactive
-subtrees own emergency/combat/service control flow. No new planner/utility framework.
-Next: add bounded fair/coalesced due selection and observable counters to its existing owner;
-extend the current action lifecycle in ECS and route schedule completion/interruption through
-its owning operation, retaining visible native BT branch priority and existing domain roles.
-Completion: scoped deterministic lifecycle/burst fixtures, NPC smoke, static/parser checks
-and immutable review, with old overlapping execution paths removed.
+Implemented; awaiting immutable checkpoint review. Base:
+`e28cd033e6b127a9b91639b803fc35fcb11590ac`. Task42 visual acceptance remains open.
+`S_NpcCadence` caps/coalesces due work with stable-ID fairness; the existing sampled
+sensor/trait/BT graph consumes the same captured interval. Route planning retains its own cap.
+`C_NpcDecision` owns accepted/running/completed/failed/cancelled schedule execution.
+`NpcScheduleActionService` makes explicit transitions; `O_DistrictLifecycle` alone commits
+captured goal completion. Emergency/service/control flow remains native LimboAI.
+Removed idle's write to `NpcRecord.goal_id`; local activity now belongs to current decision state.
+No planner/utility/GOAP path added. Read provider and contract:
+[NPC obligation execution](../../docs/npc_obligation_execution.md).
+Next: collect exact-SHA review, triage findings, then archive and activate task45.
+Completion: all declared fixture/static/parser/NPC smoke gates and review PASS.
+
+## Evidence
+
+- Formatter/lint: PASS, 24 owned scripts.
+- Parser: PASS, 24 files / 0 failures; final modified owners also compiled by runtime fixtures.
+- Architecture/agent/structure gates: PASS; detected Service cycle removed before checkpoint.
+- Final regression: PASS, 160 tests / 1051 assertions across obligation, budget,
+  district BT lifecycle and GameClock fixtures (`tests/artifacts/refactoring_v2_44_final_gut.log`).
+- Final strengthened timeout/restore fixture: PASS, 47 tests / 308 assertions
+  (`tests/artifacts/refactoring_v2_44_final_action_gut.log`).
+- Main-level native second-day queue: PASS (`tests/artifacts/refactoring_v2_44_npc_smoke.log`).
+- Burst covers duplicate wakes, roster reordering, urgent queued-step invalidation,
+  authored work cap and ceil(N/cap) service bound. Diagnostics read existing due/processed/
+  deferred/max-wait state, without another mutable provider.
+- Review: REVIEW_PENDING. No visual/gameplay-feel QA claimed. Specified shutdown retention:
+  KNOWN_ENGINE_LIMITATION / DEFERRED; original logs preserved.

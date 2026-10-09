@@ -32,7 +32,7 @@ const SAVE_FIELDS: Array[String] = [
 ## Уже рассмотренные в этот день визиты, включая не получившие предложения.
 @export var delivery_considered: PackedStringArray = []
 ## Производный слабый кеш тела с проверкой участия в мире; не заменяет отношения.
-var body_references: Dictionary[StringName, WeakRef] = {}
+var body_references: Dictionary[StringName, WeakRef] = { }
 ## Ручные зоны света текущего уровня; не сохраняются.
 var lighting_context: NpcLightingContext = null
 ## Ревизия регистрации для обновления списка зон света.
@@ -49,6 +49,16 @@ var pending_routes: Array[StringName] = []
 var route_planning_frame: int = -1
 ## Количество выполненных планов за текущий физический кадр.
 var route_plans_this_frame: int = 0
+## Last stable NPC ID processed by S_NpcCadence; transient fair cursor, not a goal authority.
+var decision_cursor: StringName = &""
+## Number of eligible due actors at the latest cadence selection boundary.
+var decisions_due: int = 0
+## Number of sampled intervals published within the authored work-unit cap.
+var decisions_processed: int = 0
+## Coalesced due actors retained for a later fair pass, without a growing wake queue.
+var decisions_deferred: int = 0
+## Largest observed due wait in GameClock ticks; diagnostic, excluded from saves.
+var decision_max_wait_ticks: int = 0
 ## Накопитель частоты шагов игрока; не сохраняется.
 var player_step_elapsed: float = 0.0
 ## Derived lifecycle reconciliation day; O_DistrictLifecycle writes it, restore invalidates it.

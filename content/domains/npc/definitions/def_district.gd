@@ -16,7 +16,16 @@ class_name DEF_District
 ## Начальный голод; на карте растёт по существующим правилам Hunger.
 @export_range(0.0, 100.0) var npc_start_hunger: float = 20.0
 ## Имена новых жителей из совместимого пула; последовательность различает повторы.
-@export var replacement_names: PackedStringArray = ["Счетовод", "Грач", "Моль", "Сажа", "Свечник", "Тихоня", "Нитка", "Дымник"]
+@export var replacement_names: PackedStringArray = [
+	"Счетовод",
+	"Грач",
+	"Моль",
+	"Сажа",
+	"Свечник",
+	"Тихоня",
+	"Нитка",
+	"Дымник",
+]
 ## Интервал проверки риска и повторной попытки пути, а не полного перепланирования.
 @export_range(0.1, 5.0) var route_interval: float = 0.6
 ## Лимит синхронных планов маршрута за один физический кадр.
@@ -50,6 +59,8 @@ class_name DEF_District
 @export_range(1, 30) var replacement_delay_days: int = 2
 ## Интервал обновления решений и восприятия, в секундах.
 @export_range(0.05, 1.0) var decision_interval: float = 0.2
+## Maximum expensive native sensing/traits/decision updates admitted per cadence pass.
+@export_range(1, 256) var decision_work_units: int = 12
 ## Лимит самостоятельных конфликтов NPC за фазу.
 @export_range(0, 10) var ambient_conflicts_per_phase: int = 1
 ## Лимит инициаторов нападений при выборе новых местных профилей.
@@ -57,7 +68,9 @@ class_name DEF_District
 ## Пауза до выбора следующего простого занятия, в секундах.
 @export_range(1.0, 300.0) var activity_seconds: float = 30.0
 ## Явные маршруты ожидания, относительно корня уровня.
-@export var service_routes_path: NodePath = NodePath("Entityes/DeliveryCounter/Entry/NpcServiceRoutes")
+@export var service_routes_path: NodePath = NodePath(
+	"Entityes/DeliveryCounter/Entry/NpcServiceRoutes"
+)
 ## Число подготовленных следующих клиентов, помимо обслуживаемого.
 @export_range(0, 2) var prepared_customer_count: int = 2
 ## Предел безрезультатного прибытия/ожидания света после подхода, в секундах.
@@ -107,6 +120,7 @@ class_name DEF_District
 @export_range(0.1, 40.0) var damage_noise_radius: float = 14.0
 ## Множитель громкости движения в приседе.
 @export_range(0.0, 1.0) var crouching_noise_fraction: float = 0.3
+
 
 #region Place queries
 ## Находит авторское место по постоянному ID.

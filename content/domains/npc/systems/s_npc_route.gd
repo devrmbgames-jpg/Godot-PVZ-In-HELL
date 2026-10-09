@@ -2,16 +2,24 @@ extends System
 ## Owns post-BT route progression, stall/blocked clocks and lifecycle cleanup.
 class_name S_NpcRoute
 
+
 #region Scheduling
 ## Declares the due-step execution order before native decisions.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_NpcDecision], Runs.Before: [S_NpcRoutePlanning, S_NpcCombat, S_NpcIntent]}
+	return {
+		Runs.After: [S_NpcDecision],
+		Runs.Before: [S_NpcRoutePlanning, S_NpcCombat, S_NpcIntent],
+	}
 
 
 ## Selects live actors with the cadence owner's captured interval.
 func query() -> QueryBuilder:
-	return q.with_all([C_NpcIdentity, C_NpcAwareness, C_NpcIntent,
-		{C_NpcDecision: {"scheduled_delta": {"_gt": 0.0}}}]).with_none([C_Death]).enabled()
+	return q.with_all([
+		C_NpcIdentity,
+		C_NpcAwareness,
+		C_NpcIntent,
+		{ C_NpcDecision: { "scheduled_delta": { "_gt": 0.0 } } },
+	]).with_none([C_Death]).enabled()
 
 
 ## Queues one sampled stage using the exact due-step component identity.
@@ -21,9 +29,9 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 		cmd.add_custom(_advance.bind(weakref(entity), decision, decision.lifecycle_generation))
 #endregion
 
+
 #region Due-step progression
-func _advance(entity_reference: WeakRef, captured: C_NpcDecision,
-		captured_generation: int) -> void:
+func _advance(entity_reference: WeakRef, captured: C_NpcDecision, captured_generation: int) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var entity: Entity = entity_reference.get_ref() as Entity
 
@@ -60,7 +68,9 @@ func _progress_route(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> v
 
 	route.elapsed += delta
 	var district: C_District = NpcPopulationQueries.current()
-	var new_goal: bool = route.goal.distance_to(intent.move_position) > district.definition.waypoint_distance
+	var new_goal: bool = route.goal.distance_to(intent.move_position) > district \
+			.definition \
+			.waypoint_distance
 	if new_goal:
 		route.progress_initialized = false
 		route.points.clear()
@@ -70,11 +80,18 @@ func _progress_route(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> v
 		route.elapsed = 0.0
 		var map: RID = actor.navigation_agent.get_navigation_map()
 		var iteration: int = NavigationServer3D.map_get_iteration_id(map) if map.is_valid() else 0
-		needs_plan = needs_plan or route.points.is_empty() or route.navigation_map != map or route.map_iteration != iteration
+		needs_plan = (
+			needs_plan or route.points.is_empty()
+			or route.navigation_map != map or route.map_iteration != iteration
+		)
 		if not route.points.is_empty():
 			var remaining: PackedVector3Array = PackedVector3Array([actor.global_position])
 			remaining.append_array(route.points.slice(route.point_index))
-			if not NpcRouteSolver.acceptable(actor, person, NpcRouteSolver.expected_damage(actor, remaining)):
+			if not NpcRouteSolver.acceptable(
+				actor,
+				person,
+				NpcRouteSolver.expected_damage(actor, remaining),
+			):
 				route.points.clear()
 				needs_plan = true
 	if needs_plan:
@@ -90,7 +107,14 @@ func _progress_route(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> v
 	physical_position.y = 0.0
 	var final_position: Vector3 = intent.move_position
 	final_position.y = 0.0
-	if not route.progress_initialized or physical_position.distance_to(route.progress_position) >= district.definition.route_progress_distance or physical_position.distance_to(final_position) <= intent.arrival_distance:
+	if (
+		not route.progress_initialized
+		or physical_position.distance_to(route.progress_position)
+		>= district \
+				.definition \
+				.route_progress_distance
+		or physical_position.distance_to(final_position) <= intent.arrival_distance
+	):
 		route.progress_initialized = true
 		route.progress_position = physical_position
 		route.stalled_seconds = 0.0
@@ -107,6 +131,13 @@ func _progress_route(actor: E_DistrictNpc, person: NpcRecord, delta: float) -> v
 
 
 func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute) -> void:
+	var execution: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
+	NpcScheduleActionService.finish_schedule(
+		actor,
+		execution.action_generation,
+		false,
+		&"route_timeout",
+	)
 	route.pending = false
 	route.blocked_seconds = 0.0
 	route.stalled_seconds = 0.0
@@ -117,13 +148,21 @@ func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute) -> voi
 		CombatService.end_combat(actor)
 		(actor.get_component(C_NpcAwareness) as C_NpcAwareness).fleeing = true
 
-	var interruption: NpcRoleInterruptionRequest = NpcRoleInterruptionRequest.new(NpcRoleInterruptionRequest.Kind.ROUTE_BLOCKED)
+	var interruption: NpcRoleInterruptionRequest = NpcRoleInterruptionRequest.new(
+		NpcRoleInterruptionRequest.Kind.ROUTE_BLOCKED
+	)
 	_world.emit_event(NpcRoleInterruptionRequest.EVENT, actor, interruption)
 	if not interruption.handled:
 		var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-		var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(person.planned_day, person.planned_phase as C_DayCycle.Phase)
+		var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(
+			person.planned_day,
+			person.planned_phase as C_DayCycle.Phase,
+		)
 		# Недостижимое занятие можно пропустить; уход через проход или домой требует реального прибытия.
-		if decision != null and decision.intent_owner == C_NpcDecision.Owner.SCHEDULE and person.profile.resident and location == DEF_NpcSchedule.Location.STREET:
+		if (
+			decision != null and decision.intent_owner == C_NpcDecision.Owner.SCHEDULE
+			and person.profile.resident and location == DEF_NpcSchedule.Location.STREET
+		):
 			DistrictPopulationService.request_phase_completion(actor, NpcRecord.Placement.STREET)
 		route.map_iteration = -1
 		route.points.clear()

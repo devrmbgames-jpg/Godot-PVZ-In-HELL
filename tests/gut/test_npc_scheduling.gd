@@ -1,6 +1,7 @@
 extends "res://tests/gut/test_district_plan_acceptance.gd"
 ## Verifies real AI stage ordering, shared due intervals and queued/reentrant lifecycle gates.
 
+
 ## Records committed sensing at the actual native-decision publication boundary.
 class ReadyRecorder extends Observer:
 	## Observed second-body visibility at every decision publication.
@@ -9,6 +10,7 @@ class ReadyRecorder extends Observer:
 	var intervals: Array[float] = []
 	var _second: E_DistrictNpc
 	var _retire: bool = false
+
 
 	#region Boundary recording
 	## Configures a retained fixture body and optional synchronous death reaction.
@@ -31,11 +33,22 @@ class ReadyRecorder extends Observer:
 			entity.add_component(C_Death.new())
 	#endregion
 
+
 #region Fixture graph
 func _owners() -> Array[System]:
 	var owners: Array[System] = []
 	# Deliberately register backwards so only deps define the execution order.
-	for owner_type: Script in [S_NpcNoise, S_NpcRoutePlanning, S_NpcRoute, S_NpcDecision, S_NpcTraits, S_NpcPerception, S_NpcFootsteps, S_NpcCadence, S_GameTime]:
+	for owner_type: Script in [
+		S_NpcNoise,
+		S_NpcRoutePlanning,
+		S_NpcRoute,
+		S_NpcDecision,
+		S_NpcTraits,
+		S_NpcPerception,
+		S_NpcFootsteps,
+		S_NpcCadence,
+		S_GameTime,
+	]:
 		var owner: System = owner_type.new() as System
 		owner.group = "npc_scheduling"
 		owners.append(owner)
@@ -45,10 +58,20 @@ func _owners() -> Array[System]:
 
 func _isolate(first_index: int = 0, second_index: int = 3) -> void:
 	for index: int in _district.people.size():
+		# These interval fixtures start after bootstrap rather than consuming its authored wake.
+		var body: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[index].npc_id)
+		var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+		decision.wake_requested = false
+		decision.wake_urgent = false
 		if index != first_index and index != second_index:
 			var person: NpcRecord = _district.people[index]
-			DistrictPopulationService.set_placement(person, NpcPopulationQueries.body_for(person.npc_id), NpcRecord.Placement.HOME)
+			DistrictPopulationService.set_placement(
+				person,
+				NpcPopulationQueries.body_for(person.npc_id),
+				NpcRecord.Placement.HOME,
+			)
 #endregion
+
 
 #region Shared due-step ordering
 ## All due sight samples precede either native decision and consume one accumulated interval.
@@ -73,7 +96,12 @@ func test_all_due_sensors_commit_before_either_native_decision() -> void:
 	assert_eq(recorder.intervals.size(), 0)
 	_world.process(0.2, "npc_scheduling")
 	assert_eq(recorder.intervals.size(), 2)
-	assert_true(recorder.sampled.all(func(visible: bool) -> bool: return visible))
+	assert_true(
+		recorder.sampled.all(
+			func(visible: bool) -> bool:
+				return visible,
+		)
+	)
 	for interval: float in recorder.intervals:
 		assert_almost_eq(interval, 0.3, 0.001)
 	_world.process(0.1, "npc_scheduling")
@@ -146,6 +174,7 @@ func test_night_and_dormant_bodies_do_not_advance_ai_clocks() -> void:
 	assert_eq(_district.people[0].cadence_elapsed_ticks, 0)
 	assert_eq(decision.scheduled_delta, 0.0)
 #endregion
+
 
 #region Queued and reentrant boundaries
 ## A queued sensor stage cannot advance a replacement decision component.

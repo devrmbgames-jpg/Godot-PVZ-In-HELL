@@ -16,6 +16,10 @@ var placement: NpcRecord.Placement = NpcRecord.Placement.STREET
 var record_identity: NpcRecord = null
 ## Captured decision owner; NONE permits an explicit operation outside a running BT branch.
 var decision_owner: C_NpcDecision.Owner = C_NpcDecision.Owner.NONE
+## Exact execution Component at dispatch; reset/replacement rejects old action receipts.
+var decision_identity: C_NpcDecision = null
+## Captured action incarnation, or zero for an explicit escape/skip operation.
+var action_generation: int = 0
 ## Receipt becomes terminal only at actual commit or rejection.
 var completed: bool = false
 ## True for committed or duplicate completion.

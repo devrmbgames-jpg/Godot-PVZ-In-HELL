@@ -2,6 +2,7 @@ extends Observer
 ## Owns district calendar goals, preparation and completion reactions; physical operations stay explicit.
 class_name O_DistrictLifecycle
 
+
 #region Reactive boundaries
 ## Declares calendar, body-death and sole-handler planning/preparation/completion inputs.
 func sub_observers() -> Array[Array]:
@@ -44,8 +45,14 @@ func _on_completion(_event: Variant, body: Entity, payload: Variant = null) -> v
 	cmd.add_custom(_complete_phase.bind(weakref(body), request))
 #endregion
 
+
 #region Calendar and death reconciliation
-func _reconcile_day(session_reference: WeakRef, fact: DayPhaseChanged, captured_district: C_District, captured_cycle: C_DayCycle) -> void:
+func _reconcile_day(
+	session_reference: WeakRef,
+	fact: DayPhaseChanged,
+	captured_district: C_District,
+	captured_cycle: C_DayCycle,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
 
@@ -95,8 +102,12 @@ func _reconcile_death(entity_reference: WeakRef) -> void:
 		DistrictPopulationService.mark_dead(person, entity as E_DistrictNpc, cycle.day_index)
 #endregion
 
+
 #region Explicit preparation and goal assignment
-func _prepare_morning(session_reference: WeakRef, request: DistrictMorningPreparationRequest) -> void:
+func _prepare_morning(
+	session_reference: WeakRef,
+	request: DistrictMorningPreparationRequest,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
 
@@ -128,10 +139,20 @@ func _prepare_morning(session_reference: WeakRef, request: DistrictMorningPrepar
 					continue
 				DistrictPopulationService.reset_brain(body)
 				NpcBrainService.bind_engine(body)
-				_plan_phase(district, person, body, request.day_index, C_DayCycle.Phase.MORNING, true)
+				_plan_phase(
+					district,
+					person,
+					body,
+					request.day_index,
+					C_DayCycle.Phase.MORNING,
+					true,
+				)
 			district.prepared_morning = request.day_index
-			_world.emit_event(DistrictMorningPrepared.EVENT, session,
-				DistrictMorningPrepared.new(district, cycle, request.day_index))
+			_world.emit_event(
+				DistrictMorningPrepared.EVENT,
+				session,
+				DistrictMorningPrepared.new(district, cycle, request.day_index),
+			)
 		request.succeeded = true
 	request.completed = true
 
@@ -157,19 +178,34 @@ func _execute_plan(entity_reference: WeakRef, request: NpcPhasePlanRequest) -> v
 		elif request.phase not in C_DayCycle.Phase.values():
 			request.rejection_reason = &"invalid_phase"
 		else:
-			_plan_phase(NpcPopulationQueries.current(), person, body, request.day_index,
-				request.phase, request.synchronize, request.force)
+			_plan_phase(
+				NpcPopulationQueries.current(),
+				person,
+				body,
+				request.day_index,
+				request.phase,
+				request.synchronize,
+				request.force,
+			)
 			request.succeeded = true
 	request.completed = true
 
 
-func _plan_phase(district: C_District, person: NpcRecord, body: E_DistrictNpc, day: int,
-		phase: C_DayCycle.Phase, synchronize: bool = false, force: bool = false) -> void:
+func _plan_phase(
+	district: C_District,
+	person: NpcRecord,
+	body: E_DistrictNpc,
+	day: int,
+	phase: C_DayCycle.Phase,
+	synchronize: bool = false,
+	force: bool = false,
+) -> void:
 	var already_planned: bool = person.planned_day == day and person.planned_phase == int(phase)
 	if person.death_day != 0 or (already_planned and not synchronize and not force):
 		return
 
 	# Commit the new macro goal and reset only phase-scoped reaction state.
+	NpcScheduleActionService.cancel_schedule(body, &"obligation_replaced")
 	person.planned_day = day
 	person.planned_phase = int(phase)
 	person.phase_complete = false
@@ -182,22 +218,40 @@ func _plan_phase(district: C_District, person: NpcRecord, body: E_DistrictNpc, d
 
 	var location: DEF_NpcSchedule.Location = person.profile.schedule.location_for(day, phase)
 	person.goal_id = NpcScheduleRules.goal_for(
-		district.definition, person, location, GameTimeQueries.current().world_seed, day, phase,
+		district.definition,
+		person,
+		location,
+		GameTimeQueries.current().world_seed,
+		day,
+		phase,
 	)
+	NpcDecisionService.request_wake(body, &"obligation_changed", true)
 
 	# Synchronization teleports at preparation; ordinary transitions preserve native travel.
 	if synchronize:
-		body.place_at(NpcPopulationQueries.position_for(person.home_id if person.profile.resident else person.portal_id))
+		body.place_at(
+			NpcPopulationQueries.position_for(
+				person.home_id if person.profile.resident else person.portal_id
+			)
+		)
 		var placement: NpcRecord.Placement = NpcRecord.Placement.STREET
 		if location == DEF_NpcSchedule.Location.HOME:
 			placement = NpcRecord.Placement.HOME
 		elif location == DEF_NpcSchedule.Location.OUTSIDE:
 			placement = NpcRecord.Placement.OUTSIDE
 		DistrictPopulationService.set_placement(person, body, placement)
-	elif location == DEF_NpcSchedule.Location.STREET and person.placement != NpcRecord.Placement.STREET:
-		body.place_at(NpcPopulationQueries.position_for(person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id))
+	elif (
+		location == DEF_NpcSchedule.Location.STREET
+		and person.placement != NpcRecord.Placement.STREET
+	):
+		body.place_at(
+			NpcPopulationQueries.position_for(
+				person.home_id if person.placement == NpcRecord.Placement.HOME else person.portal_id
+			)
+		)
 		DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
 #endregion
+
 
 #region Captured goal completion
 func _complete_phase(entity_reference: WeakRef, request: NpcScheduleCompletionRequest) -> void:
@@ -219,19 +273,52 @@ func _complete_phase(entity_reference: WeakRef, request: NpcScheduleCompletionRe
 			request.rejection_reason = &"stale_record"
 		elif body.has_active_role():
 			request.rejection_reason = &"service_role_active"
-		elif request.decision_owner != C_NpcDecision.Owner.NONE and (decision == null or decision.intent_owner != request.decision_owner):
+		elif (
+			request.action_generation != 0
+			and (
+				decision != request.decision_identity
+				or decision.action_generation != request.action_generation
+				or decision.action_status != C_NpcDecision.ActionStatus.RUNNING
+			)
+		):
+			request.rejection_reason = &"stale_action"
+		elif (
+			request.decision_owner != C_NpcDecision.Owner.NONE
+			and (decision == null or decision.intent_owner != request.decision_owner)
+		):
 			request.rejection_reason = &"decision_interrupted"
 		elif request.placement == NpcRecord.Placement.DEAD:
 			request.rejection_reason = &"invalid_placement"
-		elif person.planned_day != request.planned_day or person.planned_phase != request.planned_phase or person.goal_id != request.goal_id:
+		elif (
+			person.planned_day != request.planned_day
+			or person.planned_phase != request.planned_phase or person.goal_id != request.goal_id
+		):
 			request.rejection_reason = &"stale_goal"
 		else:
 			person.phase_complete = true
+			if request.action_generation != 0:
+				NpcScheduleActionService.finish_schedule(
+					body,
+					request.action_generation,
+					true,
+					&"obligation_completed",
+				)
 			if person.placement != request.placement:
 				DistrictPopulationService.set_placement(person, body, request.placement)
 			request.succeeded = true
+		if (
+			not request.succeeded and request.action_generation != 0
+			and decision == request.decision_identity
+		):
+			NpcScheduleActionService.finish_schedule(
+				body,
+				request.action_generation,
+				false,
+				request.rejection_reason,
+			)
 	request.completed = true
 #endregion
+
 
 #region Queued body lifetime
 func _retains_body(candidate: Variant) -> bool:
@@ -239,6 +326,9 @@ func _retains_body(candidate: Variant) -> bool:
 	if not is_instance_valid(candidate) or not candidate is E_DistrictNpc:
 		return false
 	var body: E_DistrictNpc = candidate as E_DistrictNpc
-	return body.is_inside_tree() and not body.is_queued_for_deletion() \
-		and _world.entity_to_archetype.has(body) and body.has_component(C_NpcIdentity)
+	return (
+		body.is_inside_tree() and not body.is_queued_for_deletion() \
+				and _world.entity_to_archetype.has(body)
+		and body.has_component(C_NpcIdentity)
+	)
 #endregion

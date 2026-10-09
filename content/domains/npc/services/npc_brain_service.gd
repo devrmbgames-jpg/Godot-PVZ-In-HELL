@@ -5,12 +5,15 @@ class_name NpcBrainService
 ## Authored native decision tree installed by the runtime adapter.
 const TREE_PATH: String = "res://content/domains/npc/ai/trees/bt_npc_native.tres"
 
+
 #region Жизненный цикл AI
 ## Binds one passive manual BTPlayer; required ECS data was already compiled before registration.
 static func bind_engine(actor: E_DistrictNpc) -> void:
-	assert(actor.has_component(C_NpcAwareness) and actor.has_component(C_NpcDecision)
+	assert(
+		actor.has_component(C_NpcAwareness) and actor.has_component(C_NpcDecision)
 		and actor.has_component(C_NpcRoute),
-		"Native brain binding requires compiled sensor/decision capability")
+		"Native brain binding requires compiled sensor/decision capability",
+	)
 	if actor.get_node_or_null("Brain") != null:
 		return
 
@@ -21,6 +24,7 @@ static func bind_engine(actor: E_DistrictNpc) -> void:
 	runner.behavior_tree = actor.decision_tree(load(TREE_PATH) as BehaviorTree)
 	actor.add_child(runner)
 
+
 ## Включает дерево либо прерывает его листья; из выполняющегося такта abort завершается после update.
 static func set_participating(actor: E_DistrictNpc, participating: bool) -> void:
 	var runner: BTPlayer = actor.get_node_or_null("Brain") as BTPlayer
@@ -30,6 +34,7 @@ static func set_participating(actor: E_DistrictNpc, participating: bool) -> void
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
 	if not participating and (decision == null or not decision.tree_updating):
 		_abort_tree(actor, runner)
+
 
 ## Исполняет один такт BT и безопасно завершает отключение; возвращает факт выбранного действия.
 static func update_tree(actor: E_DistrictNpc, delta: float) -> bool:
@@ -45,7 +50,9 @@ static func update_tree(actor: E_DistrictNpc, delta: float) -> bool:
 		_abort_tree(actor, runner)
 	return claimed
 
+
 static func _abort_tree(actor: E_DistrictNpc, runner: BTPlayer) -> void:
+	NpcScheduleActionService.cancel_schedule(actor, &"participation_stopped")
 	var instance: BTInstance = runner.get_bt_instance()
 	if instance != null:
 		instance.get_root_task().abort()

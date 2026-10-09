@@ -46,6 +46,8 @@ District calendar goals, phase completion and morning preparation are owned by O
 
 Native NPC cadence, footsteps, perception, traits, decisions and noise ageing are explicit Systems with one transient captured due interval in C_NpcDecision. NpcDecisionReady commits after sampled sensing/traits and before native BT/role-clock consumers. Queued stages reject replaced components or calendar/participation changes; decision revalidates after synchronous ready reactions. NpcBrainService is only a LimboAI runtime adapter.
 
+NPC schedule obligations remain district-roster authority. C_NpcDecision owns their transient execution incarnation/result; NpcScheduleActionService performs explicit transitions and O_DistrictLifecycle commits captured completion. Idle destinations cannot rewrite schedule goals. S_NpcCadence fairly caps due sampled work with authored work units and coalesced wakes; route planning keeps its independent frame budget. Read-only diagnostics and lifecycle details are in [NPC obligation execution](../docs/npc_obligation_execution.md).
+
 After native BT, S_NpcRoute consumes the same captured interval for route clocks/progress/cleanup. S_NpcRoutePlanning owns the district FIFO and one budget per native physics frame before noise/combat/navigation consumers. NpcRouteSolver calculates bounded paths/risk, while S_NpcIntent consumes waypoints and Godot integrates the body. Queued planning rejects replaced aggregates and stale participation/intent.
 
 ### Choosing execution ownership

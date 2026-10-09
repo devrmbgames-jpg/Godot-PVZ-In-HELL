@@ -1,6 +1,9 @@
 extends "res://tests/gut/test_district_service.gd"
 ## Интеграционные сценарии занятий, социальных контрмер, обслуживания и опасных маршрутов района.
 
+const FIRE_AURA_PREFAB: String = "res://content/domains/hazards/entities/npc_fire_aura.tscn"
+
+
 #region Тестовое окружение
 func _stage(index: int, point: Vector3 = Vector3.ZERO) -> E_DistrictNpc:
 	var person: NpcRecord = _district.people[index]
@@ -13,6 +16,7 @@ func _stage(index: int, point: Vector3 = Vector3.ZERO) -> E_DistrictNpc:
 	body.place_at(point)
 	body.freeze = true
 	return body
+
 
 func _player(point: Vector3 = Vector3(0, 0, -3)) -> E_DistrictNpc:
 	var physical: RigidBody3D = RigidBody3D.new()
@@ -32,22 +36,33 @@ func _player(point: Vector3 = Vector3(0, 0, -3)) -> E_DistrictNpc:
 	player.global_position = point
 	return player
 
+
 func _service(body: E_DistrictNpc, suffix: String) -> CustomerVisit:
 	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
 	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
 	var visit: CustomerVisit = _case(person, suffix)
 	visit.definition = visit.definition.duplicate() as DEF_Customer
 	NpcServiceRole.begin(body, person, visit, 1)
-	(body.get_component(C_CustomerAgent) as C_CustomerAgent).phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	(body.get_component(C_CustomerAgent) as C_CustomerAgent).phase = C_CustomerAgent \
+			.Phase \
+			.WAITING_FOR_PACKAGE
 	return visit
 
+
 func _light_zone() -> NpcLightZone:
-	var zone: NpcLightZone = (load("res://content/scenes/npc_light_zone.tscn") as PackedScene).instantiate() as NpcLightZone
+	var zone: NpcLightZone = (
+		load("res://content/scenes/npc_light_zone.tscn") as PackedScene
+	).instantiate() as NpcLightZone
 	(zone.get_node("CollisionShape3D") as CollisionShape3D).shape = BoxShape3D.new()
-	((zone.get_node("CollisionShape3D") as CollisionShape3D).shape as BoxShape3D).size = Vector3(20, 6, 20)
+	((zone.get_node("CollisionShape3D") as CollisionShape3D).shape as BoxShape3D).size = Vector3(
+		20,
+		6,
+		20,
+	)
 	zone.position = Vector3(0, 2, -1)
 	_root.add_child(zone)
 	return zone
+
 
 func _run_branch(body: E_DistrictNpc, owner_kind: C_NpcDecision.Owner, delta: float) -> bool:
 	var paths: Dictionary[C_NpcDecision.Owner, String] = {
@@ -59,6 +74,7 @@ func _run_branch(body: E_DistrictNpc, owner_kind: C_NpcDecision.Owner, delta: fl
 	}
 	return _run_tree(body, paths[owner_kind], delta)
 #endregion
+
 
 #region Уход через проходы
 ## Расписание завершает уход рядом с краем navmesh, учитывая горизонтальный радиус прохода.
@@ -76,6 +92,7 @@ func test_schedule_exit_accepts_ground_radius_without_exact_marker_contact() -> 
 	assert_false(body.enabled)
 	assert_eq(body.collision_layer, 0)
 	assert_null(CombatQueries.target_for(body))
+
 
 ## Бегство использует тот же наземный радиус, а удалённая точка не завершает уход преждевременно.
 func test_flee_exit_stops_only_within_portal_radius() -> void:
@@ -96,6 +113,7 @@ func test_flee_exit_stops_only_within_portal_radius() -> void:
 	assert_false(awareness.fleeing)
 	assert_false(body.enabled)
 
+
 ## Таймаут не подменяет настоящий выход завершённой фазой; расписание возобновляет запрос маршрута.
 func test_stalled_schedule_exit_keeps_unfinished_departure() -> void:
 	var body: E_DistrictNpc = _stage(0, Vector3(-8, 0, 0))
@@ -109,16 +127,23 @@ func test_stalled_schedule_exit_keeps_unfinished_departure() -> void:
 	NpcAiFixture.route(body, person, 0.2)
 	NpcAiFixture.plan_routes(_district)
 	NpcAiFixture.route(body, person, _district.definition.route_timeout + 0.1)
+	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+	var failed_generation: int = decision.action_generation
+	assert_eq(decision.action_status, C_NpcDecision.ActionStatus.FAILED)
+	assert_eq(decision.action_reason, &"route_timeout")
 	assert_false(person.phase_complete)
 	assert_eq(person.placement, NpcRecord.Placement.STREET)
 	assert_false((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	_run_branch(body, C_NpcDecision.Owner.SCHEDULE, 0.2)
 	NpcAiFixture.route(body, person, 0.2)
+	assert_eq(decision.action_status, C_NpcDecision.ActionStatus.RUNNING)
+	assert_gt(decision.action_generation, failed_generation)
 	assert_true((body.get_component(C_NpcRoute) as C_NpcRoute).pending)
 	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	NavigationServer3D.free_rid(native[&"region"])
 	NavigationServer3D.free_rid(native[&"map"])
 #endregion
+
 
 #region Свободные занятия
 ## Обычные шаги остаются слышимыми, но не заменяют свободное занятие движением к каждому прохожему.
@@ -144,6 +169,7 @@ func test_footsteps_do_not_pull_idle_npc_into_a_crowd() -> void:
 	_run_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
 	assert_true((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 
+
 ## Шаги игрока сохраняют интерес слушателя к месту звука без раскрытия личности и назначения противника.
 func test_player_footsteps_still_prompt_anonymous_investigation() -> void:
 	var body: E_DistrictNpc = _stage(0)
@@ -162,11 +188,12 @@ func test_player_footsteps_still_prompt_anonymous_investigation() -> void:
 	assert_null(CombatQueries.target_for(body))
 	assert_true(person.memories.is_empty())
 
+
 ## Наблюдатель выбирает воспринимаемого соседа и теряет фокус за реальным укрытием.
 func test_observation_watches_visible_neighbour_and_loses_hidden_focus() -> void:
 	var body: E_DistrictNpc = _stage(0)
 	var person: NpcRecord = _district.people[0]
-	person.goal_id = &"activity_1"
+	(body.get_component(C_NpcDecision) as C_NpcDecision).local_activity_id = &"activity_1"
 	var neighbour: E_DistrictNpc = _stage(3, Vector3(0, 0, -3))
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -186,6 +213,7 @@ func test_observation_watches_visible_neighbour_and_loses_hidden_focus() -> void
 	NpcActivityService.observe(body, person, false)
 	assert_true(body.get_relationships(Relationship.new(R_NpcLookTarget.new(), neighbour)).is_empty())
 
+
 ## Свободная активность однократно выбирает точку окна и запрашивает движение, сохраняя физическое положение.
 func test_window_activity_moves_then_observes_an_authored_focus() -> void:
 	var body: E_DistrictNpc = _stage(0)
@@ -194,12 +222,18 @@ func test_window_activity_moves_then_observes_an_authored_focus() -> void:
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	awareness.idle_elapsed = _district.definition.activity_seconds
 	var old_position: Vector3 = body.global_position
+	var obligation: StringName = person.goal_id
 	assert_true(_run_branch(body, C_NpcDecision.Owner.IDLE, 0.2))
-	assert_eq(person.goal_id, &"activity_0")
+	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+	assert_eq(decision.local_activity_id, &"activity_0")
+	assert_eq(person.goal_id, obligation, "Idle selection cannot rewrite the authored obligation")
 	assert_eq(body.global_position, old_position)
 
 	var intent: C_NpcIntent = body.get_component(C_NpcIntent) as C_NpcIntent
-	assert_eq(intent.move_position, NpcActivityService.destination(_district.definition.place_for(person.goal_id)))
+	assert_eq(
+		intent.move_position,
+		NpcActivityService.destination(_district.definition.place_for(decision.local_activity_id)),
+	)
 	var sequence: int = person.activity_sequence
 	_run_branch(body, C_NpcDecision.Owner.IDLE, 0.2)
 	assert_eq(person.activity_sequence, sequence)
@@ -215,6 +249,7 @@ func test_window_activity_moves_then_observes_an_authored_focus() -> void:
 	assert_false(intent.look_uses_entity)
 	assert_eq(intent.look_position, focus.global_position)
 
+
 ## Прогулка к магазину требует присутствующего живого торговца и свободной точки остановки.
 func test_shop_visit_uses_a_clear_standing_point_and_requires_a_merchant() -> void:
 	var body: E_DistrictNpc = _stage(0)
@@ -225,9 +260,15 @@ func test_shop_visit_uses_a_clear_standing_point_and_requires_a_merchant() -> vo
 	var place: DEF_DistrictPlace = NpcActivityService.choose(body, person)
 	assert_not_null(place)
 	assert_eq(place.key, &"shop")
-	assert_gt(NpcActivityService.destination(place).distance_to(NpcPopulationQueries.position_for(place.key)), 1.0)
+	assert_gt(
+		NpcActivityService
+		.destination(place)
+		.distance_to(NpcPopulationQueries.position_for(place.key)),
+		1.0,
+	)
 	DistrictPopulationService.mark_dead(_district.people[7], shopkeeper, 1)
 	assert_null(NpcActivityService.choose(body, person))
+
 
 ## Авторский пул имеет совместимые правила и требуемые виды занятий; личные темы разговора необязательны.
 func test_authored_profiles_and_activity_types_are_complete() -> void:
@@ -240,6 +281,7 @@ func test_authored_profiles_and_activity_types_are_complete() -> void:
 	for kind: int in DEF_DistrictPlace.Activity.values():
 		assert_true(activities.has(kind))
 #endregion
+
 
 #region Наблюдаемое социальное поведение
 ## Раненый NPC отступает, освобождает бой и перестаёт блокировать сон преследованием.
@@ -261,6 +303,7 @@ func test_wounded_pursuer_releases_combat_and_allows_sleep() -> void:
 	assert_null(CombatQueries.target_for(body))
 	assert_eq((body.get_component(C_NpcCombat) as C_NpcCombat).phase, C_NpcCombat.Phase.READY)
 	assert_true(NpcSleepService.blockers().is_empty())
+
 
 ## Новое утро очищает временное восприятие/страх, сохраняя ID, ранения и личную память.
 func test_new_morning_resets_transient_fear_without_resetting_person() -> void:
@@ -288,6 +331,7 @@ func test_new_morning_resets_transient_fear_without_resetting_person() -> void:
 	var brain: Node = body.get_node("Brain")
 	DistrictPopulationService.prepare_morning(2)
 	assert_same(body.get_node("Brain"), brain)
+
 
 ## Уход означает подчинение лишь при видимом столкновении и учитывается один раз на инцидент.
 func test_retreat_requires_visible_confrontation_and_does_not_restart_attack() -> void:
@@ -319,6 +363,7 @@ func test_retreat_requires_visible_confrontation_and_does_not_restart_attack() -
 	assert_eq(awareness.retreat_elapsed, 0.0)
 	assert_eq(person.memories.size(), 1)
 
+
 ## Короткий взгляд допустим; прекращение взгляда после предупреждения останавливает эскалацию.
 func test_gaze_warning_has_a_working_countermeasure() -> void:
 	var body: E_DistrictNpc = _stage(0)
@@ -344,6 +389,7 @@ func test_gaze_warning_has_a_working_countermeasure() -> void:
 	NpcAiFixture.traits(body, person, player, rule.reaction_seconds + 1.0)
 	assert_true(person.memories.is_empty())
 	assert_eq(awareness.rule_exposure[rule.kind], 0.0)
+
 
 ## Выключение света снимает светобоязнь, включение останавливает повод хищника темноты.
 func test_light_and_darkness_countermeasures_reset_exposure() -> void:
@@ -379,6 +425,7 @@ func test_light_and_darkness_countermeasures_reset_exposure() -> void:
 	assert_true(person.memories.is_empty())
 #endregion
 
+
 #region Интеграция обслуживания
 ## Проверка силы использует последнее наблюдаемое уважение/подчинение без скрытых характеристик игрока.
 func test_strength_test_uses_latest_observed_response() -> void:
@@ -396,13 +443,17 @@ func test_strength_test_uses_latest_observed_response() -> void:
 	NpcAiFixture.sense(body, person, player, 0.2)
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	assert_true(awareness.player_visible)
-	assert_eq(NpcSocialService.react(body, player, NpcMemory.Kind.THREAT, &"test/respect"), NpcMemory.Reaction.RESPECT)
+	assert_eq(
+		NpcSocialService.react(body, player, NpcMemory.Kind.THREAT, &"test/respect"),
+		NpcMemory.Reaction.RESPECT,
+	)
 	NpcAiFixture.traits(body, person, player, rule.warning_seconds)
 	assert_eq(awareness.rule_exposure[rule.kind], 0.0)
 	NpcSocialService.react(body, player, NpcMemory.Kind.SUBMISSION, &"test/later_submission")
 	NpcAiFixture.traits(body, person, player, rule.warning_seconds)
 	assert_gt(awareness.rule_exposure[rule.kind], 0.0)
 	assert_true(awareness.warned_rules.has(rule.kind))
+
 
 ## Ожидающий получатель удерживает уличный разговор, сохраняя роль обслуживания без движения к стойке.
 func test_queued_street_conversation_holds_the_service_role() -> void:
@@ -418,6 +469,7 @@ func test_queued_street_conversation_holds_the_service_role() -> void:
 	assert_false((body.get_component(C_NpcIntent) as C_NpcIntent).movement_active)
 	assert_true(context.can_continue())
 	context.end()
+
 
 ## Событие посылки не назначает загадку личности без её собственной особенности.
 func test_legacy_order_does_not_override_personality() -> void:
@@ -438,6 +490,7 @@ func test_legacy_order_does_not_override_personality() -> void:
 	assert_true(context.answer_riddle_correct())
 	assert_eq(context.requested_package_id(), visit.package_id)
 
+
 ## Ресурс обслуживания содержит провокации; подчинение кешируется без ложного исхода заказа.
 func test_provocateur_service_keeps_order_and_records_submission_once() -> void:
 	var body: E_DistrictNpc = _stage(0)
@@ -456,7 +509,10 @@ func test_provocateur_service_keeps_order_and_records_submission_once() -> void:
 	assert_true(context.begin())
 	assert_same(NpcDialogueService.participant(body), player)
 	var resource: DialogueResource = load(CustomerDialogueService.DIALOGUE_PATH) as DialogueResource
-	var line: DialogueLine = await resource.get_next_dialogue_line(context.dialogue_cue(), [{"ctx": context}])
+	var line: DialogueLine = await resource.get_next_dialogue_line(
+		context.dialogue_cue(),
+		[{ "ctx": context }],
+	)
 	assert_eq(line.responses.size(), 4)
 	assert_true((line.responses[1] as DialogueResponse).has_tag("sub"))
 	assert_true(context.apply_response_tags(PackedStringArray(["sub"])))
@@ -468,6 +524,7 @@ func test_provocateur_service_keeps_order_and_records_submission_once() -> void:
 	context.end()
 	assert_null(NpcDialogueService.participant(body))
 	DialogueResourceLifecycle.release_runtime_references(resource)
+
 
 ## Разговор не останавливает терпение; уход из обслуживания освобождает связь участника.
 func test_service_conversation_keeps_patience_and_releases_on_departure() -> void:
@@ -483,6 +540,7 @@ func test_service_conversation_keeps_patience_and_releases_on_departure() -> voi
 	_run_branch(body, C_NpcDecision.Owner.SERVICE, 0.4)
 	assert_false(context.can_continue())
 	assert_null(NpcDialogueService.participant(body))
+
 
 ## Уход, смерть и прерывание роли закрывают разговор с тем же живым участником.
 func test_service_dialogue_closes_when_participant_leaves_or_dies() -> void:
@@ -505,11 +563,14 @@ func test_service_dialogue_closes_when_participant_leaves_or_dies() -> void:
 	assert_null(NpcDialogueService.participant(body))
 #endregion
 
+
 #region Физическое движение и опасности
 func _flat_map() -> Dictionary[StringName, RID]:
 	var mesh: NavigationMesh = NavigationMesh.new()
 	mesh.cell_height = 0.1
-	mesh.vertices = PackedVector3Array([Vector3(-100, 0, -100), Vector3(-100, 0, 100), Vector3(100, 0, 100), Vector3(100, 0, -100)])
+	mesh.vertices = PackedVector3Array(
+		[Vector3(-100, 0, -100), Vector3(-100, 0, 100), Vector3(100, 0, 100), Vector3(100, 0, -100)]
+	)
 	mesh.add_polygon(PackedInt32Array([0, 1, 2, 3]))
 	var map: RID = NavigationServer3D.map_create()
 	var region: RID = NavigationServer3D.region_create()
@@ -519,9 +580,13 @@ func _flat_map() -> Dictionary[StringName, RID]:
 	NavigationServer3D.region_set_navigation_mesh(region, mesh)
 	for frame_index: int in 120:
 		await get_tree().physics_frame
-		if NavigationServer3D.map_get_iteration_id(map) > 0 and NavigationServer3D.map_get_closest_point_owner(map, Vector3.ZERO) == region:
+		if (
+			NavigationServer3D.map_get_iteration_id(map) > 0
+			and NavigationServer3D.map_get_closest_point_owner(map, Vector3.ZERO) == region
+		):
 			break
-	return {&"map": map, &"region": region}
+	return { &"map": map, &"region": region }
+
 
 ## Физическое зависание прекращает формально достижимую задачу и освобождает зарезервированный предмет.
 func test_stalled_reachable_route_releases_pickup() -> void:
@@ -542,6 +607,7 @@ func test_stalled_reachable_route_releases_pickup() -> void:
 	assert_true(body.get_relationships(Relationship.new(R_NpcLootTarget.new(), loot)).is_empty())
 	NavigationServer3D.free_rid(native[&"region"])
 	NavigationServer3D.free_rid(native[&"map"])
+
 
 ## Зависший подход к дому освобождает дверь, сохраняя невыполненное обещание доставки.
 func test_stalled_home_route_releases_meeting_without_false_delivery() -> void:
@@ -577,10 +643,11 @@ func test_stalled_home_route_releases_meeting_without_false_delivery() -> void:
 	NavigationServer3D.free_rid(native[&"region"])
 	NavigationServer3D.free_rid(native[&"map"])
 
+
 ## Прогноз риска учитывает фактические множители голода и замедление тяжёлым грузом.
 func test_route_risk_matches_actual_speed_modifiers() -> void:
 	var body: E_DistrictNpc = _stage(0)
-	var fire: Entity = (load("res://content/domains/hazards/entities/npc_fire_aura.tscn") as PackedScene).instantiate() as Entity
+	var fire: Entity = (load(FIRE_AURA_PREFAB) as PackedScene).instantiate() as Entity
 	var hazard: C_Hazard = C_Hazard.new()
 	hazard.definition = load("res://content/domains/hazards/definitions/def_npc_fire_aura.tres") as DEF_ToxicArea
 	_world.add_entity(fire, [hazard])
@@ -601,14 +668,17 @@ func test_route_risk_matches_actual_speed_modifiers() -> void:
 
 	var load_state: C_CarryLoad = body.get_component(C_CarryLoad) as C_CarryLoad
 	load_state.active = true
-	load_state.mass_kg = (CarryLoadPolicy.minimum_mass_kg(strength) + CarryLoadPolicy.maximum_mass_kg(strength)) * 0.5
+	load_state.mass_kg = (
+		CarryLoadPolicy.minimum_mass_kg(strength) + CarryLoadPolicy.maximum_mass_kg(strength)
+	) * 0.5
 	assert_gt(NpcRouteSolver.expected_damage(body, path), ordinary)
+
 
 ## Движущаяся опасная сфера вызывает локальный обход без подходящих узлов уличного графа.
 func test_native_route_replans_around_moving_fire() -> void:
 	var body: E_DistrictNpc = _stage(0, Vector3(-8, 0, 0))
 	var person: NpcRecord = _district.people[0]
-	var fire: Entity = (load("res://content/domains/hazards/entities/npc_fire_aura.tscn") as PackedScene).instantiate() as Entity
+	var fire: Entity = (load(FIRE_AURA_PREFAB) as PackedScene).instantiate() as Entity
 	var hazard: C_Hazard = C_Hazard.new()
 	hazard.definition = load("res://content/domains/hazards/definitions/def_npc_fire_aura.tres") as DEF_ToxicArea
 	_world.add_entity(fire, [hazard])
@@ -616,7 +686,9 @@ func test_native_route_replans_around_moving_fire() -> void:
 
 	var mesh: NavigationMesh = NavigationMesh.new()
 	mesh.cell_height = 0.1
-	mesh.vertices = PackedVector3Array([Vector3(-20, 0, -20), Vector3(-20, 0, 20), Vector3(20, 0, 20), Vector3(20, 0, -20)])
+	mesh.vertices = PackedVector3Array(
+		[Vector3(-20, 0, -20), Vector3(-20, 0, 20), Vector3(20, 0, 20), Vector3(20, 0, -20)]
+	)
 	mesh.add_polygon(PackedInt32Array([0, 1, 2, 3]))
 	var map: RID = NavigationServer3D.map_create()
 	var region: RID = NavigationServer3D.region_create()
@@ -626,17 +698,32 @@ func test_native_route_replans_around_moving_fire() -> void:
 	NavigationServer3D.region_set_navigation_mesh(region, mesh)
 	for frame_index: int in 120:
 		await get_tree().physics_frame
-		if NavigationServer3D.map_get_iteration_id(map) > 0 and NavigationServer3D.map_get_closest_point_owner(map, Vector3.ZERO) == region:
+		if (
+			NavigationServer3D.map_get_iteration_id(map) > 0
+			and NavigationServer3D.map_get_closest_point_owner(map, Vector3.ZERO) == region
+		):
 			break
 
 	assert_eq(NavigationServer3D.map_get_closest_point_owner(map, Vector3.ZERO), region)
 	var goal: Vector3 = Vector3(8, 0, 0)
-	var path: PackedVector3Array = NpcRouteSolver.plan(body, person, body.global_position, goal, map)
+	var path: PackedVector3Array = NpcRouteSolver.plan(
+		body,
+		person,
+		body.global_position,
+		goal,
+		map,
+	)
 	assert_false(path.is_empty())
 	assert_eq(NpcRouteSolver.expected_damage(body, path), 0.0)
 	assert_gt(path.size(), 2)
 	(fire as Node as Node3D).global_position = Vector3(0, 1, 12)
-	var revised: PackedVector3Array = NpcRouteSolver.plan(body, person, body.global_position, goal, map)
+	var revised: PackedVector3Array = NpcRouteSolver.plan(
+		body,
+		person,
+		body.global_position,
+		goal,
+		map,
+	)
 	assert_eq(revised.size(), 2)
 	assert_eq(NpcRouteSolver.expected_damage(body, revised), 0.0)
 	NavigationServer3D.free_rid(region)
