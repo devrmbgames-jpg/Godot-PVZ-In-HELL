@@ -146,7 +146,7 @@ session limits below that stopped at 49 or excluded Phase 3. The dependency orde
 required acceptance remain in force; task 41 is DONE, with shutdown-only retention deferred.
 Completed tasks move to `agent_tasks/completed/refactoring_v2/`; rendered gameplay and
 subjective visual QA remain owner acceptance. Task42 code/review passes with OWNER_QA_PENDING;
-task43 runtime/schema is DONE. Continue 44–49 and 60–66 with required gates intact.
+Tasks43–45 runtime/schema are DONE. Continue 46–49 and 60–66 with required gates intact.
 
 Phase 1 **DONE**: задачи 01–03 завершены 2026-10-07, 04 — 2026-10-08. Canonical roles/service smells/request timing, architecture guardrail, full structure repair и isolated identity/persistence baseline завершены. Phase 1 acceptance gate достигнут; runtime migration не начиналась.
 
@@ -154,7 +154,7 @@ Phase 1 **DONE**: задачи 01–03 завершены 2026-10-07, 04 — 202
 
 Phase 2A и 2B **DONE**. Execution ownership, typed contracts, all vertical-domain moves and removal of horizontal roots are complete; immutable checkpoints, reviews and acceptance evidence live in the linked archived owning tasks above.
 
-Phase 2C: [47 — Game Time/randomness](../completed/refactoring_v2/47_game_time_randomness.md), [41 — Templates/Traits](../completed/refactoring_v2/41_entity_templates_traits.md), [43 — Smart Objects](../completed/refactoring_v2/43_smart_objects.md) and [44 — AI obligations](../completed/refactoring_v2/44_ai_schedule_utility_goap.md) are **DONE**. [42 — visual Entity authoring](42_visual_entity_authoring.md) is OWNER_QA_PENDING after implementation/re-review PASS. [45 — ACTIVE/DORMANT participation](../completed/refactoring_v2/45_simulation_lod.md) is IN_PROGRESS. Continue 45–49, then 60–66 after the core acceptance gate; mandatory owner acceptance remains open.
+Phase 2C: tasks 41, 43, 44, 45 and 47 are **DONE**, with evidence in their archived owning files. [42 — visual Entity authoring](42_visual_entity_authoring.md) is OWNER_QA_PENDING after implementation/re-review PASS. [46 — Content Doctor](46_content_doctor.md) is IN_PROGRESS. Continue 46–49, then 60–66 after the core acceptance gate; mandatory owner acceptance remains open.
 
 Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/body detach/четыре tiers deferred; baseline ACTIVE/DORMANT with retained physical-root Entity and ECS-owned population records. Population/district schedules belong to npc, without separate district domain. Known structure failures (31, smoke reference/R26 metadata) устранены в 03.
 

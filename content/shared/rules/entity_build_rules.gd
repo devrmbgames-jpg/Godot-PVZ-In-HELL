@@ -34,21 +34,10 @@ static func compile(
 	var seen_traits: Dictionary[StringName, bool] = { }
 	var enabled_traits: Array[EntityTrait] = []
 	for capability: EntityTrait in traits:
+		_check_trait_identity(plan, context, capability, seen_traits)
 		if capability == null:
-			_issue(plan, context, &"missing_trait", "Template contains an empty Trait")
 			continue
 		var source: String = _trait_source(capability)
-		if capability.trait_id.is_empty():
-			_issue(
-				plan,
-				context,
-				&"missing_trait_identity",
-				"Trait requires a capability ID",
-				capability,
-			)
-		elif seen_traits.has(capability.trait_id):
-			_issue(plan, context, &"duplicate_trait", "Duplicate capability ID", capability)
-		seen_traits[capability.trait_id] = true
 		if not capability.enabled_for(context):
 			continue
 		enabled_traits.append(capability)
@@ -597,6 +586,44 @@ static func _validate_binding_recipes(
 
 
 #region Deterministic provenance and diagnostics
+## Checks unused authored Templates with the same declaration rules as runtime compilation.
+static func template_issues(
+	template: DEF_EntityTemplate,
+	instance_path: String = "",
+) -> Array[EntityBuildPlan.Issue]:
+	var context: EntitySpawnContext = EntitySpawnContext.new()
+	context.instance_path = instance_path
+	var plan: EntityBuildPlan = EntityBuildPlan.new()
+	var seen: Dictionary[StringName, bool] = { }
+	var traits: Array[EntityTrait] = template.traits.duplicate()
+	traits.sort_custom(_trait_before)
+	for capability: EntityTrait in traits:
+		_check_trait_identity(plan, context, capability, seen)
+	return plan.issues
+
+
+static func _check_trait_identity(
+	plan: EntityBuildPlan,
+	context: EntitySpawnContext,
+	capability: EntityTrait,
+	seen: Dictionary[StringName, bool],
+) -> void:
+	if capability == null:
+		_issue(plan, context, &"missing_trait", "Template contains an empty Trait")
+		return
+	if capability.trait_id.is_empty():
+		_issue(
+			plan,
+			context,
+			&"missing_trait_identity",
+			"Trait requires a capability ID",
+			capability,
+		)
+	elif seen.has(capability.trait_id):
+		_issue(plan, context, &"duplicate_trait", "Duplicate capability ID", capability)
+	seen[capability.trait_id] = true
+
+
 static func _trait_before(first: EntityTrait, second: EntityTrait) -> bool:
 	if first == null:
 		return second != null

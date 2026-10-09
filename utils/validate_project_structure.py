@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+import argparse
 import subprocess
 import sys
 from pathlib import Path
@@ -537,6 +538,10 @@ def _check_staged_addons(errors: list[str]) -> None:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--content-doctor", action="store_true", help="Include the full detached Godot content acceptance scan")
+    parser.add_argument("--godot", type=Path, help="Godot console executable for content acceptance")
+    arguments = parser.parse_args()
     errors: list[str] = []
 
     _check_role_placement(errors)
@@ -564,6 +569,10 @@ def main() -> int:
         return 1
 
     print("Project structure validation: PASS")
+    if arguments.content_doctor:
+        from validate_content_doctor import run_content_doctor
+
+        return run_content_doctor(arguments.godot)
     return 0
 
 

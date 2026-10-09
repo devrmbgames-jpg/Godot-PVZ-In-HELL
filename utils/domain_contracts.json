@@ -16771,14 +16771,18 @@
         "query"
       ],
       "public_methods": [
-        "validate_registration_batch"
+        "validate_registration_batch",
+        "template_issues"
       ],
       "public_instance_methods": [],
       "method_rights": {
-        "validate_registration_batch": "query"
+        "validate_registration_batch": "query",
+        "template_issues": "query"
       },
       "sources": [
-        "content/scenes/game_world.gd"
+        "content/scenes/game_world.gd",
+        "content/editor/content_doctor/content_doctor_resource_rules.gd",
+        "content/editor/content_doctor/content_doctor_scene_rules.gd"
       ],
       "purpose": "Task 41: explicit whole-placed compile/identity/endpoint preparation before pinned World.initialize, followed by one native registration; typed diagnostics and temporary plans own no runtime authority or scheduler."
     },
@@ -17445,14 +17449,19 @@
         "configure"
       ],
       "public_methods": [
-        "configure_placed"
+        "configure_placed",
+        "configure_context",
+        "configure_address"
       ],
       "public_instance_methods": [],
       "sources": [
-        "content/scenes/game_world.gd"
+        "content/scenes/game_world.gd",
+        "content/editor/content_doctor/content_doctor_scene_rules.gd"
       ],
       "method_rights": {
-        "configure_placed": "configure"
+        "configure_placed": "configure",
+        "configure_context": "configure",
+        "configure_address": "configure"
       },
       "purpose": "Task 41: detached roster/Profile/identity construction inputs before native publication; no competing runtime authority."
     },
@@ -17663,11 +17672,15 @@
       "target_owner": "shared",
       "symbol": "EntityTrait",
       "path": "content/shared/authoring/entity_trait.gd",
-      "rights": ["read"],
+      "rights": [
+        "read"
+      ],
       "public_methods": [],
       "public_instance_methods": [],
       "method_rights": {},
-      "sources": ["content/domains/interaction/authoring/et_smart_object.gd"],
+      "sources": [
+        "content/domains/interaction/authoring/et_smart_object.gd"
+      ],
       "purpose": "Task 43: pure Smart Object schema and isolated C/R recipe authoring through the common compiler, without live World writes."
     },
     {
@@ -17675,11 +17688,16 @@
       "target_owner": "shared",
       "symbol": "WorldReconstructionStarted",
       "path": "content/shared/contracts/world_reconstruction_started.gd",
-      "rights": ["read", "subscribe"],
+      "rights": [
+        "read",
+        "subscribe"
+      ],
       "public_methods": [],
       "public_instance_methods": [],
       "method_rights": {},
-      "sources": ["content/domains/interaction/observers/o_smart_object.gd"],
+      "sources": [
+        "content/domains/interaction/observers/o_smart_object.gd"
+      ],
       "purpose": "Task 43: accepted restore boundary retires transient requests and reservations before observers suspend."
     },
     {
@@ -17687,12 +17705,171 @@
       "target_owner": "shared",
       "symbol": "WorldReconstructionStarted",
       "path": "content/shared/contracts/world_reconstruction_started.gd",
-      "rights": ["read", "request"],
+      "rights": [
+        "read",
+        "request"
+      ],
       "public_methods": [],
       "public_instance_methods": [],
       "method_rights": {},
-      "sources": ["content/domains/persistence/services/snapshot_restore_boundary.gd"],
+      "sources": [
+        "content/domains/persistence/services/snapshot_restore_boundary.gd"
+      ],
       "purpose": "Task 43: publish only after saved snapshot preflight accepts reconstruction, before transient buffers are cleared."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "DEF_District",
+      "path": "content/domains/npc/definitions/def_district.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/editor/content_doctor/content_doctor.gd",
+        "content/editor/content_doctor/content_doctor_resource_rules.gd",
+        "content/editor/content_doctor/content_doctor_scene_rules.gd"
+      ],
+      "purpose": "Content Doctor reads authored contracts and pure providers on detached inputs; it never publishes or ticks gameplay."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "DEF_DistrictPlace",
+      "path": "content/domains/npc/definitions/def_district_place.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/editor/content_doctor/content_doctor.gd",
+        "content/editor/content_doctor/content_doctor_resource_rules.gd",
+        "content/editor/content_doctor/content_doctor_scene_rules.gd"
+      ],
+      "purpose": "Content Doctor reads authored contracts and pure providers on detached inputs; it never publishes or ticks gameplay."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "DEF_NpcProfile",
+      "path": "content/domains/npc/definitions/def_npc_profile.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "valid_rules"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "valid_rules": "query"
+      },
+      "sources": [
+        "content/editor/content_doctor/content_doctor_resource_rules.gd"
+      ],
+      "purpose": "Content Doctor reads authored contracts and pure providers on detached inputs; it never publishes or ticks gameplay."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "DEF_NpcSchedule",
+      "path": "content/domains/npc/definitions/def_npc_schedule.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/editor/content_doctor/content_doctor_resource_rules.gd"
+      ],
+      "purpose": "Content Doctor reads authored contracts and pure providers on detached inputs; it never publishes or ticks gameplay."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "NpcPopulationRules",
+      "path": "content/domains/npc/rules/npc_population_rules.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "initial_records"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "initial_records": "query"
+      },
+      "sources": [
+        "content/editor/content_doctor/content_doctor.gd"
+      ],
+      "purpose": "Content Doctor reads authored contracts and pure providers on detached inputs; it never publishes or ticks gameplay."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "interaction",
+      "symbol": "DEF_InteractionAction",
+      "path": "content/domains/interaction/definitions/def_interaction_action.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/editor/content_doctor/content_doctor_resource_rules.gd"
+      ],
+      "purpose": "Content Doctor reads authored contracts and pure providers on detached inputs; it never publishes or ticks gameplay."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "quests",
+      "symbol": "DEF_RefusalQuest",
+      "path": "content/domains/quests/definitions/def_refusal_quest.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/editor/content_doctor/content_doctor_resource_rules.gd"
+      ],
+      "purpose": "Content Doctor reads authored contracts and pure providers on detached inputs; it never publishes or ticks gameplay."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "quests",
+      "symbol": "RefusalQuestValidator",
+      "path": "content/domains/quests/authoring/refusal_quest_validator.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "definition_issues",
+        "issuer_issues"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "definition_issues": "query",
+        "issuer_issues": "query"
+      },
+      "sources": [
+        "content/editor/content_doctor/content_doctor_resource_rules.gd"
+      ],
+      "purpose": "Content Doctor reads authored contracts and pure providers on detached inputs; it never publishes or ticks gameplay."
     }
   ],
   "legacy_decomposition": []
