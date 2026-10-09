@@ -2,7 +2,7 @@
 
 Status: **PENDING_OWNER_QA**
 
-Реализация и автоматические проверки: [задача терминальных действий](../agent_tasks/district_terminal_delivery_actions.md).
+Реализация и автоматические проверки: [задача терминальных действий](../agent_tasks/completed/district_terminal_delivery_actions.md).
 
 ## Ручная приёмка
 

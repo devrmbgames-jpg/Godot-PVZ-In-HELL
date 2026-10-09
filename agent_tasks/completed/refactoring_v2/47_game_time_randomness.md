@@ -93,5 +93,5 @@ Executed 2026-10-09:
 ## Current / Next
 **DONE — PASS**. Canonical elapsed clock/calendar/randomness and current-format persistence gates
 complete, with no legacy scheduler/random path or ignored native diagnostics in this scope.
-Continue [41 — Entity Templates / Traits](41_entity_templates_traits.md) immediately, then dependency
+Continue [41 — Entity Templates / Traits](../../refactoring_v2/41_entity_templates_traits.md) immediately, then dependency
 order through 49. No old-save migration; no rendered/subjective QA; do not start Phase 3.

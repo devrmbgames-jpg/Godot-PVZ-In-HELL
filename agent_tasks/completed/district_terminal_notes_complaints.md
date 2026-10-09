@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [Посылки — записи поступления и ручная потеря](district_package_receipts_loss.md).
 
@@ -33,14 +33,14 @@ RichTextLabel отображает обращения буквально с от
 
 ### Owner QA / blockers
 
-Блокеров этой небольшой реализации нет. [Ручной чеклист](../qa_tasks/district_terminal_notes_complaints.md) — PENDING_OWNER_QA: rendered-ввод, масштабирование, длинные обращения и прокрутка. Логическое состояние курсора/выделения/Undo и сохранение/загрузка проверены headless; субъективная визуальная приёмка не запускалась.
+Блокеров этой небольшой реализации нет. [Ручной чеклист](../../qa_tasks/district_terminal_notes_complaints.md) — PENDING_OWNER_QA: rendered-ввод, масштабирование, длинные обращения и прокрутка. Логическое состояние курсора/выделения/Undo и сохранение/загрузка проверены headless; субъективная визуальная приёмка не запускалась.
 
 ## Границы и владельцы
 
 - `content/ui/ui_terminal_package_detail_info.gd/.tscn`, `terminal_panel.gd` и контракт истории из предыдущей задачи.
 - `content/contracts/customers/customer_complaint.gd`, `CustomerOutcomeService` как источники известных сведений; прямой save codec заметок.
 
-Применять по области: [save-systems](../.agents/skills/save-systems/SKILL.md), [game-ui-ux](../.agents/skills/game-ui-ux/SKILL.md).
+Применять по области: [save-systems](../../.agents/skills/save-systems/SKILL.md), [game-ui-ux](../../.agents/skills/game-ui-ux/SKILL.md).
 
 ## Работы
 

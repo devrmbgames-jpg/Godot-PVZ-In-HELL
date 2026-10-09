@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [Терминал — уведомления и принятие доставки](district_terminal_delivery_actions.md), [Диалоги — личная доставка, торг и ловушка](district_personal_delivery_dialogue.md).
 
@@ -61,14 +61,14 @@ Status: **DONE**
 
 ### Owner QA / blockers
 
-[Чеклист завершения доставки](../qa_tasks/district_delivery_completion.md) — **PENDING_OWNER_QA**. Маршрут, встреча у двери, положение отказанной коробки и читаемость UI оценивает владелец. Связанные чеклисты предыдущих небольших задач остаются открытыми; Windows QA-сборка принадлежит итоговой интеграции.
+[Чеклист завершения доставки](../../qa_tasks/district_delivery_completion.md) — **PENDING_OWNER_QA**. Маршрут, встреча у двери, положение отказанной коробки и читаемость UI оценивает владелец. Связанные чеклисты предыдущих небольших задач остаются открытыми; Windows QA-сборка принадлежит итоговой интеграции.
 
 ## Границы и владельцы
 
 - `NpcHomeDeliveryService`, существующее обслуживание у адреса, `CustomerOutcomeService` и `DayPhaseService`.
 - Журнал района/пакетов, прямой ночной переход и профильные проверки доставки.
 
-Применять по области: [save-systems](../.agents/skills/save-systems/SKILL.md), [gut-testing](../.agents/skills/gut-testing/SKILL.md).
+Применять по области: [save-systems](../../.agents/skills/save-systems/SKILL.md), [gut-testing](../../.agents/skills/gut-testing/SKILL.md).
 
 ## Работы
 

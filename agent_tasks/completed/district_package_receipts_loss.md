@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [NPC — приёмка света, реакций и второго дня](district_npc_stage_acceptance.md).
 
@@ -31,18 +31,18 @@ Status: **DONE**
 
 Первый GUT выявил чтение шаблонов компонентов вместо экземпляров GECS в новом fixture; исправлено. Устаревшая проверка конца смены теперь различает поступление с номером 0 и зарегистрированный доступный визит. Первый smoke ошибочно ожидал просрочку отложенного заказа; ожидание исправлено, добавлена проверка его срока. Итоговые команды повторены после исправлений.
 
-MCP script_patch для class_name сообщил fallback reload 43 от анонимной компиляции; фактические пути проверены canonical parser. При старте присутствует известное сообщение Windows об отсутствии root certificate store; новых script/runtime ошибок в итоговых логах нет. Визуальная приёмка не запускалась. Версия схемы повышается в [отдельной задаче](district_save_schema_3.md).
+MCP script_patch для class_name сообщил fallback reload 43 от анонимной компиляции; фактические пути проверены canonical parser. При старте присутствует известное сообщение Windows об отсутствии root certificate store; новых script/runtime ошибок в итоговых логах нет. Визуальная приёмка не запускалась. Версия схемы повышается в [отдельной задаче](../district_save_schema_3.md).
 
 ### Owner QA / blockers
 
-Блокеров реализации этой небольшой задачи нет. [Ручной чеклист терминала](../qa_tasks/district_terminal_receipts.md) остаётся PENDING_OWNER_QA: читаемость статуса, строки без номера и ручного заявления. Полный перезапуск итоговой схемы и Windows QA-сборка относятся к интеграции.
+Блокеров реализации этой небольшой задачи нет. [Ручной чеклист терминала](../../qa_tasks/district_terminal_receipts.md) остаётся PENDING_OWNER_QA: читаемость статуса, строки без номера и ручного заявления. Полный перезапуск итоговой схемы и Windows QA-сборка относятся к интеграции.
 
 ## Границы и владельцы
 
 - `content/contracts/packages/package_registration_record.gd`, `content/services/packages/package_history_service.gd`, `package_registration_service.gd` и `receiving_delivery_service.gd`.
 - Прямые операции `CustomerOutcomeService`, источник строк `TerminalPanel` и codec постоянной истории.
 
-Применять по области: [save-systems](../.agents/skills/save-systems/SKILL.md).
+Применять по области: [save-systems](../../.agents/skills/save-systems/SKILL.md).
 
 ## Работы
 

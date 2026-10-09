@@ -49,6 +49,8 @@ Do not create repository bookkeeping merely because a plan exists. Create or reu
 
 One durable task file owns its own status/current/next/validation. There is no separate queue, current-work, or task-history source of truth. Git history is the implementation history; design docs describe durable product contracts; `qa_tasks/` owns remaining manual acceptance.
 
+When a task reaches DONE after its required validation/review, move its existing task file to `agent_tasks/completed/<original relative path>` in the same completion batch. Preserve its status, evidence and original subdirectory structure; update incoming links and relative links inside the moved file. Do not leave a duplicate or forwarding task file in the active directory. Tasks with unfinished implementation, pending review, blockers or owner acceptance stay active under their actual status. The archive preserves completed task records, not a separate queue or history log.
+
 ## Specialized skills
 
 Load a skill only when its domain is actually involved:

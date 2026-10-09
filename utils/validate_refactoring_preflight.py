@@ -113,12 +113,21 @@ def validate(root: Path = ROOT, require_gate: bool = False) -> list[str]:
         return ["Refactoring v2 README.md is missing"]
 
     roadmap = roadmap_path.read_text(encoding="utf-8")
+    archive_root = root / "agent_tasks/completed/refactoring_v2"
+    document_paths: dict[str, Path] = {}
+    for directory in (task_root, archive_root):
+        for path in sorted(directory.glob("*.md")):
+            if not TASK_NAME.fullmatch(path.name):
+                continue
+            if path.name in document_paths:
+                errors.append(f"duplicate task in active/archive directories: {path.name}")
+                continue
+            document_paths[path.name] = path
     documents = {
-        path.name: path.read_text(encoding="utf-8")
-        for path in sorted(task_root.glob("*.md"))
-        if TASK_NAME.fullmatch(path.name)
+        name: path.read_text(encoding="utf-8") for name, path in document_paths.items()
     }
-    order = ORDERED_LINK.findall(roadmap)
+    # Archive links retain the same task identity and position in the dependency graph.
+    order = [PurePosixPath(unquote(target)).name for target in ORDERED_LINK.findall(roadmap)]
     if len(order) != len(set(order)):
         errors.append("README execution order contains duplicate task entries")
     for missing in sorted(documents.keys() - set(order)):
@@ -162,7 +171,7 @@ def validate(root: Path = ROOT, require_gate: bool = False) -> list[str]:
     for name in graph:
         visit(name)
 
-    paths = [roadmap_path, *(task_root / name for name in documents)]
+    paths = [roadmap_path, *document_paths.values()]
     proposal_path = root / "docs/project_core_architecture_proposal.md"
     if proposal_path.is_file():
         paths.append(proposal_path)

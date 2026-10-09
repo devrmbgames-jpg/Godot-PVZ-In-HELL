@@ -8,7 +8,7 @@ Status: **DONE**
 
 Закрепить один проектный архитектурный словарь до изменения runtime-кода, чтобы последующий рефакторинг не зависел от вкуса отдельного агента.
 
-Полная target architecture зафиксирована в [`docs/project_core_architecture_proposal.md`](../../docs/project_core_architecture_proposal.md). Эта задача должна превратить её ключевые invariants в короткие canonical rules.
+Полная target architecture зафиксирована в [`docs/project_core_architecture_proposal.md`](../../../docs/project_core_architecture_proposal.md). Эта задача должна превратить её ключевые invariants в короткие canonical rules.
 
 ## Scope
 
@@ -63,7 +63,7 @@ Documentation-only: проверить ссылки, `git diff --check` и от�
 
 ## Current — 2026-10-07
 
-Canonical role/ownership contract закреплён в [content/ARCHITECTURE.md](../../content/ARCHITECTURE.md#canonical-roles-and-ownership). Таблица различает C/R, scheduled S, reactive O, synchronous Service, Rules/Calculation, Geometry, Solver, Presentation, Factory, Entity glue, Definitions, UI, Traits/Templates и typed intent/outcome.
+Canonical role/ownership contract закреплён в [content/ARCHITECTURE.md](../../../content/ARCHITECTURE.md#canonical-roles-and-ownership). Таблица различает C/R, scheduled S, reactive O, synchronous Service, Rules/Calculation, Geometry, Solver, Presentation, Factory, Entity glue, Definitions, UI, Traits/Templates и typed intent/outcome.
 
 Правило выбора execution owner содержит конкретный cooldown/query/delta пример: полный recurring шаг остаётся в System, размер файла сам по себе не оправдывает Service.tick. Разные responsibilities/cadence делятся на Systems с deps(); System→System imperative calls запрещены. Узкие Services могут композировать synchronous operations без второго scheduler graph. Required physics callback получает отдельное исключение для независимых non-System Solvers.
 

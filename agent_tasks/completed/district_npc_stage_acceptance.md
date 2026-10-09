@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [NPC и Behavior Trees](district_npc_behavior.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [NPC и Behavior Trees](district_npc_behavior.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [NPC — завершить lifecycle деревьев LimboAI](district_npc_bt_finalize.md).
 
@@ -18,7 +18,7 @@ Status: **DONE**
 
 Усиленный smoke обнаружил пропуск первого запроса мерцания: лампы выполняют ready раньше, чем родитель уровня назначает ECS.world. CircuitLightView теперь повторяет подключение после ready сцены, один раз при создании; новые переборы в AI-такт не добавлены. Отдельная регрессия воспроизвела этот lifecycle до исправления. Smoke основной сцены дополнительно проверяет покрытие стойки авторской зоной, реальный выключатель, тёмный кадр и отсутствие выдуманных выдачи/потери/денег.
 
-Ручная приёмка отделена в [чеклист владельца](../qa_tasks/district_npc_stage_acceptance.md). Пользовательские изменения уровня, навигации, BT и GECS сохранены. Общая задача выбирает следующую небольшую работу этапа терминала.
+Ручная приёмка отделена в [чеклист владельца](../../qa_tasks/district_npc_stage_acceptance.md). Пользовательские изменения уровня, навигации, BT и GECS сохранены. Общая задача выбирает следующую небольшую работу этапа терминала.
 
 ### Validation
 
@@ -35,14 +35,14 @@ Status: **DONE**
 
 ### Owner QA / blockers
 
-Маршруты, мерцание, читаемость BT, реакции и правдоподобный поиск — [отдельный чеклист владельца](../qa_tasks/district_npc_stage_acceptance.md), статус PENDING_OWNER_QA. Rendered gameplay и визуальная приёмка не выполнялись. Windows QA всей реализации готовится в последней задаче.
+Маршруты, мерцание, читаемость BT, реакции и правдоподобный поиск — [отдельный чеклист владельца](../../qa_tasks/district_npc_stage_acceptance.md), статус PENDING_OWNER_QA. Rendered gameplay и визуальная приёмка не выполнялись. Windows QA всей реализации готовится в последней задаче.
 
 ## Границы и владельцы
 
 - `content/services/npc/npc_social_service.gd`, `npc_trait_service.gd`, `npc_lighting_service.gd`, `content/services/hunger/hunger_service.gd` и прямые определения.
 - Существующие GUT очереди, голода и сообщества, `tests/smoke/district_npc_queue_smoke.gd`, родительская задача и новый чеклист в `qa_tasks/`.
 
-Применять по области: [limboai-v1.8](../.agents/skills/limboai-v1.8/SKILL.md), [game-ai](../.agents/skills/game-ai/SKILL.md), [gut-testing](../.agents/skills/gut-testing/SKILL.md).
+Применять по области: [limboai-v1.8](../../.agents/skills/limboai-v1.8/SKILL.md), [game-ai](../../.agents/skills/game-ai/SKILL.md), [gut-testing](../../.agents/skills/gut-testing/SKILL.md).
 
 ## Работы
 

@@ -2,7 +2,7 @@
 
 Status: **PENDING_OWNER_QA**
 
-Реализация и автоматические проверки: [задача личных диалогов](../agent_tasks/district_personal_delivery_dialogue.md).
+Реализация и автоматические проверки: [задача личных диалогов](../agent_tasks/completed/district_personal_delivery_dialogue.md).
 
 ## Ручная приёмка
 

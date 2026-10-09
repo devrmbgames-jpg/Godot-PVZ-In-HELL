@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [42_visual_entity_authoring.md](42_visual_entity_authoring.md), [40_typed_commands_events.md](40_typed_commands_events.md).
+Зависимости: [42_visual_entity_authoring.md](42_visual_entity_authoring.md), [40_typed_commands_events.md](../completed/refactoring_v2/40_typed_commands_events.md).
 
 ## Goal
 

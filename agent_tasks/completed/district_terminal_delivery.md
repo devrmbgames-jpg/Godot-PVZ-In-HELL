@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Общая задача: [обслуживание района](district_service_update.md). Зависимость: [этап 1 — NPC](district_npc_behavior.md). Следующий этап выбирается только в общей задаче.
+Общая задача: [обслуживание района](../district_service_update.md). Зависимость: [этап 1 — NPC](district_npc_behavior.md). Следующий этап выбирается только в общей задаче.
 
 ## Task state
 
@@ -18,21 +18,21 @@ Status: **DONE**
 
 Итоговая приёмка 2026-10-06: **160/160 GUT (1438 assertions)** по семи профильным скриптам; финальная узкая регрессия **26/26 (275 assertions)**; parser **12/12**; связный headless smoke реального района write/restore **PASS/PASS**, все runtime-процессы exit 0. Сопоставление всех требований этапа, команды, логи и ограничения записаны в [задаче завершения доставки](district_delivery_completion.md). Повтор ночной записи, ручной LOST отсутствующей коробки до регистрации и заметка проверены в общей связке. `git diff --check` PASS; общая структура FAIL только на 30 прежних ошибках шести неизменённых задач `r26_*`.
 
-Личные диалоги 2026-10-06: GUT 94/94 (971 assertions), parser 24/24, 7 деревьев/120 листьев; полный район write/restore smoke PASS. Подробные команды/ограничения и [ручная приёмка](../qa_tasks/district_personal_delivery_dialogue.md) принадлежат дочерней задаче. Общая структура FAIL на шести неизменённых задачах `r26_*`; ошибок файлов личной доставки валидатор не сообщает.
+Личные диалоги 2026-10-06: GUT 94/94 (971 assertions), parser 24/24, 7 деревьев/120 листьев; полный район write/restore smoke PASS. Подробные команды/ограничения и [ручная приёмка](../../qa_tasks/district_personal_delivery_dialogue.md) принадлежат дочерней задаче. Общая структура FAIL на шести неизменённых задачах `r26_*`; ошибок файлов личной доставки валидатор не сообщает.
 
-Контрольная точка поступления 2026-10-05: parser 16/16; GUT 61/61 (453 assertions); smoke реальной поставки и терминала PASS; структура и diff check PASS. Подробности принадлежат [задаче поступления](district_package_receipts_loss.md). Это не приёмка всего этапа. [Ручной UI-чеклист](../qa_tasks/district_terminal_receipts.md) ожидает владельца.
+Контрольная точка поступления 2026-10-05: parser 16/16; GUT 61/61 (453 assertions); smoke реальной поставки и терминала PASS; структура и diff check PASS. Подробности принадлежат [задаче поступления](district_package_receipts_loss.md). Это не приёмка всего этапа. [Ручной UI-чеклист](../../qa_tasks/district_terminal_receipts.md) ожидает владельца.
 
-Контрольная точка заметок 2026-10-05: parser 13/13; GUT 76/76 (699 assertions); два процесса полного снимка/восстановления мира PASS/PASS; структура и diff check PASS. Команды/логи принадлежат [подзадаче заметок](district_terminal_notes_complaints.md); [ручная приёмка](../qa_tasks/district_terminal_notes_complaints.md) остаётся владельцу.
+Контрольная точка заметок 2026-10-05: parser 13/13; GUT 76/76 (699 assertions); два процесса полного снимка/восстановления мира PASS/PASS; структура и diff check PASS. Команды/логи принадлежат [подзадаче заметок](district_terminal_notes_complaints.md); [ручная приёмка](../../qa_tasks/district_terminal_notes_complaints.md) остаётся владельцу.
 
 Контрольная точка записей 2026-10-05: parser 13/13; GUT 76/76 (641 assertions); полный снимок реального района в двух процессах write/restore PASS/PASS; структура и diff check PASS. Устойчивость выборов/торга и частность доказаны на уровне данных. Команды/логи принадлежат [задаче записей](district_delivery_offer_records.md).
 
-Контрольная точка терминальных действий 2026-10-05: parser 10/10; GUT 87/87 (685 assertions); два процесса реального терминала и полного снимка write/restore PASS/PASS; структура, diff check и ссылки PASS. Приватность, реальные кнопки, фокус и сохранение чтения доказаны в headless; [rendered-чеклист](../qa_tasks/district_terminal_delivery_actions.md) остаётся владельцу. Команды/логи принадлежат [подзадаче UI](district_terminal_delivery_actions.md).
+Контрольная точка терминальных действий 2026-10-05: parser 10/10; GUT 87/87 (685 assertions); два процесса реального терминала и полного снимка write/restore PASS/PASS; структура, diff check и ссылки PASS. Приватность, реальные кнопки, фокус и сохранение чтения доказаны в headless; [rendered-чеклист](../../qa_tasks/district_terminal_delivery_actions.md) остаётся владельцу. Команды/логи принадлежат [подзадаче UI](district_terminal_delivery_actions.md).
 
 Следующий этап — лут и торговля; выбранная небольшая задача указана в общей задаче. Версия сохранений 3, обратный груз машины и Windows QA-сборка остаются соответствующим задачам этапа 4.
 
 ### Owner QA / blockers
 
-Владелец проверяет маршрут, встречу у двери и понятность результатов по [общему чеклисту доставки](../qa_tasks/district_delivery_completion.md); связанные чеклисты заметок, поступления, терминальных действий и личных диалогов остаются **PENDING_OWNER_QA**. Визуальный запуск и Windows QA-сборка здесь не выполнялись.
+Владелец проверяет маршрут, встречу у двери и понятность результатов по [общему чеклисту доставки](../../qa_tasks/district_delivery_completion.md); связанные чеклисты заметок, поступления, терминальных действий и личных диалогов остаются **PENDING_OWNER_QA**. Визуальный запуск и Windows QA-сборка здесь не выполнялись.
 
 ## Небольшие задачи
 
@@ -51,7 +51,7 @@ Status: **DONE**
 
 Сохранить добавленные владельцем узлы сцен: `_line_edit_ps`, `_rich_label_description`, `_alert_*`, `_delivery` и существующие сигналы выдачи/отказа/потери. UI отправляет запросы сервисам, не владеет деньгами, исходами выдачи и отношениями.
 
-При работе применять skills [save-systems](../.agents/skills/save-systems/SKILL.md), [game-ui-ux](../.agents/skills/game-ui-ux/SKILL.md), [dialogue-systems](../.agents/skills/dialogue-systems/SKILL.md) и [dialogue-manager-v4.1](../.agents/skills/dialogue-manager-v4.1/SKILL.md) по их области.
+При работе применять skills [save-systems](../../.agents/skills/save-systems/SKILL.md), [game-ui-ux](../../.agents/skills/game-ui-ux/SKILL.md), [dialogue-systems](../../.agents/skills/dialogue-systems/SKILL.md) и [dialogue-manager-v4.1](../../.agents/skills/dialogue-manager-v4.1/SKILL.md) по их области.
 
 Не включать в этот этап доставку купленной мебели и обратный груз утренней машины. Подготовить используемые этапом 4 записи поступления и ручное заявление потери.
 

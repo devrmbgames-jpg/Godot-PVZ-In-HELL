@@ -2,7 +2,7 @@
 
 Status: **PENDING_OWNER_QA**
 
-Автоматическая проверка: [появление машины](../agent_tasks/district_truck_morning_spawn.md). Этап: [утренняя машина](../agent_tasks/district_morning_truck.md).
+Автоматическая проверка: [появление машины](../agent_tasks/completed/district_truck_morning_spawn.md). Этап: [утренняя машина](../agent_tasks/district_morning_truck.md).
 
 Проверять текущую сцену main_level с новой сессией. Windows QA этого этапа будет подготовлена после итоговой интеграции; предыдущая сборка лута/торговли ещё не содержит машину.
 

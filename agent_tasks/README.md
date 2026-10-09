@@ -21,7 +21,7 @@ A durable task file is the single repository source for its own:
 - validation actually performed;
 - remaining blockers or owner QA.
 
-Do not maintain a separate queue index, current-work file, or completed-task history. If supporting milestone files exist, the root task remains the only owner of overall status/current/next.
+Do not maintain a separate queue index, current-work file, or completed-task history log. If supporting milestone files exist, the root task remains the only owner of overall status/current/next.
 
 For a substantive reviewed milestone, accepted findings belong to the **same existing task** under `## Review findings`; only Main assigns RV-001 and updates status. Keep SHA, priority, evidence, fix owner, verification and final disposition. No new global `REVIEW_QUEUE.md`. If the task is single-session and has no durable task file, keep triage in the session. See `docs/parallel_review_workflow.md`.
 
@@ -47,4 +47,10 @@ Status: **PLANNED | IN_PROGRESS | DEFERRED | BLOCKED | OWNER_QA**
 ...
 ```
 
-When implementation no longer needs durable state, remove the task file after preserving any lasting product contract in `docs/` and any remaining manual checks in `qa_tasks/`. Git keeps the historical implementation record.
+## Completion and archive
+
+When the required implementation, validation and review are complete, set the task to DONE and move its existing file to `agent_tasks/completed/<original relative path>` in the same completion batch. For example, `agent_tasks/refactoring_v2/<task>.md` becomes `agent_tasks/completed/refactoring_v2/<task>.md`.
+
+Preserve the task's completion status and evidence, keep its original subdirectory structure, and update both incoming links and relative links inside the archived file. Keep one authoritative file; do not leave an active copy or forwarding stub. The completed directory stores the original task records, without a separate completion log or queue.
+
+Unfinished implementation, pending review and unresolved acceptance keep a task active under its actual status. Lasting product contracts belong in `docs/`; separate remaining manual scenarios belong in `qa_tasks/`.

@@ -25,7 +25,8 @@ Documentation is split by purpose:
 - `PROJECT_INDEX.md` — optional owner/path router;
 - `content/ARCHITECTURE.md` — on-demand cross-system gameplay invariants;
 - `docs/` — durable design/mechanics documentation;
-- `agent_tasks/` — only active durable cross-session implementation state;
+- `agent_tasks/` — active durable cross-session implementation state;
+- `agent_tasks/completed/` — archived DONE task files, preserving their original subdirectories;
 - `qa_tasks/` — manual player acceptance;
 - Git history — completed implementation history.
 

@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Утренняя машина](district_morning_truck.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [Утренняя машина](../district_morning_truck.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [Мебель — выдача заказа следующим утром](district_furniture_arrival.md).
 
@@ -45,14 +45,14 @@ Parser выполнен через `utils/validate_district_scripts.gd` для C
 
 ### Owner QA / blockers
 
-[Чеклист владельца](../qa_tasks/district_truck_morning_spawn.md): PENDING_OWNER_QA. Стоянка, дверь и удобство разгрузки не проверялись визуально. Windows QA будет обновлена в итоговой интеграции этапа 4.
+[Чеклист владельца](../../qa_tasks/district_truck_morning_spawn.md): PENDING_OWNER_QA. Стоянка, дверь и удобство разгрузки не проверялись визуально. Windows QA будет обновлена в итоговой интеграции этапа 4.
 
 ## Границы и владельцы
 
 - `content/entities/car/car.tscn`, маркер стоянки основной сцены и узкий владелец lifecycle машины.
 - `ReceivingDeliveryService`, `ReceivingPackageFactory`, записи поступления и прямой snapshot партии.
 
-Применять по области: [godot-physics-4.7](../.agents/skills/godot-physics-4.7/SKILL.md), [godot-animation-4.7](../.agents/skills/godot-animation-4.7/SKILL.md), [save-systems](../.agents/skills/save-systems/SKILL.md).
+Применять по области: [godot-physics-4.7](../../.agents/skills/godot-physics-4.7/SKILL.md), [godot-animation-4.7](../../.agents/skills/godot-animation-4.7/SKILL.md), [save-systems](../../.agents/skills/save-systems/SKILL.md).
 
 ## Работы
 

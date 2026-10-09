@@ -32,7 +32,7 @@ Status: **DONE — PASS**
 
 Это **не** разрешение начинать Code Style.
 
-После PASS продолжить [28 — vertical-domain layout](28_domain_layout_contract.md). Полный архитектурный gate находится в [49_core_architecture_acceptance.md](49_core_architecture_acceptance.md).
+После PASS продолжить [28 — vertical-domain layout](28_domain_layout_contract.md). Полный архитектурный gate находится в [49_core_architecture_acceptance.md](../../refactoring_v2/49_core_architecture_acceptance.md).
 
 ## Review findings
 

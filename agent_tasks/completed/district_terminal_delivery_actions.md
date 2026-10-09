@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [Терминал — заметки и известные жалобы](district_terminal_notes_complaints.md), [Доставка — постоянные предложения и ежедневный выбор](district_delivery_offer_records.md).
 
@@ -41,14 +41,14 @@ Status: **DONE**
 
 ### Owner QA / blockers
 
-Владелец проверяет иконки, кнопки, сообщения и фокус по [отдельному чеклисту](../qa_tasks/district_terminal_delivery_actions.md), статус **PENDING_OWNER_QA**.
+Владелец проверяет иконки, кнопки, сообщения и фокус по [отдельному чеклисту](../../qa_tasks/district_terminal_delivery_actions.md), статус **PENDING_OWNER_QA**.
 
 ## Границы и владельцы
 
 - `content/ui/ui_terminal_package_line.gd/.tscn`, `ui_terminal_package_detail_info.gd`, `terminal_panel.gd`.
 - `content/ui/district_delivery_view.gd`, прямые запросы сервиса предложений и постоянные отметки чтения.
 
-Применять по области: [game-ui-ux](../.agents/skills/game-ui-ux/SKILL.md), [save-systems](../.agents/skills/save-systems/SKILL.md).
+Применять по области: [game-ui-ux](../../.agents/skills/game-ui-ux/SKILL.md), [save-systems](../../.agents/skills/save-systems/SKILL.md).
 
 ## Работы
 

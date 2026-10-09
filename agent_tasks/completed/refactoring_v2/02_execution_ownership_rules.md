@@ -59,7 +59,7 @@ Documentation-only + точечный аудит примеров. Runtime-ко�
 
 ## Current — 2026-10-07
 
-Canonical smells, допустимые explicit operations, пять вариантов migration и request/flush/reentrancy rules закреплены в [architecture contract](../../content/ARCHITECTURE.md#service-smells-and-request-timing). Таблица содержит все семь acceptance examples с evidence и owning tasks. Runtime-код не менялся.
+Canonical smells, допустимые explicit operations, пять вариантов migration и request/flush/reentrancy rules закреплены в [architecture contract](../../../content/ARCHITECTURE.md#service-smells-and-request-timing). Таблица содержит все семь acceptance examples с evidence и owning tasks. Runtime-код не менялся.
 
 Проверены прямые callers `S_CustomerFlow`, `S_Hunger`, `S_CombatProjectile`, `S_NpcDecision`, четыре Service.tick implementations, callback Solver, Wallet submit/apply и Damage submit/O_Damage. Pinned source `world.gd`, `system.gd`, `observer.gd` подтверждает synchronous dispatch, PER_CALLBACK/PER_SYSTEM/PER_GROUP/MANUAL timing. Не предполагается, что deps flush-ит structural work; Damage bool не трактуется как applied outcome.
 

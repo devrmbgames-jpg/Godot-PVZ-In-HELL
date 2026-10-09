@@ -35,6 +35,27 @@ class ProjectStructureValidatorTest(unittest.TestCase):
         validator._check_private_member_naming(errors)
         return errors
 
+    def test_done_tasks_must_be_archived_including_nested_tasks(self) -> None:
+        for path in ("agent_tasks/finished.md", "agent_tasks/refactoring_v2/finished.md"):
+            self._write(path, "Status: **DONE — PASS**\n")
+        errors: list[str] = []
+        validator._check_task_archive_contract(errors)
+        self.assertEqual(2, len(errors))
+        self.assertTrue(all("must move" in error for error in errors))
+
+    def test_archive_accepts_done_records_but_rejects_unfinished_work(self) -> None:
+        self._write("agent_tasks/completed/refactoring_v2/finished.md", "Status: **DONE**\n")
+        self._write("agent_tasks/completed/README.md", "# Archive\n")
+        self._write("agent_tasks/active.md", "Status: **IN_PROGRESS**\n")
+        errors: list[str] = []
+        validator._check_task_archive_contract(errors)
+        self.assertEqual([], errors)
+
+        self._write("agent_tasks/completed/unfinished.md", "Status: **OWNER_QA**\n")
+        validator._check_task_archive_contract(errors)
+        self.assertEqual(1, len(errors))
+        self.assertIn("only DONE", errors[0])
+
     def test_behavior_members_are_checked_in_all_supported_layouts(self) -> None:
         paths = (
             "content/services/flow_service.gd",
@@ -107,7 +128,7 @@ class ProjectStructureValidatorTest(unittest.TestCase):
     def test_legacy_prefix_checks_and_definition_base_exception_remain(self) -> None:
         self._write("content/components/health.gd", "extends Component\nclass_name Health\n")
         self._write(
-            "content/definitions/definition.gd", "extends Resource\nclass_name GameDefinition\n"
+            "content/shared/contracts/definition.gd", "extends Resource\nclass_name GameDefinition\n"
         )
         errors: list[str] = []
         validator._check_role_placement(errors)

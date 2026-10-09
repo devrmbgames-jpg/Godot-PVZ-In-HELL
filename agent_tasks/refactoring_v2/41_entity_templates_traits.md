@@ -2,7 +2,7 @@
 
 Status: **IN_PROGRESS**
 
-Зависимости: [47_game_time_randomness.md](47_game_time_randomness.md), strict domains и authoritative ECS contracts.
+Зависимости: [47_game_time_randomness.md](../completed/refactoring_v2/47_game_time_randomness.md), strict domains и authoritative ECS contracts.
 
 ## Goal
 

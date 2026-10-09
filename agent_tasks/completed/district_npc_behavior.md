@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Общая задача: [обслуживание района](district_service_update.md). Зависимостей нет. Следующий этап выбирается только в общей задаче.
+Общая задача: [обслуживание района](../district_service_update.md). Зависимостей нет. Следующий этап выбирается только в общей задаче.
 
 ## Task state
 
@@ -28,7 +28,7 @@ Status: **DONE**
 
 ### Owner QA / blockers
 
-Ожидание клиентов, перемещение маркеров, понятность дерева, предупреждение и мерцание, реакции и правдоподобный поиск вынесены в [чеклист владельца](../qa_tasks/district_npc_stage_acceptance.md), статус PENDING_OWNER_QA. Rendered gameplay не запускался. Общая Windows QA-сборка готовится после четвёртого этапа.
+Ожидание клиентов, перемещение маркеров, понятность дерева, предупреждение и мерцание, реакции и правдоподобный поиск вынесены в [чеклист владельца](../../qa_tasks/district_npc_stage_acceptance.md), статус PENDING_OWNER_QA. Rendered gameplay не запускался. Общая Windows QA-сборка готовится после четвёртого этапа.
 
 ## Небольшие задачи
 
@@ -42,7 +42,7 @@ Status: **DONE**
 
 Основные входные точки: `NpcServiceRole`, `CustomerFlowService`, `DayPhaseService`, `NpcBrainService`, `NpcDecisionService`, `NpcSocialService`, `NpcTraitService` и текущие ресурсы `content/ai/trees/`.
 
-Перед работой прочитать [skill limboai-v1.8](../.agents/skills/limboai-v1.8/SKILL.md); для решений и восприятия использовать [game-ai](../.agents/skills/game-ai/SKILL.md). Addon LimboAI v1.8.1 остаётся read-only.
+Перед работой прочитать [skill limboai-v1.8](../../.agents/skills/limboai-v1.8/SKILL.md); для решений и восприятия использовать [game-ai](../../.agents/skills/game-ai/SKILL.md). Addon LimboAI v1.8.1 остаётся read-only.
 
 Не менять экономические результаты обслуживания и не реализовывать здесь новые предложения доставки. Сохранить владельцев движения, атак, урона, живых связей и постоянной памяти.
 

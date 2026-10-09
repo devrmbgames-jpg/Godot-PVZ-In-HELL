@@ -2,7 +2,7 @@
 
 Status: **PENDING_OWNER_QA**
 
-Автоматическая приёмка: [утренняя выдача](../agent_tasks/district_furniture_arrival.md). Этап: [лут и торговля](../agent_tasks/district_loot_commerce.md).
+Автоматическая приёмка: [утренняя выдача](../agent_tasks/completed/district_furniture_arrival.md). Этап: [лут и торговля](../agent_tasks/completed/district_loot_commerce.md).
 
 Windows QA: [.export/LATEST.cmd](../.export/LATEST.cmd), сборка `20261005-175040Z-91dcbde2-district-loot-commerce-final`. Экспортированные меню и уровень прошли headless startup по 120 кадров; отрисовка не проверялась. Обычный слот прогресса отделён от QA-профиля.
 

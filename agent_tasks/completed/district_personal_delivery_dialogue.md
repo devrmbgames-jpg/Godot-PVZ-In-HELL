@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [Доставка — постоянные предложения и ежедневный выбор](district_delivery_offer_records.md).
 
@@ -61,14 +61,14 @@ Dynamic Sequence
 
 ### Owner QA / blockers
 
-Ручная приёмка: [личная доставка, торг и ловушка](../qa_tasks/district_personal_delivery_dialogue.md), **PENDING_OWNER_QA**. Визуальная проверка и QA-сборка не запускались; сборка относится к итоговой интеграции. Остальная связка выдачи/денег/сна принадлежит следующей задаче, родительский этап остаётся IN_PROGRESS.
+Ручная приёмка: [личная доставка, торг и ловушка](../../qa_tasks/district_personal_delivery_dialogue.md), **PENDING_OWNER_QA**. Визуальная проверка и QA-сборка не запускались; сборка относится к итоговой интеграции. Остальная связка выдачи/денег/сна принадлежит следующей задаче, родительский этап остаётся IN_PROGRESS.
 
 ## Границы и владельцы
 
 - `content/dialogue/customer_dialogue_context.gd`, `npc_dialogue_context.gd` и их непосредственно используемые ресурсы диалогов.
 - `NpcHomeDeliveryService`, `NpcSocialService` и определения сценарной встречи; существующие BT домашней встречи.
 
-Применять по области: [dialogue-systems](../.agents/skills/dialogue-systems/SKILL.md), [dialogue-manager-v4.1](../.agents/skills/dialogue-manager-v4.1/SKILL.md), [limboai-v1.8](../.agents/skills/limboai-v1.8/SKILL.md).
+Применять по области: [dialogue-systems](../../.agents/skills/dialogue-systems/SKILL.md), [dialogue-manager-v4.1](../../.agents/skills/dialogue-manager-v4.1/SKILL.md), [limboai-v1.8](../../.agents/skills/limboai-v1.8/SKILL.md).
 
 ## Работы
 

@@ -62,6 +62,25 @@ class RefactoringPreflightTest(unittest.TestCase):
     def test_valid_completed_gate(self) -> None:
         self.assertEqual([], validate(self.root, require_gate=True))
 
+    def test_archived_gate_keeps_links_and_dependency_order(self) -> None:
+        archive = self.root / "agent_tasks/completed/refactoring_v2"
+        archive.mkdir(parents=True)
+        for name in PREFLIGHT:
+            (self.task_root / name).rename(archive / name)
+            self._replace(self.roadmap, f"]({name})", f"](../completed/refactoring_v2/{name})")
+        self._replace(
+            self.task_root / self.names[-1], f"]({PREFLIGHT[-1]})",
+            f"](../completed/refactoring_v2/{PREFLIGHT[-1]})",
+        )
+        self.assertEqual([], validate(self.root, require_gate=True))
+
+    def test_active_and_archived_duplicate_task_is_rejected(self) -> None:
+        archive = self.root / "agent_tasks/completed/refactoring_v2"
+        archive.mkdir(parents=True)
+        source = self.task_root / PREFLIGHT[0]
+        (archive / source.name).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+        self.assertTrue(any("duplicate task" in error for error in validate(self.root)))
+
     def test_duplicate_and_missing_tasks(self) -> None:
         self._append(self.roadmap, f"\n7. [duplicate]({PREFLIGHT[0]})\n")
         missing = self.task_root / "02_new_task.md"

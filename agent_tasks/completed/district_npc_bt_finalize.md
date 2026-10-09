@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [NPC и Behavior Trees](district_npc_behavior.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [NPC и Behavior Trees](district_npc_behavior.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [NPC — завершить очередь и приход подготовленных клиентов](district_npc_queue_finish.md).
 
@@ -44,7 +44,7 @@ Status: **DONE**
 - `content/ai/trees/`, `content/ai/tasks/`, `content/services/npc/npc_brain_service.gd` и `npc_decision_service.gd`.
 - Прямые операции обслуживания, домашней встречи и осмотра; `utils/validate_district_trees.gd`.
 
-Применять по области: [limboai-v1.8](../.agents/skills/limboai-v1.8/SKILL.md), [game-ai](../.agents/skills/game-ai/SKILL.md), [gecs-v8](../.agents/skills/gecs-v8/SKILL.md).
+Применять по области: [limboai-v1.8](../../.agents/skills/limboai-v1.8/SKILL.md), [game-ai](../../.agents/skills/game-ai/SKILL.md), [gecs-v8](../../.agents/skills/gecs-v8/SKILL.md).
 
 ## Работы
 

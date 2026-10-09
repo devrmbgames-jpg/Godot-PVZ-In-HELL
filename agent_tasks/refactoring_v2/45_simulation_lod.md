@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [44_ai_schedule_utility_goap.md](44_ai_schedule_utility_goap.md), [04_identity_persistence_contract.md](04_identity_persistence_contract.md), [47_game_time_randomness.md](47_game_time_randomness.md).
+Зависимости: [44_ai_schedule_utility_goap.md](44_ai_schedule_utility_goap.md), [04_identity_persistence_contract.md](../completed/refactoring_v2/04_identity_persistence_contract.md), [47_game_time_randomness.md](../completed/refactoring_v2/47_game_time_randomness.md).
 
 ## Goal
 

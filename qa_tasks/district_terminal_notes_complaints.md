@@ -2,7 +2,7 @@
 
 Status: **PENDING_OWNER_QA**
 
-Реализация и фактические проверки: [подзадача терминала](../agent_tasks/district_terminal_notes_complaints.md).
+Реализация и фактические проверки: [подзадача терминала](../agent_tasks/completed/district_terminal_notes_complaints.md).
 
 ## Ручная приёмка
 

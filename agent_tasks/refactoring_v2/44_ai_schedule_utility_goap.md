@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [43_smart_objects.md](43_smart_objects.md), [47_game_time_randomness.md](47_game_time_randomness.md), stable NPC domain.
+Зависимости: [43_smart_objects.md](43_smart_objects.md), [47_game_time_randomness.md](../completed/refactoring_v2/47_game_time_randomness.md), stable NPC domain.
 
 ## Goal
 

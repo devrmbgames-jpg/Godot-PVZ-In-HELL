@@ -1,6 +1,6 @@
 # Приёмка очереди NPC и поставки
 
-Реализация и автоматические проверки принадлежат agent_tasks/npc_service_backlog.md. Эти пункты требуют игрового наблюдения владельцем в итоговой Windows QA.
+Реализация и автоматические проверки принадлежат agent_tasks/completed/npc_service_backlog.md. Эти пункты требуют игрового наблюдения владельцем в итоговой Windows QA.
 
 Сборка: [PVZInHell.exe](../.export/windows/20261004-034551Z-12fc031e-npc-service-backlog/PVZInHell.exe); запуск через [.export/LATEST.cmd](../.export/LATEST.cmd). Parser, GUT, связный приход к стойке и недельный smoke PASS; визуальная приёмка не выполнялась.
 

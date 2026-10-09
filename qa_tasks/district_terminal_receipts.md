@@ -2,7 +2,7 @@
 
 Status: **PENDING_OWNER_QA**
 
-Реализация и автоматические проверки: [поступление посылок](../agent_tasks/district_package_receipts_loss.md).
+Реализация и автоматические проверки: [поступление посылок](../agent_tasks/completed/district_package_receipts_loss.md).
 
 ## Ручная приёмка
 

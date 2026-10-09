@@ -2,7 +2,7 @@
 
 Status: **PENDING_OWNER_QA**
 
-Реализация и автоматическая приёмка: [завершение доставки](../agent_tasks/district_delivery_completion.md), [этап терминала и доставки](../agent_tasks/district_terminal_delivery.md).
+Реализация и автоматическая приёмка: [завершение доставки](../agent_tasks/completed/district_delivery_completion.md), [этап терминала и доставки](../agent_tasks/completed/district_terminal_delivery.md).
 
 ## Вручение у адреса и новый день
 

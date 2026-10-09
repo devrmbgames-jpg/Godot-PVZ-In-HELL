@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Лут и торговля](district_loot_commerce.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [Лут и торговля](district_loot_commerce.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [Торговец — дневная торговля и выбор доставки мебели](district_trader_purchase.md).
 
@@ -31,7 +31,7 @@ S_OrderDelivery выполняет не более одной попытки з�
 - Неподдерживаемая ConcavePolygonShape3D с непустыми габаритами отклоняется до оплаты: кошелёк, чек и заказ остаются неизменными. Тест отдельно подтверждает, что прежний валидатор габаритов такую заготовку принимал.
 - Godot parser: **9 checked, 0 failed**, exit 0; все изменённые .gd, включая тесты/smoke. Новых ошибок/предупреждений скриптов в свежем процессе нет.
 - Два процесса headless smoke полного main_level: **write PASS / restore PASS**, exit 0. Настоящий игрок оплачивает полку; вся реальная площадка блокируется, оплаченный остаток сохраняется на диск. Новый процесс восстанавливает заказ и создаёт полку на реальной свободной площадке. Сохранение физического результата и повторный restore дают один предмет и одну оплату.
-- Windows QA: **PASS**, preset `Windows QA`; меню и main_level прошли headless startup по **120 кадров**. Финальная сборка: [.export/windows/20261005-175040Z-91dcbde2-district-loot-commerce-final/PVZInHell.exe](../.export/windows/20261005-175040Z-91dcbde2-district-loot-commerce-final/PVZInHell.exe); запуск — [.export/LATEST.cmd](../.export/LATEST.cmd). `build_info.json` честно отмечает `working_tree_dirty=true`: сборка сделана из рабочего дерева перед коммитом, с сохранёнными пользовательскими изменениями GECS.
+- Windows QA: **PASS**, preset `Windows QA`; меню и main_level прошли headless startup по **120 кадров**. Финальная сборка: [.export/windows/20261005-175040Z-91dcbde2-district-loot-commerce-final/PVZInHell.exe](../../.export/windows/20261005-175040Z-91dcbde2-district-loot-commerce-final/PVZInHell.exe); запуск — [.export/LATEST.cmd](../../.export/LATEST.cmd). `build_info.json` честно отмечает `working_tree_dirty=true`: сборка сделана из рабочего дерева перед коммитом, с сохранёнными пользовательскими изменениями GECS.
 - Структура: FAIL только на **30 прежних ошибках шести неизменённых agent_tasks/r26_***; собственных ошибок нет. `git diff --check` PASS; локальные ссылки проверяются при завершении записи.
 - Live MCP использован для записи/диагностики. main_level.gd и новые тестовые скрипты диагностируются чисто; шесть глобальных классов возвращают прежний fallback `gdscript_reload_failed` code 43 без конкретного сообщения. Чистую live-проверку этих классов не заявляем; свежий parser и реальные GUT/smoke их успешно загружают. Редактор владельца не перезапускался.
 - Во всех Windows-процессах сохраняется прежняя ошибка чтения root certificate store. Экспорт завершается с exit 0, но его редакторный stderr содержит sandbox-ошибку записи глобальных editor_settings, 6 ObjectDB exit leaks и 3 оставшихся ресурса. Экспорт не называем чистым импортом; оба экспортированных startup-теста PASS. Отрисовка и субъективная приёмка не запускались.
@@ -51,14 +51,14 @@ python utils/validate_project_structure.py
 
 ### Owner QA / blockers
 
-Удобство площадки, переноска и связанная приёмка лута/покупки: [ручной чеклист](../qa_tasks/district_furniture_arrival.md), PENDING_OWNER_QA. Блокеров реализации этой небольшой задачи нет; ограничения текущего редактора/экспорта описаны выше.
+Удобство площадки, переноска и связанная приёмка лута/покупки: [ручной чеклист](../../qa_tasks/district_furniture_arrival.md), PENDING_OWNER_QA. Блокеров реализации этой небольшой задачи нет; ограничения текущего редактора/экспорта описаны выше.
 
 ## Границы и владельцы
 
 - `content/services/commerce/order_delivery_service.gd`, `PendingDelivery` и прямой обработчик следующего утра.
 - Экспортируемая ссылка на маркер площадки в сцене уровня; общий solver безопасного размещения.
 
-Применять по области: [godot-physics-4.7](../.agents/skills/godot-physics-4.7/SKILL.md), [save-systems](../.agents/skills/save-systems/SKILL.md).
+Применять по области: [godot-physics-4.7](../../.agents/skills/godot-physics-4.7/SKILL.md), [save-systems](../../.agents/skills/save-systems/SKILL.md).
 
 ## Работы
 

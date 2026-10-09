@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Лут и торговля](district_loot_commerce.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [Лут и торговля](district_loot_commerce.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [Предметы — безопасный дроп и ожидающий остаток](district_safe_loot_placement.md).
 
@@ -45,14 +45,14 @@ python utils/validate_project_structure.py
 
 ### Owner QA / blockers
 
-Внешний вид, клавиатурная навигация и восстановление управления: [ручной чеклист](../qa_tasks/district_trader_purchase.md), PENDING_OWNER_QA. Блокеров реализации этой небольшой задачи нет; live fallback описан выше как ограничение диагностики текущего редактора.
+Внешний вид, клавиатурная навигация и восстановление управления: [ручной чеклист](../../qa_tasks/district_trader_purchase.md), PENDING_OWNER_QA. Блокеров реализации этой небольшой задачи нет; live fallback описан выше как ограничение диагностики текущего редактора.
 
 ## Границы и владельцы
 
 - `DEF_TraderProfile`, `DEF_InventoryItem`, `TraderCatalogService` и расписание постоянного торговца.
 - `content/services/commerce/commerce_service.gd`, `content/ui/commerce_panel.gd` и контракт `PendingDelivery`.
 
-Применять по области: [game-ui-ux](../.agents/skills/game-ui-ux/SKILL.md), [save-systems](../.agents/skills/save-systems/SKILL.md).
+Применять по области: [game-ui-ux](../../.agents/skills/game-ui-ux/SKILL.md), [save-systems](../../.agents/skills/save-systems/SKILL.md).
 
 ## Работы
 

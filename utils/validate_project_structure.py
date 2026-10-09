@@ -365,7 +365,10 @@ def _check_task_state_contract(errors: list[str]) -> None:
     if not task_root.exists():
         return
 
-    for task_path in sorted(task_root.glob("*.md")):
+    task_paths: list[Path] = [
+        *task_root.glob("*.md"), *(task_root / "completed").glob("*.md")
+    ]
+    for task_path in sorted(task_paths):
         if task_path.name == "README.md":
             continue
 
@@ -380,6 +383,23 @@ def _check_task_state_contract(errors: list[str]) -> None:
         for heading in ("### Goal", "### Current", "### Validation", "### Owner QA / blockers"):
             if heading not in text:
                 errors.append(f"{_relative(task_path)}: task state is missing {heading!r}.")
+
+
+def _check_task_archive_contract(errors: list[str]) -> None:
+    """Keep completed records in the archive and unfinished work in active directories."""
+    task_root: Path = ROOT / "agent_tasks"
+    archive_root: Path = task_root / "completed"
+    for task_path in sorted(task_root.rglob("*.md")):
+        if task_path.name == "README.md":
+            continue
+        completed: bool = re.search(
+            r"^Status:\s*\*\*DONE\b", _read_text(task_path), re.MULTILINE
+        ) is not None
+        archived: bool = task_path.is_relative_to(archive_root)
+        if completed and not archived:
+            errors.append(f"{_relative(task_path)}: DONE task must move to agent_tasks/completed/.")
+        elif archived and not completed:
+            errors.append(f"{_relative(task_path)}: archive may contain only DONE task records.")
 
 
 def _check_task_dependencies(errors: list[str]) -> None:
@@ -532,6 +552,7 @@ def main() -> int:
     _check_res_paths(errors)
     _check_markdown_links(errors)
     _check_task_state_contract(errors)
+    _check_task_archive_contract(errors)
     _check_task_dependencies(errors)
     _check_main_level_system_groups(errors)
     _check_staged_addons(errors)

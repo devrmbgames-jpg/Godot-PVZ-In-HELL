@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [NPC и Behavior Trees](district_npc_behavior.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [NPC и Behavior Trees](district_npc_behavior.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: нет.
 
@@ -40,7 +40,7 @@ Status: **DONE**
 - `content/services/npc/npc_service_role.gd`, `content/services/customers/customer_flow_service.gd` и прямой контракт `DayPhaseService`.
 - `content/scenes/npc_service_routes.gd/.tscn`, `tests/gut/test_district_service_queue.gd`, `tests/smoke/npc_service_backlog_smoke.gd` и `district_npc_queue_smoke.gd`.
 
-Применять по области: [game-ai](../.agents/skills/game-ai/SKILL.md), [godot-physics-4.7](../.agents/skills/godot-physics-4.7/SKILL.md).
+Применять по области: [game-ai](../../.agents/skills/game-ai/SKILL.md), [godot-physics-4.7](../../.agents/skills/godot-physics-4.7/SKILL.md).
 
 ## Работы
 

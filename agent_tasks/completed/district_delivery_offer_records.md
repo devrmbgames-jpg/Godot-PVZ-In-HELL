@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [Терминал и доставка](district_terminal_delivery.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [Посылки — записи поступления и ручная потеря](district_package_receipts_loss.md).
 
@@ -48,7 +48,7 @@ Status: **DONE**
 - `content/contracts/npc/npc_home_delivery.gd`, `content/services/npc/npc_home_delivery_service.gd` и определения района.
 - Связанные `CustomerVisit`, журналы/codec района и прямой переход дня.
 
-Применять по области: [save-systems](../.agents/skills/save-systems/SKILL.md), [professional-game-design](../.agents/skills/professional-game-design/SKILL.md).
+Применять по области: [save-systems](../../.agents/skills/save-systems/SKILL.md), [professional-game-design](../../.agents/skills/professional-game-design/SKILL.md).
 
 ## Работы
 

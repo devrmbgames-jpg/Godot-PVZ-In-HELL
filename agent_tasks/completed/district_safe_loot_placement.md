@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Родительский этап: [Лут и торговля](district_loot_commerce.md). Порядок выполнения: [общая задача](district_service_update.md).
+Родительский этап: [Лут и торговля](district_loot_commerce.md). Порядок выполнения: [общая задача](../district_service_update.md).
 
 Зависимости: [Доставка — вручение, оплата и вечерние обязательства](district_delivery_completion.md).
 
@@ -42,14 +42,14 @@ Parser запускается через `utils/validate_district_scripts.gd` п
 
 ### Owner QA / blockers
 
-[Ручной чеклист](../qa_tasks/district_safe_loot_placement.md) — **PENDING_OWNER_QA**: видимое положение и доступность руками, крупные предметы, тесные места и повтор после освобождения. Визуальный запуск не выполнялся; Windows QA-сборка принадлежит итоговой интеграции.
+[Ручной чеклист](../../qa_tasks/district_safe_loot_placement.md) — **PENDING_OWNER_QA**: видимое положение и доступность руками, крупные предметы, тесные места и повтор после освобождения. Визуальный запуск не выполнялся; Windows QA-сборка принадлежит итоговой интеграции.
 
 ## Границы и владельцы
 
 - `content/services/packages/package_contents_service.gd`, `content/services/gameplay/npc_remains_service.gd` и образец `receiving_package_factory.gd`.
 - Новый узкий solver размещения, авторские кандидаты и прямой snapshot ожидающего дропа.
 
-Применять по области: [godot-physics-4.7](../.agents/skills/godot-physics-4.7/SKILL.md), [save-systems](../.agents/skills/save-systems/SKILL.md).
+Применять по области: [godot-physics-4.7](../../.agents/skills/godot-physics-4.7/SKILL.md), [save-systems](../../.agents/skills/save-systems/SKILL.md).
 
 ## Работы
 

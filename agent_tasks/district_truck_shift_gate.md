@@ -4,7 +4,7 @@ Status: **PLANNED**
 
 Родительский этап: [Утренняя машина](district_morning_truck.md). Порядок выполнения: [общая задача](district_service_update.md).
 
-Зависимости: [Машина — утреннее появление и входящие коробки](district_truck_morning_spawn.md).
+Зависимости: [Машина — утреннее появление и входящие коробки](completed/district_truck_morning_spawn.md).
 
 ## Task state
 
