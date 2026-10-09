@@ -89,7 +89,7 @@ python -B utils/validate_architecture.py --strict
 python utils/validate_project_structure.py
 ```
 
-If the relevant batch has already been committed, add `--base <base-commit>` to both incremental commands; `--strict` on the style checker verifies **whole files**, intended for Refactoring v2 Phase 3. Missing `gdscript-formatter` gives `NOT_RUN` (exit 2), not PASS. The CLI is read-only: it does **not** rewrite scripts. Do not run a full-project format pass during an unrelated feature.
+If the relevant batch has already been committed, add `--base <base-commit>` to both incremental commands; `--strict` on the style checker verifies **whole files**, intended for Refactoring v2 Phase 3. Missing `gdscript-formatter` gives `NOT_RUN` (exit 2), not PASS. The CLI is resolved from the `GDSCRIPT_FORMATTER_BIN` environment variable (absolute executable path), project `.bin/gdscript-formatter[.exe]`, or system `PATH`; no automatic downloads/installations occur. The CLI is read-only: it does **not** rewrite scripts. Do not run a full-project format pass during an unrelated feature.
 
 For matching editor diagnostics, open **Editor Settings → GDQuest GDScript Formatter → Lint Ignored Rules** and set `class-name` (no other global exclusions). The Editor setting is per-developer; the repository CLI enforces the policy independently. The project `.editorconfig` fixes tab indentation and 100-column wrapping but cannot make the editor-wide role exception itself.
 

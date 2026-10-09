@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import os
 import re
 import shutil
 import subprocess
@@ -16,7 +17,6 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ROLE_PREFIXES = ("C", "S", "O", "R", "E", "DEF", "ET", "UI")
 PASCAL = re.compile(r"^[A-Z][a-zA-Z0-9]*$")
 ROLE = re.compile(r"^(?:C|S|O|R|E|DEF|ET|UI)_[A-Z][a-zA-Z0-9]*$")
 CLASS = re.compile(r"^\s*class_name\s+([A-Za-z_][A-Za-z0-9_]*)\b")
@@ -78,6 +78,21 @@ def added_lines(before: str | None, after: str) -> set[int]:
 
 def acceptable_class_name(name: str) -> bool:
     return bool(PASCAL.fullmatch(name) or ROLE.fullmatch(name))
+
+
+def formatter_binary(root: Path) -> str | None:
+    """Use explicit local binary/CLI, without downloading or changing user tools."""
+    override = os.environ.get("GDSCRIPT_FORMATTER_BIN", "").strip()
+    if override:
+        binary = shutil.which(override)
+        if binary is None:
+            raise RuntimeError(f"GDSCRIPT_FORMATTER_BIN does not exist or is not executable: {override}")
+        return binary
+    for name in ("gdscript-formatter.exe", "gdscript-formatter"):
+        candidate = root / ".bin" / name
+        if candidate.is_file():
+            return str(candidate)
+    return shutil.which("gdscript-formatter")
 
 
 def local_issues(path: str, source: str, numbers: set[int]) -> list[str]:
@@ -160,7 +175,7 @@ def main(argv: list[str] | None = None) -> int:
         if not paths:
             print("PASS: no changed project-owned GDScript")
             return 0
-        binary = shutil.which("gdscript-formatter")
+        binary = formatter_binary(root)
         errors: list[str] = []
         missing = False
         for path in sorted(paths):

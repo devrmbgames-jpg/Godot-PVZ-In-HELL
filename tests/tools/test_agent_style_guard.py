@@ -99,6 +99,19 @@ class StyleGuardTests(unittest.TestCase):
             self.assertEqual("--check", commands[1][1])
             self.assertEqual("--verify-structure", commands[2][1])
 
+    def test_explicit_formatter_path_can_be_used(self) -> None:
+        import os
+        with patch.dict(os.environ, {"GDSCRIPT_FORMATTER_BIN": "custom-formatter"}):
+            with patch.object(style.shutil, "which", return_value="/tools/custom-formatter"):
+                self.assertEqual("/tools/custom-formatter", style.formatter_binary(Path(".")))
+
+    def test_invalid_explicit_formatter_does_not_fall_back(self) -> None:
+        import os
+        with patch.dict(os.environ, {"GDSCRIPT_FORMATTER_BIN": "missing-executable"}):
+            with patch.object(style.shutil, "which", return_value=None):
+                with self.assertRaises(RuntimeError):
+                    style.formatter_binary(Path("."))
+
     def test_missing_formatter_is_not_pass(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
