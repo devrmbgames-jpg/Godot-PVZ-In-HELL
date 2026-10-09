@@ -35,7 +35,7 @@ class ParallelReviewPolicyTests(unittest.TestCase):
     def test_reviewer_uses_pinned_snapshot_not_live_worktree(self) -> None:
         instructions = tomllib.loads(read(".codex/agents/reviewer.toml"))["developer_instructions"]
         for required in ("BASE_SHA", "TARGET_SHA", "git diff", "git show",
-                         "read-only", "NOT_RUN", "P0/P1/P2/P3"):
+                         "Never git checkout", "NOT_RUN", "P0/P1/P2/P3"):
             with self.subTest(required=required):
                 self.assertIn(required, instructions)
         self.assertIn("Do not create tasks", instructions)
@@ -52,7 +52,7 @@ class ParallelReviewPolicyTests(unittest.TestCase):
         self.assertTrue(skill.startswith("---\nname: review-orchestration\n"))
         self.assertIn("description:", skill.split("---", 2)[1])
         self.assertIn("two targeted repair/re-review cycles", skill)
-        self.assertIn("no", skill.lower())
+        self.assertIn("not PASS", skill)
 
     def test_review_queue_remains_in_owning_task(self) -> None:
         task_policy = read("agent_tasks/README.md")
