@@ -53,6 +53,7 @@ One durable task file owns its own status/current/next/validation. There is no s
 
 Load a skill only when its domain is actually involved:
 - explicit broad refactoring, architecture migration, subsystem decomposition, or repository-wide cleanup: `.agents/skills/refactoring/SKILL.md`;
+- substantial committed milestones or explicit parallel review/triage: `.agents/skills/review-orchestration/SKILL.md`;
 - creating or modifying project-owned GDScript: `.agents/skills/gdscript-style/SKILL.md`;
 - GECS-specific API/architecture: `.agents/skills/gecs-v8/SKILL.md`;
 - GUT test authoring/execution: `.agents/skills/gut-testing/SKILL.md`;
@@ -100,14 +101,16 @@ Routine work stays in the main GPT-6.1 Sol session. Optional native Codex subage
 - `reviewer` — read-only focused review of a substantial completed diff;
 - `validator` — explicitly assigned bounded validation with concise PASS/FAIL output.
 
-Run at most one subagent at a time and integrate it before starting another. Architecture/ownership/physics/GECS decisions remain with the main agent. **Substantive feature/refactor/scene changes must have an architectural review before DONE**, even when Godot/GUT pass. Delegate to `reviewer` sequentially when authorized/available; otherwise self-review explicitly marked non-independent. Triage every BLOCKER/BUG/REVIEW finding, and never claim an unrun check passed.
+**Parallel reviewer pilot:** once a coherent implementation checkpoint is committed, Main may spawn the read-only `reviewer` on explicit, immutable `BASE_SHA..TARGET_SHA` and continue only **independent work** during its analysis. Exactly one child agent at a time; reviewer may not edit code/tasks, run Godot/MCP or inspect changing source via live worktree. Main is the only code writer and Review Manager. Read the `review-orchestration` skill on substantive milestones.
+
+The review must be collected, triaged and integrated before milestone DONE even if GUT passes. Reviewer returns provisional R1..; Main accepts/rejects, deduplicates, assigns and, where needed, records RV-001.. in the **owning** `agent_tasks/` file, not a new global queue. Accepted P0/P1/P2 block DONE until fixed/verified; P3 may be explicitly deferred. Revalidate findings if HEAD advanced. Do not fabricate PASS while a review is pending or unavailable; if no isolated parallel subagent is possible, use sequential review and mark NON_INDEPENDENT if self-reviewed. See `docs/parallel_review_workflow.md`.
 
 ## Validation and commits
 
 Use the cheapest check that can falsify the change. Do not run GUT, smoke, or broad runtime checks after every small edit.
 
 - For project-owned GDScript, run `python utils/check_gdscript_format.py --changed` before a coherent commit. It checks changed lines/new files without rewriting unrelated legacy code. Missing GDQuest `gdscript-formatter` is **NOT_RUN (exit 2)**, never PASS. To check a committed milestone compare with its original base using `--base <revision>`; Phase 3 uses `--strict`.
-- For substantial code/scene work, run `python utils/validate_agent_changes.py`, `python -B utils/validate_architecture.py --strict`, and `python utils/validate_project_structure.py` after the coherent batch. `validate_agent_changes.py --staged` checks the Git index; `--report-only` is **not** a valid PASS. Static checks supplement architectural review, not replace it.
+- For substantial code/scene work, run `python utils/validate_agent_changes.py`, `python -B utils/validate_architecture.py --strict`, and `python utils/validate_project_structure.py` after the coherent batch. A pinned-SHA architecture review must finish and receive triage before milestone DONE. `validate_agent_changes.py --staged` checks the Git index; `--report-only` is **not** a valid PASS. Static checks supplement architectural review, not replace it.
 - Run changed-file/static checks and `python utils/validate_project_structure.py` when structure/contracts are affected.
 - Before completing GDScript work, validate the changed project-owned `.gd` files with Godot's parser near the end of the coherent edit batch. Resolve new/relevant parse or reload warnings as well as errors; do not launch gameplay merely for this check.
 - For a complete large implementation, normally run one relevant GUT surface and one relevant headless smoke/runtime check near completion unless the exact task says otherwise.

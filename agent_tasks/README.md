@@ -23,6 +23,8 @@ A durable task file is the single repository source for its own:
 
 Do not maintain a separate queue index, current-work file, or completed-task history. If supporting milestone files exist, the root task remains the only owner of overall status/current/next.
 
+For a substantive reviewed milestone, accepted findings belong to the **same existing task** under `## Review findings`; only Main assigns RV-001 and updates status. Keep SHA, priority, evidence, fix owner, verification and final disposition. No new global `REVIEW_QUEUE.md`. If the task is single-session and has no durable task file, keep triage in the session. See `docs/parallel_review_workflow.md`.
+
 Suggested compact header:
 
 ```md

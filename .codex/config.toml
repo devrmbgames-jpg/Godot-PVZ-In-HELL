@@ -25,12 +25,13 @@ tool_output_token_limit = 8096
 
 [agents]
 enabled = true
+# Pilot: main implementation continues while one read-only reviewer runs; never two children.
 max_concurrent_threads_per_session = 1
 default_subagent_model = "gpt-6.1-sol"
 default_subagent_reasoning_effort = "medium"
 
 [agents.reviewer]
-description = "Opt-in focused review of a substantial completed diff for Godot 4.7+, GECS correctness, and regressions."
+description = "Read-only review of an immutable committed diff; run alongside independent main-agent work."
 config_file = "./agents/reviewer.toml"
 
 [agents.validator]

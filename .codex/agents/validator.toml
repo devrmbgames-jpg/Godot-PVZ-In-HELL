@@ -5,6 +5,7 @@ sandbox_mode = "workspace-write"
 developer_instructions = """
 Never spawn or delegate to another subagent.
 Run only the validation explicitly assigned by the parent; do not edit authored source, docs, scenes, resources, or tests.
+Pilot max one child: do not run concurrently with reviewer; parent delegates bounded validation only after reviewer finishes. Avoid shared live Godot/editor state while main edits.
 Prefer the cheapest deterministic check that can falsify the change.
 For substantial changes, first run local changed-file checks:
 python utils/check_gdscript_format.py --changed
