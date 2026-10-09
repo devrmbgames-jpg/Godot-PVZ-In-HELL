@@ -1,6 +1,6 @@
 ---
 name: godot-scene-authoring
-description: Required for editing native Godot .tscn scenes, placed GECS entities, UI/HUD layouts, reusable prefabs or level authoring; distinguishes designer-owned scenes from dynamic procedural runtime objects.
+description: Required when modifying authored Godot .tscn scenes, placed entities, prefabs, levels or stable HUD layouts.
 ---
 
 # Godot-first editable authoring (PVZ GECS)
@@ -21,9 +21,13 @@ Inspect the nearest existing scene/controller, not the entire project.
   inspectable in the Godot Scene dock.
 - Runtime gameplay must not generate `.gd` scripts or permanently authored
   `.tscn`. Editor scripts/import processors may save native reviewed output.
-- Prefer editor/MCP mutations for a scene currently open in Godot, and raw
-  edits only while it is closed. Preserve node names, UIDs, ownership, signals,
-  exported fields, physics and component/relationship contracts.
+- A scene open/loaded in Godot Editor is editor-owned. Use Godot Editor or MCP
+  scene operations while it is open; raw `.tscn` patches are allowed only when
+  it is not open. If editor state blocks a needed update, close the editor,
+  update the file, then relaunch if needed. Never select "Ignore External Changes".
+- Preserve node names, UIDs, ownership, signals, exported fields, physics and
+  component/relationship contracts. `MeshInstance3D.material_overlay` is reserved
+  for interactive highlights; authored highlight materials remain external `.tres`.
 - Validate structural edits with `utils/validate_agent_changes.py`,
   strict role/domain checks and focused Godot parser/GUT. Visual/editor QA
   is for the owner; a headless PASS is not visual proof.

@@ -1,9 +1,6 @@
 ---
 name: godot-ai-mcp
-description: >
-  Use for Godot AI MCP live-editor work, especially GDScript writes/diagnostics,
-  ClassDB inspection, scene/runtime inspection, and warning-free validation of
-  changed project-owned .gd files.
+description: Use for live Godot AI MCP editor/scene inspection, ClassDB, script writes and GDScript diagnostics.
 ---
 
 # Godot AI MCP
@@ -62,12 +59,9 @@ A parser-clean file with avoidable type/shadowing warnings is not considered cle
 
 Use incremental cursors when doing repeated checks; do not repeatedly dump the whole editor log.
 
-Godot 4.7.1 shutdown-only GDScript/GDScriptNativeClass/Resource/StringName/RID retention follows
-[the engine limitation policy](../../../AGENTS.md#validation-and-commits): preserve diagnostics,
-classify `KNOWN_ENGINE_LIMITATION / DEFERRED`, and neither block tasks nor investigate that
-category before a project move to stable Godot 4.8+ with upstream-fix review. It does not waive
-parser/reload warnings, runtime regressions, lost Nodes or invalid destruction. Do not change
-typing, references, WeakRef, free() or GECS solely to remove the deferred shutdown warnings.
+For Godot 4.7.1 shutdown-only retained resources, apply the
+[memory diagnostics policy](../validation-workflow/references/memory-lifetime.md).
+Do not normalize runtime parser/reload warnings as shutdown retention.
 
 ## PVZ custom GECS tools
 

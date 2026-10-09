@@ -1,9 +1,6 @@
 ---
 name: refactoring
-description: >
-  Required for explicit broad refactoring, architecture migration, subsystem
-  decomposition, or repository-wide cleanup. Defines completeness, migration,
-  compatibility, validation, and no-half-refactor rules.
+description: Required for explicit broad subsystem refactoring, architecture migration or repository-wide restructuring.
 ---
 
 # Refactoring
@@ -31,7 +28,7 @@ If a blocker prevents completing the declared scope, record the task as BLOCKED/
 
 ## Scope and durable state
 
-Follow [the task-state policy](../../../AGENTS.md#plan-goal-and-durable-task-state): replace
+Follow [the task-state policy](../task-lifecycle/SKILL.md): replace
 obsolete Current/Next at each checkpoint, keep only relevant validation/open findings, and use
 Git for implementation history. Do not append every run or diagnostic experiment. Aim for an
 active task of at most 200 lines; excess needs indispensable current detail, not a relocated log.
@@ -42,13 +39,7 @@ Fix an in-scope regression in the task. Give an independently evidenced defect i
 reproduction and acceptance instead of broadening the refactor indefinitely. Keep the original
 task's mandatory gate open; changing it requires an explicit owner decision, not a silent waiver.
 
-Memory acceptance follows [AGENTS.md](../../../AGENTS.md#validation-and-commits): shutdown
-retention alone is not a leak or a completion blocker. Godot 4.7.1's specified shutdown-only
-category is `KNOWN_ENGINE_LIMITATION / DEFERRED`; preserve the baseline and defer investigation
-until the project moves to stable Godot 4.8+ with relevant upstream fixes checked.
-Do not alter typing, references, WeakRef, free() or GECS solely to remove those warnings.
-Sustained runtime growth or lifecycle violations caused by the migration remain in scope
-and require a verified fix.
+Memory/lifetime acceptance follows [memory diagnostics](../validation-workflow/references/memory-lifetime.md). Shutdown-only Godot 4.7.1 retention is deferred; actual runtime regressions still block acceptance.
 
 ## Required completion work
 

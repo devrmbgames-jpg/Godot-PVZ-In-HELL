@@ -1,9 +1,6 @@
 ---
 name: godot-performance
-description: >
-  Use for profiling and performance work in this Godot 4.7 project: CPU/GPU
-  bottlenecks, draw calls, script/GECS cost, physics/Jolt cost, allocations,
-  instancing, materials, and measurable optimization.
+description: Use for measured Godot profiling/optimization of CPU, GPU, GECS, physics, rendering or allocations.
 ---
 
 # Godot Performance
@@ -61,21 +58,10 @@ Optimize the dominant side first.
 - Avoid new large Arrays/Dictionaries/resources every frame.
 - Pool only objects that are actually high-frequency/hot-path; do not add lifecycle complexity to rarely spawned objects.
 - Prefer reuse/caching where ownership and invalidation are clear.
-- Shutdown ObjectDB/Resource/RID retention alone does not prove a memory leak. One-time allocations,
-  bounded services/caches, pooling and warmed memory reuse are acceptable. Preserve diagnostics.
-- Apply the owner's Godot 4.7.1 `KNOWN_ENGINE_LIMITATION / DEFERRED` category for shutdown-only
-  GDScript/GDScriptNativeClass/Resource/StringName/RID retention. Do not block tasks or start
-  an independent investigation before a project move to stable Godot 4.8+ and upstream-fix review.
-  Do not change typing, references, WeakRef, free() or GECS solely to clear shutdown warnings.
-- Prove defects through sustained post-warmup growth, survivors after their owned lifecycle,
-  unbounded containers/references, use-after-free, double-free or ownership violations.
-- Warm up, repeat equivalent operations 50–100 times per process, settle queued deletion/deferred
-  work, then sample RSS/Private Bytes and available Performance static-memory/object/resource/
-  node/orphan monitors. Compare full and tail trends under identical baseline/current conditions.
-  Keep instrumentation bounded and distinguish allocator high-water marks from live survivors.
-- Audit free/queue_free by actual type/owner; do not remove them or WeakRef mechanically.
-  WeakRef does not own its target, but weak-reference containers can themselves grow.
-  Follow [the memory acceptance policy](../../../AGENTS.md#validation-and-commits).
+- Distinguish actual live object/lifetime growth from bounded caches and allocator high-water marks.
+- For leak claims and shutdown-only Godot 4.7.1 warnings, use the focused
+  [memory/lifetime procedure](../validation-workflow/references/memory-lifetime.md)
+  rather than speculatively changing `WeakRef`, `free()` or GECS ownership.
 
 ## Evidence and reporting
 

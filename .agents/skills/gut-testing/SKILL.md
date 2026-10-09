@@ -1,7 +1,6 @@
 ---
 name: gut-testing
-description: >
-  Use only when authoring, modifying, or explicitly running GUT tests for this Godot 4.7 project.
+description: Use when creating, modifying or executing focused GUT tests in this Godot 4.7 project.
 ---
 
 # GUT testing
@@ -25,16 +24,8 @@ Use headless Godot 4.7. Return only command + concise totals on success; on fail
 
 Rendered/visual validation is not part of GUT execution unless the user explicitly approves it for the current task.
 
-In durable tasks, replace the relevant validation checkpoint with its current result and log
-reference; do not append one entry per run or diagnostic trial. GUT assertions and exit zero
-do not excuse parser/runtime/ownership errors. Shutdown ObjectDB/Resource/RID retention alone
-is a diagnostic baseline, not proof of a memory leak or an automatic task blocker; retain it
-in logs and apply [the memory acceptance policy](../../../AGENTS.md#validation-and-commits).
-Godot 4.7.1's specified shutdown-only engine retention category is
-`KNOWN_ENGINE_LIMITATION / DEFERRED`: do not block tasks, start an investigation or require
-another growth run solely for those warnings. Reconsider only after the project moves to
-stable Godot 4.8+ and relevant upstream fixes are checked. Runtime defects remain failures.
-For lifetime checks, warm up then repeat equivalent operations 50–100 times in one process,
-settle deletion/deferred work and compare memory/object trends against the same baseline.
-Bound the test's own assertion history and samples so instrumentation cannot imitate a leak.
-Classify unfamiliar failures before adding them to the task scope; do not suppress warnings.
+Record only the current test evidence in an owning durable task according to
+[task-lifecycle](../task-lifecycle/SKILL.md); do not append each trial to an activity log.
+Assertions and exit zero do not excuse parser/runtime/ownership defects. For actual
+memory/lifetime acceptance or shutdown-only retention warnings, consult
+[memory diagnostics](../validation-workflow/references/memory-lifetime.md).
