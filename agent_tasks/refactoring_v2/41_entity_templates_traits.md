@@ -786,7 +786,8 @@ Recovery audit (2026-10-09): task 41 remains **IN_PROGRESS**.
 - GECS snapshot at both revisions: `14d4282e5c1cb2713c187706ba2f5ff4e315d36e`;
   exact commit object is available in `addons/gecs`. Reviewer reads dependency contracts
   with `git -C addons/gecs show <pinned SHA>:<path>`, not mutable addon files.
-- Replacement state: **TRIAGED — ARCHITECTURE FAIL**. Read-only bounded review of
+- Initial replacement snapshot result: **TRIAGED — ARCHITECTURE FAIL** (RV-001, now fixed below).
+  Read-only bounded review of
   compiler/fresh recipes, common registration, identity/endpoints, startup/observer readiness
   and saved-state construction. It is not full provider-by-provider task acceptance. The
   reviewer uses Git snapshots, does not write tasks/code or run tests/Godot/MCP.
@@ -808,7 +809,7 @@ and duplicate IDs are triggers of the same validation-before-materialization con
 findings. No other material finding was reported in the bounded scope. Reviewer STYLE PASS is
 static assessment only; reviewer VALIDATION is NOT_RUN.
 
-- **RV-001 | P1 BUG | ACCEPTED (OPEN, blocks DONE)**
+- **RV-001 | P1 BUG | FIXED**
   - Source: `da636b0c5c46cd82260e58db1a508ca00f531fb8`,
     `content/domains/persistence/services/world_snapshot_service.gd`, `_overlay_saved_markers`,
     lines 552–563; `PersistentInteractionState.recipe_for`, lines 44–46.
@@ -824,8 +825,12 @@ static assessment only; reviewer VALIDATION is NOT_RUN.
   - Verification required: fresh restore and placed overlay negative cases, unchanged
     World/registry/ownership/payment/IDs, no native diagnostics or orphan Nodes; changed parser,
     formatter/static gates and one bounded fix re-review.
+  - Fix SHA: `bed9908d38a709f8f565a7a3ced60f78e1980ac2`.
+  - Verification completed: native GUT 61/61 / 657 assertions, parser 4/4, formatter 4 files,
+    agent/staged/strict architecture and final structure PASS; bounded independent fix re-review
+    FIX VERIFIED / ARCHITECTURE PASS. Runtime/formatter checks were performed by Main only.
 
-Current next: repair RV-001 before dependent work. Cold/shutdown retention remains a separate
+Cold/shutdown retention remains a separate
 unresolved task acceptance gate; no shared root cause with RV-001 is claimed.
 
 ### Bounded repair checkpoint
@@ -846,10 +851,13 @@ existing overlay result for both fresh and placed construction; validated recipe
   recorded below. After its metadata repair, project-structure validation **PASS**.
 - Logs: `tests/artifacts/refactoring_v2_41_rv001_gut.log` and
   `tests/artifacts/refactoring_v2_41_rv001_final_parser.log`.
-- Fix re-review: **REVIEW_PENDING**, to be dispatched on a committed full-SHA fix snapshot
-  to the same now-finished reviewer; no concurrent second reviewer.
+- Fix re-review cycle 1: **TRIAGED — FIX VERIFIED / ARCHITECTURE PASS**.
+  BASE_SHA=`a95d10e7d01dbb513788289f6771d41dbefb58d8`,
+  TARGET_SHA=`bed9908d38a709f8f565a7a3ced60f78e1980ac2`.
+  The same finished reviewer was reused; no concurrent second reviewer. No new material finding
+  in the R1 fix scope; reviewer STYLE PASS is static and VALIDATION NOT_RUN. No second repair cycle.
 
-- **RV-002 | P2 | ACCEPTED (metadata repair implemented, commit pending)**
+- **RV-002 | P2 | FIXED**
   - Origin: Main's required structure gate, not replacement reviewer R1.
   - Source: `a95d10e7d01dbb513788289f6771d41dbefb58d8`,
     `agent_tasks/parallel_review_pilot.md`, status/section headers. File was unchanged when
@@ -858,5 +866,15 @@ existing overlay result for both fresh and placed construction; validated recipe
   - Repair: IN_PROGRESS plus one Task state block; record the actual native pilot checkpoint
     without duplicating task-41 findings or claiming benchmark/full-task completion.
   - Verification: `python utils/validate_project_structure.py` PASS after repair.
+  - Fix SHA: `bed9908d38a709f8f565a7a3ced60f78e1980ac2`. Metadata issue verified by Main's
+    structure gate; reviewer explicitly did not evaluate RV-002. No independent PASS is claimed.
 
 No broad acceptance rerun, rendered gameplay, task-42 or Phase-3 work is claimed.
+
+Recovery outcome: previous inaccessible review remains NOT_RUN; replacement review and its one
+bounded fix review are collected/triaged. No review is currently REVIEW_PENDING and no accepted
+RV-001/RV-002 remains open. Runtime source at the fix SHA is the current implementation checkpoint.
+In this task file, only the new review section is committed; pre-existing task/config/definition/manifest/addon
+worktree changes remain preserved and unstaged. Task 41 remains **IN_PROGRESS** because its separate
+cold/parser and bounded shutdown retention acceptance is unresolved. Next: isolate/repair that
+resource graph and run its exact failing surfaces before claiming task acceptance or beginning 42.
