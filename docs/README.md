@@ -8,7 +8,8 @@
 | [Индекс проекта](../PROJECT_INDEX.md) | Найти owner/path, если задача сама их не указала |
 | [Gameplay architecture](../content/ARCHITECTURE.md) | Cross-system authority/lifecycle contracts |
 | [Code Style и локальные проверки](code_style.md) | GECS-префиксы, настройка GDQuest и локальные команды без GitHub CI |
-| [Шпаргалка запросов](ai_prompt_cheatsheet.md) | Короткие примеры Prompt → Plan → Goal |
+| [Шпаргалка запросов](ai_prompt_cheatsheet.md) | Примеры Prompt → Plan → Goal и параллельного ревью |
+| [Parallel review PVZ](parallel_review_workflow.md) | Snapshot SHA, triage, приоритеты и ограниченный цикл исправлений |
 | [Roadmap](roadmap/README.md) | Design-ТЗ и их связь с implementation IDs |
 
 Для исполнения работы:

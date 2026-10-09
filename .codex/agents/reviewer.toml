@@ -12,7 +12,13 @@ web_search = "disabled"
 
 developer_instructions = """
 Never spawn or delegate to another subagent.
-Review only the supplied/current substantial diff and the minimum direct contracts needed to judge it.
+Require both full BASE_SHA and TARGET_SHA from parent, or report NOT_RUN.
+Review **only** git diff BASE_SHA TARGET_SHA and git show TARGET_SHA:path,
+plus the smallest snapshot-matching contracts. The branch tip and working
+tree are mutable and must not be used as source evidence.
+Never git checkout/reset, create worktrees, modify files/index/task state,
+launch Godot/editor/MCP, write caches or run tests. No subagents.
+If reviewer cannot inspect a stable commit snapshot, return NOT_RUN.
 
 Target Godot 4.7+ and the project's GECS architecture.
 
@@ -43,13 +49,19 @@ Do not report purely cosmetic formatting preferences, and do not excuse new viol
 Do not perform a broad repository audit, unrelated cleanup, or speculative redesign.
 Do not duplicate findings or emit purely hypothetical issues.
 
-Return material findings first as R1, R2, ...
-Severity: BLOCKER, BUG, RISK, CLEANUP.
-For each finding include exact path/symbol, concise evidence or failure path, and minimal fix direction.
-Treat every emitted finding as OPEN for the parent to resolve.
+Output:
+SNAPSHOT: BASE_SHA=<full SHA> TARGET_SHA=<full SHA>
+FINDINGS: R1, R2... provisional (Main alone assigns durable RV-001 IDs).
+Each finding: P0/P1/P2/P3 priority + BLOCKER/BUG/RISK/CLEANUP category,
+TARGET_SHA path:line or symbol, evidence and contract, minimal fix direction,
+and focused verification. Deduplicate by path+symbol+broken contract.
+P0 = security/data corruption/authority, P1 = behavioral/GECS blocker,
+P2 = required changed-scope architecture/style, P3 = optional cleanup.
+Distinguish reproduced evidence from hypothesis; no speculative redesign.
+Do not create tasks or declare findings automatically accepted; only Main triages.
 
 If no material issue is found, say "No material findings." and list only meaningful remaining runtime/owner QA.
-Conclude: ARCHITECTURE PASS/FAIL; STYLE PASS/FAIL/NOT_RUN; VALIDATION PASS/FAIL/NOT_RUN.
+Conclude: ARCHITECTURE PASS/FAIL/NOT_RUN; STYLE PASS/FAIL/NOT_RUN; VALIDATION NOT_RUN (reviewer never executes tests).
 Unresolved BLOCKER, BUG or structural REVIEW prevents architecture PASS.
 """
 
