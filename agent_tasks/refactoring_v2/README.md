@@ -335,3 +335,11 @@ local Formatter **4 files**, GUT **28/28 / 488 assertions**, inventory and indep
 arrival write/restore headless smokes PASS with zero diagnostics. Manifest **20/72** closed;
 41 remains IN_PROGRESS with full provider/cold-shutdown acceptance pending. Next remains 41,
 then 42→43→44→45→46→48→49; no Phase 3.
+
+
+Task 41 saved marker milestone (2026-10-09): death/ink/anchor/completed NEVER progress now overlay
+compiled private recipes before native registration/on_ready; fresh restore retains marker identity
+and applies physical anchor freeze before publication. Final parser **4 files**, Formatter **4 files**,
+native GUT **81/81 / 795 assertions** and independent Night write/restore PASS, zero diagnostics.
+Saved-state/bootstrap/authoring provider audit closes four more rows; manifest **24/72**. Full
+remaining-provider/cold-shutdown acceptance is pending, so 41 remains IN_PROGRESS; no Phase 3.

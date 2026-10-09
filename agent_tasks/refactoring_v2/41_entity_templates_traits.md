@@ -695,3 +695,32 @@ Logs: `refactoring_v2_41_factory_rejection_final_parser.log`,
 Manifest rows `drop`, `release_on_death`, `fulfill_one` are closed; **20/72** resolved.
 Task 41 remains IN_PROGRESS: finish all remaining provider audits and full acceptance, including
 unresolved cold/shutdown retention. No task-42 or Phase-3 work started.
+
+
+### Saved runtime marker construction — 2026-10-09
+
+The shared construction overlay now prepares death, private package ink, original anchor release
+snapshot and completed NEVER action progress before native registration/on_ready. Saved anchor freeze
+is applied on the physical owner before publication. Fresh restore no longer rebuilds/replaces these
+markers after publication; in-place reconstruction uses the same data helpers while observers are
+quiet. Definitions remain immutable; saved packed ink points are copied and terminal/progress records
+are private. Endpoint restoration and passive cache reconstruction still precede final readiness.
+
+Actual placed native on_ready/publication sees the full saved terminal state. Fresh dead marked parcel
+publication sees zero health/death/ink; final ink revision proves no second initial application. Fresh
+anchored furniture publication sees its freeze and original release settings; the exact snapshot
+instance survives the remaining restore boundary. Existing damaged-health, no duplicate setup,
+whole-batch rejection, ID safety, endpoint and prolonged-action regressions remain clean.
+
+Final parser **4 files PASS**, local Formatter **4 files PASS**, native GUT **81/81 PASS / 795
+assertions**, structure/strict domain/dependency/architecture, agent/preflight checks PASS. Actual
+Night write/restore in **two independent native processes PASS**, zero errors/warnings.
+Logs under `tests/artifacts/`: `refactoring_v2_41_saved_markers_final_parser.log`,
+`refactoring_v2_41_saved_markers_final_gut.log`,
+`night_persistence-write-20261009-190321065.log`,
+`night_persistence-restore-20261009-190336265.log`.
+
+Completed-progress restore, whole snapshot restore, GameWorld bootstrap and authored identity
+providers are closed; manifest **24/72** resolved. This is provider migration evidence, not full task
+acceptance: remaining provider audits and known cold/shutdown retention still keep 41 IN_PROGRESS.
+Next remains 41, then the declared dependency order through PASS 49; Phase 3 is excluded.

@@ -1187,7 +1187,8 @@
       "kind": "passive_restore",
       "action": "migrate_gate",
       "contract": "Saved completed action records are passive state reconstruction, not reusable capability installation; ready follows overlay/fixup.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Completed NEVER progress now has one pure private recipe builder shared by initial reconstruction and explicit in-place restoration. Fresh actors receive completed data before native initialization; in-place restore replaces data while restore observers are quiet, without replaying actions. Placed native on_ready/publication and actual prolonged-progress/session GUT PASS (2026-10-09)."
     },
     {
       "source": "content/domains/persistence/services/world_snapshot_service.gd",
@@ -1217,7 +1218,8 @@
       "kind": "passive_restore",
       "action": "migrate_gate",
       "contract": "Preflight all absent prefabs/default plans and identities before live mutation; overlay saved data/endpoints while consumers are gated, then publish ready without replay.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Fresh detached plans compile all defaults and saved codec fields plus death/ink/anchor/completed-action markers before native registration. Saved pose and anchor freeze apply on the physical owner before on_ready/publication. Fresh marker state is not reapplied/replaced afterward; saved endpoint links and passive caches fix up before readiness with observers suspended. Whole-snapshot rejection, idempotent in-place load, fresh saved data/native marker identity GUT and two-process Night smoke PASS; task-wide cold shutdown gate remains separately pending (2026-10-09)."
     },
     {
       "source": "content/domains/quests/services/refusal_quest_service.gd",
@@ -1272,7 +1274,8 @@
       "kind": "bootstrap_boundary",
       "action": "migrate_gate",
       "contract": "Compile/validate all placed intrinsic/Trait recipes, Entity and stable IDs and endpoints before super._ready/automatic World.initialize; suppress gameplay until defaults/saved overlay/fixup are complete.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Authored metadata and saved composition compatibility precede whole-placed compiler, ID/endpoint validation and pinned initialization. Saved fields/runtime markers/physical pose are complete at native on_ready; placed actors register once. Initial endpoints bind after numeric IDs, plans clear, startup observers and scheduled consumers wait for final readiness. Actual duplicate/provider/ID/missing-owner/startup ordering/native saved-marker GUT and independent Night write/restore PASS (2026-10-09)."
     },
     {
       "source": "content/scenes/main_level.gd",
@@ -1306,7 +1309,8 @@
       "kind": "authoring_identity",
       "action": "migrate_gate",
       "contract": "Whole-set identity validation precedes recipe/state mutation; metadata compiles to isolated immutable references and never replaces existing Entity IDs.",
-      "resolved": false
+      "resolved": true,
+      "resolution": "Retained deliberate authoring identity compiler validates the entire authored set and immutable registered identity before any recipe change. It creates private C_AuthoredIdentity recipes from scene-owned metadata, preserves shared prefab Resources, and performs no native registration or live Component-added mutation. Current authored duplicate/alias/rename/reparent/outside-root and whole-placed startup GUT PASS (2026-10-09)."
     }
   ],
   "scene_intrinsic_sources": [

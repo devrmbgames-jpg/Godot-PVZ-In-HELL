@@ -789,3 +789,79 @@ func test_night_preparation_query_tracks_the_configured_workflow() -> void:
 	_world.emit_event(NightPreparationRequirement.EVENT, _session, without_workflow)
 	assert_false(without_workflow.is_required())
 #endregion
+
+#region Fresh runtime marker reconstruction
+## A removed physical parcel returns with terminal damage and private ink before native publication.
+func test_fresh_dead_marked_package_publishes_saved_markers_without_reinstalling() -> void:
+	var parcel: Entity = (load(
+		"res://content/domains/packages/entities/test_bread.tscn"
+	) as PackedScene).instantiate() as Entity
+	EntityCompositionFixture.register(_world, parcel)
+	(parcel.get_component(C_Health) as C_Health).current = 0.0
+	parcel.add_component(C_Death.new())
+	var marks: C_PackageMarks = C_PackageMarks.new()
+	var stroke: PackageMarkStroke = PackageMarkStroke.new()
+	stroke.points = PackedVector3Array([Vector3.ZERO, Vector3.RIGHT])
+	marks.strokes = [stroke]
+	marks.point_count = 2
+	parcel.add_component(marks)
+	var key: String = ActorIdentityRules.key_for(parcel, _root)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	_world.remove_entity(parcel)
+	var publications: Array[Entity] = []
+	var inspect_marker: Callable = func(actor: Entity) -> void:
+		if actor is E_Package:
+			publications.append(actor)
+			assert_true(actor.has_component(C_Death))
+			assert_eq((actor.get_component(C_Health) as C_Health).current, 0.0)
+			var restored_ink: C_PackageMarks = actor.get_component(C_PackageMarks) as C_PackageMarks
+			assert_not_null(restored_ink)
+			assert_eq(restored_ink.point_count, 2)
+			assert_eq(restored_ink.revision, 1)
+	_world.entity_added.connect(inspect_marker)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	_world.entity_added.disconnect(inspect_marker)
+	assert_eq(publications.size(), 1)
+	assert_eq(ActorIdentityRules.key_for(publications[0], _root), key)
+	var restored: C_PackageMarks = publications[0].get_component(C_PackageMarks) as C_PackageMarks
+	assert_eq(restored.revision, 1, "Fresh restoration never reapplies initial ink")
+	assert_eq(restored.strokes[0].points, stroke.points)
+
+
+## An anchored physical order is frozen and has its original release snapshot at native publication.
+func test_fresh_anchored_furniture_publishes_complete_physical_snapshot_once() -> void:
+	var definition: DEF_InventoryItem = load(
+		"res://content/domains/inventory/definitions/def_item_large_shelf.tres"
+	) as DEF_InventoryItem
+	var shelf: Entity = FurniturePlacement.create_validated(definition)
+	EntityCompositionFixture.register(_world, shelf)
+	var anchored: C_PlayerAnchored = C_PlayerAnchored.new()
+	anchored.snapshot = AnchoredBodySnapshot.new()
+	anchored.snapshot.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+	anchored.snapshot.can_sleep = false
+	shelf.add_component(anchored)
+	(shelf as Node as RigidBody3D).freeze = true
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	_world.remove_entity(shelf)
+	var observed_snapshots: Array[AnchoredBodySnapshot] = []
+	var publications: Array[Entity] = []
+	var inspect_anchor: Callable = func(actor: Entity) -> void:
+		if actor.has_component(C_Anchorable):
+			var marker: C_PlayerAnchored = actor.get_component(C_PlayerAnchored) as C_PlayerAnchored
+			assert_not_null(marker)
+			observed_snapshots.append(marker.snapshot)
+			publications.append(actor)
+			assert_true((actor as Node as RigidBody3D).freeze)
+			assert_false(marker.snapshot.freeze)
+			assert_eq(marker.snapshot.freeze_mode, RigidBody3D.FREEZE_MODE_KINEMATIC)
+			assert_false(marker.snapshot.can_sleep)
+	_world.entity_added.connect(inspect_anchor)
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	_world.entity_added.disconnect(inspect_anchor)
+	assert_eq(observed_snapshots.size(), 1)
+	var retained: C_PlayerAnchored = publications[0].get_component(
+		C_PlayerAnchored) as C_PlayerAnchored
+	assert_same(retained.snapshot, observed_snapshots[0], "Fresh restore never replaces the marker")
+#endregion

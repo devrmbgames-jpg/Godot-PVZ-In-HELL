@@ -53,8 +53,19 @@ class SavedStateActor extends PassiveActor:
 		super.on_ready()
 		var health: C_Health = get_component(C_Health) as C_Health
 		var spatial: Node3D = self as Node as Node3D
+		var marks: C_PackageMarks = get_component(C_PackageMarks) as C_PackageMarks
+		var anchored: C_PlayerAnchored = get_component(C_PlayerAnchored) as C_PlayerAnchored
+		var original: Dictionary = {}
+		if anchored != null:
+			original = {"freeze": anchored.snapshot.freeze,
+				"freeze_mode": anchored.snapshot.freeze_mode,
+				"can_sleep": anchored.snapshot.can_sleep}
 		_construction_state = {"health": health.current, "id": id,
-			"pose": spatial.global_transform}
+			"pose": spatial.global_transform, "death": has_component(C_Death),
+			"ink_points": marks.point_count if marks != null else 0,
+			"completed": PersistentInteractionState.completed(self),
+			"anchored": anchored != null, "frozen": (spatial as RigidBody3D).freeze,
+			"anchor_original": original}
 
 	## Returns the fields seen by pinned native initialization.
 	func construction_state() -> Dictionary:
@@ -126,18 +137,24 @@ func after_each() -> void:
 
 
 func _saved_actor(recipe: C_Health) -> SavedStateActor:
-	var spatial: Node3D = Node3D.new()
+	var spatial: RigidBody3D = RigidBody3D.new()
 	spatial.set_script(SavedStateActor)
 	var actor: SavedStateActor = spatial as Node as SavedStateActor
 	actor.name = "Subject"
-	actor.component_resources = [recipe]
+	var action: DEF_InteractionAction = DEF_InteractionAction.new()
+	action.action_id = &"fixture_never"
+	action.timing = DEF_ProlongedInteraction.new()
+	action.timing.reset_policy = DEF_ProlongedInteraction.ResetPolicy.NEVER
+	var actions: C_InteractionActionSet = C_InteractionActionSet.new()
+	actions.actions = [action]
+	actor.component_resources = [recipe, C_Anchorable.new(), actions]
 	actor.set_meta(PlacedIdentityRules.LOCAL_ID_META, &"Subject")
 	_actors.add_child(actor)
 	actor.owner = _level
 	return actor
 
 
-func _write_saved_fixture() -> Dictionary:
+func _write_saved_fixture(terminal_state: bool = false) -> Dictionary:
 	_actor("Session", [C_DayCycle.new()])
 	var source: SavedStateActor = _saved_actor(C_Health.new())
 	source.id = "saved/Subject"
@@ -145,6 +162,22 @@ func _write_saved_fixture() -> Dictionary:
 	ECS.world = _world
 	(source.get_component(C_Health) as C_Health).current = 37.0
 	(source as Node as Node3D).global_position = Vector3(2.0, 3.0, 4.0)
+	if terminal_state:
+		(source.get_component(C_Health) as C_Health).current = 0.0
+		source.add_component(C_Death.new())
+		var marks: C_PackageMarks = C_PackageMarks.new()
+		var stroke: PackageMarkStroke = PackageMarkStroke.new()
+		stroke.points = PackedVector3Array([Vector3.ZERO, Vector3.RIGHT])
+		marks.strokes = [stroke]
+		marks.point_count = 2
+		source.add_component(marks)
+		var anchored: C_PlayerAnchored = C_PlayerAnchored.new()
+		anchored.snapshot = AnchoredBodySnapshot.new()
+		anchored.snapshot.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+		anchored.snapshot.can_sleep = false
+		source.add_component(anchored)
+		(source as Node as RigidBody3D).freeze = true
+		PersistentInteractionState.restore([&"fixture_never"], source)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_level, 1)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _level))
 	assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
@@ -365,7 +398,9 @@ func test_saved_placed_state_is_complete_before_native_ready_and_publication() -
 	assert_eq(_world.registrations(), 2)
 	assert_eq(subject.ready_calls(), 1)
 	var expected: Dictionary = {"health": 37.0, "id": "saved/Subject",
-		"pose": Transform3D(Basis.IDENTITY, Vector3(2.0, 3.0, 4.0))}
+		"pose": Transform3D(Basis.IDENTITY, Vector3(2.0, 3.0, 4.0)), "death": false,
+		"ink_points": 0, "completed": [], "anchored": false, "frozen": false,
+		"anchor_original": {}}
 	assert_eq(subject.construction_state(), expected)
 	assert_eq(publications, [expected])
 	assert_eq(prototype.current, original_health, "Authored recipe stays immutable")
@@ -397,4 +432,36 @@ func test_incompatible_saved_pose_rejects_before_preparing_or_registering_placed
 	assert_eq(prototype.current, original_health)
 	assert_true(_world.composition_issues().any(func(issue: EntityBuildPlan.Issue) -> bool:
 		return issue.code == &"invalid_saved_composition"))
+#endregion
+
+#region Saved runtime markers before native callbacks
+## Native initialization and publication see terminal markers, private ink and completed NEVER data.
+func test_saved_runtime_markers_are_complete_before_placed_native_ready() -> void:
+	var snapshot: Dictionary = _write_saved_fixture(true)
+	_actor("Session", [C_DayCycle.new()])
+	var subject: SavedStateActor = _saved_actor(C_Health.new())
+	var publications: Array[Dictionary] = []
+	_world.entity_added.connect(func(actor: Entity) -> void:
+		if actor == subject:
+			publications.append(subject.construction_state()))
+	add_child(_level)
+
+	var expected: Dictionary = {"health": 0.0, "id": "saved/Subject",
+		"pose": Transform3D(Basis.IDENTITY, Vector3(2.0, 3.0, 4.0)), "death": true,
+		"ink_points": 2, "completed": [&"fixture_never"], "anchored": true, "frozen": true,
+		"anchor_original": {"freeze": false, "freeze_mode": RigidBody3D.FREEZE_MODE_KINEMATIC,
+			"can_sleep": false}}
+	assert_false(_world.initialization_failed())
+	assert_eq(subject.ready_calls(), 1)
+	assert_eq(publications, [expected])
+	assert_eq(subject.construction_state(), expected)
+	var marks: C_PackageMarks = subject.get_component(C_PackageMarks) as C_PackageMarks
+	assert_eq(marks.strokes[0].points, PackedVector3Array([Vector3.ZERO, Vector3.RIGHT]))
+	for record: Dictionary in snapshot.entities:
+		if String(record.entity_id) == subject.id:
+			var saved: Dictionary = (record.ink as Array)[0] as Dictionary
+			var points: PackedVector3Array = saved.points as PackedVector3Array
+			points[0] = Vector3.UP
+			assert_eq(marks.strokes[0].points[0], Vector3.ZERO)
+	assert_false(EntityCompositionService.composition_ready(subject))
 #endregion

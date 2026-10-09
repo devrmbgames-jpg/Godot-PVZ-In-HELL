@@ -359,7 +359,8 @@ static func restore(data: Dictionary, root: Node) -> bool:
 		if restored_motion != null:
 			restored_motion.sprint_multiplier = 1.0
 
-		PersistentInteractionState.restore(record.get("completed_actions", []) as Array, entity)
+		if entity not in fresh:
+			PersistentInteractionState.restore(record.get("completed_actions", []) as Array, entity)
 
 		var node: Node3D = entity as Node as Node3D
 		if node != null and record.has("pose"):
@@ -389,29 +390,16 @@ static func restore(data: Dictionary, root: Node) -> bool:
 		elif not record.death and entity.has_component(C_Death):
 			entity.remove_component(C_Death)
 
-		if record.has("ink"):
+		if entity not in fresh and record.has("ink"):
 			var marks: C_PackageMarks = entity.get_component(C_PackageMarks) as C_PackageMarks
 			if marks == null:
 				marks = C_PackageMarks.new()
 				entity.add_component(marks)
-			marks.strokes.clear()
-			marks.point_count = 0
-			for saved: Dictionary in record.ink:
-				var stroke: PackageMarkStroke = PackageMarkStroke.new()
-				stroke.points = saved.points as PackedVector3Array
-				stroke.normal = saved.normal as Vector3
-				stroke.width = float(saved.width)
-				stroke.color = saved.color as Color
-				marks.strokes.append(stroke)
-				marks.point_count += stroke.points.size()
-			marks.revision += 1
+			_apply_saved_marks(marks, record.ink as Array)
 
-		if body != null and record.has("anchor"):
+		if entity not in fresh and body != null and record.has("anchor"):
 			var anchored: C_PlayerAnchored = C_PlayerAnchored.new()
-			anchored.snapshot = AnchoredBodySnapshot.new()
-			anchored.snapshot.freeze = bool(record.anchor.freeze)
-			anchored.snapshot.freeze_mode = int(record.anchor.freeze_mode) as RigidBody3D.FreezeMode
-			anchored.snapshot.can_sleep = bool(record.anchor.can_sleep)
+			_apply_saved_anchor(anchored, record.anchor as Dictionary)
 			entity.add_component(anchored)
 			body.freeze_mode = RigidBody3D.FREEZE_MODE_STATIC
 			body.freeze = true
@@ -525,6 +513,7 @@ static func overlay_construction_fields(plan: EntityBuildPlan, record: Dictionar
 			plan.provenance[component_script] = "saved runtime state"
 		if not SaveDataCodec.apply_fields(target, saved.fields as Dictionary):
 			return false
+	_overlay_saved_markers(plan, record)
 	return true
 
 
@@ -534,6 +523,75 @@ static func apply_construction_pose(actor: Entity, record: Dictionary) -> void:
 		var spatial: Node3D = actor as Node as Node3D
 		assert(spatial != null, "Validated saved pose requires its native spatial owner")
 		spatial.global_transform = record.pose as Transform3D
+	if record.has("anchor"):
+		var body: RigidBody3D = actor as Node as RigidBody3D
+		assert(body != null, "Validated saved anchor requires its native physical owner")
+		body.freeze_mode = RigidBody3D.FREEZE_MODE_STATIC
+		body.freeze = true
+
+
+static func _overlay_saved_markers(plan: EntityBuildPlan, record: Dictionary) -> void:
+	if bool(record.death):
+		_construction_marker(plan, C_Death)
+	else:
+		for recipe: Component in plan.component_recipes.duplicate():
+			if recipe is C_Death:
+				plan.component_recipes.erase(recipe)
+				plan.provenance.erase(C_Death)
+				plan.field_provenance.erase(C_Death)
+
+	if record.has("ink"):
+		var marks: C_PackageMarks = _construction_marker(plan, C_PackageMarks) as C_PackageMarks
+		_apply_saved_marks(marks, record.ink as Array)
+	if record.has("anchor"):
+		var anchored: C_PlayerAnchored = _construction_marker(plan,
+			C_PlayerAnchored) as C_PlayerAnchored
+		_apply_saved_anchor(anchored, record.anchor as Dictionary)
+
+	# Completed actions are restored data, never a repeated gameplay operation.
+	var ids: Array = record.get("completed_actions", []) as Array
+	var actions: C_InteractionActionSet = null
+	var progress: C_ProlongedInteraction = null
+	for recipe: Component in plan.component_recipes:
+		if recipe is C_InteractionActionSet:
+			actions = recipe as C_InteractionActionSet
+		elif recipe is C_ProlongedInteraction:
+			progress = recipe as C_ProlongedInteraction
+	if progress == null and not ids.is_empty():
+		progress = _construction_marker(plan, C_ProlongedInteraction) as C_ProlongedInteraction
+	if progress != null:
+		progress.actions.assign(PersistentInteractionState.recipe_for(ids, actions).actions)
+
+
+static func _construction_marker(plan: EntityBuildPlan, component_script: Script) -> Component:
+	for recipe: Component in plan.component_recipes:
+		if recipe.get_script() == component_script:
+			return recipe
+	var marker: Component = component_script.new() as Component
+	plan.component_recipes.append(marker)
+	plan.provenance[component_script] = "saved runtime marker"
+	return marker
+
+
+static func _apply_saved_marks(marks: C_PackageMarks, saved_strokes: Array) -> void:
+	marks.strokes.clear()
+	marks.point_count = 0
+	for saved: Dictionary in saved_strokes:
+		var stroke: PackageMarkStroke = PackageMarkStroke.new()
+		stroke.points = (saved.points as PackedVector3Array).duplicate()
+		stroke.normal = saved.normal as Vector3
+		stroke.width = float(saved.width)
+		stroke.color = saved.color as Color
+		marks.strokes.append(stroke)
+		marks.point_count += stroke.points.size()
+	marks.revision += 1
+
+
+static func _apply_saved_anchor(anchored: C_PlayerAnchored, saved: Dictionary) -> void:
+	anchored.snapshot = AnchoredBodySnapshot.new()
+	anchored.snapshot.freeze = bool(saved.freeze)
+	anchored.snapshot.freeze_mode = int(saved.freeze_mode) as RigidBody3D.FreezeMode
+	anchored.snapshot.can_sleep = bool(saved.can_sleep)
 
 
 static func _prepare_fresh_recipes(records: Array, entities: Dictionary[String, Entity],
