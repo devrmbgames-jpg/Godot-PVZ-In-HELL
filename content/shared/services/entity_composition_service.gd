@@ -31,6 +31,12 @@ static func context_for(actor: Entity, world: World, actor_id: String,
 	for endpoint_name: StringName in authoring.bindings:
 		var endpoint_path: NodePath = authoring.bindings[endpoint_name]
 		context.bindings[endpoint_name] = actor.get_node_or_null(endpoint_path) as Entity
+	if not authoring.ancestor_entity_bindings.is_empty():
+		var ancestor: Node = actor.get_parent()
+		while ancestor != null and not ancestor is Entity:
+			ancestor = ancestor.get_parent()
+		for endpoint_name: String in authoring.ancestor_entity_bindings:
+			context.bindings[StringName(endpoint_name)] = ancestor as Entity
 	return context
 
 
@@ -67,6 +73,21 @@ static func build_plan(context: EntitySpawnContext) -> EntityBuildPlan:
 		return rejected
 
 	var authoring: EntityAuthoring = authoring_input as EntityAuthoring
+	if authoring != null:
+		var seen_endpoints: Dictionary[StringName, bool] = {}
+		for endpoint_name: String in authoring.ancestor_entity_bindings:
+			var endpoint_key: StringName = StringName(endpoint_name)
+			if endpoint_key.is_empty() or authoring.bindings.has(endpoint_key) \
+					or seen_endpoints.has(endpoint_key):
+				var rejected: EntityBuildPlan = EntityBuildPlan.new()
+				var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()
+				issue.code = &"invalid_authoring"
+				issue.message = "Scene endpoint names require one nonempty authoring provider"
+				issue.instance_path = context.instance_path
+				issue.source = String(AUTHORING_META)
+				rejected.issues.append(issue)
+				return rejected
+			seen_endpoints[endpoint_key] = true
 	var template: DEF_EntityTemplate = authoring.entity_template if authoring != null else null
 	var code_recipes: Array[Component] = []
 	code_recipes.assign(actor.define_components())

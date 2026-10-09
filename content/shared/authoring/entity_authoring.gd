@@ -9,3 +9,6 @@ class_name EntityAuthoring
 @export var definitions: Dictionary[StringName, GameDefinition] = {}
 ## Local scene endpoint references; explicit World preparation validates their ownership.
 @export var bindings: Dictionary[StringName, NodePath] = {}
+
+## Named optional scene endpoints resolved to the nearest ancestor Entity during pure capture.
+@export var ancestor_entity_bindings: PackedStringArray = PackedStringArray()

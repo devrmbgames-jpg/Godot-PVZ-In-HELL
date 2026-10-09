@@ -466,7 +466,14 @@
       "action": "migrate",
       "capability": "physical_slot",
       "contract": "Initial R_SlotMountedOn becomes a validated binding intent; fix endpoints after one registration of the whole placed set.",
-      "resolved": false
+      "resolved": true,
+      "resolution": {
+        "kind": "validated_initial_mount_binding",
+        "replacement": "content/domains/interaction/authoring/et_physical_slot.tres",
+        "template": "content/domains/interaction/definitions/def_entity_physical_slot.tres",
+        "contract": "Scene-owned ancestor endpoint capture preserves nearest Entity hierarchy through ordinary scene helpers. Common compiler validates optional mount intents and required supports before native registration; shared fixup materializes fresh Relationships. E_PhysicalSlot has no on_ready mount installer. Duplicate endpoint authors and missing supports reject; standalone slots remain unmounted.",
+        "validation": "Current task-41 worktree: native GUT 94/94 / 662 assertions with zero diagnostics; parser 6+1 files PASS; actual main/physical-placement/inspection/Night write+restore clean. Full task acceptance remains pending."
+      }
     },
     {
       "source": "content/domains/interaction/services/anchoring_service.gd",

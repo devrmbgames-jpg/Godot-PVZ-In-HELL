@@ -13890,6 +13890,20 @@
       "owner": "commerce",
       "role": "definitions",
       "task": "retain"
+    },
+    {
+      "source": "content/domains/interaction/authoring/et_physical_slot.tres",
+      "target": "content/domains/interaction/authoring/et_physical_slot.tres",
+      "owner": "interaction",
+      "role": "authoring",
+      "task": "retain"
+    },
+    {
+      "source": "content/domains/interaction/definitions/def_entity_physical_slot.tres",
+      "target": "content/domains/interaction/definitions/def_entity_physical_slot.tres",
+      "owner": "interaction",
+      "role": "definitions",
+      "task": "retain"
     }
   ],
   "old_save_migration": false,

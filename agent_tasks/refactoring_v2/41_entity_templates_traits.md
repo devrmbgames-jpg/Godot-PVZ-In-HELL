@@ -435,3 +435,37 @@ bodies without re-registering them. Then migrate customer actions/role capabilit
 remaining factories, establish complete defaults/saved-overlay/endpoint/ready ordering, resolve loader
 retention and close ALL manifest obligations before the coherent task-41 commit. Task 41 remains
 IN_PROGRESS; 42 not started. No old-save migration, rendered gameplay or subjective visual QA.
+
+
+## Physical-slot initial binding batch
+
+E_PhysicalSlot.on_ready no longer installs R_SlotMountedOn. Its two native scene variants author a
+flat physical_slot Template with required slot data/support nodes and an optional mount intent.
+EntityAuthoring explicitly declares named ancestor Entity endpoints; common pure context capture
+preserves the nearest-parent Entity contract across ordinary intermediate nodes. Duplicate/empty
+endpoint authors reject before intrinsic compilation; complete set/World validation rejects foreign
+endpoints. Freestanding slots intentionally have no mount. Runtime binding uses the shared validated
+registration/fixup path and fresh relation data; it is not an additional Entity callback installer.
+
+Native regression checks nested scene ancestry, pure no-live-state preview, one registration/binding,
+shared prototype isolation, optional freestanding mount, missing anchor rejection and ambiguous
+endpoint rejection. Fixture teardown now calls pinned World.purge before free to break archetype
+transition-edge reference cycles; the prior 24-object/13-resource leak was diagnosed and eliminated.
+Current ongoing task-41 worktree validation: coupled compiler/registration/slot/CharacterBody/Customer/
+melee native GUT **94/94 / 662 assertions PASS**, zero diagnostics; changed owner/fixture parser
+**6 files PASS**, final inspection fixture parser **1 file PASS**. Actual main vertical_slice,
+physical_slots_placement, customer_inspection and independent Night write/restore PASS; all final
+logs independently scanned with zero diagnostics. The navigation/parcel inspection fixture disables
+all district footsteps to isolate accelerated physical validation; audio playback is not claimed as
+validated. Strict project/domain/map/dependency/architecture/persistence/preflight and local Formatter
+checks PASS. Self-review is non-independent and confirms one mount authority, immutable authoring,
+fresh mutable bindings, unchanged authored exports/hierarchy and rejection without publication.
+
+Evidence: `.artifacts/refactoring_v2_41_slot_final_gut.log`, `...slot_parser.log`,
+`...slot_inspection_parser.log`, `...slot_finish_runtime.log`. Latest clean native logs:
+`vertical_slice-20261009-151240294.log`, `physical_slots_placement-20261009-151250715.log`,
+`customer_inspection-20261009-151542812.log`, `night_persistence-write-20261009-151555224.log`,
+`night_persistence-restore-20261009-151605356.log`.
+This is a bounded initial-provider milestone, not task-41 completion. Task remains IN_PROGRESS;
+full manifest, complete ready/saved-overlay/fixup barrier and inherited cold-loader retention are
+still pending. Next: session loot queue, package-content/Profile providers, then complete ready gate.

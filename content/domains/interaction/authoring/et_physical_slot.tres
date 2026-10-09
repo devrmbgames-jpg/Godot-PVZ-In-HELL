@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EntityTrait" format=3]
+
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
+[ext_resource type="Script" path="res://content/domains/interaction/components/c_physical_slot.gd" id="Slot"]
+[ext_resource type="Script" path="res://content/shared/contracts/entity_initial_binding.gd" id="Binding"]
+[ext_resource type="Script" path="res://content/domains/interaction/relationships/r_slot_mounted_on.gd" id="Mount"]
+
+[sub_resource type="Resource" id="Mount"]
+script = ExtResource("Mount")
+
+[sub_resource type="Resource" id="Binding"]
+script = ExtResource("Binding")
+relation = SubResource("Mount")
+endpoint = &"mounted_on"
+optional = true
+
+[resource]
+script = ExtResource("Trait")
+trait_id = &"physical_slot"
+required_root_class = &"Node3D"
+required_components = [ExtResource("Slot")]
+required_nodes = [NodePath("Anchor"), NodePath("Anchor/StoredRemoteTransform")]
+initial_bindings = [SubResource("Binding")]

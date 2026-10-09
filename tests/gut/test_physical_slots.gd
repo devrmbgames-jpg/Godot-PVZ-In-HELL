@@ -50,9 +50,9 @@ func before_each() -> void:
 	_actor.lowered_right_hand_slot = anchor
 	_actor.lowered_left_hand_slot = anchor
 	_world.add_entity(_actor)
-	_slot = (load("res://content/domains/interaction/entities/physical_slot.tscn") as PackedScene).instantiate() as E_PhysicalSlot
+	_slot = _slot_scene().instantiate() as E_PhysicalSlot
 	(_slot as Node as Node3D).position = Vector3(0, 1, -1.5)
-	_world.add_entity(_slot)
+	EntityCompositionFixture.register(_world, _slot)
 	_item = _make_item()
 	_body = GrabQueries.physical_body(_item)
 	_hold(_item, C_Grabbable.HoldSlot.RIGHT_HAND)
@@ -65,8 +65,14 @@ func after_each() -> void:
 	for entity: Entity in _world.entities.duplicate():
 		PhysicalSlotService.entity_unavailable(entity)
 		GrabReleaseService.entity_unavailable(entity)
+	# Native purge breaks the pinned archetype transition-edge reference cycles.
+	_world.purge(false)
 	_world.free()
 	ECS.world = null
+
+
+func _slot_scene() -> PackedScene:
+	return load("res://content/domains/interaction/entities/physical_slot.tscn") as PackedScene
 
 
 func _make_item() -> Entity:
@@ -252,4 +258,80 @@ func test_mount_owner_removal_releases_stored_item() -> void:
 	for registered: Entity in _world.entities:
 		assert_true(is_instance_valid(registered), "No freed child slot remains in ECS")
 
+#endregion
+
+
+#region Initial mount recipe
+## Pure capture crosses ordinary scene helpers and binds to the nearest registered ancestor Entity.
+func test_nested_slot_mount_is_validated_before_native_registration() -> void:
+	var bridge: Node3D = Node3D.new()
+	_actor.add_child(bridge)
+	var scene: PackedScene = _slot_scene()
+	var nested_slot: E_PhysicalSlot = scene.instantiate() as E_PhysicalSlot
+	bridge.add_child(nested_slot)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(nested_slot, _world,
+		"fixture/nested_slot")
+	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
+	assert_true(plan.valid())
+	assert_eq(plan.bindings.size(), 1)
+	assert_eq(plan.bindings[0].target, _actor)
+	assert_true(plan.bindings[0].relation is R_SlotMountedOn)
+	assert_true(nested_slot.relationships.is_empty())
+	assert_true(nested_slot.components.is_empty())
+	assert_eq(nested_slot.id, "")
+
+	var publications: Array[Entity] = []
+	_world.entity_added.connect(func(actor: Entity) -> void: publications.append(actor))
+	assert_true(EntityCompositionService.register_plan(context, plan, false))
+	assert_eq(publications, [nested_slot])
+	assert_eq(nested_slot.relationships.size(), 1)
+	assert_eq(nested_slot.relationships[0].target, _actor)
+	var template: DEF_EntityTemplate = EntityCompositionService.authoring_for(
+		nested_slot
+	).entity_template
+	var prototype: Component = template.traits[0].initial_bindings[0].relation
+	assert_ne(nested_slot.relationships[0].relation, prototype)
+	assert_false(EntityCompositionService.register_plan(context, plan, false))
+	assert_eq(publications.size(), 1)
+	assert_eq(nested_slot.relationships.size(), 1)
+
+
+## A freestanding fixture remains intentionally unmounted without an on_ready installer.
+func test_standalone_slot_has_no_implicit_mount_relationship() -> void:
+	assert_true(_slot.relationships.is_empty())
+	assert_true(EntityCompositionService.recipes_prepared(_slot))
+
+
+## Missing authored supports reject before native publication, without installing a partial slot.
+func test_slot_missing_anchor_rejects_initial_recipe() -> void:
+	var scene: PackedScene = _slot_scene()
+	var proposed: Entity = autofree(scene.instantiate()) as Entity
+	proposed.get_node("Anchor").free()
+	var context: EntitySpawnContext = EntityCompositionService.context_for(proposed, _world,
+		"fixture/missing_anchor")
+	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
+	assert_false(plan.valid())
+	var before: int = _world.entities.size()
+	assert_false(EntityCompositionService.register_plan(context, plan))
+	assert_eq(_world.entities.size(), before)
+	assert_true(proposed.components.is_empty())
+	assert_true(proposed.relationships.is_empty())
+	assert_eq(proposed.id, "")
+
+
+## Two scene endpoint authors cannot silently overwrite one another during context capture.
+func test_conflicting_local_and_ancestor_endpoint_names_reject_authoring() -> void:
+	var actor: Entity = autofree(Entity.new()) as Entity
+	var authoring: EntityAuthoring = EntityAuthoring.new()
+	authoring.bindings[&"mounted_on"] = NodePath("..")
+	authoring.ancestor_entity_bindings = PackedStringArray(["mounted_on"])
+	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, _world,
+		"fixture/ambiguous_mount")
+	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
+	assert_false(plan.valid())
+	assert_eq(plan.issues[0].code, &"invalid_authoring")
+	assert_false(EntityCompositionService.register_plan(context, plan))
+	assert_true(actor.components.is_empty())
+	assert_eq(actor.id, "")
 #endregion
