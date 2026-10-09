@@ -47,7 +47,15 @@ repair5e686deb68c4dc838ecbf1ab4a5e8dce146d88f4 (owned/closed in46). Full structu
 CLI rerun PASS91/3,zero errors/review gates. Windows48 QA export/menu/level headless startup
 PASS; native rendering/focus QA remains pending. Core representative GUT preparation PASS:11 suites,175 tests /1902 assertions,25.271s; no runtime or shutdown errors (tests/artifacts/refactoring_v2_49_core_preparation_gut.log). Native authoring/placed/identity preparation PASS:3 suites,33 tests /281 assertions,1.444s; no diagnostics (tests/artifacts/refactoring_v2_49_authoring_preparation_gut.log).
 
-Preparatory architecture review will inspect immutable Phase2C delta from the accepted41
-baseline dc7e9490e59510fefa820793874ae117fbb07d01 to current committed source. Previous
-individual milestone reviews passed after repairs; this separate review checks cross-owner
-core contracts. Required42/48 owner QA still prevents49/Phase3 completion.
+## Preparatory architecture review / Gate
+
+Immutable baseline dc7e9490e59510fefa820793874ae117fbb07d01 to source
+f3739a750b294f1ddaddb7f3c8e89dd10ec3a9a8: ARCHITECTURE PASS, STYLE PASS; no material
+findings in bounded cross-owner review. Reviewer VALIDATION NOT_RUN (source only).
+Compiler/registration, reservation retirement, capped System cadence, schedule receipts,
+retained participation/save ownership and read-only tooling contracts remain coherent.
+
+All listed preparatory automatic gates passed. Required42/48 owner editor QA is still
+pending, so49 remains PLANNED and60-66 have not started. No independent implementation
+remains before those gates: next action is the pending owner approval/result, then actual
+editor/visual validation and gate49 closure. Goal completion is not claimed.
