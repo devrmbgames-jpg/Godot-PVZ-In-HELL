@@ -39,32 +39,48 @@ Fixture tests + полный content scan.
 
 ## Current / Next
 
-Implementation complete; immutable architecture/style review remains REVIEW_PENDING.
-Content Doctor aggregates existing pure compiler/identity/Smart Object/Quest providers,
-checks detached native scenes and resources, explicit NPC/address factory inputs, exported
-paths/types/ranges, district schedules/place graphs and locomotion/attack animations.
-Imported Dialogue Manager cues/tags/links/ctx method arity are inspected without evaluation;
-unknown integrations/dynamic expressions retain an explicit REVIEW_REQUIRED gate.
-Unused Template declarations share the runtime compiler's extracted identity provider.
+Checkpoint `3292e5a171f33626577730ebd45a5720b15d5a55` implemented Content Doctor;
+immutable review found two completeness bugs. Main reproduced both in detached native
+fixtures (18/20 passed, two expected diagnostic assertions failed; no runtime errors).
+Task remains IN_PROGRESS pending the targeted repair review.
+
+Doctor aggregates existing compiler/identity/Smart Object/Quest providers, checks detached
+native scenes/resources and explicit NPC/address factory inputs. Imported Dialogue cues,
+tags, links and declared ctx method arity are inspected without evaluation; unsupported
+expressions/integrations retain an explicit REVIEW_REQUIRED gate. Unused Template
+identity declarations share the same runtime compiler provider.
 
 CLI: `python -B utils/validate_content_doctor.py`.
 Major gate: `python -B utils/validate_project_structure.py --content-doctor`.
-Usage and diagnostic contracts: [Content Doctor](../../docs/content_doctor.md).
+Usage: [Content Doctor](../../docs/content_doctor.md).
 
-Current evidence:
-- PASS: 75 tests / 432 assertions across Doctor, Entity compiler, native preview and Smart
-  Object regressions (`tests/artifacts/refactoring_v2_46_regression.log`).
-- PASS: final expanded Doctor fixtures, 18 tests / 89 assertions
-  (`tests/artifacts/refactoring_v2_46_final_gut.log`).
-- PASS: diagnostic driver, five tests; live errors/Node retention remain blocking and only
-  specified shutdown retention may be deferred with preserved console evidence.
-- PASS: full integrated structure/content scan, 90 scenes / three dialogues, zero content
-  errors or unresolved review gates; native report `.artifacts/content_doctor.json` and
-  console `tests/artifacts/content_doctor.log` (final acceptance log retained separately).
-- PASS: scoped formatter and incremental/strict architecture/static structure checks.
-- PASS: changed-script parser, eight files / zero failures
-  (`tests/artifacts/refactoring_v2_46_parser.log`). Immutable review remains pending.
+## Review / Triage
 
-Task42 still OWNER_QA_PENDING; no rendered/editor QA approval has arrived.
-Next after review: archive46 and implement48 selected-Entity read-only debugger. Owner
-editor QA required by42/48 is not replaced by this detached scan.
+Source: `3292e5a171f33626577730ebd45a5720b15d5a55`, baseline
+`8f495ccb1f37f3a889a37a460b2a0036aff0149a`; STYLE PASS, ARCHITECTURE FAIL.
+Reviewer validation NOT_RUN; main executed actual repro and repair checks.
+
+- RV-001 / P1: missing or incorrectly typed district anchors escaped the scan, while
+  strict runtime arrivals reject them. ACCEPTED, implemented repair: owning detached
+  levels resolve every declared anchor as Node3D; coordinate-only places remain valid.
+  Native HOME/PORTAL fixture demonstrates missing/type failures and valid retry.
+- RV-002 / P1: placed NPC attack clips were skipped although prefab checks passed.
+  ACCEPTED, implemented repair: one scene compilation path aggregates owning identity,
+  NPC construction and Entity compiler providers for placed/factory actors; animation
+  checks consume each actual compiled C_NpcCombat. Native valid prefab / overridden
+  placed melee+ranged clip fixture demonstrates the difference without tree entry.
+
+Repair evidence:
+- PASS: Doctor/compiler/native-preview regressions, 63 tests / 374 assertions
+  (`tests/artifacts/refactoring_v2_46_review_fix.log`).
+- PASS: changed-script parser, two files / zero failures
+  (`tests/artifacts/refactoring_v2_46_repair_parser.log`).
+- PASS: integrated structure/full content scan, 90 scenes / three dialogues, zero errors
+  and zero review gates, 12.15 seconds (`tests/artifacts/refactoring_v2_46_repair_acceptance.log`).
+- PASS: scoped formatter, incremental and strict architecture; exact diagnostic contracts.
+- PASS at checkpoint: five driver regression tests distinguish known shutdown retention
+  from live/unknown errors and actual retained Nodes; console logs remain preserved.
+
+Next: immutable repair commit, targeted re-review and triage closure before archiving46.
+Task42 still OWNER_QA_PENDING; no rendered/editor QA approval has arrived. After46,
+implement48 read-only selected-Entity view; owner editor QA is a separate required gate.

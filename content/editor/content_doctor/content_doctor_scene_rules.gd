@@ -21,35 +21,46 @@ static func inspect(
 			continue
 		for recipe: Component in (candidate as Entity).component_resources:
 			if recipe is C_District and (recipe as C_District).definition != null:
+				var definition: DEF_District = (recipe as C_District).definition
 				issues.append_array(
 					ContentDoctorResourceRules.inspect(
-						(recipe as C_District).definition,
+						definition,
 						"%s:%s/definition" % [source, scene_root.get_path_to(candidate)],
 					)
 				)
+				if not scene_root is Entity:
+					_check_district_anchors(scene_root, candidate, definition, source, issues)
 	if not issues.is_empty():
 		return issues
-	if not scene_root is Entity:
-		var report: Dictionary = EntityAuthoringPreviewRules.inspect_scene(scene_root)
-		for message: String in report["issues"]:
-			issues.append(ContentDoctorIssue.error(&"scene_identity", source, ".", message))
-		for actor_report: Dictionary in report["actors"]:
-			for issue: Dictionary in actor_report["issues"]:
-				issues.append(
-					ContentDoctorIssue.error(
-						StringName(issue["code"]),
-						source,
-						"%s/%s" % [actor_report["path"], issue["source"]],
-						String(issue["message"]),
-					)
-				)
-	else:
-		_compile_prefab(scene_root, source, person, district_definition, address, issues)
+	_compile_scene(scene_root, source, person, district_definition, address, issues)
 	_check_native_animations(scene_root, source, issues)
 	return issues
 
 
-static func _compile_prefab(
+static func _check_district_anchors(
+	level: Node,
+	district_actor: Node,
+	definition: DEF_District,
+	source: String,
+	issues: Array[ContentDoctorIssue],
+) -> void:
+	for place: DEF_DistrictPlace in definition.places:
+		if place == null or place.anchor_path.is_empty():
+			continue
+		# Runtime resolves declared anchors from ECS.world's owning level, not the session Entity.
+		if not level.get_node_or_null(place.anchor_path) is Node3D:
+			issues.append(
+				ContentDoctorIssue.error(
+					&"district_anchor",
+					source,
+					"%s/definition/places/%s/anchor_path"
+					% [level.get_path_to(district_actor), place.key],
+					"Declared district anchor must resolve to Node3D: %s" % place.anchor_path,
+				)
+			)
+
+
+static func _compile_scene(
 	scene_root: Node,
 	source: String,
 	person: NpcRecord,
@@ -57,7 +68,12 @@ static func _compile_prefab(
 	address: DEF_DistrictPlace,
 	issues: Array[ContentDoctorIssue],
 ) -> void:
-	var actors: Array[Entity] = [scene_root as Entity]
+	var actors: Array[Entity] = []
+	if scene_root is Entity:
+		actors.append(scene_root as Entity)
+	else:
+		for message: String in PlacedIdentityRules.compile_for(scene_root):
+			issues.append(ContentDoctorIssue.error(&"scene_identity", source, ".", message))
 	for child: Node in scene_root.find_children("*", "", true, false):
 		if child is Entity:
 			actors.append(child as Entity)
@@ -79,6 +95,10 @@ static func _compile_prefab(
 			if address != null:
 				NpcConstructionService.configure_address(context, address)
 		contexts.append(context)
+	if not scene_root is Entity:
+		for message: String in NpcConstructionService.configure_placed(contexts):
+			issues.append(ContentDoctorIssue.error(&"scene_identity", source, ".", message))
+	for context: EntitySpawnContext in contexts:
 		plans.append(EntityCompositionService.build_plan(context))
 	EntityBuildRules.validate_registration_batch(contexts, plans)
 	for index: int in plans.size():

@@ -8227,7 +8227,8 @@
         "compile_for"
       ],
       "sources": [
-        "content/scenes/game_world.gd"
+        "content/scenes/game_world.gd",
+        "content/editor/content_doctor/content_doctor_scene_rules.gd"
       ],
       "method_rights": {
         "compile_for": "read"

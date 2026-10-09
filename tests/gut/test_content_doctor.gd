@@ -1,6 +1,11 @@
 extends GutTest
 ## Pure content diagnostics include real pinned compiler tokens without executing mutations.
 
+const _AUTHORING_LEVEL: PackedScene = preload(
+	"res://tests/fixtures/refactoring_v2/authoring_level.tscn"
+)
+const _NPC_PREFAB: PackedScene = preload("res://content/domains/npc/entities/npc_character.tscn")
+
 
 ## A declared action lets the fixture detect accidental context instantiation/execution.
 class ContextProbe extends RefCounted:
@@ -275,9 +280,7 @@ func test_smart_object_missing_marker_slot_and_executor_reuse_owner_provider() -
 
 
 func test_duplicate_placed_identity_and_missing_native_animation_have_instance_context() -> void:
-	var level: Node = autofree(
-		load("res://tests/fixtures/refactoring_v2/authoring_level.tscn").instantiate()
-	) as Node
+	var level: Node = autofree(_AUTHORING_LEVEL.instantiate()) as Node
 	var resident: E_NpcCharacter = level.get_node("Resident") as E_NpcCharacter
 	resident.set_meta(PlacedIdentityRules.LOCAL_ID_META, &"trader")
 	resident.walk_animation = &"MissingWalk"
@@ -324,6 +327,98 @@ func test_existing_wrong_resource_type_keeps_declaring_definition_field_context(
 			assert_eq(issue.field, "npc_scene_path")
 	assert_true(found_type_error)
 	assert_eq(DirAccess.remove_absolute(ProjectSettings.globalize_path(path)), OK)
+
+
+func test_district_level_rejects_missing_home_and_wrong_type_portal_anchors() -> void:
+	var level: Node3D = autofree(Node3D.new()) as Node3D
+	level.name = "DoctorLevel"
+	level.set_meta(PlacedIdentityRules.WORLD_ID_META, &"doctor_anchor_level")
+	var session: Entity = Entity.new()
+	session.name = "DistrictSession"
+	level.add_child(session)
+	session.owner = level
+	session.set_meta(PlacedIdentityRules.LOCAL_ID_META, &"district")
+	var district: C_District = C_District.new()
+	district.definition = DEF_District.new()
+	var home: DEF_DistrictPlace = DEF_DistrictPlace.new()
+	home.key = &"home"
+	home.kind = DEF_DistrictPlace.Kind.HOME
+	home.anchor_path = NodePath("HomeAnchor")
+	var portal: DEF_DistrictPlace = DEF_DistrictPlace.new()
+	portal.key = &"portal"
+	portal.kind = DEF_DistrictPlace.Kind.PORTAL
+	portal.anchor_path = NodePath("PortalAnchor")
+	var coordinate_only: DEF_DistrictPlace = DEF_DistrictPlace.new()
+	coordinate_only.key = &"coordinate"
+	district.definition.places = [home, portal, coordinate_only]
+	session.component_resources = [district]
+	var capability: EntityTrait = EntityTrait.new()
+	capability.trait_id = &"district"
+	capability.initial_field_names[C_District as Script] = PackedStringArray(
+		["people", "next_person"]
+	)
+	_attach_traits(session, [capability])
+	var wrong_portal: Node = Node.new()
+	wrong_portal.name = "PortalAnchor"
+	level.add_child(wrong_portal)
+	var issues: Array[ContentDoctorIssue] = ContentDoctorSceneRules.inspect(level, "anchor_level")
+	assert_eq(issues.size(), 2)
+	if issues.size() != 2:
+		return
+	for issue: ContentDoctorIssue in issues:
+		assert_eq(issue.code, &"district_anchor")
+		assert_eq(issue.source, "anchor_level")
+		assert_string_contains(issue.field, "DistrictSession/definition/places/")
+	assert_false(level.is_inside_tree())
+	assert_eq(session.ecs_id, 0)
+	wrong_portal.free()
+	for anchor_name: String in ["HomeAnchor", "PortalAnchor"]:
+		var marker: Marker3D = Marker3D.new()
+		marker.name = anchor_name
+		level.add_child(marker)
+	issues = ContentDoctorSceneRules.inspect(level, "anchor_level")
+	assert_true(issues.is_empty())
+
+
+func test_placed_attack_clip_override_is_checked_against_actual_compiled_combat() -> void:
+	var original: E_NpcCharacter = autofree(_NPC_PREFAB.instantiate()) as E_NpcCharacter
+	_configure_attack_clip(original)
+	assert_true(ContentDoctorSceneRules.inspect(original, "valid_prefab").is_empty())
+	var level: Node = autofree(_AUTHORING_LEVEL.instantiate()) as Node
+	var resident: E_NpcCharacter = level.get_node("Resident") as E_NpcCharacter
+	_configure_attack_clip(resident)
+	resident.animation_player.remove_animation_library(&"doctor")
+	assert_false(resident.animation_player.has_animation_library(&"doctor"))
+	var issues: Array[ContentDoctorIssue] = ContentDoctorSceneRules.inspect(level, "attack_level")
+	assert_eq(issues.size(), 2)
+	for issue: ContentDoctorIssue in issues:
+		assert_eq(issue.code, &"animation_name")
+		assert_eq(issue.source, "attack_level")
+		assert_string_contains(issue.field, "Resident/attack/")
+		assert_string_contains(issue.message, "doctor/")
+	assert_true(original.animation_player.has_animation(&"doctor/strike"))
+	assert_false(level.is_inside_tree())
+	assert_eq(resident.ecs_id, 0)
+
+
+func _configure_attack_clip(actor: E_NpcCharacter) -> void:
+	var library: AnimationLibrary = AnimationLibrary.new()
+	assert_eq(library.add_animation(&"strike", Animation.new()), OK)
+	assert_eq(library.add_animation(&"throw", Animation.new()), OK)
+	assert_eq(actor.animation_player.add_animation_library(&"doctor", library), OK)
+	actor.component_resources = actor.component_resources.duplicate()
+	for index: int in actor.component_resources.size():
+		if actor.component_resources[index] is C_NpcCombat:
+			var combat: C_NpcCombat = C_NpcCombat.new()
+			var attack: DEF_NpcAttack = DEF_NpcAttack.new()
+			attack.animation = &"doctor/strike"
+			var ranged: DEF_NpcAttack = DEF_NpcAttack.new()
+			ranged.animation = &"doctor/throw"
+			combat.melee_attacks = [attack]
+			combat.ranged_attacks = [ranged]
+			actor.component_resources[index] = combat
+			return
+	assert_true(false, "Native NPC fixture must contain authored C_NpcCombat")
 
 
 func _attach_traits(actor: Entity, traits: Array[EntityTrait]) -> void:

@@ -46,8 +46,9 @@ runtime identity or silently accept an unverified factory contract.
 
 Resource checks include native exported ranges, finite authored numbers, schedule locations
 and weekdays, NPC Trait compatibility, district place/route keys, attack ranges and durations,
-concrete action executors and existing quest issuer/Definition rules. Native NPC locomotion
-and compiled attack animation names must exist in the corresponding AnimationPlayer.
+concrete action executors and existing quest issuer/Definition rules. Declared district anchors
+resolve as Node3D in their owning detached level. Native NPC locomotion and actual compiled
+placed/prefab attack animation names must exist in the corresponding AnimationPlayer.
 
 Imported Dialogue Manager 4.1 resources are inspected directly. Required entry cues come from
 the existing street/service integrations and referenced Customer Definitions; semantic response
