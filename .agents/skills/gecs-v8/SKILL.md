@@ -15,6 +15,7 @@ Canonical project roles and ownership are defined in [content/ARCHITECTURE.md](.
 
 - Components are data/state only.
 - Scene-authored reusable Components should normally be exposed through `component_resources`.
+- Visible/physical placed Entities stay native designer-editable `.tscn` scenes. Templates/Traits provide capabilities, not invisible replacements. `E_*` scripts own identity/lifecycle/engine glue only; no giant script assembling the entire world or duplicating runtime authority.
 - Entities own identity/lifecycle and thin Godot scene/physics glue.
 - Systems own scheduled behavior; Observers own discrete/reactive transitions.
 - Explicit synchronous domain operations belong in Services; reusable algorithms belong in Rules/Calculation/Geometry/Solver helpers. Neither extracts scheduled ownership out of a System.

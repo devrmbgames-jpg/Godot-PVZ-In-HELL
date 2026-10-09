@@ -8,6 +8,21 @@ Status: **PLANNED**
 
 Сделать Code Style воспроизводимым для человека, VSCode, Godot и агента до массовой правки исходников.
 
+## Подготовительная локальная защита (2026-10-09)
+
+До начала Phase 3 добавлен **инкрементальный** formatter/linter для текущих агентских задач:
+`utils/check_gdscript_format.py` проверяет только новые строки существующих файлов,
+новые файлы целиком, поддерживает `--changed` / `--base` / `--strict`, исключает
+только внешний lint `class-name` и самостоятельно проверяет утверждённые GECS-роли.
+Отсутствие CLI даёт NOT_RUN/exit 2. `utils/validate_agent_changes.py` и
+reviewer требуют архитектурной оценки изменённых сцен/кода. Python unit
+fixtures находятся в `tests/tools/test_agent_style_guard.py` и
+`test_agent_architecture_guard.py`.
+
+**Статус этой задачи остаётся PLANNED:** основной Phase 3 formatter/linter
+по всей project-owned базе, миграции Code Style по доменам и конечная
+приёмка ещё не выполнялись. Подготовительный gate не заменяет работы 60–66.
+
 ## Work
 
 - привести .editorconfig к утверждённому GDScript style contract;

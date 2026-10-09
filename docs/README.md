@@ -7,6 +7,7 @@
 | [Правила агентов](../AGENTS.md) | Короткие always-on invariants и execution policy |
 | [Индекс проекта](../PROJECT_INDEX.md) | Найти owner/path, если задача сама их не указала |
 | [Gameplay architecture](../content/ARCHITECTURE.md) | Cross-system authority/lifecycle contracts |
+| [Code Style и локальные проверки](code_style.md) | GECS-префиксы, настройка GDQuest и локальные команды без GitHub CI |
 | [Шпаргалка запросов](ai_prompt_cheatsheet.md) | Короткие примеры Prompt → Plan → Goal |
 | [Roadmap](roadmap/README.md) | Design-ТЗ и их связь с implementation IDs |
 

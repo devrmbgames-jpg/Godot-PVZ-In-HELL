@@ -114,6 +114,10 @@ Static validation catches only dependable lexical patterns. Cadence, indirect he
 
 Placed NPCs/objects remain real visible physical/visual scenes in Godot Editor. Templates/Traits compose gameplay capabilities without replacing those scenes with invisible placeholders. Scene-only declarative composition is valid; an empty Template asset is not mandatory. Placed and runtime-spawned Entities have the same C/R runtime contract after materialization; Systems do not branch on authoring origin.
 
+Permanent level layout, interactive prefab composition, stable HUD/menu hierarchy and reusable actors belong in editable native `.tscn` scenes. Authored configuration/Profiles/Definitions use typed Inspector-editable `.tres` Resources. Scripted `Node.new()` or procedural creation is justified for dynamic objects, effects and genuinely computed geometry; it must not replace an authored scene merely to reduce task time. The existing `settings_menu.gd` builds a legacy static UI in code and is **not** a reference implementation for new menus. Its dynamic rows are permissible. A tooling/editor import pipeline may generate reviewable native assets; runtime may not write project `.gd` source or authored `.tscn` files.
+
+Architectural acceptance is about ownership and clear APIs, not arbitrary size: a cohesive large System stays a System. The local incremental gate `utils/validate_agent_changes.py` flags script-built permanent UI, generator patterns and expanding monoliths for human review, alongside existing strict GECS/domain validators. Do not confuse static PASS with a completed architectural review.
+
 ## Vertical domain target
 
 Refactoring v2 migrates project-owned gameplay code from horizontal role roots toward `content/domains/<domain>/<role>/`, with genuine cross-domain infrastructure under `content/shared/<role>/`. Canonical role-folder spelling is enforced by `python utils/validate_domain_structure.py`; final architecture acceptance requires `--strict`, which rejects legacy horizontal gameplay roots.
