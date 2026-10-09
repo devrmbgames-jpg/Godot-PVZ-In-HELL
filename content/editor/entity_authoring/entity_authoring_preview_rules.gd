@@ -54,11 +54,14 @@ static func _describe(context: EntitySpawnContext, plan: EntityBuildPlan) -> Dic
 				traits.append(String(capability.trait_id))
 	var providers: Array[Dictionary] = []
 	for component_script: Script in plan.provenance:
+		var field_sources: Dictionary = plan.field_provenance.get(component_script, { }).duplicate()
+		for field: Variant in field_sources:
+			field_sources[field] = _source_for(String(field_sources[field]), template)
 		providers.append(
 			{
 				"component": component_script.resource_path,
 				"source": _source_for(plan.provenance[component_script], template),
-				"fields": plan.field_provenance.get(component_script, { }),
+				"fields": field_sources,
 			}
 		)
 	var bindings: Array[Dictionary] = []
@@ -75,7 +78,7 @@ static func _describe(context: EntitySpawnContext, plan: EntityBuildPlan) -> Dic
 		issues.append(
 			{
 				"code": String(issue.code),
-				"message": issue.message,
+				"message": _source_for(issue.message, template),
 				"source": _source_for(issue.source, template),
 				"trait": String(issue.trait_id),
 			}
@@ -107,14 +110,18 @@ static func _source_for(source: String, template: DEF_EntityTemplate) -> String:
 			capability.trait_id,
 			capability.resource_path,
 		]
-		if source == captured_source:
-			return "trait:%s:%s" % [
-				capability.trait_id,
-				capability.get_meta(
-					EntityAuthoringSnapshotRules.SOURCE_META,
-					capability.resource_path,
-				),
-			]
+		if captured_source in source:
+			source = source.replace(
+				captured_source,
+				"trait:%s:%s"
+				% [
+					capability.trait_id,
+					capability.get_meta(
+						EntityAuthoringSnapshotRules.SOURCE_META,
+						capability.resource_path,
+					),
+				],
+			)
 	return source
 #endregion
 

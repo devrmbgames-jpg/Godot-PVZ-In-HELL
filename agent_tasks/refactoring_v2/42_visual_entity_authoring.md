@@ -55,22 +55,32 @@ Current external authored Resource values are copied into a disposable scene sna
 retaining original provenance and external Script/scene refs. The task-41 compiler runs
 only on detached actors after autoload registration; no ECS registration or ready callback.
 Named endpoints, native dependency cycles and whole-level identity use existing providers.
-Next: collect pinned review, fix accepted P0/P1/P2, archive 42 and continue 43.
+Review checkpoint: `1b194028c3c67811aa3a62fb45fed1cbc66fa29a`; two P2 findings accepted.
+RV-001: FIXED in pending repair checkpoint. Non-Entity edited roots now have a read-only
+Level ID panel and explicit repair; native root suppression/repair/undo/redo check PASS.
+RV-002: FIXED in pending repair checkpoint. Per-field sources and embedded diagnostic
+sources map back to authored Traits; real native capture/save/reload regression PASS.
+Next: bounded re-review of these fixes, archive 42 and continue 43.
 
 ## Automated evidence
 
 - Formatter/lint: **PASS**, 8 changed/new scripts; parser **PASS**, 8 checked / 0 failed.
-- GUT: **PASS**, 9/9 tests, 54 assertions; includes native physical actor structure,
+- GUT: **PASS**, 10/10 tests, 66 assertions; includes native physical actor structure,
   duplicate/missing level identity, binding/requirement/provider conflicts, native asset
-  cycle rejection and unsaved external Template capture without overwriting its asset.
+  cycle rejection, unsaved external Template capture without overwriting its asset,
+  and original per-field Trait provenance after native snapshot serialization/reload.
 - Actual detached preview: **PASS**, main level 57 actors and reused fixture 4 actors.
 - Strict architecture/structure/domain: **PASS**; tooling/dependency fixtures 32/32 **PASS**.
-- Native headless editor operations: install/idempotence/ID/undo/redo markers **PASS**.
+- Review-fix parser: **PASS**, 4 checked / 0 failed; incremental formatter/static gates PASS.
+- Native headless editor operations: install/idempotence/ID/undo/redo markers **PASS**;
+  non-Entity level root handling/read-only suppression and Level ID undo/redo **PASS**.
   Project settings SHA-256 unchanged. Full custom-editor process is **NOT_CLEAN** on shutdown:
   its 44 detached-node path errors and five RID categories are byte-category/count equal
   to the same harness with `-- --baseline` (no installation); no pre-marker errors.
   This inherited harness shutdown diagnostic is not reported as a clean editor/visual PASS.
-  Raw logs: `tests/artifacts/refactoring_v2_42_editor_{baseline,isolated}.log`.
+  Raw logs: `tests/artifacts/refactoring_v2_42_review_editor{,_baseline}.log`.
+  The opened-level repair harness matches its opened-level baseline (including 14 textures).
+  Focused regression/parser: `tests/artifacts/refactoring_v2_42_review_{gut,parser}.log`.
 - Workflow: [Entity authoring](../../docs/entity_authoring.md); subjective Inspector/visual
   checks remain [owner QA](../../qa_tasks/refactoring_v2.md), with no rendered test run.
 

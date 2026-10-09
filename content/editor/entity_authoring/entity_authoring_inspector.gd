@@ -15,18 +15,21 @@ var _advanced: bool = false
 
 #region Inspector presentation
 func _can_handle(object: Object) -> bool:
-	return object is Entity
+	return (
+		object is Entity or (object is Node and object == EditorInterface.get_edited_scene_root())
+	)
 
 
 func _parse_begin(object: Object) -> void:
 	var actor: Node = object as Node
 	var panel: VBoxContainer = VBoxContainer.new()
 	var title: Label = Label.new()
-	title.text = "Entity Authoring"
+	title.text = "Entity Authoring" if actor is Entity else "Level Authoring"
 	panel.add_child(title)
-	var identity: Label = Label.new()
-	identity.text = "Instance ID: %s" % actor.get_meta(_LOCAL_ID_META, "unassigned")
-	panel.add_child(identity)
+	if actor is Entity:
+		var identity: Label = Label.new()
+		identity.text = "Instance ID: %s" % actor.get_meta(_LOCAL_ID_META, "unassigned")
+		panel.add_child(identity)
 	var edited_root: Node = EditorInterface.get_edited_scene_root()
 	var world_identity: Label = Label.new()
 	world_identity.text = "Level ID: %s" % (
@@ -35,31 +38,33 @@ func _parse_begin(object: Object) -> void:
 		else "no edited scene"
 	)
 	panel.add_child(world_identity)
-	var authoring: EntityAuthoring = (
-		actor.get_meta(_AUTHORING_META) as EntityAuthoring
-		if actor.has_meta(_AUTHORING_META)
-		else null
-	)
-	var resource_id: Label = Label.new()
-	resource_id.text = "Template ID: %s" % (
-		authoring.entity_template.key
-		if authoring != null and authoring.entity_template != null
-		else "scene intrinsic"
-	)
-	panel.add_child(resource_id)
-	var repair: Button = Button.new()
-	repair.text = "Create / Repair Instance ID"
-	repair.pressed.connect(_repair_identity.bind(weakref(actor), _LOCAL_ID_META))
-	panel.add_child(repair)
+	if actor is Entity:
+		var authoring: EntityAuthoring = (
+			actor.get_meta(_AUTHORING_META) as EntityAuthoring
+			if actor.has_meta(_AUTHORING_META)
+			else null
+		)
+		var resource_id: Label = Label.new()
+		resource_id.text = "Template ID: %s" % (
+			authoring.entity_template.key
+			if authoring != null and authoring.entity_template != null
+			else "scene intrinsic"
+		)
+		panel.add_child(resource_id)
+		var repair: Button = Button.new()
+		repair.text = "Create / Repair Instance ID"
+		repair.pressed.connect(_repair_identity.bind(weakref(actor), _LOCAL_ID_META))
+		panel.add_child(repair)
 	if edited_root != null and not edited_root is Entity:
 		var repair_level: Button = Button.new()
 		repair_level.text = "Create / Repair Level ID"
 		repair_level.pressed.connect(_repair_identity.bind(weakref(edited_root), _WORLD_ID_META))
 		panel.add_child(repair_level)
-	var configure: Button = Button.new()
-	configure.text = "Template / Profiles / Named Bindings"
-	configure.pressed.connect(_edit_authoring.bind(weakref(actor)))
-	panel.add_child(configure)
+	if actor is Entity:
+		var configure: Button = Button.new()
+		configure.text = "Template / Profiles / Named Bindings"
+		configure.pressed.connect(_edit_authoring.bind(weakref(actor)))
+		panel.add_child(configure)
 	var validate: Button = Button.new()
 	validate.text = "Validate Scene Composition"
 	var diagnostics: RichTextLabel = RichTextLabel.new()
@@ -106,7 +111,10 @@ func _repair_identity(actor_ref: WeakRef, metadata_key: StringName) -> void:
 	var previous: Variant = actor.get_meta(metadata_key) if actor.has_meta(metadata_key) else null
 	var new_token: String = "actor_%s" % Crypto.new().generate_random_bytes(16).hex_encode()
 	var undo: EditorUndoRedoManager = host_plugin.get_undo_redo()
-	undo.create_action("Assign Entity Instance ID", UndoRedo.MERGE_DISABLE, actor)
+	var action_name: String = (
+		"Assign Level ID" if metadata_key == _WORLD_ID_META else "Assign Entity Instance ID"
+	)
+	undo.create_action(action_name, UndoRedo.MERGE_DISABLE, actor)
 	undo.add_do_method(actor, "set_meta", metadata_key, StringName(new_token))
 	undo.add_undo_method(actor, "set_meta", metadata_key, previous)
 	undo.add_do_method(actor, "notify_property_list_changed")
@@ -205,8 +213,10 @@ func _diagnostic_text(report: Dictionary, actor_path: String) -> String:
 	for message: Variant in report.get("issues", []):
 		lines.append(String(message))
 	for entry: Dictionary in report.get("actors", []):
-		if entry.path != actor_path:
+		if actor_path != "." and entry.path != actor_path:
 			continue
+		if actor_path == ".":
+			lines.append("Actor: %s" % entry.path)
 		lines.append("Traits: %s" % ", ".join(entry.traits))
 		for issue: Dictionary in entry.issues:
 			lines.append("%s: %s (%s)" % [issue.code, issue.message, issue.source])

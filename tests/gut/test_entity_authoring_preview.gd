@@ -153,3 +153,47 @@ func test_snapshot_bundles_unsaved_external_template_values() -> void:
 	assert_eq(FileAccess.get_file_as_string(original_path), original_text)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(scene_file))
 #endregion
+
+
+#region Snapshot provenance acceptance
+## Field configuration retains authored Trait paths after a real native snapshot save/reload.
+func test_snapshot_field_provenance_uses_original_authored_trait_paths() -> void:
+	var level: Node = autofree(_LEVEL.instantiate()) as Node
+	var resident: Entity = level.get_node("Resident") as Entity
+	resident.component_resources = resident.component_resources.duplicate()
+	resident.component_resources.append(C_NpcIdentity.new())
+	var authored_template: DEF_EntityTemplate = load(
+		"res://content/domains/npc/definitions/def_entity_district_trader.tres"
+	) as DEF_EntityTemplate
+	var template: DEF_EntityTemplate = DEF_EntityTemplate.new()
+	for capability: EntityTrait in authored_template.traits:
+		if capability is ET_NpcBrainState:
+			template.traits.append(capability)
+	var authoring: EntityAuthoring = EntityAuthoring.new()
+	authoring.entity_template = template
+	authoring.definitions[&"npc_profile"] = DEF_NpcProfile.new()
+	resident.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	var snapshot: PackedScene = EntityAuthoringSnapshotRules.capture(level)
+	var scene_file: String = "res://".path_join(".artifacts/authoring_provenance_check.tscn")
+	assert_eq(ResourceSaver.save(snapshot, scene_file), OK)
+	var loaded: PackedScene = ResourceLoader.load(
+		scene_file,
+		"",
+		ResourceLoader.CACHE_MODE_IGNORE_DEEP,
+	) as PackedScene
+	var detached: Node = autofree(loaded.instantiate()) as Node
+	var report: Dictionary = EntityAuthoringPreviewRules.inspect_scene(detached)
+	assert_true(report.valid, JSON.stringify(report))
+	var configured_fields: int = 0
+	for actor_report: Dictionary in report.actors:
+		for provider: Dictionary in actor_report.providers:
+			for field: Variant in provider.fields:
+				var source: String = String(provider.fields[field])
+				assert_false(source.contains(scene_file), source)
+				assert_false(source.contains(".artifacts/"), source)
+				if source.begins_with("trait:npc_brain_state:"):
+					configured_fields += 1
+					assert_string_contains(source, "def_entity_district_")
+	assert_gt(configured_fields, 0, "Native NPC fixture must exercise Trait field configuration")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(scene_file))
+#endregion
