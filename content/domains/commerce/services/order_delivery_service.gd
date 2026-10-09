@@ -109,7 +109,13 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 			pickup.id = key
 			body.transform = anchor.global_transform.affine_inverse() * pose
 			anchor.add_child(pickup)
-			ECS.world.add_entity(pickup, null, false)
+			var context: EntitySpawnContext = EntityCompositionService.context_for(pickup,
+				ECS.world, key)
+			if not EntityCompositionService.try_register(context, false):
+				pickup.free()
+				state.blocked = true
+				return false
+
 			state.goods[key] = weakref(pickup)
 			delivery.fulfilled = true
 			state.blocked = false
@@ -161,7 +167,11 @@ static func _furniture(zone: Entity, state: C_OrderReceiving, delivery: PendingD
 	proposal.parent = parent
 	proposal.world_pose = result.pose
 	entity.id = key_for(delivery)
-	FurniturePlacement.commit(proposal, key_for(delivery))
+	if not FurniturePlacement.prepare_composition(proposal, key_for(delivery)):
+		entity.free()
+		state.blocked = true
+		return false
+	FurniturePlacement.commit(proposal)
 	state.goods[key_for(delivery)] = weakref(entity)
 	state.reservations.append(result.bounds)
 	delivery.fulfilled = true

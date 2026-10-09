@@ -20,7 +20,7 @@ func _waiting_package(index: int) -> CustomerVisit:
 	identity.package_id = "limit/" + str(index)
 	identity.definition = _supply.packages[0]
 	parcel.component_resources = [identity, C_PackageState.new()]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	var visit: CustomerVisit = _case(_district.people[0], "limit/" + str(index))
 	visit.package_id = identity.package_id
 	return visit

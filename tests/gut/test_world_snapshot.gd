@@ -514,7 +514,7 @@ func test_omitted_package_identity_is_rejected_before_instantiation_commit() -> 
 	var package: E_Package = (load("res://content/domains/packages/entities/package.tscn") as PackedScene).instantiate() as E_Package
 	package.package_id = "test/required_identity"
 	package.package_definition = (load("res://content/domains/packages/definitions/def_delivery_morning_supply.tres") as DEF_Delivery).packages[0]
-	_world.add_entity(package)
+	EntityCompositionFixture.register(_world, package)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
 	_world.remove_entity(package)
 	for record: Dictionary in snapshot.entities:
@@ -684,6 +684,40 @@ func test_pending_receiving_recipe_wrong_prefab_rejects_before_live_mutation() -
 	assert_eq(DayPhaseQueries.current().day_index, 1)
 #endregion
 
+#region Package composition preflight
+## Invalid current authoring rejects a saved missing package before registry/calendar/ownership changes.
+func test_fresh_package_template_conflict_rejects_restore_before_live_mutation() -> void:
+	var parcel: E_Package = (load(
+		"res://content/domains/packages/entities/package.tscn") as PackedScene).instantiate() as E_Package
+	parcel.package_id = "fixture/package/rejected_template"
+	EntityCompositionFixture.register(_world, parcel)
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	_world.remove_entity(parcel)
+	var count_before: int = _world.entities.size()
+	var actor_id_before: String = _actor.id
+	var calendar: C_DayCycle = DayPhaseQueries.current()
+	calendar.day_index = 7
+
+	# Simulate an authored duplicate in the currently loaded production Template; restore sees it.
+	var template: DEF_EntityTemplate = load(
+		"res://content/domains/packages/definitions/def_entity_package.tres") as DEF_EntityTemplate
+	var conflicting: EntityTrait = EntityTrait.new()
+	conflicting.trait_id = &"fixture_duplicate_health"
+	conflicting.component_recipes = [C_Health.new()]
+	template.traits.append(conflicting)
+	var can_restore: bool = WorldSnapshotService.can_restore(snapshot, _root)
+	var restored: bool = WorldSnapshotService.restore(snapshot, _root)
+	template.traits.erase(conflicting)
+
+	assert_false(can_restore)
+	assert_false(restored)
+	assert_eq(_world.entities.size(), count_before)
+	assert_eq(_actor.id, actor_id_before)
+	assert_same(_world.entity_id_registry[actor_id_before], _actor)
+	assert_eq(calendar.day_index, 7)
+	assert_same(InventoryService.owner_for(_item), _actor)
+#endregion
+
 #region Raw package recipe reconstruction
 ## Fresh restored receiving prefab retains authored carry/impact/liquid settings and overlaid damaged HP.
 func test_fresh_package_restore_rebuilds_recipe_without_resetting_saved_health() -> void:
@@ -696,15 +730,27 @@ func test_fresh_package_restore_rebuilds_recipe_without_resetting_saved_health()
 	assert_not_null(definition)
 	var parcel: E_Package = (load(String(definition.scene_variants[0])) as PackedScene).instantiate() as E_Package
 	assert_true(ReceivingPackageFactory.configure_recipe(parcel, definition, "fixture/liquid_recipe"))
-	_world.add_entity(parcel)
-	PackageConditionService.initialize(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	(parcel.get_component(C_Health) as C_Health).current = definition.maximum_health * 0.5
 	var expected_health: float = (parcel.get_component(C_Health) as C_Health).current
 	var key: String = ActorIdentityRules.key_for(parcel, _root)
 	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
 	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
 	_world.remove_entity(parcel)
+	var registration_health: Array[float] = []
+	var registration_quantity: Array[int] = []
+	var capture_saved_state: Callable = func(actor: Entity) -> void:
+		if actor is E_Package:
+			registration_health.append((actor.get_component(C_Health) as C_Health).current)
+		if actor.has_component(C_InventoryItem):
+			var stack: C_InventoryItem = actor.get_component(C_InventoryItem) as C_InventoryItem
+			registration_quantity.append(stack.quantity)
+	_world.remove_entity(_item)
+	_world.entity_added.connect(capture_saved_state)
 	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	_world.entity_added.disconnect(capture_saved_state)
+	assert_eq(registration_health, [expected_health])
+	assert_eq(registration_quantity, [4])
 	var restored: Entity = null
 	for actor: Entity in _world.entities:
 		if ActorIdentityRules.key_for(actor, _root) == key:

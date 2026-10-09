@@ -71,7 +71,7 @@ func has_active_role() -> bool:
 #endregion
 
 #region Authored decision recipe boundary
-## Resolves an authored recipe; NpcBrainService installs and advances the single native runtime.
+## Resolves an authored recipe; NpcBrainService binds and advances the single native runtime.
 func decision_tree(native_tree: BehaviorTree) -> BehaviorTree:
 	var request: NpcBrainRecipeRequest = NpcBrainRecipeRequest.new(native_tree)
 	brain_recipe_requested.emit(request)

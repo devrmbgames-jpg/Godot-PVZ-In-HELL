@@ -29,6 +29,8 @@ func _stationary_animation() -> StringName:
 #region Рецепт клиентской роли
 ## Добавляет начальную роль только при отсутствии явного authored recipe override.
 func define_components() -> Array[Component]:
+	if EntityCompositionService.recipes_prepared(self):
+		return []
 	var recipe: Array[Component] = []
 	var authored_agent: bool = false
 	var authored_actions: bool = false

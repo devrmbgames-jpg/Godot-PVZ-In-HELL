@@ -52,7 +52,7 @@ func _run() -> void:
 	parcel.package_id = "smoke/interaction/parcel"
 	parcel.package_definition = load("res://content/domains/packages/definitions/def_test_bread.tres") as DEF_Package
 	level.add_child(parcel as Node)
-	ECS.world.add_entity(parcel, null, false)
+	EntityCompositionFixture.register(ECS.world, parcel, false)
 	(parcel as Node as RigidBody3D).gravity_scale = 0.0
 	var terminal: E_Terminal = level.get_node("Entityes/Terminal") as E_Terminal
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor

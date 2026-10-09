@@ -94,15 +94,29 @@ static func _bounds_for(node: Node3D) -> AABB:
 	return bounds
 
 
-## Однократно размещает заготовку, добавляет устойчивый ключ и регистрирует тело в World.
-static func commit(proposal: PreparedFurniture, key: String) -> void:
+## Проверяет полную композицию и устойчивый ключ до оплаты/исполнения заказа.
+## Заготовка остаётся вне дерева; отказ не регистрирует Entity и не меняет World.
+static func prepare_composition(proposal: PreparedFurniture, key: String) -> bool:
+	assert(proposal.spawn_context == null, "Furniture composition preflight runs once")
 	var identity: C_PersistentIdentity = C_PersistentIdentity.new()
 	identity.key = key
 	proposal.entity.component_resources.append(identity)
+	proposal.spawn_context = EntityCompositionService.context_for(proposal.entity, ECS.world,
+		proposal.entity.id if not proposal.entity.id.is_empty() else GECSIO.uuid())
+	proposal.build_plan = EntityCompositionService.registration_plan(proposal.spawn_context)
+	return proposal.build_plan.valid()
+
+
+## Однократно размещает и регистрирует уже проверенную заготовку в той же транзакции.
+static func commit(proposal: PreparedFurniture) -> void:
+	assert(proposal.build_plan != null and proposal.build_plan.valid(),
+		"Furniture requires accepted composition before payment/delivery commit")
 	var body: Node3D = proposal.entity as Node as Node3D
 	# Создание/восстановление — однократная граница записи позы; дальше движением владеет физика.
 	body.transform = proposal.parent.global_transform.affine_inverse() * proposal.world_pose
 	proposal.parent.add_child(body)
-	ECS.world.add_entity(proposal.entity, null, false)
+	var registered: bool = EntityCompositionService.register_plan(proposal.spawn_context,
+		proposal.build_plan, false)
+	assert(registered, "Validated synchronous furniture transaction must register exactly once")
 
 #endregion

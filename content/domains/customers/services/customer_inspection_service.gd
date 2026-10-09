@@ -30,7 +30,10 @@ static func begin(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity
 	if booth == null:
 		return false
 	if not EntityAvailability.contains(slot, ECS.world):
-		ECS.world.add_entity(slot, null, false)
+		var context: EntitySpawnContext = EntityCompositionService.context_for(slot, ECS.world,
+			slot.id if not slot.id.is_empty() else GECSIO.uuid())
+		if not EntityCompositionService.try_register(context, false):
+			return false
 	var stored: Relationship = Relationship.new(R_StoredIn.new(), slot)
 	parcel.add_relationship(stored)
 	if not PhysicalSlotService.attach(parcel, stored):

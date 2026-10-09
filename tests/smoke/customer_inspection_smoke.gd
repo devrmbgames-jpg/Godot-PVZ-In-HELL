@@ -65,7 +65,7 @@ func _exercise_inspection() -> void:
 	parcel.package_id = visit.package_id
 	(parcel as Node as RigidBody3D).position = body.position + Vector3(0, 1, 0)
 	_level.add_child(parcel)
-	ECS.world.add_entity(parcel, null, false)
+	EntityCompositionFixture.register(ECS.world, parcel, false)
 	(parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState.Registration.REGISTERED
 	CustomerParcelAssignment.bind_parcel(customer, visit)
 	var delivery_result: PackageDeliveryCheck.Result = CustomerFlowService._resolve_delivery(

@@ -284,7 +284,11 @@ static func _place_near_player(
 	)
 	zone.package_parent.add_child(parcel)
 	body.global_transform = Transform3D(Basis.IDENTITY, position)
-	ECS.world.add_entity(parcel, null, false)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(parcel, ECS.world,
+		parcel.id if not parcel.id.is_empty() else GECSIO.uuid())
+	if not EntityCompositionService.try_register(context, false):
+		zone.package_parent.remove_child(parcel)
+		return false
 	return true
 
 

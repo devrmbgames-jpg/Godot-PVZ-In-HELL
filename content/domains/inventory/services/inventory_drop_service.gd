@@ -74,7 +74,14 @@ static func drop(actor: Entity, item: Entity) -> bool:
 	var pose: Transform3D = Transform3D(Basis.IDENTITY, position as Vector3)
 	body.transform = (parent as Node3D).global_transform.affine_inverse() * pose if parent is Node3D else pose
 	parent.add_child(body)
-	ECS.world.add_entity(pickup, null, false)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(pickup, ECS.world,
+		pickup.id if not pickup.id.is_empty() else GECSIO.uuid())
+	if not EntityCompositionService.try_register(context, false):
+		pickup.free()
+		state.transfer_in_progress = false
+		inventory.transfer_in_progress = false
+		return false
+
 	ECS.world.remove_entity(item)
 	inventory.transfer_in_progress = false
 	return true
@@ -110,7 +117,13 @@ static func release_on_death(owner: Entity) -> void:
 		state.transfer_in_progress = true
 		owner.get_parent().add_child(pickup)
 		(pickup as Node as Node3D).global_position = spatial.global_position + Vector3(0.6, 0.4, 0.0)
-		ECS.world.add_entity(pickup, null, false)
+		var context: EntitySpawnContext = EntityCompositionService.context_for(pickup, ECS.world,
+			pickup.id if not pickup.id.is_empty() else GECSIO.uuid())
+		if not EntityCompositionService.try_register(context, false):
+			pickup.free()
+			state.transfer_in_progress = false
+			continue
+
 		ECS.world.remove_entity(item)
 
 

@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://content/domains/commerce/entities/trader.tscn" id="Trader"]
+[ext_resource type="Script" path="res://content/domains/npc/entities/e_district_npc.gd" id="District_npc"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="Authoring"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_entity_district_trader.tres" id="Template"]
+
+[sub_resource type="Resource" id="Authoring"]
+script = ExtResource("Authoring")
+entity_template = ExtResource("Template")
+
+[node name="Trader" instance=ExtResource("Trader")]
+script = ExtResource("District_npc")
+metadata/entity_composition = SubResource("Authoring")

@@ -15,6 +15,9 @@ func _ready() -> void:
 	if authored_world != null and authored_world.initialization_failed():
 		for issue: String in authored_world.identity_issues():
 			push_error(issue)
+		for issue: EntityBuildPlan.Issue in authored_world.composition_issues():
+			push_error("%s: %s [%s; %s]" % [issue.instance_path, issue.message,
+				issue.code, issue.source])
 		set_physics_process(false)
 		queue_free()
 		return
@@ -68,7 +71,10 @@ func _ready() -> void:
 	world.add_system(S_LootDrops.new(), true)
 	_bind_furniture_delivery()
 	if authored_world == null or not authored_world.restoring_startup():
-		DistrictPopulationService.initialize()
+		if not DistrictPopulationService.initialize():
+			set_physics_process(false)
+			queue_free()
+			return
 	var session: Entity = world.query.with_all([C_Autosave]).execute_one()
 	if session != null:
 		var save: C_Autosave = session.get_component(C_Autosave) as C_Autosave

@@ -91,9 +91,22 @@ func _spawn(request: HazardSpawnRequest) -> void:
 
 	_world.add_child(node)
 	spatial.global_transform = request.world_pose
-	_world.add_entity(entity, components, false)
+	entity.component_resources = entity.component_resources.duplicate()
+	entity.component_resources.append_array(components)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(entity, _world,
+		entity.id if not entity.id.is_empty() else GECSIO.uuid())
 	if follow != null:
-		HazardFollowService.replace(entity, request.origin, follow)
+		context.bindings[&"origin"] = request.origin
+		var follow_intent: EntityInitialBinding = EntityInitialBinding.new()
+		follow_intent.relation = follow
+		follow_intent.endpoint = &"origin"
+		context.initial_bindings = [follow_intent]
+	if not EntityCompositionService.try_register(context, false):
+		node.free()
+		_rejected(request, &"invalid_composition")
+		return
+	if follow != null:
+		HazardFollowService.bind_lifecycle(entity)
 
 	var result: HazardSpawnResult = HazardSpawnResult.new()
 	result.hazard = entity

@@ -40,8 +40,12 @@ static func handle_for(body: RigidBody3D, create_proxy: bool = false) -> Entity:
 	proxy.name = "PhysicsGrabProxy_%d" % body.get_instance_id()
 	var reference: C_PhysicsBodyRef = C_PhysicsBodyRef.new()
 	reference.body = body
-	proxy.add_component(reference)
-	ECS.world.add_entity(proxy)
+	proxy.component_resources = [reference]
+	var context: EntitySpawnContext = EntityCompositionService.context_for(proxy, ECS.world,
+		GECSIO.uuid())
+	if not EntityCompositionService.try_register(context):
+		proxy.free()
+		return null
 
 	body.set_meta(META_PROXY, weakref(proxy))
 	# Выход родителя может застать proxy вне дерева: World тогда вызывает free().

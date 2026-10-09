@@ -52,7 +52,7 @@ func before_each() -> void:
 	_agent.phase = C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
 	_parcel = (load("res://content/domains/packages/entities/package_a.tscn") as PackedScene).instantiate() as E_Package
 	(_parcel as Node as RigidBody3D).gravity_scale = 0.0
-	_world.add_entity(_parcel)
+	EntityCompositionFixture.register(_world, _parcel)
 	(_parcel.get_component(C_Package) as C_Package).package_id = _visit.package_id
 	(_parcel.get_component(C_PackageState) as C_PackageState).registration = C_PackageState.Registration.REGISTERED
 	CustomerParcelAssignment.bind_parcel(_customer, _visit)

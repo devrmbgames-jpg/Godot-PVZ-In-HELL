@@ -21,8 +21,7 @@ static func binding(effect: Entity) -> Relationship:
 static func replace(effect: Entity, owner: Entity, data: R_HazardFollow) -> void:
 	if not is_instance_valid(effect):
 		return
-	if not effect.relationship_removed.is_connected(_disabled_binding_removed):
-		effect.relationship_removed.connect(_disabled_binding_removed)
+	bind_lifecycle(effect)
 	var instance_id: int = effect.get_instance_id()
 	_replacing[instance_id] = true
 	for relationship: Relationship in effect.relationships.duplicate():
@@ -35,6 +34,13 @@ static func replace(effect: Entity, owner: Entity, data: R_HazardFollow) -> void
 	var lifetime: C_HazardLifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime
 	if lifetime != null:
 		lifetime.owner_loss_pending = false
+
+
+## Subscribes the passive disabled-owner-loss binding after initial or restored construction.
+## This operation installs no Relationship and never replaces compiled initial data.
+static func bind_lifecycle(effect: Entity) -> void:
+	if not effect.relationship_removed.is_connected(_disabled_binding_removed):
+		effect.relationship_removed.connect(_disabled_binding_removed)
 
 
 ## Проверяет защиту замены связи, чтобы снятие не вызвало удаление эффекта.

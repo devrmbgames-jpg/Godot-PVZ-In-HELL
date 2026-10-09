@@ -242,7 +242,7 @@ func test_contents_release_retains_freed_initiator_identity() -> void:
 	var actor: Entity = _entity([])
 	var actor_id: String = actor.id
 	var parcel: E_Package = (load("res://content/domains/packages/entities/test_bread.tscn") as PackedScene).instantiate() as E_Package
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	(parcel.get_component(C_PackageState) as C_PackageState).opening = C_PackageState.Opening.OPENED
 	var observer: Observer = _observer(O_PackageContents)
 	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Opened, actor)

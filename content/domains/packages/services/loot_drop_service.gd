@@ -155,8 +155,12 @@ static func _place(queue: C_LootDrops, record: PendingLootDrop, item: Entity) ->
 	# Позу задаём до входа в дерево: физический сервер впервые видит уже проверенную позицию.
 	body.transform = parent.global_transform.affine_inverse() * result.pose
 	parent.add_child(body)
-	ECS.world.add_entity(item, null, false)
 	body.linear_velocity = record.velocity
+	var context: EntitySpawnContext = EntityCompositionService.context_for(item, ECS.world,
+		record.drop_id)
+	if not EntityCompositionService.try_register(context, false):
+		parent.remove_child(body)
+		return false
 	queue.reservations.append(result.bounds)
 	_finish_context(record, item, source)
 	return true

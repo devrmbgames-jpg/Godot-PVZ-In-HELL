@@ -17,16 +17,21 @@ func get_marking_surface() -> MeshInstance3D:
 	return _marking_surface
 
 
-## Создаёт постоянную запись посылки; при отсутствии авторского ID генерирует его для этого экземпляра.
-func define_components() -> Array:
-	# Инициализация сцены сохраняет постоянный ID, заранее переданный созданному экземпляру.
-	if package_id.is_empty():
+#region Runtime instance identity
+func _enter_tree() -> void:
+	# Identity allocation belongs to the runtime instance boundary, never recipe preview.
+	if not Engine.is_editor_hint() and package_id.is_empty():
 		package_id = Crypto.new().generate_random_bytes(16).hex_encode()
+#endregion
+
+#region Intrinsic package metadata
+## Returns fresh identity/configuration data without assigning identity or mutating authoring inputs.
+func define_components() -> Array[Component]:
+	if EntityCompositionService.recipes_prepared(self):
+		return []
 	var identity: C_Package = C_Package.new()
 	identity.package_id = package_id
 	identity.definition = package_definition
 	
-	var components: Array[Component] = [identity]
-	if package_definition != null and package_definition.unpack_scene != null:
-		components.append(C_PackageContents.new())
-	return components
+	return [identity]
+#endregion

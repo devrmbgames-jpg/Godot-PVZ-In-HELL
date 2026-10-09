@@ -62,7 +62,12 @@ static func purchase(actor: Entity, trader: Entity, item: DEF_InventoryItem, qua
 	stack.definition = item
 	stack.quantity = quantity
 	grant.component_resources = [stack]
-	ECS.world.add_entity(grant)
+	var context: EntitySpawnContext = EntityCompositionService.context_for(grant, ECS.world,
+		GECSIO.uuid())
+	if not EntityCompositionService.try_register(context):
+		grant.free()
+		state.transaction_in_progress = false
+		return _trace_result(Status.SPAWN_BLOCKED, operation_id, &"commerce.purchase", actor, item)
 	if not InventoryService.can_transfer(grant, actor):
 		ECS.world.remove_entity(grant)
 		state.transaction_in_progress = false
@@ -102,14 +107,20 @@ static func _purchase_furniture(trader: Entity, shop: C_Trader, item: DEF_Invent
 		state.transaction_in_progress = false
 		return Status.SPAWN_BLOCKED
 
+	# Wallet apply only changes its aggregate; the accepted World plan stays valid synchronously.
+	if not FurniturePlacement.prepare_composition(proposal, "purchase/%s" % operation_id):
+		proposal.entity.free()
+		state.transaction_in_progress = false
+		return Status.SPAWN_BLOCKED
+
 	var paid: Status = _pay(item, quantity, operation_id, cycle.day_index)
 	if paid != Status.COMMITTED:
 		proposal.entity.free()
 		state.transaction_in_progress = false
 		return paid
 
+	FurniturePlacement.commit(proposal)
 	_record(state, item, quantity, operation_id, cycle.day_index, PurchaseReceipt.Mode.PURCHASE)
-	FurniturePlacement.commit(proposal, "purchase/%s" % operation_id)
 	state.transaction_in_progress = false
 	return Status.COMMITTED
 

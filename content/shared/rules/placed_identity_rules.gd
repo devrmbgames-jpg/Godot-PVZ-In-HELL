@@ -27,18 +27,31 @@ static func compile_for(root: Node) -> Array[String]:
 			issues.append("Duplicate placed identity %s/%s at %s"
 				% [world_id, local_id, root.get_path_to(actor)])
 		local_ids[local_id] = true
+		var registered_identity: C_AuthoredIdentity = (
+			actor.get_component(C_AuthoredIdentity) as C_AuthoredIdentity
+		)
+		if registered_identity != null and (registered_identity.world_id != world_id
+				or registered_identity.local_id != local_id):
+			issues.append("Registered placed identity cannot change at %s"
+				% root.get_path_to(actor))
 	if not issues.is_empty():
 		return issues
 
 	# This is authoring compilation, before GECS copies Components into registered state.
 	# The metadata remains the authored input; runtime lookup reads the immutable Component.
 	for actor: Entity in actors:
-		var identity: C_AuthoredIdentity = component_for(actor)
-		if identity == null:
-			identity = C_AuthoredIdentity.new()
-			actor.component_resources.append(identity)
+		if actor.has_component(C_AuthoredIdentity):
+			continue
+		var previous_recipe: C_AuthoredIdentity = component_for(actor)
+		var identity: C_AuthoredIdentity = C_AuthoredIdentity.new()
 		identity.world_id = world_id
 		identity.local_id = StringName(actor.get_meta(LOCAL_ID_META))
+		# Duplicated prefab instances may share a Resource: never write into that authoring input.
+		if previous_recipe == null:
+			actor.component_resources.append(identity)
+		else:
+			var recipe_index: int = actor.component_resources.find(previous_recipe)
+			actor.component_resources[recipe_index] = identity
 	return issues
 
 

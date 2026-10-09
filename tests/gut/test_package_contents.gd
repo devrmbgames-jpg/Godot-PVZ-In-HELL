@@ -86,7 +86,7 @@ func _package(name: String) -> E_Package:
 	_root.add_child(parcel)
 	parcel.owner = _root
 	FixturePlacedIdentity.assign(_root, parcel, &"parcel")
-	_world.add_entity(parcel, null, false)
+	EntityCompositionFixture.register(_world, parcel, false)
 	return parcel
 
 
@@ -218,7 +218,7 @@ func _catalog_package(definition: DEF_Package) -> E_Package:
 	parcel.package_definition = definition
 	(parcel as Node as RigidBody3D).freeze = true
 	(parcel as Node as Node3D).position = Vector3(5, 1, 5)
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	(parcel.get_component(C_PackageState) as C_PackageState).opening = C_PackageState.Opening.OPENED
 	return parcel
 
@@ -346,7 +346,7 @@ func test_authored_opening_hazard_uses_existing_emitter_and_deduplicates_hook() 
 	parcel.package_definition.hazard_on_opened = load("res://content/domains/hazards/entities/explosion.tscn") as PackedScene
 	(parcel as Node as RigidBody3D).freeze = true
 	(parcel as Node as Node3D).position = Vector3(0, 0.5, -1.3)
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	await _open(parcel)
 	assert_eq(_world.query.with_all([C_Explosion]).execute().size(), 1)
 	PackageLifecycle.publish(parcel, PackageLifecycleEvent.Kind.Opened, _actor)

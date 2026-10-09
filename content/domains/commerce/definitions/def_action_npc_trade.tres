@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DEF_TraderAction" format=3]
+
+[ext_resource type="Script" path="res://content/domains/commerce/definitions/def_trader_action.gd" id="Action"]
+
+[resource]
+script = ExtResource("Action")
+action_id = &"trade"
+caption = "Торговля и задание"

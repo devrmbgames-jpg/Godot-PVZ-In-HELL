@@ -142,3 +142,39 @@ func _night_step(delta: float) -> void:
 		_world.add_system(night_owner)
 	_world.process(delta, "PersistenceTest")
 #endregion
+
+#region Fresh body recipe restoration
+## A missing NPC compiles saved roster/Profile inputs and damaged health before native publication.
+func test_missing_body_restore_publishes_saved_identity_and_health_before_consumers() -> void:
+	var person: NpcRecord = _district.people[0]
+	var npc_id: StringName = person.npc_id
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(npc_id)
+	(body.get_component(C_Health) as C_Health).current = 37.0
+	(body.get_component(C_Hunger) as C_Hunger).value = 73.0
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.valid(snapshot, _root))
+	_world.remove_entity(body)
+	await get_tree().process_frame
+	assert_null(NpcPopulationQueries.body_for(npc_id))
+	assert_true(WorldSnapshotService.can_restore(snapshot, _root))
+	var publications: Array[StringName] = []
+	_world.entity_added.connect(func(actor: Entity) -> void:
+		var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
+		if identity == null or identity.npc_id != npc_id:
+			return
+		var persistent: C_PersistentIdentity = actor.get_component(C_PersistentIdentity) \
+			as C_PersistentIdentity
+		assert_eq(persistent.key, String(npc_id))
+		assert_eq((actor.get_component(C_Health) as C_Health).current, 37.0)
+		assert_eq((actor.get_component(C_Hunger) as C_Hunger).value, 73.0)
+		assert_true(actor.has_component(C_Inventory))
+		assert_true(actor.has_component(C_InteractionActionSet))
+		assert_eq((actor.get_component(C_Motion) as C_Motion).max_speed, person.profile.move_speed)
+		publications.append(identity.npc_id))
+	assert_true(WorldSnapshotService.restore(snapshot, _root))
+	assert_eq(publications, [npc_id])
+	var recreated: E_DistrictNpc = NpcPopulationQueries.body_for(npc_id)
+	assert_not_null(recreated)
+	assert_eq((recreated.get_component(C_Health) as C_Health).current, 37.0)
+	assert_eq((recreated.get_component(C_Hunger) as C_Hunger).value, 73.0)
+#endregion

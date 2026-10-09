@@ -1,20 +1,11 @@
 extends RefCounted
-## Explicit immunity/aura installation and authored refuge lookup; trait clocks belong to S_NpcTraits.
+## Explicit aura materialization and authored refuge lookup; immunity is a construction recipe.
 class_name NpcTraitService
 
 ## Authored effect prefab for explicit fire-aura materialization.
 const AURA_SCENE: String = "res://content/domains/hazards/entities/npc_fire_aura.tscn"
 
 #region Жизненный цикл особенностей
-## Устанавливает настоящий иммунитет к огню до воздействия собственной ауры.
-static func install(actor: E_DistrictNpc, profile: DEF_NpcProfile) -> void:
-	var resistance: C_DamageResistance = actor.get_component(C_DamageResistance) as C_DamageResistance
-	if resistance == null:
-		resistance = C_DamageResistance.new()
-		actor.add_component(resistance)
-	if profile.rule_for(DEF_NpcTrait.Kind.FIRE_AURA) != null:
-		resistance.multipliers[DamageRequest.Type.FIRE] = 0.0
-
 ## Использует авторское укрытие от света или закреплённую точку выхода личности.
 static func dark_refuge(_actor: E_DistrictNpc, person: NpcRecord) -> Vector3:
 	var district: C_District = NpcPopulationQueries.current()

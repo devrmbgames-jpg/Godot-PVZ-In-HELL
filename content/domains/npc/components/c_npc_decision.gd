@@ -21,3 +21,21 @@ var scheduled_delta: float = 0.0
 var scheduled_day: int = 0
 ## Calendar phase captured by the cadence owner; not persistent NPC history.
 var scheduled_phase: int = -1
+
+## Transient reset generation; buffered AI stages reject work from an older brain lifecycle.
+var lifecycle_generation: int = 0
+
+#region Transient state reset
+## Clears derived state in place; retains the constructed Component and durable NPC authority.
+func reset_transient_state() -> void:
+	lifecycle_generation += 1
+
+	intent_owner = Owner.NONE
+	active_task_id = 0
+	tree_updating = false
+	active_behavior = ""
+	blocked_elapsed = 0.0
+	scheduled_delta = 0.0
+	scheduled_day = 0
+	scheduled_phase = -1
+#endregion

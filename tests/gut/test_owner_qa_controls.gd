@@ -40,14 +40,14 @@ func before_each() -> void:
 	_player = authored_level.get_node("Entityes/Player") as E_CharacterBodyPlayer
 	_player.get_parent().remove_child(_player)
 	authored_level.free()
-	_world.add_entity(_player)
+	EntityCompositionFixture.register(_world, _player)
 	for child: Node in (_player as Node).find_children("*", "Entity", true, false):
-		_world.add_entity(child as Entity, null, false)
+		EntityCompositionFixture.register(_world, child as Entity, false)
 	_player.global_position = Vector3(0.0, 0.01, 4.0)
 
 	var session: Entity = Entity.new()
 	session.component_resources = [C_DayCycle.new(), C_Wallet.new(), C_Commerce.new()]
-	_world.add_entity(session)
+	EntityCompositionFixture.register(_world, session)
 	_cycle = session.get_component(C_DayCycle) as C_DayCycle
 	for frame: int in FLOOR_SETTLE_FRAMES:
 		await get_tree().physics_frame
@@ -104,8 +104,9 @@ func test_flat_tile_seam_does_not_launch_or_stop_player() -> void:
 
 ## Реальное взаимодействие открывает торговлю через E/F, а живой NPC недоступен физическому хвату.
 func test_trader_interaction_is_discoverable_and_living_npc_cannot_be_grabbed() -> void:
+	DialogueUiFixture.install()
 	var trader: Entity = TRADER_SCENE.instantiate() as Entity
-	_world.add_entity(trader)
+	EntityCompositionFixture.register(_world, trader)
 	(trader as Node as Node3D).global_position = _player.global_position + Vector3.FORWARD
 	var actions: C_InteractionActionSet = trader.get_component(C_InteractionActionSet) as C_InteractionActionSet
 	var action: DEF_TraderAction = actions.actions[0] as DEF_TraderAction

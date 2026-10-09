@@ -52,6 +52,8 @@ func _process(_delta: float) -> void:
 #region Состояние и отладочное управление
 ## Определяет начальное состояние переключателя для регистрации Entity.
 func define_components() -> Array[Component]:
+	if EntityCompositionService.recipes_prepared(self):
+		return []
 	return [C_InteractionToggle.new()]
 
 

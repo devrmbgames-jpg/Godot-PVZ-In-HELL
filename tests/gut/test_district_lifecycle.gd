@@ -235,3 +235,79 @@ func _night_step(delta: float) -> void:
 		_world.add_system(night_owner)
 	_world.process(delta, "PersistenceTest")
 #endregion
+
+#region Retained brain capability lifecycle
+## Reset keeps constructed Components/HP and rejects old buffered stages after a new due interval.
+func test_reset_retains_brain_components_and_rejects_older_queued_generation() -> void:
+	var person: NpcRecord = _district.people[0]
+	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
+	DistrictPopulationService.set_placement(person, body, NpcRecord.Placement.STREET)
+	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
+	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+	var health: C_Health = body.get_component(C_Health) as C_Health
+	health.current = 39.0
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	for owner_type: Script in [S_NpcPerception, S_NpcTraits, S_NpcDecision, S_NpcRoute]:
+		var queued_owner: System = owner_type.new() as System
+		queued_owner.group = "retained_brain_reset"
+		queued_owner.command_buffer_flush_mode = System.FlushMode.MANUAL
+		_world.add_system(queued_owner)
+		decision.scheduled_delta = 0.125
+		decision.scheduled_day = cycle.day_index
+		decision.scheduled_phase = int(cycle.phase)
+		_world.process(0.125, queued_owner.group)
+		assert_eq(queued_owner.cmd.size(), 1)
+
+		# A new interval in the same day/phase must not make an older callback current again.
+		var generation: int = decision.lifecycle_generation
+		DistrictPopulationService.reset_brain(body)
+		NpcBrainService.bind_engine(body)
+		assert_same(body.get_component(C_NpcAwareness), awareness)
+		assert_same(body.get_component(C_NpcDecision), decision)
+		assert_eq(health.current, 39.0)
+		assert_gt(decision.lifecycle_generation, generation)
+		decision.scheduled_delta = 0.125
+		decision.scheduled_day = cycle.day_index
+		decision.scheduled_phase = int(cycle.phase)
+		decision.intent_owner = C_NpcDecision.Owner.EMERGENCY
+		awareness.heard_remaining = 2.0
+		awareness.hazard_distress = true
+		assert_true(NpcDecisionRules.matches_step(person, decision, cycle))
+		_world.flush_command_buffers()
+		assert_eq(awareness.heard_remaining, 2.0)
+		assert_true(awareness.hazard_distress)
+		assert_eq(decision.intent_owner, C_NpcDecision.Owner.EMERGENCY)
+		assert_eq(decision.scheduled_delta, 0.125)
+		_world.remove_system(queued_owner)
+		queued_owner.free()
+#endregion
+
+#region Rejected replacement transaction
+## A bad replacement prefab keeps the deceased's address/history and retries with the same next ID.
+func test_rejected_replacement_keeps_vacancy_history_person_sequence_and_retry_day() -> void:
+	var deceased: NpcRecord = _district.people[0]
+	DistrictPopulationService.mark_dead(deceased,
+		NpcPopulationQueries.body_for(deceased.npc_id), 1)
+	var definition: DEF_District = _district.definition.duplicate() as DEF_District
+	var profiles: Array[DEF_NpcProfile] = []
+	for original: DEF_NpcProfile in definition.profiles:
+		var candidate: DEF_NpcProfile = original.duplicate() as DEF_NpcProfile
+		candidate.npc_scene_path = "res://content/domains/npc/entities/npc_address.tscn"
+		profiles.append(candidate)
+	definition.profiles = profiles
+	_district.definition = definition
+	_district.replacement_morning = 3
+	var before_people: int = _district.people.size()
+	var before_next: int = _district.next_person
+	var before_entities: int = _world.entities.size()
+	var home_id: StringName = deceased.home_id
+	var portal_id: StringName = deceased.portal_id
+	DistrictPopulationService.replace_vacancies(_district, 3)
+	assert_eq(_district.people.size(), before_people)
+	assert_eq(_district.next_person, before_next)
+	assert_eq(_world.entities.size(), before_entities)
+	assert_eq(deceased.home_id, home_id)
+	assert_eq(deceased.portal_id, portal_id)
+	assert_eq(_district.replacement_morning, 3)
+	assert_eq(deceased.death_day, 1)
+#endregion

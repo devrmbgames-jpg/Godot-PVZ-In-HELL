@@ -52,7 +52,7 @@ func _parcel(package_id: String = "receipt") -> Entity:
 	identity.definition = _package_definition
 	identity.delivery_day = 1
 	parcel.component_resources = [identity, C_PackageState.new()]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	return parcel
 
 

@@ -44,7 +44,7 @@ func _unregistered(id: String) -> CustomerVisit:
 	identity.package_id = id
 	identity.definition = DEF_Package.new()
 	parcel.component_resources = [identity, C_PackageState.new()]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	assert_not_null(PackageHistoryService.record_arrival(parcel, 1))
 
 	var visit: CustomerVisit = CustomerVisit.new()

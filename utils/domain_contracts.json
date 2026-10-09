@@ -8025,7 +8025,9 @@
         "can_restore",
         "capture",
         "restore",
-        "valid"
+        "valid",
+        "construction_district",
+        "construction_npc_identities"
       ],
       "sources": [
         "content/debug/debug_gameplay_service.gd",
@@ -8036,7 +8038,9 @@
         "can_restore": "query",
         "capture": "request",
         "restore": "request",
-        "valid": "request"
+        "valid": "query",
+        "construction_district": "query",
+        "construction_npc_identities": "query"
       },
       "public_instance_methods": []
     },
@@ -10505,7 +10509,8 @@
         "new"
       ],
       "sources": [
-        "content/services/npc/npc_trait_service.gd"
+        "content/services/npc/npc_trait_service.gd",
+        "content/domains/npc/authoring/et_npc_brain_state.gd"
       ],
       "purpose": "NpcTraitService is the explicit writer of multipliers derived from immutable traits; other NPC consumers only read the combat policy.",
       "method_rights": {
@@ -10618,13 +10623,15 @@
       "path": "content/domains/combat/components/c_npc_combat.gd",
       "rights": [
         "query",
-        "read"
+        "read",
+        "configure"
       ],
       "public_methods": [],
       "sources": [
         "content/ai/tasks/bt_npc_attack_running.gd",
         "content/entities/characters/e_npc_character.gd",
-        "content/services/npc/npc_brain_service.gd"
+        "content/services/npc/npc_brain_service.gd",
+        "content/domains/npc/authoring/et_npc_brain_state.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -10726,7 +10733,8 @@
         "content/services/npc/npc_community_service.gd",
         "content/services/npc/npc_sleep_service.gd",
         "content/services/npc/npc_social_service.gd",
-        "content/services/npc/npc_trait_service.gd"
+        "content/services/npc/npc_trait_service.gd",
+        "content/domains/npc/authoring/et_npc_brain_state.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -10868,13 +10876,15 @@
       "path": "content/domains/commerce/components/c_trader.gd",
       "rights": [
         "query",
-        "read"
+        "read",
+        "configure"
       ],
       "public_methods": [
         "new"
       ],
       "sources": [
-        "content/services/npc/district_population_service.gd"
+        "content/services/npc/district_population_service.gd",
+        "content/domains/npc/authoring/et_npc_roles.gd"
       ],
       "method_rights": {
         "new": "read"
@@ -10894,7 +10904,8 @@
         "new"
       ],
       "sources": [
-        "content/services/npc/district_population_service.gd"
+        "content/services/npc/district_population_service.gd",
+        "content/domains/npc/authoring/et_npc_roles.gd"
       ],
       "method_rights": {
         "new": "read"
@@ -10912,7 +10923,8 @@
       ],
       "public_methods": [],
       "sources": [
-        "content/services/npc/district_population_service.gd"
+        "content/services/npc/district_population_service.gd",
+        "content/domains/npc/authoring/et_npc_roles.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -11193,13 +11205,15 @@
       "path": "content/domains/interaction/components/c_interaction_action_set.gd",
       "rights": [
         "query",
-        "read"
+        "read",
+        "configure"
       ],
       "public_methods": [
         "new"
       ],
       "sources": [
-        "content/services/npc/district_population_service.gd"
+        "content/services/npc/district_population_service.gd",
+        "content/domains/npc/authoring/et_npc_roles.gd"
       ],
       "method_rights": {
         "new": "read"
@@ -11263,7 +11277,8 @@
       "sources": [
         "content/definitions/interaction/def_npc_dialogue_action.gd",
         "content/definitions/interaction/def_npc_door_action.gd",
-        "content/services/npc/district_population_service.gd"
+        "content/services/npc/district_population_service.gd",
+        "content/domains/npc/authoring/et_npc_roles.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -11378,13 +11393,15 @@
       "path": "content/domains/inventory/components/c_inventory.gd",
       "rights": [
         "query",
-        "read"
+        "read",
+        "configure"
       ],
       "public_methods": [
         "new"
       ],
       "sources": [
-        "content/services/npc/district_population_service.gd"
+        "content/services/npc/district_population_service.gd",
+        "content/domains/npc/authoring/et_npc_roles.gd"
       ],
       "method_rights": {
         "new": "read"
@@ -11473,13 +11490,15 @@
       "path": "content/domains/motion/components/c_motion.gd",
       "rights": [
         "query",
-        "read"
+        "read",
+        "configure"
       ],
       "public_methods": [],
       "sources": [
         "content/services/npc/district_population_service.gd",
         "content/services/npc/npc_route_solver.gd",
-        "content/systems/motion/s_npc_intent.gd"
+        "content/systems/motion/s_npc_intent.gd",
+        "content/domains/npc/authoring/et_npc_identity.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -11564,7 +11583,8 @@
       "path": "content/domains/needs/components/c_hunger.gd",
       "rights": [
         "query",
-        "read"
+        "read",
+        "configure"
       ],
       "public_methods": [
         "new"
@@ -11574,7 +11594,8 @@
         "content/services/npc/npc_community_service.gd",
         "content/services/npc/npc_route_solver.gd",
         "content/services/npc/npc_social_service.gd",
-        "content/systems/motion/s_npc_intent.gd"
+        "content/systems/motion/s_npc_intent.gd",
+        "content/domains/npc/authoring/et_npc_roles.gd"
       ],
       "method_rights": {
         "new": "read"
@@ -11592,7 +11613,8 @@
       ],
       "public_methods": [],
       "sources": [
-        "content/services/npc/district_population_service.gd"
+        "content/services/npc/district_population_service.gd",
+        "content/domains/npc/authoring/et_npc_roles.gd"
       ],
       "method_rights": {},
       "public_instance_methods": []
@@ -11738,13 +11760,16 @@
       "path": "content/shared/components/c_persistent_identity.gd",
       "rights": [
         "query",
-        "read"
+        "read",
+        "configure"
       ],
       "public_methods": [
         "new"
       ],
       "sources": [
-        "content/services/npc/district_population_service.gd"
+        "content/services/npc/district_population_service.gd",
+        "content/domains/npc/services/npc_construction_service.gd",
+        "content/domains/npc/authoring/et_npc_identity.gd"
       ],
       "method_rights": {
         "new": "read"
@@ -12043,9 +12068,7 @@
       ],
       "public_methods": [],
       "sources": [
-        "content/observers/gameplay/o_package_condition_setup.gd",
         "content/observers/gameplay/o_package_damage.gd",
-        "content/services/packages/package_condition_service.gd",
         "content/services/packages/package_opening.gd",
         "content/services/packages/package_protection_service.gd"
       ],
@@ -12085,9 +12108,7 @@
         "new"
       ],
       "sources": [
-        "content/entities/packages/e_package_content.gd",
-        "content/observers/gameplay/o_package_condition_setup.gd",
-        "content/services/packages/package_condition_service.gd"
+        "content/entities/packages/e_package_content.gd"
       ],
       "method_rights": {
         "new": "read"
@@ -13078,7 +13099,6 @@
       ],
       "sources": [
         "content/definitions/interaction/def_package_return_action.gd",
-        "content/observers/gameplay/o_package_condition_setup.gd",
         "content/observers/gameplay/o_package_contents.gd",
         "content/observers/gameplay/o_package_damage.gd",
         "content/observers/gameplay/o_package_destruction.gd",
@@ -15426,27 +15446,6 @@
     {
       "source_owner": "persistence",
       "target_owner": "packages",
-      "symbol": "PackageConditionService",
-      "path": "content/domains/packages/services/package_condition_service.gd",
-      "rights": [
-        "query",
-        "read",
-        "request"
-      ],
-      "public_methods": [
-        "initialize"
-      ],
-      "sources": [
-        "content/services/persistence/world_snapshot_service.gd"
-      ],
-      "method_rights": {
-        "initialize": "request"
-      },
-      "public_instance_methods": []
-    },
-    {
-      "source_owner": "persistence",
-      "target_owner": "packages",
       "symbol": "PackageContentsService",
       "path": "content/domains/packages/services/package_contents_service.gd",
       "rights": [
@@ -16603,6 +16602,853 @@
         "contains": "request"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "shared",
+      "symbol": "EntityRecipeRules",
+      "path": "content/shared/rules/entity_recipe_rules.gd",
+      "rights": [
+        "query",
+        "read"
+      ],
+      "public_methods": [
+        "copy_component"
+      ],
+      "sources": [
+        "content/services/packages/receiving_package_factory.gd"
+      ],
+      "method_rights": {
+        "copy_component": "query"
+      },
+      "public_instance_methods": [],
+      "purpose": "Task 41: pure pre-registration copy of Component recipes, isolating nested mutable state while retaining immutable Definitions and explicit scene bindings; no live Entity mutation."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "shared",
+      "symbol": "EntityCompositionService",
+      "path": "content/shared/services/entity_composition_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "recipes_prepared",
+        "context_for",
+        "try_register"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "recipes_prepared": "query",
+        "context_for": "query",
+        "try_register": "configure"
+      },
+      "sources": [
+        "content/entities/customers/e_customer.gd",
+        "content/services/customers/customer_inspection_service.gd"
+      ],
+      "purpose": "Task 41: native declarative code providers read the construction marker so GECS receives prepared recipes once; no public runtime capability installer or readiness writer."
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "shared",
+      "symbol": "EntityCompositionService",
+      "path": "content/shared/services/entity_composition_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "recipes_prepared",
+        "context_for",
+        "try_register"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "recipes_prepared": "query",
+        "context_for": "query",
+        "try_register": "configure"
+      },
+      "sources": [
+        "content/entities/props/e_interaction_test_valve.gd",
+        "content/services/interaction/physics_grab_target.gd"
+      ],
+      "purpose": "Task 41: native declarative code providers read the construction marker so GECS receives prepared recipes once; no public runtime capability installer or readiness writer."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "shared",
+      "symbol": "EntityCompositionService",
+      "path": "content/shared/services/entity_composition_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "recipes_prepared",
+        "context_for",
+        "registration_plan",
+        "register_plan",
+        "try_register"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "recipes_prepared": "query",
+        "context_for": "query",
+        "registration_plan": "query",
+        "register_plan": "configure",
+        "try_register": "configure"
+      },
+      "sources": [
+        "content/entities/packages/e_package.gd",
+        "content/entities/packages/e_package_content.gd",
+        "content/entities/packages/e_package_debris.gd",
+        "content/services/packages/receiving_package_factory.gd",
+        "content/services/gameplay/loot_drop_service.gd",
+        "content/observers/gameplay/o_package_destruction.gd"
+      ],
+      "purpose": "Task 41: native declarative code providers read the construction marker so GECS receives prepared recipes once; no public runtime capability installer or readiness writer."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "shared",
+      "symbol": "EntityCompositionService",
+      "path": "content/shared/services/entity_composition_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "context_for",
+        "build_plan",
+        "prepare",
+        "try_register"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "context_for": "query",
+        "build_plan": "query",
+        "prepare": "configure",
+        "try_register": "configure"
+      },
+      "sources": [
+        "content/scenes/game_world.gd",
+        "content/debug/debug_gameplay_service.gd",
+        "content/debug/debug_package_service.gd"
+      ],
+      "purpose": "Task 41: explicit whole-placed compile/identity/endpoint preparation before pinned World.initialize, followed by one native registration; typed diagnostics and temporary plans own no runtime authority or scheduler."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "shared",
+      "symbol": "EntityBuildRules",
+      "path": "content/shared/rules/entity_build_rules.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "validate_registration_batch"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "validate_registration_batch": "query"
+      },
+      "sources": [
+        "content/scenes/game_world.gd"
+      ],
+      "purpose": "Task 41: explicit whole-placed compile/identity/endpoint preparation before pinned World.initialize, followed by one native registration; typed diagnostics and temporary plans own no runtime authority or scheduler."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "shared",
+      "symbol": "EntityBuildPlan",
+      "path": "content/shared/contracts/entity_build_plan.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/scenes/game_world.gd",
+        "content/scenes/main_level.gd"
+      ],
+      "purpose": "Task 41: explicit whole-placed compile/identity/endpoint preparation before pinned World.initialize, followed by one native registration; typed diagnostics and temporary plans own no runtime authority or scheduler."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "shared",
+      "symbol": "EntitySpawnContext",
+      "path": "content/shared/contracts/entity_spawn_context.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/scenes/game_world.gd",
+        "content/debug/debug_gameplay_service.gd",
+        "content/debug/debug_package_service.gd"
+      ],
+      "purpose": "Task 41: explicit whole-placed compile/identity/endpoint preparation before pinned World.initialize, followed by one native registration; typed diagnostics and temporary plans own no runtime authority or scheduler."
+    },
+    {
+      "source_owner": "inventory",
+      "target_owner": "shared",
+      "symbol": "EntityCompositionService",
+      "path": "content/shared/services/entity_composition_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "context_for",
+        "try_register"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "context_for": "query",
+        "try_register": "configure"
+      },
+      "sources": [
+        "content/services/inventory/inventory_service.gd",
+        "content/services/inventory/inventory_drop_service.gd"
+      ],
+      "purpose": "Task 41: virtual-item construction validates recipes/IDs before one native registration; Inventory/Wallet transactions follow accepted construction, rejected instances remain caller-owned."
+    },
+    {
+      "source_owner": "inventory",
+      "target_owner": "shared",
+      "symbol": "EntitySpawnContext",
+      "path": "content/shared/contracts/entity_spawn_context.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/inventory/inventory_service.gd",
+        "content/services/inventory/inventory_drop_service.gd"
+      ],
+      "purpose": "Task 41: explicit transient World/identity/authoring inputs for the common virtual-item construction boundary."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "shared",
+      "symbol": "EntityCompositionService",
+      "path": "content/shared/services/entity_composition_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "context_for",
+        "try_register",
+        "registration_plan",
+        "register_plan"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "context_for": "query",
+        "try_register": "configure",
+        "registration_plan": "query",
+        "register_plan": "configure"
+      },
+      "sources": [
+        "content/services/commerce/commerce_service.gd",
+        "content/services/commerce/order_delivery_service.gd",
+        "content/services/commerce/furniture_placement.gd"
+      ],
+      "purpose": "Task 41: virtual-item construction validates recipes/IDs before one native registration; Inventory/Wallet transactions follow accepted construction, rejected instances remain caller-owned."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "shared",
+      "symbol": "EntitySpawnContext",
+      "path": "content/shared/contracts/entity_spawn_context.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/commerce/commerce_service.gd",
+        "content/services/commerce/order_delivery_service.gd",
+        "content/services/commerce/furniture_placement.gd",
+        "content/contracts/commerce/prepared_furniture.gd"
+      ],
+      "purpose": "Task 41: explicit transient World/identity/authoring inputs for the common virtual-item construction boundary."
+    },
+    {
+      "source_owner": "commerce",
+      "target_owner": "shared",
+      "symbol": "EntityBuildPlan",
+      "path": "content/shared/contracts/entity_build_plan.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [
+        "valid"
+      ],
+      "method_rights": {
+        "valid": "query"
+      },
+      "sources": [
+        "content/contracts/commerce/prepared_furniture.gd"
+      ],
+      "purpose": "Task 41: transient physical construction preflight before ownership, payment or delivery fulfillment; one compiled native registration, no runtime scheduler or identity replacement."
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "shared",
+      "symbol": "EntityCompositionService",
+      "path": "content/shared/services/entity_composition_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "context_for",
+        "try_register"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "context_for": "query",
+        "try_register": "configure"
+      },
+      "sources": [
+        "content/services/combat/projectile_service.gd",
+        "content/observers/gameplay/o_depletion_effects.gd"
+      ],
+      "purpose": "Task 41: explicit factory recipe/identity/initial-binding preflight before one native registration; no shared gameplay behavior or second runtime authority."
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "shared",
+      "symbol": "EntitySpawnContext",
+      "path": "content/shared/contracts/entity_spawn_context.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/combat/projectile_service.gd",
+        "content/observers/gameplay/o_depletion_effects.gd"
+      ],
+      "purpose": "Task 41: explicit factory recipe/identity/initial-binding preflight before one native registration; no shared gameplay behavior or second runtime authority."
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "shared",
+      "symbol": "EntityInitialBinding",
+      "path": "content/shared/contracts/entity_initial_binding.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/combat/projectile_service.gd"
+      ],
+      "purpose": "Task 41: explicit factory recipe/identity/initial-binding preflight before one native registration; no shared gameplay behavior or second runtime authority."
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "shared",
+      "symbol": "EntityRecipeRules",
+      "path": "content/shared/rules/entity_recipe_rules.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "copy_component"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "copy_component": "query"
+      },
+      "sources": [
+        "content/services/combat/projectile_service.gd"
+      ],
+      "purpose": "Task 41: explicit factory recipe/identity/initial-binding preflight before one native registration; no shared gameplay behavior or second runtime authority."
+    },
+    {
+      "source_owner": "hazards",
+      "target_owner": "shared",
+      "symbol": "EntityCompositionService",
+      "path": "content/shared/services/entity_composition_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "context_for",
+        "try_register"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "context_for": "query",
+        "try_register": "configure"
+      },
+      "sources": [
+        "content/observers/gameplay/o_hazard_spawn.gd"
+      ],
+      "purpose": "Task 41: explicit factory recipe/identity/initial-binding preflight before one native registration; no shared gameplay behavior or second runtime authority."
+    },
+    {
+      "source_owner": "hazards",
+      "target_owner": "shared",
+      "symbol": "EntitySpawnContext",
+      "path": "content/shared/contracts/entity_spawn_context.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/observers/gameplay/o_hazard_spawn.gd"
+      ],
+      "purpose": "Task 41: explicit factory recipe/identity/initial-binding preflight before one native registration; no shared gameplay behavior or second runtime authority."
+    },
+    {
+      "source_owner": "hazards",
+      "target_owner": "shared",
+      "symbol": "EntityInitialBinding",
+      "path": "content/shared/contracts/entity_initial_binding.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/observers/gameplay/o_hazard_spawn.gd"
+      ],
+      "purpose": "Task 41: explicit factory recipe/identity/initial-binding preflight before one native registration; no shared gameplay behavior or second runtime authority."
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "shared",
+      "symbol": "EntitySpawnContext",
+      "path": "content/shared/contracts/entity_spawn_context.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/interaction/physics_grab_target.gd"
+      ],
+      "purpose": "Task 41: explicit factory recipe/identity/initial-binding preflight before one native registration; no shared gameplay behavior or second runtime authority."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "shared",
+      "symbol": "EntitySpawnContext",
+      "path": "content/shared/contracts/entity_spawn_context.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/packages/receiving_package_factory.gd",
+        "content/services/gameplay/loot_drop_service.gd",
+        "content/observers/gameplay/o_package_destruction.gd",
+        "content/domains/packages/authoring/et_package_state.gd"
+      ],
+      "purpose": "Task 41: explicit factory recipe/identity/initial-binding preflight before one native registration; no shared gameplay behavior or second runtime authority."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "shared",
+      "symbol": "EntityBuildPlan",
+      "path": "content/shared/contracts/entity_build_plan.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [
+        "valid"
+      ],
+      "method_rights": {
+        "valid": "query"
+      },
+      "sources": [
+        "content/services/packages/receiving_package_factory.gd"
+      ],
+      "purpose": "Task 41: explicit factory recipe/identity/initial-binding preflight before one native registration; no shared gameplay behavior or second runtime authority."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "shared",
+      "symbol": "EntitySpawnContext",
+      "path": "content/shared/contracts/entity_spawn_context.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/customers/customer_inspection_service.gd"
+      ],
+      "purpose": "Task 41: initial Entity recipes/IDs/bindings validate before native registration and committed drop/debris/quest/debug effects."
+    },
+    {
+      "source_owner": "quests",
+      "target_owner": "shared",
+      "symbol": "EntityCompositionService",
+      "path": "content/shared/services/entity_composition_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "context_for",
+        "try_register"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "context_for": "query",
+        "try_register": "configure"
+      },
+      "sources": [
+        "content/services/quests/refusal_quest_service.gd"
+      ],
+      "purpose": "Task 41: initial Entity recipes/IDs/bindings validate before native registration and committed drop/debris/quest/debug effects."
+    },
+    {
+      "source_owner": "quests",
+      "target_owner": "shared",
+      "symbol": "EntitySpawnContext",
+      "path": "content/shared/contracts/entity_spawn_context.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/quests/refusal_quest_service.gd"
+      ],
+      "purpose": "Task 41: initial Entity recipes/IDs/bindings validate before native registration and committed drop/debris/quest/debug effects."
+    },
+    {
+      "source_owner": "quests",
+      "target_owner": "shared",
+      "symbol": "EntityInitialBinding",
+      "path": "content/shared/contracts/entity_initial_binding.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/quests/refusal_quest_service.gd"
+      ],
+      "purpose": "Task 41: initial Entity recipes/IDs/bindings validate before native registration and committed drop/debris/quest/debug effects."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "shared",
+      "symbol": "EntityTrait",
+      "path": "content/shared/authoring/entity_trait.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/domains/packages/authoring/et_package_state.gd"
+      ],
+      "purpose": "Task 41: immutable pure package Trait declares capability data and exact Profile field configuration; no install hook or scheduler."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "shared",
+      "symbol": "EntityCompositionService",
+      "path": "content/shared/services/entity_composition_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "context_for",
+        "build_plan",
+        "prepare"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "context_for": "query",
+        "build_plan": "query",
+        "prepare": "configure"
+      },
+      "sources": [
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "purpose": "Task 41: detached snapshot instances use the common pure compiler and saved overlays before live mutation/native initialization; restore owns validated registry rebinding."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "shared",
+      "symbol": "EntitySpawnContext",
+      "path": "content/shared/contracts/entity_spawn_context.gd",
+      "rights": [
+        "read"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "purpose": "Task 41: detached snapshot instances use the common pure compiler and saved overlays before live mutation/native initialization; restore owns validated registry rebinding."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "shared",
+      "symbol": "EntityBuildPlan",
+      "path": "content/shared/contracts/entity_build_plan.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [
+        "valid"
+      ],
+      "method_rights": {
+        "valid": "query"
+      },
+      "sources": [
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "purpose": "Task 41: detached snapshot instances use the common pure compiler and saved overlays before live mutation/native initialization; restore owns validated registry rebinding."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "shared",
+      "symbol": "EntityCompositionService",
+      "path": "content/shared/services/entity_composition_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "context_for",
+        "build_plan",
+        "register_plan",
+        "registration_plan"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "context_for": "query",
+        "build_plan": "query",
+        "register_plan": "configure",
+        "registration_plan": "query"
+      },
+      "sources": [
+        "content/services/npc/district_population_service.gd"
+      ],
+      "purpose": "Task 41: whole address batch validates explicit instance fields/providers/IDs before one native registration per actor and roster mutation."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "shared",
+      "symbol": "EntitySpawnContext",
+      "path": "content/shared/contracts/entity_spawn_context.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/services/npc/district_population_service.gd",
+        "content/domains/npc/services/npc_construction_service.gd",
+        "content/domains/npc/authoring/et_npc_identity.gd",
+        "content/domains/npc/authoring/et_npc_brain_state.gd",
+        "content/domains/npc/authoring/et_npc_roles.gd"
+      ],
+      "purpose": "Task 41: whole address batch validates explicit instance fields/providers/IDs before one native registration per actor and roster mutation."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "shared",
+      "symbol": "EntityBuildPlan",
+      "path": "content/shared/contracts/entity_build_plan.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "valid"
+      ],
+      "public_instance_methods": [
+        "valid"
+      ],
+      "method_rights": {
+        "valid": "query"
+      },
+      "sources": [
+        "content/services/npc/district_population_service.gd"
+      ],
+      "purpose": "Task 41: whole address batch validates explicit instance fields/providers/IDs before one native registration per actor and roster mutation."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "shared",
+      "symbol": "EntityBuildRules",
+      "path": "content/shared/rules/entity_build_rules.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "validate_registration_batch"
+      ],
+      "public_instance_methods": [],
+      "method_rights": {
+        "validate_registration_batch": "query"
+      },
+      "sources": [
+        "content/services/npc/district_population_service.gd"
+      ],
+      "purpose": "Task 41: whole address batch validates explicit instance fields/providers/IDs before one native registration per actor and roster mutation."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "shared",
+      "symbol": "EntityTrait",
+      "path": "content/shared/authoring/entity_trait.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "sources": [
+        "content/domains/npc/authoring/et_npc_identity.gd",
+        "content/domains/npc/authoring/et_npc_brain_state.gd",
+        "content/domains/npc/authoring/et_npc_roles.gd"
+      ],
+      "method_rights": {},
+      "purpose": "Task 41: detached roster/Profile/identity construction inputs before native publication; no competing runtime authority."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "shared",
+      "symbol": "C_AuthoredIdentity",
+      "path": "content/shared/components/c_authored_identity.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [
+        "actor_key"
+      ],
+      "sources": [
+        "content/domains/npc/services/npc_construction_service.gd"
+      ],
+      "method_rights": {},
+      "purpose": "Task 41: detached roster/Profile/identity construction inputs before native publication; no competing runtime authority."
+    },
+    {
+      "source_owner": "npc",
+      "target_owner": "shared",
+      "symbol": "PlacedIdentityRules",
+      "path": "content/shared/rules/placed_identity_rules.gd",
+      "rights": [
+        "read",
+        "query"
+      ],
+      "public_methods": [
+        "component_for"
+      ],
+      "public_instance_methods": [],
+      "sources": [
+        "content/domains/npc/services/npc_construction_service.gd"
+      ],
+      "method_rights": {
+        "component_for": "read"
+      },
+      "purpose": "Task 41: detached roster/Profile/identity construction inputs before native publication; no competing runtime authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "npc",
+      "symbol": "NpcConstructionService",
+      "path": "content/domains/npc/services/npc_construction_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "configure_placed"
+      ],
+      "public_instance_methods": [],
+      "sources": [
+        "content/scenes/game_world.gd"
+      ],
+      "method_rights": {
+        "configure_placed": "configure"
+      },
+      "purpose": "Task 41: detached roster/Profile/identity construction inputs before native publication; no competing runtime authority."
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "npc",
+      "symbol": "NpcConstructionService",
+      "path": "content/domains/npc/services/npc_construction_service.gd",
+      "rights": [
+        "read",
+        "query",
+        "configure"
+      ],
+      "public_methods": [
+        "configure_context"
+      ],
+      "public_instance_methods": [],
+      "sources": [
+        "content/services/persistence/world_snapshot_service.gd"
+      ],
+      "method_rights": {
+        "configure_context": "configure"
+      },
+      "purpose": "Task 41: detached roster/Profile/identity construction inputs before native publication; no competing runtime authority."
     }
   ],
   "legacy_decomposition": []

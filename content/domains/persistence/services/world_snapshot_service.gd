@@ -209,7 +209,9 @@ static func can_restore(data: Dictionary, root: Node) -> bool:
 
 			temporary.append(entity)
 		entities[String(record.key)] = entity
-	var compatible: bool = SnapshotGraphRules.valid_entities(data.entities as Array, entities)
+	var plans: Dictionary[Entity, EntityBuildPlan] = {}
+	var compatible: bool = _prepare_fresh_recipes(data.entities as Array, entities, temporary,
+		null, plans) and SnapshotGraphRules.valid_entities(data.entities as Array, entities)
 	for candidate: Entity in temporary:
 		candidate.free()
 	return compatible
@@ -253,7 +255,10 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			return false
 
 		entities[String(record.key)] = entity
-	if not SnapshotGraphRules.valid_entities(data.entities as Array, entities) or not _valid_ids(data.entities as Array, entities):
+	var plans: Dictionary[Entity, EntityBuildPlan] = {}
+	if not _prepare_fresh_recipes(data.entities as Array, entities, fresh, ECS.world, plans) \
+			or not SnapshotGraphRules.valid_entities(data.entities as Array, entities) \
+			or not _valid_ids(data.entities as Array, entities):
 		for candidate: Entity in fresh:
 			candidate.free()
 		return false
@@ -307,13 +312,6 @@ static func restore(data: Dictionary, root: Node) -> bool:
 	for record: Dictionary in data.entities:
 		var entity: Entity = entities[String(record.key)]
 		if entity in fresh:
-			if entity is E_Package:
-				for component: Dictionary in record.components:
-					if SaveDataCodec.component_script(String(component.type)) == C_Package:
-						var definition: DEF_Package = SaveDataCodec.decode((component.fields as Dictionary).definition) as DEF_Package
-						var configured: bool = ReceivingPackageFactory.configure_recipe(entity as E_Package,
-							definition, String((component.fields as Dictionary).package_id))
-						assert(configured, "Package recipe was prevalidated before live mutation")
 			entity.id = String(record.entity_id)
 			ECS.world.add_entity(entity)
 		for component: Dictionary in record.components:
@@ -322,7 +320,8 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			if target == null:
 				target = script.new() as Component
 				entity.add_component(target)
-			SaveDataCodec.apply_fields(target, component.fields as Dictionary)
+			if entity not in fresh:
+				SaveDataCodec.apply_fields(target, component.fields as Dictionary)
 			if target is C_CustomerFlow:
 				# Rebuild day/phase preparation from restored authority, including in-place loads.
 				var flow: C_CustomerFlow = target as C_CustomerFlow
@@ -342,9 +341,6 @@ static func restore(data: Dictionary, root: Node) -> bool:
 				queue.retry_remaining = 0.0
 				queue.reservations.clear()
 				queue.reservation_frame = -1
-		# Rebuild unsaved recipe configuration while preserving overlaid durable health.
-		if entity is E_Package:
-			PackageConditionService.initialize(entity, true)
 
 		var stamina: C_Stamina = entity.get_component(C_Stamina) as C_Stamina
 		if stamina != null:
@@ -415,6 +411,10 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			body.freeze_mode = RigidBody3D.FREEZE_MODE_STATIC
 			body.freeze = true
 
+	for entity: Entity in fresh:
+		for binding: EntityBuildPlan.Binding in plans[entity].bindings:
+			entity.add_relationship(Relationship.new(binding.relation, binding.target))
+
 	for record: Dictionary in data.entities:
 		var entity: Entity = entities[String(record.key)]
 		for link: Dictionary in record.links:
@@ -459,6 +459,91 @@ static func restore(data: Dictionary, root: Node) -> bool:
 	return true
 
 
+#endregion
+
+#region Fresh reconstruction preflight
+## Projects the validated saved district into detached compiler inputs, never into live authority.
+static func construction_district(records: Array) -> C_District:
+	for record: Dictionary in records:
+		for saved: Dictionary in record.components:
+			if SaveDataCodec.component_script(String(saved.type)) == C_District:
+				var district: C_District = C_District.new()
+				var decoded: bool = SaveDataCodec.apply_fields(district, saved.fields as Dictionary)
+				assert(decoded, "Construction projection requires a validated snapshot")
+				return district
+	return null
+
+
+## Projects authored NPC keys so startup does not assign a replacement merchant's old identity.
+static func construction_npc_identities(records: Array) -> Dictionary[String, StringName]:
+	var identities: Dictionary[String, StringName] = {}
+	for record: Dictionary in records:
+		var authored_id: String = String(record.get("authored_id", ""))
+		if authored_id.is_empty():
+			continue
+		for saved: Dictionary in record.components:
+			if SaveDataCodec.component_script(String(saved.type)) == C_NpcIdentity:
+				identities[authored_id] = StringName((saved.fields as Dictionary).npc_id)
+	return identities
+
+
+static func _prepare_fresh_recipes(records: Array, entities: Dictionary[String, Entity],
+		fresh: Array[Entity], world: World, plans: Dictionary[Entity, EntityBuildPlan]) -> bool:
+	var candidates: Array[Entity] = []
+	candidates.assign(entities.values())
+	var saved_district: C_District = construction_district(records)
+	for record: Dictionary in records:
+		var entity: Entity = entities[String(record.key)]
+		if entity not in fresh:
+			continue
+
+		# Configure only detached instances. A failed recipe cannot affect the live registry/state.
+		if entity is E_Package:
+			for saved: Dictionary in record.components:
+				if SaveDataCodec.component_script(String(saved.type)) == C_Package:
+					var definition: DEF_Package = SaveDataCodec.decode(
+						(saved.fields as Dictionary).definition) as DEF_Package
+					if not ReceivingPackageFactory.configure_recipe(entity as E_Package,
+							definition, String((saved.fields as Dictionary).package_id)):
+						return false
+		var context: EntitySpawnContext = EntityCompositionService.context_for(entity, world,
+			String(record.entity_id), candidates)
+		if entity is E_DistrictNpc:
+			var saved_id: StringName = &""
+			for saved: Dictionary in record.components:
+				if SaveDataCodec.component_script(String(saved.type)) == C_NpcIdentity:
+					saved_id = StringName((saved.fields as Dictionary).npc_id)
+			var person: NpcRecord = null
+			if saved_district != null:
+				for candidate: NpcRecord in saved_district.people:
+					if candidate.npc_id == saved_id:
+						person = candidate
+						break
+			if person == null:
+				return false
+			NpcConstructionService.configure_context(context, person, saved_district.definition)
+		var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
+		if not plan.valid():
+			return false
+
+		# Durable fields overlay fresh defaults before GECS initializes or publishes the actor.
+		# Components absent from the current prefab are explicit saved runtime state providers.
+		for saved: Dictionary in record.components:
+			var component_script: Script = SaveDataCodec.component_script(String(saved.type))
+			var target: Component = null
+			for recipe: Component in plan.component_recipes:
+				if recipe.get_script() == component_script:
+					target = recipe
+					break
+			if target == null:
+				target = component_script.new() as Component
+				plan.component_recipes.append(target)
+			if not SaveDataCodec.apply_fields(target, saved.fields as Dictionary):
+				return false
+		if not EntityCompositionService.prepare(entity, plan):
+			return false
+		plans[entity] = plan
+	return true
 #endregion
 
 #region Внутренние ограничения

@@ -73,7 +73,7 @@ func _add_requested_package() -> C_PackageState:
 	var state: C_PackageState = C_PackageState.new()
 	state.registration = C_PackageState.Registration.REGISTERED
 	parcel.component_resources = [identity, state]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	return parcel.get_component(C_PackageState) as C_PackageState
 
 

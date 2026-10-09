@@ -99,7 +99,7 @@ func _parcel() -> Entity:
 	var collider: CollisionShape3D = CollisionShape3D.new()
 	collider.shape = BoxShape3D.new()
 	body.add_child(collider)
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	return parcel
 
 

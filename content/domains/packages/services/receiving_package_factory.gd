@@ -67,7 +67,7 @@ static func configure_recipe(parcel: E_Package, definition: DEF_Package, package
 	for component_index: int in component_resources.size():
 		var component: Component = component_resources[component_index]
 		if component is C_Grabbable:
-			carry = component.duplicate() as C_Grabbable
+			carry = EntityRecipeRules.copy_component(component) as C_Grabbable
 			component_resources[component_index] = carry
 			break
 	if carry == null:
@@ -82,7 +82,8 @@ static func configure_recipe(parcel: E_Package, definition: DEF_Package, package
 
 #region Проверка и размещение
 ## Проверяет свободную авторскую точку, добавляет коробку в сцену и World; false оставляет её неразмещённой.
-static func try_place(zone: E_ReceivingZone, parcel: E_Package) -> bool:
+static func try_place(zone: E_ReceivingZone, parcel: E_Package,
+		initial_fields: Dictionary[Script, Dictionary] = {}) -> bool:
 	if not is_instance_valid(zone) or not is_instance_valid(parcel) or not is_instance_valid(ECS.world):
 		return false
 
@@ -115,8 +116,16 @@ static func try_place(zone: E_ReceivingZone, parcel: E_Package) -> bool:
 
 		# Единственная начальная поза устанавливается до передачи тела физическому движку.
 		body.transform = zone.package_parent.global_transform.affine_inverse() * result.pose
+		var context: EntitySpawnContext = EntityCompositionService.context_for(parcel, ECS.world,
+			parcel.id if not parcel.id.is_empty() else GECSIO.uuid())
+		context.initial_fields = initial_fields
+		var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
+		if not plan.valid():
+			return false
 		zone.package_parent.add_child(parcel)
-		ECS.world.add_entity(parcel, null, false)
+		if not EntityCompositionService.register_plan(context, plan, false):
+			zone.package_parent.remove_child(parcel)
+			return false
 		receiving.reservations.append(result.bounds)
 		return true
 	return false

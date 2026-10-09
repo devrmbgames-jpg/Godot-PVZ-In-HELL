@@ -254,6 +254,11 @@ func test_schedule_is_idempotent_has_six_daily_challenge_profiles_and_ten_day_la
 	add_child(_world)
 	ECS.world = _world
 
+	# Planning uses the same mandatory calendar/seed authority as production decisions.
+	var session: Entity = Entity.new()
+	session.component_resources = [C_DayCycle.new()]
+	EntityCompositionFixture.register(_world, session)
+
 	var flow: C_CustomerFlow = C_CustomerFlow.new()
 	flow.schedule = load("res://content/domains/customers/definitions/def_customer_schedule_default.tres") as DEF_CustomerSchedule
 	CustomerFlowFixture.plan(flow, 1, 100)
@@ -320,7 +325,7 @@ func _live_parcel(visit: CustomerVisit) -> Entity:
 	var state: C_PackageState = C_PackageState.new()
 	state.registration = C_PackageState.Registration.REGISTERED
 	parcel.component_resources = [identity, state]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	return parcel
 
 
@@ -440,7 +445,7 @@ func test_next_morning_records_overdue_without_automatic_loss_or_removal_once() 
 	identity.definition = DEF_Package.new()
 	var state: C_PackageState = C_PackageState.new()
 	parcel.component_resources = [identity, state]
-	_world.add_entity(parcel)
+	EntityCompositionFixture.register(_world, parcel)
 	assert_not_null(PackageHistoryService.record_arrival(parcel, 1))
 
 	var cycle: C_DayCycle = DayPhaseQueries.current()

@@ -46,3 +46,29 @@ var hazard_distress: bool = false
 
 ## Оклик возможен один раз за фазу; окно диалога требует взаимодействия игрока.
 var called_out: bool = false
+
+#region Transient state reset
+## Clears derived state in place; retains the constructed Component and durable NPC authority.
+func reset_transient_state() -> void:
+	target_visible = false
+	player_visible = false
+	last_seen_position = Vector3.ZERO
+	has_last_seen = false
+	search_elapsed = 0.0
+	heard_position = Vector3.ZERO
+	heard_remaining = 0.0
+	investigate_noise = false
+	fleeing = false
+	flee_portal_id = &""
+	retreat_elapsed = 0.0
+	idle_elapsed = 0.0
+	last_noise_sequence = 0
+	footstep_elapsed = 0.0
+	rule_exposure.clear()
+	warned_rules.clear()
+	reacted_rules.clear()
+	search_index = 0
+	light_distress = false
+	hazard_distress = false
+	called_out = false
+#endregion

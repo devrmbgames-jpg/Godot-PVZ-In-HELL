@@ -21,7 +21,7 @@ func _run() -> void:
 	actor_body.set_physics_process(false)
 
 	var parcel: Entity = PACKAGE.instantiate() as Entity
-	ECS.world.add_entity(parcel)
+	EntityCompositionFixture.register(ECS.world, parcel)
 	var body: RigidBody3D = GrabQueries.physical_body(parcel)
 	body.gravity_scale = 0.0
 	var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
