@@ -35,3 +35,8 @@ mono_crash.*.json
 .mcp/godot-mcp/node_modules/
 .mcp/godot-mcp/.npm/
 .mcp/godot-mcp/npm-debug.log*
+
+# Generated Python validator/test bytecode
+__pycache__/
+*.pyc
+*.pyo
