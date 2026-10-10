@@ -62,7 +62,11 @@ if ($Candidates.Count -eq 0) {
 
 # Prefer the project's pinned 4.7.1 binary even if another Godot was copied later.
 $PinnedCandidates = @($Candidates | Where-Object { $_.Name -match "4\.7\.1" })
-$GodotExe = if ($PinnedCandidates.Count -gt 0) { $PinnedCandidates[0] } else { $Candidates[0] }
+if ($PinnedCandidates.Count -eq 0) {
+    Write-Error "[Godot] Project requires Godot 4.7.1; no matching executable was found in .bin."
+    exit 2
+}
+$GodotExe = $PinnedCandidates[0]
 if ($Candidates.Count -gt 1) {
     Write-Host "[Godot] Multiple editor binaries found; using selected: $($GodotExe.Name)"
 }
