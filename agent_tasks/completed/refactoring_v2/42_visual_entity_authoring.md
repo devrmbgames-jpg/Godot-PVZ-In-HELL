@@ -1,8 +1,8 @@
 # Refactoring v2.42 — visual Entity authoring в Godot Editor
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
-Зависимости: [41_entity_templates_traits.md](../completed/refactoring_v2/41_entity_templates_traits.md).
+Зависимости: [41_entity_templates_traits.md](41_entity_templates_traits.md).
 
 ## Goal
 
@@ -57,7 +57,10 @@ zero errors/review gates. Current automated source diagnostics and strict archit
 A live MCP signal-lifetime error in New Trait was repaired under the Direct Traits task:
 deferred Inspector navigation; live native companion regression PASS9/9, restores Inspector,
 changes no authored content, and produces no new editor errors.
-Next: immutable repair review/triage, then archive this accepted owning task with49.
+Immutable repair review PASS: `c8b84b801d674a293d4519e266e2f656883617dd` to
+`cade343ebe252f22623ab0d99ec805bb2e84188f`, follow-up `a32a80e3b01e7c2eeade98a41fe2612d54ffbeba`;
+no material findings. Reviewer validation NOT_RUN; Main's tests actually ran.
+Final disposition: accepted and archived with gate49; no remaining42 acceptance.
 ## Automated evidence
 
 - Latest selection fix: GUT **PASS18/164**,7.637s; fresh parser **PASS4/0**;
@@ -96,8 +99,8 @@ Next: immutable repair review/triage, then archive this accepted owning task wit
   Raw logs: `tests/artifacts/refactoring_v2_42_review_editor{,_baseline}.log`.
   The opened-level repair harness matches its opened-level baseline (including 14 textures).
   Focused regression/parser: `tests/artifacts/refactoring_v2_42_review_{gut,parser}.log`.
-- Workflow: [Entity authoring](../../docs/entity_authoring.md); subjective Inspector/visual
-  checks remain [owner QA](../../qa_tasks/refactoring_v2.md), with no rendered test run.
+- Workflow: [Entity authoring](../../../docs/entity_authoring.md); subjective Inspector/visual
+  checks remain [owner QA](../../../qa_tasks/refactoring_v2.md), with no rendered test run.
 
 Cleanup completed 2026-10-10: 848 unreferenced logs, four reproducible snapshot archives,
 six temporary indexes/path lists and eight superseded Windows QA builds removed;
@@ -112,4 +115,4 @@ Direct Inspector authoring supersedes this task's Template/dock editing contract
 [codex_direct_traits_inspector_tz.md](codex_direct_traits_inspector_tz.md). The persistent
 Gameplay Traits plugin edits the Entity's direct export, while the retained dock handles
 IDs and detached diagnostics only. Stable IDs, pure preview, native scenes and owner QA
-requirements remain. This task is not marked complete without owner acceptance.
+requirements remain. Owner explicitly accepted the current implementation on 2026-10-10.

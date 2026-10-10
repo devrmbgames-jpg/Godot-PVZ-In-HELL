@@ -41,7 +41,11 @@ and project-owned Godot AI MCP extensions.
 - PASS: Import refuses the active editor launched with `-e`; no process terminated.
 - PASS: structure after restoring task-state headings and replacing nonexistent GUT paths.
 - PASS: incremental formatter and architecture-change gates.
-- REVIEW_PENDING: scoped runner/MCP companion checkpoint.
+- PASS: scoped independent review, source `cade343ebe252f22623ab0d99ec805bb2e84188f`,
+  follow-up `a32a80e3b01e7c2eeade98a41fe2612d54ffbeba` from baseline below;
+  no material findings. Reviewer VALIDATION NOT_RUN; Main's actual checks above.
+- PASS: complete tooling 134/134; native companion parameter/overlap GUT2/5;
+  live native Inspector signal check9/9, original Inspector restored, no new editor errors.
 - Logs: `.artifacts/godot_agent/`; original-project native editor regression is blocked
   by the live LimboAI DLL. Its failed process alone was stopped; owner editor preserved.
 

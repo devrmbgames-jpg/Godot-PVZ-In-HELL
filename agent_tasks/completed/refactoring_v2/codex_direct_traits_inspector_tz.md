@@ -1,8 +1,10 @@
 # Codex Task — Direct Entity Traits в Godot Inspector
 
+Status: **DONE**
+
 **Репозиторий:** `https://github.com/devrmbgames-jpg/Godot-PVZ-In-HELL`
 **Ветка:** `dev`
-**Статус:** `IN_PROGRESS`
+**Статус:** `DONE`
 **Файл прогресса:** этот файл (один источник; отдельный task не создаётся).
 **Тип:** архитектурный UX-рефакторинг / миграция authoring-контракта.
 
@@ -37,7 +39,10 @@
 - Owner explicitly accepted current Inspector/Direct Traits and Gameplay Debugger on 2026-10-10.
 - Live MCP found source disposal during New Trait signal; native navigation now deferred.
   Companion live regression PASS9/9, Inspector restored, authored content unchanged; no new editor errors.
-- Next: immutable repair review/triage, then archive accepted authoring tasks with gate49.
+- Final repair review: `c8b84b801d674a293d4519e266e2f656883617dd` →
+  `cade343ebe252f22623ab0d99ec805bb2e84188f`, follow-up
+  `a32a80e3b01e7c2eeade98a41fe2612d54ffbeba`: ARCHITECTURE/STYLE PASS, no material findings;
+  reviewer VALIDATION NOT_RUN, Main's actual evidence above. Accepted and archived with gate49.
 
 ### Validation
 - GUT PASS: 225 tests / 1845 assertions, `.artifacts/direct_traits/gut_final.log`.
@@ -48,7 +53,7 @@
   `editor_local_reopen.log`. Repair parser 2 files / 0 failures, formatter/static gates PASS.
 - Parser PASS: 45 changed scripts / 0 failures. Formatter, strict architecture, agent gate PASS.
 - Structure PASS after separately evidenced unused owner Theme rename (bytes/UID preserved,
-  still untracked); [independent scope](../completed/developer_console_theme_naming.md).
+  still untracked); [independent scope](../developer_console_theme_naming.md).
 - 5-scene baseline parity PASS: providers, per-field provenance, bindings, IDs and issues.
 - Median of 3 × 500 box builds: baseline 232081 / new 242905 usec (+4.7%);
   registrations: 1969689 / 2036989 usec (+3.4%). Isolated same-engine/GECS checkout;
@@ -75,7 +80,7 @@
 
 ### Owner QA / blockers
 - Inspector ergonomics, actual resource picker/drag-drop, inherited scene editing and gameplay:
-  owner accepted 2026-10-10; [owner checklist](../../qa_tasks/direct_entity_traits_inspector.md).
+  owner accepted 2026-10-10; [owner checklist](../../../qa_tasks/direct_entity_traits_inspector.md).
   No visual gameplay launch or visual PASS is claimed.
 
 Разработчик выбирает Entity в дереве Godot и **непосредственно в стандартном Inspector** видит секцию **Gameplay Traits** и действие **Add Trait**. Он может добавить, выбрать, настроить, удалить или переставить Traits, не создавая вручную `DEF_EntityTemplate`, `EntityAuthoring` и `metadata/entity_composition`.

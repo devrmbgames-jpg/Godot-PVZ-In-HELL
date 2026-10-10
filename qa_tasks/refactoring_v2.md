@@ -7,6 +7,10 @@ acceptance that cannot be proved by detached/headless checks. No rendered QA is 
 
 ## Entity authoring (42)
 
+Accepted by owner on 2026-10-10, including current direct Traits Inspector. The earlier
+dock-only/session-installer instructions below are historical. Current workflow uses the
+persistent Gameplay Traits Inspector; see `qa_tasks/direct_entity_traits_inspector.md`.
+
 - Run `content/editor/entity_authoring/install_entity_authoring.gd` once in the script editor;
   select an NPC/Trader and an interactable. Open the separate Entity Authoring dock;
   the base Inspector must remain unchanged. Check the authored dock's readability,
@@ -33,6 +37,9 @@ acceptance that cannot be proved by detached/headless checks. No rendered QA is 
   and records a dirty worktree in its manifest.
 
 ## Gameplay Debugger (48)
+
+Accepted by owner on 2026-10-10 for the current interface. Keep the checklist as regression
+guidance; no additional visual run by Codex is claimed.
 
 - Windows QA build: `.export/LATEST.cmd` -> `20261009-225258Z-180e403f-gameplay-debugger-review`; exported menu/level headless120-frame startup PASS, rendered QA PENDING.
 

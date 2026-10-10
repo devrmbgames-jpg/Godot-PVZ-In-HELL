@@ -2,7 +2,7 @@
 
 Status: **PLANNED**
 
-Зависимости: [49_core_architecture_acceptance.md](49_core_architecture_acceptance.md) PASS.
+Зависимости: [49_core_architecture_acceptance.md](../completed/refactoring_v2/49_core_architecture_acceptance.md) PASS.
 
 ## Goal
 

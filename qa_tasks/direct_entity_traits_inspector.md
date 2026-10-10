@@ -1,7 +1,7 @@
 # Direct Entity Traits — owner Inspector and gameplay QA
 
 Status: **OWNER_QA_PENDING**. Automated checks are recorded in
-[the owning task](../agent_tasks/refactoring_v2/codex_direct_traits_inspector_tz.md).
+[the owning task](../agent_tasks/completed/refactoring_v2/codex_direct_traits_inspector_tz.md).
 No rendered gameplay or visual QA has been run by the agent.
 
 1. Restart Godot and confirm **Gameplay Traits** is enabled in Project Settings → Plugins.

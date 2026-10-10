@@ -1,6 +1,6 @@
 # Refactoring v2.49 — core architecture acceptance
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 Зависимости: [48_gameplay_debugger.md](48_gameplay_debugger.md); все Phase 2 tasks завершены, strict rerun 32/33 PASS.
 
@@ -71,5 +71,15 @@ Owner explicitly accepted both current Inspector/Direct Traits and Gameplay Debu
   Deferred native navigation fixes New/Make Unique/local settings; live companion regression
   PASS nine assertions, Inspector restored and no authored-content changes. Fresh MCP and
   headless parser diagnostics clean. This repair belongs to the Direct Traits task.
-- Mandatory CLI runner repaired/verified under [tooling integration](../godot_agent_tooling_integration.md).
-- Next: current smoke, immutable repair review/triage, archive accepted 42/48 and close49.
+- Mandatory CLI runner repaired/verified under [tooling integration](../../godot_agent_tooling_integration.md).
+- PASS: night_persistence write + fresh-process restore and district_package_receipts smoke,
+  16000-frame budget. Logs: `tests/artifacts/night_persistence-write-20261010-170547281.log`,
+  `night_persistence-restore-20261010-170601469.log`,
+  `district_package_receipts-20261010-170617766.log` in the same directory.
+- PASS: complete tooling 134/134 and persistence baseline; current formatter/static gates.
+- Independent immutable review: base `c8b84b801d674a293d4519e266e2f656883617dd`
+  to source `cade343ebe252f22623ab0d99ec805bb2e84188f`, follow-up fixture checkpoint
+  `a32a80e3b01e7c2eeade98a41fe2612d54ffbeba`: ARCHITECTURE/STYLE PASS, no material findings.
+  Reviewer VALIDATION NOT_RUN; Main actually executed the checks above.
+- Final disposition: all mandatory automatic and owner gates passed. Tasks42/48 and direct
+  Traits are accepted and archived. Phase3 tasks60–66 are now authorized by this gate.

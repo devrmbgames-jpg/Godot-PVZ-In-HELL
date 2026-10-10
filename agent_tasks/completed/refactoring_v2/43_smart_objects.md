@@ -2,7 +2,7 @@
 
 Status: **DONE**
 
-Зависимости: [42_visual_entity_authoring.md](../../refactoring_v2/42_visual_entity_authoring.md), [40_typed_commands_events.md](40_typed_commands_events.md).
+Зависимости: [42_visual_entity_authoring.md](42_visual_entity_authoring.md), [40_typed_commands_events.md](40_typed_commands_events.md).
 
 ## Goal
 

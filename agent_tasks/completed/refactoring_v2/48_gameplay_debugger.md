@@ -1,8 +1,8 @@
 # Refactoring v2.48 — Gameplay Debugger
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
-Зависимости: [46_content_doctor.md](../completed/refactoring_v2/46_content_doctor.md), AI/Traits/LOD contracts готовы.
+Зависимости: [46_content_doctor.md](46_content_doctor.md), AI/Traits/LOD contracts готовы.
 
 ## Goal
 
@@ -55,13 +55,15 @@ implemented and re-reviewed; owner accepted the current interface on 2026-10-10.
 and theme_developer_console.tres provide14px fonts, compact styles and local base scale1.
 Adapter themes both text context menus and restores console presentation on teardown.
 Native container sizing keeps debugger/output/input separate, including640x360 half-height.
-Owner explicitly accepted both current interfaces (42/48); next: archive after gate49 review.
+Owner explicitly accepted both current interfaces (42/48); accepted and archived with gate49.
 
 ## Current acceptance (2026-10-10)
 
 Owner Inspector/Direct Traits and Gameplay Debugger acceptance: PASS (explicit user result).
 Current core GUT: PASS220/2373,16 suites,47.516s; full Doctor PASS92/3,zero errors/review gates.
-Existing immutable debugger architecture/style reviews remain applicable; current gate49 review pending.
+Existing immutable debugger architecture/style reviews remain applicable; current gate49 review PASS.
+Current repair review source `cade343ebe252f22623ab0d99ec805bb2e84188f`, follow-up
+`a32a80e3b01e7c2eeade98a41fe2612d54ffbeba`: no material findings; reviewer validation NOT_RUN.
 
 ## Prior automated evidence
 

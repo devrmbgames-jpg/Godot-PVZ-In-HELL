@@ -120,13 +120,13 @@ Typed contracts уже закреплены задачей 40 перед executi
 
 35. [Unified Game Time + deterministic randomness — foundation](../completed/refactoring_v2/47_game_time_randomness.md)
 36. [Entity Templates / Traits](../completed/refactoring_v2/41_entity_templates_traits.md)
-37. [Visual Entity authoring](42_visual_entity_authoring.md)
+37. [Visual Entity authoring](../completed/refactoring_v2/42_visual_entity_authoring.md)
 38. [Smart Objects / Affordances / Reservations](../completed/refactoring_v2/43_smart_objects.md)
 39. [Schedule / goal selection / LimboAI; GOAP deferred](../completed/refactoring_v2/44_ai_schedule_utility_goap.md)
 40. [Simulation LOD](../completed/refactoring_v2/45_simulation_lod.md)
 41. [Content Doctor](../completed/refactoring_v2/46_content_doctor.md)
-42. [Gameplay Debugger](48_gameplay_debugger.md)
-43. [Core architecture acceptance](49_core_architecture_acceptance.md)
+42. [Gameplay Debugger](../completed/refactoring_v2/48_gameplay_debugger.md)
+43. [Core architecture acceptance](../completed/refactoring_v2/49_core_architecture_acceptance.md)
 
 ### Phase 3 — Code Style refactor
 
@@ -140,45 +140,27 @@ Typed contracts уже закреплены задачей 40 перед executi
 
 ## Current
 
-Active Goal authorization (2026-10-10): complete the entire Refactoring v2 plan through
-task **66**, including Phase 3 after the Phase-2 acceptance gate. This supersedes historical
-session limits below that stopped at 49 or excluded Phase 3. The dependency order and
-required acceptance remain in force; task 41 is DONE, with shutdown-only retention deferred.
-Completed tasks move to `agent_tasks/completed/refactoring_v2/`; rendered gameplay and
-subjective visual QA remain owner acceptance. Task42 code/review passes with OWNER_QA_PENDING;
-Tasks43–45 runtime/schema are DONE. Continue 48–49 and 60–66 with required gates intact.
+Authorization: complete Refactoring v2 through66 in dependency order. Phase0, Phase1,
+Phase2A/2B/2C and core gate49 are DONE; their owning records are archived.
+Owner explicitly accepted current Inspector/Direct Traits and Gameplay Debugger on
+2026-10-10. Tasks42/48 and direct Traits have passed implementation, review and acceptance.
+Gate49: current core GUT220/2373, full tooling134/134, Content Doctor92 scenes/three dialogues,
+strict architecture/domain/dependency, native parser, persistence and package smokes PASS.
+Native Inspector signal regression: live MCP9/9, source controls survive their signals,
+Inspector restored, authored content unchanged. Independent current repair review PASS.
 
-Phase 1 **DONE**: задачи 01–03 завершены 2026-10-07, 04 — 2026-10-08. Canonical roles/service smells/request timing, architecture guardrail, full structure repair и isolated identity/persistence baseline завершены. Phase 1 acceptance gate достигнут; runtime migration не начиналась.
+Phase3 tasks60–66 are now permitted by the archived gate49. See the individual owning
+files for their actual implementation status; no remaining Phase2 owner approval blocks them.
+Old-save conversion is excluded; current schema10 roundtrip remains mandatory.
+GOAP/body detach/four LOD tiers remain deferred. Shutdown-only4.7.1 retention remains
+KNOWN_ENGINE_LIMITATION / DEFERRED; runtime ownership defects are not waived.
+Existing owner worktree changes are preserved. No agent rendered gameplay/visual run is claimed.
 
-Повторный Phase 0 pass завершён 2026-10-07 строго последовательно, с отдельным coherent commit каждой 00_задачи. Final full review [00_05](../completed/refactoring_v2/00_05_preflight_readiness_gate.md): **READY_FOR_IMPLEMENTATION**. Этот исторический gate разрешил Phase 1; его preflight pass завершён до реализации 01.
-
-Phase 2A и 2B **DONE**. Execution ownership, typed contracts, all vertical-domain moves and removal of horizontal roots are complete; immutable checkpoints, reviews and acceptance evidence live in the linked archived owning tasks above.
-
-Phase 2C: tasks 41, 43, 44, 45 and 47 are **DONE**, with evidence in their archived owning files. [42 — visual Entity authoring](42_visual_entity_authoring.md) is OWNER_QA_PENDING after implementation/re-review PASS. [46 — Content Doctor](../completed/refactoring_v2/46_content_doctor.md) is DONE after repaired immutable review. [48 — Gameplay Debugger](48_gameplay_debugger.md) is OWNER_QA_PENDING after implementation, review and headless gates PASS. Continue 48–49, then 60–66 after the core acceptance gate; mandatory owner acceptance remains open.
-
-Old-save migration исключена владельцем; changed formats versioned/rejected, current-format roundtrip обязателен. GOAP/body detach/четыре tiers deferred; baseline ACTIVE/DORMANT with retained physical-root Entity and ECS-owned population records. Population/district schedules belong to npc, without separate district domain. Known structure failures (31, smoke reference/R26 metadata) устранены в 03.
-
-Ни Phase 1, ни runtime migration не начинать до `READY_FOR_IMPLEMENTATION` в [00.05 — preflight readiness gate](../completed/refactoring_v2/00_05_preflight_readiness_gate.md).
-
-Execution guardrail: `python utils/validate_architecture.py`; fixtures: `python -m unittest discover -s tests/tools -p test_validate_architecture.py`. Symbol/occurrence migration baseline хранится в `utils/architecture_baseline.json`, сокращается при каждом owning migration и обнуляется в 26. Gate 27: `python utils/validate_architecture.py --strict`. Infrastructure diagnostics (31, smoke reference/R26 metadata) устранены в 03: full structure PASS.
-
-Identity/persistence baseline: `python utils/validate_persistence_baseline.py`; fixtures: `python -m unittest discover -s tests/tools -p test_validate_persistence_baseline.py`. Engine fixture: headless GUT `-gtest=res://tests/gut/test_refactoring_v2_persistence_baseline.gd -gexit`. `docs/persistence.md` owns identity/version/path contracts; 25 removes path matching and versions incompatible changes before 28–32.
-
-Domain structure guardrail уже подготовлен в transition mode:
-`python utils/validate_domain_structure.py`.
-
-После завершения vertical-domain migration обязательные gates:
-`python utils/validate_domain_structure.py --strict` и
+Validation: `python utils/validate_project_structure.py`,
+`python -B utils/validate_architecture.py --strict`,
+`python utils/validate_domain_structure.py --strict`,
 `python utils/validate_domain_dependencies.py --strict`.
-
-Dependency enforcement уже включён в structure gate: `python utils/validate_domain_dependencies.py`. Frozen exact baseline `utils/domain_dependency_baseline.json` может только сокращаться; owning-task DONE запрещает её exemption. `--prune-resolved` удаляет только resolved edges, never grants access.
-
-Текущие roadmap links/dependencies/encoding: `python utils/validate_refactoring_preflight.py`.
-Frozen Phase 0 docs gate: `python utils/validate_refactoring_preflight.py --require-gate` (проверяет состояние до implementation: все будущие tasks PLANNED и next01; после старта Phase 1 неприменим к текущему task state).
-Fixtures: `python -m unittest discover -s tests/tools -p test_validate_refactoring_preflight.py`.
-
-Phase 0 commit footprint: `python utils/validate_refactoring_preflight.py --phase0-commit <commit-id>`; repeat flag for each commit. Index before commit: `--check-staged-scope`. These checks include only owned committed/staged paths, preserving unrelated unstaged config/addon changes.
-
+Frozen Phase0 `--require-gate` is historical and inapplicable after implementation starts.
 ## Global acceptance
 
 Refactoring v2 завершён, когда:
