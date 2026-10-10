@@ -17,9 +17,9 @@ Status: **IN_PROGRESS**
 подключены; общий gate разгрузки и конечный lifecycle уже существуют в текущем коде.
 Обратный груз/продажа и итоговая интеграция остаются открытыми. Схема сохранения уже 10.
 
-Следующее действие — [сверка приёмки gate разгрузки](district_truck_shift_gate.md)
-с текущими владельцами и имеющимися тестами, затем обратный груз. Не реализовывать gate
-заново и не считать старый PASS полной приёмкой оставшегося этапа.
+Gate разгрузки прошёл актуальную автоматическую приёмку и independent review;
+его обязательная ручная приёмка остаётся OWNER_QA. Следующее действие —
+[обратный груз, продажа и утилизация](district_truck_returns_resale.md).
 
 ### Validation
 
@@ -41,6 +41,8 @@ Status: **IN_PROGRESS**
 [архитектурной инфраструктуре](completed/refactoring_v2/03_architecture_validation.md).
 Они не являются текущим блокером или текущим PASS структуры.
 Итог этапа 4 требует актуальных проверок, review/triage и runnable Windows QA-сборки.
+Актуальная приёмка gate: [owning task](district_truck_shift_gate.md) — GUT 26/26 + 13/13,
+parser 6/6 и headless smoke PASS; independent source review без material findings.
 
 ### Owner QA / blockers
 

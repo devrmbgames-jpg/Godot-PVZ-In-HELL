@@ -1,6 +1,6 @@
 # Машина — разгрузка и условия начала смены
 
-Status: **IN_PROGRESS**
+Status: **OWNER_QA**
 
 Родительский этап: [Утренняя машина](district_morning_truck.md). Порядок выполнения: [общая задача](district_service_update.md).
 
@@ -19,8 +19,8 @@ Gate уже реализован: `ReceivingShiftService.status/commit_departure
 `tests/gut/test_truck_shift_gate.gd` и `tests/smoke/truck_shift_gate_smoke.tscn`.
 Автоматическая приёмка 2026-10-10 выполнена на текущем worktree; gameplay-код gate
 не изменён. Source SHA: `878ab6e6226ca4990fd21b0b07f3352098435ade`.
-Review state: REVIEW_PENDING; после immutable-SHA review/triage можно продолжить
-обратный груз. Обязательная ручная приёмка остаётся открытой.
+Автоматическая приёмка и independent immutable-SHA review/triage закрыты;
+можно продолжить обратный груз. Обязательная ручная приёмка остаётся открытой.
 
 ### Validation
 
@@ -75,7 +75,16 @@ PENDING_OWNER_QA. Headless проверки не заменяют её; до р�
 - [x] `cargo_commit_requested` вызывается однократно по партии до выхода из MORNING;
   финансовые операции остаются следующей задачей.
 - [x] Актуальные parser, GUT и smoke подтверждают автоматическую поверхность UI/терминала/gate.
-- [ ] Собрать immutable-SHA review/triage и ручную приёмку; только затем DONE/архивирование.
+- [x] Independent immutable-SHA review собран/triaged: material findings отсутствуют.
+- [ ] Ручная приёмка владельца; только затем DONE/архивирование.
+
+## Review findings
+
+BASE_SHA: `878ab6e6226ca4990fd21b0b07f3352098435ade`.
+TARGET_SHA: `2886154d6fffafaea0e455d63a17aa93496b3e58`.
+Review state: TRIAGED; no material findings. ARCHITECTURE/STYLE PASS по scoped source
+review; reviewer VALIDATION NOT_RUN. Main worktree engine evidence записано выше;
+оно не объявляется запуском тестов на immutable snapshot.
 
 ## Критерии завершения
 
