@@ -5,6 +5,7 @@ extends "res://content/domains/customers/ai/tasks/bt_customer_condition.gd"
 ## Наблюдаемые фазы роли; редактируются непосредственно в дереве.
 @export var phases: Array[int] = []
 
+
 #region Проверка состояния
 func _tick(_delta: float) -> Status:
 	var service: C_CustomerAgent = _service()

@@ -88,7 +88,7 @@ func test_queued_completion_rejects_cancelled_action_incarnation() -> void:
 		if observer is O_DistrictLifecycle:
 			owner = observer as O_DistrictLifecycle
 	owner.command_buffer_flush_mode = Observer.FlushMode.MANUAL
-	var request: NpcScheduleCompletionRequest = DistrictPopulationService.request_phase_completion(
+	var request: NpcScheduleCompletionRequest = NpcScheduleActionService.request_phase_completion(
 		body
 	)
 	assert_false(request.completed)

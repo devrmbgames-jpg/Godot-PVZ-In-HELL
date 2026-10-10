@@ -2,7 +2,12 @@ extends Resource
 ## Личность и история фаз; здоровье и предметы остаются на физическом теле.
 class_name NpcRecord
 
-enum Placement { STREET, HOME, OUTSIDE, DEAD }
+enum Placement {
+	STREET,
+	HOME,
+	OUTSIDE,
+	DEAD,
+}
 
 ## ID личности на всю жизнь, независимо от заказов и дат визита.
 @export var npc_id: StringName = &""

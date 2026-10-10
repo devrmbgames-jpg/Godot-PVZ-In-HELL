@@ -10,6 +10,7 @@ var _person: NpcRecord
 var _awareness: C_NpcAwareness
 var _owns_movement: bool = false
 
+
 #region Контекст и жизненный цикл
 func _setup() -> void:
 	_actor = get_agent() as E_DistrictNpc
@@ -19,8 +20,10 @@ func _setup() -> void:
 	_person = NpcPopulationQueries.person_for(identity.npc_id) if identity != null else null
 	_awareness = _actor.get_component(C_NpcAwareness) as C_NpcAwareness
 
+
 func _enter() -> void:
 	_owns_movement = false
+
 
 func _exit() -> void:
 	if not _owns_movement or not is_instance_valid(_actor):
@@ -31,10 +34,15 @@ func _exit() -> void:
 		NpcIntentService.stop(_actor)
 		decision.active_task_id = 0
 
+
 func _claim(behavior: String) -> bool:
-	if not is_instance_valid(_actor) or not NpcIntentArbiter.acquire(_actor, intent_owner, behavior):
+	if (
+		not is_instance_valid(_actor)
+		or not NpcIntentArbiter.acquire(_actor, intent_owner, behavior)
+	):
 		return false
 	return true
+
 
 func _own_movement() -> void:
 	var decision: C_NpcDecision = _actor.get_component(C_NpcDecision) as C_NpcDecision
@@ -42,9 +50,11 @@ func _own_movement() -> void:
 		decision.active_task_id = get_instance_id()
 	_owns_movement = true
 
+
 func _move(destination: Vector3, distance: float) -> void:
 	_own_movement()
 	NpcIntentArbiter.move_to(_actor, destination, distance, intent_owner)
+
 
 func _intent() -> C_NpcIntent:
 	return _actor.get_component(C_NpcIntent) as C_NpcIntent

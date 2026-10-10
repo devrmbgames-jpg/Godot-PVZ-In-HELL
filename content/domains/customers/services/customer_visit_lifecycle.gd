@@ -2,6 +2,7 @@ extends RefCounted
 ## Closes an appearance and owns complaint/followup policy for the existing visit aggregate.
 class_name CustomerVisitLifecycle
 
+
 #region Visit closure and followups
 ## Закрывает приход однократно и планирует допустимый повтор, сохраняя заказ и личность.
 static func finish(visit: CustomerVisit, day: int) -> void:
@@ -31,6 +32,7 @@ static func finish(visit: CustomerVisit, day: int) -> void:
 
 	schedule_followup(visit, day)
 
+
 ## Подаёт жалобу с известным именем постоянного жителя; расчёт остаётся у CustomerOutcomeService.
 static func create_complaint(
 	visit: CustomerVisit,
@@ -39,15 +41,18 @@ static func create_complaint(
 	force: bool = false,
 ) -> bool:
 	return CustomerOutcomeService.create_complaint(
-		visit, day, reason, force, CustomerPresentation.customer_name(visit),
+		visit,
+		day,
+		reason,
+		force,
+		CustomerPresentation.customer_name(visit),
 	)
+
 
 ## Планирует допустимый повтор по детерминированному броску для номера повторного визита.
 static func schedule_followup(visit: CustomerVisit, day: int) -> bool:
 	if (
-		visit == null
-		or visit.definition == null
-		or visit.customer_dead
+		visit == null or visit.definition == null or visit.customer_dead
 		or visit.declaration != CustomerVisit.Declaration.NONE
 		or (
 			visit.actual != CustomerVisit.Actual.NOT_RESOLVED
@@ -63,7 +68,10 @@ static func schedule_followup(visit: CustomerVisit, day: int) -> bool:
 		1.0,
 	)
 	var random: RandomNumberGenerator = GameTimeQueries.decision(
-		String(visit.visit_id), day, "customer/followup", visit.followup_count,
+		String(visit.visit_id),
+		day,
+		"customer/followup",
+		visit.followup_count,
 	)
 	if random.randf() >= probability:
 		return false

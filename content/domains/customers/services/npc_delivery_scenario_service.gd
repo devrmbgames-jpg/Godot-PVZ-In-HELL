@@ -2,6 +2,7 @@ extends RefCounted
 ## Исполняет одну авторскую домашнюю засаду; условия и выбор боя принадлежат LimboAI.
 class_name NpcDeliveryScenarioService
 
+
 #region Авторский сценарий
 ## Читает определение назначенного сценария, не раскрывая его терминалу.
 static func definition_for(job: NpcHomeDelivery) -> DEF_NpcDeliveryScenario:
@@ -11,18 +12,32 @@ static func definition_for(job: NpcHomeDelivery) -> DEF_NpcDeliveryScenario:
 	var scenario: DEF_NpcDeliveryScenario = district.definition.personal_delivery_scenario
 	return scenario if scenario != null and scenario.key == job.scenario_id else null
 
+
 ## Наблюдает только живую домашнюю встречу с ещё не сработавшим сценарием.
 static func armed_for(body: E_DistrictNpc) -> NpcHomeDelivery:
 	var job: NpcHomeDelivery = HomeMeetingQueries.meeting_for(body) if body != null else null
-	return job if job != null and job.source == NpcHomeDelivery.Source.PERSONAL and definition_for(job) != null else null
+	return (
+		job
+		if (
+			job != null and job.source == NpcHomeDelivery.Source.PERSONAL
+			and definition_for(job) != null
+		)
+		else null
+	)
 #endregion
+
 
 #region Запрос боя
 ## По решению дерева связывает видимого противника и закрывает обязательство без выдачи/штрафа.
 static func start_ambush(body: E_DistrictNpc) -> bool:
 	var job: NpcHomeDelivery = armed_for(body)
-	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness if body != null else null
-	if job == null or awareness == null or not awareness.player_visible or NpcDialogueService.participant(body) != null:
+	var awareness: C_NpcAwareness = (
+		body.get_component(C_NpcAwareness) as C_NpcAwareness if body != null else null
+	)
+	if (
+		job == null or awareness == null or not awareness.player_visible
+		or NpcDialogueService.participant(body) != null
+	):
 		return false
 
 	var player: Entity = ECS.world.query.with_all([C_PlayerInputController]).execute_one()

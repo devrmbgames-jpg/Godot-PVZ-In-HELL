@@ -1,5 +1,6 @@
 extends RefCounted
-## Requests completion of a captured macro goal; stale queued decisions cannot finish its replacement.
+## Requests completion of a captured macro goal; stale queued decisions cannot finish its
+## replacement.
 class_name NpcScheduleCompletionRequest
 
 ## Sole-handler completion command channel.

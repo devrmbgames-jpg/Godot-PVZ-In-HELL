@@ -69,8 +69,10 @@ func configuration_issues(context: EntitySpawnContext) -> PackedStringArray:
 			for action: DEF_InteractionAction in scene_actions.actions:
 				if action == null:
 					issues.append("Scene actions require valid immutable Definitions")
-				elif action.action_id == street_action.action_id \
-						or additional_ids.has(action.action_id):
+				elif (
+					action.action_id == street_action.action_id
+					or additional_ids.has(action.action_id)
+				):
 					issues.append("Scene actions cannot duplicate another initial action ID")
 	if profile != null and profile.merchant:
 		if not context.actor.get_node_or_null("FurniturePickup") is Marker3D:

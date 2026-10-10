@@ -7,6 +7,7 @@ class_name NpcServiceRoutes
 ## Упорядоченные точки второго ожидающего клиента, относительно этого узла.
 @export var second_route: Array[NodePath] = []
 
+
 #region Авторские точки
 ## Возвращает заданную точку маршрута без поиска путей и сканирования уровня.
 func point_for(route_index: int, point_index: int) -> Node3D:

@@ -25,7 +25,8 @@ static func bind_engine(actor: E_DistrictNpc) -> void:
 	actor.add_child(runner)
 
 
-## Включает дерево либо прерывает его листья; из выполняющегося такта abort завершается после update.
+## Включает дерево либо прерывает его листья; из выполняющегося такта abort завершается после
+## update.
 static func set_participating(actor: E_DistrictNpc, participating: bool) -> void:
 	var runner: BTPlayer = actor.get_node_or_null("Brain") as BTPlayer
 	if runner == null:

@@ -135,7 +135,10 @@ static func can_approach(body: E_DistrictNpc) -> bool:
 	var first_ready: E_DistrictNpc = null
 	for candidate: E_DistrictNpc in prepared:
 		var service: C_CustomerAgent = candidate.get_component(C_CustomerAgent) as C_CustomerAgent
-		if service.phase == C_CustomerAgent.Phase.WAITING_FOR_DARKNESS and needs_darkness(candidate):
+		if (
+			service.phase == C_CustomerAgent.Phase.WAITING_FOR_DARKNESS
+			and needs_darkness(candidate)
+		):
 			continue
 		first_ready = candidate
 		break
@@ -167,10 +170,7 @@ static func claim_counter(body: E_DistrictNpc) -> void:
 	agent.elapsed = 0.0
 	var destination: Vector3 = (
 		station.entry_position()
-		if agent.phase
-		== C_CustomerAgent \
-				.Phase \
-				.WAITING_FOR_DARKNESS
+		if agent.phase == C_CustomerAgent.Phase.WAITING_FOR_DARKNESS
 		else station.waiting_position()
 	)
 	NpcIntentArbiter.move_to(
@@ -291,8 +291,9 @@ static func arrive(body: E_DistrictNpc) -> void:
 	agent.phase = waiting_phase
 	agent.elapsed = 0.0
 	NpcIntentService.stop(body)
-	var greeting: String = "Здравствуйте!" if agent.phase == C_CustomerAgent.Phase.WAITING \
-			else CustomerPresentation.request_text(CustomerFlowQueries.visit_for(body))
+	var greeting: String = "Здравствуйте!"
+	if agent.phase != C_CustomerAgent.Phase.WAITING:
+		greeting = CustomerPresentation.request_text(CustomerFlowQueries.visit_for(body))
 	body.show_message(greeting)
 
 #endregion

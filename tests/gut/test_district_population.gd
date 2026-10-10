@@ -5,6 +5,7 @@ var _root: Node3D = null
 var _world: World = null
 var _district: C_District = null
 
+
 #region Тестовое окружение
 ## Создаёт минимальный World с реальными районными профилями и prefab NPC.
 func before_each() -> void:
@@ -31,6 +32,7 @@ func before_each() -> void:
 	_world.add_observer(O_CustomerPlanning.new())
 	DistrictPopulationService.initialize()
 
+
 ## Освобождает World до окружающей сцены и сбрасывает глобальное участие ECS.
 func after_each() -> void:
 	for actor: Entity in _world.entities.duplicate():
@@ -44,6 +46,7 @@ func after_each() -> void:
 	_district = null
 #endregion
 
+
 #region Личность и расписание
 ## Постоянный торговец достигает своей точки и остаётся доступен во всех игровых фазах.
 func test_merchant_schedule_keeps_same_live_trader_on_shop_goal_all_day() -> void:
@@ -52,18 +55,23 @@ func test_merchant_schedule_keeps_same_live_trader_on_shop_goal_all_day() -> voi
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var shop: C_Trader = body.get_component(C_Trader) as C_Trader
 	assert_true(person.profile.merchant)
-	for phase: C_DayCycle.Phase in [C_DayCycle.Phase.MORNING, C_DayCycle.Phase.DAY, C_DayCycle.Phase.EVENING]:
+	for phase: C_DayCycle.Phase in [
+		C_DayCycle.Phase.MORNING,
+		C_DayCycle.Phase.DAY,
+		C_DayCycle.Phase.EVENING,
+	]:
 		cycle.phase = phase
 		assert_true(DistrictPopulationService.request_phase(body, 1, phase).succeeded)
 		assert_eq(person.profile.schedule.location_for(1, phase), DEF_NpcSchedule.Location.STREET)
 		assert_eq(_district.definition.place_for(person.goal_id).kind, DEF_DistrictPlace.Kind.SHOP)
-		assert_true(DistrictPopulationService.request_phase_completion(body).succeeded)
+		assert_true(NpcScheduleActionService.request_phase_completion(body).succeeded)
 		assert_eq(person.placement, NpcRecord.Placement.STREET)
 		assert_same(NpcPopulationQueries.body_for(person.npc_id), body)
 		assert_true(GrabQueries.holder_available(body))
 		assert_true(TraderCatalogRules.is_open(shop, cycle))
 	cycle.phase = C_DayCycle.Phase.NIGHT
 	assert_false(TraderCatalogRules.is_open(shop, cycle))
+
 
 ## Уход и возвращение сохраняют постоянный ID, тот же экземпляр тела, здоровье и память.
 func test_departure_and_return_keep_body_health_and_memory() -> void:
@@ -84,12 +92,23 @@ func test_departure_and_return_keep_body_health_and_memory() -> void:
 	assert_eq(health.current, health.value * 0.5)
 	assert_eq(person.memories.size(), 1)
 
+
 ## Доступность приезжего задаётся игровым днём недели, а не длительностью фазы.
 func test_weekly_visitor_uses_day_index() -> void:
 	var visitor: NpcRecord = _district.people[8]
-	assert_eq(visitor.profile.schedule.location_for(1, C_DayCycle.Phase.DAY), DEF_NpcSchedule.Location.STREET)
-	assert_eq(visitor.profile.schedule.location_for(2, C_DayCycle.Phase.DAY), DEF_NpcSchedule.Location.OUTSIDE)
-	assert_eq(visitor.profile.schedule.location_for(8, C_DayCycle.Phase.DAY), DEF_NpcSchedule.Location.STREET)
+	assert_eq(
+		visitor.profile.schedule.location_for(1, C_DayCycle.Phase.DAY),
+		DEF_NpcSchedule.Location.STREET,
+	)
+	assert_eq(
+		visitor.profile.schedule.location_for(2, C_DayCycle.Phase.DAY),
+		DEF_NpcSchedule.Location.OUTSIDE,
+	)
+	assert_eq(
+		visitor.profile.schedule.location_for(8, C_DayCycle.Phase.DAY),
+		DEF_NpcSchedule.Location.STREET,
+	)
+
 
 ## Повтор подготовки того же утра не создаёт личность и не сбрасывает фазу повторно.
 func test_morning_retry_is_idempotent() -> void:
@@ -101,6 +120,7 @@ func test_morning_retry_is_idempotent() -> void:
 	assert_eq(_district.people[0].planned_day, planned)
 	assert_eq(_district.prepared_morning, 2)
 #endregion
+
 
 #region Исполнение дерева решений
 ## Реальное дерево LimboAI исполняет расписание через арбитр намерений движения.
@@ -115,6 +135,7 @@ func test_native_tree_drives_schedule_without_another_movement_owner() -> void:
 	assert_true(intent.movement_active)
 	assert_eq(intent.move_position, NpcPopulationQueries.position_for(person.goal_id))
 #endregion
+
 
 #region Окончательная смерть и заселение
 ## Заселение после двух смертей создаёт новый ID без чужой памяти; погибший остаётся в истории.

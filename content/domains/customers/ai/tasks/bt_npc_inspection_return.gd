@@ -5,6 +5,7 @@ extends "res://content/domains/customers/ai/tasks/bt_customer_action.gd"
 ## Неудавшееся прибытие делает осмотр причиной отказа.
 @export var force_refusal: bool = false
 
+
 #region Листовое действие
 func _tick(_delta: float) -> Status:
 	if not _claim("Вернуться после осмотра"):

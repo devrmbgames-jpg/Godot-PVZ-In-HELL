@@ -2,6 +2,7 @@
 extends "res://content/domains/npc/ai/tasks/bt_npc_action.gd"
 ## Запрашивает одно мотивированное нападение с лимитом фазы.
 
+
 #region Листовое действие
 func _tick(_delta: float) -> Status:
 	if not _claim("Проверить повод для нападения"):

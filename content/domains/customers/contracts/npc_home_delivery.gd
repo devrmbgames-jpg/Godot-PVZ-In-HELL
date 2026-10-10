@@ -3,11 +3,27 @@ extends Resource
 class_name NpcHomeDelivery
 
 ## REFUSED — отказ получателя у двери; DECLINED — отказ игрока от предложения.
-enum Status { ACCEPTED, DELIVERED, REFUSED, FAILED, OFFERED, DECLINED, EXPIRED, AMBUSHED }
+enum Status {
+	ACCEPTED,
+	DELIVERED,
+	REFUSED,
+	FAILED,
+	OFFERED,
+	DECLINED,
+	EXPIRED,
+	AMBUSHED,
+}
 ## Канал предложения определяет доступность сведений терминалу.
-enum Source { TERMINAL, PERSONAL }
+enum Source {
+	TERMINAL,
+	PERSONAL,
+}
 ## Однократный ответ на просьбу увеличить доплату.
-enum Bargain { NONE, ACCEPTED, DECLINED }
+enum Bargain {
+	NONE,
+	ACCEPTED,
+	DECLINED,
+}
 
 ## Постоянный ID обязательства также служит ключом однократной доплаты.
 @export var job_id: StringName = &""

@@ -17,7 +17,7 @@ func _tick(_delta: float) -> Status:
 		var generation: int = NpcScheduleActionService.accept_schedule(_actor, _person)
 		if not NpcScheduleActionService.start_schedule(_actor, generation):
 			return FAILURE
-		_completion = DistrictPopulationService.request_phase_completion(_actor)
+		_completion = NpcScheduleActionService.request_phase_completion(_actor)
 	if not _completion.completed:
 		return RUNNING
 	return SUCCESS if _completion.succeeded else FAILURE

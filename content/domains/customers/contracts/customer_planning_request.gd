@@ -5,7 +5,11 @@ class_name CustomerPlanningRequest
 ## Sole command handler is O_CustomerPlanning.
 const EVENT: StringName = &"customer_planning_requested"
 
-enum Kind { PLAN_DAY, RECONCILE_MORNING, REACTIVATE_FOLLOWUPS }
+enum Kind {
+	PLAN_DAY,
+	RECONCILE_MORNING,
+	REACTIVATE_FOLLOWUPS,
+}
 
 ## Discrete operation, never a recurring clock.
 var kind: Kind = Kind.PLAN_DAY

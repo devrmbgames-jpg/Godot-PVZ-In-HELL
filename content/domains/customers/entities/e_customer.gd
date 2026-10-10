@@ -17,11 +17,14 @@ func _stationary_animation() -> StringName:
 	var candidate: StringName = &""
 	if agent != null:
 		match agent.phase:
-			C_CustomerAgent.Phase.INSPECTING, C_CustomerAgent.Phase.OPTIONAL_FITTING: candidate = inspection_animation
-			C_CustomerAgent.Phase.RECEIVING: candidate = receiving_animation
-			C_CustomerAgent.Phase.DIALOGUE: candidate = dialogue_animation
-	return candidate if animation_player != null and animation_player.has_animation(candidate) else idle_animation
-
-
+			C_CustomerAgent.Phase.INSPECTING, C_CustomerAgent.Phase.OPTIONAL_FITTING:
+				candidate = inspection_animation
+			C_CustomerAgent.Phase.RECEIVING:
+				candidate = receiving_animation
+			C_CustomerAgent.Phase.DIALOGUE:
+				candidate = dialogue_animation
+	if animation_player != null and animation_player.has_animation(candidate):
+		return candidate
+	return idle_animation
 
 #endregion

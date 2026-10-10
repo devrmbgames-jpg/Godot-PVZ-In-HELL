@@ -20,7 +20,9 @@ static func current() -> C_District:
 		_session_reference = null
 		_session_query = QueryBuilder.new(_lookup_world).with_all([C_District])
 
-	var session: Entity = _session_reference.get_ref() as Entity if _session_reference != null else null
+	var session: Entity = (
+		_session_reference.get_ref() as Entity if _session_reference != null else null
+	)
 	if (
 		session != null and _lookup_world.entity_to_archetype.has(session)
 		and session.has_component(C_District)
@@ -108,7 +110,9 @@ static func position_for(place_id: StringName, require_target: bool = false) -> 
 ## Возвращает отображаемый адрес, не показывая его внутренний ID.
 static func place_name(place_id: StringName) -> String:
 	var district: C_District = current()
-	var place: DEF_DistrictPlace = district.definition.place_for(place_id) if district != null else null
+	var place: DEF_DistrictPlace = (
+		district.definition.place_for(place_id) if district != null else null
+	)
 	return place.display_name if place != null else str(place_id)
 
 

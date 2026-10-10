@@ -38,7 +38,11 @@ static func check(
 
 
 ## Однократно записывает реальное принятие или отказ и состояние предложенной коробки.
-static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, declined: bool = false) -> bool:
+static func receive(
+	visit: CustomerVisit,
+	check_result: PackageDeliveryCheck,
+	declined: bool = false,
+) -> bool:
 	if visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED:
 		return _complete_outcome(visit, &"customers.receive", false)
 	if check_result.result != PackageDeliveryCheck.Result.READY:
@@ -47,7 +51,11 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, de
 	var policy: DEF_Customer = visit.definition
 	visit.package_damaged = check_result.damaged
 	visit.package_opened = check_result.opened
-	if declined or policy.voluntary_refusal or (check_result.damaged and not policy.accepts_damaged) or (check_result.opened and not policy.accepts_opened):
+	if (
+		declined or policy.voluntary_refusal
+		or (check_result.damaged and not policy.accepts_damaged)
+		or (check_result.opened and not policy.accepts_opened)
+	):
 		visit.actual = CustomerVisit.Actual.CUSTOMER_REFUSED
 		visit.satisfaction = 0
 		return _complete_outcome(visit, &"customers.receive", true)
@@ -66,8 +74,8 @@ static func receive(visit: CustomerVisit, check_result: PackageDeliveryCheck, de
 	)
 	return _complete_outcome(visit, &"customers.receive", true)
 
-
 #endregion
+
 
 #region Реакции и заявления
 ## Commits a riddle answer once through the visit owner, never through Dialogue/UI fields.
@@ -80,15 +88,22 @@ static func answer_riddle(visit: CustomerVisit, correct: bool) -> bool:
 			visit.riddle_solved = true
 		else:
 			visit.dialogue_satisfaction_delta -= maxi(
-				0, visit.definition.riddle_wrong_satisfaction_penalty
+				0,
+				visit.definition.riddle_wrong_satisfaction_penalty,
 			)
 			visit.riddle_wrong_answer_applied = true
 
 	var trace_stage: BoundaryTraceEntry.Stage = (
 		BoundaryTraceEntry.Stage.DUPLICATE if duplicate else BoundaryTraceEntry.Stage.COMPLETED
 	)
-	BoundaryTrace.record(&"customers.riddle", visit.visit_id, trace_stage,
-		&"correct" if correct else &"wrong", String(visit.customer_id), String(visit.visit_id))
+	BoundaryTrace.record(
+		&"customers.riddle",
+		visit.visit_id,
+		trace_stage,
+		&"correct" if correct else &"wrong",
+		String(visit.customer_id),
+		String(visit.visit_id),
+	)
 	return true
 
 
@@ -97,7 +112,10 @@ static func apply_challenge_result(visit: CustomerVisit, event: ChallengeResolut
 	if (
 		visit == null or visit.definition == null or event == null
 		or event.result not in [ChallengeResult.Type.SUCCESS, ChallengeResult.Type.FAILURE]
-		or (visit.challenge_visit_count == visit.visit_count and visit.challenge_key == event.challenge_key)
+		or (
+			visit.challenge_visit_count == visit.visit_count
+			and visit.challenge_key == event.challenge_key
+		)
 	):
 		return _complete_outcome(visit, &"customers.apply_challenge_result", false)
 
@@ -106,9 +124,18 @@ static func apply_challenge_result(visit: CustomerVisit, event: ChallengeResolut
 	visit.challenge_result = ChallengeResult.key(event.result)
 	visit.challenge_satisfaction_delta += event.satisfaction_delta
 	if visit.actual == CustomerVisit.Actual.NOT_RESOLVED:
-		visit.satisfaction = clampi(visit.definition.healthy_satisfaction + visit.dialogue_satisfaction_delta + visit.challenge_satisfaction_delta, 0, SATISFACTION_SCALE)
+		visit.satisfaction = (
+			clampi(
+				visit.definition.healthy_satisfaction + visit.dialogue_satisfaction_delta
+				+ visit.challenge_satisfaction_delta,
+				0,
+				SATISFACTION_SCALE,
+			)
+		)
 	elif visit.actual == CustomerVisit.Actual.DELIVERED:
-		visit.satisfaction = clampi(visit.satisfaction + event.satisfaction_delta, 0, SATISFACTION_SCALE)
+		visit.satisfaction = (
+			clampi(visit.satisfaction + event.satisfaction_delta, 0, SATISFACTION_SCALE)
+		)
 	return _complete_outcome(visit, &"customers.apply_challenge_result", true)
 
 
@@ -143,9 +170,7 @@ static func apply_dialogue_intent(
 ## Фиксирует фактический отказ игрока и агрессию по сохранённому броску визита.
 static func commit_player_denial(visit: CustomerVisit) -> bool:
 	if (
-		visit == null
-		or visit.definition == null
-		or visit.finished
+		visit == null or visit.definition == null or visit.finished
 		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
 	):
 		return _complete_outcome(visit, &"customers.commit_player_denial", false)
@@ -192,8 +217,7 @@ static func declare(visit: CustomerVisit, value: CustomerVisit.Declaration) -> b
 ## Фиксирует пропущенный срок регистрации без заявления, закрытия заказа или выдуманной выдачи.
 static func mark_registration_overdue(visit: CustomerVisit, day: int) -> bool:
 	if (
-		visit == null
-		or day <= visit.arrival_day
+		visit == null or day <= visit.arrival_day
 		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
 		or visit.declaration != CustomerVisit.Declaration.NONE
 		or visit.registration_overdue_day != 0
@@ -203,13 +227,16 @@ static func mark_registration_overdue(visit: CustomerVisit, day: int) -> bool:
 	visit.registration_overdue_day = day
 	return _complete_outcome(visit, &"customers.mark_registration_overdue", true)
 
-
 #endregion
+
 
 #region Деньги и жалобы
 ## Однократно применяет отдельный штраф просрочки; не блокирует последующее обслуживание.
 static func settle_registration_overdue(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
-	if visit.registration_overdue_day == 0 or visit.registration_penalty_committed or wallet == null:
+	if (
+		visit.registration_overdue_day == 0
+		or visit.registration_penalty_committed or wallet == null
+	):
 		return
 	var operation: MoneyOperation = WalletService.package_settlement(
 		wallet,
@@ -218,20 +245,32 @@ static func settle_registration_overdue(visit: CustomerVisit, wallet: C_Wallet, 
 		visit.accounting_value,
 		day,
 	)
-	var result: WalletService.Status = WalletService.apply(wallet, operation, day)
-	if result == WalletService.Status.COMMITTED or result == WalletService.Status.DUPLICATE:
+	var settlement_status: WalletService.Status = WalletService.apply(wallet, operation, day)
+	if (
+		settlement_status == WalletService.Status.COMMITTED
+		or settlement_status == WalletService.Status.DUPLICATE
+	):
 		visit.registration_penalty_committed = true
 		visit.registration_penalty_day = operation.day_index
 		visit.registration_money_delta = -operation.amount
-	_complete_outcome(visit, &"customers.registration_settlement", visit.registration_penalty_committed)
+	_complete_outcome(
+		visit,
+		&"customers.registration_settlement",
+		visit.registration_penalty_committed,
+	)
 
 
 ## Применяет выплату или штраф через идемпотентную операцию WalletService и записывает итог.
 static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 	# A delivered receipt cannot settle until its active challenge consequences commit.
-	if visit.actual == CustomerVisit.Actual.DELIVERED and visit.declaration == CustomerVisit.Declaration.TAKEN:
+	if (
+		visit.actual == CustomerVisit.Actual.DELIVERED
+		and visit.declaration == CustomerVisit.Declaration.TAKEN
+	):
 		var customer: E_NpcCharacter = CustomerFlowQueries.customer_for(visit.visit_id)
-		var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge if customer != null else null
+		var challenge: C_Challenge = (
+			customer.get_component(C_Challenge) as C_Challenge if customer != null else null
+		)
 		if challenge != null:
 			if challenge.phase in [C_Challenge.Phase.ARMED, C_Challenge.Phase.ACTIVE]:
 				return
@@ -254,23 +293,47 @@ static func settle(visit: CustomerVisit, wallet: C_Wallet, day: int) -> void:
 		if operation != null and visit.registration_penalty_committed:
 			# Уже взысканная просрочка покрывает стоимость потери этой же коробки.
 			operation.amount = maxi(0, operation.amount + visit.registration_money_delta)
-	elif visit.actual == CustomerVisit.Actual.PLAYER_DENIED and visit.declaration == CustomerVisit.Declaration.REFUSED:
-		operation = WalletService.package_settlement(wallet, visit.visit_id, MoneyOperation.Reason.PLAYER_REFUSAL, visit.accounting_value, day)
-	elif visit.actual == CustomerVisit.Actual.DELIVERED and visit.declaration == CustomerVisit.Declaration.TAKEN:
+	elif (
+		visit.actual == CustomerVisit.Actual.PLAYER_DENIED
+		and visit.declaration == CustomerVisit.Declaration.REFUSED
+	):
+		operation = (
+			WalletService.package_settlement(
+				wallet,
+				visit.visit_id,
+				MoneyOperation.Reason.PLAYER_REFUSAL,
+				visit.accounting_value,
+				day,
+			)
+		)
+	elif (
+		visit.actual == CustomerVisit.Actual.DELIVERED
+		and visit.declaration == CustomerVisit.Declaration.TAKEN
+	):
 		operation = MoneyOperation.new()
 		operation.operation_id = StringName("delivery/" + String(visit.visit_id))
 		operation.settlement_id = visit.visit_id
 		operation.day_index = day
 		@warning_ignore("integer_division")
-		operation.amount = visit.payment * clampi(visit.satisfaction, 0, SATISFACTION_SCALE) / SATISFACTION_SCALE
+		operation.amount = (
+			visit.payment * clampi(visit.satisfaction, 0, SATISFACTION_SCALE) / SATISFACTION_SCALE
+		)
 	if operation == null:
 		return
 
-	var result: WalletService.Status = WalletService.apply(wallet, operation, day)
-	if result == WalletService.Status.COMMITTED or result == WalletService.Status.DUPLICATE:
+	var settlement_status: WalletService.Status = WalletService.apply(wallet, operation, day)
+	if (
+		settlement_status == WalletService.Status.COMMITTED
+		or settlement_status == WalletService.Status.DUPLICATE
+	):
 		visit.settlement_committed = true
 		visit.settlement_day = day
-		visit.money_delta = operation.amount if operation.reason == MoneyOperation.Reason.PAYMENT else -operation.amount
+		var money_delta: int = 0
+		if operation.reason == MoneyOperation.Reason.PAYMENT:
+			money_delta = operation.amount
+		else:
+			money_delta = -operation.amount
+		visit.money_delta = money_delta
 	_complete_outcome(visit, &"customers.settlement", visit.settlement_committed)
 
 
@@ -287,7 +350,10 @@ static func create_complaint(
 		return _complete_outcome(visit, &"customers.create_complaint", false)
 	if visit.complaint != null:
 		return _complete_outcome(
-			visit, &"customers.create_complaint", visit.complaint.reason == reason, true
+			visit,
+			&"customers.create_complaint",
+			visit.complaint.reason == reason,
+			true,
 		)
 	if not force and not visit.finished:
 		return _complete_outcome(visit, &"customers.create_complaint", false)
@@ -300,18 +366,16 @@ static func create_complaint(
 			probability = visit.definition.false_complaint_probability
 		elif visit.actual == CustomerVisit.Actual.CUSTOMER_REFUSED:
 			probability = visit.definition.voluntary_complaint_probability
-		probability = clampf(
-			probability + visit.complaint_probability_delta,
-			0.0,
-			1.0,
-		)
+		probability = clampf(probability + visit.complaint_probability_delta, 0.0, 1.0)
 		if visit.complaint_roll >= probability:
 			return _complete_outcome(visit, &"customers.create_complaint", false)
 
 	var complaint: CustomerComplaint = CustomerComplaint.new()
 	complaint.complaint_id = StringName("complaint/" + String(visit.visit_id))
 	complaint.customer_id = visit.customer_id
-	complaint.customer_name = claimant_name if not claimant_name.is_empty() else visit.definition.display_name
+	complaint.customer_name = (
+		claimant_name if not claimant_name.is_empty() else visit.definition.display_name
+	)
 	complaint.message = visit.definition.complaint_text
 	if complaint.message.is_empty():
 		complaint.message = (
@@ -368,8 +432,11 @@ static func resolve_complaint(
 			visit.accounting_value,
 			day,
 		)
-		var result: WalletService.Status = WalletService.apply(wallet, operation, day)
-		if result != WalletService.Status.COMMITTED and result != WalletService.Status.DUPLICATE:
+		var settlement_status: WalletService.Status = WalletService.apply(wallet, operation, day)
+		if (
+			settlement_status != WalletService.Status.COMMITTED
+			and settlement_status != WalletService.Status.DUPLICATE
+		):
 			return
 
 		complaint.outcome = CustomerComplaint.Outcome.CONFIRMED
@@ -395,11 +462,7 @@ static func approve(visit: CustomerVisit, satisfaction: int) -> bool:
 	return _complete_outcome(visit, &"customers.approve", true)
 
 
-static func _mark_false_claim(
-	visit: CustomerVisit,
-	complaint: CustomerComplaint,
-	day: int,
-) -> void:
+static func _mark_false_claim(visit: CustomerVisit, complaint: CustomerComplaint, day: int) -> void:
 	complaint.outcome = CustomerComplaint.Outcome.FALSE_CLAIM
 	complaint.retaliation_start_day = day
 	complaint.retaliation_end_day = day + visit.definition.retaliation_days
@@ -409,14 +472,21 @@ static func _mark_false_claim(
 ## Разрешает ответ игрока на ложную жалобу в интервале [начало, конец) по дням.
 static func retaliation_allowed(visit: CustomerVisit, day: int) -> bool:
 	var complaint: CustomerComplaint = visit.complaint
-	return complaint != null and complaint.outcome == CustomerComplaint.Outcome.FALSE_CLAIM and day >= complaint.retaliation_start_day and day < complaint.retaliation_end_day
+	return (
+		complaint != null and complaint.outcome == CustomerComplaint.Outcome.FALSE_CLAIM
+		and day >= complaint.retaliation_start_day and day < complaint.retaliation_end_day
+	)
 
 #endregion
+
 
 #region Committed operation receipts
 # Publishes eligible record facts and diagnostics only after the operation has committed.
 static func _complete_outcome(
-	visit: CustomerVisit, operation: StringName, committed: bool, duplicate: bool = false,
+	visit: CustomerVisit,
+	operation: StringName,
+	committed: bool,
+	duplicate: bool = false,
 ) -> bool:
 	var trace_stage: BoundaryTraceEntry.Stage = (
 		BoundaryTraceEntry.Stage.COMPLETED if committed else BoundaryTraceEntry.Stage.REJECTED
@@ -430,14 +500,18 @@ static func _complete_outcome(
 	if committed:
 		reason = &"duplicate" if duplicate else &"committed"
 	BoundaryTrace.record(operation, correlation_id, trace_stage, reason, origin_id, target_id)
-	# Financial transactions are terminal; morning overdue marking keeps its explicit wallet endpoint.
+	# Financial transactions are terminal; morning overdue marking keeps its explicit wallet
+	# endpoint.
 	var reconciled_by_caller: bool = operation in [
-		&"customers.settlement", &"customers.registration_settlement", &"customers.mark_registration_overdue",
+		&"customers.settlement",
+		&"customers.registration_settlement",
+		&"customers.mark_registration_overdue",
 	]
 	if committed and not duplicate and not reconciled_by_caller:
 		publish_change(visit, operation)
 	return committed
 #endregion
+
 
 #region Committed visit facts
 ## Publishes a committed record change only when this visit belongs to the current session.

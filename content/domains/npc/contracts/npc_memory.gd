@@ -2,8 +2,24 @@ extends Resource
 ## Воспринятый инцидент с постоянными ID участников и сохранённой реакцией.
 class_name NpcMemory
 
-enum Kind { HELP, THREAT, LIE, BROKEN_PROMISE, ATTACK, KILLING, JOKE, SUBMISSION, OFFENSE }
-enum Reaction { TALK, ACCEPT, ATTACK, FLEE, RESPECT }
+enum Kind {
+	HELP,
+	THREAT,
+	LIE,
+	BROKEN_PROMISE,
+	ATTACK,
+	KILLING,
+	JOKE,
+	SUBMISSION,
+	OFFENSE,
+}
+enum Reaction {
+	TALK,
+	ACCEPT,
+	ATTACK,
+	FLEE,
+	RESPECT,
+}
 
 ## Постоянный ID инцидента; повторный показ не перебрасывает реакцию.
 @export var incident_id: StringName = &""

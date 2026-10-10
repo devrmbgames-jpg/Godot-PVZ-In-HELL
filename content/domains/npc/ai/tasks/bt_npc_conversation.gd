@@ -2,6 +2,7 @@
 extends "res://content/domains/npc/ai/tasks/bt_npc_action.gd"
 ## Следит только за воспринимаемым участником активного разговора.
 
+
 #region Листовое действие
 func _tick(_delta: float) -> Status:
 	if not _claim("Разговор"):
@@ -11,6 +12,7 @@ func _tick(_delta: float) -> Status:
 	if participant != null and NpcPerceptionService.can_see(_actor, participant, _person.profile):
 		NpcIntentService.watch(_actor, participant, Vector3.UP * NpcPerceptionService.EYE_HEIGHT)
 	return RUNNING
+
 
 func _exit() -> void:
 	NpcDialogueService.end(_actor)

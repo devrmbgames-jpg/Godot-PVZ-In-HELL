@@ -58,7 +58,9 @@ static func knock(player: Entity, door: Entity) -> bool:
 		return false
 
 	var address: C_NpcAddress = door.get_component(C_NpcAddress) as C_NpcAddress
-	var job: NpcHomeDelivery = HomeMeetingQueries.job_for_address(address.address_id) if address != null else null
+	var job: NpcHomeDelivery = (
+		HomeMeetingQueries.job_for_address(address.address_id) if address != null else null
+	)
 	if job == null:
 		return false
 
@@ -142,8 +144,11 @@ static func complete(job: NpcHomeDelivery) -> bool:
 		operation.amount = job.bonus
 		operation.day_index = cycle.day_index
 		operation.note = "Вечерняя доставка " + String(job.address_id)
-		var result: WalletService.Status = WalletService.submit(operation)
-		if result not in [WalletService.Status.COMMITTED, WalletService.Status.DUPLICATE]:
+		var settlement_status: WalletService.Status = WalletService.submit(operation)
+		if (
+			settlement_status
+			not in [WalletService.Status.COMMITTED, WalletService.Status.DUPLICATE]
+		):
 			return false
 
 		job.bonus_committed = true

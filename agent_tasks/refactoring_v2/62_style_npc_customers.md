@@ -1,6 +1,6 @@
 # Refactoring v2.62 — Code Style: NPC и Customers
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Зависимости: 61_style_ecs_core.md.
 
@@ -37,3 +37,18 @@ Style gate PASS по NPC/Customer scope.
 ## Validation
 
 Style gate + parser + узкая NPC/Customer regression при semantic edits.
+
+## Current
+
+163-script full style gate and actual CLI parser PASS. Native compilation is clean after
+repairing two formatter precedence errors; no source-writer fallback is counted as PASS.
+Profile regression:18 GUT suites,249 tests,2603 assertions PASS; stderr empty.
+The pre-existing completion request cycle is repaired in
+[completion request repair](npc_completion_dependency_cycle.md); strict dependency/project
+structure PASS without validator exceptions. Source is saved through native MCP.
+Final native compilation:163/163 checked, no diagnostics. Public data/API field names,
+query/branch order, rays and physical authority remain intact. No rendered QA performed.
+Final general CLI runner reports FAIL solely for shutdown retention after lifecycle-fixture
+compilation; direct isolated compiler PASS,exit0. Preserve this as
+KNOWN_ENGINE_LIMITATION / DEFERRED under owner policy; no blanket suppression added.
+Independent immutable review REVIEW_PENDING; task62 remains IN_PROGRESS until triage.

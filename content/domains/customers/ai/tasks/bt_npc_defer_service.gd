@@ -5,6 +5,7 @@ extends "res://content/domains/customers/ai/tasks/bt_customer_action.gd"
 ## Причина переноса, показываемая игроку и записываемая в историю.
 @export var reason: String = "Не удалось добраться до стойки"
 
+
 #region Листовое действие
 func _tick(_delta: float) -> Status:
 	if not _claim("Перенести приход"):

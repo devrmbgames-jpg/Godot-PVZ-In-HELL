@@ -3,13 +3,47 @@ extends RefCounted
 class_name NpcScheduleActionService
 
 
+#region Schedule completion requests
+## Captures one goal's identity and submits its requested completion participation.
+## Authored completion is the default; explicit escape/skip commands may supply placement.
+static func request_phase_completion(
+	body: E_DistrictNpc,
+	placement: int = -1,
+) -> NpcScheduleCompletionRequest:
+	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
+	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
+	var request: NpcScheduleCompletionRequest = NpcScheduleCompletionRequest.new()
+	request.planned_day = person.planned_day
+	request.planned_phase = person.planned_phase
+	request.goal_id = person.goal_id
+	request.record_identity = person
+	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
+	request.decision_owner = decision.intent_owner
+	request.decision_identity = decision
+	if (
+		decision.intent_owner == C_NpcDecision.Owner.SCHEDULE
+		and decision.action_status
+		in [C_NpcDecision.ActionStatus.ACCEPTED, C_NpcDecision.ActionStatus.RUNNING]
+	):
+		request.action_generation = decision.action_generation
+	request.placement = (
+		NpcScheduleRules.completed_placement(person)
+		if placement < 0
+		else placement as NpcRecord.Placement
+	)
+	ECS.world.emit_event(NpcScheduleCompletionRequest.EVENT, body, request)
+	return request
+#endregion
+
+
 #region Schedule execution operations
 ## Accepts the existing authored obligation once; move/finish adapters share its identity.
 static func accept_schedule(actor: E_DistrictNpc, person: NpcRecord) -> int:
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-	var same_goal: bool = decision.action_goal_id == person.goal_id \
-			and decision.action_day == person.planned_day \
-			and decision.action_phase == person.planned_phase
+	var same_goal: bool = (
+		decision.action_goal_id == person.goal_id and decision.action_day == person.planned_day
+		and decision.action_phase == person.planned_phase
+	)
 	if (
 		same_goal
 		and decision.action_status
@@ -51,8 +85,9 @@ static func finish_schedule(
 		not in [C_NpcDecision.ActionStatus.ACCEPTED, C_NpcDecision.ActionStatus.RUNNING]
 	):
 		return
-	decision.action_status = C_NpcDecision.ActionStatus.COMPLETED if succeeded \
-			else C_NpcDecision.ActionStatus.FAILED
+	decision.action_status = (
+		C_NpcDecision.ActionStatus.COMPLETED if succeeded else C_NpcDecision.ActionStatus.FAILED
+	)
 	decision.action_reason = reason
 	_release_schedule_intent(actor, decision)
 

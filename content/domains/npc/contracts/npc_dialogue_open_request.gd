@@ -13,6 +13,7 @@ var identity: C_NpcIdentity
 ## Результат единственного синхронного UI consumer.
 var opened: bool = false
 
+
 #region Создание запроса
 ## Сохраняет проверяемые endpoints без владения UI или игроком.
 func _init(actor: Entity, captured_identity: C_NpcIdentity) -> void:

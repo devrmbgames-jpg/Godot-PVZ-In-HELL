@@ -7,6 +7,7 @@ const EVENT: StringName = &"npc_decision_ready"
 ## Accumulated seconds consumed by this decision, rather than the render-frame delta.
 var delta_seconds: float = 0.0
 
+
 #region Construction
 ## Captures the committed perception interval without retaining the mutable decision.
 func _init(elapsed_seconds: float = 0.0) -> void:

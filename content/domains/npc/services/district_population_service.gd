@@ -253,33 +253,6 @@ static func request_phase(
 	return request
 
 
-## Captures one goal's identity and submits its requested completion participation.
-## Authored completion is the default; explicit escape/skip commands may supply placement.
-static func request_phase_completion(
-	body: E_DistrictNpc,
-	placement: int = -1,
-) -> NpcScheduleCompletionRequest:
-	var identity: C_NpcIdentity = body.get_component(C_NpcIdentity) as C_NpcIdentity
-	var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
-	var request: NpcScheduleCompletionRequest = NpcScheduleCompletionRequest.new()
-	request.planned_day = person.planned_day
-	request.planned_phase = person.planned_phase
-	request.goal_id = person.goal_id
-	request.record_identity = person
-	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
-	request.decision_owner = decision.intent_owner
-	request.decision_identity = decision
-	if (
-		decision.intent_owner == C_NpcDecision.Owner.SCHEDULE
-		and decision.action_status
-		in [C_NpcDecision.ActionStatus.ACCEPTED, C_NpcDecision.ActionStatus.RUNNING]
-	):
-		request.action_generation = decision.action_generation
-	request.placement = NpcScheduleRules.completed_placement(person) if placement < 0 else placement as NpcRecord.Placement
-	ECS.world.emit_event(NpcScheduleCompletionRequest.EVENT, body, request)
-	return request
-
-
 ## Sole placement operation; restore reconciles native state through the same boundary.
 static func set_placement(
 	person: NpcRecord,
@@ -303,14 +276,19 @@ static func set_placement(
 		decision.participation_reason = &"invalid_activation_position"
 		return false
 	var changed: bool = person.placement != placement or body.enabled != active
-	var relocating: bool = activation_position.is_finite() \
-			and not body.global_position.is_equal_approx(activation_position)
+	var relocating: bool = (
+		activation_position.is_finite()
+		and not body.global_position.is_equal_approx(activation_position)
+	)
 	if not changed and not reconcile_native and not relocating:
 		return true
-	var target_position: Vector3 = body.global_position if not activation_position.is_finite() \
-			else activation_position
-	if active and (not body.enabled or relocating) and not reconcile_native \
-			and not NpcActivationSolver.available(body, target_position):
+	var target_position: Vector3 = (
+		body.global_position if not activation_position.is_finite() else activation_position
+	)
+	if (
+		active and (not body.enabled or relocating) and not reconcile_native
+		and not NpcActivationSolver.available(body, target_position)
+	):
 		decision.participation_reason = &"activation_blocked"
 		return false
 
@@ -345,15 +323,17 @@ static func set_placement(
 	# Native enable/disable signals may synchronously replace this transition.
 	decision.participation_committing = false
 	if (
-		not is_instance_valid(body) or not is_instance_valid(captured_world) \
-				or ECS.world != captured_world
-		or body.is_queued_for_deletion()
-	) \
-			or not captured_world.entity_to_archetype.has(body):
+		(
+			not is_instance_valid(body) or not is_instance_valid(captured_world)
+			or ECS.world != captured_world or body.is_queued_for_deletion()
+		)
+		or not captured_world.entity_to_archetype.has(body)
+	):
 		return false
-	if body.get_component(C_NpcDecision) != decision \
-			or decision.participation_generation != captured_generation \
-			or person.placement != placement:
+	if (
+		body.get_component(C_NpcDecision) != decision
+		or decision.participation_generation != captured_generation or person.placement != placement
+	):
 		return false
 	# A callback may commit death history while the nested native mode request is locked.
 	if person.death_day != 0 and placement != NpcRecord.Placement.DEAD:
@@ -389,9 +369,7 @@ static func mark_dead(person: NpcRecord, body: E_DistrictNpc, day_index: int) ->
 	if (
 		district.replacement_morning == 0
 		and district.definition.resident_count - living_residents
-		>= district \
-				.definition \
-				.replacement_threshold
+		>= district.definition.replacement_threshold
 	):
 		district.replacement_morning = day_index + district.definition.replacement_delay_days
 
@@ -416,8 +394,9 @@ static func replace_vacancies(district: C_District, morning_day: int) -> void:
 	):
 		if _replace_person(district, vacant, morning_day):
 			locals_alive += 1
-			district.replacement_morning = morning_day + 1 \
-					if locals_alive < district.definition.resident_count else 0
+			district.replacement_morning = (
+				morning_day + 1 if locals_alive < district.definition.resident_count else 0
+			)
 	if outside_alive < district.definition.visitor_count:
 		for person: NpcRecord in district.people:
 			if (

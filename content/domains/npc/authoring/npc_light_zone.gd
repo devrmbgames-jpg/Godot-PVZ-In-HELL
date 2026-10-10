@@ -17,23 +17,31 @@ const ZONE_GROUP: StringName = &"npc_light_zones"
 @export var flicker_view_path: NodePath = NodePath("")
 
 @onready var _volume: CollisionShape3D = $CollisionShape3D
-@onready var _flicker_view: CircuitLightView = get_node_or_null(flicker_view_path) as CircuitLightView if not flicker_view_path.is_empty() else null
+@onready var _flicker_view: CircuitLightView = (
+	null
+	if flicker_view_path.is_empty()
+	else get_node_or_null(flicker_view_path) as CircuitLightView
+)
 
 var _inverse_transform: Transform3D = Transform3D.IDENTITY
 var _box_bounds: AABB = AABB()
 var _sphere_radius_squared: float = 0.0
 var _valid_volume: bool = false
 
+
 #region Регистрация
 func _enter_tree() -> void:
 	add_to_group(ZONE_GROUP)
 
+
 func _ready() -> void:
 	_capture_volume()
+
 
 func _exit_tree() -> void:
 	remove_from_group(ZONE_GROUP)
 #endregion
+
 
 #region Проверка зоны
 ## Проверяет одну авторскую коробчатую или сферическую зону без лучей и поиска ламп.
@@ -46,7 +54,12 @@ func contains_point(world_position: Vector3) -> bool:
 		return false
 
 	var point: Vector3 = _inverse_transform * world_position
-	return point.length_squared() <= _sphere_radius_squared if _sphere_radius_squared > 0.0 else _box_bounds.has_point(point)
+	return (
+		point.length_squared() <= _sphere_radius_squared
+		if _sphere_radius_squared > 0.0
+		else _box_bounds.has_point(point)
+	)
+
 
 func _capture_volume() -> void:
 	_inverse_transform = _volume.global_transform.affine_inverse()
@@ -57,9 +70,11 @@ func _capture_volume() -> void:
 	if box != null:
 		_box_bounds = AABB(-box.size * 0.5, box.size)
 
+
 ## Читает авторитетный выключатель и уже работающие часы визуального мерцания.
 func is_lit() -> bool:
 	return is_logically_lit() and (not is_instance_valid(_flicker_view) or _flicker_view.is_lit())
+
 
 ## Читает устойчивое состояние выключателя, независимо от визуальных кадров мерцания.
 func is_logically_lit() -> bool:

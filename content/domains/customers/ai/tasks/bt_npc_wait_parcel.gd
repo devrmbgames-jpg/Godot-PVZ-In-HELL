@@ -2,6 +2,7 @@
 extends "res://content/domains/customers/ai/tasks/bt_customer_action.gd"
 ## Ожидает коробку; знакомство не перезапускает диалог и номер.
 
+
 #region Листовое действие
 func _tick(_delta: float) -> Status:
 	if not _claim("Жду посылку"):

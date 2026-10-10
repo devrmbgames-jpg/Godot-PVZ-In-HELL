@@ -164,7 +164,7 @@ func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute) -> voi
 			decision != null and decision.intent_owner == C_NpcDecision.Owner.SCHEDULE
 			and person.profile.resident and location == DEF_NpcSchedule.Location.STREET
 		):
-			DistrictPopulationService.request_phase_completion(actor, NpcRecord.Placement.STREET)
+			NpcScheduleActionService.request_phase_completion(actor, NpcRecord.Placement.STREET)
 		route.map_iteration = -1
 		route.points.clear()
 	NpcIntentService.stop(actor)

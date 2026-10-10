@@ -2,6 +2,7 @@ extends RefCounted
 ## Параметры опасностей, собранные один раз для проверки риска потери здоровья.
 class_name NpcRouteContext
 
+
 ## Действующая опасная сфера, зафиксированная для оценки маршрута.
 class Hazard extends RefCounted:
 	## Мировая позиция центра опасности в начале проверки маршрута.
@@ -10,6 +11,7 @@ class Hazard extends RefCounted:
 	var radius: float = 0.0
 	## Эффективный урон за секунду с учётом сопротивлений NPC.
 	var damage_rate: float = 0.0
+
 
 ## Опасные объёмы с уже учтёнными сопротивлениями и физическим зазором.
 var hazards: Array[Hazard] = []

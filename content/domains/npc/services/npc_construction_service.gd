@@ -48,13 +48,19 @@ static func configure_placed(
 		return PackedStringArray()
 
 	# These records are transient inputs. The common compiler isolates the committed aggregate.
-	var people: Array[NpcRecord] = saved_district.people if saved_district != null \
-			else NpcPopulationRules.initial_records(
-		district_recipe.definition,
-		district_recipe.next_person,
+	var people: Array[NpcRecord] = (
+		saved_district.people
+		if saved_district != null
+		else NpcPopulationRules.initial_records(
+			district_recipe.definition,
+			district_recipe.next_person,
+		)
 	)
-	var next_person: int = saved_district.next_person if saved_district != null \
-			else district_recipe.next_person + people.size()
+	var next_person: int = (
+		saved_district.next_person
+		if saved_district != null
+		else district_recipe.next_person + people.size()
+	)
 	district_context.initial_fields[C_District as Script] = {
 		&"people": people,
 		&"next_person": next_person,
@@ -63,18 +69,22 @@ static func configure_placed(
 		if not context.actor is E_DistrictNpc:
 			continue
 		var authored: C_AuthoredIdentity = PlacedIdentityRules.component_for(context.actor)
-		var saved_id: StringName = saved_identities.get(authored.actor_key(), &"") \
-				if authored != null else &""
+		var saved_id: StringName = (
+			saved_identities.get(authored.actor_key(), &"") if authored != null else &""
+		)
 		var matched: NpcRecord = null
 		for person: NpcRecord in people:
-			if (not saved_id.is_empty() and person.npc_id == saved_id) \
-					or (saved_id.is_empty() and person.profile.merchant):
+			if (
+				(not saved_id.is_empty() and person.npc_id == saved_id)
+				or (saved_id.is_empty() and person.profile.merchant)
+			):
 				matched = person
 				break
 		if matched == null:
 			return PackedStringArray(["Placed NPC has no matching district roster identity"])
-		var definition: DEF_District = saved_district.definition if saved_district != null \
-				else district_recipe.definition
+		var definition: DEF_District = (
+			saved_district.definition if saved_district != null else district_recipe.definition
+		)
 		configure_context(context, matched, definition)
 	return PackedStringArray()
 #endregion

@@ -3,6 +3,7 @@ extends "res://tests/gut/test_district_population.gd"
 
 const SAVE_PATH: String = "user://gut_district_lifecycle_gate.pvzh"
 
+
 #region Fixture boundaries
 func _lifecycle() -> O_DistrictLifecycle:
 	for observer: Observer in _world.observers:
@@ -14,7 +15,11 @@ func _lifecycle() -> O_DistrictLifecycle:
 
 func _publish_calendar() -> void:
 	var session: Entity = _world.query.with_all([C_District, C_DayCycle]).execute_one()
-	_world.emit_event(DayPhaseChanged.EVENT, session, DayPhaseChanged.from_cycle(DayPhaseQueries.current()))
+	_world.emit_event(
+		DayPhaseChanged.EVENT,
+		session,
+		DayPhaseChanged.from_cycle(DayPhaseQueries.current()),
+	)
 
 
 ## Removes only this fixture's save slot before freeing the actual World.
@@ -24,6 +29,7 @@ func after_each() -> void:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	super.after_each()
 #endregion
+
 
 #region Calendar and death facts
 ## Replayed calendar facts preserve completed goals, reaction memory and conflict budget.
@@ -77,13 +83,18 @@ func test_night_death_is_reconciled_at_the_next_daytime_boundary() -> void:
 	assert_eq(person.death_day, 2)
 #endregion
 
+
 #region Queued command receipts
 ## A queued assignment cannot mutate the replacement record after restore/replacement.
 func test_queued_plan_rejects_replaced_aggregate_record() -> void:
 	_lifecycle().command_buffer_flush_mode = Observer.FlushMode.MANUAL
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
-	var request: NpcPhasePlanRequest = DistrictPopulationService.request_phase(body, 2, C_DayCycle.Phase.DAY)
+	var request: NpcPhasePlanRequest = DistrictPopulationService.request_phase(
+		body,
+		2,
+		C_DayCycle.Phase.DAY,
+	)
 	assert_false(request.completed)
 	assert_eq(person.planned_day, 1)
 	var replacement: NpcRecord = person.duplicate() as NpcRecord
@@ -102,7 +113,10 @@ func test_queued_completion_rejects_interrupted_decision() -> void:
 	var decision: C_NpcDecision = body.get_component(C_NpcDecision) as C_NpcDecision
 	decision.intent_owner = C_NpcDecision.Owner.SCHEDULE
 	_lifecycle().command_buffer_flush_mode = Observer.FlushMode.MANUAL
-	var request: NpcScheduleCompletionRequest = DistrictPopulationService.request_phase_completion(body, NpcRecord.Placement.OUTSIDE)
+	var request: NpcScheduleCompletionRequest = NpcScheduleActionService.request_phase_completion(
+		body,
+		NpcRecord.Placement.OUTSIDE,
+	)
 	assert_false(request.completed)
 	decision.intent_owner = C_NpcDecision.Owner.EMERGENCY
 	_world.flush_command_buffers()
@@ -118,7 +132,9 @@ func test_queued_completion_rejects_superseded_goal() -> void:
 	var person: NpcRecord = _district.people[0]
 	var body: E_DistrictNpc = NpcPopulationQueries.body_for(person.npc_id)
 	_lifecycle().command_buffer_flush_mode = Observer.FlushMode.MANUAL
-	var request: NpcScheduleCompletionRequest = DistrictPopulationService.request_phase_completion(body)
+	var request: NpcScheduleCompletionRequest = NpcScheduleActionService.request_phase_completion(
+		body
+	)
 	person.planned_phase = int(C_DayCycle.Phase.DAY)
 	_world.flush_command_buffers()
 	assert_false(request.succeeded)
@@ -144,6 +160,7 @@ func test_native_completion_waits_for_receipt_before_completion() -> void:
 	_world.flush_command_buffers()
 	assert_true(person.phase_complete)
 #endregion
+
 
 #region Morning preparation and persistence
 ## Two pending morning requests prepare one replacement and resolve only after actual commit.
@@ -223,6 +240,7 @@ func test_restore_invalidates_calendar_cache_without_serializing_it() -> void:
 	assert_false((encoded.fields as Dictionary).has("lifecycle_phase"))
 #endregion
 
+
 #region Scheduled persistence fixture
 func _night_step(delta: float) -> void:
 	var installed: bool = false
@@ -235,6 +253,7 @@ func _night_step(delta: float) -> void:
 		_world.add_system(night_owner)
 	_world.process(delta, "PersistenceTest")
 #endregion
+
 
 #region Retained brain capability lifecycle
 ## Reset keeps constructed Components/HP and rejects old buffered stages after a new due interval.
@@ -282,12 +301,12 @@ func test_reset_retains_brain_components_and_rejects_older_queued_generation() -
 		queued_owner.free()
 #endregion
 
+
 #region Rejected replacement transaction
 ## A bad replacement prefab keeps the deceased's address/history and retries with the same next ID.
 func test_rejected_replacement_keeps_vacancy_history_person_sequence_and_retry_day() -> void:
 	var deceased: NpcRecord = _district.people[0]
-	DistrictPopulationService.mark_dead(deceased,
-		NpcPopulationQueries.body_for(deceased.npc_id), 1)
+	DistrictPopulationService.mark_dead(deceased, NpcPopulationQueries.body_for(deceased.npc_id), 1)
 	var definition: DEF_District = _district.definition.duplicate() as DEF_District
 	var profiles: Array[DEF_NpcProfile] = []
 	for original: DEF_NpcProfile in definition.profiles:

@@ -50,9 +50,10 @@ static func search_points(person: NpcRecord, last_position: Vector3) -> Array[Ve
 	for place: DEF_DistrictPlace in NpcPopulationQueries.current().definition.places:
 		if place.kind == DEF_DistrictPlace.Kind.COVER:
 			var candidate: Vector3 = NpcPopulationQueries.position_for(place.key)
-			if candidate.distance_squared_to(last_position) < person.profile.vision_range * person \
-					.profile \
-					.vision_range:
+			if (
+				candidate.distance_squared_to(last_position)
+				< person.profile.vision_range * person.profile.vision_range
+			):
 				covers.append(candidate)
 	covers.sort_custom(
 		func(first: Vector3, second: Vector3) -> bool:
@@ -99,8 +100,9 @@ static func flee(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwaren
 		)
 		ECS.world.emit_event(NpcRoleInterruptionRequest.EVENT, actor, interruption)
 		CombatService.end_combat(actor)
-		var completion: NpcScheduleCompletionRequest = DistrictPopulationService \
-				.request_phase_completion(actor, NpcRecord.Placement.OUTSIDE)
+		var completion: NpcScheduleCompletionRequest = (
+			NpcScheduleActionService.request_phase_completion(actor, NpcRecord.Placement.OUTSIDE)
+		)
 		if not completion.completed or not completion.succeeded:
 			return false
 		awareness.fleeing = false
@@ -129,10 +131,7 @@ static func observe(actor: E_DistrictNpc, person: NpcRecord, awareness: C_NpcAwa
 			if (
 				not awareness.called_out
 				and actor.global_position.distance_to((player as Node as Node3D).global_position)
-				<= NpcPopulationQueries \
-						.current() \
-						.definition \
-						.conversation_range
+				<= NpcPopulationQueries.current().definition.conversation_range
 			):
 				awareness.called_out = true
 				actor.show_message(person.display_name + " · Эй, как дела? Подойди, поговорим.")

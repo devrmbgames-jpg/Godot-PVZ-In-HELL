@@ -2,8 +2,18 @@ extends Resource
 ## Отложенное рассмотрение жалобы и ограниченный срок ответа на ложное обвинение.
 class_name CustomerComplaint
 
-enum Reason { NOT_DELIVERED, DAMAGED }
-enum Outcome { PENDING, CONFIRMED, FALSE_CLAIM, WAIVED_PLAYER_DEFEAT, ALREADY_SETTLED, NO_LIVING_CLAIMANT }
+enum Reason {
+	NOT_DELIVERED,
+	DAMAGED,
+}
+enum Outcome {
+	PENDING,
+	CONFIRMED,
+	FALSE_CLAIM,
+	WAIVED_PLAYER_DEFEAT,
+	ALREADY_SETTLED,
+	NO_LIVING_CLAIMANT,
+}
 
 ## ID жалобы, используемый как ключ однократного денежного последствия.
 @export var complaint_id: StringName = &""

@@ -2,10 +2,29 @@ extends Resource
 ## Постоянный журнал заказа без ссылок на Entity; назначение живой коробки хранит R_AssignedTo.
 class_name CustomerVisit
 
-enum Actual { NOT_RESOLVED, DELIVERED, CUSTOMER_REFUSED, PLAYER_DENIED }
-enum Declaration { NONE, TAKEN, REFUSED, LOST }
-enum LossCause { NONE, DECLARED_LOST }
-enum Disposition { WAREHOUSE, DELIVERED, RETURNED, BOUGHT_OUT, LOST }
+enum Actual {
+	NOT_RESOLVED,
+	DELIVERED,
+	CUSTOMER_REFUSED,
+	PLAYER_DENIED,
+}
+enum Declaration {
+	NONE,
+	TAKEN,
+	REFUSED,
+	LOST,
+}
+enum LossCause {
+	NONE,
+	DECLARED_LOST,
+}
+enum Disposition {
+	WAREHOUSE,
+	DELIVERED,
+	RETURNED,
+	BOUGHT_OUT,
+	LOST,
+}
 enum Reputation {
 	NONE,
 	PLAYER_DENIAL,
@@ -15,7 +34,10 @@ enum Reputation {
 	FALSE_COMPLAINT,
 	DAMAGED_COMPLAINT,
 }
-enum Feedback { NONE, APPROVED }
+enum Feedback {
+	NONE,
+	APPROVED,
+}
 
 #region Личность и коробка
 ## ID конкретного заказа, сохраняемый при повторных визитах и домашней доставке.
@@ -141,7 +163,6 @@ enum Feedback { NONE, APPROVED }
 ## Последний зафиксированный боевой контекст для рассмотрения последствий и UI.
 @export var last_combat_context: CombatContext = null
 #endregion
-
 
 #region Доступность прихода
 ## День вынужденного переноса; один и тот же отказ доступа не повторяется за фазу.

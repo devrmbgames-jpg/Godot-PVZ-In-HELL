@@ -1,8 +1,8 @@
 # Refactoring v2.61 — Code Style: ECS core
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
-Зависимости: [60_style_tooling.md](../completed/refactoring_v2/60_style_tooling.md).
+Зависимости: [60_style_tooling.md](60_style_tooling.md).
 
 ## Goal
 
@@ -44,7 +44,7 @@ Formatter/linter full scope + Godot parser для затронутых scripts. 
 ## Current
 
 Task60 independently reviewed PASS at `515f54b95ff0ee3ea8cf1fdb087efbdfd1ed58a7`.
-Explicit disjoint ownership: [script manifest](../../utils/gdscript_style_manifest.json),
+Explicit disjoint ownership: [script manifest](../../../utils/gdscript_style_manifest.json),
 980 authored scripts: task61=309,62=163,63=106,64=72,65=330. Generated
 `tests/artifacts` (ignored by Git and Godot) are excluded. The `--task` gate rejects
 missing, duplicate and stale entries before checking the whole assigned scope.
@@ -67,5 +67,9 @@ with their manifest owner. No scenes/resources or third-party addons were rewrit
 - PASS tooling141/141, strict architecture/domain/dependency, structure/change gates.
 - Source defaults, ordering and physical authority preserved; no rendered QA performed.
 
-Review: REVIEW_PENDING immutable implementation checkpoint. Next: collect/triage review,
-archive61 after acceptance, then62. Tasks62–66 remain required.
+PASS independent immutable review: BASE `515f54b95ff0ee3ea8cf1fdb087efbdfd1ed58a7`,
+TARGET `3e5c93dcba93a730e79a632360160db50e88945a`; pinned GECS
+`14d4282e5c1cb2713c187706ba2f5ff4e315d36e`. No material findings;
+ARCHITECTURE/STYLE PASS, reviewer validation NOT_RUN (read-only source review).
+PASS headless hazards smoke: `tests/artifacts/hazards-20261010-181107926.log`.
+Acceptance complete. Continue with62; tasks62–66 remain required.

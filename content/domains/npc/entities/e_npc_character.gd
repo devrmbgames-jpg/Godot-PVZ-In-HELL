@@ -49,7 +49,8 @@ func _on_navigation_velocity_computed(safe_velocity: Vector3) -> void:
 		intent.avoidance_frame = Engine.get_physics_frames()
 
 
-## Отключает avoidance после смерти; явный сброс восстанавливает прежнюю политику агента и очищает кеш скорости.
+## Отключает avoidance после смерти; явный сброс восстанавливает прежнюю политику агента и очищает
+## кеш скорости.
 func sync_navigation_lifecycle(living: bool) -> void:
 	if navigation_agent == null or living == (not _navigation_dead):
 		return
@@ -65,8 +66,8 @@ func sync_navigation_lifecycle(living: bool) -> void:
 		intent.avoidance_velocity = Vector3.ZERO
 		intent.avoidance_frame = -1
 
-
 #endregion
+
 
 #region Анимация и терминальное состояние
 func _process(_delta: float) -> void:
@@ -85,7 +86,10 @@ func _process(_delta: float) -> void:
 	var speed: float = Vector2(body.linear_velocity.x, body.linear_velocity.z).length()
 	_walking = speed > WALK_STOP_SPEED if _walking else speed >= WALK_START_SPEED
 	var animation: StringName = walk_animation if _walking else _stationary_animation()
-	if animation_player.has_animation(animation) and animation_player.current_animation != animation:
+	if (
+		animation_player.has_animation(animation)
+		and animation_player.current_animation != animation
+	):
 		animation_player.play(animation, ANIMATION_BLEND_SECONDS)
 
 
@@ -111,8 +115,8 @@ func sync_death_presentation() -> void:
 	if dead and animation_player != null:
 		animation_player.stop()
 
-
 #endregion
+
 
 #region Callbacks атакующей анимации
 ## Callback method-track публикует запрос эффекта; Combat подключает текущее исполнение.
@@ -127,6 +131,7 @@ func npc_attack_finished() -> void:
 		attack_finish_requested.emit()
 
 #endregion
+
 
 #region Сообщение физического участника
 ## Обновляет необязательную Label3D Message; факты визита не изменяет.

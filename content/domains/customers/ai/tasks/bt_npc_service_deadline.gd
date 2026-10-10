@@ -7,6 +7,7 @@ extends "res://content/domains/customers/ai/tasks/bt_customer_condition.gd"
 ## Нижняя граница времени для безопасного завершения ухода.
 @export var minimum_seconds: float = 0.0
 
+
 #region Проверка состояния
 func _tick(_delta: float) -> Status:
 	var service: C_CustomerAgent = _service()

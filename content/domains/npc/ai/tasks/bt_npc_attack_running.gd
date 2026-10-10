@@ -2,6 +2,7 @@
 extends "res://content/domains/npc/ai/tasks/bt_npc_condition.gd"
 ## Исполняющаяся атака сохраняет физический цикл и не запускается заново.
 
+
 #region Проверка состояния
 func _tick(_delta: float) -> Status:
 	var combat: C_NpcCombat = _actor.get_component(C_NpcCombat) as C_NpcCombat

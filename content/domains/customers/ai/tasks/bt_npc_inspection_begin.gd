@@ -2,6 +2,7 @@
 extends "res://content/domains/customers/ai/tasks/bt_customer_action.gd"
 ## Начинает осмотр после физического достижения кабинки.
 
+
 #region Листовое действие
 func _tick(_delta: float) -> Status:
 	if not _claim("Осмотр в кабинке"):

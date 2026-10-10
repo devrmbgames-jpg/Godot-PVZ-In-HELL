@@ -2,6 +2,7 @@
 extends "res://content/domains/npc/ai/tasks/bt_npc_action.gd"
 ## Преследует только подтверждённую восприятием позицию.
 
+
 #region Листовое действие
 func _tick(_delta: float) -> Status:
 	if not _claim("Преследование"):

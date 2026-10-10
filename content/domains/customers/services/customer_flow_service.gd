@@ -1,5 +1,6 @@
 extends RefCounted
-## Владеет обслуживанием посылок и визитами; изменения выполняет вне обхода GECS через CommandBuffer.
+## Владеет обслуживанием посылок и визитами; изменения выполняет вне обхода GECS через
+## CommandBuffer.
 class_name CustomerFlowService
 
 
@@ -9,15 +10,27 @@ class_name CustomerFlowService
 ## Фиксирует визит для реально привезённой коробки, без повторного заказа при повторе команды.
 static func plan_delivered_package(identity: C_Package) -> CustomerVisit:
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
-	if flow == null or flow.schedule == null or flow.schedule.supply == null or identity.definition == null or identity.supply_key != flow.schedule.supply.key:
+	if (
+		flow == null or flow.schedule == null or flow.schedule.supply == null
+		or identity.definition == null or identity.supply_key != flow.schedule.supply.key
+	):
 		return null
 
 	var wallet: C_Wallet = WalletService.current()
-	var payment: int = wallet.policy.delivery_payment if wallet != null and wallet.policy != null else 0
+	var payment: int = (
+		wallet.policy.delivery_payment if wallet != null and wallet.policy != null else 0
+	)
 	for event: DEF_CustomerEvent in flow.schedule.events:
-		if event.package_key == identity.definition.key and event.customer != null and event.arrival_delay_days >= 0:
+		if (
+			event.package_key == identity.definition.key
+			and event.customer != null and event.arrival_delay_days >= 0
+		):
 			var visit: CustomerVisit = create_visit(
-				flow, identity.definition, event, identity.delivery_day, payment
+				flow,
+				identity.definition,
+				event,
+				identity.delivery_day,
+				payment,
 			)
 			if visit != null:
 				visit.package_history_id = identity.history_id
@@ -27,8 +40,11 @@ static func plan_delivered_package(identity: C_Package) -> CustomerVisit:
 
 ## Creates one idempotent visit for an explicit supplied package/event pair.
 static func create_visit(
-	flow: C_CustomerFlow, definition: DEF_Package, event: DEF_CustomerEvent,
-	supply_day: int, payment: int,
+	flow: C_CustomerFlow,
+	definition: DEF_Package,
+	event: DEF_CustomerEvent,
+	supply_day: int,
+	payment: int,
 ) -> CustomerVisit:
 	var package_id: String = "%s:%d:%s" % [flow.schedule.supply.key, supply_day, definition.key]
 	var visit_id: StringName = StringName("visit/" + package_id)
@@ -37,29 +53,37 @@ static func create_visit(
 			return existing
 
 	var district: C_District = NpcPopulationQueries.current()
-	var recipient: NpcRecord = NpcPopulationQueries.recipient_for(definition.recipient_id) if district != null else null
+	var recipient: NpcRecord = (
+		NpcPopulationQueries.recipient_for(definition.recipient_id) if district != null else null
+	)
 	if district != null and recipient == null:
 		return null
 
 	var visit: CustomerVisit = CustomerVisit.new()
 	visit.visit_id = visit_id
 	visit.package_id = package_id
-	visit.customer_id = recipient.npc_id if recipient != null else StringName("%s:%d" % [definition.recipient_id, supply_day])
+	visit.customer_id = (
+		recipient.npc_id
+		if recipient != null
+		else StringName("%s:%d" % [definition.recipient_id, supply_day])
+	)
 	visit.definition = event.customer
 	visit.requires_registered_package = event.requires_registered_package
 	visit.arrival_day = supply_day + event.arrival_delay_days
 	visit.accounting_value = definition.accounting_value
 	visit.payment = payment
 	var random: RandomNumberGenerator = GameTimeQueries.decision(
-		String(visit_id), supply_day, "customer/initial",
+		String(visit_id),
+		supply_day,
+		"customer/initial",
 	)
 	visit.complaint_roll = random.randf()
 	visit.aggression_roll = random.randf()
 	flow.visits.append(visit)
 	return visit
 
-
 #endregion
+
 
 #region Приход и исполнение роли
 ## Materializes one selected isolated visit; scheduling and selection belong to its caller.
@@ -67,7 +91,11 @@ static func start_visit(flow: C_CustomerFlow, visit: CustomerVisit, day: int) ->
 	var station: E_DeliveryCounter = CustomerFlowQueries.counter()
 	var scene: PackedScene = flow.schedule.customer_scene
 	if not visit.definition.customer_scene_path.is_empty():
-		scene = load(visit.definition.customer_scene_path) as PackedScene if ResourceLoader.exists(visit.definition.customer_scene_path) else null
+		scene = (
+			load(visit.definition.customer_scene_path) as PackedScene
+			if ResourceLoader.exists(visit.definition.customer_scene_path)
+			else null
+		)
 	if station == null or scene == null:
 		return
 
@@ -77,10 +105,13 @@ static func start_visit(flow: C_CustomerFlow, visit: CustomerVisit, day: int) ->
 		node.free()
 		return
 
-	var context: EntitySpawnContext = EntityCompositionService.context_for(customer, ECS.world,
-		GECSIO.uuid())
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		customer,
+		ECS.world,
+		GECSIO.uuid(),
+	)
 	context.definitions[&"customer_policy"] = visit.definition
-	context.initial_fields[C_CustomerAgent as Script] = {&"visit_id": visit.visit_id}
+	context.initial_fields[C_CustomerAgent as Script] = { &"visit_id": visit.visit_id }
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 	if not plan.valid():
 		customer.free()
@@ -96,7 +127,10 @@ static func start_visit(flow: C_CustomerFlow, visit: CustomerVisit, day: int) ->
 	assert(registered, "Accepted customer build requires one native registration")
 	var challenge: C_Challenge = customer.get_component(C_Challenge) as C_Challenge
 	NpcIntentService.move_to(
-		customer, station.waiting_position(), visit.definition.arrival_distance)
+		customer,
+		station.waiting_position(),
+		visit.definition.arrival_distance,
+	)
 	NpcIntentService.look_along_movement(customer)
 	CustomerParcelAssignment.bind_parcel(customer, visit)
 	customer.show_message(visit.definition.display_name)
@@ -122,8 +156,8 @@ static func remove_appearance(customer: E_NpcCharacter, visit: CustomerVisit) ->
 	if visit != null:
 		CustomerOutcomeService.publish_change(visit, &"appearance_removed")
 
-
 #endregion
+
 
 #region Приветствие и физическая выдача
 ## Сообщает заказ и переводит прибывшего клиента к ожиданию посылки.
@@ -131,13 +165,18 @@ static func greet(customer: E_NpcCharacter) -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent == null or CustomerFlowQueries.find_visit(agent.visit_id) == null:
 		return
-	if agent.phase != C_CustomerAgent.Phase.WAITING and agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
+	if (
+		agent.phase != C_CustomerAgent.Phase.WAITING
+		and agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	):
 		return
 
 	_transition(agent, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE)
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	if CustomerPresentation.uses_wall_order(visit.definition):
-		customer.show_message("Номер моего заказа появился на стене. Выдайте его на стойке, не смотрите на меня.")
+		customer.show_message(
+			"Номер моего заказа появился на стене. Выдайте его на стойке, не смотрите на меня."
+		)
 	elif CustomerPresentation.uses_quick_visit(visit):
 		if not agent.order_announced:
 			customer.show_message(CustomerPresentation.request_text(visit))
@@ -154,47 +193,53 @@ static func confirm_delivery(station: E_DeliveryCounter) -> PackageDeliveryCheck
 
 	var parcels: Array[Entity] = station.parcels()
 	if parcels.size() != 1:
-		var result: PackageDeliveryCheck.Result = (
+		var delivery_status: PackageDeliveryCheck.Result = (
 			PackageDeliveryCheck.Result.MISSING
 			if parcels.is_empty()
 			else PackageDeliveryCheck.Result.MULTIPLE
 		)
-		station.show_message(CustomerPresentation.check_text(result))
-		return result
+		station.show_message(CustomerPresentation.check_text(delivery_status))
+		return delivery_status
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
-	var result: PackageDeliveryCheck.Result = _resolve_delivery(
+	var delivery_status: PackageDeliveryCheck.Result = _resolve_delivery(
 		customer,
 		visit,
 		parcels[0],
 		null,
 	)
-	if result != PackageDeliveryCheck.Result.READY:
-		station.show_message(CustomerPresentation.check_text(result))
-		return result
+	if delivery_status != PackageDeliveryCheck.Result.READY:
+		station.show_message(CustomerPresentation.check_text(delivery_status))
+		return delivery_status
 
 	station.show_message("Выдача обработана. Отметьте исход в терминале.")
-	return result
+	return delivery_status
 
 
 ## Выбирает предлагаемую коробку из удерживаемых игроком; нужный заказ имеет приоритет,
 ## даже если у игрока несколько коробок в Carry и ручных слотах.
 ## allow_greeting разрешает только предварительный поиск для ближнего автоприёма.
-static func direct_handoff_package(actor: Entity, customer: E_NpcCharacter, allow_greeting: bool = false) -> Entity:
+static func direct_handoff_package(
+	actor: Entity,
+	customer: E_NpcCharacter,
+	allow_greeting: bool = false,
+) -> Entity:
 	if not is_instance_valid(actor) or not is_instance_valid(customer):
 		return null
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	if agent == null or (agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE and not (allow_greeting and agent.phase == C_CustomerAgent.Phase.WAITING)):
+	if (
+		agent == null
+		or (
+			agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+			and not (allow_greeting and agent.phase == C_CustomerAgent.Phase.WAITING)
+		)
+	):
 		return null
 
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
-	if (
-		visit == null
-		or visit.finished
-		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
-	):
+	if (visit == null or visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED):
 		return null
 
 	var fallback: Entity = null
@@ -228,7 +273,15 @@ static func try_automatic_handoff(customer: E_NpcCharacter, visit: CustomerVisit
 	var parcel: Entity = direct_handoff_package(actor, customer, true)
 	if not GrabQueries.entity_available(parcel):
 		return false
-	if not CustomerHandoffService.can_receive(actor, customer, visit, parcel, CustomerFlowQueries.assigned(parcel, customer, visit)):
+	if (
+		not CustomerHandoffService.can_receive(
+			actor,
+			customer,
+			visit,
+			parcel,
+			CustomerFlowQueries.assigned(parcel, customer, visit),
+		)
+	):
 		return false
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -251,15 +304,15 @@ static func confirm_direct_delivery(
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
-	var result: PackageDeliveryCheck.Result = _resolve_delivery(
+	var delivery_status: PackageDeliveryCheck.Result = _resolve_delivery(
 		customer,
 		visit,
 		parcel,
 		actor,
 	)
-	if result != PackageDeliveryCheck.Result.READY:
-		customer.show_message(CustomerPresentation.check_text(result))
-	return result
+	if delivery_status != PackageDeliveryCheck.Result.READY:
+		customer.show_message(CustomerPresentation.check_text(delivery_status))
+	return delivery_status
 
 
 static func _resolve_delivery(
@@ -298,17 +351,37 @@ static func complete_inspection(customer: E_NpcCharacter, visit: CustomerVisit) 
 		_leave(customer, visit)
 		return
 
-	var check_result: PackageDeliveryCheck = CustomerOutcomeService.check(visit, parcel.get_component(C_Package) as C_Package, parcel.get_component(C_PackageState) as C_PackageState, CustomerFlowQueries.assigned(parcel, customer, visit), false)
+	var check_result: PackageDeliveryCheck = (
+		CustomerOutcomeService.check(
+			visit,
+			parcel.get_component(C_Package) as C_Package,
+			parcel.get_component(C_PackageState) as C_PackageState,
+			CustomerFlowQueries.assigned(parcel, customer, visit),
+			false,
+		)
+	)
 	if check_result.result != PackageDeliveryCheck.Result.READY:
 		_leave(customer, visit)
 		return
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	var declined: bool = agent.inspection_force_refusal or CustomerInspectionService.roll(visit, "keep") >= visit.definition.inspection_keep_probability
+	var declined: bool = (
+		agent.inspection_force_refusal
+		or CustomerInspectionService.roll(visit, "keep")
+		>= visit.definition.inspection_keep_probability
+	)
 	_complete_delivery(customer, visit, parcel, check_result, true, declined, true)
 
 
-static func _complete_delivery(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity, check_result: PackageDeliveryCheck, place_refused: bool, declined: bool = false, inspection: bool = false) -> PackageDeliveryCheck.Result:
+static func _complete_delivery(
+	customer: E_NpcCharacter,
+	visit: CustomerVisit,
+	parcel: Entity,
+	check_result: PackageDeliveryCheck,
+	place_refused: bool,
+	declined: bool = false,
+	inspection: bool = false,
+) -> PackageDeliveryCheck.Result:
 	if not CustomerOutcomeService.receive(visit, check_result, declined):
 		return check_result.result
 	if inspection:
@@ -318,9 +391,11 @@ static func _complete_delivery(customer: E_NpcCharacter, visit: CustomerVisit, p
 		_depart_parcel(parcel)
 		ECS.world.remove_entity(parcel)
 		customer.show_message(
-			"Спасибо!"
-			if visit.satisfaction == visit.definition.healthy_satisfaction
-			else "Заказ принят, но его состояние меня не устраивает."
+			(
+				"Спасибо!"
+				if visit.satisfaction == visit.definition.healthy_satisfaction
+				else "Заказ принят, но его состояние меня не устраивает."
+			)
 		)
 	else:
 		if place_refused:
@@ -336,7 +411,11 @@ static func _complete_delivery(customer: E_NpcCharacter, visit: CustomerVisit, p
 
 ## Однократно синхронизирует физическое тело при передаче, как крепление к слоту и восстановление.
 ## После передачи native rigid body немедленно возобновляет владение физическим состоянием.
-static func _place_refused_parcel(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity) -> void:
+static func _place_refused_parcel(
+	customer: E_NpcCharacter,
+	visit: CustomerVisit,
+	parcel: Entity,
+) -> void:
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	if body == null or visit.definition == null:
 		return
@@ -347,8 +426,8 @@ static func _place_refused_parcel(customer: E_NpcCharacter, visit: CustomerVisit
 	body.angular_velocity = Vector3.ZERO
 	body.sleeping = false
 
-
 #endregion
+
 
 #region Заявления и реакции
 ## Фиксирует заявление в журнале и инициирует расчёт; физическую выдачу не подменяет.
@@ -388,13 +467,9 @@ static func defer_until_next_day(visit_id: StringName) -> bool:
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(visit_id)
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if (
-		visit == null
-		or cycle == null
-		or not visit.started
-		or visit.finished
+		visit == null or cycle == null or not visit.started or visit.finished
 		or visit.declaration != CustomerVisit.Declaration.NONE
-		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
-		or visit.definition == null
+		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED or visit.definition == null
 		or visit.followup_count >= visit.definition.max_followup_visits
 	):
 		return false
@@ -441,14 +516,14 @@ static func voluntary_refuse(customer: E_NpcCharacter) -> bool:
 
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	if (
-		visit == null
-		or visit.definition == null
-		or not visit.definition.voluntary_refusal
-		or visit.actual != CustomerVisit.Actual.CUSTOMER_REFUSED
-		or visit.finished
+		visit == null or visit.definition == null or not visit.definition.voluntary_refusal
+		or visit.actual != CustomerVisit.Actual.CUSTOMER_REFUSED or visit.finished
 	):
 		return false
-	if agent.phase != C_CustomerAgent.Phase.DIALOGUE and agent.phase != C_CustomerAgent.Phase.RECEIVING:
+	if (
+		agent.phase != C_CustomerAgent.Phase.DIALOGUE
+		and agent.phase != C_CustomerAgent.Phase.RECEIVING
+	):
 		return false
 
 	_leave(customer, visit)
@@ -466,9 +541,7 @@ static func enter_aggressive(customer: E_NpcCharacter) -> bool:
 
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	if (
-		visit == null
-		or not visit.aggressive
-		or visit.finished
+		visit == null or not visit.aggressive or visit.finished
 		or agent.phase == C_CustomerAgent.Phase.LEAVING
 		or agent.phase == C_CustomerAgent.Phase.FINISHED
 	):
@@ -484,11 +557,14 @@ static func enter_aggressive(customer: E_NpcCharacter) -> bool:
 	customer.show_message("Вы меня обманули!")
 	return true
 
-
 #endregion
 
+
 #region Завершение и повторные визиты
-static func _depart_parcel(parcel: Entity, departure: C_PackageState.Registration = C_PackageState.Registration.DELIVERED) -> void:
+static func _depart_parcel(
+	parcel: Entity,
+	departure: C_PackageState.Registration = C_PackageState.Registration.DELIVERED,
+) -> void:
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 	state.registration = departure
 	PackageRegistrationService.release_number(parcel)
@@ -512,7 +588,11 @@ static func _leave(customer: E_NpcCharacter, visit: CustomerVisit) -> void:
 	var customer_node: Node = customer as Node
 	var body: Node3D = customer_node as Node3D
 	if station != null:
-		NpcIntentService.move_to(customer, station.entry_position(), visit.definition.arrival_distance)
+		NpcIntentService.move_to(
+			customer,
+			station.entry_position(),
+			visit.definition.arrival_distance,
+		)
 	elif body != null:
 		NpcIntentService.move_to(customer, body.global_position, visit.definition.arrival_distance)
 	NpcIntentService.look_along_movement(customer)
@@ -546,11 +626,18 @@ static func _transition(agent: C_CustomerAgent, phase: C_CustomerAgent.Phase) ->
 
 ## Вводит фазу диалога или примерки, сохраняя ограничение по терпению.
 static func enter_service_phase(customer: E_NpcCharacter, phase: C_CustomerAgent.Phase) -> bool:
-	if phase != C_CustomerAgent.Phase.DIALOGUE and phase != C_CustomerAgent.Phase.OPTIONAL_FITTING and phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE:
+	if (
+		phase != C_CustomerAgent.Phase.DIALOGUE and phase != C_CustomerAgent.Phase.OPTIONAL_FITTING
+		and phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+	):
 		return false
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
-	if agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE and agent.phase != C_CustomerAgent.Phase.DIALOGUE and agent.phase != C_CustomerAgent.Phase.OPTIONAL_FITTING:
+	if (
+		agent.phase != C_CustomerAgent.Phase.WAITING_FOR_PACKAGE
+		and agent.phase != C_CustomerAgent.Phase.DIALOGUE
+		and agent.phase != C_CustomerAgent.Phase.OPTIONAL_FITTING
+	):
 		return false
 
 	_transition(agent, phase)

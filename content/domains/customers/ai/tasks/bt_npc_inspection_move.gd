@@ -2,6 +2,7 @@
 extends "res://content/domains/customers/ai/tasks/bt_customer_action.gd"
 ## Продолжает движение к зарезервированной кабинке или месту выдачи.
 
+
 #region Листовое действие
 func _tick(_delta: float) -> Status:
 	if not _claim("Пройти путь осмотра"):

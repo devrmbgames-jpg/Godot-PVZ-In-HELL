@@ -50,6 +50,11 @@ NPC schedule obligations remain district-roster authority. C_NpcDecision owns th
 
 Retained district NPC participation derives from roster placement/death. DistrictPopulationService.set_placement is the single ordinary mode operation, also used for final restore reconciliation; native body/BT adapters apply its requested mode. Disabled actors retain identity/Components/Relationships for aggregate/save queries, while inherited child processing, physics and native decision participation suspend. Writer map and measured processing scope: [NPC participation](../docs/npc_participation.md).
 
+NpcScheduleActionService.request_phase_completion captures the current obligation and decision
+incarnation, then emits the synchronous NpcScheduleCompletionRequest. O_DistrictLifecycle owns
+the completion reaction and calls the population placement boundary. Decision/route/BT adapters
+submit that request through the schedule operation, without importing population orchestration.
+
 After native BT, S_NpcRoute consumes the same captured interval for route clocks/progress/cleanup. S_NpcRoutePlanning owns the district FIFO and one budget per native physics frame before noise/combat/navigation consumers. NpcRouteSolver calculates bounded paths/risk, while S_NpcIntent consumes waypoints and Godot integrates the body. Queued planning rejects replaced aggregates and stale participation/intent.
 
 ### Choosing execution ownership

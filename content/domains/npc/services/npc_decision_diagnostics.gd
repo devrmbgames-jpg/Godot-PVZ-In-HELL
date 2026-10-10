@@ -31,9 +31,8 @@ static func actor_state(actor: E_DistrictNpc) -> Dictionary[String, Variant]:
 
 static func _body_participating(person: NpcRecord, actor: E_DistrictNpc) -> bool:
 	return (
-		person.placement == NpcRecord.Placement.STREET and person.death_day == 0 \
-				and actor.enabled
-		and not actor.has_component(C_Death)
+		person.placement == NpcRecord.Placement.STREET and person.death_day == 0
+		and actor.enabled and not actor.has_component(C_Death)
 	)
 
 
@@ -43,9 +42,8 @@ static func _pending_arrival(person: NpcRecord) -> bool:
 		person.planned_phase as C_DayCycle.Phase,
 	)
 	return (
-		person.death_day == 0 and person.placement != NpcRecord.Placement.STREET \
-				and not person.phase_complete
-		and location == DEF_NpcSchedule.Location.STREET
+		person.death_day == 0 and person.placement != NpcRecord.Placement.STREET
+		and not person.phase_complete and location == DEF_NpcSchedule.Location.STREET
 	)
 
 

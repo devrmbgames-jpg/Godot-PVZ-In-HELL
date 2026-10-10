@@ -5,6 +5,7 @@ class_name NpcTraitService
 ## Authored effect prefab for explicit fire-aura materialization.
 const AURA_SCENE: String = "res://content/domains/hazards/entities/npc_fire_aura.tscn"
 
+
 #region Жизненный цикл особенностей
 ## Использует авторское укрытие от света или закреплённую точку выхода личности.
 static func dark_refuge(_actor: E_DistrictNpc, person: NpcRecord) -> Vector3:

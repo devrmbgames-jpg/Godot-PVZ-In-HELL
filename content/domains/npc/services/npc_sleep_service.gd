@@ -2,6 +2,7 @@ extends RefCounted
 ## Сон блокируется непосредственной угрозой и поиском; прошлая неприязнь остаётся в памяти.
 class_name NpcSleepService
 
+
 #region Безопасность отдыха
 ## Объясняет блокировку сна по текущим участникам и эффективному местному урону.
 static func blockers() -> PackedStringArray:
@@ -27,9 +28,22 @@ static func blockers() -> PackedStringArray:
 			continue
 
 		var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
-		if CombatQueries.target_for(body) == player and awareness != null and (awareness.target_visible or (awareness.has_last_seen and awareness.search_elapsed < person.profile.search_seconds)):
+		if (
+			CombatQueries.target_for(body) == player and awareness != null
+			and (
+				awareness.target_visible
+				or (
+					awareness.has_last_seen
+					and awareness.search_elapsed < person.profile.search_seconds
+				)
+			)
+		):
 			reasons.append("Преследователь ещё ищет вас: " + person.display_name)
-		elif CombatQueries.target_for(body) != null and body.global_position.distance_to(spatial.global_position) < district.definition.sleep_danger_radius:
+		elif (
+			CombatQueries.target_for(body) != null
+			and body.global_position.distance_to(spatial.global_position)
+			< district.definition.sleep_danger_radius
+		):
 			reasons.append("Рядом с местом отдыха идёт бой")
 	for effect: Entity in ECS.world.query.with_all([C_Hazard, C_HazardLifetime]).execute():
 		var hazard: C_Hazard = effect.get_component(C_Hazard) as C_Hazard
@@ -51,8 +65,14 @@ static func blockers() -> PackedStringArray:
 				continue
 
 			radius = blast.radius
-			damage = DamageResistanceRules.effective(player, blast.damage, DamageRequest.Type.EXPLOSION)
-		if damage > 0.0 and point.global_position.distance_to(spatial.global_position + Vector3.UP) <= radius + district.definition.sleep_danger_radius:
+			damage = (
+				DamageResistanceRules.effective(player, blast.damage, DamageRequest.Type.EXPLOSION)
+			)
+		if (
+			damage > 0.0
+			and point.global_position.distance_to(spatial.global_position + Vector3.UP)
+			<= radius + district.definition.sleep_danger_radius
+		):
 			reasons.append("У места отдыха опасная зона")
 	return reasons
 #endregion

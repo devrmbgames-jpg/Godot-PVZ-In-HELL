@@ -4,7 +4,8 @@ extends E_TraitedEntity
 class_name E_DeliveryCounter
 
 
-## Физические коробки, пересекающие DeliveryArea в текущем снимке physics; принадлежность проверяет сервис.
+## Физические коробки, пересекающие DeliveryArea в текущем снимке physics; принадлежность проверяет
+## сервис.
 func parcels() -> Array[Entity]:
 	var area: Area3D = get_node("DeliveryArea") as Area3D
 	var found: Array[Entity] = []

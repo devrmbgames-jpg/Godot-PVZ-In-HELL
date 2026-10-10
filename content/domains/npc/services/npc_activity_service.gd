@@ -63,10 +63,9 @@ static func merchant() -> E_DistrictNpc:
 ## Направляет неподвижный взгляд, не отслеживая скрытого игрока.
 static func observe(actor: E_DistrictNpc, person: NpcRecord, player_visible: bool) -> void:
 	var decision: C_NpcDecision = actor.get_component(C_NpcDecision) as C_NpcDecision
-	var place_id: StringName = decision.local_activity_id if not decision \
-			.local_activity_id \
-			.is_empty() \
-			else person.goal_id
+	var place_id: StringName = (
+		decision.local_activity_id if not decision.local_activity_id.is_empty() else person.goal_id
+	)
 	var place: DEF_DistrictPlace = NpcPopulationQueries.current().definition.place_for(place_id)
 	if place == null or player_visible:
 		return
@@ -102,7 +101,10 @@ static func observe(actor: E_DistrictNpc, person: NpcRecord, player_visible: boo
 			NpcIntentService.watch(actor, shopkeeper, Vector3.UP * NpcPerceptionService.EYE_HEIGHT)
 		return
 
-	if place.activity == DEF_DistrictPlace.Activity.WATCH_WINDOW and not place.focus_path.is_empty():
+	if (
+		place.activity == DEF_DistrictPlace.Activity.WATCH_WINDOW
+		and not place.focus_path.is_empty()
+	):
 		var focus: Node3D = ECS.world.get_parent().get_node_or_null(place.focus_path) as Node3D
 		if focus != null:
 			NpcIntentService.look_at(actor, focus.global_position)

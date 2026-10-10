@@ -32,7 +32,9 @@ static func react(
 
 	var awareness: C_NpcAwareness = body.get_component(C_NpcAwareness) as C_NpcAwareness
 	var health: C_Health = body.get_component(C_Health) as C_Health
-	var hunger: C_Hunger = actor.get_component(C_Hunger) as C_Hunger if is_instance_valid(actor) else null
+	var hunger: C_Hunger = (
+		actor.get_component(C_Hunger) as C_Hunger if is_instance_valid(actor) else null
+	)
 	var predatory_player: bool = (
 		awareness.player_visible and is_instance_valid(actor)
 		and actor.has_component(C_PlayerInputController) and HungerRules.sees_npcs_as_food(hunger)
@@ -40,10 +42,12 @@ static func react(
 	var can_retreat: bool = (
 		predatory_player or health.current < health.value * person.profile.pursuit_health_reserve
 	)
-	var roll: float = GameTimeQueries \
-			.decision(String(person.npc_id), DayPhaseQueries.current().day_index, "npc/social/%d/%s"
-	% [kind, incident]) \
-			.randf()
+	var reaction_random: RandomNumberGenerator = GameTimeQueries.decision(
+		String(person.npc_id),
+		DayPhaseQueries.current().day_index,
+		"npc/social/%d/%s" % [kind, incident],
+	)
+	var roll: float = reaction_random.randf()
 	var reaction: NpcMemory.Reaction = _choose(person.profile, kind, roll, can_retreat)
 	remember(person, actor, body, kind, incident, reaction)
 	apply_reaction(body, actor, reaction)
@@ -125,10 +129,12 @@ static func remember_promise(
 		if previous.incident_id == incident:
 			return
 
-	var roll: float = GameTimeQueries \
-			.decision(String(person.npc_id), DayPhaseQueries.current().day_index, "npc/social/%d/%s"
-	% [NpcMemory.Kind.BROKEN_PROMISE, incident]) \
-			.randf()
+	var reaction_random: RandomNumberGenerator = GameTimeQueries.decision(
+		String(person.npc_id),
+		DayPhaseQueries.current().day_index,
+		"npc/social/%d/%s" % [NpcMemory.Kind.BROKEN_PROMISE, incident],
+	)
+	var roll: float = reaction_random.randf()
 	var reaction: NpcMemory.Reaction = _choose(person.profile, NpcMemory.Kind.BROKEN_PROMISE, roll)
 	remember(person, actor, body, NpcMemory.Kind.BROKEN_PROMISE, incident, reaction)
 	# Обещание принято игроком даже в тестовой сессии, где его физическое тело отсутствует.
@@ -167,9 +173,7 @@ static func _choose(
 		return (
 			NpcMemory.Reaction.ACCEPT
 			if roll < profile.joke_acceptance_probability
-			else NpcMemory \
-					.Reaction \
-					.TALK
+			else NpcMemory.Reaction.TALK
 		)
 	if profile.personality == DEF_NpcProfile.Personality.TIMID and kind != NpcMemory.Kind.JOKE:
 		if roll < profile.timid_flee_probability:
@@ -177,17 +181,13 @@ static func _choose(
 		return (
 			NpcMemory.Reaction.ATTACK
 			if roll < profile.timid_flee_probability + profile.timid_attack_probability
-			else NpcMemory \
-					.Reaction \
-					.TALK
+			else NpcMemory.Reaction.TALK
 		)
 	if profile.personality == DEF_NpcProfile.Personality.BRAZEN and kind == NpcMemory.Kind.THREAT:
 		return (
 			NpcMemory.Reaction.RESPECT
 			if roll < profile.high_attack_probability
-			else NpcMemory \
-					.Reaction \
-					.ATTACK
+			else NpcMemory.Reaction.ATTACK
 		)
 	if kind == NpcMemory.Kind.JOKE:
 		return NpcMemory.Reaction.TALK
@@ -209,28 +209,32 @@ static func _choose(
 
 #region Подтверждённое насилие
 ## Свидетели воспринимают урон; неизвестный атакующий создаёт шум без раскрытия личности.
-static func observe_damage(result: DamageResult) -> void:
+static func observe_damage(damage_result: DamageResult) -> void:
 	if (
-		result == null or result.request == null or result.applied_amount <= 0.0
-		or result.request.operation != DamageRequest.Operation.DAMAGE
+		damage_result == null or damage_result.request == null
+		or damage_result.applied_amount <= 0.0
+		or damage_result.request.operation != DamageRequest.Operation.DAMAGE
 	):
 		return
 
-	var request: DamageRequest = result.request
+	var request: DamageRequest = damage_result.request
 	var victim: Entity = request.target
 	var district: C_District = NpcPopulationQueries.current()
 	if district != null:
-		# Боль от окружения слышна, но не зовёт соседей (и владельца огненной ауры) внутрь опасности.
+		# Боль от окружения слышна, но не зовёт соседей (и владельца огненной ауры) внутрь
+		# опасности.
 		NpcPerceptionService.emit_noise(
 			victim,
-			result.world_pose.origin,
+			damage_result.world_pose.origin,
 			district.definition.damage_noise_radius,
 			request.combat_context != null,
 		)
 	if request.combat_context == null:
 		return
 
-	var actor: Entity = request.instigator if is_instance_valid(request.instigator) else request.source
+	var actor: Entity = (
+		request.instigator if is_instance_valid(request.instigator) else request.source
+	)
 	if district == null or not is_instance_valid(victim):
 		return
 	if request.incident_id == &"":
@@ -238,10 +242,7 @@ static func observe_damage(result: DamageResult) -> void:
 		district.next_incident += 1
 	var kind: NpcMemory.Kind = (
 		NpcMemory.Kind.KILLING
-		if result.outcome
-		== DamageResult \
-				.Outcome \
-				.HEALTH_DEPLETED
+		if damage_result.outcome == DamageResult.Outcome.HEALTH_DEPLETED
 		else NpcMemory.Kind.ATTACK
 	)
 	for person: NpcRecord in district.people:
@@ -257,7 +258,9 @@ static func observe_damage(result: DamageResult) -> void:
 			if sees_actor:
 				react(observer, actor, kind, request.incident_id)
 			else:
-				var awareness: C_NpcAwareness = observer.get_component(C_NpcAwareness) as C_NpcAwareness
+				var awareness: C_NpcAwareness = (
+					observer.get_component(C_NpcAwareness) as C_NpcAwareness
+				)
 				awareness.fleeing = true
 		elif sees_actor and NpcPerceptionService.can_see(observer, victim, person.profile, true):
 			remember(person, actor, victim, kind, request.incident_id)

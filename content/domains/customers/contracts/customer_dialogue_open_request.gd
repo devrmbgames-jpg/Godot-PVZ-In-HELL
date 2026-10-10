@@ -1,5 +1,6 @@
 extends RefCounted
-## Синхронный запрос native UI после проверки клиентской роли; сохраняет только witness и слабого игрока.
+## Синхронный запрос native UI после проверки клиентской роли; сохраняет только witness и слабого
+## игрока.
 class_name CustomerDialogueOpenRequest
 
 ## Канал запроса существующей панели.
@@ -12,6 +13,7 @@ var actor_id: String
 var agent: C_CustomerAgent
 ## Результат единственного синхронного UI consumer.
 var opened: bool = false
+
 
 #region Создание запроса
 ## Сохраняет identity/witness без новой модели разговора или владения игроком.

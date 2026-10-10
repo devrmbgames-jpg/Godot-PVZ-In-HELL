@@ -15,6 +15,7 @@ var context_day: int
 ## Calendar phase captured at publication.
 var context_phase: C_DayCycle.Phase
 
+
 #region Committed fact construction
 ## Captures native owner identities and the unchanged calendar context.
 func _init(prepared_district: C_District, captured_cycle: C_DayCycle, prepared_day: int) -> void:

@@ -6,7 +6,13 @@ class_name CustomerInspectionService
 #region Резервы осмотра
 ## Крепит коробку к слоту клиента и резервирует кабинку либо дверь домашней встречи.
 static func begin(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity) -> bool:
-	if visit == null or visit.definition == null or visit.finished or visit.actual != CustomerVisit.Actual.NOT_RESOLVED or not visit.definition.private_inspection or not EntityAvailability.contains(customer, ECS.world) or customer.has_component(C_Death) or not EntityAvailability.contains(parcel, ECS.world):
+	if (
+		visit == null or visit.definition == null or visit.finished
+		or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+		or not visit.definition.private_inspection
+		or not EntityAvailability.contains(customer, ECS.world)
+		or customer.has_component(C_Death) or not EntityAvailability.contains(parcel, ECS.world)
+	):
 		return false
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -14,13 +20,23 @@ static func begin(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity
 		return false
 
 	var slot: E_PhysicalSlot = customer.get_node_or_null("InspectionParcelSlot") as E_PhysicalSlot
-	if slot == null or CustomerInspectionQueries.owner_for(parcel) != null or PhysicalSlotService.relationship(parcel) != null:
+	if (
+		slot == null or CustomerInspectionQueries.owner_for(parcel) != null
+		or PhysicalSlotService.relationship(parcel) != null
+	):
 		return false
 
 	var booth: Entity = null
 	for candidate: Entity in ECS.world.query.with_all([C_InspectionBooth]).execute():
-		var config: C_InspectionBooth = candidate.get_component(C_InspectionBooth) as C_InspectionBooth
-		if config.enabled and (candidate as Node) is Node3D and ECS.world.query.with_relationship([Relationship.new(R_InspectingAt.new(), candidate)]).execute().is_empty():
+		var config: C_InspectionBooth = (
+			candidate.get_component(C_InspectionBooth) as C_InspectionBooth
+		)
+		if (
+			config.enabled and (candidate as Node) is Node3D
+			and ECS.world.query.with_relationship([
+				Relationship.new(R_InspectingAt.new(), candidate)
+			]).execute().is_empty()
+		):
 			booth = candidate
 			break
 
@@ -30,8 +46,11 @@ static func begin(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity
 	if booth == null:
 		return false
 	if not EntityAvailability.contains(slot, ECS.world):
-		var context: EntitySpawnContext = EntityCompositionService.context_for(slot, ECS.world,
-			slot.id if not slot.id.is_empty() else GECSIO.uuid())
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			slot,
+			ECS.world,
+			slot.id if not slot.id.is_empty() else GECSIO.uuid(),
+		)
 		if not EntityCompositionService.try_register(context, false):
 			return false
 	var stored: Relationship = Relationship.new(R_StoredIn.new(), slot)
@@ -54,7 +73,11 @@ static func begin(customer: E_NpcCharacter, visit: CustomerVisit, parcel: Entity
 		return true
 
 	_transition(agent, C_CustomerAgent.Phase.GOING_TO_BOOTH)
-	NpcIntentService.move_to(customer, (booth as Node as Node3D).global_position, visit.definition.arrival_distance)
+	NpcIntentService.move_to(
+		customer,
+		(booth as Node as Node3D).global_position,
+		visit.definition.arrival_distance,
+	)
 	NpcIntentService.look_along_movement(customer)
 	customer.show_message("Я осмотрю заказ в кабинке и вернусь.")
 	return true
@@ -70,15 +93,17 @@ static func bind_contents(package: Entity, contents: Array[Entity]) -> void:
 		if EntityAvailability.contains(item, ECS.world):
 			item.add_relationship(Relationship.new(R_InspectionCargo.new(), customer))
 
-
 #endregion
+
 
 #region Исполнение и завершение осмотра
 ## Возвращает стабильный бросок 0–1 для выбора и номера прихода; повтор не меняет исход.
 static func roll(visit: CustomerVisit, choice: String) -> float:
 	var random: RandomNumberGenerator = GameTimeQueries.decision(
-		String(visit.visit_id), maxi(1, visit.last_visit_day),
-		"customer/inspection/" + choice, visit.visit_count,
+		String(visit.visit_id),
+		maxi(1, visit.last_visit_day),
+		"customer/inspection/" + choice,
+		visit.visit_count,
 	)
 	return random.randf()
 
@@ -110,6 +135,7 @@ static func arrive(customer: E_NpcCharacter) -> void:
 	NpcIntentService.stop(customer)
 	customer.show_message("Осматриваю заказ…")
 
+
 ## Один раз запрашивает вскрытие; состав предметов по-прежнему создаёт PackageOpening.
 static func inspect_contents(customer: E_NpcCharacter, visit: CustomerVisit) -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
@@ -119,11 +145,17 @@ static func inspect_contents(customer: E_NpcCharacter, visit: CustomerVisit) -> 
 	if roll(visit, "unpack") < visit.definition.inspection_unpack_probability:
 		PackageOpening.request_open(customer, CustomerInspectionQueries.parcel_for(customer))
 
+
 ## Запрашивает возвращение с осмотра; момент перехода определяет дерево.
-static func return_to_service(customer: E_NpcCharacter, visit: CustomerVisit, force_refusal: bool = false) -> void:
+static func return_to_service(
+	customer: E_NpcCharacter,
+	visit: CustomerVisit,
+	force_refusal: bool = false,
+) -> void:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	agent.inspection_force_refusal = agent.inspection_force_refusal or force_refusal
 	_return(customer, agent, visit)
+
 
 ## Возвращает положение текущего резерва осмотра либо точки обслуживания.
 static func destination(customer: E_NpcCharacter) -> Vector3:
@@ -133,18 +165,31 @@ static func destination(customer: E_NpcCharacter) -> Vector3:
 			if link.relation is R_InspectingAt:
 				return (link.target as Node3D).global_position
 	var door: Entity = HomeMeetingQueries.door_for(customer)
-	return (door as Node as Node3D).global_position if door != null else CustomerFlowQueries.counter().waiting_position()
+	return (
+		(door as Node as Node3D).global_position
+		if door != null
+		else CustomerFlowQueries.counter().waiting_position()
+	)
+
 
 static func _return(customer: E_NpcCharacter, agent: C_CustomerAgent, visit: CustomerVisit) -> void:
 	_transition(agent, C_CustomerAgent.Phase.RETURNING_FROM_BOOTH)
 	var home_door: Entity = HomeMeetingQueries.door_for(customer)
 	if home_door != null:
-		NpcIntentService.move_to(customer, (home_door as Node as Node3D).global_position, visit.definition.arrival_distance)
+		NpcIntentService.move_to(
+			customer,
+			(home_door as Node as Node3D).global_position,
+			visit.definition.arrival_distance,
+		)
 		return
 
 	var counter: E_DeliveryCounter = CustomerFlowQueries.counter()
 	if counter != null:
-		NpcIntentService.move_to(customer, counter.waiting_position(), visit.definition.arrival_distance)
+		NpcIntentService.move_to(
+			customer,
+			counter.waiting_position(),
+			visit.definition.arrival_distance,
+		)
 		NpcIntentService.look_along_movement(customer)
 	else:
 		agent.inspection_force_refusal = true

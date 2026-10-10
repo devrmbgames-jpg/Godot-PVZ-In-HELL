@@ -2,6 +2,7 @@ extends RefCounted
 ## Owns the composed interruption transaction across service role and optional home delivery.
 class_name CustomerRoleInterruptionService
 
+
 #region Explicit role interruption
 ## Прерывает нерешённый визит, освобождая коробку и стойку без выдуманного результата.
 static func suspend(body: E_DistrictNpc) -> void:

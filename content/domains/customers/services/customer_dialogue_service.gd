@@ -9,18 +9,33 @@ const ACTIVE_GROUP: StringName = &"customer_dialogue_panel"
 #region Запуск разговора
 ## Проверяет живого получателя, готовую фазу визита и отсутствие конкурирующего модального ввода.
 static func can_start(actor: Entity, customer: E_NpcCharacter) -> bool:
-	if not GrabQueries.holder_available(actor) or not EntityAvailability.contains(customer, ECS.world) or customer.has_component(C_Death):
+	if (
+		not GrabQueries.holder_available(actor)
+		or not EntityAvailability.contains(customer, ECS.world) or customer.has_component(C_Death)
+	):
 		return false
-	if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.PUSH or bool(Console.is_visible()):
+	if (
+		InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.PUSH
+		or bool(Console.is_visible())
+	):
 		return false
 
 	var visit: CustomerVisit = null
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	if agent != null:
 		visit = CustomerFlowQueries.find_visit(agent.visit_id)
-	if visit == null or visit.finished or (not customer.has_component(C_NpcIdentity) and CustomerPresentation.uses_quick_order(visit.definition)):
+	if (
+		visit == null or visit.finished
+		or (
+			not customer.has_component(C_NpcIdentity)
+			and CustomerPresentation.uses_quick_order(visit.definition)
+		)
+	):
 		return false
-	return agent.phase in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE] and customer.get_tree().get_nodes_in_group(ACTIVE_GROUP).is_empty()
+	return (
+		agent.phase in [C_CustomerAgent.Phase.WAITING, C_CustomerAgent.Phase.WAITING_FOR_PACKAGE]
+		and customer.get_tree().get_nodes_in_group(ACTIVE_GROUP).is_empty()
+	)
 
 
 ## Запрашивает native UI через явную синхронную границу после gameplay eligibility.
@@ -42,12 +57,16 @@ static func mark_opened(customer: E_NpcCharacter, captured_agent: C_CustomerAgen
 
 #endregion
 
+
 #region Игровой lifecycle разговора
 ## Переводит тот же действующий визит в диалог и запрашивает живую связь у NPC owner.
 static func begin(actor: Entity, customer: E_NpcCharacter, visit_id: StringName) -> bool:
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(visit_id)
-	if agent == null or agent.visit_id != visit_id or visit == null or visit.finished or customer.has_component(C_Death):
+	if (
+		agent == null or agent.visit_id != visit_id or visit == null
+		or visit.finished or customer.has_component(C_Death)
+	):
 		return false
 	if NpcDialogueService.participant(customer) != null:
 		return false
@@ -57,14 +76,21 @@ static func begin(actor: Entity, customer: E_NpcCharacter, visit_id: StringName)
 	return NpcDialogueService.begin(actor, customer)
 
 
-## Завершает разговор зарегистрированного тела; actor может отсутствовать после закрытия UI/lifetime boundary.
+## Завершает разговор зарегистрированного тела; actor может отсутствовать после закрытия UI/lifetime
+## boundary.
 static func end(actor: Entity, customer: E_NpcCharacter, visit_id: StringName) -> void:
-	if NpcDialogueService.participant(customer) == actor or not EntityAvailability.contains(actor, ECS.world):
+	if (
+		NpcDialogueService.participant(customer) == actor
+		or not EntityAvailability.contains(actor, ECS.world)
+	):
 		NpcDialogueService.end(customer)
 
 	var agent: C_CustomerAgent = customer.get_component(C_CustomerAgent) as C_CustomerAgent
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(visit_id)
-	if agent == null or agent.visit_id != visit_id or visit == null or visit.finished or customer.has_component(C_Death):
+	if (
+		agent == null or agent.visit_id != visit_id or visit == null
+		or visit.finished or customer.has_component(C_Death)
+	):
 		return
 	if agent.phase != C_CustomerAgent.Phase.DIALOGUE:
 		return

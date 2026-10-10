@@ -2,6 +2,7 @@ extends RefCounted
 ## Owns the live visit-to-parcel reservation; R_AssignedTo remains authoritative.
 class_name CustomerParcelAssignment
 
+
 #region Live parcel assignment
 ## Резервирует нужную коробку через R_AssignedTo, не меняя её физического положения.
 static func bind_parcel(customer: Entity, visit: CustomerVisit) -> void:
