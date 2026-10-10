@@ -78,6 +78,12 @@ the in-memory setting; the synchronous handler retains no Nodes or requests. The
 is not undoable. Reload Godot AI through `editor_reload_plugin` after tool registration.
 Focused tests: `res://tests/gut/test_pvz_translation_sources_tool.gd`.
 
+Preserved diagnostic project copies belong under
+`.artifacts/godot_agent/.tmp/isolated_snapshots/`, with `.gdignore` for native imports.
+Dialogue Manager has its own recursive scanner: it ignores `.godot` and `.tmp`, but does
+not honor `.gdignore`. Keeping copies under `.tmp` prevents a fresh scan from adding their
+dialogues back to translation sources. Do not modify the vendored scanner for this cleanup.
+
 ## Dependencies
 
 - Godot 4.7
