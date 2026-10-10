@@ -61,10 +61,10 @@ if ($Candidates.Count -eq 0) {
 }
 
 # Prefer the project's pinned 4.7.1 binary even if another Godot was copied later.
-$PinnedCandidates = @($Candidates | Where-Object { $_.Name -match "4\\.7\\.1" })
+$PinnedCandidates = @($Candidates | Where-Object { $_.Name -match "4\.7\.1" })
 $GodotExe = if ($PinnedCandidates.Count -gt 0) { $PinnedCandidates[0] } else { $Candidates[0] }
 if ($Candidates.Count -gt 1) {
-    Write-Host "[Godot] Multiple editor binaries found; using newest: $($GodotExe.Name)"
+    Write-Host "[Godot] Multiple editor binaries found; using selected: $($GodotExe.Name)"
 }
 
 if ($null -eq (Get-Command uvx.exe -ErrorAction SilentlyContinue) -and
