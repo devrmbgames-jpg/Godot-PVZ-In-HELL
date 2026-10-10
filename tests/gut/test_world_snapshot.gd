@@ -3,6 +3,7 @@ extends GutTest
 ## живого состояния.
 
 const SAVE_PATH: String = "user://gut_r21_world_snapshot.pvzh"
+const SAVE_LEVEL_FIXTURE: Script = preload("res://tests/fixtures/save_level_fixture.gd")
 const _PACKAGE_SCENE_PATH: String = "res://content/domains/packages/entities/package.tscn"
 
 const ANCHORABLE_TEST_BOX_PATH: String = (
@@ -721,13 +722,59 @@ func test_rejected_schema_slot_is_protected_from_later_night_and_other_slot_is_a
 	assert_true(cycle.night_ready)
 	assert_eq(FileAccess.get_file_as_bytes(SAVE_PATH), bytes_before)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(state.path))
+
+
+## Newer and malformed current slots reject before gameplay mutation and remain protected.
+func test_rejected_newer_and_invalid_slots_preserve_bytes_and_live_state() -> void:
+	var valid: Dictionary = WorldSnapshotService.capture(_root, 1)
+	assert_true(WorldSnapshotService.can_restore(valid, _root))
+	var newer: Dictionary = valid.duplicate(true)
+	newer.version = AutosaveStore.SCHEMA_VERSION + 1
+	var malformed: Dictionary = valid.duplicate(true)
+	malformed.raw_actors = [{ "actor_id": "placed/invalid", "present": true }]
+	var state: C_Autosave = _session.get_component(C_Autosave) as C_Autosave
+	var cycle: C_DayCycle = DayPhaseQueries.current()
+	var wallet: C_Wallet = _session.get_component(C_Wallet) as C_Wallet
+	wallet.balance = -37
+	for snapshot: Dictionary in [newer, malformed]:
+		cycle.phase = C_DayCycle.Phase.MORNING
+		state.rejected_path = ""
+		state.retry_remaining = 0.0
+		assert_eq(AutosaveStore.write(snapshot, SAVE_PATH), OK)
+		var retained: PackedByteArray = FileAccess.get_file_as_bytes(SAVE_PATH)
+		assert_false(NightSaveService.restore_startup(_root, state))
+		assert_eq(state.rejected_path, SAVE_PATH)
+		assert_false(state.startup_status.is_empty())
+		assert_eq(wallet.balance, -37)
+		assert_eq(InventoryService.items(_actor).size(), 1)
+		cycle.phase = C_DayCycle.Phase.NIGHT
+		_night_step(0.2)
+		assert_eq(state.last_error, ERR_UNAUTHORIZED)
+		assert_eq(state.started_night, 0, "Rejected slot stops before preparation or side effects")
+		assert_eq(wallet.balance, -37)
+		assert_eq(FileAccess.get_file_as_bytes(SAVE_PATH), retained)
 #endregion
 
 
 #region Selected-slot and receiving preflight
+func _attach_native_catalog() -> void:
+	var native: Node3D = SAVE_LEVEL_FIXTURE.create_shell()
+	_root.scene_file_path = native.scene_file_path
+	var actors: Node = native.get_node("Entityes")
+	actors.owner = null
+	for node: Node in actors.find_children("*", "", true, false):
+		if node.owner == native:
+			node.owner = null
+	native.remove_child(actors)
+	_root.add_child(actors)
+	for body: Node in actors.find_children("*", "RigidBody3D", true, false):
+		body.owner = _root
+	native.free()
+
+
 ## A compatible manual handoff retains automatic rejected-slot protection through the next Night.
 func test_selected_snapshot_does_not_overwrite_rejected_automatic_slot() -> void:
-	_root.scene_file_path = GameSessionService.MAIN_LEVEL
+	_attach_native_catalog()
 	var selected: Dictionary = WorldSnapshotService.capture(_root, 1)
 	var old: Dictionary = selected.duplicate(true)
 	old.version = AutosaveStore.SCHEMA_VERSION - 1
@@ -743,6 +790,26 @@ func test_selected_snapshot_does_not_overwrite_rejected_automatic_slot() -> void
 	_night_step(0.1)
 	assert_eq(state.last_error, ERR_UNAUTHORIZED)
 	assert_eq(FileAccess.get_file_as_bytes(SAVE_PATH), retained)
+
+
+## Explicit New Game starts a fresh workflow authorized to replace its incompatible auto slot.
+func test_explicit_new_game_can_write_a_new_slot_over_incompatible_data() -> void:
+	_attach_native_catalog()
+	var incompatible: Dictionary = { "version": AutosaveStore.SCHEMA_VERSION + 1 }
+	assert_eq(AutosaveStore.write(incompatible, SAVE_PATH), OK)
+	(GameSessionService as Script).set("_pending_level", _root.scene_file_path)
+	(GameSessionService as Script).set("_pending_snapshot", { })
+	var state: C_Autosave = _session.get_component(C_Autosave) as C_Autosave
+	GameSessionService.restore_startup(_root, state)
+	assert_eq(state.startup_status, "Новое прохождение")
+	assert_eq(state.rejected_path, "", "Explicit New Game uses a fresh authorized save workflow")
+	DayPhaseQueries.current().phase = C_DayCycle.Phase.NIGHT
+	_night_step(0.2)
+	assert_eq(state.last_error, OK)
+	assert_true(DayPhaseQueries.current().night_ready)
+	var saved: Dictionary = AutosaveStore.read(SAVE_PATH)
+	assert_eq(saved.version, AutosaveStore.SCHEMA_VERSION)
+	assert_true(WorldSnapshotService.can_restore(saved, _root))
 
 
 ## A retained recipe pointing at a non-package prefab rejects before changing the live

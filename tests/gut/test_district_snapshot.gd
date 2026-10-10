@@ -120,6 +120,23 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	job.day_index = 2
 	job.deadline_day = 3
 	_district.home_deliveries.append(job)
+	for index: int in 2:
+		var previous: NpcRecord = _district.people[index]
+		var historical_visit: CustomerVisit = CustomerVisit.new()
+		historical_visit.visit_id = StringName("test/previous_visit_%d" % index)
+		historical_visit.package_id = "test/previous_box_%d" % index
+		historical_visit.customer_id = previous.npc_id
+		historical_visit.definition = visit.definition
+		CustomerFlowQueries.current().visits.append(historical_visit)
+		var historical_job: NpcHomeDelivery = NpcHomeDelivery.new()
+		historical_job.job_id = StringName("test/previous_job_%d" % index)
+		historical_job.npc_id = previous.npc_id
+		historical_job.visit_id = historical_visit.visit_id
+		historical_job.package_id = historical_visit.package_id
+		historical_job.address_id = previous.home_id
+		historical_job.order_number = index + 2
+		historical_job.status = NpcHomeDelivery.Status.EXPIRED
+		_district.home_deliveries.append(historical_job)
 	DistrictPopulationService.mark_dead(
 		_district.people[0],
 		NpcPopulationQueries.body_for(_district.people[0].npc_id),
@@ -159,6 +176,22 @@ func test_night_write_retry_keeps_replacement_and_promise_once() -> void:
 	assert_eq(NpcPopulationQueries.person_for(_district.people[0].npc_id).death_day, 1)
 	assert_eq(NpcPopulationQueries.current().home_deliveries[0].order_number, 1)
 	assert_eq(NpcPopulationQueries.current().people.back().npc_id, replacement_id)
+	assert_eq(NpcPopulationQueries.current().home_deliveries.size(), 3)
+	for previous: NpcRecord in _district.people:
+		if previous.death_day == 0 or not previous.home_id.is_empty():
+			continue
+		var invalid: Dictionary = snapshot.duplicate(true)
+		for record: Dictionary in invalid.entities:
+			for component: Dictionary in record.components:
+				if component.type != (C_District as Script).resource_path:
+					continue
+				for historical: Dictionary in component.fields.home_deliveries:
+					if historical.fields.npc_id == previous.npc_id:
+						historical.fields.status = NpcHomeDelivery.Status.ACCEPTED
+		assert_false(
+			WorldSnapshotService.can_restore(invalid, _root),
+			"An active promise cannot use a released deceased address",
+		)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(state.path))
 #endregion
 

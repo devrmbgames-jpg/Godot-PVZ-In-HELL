@@ -1,6 +1,6 @@
 # Сохранение — согласованный снимок, версия и повтор ночной записи
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Родительский этап: [Утренняя машина](district_morning_truck.md). Порядок выполнения: [общая задача](district_service_update.md).
 
@@ -15,23 +15,51 @@ Status: **PLANNED**
 
 ### Current
 
-Каждая предыдущая задача сохраняет введённые ею данные. Здесь завершается общий контракт.
-Текущий `AutosaveStore.SCHEMA_VERSION = 12`, а стабильные authored ID и closed decoder
-уже внедрены. Старое название файла сохранено для ссылок; требование схемы 3 устарело.
-Версию следующего несовместимого изменения выбирать от фактической базы реализации,
-не фиксировать заранее и не откатывать формат. Реализация и автоматическая приёмка
-обратного груза завершены; его OWNER_QA остаётся в собственной задаче и не препятствует
-этому аудиту. Общая приёмка снимка здесь ещё не выполнена.
+Согласованный снимок проверен на реальном main_level и в новом процессе. Исправлен
+preflight исторической доставки: после заселения `home_id` погибшего жителя освобождается,
+но закрытое предложение сохраняет прежний адрес. Validator разрешает эту историю только
+для погибшего resident с освобождённым адресом; активное обязательство отклоняется.
+Поля и значения формата не изменены: `AutosaveStore.SCHEMA_VERSION = 12` сохранена.
+Название файла историческое, требование схемы 3 не возвращать.
+
+Тесты выбора игровых слотов используют минимальный native каталог main_level вместо
+фиктивной сцены с подставленным путём. Расширенный Night smoke проверяет семь полных
+доменных агрегатов, два ночных перехода, реальную ошибку I/O, три повтора каждой записи,
+fresh-process restore и одно заселение без повторных последствий.
+Следующее: immutable-SHA review/triage; обязательная ручная приёмка остаётся открытой.
 
 ### Validation
 
-Эта выделенная задача ещё не прошла приёмку. Ранее выполненные проверки в Current или родительском файле — контрольные точки; новые проверки записывать только после фактического запуска.
+Фактические проверки 2026-10-10, Godot 4.7.1, текущий worktree с сохранёнными
+пользовательскими изменениями; это не доказательство тестирования immutable snapshot:
 
-Parser, профильные GUT persistence и ограниченный round-trip/headless сценарий ошибки и повторной записи. Общий многодневный smoke выполняется в финальной задаче.
+- GUT через `utils/godot_agent.ps1 -Action GUT -TestPath res://tests/gut/<file>.gd`:
+  `test_world_snapshot` 30/30, 352 asserts (`gut-20261010-134923778`),
+  `test_game_session` 6/6, 43 (`gut-20261010-133636661`),
+  `test_save_data` 6/6, 40 (`gut-20261010-133050853`) — wrapper PASS.
+- `test_district_snapshot` 13/13, 130 (`gut-20261010-134644372`) и
+  `test_refactoring_v2_persistence_baseline` 5/5, 336 (`gut-20261010-133053202`): assertions/native exit 0;
+  wrapper FAIL из-за shutdown-only Resource/RID retention. Всего 60 tests / 901 asserts.
+- Parser текущих пяти скриптов PASS (`parsefiles-20261010-135811294`).
+  District fixture отдельно: native parser PASS 1/1, exit 0;
+  `.artifacts/godot_agent/task16-district-isolated-parser.log` сохраняет shutdown warnings.
+  Пакетный parser шести файлов FAIL (`parsefiles-20261010-134937938`): helper считает
+  эти warnings ошибкой isolated compilation. Реальных compile failures нет.
+  Shutdown-only категория — `KNOWN_ENGINE_LIMITATION / DEFERRED`, не fake wrapper PASS.
+- `utils/run_smoke.ps1 -Name night_persistence -GodotPath .bin/Godot_v4.7.1-stable_win64_console.exe -Frames 1600`:
+  write/restore PASS/PASS; `tests/artifacts/night_persistence-write-20261010-234658155.log`
+  и `night_persistence-restore-20261010-234716388.log`; без runtime/script errors.
+- Raw earlier/fresh-instance restore, pending recipe rejection и cargo capture barrier
+  уже проверены в [задаче груза](district_truck_returns_resale.md); здесь smoke дополнительно
+  восстанавливает native raw tombstone вместе с двумя cargo receipts.
+- PASS: incremental formatter/lint (6 files), staged agent-change gate,
+  strict architecture (0 findings), project structure и persistence baseline inventory.
+  Review фиксируется после фактического выполнения; общий многодневный smoke — финальная задача.
 
 ### Owner QA / blockers
 
-Владелец позднее проверяет сообщение о несовместимом файле и продолжение нового сохранения.
+[Ручная приёмка сохранений](../qa_tasks/district_save_snapshot.md) — PENDING_OWNER_QA.
+Rendered gameplay NOT_RUN. Source review пока REVIEW_PENDING; до triage не DONE.
 
 ## Границы и владельцы
 
@@ -52,22 +80,23 @@ Parser, профильные GUT persistence и ограниченный round-t
 
 ## Работы
 
-- [ ] Сверить snapshot поступлений, заметок, жалоб/уведомлений, предложений и цены торга, ожидающего дропа, мебели, партии машины и операций продажи.
-- [ ] Сверить raw/scriptless placements с журналом груза: стабильные
+- [x] Сверить snapshot поступлений, заметок, жалоб/уведомлений, предложений и цены торга, ожидающего дропа, мебели, партии машины и операций продажи.
+- [x] Сверить raw/scriptless placements с журналом груза: стабильные
   `raw_actor/placed/<UUID>`, presence/pose и native authored recipe. Более ранний снимок
   возвращает утилизированный предмет, более поздний убирает его из новой сцены;
   grab-proxy/NodePath/instance ID не сохраняются. Неполная утилизация ad-hoc runtime тела
   без рецепта отклоняется до мутации; capture посреди cargo commit также отклоняется.
-- [ ] Сохранить отсутствующих/погибших постоянных NPC и согласованное размещение; Node, Blackboard и кеши восприятия не сериализовать.
-- [ ] Проверить повтор ночного перехода/ошибку записи: не повторяются выплаты, последствия обещаний, коробки, жители и заселение.
-- [ ] При изменении сохранённых полей/путей/смысла повысить фактическую supported schema;
+- [x] Сохранить отсутствующих/погибших постоянных NPC и согласованное размещение; Node, Blackboard и кеши восприятия не сериализовать.
+- [x] Проверить повтор ночного перехода/ошибку записи: не повторяются выплаты, последствия обещаний, коробки, жители и заселение.
+- [x] При изменении сохранённых полей/путей/смысла повысить фактическую supported schema;
   обновить closed guards, golden fixture и save-visible inventory. Неподдерживаемые
   старые/newer/invalid форматы отвергать до изменения мира с понятным сообщением.
-- [ ] Сохранить несовместимый файл побайтно и защитить rejected slot от последующего
+- [x] Сохранить несовместимый файл побайтно и защитить rejected slot от последующего
   Night/autosave; замена только через явный New Game или другой slot, без конвертера.
-- [ ] Проверить восстановление в новой сессии, а не только encode/decode одного объекта.
+- [x] Проверить восстановление в новой сессии, а не только encode/decode одного объекта.
   Проверки используют отдельные тестовые слоты и native authored fixtures;
   не перезаписывают сохранения владельца и не ослабляют preflight ради фиктивной сцены.
+- [ ] Собрать и triage immutable-SHA review, затем закрыть обязательную owner acceptance.
 
 ## Критерии завершения
 

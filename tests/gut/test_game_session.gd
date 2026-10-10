@@ -3,6 +3,7 @@ extends GutTest
 
 const SAVE_PATH: String = "user://r34_service_test.pvzh"
 const SETTINGS_PATH: String = "user://r34_settings_test.cfg"
+const SAVE_LEVEL_FIXTURE: Script = preload("res://tests/fixtures/save_level_fixture.gd")
 var _root: Node
 var _world: World
 var _actor: Entity
@@ -13,8 +14,7 @@ var _cycle: C_DayCycle
 #region Подготовка и очистка
 ## Создаёт авторские сущности минимальной игровой сессии с актуальным ECS.world.
 func before_each() -> void:
-	_root = Node.new()
-	_root.scene_file_path = GameSessionService.MAIN_LEVEL
+	_root = SAVE_LEVEL_FIXTURE.create_shell()
 	add_child(_root)
 	_world = World.new()
 	_root.add_child(_world)
@@ -60,6 +60,7 @@ func test_own_pause_token_allows_save_and_real_slot_round_trip() -> void:
 	var result: GameSaveResult = GameSessionService.save_game(_root, self, SAVE_PATH)
 	assert_true(result.success, result.message)
 	var data: Dictionary = AutosaveStore.read(SAVE_PATH)
+	assert_eq((data.raw_actors as Array).size(), 3, "Complete native main-level raw catalog")
 	assert_eq(String(data.level_scene), GameSessionService.MAIN_LEVEL)
 	assert_true(WorldSnapshotService.can_restore(data, _root))
 	assert_eq(_cycle.phase, C_DayCycle.Phase.MORNING)

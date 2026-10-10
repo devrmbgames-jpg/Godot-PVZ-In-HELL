@@ -235,9 +235,15 @@ static func _deliveries_valid(
 			return false
 		var address: DEF_DistrictPlace = district.definition.place_for(job.address_id)
 		var person: NpcRecord = people[job.npc_id]
+		# Replacement releases the deceased resident's home; closed jobs retain its history.
+		var historical_address: bool = (
+			person.death_day > 0 and person.home_id.is_empty()
+			and job.status not in [NpcHomeDelivery.Status.OFFERED, NpcHomeDelivery.Status.ACCEPTED]
+		)
 		if (
 			address == null or address.kind != DEF_DistrictPlace.Kind.HOME
-			or not person.profile.resident or person.home_id != job.address_id
+			or not person.profile.resident
+			or (person.home_id != job.address_id and not historical_address)
 		):
 			return false
 		var visit: CustomerVisit = visits.get(job.visit_id) as CustomerVisit
