@@ -25,10 +25,11 @@ Status: **IN_PROGRESS**
 один связный многодневный headless сценарий с полным перечисленным acceptance, затем
 выполнить итоговый batch и Windows export. Сборка и финальная приёмка ещё NOT_RUN.
 
-Baseline district smoke остановился до первого дня на устаревшем требовании legacy
-junction graph. Дефект и ограниченный repair принадлежат
-[отдельной задаче validator](warehouse_navigation_validation_contract.md). Связная
-приёмка района остаётся открытой; геометрию/navmesh владельца не менять ради этого gate.
+Baseline district smoke выявил устаревший legacy junction graph gate. Исправление и
+review/triage закрыты в [задаче validator](completed/warehouse_navigation_validation_contract.md).
+Повторный недельный district smoke PASS: семь дней, Night/save/restore и 12 records/bodies
+через Morning8. Этот сценарий не покрывает все требуемые терминал/LOST/доставку/мебель/груз;
+связная итоговая приёмка остаётся открытой. Геометрия/navmesh владельца не изменялись.
 
 ### Validation
 
@@ -45,6 +46,8 @@ MCP недоступность не заменяет engine checks; shutdown-onl
 ### Owner QA / blockers
 
 Rendered gameplay, визуальная съёмка и субъективная приёмка владельца не выполняются автоматически.
+Подготовлен [связный чеклист итоговой сборки](../qa_tasks/district_release_validation.md),
+PENDING_OWNER_QA; runnable build для этой приёмки ещё NOT_BUILT.
 
 ## Границы и владельцы
 
@@ -59,7 +62,7 @@ Rendered gameplay, визуальная съёмка и субъективная
 - [ ] Провести один ограниченный многодневный headless smoke: второй день, очередь/свет, терминал/ручной LOST, доставка, мебель, машина и сохранение без повторных операций.
 - [ ] Собрать Windows QA в .export штатным способом и проверить запуск в разрешённом headless режиме.
 - [ ] Записать фактические команды/результаты; не считать раннюю контрольную точку или остановленный по лимиту прогон итоговым PASS.
-- [ ] Оформить ручные пункты маршрутов, BT, мерцания, UI, ловушки, мебели и машины.
+- [x] Оформить ручные пункты маршрутов, BT, мерцания, UI, ловушки, мебели и машины.
   Обязательная owner acceptance оставляет задачу активной до решения владельца;
   чеклист не отменяет её. DONE/архивирование — после всех required gates и review/triage;
   явно отложенные subjective polish пункты можно передать в `qa_tasks/`.
