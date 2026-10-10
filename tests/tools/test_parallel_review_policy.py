@@ -16,7 +16,8 @@ class ParallelReviewPolicyTests(unittest.TestCase):
     def test_one_child_parallel_with_main(self) -> None:
         config = tomllib.loads(read(".codex/config.toml"))
         self.assertTrue(config["agents"]["enabled"])
-        self.assertEqual(1, config["agents"]["max_concurrent_threads_per_session"])
+        # The host budget counts Main plus its sole read-only child.
+        self.assertEqual(2, config["agents"]["max_concurrent_threads_per_session"])
         self.assertIn("reviewer", config["agents"])
         self.assertIn("validator", config["agents"])
 
@@ -42,10 +43,14 @@ class ParallelReviewPolicyTests(unittest.TestCase):
 
     def test_main_owns_triage_and_blocks_unreviewed_milestone(self) -> None:
         policy = read("AGENTS.md")
-        for token in ("Main is the only code writer", "REVIEW_PENDING",
-                      "P0/P1/P2", "review-orchestration", "independent work"):
+        for token in ("main is the sole code writer", "REVIEW_PENDING",
+                      "at most one native child agent", "immutable Git SHAs", "review-orchestration"):
             with self.subTest(token=token):
                 self.assertIn(token, policy)
+        skill = read(".agents/skills/review-orchestration/SKILL.md")
+        self.assertIn("Continue independent work", skill)
+        for severity in ("P0", "P1", "P2"):
+            self.assertIn(f"**{severity}:**", skill)
 
     def test_skill_metadata_and_repair_limit(self) -> None:
         skill = read(".agents/skills/review-orchestration/SKILL.md")

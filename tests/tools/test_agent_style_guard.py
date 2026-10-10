@@ -94,10 +94,9 @@ class StyleGuardTests(unittest.TestCase):
                 issues, skipped = style.inspect_file(root, "c_test.gd", None, "gdscript-formatter")
             self.assertFalse(skipped)
             self.assertEqual([], issues)
-            self.assertEqual(3, len(commands))
+            self.assertEqual(2, len(commands))
             self.assertEqual(["lint", "c_test.gd", "--max-line-length", "100", "--disable", "class-name"], commands[0][1:])
-            self.assertEqual("--check", commands[1][1])
-            self.assertEqual("--verify-structure", commands[2][1])
+            self.assertEqual(["--check", "--verify-structure", "c_test.gd"], commands[1][1:])
 
     def test_explicit_formatter_path_can_be_used(self) -> None:
         import os
