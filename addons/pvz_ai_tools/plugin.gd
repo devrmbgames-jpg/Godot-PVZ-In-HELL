@@ -149,6 +149,7 @@ func _register_tools() -> void:
 				"additionalProperties": false,
 			},
 		),
+		_editor_ownership_spec(),
 	]
 
 	_registered = _registry.batch_register(specs)
@@ -175,6 +176,28 @@ func _make_spec(
 	spec.undoable = false
 	spec.deferred = true
 	spec.timeout_ms = 7000
+	return spec
+
+
+## This editor-only query is synchronous, read-only and never changes ownership.
+func _editor_ownership_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_editor_ownership"
+	spec.description = "List currently open and unsaved Godot Editor scenes before authoring, reload or save."
+	spec.params_schema = {
+		"type": "object",
+		"properties": {},
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/editor_ownership_tool.gd"
+	spec.method = &"inspect"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.promoted = true
+	spec.requires_writable = false
+	spec.undoable = false
+	spec.deferred = false
+	spec.timeout_ms = 3000
 	return spec
 
 
