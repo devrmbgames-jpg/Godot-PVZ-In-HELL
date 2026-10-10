@@ -1,0 +1,15 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" uid="uid://dlwax2x6w3y5q" path="res://content/domains/npc/components/c_npc_identity.gd" id="5_s5cpd"]
+[ext_resource type="Script" uid="uid://ci5p5fttb3jl1" path="res://content/shared/components/c_persistent_identity.gd" id="6_8pob2"]
+[ext_resource type="Script" uid="uid://cdblg8bcbkrs8" path="res://content/domains/motion/components/c_motion.gd" id="7_x5jro"]
+[ext_resource type="Script" uid="uid://bh1l24fdkshu6" path="res://content/domains/npc/authoring/et_npc_identity.gd" id="Identity"]
+[resource]
+script = ExtResource("Identity")
+trait_id = &"npc_identity"
+required_components = Array[Script]([ExtResource("7_x5jro")])
+required_root_class = &"RigidBody3D"
+initial_field_names = Dictionary[Script, PackedStringArray]({
+ExtResource("5_s5cpd"): PackedStringArray("npc_id"),
+ExtResource("6_8pob2"): PackedStringArray("key")
+})

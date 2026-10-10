@@ -29,12 +29,9 @@
 
 [ext_resource type="Script" path="res://content/domains/motion/components/c_stamina.gd" id="Stamina"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
-[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_entity_physical_impact.tres" id="ImpactTemplate"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="ImpactAuthoring"]
-script = ExtResource("ImpactAuthoring")
-entity_template = ExtResource("ImpactTemplate")
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_1"]
 
 [sub_resource type="Resource" id="Stamina"]
 resource_local_to_scene = true
@@ -118,10 +115,10 @@ script = ExtResource("ImpactReceiver")
 profile = ExtResource("LivingImpact")
 
 [node name="CharacterBodyPlayer" type="CharacterBody3D" unique_id=1703744943 node_paths=PackedStringArray("interaction_ray_cast", "hold_anchor", "right_hand_slot", "left_hand_slot", "lowered_right_hand_slot", "lowered_left_hand_slot", "shape_standing", "shape_crouching", "camera_root", "ray_standing", "crouch_mounts", "head_axis_y", "head_axis_x", "ground_ray")]
-metadata/entity_composition = SubResource("ImpactAuthoring")
+script = ExtResource("1_hqtr2")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1")])
 collision_layer = 16
 collision_mask = 31
-script = ExtResource("1_hqtr2")
 interaction_ray_cast = NodePath("HeadY/HeadX/HeadRoot/InteractionRay")
 hold_anchor = NodePath("HeadY/HeadX/HeadRoot/Holder")
 right_hand_slot = NodePath("HeadY/HeadX/HeadRoot/ArmRSlot")

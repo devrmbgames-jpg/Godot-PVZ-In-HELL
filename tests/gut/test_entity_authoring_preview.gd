@@ -30,7 +30,10 @@ func test_native_level_preview_keeps_physics_and_registration_detached() -> void
 ## Duplicate local IDs abort the scene report before any native publication.
 func test_duplicated_instance_identity_is_actionable() -> void:
 	var level: Node = autofree(_LEVEL.instantiate()) as Node
-	level.get_node("Box").set_meta(PlacedIdentityRules.LOCAL_ID_META, &"resident")
+	level.get_node("Box").set_meta(
+		PlacedIdentityRules.LOCAL_ID_META,
+		level.get_node("Resident").get_meta(PlacedIdentityRules.LOCAL_ID_META),
+	)
 	var report: Dictionary = EntityAuthoringPreviewRules.inspect_scene(level)
 	assert_false(report.valid)
 	assert_string_contains(JSON.stringify(report.issues), "Duplicate placed identity")
@@ -48,7 +51,7 @@ func test_missing_level_identity_is_reported() -> void:
 
 ## Named Home/Workplace-style endpoints use the runtime binding validation and keep provenance.
 func test_missing_named_endpoint_is_actionable_without_live_relationships() -> void:
-	var actor: Entity = autofree(Entity.new()) as Entity
+	var actor: Entity = autofree(E_TraitedEntity.new()) as Entity
 	var binding: EntityInitialBinding = EntityInitialBinding.new()
 	binding.endpoint = &"Home"
 	binding.relation = R_SlotMountedOn.new()
@@ -57,9 +60,8 @@ func test_missing_named_endpoint_is_actionable_without_live_relationships() -> v
 	capability.initial_bindings = [binding]
 	var template: DEF_EntityTemplate = DEF_EntityTemplate.new()
 	template.traits = [capability]
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	authoring.entity_template = template
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
+	authoring.traits = template.traits
 	var report: Dictionary = EntityAuthoringPreviewRules.inspect_scene(actor)
 	assert_false(report.valid)
 	assert_string_contains(JSON.stringify(report.actors), "Home")
@@ -68,7 +70,7 @@ func test_missing_named_endpoint_is_actionable_without_live_relationships() -> v
 
 ## Provider conflicts from the runtime compiler remain visible in the Advanced report.
 func test_conflicting_template_reports_component_provider_provenance() -> void:
-	var actor: Entity = autofree(Entity.new()) as Entity
+	var actor: Entity = autofree(E_TraitedEntity.new()) as Entity
 	actor.name = "ConflictingActor"
 	actor.component_resources = [C_Health.new()]
 	var capability: EntityTrait = EntityTrait.new()
@@ -76,9 +78,8 @@ func test_conflicting_template_reports_component_provider_provenance() -> void:
 	capability.component_recipes = [C_Health.new()]
 	var template: DEF_EntityTemplate = DEF_EntityTemplate.new()
 	template.traits = [capability]
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	authoring.entity_template = template
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
+	authoring.traits = template.traits
 	var report: Dictionary = EntityAuthoringPreviewRules.inspect_scene(actor)
 	assert_false(report.valid)
 	assert_string_contains(JSON.stringify(report.actors), "duplicate_provider")
@@ -88,15 +89,14 @@ func test_conflicting_template_reports_component_provider_provenance() -> void:
 
 ## A missing structural node is diagnosed before engine setup rather than repaired by preview.
 func test_missing_required_node_is_reported_without_scene_repair() -> void:
-	var actor: Entity = autofree(Entity.new()) as Entity
+	var actor: Entity = autofree(E_TraitedEntity.new()) as Entity
 	var capability: EntityTrait = EntityTrait.new()
 	capability.trait_id = &"requires_marker"
 	capability.required_nodes = [NodePath("Home")]
 	var template: DEF_EntityTemplate = DEF_EntityTemplate.new()
 	template.traits = [capability]
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	authoring.entity_template = template
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
+	authoring.traits = template.traits
 	var report: Dictionary = EntityAuthoringPreviewRules.inspect_scene(actor)
 	assert_false(report.valid)
 	assert_string_contains(JSON.stringify(report.actors), "missing_node")
@@ -124,19 +124,16 @@ func test_snapshot_bundles_unsaved_external_template_values() -> void:
 	var actor: Entity = autofree(
 		load("res://content/domains/interaction/entities/box.tscn").instantiate()
 	) as Entity
-	var authoring: EntityAuthoring = actor.get_meta(EntityCompositionService.AUTHORING_META) \
-			as EntityAuthoring
-	var template: DEF_EntityTemplate = ResourceLoader.load(
-		authoring.entity_template.resource_path,
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
+	var capability: EntityTrait = ResourceLoader.load(
+		authoring.traits[0].resource_path,
 		"",
 		ResourceLoader.CACHE_MODE_IGNORE_DEEP,
-	) as DEF_EntityTemplate
-	var original_path: String = template.resource_path
+	) as EntityTrait
+	var original_path: String = capability.resource_path
 	var original_text: String = FileAccess.get_file_as_string(original_path)
-	template.traits[0].required_nodes = [NodePath("UnsavedMarkerRequirement")]
-	authoring = authoring.duplicate() as EntityAuthoring
-	authoring.entity_template = template
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	capability.required_nodes = [NodePath("UnsavedMarkerRequirement")]
+	authoring.traits = [capability]
 	var snapshot: PackedScene = EntityAuthoringSnapshotRules.capture(actor)
 	assert_not_null(snapshot)
 	var scene_file: String = "res://".path_join(".artifacts/authoring_snapshot_check.tscn")
@@ -169,10 +166,9 @@ func test_snapshot_field_provenance_uses_original_authored_trait_paths() -> void
 	for capability: EntityTrait in authored_template.traits:
 		if capability is ET_NpcBrainState:
 			template.traits.append(capability)
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	authoring.entity_template = template
+	var authoring: E_TraitedEntity = resident as E_TraitedEntity
+	authoring.traits = template.traits
 	authoring.definitions[&"npc_profile"] = DEF_NpcProfile.new()
-	resident.set_meta(EntityCompositionService.AUTHORING_META, authoring)
 	var snapshot: PackedScene = EntityAuthoringSnapshotRules.capture(level)
 	var scene_file: String = "res://".path_join(".artifacts/authoring_provenance_check.tscn")
 	assert_eq(ResourceSaver.save(snapshot, scene_file), OK)

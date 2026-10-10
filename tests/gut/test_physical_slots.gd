@@ -3,7 +3,7 @@ extends GutTest
 
 
 ## Минимальный участник предоставляет сервисам физические опоры и луч тестового окружения.
-class Actor extends Entity:
+class Actor extends E_TraitedEntity:
 	## Тестовый луч, используемый сервисом наведения.
 	var interaction_ray_cast: RayCast3D
 	## Тестовая опора переноса груза.
@@ -286,10 +286,7 @@ func test_nested_slot_mount_is_validated_before_native_registration() -> void:
 	assert_eq(publications, [nested_slot])
 	assert_eq(nested_slot.relationships.size(), 1)
 	assert_eq(nested_slot.relationships[0].target, _actor)
-	var template: DEF_EntityTemplate = EntityCompositionService.authoring_for(
-		nested_slot
-	).entity_template
-	var prototype: Component = template.traits[0].initial_bindings[0].relation
+	var prototype: Component = nested_slot.traits[0].initial_bindings[0].relation
 	assert_ne(nested_slot.relationships[0].relation, prototype)
 	assert_false(EntityCompositionService.register_plan(context, plan, false))
 	assert_eq(publications.size(), 1)
@@ -321,11 +318,10 @@ func test_slot_missing_anchor_rejects_initial_recipe() -> void:
 
 ## Two scene endpoint authors cannot silently overwrite one another during context capture.
 func test_conflicting_local_and_ancestor_endpoint_names_reject_authoring() -> void:
-	var actor: Entity = autofree(Entity.new()) as Entity
-	var authoring: EntityAuthoring = EntityAuthoring.new()
+	var actor: Entity = autofree(E_TraitedEntity.new()) as Entity
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
 	authoring.bindings[&"mounted_on"] = NodePath("..")
 	authoring.ancestor_entity_bindings = PackedStringArray(["mounted_on"])
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
 	var context: EntitySpawnContext = EntityCompositionService.context_for(actor, _world,
 		"fixture/ambiguous_mount")
 	var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)

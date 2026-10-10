@@ -1,0 +1,14 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" uid="uid://bot1frswt3a3n" path="res://content/domains/packages/components/c_package.gd" id="5_sto5l"]
+[ext_resource type="Script" uid="uid://ckrs5mll5pka1" path="res://content/domains/combat/components/c_health.gd" id="6_sj6jl"]
+[ext_resource type="Script" uid="uid://b3if3it5ryfeh" path="res://content/domains/combat/components/c_impact_receiver.gd" id="7_1r53s"]
+[ext_resource type="Script" uid="uid://dc1022koex5v6" path="res://content/domains/packages/authoring/et_package_state.gd" id="8_4krgg"]
+[resource]
+script = ExtResource("8_4krgg")
+trait_id = &"package_state"
+required_components = Array[Script]([ExtResource("5_sto5l"), ExtResource("6_sj6jl"), ExtResource("7_1r53s")])
+required_root_class = &"RigidBody3D"
+initial_field_names = Dictionary[Script, PackedStringArray]({
+ExtResource("5_sto5l"): PackedStringArray("delivery_day", "supply_key")
+})

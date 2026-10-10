@@ -310,17 +310,16 @@ func test_customer_factory_publishes_visit_policy_before_entity_added() -> void:
 ## Conflicting providers leave visit/history/registry/SceneTree unchanged.
 func test_rejected_customer_recipe_preserves_unstarted_visit() -> void:
 	var visit: CustomerVisit = _visit(&"rejected-customer")
-	var template: DEF_EntityTemplate = load(
-		"res://content/domains/customers/definitions/def_entity_customer_visit.tres") \
-		as DEF_EntityTemplate
+	var capability: EntityTrait = load(
+		"res://content/domains/combat/authoring/et_impact_capture.tres") as EntityTrait
 	var duplicate: EntityTrait = EntityTrait.new()
 	duplicate.trait_id = &"conflicting-motion"
 	duplicate.component_recipes = [C_Motion.new()]
-	template.traits.append(duplicate)
+	capability.component_recipes.append(duplicate.component_recipes[0])
 	var entity_count: int = _world.entities.size()
 	var child_count: int = get_child_count()
 	CustomerFlowService.start_visit(_flow, visit, 1)
-	template.traits.erase(duplicate)
+	capability.component_recipes.erase(duplicate.component_recipes[0])
 	assert_false(visit.started)
 	assert_false(visit.finished)
 	assert_eq(visit.visit_count, 0)

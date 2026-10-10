@@ -13712,21 +13712,6 @@
       "uid": "uid://ctlimhx2w8ml6"
     },
     {
-      "source": "content/shared/authoring/entity_authoring.gd",
-      "target": "content/shared/authoring/entity_authoring.gd",
-      "owner": "shared",
-      "role": "authoring",
-      "task": "retain"
-    },
-    {
-      "source": "content/shared/authoring/entity_authoring.gd.uid",
-      "target": "content/shared/authoring/entity_authoring.gd.uid",
-      "owner": "shared",
-      "role": "authoring",
-      "task": "retain",
-      "uid": "uid://dqu81i08jek6l"
-    },
-    {
       "source": "content/shared/services/entity_composition_service.gd",
       "target": "content/shared/services/entity_composition_service.gd",
       "owner": "shared",

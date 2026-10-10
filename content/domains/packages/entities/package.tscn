@@ -23,12 +23,11 @@
 
 [ext_resource type="PackedScene" path="res://content/domains/packages/entities/content_stub.tscn" id="DefaultContents"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="EntityAuthoring"]
-[ext_resource type="Resource" path="res://content/domains/packages/definitions/def_entity_package.tres" id="EntityTemplate"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="EntityAuthoring"]
-script = ExtResource("EntityAuthoring")
-entity_template = ExtResource("EntityTemplate")
+[ext_resource type="Resource" path="res://content/domains/packages/authoring/et_package_package_state.tres" id="DirectTrait_1"]
+
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_2"]
 
 [sub_resource type="Resource" id="Definition"]
 script = ExtResource("3_definition")
@@ -83,7 +82,7 @@ actions = Array[ExtResource("ActionBase")]([SubResource("OpenAction")])
 script = ExtResource("2_package")
 package_id = ""
 package_definition = SubResource("Definition")
-metadata/entity_composition = SubResource("EntityAuthoring")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2")])
 component_resources = Array[ExtResource("4_component")]([SubResource("Package_interactable"), SubResource("Package_grabbable"), SubResource("Resource_7rdfx"), SubResource("Resource_3kixs"), SubResource("Resource_vy0mo"), SubResource("PackageDestruction"), SubResource("Resource_4sia5"), SubResource("Resource_bo5wx"), SubResource("Actions")])
 
 [node name="Marks" type="MeshInstance3D" parent="." index="2" unique_id=1073720280]

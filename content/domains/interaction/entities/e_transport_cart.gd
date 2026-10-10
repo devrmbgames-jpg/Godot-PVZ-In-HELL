@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Владеет границей физического шага транспортной тележки CharacterBody3D и освобождением участия.
 class_name E_TransportCart
 

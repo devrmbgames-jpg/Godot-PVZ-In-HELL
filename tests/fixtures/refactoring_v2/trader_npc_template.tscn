@@ -2,13 +2,16 @@
 
 [ext_resource type="PackedScene" path="res://content/domains/commerce/entities/trader.tscn" id="Trader"]
 [ext_resource type="Script" path="res://content/domains/npc/entities/e_district_npc.gd" id="District_npc"]
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="Authoring"]
-[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_entity_district_trader.tres" id="Template"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="Authoring"]
-script = ExtResource("Authoring")
-entity_template = ExtResource("Template")
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_identity.tres" id="DirectTrait_1"]
+
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_brain_state.tres" id="DirectTrait_2"]
+
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_roles.tres" id="DirectTrait_3"]
+
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_4"]
 
 [node name="Trader" instance=ExtResource("Trader")]
 script = ExtResource("District_npc")
-metadata/entity_composition = SubResource("Authoring")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2"), ExtResource("DirectTrait_3"), ExtResource("DirectTrait_4")])

@@ -7,12 +7,9 @@
 [ext_resource type="Resource" uid="uid://blh4smgwve1tl" path="res://content/domains/combat/definitions/def_attr_health.tres" id="HealthDefinition"]
 [ext_resource type="Script" uid="uid://cpj4mbfhyt66i" path="res://content/domains/combat/components/c_remove_on_health_depleted.gd" id="RemoveOnDepleted"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
-[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_entity_physical_impact.tres" id="ImpactTemplate"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="ImpactAuthoring"]
-script = ExtResource("ImpactAuthoring")
-entity_template = ExtResource("ImpactTemplate")
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_1"]
 
 [sub_resource type="Resource" id="Health"]
 resource_local_to_scene = true
@@ -27,10 +24,10 @@ script = ExtResource("RemoveOnDepleted")
 points = PackedVector3Array(-0.04952839, -0.017662195, -0.31283924, 0.38012773, 0.004773333, 0.00948376, 0.06444059, 0.20357618, -0.16573924, -0.27453855, -0.15881942, 0.021160945, -0.33298826, 0.09830641, -0.072256535, 0.21642454, -0.20564604, -0.037159745, -0.22642368, -0.07298893, 0.29703486, -0.21608882, 0.14509298, 0.19651443, 0.19434945, -0.10628625, -0.26784393, 0.20655964, 0.07139095, 0.24324767, 0.35668924, -0.0653264, 0.13806327, 0.29443544, 0.09323316, -0.21261533, -0.26412928, -0.08204334, -0.18535066, 0.04107535, -0.0653264, 0.30180478, 0.333324, 0.09830641, 0.067934915, -0.13427384, 0.16848625, -0.20083603, -0.35074875, 0.015656002, 0.10954598, -0.099189356, -0.14712279, 0.21993403, -0.15763909, 0.09830641, 0.313482, 0.15933749, 0.14687113, 0.08584448, -0.099189356, 0.063216485, -0.29438397, -0.1652356, -0.14545737, -0.08720259, 0.13643834, -0.12605724, 0.17221843, 0.18169774, -0.11636045, -0.26547995, -0.057977922, -0.18776135, 0.041005313, -0.016198164, 0.037926562, 0.32112205, -0.25127116, -0.062509336, -0.21440414, -0.15763909, 0.16848625, 0.009418525, 0.30995876, 0.0515599, 0.17316005, -0.037934363, -0.05047246, -0.3095424, -0.24191365, -0.062972866, 0.2910073, 0.059440106, 0.1860713, -0.044403847)
 
 [node name="PackageDebrisStub" type="RigidBody3D" unique_id=1087797866]
-metadata/entity_composition = SubResource("ImpactAuthoring")
+script = ExtResource("Entity")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1")])
 collision_layer = 8
 collision_mask = 29
-script = ExtResource("Entity")
 component_resources = Array[ExtResource("Component")]([SubResource("Health"), SubResource("RemoveOnDepleted")])
 
 [node name="FlattenedCardboard_merged" type="MeshInstance3D" parent="." unique_id=775036057]

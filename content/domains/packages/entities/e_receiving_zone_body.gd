@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Native authoring и lifetime машины приёмки; состояние партии принадлежит C_Receiving.
 class_name E_ReceivingZoneBody
 

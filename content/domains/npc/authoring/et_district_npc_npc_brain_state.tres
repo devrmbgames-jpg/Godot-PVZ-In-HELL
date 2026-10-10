@@ -1,0 +1,10 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" uid="uid://dlwax2x6w3y5q" path="res://content/domains/npc/components/c_npc_identity.gd" id="5_yoo7p"]
+[ext_resource type="Script" uid="uid://cvgkpkfqjch0p" path="res://content/domains/combat/components/c_npc_combat.gd" id="9_dqbje"]
+[ext_resource type="Script" uid="uid://bx06h57gdvgkb" path="res://content/domains/npc/authoring/et_npc_brain_state.gd" id="Brain"]
+[resource]
+script = ExtResource("Brain")
+trait_id = &"npc_brain_state"
+required_components = Array[Script]([ExtResource("5_yoo7p"), ExtResource("9_dqbje")])
+required_root_class = &"RigidBody3D"

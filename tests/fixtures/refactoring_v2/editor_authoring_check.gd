@@ -1,128 +1,152 @@
 extends SceneTree
-## Native dock selection and displayed identity regression; no rendered/gameplay acceptance.
+## Native Inspector automation; does not assert visual usability or run gameplay.
+
+const _PLUGIN_NAME: String = "project_entity_traits"
+const _PROPERTY_PATH: String = "res://content/editor/entity_authoring/entity_traits_property.gd"
+const _PLUGIN_PATH: String = "res://addons/project_entity_traits/plugin.gd"
+var _failures: PackedStringArray = PackedStringArray()
 
 
-#region Native editor tooling check
+#region Headless editor acceptance
 func _init() -> void:
-	# Isolate native tooling from unrelated editor plugins, only in this test process.
-	# No ProjectSettings.save call or on-disk plugin setting change is performed.
-	ProjectSettings.set_setting("editor_plugins/enabled", PackedStringArray())
+	ProjectSettings.set_setting(
+		"editor_plugins/enabled",
+		PackedStringArray(["res://addons/project_entity_traits/plugin.cfg"]),
+	)
 	_check.call_deferred()
 
 
 func _check() -> void:
-	# Let the normal EditorNode and configured plugins finish their initial lifecycle first.
-	for frame: int in 10:
+	var filesystem: EditorFileSystem = EditorInterface.get_resource_filesystem()
+	for frame: int in 1800:
+		if not filesystem.is_scanning():
+			break
 		await process_frame
-	EditorInterface.open_scene_from_path("res://tests/fixtures/refactoring_v2/authoring_level.tscn")
-	await process_frame
-	if OS.get_cmdline_user_args().has("--baseline"):
-		print("Entity authoring editor baseline: complete")
-		quit()
+	await _settle()
+	if not EditorInterface.is_plugin_enabled(_PLUGIN_NAME):
+		EditorInterface.set_plugin_enabled(_PLUGIN_NAME, true)
+	await _settle()
+	var editor_root: Node = root
+	var plugin: EditorPlugin = _script_node(editor_root, _PLUGIN_PATH) as EditorPlugin
+	_expect(plugin != null, "Persistent plugin restores at editor startup")
+	if plugin == null:
+		_finish()
 		return
-	var installer_script: GDScript = load(
-		"res://content/editor/entity_authoring/install_entity_authoring.gd"
-	) as GDScript
-	var installer: EditorScript = installer_script.new() as EditorScript
-	installer.call("_run")
-	installer.call("_run")
-	var editor_root: Control = EditorInterface.get_base_control()
-	var plugin: EditorPlugin = editor_root.get_node("ProjectEntityAuthoring") as EditorPlugin
-	var panel: VBoxContainer = plugin.get("_panel") as VBoxContainer
-	var level: Node = EditorInterface.get_edited_scene_root()
-	var actor: Node = level.get_node("Resident")
-	var selection: EditorSelection = EditorInterface.get_selection()
-	selection.clear()
-	selection.add_node(actor)
-	plugin.call("refresh_authoring")
-	var level_label: Label = panel.get_node("%LevelId") as Label
-	var instance_label: Label = panel.get_node("%InstanceId") as Label
-	var level_valid: bool = (
-		level != null and level.get_class() == "Node3D"
-		and (plugin.get("_dock") as EditorDock).title == "Entity Authoring"
-	)
-	var previous_level_id: StringName = level.get_meta(&"persistent_world_id")
-	var repair_level: Button = panel.get_node("%RepairLevel") as Button
-	level_valid = level_valid and not repair_level.visible
-	repair_level.pressed.emit()
-	level_valid = level_valid and level.get_meta(&"persistent_world_id") == previous_level_id
-	selection.clear()
-	selection.add_node(level)
-	plugin.call("refresh_authoring")
-	level_valid = level_valid and repair_level.visible and not repair_level.disabled
-	repair_level.pressed.emit()
-	var assigned_level_id: StringName = level.get_meta(&"persistent_world_id")
-	var undo_manager: EditorUndoRedoManager = plugin.get_undo_redo()
-	var level_history: UndoRedo = undo_manager.get_history_undo_redo(
-		undo_manager.get_object_history_id(level)
-	)
-	level_valid = level_valid and assigned_level_id != previous_level_id
-	level_valid = level_valid and level_label.text == "Level ID: " + String(assigned_level_id)
-	level_history.undo()
-	level_valid = level_valid and level.get_meta(&"persistent_world_id") == previous_level_id
-	level_valid = level_valid and level_label.text == "Level ID: " + String(previous_level_id)
-	level_history.redo()
-	level_valid = level_valid and level.get_meta(&"persistent_world_id") == assigned_level_id
-	level_valid = level_valid and level_label.text == "Level ID: " + String(assigned_level_id)
-	selection.clear()
-	selection.add_node(level.get_node("Trader"))
-	plugin.call("refresh_authoring")
-	level_valid = level_valid and not repair_level.visible
-	level_valid = level_valid and level_label.text == "Level ID: " + String(assigned_level_id)
-	level_history.undo()
-	level_valid = level_valid and level_label.text == "Level ID: " + String(previous_level_id)
-	level_history.clear_history()
-	selection.clear()
-	plugin.call("refresh_authoring")
-	level_valid = level_valid and not repair_level.visible
-	print(
-		"Entity authoring dock Level ID display/repair/undo/redo/selection: %s"
-		% ("PASS" if level_valid else "FAIL")
-	)
-	selection.clear()
-	selection.add_node(actor)
-	plugin.call("refresh_authoring")
-	var previous_instance_id: StringName = actor.get_meta(&"persistent_local_id")
-	(panel.get_node("%RepairInstance") as Button).pressed.emit()
-	var token: String = String(actor.get_meta(&"persistent_local_id", ""))
-	var history: UndoRedo = undo_manager.get_history_undo_redo(
-		undo_manager.get_object_history_id(actor)
-	)
-	var valid: bool = level_valid and token.is_valid_identifier() and token.begins_with("actor_")
-	valid = valid and instance_label.text == "Instance ID: " + token
+	EditorInterface.open_scene_from_path("res://tests/fixtures/refactoring_v2/authoring_level.tscn")
+	await _settle()
+	var scene_root: Node = EditorInterface.get_edited_scene_root()
+	var actor: Node = scene_root.get_node("Box")
+	EditorInterface.inspect_object(actor)
+	await _settle()
+	var property_node: Node = _script_node(EditorInterface.get_inspector(), _PROPERTY_PATH)
+	var property: EditorProperty = property_node as EditorProperty
+	_expect(property != null, "Traits replace only the native traits property")
+	if property == null:
+		_finish()
+		return
+	var original: Array = (actor.get("traits") as Array).duplicate()
+	var manager: EditorUndoRedoManager = plugin.get_undo_redo()
+	var history: UndoRedo = manager.get_history_undo_redo(manager.get_object_history_id(actor))
+	property.call("_add_new")
+	await _settle()
+	_expect((actor.get("traits") as Array).size() == original.size() + 1, "New Trait")
 	history.undo()
-	valid = valid and actor.get_meta(&"persistent_local_id") == previous_instance_id
-	valid = valid and instance_label.text == "Instance ID: " + String(previous_instance_id)
+	await _settle()
+	_expect(actor.get("traits") == original, "Native Inspector undo")
 	history.redo()
-	valid = valid and String(actor.get_meta(&"persistent_local_id")) == token
-	valid = valid and instance_label.text == "Instance ID: " + token
-	history.undo()
-	history.clear_history()
-	var base_inspected: Object = EditorInterface.get_inspector().get_edited_object()
-	var previous_authoring: Resource = actor.get_meta(&"entity_composition") as Resource
-	actor.remove_meta(&"entity_composition")
-	actor.notify_property_list_changed()
-	(panel.get_node("%Configure") as Button).pressed.emit()
-	valid = valid and EditorInterface.get_inspector().get_edited_object() == base_inspected
-	var resource_inspector: EditorInspector = (panel.get("_resource_inspector") as EditorInspector)
-	var inspected_resource: Resource = resource_inspector.get_edited_object() as Resource
-	valid = (
-		valid and inspected_resource != null
-		and inspected_resource.get_script().resource_path
-		== "res://content/shared/authoring/entity_authoring.gd"
+	await _settle()
+	_expect((actor.get("traits") as Array).size() == original.size() + 1, "Native Inspector redo")
+	EditorInterface.inspect_object(actor)
+	await _settle()
+	property = _script_node(EditorInterface.get_inspector(), _PROPERTY_PATH) as EditorProperty
+	property.call("_move", original.size(), -1)
+	await _settle()
+	_expect((actor.get("traits") as Array)[0].trait_id == &"new_trait", "Reorder")
+	property.call("_assign", original[0], 0)
+	await _settle()
+	_expect((actor.get("traits") as Array)[0] == original[0], "Native resource assignment")
+	property.call("_remove", 0)
+	await _settle()
+	_expect((actor.get("traits") as Array).size() == original.size(), "Remove")
+	var before_invalid: Array = (actor.get("traits") as Array).duplicate()
+	property.call(
+		"_add_existing",
+		"res://content/domains/combat/definitions/def_impact_default.tres",
 	)
+	_expect(actor.get("traits") == before_invalid, "Add rejects a resource of another type")
+	property.call("_add_existing", "res://content/domains/combat/authoring/et_impact_capture.tres")
+	await _settle()
+	_expect((actor.get("traits") as Array).size() == original.size() + 1, "Add existing Trait")
+	property.call("_remove", 1)
+	await _settle()
+	property.call("_make_unique", 0)
+	await _settle()
+	var local_trait: Resource = (actor.get("traits") as Array)[0] as Resource
+	_expect(local_trait != original[0], "Make Unique creates a local copy")
+	local_trait.set("trait_id", &"local_impact")
+	_expect(original[0].trait_id == &"physical_impact", "Local settings preserve shared resource")
 	history.undo()
-	valid = valid and resource_inspector.get_edited_object() == null
-	history.redo()
-	valid = valid and resource_inspector.get_edited_object() == inspected_resource
-	history.undo()
+	await _settle()
+	_expect((actor.get("traits") as Array)[0] == original[0], "Make Unique undo")
+	EditorInterface.inspect_object(actor)
+	await _settle()
+	var packed: PackedScene = PackedScene.new()
+	_expect(packed.pack(scene_root) == OK, "Native pack of edited nested prefab")
+	var scene_path: String = "res://".path_join(".artifacts/direct_traits/editor_saved.tscn")
+	_expect(ResourceSaver.save(packed, scene_path) == OK, "Save edited scene")
+	var reloaded: PackedScene = ResourceLoader.load(
+		scene_path,
+		"",
+		ResourceLoader.CACHE_MODE_IGNORE,
+	) as PackedScene
+	var detached: Node = reloaded.instantiate()
+	_expect(detached.get_node("Box").get("traits") == actor.get("traits"), "Save/reopen Traits")
+	detached.free()
+	while history.has_undo():
+		history.undo()
 	history.clear_history()
-	actor.set_meta(&"entity_composition", previous_authoring)
-	actor.notify_property_list_changed()
-	valid = valid and resource_inspector.get_edited_object() == previous_authoring
-	selection.clear()
-	plugin.free()
-	valid = valid and editor_root.get_node_or_null("ProjectEntityAuthoring") == null
-	print("Entity authoring editor install/repair/undo/redo: %s" % ("PASS" if valid else "FAIL"))
-	quit(0 if valid else 1)
+	EditorInterface.set_plugin_enabled(_PLUGIN_NAME, false)
+	await _settle()
+	EditorInterface.inspect_object(actor)
+	await _settle()
+	_expect(
+		_script_node(EditorInterface.get_inspector(), _PROPERTY_PATH) == null,
+		"Disable restores the standard Inspector",
+	)
+	var has_native_traits: bool = false
+	for descriptor: Dictionary in actor.get_property_list():
+		if descriptor.name == "traits":
+			has_native_traits = bool(int(descriptor.usage) & PROPERTY_USAGE_EDITOR)
+	_expect(has_native_traits, "Exported native traits fallback")
+	EditorInterface.set_plugin_enabled(_PLUGIN_NAME, true)
+	await _settle()
+	_expect(_script_node(editor_root, _PLUGIN_PATH) != null, "Plugin enable/disable/enable")
+	_finish()
+
+
+func _script_node(node: Node, script_path: String) -> Node:
+	var script: Script = node.get_script() as Script
+	if script != null and script.resource_path == script_path:
+		return node
+	for child: Node in node.get_children(true):
+		var found: Node = _script_node(child, script_path)
+		if found != null:
+			return found
+	return null
+
+
+func _settle() -> void:
+	for frame: int in 6:
+		await process_frame
+
+
+func _expect(condition: bool, message: String) -> void:
+	if not condition:
+		_failures.append(message)
+	print("Inspector: %s: %s" % ["PASS" if condition else "FAIL", message])
+
+
+func _finish() -> void:
+	print("Direct Traits editor: %s" % ("PASS" if _failures.is_empty() else str(_failures)))
+	quit(0 if _failures.is_empty() else 1)
 #endregion

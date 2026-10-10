@@ -117,7 +117,7 @@ func test_diagnostics_trait_isolates_history_from_other_instances_and_authoring(
 	for actor: Entity in actors:
 		var context: EntitySpawnContext = EntityCompositionService.context_for(actor, null,
 			"fixture/trace/%s" % actor.get_instance_id())
-		plans.append(EntityBuildRules.compile(template, [], [], context))
+		plans.append(EntityBuildRules.compile(template.traits, [], [], context))
 		assert_true(plans.back().valid())
 	var first: C_BoundaryTrace = plans[0].component_recipes[0] as C_BoundaryTrace
 	var second: C_BoundaryTrace = plans[1].component_recipes[0] as C_BoundaryTrace

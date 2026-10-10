@@ -1,0 +1,12 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" uid="uid://dcq6eusakildd" path="res://content/domains/npc/components/c_district.gd" id="District"]
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
+
+[resource]
+script = ExtResource("Trait")
+trait_id = &"district_roster"
+required_components = Array[Script]([ExtResource("District")])
+initial_field_names = Dictionary[Script, PackedStringArray]({
+ExtResource("District"): PackedStringArray("people", "next_person")
+})

@@ -206,35 +206,17 @@ func test_authoring_labels_follow_root_notifications_and_selection_without_edito
 	level.free()
 
 
-func test_authoring_null_recipe_is_diagnostic_and_removed_composition_clears_binding() -> void:
+func test_authoring_dock_shows_null_recipe_and_keeps_trait_editing_in_inspector() -> void:
 	var actor: E_DistrictNpc = NpcPopulationQueries.body_for(_district.people[0].npc_id)
 	var dock: VBoxContainer = AUTHORING_VIEW.instantiate() as VBoxContainer
 	add_child(dock)
 	actor.component_resources.append(null)
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	actor.set_meta(&"entity_composition", authoring)
 	dock.call("bind_actor", actor, _world)
 	dock.call("_set_advanced", true)
 	assert_true((dock.get_node("%Recipes") as RichTextLabel).text.contains("missing_recipe"))
-	assert_same((dock.get("_authoring_ref") as WeakRef).get_ref(), authoring)
-	actor.remove_meta(&"entity_composition")
-	actor.notify_property_list_changed()
-	assert_null(dock.get("_authoring_ref"))
-	assert_eq((dock.get_node("%TemplateId") as Label).text, "Template ID: scene intrinsic")
-	actor.set_meta(&"entity_composition", authoring)
-	actor.notify_property_list_changed()
-	assert_same((dock.get("_authoring_ref") as WeakRef).get_ref(), authoring)
+	assert_false((dock.get_node("%Configure") as Button).visible)
+	assert_false((dock.get_node("%ResourceInspector") as Control).visible)
 	actor.component_resources.pop_back()
-	var previous_binding: WeakRef = dock.get("_authoring_ref") as WeakRef
-	var refresh_identity: Callable = Callable(dock, "_refresh_identity")
-	actor.property_list_changed.disconnect(refresh_identity)
-	actor.property_list_changed.connect(refresh_identity, CONNECT_DEFERRED)
-	authoring = null
-	actor.remove_meta(&"entity_composition")
-	assert_null(previous_binding.get_ref(), "Removed inline composition has no strong owner")
-	actor.notify_property_list_changed()
-	await get_tree().process_frame
-	assert_null(dock.get("_authoring_ref"), "Expired binding also clears detached input")
 	dock.free()
 
 

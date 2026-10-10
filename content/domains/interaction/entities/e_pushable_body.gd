@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Передаёт интеграцию физической тележки solver толкания; игровые данные принадлежат Components.
 class_name E_PushableBody
 

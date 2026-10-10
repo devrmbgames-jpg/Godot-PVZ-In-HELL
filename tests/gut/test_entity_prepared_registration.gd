@@ -3,7 +3,7 @@ extends GutTest
 
 
 ## Minimal native Entity with data-only intrinsic recipes and passive initialization counters.
-class PreparedActor extends Entity:
+class PreparedActor extends E_TraitedEntity:
 	var _intrinsic_calls: int = 0
 	var _passive_ready_calls: int = 0
 	var _ready_components: int = 0
@@ -85,10 +85,8 @@ func test_prepared_components_are_added_once_before_passive_native_ready() -> vo
 	var capability: EntityTrait = EntityTrait.new()
 	capability.trait_id = &"inventory"
 	capability.component_recipes = [C_Inventory.new()]
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	authoring.entity_template = DEF_EntityTemplate.new()
-	authoring.entity_template.traits = [capability]
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
+	authoring.traits = [capability]
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		actor,
 		world,
@@ -129,13 +127,11 @@ func test_failed_prepare_preserves_scene_inputs_without_ready_side_effects() -> 
 		null,
 		"fixture/rejected",
 	)
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	authoring.entity_template = DEF_EntityTemplate.new()
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
 	var duplicate: EntityTrait = EntityTrait.new()
 	duplicate.trait_id = &"duplicate"
 	duplicate.component_recipes = [C_DayCycle.new()]
-	authoring.entity_template.traits = [duplicate]
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	authoring.traits = [duplicate]
 	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
 	assert_false(plan.valid())
 	assert_false(EntityCompositionService.prepare(actor, plan))
@@ -173,10 +169,10 @@ func test_repeated_preparation_is_rejected_without_changing_registered_state() -
 	world.free()
 
 
-## Wrong metadata is a configuration error, instead of silently falling back to scene-only data.
-func test_invalid_authoring_metadata_is_reported_without_native_initialization() -> void:
+## A missing direct Trait rejects before native initialization or readiness.
+func test_empty_trait_slot_is_reported_without_native_initialization() -> void:
 	var actor: PreparedActor = autofree(PreparedActor.new()) as PreparedActor
-	actor.set_meta(EntityCompositionService.AUTHORING_META, "invalid resource")
+	actor.traits = [null]
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		actor,
 		null,
@@ -184,8 +180,8 @@ func test_invalid_authoring_metadata_is_reported_without_native_initialization()
 	)
 	var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
 	assert_false(plan.valid())
-	assert_eq(plan.issues[0].code, &"invalid_authoring")
-	assert_eq(actor.intrinsic_calls(), 0)
+	assert_eq(plan.issues[0].code, &"missing_trait")
+	assert_eq(actor.intrinsic_calls(), 1)
 	assert_eq(actor.passive_ready_calls(), 0)
 	assert_eq(actor.components.size(), 0)
 
@@ -194,7 +190,7 @@ func test_invalid_authoring_metadata_is_reported_without_native_initialization()
 func test_runtime_factory_gate_rejects_collision_without_replacing_existing_actor() -> void:
 	var world: World = World.new()
 	add_child(world)
-	var existing: Entity = Entity.new()
+	var existing: Entity = E_TraitedEntity.new()
 	existing.id = "fixture/existing"
 	world.add_entity(existing)
 	var proposed: PreparedActor = autofree(PreparedActor.new()) as PreparedActor
@@ -295,8 +291,8 @@ func test_authored_physical_inbox_exists_at_registration_and_is_private_per_inst
 	var scene: PackedScene = load(box_path) as PackedScene
 	var first: Entity = scene.instantiate() as Entity
 	var second: Entity = scene.instantiate() as Entity
-	var template: DEF_EntityTemplate = EntityCompositionService.authoring_for(first).entity_template
-	var prototype: C_ImpactInbox = template.traits[0].component_recipes[0] as C_ImpactInbox
+	var traits: Array[EntityTrait] = (first as E_TraitedEntity).traits
+	var prototype: C_ImpactInbox = traits[0].component_recipes[0] as C_ImpactInbox
 	var published_inboxes: Array[C_ImpactInbox] = []
 	world.entity_added.connect(
 		func(actor: Entity) -> void:
@@ -312,7 +308,7 @@ func test_authored_physical_inbox_exists_at_registration_and_is_private_per_inst
 	assert_not_null(second_inbox)
 	assert_ne(first_inbox, second_inbox)
 	assert_ne(first_inbox, prototype)
-	assert_eq(EntityCompositionService.authoring_for(second).entity_template, template)
+	assert_eq((second as E_TraitedEntity).traits, traits)
 
 	# Setup and repeated enable notification bind engine reporting without replacing pending data.
 	var pending_contact: PhysicsContact = PhysicsContact.new()
@@ -335,12 +331,11 @@ func test_authored_physical_inbox_exists_at_registration_and_is_private_per_inst
 func test_physical_impact_trait_rejects_nonphysical_root_before_native_publication() -> void:
 	var world: World = World.new()
 	add_child(world)
-	var actor: Entity = autofree(Entity.new()) as Entity
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	authoring.entity_template = load(
+	var actor: Entity = autofree(E_TraitedEntity.new()) as Entity
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
+	authoring.traits = (load(
 		"res://content/domains/combat/definitions/def_entity_physical_impact.tres"
-	) as DEF_EntityTemplate
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	) as DEF_EntityTemplate).traits
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		actor,
 		world,
@@ -499,13 +494,12 @@ func test_session_loot_queue_recipes_isolate_runtime_state() -> void:
 
 
 func _loot_session_actor() -> Entity:
-	var actor: Entity = Entity.new()
+	var actor: Entity = E_TraitedEntity.new()
 	actor.component_resources = [C_DayCycle.new()]
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	authoring.entity_template = load(
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
+	authoring.traits = (load(
 		"res://content/domains/time/definitions/def_entity_day_session.tres"
-	) as DEF_EntityTemplate
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	) as DEF_EntityTemplate).traits
 	return actor
 
 
@@ -681,7 +675,7 @@ func _content_recipe(plan: EntityBuildPlan, script: Script) -> Component:
 func test_factory_observers_wait_for_readiness_and_preserve_native_initial_counts() -> void:
 	var world: World = World.new()
 	add_child(world)
-	var target: Entity = Entity.new()
+	var target: Entity = E_TraitedEntity.new()
 	EntityCompositionFixture.register(world, target)
 	var spies: Array[ReadySpy] = [
 		ReadySpy.new(&"added"),
@@ -718,7 +712,7 @@ func test_factory_observers_wait_for_readiness_and_preserve_native_initial_count
 func test_failed_factory_keeps_observers_active_without_ready_or_initial_effects() -> void:
 	var world: World = World.new()
 	add_child(world)
-	var existing: Entity = Entity.new()
+	var existing: Entity = E_TraitedEntity.new()
 	existing.id = "fixture/collision"
 	EntityCompositionFixture.register(world, existing)
 	var spy: ReadySpy = ReadySpy.new(&"match")

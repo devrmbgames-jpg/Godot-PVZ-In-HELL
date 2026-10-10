@@ -3,19 +3,18 @@
 [ext_resource type="PackedScene" path="res://content/domains/npc/entities/npc_character.tscn" id="Foundation"]
 [ext_resource type="Script" uid="uid://c5d3qdy5m6sgl" path="res://content/domains/customers/entities/e_customer.gd" id="Entity"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="Authoring"]
-[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_entity_customer_visit.tres" id="Template"]
-
 [ext_resource type="Resource" path="res://content/domains/customers/definitions/def_customer_visit_default.tres" id="Policy"]
 
-[sub_resource type="Resource" id="Authoring"]
-script = ExtResource("Authoring")
-entity_template = ExtResource("Template")
-definitions = {&"customer_policy": ExtResource("Policy")}
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
+
+[ext_resource type="Resource" path="res://content/domains/customers/authoring/et_customer_visit_customer_visit.tres" id="DirectTrait_1"]
+
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_2"]
 
 [node name="Customer" instance=ExtResource("Foundation")]
 script = ExtResource("Entity")
-metadata/entity_composition = SubResource("Authoring")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2")])
+definitions = {&"customer_policy": ExtResource("Policy")}
 inspection_animation = &""
 receiving_animation = &""
 dialogue_animation = &""

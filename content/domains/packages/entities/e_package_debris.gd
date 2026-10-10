@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Физические обломки коробки; исходные данные доступны через C_PackageDebris.
 class_name E_PackageDebris
 

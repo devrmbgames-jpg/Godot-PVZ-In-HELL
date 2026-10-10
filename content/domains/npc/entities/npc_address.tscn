@@ -5,11 +5,12 @@
 [ext_resource type="Script" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
 [ext_resource type="Script" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="Actions"]
 [ext_resource type="Script" path="res://content/domains/customers/definitions/def_npc_door_action.gd" id="Action"]
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="EntityAuthoring"]
-[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_entity_npc_address.tres" id="EntityTemplate"]
-[sub_resource type="Resource" id="EntityAuthoring"]
-script = ExtResource("EntityAuthoring")
-entity_template = ExtResource("EntityTemplate")
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
+
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_npc_address_npc_address.tres" id="DirectTrait_1"]
+
+[ext_resource type="Script" path="res://content/shared/entities/e_traited_entity.gd" id="DirectTrait_2"]
+
 [sub_resource type="Resource" id="Address"]
 script = ExtResource("Address")
 [sub_resource type="Resource" id="Interactable"]
@@ -27,8 +28,8 @@ size = Vector3(0.9, 1.8, 0.2)
 [sub_resource type="BoxMesh" id="Mesh"]
 size = Vector3(0.9, 1.8, 0.2)
 [node name="NpcAddress" type="StaticBody3D"]
-script = ExtResource("Entity")
-metadata/entity_composition = SubResource("EntityAuthoring")
+script = ExtResource("DirectTrait_2")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1")])
 collision_layer = 4
 collision_mask = 31
 component_resources = Array[ExtResource("Component")]([SubResource("Address"), SubResource("Interactable"), SubResource("Actions")])

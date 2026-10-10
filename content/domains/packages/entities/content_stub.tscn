@@ -6,12 +6,11 @@
 [ext_resource type="Script" path="res://content/domains/combat/components/c_health.gd" id="Health"]
 [ext_resource type="Resource" path="res://content/domains/combat/definitions/def_attr_health.tres" id="HealthDefinition"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
-[ext_resource type="Resource" path="res://content/domains/packages/definitions/def_entity_package_content.tres" id="ImpactTemplate"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="ImpactAuthoring"]
-script = ExtResource("ImpactAuthoring")
-entity_template = ExtResource("ImpactTemplate")
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_1"]
+
+[ext_resource type="Resource" path="res://content/domains/packages/authoring/et_package_content.tres" id="DirectTrait_2"]
 
 [sub_resource type="Resource" id="Interactable"]
 script = ExtResource("Interactable")
@@ -35,14 +34,14 @@ material = SubResource("Material")
 size = Vector3(0.3, 0.3, 0.3)
 
 [node name="PackageContent" type="RigidBody3D"]
-metadata/entity_composition = SubResource("ImpactAuthoring")
+script = ExtResource("Entity")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2")])
 collision_layer = 8
 collision_mask = 29
 mass = 1.0
 continuous_cd = true
 contact_monitor = true
 max_contacts_reported = 8
-script = ExtResource("Entity")
 component_resources = [SubResource("Interactable"), SubResource("Grabbable"), SubResource("Health")]
 
 [node name="Mesh" type="MeshInstance3D" parent="."]

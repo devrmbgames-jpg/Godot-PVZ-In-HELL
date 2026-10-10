@@ -160,8 +160,9 @@ func test_native_package_registration_publishes_complete_profile_without_default
 #region Pure compilation fixture
 func _compile(parcel: E_Package) -> EntityBuildPlan:
 	parcel.package_id = "fixture/package"
-	var authoring: EntityAuthoring = EntityCompositionService.authoring_for(parcel)
-	assert_same(authoring.entity_template, _TEMPLATE)
+	var authoring: E_TraitedEntity = (parcel as E_TraitedEntity)
+	assert_eq(authoring.traits.size(), _TEMPLATE.traits.size())
+	assert_eq(authoring.traits[0].trait_id, _TEMPLATE.traits[0].trait_id)
 	var context: EntitySpawnContext = EntityCompositionService.context_for(
 		parcel,
 		null,

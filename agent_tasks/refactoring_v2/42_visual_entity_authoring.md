@@ -136,3 +136,11 @@ six temporary indexes/path lists and eight superseded Windows QA builds removed;
 referenced acceptance evidence and memory/shutdown diagnostics retained.
 Exact local inventory: `.artifacts/cleanup_20261010.json` (ignored). Four generated tracked Python cache files were also removed (81,987 bytes) in8404dec6; source validator tooling88/88 PASS. Cache audit: `.artifacts/cleanup_python_cache_20261010.json`. Total cleanup:870 targets /3,543,064,957 bytes; current acceptance evidence and QA builds retained.
 Existing authored resources, menu, project config and GECS worktree edits remain preserved.
+
+## Direct Traits scope overlap
+
+Direct Inspector authoring supersedes this task's Template/dock editing contract; see
+[codex_direct_traits_inspector_tz.md](codex_direct_traits_inspector_tz.md). The persistent
+Gameplay Traits plugin edits the Entity's direct export, while the retained dock handles
+IDs and detached diagnostics only. Stable IDs, pure preview, native scenes and owner QA
+requirements remain. This task is not marked complete without owner acceptance.

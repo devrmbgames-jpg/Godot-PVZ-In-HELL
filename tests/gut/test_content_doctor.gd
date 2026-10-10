@@ -194,7 +194,7 @@ func _inspect_probe(dialogue: DialogueResource) -> Array[ContentDoctorIssue]:
 
 #region Native compiler aggregation
 func test_template_requirements_bindings_and_capabilities_keep_owner_diagnostics() -> void:
-	var actor: Entity = autofree(Entity.new()) as Entity
+	var actor: Entity = autofree(E_TraitedEntity.new()) as Entity
 	var capability: EntityTrait = EntityTrait.new()
 	capability.trait_id = &"broken_capability"
 	capability.required_components = [C_Health]
@@ -221,7 +221,7 @@ func test_template_requirements_bindings_and_capabilities_keep_owner_diagnostics
 
 
 func test_null_and_duplicate_traits_are_rejected_by_common_compiler() -> void:
-	var actor: Entity = autofree(Entity.new()) as Entity
+	var actor: Entity = autofree(E_TraitedEntity.new()) as Entity
 	var capability: EntityTrait = EntityTrait.new()
 	capability.trait_id = &"duplicate"
 	_attach_traits(actor, [null, capability, capability])
@@ -250,7 +250,7 @@ func test_unused_template_still_validates_through_shared_declaration_provider() 
 
 
 func test_smart_object_missing_marker_slot_and_executor_reuse_owner_provider() -> void:
-	var actor: Entity = autofree(Entity.new()) as Entity
+	var actor: Entity = autofree(E_TraitedEntity.new()) as Entity
 	var definition: DEF_SmartObject = DEF_SmartObject.new()
 	var slot: DEF_SmartSlot = DEF_SmartSlot.new()
 	slot.slot_id = &"desk"
@@ -282,7 +282,10 @@ func test_smart_object_missing_marker_slot_and_executor_reuse_owner_provider() -
 func test_duplicate_placed_identity_and_missing_native_animation_have_instance_context() -> void:
 	var level: Node = autofree(_AUTHORING_LEVEL.instantiate()) as Node
 	var resident: E_NpcCharacter = level.get_node("Resident") as E_NpcCharacter
-	resident.set_meta(PlacedIdentityRules.LOCAL_ID_META, &"trader")
+	resident.set_meta(
+		PlacedIdentityRules.LOCAL_ID_META,
+		level.get_node("Trader").get_meta(PlacedIdentityRules.LOCAL_ID_META),
+	)
 	resident.walk_animation = &"MissingWalk"
 	var issues: Array[ContentDoctorIssue] = ContentDoctorSceneRules.inspect(level, "broken_level")
 	var messages: String = JSON.stringify(
@@ -333,7 +336,7 @@ func test_district_level_rejects_missing_home_and_wrong_type_portal_anchors() ->
 	var level: Node3D = autofree(Node3D.new()) as Node3D
 	level.name = "DoctorLevel"
 	level.set_meta(PlacedIdentityRules.WORLD_ID_META, &"doctor_anchor_level")
-	var session: Entity = Entity.new()
+	var session: Entity = E_TraitedEntity.new()
 	session.name = "DistrictSession"
 	level.add_child(session)
 	session.owner = level
@@ -424,9 +427,8 @@ func _configure_attack_clip(actor: E_NpcCharacter) -> void:
 func _attach_traits(actor: Entity, traits: Array[EntityTrait]) -> void:
 	var template: DEF_EntityTemplate = DEF_EntityTemplate.new()
 	template.traits = traits
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	authoring.entity_template = template
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
+	authoring.traits = template.traits
 
 
 func _codes(issues: Array[ContentDoctorIssue]) -> Array[StringName]:

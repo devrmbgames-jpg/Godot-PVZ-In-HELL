@@ -118,7 +118,17 @@ Static validation catches only dependable lexical patterns. Cadence, indirect he
 
 Placed NPCs/objects remain real visible physical/visual scenes in Godot Editor. Templates/Traits compose gameplay capabilities without replacing those scenes with invisible placeholders. Scene-only declarative composition is valid; an empty Template asset is not mandatory. Placed and runtime-spawned Entities have the same C/R runtime contract after materialization; Systems do not branch on authoring origin.
 
-Project-owned Inspector tooling lives under `content/editor/` and is installed explicitly per editor session without changing third-party addons. It captures current authored Resources into a disposable native snapshot, preserves external Script/scene references, and calls the existing composition compiler in a detached headless process. Preview never registers an Entity, runs gameplay or repairs live inputs. Stable level/instance IDs are read-only in this Inspector and change only through explicit undoable authoring commands. See [Entity authoring workflow](../docs/entity_authoring.md).
+Project-owned `E_TraitedEntity` exposes `traits` as the sole authored runtime capability input,
+with typed `definitions`, named `bindings` and `ancestor_entity_bindings` under Advanced Authoring.
+Native GECS Entity remains valid without Traits. Templates are optional editor-only presets;
+there is no runtime EntityAuthoring or metadata composition reader. One compiler combines direct
+Traits with scene/code recipes and one registration boundary owns native publication/readiness.
+The persistent Gameplay Traits plugin entry lives in `addons/project_entity_traits/`, with its
+implementation under `content/editor/`. It augments only the traits property in the standard
+Inspector; the native export remains editable when disabled. The diagnostics/ID dock never edits
+Traits. Detached snapshot preview uses the same compiler without ready, World publication, AI,
+physics or gameplay effects. Stable IDs change only through explicit undoable commands.
+See [Entity authoring workflow](../docs/entity_authoring.md).
 
 Permanent level layout, interactive prefab composition, stable HUD/menu hierarchy and reusable actors belong in editable native `.tscn` scenes. Authored configuration/Profiles/Definitions use typed Inspector-editable `.tres` Resources. Scripted `Node.new()` or procedural creation is justified for dynamic objects, effects and genuinely computed geometry; it must not replace an authored scene merely to reduce task time. The existing `settings_menu.gd` builds a legacy static UI in code and is **not** a reference implementation for new menus. Its dynamic rows are permissible. A tooling/editor import pipeline may generate reviewable native assets; runtime may not write project `.gd` source or authored `.tscn` files.
 

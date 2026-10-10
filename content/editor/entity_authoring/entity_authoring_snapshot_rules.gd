@@ -59,6 +59,10 @@ static func _capture_value(value: Variant, copies: Dictionary[Resource, Resource
 		if property_name in [&"script", &"resource_path"]:
 			continue
 		resource_copy.set(property_name, _capture_value(resource.get(property_name), copies))
+	# The concrete Script already identifies a detached copy. Legacy editor custom-type UID
+	# hints describe the original resource, not this disposable instance; keep authored metadata.
+	if resource_copy.has_meta(&"_custom_type_script"):
+		resource_copy.remove_meta(&"_custom_type_script")
 	resource_copy.set_meta(SOURCE_META, resource.resource_path)
 	return resource_copy
 #endregion

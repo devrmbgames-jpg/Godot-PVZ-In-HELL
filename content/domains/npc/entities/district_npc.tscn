@@ -4,16 +4,19 @@
 [ext_resource type="Script" path="res://content/domains/npc/entities/e_district_npc.gd" id="Entity"]
 [ext_resource type="Script" path="res://content/domains/npc/components/c_npc_identity.gd" id="Identity"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="Composition"]
-[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_entity_district_npc.tres" id="Template"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="Composition"]
-script = ExtResource("Composition")
-entity_template = ExtResource("Template")
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_npc_npc_identity.tres" id="DirectTrait_1"]
+
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_npc_npc_brain_state.tres" id="DirectTrait_2"]
+
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_npc_npc_roles.tres" id="DirectTrait_3"]
+
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_4"]
 
 [node name="DistrictNpc" instance=ExtResource("Base")]
 script = ExtResource("Entity")
-metadata/entity_composition = SubResource("Composition")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2"), ExtResource("DirectTrait_3"), ExtResource("DirectTrait_4")])
 
 [node name="FurniturePickup" type="Marker3D" parent="."]
 position = Vector3(2, 0, 0)

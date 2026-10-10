@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Авторская площадка помощи размещению Carry; занятость определяют физические проверки.
 class_name E_PlacementArea
 

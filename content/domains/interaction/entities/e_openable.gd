@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Связывает сцену физической створки с solver; движение исполняют joint и тело.
 class_name E_Openable
 

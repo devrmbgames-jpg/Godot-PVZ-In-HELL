@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Авторские узлы головы, коллайдеров и взаимодействия для обоих физических типов персонажа.
 class_name E_PhysicalCharacter
 

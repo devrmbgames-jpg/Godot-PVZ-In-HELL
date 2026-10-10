@@ -16742,8 +16742,7 @@
         "build_plan",
         "prepare",
         "try_register",
-        "publish_ready",
-        "authoring_for"
+        "publish_ready"
       ],
       "public_instance_methods": [],
       "method_rights": {
@@ -16751,8 +16750,7 @@
         "build_plan": "query",
         "prepare": "configure",
         "try_register": "configure",
-        "publish_ready": "request",
-        "authoring_for": "query"
+        "publish_ready": "request"
       },
       "sources": [
         "content/scenes/game_world.gd",
@@ -17622,23 +17620,6 @@
     {
       "source_owner": "global",
       "target_owner": "shared",
-      "symbol": "EntityAuthoring",
-      "path": "content/shared/authoring/entity_authoring.gd",
-      "rights": [
-        "read"
-      ],
-      "public_methods": [],
-      "public_instance_methods": [],
-      "method_rights": {},
-      "sources": [
-        "content/editor/entity_authoring/entity_authoring_preview_rules.gd",
-        "content/editor/entity_authoring/entity_authoring_dock.gd"
-      ],
-      "purpose": "Task 42: detached authoring tooling reads immutable compiler inputs and transient diagnostic provenance; no live registration, gameplay writes or scheduler."
-    },
-    {
-      "source_owner": "global",
-      "target_owner": "shared",
       "symbol": "EntityTrait",
       "path": "content/shared/authoring/entity_trait.gd",
       "rights": [
@@ -17927,6 +17908,153 @@
         "snapshots": "query"
       },
       "public_instance_methods": []
+    },
+    {
+      "source_owner": "combat",
+      "target_owner": "shared",
+      "symbol": "E_TraitedEntity",
+      "path": "content/shared/entities/e_traited_entity.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/entities/combat/e_combat_projectile.gd"
+      ],
+      "purpose": "Direct authored Trait inputs on native Entity subclasses; no runtime scheduler or mutable gameplay authority."
+    },
+    {
+      "source_owner": "customers",
+      "target_owner": "shared",
+      "symbol": "E_TraitedEntity",
+      "path": "content/shared/entities/e_traited_entity.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/entities/stations/e_delivery_counter.gd"
+      ],
+      "purpose": "Direct authored Trait inputs on native Entity subclasses; no runtime scheduler or mutable gameplay authority."
+    },
+    {
+      "source_owner": "hazards",
+      "target_owner": "shared",
+      "symbol": "E_TraitedEntity",
+      "path": "content/shared/entities/e_traited_entity.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/entities/hazards/e_hazard.gd"
+      ],
+      "purpose": "Direct authored Trait inputs on native Entity subclasses; no runtime scheduler or mutable gameplay authority."
+    },
+    {
+      "source_owner": "interaction",
+      "target_owner": "shared",
+      "symbol": "E_TraitedEntity",
+      "path": "content/shared/entities/e_traited_entity.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/entities/props/e_grabbable_body.gd",
+        "content/entities/props/e_interaction_test_valve.gd",
+        "content/entities/props/e_openable.gd",
+        "content/entities/props/e_physical_slot.gd",
+        "content/entities/props/e_placement_area.gd",
+        "content/entities/props/e_pushable_body.gd",
+        "content/entities/props/e_transport_cart.gd"
+      ],
+      "purpose": "Direct authored Trait inputs on native Entity subclasses; no runtime scheduler or mutable gameplay authority."
+    },
+    {
+      "source_owner": "motion",
+      "target_owner": "shared",
+      "symbol": "E_TraitedEntity",
+      "path": "content/shared/entities/e_traited_entity.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/entities/characters/e_physical_character.gd"
+      ],
+      "purpose": "Direct authored Trait inputs on native Entity subclasses; no runtime scheduler or mutable gameplay authority."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "shared",
+      "symbol": "E_TraitedEntity",
+      "path": "content/shared/entities/e_traited_entity.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/entities/packages/e_package_debris.gd",
+        "content/entities/stations/e_terminal.gd",
+        "content/entities/zones/e_receiving_zone_body.gd"
+      ],
+      "purpose": "Direct authored Trait inputs on native Entity subclasses; no runtime scheduler or mutable gameplay authority."
+    },
+    {
+      "source_owner": "time",
+      "target_owner": "shared",
+      "symbol": "E_TraitedEntity",
+      "path": "content/shared/entities/e_traited_entity.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/entities/sessions/e_day_session.gd",
+        "content/entities/stations/e_day_phase_station.gd"
+      ],
+      "purpose": "Direct authored Trait inputs on native Entity subclasses; no runtime scheduler or mutable gameplay authority."
+    },
+    {
+      "source_owner": "global",
+      "target_owner": "shared",
+      "symbol": "E_TraitedEntity",
+      "path": "content/shared/entities/e_traited_entity.gd",
+      "rights": [
+        "read",
+        "configure"
+      ],
+      "public_methods": [],
+      "public_instance_methods": [],
+      "method_rights": {},
+      "sources": [
+        "content/editor/entity_authoring/entity_authoring_preview_rules.gd",
+        "content/editor/entity_authoring/entity_traits_inspector.gd",
+        "content/editor/entity_authoring/entity_traits_property.gd"
+      ],
+      "purpose": "Direct authored Trait inputs on native Entity subclasses; no runtime scheduler or mutable gameplay authority."
     }
   ],
   "legacy_decomposition": []

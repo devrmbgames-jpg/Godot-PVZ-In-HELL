@@ -116,17 +116,21 @@
 [ext_resource type="PackedScene" uid="uid://cg6d742ai0pil" path="res://content/domains/interaction/entities/window.tscn" id="Window_scene"]
 [ext_resource type="PackedScene" path="res://content/domains/inventory/entities/bubble_wrap_pickup.tscn" id="Wrap_pickup"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="Entity_composition"]
-[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_entity_district_trader.tres" id="Npc_template"]
-[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_entity_district_session.tres" id="District_template"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="Npc_composition"]
-script = ExtResource("Entity_composition")
-entity_template = ExtResource("Npc_template")
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_session_district_roster.tres" id="DirectTrait_1"]
 
-[sub_resource type="Resource" id="District_composition"]
-script = ExtResource("Entity_composition")
-entity_template = ExtResource("District_template")
+[ext_resource type="Resource" path="res://content/domains/packages/authoring/et_session_loot_queue.tres" id="DirectTrait_2"]
+
+[ext_resource type="Resource" path="res://content/shared/authoring/et_boundary_trace.tres" id="DirectTrait_3"]
+
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_identity.tres" id="DirectTrait_4"]
+
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_brain_state.tres" id="DirectTrait_5"]
+
+[ext_resource type="Resource" path="res://content/domains/npc/authoring/et_district_trader_npc_roles.tres" id="DirectTrait_6"]
+
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_7"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f5i5i"]
 
@@ -1836,9 +1840,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.22, 0.5)
 [node name="FurnitureDelivery" type="Marker3D" parent="Entityes/OrderReceiving"]
 
 [node name="DaySession" type="Node" parent="Entityes" unique_id=867944165]
-metadata/persistent_local_id = &"placed_entityes_daysession"
-metadata/entity_composition = SubResource("District_composition")
 script = ExtResource("Day_entity")
+metadata/persistent_local_id = &"placed_entityes_daysession"
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2"), ExtResource("DirectTrait_3")])
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state"), SubResource("District_state")])
 
 [node name="ShiftConsole" parent="Entityes" unique_id=1907900219 instance=ExtResource("Day_station")]
@@ -1876,10 +1880,10 @@ metadata/persistent_local_id = &"placed_entityes_wrappickup"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.25, 1.22, -1.2911086)
 
 [node name="Trader" parent="Entityes" unique_id=50836948 instance=ExtResource("Trader_scene")]
-metadata/persistent_local_id = &"placed_entityes_trader"
-metadata/entity_composition = SubResource("Npc_composition")
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.031166, 0.30710316, -0.9131813)
 script = ExtResource("District_npc")
+metadata/persistent_local_id = &"placed_entityes_trader"
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_4"), ExtResource("DirectTrait_5"), ExtResource("DirectTrait_6"), ExtResource("DirectTrait_7")])
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.031166, 0.30710316, -0.9131813)
 inspection_animation = &""
 receiving_animation = &""
 dialogue_animation = &""

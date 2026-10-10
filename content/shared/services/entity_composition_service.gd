@@ -2,21 +2,11 @@ extends RefCounted
 ## Explicit construction operations shared by placed/factory boundaries; this service never ticks.
 class_name EntityCompositionService
 
-## Scene metadata stores optional authoring inputs on any native/project Entity without a new base.
-const AUTHORING_META: StringName = &"entity_composition"
 const _PREPARED_META: StringName = &"_entity_recipes_prepared"
 const _READY_META: StringName = &"_entity_composition_ready"
 
 
 #region Read-only authoring and context
-## Reads the optional scene-owned authoring Resource, without allocating a Template or changing it.
-static func authoring_for(actor: Entity) -> EntityAuthoring:
-	if not actor.has_meta(AUTHORING_META):
-		return null
-	var authoring_input: Variant = actor.get_meta(AUTHORING_META)
-	return authoring_input as EntityAuthoring if authoring_input is EntityAuthoring else null
-
-
 ## Captures explicit World/identity inputs without assigning Entity.id or binding ECS.world.
 static func context_for(
 	actor: Entity,
@@ -34,7 +24,7 @@ static func context_for(
 		else String(actor.name)
 	)
 	context.candidate_actors = candidates.duplicate()
-	var authoring: EntityAuthoring = authoring_for(actor)
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
 	if authoring == null:
 		return context
 	context.definitions = authoring.definitions.duplicate()
@@ -73,12 +63,12 @@ static func publish_ready(actor: Entity) -> void:
 
 
 #region Common recipe compilation
-## Captures scene/intrinsic/optional Template inputs for the one pure compiler entry point.
+## Captures scene/intrinsic/direct Trait inputs for the one pure compiler entry point.
 ## Runtime factories and placed preparation use this same operation before native registration.
 static func build_plan(context: EntitySpawnContext) -> EntityBuildPlan:
 	var actor: Entity = context.actor
 	if actor == null or not is_instance_valid(actor):
-		return EntityBuildRules.compile(null, [], [], context)
+		return EntityBuildRules.compile([], [], [], context)
 	if recipes_prepared(actor):
 		var rejected: EntityBuildPlan = EntityBuildPlan.new()
 		var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()
@@ -87,19 +77,7 @@ static func build_plan(context: EntitySpawnContext) -> EntityBuildPlan:
 		issue.instance_path = context.instance_path
 		rejected.issues.append(issue)
 		return rejected
-	var authoring_input: Variant = actor.get_meta(AUTHORING_META) \
-			if actor.has_meta(AUTHORING_META) else null
-	if authoring_input != null and not authoring_input is EntityAuthoring:
-		var rejected: EntityBuildPlan = EntityBuildPlan.new()
-		var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()
-		issue.code = &"invalid_authoring"
-		issue.message = "Scene composition metadata requires EntityAuthoring"
-		issue.instance_path = context.instance_path
-		issue.source = String(AUTHORING_META)
-		rejected.issues.append(issue)
-		return rejected
-
-	var authoring: EntityAuthoring = authoring_input as EntityAuthoring
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
 	if authoring != null:
 		var seen_endpoints: Dictionary[StringName, bool] = { }
 		for endpoint_name: String in authoring.ancestor_entity_bindings:
@@ -111,14 +89,16 @@ static func build_plan(context: EntitySpawnContext) -> EntityBuildPlan:
 				issue.code = &"invalid_authoring"
 				issue.message = "Scene endpoint names require one nonempty authoring provider"
 				issue.instance_path = context.instance_path
-				issue.source = String(AUTHORING_META)
+				issue.source = "ancestor_entity_bindings"
 				rejected.issues.append(issue)
 				return rejected
 			seen_endpoints[endpoint_key] = true
-	var template: DEF_EntityTemplate = authoring.entity_template if authoring != null else null
+	var traits: Array[EntityTrait] = []
+	if authoring != null:
+		traits.assign(authoring.traits)
 	var code_recipes: Array[Component] = []
 	code_recipes.assign(actor.define_components())
-	return EntityBuildRules.compile(template, actor.component_resources, code_recipes, context)
+	return EntityBuildRules.compile(traits, actor.component_resources, code_recipes, context)
 #endregion
 
 

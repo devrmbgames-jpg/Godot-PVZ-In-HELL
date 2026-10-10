@@ -7,7 +7,7 @@ class_name EntityTrait
 @export var trait_id: StringName = &""
 ## Declarative initial data; the compiler creates isolated copies for each build.
 @export var component_recipes: Array[Component] = []
-## Component contracts that must be supplied by the scene/code/flat Template composition.
+## Component contracts that must be supplied by the scene/code/direct Trait composition.
 @export var required_components: Array[Script] = []
 ## Required authored root engine class; empty accepts the scene's existing root class.
 @export var required_root_class: StringName = &""

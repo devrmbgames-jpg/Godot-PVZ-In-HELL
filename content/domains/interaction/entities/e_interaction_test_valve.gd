@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Авторская демонстрация немедленного/длительного взаимодействия; реальные эффекты идут через действие.
 class_name E_InteractionTestValve
 

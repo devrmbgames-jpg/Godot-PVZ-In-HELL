@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Тонкое представление станции смены/сна; переходы задаются её действиями.
 class_name E_DayPhaseStation
 

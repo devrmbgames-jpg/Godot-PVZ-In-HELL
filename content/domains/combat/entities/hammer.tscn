@@ -12,12 +12,9 @@
 [ext_resource type="Resource" path="res://content/domains/combat/definitions/def_hammer_attack.tres" id="Attack"]
 [ext_resource type="Script" path="res://content/domains/combat/definitions/def_melee_action.gd" id="MeleeAction"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
-[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_entity_physical_impact.tres" id="ImpactTemplate"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="ImpactAuthoring"]
-script = ExtResource("ImpactAuthoring")
-entity_template = ExtResource("ImpactTemplate")
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_1"]
 
 [sub_resource type="Resource" id="Interactable"]
 script = ExtResource("Interactable")
@@ -158,12 +155,12 @@ _data = {
 }
 
 [node name="Hammer" type="RigidBody3D"]
-metadata/entity_composition = SubResource("ImpactAuthoring")
+script = ExtResource("Entity")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1")])
 collision_layer = 10
 collision_mask = 29
 mass = 0.65
 continuous_cd = true
-script = ExtResource("Entity")
 component_resources = Array[ExtResource("Component")]([SubResource("Interactable"), SubResource("Grabbable"), SubResource("AnchorTool"), SubResource("Weapon"), SubResource("Actions")])
 
 [node name="Handle" type="MeshInstance3D" parent="."]

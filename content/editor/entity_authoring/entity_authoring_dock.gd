@@ -1,8 +1,7 @@
 @tool
 extends VBoxContainer
-## Scene-authored editor dock; native resources and detached preview keep their existing owners.
+## Identity and detached diagnostics only; Traits are edited in the standard Inspector.
 
-const _AUTHORING_META: StringName = &"entity_composition"
 const _LOCAL_ID_META: StringName = &"persistent_local_id"
 const _WORLD_ID_META: StringName = &"persistent_world_id"
 const _PREVIEW_RUNNER: String = "res://utils/preview_entity_authoring.gd"
@@ -12,9 +11,7 @@ const _PREVIEW_DIRECTORY: String = ".artifacts/authoring_preview"
 var host_plugin: EditorPlugin = null
 var _actor_ref: WeakRef
 var _root_ref: WeakRef
-var _authoring_ref: WeakRef
 var _advanced: bool = false
-var _resource_inspector: EditorInspector
 
 @onready var _selection_label: Label = %Selection
 @onready var _instance_id: Label = %InstanceId
@@ -32,19 +29,16 @@ var _resource_inspector: EditorInspector
 
 #region Dock presentation and selection
 func _ready() -> void:
+	_resource_host.hide()
+	_configure.hide()
+	_template_id.hide()
 	# Native property editors belong to the plugin, not the authored scene's runtime graph.
 	if host_plugin == null:
 		return
-	_resource_inspector = EditorInspector.create_default_inspector()
-	_resource_inspector.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_resource_host.add_child(_resource_inspector)
 	_repair_instance.pressed.connect(_repair_selected_instance)
 	_repair_level.pressed.connect(_repair_selected_level)
-	_configure.pressed.connect(_configure_selected)
 	_validate.pressed.connect(_validate_snapshot)
 	_advanced_toggle.toggled.connect(_set_advanced)
-	_resource_inspector.resource_selected.connect(_open_resource)
-	_resource_inspector.property_edited.connect(_resource_edited)
 	bind_actor(null, null)
 
 
@@ -64,13 +58,6 @@ func bind_actor(actor: Node, edited_root: Node) -> void:
 		edited_root.property_list_changed.connect(_refresh_identity)
 	_diagnostics.text = ""
 	_refresh_identity()
-	var authoring: EntityAuthoring = (
-		actor.get_meta(_AUTHORING_META) as EntityAuthoring
-		if actor is Entity and actor.has_meta(_AUTHORING_META)
-		else null
-	)
-	if _resource_inspector != null:
-		_resource_inspector.edit(authoring)
 
 
 func _disconnect_identity_signals() -> void:
@@ -98,28 +85,9 @@ func _refresh_identity() -> void:
 		if edited_root != null
 		else "no edited scene"
 	)
-	var authoring: EntityAuthoring = (
-		actor.get_meta(_AUTHORING_META) as EntityAuthoring
-		if actor is Entity and actor.has_meta(_AUTHORING_META)
-		else null
-	)
-	var previous_authoring: Resource = (
-		_authoring_ref.get_ref() as Resource if _authoring_ref != null else null
-	)
-	if authoring != previous_authoring or (authoring == null and _authoring_ref != null):
-		_authoring_ref = weakref(authoring) if authoring != null else null
-		if _resource_inspector != null:
-			_resource_inspector.edit(authoring)
-	_template_id.visible = actor is Entity
-	_template_id.text = "Template ID: %s" % (
-		authoring.entity_template.key
-		if authoring != null and authoring.entity_template != null
-		else "scene intrinsic"
-	)
 	_repair_instance.disabled = host_plugin == null or not actor is Entity
 	_repair_level.visible = _selected_level() != null
 	_repair_level.disabled = host_plugin == null or not _repair_level.visible
-	_configure.disabled = host_plugin == null or not actor is Entity
 	_validate.disabled = host_plugin == null or actor == null or edited_root == null
 	_recipes.visible = _advanced
 	var recipes: PackedStringArray = PackedStringArray(["Scene Component recipes:"])
@@ -148,21 +116,11 @@ func _selected_level() -> Node:
 	return actor if actor != null and actor == edited_root and not actor is Entity else null
 
 
-func _configure_selected() -> void:
-	_edit_authoring(_actor_ref)
-
-
 func _set_advanced(enabled: bool) -> void:
 	_advanced = enabled
 	_refresh_identity()
 
 
-func _open_resource(resource: Resource, _property_path: String) -> void:
-	_resource_inspector.edit(resource)
-
-
-func _resource_edited(_property_name: String) -> void:
-	_refresh_identity()
 #endregion
 
 
@@ -185,29 +143,6 @@ func _repair_identity(actor_ref: WeakRef, metadata_key: StringName) -> void:
 	undo.commit_action()
 
 
-func _edit_authoring(actor_ref: WeakRef) -> void:
-	var actor: Node = actor_ref.get_ref() as Node
-	if actor == null:
-		return
-	var authoring: EntityAuthoring = (
-		actor.get_meta(_AUTHORING_META) as EntityAuthoring
-		if actor.has_meta(_AUTHORING_META)
-		else null
-	)
-	if authoring == null:
-		authoring = EntityAuthoring.new()
-		authoring.resource_local_to_scene = true
-		var previous: Variant = (
-			actor.get_meta(_AUTHORING_META) if actor.has_meta(_AUTHORING_META) else null
-		)
-		var undo: EditorUndoRedoManager = host_plugin.get_undo_redo()
-		undo.create_action("Create Scene Composition", UndoRedo.MERGE_DISABLE, actor)
-		undo.add_do_method(actor, "set_meta", _AUTHORING_META, authoring)
-		undo.add_undo_method(actor, "set_meta", _AUTHORING_META, previous)
-		undo.add_do_method(actor, "notify_property_list_changed")
-		undo.add_undo_method(actor, "notify_property_list_changed")
-		undo.commit_action()
-	_resource_inspector.edit(authoring)
 #endregion
 
 

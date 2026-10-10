@@ -94,12 +94,11 @@
 
 [ext_resource type="Script" path="res://content/domains/motion/components/c_stamina.gd" id="Player_stamina"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="SessionAuthoring"]
-[ext_resource type="Resource" path="res://content/domains/time/definitions/def_entity_day_session.tres" id="SessionTemplate"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="SessionAuthoring"]
-script = ExtResource("SessionAuthoring")
-entity_template = ExtResource("SessionTemplate")
+[ext_resource type="Resource" path="res://content/domains/packages/authoring/et_session_loot_queue.tres" id="DirectTrait_1"]
+
+[ext_resource type="Resource" path="res://content/shared/authoring/et_boundary_trace.tres" id="DirectTrait_2"]
 
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("23_d7jx2")
@@ -636,9 +635,9 @@ metadata/persistent_local_id = &"placed_entityes_orderreceiving"
 position = Vector3(16, 0.22, -8)
 
 [node name="DaySession" type="Node" parent="Entityes"]
-metadata/entity_composition = SubResource("SessionAuthoring")
-metadata/persistent_local_id = &"placed_entityes_daysession"
 script = ExtResource("Day_entity")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1"), ExtResource("DirectTrait_2")])
+metadata/persistent_local_id = &"placed_entityes_daysession"
 component_resources = Array[ExtResource("Grab_component")]([SubResource("Day_state"), SubResource("Day_ledger"), SubResource("Wallet_state"), SubResource("Customer_flow"), SubResource("Commerce_state"), SubResource("Quest_state"), SubResource("Autosave_state")])
 
 [node name="ShiftConsole" parent="Entityes" instance=ExtResource("Day_station")]

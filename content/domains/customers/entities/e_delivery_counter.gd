@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Авторские точки обслуживания и физическая область коробок; не решает исход выдачи.
 class_name E_DeliveryCounter
 

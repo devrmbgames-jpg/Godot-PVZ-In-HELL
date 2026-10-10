@@ -10,12 +10,9 @@
 [ext_resource type="Script" uid="uid://dui6s0tapwhk7" path="res://content/domains/interaction/components/c_interaction_action_set.gd" id="7_actions"]
 [ext_resource type="Script" uid="uid://l86pj0y5txcq" path="res://content/domains/packages/definitions/def_scan_action.gd" id="8_action"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
-[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_entity_physical_impact.tres" id="ImpactTemplate"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="ImpactAuthoring"]
-script = ExtResource("ImpactAuthoring")
-entity_template = ExtResource("ImpactTemplate")
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_1"]
 
 [sub_resource type="Resource" id="Scanner_state"]
 script = ExtResource("4_scanner")
@@ -82,12 +79,12 @@ emission = Color(1, 0, 0, 1)
 size = Vector3(0.05, 0.05, 0.001)
 
 [node name="Scanner" type="RigidBody3D" unique_id=935711068]
-metadata/entity_composition = SubResource("ImpactAuthoring")
+script = ExtResource("1")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1")])
 collision_layer = 10
 collision_mask = 29
 mass = 0.5
 continuous_cd = true
-script = ExtResource("1")
 component_resources = Array[ExtResource("3_component")]([SubResource("Scanner_state"), SubResource("Scanner_interactable"), SubResource("Scanner_grabbable"), SubResource("Scanner_actions")])
 
 [node name="Body" type="MeshInstance3D" parent="." unique_id=1457605258]

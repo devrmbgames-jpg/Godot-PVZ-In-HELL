@@ -95,7 +95,7 @@ function Test-IgnoredCertificateStoreError([string]$Line) {
 	return $Line -match "^ERROR: Failed to read the root certificate store\.$"
 }
 
-function Test-SmokeLog([string[]]$LogLines, [string]$CompletionPattern = "(?m)(?:^PASS(?:\s|:|$)|\bsmoke PASS\s*$)") {
+function Test-SmokeLog([string[]]$LogLines, [string]$CompletionPattern = "(?m)(?:^PASS(?:\s|:|$)|\bsmoke:? PASS\s*$)") {
 	[string[]]$failures = @()
 	if (-not ($LogLines -match $CompletionPattern)) {
 		$failures += "PASS line was not found"

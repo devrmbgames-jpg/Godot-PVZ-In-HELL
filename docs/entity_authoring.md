@@ -5,39 +5,40 @@ capabilities, Profiles/Definitions supply tuning, and the placed instance suppli
 and named endpoints. The runtime and the Inspector preview use `EntityCompositionService`
 and `EntityBuildRules`; preview never registers an Entity or starts a System.
 
-## Authoring dock installation
+## Assigning Traits in the standard Inspector
 
-Open `content/editor/entity_authoring/install_entity_authoring.gd` in Godot's script editor
-and use **File → Run** once per editor session. Running it again is harmless. Open the
-separate **Entity Authoring** dock beside the Inspector. The EditorPlugin is project-owned
-under `content/editor/`; it does not extend, hide fields in or otherwise alter the base
-Inspector. Third-party addons and project plugin settings are unchanged. Closing the editor
-removes the session installation. Restart the editor once when upgrading from the old
-Inspector extension, then run the installer.
+The persistent **Gameplay Traits** plugin is enabled in Project Settings → Plugins.
+Its project-owned entry is `addons/project_entity_traits/plugin.cfg`, with implementation
+under `content/editor/entity_authoring/`. It restores on restart; no installer script is needed.
+Third-party GECS is unchanged.
 
-Edit the permanent layout in `content/editor/entity_authoring/entity_authoring_dock.tscn`.
-Its controller binds controls by Unique Name. The dock's own native resource Inspector
-edits Template/Profile/binding inputs; resource navigation stays inside this dock.
-The authored ResourceInspector container defines its position and size. The plugin creates
-Godot's native property editor there only while installed, so the UI scene also loads in
-detached non-editor content validation.
+1. Select the Entity root in the scene tree. Existing project actors inherit `E_TraitedEntity`.
+   For a new raw GECS Entity, attach `content/shared/entities/e_traited_entity.gd`; retain its
+   physical node type, mesh and collision. No per-object script is needed.
+2. In **Gameplay Traits**, click **Add Trait** and select an existing EntityTrait `.tres`,
+   for example `content/domains/combat/authoring/et_impact_capture.tres` for a physical actor.
+   **New Trait** creates a local declarative resource; configure its ID and recipes.
+3. Use **Make Unique & Edit** before tuning this instance. Shared Traits and Definitions
+   should stay shared unless a deliberate local copy is requested. Native picker drag/drop
+   assigns resources; arrows reorder and **Remove** deletes an entry.
+4. Use **Validate Scene Composition**, inspect any nearby errors, then save the scene.
+   All array changes use native Inspector Undo/Redo and serialize as scene/instance overrides.
 
-Select an Entity in the scene tree. The dock shows the instance and Template IDs separately,
-provides explicit ID commands and opens the single scene-owned `EntityAuthoring` Resource.
-Its `entity_template`, `definitions` and `bindings` remain the actual editable inputs.
-Use a scene-contained Template for a one-off object or an external `.tres` for a reused variant.
-Make a Resource unique before editing one instance's shared capability configuration.
+If the plugin is disabled, the native exported `traits: Array[EntityTrait]` remains editable.
+Expand that array, add an element and assign an EntityTrait resource using Godot's normal picker.
+The plugin changes neither GECS identity nor runtime registration.
 
-**Advanced** exposes scene Component recipes and the compiler's resolved providers, per-field
-provenance, initial Relationships and actionable conflict/requirement diagnostics. Scene/code
-providers and Template providers cannot silently override each other; choose one owner.
-Definition tuning belongs to its existing Profile, rather than copies in every Trait.
+Direct `traits` is the only runtime source. `DEF_EntityTemplate` assets are optional editor-only
+presets: copy their entries into `traits`; they are not referenced by production scenes.
+The former `EntityAuthoring`, `metadata/entity_composition`, dock resource editor and one-shot
+installer are removed. The retained **Entity Authoring** dock handles diagnostics and IDs only.
 
-Bindings are named `NodePath` inputs relative to the Entity. Use the exact endpoint name
-declared by the Trait (including a Home/Workplace name when the capability requires it).
-The referenced node must resolve to an Entity in the accepted set. Adding a named endpoint
-does not itself add a new gameplay behavior. Parent-owned slots use the existing
-`ancestor_entity_bindings` contract, without a second editable endpoint provider.
+**Advanced Authoring** contains typed immutable `definitions`, named NodePath `bindings` relative
+to the Entity, and `ancestor_entity_bindings` resolved to the nearest ancestor Entity. These use
+the existing endpoint names and whole-set ownership validation; simple actors leave them empty.
+**Advanced diagnostics** reports provider and per-field provenance, initial Relationships and
+dependency/identity errors through the shared `EntityBuildRules` compiler. Scene/code and Trait
+providers cannot silently override each other. Profile tuning retains its existing owner.
 
 ## Identity and validation
 
@@ -55,7 +56,7 @@ to configure a reused prefab's nested slots. Resource IDs and instance IDs are d
 
 **Validate Scene Composition** captures the current scene and authored Resource values into
 an ignored disposable snapshot. Script and physical-scene assets keep their external references;
-the capture does not save over the original `.tscn` or `.tres`, including unsaved Template edits.
+the capture does not save over the original `.tscn` or `.tres`, including unsaved Trait edits.
 A separate headless process validates that detached copy. No ready callback, ECS publication,
 animation tick, AI execution, physics frame or gameplay effect runs on the preview actors.
 The worker log is retained at `.artifacts/authoring_preview/last.log`; script failures are
@@ -72,8 +73,8 @@ as startup. Placed and spawned actors have the same runtime Component/Relationsh
 
 | Content change | Existing assets / owning input | Manual authoring locations |
 | --- | --- | --- |
-| Two district NPC variants | Copy `def_npc_profile_1.tres` / another existing Profile; set distinct keys and appearance/speed; add them to a copied district's `profiles` list. Keep `district_npc.tscn` and its Template. | Two Profile assets and one district asset: 3. |
-| Two Trader variants | Copy `def_trader_default.tres`, configure each catalog/tuning, and assign each to the scene's `C_Trader.profile`. Reuse `trader.tscn`; a district merchant uses the existing district Trader Template and roster Profile. | Two Profile assets and two scene assignments: 4. |
+| Two district NPC variants | Copy `def_npc_profile_1.tres` / another existing Profile; set distinct keys and appearance/speed; add them to a copied district's `profiles` list. Keep `district_npc.tscn` and its direct Traits. | Two Profile assets and one district asset: 3. |
+| Two Trader variants | Copy `def_trader_default.tres`, configure each catalog/tuning, and assign each to the scene's `C_Trader.profile`. Reuse `trader.tscn`; a district merchant uses the existing direct district Trader Traits and roster Profile. | Two Profile assets and two scene assignments: 4. |
 | Two combat variants | Reuse `def_npc_punch.tres` / `def_npc_shot.tres`; configure a copied NPC Profile's `melee_attacks` / `ranged_attacks` or the generic scene-owned `C_NpcCombat`. Do not provide the same field from both. | One capability owner per variant: 2. |
 | Two interactable variants | Inherit `box.tscn`, keep its mesh/collision/impact capability, and configure the existing actions or visual/tuning Resource in each inherited scene. | Two scene variants: 2, plus IDs for newly placed instances. |
 | New gameplay level | Copy `primitive_test_level.tscn` and reuse its controller/World/mechanics; assign a new Level ID and a distinct save path when saves are enabled. Preserve the existing required node paths. Add variants as real scene instances. | Scene destination, Level ID and save path: 3, plus IDs for newly added/duplicated Entity children. |
@@ -85,7 +86,7 @@ No runtime `.gd` generation or global registry entry is needed for these existin
 `tests/fixtures/refactoring_v2/authoring_level.tscn` provides a minimal editable reuse example:
 a physical NPC, Trader, box and nested inspection slot, four instance IDs in one level scope.
 It is a detached authoring fixture, not a replacement for the authored gameplay level/World.
-Subjective mesh/marker presentation and dock ergonomics require the owner's visual QA.
+Subjective mesh/marker presentation and Inspector ergonomics require the owner's visual QA.
 
 ## Reproducible automated checks
 

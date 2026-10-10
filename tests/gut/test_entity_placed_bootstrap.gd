@@ -27,7 +27,7 @@ class CountingWorld extends GameWorld:
 
 
 ## Passive native ready reports complete data without emitting gameplay commands/outcomes.
-class PassiveActor extends Entity:
+class PassiveActor extends E_TraitedEntity:
 	var _native_ready_calls: int = 0
 	var _ready_components: int = 0
 
@@ -225,14 +225,12 @@ func _template_actor(
 	actor: Entity,
 	capability_id: StringName,
 	recipes: Array[Component],
-) -> EntityAuthoring:
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	authoring.entity_template = DEF_EntityTemplate.new()
+) -> E_TraitedEntity:
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
 	var capability: EntityTrait = EntityTrait.new()
 	capability.trait_id = capability_id
 	capability.component_recipes = recipes
-	authoring.entity_template.traits = [capability]
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	authoring.traits = [capability]
 	return authoring
 #endregion
 
@@ -305,12 +303,12 @@ func test_duplicate_entity_id_is_rejected_before_native_collision_replacement() 
 func test_initial_binding_uses_fully_registered_endpoint_from_the_placed_set() -> void:
 	var source: PassiveActor = _actor("Source", [])
 	var target: PassiveActor = _actor("Target", [])
-	var authoring: EntityAuthoring = _template_actor(source, &"mounted", [])
+	var authoring: E_TraitedEntity = _template_actor(source, &"mounted", [])
 	authoring.bindings[&"support"] = NodePath("../Target")
 	var intent: EntityInitialBinding = EntityInitialBinding.new()
 	intent.relation = R_SlotMountedOn.new()
 	intent.endpoint = &"support"
-	authoring.entity_template.traits[0].initial_bindings = [intent]
+	authoring.traits[0].initial_bindings = [intent]
 	add_child(_level)
 	assert_false(_world.initialization_failed())
 	assert_eq(_world.registrations(), 2)
@@ -330,11 +328,10 @@ func test_placed_district_roster_and_merchant_identity_precede_native_publicatio
 	var definition_path: String = "res://content/domains/npc/definitions/def_district_default.tres"
 	district.definition = load(definition_path) as DEF_District
 	var session: PassiveActor = _actor("Session", [district, C_DayCycle.new()])
-	var authoring: EntityAuthoring = EntityAuthoring.new()
-	authoring.entity_template = load(
+	var authoring: E_TraitedEntity = session as E_TraitedEntity
+	authoring.traits = (load(
 		"res://content/domains/npc/definitions/def_entity_district_session.tres"
-	) as DEF_EntityTemplate
-	session.set_meta(EntityCompositionService.AUTHORING_META, authoring)
+	) as DEF_EntityTemplate).traits
 	var npc_path: String = "res://content/domains/npc/entities/district_npc.tscn"
 	var prefab: PackedScene = load(npc_path) as PackedScene
 	var merchant: E_DistrictNpc = prefab.instantiate() as E_DistrictNpc
@@ -398,14 +395,14 @@ func test_late_startup_observer_is_suspended_until_all_initial_entities_are_comp
 	var spy: O_StartupEffectSpy = O_StartupEffectSpy.new()
 	_world.add_observer(spy)
 	assert_false(spy.active)
-	var startup_actor: Entity = Entity.new()
+	var startup_actor: Entity = E_TraitedEntity.new()
 	startup_actor.component_resources = [C_Health.new()]
 	EntityCompositionFixture.register(_world, startup_actor)
 	assert_eq(spy.effects, 0)
 	_world.finish_startup()
 	assert_true(spy.active)
 	assert_eq(spy.effects, 0, "Initial membership is rebuilt without gameplay replay")
-	var future_actor: Entity = Entity.new()
+	var future_actor: Entity = E_TraitedEntity.new()
 	future_actor.component_resources = [C_Health.new()]
 	EntityCompositionFixture.register(_world, future_actor)
 	assert_eq(spy.effects, 1)

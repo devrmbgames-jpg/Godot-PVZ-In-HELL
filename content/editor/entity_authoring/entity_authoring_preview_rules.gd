@@ -45,22 +45,23 @@ static func inspect_scene(scene_root: Node) -> Dictionary:
 
 
 static func _describe(context: EntitySpawnContext, plan: EntityBuildPlan) -> Dictionary:
-	var authoring: EntityAuthoring = EntityCompositionService.authoring_for(context.actor)
-	var template: DEF_EntityTemplate = authoring.entity_template if authoring != null else null
+	var authoring: E_TraitedEntity = context.actor as E_TraitedEntity
+	var authored_traits: Array[EntityTrait] = []
+	if authoring != null:
+		authored_traits.assign(authoring.traits)
 	var traits: Array[String] = []
-	if template != null:
-		for capability: EntityTrait in template.traits:
-			if capability != null:
-				traits.append(String(capability.trait_id))
+	for capability: EntityTrait in authored_traits:
+		if capability != null:
+			traits.append(String(capability.trait_id))
 	var providers: Array[Dictionary] = []
 	for component_script: Script in plan.provenance:
 		var field_sources: Dictionary = plan.field_provenance.get(component_script, { }).duplicate()
 		for field: Variant in field_sources:
-			field_sources[field] = _source_for(String(field_sources[field]), template)
+			field_sources[field] = _source_for(String(field_sources[field]), authored_traits)
 		providers.append(
 			{
 				"component": component_script.resource_path,
-				"source": _source_for(plan.provenance[component_script], template),
+				"source": _source_for(plan.provenance[component_script], authored_traits),
 				"fields": field_sources,
 			}
 		)
@@ -70,7 +71,7 @@ static func _describe(context: EntitySpawnContext, plan: EntityBuildPlan) -> Dic
 			{
 				"relationship": (binding.relation.get_script() as Script).resource_path,
 				"target": String(context.actor.get_path_to(binding.target)),
-				"source": _source_for(binding.source, template),
+				"source": _source_for(binding.source, authored_traits),
 			}
 		)
 	var issues: Array[Dictionary] = []
@@ -78,8 +79,8 @@ static func _describe(context: EntitySpawnContext, plan: EntityBuildPlan) -> Dic
 		issues.append(
 			{
 				"code": String(issue.code),
-				"message": _source_for(issue.message, template),
-				"source": _source_for(issue.source, template),
+				"message": _source_for(issue.message, authored_traits),
+				"source": _source_for(issue.source, authored_traits),
 				"trait": String(issue.trait_id),
 			}
 		)
@@ -87,12 +88,7 @@ static func _describe(context: EntitySpawnContext, plan: EntityBuildPlan) -> Dic
 		"path": context.instance_path,
 		"valid": plan.valid(),
 		"traits": traits,
-		"template": (
-			template.get_meta(EntityAuthoringSnapshotRules.SOURCE_META, template.resource_path)
-			if template != null
-			else "scene intrinsic"
-		),
-		"resource_id": String(template.key) if template != null else "",
+		"authoring": "direct traits" if not authored_traits.is_empty() else "scene intrinsic",
 		"instance_id": String(context.actor.get_meta(PlacedIdentityRules.LOCAL_ID_META, "")),
 		"providers": providers,
 		"bindings": bindings,
@@ -100,10 +96,8 @@ static func _describe(context: EntitySpawnContext, plan: EntityBuildPlan) -> Dic
 	}
 
 
-static func _source_for(source: String, template: DEF_EntityTemplate) -> String:
-	if template == null:
-		return source
-	for capability: EntityTrait in template.traits:
+static func _source_for(source: String, authored_traits: Array[EntityTrait]) -> String:
+	for capability: EntityTrait in authored_traits:
 		if capability == null:
 			continue
 		var captured_source: String = "trait:%s:%s" % [

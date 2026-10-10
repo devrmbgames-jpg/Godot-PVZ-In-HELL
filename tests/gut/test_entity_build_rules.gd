@@ -127,9 +127,9 @@ func test_explicit_profile_fields_preserve_provider_and_are_order_independent() 
 	var current: ConfiguredTrait = ConfiguredTrait.new()
 	current.trait_id = &"current"
 	current.fields[C_Health as Script] = { &"current": 37.0 }
-	var template: DEF_EntityTemplate = _template([maximum, current])
+	var template: Array[EntityTrait] = _template([maximum, current])
 	var plan: EntityBuildPlan = EntityBuildRules.compile(template, [health], [], _context())
-	template.traits.reverse()
+	template.reverse()
 	var reverse: EntityBuildPlan = EntityBuildRules.compile(template, [health], [], _context())
 	assert_true(plan.valid())
 	assert_true(reverse.valid())
@@ -201,7 +201,7 @@ func test_configured_nested_records_are_copied_and_definitions_remain_shared() -
 	person.profile = DEF_NpcProfile.new()
 	var people: Array[NpcRecord] = [person]
 	capability.fields[C_District as Script] = { &"people": people }
-	var template: DEF_EntityTemplate = _template([capability])
+	var template: Array[EntityTrait] = _template([capability])
 	var first: EntityBuildPlan = EntityBuildRules.compile(
 		template,
 		[C_District.new()],
@@ -251,7 +251,7 @@ func test_scene_only_build_preserves_intrinsic_values_without_registering() -> v
 	var calendar: C_DayCycle = C_DayCycle.new()
 	calendar.clock.elapsed_ticks = 19
 	var previous_world: World = ECS.world
-	var plan: EntityBuildPlan = EntityBuildRules.compile(null, [calendar], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile([], [calendar], [], context)
 	assert_true(plan.valid())
 	assert_eq(plan.component_recipes.size(), 1)
 	var calendar_script: Script = calendar.get_script() as Script
@@ -271,9 +271,9 @@ func test_trait_order_is_irrelevant_and_requirements_see_all_providers() -> void
 	var resistance: EntityTrait = _trait(&"resistance", [C_DamageResistance.new()])
 	resistance.required_components = [C_DayCycle]
 	var time_trait: EntityTrait = _trait(&"time", [C_DayCycle.new()])
-	var template: DEF_EntityTemplate = _template([resistance, time_trait])
+	var template: Array[EntityTrait] = _template([resistance, time_trait])
 	var forward: EntityBuildPlan = EntityBuildRules.compile(template, [], [], context)
-	template.traits.reverse()
+	template.reverse()
 	var reverse: EntityBuildPlan = EntityBuildRules.compile(template, [], [], context)
 	assert_true(forward.valid())
 	assert_true(reverse.valid())
@@ -343,7 +343,7 @@ func test_two_compiled_builds_isolate_nested_state_and_share_definitions() -> vo
 	person.profile = DEF_NpcProfile.new()
 	person.npc_id = &"fixture/person"
 	district.people = [person]
-	var template: DEF_EntityTemplate = _template([_trait(&"population", [district])])
+	var template: Array[EntityTrait] = _template([_trait(&"population", [district])])
 	var first: EntityBuildPlan = EntityBuildRules.compile(template, [], [], _context())
 	var second: EntityBuildPlan = EntityBuildRules.compile(template, [], [], _context())
 	assert_true(first.valid())
@@ -383,7 +383,7 @@ func test_required_and_optional_absent_bindings_have_distinct_contracts() -> voi
 	var intent: EntityInitialBinding = _binding(&"support")
 	var capability: EntityTrait = _trait(&"mounted", [])
 	capability.initial_bindings = [intent]
-	var template: DEF_EntityTemplate = _template([capability])
+	var template: Array[EntityTrait] = _template([capability])
 	var required_plan: EntityBuildPlan = EntityBuildRules.compile(template, [], [], _context())
 	assert_false(required_plan.valid())
 	assert_eq(_issue_codes(required_plan), [&"missing_binding"])
@@ -438,7 +438,7 @@ func test_factory_binding_intent_uses_same_pure_validation_and_fresh_recipe() ->
 	context.bindings[&"source"] = target
 	var intent: EntityInitialBinding = _binding(&"source")
 	context.initial_bindings = [intent]
-	var plan: EntityBuildPlan = EntityBuildRules.compile(null, [], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile([], [], [], context)
 	assert_true(plan.valid())
 	assert_eq(plan.bindings.size(), 1)
 	assert_eq(plan.bindings[0].source, "context")
@@ -470,7 +470,7 @@ func test_factory_and_trait_binding_collision_rejects_with_context_provenance() 
 func test_factory_missing_binding_is_configuration_failure() -> void:
 	var context: EntitySpawnContext = _context()
 	context.initial_bindings = [_binding(&"absent")]
-	var plan: EntityBuildPlan = EntityBuildRules.compile(null, [C_Inventory.new()], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile([], [C_Inventory.new()], [], context)
 	assert_false(plan.valid())
 	assert_eq(_issue_codes(plan), [&"missing_binding"])
 	assert_eq(plan.issues[0].source, "context")
@@ -501,12 +501,12 @@ func test_distinct_relationship_targets_are_valid() -> void:
 ## Missing instance/identity produces configuration issues before any provider is materialized.
 func test_instance_and_identity_are_required_boundary_inputs() -> void:
 	var missing_instance: EntitySpawnContext = EntitySpawnContext.new()
-	var first: EntityBuildPlan = EntityBuildRules.compile(null, [], [], missing_instance)
+	var first: EntityBuildPlan = EntityBuildRules.compile([], [], [], missing_instance)
 	assert_false(first.valid())
 	assert_eq(_issue_codes(first), [&"missing_instance"])
 	var missing_id: EntitySpawnContext = _context()
 	missing_id.actor_id = ""
-	var second: EntityBuildPlan = EntityBuildRules.compile(null, [], [], missing_id)
+	var second: EntityBuildPlan = EntityBuildRules.compile([], [], [], missing_id)
 	assert_false(second.valid())
 	assert_eq(_issue_codes(second), [&"missing_identity"])
 	assert_eq(missing_id.actor.id, "")
@@ -518,9 +518,9 @@ func test_instance_and_identity_are_required_boundary_inputs() -> void:
 func test_duplicate_entity_ids_reject_whole_set_without_changing_instances() -> void:
 	var first: EntitySpawnContext = _context()
 	var second: EntitySpawnContext = _context()
-	var first_plan: EntityBuildPlan = EntityBuildRules.compile(null, [C_DayCycle.new()], [], first)
+	var first_plan: EntityBuildPlan = EntityBuildRules.compile([], [C_DayCycle.new()], [], first)
 	var second_plan: EntityBuildPlan = EntityBuildRules.compile(
-		null,
+		[],
 		[C_DamageResistance.new()],
 		[],
 		second,
@@ -547,7 +547,7 @@ func test_registered_id_is_rejected_without_removing_existing_actor() -> void:
 	world.entity_id_registry[existing.id] = existing
 	var context: EntitySpawnContext = _context()
 	context.world = world
-	var plan: EntityBuildPlan = EntityBuildRules.compile(null, [], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile([], [], [], context)
 	assert_false(EntityBuildRules.validate_registration_batch([context], [plan]))
 	assert_has(_issue_codes(plan), &"registered_entity_id")
 	assert_eq(world.entities, [existing])
@@ -564,8 +564,8 @@ func test_duplicate_stable_ids_reject_the_entire_prepared_set() -> void:
 	var identity: C_AuthoredIdentity = C_AuthoredIdentity.new()
 	identity.world_id = &"level"
 	identity.local_id = &"actor"
-	var first_plan: EntityBuildPlan = EntityBuildRules.compile(null, [identity], [], first)
-	var second_plan: EntityBuildPlan = EntityBuildRules.compile(null, [identity], [], second)
+	var first_plan: EntityBuildPlan = EntityBuildRules.compile([], [identity], [], first)
+	var second_plan: EntityBuildPlan = EntityBuildRules.compile([], [identity], [], second)
 	assert_false(
 		EntityBuildRules.validate_registration_batch([first, second], [first_plan, second_plan])
 	)
@@ -606,7 +606,7 @@ func test_prepared_endpoint_is_valid_independent_of_actor_order() -> void:
 		[],
 		source,
 	)
-	var target_plan: EntityBuildPlan = EntityBuildRules.compile(null, [], [], target)
+	var target_plan: EntityBuildPlan = EntityBuildRules.compile([], [], [], target)
 	assert_true(
 		EntityBuildRules.validate_registration_batch([source, target], [source_plan, target_plan])
 	)
@@ -620,7 +620,7 @@ func test_prepared_endpoint_is_valid_independent_of_actor_order() -> void:
 func test_captured_context_cannot_rename_native_instance_identity() -> void:
 	var context: EntitySpawnContext = _context()
 	context.actor.id = "authored/id"
-	var plan: EntityBuildPlan = EntityBuildRules.compile(null, [], [], context)
+	var plan: EntityBuildPlan = EntityBuildRules.compile([], [], [], context)
 	assert_false(EntityBuildRules.validate_registration_batch([context], [plan]))
 	assert_has(_issue_codes(plan), &"identity_mismatch")
 	assert_eq(context.actor.id, "authored/id")
@@ -715,10 +715,8 @@ func _trait(capability_id: StringName, recipes: Array[Component]) -> EntityTrait
 	return capability
 
 
-func _template(capabilities: Array[EntityTrait]) -> DEF_EntityTemplate:
-	var template: DEF_EntityTemplate = DEF_EntityTemplate.new()
-	template.traits = capabilities
-	return template
+func _template(capabilities: Array[EntityTrait]) -> Array[EntityTrait]:
+	return capabilities
 
 
 func _binding(endpoint: StringName) -> EntityInitialBinding:

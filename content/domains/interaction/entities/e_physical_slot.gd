@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Авторский физический слот; начальную mount-связь проверяет общий compiler до регистрации.
 class_name E_PhysicalSlot
 

@@ -33,7 +33,7 @@ func before_each() -> void:
 	second.position = Vector3(-2, 0, 3)
 	var definition: DEF_District = DEF_District.new()
 	definition.places = [first, second]
-	var session: Entity = Entity.new()
+	var session: Entity = E_TraitedEntity.new()
 	_district = C_District.new()
 	_district.definition = definition
 	session.component_resources = [_district, C_DayCycle.new()]
@@ -54,7 +54,7 @@ func after_each() -> void:
 func test_address_instance_fields_compile_fresh_scene_data() -> void:
 	var first: Entity = autofree(_ADDRESS.instantiate()) as Entity
 	var second: Entity = autofree(_ADDRESS.instantiate()) as Entity
-	assert_same(EntityCompositionService.authoring_for(first).entity_template, _TEMPLATE)
+	assert_eq((first as E_TraitedEntity).traits[0].trait_id, _TEMPLATE.traits[0].trait_id)
 	var first_context: EntitySpawnContext = EntityCompositionService.context_for(
 		first,
 		_world,
@@ -113,9 +113,12 @@ func test_address_conflict_rejects_batch_before_population_mutation() -> void:
 		func(actor: Entity) -> void:
 			published.append(actor),
 	)
-	_TEMPLATE.traits.append(conflicting)
+	var address_trait: EntityTrait = load(
+		"res://content/domains/npc/authoring/et_npc_address_npc_address.tres"
+	) as EntityTrait
+	address_trait.component_recipes.append(conflicting.component_recipes[0])
 	var initialized: bool = DistrictPopulationService.initialize()
-	_TEMPLATE.traits.erase(conflicting)
+	address_trait.component_recipes.erase(conflicting.component_recipes[0])
 	assert_false(initialized)
 	assert_true(published.is_empty())
 	assert_eq(_world.entities.size(), before_count)
@@ -183,16 +186,16 @@ func test_body_provider_conflict_discards_addresses_and_preserves_person_sequenc
 	_population_profiles(
 		PackedStringArray(["res://content/domains/npc/entities/district_npc.tscn"])
 	)
-	var template: DEF_EntityTemplate = load(
-		"res://content/domains/npc/definitions/def_entity_district_npc.tres"
-	) as DEF_EntityTemplate
+	var capability: EntityTrait = load(
+		"res://content/domains/combat/authoring/et_impact_capture.tres"
+	) as EntityTrait
 	var conflict: EntityTrait = EntityTrait.new()
 	conflict.trait_id = &"duplicate_population_inventory"
 	conflict.component_recipes = [C_Inventory.new()]
 	var before_count: int = _world.entities.size()
-	template.traits.append(conflict)
+	capability.component_recipes.append(conflict.component_recipes[0])
 	var accepted: bool = DistrictPopulationService.initialize()
-	template.traits.erase(conflict)
+	capability.component_recipes.erase(conflict.component_recipes[0])
 	assert_false(accepted)
 	assert_eq(_world.entities.size(), before_count)
 	assert_eq(_world.query.with_all([C_NpcAddress]).execute().size(), 0)

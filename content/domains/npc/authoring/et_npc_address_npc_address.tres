@@ -1,0 +1,14 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" uid="uid://bjwjbtb1hnub0" path="res://content/shared/authoring/entity_trait.gd" id="2_n80sg"]
+[ext_resource type="Script" uid="uid://bud6b4vkfac0w" path="res://content/domains/npc/components/c_npc_address.gd" id="5_l3b8j"]
+
+[resource]
+script = ExtResource("2_n80sg")
+trait_id = &"npc_address"
+required_components = Array[Script]([ExtResource("5_l3b8j")])
+required_root_class = &"StaticBody3D"
+required_nodes = Array[NodePath]([NodePath("Address")])
+initial_field_names = Dictionary[Script, PackedStringArray]({
+ExtResource("5_l3b8j"): PackedStringArray("address_id")
+})

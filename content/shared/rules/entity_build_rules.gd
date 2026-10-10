@@ -6,7 +6,7 @@ class_name EntityBuildRules
 #region Side-effect-free compilation
 ## Compiles optional Traits and scene/code providers without changing their inputs or World.
 static func compile(
-	template: DEF_EntityTemplate,
+	authored_traits: Array[EntityTrait],
 	scene_recipes: Array[Component],
 	code_recipes: Array[Component],
 	context: EntitySpawnContext,
@@ -27,9 +27,7 @@ static func compile(
 	_contribute(plan, context, providers, code_recipes, "code")
 
 	# Sort by declared capability ID; duplicate IDs/providers never become order-based overrides.
-	var traits: Array[EntityTrait] = []
-	if template != null:
-		traits.assign(template.traits)
+	var traits: Array[EntityTrait] = authored_traits.duplicate()
 	traits.sort_custom(_trait_before)
 	var seen_traits: Dictionary[StringName, bool] = { }
 	var enabled_traits: Array[EntityTrait] = []

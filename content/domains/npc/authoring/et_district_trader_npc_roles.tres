@@ -1,0 +1,19 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" uid="uid://dlwax2x6w3y5q" path="res://content/domains/npc/components/c_npc_identity.gd" id="5_s5cpd"]
+[ext_resource type="Script" uid="uid://cdfmtg82nbku7" path="res://content/domains/interaction/definitions/def_interaction_action.gd" id="11_x5jro"]
+[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_handoff.tres" id="Customer_handoff"]
+[ext_resource type="Resource" path="res://content/domains/customers/definitions/def_action_customer_request.tres" id="Customer_request"]
+[ext_resource type="Resource" uid="uid://dnhtf6evpqsc8" path="res://content/domains/needs/definitions/def_hunger_default.tres" id="Hunger_policy"]
+[ext_resource type="Script" uid="uid://bpcjvv4f88op7" path="res://content/domains/npc/authoring/et_npc_roles.gd" id="Roles"]
+[ext_resource type="Resource" path="res://content/domains/npc/definitions/def_action_npc_street.tres" id="Street_action"]
+[resource]
+script = ExtResource("Roles")
+action_set_provider = 1
+trader_provider = 1
+hunger_policy = ExtResource("Hunger_policy")
+street_action = ExtResource("Street_action")
+additional_actions = Array[ExtResource("11_x5jro")]([ExtResource("Customer_request"), ExtResource("Customer_handoff")])
+trait_id = &"npc_roles"
+required_components = Array[Script]([ExtResource("5_s5cpd")])
+required_root_class = &"RigidBody3D"

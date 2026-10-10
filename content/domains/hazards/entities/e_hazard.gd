@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Основа автономной нефизической опасности с авторским определением сцены.
 class_name E_Hazard
 

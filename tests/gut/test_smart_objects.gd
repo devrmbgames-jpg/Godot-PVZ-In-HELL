@@ -48,7 +48,7 @@ func after_each() -> void:
 
 
 func _new_actor(stable_id: String = "") -> Entity:
-	var actor: Entity = Entity.new()
+	var actor: Entity = E_TraitedEntity.new()
 	actor.id = stable_id
 	actor.component_resources = [C_GrabControl.new()]
 	_world.add_entity(actor)
@@ -56,7 +56,7 @@ func _new_actor(stable_id: String = "") -> Entity:
 
 
 func _new_object(stable_id: String = "") -> Entity:
-	var object: Entity = Entity.new()
+	var object: Entity = E_TraitedEntity.new()
 	object.id = stable_id
 	var marker: Marker3D = Marker3D.new()
 	marker.name = "ServiceMarker"
@@ -354,11 +354,9 @@ func test_schema_errors_are_reported_by_common_compiler_provider() -> void:
 		"res://content/domains/packages/entities/package_return_point.tscn"
 	) as PackedScene
 	var actor: Entity = autofree(prefab.instantiate()) as Entity
-	var authoring_input: Variant = actor.get_meta(EntityCompositionService.AUTHORING_META)
-	var authoring: EntityAuthoring = authoring_input as EntityAuthoring
-	authoring = authoring.duplicate(true) as EntityAuthoring
-	actor.set_meta(EntityCompositionService.AUTHORING_META, authoring)
-	var capability: ET_SmartObject = authoring.entity_template.traits[0] as ET_SmartObject
+	var authoring: E_TraitedEntity = actor as E_TraitedEntity
+	authoring.traits = [authoring.traits[0].duplicate(true) as EntityTrait]
+	var capability: ET_SmartObject = authoring.traits[0] as ET_SmartObject
 	capability.definition.affordances[0].executor = null
 	capability.definition.affordances[0].slot_id = &"missing"
 	actor.get_node("ReturnMarker").free()

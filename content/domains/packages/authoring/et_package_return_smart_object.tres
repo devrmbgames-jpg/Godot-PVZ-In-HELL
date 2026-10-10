@@ -1,0 +1,9 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://content/domains/interaction/authoring/et_smart_object.gd" id="SmartTrait"]
+[ext_resource type="Resource" path="res://content/domains/packages/definitions/def_smart_package_return.tres" id="Definition"]
+
+[resource]
+script = ExtResource("SmartTrait")
+trait_id = &"smart_object"
+definition = ExtResource("Definition")

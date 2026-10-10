@@ -278,8 +278,7 @@ func test_duplicate_additional_role_action_is_rejected_before_registration() -> 
 	var person: NpcRecord = NpcPopulationRules.initial_records(_DISTRICT, 1)[0]
 	var context: EntitySpawnContext = _context(actor, person, "duplicate-action")
 	var roles: EntityTrait = null
-	var template: DEF_EntityTemplate = EntityCompositionService.authoring_for(actor).entity_template
-	for candidate: EntityTrait in template.traits:
+	for candidate: EntityTrait in actor.traits:
 		if candidate.trait_id == &"npc_roles":
 			roles = candidate
 	var extra: Array = roles.get("additional_actions") as Array

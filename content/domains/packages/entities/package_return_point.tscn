@@ -3,16 +3,14 @@
 [ext_resource type="Script" path="res://addons/gecs/ecs/entity.gd" id="Entity"]
 [ext_resource type="Script" path="res://addons/gecs/ecs/component.gd" id="Component"]
 [ext_resource type="Script" path="res://content/domains/interaction/components/c_interactable.gd" id="Interactable"]
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="Authoring"]
-[ext_resource type="Resource" path="res://content/domains/packages/definitions/def_entity_package_return.tres" id="Template"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
+
+[ext_resource type="Resource" path="res://content/domains/packages/authoring/et_package_return_smart_object.tres" id="DirectTrait_1"]
+
+[ext_resource type="Script" path="res://content/shared/entities/e_traited_entity.gd" id="DirectTrait_2"]
 
 [sub_resource type="Resource" id="Interactable"]
 script = ExtResource("Interactable")
-
-[sub_resource type="Resource" id="Authoring"]
-resource_local_to_scene = true
-script = ExtResource("Authoring")
-entity_template = ExtResource("Template")
 
 [sub_resource type="StandardMaterial3D" id="Material"]
 albedo_color = Color(0.2, 0.42, 0.56, 1)
@@ -25,11 +23,12 @@ size = Vector3(1.3, 0.8, 0.6)
 size = Vector3(1.3, 0.8, 0.6)
 
 [node name="PackageReturnPoint" type="StaticBody3D"]
+script = ExtResource("DirectTrait_2")
 collision_layer = 8
 collision_mask = 0
-script = ExtResource("Entity")
 component_resources = Array[ExtResource("Component")]([SubResource("Interactable")])
-metadata/entity_composition = SubResource("Authoring")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1")])
+resource_local_to_scene = true
 
 [node name="ReturnMarker" type="Marker3D" parent="."]
 position = Vector3(0, 0, 0.7)

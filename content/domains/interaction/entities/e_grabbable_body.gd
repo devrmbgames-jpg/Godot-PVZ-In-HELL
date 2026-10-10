@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## В физическом callback фиксирует удар и передаёт исполнение грузу тележки либо удержанию.
 class_name E_GrabbableBody
 

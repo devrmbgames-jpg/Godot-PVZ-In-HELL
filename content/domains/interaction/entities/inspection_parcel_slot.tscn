@@ -3,21 +3,18 @@
 [ext_resource type="Script" path="res://content/domains/interaction/entities/e_physical_slot.gd" id="Entity"]
 [ext_resource type="Script" path="res://content/domains/interaction/components/c_physical_slot.gd" id="Slot"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="Authoring"]
-[ext_resource type="Resource" path="res://content/domains/interaction/definitions/def_entity_physical_slot.tres" id="Template"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="Authoring"]
-script = ExtResource("Authoring")
-entity_template = ExtResource("Template")
-ancestor_entity_bindings = PackedStringArray("mounted_on")
+[ext_resource type="Resource" path="res://content/domains/interaction/authoring/et_physical_slot.tres" id="DirectTrait_1"]
 
 [sub_resource type="Resource" id="Slot"]
 script = ExtResource("Slot")
 maximum_mass = 100.0
 
 [node name="InspectionParcelSlot" type="Node3D" node_paths=PackedStringArray("anchor", "driver")]
-metadata/entity_composition = SubResource("Authoring")
 script = ExtResource("Entity")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1")])
+ancestor_entity_bindings = PackedStringArray("mounted_on")
 anchor = NodePath("Anchor")
 driver = NodePath("Anchor/StoredRemoteTransform")
 component_resources = [SubResource("Slot")]

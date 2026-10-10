@@ -1,7 +1,7 @@
 @tool
 extends GameDefinition
-## Flat scene-owned capability configuration; it has no inheritance or default-scene back-reference.
+## Optional editor-only preset; runtime compilation reads the Entity's direct traits export.
 class_name DEF_EntityTemplate
 
-## Reusable capability configuration; order never resolves conflicts or selects a last writer.
+## Reusable preset entries copied into an Entity; this resource is never a runtime provider.
 @export var traits: Array[EntityTrait] = []

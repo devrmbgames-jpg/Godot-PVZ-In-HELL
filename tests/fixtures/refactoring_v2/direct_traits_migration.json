@@ -1,0 +1,305 @@
+{
+  "content/domains/combat/entities/hammer.tscn": [
+    {
+      "node": "[node name=\"Hammer\" type=\"RigidBody3D\"]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/combat/entities/utility_blade.tscn": [
+    {
+      "node": "[node name=\"UtilityBlade\" type=\"RigidBody3D\"]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/customers/entities/customer.tscn": [
+    {
+      "node": "[node name=\"Customer\" instance=ExtResource(\"Foundation\")]",
+      "template": "res://content/domains/customers/definitions/def_entity_customer_visit.tres",
+      "traits": [
+        "res://content/domains/customers/authoring/et_customer_visit_customer_visit.tres",
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": "definitions = {&\"customer_policy\": ExtResource(\"Policy\")}"
+    }
+  ],
+  "content/domains/interaction/entities/anchorable_test_box.tscn": [
+    {
+      "node": "[node name=\"AnchorableTestBox\" type=\"RigidBody3D\"]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/interaction/entities/box.tscn": [
+    {
+      "node": "[node name=\"Box\" type=\"RigidBody3D\" unique_id=173843081]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": "ancestor_entity_bindings = PackedStringArray()"
+    }
+  ],
+  "content/domains/interaction/entities/bucket.tscn": [
+    {
+      "node": "[node name=\"Bucket\" type=\"RigidBody3D\" unique_id=263915687]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/interaction/entities/cloth_sample.tscn": [
+    {
+      "node": "[node name=\"ClothSample\" type=\"RigidBody3D\"]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/interaction/entities/inspection_parcel_slot.tscn": [
+    {
+      "node": "[node name=\"InspectionParcelSlot\" type=\"Node3D\" node_paths=PackedStringArray(\"anchor\", \"driver\")]",
+      "template": "res://content/domains/interaction/definitions/def_entity_physical_slot.tres",
+      "traits": [
+        "res://content/domains/interaction/authoring/et_physical_slot.tres"
+      ],
+      "advanced": "ancestor_entity_bindings = PackedStringArray(\"mounted_on\")"
+    }
+  ],
+  "content/domains/interaction/entities/large_shelf.tscn": [
+    {
+      "node": "[node name=\"LargeShelf\" type=\"RigidBody3D\"]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/interaction/entities/marker.tscn": [
+    {
+      "node": "[node name=\"Marker\" type=\"RigidBody3D\" unique_id=1086911559]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/interaction/entities/physical_slot.tscn": [
+    {
+      "node": "[node name=\"PhysicalSlot\" type=\"StaticBody3D\" node_paths=PackedStringArray(\"anchor\", \"driver\")]",
+      "template": "res://content/domains/interaction/definitions/def_entity_physical_slot.tres",
+      "traits": [
+        "res://content/domains/interaction/authoring/et_physical_slot.tres"
+      ],
+      "advanced": "ancestor_entity_bindings = PackedStringArray(\"mounted_on\")"
+    }
+  ],
+  "content/domains/interaction/entities/small_shelf.tscn": [
+    {
+      "node": "[node name=\"SmallShelf\" type=\"RigidBody3D\"]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/inventory/entities/bubble_wrap_pickup.tscn": [
+    {
+      "node": "[node name=\"BubbleWrapPickup\" type=\"RigidBody3D\"]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/inventory/entities/food_pickup.tscn": [
+    {
+      "node": "[node name=\"FoodPickup\" type=\"RigidBody3D\"]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/inventory/entities/med_pickup.tscn": [
+    {
+      "node": "[node name=\"MedPickup\" type=\"RigidBody3D\"]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/inventory/entities/npc_meat_pickup.tscn": [
+    {
+      "node": "[node name=\"NpcMeat\" type=\"RigidBody3D\"]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/motion/entities/character_body_player.tscn": [
+    {
+      "node": "[node name=\"CharacterBodyPlayer\" type=\"CharacterBody3D\" unique_id=1703744943 node_paths=PackedStringArray(\"interaction_ray_cast\", \"hold_anchor\", \"right_hand_slot\", \"left_hand_slot\", \"lowered_right_hand_slot\", \"lowered_left_hand_slot\", \"shape_standing\", \"shape_crouching\", \"camera_root\", \"ray_standing\", \"crouch_mounts\", \"head_axis_y\", \"head_axis_x\", \"ground_ray\")]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/motion/entities/physical_character.tscn": [
+    {
+      "node": "[node name=\"PhysicalCharacter\" type=\"RigidBody3D\" node_paths=PackedStringArray(\"head_axis_y\", \"head_axis_x\")]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/npc/entities/district_npc.tscn": [
+    {
+      "node": "[node name=\"DistrictNpc\" instance=ExtResource(\"Base\")]",
+      "template": "res://content/domains/npc/definitions/def_entity_district_npc.tres",
+      "traits": [
+        "res://content/domains/npc/authoring/et_district_npc_npc_identity.tres",
+        "res://content/domains/npc/authoring/et_district_npc_npc_brain_state.tres",
+        "res://content/domains/npc/authoring/et_district_npc_npc_roles.tres",
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/npc/entities/npc_address.tscn": [
+    {
+      "node": "[node name=\"NpcAddress\" type=\"StaticBody3D\"]",
+      "template": "res://content/domains/npc/definitions/def_entity_npc_address.tres",
+      "traits": [
+        "res://content/domains/npc/authoring/et_npc_address_npc_address.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/packages/entities/content_stub.tscn": [
+    {
+      "node": "[node name=\"PackageContent\" type=\"RigidBody3D\"]",
+      "template": "res://content/domains/packages/definitions/def_entity_package_content.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres",
+        "res://content/domains/packages/authoring/et_package_content.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/packages/entities/package.tscn": [
+    {
+      "node": "[node name=\"Package\" unique_id=1384920554 instance=ExtResource(\"1_box\")]",
+      "template": "res://content/domains/packages/definitions/def_entity_package.tres",
+      "traits": [
+        "res://content/domains/packages/authoring/et_package_package_state.tres",
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/packages/entities/package_debris_stub.tscn": [
+    {
+      "node": "[node name=\"PackageDebrisStub\" type=\"RigidBody3D\" unique_id=1087797866]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/domains/packages/entities/package_return_point.tscn": [
+    {
+      "node": "[node name=\"PackageReturnPoint\" type=\"StaticBody3D\"]",
+      "template": "res://content/domains/packages/definitions/def_entity_package_return.tres",
+      "traits": [
+        "res://content/domains/packages/authoring/et_package_return_smart_object.tres"
+      ],
+      "advanced": "resource_local_to_scene = true"
+    }
+  ],
+  "content/domains/packages/entities/scanner.tscn": [
+    {
+      "node": "[node name=\"Scanner\" type=\"RigidBody3D\" unique_id=935711068]",
+      "template": "res://content/domains/combat/definitions/def_entity_physical_impact.tres",
+      "traits": [
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/scenes/main_level.tscn": [
+    {
+      "node": "[node name=\"DaySession\" type=\"Node\" parent=\"Entityes\" unique_id=867944165]",
+      "template": "res://content/domains/npc/definitions/def_entity_district_session.tres",
+      "traits": [
+        "res://content/domains/npc/authoring/et_district_session_district_roster.tres",
+        "res://content/domains/packages/authoring/et_session_loot_queue.tres",
+        "res://content/shared/authoring/et_boundary_trace.tres"
+      ],
+      "advanced": ""
+    },
+    {
+      "node": "[node name=\"Trader\" parent=\"Entityes\" unique_id=50836948 instance=ExtResource(\"Trader_scene\")]",
+      "template": "res://content/domains/npc/definitions/def_entity_district_trader.tres",
+      "traits": [
+        "res://content/domains/npc/authoring/et_district_trader_npc_identity.tres",
+        "res://content/domains/npc/authoring/et_district_trader_npc_brain_state.tres",
+        "res://content/domains/npc/authoring/et_district_trader_npc_roles.tres",
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "content/scenes/primitive_test_level.tscn": [
+    {
+      "node": "[node name=\"DaySession\" type=\"Node\" parent=\"Entityes\"]",
+      "template": "res://content/domains/time/definitions/def_entity_day_session.tres",
+      "traits": [
+        "res://content/domains/packages/authoring/et_session_loot_queue.tres",
+        "res://content/shared/authoring/et_boundary_trace.tres"
+      ],
+      "advanced": ""
+    }
+  ],
+  "tests/fixtures/refactoring_v2/trader_npc_template.tscn": [
+    {
+      "node": "[node name=\"Trader\" instance=ExtResource(\"Trader\")]",
+      "template": "res://content/domains/npc/definitions/def_entity_district_trader.tres",
+      "traits": [
+        "res://content/domains/npc/authoring/et_district_trader_npc_identity.tres",
+        "res://content/domains/npc/authoring/et_district_trader_npc_brain_state.tres",
+        "res://content/domains/npc/authoring/et_district_trader_npc_roles.tres",
+        "res://content/domains/combat/authoring/et_impact_capture.tres"
+      ],
+      "advanced": ""
+    }
+  ]
+}

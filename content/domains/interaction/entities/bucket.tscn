@@ -5,12 +5,9 @@
 [ext_resource type="Script" uid="uid://6oap3bonxec0" path="res://content/domains/interaction/components/c_interactable.gd" id="3_b84gk"]
 [ext_resource type="Script" uid="uid://dp2r3vovlpl83" path="res://content/domains/interaction/components/c_grabbable.gd" id="4_dv1qv"]
 
-[ext_resource type="Script" path="res://content/shared/authoring/entity_authoring.gd" id="ImpactAuthoring"]
-[ext_resource type="Resource" path="res://content/domains/combat/definitions/def_entity_physical_impact.tres" id="ImpactTemplate"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="DirectTrait_0"]
 
-[sub_resource type="Resource" id="ImpactAuthoring"]
-script = ExtResource("ImpactAuthoring")
-entity_template = ExtResource("ImpactTemplate")
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="DirectTrait_1"]
 
 [sub_resource type="Resource" id="Resource_bghjr"]
 script = ExtResource("3_b84gk")
@@ -56,12 +53,12 @@ points = PackedVector3Array(-0.8736507, -0.2594508, -0.026250793, 0.8736507, 0.2
 points = PackedVector3Array(-0.8736507, -0.2594508, -0.026250793, 0.8736507, 0.25927937, 0.028352378, 0.8736507, 0.25927937, -0.026250793, -0.8736507, 0.25927937, 0.028352378, 0.8736507, -0.2594508, 0.028352378, 0.8736507, -0.2594508, -0.026250793, -0.8736507, 0.25927937, -0.026250793, -0.8736507, -0.2594508, 0.028352378)
 
 [node name="Bucket" type="RigidBody3D" unique_id=263915687]
-metadata/entity_composition = SubResource("ImpactAuthoring")
+script = ExtResource("1_7bnpv")
+traits = Array[ExtResource("DirectTrait_0")]([ExtResource("DirectTrait_1")])
 collision_layer = 10
 collision_mask = 29
 mass = 80.0
 continuous_cd = true
-script = ExtResource("1_7bnpv")
 component_resources = Array[ExtResource("2_of718")]([SubResource("Resource_bghjr"), SubResource("Resource_lqn1g")])
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=506784518]

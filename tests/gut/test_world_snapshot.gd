@@ -700,16 +700,16 @@ func test_fresh_package_template_conflict_rejects_restore_before_live_mutation()
 	var calendar: C_DayCycle = DayPhaseQueries.current()
 	calendar.day_index = 7
 
-	# Simulate an authored duplicate in the currently loaded production Template; restore sees it.
-	var template: DEF_EntityTemplate = load(
-		"res://content/domains/packages/definitions/def_entity_package.tres") as DEF_EntityTemplate
+	# Simulate an authored duplicate in the shared direct Trait; restore must reject it.
+	var capability: EntityTrait = load(
+		"res://content/domains/combat/authoring/et_impact_capture.tres") as EntityTrait
 	var conflicting: EntityTrait = EntityTrait.new()
 	conflicting.trait_id = &"fixture_duplicate_health"
 	conflicting.component_recipes = [C_Health.new()]
-	template.traits.append(conflicting)
+	capability.component_recipes.append(conflicting.component_recipes[0])
 	var can_restore: bool = WorldSnapshotService.can_restore(snapshot, _root)
 	var restored: bool = WorldSnapshotService.restore(snapshot, _root)
-	template.traits.erase(conflicting)
+	capability.component_recipes.erase(conflicting.component_recipes[0])
 
 	assert_false(can_restore)
 	assert_false(restored)

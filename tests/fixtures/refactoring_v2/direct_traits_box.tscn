@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://content/domains/interaction/entities/box.tscn" id="Box"]
+[ext_resource type="Script" path="res://content/shared/authoring/entity_trait.gd" id="Trait"]
+[ext_resource type="Resource" path="res://content/domains/combat/authoring/et_impact_capture.tres" id="Impact"]
+
+[node name="DirectTraitsBox" instance=ExtResource("Box")]
+traits = Array[ExtResource("Trait")]([ExtResource("Impact")])

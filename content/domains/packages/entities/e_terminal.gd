@@ -1,5 +1,5 @@
 @tool
-extends Entity
+extends E_TraitedEntity
 ## Native terminal request boundary; panel presentation and input capture belong to global UI.
 class_name E_Terminal
 
