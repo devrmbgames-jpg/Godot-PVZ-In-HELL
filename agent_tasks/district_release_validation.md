@@ -25,9 +25,16 @@ Status: **IN_PROGRESS**
 Функциональный snapshot checkpoint reviewed; задача инструментов завершена после
 проверки scanner repair RV-001 и targeted re-review. Найдены текущие runners
 `utils/run_smoke.ps1` и `utils/export_windows.ps1`,
-существующие district/Night/truck/furniture smokes и профильные GUT. Следующее: собрать
-один связный многодневный headless сценарий с полным перечисленным acceptance, затем
-выполнить итоговый batch и Windows export. Сборка и финальная приёмка ещё NOT_RUN.
+существующие district/Night/truck/furniture smokes и профильные GUT. Новый
+`tests/smoke/district_release_smoke.tscn` проходит реальные shifts/Nights 1/2 через
+обычные Systems и `DayPhaseService`, затем startup Morning3 в отдельном процессе.
+Проверены terminal LOST/заметка/принятие предложений, success/refusal/failed promise,
+продажа/raw disposal и следующий утренний возврат, физическая мебель, очередь/свет
+второго дня, семь полных сохранённых агрегатов и два повторных reload без выплат/дубликатов.
+Fixture задаёт физические входы игрока/разгрузки и home pose; движение очереди обычное.
+Три предложения выбираются на копии Definition, перед Night возвращается authored .tres.
+Следующее: закрыть финальные parser/import/export gates и immutable-SHA review/triage.
+Windows build NOT_RUN; source review нового сценария REVIEW_PENDING.
 
 Baseline district smoke выявил устаревший legacy junction graph gate. Исправление и
 review/triage закрыты в [задаче validator](completed/warehouse_navigation_validation_contract.md).
@@ -37,7 +44,24 @@ review/triage закрыты в [задаче validator](completed/warehouse_nav
 
 ### Validation
 
-Эта выделенная задача ещё не прошла приёмку. Ранее выполненные проверки в Current или родительском файле — контрольные точки; новые проверки записывать только после фактического запуска.
+Приёмка ещё открыта. Проверки 2026-10-11 выполнялись на worktree с сохранёнными
+пользовательскими изменениями; они не являются тестированием immutable snapshot:
+
+- Connected smoke: native write/restore PASS, exit 0; логи
+  `tests/artifacts/district_release-write-20261011-012324176.log` и
+  `district_release-restore-20261011-012536592.log`. Runtime/script errors отсутствуют.
+  Runner write FAIL из-за shutdown-only Resource/Script/texture RID retention;
+  restore выполнен отдельным headless процессом с `-- restore`, поскольку runner
+  останавливается после FAIL. Diagnostics сохранены: KNOWN_ENGINE_LIMITATION / DEFERRED;
+  wrapper FAIL не объявлять PASS. Обычный запуск:
+  `utils/run_smoke.ps1 -Name district_release -GodotPath .bin/Godot_v4.7.1-stable_win64_console.exe`.
+- GUT: `test_world_snapshot` 30/30, 352 assertions (`gut-20261010-152354786`) и
+  `test_game_session` 6/6, 43 (`gut-20261010-152358489`), wrapper PASS.
+- PASS: incremental formatter/lint, staged agent-change gate (0 production files),
+  strict architecture/domain, project structure, PowerShell parser и scoped diff check.
+- Live MCP script writes: diagnostics checked, без file errors/warnings. Предварительный
+  CLI parser 1/1, native exit 0 (`parsefiles-20261010-152158813`), wrapper FAIL из-за
+  shutdown-only retention. Финальный parser после comparator repair ещё NOT_RUN.
 
 Итоговый реальный parser через `utils/godot_agent.ps1`, incremental formatter,
 `validate_agent_changes.py`, strict architecture/domain, структура, импорт диалогов,

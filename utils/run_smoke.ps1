@@ -156,9 +156,10 @@ foreach ($scene in $selectedScenes) {
 		"trader_purchase" = "Trader purchase smoke"
 		"night_persistence" = "Night persistence smoke"
 		"morning_truck" = "Morning truck smoke"
+		"district_release" = "District release smoke"
 	}
 	[string[]]$phases = if ($restartSmokes.ContainsKey($smokeName)) { @("write", "restore") } else { @("run") }
-	[int]$frameBudget = if ($PSBoundParameters.ContainsKey("Frames")) { $Frames } elseif ($smokeName -eq "district") { 16000 } elseif ($smokeName -eq "cart_transport") { 2400 } elseif ($phases.Count -gt 1) { 1600 } else { 360 }
+	[int]$frameBudget = if ($PSBoundParameters.ContainsKey("Frames")) { $Frames } elseif ($smokeName -eq "district_release") { 48000 } elseif ($smokeName -eq "district") { 16000 } elseif ($smokeName -eq "cart_transport") { 2400 } elseif ($phases.Count -gt 1) { 1600 } else { 360 }
 	[string]$scenePath = $scene.FullName
 
 	foreach ($phase in $phases) {

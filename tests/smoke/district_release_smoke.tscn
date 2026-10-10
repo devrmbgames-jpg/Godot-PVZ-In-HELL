@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c3w0ubnd4fxwf"]
+
+[ext_resource type="Script" uid="uid://bt1hlc6xxy6yl" path="res://tests/smoke/district_release_smoke.gd" id="1_eonmr"]
+
+[node name="DistrictReleaseSmoke" type="Node" unique_id=1156717537]
+script = ExtResource("1_eonmr")
