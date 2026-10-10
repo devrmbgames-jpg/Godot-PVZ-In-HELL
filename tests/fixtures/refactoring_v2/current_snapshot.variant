@@ -23,7 +23,7 @@
 "death_day": 0,
 "display_name": "Архивариус",
 "exit_id": &"portal_north",
-"goal_id": &"activity_3",
+"goal_id": &"activity_1",
 "home_id": &"home_1",
 "memories": [],
 "npc_id": &"npc/1",
@@ -46,7 +46,7 @@
 "death_day": 0,
 "display_name": "Зольник",
 "exit_id": &"portal_south",
-"goal_id": &"activity_0",
+"goal_id": &"activity_2",
 "home_id": &"home_2",
 "memories": [{
 "fields": {
@@ -102,7 +102,7 @@
 "death_day": 0,
 "display_name": "Стекольщица",
 "exit_id": &"portal_north",
-"goal_id": &"activity_3",
+"goal_id": &"activity_1",
 "home_id": &"home_4",
 "memories": [],
 "npc_id": &"npc/4",
@@ -171,7 +171,7 @@
 "death_day": 0,
 "display_name": "Швея",
 "exit_id": &"portal_north",
-"goal_id": &"activity_0",
+"goal_id": &"activity_2",
 "home_id": &"home_7",
 "memories": [],
 "npc_id": &"npc/7",
@@ -387,6 +387,7 @@
 "day_index": 2,
 "entity_id": "fixture/removed/cargo",
 "kind": 1,
+"raw_actor_id": "",
 "removed": true,
 "settled": false
 },
@@ -1299,5 +1300,6 @@
 "scene": "res://content/domains/interaction/entities/anchorable_test_box.tscn"
 }]),
 "morning_day": 2,
-"version": 11
+"raw_actors": Array[Dictionary]([]),
+"version": 12
 }

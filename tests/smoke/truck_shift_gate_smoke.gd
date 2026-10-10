@@ -66,6 +66,16 @@ func _run() -> void:
 	EntityCompositionFixture.register(world, pickup, false)
 	(pickup as Node as RigidBody3D).freeze = true
 	(pickup as Node as Node3D).global_transform = truck.cargo_slots[0].global_transform
+	var raw: RigidBody3D = (
+		load("res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_A/Barrel_A_rigid.tscn")
+		as PackedScene
+	).instantiate() as RigidBody3D
+	raw.name = &"RawReturnCargo"
+	physical_root.add_child(raw)
+	raw.gravity_scale = 0.0
+	raw.global_transform = truck.cargo_slots[1].global_transform
+	var proxy: Entity = PhysicsGrabTarget.handle_for(raw, true)
+	assert(proxy != null)
 	var wallet: C_Wallet = session.get_component(C_Wallet) as C_Wallet
 	assert(wallet.balance == 0)
 	var transition: DayTransitionRequest = DayTransitionRequest.new()
@@ -83,7 +93,10 @@ func _run() -> void:
 		wallet.balance == 7 and wallet.operations.size() == 1,
 		"Cargo payout: balance=%d, operations=%d" % [wallet.balance, wallet.operations.size()],
 	)
-	assert(receiving.cargo_receipts.size() == 1 and receiving.cargo_receipts[0].settled)
+	assert(physical_root.get_node_or_null("RawReturnCargo") == null)
+	assert(not world.entities.has(proxy))
+	assert(receiving.cargo_receipts.size() == 2)
+	assert(receiving.cargo_receipts[0].settled and receiving.cargo_receipts[1].settled)
 	assert(TruckCargoService.commit(zone, cycle))
 	assert(wallet.balance == 7)
 

@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_A/Barrel_A_rigid.tscn" id="1_barrel"]
+
+[node name="CargoRawFixture" type="Node3D"]
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="Barrel" parent="Props" groups=["raw_actor/placed/0123456789abcdef0123456789abcdef"] instance=ExtResource("1_barrel")]
+position = Vector3(100, 100, 100)
+gravity_scale = 0.0

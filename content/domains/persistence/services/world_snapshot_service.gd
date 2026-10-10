@@ -20,6 +20,9 @@ static func capture(root: Node, morning_day: int) -> Dictionary:
 	):
 		return { }
 
+	var raw: Dictionary = RawPhysicsSnapshot.capture(root)
+	if raw.is_empty():
+		return { }
 	var records: Array[Dictionary] = []
 	for entity: Entity in ECS.world.entities:
 		if not is_instance_valid(entity) or not _persistent(entity):
@@ -104,6 +107,7 @@ static func capture(root: Node, morning_day: int) -> Dictionary:
 		"version": AutosaveStore.SCHEMA_VERSION,
 		"morning_day": morning_day,
 		"entities": records,
+		"raw_actors": raw.actors,
 	})
 
 #endregion
@@ -116,6 +120,7 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 		snapshot.get("version") != AutosaveStore.SCHEMA_VERSION
 		or not snapshot.get("morning_day") is int or int(snapshot.morning_day) < 1
 		or not snapshot.get("entities") is Array
+		or not RawPhysicsSnapshot.valid(snapshot.get("raw_actors"), root)
 	):
 		return false
 
@@ -318,6 +323,7 @@ static func valid(snapshot: Dictionary, root: Node) -> bool:
 				return false
 	return (
 		session_count == 1 and SnapshotGraphRules.valid(records, all_components)
+		and RawPhysicsSnapshot.valid_receipts(snapshot.raw_actors as Array, all_components)
 		and DistrictSnapshotRules.valid(records, all_components, int(snapshot.morning_day))
 		and LootSnapshotRules.valid(records, all_components)
 	)
@@ -628,6 +634,7 @@ static func restore(snapshot: Dictionary, root: Node) -> bool:
 		ReceivingDeliveryService.reset_context(zone.get_component(C_Receiving) as C_Receiving)
 	RefusalQuestService.restore_bindings()
 	DistrictPopulationService.restore_participation()
+	RawPhysicsSnapshot.restore(snapshot.raw_actors as Array, root)
 	SnapshotRestoreBoundary.finish(ECS.world, activity)
 	for actor: Entity in entities.values():
 		EntityCompositionService.publish_ready(actor)

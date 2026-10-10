@@ -12,6 +12,8 @@ enum Kind {
 @export var batch_id: String = ""
 ## Устойчивый Entity.id, сохраняемый штатным snapshot.
 @export var entity_id: String = ""
+## Stable identity of a scriptless body; mutually exclusive with Entity.id.
+@export var raw_actor_id: String = ""
 ## День фактической отправки, начиная с 1.
 @export var day_index: int = 1
 ## Возврат складской коробки, продажа имущества либо утилизация без дохода.

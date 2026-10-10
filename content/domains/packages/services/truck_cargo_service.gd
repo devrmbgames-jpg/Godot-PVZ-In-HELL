@@ -44,6 +44,21 @@ static func _commit(
 			if receipt == null:
 				return false
 			receipts.append(receipt)
+		for node: Node in ECS.world.get_parent().find_children("*", "RigidBody3D", true, false):
+			var body: RigidBody3D = node as RigidBody3D
+			if not _is_free_raw(body, truck):
+				continue
+			var identity: String = RawPhysicsActorService.identify(body)
+			if (
+				identity.is_empty()
+				or RawPhysicsActorService.find(ECS.world.get_parent(), identity) != body
+			):
+				return false
+			var receipt: TruckCargoReceipt = TruckCargoReceipt.new()
+			receipt.batch_id = receiving.batch_id
+			receipt.raw_actor_id = identity
+			receipt.day_index = cycle.day_index
+			receipts.append(receipt)
 
 	# Проверка всей выплаты на копии: переполнение/конфликт не удаляют ни одного предмета.
 	if not _can_settle(receipts, cycle.day_index):
@@ -56,6 +71,17 @@ static func _commit(
 		if receipt.settled:
 			continue
 		if not receipt.removed:
+			if not receipt.raw_actor_id.is_empty():
+				var body: RigidBody3D = RawPhysicsActorService.find(
+					ECS.world.get_parent(),
+					receipt.raw_actor_id,
+				)
+				if body == null or not _is_free_raw(body, truck):
+					return false
+				receipt.removed = true
+				RawPhysicsActorService.remove(body)
+				receipt.settled = true
+				continue
 			var item: Entity = _entity_by_id(receipt.entity_id)
 			if item == null or not _is_free_cargo(item, truck):
 				return false
@@ -77,6 +103,28 @@ static func _commit(
 
 
 #region Свободный физический груз и зафиксированная стоимость
+static func _is_free_raw(body: RigidBody3D, truck: E_MorningTruck) -> bool:
+	if (
+		body.get_script() != null or not GrabQueries.is_carry_candidate(body)
+		or not RawPhysicsActorService.is_standalone(body)
+	):
+		return false
+	if not truck.overlaps_cargo(body):
+		return false
+	var proxy: Entity = PhysicsGrabTarget.handle_for(body, false)
+	if proxy == null:
+		return true
+	if GrabQueries.held_relationship(proxy) != null or proxy.has_component(C_PlayerAnchored):
+		return false
+	for link: Relationship in proxy.relationships:
+		if (
+			link.relation is R_OwnedBy or link.relation is R_CartCargo
+			or link.relation is R_StoredIn
+		):
+			return false
+	return true
+
+
 static func _is_free_cargo(item: Entity, truck: E_MorningTruck) -> bool:
 	if not EntityAvailability.contains(item, ECS.world):
 		return false

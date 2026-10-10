@@ -171,6 +171,14 @@ A declared migration scope is DONE only when all callers, state ownership and ex
 - Push authority is `cart --R_PushedBy--> actor`; `C_PushControl` is derived/cache state.
 - Cart driver/cargo authority is being normalized under R22.5; read the current code and the exact R22.5 milestone before changing those relationships.
 - Raw/scriptless `RigidBody3D` Carry is supported through `C_PhysicsBodyRef` proxy Entities; the physical body remains physics authority.
+- Portable native placements declare a stable `raw_actor/placed/<UUID>` group on the body.
+  `RawPhysicsActorService` handles identity and explicit disposal; its grab-proxy remains transient.
+  `RawPhysicsSnapshot` saves presence/pose by this ID and restores from the level's authored native
+  PackedScene recipe inside world reconstruction. Native authoring paths resolve construction
+  parents only; they are never serialized identities. Loading an earlier snapshot recreates a
+  disposed placement; a later snapshot removes it from a fresh level instance. Ad-hoc runtime
+  bodies without an authored recipe have only transaction identity; pending disposal of such a
+  body cannot be restored, and preflight rejects that incomplete snapshot before mutation.
 - Carry mobility is Strength/mass driven. Detailed tuning, slots, anchors, collision exceptions, throws and rotation belong in `docs/physical_grab.md`.
 - Cart movement/cargo behavior belongs in `docs/cart_transport.md`.
 

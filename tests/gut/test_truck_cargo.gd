@@ -10,10 +10,13 @@ var _world: World
 var _zone: E_ReceivingZone
 var _state: C_Receiving
 
+const RAW_SLOT: String = "user://gut_truck_cargo_raw_roundtrip.pvzh"
+
 
 #region Окружение обратного груза
 func before_each() -> void:
-	_root = Node3D.new()
+	var fixture: PackedScene = load("res://tests/fixtures/truck_cargo_raw.tscn") as PackedScene
+	_root = fixture.instantiate() as Node3D
 	add_child(_root)
 	_world = World.new()
 	_root.add_child(_world)
@@ -42,6 +45,8 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(RAW_SLOT))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(RAW_SLOT + ".tmp"))
 	_world.purge(false)
 	_root.queue_free()
 	ECS.world = null
@@ -119,6 +124,12 @@ func test_primitive_scene_replacement_dispatches_real_cargo_through_start_shift(
 	var authored_zone: E_ReceivingZone = level.get_node("Entityes/ReceivingZone") as E_ReceivingZone
 	var parking: Marker3D = level.get_node("TruckParking") as Marker3D
 	assert_same(authored_zone.truck_parking, parking)
+	for node: Node in level.find_children("*", "RigidBody3D", true, false):
+		if node.get_script() == null and RawPhysicsActorService.is_standalone(node as RigidBody3D):
+			assert_true(
+				RawPhysicsActorService.actor_id(node as RigidBody3D).begins_with("placed/"),
+				"Portable native placement: " + String(level.get_path_to(node)),
+			)
 	authored_zone.owner = null
 	parking.owner = null
 	authored_zone.get_parent().remove_child(authored_zone)
@@ -147,7 +158,6 @@ func test_primitive_scene_replacement_dispatches_real_cargo_through_start_shift(
 	assert_false(_world.entities.has(item))
 	assert_eq(_wallet.balance, 7)
 	assert_eq(_state.dispatched_batch_id, _state.batch_id)
-
 
 
 func test_loading_and_extraction_do_not_sell_before_shift() -> void:
@@ -234,6 +244,155 @@ func test_foreign_parcel_has_no_sale_and_does_not_invent_lost_or_warehouse_retur
 	assert_eq(_flow.visits[0].declaration, CustomerVisit.Declaration.NONE)
 	assert_eq(_flow.visits[0].disposition, CustomerVisit.Disposition.WAREHOUSE)
 	assert_true((_session.get_component(C_PackageLedger) as C_PackageLedger).records[0].active)
+#endregion
+
+
+#region Scriptless native cargo and persistence
+func test_raw_cargo_disposes_body_and_transient_proxy_without_income_or_reentry() -> void:
+	var truck: E_MorningTruck = await _ready_truck()
+	var body: RigidBody3D = _root.get_node("Props/Barrel") as RigidBody3D
+	body.global_transform = truck.cargo_slots[0].global_transform
+	var identity: String = RawPhysicsActorService.actor_id(body)
+	var proxy: Entity = PhysicsGrabTarget.handle_for(body, true)
+	assert_not_null(proxy)
+	var callback_snapshots: Array[Dictionary] = []
+	_world.entity_removed.connect(
+		func(removed: Entity) -> void:
+			if removed == proxy:
+				callback_snapshots.append(WorldSnapshotService.capture(_root, 2)),
+	)
+	assert_true(ReceivingShiftService.commit_departure(_cycle))
+	assert_false(_world.entities.has(proxy))
+	assert_null(_root.get_node_or_null("Props/Barrel"))
+	assert_eq(callback_snapshots, [{ }])
+	assert_eq(_wallet.balance, 0)
+	assert_eq(_state.cargo_receipts.size(), 1)
+	assert_eq(_state.cargo_receipts[0].raw_actor_id, identity)
+	assert_true(_state.cargo_receipts[0].entity_id.is_empty())
+	assert_true(_state.cargo_receipts[0].removed and _state.cargo_receipts[0].settled)
+	assert_true(TruckCargoService.commit(_zone, _cycle))
+	assert_eq(_state.cargo_receipts.size(), 1)
+
+
+func test_raw_held_fixed_and_no_carry_bodies_are_excluded() -> void:
+	var truck: E_MorningTruck = await _ready_truck()
+	var held: RigidBody3D = _root.get_node("Props/Barrel") as RigidBody3D
+	held.global_transform = truck.cargo_slots[0].global_transform
+	var proxy: Entity = PhysicsGrabTarget.handle_for(held, true)
+	proxy.add_relationship(Relationship.new(R_HeldBy.new(), _session))
+	var prefab: PackedScene = load(held.scene_file_path) as PackedScene
+	var fixed: RigidBody3D = prefab.instantiate() as RigidBody3D
+	var excluded: RigidBody3D = prefab.instantiate() as RigidBody3D
+	_root.add_child(fixed)
+	_root.add_child(excluded)
+	fixed.global_transform = held.global_transform
+	excluded.global_transform = held.global_transform
+	fixed.freeze = true
+	excluded.add_to_group(&"no_carry")
+	assert_true(ReceivingShiftService.commit_departure(_cycle))
+	assert_true(held.is_inside_tree())
+	assert_true(fixed.is_inside_tree())
+	assert_true(excluded.is_inside_tree())
+	assert_true(_state.cargo_receipts.is_empty())
+
+
+func test_native_mechanism_part_is_excluded_even_without_freeze_or_no_carry() -> void:
+	var truck: E_MorningTruck = await _ready_truck()
+	var mechanism: Entity = Entity.new()
+	_world.add_entity(mechanism)
+	var body: RigidBody3D = (
+		load("res://resources/kay_kit/prototype_bits/Assets/gltf/Barrel_A/Barrel_A_rigid.tscn")
+		as PackedScene
+	).instantiate() as RigidBody3D
+	mechanism.add_child(body)
+	body.global_transform = truck.cargo_slots[0].global_transform
+	assert_true(GrabQueries.is_carry_candidate(body))
+	assert_true(ReceivingShiftService.commit_departure(_cycle))
+	assert_true(body.is_inside_tree())
+	assert_true(_state.cargo_receipts.is_empty())
+
+
+func test_raw_disposal_roundtrip_and_loading_earlier_snapshot_restore_native_body() -> void:
+	var truck: E_MorningTruck = await _ready_truck()
+	var body: RigidBody3D = _root.get_node("Props/Barrel") as RigidBody3D
+	body.global_transform = truck.cargo_slots[0].global_transform
+	var pose: Transform3D = body.global_transform
+	var before: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_true(WorldSnapshotService.can_restore(before, _root))
+	assert_true(ReceivingShiftService.commit_departure(_cycle))
+	var after: Dictionary = WorldSnapshotService.capture(_root, 2)
+	assert_eq(AutosaveStore.write(after, RAW_SLOT), OK)
+	after = AutosaveStore.read(RAW_SLOT)
+	assert_true(WorldSnapshotService.can_restore(after, _root))
+	assert_false(after.raw_actors[0].present)
+	assert_true(WorldSnapshotService.restore(before, _root))
+	var restored: RigidBody3D = _root.get_node("Props/Barrel") as RigidBody3D
+	assert_not_null(restored)
+	assert_null(restored.get_script(), "The native physics body does not become an Entity")
+	assert_true(restored.global_transform.is_equal_approx(pose))
+	assert_true(_state.cargo_receipts.is_empty())
+	assert_true(WorldSnapshotService.restore(after, _root))
+	assert_null(_root.get_node_or_null("Props/Barrel"))
+	assert_true(TruckCargoService.commit(_zone, _cycle))
+	assert_eq(_state.cargo_receipts.size(), 1)
+	assert_eq(_wallet.balance, 0)
+
+
+func test_raw_disposal_survives_a_fresh_native_scene_instance() -> void:
+	var truck: E_MorningTruck = await _ready_truck()
+	var body: RigidBody3D = _root.get_node("Props/Barrel") as RigidBody3D
+	body.global_transform = truck.cargo_slots[0].global_transform
+	assert_true(ReceivingShiftService.commit_departure(_cycle))
+	var saved: Dictionary = RawPhysicsSnapshot.capture(_root)
+	var fresh: Node3D = (load(_root.scene_file_path) as PackedScene).instantiate() as Node3D
+	add_child(fresh)
+	assert_not_null(fresh.get_node_or_null("Props/Barrel"))
+	assert_true(RawPhysicsSnapshot.valid(saved.actors, fresh))
+	RawPhysicsSnapshot.restore(saved.actors as Array, fresh)
+	assert_null(fresh.get_node_or_null("Props/Barrel"))
+	fresh.queue_free()
+
+
+func test_invalid_raw_identity_and_receipt_presence_fail_before_world_mutation() -> void:
+	var snapshot: Dictionary = WorldSnapshotService.capture(_root, 2)
+	var forged: Dictionary = snapshot.duplicate(true)
+	forged.raw_actors[0].actor_id = "placed/ffffffffffffffffffffffffffffffff"
+	assert_false(WorldSnapshotService.can_restore(forged, _root))
+	assert_false(WorldSnapshotService.restore(forged, _root))
+	assert_not_null(_root.get_node_or_null("Props/Barrel"))
+	var receipt: TruckCargoReceipt = TruckCargoReceipt.new()
+	receipt.batch_id = _state.batch_id
+	receipt.day_index = 2
+	receipt.raw_actor_id = String(snapshot.raw_actors[0].actor_id)
+	receipt.removed = true
+	receipt.settled = true
+	_state.cargo_receipts.append(receipt)
+	assert_false(WorldSnapshotService.can_restore(WorldSnapshotService.capture(_root, 2), _root))
+	assert_not_null(_root.get_node_or_null("Props/Barrel"))
+	assert_eq(_wallet.balance, 0)
+
+
+func test_duplicate_raw_identity_and_untagged_placement_fail_closed() -> void:
+	var truck: E_MorningTruck = await _ready_truck()
+	var body: RigidBody3D = _root.get_node("Props/Barrel") as RigidBody3D
+	body.global_transform = truck.cargo_slots[0].global_transform
+	var prefab: PackedScene = load(body.scene_file_path) as PackedScene
+	var duplicate: RigidBody3D = prefab.instantiate() as RigidBody3D
+	duplicate.add_to_group(
+		StringName(RawPhysicsActorService.ID_GROUP_PREFIX + RawPhysicsActorService.actor_id(body))
+	)
+	_root.add_child(duplicate)
+	assert_false(ReceivingShiftService.commit_departure(_cycle))
+	assert_true(body.is_inside_tree())
+	assert_true(WorldSnapshotService.capture(_root, 2).is_empty())
+	_root.remove_child(duplicate)
+	duplicate.free()
+	for group: StringName in body.get_groups():
+		if String(group).begins_with(RawPhysicsActorService.ID_GROUP_PREFIX):
+			body.remove_from_group(group)
+	assert_false(ReceivingShiftService.commit_departure(_cycle))
+	assert_true(body.is_inside_tree())
+	assert_true(WorldSnapshotService.capture(_root, 2).is_empty())
 #endregion
 
 

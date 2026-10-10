@@ -1977,15 +1977,15 @@ metadata/persistent_local_id = &"placed_entityes_props_floorsafebox2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.699815, 0.24764371, -7.077774)
 metadata/persistent_local_id = &"placed_entityes_props_floorsafebox3"
 
-[node name="Barrel_C_rigid" parent="Entityes/Props" unique_id=1866096492 instance=ExtResource("79_ypydk")]
+[node name="Barrel_C_rigid" parent="Entityes/Props" unique_id=1866096492 groups=["raw_actor/placed/b8388abc463b4fe79e75df9476e590b9"] instance=ExtResource("79_ypydk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.046048, 0.50476074, 9.94565)
 mass = 60.0
 
-[node name="Barrel_B_rigid" parent="Entityes/Props" unique_id=1117412504 instance=ExtResource("78_at2gx")]
+[node name="Barrel_B_rigid" parent="Entityes/Props" unique_id=1117412504 groups=["raw_actor/placed/9a2f59059b984ce9bff763924c192a34"] instance=ExtResource("78_at2gx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.036787, 0.50476074, 10.108931)
 mass = 118.0
 
-[node name="Barrel_A_rigid" parent="Entityes/Props" unique_id=821314681 instance=ExtResource("77_iit40")]
+[node name="Barrel_A_rigid" parent="Entityes/Props" unique_id=821314681 groups=["raw_actor/placed/7855112c31824ea7ad8c97d021457f19"] instance=ExtResource("77_iit40")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.9766665, 0.5047612, 10.233412)
 mass = 130.0
 

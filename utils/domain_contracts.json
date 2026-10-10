@@ -12650,10 +12650,12 @@
         "held_in_slot",
         "held_relationship",
         "holder_available",
-        "interaction_raycast"
+        "interaction_raycast",
+        "is_carry_candidate"
       ],
       "sources": [
         "content/definitions/interaction/def_package_return_action.gd",
+        "content/domains/packages/services/truck_cargo_service.gd",
         "content/observers/gameplay/o_package_damage.gd",
         "content/services/interaction/package_mark_service.gd",
         "content/services/packages/package_contents_service.gd",
@@ -12665,7 +12667,8 @@
         "held_in_slot": "request",
         "held_relationship": "request",
         "holder_available": "request",
-        "interaction_raycast": "request"
+        "interaction_raycast": "request",
+        "is_carry_candidate": "request"
       },
       "public_instance_methods": []
     },
@@ -14639,16 +14642,20 @@
       "symbol": "GrabQueries",
       "path": "content/domains/interaction/services/grab_queries.gd",
       "rights": [
+        "read",
         "request"
       ],
       "public_methods": [
-        "held_in_slot"
+        "held_in_slot",
+        "held_relationship"
       ],
       "sources": [
+        "content/domains/persistence/services/raw_physics_snapshot.gd",
         "content/services/persistence/night_reset_service.gd"
       ],
       "method_rights": {
-        "held_in_slot": "request"
+        "held_in_slot": "request",
+        "held_relationship": "request"
       },
       "public_instance_methods": []
     },
@@ -18221,6 +18228,98 @@
       "method_rights": {},
       "public_instance_methods": [],
       "purpose": "Fixed and slotted objects are excluded from free truck cargo."
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "interaction",
+      "symbol": "RawPhysicsActorService",
+      "path": "content/domains/interaction/services/raw_physics_actor_service.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "find",
+        "identify",
+        "is_standalone",
+        "remove"
+      ],
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "method_rights": {
+        "find": "request",
+        "identify": "request",
+        "remove": "request",
+        "is_standalone": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "interaction",
+      "symbol": "RawPhysicsActorService",
+      "path": "content/domains/interaction/services/raw_physics_actor_service.gd",
+      "rights": [
+        "read",
+        "request"
+      ],
+      "public_methods": [
+        "actor_id",
+        "find",
+        "is_standalone",
+        "remove",
+        "valid_id"
+      ],
+      "sources": [
+        "content/domains/persistence/services/raw_physics_snapshot.gd",
+        "content/domains/persistence/rules/receiving_snapshot_rules.gd"
+      ],
+      "method_rights": {
+        "actor_id": "request",
+        "find": "request",
+        "remove": "request",
+        "valid_id": "request",
+        "is_standalone": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "packages",
+      "target_owner": "interaction",
+      "symbol": "PhysicsGrabTarget",
+      "path": "content/domains/interaction/solvers/physics_grab_target.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "handle_for"
+      ],
+      "sources": [
+        "content/domains/packages/services/truck_cargo_service.gd"
+      ],
+      "method_rights": {
+        "handle_for": "request"
+      },
+      "public_instance_methods": []
+    },
+    {
+      "source_owner": "persistence",
+      "target_owner": "interaction",
+      "symbol": "PhysicsGrabTarget",
+      "path": "content/domains/interaction/solvers/physics_grab_target.gd",
+      "rights": [
+        "request"
+      ],
+      "public_methods": [
+        "handle_for"
+      ],
+      "sources": [
+        "content/domains/persistence/services/raw_physics_snapshot.gd"
+      ],
+      "method_rights": {
+        "handle_for": "request"
+      },
+      "public_instance_methods": []
     }
   ],
   "legacy_decomposition": []
