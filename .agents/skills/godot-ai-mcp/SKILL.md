@@ -27,6 +27,9 @@ use its native tools for authoring open scenes: `editor_state`,
 `node_manage`, `resource_manage`, `scene_save`; use short
 `batch_execute` transactions for repetitive operations.
 
+- Before scene open/reload/save, call `custom_pvz_editor_ownership` if installed.
+  It reports open and unsaved scenes via Godot 4.7's `get_unsaved_scenes()`;
+  if unavailable, treat dirty status as unknown and never force-reload.
 - Live scene mutations go through Godot's `EditorUndoRedoManager` and scene
   saving; `script_patch` and `filesystem_manage(op="write_file")` still
   write files externally and **do not** make arbitrary `.tscn` overwrites safe.
