@@ -24,6 +24,12 @@ Do not use direct-file MCP commands to overwrite an open `.tscn`.
 `scene_open(force_reload=true)` can discard unsaved scene changes; do not
 use it automatically.
 
+Before live-scene changes, call `custom_pvz_editor_ownership` when available.
+It exposes `current_scene`, `open_scenes`, `unsaved_scenes` and
+`current_scene_unsaved` using Godot 4.7's editor API. Avoid destructive
+switch/reload while any affected scene has unknown or unsaved changes.
+This covers scene dirtiness, not unsaved data inside every plugin.
+
 For repetitive native edits, use small `batch_execute` transactions.
 Only actual UndoRedo commits can be rolled back; do not treat arbitrary
 filesystem/resource operations as atomic.
