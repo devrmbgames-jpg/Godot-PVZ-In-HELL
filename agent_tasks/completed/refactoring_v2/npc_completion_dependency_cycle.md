@@ -1,6 +1,6 @@
 # NPC completion request dependency cycle
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 ## Evidence and scope
 
@@ -38,5 +38,9 @@ Native MCP task62:163/163 checked, no diagnostics. Actual isolated lifecycle com
 PASS,exit0 (`.artifacts/godot_agent/completion62_isolated.stdout.log`). General CLI runner
 reports FAIL solely because this fixture emits shutdown retention warnings; logs preserved
 as KNOWN_ENGINE_LIMITATION / DEFERRED under owner policy. No runtime error reported.
-Focused six-suite completion regression PASS; see `.artifacts/godot_agent/completion62_gut` logs.
-Independent immutable review REVIEW_PENDING; archive only after triage.
+Focused completion regression PASS:6 suites,181 tests,1282 assertions; see
+`.artifacts/godot_agent/completion62_gut` logs.
+Independent immutable review PASS, no material findings: BASE
+`3e5c93dcba93a730e79a632360160db50e88945a`, TARGET
+`4e813c68d1824ca589ddc96ab683e32c12462886`. Reviewer source review only,
+ARCHITECTURE/STYLE PASS, VALIDATION NOT_RUN. Acceptance complete.

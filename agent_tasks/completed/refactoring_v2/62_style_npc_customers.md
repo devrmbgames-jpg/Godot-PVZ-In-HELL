@@ -1,6 +1,6 @@
 # Refactoring v2.62 — Code Style: NPC и Customers
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 Зависимости: 61_style_ecs_core.md.
 
@@ -51,4 +51,8 @@ query/branch order, rays and physical authority remain intact. No rendered QA pe
 Final general CLI runner reports FAIL solely for shutdown retention after lifecycle-fixture
 compilation; direct isolated compiler PASS,exit0. Preserve this as
 KNOWN_ENGINE_LIMITATION / DEFERRED under owner policy; no blanket suppression added.
-Independent immutable review REVIEW_PENDING; task62 remains IN_PROGRESS until triage.
+Focused completion repair regression PASS:6 suites,181 tests,1282 assertions.
+Independent immutable review PASS: BASE `3e5c93dcba93a730e79a632360160db50e88945a`,
+TARGET `4e813c68d1824ca589ddc96ab683e32c12462886`; no material findings.
+ARCHITECTURE/STYLE PASS; reviewer VALIDATION NOT_RUN (source review only).
+Acceptance complete with owner-deferred shutdown retention; continue with63.

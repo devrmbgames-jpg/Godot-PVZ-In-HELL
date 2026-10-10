@@ -132,7 +132,7 @@ Typed contracts уже закреплены задачей 40 перед executi
 
 44. [Formatter/linter как единый style gate](../completed/refactoring_v2/60_style_tooling.md)
 45. [Systems, Observers, Components, Relationships](../completed/refactoring_v2/61_style_ecs_core.md)
-46. [NPC и Customers](62_style_npc_customers.md)
+46. [NPC и Customers](../completed/refactoring_v2/62_style_npc_customers.md)
 47. [Interaction, Combat и Motion](63_style_interaction_combat_motion.md)
 48. [Gameplay services, Economy, Inventory, Persistence](64_style_gameplay_services.md)
 49. [Entities, UI, AI, scene scripts, tests и utils](65_style_remaining_code.md)
@@ -151,8 +151,12 @@ Inspector restored, authored content unchanged. Independent current repair revie
 
 Phase3 tasks60–66 are now permitted by the archived gate49. See the individual owning
 files for their actual implementation status; no remaining Phase2 owner approval blocks them.
-Tasks60/61 are archived DONE after independent review. Task61 passes full style,
+Tasks60–62 are archived DONE after independent review. Task61 passes full style,
 native diagnostics for309 ECS scripts, profile GUT and headless hazards smoke.
+Task62 passes full style/native compilation for163 scripts, profile regression and strict
+dependency/structure gates. Its independently evidenced schedule-completion cycle is repaired.
+General CLI runner reports shutdown-retention FAIL for a lifecycle fixture; actual isolated
+compiler PASS,exit0. This remains owner-deferred engine retention, with logs preserved.
 Phase3 manifest owns980 authored scripts exactly once and excludes generated artifacts.
 Old-save conversion is excluded; current schema10 roundtrip remains mandatory.
 GOAP/body detach/four LOD tiers remain deferred. Shutdown-only4.7.1 retention remains

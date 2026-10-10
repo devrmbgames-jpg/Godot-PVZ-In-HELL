@@ -1,6 +1,6 @@
 # Refactoring v2.63 — Code Style: Interaction, Combat и Motion
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
 Зависимости: 62_style_npc_customers.md.
 
