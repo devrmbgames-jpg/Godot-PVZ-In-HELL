@@ -1,6 +1,6 @@
 # Refactoring v2.63 — Code Style: Interaction, Combat и Motion
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
 Зависимости: 62_style_npc_customers.md.
 
@@ -54,5 +54,5 @@ Headless inventory and cart_transport smokes PASS:
 `tests/artifacts/cart_transport-20261010-184517042.log`.
 Strict architecture/domain/dependency/structure and prior task61/62 full style PASS.
 
-Review: REVIEW_PENDING immutable implementation checkpoint; collect/triage before DONE.
+Review: BASE 617489fae922c2bec06ce4ddea37c2b3869c746b -> TARGET 6914fa6e97d4e35a10eea62f04f182fa1cd11726, no material findings. ARCHITECTURE PASS; STYLE PASS; reviewer VALIDATION NOT_RUN (main validation above).
 Tasks64–66 remain required.

@@ -36,10 +36,25 @@ static var _component_fields: Dictionary = {
 	C_Explosion: C_Explosion.SAVE_FIELDS,
 	C_NoDamage: C_NoDamage.SAVE_FIELDS,
 }
-static var _record_types: Array[Script] = [GameClock, NpcRecord, NpcMemory, NpcHomeDelivery, CustomerVisit, CustomerComplaint, CombatContext, MoneyOperation, DailyMoneyResult, PackageRegistrationRecord, PurchaseReceipt, PendingDelivery, RefusalQuestRecord, ReceivingBatch, PendingLootDrop]
+static var _record_types: Array[Script] = [
+	GameClock,
+	NpcRecord,
+	NpcMemory,
+	NpcHomeDelivery,
+	CustomerVisit,
+	CustomerComplaint,
+	CombatContext,
+	MoneyOperation,
+	DailyMoneyResult,
+	PackageRegistrationRecord,
+	PurchaseReceipt,
+	PendingDelivery,
+	RefusalQuestRecord,
+	ReceivingBatch,
+	PendingLootDrop,
+]
 ## Максимальная глубина вложенных сериализуемых данных.
 const MAX_DEPTH: int = 16
-
 
 
 #region Кодирование и декодирование
@@ -47,86 +62,95 @@ const MAX_DEPTH: int = 16
 static func component_data(component: Component) -> Dictionary:
 	var script: Script = component.get_script() as Script
 	if not _component_fields.has(script):
-		return {}
+		return { }
 
-	var fields: Dictionary = {}
+	var fields: Dictionary = { }
 	for field: String in _component_fields[script]:
 		fields[field] = encode(component.get(field))
-	return {"type": script.resource_path, "fields": fields}
+	return { "type": script.resource_path, "fields": fields }
 
 
-## Кодирует ресурсы по закрытому списку и определения по пути; неподдерживаемое значение помечает invalid.
+## Кодирует ресурсы по закрытому списку и определения по пути; неподдерживаемое значение помечает
+## invalid.
 static func encode(value: Variant, depth: int = 0) -> Variant:
 	if depth > MAX_DEPTH:
-		return {"invalid": true}
+		return { "invalid": true }
 	if value is GameDefinition:
 		var definition: GameDefinition = value as GameDefinition
-		return {"definition": definition.resource_path}
+		return { "definition": definition.resource_path }
 	if value is Resource:
 		var resource: Resource = value as Resource
 		var script: Script = resource.get_script() as Script
 		if script not in _record_types:
-			return {"invalid": true}
+			return { "invalid": true }
 
-		var fields: Dictionary = {}
+		var fields: Dictionary = { }
 		for property: Dictionary in resource.get_property_list():
 			var name: String = String(property.name)
-			if int(property.usage) & PROPERTY_USAGE_STORAGE and name not in ["script", "resource_name", "resource_local_to_scene", "resource_path"]:
+			if (
+				int(property.usage) & PROPERTY_USAGE_STORAGE
+				and name
+				not in ["script", "resource_name", "resource_local_to_scene", "resource_path"]
+			):
 				fields[name] = encode(resource.get(name), depth + 1)
-		return {"type": script.resource_path, "fields": fields}
+		return { "type": script.resource_path, "fields": fields }
 	if value is Array:
-		var result: Array = []
+		var encoded_collection: Array = []
 		for entry: Variant in value:
-			result.append(encode(entry, depth + 1))
-		return result
+			encoded_collection.append(encode(entry, depth + 1))
+		return encoded_collection
 	if value is Dictionary:
-		var result: Dictionary = {}
+		var encoded_collection: Dictionary = { }
 		for key: Variant in value:
-			result[key] = encode(value[key], depth + 1)
-		return result
+			encoded_collection[key] = encode(value[key], depth + 1)
+		return encoded_collection
 	if value is Object:
-		return {"invalid": true}
+		return { "invalid": true }
 	if value is PackedStringArray:
 		return (value as PackedStringArray).duplicate()
 	return value
 
 
-## Восстанавливает разрешённые определения/записи и вложенные данные; неверный тип/глубина даёт null.
+## Восстанавливает разрешённые определения/записи и вложенные данные; неверный тип/глубина даёт
+## null.
 static func decode(value: Variant, depth: int = 0) -> Variant:
 	if depth > MAX_DEPTH:
 		return null
 	if value is Array:
-		var result: Array = []
+		var decoded_collection: Array = []
 		for entry: Variant in value:
-			result.append(decode(entry, depth + 1))
-		return result
+			decoded_collection.append(decode(entry, depth + 1))
+		return decoded_collection
 	if value is Dictionary:
-		var data: Dictionary = value as Dictionary
-		if data.has("definition"):
-			var path: String = String(data.definition)
-			if not GameplayResourcePaths.is_definition_path(path) or not ResourceLoader.exists(path):
+		var encoded_record: Dictionary = value as Dictionary
+		if encoded_record.has("definition"):
+			var path: String = String(encoded_record.definition)
+			if (
+				not GameplayResourcePaths.is_definition_path(path)
+				or not ResourceLoader.exists(path)
+			):
 				return null
 			return load(path) as GameDefinition
-		if data.has("type"):
-			var script: Script = record_script(String(data.type))
-			if script == null or not data.get("fields") is Dictionary:
+		if encoded_record.has("type"):
+			var script: Script = record_script(String(encoded_record.type))
+			if script == null or not encoded_record.get("fields") is Dictionary:
 				return null
 
 			var resource: Resource = script.new() as Resource
-			if not apply_fields(resource, data.fields as Dictionary, depth + 1):
+			if not apply_fields(resource, encoded_record.fields as Dictionary, depth + 1):
 				return null
 			return resource
 
-		var result: Dictionary = {}
-		for key: Variant in data:
-			result[key] = decode(data[key], depth + 1)
-		return result
+		var decoded_collection: Dictionary = { }
+		for key: Variant in encoded_record:
+			decoded_collection[key] = decode(encoded_record[key], depth + 1)
+		return decoded_collection
 	if value is PackedStringArray:
 		return (value as PackedStringArray).duplicate()
 	return value
 
-
 #endregion
+
 
 #region Закрытая схема и применение полей
 ## Возвращает только разрешённый Script постоянной записи по точному пути.
@@ -160,7 +184,8 @@ static func complete_component_data(script: Script, fields: Dictionary) -> bool:
 	return true
 
 
-## Последовательно проверяет и записывает разрешённые поля; полная валидация использует отдельную заготовку.
+## Последовательно проверяет и записывает разрешённые поля; полная валидация использует отдельную
+## заготовку.
 static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0) -> bool:
 	var script: Script = resource.get_script() as Script
 	if script == GameClock:
@@ -172,9 +197,13 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 	var allowed: Array = _component_fields.get(script, []) as Array
 	if script in _record_types:
 		for property: Dictionary in resource.get_property_list():
-			if int(property.usage) & PROPERTY_USAGE_STORAGE and String(property.name) not in ["script", "resource_name", "resource_local_to_scene", "resource_path"]:
+			if (
+				int(property.usage) & PROPERTY_USAGE_STORAGE
+				and String(property.name)
+				not in ["script", "resource_name", "resource_local_to_scene", "resource_path"]
+			):
 				allowed.append(String(property.name))
-	var schema: Dictionary = {}
+	var schema: Dictionary = { }
 	for property: Dictionary in resource.get_property_list():
 		schema[String(property.name)] = property
 	for field: Variant in fields:
@@ -186,7 +215,7 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		if fields[field] != null and decoded == null:
 			return false
 
-		var property: Dictionary = schema.get(field, {}) as Dictionary
+		var property: Dictionary = schema.get(field, { }) as Dictionary
 		if property.is_empty() or (decoded != null and typeof(decoded) != int(property.type)):
 			return false
 		if decoded is Resource and int(property.hint) == PROPERTY_HINT_RESOURCE_TYPE:
@@ -205,7 +234,10 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 						return false
 
 					var required: Script = target.get_typed_script() as Script
-					if required != null and (not entry is Resource or (entry as Resource).get_script() != required):
+					if (
+						required != null
+						and (not entry is Resource or (entry as Resource).get_script() != required)
+					):
 						return false
 
 			target.assign(values)
@@ -218,7 +250,10 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 			var values: Dictionary = decoded as Dictionary
 			if target.is_typed():
 				for key: Variant in values:
-					if typeof(key) != target.get_typed_key_builtin() or typeof(values[key]) != target.get_typed_value_builtin():
+					if (
+						typeof(key) != target.get_typed_key_builtin()
+						or typeof(values[key]) != target.get_typed_value_builtin()
+					):
 						return false
 
 			target.assign(values)
@@ -226,7 +261,10 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		else:
 			if current != null and typeof(current) != typeof(decoded):
 				return false
-			if decoded is Resource and current is Resource and (decoded as Resource).get_script() != (current as Resource).get_script():
+			if (
+				decoded is Resource and current is Resource
+				and (decoded as Resource).get_script() != (current as Resource).get_script()
+			):
 				return false
 
 			resource.set(field, decoded)
@@ -234,8 +272,8 @@ static func apply_fields(resource: Resource, fields: Dictionary, depth: int = 0)
 		return GameTimeRules.valid(resource as GameClock)
 	return true
 
-
 #endregion
+
 
 #region Проверка типа ресурса
 static func _script_matches(actual: Script, expected: StringName) -> bool:

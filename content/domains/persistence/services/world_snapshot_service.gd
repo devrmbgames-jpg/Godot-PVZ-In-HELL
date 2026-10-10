@@ -3,13 +3,11 @@ extends RefCounted
 class_name WorldSnapshotService
 
 
-
-
 #region Ключи и снимок
 ## Снимает постоянные сущности, включая отключённых NPC; копия цикла всегда задаёт указанное утро.
 static func capture(root: Node, morning_day: int) -> Dictionary:
 	if not is_instance_valid(ECS.world) or root == null or morning_day < 1:
-		return {}
+		return { }
 
 	var records: Array[Dictionary] = []
 	for entity: Entity in ECS.world.entities:
@@ -18,27 +16,51 @@ static func capture(root: Node, morning_day: int) -> Dictionary:
 
 		var components: Array[Dictionary] = []
 		for component: Component in entity.components.values():
-			var data: Dictionary = SaveDataCodec.component_data(component)
-			if data.is_empty():
+			var component_snapshot: Dictionary = SaveDataCodec.component_data(component)
+			if component_snapshot.is_empty():
 				continue
 			if component is C_DayCycle:
-				(data.fields as Dictionary).day_index = morning_day
-				(data.fields as Dictionary).phase = C_DayCycle.Phase.MORNING
-				(data.fields as Dictionary).shift_start_tick = -1
-				(data.fields as Dictionary).shift_end_tick = -1
-			components.append(data)
+				(component_snapshot.fields as Dictionary).day_index = morning_day
+				(component_snapshot.fields as Dictionary).phase = C_DayCycle.Phase.MORNING
+				(component_snapshot.fields as Dictionary).shift_start_tick = -1
+				(component_snapshot.fields as Dictionary).shift_end_tick = -1
+			components.append(component_snapshot)
 		var links: Array[Dictionary] = []
 		for binding: Relationship in entity.relationships:
-			var kind: String = SnapshotLinks.OWNED if binding.relation is R_OwnedBy else SnapshotLinks.STORED if binding.relation is R_StoredIn else SnapshotLinks.CARGO if binding.relation is R_CartCargo else ""
+			var kind: String = ""
+			if binding.relation is R_OwnedBy:
+				kind = SnapshotLinks.OWNED
+			elif binding.relation is R_StoredIn:
+				kind = SnapshotLinks.STORED
+			elif binding.relation is R_CartCargo:
+				kind = SnapshotLinks.CARGO
 			var target: Entity = binding.target as Entity
 			if not kind.is_empty() and is_instance_valid(target):
-				var link: Dictionary = {"kind": kind, "target": ActorIdentityRules.key_for(target, root)}
+				var link: Dictionary = ({
+					"kind": kind,
+					"target": ActorIdentityRules.key_for(target, root),
+				})
 				if binding.relation is R_CartCargo:
 					link.local_pose = (binding.relation as R_CartCargo).local_pose
 				links.append(link)
 
 		var node: Node3D = entity as Node as Node3D
-		var record: Dictionary = {"key": ActorIdentityRules.key_for(entity, root), "entity_id": entity.id, "scene": entity.scene_file_path, "authored_id": PlacedIdentityRules.component_for(entity).actor_key() if PlacedIdentityRules.is_authored(entity, root) else "", "enabled": entity.enabled, "components": components, "links": links, "death": entity.has_component(C_Death)}
+		var actor_key: String = ActorIdentityRules.key_for(entity, root)
+		var entity_id: String = entity.id
+		var scene_path: String = entity.scene_file_path
+		var authored_id: String = ""
+		if PlacedIdentityRules.is_authored(entity, root):
+			authored_id = PlacedIdentityRules.component_for(entity).actor_key()
+		var record: Dictionary = ({
+			"key": actor_key,
+			"entity_id": entity_id,
+			"scene": scene_path,
+			"authored_id": authored_id,
+			"enabled": entity.enabled,
+			"components": components,
+			"links": links,
+			"death": entity.has_component(C_Death),
+		})
 		if node != null:
 			record.pose = node.global_transform
 		record.completed_actions = PersistentInteractionState.completed(entity)
@@ -49,42 +71,67 @@ static func capture(root: Node, morning_day: int) -> Dictionary:
 		if marks != null:
 			var strokes: Array[Dictionary] = []
 			for stroke: PackageMarkStroke in marks.strokes:
-				strokes.append({"points": stroke.points, "normal": stroke.normal, "width": stroke.width, "color": stroke.color})
+				strokes.append(
+					{
+						"points": stroke.points,
+						"normal": stroke.normal,
+						"width": stroke.width,
+						"color": stroke.color,
+					}
+				)
 			record.ink = strokes
 		var anchored: C_PlayerAnchored = entity.get_component(C_PlayerAnchored) as C_PlayerAnchored
 		if anchored != null and anchored.snapshot != null:
 			var original: AnchoredBodySnapshot = anchored.snapshot
-			record.anchor = {"freeze": original.freeze, "freeze_mode": original.freeze_mode, "can_sleep": original.can_sleep}
+			record.anchor = ({
+				"freeze": original.freeze,
+				"freeze_mode": original.freeze_mode,
+				"can_sleep": original.can_sleep,
+			})
 		records.append(record)
-	return {"version": AutosaveStore.SCHEMA_VERSION, "morning_day": morning_day, "entities": records}
-
+	return ({
+		"version": AutosaveStore.SCHEMA_VERSION,
+		"morning_day": morning_day,
+		"entities": records,
+	})
 
 #endregion
 
+
 #region Предварительная проверка
 ## Проверяет весь снимок и закрытые контракты до изменения живого мира.
-static func valid(data: Dictionary, root: Node) -> bool:
-	if data.get("version") != AutosaveStore.SCHEMA_VERSION or not data.get("morning_day") is int or int(data.morning_day) < 1 or not data.get("entities") is Array:
+static func valid(snapshot: Dictionary, root: Node) -> bool:
+	if (
+		snapshot.get("version") != AutosaveStore.SCHEMA_VERSION
+		or not snapshot.get("morning_day") is int or int(snapshot.morning_day) < 1
+		or not snapshot.get("entities") is Array
+	):
 		return false
 
-	var keys: Dictionary = {}
-	var ids: Dictionary[String, bool] = {}
-	var authored_ids: Dictionary[String, bool] = {}
+	var keys: Dictionary = { }
+	var ids: Dictionary[String, bool] = { }
+	var authored_ids: Dictionary[String, bool] = { }
 	var placed: Dictionary[String, Entity] = PlacedIdentityRules.resolver(root)
 	if placed.size() != PlacedIdentityRules.authored_actors(root).size():
 		return false
 	var authored_entities: Array[Entity] = []
-	var records: Dictionary[String, Dictionary] = {}
-	var all_components: Dictionary[String, Dictionary] = {}
+	var records: Dictionary[String, Dictionary] = { }
+	var all_components: Dictionary[String, Dictionary] = { }
 	var session_count: int = 0
-	for value: Variant in data.entities:
+	for value: Variant in snapshot.entities:
 		if not value is Dictionary:
 			return false
 
 		var record: Dictionary = value as Dictionary
 		if not record.get("authored_id") is String or not record.get("scene") is String:
 			return false
-		if not record.get("key") is String or not record.get("entity_id") is String or String(record.entity_id).is_empty() or String(record.key).is_empty() or keys.has(record.key) or not record.get("components") is Array or not record.get("links") is Array or not record.get("enabled") is bool or not record.get("death") is bool:
+		if (
+			not record.get("key") is String or not record.get("entity_id") is String
+			or String(record.entity_id).is_empty() or String(record.key).is_empty()
+			or keys.has(record.key) or not record.get("components") is Array
+			or not record.get("links") is Array or not record.get("enabled") is bool
+			or not record.get("death") is bool
+		):
 			return false
 
 		keys[record.key] = true
@@ -106,12 +153,21 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				return false
 
 			authored_entities.append(target)
-		if authored.is_empty() and not scene.is_empty() and (not GameplayResourcePaths.is_entity_scene_path(scene) or not ResourceLoader.exists(scene, "PackedScene")):
+		if (
+			authored.is_empty() and not scene.is_empty()
+			and (
+				not GameplayResourcePaths.is_entity_scene_path(scene)
+				or not ResourceLoader.exists(scene, "PackedScene")
+			)
+		):
 			return false
-		if record.has("pose") and (not record.pose is Transform3D or not (record.pose as Transform3D).is_finite()):
+		if (
+			record.has("pose")
+			and (not record.pose is Transform3D or not (record.pose as Transform3D).is_finite())
+		):
 			return false
 
-		var types: Dictionary = {}
+		var types: Dictionary = { }
 		for component_value: Variant in record.components:
 			if not component_value is Dictionary:
 				return false
@@ -128,7 +184,10 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				return false
 
 			types[script] = probe
-			if probe is C_QuestSession and not RefusalQuestValidator.session_issues(probe as C_QuestSession).is_empty():
+			if (
+				probe is C_QuestSession
+				and not RefusalQuestValidator.session_issues(probe as C_QuestSession).is_empty()
+			):
 				return false
 			if probe is C_DayCycle:
 				var calendar: C_DayCycle = probe as C_DayCycle
@@ -137,21 +196,59 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				if calendar.shift_start_tick != -1 or calendar.shift_end_tick != -1:
 					return false
 				session_count += 1
-				if (probe as C_DayCycle).day_index != int(data.morning_day) or (probe as C_DayCycle).phase != C_DayCycle.Phase.MORNING:
+				if (
+					(probe as C_DayCycle).day_index != int(snapshot.morning_day)
+					or (probe as C_DayCycle).phase != C_DayCycle.Phase.MORNING
+				):
 					return false
-			if probe is C_Wallet and ((probe as C_Wallet).balance < -WalletService.MAX_AMOUNT or (probe as C_Wallet).balance > WalletService.MAX_AMOUNT):
+			if (
+				probe is C_Wallet
+				and (
+					(probe as C_Wallet).balance < -WalletService.MAX_AMOUNT
+					or (probe as C_Wallet).balance > WalletService.MAX_AMOUNT
+				)
+			):
 				return false
-			if probe is C_InventoryItem and ((probe as C_InventoryItem).definition == null or (probe as C_InventoryItem).quantity < 1 or (probe as C_InventoryItem).quantity > (probe as C_InventoryItem).definition.maximum_stack):
+			if (
+				probe is C_InventoryItem
+				and (
+					(probe as C_InventoryItem).definition == null
+					or (probe as C_InventoryItem).quantity < 1
+					or (probe as C_InventoryItem).quantity
+					> (probe as C_InventoryItem).definition.maximum_stack
+				)
+			):
 				return false
 			if probe is C_Package:
 				var package: C_Package = probe as C_Package
-				if package.definition == null or package.package_id.is_empty() or String(record.key) != "package/" + package.package_id:
+				if (
+					package.definition == null or package.package_id.is_empty()
+					or String(record.key) != "package/" + package.package_id
+				):
 					return false
-			if probe is C_Health and (not is_finite((probe as C_Health).value) or (probe as C_Health).value <= 0.0 or not is_finite((probe as C_Health).current) or (probe as C_Health).current < 0.0 or (probe as C_Health).current > (probe as C_Health).value):
+			if (
+				probe is C_Health
+				and (
+					not is_finite((probe as C_Health).value)
+					or (probe as C_Health).value <= 0.0
+					or not is_finite((probe as C_Health).current)
+					or (probe as C_Health).current < 0.0 or (probe as C_Health).current
+					> (probe as C_Health).value
+				)
+			):
 				return false
-			if probe is C_Hunger and (not is_finite((probe as C_Hunger).value) or (probe as C_Hunger).value < 0.0):
+			if (
+				probe is C_Hunger
+				and (not is_finite((probe as C_Hunger).value) or (probe as C_Hunger).value < 0.0)
+			):
 				return false
-			if probe is C_Stamina and (not is_finite((probe as C_Stamina).current) or (probe as C_Stamina).current < 0.0):
+			if (
+				probe is C_Stamina
+				and (
+					not is_finite((probe as C_Stamina).current)
+					or (probe as C_Stamina).current < 0.0
+				)
+			):
 				return false
 
 		all_components[String(record.key)] = types
@@ -159,7 +256,9 @@ static func valid(data: Dictionary, root: Node) -> bool:
 			if String(record.key) != (types[C_PersistentIdentity] as C_PersistentIdentity).key:
 				return false
 		elif not types.has(C_Package):
-			var expected_key: String = authored if not authored.is_empty() else "runtime/" + String(record.entity_id)
+			var expected_key: String = (
+				authored if not authored.is_empty() else "runtime/" + String(record.entity_id)
+			)
 			if String(record.key) != expected_key:
 				return false
 
@@ -168,33 +267,61 @@ static func valid(data: Dictionary, root: Node) -> bool:
 				return false
 
 			for stroke: Variant in record.ink:
-				if not stroke is Dictionary or not stroke.get("points") is PackedVector3Array or not stroke.get("normal") is Vector3 or not stroke.get("width") is float or not stroke.get("color") is Color:
+				if (
+					not stroke is Dictionary or not stroke.get("points") is PackedVector3Array
+					or not stroke.get("normal") is Vector3
+					or not stroke.get("width") is float or not stroke.get("color") is Color
+				):
 					return false
-		if record.has("anchor") and (not record.anchor is Dictionary or not (record.anchor as Dictionary).get("freeze") is bool or not (record.anchor as Dictionary).get("freeze_mode") is int or not (record.anchor as Dictionary).get("can_sleep") is bool):
+		if (
+			record.has("anchor")
+			and (
+				not record.anchor is Dictionary
+				or not (record.anchor as Dictionary).get("freeze") is bool
+				or not (record.anchor as Dictionary).get("freeze_mode") is int
+				or not (record.anchor as Dictionary).get("can_sleep") is bool
+			)
+		):
 			return false
 
-	for record: Dictionary in data.entities:
-		if record.has("hazard_refs") and (not record.hazard_refs is Dictionary or not all_components[String(record.key)].has(C_Hazard) or not PersistentHazardState.valid(record.hazard_refs as Dictionary, records)):
+	for record: Dictionary in snapshot.entities:
+		if (
+			record.has("hazard_refs")
+			and (
+				not record.hazard_refs is Dictionary
+				or not all_components[String(record.key)].has(C_Hazard)
+				or not PersistentHazardState.valid(record.hazard_refs as Dictionary, records)
+			)
+		):
 			return false
 
 		for link: Variant in record.links:
-			if not link is Dictionary or link.get("kind") not in [SnapshotLinks.OWNED, SnapshotLinks.STORED, SnapshotLinks.CARGO] or not keys.has(link.get("target")):
+			if (
+				not link is Dictionary
+				or link.get("kind")
+				not in [SnapshotLinks.OWNED, SnapshotLinks.STORED, SnapshotLinks.CARGO]
+				or not keys.has(link.get("target"))
+			):
 				return false
 			if link.kind == SnapshotLinks.CARGO and not link.get("local_pose") is Transform3D:
 				return false
-	return session_count == 1 and SnapshotGraphRules.valid(records, all_components) and DistrictSnapshotRules.valid(records, all_components, int(data.morning_day)) and LootSnapshotRules.valid(records, all_components)
+	return (
+		session_count == 1 and SnapshotGraphRules.valid(records, all_components)
+		and DistrictSnapshotRules.valid(records, all_components, int(snapshot.morning_day))
+		and LootSnapshotRules.valid(records, all_components)
+	)
 
 
 ## Проверяет роли и prefab-контракты без регистрации Entities и без изменения живого World.
-static func can_restore(data: Dictionary, root: Node) -> bool:
-	if not valid(data, root):
+static func can_restore(snapshot: Dictionary, root: Node) -> bool:
+	if not valid(snapshot, root):
 		return false
 
 	var placed: Dictionary[String, Entity] = PlacedIdentityRules.resolver(root)
-	var entities: Dictionary[String, Entity] = {}
+	var entities: Dictionary[String, Entity] = { }
 	var temporary: Array[Entity] = []
 
-	for record: Dictionary in data.entities:
+	for record: Dictionary in snapshot.entities:
 		var entity: Entity = placed.get(String(record.authored_id)) as Entity
 		if entity == null:
 			var scene: String = String(record.scene)
@@ -209,32 +336,36 @@ static func can_restore(data: Dictionary, root: Node) -> bool:
 
 			temporary.append(entity)
 		entities[String(record.key)] = entity
-	var plans: Dictionary[Entity, EntityBuildPlan] = {}
-	var compatible: bool = _prepare_fresh_recipes(data.entities as Array, entities, temporary,
-		null, plans) and SnapshotGraphRules.valid_entities(data.entities as Array, entities)
+	var plans: Dictionary[Entity, EntityBuildPlan] = { }
+	var compatible: bool = (
+		_prepare_fresh_recipes(snapshot.entities as Array, entities, temporary, null, plans)
+		and SnapshotGraphRules.valid_entities(snapshot.entities as Array, entities)
+	)
 	for candidate: Entity in temporary:
 		candidate.free()
 	return compatible
 
-
 #endregion
+
 
 #region Восстановление мира
 ## После полной проверки восстанавливает данные, позы и связи, затем отключение и участие района.
-static func restore(data: Dictionary, root: Node) -> bool:
-	if not can_restore(data, root):
+static func restore(snapshot: Dictionary, root: Node) -> bool:
+	if not can_restore(snapshot, root):
 		return false
 
 	var placed: Dictionary[String, Entity] = PlacedIdentityRules.resolver(root)
-	var entities: Dictionary[String, Entity] = {}
+	var entities: Dictionary[String, Entity] = { }
 	var fresh: Array[Entity] = []
 	# Подготовить все отсутствующие prefab до изменения живых сущностей.
-
-	for record: Dictionary in data.entities:
+	for record: Dictionary in snapshot.entities:
 		var entity: Entity = placed.get(String(record.authored_id)) as Entity
 		if entity == null:
 			for existing: Entity in ECS.world.entities:
-				if is_instance_valid(existing) and ActorIdentityRules.key_for(existing, root) == String(record.key):
+				if (
+					is_instance_valid(existing)
+					and ActorIdentityRules.key_for(existing, root) == String(record.key)
+				):
 					entity = existing
 					break
 		if entity == null:
@@ -255,10 +386,12 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			return false
 
 		entities[String(record.key)] = entity
-	var plans: Dictionary[Entity, EntityBuildPlan] = {}
-	if not _prepare_fresh_recipes(data.entities as Array, entities, fresh, ECS.world, plans) \
-			or not SnapshotGraphRules.valid_entities(data.entities as Array, entities) \
-			or not _valid_ids(data.entities as Array, entities):
+	var plans: Dictionary[Entity, EntityBuildPlan] = { }
+	if (
+		not _prepare_fresh_recipes(snapshot.entities as Array, entities, fresh, ECS.world, plans)
+		or not SnapshotGraphRules.valid_entities(snapshot.entities as Array, entities)
+		or not _valid_ids(snapshot.entities as Array, entities)
+	):
 		for candidate: Entity in fresh:
 			candidate.free()
 		return false
@@ -270,14 +403,18 @@ static func restore(data: Dictionary, root: Node) -> bool:
 	for existing: Entity in ECS.world.entities.duplicate():
 		if not is_instance_valid(existing) or not _persistent(existing):
 			continue
-		if existing not in entities.values() and not entities.has(ActorIdentityRules.key_for(existing, root)) and (existing.owner == null or (existing as Node) is RigidBody3D):
+		if (
+			existing not in entities.values()
+			and not entities.has(ActorIdentityRules.key_for(existing, root))
+			and (existing.owner == null or (existing as Node) is RigidBody3D)
+		):
 			ECS.world.remove_entity(existing)
 	# Entity.id — источник истины; производный реестр GECS обновляется на этой границе.
 	for entity: Entity in entities.values():
 		if entity not in fresh:
 			ECS.world.entity_id_registry.erase(entity.id)
 
-	for record: Dictionary in data.entities:
+	for record: Dictionary in snapshot.entities:
 		var entity: Entity = entities[String(record.key)]
 		entity.id = String(record.entity_id)
 		if entity not in fresh:
@@ -303,7 +440,9 @@ static func restore(data: Dictionary, root: Node) -> bool:
 				CartCargoService.cargo_removed(entity, existing)
 		if item_state != null:
 			item_state.transfer_in_progress = false
-		var old_anchor: C_PlayerAnchored = entity.get_component(C_PlayerAnchored) as C_PlayerAnchored
+		var old_anchor: C_PlayerAnchored = (
+			entity.get_component(C_PlayerAnchored) as C_PlayerAnchored
+		)
 		var old_body: RigidBody3D = entity as Node as RigidBody3D
 		if old_anchor != null and old_anchor.snapshot != null and old_body != null:
 			old_body.freeze = old_anchor.snapshot.freeze
@@ -311,7 +450,7 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			old_body.can_sleep = old_anchor.snapshot.can_sleep
 			entity.remove_component(old_anchor)
 
-	for record: Dictionary in data.entities:
+	for record: Dictionary in snapshot.entities:
 		var entity: Entity = entities[String(record.key)]
 		if entity in fresh:
 			entity.id = String(record.entity_id)
@@ -373,7 +512,9 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			if motion != null:
 				motion.pending_impulse = Vector3.ZERO
 				motion.sprint_multiplier = 1.0
-			var kinematic: C_CharacterBody = entity.get_component(C_CharacterBody) as C_CharacterBody
+			var kinematic: C_CharacterBody = (
+				entity.get_component(C_CharacterBody) as C_CharacterBody
+			)
 			if kinematic != null:
 				kinematic.impulse_velocity = Vector3.ZERO
 				kinematic.pending_rebound_velocity = Vector3.ZERO
@@ -382,8 +523,15 @@ static func restore(data: Dictionary, root: Node) -> bool:
 			body.linear_velocity = Vector3.ZERO
 			body.angular_velocity = Vector3.ZERO
 			if entity is E_Package:
-				var definition: DEF_Package = (entity.get_component(C_Package) as C_Package).definition
-				body.mass = definition.empty_mass_kg if PackageContentsService.is_empty(entity) else definition.mass_kg
+				var definition: DEF_Package = (
+					(entity.get_component(C_Package) as C_Package).definition
+				)
+				var restored_mass: float = 0.0
+				if PackageContentsService.is_empty(entity):
+					restored_mass = definition.empty_mass_kg
+				else:
+					restored_mass = definition.mass_kg
+				body.mass = restored_mass
 
 		if record.death and not entity.has_component(C_Death):
 			entity.add_component(C_Death.new())
@@ -408,13 +556,29 @@ static func restore(data: Dictionary, root: Node) -> bool:
 		for binding: EntityBuildPlan.Binding in plans[entity].bindings:
 			entity.add_relationship(Relationship.new(binding.relation, binding.target))
 
-	for record: Dictionary in data.entities:
+	for record: Dictionary in snapshot.entities:
 		var entity: Entity = entities[String(record.key)]
 		for link: Dictionary in record.links:
 			var target: Entity = entities[String(link.target)]
 			var already_bound: bool = false
 			for existing: Relationship in entity.relationships:
-				if existing.target == target and ((String(link.kind) == SnapshotLinks.OWNED and existing.relation is R_OwnedBy) or (String(link.kind) == SnapshotLinks.STORED and existing.relation is R_StoredIn) or (String(link.kind) == SnapshotLinks.CARGO and existing.relation is R_CartCargo)):
+				if (
+					existing.target == target
+					and (
+						(
+							String(link.kind) == SnapshotLinks.OWNED
+							and existing.relation is R_OwnedBy
+						)
+						or (
+							String(link.kind) == SnapshotLinks.STORED
+							and existing.relation is R_StoredIn
+						)
+						or (
+							String(link.kind) == SnapshotLinks.CARGO
+							and existing.relation is R_CartCargo
+						)
+					)
+				):
 					already_bound = true
 			if already_bound:
 				continue
@@ -433,13 +597,16 @@ static func restore(data: Dictionary, root: Node) -> bool:
 					entity.add_relationship(binding)
 					CartCargoService.cargo_added(entity, binding)
 
-	for record: Dictionary in data.entities:
+	for record: Dictionary in snapshot.entities:
 		var entity: Entity = entities[String(record.key)]
 		if entity.has_component(C_Hazard):
-			PersistentHazardState.restore(record.get("hazard_refs", {}) as Dictionary, entity, entities)
+			PersistentHazardState.restore(
+				record.get("hazard_refs", { }) as Dictionary,
+				entity,
+				entities,
+			)
 	# Setup-observers требуют включённых prefab; сохранённое отключение применяется последним.
-
-	for record: Dictionary in data.entities:
+	for record: Dictionary in snapshot.entities:
 		if not bool(record.enabled):
 			ECS.world.disable_entity(entities[String(record.key)])
 	for zone: Entity in ECS.world.query.with_all([C_OrderReceiving]).execute():
@@ -453,8 +620,8 @@ static func restore(data: Dictionary, root: Node) -> bool:
 		EntityCompositionService.publish_ready(actor)
 	return true
 
-
 #endregion
+
 
 #region Fresh reconstruction preflight
 ## Projects the validated saved district into detached compiler inputs, never into live authority.
@@ -471,7 +638,7 @@ static func construction_district(records: Array) -> C_District:
 
 ## Projects authored NPC keys so startup does not assign a replacement merchant's old identity.
 static func construction_npc_identities(records: Array) -> Dictionary[String, StringName]:
-	var identities: Dictionary[String, StringName] = {}
+	var identities: Dictionary[String, StringName] = { }
 	for record: Dictionary in records:
 		var authored_id: String = String(record.get("authored_id", ""))
 		if authored_id.is_empty():
@@ -482,16 +649,15 @@ static func construction_npc_identities(records: Array) -> Dictionary[String, St
 	return identities
 
 
-
 ## Resolves one saved placed record from immutable authored identity, without touching live state.
 static func construction_record(actor: Entity, records: Array) -> Dictionary:
 	var identity: C_AuthoredIdentity = PlacedIdentityRules.component_for(actor)
 	if identity == null:
-		return {}
+		return { }
 	for record: Dictionary in records:
 		if String(record.get("authored_id", "")) == identity.actor_key():
 			return record
-	return {}
+	return { }
 
 
 ## Overlays validated durable state on fresh recipes before any native initialization callbacks.
@@ -558,8 +724,9 @@ static func _overlay_saved_markers(plan: EntityBuildPlan, record: Dictionary) ->
 		var marks: C_PackageMarks = _construction_marker(plan, C_PackageMarks) as C_PackageMarks
 		_apply_saved_marks(marks, record.ink as Array)
 	if record.has("anchor"):
-		var anchored: C_PlayerAnchored = _construction_marker(plan,
-			C_PlayerAnchored) as C_PlayerAnchored
+		var anchored: C_PlayerAnchored = (
+			_construction_marker(plan, C_PlayerAnchored) as C_PlayerAnchored
+		)
 		_apply_saved_anchor(anchored, record.anchor as Dictionary)
 
 	# Completed actions are restored data, never a repeated gameplay operation.
@@ -601,8 +768,13 @@ static func _apply_saved_anchor(anchored: C_PlayerAnchored, saved: Dictionary) -
 	anchored.snapshot.can_sleep = bool(saved.can_sleep)
 
 
-static func _prepare_fresh_recipes(records: Array, entities: Dictionary[String, Entity],
-		fresh: Array[Entity], world: World, plans: Dictionary[Entity, EntityBuildPlan]) -> bool:
+static func _prepare_fresh_recipes(
+	records: Array,
+	entities: Dictionary[String, Entity],
+	fresh: Array[Entity],
+	world: World,
+	plans: Dictionary[Entity, EntityBuildPlan],
+) -> bool:
 	var candidates: Array[Entity] = []
 	candidates.assign(entities.values())
 	var saved_district: C_District = construction_district(records)
@@ -616,12 +788,20 @@ static func _prepare_fresh_recipes(records: Array, entities: Dictionary[String, 
 			for saved: Dictionary in record.components:
 				if SaveDataCodec.component_script(String(saved.type)) == C_Package:
 					var definition: DEF_Package = SaveDataCodec.decode(
-						(saved.fields as Dictionary).definition) as DEF_Package
-					if not ReceivingPackageFactory.configure_recipe(entity as E_Package,
-							definition, String((saved.fields as Dictionary).package_id)):
+						(saved.fields as Dictionary).definition
+					) as DEF_Package
+					if not ReceivingPackageFactory.configure_recipe(
+						entity as E_Package,
+						definition,
+						String((saved.fields as Dictionary).package_id),
+					):
 						return false
-		var context: EntitySpawnContext = EntityCompositionService.context_for(entity, world,
-			String(record.entity_id), candidates)
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			entity,
+			world,
+			String(record.entity_id),
+			candidates,
+		)
 		if entity is E_DistrictNpc:
 			var saved_id: StringName = &""
 			for saved: Dictionary in record.components:
@@ -643,7 +823,8 @@ static func _prepare_fresh_recipes(records: Array, entities: Dictionary[String, 
 			if saved_district == null:
 				return false
 			address_place = saved_district.definition.place_for(
-				StringName((saved.fields as Dictionary).address_id))
+				StringName((saved.fields as Dictionary).address_id)
+			)
 			NpcConstructionService.configure_address(context, address_place)
 		var plan: EntityBuildPlan = EntityCompositionService.build_plan(context)
 		if not plan.valid():
@@ -663,21 +844,44 @@ static func _prepare_fresh_recipes(records: Array, entities: Dictionary[String, 
 	return true
 #endregion
 
+
 #region Внутренние ограничения
 static func _valid_ids(records: Array, entities: Dictionary[String, Entity]) -> bool:
 	for record: Dictionary in records:
 		var existing: Entity = ECS.world.entity_id_registry.get(String(record.entity_id)) as Entity
-		if is_instance_valid(existing) and existing not in entities.values() and (not _persistent(existing) or (existing.owner != null and not (existing as Node) is RigidBody3D)):
+		if (
+			is_instance_valid(existing) and existing not in entities.values()
+			and (
+				not _persistent(existing)
+				or (existing.owner != null and not (existing as Node) is RigidBody3D)
+			)
+		):
 			return false
 	return true
 
 
 static func _persistent(entity: Entity) -> bool:
-	if (entity.has_component(C_CustomerAgent) and not entity.has_component(C_NpcIdentity)) or entity.has_component(C_QuestBinding) or entity.has_component(C_CombatProjectile):
+	if (
+		(entity.has_component(C_CustomerAgent) and not entity.has_component(C_NpcIdentity))
+		or entity.has_component(C_QuestBinding) or entity.has_component(C_CombatProjectile)
+	):
 		return false
 	if entity.has_component(C_HazardLifetime):
 		var lifetime: C_HazardLifetime = entity.get_component(C_HazardLifetime) as C_HazardLifetime
 		return lifetime.persistent and not lifetime.owner_loss_pending
-	return (entity as Node) is PhysicsBody3D or entity is E_PhysicalSlot or not PersistentInteractionState.completed(entity).is_empty() or entity.components.values().any(func(value: Variant) -> bool: return value is Component and not SaveDataCodec.component_data(value as Component).is_empty())
+	return (
+		(entity as Node) is PhysicsBody3D or entity is E_PhysicalSlot
+		or not PersistentInteractionState.completed(entity).is_empty()
+		or entity
+		.components
+		.values()
+		.any(
+			func(value: Variant) -> bool:
+				return (
+					value is Component
+					and not SaveDataCodec.component_data(value as Component).is_empty()
+				),
+		)
+	)
 
 #endregion

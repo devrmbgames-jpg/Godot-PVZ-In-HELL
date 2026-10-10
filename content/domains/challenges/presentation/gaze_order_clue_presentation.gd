@@ -11,7 +11,10 @@ static func text_for(clue: Node) -> String:
 		return ""
 
 	var locations: Array[Node] = clue.get_tree().get_nodes_in_group(CLUE_GROUP)
-	locations.sort_custom(func(a: Node, b: Node) -> bool: return String(a.get_path()) < String(b.get_path()))
+	locations.sort_custom(
+		func(a: Node, b: Node) -> bool:
+			return String(a.get_path()) < String(b.get_path()),
+	)
 	if locations.is_empty():
 		return ""
 
@@ -19,13 +22,19 @@ static func text_for(clue: Node) -> String:
 		var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 		var agent: C_CustomerAgent = subject.get_component(C_CustomerAgent) as C_CustomerAgent
 		var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
-		if state.phase != C_Challenge.Phase.ACTIVE or not ChallengeService.session_valid(subject) or visit == null or not CustomerPresentation.uses_wall_order(visit.definition):
+		if (
+			state.phase != C_Challenge.Phase.ACTIVE or not ChallengeService.session_valid(subject)
+			or visit == null or not CustomerPresentation.uses_wall_order(visit.definition)
+		):
 			continue
 
-		var selected: int = GameTimeQueries.decision(
-			String(visit.visit_id), maxi(1, visit.last_visit_day),
-			"customer/gaze_clue", visit.visit_count,
-		).randi_range(0, locations.size() - 1)
+		var clue_random: RandomNumberGenerator = GameTimeQueries.decision(
+			String(visit.visit_id),
+			maxi(1, visit.last_visit_day),
+			"customer/gaze_clue",
+			visit.visit_count,
+		)
+		var selected: int = clue_random.randi_range(0, locations.size() - 1)
 		if locations[selected] == clue:
 			var number: int = CustomerPresentation.registered_number(visit)
 			return "ЗАКАЗ\n№%03d" % number if number >= 0 else ""

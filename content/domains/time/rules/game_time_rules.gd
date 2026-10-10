@@ -7,6 +7,7 @@ const TICKS_PER_SECOND: int = 1_000_000
 ## Largest integer exactly representable by the floating-point step conversion.
 const MAX_STEP_TICKS: int = 9_007_199_254_740_991
 
+
 #region Units and validity
 ## Converts an integer elapsed interval for existing seconds-based native adapters.
 static func seconds(ticks: int) -> float:
@@ -21,7 +22,8 @@ static func duration_ticks(duration_seconds: float) -> int:
 
 ## Validates persistent clock state before applying a snapshot to the live session.
 static func valid(clock: GameClock) -> bool:
-	return clock != null and clock.elapsed_ticks >= 0 \
-		and is_finite(clock.tick_remainder) \
+	return (
+		clock != null and clock.elapsed_ticks >= 0 and is_finite(clock.tick_remainder)
 		and clock.tick_remainder >= 0.0 and clock.tick_remainder < 1.0
+	)
 #endregion

@@ -10,7 +10,9 @@ static func retire(subject: Entity) -> void:
 
 	for relation: Relationship in subject.relationships.duplicate():
 		if relation.relation is R_ChallengeEffect:
-			var effect: Entity = relation.target as Entity if EntityAvailability.contains(relation.target, ECS.world) else null
+			var effect: Entity = null
+			if EntityAvailability.contains(relation.target, ECS.world):
+				effect = relation.target as Entity
 			subject.remove_relationship(relation)
 			if effect != null:
 				HazardLifecycle.retire(effect, ECS.world)

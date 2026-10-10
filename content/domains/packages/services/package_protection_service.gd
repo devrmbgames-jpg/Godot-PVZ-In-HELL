@@ -6,8 +6,7 @@ class_name PackageProtectionService
 ## Проверяет живую коробку и возможность повысить её уровень защиты до tier.
 static func can_apply(target: Entity, tier: ImpactResult.Severity) -> bool:
 	if (
-		not EntityAvailability.contains(target, ECS.world)
-		or not target.has_component(C_Package)
+		not EntityAvailability.contains(target, ECS.world) or not target.has_component(C_Package)
 		or tier <= ImpactResult.Severity.NONE or tier > ImpactResult.Severity.STRONG
 	):
 		return false
@@ -16,7 +15,9 @@ static func can_apply(target: Entity, tier: ImpactResult.Severity) -> bool:
 	if health == null or health.depleted or health.current <= 0.0:
 		return false
 
-	var protection: C_ImpactProtection = target.get_component(C_ImpactProtection) as C_ImpactProtection
+	var protection: C_ImpactProtection = (
+		target.get_component(C_ImpactProtection) as C_ImpactProtection
+	)
 	return protection == null or protection.tier < tier
 
 
@@ -25,7 +26,9 @@ static func apply(target: Entity, tier: ImpactResult.Severity) -> bool:
 	if not can_apply(target, tier):
 		return false
 
-	var protection: C_ImpactProtection = target.get_component(C_ImpactProtection) as C_ImpactProtection
+	var protection: C_ImpactProtection = (
+		target.get_component(C_ImpactProtection) as C_ImpactProtection
+	)
 	if protection == null:
 		protection = C_ImpactProtection.new()
 		protection.tier = tier

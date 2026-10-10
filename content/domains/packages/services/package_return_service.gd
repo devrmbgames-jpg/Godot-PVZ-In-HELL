@@ -7,7 +7,10 @@ class_name PackageReturnService
 ## Утром находит удерживаемую игроком коробку, допустимую к физическому возврату.
 static func held_refused(actor: Entity) -> Entity:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
-	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING or not GrabQueries.holder_available(actor):
+	if (
+		cycle == null or cycle.phase != C_DayCycle.Phase.MORNING
+		or not GrabQueries.holder_available(actor)
+	):
 		return null
 
 	for slot: int in 3:
@@ -22,23 +25,37 @@ static func can_return(parcel: Entity) -> bool:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	var ledger: C_PackageLedger = PackageQueries.ledger()
-	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING or flow == null or ledger == null or not EntityAvailability.contains(parcel, ECS.world):
+	if (
+		cycle == null or cycle.phase != C_DayCycle.Phase.MORNING or flow == null
+		or ledger == null or not EntityAvailability.contains(parcel, ECS.world)
+	):
 		return false
 
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
 	var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
-	if identity == null or state == null or state.registration != C_PackageState.Registration.REGISTERED:
+	if (
+		identity == null or state == null
+		or state.registration != C_PackageState.Registration.REGISTERED
+	):
 		return false
 
 	var registered: bool = false
 	for record: PackageRegistrationRecord in ledger.records:
-		if record.package_id == identity.package_id and record.active and record.number == state.registration_number:
+		if (
+			record.package_id == identity.package_id and record.active
+			and record.number == state.registration_number
+		):
 			registered = true
 	if not registered:
 		return false
 
 	for visit: CustomerVisit in flow.visits:
-		if visit.package_id == identity.package_id and visit.arrival_day < cycle.day_index and visit.disposition == CustomerVisit.Disposition.WAREHOUSE and visit.actual in [CustomerVisit.Actual.PLAYER_DENIED, CustomerVisit.Actual.CUSTOMER_REFUSED]:
+		if (
+			visit.package_id == identity.package_id and visit.arrival_day < cycle.day_index
+			and visit.disposition == CustomerVisit.Disposition.WAREHOUSE
+			and visit.actual
+			in [CustomerVisit.Actual.PLAYER_DENIED, CustomerVisit.Actual.CUSTOMER_REFUSED]
+		):
 			return true
 	return false
 
@@ -57,7 +74,10 @@ static func return_held(actor: Entity) -> bool:
 		return false
 
 	for visit: CustomerVisit in CustomerFlowQueries.current().visits:
-		if visit.package_id == identity.package_id and visit.disposition == CustomerVisit.Disposition.WAREHOUSE:
+		if (
+			visit.package_id == identity.package_id
+			and visit.disposition == CustomerVisit.Disposition.WAREHOUSE
+		):
 			visit.disposition = CustomerVisit.Disposition.RETURNED
 			visit.next_followup_day = 0
 	# Фактический исход, заявление, спор и записи расчёта сохраняются при возврате.

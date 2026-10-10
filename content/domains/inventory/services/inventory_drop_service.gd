@@ -22,13 +22,23 @@ static func drop_reason(actor: Entity, item: Entity) -> String:
 	var inventory: C_Inventory = actor.get_component(C_Inventory) as C_Inventory
 	if inventory == null or inventory.use_in_progress or inventory.transfer_in_progress:
 		return "Дождитесь завершения действия"
-	if not EntityAvailability.contains(item, ECS.world) or InventoryService.owner_for(item) != actor:
+	if (
+		not EntityAvailability.contains(item, ECS.world)
+		or InventoryService.owner_for(item) != actor
+	):
 		return "Предмет не принадлежит игроку"
 
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
-	if state == null or state.definition == null or state.quantity < 1 or state.quantity > state.definition.maximum_stack or state.transfer_in_progress or not state.pending_use_id.is_empty():
+	if (
+		state == null or state.definition == null or state.quantity < 1
+		or state.quantity > state.definition.maximum_stack
+		or state.transfer_in_progress or not state.pending_use_id.is_empty()
+	):
 		return "Стек недоступен"
-	if not (actor as Node) is Node3D or state.definition.world_pickup_scene.is_empty() or not ResourceLoader.exists(state.definition.world_pickup_scene, "PackedScene"):
+	if (
+		not (actor as Node) is Node3D or state.definition.world_pickup_scene.is_empty()
+		or not ResourceLoader.exists(state.definition.world_pickup_scene, "PackedScene")
+	):
 		return "Предмет нельзя выложить в мир"
 	return ""
 
@@ -43,8 +53,10 @@ static func drop(actor: Entity, item: Entity) -> bool:
 	var instance: Node = prefab.instantiate()
 	var pickup: E_InventoryPickup = instance as E_InventoryPickup
 	var collider: CollisionShape3D = instance.get_node_or_null("Collision") as CollisionShape3D
-	if (pickup == null or not instance is RigidBody3D or collider == null
-		or collider.disabled or collider.shape == null):
+	if (
+		pickup == null or not instance is RigidBody3D or collider == null
+		or collider.disabled or collider.shape == null
+	):
 		instance.free()
 		return false
 
@@ -74,10 +86,15 @@ static func drop(actor: Entity, item: Entity) -> bool:
 	var parent: Node = actor.get_parent()
 	# Однократное размещение новой сцены перед физической симуляцией.
 	var pose: Transform3D = Transform3D(Basis.IDENTITY, position as Vector3)
-	body.transform = (parent as Node3D).global_transform.affine_inverse() * pose if parent is Node3D else pose
+	body.transform = (
+		(parent as Node3D).global_transform.affine_inverse() * pose if parent is Node3D else pose
+	)
 	parent.add_child(body)
-	var context: EntitySpawnContext = EntityCompositionService.context_for(pickup, ECS.world,
-		pickup.id if not pickup.id.is_empty() else GECSIO.uuid())
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		pickup,
+		ECS.world,
+		pickup.id if not pickup.id.is_empty() else GECSIO.uuid(),
+	)
 	if not EntityCompositionService.try_register(context, false):
 		pickup.free()
 		state.transfer_in_progress = false
@@ -88,8 +105,8 @@ static func drop(actor: Entity, item: Entity) -> bool:
 	inventory.transfer_in_progress = false
 	return true
 
-
 #endregion
+
 
 #region Выпуск имущества при смерти
 ## Выпускает имущество NPC при смерти обычными pickup-сценами; однократность задаёт lifecycle.
@@ -100,7 +117,10 @@ static func release_on_death(owner: Entity) -> void:
 
 	for item: Entity in InventoryService.items(owner).duplicate():
 		var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
-		if state == null or state.definition == null or state.definition.world_pickup_scene.is_empty():
+		if (
+			state == null or state.definition == null
+			or state.definition.world_pickup_scene.is_empty()
+		):
 			continue
 
 		var scene_path: String = state.definition.world_pickup_scene
@@ -111,8 +131,10 @@ static func release_on_death(owner: Entity) -> void:
 		var instance: Node = prefab.instantiate()
 		var pickup: E_InventoryPickup = instance as E_InventoryPickup
 		var collider: CollisionShape3D = instance.get_node_or_null("Collision") as CollisionShape3D
-		if (pickup == null or not instance is RigidBody3D or collider == null
-			or collider.disabled or collider.shape == null):
+		if (
+			pickup == null or not instance is RigidBody3D or collider == null
+			or collider.disabled or collider.shape == null
+		):
 			instance.free()
 			continue
 
@@ -134,8 +156,11 @@ static func release_on_death(owner: Entity) -> void:
 		state.transfer_in_progress = true
 		owner.get_parent().add_child(pickup)
 		(pickup as Node as Node3D).global_position = spatial.global_position + DEATH_DROP_OFFSET
-		var context: EntitySpawnContext = EntityCompositionService.context_for(pickup, ECS.world,
-			pickup.id if not pickup.id.is_empty() else GECSIO.uuid())
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			pickup,
+			ECS.world,
+			pickup.id if not pickup.id.is_empty() else GECSIO.uuid(),
+		)
 		if not EntityCompositionService.try_register(context, false):
 			pickup.free()
 			state.transfer_in_progress = false
@@ -143,8 +168,8 @@ static func release_on_death(owner: Entity) -> void:
 
 		ECS.world.remove_entity(item)
 
-
 #endregion
+
 
 #region Проверка физического места
 static func _placement(actor: Entity, collider: CollisionShape3D) -> Variant:
@@ -166,13 +191,25 @@ static func _placement(actor: Entity, collider: CollisionShape3D) -> Variant:
 	var bounds: AABB = collider.transform * collider.shape.get_debug_mesh().get_aabb()
 	for offset: float in [0.0, -SIDE_DISTANCE, SIDE_DISTANCE]:
 		var position: Vector3 = node.global_position + forward * FORWARD_DISTANCE + side * offset
-		var path_ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(node.global_position + Vector3.UP * PATH_PROBE_HEIGHT, position + Vector3.UP * PATH_PROBE_HEIGHT, COLLISION_MASK)
+		var path_ray: PhysicsRayQueryParameters3D = (
+			PhysicsRayQueryParameters3D.create(
+				node.global_position + Vector3.UP * PATH_PROBE_HEIGHT,
+				position + Vector3.UP * PATH_PROBE_HEIGHT,
+				COLLISION_MASK,
+			)
+		)
 		path_ray.exclude = query.exclude
 		if not space.intersect_ray(path_ray).is_empty():
 			continue
 
 		var start: Vector3 = position + Vector3.UP * PROBE_RISE
-		var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(start, start + Vector3.DOWN * PROBE_DEPTH, COLLISION_MASK)
+		var ray: PhysicsRayQueryParameters3D = (
+			PhysicsRayQueryParameters3D.create(
+				start,
+				start + Vector3.DOWN * PROBE_DEPTH,
+				COLLISION_MASK,
+			)
+		)
 		ray.exclude = query.exclude
 		var hit: Dictionary = space.intersect_ray(ray)
 		if hit.is_empty() or (hit.normal as Vector3).y < MINIMUM_SUPPORT_NORMAL_Y:

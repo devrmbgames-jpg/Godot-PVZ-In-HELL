@@ -82,8 +82,10 @@ static func build_plan(context: EntitySpawnContext) -> EntityBuildPlan:
 		var seen_endpoints: Dictionary[StringName, bool] = { }
 		for endpoint_name: String in authoring.ancestor_entity_bindings:
 			var endpoint_key: StringName = StringName(endpoint_name)
-			if endpoint_key.is_empty() or authoring.bindings.has(endpoint_key) \
-					or seen_endpoints.has(endpoint_key):
+			if (
+				endpoint_key.is_empty() or authoring.bindings.has(endpoint_key)
+				or seen_endpoints.has(endpoint_key)
+			):
 				var rejected: EntityBuildPlan = EntityBuildPlan.new()
 				var issue: EntityBuildPlan.Issue = EntityBuildPlan.Issue.new()
 				issue.code = &"invalid_authoring"
@@ -142,8 +144,9 @@ static func register_plan(
 
 	# Native collision replacement is unreachable after identity/endpoint preflight.
 	actor.id = context.actor_id
-	var notifications: ObserverReactionBoundary.RegistrationScope = \
-			ObserverReactionBoundary.begin_registration(context.world, actor)
+	var notifications: ObserverReactionBoundary.RegistrationScope = (
+		ObserverReactionBoundary.begin_registration(context.world, actor)
+	)
 	context.world.add_entity(actor, null, add_to_tree)
 	for binding: EntityBuildPlan.Binding in plan.bindings:
 		assert(
@@ -162,9 +165,8 @@ static func register_plan(
 ## The World/factory owner still validates identity, saved overlay, endpoints and readiness.
 static func prepare(actor: Entity, plan: EntityBuildPlan) -> bool:
 	if (
-		not plan.valid() or plan.built_actor != actor \
-				or recipes_prepared(actor)
-		or not actor.components.is_empty()
+		not plan.valid() or plan.built_actor != actor
+		or recipes_prepared(actor) or not actor.components.is_empty()
 	):
 		return false
 	actor.component_resources = plan.component_recipes

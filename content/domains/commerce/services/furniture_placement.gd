@@ -13,7 +13,11 @@ const MINIMUM_SUPPORT_NORMAL: float = 0.75
 
 #region Подготовка тела
 ## Проверяет опору и объём в мировой позе; возвращённую заготовку нужно разместить или освободить.
-static func prepare(item: DEF_InventoryItem, parent: Node3D, pose: Transform3D) -> PreparedFurniture:
+static func prepare(
+	item: DEF_InventoryItem,
+	parent: Node3D,
+	pose: Transform3D,
+) -> PreparedFurniture:
 	if not is_instance_valid(parent) or not parent.is_inside_tree():
 		return null
 
@@ -26,7 +30,13 @@ static func prepare(item: DEF_InventoryItem, parent: Node3D, pose: Transform3D) 
 	pose.basis = pose.basis.orthonormalized()
 	var space: PhysicsDirectSpaceState3D = parent.get_world_3d().direct_space_state
 	var start: Vector3 = pose.origin + Vector3.UP * GROUND_PROBE_RISE
-	var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(start, start + Vector3.DOWN * GROUND_PROBE_DEPTH, GROUND_MASK)
+	var ray: PhysicsRayQueryParameters3D = (
+		PhysicsRayQueryParameters3D.create(
+			start,
+			start + Vector3.DOWN * GROUND_PROBE_DEPTH,
+			GROUND_MASK,
+		)
+	)
 	var hit: Dictionary = space.intersect_ray(ray)
 	if hit.is_empty() or (hit.normal as Vector3).y < MINIMUM_SUPPORT_NORMAL:
 		node.free()
@@ -54,7 +64,10 @@ static func prepare(item: DEF_InventoryItem, parent: Node3D, pose: Transform3D) 
 
 ## Создаёт вне дерева проверенное тело мебели; вызывающий обязан освободить или разместить его.
 static func create_validated(item: DEF_InventoryItem) -> Entity:
-	if item == null or item.kind != DEF_InventoryItem.Kind.FURNITURE or item.maximum_stack != 1 or item.world_pickup_scene.is_empty() or not ResourceLoader.exists(item.world_pickup_scene):
+	if (
+		item == null or item.kind != DEF_InventoryItem.Kind.FURNITURE or item.maximum_stack != 1
+		or item.world_pickup_scene.is_empty() or not ResourceLoader.exists(item.world_pickup_scene)
+	):
 		return null
 
 	var packed: PackedScene = load(item.world_pickup_scene) as PackedScene
@@ -70,8 +83,8 @@ static func create_validated(item: DEF_InventoryItem) -> Entity:
 		return null
 	return entity
 
-
 #endregion
+
 
 #region Габариты и однократное размещение
 static func _bounds_for(node: Node3D) -> AABB:
@@ -101,22 +114,30 @@ static func prepare_composition(proposal: PreparedFurniture, key: String) -> boo
 	var identity: C_PersistentIdentity = C_PersistentIdentity.new()
 	identity.key = key
 	proposal.entity.component_resources.append(identity)
-	proposal.spawn_context = EntityCompositionService.context_for(proposal.entity, ECS.world,
-		proposal.entity.id if not proposal.entity.id.is_empty() else GECSIO.uuid())
+	proposal.spawn_context = EntityCompositionService.context_for(
+		proposal.entity,
+		ECS.world,
+		proposal.entity.id if not proposal.entity.id.is_empty() else GECSIO.uuid(),
+	)
 	proposal.build_plan = EntityCompositionService.registration_plan(proposal.spawn_context)
 	return proposal.build_plan.valid()
 
 
 ## Однократно размещает и регистрирует уже проверенную заготовку в той же транзакции.
 static func commit(proposal: PreparedFurniture) -> void:
-	assert(proposal.build_plan != null and proposal.build_plan.valid(),
-		"Furniture requires accepted composition before payment/delivery commit")
+	assert(
+		proposal.build_plan != null and proposal.build_plan.valid(),
+		"Furniture requires accepted composition before payment/delivery commit",
+	)
 	var body: Node3D = proposal.entity as Node as Node3D
 	# Создание/восстановление — однократная граница записи позы; дальше движением владеет физика.
 	body.transform = proposal.parent.global_transform.affine_inverse() * proposal.world_pose
 	proposal.parent.add_child(body)
-	var registered: bool = EntityCompositionService.register_plan(proposal.spawn_context,
-		proposal.build_plan, false)
+	var registered: bool = EntityCompositionService.register_plan(
+		proposal.spawn_context,
+		proposal.build_plan,
+		false,
+	)
 	assert(registered, "Validated synchronous furniture transaction must register exactly once")
 
 #endregion

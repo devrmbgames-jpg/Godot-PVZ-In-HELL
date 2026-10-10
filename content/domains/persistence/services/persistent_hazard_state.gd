@@ -1,5 +1,6 @@
 extends RefCounted
-## Кодирует участников опасности ключами; живые связи восстанавливаются после создания всех сущностей.
+## Кодирует участников опасности ключами; живые связи восстанавливаются после создания всех
+## сущностей.
 class_name PersistentHazardState
 
 
@@ -7,52 +8,66 @@ class_name PersistentHazardState
 static func capture(entity: Entity, root: Node) -> Dictionary:
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	if hazard == null:
-		return {}
+		return { }
 
-	var data: Dictionary = {"origin": _key(hazard.origin, root), "instigator": _key(hazard.instigator, root)}
+	var hazard_references: Dictionary = ({
+		"origin": _key(hazard.origin, root),
+		"instigator": _key(hazard.instigator, root),
+	})
 	var binding: Relationship = HazardFollowService.binding(entity)
 	if binding != null:
 		var follow: R_HazardFollow = binding.relation as R_HazardFollow
-		data.follow = {"target": _key(binding.target as Entity, root), "offset": follow.local_offset, "on_loss": follow.on_loss}
-	return data
+		hazard_references.follow = ({
+			"target": _key(binding.target as Entity, root),
+			"offset": follow.local_offset,
+			"on_loss": follow.on_loss,
+		})
+	return hazard_references
 
 
 ## Проверяет существование ключей и параметры сохранённого следования.
-static func valid(data: Dictionary, records: Dictionary[String, Dictionary]) -> bool:
+static func valid(hazard_references: Dictionary, records: Dictionary[String, Dictionary]) -> bool:
 	for field: String in ["origin", "instigator"]:
-		if not data.get(field) is String or (not String(data[field]).is_empty() and not records.has(String(data[field]))):
+		if (
+			not hazard_references.get(field) is String
+			or (
+				not String(hazard_references[field]).is_empty()
+				and not records.has(String(hazard_references[field]))
+			)
+		):
 			return false
-	if data.has("follow"):
-		if not data.follow is Dictionary:
+	if hazard_references.has("follow"):
+		if not hazard_references.follow is Dictionary:
 			return false
 
-		var follow: Dictionary = data.follow as Dictionary
+		var follow: Dictionary = hazard_references.follow as Dictionary
 		if (
-			not follow.get("target") is String
-			or not records.has(String(follow.target))
+			not follow.get("target") is String or not records.has(String(follow.target))
 			or not follow.get("offset") is Transform3D
 			or not (follow.offset as Transform3D).is_finite()
-			or follow.get("on_loss") not in [
-				DEF_Hazard.OwnerLoss.DETACH,
-				DEF_Hazard.OwnerLoss.DESPAWN,
-			]
+			or follow.get("on_loss")
+			not in [DEF_Hazard.OwnerLoss.DETACH, DEF_Hazard.OwnerLoss.DESPAWN]
 		):
 			return false
 	return true
 
 
 ## Восстанавливает атрибуцию и R_HazardFollow, затем запрашивает геометрию без повторного взрыва.
-static func restore(data: Dictionary, entity: Entity, entities: Dictionary[String, Entity]) -> void:
+static func restore(
+	hazard_references: Dictionary,
+	entity: Entity,
+	entities: Dictionary[String, Entity],
+) -> void:
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	if hazard == null:
 		return
 
-	hazard.origin = entities.get(String(data.get("origin", ""))) as Entity
-	hazard.instigator = entities.get(String(data.get("instigator", ""))) as Entity
+	hazard.origin = entities.get(String(hazard_references.get("origin", ""))) as Entity
+	hazard.instigator = entities.get(String(hazard_references.get("instigator", ""))) as Entity
 	var owner: Entity = null
 	var follow: R_HazardFollow = null
-	if data.has("follow"):
-		var saved: Dictionary = data.follow as Dictionary
+	if hazard_references.has("follow"):
+		var saved: Dictionary = hazard_references.follow as Dictionary
 		follow = R_HazardFollow.new()
 		owner = entities[String(saved.target)]
 		follow.local_offset = saved.offset as Transform3D
@@ -62,8 +77,10 @@ static func restore(data: Dictionary, entity: Entity, entities: Dictionary[Strin
 	if entity is E_ToxicArea:
 		HazardGeometry.configure_toxic(entity as E_ToxicArea, hazard.definition as DEF_ToxicArea)
 	elif entity is E_Explosion:
-		HazardGeometry.configure_explosion(entity as E_Explosion, hazard.definition as DEF_Explosion)
-
+		HazardGeometry.configure_explosion(
+			entity as E_Explosion,
+			hazard.definition as DEF_Explosion,
+		)
 
 
 ## Снимает потерянное следование либо удаляет опасность согласно её политике.

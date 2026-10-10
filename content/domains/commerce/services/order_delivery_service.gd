@@ -13,7 +13,10 @@ static func key_for(delivery: PendingDelivery) -> String:
 
 ## Проверяет поддерживаемую физическую сцену до оплаты доставки; тестовый экземпляр освобождается.
 static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
-	if item == null or item.world_pickup_scene.is_empty() or not ResourceLoader.exists(item.world_pickup_scene):
+	if (
+		item == null or item.world_pickup_scene.is_empty()
+		or not ResourceLoader.exists(item.world_pickup_scene)
+	):
 		return false
 	if item.kind == DEF_InventoryItem.Kind.FURNITURE:
 		var furniture: Entity = FurniturePlacement.create_validated(item)
@@ -42,23 +45,37 @@ static func can_fulfill_definition(item: DEF_InventoryItem) -> bool:
 	node.free()
 	return valid
 
-
 #endregion
+
 
 #region Однократная утренняя выдача
 ## Исполняет первый готовый заказ или признаёт уже созданный по ключу; занятость сохраняет заказ.
-static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Commerce, day: int) -> bool:
-	if not EntityAvailability.contains(zone, ECS.world) or state == null or commerce == null or day < 1:
+static func fulfill_one(
+	zone: Entity,
+	state: C_OrderReceiving,
+	commerce: C_Commerce,
+	day: int,
+) -> bool:
+	if (
+		not EntityAvailability.contains(zone, ECS.world)
+		or state == null or commerce == null or day < 1
+	):
 		return false
 
 	var anchor: Node3D = zone as Node as Node3D
-	if anchor == null or not anchor.is_inside_tree() or state.columns < 1 or state.rows < 1 or state.spacing.x <= 0.0 or state.spacing.y <= 0.0:
+	if (
+		anchor == null or not anchor.is_inside_tree() or state.columns < 1
+		or state.rows < 1 or state.spacing.x <= 0.0 or state.spacing.y <= 0.0
+	):
 		return false
 
 	for delivery: PendingDelivery in commerce.pending_deliveries:
 		if delivery.fulfilled or delivery.delivery_day > day:
 			continue
-		if delivery.delivery_id.is_empty() or delivery.item == null or delivery.quantity < 1 or delivery.quantity > delivery.item.maximum_stack:
+		if (
+			delivery.delivery_id.is_empty() or delivery.item == null
+			or delivery.quantity < 1 or delivery.quantity > delivery.item.maximum_stack
+		):
 			state.blocked = true
 			return false
 
@@ -80,8 +97,10 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 		var pickup: E_InventoryPickup = instance as E_InventoryPickup
 		var collision: CollisionShape3D = instance.get_node_or_null("Collision") as CollisionShape3D
 		var body: RigidBody3D = instance as RigidBody3D
-		if (pickup == null or collision == null or collision.disabled
-			or collision.shape == null or body == null):
+		if (
+			pickup == null or collision == null or collision.disabled
+			or collision.shape == null or body == null
+		):
 			instance.free()
 			state.blocked = true
 			return false
@@ -108,7 +127,14 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 		var space: PhysicsDirectSpaceState3D = anchor.get_world_3d().direct_space_state
 		for index: int in state.columns * state.rows:
 			var pose: Transform3D = anchor.global_transform
-			pose.origin += pose.basis * Vector3((index % state.columns) * state.spacing.x, 0.0, (index / state.columns) * state.spacing.y)
+			pose.origin += (
+				pose.basis
+				* Vector3(
+					(index % state.columns) * state.spacing.x,
+					0.0,
+					(index / state.columns) * state.spacing.y,
+				)
+			)
 			query.transform = pose * collision.transform
 			if not space.intersect_shape(query, 1).is_empty():
 				continue
@@ -120,8 +146,11 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 			pickup.id = key
 			body.transform = anchor.global_transform.affine_inverse() * pose
 			anchor.add_child(pickup)
-			var context: EntitySpawnContext = EntityCompositionService.context_for(pickup,
-				ECS.world, key)
+			var context: EntitySpawnContext = EntityCompositionService.context_for(
+				pickup,
+				ECS.world,
+				key,
+			)
 			if not EntityCompositionService.try_register(context, false):
 				pickup.free()
 				state.blocked = true
@@ -142,9 +171,14 @@ static func fulfill_one(zone: Entity, state: C_OrderReceiving, commerce: C_Comme
 
 #endregion
 
+
 #region Полная форма мебели и резервы
 static func _furniture(zone: Entity, state: C_OrderReceiving, delivery: PendingDelivery) -> bool:
-	var marker: Node3D = zone.get_node_or_null(state.furniture_anchor_path) as Node3D if not state.furniture_anchor_path.is_empty() else null
+	var marker: Node3D = (
+		zone.get_node_or_null(state.furniture_anchor_path) as Node3D
+		if not state.furniture_anchor_path.is_empty()
+		else null
+	)
 	if marker == null or delivery.quantity != 1 or state.furniture_placement == null:
 		state.blocked = true
 		return false
@@ -167,8 +201,16 @@ static func _furniture(zone: Entity, state: C_OrderReceiving, delivery: PendingD
 		state.reservation_frame = frame
 	var origin: Transform3D = marker.global_transform
 	origin.basis = origin.basis.orthonormalized()
-	var result: ItemPlacementSolver.Result = solver.find(marker.get_world_3d().direct_space_state, origin, state.furniture_placement, state.reservations, [])
-	if not result.available:
+	var placement_result: ItemPlacementSolver.Result = (
+		solver.find(
+			marker.get_world_3d().direct_space_state,
+			origin,
+			state.furniture_placement,
+			state.reservations,
+			[],
+		)
+	)
+	if not placement_result.available:
 		entity.free()
 		state.blocked = true
 		return false
@@ -176,7 +218,7 @@ static func _furniture(zone: Entity, state: C_OrderReceiving, delivery: PendingD
 	var proposal: PreparedFurniture = PreparedFurniture.new()
 	proposal.entity = entity
 	proposal.parent = parent
-	proposal.world_pose = result.pose
+	proposal.world_pose = placement_result.pose
 	entity.id = key_for(delivery)
 	if not FurniturePlacement.prepare_composition(proposal, key_for(delivery)):
 		entity.free()
@@ -184,11 +226,12 @@ static func _furniture(zone: Entity, state: C_OrderReceiving, delivery: PendingD
 		return false
 	FurniturePlacement.commit(proposal)
 	state.goods[key_for(delivery)] = weakref(entity)
-	state.reservations.append(result.bounds)
+	state.reservations.append(placement_result.bounds)
 	delivery.fulfilled = true
 	state.blocked = false
 	return true
 #endregion
+
 
 #region Производный контекст выдачи
 ## Сбрасывает таймеры, резервы и слабые ссылки после восстановления World; заказы не меняет.
@@ -204,11 +247,14 @@ static func reset_context(state: C_OrderReceiving) -> void:
 	state.reservations.clear()
 	state.reservation_frame = -1
 
+
 static func _existing(state: C_OrderReceiving, key: String) -> Entity:
 	if not state.identity_index_ready:
 		# Один индекс при старте/restore, включая прежние товары с произвольным Entity.id.
 		for entity: Entity in ECS.world.query.with_all([C_PersistentIdentity]).execute():
-			var identity: C_PersistentIdentity = entity.get_component(C_PersistentIdentity) as C_PersistentIdentity
+			var identity: C_PersistentIdentity = (
+				entity.get_component(C_PersistentIdentity) as C_PersistentIdentity
+			)
 			if identity.key.begins_with("order/"):
 				state.goods[identity.key] = weakref(entity)
 		state.identity_index_ready = true

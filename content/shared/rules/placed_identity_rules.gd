@@ -7,6 +7,7 @@ const WORLD_ID_META: StringName = &"persistent_world_id"
 ## Placed Entity authoring metadata containing its explicitly assigned local instance token.
 const LOCAL_ID_META: StringName = &"persistent_local_id"
 
+
 #region Authoring validation and compilation
 ## Validates the entire authored set before changing any recipe; duplicate/missing tokens reject it.
 static func compile_for(root: Node) -> Array[String]:
@@ -18,22 +19,29 @@ static func compile_for(root: Node) -> Array[String]:
 	var world_id: StringName = StringName(root.get_meta(WORLD_ID_META, &""))
 	if not _valid_token(world_id):
 		issues.append("Level requires explicit persistent_world_id authoring metadata")
-	var local_ids: Dictionary[StringName, bool] = {}
+	var local_ids: Dictionary[StringName, bool] = { }
 	for actor: Entity in actors:
 		var local_id: StringName = StringName(actor.get_meta(LOCAL_ID_META, &""))
 		if not _valid_token(local_id):
 			issues.append("%s requires explicit persistent_local_id" % root.get_path_to(actor))
 		elif local_ids.has(local_id):
-			issues.append("Duplicate placed identity %s/%s at %s"
-				% [world_id, local_id, root.get_path_to(actor)])
+			issues.append(
+				"Duplicate placed identity %s/%s at %s"
+				% [world_id, local_id, root.get_path_to(actor)]
+			)
 		local_ids[local_id] = true
 		var registered_identity: C_AuthoredIdentity = (
 			actor.get_component(C_AuthoredIdentity) as C_AuthoredIdentity
 		)
-		if registered_identity != null and (registered_identity.world_id != world_id
-				or registered_identity.local_id != local_id):
-			issues.append("Registered placed identity cannot change at %s"
-				% root.get_path_to(actor))
+		if (
+			registered_identity != null
+			and (
+				registered_identity.world_id != world_id or registered_identity.local_id != local_id
+			)
+		):
+			issues.append(
+				"Registered placed identity cannot change at %s" % root.get_path_to(actor)
+			)
 	if not issues.is_empty():
 		return issues
 
@@ -75,6 +83,7 @@ static func is_authored(actor: Entity, root: Node) -> bool:
 	return false
 #endregion
 
+
 #region Immutable reference lookup
 ## Reads registered state or an unregistered authored recipe without initializing it.
 static func component_for(actor: Entity) -> C_AuthoredIdentity:
@@ -89,21 +98,21 @@ static func component_for(actor: Entity) -> C_AuthoredIdentity:
 
 ## Derives lookup from immutable authored references; no alias map or mutable identity allocation.
 static func resolver(root: Node) -> Dictionary[String, Entity]:
-	var actors: Dictionary[String, Entity] = {}
+	var actors: Dictionary[String, Entity] = { }
 	for actor: Entity in authored_actors(root):
 		var identity: C_AuthoredIdentity = component_for(actor)
 		if identity == null:
 			var world_id: StringName = StringName(root.get_meta(WORLD_ID_META, &""))
 			var local_id: StringName = StringName(actor.get_meta(LOCAL_ID_META, &""))
 			if not _valid_token(world_id) or not _valid_token(local_id):
-				return {}
+				return { }
 			identity = C_AuthoredIdentity.new()
 			identity.world_id = world_id
 			identity.local_id = local_id
 		if not _valid_token(identity.world_id) or not _valid_token(identity.local_id):
-			return {}
+			return { }
 		if actors.has(identity.actor_key()):
-			return {}
+			return { }
 		actors[identity.actor_key()] = actor
 	return actors
 

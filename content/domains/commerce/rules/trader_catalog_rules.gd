@@ -2,6 +2,7 @@ extends RefCounted
 ## Reads the sole authored Trader Profile assortment and schedule without gameplay mutations.
 class_name TraderCatalogRules
 
+
 #region Assortment and availability
 ## Returns the authored Profile array for read-only use by transactions and presentation.
 static func catalog(shop: C_Trader) -> Array[DEF_InventoryItem]:

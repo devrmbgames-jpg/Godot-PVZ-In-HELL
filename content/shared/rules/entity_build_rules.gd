@@ -128,8 +128,10 @@ static func validate_registration_batch(
 	for build_index: int in contexts.size():
 		var context: EntitySpawnContext = contexts[build_index]
 		var plan: EntityBuildPlan = plans[build_index]
-		if plan.built_actor != context.actor or plan.built_world != context.world \
-				or plan.built_actor_id != context.actor_id:
+		if (
+			plan.built_actor != context.actor or plan.built_world != context.world
+			or plan.built_actor_id != context.actor_id
+		):
 			_issue(
 				plan,
 				context,
@@ -194,8 +196,9 @@ static func validate_registration_batch(
 		var context: EntitySpawnContext = contexts[build_index]
 		var plan: EntityBuildPlan = plans[build_index]
 		for binding: EntityBuildPlan.Binding in plan.bindings:
-			var target_registered: bool = expected_world != null \
-					and expected_world.entities.has(binding.target)
+			var target_registered: bool = (
+				expected_world != null and expected_world.entities.has(binding.target)
+			)
 			if not prepared_actors.has(binding.target) and not target_registered:
 				_issue(plan, context, &"unprepared_binding", "Endpoint has no prepared build plan")
 		accepted = accepted and plan.valid()
@@ -374,8 +377,10 @@ static func _validate_fields(
 		for field_name: StringName in initial_fields:
 			var source: String = String(plan.field_provenance[component_script][field_name])
 			# Runtime parent/private state and Resource engine bookkeeping are never configurable.
-			if field_name == &"parent" or String(field_name).begins_with("_") \
-					or not descriptors.has(field_name):
+			if (
+				field_name == &"parent" or String(field_name).begins_with("_")
+				or not descriptors.has(field_name)
+			):
 				_issue(
 					plan,
 					context,
@@ -485,8 +490,10 @@ static func _validate_structure(
 	context: EntitySpawnContext,
 	capability: EntityTrait,
 ) -> void:
-	if not capability.required_root_class.is_empty() \
-			and not context.actor.is_class(String(capability.required_root_class)):
+	if (
+		not capability.required_root_class.is_empty()
+		and not context.actor.is_class(String(capability.required_root_class))
+	):
 		_issue(
 			plan,
 			context,
@@ -536,8 +543,10 @@ static func _validate_binding_recipes(
 					source,
 				)
 			continue
-		var in_world: bool = context.world != null and is_instance_valid(context.world) \
-				and context.world.entities.has(endpoint)
+		var in_world: bool = (
+			context.world != null and is_instance_valid(context.world)
+			and context.world.entities.has(endpoint)
+		)
 		if endpoint not in context.candidate_actors and not in_world:
 			_issue(
 				plan,

@@ -6,12 +6,18 @@ class_name ChallengeService
 #region Запуск и живые связи
 ## Отладочный старт меняет определение только до начала одноразового испытания в дневной фазе.
 static func debug_start(subject: Entity, actor: Entity, definition: DEF_Challenge) -> bool:
-	if not _available(subject) or not _available(actor) or definition == null or definition.condition == null:
+	if (
+		not _available(subject) or not _available(actor)
+		or definition == null or definition.condition == null
+	):
 		return false
 
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
-	if cycle == null or cycle.phase != C_DayCycle.Phase.DAY or (state != null and (state.consumed or state.phase != C_Challenge.Phase.INACTIVE)):
+	if (
+		cycle == null or cycle.phase != C_DayCycle.Phase.DAY
+		or (state != null and (state.consumed or state.phase != C_Challenge.Phase.INACTIVE))
+	):
 		return false
 	if state == null:
 		state = C_Challenge.new()
@@ -48,7 +54,10 @@ static func activate(subject: Entity) -> bool:
 		return false
 
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
-	if state == null or state.phase != C_Challenge.Phase.ARMED or not _valid_session(subject, state):
+	if (
+		state == null or state.phase != C_Challenge.Phase.ARMED
+		or not _valid_session(subject, state)
+	):
 		return false
 
 	state.phase = C_Challenge.Phase.ACTIVE
@@ -81,7 +90,11 @@ static func request_departure(subject: Entity) -> void:
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	if (
 		state != null and state.definition != null and state.phase == C_Challenge.Phase.ACTIVE
-		and state.definition.completion in [DEF_Challenge.Completion.UNTIL_DEPARTURE, DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE]
+		and state.definition.completion
+		in [
+			DEF_Challenge.Completion.UNTIL_DEPARTURE,
+			DEF_Challenge.Completion.UNTIL_DEPARTURE_OR_FAILURE,
+		]
 	):
 		state.departure_requested = true
 
@@ -99,8 +112,8 @@ static func actor_for(subject: Entity) -> Entity:
 			return null
 	return null
 
-
 #endregion
+
 
 #region Отмена и завершение
 ## Closes a terminal display after its owning System has exhausted the timer.
@@ -160,8 +173,8 @@ static func session_valid(subject: Entity) -> bool:
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	return state != null and _valid_session(subject, state)
 
-
 #endregion
+
 
 #region Проверки и однократный итог
 static func _valid_session(subject: Entity, state: C_Challenge) -> bool:
@@ -177,25 +190,36 @@ static func _available(entity: Entity) -> bool:
 
 
 ## Commits one terminal result before publishing its typed fact; the session must be ACTIVE.
-static func resolve(subject: Entity, result: ChallengeResult.Type) -> void:
+static func resolve(subject: Entity, outcome: ChallengeResult.Type) -> void:
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	assert(state != null and state.phase == C_Challenge.Phase.ACTIVE)
-	assert(result in [ChallengeResult.Type.SUCCESS, ChallengeResult.Type.FAILURE])
+	assert(outcome in [ChallengeResult.Type.SUCCESS, ChallengeResult.Type.FAILURE])
 
-	state.result = result
-	state.phase = C_Challenge.Phase.SUCCESS if result == ChallengeResult.Type.SUCCESS else C_Challenge.Phase.FAILURE
+	state.result = outcome
+	state.phase = (
+		C_Challenge.Phase.SUCCESS
+		if outcome == ChallengeResult.Type.SUCCESS
+		else C_Challenge.Phase.FAILURE
+	)
 	state.result_remaining = state.definition.result_display_seconds
 	var event: ChallengeResolution = ChallengeResolution.new()
 	event.challenge_key = state.definition.key
-	event.result = result
-	event.satisfaction_delta = state.definition.success_satisfaction_delta if result == ChallengeResult.Type.SUCCESS else state.definition.failure_satisfaction_delta
-	event.request_escalation = result == ChallengeResult.Type.FAILURE and state.definition.escalation_on_failure
+	event.result = outcome
+	if outcome == ChallengeResult.Type.SUCCESS:
+		event.satisfaction_delta = state.definition.success_satisfaction_delta
+	else:
+		event.satisfaction_delta = state.definition.failure_satisfaction_delta
+	event.request_escalation = (
+		outcome == ChallengeResult.Type.FAILURE and state.definition.escalation_on_failure
+	)
 	state.pending_result = event
 	ECS.world.emit_event(ChallengeResolution.EVENT, subject, event)
 
 
 static func _cleanup(subject: Entity, state: C_Challenge) -> void:
-	var light_rule: DEF_LightChallengeCondition = state.definition.condition as DEF_LightChallengeCondition if state.definition != null else null
+	var light_rule: DEF_LightChallengeCondition = null
+	if state.definition != null:
+		light_rule = state.definition.condition as DEF_LightChallengeCondition
 	if light_rule != null and light_rule.wait_outside_until_dark:
 		LightCircuitService.stop_flicker(light_rule.circuit_id, StringName(subject.id))
 	state.phase = C_Challenge.Phase.CLEANUP

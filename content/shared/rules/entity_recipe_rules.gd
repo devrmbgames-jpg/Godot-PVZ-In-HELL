@@ -19,15 +19,12 @@ static func _copy_reference(
 	if (
 		(
 			(
-				source_reference is GameDefinition or source_reference is Script \
-						or source_reference is PackedScene
-				or source_reference is Texture
-			) \
-					or source_reference is Shader
-			or source_reference is Material
-		) \
-				or source_reference is AudioStream
-		or source_reference is Animation
+				source_reference is GameDefinition or source_reference is Script
+				or source_reference is PackedScene or source_reference is Texture
+			)
+			or source_reference is Shader or source_reference is Material
+		)
+		or source_reference is AudioStream or source_reference is Animation
 	):
 		return source_reference
 
@@ -72,10 +69,14 @@ static func _is_definition_script(record_script: Script) -> bool:
 	# Their shared immutable role does not depend on inheriting GameDefinition's key contract.
 	while record_script != null:
 		var source_path: String = record_script.resource_path
-		var canonical_root: bool = source_path.begins_with("res://content/domains/") \
-				or source_path.begins_with("res://content/shared/")
-		if canonical_root and "/definitions/" in source_path \
-				and String(record_script.get_global_name()).begins_with("DEF_"):
+		var canonical_root: bool = (
+			source_path.begins_with("res://content/domains/")
+			or source_path.begins_with("res://content/shared/")
+		)
+		if (
+			canonical_root and "/definitions/" in source_path
+			and String(record_script.get_global_name()).begins_with("DEF_")
+		):
 			return true
 		record_script = record_script.get_base_script()
 	return false

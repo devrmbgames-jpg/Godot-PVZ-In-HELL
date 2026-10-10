@@ -9,10 +9,17 @@ static func valid(definition: DEF_Hazard) -> bool:
 		return false
 	if definition is DEF_ToxicArea:
 		var toxin: DEF_ToxicArea = definition as DEF_ToxicArea
-		return _positive(toxin.radius) and _positive(toxin.tick_seconds) and _nonnegative(toxin.damage_per_tick)
+		return (
+			_positive(toxin.radius) and _positive(toxin.tick_seconds)
+			and _nonnegative(toxin.damage_per_tick)
+		)
 	if definition is DEF_Explosion:
 		var blast: DEF_Explosion = definition as DEF_Explosion
-		return _positive(blast.radius) and _positive(blast.falloff_power) and _nonnegative(blast.damage) and _nonnegative(blast.impulse) and _nonnegative(blast.upward_bias) and blast.maximum_targets > 0
+		return (
+			_positive(blast.radius) and _positive(blast.falloff_power)
+			and _nonnegative(blast.damage) and _nonnegative(blast.impulse)
+			and _nonnegative(blast.upward_bias) and blast.maximum_targets > 0
+		)
 	return true
 
 

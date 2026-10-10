@@ -49,58 +49,62 @@ static func scan(actor: Entity, scanner: Entity, target: Entity) -> PackageScanR
 ## Синхронно регистрирует коробку для доверенных игровых и отладочных вызовов.
 ## Проверки удержания сканера и дистанции выполняются в scan().
 static func register_package(target: Entity) -> PackageScanResult:
-	var result: PackageScanResult = PackageScanResult.new()
+	var scan_receipt: PackageScanResult = PackageScanResult.new()
 	if not EntityAvailability.contains(target, ECS.world):
-		return result
+		return scan_receipt
 	if not target.has_component(C_Package) or not target.has_component(C_PackageState):
-		return result
+		return scan_receipt
 
 	var registry: C_PackageLedger = PackageQueries.ledger()
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	if registry == null or cycle == null or cycle.phase == C_DayCycle.Phase.NIGHT:
-		return result
+		return scan_receipt
 
 	var identity: C_Package = target.get_component(C_Package) as C_Package
 	var state: C_PackageState = target.get_component(C_PackageState) as C_PackageState
-	result.package_id = identity.package_id
-	var registration: PackageRegistrationRecord = PackageHistoryService.record_for(identity.package_id, registry)
+	scan_receipt.package_id = identity.package_id
+	var registration: PackageRegistrationRecord = (
+		PackageHistoryService.record_for(identity.package_id, registry)
+	)
 	if registration != null:
 		if not registration.active:
-			return result
+			return scan_receipt
 		if registration.number > 0:
-			result.outcome = PackageScanResult.Outcome.ALREADY_REGISTERED
-			result.number = registration.number
-			result.message = "Уже учтена · №%03d" % registration.number
-			return result
+			scan_receipt.outcome = PackageScanResult.Outcome.ALREADY_REGISTERED
+			scan_receipt.number = registration.number
+			scan_receipt.message = "Уже учтена · №%03d" % registration.number
+			return scan_receipt
 
 	if identity.package_id.is_empty() or identity.definition == null:
-		return result
+		return scan_receipt
 	if state.registration >= C_PackageState.Registration.DELIVERED:
-		return result
+		return scan_receipt
 	if state.scan == C_PackageState.Scan.SCANNED or state.registration_number != 0:
-		result.message = "Ошибка реестра: запись отсутствует"
-		return result
+		scan_receipt.message = "Ошибка реестра: запись отсутствует"
+		return scan_receipt
 	if CustomerFlowQueries.package_declared_lost(identity.package_id):
-		result.message = "Посылка уже заявлена потерянной"
-		return result
+		scan_receipt.message = "Посылка уже заявлена потерянной"
+		return scan_receipt
 
 	var sequence: int = smallest_free_number(registry)
 	if registration == null:
-		var received_day: int = identity.delivery_day if identity.delivery_day > 0 else cycle.day_index
+		var received_day: int = (
+			identity.delivery_day if identity.delivery_day > 0 else cycle.day_index
+		)
 		registration = PackageHistoryService.record_arrival(target, received_day)
 		if registration == null:
-			return result
+			return scan_receipt
 	registration.day_index = cycle.day_index
 	registration.number = sequence
 	state.registration_number = registration.number
 	state.registration_day = cycle.day_index
 	state.scan = C_PackageState.Scan.SCANNED
 	state.registration = C_PackageState.Registration.REGISTERED
-	result.outcome = PackageScanResult.Outcome.REGISTERED
-	result.number = registration.number
-	result.message = "Зарегистрирована · №%03d" % registration.number
-	ECS.world.emit_event(PackageScanResult.EVENT, target, result)
-	return result
+	scan_receipt.outcome = PackageScanResult.Outcome.REGISTERED
+	scan_receipt.number = registration.number
+	scan_receipt.message = "Зарегистрирована · №%03d" % registration.number
+	ECS.world.emit_event(PackageScanResult.EVENT, target, scan_receipt)
+	return scan_receipt
 
 
 ## Находит наименьший свободный положительный номер среди активных записей, независимо от дня.
@@ -117,7 +121,8 @@ static func smallest_free_number(registry: C_PackageLedger) -> int:
 	return candidate
 
 
-## Освобождает номер после явного DELIVERED, RETURNED или BOUGHT_OUT; заявление игрока его не освобождает.
+## Освобождает номер после явного DELIVERED, RETURNED или BOUGHT_OUT; заявление игрока его не
+## освобождает.
 ## Удаление Node, повреждение, пропажа коробки и смена дня не подтверждают уход со склада.
 static func release_number(parcel: Entity) -> bool:
 	if not is_instance_valid(parcel):

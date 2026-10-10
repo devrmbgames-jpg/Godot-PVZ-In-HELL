@@ -23,14 +23,14 @@ static func owner_for(item: Entity) -> Entity:
 
 ## Собирает текущие стеки с единственной связью на доступного владельца.
 static func items(owner: Entity) -> Array[Entity]:
-	var result: Array[Entity] = []
+	var inventory_items: Array[Entity] = []
 	if not EntityAvailability.contains(owner, ECS.world) or not owner.has_component(C_Inventory):
-		return result
+		return inventory_items
 
 	for item: Entity in ECS.world.query.with_all([C_InventoryItem]).execute():
 		if owner_for(item) == owner:
-			result.append(item)
-	return result
+			inventory_items.append(item)
+	return inventory_items
 
 
 ## Находит принадлежащий владельцу стек по текущему Entity.id.
@@ -40,13 +40,17 @@ static func item_by_id(owner: Entity, item_id: String) -> Entity:
 			return item
 	return null
 
-
 #endregion
+
 
 #region Создание и перенос стеков
 ## Создаёт виртуальный стек через обычный контракт вместимости и переноса; отказ удаляет заготовку.
 static func grant(owner: Entity, definition: DEF_InventoryItem, quantity: int) -> bool:
-	if not _owner_available(owner) or definition == null or definition.kind == DEF_InventoryItem.Kind.FURNITURE or quantity < 1 or quantity > definition.maximum_stack:
+	if (
+		not _owner_available(owner) or definition == null
+		or definition.kind == DEF_InventoryItem.Kind.FURNITURE
+		or quantity < 1 or quantity > definition.maximum_stack
+	):
 		return false
 
 	var item: Entity = Entity.new()
@@ -54,8 +58,11 @@ static func grant(owner: Entity, definition: DEF_InventoryItem, quantity: int) -
 	state.definition = definition
 	state.quantity = quantity
 	item.component_resources = [state]
-	var context: EntitySpawnContext = EntityCompositionService.context_for(item, ECS.world,
-		GECSIO.uuid())
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		item,
+		ECS.world,
+		GECSIO.uuid(),
+	)
 	if not EntityCompositionService.try_register(context):
 		item.free()
 		return false
@@ -70,11 +77,17 @@ static func grant(owner: Entity, definition: DEF_InventoryItem, quantity: int) -
 static func can_transfer(item: Entity, destination: Entity, expected_owner: Entity = null) -> bool:
 	if CustomerInspectionQueries.owner_for(item) != null:
 		return false
-	if not _owner_available(destination) or not EntityAvailability.contains(item, ECS.world) or item == destination or item.has_component(C_Package) or item.has_component(C_Grabbable):
+	if (
+		not _owner_available(destination) or not EntityAvailability.contains(item, ECS.world)
+		or item == destination or item.has_component(C_Package) or item.has_component(C_Grabbable)
+	):
 		return false
 
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
-	if not _valid_item(state) or state.definition.kind == DEF_InventoryItem.Kind.FURNITURE or state.transfer_in_progress or not state.pending_use_id.is_empty():
+	if (
+		not _valid_item(state) or state.definition.kind == DEF_InventoryItem.Kind.FURNITURE
+		or state.transfer_in_progress or not state.pending_use_id.is_empty()
+	):
 		return false
 
 	var ownership_count: int = 0
@@ -82,7 +95,10 @@ static func can_transfer(item: Entity, destination: Entity, expected_owner: Enti
 		if link.relation is R_OwnedBy:
 			ownership_count += 1
 	var previous: Entity = owner_for(item)
-	if ownership_count > 1 or (ownership_count == 1 and previous == null) or previous != expected_owner or previous == destination:
+	if (
+		ownership_count > 1 or (ownership_count == 1 and previous == null)
+		or previous != expected_owner or previous == destination
+	):
 		return false
 	if previous != null and not _owner_available(previous):
 		return false
@@ -104,7 +120,9 @@ static func transfer(item: Entity, destination: Entity, expected_owner: Entity =
 
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
 	var destination_inventory: C_Inventory = destination.get_component(C_Inventory) as C_Inventory
-	var previous_inventory: C_Inventory = expected_owner.get_component(C_Inventory) as C_Inventory if expected_owner != null else null
+	var previous_inventory: C_Inventory = (
+		expected_owner.get_component(C_Inventory) as C_Inventory if expected_owner != null else null
+	)
 	destination_inventory.transfer_in_progress = true
 	if previous_inventory != null:
 		previous_inventory.transfer_in_progress = true
@@ -117,7 +135,9 @@ static func transfer(item: Entity, destination: Entity, expected_owner: Entity =
 		if not _compatible(state, other) or not other.pending_use_id.is_empty():
 			continue
 
-		var added: int = mini(state.quantity, maxi(0, other.definition.maximum_stack - other.quantity))
+		var added: int = (
+			mini(state.quantity, maxi(0, other.definition.maximum_stack - other.quantity))
+		)
 		other.quantity += added
 		state.quantity -= added
 		if state.quantity == 0:
@@ -132,8 +152,8 @@ static func transfer(item: Entity, destination: Entity, expected_owner: Entity =
 		previous_inventory.transfer_in_progress = false
 	return true
 
-
 #endregion
+
 
 #region Эффекты использования
 ## Возвращает причину запрета эффекта или пустую строку; здоровье не изменяет.
@@ -154,12 +174,19 @@ static func use_reason(owner: Entity, item: Entity, target: Entity = null) -> St
 			var hunger: C_Hunger = owner.get_component(C_Hunger) as C_Hunger
 			if hunger == null or hunger.value <= 0.0:
 				return "Голод уже равен нулю"
-			if state.definition.food_effect == null or not is_finite(state.definition.food_effect.hunger_relief) or state.definition.food_effect.hunger_relief <= 0.0:
+			if (
+				state.definition.food_effect == null
+				or not is_finite(state.definition.food_effect.hunger_relief)
+				or state.definition.food_effect.hunger_relief <= 0.0
+			):
 				return "Эффект еды недоступен"
 
 		DEF_InventoryItem.Kind.MED_ITEM:
 			var health: C_Health = owner.get_component(C_Health) as C_Health
-			if health == null or health.depleted or health.current <= 0.0 or not is_finite(health.current) or not is_finite(health.value):
+			if (
+				health == null or health.depleted or health.current <= 0.0
+				or not is_finite(health.current) or not is_finite(health.value)
+			):
 				return "Лечение недоступно"
 			if health.current >= health.value:
 				return "Здоровье уже полное"
@@ -175,7 +202,8 @@ static func use_reason(owner: Entity, item: Entity, target: Entity = null) -> St
 	return ""
 
 
-## Применяет еду/защиту синхронно, лечение ожидает DamageResult; количество расходуется после успеха.
+## Применяет еду/защиту синхронно, лечение ожидает DamageResult; количество расходуется после
+## успеха.
 static func use(owner: Entity, item: Entity, target: Entity = null) -> bool:
 	if not use_reason(owner, item, target).is_empty():
 		return false
@@ -199,33 +227,40 @@ static func use(owner: Entity, item: Entity, target: Entity = null) -> bool:
 		_finish_use(owner, item, false)
 		return false
 
-	var applied: bool = HungerService.apply_food(owner, state.definition.food_effect) if state.definition.kind == DEF_InventoryItem.Kind.FOOD else PackageProtectionService.apply(target, state.definition.protection_tier)
+	var applied: bool = (
+		HungerService.apply_food(owner, state.definition.food_effect)
+		if state.definition.kind == DEF_InventoryItem.Kind.FOOD
+		else PackageProtectionService.apply(target, state.definition.protection_tier)
+	)
 	_finish_use(owner, item, applied)
 	return applied
 
 
 ## Завершает ожидаемое лечение после фактического результата O_Damage; расходует единицу при пользе.
-static func healing_result(result: DamageResult) -> void:
-	if result == null or result.request == null:
+static func healing_result(healing_receipt: DamageResult) -> void:
+	if healing_receipt == null or healing_receipt.request == null:
 		return
 
-	var request: DamageRequest = result.request
+	var request: DamageRequest = healing_receipt.request
 	var item: Entity = request.source
 	if not _registered(item) or request.operation != DamageRequest.Operation.HEAL:
 		return
 
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
-	if state == null or state.pending_use_id.is_empty() or request.origin_id != state.pending_use_id:
+	if (
+		state == null or state.pending_use_id.is_empty()
+		or request.origin_id != state.pending_use_id
+	):
 		return
 
 	var owner: Entity = owner_for(item)
 	if owner != request.target or owner != request.instigator:
 		return
 
-	_finish_use(owner, item, result.applied_amount > 0.0)
-
+	_finish_use(owner, item, healing_receipt.applied_amount > 0.0)
 
 #endregion
+
 
 #region Очистка жизненного цикла
 ## Удаляет зарегистрированные стеки, связанные с владельцем, включая ожидающие эффекты.
@@ -251,7 +286,9 @@ static func ownership_removed(item: Entity, link: Relationship) -> void:
 		return
 
 	var owner: Entity = link.target as Entity if is_instance_valid(link.target) else null
-	var inventory: C_Inventory = owner.get_component(C_Inventory) as C_Inventory if owner != null else null
+	var inventory: C_Inventory = (
+		owner.get_component(C_Inventory) as C_Inventory if owner != null else null
+	)
 	if inventory != null and not state.pending_use_id.is_empty():
 		inventory.use_in_progress = false
 	if _registered(item) and owner_for(item) == null:
@@ -268,15 +305,17 @@ static func entity_unavailable(entity: Entity) -> void:
 		for link: Relationship in entity.relationships:
 			if link.relation is R_OwnedBy and is_instance_valid(link.target):
 				var owner: Entity = link.target as Entity
-				var inventory: C_Inventory = owner.get_component(C_Inventory) as C_Inventory if owner != null else null
+				var inventory: C_Inventory = (
+					owner.get_component(C_Inventory) as C_Inventory if owner != null else null
+				)
 				if inventory != null:
 					inventory.use_in_progress = false
 		state.pending_use_id = &""
 	if entity.has_component(C_Inventory):
 		clear_owner(entity)
 
-
 #endregion
+
 
 #region Внутренние проверки и завершение
 static func _finish_use(owner: Entity, item: Entity, applied: bool) -> void:
@@ -285,7 +324,9 @@ static func _finish_use(owner: Entity, item: Entity, applied: bool) -> void:
 
 	var state: C_InventoryItem = item.get_component(C_InventoryItem) as C_InventoryItem
 	state.pending_use_id = &""
-	var inventory: C_Inventory = owner.get_component(C_Inventory) as C_Inventory if is_instance_valid(owner) else null
+	var inventory: C_Inventory = (
+		owner.get_component(C_Inventory) as C_Inventory if is_instance_valid(owner) else null
+	)
 	if inventory != null:
 		inventory.use_in_progress = false
 	if applied:
@@ -299,18 +340,31 @@ static func _owner_available(owner: Entity) -> bool:
 		return false
 
 	var inventory: C_Inventory = owner.get_component(C_Inventory) as C_Inventory
-	return inventory != null and inventory.maximum_stacks > 0 and not inventory.use_in_progress and not inventory.transfer_in_progress
+	return (
+		inventory != null and inventory.maximum_stacks > 0
+		and not inventory.use_in_progress and not inventory.transfer_in_progress
+	)
 
 
 static func _valid_item(state: C_InventoryItem) -> bool:
-	return state != null and state.definition != null and not state.definition.key.is_empty() and state.definition.maximum_stack > 0 and state.quantity > 0 and state.quantity <= state.definition.maximum_stack
+	return (
+		state != null and state.definition != null and not state.definition.key.is_empty()
+		and state.definition.maximum_stack > 0 and state.quantity > 0
+		and state.quantity <= state.definition.maximum_stack
+	)
 
 
 static func _compatible(a: C_InventoryItem, b: C_InventoryItem) -> bool:
-	return _valid_item(a) and _valid_item(b) and a.definition == b.definition and not b.transfer_in_progress
+	return (
+		_valid_item(a) and _valid_item(b)
+		and a.definition == b.definition and not b.transfer_in_progress
+	)
 
 
 static func _registered(entity: Entity) -> bool:
-	return is_instance_valid(entity) and is_instance_valid(ECS.world) and not entity.is_queued_for_deletion() and ECS.world.entity_to_archetype.has(entity)
+	return (
+		is_instance_valid(entity) and is_instance_valid(ECS.world)
+		and not entity.is_queued_for_deletion() and ECS.world.entity_to_archetype.has(entity)
+	)
 
 #endregion

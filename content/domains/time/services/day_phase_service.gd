@@ -20,8 +20,8 @@ static func permits(cycle: C_DayCycle, kind: DayTransitionRequest.Kind) -> bool:
 			return cycle.phase == C_DayCycle.Phase.EVENING and NpcSleepService.blockers().is_empty()
 	return false
 
-
 #endregion
+
 
 #region Условия и представление
 ## Читает единый текущий запрет начала смены: поставка, разгрузка, ручной LOST и игрок в кузове.
@@ -36,7 +36,11 @@ static func finish_blockers(cycle: C_DayCycle) -> PackedStringArray:
 		return ["Смена недоступна"]
 
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
-	var unfinished: int = CustomerFlowQueries.actionable_remaining(flow, cycle.day_index) if flow != null else cycle.remaining_customer_events
+	var unfinished: int = 0
+	if flow != null:
+		unfinished = CustomerFlowQueries.actionable_remaining(flow, cycle.day_index)
+	else:
+		unfinished = cycle.remaining_customer_events
 	if cycle.require_finished_customers and unfinished > 0:
 		reasons.append("Завершить визиты: %d" % unfinished)
 	var shift_seconds: float = GameTimeQueries.shift_seconds(cycle)
@@ -54,7 +58,10 @@ static func finish_blockers(cycle: C_DayCycle) -> PackedStringArray:
 	elif cycle.require_all_planned_arrivals:
 		var unarrived: int = 0
 		for visit: CustomerVisit in flow.visits:
-			if CustomerFlowQueries.visit_due(visit, cycle.day_index) and not visit.started and CustomerFlowQueries.arrival_allowed(visit):
+			if (
+				CustomerFlowQueries.visit_due(visit, cycle.day_index)
+				and not visit.started and CustomerFlowQueries.arrival_allowed(visit)
+			):
 				unarrived += 1
 		if unarrived > 0:
 			reasons.append("Ожидаются запланированные клиенты: %d" % unarrived)
@@ -80,7 +87,10 @@ static func customers_in_room(cycle: C_DayCycle) -> int:
 		var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 		if visit != null and visit.finished:
 			continue
-		if not customer.has_component(C_Death) and (room == null or (body != null and room.overlaps_body(body))):
+		if (
+			not customer.has_component(C_Death)
+			and (room == null or (body != null and room.overlaps_body(body)))
+		):
 			count += 1
 	return count
 
@@ -91,7 +101,11 @@ static func shift_status(cycle: C_DayCycle) -> String:
 		return ""
 	if cycle.phase == C_DayCycle.Phase.MORNING:
 		var start_reasons: PackedStringArray = start_blockers(cycle)
-		return "Начало смены доступно" if start_reasons.is_empty() else "Начало смены: " + " · ".join(start_reasons)
+		return (
+			"Начало смены доступно"
+			if start_reasons.is_empty()
+			else "Начало смены: " + " · ".join(start_reasons)
+		)
 	if cycle.phase == C_DayCycle.Phase.EVENING:
 		var sleep_reasons: PackedStringArray = NpcSleepService.blockers()
 		return "Сон доступен" if sleep_reasons.is_empty() else "Сон: " + " · ".join(sleep_reasons)
@@ -102,8 +116,8 @@ static func shift_status(cycle: C_DayCycle) -> String:
 	var availability: String = "Завершение доступно" if reasons.is_empty() else " · ".join(reasons)
 	return "Смена %.0f с · %s" % [floorf(GameTimeQueries.shift_seconds(cycle)), availability]
 
-
 #endregion
+
 
 #region Отправка запроса
 ## Сохраняет один допустимый запрос с совпадающими ожидаемыми днём и фазой.

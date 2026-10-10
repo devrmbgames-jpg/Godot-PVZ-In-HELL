@@ -2,6 +2,7 @@ extends RefCounted
 ## Reads the session clock and keyed RNG previews without changing time or sequences.
 class_name GameTimeQueries
 
+
 #region Required session clock
 ## Returns the unique clock aggregate established by the session's C_DayCycle contract.
 static func current() -> GameClock:
@@ -11,8 +12,12 @@ static func current() -> GameClock:
 
 
 ## Samples an explicit decision key using the saved world seed; callers own committed sequences.
-static func decision(actor_id: String, day: int, kind: String,
-		sequence: int = 0) -> RandomNumberGenerator:
+static func decision(
+	actor_id: String,
+	day: int,
+	kind: String,
+	sequence: int = 0,
+) -> RandomNumberGenerator:
 	return DecisionRandomRules.generator(current().world_seed, actor_id, day, kind, sequence)
 
 

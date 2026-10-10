@@ -2,6 +2,7 @@ extends RefCounted
 ## Validates retained receiving recipes offline before any live body, queue or ownership changes.
 class_name ReceivingSnapshotRules
 
+
 #region Pending recipe preflight
 ## Verifies every retained key/scene pair and the authored zone's selected delivery definition.
 static func valid(receiving: C_Receiving, actor: Entity) -> bool:
@@ -9,7 +10,10 @@ static func valid(receiving: C_Receiving, actor: Entity) -> bool:
 	for batch: ReceivingBatch in receiving.pending:
 		if batch.day_index < 1 or batch.next_package < 0:
 			return false
-		if batch.source not in [ReceivingBatch.Source.BASE_SUPPLY, ReceivingBatch.Source.PENDING_ORDER]:
+		if (
+			batch.source
+			not in [ReceivingBatch.Source.BASE_SUPPLY, ReceivingBatch.Source.PENDING_ORDER]
+		):
 			return false
 		if batch.next_package > batch.package_keys.size():
 			return false

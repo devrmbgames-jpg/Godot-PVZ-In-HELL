@@ -1,7 +1,7 @@
 extends RefCounted
-## Explicit offer/choice/outcome/reward transactions; S_RefusalQuest owns scheduled deadline selection.
+## Explicit offer/choice/outcome/reward transactions; S_RefusalQuest owns scheduled deadline
+## selection.
 class_name RefusalQuestService
-
 
 
 #region Записи и восстановление связей
@@ -23,7 +23,10 @@ static func restore_bindings() -> void:
 
 		var already_bound: bool = false
 		for existing: Entity in ECS.world.query.with_all([C_QuestBinding]).execute():
-			if (existing.get_component(C_QuestBinding) as C_QuestBinding).quest_id == record.quest_id:
+			if (
+				(existing.get_component(C_QuestBinding) as C_QuestBinding).quest_id
+				== record.quest_id
+			):
 				already_bound = true
 		if already_bound:
 			continue
@@ -46,8 +49,11 @@ static func _create_binding(record: RefusalQuestRecord, trader: Entity, parcel: 
 	var identity: C_QuestBinding = C_QuestBinding.new()
 	identity.quest_id = record.quest_id
 	binding.component_resources = [identity]
-	var context: EntitySpawnContext = EntityCompositionService.context_for(binding, ECS.world,
-		GECSIO.uuid())
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		binding,
+		ECS.world,
+		GECSIO.uuid(),
+	)
 	context.bindings[&"issuer"] = trader
 	context.bindings[&"package"] = parcel
 	context.bindings[&"session"] = _session()
@@ -76,18 +82,24 @@ static func find(quest_id: StringName) -> RefusalQuestRecord:
 				return record
 	return null
 
-
 #endregion
 
+
 #region Предложение и выбор игрока
-## Вечером возвращает действующее предложение или создаёт задание для зарегистрированной будущей посылки.
+## Вечером возвращает действующее предложение или создаёт задание для зарегистрированной будущей
+## посылки.
 static func offer(trader: Entity) -> RefusalQuestRecord:
 	var cycle: C_DayCycle = DayPhaseQueries.current()
 	var state: C_QuestSession = current()
-	var shop: C_Trader = trader.get_component(C_Trader) as C_Trader if EntityAvailability.contains(trader, ECS.world) else null
+	var shop: C_Trader = null
+	if EntityAvailability.contains(trader, ECS.world):
+		shop = trader.get_component(C_Trader) as C_Trader
 	var ledger: C_PackageLedger = PackageQueries.ledger()
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
-	if cycle == null or cycle.phase != C_DayCycle.Phase.EVENING or state == null or shop == null or ledger == null or flow == null:
+	if (
+		cycle == null or cycle.phase != C_DayCycle.Phase.EVENING
+		or state == null or shop == null or ledger == null or flow == null
+	):
 		return null
 
 	var definition: DEF_RefusalQuest = shop.profile.refusal_quest if shop.profile != null else null
@@ -95,10 +107,18 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 		return null
 
 	for record: RefusalQuestRecord in state.records:
-		if record.issuer_key == shop.trader_key and record.state in [RefusalQuestRecord.State.OFFERED, RefusalQuestRecord.State.ACTIVE]:
-			BoundaryTrace.record(&"quests.offer", record.quest_id,
-				BoundaryTraceEntry.Stage.DUPLICATE, &"already_offered",
-				String(record.issuer_key), String(record.quest_id))
+		if (
+			record.issuer_key == shop.trader_key
+			and record.state in [RefusalQuestRecord.State.OFFERED, RefusalQuestRecord.State.ACTIVE]
+		):
+			BoundaryTrace.record(
+				&"quests.offer",
+				record.quest_id,
+				BoundaryTraceEntry.Stage.DUPLICATE,
+				&"already_offered",
+				String(record.issuer_key),
+				String(record.quest_id),
+			)
 			return record
 
 	for registration: PackageRegistrationRecord in ledger.records:
@@ -110,11 +130,19 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 			continue
 
 		for visit: CustomerVisit in flow.visits:
-			if visit.package_id != registration.package_id or visit.finished or visit.arrival_day <= cycle.day_index or visit.actual != CustomerVisit.Actual.NOT_RESOLVED:
+			if (
+				visit.package_id != registration.package_id or visit.finished
+				or visit.arrival_day <= cycle.day_index
+				or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+			):
 				continue
 
 			var target_identity: C_Package = parcel.get_component(C_Package) as C_Package
-			if not RefusalQuestValidator.target_issues(visit, registration, target_identity).is_empty():
+			if (
+				not RefusalQuestValidator
+				.target_issues(visit, registration, target_identity)
+				.is_empty()
+			):
 				continue
 
 			var quest_id: StringName = StringName("refusal/" + visit.package_id)
@@ -129,15 +157,22 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 			record.visit_id = visit.visit_id
 			record.display_number = registration.number
 			record.offered_day = cycle.day_index
-			record.deadline_day = maxi(cycle.day_index + definition.minimum_deadline_days, visit.arrival_day)
+			record.deadline_day = (
+				maxi(cycle.day_index + definition.minimum_deadline_days, visit.arrival_day)
+			)
 			record.reward = definition.reward
 			if not _create_binding(record, trader, parcel):
 				return null
 			state.records.append(record)
 
-			BoundaryTrace.record(&"quests.offer", record.quest_id,
-				BoundaryTraceEntry.Stage.COMPLETED, &"offered",
-				String(record.issuer_key), String(record.quest_id))
+			BoundaryTrace.record(
+				&"quests.offer",
+				record.quest_id,
+				BoundaryTraceEntry.Stage.COMPLETED,
+				&"offered",
+				String(record.issuer_key),
+				String(record.quest_id),
+			)
 			return record
 	return null
 
@@ -146,7 +181,10 @@ static func offer(trader: Entity) -> RefusalQuestRecord:
 static func accept(quest_id: StringName) -> bool:
 	var record: RefusalQuestRecord = find(quest_id)
 	var cycle: C_DayCycle = DayPhaseQueries.current()
-	if record == null or cycle == null or cycle.phase != C_DayCycle.Phase.EVENING or cycle.day_index > record.deadline_day or record.state != RefusalQuestRecord.State.OFFERED:
+	if (
+		record == null or cycle == null or cycle.phase != C_DayCycle.Phase.EVENING
+		or cycle.day_index > record.deadline_day or record.state != RefusalQuestRecord.State.OFFERED
+	):
 		return _trace_choice(quest_id, &"quests.accept", false)
 
 	record.state = RefusalQuestRecord.State.ACTIVE
@@ -157,23 +195,44 @@ static func accept(quest_id: StringName) -> bool:
 static func ignore(quest_id: StringName) -> bool:
 	var record: RefusalQuestRecord = find(quest_id)
 	var cycle: C_DayCycle = DayPhaseQueries.current()
-	if record == null or cycle == null or cycle.phase != C_DayCycle.Phase.EVENING or record.state != RefusalQuestRecord.State.OFFERED:
+	if (
+		record == null or cycle == null or cycle.phase != C_DayCycle.Phase.EVENING
+		or record.state != RefusalQuestRecord.State.OFFERED
+	):
 		return _trace_choice(quest_id, &"quests.ignore", false)
 
 	resolve(record, RefusalQuestRecord.State.IGNORED, cycle.day_index)
 	return _trace_choice(quest_id, &"quests.ignore", true)
 
-
 #endregion
+
 
 #region Исходы, очистка и награда
 ## Commits one quest outcome and removes its live bindings before reporting completion.
-static func resolve(record: RefusalQuestRecord, outcome: RefusalQuestRecord.State, day_index: int) -> void:
-	if find(record.quest_id) != record or record.state not in [RefusalQuestRecord.State.OFFERED, RefusalQuestRecord.State.ACTIVE]:
+static func resolve(
+	record: RefusalQuestRecord,
+	outcome: RefusalQuestRecord.State,
+	day_index: int,
+) -> void:
+	if (
+		find(record.quest_id) != record
+		or record.state not in [RefusalQuestRecord.State.OFFERED, RefusalQuestRecord.State.ACTIVE]
+	):
 		return
-	if outcome not in [RefusalQuestRecord.State.COMPLETED, RefusalQuestRecord.State.FAILED, RefusalQuestRecord.State.IGNORED, RefusalQuestRecord.State.EXPIRED]:
+	if (
+		outcome
+		not in [
+			RefusalQuestRecord.State.COMPLETED,
+			RefusalQuestRecord.State.FAILED,
+			RefusalQuestRecord.State.IGNORED,
+			RefusalQuestRecord.State.EXPIRED,
+		]
+	):
 		return
-	if outcome in [RefusalQuestRecord.State.COMPLETED, RefusalQuestRecord.State.FAILED] and record.state != RefusalQuestRecord.State.ACTIVE:
+	if (
+		outcome in [RefusalQuestRecord.State.COMPLETED, RefusalQuestRecord.State.FAILED]
+		and record.state != RefusalQuestRecord.State.ACTIVE
+	):
 		return
 
 	record.state = outcome
@@ -183,14 +242,22 @@ static func resolve(record: RefusalQuestRecord, outcome: RefusalQuestRecord.Stat
 		if (binding.get_component(C_QuestBinding) as C_QuestBinding).quest_id == record.quest_id:
 			ECS.world.remove_entity(binding)
 
-	BoundaryTrace.record(&"quests.resolve", record.quest_id, BoundaryTraceEntry.Stage.COMPLETED,
+	BoundaryTrace.record(
+		&"quests.resolve",
+		record.quest_id,
+		BoundaryTraceEntry.Stage.COMPLETED,
 		StringName(String(RefusalQuestRecord.State.keys()[outcome]).to_lower()),
-		String(record.issuer_key), String(record.quest_id))
+		String(record.issuer_key),
+		String(record.quest_id),
+	)
 
 
 ## Submits one idempotent wallet operation; reward_paid follows the actual receipt.
 static func pay_reward(record: RefusalQuestRecord, day_index: int) -> void:
-	if find(record.quest_id) != record or record.state != RefusalQuestRecord.State.COMPLETED or record.reward_paid:
+	if (
+		find(record.quest_id) != record
+		or record.state != RefusalQuestRecord.State.COMPLETED or record.reward_paid
+	):
 		return
 
 	var operation: MoneyOperation = MoneyOperation.new()
@@ -206,15 +273,24 @@ static func pay_reward(record: RefusalQuestRecord, day_index: int) -> void:
 		trace_stage = BoundaryTraceEntry.Stage.COMPLETED
 	elif status == WalletService.Status.DUPLICATE:
 		trace_stage = BoundaryTraceEntry.Stage.DUPLICATE
-	BoundaryTrace.record(&"quests.reward", operation.operation_id, trace_stage,
+	BoundaryTrace.record(
+		&"quests.reward",
+		operation.operation_id,
+		trace_stage,
 		StringName(String(WalletService.Status.keys()[status]).to_lower()),
-		String(record.issuer_key), String(record.quest_id))
+		String(record.issuer_key),
+		String(record.quest_id),
+	)
 
 
 static func _session() -> Entity:
-	return ECS.world.query.with_all([C_QuestSession, C_DayCycle]).execute_one() if is_instance_valid(ECS.world) else null
+	if not is_instance_valid(ECS.world):
+		return null
+	var session_query: QueryBuilder = ECS.world.query.with_all([C_QuestSession, C_DayCycle])
+	return session_query.execute_one()
 
 #endregion
+
 
 #region Boundary diagnostics
 static func _trace_choice(quest_id: StringName, operation: StringName, committed: bool) -> bool:
@@ -223,7 +299,13 @@ static func _trace_choice(quest_id: StringName, operation: StringName, committed
 		BoundaryTraceEntry.Stage.COMPLETED if committed else BoundaryTraceEntry.Stage.REJECTED
 	)
 	var origin_id: String = String(record.issuer_key) if record != null else ""
-	BoundaryTrace.record(operation, quest_id, trace_stage,
-		&"committed" if committed else &"invalid_choice", origin_id, String(quest_id))
+	BoundaryTrace.record(
+		operation,
+		quest_id,
+		trace_stage,
+		&"committed" if committed else &"invalid_choice",
+		origin_id,
+		String(quest_id),
+	)
 	return committed
 #endregion

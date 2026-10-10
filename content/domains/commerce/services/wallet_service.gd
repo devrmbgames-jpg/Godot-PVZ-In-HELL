@@ -2,7 +2,13 @@ extends RefCounted
 ## Синхронный расчёт кошелька с устойчивыми ID; интерфейс может получать отдельные снимки.
 class_name WalletService
 
-enum Status { COMMITTED, DUPLICATE, INSUFFICIENT_FUNDS, INVALID, CONFLICT }
+enum Status {
+	COMMITTED,
+	DUPLICATE,
+	INSUFFICIENT_FUNDS,
+	INVALID,
+	CONFLICT,
+}
 const PERCENT_BASE: int = 100
 const MAX_AMOUNT: int = 1000000000
 
@@ -21,8 +27,8 @@ static func current() -> C_Wallet:
 static func snapshot(wallet: C_Wallet) -> C_Wallet:
 	return wallet.duplicate(true) as C_Wallet if wallet != null else null
 
-
 #endregion
+
 
 #region Синхронный расчёт операций
 ## Применяет операцию к текущему кошельку и дню через общий контракт apply.
@@ -55,9 +61,15 @@ static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int)
 
 	for previous: MoneyOperation in wallet.operations:
 		var same_id: bool = previous.operation_id == operation.operation_id
-		var same_settlement: bool = operation.settlement_id != &"" and previous.settlement_id == operation.settlement_id
+		var same_settlement: bool = (
+			operation.settlement_id != &"" and previous.settlement_id == operation.settlement_id
+		)
 		if same_id or same_settlement:
-			if previous.reason == operation.reason and previous.amount == operation.amount and previous.day_index == operation.day_index and previous.settlement_id == operation.settlement_id:
+			if (
+				previous.reason == operation.reason and previous.amount == operation.amount
+				and previous.day_index == operation.day_index
+				and previous.settlement_id == operation.settlement_id
+			):
 				return Status.DUPLICATE
 			return Status.CONFLICT
 	if operation.day_index != current_day or current_day < 1:
@@ -88,24 +100,38 @@ static func apply(wallet: C_Wallet, operation: MoneyOperation, current_day: int)
 	daily.closing_balance = wallet.balance
 	return Status.COMMITTED
 
-
 #endregion
+
 
 #region Расчёт посылок и итоги дня
 ## Создаёт операцию расчёта посылки с округлением вверх; кошелёк не меняет.
-static func package_settlement(wallet: C_Wallet, outcome_id: StringName, reason: MoneyOperation.Reason, value: int, day_index: int) -> MoneyOperation:
-	if wallet == null or wallet.policy == null or value < 0 or value > MAX_AMOUNT or outcome_id == &"":
+static func package_settlement(
+	wallet: C_Wallet,
+	outcome_id: StringName,
+	reason: MoneyOperation.Reason,
+	value: int,
+	day_index: int,
+) -> MoneyOperation:
+	if (
+		wallet == null or wallet.policy == null or value < 0
+		or value > MAX_AMOUNT or outcome_id == &""
+	):
 		return null
 
 	var percent: int = 0
 	match reason:
-		MoneyOperation.Reason.VOLUNTARY_BUYOUT: percent = wallet.policy.buyout_percent
-		MoneyOperation.Reason.LOST: percent = wallet.policy.lost_percent
-		MoneyOperation.Reason.PLAYER_REFUSAL: percent = wallet.policy.refusal_percent
-		MoneyOperation.Reason.CONFIRMED_FRAUD: percent = wallet.policy.fraud_percent
+		MoneyOperation.Reason.VOLUNTARY_BUYOUT:
+			percent = wallet.policy.buyout_percent
+		MoneyOperation.Reason.LOST:
+			percent = wallet.policy.lost_percent
+		MoneyOperation.Reason.PLAYER_REFUSAL:
+			percent = wallet.policy.refusal_percent
+		MoneyOperation.Reason.CONFIRMED_FRAUD:
+			percent = wallet.policy.fraud_percent
 		MoneyOperation.Reason.MISSED_REGISTRATION:
 			percent = wallet.policy.missed_registration_percent
-		_: return null
+		_:
+			return null
 	if percent < 0 or percent > 1000:
 		return null
 
@@ -127,8 +153,8 @@ static func sync_day(wallet: C_Wallet, cycle: C_DayCycle) -> void:
 		daily.shift_completed = true
 		wallet.completed_days += 1
 
-
 #endregion
+
 
 #region Внутренний учёт
 static func _day(wallet: C_Wallet, day_index: int) -> DailyMoneyResult:
@@ -143,12 +169,10 @@ static func _day(wallet: C_Wallet, day_index: int) -> DailyMoneyResult:
 	return daily
 
 
-
 static func _requires_settlement(reason: MoneyOperation.Reason) -> bool:
 	return (
 		reason == MoneyOperation.Reason.VOLUNTARY_BUYOUT
-		or reason == MoneyOperation.Reason.LOST
-		or reason == MoneyOperation.Reason.PLAYER_REFUSAL
+		or reason == MoneyOperation.Reason.LOST or reason == MoneyOperation.Reason.PLAYER_REFUSAL
 		or reason == MoneyOperation.Reason.CONFIRMED_FRAUD
 		or reason == MoneyOperation.Reason.MISSED_REGISTRATION
 	)
@@ -156,16 +180,14 @@ static func _requires_settlement(reason: MoneyOperation.Reason) -> bool:
 
 static func _is_credit(reason: MoneyOperation.Reason) -> bool:
 	return (
-		reason == MoneyOperation.Reason.PAYMENT
-		or reason == MoneyOperation.Reason.DEBUG_CREDIT
+		reason == MoneyOperation.Reason.PAYMENT or reason == MoneyOperation.Reason.DEBUG_CREDIT
 		or reason == MoneyOperation.Reason.DEBUG_PENALTY_REVERSAL
 	)
 
 
 static func _is_penalty(reason: MoneyOperation.Reason) -> bool:
 	return (
-		reason == MoneyOperation.Reason.LOST
-		or reason == MoneyOperation.Reason.PLAYER_REFUSAL
+		reason == MoneyOperation.Reason.LOST or reason == MoneyOperation.Reason.PLAYER_REFUSAL
 		or reason == MoneyOperation.Reason.CONFIRMED_FRAUD
 		or reason == MoneyOperation.Reason.MISSED_REGISTRATION
 		or reason == MoneyOperation.Reason.DEBUG_PENALTY

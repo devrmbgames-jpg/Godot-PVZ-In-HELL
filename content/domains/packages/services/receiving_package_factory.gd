@@ -2,7 +2,9 @@ extends RefCounted
 ## Создаёт физическую коробку для приёмки и проверяет авторские точки размещения.
 class_name ReceivingPackageFactory
 
-const DEFAULT_PLACEMENT: DEF_ItemPlacement = preload("res://content/domains/packages/definitions/def_truck_cargo_placement.tres")
+const DEFAULT_PLACEMENT: DEF_ItemPlacement = preload(
+	"res://content/domains/packages/definitions/def_truck_cargo_placement.tres"
+)
 
 
 #region Создание экземпляра
@@ -11,7 +13,8 @@ static func exists(package_id: String) -> bool:
 	return PackageQueries.find_live_package(package_id) != null
 
 
-## Создаёт незарегистрированный экземпляр с собственными ID и параметрами переноски; размещение выполняется отдельно.
+## Создаёт незарегистрированный экземпляр с собственными ID и параметрами переноски; размещение
+## выполняется отдельно.
 static func create(
 	zone: E_ReceivingZone,
 	definition: DEF_Package,
@@ -28,7 +31,10 @@ static func create(
 	var package_scene_path: String = physical_scene
 	if package_scene_path.is_empty():
 		package_scene_path = PackageSceneRules.variant_for(
-			definition, package_id, day_index, GameTimeQueries.current().world_seed,
+			definition,
+			package_id,
+			day_index,
+			GameTimeQueries.current().world_seed,
 		)
 	var packed: PackedScene = load(package_scene_path) as PackedScene
 	if packed == null:
@@ -54,7 +60,11 @@ static func create(
 
 ## Sets detached scene identity/Profile inputs and physical mass before compiler validation.
 ## The common compiler validates required carry data and derives its Profile defaults.
-static func configure_recipe(parcel: E_Package, definition: DEF_Package, package_id: String) -> bool:
+static func configure_recipe(
+	parcel: E_Package,
+	definition: DEF_Package,
+	package_id: String,
+) -> bool:
 	var body: RigidBody3D = parcel as Node as RigidBody3D
 	if body == null:
 		return false
@@ -64,14 +74,21 @@ static func configure_recipe(parcel: E_Package, definition: DEF_Package, package
 
 	return true
 
-
 #endregion
 
+
 #region Проверка и размещение
-## Проверяет свободную авторскую точку, добавляет коробку в сцену и World; false оставляет её неразмещённой.
-static func try_place(zone: E_ReceivingZone, parcel: E_Package,
-		initial_fields: Dictionary[Script, Dictionary] = {}) -> bool:
-	if not is_instance_valid(zone) or not is_instance_valid(parcel) or not is_instance_valid(ECS.world):
+## Проверяет свободную авторскую точку, добавляет коробку в сцену и World; false оставляет её
+## неразмещённой.
+static func try_place(
+	zone: E_ReceivingZone,
+	parcel: E_Package,
+	initial_fields: Dictionary[Script, Dictionary] = { },
+) -> bool:
+	if (
+		not is_instance_valid(zone) or not is_instance_valid(parcel)
+		or not is_instance_valid(ECS.world)
+	):
 		return false
 
 	var body: RigidBody3D = parcel as Node as RigidBody3D
@@ -96,15 +113,24 @@ static func try_place(zone: E_ReceivingZone, parcel: E_Package,
 	for marker: Marker3D in zone.get_cargo_markers():
 		if not is_instance_valid(marker):
 			continue
-		var origin: Transform3D = marker.global_transform * Transform3D(body.transform.basis, Vector3.ZERO)
-		var result: ItemPlacementSolver.Result = solver.find(space, origin, policy, receiving.reservations, [])
-		if not result.available:
+		var origin: Transform3D = (
+			marker.global_transform * Transform3D(body.transform.basis, Vector3.ZERO)
+		)
+		var placement_result: ItemPlacementSolver.Result = (
+			solver.find(space, origin, policy, receiving.reservations, [])
+		)
+		if not placement_result.available:
 			continue
 
 		# Единственная начальная поза устанавливается до передачи тела физическому движку.
-		body.transform = zone.package_parent.global_transform.affine_inverse() * result.pose
-		var context: EntitySpawnContext = EntityCompositionService.context_for(parcel, ECS.world,
-			parcel.id if not parcel.id.is_empty() else GECSIO.uuid())
+		body.transform = (
+			zone.package_parent.global_transform.affine_inverse() * placement_result.pose
+		)
+		var context: EntitySpawnContext = EntityCompositionService.context_for(
+			parcel,
+			ECS.world,
+			parcel.id if not parcel.id.is_empty() else GECSIO.uuid(),
+		)
 		context.initial_fields = initial_fields
 		var plan: EntityBuildPlan = EntityCompositionService.registration_plan(context)
 		if not plan.valid():
@@ -113,7 +139,7 @@ static func try_place(zone: E_ReceivingZone, parcel: E_Package,
 		if not EntityCompositionService.register_plan(context, plan, false):
 			zone.package_parent.remove_child(parcel)
 			return false
-		receiving.reservations.append(result.bounds)
+		receiving.reservations.append(placement_result.bounds)
 		return true
 	return false
 #endregion

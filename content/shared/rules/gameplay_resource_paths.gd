@@ -19,6 +19,7 @@ const _OWNERS: Array[String] = [
 	"time",
 ]
 
+
 #region Closed native resource roles
 ## Принимает только entity-prefab role roots выбранных owners.
 static func is_entity_scene_path(path: String) -> bool:

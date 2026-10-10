@@ -2,6 +2,7 @@ extends RefCounted
 ## Читает identity contracts владельцев без domain imports, allocation и mutable alias maps.
 class_name ActorIdentityRules
 
+
 #region Stable actor keys
 ## Reads generated domain identity, then immutable placed identity, then runtime identity.
 static func key_for(entity: Entity, root: Node) -> String:
@@ -10,7 +11,10 @@ static func key_for(entity: Entity, root: Node) -> String:
 		return identity.actor_key()
 	if PlacedIdentityRules.is_authored(entity, root):
 		var authored: C_AuthoredIdentity = PlacedIdentityRules.component_for(entity)
-		assert(authored != null, "Placed actor requires compiled identity: %s" % root.get_path_to(entity))
+		assert(
+			authored != null,
+			"Placed actor requires compiled identity: %s" % root.get_path_to(entity),
+		)
 		return authored.actor_key()
 	return "runtime/" + entity.id
 

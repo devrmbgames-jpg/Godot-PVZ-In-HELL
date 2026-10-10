@@ -9,7 +9,10 @@ const LARGE_MAX_METERS: float = 1.50
 
 #region Постоянный ID истории
 ## Читает постоянную запись по package_id, включая поступление без номера выдачи.
-static func record_for(package_id: String, registry: C_PackageLedger = null) -> PackageRegistrationRecord:
+static func record_for(
+	package_id: String,
+	registry: C_PackageLedger = null,
+) -> PackageRegistrationRecord:
 	var source: C_PackageLedger = registry if registry != null else _ledger()
 	if source == null:
 		return null
@@ -37,7 +40,10 @@ static func record_arrival(parcel: Entity, day_index: int) -> PackageRegistratio
 		return null
 	var identity: C_Package = parcel.get_component(C_Package) as C_Package
 	var registry: C_PackageLedger = _ledger()
-	if identity == null or identity.package_id.is_empty() or identity.definition == null or registry == null:
+	if (
+		identity == null or identity.package_id.is_empty()
+		or identity.definition == null or registry == null
+	):
 		return null
 	var existing: PackageRegistrationRecord = record_for(identity.package_id, registry)
 	if existing != null:
@@ -55,7 +61,8 @@ static func record_arrival(parcel: Entity, day_index: int) -> PackageRegistratio
 	return record
 
 
-## Сохраняет допустимый существующий ID либо выделяет новый для дня; ошибка возвращает пустую строку.
+## Сохраняет допустимый существующий ID либо выделяет новый для дня; ошибка возвращает пустую
+## строку.
 static func ensure_history_id(parcel: Entity, day_index: int) -> String:
 	if not is_instance_valid(parcel) or day_index < 1:
 		return ""
@@ -68,7 +75,10 @@ static func ensure_history_id(parcel: Entity, day_index: int) -> String:
 
 	var mass_tenths: int = roundi(identity.definition.mass_kg * PackageHistoryId.MASS_SCALE)
 	if mass_tenths < 0 or mass_tenths > PackageHistoryId.MAX_MASS_TENTHS:
-		push_error("Package mass cannot be represented in history ID: %.2f kg" % identity.definition.mass_kg)
+		push_error(
+			"Package mass cannot be represented in history ID: %.2f kg"
+			% identity.definition.mass_kg
+		)
 		return ""
 
 	var history: PackageHistoryId = PackageHistoryId.new()
@@ -88,8 +98,8 @@ static func ensure_history_id(parcel: Entity, day_index: int) -> String:
 static func decode(value: String) -> PackageHistoryId:
 	return PackageHistoryId.parse(value)
 
-
 #endregion
+
 
 #region Счётчик и диагностический размер
 static func _allocate_number(day_index: int) -> int:

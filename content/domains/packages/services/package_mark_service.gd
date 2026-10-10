@@ -84,8 +84,8 @@ static func drawable(parcel: Entity) -> bool:
 		and state.registration < C_PackageState.Registration.DELIVERED
 	)
 
-
 #endregion
+
 
 #region Локальная поверхность модели
 static func _visual_surface_point(

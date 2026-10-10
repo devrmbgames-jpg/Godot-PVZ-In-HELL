@@ -2,6 +2,7 @@ extends RefCounted
 ## Explicit save composition: command quiescence and validated startup restore.
 class_name NightSaveService
 
+
 #region Explicit quiescence barrier
 ## Drains structural/outcome commands without running a scheduled tick.
 ## A non-settling reaction chain rejects capture instead of saving partial state.
@@ -30,13 +31,18 @@ static func restore_startup(root: Node, state: C_Autosave) -> bool:
 	if snapshot.is_empty():
 		if FileAccess.file_exists(state.path):
 			state.rejected_path = state.path
-		state.startup_status = ("Сохранение повреждено — новое прохождение"
-			if FileAccess.file_exists(state.path) else "Новое прохождение")
+		state.startup_status = (
+			"Сохранение повреждено — новое прохождение"
+			if FileAccess.file_exists(state.path)
+			else "Новое прохождение"
+		)
 		return false
 	if snapshot.get("version") != AutosaveStore.SCHEMA_VERSION:
 		state.rejected_path = state.path
-		state.startup_status = ("Старое сохранение несовместимо с живым районом. "
-			+ "Файл сохранён; начните новое прохождение.")
+		state.startup_status = (
+			"Старое сохранение несовместимо с живым районом. "
+			+ "Файл сохранён; начните новое прохождение."
+		)
 		return false
 	if not WorldSnapshotService.can_restore(snapshot, root):
 		state.rejected_path = state.path

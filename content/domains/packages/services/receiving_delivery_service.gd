@@ -4,6 +4,7 @@ class_name ReceivingDeliveryService
 
 const BLOCKED_RETRY_SECONDS: float = 0.25
 
+
 #region Ежедневная поставка
 ## Фиксирует ограниченную партию дня; непривезённый остаток не копится между утрами.
 static func prepare_batch(supply: DEF_Delivery, receiving: C_Receiving, day_index: int) -> void:
@@ -22,16 +23,28 @@ static func prepare_batch(supply: DEF_Delivery, receiving: C_Receiving, day_inde
 
 	var batch: ReceivingBatch = ReceivingBatch.new()
 	batch.day_index = day_index
-	var start_index: int = ((day_index - 1) * supply.maximum_batch_packages) % supply.packages.size()
+	var start_index: int = (
+		((day_index - 1) * supply.maximum_batch_packages) % supply.packages.size()
+	)
 	for offset: int in supply.packages.size():
-		var definition: DEF_Package = supply.packages[(start_index + offset) % supply.packages.size()]
-		if definition == null or definition.scene_variants.is_empty() or not _has_recipient(definition):
+		var definition: DEF_Package = (
+			supply.packages[(start_index + offset) % supply.packages.size()]
+		)
+		if (
+			definition == null or definition.scene_variants.is_empty()
+			or not _has_recipient(definition)
+		):
 			continue
 		batch.package_keys.append(String(definition.key))
 		var package_id: String = "%s:%s" % [receiving.batch_id, definition.key]
-		batch.package_scenes.append(PackageSceneRules.variant_for(
-			definition, package_id, day_index, GameTimeQueries.current().world_seed,
-		))
+		batch.package_scenes.append(
+			PackageSceneRules.variant_for(
+				definition,
+				package_id,
+				day_index,
+				GameTimeQueries.current().world_seed,
+			)
+		)
 		receiving.incoming_package_ids.append("%s:%s" % [receiving.batch_id, definition.key])
 		if batch.package_keys.size() >= limit:
 			break
@@ -45,7 +58,7 @@ static func waiting_count() -> int:
 		return 0
 
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
-	var cases: Dictionary[String, CustomerVisit] = {}
+	var cases: Dictionary[String, CustomerVisit] = { }
 	if flow != null:
 		for visit: CustomerVisit in flow.visits:
 			cases[visit.package_id] = visit
@@ -53,16 +66,26 @@ static func waiting_count() -> int:
 	for parcel: Entity in ECS.world.query.with_all([C_Package, C_PackageState]).execute():
 		var identity: C_Package = parcel.get_component(C_Package) as C_Package
 		var state: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
-		if state.registration >= C_PackageState.Registration.DELIVERED or identity.definition == null:
+		if (
+			state.registration >= C_PackageState.Registration.DELIVERED
+			or identity.definition == null
+		):
 			continue
 		var visit: CustomerVisit = cases.get(identity.package_id) as CustomerVisit
 		if visit != null:
 			var person: NpcRecord = NpcPopulationQueries.person_for(visit.customer_id)
 			if visit.customer_dead or (person != null and person.death_day != 0):
 				continue
-			if visit.actual != CustomerVisit.Actual.NOT_RESOLVED or visit.declaration != CustomerVisit.Declaration.NONE or visit.settlement_committed or visit.complaint != null:
+			if (
+				visit.actual != CustomerVisit.Actual.NOT_RESOLVED
+				or visit.declaration != CustomerVisit.Declaration.NONE
+				or visit.settlement_committed or visit.complaint != null
+			):
 				continue
-			if (visit.definition != null and visit.definition.voluntary_refusal) or (visit.finished and visit.next_followup_day == 0):
+			if (
+				(visit.definition != null and visit.definition.voluntary_refusal)
+				or (visit.finished and visit.next_followup_day == 0)
+			):
 				continue
 		elif not _has_recipient(identity.definition):
 			continue
@@ -80,18 +103,18 @@ static func _has_recipient(definition: DEF_Package) -> bool:
 	if flow == null or flow.schedule == null:
 		return false
 	for event: DEF_CustomerEvent in flow.schedule.events:
-		if event.package_key == definition.key and event.customer != null and event.arrival_delay_days >= 0:
+		if (
+			event.package_key == definition.key
+			and event.customer != null and event.arrival_delay_days >= 0
+		):
 			return true
 	return false
 #endregion
 
+
 #region Физическая доставка
 ## Создаёт одну коробку из зафиксированной партии, сохраняя возможность повтора при занятой зоне.
-static func deliver_one(
-	zone: E_ReceivingZone,
-	receiving: C_Receiving,
-	day_index: int,
-) -> void:
+static func deliver_one(zone: E_ReceivingZone, receiving: C_Receiving, day_index: int) -> void:
 	if not is_instance_valid(zone) or zone.supply == null:
 		return
 	prepare_batch(zone.supply, receiving, day_index)
@@ -124,25 +147,33 @@ static func deliver_one(
 		_advance(receiving, batch)
 		return
 	var package_id: String = "%s:%d:%s" % [zone.supply.key, batch.day_index, definition.key]
-	if ReceivingPackageFactory.exists(package_id) or PackageHistoryService.record_for(package_id) != null:
+	if (
+		ReceivingPackageFactory.exists(package_id)
+		or PackageHistoryService.record_for(package_id) != null
+	):
 		_advance(receiving, batch)
 		return
 
+	var package_scene: String = ""
+	if batch.next_package < batch.package_scenes.size():
+		package_scene = batch.package_scenes[batch.next_package]
 	var parcel: E_Package = ReceivingPackageFactory.create(
 		zone,
 		definition,
 		package_id,
 		batch.day_index,
 		batch.next_package,
-		batch.package_scenes[batch.next_package] if batch.next_package < batch.package_scenes.size() else "",
+		package_scene,
 	)
 	if parcel == null:
 		receiving.blocked = true
 		receiving.retry_remaining = BLOCKED_RETRY_SECONDS
 		return
-	var initial_fields: Dictionary[Script, Dictionary] = {}
-	initial_fields[C_Package as Script] = {&"delivery_day": batch.day_index,
-		&"supply_key": zone.supply.key}
+	var initial_fields: Dictionary[Script, Dictionary] = { }
+	initial_fields[C_Package as Script] = {
+		&"delivery_day": batch.day_index,
+		&"supply_key": zone.supply.key,
+	}
 	if not ReceivingPackageFactory.try_place(zone, parcel, initial_fields):
 		parcel.free()
 		receiving.blocked = true

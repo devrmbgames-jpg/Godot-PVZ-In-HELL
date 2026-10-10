@@ -11,8 +11,8 @@ const MAX_BYTES: int = 64 * 1024 * 1024
 
 
 ## Записывает payload и SHA-256 во временный файл, затем заменяет слот; возвращает Error.
-static func write(data: Dictionary, path: String = DEFAULT_PATH) -> Error:
-	var payload: PackedByteArray = var_to_bytes(data)
+static func write(snapshot: Dictionary, path: String = DEFAULT_PATH) -> Error:
+	var payload: PackedByteArray = var_to_bytes(snapshot)
 	if payload.is_empty() or payload.size() > MAX_BYTES:
 		return ERR_INVALID_DATA
 
@@ -29,28 +29,33 @@ static func write(data: Dictionary, path: String = DEFAULT_PATH) -> Error:
 	file.close()
 	if error != OK:
 		return error
-	return DirAccess.rename_absolute(ProjectSettings.globalize_path(temporary), ProjectSettings.globalize_path(path))
+	return (
+		DirAccess.rename_absolute(
+			ProjectSettings.globalize_path(temporary),
+			ProjectSettings.globalize_path(path),
+		)
+	)
 
 
 ## Проверяет заголовок, размер и хеш; пустой словарь означает отсутствие/повреждение файла.
 static func read(path: String = DEFAULT_PATH) -> Dictionary:
 	if not FileAccess.file_exists(path):
-		return {}
+		return { }
 
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null or file.get_length() > MAX_BYTES:
-		return {}
+		return { }
 	if file.get_line() != MAGIC:
-		return {}
+		return { }
 
 	var digest: String = file.get_line()
 	var payload: PackedByteArray = file.get_buffer(file.get_length() - file.get_position())
 	file.close()
 	if _digest(payload) != digest:
-		return {}
+		return { }
 
 	var decoded: Variant = bytes_to_var(payload)
-	return decoded as Dictionary if decoded is Dictionary else {}
+	return decoded as Dictionary if decoded is Dictionary else { }
 
 
 static func _digest(payload: PackedByteArray) -> String:

@@ -9,8 +9,11 @@ static func reset() -> void:
 	if not is_instance_valid(ECS.world):
 		return
 
-	ECS.world.emit_event(NightUiResetRequest.EVENT, null,
-		NightUiResetRequest.new(ECS.world.get_parent()))
+	ECS.world.emit_event(
+		NightUiResetRequest.EVENT,
+		null,
+		NightUiResetRequest.new(ECS.world.get_parent()),
+	)
 
 	for entity: Entity in ECS.world.entities.duplicate():
 		if not is_instance_valid(entity):
@@ -51,7 +54,10 @@ static func reset() -> void:
 			ECS.world.remove_entity(entity)
 		elif entity.has_component(C_CombatProjectile):
 			ECS.world.remove_entity(entity)
-		elif entity.has_component(C_HazardLifetime) and not (entity.get_component(C_HazardLifetime) as C_HazardLifetime).persistent:
+		elif (
+			entity.has_component(C_HazardLifetime)
+			and not (entity.get_component(C_HazardLifetime) as C_HazardLifetime).persistent
+		):
 			HazardLifecycle.retire(entity, ECS.world)
 
 		var body: RigidBody3D = entity as Node as RigidBody3D if is_instance_valid(entity) else null

@@ -2,6 +2,7 @@ extends RefCounted
 ## Читает установленный цикл дня без запроса или исполнения перехода.
 class_name DayPhaseQueries
 
+
 #region Чтение состояния
 ## Возвращает данные цикла текущей сессии или null.
 static func current() -> C_DayCycle:

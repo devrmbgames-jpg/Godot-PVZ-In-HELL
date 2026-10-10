@@ -2,7 +2,7 @@ extends RefCounted
 ## Следование принадлежит связи эффект → владелец; замена защищена от реакции потери.
 class_name HazardFollowService
 
-static var _replacing: Dictionary[int, bool] = {}
+static var _replacing: Dictionary[int, bool] = { }
 
 
 #region Связь и защищённая замена
@@ -18,7 +18,7 @@ static func binding(effect: Entity) -> Relationship:
 
 
 ## Заменяет связь под защитой восстановления; null снимает её без эффекта потери владельца.
-static func replace(effect: Entity, owner: Entity, data: R_HazardFollow) -> void:
+static func replace(effect: Entity, owner: Entity, follow_state: R_HazardFollow) -> void:
 	if not is_instance_valid(effect):
 		return
 	bind_lifecycle(effect)
@@ -27,8 +27,8 @@ static func replace(effect: Entity, owner: Entity, data: R_HazardFollow) -> void
 	for relationship: Relationship in effect.relationships.duplicate():
 		if relationship.relation is R_HazardFollow:
 			effect.remove_relationship(relationship)
-	if data != null and is_instance_valid(owner):
-		effect.add_relationship(Relationship.new(data, owner))
+	if follow_state != null and is_instance_valid(owner):
+		effect.add_relationship(Relationship.new(follow_state, owner))
 	_replacing.erase(instance_id)
 
 	var lifetime: C_HazardLifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime
@@ -47,8 +47,8 @@ static func bind_lifecycle(effect: Entity) -> void:
 static func is_replacing(effect: Entity) -> bool:
 	return is_instance_valid(effect) and _replacing.has(effect.get_instance_id())
 
-
 #endregion
+
 
 #region Потеря владельца отключённого эффекта
 ## Отключённые сущности не передают снятие связи observers World, поэтому нужна прямая подписка.
@@ -56,19 +56,27 @@ static func _disabled_binding_removed(effect: Entity, relationship: Relationship
 	if effect.enabled or is_replacing(effect) or not relationship.relation is R_HazardFollow:
 		return
 
-	var data: R_HazardFollow = relationship.relation as R_HazardFollow
-	if data.on_loss == DEF_Hazard.OwnerLoss.DESPAWN and is_instance_valid(ECS.world):
+	var follow_state: R_HazardFollow = relationship.relation as R_HazardFollow
+	if follow_state.on_loss == DEF_Hazard.OwnerLoss.DESPAWN and is_instance_valid(ECS.world):
 		var lifetime: C_HazardLifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime
 		if lifetime != null:
 			lifetime.owner_loss_pending = true
 		_retire_disabled_if_unbound.call_deferred(weakref(effect), weakref(ECS.world))
 
 
-static func _retire_disabled_if_unbound(effect_reference: WeakRef, world_reference: WeakRef) -> void:
+static func _retire_disabled_if_unbound(
+	effect_reference: WeakRef,
+	world_reference: WeakRef,
+) -> void:
 	var effect: Entity = effect_reference.get_ref() as Entity
 	var world: World = world_reference.get_ref() as World
-	var lifetime: C_HazardLifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime if is_instance_valid(effect) else null
-	if is_instance_valid(world) and lifetime != null and lifetime.owner_loss_pending and binding(effect) == null:
+	var lifetime: C_HazardLifetime = null
+	if is_instance_valid(effect):
+		lifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime
+	if (
+		is_instance_valid(world) and lifetime != null
+		and lifetime.owner_loss_pending and binding(effect) == null
+	):
 		HazardLifecycle.retire(effect, world)
 
 #endregion

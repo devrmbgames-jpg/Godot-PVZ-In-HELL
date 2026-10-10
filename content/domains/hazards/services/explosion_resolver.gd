@@ -69,8 +69,8 @@ static func resolve(entity: Entity, hazard: C_Hazard, world: World) -> void:
 				DamageRequest.Type.EXPLOSION,
 			)
 
-
 #endregion
+
 
 #region Кандидаты и физический импульс
 static func _origin_exclusions(origin: Entity) -> Array[RID]:

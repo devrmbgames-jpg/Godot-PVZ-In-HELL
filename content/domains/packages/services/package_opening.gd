@@ -29,7 +29,11 @@ static func can_open(actor: Entity, package: Entity) -> bool:
 	if actor.has_component(C_CustomerAgent):
 		var agent: C_CustomerAgent = actor.get_component(C_CustomerAgent) as C_CustomerAgent
 		var stored: Relationship = PhysicalSlotService.relationship(package)
-		return agent != null and agent.phase == C_CustomerAgent.Phase.INSPECTING and CustomerInspectionQueries.owner_for(package) == actor and stored != null and (stored.relation as R_StoredIn).applied
+		return (
+			agent != null and agent.phase == C_CustomerAgent.Phase.INSPECTING
+			and CustomerInspectionQueries.owner_for(package) == actor
+			and stored != null and (stored.relation as R_StoredIn).applied
+		)
 	if CustomerInspectionQueries.owner_for(package) != null:
 		return false
 	if InteractionControlFocus.current(actor) >= InteractionControlFocus.Priority.DRAWING:
@@ -73,9 +77,14 @@ static func request_open(actor: Entity, package: Entity) -> PackageOpenResult:
 	resolution.package_id = ActorIdentityRules.trace_key_for(package)
 	resolution.actor_id = ActorIdentityRules.trace_key_for(actor)
 	if not can_open(actor, package):
-		BoundaryTrace.record(&"package.open", resolution.correlation_id,
-			BoundaryTraceEntry.Stage.REJECTED, resolution.reason,
-			resolution.actor_id, resolution.package_id)
+		BoundaryTrace.record(
+			&"package.open",
+			resolution.correlation_id,
+			BoundaryTraceEntry.Stage.REJECTED,
+			resolution.reason,
+			resolution.actor_id,
+			resolution.package_id,
+		)
 		return resolution
 
 	resolution.status = PackageOpenResult.Status.PENDING
@@ -84,9 +93,14 @@ static func request_open(actor: Entity, package: Entity) -> PackageOpenResult:
 	request.actor = actor
 	request.package = package
 	request.resolution = resolution
-	BoundaryTrace.record(&"package.open", resolution.correlation_id,
-		BoundaryTraceEntry.Stage.ACCEPTED, resolution.reason,
-		resolution.actor_id, resolution.package_id)
+	BoundaryTrace.record(
+		&"package.open",
+		resolution.correlation_id,
+		BoundaryTraceEntry.Stage.ACCEPTED,
+		resolution.reason,
+		resolution.actor_id,
+		resolution.package_id,
+	)
 	ECS.world.emit_event(PackageOpenRequest.EVENT, package, request)
 	return resolution
 

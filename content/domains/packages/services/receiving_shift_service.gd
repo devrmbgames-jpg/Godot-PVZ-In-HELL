@@ -2,6 +2,7 @@ extends RefCounted
 ## Единая проверка утренней разгрузки и граница обратного груза до изменения фазы.
 class_name ReceivingShiftService
 
+
 class Status extends RefCounted:
 	## Позиции партии, которые ещё не поступили физически.
 	var pending: int = 0
@@ -16,22 +17,22 @@ class Status extends RefCounted:
 #region Одна проверка текущего состояния
 ## Собирает текущие запреты; zone_filter ограничивает сводку вывески одной зоной.
 static func status(cycle: C_DayCycle, zone_filter: E_ReceivingZoneBody = null) -> Status:
-	var result: Status = Status.new()
+	var shift_status: Status = Status.new()
 	if cycle == null or not is_instance_valid(ECS.world):
-		result.reasons.append("Поставка недоступна")
-		return result
+		shift_status.reasons.append("Поставка недоступна")
+		return shift_status
 
-	var parcels: Dictionary[String, Entity] = {}
+	var parcels: Dictionary[String, Entity] = { }
 	for parcel: Entity in ECS.world.query.with_all([C_Package]).execute():
 		if EntityAvailability.contains(parcel, ECS.world):
 			var identity: C_Package = parcel.get_component(C_Package) as C_Package
 			parcels[identity.package_id] = parcel
-	var received: Dictionary[String, bool] = {}
+	var received: Dictionary[String, bool] = { }
 	var ledger: C_PackageLedger = PackageQueries.ledger()
 	if ledger != null:
 		for record: PackageRegistrationRecord in ledger.records:
 			received[record.package_id] = true
-	var declared_lost: Dictionary[String, bool] = {}
+	var declared_lost: Dictionary[String, bool] = { }
 	var flow: C_CustomerFlow = CustomerFlowQueries.current()
 	if flow != null:
 		for visit: CustomerVisit in flow.visits:
@@ -56,7 +57,7 @@ static func status(cycle: C_DayCycle, zone_filter: E_ReceivingZoneBody = null) -
 			unprepared = true
 			continue
 		for batch: ReceivingBatch in receiving.pending:
-			result.pending += maxi(0, batch.package_keys.size() - batch.next_package)
+			shift_status.pending += maxi(0, batch.package_keys.size() - batch.next_package)
 		var truck: E_MorningTruck = zone.get_truck()
 		if truck == null or not truck.has_cargo_volume() or not truck.is_ready_for_loading():
 			unavailable = true
@@ -70,28 +71,33 @@ static func status(cycle: C_DayCycle, zone_filter: E_ReceivingZoneBody = null) -
 			var parcel: Entity = parcels.get(package_id) as Entity
 			if parcel == null:
 				if received.has(package_id):
-					result.missing += 1
+					shift_status.missing += 1
 				continue
 			var condition: C_PackageState = parcel.get_component(C_PackageState) as C_PackageState
 			var body: PhysicsBody3D = parcel as Node as PhysicsBody3D
-			if body == null or (condition != null and condition.damage == C_PackageState.Damage.DESTROYED):
-				result.missing += 1
+			if (
+				body == null
+				or (condition != null and condition.damage == C_PackageState.Damage.DESTROYED)
+			):
+				shift_status.missing += 1
 			elif truck.overlaps_cargo(body):
-				result.inside += 1
+				shift_status.inside += 1
 
 	if unprepared:
-		result.reasons.append("Поставка ещё не подготовлена")
+		shift_status.reasons.append("Поставка ещё не подготовлена")
 	if unavailable:
-		result.reasons.append("Машина ещё не готова к разгрузке")
-	if result.pending > 0:
-		result.reasons.append("Поставка не завершена: осталось %d" % result.pending)
-	if result.inside > 0:
-		result.reasons.append("Выгрузите коробки из машины: %d" % result.inside)
-	if result.missing > 0:
-		result.reasons.append("Нет коробок: %d · отметьте потерю в терминале" % result.missing)
+		shift_status.reasons.append("Машина ещё не готова к разгрузке")
+	if shift_status.pending > 0:
+		shift_status.reasons.append("Поставка не завершена: осталось %d" % shift_status.pending)
+	if shift_status.inside > 0:
+		shift_status.reasons.append("Выгрузите коробки из машины: %d" % shift_status.inside)
+	if shift_status.missing > 0:
+		shift_status.reasons.append(
+			"Нет коробок: %d · отметьте потерю в терминале" % shift_status.missing
+		)
 	if player_inside:
-		result.reasons.append("Выйдите из кузова")
-	return result
+		shift_status.reasons.append("Выйдите из кузова")
+	return shift_status
 
 
 ## Читает зарегистрированные физические тела игроков один раз для проверки/короткого отправления.
@@ -110,7 +116,10 @@ static func player_bodies() -> Array[PhysicsBody3D]:
 #region Граница отправления
 ## Вызывается из CommandBuffer до смены MORNING; живой обратный груз ещё доступен обработчику.
 static func commit_departure(cycle: C_DayCycle) -> bool:
-	if cycle == null or cycle.phase != C_DayCycle.Phase.MORNING or not status(cycle).reasons.is_empty():
+	if (
+		cycle == null or cycle.phase != C_DayCycle.Phase.MORNING
+		or not status(cycle).reasons.is_empty()
+	):
 		return false
 	var players: Array[PhysicsBody3D] = player_bodies()
 	for candidate: Entity in ECS.world.query.with_all([C_Receiving]).execute():

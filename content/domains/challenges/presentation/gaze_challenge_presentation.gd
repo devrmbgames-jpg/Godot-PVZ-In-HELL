@@ -10,17 +10,29 @@ static func state_for(actor: Entity) -> C_Challenge:
 
 	for subject: Entity in ECS.world.query.with_all([C_Challenge, C_GazeChallenge]).execute():
 		var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
-		if state.phase == C_Challenge.Phase.ACTIVE and state.definition != null and state.definition.condition is DEF_GazeChallengeCondition and ChallengeService.actor_for(subject) == actor:
+		if (
+			state.phase == C_Challenge.Phase.ACTIVE and state.definition != null
+			and state.definition.condition is DEF_GazeChallengeCondition
+			and ChallengeService.actor_for(subject) == actor
+		):
 			return state
 	return null
 
 
 ## Возвращает степень нарушения 0–1 после подготовки, без изменения счётчика.
 static func strength(state: C_Challenge) -> float:
-	if state == null or state.condition_result == ChallengeResult.Type.SUCCESS or state.elapsed < state.definition.preparation_seconds:
+	if (
+		state == null or state.condition_result == ChallengeResult.Type.SUCCESS
+		or state.elapsed < state.definition.preparation_seconds
+	):
 		return 0.0
 
-	var progress: float = clampf(state.violation_elapsed / maxf(state.definition.violation_grace_seconds, GazeTrackingGeometry.DIRECTION_EPSILON), 0.0, 1.0)
+	var violation_elapsed: float = state.violation_elapsed
+	var grace_seconds: float = maxf(
+		state.definition.violation_grace_seconds,
+		GazeTrackingGeometry.DIRECTION_EPSILON,
+	)
+	var progress: float = (clampf(violation_elapsed / grace_seconds, 0.0, 1.0))
 	return progress
 
 
@@ -30,5 +42,7 @@ static func text(state: C_Challenge) -> String:
 		return ""
 
 	var rule: DEF_GazeChallengeCondition = state.definition.condition as DEF_GazeChallengeCondition
-	var remaining: float = maxf(0.0, state.definition.violation_grace_seconds - state.violation_elapsed)
+	var remaining: float = (
+		maxf(0.0, state.definition.violation_grace_seconds - state.violation_elapsed)
+	)
 	return "%s До нарушения: %.1f с" % [rule.warning_text, remaining]

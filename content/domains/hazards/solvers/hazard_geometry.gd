@@ -2,6 +2,7 @@ extends RefCounted
 ## Materializes hazard collision/visual geometry without damage, clocks or spawn reactions.
 class_name HazardGeometry
 
+
 #region Authored geometry materialization
 ## Requires the prevalidated toxic prefab/profile contract.
 static func configure_toxic(effect: E_ToxicArea, profile: DEF_ToxicArea) -> void:

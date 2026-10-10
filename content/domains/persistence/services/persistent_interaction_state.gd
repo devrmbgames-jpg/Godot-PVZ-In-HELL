@@ -1,5 +1,6 @@
 extends RefCounted
-## Сохраняет только завершённые действия NEVER; длительность восстанавливается из авторского ресурса.
+## Сохраняет только завершённые действия NEVER; длительность восстанавливается из авторского
+## ресурса.
 class_name PersistentInteractionState
 
 
@@ -7,10 +8,16 @@ class_name PersistentInteractionState
 ## Возвращает ID только завершённых действий с политикой NEVER.
 static func completed(entity: Entity) -> Array[StringName]:
 	var ids: Array[StringName] = []
-	var state: C_ProlongedInteraction = entity.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	var state: C_ProlongedInteraction = (
+		entity.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	)
 	if state != null:
 		for progress: ProlongedInteractionProgress in state.actions:
-			if progress != null and progress.timing != null and progress.timing.reset_policy == DEF_ProlongedInteraction.ResetPolicy.NEVER and progress.phase == ProlongedInteractionProgress.Phase.COMPLETED:
+			if (
+				progress != null and progress.timing != null
+				and progress.timing.reset_policy == DEF_ProlongedInteraction.ResetPolicy.NEVER
+				and progress.phase == ProlongedInteractionProgress.Phase.COMPLETED
+			):
 				ids.append(progress.action_id)
 	return ids
 
@@ -22,7 +29,7 @@ static func valid(ids: Array, entity: Entity) -> bool:
 
 ## Validates saved IDs against the final compiled action set without creating progress or effects.
 static func valid_recipe(ids: Array, actions: C_InteractionActionSet) -> bool:
-	var seen: Dictionary[StringName, bool] = {}
+	var seen: Dictionary[StringName, bool] = { }
 	for value: Variant in ids:
 		if not value is StringName or seen.has(value):
 			return false
@@ -35,7 +42,9 @@ static func valid_recipe(ids: Array, actions: C_InteractionActionSet) -> bool:
 
 ## Заменяет прогресс только сохранёнными завершёнными действиями без повторного эффекта.
 static func restore(ids: Array, entity: Entity) -> void:
-	var state: C_ProlongedInteraction = entity.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	var state: C_ProlongedInteraction = (
+		entity.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	)
 	if state == null and not ids.is_empty():
 		state = C_ProlongedInteraction.new()
 		entity.add_component(state)
@@ -62,7 +71,9 @@ static func recipe_for(ids: Array, actions: C_InteractionActionSet) -> C_Prolong
 
 ## Сбрасывает незавершённый прогресс перед ночью, сохраняя завершённые действия.
 static func reset_incomplete(entity: Entity) -> void:
-	var state: C_ProlongedInteraction = entity.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	var state: C_ProlongedInteraction = (
+		entity.get_component(C_ProlongedInteraction) as C_ProlongedInteraction
+	)
 	if state == null:
 		return
 
@@ -71,12 +82,14 @@ static func reset_incomplete(entity: Entity) -> void:
 			progress.fraction = 0.0
 			progress.phase = ProlongedInteractionProgress.Phase.IDLE
 
-
 #endregion
+
 
 #region Authored action lookup
 static func _action_set(entity: Entity) -> C_InteractionActionSet:
-	var set: C_InteractionActionSet = entity.get_component(C_InteractionActionSet) as C_InteractionActionSet
+	var set: C_InteractionActionSet = (
+		entity.get_component(C_InteractionActionSet) as C_InteractionActionSet
+	)
 	if set == null:
 		for component: Component in entity.component_resources:
 			if component is C_InteractionActionSet:
@@ -88,8 +101,10 @@ static func _action_set(entity: Entity) -> C_InteractionActionSet:
 static func _timing_in(actions: C_InteractionActionSet, id: StringName) -> DEF_ProlongedInteraction:
 	if actions != null:
 		for action: DEF_InteractionAction in actions.actions:
-			if (action != null and action.action_id == id and action.timing != null
-				and action.timing.reset_policy == DEF_ProlongedInteraction.ResetPolicy.NEVER):
+			if (
+				action != null and action.action_id == id and action.timing != null
+				and action.timing.reset_policy == DEF_ProlongedInteraction.ResetPolicy.NEVER
+			):
 				return action.timing
 	return null
 
