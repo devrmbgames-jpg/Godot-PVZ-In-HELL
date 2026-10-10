@@ -17,8 +17,9 @@ use `utils/godot_agent.ps1` or the matching VS Code task:
 
 - `-Action ParseChanged` (or `-Action ParseFiles -Paths ...`) — actual GDScript load/parser.
 - `-Action GUT -TestPath res://tests/gut/<focused_test>.gd` — focused native tests.
-- `-Action Import` / `-Action EditorScript -ScriptPath res://...` — offline
-  editor-owned operations, **only after closing the live project editor**.
+- `-Action Import` / `-Action OfflineScript -ScriptPath res://...` —
+  offline editor-owned operations, **only after closing the live project editor**.
+  Offline CLI scripts extend `SceneTree`/`MainLoop`, not `EditorScript`.
 - `utils/run_smoke.ps1 -Name <focused_smoke>` — bounded headless gameplay smoke.
 
 If the runner or Godot executable is missing, mark required engine checks
