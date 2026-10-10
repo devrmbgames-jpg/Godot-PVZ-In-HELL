@@ -91,4 +91,76 @@ func test_empty_mesh_fails() -> void:
 	_region.navigation_mesh = NavigationMesh.new()
 	var errors: Array[String] = await CHECKS.failures(_level, _region)
 	assert_eq(errors, ["WarehouseNavigation has no baked polygons"])
+
+#endregion
+
+
+#region Current authored route acceptance
+func test_unused_junctions_do_not_require_a_legacy_graph() -> void:
+	var definition: DEF_District = _shade_definition()
+	definition.shade_route.clear()
+	for place: DEF_DistrictPlace in definition.places:
+		place.kind = DEF_DistrictPlace.Kind.JUNCTION
+	var positions: Dictionary[String, Vector3] = { }
+	assert_true(CHECKS.shade_route_failures(definition, positions, RID(), 1).is_empty())
+
+
+func test_unknown_shade_point_rejects_before_native_path_queries() -> void:
+	var definition: DEF_District = _shade_definition()
+	definition.shade_route.append("missing")
+	var positions: Dictionary[String, Vector3] = {
+		"west": Vector3(-3, 0, 0),
+		"east": Vector3(3, 0, 0),
+	}
+	assert_eq(
+		CHECKS.shade_route_failures(definition, positions, RID(), 1),
+		["Unknown shade-route point: missing"],
+	)
+
+
+func test_connected_shade_passage_passes_in_both_directions() -> void:
+	var errors: Array[String] = await _configured_route_errors([Vector2(-5, 5)])
+	assert_true(errors.is_empty(), str(errors))
+
+
+func test_disconnected_shade_passage_rejects_both_directions() -> void:
+	var errors: Array[String] = await _configured_route_errors(
+		[Vector2(-5, -1), Vector2(1, 5)],
+	)
+	assert_eq(errors.size(), 2)
+	assert_true(errors.has("Unreachable shade-route segment: west > east"))
+	assert_true(errors.has("Unreachable shade-route segment: east > west"))
+
+
+func _shade_definition() -> DEF_District:
+	var definition: DEF_District = DEF_District.new()
+	for key: StringName in [&"west", &"east"]:
+		var place: DEF_DistrictPlace = DEF_DistrictPlace.new()
+		place.key = key
+		definition.places.append(place)
+	definition.shade_route = ["west", "east"]
+	return definition
+
+
+func _configured_route_errors(tiles: Array[Vector2]) -> Array[String]:
+	_region.navigation_mesh = _mesh_for(tiles)
+	var map_rid: RID = _region.get_navigation_map()
+	var probe: Vector3 = _region.to_global(_region.navigation_mesh.vertices[0])
+	var synchronized: bool = false
+	for _frame: int in 120:
+		await get_tree().physics_frame
+		if (
+			NavigationServer3D.map_get_iteration_id(map_rid) > 0
+			and NavigationServer3D.map_get_closest_point_owner(map_rid, probe) == _region.get_rid()
+		):
+			synchronized = true
+			break
+	assert_true(synchronized, "The test's native navigation region synchronized")
+	if not synchronized:
+		return ["Test navigation region did not synchronize"]
+	var positions: Dictionary[String, Vector3] = {
+		"west": Vector3(-3, 0, 0),
+		"east": Vector3(3, 0, 0),
+	}
+	return CHECKS.shade_route_failures(_shade_definition(), positions, map_rid, 1)
 #endregion

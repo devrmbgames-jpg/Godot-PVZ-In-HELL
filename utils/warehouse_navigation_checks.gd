@@ -111,7 +111,9 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 			checked_routes += 1
 
 	if district != null:
-		errors.append_array(_graph_failures(district.definition, map_rid, region.navigation_layers))
+		errors.append_array(shade_route_failures(
+			district.definition, points, map_rid, region.navigation_layers,
+		))
 
 	NavigationServer3D.free_rid(region_rid)
 	NavigationServer3D.free_rid(map_rid)
@@ -123,63 +125,36 @@ static func failures(level: Node3D, region: NavigationRegion3D) -> Array[String]
 #endregion
 
 
-#region Проверка авторской связности
-static func _graph_failures(
+#region Current authored route contract
+## Validates the ordered shade passage used by NpcRouteSolver, including reverse traversal.
+## Positions are resolved by the caller; an empty passage uses the already checked native mesh.
+static func shade_route_failures(
 	definition: DEF_District,
+	positions: Dictionary[String, Vector3],
 	map_rid: RID,
 	navigation_layers: int,
 ) -> Array[String]:
 	var errors: Array[String] = []
-	var junctions: Dictionary[StringName, DEF_DistrictPlace] = { }
-	for place: DEF_DistrictPlace in definition.places:
-		if place.kind == DEF_DistrictPlace.Kind.JUNCTION:
-			junctions[place.key] = place
-	if junctions.is_empty():
-		errors.append("District has no hazard-route junctions")
+	for route_key: String in definition.shade_route:
+		if definition.place_for(StringName(route_key)) == null or not positions.has(route_key):
+			errors.append("Unknown shade-route point: " + route_key)
+	if not errors.is_empty():
 		return errors
 
-	var connected_edges: int = 0
-	for junction_key: StringName in junctions:
-		var start: Vector3 = NpcPopulationQueries.position_for(junction_key)
-		for neighbour_key: String in junctions[junction_key].neighbours:
-			var next_key: StringName = StringName(neighbour_key)
-			if not junctions.has(next_key):
-				continue
-
-			var target: Vector3 = NpcPopulationQueries.position_for(next_key)
-			var path: PackedVector3Array = (
-				NavigationServer3D.map_get_path(map_rid, start, target, true, navigation_layers)
+	for index: int in range(1, definition.shade_route.size()):
+		# Runtime may enter the authored passage from either end.
+		for reverse: bool in [false, true]:
+			var start_key: String = definition.shade_route[index if reverse else index - 1]
+			var target_key: String = definition.shade_route[index - 1 if reverse else index]
+			var start: Vector3 = positions[start_key]
+			var target: Vector3 = positions[target_key]
+			var path: PackedVector3Array = NavigationServer3D.map_get_path(
+				map_rid, start, target, true, navigation_layers,
 			)
 			if (
 				path.is_empty() or path[0].distance_to(start) > POINT_TOLERANCE
 				or path[-1].distance_to(target) > POINT_TOLERANCE
 			):
-				errors.append("Unreachable hazard-route edge: %s > %s" % [junction_key, next_key])
-			else:
-				connected_edges += 1
-
-	# Каждый авторский узел должен достигать всех других по направленным связям; это
-	# offline-проверка.
-	for origin_key: StringName in junctions:
-		var pending: Array[StringName] = [origin_key]
-		var visited: Array[StringName] = []
-		while not pending.is_empty():
-			var current_key: StringName = pending.pop_back()
-			if visited.has(current_key):
-				continue
-
-			visited.append(current_key)
-			for neighbour_key: String in junctions[current_key].neighbours:
-				var next_key: StringName = StringName(neighbour_key)
-				if junctions.has(next_key) and not visited.has(next_key):
-					pending.append(next_key)
-		if visited.size() != junctions.size():
-			errors.append("Hazard-route graph is disconnected from " + str(origin_key))
-			break
-
-	print(
-		"Navigation hazard graph: %d junctions, %d traversable directed edges"
-		% [junctions.size(), connected_edges]
-	)
+				errors.append("Unreachable shade-route segment: %s > %s" % [start_key, target_key])
 	return errors
 #endregion
