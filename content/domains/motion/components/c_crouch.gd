@@ -2,7 +2,6 @@ extends Component
 ## Состояние приседа и авторские высоты головы; столкновения переключает S_Crouch.
 class_name C_Crouch
 
-
 ## Принятый присед; встать можно только при свободном пространстве.
 @export var active: bool = false
 

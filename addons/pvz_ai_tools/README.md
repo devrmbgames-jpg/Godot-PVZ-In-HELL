@@ -75,6 +75,16 @@ The runtime bridge is read-only and uses Godot's debugger IPC. It does not use a
 
 ## Adding project-owned MCP capabilities
 
+`pvz_gdscript_batch_diagnostics` validates at most25 scripts from the fixed Phase3
+manifest: `custom_manage(op="invoke", params={"tool_name":
+"pvz_gdscript_batch_diagnostics", "params":{"task":"61","offset":0,"limit":25}})`.
+Repeat from `next_offset` until `total`. It compiles native resource paths, captures
+file diagnostics and creates no gameplay instances or authored data. The installed
+script writer validates an anonymous GDScript, which can return error43 for an
+otherwise valid global `class_name`; the path-bound tool resolves that ambiguity.
+It does not replace the independent CLI parser/style gates. Registration is removed
+on plugin exit; calls retain no editor objects or pending requests.
+
 The project owner authorizes Codex to extend this companion addon when the
 installed Godot AI API lacks a required operation. Prefer the existing
 `scene_open`, `node_create`, `node_set_property`, `batch_execute` and

@@ -5,6 +5,7 @@ class_name O_CustomerChallengeOutcome
 ## An accepted customer failure requests the existing combat adapter's escalation.
 signal escalation_requested(customer: Entity, actor: Entity, event: ChallengeResolution)
 
+
 #region Terminal fact boundary
 ## Selects terminal challenge facts on bodies still participating in a customer role.
 func query() -> QueryBuilder:
@@ -27,7 +28,10 @@ func _apply(subject_reference: WeakRef, resolution: ChallengeResolution) -> void
 	# A queued result may outlive its role or be superseded by challenge cleanup/restart.
 	var state: C_Challenge = subject.get_component(C_Challenge) as C_Challenge
 	var agent: C_CustomerAgent = subject.get_component(C_CustomerAgent) as C_CustomerAgent
-	if state == null or agent == null or state.pending_result != resolution or state.consequences_applied:
+	if (
+		state == null or agent == null or state.pending_result != resolution
+		or state.consequences_applied
+	):
 		return
 	var visit: CustomerVisit = CustomerFlowQueries.find_visit(agent.visit_id)
 	if visit == null or visit.finished:

@@ -10,12 +10,14 @@ const EMPTY_EPSILON: float = 0.000001
 #region Выбор и сброс при паузе
 ## Читает запрос бега после подготовки S_PlayerIntent.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_PlayerIntent]}
+	return { Runs.After: [S_PlayerIntent] }
 
 
 ## Выбирает персонажей с управлением, движением, выносливостью и Strength.
 func query() -> QueryBuilder:
-	return q.with_all([C_Stamina, C_Controller, C_Motion, C_Strength]).iterate([C_Stamina, C_Controller, C_Motion, C_Strength])
+	return q.with_all([C_Stamina, C_Controller, C_Motion, C_Strength]).iterate(
+		[C_Stamina, C_Controller, C_Motion, C_Strength]
+	)
 
 
 func _notification(what: int) -> void:
@@ -28,11 +30,12 @@ func _notification(what: int) -> void:
 		stamina.running = false
 		(actor.get_component(C_Motion) as C_Motion).sprint_multiplier = 1.0
 
-
 #endregion
 
+
 #region Бег и выносливость
-## Рассчитывает ёмкость, запрос/истощение и множитель; расходует выносливость только при реальном беге.
+## Рассчитывает ёмкость, запрос/истощение и множитель; расходует выносливость только при реальном
+## беге.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	if delta <= 0.0:
 		return
@@ -48,7 +51,10 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		var motion: C_Motion = motions[index]
 		var strength: C_Strength = strengths[index]
 		var strength_value: float = maxf(strength.value, 0.0) if is_finite(strength.value) else 0.0
-		stamina.maximum = maxf(stamina.base_capacity + stamina.capacity_per_strength * strength_value, MINIMUM_CAPACITY)
+		stamina.maximum = maxf(
+			stamina.base_capacity + stamina.capacity_per_strength * strength_value,
+			MINIMUM_CAPACITY,
+		)
 		if not stamina.initialized:
 			stamina.current = stamina.maximum
 			stamina.initialized = true
@@ -59,9 +65,15 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 			stamina.toggled = false
 		stamina.toggle_mode = toggle_mode
 		var crouch: C_Crouch = actor.get_component(C_Crouch) as C_Crouch
-		var allowed: bool = controller.sprint_input_enabled and motion.control_enabled and not actor.has_component(C_Death)
+		var allowed: bool = (
+			controller.sprint_input_enabled and motion.control_enabled
+			and not actor.has_component(C_Death)
+		)
 		allowed = allowed and not controller.action_crouch and (crouch == null or not crouch.active)
-		allowed = allowed and InteractionControlFocus.current(actor) < InteractionControlFocus.Priority.PUSH
+		allowed = (
+			allowed
+			and InteractionControlFocus.current(actor) < InteractionControlFocus.Priority.PUSH
+		)
 		if not allowed:
 			stamina.toggled = false
 		elif toggle_mode and controller.sprint_pressed:
@@ -72,12 +84,24 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		var carry: C_CarryLoad = actor.get_component(C_CarryLoad) as C_CarryLoad
 		stamina.drain_multiplier = 1.0
 		if carry != null and carry.active:
-			var weight_fraction: float = clampf(carry.mass_kg / CarryLoadPolicy.maximum_mass_kg(strength), 0.0, 1.0)
-			stamina.drain_multiplier = lerpf(stamina.minimum_carry_drain, stamina.maximum_carry_drain, weight_fraction)
+			var weight_fraction: float = clampf(
+				carry.mass_kg / CarryLoadPolicy.maximum_mass_kg(strength),
+				0.0,
+				1.0,
+			)
+			stamina.drain_multiplier = lerpf(
+				stamina.minimum_carry_drain,
+				stamina.maximum_carry_drain,
+				weight_fraction,
+			)
 
 		var requested: bool = stamina.toggled if toggle_mode else controller.sprint_held
-		var can_run: bool = allowed and requested and not stamina.exhausted and stamina.current > 0.0
-		can_run = can_run and motion.is_on_floor and not controller.direction_motion.is_zero_approx()
+		var can_run: bool = (
+			allowed and requested and not stamina.exhausted and stamina.current > 0.0
+		)
+		can_run = (
+			can_run and motion.is_on_floor and not controller.direction_motion.is_zero_approx()
+		)
 		can_run = can_run and CarryLoadPolicy.active_multiplier(carry, strength) > 0.0
 		# Усиление разрешено с нулевой скорости для старта; расход — только при реальном движении.
 		motion.sprint_multiplier = stamina.sprint_speed_multiplier if can_run else 1.0
@@ -91,7 +115,10 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 
 		stamina.running = can_run and Vector2(velocity.x, velocity.z).length() >= MINIMUM_RUN_SPEED
 		if stamina.running:
-			stamina.current = maxf(stamina.current - stamina.drain_per_second * stamina.drain_multiplier * delta, 0.0)
+			stamina.current = maxf(
+				stamina.current - stamina.drain_per_second * stamina.drain_multiplier * delta,
+				0.0,
+			)
 			stamina.recovery_remaining = stamina.recovery_delay_seconds
 			if stamina.current <= EMPTY_EPSILON:
 				stamina.current = 0.0
@@ -102,6 +129,9 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		elif not actor.has_component(C_Death):
 			var recovery_delta: float = maxf(delta - stamina.recovery_remaining, 0.0)
 			stamina.recovery_remaining = maxf(stamina.recovery_remaining - delta, 0.0)
-			stamina.current = minf(stamina.current + stamina.recovery_per_second * recovery_delta, stamina.maximum)
+			stamina.current = minf(
+				stamina.current + stamina.recovery_per_second * recovery_delta,
+				stamina.maximum,
+			)
 
 #endregion

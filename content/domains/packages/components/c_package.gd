@@ -25,6 +25,7 @@ const SAVE_FIELDS: Array[String] = [
 ## Защита от повторной инициализации; загрузка ставит флаг перед восстановлением Health.
 var condition_initialized: bool = false
 
+
 #region Existing identity projection
 ## Читает actor key непосредственно из авторитетного поля этого Component.
 func actor_key() -> String:

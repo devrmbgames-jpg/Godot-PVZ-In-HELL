@@ -1,5 +1,6 @@
 extends Component
-## Derived route: S_NpcRoute owns clocks, S_NpcRoutePlanning builds paths, S_NpcIntent consumes waypoints.
+## Derived route: S_NpcRoute owns clocks, S_NpcRoutePlanning builds paths, S_NpcIntent consumes
+## waypoints.
 class_name C_NpcRoute
 
 ## Промежуточные точки движения по маршруту.

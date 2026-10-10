@@ -1,11 +1,13 @@
 extends System
-## Owns quest deadline/outcome selection and pending reward progression after customer/calendar commits.
+## Owns quest deadline/outcome selection and pending reward progression after customer/calendar
+## commits.
 class_name S_RefusalQuest
+
 
 #region Scheduling
 ## Reads real customer outcomes and committed day/phase before resolving the quest.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_CustomerFlow, S_DayPhase]}
+	return { Runs.After: [S_CustomerFlow, S_DayPhase] }
 
 
 ## Selects the authoritative aggregate and current calendar.
@@ -19,19 +21,31 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 		var state: C_QuestSession = session.get_component(C_QuestSession) as C_QuestSession
 		var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 		var records: Array[RefusalQuestRecord] = state.records.duplicate()
-		cmd.add_custom(_advance.bind(weakref(session), state, cycle, cycle.day_index, cycle.phase, records))
+		cmd.add_custom(
+			_advance.bind(weakref(session), state, cycle, cycle.day_index, cycle.phase, records)
+		)
 #endregion
+
 
 #region Deadline/outcome and reward progression
 func _advance(
-	session_reference: WeakRef, state: C_QuestSession, cycle: C_DayCycle, day_index: int,
-	phase: C_DayCycle.Phase, records: Array[RefusalQuestRecord],
+	session_reference: WeakRef,
+	state: C_QuestSession,
+	cycle: C_DayCycle,
+	day_index: int,
+	phase: C_DayCycle.Phase,
+	records: Array[RefusalQuestRecord],
 ) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(session, _world) or session.get_component(C_QuestSession) != state \
-			or session.get_component(C_DayCycle) != cycle:
+	if (
+		(
+			not EntityAvailability.contains(session, _world)
+			or session.get_component(C_QuestSession) != state
+		)
+		or session.get_component(C_DayCycle) != cycle
+	):
 		return
 	if cycle.day_index != day_index or cycle.phase != phase:
 		return
@@ -42,15 +56,36 @@ func _advance(
 		if record.state in [RefusalQuestRecord.State.OFFERED, RefusalQuestRecord.State.ACTIVE]:
 			var visit: CustomerVisit = CustomerFlowQueries.find_visit(record.visit_id)
 			if cycle.day_index > record.deadline_day:
-				RefusalQuestService.resolve(record, RefusalQuestRecord.State.EXPIRED, cycle.day_index)
-			elif record.state == RefusalQuestRecord.State.ACTIVE and visit != null and visit.actual == CustomerVisit.Actual.DELIVERED:
-				RefusalQuestService.resolve(record, RefusalQuestRecord.State.FAILED, cycle.day_index)
-			elif record.state == RefusalQuestRecord.State.ACTIVE and visit != null and visit.actual == CustomerVisit.Actual.PLAYER_DENIED:
-				RefusalQuestService.resolve(record, RefusalQuestRecord.State.COMPLETED, cycle.day_index)
+				RefusalQuestService.resolve(
+					record,
+					RefusalQuestRecord.State.EXPIRED,
+					cycle.day_index,
+				)
+			elif (
+				record.state == RefusalQuestRecord.State.ACTIVE and visit != null
+				and visit.actual == CustomerVisit.Actual.DELIVERED
+			):
+				RefusalQuestService.resolve(
+					record,
+					RefusalQuestRecord.State.FAILED,
+					cycle.day_index,
+				)
+			elif (
+				record.state == RefusalQuestRecord.State.ACTIVE and visit != null
+				and visit.actual == CustomerVisit.Actual.PLAYER_DENIED
+			):
+				RefusalQuestService.resolve(
+					record,
+					RefusalQuestRecord.State.COMPLETED,
+					cycle.day_index,
+				)
 			elif cycle.day_index == record.deadline_day and cycle.phase == C_DayCycle.Phase.NIGHT:
-				RefusalQuestService.resolve(record, RefusalQuestRecord.State.EXPIRED, cycle.day_index)
+				RefusalQuestService.resolve(
+					record,
+					RefusalQuestRecord.State.EXPIRED,
+					cycle.day_index,
+				)
 		if record.state == RefusalQuestRecord.State.COMPLETED and not record.reward_paid:
 			RefusalQuestService.pay_reward(record, cycle.day_index)
-
 
 #endregion

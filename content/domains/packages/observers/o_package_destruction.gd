@@ -2,10 +2,12 @@ extends Observer
 ## Заменяет уничтоженную коробку обломками её варианта сцены и удаляет исходную Node.
 class_name O_PackageDestruction
 
+
 #region Подписка на уничтожение
 ## Подписывается на жизненный цикл коробок с авторским представлением уничтожения.
 func query() -> QueryBuilder:
 	return q.with_all([C_Package, C_PackageDestruction]).on_event(PackageLifecycleEvent.EVENT)
+
 
 ## На Destroyed сохраняет положение и скорости, затем откладывает замену коробки обломками.
 func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
@@ -16,7 +18,9 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 		return
 
 	var identity: C_Package = package.get_component(C_Package) as C_Package
-	var destruction: C_PackageDestruction = package.get_component(C_PackageDestruction) as C_PackageDestruction
+	var destruction: C_PackageDestruction = (
+		package.get_component(C_PackageDestruction) as C_PackageDestruction
+	)
 	if identity == null or identity.definition == null or destruction == null:
 		return
 	if destruction.debris_scene == null:
@@ -53,6 +57,7 @@ func each(_event: Variant, package: Entity, payload: Variant = null) -> void:
 
 #endregion
 
+
 #region Замена физического экземпляра
 func _replace_with_debris(
 	package_reference: WeakRef,
@@ -72,7 +77,10 @@ func _replace_with_debris(
 
 	if not is_instance_valid(_world) or not EntityAvailability.contains(package, _world):
 		return
-	if package.get_component(C_Package) != captured_identity or package.get_component(C_PackageDestruction) != captured_destruction:
+	if (
+		package.get_component(C_Package) != captured_identity
+		or package.get_component(C_PackageDestruction) != captured_destruction
+	):
 		return
 
 	var node: Node = debris_scene.instantiate()
@@ -93,8 +101,11 @@ func _replace_with_debris(
 		rigid.linear_velocity = linear_velocity
 		rigid.angular_velocity = angular_velocity
 
-	var context: EntitySpawnContext = EntityCompositionService.context_for(debris, _world,
-		debris.id if not debris.id.is_empty() else GECSIO.uuid())
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		debris,
+		_world,
+		debris.id if not debris.id.is_empty() else GECSIO.uuid(),
+	)
 	if not EntityCompositionService.try_register(context, false):
 		debris.free()
 		return

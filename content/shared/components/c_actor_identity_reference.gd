@@ -3,7 +3,13 @@ extends Component
 class_name C_ActorIdentityReference
 
 ## Специфичность существующей ссылки для детерминированного выбора ключа.
-enum Specificity { NONE, RUNTIME, DOMAIN, PRIMARY }
+enum Specificity {
+	NONE,
+	RUNTIME,
+	DOMAIN,
+	PRIMARY,
+}
+
 
 #region Identity projection
 ## Возвращает canonical actor key из поля владельца; пуст по умолчанию.

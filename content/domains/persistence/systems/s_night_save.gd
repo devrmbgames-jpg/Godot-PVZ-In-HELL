@@ -4,15 +4,17 @@ class_name S_NightSave
 
 const MIN_RETRY_SECONDS: float = 0.1
 
+
 #region Scheduled Night ownership
-## Operational storage retries run after gameplay with raw callback seconds, independently of game ticks.
+## Operational storage retries run after gameplay with raw callback seconds, independently of
+## game ticks.
 func _init() -> void:
 	group = "Storage"
 
 
 ## Runs after calendar, payments, customer outcomes and quest outcomes.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_DayPhase, S_WalletDay, S_CustomerFlow, S_RefusalQuest, S_LootDrops]}
+	return { Runs.After: [S_DayPhase, S_WalletDay, S_CustomerFlow, S_RefusalQuest, S_LootDrops] }
 
 
 ## Selects sessions with authoritative calendar and transient save workflow.
@@ -38,13 +40,20 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		if state.retry_remaining > 0.0:
 			continue
 		state.work_queued = true
-		cmd.add_custom(_advance.bind(weakref(entities[index]), cycle, state,
-			cycle.day_index, state.revision))
+		cmd.add_custom(
+			_advance.bind(weakref(entities[index]), cycle, state, cycle.day_index, state.revision)
+		)
 #endregion
 
+
 #region Captured preparation and storage boundaries
-func _advance(reference: WeakRef, cycle: C_DayCycle, state: C_Autosave,
-		night_day: int, revision: int) -> void:
+func _advance(
+	reference: WeakRef,
+	cycle: C_DayCycle,
+	state: C_Autosave,
+	night_day: int,
+	revision: int,
+) -> void:
 	var session: Entity = reference.get_ref() as Entity
 	if session == null:
 		return
@@ -67,7 +76,7 @@ func _advance(reference: WeakRef, cycle: C_DayCycle, state: C_Autosave,
 			return
 		state.started_night = night_day
 		state.preparation = null
-		state.prepared_snapshot = {}
+		state.prepared_snapshot = { }
 		NightResetService.reset()
 
 	if state.preparation == null:

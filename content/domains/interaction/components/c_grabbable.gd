@@ -18,9 +18,11 @@ enum RotationAxis {
 @export var manual_rotation_enabled: bool = true
 ## Ограничивает смещение ручного вращения относительно выбранной точки удержания.
 @export var rotation_axis: RotationAxis = RotationAxis.FREE
-## При подборе использует авторский поворот точки удержания вместо сохранения относительного поворота.
+## При подборе использует авторский поворот точки удержания вместо сохранения относительного
+## поворота.
 @export var reset_rotation_on_pickup: bool = false
-## Дистанция Carry в метрах; отрицательная берёт C_GrabControl.hold_distance, для рук не применяется.
+## Дистанция Carry в метрах; отрицательная берёт C_GrabControl.hold_distance, для рук не
+## применяется.
 @export var hold_distance: float = -1.0
 ## Коэффициент ускорения позиционной пружины; solver отдельно учитывает массу тела.
 @export var position_stiffness: float = 110.0

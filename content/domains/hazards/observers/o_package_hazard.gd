@@ -2,15 +2,20 @@ extends Observer
 ## Создаёт авторские самостоятельные опасности по первым переходам повреждения и вскрытия.
 class_name O_PackageHazard
 
+
 #region Авторские последствия состояния
 ## Подписывается на типизированные переходы состояния физических посылок.
 func query() -> QueryBuilder:
 	return q.with_all([C_Package]).on_event(PackageLifecycleEvent.EVENT)
 
+
 ## На Damaged или Opened создаёт подходящую опасность; пустая оболочка не порождает эффект.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var event: PackageLifecycleEvent = payload as PackageLifecycleEvent
-	if event == null or event.kind not in [PackageLifecycleEvent.Kind.Damaged, PackageLifecycleEvent.Kind.Opened]:
+	if (
+		event == null
+		or event.kind not in [PackageLifecycleEvent.Kind.Damaged, PackageLifecycleEvent.Kind.Opened]
+	):
 		return
 	if not is_instance_valid(entity):
 		return
@@ -25,7 +30,11 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	if event.kind == PackageLifecycleEvent.Kind.Opened and definition.unpack_scene != null:
 		return
 
-	var scene: PackedScene = definition.hazard_on_opened if event.kind == PackageLifecycleEvent.Kind.Opened else definition.hazard_on_damaged
+	var scene: PackedScene
+	if event.kind == PackageLifecycleEvent.Kind.Opened:
+		scene = definition.hazard_on_opened
+	else:
+		scene = definition.hazard_on_damaged
 	if scene == null:
 		return
 
@@ -48,7 +57,10 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		actor_id,
 	)
 
+
 func _scene_key(scene: PackedScene) -> String:
-	return scene.resource_path if not scene.resource_path.is_empty() else str(scene.get_instance_id())
+	return (
+		scene.resource_path if not scene.resource_path.is_empty() else str(scene.get_instance_id())
+	)
 
 #endregion

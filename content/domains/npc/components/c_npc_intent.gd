@@ -2,7 +2,11 @@ extends Component
 ## Семантические цели NPC; живые Entity принадлежат R_NpcMoveTarget/R_NpcLookTarget.
 class_name C_NpcIntent
 
-enum LookMode { MOVEMENT, TARGET, HOLD }
+enum LookMode {
+	MOVEMENT,
+	TARGET,
+	HOLD,
+}
 
 ## Есть назначенное намерение движения.
 @export var movement_active: bool = false

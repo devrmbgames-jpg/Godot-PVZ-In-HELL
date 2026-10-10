@@ -3,17 +3,23 @@ extends System
 class_name S_InteractionHighlight
 
 ## Авторский материал overlay для доступного взаимодействия.
-@export var available_material: Material = preload("res://content/materials/interaction/highlight_available.res")
+@export var available_material: Material = preload(
+	"res://content/materials/interaction/highlight_available.res"
+)
 ## Авторский материал overlay для недоступного действия.
-@export var unavailable_material: Material = preload("res://content/materials/interaction/highlight_unavailable.res")
+@export var unavailable_material: Material = preload(
+	"res://content/materials/interaction/highlight_unavailable.res"
+)
 ## Авторский материал overlay для занятой цели.
-@export var busy_material: Material = preload("res://content/materials/interaction/highlight_busy.res")
+@export var busy_material: Material = preload(
+	"res://content/materials/interaction/highlight_busy.res"
+)
 
-var _previous_overlays: Dictionary[int, Material] = {}
-var _applied_materials: Dictionary[int, Material] = {}
-var _previous_targets: Dictionary[int, WeakRef] = {}
-var _previous_meshes: Dictionary[int, WeakRef] = {}
-var _holder_states: Dictionary[int, int] = {}
+var _previous_overlays: Dictionary[int, Material] = { }
+var _applied_materials: Dictionary[int, Material] = { }
+var _previous_targets: Dictionary[int, WeakRef] = { }
+var _previous_meshes: Dictionary[int, WeakRef] = { }
+var _holder_states: Dictionary[int, int] = { }
 
 
 #region Расписание и цели подсветки
@@ -26,7 +32,7 @@ func setup() -> void:
 
 ## Выполняется после обновления целей S_InteractionTargeting.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_InteractionTargeting]}
+	return { Runs.After: [S_InteractionTargeting] }
 
 
 ## Выбирает акторов с C_Interactor для представления доступности.
@@ -42,7 +48,10 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 		var interactor: C_Interactor = interactors[index] as C_Interactor
 		var key: int = holder.get_instance_id()
 		var target: Node = InteractionTargetingGeometry.visual_target(holder, interactor)
-		if not GrabQueries.holder_available(holder) or holder.has_component(C_Death) or InteractionControlFocus.current(holder) >= InteractionControlFocus.Priority.MODAL:
+		if (
+			not GrabQueries.holder_available(holder) or holder.has_component(C_Death)
+			or InteractionControlFocus.current(holder) >= InteractionControlFocus.Priority.MODAL
+		):
 			target = null
 		if target == null:
 			_previous_targets.erase(key)
@@ -52,8 +61,8 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 			_holder_states[key] = InteractionHighlightRules.state_for(holder, target)
 	_refresh_meshes()
 
-
 #endregion
+
 
 #region Освобождение и восстановление overlays
 func _exit_tree() -> void:
@@ -87,8 +96,8 @@ func _component_removed(entity: Entity, component: Variant) -> void:
 
 
 func _refresh_meshes() -> void:
-	var meshes: Dictionary[int, MeshInstance3D] = {}
-	var states: Dictionary[int, int] = {}
+	var meshes: Dictionary[int, MeshInstance3D] = { }
+	var states: Dictionary[int, int] = { }
 	for holder_key: int in _previous_targets.keys():
 		var target: Node = _previous_targets[holder_key].get_ref() as Node
 		if target == null:
@@ -104,7 +113,10 @@ func _refresh_meshes() -> void:
 
 			var mesh_key: int = mesh.get_instance_id()
 			meshes[mesh_key] = mesh
-			states[mesh_key] = maxi(states.get(mesh_key, InteractionHighlightRules.State.UNAVAILABLE), state)
+			states[mesh_key] = maxi(
+				states.get(mesh_key, InteractionHighlightRules.State.UNAVAILABLE),
+				state,
+			)
 	for mesh_key: int in _previous_meshes.keys():
 		if not meshes.has(mesh_key):
 			_clear_mesh(mesh_key)
@@ -114,7 +126,10 @@ func _refresh_meshes() -> void:
 		if material == null:
 			_clear_mesh(mesh_key)
 			continue
-		if _applied_materials.has(mesh_key) and mesh.material_overlay != _applied_materials[mesh_key]:
+		if (
+			_applied_materials.has(mesh_key)
+			and mesh.material_overlay != _applied_materials[mesh_key]
+		):
 			# Другой владелец заменил нашу подсветку; уступаем ему до освобождения цели.
 			continue
 		if not _previous_overlays.has(mesh_key):

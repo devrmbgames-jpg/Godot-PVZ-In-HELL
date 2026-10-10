@@ -32,4 +32,4 @@ var impulse_velocity: Vector3 = Vector3.ZERO
 ## Отложенная скорость отскока в м/с; забирается только физическим callback тела.
 var pending_rebound_velocity: Vector3 = Vector3.ZERO
 ## Производный кеш физических контактов для разделений, отдельно от владения и сеанса.
-var contact_bodies: Dictionary[int, WeakRef] = {}
+var contact_bodies: Dictionary[int, WeakRef] = { }

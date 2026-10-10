@@ -2,6 +2,7 @@ extends Observer
 ## Владелец клиентской роли разрешает уличный разговор только во время очереди.
 class_name O_CustomerNpcConversation
 
+
 #region Разрешение необязательной роли
 ## Реагирует на NPC query только при наличии текущей клиентской роли.
 func query() -> QueryBuilder:

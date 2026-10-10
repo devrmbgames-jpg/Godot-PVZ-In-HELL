@@ -2,7 +2,12 @@ extends GameDefinition
 ## Авторское описание предмета инвентаря, цены и эффекта использования.
 class_name DEF_InventoryItem
 
-enum Kind { FOOD, MED_ITEM, BUBBLE_WRAP, FURNITURE }
+enum Kind {
+	FOOD,
+	MED_ITEM,
+	BUBBLE_WRAP,
+	FURNITURE,
+}
 
 ## Цена единицы в целых денежных единицах, отдельно от учётной стоимости посылок.
 @export_range(0, 1000000000) var market_price: int = 25

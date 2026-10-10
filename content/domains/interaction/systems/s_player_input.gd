@@ -24,7 +24,10 @@ func _notification(what: int) -> void:
 	if not is_instance_valid(ECS.world):
 		return
 
-	for actor: Entity in ECS.world.query.with_all([C_Controller, C_PlayerInputController]).execute():
+	var input_query: QueryBuilder = (
+		ECS.world.query.with_all([C_Controller, C_PlayerInputController])
+	)
+	for actor: Entity in input_query.execute():
 		var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 		_update_drop(controller, actor, false, 0.0)
 		controller.sprint_pressed = false
@@ -67,8 +70,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_released(&"drop"):
 		_drop_end_pending = true
 
-
 #endregion
+
 
 #region Снимок игрового такта
 ## Выбирает Controller, помеченные для ввода игрока.
@@ -76,7 +79,8 @@ func query() -> QueryBuilder:
 	return q.with_all([C_Controller, C_PlayerInputController]).iterate([C_Controller])
 
 
-## Один снимок на игровой такт: удержания, фронты и дельта взгляда; затем очищает накопленные события.
+## Один снимок на игровой такт: удержания, фронты и дельта взгляда; затем очищает накопленные
+## события.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var controllers: Array = components[0]
 	var captured: bool = _accepts_input()
@@ -89,8 +93,15 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	)
 
 	var move_axis: Vector2 = (
-		Input.get_vector(&"left", &"right", &"forward", &"back", float(GameSettingsService.value("deadzone")))
-		if captured else Vector2.ZERO
+		Input.get_vector(
+			&"left",
+			&"right",
+			&"forward",
+			&"back",
+			float(GameSettingsService.value("deadzone")),
+		)
+		if captured
+		else Vector2.ZERO
 	)
 	for entity_index: int in entities.size():
 		var entity: Entity = entities[entity_index]
@@ -115,15 +126,18 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		controller.action_crouch = captured and Input.is_action_pressed(&"crouch")
 		controller.action_jump = captured and Input.is_action_pressed(&"jump")
 		controller.look_delta = (
-			_look_mouse * float(GameSettingsService.value("mouse_sensitivity")) + gamepad_look * GAMEPAD_LOOK_PIXELS_PER_SECOND * delta * float(GameSettingsService.value("gamepad_sensitivity"))
-			if captured else Vector2.ZERO
+			_look_mouse * float(GameSettingsService.value("mouse_sensitivity"))
+			+ gamepad_look * GAMEPAD_LOOK_PIXELS_PER_SECOND * delta
+			* float(GameSettingsService.value("gamepad_sensitivity"))
+			if captured
+			else Vector2.ZERO
 		)
 		controller.move_axis = move_axis
 
 	_clear_pending()
 
-
 #endregion
+
 
 #region Очистка и длительное нажатие
 ## Пауза не переносит старое движение мыши/нажатия в следующий игровой tick.

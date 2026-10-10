@@ -36,7 +36,8 @@ func execute(_actor: Entity, _source: Entity, _target: Entity) -> void:
 	pass
 
 
-## Повторно проверяет доступность и исполняет; переопределяется, если сам эффект может завершиться отказом.
+## Повторно проверяет доступность и исполняет; переопределяется, если сам эффект может
+## завершиться отказом.
 func complete(actor: Entity, source: Entity, target: Entity) -> bool:
 	if not is_available(actor, source, target):
 		return false

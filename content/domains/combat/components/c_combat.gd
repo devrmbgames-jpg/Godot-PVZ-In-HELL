@@ -2,7 +2,12 @@ extends Component
 ## Состояние одного удара игрока; живое оружие связано через R_AttackWeapon.
 class_name C_Combat
 
-enum Phase { READY, WINDUP, ACTIVE, RECOVERY }
+enum Phase {
+	READY,
+	WINDUP,
+	ACTIVE,
+	RECOVERY,
+}
 
 ## Текущая фаза единственного удара.
 var phase: Phase = Phase.READY

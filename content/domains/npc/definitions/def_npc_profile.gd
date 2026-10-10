@@ -3,11 +3,18 @@ extends GameDefinition
 class_name DEF_NpcProfile
 
 ## Способности ближнего боя для существующего исполнителя атак.
-@export var melee_attacks: Array[DEF_NpcAttack] = [preload("res://content/domains/combat/definitions/def_npc_punch.tres")]
+@export var melee_attacks: Array[DEF_NpcAttack] = [
+	preload("res://content/domains/combat/definitions/def_npc_punch.tres")
+]
 ## Способности дальнего боя; у обычных жителей список пуст.
 @export var ranged_attacks: Array[DEF_NpcAttack] = []
 
-enum Personality { AGGRESSIVE, BRAZEN, CHEERFUL, TIMID }
+enum Personality {
+	AGGRESSIVE,
+	BRAZEN,
+	CHEERFUL,
+	TIMID,
+}
 
 ## Имя в диалоге и над физическим телом.
 @export var display_name: String = "Житель"
@@ -24,7 +31,9 @@ enum Personality { AGGRESSIVE, BRAZEN, CHEERFUL, TIMID }
 ## Не более двух совместимых сверхъестественных особенностей.
 @export var rules: Array[DEF_NpcTrait] = []
 ## Внешняя сцена физического тела этой личности.
-@export_file("*.tscn") var npc_scene_path: String = "res://content/domains/npc/entities/district_npc.tscn"
+@export_file(
+	"*.tscn"
+) var npc_scene_path: String = "res://content/domains/npc/entities/district_npc.tscn"
 ## Личные интересы для уличных разговоров.
 @export var interests: PackedStringArray = []
 ## Предпочитаемые занятия; допустимое место выбирается детерминированно.
@@ -66,6 +75,7 @@ enum Personality { AGGRESSIVE, BRAZEN, CHEERFUL, TIMID }
 ## Основной цвет, различающий жителей в блокинге.
 @export var body_color: Color = Color(0.65, 0.45, 0.35)
 
+
 #region Trait queries
 ## Находит правило нечисти без создания новой коллекции.
 func rule_for(kind: DEF_NpcTrait.Kind) -> DEF_NpcTrait:
@@ -73,6 +83,7 @@ func rule_for(kind: DEF_NpcTrait.Kind) -> DEF_NpcTrait:
 		if rule != null and rule.kind == kind:
 			return rule
 	return null
+
 
 ## Проверяет совместимость авторских особенностей перед появлением NPC.
 func valid_rules() -> bool:

@@ -2,12 +2,20 @@ extends System
 ## Dispatches the next appearance after terminal phase commits and projects remaining visits.
 class_name S_CustomerArrivals
 
+
 #region Scheduling
 ## Preserves phase completion before arrival selection and day/navigation consumers.
 func deps() -> Dictionary[int, Array]:
 	return {
-		Runs.After: [S_CustomerFlow, S_CustomerVisitPresence, S_CustomerCleanup,
-			S_CustomerApproach, S_CustomerWaiting, S_CustomerInspection, S_CustomerDeparture],
+		Runs.After: [
+			S_CustomerFlow,
+			S_CustomerVisitPresence,
+			S_CustomerCleanup,
+			S_CustomerApproach,
+			S_CustomerWaiting,
+			S_CustomerInspection,
+			S_CustomerDeparture,
+		],
 		Runs.Before: [S_DayPhase, S_NpcCadence, S_NpcDecision, S_NpcIntent],
 	}
 
@@ -25,20 +33,29 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 		cmd.add_custom(_dispatch.bind(weakref(session), captured_flow, captured_cycle))
 
 
-func _dispatch(session_reference: WeakRef, captured_flow: C_CustomerFlow, captured_cycle: C_DayCycle) -> void:
+func _dispatch(
+	session_reference: WeakRef,
+	captured_flow: C_CustomerFlow,
+	captured_cycle: C_DayCycle,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(session, _world) \
-			or session.get_component(C_CustomerFlow) != captured_flow \
-			or session.get_component(C_DayCycle) != captured_cycle:
+	if (
+		not EntityAvailability.contains(session, _world)
+		or session.get_component(C_CustomerFlow) != captured_flow
+		or session.get_component(C_DayCycle) != captured_cycle
+	):
 		return
 
 	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 	if flow.planning_day != cycle.day_index or flow.planning_phase != int(cycle.phase):
 		return
-	cycle.remaining_customer_events = CustomerFlowQueries.actionable_remaining(flow, cycle.day_index)
+	cycle.remaining_customer_events = CustomerFlowQueries.actionable_remaining(
+		flow,
+		cycle.day_index,
+	)
 
 	if NpcPopulationQueries.current() != null:
 		# District queue selection remains the bounded migration scope of task 16.

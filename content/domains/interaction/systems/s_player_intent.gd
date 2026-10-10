@@ -63,15 +63,11 @@ func _apply(entity: Entity, controller: C_Controller) -> void:
 	else:
 		_update_motion(controller)
 
-
 #endregion
 
+
 #region Мировые направления
-func _update_look(
-	controller: C_Controller,
-	character: Node3D,
-	mobility_multiplier: float,
-) -> void:
+func _update_look(controller: C_Controller, character: Node3D, mobility_multiplier: float) -> void:
 	if character == null:
 		return
 
@@ -79,15 +75,8 @@ func _update_look(
 	if look_direction.is_zero_approx():
 		look_direction = -character.global_basis.z
 	look_direction = look_direction.normalized()
-	var scaled_look_delta: Vector2 = controller.look_delta * clampf(
-		mobility_multiplier,
-		0.0,
-		1.0,
-	)
-	look_direction = look_direction.rotated(
-		Vector3.UP,
-		-scaled_look_delta.x * LOOK_SENSITIVITY,
-	)
+	var scaled_look_delta: Vector2 = controller.look_delta * clampf(mobility_multiplier, 0.0, 1.0)
+	look_direction = look_direction.rotated(Vector3.UP, -scaled_look_delta.x * LOOK_SENSITIVITY)
 
 	var current_pitch: float = asin(clampf(look_direction.y, -1.0, 1.0))
 	var target_pitch: float = clampf(
@@ -96,10 +85,9 @@ func _update_look(
 		MAX_LOOK_PITCH,
 	)
 	var right_direction: Vector3 = look_direction.cross(Vector3.UP).normalized()
-	controller.direction_look = look_direction.rotated(
-		right_direction,
-		target_pitch - current_pitch,
-	).normalized()
+	controller.direction_look = look_direction \
+			.rotated(right_direction, target_pitch - current_pitch) \
+			.normalized()
 
 
 func _update_motion(controller: C_Controller) -> void:

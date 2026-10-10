@@ -1,8 +1,8 @@
 # Refactoring v2.60 — formatter/linter как единый style gate
 
-Status: **IN_PROGRESS**
+Status: **DONE**
 
-Зависимости: [49_core_architecture_acceptance.md](../completed/refactoring_v2/49_core_architecture_acceptance.md) PASS.
+Зависимости: [49_core_architecture_acceptance.md](49_core_architecture_acceptance.md) PASS.
 
 ## Goal
 
@@ -19,9 +19,7 @@ reviewer требуют архитектурной оценки изменённ
 fixtures находятся в `tests/tools/test_agent_style_guard.py` и
 `test_agent_architecture_guard.py`.
 
-**Статус этой задачи остаётся PLANNED:** основной Phase 3 formatter/linter
-по всей project-owned базе, миграции Code Style по доменам и конечная
-приёмка ещё не выполнялись. Подготовительный gate не заменяет работы 60–66.
+Миграция исходников и полная приёмка остаются предметом этапов 61–66.
 
 ## Work
 
@@ -63,4 +61,8 @@ file bytes, version mismatch, missing path/tool, owned-addon discovery and alias
 exclusion. Native companion GUT4/7, actual Godot changed parser and incremental formatter,
 strict architecture/structure/change gates PASS. Final native settings inspect has no mismatches;
 fresh editor diagnostics after repair have no entries. No mass formatting was performed.
-REVIEW_PENDING: immutable toolchain checkpoint. Next: collect/triage review, archive60, start61.
+Independent immutable review PASS, no material findings:
+`14e9f27d1084096e2b370bc5e3ac63bc4583b03a` →
+`515f54b95ff0ee3ea8cf1fdb087efbdfd1ed58a7`.
+Reviewer validation NOT_RUN (source review); executable checks above ran on Main.
+Next: task61 source manifest and ECS style migration.

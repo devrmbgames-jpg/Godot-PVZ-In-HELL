@@ -1,9 +1,17 @@
 extends GameDefinition
-## Политика обслуживания заказа; постоянная личность и её природа задаются отдельно в DEF_NpcProfile.
+## Политика обслуживания заказа; постоянная личность и её природа задаются отдельно в
+## DEF_NpcProfile.
 class_name DEF_Customer
 
-enum DialogueMode { DIRECT, RIDDLE }
-enum Introduction { MANUAL, ANNOUNCE_ORDER, FIRST_APPROACH_DIALOGUE }
+enum DialogueMode {
+	DIRECT,
+	RIDDLE,
+}
+enum Introduction {
+	MANUAL,
+	ANNOUNCE_ORDER,
+	FIRST_APPROACH_DIALOGUE,
+}
 const MINIMUM_LEAVING_SECONDS: float = 181.0
 
 #region Представление и взаимодействие

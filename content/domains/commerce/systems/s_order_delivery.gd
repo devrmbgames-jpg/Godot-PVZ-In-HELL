@@ -40,12 +40,29 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		state.retry_remaining = state.retry_seconds
 		state.delivery_queued = true
 		state.delivery_revision += 1
-		cmd.add_custom(_fulfill.bind(weakref(entities[index]), state, commerce, cycle, cycle.day_index, state.delivery_revision))
+		cmd.add_custom(
+			_fulfill.bind(
+				weakref(entities[index]),
+				state,
+				commerce,
+				cycle,
+				cycle.day_index,
+				state.delivery_revision,
+			)
+		)
 
 #endregion
 
+
 #region Captured delivery commit
-func _fulfill(zone_reference: WeakRef, state: C_OrderReceiving, commerce: C_Commerce, cycle: C_DayCycle, day: int, revision: int) -> void:
+func _fulfill(
+	zone_reference: WeakRef,
+	state: C_OrderReceiving,
+	commerce: C_Commerce,
+	cycle: C_DayCycle,
+	day: int,
+	revision: int,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var zone: Entity = zone_reference.get_ref() as Entity
 
@@ -56,8 +73,17 @@ func _fulfill(zone_reference: WeakRef, state: C_OrderReceiving, commerce: C_Comm
 		state.delivery_queued = false
 
 
-func _fulfill_current(zone: Entity, state: C_OrderReceiving, commerce: C_Commerce, cycle: C_DayCycle, day: int) -> void:
-	if not EntityAvailability.contains(zone, _world) or zone.get_component(C_OrderReceiving) != state:
+func _fulfill_current(
+	zone: Entity,
+	state: C_OrderReceiving,
+	commerce: C_Commerce,
+	cycle: C_DayCycle,
+	day: int,
+) -> void:
+	if (
+		not EntityAvailability.contains(zone, _world)
+		or zone.get_component(C_OrderReceiving) != state
+	):
 		return
 	if CommerceService.current() != commerce or DayPhaseQueries.current() != cycle:
 		return

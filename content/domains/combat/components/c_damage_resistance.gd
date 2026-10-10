@@ -6,4 +6,4 @@ class_name C_DamageResistance
 const SAVE_FIELDS: Array[String] = ["multipliers"]
 
 ## Неуказанные типы имеют множитель 1; авторские значения конечны и неотрицательны.
-@export var multipliers: Dictionary[int, float] = {}
+@export var multipliers: Dictionary[int, float] = { }

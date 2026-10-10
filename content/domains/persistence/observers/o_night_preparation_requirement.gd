@@ -2,6 +2,7 @@ extends Observer
 ## Сообщает Time о настроенной Night preparation; фактический workflow принадлежит S_NightSave.
 class_name O_NightPreparationRequirement
 
+
 #region Configured Night owner
 ## Отвечает только для сессии с authoritative autosave workflow.
 func query() -> QueryBuilder:

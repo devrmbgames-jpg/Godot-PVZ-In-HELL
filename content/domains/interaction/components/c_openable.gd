@@ -1,5 +1,6 @@
 extends Component
-## Логическое состояние замка и запроса движения; физическое исполнение принадлежит контроллеру тела.
+## Логическое состояние замка и запроса движения; физическое исполнение принадлежит контроллеру
+## тела.
 class_name C_Openable
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.

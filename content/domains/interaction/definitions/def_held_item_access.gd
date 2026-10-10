@@ -7,7 +7,11 @@ class_name DEF_HeldItemAccess
 ## Возвращает доступные предметы обеих рук и Carry по живым связям удержания.
 func items(actor: Entity) -> Array[Entity]:
 	var result: Array[Entity] = []
-	for slot: int in [C_Grabbable.HoldSlot.LEFT_HAND, C_Grabbable.HoldSlot.RIGHT_HAND, C_Grabbable.HoldSlot.CARRY]:
+	for slot: int in [
+		C_Grabbable.HoldSlot.LEFT_HAND,
+		C_Grabbable.HoldSlot.RIGHT_HAND,
+		C_Grabbable.HoldSlot.CARRY,
+	]:
 		var item: Entity = GrabQueries.held_in_slot(actor, slot)
 		if GrabQueries.entity_available(item):
 			result.append(item)

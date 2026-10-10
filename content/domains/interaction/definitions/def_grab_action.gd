@@ -92,10 +92,7 @@ func execute(actor: Entity, source: Entity, _target: Entity) -> void:
 			)
 			var carry_load: C_CarryLoad = actor.get_component(C_CarryLoad) as C_CarryLoad
 			var strength: C_Strength = actor.get_component(C_Strength) as C_Strength
-			var mobility_multiplier: float = CarryLoadPolicy.active_multiplier(
-				carry_load,
-				strength,
-			)
+			var mobility_multiplier: float = CarryLoadPolicy.active_multiplier(carry_load, strength)
 			grip_data.rotation_offset = GrabPhysicsSolver.rotated_offset(
 				grip_data.rotation_offset,
 				controller.look_delta * mobility_multiplier,

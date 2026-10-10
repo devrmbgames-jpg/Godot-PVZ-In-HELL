@@ -2,7 +2,14 @@ extends Component
 ## Факты и счётчики общего испытания; исполнение, эффекты и живые участники находятся отдельно.
 class_name C_Challenge
 
-enum Phase { INACTIVE, ARMED, ACTIVE, SUCCESS, FAILURE, CLEANUP }
+enum Phase {
+	INACTIVE,
+	ARMED,
+	ACTIVE,
+	SUCCESS,
+	FAILURE,
+	CLEANUP,
+}
 
 ## Авторские данные общего испытания.
 @export var definition: DEF_Challenge = null

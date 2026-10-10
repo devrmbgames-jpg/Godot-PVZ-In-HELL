@@ -20,7 +20,15 @@ func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
 		return PhysicalSlotService.can_store(actor, storage, hand)
 
 	var config: C_PhysicalSlot = storage.get_component(C_PhysicalSlot) as C_PhysicalSlot
-	return config != null and GrabService.can_take_from_storage(actor, PhysicalSlotService.occupant(storage), hand, config.allow_hand_replacement)
+	return (
+		config != null
+		and GrabService.can_take_from_storage(
+			actor,
+			PhysicalSlotService.occupant(storage),
+			hand,
+			config.allow_hand_replacement,
+		)
+	)
 
 
 ## Передаёт исполнение в complete с повторной проверкой.
@@ -39,6 +47,11 @@ func complete(actor: Entity, source: Entity, _target: Entity) -> bool:
 		return PhysicalSlotService.store(actor, storage, hand)
 
 	var config: C_PhysicalSlot = storage.get_component(C_PhysicalSlot) as C_PhysicalSlot
-	return GrabService.take_from_storage(actor, PhysicalSlotService.occupant(storage), hand, config.allow_hand_replacement)
+	return GrabService.take_from_storage(
+		actor,
+		PhysicalSlotService.occupant(storage),
+		hand,
+		config.allow_hand_replacement,
+	)
 
 #endregion

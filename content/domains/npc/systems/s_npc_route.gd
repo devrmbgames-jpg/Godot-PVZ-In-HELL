@@ -158,7 +158,8 @@ func _abandon(actor: E_DistrictNpc, person: NpcRecord, route: C_NpcRoute) -> voi
 			person.planned_day,
 			person.planned_phase as C_DayCycle.Phase,
 		)
-		# Недостижимое занятие можно пропустить; уход через проход или домой требует реального прибытия.
+		# Недостижимое занятие можно пропустить; уход через проход или домой
+		# требует реального прибытия.
 		if (
 			decision != null and decision.intent_owner == C_NpcDecision.Owner.SCHEDULE
 			and person.profile.resident and location == DEF_NpcSchedule.Location.STREET

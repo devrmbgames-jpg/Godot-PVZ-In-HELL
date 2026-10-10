@@ -1,17 +1,32 @@
 extends Observer
-## Owns district calendar goals, preparation and completion reactions; physical operations stay explicit.
+## Owns district calendar goals, preparation and completion reactions; physical operations stay
+## explicit.
 class_name O_DistrictLifecycle
 
 
 #region Reactive boundaries
 ## Declares calendar, body-death and sole-handler planning/preparation/completion inputs.
 func sub_observers() -> Array[Array]:
+	var calendar_changes: QueryBuilder = (q.with_all([C_District, C_DayCycle]).on_event(
+			DayPhaseChanged.EVENT
+		))
+	var body_deaths: QueryBuilder = (q.with_all([C_NpcIdentity, C_Death]).on_match())
+	var morning_requests: QueryBuilder = (
+		q.with_all([C_District, C_DayCycle]).on_event(DistrictMorningPreparationRequest.EVENT)
+	)
+	var phase_requests: QueryBuilder = (q.with_all([C_NpcIdentity]).on_event(
+			NpcPhasePlanRequest.EVENT
+		))
+	var completion_requests: QueryBuilder = (
+		q.with_all([C_NpcIdentity]).on_event(NpcScheduleCompletionRequest.EVENT)
+	)
+
 	return [
-		[q.with_all([C_District, C_DayCycle]).on_event(DayPhaseChanged.EVENT), _on_day],
-		[q.with_all([C_NpcIdentity, C_Death]).on_match(), _on_death],
-		[q.with_all([C_District, C_DayCycle]).on_event(DistrictMorningPreparationRequest.EVENT), _on_morning],
-		[q.with_all([C_NpcIdentity]).on_event(NpcPhasePlanRequest.EVENT), _on_plan],
-		[q.with_all([C_NpcIdentity]).on_event(NpcScheduleCompletionRequest.EVENT), _on_completion],
+		[calendar_changes, _on_day],
+		[body_deaths, _on_death],
+		[morning_requests, _on_morning],
+		[phase_requests, _on_plan],
+		[completion_requests, _on_completion],
 	]
 
 
@@ -56,9 +71,11 @@ func _reconcile_day(
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(session, _world) \
-			or session.get_component(C_District) != captured_district \
-			or session.get_component(C_DayCycle) != captured_cycle:
+	if (
+		not EntityAvailability.contains(session, _world)
+		or session.get_component(C_District) != captured_district
+		or session.get_component(C_DayCycle) != captured_cycle
+	):
 		return
 
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
@@ -352,8 +369,7 @@ func _retains_body(candidate: Variant) -> bool:
 		return false
 	var body: E_DistrictNpc = candidate as E_DistrictNpc
 	return (
-		body.is_inside_tree() and not body.is_queued_for_deletion() \
-				and _world.entity_to_archetype.has(body)
-		and body.has_component(C_NpcIdentity)
+		body.is_inside_tree() and not body.is_queued_for_deletion()
+		and _world.entity_to_archetype.has(body) and body.has_component(C_NpcIdentity)
 	)
 #endregion

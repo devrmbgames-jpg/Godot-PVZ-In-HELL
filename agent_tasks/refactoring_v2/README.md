@@ -130,7 +130,7 @@ Typed contracts уже закреплены задачей 40 перед executi
 
 ### Phase 3 — Code Style refactor
 
-44. [Formatter/linter как единый style gate](60_style_tooling.md)
+44. [Formatter/linter как единый style gate](../completed/refactoring_v2/60_style_tooling.md)
 45. [Systems, Observers, Components, Relationships](61_style_ecs_core.md)
 46. [NPC и Customers](62_style_npc_customers.md)
 47. [Interaction, Combat и Motion](63_style_interaction_combat_motion.md)
@@ -151,6 +151,9 @@ Inspector restored, authored content unchanged. Independent current repair revie
 
 Phase3 tasks60–66 are now permitted by the archived gate49. See the individual owning
 files for their actual implementation status; no remaining Phase2 owner approval blocks them.
+Task60 is archived DONE after independent review. Task61 implementation passes full style
+and native diagnostics for309 ECS scripts; its committed review remains the current gate.
+Phase3 manifest owns980 authored scripts exactly once and excludes generated artifacts.
 Old-save conversion is excluded; current schema10 roundtrip remains mandatory.
 GOAP/body detach/four LOD tiers remain deferred. Shutdown-only4.7.1 retention remains
 KNOWN_ENGINE_LIMITATION / DEFERRED; runtime ownership defects are not waived.

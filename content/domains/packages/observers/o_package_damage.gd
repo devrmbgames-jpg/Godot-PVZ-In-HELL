@@ -20,16 +20,22 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var captured_condition: C_PackageState = entity.get_component(C_PackageState) as C_PackageState
 	cmd.add_custom(_commit_condition.bind(weakref(entity), result, captured_condition))
 
-
 #endregion
 
+
 #region Переход состояния коробки
-func _commit_condition(target_reference: WeakRef, result: DamageResult, captured_condition: C_PackageState) -> void:
+func _commit_condition(
+	target_reference: WeakRef,
+	result: DamageResult,
+	captured_condition: C_PackageState,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var target: Entity = target_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(target, _world) \
-			or target.get_component(C_PackageState) != captured_condition:
+	if (
+		not EntityAvailability.contains(target, _world)
+		or target.get_component(C_PackageState) != captured_condition
+	):
 		return
 
 	if not GrabQueries.entity_available(target):
@@ -50,16 +56,13 @@ func _commit_condition(target_reference: WeakRef, result: DamageResult, captured
 			result,
 		)
 
-#endregion
 	elif condition.damage == C_PackageState.Damage.UNDAMAGED:
 		var identity: C_Package = target.get_component(C_Package) as C_Package
 		var health: C_Health = target.get_component(C_Health) as C_Health
 		if identity == null or identity.definition == null or health == null:
 			return
 
-		var damaged_threshold: float = (
-			health.value * identity.definition.damaged_health_ratio
-		)
+		var damaged_threshold: float = (health.value * identity.definition.damaged_health_ratio)
 		if result.current_value > damaged_threshold:
 			return
 
@@ -70,3 +73,4 @@ func _commit_condition(target_reference: WeakRef, result: DamageResult, captured
 			result.request.source,
 			result,
 		)
+#endregion

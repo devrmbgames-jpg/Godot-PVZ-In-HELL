@@ -17,15 +17,21 @@ func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 	if request == null:
 		return
 	if _accepted.has(request.request_id):
-		BoundaryTrace.record(&"hazards.spawn", StringName(request.request_id),
-			BoundaryTraceEntry.Stage.DUPLICATE, &"already_accepted", request.origin_id, request.request_id)
+		BoundaryTrace.record(
+			&"hazards.spawn",
+			StringName(request.request_id),
+			BoundaryTraceEntry.Stage.DUPLICATE,
+			&"already_accepted",
+			request.origin_id,
+			request.request_id,
+		)
 		return
 
 	_accepted[request.request_id] = true
 	cmd.add_custom(_spawn.bind(request))
 
-
 #endregion
+
 
 #region Создание автономного эффекта
 func _spawn(request: HazardSpawnRequest) -> void:
@@ -43,11 +49,12 @@ func _spawn(request: HazardSpawnRequest) -> void:
 		_rejected(request, &"invalid_prefab_root")
 		return
 
-	var definition: DEF_Hazard = request.definition if request.definition != null else prefab.definition
+	var definition: DEF_Hazard = (
+		request.definition if request.definition != null else prefab.definition
+	)
 	prefab.definition = definition
 	if (
-		definition == null
-		or not is_finite(definition.lifetime_seconds)
+		definition == null or not is_finite(definition.lifetime_seconds)
 		or definition.lifetime_seconds <= 0.0
 	):
 		node.free()
@@ -75,12 +82,12 @@ func _spawn(request: HazardSpawnRequest) -> void:
 		components.append(C_NoDamage.new())
 
 	var follow: R_HazardFollow = null
-	if definition.ownership == DEF_Hazard.Ownership.FollowOrigin:
+	if definition.ownership == DEF_Hazard.Ownership.FOLLOW_ORIGIN:
 		var owner_node: Node3D = null
 		if is_instance_valid(request.origin):
 			owner_node = request.origin as Node as Node3D
 		if not EntityAvailability.contains(request.origin, _world) or owner_node == null:
-			if definition.owner_loss == DEF_Hazard.OwnerLoss.Despawn:
+			if definition.owner_loss == DEF_Hazard.OwnerLoss.DESPAWN:
 				node.free()
 				_rejected(request, &"required_owner_unavailable")
 				return
@@ -93,8 +100,11 @@ func _spawn(request: HazardSpawnRequest) -> void:
 	spatial.global_transform = request.world_pose
 	entity.component_resources = entity.component_resources.duplicate()
 	entity.component_resources.append_array(components)
-	var context: EntitySpawnContext = EntityCompositionService.context_for(entity, _world,
-		entity.id if not entity.id.is_empty() else GECSIO.uuid())
+	var context: EntitySpawnContext = EntityCompositionService.context_for(
+		entity,
+		_world,
+		entity.id if not entity.id.is_empty() else GECSIO.uuid(),
+	)
 	if follow != null:
 		context.bindings[&"origin"] = request.origin
 		var follow_intent: EntityInitialBinding = EntityInitialBinding.new()
@@ -112,13 +122,25 @@ func _spawn(request: HazardSpawnRequest) -> void:
 	result.hazard = entity
 	result.request_id = request.request_id
 	result.origin_id = request.origin_id
-	BoundaryTrace.record(&"hazards.spawn", StringName(request.request_id),
-		BoundaryTraceEntry.Stage.COMPLETED, &"spawned", request.origin_id, request.request_id)
+	BoundaryTrace.record(
+		&"hazards.spawn",
+		StringName(request.request_id),
+		BoundaryTraceEntry.Stage.COMPLETED,
+		&"spawned",
+		request.origin_id,
+		request.request_id,
+	)
 	_world.emit_event(HazardSpawnResult.EVENT, entity, result)
 
-func _rejected(request: HazardSpawnRequest, reason: StringName) -> void:
-	BoundaryTrace.record(&"hazards.spawn", StringName(request.request_id),
-		BoundaryTraceEntry.Stage.REJECTED, reason, request.origin_id, request.request_id)
 
+func _rejected(request: HazardSpawnRequest, reason: StringName) -> void:
+	BoundaryTrace.record(
+		&"hazards.spawn",
+		StringName(request.request_id),
+		BoundaryTraceEntry.Stage.REJECTED,
+		reason,
+		request.origin_id,
+		request.request_id,
+	)
 
 #endregion

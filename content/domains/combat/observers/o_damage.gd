@@ -17,8 +17,8 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 
 	cmd.add_custom(_resolve.bind(request))
 
-
 #endregion
+
 
 #region Единственный расчёт здоровья
 func _resolve(request: DamageRequest) -> void:
@@ -37,8 +37,14 @@ func _resolve(request: DamageRequest) -> void:
 	var trace_stage: BoundaryTraceEntry.Stage = BoundaryTraceEntry.Stage.COMPLETED
 	if result.outcome == DamageResult.Outcome.REJECTED:
 		trace_stage = BoundaryTraceEntry.Stage.REJECTED
-	BoundaryTrace.record(&"damage.resolve", request.correlation_id, trace_stage, result.reason,
-		request.origin_id, request.target_id)
+	BoundaryTrace.record(
+		&"damage.resolve",
+		request.correlation_id,
+		trace_stage,
+		result.reason,
+		request.origin_id,
+		request.target_id,
+	)
 	_world.emit_event(DamageResult.EVENT, target, result)
 
 
@@ -69,7 +75,11 @@ func _apply(request: DamageRequest, health: C_Health, result: DamageResult) -> v
 		result.reason = &"source_veto"
 		return
 
-	var effective_amount: float = request.amount if is_heal else DamageResistanceRules.effective(request.target, request.amount, request.damage_type)
+	var effective_amount: float = (
+		request.amount
+		if is_heal
+		else DamageResistanceRules.effective(request.target, request.amount, request.damage_type)
+	)
 	var signed_amount: float = effective_amount if is_heal else -effective_amount
 	result.current_value = clampf(result.previous_value + signed_amount, 0.0, health.value)
 	result.applied_amount = absf(result.current_value - result.previous_value)

@@ -2,6 +2,7 @@ extends Observer
 ## Prepares visits only for explicit bootstrap/day/registration facts and planning commands.
 class_name O_CustomerPlanning
 
+
 #region Reactive boundaries
 ## Declares the sole planning command handler and the committed day/registration consumers.
 func sub_observers() -> Array[Array]:
@@ -18,7 +19,9 @@ func _on_day(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	assert(transition != null)
 	var captured_flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
 	var captured_cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
-	cmd.add_custom(_prepare_session.bind(weakref(session), transition, captured_flow, captured_cycle))
+	cmd.add_custom(
+		_prepare_session.bind(weakref(session), transition, captured_flow, captured_cycle)
+	)
 
 
 func _on_request(_event: Variant, session: Entity, payload: Variant = null) -> void:
@@ -43,15 +46,19 @@ func _reactivate_current() -> void:
 
 
 func _prepare_session(
-	session_reference: WeakRef, transition: DayPhaseChanged, captured_flow: C_CustomerFlow,
+	session_reference: WeakRef,
+	transition: DayPhaseChanged,
+	captured_flow: C_CustomerFlow,
 	captured_cycle: C_DayCycle,
 ) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(session, _world) \
-			or session.get_component(C_CustomerFlow) != captured_flow \
-			or session.get_component(C_DayCycle) != captured_cycle:
+	if (
+		not EntityAvailability.contains(session, _world)
+		or session.get_component(C_CustomerFlow) != captured_flow
+		or session.get_component(C_DayCycle) != captured_cycle
+	):
 		return
 
 	# The queued fact may outlive its session or be superseded by a later phase.
@@ -78,7 +85,9 @@ func _prepare_session(
 
 func _execute_request(request: CustomerPlanningRequest, session_reference: WeakRef) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
-	var session: Entity = session_reference.get_ref() as Entity if session_reference != null else null
+	var session: Entity = (
+		session_reference.get_ref() as Entity if session_reference != null else null
+	)
 
 	if session_reference != null and session == null:
 		request.rejection_reason = &"session_unavailable"
@@ -95,8 +104,10 @@ func _execute_request(request: CustomerPlanningRequest, session_reference: WeakR
 		var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
 		if (
 			session.get_component(C_CustomerFlow) != request.flow
-			or (request.kind == CustomerPlanningRequest.Kind.PLAN_DAY
-				and cycle.day_index != request.day_index)
+			or (
+				request.kind == CustomerPlanningRequest.Kind.PLAN_DAY
+				and cycle.day_index != request.day_index
+			)
 		):
 			request.rejection_reason = &"stale_context"
 			request.completed = true
@@ -106,11 +117,16 @@ func _execute_request(request: CustomerPlanningRequest, session_reference: WeakR
 		CustomerPlanningRequest.Kind.PLAN_DAY:
 			_plan_day(request.flow, request.day_index, request.payment)
 		CustomerPlanningRequest.Kind.RECONCILE_MORNING:
-			request.affected_visits = _reconcile_morning(request.flow, request.cycle, request.wallet)
+			request.affected_visits = _reconcile_morning(
+				request.flow,
+				request.cycle,
+				request.wallet,
+			)
 		CustomerPlanningRequest.Kind.REACTIVATE_FOLLOWUPS:
 			request.affected_visits = _reactivate(request.flow, request.day_index)
 	request.completed = true
 #endregion
+
 
 #region Day planning and reconciliation
 func _plan_day(flow: C_CustomerFlow, day: int, payment: int) -> void:
@@ -136,15 +152,8 @@ func _plan_day(flow: C_CustomerFlow, day: int, payment: int) -> void:
 				CustomerFlowService.create_visit(flow, definition, event, supply_day, payment)
 
 
-func _reconcile_morning(
-	flow: C_CustomerFlow,
-	cycle: C_DayCycle,
-	wallet: C_Wallet,
-) -> int:
-	if (
-		cycle.phase != C_DayCycle.Phase.MORNING
-		or cycle.day_index <= 1
-	):
+func _reconcile_morning(flow: C_CustomerFlow, cycle: C_DayCycle, wallet: C_Wallet) -> int:
+	if (cycle.phase != C_DayCycle.Phase.MORNING or cycle.day_index <= 1):
 		return 0
 
 	var ledger: C_PackageLedger = PackageQueries.ledger()
@@ -154,15 +163,15 @@ func _reconcile_morning(
 	var overdue_count: int = 0
 	for visit: CustomerVisit in flow.visits:
 		if (
-			not visit.requires_registered_package
-			or visit.arrival_day >= cycle.day_index
+			not visit.requires_registered_package or visit.arrival_day >= cycle.day_index
 			or visit.actual != CustomerVisit.Actual.NOT_RESOLVED
 			or visit.declaration != CustomerVisit.Declaration.NONE
 			or (visit.registration_overdue_day > 0 and visit.registration_penalty_committed)
 		):
 			continue
 		var record: PackageRegistrationRecord = PackageHistoryService.record_for(
-			visit.package_id, ledger
+			visit.package_id,
+			ledger,
 		)
 		if record == null or (record.active and record.number > 0):
 			continue
@@ -187,12 +196,9 @@ func _reactivate(flow: C_CustomerFlow, day: int) -> int:
 	var reactivated: int = 0
 	for visit: CustomerVisit in flow.visits:
 		if (
-			not visit.finished
-			or visit.next_followup_day <= 0
-			or visit.next_followup_day > day
-			or visit.declaration != CustomerVisit.Declaration.NONE
-			or visit.complaint != null
-			or visit.customer_dead
+			not visit.finished or visit.next_followup_day <= 0
+			or visit.next_followup_day > day or visit.declaration != CustomerVisit.Declaration.NONE
+			or visit.complaint != null or visit.customer_dead
 		):
 			continue
 		if visit.requires_registered_package and not CustomerFlowQueries.arrival_allowed(visit):
@@ -209,6 +215,7 @@ func _reactivate(flow: C_CustomerFlow, day: int) -> int:
 	return reactivated
 #endregion
 
+
 #region Dependent morning preparation
 func _on_district_prepared(_event: Variant, session: Entity, payload: Variant = null) -> void:
 	var fact: DistrictMorningPrepared = payload as DistrictMorningPrepared
@@ -220,7 +227,10 @@ func _prepare_offers(session_reference: WeakRef, fact: DistrictMorningPrepared) 
 	var session: Entity = session_reference.get_ref() as Entity
 	if not EntityAvailability.contains(session, _world):
 		return
-	if session.get_component(C_District) != fact.district or session.get_component(C_DayCycle) != fact.cycle:
+	if (
+		session.get_component(C_District) != fact.district
+		or session.get_component(C_DayCycle) != fact.cycle
+	):
 		return
 	if fact.cycle.day_index != fact.context_day or fact.cycle.phase != fact.context_phase:
 		return

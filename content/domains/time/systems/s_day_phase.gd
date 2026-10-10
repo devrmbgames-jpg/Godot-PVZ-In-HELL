@@ -63,16 +63,24 @@ func process(_entities: Array[Entity], components: Array, _delta: float) -> void
 
 #region Безопасная фиксация утренней команды
 func _commit_start_shift(
-	session_reference: WeakRef, cycle: C_DayCycle, request: DayTransitionRequest,
+	session_reference: WeakRef,
+	cycle: C_DayCycle,
+	request: DayTransitionRequest,
 ) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(session, _world) or session.get_component(C_DayCycle) != cycle:
+	if (
+		not EntityAvailability.contains(session, _world)
+		or session.get_component(C_DayCycle) != cycle
+	):
 		return
 	if cycle.day_index != request.expected_day or cycle.phase != request.expected_phase:
 		return
-	if not DayPhaseService.permits(cycle, request.kind) or not ReceivingShiftService.commit_departure(cycle):
+	if (
+		not DayPhaseService.permits(cycle, request.kind)
+		or not ReceivingShiftService.commit_departure(cycle)
+	):
 		return
 
 	cycle.shift_start_tick = cycle.clock.elapsed_ticks
@@ -80,6 +88,7 @@ func _commit_start_shift(
 	cycle.phase = C_DayCycle.Phase.DAY
 	_publish_phase(session, cycle)
 #endregion
+
 
 #region Committed phase notification
 func _publish_phase(session: Entity, cycle: C_DayCycle) -> void:

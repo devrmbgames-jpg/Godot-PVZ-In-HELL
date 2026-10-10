@@ -31,8 +31,8 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var entries: Array[DEF_DepletionSpawn] = effects.spawns.duplicate()
 	cmd.add_custom(_dispatch.bind(entries, health_depletion_effects))
 
-
 #endregion
+
 
 #region Создание игровых сцен и уведомление
 func _dispatch(
@@ -53,8 +53,11 @@ func _dispatch(
 			spatial.global_transform = health_depletion_effects.world_pose * entry.offset
 		var entity: Entity = spawned as Entity
 		if entity != null:
-			var context: EntitySpawnContext = EntityCompositionService.context_for(entity, _world,
-				entity.id if not entity.id.is_empty() else GECSIO.uuid())
+			var context: EntitySpawnContext = EntityCompositionService.context_for(
+				entity,
+				_world,
+				entity.id if not entity.id.is_empty() else GECSIO.uuid(),
+			)
 			if not EntityCompositionService.try_register(context, false):
 				spawned.free()
 				continue

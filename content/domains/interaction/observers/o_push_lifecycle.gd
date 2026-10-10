@@ -29,9 +29,13 @@ func each(event: Variant, entity: Entity, payload: Variant = null) -> void:
 
 #region Captured relationship retirement
 func _remove_captured_relationship(owner_reference: WeakRef, captured: Relationship) -> void:
-	# GECS pattern removal could otherwise match a replacement after the original binding disappeared.
+	# GECS pattern removal could otherwise match a replacement after the original binding
+	# disappeared.
 	var subject: Entity = owner_reference.get_ref() as Entity
-	if subject == null or not _world.entity_to_archetype.has(subject) or subject.is_queued_for_deletion():
+	if (
+		subject == null or not _world.entity_to_archetype.has(subject)
+		or subject.is_queued_for_deletion()
+	):
 		return
 	if subject.relationships.has(captured):
 		subject.remove_relationship(captured)

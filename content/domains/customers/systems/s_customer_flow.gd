@@ -2,10 +2,11 @@ extends System
 ## Owns the arrival clock and history reconciliation.
 class_name S_CustomerFlow
 
+
 #region Scheduling
 ## Arrivals commit before phase gates and navigation consume their state.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_District], Runs.Before: [S_DayPhase, S_NpcCadence, S_NpcIntent]}
+	return { Runs.After: [S_District], Runs.Before: [S_DayPhase, S_NpcCadence, S_NpcIntent] }
 
 
 ## Selects the authoritative visit/day session.
@@ -21,13 +22,20 @@ func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 		cmd.add_custom(_advance.bind(weakref(session), delta, captured_flow, captured_cycle))
 
 
-func _advance(session_reference: WeakRef, delta: float, captured_flow: C_CustomerFlow, captured_cycle: C_DayCycle) -> void:
+func _advance(
+	session_reference: WeakRef,
+	delta: float,
+	captured_flow: C_CustomerFlow,
+	captured_cycle: C_DayCycle,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(session, _world) \
-			or session.get_component(C_CustomerFlow) != captured_flow \
-			or session.get_component(C_DayCycle) != captured_cycle:
+	if (
+		not EntityAvailability.contains(session, _world)
+		or session.get_component(C_CustomerFlow) != captured_flow
+		or session.get_component(C_DayCycle) != captured_cycle
+	):
 		return
 
 	var flow: C_CustomerFlow = session.get_component(C_CustomerFlow) as C_CustomerFlow
@@ -46,6 +54,7 @@ func _advance(session_reference: WeakRef, delta: float, captured_flow: C_Custome
 	_sync_history(flow)
 
 #endregion
+
 
 #region Derived package identity
 func _sync_history(flow: C_CustomerFlow) -> void:

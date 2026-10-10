@@ -128,7 +128,7 @@ func _toxic_contract() -> void:
 func _follow_and_reset_contract() -> void:
 	var scene: PackedScene = _toxic_scene(
 		10.0,
-		DEF_Hazard.Ownership.FollowOrigin,
+		DEF_Hazard.Ownership.FOLLOW_ORIGIN,
 	)
 	var emitter: C_HazardEmitter = C_HazardEmitter.new()
 	emitter.hazard_scene = scene
@@ -149,8 +149,8 @@ func _follow_and_reset_contract() -> void:
 
 	scene = _toxic_scene(
 		10.0,
-		DEF_Hazard.Ownership.FollowOrigin,
-		DEF_Hazard.OwnerLoss.Despawn,
+		DEF_Hazard.Ownership.FOLLOW_ORIGIN,
+		DEF_Hazard.OwnerLoss.DESPAWN,
 	)
 	var owner: Entity = _body(Vector3(24, 0, 0), false)
 	assert(
@@ -164,8 +164,8 @@ func _follow_and_reset_contract() -> void:
 
 	scene = _toxic_scene(
 		10.0,
-		DEF_Hazard.Ownership.Independent,
-		DEF_Hazard.OwnerLoss.Detach,
+		DEF_Hazard.Ownership.INDEPENDENT,
+		DEF_Hazard.OwnerLoss.DETACH,
 		true,
 	)
 	assert(HazardSpawnService.submit(_request(scene, Vector3(26, 0, 0), "persistent")))
@@ -184,8 +184,8 @@ func _package_adapter_contract() -> void:
 	identity.definition.hazard_on_damaged = _toxic_scene(0.5)
 	identity.definition.hazard_on_destroyed = _toxic_scene(
 		10.0,
-		DEF_Hazard.Ownership.FollowOrigin,
-		DEF_Hazard.OwnerLoss.Despawn,
+		DEF_Hazard.Ownership.FOLLOW_ORIGIN,
+		DEF_Hazard.OwnerLoss.DESPAWN,
 	)
 
 	var destruction: C_PackageDestruction = C_PackageDestruction.new()
@@ -390,8 +390,8 @@ func _wall(location: Vector3) -> void:
 
 func _toxic_scene(
 	lifetime: float,
-	ownership: DEF_Hazard.Ownership = DEF_Hazard.Ownership.Independent,
-	owner_loss: DEF_Hazard.OwnerLoss = DEF_Hazard.OwnerLoss.Detach,
+	ownership: DEF_Hazard.Ownership = DEF_Hazard.Ownership.INDEPENDENT,
+	owner_loss: DEF_Hazard.OwnerLoss = DEF_Hazard.OwnerLoss.DETACH,
 	persistent: bool = false,
 ) -> PackedScene:
 	var definition: DEF_ToxicArea = DEF_ToxicArea.new()

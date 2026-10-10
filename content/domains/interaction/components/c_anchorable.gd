@@ -13,5 +13,6 @@ class_name C_Anchorable
 ## Локальное направление поиска опоры предмета; по умолчанию локальный низ.
 @export var support_direction_local: Vector3 = Vector3.DOWN
 
-## Накопленное время покоя в секундах: обновляется сервисом через S_AnchorStability и сбрасывается командами.
+## Накопленное время покоя в секундах: обновляется сервисом через S_AnchorStability и
+## сбрасывается командами.
 var stable_seconds: float = 0.0

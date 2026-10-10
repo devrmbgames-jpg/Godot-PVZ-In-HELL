@@ -3,12 +3,12 @@ extends GameDefinition
 class_name DEF_Hazard
 
 enum Ownership {
-	Independent,
-	FollowOrigin,
+	INDEPENDENT,
+	FOLLOW_ORIGIN,
 }
 enum OwnerLoss {
-	Detach,
-	Despawn,
+	DETACH,
+	DESPAWN,
 }
 
 ## Конечный срок жизни в секундах симуляции; persistent отменяет ночной сброс, а не TTL.
@@ -16,6 +16,6 @@ enum OwnerLoss {
 ## Сохраняет эффект при обычном ночном сбросе; собственный срок всё равно истекает.
 @export var persistent: bool = false
 ## Следование перемещает нефизический эффект, а не создавшее его физическое тело.
-@export var ownership: Ownership = Ownership.Independent
+@export var ownership: Ownership = Ownership.INDEPENDENT
 ## После потери владельца отсоединяет эффект либо удаляет его.
-@export var owner_loss: OwnerLoss = OwnerLoss.Detach
+@export var owner_loss: OwnerLoss = OwnerLoss.DETACH

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import json
 import os
 import re
 import shutil
@@ -24,12 +25,13 @@ LINT = re.compile(r"^.+?:(\d+):([a-z][a-z0-9-]*):(warning|error):\s*(.*)$", re.I
 LINE_LIMIT = 100
 FORMATTER_VERSION = "0.26.2"
 OWNED_ADDONS = ("addons/pvz_ai_tools/", "addons/project_entity_traits/")
+GENERATED_ROOTS = ("tests/artifacts/",)
 SOURCE_ROOTS = ("content", "tests", "utils", *(path.rstrip("/") for path in OWNED_ADDONS))
 
 
 def project_owned(path: str) -> bool:
     normalized = path.replace("\\", "/")
-    return normalized.endswith(".gd") and (
+    return normalized.endswith(".gd") and not normalized.startswith(GENERATED_ROOTS) and (
         not normalized.startswith("addons/") or normalized.startswith(OWNED_ADDONS)
     )
 
@@ -38,7 +40,8 @@ def project_files(root: Path) -> list[str]:
     """Scan only authored source roots; generated data and vendored addons stay excluded."""
     return sorted({path.relative_to(root).as_posix() for source in SOURCE_ROOTS
                    for path in (root / source).rglob("*.gd")
-                   if path.is_file() and path.resolve().is_relative_to(root)})
+                   if path.is_file() and path.resolve().is_relative_to(root)
+                   and project_owned(path.relative_to(root).as_posix())})
 
 
 def verify_formatter_version(binary: str) -> None:
@@ -47,6 +50,22 @@ def verify_formatter_version(binary: str) -> None:
     if result.returncode or result.stdout.strip() != f"gdscript-formatter {FORMATTER_VERSION}":
         raise RuntimeError(f"Expected gdscript-formatter {FORMATTER_VERSION}; got "
                            f"{(result.stdout + result.stderr).strip()[:160]}")
+
+
+def manifest_files(root: Path, task: str) -> list[str]:
+    """Reject missing, overlapping or stale Phase 3 ownership before selecting a batch."""
+    data = json.loads((root / "utils/gdscript_style_manifest.json").read_text(encoding="utf-8"))
+    tasks = data.get("tasks", {})
+    if data.get("schema_version") != 1 or set(tasks) != {str(n) for n in range(61, 66)}:
+        raise ValueError("Invalid style manifest schema/task set")
+    combined: list[str] = []
+    for paths in tasks.values():
+        if not isinstance(paths, list) or any(not isinstance(path, str) for path in paths):
+            raise ValueError("Invalid style manifest paths")
+        combined.extend(paths)
+    if len(combined) != len(set(combined)) or set(combined) != set(project_files(root)):
+        raise ValueError("Style manifest must own every project script exactly once")
+    return tasks[task]
 
 
 def run_git(root: Path, *args: str, allow_failure: bool = False) -> subprocess.CompletedProcess[bytes]:
@@ -184,19 +203,23 @@ def main(argv: list[str] | None = None) -> int:
     args_parser.add_argument("paths", nargs="*", help="GDScript paths (pre-commit supplies staged names)")
     args_parser.add_argument("--changed", action="store_true", help="check edited/untracked project files")
     args_parser.add_argument("--all", action="store_true", help="strict full-project authored GDScript check")
+    args_parser.add_argument("--task", choices=[str(n) for n in range(61, 66)],
+                             help="strict complete batch from the Phase 3 ownership manifest")
     args_parser.add_argument("--base", default="HEAD", help="commit baseline for changed/new lines")
     args_parser.add_argument("--strict", action="store_true", help="full-file formatting and lint")
     args_parser.add_argument("--root", type=Path, default=ROOT, help="testable project root")
     args = args_parser.parse_args(argv)
     root = args.root.resolve()
-    if not args.paths and not args.changed and not args.all:
-        args_parser.error("specify GDScript paths, --changed or --all")
-    if args.all and (args.paths or args.changed):
-        args_parser.error("--all cannot be combined with paths or --changed")
-    strict = args.strict or args.all
+    if not args.paths and not args.changed and not args.all and not args.task:
+        args_parser.error("specify GDScript paths, --changed, --all or --task")
+    if (args.all or args.task) and (args.paths or args.changed or (args.all and args.task)):
+        args_parser.error("--all/--task cannot be combined with another selection")
+    strict = args.strict or args.all or bool(args.task)
     try:
         origins = changed_origins(root, args.base) if args.changed or not strict else {}
         paths = set(project_files(root) if args.all else args.paths)
+        if args.task:
+            paths = set(manifest_files(root, args.task))
         if args.changed:
             paths.update(origins)
         normalized: set[str] = set()

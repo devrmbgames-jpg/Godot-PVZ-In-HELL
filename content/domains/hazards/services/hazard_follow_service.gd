@@ -57,7 +57,7 @@ static func _disabled_binding_removed(effect: Entity, relationship: Relationship
 		return
 
 	var data: R_HazardFollow = relationship.relation as R_HazardFollow
-	if data.on_loss == DEF_Hazard.OwnerLoss.Despawn and is_instance_valid(ECS.world):
+	if data.on_loss == DEF_Hazard.OwnerLoss.DESPAWN and is_instance_valid(ECS.world):
 		var lifetime: C_HazardLifetime = effect.get_component(C_HazardLifetime) as C_HazardLifetime
 		if lifetime != null:
 			lifetime.owner_loss_pending = true

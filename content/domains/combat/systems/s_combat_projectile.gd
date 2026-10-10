@@ -2,10 +2,11 @@ extends System
 ## Owns nonphysical projectile flight, full-step collision and terminal retirement.
 class_name S_CombatProjectile
 
+
 #region Scheduling
 ## Advances after a native attack may launch the projectile.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_NpcCombat]}
+	return { Runs.After: [S_NpcCombat] }
 
 
 ## Selects live launch state; the projectile factory fully initializes it synchronously.
@@ -16,22 +17,30 @@ func query() -> QueryBuilder:
 ## Captures exact flight state so queued work cannot move a replaced component.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for projectile: Entity in entities:
-		var captured: C_CombatProjectile = projectile.get_component(C_CombatProjectile) as C_CombatProjectile
+		var captured: C_CombatProjectile = (
+			projectile.get_component(C_CombatProjectile) as C_CombatProjectile
+		)
 		cmd.add_custom(_advance.bind(weakref(projectile), captured, delta))
 #endregion
+
 
 #region Flight and retirement
 func _advance(projectile_reference: WeakRef, captured: C_CombatProjectile, delta: float) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var projectile: Entity = projectile_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(projectile, _world) or projectile.get_component(C_CombatProjectile) != captured:
+	if (
+		not EntityAvailability.contains(projectile, _world)
+		or projectile.get_component(C_CombatProjectile) != captured
+	):
 		return
 	_step(projectile, delta)
 
 
 func _step(projectile: Entity, delta: float) -> void:
-	var state: C_CombatProjectile = projectile.get_component(C_CombatProjectile) as C_CombatProjectile
+	var state: C_CombatProjectile = (
+		projectile.get_component(C_CombatProjectile) as C_CombatProjectile
+	)
 	var node: Node3D = projectile as Node as Node3D
 	assert(node != null, "Flight state requires the factory's nonphysical Node3D projectile")
 
@@ -41,7 +50,12 @@ func _step(projectile: Entity, delta: float) -> void:
 	var exclude: Array[RID] = []
 	if actor != null:
 		exclude = CombatGeometry.exclusions(actor)
-	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(node.global_position, destination, state.collision_mask, exclude)
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+		node.global_position,
+		destination,
+		state.collision_mask,
+		exclude,
+	)
 	var hit: Dictionary = node.get_world_3d().direct_space_state.intersect_ray(query)
 	if not hit.is_empty():
 		var target: Entity = hit.get("collider") as Node as Entity

@@ -2,10 +2,12 @@ extends System
 ## Owns scheduled generic-body hold forces; E_GrabbableBody keeps its native physics callback.
 class_name S_Grab
 
+
 #region Scheduled generic physical holding
-## Targeting precedes the hold step; captured interaction commands follow the physical cleanup flush.
+## Targeting precedes the hold step; captured interaction commands follow the physical cleanup
+## flush.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_InteractionTargeting], Runs.Before: [S_InteractionInput]}
+	return { Runs.After: [S_InteractionTargeting], Runs.Before: [S_InteractionInput] }
 
 
 ## Physical holding depends on explicit grab/load contracts, independently of player input.
@@ -43,8 +45,8 @@ func _integrate_generic_bodies(holder: Entity, delta: float) -> void:
 		var profile: GrabControlProfile = grip_data.profile
 		var anchor: Node3D = GrabQueries.object_anchor(holder, held)
 		if (
-			not GrabQueries.holder_available(holder) or body.freeze or profile == null
-			or not is_instance_valid(anchor)
+			not GrabQueries.holder_available(holder) or body.freeze
+			or profile == null or not is_instance_valid(anchor)
 		):
 			cmd.add_custom(_release_invalid_grip.bind(weakref(holder), weakref(held), grip))
 			continue
@@ -71,7 +73,11 @@ func _integrate_generic_bodies(holder: Entity, delta: float) -> void:
 			cmd.add_custom(_release_invalid_grip.bind(weakref(holder), weakref(held), grip))
 
 
-func _release_invalid_grip(holder_reference: WeakRef, held_reference: WeakRef, grip: Relationship) -> void:
+func _release_invalid_grip(
+	holder_reference: WeakRef,
+	held_reference: WeakRef,
+	grip: Relationship,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var holder: Entity = holder_reference.get_ref() as Entity
 	var held: Entity = held_reference.get_ref() as Entity

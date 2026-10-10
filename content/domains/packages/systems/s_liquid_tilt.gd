@@ -11,7 +11,8 @@ func query() -> QueryBuilder:
 	)
 
 
-## Накапливает непрерывные секунды опасного наклона; безопасное положение или пустая коробка сбрасывает таймер.
+## Накапливает непрерывные секунды опасного наклона; безопасное положение или пустая коробка
+## сбрасывает таймер.
 func process(entities: Array[Entity], components: Array, delta: float) -> void:
 	var conditions: Array = components[0]
 	var tilts: Array = components[1]
@@ -39,17 +40,22 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		tilt.unsafe_seconds += delta
 		if tilt.unsafe_seconds >= tilt.duration_seconds:
 			tilt.triggered = true
-			cmd.add_custom(_commit_leak.bind(weakref(entities[index]), condition, tilt.damage_amount))
-
+			cmd.add_custom(
+				_commit_leak.bind(weakref(entities[index]), condition, tilt.damage_amount)
+			)
 
 #endregion
+
 
 #region Принятие протечки
 func _commit_leak(entity_reference: WeakRef, condition: C_PackageState, amount: float) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var entity: Entity = entity_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(entity, _world) or entity.get_component(C_PackageState) != condition or condition.leaking:
+	if (
+		not EntityAvailability.contains(entity, _world)
+		or entity.get_component(C_PackageState) != condition or condition.leaking
+	):
 		return
 	if PackageContentsService.is_empty(entity):
 		return

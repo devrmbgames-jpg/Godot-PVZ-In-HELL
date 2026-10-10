@@ -34,12 +34,19 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 
 
 #region Captured operation
-func _resolve(effect_reference: WeakRef, hazard: C_Hazard, explosion: C_Explosion, lifetime: C_HazardLifetime) -> void:
+func _resolve(
+	effect_reference: WeakRef,
+	hazard: C_Hazard,
+	explosion: C_Explosion,
+	lifetime: C_HazardLifetime,
+) -> void:
 	var effect: Entity = effect_reference.get_ref() as Entity
 	if not EntityAvailability.contains(effect, _world):
 		return
-	if effect.get_component(C_Hazard) != hazard or effect.get_component(C_Explosion) != explosion \
-			or effect.get_component(C_HazardLifetime) != lifetime:
+	if (
+		effect.get_component(C_Hazard) != hazard or effect.get_component(C_Explosion) != explosion
+		or effect.get_component(C_HazardLifetime) != lifetime
+	):
 		return
 
 	ExplosionResolver.resolve(effect, hazard, _world)

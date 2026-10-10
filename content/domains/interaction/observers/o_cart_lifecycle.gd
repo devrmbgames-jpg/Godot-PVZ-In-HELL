@@ -11,10 +11,9 @@ func setup() -> void:
 
 ## Подписывается на добавление и удаление R_CartCargo/R_CartDrivenBy.
 func query() -> QueryBuilder:
-	return (
-		q.on_relationship_added([R_CartCargo, R_CartDrivenBy])
-		.on_relationship_removed([R_CartCargo, R_CartDrivenBy])
-	)
+	return (q.on_relationship_added([R_CartCargo, R_CartDrivenBy]).on_relationship_removed(
+			[R_CartCargo, R_CartDrivenBy]
+		))
 
 
 ## Выбирает lifecycle-сервис связи; недопустимую новую связь откладывает к удалению.
@@ -47,9 +46,13 @@ func _entity_unavailable(entity: Entity) -> void:
 
 #region Captured relationship retirement
 func _remove_captured_relationship(owner_reference: WeakRef, captured: Relationship) -> void:
-	# GECS pattern removal could otherwise match a replacement after the original binding disappeared.
+	# GECS pattern removal could otherwise match a replacement after the original binding
+	# disappeared.
 	var subject: Entity = owner_reference.get_ref() as Entity
-	if subject == null or not _world.entity_to_archetype.has(subject) or subject.is_queued_for_deletion():
+	if (
+		subject == null or not _world.entity_to_archetype.has(subject)
+		or subject.is_queued_for_deletion()
+	):
 		return
 	if subject.relationships.has(captured):
 		subject.remove_relationship(captured)

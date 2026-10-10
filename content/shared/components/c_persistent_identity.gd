@@ -8,6 +8,7 @@ const SAVE_FIELDS: Array[String] = ["key"]
 ## Непустой устойчивый ключ экземпляра; не наследуется новым жителем.
 @export var key: String = ""
 
+
 #region Existing identity projection
 ## Читает actor key непосредственно из авторитетного поля этого Component.
 func actor_key() -> String:

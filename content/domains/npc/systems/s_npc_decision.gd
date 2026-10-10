@@ -34,8 +34,10 @@ func _advance(entity_reference: WeakRef, captured: C_NpcDecision, captured_gener
 
 	if not EntityAvailability.contains(entity, _world) or not entity.has_component(C_NpcIdentity):
 		return
-	if entity.get_component(C_NpcDecision) != captured \
-			or captured.lifecycle_generation != captured_generation:
+	if (
+		entity.get_component(C_NpcDecision) != captured
+		or captured.lifecycle_generation != captured_generation
+	):
 		return
 	var actor: E_DistrictNpc = entity as E_DistrictNpc
 	var identity: C_NpcIdentity = actor.get_component(C_NpcIdentity) as C_NpcIdentity
@@ -58,9 +60,11 @@ func _decide(actor: E_DistrictNpc, decision: C_NpcDecision) -> void:
 	# The exact committed sensor interval advances service clocks before the native leaf runs.
 	var captured_generation: int = decision.lifecycle_generation
 	_world.emit_event(NpcDecisionReady.EVENT, actor, NpcDecisionReady.new(decision.scheduled_delta))
-	if not EntityAvailability.contains(actor, _world) \
-			or actor.get_component(C_NpcDecision) != decision \
-			or decision.lifecycle_generation != captured_generation:
+	if (
+		not EntityAvailability.contains(actor, _world)
+		or actor.get_component(C_NpcDecision) != decision
+		or decision.lifecycle_generation != captured_generation
+	):
 		decision.scheduled_delta = 0.0
 		return
 

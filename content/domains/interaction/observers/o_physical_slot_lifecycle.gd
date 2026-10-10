@@ -12,7 +12,9 @@ func setup() -> void:
 
 ## Подписывается на R_StoredIn и удаление R_SlotMountedOn.
 func query() -> QueryBuilder:
-	return q.on_relationship_added([R_StoredIn]).on_relationship_removed([R_StoredIn, R_SlotMountedOn])
+	return q.on_relationship_added([R_StoredIn]).on_relationship_removed(
+		[R_StoredIn, R_SlotMountedOn]
+	)
 
 
 ## Применяет либо очищает крепление; недопустимую связь откладывает к удалению.
@@ -37,9 +39,13 @@ func _component_removed(entity: Entity, component: Component) -> void:
 
 #region Captured relationship retirement
 func _remove_captured_relationship(owner_reference: WeakRef, captured: Relationship) -> void:
-	# GECS pattern removal could otherwise match a replacement after the original binding disappeared.
+	# GECS pattern removal could otherwise match a replacement after the original binding
+	# disappeared.
 	var subject: Entity = owner_reference.get_ref() as Entity
-	if subject == null or not _world.entity_to_archetype.has(subject) or subject.is_queued_for_deletion():
+	if (
+		subject == null or not _world.entity_to_archetype.has(subject)
+		or subject.is_queued_for_deletion()
+	):
 		return
 	if subject.relationships.has(captured):
 		subject.remove_relationship(captured)

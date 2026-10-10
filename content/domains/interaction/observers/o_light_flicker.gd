@@ -18,5 +18,8 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 
 	var state: C_LightCircuit = entity.get_component(C_LightCircuit) as C_LightCircuit
-	if state != null and state.circuit_id == request.circuit_id and (state.enabled or request.kind == LightFlickerRequest.Kind.STOP):
+	if (
+		state != null and state.circuit_id == request.circuit_id
+		and (state.enabled or request.kind == LightFlickerRequest.Kind.STOP)
+	):
 		flickering_light.emit(request)

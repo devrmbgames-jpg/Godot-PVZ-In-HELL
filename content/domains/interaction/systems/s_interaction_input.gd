@@ -2,12 +2,21 @@ extends System
 ## Owns one interaction input step: capture priority, prolonged clock and explicit action dispatch.
 class_name S_InteractionInput
 
-const DROP_ORDER: Array[int] = [C_Grabbable.HoldSlot.CARRY, C_Grabbable.HoldSlot.LEFT_HAND, C_Grabbable.HoldSlot.RIGHT_HAND]
+const DROP_ORDER: Array[int] = [
+	C_Grabbable.HoldSlot.CARRY,
+	C_Grabbable.HoldSlot.LEFT_HAND,
+	C_Grabbable.HoldSlot.RIGHT_HAND,
+]
+
 
 #region Scheduled input ownership
-## Actor input/intent precedes targeting; physical proxy setup precedes commands; marker continuation follows.
+## Actor input/intent precedes targeting; physical proxy setup precedes commands; marker
+## continuation follows.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_PlayerIntent, S_InteractionTargeting, S_Grab, S_ProlongedDecay], Runs.Before: [S_Marker]}
+	return {
+		Runs.After: [S_PlayerIntent, S_InteractionTargeting, S_Grab, S_ProlongedDecay],
+		Runs.Before: [S_Marker],
+	}
 
 
 ## Selects explicit input/control contracts, including disabled owners that still need cleanup.
@@ -15,18 +24,32 @@ func query() -> QueryBuilder:
 	return q.with_all([C_Controller, C_Interactor, C_GrabControl])
 
 
-## Captures immutable input values and Component identity before the declared command-buffer boundary.
+## Captures immutable input values and Component identity before the declared command-buffer
+## boundary.
 func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 	for actor: Entity in entities:
 		var controller: C_Controller = actor.get_component(C_Controller) as C_Controller
 		var interactor: C_Interactor = actor.get_component(C_Interactor) as C_Interactor
 		var control: C_GrabControl = actor.get_component(C_GrabControl) as C_GrabControl
-		cmd.add_custom(_consume_input.bind(weakref(actor), controller, interactor, control, InteractionInputSnapshot.capture(controller), delta))
+		cmd.add_custom(
+			_consume_input.bind(
+				weakref(actor),
+				controller,
+				interactor,
+				control,
+				InteractionInputSnapshot.capture(controller),
+				delta,
+			)
+		)
 
 
 func _consume_input(
-	actor_reference: WeakRef, captured_controller: C_Controller, interactor: C_Interactor,
-	control: C_GrabControl, controller: C_Controller, delta: float,
+	actor_reference: WeakRef,
+	captured_controller: C_Controller,
+	interactor: C_Interactor,
+	control: C_GrabControl,
+	controller: C_Controller,
+	delta: float,
 ) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var actor: Entity = actor_reference.get_ref() as Entity
@@ -34,8 +57,14 @@ func _consume_input(
 	# Deferred actors may have left the World or replaced their loaded/controller state.
 	if not is_instance_valid(actor) or actor not in _world.entities or not actor.is_inside_tree():
 		return
-	if actor.get_component(C_Controller) != captured_controller or actor.get_component(C_Interactor) != interactor \
-			or actor.get_component(C_GrabControl) != control or captured_controller.input_tick != controller.input_tick:
+	if (
+		(
+			actor.get_component(C_Controller) != captured_controller
+			or actor.get_component(C_Interactor) != interactor
+		)
+		or actor.get_component(C_GrabControl) != control
+		or captured_controller.input_tick != controller.input_tick
+	):
 		return
 	if controller.input_tick > 0 and interactor.last_action_tick == controller.input_tick:
 		return
@@ -50,8 +79,7 @@ func _consume_input(
 		var interactable: C_Interactable = held.get_component(C_Interactable) as C_Interactable
 		if (
 			not GrabQueries.holder_available(actor) or not GrabQueries.entity_available(held)
-			or body == null or body.freeze
-			or (interactable != null and not interactable.enabled)
+			or body == null or body.freeze or (interactable != null and not interactable.enabled)
 		):
 			GrabReleaseService.release(actor, held, false)
 	if not GrabQueries.holder_available(actor):
@@ -62,8 +90,14 @@ func _consume_input(
 	_route_actions(actor, controller, control, delta)
 #endregion
 
+
 #region Capture priority and action arbitration
-func _route_actions(actor: Entity, controller: C_Controller, control: C_GrabControl, delta: float) -> void:
+func _route_actions(
+	actor: Entity,
+	controller: C_Controller,
+	control: C_GrabControl,
+	delta: float,
+) -> void:
 	control.rotation_active = false
 	if _advance_prolonged(actor, controller, delta):
 		_refresh_prompt(actor)
@@ -125,12 +159,13 @@ func _route_actions(actor: Entity, controller: C_Controller, control: C_GrabCont
 			)
 
 			if not primary_consumed and not secondary_consumed and controller.rotate_held:
-				var rotation: InteractionActionChoice = InteractionActionResolver.rotation_choice(actor)
+				var rotation: InteractionActionChoice = InteractionActionResolver.rotation_choice(
+					actor
+				)
 				if rotation != null:
 					rotation.action.execute(actor, rotation.source, rotation.target)
 
 	_refresh_prompt(actor)
-
 
 
 func _refresh_prompt(actor: Entity) -> void:
@@ -138,6 +173,7 @@ func _refresh_prompt(actor: Entity) -> void:
 	if EntityAvailability.contains(actor, _world) and actor.has_component(C_Interactor):
 		InteractionActionResolver.refresh_prompt(actor)
 #endregion
+
 
 #region Active prolonged interaction clock
 func _advance_prolonged(actor: Entity, controller: C_Controller, delta: float) -> bool:
@@ -156,7 +192,10 @@ func _advance_prolonged(actor: Entity, controller: C_Controller, delta: float) -
 
 	var target: Entity = binding.target as Entity
 	var source: Entity = ProlongedInteractionService.source_for(actor, target)
-	var progress: ProlongedInteractionProgress = ProlongedInteractionService.progress_for(target, data.action.action_id)
+	var progress: ProlongedInteractionProgress = ProlongedInteractionService.progress_for(
+		target,
+		data.action.action_id,
+	)
 	if (
 		progress == null or not GrabQueries.entity_available(target)
 		or not GrabQueries.entity_available(source)
@@ -165,7 +204,11 @@ func _advance_prolonged(actor: Entity, controller: C_Controller, delta: float) -
 		return true
 	# Повторный выбор исключает только свой токен; луч, сопоставление инструмента и другие захваты
 	# сохраняют авторитетность без временного освобождения и повторного захвата управления.
-	var choice: InteractionActionChoice = InteractionActionResolver.resolve(actor, data.input_slot, data.capture_token)
+	var choice: InteractionActionChoice = InteractionActionResolver.resolve(
+		actor,
+		data.input_slot,
+		data.capture_token,
+	)
 	if (
 		choice == null or choice.action != data.action or choice.source != source
 		or (choice.target if choice.target != null else choice.source) != target

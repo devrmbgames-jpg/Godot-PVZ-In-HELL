@@ -2,6 +2,7 @@ extends System
 ## Advances gameplay ticks; calendar transitions never synthesize elapsed night time.
 class_name S_GameTime
 
+
 #region Scheduled clock ownership
 ## Selects the session-owned clock aggregate without depending on gameplay consumers.
 func query() -> QueryBuilder:

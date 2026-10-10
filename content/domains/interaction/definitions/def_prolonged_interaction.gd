@@ -2,7 +2,12 @@ extends GameDefinition
 ## Авторские правила времени контекстного действия, отдельно от изменяемого прогресса.
 class_name DEF_ProlongedInteraction
 
-enum ResetPolicy { DECAY, INSTANT, ON_COMPLETE, NEVER }
+enum ResetPolicy {
+	DECAY,
+	INSTANT,
+	ON_COMPLETE,
+	NEVER,
+}
 
 ## Длительность полного выполнения, в секундах.
 @export_range(0.01, 60.0, 0.01, "or_greater") var duration_seconds: float = 6.0

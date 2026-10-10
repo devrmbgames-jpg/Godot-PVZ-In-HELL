@@ -14,9 +14,16 @@ func query() -> QueryBuilder:
 ## Публикует снимок только положительного фактического урона с адресом и категорией цели.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
-	if result == null or result.request == null or not is_instance_valid(entity) or result.request.target != entity or result.request.operation != DamageRequest.Operation.DAMAGE:
+	if (
+		result == null or result.request == null or not is_instance_valid(entity)
+		or result.request.target != entity
+		or result.request.operation != DamageRequest.Operation.DAMAGE
+	):
 		return
-	if result.outcome not in [DamageResult.Outcome.APPLIED, DamageResult.Outcome.HEALTH_DEPLETED] or not is_finite(result.applied_amount) or result.applied_amount <= 0.0:
+	if (
+		result.outcome not in [DamageResult.Outcome.APPLIED, DamageResult.Outcome.HEALTH_DEPLETED]
+		or not is_finite(result.applied_amount) or result.applied_amount <= 0.0
+	):
 		return
 
 	var feedback: DamageFeedback = DamageFeedback.new()
@@ -26,7 +33,9 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	feedback.position = result.world_pose.origin
 	feedback.depleted = result.outcome == DamageResult.Outcome.HEALTH_DEPLETED
 	var instigator: Entity = result.request.instigator
-	feedback.actor_is_player = is_instance_valid(instigator) and instigator.has_component(C_PlayerInputController)
+	feedback.actor_is_player = (
+		is_instance_valid(instigator) and instigator.has_component(C_PlayerInputController)
+	)
 	if entity.has_component(C_PlayerInputController):
 		feedback.audience = DamageFeedback.Audience.PLAYER
 	elif entity.has_component(C_Package):

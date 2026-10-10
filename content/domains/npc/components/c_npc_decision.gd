@@ -52,7 +52,8 @@ var active_behavior: String = ""
 ## Время ожидания недостижимой цели.
 var blocked_elapsed: float = 0.0
 
-## Transient interval captured by cadence, shared through sensing/traits/BT and cleared by route progression.
+## Transient interval captured by cadence, shared through sensing/traits/BT and cleared by route
+## progression.
 var scheduled_delta: float = 0.0
 ## Calendar day captured by the cadence owner; queued stages reject superseded steps.
 var scheduled_day: int = 0

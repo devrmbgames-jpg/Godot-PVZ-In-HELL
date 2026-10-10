@@ -7,11 +7,13 @@ const SAVE_FIELDS: Array[String] = ["placement", "pending", "committed_batches"]
 
 #region Постоянные и временные данные
 ## Авторские позиции и ограничение стоимости проверки.
-@export var placement: DEF_ItemPlacement = preload("res://content/shared/definitions/def_item_placement_default.tres")
+@export var placement: DEF_ItemPlacement = preload(
+	"res://content/shared/definitions/def_item_placement_default.tres"
+)
 ## Остаток фиксированных партий; удаление источника его не удаляет.
 var pending: Array[PendingLootDrop] = []
 ## Зафиксированные партии, включая полностью размещённые или употреблённые предметы.
-var committed_batches: Dictionary[String, bool] = {}
+var committed_batches: Dictionary[String, bool] = { }
 ## Временная пауза между повторами; после загрузки начинается заново.
 var retry_remaining: float = 0.0
 ## One deferred retry is outstanding for this aggregate; transient, never persisted.

@@ -2,6 +2,7 @@ extends Observer
 ## Клиентский владелец освобождает роль по синхронному запросу общего NPC AI.
 class_name O_CustomerNpcInterruption
 
+
 #region Граница необязательной роли
 ## Выбирает только текущую роль; NPC без неё сохраняет обычное поведение расписания.
 func query() -> QueryBuilder:

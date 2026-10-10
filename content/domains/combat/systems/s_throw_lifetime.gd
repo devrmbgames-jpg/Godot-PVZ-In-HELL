@@ -33,7 +33,10 @@ func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 #region Captured operation
 func _cancel_expired(source_reference: WeakRef, captured: Relationship) -> void:
 	var source: Entity = source_reference.get_ref() as Entity
-	if not EntityAvailability.contains(source, _world) or ThrowContext.relationship(source) != captured:
+	if (
+		not EntityAvailability.contains(source, _world)
+		or ThrowContext.relationship(source) != captured
+	):
 		return
 
 	ThrowContext.cancel(source)

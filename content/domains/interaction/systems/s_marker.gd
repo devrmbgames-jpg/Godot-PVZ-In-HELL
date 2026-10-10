@@ -1,11 +1,13 @@
 extends System
-## Owns captured marker continuation, pointer delta and ink sampling; lifecycle commands remain explicit.
+## Owns captured marker continuation, pointer delta and ink sampling; lifecycle commands remain
+## explicit.
 class_name S_Marker
+
 
 #region Scheduling and captured continuation
 ## Input capture/action transitions commit before marker continuation.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_InteractionInput]}
+	return { Runs.After: [S_InteractionInput] }
 
 
 ## Includes unavailable tools so stale active captures can be explicitly ended.
@@ -22,28 +24,58 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 
 		var grip: Relationship = GrabQueries.held_relationship(tool)
 		var actor: Entity = grip.target as Entity if grip != null else null
-		var controller: C_Controller = actor.get_component(C_Controller) as C_Controller if is_instance_valid(actor) else null
-		var snapshot: C_Controller = InteractionInputSnapshot.capture(controller) if controller != null else null
-		cmd.add_custom(_advance_marker.bind(weakref(tool), marker, marker.capture_token, grip, weakref(actor) if actor != null else null, controller, snapshot))
+		var controller: C_Controller = (
+			actor.get_component(C_Controller) as C_Controller
+			if is_instance_valid(actor)
+			else null
+		)
+		var snapshot: C_Controller = (
+			InteractionInputSnapshot.capture(controller) if controller != null else null
+		)
+		cmd.add_custom(
+			_advance_marker.bind(
+				weakref(tool),
+				marker,
+				marker.capture_token,
+				grip,
+				weakref(actor) if actor != null else null,
+				controller,
+				snapshot,
+			)
+		)
 
 
 func _advance_marker(
-	tool_reference: WeakRef, marker: C_Marker, token: int, grip: Relationship, actor_reference: WeakRef,
-	captured_controller: C_Controller, controller: C_Controller,
+	tool_reference: WeakRef,
+	marker: C_Marker,
+	token: int,
+	grip: Relationship,
+	actor_reference: WeakRef,
+	captured_controller: C_Controller,
+	controller: C_Controller,
 ) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var tool: Entity = tool_reference.get_ref() as Entity
 	var actor: Entity = actor_reference.get_ref() as Entity if actor_reference != null else null
 
 	# A queued draw step cannot continue a removed tool or a newer capture/held relationship.
-	if not is_instance_valid(tool) or tool not in _world.entities or tool.get_component(C_Marker) != marker:
+	if (
+		not is_instance_valid(tool) or tool not in _world.entities
+		or tool.get_component(C_Marker) != marker
+	):
 		return
 	if marker.capture_token != token or GrabQueries.held_relationship(tool) != grip:
 		return
 	if captured_controller != null:
-		if not is_instance_valid(actor) or actor.get_component(C_Controller) != captured_controller or captured_controller.input_tick != controller.input_tick:
+		if (
+			not is_instance_valid(actor) or actor.get_component(C_Controller) != captured_controller
+			or captured_controller.input_tick != controller.input_tick
+		):
 			return
-		if controller.input_tick > 0 and marker.last_input_tick == controller.input_tick and marker.last_processed_capture == token:
+		if (
+			controller.input_tick > 0 and marker.last_input_tick == controller.input_tick
+			and marker.last_processed_capture == token
+		):
 			return
 		marker.last_input_tick = controller.input_tick
 		marker.last_processed_capture = token
@@ -80,6 +112,7 @@ func _advance_marker(
 	PackageMarkService.append_sample(marker, hit.parcel, hit.world_point, hit.world_normal)
 
 #endregion
+
 
 #region Owner shutdown
 func _exit_tree() -> void:

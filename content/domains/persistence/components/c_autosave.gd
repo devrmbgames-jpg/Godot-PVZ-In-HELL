@@ -17,7 +17,7 @@ var last_error: Error = OK
 ## Пояснение восстановления для интерфейса, включая несовместимый формат.
 var startup_status: String = "Новое прохождение"
 ## Prepared value-only snapshot; retries never recapture live gameplay state.
-var prepared_snapshot: Dictionary = {}
+var prepared_snapshot: Dictionary = { }
 ## Sole transient preparation request for this Night.
 var preparation: DistrictMorningPreparationRequest = null
 ## Prevents duplicate queued steps for the same workflow.

@@ -324,7 +324,7 @@ func test_follow_restore_preserves_despawn_effect_until_owner_relationship_is_lo
 	var valve: E_InteractionTestValve = _valve()
 	var toxin: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var follow: R_HazardFollow = R_HazardFollow.new()
-	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
+	follow.on_loss = DEF_Hazard.OwnerLoss.DESPAWN
 	HazardFollowService.replace(toxin, valve, follow)
 	var saved: Dictionary = PersistentHazardState.capture(toxin, _root)
 	var entities: Dictionary[String, Entity] = {}
@@ -347,7 +347,10 @@ func test_disabled_follow_effect_honours_owner_loss_and_cannot_resume_damage() -
 	var despawned_id: String = despawned.id
 	for effect: Entity in [detached, despawned]:
 		var follow: R_HazardFollow = R_HazardFollow.new()
-		follow.on_loss = DEF_Hazard.OwnerLoss.Despawn if effect == despawned else DEF_Hazard.OwnerLoss.Detach
+		if effect == despawned:
+			follow.on_loss = DEF_Hazard.OwnerLoss.DESPAWN
+		else:
+			follow.on_loss = DEF_Hazard.OwnerLoss.DETACH
 		HazardFollowService.replace(effect, valve, follow)
 		_world.disable_entity(effect)
 	_world.remove_entity(valve)
@@ -365,7 +368,7 @@ func test_independent_restore_cancels_deferred_owner_loss_retirement() -> void:
 	var owner: E_InteractionTestValve = _valve()
 	var toxin: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var follow: R_HazardFollow = R_HazardFollow.new()
-	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
+	follow.on_loss = DEF_Hazard.OwnerLoss.DESPAWN
 	HazardFollowService.replace(toxin, owner, follow)
 	_world.disable_entity(toxin)
 	_world.remove_entity(owner)
@@ -389,7 +392,7 @@ func test_night_drains_disabled_owner_loss_before_persistent_snapshot_capture() 
 	var toxin: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var key: String = ActorIdentityRules.key_for(toxin, _root)
 	var follow: R_HazardFollow = R_HazardFollow.new()
-	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
+	follow.on_loss = DEF_Hazard.OwnerLoss.DESPAWN
 	HazardFollowService.replace(toxin, customer, follow)
 	_world.disable_entity(toxin)
 	NightResetService.reset()
@@ -466,7 +469,10 @@ func test_night_removes_temporary_hazards_and_applies_persistent_owner_loss() ->
 	var despawned: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	for entity: Entity in [detached, despawned]:
 		var follow: R_HazardFollow = R_HazardFollow.new()
-		follow.on_loss = DEF_Hazard.OwnerLoss.Despawn if entity == despawned else DEF_Hazard.OwnerLoss.Detach
+		if entity == despawned:
+			follow.on_loss = DEF_Hazard.OwnerLoss.DESPAWN
+		else:
+			follow.on_loss = DEF_Hazard.OwnerLoss.DETACH
 		HazardFollowService.replace(entity, valve, follow)
 	_world.remove_entity(valve)
 	NightResetService.reset()
@@ -556,7 +562,7 @@ func test_hazard_follow_manual_flush_preserves_rebound_effect() -> void:
 	var replacement_owner: Entity = _valve()
 	var effect: Entity = _hazard("res://content/domains/hazards/entities/toxic_area.tscn", true)
 	var follow: R_HazardFollow = R_HazardFollow.new()
-	follow.on_loss = DEF_Hazard.OwnerLoss.Despawn
+	follow.on_loss = DEF_Hazard.OwnerLoss.DESPAWN
 	HazardFollowService.replace(effect, original_owner, follow)
 	_world.disable_entity(original_owner)
 	var owner: S_HazardFollow = S_HazardFollow.new()

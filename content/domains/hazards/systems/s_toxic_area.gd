@@ -39,11 +39,19 @@ func process(entities: Array[Entity], components: Array, delta: float) -> void:
 		cmd.add_custom(_apply_tick.bind(weakref(effect), hazard, profile, ticks))
 
 
-func _apply_tick(effect_reference: WeakRef, hazard: C_Hazard, profile: DEF_ToxicArea, ticks: int) -> void:
+func _apply_tick(
+	effect_reference: WeakRef,
+	hazard: C_Hazard,
+	profile: DEF_ToxicArea,
+	ticks: int,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var effect: E_ToxicArea = effect_reference.get_ref() as E_ToxicArea
 
-	if not EntityAvailability.contains(effect, _world) or effect.get_component(C_Hazard) != hazard or hazard.definition != profile:
+	if (
+		not EntityAvailability.contains(effect, _world)
+		or effect.get_component(C_Hazard) != hazard or hazard.definition != profile
+	):
 		return
 
 	var seen: Dictionary[int, bool] = { }

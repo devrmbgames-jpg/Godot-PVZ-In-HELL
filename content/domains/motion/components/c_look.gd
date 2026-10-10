@@ -13,13 +13,11 @@ class_name C_Look
 
 ## На сколько градусов голова может повернуться относительно тела,
 ## прежде чем начнет разворачиваться само тело.
-@export_range(0.0, 180.0, 1.0)
-var head_yaw_limit: float = 60.0
+@export_range(0.0, 180.0, 1.0) var head_yaw_limit: float = 60.0
 
 
 ## Скорость разворота тела в сторону движения, градусов в секунду.
 @export var motion_alignment_acceleration: float = 180.0
 
 ## Предельное отклонение корпуса при движении вбок, в градусах.
-@export_range(0.0, 90.0, 1.0)
-var strafe_body_yaw_limit: float = 25.0
+@export_range(0.0, 90.0, 1.0) var strafe_body_yaw_limit: float = 25.0

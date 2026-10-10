@@ -2,11 +2,14 @@ extends Observer
 ## Создаёт опасность разрушения на реально созданных авторских обломках коробки.
 class_name O_PackageDestroyedHazard
 
+
 ## Подписывается на завершённое создание обломков.
 func query() -> QueryBuilder:
 	return q.on_event(PackageDebrisSpawnedEvent.EVENT)
 
-## Создаёт опасность на живых обломках; уже извлечённое содержимое исключает повтор эффекта оболочки.
+
+## Создаёт опасность на живых обломках; уже извлечённое содержимое исключает повтор эффекта
+## оболочки.
 func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 	var event: PackageDebrisSpawnedEvent = payload as PackageDebrisSpawnedEvent
 	if event == null or event.definition == null:
@@ -24,7 +27,10 @@ func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 		actor_id = event.cause.request.instigator_id
 		actor = event.cause.request.instigator
 		if not is_instance_valid(actor):
-			actor = event.cause.request.source if is_instance_valid(event.cause.request.source) else null
+			if is_instance_valid(event.cause.request.source):
+				actor = event.cause.request.source
+			else:
+				actor = null
 
 	var scene: PackedScene = event.definition.hazard_on_destroyed
 	var scene_key: String = (

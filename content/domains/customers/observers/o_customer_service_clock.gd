@@ -2,6 +2,7 @@ extends Observer
 ## Advances district service clocks exactly once per committed perception step before BT.
 class_name O_CustomerServiceClock
 
+
 #region Due-step reaction
 ## Selects only retained NPC bodies currently participating in a customer role.
 func query() -> QueryBuilder:
@@ -16,7 +17,15 @@ func each(_event: Variant, body: Entity, payload: Variant = null) -> void:
 	agent.elapsed += step.delta_seconds
 
 	var station: E_DeliveryCounter = CustomerFlowQueries.counter()
-	if station == null or agent.phase not in [C_CustomerAgent.Phase.QUEUED, C_CustomerAgent.Phase.WAITING_FOR_DARKNESS, C_CustomerAgent.Phase.APPROACHING]:
+	if (
+		station == null
+		or agent.phase
+		not in [
+			C_CustomerAgent.Phase.QUEUED,
+			C_CustomerAgent.Phase.WAITING_FOR_DARKNESS,
+			C_CustomerAgent.Phase.APPROACHING,
+		]
+	):
 		return
 	var offset: Vector3 = (body as Node as Node3D).global_position - station.entry_position()
 	offset.y = 0.0

@@ -3,7 +3,13 @@ extends Component
 class_name C_DayCycle
 
 ## Domain-owned durable field contract consumed by the closed persistence codec.
-const SAVE_FIELDS: Array[String] = ["phase", "day_index", "clock", "shift_start_tick", "shift_end_tick"]
+const SAVE_FIELDS: Array[String] = [
+	"phase",
+	"day_index",
+	"clock",
+	"shift_start_tick",
+	"shift_end_tick",
+]
 
 enum Phase {
 	MORNING,

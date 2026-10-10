@@ -2,6 +2,7 @@ extends System
 ## Owns stable_seconds progression; anchor/unfix remain explicit physical transactions.
 class_name S_AnchorStability
 
+
 #region Scheduled rest accumulation
 ## Selects enabled authored anchor targets.
 func query() -> QueryBuilder:
@@ -35,6 +36,5 @@ func _accumulate_rest(target: Entity, config: C_Anchorable, delta: float) -> voi
 		return
 
 	config.stable_seconds += delta
-
 
 #endregion

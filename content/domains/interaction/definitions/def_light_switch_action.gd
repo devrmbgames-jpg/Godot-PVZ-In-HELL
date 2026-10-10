@@ -5,14 +5,14 @@ class_name DEF_LightSwitchAction
 
 ## Проверяет доступность участника, выключателя и световой цепи.
 func is_available(actor: Entity, source: Entity, _target: Entity) -> bool:
-	if not GrabQueries.holder_available(actor) or not EntityAvailability.contains(source, ECS.world):
+	if (
+		not GrabQueries.holder_available(actor)
+		or not EntityAvailability.contains(source, ECS.world)
+	):
 		return false
 
 	var interactable: C_Interactable = source.get_component(C_Interactable) as C_Interactable
-	return (
-		source.has_component(C_LightCircuit)
-		and (interactable == null or interactable.enabled)
-	)
+	return (source.has_component(C_LightCircuit) and (interactable == null or interactable.enabled))
 
 
 ## Повторно проверяет доступность и переключает цепь.

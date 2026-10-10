@@ -1,8 +1,8 @@
 # Refactoring v2.61 — Code Style: ECS core
 
-Status: **PLANNED**
+Status: **IN_PROGRESS**
 
-Зависимости: 60_style_tooling.md.
+Зависимости: [60_style_tooling.md](../completed/refactoring_v2/60_style_tooling.md).
 
 ## Goal
 
@@ -40,3 +40,32 @@ Behavior diff отсутствует.
 ## Validation
 
 Formatter/linter full scope + Godot parser для затронутых scripts. Профильные tests только если ручная правка могла изменить semantics.
+
+## Current
+
+Task60 independently reviewed PASS at `515f54b95ff0ee3ea8cf1fdb087efbdfd1ed58a7`.
+Explicit disjoint ownership: [script manifest](../../utils/gdscript_style_manifest.json),
+980 authored scripts: task61=309,62=163,63=106,64=72,65=330. Generated
+`tests/artifacts` (ignored by Git and Godot) are excluded. The `--task` gate rejects
+missing, duplicate and stale entries before checking the whole assigned scope.
+The whole ECS role scope passes pinned0.26.2 full formatter/linter and100 columns.
+Typed expression stages preserve query construction/execution order; GECS getter provides
+a fresh builder per access. Regions delimit methods, deferred lifetime guards stay intact.
+Hazard enum members use CONSTANT_CASE; numeric values0/1 and authored/save contracts
+remain unchanged. All authored callers migrated; their final full style acceptance remains
+with their manifest owner. No scenes/resources or third-party addons were rewritten.
+
+## Validation
+
+- PASS full `--task61`:309 scripts; changed-line gate and actual CLI parser.
+- PASS native MCP path-bound compilation:309/309, checked, error_code0, no diagnostics.
+  Anonymous MCP script writer can return spurious error43 for existing global classes;
+  companion tool compiles real resource paths, captures diagnostics and creates no actors.
+- PASS GUT18 suites:248/248 tests,2600 assertions,28.241s; stderr empty.
+  Logs: `.artifacts/godot_agent/ecs61_gut.{stdout,stderr}.log`.
+- PASS focused companion after JSON protocol repair:7/7 tests,17 assertions.
+- PASS tooling141/141, strict architecture/domain/dependency, structure/change gates.
+- Source defaults, ordering and physical authority preserved; no rendered QA performed.
+
+Review: REVIEW_PENDING immutable implementation checkpoint. Next: collect/triage review,
+archive61 after acceptance, then62. Tasks62–66 remain required.

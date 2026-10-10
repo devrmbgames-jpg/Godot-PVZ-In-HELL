@@ -25,7 +25,10 @@ func each(_event: Variant, _entity: Entity, payload: Variant = null) -> void:
 func _retire(effect_reference: WeakRef, lifetime: C_HazardLifetime) -> void:
 	# Disabled registered hazards also participate in the explicit reset operation.
 	var effect: Entity = effect_reference.get_ref() as Entity
-	if effect == null or not _world.entity_to_archetype.has(effect) or effect.is_queued_for_deletion():
+	if (
+		effect == null or not _world.entity_to_archetype.has(effect)
+		or effect.is_queued_for_deletion()
+	):
 		return
 	if effect.get_component(C_HazardLifetime) != lifetime:
 		return

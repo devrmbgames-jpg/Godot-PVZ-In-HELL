@@ -7,10 +7,11 @@ const MIN_WALKING_SPEED: float = 0.2
 ## Existing physical speed threshold selecting the authored running-noise radius.
 const RUNNING_SPEED: float = 3.0
 
+
 #region Scheduling
 ## All footstep noise is visible before the due sensor batch.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_NpcCadence], Runs.Before: [S_NpcPerception]}
+	return { Runs.After: [S_NpcCadence], Runs.Before: [S_NpcPerception] }
 
 
 ## Selects the district/calendar controlling both footstep cadence variants.
@@ -26,14 +27,22 @@ func process(entities: Array[Entity], _components: Array, delta: float) -> void:
 		cmd.add_custom(_sample.bind(weakref(session), delta, captured_district, captured_cycle))
 #endregion
 
+
 #region Footstep clocks
-func _sample(session_reference: WeakRef, delta: float, captured_district: C_District, captured_cycle: C_DayCycle) -> void:
+func _sample(
+	session_reference: WeakRef,
+	delta: float,
+	captured_district: C_District,
+	captured_cycle: C_DayCycle,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(session, _world) \
-			or session.get_component(C_District) != captured_district \
-			or session.get_component(C_DayCycle) != captured_cycle:
+	if (
+		not EntityAvailability.contains(session, _world)
+		or session.get_component(C_District) != captured_district
+		or session.get_component(C_DayCycle) != captured_cycle
+	):
 		return
 
 	var cycle: C_DayCycle = session.get_component(C_DayCycle) as C_DayCycle
@@ -42,7 +51,10 @@ func _sample(session_reference: WeakRef, delta: float, captured_district: C_Dist
 	var player: Entity = _world.query.with_all([C_PlayerInputController]).execute_one()
 	if player != null:
 		_advance_footsteps(player, delta)
-	for entity: Entity in _world.query.with_all([C_NpcIdentity, C_NpcDecision, C_NpcAwareness]).enabled().execute():
+	var step_candidates: QueryBuilder = (
+		_world.query.with_all([C_NpcIdentity, C_NpcDecision, C_NpcAwareness])
+	)
+	for entity: Entity in step_candidates.enabled().execute():
 		var identity: C_NpcIdentity = entity.get_component(C_NpcIdentity) as C_NpcIdentity
 		var person: NpcRecord = NpcPopulationQueries.person_for(identity.npc_id)
 		var decision: C_NpcDecision = entity.get_component(C_NpcDecision) as C_NpcDecision
@@ -61,7 +73,11 @@ func _advance_footsteps(actor: Entity, delta: float) -> void:
 
 	var district: C_District = NpcPopulationQueries.current()
 	var awareness: C_NpcAwareness = actor.get_component(C_NpcAwareness) as C_NpcAwareness
-	var elapsed: float = awareness.footstep_elapsed + delta if awareness != null else district.player_step_elapsed + delta
+	var elapsed: float = (
+		awareness.footstep_elapsed + delta
+		if awareness != null
+		else district.player_step_elapsed + delta
+	)
 	if elapsed < district.definition.footstep_interval:
 		if awareness != null:
 			awareness.footstep_elapsed = elapsed
@@ -74,8 +90,17 @@ func _advance_footsteps(actor: Entity, delta: float) -> void:
 		district.player_step_elapsed = 0.0
 
 	var crouch: C_Crouch = actor.get_component(C_Crouch) as C_Crouch
-	var radius: float = district.definition.running_noise_radius if speed > RUNNING_SPEED else district.definition.walking_noise_radius
+	var radius: float = (
+		district.definition.running_noise_radius
+		if speed > RUNNING_SPEED
+		else district.definition.walking_noise_radius
+	)
 	if crouch != null and crouch.active:
 		radius *= district.definition.crouching_noise_fraction
-	NpcPerceptionService.emit_noise(actor, body.global_position + Vector3.UP * NpcPerceptionService.TORSO_HEIGHT, radius, actor.has_component(C_PlayerInputController))
+	NpcPerceptionService.emit_noise(
+		actor,
+		body.global_position + Vector3.UP * NpcPerceptionService.TORSO_HEIGHT,
+		radius,
+		actor.has_component(C_PlayerInputController),
+	)
 #endregion

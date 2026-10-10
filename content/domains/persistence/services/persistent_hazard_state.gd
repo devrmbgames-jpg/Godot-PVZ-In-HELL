@@ -27,7 +27,16 @@ static func valid(data: Dictionary, records: Dictionary[String, Dictionary]) -> 
 			return false
 
 		var follow: Dictionary = data.follow as Dictionary
-		if not follow.get("target") is String or not records.has(String(follow.target)) or not follow.get("offset") is Transform3D or not (follow.offset as Transform3D).is_finite() or follow.get("on_loss") not in [DEF_Hazard.OwnerLoss.Detach, DEF_Hazard.OwnerLoss.Despawn]:
+		if (
+			not follow.get("target") is String
+			or not records.has(String(follow.target))
+			or not follow.get("offset") is Transform3D
+			or not (follow.offset as Transform3D).is_finite()
+			or follow.get("on_loss") not in [
+				DEF_Hazard.OwnerLoss.DETACH,
+				DEF_Hazard.OwnerLoss.DESPAWN,
+			]
+		):
 			return false
 	return true
 
@@ -73,7 +82,7 @@ static func reset_missing_owners() -> void:
 			continue
 
 		var follow: R_HazardFollow = binding.relation as R_HazardFollow
-		if follow.on_loss == DEF_Hazard.OwnerLoss.Despawn:
+		if follow.on_loss == DEF_Hazard.OwnerLoss.DESPAWN:
 			HazardLifecycle.retire(entity, ECS.world)
 		else:
 			entity.remove_relationship(binding)

@@ -3,8 +3,16 @@ extends Component
 class_name C_NpcCombat
 
 const MAX_VARIANTS: int = 3
-enum Kind { MELEE, RANGED }
-enum Phase { READY, WINDUP, ACTIVE, RECOVERY }
+enum Kind {
+	MELEE,
+	RANGED,
+}
+enum Phase {
+	READY,
+	WINDUP,
+	ACTIVE,
+	RECOVERY,
+}
 
 ## Авторский ближний набор; используются не более MAX_VARIANTS первых элементов.
 @export var melee_attacks: Array[DEF_NpcAttack] = []

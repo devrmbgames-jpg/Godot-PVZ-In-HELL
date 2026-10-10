@@ -8,6 +8,7 @@ const SAVE_FIELDS: Array[String] = ["npc_id"]
 ## Постоянный ID личности района.
 @export var npc_id: StringName = &""
 
+
 #region Existing identity projection
 ## Читает диагностический ID непосредственно из авторитетного поля этого Component.
 func trace_key() -> String:

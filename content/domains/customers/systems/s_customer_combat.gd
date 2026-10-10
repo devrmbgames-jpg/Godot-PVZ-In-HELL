@@ -7,10 +7,11 @@ const RANGE_MIDPOINT_FRACTION: float = 0.5
 ## Existing fallback when no usable authored attack variant exists.
 const DEFAULT_STOP_DISTANCE: float = 1.0
 
+
 #region Scheduling
 ## Reconciles after customer/challenge commits and before common attack/intent execution.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_CustomerFlow, S_ChallengeRuntime], Runs.Before: [S_NpcCombat]}
+	return { Runs.After: [S_CustomerFlow, S_ChallengeRuntime], Runs.Before: [S_NpcCombat] }
 
 
 ## Retained district personalities remain exclusively under their native decision tree.
@@ -25,12 +26,16 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 		cmd.add_custom(_advance.bind(weakref(customer), captured))
 #endregion
 
+
 #region Isolated escalation
 func _advance(entity_reference: WeakRef, captured: C_CustomerAgent) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var entity: Entity = entity_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(entity, _world) or entity.get_component(C_CustomerAgent) != captured:
+	if (
+		not EntityAvailability.contains(entity, _world)
+		or entity.get_component(C_CustomerAgent) != captured
+	):
 		return
 	_reconcile(entity as E_NpcCharacter)
 
@@ -64,7 +69,10 @@ func _reconcile(customer: E_NpcCharacter) -> void:
 		return
 	if CombatQueries.target_for(customer) == player:
 		return
-	if visit.declaration == CustomerVisit.Declaration.TAKEN and visit.actual != CustomerVisit.Actual.DELIVERED:
+	if (
+		visit.declaration == CustomerVisit.Declaration.TAKEN
+		and visit.actual != CustomerVisit.Actual.DELIVERED
+	):
 		state.aggression_reason = CombatContext.Reason.FRAUD_ESCALATION
 	if CombatService.bind_target(customer, player):
 		ChallengeService.cancel(customer)

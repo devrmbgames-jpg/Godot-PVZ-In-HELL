@@ -152,6 +152,7 @@ func _register_tools() -> void:
 		_editor_ownership_spec(),
 		_editor_traits_signal_spec(),
 		_gdscript_style_spec(),
+		_style_script_validation_spec(),
 	]
 
 	_registered = _registry.batch_register(specs)
@@ -239,6 +240,31 @@ func _gdscript_style_spec() -> McpCustomToolSpec:
 	spec.source = "PVZ Godot AI Tools"
 	spec.requires_writable = true
 	spec.undoable = false
+	return spec
+
+
+## Compile fixed manifest batches with real resource paths; never instantiate gameplay.
+func _style_script_validation_spec() -> McpCustomToolSpec:
+	var spec: McpCustomToolSpec = McpCustomToolSpec.new()
+	spec.name = "pvz_gdscript_batch_diagnostics"
+	spec.description = "Compile a bounded style manifest batch using native script resource paths."
+	spec.params_schema = {
+		"type": "object",
+		"properties": {
+			"task": {"type": "string", "enum": ["61", "62", "63", "64", "65"]},
+			"offset": {"type": "integer", "minimum": 0, "default": 0},
+			"limit": {"type": "integer", "minimum": 1, "maximum": 25, "default": 25},
+		},
+		"required": ["task"],
+		"additionalProperties": false,
+	}
+	spec.script_path = "res://addons/pvz_ai_tools/style_script_validation_tool.gd"
+	spec.method = &"inspect"
+	spec.source_path = SOURCE_CFG
+	spec.source = "PVZ Godot AI Tools"
+	spec.requires_writable = true
+	spec.undoable = false
+	spec.timeout_ms = 15000
 	return spec
 
 

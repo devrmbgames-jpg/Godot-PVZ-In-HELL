@@ -35,9 +35,11 @@ func _select_due(
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(session, _world) \
-			or session.get_component(C_District) != captured_district \
-			or session.get_component(C_DayCycle) != captured_cycle:
+	if (
+		not EntityAvailability.contains(session, _world)
+		or session.get_component(C_District) != captured_district
+		or session.get_component(C_DayCycle) != captured_cycle
+	):
 		return
 
 	var district: C_District = session.get_component(C_District) as C_District
@@ -65,9 +67,8 @@ func _select_due(
 		)
 		decision.scheduled_delta = 0.0
 		if (
-			cycle.phase == C_DayCycle.Phase.NIGHT or person.death_day != 0 \
-					or person.placement != NpcRecord.Placement.STREET
-			or not actor.enabled
+			cycle.phase == C_DayCycle.Phase.NIGHT or person.death_day != 0
+			or person.placement != NpcRecord.Placement.STREET or not actor.enabled
 		):
 			decision.due_since_tick = -1
 			continue
@@ -120,8 +121,9 @@ func _select_due(
 		)
 		decision.scheduled_day = cycle.day_index
 		decision.scheduled_phase = int(cycle.phase)
-		var selected_reason: StringName = decision.wake_reason if decision.wake_requested \
-				else &"cadence_due"
+		var selected_reason: StringName = (
+			decision.wake_reason if decision.wake_requested else &"cadence_due"
+		)
 		decision.selection_reason = selected_reason
 		decision.obligation_source = "%s/day=%d/phase=%d" % [
 			person.profile.schedule.resource_path,

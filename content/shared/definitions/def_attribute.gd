@@ -3,7 +3,6 @@ extends GameDefinition
 ## Авторские ключи уведомлений общего атрибута.
 class_name DEF_Attribute
 
-
 ## Имя property_changed при записи base.
 @export var key_base: StringName = &"base"
 ## Имя property_changed при записи вычисленного value.

@@ -77,7 +77,9 @@ func _enqueue(contact: PhysicsContact) -> void:
 		_pending[key] = contact
 	else:
 		if contact.normal_speed >= existing.normal_speed:
-			existing.normal_on_a = contact.normal_on_a if contact.body_a == existing.body_a else -contact.normal_on_a
+			existing.normal_on_a = (
+				contact.normal_on_a if contact.body_a == existing.body_a else -contact.normal_on_a
+			)
 		existing.normal_speed = maxf(existing.normal_speed, contact.normal_speed)
 		existing.normal_impulse = maxf(existing.normal_impulse, contact.normal_impulse)
 #endregion
@@ -175,11 +177,7 @@ func _resolve_direction(
 		return
 
 	# Тяжесть описывает потенциальный удар; ограничивается только потеря HP.
-	result.amount = ImpactCalculation.cap_damage(
-		result.amount,
-		health.value,
-		receiver.profile,
-	)
+	result.amount = ImpactCalculation.cap_damage(result.amount, health.value, receiver.profile)
 	if result.amount <= 0.0:
 		_world.emit_event(ImpactResult.EVENT, target, result)
 		return

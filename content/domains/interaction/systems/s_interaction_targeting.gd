@@ -20,4 +20,7 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 			continue
 
 		interactor.target = InteractionTargetingGeometry.find_target(holder, interactor)
-		interactor.physics_target = InteractionTargetingGeometry.find_physics_target(holder, interactor)
+		interactor.physics_target = InteractionTargetingGeometry.find_physics_target(
+			holder,
+			interactor,
+		)

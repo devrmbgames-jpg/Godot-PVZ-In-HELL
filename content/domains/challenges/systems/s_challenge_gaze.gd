@@ -5,7 +5,7 @@ class_name S_ChallengeGaze
 
 ## Измеряет взгляд после обслуживания и до общего итога.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.After: [S_CustomerFlow], Runs.Before: [S_ChallengeRuntime]}
+	return { Runs.After: [S_CustomerFlow], Runs.Before: [S_ChallengeRuntime] }
 
 
 ## Выбирает испытания с производным измерением взгляда.
@@ -20,18 +20,30 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	for index: int in entities.size():
 		var state: C_Challenge = states[index] as C_Challenge
 		var observation: C_GazeChallenge = observations[index] as C_GazeChallenge
-		var rule: DEF_GazeChallengeCondition = state.definition.condition as DEF_GazeChallengeCondition if state.definition != null else null
+		var rule: DEF_GazeChallengeCondition = null
+		if state.definition != null:
+			rule = state.definition.condition as DEF_GazeChallengeCondition
 		if state.phase != C_Challenge.Phase.ACTIVE or rule == null:
 			GazeTrackingGeometry.clear(observation)
 			observation.warning_active = false
 			continue
 
-		GazeTrackingGeometry.sample(ChallengeService.actor_for(entities[index]), entities[index], rule, observation)
-		state.condition_result = ChallengeResult.Type.SUCCESS if observation.sample_valid and observation.attention == rule.required_attention else ChallengeResult.Type.NONE
+		GazeTrackingGeometry.sample(
+			ChallengeService.actor_for(entities[index]),
+			entities[index],
+			rule,
+			observation,
+		)
+		state.condition_result = (
+			ChallengeResult.Type.SUCCESS
+			if (observation.sample_valid and observation.attention == rule.required_attention)
+			else ChallengeResult.Type.NONE
+		)
 		var warning: bool = (
 			state.condition_result != ChallengeResult.Type.SUCCESS
 			and state.elapsed >= state.definition.preparation_seconds
-			and state.violation_elapsed >= state.definition.violation_grace_seconds * rule.warning_fraction
+			and state.violation_elapsed
+			>= state.definition.violation_grace_seconds * rule.warning_fraction
 		)
 		if warning != observation.warning_active:
 			observation.warning_active = warning

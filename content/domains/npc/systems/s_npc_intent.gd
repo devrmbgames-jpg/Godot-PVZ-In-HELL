@@ -8,10 +8,13 @@ const WAITING_AVOIDANCE_PRIORITY: float = 1.0
 const MINIMUM_NAVIGATION_SPEED: float = 0.001
 const MAX_PASSING_NAV_DISTANCE: float = 0.2
 
+
 #region Выбор и подготовка намерений
 ## Выбирает участвующих NPC с Controller, исключая управление вводом игрока.
 func query() -> QueryBuilder:
-	return q.with_all([C_NpcIntent, C_Controller]).with_none([C_PlayerInputController]).enabled().iterate([C_NpcIntent, C_Controller])
+	var intent_query: QueryBuilder = q.with_all([C_NpcIntent, C_Controller])
+	intent_query.with_none([C_PlayerInputController]).enabled()
+	return intent_query.iterate([C_NpcIntent, C_Controller])
 
 
 ## Обновляет маршрут, локальное avoidance и взгляд без прямых записей физического состояния.
@@ -19,15 +22,27 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 	var intents: Array = components[0]
 	var controllers: Array = components[1]
 	# Соседи берутся из общего запроса: GECS обрабатывает торговцев и клиентов разными архетипами.
-	var neighbours: Array[Entity] = ECS.world.query.with_all([C_NpcIntent, C_Controller]).with_none([C_PlayerInputController, C_Death]).enabled().execute()
+	var neighbour_query: QueryBuilder = ECS.world.query.with_all([C_NpcIntent, C_Controller])
+	neighbour_query.with_none([C_PlayerInputController, C_Death]).enabled()
+	var neighbours: Array[Entity] = neighbour_query.execute()
 	for index: int in entities.size():
-		_apply(entities[index], intents[index] as C_NpcIntent, controllers[index] as C_Controller, neighbours)
-
+		_apply(
+			entities[index],
+			intents[index] as C_NpcIntent,
+			controllers[index] as C_Controller,
+			neighbours,
+		)
 
 #endregion
 
+
 #region Исполнение цели
-func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighbours: Array[Entity]) -> void:
+func _apply(
+	actor: Entity,
+	intent: C_NpcIntent,
+	controller: C_Controller,
+	neighbours: Array[Entity],
+) -> void:
 	var body: Node3D = actor as Node as Node3D
 	if body == null:
 		return
@@ -66,13 +81,28 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighb
 					_apply_avoidance(actor, intent, controller, neighbours)
 					return
 				if route != null and not route.points.is_empty() and not intent.move_uses_entity:
-					var tolerance: float = NpcPopulationQueries.current().definition.waypoint_distance
-					while route.point_index < route.points.size() - 1 and body.global_position.distance_to(route.points[route.point_index]) <= tolerance:
+					var tolerance: float = (
+						NpcPopulationQueries.current().definition.waypoint_distance
+					)
+					while (
+						route.point_index < route.points.size() - 1
+						and body.global_position.distance_to(route.points[route.point_index])
+						<= tolerance
+					):
 						route.point_index += 1
 					position = route.points[route.point_index]
 				if intent.navigation_enabled and npc != null and npc.navigation_agent != null:
-					direction = _path_direction(npc.navigation_agent, intent, body.global_position, position)
-				controller.direction_motion = direction.normalized() * clampf(intent.speed_fraction, 0.0, 1.0)
+					direction = (
+						_path_direction(
+							npc.navigation_agent,
+							intent,
+							body.global_position,
+							position,
+						)
+					)
+				controller.direction_motion = (
+					direction.normalized() * clampf(intent.speed_fraction, 0.0, 1.0)
+				)
 
 	var look_direction: Vector3 = controller.direction_motion
 	_apply_avoidance(actor, intent, controller, neighbours)
@@ -95,11 +125,16 @@ func _apply(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighb
 	if not look_direction.is_zero_approx():
 		controller.direction_look = look_direction.normalized()
 
-
 #endregion
 
+
 #region Локальное уклонение
-func _apply_avoidance(actor: Entity, intent: C_NpcIntent, controller: C_Controller, neighbours: Array[Entity]) -> void:
+func _apply_avoidance(
+	actor: Entity,
+	intent: C_NpcIntent,
+	controller: C_Controller,
+	neighbours: Array[Entity],
+) -> void:
 	var npc: E_NpcCharacter = actor as E_NpcCharacter
 	if npc == null or npc.navigation_agent == null:
 		return
@@ -113,22 +148,36 @@ func _apply_avoidance(actor: Entity, intent: C_NpcIntent, controller: C_Controll
 		return
 
 	var speed: float = MotionRules.effective_speed(
-		motion, actor.get_component(C_CarryLoad) as C_CarryLoad,
-		actor.get_component(C_Strength) as C_Strength, actor.get_component(C_Hunger) as C_Hunger,
+		motion,
+		actor.get_component(C_CarryLoad) as C_CarryLoad,
+		actor.get_component(C_Strength) as C_Strength,
+		actor.get_component(C_Hunger) as C_Hunger,
 	)
 	agent.max_speed = maxf(speed, MINIMUM_NAVIGATION_SPEED)
 	var moving: bool = not controller.direction_motion.is_zero_approx() and motion.control_enabled
 	agent.avoidance_priority = MOVING_AVOIDANCE_PRIORITY if moving else WAITING_AVOIDANCE_PRIORITY
-	var preferred: Vector3 = _passing_direction(npc, intent, controller.direction_motion, neighbours) if moving else Vector3.ZERO
+	var preferred: Vector3 = Vector3.ZERO
+	if moving:
+		preferred = _passing_direction(npc, intent, controller.direction_motion, neighbours)
 	agent.velocity = preferred * speed
 	controller.limit_motion_velocity = true
 	controller.direction_motion = Vector3.ZERO
 	# Ожидающий NPC становится неподвижным препятствием для обходящих соседей.
-	if moving and intent.avoidance_frame >= 0 and Engine.get_physics_frames() - intent.avoidance_frame <= MAX_AVOIDANCE_AGE_FRAMES:
-		controller.direction_motion = intent.avoidance_velocity.limit_length(speed) / maxf(speed, MINIMUM_NAVIGATION_SPEED)
+	if (
+		moving and intent.avoidance_frame >= 0
+		and Engine.get_physics_frames() - intent.avoidance_frame <= MAX_AVOIDANCE_AGE_FRAMES
+	):
+		controller.direction_motion = (
+			intent.avoidance_velocity.limit_length(speed) / maxf(speed, MINIMUM_NAVIGATION_SPEED)
+		)
 
 
-func _passing_direction(npc: E_NpcCharacter, intent: C_NpcIntent, desired: Vector3, neighbours: Array[Entity]) -> Vector3:
+func _passing_direction(
+	npc: E_NpcCharacter,
+	intent: C_NpcIntent,
+	desired: Vector3,
+	neighbours: Array[Entity],
+) -> Vector3:
 	if intent.passing_distance <= 0.0 or intent.passing_bias <= 0.0:
 		return desired
 
@@ -138,7 +187,10 @@ func _passing_direction(npc: E_NpcCharacter, intent: C_NpcIntent, desired: Vecto
 	var obstacle: E_NpcCharacter = null
 	for actor: Entity in neighbours:
 		var other: E_NpcCharacter = actor as E_NpcCharacter
-		if other == null or other == npc or other.navigation_agent == null or actor.has_component(C_Death):
+		if (
+			other == null or other == npc or other.navigation_agent == null
+			or actor.has_component(C_Death)
+		):
 			continue
 
 		var offset: Vector3 = other.global_position - npc.global_position
@@ -159,15 +211,21 @@ func _passing_direction(npc: E_NpcCharacter, intent: C_NpcIntent, desired: Vecto
 	var clearance: float = npc.navigation_agent.radius + obstacle.navigation_agent.radius
 	var map: RID = npc.navigation_agent.get_navigation_map()
 	var candidate: Vector3 = npc.global_position + side * clearance
-	if NavigationServer3D.map_get_closest_point(map, candidate).distance_to(candidate) > MAX_PASSING_NAV_DISTANCE:
+	if (
+		NavigationServer3D.map_get_closest_point(map, candidate).distance_to(candidate)
+		> MAX_PASSING_NAV_DISTANCE
+	):
 		side = -side
 		candidate = npc.global_position + side * clearance
-		if NavigationServer3D.map_get_closest_point(map, candidate).distance_to(candidate) > MAX_PASSING_NAV_DISTANCE:
+		if (
+			NavigationServer3D.map_get_closest_point(map, candidate).distance_to(candidate)
+			> MAX_PASSING_NAV_DISTANCE
+		):
 			return desired
 	return (forward + side * intent.passing_bias).normalized() * desired.length()
 
-
 #endregion
+
 
 #region Путь и живые цели
 func _path_direction(
@@ -180,10 +238,15 @@ func _path_direction(
 	if not map.is_valid() or NavigationServer3D.map_get_iteration_id(map) == 0:
 		intent.navigation_pending = true
 		return Vector3.ZERO
-	if not agent.target_position.is_equal_approx(goal) or agent.get_current_navigation_path().is_empty():
+	if (
+		not agent.target_position.is_equal_approx(goal)
+		or agent.get_current_navigation_path().is_empty()
+	):
 		agent.target_position = goal
 	# Допуск конечной цели не должен останавливать агента до промежуточной точки маршрута.
-	var navigation_arrival_distance: float = minf(intent.arrival_distance, agent.path_desired_distance)
+	var navigation_arrival_distance: float = (
+		minf(intent.arrival_distance, agent.path_desired_distance)
+	)
 	if not is_equal_approx(agent.target_desired_distance, navigation_arrival_distance):
 		agent.target_desired_distance = navigation_arrival_distance
 
@@ -214,9 +277,13 @@ func _target(actor: Entity, relation_type: Script) -> Node3D:
 
 #region Captured relationship retirement
 func _remove_captured_relationship(owner_reference: WeakRef, captured: Relationship) -> void:
-	# GECS pattern removal could otherwise match a replacement after the original binding disappeared.
+	# GECS pattern removal could otherwise match a replacement after the original binding
+	# disappeared.
 	var subject: Entity = owner_reference.get_ref() as Entity
-	if subject == null or not _world.entity_to_archetype.has(subject) or subject.is_queued_for_deletion():
+	if (
+		subject == null or not _world.entity_to_archetype.has(subject)
+		or subject.is_queued_for_deletion()
+	):
 		return
 	if subject.relationships.has(captured):
 		subject.remove_relationship(captured)

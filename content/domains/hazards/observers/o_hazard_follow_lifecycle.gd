@@ -15,7 +15,7 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 		return
 
 	var data: R_HazardFollow = relationship.relation as R_HazardFollow
-	if data != null and data.on_loss == DEF_Hazard.OwnerLoss.Despawn:
+	if data != null and data.on_loss == DEF_Hazard.OwnerLoss.DESPAWN:
 		cmd.add_custom(_retire_if_unbound.bind(weakref(entity)))
 
 

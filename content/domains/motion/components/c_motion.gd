@@ -2,7 +2,6 @@ extends Component
 ## Настройки управления и снимок опоры; transform/velocity исполняет физическое тело.
 class_name C_Motion
 
-
 #region Авторские настройки
 
 ## Максимальная скорость собственного управления в м/с.
@@ -27,16 +26,14 @@ class_name C_Motion
 @export var air_acceleration: float = 2.0
 
 ## Максимальный угол поверхности, считающейся полом, в градусах.
-@export_range(0.0, 89.0, 0.1)
-var floor_max_angle_degrees: float = 55.0
+@export_range(0.0, 89.0, 0.1) var floor_max_angle_degrees: float = 55.0
 
 ## Friction поверхности влияет не только на физическое
 ## торможение, но и на traction самого управления.
 @export var surface_friction_affects_control: bool = true
 
 ## Минимальная возможность управлять телом даже на льду.
-@export_range(0.0, 1.0, 0.01)
-var minimum_ground_traction: float = 0.05
+@export_range(0.0, 1.0, 0.01) var minimum_ground_traction: float = 0.05
 
 ## Допуск прилипания к опоре в метрах; 0 отключает коррекцию малых щелей.
 @export_range(0.0, 0.5, 0.01) var floor_snap_distance: float = 0.0
@@ -46,13 +43,11 @@ var minimum_ground_traction: float = 0.05
 @export var floor_snap_max_upward_speed: float = 2.0
 
 
-
 ## Полностью отключает locomotion control,
 ## но не отключает саму физику.
 @export var control_enabled: bool = true
 
 #endregion
-
 
 #region Производное физическое состояние
 

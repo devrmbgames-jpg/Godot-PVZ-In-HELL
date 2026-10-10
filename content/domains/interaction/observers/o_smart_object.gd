@@ -15,10 +15,12 @@ func setup() -> void:
 
 
 func query() -> QueryBuilder:
-	return q \
-			.on_event(SmartObjectRequest.EVENT) \
-			.on_event(WorldReconstructionStarted.EVENT) \
-			.on_relationship_removed([R_SmartObjectReservation])
+	return (
+		q
+		.on_event(SmartObjectRequest.EVENT)
+		.on_event(WorldReconstructionStarted.EVENT)
+		.on_relationship_removed([R_SmartObjectReservation])
+	)
 
 
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:

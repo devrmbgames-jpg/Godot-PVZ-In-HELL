@@ -31,7 +31,7 @@ var last_noise_sequence: int = 0
 ## Накопитель времени до следующего звука шагов.
 var footstep_elapsed: float = 0.0
 ## Накопленное воздействие каждого правила нечисти.
-var rule_exposure: Dictionary[int, float] = {}
+var rule_exposure: Dictionary[int, float] = { }
 ## Предупреждения, уже показанные в текущей встрече.
 var warned_rules: Array[int] = []
 ## Последствия, уже применённые в текущей встрече.
@@ -46,6 +46,7 @@ var hazard_distress: bool = false
 
 ## Оклик возможен один раз за фазу; окно диалога требует взаимодействия игрока.
 var called_out: bool = false
+
 
 #region Transient state reset
 ## Clears derived state in place; retains the constructed Component and durable NPC authority.

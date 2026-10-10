@@ -2,8 +2,20 @@ extends GameDefinition
 ## Постоянный адрес, проход, занятие или узел навигации в координатах района.
 class_name DEF_DistrictPlace
 
-enum Kind { HOME, PORTAL, ACTIVITY, SHOP, JUNCTION, COVER }
-enum Activity { WALK, WATCH_WINDOW, OBSERVE, VISIT_SHOP }
+enum Kind {
+	HOME,
+	PORTAL,
+	ACTIVITY,
+	SHOP,
+	JUNCTION,
+	COVER,
+}
+enum Activity {
+	WALK,
+	WATCH_WINDOW,
+	OBSERVE,
+	VISIT_SHOP,
+}
 
 ## Свободное занятие после прибытия; не связано с выдачей посылки.
 @export var activity: Activity = Activity.WALK

@@ -2,6 +2,7 @@ extends Observer
 ## Requests one authored autonomous floor effect after actual challenge activation, without polling.
 class_name O_ChallengeFloorActivation
 
+
 #region Committed activation reaction
 ## Selects floor-capable bodies receiving a committed activation fact.
 func query() -> QueryBuilder:
@@ -17,12 +18,22 @@ func each(_event: Variant, subject: Entity, payload: Variant = null) -> void:
 	cmd.add_custom(_prepare.bind(weakref(subject), state, floor, activated.definition))
 
 
-func _prepare(subject_reference: WeakRef, state: C_Challenge, floor: C_FloorChallenge, definition: DEF_Challenge) -> void:
+func _prepare(
+	subject_reference: WeakRef,
+	state: C_Challenge,
+	floor: C_FloorChallenge,
+	definition: DEF_Challenge,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var subject: Entity = subject_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(subject, _world) or subject.get_component(C_Challenge) != state \
-			or subject.get_component(C_FloorChallenge) != floor:
+	if (
+		(
+			not EntityAvailability.contains(subject, _world)
+			or subject.get_component(C_Challenge) != state
+		)
+		or subject.get_component(C_FloorChallenge) != floor
+	):
 		return
 	if state.phase != C_Challenge.Phase.ACTIVE or state.definition != definition:
 		return
@@ -30,7 +41,9 @@ func _prepare(subject_reference: WeakRef, state: C_Challenge, floor: C_FloorChal
 		ChallengeService.cancel(subject)
 		return
 
-	var rule: DEF_FloorChallengeCondition = state.definition.condition as DEF_FloorChallengeCondition if state.definition != null else null
+	var rule: DEF_FloorChallengeCondition = null
+	if state.definition != null:
+		rule = state.definition.condition as DEF_FloorChallengeCondition
 	if rule == null or floor.spawn_requested:
 		return
 
@@ -40,13 +53,17 @@ func _prepare(subject_reference: WeakRef, state: C_Challenge, floor: C_FloorChal
 	request.instigator = subject
 	request.origin_id = subject.id
 	request.instigator_id = subject.id
-	# Floor sessions/effects are transient; replacement must not accept an older queued factory result.
-	floor.spawn_request_id = "%s/challenge/%s/%d" % [subject.id, state.definition.key, state.get_instance_id()]
+	# Floor sessions/effects are transient; replacement must not accept an older queued factory
+	# result.
+	floor.spawn_request_id = "%s/challenge/%s/%d" % [
+		subject.id,
+		state.definition.key,
+		state.get_instance_id(),
+	]
 	request.request_id = floor.spawn_request_id
 	request.scene = rule.hazard_scene
 	request.world_pose = Transform3D(Basis.IDENTITY, rule.world_position)
 	if not HazardSpawnService.submit(request):
 		ChallengeService.cancel(subject)
-
 
 #endregion

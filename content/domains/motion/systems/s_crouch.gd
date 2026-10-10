@@ -6,9 +6,7 @@ class_name S_Crouch
 #region Проверка позы
 ## Выбирает физические персонажи обоих типов с Controller и C_Crouch.
 func query() -> QueryBuilder:
-	return q.with_all(
-		[C_Controller, C_Crouch]
-	).with_any([C_RigidBody, C_CharacterBody]).iterate(
+	return q.with_all([C_Controller, C_Crouch]).with_any([C_RigidBody, C_CharacterBody]).iterate(
 		[C_Controller, C_Crouch]
 	)
 
@@ -37,8 +35,8 @@ func process(entities: Array[Entity], components: Array, _delta: float) -> void:
 			if can_stand:
 				_exit_crouch(entity, crouch)
 
-
 #endregion
+
 
 #region Переключение коллайдеров
 func _enter_crouch(entity: E_PhysicalCharacter, crouch: C_Crouch) -> void:

@@ -2,8 +2,16 @@ extends GameDefinition
 ## Авторские запуск, условие, завершение и последствия одноразового испытания.
 class_name DEF_Challenge
 
-enum Trigger { AFTER_DIALOGUE, ON_ARRIVAL }
-enum Completion { ON_CONDITION, UNTIL_DEPARTURE, UNTIL_DEPARTURE_OR_FAILURE, SURVIVE_DURATION }
+enum Trigger {
+	AFTER_DIALOGUE,
+	ON_ARRIVAL,
+}
+enum Completion {
+	ON_CONDITION,
+	UNTIL_DEPARTURE,
+	UNTIL_DEPARTURE_OR_FAILURE,
+	SURVIVE_DURATION,
+}
 
 ## Событие запроса запуска: после диалога либо при прибытии.
 @export var trigger: Trigger = Trigger.AFTER_DIALOGUE

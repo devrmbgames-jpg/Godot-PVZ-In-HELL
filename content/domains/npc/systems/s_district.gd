@@ -2,10 +2,11 @@ extends System
 ## Bootstraps missed/restored district calendar state; explicit facts own actual lifecycle work.
 class_name S_District
 
+
 #region Bootstrap scheduling
 ## Reconciliation precedes customer arrivals, day transitions and native decisions/navigation.
 func deps() -> Dictionary[int, Array]:
-	return {Runs.Before: [S_DayPhase, S_NpcDecision, S_NpcIntent]}
+	return { Runs.Before: [S_DayPhase, S_NpcDecision, S_NpcIntent] }
 
 
 ## Selects the authoritative district/day aggregate and its derived reconciliation cache.
@@ -21,13 +22,19 @@ func process(entities: Array[Entity], _components: Array, _delta: float) -> void
 		cmd.add_custom(_ensure_calendar.bind(weakref(session), captured_district, captured_cycle))
 
 
-func _ensure_calendar(session_reference: WeakRef, captured_district: C_District, captured_cycle: C_DayCycle) -> void:
+func _ensure_calendar(
+	session_reference: WeakRef,
+	captured_district: C_District,
+	captured_cycle: C_DayCycle,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var session: Entity = session_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(session, _world) \
-			or session.get_component(C_District) != captured_district \
-			or session.get_component(C_DayCycle) != captured_cycle:
+	if (
+		not EntityAvailability.contains(session, _world)
+		or session.get_component(C_District) != captured_district
+		or session.get_component(C_DayCycle) != captured_cycle
+	):
 		return
 
 	var district: C_District = session.get_component(C_District) as C_District

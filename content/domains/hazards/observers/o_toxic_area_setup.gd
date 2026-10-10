@@ -15,15 +15,20 @@ func each(_event: Variant, entity: Entity, _payload: Variant = null) -> void:
 	cmd.add_custom(_configure.bind(weakref(entity), captured_hazard, captured_toxin))
 
 
-func _configure(entity_reference: WeakRef, captured_hazard: C_Hazard, captured_toxin: C_ToxicArea) -> void:
+func _configure(
+	entity_reference: WeakRef,
+	captured_hazard: C_Hazard,
+	captured_toxin: C_ToxicArea,
+) -> void:
 	# Resolve queued owners before passing them to typed gameplay operations.
 	var entity: Entity = entity_reference.get_ref() as Entity
 
-	if not EntityAvailability.contains(entity, _world) \
-			or entity.get_component(C_Hazard) != captured_hazard \
-			or entity.get_component(C_ToxicArea) != captured_toxin:
+	if (
+		not EntityAvailability.contains(entity, _world)
+		or entity.get_component(C_Hazard) != captured_hazard
+		or entity.get_component(C_ToxicArea) != captured_toxin
+	):
 		return
-
 
 	var hazard: C_Hazard = entity.get_component(C_Hazard) as C_Hazard
 	var profile: DEF_ToxicArea = hazard.definition as DEF_ToxicArea

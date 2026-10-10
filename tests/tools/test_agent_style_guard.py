@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -16,12 +17,41 @@ SPEC.loader.exec_module(style)
 
 
 class StyleGuardTests(unittest.TestCase):
+    def test_manifest_rejects_missing_duplicate_and_stale_scripts(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "content").mkdir()
+            (root / "utils").mkdir()
+            (root / "content/a.gd").write_text("extends Node\n", encoding="utf-8")
+            tasks = {str(n): [] for n in range(61, 66)}
+            tasks["61"] = ["content/a.gd"]
+            manifest = root / "utils/gdscript_style_manifest.json"
+            def write() -> None:
+                manifest.write_text(json.dumps({"schema_version": 1, "tasks": tasks}),
+                                    encoding="utf-8")
+            write()
+            self.assertEqual(["content/a.gd"], style.manifest_files(root, "61"))
+            tasks["62"] = ["content/a.gd"]
+            write()
+            with self.assertRaises(ValueError):
+                style.manifest_files(root, "61")
+            tasks["62"] = []
+            tasks["61"] = []
+            write()
+            with self.assertRaises(ValueError):
+                style.manifest_files(root, "61")
+            tasks["61"] = ["content/stale.gd"]
+            write()
+            with self.assertRaises(ValueError):
+                style.manifest_files(root, "61")
+
     def test_full_scope_includes_owned_plugins_and_excludes_generated_vendor_files(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             paths = ("content/a.gd", "tests/gut/test_a.gd", "utils/a.gd",
                      "addons/pvz_ai_tools/a.gd", "addons/project_entity_traits/a.gd",
-                     "addons/gecs/a.gd", ".godot/a.gd", ".artifacts/a.gd")
+                     "addons/gecs/a.gd", ".godot/a.gd", ".artifacts/a.gd",
+                     "tests/artifacts/generated_probe.gd")
             for name in paths:
                 script = root / name
                 script.parent.mkdir(parents=True, exist_ok=True)

@@ -38,8 +38,17 @@ func _publish(resolution: PackageOpenResult, package: Entity) -> void:
 	var trace_stage: BoundaryTraceEntry.Stage = BoundaryTraceEntry.Stage.REJECTED
 	if resolution.status == PackageOpenResult.Status.COMMITTED:
 		trace_stage = BoundaryTraceEntry.Stage.COMPLETED
-	BoundaryTrace.record(&"package.open", resolution.correlation_id, trace_stage,
-		resolution.reason, resolution.actor_id, resolution.package_id)
-	_world.emit_event(PackageOpenResult.EVENT,
-		package if is_instance_valid(package) else null, resolution)
+	BoundaryTrace.record(
+		&"package.open",
+		resolution.correlation_id,
+		trace_stage,
+		resolution.reason,
+		resolution.actor_id,
+		resolution.package_id,
+	)
+	_world.emit_event(
+		PackageOpenResult.EVENT,
+		package if is_instance_valid(package) else null,
+		resolution,
+	)
 #endregion

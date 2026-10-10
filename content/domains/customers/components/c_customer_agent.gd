@@ -2,7 +2,22 @@ extends Component
 ## Временное исполнение конкретного визита на теле; постоянные факты хранятся в CustomerVisit.
 class_name C_CustomerAgent
 
-enum Phase { APPROACHING, WAITING, DIALOGUE, WAITING_FOR_PACKAGE, RECEIVING, OPTIONAL_FITTING, LEAVING, AGGRESSIVE, FINISHED, WAITING_FOR_DARKNESS, GOING_TO_BOOTH, INSPECTING, RETURNING_FROM_BOOTH, QUEUED }
+enum Phase {
+	APPROACHING,
+	WAITING,
+	DIALOGUE,
+	WAITING_FOR_PACKAGE,
+	RECEIVING,
+	OPTIONAL_FITTING,
+	LEAVING,
+	AGGRESSIVE,
+	FINISHED,
+	WAITING_FOR_DARKNESS,
+	GOING_TO_BOOTH,
+	INSPECTING,
+	RETURNING_FROM_BOOTH,
+	QUEUED,
+}
 
 ## ID заказа в журнале обслуживания текущей сессии.
 var visit_id: StringName = &""

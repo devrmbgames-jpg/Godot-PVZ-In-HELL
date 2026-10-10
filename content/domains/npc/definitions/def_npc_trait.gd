@@ -2,7 +2,15 @@ extends GameDefinition
 ## Авторское правило нечисти, предупреждение и доступная контрмера.
 class_name DEF_NpcTrait
 
-enum Kind { GAZE_AVERSION, LIGHT_AVERSION, FIRE_AURA, DARK_PREDATOR, STRENGTH_TEST, PROVOCATEUR, RIDDLE }
+enum Kind {
+	GAZE_AVERSION,
+	LIGHT_AVERSION,
+	FIRE_AURA,
+	DARK_PREDATOR,
+	STRENGTH_TEST,
+	PROVOCATEUR,
+	RIDDLE,
+}
 
 ## Вид поведения, задаваемый этой особенностью.
 @export var kind: Kind = Kind.GAZE_AVERSION

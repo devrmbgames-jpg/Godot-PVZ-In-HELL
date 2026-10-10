@@ -11,7 +11,10 @@ func query() -> QueryBuilder:
 ## Сохраняет боевой контекст визита и планирует ответ прежнего клиента на нелетальный удар.
 func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 	var result: DamageResult = payload as DamageResult
-	if result == null or result.applied_amount <= 0.0 or result.request == null or result.request.operation != DamageRequest.Operation.DAMAGE:
+	if (
+		result == null or result.applied_amount <= 0.0 or result.request == null
+		or result.request.operation != DamageRequest.Operation.DAMAGE
+	):
 		return
 
 	var context: CombatContext = result.request.combat_context
@@ -27,9 +30,16 @@ func each(_event: Variant, entity: Entity, payload: Variant = null) -> void:
 
 
 #region Captured operation
-func _retaliate(customer_reference: WeakRef, agent: C_CustomerAgent, context: CombatContext) -> void:
+func _retaliate(
+	customer_reference: WeakRef,
+	agent: C_CustomerAgent,
+	context: CombatContext,
+) -> void:
 	var customer: Entity = customer_reference.get_ref() as Entity
-	if not EntityAvailability.contains(customer, _world) or customer.get_component(C_CustomerAgent) != agent:
+	if (
+		not EntityAvailability.contains(customer, _world)
+		or customer.get_component(C_CustomerAgent) != agent
+	):
 		return
 
 	CustomerCombatService.retaliate(customer, context)
