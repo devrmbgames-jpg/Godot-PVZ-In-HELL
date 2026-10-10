@@ -37,9 +37,9 @@ use its native tools for authoring open scenes: `editor_state`,
   to skip required validation. If the target scene is open, do not rewrite
   it externally; either leave that mutation blocked or first close the editor
   by a normal, non-destructive workflow.
-- For large offline editor migrations with the GUI editor closed, use native
-  `EditorScript`/`PackedScene`/`ResourceSaver`, not string assembly of the
-  `.tscn` syntax. Refer to [scene authoring](../godot-scene-authoring/SKILL.md).
+- For large offline editor migrations with the GUI editor closed, use a CLI `SceneTree`/`MainLoop` migration script with
+  `PackedScene`/`ResourceSaver`, not string assembly of the `.tscn` syntax.
+  `EditorScript` itself runs via the live editor's File -> Run, not the CLI. Refer to [scene authoring](../godot-scene-authoring/SKILL.md).
 
 ## project.godot block recovery
 
