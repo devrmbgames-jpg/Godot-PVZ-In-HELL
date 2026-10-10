@@ -133,7 +133,8 @@ Do not add per-frame verbose logging.
 ### Physical items
 - each requested item scene root/body is `RigidBody3D`;
 - grab/release/throw preserves physical authority;
-- stack ownership hides/disables only inventory-owned world pickup;
+- `R_OwnedBy` stack ownership and `R_HeldBy` grip remain distinct; virtual owned stacks
+  drop into real pickups, and rejected transfer/drop preserves quantity/ownership;
 - barrels break exactly once;
 - explosive/hazard payload spawns exactly once;
 - contact damage does not repeat every resting frame;

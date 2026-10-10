@@ -41,12 +41,20 @@ Use [scene-authoring](../.agents/skills/godot-scene-authoring/SKILL.md),
 
 Every world item must:
 - retain native rigid-body physics when free;
-- use `R_HeldBy` + `GrabService` when held/carried;
+- use `R_HeldBy` + `GrabService` for physical holding/carrying where that capability is authored;
 - preserve physical velocity/impact behavior on release/throw;
 - route impact through the existing impact capture pipeline;
 - never write HP directly.
 
-Inventory-capable items may hide/freeze their world body while owned using the existing inventory lifecycle. Large items remain physical and normally do not collapse into a stack.
+Inventory ownership uses `R_OwnedBy` / `InventoryService`; physical holding uses `R_HeldBy`.
+Current `InventoryService.can_transfer` rejects `C_Grabbable`, packages and furniture.
+`E_InventoryPickup` may hide/freeze an owned body; `InventoryService.grant` may instead
+create a virtual stack, and `InventoryDropService.drop` creates a native physical pickup.
+Preserve quantity, ownership and failure behavior across that boundary. Do not require
+every owned stack to retain the same body or add `C_Grabbable` to stack pickups by default.
+If a requested item needs both hand slots and stack transfer, declare and validate that
+contract change explicitly, including grip cleanup and rejection without item loss.
+Large items remain physical and normally do not collapse into a stack.
 
 ### Capabilities, not item-specific dispatch
 
@@ -161,7 +169,8 @@ lifetime boundary before typed calls; capture source IDs/context before source r
 - No item directly edits `C_Health.current`.
 - No central item-ID dispatcher implements the catalog.
 - Damage types/resistances and blood/holy/unholy receiver selection are typed/data-driven.
-- Stackable bones use existing inventory ownership.
+- Stackable bones use existing inventory ownership and return to a real rigid-body pickup
+  through the existing drop boundary; a rejected transfer/drop preserves quantity and ownership.
 - Contact damage is episode-bounded.
 - Focused tests cover throw attribution, break once, hazard spawn once, resistance/heal rules, inventory ownership and resting contacts.
 

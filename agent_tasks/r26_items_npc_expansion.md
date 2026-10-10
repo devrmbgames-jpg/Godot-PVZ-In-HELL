@@ -45,10 +45,13 @@ Keep mandatory owner acceptance open; explicitly deferred polish may have a sepa
 
 - Godot 4.7.1 / Forward Plus / Jolt / pinned GECS v8; third-party addons are read-only.
 - Physical holding authority remains `item --R_HeldBy--> actor`; use `GrabService` / `E_GrabbableBody`.
+  Inventory ownership is a separate `R_OwnedBy` contract: current `InventoryService.can_transfer`
+  rejects `C_Grabbable`. Do not assume composing both capabilities enables stack transfer.
 - Native rigid-body physics owns transform and velocity.
 - Damage enters only through `DamageRequest` / `DamageRequestService`; `C_Health` remains sole HP authority.
 - Hazards spawn through `HazardSpawnService` and existing hazard definitions/scenes.
-- Inventory ownership remains the existing `R_OwnedBy`/InventoryService contract.
+- Inventory ownership remains the existing `R_OwnedBy`/InventoryService contract. Virtual
+  owned stacks are valid; the rigid-body requirement applies to their world pickups.
 - Persistent district identity remains `NpcRecord`; do not encode persistent identity in transient scene nodes.
 - LimboAI Behavior Tree is the decision pattern. Do not hide a FSM/dispatcher in one `BTAction`.
 - Dialogue uses the existing Dialogue Manager adapters/resources.

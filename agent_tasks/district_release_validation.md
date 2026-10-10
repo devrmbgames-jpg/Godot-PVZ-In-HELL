@@ -4,7 +4,11 @@ Status: **IN_PROGRESS**
 
 Родительский этап: [Утренняя машина](district_morning_truck.md). Порядок выполнения: [общая задача](district_service_update.md).
 
-Зависимости: [Инструменты — освободить .bin от собственных скриптов](completed/district_bin_cleanup.md).
+Зависимости: автоматическая приёмка и review/triage [gate](district_truck_shift_gate.md),
+[обратного груза](district_truck_returns_resale.md), [snapshot](district_save_schema_3.md),
+[инструментов](completed/district_bin_cleanup.md) и
+[контракта navigation validator](completed/warehouse_navigation_validation_contract.md).
+Их открытая owner QA не блокирует подготовку автоматической приёмки и сборки.
 
 ## Task state
 
