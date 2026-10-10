@@ -100,7 +100,9 @@ function Normalize-ResourcePath {
     if ($normalized.StartsWith("res://")) {
         $normalized = $normalized.Substring(6)
     }
-    if (-not $normalized.EndsWith(".gd") -or $normalized.StartsWith("addons/") -or
+    $isVendoredAddon = $normalized.StartsWith("addons/") -and
+        -not $normalized.StartsWith("addons/pvz_ai_tools/")
+    if (-not $normalized.EndsWith(".gd") -or $isVendoredAddon -or
         $normalized.Contains("..") -or $normalized.StartsWith("/")) {
         throw "Expected one project-owned res://*.gd script: $Path"
     }
@@ -136,7 +138,92 @@ switch ($Action) {
             Pop-Location
         }
         $selected = @($changed + $untracked |
-            Where-Object { $_ -match '\.gd$' -and $_ -notmatch '^addons/' } |
+            Where-Object {
+                $_ -match '\.gd
+            Sort-Object -Unique)
+        if ($selected.Count -eq 0) {
+            Write-Output "NO_CHANGES: no changed project-owned GDScript files to parse."
+            exit 0
+        }
+        $pathsToParse = @($selected | ForEach-Object { Normalize-ResourcePath $_ })
+        $arguments += @("--script", "res://utils/parse_gdscript.gd", "--")
+        $arguments += $pathsToParse
+    }
+    "ParseFiles" {
+        if ($Paths.Count -eq 0) { throw "ParseFiles requires -Paths." }
+        $pathsToParse = @($Paths | ForEach-Object { Normalize-ResourcePath $_ })
+        $arguments += @("--script", "res://utils/parse_gdscript.gd", "--")
+        $arguments += $pathsToParse
+    }
+    "GUT" {
+        if ([string]::IsNullOrWhiteSpace($TestPath)) {
+            throw "GUT requires -TestPath res://tests/gut/name.gd."
+        }
+        $testScript = Normalize-ResourcePath $TestPath
+        if (-not $testScript.StartsWith("res://tests/gut/")) {
+            throw "GUT must use a focused res://tests/gut/*.gd script."
+        }
+        $arguments += @("--script", "res://addons/gut/gut_cmdln.gd", "-gtest=$testScript", "-gexit")
+    }
+    "Import" {
+        if (Test-ProjectEditorOpen -ProjectDir $root) {
+            throw "BLOCKED: close this project's GUI editor before headless import (no forced termination)."
+        }
+        $arguments += @("--editor", "--import")
+    }
+    "OfflineScript" {
+        if (Test-ProjectEditorOpen -ProjectDir $root) {
+            throw "BLOCKED: close this project's GUI editor before offline scene migration."
+        }
+        if ([string]::IsNullOrWhiteSpace($ScriptPath)) {
+            throw "OfflineScript requires -ScriptPath res://utils/name.gd."
+        }
+        # CLI scripts must extend SceneTree/MainLoop, NOT EditorScript.
+        $script = Normalize-ResourcePath $ScriptPath
+        $arguments += @("--editor", "--script", $script)
+    }
+}
+
+$logDir = Join-Path $root ".artifacts/godot_agent"
+New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+$stamp = [DateTime]::UtcNow.ToString("yyyyMMdd-HHmmssfff")
+$stdout = Join-Path $logDir "$label-$stamp.stdout.log"
+$stderr = Join-Path $logDir "$label-$stamp.stderr.log"
+$launch = @{
+    FilePath = $godot
+    ArgumentList = [string[]]$arguments
+    WorkingDirectory = $root
+    RedirectStandardOutput = $stdout
+    RedirectStandardError = $stderr
+    Wait = $true
+    PassThru = $true
+}
+if ($env:OS -eq "Windows_NT") {
+    $launch.WindowStyle = "Hidden"
+}
+$process = Start-Process @launch
+$lines = @()
+if (Test-Path -LiteralPath $stdout) { $lines += @(Get-Content -LiteralPath $stdout) }
+if (Test-Path -LiteralPath $stderr) { $lines += @(Get-Content -LiteralPath $stderr) }
+$diagnostics = @($lines | Where-Object {
+    ($_ -match 'SCRIPT ERROR|Parse Error|Assertion failed|(?i)\bERROR:') -and
+    ($_ -notmatch '^ERROR: Failed to read the root certificate store\.$')
+})
+$failed = $process.ExitCode -ne 0 -or $diagnostics.Count -gt 0
+if ($Action -in @("ParseFiles", "ParseChanged") -and
+    -not ($lines -match 'Changed-script parser: PASS')) {
+    $failed = $true
+}
+if ($failed) {
+    Write-Output "FAIL: $Action (exit $($process.ExitCode)); logs: $stdout ; $stderr"
+    $diagnostics | Select-Object -Unique -First 18 | ForEach-Object { Write-Output "  $_" }
+    exit 1
+}
+Write-Output "PASS: $Action (Godot 4.7.1); logs: $stdout ; $stderr"
+exit 0
+ -and
+                ($_ -notmatch '^addons/' -or $_ -match '^addons/pvz_ai_tools/')
+            } |
             Sort-Object -Unique)
         if ($selected.Count -eq 0) {
             Write-Output "NO_CHANGES: no changed project-owned GDScript files to parse."
